@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.300 2002/05/05 20:20:02 ianmacd Exp $
+#   $Id: bash_completion,v 1.301 2002/05/05 20:29:35 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -856,17 +856,8 @@ _cvs()
 		;;
 	checkout)
 		if [[ "$cur" != -* ]]; then
-			# can only do for local repositories
-			[ -z "$cvsroot" ] && cvsroot=$CVSROOT
-			prefix=${cur%/*}
-			[ -r ${cvsroot}/${prefix} ] || prefix=""
-			if [ -r ${cvsroot}/${prefix} ]; then
-				get_modules
-				COMPREPLY=( ${COMPREPLY[@]#$cvsroot} )
-				COMPREPLY=( ${COMPREPLY[@]#/} )
-				COMPREPLY=( $( compgen -W \
-					       '${COMPREPLY[@]}' -- $cur ) )
-			fi
+			COMPREPLY=( $( cvs co -c | awk '{print $1}' ) )
+			COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
 		else
 			COMPREPLY=( $( compgen -W '-A -N -P -R -c -f -l -n -p \
 						  -s -r -D -d -k -j' -- $cur ) )
