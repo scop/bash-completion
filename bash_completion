@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.152 2002/02/27 01:14:52 ianmacd Exp $
+#   $Id: bash_completion,v 1.153 2002/02/27 01:24:04 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -722,7 +722,6 @@ _rpm()
 		[[ "$cur" == -* ]] && return 0
 		# add a list of RPMS to possible completions
 		file_glob rpm
-		return 0
 		;;
 	-q*p*)
 		# complete on list of relevant options
@@ -736,12 +735,10 @@ _rpm()
 		[[ "$cur" == -* ]] && return 0
 		# add a list of RPMS to possible completions
 		file_glob rpm
-		return 0
 		;;
 	-*f)
 		# standard filename completion
 		COMPREPLY=( $( compgen -f -- $cur ) )
-		return 0
 		;;
 	-@(e|-erase))
 		# complete on list of relevant options
@@ -750,7 +747,6 @@ _rpm()
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		add_package_list
-		return 0
 		;;
 	-q*)
 		# complete on list of relevant options
@@ -767,7 +763,6 @@ _rpm()
 		# don't complete on packages if we are querying all packages
 		[[ ${COMP_WORDS[1]} == -qa* ]] && return 0
 		add_package_list
-		return 0
 		;;
 	-@(K|-checksig))
 		# complete on list of relevant options
@@ -776,7 +771,6 @@ _rpm()
 		[[ "$cur" == -* ]] && return 0
 		# add a list of RPMS to possible completions
 		file_glob rpm
-		return 0
 		;;
 	-@([Vy]*|-verify))
 		# complete on list of relevant options
@@ -785,7 +779,6 @@ _rpm()
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		add_package_list
-		return 0
 		;;
 	-[bt]*)
 		# complete on list of relevant options
@@ -803,7 +796,6 @@ _rpm()
 			# complete on .tar files
 			file_glob '@(tgz|tar.@(gz|bz2))'
 		fi
-		return 0
 		;;
 	--re@(build|compile))
 		_expand || return 0
@@ -815,22 +807,18 @@ _rpm()
 		COMPREPLY=( ${COMPREPLY[@]} $( compgen -f -X '!*.src.rpm' -- \
 					       $cur ) )
 		COMPREPLY=( ${COMPREPLY[@]} $( compgen -d -- $cur ) )
-		return 0
 		;;
 	--tarbuild)
 		_expand || return 0
 		# complete on tarred sources
 		file_glob '@(tgz|tar.@(gz|bz2))'
-		return 0
 		;;
 	--@(re|add)sign)
 		# complete on RPMs
 		file_glob rpm
-		return 0
 		;;
 	--set@(perms|gids))
 		add_package_list
-		return 0
 		;;
 	--@(clean|rms@(ource|pec)))
 		COMPREPLY=( $( compgen -W '--clean --rmsource --rmspec' -- \
@@ -838,7 +826,6 @@ _rpm()
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		file_glob spec
-		return 0
 		;;
 	-*g)
 		# package group completion
@@ -850,7 +837,6 @@ _rpm()
 		# backslash escape spaces and translate newlines to tabs
 		COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\ /g' | \
 			       tr '\n' '\t' ) )
-		return 0
 		;;
 	esac
 
@@ -861,7 +847,7 @@ _rpm()
 # Debian Linux apt-get(8) completion.
 #
 have apt-get &&
-_apt-get()
+_apt_get()
 {
 	local cur prev special i
 
@@ -884,7 +870,7 @@ _apt-get()
 	fi
 
 	if [[ "$prev" == -*c ]] || [ "$prev" = --config-file ]; then
-		COMPREPLY=( $( compgen -f $cur ) )
+		COMPREPLY=( $( compgen -f -- $cur ) )
 	else
 		COMPREPLY=( $( compgen -W 'update upgrade dselect-upgrade \
 				  dist-upgrade install remove source check \
@@ -898,18 +884,17 @@ _apt-get()
 				  --no-upgrade --force-yes --print-uris \
 				  --purge --reinstall --list-cleanup \
 				  --trivial-only --no-remove --diff-only \
-				  --tar-only --config-file --option ' | \
-				  grep ^$cur ) )
+				  --tar-only --config-file --option' -- $cur ) )
 	fi
 
 	return 0
 }
-[ "$have" ] && complete -F _apt-get -o filenames apt-get
+[ "$have" ] && complete -F _apt_get -o filenames apt-get
 
 # Debian Linux apt-cache(8) completion.
 #
 have apt-cache &&
-_apt-cache()
+_apt_cache()
 {
 	local cur prev special i
 
@@ -926,7 +911,7 @@ _apt-cache()
 	if [ -n "$special" ]; then
 		case $special in
 		add)
-			COMPREPLY=( $( compgen -f $cur ) )
+			COMPREPLY=( $( compgen -f -- $cur ) )
 			return 0
 			;;
 		show?(pkg)|depends|dotty)
@@ -938,7 +923,7 @@ _apt-cache()
 
 
 	if [[ "$prev" == -*c ]] || [ "$prev" = --config-file ]; then
-		COMPREPLY=( $( compgen -f $cur ) )
+		COMPREPLY=( $( compgen -f -- $cur ) )
 	else
 		COMPREPLY=( $( compgen -W 'add gencaches showpkg stats dump \
 				dumpavail unmet check search show dotty \
@@ -946,13 +931,13 @@ _apt-cache()
 				-o --help --version --pkg-cache --src-cache \
 				--quiet --important --full --all-versions \
 				--no-generate --names-only --all-names \
-				--config-file --option' | grep ^$cur ) )
+				--config-file --option' -- $cur ) )
 	fi
 
 	return 0
 }
 [ "$have" ] && complete -F _apt-cache -o filenames apt-cache
-complete -F _apt-cache -o filenames apt-cache
+complete -F _apt_cache -o filenames apt-cache
 
 # chsh(1) completion
 #
