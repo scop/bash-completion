@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.342 2002/06/01 21:16:20 ianmacd Exp $
+#   $Id: bash_completion,v 1.343 2002/06/02 22:19:38 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -24,9 +24,8 @@
 
 # Alter the following to reflect the location of this file
 #
-[ -z "$BASH_COMPLETION" ] && declare -r BASH_COMPLETION=/etc/bash_completion
-[ -z "$BASH_COMPLETION_DIR" ] && \
-	declare -r BASH_COMPLETION_DIR=/etc/bash_completion.d
+declare -r BASH_COMPLETION=${BASH_COMPLETION:-/etc/bash_completion}
+declare -r BASH_COMPLETION_DIR=${BASH_COMPLETION_DIR:=/etc/bash_completion}
 
 # Set a couple of useful vars
 #
@@ -1903,7 +1902,7 @@ _service()
 #
 _tar()
 {
-	local cur
+	local cur ext regex tar untar
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -1916,21 +1915,43 @@ _tar()
 	case "${COMP_WORDS[1]}" in
 	c*f)
 		_filedir
+		return 0
 		;;
 	+([^Izjy])f)
-		_filedir 'tar'
+		ext='tar'
+		regex=$ext
 		;;
 	*z*f)
-		_filedir 't?(ar.)gz'
+		ext='t?(ar.)gz'
+		regex='t\(ar\.\)gz'
 		;;
 	*[Ijy]*f)
-		_filedir 'tar.bz2'
+		ext='tar.bz2'
+		regex='tar\.bz2'
 		;;
 	*)
 		_filedir
+		return 0
 		;;
 		
 	esac
+
+	if [ "${COMP_LINE#*$ext }" != "$COMP_LINE" ]; then
+		# complete on files in tar file
+		#
+		# get name of tar file from command line
+		tar=$( echo "$COMP_LINE" | \
+			sed -e 's/^.* \([^ ]*'$regex'\) .*$/\1/' )
+		# devise how to untar and list it
+		untar=t$( echo ${COMP_WORDS[1]} | tr -cd Izjyf )
+
+		COMPREPLY=( $( compgen -W "$( tar $untar $tar 2>/dev/null )" \
+				-- "$cur" ) )
+
+	fi
+
+	# file completion on relevant files
+	_filedir $ext
 
 	return 0
 }
