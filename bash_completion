@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.130 2002/02/18 19:07:37 ianmacd Exp $
+#   $Id: bash_completion,v 1.131 2002/02/18 19:21:14 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1275,19 +1275,31 @@ _tar()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	if [[ ${COMP_WORDS[1]} == c*f ]]; then
-		COMPREPLY=( $( compgen -f $cur ) )
-	elif [[ ${COMP_WORDS[1]} == +([^zj])f ]]; then
-		COMPREPLY=( $( compgen -G $cur\*.tar ) )
-	elif [[ ${COMP_WORDS[1]} == *z*f ]]; then
-		COMPREPLY=( $( compgen -G $cur\*.t?(ar.)gz ) )
-	elif [[ ${COMP_WORDS[1]} == *j*f ]]; then
-		COMPREPLY=( $( compgen -G $cur\*.tar.bz2 ) )
-	fi
+	case "${COMP_WORDS[1]}" in
+	c*f)
+		_filedir
+		;;
+	+([^zj])f)
+		COMPREPLY=( $( compgen -d $cur ) \
+			    $( compgen -f -X '!*.tar' $cur ) )
+		;;
+	*z*f)
+		COMPREPLY=( $( compgen -d $cur ) \
+			    $( compgen -f -X '!*.t?(ar.)gz' $cur ) )
+		;;
+	*j*f)
+		COMPREPLY=( $( compgen -d $cur ) \
+			    $( compgen -f -X '!*.tar.bz2' $cur ) )
+		;;
+	*)
+		_filedir
+		;;
+		
+	esac
 
 	return 0
 }
-complete -F _tar -o default tar
+complete -F _tar -o filenames tar
 
 # Linux iptables(8) completion
 #
