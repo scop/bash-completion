@@ -1,4 +1,4 @@
-$Id: README,v 1.5 2002/02/25 23:02:41 ianmacd Exp $
+$Id: README,v 1.6 2002/02/27 09:13:37 ianmacd Exp $
 
 
 INSTALLATION
@@ -69,37 +69,27 @@ SHELL=/bin/bash within your Makefile. This is believed to be a bug in bash.
 
 II.
 
-There may be points along the command line where completion is not supported
-for a given command. Attempting completion at these points may result in a
-usage message for the bash built-in compgen being printed on stderr.
-
-The cause of this is usually that compgen is being passed a parameter for
-completion whose value begins with a hyphen. After variable expansion, compgen
-has no way of knowing that the hyphen option is not an option to itself.
-
-For example, if the completion code for a given command is something like
-'compgen -f "$cur"', where $cur is the current parameter on which you are
-attempting to complete and it expands to "-x", bash will try to execute the
-command 'compgen -f -x', believing that -x is an option to itself, not a string
-upon which to complete.
-
-I have endeavoured to trap as many instances of this in the code as possible,
-but it is highly likely that others remain. If you receive compgen errors while
-attempting completion, please report these incidents to me.
-
-III.
-
 The have() function is used to conserve memory by only installing completion
-functions for binaries actually present on your system. The current method of
-determining whether or not a binary is present is whether or not it is in your
-$PATH.
+functions for those programs that are actually present on your system. The
+current method of determining whether or not a given binary is present is
+whether or not it is in your $PATH.
 
 This approach has the disadvantage that sudo completion will not be able to
-perform sub-completion on, say, ifconfig if /sbin is not in your path, which,
+perform sub-completion on, say, service, if /sbin is not in your path, which,
 as an unprivileged user, it typically isn't.
 
 The work-around for this is to put all directories of binaries for which you
-require completion into your $PATH variable.
+require completion into your $PATH variable prior to sourcing bash_completion.
+
+FAQ
+---
+
+Q. How can I insert my own local completions without having to reinsert them
+   every time you issue a new release?
+
+A. Put them in ~/.bash_completion, which is parsed at the end of the main
+   completion script.
+
 
 -- 
 Ian Macdonald <ian@caliban.org>
