@@ -1,14 +1,14 @@
-# $Id: bash-completion.spec,v 1.5 2002/02/20 06:40:54 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.6 2002/02/25 07:08:31 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020220
+Version: 20020225
 Release: 1
 Group: System Environment/Shells
 License: GPL
 Packager: Ian Macdonald <ian@caliban.org>
-Source: http://www.caliban.org/files/bash/%{name}-%{version}.tar.gz
+Source: http://www.caliban.org/files/bash/%{name}-%{version}.tar.bz2
 URL: http://www.caliban.org/bash/
 BuildRoot: /var/tmp/%{name}-root
 BuildArch: noarch
@@ -71,6 +71,17 @@ fi
 %doc README Changelog
 
 %changelog
+* Mon Feb 25 2002 Ian Macdonald <ian@caliban.org>
+- fixed compgen error in some long options of _rpm()
+- in _psql(), try to get list of valid users from Postgres before resorting to
+  system user list
+- mkdir and rmdir now complete only on directories and long options
+- _cd() was ignoring $CDPATH
+- prevent compgen error in _tar() when first parameter starts with hyphen
+- fix bug in _known_hosts() where defaulting to standard hostname completion
+  would yield a compgen error
+- bzip source tar file
+
 * Wed Feb 20 2002 Ian Macdonald <ian@caliban.org>
 - new GNU long option completion for large number of commands
   (a2ps, autoconf, automake, bc, gprof, ld, nm, objcopy, objdump, readelf,
