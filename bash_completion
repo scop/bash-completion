@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.494 2002/12/22 18:29:34 ianmacd Exp $
+#   $Id: bash_completion,v 1.495 2002/12/22 18:45:02 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -4145,9 +4145,10 @@ _ypmatch()
 # mplayer completion by Peter Valach <pvalach@gmx.net>
 #
 have mplayer &&
+[ -n "${have:-}" ] && complete $filenames -F _mplayer mplayer mencoder gmplayer
 _mplayer()
 {
-	local incmd cur prev ext mhelp mhsed mwords
+	local incmd cur prev ext mhelp mwords
 
 	COMPREPLY=()
 	incmd=${COMP_WORDS[0]}
@@ -4162,7 +4163,7 @@ _mplayer()
 		;;
 	    -*)
 		COMPREPLY=( $( compgen -W ' \
-			-aid -alang -audio-demuxer -audiofile -cdrom-device
+			-aid -alang -audio-demuxer -audiofile -cdrom-device \
 			-cache -cdda -channels -chapter -csslib -demuxer -dvd \
 			-dvd-device -dvdangle -dvdauth -dvdkey -dvdnav \
 			-forceidx -fps -frames -hr-mp3-seek -idx -mc -mf -ni \
@@ -4178,10 +4179,10 @@ _mplayer()
 			-pp -ssf -stereo -sws -vc -vfm -vop -x -xvidopts -xy \
 			-zoom' -- $cur ) )
 		# add mplayer specific options
-		[[ "$incmd" == @(mplayer|gmplayer) ]] && COMPREPLY=( $COMPREPLY \
+		[[ "$incmd" == @(?(g)mplayer) ]] && COMPREPLY=( ${COMPREPLY[@]} \
 			$(compgen -W '-autoq -autosync -benchmark \
 			-framedrop -h -help -hardframedrop -identify -input \
-			-lircconf -loop -nojoystick -nolirc --nortc -playlist \
+			-lircconf -loop -nojoystick -nolirc -nortc -playlist \
 			-quiet -really-quiet -rnd -sdp -skin -slave -softsleep \
 			-speed -sstep -use-stdin \
 			-dumpaudio -dumpfile -dumpstream \
@@ -4200,7 +4201,7 @@ _mplayer()
 			-zrvdec -zrhdec -zrxdoff -zrydoff \
 			-y' -- $cur) )
 		# add mencoder specific options
-		[[ "$incmd" = "mencoder" ]] && COMPREPLY=( $COMPREPLY \
+		[[ "$incmd" = mencoder ]] && COMPREPLY=( ${COMPREPLY[@]} \
 			$(compgen -W '-audio-density -audio-delay \
 			-audio-preload -divx4opts -endpos -ffourcc -include \
 			-info -lameopts -lavcopts -noskip -o -oac -ofps -ovc \
@@ -4247,7 +4248,7 @@ _mplayer()
 
 	return 0
 }
-[ -n "${have:-}" ] && complete $filenames -F _mplayer mplayer mencoder gmplayer
+complete -o filenames -F _mplayer mplayer mencoder gmplayer
 
 _filedir_xspec()
 {
