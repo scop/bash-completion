@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.169 2002/03/01 02:02:39 ianmacd Exp $
+#   $Id: bash_completion,v 1.170 2002/03/01 07:58:23 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -597,23 +597,14 @@ _cvs()
 {
 	set_prefix()
 	{
-		[ "$prefix" = "" ] || prefix=${cur%/*}/
+		[ -z "$prefix" ] || prefix=${cur%/*}/
 		[ -r ${prefix}CVS/Entries ] || prefix=""
 	}
 
 	get_entries()
 	{
-
 		entries=( $( cut -d/ -f2 -s ${prefix}CVS/Entries | \
 			     grep "^$cur" ) )
-	}
-
-	get_modules()
-	{
-
-		COMPREPLY=( $( \ls -d $cvsroot/!(CVSROOT) 2>/dev/null ) )
-		COMPREPLY=( ${COMPREPLY[@]/$cvsroot/} )
-		COMPREPLY=( ${COMPREPLY[@]/\//} )
 	}
 
 	local cur count mode i cvsroot pwd
@@ -672,24 +663,25 @@ _cvs()
 
 	case "$mode" in
 	add)
-		if [[ "$cur" != -* ]] ; then
+		if [[ "$cur" != -* ]]; then
 			set_prefix
 			if [ $COMP_CWORD -gt 1 -a -r ${prefix}CVS/Entries ]; then
 				get_entries
 				[ -z "$cur" ] && \
-				files=$( \ls -d ${prefix}!(CVS) ) || \
+				files=$( \ls -A | grep -v '^CVS$' ) || \
 				files=$( \ls -d ${cur}* )
 				for i in ${entries[@]}; do
-					files=( ${files[@]/%$i/} )
+					files=( ${files[@]%$i} )
 				done
-				COMPREPLY=( $( compgen -W '${files[@]}' $cur ) )
+				COMPREPLY=( $( compgen -W '${files[@]}' -- \
+					       $cur ) )
 			fi
 		else
 			COMPREPLY=( $( compgen -W '-k -m' -- $cur ) )
 		fi
 		;;
 	admin)
-		if [[ "$cur" = -* ]] ; then
+		if [[ "$cur" = -* ]]; then
 			COMPREPLY=( $( compgen -W '-i -a -A -e -b -c -k -l -u \
 						   -L -U -m -M -n -N -o -q -I \
 						   -s -t -t- -T -V -x -z' -- \
@@ -697,13 +689,23 @@ _cvs()
 		fi
 		;;
 	checkout)
-		if [[ "$cur" != -* ]] ; then
+		if [[ "$cur" != -* ]]; then
 			# can only do for local repositories
 			[ -z "$cvsroot" ] && cvsroot=$CVSROOT
-			if [ -r $cvsroot ]; then
-				get_modules
+			prefix=${cur%/*}
+			[ -r ${cvsroot}/${prefix} ] || prefix=""
+			if [ -r ${cvsroot}/${prefix} ]; then
+				if [ -n "$prefix" ]; then 
+					COMPREPLY=( $( \ls -d \
+					${cvsroot}/${prefix}/!(CVSROOT) ) )
+				else
+					COMPREPLY=( $( \ls -d \
+					${cvsroot}/!(CVSROOT) ) )
+				fi
+				COMPREPLY=( ${COMPREPLY[@]#$cvsroot} )
+				COMPREPLY=( ${COMPREPLY[@]#/} )
 				COMPREPLY=( $( compgen -W \
-					       '${COMPREPLY[@]}' $cur ) )
+					       '${COMPREPLY[@]}' -- $cur ) )
 			fi
 		else
 			COMPREPLY=( $( compgen -W '-A -N -P -R -c -f -l -n -p \
@@ -717,18 +719,18 @@ _cvs()
 			# found so far, but other changes (something other than
 			# changed/removed/new) may be missing
 			changed=$( cvs diff --brief 2>&1 | \
-			sed -ne 's/^Files [^ ]\+ and \([^ ]\+\) differ$/\1/p' )
+			sed -ne 's/^Files [^ ]* and \([^ ]*\) differ$/\1/p' )
 			newremoved=$( cvs diff --brief 2>&1 | \
-			sed -ne 's/^cvs diff: \([^ ]\+\), no comparison available$/\1/p' )
+			sed -ne 's/^cvs diff: \([^ ]*\) .*, no comparison available$/\1/p' )
 			COMPREPLY=( $( compgen -W '${changed[@]} \
-						   ${newremoved[@]}' $cur ) )
+						   ${newremoved[@]}' -- $cur ) )
 		else
 			COMPREPLY=( $( compgen -W '-n -R -l -f -F -m -r' -- \
 				       $cur ) )
 		fi
 		;;
 	remove)
-		if [[ "$cur" != -* ]] ; then
+		if [[ "$cur" != -* ]]; then
 			set_prefix
 			if [ $COMP_CWORD -gt 1 -a -r ${prefix}CVS/Entries ]; then
 				get_entries
@@ -736,25 +738,31 @@ _cvs()
 				for i in ${entries[@]}; do
 					[ ! -r "$i" ] && miss=( ${miss[@]} $i )
 				done
-				COMPREPLY=( $( compgen -W '${miss[@]}' $cur ) )
+				COMPREPLY=( $(compgen -W '${miss[@]}' -- $cur) )
 			fi
 		else
 			COMPREPLY=( $( compgen -W '-f -l -R' -- $cur ) )
 		fi
 		;;
 	import)
-		if [[ "$cur" != -* ]] ; then
+		if [[ "$cur" != -* ]]; then
 			# starts with same algorithm as checkout
 			[ -z "$cvsroot" ] && cvsroot=$CVSROOT
-			[ -r $cvsroot ] && get_modules
+			if [ -r "$cvsroot" ]; then
+				COMPREPLY=( $( \ls -d $cvsroot/!(CVSROOT) \
+						2>/dev/null ) )
+				COMPREPLY=( ${COMPREPLY[@]#$cvsroot} )
+				COMPREPLY=( ${COMPREPLY[@]#\/} )
+			fi
 			pwd=$( pwd )
 			pwd=${pwd##*/}
-			COMPREPLY=( $( compgen -W '${COMPREPLY[@]} $pwd' $cur ))
+			COMPREPLY=( $( compgen -W '${COMPREPLY[@]} $pwd' -- \
+				       $cur ) )
 		else
 			COMPREPLY=( $( compgen -W '-d -k -I -b -m -W' -- $cur ))
 		fi
 		;;
-	*)
+	"")
 		COMPREPLY=( $( compgen -W 'add admin checkout ci co commit \
 					   diff delete export freeze get \
 					   history import log new patch rcs \
@@ -762,6 +770,8 @@ _cvs()
 					   rm rtag status tag update -H -Q -q \
 					   -b -d -e -f -l -n -t -r -v -w -x \
 					   -z --help --version' -- $cur ) )
+		;;
+	*)
 		;;
 	esac
 	
