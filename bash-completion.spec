@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.84 2003/04/15 08:54:26 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.85 2003/04/19 07:46:07 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
@@ -72,6 +72,12 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Sat Apr 19 2003 Ian Macdonald <ian@caliban.org>
+- fix for sudo completion when subcommand is passed wildcard globs
+- minor improvements to gpg completion
+- fix _expand() helper function
+- move dict completion into main file and rewrite from scratch
+
 * Mon Apr 14 2003 Ian Macdonald <ian@caliban.org>
 - added completion for iconv(1)
 - make apt-cache complete the showsrc argument
