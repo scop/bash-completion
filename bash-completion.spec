@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.8 2002/02/27 16:59:13 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.9 2002/03/06 19:22:14 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020227
+Version: 20020304
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -68,9 +68,24 @@ fi
 %files
 %defattr(-,root,root)
 %{_sysconfdir}/bash_completion
-%doc README Changelog
+%doc README Changelog contrib/
 
 %changelog
+* Mon Mar  4 2002 Ian Macdonald <ian@caliban.org>
+- cvs completion greatly improved and extended
+- _rpm() performs path completion for --whatprovides if parameter contains a /
+- _man() now also works on Darwin systems (MacOS X)
+- _longopt() now makes vague attempt at path completion after the '=' in
+  --long-opt= style options
+- _function() now also performs typeset/declare -f completion
+- fixed lots of potential sed/awk interpolation problems
+- _cd() was not correctly completing on subdirs of $CDPATH
+- fixed minor typo in _longopt()
+- fixed eval error in _expand() when parameter ends with a \
+- fixed quote problem in _man()
+- added contrib directory with completions for lesser known programs
+- expanded README
+
 * Wed Feb 27 2002 Ian Macdonald <ian@caliban.org>
 - dpkg completion added for Debian Linux
 - cardctl completion added
