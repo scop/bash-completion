@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.79 2003/01/18 09:39:01 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.80 2003/02/01 22:41:01 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030118
+Version: 20030201
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,18 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Sat Feb  1 2003 Ian Macdonald <ian@caliban.org>
+- rsync completion
+- make service completion Debian compatible
+- minor cvs fix
+
+* Sun Jan 26 2003 Ian Macdonald <ian@caliban.org>
+- contrib additions for unrar, unace, cksfv and povray
+- make completion now also supports GNUmakefile
+- modinfo completes the same as insmod and modprobe
+- minor fix to ant completion
+- silence more unset variable warnings in cvs completion
+
 * Sat Jan 18 2003 Ian Macdonald <ian@caliban.org>
 - fix mount completion so that it also works on Solaris
 - improve handling of 'cvs export'
