@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.33 2002/05/11 17:28:25 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.34 2002/05/14 15:56:59 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020511
+Version: 20020514
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,10 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Tue May 14 2002 Ian Macdonald <ian@caliban.org>
+- _ssh() and _known_hosts(): ssh config file directives are case-insensitive
+- simplify cd completion and fix a bug in unique stem completion
+
 * Sat May 11 2002 Ian Macdonald <ian@caliban.org>
 - work around compgen -W memory eating bug in ssh completion
 - perform tilde expansion in dpkg completion
