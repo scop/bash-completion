@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.500 2002/12/30 22:23:21 ianmacd Exp $
+#   $Id: bash_completion,v 1.501 2002/12/31 02:40:22 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -4307,6 +4307,48 @@ _mplayer()
 }
 }
 [ -n "${have:-}" ] && complete $filenames -F _mplayer mplayer mencoder gmplayer
+
+# wvdial(1) completion
+#
+have wvdial &&
+_wvdial()
+{
+	local cur prev configfile i
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		--config)
+			_filedir
+			return 0
+			;;
+	esac
+
+	case $cur in
+		-*)
+			COMPREPLY=( $( compgen -W '--config --chat \
+				--remotename --help --version --no-syslog' -- $cur ) )
+			;;
+		*)
+			# find which config file to use
+			configfile=/etc/wvdial.conf
+			for (( i=1; i < COMP_CWORD; i++ )); do
+				if [[ "${COMP_WORDS[i]}" == $1 ]]; then
+					configfile=${COMP_WORDS[i+1]}
+					break
+				fi
+			done
+			[ ! -f $configfile ] && return 0
+			# parse config file for sections
+			COMPREPLY=( $( awk '/\[Dialer .+\]/ {print $0}' $configfile |\
+				sed -e '1d' -e 's/^\[Dialer //' -e 's/\]$//' | grep "^$cur" ) )
+			;;
+	esac
+
+}
+[ -n "${have:-}" ] && complete -F _wvdial wvdial
 
 _filedir_xspec()
 {
