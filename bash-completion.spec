@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.14 2002/03/18 18:14:57 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.15 2002/03/22 16:54:12 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020318
+Version: 20020322
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,13 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Fri Mar 22 2002 Ian Macdonald <ian@caliban.org>
+- move p4 completion to contrib directory
+- rpm completion now handles verification of uninstalled packages
+- one-liners for various editors to avoid completion on binaries
+- realplay now also handles .smi and .smil files
+- timidity and playmidi complete on .mid and .midi files
+
 * Mon Mar 18 2002 Ian Macdonald <ian@caliban.org>
 - gv ggv now also complete on compressed PDF files
 - add completion for -S|--search in dpkg completion
