@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.74 2002/12/21 06:47:07 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.75 2002/12/23 08:58:30 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
@@ -10,7 +10,7 @@ License: GPL
 Packager: Ian Macdonald <ian@caliban.org>
 Source: http://www.caliban.org/files/bash/%{name}-%{version}.tar.bz2
 URL: http://www.caliban.org/bash/
-BuildRoot: /var/tmp/%{name}-root
+BuildRoot: %{_tmppath}/%{name}-root
 BuildArch: noarch
 Requires: bash >= 2.05-12
 Requires(post): grep, textutils
@@ -67,9 +67,9 @@ fi
 
 %files
 %defattr(-,root,root)
-%{_sysconfdir}/bash_completion
+%config %{_sysconfdir}/bash_completion
 %dir %{_sysconfdir}/bash_completion.d/
-%doc BUGS README Changelog contrib/
+%doc BUGS COPYING README Changelog contrib/
 
 %changelog
 * Sat Dec 21 2002 Ian Macdonald <ian@caliban.org>
