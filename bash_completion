@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.763 2005/01/03 00:53:47 ianmacd Exp $
+#   $Id: bash_completion,v 1.764 2005/01/03 02:02:16 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1002,14 +1002,80 @@ _ifconfig()
 [ $UNAME = Linux ] && have iwconfig &&
 _iwconfig()
 {
+	local cur prev
 	local -a keywords=( essid nwid domain freq channel sens mode ap nick \
 			    rate bit rts frag key enc power )
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		mode)
+			COMPREPLY=( $( compgen -W 'ad-hoc managed master repeater secondary monitor' -- $cur ) )
+			return 0
+			;;
+	esac
 
 	_ifwconfig iwconfig
 
 	COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
 }
 [ $UNAME = Linux ] && complete -F _iwconfig iwconfig
+# Linux iwlist(8) completion
+#
+[ $UNAME = Linux ] && have iwlist &&
+_iwlist()
+{
+	local -a keywords=( scanning frequency rate key power txpower retry )
+
+	_ifwconfig iwconfig
+
+	COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
+}
+[ $UNAME = Linux ] && complete -F _iwlist iwlist
+
+# Linux iwspy(8) completion
+#
+[ $UNAME = Linux ] && have iwspy &&
+_iwspy()
+{
+	local -a keywords=( setthr getthr off )
+
+	_ifwconfig iwconfig
+
+	COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
+}
+[ $UNAME = Linux ] && complete -F _iwspy iwspy
+
+# Linux iwspy(8) completion
+#
+[ $UNAME = Linux ] && have iwpriv &&
+_iwpriv()
+{
+	local cur prev
+	local -a keywords=( --all roam port )
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		roam)
+			COMPREPLY=( $( compgen -W 'on off' -- $cur ) )
+			return 0
+			;;
+		port)
+			COMPREPLY=( $( compgen -W 'ad-hoc managed' -- $cur ) )
+			return 0
+			;;
+	esac
+
+	_ifwconfig iwconfig
+
+	COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
+}
+[ $UNAME = Linux ] && complete -F _iwpriv iwpriv
 
 # RedHat & Debian GNU/Linux if{up,down} completion
 #
