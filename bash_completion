@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.267 2002/04/13 19:24:28 ianmacd Exp $
+#   $Id: bash_completion,v 1.268 2002/04/15 00:41:04 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -84,7 +84,7 @@ complete -f -X '!*.@(exe|EXE|com|COM)' wine
 complete -u finger su usermod userdel passwd chage write talk chfn
 
 # group commands see only groups
-[ ${BASH_VERSINFO[1]} '>' 04 ] && complete -g groupmod groupdel
+[ ${BASH_VERSINFO[1]} '>' 04 ] && complete -g groupmod groupdel 2>/dev/null
 
 # bg completes with stopped jobs
 complete -A stopped -P '%' bg
@@ -276,7 +276,8 @@ _chown()
 		   [ ${BASH_VERSINFO[1]} '>' 04 ]; then
 			user=${cur%%?(\\)[.:]*}
 			group=${cur#*[.:]}
-			COMPREPLY=( $( compgen -P $user'\:' -g -- $group ) )
+			COMPREPLY=( $( compgen -P $user'\:' \
+					-g -- $group 2>/dev/null) )
 		else
 			COMPREPLY=( $( compgen -S '\:' -u $cur ) )
 		fi
@@ -300,7 +301,7 @@ _chgrp()
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]] || \
 	   [[ "$prev" == -* ]]; then
 		[ ${BASH_VERSINFO[1]} '>' 04 ] && \
-			COMPREPLY=( $( compgen -g $cur ) )
+			COMPREPLY=( $( compgen -g $cur 2>/dev/null) )
 	else
 		_expand || return 0
 	fi
@@ -574,7 +575,7 @@ _find()
 		;;
 	-group)
 		[ ${BASH_VERSINFO[1]} '>' 04 ] && \
-			COMPREPLY=( $( compgen -g -- $cur ) )
+			COMPREPLY=( $( compgen -g -- $cur 2>/dev/null) )
 		return 0
 		;;
 	-?(x)type)
