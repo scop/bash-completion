@@ -1,6 +1,6 @@
-#   bash_completion - some programmable completion functions for bash 2.05a
+#   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.392 2002/07/29 06:48:29 ianmacd Exp $
+#   $Id: bash_completion,v 1.393 2002/07/29 18:05:59 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -3510,6 +3510,120 @@ _python()
 	return 0
 }
 [ "$have" ] && complete -F _python $default python
+
+# Perl completion
+#
+have perl &&
+{
+_perlmodules()
+{
+    COMPREPLY=( $( compgen -P "$prefix" -W "$( perl -e 'sub mods { my ($base,$dir)=@_; return if  $base !~ /^\Q$ENV{cur}/; chdir($dir); for (glob(q[*.pm])) {s/\.pm$//; print qq[$base$_\n]}; mods(/^(?:[.\d]+|$Config{archname}-$Config{osname}|auto)$/ ? undef : qq[${base}${_}\\\\:\\\\:],qq[$dir/$_]) for grep {-d} glob(q[*]); } mods(undef,$_) for @INC;' )" -- $cur ) )
+}
+
+_perl()
+{
+    local cur prev prefix temp
+
+    COMPREPLY=()
+    cur=${COMP_WORDS[COMP_CWORD]}
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+    prefix=""
+
+    # completing an option (may or may not be separated by a space)
+    if [[ "$cur" == -?* ]]; then
+	temp=$cur
+	prev=${temp:0:2}
+	cur=${temp:2}
+	prefix=$prev
+    fi
+
+    # only handle module completion for now
+    case "$prev" in
+	-m|-M)
+	    _perlmodules
+	    return 0
+	    ;;
+    esac
+
+    # handle case where first parameter is not a dash option
+    if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]]; then
+	_filedir -d
+	return 0
+    fi
+
+    # complete using basic options
+    COMPREPLY=( $( compgen -W '-C -s -T -u -U -W -X -h -v -V -c -w -d -D -p \
+			-n -a -F -l -0 -I -m -M -P -S -x -i -e ' -- $cur ) )
+    return 0
+}
+complete -F _perl $default perl
+
+_perldoc()
+{
+    local cur prev prefix temp
+
+    COMPREPLY=()
+    cur=${COMP_WORDS[COMP_CWORD]}
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+    prefix=""
+
+    # completing an option (may or may not be separated by a space)
+    if [[ "$cur" == -?* ]]; then
+	temp=$cur
+	prev=${temp:0:2}
+	cur=${temp:2}
+	prefix=$prev
+    fi
+
+    # complete builtin perl functions
+    case $prev in
+	-f)
+	    COMPREPLY=( $( compgen -W 'chomp chop chr crypt hex index lc \
+	    lcfirst length oct ord pack q qq reverse rindex sprintf \
+	    substr tr uc ucfirst y m pos quotemeta s split study qr abs \
+	    atan2 cos exp hex int log oct rand sin sqrt srand pop push \
+	    shift splice unshift grep join map qw reverse sort unpack \
+	    delete each exists keys values binmode close closedir \
+	    dbmclose dbmopen die eof fileno flock format getc print \
+	    printf read readdir rewinddir seek seekdir select syscall \
+	    sysread sysseek syswrite tell telldir truncate warn write \
+	    pack read syscall sysread syswrite unpack vec -X chdir chmod \
+	    chown chroot fcntl glob ioctl link lstat mkdir open opendir \
+	    readlink rename rmdir stat symlink umask unlink utime caller \
+	    continue die do dump eval exit goto last next redo return \
+	    sub wantarray caller import local my our package use defined \
+	    dump eval formline local my our reset scalar undef wantarray \
+	    alarm exec fork getpgrp getppid getpriority kill pipe qx \
+	    setpgrp setpriority sleep system times wait waitpid do \
+	    import no package require use bless dbmclose dbmopen package \
+	    ref tie tied untie use accept bind connect getpeername \
+	    getsockname getsockopt listen recv send setsockopt shutdown \
+	    socket socketpair msgctl msgget msgrcv msgsnd semctl semget \
+	    semop shmctl shmget shmread shmwrite endgrent endhostent \
+	    endnetent endpwent getgrent getgrgid getgrnam getlogin \
+	    getpwent getpwnam getpwuid setgrent setpwent endprotoent \
+	    endservent gethostbyaddr gethostbyname gethostent \
+	    getnetbyaddr getnetbyname getnetent getprotobyname \
+	    getprotobynumber getprotoent getservbyname getservbyport \
+	    getservent sethostent setnetent setprotoent setservent \
+	    gmtime localtime time times' -- $cur ) )
+	    return 0
+	    ;;
+    esac
+
+    case $cur in
+	-*)
+	    COMPREPLY=( $( compgen -W '-h -v -t -u -m -l -F -X -f -q' -- $cur ))
+	    return 0
+	    ;;
+	*)
+	    _perlmodules
+	    return 0
+	    ;;
+    esac
+}
+complete -F _perldoc $default perldoc
+}
 
 # rcs(1) completion
 #
