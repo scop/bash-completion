@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.75 2002/12/23 08:58:30 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.76 2002/12/23 18:29:32 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20021221
+Version: 20021223
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,14 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+- add groups(1) to list of commands that complete on user names
+- add dig(1) to commands that complete on known hosts
+- in known hosts completion, also check for known hosts files in
+  /etc/ssh/ssh_known_hosts and /etc/ssh/ssh_known_hosts2
+- mplayer fixes
+- Java classpath string was not being skipped
+- minor spec file changes
+
 * Sat Dec 21 2002 Ian Macdonald <ian@caliban.org>
 - extensive mplayer completion
 - avoid unbound variable warnings when bash is run with 'set -u'
