@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.275 2002/04/22 07:48:12 ianmacd Exp $
+#   $Id: bash_completion,v 1.276 2002/04/22 07:59:08 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -30,7 +30,7 @@
 
 # Set a couple of useful vars
 #
-OS=$( uname -s )
+UNAME=$( uname -s )
 RELEASE=$( uname -r )
 if [ ${BASH_VERSINFO[1]} '>' 04 ]; then
 	default="-o default"
@@ -354,7 +354,7 @@ complete -F _mount $default mount
 # Linux rmmod(1) completion. This completes on a list of all currently
 # installed kernel modules.
 #
-[ $OS = Linux ] &&
+[ $UNAME = Linux ] &&
 _rmmod()
 {
 	local cur
@@ -366,12 +366,12 @@ _rmmod()
 		       awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}' ) )
 	return 0
 }
-[ $OS = Linux ] && complete -F _rmmod rmmod
+[ $UNAME = Linux ] && complete -F _rmmod rmmod
 
 # Linux insmod(8) & modprobe(8) completion. This completes on a list of all
 # available modules for the version of the kernel currently running.
 #
-[ $OS = Linux ] &&
+[ $UNAME = Linux ] &&
 _insmod()
 {
 	local cur prev modpath
@@ -410,15 +410,15 @@ _insmod()
 
 	return 0
 }
-[ $OS = Linux ] && complete -F _insmod $filenames insmod modprobe
+[ $UNAME = Linux ] && complete -F _insmod $filenames insmod modprobe
 
 # man(1) completion. This is Linux and Darwin specific, in that
 # 'man <section> <page>' is the expected syntax.
 #
-[ $OS = Linux -o $OS = Darwin ] &&
+[ $UNAME = Linux -o $UNAME = Darwin ] &&
 _man()
 {
-	local cur prev sect manpath OS
+	local cur prev sect manpath UNAME
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -432,8 +432,8 @@ _man()
 		return 0
 	fi
 
-	OS=$( uname -s )
-	if [ $OS = Linux ]; then
+	UNAME=$( uname -s )
+	if [ $UNAME = Linux ]; then
 		manpath=$( manpath 2>/dev/null || \man --path )
 	else
 		manpath=$MANPATH
@@ -469,7 +469,7 @@ _man()
 
 	return 0
 }
-[ $OS = Linux -o $OS = Darwin ] && complete -F _man $filenames man
+[ $UNAME = Linux -o $UNAME = Darwin ] && complete -F _man $filenames man
 
 # renice(8) completion
 #
@@ -522,7 +522,7 @@ complete -F _kill kill
 
 # Linux and FreeBSD killall(1) completion.
 #
-[ $OS = Linux -o $OS = FreeBSD ] &&
+[ $UNAME = Linux -o $UNAME = FreeBSD ] &&
 _killall()
 {
 	local cur
@@ -539,7 +539,7 @@ _killall()
 
 	return 0
 }
-[ $OS = Linux -o $OS = FreeBSD ] && complete -F _killall killall
+[ $UNAME = Linux -o $UNAME = FreeBSD ] && complete -F _killall killall
 
 # GNU find(1) completion. This makes heavy use of ksh style extended
 # globs and contains Linux specific code for completing the parameter
@@ -637,7 +637,7 @@ complete -F _find $filenames find
 
 # Linux ifconfig(8) completion
 #
-[ $OS = Linux ] &&
+[ $UNAME = Linux ] &&
 _ifconfig()
 {
 	local cur
@@ -671,11 +671,11 @@ _ifconfig()
 	COMPREPLY=( $( /sbin/ifconfig -a | \
 		       sed -ne 's|^\('$cur'[^ ]*\).*$|\1|p' ))
 }
-[ $OS = Linux ] && complete -F _ifconfig ifconfig
+[ $UNAME = Linux ] && complete -F _ifconfig ifconfig
 
 # RedHat & Debian Linux if{up,down} completion
 #
-[ $OS = Linux ] && ( have ifup || have ifdown ) &&
+[ $UNAME = Linux ] && ( have ifup || have ifdown ) &&
 _ifupdown()
 {
 	local cur
@@ -696,11 +696,11 @@ _ifupdown()
 
        return 0
 }
-[ $OS = Linux ] && have ifup && complete -F _ifupdown ifup ifdown
+[ $UNAME = Linux ] && have ifup && complete -F _ifupdown ifup ifdown
 
 # Linux ipsec(8) completion (for FreeS/WAN). Basic.
 #
-[ $OS = Linux ] && have ipsec &&
+[ $UNAME = Linux ] && have ipsec &&
 _ipsec()
 {
 	local cur
@@ -741,7 +741,7 @@ _ipsec()
 
 	return 0
 }
-[ $OS = Linux ] && [ "$have" ] && complete -F _ipsec ipsec
+[ $UNAME = Linux ] && [ "$have" ] && complete -F _ipsec ipsec
 
 # cvs(1) completion
 #
@@ -1473,7 +1473,7 @@ _scp()
 
 # Linux route(8) completion
 #
-[ $OS = Linux ] &&
+[ $UNAME = Linux ] &&
 _route()
 {
 	local cur prev
@@ -1505,7 +1505,7 @@ _route()
 		  ) )
 	return 0
 }
-[ $OS = Linux ] && complete -F _route route
+[ $UNAME = Linux ] && complete -F _route route
 
 # GNU make(1) completion (adapted from the example supplied with the bash 2.04
 # source code)
@@ -2224,7 +2224,7 @@ _gcc()
 	fi
 }
 [ "$have" ] && complete $filenames -F _gcc gcc g++ c++ g77 gcj gpc
-[ $OS = Linux ] && complete $filenames -F _gcc cc
+[ $UNAME = Linux ] && complete $filenames -F _gcc cc
 
 # Linux cardctl(8) completion
 #
@@ -2720,7 +2720,7 @@ unset i
 [ $BASH_COMPLETION != ~/.bash_completion -a -r ~/.bash_completion ] \
 	&& . ~/.bash_completion
 unset -f have
-unset OS RELEASE have default dirnames filenames nospace
+unset UNAME RELEASE have default dirnames filenames nospace
 
 ###  Local Variables:
 ###  mode: shell-script
