@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.712 2004/05/24 09:50:30 ianmacd Exp $
+#   $Id: bash_completion,v 1.713 2004/05/26 07:15:28 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -3279,7 +3279,7 @@ for i in a2ps autoconf automake bc gprof ld nm objcopy objdump readelf strip \
 	 touch vdir xargs awk gperf grep grub indent less m4 sed shar date \
 	 env seq tee uname who texindex cat csplit cut expand fmt fold head \
 	 md5sum nl od paste pr ptx sha1sum sort split tac tail tr unexpand \
-	 uniq wc units wget ldd bash id info irb mkdir rmdir netstat; do
+	 uniq wc units wget ldd bash id irb mkdir rmdir netstat; do
     have $i && complete -F _longopt $filenames $i
 done
 unset i
@@ -5919,6 +5919,60 @@ _xmms()
 
 }
 [ "${have:-}" ] && complete -F _xmms $filenames xmms
+
+# info(1) completion
+#
+[ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin \
+  -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin ] &&
+_info()
+{
+	local cur infopath UNAME
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	_expand || return 0
+
+	# default completion if parameter contains /
+	if [[ "$cur" == */* ]]; then
+		_filedir
+		return 0
+	fi
+
+	infopath='/usr/share/info'
+
+	if [ "${INFOPATH: -1:1}" == ':' ]; then
+		infopath=${INFOPATH}${infopath}
+	elif [ ${INFOPATH:+set} ]; then
+		infopath=$INFOPATH
+	fi
+
+	infopath=$infopath:
+	if [ -n "$cur" ]; then
+		infopath="${infopath//://$cur* }"
+	else
+		infopath="${infopath//:// }"
+	fi
+
+	# redirect stderr for when path doesn't exist
+	COMPREPLY=( $( eval command ls "$infopath" 2>/dev/null ) )
+	# weed out directory path names and paths to info pages
+	COMPREPLY=( ${COMPREPLY[@]##*/?(:)} )
+	# weed out info dir file
+	for (( i=0 ; i < ${#COMPREPLY[@]} ; ++i )); do
+		if [ "${COMPREPLY[$i]}" == 'dir' ]; then
+			unset COMPREPLY[$i];
+		fi;
+	done  
+	# strip suffix from info pages
+	COMPREPLY=( ${COMPREPLY[@]%.@(gz|bz2)} )
+	COMPREPLY=( $( compgen -W '${COMPREPLY[@]%.*}' -- "${cur//\\\\/}" ) )
+
+	return 0
+}
+[ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin \
+  -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin ] && \
+complete -F _info $filenames info
 
 _filedir_xspec()
 {
