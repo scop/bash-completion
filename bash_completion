@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.490 2002/12/18 19:15:46 ianmacd Exp $
+#   $Id: bash_completion,v 1.491 2002/12/19 21:56:47 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -65,7 +65,6 @@ complete -f -X '!*.@(pdf|PDF)' acroread xpdf
 complete -f -X '!*.texi*' makeinfo texi2html
 complete -f -X '!*.@(?(la)tex|?(LA)TEX|texi|TEXI|dtx|DTX|ins|INS)' tex latex slitex jadetex pdfjadetex pdftex pdflatex texi2dvi
 complete -f -X '!*.@(mp3|MP3)' mpg123 mpg321
-complete -f -X '!*.@(mpg|mpeg|MPG|MPEG|wma|avi|AVI|asf|vob|bin|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|wmv|mp3|MP3|ogg|OGG|ogm|OGM|mp4|MP4|wav|WAV)' mplayer
 complete -f -X '!*.@(mpg|mpeg|MPG|MPEG|wma|avi|AVI|asf|vob|bin|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|wmv|mp3|MP3|ogg|OGG|ogm|OGM|mp4|MP4)' xine
 complete -f -X '!*.@(avi|asf|wmv)' aviplay
 complete -f -X '!*.@(rm|ram|smi?(l))' realplay
@@ -178,7 +177,8 @@ _expand()
 
 	# expand ~username type directory specifications
 	if [[ "$cur" == \~*/* ]]; then
-		eval cur=$cur
+		: eval cur=$cur
+		
 	elif [[ "$cur" == \~* ]]; then
 		cur=${cur#\~}
 		COMPREPLY=( $( compgen -P '~' -u $cur ) )
@@ -4141,6 +4141,113 @@ _ypmatch()
 	return 0
 }
 [ -n "${have:-}" ] && complete -F _ypmatch ypmatch ypcat
+
+# mplayer completion by Peter Valach <pvalach@gmx.net>
+#
+have mplayer &&
+_mplayer()
+{
+	local incmd cur prev ext mhelp mhsed mwords
+
+	COMPREPLY=()
+	incmd=${COMP_WORDS[0]}
+	ext=""
+	mhelp=""
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$cur" in
+	    --*)
+		COMPREPLY=( $( compgen -W '--help --verbose' -- $cur ) )
+		;;
+	    -*)
+		COMPREPLY=( $( compgen -W ' \
+			-aid -alang -audio-demuxer -audiofile -cdrom-device
+			-cache -cdda -channels -chapter -csslib -demuxer -dvd \
+			-dvd-device -dvdangle -dvdauth -dvdkey -dvdnav \
+			-forceidx -fps -frames -hr-mp3-seek -idx -mc -mf -ni \
+			-nobps -passwd -rawaudio -rtsp-stream-over-tcp \
+			-skipopening -sb -srate -ss -tv -user -vcd -vid -vivo \
+			-ifo -ffactor -font -noautosub -nooverlapsub -sid \
+			-slang -sub -subcc -subcp -sub-demuxer -subdelay \
+			-subfont-autoscale -subfont-blur -subfont-encoding \
+			-subfont-osd-scale -subfont-outline \
+			-subfont-text-scale -subfps -subfile -subpos -unicode \
+			-utf8 -vobsub -vobsubid \
+			-ac -afm -aspect -flip -lavdopts -noaspect -nosound \
+			-pp -ssf -stereo -sws -vc -vfm -vop -x -xvidopts -xy \
+			-zoom' -- $cur ) )
+		# add mplayer specific options
+		[[ "$incmd" == @(mplayer|gmplayer) ]] && COMPREPLY=( $COMPREPLY \
+			$(compgen -W '-autoq -autosync -benchmark \
+			-framedrop -h -help -hardframedrop -identify -input \
+			-lircconf -loop -nojoystick -nolirc --nortc -playlist \
+			-quiet -really-quiet -rnd -sdp -skin -slave -softsleep \
+			-speed -sstep -use-stdin \
+			-dumpaudio -dumpfile -dumpstream \
+			-dumpvideo -dumpmicrodvdsub -dumpmpsub  -dumpsrtsub \
+			-dumpjacosub -dumpsami -dumpsub -osdlevel \
+			-af -af-adv -ao -aofile -aop -delay -mixer \
+			-nowaveheader \
+			-bpp -brightness -contrast -display -double -dr \
+			-dxr2 -fb -fbmode -fbmodeconfig -forcexv -fs \
+			-geometry -hue -icelayer -jpeg -monitor_dotclock \
+			-monitor_hfreq -monitor_vfreq -monitoraspect \
+			-nograbpointer -noslices -panscan -rootwin \
+			-saturation -screenw -screenh -stop_xscreensaver \
+			-vm -vo -vsync -wid -xineramascreen -z -zrbw -zrcrop \
+			-zrcrop -zrdev -zrfd -zrhelp -zrnorm -zrquality \
+			-zrvdec -zrhdec -zrxdoff -zrydoff \
+			-y' -- $cur) )
+		# add mencoder specific options
+		[[ "$incmd" = "mencoder" ]] && COMPREPLY=( $COMPREPLY \
+			$(compgen -W '-audio-density -audio-delay \
+			-audio-preload -divx4opts -endpos -ffourcc -include \
+			-info -lameopts -lavcopts -noskip -o -oac -ofps -ovc \
+			-passlogfile -skiplimit -vobsubout -vobsuboutindex \
+			-vobsuboutid -xvidencopts' -- $cur) )
+		;;
+	    *)
+	    	# autocomplete values of switches
+	    	case "$prev" in
+		# -ac, -afm, -vc and -vfm don't use tab-indented values;
+		#  they are not that much used anyway...
+		-audiofile)
+			ext='@(mp3|MP3|mpg|MPG|ogg|OGG|wav|WAV)'
+			;;
+		    -oac)
+			[ "$incmd" = "mencoder" ] && mhelp='mencoder -oac help'
+			;;
+		    -ovc)
+			[ "$incmd" = "mencoder" ] && mhelp='mencoder -ovc help'
+			;;
+		    -sub)
+			ext='@(srt|SRT|sub|SUB|txt|TXT|utf|UTF)'
+			;;
+		    -vo)
+			mhelp='mplayer -vo help'
+			;;
+		    -vop)
+			mhelp='mplayer -vop help'
+			;;
+		     *)
+			ext='@(mpg|mpeg|MPG|MPEG|wma|avi|AVI|asf|vob|bin|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|wmv|mp3|MP3|ogg|OGG|ogm|OGM|mp4|MP4|wav|WAV)'
+			;;
+		esac
+
+		# do what's needed
+		if [ "$ext" != "" ] ; then
+			_filedir "$ext"
+		elif [ "$mhelp" != "" ] ; then
+			mwords=$( $mhelp 2> /dev/null | sed -n 's/^['$'\t '']\+\([a-zA-Z0-9_-]*\).*$/\1/p' )
+			COMPREPLY=( $( compgen -W "$mwords" -- $cur) )
+		fi
+		;;
+	esac
+
+	return 0
+}
+[ -n "${have:-}" ] && complete $filenames -F _mplayer mplayer mencoder gmplayer
 
 _filedir_xspec()
 {
