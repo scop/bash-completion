@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.755 2004/10/15 07:30:00 ianmacd Exp $
+#   $Id: bash_completion,v 1.756 2004/10/15 07:51:09 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2338,17 +2338,15 @@ _scp()
 		COMPREPLY=( $( ssh -o 'Batchmode yes' $userhost \
 				command ls -aF1d "$path*" 2>/dev/null | \
 				sed -e 's/ /\\\\\\\ /g' -e 's/[*@|=]$//g' \
-				    -e 's/[^\/]$/& /g' -e 's/&/\\&/g' ) )
+				    -e 's/[^\/]$/& /g' \
+				    -e 's/\([&()<>;|]\)/\\&/g' ) )
 		return 0
 	fi
 
 	[[ "$cur" == */* ]] || _known_hosts -c -a
 		COMPREPLY=( ${COMPREPLY[@]} $( command ls -aF1d $cur* \
 			    2>/dev/null | sed -e 's/ /\\ /g' -e 's/[*@|=]$//g'\
-			    -e 's/[^\/]$/& /g' -e 's/&/\\&/g' ) )
-
-
-
+			    -e 's/[^\/]$/& /g' -e 's/\([&()<>;|]\)/\\&/g' ) )
 	return 0
 }
 complete -F _scp $nospace scp
