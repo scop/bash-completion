@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.67 2002/10/21 06:42:18 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.68 2002/10/22 16:01:17 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20021021
+Version: 20021022
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,9 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Tue Oct 22 2002 Ian Macdonald <ian@caliban.org>
+- fix the fix to scp completion
+
 * Mon Oct 21 2002 Ian Macdonald <ian@caliban.org>
 - PID is optional in screen completion
 - avoid problems on systems where ps has been aliased
