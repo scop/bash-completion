@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.213 2002/03/24 08:11:30 ianmacd Exp $
+#   $Id: bash_completion,v 1.214 2002/03/24 19:44:55 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1761,7 +1761,7 @@ _command()
 
 	[ ${#COMPREPLY[@]} -eq 0 ] && _filedir
 }
-complete -F _command -o filenames nohup exec nice eval strace
+complete -F _command -o filenames nohup exec nice eval strace time
 
 _root_command()
 {
@@ -2128,6 +2128,14 @@ _cardctl()
 }
 [ "$have" ] && complete -F _cardctl cardctl
 
+# This function is required by _dpkg() and _dpkg-reconfigure()
+have dpkg &&
+_comp-dpkg-installed-packages()
+{
+	grep-dctrl -r -F package -s package,status "^$1" /var/lib/dpkg/status \
+		   | grep-dctrl -n -F status -s package installed
+}
+
 # Debian Linux dpkg(8) completion
 #
 have dpkg &&
@@ -2158,6 +2166,10 @@ _dpkg()
 		_filedir
 		return 0
 		;;
+	-r|--remove|--purge)
+		COMPREPLY=( $( _comp-dpkg-installed-packages $cur ) )
+		return 0
+		;;
 	*)
 		;;
 	esac
@@ -2180,6 +2192,23 @@ _dpkg()
 			--ignore-depends= --abort-after' -- $cur ) )
 }
 [ "$have" ] && complete -F _dpkg -o filenames dpkg dpkg-deb
+
+# Debian Linux dpkg-reconfigure(8) completion
+#
+have dpkg-reconfigure &&
+_dpkg-reconfigure()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	COMPREPLY=( $( compgen -W '--frontent= --priority --all \
+		       	       	   --unseen-only --help' -- $cur ) \
+		    $( _comp-dpkg-installed-packages $cur ) )
+}
+[ "$have" ] && complete -F _dpkg-reconfigure -o filenames dpkg-reconfigure
 
 have java &&
 _java()
