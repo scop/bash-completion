@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.13 2002/03/14 18:28:27 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.14 2002/03/18 18:14:57 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020314
+Version: 20020318
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,16 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Mon Mar 18 2002 Ian Macdonald <ian@caliban.org>
+- gv ggv now also complete on compressed PDF files
+- add completion for -S|--search in dpkg completion
+- add chage, write, talk and chfn to list of commands that complete on user
+- _insmod(): the output of modinfo has changed in recent versions of modutils,
+  so alter awk script to deal with all cases
+- add .ico completion to ee, display, etc.
+- _scp(): try to perform remote path completion when parameter contains a
+  colon
+
 * Thu Mar 14 2002 Ian Macdonald <ian@caliban.org>
 - fixed eval indirection bug in _man()
 
