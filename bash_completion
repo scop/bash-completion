@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.458 2002/10/23 16:05:16 ianmacd Exp $
+#   $Id: bash_completion,v 1.459 2002/10/25 22:45:23 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1939,28 +1939,27 @@ _scp()
 		path=${path//\\\\\\\\ / }
 		if [ -z "$path" ]; then
 			# default to home dir of specified user on remote host
-			path=$( ssh -o 'Batchmode yes' $userhost pwd 2>/dev/null)
+			path=$(ssh -o 'Batchmode yes' $userhost pwd 2>/dev/null)
 		fi
 		# escape spaces; remove executables, aliases, pipes and sockets;
-		# add space at end of file names; change newlines into spaces
+		# add space at end of file names
 		COMPREPLY=( $( ssh -o 'Batchmode yes' $userhost \
 				command ls -aF1d "$path*" 2>/dev/null | \
 				sed -e 's/ /\\\\\\\ /g' -e 's/[*@|=]$//g' \
-				    -e 's/[^\/]$/& /g' -e 's/\
-//g' ) )
+				    -e 's/[^\/]$/& /g' ) )
 		return 0
 	fi
 
 	[[ "$cur" == */* ]] || _known_hosts -c -a
-	COMPREPLY=( ${COMPREPLY[@]} $( command ls -aF1d "$path*" 2>/dev/null | \
-			sed -e 's/ /\\\\\\\ /g' -e 's/[*@|=]$//g' \
-			    -e 's/[^\/]$/& /g' -e 's/\
-//g' ) )
+		COMPREPLY=( ${COMPREPLY[@]} $( command ls -aF1d "$cur"* \
+			    2>/dev/null | sed -e 's/ /\\ /g' -e 's/[*@|=]$//g' \
+			    -e 's/[^\/]$/& /g' ) )
+
 
 
 	return 0
 }
-complete $default -F _scp $nospace scp
+complete -F _scp $nospace scp
 }
 
 # Linux route(8) completion
@@ -4018,7 +4017,7 @@ _look()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	if [ $COMP_CWORD = 1 ]; then
-        	COMPREPLY=( $( compgen -W '$(look $cur)' ) )
+		COMPREPLY=( $( compgen -W '$(look $cur)' ) )
 	fi
 }
 [ "$have" ] && complete -F _look $default look
