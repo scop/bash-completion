@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.4 2000/08/29 21:21:00 ianmacd Exp $
+#   $Id: bash_completion,v 1.5 2000/09/11 20:46:39 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -256,7 +256,8 @@ _man()
                 # get basename of man pages
                 COMPREPLY=( ${COMPREPLY[@]##*/} )
                 # strip suffix from man pages
-                COMPREPLY=( ${COMPREPLY[@]%%.*} )
+                COMPREPLY=( ${COMPREPLY[@]%.gz} )
+                COMPREPLY=( ${COMPREPLY[@]%.*} )
 	else
                 cmd=`awk '{if ($1 ~ /^MANPATH/) \
                      print $(NF)"/man?/'$cur'*"}' /etc/man.config | sort -u`
@@ -264,7 +265,8 @@ _man()
                 cmd="ls $cmd 2>/dev/null"
                 COMPREPLY=( $( eval $cmd ) )
                 COMPREPLY=( ${COMPREPLY[@]##*/} )
-                COMPREPLY=( ${COMPREPLY[@]%%.*} )
+                COMPREPLY=( ${COMPREPLY[@]%.gz} )
+                COMPREPLY=( ${COMPREPLY[@]%.*} )
         fi
 
 	return 0
@@ -754,19 +756,35 @@ _ssh()
 	    ;;
 	esac
 
+	# Host has been specified, so now do simple command completion
+	if [ $COMP_CWORD -gt 1 ]; then
+	    COMPREPLY=( $( compgen -c $cur ) )
+	    return 0
+	fi
+
 	[ -r /etc/known_hosts ]   && kh[0]=/etc/known_hosts
 	[ -r ~/.ssh/known_hosts ] && kh[1]=~/.ssh/known_hosts
 
 	# If we have known_hosts files to use
 	if [ ${#kh[@]} -gt 0 ]; then
-	    # If we're completing on a blank, only check fields containing
-	    # a dot or an alpha character. Otherwise, we'll get the whole line
-	    [ -z $cur ] && cur="[a-z.]" || cur="^$cur"
+	    if [[ $cur == [0-9]*.* ]]; then
+		# Digits followed by a dot - just search for that
+		cur="^$cur.*"
+	    elif [[ $cur == [0-9]* ]]; then
+		# Digits followed by no dot - search for digits followed
+		# by a dot
+		cur="^$cur.*\."
+	    elif [ -z $cur ]; then
+		# A blank - search for a dot or an alpha character
+		cur="[a-z.]"
+	    else
+		cur="^$cur"
+	    fi
 	    # FS needs to look for a comma separated list
-	    COMPREPLY=( $( awk 'BEGIN {FS="[ ,]"} \
-				{for (i=1; i<=NR; ++i) \
-				    {if ($i ~ /'$cur'/) \
-					{print $i}}}' ${kh[@]} ) )
+	    COMPREPLY=( $( awk 'BEGIN {FS="[ ,]"}
+				{for (i=1; i<=NR; ++i) { \
+				       if ($i ~ /'$cur'/) {print $i} \
+				}}' ${kh[@]} ) )
 	else
 	    # Just do normal hostname completion
 	    COMPREPLY=( $( compgen -A hostname $cur ) )
@@ -775,5 +793,43 @@ _ssh()
 	return 0
 }
 complete -F _ssh ssh slogin
+
+# Linux route(8) completion. This could be improved by adding address family
+# completion for -A, etc.
+#
+_route()
+{
+	local cur prev
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+        prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [ "$prev" = dev ]; then
+	    COMPREPLY=( $( ifconfig -a | sed -ne 's/^\('$cur'[^ ]*\).*$/\1/p' ))
+	    return 0
+	fi
+
+	# Must use grep here, otherwise $cur will cause compgen to barf, if
+	# it begins with a hyphen
+	COMPREPLY=( $( compgen -W 'add del -host -net netmask metric mss \
+				  window irtt reject mod dyn reinstate dev' | \
+		       grep ^$cur ) )
+
+	COMPREPLY=( $( echo " ${COMP_WORDS[@]}" | \
+		       (while read -d ' ' i; do
+			   [ "$i" == "" ] && continue
+			   # flatten array with spaces on either side,
+			   # otherwise we cannot grep on word
+			   # boundaries of first and last word
+			   COMPREPLY=" ${COMPREPLY[@]} "
+			   # remove word from list of completions
+			   COMPREPLY=( ${COMPREPLY/ $i / } )
+			done
+		       echo ${COMPREPLY[@]})
+		  ) )
+	return 0
+}
+complete -F _route route
 
 # ]]>
