@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.283 2002/04/24 15:28:56 ianmacd Exp $
+#   $Id: bash_completion,v 1.284 2002/04/24 15:40:37 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2469,9 +2469,9 @@ complete -F _configure_func $default configure
 have urpmi &&
 _urpmi_media()
 {
+	local IFS=$'\t\n'
 	# return list of available urpmi media
-	COMPREPLY=( $( awk -F'{' '/{/ {print $1}' /etc/urpmi/urpmi.cfg | \
-			grep "^$cur" ))
+	COMPREPLY=( $( perl -ln -e 'if (m/^(.+) .+ {$/) {print $1}' /etc/urpmi/urpmi.cfg | grep "^${cur//\\\\/\\\\}" ) )
 }
 
 # Mandrake urpmi completion
