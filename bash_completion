@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.676 2004/02/09 20:57:10 ianmacd Exp $
+#   $Id: bash_completion,v 1.677 2004/02/09 21:40:41 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2699,7 +2699,7 @@ fi
 #
 _command()
 {
-	local cur func cline cspec noglob IFS=$' \t\n' cmd \
+	local cur func cline cspec noglob cmd \
 	      _COMMAND_FUNC _COMMAND_FUNC_ARGS
 
 	COMPREPLY=()
@@ -2707,9 +2707,7 @@ _command()
 	cmd=${COMP_WORDS[1]}
 
 	if [ $COMP_CWORD -eq 1 ]; then
-		IFS=$'\n\t'
 		COMPREPLY=( $( compgen -c -- $cur ) )
-		IFS=$' \t\n'
 	elif complete -p $cmd &>/dev/null; then
 		cspec=$( complete -p $cmd )
 		if [ "${cspec#* -F }" != "$cspec" ]; then
@@ -2735,6 +2733,7 @@ _command()
 			COMP_WORDS=( $cline )
 			# reset noglob if necessary
 			[ $noglob -eq 1 ] && shopt -uo noglob
+			$func $cline
 			# this is needed in case user finished entering command and pressed tab (e.g. sudo ls <Tab>)
 			COMP_CWORD=$(( $COMP_CWORD > 0 ? $COMP_CWORD : 1 ))
 			cur=${COMP_WORDS[COMP_CWORD]}
@@ -2749,17 +2748,13 @@ _command()
 				cspec=${cspec#*-o }
 				cspec=${cspec%% *}
 				if [[ "$cspec" != @(dir|file)names ]]; then
-					IFS=$'\n\t'
-					COMPREPLY=( ${COMPREPLY[@]//\\\\:/:} )
-					IFS=$' \t\n'
+					COMPREPLY=("${COMPREPLY[@]//\\\\:/:}")
 				fi
 			fi
 		elif [ -n "$cspec" ]; then
 			cspec=${cspec#complete};
 			cspec=${cspec%%$cmd};
-			IFS=$'\n\t'
 			COMPREPLY=( $( eval compgen "$cspec" -- "$cur" ) );
-			IFS=$' \t\n'
 		fi
 	fi
 
