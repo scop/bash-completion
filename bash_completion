@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.667 2003/12/24 23:19:13 ianmacd Exp $
+#   $Id: bash_completion,v 1.668 2004/01/01 00:48:05 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -4429,8 +4429,9 @@ _portinstall()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 	# First try INDEX-5
 	indexfile=$portsdir/INDEX-5
-	# Then INDEX
-	test -f $indexfile || indexfile=$portsdir/INDEX
+	# Then INDEX if INDEX-5 does not exist or system is not FreeBSD 5.x
+	[ "${OSTYPE%.*}" = "freebsd5" -a -f $indexfile ] ||
+	  indexfile=$portsdir/INDEX
 
 	[ "$prev" = "-l" -o "$prev" = "-L" -o "$prev" = "-o" ] && return 0
 
