@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.156 2002/02/27 02:18:08 ianmacd Exp $
+#   $Id: bash_completion,v 1.157 2002/02/27 07:47:09 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1800,7 +1800,7 @@ _gcc()
 # Linux cardctl(8) completion
 #
 have cardctl &&
-_cardctl ()
+_cardctl()
 {
 	local cur
 	COMPREPLY=()
@@ -1814,6 +1814,47 @@ _cardctl ()
 	fi
 }
 [ "$have" ] && complete -F _cardctl cardctl
+
+# Debian Linux dpkg(8) completion
+#
+have dpkg &&
+_dpkg()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in 
+	-i|--install|--unpack|-A|--record-avail)
+		COMPREPLY=( $( compgen -f -X '!*.deb' -- $cur ) )
+		return 0
+		;;
+   	-s|--status|-p|--print-avail|-L|--listfiles)
+		COMPREPLY=( $( apt-cache pkgnames $cur) )
+		return 0
+		;;
+	*)
+		;;
+	esac
+
+	COMPREPLY=( $( compgen -W '-i --install --unpack -A --record-avail \
+			--configure -r --remove --purge --get-selections \
+			--set-selections --update-avail --merge-avail \
+			--clear-avail  --command-fd --forget-old-unavail -s \
+			--status -p --print-avail -L --listfiles -l --list \
+			-S --search -C --audit --print-architecture \
+			--print-gnu-build-architecture \
+			--print-installation-architecture \
+			--compare-versions --help --version --force-help -Dh \
+			--debug=help --licence --admindir= --root= --instdir= \
+			-O --selected-only -E --skip-same-version \
+			-G --refuse-downgrade -B --auto-deconfigure \
+			--no-debsig --no-act -D --debug= --status-fd \
+			--ignore-depends= --abort-after' -- $cur ) )
+}
+[ "$have" ] && complete -F _dpkg -o filenames dpkg
 
 # bash alias completion
 #
