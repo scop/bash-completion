@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.44 2002/01/04 19:29:18 ianmacd Exp $
+#   $Id: bash_completion,v 1.45 2002/01/05 20:42:41 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -48,11 +48,11 @@ complete -f -X '*.Z' compress
 complete -f -X '!*.+(Z|gz|tgz|Gz)' gunzip zcat zmore
 complete -f -X '!*.Z' uncompress
 complete -f -X '!*.+(gif|jpg|jpeg|tif|tiff|png|GIF|JPG|TIF|TIFF|PNG|bmp)' ee xv
-complete -f -X '!*.+(ps|PS|ps.gz|pdf|PDF)' gv
+complete -f -X '!*.+(?(e)ps|?(E)PS|?(e)ps.gz|pdf|PDF)' gv
 complete -f -X '!*.+(dvi|DVI)' dvips xdvi dviselect dvitype
 complete -f -X '!*.+(pdf|PDF)' acroread xpdf
 complete -f -X '!*.texi*' makeinfo texi2dvi texi2html
-complete -f -X '!*.+(tex|TEX)' tex latex slitex
+complete -f -X '!*.+(tex|TEX)' tex latex slitex jadetex pdfjadetex
 complete -f -X '!*.+(mp3|MP3)' mpg123
 # FINISH exclude -- do not remove this line
 
@@ -1192,8 +1192,12 @@ _tar()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	if [[ ${COMP_WORDS[1]} == *z*f ]]; then
-		COMPREPLY=( $( compgen -G $cur\*.tar.gz ) )
+	if [[ ${COMP_WORDS[1]} == c*f ]]; then
+		COMPREPLY=( $( compgen -f $cur ) )
+	elif [[ ${COMP_WORDS[1]} == +([^zj])f ]]; then
+		COMPREPLY=( $( compgen -G $cur\*.tar ) )
+	elif [[ ${COMP_WORDS[1]} == *z*f ]]; then
+		COMPREPLY=( $( compgen -G $cur\*.t?(ar.)gz ) )
 	elif [[ ${COMP_WORDS[1]} == *j*f ]]; then
 		COMPREPLY=( $( compgen -G $cur\*.tar.bz2 ) )
 	fi
