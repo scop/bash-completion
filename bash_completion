@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.42 2002/01/03 01:17:44 ianmacd Exp $
+#   $Id: bash_completion,v 1.43 2002/01/04 05:34:21 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -48,7 +48,7 @@ complete -f -X '*.Z' compress
 complete -f -X '!*.+(Z|gz|tgz|Gz)' gunzip zcat zmore
 complete -f -X '!*.Z' uncompress
 complete -f -X '!*.+(gif|jpg|jpeg|tif|tiff|png|GIF|JPG|TIF|TIFF|PNG|bmp)' ee xv
-complete -f -X '!*.+(ps|PS|ps.gz)' gv
+complete -f -X '!*.+(ps|PS|ps.gz|pdf|PDF)' gv
 complete -f -X '!*.+(dvi|DVI)' dvips xdvi dviselect dvitype
 complete -f -X '!*.+(pdf|PDF)' acroread xpdf
 complete -f -X '!*.texi*' makeinfo texi2dvi texi2html
@@ -668,7 +668,7 @@ _rpm()
 		ignorearch dbpath prefix ignoreos nodeps allfiles ftpproxy \
 		ftpport justdb httpproxy httpport noorder relocate badreloc \
 		notriggers excludepath ignoresize oldpackage define eval \
-		pipe queryformat' ${cur_nodash#-} ))
+		pipe queryformat repackage' ${cur_nodash#-} ))
 		dashify
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
@@ -698,7 +698,7 @@ _rpm()
 	-@(e|-erase))
 		# complete on list of relevant options
 		COMPREPLY=( $( compgen -W 'allmatches noscripts notriggers \
-		nodeps test' ${cur_nodash#-} ) )
+		nodeps test repackage' ${cur_nodash#-} ) )
 		dashify
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
@@ -1237,7 +1237,7 @@ _tcpdump()
 #
 _cd()
 {
-	local cur=${COMP_WORDS[COMP_CWORD]} dirs=() i
+	local IFS=$'\t\n' cur=${COMP_WORDS[COMP_CWORD]} dirs=() i
 
 	# expand ~username type directory specifications
 	if [[ "$cur" == \~*/* ]]; then
@@ -1425,8 +1425,9 @@ complete -F _configure_func configure
 
 _file_and_dir()
 {
-	local cur xspec
+	local IFS cur xspec
 
+	IFS=$'\t\n'
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]#-}
 
