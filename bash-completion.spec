@@ -1,10 +1,10 @@
-# $Id: bash-completion.spec,v 1.48 2002/06/24 21:41:19 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.49 2002/06/26 08:30:31 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020624
-Release: 2
+Version: 20020626
+Release: 1
 Group: System Environment/Shells
 License: GPL
 Packager: Ian Macdonald <ian@caliban.org>
@@ -73,8 +73,12 @@ fi
 %doc README Changelog contrib/
 
 %changelog
-* Mon Jun 24 2002 Ian Macdonald <ian@caliban.org> 20020624-2
-- restore tilde expansion (its removal broke too much)
+* Wed Jun 26 2002 Ian Macdonald <ian@caliban.org>
+- make tilde expansion work during chown completion
+- make tar completion '-o filenames' by default.
+  '-o dirnames' can be obtained by setting $COMP_TAR_INTERNAL_PATHS prior to
+  sourcing.
+- restore expansion of ~ in _expand(): its removal broke too much
 
 * Mon Jun 24 2002 Ian Macdonald <ian@caliban.org>
 - avoid tilde expansion in _expand()
