@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.512 2003/01/17 09:54:32 ianmacd Exp $
+#   $Id: bash_completion,v 1.513 2003/01/17 10:01:29 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -443,7 +443,7 @@ _umount()
 complete -F _umount $dirnames umount
 
 # mount(8) completion. This will pull a list of possible mounts out of
-# /etc/fstab, unless the word being completed contains a ':', which
+# /etc/{,v}fstab, unless the word being completed contains a ':', which
 # would indicate the specification of an NFS server. In that case, we
 # query the server for a list of all available exports and complete on
 # that instead.
@@ -468,9 +468,14 @@ _mount()
 			sed -ne '/^['$'\t '']*Sharename/,/^$/p' |
 			sed -ne '3,$s|^[^A-Za-z]*\([^'$'\t '']*\).*$|//'$host'/\1|p' ) )" -- "$cur" ) )
 		fi
+	elif [ -r /etc/vfstab ]; then
+		# Solaris
+		COMPREPLY=( $( awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' \
+				/etc/vfstab | grep "^$cur" ) )
 	else
-		COMPREPLY=( $( awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' /etc/fstab | \
-			       grep "^$cur" ) )
+		# probably Linux
+		COMPREPLY=( $( awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' \
+				/etc/fstab | grep "^$cur" ) )
 	fi
 
 	return 0
