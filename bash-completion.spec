@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.63 2002/10/05 09:52:25 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.64 2002/10/07 16:31:16 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20021005
+Version: 20021007
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,10 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Mon Oct  7 2002 Ian Macdonald <ian@caliban.org>
+- fix missing keywords in find completion
+- back out double hostname scp fix, as issue is more complex
+
 * Sat Oct  5 2002 Ian Macdonald <ian@caliban.org>
 - make java completion aware of -jar
 - make jar completion accept a leading dash to its option list
