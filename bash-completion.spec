@@ -1,10 +1,10 @@
-# $Id: bash-completion.spec,v 1.47 2002/06/24 16:36:49 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.48 2002/06/24 21:41:19 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
 Version: 20020624
-Release: 1
+Release: 2
 Group: System Environment/Shells
 License: GPL
 Packager: Ian Macdonald <ian@caliban.org>
@@ -73,6 +73,9 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Mon Jun 24 2002 Ian Macdonald <ian@caliban.org> 20020624-2
+- restore tilde expansion (its removal broke too much)
+
 * Mon Jun 24 2002 Ian Macdonald <ian@caliban.org>
 - avoid tilde expansion in _expand()
 - gdb completion defaults to -o filenames, not -o default
