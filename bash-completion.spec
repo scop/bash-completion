@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.106 2003/11/12 10:23:31 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.107 2003/11/25 18:54:23 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20031112
+Version: 20031125
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -74,11 +74,15 @@ fi
 
 %changelog
 * Wed Nov 12 2003 Ian Macdonald <ian@caliban.org>
+- first cut at mutt(1) completion
+- user completion for w(1)
+- yum completion improvements
+
+* Wed Nov 12 2003 Ian Macdonald <ian@caliban.org>
 - remove bogus targets from make completion
 - default to file completion in perldoc, if current parameter contains
   a slash
 - add .aac and .mp4 support to mplayer, as well as support for matroska files
-- add support for matroska files to mplayer
 - rpm -qf improvement
 - gzip should complete on .gz files after redirection
 - bash 'command' built-in should also complete on commands
