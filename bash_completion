@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.591 2003/07/20 08:46:37 ianmacd Exp $
+#   $Id: bash_completion,v 1.592 2003/07/20 09:45:06 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -4442,11 +4442,12 @@ _mplayer()
 			;;
 		-tv)
 			COMPREPLY=( $( compgen -W 'on noaudio driver= device= \
-					input= frequ= outfmt= width= height= \
+					input= freq= outfmt= width= height= \
 					buffersize= norm= channel= chanlist= \
 					audiorate= forceaudio alsa amode= \
 					forcechan= adevice= audioid= volume= \
-					bass= treble= balance=' -- $cur ) )
+					bass= treble= balance= fps= \
+					channels= immediatemode=' -- $cur ) )
 			return 0
 			;;
 		-mf)
@@ -4466,8 +4467,11 @@ _mplayer()
 			return 0
 			;;
 		-af)
-			COMPREPLY=( $( compgen -W 'resample= channels= format= \
-					volume= delay=' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'resample resample= \
+					channels channels= format format= \
+					volume volume= delay delay= pan \
+					pan= sub sub= surround surround=' \
+					-- $cur ) )
 			return 0
 			;;
 		-af-adv)
@@ -4477,9 +4481,6 @@ _mplayer()
 	esac
 
 	case "$cur" in
-		--*)
-			COMPREPLY=( $( compgen -W '--help --verbose' -- $cur ) )
-			;;
 		-*)
 			COMPREPLY=( $( compgen -W '-aid -alang -audio-demuxer \
 					-audiofile -cdrom-device -cache -cdda \
@@ -4499,8 +4500,15 @@ _mplayer()
 					-subpos -unicode -utf8 -vobsub \
 					-vobsubid -ac -afm -aspect -flip \
 					-lavdopts -noaspect -nosound -pp -ssf \
-					-stereo -sws -vc -vfm -vop -x -xvidopts\
-					-xy -zoom' -- $cur ) )
+					-stereo -sws -vc -vfm -vop -xvidopts\
+					-xy -zoom -bandwidth -cuefile \
+					-noextbased -rawvideo -overlapsub \
+					-sub-bg-alpha -sub-bg-color -subalign \
+					-subwidth -sub-no-text-pp -spualign \
+					-spuaa -spugauss -pphelp -verbose -v \
+					-noni -noidx -nohr-mp3-seek -extbased \
+					-bps -oldpp -nozoom -noflip -nounicode \
+					-noutf8' -- $cur ) )
 			# add mplayer specific options
 			[[ "$cmd" == @(?(g)mplayer) ]] && COMPREPLY=( ${COMPREPLY[@]} \
 				$(compgen -W '-autoq -autosync -benchmark \
@@ -4524,8 +4532,12 @@ _mplayer()
 					-rootwin -saturation -screenw -screenh \
 					-stop_xscreensaver -vm -vo -vsync -wid \
 					-xineramascreen -z -zrbw -zrcrop \
-					-zrdev -zrfd -zrhelp -zrnorm -zrquality\
-					-zrvdec -zrhdec -zrxdoff -zrydoff -y' \
+					-zrdev -zrfd -zrhelp -zrnorm -zrquality \
+					-zrvdec -zrhdec -zrxdoff -zrydoff -y \
+					-edl -edlout -enqueue -fixed-vo \
+					-menu -menu-root -menu-cfg -shuffle \
+					-format -aa -aahelp -dfbopts -fstype \
+					-guiwid -nokeepaspect -x --help' \
 					-- $cur) )
 			# add mencoder specific options
 			[[ "$cmd" = mencoder ]] && COMPREPLY=( ${COMPREPLY[@]} \
@@ -4535,10 +4547,10 @@ _mplayer()
 					-lavcopts -noskip -o -oac -ofps -ovc \
 					-passlogfile -skiplimit -vobsubout \
 					-vobsuboutindex -vobsuboutid \
-					-xvidencopts' -- $cur) )
+					-xvidencopts --verbose' -- $cur) )
 			;;
 		*)
-			_filedir '@(mpg|mpeg|MPG|MPEG|wma|avi|AVI|asf|vob|bin|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|wmv|mp3|MP3|ogg|OGG|ogm|OGM|mp4|MP4|wav|WAV|dump|DUMP)'
+			_filedir '@(mpg|mpeg|MPG|MPEG|wma|avi|AVI|asf|vob|bin|dat|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|MOV|qt|QT|wmv|mp3|MP3|ogg|OGG|ogm|OGM|mp4|MP4|wav|WAV|dump|DUMP)'
 			;;
 	esac
 
