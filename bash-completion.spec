@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.96 2003/07/21 07:59:48 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.97 2003/08/03 02:54:39 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
@@ -50,7 +50,7 @@ fi
 unset bash bminor bmajor
 EOF
 
-install -m 0644 bash_completion.sh $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
+install -m 0755 bash_completion.sh $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -75,7 +75,7 @@ fi
 * Mon Jul 21 2003 Ian Macdonald <ian@caliban.org>
 - .shtml completion for browsers
 - extra extension completions for xine and xanim
-- vim et all should not complete on .gz and .bz2 files
+- vim et al should not complete on .gz and .bz2 files
 - mplayer fixes and improvements
 - dselect fix
 
@@ -343,7 +343,7 @@ fi
 - mount completion will now complete on Samba shares (only the volume, not
   the hostname part)
 - catch more possible completions in ./configure completion
-- bzgrep et all now also recognise .tbz2
+- bzgrep et al now also recognise .tbz2
 - add some more file types that xv can complete on
 
 * Thu Jul 11 2002 Ian Macdonald <ian@caliban.org>
