@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.2 2002/02/12 18:37:40 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.3 2002/02/13 17:04:11 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020212
+Version: 20020213
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -71,6 +71,10 @@ fi
 %doc README Changelog
 
 %changelog
+* Wed Feb 13 2002 Ian Macdonald <ian@caliban.org>
+- fix bug in one-liners
+- fix _tcpdump() out of memory error
+
 * Tue Feb 12 2002 Ian Macdonald <ian@caliban.org>
 - add beginnings of gdb completion
 - add bash export completion
