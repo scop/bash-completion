@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.4 2002/02/15 07:17:03 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.5 2002/02/20 06:40:54 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020215
+Version: 20020220
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -71,6 +71,26 @@ fi
 %doc README Changelog
 
 %changelog
+* Wed Feb 20 2002 Ian Macdonald <ian@caliban.org>
+- new GNU long option completion for large number of commands
+  (a2ps, autoconf, automake, bc, gprof, ld, nm, objcopy, objdump, readelf,
+  strip, bison, cpio, diff, patch, enscript, cp, df, dir, du, ln, ls, mkfifo,
+  mknod, mv, rm, touch, vdir, xargs, awk, gperf, grep, gpg, grub, indent, less,
+  m4, sed, shar, date, env, seq, su, tee, uname, who, texindex, cat, csplit,
+  cut, expand, fmt, fold, head, md5sum, nl, od, paste, pr, ptx, sha1sum, sort,
+  split, tac, tail, tr, unexpand, uniq, wc, units, rsync and irb)
+- add gcc completion, plus back-ends (g++, c++, g77, gcj and gpc)
+- man completion failed on Sorceror Linux, so use man --path instead of manpath
+- function completion failed for function names that start with a hyphen
+- killall now completes on signals only if the leading hyphen is supplied
+- improved kill completion
+- ee, xv, qiv and display also complete on .xpm files
+- check for readable $modpath in _insmod()
+- check for Linux before installing route and killall completion
+- check for commands before installing make and cvs completion
+- remove redundant _redir_op() and _redir_test()
+- code clean-up in various places
+
 * Fri Feb 15 2002 Ian Macdonald <ian@caliban.org>
 - add basic psql completion
 - use manpath(1) instead of /etc/man.config to determine man path, so that we
