@@ -1,4 +1,4 @@
-$Id: README,v 1.14 2002/06/25 16:29:41 ianmacd Exp $
+$Id: README,v 1.15 2002/10/26 06:59:51 ianmacd Exp $
 
 
 INSTALLATION
@@ -184,5 +184,100 @@ A. If you're a registered Freshmeat user, you can subscribe to new release
 
 	http://freshmeat.net/subscribe/19041/
 
+
+CONTRIBUTING
+------------
+
+Contributions to the bash completion project are more than
+welcome. Fixes, clean-ups and improvements of existing code are much
+appreciated, as are completion functions for new commands.
+
+If you wish to contribute code, please bare the following coding
+guidelines in mind:
+
+- Do not use Perl, Ruby, Python etc. to do text processing unless the
+  command for which you are writing the completion code implies the
+  presence of one of those languages.
+
+  For example, if you were writing completion code for perldoc(1), the
+  use of Perl to achieve your goal would be acceptable. irb(1)
+  completion would make the use of Ruby acceptable.
+
+  Even so, please consider alternatives to these large and slow to
+  start interpreters. Use lightweight programs such as grep(1), awk(1)
+  and sed(1).
+
+- Use the full power of bash 2.x. Programmable completion has only
+  been available since bash 2.04, so you may as well use all the
+  features of that version of bash to optimise your code. However, be
+  careful when using features added since 2.04, since not everyone
+  will be able to use them.
+
+  For example, here strings (<<<) were not added until 2.05b, so don't
+  use them for the time being. On the other hand, extended globs often
+  enable you to avoid the use of external programs, which are
+  expensive to fork and execute, so do use those:
+
+  ?(pattern-list) - match zero or one occurences of patterns
+  *(pattern-list) - match zero or more occurences of patterns
+  +(pattern-list) - match one or more occurences of patterns
+  @(pattern-list) - match exactly one of the given patterns
+  !(pattern-list) - match anything except one of the given patterns
+
+- Following on from the last point, try to save external processes
+  whenever you can. Completion functions need to be fast, so
+  sacrificing some code legibility for speed is acceptable.
+
+  For example, judicious use of sed(1) can save you from having to
+  call grep(1) and pipe the output to cut, which saves a fork(2) and
+  exec(3).
+
+  Sometimes you don't even need sed(1) or other external programs at
+  all, though. Use of constructs such as ${parameter#word},
+  ${parameter%word} and ${parameter/pattern/string} can provide you a
+  lot of power without having to leave the shell.
+
+  For example, if $foo contains the path to an executable, ${foo##*/}
+  will give you the basename of the program, without having to call
+  basename(1). Similarly, ${foo%/*} will give you the dirname, without
+  having to call dirname(1).
+
+  As another example,
+
+    bar=$( echo $foo | sed -e 's/bar/baz/g' )
+
+  can be replaced by:
+
+    bar=${foo//bar/baz}
+
+  These forms of parameter substitutions can also be used on arrays,
+  which makes them very powerful.
+
+- Send your patches as unified diffs. You can make this with 'diff -u'.
+
+- Send small, incremental diffs that affect a single function. Don't
+  cram massive, unrelated patches into a single diff.
+
+- If your code was written for a particular platform, try to make it
+  portable to other platforms, so that everyone may enjoy it. If your
+  code works only with the version of a binary on a particular
+  platform, ensure that it will not be loaded on other platforms that
+  have a command with the same name.
+
+  In particular, do not use GNU extensions to commands like sed and
+  awk if you have the choice. If you really must use them, however, do
+  feel free to do so.
+
+- Read the existing source code for examples of how to solve
+  particular problems. Read the bash man page for details of all the
+  programming tools available to you within the shell.
+
+- Please test your code thoroughly before sending it to me. I don't
+  have access to all the commands for which I am sent completion
+  functions, so I am unable to test them personally. If your code is
+  accepted into the distribution, a lot of people will try it out, so
+  try to do a thorough job of eradicating all the bugs before you send
+  it to me.
+  
 -- 
 Ian Macdonald <ian@caliban.org>
