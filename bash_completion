@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.269 2002/04/17 08:44:12 ianmacd Exp $
+#   $Id: bash_completion,v 1.270 2002/04/18 15:29:56 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2664,6 +2664,51 @@ _querybts()
 	    		$( apt-cache pkgnames -- $cur ) )
 }
 [ "$have" ] && complete -F _querybts $filenames querybts
+
+# ri completion for Ruby documentation
+#
+have ri &&
+ri_get_methods()
+{
+	COMPREPLY=( "$( ri ${classes[@]} | ruby -ane 'if /^-/.../^-/ and \
+			! /^-/ and ! /^ +(class|module): / then \
+			print $_.strip.split(", ").grep(/^[^[]*$/).join("\n"); \
+			end' | sort -u )" )
+	COMPREPLY=( $( compgen $prefix -W '${COMPREPLY[@]}' -- $method ) )
+}
+
+_ri()
+{
+	local cur class classes method prefix IFS
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	# need to also split on commas
+	IFS=$', \n\t'
+	if [[ "$cur" == [A-Z]*#* ]]; then
+		# we're completing on class#method
+		class=${cur%#*}
+		method=${cur#*#}
+		classes=( $class )
+		prefix="-P $class#"
+		ri_get_methods
+		return 0
+	fi
+
+	classes=( $( ri | ruby -ne 'if /^I have/..$stdin.eof then \
+				      if /^ .*[A-Z]/ then print; end; end' ) )
+	if [[ "$cur" == [A-Z]* ]]; then
+		# we're completing on class
+		COMPREPLY=( $( compgen -W '${classes[@]}' -- $cur ) )
+		return 0
+	fi
+
+	# we're completing on methods
+	method=$cur
+	ri_get_methods
+}
+[ $have ] && complete -F _ri ri
 
 _filedir_xspec()
 {
