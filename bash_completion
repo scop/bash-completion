@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.708 2004/05/24 09:12:31 ianmacd Exp $
+#   $Id: bash_completion,v 1.709 2004/05/24 09:42:32 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -5792,6 +5792,106 @@ _cancel()
 	COMPREPLY=( $( lpstat | cut -d' ' -f1 | grep "^$cur" ) )
 }
 [ "${have:-}" ] && complete -F _cancel $filenames cancel
+
+# aspell(1) completion
+#
+have aspell && {
+_aspell_dictionary()
+{
+	local datadir
+	datadir=/usr/lib/aspell
+	COMPREPLY=( $( command ls $datadir/*.@(multi|alias) ) )
+	COMPREPLY=( ${COMPREPLY[@]%.@(multi|alias)} )
+	COMPREPLY=( $( compgen -W '${COMPREPLY[@]#$datadir/}' -- $cur ) )
+}
+
+_aspell()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	# --name value style option
+	case "$prev" in
+		@(-c|-p|check))
+			_filedir
+			return 0
+			;;
+		@(dump|create|merge))
+			COMPREPLY=( $( compgen -W 'master personal repl' -- $cur ) )
+			return 0
+			;;
+		-d)
+			_aspell_dictionary
+			return 0
+			;;
+	esac
+
+	# --name=value style option
+	if [[ "$cur" == *=* ]]; then
+		prev=${cur/=*/}
+		cur=${cur/*=/}
+		case "$prev" in
+			--@(conf|personal|repl|per-conf))
+				_filedir
+				return 0
+				;;
+			--@(conf-dir|data-dir|dict-dir|home-dir|local-data-dir|prefix))
+				_filedir -d
+				return 0
+				;;
+			--master)
+				_aspell_dictionary
+				return 0
+				;;
+			--mode)
+				COMPREPLY=( $( compgen -W 'none url email sgml tex' -- $cur ) )
+				return 0
+				;; 
+			--sug-mode)
+				COMPREPLY=( $( compgen -W 'ultra fast normal bad-speller' -- $cur ) )
+				return 0
+				;;
+			--keymapping)
+				COMPREPLY=( $( compgen -W 'aspell ispell' -- $cur ) )
+				return 0
+				;;
+		esac
+	fi
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '--conf= --conf-dir= --data-dir= --dict-dir= \
+			--encoding= --add-filter= --rem-filter= --mode= -e \
+			-H -t --add-extra-dicts= --rem-extra-dicts= \
+			--home-dir= -W --ignore= --ignore-accents \
+			--dont-ignore-accents --ignore-case --dont-ignore-case \
+			--ignore-repl --dont-ignore-repl --jargon= --keyboard= \
+			--lang= --language-tag= --local-data-dir= -d --master= \
+			--module= --add-module-search-order= \
+			--rem-module-search-order= --per-conf= -p --personal= \
+			--prefix= --repl= -C -B --run-together --dont-run-together \
+			--run-together-limit= --run-together-min= --save-repl \
+			--dont-save-repl --set-prefix --dont-set-prefix --size= \
+			--spelling= --strip-accents --dont-strip-accents \
+			--sug-mode= --add-word-list-path= --rem-word-list-path= \
+			-b -x --backup -b|-x --dont-backup --reverse --dont-reverse \
+			--time --dont-time --keymapping= --add-email-quote= \
+			--rem-email-quote= --email-margin= --add-tex-command= \
+			--rem-tex-command= --tex-check-comments \
+			--dont-tex-check-comments --add-tex-extension= \
+			--rem-tex-extension= --add-sgml-check= --rem-sgml-check= \
+			--add-sgml-extension= --rem-sgml-extension=' -- $cur ) )
+	else
+		COMPREPLY=( $( compgen -W '-? help -c check -a pipe -l list \
+			config config soundslike filter -v version dump \
+			create merge' -- $cur ) )
+	fi
+
+}
+complete -F _aspell $default aspell
+}
 
 _filedir_xspec()
 {
