@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.325 2002/05/18 19:05:08 ianmacd Exp $
+#   $Id: bash_completion,v 1.326 2002/05/18 23:00:14 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -470,10 +470,7 @@ _man()
 	COMPREPLY=( ${COMPREPLY[@]%.@(gz|bz2)} )
 	COMPREPLY=( ${COMPREPLY[@]%.*} )
 
-	if [[ "$prev" != [0-9ln] ]]; then
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -d -- $cur ) \
-			    $( compgen -f -X '!*.[0-9ln]' -- $cur ) )
-	fi
+	[[ "$prev" != [0-9ln] ]] && _filedir '[0-9ln]'
 
 	return 0
 }
@@ -1869,16 +1866,13 @@ _tar()
 		_filedir
 		;;
 	+([^Izjy])f)
-		COMPREPLY=( $( compgen -d -- $cur ) \
-			    $( compgen -f -X '!*.tar' -- $cur ) )
+		_filedir 'tar'
 		;;
 	*z*f)
-		COMPREPLY=( $( compgen -d -- $cur ) \
-			    $( compgen -f -X '!*.t?(ar.)gz' -- $cur ) )
+		_filedir 't?(ar.)gz'
 		;;
 	*[Ijy]*f)
-		COMPREPLY=( $( compgen -d -- $cur ) \
-			    $( compgen -f -X '!*.tar.bz2' -- $cur ) )
+		_filedir 'tar.bz2'
 		;;
 	*)
 		_filedir
@@ -1910,8 +1904,7 @@ _jar()
 			_filedir
 			;;
 		*f)
-			COMPREPLY=( $( compgen -d -- $cur ) \
-				    $( compgen -f -X '!*.jar' -- $cur ) )
+			_filedir 'jar'
 			;;
 		*)
 			_filedir
@@ -2115,8 +2108,7 @@ _ant()
 
 	case "$prev" in
 		-buildfile)
-			COMPREPLY=( $( compgen -f -X '!*.xml' -- $cur ) \
-				    $( compgen -d -- $cur ) )
+			_filedir 'xml'
 			return 0
 			;;
 		-logfile)
@@ -2607,12 +2599,11 @@ _dpkg()
 	case "$prev" in 
 	-i|--install|--unpack|-A|--record-avail|-c|--contents|-I|--info| \
 	--fsys-tarfile|-f|--field|-e|--control|-X|--extract)
-		COMPREPLY=( $( compgen -f -X '!*.deb' -- $cur ) \
-			    $( compgen -d -- $cur ) )
+		_filedir 'deb'
 		return 0
 		;;
 	-b|--build)
-		COMPREPLY=( $( compgen -d -- $cur ) )
+		_filedir -d
 		return 0
 		;;
    	-s|--status|-p|--print-avail|-l|--list)
