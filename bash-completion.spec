@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.87 2003/04/19 08:02:25 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.88 2003/05/01 05:49:13 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030419
+Version: 20030501
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -70,6 +70,19 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Thu May  1 2003 Ian Macdonald <ian@caliban.org>
+- minor fix to _insmod() to get modprobe -k <Tab> to do something
+- some rpm completion speed-ups
+- add --target to rpm -[bt] completion
+- fix scp completion problem where 'scp file\ <Tab>' did not complete for
+  a file with a space in the name
+- make have() use a wider path to search for binaries on the system
+- fix up command completion noglob stuff ('sudo service' was broken, for
+   example)
+- update to urpmi completion
+- fix FreeBSD ports programs completion
+- allow xmms to complete on .mp2 files
+
 * Sat Apr 19 2003 Ian Macdonald <ian@caliban.org>
 - fix for sudo completion when subcommand is passed wildcard globs
 - minor improvements to gpg completion
