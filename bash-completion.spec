@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.29 2002/04/27 18:46:04 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.30 2002/04/30 16:16:50 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020427
+Version: 20020430
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,12 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Tue Apr 30 2002 Ian Macdonald <ian@caliban.org>
+- reworking of Postgresql completion
+- add PINE address-book completion
+- _cvs(): remove a superfluous grep and redirect stderr on ls
+- make installation of RPM functions a compound statement
+
 * Sat Apr 27 2002 Ian Macdonald <ian@caliban.org>
 - add update-alternatives completion
 - _urpmi_media(): urpmi completion now deals properly with spaces
