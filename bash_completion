@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.598 2003/08/03 02:52:43 ianmacd Exp $
+#   $Id: bash_completion,v 1.599 2003/08/03 02:57:49 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -178,6 +178,22 @@ _signals()
 	for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
 		COMPREPLY[i]=-${COMPREPLY[i]#SIG}
 	done
+}
+
+# This function completes on network interfaces
+#
+_interfaces()
+{
+	if [ -f /etc/debian_version ]; then
+		# Debian system
+		COMPREPLY=( $( sed -ne 's|^iface \([^ ]\+\).*$|\1|p' \
+			       /etc/network/interfaces ) )
+	else
+		# Assume Red Hat
+		COMPREPLY=( $( command ls \
+			/etc/sysconfig/network-scripts/ifcfg-* | \
+			sed -ne 's|.*ifcfg-\('$cur'.*\)|\1|p' ) )
+	fi
 }
 
 # This function expands tildes in pathnames
@@ -866,16 +882,7 @@ _ifupdown()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	if [ $COMP_CWORD -eq 1 ]; then
-		if [ -f /etc/debian_version ]; then
-			# Debian system
-			COMPREPLY=( $( sed -ne 's|^iface \([^ ]\+\).*$|\1|p' \
-				       /etc/network/interfaces ) )
-		else
-			# Assume Red Hat
-			COMPREPLY=( $( command ls \
-				/etc/sysconfig/network-scripts/ifcfg-* | \
-				sed -ne 's|.*ifcfg-\('$cur'.*\)|\1|p' ) )
-		fi
+		_interfaces
        fi
 
        return 0
@@ -2421,9 +2428,25 @@ _tcpdump()
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	COMPREPLY=( $( compgen -W 'host net port src dst ether gateway \
-				   less greater' -- $cur ) )
+	case "$prev" in
+		-@(r|w|F))
+			_filedir
+			return 0
+			;;
+		-i)
+			_interfaces
+			return 0
+			;;
+	esac
+
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-a -d -e -f -l -n -N -O -p \
+			-q -R -S -t -u -v -x -C -F -i -m -r -s -T -w \
+			-E' -- $cur ) )
+	fi
 
 }
 [ -n "${have:-}" ] && complete -F _tcpdump tcpdump
