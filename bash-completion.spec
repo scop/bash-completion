@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.3 2002/02/13 17:04:11 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.4 2002/02/15 07:17:03 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020213
+Version: 20020215
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -71,6 +71,17 @@ fi
 %doc README Changelog
 
 %changelog
+* Fri Feb 15 2002 Ian Macdonald <ian@caliban.org>
+- add basic psql completion
+- use manpath(1) instead of /etc/man.config to determine man path, so that we
+  now honour $MANPATH
+- multiple minor rpm completion enhancements
+- default to directory completion in _rpm() in more cases
+- passwd was actually completing on groups, not users
+- fix bug that caused spurious ':' to be returned in all manual sections
+- rsh, rlogin and ftp now also use _known_hosts()
+- mplayer also completes on .wmv and .mov files files
+
 * Wed Feb 13 2002 Ian Macdonald <ian@caliban.org>
 - fix bug in one-liners
 - fix _tcpdump() out of memory error
