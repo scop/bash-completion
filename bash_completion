@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.97 2002/02/10 21:32:39 ianmacd Exp $
+#   $Id: bash_completion,v 1.98 2002/02/10 21:45:46 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1654,6 +1654,23 @@ _screen()
         return 0
 }
 [ $have ] && complete -F _screen -o default screen
+
+# ncftp(1) bookmark completion
+#
+have ncftp &&
+_ncftp()
+{
+	local cur
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [ $COMP_CWORD = 1 ] && [ -f ~/.ncftp/bookmarks ]; then
+		COMPREPLY=( $( compgen -W '`cut --output-delimiter " " \
+			       -s -f1-2 -d, ~/.ncftp/bookmarks`' $cur ))
+        fi
+
+        return 0
+}
+[ $have ] && complete -F _ncftp -o default ncftp
 
 _expand()
 {
