@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.761 2004/11/22 21:20:43 ianmacd Exp $
+#   $Id: bash_completion,v 1.762 2005/01/03 00:48:27 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -4392,7 +4392,7 @@ complete -F _perldoc $default perldoc
 have rcs &&
 _rcs()
 {
-	local cur prev file dir
+	local cur prev file dir i
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -4408,9 +4408,14 @@ _rcs()
 
 	for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
 		file=${COMPREPLY[$i]##*/}
-		file=${file%,v}
 		dir=${COMPREPLY[$i]%RCS/*}
 		COMPREPLY[$i]=$dir$file
+	done
+	
+	COMPREPLY=( "${COMPREPLY[@]}" $( compgen -G "$dir/$file*,v" ) )
+
+	for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
+		COMPREPLY[$i]=${COMPREPLY[$i]%,v}
 	done
 
 	# default to files if nothing returned and we're checking in.
