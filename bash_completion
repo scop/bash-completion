@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.769 2005/01/03 03:42:12 ianmacd Exp $
+#   $Id: bash_completion,v 1.770 2005/01/03 05:31:38 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -7368,6 +7368,33 @@ _mkinitrd()
 
 }
 [ -n "${have:-}" ] && complete -F _mkinitrd mkinitrd
+
+# pkgconfig(1) completion
+#
+have pkg-config &&
+_pkg_config()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		# return list of available options
+		COMPREPLY=( $( compgen -W '-version --modversion \
+		      --atleast-pkgconfig-version= --libs --libs-only-l \
+		      --libs-only-other --libs-only-L --cflags \
+		      --cflags-only-I --cflags-only-othee --variable= \
+		      --define-variable= --exists --uninstalles \
+		      --atleast-version= --exact-version= --max-version= \
+		      --list-all --debug --print-errors --silence-errors \
+		      --errors-to-stdout -? --help --usage' -- $cur))
+	else
+		COMPREPLY=( $( pkg-config --list-all 2>/dev/null | \
+				    awk '{print $1}' | grep "^$cur" ) )
+	fi
+}
+[ -n "${have:-}" ] && complete -F _pkg_config pkg-config
 
 _filedir_xspec()
 {
