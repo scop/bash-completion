@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.38 2001/12/20 17:12:44 ianmacd Exp $
+#   $Id: bash_completion,v 1.39 2001/12/20 19:26:49 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -52,6 +52,7 @@ complete -f -X '!*.+(dvi|DVI)' dvips xdvi dviselect dvitype
 complete -f -X '!*.+(pdf|PDF)' acroread xpdf
 complete -f -X '!*.texi*' makeinfo texi2dvi texi2html
 complete -f -X '!*.+(tex|TEX)' tex latex slitex
+complete -f -X '!*.+(mp3|MP3)' mpg123
 # FINISH exclude -- do not remove this line
 
 # kill sees only signals
@@ -1428,7 +1429,7 @@ _file_and_dir()
 	cur=${COMP_WORDS[COMP_CWORD]#-}
 
 	# get first exclusion compspec that matches this command
-	xspec=$( grep " $1" /etc/bash_completion | head -1 )
+	xspec=$( sed -ne '/ '$1'/{p;q;}' /etc/bash_completion )
 	# prune to leave nothing but the -X spec
 	xspec=${xspec#*-X }
 	xspec=${xspec%% *}
@@ -1448,7 +1449,7 @@ list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' \
 	done
 	echo ${list[@]}
 	)
-) )
+     ) )
 # remove previous compspecs
 eval complete -r ${list[@]}
 # install new compspecs
