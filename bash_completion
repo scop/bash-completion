@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.711 2004/05/24 09:44:44 ianmacd Exp $
+#   $Id: bash_completion,v 1.712 2004/05/24 09:50:30 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -281,6 +281,17 @@ _gids()
 	fi
 }
 
+# This function complete on services
+#
+_services()
+{
+	local sysvdir
+	[ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
+
+	COMPREPLY=( $( builtin echo $sysvdir/!(*.rpmsave|*.rpmorig|*~|function)) )
+	COMPREPLY=( $( compgen -W '${COMPREPLY[@]#$sysvdir/}' -- $cur ) )
+}
+
 # Linux ifconfig(8) and iwconfig(8) helper function
 #
 [ $UNAME = Linux -o $UNAME = FreeBSD ] && { have ifconfig || have iwconfig; } &&
@@ -474,9 +485,7 @@ _service()
 				|| sysvdir=/etc/init.d
 
 	if [[ $COMP_CWORD -eq 1 ]] && [[ $prev == "service" ]]; then
-		COMPREPLY=( $( compgen -W '`echo $sysvdir/!(*.rpmsave|*.rpmorig)`' ) )
-		COMPREPLY=( $( compgen -W '${COMPREPLY[@]#$sysvdir/}' -- \
-			       $cur ) )
+		_services
 	else
 		COMPREPLY=( $( compgen -W '`sed -ne "y/|/ /; \
 					    s/^.*Usage.*{\(.*\)}.*$/\1/p" \
@@ -2060,21 +2069,9 @@ _chkconfig()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	if [ $COMP_CWORD -eq 1 ]; then
-		COMPREPLY=( $( compgen -W '--list --add --del --level' -- \
-			       $cur ) )
-		return 0
-	fi
-
-	if [ $COMP_CWORD -eq 4 ]; then
-		COMPREPLY=( $( compgen -W 'on off reset' -- $cur ) )
-		return 0
-	fi
-
 	case "$prev" in
 	@([1-6]|--@(list|add|del)))
-		COMPREPLY=( $( compgen -W "`(cd /etc/rc.d/init.d; echo *)`" \
-			       -- $cur) )
+		_services
 		return 0
 		;;
 	--level)
@@ -2083,7 +2080,15 @@ _chkconfig()
 		;;
 	esac
 
-	return 0
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '--list --add --del --level' -- $cur ) )
+	else
+		if [ $COMP_CWORD -eq 2 -o $COMP_CWORD -eq 4 ]; then
+			COMPREPLY=( $( compgen -W 'on off reset' -- $cur ) )
+		else
+			_services
+		fi
+	fi
 }
 [ -n "${have:-}" ] && complete -F _chkconfig chkconfig
 
