@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.133 2002/02/19 18:37:15 ianmacd Exp $
+#   $Id: bash_completion,v 1.134 2002/02/19 22:49:13 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -649,7 +649,7 @@ _rpm()
 		if [ -r /var/log/rpmpkgs -a \
 			/var/log/rpmpkgs -nt /var/lib/rpm/Packages ]; then
 			# using RHL 7.2 - this is quicker than querying the DB
-			COMPREPLY=( ${COMPREPLY[@]}
+			COMPREPLY=( ${COMPREPLY[@]} \
 			$( sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+.*\.rpm$/\1/p' /var/log/rpmpkgs ) )
 		else
 			COMPREPLY=( ${COMPREPLY[@]} $( rpm -qa | \
@@ -837,9 +837,7 @@ _rpm()
 		else
 			_expand || return 0
 			# complete on .tar files
-			COMPREPLY=( $( compgen -f -X '!*.@(tgz|tar.+(gz|bz2))' \
-				       $cur ) )
-			COMPREPLY=( ${COMPREPLY[@]} $( compgen -d $cur ) )
+			file_glob '@(tgz|tar.@(gz|bz2))'
 		fi
 		return 0
 		;;
@@ -857,8 +855,7 @@ _rpm()
 	--tarbuild)
 		_expand || return 0
 		# complete on tarred sources
-		COMPREPLY=( $( compgen -f -X '!*.@(tgz|tar.+(gz|bz2))' $cur ) )
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -d $cur ) )
+		file_glob '@(tgz|tar.@(gz|bz2))'
 		return 0
 		;;
 	--@(re|add)sign)
