@@ -1,6 +1,8 @@
 #   bash_completion - some programmable completion functions for bash 2.04
 #
-#   $Id: bash_completion,v 1.1 2000/08/09 00:17:29 ianmacd Exp $
+#   <![CDATA[
+#
+#   $Id: bash_completion,v 1.2 2000/08/11 23:20:41 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -463,3 +465,253 @@ _ipsec ()
 				   showhostkey spi spigrp tncfg whack' $cur ))
 }
 complete -F _ipsec ipsec
+
+_cvs ()
+{
+	local cur prev
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+        prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [ $COMP_CWORD -eq 1 ] || [ "${prev:0:1}" = "-" ]; then
+		COMPREPLY=( $( compgen -W 'add admin checkout commit diff \
+		export history import log rdiff release remove rtag status \
+		tag update' $cur ))
+	else
+		COMPREPLY=( $( compgen -f $cur ))
+	fi
+	return 0
+}
+complete -F _cvs cvs
+
+_rpm()
+{
+	dashify()
+	{
+		local i
+
+		for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
+			if [ ${#COMPREPLY[i]} -le 2 ]; then
+				COMPREPLY[i]=-${COMPREPLY[i]}
+			else
+				COMPREPLY[i]=--${COMPREPLY[i]}
+			fi
+		done
+	}
+
+	local cur cur_nodash prev
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+	cur_nodash=${cur#-}
+        prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [ $COMP_CWORD = 1 ]; then
+		# first parameter on line
+		case "$cur" in
+		-b*)
+			COMPREPLY=( $( compgen -W 'ba bb bc bi bl bp bs' \
+				       $cur_nodash ) )
+			dashify
+			return 0
+			;;
+		-t*)
+			COMPREPLY=( $( compgen -W 'ta tb tc ti tl tp ts' \
+				       $cur_nodash ) )
+			dashify
+			return 0
+			;;
+		--*)
+			COMPREPLY=( $( compgen -W 'help version initdb \
+			checksig recompile rebuild resign addsign rebuilddb \
+			showrc setperms setgids' ${cur_nodash#-} ) )
+			dashify;
+			return 0
+			;;
+		*)
+			COMPREPLY=( $( compgen -W 'b e F i q t U V' \
+				       $cur_nodash ) )
+			dashify
+			return 0
+			;;
+		esac
+	fi
+
+	case "${COMP_WORDS[1]}" in
+	-[iFU]*)
+		# complete on list of relevant options
+		COMPREPLY=( $( compgen -W 'percent force test replacepkgs \
+		replacefiles root excludedocs includedocs noscripts rcfile \
+		ignorearch dbpath prefix ignoreos nodeps allfiles ftpproxy \
+		ftpport justdb httpproxy httpport noorder relocate badreloc \
+		notriggers excludepath ignoresize oldpackage' ${cur_nodash#-} ))
+		dashify;
+		# return if $cur is an option
+		[ "${cur:0:1}" = "-" ] && return 0
+		# add a list of RPMS to possible completions
+		COMPREPLY=( ${COMPREPLY[@]} $( compgen -G $cur\*.rpm ) )
+		return 0
+		;;
+	-qp*)
+		# complete on list of relevant options
+		COMPREPLY=( $( compgen -W 'scripts root rcfile whatprovides \
+		whatrequires requires triggeredby ftpport ftpproxy httpproxy \
+		httpport provides triggers dump changelog dbpath filesbypkg' \
+		${cur_nodash#-} ) )
+		dashify;
+		# return if $cur is an option
+		[ "${cur:0:1}" = "-" ] && return 0
+		# add a list of RPMS to possible completions
+		COMPREPLY=( ${COMPREPLY[@]} $( compgen -G $cur\*.rpm ) )
+		return 0
+		;;
+	-*f)
+		# standard filename completion
+		COMPREPLY=( $( compgen -f $cur ) )
+		return 0
+		;;
+	-e)
+		# complete on list of relevant options
+		COMPREPLY=( $( compgen -W 'allmatches noscripts notriggers \
+		nodeps test' ${cur_nodash#-} ) )
+		dashify;
+		# return if $cur is an option
+		[ "${cur:0:1}" = "-" ] && return 0
+		# complete on basename of installed RPMs
+		COMPREPLY=( $( rpm -qa | \
+		   sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9.]\+$/\1/p' ) )
+		return 0
+		;;
+	-qa*)
+		# complete on list of relevant options
+		COMPREPLY=( $( compgen -W 'scripts root rcfile whatprovides \
+		whatrequires requires triggeredby ftpport ftpproxy httpproxy \
+		httpport provides triggers dump changelog dbpath specfile \
+		querybynumber last filesbypkg' ${cur_nodash#-} ) )
+		dashify;
+		return 0
+		;;
+	-q*)
+		# complete on list of relevant options
+		COMPREPLY=( $( compgen -W 'scripts root rcfile whatprovides \
+		whatrequires requires triggeredby ftpport ftpproxy httpproxy \
+		httpport provides triggers dump changelog dbpath specfile \
+		querybynumber last filesbypkg' ${cur_nodash#-} ) )
+		dashify;
+		# return if $cur is an option
+		[ "${cur:0:1}" = "-" ] && return 0
+		# add a list of RPMS to possible completions
+		COMPREPLY=( ${COMPREPLY[@]} $( rpm -qa | \
+		   sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9.]\+$/\1/p' ) )
+		return 0
+		;;
+	-[Vy]*)
+		# complete on list of relevant options
+		COMPREPLY=( $( compgen -W 'root rcfile dbpath nodeps nofiles \
+		noscripts nomd5 nopgp' ${cur_nodash#-} ) )
+		dashify;
+		# return if $cur is an option
+		[ "${cur:0:1}" = "-" ] && return 0
+		# add a list of RPMS to possible completions
+		COMPREPLY=( ${COMPREPLY[@]} $( rpm -qa | \
+		   sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9.]\+$/\1/p' ) )
+		return 0
+		;;
+	-b*)
+		# complete on list of relevant options
+		COMPREPLY=( $( compgen -W 'short-circuit timecheck clean \
+		rmsource test sign buildroot target buildarch buildos' \
+		${cur_nodash#-} ) )
+		dashify;
+		# return if $cur is an option
+		[ "${cur:0:1}" = "-" ] && return 0
+		# complete on .spec files
+		COMPREPLY=( $( compgen -G $cur\*.spec ) )
+		return 0
+		;;
+	-t*)
+		# complete on list of relevant options
+		COMPREPLY=( $( compgen -W 'short-circuit timecheck clean \
+		rmsource test sign buildroot target buildarch buildos' \
+		${cur_nodash#-} ) )
+		dashify;
+		# return if $cur is an option
+		[ "${cur:0:1}" = "-" ] && return 0
+		# complete on .tar.gz files
+		COMPREPLY=( $( compgen -G $cur\*.tar.gz ) )
+		return 0
+		;;
+	--re@(build|compile))
+		# complete on source RPMs
+		COMPREPLY=( $( compgen -G $cur\*.src.rpm ) )
+		return 0
+		;;
+	--@(checksig|@(re|add)sign))
+		# complete on RPMs
+		COMPREPLY=( $( compgen -G $cur\*.rpm ) )
+		return 0
+		;;
+	--set@(perms|gids))
+		# complete on installed RPMs
+		COMPREPLY=( ${COMPREPLY[@]} $( rpm -qa | \
+		   sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9.]\+$/\1/p' ) )
+		return 0
+		;;
+	esac
+}
+complete -F _rpm rpm
+
+_chsh()
+{
+	local cur prev
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+        prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [ "$prev" = "-s" ]; then
+		COMPREPLY=( $( chsh -l | grep ^$cur ) )
+	else
+		COMPREPLY=( $( compgen -u $cur ) )
+	fi
+}
+complete -F _chsh chsh
+
+_chkconfig()
+{
+	local cur prev
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+	cur_nodash=${cur#--}
+        prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [ $COMP_CWORD -eq 1 ]; then
+		COMPREPLY=( $( compgen -W 'list add del level' $cur_nodash ) )
+		for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
+			COMPREPLY[i]=--${COMPREPLY[i]}
+		done
+		return 0
+	fi
+
+	if [ $COMP_CWORD -eq 4 ]; then
+		COMPREPLY=( $( compgen -W 'on off reset' $cur ) )
+		return 0
+	fi
+
+	case "$prev" in
+	@([1-6]|--@(list|add|del)))
+		COMPREPLY=( $( compgen -W "`(cd /etc/rc.d/init.d; echo *)`" \
+			       $cur) )
+		return 0
+		;;
+	--level)
+		COMPREPLY=( $( compgen -W '1 2 3 4 5 6' $cur ) )
+		return 0
+		;;
+	esac
+}
+complete -F _chkconfig chkconfig
+
+# ]]>
