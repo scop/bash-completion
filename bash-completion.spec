@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.60 2002/09/09 18:35:49 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.61 2002/09/28 18:38:21 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020909
+Version: 20020928
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,9 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Sat Sep 28 2002 Ian Macdonald <ian@caliban.org>
+- add some options to apt-get and apt-build completion
+
 * Mon Sep  9 2002 Ian Macdonald <ian@caliban.org>
 - fix for 'cvs add', where filename ends with another filename
 - add option completion for chown and chgrp
