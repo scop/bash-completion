@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.669 2004/01/01 00:51:46 ianmacd Exp $
+#   $Id: bash_completion,v 1.670 2004/01/01 00:58:30 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -999,6 +999,23 @@ have postfix && {
 #
 _postfix()
 {
+	local cur prev
+
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [[ $cur == '-' ]]; then
+		COMPREPLY=(-c -D -v)
+		return 0
+	fi
+	if [[ $prev == '-c' ]]; then
+		_filedir -d
+		return 0
+	fi
+	if [[ $prev == '-D' ]]; then
+		COMPREPLY=( $( compgen -W 'start' -- "${COMP_WORDS[COMP_CWORD]}" ) )
+		return 0
+	fi
 	COMPREPLY=( $( compgen -W 'start stop reload abort flush check' -- \
 		"${COMP_WORDS[COMP_CWORD]}" ) )
 }
