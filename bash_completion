@@ -1,0 +1,465 @@
+#   bash_completion - some programmable completion functions for bash 2.04
+#
+#   $Id: bash_completion,v 1.1 2000/08/09 00:17:29 ianmacd Exp $
+#
+#   Copyright (C) Ian Macdonald <ian@caliban.org>
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2, or (at your option)
+#   any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software Foundation,
+#   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+# Turn on extended globbing
+shopt -s extglob
+
+# A lot of the following one-liners were taken directly from the
+# completion examples provided with the bash 2.04 source distribution
+
+# Make directory commands see only directories
+complete -d cd mkdir rmdir pushd
+
+# Make file commands see only files
+complete -f cat less more ln strip
+complete -f -X '*.bz2' bzip2
+complete -f -X '!*.bz2' bunzip2
+complete -f -X '!*.zip' unzip
+complete -f -X '*.gz' gzip
+complete -f -X '*.Z' compress
+complete -f -X '!*.+(Z|gz|tgz|Gz)' gunzip zcat zmore
+complete -f -X '!*.Z' uncompress zmore zcat
+complete -f -X '!*.+(gif|jpg|jpeg|GIF|JPG|bmp)' ee xv
+complete -f -X '!*.+(ps|PS|ps.gz)' gv
+complete -f -X '!*.+(dvi|DVI)' dvips xdvi dviselect dvitype
+complete -f -X '!*.+(pdf|PDF)' acroread xpdf
+complete -f -X '!*.texi*' makeinfo texi2dvi texi2html
+complete -f -X '!*.+(tex|TEX)' tex latex slitex
+complete -f -X '!*.+(mp3|MP3)' mpg123
+
+# kill sees only signals
+complete -A signal kill -P '%'
+
+# user commands see only users
+complete -u finger su usermod userdel passwd
+
+# bg completes with stopped jobs
+complete -A stopped -P '%' bg
+
+# other job commands
+complete -j -P '%' fg jobs disown
+
+# network commands complete with hostname
+complete -A hostname ssh rsh telnet rlogin ftp ping fping host traceroute \
+	    nslookup
+
+# export and others complete with shell variables
+complete -v export local readonly unset
+
+# set completes with set options
+complete -A setopt set
+
+# shopt completes with shopt options
+complete -A shopt shopt
+
+# helptopics
+complete -A helptopic help
+
+# unalias completes with aliases
+complete -a unalias
+
+# various commands complete with commands
+complete -c command type nohup exec nice eval strace gdb
+
+# bind completes with readline bindings (make this more intelligent)
+complete -A binding bind
+
+# Now we get to the meat of the file, the functions themselves. Some
+# of these are works in progress. Most assume GNU versions of the
+# tools in question and may require modifications for use on vanilla
+# UNIX systems.
+#
+# A couple of functions may have non-portable, Linux specific code in
+# them, but this will be noted where applicable
+
+
+# GNU chown(1) completion. This should be expanded to allow the use of
+# ':' as well as '.' as the user.group separator.
+#
+_chown ()
+{
+	local cur prev user group
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+        prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	# do not attempt completion if we're specifying an option
+	if [ "${cur:0:1}" = "-" ]; then return 0; fi
+
+	# first parameter on line or first since an option?
+	if [ $COMP_CWORD -eq 1 ] || [ "${prev:0:1}" = "-" ]; then
+		case "$cur" in
+		[a-zA-Z]*.*)
+			user=${cur%.*}
+			group=${cur#*.}
+			COMPREPLY=( $( awk 'BEGIN {FS=":"} \
+					{if ($1 ~ /^'$group'/) print $1}' \
+					/etc/group ) )
+			for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
+				COMPREPLY[i]=$user.${COMPREPLY[i]}
+			done
+			return 0
+			;;
+		*)
+			COMPREPLY=( $( compgen -u $cur -S '.' ) )
+			return 0
+			;;
+		esac
+	else
+		COMPREPLY=( $( compgen -f $cur ) )
+	fi
+
+	return 0
+}
+complete -F _chown chown
+
+# umount(8) completion. This relies on the mount point being the third
+# space-delimited field in the output of mount(8)
+#
+_umount ()
+{
+	local cur
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+
+	# could rewrite the cut | grep to be a sed command, but this is
+	# clearer and doesn't result in much overhead
+	COMPREPLY=( $( mount | cut -d' ' -f 3 | grep ^$cur) )
+	return 0
+}
+complete -F _umount umount
+
+# GID completion. This will get a list of all valid group names from
+# /etc/group and should work anywhere.
+#
+_gid_func ()
+{
+	local cur
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=( $( awk 'BEGIN {FS=":"} {if ($1 ~ /^'$cur'/) print $1}' \
+			   /etc/group ) )
+	return 0
+}
+complete -F _gid_func groupdel groupmod
+
+# mount(8) completion. This will pull a list of possible mounts out of
+# /etc/fstab, unless the word being completed contains a ':', which
+# would indicate the specification of an NFS server. In that case, we
+# query the server for a list of all available exports and complete on
+# that instead.
+#
+_mount ()
+
+{       local cur
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+
+	case "$cur" in
+	*:*)
+	      COMPREPLY=( $( /usr/sbin/showmount -e --no-headers ${cur%%:*} |\
+			       grep ^${cur#*:} | awk '{print $1}'))
+		return 0
+		;;
+	*)
+		COMPREPLY=( $( awk '{if ($2 ~ /\//) print $2}' /etc/fstab | \
+			       grep ^$cur ))
+		return 0
+		;;
+	esac
+}
+complete -F _mount mount
+
+# Linux rmmod(1) completion. This completes on a list of all currently
+# installed kernel modules.
+#
+_rmmod ()
+{
+	local cur
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+
+	COMPREPLY=($( lsmod | awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}'))
+	return 0
+}
+complete -F _rmmod rmmod
+
+# Linux insmod(1) completion. This completes on a list of all
+# available modules for the version of the kernel currently running.
+#
+_insmod ()
+{
+	local cur modpath
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+	modpath=/lib/modules/`uname -r`
+
+	COMPREPLY=($( ls -R $modpath | sed -ne 's/^\('$cur'.*\)\.o$/\1/p'))
+	return 0
+}
+complete -F _insmod insmod depmod modprobe modinfo
+
+# man(1) completion. This relies on the security enhanced version of
+# GNU locate(1). UNIX variants having non-numeric man page sections
+# other than l, m and n should add the appropriate sections to the
+# first clause of the case statement.
+#
+# This is Linux specific, in that 'man <section> <page>' is the
+# expected syntax. This allows one to do something like
+# 'man 3 str<tab>' to obtain a list of all string handling syscalls on
+# the system.
+#
+_man ()
+{
+        local cur prev cmd
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+        prev=${COMP_WORDS[COMP_CWORD-1]}
+
+        # pathname completion if parameter starts with /
+        if [ "$cur" = "/" ]; then
+                COMPREPLY=( $( compgen -f $cur ) )
+                return 0
+        fi
+
+        case "$prev" in
+        [0-9n])
+                # churn out a string of paths to search, with * appended to $cur
+                cmd=`awk '{if ($1 ~ /^MANPATH/) \
+                     print $(NF)"/man'$prev'/'$cur'*"}' /etc/man.config | \
+                     sort -u`
+                # strip off * from paths ending in /*
+                cmd=${cmd//\/\\*/\/}
+                # redirect stderr for when path doesn't exist
+                cmd="ls $cmd 2>/dev/null"
+                COMPREPLY=( $( eval $cmd ) )
+                # get basename of man pages
+                COMPREPLY=( ${COMPREPLY[@]##*/} )
+                # strip suffix from man pages
+                COMPREPLY=( ${COMPREPLY[@]%%.*} )
+                return 0
+                ;;
+        *)
+                cmd=`awk '{if ($1 ~ /^MANPATH/) \
+                     print $(NF)"/man?/'$cur'*"}' /etc/man.config | sort -u`
+                cmd=${cmd//\/\\*/\/}
+                cmd="ls $cmd 2>/dev/null"
+                COMPREPLY=( $( eval $cmd ) )
+                COMPREPLY=( ${COMPREPLY[@]##*/} )
+                COMPREPLY=( ${COMPREPLY[@]%%.*} )
+                return 0
+                ;;
+        esac
+}
+complete -F _man man
+
+# Linux killall(1) completion. This wouldn't be much use on, say,
+# Solaris, where killall does exactly that: kills ALL processes.
+#
+# This could be improved. For example, it currently doesn't take
+# command line options into account
+#
+_killall ()
+{
+	local cur prev
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+        prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+	-[A-Z0-9]*)
+		# get a list of processes (the first sed evaluation
+		# takes care of swapped out processes, the second
+		# takes care of getting the basename of the process)
+	       COMPREPLY=( $( ps ahx | awk '{if ($5 ~ /^'$cur'/) print $5}' | \
+			       sed -e 's#[]\[]##g' -e 's#^.*/##' ))
+		return 0
+		;;
+	esac
+
+	# first parameter can be either a signal or a process
+	if [ $COMP_CWORD -eq 1 ]; then
+		# standard signal completion is rather braindead, so we need
+		# to hack around to get what we want here, which is to
+		# complete on a dash, followed by the signal name minus
+		# the SIG prefix
+		COMPREPLY=( $( compgen -A signal SIG${cur#-} ))
+		for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
+			COMPREPLY[i]=-${COMPREPLY[i]#SIG}
+		done
+	fi
+
+	# get processes, adding to signals if applicable
+	COMPREPLY=( ${COMPREPLY[*]} $( ps ahx | \
+		                       awk '{if ($5 ~ /^'$cur'/) print $5}' | \
+				       sed -e 's#[]\[]##g' -e 's#^.*/##' ))
+	return 0
+}
+complete -F _killall killall
+
+# GNU find(1) completion. This makes heavy use of ksh style extended
+# globs and contains Linux specific code for completing the parameter
+# to the -fstype option.
+#
+_find ()
+{
+	local cur prev
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]#-}
+        prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+	-@(max|min)depth)
+		COMPREPLY=( $( compgen -W '0 1 2 3 4 5 6 7 8 9' ) )
+		return 0
+		;;
+	-?(a)newer|-fls|-fprint?(0|f))
+		COMPREPLY=( $( compgen -f $cur ) )
+		return 0
+		;;
+	-fstype)
+		# this is highly non-portable (the option to -d is a tab)
+		COMPREPLY=( $( cut -d'	' -f 2 /proc/filesystems | grep ^$cur ) )
+		return 0
+		;;
+	-gid)
+		COMPREPLY=( $( awk 'BEGIN {FS=":"} \
+				{if ($3 ~ /^'$cur'/) print $3}' /etc/group ) )
+		return 0
+		;;
+	-group)
+		COMPREPLY=( $( awk 'BEGIN {FS=":"} \
+				{if ($1 ~ /^'$cur'/) print $1}' /etc/group ) )
+		return 0
+		;;
+	-?(x)type)
+		COMPREPLY=( $( compgen -W 'b c d p f l s' $cur ) )
+		return 0
+		;;
+	-uid)
+		COMPREPLY=( $( awk 'BEGIN {FS=":"} \
+				{if ($3 ~ /^'$cur'/) print $3}' /etc/passwd ) )
+		return 0
+		;;
+	-user)
+		COMPREPLY=( $( compgen -u $cur ) )
+		return 0
+		;;
+	-[acm]min|-[acm]time|-?(i)?(l)name|-inum|-?(i)path|-?(i)regex| \
+	-links|-perm|-size|-used|-exec|-ok|-printf)
+		# do nothing, just wait for a parameter to be given
+		return 0
+		;;
+	esac
+
+	# complete using basic options ($cur has had its dash removed here,
+	# as otherwise compgen will bomb out with an error, since it thinks
+	# the dash is an option to itself)
+	COMPREPLY=( $( compgen -W 'daystart depth follow help maxdepth \
+			mindepth mount noleaf version xdev amin anewer atime \
+			cmin cnewer ctime empty false fstype gid group ilname \
+			iname inum ipath iregex links lname mmin mtime name \
+			newer nouser nogroup perm regex size true type uid \
+			used user xtype exec fls fprint fprint0 fprintf ok \
+			print print0 printf prune ls' $cur ) )
+
+	# this removes any options from the list of completions that have
+	# already been specified somewhere on the command line.
+	COMPREPLY=( $( echo "${COMP_WORDS[@]}-" | \
+		       (while read -d '-' i; do
+			    [ "$i" == "" ] && continue
+			    # flatten array with spaces on either side,
+			    # otherwise we cannot grep on word boundaries of
+			    # first and last word
+			    COMPREPLY=" ${COMPREPLY[@]} "
+			    # remove word from list of completions
+			    COMPREPLY=( ${COMPREPLY/ ${i%% *} / } )
+		        done
+		        echo ${COMPREPLY[@]})
+		  ) )
+	
+	# put dashes back
+	for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
+		COMPREPLY[i]=-${COMPREPLY[i]}
+	done
+		
+	return 0
+}
+complete -F _find find
+
+# Linux ifconfig(8) completion
+#
+_ifconfig ()
+{
+	local cur
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+
+	case "${COMP_WORDS[1]}" in
+	-|*[0-9]*)
+		COMPREPLY=( $( compgen -W '-a up down arp promisc allmulti \
+					   metric mtu dstaddr netmask add del \
+					   tunnel irq io_addr mem_start media \
+					   broadcast pointopoint hw multicast \
+					   address txqueuelen' $cur ))
+		COMPREPLY=( $( echo " ${COMP_WORDS[@]}" | \
+			       (while read -d ' ' i; do
+				   [ "$i" == "" ] && continue
+				   # flatten array with spaces on either side,
+				   # otherwise we cannot grep on word
+				   # boundaries of first and last word
+				   COMPREPLY=" ${COMPREPLY[@]} "
+				   # remove word from list of completions
+				   COMPREPLY=( ${COMPREPLY/ $i / } )
+				done
+			        echo ${COMPREPLY[@]})
+			  ) )
+		return 0
+		;;
+	esac
+
+	COMPREPLY=( $( ifconfig -a | sed -ne 's/^\('$cur'[^ ]*\).*$/\1/p' ))
+}
+complete -F _ifconfig ifconfig
+
+# Linux ipsec(8) completion (for FreeS/WAN). Very basic.
+#
+_ipsec ()
+{
+	local cur
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+
+	COMPREPLY=( $( compgen -W 'auto barf eroute klipsdebug look manual \
+				   pluto ranbits rsasigkey setup showdefaults \
+				   showhostkey spi spigrp tncfg whack' $cur ))
+}
+complete -F _ipsec ipsec
