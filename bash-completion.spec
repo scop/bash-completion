@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.40 2002/06/01 18:51:08 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.41 2002/06/05 09:59:02 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020601
+Version: 20020605
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,16 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Wed Jun  5 2002 Ian Macdonald <ian@caliban.org>
+- add .html file completion for netscape, mozilla, lynx, w3m
+- use 'command ls' instead of '\ls', since while the latter avoids aliases,
+  it will still call functions. 'command' always gets us the binary.
+- add newgrp to list of commands that complete on group names
+- tar completion now completes first on tar files, then on their contents
+- add bash complete completion
+- add lilo(8) completion
+- Java completion overhaul
+
 * Sat Jun  1 2002 Ian Macdonald <ian@caliban.org>
 - add basic completion for RCS suite (rcs, rlog, ci, co)
 - fix bug in known hosts completion on platforms with no GNU sed
