@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.166 2002/02/28 23:23:14 ianmacd Exp $
+#   $Id: bash_completion,v 1.167 2002/02/28 23:37:10 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1517,6 +1517,7 @@ _cd()
 		return 0
 	fi
 	if [ -n "$CDPATH" ]; then
+		IFS=$'\t'
 		# we have a CDPATH, so loop on its contents
 		for i in ${CDPATH//:/$'\t'}; do
 			# create an array of matched subdirs
@@ -2092,7 +2093,7 @@ _configure_func()
 
 	[[ "$cur" != -* ]] && return 0
 
-	COMPREPLY=( $( $1 --help | sed -ne 's/^ *\('$cur'[^ '$'\t'',[]\+\).*$/\1/p' ) )
+	COMPREPLY=( $( $1 --help | sed -ne 's|^ *\('$cur'[^ '$'\t'',[]\+\).*$|\1|p' ) )
 }
 complete -F _configure_func configure
 
