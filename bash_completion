@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.513 2003/01/17 10:01:29 ianmacd Exp $
+#   $Id: bash_completion,v 1.514 2003/01/17 10:09:59 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1034,7 +1034,10 @@ _cvs()
 			@(commit|ci))
 				mode=commit
 				;;
-			@(annotate|diff|@(ex|im)port|history|release|status|update|edit|unedit))
+			@(ex?(p?(ort))))
+				mode=export
+				;;
+			@(annotate|diff|history|import|release|status|update|?(un)edit))
 				mode=$i
 				;;
 			?(r)log)
@@ -1122,6 +1125,16 @@ _cvs()
 		else
 			COMPREPLY=( $( compgen -W '-n -R -l -f -F -m -r' -- \
 				       $cur ) )
+		fi
+		;;
+	export)
+		if [[ "$cur" != -* ]]; then
+			[ -z "$cvsroot" ] && cvsroot=$CVSROOT
+			COMPREPLY=( $( cvs -d "$cvsroot" co -c | awk '{print $1}' ) )
+			COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
+		else
+			COMPREPLY=( $( compgen -W '-N -f -l -R -n \
+						  -r -D -d -k' -- $cur ) )
 		fi
 		;;
 	diff)
