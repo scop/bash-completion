@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.293 2002/04/30 22:16:35 ianmacd Exp $
+#   $Id: bash_completion,v 1.294 2002/05/03 00:43:50 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -748,30 +748,29 @@ _ipsec()
 
 # cvs(1) completion
 #
-have cvs &&
+have cvs && {
+set_prefix()
+{
+	[ -z "$prefix" ] || prefix=${cur%/*}/
+	[ -r ${prefix}CVS/Entries ] || prefix=""
+}
+
+get_entries()
+{
+	entries=( $( cut -d/ -f2 -s ${prefix}CVS/Entries | grep "^$cur" ) )
+}
+
+get_modules()
+{
+	if [ -n "$prefix" ]; then 
+		COMPREPLY=( $( \ls -d ${cvsroot}/${prefix}/!(CVSROOT) ))
+	else
+		COMPREPLY=( $( \ls -d ${cvsroot}/!(CVSROOT) ) )
+	fi
+}
+
 _cvs()
 {
-	set_prefix()
-	{
-		[ -z "$prefix" ] || prefix=${cur%/*}/
-		[ -r ${prefix}CVS/Entries ] || prefix=""
-	}
-
-	get_entries()
-	{
-		entries=( $( cut -d/ -f2 -s ${prefix}CVS/Entries | \
-			     grep "^$cur" ) )
-	}
-
-	get_modules()
-	{
-		if [ -n "$prefix" ]; then 
-			COMPREPLY=( $( \ls -d ${cvsroot}/${prefix}/!(CVSROOT) ))
-		else
-			COMPREPLY=( $( \ls -d ${cvsroot}/!(CVSROOT) ) )
-		fi
-	}
-
 	local cur count mode i cvsroot pwd
 	local -a flags miss files entries changed newremoved
 
@@ -955,6 +954,7 @@ _cvs()
 	return 0
 }
 [ "$have" ] && complete -F _cvs $default cvs
+}
 
 have rpm && {
 # helper functions for rpm completion
