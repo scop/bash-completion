@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.449 2002/10/17 20:51:25 ianmacd Exp $
+#   $Id: bash_completion,v 1.450 2002/10/20 06:56:41 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -189,14 +189,14 @@ _expand()
 #
 _pids()
 {
-	COMPREPLY=( $( compgen -W '$( ps axo pid | sed 1d )' -- $cur ) )
+	COMPREPLY=( $( compgen -W '$( command ps axo pid | sed 1d )' -- $cur ) )
 }
 
 # This function completes on process group IDs
 #
 _pgids()
 {
-	COMPREPLY=( $( compgen -W '$( ps axo pgid | sed 1d )' -- $cur ) )
+	COMPREPLY=( $( compgen -W '$( command ps axo pgid | sed 1d )' -- $cur ))
 }
 
 # Linux ifconfig(8) and iwconfig(8) helper function
@@ -657,7 +657,7 @@ _killall()
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
 		_signals
 	else
-		COMPREPLY=( $( compgen -W '$( ps axo ucomm | sed 1d )' \
+		COMPREPLY=( $( compgen -W '$( command ps axo ucomm | sed 1d )' \
 			       -- $cur ) )
 	fi
 
@@ -2599,7 +2599,8 @@ _gdb()
 		COMPREPLY=( $( compgen -c -- $cur ) )
 	elif [ $COMP_CWORD -eq 2 ]; then
 		prev=${prev##*/}
-		COMPREPLY=( $( compgen -W "$( echo core* $( ps axo comm,pid |
+		COMPREPLY=( $( compgen -W "$( echo core* \
+				$( command ps axo comm,pid |
 				awk '{if ($1 ~ /^'$prev'/) print $2}' ) )" \
 				-- "$cur" ) )
 	fi
