@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.22 2002/04/04 16:57:30 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.23 2002/04/06 22:26:05 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020404
+Version: 20020406
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,11 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Sat Apr  6 2002 Ian Macdonald <ian@caliban.org>
+- various fixes to urpmi function names to make them officially valid
+- rpm would wrongly attempt group query completion or uninstalled package
+  completion under certain circumstances
+
 * Thu Apr  4 2002 Ian Macdonald <ian@caliban.org>
 - add lftp and autorpm completion
 - minor enhancements to route completion
