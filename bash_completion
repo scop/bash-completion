@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.51 2002/01/08 01:33:08 ianmacd Exp $
+#   $Id: bash_completion,v 1.52 2002/01/08 05:49:06 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -129,7 +129,7 @@ _chown()
 	[ "$cur" == -* ] && return 0
 
 	# first parameter on line or first since an option?
-	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
+	if [ $COMP_CWORD = 1 ] || [[ "$prev" == -* ]]; then
 		if [[ "$cur" == [a-zA-Z]*.* ]]; then
 			user=${cur%.*}
 			group=${cur#*.}
@@ -145,6 +145,28 @@ _chown()
 	return 0
 }
 complete -F _chown -o default chown
+
+# chgrp(1) completion
+#
+_chgrp()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	# do not attempt completion if we're specifying an option
+	[ "$cur" == -* ] && return 0
+
+	# first parameter on line or first since an option?
+	if [ $COMP_CWORD = 1 ] || [[ "$prev" == -* ]]; then
+		COMPREPLY=( $( compgen -g $cur ) )
+	fi
+
+	return 0
+}
+complete -F _chgrp -o default chgrp
 
 # umount(8) completion. This relies on the mount point being the third
 # space-delimited field in the output of mount(8)
@@ -221,7 +243,8 @@ _insmod()
 	modpath=/lib/modules/`uname -r`
 
 	# behave like lsmod for modprobe -r
-	if [ ${COMP_WORDS[0]} = "modprobe" ] && [ "${COMP_WORDS[1]}" = "-r" ]; then
+	if [ ${COMP_WORDS[0]} = "modprobe" ] &&
+	   [ "${COMP_WORDS[1]}" = "-r" ]; then
 		COMPREPLY=( $( /sbin/lsmod | \
 				awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}' ) )
 		return 0
@@ -239,7 +262,8 @@ _insmod()
 		       awk '{if ($1 ~ /^'$cur'/) print $1}' ) )
 	else
 		# do module name completion
-		COMPREPLY=( $( ls -R $modpath | sed -ne 's/^\('$cur'.*\)\.o$/\1/p') )
+		COMPREPLY=( $( \ls -R $modpath | \
+				sed -ne 's/^\('$cur'.*\)\.o$/\1/p') )
 	fi
 
 	return 0
@@ -324,7 +348,7 @@ _killall()
 	fi
 
 	# first parameter can be either a signal or a process
-	if [ $COMP_CWORD -eq 1 ]; then
+	if [ $COMP_CWORD = 1 ]; then
 		# standard signal completion is rather braindead, so we need
 		# to hack around to get what we want here, which is to
 		# complete on a dash, followed by the signal name minus
@@ -547,7 +571,7 @@ _cvs()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
+	if [ $COMP_CWORD = 1 ] || [[ "$prev" == -* ]]; then
 		COMPREPLY=( $( compgen -W 'add admin checkout commit diff \
 		export history import log rdiff release remove rtag status \
 		tag update' $cur ))
@@ -947,7 +971,7 @@ _chkconfig()
 	cur_nodash=${cur#--}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	if [ $COMP_CWORD -eq 1 ]; then
+	if [ $COMP_CWORD = 1 ]; then
 		COMPREPLY=( $( compgen -W 'list add del level' $cur_nodash ) )
 		for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
 			COMPREPLY[i]=--${COMPREPLY[i]}
@@ -976,8 +1000,8 @@ _chkconfig()
 }
 [ "$have" ] && complete -F _chkconfig chkconfig
 
-# This function performs host completion based on ssh's known_hosts files, defaulting
-# to standard host completion if they don't exist.
+# This function performs host completion based on ssh's known_hosts files,
+# defaulting to standard host completion if they don't exist.
 #
 _known_hosts()
 {
@@ -1341,7 +1365,7 @@ _command()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	if [ $COMP_CWORD -eq 1 ]; then
+	if [ $COMP_CWORD = 1 ]; then
 		COMPREPLY=( $( compgen -c $cur ) )
 	else
 		COMPREPLY=( $( compgen -f $cur ) )
@@ -1373,7 +1397,7 @@ _p4()
 		uresource uxbinary xbinary xltext xtempobj xtext \
 		text binary resource"
 
-	if [ $COMP_CWORD -eq 1 ]; then
+	if [ $COMP_CWORD = 1 ]; then
 		COMPREPLY=( $( compgen -W "$p4commands" $cur ) )
 	elif [ $COMP_CWORD -eq 2 ]; then
 		case "$prev" in
