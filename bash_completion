@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.292 2002/04/30 21:55:20 ianmacd Exp $
+#   $Id: bash_completion,v 1.293 2002/04/30 22:16:35 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2147,19 +2147,19 @@ _psql()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
-	-h) 
+	-h|--host) 
 		_known_hosts
 		return 0
 		;;
-	-U)
+	-U|--username)
 		_pg_users
 		return 0
 		;;
-	-d)
+	-d|--dbname)
 		_pg_databases
 		return 0
 		;;
-	-@(o|f))
+	-@(o|f)|--output|--file)
 		_filedir
 		return 0
 		;;
@@ -2167,9 +2167,15 @@ _psql()
 
 	if [[ "$cur" == -* ]]; then
 		# return list of available options
-		COMPREPLY=( $( compgen -W '-a -A -c -d -e -E -f -F -h -H \
-			-l -n -o -p -P -q -R -s -S -t -T -U -v -V -W -x -X \
-			--help' -- $cur ) )
+		COMPREPLY=( $( compgen -W '-a --echo-all -A --no-align \
+			-c --command -d --dbname -e --echo-queries \
+			-E --echo-hidden -f --file -F --filed-separator \
+			-h --host -H --html -l --list -n -o --output \
+			-p --port -P --pset -q -R --record-separator \
+			-s --single-step -S --single-line -t --tuples-only \
+			-T --table-attr -U --username -v --variable \
+			-V --version -W --password -x --expanded -X --nopsqlrc \
+			-? --help ' -- $cur ) )
 	else
 		# return list of available databases
 		_pg_databases
