@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.284 2002/04/24 15:40:37 ianmacd Exp $
+#   $Id: bash_completion,v 1.285 2002/04/24 22:26:49 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2692,6 +2692,97 @@ _querybts()
 	    		$( apt-cache pkgnames -- $cur ) )
 }
 [ "$have" ] && complete -F _querybts $filenames querybts
+
+# update-alternatives completion
+#
+have update-alternatives &&
+_update_alternatives()
+{
+	installed_alternatives()
+	{
+		local admindir
+		# find wich admin dir to use
+		if [ -f /etc/debian_version ]; then
+			admindir=/var/lib/dpkg/alternatives
+		else
+			admindir=/var/lib/rpm/alternatives
+		fi
+		for (( i=1; i < COMP_CWORD; i++ )); do
+			if [[ "${COMP_WORDS[i]}" == --admindir ]]; then
+				admindir=${COMP_WORDS[i+1]}
+				break
+			fi
+		done
+		COMPREPLY=( $( \ls $admindir | grep "^$cur" ) )
+	}
+
+	local cur prev mode args
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+	--@(altdir|admindir))
+		_filedir -d
+		return 0
+		;;
+	--@(help|version))
+		return 0
+		;;
+	esac
+
+	# find wich mode to use and how many real args used so far
+	for (( i=1; i < COMP_CWORD; i++ )); do
+		if [[ "${COMP_WORDS[i]}" == --@(install|remove|auto|display|\
+					    config) ]]; then
+			mode=${COMP_WORDS[i]}
+			args=$(($COMP_CWORD - i))
+			break
+		fi
+	done
+
+	case $mode in
+	--install)
+		case $args in
+		1)
+			_filedir
+			;;
+		2)
+			installed_alternatives
+			;;
+		3)
+			_filedir
+			;;
+		esac
+		;;
+	--remove)
+		case $args in
+		1)
+			installed_alternatives
+			;;
+		2)
+			_filedir
+			;;
+		esac
+		;;
+	--auto)
+		installed_alternatives
+		;;
+	--display)
+		installed_alternatives
+		;;
+	--config)
+		installed_alternatives
+		;;
+	*)
+		COMPREPLY=( $( compgen -W '--verbose --quiet --help --version \
+			       --altdir --admindir' -- $cur ) \
+			    $( compgen -W '--install --remove --auto --display \
+			       --config' -- $cur ) )
+	esac
+}
+[ "$have" ] && complete -F _update_alternatives update-alternatives
 
 _filedir_xspec()
 {
