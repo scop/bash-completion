@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.91 2003/05/27 05:12:52 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.92 2003/05/27 05:20:54 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
@@ -76,7 +76,6 @@ fi
 - minor apt-cache completion fix
 - handle the case whereby we're sourced from a shell function
 - dpkg completion was missing the -x option
-- add pkg_delete and pkg_info back onto FreeBSD commands that use _pkg_delete()
 - add FreeBSD portinstall completion
 - various bits of code referred to ${#COMP_WORDS} instead of ${#COMP_WORDS[@]}
 - silence stderr in man invocation in perldoc completion
