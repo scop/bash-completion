@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.45 2002/01/05 20:42:41 ianmacd Exp $
+#   $Id: bash_completion,v 1.46 2002/01/05 20:48:59 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1253,7 +1253,10 @@ _cd()
 	fi
 
 	# standard dir completion if parameter starts with /, ./ or ../
-	[[ "$cur" == ?(.)?(.)/* ]] && COMPREPLY=( $( compgen -d $cur ) ) && return 0
+	if [[ "$cur" == ?(.)?(.)/* ]]; then
+		COMPREPLY=( $( compgen -d $cur ) )
+		return 0
+	fi
 	if [ -n "$CDPATH" ]; then
 		# we have a CDPATH, so loop on its contents
 		for i in ${CDPATH//:/ }; do
@@ -1262,9 +1265,8 @@ _cd()
 			# add subdirs to list of completions as necessary
 			[ ${#dirs[@]} ] && COMPREPLY=( ${COMPREPLY[@]} ${dirs[@]#$i/})
 		done
-	else
-		COMPREPLY=( $( compgen -d $cur ) )
 	fi
+	COMPREPLY=( $( compgen -d $cur ) )
 
 	return 0
 }
