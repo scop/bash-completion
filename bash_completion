@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.323 2002/05/16 18:07:38 ianmacd Exp $
+#   $Id: bash_completion,v 1.324 2002/05/18 00:35:26 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1567,12 +1567,15 @@ _chkconfig()
 #
 _known_hosts()
 {
-	local cur user suffix global_kh user_kh
+	local cur ocur user suffix aliases global_kh user_kh hosts
 	local -a kh config
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
-	[ "$1" = -c ] && suffix=':'
+	ocur=$cur
+
+	[ "$1" = -a ] || [ "$2" = -a ] && aliases='yes'
+	[ "$1" = -c ] || [ "$2" = -c ] && suffix=':'
 	[[ $cur == *@* ]] && user=${cur%@*}@ && cur=${cur#*@}
 	kh=()
 
@@ -1608,6 +1611,7 @@ _known_hosts()
 	    # Escape slashes and dots in paths for awk
 	    cur=${cur//\//\\\/}
 	    cur=${cur//\./\\\.}
+
 	    if [[ "$cur" == [0-9]*.* ]]; then
 		# Digits followed by a dot - just search for that
 		cur="^$cur.*"
@@ -1621,12 +1625,21 @@ _known_hosts()
 	    else
 		cur="^$cur"
 	    fi
+
 	    # FS needs to look for a comma separated list
 	    COMPREPLY=( $( awk 'BEGIN {FS=","}
 				{for (i=1; i<=2; ++i) { \
 				       gsub(" .*$", "", $i); \
 				       if ($i ~ /'$cur'/) {print $i} \
 				}}' ${kh[@]} ) )
+
+	    # append any available aliases from config files
+	    if [ ${#config[@]} -gt 0 ] && [ -n "$aliases" ]; then
+		hosts=$( compgen -W "$( echo $( sed -ne "s/^Host["$'\t '"]*\([^*?]*\)$/\1/ip" ${config[@]} ) )" -- $ocur )
+		COMPREPLY=( ${COMPREPLY[@]} $hosts )
+	    fi
+
+	    # apply suffix
 	    for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
 		COMPREPLY[i]=$user${COMPREPLY[i]}$suffix
 	    done
@@ -1642,10 +1655,10 @@ complete -F _known_hosts traceroute ping fping telnet host nslookup rsh \
 
 # ssh(1) completion
 #
-have ssh &&
+have ssh && {
 _ssh()
 {
-	local cur prev hosts
+	local cur prev
 	local -a config
 
 	COMPREPLY=()
@@ -1661,16 +1674,7 @@ _ssh()
 	    COMPREPLY=( $( compgen -u -- $cur ) )
 	    ;;
 	*)
-	    _known_hosts
-
-	    [ -r /etc/ssh/ssh_config ]	&& config[0]=/etc/ssh/ssh_config
-	    [ -r ~/.ssh/config ]	&& config[1]=~/.ssh/config
-	
-	    # get host aliases from config files
-	    if [ ${#config[@]} -gt 0 ]; then
-		hosts=$( compgen -W "$( echo $( sed -ne "s/^Host["$'\t '"]*\([^*?]*\)$/\1/ip" ${config[@]} ) )" -- $cur )
-		COMPREPLY=( ${COMPREPLY[@]} $hosts )
-	    fi
+	    _known_hosts -a
 
 	    [ $COMP_CWORD -eq 1 ] || \
 		COMPREPLY=( ${COMPREPLY[@]} $( compgen -c -- $cur ) )
@@ -1682,7 +1686,6 @@ _ssh()
 
 # scp(1) completion
 #
-have scp &&
 _scp()
 {
 	local cur userhost path
@@ -1707,12 +1710,13 @@ _scp()
 		return 0
 	fi
 
-	[[ "$cur" == */* ]] || _known_hosts -c
+	[[ "$cur" == */* ]] || _known_hosts -c -a
 	_filedir
 
 	return 0
 }
 [ "$have" ] && complete $filenames -F _scp scp
+}
 
 # Linux route(8) completion
 #
