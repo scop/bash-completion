@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.327 2002/05/19 09:16:30 ianmacd Exp $
+#   $Id: bash_completion,v 1.328 2002/05/19 16:56:19 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -128,7 +128,7 @@ have()
 # This function performs file and directory completion. It's better than
 # simply using 'compgen -f', because it honours spaces in filenames.
 # If passed -d, it completes only on directories. If passed anything else,
-# it's assumed to be a fileglob to complete on.
+# it's assumed to be a file glob to complete on.
 #
 _filedir()
 {
@@ -916,8 +916,7 @@ _cvs()
 			@(commit|ci))
 				mode=commit
 				;;
-			@(annotate|diff|@(ex|im)port|history|release|status| \
-			  update))
+			@(annotate|diff|@(ex|im)port|history|release|status|update))
 				mode=$i
 				;;
 			?(r)log)
@@ -1187,7 +1186,7 @@ _rpm()
 			--eval --pipe --queryformat --repackage --nosuggests \
 			--nodigest --nosignature' -- $cur ) )
 		else
-			file_glob rpm
+			_filedir 'rpm'
 		fi
 		;;
 	-@(e|-erase))
@@ -1217,7 +1216,7 @@ _rpm()
 				--conflicts --obsoletes --nodigest \
 				--nosignature' -- $cur ) )
 			else
-				file_glob rpm
+				_filedir 'rpm'
 			fi
 		else
 			# installed package completion
@@ -1243,7 +1242,7 @@ _rpm()
 			COMPREPLY=( $( compgen -W '--nopgp --nogpg --nomd5 \
 					--nodigest --nosignature' -- $cur ) )
 		else
-			file_glob rpm
+			_filedir 'rpm'
 		fi
 		;;
 	-@([Vy]*|-verify))
@@ -1258,7 +1257,7 @@ _rpm()
 		elif [ "${COMP_LINE#* -*([^ -])g}" != "$COMP_LINE" ]; then
 			rpm_group_completion
 		elif [ "${COMP_LINE#* -*([^ -])p}" != "$COMP_LINE" ]; then
-			file_glob rpm
+			_filedir 'rpm'
 		else
 			rpm_installed_packages
 		fi
@@ -1270,9 +1269,9 @@ _rpm()
 			--targetbuildarch --buildos --nobuild --nodeps \
 			--nodirtokens' -- $cur ) )
 		elif [[ ${COMP_WORDS[1]} == -b* ]]; then
-			file_glob spec
+			_filedir 'spec'
 		else
-			file_glob '@(tgz|tar.@(gz|bz2))'
+			_filedir '@(tgz|tar.@(gz|bz2))'
 		fi
 		;;
 	--re@(build|compile))
@@ -1280,14 +1279,14 @@ _rpm()
 			COMPREPLY=( $( compgen -W '--nodeps --rmsource \
 				--rmspec --sign --nodirtokens' -- $cur ) )
 		else
-			file_glob src.rpm
+			_filedir 'src.rpm'
 		fi
 		;;
 	--tarbuild)
-		file_glob '@(tgz|tar.@(gz|bz2))'
+		_filedir '@(tgz|tar.@(gz|bz2))'
 		;;
 	--@(re|add)sign)
-		file_glob rpm
+		_filedir 'rpm'
 		;;
 	--set@(perms|gids))
 		rpm_installed_packages
@@ -1297,7 +1296,7 @@ _rpm()
 			COMPREPLY=( $( compgen -W '--clean --rmsource \
 					--rmspec' -- $cur ) )
 		else
-			file_glob spec
+			_filedir 'spec'
 		fi
 		;;
 	--@(import|dbpath|root))
