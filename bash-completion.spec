@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.85 2003/04/19 07:46:07 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.86 2003/04/19 07:52:36 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030414
+Version: 20030419
 Release: 1
 Group: System Environment/Shells
 License: GPL
