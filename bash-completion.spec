@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.118 2004/07/11 18:41:18 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.119 2004/10/17 08:25:06 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20040711
+Version: 20041017
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,28 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Sun Oct 17 2004 Ian Macdonald <ian@caliban.org>
+- properly unset $have at end of sourcing
+- scp completion was broken for file names, both local and remote, that
+  contained shell metacharacters.
+- fix gzip with files whose names contain spaces
+- rename _comp-dpkg-installed-packages() to _comp_dpkg_installed_packages()
+  to comply with POSIX.2 shell function naming
+- make talk, ytalk and finger not add a suffix of '@' after completing a user
+  name
+- apt-cache improvements
+- add .miff as an extension for display completion
+- process targets in included Makefiles during make completion
+- new dhclient, lvm and bittorrent (contrib) completion
+- fix sed error on service completion
+- add kghostview and kpdf for PostScript and PDF files
+- allow mplayer to complete on .dv files
+- CVS completion fix to allow better handling of files and dirs whose names
+  contain whitespace
+- rpm completion fix to avoid "--nodigest --nosignatures" being passed as a
+  single option
+- many minor fixes
+
 * Sun Jul 11 2004 Ian Macdonald <ian@caliban.org>
 - eliminate use of grep in _filedir_xspec() for better performance
 - minor fix to mutt completion
