@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.605 2003/08/04 01:40:25 ianmacd Exp $
+#   $Id: bash_completion,v 1.606 2003/08/04 05:15:28 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -225,6 +225,22 @@ _pids()
 _pgids()
 {
 	COMPREPLY=( $( compgen -W '$( command ps axo pgid | sed 1d )' -- $cur ))
+}
+
+# This function completes on user IDs
+#
+_uids()
+{
+	COMPREPLY=( $( awk 'BEGIN {FS=":"} {if ($3 ~ /^'$cur'/) print $3}' \
+			/etc/passwd ) )
+}
+
+# This function completes on group IDs
+#
+_gids()
+{
+	COMPREPLY=( $( awk 'BEGIN {FS=":"} {if ($3 ~ /^'$cur'/) print $3}' \
+			/etc/group ) )
 }
 
 # Linux ifconfig(8) and iwconfig(8) helper function
@@ -772,8 +788,7 @@ _find()
 		return 0
 		;;
 	-gid)
-		COMPREPLY=( $( awk 'BEGIN {FS=":"} \
-				{if ($3 ~ /^'$ncur'/) print $3}' /etc/group ) )
+		_gids
 		return 0
 		;;
 	-group)
@@ -786,8 +801,7 @@ _find()
 		return 0
 		;;
 	-uid)
-		COMPREPLY=( $( awk 'BEGIN {FS=":"} \
-				{if ($3 ~ /^'$ncur'/) print $3}' /etc/passwd ) )
+		_uids
 		return 0
 		;;
 	-user)
@@ -5050,6 +5064,78 @@ _cdrecord()
 
 }
 [ -n "${have:-}" ] && complete -F _cdrecord cdrecord
+
+# mkisofs(8) completion
+#
+have mkisofs &&
+_mkisofs()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(o|abstract|biblio|check-session|copyright|log-file|root-info|prep-boot|*-list))
+			_filedir
+			return 0
+			;;
+		-*-charset)
+			COMPREPLY=( $( mkisofs -input-charset help 2>&1 | \
+					tail +3 | grep "^$cur") )
+			return 0
+			;;
+		-uid)
+			_uids
+			return 0
+			;;
+		-gid)
+			_gids
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-abstract -A -allow-lowercase \
+				-allow-multidot -biblio -cache-inodes \
+				-no-cache-inodes -b -eltorito-alt-boot -B -G \
+				-hard-disk-boot -no-emul-boot -no-boot \
+				-boot-load-seg -boot-load-size \
+				-boot-info-table -C -c -check-oldname \
+				-check-session -copyright -d -D -dir-mode \
+				-dvd-video-f -file-mode -gid -gui \
+				-graft-points -hide -hide-list -hidden \
+				-hidden-list -hide-joliet -hide-joliet-list \
+				-hide-joliet-trans-tbl -hide-rr-moved \
+				-input-charset -output-charset -iso-level -J \
+				-joliet-long -jcharset -l -L -log-file -m \
+				-exclude-list -max-iso9660-filenames -M -N \
+				-new-dir-mode -nobak -no-bak -force-rr -no-rr \
+				-no-split-symlink-components \
+				-no-split-symlink-fields -o -pad -no-pad \
+				-path-list -P -p -print-size -quiet -R -r \
+				-relaxed-filenames -sort -split-output \
+				-stream-media-size -stream-file-name -sysid -T\
+				-table-name -ucs-level -udf -uid \
+				-use-fileversion -U -no-iso-translate -V \
+				-volset -volset-size -volset-seqno -v -x -z \
+				-hfs -apple -map -magic -hfs-creator \
+				-hfs-type -probe -no-desktop -mac-name \
+				-boot-hfs-file -part -auto -cluster-size \
+				-hide-hfs -hide-hfs-list -hfs-volid \
+				-icon-position -root-info -prep-boot \
+				-input-hfs-charset -output-hfs-charset \
+				-hfs-unlock -hfs-bless -hfs-parms --cap \
+				--netatalk --double --ethershare --ushare \
+				--exchange --sgi --xinet --macbin --single \
+				--dave --sfm --osx-double --osx-hfs' -- $cur ))
+	else
+		_filedir
+	fi
+
+}
+[ -n "${have:-}" ] && complete -F _mkisofs mkisofs
 
 _filedir_xspec()
 {
