@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.69 2002/01/24 00:41:00 ianmacd Exp $
+#   $Id: bash_completion,v 1.70 2002/01/24 05:03:26 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -20,7 +20,7 @@
 #   along with this program; if not, write to the Free Software Foundation,
 #   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-# RELEASE: 20020121
+# RELEASE: 20020124
 
 [ -n "$DEBUG" ] && set -v || set +v
 # Set a couple of useful vars
@@ -115,8 +115,7 @@ have()
 }
 
 
-# GNU chown(1) completion. This should be expanded to allow the use of
-# ':' as well as '.' as the user.group separator.
+# GNU chown(1) completion.
 #
 _chown()
 {
@@ -162,6 +161,7 @@ _chgrp()
 
 	# first parameter on line or first since an option?
 	if [ $COMP_CWORD = 1 ] || [[ "$prev" == -* ]]; then
+		_expand || return 0
 		COMPREPLY=( $( compgen -g $cur ) )
 	fi
 
@@ -284,6 +284,8 @@ _man()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	_expand || return 0
 
 	# default completion if parameter contains /
 	[[ "$cur" == */* ]] && return 0
@@ -423,6 +425,8 @@ _find()
 		;;
 	esac
 
+	_expand || return 0
+
 	# complete using basic options ($cur has had its dash removed here,
 	# as otherwise compgen will bomb out with an error, since it thinks
 	# the dash is an option to itself)
@@ -454,10 +458,9 @@ _find()
 		COMPREPLY[i]=-${COMPREPLY[i]}
 	done
 
-
 	return 0
 }
-complete -F _find -o dirnames find
+complete -F _find -o default find
 
 # Linux ifconfig(8) completion
 #
@@ -1093,6 +1096,8 @@ _scp()
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
+
+	_expand || return 0
 
 	_known_hosts
 	COMPREPLY=( ${COMPREPLY[@]} $( compgen -f $cur ) )
