@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.89 2003/05/04 19:41:11 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.90 2003/05/05 06:51:42 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
@@ -37,8 +37,6 @@ install -d -m 0755 $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
 install -d -m 0755 $RPM_BUILD_ROOT%{_sysconfdir}/bash_completion.d
 install -m 0644 bash_completion $RPM_BUILD_ROOT%{_sysconfdir}/
 cat <<'EOF' > bash_completion.sh
-#!/bin/bash
-
 # check for bash
 [ -z "$BASH_VERSION" ] && return
 
