@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.35 2001/12/18 04:25:04 ianmacd Exp $
+#   $Id: bash_completion,v 1.36 2001/12/18 04:43:25 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -113,9 +113,9 @@ _chown()
 {
 	local cur prev user group i
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
-        prev=${COMP_WORDS[COMP_CWORD-1]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# do not attempt completion if we're specifying an option
 	[ "$cur" == -* ] && return 0
@@ -145,8 +145,8 @@ _umount()
 {
 	local cur
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
 
 	# could rewrite the cut | grep to be a sed command, but this is
 	# clearer and doesn't result in much overhead
@@ -166,8 +166,8 @@ _mount()
 
 {       local cur
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
 
 	if [ -x /usr/sbin/showmount ] && [[ "$cur" == *:* ]]; then
 		COMPREPLY=( $( /usr/sbin/showmount -e --no-headers ${cur%%:*} |\
@@ -189,8 +189,8 @@ _rmmod()
 {
 	local cur
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
 
 	COMPREPLY=( $( /sbin/lsmod | \
 		       awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}' ) )
@@ -206,9 +206,9 @@ _insmod()
 {
 	local cur prev modpath
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
-        prev=${COMP_WORDS[COMP_CWORD-1]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 	modpath=/lib/modules/`uname -r`
 
 	# behave like lsmod for modprobe -r
@@ -219,10 +219,10 @@ _insmod()
 	fi
 
 	# do filename completion if we're giving a path to a module
-        if [[ "$cur" == /* ]]; then
-                COMPREPLY=( $( compgen -f $cur ) )
-                return 0
-        fi
+	if [[ "$cur" == /* ]]; then
+		COMPREPLY=( $( compgen -f $cur ) )
+		return 0
+	fi
 
 	if [ $COMP_CWORD -gt 1 ]; then
 		# do module parameter completion
@@ -245,11 +245,11 @@ _insmod()
 [ $OS = Linux ] &&
 _man()
 {
-        local cur prev cmd
+	local cur prev cmd
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
-        prev=${COMP_WORDS[COMP_CWORD-1]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# default completion if parameter contains /
 	[[ "$cur" == /* ]] && return 0
@@ -259,31 +259,31 @@ _man()
 		return 0
 	fi
 
-        if [[ "$prev" == [0-9ln] ]]; then
-                # churn out a string of paths to search, with * appended to $cur
-                cmd=`awk '{if ($1 ~ /^MANPATH/) \
-                     print $(NF)"/man'$prev'/'$cur'*"}' /etc/man.config | \
-                     sort -u`
-                # strip off * from paths ending in /*
-                cmd=${cmd//\/\\*/\/}
-                # redirect stderr for when path doesn't exist
-                cmd="ls $cmd 2>/dev/null"
-                COMPREPLY=( $( eval $cmd ) )
-                # get basename of man pages
-                COMPREPLY=( ${COMPREPLY[@]##*/} )
-                # strip suffix from man pages
-                COMPREPLY=( ${COMPREPLY[@]%.gz} )
-                COMPREPLY=( ${COMPREPLY[@]%.*} )
+	if [[ "$prev" == [0-9ln] ]]; then
+		# churn out a string of paths to search, with * appended to $cur
+		cmd=`awk '{if ($1 ~ /^MANPATH/) \
+		     print $(NF)"/man'$prev'/'$cur'*"}' /etc/man.config | \
+		     sort -u`
+		# strip off * from paths ending in /*
+		cmd=${cmd//\/\\*/\/}
+		# redirect stderr for when path doesn't exist
+		cmd="ls $cmd 2>/dev/null"
+		COMPREPLY=( $( eval $cmd ) )
+		# get basename of man pages
+		COMPREPLY=( ${COMPREPLY[@]##*/} )
+		# strip suffix from man pages
+		COMPREPLY=( ${COMPREPLY[@]%.gz} )
+		COMPREPLY=( ${COMPREPLY[@]%.*} )
 	else
-                cmd=`awk '{if ($1 ~ /^MANPATH/) \
-                     print $(NF)"/man?/'$cur'*"}' /etc/man.config | sort -u`
-                cmd=${cmd//\/\\*/\/}
-                cmd="ls $cmd 2>/dev/null"
-                COMPREPLY=( $( eval $cmd ) )
-                COMPREPLY=( ${COMPREPLY[@]##*/} )
-                COMPREPLY=( ${COMPREPLY[@]%.gz} )
-                COMPREPLY=( ${COMPREPLY[@]%.*} $( compgen -G $cur\*.[0-9ln] ) )
-        fi
+		cmd=`awk '{if ($1 ~ /^MANPATH/) \
+		     print $(NF)"/man?/'$cur'*"}' /etc/man.config | sort -u`
+		cmd=${cmd//\/\\*/\/}
+		cmd="ls $cmd 2>/dev/null"
+		COMPREPLY=( $( eval $cmd ) )
+		COMPREPLY=( ${COMPREPLY[@]##*/} )
+		COMPREPLY=( ${COMPREPLY[@]%.gz} )
+		COMPREPLY=( ${COMPREPLY[@]%.*} $( compgen -G $cur\*.[0-9ln] ) )
+	fi
 
 	return 0
 }
@@ -299,16 +299,16 @@ _killall()
 {
 	local cur prev i
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
-        prev=${COMP_WORDS[COMP_CWORD-1]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [[ "$prev" == -[A-Z0-9]* ]]; then
 		# get a list of processes (the gensub() in the awk takes care
 		# of getting the basename of the process, the first sed
 		# evaluation takes care of swapped out processes, and the
 		# second takes care of getting the basename of the process)
-	        COMPREPLY=( $( ps ahx | sed -e 's#[]\[()]##g' | \
+		COMPREPLY=( $( ps ahx | sed -e 's#[]\[()]##g' | \
 		   awk '{if (gensub("^.*/","",1,$5) ~ /^'$cur'/) print $5}' | \
 		   sed  -e 's#^.*/##' ) )
 		return 0
@@ -342,9 +342,9 @@ _find()
 {
 	local cur prev i
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]#-}
-        prev=${COMP_WORDS[COMP_CWORD-1]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]#-}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
 	-@(max|min)depth)
@@ -411,8 +411,8 @@ _find()
 			    COMPREPLY=" ${COMPREPLY[@]} "
 			    # remove word from list of completions
 			    COMPREPLY=( ${COMPREPLY/ ${i%% *} / } )
-		        done
-		        echo ${COMPREPLY[@]})
+			done
+			echo ${COMPREPLY[@]})
 		  ) )
 	
 	# put dashes back
@@ -432,8 +432,8 @@ _ifconfig()
 {
 	local cur
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
 
 	case "${COMP_WORDS[1]}" in
 	-|*[0-9]*)
@@ -452,7 +452,7 @@ _ifconfig()
 				   # remove word from list of completions
 				   COMPREPLY=( ${COMPREPLY/ $i / } )
 				done
-			        echo ${COMPREPLY[@]})
+				echo ${COMPREPLY[@]})
 			  ) )
 		return 0
 		;;
@@ -469,8 +469,8 @@ _ipsec()
 {
 	local cur
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
 
 	
 	if [ $COMP_CWORD = 1 ]; then
@@ -516,9 +516,9 @@ _cvs()
 {
 	local cur prev
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
-        prev=${COMP_WORDS[COMP_CWORD-1]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
 		COMPREPLY=( $( compgen -W 'add admin checkout commit diff \
@@ -556,7 +556,7 @@ _rpm()
 			$( sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+.*\.rpm$/\1/p' /var/log/rpmpkgs ) )
 		else
 			COMPREPLY=( ${COMPREPLY[@]} $( rpm -qa | \
-		        sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+$/\1/p' ) )
+			sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+$/\1/p' ) )
 		fi
 	}
 
@@ -579,10 +579,10 @@ _rpm()
 
 	local cur cur_nodash prev
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
 	cur_nodash=${cur#-}
-        prev=${COMP_WORDS[COMP_CWORD-1]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [ $COMP_CWORD = 1 ]; then
 		# first parameter on line
@@ -800,9 +800,9 @@ _apt-get()
 {
 	local cur prev special i
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
-        prev=${COMP_WORDS[COMP_CWORD-1]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	for (( i=0; i < ${#COMP_WORDS}-1; i++ )); do
 		if [[ ${COMP_WORDS[i]} == @(install|remove|source) ]]; then
@@ -848,9 +848,9 @@ _apt-cache()
 {
 	local cur prev special i
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
-        prev=${COMP_WORDS[COMP_CWORD-1]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	
 	for (( i=0; i < ${#COMP_WORDS}-1; i++ )); do
@@ -894,9 +894,9 @@ _chsh()
 {
 	local cur prev
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
-        prev=${COMP_WORDS[COMP_CWORD-1]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [ "$prev" = "-s" ]; then
 		COMPREPLY=( $( chsh -l | grep ^$cur ) )
@@ -915,10 +915,10 @@ _chkconfig()
 {
 	local cur prev i
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
 	cur_nodash=${cur#--}
-        prev=${COMP_WORDS[COMP_CWORD-1]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -W 'list add del level' $cur_nodash ) )
@@ -956,8 +956,8 @@ _known_hosts()
 {
 	local cur kh
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
 	cur=${cur#*@}
 	# Escape slashes and dots in paths for awk
 	cur=${cur//\//\\\/}
@@ -1007,9 +1007,9 @@ _ssh()
 {
 	local cur prev
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
-        prev=${COMP_WORDS[COMP_CWORD-1]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
 	-*c)
@@ -1034,8 +1034,8 @@ _scp()
 {
 	local cur
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
 
 	_known_hosts
 	COMPREPLY=( ${COMPREPLY[@]} $( compgen -f $cur ) )
@@ -1052,9 +1052,9 @@ _route()
 {
 	local cur prev
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
-        prev=${COMP_WORDS[COMP_CWORD-1]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [ "$prev" = dev ]; then
 	    COMPREPLY=( $( ifconfig -a | sed -ne 's/^\('$cur'[^ ]*\).*$/\1/p' ))
@@ -1088,53 +1088,53 @@ complete -F _route route
 #
 _make()
 {
-        local mdef makef gcmd cur prev i
+	local mdef makef gcmd cur prev i
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
-        prev=${COMP_WORDS[COMP_CWORD-1]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-        # if prev argument is -f, return possible filename completions.
-        # we could be a little smarter here and return matches against
-        # `makefile Makefile *.mk', whatever exists
-        if [[ "$prev" == -*f ]]; then
+	# if prev argument is -f, return possible filename completions.
+	# we could be a little smarter here and return matches against
+	# `makefile Makefile *.mk', whatever exists
+	if [[ "$prev" == -*f ]]; then
 	    COMPREPLY=( $( compgen -f $cur ) )
 	    return 0
 	fi
 
-        # if we want an option, return the possible posix options
-        if [[ "$cur" == - ]]; then
-            COMPREPLY=( $( compgen -W '-e -f -i -k -n -p -q -r -S -s -t' | grep ^$cur ) )
+	# if we want an option, return the possible posix options
+	if [[ "$cur" == - ]]; then
+	    COMPREPLY=( $( compgen -W '-e -f -i -k -n -p -q -r -S -s -t' | grep ^$cur ) )
 	    return 0
-        fi
+	fi
 
-        # make reads `makefile' before `Makefile'
-        if [ -f makefile ]; then
-                mdef=makefile
-        elif [ -f Makefile ]; then
-                mdef=Makefile
-        else
-                mdef=*.mk               # local convention
-        fi
+	# make reads `makefile' before `Makefile'
+	if [ -f makefile ]; then
+		mdef=makefile
+	elif [ -f Makefile ]; then
+		mdef=Makefile
+	else
+		mdef=*.mk	       # local convention
+	fi
 
-        # before we scan for targets, see if a makefile name was specified
-        # with -f
-        for (( i=0; i < ${#COMP_WORDS[@]}; i++ )); do
-                if [[ ${COMP_WORDS[i]} == -*f ]]; then
-                        eval makef=${COMP_WORDS[i+1]}   # eval for tilde expansion
-                        break
-                fi
-        done
+	# before we scan for targets, see if a makefile name was specified
+	# with -f
+	for (( i=0; i < ${#COMP_WORDS[@]}; i++ )); do
+		if [[ ${COMP_WORDS[i]} == -*f ]]; then
+			eval makef=${COMP_WORDS[i+1]}   # eval for tilde expansion
+			break
+		fi
+	done
 
-        [ -z "$makef" ] && makef=$mdef
+	[ -z "$makef" ] && makef=$mdef
 
-        # if we have a partial word to complete, restrict completions to
-        # matches of that word
-        [ -n "$2" ] && gcmd='grep "^$2"' || gcmd=cat
+	# if we have a partial word to complete, restrict completions to
+	# matches of that word
+	[ -n "$2" ] && gcmd='grep "^$2"' || gcmd=cat
 
-        # if we don't want to use *.mk, we can take out the cat and use
-        # test -f $makef and input redirection  
-        COMPREPLY=( $( cat $makef 2>/dev/null | \
+	# if we don't want to use *.mk, we can take out the cat and use
+	# test -f $makef and input redirection  
+	COMPREPLY=( $( cat $makef 2>/dev/null | \
 		       awk 'BEGIN {FS=":"} /^[^.#	][^=]*:/ {print $1}' | \
 		       eval $gcmd ) )
 
@@ -1156,8 +1156,8 @@ _service()
 {
 	local cur sysvdir
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
 
 	[ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
 				|| sysvdir=/etc/init.d
@@ -1182,8 +1182,8 @@ _tar()
 {
 	local cur
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
 
 	if [[ ${COMP_WORDS[1]} == *z*f ]]; then
 		COMPREPLY=( $( compgen -G $cur\*.tar.gz ) )
@@ -1230,7 +1230,7 @@ _tcpdump()
 #
 _cd()
 {
-        local cur=${COMP_WORDS[COMP_CWORD]} dirs=() i
+	local cur=${COMP_WORDS[COMP_CWORD]} dirs=() i
 
 	# expand ~username type directory specifications
 	if [[ "$cur" == \~*/* ]]; then
@@ -1266,8 +1266,8 @@ _command()
 {
 	local cur
 
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -c $cur ) )
@@ -1286,7 +1286,7 @@ _p4()
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
-        prev=${COMP_WORDS[COMP_CWORD-1]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# rename isn't really a command
 	p4commands="add admin branch branches change changes client \
@@ -1317,7 +1317,7 @@ _p4()
 			;;
 		esac
 	elif [ $COMP_CWORD -gt 2 ]; then
-        	prev2=${COMP_WORDS[COMP_CWORD-2]}
+		prev2=${COMP_WORDS[COMP_CWORD-2]}
 		case "$prev" in
 		-t)
 			case "$prev2" in
