@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.211 2002/03/23 22:59:49 ianmacd Exp $
+#   $Id: bash_completion,v 1.212 2002/03/24 01:34:33 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -471,9 +471,9 @@ _kill()
 }
 complete -F _kill kill
 
-# Linux killall(1) completion.
+# Linux and FreeBSD killall(1) completion.
 #
-[ $OS = Linux ] &&
+[ $OS = Linux -o $OS = FreeBSD ] &&
 _killall()
 {
 	local cur
@@ -484,12 +484,13 @@ _killall()
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
 		_signals
 	else
-		COMPREPLY=( $( ps axcho ucomm | grep ^$cur ) )
+		COMPREPLY=( $( compgen -W '$( ps axco ucomm | sed 1d )' \
+			       -- $cur ) )
 	fi
 
 	return 0
 }
-[ $OS = Linux ] && complete -F _killall killall
+[ $OS = Linux -o $OS = FreeBSD ] && complete -F _killall killall
 
 # GNU find(1) completion. This makes heavy use of ksh style extended
 # globs and contains Linux specific code for completing the parameter
