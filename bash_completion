@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.6 2000/09/25 23:38:11 ianmacd Exp $
+#   $Id: bash_completion,v 1.7 2000/10/09 20:07:50 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -26,9 +26,6 @@ shopt -s extglob progcomp
 # A lot of the following one-liners were taken directly from the
 # completion examples provided with the bash 2.04 source distribution
 
-# Make directory commands see only directories
-complete -d cd mkdir rmdir pushd
-
 # Make file commands see only files
 complete -f cat less more ln strip
 complete -f -X '*.bz2' bzip2
@@ -44,7 +41,6 @@ complete -f -X '!*.+(dvi|DVI)' dvips xdvi dviselect dvitype
 complete -f -X '!*.+(pdf|PDF)' acroread xpdf
 complete -f -X '!*.texi*' makeinfo texi2dvi texi2html
 complete -f -X '!*.+(tex|TEX)' tex latex slitex
-complete -f -X '!*.+(mp3|MP3)' mpg123
 
 # kill sees only signals
 complete -A signal kill -P '%'
@@ -78,7 +74,7 @@ complete -A helptopic help
 complete -a unalias
 
 # various commands complete with commands
-complete -c command type nohup exec nice eval strace gdb
+complete -c command type nohup exec nice eval strace gdb sudo
 
 # bind completes with readline bindings (make this more intelligent)
 complete -A binding bind
@@ -175,11 +171,15 @@ _mount()
         cur=${COMP_WORDS[COMP_CWORD]}
 
 	if [[ "$cur" == *:* ]]; then
-	      COMPREPLY=( $( /usr/sbin/showmount -e --no-headers ${cur%%:*} |\
-			       grep ^${cur#*:} | awk '{print $1}'))
+		COMPREPLY=( $( /usr/sbin/showmount -e --no-headers ${cur%%:*} |\
+			       grep ^${cur#*:} | awk '{print $1}' ) )
 	else
 		COMPREPLY=( $( awk '{if ($2 ~ /\//) print $2}' /etc/fstab | \
-			       grep ^$cur ))
+			       grep ^$cur ) )
+		# default to filename completion if all else failed
+		if [ ${#COMPREPLY[@]} = 0 ]; then
+	    		COMPREPLY=( $( compgen -f $cur ) )
+		fi
 	fi
 
 	return 0
@@ -242,8 +242,8 @@ _man()
         cur=${COMP_WORDS[COMP_CWORD]}
         prev=${COMP_WORDS[COMP_CWORD-1]}
 
-        # pathname completion if parameter starts with /
-        if [ "$cur" = "/" ]; then
+        # filename completion if parameter contains /
+        if [[ "$cur" == /* ]]; then
                 COMPREPLY=( $( compgen -f $cur ) )
                 return 0
         fi
@@ -271,7 +271,7 @@ _man()
                 COMPREPLY=( $( eval $cmd ) )
                 COMPREPLY=( ${COMPREPLY[@]##*/} )
                 COMPREPLY=( ${COMPREPLY[@]%.gz} )
-                COMPREPLY=( ${COMPREPLY[@]%.*} )
+                COMPREPLY=( ${COMPREPLY[@]%.*} $( compgen -G $cur\*.[0-9n] ) )
         fi
 
 	return 0
@@ -409,7 +409,12 @@ _find()
 	for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
 		COMPREPLY[i]=-${COMPREPLY[i]}
 	done
-		
+
+	# default to filename completion if all else failed
+	if [ ${#COMPREPLY[@]} = 0 ]; then
+	    COMPREPLY=( $( compgen -f $cur ) )
+	fi
+
 	return 0
 }
 complete -F _find find
@@ -450,7 +455,7 @@ _ifconfig()
 }
 complete -F _ifconfig ifconfig
 
-# Linux ipsec(8) completion (for FreeS/WAN). Very basic.
+# Linux ipsec(8) completion (for FreeS/WAN). Basic.
 #
 _ipsec()
 {
@@ -459,9 +464,40 @@ _ipsec()
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
 
-	COMPREPLY=( $( compgen -W 'auto barf eroute klipsdebug look manual \
+	
+	if [ $COMP_CWORD = 1 ]; then
+		COMPREPLY=( $( compgen -W 'auto barf eroute klipsdebug look manual \
 				   pluto ranbits rsasigkey setup showdefaults \
 				   showhostkey spi spigrp tncfg whack' $cur ))
+		return 0
+	fi
+
+	case ${COMP_WORDS[1]} in
+	auto)
+		COMPREPLY=( $( compgen -W '--asynchronous --up --add --delete \
+					   --replace --down --route --unroute \
+					   --ready --status --rereadsecrets' $cur ) )
+		return 0
+		;;
+	manual)
+		COMPREPLY=( $( compgen -W '--up --down --route --unroute \
+					   --union' $cur ) )
+		return 0
+		;;
+	ranbits)
+		COMPREPLY=( $( compgen -W '--quick --continuous --bytes' $cur ) )
+		return 0
+		;;
+	setup)
+		COMPREPLY=( $( compgen -W '--start --stop --restart' $cur ) )
+		return 0
+		;;
+
+	*)
+		return 0
+		;;
+	esac
+
 	return 0
 }
 complete -F _ipsec ipsec
@@ -676,6 +712,99 @@ _rpm()
 	return 0
 }
 complete -F _rpm rpm
+
+# Debian Linux apt-get(8) completion.
+#
+_apt-get()
+{
+	local cur prev special
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+        prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	for (( i=0; i < ${#COMP_WORDS}-1; i++ )); do
+		if [[ ${COMP_WORDS[i]} == @(install|remove|source) ]]; then
+			special=${COMP_WORDS[i]}
+		fi
+	done
+	if [ -n "$special" ]; then
+		case $special in
+		@(install|remove|source))
+			COMPREPLY=( $( apt-cache pkgnames $cur ) )
+			return 0
+			;;
+		esac
+	fi
+
+	if [[ "$prev" == -*c ]] || [ "$prev" = --config-file ]; then
+		COMPREPLY=( $( compgen -f $cur ) )
+	else
+		COMPREPLY=( $( compgen -W 'update upgrade dselect-upgrade \
+				  dist-upgrade install remove source check \
+				  clean autoclean -d -f -h -v -m -q -s -y -u \
+				  -b -c -o --download-only --fix-broken --help \
+				  --version --ignore-missing --fix-missing \
+				  --no-download --quiet --simulate \
+				  --just-print --dry-run --recon --no-act \
+				  --yes --assume-yes --show-upgraded \
+				  --compile --build --ignore-hold \
+				  --no-upgrade --force-yes --print-uris \
+				  --purge --reinstall --list-cleanup \
+				  --trivial-only --no-remove --diff-only \
+				  --tar-only --config-file --option ' | \
+				  grep ^$cur ) )
+	fi
+
+	return 0
+}
+complete -F _apt-get apt-get
+
+# Debian Linux apt-cache(8) completion.
+#
+_apt-cache()
+{
+	local cur prev special
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+        prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	
+	for (( i=0; i < ${#COMP_WORDS}-1; i++ )); do
+		if [[ ${COMP_WORDS[i]} == @(add|showpkg) ]]; then
+			special=${COMP_WORDS[i]}
+		fi
+	done
+	if [ -n "$special" ]; then
+		case $special in
+		add)
+			COMPREPLY=( $( compgen -f $cur ) )
+			return 0
+			;;
+		showpkg)
+			COMPREPLY=( $( apt-cache pkgnames $cur ) )
+			return 0
+			;;
+		esac
+	fi
+
+
+	if [[ "$prev" == -*c ]] || [ "$prev" = --config-file ]; then
+		COMPREPLY=( $( compgen -f $cur ) )
+	else
+		COMPREPLY=( $( compgen -W 'add gencaches showpkg stats dump \
+				dumpavail unmet check search show showpkg \
+				depends pkgnames -h -v -p -s -q -i -f -a -g -c \
+				-o --help --version --pkg-cache --src-cache \
+				--quiet --important --full --all-versions \
+				--no-generate --names-only --all-names \
+				--config-file --option' | grep ^$cur ) )
+	fi
+
+	return 0
+}
+complete -F _apt-cache apt-cache
 
 # chsh(1) completion
 #
@@ -915,9 +1044,28 @@ _make()
 
 	# default to filename completion if all else failed
 	if [ ${#COMPREPLY[@]} = 0 ]; then
-	    COMPREPLY=( $(compgen -f $cur ) )
+	    COMPREPLY=( $( compgen -f $cur ) )
 	fi
 
 	return 0
 }
 complete -F _make -X '+($*|*.[cho])' make gmake pmake
+
+# Directory completion with tilde expansion
+#
+_directory()
+{
+        local cur
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+
+        if [[ "$cur" == ~* ]]; then
+		COMPREPLY=( $( compgen -u ${cur%~} ) )
+	else
+		COMPREPLY=( $( compgen -d $cur ) )
+	fi
+
+	return 0
+}
+complete -F _directory cd mkdir rmdir pushd
