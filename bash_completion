@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.473 2002/12/05 02:47:49 ianmacd Exp $
+#   $Id: bash_completion,v 1.474 2002/12/05 02:52:56 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -4008,14 +4008,17 @@ _links()
 [ "$have" ] && complete -F _links $filenames links
 
 [ $UNAME = FreeBSD ] && {
-# FreeBSD package management tools completion
+# FreeBSD package management tool completion
 #
 _pkg_delete()
 {
-	local cur pkgdir
+	local cur pkgdir prev
 
-	pkgdir=/var/db/pkg/
+	pkgdir=${PKG_DBDIR:-/var/db/pkg/}
 	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	test "$prev" = "-o" -o "$prev" = "-p" -o "$prev" = "-W" && return 0
 
 	COMPREPLY=( $( compgen -d $pkgdir$cur ) )
 	COMPREPLY=( ${COMPREPLY[@]#$pkgdir} )
@@ -4024,7 +4027,7 @@ _pkg_delete()
 }
 complete -F _pkg_delete $dirnames pkg_delete pkg_info
 
-# FreeBSD kernel modules commands
+# FreeBSD kernel module commands
 #
 _kldload()
 {
@@ -4049,6 +4052,27 @@ _kldunload()
 }
 complete -F _kldunload $filenames kldunload
 }
+
+# FreeBSD portupgrade completion
+#
+have portupgrade &&
+_portupgrade()
+{
+	local cur pkgdir prev
+
+	pkgdir=${PKG_DBDIR:-/var/db/pkg/}
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	test "$prev" = "-l" -o "$prev" = "-L" -o "$prev" = "-o" && return 0
+
+	COMPREPLY=( $( compgen -d $pkgdir$cur ) )
+	COMPREPLY=( ${COMPREPLY[@]#$pkgdir} )
+	COMPREPLY=( ${COMPREPLY[@]%-*} )
+
+	return 0
+}
+[ $have ] && complete -F _portupgrade $dirnames portupgrade
 
 # Slackware Linux removepkg completion
 #
