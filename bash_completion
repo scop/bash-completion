@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.318 2002/05/15 19:43:47 ianmacd Exp $
+#   $Id: bash_completion,v 1.319 2002/05/15 20:56:25 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1806,10 +1806,8 @@ _make()
 	# matches of that word
 	[ -n "$2" ] && gcmd='grep "^$2"' || gcmd=cat
 
-	# if we don't want to use *.mk, we can take out the cat and use
-	# test -f $makef and input redirection  
-	COMPREPLY=( $( cat $makef 2>/dev/null | \
-		       awk 'BEGIN {FS=":"} /^[^.#	][^=]*:/ {print $1}' | \
+	COMPREPLY=( $( grep -v '^\w\w*[[:space:]]*:=' $makef 2>/dev/null | \
+		       awk 'BEGIN {FS=":"} /^[^.#'$'\t''][^=]*:/ {print $1}' | \
 		       eval $gcmd ) )
 
 	# default to filename completion if all else failed
