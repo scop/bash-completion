@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.268 2002/04/15 00:41:04 ianmacd Exp $
+#   $Id: bash_completion,v 1.269 2002/04/17 08:44:12 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -961,6 +961,16 @@ rpm_installed_packages()
 	fi
 }
 
+rpm_group_completion()
+{
+	local IFS=$'\t'
+	# remove trailing backslash, or grep will complain
+	cur=${cur%'\'}
+	COMPREPLY=( $( rpm -qa --queryformat '%{group}\n' | grep "^$cur" ) )
+	# backslash escape spaces and translate newlines to tabs
+	COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\ /g' | tr '\n' '\t' ) )
+}
+
 file_glob()
 {
 	_expand || return 0
@@ -1063,9 +1073,6 @@ _rpm()
 			file_glob rpm
 		fi
 		;;
-	-*f)
-		_filedir
-		;;
 	-@(e|-erase))
 		if [[ "$cur" == -* ]]; then
 			COMPREPLY=( $( compgen -W '--allmatches --noscripts \
@@ -1075,16 +1082,11 @@ _rpm()
 		fi
 		;;
 	-@(q*|-query))
-		# check whether we're doing package group completion
-		if [ "${COMP_LINE#* -*([^ -])g}" != "$COMP_LINE" ]; then
-			local IFS=$'\t'
-			# remove trailing backslash, or grep will complain
-			cur=${cur%'\'}
-			COMPREPLY=( $( rpm -qa --queryformat '%{group}\n' | \
-				       grep "^$cur" ) )
-			# backslash escape spaces and translate newlines to tabs
-			COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\ /g' |\
-				       tr '\n' '\t' ) )
+		# check whether we're doing file completion
+		if [ "${COMP_LINE#* -*([^ -])f}" != "$COMP_LINE" ]; then
+			_filedir
+		elif [ "${COMP_LINE#* -*([^ -])g}" != "$COMP_LINE" ]; then
+			rpm_group_completion
 		elif [ "${COMP_LINE#* -*([^ -])p}" != "$COMP_LINE" ]; then
 			# uninstalled package completion
 			if [[ "$cur" == -* ]]; then
@@ -1130,6 +1132,11 @@ _rpm()
 			COMPREPLY=( $( compgen -W '--root --rcfile --dbpath \
 			--nodeps --nofiles --noscripts --nomd5 --querytags \
 			--specfile --whatrequires --whatprovides' -- $cur ) )
+		# check whether we're doing file completion
+		elif [ "${COMP_LINE#* -*([^ -])f}" != "$COMP_LINE" ]; then
+			_filedir
+		elif [ "${COMP_LINE#* -*([^ -])g}" != "$COMP_LINE" ]; then
+			rpm_group_completion
 		elif [ "${COMP_LINE#* -*([^ -])p}" != "$COMP_LINE" ]; then
 			file_glob rpm
 		else
