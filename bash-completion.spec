@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.123 2005/01/20 10:10:19 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.124 2005/01/21 22:30:40 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: Programmable completion for bash %{bashversion} and above.
-Version: 20050120
+Version: 20050121
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,9 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Fri Jan 21 2005 Ian Macdonald <ian@caliban.org>
+- Fix broken _command() completion.
+
 * Thu Jan 20 2005 Ian Macdonald <ian@caliban.org>
 - Improve ssh2 known hosts completion.
 - Remove xargs from list of commands that do longopts completion. xargs
