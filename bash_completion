@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.774 2005/01/10 23:39:56 ianmacd Exp $
+#   $Id: bash_completion,v 1.775 2005/01/12 22:45:16 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -550,6 +550,8 @@ _chown()
 	fi
 
 	if (( COMP_CWORD == 1 )) || [[ "$prev" == -* ]]; then
+	    local IFS=$'\n'
+	    cur=${cur//\\\\ / }
 	    if [[ $cur = *@(\\:|.)* ]] && [ -n "$bash205" ]; then
 		user=${cur%%*([^:.])}
 		COMPREPLY=( $(compgen -P ${user/\\\\} -g -- ${cur##*[.:]}) )
@@ -572,6 +574,7 @@ _chgrp()
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=${cur//\\\\/}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# options completion
@@ -585,14 +588,15 @@ _chgrp()
 	# first parameter on line or first since an option?
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]] || \
 	   [[ "$prev" == -* ]] && [ -n "$bash205" ]; then
+	        local IFS=$'\n'
 		COMPREPLY=( $( compgen -g $cur 2>/dev/null ) )
 	else
-		_expand || return 0
+		_filedir || return 0
 	fi
 
 	return 0
 }
-complete -F _chgrp $default chgrp
+complete -F _chgrp $filenames chgrp
 
 # umount(8) completion. This relies on the mount point being the third
 # space-delimited field in the output of mount(8)
