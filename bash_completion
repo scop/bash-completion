@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.56 2002/01/16 03:16:56 ianmacd Exp $
+#   $Id: bash_completion,v 1.57 2002/01/16 08:14:14 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1005,14 +1005,11 @@ _chkconfig()
 #
 _known_hosts()
 {
-	local cur kh
+	local cur kh user
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
-	cur=${cur#*@}
-	# Escape slashes and dots in paths for awk
-	cur=${cur//\//\\\/}
-	cur=${cur//\./\\\.}
+	[[ $cur == *@* ]] && user=${cur%@*}@ && cur=${cur#*@}
 	kh=()
 
 	[ -r /etc/known_hosts ]    && kh[0]=/etc/known_hosts
@@ -1022,6 +1019,9 @@ _known_hosts()
 
 	# If we have known_hosts files to use
 	if [ ${#kh[@]} -gt 0 ]; then
+	    # Escape slashes and dots in paths for awk
+	    cur=${cur//\//\\\/}
+	    cur=${cur//\./\\\.}
 	    if [[ "$cur" == [0-9]*.* ]]; then
 		# Digits followed by a dot - just search for that
 		cur="^$cur.*"
@@ -1041,6 +1041,9 @@ _known_hosts()
 				       gsub(" .*$", "", $i); \
 				       if ($i ~ /'$cur'/) {print $i} \
 				}}' ${kh[@]} ) )
+	    for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
+		COMPREPLY[i]=$user${COMPREPLY[i]}
+	    done
 	else
 	    # Just do normal hostname completion
 	    COMPREPLY=( $( compgen -A hostname $cur ) )
@@ -1078,7 +1081,7 @@ _ssh()
 
 	return 0
 }
-[ "$have" ] && complete -F _ssh ssh slogin sftp
+[ "$have" ] && shopt -u hostcomplete && complete -F _ssh ssh slogin sftp
 
 have scp &&
 _scp()
