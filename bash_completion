@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.229 2002/03/28 17:22:24 ianmacd Exp $
+#   $Id: bash_completion,v 1.230 2002/03/28 19:36:19 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2300,7 +2300,8 @@ have urpmi &&
 _urpmi.media()
 {
 	# return list of available urpmi media
-	COMPREPLY=( $( awk '/{/ {print $1}' /etc/urpmi/urpmi.cfg | grep ^$cur ))
+	COMPREPLY=( $( awk -F'{' '/{/ {print $1}' /etc/urpmi/urpmi.cfg | \
+			grep ^$cur ))
 }
 
 # Mandrake urpmi completion
@@ -2329,8 +2330,7 @@ _urpmi()
 	else
 		# return list of available packages
 		COMPREPLY=( $( gzip -dc /var/lib/urpmi/synthesis.hdlist.* | \
-			       awk 'BEGIN {FS="@"} /info/ {print $1}' | \
-			       grep ^$cur ) )
+			       awk -F'@' '/info/ {print $1}' | grep ^$cur ) )
 	fi
 }
 [ "$have" ] && complete -F _urpmi urpmi
