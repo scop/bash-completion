@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.112 2002/02/13 19:25:22 ianmacd Exp $
+#   $Id: bash_completion,v 1.113 2002/02/14 17:49:43 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -283,7 +283,7 @@ _insmod()
 [ $OS = Linux ] &&
 _man()
 {
-	local cur prev cmd sect
+	local cur prev cmd sect config i
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -293,8 +293,11 @@ _man()
 
 	# default completion if parameter contains /
 	[[ "$cur" == */* ]] && return 0
-	# default to command completion if no man.config
-	if [ ! -r /etc/man.config ]; then
+	# default to command completion if no man config file
+	for i in /etc/man{,path}.config; do
+		[ -r $i ] && config=$i
+	done
+	if [ -z "$config" ]; then
 		COMPREPLY=( $( compgen -c $cur ) )
 		return 0
 	fi
