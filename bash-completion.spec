@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.95 2003/07/13 08:16:46 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.96 2003/07/21 07:59:48 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030713
+Version: 20030721
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,13 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Mon Jul 21 2003 Ian Macdonald <ian@caliban.org>
+- .shtml completion for browsers
+- extra extension completions for xine and xanim
+- vim et all should not complete on .gz and .bz2 files
+- mplayer fixes and improvements
+- dselect fix
+
 * Sun Jul 13 2003 Ian Macdonald <ian@caliban.org>
 - allow find to search through more than one directory root
 - update rpm completion for rpm 4.2
