@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.23 2001/08/16 17:49:39 ianmacd Exp $
+#   $Id: bash_completion,v 1.24 2001/08/22 17:20:27 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -627,20 +627,6 @@ _rpm()
 	fi
 
 	case "$prev" in
-	-*p*)
-		# complete on list of relevant options
-		COMPREPLY=( $( compgen -W 'scripts root rcfile whatprovides \
-		whatrequires requires triggeredby ftpport ftpproxy httpproxy \
-		httpport provides triggers dump changelog dbpath filesbypkg \
-		define eval pipe showrc info list state docfiles \
-		configfiles queryformat' ${cur_nodash#-} ) )
-		dashify
-		# return if $cur is an option
-		[[ "$cur" == -* ]] && return 0
-		# add a list of RPMS to possible completions
-		file_glob rpm
-		return 0
-		;;
 	--@(db|exclude)path|prefix|relocate|root)
 		COMPREPLY=( $( compgen -d $cur ) )
 		return 0
@@ -692,20 +678,18 @@ _rpm()
 		file_glob rpm
 		return 0
 		;;
-	-q*)
+	-qp*)
 		# complete on list of relevant options
 		COMPREPLY=( $( compgen -W 'scripts root rcfile whatprovides \
 		whatrequires requires triggeredby ftpport ftpproxy httpproxy \
-		httpport provides triggers dump changelog dbpath specfile \
-		querybynumber last filesbypkg define eval pipe showrc info \
-		list state docfiles configfiles queryformat' \
-		${cur_nodash#-} ) )
+		httpport provides triggers dump changelog dbpath filesbypkg \
+		define eval pipe showrc info list state docfiles \
+		configfiles queryformat' ${cur_nodash#-} ) )
 		dashify
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
-		# don't complete on packages if we are querying all packages
-		[[ ${COMP_WORDS[1]} == -qa* ]] && return 0
-		add_package_list
+		# add a list of RPMS to possible completions
+		file_glob rpm
 		return 0
 		;;
 	-*f)
@@ -720,6 +704,22 @@ _rpm()
 		dashify
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
+		add_package_list
+		return 0
+		;;
+	-q*)
+		# complete on list of relevant options
+		COMPREPLY=( $( compgen -W 'scripts root rcfile whatprovides \
+		whatrequires requires triggeredby ftpport ftpproxy httpproxy \
+		httpport provides triggers dump changelog dbpath specfile \
+		querybynumber last filesbypkg define eval pipe showrc info \
+		list state docfiles configfiles queryformat' \
+		${cur_nodash#-} ) )
+		dashify
+		# return if $cur is an option
+		[[ "$cur" == -* ]] && return 0
+		# don't complete on packages if we are querying all packages
+		[[ ${COMP_WORDS[1]} == -qa* ]] && return 0
 		add_package_list
 		return 0
 		;;
