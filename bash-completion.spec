@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.109 2003/12/15 09:53:35 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.110 2003/12/24 23:20:51 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20031215
+Version: 20031225
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,10 +73,15 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Thu Dec 25 2003 Ian Macdonald <ian@caliban.org>
+- ogg123 can now handle .flac and .spx files
+- mutt completion improvements
+- more improvements to find(1) completion
+
 * Mon Dec 15 2003 Ian Macdonald <ian@caliban.org>
 - find(1) completion improvements
 - add ImageMagick completion
-- apt-cache completion updates from Danilo Piazzalunga
+- apt-cache completion updates
 - allow gpdf to complete on PDF files
 
 * Tue Nov 25 2003 Ian Macdonald <ian@caliban.org>
