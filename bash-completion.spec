@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.81 2003/02/09 09:16:37 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.82 2003/02/27 09:34:27 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030209
+Version: 20030227
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,15 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Thu Feb 27 2003 Ian Macdonald <ian@caliban.org>
+- exclude mysql and ssh init scripts from completion, as they clash with
+  stand-alone commands
+- make bash-completion compatible with the new bash completion emulation
+  feature of zsh
+- add .tga completion to ee and display
+- make slay complete on users
+- don't redefine su completion
+
 * Sun Feb  9 2003 Ian Macdonald <ian@caliban.org>
 - allow 'cvs -d' to complete from ~/.cvspass
 - don't append spaces after directories when doing mount completion
