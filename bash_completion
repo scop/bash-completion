@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.479 2002/12/05 17:58:26 ianmacd Exp $
+#   $Id: bash_completion,v 1.480 2002/12/05 21:43:10 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -18,7 +18,7 @@
 #   along with this program; if not, write to the Free Software Foundation,
 #   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-# RELEASE: 20021026
+# RELEASE: 20021205
 
 [ -n "$DEBUG" ] && set -v || set +v
 
@@ -4113,22 +4113,26 @@ _look()
 have ypmatch &&
 _ypmatch()
 {
-	local cur
-	COMPREPLY=()
+	local cur map
 
+	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	[ $1 = ypcat ] && [ $COMP_CWORD -gt 1 ] && return 0
 	[ $1 = ypmatch ] && [ $COMP_CWORD -gt 2 ] && return 0
 
-	if [ $1 = ypcat ] || [ $COMP_CWORD -eq 2 ]; then
+	if [ $1 = ypmatch ] && [ $COMP_CWORD -eq 1 ] && \
+	   [ ${#COMP_WORDS[@]} -eq 3 ]; then
+		map=${COMP_WORDS[2]}
+		COMPREPLY=( $( compgen -W '$( ypcat $map | \
+						cut -d':' -f 1 )' -- $cur) )
+	else
+		[ $1 = ypmatch ] && [ $COMP_CWORD -ne 2 ] && return 0
 		COMPREPLY=( $( compgen -W \
 			      '$( echo $(ypcat -x | cut -d"\"" -f 2))' -- $cur))
-		return 0
 	fi
 
-	#map=${COMP_WORDS[2]}
-	#COMPREPLY=( $( compgen -W '$( ypcat $map | cut -d':' -f 1 )' -- $cur) )
+	return 0
 }
 [ "$have" ] && complete -F _ypmatch ypmatch ypcat
 
