@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.123 2002/02/18 09:27:09 ianmacd Exp $
+#   $Id: bash_completion,v 1.124 2002/02/18 09:32:56 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1694,7 +1694,7 @@ _gdb()
 # psql(1) completion
 #
 have psql &&
-_psql () 
+_psql() 
 {
 	local cur prev
 
@@ -1724,6 +1724,7 @@ _longopt()
 	local cur
 
 	cur=${COMP_WORDS[COMP_CWORD]}
+
 	case "$cur" in
 	-*)
 		;;
@@ -1776,9 +1777,10 @@ _gcc()
 {
 	local cur cc cmd backend
 
+	COMREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
-	[[ "$cur" != -* ]] && return 0
 
+	[[ "$cur" != -* ]] && return 0
 	_longopt "$1" "$cur" "" no_completion
 
 	case "$cmd" in
@@ -1876,34 +1878,6 @@ _expand()
 		COMPREPLY=( $( compgen -P '~' -u $cur ) )
 		return ${#COMPREPLY[@]}
 	fi
-}
-
-# Return 1 if $1 appears to contain a redirection operator.  Handles backslash
-# quoting (barely).
-#
-_redir_op()
-{
-	case "$1" in
-	*\\'[\<\>]'*)	return 1;;
-	*[\<\>]*)	return 0;;
-	*)		return 1;;
-	esac
-}
-
-
-# _redir_test tests the current word ($1) and the previous word ($2) for
-# redirection operators and does filename completion on the current word
-# if either one contains a redirection operator
-_redir_test()
-{
-	if _redir_op "$1" ; then
-		COMPREPLY=( $( compgen -f "$1" ) )
-		return 0
-	elif _redir_op "$2" ; then
-		COMPREPLY=( $( compgen -f "$1" ) )
-		return 0
-	fi
-	return 1
 }
 
 _configure_func ()
