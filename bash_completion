@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.132 2002/02/18 23:40:23 ianmacd Exp $
+#   $Id: bash_completion,v 1.133 2002/02/19 18:37:15 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -63,9 +63,6 @@ complete -f -X '!*.@(ogg|OGG)' ogg123
 complete -f -X '!*.@(mp3|MP3|ogg|OGG|pls)' xmms gqmpeg freeamp
 complete -f -X '!*.fig' xfig
 # FINISH exclude -- do not remove this line
-
-# kill sees only signals
-complete -A signal -P '-' kill
 
 # user commands see only users
 complete -u finger su usermod userdel passwd
@@ -331,6 +328,39 @@ _man()
 }
 [ $OS = Linux ] && complete -F _man -o filenames man
 
+_signals()
+{
+	local i
+
+	# standard signal completion is rather braindead, so we need
+	# to hack around to get what we want here, which is to
+	# complete on a dash, followed by the signal name minus
+	# the SIG prefix
+	COMPREPLY=( $( compgen -A signal SIG${cur#-} ))
+	for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
+		COMPREPLY[i]=-${COMPREPLY[i]#SIG}
+	done
+}
+
+# kill(1) completion
+#
+_kill()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+        if [ $COMP_CWORD -eq 1 ] &&[[ "$cur" == -* ]]; then
+		# return list of available signals
+		_signals
+	else
+		# return list of available PIDs
+		COMPREPLY=( $( ps ahx | awk '{print $1}' | grep ^$cur ) )
+	fi
+}
+complete -F _kill kill
+
 # Linux killall(1) completion. This wouldn't be much use on, say,
 # Solaris, where killall does exactly that: kills ALL processes.
 #
@@ -340,13 +370,14 @@ _man()
 [ $OS = Linux ] &&
 _killall()
 {
-	local cur prev i
+	local cur
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
-	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	if [[ "$prev" == -[A-Z0-9]* ]]; then
+	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
+		_signals
+	else
 		# get a list of processes (the sub() in the awk takes care
 		# of getting the basename of the process, the first sed
 		# evaluation takes care of swapped out processes, and the
@@ -354,28 +385,15 @@ _killall()
 		COMPREPLY=( $( ps ahx | sed -e 's#[]\[()]##g' | \
 		   awk '{p=$5;sub("^.*/","",p);if (p ~ /^'$cur'/) print $5}' | \
 		   sed  -e 's#^.*/##' ) )
-		return 0
 	fi
 
-	# first parameter can be either a signal or a process
-	if [ $COMP_CWORD = 1 ]; then
-		# standard signal completion is rather braindead, so we need
-		# to hack around to get what we want here, which is to
-		# complete on a dash, followed by the signal name minus
-		# the SIG prefix
-		COMPREPLY=( $( compgen -A signal SIG${cur#-} ))
-		for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
-			COMPREPLY[i]=-${COMPREPLY[i]#SIG}
-		done
-	fi
-
-	# get processes, adding to signals if applicable
-	COMPREPLY=( ${COMPREPLY[@]} $( ps ahx | sed -e 's#[]\[()]##g' | \
-		   awk '{p=$5;sub("^.*/","",p);if (p ~ /^'$cur'/) print $5}' | \
-		   sed -e 's#^.*/##' ))
 	return 0
 }
 [ $OS = Linux ] && complete -F _killall killall
+
+
+
+
 
 # GNU find(1) completion. This makes heavy use of ksh style extended
 # globs and contains Linux specific code for completing the parameter
@@ -1696,9 +1714,9 @@ _gdb()
 		COMPREPLY=( $( compgen -c $cur ) )
 	elif [ $COMP_CWORD -eq 2 ]; then
 		COMPREPLY=( ${COMPREPLY[@]} $( ps ahx | sed -e 's#[]\[()]##g' |\
-			awk '{p=$5;sub("^.*/","",p); \
-			      if (p ~ /^'$prev'/) print $1}' | \
-			sed -e 's#^.*/##' ))
+					awk '{p=$5;sub("^.*/","",p); \
+					if (p ~ /^'$prev'/) print $1}' | \
+					sed -e 's#^.*/##' ))
 	fi
 }
 [ $have ] && complete -F _gdb -o default gdb
