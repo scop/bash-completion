@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.508 2003/01/13 03:28:28 ianmacd Exp $
+#   $Id: bash_completion,v 1.509 2003/01/13 03:30:37 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2306,7 +2306,11 @@ _cd()
 
 	return 0
 }
-complete -F _cd $nospace $filenames cd
+if shopt -q cdable_vars; then
+    complete -A variable -F _cd $nospace $filenames cd
+else
+    complete -F _cd $nospace $filenames cd
+fi
 
 # A meta-command completion function for commands like sudo(8), which need to
 # first complete on a command, then complete according to that command's own
