@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.37 2001/12/20 08:52:12 ianmacd Exp $
+#   $Id: bash_completion,v 1.38 2001/12/20 17:12:44 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1435,26 +1435,25 @@ _file_and_dir()
 
 	COMPREPLY=( $( eval compgen -f -X "$xspec" $cur ) $( compgen -d $cur ) )
 }
-# read exclusion compspecs
-IFS=$'\n'
-exec 3< /etc/bash_completion
-while read line <&3
-do
-    # only parse relevant section
-    echo $line | grep -q '^# START exclude' && found=1 && read line <&3
-    [ -z "$found" ] && continue
-    echo $line | grep -q '^# FINISH exclude' && break
-    # leave only names of commands for which to make a compspec
-    line=${line##*\'}
-    list=( ${list[@]} $line )
-done
-exec 3<&-
-IFS=$' \t\n'
+list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' \
+	  /etc/bash_completion | \
+	# read exclusion compspecs
+	(
+	while read line
+	do
+		line=${line%# START exclude*}
+		line=${line%# FINISH exclude*}
+		line=${line##*\'}
+		list=( ${list[@]} $line )
+	done
+	echo ${list[@]}
+	)
+) )
 # remove previous compspecs
 eval complete -r ${list[@]}
 # install new compspecs
 eval complete -F _file_and_dir -o filenames ${list[@]}
-unset line found list[@]
+unset list[@]
     
 # source user completion file
 [ -f ~/.bash_completion ] && . ~/.bash_completion
