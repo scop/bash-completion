@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.436 2002/10/10 15:43:38 ianmacd Exp $
+#   $Id: bash_completion,v 1.437 2002/10/13 03:46:49 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1446,10 +1446,6 @@ _apt_get()
 
 	if [ -n "$special" ]; then
 		case $special in
-		@(install|source|build-dep))
-			COMPREPLY=( $( apt-cache pkgnames $cur 2> /dev/null ) )
-			return 0
-			;;
 		remove)
 			if [ -f /etc/debian_version ]; then
 				# Debian system
@@ -1461,6 +1457,11 @@ _apt_get()
 			fi
 			return 0
 			;;
+		*)
+			COMPREPLY=( $( apt-cache pkgnames $cur 2> /dev/null ) )
+			return 0
+			;;
+
 		esac
 	fi
 
@@ -1477,10 +1478,11 @@ _apt_get()
 		     return 0
 		     ;;
  
-	    *)
-		COMPREPLY=( $( compgen -W 'update upgrade dselect-upgrade \
-				dist-upgrade install remove source build-dep \
-				check clean autoclean -d -f -h -v -m -q -s -y \
+	esac
+
+	if [[ "$cur" == -* ]]; then
+
+		COMPREPLY=( $( compgen -W '-d -f -h -v -m -q -s -y \
 				-u -t -b -c -o --download-only --fix-broken \
 				--help --version --ignore-missing \
 				--fix-missing --no-download --quiet --simulate \
@@ -1492,8 +1494,14 @@ _apt_get()
 				--list-cleanup --default-release \
 				--trivial-only --no-remove --diff-only \
 				--tar-only --config-file --option' -- $cur ) )
-		;;
-	esac
+	else
+
+		COMPREPLY=( $( compgen -W 'update upgrade dselect-upgrade \
+				dist-upgrade install remove source build-dep \
+				check clean autoclean' -- $cur ) )
+
+	fi
+
 
 	return 0
 }
@@ -1511,23 +1519,28 @@ _apt_cache()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	
-	for (( i=0; i < ${#COMP_WORDS}-1; i++ )); do
-		if [[ ${COMP_WORDS[i]} == @(add|show?(pkg)|depends|dotty|policy) ]]; then
-			special=${COMP_WORDS[i]}
+	if [ "$cur" != show ]; then
+	    for (( i=0; i < ${#COMP_WORDS}-1; i++ )); do
+		if [[ ${COMP_WORDS[i]} == @(add|depends|dotty|policy|show?(pkg)) ]]; then
+		    special=${COMP_WORDS[i]}
 		fi
-	done
+	    done
+	fi
+
 
 	if [ -n "$special" ]; then
-		case $special in
+	    case $special in
 		add)
-			_filedir
-			return 0
-			;;
-		show?(pkg)|depends|dotty|policy)
-			COMPREPLY=( $( apt-cache pkgnames $cur 2>/dev/null) )
-			return 0
-			;;
-		esac
+		    _filedir
+		    return 0
+		    ;;
+		
+ 		*)
+		    COMPREPLY=( $( apt-cache pkgnames $cur 2> /dev/null ) )
+		    return 0
+		    ;;
+		
+	    esac
 	fi
 
 
@@ -1536,24 +1549,32 @@ _apt_cache()
 		     _filedir
 		     return 0
 		     ;;
+	     search)
+		     return 0
+		     ;;
+	esac
 
-	     *)
+	if [[ "$cur" == -* ]]; then
 
-		COMPREPLY=( $( compgen -W 'add gencaches showpkg stats dump \
-				dumpavail unmet check search show dotty policy \
-				depends pkgnames -h -v -p -s -q -i -f -a -g -c \
+		COMPREPLY=( $( compgen -W '-h -v -p -s -q -i -f -a -g -c \
 				-o --help --version --pkg-cache --src-cache \
 				--quiet --important --full --all-versions \
 				--generate --no-generate --names-only \
 				--all-names --config-file --option \
 				--recurse' -- $cur ) )
-		;;
-	esac
+	else
+
+		COMPREPLY=( $( compgen -W 'add gencaches showpkg show stats \
+				dumpavail unmet check search dump dotty policy \
+				depends pkgnames' -- $cur ) )
+
+	fi
+
 
 	return 0
 }
-[ "$have" ] && complete -F _apt-cache $filenames apt-cache
-complete -F _apt_cache $filenames apt-cache
+[ "$have" ] && complete -F _apt_cache $filenames apt-cache
+
 
 # Debian aptitude(1) completion
 #
@@ -1624,8 +1645,11 @@ _aptitude()
 				       purge markauto unmarkauto dist-upgrade \
 				       download search' -- $cur ) )
 	fi
+
+
+	return 0
 }
-complete -F _aptitude $default aptitude
+[ "$have" ] && complete -F _aptitude $default aptitude
 }
 
 # Debian apt-build(1) completion.
@@ -1673,18 +1697,22 @@ _apt_build()
 		   return 0
 		   ;;
 
-	     *)
-  		   COMPREPLY=( $( compgen -W "update upgrade install remove \
-				  source dist-upgrade world clean info \
-				  clean-repository update-repository \
-				  --help --show-upgraded -u --build-dir \
+	esac
+
+	if [[ "$cur" == -* ]]; then
+	    COMPREPLY=( $( compgen -W '--help --show-upgraded -u --build-dir \
 				  --repository-dir --build-only \
 				  --build-command --reinstall --rebuild \
 				  --remove-builddep --no-wrapper --purge \
 				  --patch --patch-strip -p --yes -y \
-				  --version -v --no-source" -- $cur ) )
-		   ;;
-	esac
+				  --version -v --no-source' -- $cur ) )
+
+	else
+	    COMPREPLY=( $( compgen -W 'update upgrade install remove \
+				  source dist-upgrade world clean info \
+				  clean-repository update-repository ' -- $cur ) )
+	fi
+
 
 	return 0
 }
@@ -2892,7 +2920,7 @@ complete -F _dpkg $filenames dpkg dpkg-deb
 # Debian GNU dpkg-reconfigure(8) completion
 #
 have dpkg-reconfigure &&
-_dpkg-reconfigure()
+_dpkg_reconfigure()
 {
 	local cur prev opt
 
@@ -2923,7 +2951,7 @@ _dpkg-reconfigure()
 	    COMPREPLY=( $( _comp-dpkg-installed-packages $cur ) )
 	fi
 }
-[ "$have" ] && complete -F _dpkg-reconfigure $default dpkg-reconfigure
+[ "$have" ] && complete -F _dpkg_reconfigure $default dpkg-reconfigure
 
 # Debian Linux dselect(8) completion.
 #
@@ -2945,13 +2973,17 @@ _dselect()
 		  _filedir
 		  ;;
 
-	     *)
-		  COMPREPLY=( $( compgen -W 'access update select install \
-				  config remove quit --admindir --help \
-				  --version --licence --license --expert \
-				  --debug' -- $cur ) )
-		  ;;
 	esac
+		  COMPREPLY=( $( compgen -W  -- $cur ) )
+
+	if [[ "$cur" == -* ]]; then
+	    COMPREPLY=( $( compgen -W '--admindir --help --version --licence \
+				  --license --expert --debug' -- $cur ) )
+	else
+	    COMPREPLY=( $( compgen -W 'access update select install config \
+				  remove quit' -- $cur ) )
+	fi
+
 
 	return 0
 }
@@ -3077,7 +3109,7 @@ _java()
 	for ((i=1; i < $COMP_CWORD; i++)); do
 		case ${COMP_WORDS[$i]} in
 		    -cp|-classpath)
-                        i++ # skip the classpath string.
+			i++ # skip the classpath string.
 			;;
 		    -*)
 			# this is an option, not a class/jarfile name.
@@ -3101,11 +3133,11 @@ _java()
 		# relevant options completion
 		COMPREPLY=( $( compgen -W '-client -hotspot -server -classic \
 				-cp -classpath -D -verbose -verbose:class \
-		                -verbose:gc -version:jni -version \
+				-verbose:gc -version:jni -version \
 				-showversion -? -help -X -jar \
-		                -ea -enableassertions -da -disableassertions \
-		                -esa -enablesystemassertions \
-		                -dsa -disablesystemassertions ' -- $cur ) )
+				-ea -enableassertions -da -disableassertions \
+				-esa -enablesystemassertions \
+				-dsa -disablesystemassertions ' -- $cur ) )
 	else
 		if [[ "$prev" == -jar ]]; then
 			# jar file completion
@@ -3670,7 +3702,7 @@ _python()
 		return 0
 		;;
 	!(python|-?))
-		[[ ${COMP_WORDS[COMP_CWORD-2]} != -@(Q|W)) ]] && _filedir
+		[[ ${COMP_WORDS[COMP_CWORD-2]} != -@(Q|W) ]] && _filedir
 		;;
 	esac
 
@@ -3678,7 +3710,7 @@ _python()
 	# if '-c' is already given, complete all kind of files.
 	for (( i=0; i < ${#COMP_WORDS}-1; i++ )); do
 		if [[ ${COMP_WORDS[i]} == -c ]]; then
-		        _filedir
+			_filedir
 		fi
 	done
 
@@ -3686,8 +3718,8 @@ _python()
 	if [[ "$cur" != -* ]]; then
 		_filedir '@(py|pyc|pyo)'
 	else
-	        COMPREPLY=( $( compgen -W "- -d -E -h -i -O -Q -S -t -u \
-                                           -U -v -V -W -x -c" -- $cur ) )
+		COMPREPLY=( $( compgen -W "- -d -E -h -i -O -Q -S -t -u \
+					   -U -v -V -W -x -c" -- $cur ) )
 	fi
 
 
