@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.308 2002/05/08 17:38:56 ianmacd Exp $
+#   $Id: bash_completion,v 1.309 2002/05/09 18:20:53 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -65,8 +65,8 @@ complete -f -X '!*.@(dvi|DVI)' dvips dviselect dvitype
 complete -f -X '!*.@(pdf|PDF)' acroread xpdf
 complete -f -X '!*.texi*' makeinfo texi2dvi texi2html
 complete -f -X '!*.@(?(la)tex|?(LA)TEX|dtx|DTX|ins|INS)' tex latex slitex jadetex pdfjadetex pdftex pdflatex
-complete -f -X '!*.@(mp3|MP3)' mpg123
-complete -f -X '!*.@(mpg|mpeg|avi|asf|vob|bin|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|wmv)' mplayer xine
+complete -f -X '!*.@(mp3|MP3)' mpg123 mpg321
+complete -f -X '!*.@(mpg|mpeg|avi|asf|vob|bin|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|wmv|mp3|MP3|ogg|OGG)' mplayer xine
 complete -f -X '!*.@(avi|asf)' aviplay
 complete -f -X '!*.@(rm|ram|smi?(l))' realplay
 complete -f -X '!*.@(mpg|mpeg|avi|mov)' xanim
@@ -416,10 +416,10 @@ _insmod()
 }
 [ $UNAME = Linux ] && complete -F _insmod $filenames insmod modprobe
 
-# man(1) completion. This is Linux and Darwin specific, in that
+# man(1) completion. This is GNU, GNU/Linux and Darwin specific, in that
 # 'man <section> <page>' is the expected syntax.
 #
-[ $UNAME = Linux -o $UNAME = Darwin ] &&
+[ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin ] &&
 _man()
 {
 	local cur prev sect manpath UNAME
@@ -437,7 +437,7 @@ _man()
 	fi
 
 	UNAME=$( uname -s )
-	if [ $UNAME = Linux ]; then
+	if [ $UNAME = GNU -o $UNAME = Linux ]; then
 		manpath=$( manpath 2>/dev/null || \man --path )
 	else
 		manpath=$MANPATH
@@ -473,7 +473,8 @@ _man()
 
 	return 0
 }
-[ $UNAME = Linux -o $UNAME = Darwin ] && complete -F _man $filenames man
+[ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin ] &&
+  complete -F _man $filenames man
 
 # renice(8) completion
 #
@@ -677,7 +678,7 @@ _ifconfig()
 }
 [ $UNAME = Linux ] && complete -F _ifconfig ifconfig
 
-# RedHat & Debian Linux if{up,down} completion
+# RedHat & Debian GNU/Linux if{up,down} completion
 #
 [ $UNAME = Linux ] && ( have ifup || have ifdown ) &&
 _ifupdown()
@@ -1319,7 +1320,7 @@ _rpm()
 complete -F _rpm $filenames rpm rpmbuild
 }
 
-# Debian Linux apt-get(8) completion.
+# Debian apt-get(8) completion.
 #
 have apt-get &&
 _apt_get()
@@ -1378,7 +1379,7 @@ _apt_get()
 }
 [ "$have" ] && complete -F _apt_get $filenames apt-get
 
-# Debian Linux apt-cache(8) completion.
+# Debian apt-cache(8) completion.
 #
 have apt-cache &&
 _apt_cache()
@@ -2553,7 +2554,7 @@ _gcc()
 	fi
 }
 [ "$have" ] && complete $filenames -F _gcc gcc g++ c++ g77 gcj gpc
-[ $UNAME = Linux ] && complete $filenames -F _gcc cc
+[ $UNAME = GNU -o $UNAME = Linux ] && complete $filenames -F _gcc cc
 
 # Linux cardctl(8) completion
 #
@@ -2591,7 +2592,7 @@ _comp-dpkg-hold-packages()
 		   | grep-dctrl -n -F status -s package 'hold'
 }
 
-# Debian Linux dpkg(8) completion
+# Debian dpkg(8) completion
 #
 _dpkg()
 {
@@ -2665,7 +2666,7 @@ _dpkg()
 [ "$have" ] && complete -F _dpkg $filenames dpkg dpkg-deb
 }
 
-# Debian Linux dpkg-reconfigure(8) completion
+# Debian GNU dpkg-reconfigure(8) completion
 #
 have dpkg-reconfigure &&
 _dpkg-reconfigure()
@@ -2937,7 +2938,7 @@ _urpmi_removemedia()
 }
 [ "$have" ] && complete -F _urpmi_removemedia urpmi.removemedia
 
-# Debian Linux reportbug(1) completion
+# Debian reportbug(1) completion
 #
 have reportbug &&
 _reportbug()
@@ -3010,7 +3011,7 @@ _reportbug()
 }
 [ "$have" ] && complete -F _reportbug $filenames reportbug
 
-# Debian Linux querybts(1) completion
+# Debian querybts(1) completion
 #
 have querybts &&
 _querybts()
