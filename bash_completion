@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.506 2003/01/09 11:25:58 ianmacd Exp $
+#   $Id: bash_completion,v 1.507 2003/01/09 11:44:29 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -124,8 +124,7 @@ complete -c command type which
 have()
 {
 	unset -v have
-	type $1 &> /dev/null
-	[ $? -eq 0 ] && have="yes"
+	type $1 &> /dev/null && have="yes"
 }
 
 # use GNU sed if we have it, since its extensions are still used in our code
@@ -3018,6 +3017,7 @@ _dselect()
 
 # available path elements completion
 have java && {
+{
 _java_path()
 {
 	cur=${cur##*:}
@@ -3075,9 +3075,17 @@ _java_classes()
 	# parse each classpath element for classes
 	for i in ${classpath//:/ }; do
 		if [ -r $i ] && [[ "$i" == *.@(jar|zip) ]]; then
-			COMPREPLY=( ${COMPREPLY[@]} $( jar tf $i $cur | grep -v\
-				"META-INF" | sed -e 's|\('$cur'[^/]*/\).*|\1|' \
-				| sort | uniq ) )
+			if type zipinfo &> /dev/null; then
+				COMPREPLY=( ${COMPREPLY[@]} $( zipinfo -1 $i |
+				grep "^$cur" | grep -v "META-INF" |
+				sed -e 's|\('$cur'[^/]*/\).*|\1|' | sort |
+				uniq ) )
+			else
+				COMPREPLY=( ${COMPREPLY[@]} $( jar tf $i $cur |
+				grep -v "META-INF" | sed -e \
+				's|\('$cur'[^/]*/\).*|\1|' | sort | uniq ) )
+			fi
+
 		elif [ -d $i ]; then
 			COMPREPLY=( ${COMPREPLY[@]} $( command ls -F -d \
 				$i/$cur* 2>/dev/null | sed -e 's|^'$i'/||' ) )
