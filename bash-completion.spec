@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.119 2004/10/17 08:25:06 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.120 2005/01/04 06:38:58 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20041017
+Version: 20050103
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,21 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Mon Jan  3 2005 Ian Macdonald <ian@caliban.org>
+- Complete rewrite of openssl(1) completion.
+- Added pkg-config completion.
+- Cygwin mount patch and minor find (fstab) robustness fix.
+- Enhanced make completion with alternate Makefile paths.
+- Added ps2pdf completion.
+- Added mkinitrd completion.
+- modprobe factorisation patch merged.
+- Wireless tools improvements.
+- cvs(1) completion fixes.
+- Add ,v files to list rcs(1) can complete on.
+- Fixes for completing RealAudio files.
+- screen completion now includes the socket part of session names.
+- sitecopy and snownews enhancements in contrib/.
+
 * Sun Oct 17 2004 Ian Macdonald <ian@caliban.org>
 - properly unset $have at end of sourcing
 - scp completion was broken for file names, both local and remote, that
