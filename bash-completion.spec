@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.18 2002/03/28 17:18:46 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.19 2002/03/30 19:29:10 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020328
+Version: 20020330
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,16 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Sat Mar 30 2002 Ian Macdonald <ian@caliban.org>
+- fix escaping issues in _command()
+- fixes to _ant(), _java() and _urpmi()
+- simplification of _rpm()
+- rpm now only returns options if user attempts completion on a '-'
+- simply cd completion by checking for CDPATH at start
+- don't turn relative paths into absolute ones for people who don't use CDPATH
+- insmod completion now deals with gzipped modules (Mandrake)
+- fixes to urpmi completion
+
 * Thu Mar 28 2002 Ian Macdonald <ian@caliban.org>
 - in _longopt(), don't call _expand() directly, since it's called indirectly
   later via _filedir(). This fixes an eval error.
