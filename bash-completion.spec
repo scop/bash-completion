@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.54 2002/07/23 16:02:59 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.55 2002/07/27 09:15:28 ianmacd Exp $
 #
 Name: bash-completion
-%define bashversion 2.05a
+%define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020723
+Version: 20020727
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,12 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Sat Jul 27 2002 Ian Macdonald <ian@caliban.org>
+- _man(): when completing on man page names, a trailing dot would be removed
+  when trying to complete a man page such as syslog.conf
+- fix typo in vi/vim completion and add a couple more file types to avoid
+  returning as possible completions
+
 * Tue Jul 23 2002 Ian Macdonald <ian@caliban.org>
 - add _user_at_host() for user@host style completion. Use this for finger
   and talk
