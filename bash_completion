@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.653 2003/11/12 10:20:42 ianmacd Exp $
+#   $Id: bash_completion,v 1.654 2003/11/15 08:59:13 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -5088,40 +5088,61 @@ _mc()
 have yum &&
 _yum()
 {
-    local cur
-    COMPREPLY=()
-    cur=${COMP_WORDS[COMP_CWORD]}
-    prev=${COMP_WORDS[COMP_CWORD-1]}
+	local cur prev special
+	
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-    case "$prev" in
-        -c)
-	    _filedir
-            return 0
-            ;;
-        --installroot)
-            _filedir -d
-            return 0
-            ;;
-    esac
+	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
+		if [[ ${COMP_WORDS[i]} == @(install|update|upgrade|remove) ]]; then
+			special=${COMP_WORDS[i]}
+		fi
+	done
 
-    case "$cur" in
-        --*)
-            COMPREPLY=( $( compgen -W '--installroot --version --help' -- \
-                           $cur ) )
-            ;;
-        -*)
-            COMPREPLY=( $( compgen -W '-c -e -d -y -t -R -C -h' -- $cur ) )
-            ;;
-        *)
-            COMPREPLY=( $( compgen -W 'update upgrade install info remove \
-                                       list clean provides check-update \
-                                       groupinstall groupupdate grouplist' -- \
-                           $cur ) )
-            ;;
-    esac
+	if [ -n "$special" ]; then
+	    case $special in
+		install)
+		    COMPREPLY=( $( compgen -W '$( yum -C list | cut -d" " -f1 )' -- $cur ) )
+		    return 0
+		    ;;
+		*)
+                    _rpm_installed_packages
+		    return 0
+		    ;;
+		esac
+	fi
 
-    return 0
+	case $cur in
+	    --*)
+		COMPREPLY=( $( compgen -W '--installroot --version --help' -- $cur ) )
+		return 0
+		;;
+	    -*)
+		COMPREPLY=( $( compgen -W '-c -e -d -y -t -R -C -h' -- $cur ) )
+		return 0
+		;;
+	esac
 
+	case $prev in
+	    list)
+		COMPREPLY=( $( compgen -W 'available updates installed extras' -- $cur ) )
+		;;
+	    clean)
+		COMPREPLY=( $( compgen -W 'packages headers oldheaders all' -- $cur ) )
+		;;
+	    -c)
+		_filedir
+		;;
+	    --installroot)
+		_filedir -d
+		;;
+	    *)
+		COMPREPLY=( $( compgen -W 'install update check-update upgrade remove list \
+						search info provides clean groupinstall groupupdate \
+						grouplist ' -- $cur ) )
+		;;
+	esac
 }
 [ -n "${have:-}" ] && complete -F _yum $filenames yum
 
