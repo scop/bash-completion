@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.474 2002/12/05 02:52:56 ianmacd Exp $
+#   $Id: bash_completion,v 1.475 2002/12/05 02:56:19 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2525,29 +2525,32 @@ _screen()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
+	test "$COMP_CWORD" -ge 2 && preprev=${COMP_WORDS[COMP_CWORD-2]} || unset preprev
 
-	case "$prev" in
-	-[rR])
-		# list detached
+	if test "$preprev" = "-d" -o "$preprev" = "-D" -a "$prev" = "-r" -o "$prev" = "-R"; then
+		# list all
 		COMPREPLY=( $( command screen -ls | \
-				sed -ne 's|^['$'\t'']\+\('$cur'[^'$'\t'']\+\).*Detached.*$|\1|p'
-			       command screen -ls | \
-				sed -ne 's|^['$'\t'']\+[0-9]\+\.\('$cur'[^'$'\t'']\+\).*Detached.*$|\1|p' ) )
-		;;
-	-[dDx])
-		# list attached
-		COMPREPLY=( $( command screen -ls | \
-				sed -ne 's|^['$'\t'']\+\('$cur'[^'$'\t'']\+\).*Attached.*$|\1|p'
-			       command screen -ls | \
-				sed -ne 's|^['$'\t'']\+[0-9]\+\.\('$cur'[^'$'\t'']\+\).*Attached.*$|\1|p' ) )
-		;;
-	-s)
-		# shells
-		COMPREPLY=( $( grep ^${cur:-[^#]} /etc/shells ) )
-		;;
-	*)
-		;;
-	esac
+				sed -ne 's|^['$'\t'']\+[0-9]\+\.\('$cur'[^'$'\t'']\+\).*$|\1|p' ) )
+	else
+		case "$prev" in
+		-[rR])
+			# list detached
+			COMPREPLY=( $( command screen -ls | \
+					sed -ne 's|^['$'\t'']\+[0-9]\+\.\('$cur'[^'$'\t'']\+\).*Detached.*$|\1|p' ) )
+			;;
+		-[dDx])
+			# list attached
+			COMPREPLY=( $( command screen -ls | \
+					sed -ne 's|^['$'\t'']\+[0-9]\+\.\('$cur'[^'$'\t'']\+\).*Attached.*$|\1|p' ) )
+			;;
+		-s)
+			# shells
+			COMPREPLY=( $( grep ^${cur:-[^#]} /etc/shells ) )
+			;;
+		*)
+			;;
+		esac
+	fi
 
 	return 0
 }
