@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.15 2002/03/22 16:54:12 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.16 2002/03/24 08:10:58 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020322
+Version: 20020324
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,9 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Sun Mar 24 2002 Ian Macdonald <ian@caliban.org>
+- kill and killall completion now also work on FreeBSD
+
 * Fri Mar 22 2002 Ian Macdonald <ian@caliban.org>
 - move p4 completion to contrib directory
 - rpm completion now handles verification of uninstalled packages
