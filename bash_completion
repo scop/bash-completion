@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.583 2003/06/23 15:54:01 ianmacd Exp $
+#   $Id: bash_completion,v 1.584 2003/06/30 01:35:57 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -714,8 +714,9 @@ _killall()
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
 		_signals
 	else
-		COMPREPLY=( $( compgen -W '$( command ps axo ucomm | sed 1d )' \
-			       -- $cur ) )
+		COMPREPLY=( $( compgen -W "$( command ps axo command | \
+			      sed -ne '1d; s/^\[\?\([^-][^] ]*\).*$/\1/p' | \
+			      sed -e 's/.*\///')" -- $cur ) )
 	fi
 
 	return 0
