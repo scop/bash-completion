@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.25 2001/09/21 20:51:30 ianmacd Exp $
+#   $Id: bash_completion,v 1.26 2001/11/05 00:11:48 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -273,7 +273,7 @@ _man()
         # default completion if parameter contains / or we have no man.config
         [[ "$cur" == /* ]] || [ ! -f /etc/man.config ] && return 0
 
-        if [[ "$prev" == [0-9n] ]]; then
+        if [[ "$prev" == [0-9ln] ]]; then
                 # churn out a string of paths to search, with * appended to $cur
                 cmd=`awk '{if ($1 ~ /^MANPATH/) \
                      print $(NF)"/man'$prev'/'$cur'*"}' /etc/man.config | \
@@ -296,7 +296,7 @@ _man()
                 COMPREPLY=( $( eval $cmd ) )
                 COMPREPLY=( ${COMPREPLY[@]##*/} )
                 COMPREPLY=( ${COMPREPLY[@]%.gz} )
-                COMPREPLY=( ${COMPREPLY[@]%.*} $( compgen -G $cur\*.[0-9n] ) )
+                COMPREPLY=( ${COMPREPLY[@]%.*} $( compgen -G $cur\*.[0-9ln] ) )
         fi
 
 	return 0
@@ -565,8 +565,14 @@ _rpm()
 
 	add_package_list()
 	{
-		COMPREPLY=( ${COMPREPLY[@]} $( rpm -qa | \
-		   sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+$/\1/p' ) )
+		if [ -f /var/log/rpmpkgs ]; then
+		# using RHL 7.2 - this is quicker than querying the DB
+			COMPREPLY=( ${COMPREPLY[@]}
+			$( sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+.*\.rpm$/\1/p' /var/log/rpmpkgs ) )
+		else
+			COMPREPLY=( ${COMPREPLY[@]} $( rpm -qa | \
+		        sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+$/\1/p' ) )
+		fi
 	}
 
 	file_glob()
