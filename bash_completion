@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.262 2002/04/06 22:21:13 ianmacd Exp $
+#   $Id: bash_completion,v 1.263 2002/04/07 19:17:13 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -943,32 +943,34 @@ _cvs()
 }
 [ "$have" ] && complete -F _cvs $default cvs
 
+have rpm &&
+# helper functions for rpm completion
+#
+rpm_installed_packages()
+{
+	if [ -r /var/log/rpmpkgs -a \
+		/var/log/rpmpkgs -nt /var/lib/rpm/Packages ]; then
+		# using RHL 7.2 - this is quicker than querying the DB
+		COMPREPLY=( $( sed -ne \
+		's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+.*\.rpm$|\1|p' \
+				/var/log/rpmpkgs ) )
+	else
+		COMPREPLY=( $( rpm -qa | sed -ne \
+		's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+$|\1|p' ) )
+	fi
+}
+
+file_glob()
+{
+	_expand || return 0
+	COMPREPLY=( $( compgen -f -X "!*.$1" -- $cur ) \
+		    $( compgen -d -- $cur ) )
+}
+
 # rpm(8) completion
 # 
-have rpm &&
 _rpm()
 {
-	installed_packages()
-	{
-		if [ -r /var/log/rpmpkgs -a \
-			/var/log/rpmpkgs -nt /var/lib/rpm/Packages ]; then
-			# using RHL 7.2 - this is quicker than querying the DB
-			COMPREPLY=( $( sed -ne \
-		's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+.*\.rpm$|\1|p' \
-					/var/log/rpmpkgs ) )
-		else
-			COMPREPLY=( $( rpm -qa | sed -ne \
-			's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+$|\1|p' ) )
-		fi
-	}
-
-	file_glob()
-	{
-		_expand || return 0
-		COMPREPLY=( $( compgen -f -X "!*.$1" -- $cur ) \
-			    $( compgen -d -- $cur ) )
-	}
-
 	local cur prev
 
 	COMPREPLY=()
@@ -1068,7 +1070,7 @@ _rpm()
 			COMPREPLY=( $( compgen -W '--allmatches --noscripts \
 			--notriggers --nodeps --test --repackage' -- $cur ) )
 		else
-			installed_packages
+			rpm_installed_packages
 		fi
 		;;
 	-@(q*|-query))
@@ -1110,7 +1112,7 @@ _rpm()
 				--conflicts --obsoletes --pkgid --hdrid \
 				--fileid --tid' -- $cur ) )
 			elif [ "${COMP_LINE#* -*([^ -])a}" == "$COMP_LINE" ]; then
-				installed_packages
+				rpm_installed_packages
 			fi
 		fi
 		;;
@@ -1130,7 +1132,7 @@ _rpm()
 		elif [ "${COMP_LINE#* -*([^ -])p}" != "$COMP_LINE" ]; then
 			file_glob rpm
 		else
-			installed_packages
+			rpm_installed_packages
 		fi
 		;;
 	-[bt]*)
@@ -1160,7 +1162,7 @@ _rpm()
 		file_glob rpm
 		;;
 	--set@(perms|gids))
-		installed_packages
+		rpm_installed_packages
 		;;
 	--@(clean|rms@(ource|pec)))
 		if [[ "$cur" == -* ]]; then
@@ -1188,14 +1190,25 @@ _apt_get()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	for (( i=0; i < ${#COMP_WORDS}-1; i++ )); do
-		if [[ ${COMP_WORDS[i]} == @(install|remove|source) ]]; then
+		if [[ ${COMP_WORDS[i]} == @(install|remove|source|build-dep) ]]; then
 			special=${COMP_WORDS[i]}
 		fi
 	done
 	if [ -n "$special" ]; then
 		case $special in
-		@(install|remove|source))
+		@(install|source|build-dep))
 			COMPREPLY=( $( apt-cache pkgnames $cur ) )
+			return 0
+			;;
+		remove)
+			if [ -f /etc/debian_version ]; then
+				# Debian system
+				COMPREPLY=( $( _comp-dpkg-installed-packages \
+						$cur ) )
+			else
+				# assume RPM based
+				rpm_installed_packages
+			fi
 			return 0
 			;;
 		esac
@@ -1205,7 +1218,8 @@ _apt_get()
 		_filedir
 	else
 		COMPREPLY=( $( compgen -W 'update upgrade dselect-upgrade \
-				  dist-upgrade install remove source check \
+				  dist-upgrade install remove source \
+				  build-dep check \
 				  clean autoclean -d -f -h -v -m -q -s -y -u \
 				  -b -c -o --download-only --fix-broken --help \
 				  --version --ignore-missing --fix-missing \
