@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.26 2001/11/05 00:11:48 ianmacd Exp $
+#   $Id: bash_completion,v 1.27 2001/11/20 05:15:48 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -108,7 +108,7 @@ have()
 #
 _chown()
 {
-	local cur prev user group
+	local cur prev user group i
 
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
@@ -311,7 +311,7 @@ _man()
 #
 _killall()
 {
-	local cur prev
+	local cur prev i
 
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
@@ -354,7 +354,7 @@ complete -F _killall killall
 #
 _find()
 {
-	local cur prev
+	local cur prev i
 
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]#-}
@@ -438,7 +438,7 @@ _find()
 
 	return 0
 }
-complete -F _find -o filenames find
+complete -F _find -o dirnames find
 
 # Linux ifconfig(8) completion
 #
@@ -813,7 +813,7 @@ _rpm()
 have apt-get &&
 _apt-get()
 {
-	local cur prev special
+	local cur prev special i
 
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
@@ -861,7 +861,7 @@ _apt-get()
 have apt-cache &&
 _apt-cache()
 {
-	local cur prev special
+	local cur prev special i
 
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
@@ -928,7 +928,7 @@ complete -F _chsh chsh
 have chkconfig &&
 _chkconfig()
 {
-	local cur prev
+	local cur prev i
 
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
@@ -973,6 +973,7 @@ _known_hosts()
 
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
+	cur=${cur#*@}
 	kh=()
 
 	[ -r /etc/known_hosts ]    && kh[0]=/etc/known_hosts
@@ -996,8 +997,9 @@ _known_hosts()
 		cur="^$cur"
 	    fi
 	    # FS needs to look for a comma separated list
-	    COMPREPLY=( $( awk 'BEGIN {FS="[ ,]"}
-				{for (i=1; i<=NR; ++i) { \
+	    COMPREPLY=( $( awk 'BEGIN {FS=","}
+				{for (i=1; i<=2; ++i) { \
+				       gsub(" .*$", "", $i); \
 				       if ($i ~ /'$cur'/) {print $i} \
 				}}' ${kh[@]} ) )
 	else
@@ -1015,7 +1017,7 @@ complete -F _known_hosts traceroute ping fping telnet host nslookup
 have ssh &&
 _ssh()
 {
-	local cur prev
+	local cur prev COMPREPLY_SAVE=()
 
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
@@ -1025,26 +1027,37 @@ _ssh()
 	-*c)
 	    COMPREPLY=( $( compgen -W 'blowfish 3des 3des-cbc blowfish-cbc \
 			   arcfour cast128-cbc' $cur ) )
-	    return 0
 	    ;;
 	-*l)
 	    COMPREPLY=( $( compgen -u $cur ) )
-	    return 0
 	    ;;
+	*)
+	    COMPREPLY_SAVE=( $( compgen -c $cur ) )
+	    _known_hosts
+	    COMPREPLY=( ${COMPREPLY[@]} ${COMPREPLY_SAVE[@]} )
 	esac
-
-	# Host has been specified, so now do simple command completion
-	if [ $COMP_CWORD -gt 1 ]; then
-	    COMPREPLY=( $( compgen -c $cur ) )
-	    return 0
-	fi
-
-	# Otherwise, check for known hosts
-	_known_hosts
 
 	return 0
 }
 [ "$have" ] && complete -F _ssh ssh slogin sftp
+
+have scp &&
+_scp()
+{
+	local cur prev COMPREPLY_SAVE=()
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+        prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	COMPREPLY_SAVE=( $( compgen -f $cur ) )
+	_known_hosts
+	COMPREPLY=( ${COMPREPLY[@]} ${COMPREPLY_SAVE[@]} )
+
+	return 0
+}
+[ "$have" ] && complete -F _scp scp
+
 
 # Linux route(8) completion. This could be improved by adding address family
 # completion for -A, etc.
@@ -1239,9 +1252,17 @@ _cd()
 {
         local cur=${COMP_WORDS[COMP_CWORD]} dirs=()
 
-	# standard dir completion if parameter contains a /
-	[[ "$cur" == /* ]] && COMPREPLY=( $( compgen -d $cur ) ) && return 0
+	# expand ~username type directory specifications
+	if [[ "$cur" == \~*/* ]]; then
+		eval cur=$cur
+	elif [[ "$cur" == \~* ]]; then
+		cur=${cur#\~}
+		COMPREPLY=( $( compgen -P '~' -u $cur ) )
+		return 0
+	fi
 
+	# standard dir completion if parameter starts with /, ./ or ../
+	[[ "$cur" == ?(.)?(.)/* ]] && COMPREPLY=( $( compgen -d $cur ) ) && return 0
 	if [ -n "$CDPATH" ]; then
 		# we have a CDPATH, so loop on its contents
 		for i in ${CDPATH//:/ }; do
