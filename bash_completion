@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.93 2002/02/06 19:02:53 ianmacd Exp $
+#   $Id: bash_completion,v 1.94 2002/02/08 17:49:05 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -50,7 +50,7 @@ complete -f -X '*.Z' compress znew
 complete -f -X '!*.@(Z|gz|tgz|Gz)' gunzip zcmp zdiff zcat zegrep zfgrep zgrep \
 				   zless zmore
 complete -f -X '!*.Z' uncompress
-complete -f -X '!*.@(gif|jpg|jpeg|tif|tiff|png|GIF|JPG|TIF|TIFF|PNG|bmp)' ee xv
+complete -f -X '!*.@(gif|jpg|jpeg|tif|tiff|png|pbm|pgm|ppm|PBM|PGM|PPM|GIF|JPG|TIF|TIFF|PNG|bmp)' ee xv
 complete -f -X '!*.@(?(e)ps|?(E)PS|?(e)ps.gz|pdf|PDF)' gv ggv
 complete -f -X '!*.@(dvi|DVI)?(.@(gz|Z|bz2))' xdvi
 complete -f -X '!*.@(dvi|DVI)' dvips dviselect dvitype
@@ -309,25 +309,24 @@ _man()
 		cmd=`awk '{if ($1 ~ /^MANPATH/) \
 		     print $(NF)"/man'$prev'/'$cur'*"}' /etc/man.config | \
 		     sort -u`
-		# strip off * from paths ending in /*
-		cmd=${cmd//\/\\*/\/}
-		# redirect stderr for when path doesn't exist
-		cmd="ls $cmd 2>/dev/null"
-		COMPREPLY=( $( eval $cmd ) )
-		# get basename of man pages
-		COMPREPLY=( ${COMPREPLY[@]##*/} )
-		# strip suffix from man pages
-		COMPREPLY=( ${COMPREPLY[@]%.gz} )
-		COMPREPLY=( ${COMPREPLY[@]%.*} )
 	else
 		cmd=`awk '{if ($1 ~ /^MANPATH/) \
 		     print $(NF)"/man?/'$cur'*"}' /etc/man.config | sort -u`
-		cmd=${cmd//\/\\*/\/}
-		cmd="ls $cmd 2>/dev/null"
-		COMPREPLY=( $( eval $cmd ) )
-		COMPREPLY=( ${COMPREPLY[@]##*/} )
-		COMPREPLY=( ${COMPREPLY[@]%.gz} )
-		COMPREPLY=( ${COMPREPLY[@]%.*} $( compgen -G $cur\*.[0-9ln] ) )
+	fi
+
+	# strip off * from paths ending in /*
+	cmd=${cmd//\/\\*/\/}
+	# redirect stderr for when path doesn't exist
+	cmd="ls $cmd 2>/dev/null"
+	COMPREPLY=( $( eval $cmd ) )
+	# get basename of man pages
+	COMPREPLY=( ${COMPREPLY[@]##*/} )
+	# strip suffix from man pages
+	COMPREPLY=( ${COMPREPLY[@]%.@(gz|bz2)} )
+	COMPREPLY=( ${COMPREPLY[@]%.*} )
+
+	if [[ "$prev" != [0-9ln] ]]; then
+		COMPREPLY=( ${COMPREPLY[@]} $( compgen -G $cur\*.[0-9ln] ) )
 	fi
 
 	return 0
