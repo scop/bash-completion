@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.17 2002/03/26 16:54:30 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.18 2002/03/28 17:18:46 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020326
+Version: 20020328
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,16 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Thu Mar 28 2002 Ian Macdonald <ian@caliban.org>
+- in _longopt(), don't call _expand() directly, since it's called indirectly
+  later via _filedir(). This fixes an eval error.
+- various improvements to dpkg completion
+- _cd(): more work to remove duplicates from list of completions
+- fakeroot completes just like sudo
+- fix slowdown in _querybts()
+- fix parameter bug in _querybts() and _reportbug()
+- add parameter escapes to _java()
+
 * Tue Mar 26 2002 Ian Macdonald <ian@caliban.org>
 - tar completion now supports more switches for bzip compression
 - chown completion now uses ':' as user:group separator
