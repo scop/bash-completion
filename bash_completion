@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.2 2000/08/11 23:20:41 ianmacd Exp $
+#   $Id: bash_completion,v 1.3 2000/08/29 02:41:27 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -20,8 +20,8 @@
 #   along with this program; if not, write to the Free Software Foundation,
 #   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-# Turn on extended globbing
-shopt -s extglob
+# Turn on extended globbing and programmable completion
+shopt -s extglob progcomp
 
 # A lot of the following one-liners were taken directly from the
 # completion examples provided with the bash 2.04 source distribution
@@ -95,7 +95,7 @@ complete -A binding bind
 # GNU chown(1) completion. This should be expanded to allow the use of
 # ':' as well as '.' as the user.group separator.
 #
-_chown ()
+_chown()
 {
 	local cur prev user group
 
@@ -104,12 +104,11 @@ _chown ()
         prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# do not attempt completion if we're specifying an option
-	if [ "${cur:0:1}" = "-" ]; then return 0; fi
+	if [ "$cur" == -* ]; then return 0; fi
 
 	# first parameter on line or first since an option?
-	if [ $COMP_CWORD -eq 1 ] || [ "${prev:0:1}" = "-" ]; then
-		case "$cur" in
-		[a-zA-Z]*.*)
+	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
+		if [[ "$cur" == [a-zA-Z]*.* ]]; then
 			user=${cur%.*}
 			group=${cur#*.}
 			COMPREPLY=( $( awk 'BEGIN {FS=":"} \
@@ -118,13 +117,9 @@ _chown ()
 			for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
 				COMPREPLY[i]=$user.${COMPREPLY[i]}
 			done
-			return 0
-			;;
-		*)
+		else
 			COMPREPLY=( $( compgen -u $cur -S '.' ) )
-			return 0
-			;;
-		esac
+		fi
 	else
 		COMPREPLY=( $( compgen -f $cur ) )
 	fi
@@ -136,7 +131,7 @@ complete -F _chown chown
 # umount(8) completion. This relies on the mount point being the third
 # space-delimited field in the output of mount(8)
 #
-_umount ()
+_umount()
 {
 	local cur
 
@@ -146,6 +141,7 @@ _umount ()
 	# could rewrite the cut | grep to be a sed command, but this is
 	# clearer and doesn't result in much overhead
 	COMPREPLY=( $( mount | cut -d' ' -f 3 | grep ^$cur) )
+
 	return 0
 }
 complete -F _umount umount
@@ -153,7 +149,7 @@ complete -F _umount umount
 # GID completion. This will get a list of all valid group names from
 # /etc/group and should work anywhere.
 #
-_gid_func ()
+_gid_func()
 {
 	local cur
 
@@ -171,39 +167,37 @@ complete -F _gid_func groupdel groupmod
 # query the server for a list of all available exports and complete on
 # that instead.
 #
-_mount ()
+_mount()
 
 {       local cur
 
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
 
-	case "$cur" in
-	*:*)
+	if [[ "$cur" == *:* ]]; then
 	      COMPREPLY=( $( /usr/sbin/showmount -e --no-headers ${cur%%:*} |\
 			       grep ^${cur#*:} | awk '{print $1}'))
-		return 0
-		;;
-	*)
+	else
 		COMPREPLY=( $( awk '{if ($2 ~ /\//) print $2}' /etc/fstab | \
 			       grep ^$cur ))
-		return 0
-		;;
-	esac
+	fi
+
+	return 0
 }
 complete -F _mount mount
 
 # Linux rmmod(1) completion. This completes on a list of all currently
 # installed kernel modules.
 #
-_rmmod ()
+_rmmod()
 {
 	local cur
 
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
 
-	COMPREPLY=($( lsmod | awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}'))
+	COMPREPLY=($( /sbin/lsmod | \
+		      awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}'))
 	return 0
 }
 complete -F _rmmod rmmod
@@ -211,7 +205,7 @@ complete -F _rmmod rmmod
 # Linux insmod(1) completion. This completes on a list of all
 # available modules for the version of the kernel currently running.
 #
-_insmod ()
+_insmod()
 {
 	local cur modpath
 
@@ -220,6 +214,7 @@ _insmod ()
 	modpath=/lib/modules/`uname -r`
 
 	COMPREPLY=($( ls -R $modpath | sed -ne 's/^\('$cur'.*\)\.o$/\1/p'))
+
 	return 0
 }
 complete -F _insmod insmod depmod modprobe modinfo
@@ -234,7 +229,7 @@ complete -F _insmod insmod depmod modprobe modinfo
 # 'man 3 str<tab>' to obtain a list of all string handling syscalls on
 # the system.
 #
-_man ()
+_man()
 {
         local cur prev cmd
 
@@ -248,8 +243,7 @@ _man ()
                 return 0
         fi
 
-        case "$prev" in
-        [0-9n])
+        if [[ "$prev" == [0-9n] ]]; then
                 # churn out a string of paths to search, with * appended to $cur
                 cmd=`awk '{if ($1 ~ /^MANPATH/) \
                      print $(NF)"/man'$prev'/'$cur'*"}' /etc/man.config | \
@@ -263,9 +257,7 @@ _man ()
                 COMPREPLY=( ${COMPREPLY[@]##*/} )
                 # strip suffix from man pages
                 COMPREPLY=( ${COMPREPLY[@]%%.*} )
-                return 0
-                ;;
-        *)
+	else
                 cmd=`awk '{if ($1 ~ /^MANPATH/) \
                      print $(NF)"/man?/'$cur'*"}' /etc/man.config | sort -u`
                 cmd=${cmd//\/\\*/\/}
@@ -273,9 +265,9 @@ _man ()
                 COMPREPLY=( $( eval $cmd ) )
                 COMPREPLY=( ${COMPREPLY[@]##*/} )
                 COMPREPLY=( ${COMPREPLY[@]%%.*} )
-                return 0
-                ;;
-        esac
+        fi
+
+	return 0
 }
 complete -F _man man
 
@@ -285,7 +277,7 @@ complete -F _man man
 # This could be improved. For example, it currently doesn't take
 # command line options into account
 #
-_killall ()
+_killall()
 {
 	local cur prev
 
@@ -293,16 +285,14 @@ _killall ()
         cur=${COMP_WORDS[COMP_CWORD]}
         prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	case "$prev" in
-	-[A-Z0-9]*)
+	if [[ "$prev" == -[A-Z0-9]* ]]; then
 		# get a list of processes (the first sed evaluation
 		# takes care of swapped out processes, the second
 		# takes care of getting the basename of the process)
 	       COMPREPLY=( $( ps ahx | awk '{if ($5 ~ /^'$cur'/) print $5}' | \
 			       sed -e 's#[]\[]##g' -e 's#^.*/##' ))
 		return 0
-		;;
-	esac
+	fi
 
 	# first parameter can be either a signal or a process
 	if [ $COMP_CWORD -eq 1 ]; then
@@ -328,7 +318,7 @@ complete -F _killall killall
 # globs and contains Linux specific code for completing the parameter
 # to the -fstype option.
 #
-_find ()
+_find()
 {
 	local cur prev
 
@@ -417,7 +407,7 @@ complete -F _find find
 
 # Linux ifconfig(8) completion
 #
-_ifconfig ()
+_ifconfig()
 {
 	local cur
 
@@ -453,7 +443,7 @@ complete -F _ifconfig ifconfig
 
 # Linux ipsec(8) completion (for FreeS/WAN). Very basic.
 #
-_ipsec ()
+_ipsec()
 {
 	local cur
 
@@ -463,10 +453,13 @@ _ipsec ()
 	COMPREPLY=( $( compgen -W 'auto barf eroute klipsdebug look manual \
 				   pluto ranbits rsasigkey setup showdefaults \
 				   showhostkey spi spigrp tncfg whack' $cur ))
+	return 0
 }
 complete -F _ipsec ipsec
 
-_cvs ()
+# cvs(1) completion
+#
+_cvs()
 {
 	local cur prev
 
@@ -474,17 +467,21 @@ _cvs ()
         cur=${COMP_WORDS[COMP_CWORD]}
         prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	if [ $COMP_CWORD -eq 1 ] || [ "${prev:0:1}" = "-" ]; then
+	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
 		COMPREPLY=( $( compgen -W 'add admin checkout commit diff \
 		export history import log rdiff release remove rtag status \
 		tag update' $cur ))
 	else
 		COMPREPLY=( $( compgen -f $cur ))
 	fi
+
 	return 0
 }
 complete -F _cvs cvs
 
+# rpm(8) completion. This isn't exhaustive yet, but still provides
+# quite a lot of functionality.
+# 
 _rpm()
 {
 	dashify()
@@ -526,7 +523,7 @@ _rpm()
 			COMPREPLY=( $( compgen -W 'help version initdb \
 			checksig recompile rebuild resign addsign rebuilddb \
 			showrc setperms setgids' ${cur_nodash#-} ) )
-			dashify;
+			dashify
 			return 0
 			;;
 		*)
@@ -538,6 +535,13 @@ _rpm()
 		esac
 	fi
 
+	case "$prev" in
+	--@(db|exclude)path|prefix|relocate|root)
+		COMPREPLY=( $( compgen -d $cur ) )
+		return 0
+		;;
+	esac
+
 	case "${COMP_WORDS[1]}" in
 	-[iFU]*)
 		# complete on list of relevant options
@@ -546,9 +550,9 @@ _rpm()
 		ignorearch dbpath prefix ignoreos nodeps allfiles ftpproxy \
 		ftpport justdb httpproxy httpport noorder relocate badreloc \
 		notriggers excludepath ignoresize oldpackage' ${cur_nodash#-} ))
-		dashify;
+		dashify
 		# return if $cur is an option
-		[ "${cur:0:1}" = "-" ] && return 0
+		[[ "$cur" == -* ]] && return 0
 		# add a list of RPMS to possible completions
 		COMPREPLY=( ${COMPREPLY[@]} $( compgen -G $cur\*.rpm ) )
 		return 0
@@ -559,9 +563,9 @@ _rpm()
 		whatrequires requires triggeredby ftpport ftpproxy httpproxy \
 		httpport provides triggers dump changelog dbpath filesbypkg' \
 		${cur_nodash#-} ) )
-		dashify;
+		dashify
 		# return if $cur is an option
-		[ "${cur:0:1}" = "-" ] && return 0
+		[[ "$cur" == -* ]] && return 0
 		# add a list of RPMS to possible completions
 		COMPREPLY=( ${COMPREPLY[@]} $( compgen -G $cur\*.rpm ) )
 		return 0
@@ -575,9 +579,9 @@ _rpm()
 		# complete on list of relevant options
 		COMPREPLY=( $( compgen -W 'allmatches noscripts notriggers \
 		nodeps test' ${cur_nodash#-} ) )
-		dashify;
+		dashify
 		# return if $cur is an option
-		[ "${cur:0:1}" = "-" ] && return 0
+		[[ "$cur" == -* ]] && return 0
 		# complete on basename of installed RPMs
 		COMPREPLY=( $( rpm -qa | \
 		   sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9.]\+$/\1/p' ) )
@@ -589,7 +593,7 @@ _rpm()
 		whatrequires requires triggeredby ftpport ftpproxy httpproxy \
 		httpport provides triggers dump changelog dbpath specfile \
 		querybynumber last filesbypkg' ${cur_nodash#-} ) )
-		dashify;
+		dashify
 		return 0
 		;;
 	-q*)
@@ -598,9 +602,9 @@ _rpm()
 		whatrequires requires triggeredby ftpport ftpproxy httpproxy \
 		httpport provides triggers dump changelog dbpath specfile \
 		querybynumber last filesbypkg' ${cur_nodash#-} ) )
-		dashify;
+		dashify
 		# return if $cur is an option
-		[ "${cur:0:1}" = "-" ] && return 0
+		[[ "$cur" == -* ]] && return 0
 		# add a list of RPMS to possible completions
 		COMPREPLY=( ${COMPREPLY[@]} $( rpm -qa | \
 		   sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9.]\+$/\1/p' ) )
@@ -610,9 +614,9 @@ _rpm()
 		# complete on list of relevant options
 		COMPREPLY=( $( compgen -W 'root rcfile dbpath nodeps nofiles \
 		noscripts nomd5 nopgp' ${cur_nodash#-} ) )
-		dashify;
+		dashify
 		# return if $cur is an option
-		[ "${cur:0:1}" = "-" ] && return 0
+		[[ "$cur" == -* ]] && return 0
 		# add a list of RPMS to possible completions
 		COMPREPLY=( ${COMPREPLY[@]} $( rpm -qa | \
 		   sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9.]\+$/\1/p' ) )
@@ -623,9 +627,9 @@ _rpm()
 		COMPREPLY=( $( compgen -W 'short-circuit timecheck clean \
 		rmsource test sign buildroot target buildarch buildos' \
 		${cur_nodash#-} ) )
-		dashify;
+		dashify
 		# return if $cur is an option
-		[ "${cur:0:1}" = "-" ] && return 0
+		[[ "$cur" == -* ]] && return 0
 		# complete on .spec files
 		COMPREPLY=( $( compgen -G $cur\*.spec ) )
 		return 0
@@ -635,9 +639,9 @@ _rpm()
 		COMPREPLY=( $( compgen -W 'short-circuit timecheck clean \
 		rmsource test sign buildroot target buildarch buildos' \
 		${cur_nodash#-} ) )
-		dashify;
+		dashify
 		# return if $cur is an option
-		[ "${cur:0:1}" = "-" ] && return 0
+		[[ "$cur" == -* ]] && return 0
 		# complete on .tar.gz files
 		COMPREPLY=( $( compgen -G $cur\*.tar.gz ) )
 		return 0
@@ -659,9 +663,13 @@ _rpm()
 		return 0
 		;;
 	esac
+
+	return 0
 }
 complete -F _rpm rpm
 
+# chsh(1) completion
+#
 _chsh()
 {
 	local cur prev
@@ -675,9 +683,13 @@ _chsh()
 	else
 		COMPREPLY=( $( compgen -u $cur ) )
 	fi
+
+	return 0
 }
 complete -F _chsh chsh
 
+# chkconfig(8) completion
+#
 _chkconfig()
 {
 	local cur prev
@@ -711,7 +723,48 @@ _chkconfig()
 		return 0
 		;;
 	esac
+
+	return 0
 }
 complete -F _chkconfig chkconfig
+
+# ssh(1) completion. Should be able to improve this with user@host notation,
+# but the '@' seems to trigger some kind of bug in bash's completion.
+#
+_ssh()
+{
+	local cur prev kh
+
+	kh=()
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+        prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [[ $prev == -*l ]]; then
+	    COMPREPLY=( $( compgen -u $cur ) )
+	    return 0
+	fi
+
+	[ -r /etc/known_hosts ]   && kh[0]=/etc/known_hosts
+	[ -r ~/.ssh/known_hosts ] && kh[1]=~/.ssh/known_hosts
+
+	# If we have known_hosts files to use
+	if [ ${#kh[@]} -gt 0 ]; then
+	    # If we're completing on a blank, only check fields containing
+	    # a dot or an alpha character. Otherwise, we'll get the whole line
+	    [ -z $cur ] && cur="[a-z.]" || cur="^$cur"
+	    # FS needs to look for a comma separated list
+	    COMPREPLY=( $( awk 'BEGIN {FS="[ ,]"} \
+				{for (i=1; i<=NR; ++i) \
+				    {if ($i ~ /'$cur'/) \
+					{print $i}}}' ${kh[@]} ) )
+	else
+	    # Just do normal hostname completion
+	    COMPREPLY=( $( compgen -A hostname $cur ) )
+	fi
+
+	return 0
+}
+complete -F _ssh ssh
 
 # ]]>
