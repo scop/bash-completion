@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.775 2005/01/12 22:45:16 ianmacd Exp $
+#   $Id: bash_completion,v 1.776 2005/01/13 02:22:45 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -22,7 +22,7 @@
 #
 #   http://www.caliban.org/bash/index.shtml#completion
 #
-#   RELEASE: 20050103
+#   RELEASE: 20050112
 
 [ -n "${DEBUG:-}" ] && set -v || set +v
 
@@ -226,7 +226,7 @@ _configured_interfaces()
 			       /etc/network/interfaces ) )
 	elif [ -f /etc/SuSE-release ]; then
 		# SuSE system
-	        COMPREPLY=( $( command ls \
+		COMPREPLY=( $( command ls \
 			/etc/sysconfig/network/ifcfg-* | \
 			sed -ne 's|.*ifcfg-\('$cur'.*\)|\1|p' ) )
 	else
@@ -285,7 +285,7 @@ _pids()
 [ $UNAME = SunOS -o $UNAME = AIX ] &&
 _pids()
 {
-        COMPREPLY=( $( compgen -W '$( command ps -efo pid | sed 1d )' -- $cur ))
+	COMPREPLY=( $( compgen -W '$( command ps -efo pid | sed 1d )' -- $cur ))
 }
 
 # This function completes on process group IDs
@@ -299,7 +299,7 @@ _pgids()
 [ $UNAME = SunOS -o $UNAME = AIX ] &&
 _pgids()
 {
-        COMPREPLY=( $( compgen -W '$( command ps -efo pgid | sed 1d )' -- $cur ))
+	COMPREPLY=( $( compgen -W '$( command ps -efo pgid | sed 1d )' -- $cur ))
 }
 
 # This function completes on user IDs
@@ -340,7 +340,7 @@ _services()
 {
 	local sysvdir famdir
 	[ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
-        famdir=/etc/xinetd.d
+	famdir=/etc/xinetd.d
 	COMPREPLY=( $( builtin echo $sysvdir/!(*.rpmsave|*.rpmorig|*~|functions)) )
 
 	if [ -d $famdir ]; then
@@ -588,7 +588,7 @@ _chgrp()
 	# first parameter on line or first since an option?
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]] || \
 	   [[ "$prev" == -* ]] && [ -n "$bash205" ]; then
-	        local IFS=$'\n'
+		local IFS=$'\n'
 		COMPREPLY=( $( compgen -g $cur 2>/dev/null ) )
 	else
 		_filedir || return 0
@@ -2114,10 +2114,10 @@ _aptitude()
 	dashoptions='-S -u -i -h --help --version -s --simulate -d \
 		     --download-only -P --prompt -y --assume-yes -F \
 		     --display-format -O --sort -w --width -f -r -g \
-                     --with-recommends --with-suggests -R -G \
-                     --without-recommends --without-suggests -t \
-                     --target-release -V --show-versions -D --show-deps\
-                     -Z -v --verbose'
+		     --with-recommends --with-suggests -R -G \
+		     --without-recommends --without-suggests -t \
+		     --target-release -V --show-versions -D --show-deps\
+		     -Z -v --verbose'
 
 	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
 	    if [[ ${COMP_WORDS[i]} == @(install|reinstall|hold|unhold|markauto|unmarkauto|dist-upgrade|download|forbid-version|purge|remove) ]]; then
@@ -2171,9 +2171,9 @@ _aptitude()
 	else
 	    COMPREPLY=( $( compgen -W 'update upgrade forget-new clean \
 				       autoclean install reinstall remove \
-                                       hold unhold purge markauto unmarkauto \
-                                       dist-upgrade download search show \
-                                       forbid-version' -- $cur ) )
+				       hold unhold purge markauto unmarkauto \
+				       dist-upgrade download search show \
+				       forbid-version' -- $cur ) )
 	fi
 
 
@@ -6451,30 +6451,30 @@ complete -F _composite $filenames composite
 have dd &&
 _dd()
 {
-         local cur
+	 local cur
 
-         COMPREPLY=()
-         cur=${COMP_WORDS[COMP_CWORD]}
+	 COMPREPLY=()
+	 cur=${COMP_WORDS[COMP_CWORD]}
 
-         case "$cur" in
-         if=*|of=*)
-                 cur=${cur#*=}
-                 _filedir
-                 return 0
-                 ;;
-         conv=*)
-                 cur=${cur#*=}
-                 COMPREPLY=( $( compgen -W 'ascii ebcdic ibm block unblock \
-                                lcase notrunc ucase swab noerror sync' \
-                                -- $cur ) )
-                 return 0
-                 ;;
-         esac
+	 case "$cur" in
+	 if=*|of=*)
+		 cur=${cur#*=}
+		 _filedir
+		 return 0
+		 ;;
+	 conv=*)
+		 cur=${cur#*=}
+		 COMPREPLY=( $( compgen -W 'ascii ebcdic ibm block unblock \
+				lcase notrunc ucase swab noerror sync' \
+				-- $cur ) )
+		 return 0
+		 ;;
+	 esac
 
-         _expand || return 0
+	 _expand || return 0
 
-         COMPREPLY=( $( compgen -W '--help --version' -- $cur ) \
-                     $( compgen -W 'bs cbs conv count ibs if obs of seek 
+	 COMPREPLY=( $( compgen -W '--help --version' -- $cur ) \
+		     $( compgen -W 'bs cbs conv count ibs if obs of seek 
 skip' -S '=' -- $cur ) )
 }
 [ "${have:-}" ] && complete -F _dd $nospace dd
