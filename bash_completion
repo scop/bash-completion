@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.185 2002/03/07 18:47:12 ianmacd Exp $
+#   $Id: bash_completion,v 1.186 2002/03/07 19:00:48 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2284,6 +2284,128 @@ _configure_func()
 	COMPREPLY=( $( $1 --help | sed -ne 's|^ *\('$cur'[^ '$'\t'',[]\+\).*$|\1|p' ) )
 }
 complete -F _configure_func -o default configure
+
+# urpmi media function required by other urpmi functions
+#
+have urpmi &&
+_urpmi.media()
+{
+	# return list of available urpmi media
+	COMPREPLY=( $( awk '/{/ {print $1}' /etc/urpmi/urpmi.cfg | grep ^$cur ))
+}
+
+# urpmi completion
+#
+have urpmi &&
+_urpmi()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		--media)
+			_urpmi.media
+			return 0;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		# return list of available options
+		COMPREPLY=( $( compgen -W 'a p P y s q v -help -update \
+			       -media -auto -auto-select -fuzzy -src -noclean \
+			       -complete -force -wget -curl -X -best-output' \
+			       -P '-' -- $cur ) )
+	else
+		# return list of available packages
+		COMPREPLY=( $( gzip -dc /var/lib/urpmi/synthesis.hdlist.* | \
+			       awk 'BEGIN {FS="@"} /info/ {print $1}' | \
+			       grep ^$cur ) )
+	fi
+}
+[ "$have" ] && complete -F _urpmi urpmi
+
+# urpmi.update completion
+#
+have urpmi.update &&
+_urpmi.update()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		# return list of available options
+		COMPREPLY=( $( compgen -W 'a c d f -curl -wget' -P '-' -- $cur))
+	else
+		# return list of available media
+		_urpmi.media
+	fi
+}
+[ "$have" ] && complete -F _urpmi.update urpmi.update
+
+# urpmi.addmedia completion
+#
+have urpmi.addmedia &&
+_urpmi.addmedia()
+{
+	local cur i args
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		# return list of available options
+		COMPREPLY=( $( compgen -W 'c h f -wget -curl -update -distrib' \
+			       -P '-' -- $cur ) )
+	else
+		# count number of mandatory args given sofar
+		args=$COMP_CWORD
+		for (( i=1; i < COMP_CWORD; i++ )); do
+			if [[ "${COMP_WORDS[i]}" == -* ]]; then
+				args=$(($args-1))
+			fi
+		done
+		case $args in
+			1)
+				# return list of available media
+				_urpmi.media
+				;;
+			2)
+				# return list of available protocols
+				COMPREPLY=( $( compgen -W 'file:// http:// \
+					       ftp:// removable://' -- $cur ) )
+				;;
+			3)
+				# return word "with"
+				COMPREPLY=( 'with' )
+				;;
+		esac
+	fi
+}
+[ "$have" ] && complete -F _urpmi.addmedia urpmi.addmedia
+
+# urpmi.removemedia completion
+#
+_urpmi.removemedia()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		# if word begins with a dash, return list of available options
+		COMPREPLY=( $( compgen -W 'a c' -P '-' -- $cur ) )
+	else
+		# elsewhere, return list of available media
+		_urpmi.media
+	fi
+
+}
+[ "$have" ] && complete -F _urpmi.removemedia urpmi.removemedia
 
 _filedir_xspec()
 {
