@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.58 2002/01/16 08:18:11 ianmacd Exp $
+#   $Id: bash_completion,v 1.59 2002/01/18 16:54:22 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1310,7 +1310,6 @@ _iptables()
 
 } 
 [ "$have" ] && complete -F _iptables iptables
-complete -F _iptables iptables
 
 # tcpdump(8) completion
 #
@@ -1378,6 +1377,54 @@ _command()
 		COMPREPLY=( $( compgen -c $cur ) )
 	else
 		COMPREPLY=( $( compgen -f $cur ) )
+	fi
+}
+complete -F _command -o filenames type nohup exec nice eval strace sudo gdb
+
+# A meta-command completion function for commands like sudo(8), which need to
+# first complete on a command, then complete according to that command's own
+# completion definition - currently not quite foolproof, but works well
+#
+_command()
+{
+	local cur func cline cspec
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [ $COMP_CWORD = 1 ]; then
+		COMPREPLY=( $( compgen -c $cur ) )
+	elif complete -p ${COMP_WORDS[1]} >/dev/null; then
+		cspec=$( complete -p ${COMP_WORDS[1]} )
+		if [ "${cspec#*-F }" != "$cspec" ]; then
+			# complete -F <function>
+			#
+			# COMP_CWORD and COMP_WORDS() are not read-only,
+			# so we can set them before handing off to regular
+			# completion routine
+
+			# set current token number to 1 less than now
+			COMP_CWORD=$(( $COMP_CWORD - 1 ))
+			# get function name
+			func=${cspec#*-F }
+			func=${func%% *}
+			# get current command line minus initial command
+			cline="${COMP_LINE#$1 }"
+			# split current command line tokens into array
+			COMP_WORDS=( $cline )
+			# call regular completion function
+			$func "$cline"
+		elif [ "${cspec#*-[abcdefgjkvu]}" != "$cspec" ]; then
+			# complete -[abcdefgjkvu]
+			func=$( echo $cspec | \
+				sed -e 's/^.*\(-[abcdefgjkvu]\).*$/\1/' )
+			COMPREPLY=( $( compgen $func $cur ) )
+		elif [ "${cspec#*-A}" != "$cspec" ]; then
+			# complete -A <type>
+			func=${cspec#*-A }
+			func=${func%% *}
+			COMPREPLY=( $( compgen -A $func $cur ) )
+		fi
 	fi
 }
 complete -F _command -o filenames type nohup exec nice eval strace sudo gdb
