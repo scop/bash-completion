@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.147 2002/02/26 23:21:39 ianmacd Exp $
+#   $Id: bash_completion,v 1.148 2002/02/26 23:59:47 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -112,7 +112,7 @@ have()
 {
 	unset -v have
 	type $1 &> /dev/null
-	[ $? = 0 ] && have="yes"
+	[ $? -eq 0 ] && have="yes"
 }
 
 # GNU chown(1) completion.
@@ -129,7 +129,7 @@ _chown()
 	[ "$cur" == -* ] && return 0
 
 	# first parameter on line or first since an option?
-	if [ $COMP_CWORD = 1 ] || [[ "$prev" == -* ]]; then
+	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
 		if [[ "$cur" == [a-zA-Z]*.* ]]; then
 			user=${cur%.*}
 			group=${cur#*.}
@@ -160,7 +160,7 @@ _chgrp()
 	[ "$cur" == -* ] && return 0
 
 	# first parameter on line or first since an option?
-	if [ $COMP_CWORD = 1 ] || [[ "$prev" == -* ]]; then
+	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
 		_expand || return 0
 		COMPREPLY=( $( compgen -g $cur ) )
 	fi
@@ -244,7 +244,7 @@ _insmod()
 	modpath=/lib/modules/`uname -r`
 
 	# behave like lsmod for modprobe -r
-	if [ ${COMP_WORDS[0]} = "modprobe" ] &&
+	if [ $1 = "modprobe" ] &&
 	   [ "${COMP_WORDS[1]}" = "-r" ]; then
 		COMPREPLY=( $( /sbin/lsmod | \
 				awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}' ) )
@@ -259,7 +259,7 @@ _insmod()
 
 	if [ $COMP_CWORD -gt 1 ]; then
 		# do module parameter completion
-		COMPREPLY=( $( /sbin/modinfo -p ${COMP_WORDS[1]} | \
+		COMPREPLY=( $( /sbin/modinfo -p ${COMP_WORDS[1]} 2>/dev/null | \
 		       awk '{if ($1 ~ /^'$cur'/) print $1}' ) )
 	elif [ -r $modpath -a -x $modpath ]; then
 		# do module name completion
@@ -320,8 +320,8 @@ _man()
 	COMPREPLY=( ${COMPREPLY[@]%.*} )
 
 	if [[ "$prev" != [0-9ln] ]]; then
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -d $cur ) \
-			    $( compgen -f -X '!*.[0-9ln]' $cur ) )
+		COMPREPLY=( ${COMPREPLY[@]} $( compgen -d -- $cur ) \
+			    $( compgen -f -X '!*.[0-9ln]' -- $cur ) )
 	fi
 
 	return 0
@@ -351,7 +351,7 @@ _kill()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-        if [ $COMP_CWORD -eq 1 ] &&[[ "$cur" == -* ]]; then
+        if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
 		# return list of available signals
 		_signals
 	else
@@ -390,10 +390,6 @@ _killall()
 	return 0
 }
 [ $OS = Linux ] && complete -F _killall killall
-
-
-
-
 
 # GNU find(1) completion. This makes heavy use of ksh style extended
 # globs and contains Linux specific code for completing the parameter
@@ -454,7 +450,7 @@ _find()
 	_expand || return 0
 
 	# handle case where first parameter is not a dash option
-	if [ $COMP_CWORD = 1 -a "$cur" = "$ncur" ]; then
+	if [ $COMP_CWORD -eq 1 -a "$cur" = "$ncur" ]; then
 		COMPREPLY=( $( compgen -d $cur ) )
 		return 0
 	fi
@@ -541,7 +537,7 @@ _ifupdown()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	if [ $COMP_CWORD = 1 ]; then
+	if [ $COMP_CWORD -eq 1 ]; then
 		if [ -f /etc/debian_version ]; then
 			# Debian system
 			COMPREPLY=( $( sed -ne 's/^iface \([^ ]\+\).*$/\1/p' /etc/network/interfaces ) )
@@ -566,7 +562,7 @@ _ipsec()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	
-	if [ $COMP_CWORD = 1 ]; then
+	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -W 'auto barf eroute klipsdebug look \
 					   manual pluto ranbits rsasigkey \
 					   setup showdefaults showhostkey spi \
@@ -616,7 +612,7 @@ _cvs()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	if [ $COMP_CWORD = 1 ] || [[ "$prev" == -* ]]; then
+	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
 		COMPREPLY=( $( compgen -W 'add admin checkout commit diff \
 		export history import log rdiff release remove rtag status \
 		tag update' $cur ))
@@ -672,7 +668,7 @@ _rpm()
 	cur_nodash=${cur#-}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	if [ $COMP_CWORD = 1 ]; then
+	if [ $COMP_CWORD -eq 1 ]; then
 		# first parameter on line
 		case "$cur" in
 		-b*)
@@ -1024,7 +1020,7 @@ _chkconfig()
 	cur_nodash=${cur#--}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	if [ $COMP_CWORD = 1 ]; then
+	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -W 'list add del level' $cur_nodash ) )
 		for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
 			COMPREPLY[i]=--${COMPREPLY[i]}
@@ -1130,7 +1126,7 @@ _ssh()
 	    ;;
 	*)
 	    _known_hosts
-	    [ $COMP_CWORD = 1 ] || \
+	    [ $COMP_CWORD -eq 1 ] || \
 		COMPREPLY=( ${COMPREPLY[@]} $( compgen -c $cur ) )
 	esac
 
@@ -1252,7 +1248,7 @@ _make()
 		       eval $gcmd ) )
 
 	# default to filename completion if all else failed
-	if [ ${#COMPREPLY[@]} = 0 ]; then
+	if [ ${#COMPREPLY[@]} -eq 0 ]; then
 	    COMPREPLY=( $( compgen -f $cur ) )
 	fi
 
@@ -1276,7 +1272,7 @@ _service()
 				|| sysvdir=/etc/init.d
 
 	#[[ "$cur" == -* ]] && return 0
-	if [ $COMP_CWORD = 1 ]; then
+	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -W '`echo $sysvdir/!(*.rpmsave|*.rpmorig)`' ) )
 		COMPREPLY=( $( compgen -W '${COMPREPLY[@]#$sysvdir/}' $cur ) )
 	else
@@ -1436,7 +1432,7 @@ _command()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	if [ $COMP_CWORD = 1 ]; then
+	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -c $cur ) )
 	elif complete -p ${COMP_WORDS[1]} &>/dev/null; then
 		cspec=$( complete -p ${COMP_WORDS[1]} )
@@ -1508,7 +1504,7 @@ _p4()
 		uresource uxbinary xbinary xltext xtempobj xtext \
 		text binary resource"
 
-	if [ $COMP_CWORD = 1 ]; then
+	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -W "$p4commands" $cur ) )
 	elif [ $COMP_CWORD -eq 2 ]; then
 		case "$prev" in
@@ -1643,7 +1639,7 @@ _openssl()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	if [ $COMP_CWORD = 1 ]; then
+	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -W 'asn1parse ca ciphers crl crl2pkcs7 \
 			dgst dh dhparam dsa dsaparam enc errstr gendh gendsa \
 			genrsa nseq passwd pkcs12 pkcs7 pkcs8 rand req rsa \
@@ -1704,7 +1700,7 @@ _ncftp()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	if [ $COMP_CWORD = 1 ] && [ -f ~/.ncftp/bookmarks ]; then
+	if [ $COMP_CWORD -eq 1 ] && [ -f ~/.ncftp/bookmarks ]; then
 		COMPREPLY=( $( compgen -W '`cut --output-delimiter " " \
 			       -s -f1-2 -d, ~/.ncftp/bookmarks`' $cur ) )
         fi
