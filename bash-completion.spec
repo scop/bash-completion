@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.10 2002/03/06 19:23:00 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.11 2002/03/06 19:24:23 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
@@ -71,6 +71,7 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Wed Mar  6 2002 Ian Macdonald <ian@caliban.org>
 - in _man(), Debian does not support man --path, so try setting path using
   manpath and, if that fails, use man --path instead
 - _export() and _configure() default to default bash completion
