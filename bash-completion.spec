@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.82 2003/02/27 09:34:27 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.83 2003/03/27 09:11:48 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030227
+Version: 20030327
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,11 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Thu Mar 27 2003 Ian Macdonald <ian@caliban.org>
+- stop /etc/init.d completions from completing on stand-alone commands
+  of the same name
+- gdb completion bug fixed
+
 * Thu Feb 27 2003 Ian Macdonald <ian@caliban.org>
 - exclude mysql and ssh init scripts from completion, as they clash with
   stand-alone commands
