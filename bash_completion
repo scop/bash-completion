@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.5 2000/09/11 20:46:39 ianmacd Exp $
+#   $Id: bash_completion,v 1.6 2000/09/25 23:38:11 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -196,8 +196,8 @@ _rmmod()
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
 
-	COMPREPLY=($( /sbin/lsmod | \
-		      awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}'))
+	COMPREPLY=( $( /sbin/lsmod | \
+		       awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}') )
 	return 0
 }
 complete -F _rmmod rmmod
@@ -207,17 +207,22 @@ complete -F _rmmod rmmod
 #
 _insmod()
 {
-	local cur modpath
+	local cur prev modpath
 
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
+        prev=${COMP_WORDS[COMP_CWORD-1]}
 	modpath=/lib/modules/`uname -r`
 
-	COMPREPLY=($( ls -R $modpath | sed -ne 's/^\('$cur'.*\)\.o$/\1/p'))
+	if [ $COMP_CWORD -gt 1 ]; then
+		COMPREPLY=( $( /sbin/modinfo -p $prev | cut -f 1 -d ' ' ) )
+	else
+		COMPREPLY=($( ls -R $modpath | sed -ne 's/^\('$cur'.*\)\.o$/\1/p'))
+	fi
 
 	return 0
 }
-complete -F _insmod insmod depmod modprobe modinfo
+complete -F _insmod insmod modprobe modinfo
 
 # man(1) completion. This relies on the security enhanced version of
 # GNU locate(1). UNIX variants having non-numeric man page sections
@@ -732,35 +737,16 @@ _chkconfig()
 }
 complete -F _chkconfig chkconfig
 
-# ssh(1) completion. Should be able to improve this with user@host notation,
-# but the '@' seems to trigger some kind of bug in bash's completion.
+# This function performs host completion based on ssh's known_hosts files, defaulting
+# to standard host completion if they don't exist.
 #
-_ssh()
+_known_hosts()
 {
-	local cur prev kh
+	local cur kh
 
 	kh=()
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
-        prev=${COMP_WORDS[COMP_CWORD-1]}
-
-	case "$prev" in
-	-*c)
-	    COMPREPLY=( $( compgen -W 'blowfish 3des 3des-cbc blowfish-cbc \
-			   arcfour cast128-cbc' $cur ) )
-	    return 0
-	    ;;
-	-*l)
-	    COMPREPLY=( $( compgen -u $cur ) )
-	    return 0
-	    ;;
-	esac
-
-	# Host has been specified, so now do simple command completion
-	if [ $COMP_CWORD -gt 1 ]; then
-	    COMPREPLY=( $( compgen -c $cur ) )
-	    return 0
-	fi
 
 	[ -r /etc/known_hosts ]   && kh[0]=/etc/known_hosts
 	[ -r ~/.ssh/known_hosts ] && kh[1]=~/.ssh/known_hosts
@@ -789,6 +775,42 @@ _ssh()
 	    # Just do normal hostname completion
 	    COMPREPLY=( $( compgen -A hostname $cur ) )
 	fi
+
+	return 0
+}
+complete -F _known_hosts traceroute ping fping telnet host nslookup
+
+# ssh(1) completion. Should be able to improve this with user@host notation,
+# but the '@' seems to trigger some kind of bug in bash's completion.
+#
+_ssh()
+{
+	local cur prev
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+        prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+	-*c)
+	    COMPREPLY=( $( compgen -W 'blowfish 3des 3des-cbc blowfish-cbc \
+			   arcfour cast128-cbc' $cur ) )
+	    return 0
+	    ;;
+	-*l)
+	    COMPREPLY=( $( compgen -u $cur ) )
+	    return 0
+	    ;;
+	esac
+
+	# Host has been specified, so now do simple command completion
+	if [ $COMP_CWORD -gt 1 ]; then
+	    COMPREPLY=( $( compgen -c $cur ) )
+	    return 0
+	fi
+
+	# Otherwise, check for known hosts
+	_known_hosts
 
 	return 0
 }
@@ -832,4 +854,70 @@ _route()
 }
 complete -F _route route
 
-# ]]>
+# GNU make(1) completion (adapted from the example supplied with the bash 2.04
+# source code)
+#
+_make()
+{
+        local mdef makef gcmd cur prev i
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+        prev=${COMP_WORDS[COMP_CWORD-1]}
+
+        # if prev argument is -f, return possible filename completions.
+        # we could be a little smarter here and return matches against
+        # `makefile Makefile *.mk', whatever exists
+        if [[ "$prev" == -*f ]]; then
+	    COMPREPLY=( $( compgen -f $cur ) )
+	    return 0
+	fi
+
+        # if we want an option, return the possible posix options
+        if [[ "$cur" == - ]]; then
+            COMPREPLY=( $( compgen -W '-e -f -i -k -n -p -q -r -S -s -t' | grep ^$cur ) )
+	    return 0
+        fi
+
+        # make reads `makefile' before `Makefile'
+        if [ -f makefile ]; then
+                mdef=makefile
+        elif [ -f Makefile ]; then
+                mdef=Makefile
+        else
+                mdef=*.mk               # local convention
+        fi
+
+        # before we scan for targets, see if a makefile name was specified
+        # with -f
+        for (( i=0; i < ${#COMP_WORDS[@]}; i++ )); do
+                if [[ ${COMP_WORDS[i]} == -*f ]]; then
+                        eval makef=${COMP_WORDS[i+1]}   # eval for tilde expansion
+                        break
+                fi
+        done
+
+        [ -z "$makef" ] && makef=$mdef
+
+        # if we have a partial word to complete, restrict completions to
+        # matches of that word
+        if [ -n "$2" ]; then
+	    gcmd='grep "^$2"'
+	else
+	    gcmd=cat
+	fi
+
+        # if we don't want to use *.mk, we can take out the cat and use
+        # test -f $makef and input redirection  
+        COMPREPLY=( $( cat $makef 2>/dev/null | \
+		       awk 'BEGIN {FS=":"} /^[^.#	][^=]*:/ {print $1}' | \
+		       eval $gcmd ) )
+
+	# default to filename completion if all else failed
+	if [ ${#COMPREPLY[@]} = 0 ]; then
+	    COMPREPLY=( $(compgen -f $cur ) )
+	fi
+
+	return 0
+}
+complete -F _make -X '+($*|*.[cho])' make gmake pmake
