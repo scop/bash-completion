@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.15 2001/01/31 23:57:06 ianmacd Exp $
+#   $Id: bash_completion,v 1.16 2001/03/05 20:12:48 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -173,7 +173,7 @@ _mount()
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
 
-	if [[ "$cur" == *:* ]]; then
+	if [ -x /usr/sbin/showmount ] && [[ "$cur" == *:* ]]; then
 		COMPREPLY=( $( /usr/sbin/showmount -e --no-headers ${cur%%:*} |\
 			       grep ^${cur#*:} | awk '{print $1}' ) )
 	else
@@ -205,7 +205,7 @@ _rmmod()
 }
 complete -F _rmmod rmmod
 
-# Linux insmod(1) completion. This completes on a list of all
+# Linux insmod(8) & modprobe(8) completion. This completes on a list of all
 # available modules for the version of the kernel currently running.
 #
 _insmod()
@@ -218,7 +218,7 @@ _insmod()
 	modpath=/lib/modules/`uname -r`
 
 	# behave like lsmod for modprobe -r
-	if [ ${COMP_WORDS[0]} = "modprobe" ] && [ ${COMP_WORDS[1]} = "-r" ]; then
+	if [ ${COMP_WORDS[0]} = "modprobe" ] && [ "${COMP_WORDS[1]}" = "-r" ]; then
 		COMPREPLY=( $( /sbin/lsmod | \
 				awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}' ) )
 		return 0
@@ -642,6 +642,21 @@ _rpm()
 		COMPREPLY=( $( compgen -f $cur ) )
 		return 0
 		;;
+	--specfile)
+		# complete on .spec files
+		file_glob spec
+		return 0
+		;;
+	--whatprovides)
+		# complete on capabilities
+		COMPREPLY=( $( rpm -qa --queryformat '%{providename}\n' | grep ^$cur ) )
+		return 0
+		;;
+	--whatrequires)
+		# complete on capabilities
+		COMPREPLY=( $( rpm -qa --queryformat '%{requirename}\n' | grep ^$cur ) )
+		return 0
+		;;
 	esac
 
 	case "${COMP_WORDS[1]}" in
@@ -677,18 +692,6 @@ _rpm()
 	-*f)
 		# standard filename completion
 		COMPREPLY=( $( compgen -f $cur ) )
-		return 0
-		;;
-	-*g)
-		# package group completion
-		local IFS=$(echo -e "\t")
-		# remove trailing backslash, or grep will complain
-		cur=${cur%'\'}
-		COMPREPLY=( $( rpm -qa --queryformat '%{group}\n' | \
-			       grep ^$cur ) )
-		# backslash escape spaces and translate newlines to tabs
-		COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\ /g' | \
-			       tr '\n' '\t' ) )
 		return 0
 		;;
 	-@(e|-erase))
@@ -776,6 +779,18 @@ _rpm()
 		;;
 	--rmsource)
 		file_glob spec
+		return 0
+		;;
+	-*g)
+		# package group completion
+		local IFS=$(echo -e "\t")
+		# remove trailing backslash, or grep will complain
+		cur=${cur%'\'}
+		COMPREPLY=( $( rpm -qa --queryformat '%{group}\n' | \
+			       grep ^$cur ) )
+		# backslash escape spaces and translate newlines to tabs
+		COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\ /g' | \
+			       tr '\n' '\t' ) )
 		return 0
 		;;
 	esac
@@ -944,12 +959,14 @@ _known_hosts()
 {
 	local cur kh
 
-	kh=()
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
+	kh=()
 
-	[ -r /etc/known_hosts ]   && kh[0]=/etc/known_hosts
-	[ -r ~/.ssh/known_hosts ] && kh[1]=~/.ssh/known_hosts
+	[ -r /etc/known_hosts ]    && kh[0]=/etc/known_hosts
+	[ -r /etc/known_hosts2 ]   && kh[1]=/etc/known_hosts2
+	[ -r ~/.ssh/known_hosts ]  && kh[2]=~/.ssh/known_hosts
+	[ -r ~/.ssh/known_hosts2 ] && kh[3]=~/.ssh/known_hosts2
 
 	# If we have known_hosts files to use
 	if [ ${#kh[@]} -gt 0 ]; then
@@ -1133,8 +1150,8 @@ _service()
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
 
-	[ -d /etc/rc.d/initi.d ] && sysvdir=/etc/rc.d/init.d \
-				 || sysvdir=/etc/init.d
+	[ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
+				|| sysvdir=/etc/init.d
 
 	#[[ "$cur" == -* ]] && return 0
 	if [ $COMP_CWORD = 1 ]; then
@@ -1149,3 +1166,172 @@ _service()
 	return 0
 }
 complete -F _service service
+
+# This meta-cd function observes the CDPATH variable, so that cd additionally
+# completes on directories under those specified in CDPATH.
+#
+_cd()
+{
+	OLD_READLINE_APPEND_CHAR=$READLINE_APPEND_CHAR
+	export READLINE_APPEND_CHAR=`echo -e "\000"`
+        local cur=${COMP_WORDS[COMP_CWORD]} dirs=()
+
+	# get standard directory completions
+	COMPREPLY=( $( compgen -d $cur ) )
+	# that's all if parameter contains a /
+	[[ "$cur" == /* ]] && return 0
+
+	[ -n "$CDPATH" ] && {
+		# we have a CDPATH, so loop on its contents
+		for i in ${CDPATH//:/ }; do
+			# create an array of matched subdirs
+			dirs=( $( compgen -d $i/$cur ) )
+			# add subdirs to list of completions as necessary
+			[ ${#dirs[@]} ] && COMPREPLY=( ${COMPREPLY[@]} ${dirs[@]#$i/})
+		done
+	}
+
+	export READLINE_APPEND_CHAR=$OLD_READLINE_APPEND_CHAR
+	return 0
+}
+#complete -F _cd cd
+
+# This encapsulates the default bash completion code
+# call with the word to be completed as $1
+#
+# Since programmable completion does not use the bash default completions
+# or the readline default of filename completion when the compspec does
+# not generate any matches, this may be used as a `last resort' in a
+# completion function to mimic the default bash completion behavior.
+#
+_bash_def_completion ()
+{
+	local h t
+	COMPREPLY=()
+
+	# command substitution
+	if [[ "$1" == \$\(* ]]; then
+		t=${1#??}
+		COMPREPLY=( $(compgen -c -P '$(' $t) )
+	fi
+	# variables with a leading `${'
+	if [ ${#COMPREPLY[@]} -eq 0 ] && [[ "$1" == \$\{* ]]; then
+		t=${1#??}
+		COMPREPLY=( $(compgen -v -P '${' -S '}' $t) )
+	fi
+	# variables with a leading `$'
+	if [ ${#COMPREPLY[@]} -eq 0 ] && [[ "$1" == \$* ]]; then
+		t=${1#?}
+		COMPREPLY=( $(compgen -v -P '$' $t ) )
+	fi
+	# username expansion
+	if [ ${#COMPREPLY[@]} -eq 0 ] && [[ "$1" == ~* ]] && [[ "$1" != */* ]]; then
+		t=${1#?}
+		COMPREPLY=( $( compgen -u -P '~' $t ) )
+	fi
+	# hostname
+	if [ ${#COMPREPLY[@]} -eq 0 ] && [[ "$1" == *@* ]]; then
+		h=${1%%@*}
+		t=${1#*@}
+		COMPREPLY=( $( compgen -A hostname -P "${h}@" $t ) )
+	fi
+	# glob pattern
+	if [ ${#COMPREPLY[@]} -eq 0 ]; then
+		# sh-style glob pattern
+		if [[ $1 == *[*?[]* ]]; then
+			COMPREPLY=( $( compgen -G "$1" ) )
+		# ksh-style extended glob pattern - must be complete
+		elif shopt -q extglob && [[ $1 == *[?*+\!@]\(*\)* ]]; then
+			COMPREPLY=( $( compgen -G "$1" ) )
+		fi
+	fi
+
+	# final default is filename completion
+	if [ ${#COMPREPLY[@]} -eq 0 ]; then
+		COMPREPLY=( $(compgen -f "$1" ) )
+	fi
+}
+
+# 
+# Return 1 if $1 appears to contain a redirection operator.  Handles backslash
+# quoting (barely).
+#
+_redir_op()
+{
+	case "$1" in
+	*\\'[\<\>]'*)	return 1;;
+	*[\<\>]*)	return 0;;
+	*)		return 1;;
+	esac
+}
+
+
+# _redir_test tests the current word ($1) and the previous word ($2) for
+# redirection operators and does filename completion on the current word
+# if either one contains a redirection operator
+_redir_test()
+{
+	if _redir_op "$1" ; then
+		COMPREPLY=( $( compgen -f "$1" ) )
+		return 0
+	elif _redir_op "$2" ; then
+		COMPREPLY=( $( compgen -f "$1" ) )
+		return 0
+	fi
+	return 1
+}
+
+#
+# meta-completion (completion for complete/compgen)
+#
+_complete_meta_func()
+{
+	local cur prev cmd
+	COMPREPLY=()
+
+	cmd=$1
+
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	_redir_test "$cur" "$prev" && return 0;
+
+	if (( $COMP_CWORD <= 1 )) || [[ "$cur" == '-' ]]; then
+		case "$cmd" in
+		complete) COMPREPLY=(-a -b -c -d -e -f -j -k -v -u -r -p -A -G -W -P -S -X -F -C);;
+		compgen)  COMPREPLY=(-a -b -c -d -e -f -j -k -v -u -A -G -W -P -S -X -F -C);;
+		esac
+		return 0
+	fi
+
+	if [[ $prev == -A ]]; then
+		COMPREPLY=(alias arrayvar binding builtin command directory \
+disabled enabled export file function helptopic hostname job keyword \
+running setopt shopt signal stopped variable)
+		return 0
+	elif [[ $prev == -F ]]; then
+		COMPREPLY=( $( compgen -A function $cur ) )
+	elif [[ $prev == -C ]]; then
+		COMPREPLY=( $( compgen -c $cur ) )
+	else
+		COMPREPLY=( $( compgen -c $cur ) )
+	fi
+	return 0
+}
+complete -F _complete_meta_func complete compgen
+
+_configure_func ()
+{
+	case "$2" in
+	-*)	;;
+	*)	return ;;
+	esac
+
+	case "$1" in
+	\~*)	eval cmd=$1 ;;
+	*)	cmd="$1" ;;
+	esac
+
+	COMPREPLY=( $("$cmd" --help | awk '{if ($1 ~ /--.*/) print $1}' | grep ^"$2" | sort -u) )
+}
+complete -F _configure_func configure
