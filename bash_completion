@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.518 2003/01/25 22:11:18 ianmacd Exp $
+#   $Id: bash_completion,v 1.519 2003/01/25 22:22:16 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1105,11 +1105,11 @@ _cvs()
 	commit)
 		set_prefix
 
-		if [[ "$cur" != -* ]] && [ -r ${prefix}CVS/Entries ]; then
+		if [[ "$cur" != -* ]] && [ -r ${prefix:-}CVS/Entries ]; then
 			# if $COMP_CVS_REMOTE is not null, 'cvs commit' will
 			# complete on remotely checked-out files (requires
 			# passwordless access to the remote repository
-			if [ -n "$COMP_CVS_REMOTE" ]; then
+			if [ -n ${COMP_CVS_REMOTE:-} ]; then
 				# this is the least computationally intensive
 				# way found so far, but other changes
 				# (something other than changed/removed/new)
@@ -1118,8 +1118,8 @@ _cvs()
 				sed -ne 's/^Files [^ ]* and \([^ ]*\) differ$/\1/p' ) )
 				newremoved=( $( cvs diff --brief 2>&1 | \
 				sed -ne 's/^cvs diff: \([^ ]*\) .*, no comparison available$/\1/p' ) )
-				COMPREPLY=( $( compgen -W '${changed[@]} \
-						   ${newremoved[@]}' -- $cur ) )
+				COMPREPLY=( $( compgen -W '${changed[@]:-} \
+						   ${newremoved[@]:-}' -- $cur ) )
 			else
 				COMPREPLY=( $( compgen -f -- $cur ) )
 			fi
