@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.313 2002/05/11 17:28:58 ianmacd Exp $
+#   $Id: bash_completion,v 1.314 2002/05/13 23:40:40 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2020,7 +2020,8 @@ _cd()
 		_filedir -d
 		return 0
 	fi
-	IFS=$'\t'
+
+	IFS=$'\t\n'
 	# we have a CDPATH, so loop on its contents
 	for i in ${CDPATH//:/$'\t'}; do
 		# create an array of matched subdirs
@@ -2028,18 +2029,8 @@ _cd()
 		# add subdirs to list of completions as necessary
 		[ ${#dirs[@]} ] && COMPREPLY=( ${COMPREPLY[@]} ${dirs[@]#$i/})
 	done
+
 	_filedir -d
-	IFS=$' \t\n'
-	if [ -n "$CDPATH" ]; then
-		for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
-			# remove leading ./ from completions
-			COMPREPLY[i]=${COMPREPLY[i]#.\/}
-			# turn relative paths from current dir into
-			# absolute ones
-			[ -d ./"${COMPREPLY[i]}" ] && \
-				COMPREPLY[i]=$PWD/${COMPREPLY[i]}
-		done
-	fi
 
 	return 0
 }
