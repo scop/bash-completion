@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.49 2002/06/26 08:30:31 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.50 2002/07/04 07:14:59 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020626
+Version: 20020704
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,10 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Thu Jul  4 2002 Ian Macdonald <ian@caliban.org>
+- urpmi completion update
+- touch-ups to mplayer completion
+
 * Wed Jun 26 2002 Ian Macdonald <ian@caliban.org>
 - make tilde expansion work during chown completion
 - make tar completion '-o filenames' by default.
