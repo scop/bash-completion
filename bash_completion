@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.30 2001/11/29 01:37:54 ianmacd Exp $
+#   $Id: bash_completion,v 1.31 2001/12/05 17:32:24 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -51,13 +51,13 @@ complete -f -X '!*.texi*' makeinfo texi2dvi texi2html
 complete -f -X '!*.+(tex|TEX)' tex latex slitex
 
 # kill sees only signals
-complete -A signal kill -P '%'
+complete -A signal -P '-' kill
 
 # user commands see only users
 complete -u finger su usermod userdel passwd
 
 # group commands see only groups
-complete -u groupmod groupdel passwd
+complete -g groupmod groupdel passwd
 
 # bg completes with stopped jobs
 complete -A stopped -P '%' bg
@@ -237,13 +237,8 @@ _insmod()
 }
 [ $OS = Linux ] && complete -F _insmod -o filenames insmod modprobe
 
-# man(1) completion. This relies on the security enhanced version of
-# GNU locate(1). UNIX variants having non-numeric man page sections
-# other than l, m and n should add the appropriate sections to the
-# first clause of the case statement.
-#
-# This is Linux specific, in that 'man <section> <page>' is the
-# expected syntax. This allows one to do something like
+# man(1) completion.  This is Linux specific, in that 'man <section> <page>'
+# is the expected syntax. This allows one to do something like
 # 'man 3 str<tab>' to obtain a list of all string handling syscalls on
 # the system.
 #
@@ -971,14 +966,14 @@ _known_hosts()
 
 	# If we have known_hosts files to use
 	if [ ${#kh[@]} -gt 0 ]; then
-	    if [[ $cur == [0-9]*.* ]]; then
+	    if [[ "$cur" == [0-9]*.* ]]; then
 		# Digits followed by a dot - just search for that
 		cur="^$cur.*"
-	    elif [[ $cur == [0-9]* ]]; then
+	    elif [[ "$cur" == [0-9]* ]]; then
 		# Digits followed by no dot - search for digits followed
 		# by a dot
 		cur="^$cur.*\."
-	    elif [ -z $cur ]; then
+	    elif [ -z "$cur" ]; then
 		# A blank - search for a dot or an alpha character
 		cur="[a-z.]"
 	    else
@@ -1005,7 +1000,7 @@ complete -F _known_hosts traceroute ping fping telnet host nslookup
 have ssh &&
 _ssh()
 {
-	local cur prev COMPREPLY_SAVE=()
+	local cur prev
 
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
@@ -1020,9 +1015,9 @@ _ssh()
 	    COMPREPLY=( $( compgen -u $cur ) )
 	    ;;
 	*)
-	    COMPREPLY_SAVE=( $( compgen -c $cur ) )
 	    _known_hosts
-	    COMPREPLY=( ${COMPREPLY[@]} ${COMPREPLY_SAVE[@]} )
+	    [ $COMP_CWORD = 1 ] || \
+		COMPREPLY=( ${COMPREPLY[@]} $( compgen -c $cur ) )
 	esac
 
 	return 0
@@ -1032,18 +1027,17 @@ _ssh()
 have scp &&
 _scp()
 {
-	local cur COMPREPLY_SAVE=()
+	local cur
 
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
 
-	COMPREPLY_SAVE=( $( compgen -f $cur ) )
 	_known_hosts
-	COMPREPLY=( ${COMPREPLY[@]} ${COMPREPLY_SAVE[@]} )
+	COMPREPLY=( ${COMPREPLY[@]} $( compgen -f $cur ) )
 
 	return 0
 }
-[ "$have" ] && complete -F _scp scp
+[ "$have" ] && complete -o filenames -F _scp scp
 
 
 # Linux route(8) completion. This could be improved by adding address family
@@ -1209,7 +1203,6 @@ _iptables()
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
-	prev=${COMP_WORDS[COMP_CWORD-1]}
 	
 	[ "$prev" = -t ] && COMPREPLY=( $( compgen -W 'nat filter mangle' $cur ) )
 }
@@ -1224,7 +1217,6 @@ _tcpdump()
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
-	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	COMPREPLY=( $( compgen -W 'host net port src dst ether gateway 
 				   less greater' $cur ) )
@@ -1237,7 +1229,7 @@ _tcpdump()
 #
 _cd()
 {
-        local cur=${COMP_WORDS[COMP_CWORD]} dirs=()
+        local cur=${COMP_WORDS[COMP_CWORD]} dirs=() i
 
 	# expand ~username type directory specifications
 	if [[ "$cur" == \~*/* ]]; then
@@ -1389,5 +1381,7 @@ _configure_func ()
 }
 complete -F _configure_func configure
 
+# source user completion file
+[ -f ~/.bash_completion ] && . ~/.bash_completion
 unset -f have
 unset OS RELEASE have
