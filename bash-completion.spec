@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.120 2005/01/04 06:38:58 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.121 2005/01/13 02:25:18 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20050103
+Version: 20050112
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,11 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Wed Jan 12 2005 Ian Macdonald <ian@caliban.org>
+- Make completion work for chown/chgrp when group names contain spaces.
+- Wireless tools completion improvements.
+- Make location of openssl.cnf somewhat more flexible.
+
 * Mon Jan  3 2005 Ian Macdonald <ian@caliban.org>
 - Complete rewrite of openssl(1) completion.
 - Added pkg-config completion.
