@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.667 2003/12/24 23:19:13 ianmacd Exp $
+#   $Id: bash_completion,v 1.672 2004/01/01 07:39:28 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -22,7 +22,7 @@
 #
 #   http://www.caliban.org/bash/index.shtml#completion
 #
-#   RELEASE: 20031225
+#   RELEASE: 20040101
 
 [ -n "${DEBUG:-}" ] && set -v || set +v
 
@@ -999,6 +999,23 @@ have postfix && {
 #
 _postfix()
 {
+	local cur prev
+
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [[ $cur == '-' ]]; then
+		COMPREPLY=(-c -D -v)
+		return 0
+	fi
+	if [[ $prev == '-c' ]]; then
+		_filedir -d
+		return 0
+	fi
+	if [[ $prev == '-D' ]]; then
+		COMPREPLY=( $( compgen -W 'start' -- "${COMP_WORDS[COMP_CWORD]}" ) )
+		return 0
+	fi
 	COMPREPLY=( $( compgen -W 'start stop reload abort flush check' -- \
 		"${COMP_WORDS[COMP_CWORD]}" ) )
 }
@@ -4429,8 +4446,9 @@ _portinstall()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 	# First try INDEX-5
 	indexfile=$portsdir/INDEX-5
-	# Then INDEX
-	test -f $indexfile || indexfile=$portsdir/INDEX
+	# Then INDEX if INDEX-5 does not exist or system is not FreeBSD 5.x
+	[ "${OSTYPE%.*}" = "freebsd5" -a -f $indexfile ] ||
+	  indexfile=$portsdir/INDEX
 
 	[ "$prev" = "-l" -o "$prev" = "-L" -o "$prev" = "-o" ] && return 0
 
@@ -4858,7 +4876,7 @@ _dcop()
 have wvdial &&
 _wvdial()
 {
-	local cur prev configfile i
+	local cur prev config i IFS=$'\t\n'
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -4874,21 +4892,26 @@ _wvdial()
 	case $cur in
 		-*)
 			COMPREPLY=( $( compgen -W '--config --chat \
-				--remotename --help --version --no-syslog' -- $cur ) )
+				--remotename --help --version --no-syslog' \
+				-- $cur ) )
 			;;
 		*)
-			# find which config file to use
-			configfile=/etc/wvdial.conf
+			# start with global and personal config files
+		       	config="/etc/wvdial.conf"$'\t'"$HOME/.wvdialrc"
+			# replace with command line config file if present
 			for (( i=1; i < COMP_CWORD; i++ )); do
-				if [[ "${COMP_WORDS[i]}" == $1 ]]; then
-					configfile=${COMP_WORDS[i+1]}
+				if [[ "${COMP_WORDS[i]}" == "--config" ]]; then
+					config=${COMP_WORDS[i+1]}
 					break
 				fi
 			done
-			[ ! -f $configfile ] && return 0
-			# parse config file for sections
-			COMPREPLY=( $( awk '/\[Dialer .+\]/ {print $0}' $configfile |\
-				sed -e '1d' -e 's/^\[Dialer //' -e 's/\]$//' | grep "^$cur" ) )
+			# parse config files for sections and
+			# remove default section
+			COMPREPLY=( $( sed -ne \
+				    "s|^\[Dialer \($cur.*\)\]$|\1|p" \
+				    $config 2>/dev/null |grep -v '^Defaults$'))
+			# escape spaces
+			COMPREPLY=${COMPREPLY// /\\ }
 			;;
 	esac
 
@@ -5730,7 +5753,7 @@ unset list
 if [ -d $BASH_COMPLETION_DIR -a -r $BASH_COMPLETION_DIR -a \
      -x $BASH_COMPLETION_DIR ]; then
 	for i in $BASH_COMPLETION_DIR/*; do
-		[[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*) ]] &&
+		[[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|.rpm*) ]] &&
 			[ -f $i -a -r $i ] && . $i
 	done
 fi
