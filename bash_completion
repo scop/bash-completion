@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.230 2002/03/28 19:36:19 ianmacd Exp $
+#   $Id: bash_completion,v 1.231 2002/03/28 23:41:44 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1703,13 +1703,17 @@ _cd()
 	fi
 	IFS=$' \t\n'
 	_filedir -d
-	for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
-		# remove leading ./ from completions
-		COMPREPLY[i]=${COMPREPLY[i]#.\/}
-		# turn relative paths from current dir into absolute ones
-		[[ ${COMPREPLY[i]} != */* ]] && [ -d ${COMPREPLY[i]} ] && \
-			COMPREPLY[i]=$PWD/${COMPREPLY[i]}
-	done
+	if [ -n "$CDPATH" ]; then
+		for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
+			# remove leading ./ from completions
+			COMPREPLY[i]=${COMPREPLY[i]#.\/}
+			# turn relative paths from current dir into
+			# absolute ones
+			[[ ${COMPREPLY[i]} != */* ]] && \
+				[ -d ${COMPREPLY[i]} ] && \
+				COMPREPLY[i]=$PWD/${COMPREPLY[i]}
+		done
+	fi
 
 	return 0
 }
