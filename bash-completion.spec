@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.61 2002/09/28 18:38:21 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.62 2002/10/01 09:05:14 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020928
+Version: 20021001
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,10 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Tue Oct  1 2002 Ian Macdonald <ian@caliban.org>
+- links completion
+- fix quoting issue in chown and chgrp completion
+
 * Sat Sep 28 2002 Ian Macdonald <ian@caliban.org>
 - add some options to apt-get and apt-build completion
 
