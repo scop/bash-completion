@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.255 2002/04/03 23:10:35 ianmacd Exp $
+#   $Id: bash_completion,v 1.256 2002/04/03 23:17:10 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -563,7 +563,8 @@ _find()
 		;;
 	-fstype)
 		# this is highly non-portable
-		COMPREPLY=( $( cut -d$'\t' -f 2 /proc/filesystems | grep ^$cur))
+		COMPREPLY=( $( cut -d$'\t' -f 2 /proc/filesystems | \
+				grep "^$cur" ) )
 		return 0
 		;;
 	-gid)
@@ -1032,14 +1033,14 @@ _rpm()
 		else
 		# complete on capabilities
 			COMPREPLY=( $( rpm -qa --queryformat \
-					'%{providename}\n' | grep ^$cur ) )
+					'%{providename}\n' | grep "^$cur" ) )
 		fi
 		return 0
 		;;
 	--whatrequires)
 		# complete on capabilities
 		COMPREPLY=( $( rpm -qa --queryformat '%{requirename}\n' | \
-				grep ^$cur ) )
+				grep "^$cur" ) )
 		return 0
 		;;
 	esac
@@ -1281,7 +1282,7 @@ _chsh()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [ "$prev" = "-s" ]; then
-		COMPREPLY=( $( chsh -l | grep ^$cur ) )
+		COMPREPLY=( $( chsh -l | grep "^$cur" ) )
 	else
 		COMPREPLY=( $( compgen -u -- $cur ) )
 	fi
@@ -1888,7 +1889,7 @@ _ant()
 
 		# parse buildfile for targets
 		COMPREPLY=( $( awk -F'"' '/<target name="/ {print $2}' \
-				$buildfile | grep ^$cur ) )
+				$buildfile | grep "^$cur" ) )
 	fi
 }
 [ "$have" ] && complete -F _ant $filenames ant
@@ -2137,7 +2138,7 @@ _longopt()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( $1 --help 2>&1 | sed  -e '/--/!d' \
 				-e 's/.*\(--[-A-Za-z0-9]\+=\?\).*/\1/' | \
-			       grep ^$cur | sort -u ) )
+			       grep "^$cur" | sort -u ) )
 	elif [[ "$1" == @(mk|rm)dir ]]; then
 		_filedir -d
 	else
@@ -2197,7 +2198,7 @@ _gcc()
 		# for FORTRAN/Java it's an error
 		COMPREPLY=( $( $cc --help 2>/dev/null | tr '\t' ' ' | \
 			       sed -e '/^  *-/!d' -e 's/ *-\([^ ]*\).*/-\1/' | \
-			       grep ^$cur | sort -u ) )
+			       grep "^$cur" | sort -u ) )
 	else
 		_filedir
 	fi
@@ -2383,13 +2384,13 @@ _java()
 			if [ -f $i ] && [[ "$i" == *.@(jar|zip) ]]; then
 				COMPREPLY=( ${COMPREPLY[@]} $( jar tf $i | \
 				grep '\.class' | sed -e 's|\.class||g' \
-						  -e 's|/|.|g' | grep ^$cur ) )
+						  -e 's|/|.|g' | grep "^$cur" ))
 			elif [ -d $i ]; then
 				COMPREPLY=( ${COMPREPLY[@]} $( find $i -type f \
 					    -name \*.class | \
 					    sed -e 's|^'$i'/||' \
 						-e 's|\.class$||' \
-						-e 's|/|.|g' | grep ^$cur ) )
+						-e 's|/|.|g' | grep "^$cur" ) )
 			fi
 		done
 	fi
@@ -2421,7 +2422,7 @@ _urpmi.media()
 {
 	# return list of available urpmi media
 	COMPREPLY=( $( awk -F'{' '/{/ {print $1}' /etc/urpmi/urpmi.cfg | \
-			grep ^$cur ))
+			grep "^$cur" ))
 }
 
 # Mandrake urpmi completion
@@ -2450,7 +2451,7 @@ _urpmi()
 	else
 		# return list of available packages
 		COMPREPLY=( $( gzip -dc /var/lib/urpmi/synthesis.hdlist.* | \
-			       awk -F'@' '/info/ {print $1}' | grep ^$cur ) )
+			       awk -F'@' '/info/ {print $1}' | grep "^$cur" ) )
 	fi
 }
 [ "$have" ] && complete -F _urpmi urpmi
