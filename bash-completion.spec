@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.93 2003/06/07 23:30:59 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.94 2003/06/30 01:44:26 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030607
+Version: 20030630
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,13 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Mon Jun 30 2003 Ian Macdonald <ian@caliban.org>
+- fix process truncation problem with killall completion
+- psql update from Guillaume Rousse <rousse@ccr.jussieu.fr>
+- new urpmi update from Guillaume Rousse <rousse@ccr.jussieu.fr>
+- allow mplayer to complete on .dump files
+- add xhost to host completion
+
 * Sat Jun  7 2003 Ian Macdonald <ian@caliban.org>
 - _command() subcompletion should now work OK for commands with spaces,
   when command completion is done with complete -W, when complete -F function
