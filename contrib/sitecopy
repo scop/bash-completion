@@ -1,0 +1,28 @@
+# sitecopy(1) completion
+# Copyright 2003 Eelco Lempsink <eelcolempsink@gmx.net>
+# License: GNU GPL v2 or later
+#
+_sitecopy()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	case "$cur" in
+	    --*)
+	    	COMPREPLY=( $( compgen -W "$(sitecopy -h | grep -e '--\w' | awk '{sub (/=(FILE|PATH)/, "", $2); print $2}')" -- $cur ) )
+		;;
+	    -*)
+	    	COMPREPLY=( $( compgen -W "$(sitecopy -h | grep -e '-\w' | awk '{sub (",", "", $1); print $1}')" -- $cur ) )
+		;;
+	    *)
+		if [ -r ~/.sitecopyrc ]; then
+		    COMPREPLY=( $( compgen -W "$(grep site  ~/.sitecopyrc | awk '{print $2}')" -- $cur ) )
+		fi
+		;;
+	esac
+
+	return 0
+}
+complete -F _sitecopy -o default sitecopy
