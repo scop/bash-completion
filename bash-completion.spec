@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.114 2004/02/15 03:50:16 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.115 2004/03/31 17:43:40 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20040214
+Version: 20040331
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,18 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Wed Mar 31 2004 Ian Macdonald <ian@caliban.org>
+- remove links from list of commands that complete on .html
+- mplayer file extension additions
+- add CUPS cancel(1) completion
+- minor mkisofs fix
+- add amaya to list of browsers
+- _comp-dpkg-installed-packages() was not returning packages designated
+  'essential'
+- allow cvs completion to handle the various sub-command abbreviataions
+- fix man and cc completion for Cygwin
+- some versions of bash don't like function names containing hyphens
+
 * Tue Feb 10 2004 Ian Macdonald <ian@caliban.org>
 - big speed up for dpkg completion
 - fix chsh completion to work on Debian
