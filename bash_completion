@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.182 2002/03/07 18:32:03 ianmacd Exp $
+#   $Id: bash_completion,v 1.183 2002/03/07 18:35:32 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1568,6 +1568,36 @@ _tar()
 	return 0
 }
 complete -F _tar -o filenames tar
+
+# jar(1) completion
+#
+have jar &&
+_jar()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [ $COMP_CWORD = 1 ]; then
+		COMPREPLY=( $( compgen -W 'c t x u' -- $cur ) )
+		return 0
+	fi
+
+	case "${COMP_WORDS[1]}" in
+		c*f)
+			_filedir
+			;;
+		*f)
+			COMPREPLY=( $( compgen -d -- $cur ) \
+				    $( compgen -f -X '!*.jar' -- $cur ) )
+			;;
+		*)
+			_filedir
+			;;
+	esac
+}
+[ "$have" ] && complete -F _jar -o filenames jar
 
 # Linux iptables(8) completion
 #
