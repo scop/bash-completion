@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.298 2002/05/05 17:42:42 ianmacd Exp $
+#   $Id: bash_completion,v 1.299 2002/05/05 19:24:31 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1307,6 +1307,75 @@ _apt_cache()
 [ "$have" ] && complete -F _apt-cache $filenames apt-cache
 complete -F _apt_cache $filenames apt-cache
 
+# Debian Linux aptitude(8) completion
+#
+have aptitude &&
+_aptitude()
+{
+	local cur dashoptions prev special i
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+
+        dashoptions='-S -u -i -h --help --version -s --simulate -d \
+		     --download-only -P --prompt -y --assume-yes -F \
+		     --display-format -w --width -f --with-recommends \
+		     --with-suggests --without-recommends --without-suggests'
+
+	for (( i=0; i < ${#COMP_WORDS}-1; i++ )); do
+	    if [[ ${COMP_WORDS[i]} == @(install|hold|unhold|markauto| \
+				        unmarkauto|dist-upgrade|download| \
+				        purge|remove) ]]; then
+		special=${COMP_WORDS[i]}
+	    fi
+	    #exclude some conflicting options
+	    [[ ${COMP_WORDS[i]} == '-u' ]] && dashoptions=${dashoptions/-i}
+	    [[ ${COMP_WORDS[i]} == '-i' ]] && dashoptions=${dashoptions/-u}
+	done
+
+	if [[ -n "$special" ]]; then
+	   case $special in
+	       @(install|hold|markauto|unmarkauto|dist-upgrade|download))
+		   COMPREPLY=( $( apt-cache pkgnames $cur ) )
+	           return 0
+		   ;;
+	       @(purge|remove))
+  	           COMPREPLY=( $( _comp-dpkg-installed-packages $cur ) )
+	           return 0
+		   ;;
+	       unhold)
+  	           COMPREPLY=( $( _comp-dpkg-hold-packages $cur ) )
+	           return 0
+		   ;;
+
+	   esac
+	fi
+
+	#don't complete anything if these options are found.
+	case $prev in
+	    @(autoclean|clean|forget-new|search|upgrade|update))
+	        return 0
+		;;
+	    -S)
+	        _filedir
+		return 0
+		;;
+	esac
+
+
+	if [[ "$cur" == -* ]]; then
+	    COMPREPLY=( $( compgen -W "$dashoptions" -- $cur ) )
+	else
+	    COMPREPLY=( $( compgen -W 'update upgrade forget-new clean \
+				       autoclean install remove hold unhold \
+				       purge markauto unmarkauto dist-upgrade \
+				       download search' -- $cur ) )
+	fi
+}
+[ "$have" ] && complete -F _aptitude $default aptitude
+
 # chsh(1) completion
 #
 _chsh()
@@ -2360,6 +2429,14 @@ _comp-dpkg-installed-packages()
 	grep-dctrl -r -P -s package,status "^$1" /var/lib/dpkg/status \
 		| grep-dctrl -n -F status -s package 'ok installed'
 
+}
+
+# This function is used by _aptitude()
+#
+_comp-dpkg-hold-packages()
+{
+	grep-dctrl -r -P -s package,status "^$1" /var/lib/dpkg/status \
+		   | grep-dctrl -n -F status -s package 'hold'
 }
 
 # Debian Linux dpkg(8) completion
