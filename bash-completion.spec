@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.32 2002/05/07 08:16:54 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.33 2002/05/11 17:28:25 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020507
+Version: 20020511
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,17 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Sat May 11 2002 Ian Macdonald <ian@caliban.org>
+- work around compgen -W memory eating bug in ssh completion
+- perform tilde expansion in dpkg completion
+- use sed instead of Perl in urpmi completion
+- add MP3 files to those on which mplayer and xine will complete
+- mpg321 completes on MP3 files
+- minor code patch-ups to make Linux-specific functions work on HURD systems
+- in cvs completion, 'cvs co -c' should take into account '-d'
+- postmap(1) and postalias(1) from the latest Postfix snapshot have a
+  new option, '-o'
+
 * Tue May  7 2002 Ian Macdonald <ian@caliban.org>
 - add completion for Postfix commands
 - rpm completion additions for rpm 4.1
