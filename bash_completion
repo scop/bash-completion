@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.102 2002/02/11 06:06:19 ianmacd Exp $
+#   $Id: bash_completion,v 1.103 2002/02/11 23:28:47 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -103,6 +103,9 @@ complete -a unalias
 
 # bind completes with readline bindings (make this more intelligent)
 complete -A binding bind
+
+# type completes with commands
+complete -c command type
 
 # Now we get to the meat of the file, the functions themselves. Some
 # of these are works in progress. Most assume GNU versions of the
@@ -1443,7 +1446,7 @@ _command()
 		COMPREPLY=( $( compgen -f $cur ) )
 	fi
 }
-complete -F _command -o filenames type nohup exec nice eval strace sudo gdb
+complete -F _command -o filenames nohup exec nice eval strace sudo
 
 # Basic Perforce completion by Frank Cusack (frank@google.com)
 #
@@ -1661,22 +1664,48 @@ have ncftp &&
 _ncftp()
 {
 	local cur
+
+	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	if [ $COMP_CWORD = 1 ] && [ -f ~/.ncftp/bookmarks ]; then
 		COMPREPLY=( $( compgen -W '`cut --output-delimiter " " \
-			       -s -f1-2 -d, ~/.ncftp/bookmarks`' $cur ))
+			       -s -f1-2 -d, ~/.ncftp/bookmarks`' $cur ) )
         fi
 
         return 0
 }
 [ $have ] && complete -F _ncftp -o default ncftp
 
+# gdb(1) completion
+#
+have gdb &&
+_gdb()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [ $COMP_CWORD -eq 1 ]; then
+		COMPREPLY=( $( compgen -c $cur ) )
+	elif [ $COMP_CWORD -eq 2 ]; then
+		COMPREPLY=( ${COMPREPLY[@]} $( ps ahx | sed -e 's#[]\[()]##g' |\
+			awk '{p=$5;sub("^.*/","",p); \
+			      if (p ~ /^'$prev'/) print $1}' | \
+			sed -e 's#^.*/##' ))
+	fi
+}
+[ $have ] && complete -F _gdb -o default gdb
+
 # bash alias completion
 #
 _alias()
 {
 	local cur
+
+	COMPREPLY=()
 	cur=${COMP_WORDS[$COMP_CWORD]};
 
 	case "$COMP_LINE" in
@@ -1696,6 +1725,8 @@ complete -F _alias alias
 _export()
 {
 	local cur
+
+	COMPREPLY=()
 	cur=${COMP_WORDS[$COMP_CWORD]};
 
 	case "$COMP_LINE" in
@@ -1714,6 +1745,8 @@ complete -F _export export
 _function()
 {
 	local cur
+
+	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	if [ $COMP_CWORD -eq 1 ]; then
