@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.21 2002/04/02 10:01:28 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.22 2002/04/04 16:57:30 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020402
+Version: 20020404
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,22 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Thu Apr  4 2002 Ian Macdonald <ian@caliban.org>
+- add lftp and autorpm completion
+- minor enhancements to route completion
+- add compressed files (.Z) to the list that gv and ggv will complete on
+- add .m3u to list of extensions that xmms et al can complete on
+- clean up grep argument quoting throughout the code
+- rpm group completion (rpm -qg) was very buggy
+- make entire code base bash 2.04 compatible
+- add which to list of commands that complete on commands
+- fix bug in umount completion that mangled returned paths
+- cvs completion now checks remote repository for checked-out files on
+  'cvs diff' if $COMP_CVS_REMOTE is defined
+- ./configure completion now only returns parameter hints if
+  $COMP_CONFIGURE_HINTS is defined
+- update FAQ section of README
+
 * Tue Apr  2 2002 Ian Macdonald <ian@caliban.org>
 - add long option completion for netstat
 - add renice(8) completion
