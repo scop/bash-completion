@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.691 2004/02/25 04:03:28 ianmacd Exp $
+#   $Id: bash_completion,v 1.692 2004/03/30 21:02:46 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -45,6 +45,8 @@ fi
 # Set a couple of useful vars
 #
 UNAME=$( uname -s )
+# strip OS type and version under Cygwin (e.g. CYGWIN_NT-5.1 => Cygwin)
+UNAME=${UNAME/CYGWIN_*/Cygwin}
 RELEASE=$( uname -r )
 
 # features supported by bash 2.05 and higher
@@ -663,7 +665,7 @@ complete -F _insmod $filenames insmod modprobe modinfo
 # man(1) completion
 #
 [ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin \
-  -o $UNAME = FreeBSD -o $UNAME = SunOS ] &&
+  -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin ] &&
 _man()
 {
 	local cur prev sect manpath UNAME
@@ -681,7 +683,10 @@ _man()
 	fi
 
 	UNAME=$( uname -s )
-	if [ $UNAME = GNU -o $UNAME = Linux -o $UNAME = FreeBSD ]; then
+	# strip OS type and version under Cygwin
+	UNAME=${UNAME/CYGWIN_*/Cygwin}
+	if [ $UNAME = GNU -o $UNAME = Linux -o $UNAME = FreeBSD \
+	     -o $UNAME = Cygwin ]; then
 		manpath=$( manpath 2>/dev/null || command man --path )
 	else
 		manpath=$MANPATH
@@ -715,7 +720,8 @@ _man()
 	return 0
 }
 [ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin \
-  -o $UNAME = FreeBSD -o $UNAME = SunOS ] && complete -F _man $filenames man
+  -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin ] && \
+complete -F _man $filenames man
 
 # renice(8) completion
 #
@@ -3294,7 +3300,8 @@ _gcc()
 	fi
 }
 [ -n "${have:-}" ] && complete $filenames -F _gcc gcc g++ c++ g77 gcj gpc
-[ $UNAME = GNU -o $UNAME = Linux ] && complete $filenames -F _gcc cc
+[ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Cygwin ] && \
+complete $filenames -F _gcc cc
 
 # Linux cardctl(8) completion
 #
