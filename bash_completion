@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.246 2002/04/02 10:04:57 ianmacd Exp $
+#   $Id: bash_completion,v 1.247 2002/04/02 16:56:59 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2355,14 +2355,18 @@ _java()
 
 _configure_func()
 {
-	local cur
+	local cur hints
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
+	hints=yes	# set to 'no' to remove SETTING from --option=SETTING
 
 	[[ "$cur" != -* ]] && return 0
-
-	COMPREPLY=( $( $1 --help | sed -ne 's|^ *\('$cur'[^ '$'\t'',[]\+\).*$|\1|p' ) )
+	if [ "$hints" = yes ]; then
+		COMPREPLY=( $( $1 --help | sed -ne 's|^ *\('$cur'[^ '$'\t'',[]\+\).*$|\1|p' ) )
+	else
+		COMPREPLY=( $( $1 --help | sed -ne 's|^ *\('$cur'[^ '$'\t'',=[]\+=\?\).*$|\1|p' ) )
+	fi
 }
 complete -F _configure_func -o default configure
 
