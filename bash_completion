@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.151 2002/02/27 00:35:39 ianmacd Exp $
+#   $Id: bash_completion,v 1.152 2002/02/27 01:14:52 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -611,24 +611,11 @@ _cvs()
 }
 [ "$have" ] && complete -F _cvs -o default cvs
 
-# rpm(8) completion. This is quite comprehensive now and covers rpm 4.x
+# rpm(8) completion
 # 
 have rpm &&
 _rpm()
 {
-	dashify()
-	{
-		local i
-
-		for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
-			if [ ${#COMPREPLY[i]} -le 2 ]; then
-				COMPREPLY[i]=-${COMPREPLY[i]}
-			else
-				COMPREPLY[i]=--${COMPREPLY[i]}
-			fi
-		done
-	}
-
 	add_package_list()
 	{
 		if [ -r /var/log/rpmpkgs -a \
@@ -646,53 +633,47 @@ _rpm()
 	{
 		_expand || return 0
 
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -f -X "!*.$1" $cur ) )
-	    	COMPREPLY=( ${COMPREPLY[@]} $( compgen -d $cur ) )
+		COMPREPLY=( ${COMPREPLY[@]} $( compgen -f -X "!*.$1" -- $cur ) )
+	    	COMPREPLY=( ${COMPREPLY[@]} $( compgen -d -- $cur ) )
 	}
 
-	local cur cur_nodash prev
+	local cur prev
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
-	cur_nodash=${cur#-}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		# first parameter on line
 		case "$cur" in
 		-b*)
-			COMPREPLY=( $( compgen -W 'ba bb bc bi bl bp bs' \
-				       $cur_nodash ) )
-			dashify
-			return 0
+			COMPREPLY=( $( compgen -W '-ba -bb -bc -bi -bl -bp -bs'\
+				       -- $cur ) )
 			;;
 		-t*)
-			COMPREPLY=( $( compgen -W 'ta tb tc ti tl tp ts' \
-				       $cur_nodash ) )
-			dashify
-			return 0
+			COMPREPLY=( $( compgen -W '-ta -tb -tc -ti -tl -tp -ts'\
+				       -- $cur ) )
 			;;
 		--*)
-			COMPREPLY=( $( compgen -W 'help version initdb \
-			checksig recompile rebuild resign addsign rebuilddb \
-			showrc setperms setugids tarbuild eval install \
-			upgrade query freshen erase verify querytags rmsource \
-			rmspec clean' ${cur_nodash#-} ) )
-			dashify
-			return 0
+			COMPREPLY=( $( compgen -W '--help --version --initdb \
+			--checksig --recompile --rebuild --resign --addsign \
+			--rebuilddb --showrc --setperms --setugids --tarbuild \
+			--eval --install --upgrade --query --freshen --erase \
+			--verify --querytags --rmsource --rmspec --clean' -- \
+			$cur ) )
 			;;
 		*)
-			COMPREPLY=( $( compgen -W 'b e F i q t U V' \
-				       $cur_nodash ) )
-			dashify
-			return 0
+			COMPREPLY=( $( compgen -W '-b -e -F -i -q -t -U -V' \
+				       -- $cur ) )
 			;;
 		esac
+
+	return 0
 	fi
 
 	case "$prev" in
-	--@(db|exclude)path|prefix|relocate|root)
-		COMPREPLY=( $( compgen -d $cur ) )
+	--@(@(db|exclude)path|prefix|relocate|root))
+		COMPREPLY=( $( compgen -d -- $cur ) )
 		return 0
 		;;
 	--eval)
@@ -702,11 +683,11 @@ _rpm()
 		return 0
 		;;
 	--pipe)
-		COMPREPLY=( $( compgen -c $cur ) )
+		COMPREPLY=( $( compgen -c -- $cur ) )
 		return 0
 		;;
 	--rcfile)
-		COMPREPLY=( $( compgen -f $cur ) )
+		COMPREPLY=( $( compgen -f -- $cur ) )
 		return 0
 		;;
 	--specfile)
@@ -729,13 +710,14 @@ _rpm()
 	case "${COMP_WORDS[1]}" in
 	-@([iFU]*|-install|-freshen|-upgrade))
 		# complete on list of relevant options
-		COMPREPLY=( $( compgen -W 'percent force test replacepkgs \
-		replacefiles root excludedocs includedocs noscripts rcfile \
-		ignorearch dbpath prefix ignoreos nodeps allfiles ftpproxy \
-		ftpport justdb httpproxy httpport noorder relocate badreloc \
-		notriggers excludepath ignoresize oldpackage define eval \
-		pipe queryformat repackage' ${cur_nodash#-} ))
-		dashify
+		COMPREPLY=( $( compgen -W '--percent --force --test \
+		--replacepkgs --replacefiles --root --excludedocs \
+		--includedocs --noscripts --rcfile --ignorearch --dbpath \
+		--prefix --ignoreos --nodeps --allfiles --ftpproxy --ftpport \
+		--justdb --httpproxy --httpport --noorder --relocate \
+		--badreloc --notriggers --excludepath --ignoresize \
+		--oldpackage --define --eval --pipe --queryformat \
+		--repackage' -- $cur ) )
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		# add a list of RPMS to possible completions
@@ -744,12 +726,12 @@ _rpm()
 		;;
 	-q*p*)
 		# complete on list of relevant options
-		COMPREPLY=( $( compgen -W 'scripts root rcfile whatprovides \
-		whatrequires requires triggeredby ftpport ftpproxy httpproxy \
-		httpport provides triggers dump changelog dbpath filesbypkg \
-		define eval pipe showrc info list state docfiles \
-		configfiles queryformat conflicts obsoletes' ${cur_nodash#-} ) )
-		dashify
+		COMPREPLY=( $( compgen -W '--scripts --root --rcfile \
+		--whatprovides --whatrequires --requires --triggeredby \
+		--ftpport --ftpproxy --httpproxy --httpport --provides \
+		--triggers --dump --changelog --dbpath --filesbypkg --define \
+		--eval --pipe --showrc --info --list --state --docfiles \
+		--configfiles --queryformat --conflicts --obsoletes' -- $cur ) )
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		# add a list of RPMS to possible completions
@@ -758,14 +740,13 @@ _rpm()
 		;;
 	-*f)
 		# standard filename completion
-		COMPREPLY=( $( compgen -f $cur ) )
+		COMPREPLY=( $( compgen -f -- $cur ) )
 		return 0
 		;;
 	-@(e|-erase))
 		# complete on list of relevant options
-		COMPREPLY=( $( compgen -W 'allmatches noscripts notriggers \
-		nodeps test repackage' ${cur_nodash#-} ) )
-		dashify
+		COMPREPLY=( $( compgen -W '--allmatches --noscripts \
+		--notriggers --nodeps --test --repackage' -- $cur ) )
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		add_package_list
@@ -773,13 +754,14 @@ _rpm()
 		;;
 	-q*)
 		# complete on list of relevant options
-		COMPREPLY=( $( compgen -W 'scripts root rcfile whatprovides \
-		whatrequires requires triggeredby ftpport ftpproxy httpproxy \
-		httpport provides triggers dump changelog dbpath specfile \
-		querybynumber last filesbypkg define eval pipe showrc info \
-		list state docfiles configfiles queryformat conflicts \
-		obsoletes pkgid hdrid fileid tid' ${cur_nodash#-} ) )
-		dashify
+		COMPREPLY=( $( compgen -W '--scripts --root --rcfile \
+		--whatprovides --whatrequires --requires --triggeredby \
+		--ftpport --ftpproxy --httpproxy --httpport --provides \
+		--triggers --dump --changelog --dbpath --specfile \
+		--querybynumber --last --filesbypkg --define --eval --pipe \
+		--showrc --info --list --state --docfiles --configfiles \
+		--queryformat --conflicts --obsoletes --pkgid --hdrid \
+		--fileid --tid' -- $cur ) )
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		# don't complete on packages if we are querying all packages
@@ -789,9 +771,7 @@ _rpm()
 		;;
 	-@(K|-checksig))
 		# complete on list of relevant options
-		COMPREPLY=( $( compgen -W 'nopgp nogpg nomd5' \
-		${cur_nodash#-} ) )
-		dashify
+		COMPREPLY=( $( compgen -W '--nopgp --nogpg --nomd5' -- $cur ) )
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		# add a list of RPMS to possible completions
@@ -800,9 +780,8 @@ _rpm()
 		;;
 	-@([Vy]*|-verify))
 		# complete on list of relevant options
-		COMPREPLY=( $( compgen -W 'root rcfile dbpath nodeps nofiles \
-		noscripts nomd5' ${cur_nodash#-} ) )
-		dashify
+		COMPREPLY=( $( compgen -W '--root --rcfile --dbpath --nodeps \
+		--nofiles --noscripts --nomd5' -- $cur ) )
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		add_package_list
@@ -810,10 +789,10 @@ _rpm()
 		;;
 	-[bt]*)
 		# complete on list of relevant options
-		COMPREPLY=( $( compgen -W 'short-circuit timecheck clean \
-		rmsource rmspec test sign buildroot target buildarch buildos \
-		nobuild nodeps nodirtokens' ${cur_nodash#-} ) )
-		dashify
+		COMPREPLY=( $( compgen -W '--short-circuit --timecheck \
+		--clean --rmsource --rmspec --test --sign --buildroot \
+		--targetbuildarch --buildos --nobuild --nodeps --nodirtokens' \
+		-- $cur ) )
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		if [[ ${COMP_WORDS[1]} == -b* ]]; then
@@ -828,15 +807,14 @@ _rpm()
 		;;
 	--re@(build|compile))
 		_expand || return 0
-		COMPREPLY=( $( compgen -W 'nodeps rmsource rmspec sign \
-					   nodirtokens' ${cur_nodash#-} ) )
-		dashify
+		COMPREPLY=( $( compgen -W '--nodeps --rmsource --rmspec \
+		--sign --nodirtokens' -- $cur ) )
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		# complete on source RPMs
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -f -X '!*.src.rpm' \
+		COMPREPLY=( ${COMPREPLY[@]} $( compgen -f -X '!*.src.rpm' -- \
 					       $cur ) )
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -d $cur ) )
+		COMPREPLY=( ${COMPREPLY[@]} $( compgen -d -- $cur ) )
 		return 0
 		;;
 	--tarbuild)
@@ -855,9 +833,8 @@ _rpm()
 		return 0
 		;;
 	--@(clean|rms@(ource|pec)))
-		COMPREPLY=( $( compgen -W 'clean rmsource rmspec' \
-			       ${cur_nodash#-} ) )
-		dashify
+		COMPREPLY=( $( compgen -W '--clean --rmsource --rmspec' -- \
+			       $cur ) )
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		file_glob spec
