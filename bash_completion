@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.145 2002/02/25 06:50:23 ianmacd Exp $
+#   $Id: bash_completion,v 1.146 2002/02/26 21:48:32 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -527,7 +527,7 @@ _ifconfig()
 		;;
 	esac
 
-	COMPREPLY=( $( ifconfig -a | sed -ne 's/^\('$cur'[^ ]*\).*$/\1/p' ))
+	COMPREPLY=( $( /sbin/ifconfig -a | sed -ne 's/^\('$cur'[^ ]*\).*$/\1/p' ))
 }
 [ $OS = Linux ] && complete -F _ifconfig ifconfig
 
@@ -1838,6 +1838,24 @@ _gcc()
 }
 [ "$have" ] && complete -o filenames -F _gcc gcc g++ c++ g77 gcj gpc
 [ $OS = Linux ] && complete -o filenames -F _gcc cc
+
+# Linux cardctl(8) completion
+#
+have cardctl &&
+_cardctl ()
+{
+	local cur
+	COMPREPLY=()
+
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [ $COMP_CWORD -eq 1 ]; then
+		COMPREPLY=( $( compgen -W 'status config ident suspend \
+					   resume reset eject insert scheme' \
+			       $cur ) )
+	fi
+}
+[ "$have" ] && complete -F _cardctl cardctl
 
 # bash alias completion
 #
