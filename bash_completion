@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.214 2002/03/24 19:44:55 ianmacd Exp $
+#   $Id: bash_completion,v 1.215 2002/03/24 19:57:37 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -318,10 +318,10 @@ _mount()
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
-	for i in {,/usr}/sbin/showmount; do [ -x $i ] && sm=$i && break; done
+	for i in {,/usr}/{,s}bin/showmount; do [ -x $i ] && sm=$i && break; done
 
 	if [ -n "$sm" ] && [[ "$cur" == *:* ]]; then
-		COMPREPLY=( $( $sm -e --no-headers ${cur%%:*} | \
+		COMPREPLY=( $( $sm -e ${cur%%:*} | sed 1d | \
 			       grep ^${cur#*:} | awk '{print $1}' ) )
 	else
 		COMPREPLY=( $( awk '{if ($2 ~ /\//) print $2}' /etc/fstab | \
@@ -484,7 +484,7 @@ _killall()
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
 		_signals
 	else
-		COMPREPLY=( $( compgen -W '$( ps axco ucomm | sed 1d )' \
+		COMPREPLY=( $( compgen -W '$( ps axo ucomm | sed 1d )' \
 			       -- $cur ) )
 	fi
 
