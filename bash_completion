@@ -1,8 +1,8 @@
-#   bash_completion - some programmable completion functions for bash 2.05
+#   bash_completion - some programmable completion functions for bash 2.05a
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.29 2001/11/26 19:19:59 ianmacd Exp $
+#   $Id: bash_completion,v 1.30 2001/11/29 01:37:54 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -55,6 +55,9 @@ complete -A signal kill -P '%'
 
 # user commands see only users
 complete -u finger su usermod userdel passwd
+
+# group commands see only groups
+complete -u groupmod groupdel passwd
 
 # bg completes with stopped jobs
 complete -A stopped -P '%' bg
@@ -122,9 +125,7 @@ _chown()
 		if [[ "$cur" == [a-zA-Z]*.* ]]; then
 			user=${cur%.*}
 			group=${cur#*.}
-			COMPREPLY=( $( awk 'BEGIN {FS=":"} \
-					{if ($1 ~ /^'$group'/) print $1}' \
-					/etc/group ) )
+			COMPREPLY=( $( compgen -g $group ) )
 			for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
 				COMPREPLY[i]=$user.${COMPREPLY[i]}
 			done
@@ -154,21 +155,6 @@ _umount()
 	return 0
 }
 complete -F _umount -o filenames umount
-
-# GID completion. This will get a list of all valid group names from
-# /etc/group and should work anywhere.
-#
-_gid_func()
-{
-	local cur
-
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
-	COMPREPLY=( $( awk 'BEGIN {FS=":"} {if ($1 ~ /^'$cur'/) print $1}' \
-			   /etc/group ) )
-	return 0
-}
-complete -F _gid_func groupdel groupmod
 
 # mount(8) completion. This will pull a list of possible mounts out of
 # /etc/fstab, unless the word being completed contains a ':', which
@@ -380,8 +366,7 @@ _find()
 		return 0
 		;;
 	-group)
-		COMPREPLY=( $( awk 'BEGIN {FS=":"} \
-				{if ($1 ~ /^'$cur'/) print $1}' /etc/group ) )
+		COMPREPLY=( $( compgen -g $cur ) )
 		return 0
 		;;
 	-?(x)type)
@@ -1294,7 +1279,6 @@ _command()
 	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -c $cur ) )
 	else
-		# XXX sudo chkconfig should complete just as chkconfig would
 		COMPREPLY=( $( compgen -f $cur ) )
 	fi
 }
@@ -1358,7 +1342,7 @@ _p4()
 
 	return 0
 }
-[ "$have" ] && complete -F _p4 -o default p4
+[ "$have" ] && complete -F _p4 -o default p4 g4
 
 # 
 # Return 1 if $1 appears to contain a redirection operator.  Handles backslash
