@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.10 2000/11/20 21:41:43 ianmacd Exp $
+#   $Id: bash_completion,v 1.11 2000/12/19 20:54:49 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -300,9 +300,9 @@ _killall()
 		# of getting the basename of the process, the first sed
 		# evaluation takes care of swapped out processes, and the
 		# second takes care of getting the basename of the process)
-	       COMPREPLY=( $( ps ahx | \
+	        COMPREPLY=( $( ps ahx | sed -e 's#[]\[()]##g' | \
 		   awk '{if (gensub("^.*/","",1,$5) ~ /^'$cur'/) print $5}' | \
-		   sed -e 's#[]\[]##g' -e 's#^.*/##' ))
+		   sed  -e 's#^.*/##' ) )
 		return 0
 	fi
 
@@ -319,9 +319,9 @@ _killall()
 	fi
 
 	# get processes, adding to signals if applicable
-	COMPREPLY=( ${COMPREPLY[*]} $( ps ahx | \
+	COMPREPLY=( ${COMPREPLY[*]} $( ps ahx | sed -e 's#[]\[()]##g' | \
 		   awk '{if (gensub("^.*/","",1,$5) ~ /^'$cur'/) print $5}' | \
-		   sed -e 's#[]\[]##g' -e 's#^.*/##' ))
+		   sed -e 's#^.*/##' ))
 	return 0
 }
 complete -F _killall killall
@@ -550,6 +550,23 @@ _rpm()
 		   sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+$/\1/p' ) )
 	}
 
+	file_glob()
+	{
+		local suffix
+
+		# get extension of current word, if relevant
+		suffix=${cur##*.}
+		# nullify it if it's not a substring of the extension we're
+		# completing on
+		[ "$suffix" != "${1:0:${#suffix}}" ] && suffix=""
+		COMPREPLY=( ${COMPREPLY[@]} $( compgen -G $cur\*${1:${#suffix}} ) )
+		# directory completion if all else fails and current word
+		# contains a slash
+		if [ ${#COMPREPLY[@]} = 0 ] && [[ $cur == */* ]]; then
+	    		COMPREPLY=( $( compgen -d $cur ) )
+		fi
+	}
+
 	local cur cur_nodash prev
 
         COMPREPLY=()
@@ -624,7 +641,7 @@ _rpm()
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		# add a list of RPMS to possible completions
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -G $cur\*.rpm ) )
+		file_glob rpm
 		return 0
 		;;
 	-qp*)
@@ -638,7 +655,7 @@ _rpm()
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		# add a list of RPMS to possible completions
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -G $cur\*.rpm ) )
+		file_glob rpm
 		return 0
 		;;
 	-*f)
@@ -692,7 +709,7 @@ _rpm()
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		# add a list of RPMS to possible completions
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -G $cur\*.rpm ) )
+		file_glob rpm
 		return 0
 		;;
 	-@([Vy]*|-verify))
@@ -702,7 +719,7 @@ _rpm()
 		dashify
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
-		# add a list of RPMS to possible completions
+		add_package_list
 		return 0
 		;;
 	-[bt]*)
@@ -715,7 +732,7 @@ _rpm()
 		[[ "$cur" == -* ]] && return 0
 		if [[ ${COMP_WORDS[1]} == -b* ]]; then
 			# complete on .spec files
-			COMPREPLY=( $( compgen -G $cur\*.spec ) )
+			file_glob spec
 		else
 			# complete on .tar files
 			COMPREPLY=( $( compgen -G $cur\*.+(tgz|tar.+(gz|bz2)) ) )
@@ -734,7 +751,7 @@ _rpm()
 		;;
 	--@(re|add)sign)
 		# complete on RPMs
-		COMPREPLY=( $( compgen -G $cur\*.rpm ) )
+		file_glob rpm
 		return 0
 		;;
 	--set@(perms|gids))
