@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.81 2002/01/31 18:03:19 ianmacd Exp $
+#   $Id: bash_completion,v 1.82 2002/02/03 22:01:43 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -345,7 +345,7 @@ _killall()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [[ "$prev" == -[A-Z0-9]* ]]; then
-		# get a list of processes (the gensub() in the awk takes care
+		# get a list of processes (the sub() in the awk takes care
 		# of getting the basename of the process, the first sed
 		# evaluation takes care of swapped out processes, and the
 		# second takes care of getting the basename of the process)
@@ -829,6 +829,11 @@ _rpm()
 		return 0
 		;;
 	--re@(build|compile))
+		if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W 'nodeps' ${cur_nodash#-} ) )
+			dashify
+			return 0
+		fi
 		_expand || return 0
 		# complete on source RPMs
 		COMPREPLY=( $( compgen -G $cur\*.src.rpm ) )
@@ -850,6 +855,12 @@ _rpm()
 		return 0
 		;;
 	--@(clean|rms@(ource|pec)))
+		if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W 'clean rmsource rmspec' \
+				       ${cur_nodash#-} ) )
+			dashify
+			return 0
+		fi
 		file_glob spec
 		return 0
 		;;
