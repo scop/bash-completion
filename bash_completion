@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.453 2002/10/21 06:42:40 ianmacd Exp $
+#   $Id: bash_completion,v 1.454 2002/10/22 15:59:44 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1918,14 +1918,6 @@ _ssh()
 }
 shopt -u hostcomplete && complete -F _ssh ssh slogin sftp
 
-_scp_filedir()
-{
-	# do not indent last line of this function
-	ls -aF1d "$path*" 2>/dev/null | sed -e 's/ /\\\\\\\ /g' \
-		-e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' -e 's/\
-//g'
-}
-
 # scp(1) completion
 #
 _scp()
@@ -1952,12 +1944,19 @@ _scp()
 		# escape spaces; remove executables, aliases, pipes and sockets;
 		# add space at end of file names; change newlines into spaces
 		COMPREPLY=( $( ssh -o 'Batchmode yes' $userhost \
-				$(declare -f _scp_filedir | sed -e '1,2d; 5d')))
+				ls -aF1d "$path*" 2>/dev/null | \
+				sed -e 's/ /\\\\\\\ /g' -e 's/[*@|=]$//g' \
+				    -e 's/[^\/]$/& /g' -e 's/\
+//g' ) )
 		return 0
 	fi
 
 	[[ "$cur" == */* ]] || _known_hosts -c -a
-	COMPREPLY=( ${COMPREPLY[@]} $( _scp_filedir ) )
+	COMPREPLY=( ${COMPREPLY[@]} $( ls -aF1d "$path*" 2>/dev/null | \
+			sed -e 's/ /\\\\\\\ /g' -e 's/[*@|=]$//g' \
+			    -e 's/[^\/]$/& /g' -e 's/\
+//g' ) )
+
 
 	return 0
 }
