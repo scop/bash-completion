@@ -1,4 +1,4 @@
-$Id: README,v 1.11 2002/04/22 08:07:20 ianmacd Exp $
+$Id: README,v 1.12 2002/06/25 15:48:51 ianmacd Exp $
 
 
 INSTALLATION
@@ -130,6 +130,29 @@ Q. When I'm running a ./configure script and completion returns a list of
 
 A. Define $COMP_CONFIGURE_HINTS. Setting this to anything will result in the
    behaviour you would like.
+
+Q. When doing tar completion on a file within a tar file like this:
+
+   tar tzvf foo.tar.gz <Tab>
+
+   the pathnames contained in the tar file are not displayed correctly. The
+   slashes are removed and everything looks like it's in a single directory.
+   Why is this?
+
+A. It's a choice I had to make. bash's programmable completion is limited in
+   how it handles the list of possible completions it returns.
+
+   Because the paths returned from within the tar file are likely not existing
+   files on the file system, '-o filenames' must be passed to the complete
+   built-in to make it treat them as such. However, then bash will append a
+   space when completing on directories during pathname completion to the tar
+   files themselves.
+
+   It's more important to have proper completion of paths to tar files than
+   it is to have completion for their contents, so this sacrifice was made.
+
+   If you would rather have correct path completion for tar file contents,
+   define $COMP_TAR_INTERNAL_PATHS *before* sourcing bash_completion.
 
 Q. This code is rubbish/not bad/pretty good/the best thing since sliced bread.
    How can I show my appreciation?
