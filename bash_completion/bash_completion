@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.776 2005/01/13 02:22:45 ianmacd Exp $
+#   $Id: bash_completion,v 1.786 2005/01/21 22:29:49 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -22,7 +22,7 @@
 #
 #   http://www.caliban.org/bash/index.shtml#completion
 #
-#   RELEASE: 20050112
+#   RELEASE: 20050121
 
 [ -n "${DEBUG:-}" ] && set -v || set +v
 
@@ -84,7 +84,7 @@ complete -d pushd
 #
 # START exclude -- do NOT remove this line
 complete -f -X '!*.?(t)bz2' bunzip2 bzcat bzcmp bzdiff bzegrep bzfgrep bzgrep
-complete -f -X '!*.@(zip|ZIP|jar|JAR|exe|EXE|pk3|war|wsz|ear|zargo|xpi)' unzip zipinfo
+complete -f -X '!*.@(zip|ZIP|jar|JAR|exe|EXE|pk3|war|wsz|ear|zargo|xpi|sxw)' unzip zipinfo
 complete -f -X '*.Z' compress znew
 complete -f -X '!*.@(Z|gz|tgz|Gz|dz)' gunzip zcmp zdiff zcat zegrep zfgrep zgrep zless zmore
 complete -f -X '!*.Z' uncompress
@@ -2329,8 +2329,8 @@ shopt -u hostcomplete && complete -F _user_at_host $nospace talk ytalk finger
 #
 _known_hosts()
 {
-	local cur ocur user suffix aliases global_kh user_kh hosts
-	local -a kh config
+       local cur curd ocur user suffix aliases global_kh user_kh hosts i host
+       local -a kh khd config
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -2342,8 +2342,12 @@ _known_hosts()
 	kh=()
 
 	# ssh config files
-	[ -r /etc/ssh/ssh_config ] && config[0]=/etc/ssh/ssh_config
-	[ -r ~/.ssh/config ]	   && config[1]=~/.ssh/config
+	[ -r /etc/ssh/ssh_config ] &&
+	  config=( ${config[@]} /etc/ssh/ssh_config )
+	[ -r ~/.ssh/config ] &&
+	  config=( ${config[@]} ~/.ssh/config )
+	[ -r ~/.ssh2/config ] &&
+	  config=( ${config[@]} ~/.ssh2/config )
 
 	if [ ${#config[@]} -gt 0 ]; then
 	    # expand path (if present) to global known hosts file
@@ -2356,25 +2360,36 @@ _known_hosts()
 	if [ -r "$global_kh" ]; then
 	    kh=( "$global_kh" )
 	else
-	    [ -r /etc/ssh/ssh_known_hosts ]  && kh[0]=/etc/ssh/ssh_known_hosts
-	    [ -r /etc/ssh/ssh_known_hosts2 ] && kh[1]=/etc/ssh/ssh_known_hosts2
-	    [ -r /etc/known_hosts ]	     && kh[2]=/etc/known_hosts
-	    [ -r /etc/known_hosts2 ]	     && kh[3]=/etc/known_hosts2
+	    [ -r /etc/ssh/ssh_known_hosts ] &&
+	      kh=( ${kh[@]} /etc/ssh/ssh_known_hosts )
+	    [ -r /etc/ssh/ssh_known_hosts2 ] &&
+	      kh=( ${kh[@]} /etc/ssh/ssh_known_hosts2 )
+	    [ -r /etc/known_hosts ] &&
+	      kh=( ${kh[@]} /etc/known_hosts )
+	    [ -r /etc/known_hosts2 ] &&
+	      kh=( ${kh[@]} /etc/known_hosts2 )
+	    [ -d /etc/ssh2/knownhosts ] &&
+	      khd=( ${khd[@]} /etc/ssh2/knownhosts/*pub )
 	fi
 
 	# choose which user known hosts file to use
 	if [ -r "$user_kh" ]; then
 	    kh=( ${kh[@]} "$user_kh" )
 	else
-	    [ -r ~/.ssh/known_hosts ]  && kh=( ${kh[@]} ~/.ssh/known_hosts )
-	    [ -r ~/.ssh/known_hosts2 ] && kh=( ${kh[@]} ~/.ssh/known_hosts2 )
+	    [ -r ~/.ssh/known_hosts ] &&
+	      kh=( ${kh[@]} ~/.ssh/known_hosts )
+	    [ -r ~/.ssh/known_hosts2 ] &&
+	      kh=( ${kh[@]} ~/.ssh/known_hosts2 )
+	    [ -d ~/.ssh2/hostkeys ] &&
+	      khd=( ${khd[@]} ~/.ssh2/hostkeys/*pub )
 	fi
 
 	# If we have known_hosts files to use
-	if [ ${#kh[@]} -gt 0 ]; then
+	if [ ${#kh[@]} -gt 0 -o ${#khd[@]} -gt 0 ]; then
 	    # Escape slashes and dots in paths for awk
 	    cur=${cur//\//\\\/}
 	    cur=${cur//\./\\\.}
+	    curd=$cur
 
 	    if [[ "$cur" == [0-9]*.* ]]; then
 		# Digits followed by a dot - just search for that
@@ -2390,13 +2405,28 @@ _known_hosts()
 		cur="^$cur"
 	    fi
 
-	    # FS needs to look for a comma separated list
-	    COMPREPLY=( $( awk 'BEGIN {FS=","}
+	    if [ ${#kh[@]} -gt 0 ]; then
+
+		# FS needs to look for a comma separated list
+		COMPREPLY=( $( awk 'BEGIN {FS=","}
 				{for (i=1; i<=2; ++i) { \
 				       gsub(" .*$", "", $i); \
 				       if ($i ~ /'$cur'/) {print $i} \
 				}}' ${kh[@]} 2>/dev/null ) )
-
+	    fi
+	    if [ ${#khd[@]} -gt 0 ]; then
+		# Needs to look for files called
+		# .../.ssh2/key_22_<hostname>.pub
+		# dont fork any processes, because in a cluster environment, 
+		# there can be hundreds of hostkeys
+		for i in ${khd[@]} ; do
+		    if [[ "$i" == *key_22_$curd*.pub ]] && [ -r "$i" ] ; then
+			host=${i/#*key_22_/}
+			host=${host/%.pub/}
+			COMPREPLY=( ${COMPREPLY[@]} $host )
+		    fi
+		done
+	    fi
 	    # append any available aliases from config files
 	    if [ ${#config[@]} -gt 0 ] && [ -n "$aliases" ]; then
 		hosts=$( compgen -W "$( echo $( sed -ne "s/^[Hh][Oo][Ss][Tt]["$'\t '"]*\([^*?]*\)$/\1/p" ${config[@]} ) )" -- $ocur )
@@ -2976,16 +3006,29 @@ fi
 # A meta-command completion function for commands like sudo(8), which need to
 # first complete on a command, then complete according to that command's own
 # completion definition - currently not quite foolproof (e.g. mount and umount
-# don't work properly), but still quite useful
+# don't work properly), but still quite useful.
 #
 _command()
 {
-	local cur func cline cspec noglob cmd \
+	local cur func cline cspec noglob cmd done i \
 	      _COMMAND_FUNC _COMMAND_FUNC_ARGS
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
+	# If the the first arguments following our meta-command-invoker are
+	# switches, get rid of them. Most definitely not foolproof.
+	done=
+	while [ -z $done ] ; do
 	cmd=${COMP_WORDS[1]}
+	    if [[ "$cmd" == -* ]] ; then
+		for (( i=1 ; i<=COMP_CWORD ; i++)) ; do
+		    COMP_WORDS[i]=${COMP_WORDS[i+1]}
+		done
+		COMP_CWORD=$(($COMP_CWORD-1))
+	    else 
+		done=1
+	    fi
+	done
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -c -- $cur ) )
@@ -3000,6 +3043,7 @@ _command()
 
 			# set current token number to 1 less than now
 			COMP_CWORD=$(( $COMP_CWORD - 1 ))
+
 			# get function name
 			func=${cspec#*-F }
 			func=${func%% *}
@@ -3015,7 +3059,8 @@ _command()
 			# reset noglob if necessary
 			[ $noglob -eq 1 ] && shopt -uo noglob
 			$func $cline
-			# this is needed in case user finished entering command and pressed tab (e.g. sudo ls <Tab>)
+			# This is needed in case user finished entering
+			# command and pressed tab (e.g. sudo ls <Tab>)
 			COMP_CWORD=$(( $COMP_CWORD > 0 ? $COMP_CWORD : 1 ))
 			cur=${COMP_WORDS[COMP_CWORD]}
 			_COMMAND_FUNC=$func
@@ -3042,7 +3087,7 @@ _command()
 	[ ${#COMPREPLY[@]} -eq 0 ] && _filedir
 }
 complete -F _command $filenames nohup exec nice eval strace time ltrace then \
-	 else do vsound command
+	else do vsound command xargs
 
 _root_command()
 {
@@ -3983,14 +4028,19 @@ _longopt()
 		_filedir
 	fi
 }
-# makeinfo and texi2dvi are defined elsewhere
+# makeinfo and texi2dvi are defined elsewhere.
 for i in a2ps autoconf automake bc gprof ld nm objcopy objdump readelf strip \
 	 bison cpio diff patch enscript cp df dir du ln ls mkfifo mknod mv rm \
-	 touch vdir xargs awk gperf grep grub indent less m4 sed shar date \
-	 env seq tee uname who texindex cat csplit cut expand fmt fold head \
+	 touch vdir awk gperf grep grub indent less m4 sed shar date \
+	 tee who texindex cat csplit cut expand fmt fold head \
 	 md5sum nl od paste pr ptx sha1sum sort split tac tail tr unexpand \
-	 uniq wc units wget ldd bash id irb mkdir rmdir netstat; do
-    have $i && complete -F _longopt $filenames $i
+	 uniq wc ldd bash id irb mkdir rmdir; do
+  have $i && complete -F _longopt $filenames $i
+done
+
+# These commands use filenames, so '-o filenames' is not needed.
+for i in env netstat seq uname units wget; do
+  have $i && complete -F _longopt $default $i
 done
 unset i
 
@@ -4846,7 +4896,7 @@ _python()
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
-	prev=${COMP_WORDS[COMP_CWORD-1]}
+	prev=${COMP_WORDS[COMP_CWORD-1]##*/}
 
 	case "$prev" in
 	-Q)
@@ -6474,10 +6524,10 @@ _dd()
 	 _expand || return 0
 
 	 COMPREPLY=( $( compgen -W '--help --version' -- $cur ) \
-		     $( compgen -W 'bs cbs conv count ibs if obs of seek 
-skip' -S '=' -- $cur ) )
+		     $( compgen -W 'bs cbs conv count ibs if obs of seek skip'\
+				-S '=' -- $cur ) )
 }
-[ "${have:-}" ] && complete -F _dd $nospace dd
+[ "${have:-}" ] && complete -F _dd $nospace $filenames dd
 
 # CUPS cancel(1) completion
 #
@@ -6717,7 +6767,7 @@ _physicalvolumes()
 
 _logicalvolumes()
 {
-	COMPREPLY=( $( lvscan | \
+	COMPREPLY=( $( lvscan 2>/dev/null | \
 		awk -F"'" '{if ($2 ~ /^'$cur'/) print $2}' ) )
 }
 

@@ -1,5 +1,5 @@
 Name:		bash-completion
-Version:	20050112
+Version:	20050121
 Release:	alt01
 
 Summary:	bash-completion offers programmable completion for bash
@@ -44,6 +44,9 @@ __PROFILE__
 
 
 %changelog
+* Wed Feb 09 2005 Alex Murygin <murygin@altlinux.ru> 20050121-alt01
+- new version
+
 * Fri Jan 14 2005 Alex Murygin <murygin@altlinux.ru> 20050112-alt01
 - new version
 
