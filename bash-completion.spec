@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.107 2003/11/25 18:54:23 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.108 2003/11/25 19:09:00 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
@@ -73,7 +73,7 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
-* Wed Nov 12 2003 Ian Macdonald <ian@caliban.org>
+* Tue Nov 25 2003 Ian Macdonald <ian@caliban.org>
 - first cut at mutt(1) completion
 - user completion for w(1)
 - yum completion improvements
