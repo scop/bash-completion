@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.117 2004/07/04 07:25:08 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.118 2004/07/11 18:41:18 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20040704
+Version: 20040711
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,13 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Sun Jul 11 2004 Ian Macdonald <ian@caliban.org>
+- eliminate use of grep in _filedir_xspec() for better performance
+- minor fix to mutt completion
+- fix for dpkg completion
+- allow symbolic links in /etc/bash_completion.d
+- improve insmod, modinfo etc completion with path names
+
 * Sun Jul  4 2004 Ian Macdonald <ian@caliban.org>
 - append a '/' to directories completed from $CDPATH
 - add _rl_enabled() to detect whether a given readline variable is on
