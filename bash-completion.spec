@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.38 2002/05/21 17:09:35 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.39 2002/05/28 20:35:58 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020521
+Version: 20020528
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,11 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Tue May 28 2002 Ian Macdonald <ian@caliban.org>
+- java -jar completes on .jar files
+- urpmi now completes on rpm files
+- urpmf, urpme, urpmq completion added
+
 * Tue May 21 2002 Ian Macdonald <ian@caliban.org>
 - add bzme completion (Mandrake)
 - unzip & zipinfo also complete on .war files (as used by Tomcat, etc.)
