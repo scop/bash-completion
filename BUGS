@@ -1,0 +1,48 @@
+$Id: BUGS,v 1.1 2002/07/23 16:02:26 ianmacd Exp $
+
+The following are known bugs with the bash completion code. See also the
+KNOWN PROBLEMS section of the README file.
+
+- sudo completion goes awry when a command line contains wildcards
+
+  The problem arises because sudo needs to hand off completion duties to
+  the function bound to the command that it is told to execute. As part of
+  this process, any arguments on the command line are expanded.
+
+  Suppose you have the following command line:
+
+  $ sudo mv *.txt foo/
+
+  This command line contains four tokens, of which '*.txt' is the third.
+  However, after expansion of the wildcard, there may be any number of
+  arguments in the command-line that is ultimately handed to mv.
+
+  The answer would seem to be to pass the arguments to mv without performing
+  expansion, but this is very tricky to get right and I have been unable to
+  devise a reliable way of doing it thus far.
+
+- colons make completion go awry
+
+  bash gives special treatment to a colon in command lines. Although this
+  is not documented, a colon basically starts a new completion token. This
+  is often useful behaviour, as it allows a completion to work in a command
+  like the following:
+
+  $ export PATH=/bin:/sbin:/usr:/usr/<Tab>
+
+  If bash did not treat the colon (and, incidentally, the '=') as special,
+  bash would try to complete on the single token '/bin:/sbin:/usr:/usr/'.
+
+  However, this behaviour is less desirable when performing a command such
+  as this:
+
+  $ scp foo.txt user@machine:<Tab>
+
+  Here, scp is receiving two arguments, but the presence of the colon
+  confuses the completion function into thinking that it needs to perform
+  completion for the last token from scratch, so you end up with nonsensical
+  completions.
+
+  The special treatment of the colon cannot be turned off in bash, so the
+  only way to work around this problem is to escape the colon with a
+  backslash when you want it to be treated as a normal character.
