@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.148 2002/02/26 23:59:47 ianmacd Exp $
+#   $Id: bash_completion,v 1.149 2002/02/27 00:13:04 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -126,19 +126,19 @@ _chown()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# do not attempt completion if we're specifying an option
-	[ "$cur" == -* ] && return 0
+	[[ "$cur" == -* ]] && return 0
 
 	# first parameter on line or first since an option?
 	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
 		if [[ "$cur" == [a-zA-Z]*.* ]]; then
 			user=${cur%.*}
 			group=${cur#*.}
-			COMPREPLY=( $( compgen -g $group ) )
+			COMPREPLY=( $( compgen -g -- $group ) )
 			for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
 				COMPREPLY[i]=$user.${COMPREPLY[i]}
 			done
 		else
-			COMPREPLY=( $( compgen -u $cur -S '.' ) )
+			COMPREPLY=( $( compgen -S '.' -u $cur ) )
 		fi
 	fi
 
@@ -157,7 +157,7 @@ _chgrp()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# do not attempt completion if we're specifying an option
-	[ "$cur" == -* ] && return 0
+	[[ "$cur" == -* ]] && return 0
 
 	# first parameter on line or first since an option?
 	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
@@ -297,7 +297,7 @@ _man()
 
 	manpath=$( man --path )
 	if [ -z "$manpath" ]; then
-		COMPREPLY=( $( compgen -c $cur ) )
+		COMPREPLY=( $( compgen -c -- $cur ) )
 		return 0
 	fi
 
