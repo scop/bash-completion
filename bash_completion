@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.394 2002/07/30 15:38:11 ianmacd Exp $
+#   $Id: bash_completion,v 1.395 2002/08/01 01:11:14 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1568,6 +1568,61 @@ _aptitude()
 }
 complete -F _aptitude $default aptitude
 }
+
+# Debian apt-build(1) completion.
+#
+have apt-build &&
+_apt_build()
+{
+	local cur prev special i
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	for (( i=0; i < ${#COMP_WORDS}-1; i++ )); do
+		if [[ ${COMP_WORDS[i]} == @(install|remove|source) ]]; then
+			special=${COMP_WORDS[i]}
+		fi
+	done
+	if [ -n "$special" ]; then
+		case $special in
+		@(install|source))
+			COMPREPLY=( $( apt-cache pkgnames $cur ) )
+			return 0
+			;;
+		remove)
+		        COMPREPLY=( $( _comp-dpkg-installed-packages \
+						$cur ) )
+			return 0
+			;;
+		esac
+	fi
+
+	if  [[ "$prev" = --patch ]]; then
+		_filedir
+		return 0;
+
+	elif [[ "$prev" = --patch-strip ]]; then
+	         return 0;
+
+	#a little hand in this option will be helpful :)
+	elif [[ "$prev" = --build-command ]]; then
+	         return 0;
+
+	else
+		COMPREPLY=( $( compgen -W "update upgrade install remove \
+                                  source dist-upgrade clean \
+                                  --reinstall --rebuild --remove-builddep \
+                                  --no-wrapper --purge --build-command \
+                                  --patch --patch-strip -p --yes -y \
+                                  --version -v --no-source" -- $cur ) )
+	fi
+
+
+	return 0
+}
+[ "$have" ] && complete -F _apt_build $filenames apt-build
 
 # chsh(1) completion
 #
