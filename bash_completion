@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.511 2003/01/13 16:31:21 ianmacd Exp $
+#   $Id: bash_completion,v 1.512 2003/01/17 09:54:32 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -538,10 +538,10 @@ _insmod()
 complete -F _insmod $filenames insmod modprobe
 }
 
-# man(1) completion. This is GNU, GNU/Linux and Darwin specific, in that
-# 'man <section> <page>' is the expected syntax.
+# man(1) completion
 #
-[ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin -o $UNAME = FreeBSD ] &&
+[ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin \
+  -o $UNAME = FreeBSD -o $UNAME = SunOS ] &&
 _man()
 {
 	local cur prev sect manpath UNAME
@@ -571,13 +571,13 @@ _man()
 	fi
 
 	# determine manual section to search
-	[[ "$prev" == [0-9ln] ]] && sect=$prev || sect='?'
+	[[ "$prev" == [0-9ln] ]] && sect=$prev || sect='*'
 
 	manpath=$manpath:
 	if [ -n "$cur" ]; then
-		manpath="${manpath//://man$sect/$cur* }"
+		manpath="${manpath//://*man$sect/$cur* }"
 	else
-		manpath="${manpath//://man$sect/ }"
+		manpath="${manpath//://*man$sect/ }"
 	fi
 		
 	# redirect stderr for when path doesn't exist
@@ -592,8 +592,8 @@ _man()
 
 	return 0
 }
-[ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin -o $UNAME = FreeBSD ] &&
-  complete -F _man $filenames man
+[ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin \
+  -o $UNAME = FreeBSD -o $UNAME = SunOS ] && complete -F _man $filenames man
 
 # renice(8) completion
 #
