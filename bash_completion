@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.738 2004/07/19 08:43:10 ianmacd Exp $
+#   $Id: bash_completion,v 1.739 2004/07/19 08:45:15 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -314,7 +314,7 @@ _gids()
 	fi
 }
 
-# This function complete on services
+# This function completes on services
 #
 _services()
 {
@@ -1286,9 +1286,10 @@ set_prefix()
 
 get_entries()
 {
+	local IFS=$'\n'
 	[ -r ${prefix:-}CVS/Entries ] && \
 	entries=( $( compgen -W \
-		"$( echo $( cut -d/ -f2 -s ${prefix:-}CVS/Entries ) )" -- $cur ) )
+		$( cut -d/ -f2 -s ${prefix:-}CVS/Entries ) -- $cur ) )
 }
 
 get_modules()
@@ -1441,7 +1442,7 @@ _cvs()
 				COMPREPLY=( $( compgen -W '${changed[@]:-} \
 						   ${newremoved[@]:-}' -- $cur ) )
 			else
-				COMPREPLY=( $( compgen -f -- $cur ) )
+				_filedir
 			fi
 		else
 			COMPREPLY=( $( compgen -W '-n -R -l -f -F -m -r' -- \
