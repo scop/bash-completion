@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.113 2002/02/14 17:49:43 ianmacd Exp $
+#   $Id: bash_completion,v 1.114 2002/02/14 20:07:42 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -645,9 +645,8 @@ _rpm()
 		# completing on
 		[ "$suffix" != "${1:0:${#suffix}}" ] && suffix=""
 		COMPREPLY=( ${COMPREPLY[@]} $( compgen -G $cur\*${1:${#suffix}} ) )
-		# directory completion if all else fails and current word
-		# contains a slash
-		if [ ${#COMPREPLY[@]} = 0 ] && [[ $cur == */* ]]; then
+		# directory completion if all else fails
+		if [ ${#COMPREPLY[@]} = 0 ]; then
 	    		COMPREPLY=( $( compgen -d $cur ) )
 		fi
 	}
@@ -825,24 +824,28 @@ _rpm()
 			_expand || return 0
 			# complete on .tar files
 			COMPREPLY=( $( compgen -G $cur\*.+(tgz|tar.+(gz|bz2)) ) )
+			[ ${#COMPREPLY[@]} = 0 ] && \
+				COMPREPLY=( $( compgen -d $cur ) )
 		fi
 		return 0
 		;;
 	--re@(build|compile))
+		_expand || return 0
 		if [[ "$cur" == -* ]]; then
 			COMPREPLY=( $( compgen -W 'nodeps' ${cur_nodash#-} ) )
 			dashify
 			return 0
 		fi
-		_expand || return 0
 		# complete on source RPMs
 		COMPREPLY=( $( compgen -G $cur\*.src.rpm ) )
+		[ ${#COMPREPLY[@]} = 0 ] && COMPREPLY=( $( compgen -d $cur ) )
 		return 0
 		;;
 	--tarbuild)
 		_expand || return 0
 		# complete on tarred sources
 		COMPREPLY=( $( compgen -G $cur\*.+(tgz|tar.+(gz|bz2)) ) )
+		[ ${#COMPREPLY[@]} = 0 ] && COMPREPLY=( $( compgen -d $cur ) )
 		return 0
 		;;
 	--@(re|add)sign)
