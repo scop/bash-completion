@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.597 2003/08/03 02:42:45 ianmacd Exp $
+#   $Id: bash_completion,v 1.598 2003/08/03 02:52:43 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -4390,14 +4390,16 @@ _ypmatch()
 have mplayer && {
 _mplayer_options_list()
 {
+	cur=${cur%\\}
 	COMPREPLY=( $( $1 $2 help 2> /dev/null | \
 		sed -e '1,/^Available/d' | awk '{print $1}' | \
-		sed -e 's/:$//' -e 's/^'${2#-}'$//' | grep "^$cur" ) )
+		sed -e 's/:$//' -e 's/^'${2#-}'$//' -e 's/<.*//' | \
+		grep "^$cur" ) )
 }
 
 _mplayer()
 {
-	local cmd cur prev
+	local cmd cur prev skinsdir IFS=$' \t\n' i j k=0
 
 	COMPREPLY=()
 	cmd=${COMP_WORDS[0]}
@@ -4405,11 +4407,11 @@ _mplayer()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
-		-@(ac|afm|vc|vfm|ao|vo|vop))
+		-@(ac|afm|vc|vfm|ao|vo|vop|fstype))
 			_mplayer_options_list mplayer $prev
 			return 0
 			;;
-		-@(oac|ovc))
+		-@(oac|ovc|of))
 			_mplayer_options_list mencoder $prev
 			return 0
 			;;
@@ -4422,7 +4424,158 @@ _mplayer()
 			return 0
 			;;
 		-sub)
-			_filedir '@(srt|SRT|sub|SUB|txt|TXT|utf|UTF)'
+			_filedir '@(srt|SRT|sub|SUB|txt|TXT|utf|UTF|rar|RAR)'
+			return 0
+			;;
+		-vobsub)
+			_filedir '@(idx|IDX|ifo|IFO|sub|SUB)'
+			IFS=$'\t\n' 
+			COMPREPLY=( $( for i in ${COMPREPLY[@]}; do
+						if [ -f $i -a -r $i ]; then
+							echo ${i%.*}
+						else
+							echo $i
+						fi
+				       done ) )
+			IFS=$' \t\n' 
+			return 0
+			;;
+		-ifo)
+			_filedir '@(ifo|IFO)'
+			return 0
+			;;
+		-cuefile)
+			_filedir '@(bin|BIN|cue|CUE)'
+			return 0
+			;;
+		-skin)
+			# if you don't have installed mplayer in /usr/local you
+			# may want to set the MPLAYER_SKINS_DIR global variable
+			if [ -n "$MPLAYER_SKINS_DIR" ]; then
+				skinsdir=$MPLAYER_SKINS_DIR
+			else
+				skinsdir=/usr/local/share/mplayer/Skin
+			fi
+
+			IFS=$'\t\n' 
+			for i in ~/.mplayer/Skin $skinsdir; do
+				if [ -d $i -a -r $i ]; then
+					for j in $( compgen -d $i/$cur ); do
+						COMPREPLY[$k]=${j#$i/}
+						k=$((++k))
+					done
+				fi
+			done
+			IFS=$' \t\n' 
+			return 0
+			;;
+		-@(mixer|@(cdrom|dvd)-device|dvdauth|fb|zrdev))
+			cur=${cur:=/dev/}
+			_filedir
+			return 0
+			;;
+		-@(edl?(out)|lircconf|menu-cfg|playlist|csslib|dumpfile)| \
+		-@(subfile|vobsub|aofile|fbmodeconfig|include|o|dvdkey)| \
+		-passlogfile)
+			_filedir
+			return 0
+			;;
+		-@(auto@(q|sync)|loop|menu-root|speed|sstep|aid|alang)| \
+		-@(?(@(audio|sub)-)demuxer|bandwidth|cache|chapter)| \
+		-@(dvd?(angle)|fps|frames|mc|passwd|user|sb|srate|ss|vcd)| \
+		-@(vi?(d|vo)|ffactor|sid|slang|spu@(align|aa|gauss))| \
+		-@(vobsubid|delay|bpp|brightness|contrast|dfbopts|display)| \
+		-@(fbmode|geometry|guiwid|hue|icelayer|screen[wh]|wid)| \
+		-@(monitor@(aspect|_@(dotclock|[hv]freq))|panscan|saturation)| \
+		-@(xineramascreen|zr@(crop|norm|quality|[xy]doff|[vh]dec))| \
+		-@(aspect|pp|x|y|xy|z|stereo|audio-@(density|delay|preload))| \
+		-@(endpos|osdlevel|ffourcc|sws|channels|skiplimit|format)| \
+		-@(ofps|aa@(driver|@(osd|sub)color)|vobsubout?(i@(ndex|d)))| \
+		-sub@(-bg-@(alpha|color)|cp|delay|fps|pos|align|width)| \
+		-sub@(font-@(blur|outline|autoscale|encoding|@(osd|text)-scale)))
+			return 0
+			;;
+		-lavdopts)
+			COMPREPLY=( $( compgen -W 'ec er= bug= idct= gray' \
+					-- $cur ) )
+			return 0
+			;;
+		-lavcopts)
+			COMPREPLY=( $( compgen -W 'vcodec= vqmin= vqscale= \
+					vqmax= mbqmin= mbqmax= vqdiff= \
+					vmax_b_frames= vme= vhq v4mv \
+					keyint= vb_strategy= vpass= \
+					aspect= vbitrate= vratetol= \
+					vrc_maxrate= vrc_minrate= \
+					vrc_buf_size= vb_qfactor= vi_qfactor= \
+					vb_qoffset= vi_qoffset= vqblur= \
+					vqcomp= vrc_eq= vrc_override= \
+					vrc_init_cplx= vqsquish= vlelim= \
+					vcelim= vstrict= vdpart vpsize= gray \
+					vfdct= idct= lumi_mask= dark_mask= \
+					tcplx_mask= scplx_mask= naq ildct \
+					format= pred qpel precmp= cmp= \
+					subcmp= predia= dia= trell last_pred= \
+					preme= subq= psnr mpeg_quant aic umv' \
+					-- $cur ) )
+			return 0
+			;;
+		-ssf)
+			COMPREPLY=( $( compgen -W 'lgb= cgb= ls= cs= chs= \
+					cvs=' -- $cur ) )
+			return 0
+			;;
+		-jpeg)
+			COMPREPLY=( $( compgen -W 'noprogressive progressive \
+					nobaseline baseline optimize= \
+					smooth= quality= outdir=' -- $cur ) )
+			return 0
+			;;
+		-xvidopts)
+			COMPREPLY=( $( compgen -W 'dr2 nodr2' -- $cur ) )
+			return 0
+			;;
+		-xvidencopts)
+			COMPREPLY=( $( compgen -W 'pass= bitrate= \
+					fixed_quant= me_quality= 4mv \
+					rc_reaction_delay_factor= \
+					rc_averaging_period= rc_buffer= \
+					quant_range= min_key_interval= \
+					max_key_interval= mpeg_quant \
+					mod_quant lumi_mask hintedme \
+					hintfile debug keyframe_boost= \
+					kfthreshold= kfreduction=' -- $cur ) )
+			return 0
+			;;
+		-divx4opts)
+			COMPREPLY=( $( compgen -W 'br= key= deinterlace q= \
+					min_quant= max_quant= rc_period= \
+					rc_reaction_period= crispness= \
+					rc_reaction_ratio= pass= vbrpass= \
+					help' -- $cur ) )
+			return 0
+			;;
+		-info)
+			COMPREPLY=( $( compgen -W 'name= artist= genre= \
+					subject= copyright= srcform= \
+					comment= help' -- $cur ) )
+			return 0
+			;;
+		-lameopts)
+			COMPREPLY=( $( compgen -W 'vbr= abr cbr br= q= aq= \
+					ratio= vol= mode= padding= fast \
+					preset= help' -- $cur ) )
+			return 0
+			;;
+		-rawaudio)
+			COMPREPLY=( $( compgen -W 'on channels= rate= \
+					samplesize= format=' -- $cur ) )
+			return 0
+			;;
+		-rawvideo)
+			COMPREPLY=( $( compgen -W 'on fps= sqcif qcif cif \
+					4cif pal ntsc w= h= y420 yv12 yuy2 \
+					y8 format= size=' -- $cur ) )
 			return 0
 			;;
 		-aop)
@@ -4435,11 +4588,12 @@ _mplayer()
 					iec958-decoded mute ucode= 75ire bw \
 					color interlaced macrovision= norm= \
 					square-pixel ccir601-pixel cr-left= \
-					cr-right= cr-top= cr-bot= ck-min= \
-					ck-rgbmin= ck-max= ck-rgbmax= ck= \
-					ck-rgb= ignore-cache= ol-osd= ol-cor= \
-					olhwxy-cor= overlay overlay-ratio= \
-					update-cache' -- $cur ) )
+					cr-right= cr-top= cr-bot= ck-rmin= \
+					ck-gmin= ck-bmin= ck-rmax= ck-gmax= \
+					ck-bmax= ck-r= ck-g= ck-b= \
+					ignore-cache= ol-osd= olh-cor= \
+					olw-cor= olx-cor= oly-cor= overlay \
+					overlay-ratio= update-cache' -- $cur ) )
 			return 0
 			;;
 		-tv)
@@ -4538,9 +4692,10 @@ _mplayer()
 					-zrvdec -zrhdec -zrxdoff -zrydoff -y \
 					-edl -edlout -enqueue -fixed-vo \
 					-menu -menu-root -menu-cfg -shuffle \
-					-format -aa -aahelp -dfbopts -fstype \
-					-guiwid -nokeepaspect -x --help' \
-					-- $cur) )
+					-format -aahelp -dfbopts -fstype \
+					-guiwid -nokeepaspect -x --help \
+					-aaosdcolor -aasubcolor -aadriver \
+					-aaextended -aaeight' -- $cur) )
 			# add mencoder specific options
 			[[ "$cmd" = mencoder ]] && COMPREPLY=( ${COMPREPLY[@]} \
 				$(compgen -W '-audio-density -audio-delay \
@@ -4549,7 +4704,7 @@ _mplayer()
 					-lavcopts -noskip -o -oac -ofps -ovc \
 					-passlogfile -skiplimit -vobsubout \
 					-vobsuboutindex -vobsuboutid \
-					-xvidencopts --verbose' -- $cur) )
+					-xvidencopts -of --verbose' -- $cur) )
 			;;
 		*)
 			_filedir '@(mpg|mpeg|MPG|MPEG|wma|avi|AVI|asf|vob|bin|dat|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|MOV|qt|QT|wmv|mp3|MP3|ogg|OGG|ogm|OGM|mp4|MP4|wav|WAV|dump|DUMP)'
