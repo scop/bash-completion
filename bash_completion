@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.340 2002/06/01 20:58:06 ianmacd Exp $
+#   $Id: bash_completion,v 1.341 2002/06/01 21:01:05 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -3414,6 +3414,55 @@ _rcs()
 	[ ${#COMPREPLY[@]} -eq 0 -a $1 = ci ] && _filedir || _filedir -d
 }
 [ "$have" ] && complete -F _rcs $filenames ci co rlog rcs
+
+# lilo(8) completion
+#
+have lilo &&
+_lilo()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-@(C|i|m|s|S))
+			_filedir
+			return 0
+			;;
+		-r)
+			_filedir -d
+			return 0
+			;;
+		-@(I|D|R))
+			# label completion
+			COMPREPLY=( $( awk -F'=' '/label/ {print $2}' \
+					/etc/lilo.conf | grep "^$cur" ) )
+			return 0
+			;;
+		-@(A|b|M|u|U))
+			# device completion
+			cur=${cur:=/dev/}
+			_filedir
+			return 0
+			;;
+		-T)
+			# topic completion
+			COMPREPLY=( $( compgen -W 'help ChRul EBDA geom geom= \
+					table= video' -- $cur ) )
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		# relevant options completion
+		COMPREPLY=( $( compgen -W '-A -b -c -C -d -f -g -i -I -l -L -m \
+			-M -p -P -q -r -R -s -S -t -T -u -U -v -V -w -x -z' -- \
+			$cur ) )
+	fi
+}
+[ "$have" ] && complete -F _lilo lilo
 
 _filedir_xspec()
 {
