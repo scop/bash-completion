@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.646 2003/11/02 21:19:46 ianmacd Exp $
+#   $Id: bash_completion,v 1.647 2003/11/03 23:28:55 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1535,7 +1535,20 @@ _rpm()
 	-@(q*|-query))
 		# check whether we're doing file completion
 		if [ "${COMP_LINE#* -*([^ -])f}" != "$COMP_LINE" ]; then
+		    if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '--scripts --root \
+				--rcfile --requires --ftpport --ftpproxy \
+				--httpproxy --httpport --provides --triggers \
+				--dump --changelog --dbpath \
+				--last --filesbypkg \
+				--info --list --state \
+				--docfiles --configfiles --queryformat \
+				--conflicts --obsoletes \
+				--nodigest --nosignature \
+				--triggerscripts' -- $cur ) )
+		    else
 			_filedir
+		    fi
 		elif [ "${COMP_LINE#* -*([^ -])g}" != "$COMP_LINE" ]; then
 			_rpm_groups
 		elif [ "${COMP_LINE#* -*([^ -])p}" != "$COMP_LINE" ]; then
