@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.71 2002/12/13 05:13:32 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.72 2002/12/17 09:53:53 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
@@ -72,6 +72,11 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Tue Dec 17 2002 Ian Macdonald <ian@caliban.org>
+- tar should also be able to recognise .tar.Z files
+- perldoc completion also returns names of core Perl man pages
+- update README
+
 * Fri Dec 13 2002 Ian Macdonald <ian@caliban.org>
 - ytalk now completes in the same way as talk
 - traceroute6, tracepath and tracepath6 now also complete on known hosts
