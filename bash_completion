@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.527 2003/02/07 18:04:35 ianmacd Exp $
+#   $Id: bash_completion,v 1.528 2003/02/08 07:33:51 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1009,7 +1009,7 @@ get_modules()
 
 _cvs()
 {
-	local cur count mode i cvsroot pwd
+	local cur count mode i cvsroot cvsroots pwd
 	local -a flags miss files entries changed newremoved
 
 	COMPREPLY=()
@@ -1018,9 +1018,14 @@ _cvs()
 	count=0
 	for i in ${COMP_WORDS[@]}; do
 		[ $count -eq $COMP_CWORD ] && break
+		# Last parameter was the CVSROOT, now go back to mode selection
+		if [ "${COMP_WORDS[((count))]}" == "$cvsroot" -a "$mode" == "cvsroot" ]; then
+			mode=""
+		fi
 		if [ -z "$mode" ]; then
 			case $i in
 			-d)
+				mode=cvsroot
 				cvsroot=${COMP_WORDS[((count+1))]}
 				;;
 			@(add|new))
@@ -1126,6 +1131,13 @@ _cvs()
 		else
 			COMPREPLY=( $( compgen -W '-n -R -l -f -F -m -r' -- \
 				       $cur ) )
+		fi
+		;;
+	cvsroot)
+		if [ -r ~/.cvspass ]; then
+			# Ugly escaping because of bash treating ':' specially
+			cvsroots=$( sed 's/^[^ ]* //; s/:/\\:/g' ~/.cvspass )
+			COMPREPLY=( $( compgen -W '$cvsroots' -- $cur ) )
 		fi
 		;;
 	export)
