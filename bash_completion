@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.115 2002/02/14 21:11:31 ianmacd Exp $
+#   $Id: bash_completion,v 1.116 2002/02/14 23:39:04 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -283,7 +283,7 @@ _insmod()
 [ $OS = Linux ] &&
 _man()
 {
-	local cur prev cmd sect config i
+	local cur prev sect i manpath
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -293,28 +293,27 @@ _man()
 
 	# default completion if parameter contains /
 	[[ "$cur" == */* ]] && return 0
-	# default to command completion if no man config file
-	for i in /etc/man{,path}.config; do
-		[ -r $i ] && config=$i
-	done
-	if [ -z "$config" ]; then
+
+	manpath=$( manpath )
+	if [ -z "$manpath" ]; then
 		COMPREPLY=( $( compgen -c $cur ) )
 		return 0
 	fi
 
 	# determine manual section to search
 	[[ "$prev" == [0-9ln] ]] && sect=$prev || sect='?'
+
+	manpath=$manpath:
+	if [ -n "$cur" ]; then
+		manpath="${manpath//://man$sect/$cur* }"
+	else
+		manpath="${manpath//://man$sect/ }"
+	fi
 		
-	# churn out a string of paths to search, with * appended to $cur
-	cmd=`awk '{if ($1 ~ /^MANPATH/) print $(NF)"/man'$sect'/'$cur'*"}' \
-	     /etc/man.config | sort -u`
-	# strip off * from paths ending in /*
-	cmd=${cmd//\/\\*/\/}
 	# redirect stderr for when path doesn't exist
-	cmd="ls $cmd 2>/dev/null"
-	COMPREPLY=( $( eval $cmd ) )
-	# get basename of man pages
-	COMPREPLY=( ${COMPREPLY[@]##*/} )
+	COMPREPLY=( $( eval ls $manpath 2>/dev/null ) )
+	# weed out directory path names and paths to man pages
+	COMPREPLY=( ${COMPREPLY[@]##*/?(:)} )
 	# strip suffix from man pages
 	COMPREPLY=( ${COMPREPLY[@]%.@(gz|bz2)} )
 	COMPREPLY=( ${COMPREPLY[@]%.*} )
