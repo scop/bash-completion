@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.613 2003/08/18 09:54:07 ianmacd Exp $
+#   $Id: bash_completion,v 1.614 2003/08/18 21:31:45 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -980,7 +980,7 @@ _postmap()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [[ $cur == '-' ]]; then
-		COMPREPLY=(-N -f -i -n -o -r -v -w -c -d -q)
+		COMPREPLY=(-N -f -i -n -o -p -r -v -w -c -d -q)
 		return 0
 	fi
 	if [[ $prev == '-c' ]]; then
@@ -1010,11 +1010,51 @@ _postmap()
 }
 complete -F _postmap postmap postalias
 
+# postcat(1)
+#
+_postcat()
+{
+	local cur prev pval len idx qfile
+
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [[ $cur == '-' ]]; then
+		COMPREPLY=(-c -q -v)
+		return 0
+	fi
+	if [[ $prev == '-c' ]]; then
+		_filedir -d
+		return 0
+	fi
+
+	qfile=0
+	for idx in ${COMP_WORDS[@]}; do
+		[[ "$idx" = -q ]] && qfile=1 && break
+	done
+	if [[ $qfile == 1 ]]; then
+		len=${#cur}
+		idx=0
+		for pval in $( mailq | \
+			sed -e '1d; $d; /^[^0-9A-Z]\|^$/d; s/[* ].*$//' ); do
+			if [[ "$cur" == "${pval:0:$len}" ]]; then
+				COMPREPLY[$idx]=$pval
+				idx=$(($idx+1))
+			fi
+		done
+		return 0
+	else
+		_filedir
+		return 0
+	fi
+}
+complete -F _postcat postcat
+
 # postconf(1)
 #
 _postconf()
 {
-	local cur prev len idx eqext
+	local cur prev pval len idx eqext
 
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
@@ -1046,16 +1086,16 @@ complete -F _postconf postconf
 #
 _postsuper()
 {
-	local cur prev len idx
+	local cur prev pval len idx
 
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [[ $cur == '-' ]]; then
-		COMPREPLY=(-d -p -r -s -v)
+		COMPREPLY=(-c -d -h -H -p -r -s -v)
 		return 0
 	fi
-	if [[ $prev == -[dr] ]]; then
+	if [[ $prev == -[dhHr] ]]; then
 		len=${#cur}
 		idx=0
 		for pval in $( mailq | \
