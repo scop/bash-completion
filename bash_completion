@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.168 2002/03/01 01:42:13 ianmacd Exp $
+#   $Id: bash_completion,v 1.169 2002/03/01 02:02:39 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2059,18 +2059,26 @@ complete -F _export export
 #
 _function()
 {
-	local cur
+	local cur prev
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	if [ $COMP_CWORD -eq 1 ]; then
-		COMPREPLY=( $(compgen -A function -- $cur ) )
+	if [[ $1 == @(declare|typeset) ]]; then
+		if [ "$prev" = -f ]; then
+			COMPREPLY=( $( compgen -A function -- $cur ) )
+		elif [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '-a -f -F -i -r -x -p' -- \
+				       $cur ) )
+		fi
+	elif [ $COMP_CWORD -eq 1 ]; then
+		COMPREPLY=( $( compgen -A function -- $cur ) )
 	else
 		COMPREPLY=( "() $( type -- ${COMP_WORDS[1]} | sed -e 1,2d )" )
 	fi
 }
-complete -F _function function
+complete -F _function function declare typeset
 
 _expand()
 {
