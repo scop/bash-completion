@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.199 2002/03/15 17:39:18 ianmacd Exp $
+#   $Id: bash_completion,v 1.200 2002/03/15 20:02:06 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -375,7 +375,8 @@ _insmod()
 	if [ $COMP_CWORD -gt 1 ]; then
 		# do module parameter completion
 		COMPREPLY=( $( /sbin/modinfo -p ${COMP_WORDS[1]} 2>/dev/null | \
-		       awk '{if ($1 ~ /^'$cur'/) print $1}' ) )
+		       awk '{if ($1 ~ /^parm:/ && $2 ~ /^'$cur'/) { print $2 } \
+			else if ($1 !~ /:/ && $1 ~ /^'$cur'/) { print $1 }}' ) )
 	elif [ -r $modpath -a -x $modpath ]; then
 		# do module name completion
 		COMPREPLY=( $( \ls -R $modpath | \
