@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.64 2002/10/07 16:31:16 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.65 2002/10/13 18:09:00 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20021007
+Version: 20021013
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,17 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Sun Oct 13 2002 Ian Macdonald <ian@caliban.org>
+- fixed apt-cache 'show' completion bug
+- fixed function names with hyphens
+- aptitude completion function was loaded, regardless of presence of program
+- various improvements to other Debian command completions
+- mount completion should ignore commented out lines in /etc/fstab
+- add option completion to Python
+- make Python completion append a '/' at the end of directories
+- offer --force-confmiss, not --force-miss with dpkg completion
+- perform file completion with ssh when -i is given
+
 * Mon Oct  7 2002 Ian Macdonald <ian@caliban.org>
 - fix missing keywords in find completion
 - back out double hostname scp fix, as issue is more complex
