@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.664 2003/12/15 18:57:49 ianmacd Exp $
+#   $Id: bash_completion,v 1.665 2003/12/15 19:02:22 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -3728,18 +3728,37 @@ _muttaddr()
 	return 0
 }
 
+_muttconffiles()
+{
+	local file sofar
+	local -a newconffiles
+	sofar=" $1 "
+	shift
+	while [[ "$1" ]]; do
+	    newconffiles=( $(sed -rn 's/^source[[:space:]]+([^[:space:]]+).*$/\1/p' $(eval echo $1) ) )
+	    for file in ${newconffiles[@]}; do
+		[[ ! "$file" ]] || [[ "${sofar/ ${file} / }" != "$sofar" ]] &&
+		    continue
+		sofar="$sofar $file"
+		sofar=" $(eval _muttconffiles \"$sofar\" $file) "
+	    done
+	    shift
+	done
+	echo $sofar
+}
+
 _muttaliases()
 {
 	local cur muttrc
-	local -a aliases
+	local -a conffiles aliases
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	[ -f ~/.mutt/muttrc ] && muttrc="~/.mutt/muttrc"
 	[ -f ~/.muttrc ] && muttrc="~/.muttrc"
 	[ -z "$muttrc" ] && return 0
-	# TODO: this only checks for one level on sourced files
-	conffiles=( $muttrc $(sed -rn 's/^source[[:space:]]+([^[:space:]]+).*$/\1/p' $(eval echo $muttrc)) )
-	aliases=( $( sed -rn 's/^alias[[:space:]]+([^[:space:]]+).*$/\1/p' $(eval echo ${conffiles[@]}) ) )
+	conffiles=( $(eval _muttconffiles $muttrc $muttrc) )
+	aliases=( $( sed -rn 's/^alias[[:space:]]+([^[:space:]]+).*$/\1/p' \
+			$(eval echo ${conffiles[@]}) ) )
 	COMPREPLY=( ${COMPREPLY[@]} $( compgen -W "${aliases[*]}" -- $cur ) )
 
 	return 0
@@ -3755,10 +3774,12 @@ _muttquery()
 	if [ -z "$cur" -o -z "$querycmd" ]; then
 	    queryresults=()
 	else 
-	    queryresults=( $( $querycmd | sed -nr '2,$s/^([^[:space:]]+).*/\1/p' ) )
+	    queryresults=( $( $querycmd | \
+	      sed -nr '2,$s/^([^[:space:]]+).*/\1/p' ) )
 	fi
 
-	COMPREPLY=( ${COMPREPLY[@]} $( compgen -W "${queryresults[*]}" -- $cur ) )
+	COMPREPLY=( ${COMPREPLY[@]} $( compgen -W "${queryresults[*]}" \
+			-- $cur ) )
 
 	return 0
 }
@@ -3784,27 +3805,38 @@ _muttfiledir()
 
 _mutt()
 {
-	local prev
+	local cur prev
+	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	COMPREPLY=()
 
-	case "$prev" in
-	-@(a|f|F|H|i))
-		_muttfiledir
-		return 0
-		;;
-	-A)
-		_muttaliases
-		return 0
-		;;
-	-@(e|m|Q|s|h|p|R|v|y|z|Z))
+	case "$cur" in
+	-*)
+		COMPREPLY=( $( compgen -W '-A -a -b -c -e -f -F -H -i -m -n \
+					    -p -Q -R -s -v -x -y -z -Z -h' \
+					    -- $cur ) )
 		return 0
 		;;
 	*)
-		_muttaddr
-		return 0
-		;;
+	    case "$prev" in
+	    -@(a|f|F|H|i))
+		    _muttfiledir
+		    return 0
+		    ;;
+	    -A)
+		    _muttaliases
+		    return 0
+		    ;;
+	    -@(e|m|Q|s|h|p|R|v|y|z|Z))
+		    return 0
+		    ;;
+	    *)
+		    _muttaddr
+		    return 0
+		    ;;
+	    esac
+	    ;;
 	esac
 	
 }
