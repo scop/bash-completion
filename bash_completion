@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.201 2002/03/15 20:02:48 ianmacd Exp $
+#   $Id: bash_completion,v 1.202 2002/03/16 20:49:44 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2210,7 +2210,8 @@ _dpkg()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in 
-	-i|--install|--unpack|-A|--record-avail|-c|--contents|-I|--info|--fsys-tarfile|-f|--field|-e|--control|-X|--extract)
+	-i|--install|--unpack|-A|--record-avail|-c|--contents|-I|--info| \
+	--fsys-tarfile|-f|--field|-e|--control|-X|--extract)
 		COMPREPLY=( $( compgen -f -X '!*.deb' -- $cur ) \
 			    $( compgen -d -- $cur ) )
 		return 0
@@ -2220,7 +2221,11 @@ _dpkg()
 		return 0
 		;;
    	-s|--status|-p|--print-avail|-L|--listfiles)
-		COMPREPLY=( $( apt-cache pkgnames | grep ^$cur ) )
+		COMPREPLY=( $( apt-cache pkgnames $cur ) )
+		return 0
+		;;
+	-S|--search)
+		_filedir
 		return 0
 		;;
 	*)
@@ -2452,7 +2457,8 @@ _reportbug()
 		return 0
 		;;
 	    -B|--bts)
-		COMPREPLY=($( compgen -W "debian guug kde mandrake help" -- $cur ))
+		COMPREPLY=( $( compgen -W "debian guug kde mandrake help" -- \
+			       $cur ))
 		return 0
 		;;
 	    -e|--editor|--mua)
@@ -2462,23 +2468,25 @@ _reportbug()
 		return 0
 		;;
 	    --mode)
-		COMPREPLY=($( compgen -W "novice standard expert" -- $cur ))
+		COMPREPLY=( $( compgen -W "novice standard expert" -- $cur ) )
 		return 0
 		;;
 	    -S|--severity)
-		COMPREPLY=($( compgen -W "grave serious important normal minor wishlist" -- $cur ))
+		COMPREPLY=( $( compgen -W "grave serious important normal \
+					   minor wishlist" -- $cur ) )
 		return 0;
 		;;
 	    -u|--ui--interface)
-		COMPREPLY=($( compgen -W "newt text gnome" -- $cur ))
+		COMPREPLY=( $( compgen -W "newt text gnome" -- $cur ) )
 		return 0
 		;;
 	    -t|--type)
-		COMPREPLY=($( compgen -W "gnats debbugs" -- $cur ))
+		COMPREPLY=( $( compgen -W "gnats debbugs" -- $cur ) )
 		return 0;
 		;;
 	    -T|--tags)
-		COMPREPLY=($( compgen -W "none patch security upstream sid woody potato sarge fixed" -- $cur ))
+		COMPREPLY=( $( compgen -W "none patch security upstream sid \
+					   woody potato sarge fixed" -- $cur ) )
 		return 0;
 		;;
 	    *)
@@ -2499,7 +2507,7 @@ _reportbug()
                         --no-cc --package-version -z --no-compress \
                         --ui --interface -u \
                         wnpp boot-floppies kernel-image' -- $cur ) \
-	    		$(apt-cache pkgnames -- $cur))
+	    		$( apt-cache pkgnames -- $cur ) )
 	_filedir
 	return 0
 }
@@ -2518,7 +2526,8 @@ _querybts()
 
 	case "$prev" in
 	    -B|--bts)
-		COMPREPLY=($( compgen -W "debian guug kde mandrake help" -- $cur ))
+		COMPREPLY=( $( compgen -W "debian guug kde mandrake help" -- \
+			       $cur ))
 		return 0
 		;;
 	    -u|--ui--interface)
@@ -2533,7 +2542,7 @@ _querybts()
 			-B --bts -l --ldap --no-ldap --proxy= --http_proxy= \
                         -s --source -w --web -u --ui --interface
                         wnpp boot-floppies' -- $cur ) \
-	    		$(apt-cache pkgnames -- $cur))
+	    		$( apt-cache pkgnames -- $cur ) )
 }
 [ "$have" ] && complete -F _querybts -o filenames querybts
 
