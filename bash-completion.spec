@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.11 2002/03/06 19:24:23 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.12 2002/03/11 19:32:27 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020306
+Version: 20020311
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -38,6 +38,7 @@ version in the $BASH_VERSION test.
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}
 install bash_completion $RPM_BUILD_ROOT%{_sysconfdir}
+install -d $RPM_BUILD_ROOT%{_sysconfdir}/bash_completion.d
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -68,9 +69,29 @@ fi
 %files
 %defattr(-,root,root)
 %{_sysconfdir}/bash_completion
+%dir %{_sysconfdir}/bash_completion.d/
 %doc README Changelog contrib/
 
 %changelog
+* Mon Mar 11 2002 Ian Macdonald <ian@caliban.org>
+- add Debian Linux reportbug(1) and querybts(1) completion
+- add dpkg-deb completion and add dpkg-deb options to dpkg completion
+- source files in /etc/bash_completion.d prior to sourcing ~/.bash_completion
+- fixed _cd() bug where seemingly duplicate completions were returned
+- in _dpkg(), certain options were not returning directory completions
+- fixed the ignoring of cuurent parameter in _dpkg()
+- add _urpmi.media(), _urpmi(), _urpmi.update(), _urpmi.addmedia() and
+  _urpmi.removemedia() for Mandrake urpmi completion
+- add initial option support to _tar()
+- add java completion
+- add jar completion
+- ant completion replaced by new, more comprehensive routine
+- in _rpm(), handle query of uninstalled packages when options are not
+  concatenated, i.e. rpm -qp worked, but rpm -q -p did not
+- create %{_sysconfdir}/bash_completion.d directory for scripts supplied by
+  other packages
+- update README
+
 * Wed Mar  6 2002 Ian Macdonald <ian@caliban.org>
 - in _man(), Debian does not support man --path, so try setting path using
   manpath and, if that fails, use man --path instead
