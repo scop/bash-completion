@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.541 2003/04/12 05:05:37 ianmacd Exp $
+#   $Id: bash_completion,v 1.542 2003/04/14 08:35:23 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -4569,6 +4569,33 @@ _gpg()
 
 }
 [ "${have:-}" ] && complete -F _gpg $default gpg
+
+# iconv(1) completion
+#
+have iconv &&
+_iconv()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [[ "$cur" = -* ]]; then
+		COMPREPLY=( $( compgen -W '--from-code -f --to-code -t --list
+		--output -o --verbose' -- "$cur" ) )
+		return 0
+	fi
+	
+
+	if [[ "$prev" == -@(f|t|-@(from|to)-code) ]]; then
+		COMPREPLY=( $( compgen -W \
+		    '$( iconv --list | sed "1,/^$/d; s@//@@;" )' -- "$cur" ) )
+	fi
+		
+	return 0
+}
+[ -n "${have:-}" ] && complete -F _iconv $default iconv
 
 _filedir_xspec()
 {
