@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.186 2002/03/07 19:00:48 ianmacd Exp $
+#   $Id: bash_completion,v 1.187 2002/03/07 19:04:05 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -176,7 +176,7 @@ _alias()
 	*[^=])
 		COMPREPLY=( $( compgen -A alias -S '=' -- $cur ) )
 		;;
-        *=)
+	*=)
 		COMPREPLY=( "$( alias ${cur%=} 2>/dev/null | \
 			     sed -e 's|^alias '$cur'\(.*\)$|\1|' )" )
 		;;
@@ -197,7 +197,7 @@ _export()
 	*[^=])
 		COMPREPLY=( $( compgen -v -S '=' -- $cur ) )
 		;;
-        *=)
+	*=)
 		COMPREPLY=( $( eval echo $`echo ${cur%=}` ) )
 		;;
     esac
@@ -455,7 +455,7 @@ _kill()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-        if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
+	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
 		# return list of available signals
 		_signals
 	else
@@ -1346,8 +1346,7 @@ _known_hosts()
 complete -F _known_hosts traceroute ping fping telnet host nslookup rsh \
 			 rlogin ftp
 
-# ssh(1) completion. Should be able to improve this with user@host notation,
-# but the '@' seems to trigger some kind of bug in bash's completion.
+# ssh(1) completion
 #
 have ssh &&
 _ssh()
@@ -1757,7 +1756,7 @@ _root_command()
 }
 complete -F _root_command -o filenames sudo
 
-# Perforce completion by Frank Cusack (frank@google.com)
+# Perforce completion
 #
 have p4 &&
 _p4()
@@ -1958,9 +1957,9 @@ _openssl()
 			des-ede3-cfb des-ede3-ofb des-ofb des3 desx rc2 \
 			rc2-40-cbc rc2-64-cbc rc2-cbc rc2-cfb rc2-ecb rc2-ofb \
 			rc4 rc4-40' -- $cur ) )
-        fi
+	fi
 
-        return 0
+	return 0
 }
 [ $have ] && complete -F _openssl -o default openssl
 
@@ -1990,9 +1989,9 @@ _screen()
 		;;
 	*)
 		;;
-        esac
+	esac
 
-        return 0
+	return 0
 }
 [ $have ] && complete -F _screen -o default screen
 
@@ -2009,9 +2008,9 @@ _ncftp()
 	if [ $COMP_CWORD -eq 1 ] && [ -f ~/.ncftp/bookmarks ]; then
 		COMPREPLY=( $( compgen -W '`cut --output-delimiter " " \
 			       -s -f1-2 -d, ~/.ncftp/bookmarks`' -- $cur ) )
-        fi
+	fi
 
-        return 0
+	return 0
 }
 [ $have ] && complete -F _ncftp -o default ncftp
 
@@ -2109,7 +2108,7 @@ for i in a2ps autoconf automake bc gprof ld nm objcopy objdump readelf strip \
 done
 unset i
 
-# gcc(1) completion, originally by Phil Edwards <phil@jaj.com>
+# gcc(1) completion
 #
 # The only unusual feature is that we don't parse "gcc --help -v" output
 # directly, because that would include the options of all the other backend
@@ -2264,7 +2263,7 @@ _java()
 				COMPREPLY=( ${COMPREPLY[@]} $( find $i -type f \
 					    -name *.class | grep .class | \
 					    sed -e 's|^'$elt'/||' \
-					        -e 's|\.class$||' \
+						-e 's|\.class$||' \
 						-e 's|/|.|g' | grep ^$cur ) )
 			fi
 		done
