@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.197 2002/03/14 18:27:13 ianmacd Exp $
+#   $Id: bash_completion,v 1.198 2002/03/15 07:20:04 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -310,7 +310,6 @@ complete -F _umount -o filenames umount
 # that instead.
 #
 _mount()
-
 {       local cur i sm
 
 	COMPREPLY=()
@@ -1380,12 +1379,27 @@ _ssh()
 have scp &&
 _scp()
 {
-	local cur
+	local cur userhost path
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	_expand || return 0
+
+	if [[ "$cur" == *:* ]]; then
+		# remove backslash escape from :
+		cur=${cur/\\:/:}
+		userhost=${cur%%?(\\):*}
+		path=${cur#*:}
+		if [ -z "$path" ]; then
+			# default to home dir of specified user on remote host
+			path=$( ssh -o 'Batchmode yes' $userhost pwd )
+		fi
+		COMPREPLY=( $( compgen -P "$userhost:" \
+			       -W "`echo $( ssh -o 'Batchmode yes' $userhost \
+					    compgen -f -- $path )`" ) )
+		return 0
+	fi
 
 	[[ "$cur" == */* ]] || _known_hosts -c
 	_filedir
@@ -1393,7 +1407,6 @@ _scp()
 	return 0
 }
 [ "$have" ] && complete -o filenames -F _scp scp
-
 
 # Linux route(8) completion. This could be improved by adding address family
 # completion for -A, etc.
