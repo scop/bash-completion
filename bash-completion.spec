@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.66 2002/10/17 07:25:04 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.67 2002/10/21 06:42:18 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20021017
+Version: 20021021
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -27,9 +27,8 @@ Alternatively, you can just comment out the lines that contain
 'comp{lete,gen} -g'.
 
 If you're using bash 2.04, in addition to commenting out the lines discussed
-in the previous paragraph, you'll also to comment out the '-o <option>'
-part of each invocation of 'complete' and edit /etc/bashrc to reflect this
-version in the $BASH_VERSION test.
+in the previous paragraph, you'll also need to edit %{_sysconfdir}/bashrc to
+reflect this version in the $BASH_VERSION test.
 
 %prep
 %setup -n bash_completion
@@ -73,6 +72,12 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Mon Oct 21 2002 Ian Macdonald <ian@caliban.org>
+- PID is optional in screen completion
+- avoid problems on systems where ps has been aliased
+- fix FreeBSD pkg_delete completion
+- fixes to scp completion
+
 * Thu Oct 17 2002 Ian Macdonald <ian@caliban.org>
 - various improvements to scp completion
 - add Slackware Linux removepkg completion
