@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.1 2002/02/09 10:02:34 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.2 2002/02/12 18:37:40 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020209
+Version: 20020212
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -71,6 +71,21 @@ fi
 %doc README Changelog
 
 %changelog
+* Tue Feb 12 2002 Ian Macdonald <ian@caliban.org>
+- add beginnings of gdb completion
+- add bash export completion
+- add bash alias and function completion
+- add ncftp bookmark completion
+- add qiv and display to list of programs that complete on image files
+- _scp() now suffixes a ':' on hostnames
+- xfig completes on .fig files
+- in _apt-cache(), return package list for --show, --showpkg, --depends
+  and --dotty
+- type now simply completes on commands (complete -c) rather than using
+  _command()
+- clean up _man() a little
+- updated README
+
 * Sat Feb  9 2002 Ian Macdonald <ian@caliban.org>
 - handle bzipped man pages in _man() and remove some code duplication
 - more file types for ee and xv
