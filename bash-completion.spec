@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.53 2002/07/23 16:01:41 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.54 2002/07/23 16:02:59 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
@@ -70,7 +70,7 @@ fi
 %defattr(-,root,root)
 %{_sysconfdir}/bash_completion
 %dir %{_sysconfdir}/bash_completion.d/
-%doc README Changelog contrib/
+%doc BUGS README Changelog contrib/
 
 %changelog
 * Tue Jul 23 2002 Ian Macdonald <ian@caliban.org>
