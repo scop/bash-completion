@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.446 2002/10/17 05:01:21 ianmacd Exp $
+#   $Id: bash_completion,v 1.447 2002/10/17 05:33:24 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1924,6 +1924,7 @@ _scp()
 {
 	local cur userhost path
 
+	local IFS=$'\t\n'
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
@@ -1934,13 +1935,20 @@ _scp()
 		cur=${cur/\\:/:}
 		userhost=${cur%%?(\\):*}
 		path=${cur#*:}
+		# unescape spaces
+		path=${path//\\\\\\\\ / }
 		if [ -z "$path" ]; then
 			# default to home dir of specified user on remote host
 			path=$( ssh -o 'Batchmode yes' $userhost pwd 2>/dev/null)
 		fi
-		COMPREPLY=( $( compgen -P "$userhost:" \
-			       -W "`echo $( ssh -o 'Batchmode yes' $userhost \
-					    compgen -f -- $path 2>/dev/null)`"))
+		# escape spaces; remove executables, aliases and pipes;
+		# add space at end of file names; change newlines into spaces
+		COMPREPLY=( $( ssh -o 'Batchmode yes' $userhost \
+				ls -aF1d "$path*" | sed -e 's/ /\\\\\\\ /g' \
+				-e 's/[*@|]$//g' -e 's/[^\/]$/& /g' \
+				-e 's/\
+				//g' ) )
+				
 		return 0
 	fi
 
@@ -1949,7 +1957,7 @@ _scp()
 
 	return 0
 }
-complete $filenames -F _scp $nospace scp
+complete $default -F _scp $nospace scp
 }
 
 # Linux route(8) completion
