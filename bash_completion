@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.424 2002/10/05 08:08:53 ianmacd Exp $
+#   $Id: bash_completion,v 1.425 2002/10/05 09:31:43 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -3055,14 +3055,31 @@ _java_packages()
 	cur=${COMPREPLY[@]//\//.}
 }
 
-# java
+# java completion
+#
 _java()
 {
-	local cur prev
+	local cur prev i
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	for ((i=1; i < $COMP_CWORD; i++)); do
+		case ${COMP_WORDS[$i]} in
+		    -cp|-classpath)
+                        i++ # skip the classpath string.
+			;;
+		    -*)
+			# this is an option, not a class/jarfile name.
+			;;
+		    *)
+			# once we've seen a class, just do filename completion
+			_filedir
+			return 0
+			;;
+		esac
+	done
 
 	case $prev in
 		-@(cp|classpath))
@@ -3074,8 +3091,12 @@ _java()
 	if [[ "$cur" == -* ]]; then
 		# relevant options completion
 		COMPREPLY=( $( compgen -W '-client -hotspot -server -classic \
-				-cp -classpath -D -verbose -version \
-				-showversion -? -help -X -jar' -- $cur ) )
+				-cp -classpath -D -verbose -verbose:class \
+		                -verbose:gc -version:jni -version \
+				-showversion -? -help -X -jar \
+		                -ea -enableassertions -da -disableassertions \
+		                -esa -enablesystemassertions \
+		                -dsa -disablesystemassertions ' -- $cur ) )
 	else
 		if [[ "$prev" == -jar ]]; then
 			# jar file completion
