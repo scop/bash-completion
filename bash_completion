@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.153 2002/02/27 01:24:04 ianmacd Exp $
+#   $Id: bash_completion,v 1.154 2002/02/27 01:41:56 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -397,7 +397,7 @@ _killall()
 #
 _find()
 {
-	local cur prev i
+	local cur prev
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -952,7 +952,7 @@ _chsh()
 	if [ "$prev" = "-s" ]; then
 		COMPREPLY=( $( chsh -l | grep ^$cur ) )
 	else
-		COMPREPLY=( $( compgen -u $cur ) )
+		COMPREPLY=( $( compgen -u -- $cur ) )
 	fi
 
 	return 0
@@ -964,34 +964,31 @@ complete -F _chsh chsh
 have chkconfig &&
 _chkconfig()
 {
-	local cur prev i
+	local cur prev
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
-	cur_nodash=${cur#--}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [ $COMP_CWORD -eq 1 ]; then
-		COMPREPLY=( $( compgen -W 'list add del level' $cur_nodash ) )
-		for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
-			COMPREPLY[i]=--${COMPREPLY[i]}
-		done
+		COMPREPLY=( $( compgen -W '--list --add --del --level' -- \
+			       $cur ) )
 		return 0
 	fi
 
 	if [ $COMP_CWORD -eq 4 ]; then
-		COMPREPLY=( $( compgen -W 'on off reset' $cur ) )
+		COMPREPLY=( $( compgen -W 'on off reset' -- $cur ) )
 		return 0
 	fi
 
 	case "$prev" in
 	@([1-6]|--@(list|add|del)))
 		COMPREPLY=( $( compgen -W "`(cd /etc/rc.d/init.d; echo *)`" \
-			       $cur) )
+			       -- $cur) )
 		return 0
 		;;
 	--level)
-		COMPREPLY=( $( compgen -W '1 2 3 4 5 6' $cur ) )
+		COMPREPLY=( $( compgen -W '1 2 3 4 5 6' -- $cur ) )
 		return 0
 		;;
 	esac
@@ -1047,7 +1044,7 @@ _known_hosts()
 	    done
 	else
 	    # Just do normal hostname completion
-	    COMPREPLY=( $( compgen -A hostname -S "$suffix" $cur ) )
+	    COMPREPLY=( $( compgen -A hostname -S "$suffix" -- $cur ) )
 	fi
 
 	return 0
@@ -1070,15 +1067,15 @@ _ssh()
 	case "$prev" in
 	-*c)
 	    COMPREPLY=( $( compgen -W 'blowfish 3des 3des-cbc blowfish-cbc \
-			   arcfour cast128-cbc' $cur ) )
+			   arcfour cast128-cbc' -- $cur ) )
 	    ;;
 	-*l)
-	    COMPREPLY=( $( compgen -u $cur ) )
+	    COMPREPLY=( $( compgen -u -- $cur ) )
 	    ;;
 	*)
 	    _known_hosts
 	    [ $COMP_CWORD -eq 1 ] || \
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -c $cur ) )
+		COMPREPLY=( ${COMPREPLY[@]} $( compgen -c -- $cur ) )
 	esac
 
 	return 0
@@ -1120,11 +1117,9 @@ _route()
 	    return 0
 	fi
 
-	# Must use grep here, otherwise $cur will cause compgen to barf, if
-	# it begins with a hyphen
 	COMPREPLY=( $( compgen -W 'add del -host -net netmask metric mss \
-				  window irtt reject mod dyn reinstate dev' | \
-		       grep ^$cur ) )
+				   window irtt reject mod dyn reinstate dev' \
+				   -- $cur ) )
 
 	COMPREPLY=( $( echo " ${COMP_WORDS[@]}" | \
 		       (while read -d ' ' i; do
@@ -1158,13 +1153,14 @@ _make()
 	# we could be a little smarter here and return matches against
 	# `makefile Makefile *.mk', whatever exists
 	if [[ "$prev" == -*f ]]; then
-	    COMPREPLY=( $( compgen -f $cur ) )
+	    COMPREPLY=( $( compgen -f -- $cur ) )
 	    return 0
 	fi
 
 	# if we want an option, return the possible posix options
-	if [[ "$cur" == - ]]; then
-	    COMPREPLY=( $( compgen -W '-e -f -i -k -n -p -q -r -S -s -t' | grep ^$cur ) )
+	if [[ "$cur" == -* ]]; then
+	    COMPREPLY=( $( compgen -W '-e -f -i -k -n -p -q -r -S -s -t' -- \
+			   $cur ) )
 	    return 0
 	fi
 
@@ -1181,7 +1177,7 @@ _make()
 	# with -f
 	for (( i=0; i < ${#COMP_WORDS[@]}; i++ )); do
 		if [[ ${COMP_WORDS[i]} == -*f ]]; then
-			eval makef=${COMP_WORDS[i+1]}   # eval for tilde expansion
+			eval makef=${COMP_WORDS[i+1]} # eval for tilde expansion
 			break
 		fi
 	done
@@ -1199,9 +1195,7 @@ _make()
 		       eval $gcmd ) )
 
 	# default to filename completion if all else failed
-	if [ ${#COMPREPLY[@]} -eq 0 ]; then
-	    COMPREPLY=( $( compgen -f $cur ) )
-	fi
+	[ ${#COMPREPLY[@]} -eq 0 ] && _filedir
 
 	return 0
 }
