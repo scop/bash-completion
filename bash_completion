@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.103 2002/02/11 23:28:47 ianmacd Exp $
+#   $Id: bash_completion,v 1.104 2002/02/12 17:05:22 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -290,7 +290,7 @@ _insmod()
 [ $OS = Linux ] &&
 _man()
 {
-	local cur prev cmd
+	local cur prev cmd sect
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -306,16 +306,12 @@ _man()
 		return 0
 	fi
 
-	if [[ "$prev" == [0-9ln] ]]; then
-		# churn out a string of paths to search, with * appended to $cur
-		cmd=`awk '{if ($1 ~ /^MANPATH/) \
-		     print $(NF)"/man'$prev'/'$cur'*"}' /etc/man.config | \
-		     sort -u`
-	else
-		cmd=`awk '{if ($1 ~ /^MANPATH/) \
-		     print $(NF)"/man?/'$cur'*"}' /etc/man.config | sort -u`
-	fi
-
+	# determine manual section to search
+	[[ "$prev" == [0-9ln] ]] && sect=$prev || sect='?'
+		
+	# churn out a string of paths to search, with * appended to $cur
+	cmd=`awk '{if ($1 ~ /^MANPATH/) print $(NF)"/man'$sect'/'$cur'*"}' \
+	     /etc/man.config | sort -u`
 	# strip off * from paths ending in /*
 	cmd=${cmd//\/\\*/\/}
 	# redirect stderr for when path doesn't exist
