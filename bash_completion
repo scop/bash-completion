@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.14 2001/01/31 23:30:49 ianmacd Exp $
+#   $Id: bash_completion,v 1.15 2001/01/31 23:57:06 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -217,10 +217,25 @@ _insmod()
         prev=${COMP_WORDS[COMP_CWORD-1]}
 	modpath=/lib/modules/`uname -r`
 
+	# behave like lsmod for modprobe -r
+	if [ ${COMP_WORDS[0]} = "modprobe" ] && [ ${COMP_WORDS[1]} = "-r" ]; then
+		COMPREPLY=( $( /sbin/lsmod | \
+				awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}' ) )
+		return 0
+	fi
+
+	# do filename completion if we're giving a path to a module
+        if [[ "$cur" == /* ]]; then
+                COMPREPLY=( $( compgen -f $cur ) )
+                return 0
+        fi
+
 	if [ $COMP_CWORD -gt 1 ]; then
+		# do module parameter completion
 		COMPREPLY=( $( /sbin/modinfo -p ${COMP_WORDS[1]} | \
 		       awk '{if ($1 ~ /^'$cur'/) print $1}' ) )
 	else
+		# do module name completion
 		COMPREPLY=( $( ls -R $modpath | sed -ne 's/^\('$cur'.*\)\.o$/\1/p') )
 	fi
 
