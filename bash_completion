@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.408 2002/09/09 15:46:17 ianmacd Exp $
+#   $Id: bash_completion,v 1.409 2002/09/09 18:26:14 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1174,7 +1174,7 @@ complete -F _cvs $default cvs
 have rpm && {
 # helper functions for rpm completion
 #
-rpm_installed_packages()
+_rpm_installed_packages()
 {
 	if [ -r /var/log/rpmpkgs -a \
 		/var/log/rpmpkgs -nt /var/lib/rpm/Packages ]; then
@@ -1188,7 +1188,7 @@ rpm_installed_packages()
 	fi
 }
 
-rpm_group_completion()
+_rpm_groups()
 {
 	local IFS=$'\t'
 	# remove trailing backslash, or grep will complain
@@ -1299,7 +1299,7 @@ _rpm()
 			COMPREPLY=( $( compgen -W '--allmatches --noscripts \
 			--notriggers --nodeps --test --repackage' -- $cur ) )
 		else
-			rpm_installed_packages
+			_rpm_installed_packages
 		fi
 		;;
 	-@(q*|-query))
@@ -1307,7 +1307,7 @@ _rpm()
 		if [ "${COMP_LINE#* -*([^ -])f}" != "$COMP_LINE" ]; then
 			_filedir
 		elif [ "${COMP_LINE#* -*([^ -])g}" != "$COMP_LINE" ]; then
-			rpm_group_completion
+			_rpm_groups
 		elif [ "${COMP_LINE#* -*([^ -])p}" != "$COMP_LINE" ]; then
 			# uninstalled package completion
 			if [[ "$cur" == -* ]]; then
@@ -1338,7 +1338,7 @@ _rpm()
 				--fileid --tid --nodigest --nosignature' \
 				-- $cur ) )
 			elif [ "${COMP_LINE#* -*([^ -])a}" == "$COMP_LINE" ]; then
-				rpm_installed_packages
+				_rpm_installed_packages
 			fi
 		fi
 		;;
@@ -1360,11 +1360,11 @@ _rpm()
 		elif [ "${COMP_LINE#* -*([^ -])f}" != "$COMP_LINE" ]; then
 			_filedir
 		elif [ "${COMP_LINE#* -*([^ -])g}" != "$COMP_LINE" ]; then
-			rpm_group_completion
+			_rpm_groups
 		elif [ "${COMP_LINE#* -*([^ -])p}" != "$COMP_LINE" ]; then
 			_filedir 'rpm'
 		else
-			rpm_installed_packages
+			_rpm_installed_packages
 		fi
 		;;
 	-[bt]*)
@@ -1394,7 +1394,7 @@ _rpm()
 		_filedir 'rpm'
 		;;
 	--set@(perms|gids))
-		rpm_installed_packages
+		_rpm_installed_packages
 		;;
 	--@(clean|rms@(ource|pec)))
 		if [[ "$cur" == -* ]]; then
@@ -1448,7 +1448,7 @@ _apt_get()
 						$cur ) )
 			else
 				# assume RPM based
-				rpm_installed_packages
+				_rpm_installed_packages
 			fi
 			return 0
 			;;
@@ -3273,7 +3273,7 @@ _urpme()
 		COMPREPLY=( $( compgen -W '-a --auto' -- $cur ) )
 	else
 		# return list of available packages
-		rpm_installed_packages
+		_rpm_installed_packages
 	fi
 }
 [ "$have" ] && complete -F _urpme urpme
