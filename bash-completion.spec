@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.80 2003/02/01 22:41:01 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.81 2003/02/09 09:16:37 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030201
+Version: 20030209
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,13 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Sun Feb  9 2003 Ian Macdonald <ian@caliban.org>
+- allow 'cvs -d' to complete from ~/.cvspass
+- don't append spaces after directories when doing mount completion
+- allow default completion if there are no matches during make completion
+- allow Java completion to cover .ear files (J2EE Enterprise Application
+- silence more unset variable warnings in CVS completion
+
 * Sat Feb  1 2003 Ian Macdonald <ian@caliban.org>
 - rsync completion
 - make service completion Debian compatible
