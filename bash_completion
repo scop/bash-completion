@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.248 2002/04/02 19:22:40 ianmacd Exp $
+#   $Id: bash_completion,v 1.249 2002/04/03 01:37:51 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -32,6 +32,7 @@
 #
 OS=$( uname -s )
 RELEASE=$( uname -r )
+[ ${BASH_VERSINFO[1]} = "05b" ] && nospace="-o nospace"
 
 # Turn on extended globbing and programmable completion
 shopt -s extglob progcomp
@@ -78,7 +79,7 @@ complete -f -X '!*.@(exe|EXE|com|COM)' wine
 complete -u finger su usermod userdel passwd chage write talk chfn
 
 # group commands see only groups
-complete -g groupmod groupdel
+[ ${BASH_VERSINFO[1]} '>' 05 ] && complete -g groupmod groupdel
 
 # bg completes with stopped jobs
 complete -A stopped -P '%' bg
@@ -266,7 +267,8 @@ _chown()
 
 	# first parameter on line or first since an option?
 	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
-		if [[ "$cur" == [a-zA-Z]*[.:]* ]]; then
+		if [[ "$cur" == [a-zA-Z]*[.:]* ]] && \
+		   [ ${BASH_VERSINFO[1]} '>' 05 ]; then
 			user=${cur%%?(\\)[.:]*}
 			group=${cur#*[.:]}
 			COMPREPLY=( $( compgen -P $user'\:' -g -- $group ) )
@@ -289,13 +291,13 @@ _chgrp()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	# do not attempt completion if we're specifying an option
-	[[ "$cur" == -* ]] && return 0
-
 	# first parameter on line or first since an option?
-	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
+	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]] || \
+	   [[ "$prev" == -* ]]; then
+		[ ${BASH_VERSINFO[1]} '>' 05 ] && \
+			COMPREPLY=( $( compgen -g $cur ) )
+	else
 		_expand || return 0
-		COMPREPLY=( $( compgen -g $cur ) )
 	fi
 
 	return 0
@@ -565,7 +567,8 @@ _find()
 		return 0
 		;;
 	-group)
-		COMPREPLY=( $( compgen -g -- $cur ) )
+		[ ${BASH_VERSINFO[1]} '>' 05 ] && \
+			COMPREPLY=( $( compgen -g -- $cur ) )
 		return 0
 		;;
 	-?(x)type)
@@ -1721,7 +1724,7 @@ _tcpdump()
 #
 _cd()
 {
-	local IFS=$'\t\n' cur=${COMP_WORDS[COMP_CWORD]} dirs=() i
+	local IFS=$'\t\n' cur=${COMP_WORDS[COMP_CWORD]} dirs=() i j
 
 	_expand || return 0
 
@@ -1736,6 +1739,9 @@ _cd()
 	for i in ${CDPATH//:/$'\t'}; do
 		# create an array of matched subdirs
 		dirs=( $( compgen -d $i/$cur ) )
+		for (( j=0; j < ${#dirs[@]}; j++ )); do
+			[ -d ${dirs[j]} ] && dirs[j]=${dirs[j]}/
+		done
 		# add subdirs to list of completions as necessary
 		[ ${#dirs[@]} ] && COMPREPLY=( ${COMPREPLY[@]} ${dirs[@]#$i/})
 	done
@@ -1755,7 +1761,7 @@ _cd()
 
 	return 0
 }
-complete -F _cd -o filenames cd
+complete -F _cd $nospace -o filenames cd
 
 # A meta-command completion function for commands like sudo(8), which need to
 # first complete on a command, then complete according to that command's own
@@ -2650,11 +2656,13 @@ if [ -d $BASH_COMPLETION_DIR -a -r $BASH_COMPLETION_DIR -a \
 		[ -r $i ] && . $i
 	done
 fi
+unset i
+
 # source user completion file
 [ $BASH_COMPLETION != ~/.bash_completion -a -r ~/.bash_completion ] \
 	&& . ~/.bash_completion
 unset -f have
-unset OS RELEASE have i
+unset OS RELEASE have nospace
 
 ###  Local Variables:
 ###  mode: shell-script
