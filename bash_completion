@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.501 2002/12/31 02:40:22 ianmacd Exp $
+#   $Id: bash_completion,v 1.502 2002/12/31 02:59:25 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2778,7 +2778,7 @@ _longopt()
 # makeinfo and texi2dvi are defined elsewhere
 for i in a2ps autoconf automake bc gprof ld nm objcopy objdump readelf strip \
 	 bison cpio diff patch enscript cp df dir du ln ls mkfifo mknod mv rm \
-	 touch vdir xargs awk gperf grep gpg grub indent less m4 sed shar date \
+	 touch vdir xargs awk gperf grep grub indent less m4 sed shar date \
 	 env seq su tee uname who texindex cat csplit cut expand fmt fold head \
 	 md5sum nl od paste pr ptx sha1sum sort split tac tail tr unexpand \
 	 uniq wc units wget rsync ldd bash id info irb mkdir rmdir netstat; do
@@ -4349,6 +4349,63 @@ _wvdial()
 
 }
 [ -n "${have:-}" ] && complete -F _wvdial wvdial
+
+# gpg(1) completion
+#
+have gpg &&
+_gpg() 
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(s|-sign|-clearsign|-decrypt-files|-load-extension)) 
+			_filedir
+			return 0
+			;;
+		--@(export|@(?(l|nr|nrl)sign|edit)-key)) 
+			# return list of public keys
+			COMPREPLY=( $( compgen -W "$( gpg --list-keys 2>/dev/null | sed -ne 's@^pub.*/\([^ ]*\).*$@\1@p')" -- "$cur"))
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-s -b -e -f -c -d -a -r -u -Z -o -v \
+				-q -n -N --sign --clearsign --detach-sign \
+				--encrypt --encrypt-files --symmetric --store \
+				--decrypt --decrypt-files --verify --list-keys \
+				--list-sigs --check-sigs --fingerprint \
+				--list-secret-keys --gen-key --delete-keys \
+				--delete-secret-keys --sign-key --lsign-key \
+				--nrsign-key --nrlsign-key --edit-key \
+				--gen-revoke --export --send-key --recv-keys \
+				--search-keys --refresh-keys --import \
+				--list-packets --export-ownertrust \
+				--import-ownertrust --update-trustdb \
+				--check-trustdb --fix-trustdb --dearmor \
+				--enarmor --print-md --armor --recipient \
+				--default-recipient --default-recipient-self \
+				--local-user --textmode --output --verbose \
+				--quiet --no-tty --force-v3-sigs \
+				--no-force-v3-sigs --force-v4-certs \
+				--no-force-v4-certs --force-mdc --disable-mdc \
+				--dry-run --use-agent --batch --yes --no \
+				--keyring --secret-keyring --show-keyring \
+				--default-key --keyserver --charset --options \
+				--status-fd --trusted-key --load-extension \
+				--rfc1991 --openpgp --pgp2 --s2k-mode \
+				--s2k-digest-algo --s2k-cipher-algo \
+				--cipher-algo --digest-algo --compress-algo \
+				--throw-keyid --show-photos --no-show-photos \
+				--photo-viewer --notation-data' -- $cur ) )
+	 fi
+
+}
+[ "${have:-}" ] && complete -F _gpg $default gpg
 
 _filedir_xspec()
 {
