@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.39 2001/12/20 19:26:49 ianmacd Exp $
+#   $Id: bash_completion,v 1.40 2001/12/21 08:56:18 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -169,13 +169,15 @@ complete -F _umount -o filenames umount
 #
 _mount()
 
-{       local cur
+{       local cur sm
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
+	[ -x /sbin/showmount ] && sm=/sbin/showmount
+	[ -x /usr/sbin/showmount ] && sm=/usr/sbin/showmount
 
-	if [ -x /usr/sbin/showmount ] && [[ "$cur" == *:* ]]; then
-		COMPREPLY=( $( /usr/sbin/showmount -e --no-headers ${cur%%:*} |\
+	if [ -n "$sm" ] && [[ "$cur" == *:* ]]; then
+		COMPREPLY=( $( $sm -e --no-headers ${cur%%:*} | \
 			       grep ^${cur#*:} | awk '{print $1}' ) )
 	else
 		COMPREPLY=( $( awk '{if ($2 ~ /\//) print $2}' /etc/fstab | \
