@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.749 2004/10/14 09:14:12 ianmacd Exp $
+#   $Id: bash_completion,v 1.750 2004/10/14 09:24:15 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2483,13 +2483,12 @@ _route()
 }
 [ $UNAME = Linux ] && complete -F _route route
 
-# GNU make(1) completion (adapted from the example supplied with the bash 2.04
-# source code)
+# GNU make(1) completion
 #
 have make &&
 _make()
 {
-	local makef cur prev i
+	local file makef makef_inc cur prev i
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -2559,6 +2558,13 @@ _make()
 		done
 
 		[ ! -f $makef ] && return 0
+
+		# deal with included Makefiles
+ 		makef_inc=$( grep -E '^-?include' $makef | cut -d' ' -f2 )
+
+ 		for file in $makef_inc; do
+ 			[ -f $file ] && makef="$makef $file"
+ 		done
 
 		COMPREPLY=( $( awk -F':' '/^[a-zA-Z0-9][^$#\/\t=]*:([^=]|$)/ \
 				{split($1,A,/ /);for(i in A)print A[i]}' \
