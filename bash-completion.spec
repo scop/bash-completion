@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.12 2002/03/11 19:32:27 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.13 2002/03/14 18:28:27 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020311
+Version: 20020314
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,9 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Thu Mar 14 2002 Ian Macdonald <ian@caliban.org>
+- fixed eval indirection bug in _man()
+
 * Mon Mar 11 2002 Ian Macdonald <ian@caliban.org>
 - add Debian Linux reportbug(1) and querybts(1) completion
 - add dpkg-deb completion and add dpkg-deb options to dpkg completion
