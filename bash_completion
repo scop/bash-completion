@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.326 2002/05/18 23:00:14 ianmacd Exp $
+#   $Id: bash_completion,v 1.327 2002/05/19 09:16:30 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1427,8 +1427,8 @@ complete -F _apt_cache $filenames apt-cache
 have aptitude && {
 _comp-dpkg-hold-packages()
 {
-	grep-dctrl -r -P -s package,status "^$1" /var/lib/dpkg/status \
-		   | grep-dctrl -n -F status -s package 'hold'
+	grep -B 2 'hold' /var/lib/dpkg/status | grep 'Package' \
+		| cut -d\  -f2
 }
 
 _aptitude()
@@ -1446,9 +1446,7 @@ _aptitude()
 		     --with-suggests --without-recommends --without-suggests'
 
 	for (( i=0; i < ${#COMP_WORDS}-1; i++ )); do
-	    if [[ ${COMP_WORDS[i]} == @(install|hold|unhold|markauto| \
-				        unmarkauto|dist-upgrade|download| \
-				        purge|remove) ]]; then
+	    if [[ ${COMP_WORDS[i]} == @(install|hold|unhold|markauto|unmarkauto|dist-upgrade|download|purge|remove) ]]; then
 		special=${COMP_WORDS[i]}
 	    fi
 	    #exclude some mutually exclusive options
@@ -1474,8 +1472,8 @@ _aptitude()
 	   esac
 	fi
 
-	#don't complete anything if these options are found.
 	case $prev in
+	    # don't complete anything if these options are found
 	    @(autoclean|clean|forget-new|search|upgrade|update))
 	        return 0
 		;;
@@ -3070,8 +3068,7 @@ _update_alternatives()
 
 	# find wich mode to use and how many real args used so far
 	for (( i=1; i < COMP_CWORD; i++ )); do
-		if [[ "${COMP_WORDS[i]}" == --@(install|remove|auto|display|\
-					    config) ]]; then
+		if [[ "${COMP_WORDS[i]}" == --@(install|remove|auto|display|config) ]]; then
 			mode=${COMP_WORDS[i]}
 			args=$(($COMP_CWORD - i))
 			break
