@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.98 2002/02/10 21:45:46 ianmacd Exp $
+#   $Id: bash_completion,v 1.99 2002/02/11 00:11:03 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1671,6 +1671,40 @@ _ncftp()
         return 0
 }
 [ $have ] && complete -F _ncftp -o default ncftp
+
+# bash alias completion
+#
+_alias()
+{
+	local cur
+	cur=${COMP_WORDS[$COMP_CWORD]};
+
+	case "$COMP_LINE" in
+	*[^=])
+		COMPREPLY=( $(compgen -A alias $cword) )
+		;;
+        *=)
+		COMPREPLY=( "$( alias ${cur%=} | \
+			     sed -e 's/^alias '$cur'\(.*\)$/\1/' )" )
+		;;
+    esac
+}
+complete -F _alias alias
+
+# bash shell function completion
+#
+_function()
+{
+	local cur
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [ $COMP_CWORD -eq 1 ]; then
+		COMPREPLY=( $(compgen -A function $cur ) )
+	else
+		COMPREPLY=( "() $( declare -f ${COMP_WORDS[1]} | sed -e 1d )" )
+	fi
+}
+complete -F _function function
 
 _expand()
 {
