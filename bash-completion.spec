@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.56 2002/08/03 09:37:22 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.57 2002/08/12 15:32:58 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
@@ -73,6 +73,12 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Mon Aug 12 2002 Ian Macdonald <ian@caliban.org>
+- ./configure completion was not returning all possible completions on systems
+  with mawk
+- no space after export completion (assuming bash 2.05b)
+- add .wmv files to those that aviplay will complete on
+
 * Sat Aug  3 2002 Ian Macdonald <ian@caliban.org>
 - silence eval errors in _filedir_xspec() when quoting goes awry
 - add apt-build completion by Rafael Sepúlveda <drs@gnulinux.org.mx>
