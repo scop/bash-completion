@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.478 2002/12/05 06:31:42 ianmacd Exp $
+#   $Id: bash_completion,v 1.479 2002/12/05 17:58:26 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -4113,19 +4113,22 @@ _look()
 have ypmatch &&
 _ypmatch()
 {
-	local cur map
+	local cur
 	COMPREPLY=()
 
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	if [ $COMP_CWORD = 1 ] || [ $1 = ypcat ]; then
+	[ $1 = ypcat ] && [ $COMP_CWORD -gt 1 ] && return 0
+	[ $1 = ypmatch ] && [ $COMP_CWORD -gt 2 ] && return 0
+
+	if [ $1 = ypcat ] || [ $COMP_CWORD -eq 2 ]; then
 		COMPREPLY=( $( compgen -W \
 			      '$( echo $(ypcat -x | cut -d"\"" -f 2))' -- $cur))
 		return 0
 	fi
 
-	map=${COMP_WORDS[1]}
-	COMPREPLY=( $( compgen -W '$( ypcat $map | cut -d':' -f 1 )' -- $cur) )
+	#map=${COMP_WORDS[2]}
+	#COMPREPLY=( $( compgen -W '$( ypcat $map | cut -d':' -f 1 )' -- $cur) )
 }
 [ "$have" ] && complete -F _ypmatch ypmatch ypcat
 
