@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.411 2002/09/19 06:21:32 ianmacd Exp $
+#   $Id: bash_completion,v 1.412 2002/09/28 18:12:24 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -241,7 +241,7 @@ _alias()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[$COMP_CWORD]};
+	cur=${COMP_WORDS[$COMP_CWORD]}
 
 	case "$COMP_LINE" in
 	*[^=])
@@ -262,7 +262,7 @@ _export()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[$COMP_CWORD]};
+	cur=${COMP_WORDS[$COMP_CWORD]}
 
 	case "$COMP_LINE" in
 	*=\$*)
@@ -528,7 +528,7 @@ _insmod()
 	elif [ -r $modpath -a -x $modpath ]; then
 		# do module name completion
 		COMPREPLY=( $( command ls -R $modpath | \
-                                sed -ne 's/^\('$cur'.*\)\.o\(\|.gz\)$/\1/p') )
+				sed -ne 's/^\('$cur'.*\)\.o\(\|.gz\)$/\1/p') )
 	else 
 		_filedir
 	fi
@@ -1457,12 +1457,16 @@ _apt_get()
 
 	if [[ "$prev" == -*c ]] || [ "$prev" = --config-file ]; then
 		_filedir
+
+	elif [[ "$prev" == -*h ]] || [ "$prev" = --help ]; then
+		return 0
+
 	else
 		COMPREPLY=( $( compgen -W 'update upgrade dselect-upgrade \
 				  dist-upgrade install remove source \
-				  build-dep check \
-				  clean autoclean -d -f -h -v -m -q -s -y -u \
-				  -b -c -o --download-only --fix-broken --help \
+				  build-dep check clean autoclean \
+				  -d -f -h -v -m -q -s -y -u -b -c -o -t \
+				  --download-only --fix-broken --help \
 				  --version --ignore-missing --fix-missing \
 				  --no-download --quiet --simulate \
 				  --just-print --dry-run --recon --no-act \
@@ -1470,8 +1474,10 @@ _apt_get()
 				  --compile --build --ignore-hold \
 				  --no-upgrade --force-yes --print-uris \
 				  --purge --reinstall --list-cleanup \
+				  --target-release --default-release \
 				  --trivial-only --no-remove --diff-only \
-				  --tar-only --config-file --option' -- $cur ) )
+				  --only-source --diff-only --tar-only \
+				  --config-file --option' -- $cur ) )
 	fi
 
 	return 0
@@ -1526,7 +1532,7 @@ _apt_cache()
 [ "$have" ] && complete -F _apt-cache $filenames apt-cache
 complete -F _apt_cache $filenames apt-cache
 
-# Debian Linux aptitude(1) completion
+# Debian aptitude(1) completion
 #
 have aptitude && {
 _comp-dpkg-hold-packages()
@@ -1544,7 +1550,7 @@ _aptitude()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 
-        dashoptions='-S -u -i -h --help --version -s --simulate -d \
+	dashoptions='-S -u -i -h --help --version -s --simulate -d \
 		     --download-only -P --prompt -y --assume-yes -F \
 		     --display-format -w --width -f --with-recommends \
 		     --with-suggests --without-recommends --without-suggests'
@@ -1562,15 +1568,15 @@ _aptitude()
 	   case $special in
 	       @(install|hold|markauto|unmarkauto|dist-upgrade|download))
 		   COMPREPLY=( $( apt-cache pkgnames $cur ) )
-	           return 0
+		   return 0
 		   ;;
 	       @(purge|remove))
-  	           COMPREPLY=( $( _comp-dpkg-installed-packages $cur ) )
-	           return 0
+  		   COMPREPLY=( $( _comp-dpkg-installed-packages $cur ) )
+		   return 0
 		   ;;
 	       unhold)
-  	           COMPREPLY=( $( _comp-dpkg-hold-packages $cur ) )
-	           return 0
+  		   COMPREPLY=( $( _comp-dpkg-hold-packages $cur ) )
+		   return 0
 		   ;;
 
 	   esac
@@ -1579,10 +1585,10 @@ _aptitude()
 	case $prev in
 	    # don't complete anything if these options are found
 	    @(autoclean|clean|forget-new|search|upgrade|update))
-	        return 0
+		return 0
 		;;
 	    -S)
-	        _filedir
+		_filedir
 		return 0
 		;;
 	esac
@@ -1623,7 +1629,7 @@ _apt_build()
 			return 0
 			;;
 		remove)
-		        COMPREPLY=( $( _comp-dpkg-installed-packages \
+			COMPREPLY=( $( _comp-dpkg-installed-packages \
 						$cur ) )
 			return 0
 			;;
@@ -1632,22 +1638,22 @@ _apt_build()
 
 	if  [[ "$prev" = --patch ]]; then
 		_filedir
-		return 0;
+		return 0
 
 	elif [[ "$prev" = --patch-strip ]]; then
-	         return 0;
+		 return 0
 
 	#a little hand in this option will be helpful :)
 	elif [[ "$prev" = --build-command ]]; then
-	         return 0;
+		 return 0
 
 	else
 		COMPREPLY=( $( compgen -W "update upgrade install remove \
-                                  source dist-upgrade clean \
-                                  --reinstall --rebuild --remove-builddep \
-                                  --no-wrapper --purge --build-command \
-                                  --patch --patch-strip -p --yes -y \
-                                  --version -v --no-source" -- $cur ) )
+				  source dist-upgrade clean \
+				  --reinstall --rebuild --remove-builddep \
+				  --no-wrapper --purge --build-command \
+				  --patch --patch-strip -p --yes -y \
+				  --version -v --no-source" -- $cur ) )
 	fi
 
 
@@ -2833,7 +2839,7 @@ _dpkg()
 			--force-configure-any --force-hold --force-bad-path \
 			--force-not-root --force-overwrite \
 			--force-overwrite-diverted --force-bad-verify \
-		        --force-depends-version --force-depends \
+			--force-depends-version --force-depends \
 			--force-confnew --force-confold --force-confdef \
 			--force-miss --force-conflicts --force-architecture \
 			--force-overwrite-dir --force-remove-reinstreq \
@@ -2866,12 +2872,12 @@ _dpkg-reconfigure()
 		opt=( $( echo /usr/share/perl5/Debconf/FrontEnd/* ) )
 		opt=( ${opt[@]##*/} )
 		opt=( ${opt[@]%.pm} )
-	        COMPREPLY=( $( compgen -W '${opt[@]}' -- $cur ) )
-	        return 0
+		COMPREPLY=( $( compgen -W '${opt[@]}' -- $cur ) )
+		return 0
 		;;
 	    -@(p|-priority))
-  	        COMPREPLY=( $( compgen -W 'low medium high critical' -- $cur ) )
-	        return 0
+  		COMPREPLY=( $( compgen -W 'low medium high critical' -- $cur ) )
+		return 0
 		;;
 	esac
 
@@ -3416,7 +3422,7 @@ _reportbug()
 	    -S|--severity)
 		COMPREPLY=( $( compgen -W "grave serious important normal \
 					   minor wishlist" -- $cur ) )
-		return 0;
+		return 0
 		;;
 	    -u|--ui|--interface)
 		COMPREPLY=( $( compgen -W "newt text gnome" -- $cur ) )
@@ -3424,12 +3430,12 @@ _reportbug()
 		;;
 	    -t|--type)
 		COMPREPLY=( $( compgen -W "gnats debbugs" -- $cur ) )
-		return 0;
+		return 0
 		;;
 	    -T|--tags)
 		COMPREPLY=( $( compgen -W "none patch security upstream sid \
 					   woody potato sarge fixed" -- $cur ) )
-		return 0;
+		return 0
 		;;
 	    *)
 		;;
@@ -3437,18 +3443,18 @@ _reportbug()
 	
 	COMPREPLY=($( compgen -W '-h --help -v --version -a --af -b \
 			--no-query-bts --query-bts -B --bts -c --configure \
-                        --no-config-files --check-available -d --debug \
-                        --no-check-available -e --editor --email -f \
-                        --filename -g --gnupg -H --header -i --include -j \
-                        --justification -l --ldap --no-ldap -L --list-cc -m \
-                        --maintonly --mode --mua --mta --mutt -n --mh --nmh \
-                        -o --output -p --print -P --pgp --proxy --http_proxy\
-                        -q --quiet -Q --query-only --realname --report-quiet \
-                        --reply-to --replyto -s --subject -S --severity \
-                        --smtphost -t --type -T --tags --template -V -x \
-                        --no-cc --package-version -z --no-compress \
-                        --ui --interface -u \
-                        wnpp boot-floppies kernel-image' -- $cur ) \
+			--no-config-files --check-available -d --debug \
+			--no-check-available -e --editor --email -f \
+			--filename -g --gnupg -H --header -i --include -j \
+			--justification -l --ldap --no-ldap -L --list-cc -m \
+			--maintonly --mode --mua --mta --mutt -n --mh --nmh \
+			-o --output -p --print -P --pgp --proxy --http_proxy\
+			-q --quiet -Q --query-only --realname --report-quiet \
+			--reply-to --replyto -s --subject -S --severity \
+			--smtphost -t --type -T --tags --template -V -x \
+			--no-cc --package-version -z --no-compress \
+			--ui --interface -u \
+			wnpp boot-floppies kernel-image' -- $cur ) \
 	    		$( apt-cache pkgnames -- $cur ) )
 	_filedir
 	return 0
@@ -3482,8 +3488,8 @@ _querybts()
 
 	COMPREPLY=($( compgen -W '-h --help -v --version -A --archive \
 			-B --bts -l --ldap --no-ldap --proxy= --http_proxy= \
-                        -s --source -w --web -u --ui --interface \
-                        wnpp boot-floppies' -- $cur ) \
+			-s --source -w --web -u --ui --interface \
+			wnpp boot-floppies' -- $cur ) \
 	    		$( apt-cache pkgnames -- $cur ) )
 }
 [ "$have" ] && complete -F _querybts $filenames querybts
