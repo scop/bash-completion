@@ -1,12 +1,12 @@
-$Id: README,v 1.16 2002/12/05 05:26:28 ianmacd Exp $
+$Id: README,v 1.17 2002/12/17 09:53:18 ianmacd Exp $
 
 
 INSTALLATION
 ------------
 
-If you are installing the source file manually as opposed to using a packaging
-system such as dpkg or rpm, put it somewhere on your system and source it from
-either /etc/bashrc or ~/.bashrc.
+If you are installing the source file manually as opposed to using a
+packaging system such as dpkg or rpm, put it somewhere on your system
+and source it from either /etc/bashrc or ~/.bashrc.
 
 Here's one possible way of doing that from /etc/bashrc:
 
@@ -18,48 +18,54 @@ if [ "$PS1" ] && [ $bmajor -eq 2 ] && [ $bminor '>' 04 ] \
 fi
 unset bash bmajor bminor
 
-This code checks that the version of bash that is parsing the code is later
-than 2.04 and, if so, sources the bash completion code.
+This code checks that the version of bash that is parsing the code is
+later than 2.04 and, if so, sources the bash completion code.
 
-While this code may, at first, seem overly complex, the advantage of using it
-is that it will also parse correctly when interpreted by bash 1.x. If you have
-bash 1.x and bash 2.x users on your system, you must avoid using constructs
-that were not valid under 1.x syntax.
+While this code may, at first, seem overly complex, the advantage of
+using it is that it will also parse correctly when interpreted by bash
+1.x. If you have bash 1.x and bash 2.x users on your system, you must
+avoid using constructs that were not valid under 1.x syntax.
 
-If you are putting the bash completion source file somewhere other than
-/etc/bash_completion, you should ensure that $BASH_COMPLETION is set to point
-to it before you source it. Your ~/.bashrc file is a good place to do this.
+If you are putting the bash completion source file somewhere other
+than /etc/bash_completion, you should ensure that $BASH_COMPLETION is
+set to point to it before you source it. Your ~/.bashrc file is a good
+place to do this.
 
 
 TROUBLESHOOTING
 ---------------
 
-If you get errors about 'complete' or 'compgen' not accepting the -g flag,
-you are probably running bash 2.05 and should either apply the group completion
-patch, download a prepatched bash binary of 2.05, or upgrade to 2.05a or later.
+If you get errors about 'complete' or 'compgen' not accepting the -g
+flag, you are probably running bash 2.05 and should either apply the
+group completion patch, download a prepatched bash binary of 2.05, or
+upgrade to 2.05a or later.
 
-If you find that some commands, such as 'cd /usr<Tab>', end with a trailing
-space instead of appending a /, you are probably running the base version of
-bash 2.05, which suffers from a bug that causes the '-o filenames' option to
-the complete built-in to be ignored. You can fix this by applying the following
-the following official patch from the bash maintainer:
+If you find that some commands, such as 'cd /usr<Tab>', end with a
+trailing space instead of appending a /, you are probably running the
+base version of bash 2.05, which suffers from a bug that causes the
+'-o filenames' option to the complete built-in to be ignored. You can
+fix this by applying the following the following official patch from
+the bash maintainer:
 
 	ftp://ftp.cwru.edu/pub/bash/bash-2.05-patches/bash205-006
 
-If you get errors about 'complete' not accepting the -o flag, you are probably
-running bash 2.04. In this case, you should upgrade to bash 2.05a or later.
-However, I have endeavoured to make the code detect this version of bash and
-work around this issue, so please inform me if you still encounter this error.
+If you get errors about 'complete' not accepting the -o flag, you are
+probably running bash 2.04. In this case, you should upgrade to bash
+2.05a or later. However, I have endeavoured to make the code detect
+this version of bash and work around this issue, so please inform me
+if you still encounter this error.
 
-Copies of the patches and prepatched versions of bash are available from:
+Copies of the patches and prepatched versions of bash are available
+from:
 
 			http://www.caliban.org/bash/
 
 If you find that a given function is producing errors under certain
-circumstances when you attempt completion, try running 'set -v' or 'set -x'
-prior to attempting the completion again. This will produce useful debugging
-output that will aid me in fixing the problem if you are unable to do so
-yourself. Turn off the trace output by running either 'set +v' or 'set +x'.
+circumstances when you attempt completion, try running 'set -v' or
+'set -x' prior to attempting the completion again. This will produce
+useful debugging output that will aid me in fixing the problem if you
+are unable to do so yourself. Turn off the trace output by running
+either 'set +v' or 'set +x'.
 
 
 KNOWN PROBLEMS
@@ -67,110 +73,142 @@ KNOWN PROBLEMS
 
 I.
 
-There seems to be some issue with using the bash built-in cd within Makefiles.
-When invoked as /bin/sh within Makefiles, bash seems to have a problem changing
-directory via the cd command. A work-around for this is to define
-SHELL=/bin/bash within your Makefile. This is believed to be a bug in bash.
+There seems to be some issue with using the bash built-in cd within
+Makefiles. When invoked as /bin/sh within Makefiles, bash seems to
+have a problem changing directory via the cd command. A work-around
+for this is to define SHELL=/bin/bash within your Makefile. This is
+believed to be a bug in bash.
 
 II.
 
-The have() function is used to conserve memory by only installing completion
-functions for those programs that are actually present on your system. The
-current method of determining whether or not a given binary is present is
-whether or not it is in your $PATH.
+The have() function is used to conserve memory by only installing
+completion functions for those programs that are actually present on
+your system. The current method of determining whether or not a given
+binary is present is whether or not it is in your $PATH.
 
-This approach has the disadvantage that sudo completion will not be able to
-perform sub-completion on, say, service, if /sbin is not in your path, which,
-as an unprivileged user, it typically isn't.
+This approach has the disadvantage that sudo completion will not be
+able to perform sub-completion on, say, service, if /sbin is not in
+your path, which, as an unprivileged user, it typically isn't.
 
-The work-around for this is to put all directories of binaries for which you
-require completion into your $PATH variable prior to sourcing bash_completion.
+The work-around for this is to put all directories of binaries for
+which you require completion into your $PATH variable prior to
+sourcing bash_completion.
 
 III.
 
-Many of the completion functions assume GNU versions of the various text
-utilities that they call (e.g. grep, sed and awk). Your mileage may vary.
+Many of the completion functions assume GNU versions of the various
+text utilities that they call (e.g. grep, sed and awk). Your mileage
+may vary.
 
 
 FAQ
 ---
 
-Q. How can I insert my own local completions without having to reinsert them
-   every time you issue a new release?
+Q. How can I insert my own local completions without having to
+   reinsert them every time you issue a new release?
 
-A. Put them in ~/.bash_completion, which is parsed at the end of the main
-   completion script.
+A. Put them in ~/.bash_completion, which is parsed at the end of the
+   main completion script.
 
-Q. I author/maintain package X and would like to maintain my own completion
-   code for this package. Where should I put it to be sure that interactive
-   bash shells will find it and source it?
+Q. I author/maintain package X and would like to maintain my own
+   completion code for this package. Where should I put it to be sure
+   that interactive bash shells will find it and source it?
 
-   Put it in the directory pointed to by $BASH_COMPLETION_DIR, which is defined
-   at the beginning of the main completion script. Any scripts placed in this
-   directory will be sourced by interactive bash shells.
+   Put it in the directory pointed to by $BASH_COMPLETION_DIR, which
+   is defined at the beginning of the main completion script. Any
+   scripts placed in this directory will be sourced by interactive
+   bash shells.
 
 Q. I use CVS in combination with passwordless ssh access to my remote
-   repository. How can I have the cvs command complete on remotely checked-out
-   files where relevant?
+   repository. How can I have the cvs command complete on remotely
+   checked-out files where relevant?
 
-A. Define $COMP_CVS_REMOTE. Setting this to anything will result in the
-   behaviour you would like.
+A. Define $COMP_CVS_REMOTE. Setting this to anything will result in
+   the behaviour you would like.
 
-Q. When I'm running a ./configure script and completion returns a list of
-   long options to me, some of these take a parameter,
+Q. When I'm running a ./configure script and completion returns a list
+   of long options to me, some of these take a parameter,
    e.g. --this-option=DESCRIPTION.
 
-   Running ./configure --help lists these descriptions, but everything after
-   the '=' is stripped when returning completions, so I don't know what kind
-   of data is expected as a given option's parameter.
+   Running ./configure --help lists these descriptions, but everything
+   after the '=' is stripped when returning completions, so I don't
+   know what kind of data is expected as a given option's parameter.
 
-   Is there a way of getting ./configure completion to return the entire
-   option string, so that I can see what kind of data is required and then
-   simply delete the descriptive text and add my own data?
+   Is there a way of getting ./configure completion to return the
+   entire option string, so that I can see what kind of data is
+   required and then simply delete the descriptive text and add my own
+   data?
 
-A. Define $COMP_CONFIGURE_HINTS. Setting this to anything will result in the
-   behaviour you would like.
+A. Define $COMP_CONFIGURE_HINTS. Setting this to anything will result
+   in the behaviour you would like.
 
 Q. When doing tar completion on a file within a tar file like this:
 
    tar tzvf foo.tar.gz <Tab>
 
-   the pathnames contained in the tar file are not displayed correctly. The
-   slashes are removed and everything looks like it's in a single directory.
-   Why is this?
+   the pathnames contained in the tar file are not displayed
+   correctly. The slashes are removed and everything looks like it's
+   in a single directory. Why is this?
 
-A. It's a choice I had to make. bash's programmable completion is limited in
-   how it handles the list of possible completions it returns.
+A. It's a choice I had to make. bash's programmable completion is
+   limited in how it handles the list of possible completions it
+   returns.
 
-   Because the paths returned from within the tar file are likely not existing
-   paths on the file system, '-o dirnames' must be passed to the complete
-   built-in to make it treat them as such. However, then bash will append a
-   space when completing on directories during pathname completion to the tar
-   files themselves.
+   Because the paths returned from within the tar file are likely not
+   existing paths on the file system, '-o dirnames' must be passed to
+   the complete built-in to make it treat them as such. However, then
+   bash will append a space when completing on directories during
+   pathname completion to the tar files themselves.
 
-   It's more important to have proper completion of paths to tar files than
-   it is to have completion for their contents, so this sacrifice was made
-   and '-o filenames' is used with complete instead.
+   It's more important to have proper completion of paths to tar files
+   than it is to have completion for their contents, so this sacrifice
+   was made and '-o filenames' is used with complete instead.
 
-   If you would rather have correct path completion for tar file contents,
-   define $COMP_TAR_INTERNAL_PATHS *before* sourcing bash_completion.
+   If you would rather have correct path completion for tar file
+   contents, define $COMP_TAR_INTERNAL_PATHS *before* sourcing
+   bash_completion.
 
-Q. When completing on a symlink to a directory, bash does not append the
-   trailing / and I have to hit <Tab> again. I don't like this.
+Q. When completing on a symlink to a directory, bash does not append
+   the trailing / and I have to hit <Tab> again. I don't like this.
 
 A. This has nothing to do with bash_completion. It's the default for
-   completing symlinks to directories in bash 2.05a, and was added because
-   sometimes you want to operate on the symlink itself, rather than what it
-   points to.
+   completing symlinks to directories in bash 2.05a, and was added
+   because sometimes you want to operate on the symlink itself, rather
+   than what it points to.
 
-   In bash 2.05b and later, you can get the pre-2.05a behaviour back by
-   putting 'set mark-symlinked-directories on' in your /etc/inputrc or
-   ~/.inputrc file.
+   In bash 2.05b and later, you can get the pre-2.05a behaviour back
+   by putting 'set mark-symlinked-directories on' in your /etc/inputrc
+   or ~/.inputrc file.
 
-Q. This code is rubbish/not bad/pretty good/the best thing since sliced bread.
-   How can I show my appreciation?
+Q. Completion goes awry when I try to complete on something that contains
+   a colon.
 
-A. If you're a registered Freshmeat user, take a moment to rate the project at:
+A. This is actually a 'feature' of bash. bash recognises a colon as
+   starting a new completion token, which is often what you want when
+   completing something like a PATH variable:
+
+   $ export PATH=/bin:/sbin:/usr<Tab>
+
+   Without the special treatment of the colon, the above wouldn't work
+   without programmable completion, so it has long been a feature of
+   the shell.
+
+   Unfortunately, you don't want the colon to be treated as a special
+   case when doing something like:
+
+   $ man File::B<Tab>
+
+   Here, the colons make bash think that it's completing the a new
+   token that begins with 'B'.
+
+   Unfortunately, there's no way to turn this off. The only thing you
+   can do is escape the colons with a backslash.
+
+Q. This code is rubbish/not bad/pretty good/the best thing since
+   sliced bread. How can I show my appreciation?
+
+A. If you're a registered Freshmeat user, take a moment to rate the
+   project at:
 
 	http://freshmeat.net/rate/19041/
 
