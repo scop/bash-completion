@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.367 2002/06/24 07:52:54 ianmacd Exp $
+#   $Id: bash_completion,v 1.368 2002/06/24 08:22:11 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2409,15 +2409,13 @@ _gdb()
 	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -c -- $cur ) )
 	elif [ $COMP_CWORD -eq 2 ]; then
-		# escaoe slashes for awk
-		prev=${prev//\//\\\/}
-		COMPREPLY=( ${COMPREPLY[@]} $( ps ahx | sed -e 's#[]\[()]##g' |\
-					awk '{p=$5;sub("^.*/","",p); \
-					if (p ~ /^'$prev'/) print $1}' | \
-					sed -e 's#^.*/##' ) )
+		prev=${prev##*/}
+		COMPREPLY=( $( compgen -W "$( echo $( ps axo comm,pid |
+				awk '{if ($1 ~ /^'$prev'/) print $2}' ) )" \
+				-- "$cur" ) )
 	fi
 }
-[ $have ] && complete -F _gdb $default gdb
+[ $have ] && complete -F _gdb $filenames gdb
 
 # Postgresql completion
 #
