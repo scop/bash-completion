@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.181 2002/03/07 17:16:43 ianmacd Exp $
+#   $Id: bash_completion,v 1.182 2002/03/07 18:32:03 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1785,25 +1785,51 @@ _p4()
 }
 [ "$have" ] && complete -F _p4 -o default p4 g4
 
-# ant completion is modified from the original submitted by
-# Claus-Peter Klas <peter.klas@uni-dortmund.de>
+# ant(1) completion
 #
 have ant &&
-_ant_targets()
+_ant()
 {
+	local cur prev buildfile i
+
 	COMPREPLY=()
-	local gcmd
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	# if we have a partial word to complete, restrict completions to
-	# matches of that word
-	[ ! -f build.xml ] && return 0
+	case "$prev" in
+		-buildfile)
+			COMPREPLY=( $( compgen -f -X '!*.xml' -- $cur ) \
+				    $( compgen -d -- $cur ) )
+			return 0
+			;;
+		-logfile)
+			_filedir
+			return 0
+			;;
+	esac
 
-	[ -n "$2" ] && gcmd='grep "^$2"' || gcmd=cat
+	if [[ "$cur" == -* ]]; then
+		# relevant options completion
+		COMPREPLY=( $( compgen -W 'help projecthelp version quiet \
+			       verbose debug emacs logfile logger listener \
+			       buildfile D find' -P '-' -- $cur ) )
+	else
+		# available targets completion
+		# find wich buildfile to use
+		buildfile=build.xml
+		for (( i=1; i < COMP_CWORD; i++ )); do
+			if [[ "${COMP_WORDS[i]}" == -buildfile ]]; then
+				buildfile=${COMP_WORDS[i+1]}
+				break
+			fi
+		done
+		[ ! -f $buildfile ] && return 0
 
-	COMPREPLY=( $( awk 'BEGIN {FS="\""} /\<target/ {print $2}' < build.xml \
-	| tr -s ' ' '\012' | sort -u | eval $gcmd ) )
+		# parse buildfile for targets
+		COMPREPLY=( $( awk 'BEGIN {FS="\""} /<target name="/ {print $2}' $buildfile | grep ^$cur ) )
+	fi
 }
-[ "$have" ] && complete -F _ant_targets ant
+[ "$have" ] && complete -F _ant -o filenames ant
 
 have nslookup &&
 _nslookup()
