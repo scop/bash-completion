@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.585 2003/06/30 01:41:57 ianmacd Exp $
+#   $Id: bash_completion,v 1.586 2003/07/11 08:30:59 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -4250,6 +4250,7 @@ _kldload()
 	local cur moddir
 
 	moddir=/modules/
+	[ -d $moddir ] || moddir=/boot/kernel/
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	COMPREPLY=( $( compgen -f $moddir$cur ) )
@@ -4295,17 +4296,21 @@ _portupgrade()
 have portinstall &&
 _portinstall()
 {
-	local cur portsdir prev
+	local cur portsdir prev indexfile
 	local -a COMPREPLY2
 
 	portsdir=${PORTSDIR:-/usr/ports}/
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
+	# First try INDEX-5
+	indexfile=$portsdir/INDEX-5
+	# Then INDEX
+	test -f $indexfile || indexfile=$portsdir/INDEX
 
 	[ "$prev" = "-l" -o "$prev" = "-L" -o "$prev" = "-o" ] && return 0
 
-	COMPREPLY=( $( cut -d'|' -f1 < $portsdir/INDEX | egrep "^$cur" ) )
-	COMPREPLY2=( $( cut -d'|' -f2 < $portsdir/INDEX | egrep "^$portsdir$cur" ) )
+	COMPREPLY=( $( cut -d'|' -f1 < $indexfile | egrep "^$cur" ) )
+	COMPREPLY2=( $( cut -d'|' -f2 < $indexfile | egrep "^$portsdir$cur" ) )
 	COMPREPLY2=( ${COMPREPLY2[@]#$portsdir} )
 	COMPREPLY=( ${COMPREPLY[@]} ${COMPREPLY2[@]} )
 
