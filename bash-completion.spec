@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.86 2003/04/19 07:52:36 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.87 2003/04/19 08:02:25 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
@@ -12,9 +12,7 @@ Source: http://www.caliban.org/files/bash/%{name}-%{version}.tar.bz2
 URL: http://www.caliban.org/bash/
 BuildRoot: %{_tmppath}/%{name}-root
 BuildArch: noarch
-Requires: bash >= 2.05-12
-Requires(post): grep, textutils
-Requires(postun): sed, fileutils
+Requires: bash >= 2.05-12, grep, textutils, sed, fileutils
 
 %description
 bash-completion is a collection of shell functions that take advantage of
