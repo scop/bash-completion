@@ -1,4 +1,4 @@
-$Id: README,v 1.3 2002/02/20 06:53:33 ianmacd Exp $
+$Id: README,v 1.4 2002/02/25 06:54:16 ianmacd Exp $
 
 
 INSTALLATION
@@ -56,6 +56,36 @@ running bash 2.04. In this case, you should upgrade to bash 2.05a or later.
 Copies of the patches and prepatched versions of bash are available from:
 
 			http://www.caliban.org/bash/
+
+KNOWN PROBLEMS
+--------------
+
+I.
+
+There seems to be some issue with using the bash built-in cd within Makefiles.
+When invoked as /bin/sh within Makefiles, bash seems to have a problem changing
+directory via the cd command. A work-around for this is to define
+SHELL=/bin/bash within your Makefile. This is believed to be a bug in bash.
+
+II.
+
+There may be points along the command line where completion is not supported
+for a given command. Attempting completion at these points may result in a
+usage message for the bash built-in compgen being printed on stderr.
+
+The cause of this is usually that compgen is being passed a parameter for
+completion whose value begins with a hyphen. After variable expansion, compgen
+has no way of knowing that the hyphen option is not an option to itself.
+
+For example, if the completion code for a given command is something like
+'compgen -f "$cur"', where $cur is the current parameter on which you are
+attempting to complete and it expands to "-x", bash will try to execute the
+command 'compgen -f -x', believing that -x is an option to itself, not a string
+upon which to complete.
+
+I have endeavoured to trap as many instances of this in the code as possible,
+but it is highly likely that others remain. If you receive compgen errors while
+attempting completion, please report these incidents to me.
 
 -- 
 Ian Macdonald <ian@caliban.org>
