@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.701 2004/05/11 18:06:08 ianmacd Exp $
+#   $Id: bash_completion,v 1.702 2004/05/15 23:58:30 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -3786,7 +3786,7 @@ _muttconffiles()
 	sofar=" $1 "
 	shift
 	while [[ "$1" ]]; do
-	    newconffiles=( $(sed -rn 's/^source[[:space:]]+([^[:space:]]+).*$/\1/p' $(eval echo $1) ) )
+	    newconffiles=( $(sed -rn 's|^source[[:space:]]+([^[:space:]]+).*$|\1|p' $(eval echo $1) ) )
 	    for file in ${newconffiles[@]}; do
 		[[ ! "$file" ]] || [[ "${sofar/ ${file} / }" != "$sofar" ]] &&
 		    continue
@@ -3808,7 +3808,7 @@ _muttaliases()
 	[ -f ~/.muttrc ] && muttrc="~/.muttrc"
 	[ -z "$muttrc" ] && return 0
 	conffiles=( $(eval _muttconffiles $muttrc $muttrc) )
-	aliases=( $( sed -rn 's/^alias[[:space:]]+([^[:space:]]+).*$/\1/p' \
+	aliases=( $( sed -rn 's|^alias[[:space:]]+([^[:space:]]+).*$|\1|p' \
 			$(eval echo ${conffiles[@]}) ) )
 	COMPREPLY=( ${COMPREPLY[@]} $( compgen -W "${aliases[*]}" -- $cur ) )
 
@@ -3821,12 +3821,12 @@ _muttquery()
 	local -a queryresults
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	querycmd="$( mutt -Q query_command  | sed -r 's/^query_command=\"(.*)\"$/\1/; s/%s/'$cur'/' )"
+	querycmd="$( mutt -Q query_command  | sed -r 's|^query_command=\"(.*)\"$|\1|; s|%s|'$cur'|' )"
 	if [ -z "$cur" -o -z "$querycmd" ]; then
 	    queryresults=()
 	else 
 	    queryresults=( $( $querycmd | \
-	      sed -nr '2,$s/^([^[:space:]]+).*/\1/p' ) )
+	      sed -nr '2,$s|^([^[:space:]]+).*|\1|p' ) )
 	fi
 
 	COMPREPLY=( ${COMPREPLY[@]} $( compgen -W "${queryresults[*]}" \
@@ -3843,10 +3843,10 @@ _muttfiledir()
 	# This is currently not working so well. Perhaps this function should
 	# just call _filedir() for the moment.
 	if [[ $cur == [=+]* ]]; then
-		folder="$( mutt -Q folder | sed -r 's/^folder=\"(.*)\"$/\1/' )"
+		folder="$( mutt -Q folder | sed -r 's|^folder=\"(.*)\"$|\1/' )"
 		[ ! -z "$folder" ] && eval cur="${cur/[=+]/$folder\/}"
 	elif [ "$cur" == !* ]; then
-		spoolfile="$( mutt -Q spoolfile | sed -r 's/^spoolfile=\"(.*)\"$/\1/' )"
+		spoolfile="$( mutt -Q spoolfile | sed -r 's|^spoolfile=\"(.*)\"$|\1|' )"
 		[ ! -z "$spoolfile" ] && eval cur="${cur/^!/$spoolfile}";
 	fi
 	_filedir
