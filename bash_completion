@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.765 2005/01/03 02:24:14 ianmacd Exp $
+#   $Id: bash_completion,v 1.766 2005/01/03 02:35:57 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -7283,6 +7283,75 @@ _lvextend()
 }
 complete -F _lvextend lvextend
 }
+
+# mkinitrd(8) completion
+#
+have mkinitrd &&
+_mkinitrd()
+{
+	local cur args
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	# --name value style option
+	case "$prev" in
+		--preload)
+			_modules
+			return 0
+			;;
+	esac
+
+	# --name=value style option
+	if [[ "$cur" == *=* ]]; then
+		prev=${cur/=*/}
+		cur=${cur/*=/}
+		case "$prev" in
+			--@(with|builtin))
+				_modules
+				return 0
+				;;
+			--@(fstab|dsdt))
+				_filedir
+				return 0
+				;;
+			--tmpdir)
+				_filedir -d
+				return 0
+				;;
+		esac
+	fi
+
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '--version -v -f --preload \
+			--with= --omit-scsi-modules --omit-raid-modules \
+			--images-version --fstab= --nocompress --builtin= \
+			--nopivot --noudev --allow-missing --tmpdir= \
+			--initrdfs= --dsdt= --lvm-version= --froce-usb' \
+			-- $cur ) )
+	else
+		# count number of mandatory args given sofar
+		args=1
+		for (( i=1; i < COMP_CWORD; i++ )); do
+			if [[ "${COMP_WORDS[i]}" != -* ]]; then
+				args=$(($args+1))
+			fi
+		done
+
+		case $args in
+			1)
+				_filedir
+				;;
+			2)
+				COMPREPLY=( $( command ls /lib/modules | grep "^$cur" ) )
+				;;
+		esac
+	fi
+
+}
+[ -n "${have:-}" ] && complete -F _mkinitrd mkinitrd
 
 _filedir_xspec()
 {
