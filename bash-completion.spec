@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.51 2002/07/11 07:55:32 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.52 2002/07/16 08:19:26 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020711
+Version: 20020716
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,13 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Tue Jul 16 2002 Ian Macdonald <ian@caliban.org>
+- mount completion will now complete on Samba shares (only the volume, not
+  the hostname part)
+- catch more possible completions in ./configure completion
+- bzgrep et all now also recognise .tbz2
+- add some more file types that xv can complete on
+
 * Thu Jul 11 2002 Ian Macdonald <ian@caliban.org>
 - PINE address book completion fix
 - allow WINE to complete on .scr files
