@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.116 2004/03/31 17:44:58 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.117 2004/07/04 07:25:08 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20040331
+Version: 20040704
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,40 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Sun Jul  4 2004 Ian Macdonald <ian@caliban.org>
+- append a '/' to directories completed from $CDPATH
+- add _rl_enabled() to detect whether a given readline variable is on
+- pgrep and pidof completion
+- use getent for UID and GID completion when available
+- allow service completion to work on xinetd services
+- fix some spurious warnings in CVS completion
+- use --dump-options to get switchs for gpg completion
+- fix mutt completion so that leading '=' character is handled properly
+- allow Emacs to complete on archives
+- add autossh to list of commands that perform _ssh() completion
+- properly complete on .Z files during tar completion
+- add ssh-installkeys to list of programs that use known host completion
+- various OpenOffice completions added
+- fix PID completion for AIX and Solaris
+- update to aptitude completion
+- '[' must come first in character classes for sed 4.1. _configure() needed to
+  be fixed.
+
+* Wed May 26 2004 Ian Macdonald <ian@caliban.org>
+- added info completion
+- chkconfig factorisation and improvements
+- xmms(1) gets its own completion function
+- use filenames by default for cdrecord completion
+- added aspell completion
+- add SuSE support for ifup/down and ifstatus, if present
+- improvement to _update_alternatives()
+- minor fix to _command() to allow leading whitespace on the command line
+- dpkg -P was not recognised or completed
+- don't allow aliases for grep to be used during make completion
+- make mutt file completion actually work after redirection
+- fix mutt sed errors after redirection
+- builtin completes on builtins
+
 * Wed Mar 31 2004 Ian Macdonald <ian@caliban.org>
 - remove links from list of commands that complete on .html
 - mplayer file extension additions
