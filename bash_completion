@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.335 2002/05/28 20:34:38 ianmacd Exp $
+#   $Id: bash_completion,v 1.336 2002/05/30 19:08:15 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -3213,6 +3213,38 @@ _python()
 	return 0
 }
 [ "$have" ] && complete -F _python $default python
+
+# rcs(1) completion
+#
+have rcs &&
+_rcs()
+{
+	local cur prev file dir
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	file=${cur##*/}
+	dir=${cur%/*}
+
+	# deal with relative directory
+	[ "$file" = "$dir" ] && dir=.
+
+	COMPREPLY=( $( compgen -f "$dir/RCS/$file" ) )
+
+	for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
+		file=${COMPREPLY[$i]##*/}
+		file=${file%,v}
+		dir=${COMPREPLY[$i]%RCS/*}
+		COMPREPLY[$i]=$dir$file
+	done
+
+	# default to files if nothing returned and we're checking in.
+	# otherwise, default to directories
+	[ ${#COMPREPLY[@]} -eq 0 -a $1 = ci ] && _filedir || _filedir -d
+}
+[ "$have" ] && complete -F _rcs $filenames ci co rlog rcs
 
 _filedir_xspec()
 {
