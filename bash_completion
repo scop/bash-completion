@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.49 2002/01/06 19:11:12 ianmacd Exp $
+#   $Id: bash_completion,v 1.50 2002/01/08 01:26:49 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1213,15 +1213,53 @@ complete -F _tar -o default tar
 have iptables &&
 _iptables()
 {
-	local cur prev
+	local cur prev table chain
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=${COMP_WORDS[COMP_CWORD]} 
 	prev=${COMP_WORDS[COMP_CWORD-1]}
-	
-	[ "$prev" = -t ] && COMPREPLY=( $( compgen -W 'nat filter mangle' $cur ) )
-}
- [ "$have" ] && complete -F _iptables iptables
+	chain='s/^Chain \([^ ]\+\).*$/\1/p'
+
+	if [[ $COMP_LINE == *-t\ *filter* ]]; then
+		table="-t filter"
+	elif [[ $COMP_LINE == *-t\ *nat* ]]; then
+		table="-t nat"
+	elif [[ $COMP_LINE == *-t\ *mangle* ]]; then
+		table="-t mangle"
+	fi
+
+	case "$prev" in
+	-*[AIDPFXL])
+		COMPREPLY=( $( compgen -W '`iptables $table -nL | sed -ne "s/^Chain \([^ ]\+\).*$/\1/p"`' $cur ) )
+		;;
+	-*t)
+		COMPREPLY=( $( compgen -W 'nat filter mangle' $cur ) )
+		;;
+	-j)
+		if [ "$table" = "-t filter" -o "$table" = "" ]; then
+		    COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT \
+		    `iptables $table -nL | sed -ne "$chain" \
+		    -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' \
+		    $cur ) )
+		elif [ "$table" = "-t nat" ]; then
+		    COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT \
+		    MIRROR SNAT DNAT MASQUERADE `iptables $table -nL | \
+		    sed -ne "$chain" -e "s/OUTPUT|PREROUTING|POSTROUTING//"`' \
+		    $cur ) )
+		elif [ "$table" = "-t mangle" ]; then
+		    COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT \
+		    MARK TOS `iptables $table -nL | sed -ne "$chain" \
+		    -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' \
+		    $cur ) )
+		fi
+		;;
+	*)
+		;;
+	esac
+
+} 
+[ "$have" ] && complete -F _iptables iptables
+complete -F _iptables iptables
 
 # tcpdump(8) completion
 #
