@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.773 2005/01/04 23:35:41 ianmacd Exp $
+#   $Id: bash_completion,v 1.774 2005/01/10 23:39:56 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -216,9 +216,9 @@ _signals()
 	done
 }
 
-# This function completes on network interfaces
+# This function completes on configured network interfaces
 #
-_interfaces()
+_configured_interfaces()
 {
 	if [ -f /etc/debian_version ]; then
 		# Debian system
@@ -227,15 +227,34 @@ _interfaces()
 	elif [ -f /etc/SuSE-release ]; then
 		# SuSE system
 	        COMPREPLY=( $( command ls \
-		               /etc/sysconfig/network/ifcfg-* | \
-		sed -ne 's|.*ifcfg-\('$cur'.*\)|\1|p' ) )
-	    
+			/etc/sysconfig/network/ifcfg-* | \
+			sed -ne 's|.*ifcfg-\('$cur'.*\)|\1|p' ) )
 	else
 		# Assume Red Hat
 		COMPREPLY=( $( command ls \
 			/etc/sysconfig/network-scripts/ifcfg-* | \
 			sed -ne 's|.*ifcfg-\('$cur'.*\)|\1|p' ) )
 	fi
+}
+
+# This function completes on all available network interfaces
+# -a: restrict to active interfaces only
+# -w: restrict to wireless interfaces only
+#
+_available_interfaces()
+{
+	local cmd
+
+	if [ "${1:-}" = -w ]; then
+		cmd="iwconfig"
+	elif [ "${1:-}" = -a ]; then
+		cmd="ifconfig"
+	else
+		cmd="ifconfig -a"
+	fi
+
+	COMPREPLY=( $( eval $cmd 2>/dev/null | \
+		sed -ne 's|^\('$cur'[^[:space:][:punct:]]\{1,\}\).*$|\1|p') )
 }
 
 # This function expands tildes in pathnames
@@ -339,39 +358,6 @@ _modules()
 	modpath=/lib/modules/$1
 	COMPREPLY=( $( command ls -R $modpath | \
 			sed -ne 's/^\('$cur'.*\)\.k\?o\(\|.gz\)$/\1/p') )
-}
-
-# Linux ifconfig(8) and iwconfig(8) helper function
-#
-[ $UNAME = Linux -o $UNAME = FreeBSD ] && { have ifconfig || have iwconfig; } &&
-_ifwconfig()
-{
-	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
-
-	case "${COMP_WORDS[1]}" in
-	-|*[0-9]*)
-		#COMPREPLY=( $( compgen -W '${keywords[@]}' ) )
-		COMPREPLY=( ${keywords[@]} )
-		COMPREPLY=( $( echo " ${COMP_WORDS[@]}" | \
-			       (while read -d ' ' i; do
-				   [ "$i" == "" ] && continue
-				   # flatten array with spaces on either side,
-				   # otherwise we cannot grep on word
-				   # boundaries of first and last word
-				   COMPREPLY=" ${COMPREPLY[@]} "
-				   # remove word from list of completions
-				   COMPREPLY=( ${COMPREPLY/ $i / } )
-				done
-				echo ${COMPREPLY[@]})
-			  ) )
-		return 0
-		;;
-	esac
-
-	COMPREPLY=( $( eval "$@" 2>/dev/null | \
-			sed -ne \
-			  's|^\('$cur'[^[:space:][:punct:]]\{1,\}\).*$|\1|p') )
 }
 
 # start of section containing completion functions for bash built-ins
@@ -991,81 +977,142 @@ _find()
 }
 complete -F _find $filenames find
 
-# Linux ifconfig(8) completion
-#
-[ $UNAME = Linux -o $UNAME = FreeBSD ] && have ifconfig &&
-_ifconfig()
-{
-	local cur
-	local -a keywords=( -a up down arp promisc allmulti metric mtu dstaddr \
-			    netmask add del tunnel irq io_addr mem_start media \
-			 broadcast pointopoint hw multicast address txqueuelen )
-
-	_ifwconfig ifconfig -a
-
-	COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
-}
-[ $UNAME = Linux -o $UNAME = FreeBSD ] && have ifconfig &&
-  complete -F _ifconfig ifconfig
-
 # Linux iwconfig(8) completion
 #
 [ $UNAME = Linux ] && have iwconfig &&
 _iwconfig()
 {
 	local cur prev
-	local -a keywords=( essid nwid domain freq channel sens mode ap nick \
-			    rate bit rts frag key enc power )
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
-
-	case "$prev" in
+	
+	case $prev in
 		mode)
-			COMPREPLY=( $( compgen -W 'ad-hoc managed master repeater secondary monitor' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'managed ad-hoc master repeater secondary monitor' -- $cur ) )
+			return 0
+			;;
+		essid)
+			COMPREPLY=( $( compgen -W 'on off any' -- $cur ) )
+			return 0
+			;;
+		nwid)
+			COMPREPLY=( $( compgen -W 'on off' -- $cur ) )
+			return 0
+			;;
+		channel)
+			COMPREPLY=( $( iwlist ${COMP_WORDS[1]} channel | sed -n 's/.*Channel \(.*\) : \(.*\) GHz/\1/p') )
+			return 0
+			;;
+
+		freq)
+			COMPREPLY=( $( iwlist ${COMP_WORDS[1]} channel | sed -n 's/.*Channel \(.*\) : \(.*\) GHz/\2G/p') )
+			return 0
+			;;
+		ap)
+			COMPREPLY=( $( compgen -W 'auto any off' -- $cur ) )
+			return 0
+			;;
+		rate)
+			COMPREPLY=($( iwlist ${COMP_WORDS[1]} rate | sed -n 's/\(.*\)M.*/\1M/p') auto fixed)
+			return 0
+			;;
+		rts)
+			COMPREPLY=( $( compgen -W 'auto fixed off' -- $cur ) )
+			return 0
+			;;
+		frag)
+			COMPREPLY=( $( compgen -W 'auto fixed off' -- $cur ) )
+			return 0
+			;;
+		key)
+			COMPREPLY=( $( compgen -W 'off on open restricted' -- $cur ) )
+			return 0
+			;;
+		enc)
+			COMPREPLY=( $( compgen -W 'off on open restricted' -- $cur ) )
+			return 0
+			;;
+		power)
+			COMPREPLY=( $( compgen -W 'period timeout off on' -- $cur ) )
+			return 0
+			;;
+		txpower)
+			COMPREPLY=( $( compgen -W 'off on auto' -- $cur ) )
+			return 0
+			;;
+		retry)
+			COMPREPLY=( $( compgen -W 'limit lifetime' -- $cur ) )
 			return 0
 			;;
 	esac
 
-	_ifwconfig iwconfig
+	if [ $COMP_CWORD -eq 1 ]; then
+		if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '--help --version' -- $cur ) ) 
+		else
+			_available_interfaces -w
+		fi
+	else
+		COMPREPLY=( $( compgen -W 'essid nwid mode freq channel sens mode \
+			ap nick rate rts frag enc key power txpower commit' -- $cur ) ) 
+	fi
 
-	COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
 }
-[ $UNAME = Linux ] && complete -F _iwconfig iwconfig
+[ $UNAME = Linux ] && [ -n "${have:-}" ] && complete -F _iwconfig iwconfig
+
 # Linux iwlist(8) completion
 #
 [ $UNAME = Linux ] && have iwlist &&
 _iwlist()
 {
-	local -a keywords=( scanning frequency rate key power txpower retry )
+	local cur prev
 
-	_ifwconfig iwconfig
-
-	COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+	
+	if [ $COMP_CWORD -eq 1 ]; then
+		if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '--help --version' -- $cur ) ) 
+		else
+			_available_interfaces -w
+		fi
+	else
+		COMPREPLY=( $( compgen -W 'scanning frequency rate key power txpower retry' -- $cur ) ) 
+	fi
 }
-[ $UNAME = Linux ] && complete -F _iwlist iwlist
+[ $UNAME = Linux ] && [ -n "${have:-}" ] && complete -F _iwlist iwlist
 
 # Linux iwspy(8) completion
 #
 [ $UNAME = Linux ] && have iwspy &&
 _iwspy()
 {
-	local -a keywords=( setthr getthr off )
+	local cur
 
-	_ifwconfig iwconfig
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
 
-	COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
+	if [ $COMP_CWORD -eq 1 ]; then
+		if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '--help --version' -- $cur ) ) 
+		else
+			_available_interfaces -w
+		fi
+	else
+		COMPREPLY=( $( compgen -W 'setthr getthr off' -- $cur ) ) 
+	fi
 }
-[ $UNAME = Linux ] && complete -F _iwspy iwspy
+[ $UNAME = Linux ] && [ -n "${have:-}" ] && complete -F _iwspy iwspy
 
-# Linux iwspy(8) completion
+# Linux iwpriv(8) completion
 #
 [ $UNAME = Linux ] && have iwpriv &&
 _iwpriv()
 {
 	local cur prev
-	local -a keywords=( --all roam port )
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -1082,11 +1129,17 @@ _iwpriv()
 			;;
 	esac
 
-	_ifwconfig iwconfig
-
-	COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
+	if [ $COMP_CWORD -eq 1 ]; then
+		if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '--help --version' -- $cur ) ) 
+		else
+			_available_interfaces -w
+		fi
+	else
+		COMPREPLY=( $( compgen -W '--all roam port' -- $cur ) ) 
+	fi
 }
-[ $UNAME = Linux ] && complete -F _iwpriv iwpriv
+[ $UNAME = Linux ] && [ -n "${have:-}" ] && complete -F _iwpriv iwpriv
 
 # RedHat & Debian GNU/Linux if{up,down} completion
 #
@@ -1099,7 +1152,7 @@ _ifupdown()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	if [ $COMP_CWORD -eq 1 ]; then
-		_interfaces
+		_configured_interfaces
        fi
 
        return 0
