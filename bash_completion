@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.299 2002/05/05 19:24:31 ianmacd Exp $
+#   $Id: bash_completion,v 1.300 2002/05/05 20:20:02 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1017,8 +1017,8 @@ _rpm()
 			--checksig --recompile --rebuild --resign --addsign \
 			--rebuilddb --showrc --setperms --setugids --tarbuild \
 			--eval --install --upgrade --query --freshen --erase \
-			--verify --querytags --rmsource --rmspec --clean' -- \
-			$cur ) )
+			--verify --querytags --rmsource --rmspec --clean \
+			--import' -- $cur ) )
 			;;
 		*)
 			COMPREPLY=( $( compgen -W '-b -e -F -i -q -t -U -V' \
@@ -1081,7 +1081,8 @@ _rpm()
 			--ftpproxy --ftpport --justdb --httpproxy --httpport \
 			--noorder --relocate --badreloc --notriggers \
 			--excludepath --ignoresize --oldpackage --define \
-			--eval --pipe --queryformat --repackage' -- $cur ) )
+			--eval --pipe --queryformat --repackage --nosuggests \
+			--nodigest --nosignature' -- $cur ) )
 		else
 			file_glob rpm
 		fi
@@ -1110,7 +1111,8 @@ _rpm()
 				--dump --changelog --dbpath --filesbypkg \
 				--define --eval --pipe --showrc --info --list \
 				--state --docfiles --configfiles --queryformat \
-				--conflicts --obsoletes' -- $cur ) )
+				--conflicts --obsoletes --nodigest \
+				--nosignature' -- $cur ) )
 			else
 				file_glob rpm
 			fi
@@ -1126,7 +1128,8 @@ _rpm()
 				--eval --pipe --showrc --info --list --state \
 				--docfiles --configfiles --queryformat \
 				--conflicts --obsoletes --pkgid --hdrid \
-				--fileid --tid' -- $cur ) )
+				--fileid --tid --nodigest --nosignature' \
+				-- $cur ) )
 			elif [ "${COMP_LINE#* -*([^ -])a}" == "$COMP_LINE" ]; then
 				rpm_installed_packages
 			fi
@@ -1134,8 +1137,8 @@ _rpm()
 		;;
 	-@(K|-checksig))
 		if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W '--nopgp --nogpg --nomd5' \
-					-- $cur ) )
+			COMPREPLY=( $( compgen -W '--nopgp --nogpg --nomd5 \
+					--nodigest --nosignature' -- $cur ) )
 		else
 			file_glob rpm
 		fi
@@ -1144,7 +1147,8 @@ _rpm()
 		if [[ "$cur" == -* ]]; then
 			COMPREPLY=( $( compgen -W '--root --rcfile --dbpath \
 			--nodeps --nofiles --noscripts --nomd5 --querytags \
-			--specfile --whatrequires --whatprovides' -- $cur ) )
+			--specfile --whatrequires --whatprovides --nodigest \
+			--nosignature' -- $cur ) )
 		# check whether we're doing file completion
 		elif [ "${COMP_LINE#* -*([^ -])f}" != "$COMP_LINE" ]; then
 			_filedir
@@ -1191,6 +1195,14 @@ _rpm()
 					--rmspec' -- $cur ) )
 		else
 			file_glob spec
+		fi
+		;;
+	--@(import|dbpath|root))
+		if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '--import --dbpath --root' \
+					-- $cur ) )
+		else
+			_filedir
 		fi
 		;;
 	esac
