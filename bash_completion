@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.50 2002/01/08 01:26:49 ianmacd Exp $
+#   $Id: bash_completion,v 1.51 2002/01/08 01:33:08 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -470,6 +470,24 @@ _ifconfig()
 	COMPREPLY=( $( ifconfig -a | sed -ne 's/^\('$cur'[^ ]*\).*$/\1/p' ))
 }
 [ $OS = Linux ] && complete -F _ifconfig ifconfig
+
+# RedHat Linux if{up,down} completion by Frank Sweetser <fs@wpi.edu>
+#
+[ $OS = Linux ] && ( have ifup || have ifdown ) &&
+_ifupdown()
+{
+       local cur
+
+       COMPREPLY=()
+       cur=${COMP_WORDS[COMP_CWORD]}
+
+       if [ $COMP_CWORD = 1 ] ; then
+	       COMPREPLY=( $(  \ls /etc/sysconfig/network-scripts/ifcfg-* | sed -ne 's/.*ifcfg-\('$cur'.*\)/\1/p' ) )
+       fi
+
+       return 0
+}
+[ $OS = Linux ] && have ifup && complete -F _ifupdown ifup ifdown
 
 # Linux ipsec(8) completion (for FreeS/WAN). Basic.
 #
