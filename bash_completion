@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.422 2002/10/05 07:52:37 ianmacd Exp $
+#   $Id: bash_completion,v 1.423 2002/10/05 08:03:21 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -454,6 +454,8 @@ _mount()
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
+	[[ "$cur" == \\ ]] && cur="/"
+
 	for i in {,/usr}/{,s}bin/showmount; do [ -x $i ] && sm=$i && break; done
 
 	if [ -n "$sm" ] && [[ "$cur" == *:* ]]; then
@@ -488,7 +490,7 @@ _rmmod()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	COMPREPLY=( $( /sbin/lsmod | \
-		       awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}' ) )
+		  awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}' 2>/dev/null ))
 	return 0
 }
 [ $UNAME = Linux ] && complete -F _rmmod rmmod
