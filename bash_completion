@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.7 2000/10/09 20:07:50 ianmacd Exp $
+#   $Id: bash_completion,v 1.8 2000/10/19 17:25:36 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -25,6 +25,9 @@ shopt -s extglob progcomp
 
 # A lot of the following one-liners were taken directly from the
 # completion examples provided with the bash 2.04 source distribution
+
+# Make directory commands see only directories
+complete -d cd mkdir rmdir pushd
 
 # Make file commands see only files
 complete -f cat less more ln strip
@@ -1050,22 +1053,3 @@ _make()
 	return 0
 }
 complete -F _make -X '+($*|*.[cho])' make gmake pmake
-
-# Directory completion with tilde expansion
-#
-_directory()
-{
-        local cur
-
-        COMPREPLY=()
-        cur=${COMP_WORDS[COMP_CWORD]}
-
-        if [[ "$cur" == ~* ]]; then
-		COMPREPLY=( $( compgen -u ${cur%~} ) )
-	else
-		COMPREPLY=( $( compgen -d $cur ) )
-	fi
-
-	return 0
-}
-complete -F _directory cd mkdir rmdir pushd
