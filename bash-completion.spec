@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.65 2002/10/13 18:09:00 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.66 2002/10/17 07:25:04 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20021013
+Version: 20021017
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,18 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Thu Oct 17 2002 Ian Macdonald <ian@caliban.org>
+- various improvements to scp completion
+- add Slackware Linux removepkg completion
+- add FreeBSD pkg_delete and pkg_info completion
+- Perl module completion endless loop fix
+- minor fix to apt-build completion
+- allow xmms to also complete on .wav files
+- return core files in gdb completion
+- tar file completion on files within .bz2 archives did not work
+- tar completion on files inside tar files should not return files outside
+  archive
+
 * Sun Oct 13 2002 Ian Macdonald <ian@caliban.org>
 - fixed apt-cache 'show' completion bug
 - fixed function names with hyphens
