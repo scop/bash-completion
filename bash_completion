@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.368 2002/06/24 08:22:11 ianmacd Exp $
+#   $Id: bash_completion,v 1.369 2002/06/24 16:34:50 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -174,10 +174,7 @@ _expand()
 {
 	[ "$cur" != "${cur%\\}" ] && cur="$cur"'\'
 	
-	# expand ~username type directory specifications
-	if [[ "$cur" == \~*/* ]]; then
-		eval cur=$cur
-	elif [[ "$cur" == \~* ]]; then
+	if [[ "$cur" == \~* ]]; then
 		cur=${cur#\~}
 		COMPREPLY=( $( compgen -P '~' -u $cur ) )
 		return ${#COMPREPLY[@]}
@@ -2100,7 +2097,7 @@ _cd()
 	for i in ${CDPATH//:/$'\t'}; do
 		# create an array of matched subdirs
 		k=${#COMPREPLY[@]}
-		for j in $( compgen -d $i/$cur); do
+		for j in $( compgen -d $i/$cur ); do
 			COMPREPLY[$k]=${j#$i/}
 			k=$((++k))
 		done
