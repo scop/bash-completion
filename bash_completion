@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.370 2002/06/24 16:37:13 ianmacd Exp $
+#   $Id: bash_completion,v 1.371 2002/06/24 21:40:04 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -173,8 +173,12 @@ _signals()
 _expand()
 {
 	[ "$cur" != "${cur%\\}" ] && cur="$cur"'\'
-	
-	if [[ "$cur" == \~* ]]; then
+
+  
+	# expand ~username type directory specifications
+	if [[ "$cur" == \~*/* ]]; then
+		eval cur=$cur
+	elif [[ "$cur" == \~* ]]; then
 		cur=${cur#\~}
 		COMPREPLY=( $( compgen -P '~' -u $cur ) )
 		return ${#COMPREPLY[@]}
