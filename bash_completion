@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.707 2004/05/24 09:00:23 ianmacd Exp $
+#   $Id: bash_completion,v 1.708 2004/05/24 09:12:31 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -211,6 +211,12 @@ _interfaces()
 		# Debian system
 		COMPREPLY=( $( sed -ne 's|^iface \([^ ]\+\).*$|\1|p' \
 			       /etc/network/interfaces ) )
+	elif [ -f /etc/SuSE-release ]; then
+		# SuSE system
+	        COMPREPLY=( $( command ls \
+		               /etc/sysconfig/network/ifcfg-* | \
+		sed -ne 's|.*ifcfg-\('$cur'.*\)|\1|p' ) )
+	    
 	else
 		# Assume Red Hat
 		COMPREPLY=( $( command ls \
@@ -957,6 +963,7 @@ _ifupdown()
        return 0
 }
 [ $UNAME = Linux ] && have ifup && complete -F _ifupdown ifup ifdown
+[ $UNAME = Linux ] && have ifstatus && complete -F _ifupdown ifstatus
 
 # Linux ipsec(8) completion (for FreeS/WAN)
 #
