@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.31 2002/05/04 20:43:04 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.32 2002/05/07 08:16:54 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020504
+Version: 20020507
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,12 +73,24 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Tue May  7 2002 Ian Macdonald <ian@caliban.org>
+- add completion for Postfix commands
+- rpm completion additions for rpm 4.1
+- ssh completion now also returns host aliases from /etc/ssh/ssh_config and
+  ~/.ssh/config files
+- _known_hosts(): check /etc/ssh/ssh_config and ~/ssh/config to get location
+  of global and user known hosts files, rather than assuming default locations
+- 'cvs checkout' now checks for registered modules, not just directories in
+  $CVSROOT
+- add Debian Linux aptitude(8) completion
+- _comp-dpkg-installed-packages(): return list of installed packages, rather
+  than all installable packages
+
 * Sat May  4 2002 Ian Macdonald <ian@caliban.org>
 - add python completion on .py, .pyc and .pyo files
-- cvs completion now handles diff
-- make xine complete on the same files as mplayer
+- cvs completion now handles diff option
+- make xine complete on the same file types as mplayer
 - cvs completion code clean-up
-  at run-time anyway
 - add long option completion to psql completion
 - _filedir_xspec(): avoid eval errors when completing within backticks or
   quotes
