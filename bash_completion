@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.710 2004/05/24 09:43:21 ianmacd Exp $
+#   $Id: bash_completion,v 1.711 2004/05/24 09:44:44 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -103,7 +103,6 @@ complete -f -X '!*.@(rm|ram|smi?(l))' realplay
 complete -f -X '!*.@(mpg|mpeg|avi|mov|qt)' xanim
 complete -f -X '!*.@(ogg|OGG|m3u|flac|spx)' ogg123
 complete -f -X '!*.@(mp3|MP3|ogg|OGG|pls|m3u)' gqmpeg freeamp
-complete -f -X '!*.@(mp[23]|MP[23]|ogg|OGG|wav|WAV|pls|m3u|xm|mod|s[3t]m|it|mtm|ult|flac)' xmms
 complete -f -X '!*.fig' xfig
 complete -f -X '!*.@(mid?(i))' timidity playmidi
 complete -f -X '*.@(o|so|so.!(conf)|a|tar?(.@(gz|bz2))|tgz|tbz2|rpm|zip|ZIP|gif|GIF|jp?(e)g|JP?(E)G|mp3|MP3|mp?(e)g|MPG|avi|AVI|asf|ASF|ogg|OGG|class|CLASS)' vi vim gvim rvim view rview rgvim rgview gview emacs
@@ -5892,6 +5891,29 @@ _aspell()
 }
 complete -F _aspell $default aspell
 }
+
+# xmms(1) completion
+#
+have xmms &&
+_xmms()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-h --help -r --rew -p --play \
+			-u --pause -s --stop -t --play-pause -f --fwd -e \
+			--enqueue -m --show-main-window -i --sm-client-id \
+			-v --version' -- $cur ) )
+	else
+		_filedir '@(mp[23]|MP[23]|ogg|OGG|wav|WAV|pls|m3u|xm|mod|s[3t]m|it|mtm|ult|flac)'
+
+	fi
+
+}
+[ "${have:-}" ] && complete -F _xmms $filenames xmms
 
 _filedir_xspec()
 {
