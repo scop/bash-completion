@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.126 2002/02/18 11:09:59 ianmacd Exp $
+#   $Id: bash_completion,v 1.127 2002/02/18 18:26:54 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1143,6 +1143,7 @@ _scp()
 # Linux route(8) completion. This could be improved by adding address family
 # completion for -A, etc.
 #
+[ $OS = Linux ] &&
 _route()
 {
 	local cur prev
@@ -1176,11 +1177,12 @@ _route()
 		  ) )
 	return 0
 }
-complete -F _route route
+[ $OS = Linux ] && complete -F _route route
 
 # GNU make(1) completion (adapted from the example supplied with the bash 2.04
 # source code)
 #
+have make &&
 _make()
 {
 	local mdef makef gcmd cur prev i
@@ -1240,7 +1242,7 @@ _make()
 
 	return 0
 }
-complete -F _make -X '+($*|*.[cho])' -o filenames make gmake pmake
+[ "$have" ] && complete -F _make -X '+($*|*.[cho])' -o filenames make gmake pmake
 
 # Red Hat Linux service completion. This completes on a list of all available
 # service scripts in the SysV init.d directory, followed by that script's
@@ -1732,7 +1734,7 @@ _longopt()
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( $1 --help | sed  -e '/--/!d' \
-						-e 's/.*--\([^ ]*\).*/--\1/'| \
+						-e 's/.*--\([^ ]*\).*/--\1/' | \
 			       grep ^$cur | sort -u ) )
 	else
 		_filedir
@@ -1741,13 +1743,12 @@ _longopt()
 }
 complete -F _longopt -o dirnames mkdir rmdir
 # makeinfo and texi2dvi are defined elsewhere
-for i in a2ps autoconf automake bc gprof ld nm objcopy objdump readelf \
-	 strip bison cpio diff patch enscript cp df dir du ln ls mkfifo \
-	 mknod mv rm touch vdir xargs awk gperf grep gpg grub indent \
-	 less m4 sed shar date env seq su tee uname who texindex \
-	 cat csplit cut expand fmt fold head md5sum nl od paste pr \
-	 ptx sha1sum sort split tac tail tr unexpand uniq wc units wget \
-	 rsync ldd bash id info; do
+for i in a2ps autoconf automake bc gprof ld nm objcopy objdump readelf strip \
+	 bison cpio diff patch enscript cp df dir du ln ls mkfifo mknod mv rm \
+	 touch vdir xargs awk gperf grep gpg grub indent less m4 sed shar date \
+	 env seq su tee uname who texindex cat csplit cut expand fmt fold head \
+	 md5sum nl od paste pr ptx sha1sum sort split tac tail tr unexpand \
+	 uniq wc units wget rsync ldd bash id info; do
     have $i && complete -F _longopt -o filenames $i
 done
 unset i
