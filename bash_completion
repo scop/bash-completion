@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.746 2004/10/14 08:54:55 ianmacd Exp $
+#   $Id: bash_completion,v 1.747 2004/10/14 09:08:33 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -3107,14 +3107,16 @@ _openssl()
 have screen &&
 _screen()
 {
-	local cur prev
+	local cur prev preprev
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
-	test "$COMP_CWORD" -ge 2 && preprev=${COMP_WORDS[COMP_CWORD-2]} || unset preprev
 
-	if test "$preprev" = "-d" -o "$preprev" = "-D" -a "$prev" = "-r" -o "$prev" = "-R"; then
+	[ "$COMP_CWORD" -ge 2 ] && preprev=${COMP_WORDS[COMP_CWORD-2]}
+
+	if [ "$preprev" = "-d" -o "$preprev" = "-D" -a "$prev" = "-r" -o \
+	     "$prev" = "-R" ]; then
 		# list all
 		COMPREPLY=( $( command screen -ls | \
 				sed -ne 's|^['$'\t'']\+[0-9]\+\.\('$cur'[^'$'\t'']\+\).*$|\1|p' ) )
