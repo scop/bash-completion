@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.762 2005/01/03 00:48:27 ianmacd Exp $
+#   $Id: bash_completion,v 1.763 2005/01/03 00:53:47 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1287,8 +1287,7 @@ get_entries()
 {
 	local IFS=$'\n'
 	[ -r ${prefix:-}CVS/Entries ] && \
-	entries=( $( compgen -W \
-		$( cut -d/ -f2 -s ${prefix:-}CVS/Entries ) -- $cur ) )
+	entries=$(cut -d/ -f2 -s ${prefix:-}CVS/Entries)
 }
 
 get_modules()
@@ -1328,7 +1327,7 @@ _cvs()
 				mode=admin
 				;;
 			ann?(notate))
-				mode = annotate
+				mode=annotate
 				;;
 			@(checkout|co|get))
 				mode=checkout
@@ -1411,6 +1410,14 @@ _cvs()
 					$cur ) )
 		fi
 		;;
+	annotate)
+		if [[ "$cur" = -* ]]; then
+			COMPREPLY=( $( compgen -W '-D -F -f -l -R -r' -- $cur ) )
+		else
+			get_entries
+			COMPREPLY=( $( compgen -W '${entries[@]}' -- $cur ) )
+		fi
+		;;
 	checkout)
 		if [[ "$cur" != -* ]]; then
 			[ -z "$cvsroot" ] && cvsroot=$CVSROOT
@@ -1470,7 +1477,7 @@ _cvs()
 			_longopt diff
 		else
 			get_entries
-			COMPREPLY=( ${entries[@]:-} )
+			COMPREPLY=( $( compgen -W '${entries[@]}' -- $cur ) )
 		fi
 		;;
 	remove)
