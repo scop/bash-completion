@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.6 2002/02/25 07:08:31 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.7 2002/02/25 23:21:51 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
@@ -66,7 +66,7 @@ if [ "$1" -eq 0 ]; then
 fi
 
 %files
-%defattr(644,root,root)
+%defattr(-,root,root)
 %{_sysconfdir}/bash_completion
 %doc README Changelog
 
