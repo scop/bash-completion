@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.68 2002/10/22 16:01:17 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.69 2002/10/26 06:15:05 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20021022
+Version: 20021026
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,13 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Sat Oct 26 2002 Ian Macdonald <ian@caliban.org>
+- many scp fixes
+- Mandrake urpmi completion improvements
+- .wav completion for mplayer
+- very basic look(1) completion
+- fix for man page completion when name has colon in it
+
 * Tue Oct 22 2002 Ian Macdonald <ian@caliban.org>
 - fix the fix to scp completion
 
