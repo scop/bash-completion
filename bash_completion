@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.94 2002/02/08 17:49:05 ianmacd Exp $
+#   $Id: bash_completion,v 1.95 2002/02/08 18:16:44 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1719,7 +1719,7 @@ _filedir()
 
 	_expand || return 0
 
-	COMPREPLY=( ${COMPREPLY[@]} $( eval compgen -f $cur ) \
+	COMPREPLY=( ${COMPREPLY[@]} $( eval compgen -f \"$cur\" ) \
 		    $( compgen -d $cur ) )
 }
 complete -F _filedir -o filenames cat less more ln strip
@@ -1740,7 +1740,8 @@ _filedir_xspec()
 	xspec=${xspec#*-X }
 	xspec=${xspec%% *}
 
-	COMPREPLY=( $( eval compgen -f -X "$xspec" $cur ) $( compgen -d $cur ) )
+	COMPREPLY=( $( eval compgen -f -X "$xspec" \"$cur\" ) \
+		    $( compgen -d $cur ) )
 }
 list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' \
 	  $BASH_COMPLETION | \
