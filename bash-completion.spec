@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.69 2002/10/26 06:15:05 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.70 2002/12/05 21:44:08 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20021026
+Version: 20021205
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,24 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Thu Dec  5 2002 Ian Macdonald <ian@caliban.org>
+- first stab at ypmatch(1) and ypcat(1) completion
+- check for insmod and rmmod in path before installing completion functions
+- add rcsdiff to list of RCS commands that use RCS completion function
+- don't bother completing on PIDs in screen completion
+- add FreeBSD portupgrade completion
+- add FreeBSD kernel module command completion
+- add .zargo to list of extensions that unzip can complete on (Gentleware)
+- don't source files in $BASH_COMPLETION_DIR if they are vi swap files,
+  Debian back-ups, Emacs temp files, back-ups, etc.
+- add .flac completion to xmms
+- make dpkg completion also handle .udeb files
+- dpkg completion completes for -c as for --contents
+- make gzip work with .tgz files, not just .gz files
+- make ee and display complete on .pnm and .xwd files
+- minor rpm fix
+- make texi2dvi complete like other LaTeX programs
+
 * Sat Oct 26 2002 Ian Macdonald <ian@caliban.org>
 - many scp fixes
 - Mandrake urpmi completion improvements
