@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.35 2002/05/16 16:19:13 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.36 2002/05/19 17:00:01 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020516
+Version: 20020519
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -13,8 +13,8 @@ URL: http://www.caliban.org/bash/
 BuildRoot: /var/tmp/%{name}-root
 BuildArch: noarch
 Requires: bash >= 2.05-12
-Requires(post): grep
-Requires(postun): sed
+Requires(post): grep, textutils
+Requires(postun): sed, fileutils
 
 %description
 bash-completion is a collection of shell functions that take advantage of
@@ -73,6 +73,14 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Sun May 19 2002 Ian Macdonald <ian@caliban.org>
+- Python now completes first on a .@(py|pyc|pyo) file, then on any file
+- rpm helper function _file_glob() has been integrated into _filedir()
+- replace many calls to compgen -f/-d with calls to _filedir()
+- scp completion now also completes on host aliases from ssh config files
+- add a Requires for textutils, since %post needs cat(1)
+- add a Requires for fileutils, since %postun needs mv(1)
+
 * Thu May 16 2002 Ian Macdonald <ian@caliban.org>
 - fix bug in cvs completion when completing on filenames that contain regex
   metacharacters
