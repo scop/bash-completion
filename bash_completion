@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.66 2002/01/23 21:35:17 ianmacd Exp $
+#   $Id: bash_completion,v 1.67 2002/01/24 00:13:21 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1334,14 +1334,7 @@ _cd()
 {
 	local IFS=$'\t\n' cur=${COMP_WORDS[COMP_CWORD]} dirs=() i
 
-	# expand ~username type directory specifications
-	if [[ "$cur" == \~*/* ]]; then
-		eval cur=$cur
-	elif [[ "$cur" == \~* ]]; then
-		cur=${cur#\~}
-		COMPREPLY=( $( compgen -P '~' -u $cur ) )
-		return 0
-	fi
+	_expand || return 0
 
 	# standard dir completion if parameter starts with /, ./ or ../
 	if [[ "$cur" == ?(.)?(.)/* ]]; then
@@ -1365,7 +1358,8 @@ complete -F _cd -o filenames cd
 
 # A meta-command completion function for commands like sudo(8), which need to
 # first complete on a command, then complete according to that command's own
-# completion definition - currently not quite foolproof, but works well
+# completion definition - currently not quite foolproof (e.g. mount and umount
+# don't work properly), but still quite useful
 #
 _command()
 {
@@ -1539,6 +1533,40 @@ _mysqladmin()
 }
 [ "$have" ] && complete -F _mysqladmin mysqladmin
 
+# gzip(1) and bzip2(1) completion
+#
+have gzip &&
+_zip()
+{
+	local IFS cur prev xspec
+
+	IFS=$'\t\n'
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	[ ${COMP_WORDS[0]} = "gzip" ] && xspec="*.gz"
+	[ ${COMP_WORDS[0]} = "bzip2" ] && xspec="*.bz2"
+	[[ "$prev" == -*d* ]] && xspec="!"$xspec
+
+	_expand || return 0
+
+	COMPREPLY=( $( compgen -f -X $xspec $cur ) $( compgen -d $cur ) )
+}
+[ "$have" ] && complete -F _zip -o filenames gzip bzip2
+
+_expand()
+{
+	# expand ~username type directory specifications
+	if [[ "$cur" == \~*/* ]]; then
+		eval cur=$cur
+	elif [[ "$cur" == \~* ]]; then
+		cur=${cur#\~}
+		COMPREPLY=( $( compgen -P '~' -u $cur ) )
+		return ${#COMPREPLY[@]}
+	fi
+}
+
 # Return 1 if $1 appears to contain a redirection operator.  Handles backslash
 # quoting (barely).
 #
@@ -1589,7 +1617,9 @@ _file_and_dir()
 
 	IFS=$'\t\n'
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]#-}
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	_expand || return 0
 
 	# get first exclusion compspec that matches this command
 	xspec=$( sed -ne '/ '$1'/{p;q;}' /etc/bash_completion )
