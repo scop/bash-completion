@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.191 2002/03/08 19:50:24 ianmacd Exp $
+#   $Id: bash_completion,v 1.192 2002/03/11 02:10:17 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1697,7 +1697,7 @@ _cd()
 	_filedir -d
 	# remove leading ./ from completions
 	for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
-		COMPREPLY[i]=${COMPREPLY[i]/#.\//}
+		COMPREPLY[i]=${COMPREPLY[i]#.\/}
 	done
 
 	return 0
@@ -2192,9 +2192,13 @@ _dpkg()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in 
-	-i|--install|--unpack|-A|--record-avail)
+	-i|--install|--unpack|-A|--record-avail|-c|--contents|-I|--info|--fsys-tarfile|-f|--field|-e|--control|-X|--extract)
 		COMPREPLY=( $( compgen -f -X '!*.deb' -- $cur ) \
 			    $( compgen -d -- $cur ) )
+		return 0
+		;;
+	-b|--build)
+		COMPREPLY=( $( compgen -d -- $cur ) )
 		return 0
 		;;
    	-s|--status|-p|--print-avail|-L|--listfiles)
@@ -2218,9 +2222,11 @@ _dpkg()
 			-O --selected-only -E --skip-same-version \
 			-G --refuse-downgrade -B --auto-deconfigure \
 			--no-debsig --no-act -D --debug= --status-fd \
+			-b --build -I --info -f --field -c --contents \
+			-x --extract -X --vextract --fsys-tarfile -e --control \
 			--ignore-depends= --abort-after' -- $cur ) )
 }
-[ "$have" ] && complete -F _dpkg -o filenames dpkg
+[ "$have" ] && complete -F _dpkg -o filenames dpkg dpkg-deb
 
 have java &&
 _java()
