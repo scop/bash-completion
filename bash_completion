@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.131 2002/02/18 19:21:14 ianmacd Exp $
+#   $Id: bash_completion,v 1.132 2002/02/18 23:40:23 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -293,7 +293,10 @@ _man()
 	_expand || return 0
 
 	# default completion if parameter contains /
-	[[ "$cur" == */* ]] && return 0
+	if [[ "$cur" == */* ]]; then
+		_filedir
+		return 0
+	fi
 
 	manpath=$( manpath )
 	if [ -z "$manpath" ]; then
@@ -320,12 +323,13 @@ _man()
 	COMPREPLY=( ${COMPREPLY[@]%.*} )
 
 	if [[ "$prev" != [0-9ln] ]]; then
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -G $cur\*.[0-9ln] ) )
+		COMPREPLY=( ${COMPREPLY[@]} $( compgen -d $cur ) \
+			    $( compgen -f -X '!*.[0-9ln]' $cur ) )
 	fi
 
 	return 0
 }
-[ $OS = Linux ] && complete -F _man -o default man
+[ $OS = Linux ] && complete -F _man -o filenames man
 
 # Linux killall(1) completion. This wouldn't be much use on, say,
 # Solaris, where killall does exactly that: kills ALL processes.
