@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.173 2002/03/01 23:41:42 ianmacd Exp $
+#   $Id: bash_completion,v 1.174 2002/03/02 01:13:23 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -40,7 +40,9 @@ shopt -s extglob progcomp
 # Make directory commands see only directories
 complete -d pushd
 
-# the following section lists completions that are redefined later
+# The following section lists completions that are redefined later
+# Do NOT break these over multiple lines.
+#
 # START exclude -- do NOT remove this line
 complete -f -X '!*.bz2' bunzip2 bzcat bzcmp bzdiff bzegrep bzfgrep bzgrep
 complete -f -X '!*.@(zip|ZIP|jar|JAR|exe|EXE|pk3)' unzip
@@ -63,6 +65,8 @@ complete -f -X '!*.@(ogg|OGG)' ogg123
 complete -f -X '!*.@(mp3|MP3|ogg|OGG|pls)' xmms gqmpeg freeamp
 complete -f -X '!*.fig' xfig
 # FINISH exclude -- do not remove this line
+
+# start of section containing compspecs that can be handled within bash
 
 # user commands see only users
 complete -u finger su usermod userdel passwd
@@ -97,16 +101,10 @@ complete -A binding bind
 # type completes with commands
 complete -c command type
 
-# Now we get to the meat of the file, the functions themselves. Some
-# of these are works in progress. Most assume GNU versions of the
-# tools in question and may require modifications for use on vanilla
-# UNIX systems.
-#
-# A couple of functions may have non-portable, Linux specific code in
-# them, but this will be noted where applicable
+# start of section containing completion functions called by other functions
 
-# This function is handy for checking whether we have certain programs
-# on the system. No need for bulky functions in memory if we don't.
+# This function checks whether we have a given programs on the system.
+# No need for bulky functions in memory if we don't.
 #
 have()
 {
@@ -114,6 +112,124 @@ have()
 	type $1 &> /dev/null
 	[ $? -eq 0 ] && have="yes"
 }
+
+# This function performs file and directory completion. It's better than
+# simply using 'compgen -f', because it honours spaces in filenames
+#
+_filedir()
+{
+	local IFS=$'\t\n'
+
+	_expand || return 0
+
+	if [ "$1" = -d ]; then
+		COMPREPLY=( ${COMPREPLY[@]} $( compgen -d -- $cur ) )
+		return 0
+	fi
+	COMPREPLY=( ${COMPREPLY[@]} $( eval compgen -f -- \"$cur\" ) )
+}
+
+# This function completes on signal names
+#
+_signals()
+{
+	local i
+
+	# standard signal completion is rather braindead, so we need
+	# to hack around to get what we want here, which is to
+	# complete on a dash, followed by the signal name minus
+	# the SIG prefix
+	COMPREPLY=( $( compgen -A signal SIG${cur#-} ))
+	for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
+		COMPREPLY[i]=-${COMPREPLY[i]#SIG}
+	done
+}
+
+# This function expands tildes in pathnames
+#
+_expand()
+{
+	[ "$cur" != "${cur%\\}" ] && cur="$cur"'\'
+	
+	# expand ~username type directory specifications
+	if [[ "$cur" == \~*/* ]]; then
+		eval cur=$cur
+	elif [[ "$cur" == \~* ]]; then
+		cur=${cur#\~}
+		COMPREPLY=( $( compgen -P '~' -u $cur ) )
+		return ${#COMPREPLY[@]}
+	fi
+}
+
+# start of section containing completion functions for bash built-ins
+
+# bash alias completion
+#
+_alias()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[$COMP_CWORD]};
+
+	case "$COMP_LINE" in
+	*[^=])
+		COMPREPLY=( $( compgen -A alias -S '=' -- $cur ) )
+		;;
+        *=)
+		COMPREPLY=( "$( alias ${cur%=} 2>/dev/null | \
+			     sed -e 's|^alias '$cur'\(.*\)$|\1|' )" )
+		;;
+	esac
+}
+complete -F _alias alias
+
+# bash export completion
+#
+_export()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[$COMP_CWORD]};
+
+	case "$COMP_LINE" in
+	*[^=])
+		COMPREPLY=( $( compgen -v -S '=' -- $cur ) )
+		;;
+        *=)
+		COMPREPLY=( $( eval echo $`echo ${cur%=}` ) )
+		;;
+    esac
+}
+complete -F _export export
+
+# bash shell function completion
+#
+_function()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [[ $1 == @(declare|typeset) ]]; then
+		if [ "$prev" = -f ]; then
+			COMPREPLY=( $( compgen -A function -- $cur ) )
+		elif [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '-a -f -F -i -r -x -p' -- \
+				       $cur ) )
+		fi
+	elif [ $COMP_CWORD -eq 1 ]; then
+		COMPREPLY=( $( compgen -A function -- $cur ) )
+	else
+		COMPREPLY=( "() $( type -- ${COMP_WORDS[1]} | sed -e 1,2d )" )
+	fi
+}
+complete -F _function function declare typeset
+
+# start of section containing completion functions for external programs
 
 # GNU chown(1) completion.
 #
@@ -325,20 +441,6 @@ _man()
 	return 0
 }
 [ $OS = Linux ] && complete -F _man -o filenames man
-
-_signals()
-{
-	local i
-
-	# standard signal completion is rather braindead, so we need
-	# to hack around to get what we want here, which is to
-	# complete on a dash, followed by the signal name minus
-	# the SIG prefix
-	COMPREPLY=( $( compgen -A signal SIG${cur#-} ))
-	for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
-		COMPREPLY[i]=-${COMPREPLY[i]#SIG}
-	done
-}
 
 # kill(1) completion
 #
@@ -2037,86 +2139,6 @@ _dpkg()
 }
 [ "$have" ] && complete -F _dpkg -o filenames dpkg
 
-# bash alias completion
-#
-_alias()
-{
-	local cur
-
-	COMPREPLY=()
-	cur=${COMP_WORDS[$COMP_CWORD]};
-
-	case "$COMP_LINE" in
-	*[^=])
-		COMPREPLY=( $( compgen -A alias -S '=' -- $cur ) )
-		;;
-        *=)
-		COMPREPLY=( "$( alias ${cur%=} 2>/dev/null | \
-			     sed -e 's|^alias '$cur'\(.*\)$|\1|' )" )
-		;;
-	esac
-}
-complete -F _alias alias
-
-# bash export completion
-#
-_export()
-{
-	local cur
-
-	COMPREPLY=()
-	cur=${COMP_WORDS[$COMP_CWORD]};
-
-	case "$COMP_LINE" in
-	*[^=])
-		COMPREPLY=( $( compgen -v -S '=' -- $cur ) )
-		;;
-        *=)
-		COMPREPLY=( $( eval echo $`echo ${cur%=}` ) )
-		;;
-    esac
-}
-complete -F _export export
-
-# bash shell function completion
-#
-_function()
-{
-	local cur prev
-
-	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
-	prev=${COMP_WORDS[COMP_CWORD-1]}
-
-	if [[ $1 == @(declare|typeset) ]]; then
-		if [ "$prev" = -f ]; then
-			COMPREPLY=( $( compgen -A function -- $cur ) )
-		elif [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W '-a -f -F -i -r -x -p' -- \
-				       $cur ) )
-		fi
-	elif [ $COMP_CWORD -eq 1 ]; then
-		COMPREPLY=( $( compgen -A function -- $cur ) )
-	else
-		COMPREPLY=( "() $( type -- ${COMP_WORDS[1]} | sed -e 1,2d )" )
-	fi
-}
-complete -F _function function declare typeset
-
-_expand()
-{
-	[ "$cur" != "${cur%\\}" ] && cur="$cur"'\'
-	
-	# expand ~username type directory specifications
-	if [[ "$cur" == \~*/* ]]; then
-		eval cur=$cur
-	elif [[ "$cur" == \~* ]]; then
-		cur=${cur#\~}
-		COMPREPLY=( $( compgen -P '~' -u $cur ) )
-		return ${#COMPREPLY[@]}
-	fi
-}
-
 _configure_func()
 {
 	local cur
@@ -2129,19 +2151,6 @@ _configure_func()
 	COMPREPLY=( $( $1 --help | sed -ne 's|^ *\('$cur'[^ '$'\t'',[]\+\).*$|\1|p' ) )
 }
 complete -F _configure_func configure
-
-_filedir()
-{
-	local IFS=$'\t\n'
-
-	_expand || return 0
-
-	if [ "$1" = -d ]; then
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -d -- $cur ) )
-		return 0
-	fi
-	COMPREPLY=( ${COMPREPLY[@]} $( eval compgen -f -- \"$cur\" ) )
-}
 
 _filedir_xspec()
 {
