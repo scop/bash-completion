@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.103 2003/10/07 06:41:59 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.104 2003/10/07 08:57:06 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030929
+Version: 20031007
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,13 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Mon Oct  7 2003 Ian Macdonald <ian@caliban.org>
+- compatibility fixes for forthcoming bash 3.x
+- added yum(8) and yum-arch(8) completion
+- iptables fixes
+- minor FreeS/WAN fixes
+- ggv can also handle .bz2 files
+
 * Mon Sep 29 2003 Ian Macdonald <ian@caliban.org>
 - various Java fixes
 - urpmi completion removed; it's now maintained by the urpmi people
