@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.375 2002/07/04 05:14:47 ianmacd Exp $
+#   $Id: bash_completion,v 1.376 2002/07/04 05:45:06 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -3061,12 +3061,24 @@ complete -F _configure_func $default configure
 
 # urpmi media function required by other urpmi functions
 #
-have urpmi &&
+have urpmq && {
 _urpmi_media()
 {
 	local IFS=$'\t\n'
 	# return list of available urpmi media
 	COMPREPLY=( $( sed -ne "s/^\(.\+\) \(\(file\|removable\|ftp\|http\):\/\/.*\)\? {$/\1/p" /etc/urpmi/urpmi.cfg | grep "^${cur//\\\\/\\\\}" ) )
+}
+
+_urpmi_packages()
+{
+	local packages
+	# first try new urpmq option to get package list
+	packages=$( urpmq --list 2>/dev/null ) 
+	# default to old manual database extraction
+	[ -z "$packages" ] && packages=$( gzip -dc /var/lib/urpmi/synthesis.hdlist.* | awk -F'@' '/info/ {print $1}' )
+	# return list of available packages
+	COMPREPLY=( $( echo $packages | tr " " "\n" | grep "^$cur" ) )
+}
 }
 
 # Mandrake urpmi completion
@@ -3091,12 +3103,12 @@ _urpmi()
 		# return list of available options
 		COMPREPLY=( $( compgen -W '-a -p -P -y -s -q -v --help \
 			--update --media --auto --auto-select --fuzzy --src \
-			--noclean --complete --force --wget --curl --X \
+			--noclean --force --wget --curl --bug --env --X \
 			--best-output' -- $cur ) )
 	else
 		# return rpm files and available packages
+		_urpmi_packages
 		_filedir rpm
-		COMPREPLY=( ${COMPREPLY[@]} $( gzip -dc /var/lib/urpmi/synthesis.hdlist.* | awk -F'@' '/info/ {print $1}' | grep "^$cur" ) )
 	fi
 }
 [ "$have" ] && complete -F _urpmi urpmi
@@ -3121,13 +3133,13 @@ _urpmq()
 
 	if [[ "$cur" == -* ]]; then
 		# return list of available options
-		COMPREPLY=( $( compgen -W '-h -v -d -u -c -p -P -y -s -g -r -f \
-			--help --update --media --auto-select --fuzzy --src \
+		COMPREPLY=( $( compgen -W '-h -v -d -u -c -P -y -s -g -r -f \
+			--help --update --media --auto-select --fuzzy --list --src \
 			--headers --sources --force' -- $cur ) )
 	else
 		# return rpm files and available packages
+		_urpmi_packages
 		_filedir rpm
-		COMPREPLY=( ${COMPREPLY[@]} $( gzip -dc /var/lib/urpmi/synthesis.hdlist.* | awk -F'@' '/info/ {print $1}' | grep "^$cur" ) )
 	fi
 }
 [ "$have" ] && complete -F _urpmq urpmq
