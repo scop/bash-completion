@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.690 2004/02/15 03:45:21 ianmacd Exp $
+#   $Id: bash_completion,v 1.737 2004/07/11 18:36:39 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -22,7 +22,7 @@
 #
 #   http://www.caliban.org/bash/index.shtml#completion
 #
-#   RELEASE: 20040214
+#   RELEASE: 20040711
 
 [ -n "${DEBUG:-}" ] && set -v || set +v
 
@@ -45,6 +45,8 @@ fi
 # Set a couple of useful vars
 #
 UNAME=$( uname -s )
+# strip OS type and version under Cygwin (e.g. CYGWIN_NT-5.1 => Cygwin)
+UNAME=${UNAME/CYGWIN_*/Cygwin}
 RELEASE=$( uname -r )
 
 # features supported by bash 2.05 and higher
@@ -101,13 +103,16 @@ complete -f -X '!*.@(rm|ram|smi?(l))' realplay
 complete -f -X '!*.@(mpg|mpeg|avi|mov|qt)' xanim
 complete -f -X '!*.@(ogg|OGG|m3u|flac|spx)' ogg123
 complete -f -X '!*.@(mp3|MP3|ogg|OGG|pls|m3u)' gqmpeg freeamp
-complete -f -X '!*.@(mp[23]|MP[23]|ogg|OGG|wav|WAV|pls|m3u|xm|mod|s[3t]m|it|mtm|ult|flac)' xmms
 complete -f -X '!*.fig' xfig
 complete -f -X '!*.@(mid?(i))' timidity playmidi
-complete -f -X '*.@(o|so|so.!(conf)|a|tar?(.@(gz|bz2))|tgz|tbz2|rpm|zip|ZIP|gif|GIF|jp?(e)g|JP?(E)G|mp3|MP3|mp?(e)g|MPG|avi|AVI|asf|ASF|ogg|OGG|class|CLASS)' vi vim gvim rvim view rview rgvim rgview gview emacs
+complete -f -X '*.@(o|so|so.!(conf)|a|tar?(.@(gz|bz2))|tgz|tbz2|rpm|zip|ZIP|gif|GIF|jp?(e)g|JP?(E)G|mp3|MP3|mp?(e)g|MPG|avi|AVI|asf|ASF|ogg|OGG|class|CLASS)' vi vim gvim rvim view rview rgvim rgview gview
+complete -f -X '*.@(o|so|so.!(conf)|a|rpm|gif|GIF|jp?(e)g|JP?(E)G|mp3|MP3|mp?(e)g|MPG|avi|AVI|asf|ASF|ogg|OGG|class|CLASS)' emacs
 complete -f -X '!*.@(exe|EXE|com|COM|scr|SCR)' wine
 complete -f -X '!*.@(zip|ZIP|z|Z|gz|GZ|tgz|TGZ)' bzme
-complete -f -X '!*.@(?([xX]|[sS])[hH][tT][mM]?([lL]))' netscape mozilla lynx opera w3m galeon curl dillo elinks links
+complete -f -X '!*.@(?([xX]|[sS])[hH][tT][mM]?([lL]))' netscape mozilla lynx opera w3m galeon curl dillo elinks amaya
+complete -f -X '!*.@(sxw|stw|sxg|doc|dot|rtf|txt|htm|html)' oowriter
+complete -f -X '!*.@(sxi|sti|pps|ppt|pot)' ooimpress
+complete -f -X '!*.@(sxc|stc|xls|xlw|xlt|csv)' oocalc
 # FINISH exclude -- do not remove this line
 
 # start of section containing compspecs that can be handled within bash
@@ -145,6 +150,9 @@ complete -A binding bind
 # type and which complete on commands
 complete -c command type which
 
+# builtin completes on builtins
+complete -b builtin
+
 # start of section containing completion functions called by other functions
 
 # This function checks whether we have a given programs on the system.
@@ -160,6 +168,15 @@ have()
 # use GNU sed if we have it, since its extensions are still used in our code
 #
 [ $UNAME != Linux ] && have gsed && alias sed=gsed
+
+# This function checks whether a given readline variable
+# is `on'.
+#
+_rl_enabled() 
+{
+    bind -v | grep -q '^set[ \t][ \t]*'$1'[ \t][ \t]*on'
+}
+
 
 # This function performs file and directory completion. It's better than
 # simply using 'compgen -f', because it honours spaces in filenames.
@@ -206,6 +223,12 @@ _interfaces()
 		# Debian system
 		COMPREPLY=( $( sed -ne 's|^iface \([^ ]\+\).*$|\1|p' \
 			       /etc/network/interfaces ) )
+	elif [ -f /etc/SuSE-release ]; then
+		# SuSE system
+	        COMPREPLY=( $( command ls \
+		               /etc/sysconfig/network/ifcfg-* | \
+		sed -ne 's|.*ifcfg-\('$cur'.*\)|\1|p' ) )
+	    
 	else
 		# Assume Red Hat
 		COMPREPLY=( $( command ls \
@@ -238,6 +261,13 @@ _pids()
 	COMPREPLY=( $( compgen -W '$( command ps axo pid | sed 1d )' -- $cur ) )
 }
 
+# AIX and Solaris ps prefers X/Open syntax, so we override the above here
+[ $UNAME = SunOS -o $UNAME = AIX ] &&
+_pids()
+{
+        COMPREPLY=( $( compgen -W '$( command ps -efo pid | sed 1d )' -- $cur ))
+}
+
 # This function completes on process group IDs
 #
 _pgids()
@@ -245,11 +275,21 @@ _pgids()
 	COMPREPLY=( $( compgen -W '$( command ps axo pgid | sed 1d )' -- $cur ))
 }
 
+# As above, AIX and SunOS prefer X/Open, all else should be BSD
+[ $UNAME = SunOS -o $UNAME = AIX ] &&
+_pgids()
+{
+        COMPREPLY=( $( compgen -W '$( command ps -efo pgid | sed 1d )' -- $cur ))
+}
+
 # This function completes on user IDs
 #
 _uids()
 {
-	if type perl &>/dev/null; then
+	if type getent &>/dev/null; then
+	    COMPREPLY=( $( getent passwd | \
+			    awk -F: '{if ($3 ~ /^'$cur'/) print $3}' ) )
+	elif type perl &>/dev/null; then
 	    COMPREPLY=( $( compgen -W '$( perl -e '"'"'while (($uid) = (getpwent)[2]) { print $uid . "\n" }'"'"' )' -- $cur ) )
 	else
 	    # make do with /etc/passwd
@@ -262,13 +302,32 @@ _uids()
 #
 _gids()
 {
-	if type perl &>/dev/null; then
+	if type getent &>/dev/null; then
+	    COMPREPLY=( $( getent group | \
+			    awk -F: '{if ($3 ~ /^'$cur'/) print $3}' ) )
+	elif type perl &>/dev/null; then
 	    COMPREPLY=( $( compgen -W '$( perl -e '"'"'while (($gid) = (getgrent)[2]) { print $gid . "\n" }'"'"' )' -- $cur ) )
 	else
 	    # make do with /etc/group
 	    COMPREPLY=( $( awk 'BEGIN {FS=":"} {if ($3 ~ /^'$cur'/) print $3}'\
 			    /etc/group ) )
 	fi
+}
+
+# This function complete on services
+#
+_services()
+{
+	local sysvdir famdir
+	[ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
+        famdir=/etc/xinetd.d
+	COMPREPLY=( $( builtin echo $sysvdir/!(*.rpmsave|*.rpmorig|*~|functions)) )
+
+	if [ -d $famdir ]; then
+		COMPREPLY=( ${COMPREPLY[@]} $( builtin echo $famdir/!(*.rpmsave|*.rpmorig|*~)) )
+	fi
+
+	COMPREPLY=( $( compgen -W '${COMPREPLY[@]#@($sysvdir|$famdir)/}' -- $cur ) )
 }
 
 # Linux ifconfig(8) and iwconfig(8) helper function
@@ -464,9 +523,7 @@ _service()
 				|| sysvdir=/etc/init.d
 
 	if [[ $COMP_CWORD -eq 1 ]] && [[ $prev == "service" ]]; then
-		COMPREPLY=( $( compgen -W '`echo $sysvdir/!(*.rpmsave|*.rpmorig)`' ) )
-		COMPREPLY=( $( compgen -W '${COMPREPLY[@]#$sysvdir/}' -- \
-			       $cur ) )
+		_services
 	else
 		COMPREPLY=( $( compgen -W '`sed -ne "y/|/ /; \
 					    s/^.*Usage.*{\(.*\)}.*$/\1/p" \
@@ -636,8 +693,8 @@ _insmod()
 	fi
 
 	# do filename completion if we're giving a path to a module
-	if [[ "$cur" == ?(.|..)/* ]]; then
-		_filedir
+	if [[ "$cur" == */* ]]; then
+		_filedir '@(?(k)o?(.gz))'
 		return 0
 	fi
 
@@ -663,7 +720,7 @@ complete -F _insmod $filenames insmod modprobe modinfo
 # man(1) completion
 #
 [ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin \
-  -o $UNAME = FreeBSD -o $UNAME = SunOS ] &&
+  -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin ] &&
 _man()
 {
 	local cur prev sect manpath UNAME
@@ -681,7 +738,10 @@ _man()
 	fi
 
 	UNAME=$( uname -s )
-	if [ $UNAME = GNU -o $UNAME = Linux -o $UNAME = FreeBSD ]; then
+	# strip OS type and version under Cygwin
+	UNAME=${UNAME/CYGWIN_*/Cygwin}
+	if [ $UNAME = GNU -o $UNAME = Linux -o $UNAME = FreeBSD \
+	     -o $UNAME = Cygwin ]; then
 		manpath=$( manpath 2>/dev/null || command man --path )
 	else
 		manpath=$MANPATH
@@ -715,7 +775,8 @@ _man()
 	return 0
 }
 [ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin \
-  -o $UNAME = FreeBSD -o $UNAME = SunOS ] && complete -F _man $filenames man
+  -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin ] && \
+complete -F _man $filenames man
 
 # renice(8) completion
 #
@@ -787,6 +848,26 @@ _killall()
 	return 0
 }
 [ $UNAME = Linux -o $UNAME = FreeBSD ] && complete -F _killall killall pkill
+
+# Linux and FreeBSD pgrep(1) completion.
+#
+[ $UNAME = Linux -o $UNAME = FreeBSD ] &&
+_pgrep()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	COMPREPLY=( $( compgen -W '$( command ps axo command | \
+		      sed -ne "1d; s/^\[\?\([^-][^] ]*\).*$/\1/p" | \
+		      sed -e "s/.*\///" )' -- $cur ) )
+
+	return 0
+}
+[ $UNAME = Linux -o $UNAME = FreeBSD ] && complete -F _pgrep pgrep
+# Linux pidof(8) completion.
+[ $UNAME = Linux ] && complete -F _pgrep pidof
 
 # GNU find(1) completion. This makes heavy use of ksh style extended
 # globs and contains Linux specific code for completing the parameter
@@ -948,6 +1029,7 @@ _ifupdown()
        return 0
 }
 [ $UNAME = Linux ] && have ifup && complete -F _ifupdown ifup ifdown
+[ $UNAME = Linux ] && have ifstatus && complete -F _ifupdown ifstatus
 
 # Linux ipsec(8) completion (for FreeS/WAN)
 #
@@ -1239,26 +1321,38 @@ _cvs()
 				mode=cvsroot
 				cvsroot=${COMP_WORDS[((count+1))]}
 				;;
-			@(add|new))
+			@(ad?(d)|new))
 				mode=add
 				;;
-			@(admin|rcs))
+			@(adm?(in)|rcs))
 				mode=admin
+				;;
+			ann?(notate))
+				mode = annotate
 				;;
 			@(checkout|co|get))
 				mode=checkout
 				;;
-			@(commit|ci))
+			@(com?(mit)|ci))
 				mode=commit
 				;;
-			@(ex?(p?(ort))))
+			di?(f?(f)))
+				mode=diff
+				;;
+			ex?(p?(ort)))
 				mode=export
 				;;
-			@(annotate|diff|history|import|release|status|?(un)edit))
+			?(un)edit)
 				mode=$i
 				;;
-			@(update|up))
-				mode=update
+			hi?(s?(tory)))
+				mode=history
+				;;
+			im?(p?(ort)))
+				mode=import
+				;;
+			re?(l?(ease)))
+				mode=release
 				;;
 			?(r)log)
 				mode=log
@@ -1272,8 +1366,14 @@ _cvs()
 			@(rtag|rfreeze))
 				mode=rtag
 				;;
+			st?(atus))
+				mode=status
+				;;
 			@(tag|freeze))
 				mode=tag
+				;;
+			up?(d?(ate)))
+				mode=update
 				;;
 			*)
 				;;
@@ -1314,7 +1414,8 @@ _cvs()
 	checkout)
 		if [[ "$cur" != -* ]]; then
 			[ -z "$cvsroot" ] && cvsroot=$CVSROOT
-			COMPREPLY=( $( cvs -d "$cvsroot" co -c | awk '{print $1}' ) )
+			COMPREPLY=( $( cvs -d "$cvsroot" co -c 2> /dev/null | \
+					awk '{print $1}' ) )
 			COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
 		else
 			COMPREPLY=( $( compgen -W '-A -N -P -R -c -f -l -n -p \
@@ -1853,7 +1954,7 @@ _apt_cache()
 # Debian aptitude(1) completion
 #
 have aptitude && {
-_comp-dpkg-hold-packages()
+_comp_dpkg_hold_packages()
 {
 	grep -B 2 'hold' /var/lib/dpkg/status | grep "Package: $1" \
 		| cut -d\  -f2
@@ -1870,11 +1971,14 @@ _aptitude()
 
 	dashoptions='-S -u -i -h --help --version -s --simulate -d \
 		     --download-only -P --prompt -y --assume-yes -F \
-		     --display-format -w --width -f --with-recommends \
-		     --with-suggests --without-recommends --without-suggests'
+		     --display-format -O --sort -w --width -f -r -g \
+                     --with-recommends --with-suggests -R -G \
+                     --without-recommends --without-suggests -t \
+                     --target-release -V --show-versions -D --show-deps\
+                     -Z -v --verbose'
 
 	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-	    if [[ ${COMP_WORDS[i]} == @(install|hold|unhold|markauto|unmarkauto|dist-upgrade|download|purge|remove) ]]; then
+	    if [[ ${COMP_WORDS[i]} == @(install|reinstall|hold|unhold|markauto|unmarkauto|dist-upgrade|download|forbid-version|purge|remove) ]]; then
 		special=${COMP_WORDS[i]}
 	    fi
 	    #exclude some mutually exclusive options
@@ -1888,7 +1992,7 @@ _aptitude()
 		   COMPREPLY=( $( apt-cache pkgnames $cur 2> /dev/null ) )
 		   return 0
 		   ;;
-	       @(purge|remove))
+	       @(purge|remove|reinstall|forbid-version))
   		   COMPREPLY=( $( _comp-dpkg-installed-packages $cur ) )
 		   return 0
 		   ;;
@@ -1905,19 +2009,29 @@ _aptitude()
 	    @(autoclean|clean|forget-new|search|upgrade|update))
 		return 0
 		;;
+
 	    -S)
 		_filedir
 		return 0
 		;;
+
+	    -@(t|-target-release|-default-release))
+		COMPREPLY=( $( apt-cache policy | \
+		    grep "release.o=Debian,a=$cur" | \
+		    sed -e "s/.*a=\(\w*\).*/\1/" | uniq ) )
+		return 0
+		;;
+
 	esac
 
 	if [[ "$cur" == -* ]]; then
 	    COMPREPLY=( $( compgen -W "$dashoptions" -- $cur ) )
 	else
 	    COMPREPLY=( $( compgen -W 'update upgrade forget-new clean \
-				       autoclean install remove hold unhold \
-				       purge markauto unmarkauto dist-upgrade \
-				       download search' -- $cur ) )
+				       autoclean install reinstall remove \
+                                       hold unhold purge markauto unmarkauto \
+                                       dist-upgrade download search show \
+                                       forbid-version' -- $cur ) )
 	fi
 
 
@@ -2027,21 +2141,9 @@ _chkconfig()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	if [ $COMP_CWORD -eq 1 ]; then
-		COMPREPLY=( $( compgen -W '--list --add --del --level' -- \
-			       $cur ) )
-		return 0
-	fi
-
-	if [ $COMP_CWORD -eq 4 ]; then
-		COMPREPLY=( $( compgen -W 'on off reset' -- $cur ) )
-		return 0
-	fi
-
 	case "$prev" in
 	@([1-6]|--@(list|add|del)))
-		COMPREPLY=( $( compgen -W "`(cd /etc/rc.d/init.d; echo *)`" \
-			       -- $cur) )
+		_services
 		return 0
 		;;
 	--level)
@@ -2050,7 +2152,15 @@ _chkconfig()
 		;;
 	esac
 
-	return 0
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '--list --add --del --level' -- $cur ) )
+	else
+		if [ $COMP_CWORD -eq 2 -o $COMP_CWORD -eq 4 ]; then
+			COMPREPLY=( $( compgen -W 'on off reset' -- $cur ) )
+		else
+			_services
+		fi
+	fi
 }
 [ -n "${have:-}" ] && complete -F _chkconfig chkconfig
 
@@ -2163,7 +2273,7 @@ _known_hosts()
 	return 0
 }
 complete -F _known_hosts traceroute traceroute6 tracepath tracepath6 \
-	ping fping telnet host nslookup rsh rlogin ftp dig
+	ping fping telnet host nslookup rsh rlogin ftp dig ssh-installkeys
 
 # ssh(1) completion
 #
@@ -2197,7 +2307,7 @@ _ssh()
 
 	return 0
 }
-shopt -u hostcomplete && complete -F _ssh ssh slogin sftp xhost
+shopt -u hostcomplete && complete -F _ssh ssh slogin sftp xhost autossh
 
 # scp(1) completion
 #
@@ -2451,7 +2561,7 @@ _make()
 
 		COMPREPLY=( $( awk -F':' '/^[a-zA-Z0-9][^$#\/\t=]*:([^=]|$)/ \
 				{split($1,A,/ /);for(i in A)print A[i]}' \
-				$makef 2>/dev/null | grep "^$cur" ))
+				$makef 2>/dev/null | command grep "^$cur" ))
 	fi
 }
 [ -n "${have:-}" ] && complete -F _make $filenames make gmake pmake
@@ -2475,11 +2585,11 @@ _tar()
 		_filedir
 		return 0
 		;;
-	+([^Izjy])f)
+	+([^IZzjy])f)
 		ext='tar'
 		regex=$ext
 		;;
-	*z*f)
+	*[Zz]*f)
 		ext='t?(ar.)@(gz|Z)'
 		regex='t\(ar\.\)\(gz\|Z\)'
 		;;
@@ -2675,19 +2785,30 @@ _cd()
 		return 0
 	fi
 
-	IFS=$'\t\n'
+	local -r mark_dirs=$(_rl_enabled mark-directories && echo y)
+	local -r mark_symdirs=$(_rl_enabled mark-symlinked-directories && echo y)
+
 	# we have a CDPATH, so loop on its contents
 	for i in ${CDPATH//:/$'\t'}; do
 		# create an array of matched subdirs
 		k=${#COMPREPLY[@]}
 		for j in $( compgen -d $i/$cur ); do
-			COMPREPLY[$k]=${j#$i/}
-			k=$((++k))
+			if [[ ( $mark_symdirs && -h $j || $mark_dirs && ! -h $j ) && ! -d ${j#$i/} ]]; then
+				j="${j}/"
+			fi
+			COMPREPLY[k++]=${j#$i/}
 		done
 	done
 
 	_filedir -d
 
+	if [[ ${#COMPREPLY[@]} -eq 1 ]]; then
+	    i=${COMPREPLY[0]}
+	    if [ "$i" == "$cur" ] && [[ $i != "*/" ]]; then
+		COMPREPLY[0]="${i}/"
+	    fi
+	fi
+	    
 	return 0
 }
 if shopt -q cdable_vars; then
@@ -2727,9 +2848,9 @@ _command()
 			func=${cspec#*-F }
 			func=${func%% *}
 			# get current command line minus initial command
-			cline="${COMP_LINE#$1 }"
+			cline="${COMP_LINE#*( )$1 }"
 			# save noglob state
-		      	shopt -o noglob >/dev/null; noglob=$?
+		      	shopt -qo noglob; noglob=$?
 			# turn on noglob, as things like 'sudo ls *<Tab>'
 			# don't work otherwise
 		  	shopt -so noglob
@@ -3241,7 +3362,7 @@ for i in a2ps autoconf automake bc gprof ld nm objcopy objdump readelf strip \
 	 touch vdir xargs awk gperf grep grub indent less m4 sed shar date \
 	 env seq tee uname who texindex cat csplit cut expand fmt fold head \
 	 md5sum nl od paste pr ptx sha1sum sort split tac tail tr unexpand \
-	 uniq wc units wget ldd bash id info irb mkdir rmdir netstat; do
+	 uniq wc units wget ldd bash id irb mkdir rmdir netstat; do
     have $i && complete -F _longopt $filenames $i
 done
 unset i
@@ -3294,7 +3415,8 @@ _gcc()
 	fi
 }
 [ -n "${have:-}" ] && complete $filenames -F _gcc gcc g++ c++ g77 gcj gpc
-[ $UNAME = GNU -o $UNAME = Linux ] && complete $filenames -F _gcc cc
+[ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Cygwin ] && \
+complete $filenames -F _gcc cc
 
 # Linux cardctl(8) completion
 #
@@ -3319,27 +3441,28 @@ _cardctl()
 have dpkg && {
 _comp-dpkg-installed-packages()
 {
-	grep -A 1 "Package: $1" /var/lib/dpkg/status | \
-		grep -B 1 'ok installed' | grep "Package: $1" | cut -d\  -f2
+	grep -A 2 "Package: $1" /var/lib/dpkg/status | \
+		grep -B 2 'ok installed' | grep "Package: $1" | cut -d\  -f2
 }
 
 # Debian dpkg(8) completion
 #
 _dpkg()
 {
-	local cur prev
+	local cur prev i
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
+	i=$COMP_CWORD
 
 	_expand || return 0
 
 	# find the last option flag
 	if [[ $cur != -* ]]; then
-		while [[ $prev != -* && $COMP_CWORD != 1 ]]; do
-		      COMP_CWORD=$((COMP_CWORD-1))
-		      prev=${COMP_WORDS[COMP_CWORD-1]}
+		while [[ $prev != -* && $i != 1 ]]; do
+			i=$((i-1))
+			prev=${COMP_WORDS[i-1]}
 		done
 	fi
 
@@ -3361,14 +3484,14 @@ _dpkg()
 		_filedir
 		return 0
 		;;
-	-@(r|L|-@(remove|purge|listfiles)))
+	-@(r|L|P|-@(remove|purge|listfiles)))
 		COMPREPLY=( $( _comp-dpkg-installed-packages $cur ) )
 		return 0
 		;;
 	*)
 
 	COMPREPLY=( $( compgen -W '-i --install --unpack -A --record-avail \
-			--configure -r --remove --purge --get-selections \
+			--configure -r --remove -P --purge --get-selections \
 			--set-selections --update-avail --merge-avail \
 			--clear-avail  --command-fd --forget-old-unavail -s \
 			--status -p --print-avail -L --listfiles -l --list \
@@ -3758,7 +3881,7 @@ _muttconffiles()
 	sofar=" $1 "
 	shift
 	while [[ "$1" ]]; do
-	    newconffiles=( $(sed -rn 's/^source[[:space:]]+([^[:space:]]+).*$/\1/p' $(eval echo $1) ) )
+	    newconffiles=( $(sed -rn 's|^source[[:space:]]+([^[:space:]]+).*$|\1|p' $(eval echo $1) ) )
 	    for file in ${newconffiles[@]}; do
 		[[ ! "$file" ]] || [[ "${sofar/ ${file} / }" != "$sofar" ]] &&
 		    continue
@@ -3780,7 +3903,7 @@ _muttaliases()
 	[ -f ~/.muttrc ] && muttrc="~/.muttrc"
 	[ -z "$muttrc" ] && return 0
 	conffiles=( $(eval _muttconffiles $muttrc $muttrc) )
-	aliases=( $( sed -rn 's/^alias[[:space:]]+([^[:space:]]+).*$/\1/p' \
+	aliases=( $( sed -rn 's|^alias[[:space:]]+([^[:space:]]+).*$|\1|p' \
 			$(eval echo ${conffiles[@]}) ) )
 	COMPREPLY=( ${COMPREPLY[@]} $( compgen -W "${aliases[*]}" -- $cur ) )
 
@@ -3793,12 +3916,12 @@ _muttquery()
 	local -a queryresults
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	querycmd="$( mutt -Q query_command  | sed -r 's/^query_command=\"(.*)\"$/\1/; s/%s/'$cur'/' )"
+	querycmd="$( mutt -Q query_command  | sed -r 's|^query_command=\"(.*)\"$|\1|; s|%s|'$cur'|' )"
 	if [ -z "$cur" -o -z "$querycmd" ]; then
 	    queryresults=()
 	else 
 	    queryresults=( $( $querycmd | \
-	      sed -nr '2,$s/^([^[:space:]]+).*/\1/p' ) )
+	      sed -nr '2,$s|^([^[:space:]]+).*|\1|p' ) )
 	fi
 
 	COMPREPLY=( ${COMPREPLY[@]} $( compgen -W "${queryresults[*]}" \
@@ -3815,10 +3938,16 @@ _muttfiledir()
 	# This is currently not working so well. Perhaps this function should
 	# just call _filedir() for the moment.
 	if [[ $cur == [=+]* ]]; then
-		folder="$( mutt -Q folder | sed -r 's/^folder=\"(.*)\"$/\1/' )"
-		[ ! -z "$folder" ] && eval cur="${cur/[=+]/$folder\/}"
+		folder="$( mutt -Q folder | sed -r 's|^folder=\"(.*)\"$|\1|' )"
+		: folder:=~/Mail
+
+		# Match any file in $folder beginning with $cur
+		# (minus the leading '=' sign).
+		COMPREPLY=( $( compgen -f -- "$folder/${cur:1}" ) )
+		COMPREPLY=( ${COMPREPLY[@]#$folder/} )
+		return 0
 	elif [ "$cur" == !* ]; then
-		spoolfile="$( mutt -Q spoolfile | sed -r 's/^spoolfile=\"(.*)\"$/\1/' )"
+		spoolfile="$( mutt -Q spoolfile | sed -r 's|^spoolfile=\"(.*)\"$|\1|' )"
 		[ ! -z "$spoolfile" ] && eval cur="${cur/^!/$spoolfile}";
 	fi
 	_filedir
@@ -3863,7 +3992,7 @@ _mutt()
 	esac
 	
 }
-complete -F _mutt $filenames mutt
+complete -F _mutt $default $filenames mutt
 }
 
 _configure_func()
@@ -3878,10 +4007,10 @@ _configure_func()
 	[[ "$cur" != -* ]] && return 0
 
 	if [ -n "$COMP_CONFIGURE_HINTS" ]; then
-		COMPREPLY=( $( $1 --help | awk '/^  --[A-Za-z]/ { print $1; if ($2 ~ /--[A-Za-z]/) print $2 }' | sed -e 's/[,[].*//g' | grep ^$cur ) )
+		COMPREPLY=( $( $1 --help | awk '/^  --[A-Za-z]/ { print $1; if ($2 ~ /--[A-Za-z]/) print $2 }' | sed -e 's/[[,].*//g' | grep ^$cur ) )
 
 	else
-		COMPREPLY=( $( $1 --help | awk '/^  --[A-Za-z]/ { print $1; if ($2 ~ /--[A-Za-z]/) print $2 }' | sed -e 's/[,=[].*//g' | grep ^$cur ) )
+		COMPREPLY=( $( $1 --help | awk '/^  --[A-Za-z]/ { print $1; if ($2 ~ /--[A-Za-z]/) print $2 }' | sed -e 's/[[,=].*//g' | grep ^$cur ) )
 	fi
 }
 complete -F _configure_func $default configure
@@ -3994,28 +4123,26 @@ _querybts()
 
 # update-alternatives completion
 #
-have update-alternatives &&
+have update-alternatives && {
+installed_alternatives()
+{
+	local admindir
+	# find the admin dir
+	for i in alternatives dpkg/alternatives rpm/alternatives; do
+		[ -d /var/lib/$i ] && admindir=/var/lib/$i && break
+	done
+	for (( i=1; i < COMP_CWORD; i++ )); do
+		if [[ "${COMP_WORDS[i]}" == --admindir ]]; then
+			admindir=${COMP_WORDS[i+1]}
+			break
+		fi
+	done
+	COMPREPLY=( $( command ls $admindir | grep "^$cur" ) )
+}
+
 _update_alternatives()
 {
-	installed_alternatives()
-	{
-		local admindir
-		# find wich admin dir to use
-		if [ -f /etc/debian_version ]; then
-			admindir=/var/lib/dpkg/alternatives
-		else
-			admindir=/var/lib/rpm/alternatives
-		fi
-		for (( i=1; i < COMP_CWORD; i++ )); do
-			if [[ "${COMP_WORDS[i]}" == --admindir ]]; then
-				admindir=${COMP_WORDS[i+1]}
-				break
-			fi
-		done
-		COMPREPLY=( $( command ls $admindir | grep "^$cur" ) )
-	}
-
-	local cur prev mode args
+	local cur prev mode args i
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -4080,7 +4207,8 @@ _update_alternatives()
 			       --config' -- $cur ) )
 	esac
 }
-[ -n "${have:-}" ] && complete -F _update_alternatives update-alternatives
+complete -F _update_alternatives update-alternatives
+}
 
 # Python completion
 #
@@ -4850,7 +4978,7 @@ _mplayer()
 					-xvidencopts -of --verbose' -- $cur) )
 			;;
 		*)
-			_filedir '@(mp?(e)g|MP?(E)G|wm[av]|avi|AVI|asf|vob|VOB|bin|dat|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|MOV|qt|QT|mp[34]|MP[34]|og[gm]|OG[GM]|wav|WAV|dump|DUMP|mkv|MKV|m4a|aac|m2v)'
+			_filedir '@(mp?(e)g|MP?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fli|FLI|viv|VIV|rm|RM|ram|RAM|yuv|YUV|mov|MOV|qt|QT|mp[34]|MP[34]|og[gm]|OG[GM]|wav|WAV|dump|DUMP|mkv|MKV|m4a|M4A|aac|AAC|m2v|M2V)'
 			;;
 	esac
 
@@ -4955,34 +5083,8 @@ _gpg()
 	esac
 
 	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-s -b -e -f -c -d -a -r -u -Z -o -v \
-				-q -n -N --sign --clearsign --detach-sign \
-				--encrypt --encrypt-files --symmetric --store \
-				--decrypt --decrypt-files --verify --list-keys \
-				--list-sigs --check-sigs --fingerprint \
-				--list-secret-keys --gen-key --delete-keys \
-				--delete-secret-keys --sign-key --lsign-key \
-				--nrsign-key --nrlsign-key --edit-key \
-				--gen-revoke --export --send-key --recv-keys \
-				--search-keys --refresh-keys --import \
-				--list-packets --export-ownertrust \
-				--import-ownertrust --update-trustdb \
-				--check-trustdb --fix-trustdb --dearmor \
-				--enarmor --print-md --armor --recipient \
-				--default-recipient --default-recipient-self \
-				--local-user --textmode --output --verbose \
-				--quiet --no-tty --force-v3-sigs \
-				--no-force-v3-sigs --force-v4-certs \
-				--no-force-v4-certs --force-mdc --disable-mdc \
-				--dry-run --use-agent --batch --yes --no \
-				--keyring --secret-keyring --show-keyring \
-				--default-key --keyserver --charset --options \
-				--status-fd --trusted-key --load-extension \
-				--rfc1991 --openpgp --pgp2 --s2k-mode \
-				--s2k-digest-algo --s2k-cipher-algo \
-				--cipher-algo --digest-algo --compress-algo \
-				--throw-keyid --show-photos --no-show-photos \
-				--photo-viewer --notation-data' -- $cur ) )
+		COMPREPLY=( $( compgen -W '-s -b -e -f -c -d -a -r -u -Z -o -v\
+				-q -n -N $(gpg --dump-options)' -- $cur ) )
 	 fi
 
 }
@@ -5161,7 +5263,7 @@ _cdrecord()
 	fi
 
 }
-[ -n "${have:-}" ] && complete -F _cdrecord cdrecord
+[ -n "${have:-}" ] && complete -F _cdrecord $filenames cdrecord
 
 # mkisofs(8) completion
 #
@@ -5202,7 +5304,7 @@ _mkisofs()
 				-boot-load-seg -boot-load-size \
 				-boot-info-table -C -c -check-oldname \
 				-check-session -copyright -d -D -dir-mode \
-				-dvd-video-f -file-mode -gid -gui \
+				-dvd-video -f -file-mode -gid -gui \
 				-graft-points -hide -hide-list -hidden \
 				-hidden-list -hide-joliet -hide-joliet-list \
 				-hide-joliet-trans-tbl -hide-rr-moved \
@@ -5745,6 +5847,197 @@ skip' -S '=' -- $cur ) )
 }
 [ "${have:-}" ] && complete -F _dd $nospace dd
 
+# CUPS cancel(1) completion
+#
+have cancel &&
+_cancel()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	COMPREPLY=( $( lpstat | cut -d' ' -f1 | grep "^$cur" ) )
+}
+[ "${have:-}" ] && complete -F _cancel $filenames cancel
+
+# aspell(1) completion
+#
+have aspell && {
+_aspell_dictionary()
+{
+	local datadir
+	datadir=/usr/lib/aspell
+	COMPREPLY=( $( command ls $datadir/*.@(multi|alias) ) )
+	COMPREPLY=( ${COMPREPLY[@]%.@(multi|alias)} )
+	COMPREPLY=( $( compgen -W '${COMPREPLY[@]#$datadir/}' -- $cur ) )
+}
+
+_aspell()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	# --name value style option
+	case "$prev" in
+		@(-c|-p|check))
+			_filedir
+			return 0
+			;;
+		@(dump|create|merge))
+			COMPREPLY=( $( compgen -W 'master personal repl' -- $cur ) )
+			return 0
+			;;
+		-d)
+			_aspell_dictionary
+			return 0
+			;;
+	esac
+
+	# --name=value style option
+	if [[ "$cur" == *=* ]]; then
+		prev=${cur/=*/}
+		cur=${cur/*=/}
+		case "$prev" in
+			--@(conf|personal|repl|per-conf))
+				_filedir
+				return 0
+				;;
+			--@(conf-dir|data-dir|dict-dir|home-dir|local-data-dir|prefix))
+				_filedir -d
+				return 0
+				;;
+			--master)
+				_aspell_dictionary
+				return 0
+				;;
+			--mode)
+				COMPREPLY=( $( compgen -W 'none url email sgml tex' -- $cur ) )
+				return 0
+				;; 
+			--sug-mode)
+				COMPREPLY=( $( compgen -W 'ultra fast normal bad-speller' -- $cur ) )
+				return 0
+				;;
+			--keymapping)
+				COMPREPLY=( $( compgen -W 'aspell ispell' -- $cur ) )
+				return 0
+				;;
+		esac
+	fi
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '--conf= --conf-dir= --data-dir= --dict-dir= \
+			--encoding= --add-filter= --rem-filter= --mode= -e \
+			-H -t --add-extra-dicts= --rem-extra-dicts= \
+			--home-dir= -W --ignore= --ignore-accents \
+			--dont-ignore-accents --ignore-case --dont-ignore-case \
+			--ignore-repl --dont-ignore-repl --jargon= --keyboard= \
+			--lang= --language-tag= --local-data-dir= -d --master= \
+			--module= --add-module-search-order= \
+			--rem-module-search-order= --per-conf= -p --personal= \
+			--prefix= --repl= -C -B --run-together --dont-run-together \
+			--run-together-limit= --run-together-min= --save-repl \
+			--dont-save-repl --set-prefix --dont-set-prefix --size= \
+			--spelling= --strip-accents --dont-strip-accents \
+			--sug-mode= --add-word-list-path= --rem-word-list-path= \
+			-b -x --backup -b|-x --dont-backup --reverse --dont-reverse \
+			--time --dont-time --keymapping= --add-email-quote= \
+			--rem-email-quote= --email-margin= --add-tex-command= \
+			--rem-tex-command= --tex-check-comments \
+			--dont-tex-check-comments --add-tex-extension= \
+			--rem-tex-extension= --add-sgml-check= --rem-sgml-check= \
+			--add-sgml-extension= --rem-sgml-extension=' -- $cur ) )
+	else
+		COMPREPLY=( $( compgen -W '-? help -c check -a pipe -l list \
+			config config soundslike filter -v version dump \
+			create merge' -- $cur ) )
+	fi
+
+}
+complete -F _aspell $default aspell
+}
+
+# xmms(1) completion
+#
+have xmms &&
+_xmms()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-h --help -r --rew -p --play \
+			-u --pause -s --stop -t --play-pause -f --fwd -e \
+			--enqueue -m --show-main-window -i --sm-client-id \
+			-v --version' -- $cur ) )
+	else
+		_filedir '@(mp[23]|MP[23]|ogg|OGG|wav|WAV|pls|m3u|xm|mod|s[3t]m|it|mtm|ult|flac)'
+
+	fi
+
+}
+[ "${have:-}" ] && complete -F _xmms $filenames xmms
+
+# info(1) completion
+#
+[ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin \
+  -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin ] &&
+_info()
+{
+	local cur infopath UNAME
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	_expand || return 0
+
+	# default completion if parameter contains /
+	if [[ "$cur" == */* ]]; then
+		_filedir
+		return 0
+	fi
+
+	infopath='/usr/share/info'
+
+	if [ "${INFOPATH: -1:1}" == ':' ]; then
+		infopath=${INFOPATH}${infopath}
+	elif [ ${INFOPATH:+set} ]; then
+		infopath=$INFOPATH
+	fi
+
+	infopath=$infopath:
+	if [ -n "$cur" ]; then
+		infopath="${infopath//://$cur* }"
+	else
+		infopath="${infopath//:// }"
+	fi
+
+	# redirect stderr for when path doesn't exist
+	COMPREPLY=( $( eval command ls "$infopath" 2>/dev/null ) )
+	# weed out directory path names and paths to info pages
+	COMPREPLY=( ${COMPREPLY[@]##*/?(:)} )
+	# weed out info dir file
+	for (( i=0 ; i < ${#COMPREPLY[@]} ; ++i )); do
+		if [ "${COMPREPLY[$i]}" == 'dir' ]; then
+			unset COMPREPLY[$i];
+		fi;
+	done  
+	# strip suffix from info pages
+	COMPREPLY=( ${COMPREPLY[@]%.@(gz|bz2)} )
+	COMPREPLY=( $( compgen -W '${COMPREPLY[@]%.*}' -- "${cur//\\\\/}" ) )
+
+	return 0
+}
+[ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin \
+  -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin ] && \
+complete -F _info $filenames info
+
 _filedir_xspec()
 {
 	local IFS cur xspec
@@ -5756,8 +6049,8 @@ _filedir_xspec()
 	_expand || return 0
 
 	# get first exclusion compspec that matches this command
-	xspec=$( grep '^complete ' $BASH_COMPLETION | \
-		  sed -ne '/ '${1##*/}'/{p;q;}' )
+	xspec=$( sed -ne $'/^complete .*[ \t]'${1##*/}$'\([ \t]\|$\)/{p;q;}' \
+		  $BASH_COMPLETION )
 	# prune to leave nothing but the -X spec
 	xspec=${xspec#*-X }
 	xspec=${xspec%% *}
@@ -5795,7 +6088,7 @@ if [ -d $BASH_COMPLETION_DIR -a -r $BASH_COMPLETION_DIR -a \
      -x $BASH_COMPLETION_DIR ]; then
 	for i in $BASH_COMPLETION_DIR/*; do
 		[[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|.rpm*) ]] &&
-			[ -f $i -a -r $i ] && . $i
+			[ \( -f $i -o -h $i \) -a -r $i ] && . $i
 	done
 fi
 unset i
