@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.207 2002/03/22 04:29:30 ianmacd Exp $
+#   $Id: bash_completion,v 1.208 2002/03/22 16:45:42 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -922,7 +922,6 @@ _rpm()
 
 	uninstalled_packages()
 	{
-		# complete on list of relevant options
 		COMPREPLY=( $( compgen -W '--scripts --root --rcfile \
 		--whatprovides --whatrequires --requires --triggeredby \
 		--ftpport --ftpproxy --httpproxy --httpport --provides \
@@ -1011,7 +1010,6 @@ _rpm()
 
 	case "${COMP_WORDS[1]}" in
 	-@([iFU]*|-install|-freshen|-upgrade))
-		# complete on list of relevant options
 		COMPREPLY=( $( compgen -W '--percent --force --test \
 		--replacepkgs --replacefiles --root --excludedocs \
 		--includedocs --noscripts --rcfile --ignorearch --dbpath \
@@ -1033,7 +1031,6 @@ _rpm()
 		_filedir
 		;;
 	-@(e|-erase))
-		# complete on list of relevant options
 		COMPREPLY=( $( compgen -W '--allmatches --noscripts \
 		--notriggers --nodeps --test --repackage' -- $cur ) )
 		# return if $cur is an option
@@ -1047,7 +1044,6 @@ _rpm()
 			uninstalled_packages
 			return 0
 		else
-			# complete on list of relevant options
 			COMPREPLY=( $( compgen -W '--scripts --root --rcfile \
 			--whatprovides --whatrequires --requires --triggeredby \
 			--ftpport --ftpproxy --httpproxy --httpport --provides \
@@ -1064,7 +1060,6 @@ _rpm()
 		add_package_list
 		;;
 	-@(K|-checksig))
-		# complete on list of relevant options
 		COMPREPLY=( $( compgen -W '--nopgp --nogpg --nomd5' -- $cur ) )
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
@@ -1072,15 +1067,18 @@ _rpm()
 		file_glob rpm
 		;;
 	-@([Vy]*|-verify))
-		# complete on list of relevant options
 		COMPREPLY=( $( compgen -W '--root --rcfile --dbpath --nodeps \
-		--nofiles --noscripts --nomd5' -- $cur ) )
+		--nofiles --noscripts --nomd5 --querytags --specfile \
+		--whatrequires --whatprovides' -- $cur ) )
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
-		add_package_list
+		if [ "${COMP_LINE#*-*([^ ])p}" != "$COMP_LINE" ]; then
+			file_glob rpm
+		else
+			add_package_list
+		fi
 		;;
 	-[bt]*)
-		# complete on list of relevant options
 		COMPREPLY=( $( compgen -W '--short-circuit --timecheck \
 		--clean --rmsource --rmspec --test --sign --buildroot \
 		--targetbuildarch --buildos --nobuild --nodeps --nodirtokens' \
