@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.482 2002/12/09 21:35:37 ianmacd Exp $
+#   $Id: bash_completion,v 1.483 2002/12/09 21:48:15 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -20,7 +20,7 @@
 
 # RELEASE: 20021205
 
-[ -n "$DEBUG" ] && set -v || set +v
+[ -n "${DEBUG:-}" ] && set -v || set +v
 
 # Alter the following to reflect the location of this file
 #
@@ -36,7 +36,7 @@ if [ ${BASH_VERSINFO[1]} '>' 04 ]; then
 	dirnames="-o dirnames"
 	filenames="-o filenames"
 fi
-[ ${BASH_VERSINFO[1]} = "05b" ] && nospace="-o nospace"
+[ ${BASH_VERSINFO[1]} = "05b" ] && nospace="-o nospace" || nospace=""
 
 # Turn on extended globbing and programmable completion
 shopt -s extglob progcomp
@@ -860,7 +860,7 @@ _ipsec()
 
 	return 0
 }
-[ $UNAME = Linux ] && [ "$have" ] && complete -F _ipsec ipsec
+[ $UNAME = Linux ] && [ -z "${have:-}" ] && complete -F _ipsec ipsec
 
 # Postfix completion.
 #
@@ -1505,7 +1505,7 @@ _apt_get()
 
 	return 0
 }
-[ "$have" ] && complete -F _apt_get $filenames apt-get
+[ -z "${have:-}" ] && complete -F _apt_get $filenames apt-get
 
 # Debian apt-cache(8) completion.
 #
@@ -1573,7 +1573,7 @@ _apt_cache()
 
 	return 0
 }
-[ "$have" ] && complete -F _apt_cache $filenames apt-cache
+[ -z "${have:-}" ] && complete -F _apt_cache $filenames apt-cache
 
 
 # Debian aptitude(1) completion
@@ -1649,7 +1649,7 @@ _aptitude()
 
 	return 0
 }
-[ "$have" ] && complete -F _aptitude $default aptitude
+[ -z "${have:-}" ] && complete -F _aptitude $default aptitude
 }
 
 # Debian apt-build(1) completion.
@@ -1716,7 +1716,7 @@ _apt_build()
 
 	return 0
 }
-[ "$have" ] && complete -F _apt_build $filenames apt-build
+[ -z "${have:-}" ] && complete -F _apt_build $filenames apt-build
 
 # chsh(1) completion
 #
@@ -1774,7 +1774,7 @@ _chkconfig()
 
 	return 0
 }
-[ "$have" ] && complete -F _chkconfig chkconfig
+[ -z "${have:-}" ] && complete -F _chkconfig chkconfig
 
 # This function provides simple user@host completion
 #
@@ -2065,7 +2065,7 @@ _make()
 
 	return 0
 }
-[ "$have" ] && complete -F _make -X '+($*|*.[ch])' $filenames make gmake pmake
+[ -z "${have:-}" ] && complete -F _make -X '+($*|*.[ch])' $filenames make gmake pmake
 
 # Red Hat Linux service completion. This completes on a list of all available
 # service scripts in the SysV init.d directory, followed by that script's
@@ -2096,7 +2096,7 @@ _service()
 
 	return 0
 }
-[ "$have" ] && complete -F _service service
+[ -z "${have:-}" ] && complete -F _service service
 
 # GNU tar(1) completion
 #
@@ -2155,7 +2155,7 @@ _tar()
 
 	return 0
 }
-[ -n "$COMP_TAR_INTERNAL_PATHS" ] && complete -F _tar $dirnames tar ||
+[ -z "${COMP_TAR_INTERNAL_PATHS:-}" ] && complete -F _tar $dirnames tar ||
 	complete -F _tar $filenames tar
 
 # jar(1) completion
@@ -2185,7 +2185,7 @@ _jar()
 			;;
 	esac
 }
-[ "$have" ] && complete -F _jar $filenames jar
+[ -z "${have:-}" ] && complete -F _jar $filenames jar
 
 # Linux iptables(8) completion
 #
@@ -2238,7 +2238,7 @@ _iptables()
 	esac
 
 } 
-[ "$have" ] && complete -F _iptables iptables
+[ -z "${have:-}" ] && complete -F _iptables iptables
 
 # tcpdump(8) completion
 #
@@ -2254,7 +2254,7 @@ _tcpdump()
 				   less greater' -- $cur ) )
 
 }
-[ "$have" ] && complete -F _tcpdump tcpdump
+[ -z "${have:-}" ] && complete -F _tcpdump tcpdump
 
 # autorpm(8) completion
 #
@@ -2271,7 +2271,7 @@ _autorpm()
 				   remove set' -- $cur ) )
 
 }
-[ "$have" ] && complete -F _autorpm autorpm
+[ -z "${have:-}" ] && complete -F _autorpm autorpm
 
 # This meta-cd function observes the CDPATH variable, so that cd additionally
 # completes on directories under those specified in CDPATH.
@@ -2413,7 +2413,7 @@ _ant()
 				$buildfile | grep "^$cur" ) )
 	fi
 }
-[ "$have" ] && complete -F _ant $filenames ant
+[ -z "${have:-}" ] && complete -F _ant $filenames ant
 
 have nslookup &&
 _nslookup()
@@ -2428,7 +2428,7 @@ _nslookup()
 			       type= recurse retry root timeout vc \
 			       ignoretc' -- $cur ) )
 }
-[ "$have" ] && complete -F _nslookup nslookup
+[ -z "${have:-}" ] && complete -F _nslookup nslookup
 
 # mysqladmin(1) completion
 #
@@ -2461,7 +2461,7 @@ _mysqladmin()
 				   shutdown status variables version' \
 		       -- $cur ) )
 }
-[ "$have" ] && complete -F _mysqladmin mysqladmin
+[ -z "${have:-}" ] && complete -F _mysqladmin mysqladmin
 
 # gzip(1) and bzip2(1) completion
 #
@@ -2484,7 +2484,7 @@ _zip()
 	COMPREPLY=( $( compgen -f -X "$xspec" -- $cur ) \
 		    $( compgen -d -- $cur ) )
 }
-[ "$have" ] && complete -F _zip $filenames gzip bzip2
+[ -z "${have:-}" ] && complete -F _zip $filenames gzip bzip2
 
 # openssl(1) completion
 #
@@ -2513,7 +2513,7 @@ _openssl()
 
 	return 0
 }
-[ $have ] && complete -F _openssl $default openssl
+[ -z "${have:-}" ] && complete -F _openssl $default openssl
 
 # screen(1) completion
 #
@@ -2554,7 +2554,7 @@ _screen()
 
 	return 0
 }
-[ $have ] && complete -F _screen $default screen
+[ -z "${have:-}" ] && complete -F _screen $default screen
 
 # lftp(1) bookmark completion
 #
@@ -2573,7 +2573,7 @@ _lftp()
 
 	return 0
 }
-[ $have ] && complete -F _lftp $default lftp
+[ -z "${have:-}" ] && complete -F _lftp $default lftp
 
 # ncftp(1) bookmark completion
 #
@@ -2592,7 +2592,7 @@ _ncftp()
 
 	return 0
 }
-[ $have ] && complete -F _ncftp $default ncftp
+[ -z "${have:-}" ] && complete -F _ncftp $default ncftp
 
 # gdb(1) completion
 #
@@ -2615,7 +2615,7 @@ _gdb()
 				-- "$cur" ) )
 	fi
 }
-[ $have ] && complete -F _gdb $filenames gdb
+[ -z "${have:-}" ] && complete -F _gdb $filenames gdb
 
 # Postgresql completion
 #
@@ -2827,7 +2827,7 @@ _gcc()
 		_filedir
 	fi
 }
-[ "$have" ] && complete $filenames -F _gcc gcc g++ c++ g77 gcj gpc
+[ -z "${have:-}" ] && complete $filenames -F _gcc gcc g++ c++ g77 gcj gpc
 [ $UNAME = GNU -o $UNAME = Linux ] && complete $filenames -F _gcc cc
 
 # Linux cardctl(8) completion
@@ -2846,7 +2846,7 @@ _cardctl()
 			       -- $cur ) )
 	fi
 }
-[ "$have" ] && complete -F _cardctl cardctl
+[ -z "${have:-}" ] && complete -F _cardctl cardctl
 
 # This function is required by _dpkg() and _dpkg-reconfigure()
 #
@@ -2969,7 +2969,7 @@ _dpkg_reconfigure()
 	    COMPREPLY=( $( _comp-dpkg-installed-packages $cur ) )
 	fi
 }
-[ "$have" ] && complete -F _dpkg_reconfigure $default dpkg-reconfigure
+[ -z "${have:-}" ] && complete -F _dpkg_reconfigure $default dpkg-reconfigure
 
 # Debian Linux dselect(8) completion.
 #
@@ -3005,7 +3005,7 @@ _dselect()
 
 	return 0
 }
-[ "$have" ] && complete -F _dselect $filenames dselect
+[ -z "${have:-}" ] && complete -F _dselect $filenames dselect
 
 # Java completion
 #
@@ -3218,7 +3218,7 @@ _javadoc()
 		_java_packages
 	fi
 }
-[ "$have" ] && complete -F _javadoc $filenames javadoc
+[ -z "${have:-}" ] && complete -F _javadoc $filenames javadoc
 
 # javac completion
 #
@@ -3253,7 +3253,7 @@ _javac()
 		_filedir java
 	fi
 }
-[ "$have" ] && complete -F _javac $filenames javac
+[ -z "${have:-}" ] && complete -F _javac $filenames javac
 
 # PINE address-book completion
 #
@@ -3268,7 +3268,7 @@ _pineaddr()
 	COMPREPLY=( $( compgen -W '$( awk "{print \$1}" ~/.addressbook 2>/dev/null)' \
 			-- $cur ) )
 }
-[ "$have" ] && complete -F _pineaddr $default pine
+[ -z "${have:-}" ] && complete -F _pineaddr $default pine
 
 _configure_func()
 {
@@ -3366,7 +3366,7 @@ _urpmi()
 		_filedir rpm
 	fi
 }
-[ "$have" ] && complete -F _urpmi urpmi
+[ -z "${have:-}" ] && complete -F _urpmi urpmi
 
 # Mandrake urpmq completion
 #
@@ -3403,7 +3403,7 @@ _urpmq()
 		_filedir rpm
 	fi
 }
-[ "$have" ] && complete -F _urpmq urpmq
+[ -z "${have:-}" ] && complete -F _urpmq urpmq
 
 # Mandrake urpme completion
 #
@@ -3423,7 +3423,7 @@ _urpme()
 		_rpm_installed_packages
 	fi
 }
-[ "$have" ] && complete -F _urpme urpme
+[ -z "${have:-}" ] && complete -F _urpme urpme
 
 # Mandrake urpmf completion
 #
@@ -3446,7 +3446,7 @@ _urpmf()
 		_filedir
 	fi
 }
-[ "$have" ] && complete -F _urpmf urpmf
+[ -z "${have:-}" ] && complete -F _urpmf urpmf
 
 # Mandrake urpmi.update completion
 #
@@ -3467,7 +3467,7 @@ _urpmi_update()
 		_urpmi_media
 	fi
 }
-[ "$have" ] && complete -F _urpmi_update urpmi.update
+[ -z "${have:-}" ] && complete -F _urpmi_update urpmi.update
 
 # Mandrake urpmi.addmedia completion
 #
@@ -3508,7 +3508,7 @@ _urpmi_addmedia()
 		esac
 	fi
 }
-[ "$have" ] && complete -F _urpmi_addmedia urpmi.addmedia
+[ -z "${have:-}" ] && complete -F _urpmi_addmedia urpmi.addmedia
 
 # Mandrake urpmi.removemedia completion
 #
@@ -3529,7 +3529,7 @@ _urpmi_removemedia()
 	fi
 
 }
-[ "$have" ] && complete -F _urpmi_removemedia urpmi.removemedia
+[ -z "${have:-}" ] && complete -F _urpmi_removemedia urpmi.removemedia
 
 # Debian reportbug(1) completion
 #
@@ -3602,7 +3602,7 @@ _reportbug()
 	_filedir
 	return 0
 }
-[ "$have" ] && complete -F _reportbug $filenames reportbug
+[ -z "${have:-}" ] && complete -F _reportbug $filenames reportbug
 
 # Debian querybts(1) completion
 #
@@ -3635,7 +3635,7 @@ _querybts()
 			wnpp boot-floppies' -- $cur ) \
 	    		$( apt-cache pkgnames -- $cur ) )
 }
-[ "$have" ] && complete -F _querybts $filenames querybts
+[ -z "${have:-}" ] && complete -F _querybts $filenames querybts
 
 # update-alternatives completion
 #
@@ -3725,7 +3725,7 @@ _update_alternatives()
 			       --config' -- $cur ) )
 	esac
 }
-[ "$have" ] && complete -F _update_alternatives update-alternatives
+[ -z "${have:-}" ] && complete -F _update_alternatives update-alternatives
 
 # Python completion
 #
@@ -3776,7 +3776,7 @@ _python()
 
 	return 0
 }
-[ "$have" ] && complete -F _python $filenames python
+[ -z "${have:-}" ] && complete -F _python $filenames python
 
 # Perl completion
 #
@@ -3922,7 +3922,7 @@ _rcs()
 	# otherwise, default to directories
 	[ ${#COMPREPLY[@]} -eq 0 -a $1 = ci ] && _filedir || _filedir -d
 }
-[ "$have" ] && complete -F _rcs $filenames ci co rlog rcs rcsdiff
+[ -z "${have:-}" ] && complete -F _rcs $filenames ci co rlog rcs rcsdiff
 
 # lilo(8) completion
 #
@@ -3971,7 +3971,7 @@ _lilo()
 			$cur ) )
 	fi
 }
-[ "$have" ] && complete -F _lilo lilo
+[ -z "${have:-}" ] && complete -F _lilo lilo
 
 # links completion
 #
@@ -4008,7 +4008,7 @@ _links()
   
 	return 0
 }
-[ "$have" ] && complete -F _links $filenames links
+[ -z "${have:-}" ] && complete -F _links $filenames links
 
 [ $UNAME = FreeBSD ] && {
 # FreeBSD package management tool completion
@@ -4075,7 +4075,7 @@ _portupgrade()
 
 	return 0
 }
-[ $have ] && complete -F _portupgrade $dirnames portupgrade
+[ -z "${have:-}" ] && complete -F _portupgrade $dirnames portupgrade
 
 # Slackware Linux removepkg completion
 #
@@ -4089,7 +4089,7 @@ _removepkg()
 
 	COMPREPLY=( $( (cd /var/log/packages; compgen -f -- "$cur") ) )
 }
-[ $have ] && complete -F _removepkg $filenames removepkg &&
+[ -z "${have:-}" ] && complete -F _removepkg $filenames removepkg &&
 	complete -o dirnames -f -X '!*.tgz' installpkg upgradepkg explodepkg
 
 # look(1) completion
@@ -4106,7 +4106,7 @@ _look()
 		COMPREPLY=( $( compgen -W '$(look $cur)' ) )
 	fi
 }
-[ "$have" ] && complete -F _look $default look
+[ -z "${have:-}" ] && complete -F _look $default look
 
 # ypcat(1) and ypmatch(1) completion
 #
@@ -4134,7 +4134,7 @@ _ypmatch()
 
 	return 0
 }
-[ "$have" ] && complete -F _ypmatch ypmatch ypcat
+[ -z "${have:-}" ] && complete -F _ypmatch ypmatch ypcat
 
 _filedir_xspec()
 {
@@ -4167,11 +4167,12 @@ list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' \
 		line=${line%# START exclude*}
 		line=${line%# FINISH exclude*}
 		line=${line##*\'}
-		list=( ${list[@]} $line )
+		list=( ${list[@]:-} $line )
 	done
 	echo ${list[@]}
 	)
      ) )
+
 # remove previous compspecs
 if [ ${#list[@]} -gt 0 ]; then
     eval complete -r ${list[@]}
