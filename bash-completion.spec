@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.92 2003/05/27 05:20:54 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.93 2003/06/07 23:30:59 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030527
+Version: 20030607
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,16 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Sat Jun  7 2003 Ian Macdonald <ian@caliban.org>
+- _command() subcompletion should now work OK for commands with spaces,
+  when command completion is done with complete -W, when complete -F function
+  is used, and when function uses COMP_POINT or COMP_LINE
+- make ifconfig completion work on FreeBSD
+- explicit path to postconf(1) for Postfix completion
+- minor mount completion fix
+- make .html completion case-insensitive
+- fix FreeBSD portinstall completion
+
 * Tue May 27 2003 Ian Macdonald <ian@caliban.org>
 - minor apt-cache completion fix
 - handle the case whereby we're sourced from a shell function
