@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.114 2002/02/14 20:07:42 ianmacd Exp $
+#   $Id: bash_completion,v 1.115 2002/02/14 21:11:31 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -813,7 +813,7 @@ _rpm()
 		# complete on list of relevant options
 		COMPREPLY=( $( compgen -W 'short-circuit timecheck clean \
 		rmsource rmspec test sign buildroot target buildarch buildos \
-		nobuild' ${cur_nodash#-} ) )
+		nobuild nodeps nodirtokens' ${cur_nodash#-} ) )
 		dashify
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
@@ -831,13 +831,11 @@ _rpm()
 		;;
 	--re@(build|compile))
 		_expand || return 0
-		if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W 'nodeps' ${cur_nodash#-} ) )
-			dashify
-			return 0
-		fi
+		COMPREPLY=( $( compgen -W 'nodeps rmsource rmspec sign \
+					   nodirtokens' ${cur_nodash#-} ) )
+		dashify
 		# complete on source RPMs
-		COMPREPLY=( $( compgen -G $cur\*.src.rpm ) )
+		COMPREPLY=( ${COMPREPLY[@]} $( compgen -G $cur\*.src.rpm ) )
 		[ ${#COMPREPLY[@]} = 0 ] && COMPREPLY=( $( compgen -d $cur ) )
 		return 0
 		;;
@@ -858,12 +856,9 @@ _rpm()
 		return 0
 		;;
 	--@(clean|rms@(ource|pec)))
-		if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W 'clean rmsource rmspec' \
-				       ${cur_nodash#-} ) )
-			dashify
-			return 0
-		fi
+		COMPREPLY=( $( compgen -W 'clean rmsource rmspec' \
+			       ${cur_nodash#-} ) )
+		dashify
 		file_glob spec
 		return 0
 		;;
