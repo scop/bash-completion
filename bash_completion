@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.310 2002/05/10 18:09:35 ianmacd Exp $
+#   $Id: bash_completion,v 1.311 2002/05/11 09:28:58 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1429,7 +1429,14 @@ complete -F _apt_cache $filenames apt-cache
 
 # Debian Linux aptitude(1) completion
 #
-have aptitude &&
+have aptitude && {
+
+_comp-dpkg-hold-packages()
+{
+	grep-dctrl -r -P -s package,status "^$1" /var/lib/dpkg/status \
+		   | grep-dctrl -n -F status -s package 'hold'
+}
+
 _aptitude()
 {
 	local cur dashoptions prev special i
@@ -1495,6 +1502,7 @@ _aptitude()
 	fi
 }
 [ "$have" ] && complete -F _aptitude $default aptitude
+}
 
 # chsh(1) completion
 #
@@ -2584,14 +2592,6 @@ _comp-dpkg-installed-packages()
 
 }
 
-# This function is used by _aptitude()
-#
-_comp-dpkg-hold-packages()
-{
-	grep-dctrl -r -P -s package,status "^$1" /var/lib/dpkg/status \
-		   | grep-dctrl -n -F status -s package 'hold'
-}
-
 # Debian dpkg(8) completion
 #
 _dpkg()
@@ -2601,6 +2601,8 @@ _dpkg()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	_expand || return 0
 
 	# find the last option flag
 	if [[ $cur != -* ]]; then
