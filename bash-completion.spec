@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.58 2002/08/12 15:36:43 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.59 2002/08/19 17:00:07 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020812
+Version: 20020819
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,11 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Mon Aug 19 2002 Ian Macdonald <ian@caliban.org>
+- add Linux iwconfig(8) completion
+- xmms can now also complete on .xm, .mod and .s3m files
+- gnatmake completion in contrib directory
+
 * Mon Aug 12 2002 Ian Macdonald <ian@caliban.org>
 - ./configure completion was not returning all possible completions on systems
   with mawk
