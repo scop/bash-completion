@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.17 2001/03/22 00:33:02 ianmacd Exp $
+#   $Id: bash_completion,v 1.18 2001/05/21 22:10:29 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -103,7 +103,7 @@ _chown()
         prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# do not attempt completion if we're specifying an option
-	if [ "$cur" == -* ]; then return 0; fi
+	[ "$cur" == -* ] && return 0
 
 	# first parameter on line or first since an option?
 	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
@@ -119,13 +119,11 @@ _chown()
 		else
 			COMPREPLY=( $( compgen -u $cur -S '.' ) )
 		fi
-	else
-		COMPREPLY=( $( compgen -f $cur ) )
 	fi
 
 	return 0
 }
-complete -F _chown chown
+complete -F _chown -o default chown
 
 # umount(8) completion. This relies on the mount point being the third
 # space-delimited field in the output of mount(8)
@@ -261,11 +259,8 @@ _man()
         cur=${COMP_WORDS[COMP_CWORD]}
         prev=${COMP_WORDS[COMP_CWORD-1]}
 
-        # filename completion if parameter contains / or we have no man.config
-        if [[ "$cur" == /* ]] || [ ! -f /etc/man.config ]; then
-                COMPREPLY=( $( compgen -f $cur ) )
-                return 0
-        fi
+        # default completion if parameter contains / or we have no man.config
+        if [[ "$cur" == /* ]] || [ ! -f /etc/man.config ]; then return 0; fi
 
         if [[ "$prev" == [0-9n] ]]; then
                 # churn out a string of paths to search, with * appended to $cur
@@ -295,7 +290,7 @@ _man()
 
 	return 0
 }
-complete -F _man man
+complete -F _man -o default man
 
 # Linux killall(1) completion. This wouldn't be much use on, say,
 # Solaris, where killall does exactly that: kills ALL processes.
@@ -429,14 +424,10 @@ _find()
 		COMPREPLY[i]=-${COMPREPLY[i]}
 	done
 
-	# default to filename completion if all else failed
-	if [ ${#COMPREPLY[@]} = 0 ]; then
-	    COMPREPLY=( $( compgen -f $cur ) )
-	fi
 
 	return 0
 }
-complete -F _find find
+complete -F _find -o default find
 
 # Linux ifconfig(8) completion
 #
@@ -535,13 +526,11 @@ _cvs()
 		COMPREPLY=( $( compgen -W 'add admin checkout commit diff \
 		export history import log rdiff release remove rtag status \
 		tag update' $cur ))
-	else
-		COMPREPLY=( $( compgen -f $cur ))
 	fi
 
 	return 0
 }
-complete -F _cvs cvs
+complete -F _cvs -o default cvs
 
 # rpm(8) completion. This is quite comprehensive now and covers rpm 4.x
 # 
@@ -1031,7 +1020,7 @@ _ssh()
 
 	return 0
 }
-complete -F _ssh ssh slogin
+complete -F _ssh ssh slogin sftp
 
 # Linux route(8) completion. This could be improved by adding address family
 # completion for -A, etc.
@@ -1172,12 +1161,8 @@ complete -F _service service
 #
 _cd()
 {
-	OLD_READLINE_APPEND_CHAR=$READLINE_APPEND_CHAR
-	export READLINE_APPEND_CHAR=`echo -e "\000"`
         local cur=${COMP_WORDS[COMP_CWORD]} dirs=()
 
-	# get standard directory completions
-	COMPREPLY=( $( compgen -d $cur ) )
 	# that's all if parameter contains a /
 	[[ "$cur" == /* ]] && return 0
 
@@ -1191,66 +1176,9 @@ _cd()
 		done
 	}
 
-	export READLINE_APPEND_CHAR=$OLD_READLINE_APPEND_CHAR
 	return 0
 }
-#complete -F _cd cd
-
-# This encapsulates the default bash completion code
-# call with the word to be completed as $1
-#
-# Since programmable completion does not use the bash default completions
-# or the readline default of filename completion when the compspec does
-# not generate any matches, this may be used as a `last resort' in a
-# completion function to mimic the default bash completion behavior.
-#
-_bash_def_completion ()
-{
-	local h t
-	COMPREPLY=()
-
-	# command substitution
-	if [[ "$1" == \$\(* ]]; then
-		t=${1#??}
-		COMPREPLY=( $(compgen -c -P '$(' $t) )
-	fi
-	# variables with a leading `${'
-	if [ ${#COMPREPLY[@]} -eq 0 ] && [[ "$1" == \$\{* ]]; then
-		t=${1#??}
-		COMPREPLY=( $(compgen -v -P '${' -S '}' $t) )
-	fi
-	# variables with a leading `$'
-	if [ ${#COMPREPLY[@]} -eq 0 ] && [[ "$1" == \$* ]]; then
-		t=${1#?}
-		COMPREPLY=( $(compgen -v -P '$' $t ) )
-	fi
-	# username expansion
-	if [ ${#COMPREPLY[@]} -eq 0 ] && [[ "$1" == ~* ]] && [[ "$1" != */* ]]; then
-		t=${1#?}
-		COMPREPLY=( $( compgen -u -P '~' $t ) )
-	fi
-	# hostname
-	if [ ${#COMPREPLY[@]} -eq 0 ] && [[ "$1" == *@* ]]; then
-		h=${1%%@*}
-		t=${1#*@}
-		COMPREPLY=( $( compgen -A hostname -P "${h}@" $t ) )
-	fi
-	# glob pattern
-	if [ ${#COMPREPLY[@]} -eq 0 ]; then
-		# sh-style glob pattern
-		if [[ $1 == *[*?[]* ]]; then
-			COMPREPLY=( $( compgen -G "$1" ) )
-		# ksh-style extended glob pattern - must be complete
-		elif shopt -q extglob && [[ $1 == *[?*+\!@]\(*\)* ]]; then
-			COMPREPLY=( $( compgen -G "$1" ) )
-		fi
-	fi
-
-	# final default is filename completion
-	if [ ${#COMPREPLY[@]} -eq 0 ]; then
-		COMPREPLY=( $(compgen -f "$1" ) )
-	fi
-}
+complete -F _cd -o dirnames cd
 
 # 
 # Return 1 if $1 appears to contain a redirection operator.  Handles backslash
@@ -1280,45 +1208,6 @@ _redir_test()
 	fi
 	return 1
 }
-
-#
-# meta-completion (completion for complete/compgen)
-#
-_complete_meta_func()
-{
-	local cur prev cmd
-	COMPREPLY=()
-
-	cmd=$1
-
-	cur=${COMP_WORDS[COMP_CWORD]}
-	prev=${COMP_WORDS[COMP_CWORD-1]}
-
-	_redir_test "$cur" "$prev" && return 0;
-
-	if (( $COMP_CWORD <= 1 )) || [[ "$cur" == '-' ]]; then
-		case "$cmd" in
-		complete) COMPREPLY=(-a -b -c -d -e -f -j -k -v -u -r -p -A -G -W -P -S -X -F -C);;
-		compgen)  COMPREPLY=(-a -b -c -d -e -f -j -k -v -u -A -G -W -P -S -X -F -C);;
-		esac
-		return 0
-	fi
-
-	if [[ $prev == -A ]]; then
-		COMPREPLY=(alias arrayvar binding builtin command directory \
-disabled enabled export file function helptopic hostname job keyword \
-running setopt shopt signal stopped variable)
-		return 0
-	elif [[ $prev == -F ]]; then
-		COMPREPLY=( $( compgen -A function $cur ) )
-	elif [[ $prev == -C ]]; then
-		COMPREPLY=( $( compgen -c $cur ) )
-	else
-		COMPREPLY=( $( compgen -c $cur ) )
-	fi
-	return 0
-}
-complete -F _complete_meta_func complete compgen
 
 _configure_func ()
 {
