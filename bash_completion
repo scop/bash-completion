@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.679 2004/02/09 21:57:31 ianmacd Exp $
+#   $Id: bash_completion,v 1.680 2004/02/09 22:02:48 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -5705,6 +5705,39 @@ _composite()
 }
 complete -F _composite $filenames composite
 }
+
+# dd(1) completion
+#
+have dd &&
+_dd()
+{
+         local cur
+
+         COMPREPLY=()
+         cur=${COMP_WORDS[COMP_CWORD]}
+
+         case "$cur" in
+         if=*|of=*)
+                 cur=${cur#*=}
+                 _filedir
+                 return 0
+                 ;;
+         conv=*)
+                 cur=${cur#*=}
+                 COMPREPLY=( $( compgen -W 'ascii ebcdic ibm block unblock \
+                                lcase notrunc ucase swab noerror sync' \
+                                -- $cur ) )
+                 return 0
+                 ;;
+         esac
+
+         _expand || return 0
+
+         COMPREPLY=( $( compgen -W '--help --version' -- $cur ) \
+                     $( compgen -W 'bs cbs conv count ibs if obs of seek 
+skip' -S '=' -- $cur ) )
+}
+[ "${have:-}" ] && complete -F _dd $nospace dd
 
 _filedir_xspec()
 {
