@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.42 2002/06/09 17:24:08 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.43 2002/06/11 18:51:06 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020609
+Version: 20020611
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,12 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Tue Jun 11 2002 Ian Macdonald <ian@caliban.org>
+- BASH_COMPLETION_DIR had a typo and was set to /etc/bash_completion
+  instead of /etc/bash_completion.d
+- in tar completion, completing on files within a tar file would consume all
+  memory in bash 2.05a (the perennial compgen -W bug)
+
 * Sun Jun  9 2002 Ian Macdonald <ian@caliban.org>
 - tar completion now recognises the .tbz2 extension
 - 'tar cf' completed properly, but 'tar -cf' did not
