@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.724 2004/07/04 00:23:57 ianmacd Exp $
+#   $Id: bash_completion,v 1.725 2004/07/04 00:26:29 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -303,11 +303,16 @@ _gids()
 #
 _services()
 {
-	local sysvdir
+	local sysvdir famdir
 	[ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
+        famdir=/etc/xinetd.d
+	COMPREPLY=( $( builtin echo $sysvdir/!(*.rpmsave|*.rpmorig|*~|functions)) )
 
-	COMPREPLY=( $( builtin echo $sysvdir/!(*.rpmsave|*.rpmorig|*~|function)) )
-	COMPREPLY=( $( compgen -W '${COMPREPLY[@]#$sysvdir/}' -- $cur ) )
+	if [ -d $famdir ]; then
+		COMPREPLY=( ${COMPREPLY[@]} $( builtin echo $famdir/!(*.rpmsave|*.rpmorig|*~)) )
+	fi
+
+	COMPREPLY=( $( compgen -W '${COMPREPLY[@]#@($sysvdir|$famdir)/}' -- $cur ) )
 }
 
 # Linux ifconfig(8) and iwconfig(8) helper function
