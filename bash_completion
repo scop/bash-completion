@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.622 2003/09/11 23:04:10 ianmacd Exp $
+#   $Id: bash_completion,v 1.623 2003/09/11 23:13:40 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2768,28 +2768,83 @@ _mysqladmin()
 }
 [ -n "${have:-}" ] && complete -F _mysqladmin mysqladmin
 
-# gzip(1) and bzip2(1) completion
+# gzip(1) completion
 #
 have gzip &&
-_zip()
+_gzip()
 {
-	local IFS cur prev xspec
+	local cur prev xspec
 
-	IFS=$'\t\n'
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	[ $1 = "gzip" ] && xspec="*.?(t)gz"
-	[ $1 = "bzip2" ] && xspec="*.bz2"
-	[[ "$prev" == -*[dt]* ]] && xspec="!"$xspec
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-c -d -f \
+			-h -l -L -n -N -q -r -S -t -v -V \
+			-1 -2 -3 -4 -5 -6 -7 -8 -9 \
+			--stdout --decompress --force --help --list \
+			--license --no-name --name --quiet --recursive \
+			--suffix --test --verbose --version --fast \
+			--best' -- $cur ) )
+		return 0
+	fi
+
+	xspec="*.?(t)gz"
+	if [[ "$prev" == --* ]]; then
+		[[ "$prev" == --decompress || \
+			"$prev" == --list || \
+			"$prev" == --test ]] && xspec="!"$xspec
+		[[ "$prev" == --force ]] && xspec=
+	elif [[ "$prev" == -* ]]; then
+		[[ "$prev" == -*[dlt]* ]] && xspec="!"$xspec
+		[[ "$prev" == -*f* ]] && xspec=
+	fi
 
 	_expand || return 0
 
 	COMPREPLY=( $( compgen -f -X "$xspec" -- $cur ) \
 		    $( compgen -d -- $cur ) )
 }
-[ -n "${have:-}" ] && complete -F _zip $filenames gzip bzip2
+[ -n "${have:-}" ] && complete -F _gzip $filenames gzip
+
+# bzip2(1) completion
+#
+have bzip2 &&
+_bzip2()
+{
+	local cur prev xspec
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-c -d -f -h -k -L -q -s \
+			-t -v -V -z -1 -2 -3 -4 -5 -6 -7 -8 -9 \
+			--help --decompress --compress --keep --force \
+			--test --stdout --quiet --verbose --license \
+			--version --small --fast --best' -- $cur ) )
+		return 0
+	fi
+
+	xspec="*.bz2"
+	if [[ "$prev" == --* ]]; then
+		[[ "$prev" == --decompress || \
+			"$prev" == --list || \
+			"$prev" == --test ]] && xspec="!"$xspec
+		[[ "$prev" == --compress ]] && xspec=
+	elif [[ "$prev" == -* ]]; then
+		[[ "$prev" == -*[dt]* ]] && xspec="!"$xspec
+		[[ "$prev" == -*z* ]] && xspec=
+	fi
+
+	_expand || return 0
+
+	COMPREPLY=( $( compgen -f -X "$xspec" -- $cur ) \
+		    $( compgen -d -- $cur ) )
+}
+[ -n "${have:-}" ] && complete -F _bzip2 $filenames bzip2
 
 # openssl(1) completion
 #
