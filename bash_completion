@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.557 2003/04/29 02:24:20 ianmacd Exp $
+#   $Id: bash_completion,v 1.558 2003/04/29 07:28:10 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1257,12 +1257,12 @@ _rpm_installed_packages()
 
 	if [ -r /var/log/rpmpkgs -a \
 		/var/log/rpmpkgs -nt /var/lib/rpm/Packages ]; then
-		# using RHL 7.2 - this is quicker than querying the DB
+		# using RHL 7.2 or later - this is quicker than querying the DB
 		COMPREPLY=( $( sed -ne \
 		's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.@]\+.*\.rpm$|\1|p' \
 				/var/log/rpmpkgs ) )
 	else
-		COMPREPLY=( $( rpm -qa | sed -ne \
+		COMPREPLY=( $( rpm -qa $options | sed -ne \
 		's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.@]\+$|\1|p' ) )
 	fi
 }
@@ -1272,7 +1272,8 @@ _rpm_groups()
 	local IFS=$'\t'
 	# remove trailing backslash, or grep will complain
 	cur=${cur%"\\"}
-	COMPREPLY=( $( rpm -qa --queryformat '%{group}\n' | grep "^$cur" ) )
+	COMPREPLY=( $( rpm -qa $options --queryformat '%{group}\n' | \
+		       grep "^$cur" ) )
 	# backslash escape spaces and translate newlines to tabs
 	COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\ /g' | tr '\n' '\t' ) )
 }
@@ -1281,11 +1282,20 @@ _rpm_groups()
 # 
 _rpm()
 {
-	local cur prev
+	local cur prev ver options
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
+	options=""
+        ver=$(rpm --version); ver=${ver##* }
+  
+        if [[ "$ver" > "4.0.2" ]]; then
+                options="--nodigest"
+        fi
+        if [[ "$ver" > "4.0.99" ]]; then
+                options="$options --nosignature"
+        fi
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		# first parameter on line
@@ -1344,15 +1354,15 @@ _rpm()
 			_filedir
 		else
 		# complete on capabilities
-			COMPREPLY=( $( rpm -qa --queryformat \
+			COMPREPLY=( $( rpm -qa $options --queryformat \
 					'%{providename}\n' | grep "^$cur" ) )
 		fi
 		return 0
 		;;
 	--whatrequires)
 		# complete on capabilities
-		COMPREPLY=( $( rpm -qa --queryformat '%{requirename}\n' | \
-				grep "^$cur" ) )
+		COMPREPLY=( $( rpm -qa $options --queryformat \
+				'%{requirename}\n' | grep "^$cur" ) )
 		return 0
 		;;
 	esac
