@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.639 2003/10/17 08:24:30 ianmacd Exp $
+#   $Id: bash_completion,v 1.640 2003/10/17 08:26:39 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -4271,8 +4271,9 @@ _portinstall()
 
 	[ "$prev" = "-l" -o "$prev" = "-L" -o "$prev" = "-o" ] && return 0
 
-	COMPREPLY=( $( cut -d'|' -f1 < $indexfile | egrep "^$cur" ) )
-	COMPREPLY2=( $( cut -d'|' -f2 < $indexfile | egrep "^$portsdir$cur" ) )
+	COMPREPLY=( $( egrep "^$cur" < $indexfile | cut -d'|' -f1 ) )
+	COMPREPLY2=( $( egrep "^[^\|]+\|$portsdir$cur" < $indexfile | \
+			cut -d'|' -f2 ) )
 	COMPREPLY2=( ${COMPREPLY2[@]#$portsdir} )
 	COMPREPLY=( ${COMPREPLY[@]} ${COMPREPLY2[@]} )
 
