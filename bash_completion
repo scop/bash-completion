@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.125 2002/02/18 09:39:02 ianmacd Exp $
+#   $Id: bash_completion,v 1.126 2002/02/18 11:09:59 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -117,7 +117,6 @@ have()
 	type $1 &> /dev/null
 	[ $? = 0 ] && have="yes"
 }
-
 
 # GNU chown(1) completion.
 #
@@ -332,6 +331,7 @@ _man()
 # This could be improved. For example, it currently doesn't take
 # command line options into account
 #
+[ $OS = Linux ] &&
 _killall()
 {
 	local cur prev i
@@ -369,7 +369,7 @@ _killall()
 		   sed -e 's#^.*/##' ))
 	return 0
 }
-complete -F _killall killall
+[ $OS = Linux ] && complete -F _killall killall
 
 # GNU find(1) completion. This makes heavy use of ksh style extended
 # globs and contains Linux specific code for completing the parameter
@@ -546,7 +546,7 @@ _ipsec()
 		COMPREPLY=( $( compgen -W 'auto barf eroute klipsdebug look \
 					   manual pluto ranbits rsasigkey \
 					   setup showdefaults showhostkey spi \
-					   spigrp tncfg whack' $cur ))
+					   spigrp tncfg whack' $cur ) )
 		return 0
 	fi
 
@@ -583,6 +583,7 @@ _ipsec()
 
 # cvs(1) completion
 #
+have cvs &&
 _cvs()
 {
 	local cur prev
@@ -599,7 +600,7 @@ _cvs()
 
 	return 0
 }
-complete -F _cvs -o default cvs
+[ "$have" ] && complete -F _cvs -o default cvs
 
 # rpm(8) completion. This is quite comprehensive now and covers rpm 4.x
 # 
@@ -1698,7 +1699,7 @@ _psql()
 {
 	local cur prev
 
-	COMREPLY=()
+	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
@@ -1725,28 +1726,17 @@ _longopt()
 
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	case "$cur" in
-	-*)
-		;;
-	*)
-		return 0
-		;;
-	esac
-
-	case "$1" in
-	\~*)
-		eval cmd=$1
-		;;
-        *)
-		cmd="$1"
-		;;
-	esac
+	_expand || return 0
 
 	[ "$4" = no_completion ] && return 0
 
-	COMPREPLY=( $( "$cmd" --help | sed  -e '/--/!d' \
-					    -e 's/.*--\([^ ]*\).*/--\1/'| \
-		       grep ^$cur | sort -u ) )
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( $1 --help | sed  -e '/--/!d' \
+						-e 's/.*--\([^ ]*\).*/--\1/'| \
+			       grep ^$cur | sort -u ) )
+	else
+		_filedir
+	fi
 	unset cmd
 }
 complete -F _longopt -o dirnames mkdir rmdir
@@ -1758,7 +1748,7 @@ for i in a2ps autoconf automake bc gprof ld nm objcopy objdump readelf \
 	 cat csplit cut expand fmt fold head md5sum nl od paste pr \
 	 ptx sha1sum sort split tac tail tr unexpand uniq wc units wget \
 	 rsync ldd bash id info; do
-    have $i && complete -F _longopt -o default $i
+    have $i && complete -F _longopt -o filenames $i
 done
 unset i
 
@@ -1775,15 +1765,17 @@ unset i
 have gcc &&
 _gcc()
 {
-	local cur cc cmd backend
+	local cur cc backend
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	[[ "$cur" != -* ]] && return 0
 	_longopt "$1" "$cur" "" no_completion
 
-	case "$cmd" in
+	# return if _expand returned anything
+	[ ${#COMPREPLY[@]} -gt 0 ] && return 0
+
+	case "$1" in
 	gcj)
 		backend=jc1
 		;;
@@ -1796,19 +1788,22 @@ _gcc()
 	*)
 		backend=cc1	# [near-]universal backend
 		;;
-    esac
+	esac
 
-    cc=$( $cmd -print-prog-name=$backend )
-
-    # sink stderr:
-    # for C/C++/ObjectiveC it's useless
-    # for FORTRAN/Java it's an error
-    COMPREPLY=( $( $cc --help 2>/dev/null | tr '\t' ' ' | \
-                   sed -e '/^  *-/!d' -e 's/ *-\([^ ]*\).*/-\1/' | \
-                   grep ^$cur | sort -u ) )
+	if [[ "$cur" == -* ]]; then
+		cc=$( $1 -print-prog-name=$backend )
+		# sink stderr:
+		# for C/C++/ObjectiveC it's useless
+		# for FORTRAN/Java it's an error
+		COMPREPLY=( $( $cc --help 2>/dev/null | tr '\t' ' ' | \
+			       sed -e '/^  *-/!d' -e 's/ *-\([^ ]*\).*/-\1/' | \
+			       grep ^$cur | sort -u ) )
+	else
+		_filedir
+	fi
 }
-[ "$have" ] && complete -o default -F _gcc gcc g++ c++ g77 gcj gpc
-[ $OS = Linux ] && complete -o default -F _gcc cc
+[ "$have" ] && complete -o filenames -F _gcc gcc g++ c++ g77 gcj gpc
+[ $OS = Linux ] && complete -o filenames -F _gcc cc
 
 # bash alias completion
 #
@@ -1890,7 +1885,7 @@ _configure_func()
 	[[ "$cur" != -* ]] && return 0
 	_longopt "$1" "$cur" "" no_completion
 
-	COMPREPLY=( $( "$cmd" --help | sed -ne 's/^ *\('$2'[^ '$'\t'',[]\+\).*$/\1/p' ) )
+	COMPREPLY=( $( $1 --help | sed -ne 's/^ *\('$cur'[^ '$'\t'',[]\+\).*$/\1/p' ) )
 }
 complete -F _configure_func configure
 
