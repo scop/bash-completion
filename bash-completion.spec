@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.16 2002/03/24 08:10:58 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.17 2002/03/26 16:54:30 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020324
+Version: 20020326
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,15 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Tue Mar 26 2002 Ian Macdonald <ian@caliban.org>
+- tar completion now supports more switches for bzip compression
+- chown completion now uses ':' as user:group separator
+- ncftp and mount completion now compatible with FreeBSD
+- _ncftp() now handles comments in /etc/shells properly
+- dpkg completion now handles -r|--remove|--purge
+- add completion for dpkg-reconfigure
+- time now also completes on commands
+
 * Sun Mar 24 2002 Ian Macdonald <ian@caliban.org>
 - kill and killall completion now also work on FreeBSD
 
