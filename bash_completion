@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.625 2003/09/13 08:24:24 ianmacd Exp $
+#   $Id: bash_completion,v 1.626 2003/09/13 16:49:49 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1039,7 +1039,7 @@ _postcat()
 		len=${#cur}
 		idx=0
 		for pval in $( mailq | \
-			sed -e '1d; $d; /^[^0-9A-Z]\|^$/d; s/[* ].*$//' ); do
+			sed -e '1d; $d; /^[^0-9A-Z]\|^$/d; s/[* !].*$//' ); do
 			if [[ "$cur" == "${pval:0:$len}" ]]; then
 				COMPREPLY[$idx]=$pval
 				idx=$(($idx+1))
@@ -1098,19 +1098,45 @@ _postsuper()
 		COMPREPLY=(-c -d -h -H -p -r -s -v)
 		return 0
 	fi
-	if [[ $prev == -[dhHr] ]]; then
+	case $prev in
+	-[dr])
 		len=${#cur}
 		idx=0
-		for pval in $( mailq | \
-			sed -e '1d; $d; /^[^0-9A-Z]\|^$/d; s/[* ].*$//' ); do
+		for pval in $( echo ALL; mailq | \
+			sed -e '1d; $d; /^[^0-9A-Z]\|^$/d; s/[* !].*$//' ); do
 			if [[ "$cur" == "${pval:0:$len}" ]]; then
 				COMPREPLY[$idx]=$pval
 				idx=$(($idx+1))
 			fi
 		done
 		return 0
-	fi
-	_filedir -d
+		;;
+	-h)
+		len=${#cur}
+		idx=0
+		for pval in $( echo ALL; mailq | \
+			sed -e '1d; $d; /^[^0-9A-Z]\|^$/d; s/[* ].*$//; /!$/d' ); do
+			if [[ "$cur" == "${pval:0:$len}" ]]; then
+				COMPREPLY[$idx]=$pval
+				idx=$(($idx+1))
+			fi
+		done
+		return 0
+		;;
+	-H)
+		len=${#cur}
+		idx=0
+		for pval in $( echo ALL; mailq | \
+			sed -e '1d; $d; /^[^0-9A-Z]\|^$/d; /^[0-9A-Z]*[* ]/d; s/!.*$//' ); do
+			if [[ "$cur" == "${pval:0:$len}" ]]; then
+				COMPREPLY[$idx]=$pval
+				idx=$(($idx+1))
+			fi
+		done
+		return 0
+		;;
+	esac
+	COMPREPLY=( $( compgen -W 'hold incoming active deferred' -- $cur ) )
 	return 0
 }
 complete -F _postsuper postsuper
