@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.562 2003/05/05 06:48:30 ianmacd Exp $
+#   $Id: bash_completion,v 1.563 2003/05/06 08:39:49 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2428,6 +2428,12 @@ _cd()
 {
 	local IFS=$'\t\n' cur=${COMP_WORDS[COMP_CWORD]} i j k
 
+	# try to allow variable completion
+	if [[ "$cur" == ?(\\)\$* ]]; then
+		COMPREPLY=( $( compgen -v -P '$' -- "${cur#?(\\)$}" ) )
+		return 0
+	fi
+
 	# Use standard dir completion if no CDPATH or parameter starts with /,
 	# ./ or ../
 	if [ -z "${CDPATH:-}" ] || [[ "$cur" == ?(.)?(.)/* ]]; then
@@ -2451,7 +2457,7 @@ _cd()
 	return 0
 }
 if shopt -q cdable_vars; then
-    complete -A variable -F _cd $nospace $filenames cd
+    complete -v -F _cd $nospace $filenames cd
 else
     complete -F _cd $nospace $filenames cd
 fi
