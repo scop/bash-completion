@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.110 2003/12/24 23:20:51 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.111 2004/01/01 07:40:39 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20031225
+Version: 20040101
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,14 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Thu Jan  1 2004 Ian Macdonald <ian@caliban.org>
+- avoid pulling in .rpm* files from $BASH_COMPLETION_DIR/*
+- Postfix completion enhancement
+- wvdial improvements
+- FreeBSD portinstall fix
+- make ri (Ruby Interactive) completion work with more versions
+- mtx and snownews completion in contrib dir
+
 * Thu Dec 25 2003 Ian Macdonald <ian@caliban.org>
 - ogg123 can now handle .flac and .spx files
 - mutt completion improvements
