@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.217 2002/03/24 20:26:34 ianmacd Exp $
+#   $Id: bash_completion,v 1.218 2002/03/26 16:17:12 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -237,7 +237,7 @@ complete -F _function function declare typeset
 
 # start of section containing completion functions for external programs
 
-# GNU chown(1) completion.
+# chown(1) completion
 #
 _chown()
 {
@@ -252,15 +252,12 @@ _chown()
 
 	# first parameter on line or first since an option?
 	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
-		if [[ "$cur" == [a-zA-Z]*.* ]]; then
-			user=${cur%.*}
-			group=${cur#*.}
-			COMPREPLY=( $( compgen -g -- $group ) )
-			for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
-				COMPREPLY[i]=$user.${COMPREPLY[i]}
-			done
+		if [[ "$cur" == [a-zA-Z]*[.:]* ]]; then
+			user=${cur%%?(\\)[.:]*}
+			group=${cur#*[.:]}
+			COMPREPLY=( $( compgen -P $user'\:' -g -- $group ) )
 		else
-			COMPREPLY=( $( compgen -S '.' -u $cur ) )
+			COMPREPLY=( $( compgen -S '\:' -u $cur ) )
 		fi
 	fi
 
