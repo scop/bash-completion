@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.744 2004/10/13 20:58:48 ianmacd Exp $
+#   $Id: bash_completion,v 1.745 2004/10/14 08:52:14 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -6038,6 +6038,1168 @@ _info()
 [ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin \
   -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin ] && \
 complete -F _info $filenames info
+
+# dhclient(1) completion
+#
+_dhclient()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(cf|lf|pf|sf))
+			_filedir
+			return 0
+			;;
+		-s)
+			_known_hosts
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-p -d -q -1 -r -lf -pf \
+			-cf -sf -s -g -n -nw -w' -- $cur ) )
+	else
+		_interfaces
+	fi
+}
+complete -F _dhclient dhclient
+
+# lvm(8) completion
+#
+have lvm && {
+_volumegroups()
+{
+	COMPREPLY=( $( vgscan | \
+		awk -F'"' '/Found/ {if ($2 ~ /^'$cur'/) print $2}' ) )
+}
+
+_physicalvolumes()
+{
+	COMPREPLY=( $( pvscan | \
+		awk '/PV/ {if ($2 ~ /^'$cur'/) print $2}' ) )
+}
+
+_logicalvolumes()
+{
+	COMPREPLY=( $( lvscan | \
+		awk -F"'" '{if ($2 ~ /^'$cur'/) print $2}' ) )
+}
+
+_units()
+{
+	COMPREPLY=( $( compgen -W 'h s b k m g t H K M G T' -- $cur ) )
+}
+
+_sizes()
+{
+	COMPREPLY=( $( compgen -W 'k K m M g G t T' -- $cur ) )
+}
+
+_args()
+{
+	args=0
+	if [[ "${COMP_WORDS[0]}" == lvm ]]; then
+		offset=2
+	else
+		offset=1
+	fi
+	for (( i=$offset; i < COMP_CWORD; i++ )); do
+		if [[ "${COMP_WORDS[i]}" != -* ]]; then
+			args=$(($args + 1))
+		fi
+	done
+}
+
+_lvm()
+{
+	local prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [ $COMP_CWORD -eq 1 ]; then
+		COMPREPLY=( $( compgen -W 'dumpconfig help lvchange \
+			lvcreate lvdisplay lvextend lvmchange \
+			lvmdiskscan lvmsadc lvmsar lvreduce \
+			lvremove lvrename lvresize lvs lvscan \
+			pvchange pvcreate pvdata pvdisplay pvmove \
+			pvremove pvresize pvs pvscan vgcfgbackup \
+			vgcfgrestore vgchange vgck vgconvert \
+			vgcreate vgdisplay vgexport vgextend \
+			vgimport vgmerge vgmknodes vgreduce \
+			vgremove vgrename vgs vgscan vgsplit \
+			version' -- $cur ) )
+	else
+		case ${COMP_WORDS[1]} in
+			pvchange)
+				_pvchange
+				;;
+			pvcreate)
+				_pvcreate
+				;;
+			pvdisplay)
+				_pvdisplay
+				;;
+			pvmove)
+				_pvmove
+				;;
+			pvremove)
+				_pvremove
+				;;
+			pvresize)
+				_pvresize
+				;;
+			pvs)
+				_pvs
+				;;
+			pvscan)
+				_pvscan
+				;;
+			vgcfgbackup)
+				_vgcfgbackup
+				;;
+			vgcfgrestore)
+				_vgcfgrestore
+				;;
+			vgchange)
+				_vgchange
+				;;
+			vgck)
+				_vgck
+				;;
+			vgconvert)
+				_vgconvert
+				;;
+			vgcreate)
+				_vgcreate
+				;;
+			vgdisplay)
+				_vgdisplay
+				;;
+			vgexport)
+				_vgexport
+				;;
+			vgextend)
+				_vgextend
+				;;
+			vgimport)
+				_vgimport
+				;;
+			vgmerge)
+				_vgmerge
+				;;
+			vgmknodes)
+				_vgmknodes
+				;;
+			vgreduce)
+				_vgreduce
+				;;
+			vgremove)
+				_vgremove
+				;;
+			vgrename)
+				_vgrename
+				;;
+			vgs)
+				_vgs
+				;;
+			vgscan)
+				_vgscan
+				;;
+			vgsplit)
+				_vgsplit
+				;;
+			lvchange)
+				_lvchange
+				;;
+			lvcreate)
+				_lvcreate
+				;;
+			lvdisplay)
+				_lvdisplay
+				;;
+			lvextend)
+				_lvextend
+				;;
+			lvreduce)
+				_lvreduce
+				;;
+			lvremove)
+				_lvremove
+				;;
+			lvrename)
+				_lvrename
+				;;
+			lvresize)
+				_lvresize
+				;;
+			lvs)
+				_lvs
+				;;
+			lvscan)
+				_lvscan
+				;;
+		esac
+	fi
+}
+complete -F _lvm lvm
+
+_lvmdiskscan()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-d --debug -h -? --help -l \
+			--lvmpartition -v --verbose --version' -- $cur ) )
+	fi
+}
+complete -F _lvmdiskscan lvmdiskscan
+
+_pvscan()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-d --debug -e \
+			--exported -n --novolumegroup -h -? \
+			--help --ignorelockingfailure -P \
+			--partial -s --short -u --uuid -v \
+			--verbose --version' -- $cur ) )
+	fi
+}
+complete -F _pvscan pvscan
+
+_pvs()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(o|O|-options|-sort))
+			COMPREPLY=( $( compgen -W 'pv_fmt pv_uuid \
+				pv_size pv_free pv_used pv_name \
+				pv_attr pv_pe_count \
+				pv_pe_alloc_count' -- $cur ) )
+			return 0
+			;;
+		--units)
+			_units
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '--aligned -a --all -d --debug \
+			-h -? --help --ignorelockingfailure --noheadings \
+			--nosuffix -o --options -O --sort \
+			--separator --unbuffered --units \
+			-v --verbose --version' -- $cur ) )
+	else
+		_physicalvolumes
+	fi
+}
+complete -F _pvs pvs
+
+_pvdisplay()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		--units)
+			_units
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-c --colon -C --columns --units \
+			-v --verbose -d --debug -h --help --version' -- $cur ) )
+	else
+		_physicalvolumes
+	fi
+}
+complete -F _pvdisplay pvdisplay
+
+_pvchange()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(A|x|-autobackup|--allocatable))
+			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-a --all -A --autobackup \
+			-d --debug -h --help -t --test -u --uuid -x \
+			--allocatable -v --verbose --addtag --deltag \
+			--version' -- $cur ) )
+	else
+		_physicalvolumes
+	fi
+}
+complete -F _pvchange pvchange
+
+_pvcreate()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		--restorefile)
+			_filedir
+			return 0
+			;;
+		-@(M|-metadatatype))
+			COMPREPLY=( $( compgen -W '1 2' -- $cur ) )
+			return 0
+			;;
+		--metadatacopies)
+			COMPREPLY=( $( compgen -W '0 1 2' -- $cur ) )
+			return 0
+			;;
+		--@(metadatasize|setphysicalvolumesize))
+			_sizes
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '--restorefile -d --debug -f \
+			--force -h -? --help --labelsector -M --metadatatype \
+			--metadatacopies --metadatasize \
+			--setphysicalvolumesize -t --test -u --uuid uuid -v \
+			--verbose -y --yes --version' -- $cur ) )
+	else
+		_physicalvolumes
+	fi
+}
+complete -F _pvcreate pvcreate
+
+_pvmove()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(A|-autobackup))
+			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			return 0
+			;;
+		-@(n|-name))
+			_logicalvolumes
+			return 0
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '--abort -A --autobackup \
+			-b --background -d --debug -f --force -h -? \
+			--help -i --interval -t --test -v --verbose \
+			--version -n --name' -- $cur ) )
+	else
+		_physicalvolumes
+	fi
+}
+complete -F _pvmove pvmove
+
+_pvremove()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-d --debug -f --force -h -? \
+			--help -y --yes -t --test -v --verbose \
+			--version' -- $cur ) )
+	else
+		_physicalvolumes
+	fi
+}
+complete -F _pvremove pvremove
+
+_vgscan()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-d --debug -h --help \
+			--ignorelockingfailure --mknodes -P \
+			--partial -v --verbose --version' -- $cur ) )
+	fi
+}
+complete -F _vgscan vgscan
+
+_vgs()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(o|O|-options|-sort))
+			COMPREPLY=( $( compgen -W 'vg_fmt vg_uuid vg_name \
+				vg_attr vg_size vg_free vg_sysid \
+				vg_extent_size vg_extent_count vg_free_count \
+				max_lv max_pv pv_count lv_count snap_count \
+				vg_seqno' -- $cur ) )
+			return 0
+			;;
+		--units)
+			_units
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '--aligned -d --debug \
+			-h --help --ignorelockingfailure --noheadings \
+			--nosuffix -o --options -O --sort -P --partial \
+			--separator --unbuffered --units \
+			-v --verbose --version' -- $cur ) )
+	else
+		_volumegroups
+	fi
+}
+complete -F _vgs vgs
+
+_vgdisplay()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		--units)
+			_units
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-c --colon -C --columns --units \
+			-P --partial -A --activevolumegroups -v --verbose \
+			-d --debug -h --help --version' -- $cur ) )
+	else
+		_volumegroups
+	fi
+}
+complete -F _vgdisplay vgdisplay
+
+_vgchange()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(a|A|x|-available|-autobackup|-resizeable))
+			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-A --autobackup --alloc -P \
+			--partial -d --debug -h --help --ignorelockingfailure \
+			-t --test -u --uuid -v --verbose --version -a \
+			--available -x --resizeable -l --logicalvolume \
+			--addtag --deltag' -- $cur ) )
+	else
+		_volumegroups
+	fi
+}
+complete -F _vgchange vgchange
+
+_vgcreate()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(A|-autobackup))
+			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			return 0
+			;;
+		-@(M|-metadatatype))
+			COMPREPLY=( $( compgen -W '1 2' -- $cur ) )
+			return 0
+			;;
+		-@(s|-physicalextentsize))
+			_sizes
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-A --autobackup --addtag \
+			--alloc -d --debug -h --help -l --maxlogicalvolumes \
+			-M --metadatatype -p --maxphysicalvolumes -s \
+			--physicalextentsize -t --test -v --verbose \
+			--version' -- $cur ) )
+	else
+		_args
+		if [ $args -eq 0 ]; then
+			_volumegroups
+		else
+			_physicalvolumes
+		fi
+	fi
+}
+complete -F _vgcreate vgcreate
+
+_vgremove()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-d --debug -h --help -t --test \
+		-v --verbose --version' -- $cur ) )
+	else
+		_volumegroups
+	fi
+}
+complete -F _vgremove vgremove
+
+_vgrename()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(A|-autobackup))
+			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-A --autobackup -d --debug -h \
+			-? --help -t --test -v --verbose --version' -- $cur ) )
+	else
+		_volumegroups
+	fi
+}
+complete -F _vgrename vgrename
+
+_vgreduce()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(A|-autobackup))
+			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-a --all -A --autobackup -d \
+			--debug -h --help --removemissing -t --test -v \
+			--verbose --version' -- $cur ) )
+
+	else
+		_args
+		if [ $args -eq 0 ]; then
+			_volumegroups
+		else
+			_physicalvolumes
+		fi
+	fi
+}
+complete -F _vgreduce vgreduce
+
+_vgextend()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(A|-autobackup))
+			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			return 0
+			;;
+		-@(L|-size))
+			_sizes
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-A --autobackup -d --debug -h \
+			-? --help -t --test -v --verbose --version' -- $cur ) )
+	else
+		_args
+		if [ $args -eq 0 ]; then
+			_volumegroups
+		else
+			_physicalvolumes
+		fi
+	fi
+}
+complete -F _vgextend vgextend
+
+_vgport()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-a --all -d --debug -h \
+			-? --help -v --verbose --version' -- $cur ) )
+	else
+		_volumegroups
+	fi
+}
+complete -F _vgport vgimport vgexport
+
+_vgck()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-d --debug -h \
+			-? --help -v --verbose --version' -- $cur ) )
+	else
+		_volumegroups
+	fi
+}
+complete -F _vgck vgck
+
+_vgconvert()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(M|-metadatatype))
+			COMPREPLY=( $( compgen -W '1 2' -- $cur ) )
+			return 0
+			;;
+		--metadatacopies)
+			COMPREPLY=( $( compgen -W '0 1 2' -- $cur ) )
+			return 0
+			;;
+		--metadatasize)
+			_sizes
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-d --debug -h --help --labelsector \ 
+			-M --metadatatype --metadatacopies --metadatasize \
+			-t --test -v --verbose --version' -- $cur ) )
+	else
+		_volumegroups
+	fi
+}
+complete -F _vgconvert vgconvert
+
+_vgcfgbackup()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(f|-file))
+			_filedir
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-d --debug -f --file -h --help \
+			--ignorelockingfailure -P --partial -v --verbose \
+			--version' -- $cur ) )
+	else
+		_volumegroups
+	fi
+}
+complete -F _vgcfgbackup vgcfgbackup
+
+_vgcfgrestore()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(f|-file))
+			_filedir
+			return 0
+			;;
+		-@(M|-metadatatype))
+			COMPREPLY=( $( compgen -W '1 2' -- $cur ) )
+			return 0
+			;;
+		-@(n|-name))
+			_volumegroups
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-d --debug -f --file -l --list \
+			-h --help -M --Metadatatype -n --name -t --test \
+			-v --verbose --version' -- $cur ) )
+	else
+		_volumegroups
+	fi
+}
+complete -F _vgcfgrestore vgcfgrestore
+
+_vgmerge()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(A|-autobackup))
+			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-A --autobackup -d --debug \
+			-h --help -l --list -t --test -v --verbose \
+			--version' -- $cur ) )
+	else
+		_volumegroups
+	fi
+}
+complete -F _vgmerge vgmerge
+
+_vgsplit()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(A|-autobackup))
+			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			return 0
+			;;
+		-@(M|-metadatatype))
+			COMPREPLY=( $( compgen -W '1 2' -- $cur ) )
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-A --autobackup -d --debug \
+			-h --help -l --list -M --metadatatype -t --test \
+			-v --verbose --version' -- $cur ) )
+	else
+		_args
+		if [ $args -eq 0 -o $args -eq 1 ]; then
+			_volumegroups
+		else
+			_physicalvolumes
+		fi
+	fi
+}
+complete -F _vgsplit vgsplit
+
+_vgmknodes()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-d --debug -h --help -v --verbose \
+			--version' -- $cur ) )
+	else
+		_volumegroups
+	fi
+}
+complete -F _vgmknodes vgmknodes
+
+_lvscan()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-b --blockdevice -d --debug \
+			-h -? --help --ignorelockingfailure -P \
+			--partial -v --verbose --version' -- $cur ) )
+	fi
+}
+complete -F _lvscan lvscan
+
+_lvs()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(o|O|-options|-sort))
+			COMPREPLY=( $( compgen -W 'lv_uuid lv_name \
+				lv_attr lv_minor lv_size seg_count \
+				origin snap_percent segtype stripes \
+				stripesize chunksize seg_start \
+				seg_size' -- $cur ) )
+			return 0
+			;;
+		--units)
+			_units
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '--aligned -d --debug \
+			-h --help --ignorelockingfailure --noheadings \
+			--nosuffix -o --options -O --sort -P --partial \
+			--segments --separator --unbuffered --units \
+			-v --verbose --version' -- $cur ) )
+	else
+		_logicalvolumes
+	fi
+}
+complete -F _lvs lvs
+
+_lvdisplay()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		--units)
+			_units
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-c --colon -C --columns --units \
+			-P --partial -m --maps -v --verbose -d --debug -h \
+			--help --version' -- $cur ) )
+	else
+		_logicalvolumes
+	fi
+}
+complete -F _lvdisplay lvdisplay
+
+
+_lvchange()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(a|A|C|M|-available|-autobackup|-continguous|-persistent))
+			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			return 0
+			;;
+		-@(p|-permission))
+			COMPREPLY=( $( compgen -W 'r rw' -- $cur ) )
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-A --autobackup -a --available \
+			--addtag --alloc -C --contiguous -d --debug --deltag \
+			-f --force -h --help --ignorelockingfailure -M \
+			--persistent --major major --minor minor -P --partial \
+			-p --permission -r --readahead --refresh -t --test \
+			-v --verbose --version' -- $cur ) )
+	else
+		_logicalvolumes
+	fi
+}
+complete -F _lvchange lvchange
+
+
+
+_lvcreate()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(A|C|M|Z|-autobackup|-continguous|-persistent|-zero))
+			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			return 0
+			;;
+		-@(L|-size))
+			_sizes
+			return 0
+			;;
+		-@(p|-permission))
+			COMPREPLY=( $( compgen -W 'r rw' -- $cur ) )
+			return 0
+			;;
+		-@(n|-name))
+			_logicalvolumes
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-A --autobackup --addtag --alloc \
+			-C --contiguous -d --debug -h -? --help -i --stripes \
+			-I --stripesize -l --extents -L --size -M --persistent \
+			--major --minor -n --name -p --permission -r \
+			--readahead -t --test --type -v --verbose -Z --zero \
+			--version' -- $cur ) )
+	else
+		_args
+		if [ $args -eq 0 ]; then
+			_volumegroups
+		else
+			_physicalvolumes
+		fi
+	fi
+}
+complete -F _lvcreate lvcreate
+
+
+_lvremove()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(A|-autobackup))
+			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-A --autobackup -d --debug -f \
+			--force -h -?  --help -t --test -v --verbose \
+			--version' -- $cur ) )
+	else
+		_logicalvolumes
+	fi
+}
+complete -F _lvremove lvremove
+
+
+_lvrename()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(A|-autobackup))
+			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-A --autobackup -d --debug -h \
+			-? --help -t --test -v --verbose --version' -- $cur ) )
+	else
+		_logicalvolumes
+	fi
+}
+complete -F _lvrename lvrename
+
+
+_lvreduce()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(A|-autobackup))
+			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			return 0
+			;;
+		-@(L|-size))
+			_sizes
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-A --autobackup -d \
+			--debug -f --force -h --help -l --extents \
+			-L --size -n --nofsck -r --resizefs -t --test \
+			-v --verbose --version' -- $cur ) )
+	else
+		_logicalvolumes
+	fi
+}
+complete -F _lvreduce lvreduce
+
+_lvresize()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(A|-autobackup))
+			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			return 0
+			;;
+		-@(L|-size))
+			_sizes
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-A --autobackup --alloc -d \
+			--debug -h --help -i --stripes -I --stripesize \
+			-l --extents -L --size -n --nofsck -r --resizefs \
+			-t --test --type -v --verbose --version' -- $cur ) )
+	else
+		_args
+		if [ $args -eq 0 ]; then
+			_logicalvolumes
+		else
+			_physicalvolumes
+		fi
+	fi
+}
+complete -F _lvresize lvresize
+
+_lvextend()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(A|-autobackup))
+			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			return 0
+			;;
+		-@(L|-size))
+			_sizes
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-A --autobackup --alloc -d \
+			--debug -h --help -i --stripes -I --stripesize \
+			-l --extents -L --size -n --nofsck -r --resizefs \
+			-t --test --type -v --verbose --version' -- $cur ) )
+	else
+		_args
+		if [ $args -eq 0 ]; then
+			_logicalvolumes
+		else
+			_physicalvolumes
+		fi
+	fi
+}
+complete -F _lvextend lvextend
+}
 
 _filedir_xspec()
 {
