@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.259 2002/04/04 16:49:40 ianmacd Exp $
+#   $Id: bash_completion,v 1.260 2002/04/05 19:45:05 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1073,7 +1073,7 @@ _rpm()
 		;;
 	-@(q*|-query))
 		# check whether we're doing package group completion
-		if [ "${COMP_LINE#*-*([^ ])g}" != "$COMP_LINE" ]; then
+		if [ "${COMP_LINE#* -*([^ -])g}" != "$COMP_LINE" ]; then
 			local IFS=$'\t'
 			# remove trailing backslash, or grep will complain
 			cur=${cur%'\'}
@@ -1082,7 +1082,7 @@ _rpm()
 			# backslash escape spaces and translate newlines to tabs
 			COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\ /g' |\
 				       tr '\n' '\t' ) )
-		elif [ "${COMP_LINE#*-*([^ ])p}" != "$COMP_LINE" ]; then
+		elif [ "${COMP_LINE#* -*([^ -])p}" != "$COMP_LINE" ]; then
 			# uninstalled package completion
 			if [[ "$cur" == -* ]]; then
 				COMPREPLY=( $( compgen -W '--scripts --root \
@@ -1109,7 +1109,7 @@ _rpm()
 				--docfiles --configfiles --queryformat \
 				--conflicts --obsoletes --pkgid --hdrid \
 				--fileid --tid' -- $cur ) )
-			elif [ "${COMP_LINE#*-*([^ ])a}" == "$COMP_LINE" ]; then
+			elif [ "${COMP_LINE#* -*([^ -])a}" == "$COMP_LINE" ]; then
 				installed_packages
 			fi
 		fi
@@ -1127,7 +1127,7 @@ _rpm()
 			COMPREPLY=( $( compgen -W '--root --rcfile --dbpath \
 			--nodeps --nofiles --noscripts --nomd5 --querytags \
 			--specfile --whatrequires --whatprovides' -- $cur ) )
-		elif [ "${COMP_LINE#*-*([^ ])p}" != "$COMP_LINE" ]; then
+		elif [ "${COMP_LINE#* -*([^ -])p}" != "$COMP_LINE" ]; then
 			file_glob rpm
 		else
 			installed_packages
