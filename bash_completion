@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.232 2002/03/29 03:35:42 ianmacd Exp $
+#   $Id: bash_completion,v 1.233 2002/03/29 03:43:09 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1685,22 +1685,20 @@ _cd()
 
 	_expand || return 0
 
-	# standard dir completion if parameter starts with /, ./ or ../
-	if [[ "$cur" == ?(.)?(.)/* ]]; then
+	# Use standard dir completion if no CDPATH or parameter starts with /,
+	# ./ or ../
+	if [ -z "$CDPATH" ] || [[ "$cur" == ?(.)?(.)/* ]]; then
 		_filedir -d
 		return 0
 	fi
-	if [ -n "$CDPATH" ]; then
-		IFS=$'\t'
-		# we have a CDPATH, so loop on its contents
-		for i in ${CDPATH//:/$'\t'}; do
-			# create an array of matched subdirs
-			dirs=( $( compgen -d $i/$cur ) )
-			# add subdirs to list of completions as necessary
-			[ ${#dirs[@]} ] && COMPREPLY=( ${COMPREPLY[@]} \
-							${dirs[@]#$i/})
-		done
-	fi
+	IFS=$'\t'
+	# we have a CDPATH, so loop on its contents
+	for i in ${CDPATH//:/$'\t'}; do
+		# create an array of matched subdirs
+		dirs=( $( compgen -d $i/$cur ) )
+		# add subdirs to list of completions as necessary
+		[ ${#dirs[@]} ] && COMPREPLY=( ${COMPREPLY[@]} ${dirs[@]#$i/})
+	done
 	IFS=$' \t\n'
 	_filedir -d
 	if [ -n "$CDPATH" ]; then
