@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.566 2003/05/17 09:55:11 ianmacd Exp $
+#   $Id: bash_completion,v 1.567 2003/05/21 09:57:58 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -4213,7 +4213,7 @@ _pkg_delete()
 
 	return 0
 }
-complete -F _pkg_delete $dirnames pkg_delete pkg_info
+complete -F _pkg_delete $dirnames pkg_deinstall
 
 # FreeBSD kernel module commands
 #
@@ -4261,6 +4261,30 @@ _portupgrade()
 	return 0
 }
 [ -n "${have:-}" ] && complete -F _portupgrade $dirnames portupgrade
+
+# FreeBSD portinstall completion
+#
+have portinstall &&
+_portinstall()
+{
+	local cur portsdir prev
+	local -a COMPREPLY2
+
+	portsdir=${PORTSDIR:-/usr/ports}/
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	[ "$prev" = "-l" -o "$prev" = "-L" -o "$prev" = "-o" ] && return 0
+
+	COMPREPLY=( $( cut -d'|' -f1 < $portsdir/INDEX | egrep "^$cur" ) )
+	COMPREPLY=( ${COMPREPLY1[@]%-*} )
+	COMPREPLY2=( $( cut -d'|' -f2 < $portsdir/INDEX | egrep "^$portsdir$cur" ) )
+	COMPREPLY2=( ${COMPREPLY2[@]#$portsdir} )
+	COMPREPLY=( ${COMPREPLY[@]} ${COMPREPLY2[@]} )
+
+	return 0
+}
+[ -n "${have:-}" ] && complete -F _portinstall $dirnames portinstall
 
 # Slackware Linux removepkg completion
 #
