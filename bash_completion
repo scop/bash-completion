@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.444 2002/10/17 03:05:29 ianmacd Exp $
+#   $Id: bash_completion,v 1.445 2002/10/17 03:18:34 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -3958,6 +3958,21 @@ _links()
 	return 0
 }
 [ "$have" ] && complete -F _links $filenames links
+
+# FreeBSD package management tools completion
+#
+[ $UNAME = FreeBSD ] &&
+_pkg_delete()
+{
+	local cur pkgdir
+	pkgdir=/var/db/pkg/
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	COMPREPLY=( $( compgen -d $pkgdir$cur | sed -e "s|$pkgdir||" ) )
+
+	return 0
+}
+[ $UNAME = FreeBSD ] && complete -F _pkg_delete $dirnames pkg_delete pkg_info
 
 _filedir_xspec()
 {
