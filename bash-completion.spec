@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.98 2003/08/03 03:59:43 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.99 2003/08/11 20:35:46 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030803
+Version: 20030811
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,13 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Mon Aug 11 2003 Ian Macdonald <ian@caliban.org>
+- more make completion fixes
+- add mkisofs completion
+- add cdrecord completion
+- make _uids() and _gids() functions use Perl for getpwent(3)
+- fix killall completion on bash 2.05a
+
 * Sun Aug  3 2003 Ian Macdonald <ian@caliban.org>
 - 'make' completion rewrite
 - various rpm completion fixes
