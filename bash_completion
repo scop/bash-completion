@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.172 2002/03/01 19:29:34 ianmacd Exp $
+#   $Id: bash_completion,v 1.173 2002/03/01 23:41:42 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1891,11 +1891,21 @@ _psql()
 
 _longopt()
 {
-	local cur
+	local cur opt
 
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	_expand || return 0
+
+	if [[ "$cur" == --*=* ]]; then
+		opt=${cur%%=*}
+		# cut backlash that gets inserted before '=' sign
+		opt=${opt%\\*}
+		cur=${cur#*=}
+		_filedir
+		COMPREPLY=( $( compgen -P "$opt=" -W '${COMPREPLY[@]}' -- $cur))
+		return 0
+	fi
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( $1 --help | sed  -e '/--/!d' \
@@ -2122,10 +2132,7 @@ complete -F _configure_func configure
 
 _filedir()
 {
-	local IFS cur
-
-	IFS=$'\t\n'
-	cur=${COMP_WORDS[COMP_CWORD]}
+	local IFS=$'\t\n'
 
 	_expand || return 0
 
