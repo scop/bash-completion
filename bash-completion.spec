@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.24 2002/04/08 16:32:33 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.25 2002/04/13 19:25:11 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020408
+Version: 20020413
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,10 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Sat Apr 12 2002 Ian Macdonald <ian@caliban.org>
+- backed out recalculation of current parameter position after wildcard
+  expansion in sudo completion
+
 * Mon Apr  8 2002 Ian Macdonald <ian@caliban.org>
 - apt-get completion improvements
 - structural changes to rpm completion
