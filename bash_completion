@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.28 2001/11/20 21:35:19 ianmacd Exp $
+#   $Id: bash_completion,v 1.29 2001/11/26 19:19:59 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -974,6 +974,9 @@ _known_hosts()
         COMPREPLY=()
         cur=${COMP_WORDS[COMP_CWORD]}
 	cur=${cur#*@}
+	# Escape slashes and dots in paths for awk
+	cur=${cur//\//\\\/}
+	cur=${cur//\./\\\.}
 	kh=()
 
 	[ -r /etc/known_hosts ]    && kh[0]=/etc/known_hosts
@@ -1186,7 +1189,7 @@ _service()
 	else
 		COMPREPLY=( $( compgen -W '`sed -ne "y/|/ /; \
 					    s/^.*Usage.*{\(.*\)}.*$/\1/p" \
-					    $sysvdir/${COMP_WORDS[1]}' $cur ) )
+					    $sysvdir/${COMP_WORDS[1]}`' $cur ) )
 	fi
 
 	return 0
