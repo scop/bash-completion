@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.345 2002/06/04 05:28:41 ianmacd Exp $
+#   $Id: bash_completion,v 1.346 2002/06/04 05:45:09 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -465,7 +465,7 @@ _insmod()
 			else if ($1 !~ /:/ && $1 ~ /^'$cur'/) { print $1 }}' ) )
 	elif [ -r $modpath -a -x $modpath ]; then
 		# do module name completion
-		COMPREPLY=( $( \ls -R $modpath | \
+		COMPREPLY=( $( command ls -R $modpath | \
                                 sed -ne 's/^\('$cur'.*\)\.o\(\|.gz\)$/\1/p') )
 	else 
 		_filedir
@@ -497,7 +497,7 @@ _man()
 
 	UNAME=$( uname -s )
 	if [ $UNAME = GNU -o $UNAME = Linux ]; then
-		manpath=$( manpath 2>/dev/null || \man --path )
+		manpath=$( manpath 2>/dev/null || command man --path )
 	else
 		manpath=$MANPATH
 	fi
@@ -518,7 +518,7 @@ _man()
 	fi
 		
 	# redirect stderr for when path doesn't exist
-	COMPREPLY=( $( eval \\ls "$manpath" 2>/dev/null ) )
+	COMPREPLY=( $( eval command ls "$manpath" 2>/dev/null ) )
 	# weed out directory path names and paths to man pages
 	COMPREPLY=( ${COMPREPLY[@]##*/?(:)} )
 	# strip suffix from man pages
@@ -751,7 +751,9 @@ _ifupdown()
 				       /etc/network/interfaces ) )
 		else
 			# Assume Red Hat
-			COMPREPLY=( $( \ls /etc/sysconfig/network-scripts/ifcfg-* | sed -ne 's|.*ifcfg-\('$cur'.*\)|\1|p' ) )
+			COMPREPLY=( $( command ls \
+				/etc/sysconfig/network-scripts/ifcfg-* | \
+				sed -ne 's|.*ifcfg-\('$cur'.*\)|\1|p' ) )
 		fi
        fi
 
@@ -937,9 +939,9 @@ get_entries()
 get_modules()
 {
 	if [ -n "$prefix" ]; then 
-		COMPREPLY=( $( \ls -d ${cvsroot}/${prefix}/!(CVSROOT) ))
+		COMPREPLY=( $( command ls -d ${cvsroot}/${prefix}/!(CVSROOT) ) )
 	else
-		COMPREPLY=( $( \ls -d ${cvsroot}/!(CVSROOT) ) )
+		COMPREPLY=( $( command ls -d ${cvsroot}/!(CVSROOT) ) )
 	fi
 }
 
@@ -1006,8 +1008,8 @@ _cvs()
 			if [ $COMP_CWORD -gt 1 -a -r ${prefix}CVS/Entries ]; then
 				get_entries
 				[ -z "$cur" ] && \
-				files=$( \ls -A !(CVS) ) || \
-				files=$( \ls -d ${cur}* 2>/dev/null )
+				files=$( command ls -A !(CVS) ) || \
+				files=$( command ls -d ${cur}* 2>/dev/null )
 				for i in ${entries[@]}; do
 					files=( ${files[@]%$i} )
 				done
@@ -1942,7 +1944,7 @@ _tar()
 		#
 		# get name of tar file from command line
 		tar=$( echo "$COMP_LINE" | \
-			sed -e 's/^.* \([^ ]*'$regex'\) .*$/\1/' )
+			sed -e 's|^.* \([^ ]*'$regex'\) .*$|\1|' )
 		# devise how to untar and list it
 		untar=t${COMP_WORDS[1]//[^Izjyf]/}
 
@@ -2329,11 +2331,13 @@ _screen()
 	case "$prev" in
 	-[rR])
 		# list detached
-		COMPREPLY=( $( \screen -ls | sed -ne 's|^['$'\t'']\+\('$cur'[^'$'\t'']\+\).*Detached.*$|\1|p' ) )
+		COMPREPLY=( $( command screen -ls | \
+		sed -ne 's|^['$'\t'']\+\('$cur'[^'$'\t'']\+\).*Detached.*$|\1|p' ) )
 		;;
 	-[dDx])
 		# list attached
-		COMPREPLY=( $( \screen -ls | sed -ne 's|^['$'\t'']\+\('$cur'[^'$'\t'']\+\).*Attached.*$|\1|p' ) )
+		COMPREPLY=( $( command screen -ls | \
+		sed -ne 's|^['$'\t'']\+\('$cur'[^'$'\t'']\+\).*Attached.*$|\1|p' ) )
 		;;
 	-s)
 		# shells
@@ -2853,8 +2857,8 @@ _java_classes()
 				"META-INF" | sed -e 's|\('$cur'[^/]*/\).*|\1|' \
 				| sort | uniq ) )
 		elif [ -d $i ]; then
-			COMPREPLY=( ${COMPREPLY[@]} $( \ls -F -d $i/$cur* \
-				2>/dev/null | sed -e 's|^'$i'/||' ) )
+			COMPREPLY=( ${COMPREPLY[@]} $( command ls -F -d \
+				$i/$cur* 2>/dev/null | sed -e 's|^'$i'/||' ) )
 		fi
 	done
 	# keep only packages and classes
@@ -2882,8 +2886,8 @@ _java_packages()
 	# parse each sourcepath element for packages
 	for i in ${sourcepath//:/ }; do
 		if [ -d $i ]; then
-			COMPREPLY=( ${COMPREPLY[@]} $( \ls -F -d $i/$cur* \
-				2>/dev/null | sed -e 's|^'$i'/||' ) )
+			COMPREPLY=( ${COMPREPLY[@]} $( command ls -F -d \
+				$i/$cur* 2>/dev/null | sed -e 's|^'$i'/||' ) )
 		fi
 	done
 	# keep only packages
@@ -3370,7 +3374,7 @@ _update_alternatives()
 				break
 			fi
 		done
-		COMPREPLY=( $( \ls $admindir | grep "^$cur" ) )
+		COMPREPLY=( $( command ls $admindir | grep "^$cur" ) )
 	}
 
 	local cur prev mode args
