@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.339 2002/06/01 18:46:19 ianmacd Exp $
+#   $Id: bash_completion,v 1.340 2002/06/01 20:58:06 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1064,7 +1064,7 @@ _cvs()
 	
 	return 0
 }
-[ "$have" ] && complete -F _cvs $default cvs
+complete -F _cvs $default cvs
 }
 
 have rpm && {
@@ -1493,7 +1493,7 @@ _aptitude()
 				       download search' -- $cur ) )
 	fi
 }
-[ "$have" ] && complete -F _aptitude $default aptitude
+complete -F _aptitude $default aptitude
 }
 
 # chsh(1) completion
@@ -1674,7 +1674,7 @@ _ssh()
 
 	return 0
 }
-[ "$have" ] && shopt -u hostcomplete && complete -F _ssh ssh slogin sftp
+shopt -u hostcomplete && complete -F _ssh ssh slogin sftp
 
 # scp(1) completion
 #
@@ -1707,7 +1707,7 @@ _scp()
 
 	return 0
 }
-[ "$have" ] && complete $filenames -F _scp scp
+complete $filenames -F _scp scp
 }
 
 # Linux route(8) completion
@@ -2646,7 +2646,7 @@ _dpkg()
 			-x --extract -X --vextract --fsys-tarfile -e --control \
 			--ignore-depends= --abort-after' -- $cur ) )
 }
-[ "$have" ] && complete -F _dpkg $filenames dpkg dpkg-deb
+complete -F _dpkg $filenames dpkg dpkg-deb
 }
 
 # Debian GNU dpkg-reconfigure(8) completion
@@ -2711,22 +2711,125 @@ _dselect()
 }
 [ "$have" ] && complete -F _dselect $filenames dselect
 
-have java &&
+# Java completion
+#
+
+# available path elements completion
+have java && {
+_java_path()
+{
+	cur=${cur##*:}
+	_filedir '@(jar|zip)'
+}
+
+# exact classpath determination
+_java_find_classpath()
+{
+	local i
+
+	# search first in current options
+	for (( i=1; i < COMP_CWORD; i++ )); do
+		if [[ "${COMP_WORDS[i]}" == -@(cp|classpath) ]]; then
+			classpath=${COMP_WORDS[i+1]}
+			break
+		fi
+	done
+
+	# default to environment
+	[ -z "$classpath" ] && classpath=$CLASSPATH
+
+	# default to current directory
+	[ -z "$classpath" ] && classpath=.
+}
+
+# exact sourcepath determination
+_java_find_sourcepath()
+{
+	local i
+
+	# search first in current options
+	for (( i=1; i < COMP_CWORD; i++ )); do
+		if [[ "${COMP_WORDS[i]}" == -sourcepath ]]; then
+			sourcepath=${COMP_WORDS[i+1]}
+			break
+		fi
+	done
+
+	# default to classpath
+	[ -z "$sourcepath" ] && _java_find_classpath
+	sourcepath=$classpath
+}
+
+# available classes completion
+_java_classes()
+{
+	local classpath i
+
+	# find wich classpath to use
+	_java_find_classpath
+
+	# convert package syntax to path syntax
+	cur=${cur//.//}
+	# parse each classpath element for classes
+	for i in ${classpath//:/ }; do
+		if [ -r $i ] && [[ "$i" == *.@(jar|zip) ]]; then
+			COMPREPLY=( ${COMPREPLY[@]} $( jar tf $i $cur | grep -v\
+				"META-INF" | sed -e 's|\('$cur'[^/]*/\).*|\1|' \
+				| sort | uniq ) )
+		elif [ -d $i ]; then
+			COMPREPLY=( ${COMPREPLY[@]} $( \ls -F -d $i/$cur* \
+				2>/dev/null | sed -e 's|^'$i'/||' ) )
+		fi
+	done
+	# keep only packages and classes
+	COMPREPLY=(
+		$( echo ${COMPREPLY[@]} | tr " " "\n" | grep "/$")
+		$( echo ${COMPREPLY[@]} | tr " " "\n" | grep "\.class$" | \
+		   grep -v "\\$" )
+	)
+	# remove class extension
+	COMPREPLY=( ${COMPREPLY[@]%.class} )
+	# convert path syntax to package syntax
+	COMPREPLY=( ${COMPREPLY[@]//\//.} )
+}
+
+# available packages completion
+_java_packages()
+{
+	local sourcepath i
+
+	# find wich sourcepath to use
+	_java_find_sourcepath
+
+	# convert package syntax to path syntax
+	cur=${cur//.//}
+	# parse each sourcepath element for packages
+	for i in ${sourcepath//:/ }; do
+		if [ -d $i ]; then
+			COMPREPLY=( ${COMPREPLY[@]} $( \ls -F -d $i/$cur* \
+				2>/dev/null | sed -e 's|^'$i'/||' ) )
+		fi
+	done
+	# keep only packages
+	COMPREPLY=( $( echo ${COMPREPLY[@]} | tr " " "\n" | grep "/$" ) )
+	# remove packages extension
+	COMPREPLY=( ${COMPREPLY[@]%/} )
+	# convert path syntax to package syntax
+	cur=${COMPREPLY[@]//\//.}
+}
+
+# java
 _java()
 {
-	local cur prev classpath i
+	local cur prev
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	case "$prev" in
+	case $prev in
 		-@(cp|classpath))
-			_filedir
-			return 0
-			;;
-		-jar)
-		        _filedir jar
+			_java_path
 			return 0
 			;;
 	esac
@@ -2734,40 +2837,106 @@ _java()
 	if [[ "$cur" == -* ]]; then
 		# relevant options completion
 		COMPREPLY=( $( compgen -W '-client -hotspot -server -classic \
-			       -cp -classpath -D -verbose -version -jar \
-			       -showversion -? -help -X' -- $cur ) )
+				-cp -classpath -D -verbose -version \
+				-showversion -? -help -X -jar' -- $cur ) )
 	else
-		# available classes completion
-		# find wich classpath to use
-		if [ -n "$CLASSPATH" ]; then
-			classpath=$CLASSPATH
+		if [[ "$prev" == -jar ]]; then
+			# jar file completion
+			_filedir jar
 		else
-			classpath=.
+			# classes completion
+			_java_classes
 		fi
-		for (( i=1; i < COMP_CWORD; i++ )); do
-			if [[ "${COMP_WORDS[i]}" == -classpath ]] || \
-			   [[ "${COMP_WORDS[i]}" == -cp ]]; then
-				classpath=${COMP_WORDS[i+1]}
-				break
-			fi
-		done
-		# parse each classpath element for classes
-		for i in ${classpath//:/ }; do
-			if [ -f $i ] && [[ "$i" == *.@(jar|zip) ]]; then
-				COMPREPLY=( ${COMPREPLY[@]} $( jar tf $i | \
-				grep '\.class' | sed -e 's|\.class||g' \
-						  -e 's|/|.|g' | grep "^$cur" ))
-			elif [ -d $i ]; then
-				COMPREPLY=( ${COMPREPLY[@]} $( find $i -type f \
-					    -name \*.class | \
-					    sed -e 's|^'$i'/||' \
-						-e 's|\.class$||' \
-						-e 's|/|.|g' | grep "^$cur" ) )
-			fi
-		done
 	fi
 }
-[ "$have" ] && complete -F _java java
+complete -F _java $filenames java
+}
+
+# javadoc completion
+#
+have javadoc &&
+_javadoc()
+{
+	COMPREPLY=()
+	local cur prev
+
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-@(overview|helpfile|stylesheetfile))
+			_filedir
+			return 0
+			;;
+		-d)
+			_filedir -d
+			return 0
+			;;
+		-@(classpath|bootclasspath|docletpath|sourcepath|extdirs))
+			_java_path
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		# relevant options completion
+		COMPREPLY=( $( compgen -W '-overview -public -protected \
+				-package -private -help -doclet -docletpath \
+				-sourcepath -classpath -exclude -subpackages \
+				-breakiterator -bootclasspath -source -extdirs \
+				-verbose -locale -encoding -J -d -use -version \
+				-author -docfilessubdirs -splitindex \
+				-windowtitle -doctitle -header -footer -bottom \
+				-link -linkoffline -excludedocfilessubdir \
+				-group -nocomment -nodeprecated -noqualifier \
+				-nosince -nodeprecatedlist -notree -noindex \
+				-nohelp -nonavbar -quiet -serialwarn -tag \
+				-taglet -tagletpath -charset -helpfile \
+				-linksource -stylesheetfile -docencoding' -- \
+				$cur ) )
+	else
+		# source files completion
+		_filedir java
+		# packages completion
+		_java_packages
+	fi
+}
+[ "$have" ] && complete -F _javadoc $filenames javadoc
+
+# javac completion
+#
+have javac &&
+_javac()
+{
+	COMPREPLY=()
+	local cur prev
+
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-d)
+			_filedir -d
+			return 0
+			;;
+		-@(classpath|bootclasspath|sourcepath|extdirs))
+			_java_path
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		# relevant options completion
+		COMPREPLY=( $( compgen -W '-g -g:none -g:lines -g:vars\
+		-g:source -O -nowarn -verbose -deprecation -classpath\
+		-sourcepath -bootclasspath -extdirs -d -encoding -source\
+		-target -help' -- $cur ) )
+	else
+		# source files completion
+		_filedir java
+	fi
+}
+[ "$have" ] && complete -F _javac $filenames javac
 
 # PINE address-book completion
 #
