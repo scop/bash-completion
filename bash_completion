@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.155 2002/02/27 02:02:43 ianmacd Exp $
+#   $Id: bash_completion,v 1.156 2002/02/27 02:18:08 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1153,15 +1153,21 @@ _make()
 	# we could be a little smarter here and return matches against
 	# `makefile Makefile *.mk', whatever exists
 	if [[ "$prev" == -*f ]]; then
-	    COMPREPLY=( $( compgen -f -- $cur ) )
-	    return 0
+		COMPREPLY=( $( compgen -f -- $cur ) )
+		return 0
+	fi
+
+	# check for a long option
+	if [[ "$cur" == --* ]]; then
+		_longopt $1
+		return 0
 	fi
 
 	# if we want an option, return the possible posix options
 	if [[ "$cur" == -* ]]; then
-	    COMPREPLY=( $( compgen -W '-e -f -i -k -n -p -q -r -S -s -t' -- \
-			   $cur ) )
-	    return 0
+		COMPREPLY=( $( compgen -W '-e -f -i -k -n -p -q -r -S -s -t' \
+			       -- $cur ) )
+		return 0
 	fi
 
 	# make reads `makefile' before `Makefile'
@@ -1720,8 +1726,6 @@ _longopt()
 
 	_expand || return 0
 
-	[ "$4" = no_completion ] && return 0
-
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( $1 --help | sed  -e '/--/!d' \
 				-e 's/.*\(--[-A-Za-z0-9]\+=\?\).*/\1/' | \
@@ -1761,10 +1765,7 @@ _gcc()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	_longopt "$1" "$cur" "" no_completion
-
-	# return if _expand returned anything
-	[ ${#COMPREPLY[@]} -gt 0 ] && return 0
+	_expand || return 0
 
 	case "$1" in
 	gcj)
@@ -1777,7 +1778,7 @@ _gcc()
 		backend=f771
 		;;
 	*)
-		backend=cc1	# [near-]universal backend
+		backend=cc1	# (near-)universal backend
 		;;
 	esac
 
@@ -1892,7 +1893,6 @@ _configure_func()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	[[ "$cur" != -* ]] && return 0
-	_longopt "$1" "$cur" "" no_completion
 
 	COMPREPLY=( $( $1 --help | sed -ne 's/^ *\('$cur'[^ '$'\t'',[]\+\).*$/\1/p' ) )
 }
