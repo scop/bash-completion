@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.249 2002/04/03 01:37:51 ianmacd Exp $
+#   $Id: bash_completion,v 1.250 2002/04/03 07:11:06 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1724,7 +1724,7 @@ _tcpdump()
 #
 _cd()
 {
-	local IFS=$'\t\n' cur=${COMP_WORDS[COMP_CWORD]} dirs=() i j
+	local IFS=$'\t\n' cur=${COMP_WORDS[COMP_CWORD]} dirs=() i
 
 	_expand || return 0
 
@@ -1739,22 +1739,18 @@ _cd()
 	for i in ${CDPATH//:/$'\t'}; do
 		# create an array of matched subdirs
 		dirs=( $( compgen -d $i/$cur ) )
-		for (( j=0; j < ${#dirs[@]}; j++ )); do
-			[ -d ${dirs[j]} ] && dirs[j]=${dirs[j]}/
-		done
 		# add subdirs to list of completions as necessary
 		[ ${#dirs[@]} ] && COMPREPLY=( ${COMPREPLY[@]} ${dirs[@]#$i/})
 	done
-	IFS=$' \t\n'
 	_filedir -d
+	IFS=$' \t\n'
 	if [ -n "$CDPATH" ]; then
 		for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
 			# remove leading ./ from completions
 			COMPREPLY[i]=${COMPREPLY[i]#.\/}
 			# turn relative paths from current dir into
 			# absolute ones
-			[[ ${COMPREPLY[i]} != */* ]] && \
-				[ -d "${COMPREPLY[i]}" ] && \
+			[ -d ./"${COMPREPLY[i]}" ] && \
 				COMPREPLY[i]=$PWD/${COMPREPLY[i]}
 		done
 	fi
