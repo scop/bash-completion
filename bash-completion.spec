@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.102 2003/09/29 18:06:58 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.103 2003/10/07 06:41:59 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
@@ -42,10 +42,11 @@ cat <<'EOF' > bash_completion.sh
 
 # check for correct version of bash
 bash=${BASH_VERSION%.*}; bmajor=${bash%.*}; bminor=${bash#*.}
-if [ $bmajor -eq 2 ] && [ $bminor '>' 04 ] &&
-   [ -r %{_sysconfdir}/bash_completion ]; then
-	# source completion code
-        . %{_sysconfdir}/bash_completion
+if [ $bmajor -eq 2 -a $bminor '>' 04 ] || [ $bmajor -gt 2 ]; then
+  if [ -r %{_sysconfdir}/bash_completion ]; then
+    # source completion code
+    . %{_sysconfdir}/bash_completion
+  fi
 fi
 unset bash bminor bmajor
 EOF
@@ -76,6 +77,7 @@ fi
 - various Java fixes
 - urpmi completion removed; it's now maintained by the urpmi people
 - postsuper fix
+- perl fix
 - .m3u completion for relevant tools
 
 * Thu Sep 11 2003 Ian Macdonald <ian@caliban.org>
