@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.726 2004/07/04 00:31:33 ianmacd Exp $
+#   $Id: bash_completion,v 1.727 2004/07/04 00:51:18 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -839,6 +839,26 @@ _killall()
 	return 0
 }
 [ $UNAME = Linux -o $UNAME = FreeBSD ] && complete -F _killall killall pkill
+
+# Linux and FreeBSD pgrep(1) completion.
+#
+[ $UNAME = Linux -o $UNAME = FreeBSD ] &&
+_pgrep()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	COMPREPLY=( $( compgen -W '$( command ps axo command | \
+		      sed -ne "1d; s/^\[\?\([^-][^] ]*\).*$/\1/p" | \
+		      sed -e "s/.*\///" )' -- $cur ) )
+
+	return 0
+}
+[ $UNAME = Linux -o $UNAME = FreeBSD ] && complete -F _pgrep pgrep
+# Linux pidof(8) completion.
+[ $UNAME = Linux ] && complete -F _pgrep pidof
 
 # GNU find(1) completion. This makes heavy use of ksh style extended
 # globs and contains Linux specific code for completing the parameter
