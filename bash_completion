@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.140 2002/02/21 20:26:36 ianmacd Exp $
+#   $Id: bash_completion,v 1.141 2002/02/22 08:41:05 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1406,13 +1406,14 @@ _cd()
 	fi
 	if [ -n "$CDPATH" ]; then
 		# we have a CDPATH, so loop on its contents
-		for i in ${CDPATH//:/ }; do
+		for i in ${CDPATH//:/$'\t'}; do
 			# create an array of matched subdirs
 			dirs=( $( compgen -d $i/$cur ) )
 			# add subdirs to list of completions as necessary
 			[ ${#dirs[@]} ] && COMPREPLY=( ${COMPREPLY[@]} ${dirs[@]#$i/})
 		done
 	fi
+	IFS=$' \t\n'
 	COMPREPLY=( ${COMPREPLY[@]} $( compgen -d $cur ) )
 
 	return 0
@@ -1765,16 +1766,14 @@ _longopt()
 	else
 		_filedir
 	fi
-	unset cmd
 }
-complete -F _longopt -o dirnames mkdir rmdir
 # makeinfo and texi2dvi are defined elsewhere
 for i in a2ps autoconf automake bc gprof ld nm objcopy objdump readelf strip \
 	 bison cpio diff patch enscript cp df dir du ln ls mkfifo mknod mv rm \
 	 touch vdir xargs awk gperf grep gpg grub indent less m4 sed shar date \
 	 env seq su tee uname who texindex cat csplit cut expand fmt fold head \
 	 md5sum nl od paste pr ptx sha1sum sort split tac tail tr unexpand \
-	 uniq wc units wget rsync ldd bash id info irb; do
+	 uniq wc units wget rsync ldd bash id info irb mkdir rmdir; do
     have $i && complete -F _longopt -o filenames $i
 done
 unset i
