@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.113 2004/02/15 03:49:21 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.114 2004/02/15 03:50:16 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
@@ -79,7 +79,7 @@ fi
 - fix for ant completion
 - fix up a continuation error in _filedir()
 - make 'make -f' completion work properly
-- don't unset $have twice at end of script (fix from
+- don't unset $have twice at end of script
 
 * Tue Feb 10 2004 Ian Macdonald <ian@caliban.org>
 - fix broken command completion for sudo and others
