@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.124 2002/02/18 09:32:56 ianmacd Exp $
+#   $Id: bash_completion,v 1.125 2002/02/18 09:39:02 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1777,7 +1777,7 @@ _gcc()
 {
 	local cur cc cmd backend
 
-	COMREPLY=()
+	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	[[ "$cur" != -* ]] && return 0
@@ -1880,17 +1880,15 @@ _expand()
 	fi
 }
 
-_configure_func ()
+_configure_func()
 {
-	case "$2" in
-	-*)	;;
-	*)	return ;;
-	esac
+	local cur
 
-	case "$1" in
-	\~*)	eval cmd=$1 ;;
-	*)	cmd="$1" ;;
-	esac
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	[[ "$cur" != -* ]] && return 0
+	_longopt "$1" "$cur" "" no_completion
 
 	COMPREPLY=( $( "$cmd" --help | sed -ne 's/^ *\('$2'[^ '$'\t'',[]\+\).*$/\1/p' ) )
 }
