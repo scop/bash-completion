@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.19 2001/07/09 01:14:13 ianmacd Exp $
+#   $Id: bash_completion,v 1.20 2001/07/09 02:55:01 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -100,8 +100,9 @@ complete -A binding bind
 #
 have()
 {
+	unset -v have
 	which $1 &> /dev/null
-	have=$?
+	[ $? = 0 ] && have="yes"
 }
 
 
@@ -155,7 +156,7 @@ _umount()
 
 	return 0
 }
-complete -F _umount umount
+complete -F _umount -o filenames umount
 
 # GID completion. This will get a list of all valid group names from
 # /etc/group and should work anywhere.
@@ -191,15 +192,11 @@ _mount()
 	else
 		COMPREPLY=( $( awk '{if ($2 ~ /\//) print $2}' /etc/fstab | \
 			       grep ^$cur ) )
-		# default to filename completion if all else failed
-		if [ ${#COMPREPLY[@]} = 0 ]; then
-	    		COMPREPLY=( $( compgen -f $cur ) )
-		fi
 	fi
 
 	return 0
 }
-complete -F _mount mount
+complete -F _mount -o default mount
 
 # Linux rmmod(1) completion. This completes on a list of all currently
 # installed kernel modules.
@@ -255,7 +252,7 @@ _insmod()
 
 	return 0
 }
-[ $OS = Linux ] && complete -F _insmod insmod modprobe
+[ $OS = Linux ] && complete -F _insmod -o filenames insmod modprobe
 
 # man(1) completion. This relies on the security enhanced version of
 # GNU locate(1). UNIX variants having non-numeric man page sections
@@ -277,7 +274,7 @@ _man()
         prev=${COMP_WORDS[COMP_CWORD-1]}
 
         # default completion if parameter contains / or we have no man.config
-        if [[ "$cur" == /* ]] || [ ! -f /etc/man.config ]; then return 0; fi
+        [[ "$cur" == /* ]] || [ ! -f /etc/man.config ] && return 0
 
         if [[ "$prev" == [0-9n] ]]; then
                 # churn out a string of paths to search, with * appended to $cur
@@ -444,7 +441,7 @@ _find()
 
 	return 0
 }
-complete -F _find -o default find
+complete -F _find -o filenames find
 
 # Linux ifconfig(8) completion
 #
@@ -529,7 +526,7 @@ _ipsec()
 
 	return 0
 }
-[ $OS = Linux ] && [ $have ] && complete -F _ipsec ipsec
+[ $OS = Linux ] && [ "$have" ] && complete -F _ipsec ipsec
 
 # cvs(1) completion
 #
@@ -806,7 +803,7 @@ _rpm()
 
 	return 0
 }
-[ $have ] && complete -F _rpm rpm
+[ "$have" ] && complete -F _rpm -o filenames rpm
 
 # Debian Linux apt-get(8) completion.
 #
@@ -854,7 +851,7 @@ _apt-get()
 
 	return 0
 }
-[ $have ] && complete -F _apt-get apt-get
+[ "$have" ] && complete -F _apt-get -o filenames apt-get
 
 # Debian Linux apt-cache(8) completion.
 #
@@ -901,7 +898,7 @@ _apt-cache()
 
 	return 0
 }
-[ $have ] && complete -F _apt-cache apt-cache
+[ "$have" ] && complete -F _apt-cache -o filenames apt-cache
 
 # chsh(1) completion
 #
@@ -962,7 +959,7 @@ _chkconfig()
 
 	return 0
 }
-[ $have ] && complete -F _chkconfig chkconfig
+[ "$have" ] && complete -F _chkconfig chkconfig
 
 # This function performs host completion based on ssh's known_hosts files, defaulting
 # to standard host completion if they don't exist.
@@ -1044,7 +1041,7 @@ _ssh()
 
 	return 0
 }
-[ $have ] && complete -F _ssh ssh slogin sftp
+[ "$have" ] && complete -F _ssh ssh slogin sftp
 
 # Linux route(8) completion. This could be improved by adding address family
 # completion for -A, etc.
@@ -1150,7 +1147,7 @@ _make()
 
 	return 0
 }
-complete -F _make -X '+($*|*.[cho])' make gmake pmake
+complete -F _make -X '+($*|*.[cho])' -o filenames make gmake pmake
 
 # Red Hat Linux service completion. This completes on a list of all available
 # service scripts in the SysV init.d directory, followed by that script's
@@ -1179,7 +1176,7 @@ _service()
 
 	return 0
 }
-[ $have ] && complete -F _service service
+[ "$have" ] && complete -F _service service
 
 # The beginnings of a completion function for GNU tar(1)
 #
@@ -1213,7 +1210,7 @@ _iptables()
 	
 	[ "$prev" = -t ] && COMPREPLY=( $( compgen -W 'nat filter mangle' $cur ) )
 }
- [ $have ] && complete -F _iptables iptables
+ [ "$have" ] && complete -F _iptables iptables
 
 # Linux iptables(8) completion
 #
@@ -1230,7 +1227,7 @@ _tcpdump()
 				   less greater' $cur ) )
 
 }
-[ $have ] && complete -F _tcpdump tcpdump
+[ "$have" ] && complete -F _tcpdump tcpdump
 
 # This meta-cd function observes the CDPATH variable, so that cd additionally
 # completes on directories under those specified in CDPATH.
@@ -1254,7 +1251,30 @@ _cd()
 
 	return 0
 }
-complete -F _cd -o dirnames cd
+complete -F _cd -o filenames cd
+
+# Basic Perforce completion
+#
+have p4 &&
+_p4()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	
+	COMPREPLY=( $( compgen -W 'add admin branch branches change changes \
+			client clinets counter counters delete depot depots \
+			describe diff diff2 dirs edit filelog files fix fixes \
+			flush fstat group groups have help info integrate \
+			integrated job jobs jobspec label labels labelsync \
+			lock obliterate opened passwd print protect rename \
+			reopen resolve resolved revert review reviews set \
+			submit sync triggers typemap unlock user users verify \
+			where' $cur ) )
+}
+echo $have
+[ "$have" ] && complete -F _p4 -o filenames p4
 
 # 
 # Return 1 if $1 appears to contain a redirection operator.  Handles backslash
