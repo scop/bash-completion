@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.634 2003/10/07 08:02:00 ianmacd Exp $
+#   $Id: bash_completion,v 1.635 2003/10/07 08:17:33 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -5081,6 +5081,70 @@ _mc()
 	fi
 }
 [ "${have:-}" ] && complete -F _mc $filenames mc
+
+# yum(8) completion
+#
+have yum &&
+_yum()
+{
+    local cur
+    COMPREPLY=()
+    cur=${COMP_WORDS[COMP_CWORD]}
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    case "$prev" in
+        -c)
+	    _filedir
+            return 0
+            ;;
+        --installroot)
+            _filedir -d
+            return 0
+            ;;
+    esac
+
+    case "$cur" in
+        --*)
+            COMPREPLY=( $( compgen -W '--installroot --version --help' -- \
+                           $cur ) )
+            ;;
+        -*)
+            COMPREPLY=( $( compgen -W '-c -e -d -y -t -R -C -h' -- $cur ) )
+            ;;
+        *)
+            COMPREPLY=( $( compgen -W 'update upgrade install info remove \
+                                       list clean provides check-update \
+                                       groupinstall groupupdate grouplist' -- \
+                           $cur ) )
+            ;;
+    esac
+
+    return 0
+
+}
+[ -n "${have:-}" ] && complete -F _yum yum
+
+# yum-arch(8) completion
+#
+_yum_arch()
+{
+    local cur
+    COMPREPLY=()
+    cur=${COMP_WORDS[COMP_CWORD]}
+
+    case "$cur" in
+        -*)
+            COMPREPLY=( $( compgen -W '-d -v -vv -n -c -z -s -l -q' -- $cur ) )
+            ;;
+        *)
+            _filedir -d
+            ;;
+    esac
+
+    return 0
+
+}
+complete -F _yum_arch yum-arch
 
 _filedir_xspec()
 {
