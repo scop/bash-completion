@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.635 2003/10/07 08:17:33 ianmacd Exp $
+#   $Id: bash_completion,v 1.636 2003/10/07 08:42:33 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -46,6 +46,7 @@ RELEASE=$( uname -r )
 # features supported by bash 2.05 and higher
 if [ ${BASH_VERSINFO[0]} -eq 2 ] && [[ ${BASH_VERSINFO[1]} > 04 ]] ||
    [ ${BASH_VERSINFO[0]} -gt 2 ]; then
+	declare -r bash205=$BASH_VERSION 2>/dev/null
 	default="-o default"
 	dirnames="-o dirnames"
 	filenames="-o filenames"
@@ -53,17 +54,14 @@ fi
 # features supported by bash 2.05b and higher
 if [ ${BASH_VERSINFO[0]} -eq 2 ] && [[ ${BASH_VERSINFO[1]} = "05b" ]] ||
    [ ${BASH_VERSINFO[0]} -gt 2 ]; then
+	declare -r bash205b=$BASH_VERSION 2>/dev/null
 	nospace="-o nospace"
-else
-	nospace=""
 fi
 # features supported by bash 3.0 and higher
 if [ ${BASH_VERSINFO[0]} -gt 2 ]; then
+	declare -r bash3=$BASH_VERSION 2>/dev/null
 	bashdefault="-o bashdefault"
 	plusdirs="-o plusdirs"
-else
-	bashdefault=""
-	plusdirs=""
 fi
 
 # Turn on extended globbing and programmable completion
@@ -114,10 +112,7 @@ complete -f -X '!*.@(?([xX]|[sS])[hH][tT][mM]?([lL]))' netscape mozilla lynx ope
 complete -u su usermod userdel passwd chage write chfn groups slay
 
 # group commands see only groups
-if [ ${BASH_VERSINFO[0]} -eq 2 ] && [[ ${BASH_VERSINFO[1]} > 04 ]] ||
-   [ ${BASH_VERSINFO[0]} -gt 2 ]; then
-	complete -g groupmod groupdel newgrp 2>/dev/null
-fi
+[ -n "$bash205" ] && complete -g groupmod groupdel newgrp 2>/dev/null
 
 # bg completes with stopped jobs
 complete -A stopped -P '%' bg
@@ -389,7 +384,8 @@ _complete()
 	case $prev in
 		-o)
 			options="default dirnames filenames"
-			[[ ${BASH_VERSINFO[1]} = "05b" ]] && options="$options nospace"
+			[ -n "$bash205b" ] && options="$options nospace"
+			[ -n "$bash3" ] && options="$options bashdefault plusdirs"
 			COMPREPLY=( $( compgen -W "$options" -- $cur ) )
 			return 0
 			;;
@@ -422,11 +418,7 @@ _complete()
 	if [[ "$cur" == -* ]]; then
 		# relevant options completion
 		options="-a -b -c -d -e -f -g -j -k -s -v -u -A -G -W -P -S -X -F -C"
-		if [ ${BASH_VERSINFO[0]} -eq 2 ] &&
-		   [[ ${BASH_VERSINFO[1]} > 04 ]] ||
-		   [ ${BASH_VERSINFO[0]} -gt 2 ]; then
-			options="$options -o"
-		fi
+		[ -n "$bash205" ] && options="$options -o"
 		COMPREPLY=( $( compgen -W "$options" -- $cur ) )
 	else
 		COMPREPLY=( $( compgen -A command -- $cur ) )
@@ -498,21 +490,13 @@ _chown()
 	fi
 
 	if (( COMP_CWORD == 1 )) || [[ "$prev" == -* ]]; then
-	    if [[ $cur = *@(\\:|.)* ]]; then
-		if [ ${BASH_VERSINFO[0]} -eq 2 ] &&
-		   [[ ${BASH_VERSINFO[1]} > 04 ]] ||
-		   [ ${BASH_VERSINFO[0]} -gt 2 ]; then
-			user=${cur%%*([^:.])}
-			COMPREPLY=( $(compgen -P ${user/\\\\} -g -- ${cur##*[.:]}) )
-		fi
-	    elif [[ $cur = *:* ]]; then
-		if [ ${BASH_VERSINFO[0]} -eq 2 ] &&
-		   [[ ${BASH_VERSINFO[1]} > 04 ]] ||
-		   [ ${BASH_VERSINFO[0]} -gt 2 ]; then
-			COMPREPLY=( $( compgen -g -- ${cur##*[.:]} ) )
-		fi
+	    if [[ $cur = *@(\\:|.)* ]] && [ -n "$bash205" ]; then
+		user=${cur%%*([^:.])}
+		COMPREPLY=( $(compgen -P ${user/\\\\} -g -- ${cur##*[.:]}) )
+	    elif [[ $cur = *:* ]] && [ -n "$bash205" ]; then
+		COMPREPLY=( $( compgen -g -- ${cur##*[.:]} ) )
 	    else
-			COMPREPLY=( $( compgen -S : -u -- $cur ) )
+		COMPREPLY=( $( compgen -S : -u -- $cur ) )
 	    fi
 	else
 	    _filedir
@@ -540,12 +524,8 @@ _chgrp()
 
 	# first parameter on line or first since an option?
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]] || \
-	   [[ "$prev" == -* ]]; then
-		if [ ${BASH_VERSINFO[0]} -eq 2 ] &&
-		   [[ ${BASH_VERSINFO[1]} > 04 ]] ||
-		   [ ${BASH_VERSINFO[0]} -gt 2 ]; then
-			COMPREPLY=( $( compgen -g $cur 2>/dev/null ) )
-		fi
+	   [[ "$prev" == -* ]] && [ -n "$bash205" ]; then
+		COMPREPLY=( $( compgen -g $cur 2>/dev/null ) )
 	else
 		_expand || return 0
 	fi
@@ -833,9 +813,7 @@ _find()
 		return 0
 		;;
 	-group)
-		if [ ${BASH_VERSINFO[0]} -eq 2 ] &&
-		   [[ ${BASH_VERSINFO[1]} > 04 ]] ||
-		   [ ${BASH_VERSINFO[0]} -gt 2 ]; then
+		if [ -n "$bash205" ]; then
 			COMPREPLY=( $( compgen -g -- $cur 2>/dev/null) )
 		fi
 		return 0
@@ -5204,7 +5182,7 @@ unset i
 [ $BASH_COMPLETION != ~/.bash_completion -a -r ~/.bash_completion ] \
 	&& . ~/.bash_completion
 unset -f have
-unset UNAME RELEASE have default dirnames filenames nospace
+unset UNAME RELEASE have default dirnames filenames nospace bashdefault plusdirs
 
 ###  Local Variables:
 ###  mode: shell-script
