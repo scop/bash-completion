@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.233 2002/03/29 03:43:09 ianmacd Exp $
+#   $Id: bash_completion,v 1.234 2002/03/29 08:30:47 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -886,39 +886,25 @@ _cvs()
 have rpm &&
 _rpm()
 {
-	add_package_list()
+	installed_packages()
 	{
 		if [ -r /var/log/rpmpkgs -a \
 			/var/log/rpmpkgs -nt /var/lib/rpm/Packages ]; then
 			# using RHL 7.2 - this is quicker than querying the DB
-			COMPREPLY=( ${COMPREPLY[@]} \
-			$( sed -ne 's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+.*\.rpm$|\1|p' /var/log/rpmpkgs ) )
+			COMPREPLY=( $( sed -ne \
+		's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+.*\.rpm$|\1|p' \
+					/var/log/rpmpkgs ) )
 		else
-			COMPREPLY=( ${COMPREPLY[@]} $( rpm -qa | \
-			sed -ne 's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+$|\1|p' ) )
+			COMPREPLY=( $( rpm -qa | sed -ne \
+			's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+$|\1|p' ) )
 		fi
 	}
 
 	file_glob()
 	{
 		_expand || return 0
-
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -f -X "!*.$1" -- $cur ) )
-	    	COMPREPLY=( ${COMPREPLY[@]} $( compgen -d -- $cur ) )
-	}
-
-	uninstalled_packages()
-	{
-		COMPREPLY=( $( compgen -W '--scripts --root --rcfile \
-		--whatprovides --whatrequires --requires --triggeredby \
-		--ftpport --ftpproxy --httpproxy --httpport --provides \
-		--triggers --dump --changelog --dbpath --filesbypkg --define \
-		--eval --pipe --showrc --info --list --state --docfiles \
-		--configfiles --queryformat --conflicts --obsoletes' -- $cur ) )
-		# return if $cur is an option
-		[[ "$cur" == -* ]] && return 0
-		# add a list of RPMS to possible completions
-		file_glob rpm
+		COMPREPLY=( $( compgen -f -X "!*.$1" -- $cur ) \
+			    $( compgen -d -- $cur ) )
 	}
 
 	local cur prev
@@ -984,132 +970,133 @@ _rpm()
 			_filedir
 		else
 		# complete on capabilities
-			COMPREPLY=( $( rpm -qa --queryformat '%{providename}\n' | grep ^$cur ) )
+			COMPREPLY=( $( rpm -qa --queryformat \
+					'%{providename}\n' | grep ^$cur ) )
 		fi
 		return 0
 		;;
 	--whatrequires)
 		# complete on capabilities
-		COMPREPLY=( $( rpm -qa --queryformat '%{requirename}\n' | grep ^$cur ) )
+		COMPREPLY=( $( rpm -qa --queryformat '%{requirename}\n' | \
+				grep ^$cur ) )
 		return 0
 		;;
 	esac
 
 	case "${COMP_WORDS[1]}" in
 	-@([iFU]*|-install|-freshen|-upgrade))
-		COMPREPLY=( $( compgen -W '--percent --force --test \
-		--replacepkgs --replacefiles --root --excludedocs \
-		--includedocs --noscripts --rcfile --ignorearch --dbpath \
-		--prefix --ignoreos --nodeps --allfiles --ftpproxy --ftpport \
-		--justdb --httpproxy --httpport --noorder --relocate \
-		--badreloc --notriggers --excludepath --ignoresize \
-		--oldpackage --define --eval --pipe --queryformat \
-		--repackage' -- $cur ) )
-		# return if $cur is an option
-		[[ "$cur" == -* ]] && return 0
-		# add a list of RPMS to possible completions
-		file_glob rpm
-		;;
-	-q*p*)
-		uninstalled_packages
+		if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '--percent --force --test \
+			--replacepkgs --replacefiles --root --excludedocs \
+			--includedocs --noscripts --rcfile --ignorearch \
+			--dbpath --prefix --ignoreos --nodeps --allfiles \
+			--ftpproxy --ftpport --justdb --httpproxy --httpport \
+			--noorder --relocate --badreloc --notriggers \
+			--excludepath --ignoresize --oldpackage --define \
+			--eval --pipe --queryformat --repackage' -- $cur ) )
+		else
+			file_glob rpm
+		fi
 		;;
 	-*f)
-		# standard filename completion
 		_filedir
 		;;
 	-@(e|-erase))
-		COMPREPLY=( $( compgen -W '--allmatches --noscripts \
-		--notriggers --nodeps --test --repackage' -- $cur ) )
-		# return if $cur is an option
-		[[ "$cur" == -* ]] && return 0
-		add_package_list
+		if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '--allmatches --noscripts \
+			--notriggers --nodeps --test --repackage' -- $cur ) )
+		else
+			installed_packages
+		fi
 		;;
-	-q*)
+	-@(q*|-query))
 		# check whether we're querying installed or uninstalled
 		if [ "${COMP_LINE#*-*([^ ])p}" != "$COMP_LINE" ]; then
 			# there's a -p on the line
-			uninstalled_packages
-			return 0
+			if [[ "$cur" == -* ]]; then
+				COMPREPLY=( $( compgen -W '--scripts --root \
+				--rcfile --whatprovides --whatrequires \
+				--requires --triggeredby --ftpport --ftpproxy \
+				--httpproxy --httpport --provides --triggers \
+				--dump --changelog --dbpath --filesbypkg \
+				--define --eval --pipe --showrc --info --list \
+				--state --docfiles --configfiles --queryformat \
+				--conflicts --obsoletes' -- $cur ) )
+			else
+				file_glob rpm
+			fi
 		else
-			COMPREPLY=( $( compgen -W '--scripts --root --rcfile \
-			--whatprovides --whatrequires --requires --triggeredby \
-			--ftpport --ftpproxy --httpproxy --httpport --provides \
-			--triggers --dump --changelog --dbpath --specfile \
-			--querybynumber --last --filesbypkg --define --eval \
-			--pipe --showrc --info --list --state --docfiles \
-			--configfiles --queryformat --conflicts --obsoletes \
-			--pkgid --hdrid --fileid --tid' -- $cur ) )
+			if [[ "$cur" == -* ]]; then
+				COMPREPLY=( $( compgen -W '--scripts --root \
+				--rcfile --whatprovides --whatrequires \
+				--requires --triggeredby --ftpport --ftpproxy \
+				--httpproxy --httpport --provides --triggers \
+				--dump --changelog --dbpath --specfile \
+				--querybynumber --last --filesbypkg --define \
+				--eval --pipe --showrc --info --list --state \
+				--docfiles --configfiles --queryformat \
+				--conflicts --obsoletes --pkgid --hdrid \
+				--fileid --tid' -- $cur ) )
+			elif [ "${COMP_LINE#*-*([^ ])a}" == "$COMP_LINE" ]; then
+				installed_packages
+			fi
 		fi
-		# return if $cur is an option
-		[[ "$cur" == -* ]] && return 0
-		# don't complete on packages if we are querying all packages
-		[[ ${COMP_WORDS[1]} == -qa* ]] && return 0
-		add_package_list
 		;;
 	-@(K|-checksig))
-		COMPREPLY=( $( compgen -W '--nopgp --nogpg --nomd5' -- $cur ) )
-		# return if $cur is an option
-		[[ "$cur" == -* ]] && return 0
-		# add a list of RPMS to possible completions
-		file_glob rpm
+		if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '--nopgp --nogpg --nomd5' \
+					-- $cur ) )
+		else
+			file_glob rpm
+		fi
 		;;
 	-@([Vy]*|-verify))
-		COMPREPLY=( $( compgen -W '--root --rcfile --dbpath --nodeps \
-		--nofiles --noscripts --nomd5 --querytags --specfile \
-		--whatrequires --whatprovides' -- $cur ) )
-		# return if $cur is an option
-		[[ "$cur" == -* ]] && return 0
-		if [ "${COMP_LINE#*-*([^ ])p}" != "$COMP_LINE" ]; then
+		if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '--root --rcfile --dbpath \
+			--nodeps --nofiles --noscripts --nomd5 --querytags \
+			--specfile --whatrequires --whatprovides' -- $cur ) )
+		elif [ "${COMP_LINE#*-*([^ ])p}" != "$COMP_LINE" ]; then
 			file_glob rpm
 		else
-			add_package_list
+			installed_packages
 		fi
 		;;
 	-[bt]*)
-		COMPREPLY=( $( compgen -W '--short-circuit --timecheck \
-		--clean --rmsource --rmspec --test --sign --buildroot \
-		--targetbuildarch --buildos --nobuild --nodeps --nodirtokens' \
-		-- $cur ) )
-		# return if $cur is an option
-		[[ "$cur" == -* ]] && return 0
-		if [[ ${COMP_WORDS[1]} == -b* ]]; then
-			# complete on .spec files
+		if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '--short-circuit --timecheck \
+			--clean --rmsource --rmspec --test --sign --buildroot \
+			--targetbuildarch --buildos --nobuild --nodeps \
+			--nodirtokens' -- $cur ) )
+		elif [[ ${COMP_WORDS[1]} == -b* ]]; then
 			file_glob spec
 		else
-			_expand || return 0
-			# complete on .tar files
 			file_glob '@(tgz|tar.@(gz|bz2))'
 		fi
 		;;
 	--re@(build|compile))
-		_expand || return 0
-		COMPREPLY=( $( compgen -W '--nodeps --rmsource --rmspec \
-		--sign --nodirtokens' -- $cur ) )
-		# return if $cur is an option
-		[[ "$cur" == -* ]] && return 0
-		# complete on source RPMs
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -f -X '!*.src.rpm' -- \
-					       $cur ) )
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -d -- $cur ) )
+		if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '--nodeps --rmsource \
+				--rmspec --sign --nodirtokens' -- $cur ) )
+		else
+			file_glob src.rpm
+		fi
 		;;
 	--tarbuild)
-		_expand || return 0
-		# complete on tarred sources
 		file_glob '@(tgz|tar.@(gz|bz2))'
 		;;
 	--@(re|add)sign)
-		# complete on RPMs
 		file_glob rpm
 		;;
 	--set@(perms|gids))
-		add_package_list
+		installed_packages
 		;;
 	--@(clean|rms@(ource|pec)))
-		COMPREPLY=( $( compgen -W '--clean --rmsource --rmspec' -- \
-			       $cur ) )
-		# return if $cur is an option
-		[[ "$cur" == -* ]] && return 0
-		file_glob spec
+		if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '--clean --rmsource \
+					--rmspec' -- $cur ) )
+		else
+			file_glob spec
+		fi
 		;;
 	-*g)
 		# package group completion
