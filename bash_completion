@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.242 2002/04/01 18:50:05 ianmacd Exp $
+#   $Id: bash_completion,v 1.243 2002/04/02 07:27:50 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2137,6 +2137,7 @@ _cardctl()
 [ "$have" ] && complete -F _cardctl cardctl
 
 # This function is required by _dpkg() and _dpkg-reconfigure()
+#
 have dpkg &&
 _comp-dpkg-installed-packages()
 {
@@ -2223,17 +2224,36 @@ _dpkg()
 have dpkg-reconfigure &&
 _dpkg-reconfigure()
 {
-	local cur prev
+	local cur prev opt
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	COMPREPLY=( $( compgen -W '--frontent= --priority --all \
-		       	       	   --unseen-only --help' -- $cur ) \
-		    $( _comp-dpkg-installed-packages $cur ) )
+
+	case "$prev" in
+	    -@(f|-frontend))
+		opt=( $( echo /usr/share/perl5/Debconf/FrontEnd/* ) )
+		opt=( ${opt[@]##*/} )
+		opt=( ${opt[@]%.pm} )
+	        COMPREPLY=( $( compgen -W '${opt[@]}' -- $cur ) )
+	        return 0
+		;;
+	    -@(p|-priority))
+  	        COMPREPLY=( $( compgen -W 'low medium high critical' -- $cur ) )
+	        return 0
+		;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+	    COMPREPLY=( $( compgen -W '-f --frontend -p --priority -a --all \
+				       -u --unseen-only -h --help -s --showold \
+				       --force --terse' -- $cur ) )
+	else
+	    COMPREPLY=( $( _comp-dpkg-installed-packages $cur ) )
+	fi
 }
-[ "$have" ] && complete -F _dpkg-reconfigure -o filenames dpkg-reconfigure
+[ "$have" ] && complete -F _dpkg-reconfigure -o default dpkg-reconfigure
 
 have java &&
 _java()
@@ -2244,7 +2264,7 @@ _java()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	case $prev in
+	case "$prev" in
 		-@(cp|classpath))
 			_filedir
 			return 0
@@ -2323,7 +2343,7 @@ _urpmi()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	case $prev in
+	case "$prev" in
 		--media)
 			_urpmi.media
 			return 0;;
