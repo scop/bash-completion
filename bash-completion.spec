@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.73 2002/12/17 09:56:36 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.74 2002/12/21 06:47:07 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20021217
+Version: 20021221
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,12 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Sat Dec 21 2002 Ian Macdonald <ian@caliban.org>
+- extensive mplayer completion
+- avoid unbound variable warnings when bash is run with 'set -u'
+- avoid error if CVS completion is attempted in a directory with no
+  CVS/Entries file
+
 * Tue Dec 17 2002 Ian Macdonald <ian@caliban.org>
 - tar should also be able to recognise .tar.Z files
 - perldoc completion also returns names of core Perl man pages
