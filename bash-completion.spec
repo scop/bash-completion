@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.105 2003/10/22 09:17:28 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.106 2003/11/12 10:23:31 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20031022
+Version: 20031112
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,16 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Wed Nov 12 2003 Ian Macdonald <ian@caliban.org>
+- remove bogus targets from make completion
+- default to file completion in perldoc, if current parameter contains
+  a slash
+- add .aac and .mp4 support to mplayer, as well as support for matroska files
+- add support for matroska files to mplayer
+- rpm -qf improvement
+- gzip should complete on .gz files after redirection
+- bash 'command' built-in should also complete on commands
+
 * Wed Oct 22 2003 Ian Macdonald <ian@caliban.org>
 - another unbound variable warning removed
 - add completion for vsound and really
