@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.83 2003/03/27 09:11:48 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.84 2003/04/15 08:54:26 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030327
+Version: 20030414
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,12 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Mon Apr 14 2003 Ian Macdonald <ian@caliban.org>
+- added completion for iconv(1)
+- make apt-cache complete the showsrc argument
+- added KDE dcop completion
+- fix another unset variable warning in CVS completion
+
 * Thu Mar 27 2003 Ian Macdonald <ian@caliban.org>
 - stop /etc/init.d completions from completing on stand-alone commands
   of the same name
