@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.94 2003/06/30 01:44:26 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.95 2003/07/13 08:16:46 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030630
+Version: 20030713
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,12 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Sun Jul 13 2003 Ian Macdonald <ian@caliban.org>
+- allow find to search through more than one directory root
+- update rpm completion for rpm 4.2
+- modify kldload and portinstall completion for FreeBSD 5
+- minor fix for ifconfig and iwconfig completion
+
 * Mon Jun 30 2003 Ian Macdonald <ian@caliban.org>
 - fix process truncation problem with killall completion
 - psql update from Guillaume Rousse <rousse@ccr.jussieu.fr>
