@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.767 2005/01/03 02:51:15 ianmacd Exp $
+#   $Id: bash_completion,v 1.768 2005/01/03 03:11:55 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2565,7 +2565,7 @@ _route()
 have make &&
 _make()
 {
-	local file makef makef_inc cur prev i
+	local file makef makef_dir="." makef_inc cur prev i
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -2613,19 +2613,29 @@ _make()
 			--what-if= --new-file= --assume-new= \
 			--warn-undefined-variables' -- $cur ) )
 	else
+		# before we check for makefiles, see if a path was specified
+		# with -C
+		for (( i=0; i < ${#COMP_WORDS[@]}; i++ )); do
+			if [[ ${COMP_WORDS[i]} == -C ]]; then
+				# eval for tilde expansion
+				eval makef_dir=${COMP_WORDS[i+1]}
+				break
+			fi
+		done
+
 		# make reads `GNUmakefile', then `makefile', then `Makefile'
-		if [ -f GNUmakefile ]; then
-			makef=GNUmakefile
-		elif [ -f makefile ]; then
-			makef=makefile
-		elif [ -f Makefile ]; then
-			makef=Makefile
+		if [ -f ${makef_dir}/GNUmakefile ]; then
+			makef=${makef_dir}/GNUmakefile
+		elif [ -f ${makef_dir}/makefile ]; then
+			makef=${makef_dir}/makefile
+		elif [ -f ${makef_dir}/Makefile ]; then
+			makef=${makef_dir}/Makefile
 		else
-			makef=*.mk	       # local convention
+			makef=${makef_dir}/*.mk	       # local convention
 		fi
 
-		# before we scan for targets, see if a makefile name was specified
-		# with -f
+		# before we scan for targets, see if a Makefile name was
+		# specified with -f
 		for (( i=0; i < ${#COMP_WORDS[@]}; i++ )); do
 			if [[ ${COMP_WORDS[i]} == -f ]]; then
 				# eval for tilde expansion
@@ -2637,7 +2647,7 @@ _make()
 		[ ! -f $makef ] && return 0
 
 		# deal with included Makefiles
- 		makef_inc=$( grep -E '^-?include' $makef | cut -d' ' -f2 )
+ 		makef_inc=$( grep -E '^-?include' $makef | sed -e "s,^.* ,"$makef_dir"/," )
 
  		for file in $makef_inc; do
  			[ -f $file ] && makef="$makef $file"
