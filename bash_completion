@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.714 2004/05/26 07:20:56 ianmacd Exp $
+#   $Id: bash_completion,v 1.715 2004/06/01 08:02:57 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1912,11 +1912,14 @@ _aptitude()
 
 	dashoptions='-S -u -i -h --help --version -s --simulate -d \
 		     --download-only -P --prompt -y --assume-yes -F \
-		     --display-format -w --width -f --with-recommends \
-		     --with-suggests --without-recommends --without-suggests'
+		     --display-format -O --sort -w --width -f -r -g \
+                     --with-recommends --with-suggests -R -G \
+                     --without-recommends --without-suggests -t \
+                     --target-release -V --show-versions -D --show-deps\
+                     -Z -v --verbose'
 
 	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-	    if [[ ${COMP_WORDS[i]} == @(install|hold|unhold|markauto|unmarkauto|dist-upgrade|download|purge|remove) ]]; then
+	    if [[ ${COMP_WORDS[i]} == @(install|reinstall|hold|unhold|markauto|unmarkauto|dist-upgrade|download|forbid-version|purge|remove) ]]; then
 		special=${COMP_WORDS[i]}
 	    fi
 	    #exclude some mutually exclusive options
@@ -1930,12 +1933,12 @@ _aptitude()
 		   COMPREPLY=( $( apt-cache pkgnames $cur 2> /dev/null ) )
 		   return 0
 		   ;;
-	       @(purge|remove))
+	       @(purge|remove|reinstall|forbid-version))
   		   COMPREPLY=( $( _comp-dpkg-installed-packages $cur ) )
 		   return 0
 		   ;;
 	       unhold)
-  		   COMPREPLY=( $( _comp_dpkg_hold_packages $cur ) )
+  		   COMPREPLY=( $( _comp-dpkg-hold-packages $cur ) )
 		   return 0
 		   ;;
 
@@ -1947,19 +1950,29 @@ _aptitude()
 	    @(autoclean|clean|forget-new|search|upgrade|update))
 		return 0
 		;;
+
 	    -S)
 		_filedir
 		return 0
 		;;
+
+	    -@(t|-target-release|-default-release))
+		COMPREPLY=( $( apt-cache policy | \
+		    grep "release.o=Debian,a=$cur" | \
+		    sed -e "s/.*a=\(\w*\).*/\1/" | uniq ) )
+		return 0
+		;;
+
 	esac
 
 	if [[ "$cur" == -* ]]; then
 	    COMPREPLY=( $( compgen -W "$dashoptions" -- $cur ) )
 	else
 	    COMPREPLY=( $( compgen -W 'update upgrade forget-new clean \
-				       autoclean install remove hold unhold \
-				       purge markauto unmarkauto dist-upgrade \
-				       download search' -- $cur ) )
+				       autoclean install reinstall remove \
+                                       hold unhold purge markauto unmarkauto \
+                                       dist-upgrade download search show \
+                                       forbid-version' -- $cur ) )
 	fi
 
 
