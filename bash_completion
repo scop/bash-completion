@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.781 2005/01/16 19:10:51 ianmacd Exp $
+#   $Id: bash_completion,v 1.782 2005/01/19 04:19:45 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2976,16 +2976,29 @@ fi
 # A meta-command completion function for commands like sudo(8), which need to
 # first complete on a command, then complete according to that command's own
 # completion definition - currently not quite foolproof (e.g. mount and umount
-# don't work properly), but still quite useful
+# don't work properly), but still quite useful.
 #
 _command()
 {
-	local cur func cline cspec noglob cmd \
+	local cur func cline cspec noglob cmd done i \
 	      _COMMAND_FUNC _COMMAND_FUNC_ARGS
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
+	# If the the first arguments following our meta-command-invoker are
+	# switches, get rid of them. Most definitely not foolproof.
+	done=
+	while [ -z $done ] ; do
 	cmd=${COMP_WORDS[1]}
+	    if [[ "$cmd" == -* ]] ; then
+		for (( i=1 ; i<=COMP_CWORD ; i++)) ; do
+		    COMP_WORDS[i]=${COMP_WORDS[i+1]}
+		done
+		COMP_CWORD=$(($COMP_CWORD-1))
+	    else 
+		done=1
+	    fi
+	done
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -c -- $cur ) )
@@ -2998,8 +3011,6 @@ _command()
 			# so we can set them before handing off to regular
 			# completion routine
 
-			# set current token number to 1 less than now
-			COMP_CWORD=$(( $COMP_CWORD - 1 ))
 			# get function name
 			func=${cspec#*-F }
 			func=${func%% *}
@@ -3015,7 +3026,8 @@ _command()
 			# reset noglob if necessary
 			[ $noglob -eq 1 ] && shopt -uo noglob
 			$func $cline
-			# this is needed in case user finished entering command and pressed tab (e.g. sudo ls <Tab>)
+			# This is needed in case user finished entering
+			# command and pressed tab (e.g. sudo ls <Tab>)
 			COMP_CWORD=$(( $COMP_CWORD > 0 ? $COMP_CWORD : 1 ))
 			cur=${COMP_WORDS[COMP_CWORD]}
 			_COMMAND_FUNC=$func
@@ -3042,7 +3054,7 @@ _command()
 	[ ${#COMPREPLY[@]} -eq 0 ] && _filedir
 }
 complete -F _command $filenames nohup exec nice eval strace time ltrace then \
-	 else do vsound command
+	else do vsound command xargs
 
 _root_command()
 {
