@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.607 2003/08/05 00:32:25 ianmacd Exp $
+#   $Id: bash_completion,v 1.608 2003/08/05 17:41:40 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2248,6 +2248,7 @@ _make()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
+	# --name value style option
 	case $prev in
 		-@(f|o|W))
 			_filedir
@@ -2259,16 +2260,21 @@ _make()
 			;;
 	esac
 
-	case $cur in
-		--@(file=|makefile=))
-			_filedir
-			return 0
-			;;
-		--@(directory=|include-dir=))
-			_filedir -d
-			return 0
-			;;
-	esac
+	# --name=value style option
+	if [[ "$cur" == *=* ]]; then
+		prev=${cur/=*/}
+		cur=${cur/*=/}
+		case "$prev" in
+			--@(file|makefile))
+				_filedir
+				return 0
+				;;
+			--@(directory|include-dir))
+				_filedir -d
+				return 0
+				;;
+		esac
+	fi
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-b -m -B -C -d -e -f -h -i -I\
@@ -2312,7 +2318,7 @@ _make()
 
 	fi
 }
-[ -n "${have:-}" ] && complete -F _make $default $filenames make gmake pmake
+[ -n "${have:-}" ] && complete -F _make $default make gmake pmake
 
 # GNU tar(1) completion
 #
