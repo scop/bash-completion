@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.406 2002/09/08 21:48:27 ianmacd Exp $
+#   $Id: bash_completion,v 1.407 2002/09/08 22:04:26 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -369,8 +369,13 @@ _chown()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	# do not attempt completion if we're specifying an option
-	[[ "$cur" == -* ]] && return 0
+	# options completion
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes \
+		--dereference --no-dereference --from= --silent --quiet \
+		--reference= --recursive --verbose --help --version -- $cur ) )
+		return 0
+	fi
 
 	# first parameter on line or first since an option?
 	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
@@ -400,6 +405,14 @@ _chgrp()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	# options completion
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes \
+		--dereference --no-dereference --silent --quiet \
+		--reference= --recursive --verbose --help --version -- $cur ) )
+		return 0
+	fi
 
 	# first parameter on line or first since an option?
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]] || \
