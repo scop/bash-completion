@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.154 2002/02/27 01:41:56 ianmacd Exp $
+#   $Id: bash_completion,v 1.155 2002/02/27 02:02:43 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1219,11 +1219,13 @@ _service()
 	#[[ "$cur" == -* ]] && return 0
 	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -W '`echo $sysvdir/!(*.rpmsave|*.rpmorig)`' ) )
-		COMPREPLY=( $( compgen -W '${COMPREPLY[@]#$sysvdir/}' $cur ) )
+		COMPREPLY=( $( compgen -W '${COMPREPLY[@]#$sysvdir/}' -- \
+			       $cur ) )
 	else
 		COMPREPLY=( $( compgen -W '`sed -ne "y/|/ /; \
 					    s/^.*Usage.*{\(.*\)}.*$/\1/p" \
-					    $sysvdir/${COMP_WORDS[1]}`' $cur ) )
+					    $sysvdir/${COMP_WORDS[1]}`' -- \
+			       $cur ) )
 	fi
 
 	return 0
@@ -1246,16 +1248,16 @@ _tar()
 		_filedir
 		;;
 	+([^zj])f)
-		COMPREPLY=( $( compgen -d $cur ) \
-			    $( compgen -f -X '!*.tar' $cur ) )
+		COMPREPLY=( $( compgen -d -- $cur ) \
+			    $( compgen -f -X '!*.tar' -- $cur ) )
 		;;
 	*z*f)
-		COMPREPLY=( $( compgen -d $cur ) \
-			    $( compgen -f -X '!*.t?(ar.)gz' $cur ) )
+		COMPREPLY=( $( compgen -d -- $cur ) \
+			    $( compgen -f -X '!*.t?(ar.)gz' -- $cur ) )
 		;;
 	*j*f)
-		COMPREPLY=( $( compgen -d $cur ) \
-			    $( compgen -f -X '!*.tar.bz2' $cur ) )
+		COMPREPLY=( $( compgen -d -- $cur ) \
+			    $( compgen -f -X '!*.tar.bz2' -- $cur ) )
 		;;
 	*)
 		_filedir
@@ -1289,26 +1291,26 @@ _iptables()
 
 	case "$prev" in
 	-*[AIDPFXL])
-		COMPREPLY=( $( compgen -W '`iptables $table -nL | sed -ne "s/^Chain \([^ ]\+\).*$/\1/p"`' $cur ) )
+		COMPREPLY=( $( compgen -W '`iptables $table -nL | sed -ne "s/^Chain \([^ ]\+\).*$/\1/p"`' -- $cur ) )
 		;;
 	-*t)
-		COMPREPLY=( $( compgen -W 'nat filter mangle' $cur ) )
+		COMPREPLY=( $( compgen -W 'nat filter mangle' -- $cur ) )
 		;;
 	-j)
 		if [ "$table" = "-t filter" -o "$table" = "" ]; then
 		    COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT \
 		    `iptables $table -nL | sed -ne "$chain" \
-		    -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' \
+		    -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' -- \
 		    $cur ) )
 		elif [ "$table" = "-t nat" ]; then
 		    COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT \
 		    MIRROR SNAT DNAT MASQUERADE `iptables $table -nL | \
 		    sed -ne "$chain" -e "s/OUTPUT|PREROUTING|POSTROUTING//"`' \
-		    $cur ) )
+		    -- $cur ) )
 		elif [ "$table" = "-t mangle" ]; then
 		    COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT \
 		    MARK TOS `iptables $table -nL | sed -ne "$chain" \
-		    -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' \
+		    -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' -- \
 		    $cur ) )
 		fi
 		;;
@@ -1330,7 +1332,7 @@ _tcpdump()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	COMPREPLY=( $( compgen -W 'host net port src dst ether gateway \
-				   less greater' $cur ) )
+				   less greater' -- $cur ) )
 
 }
 [ "$have" ] && complete -F _tcpdump tcpdump
@@ -1359,7 +1361,7 @@ _cd()
 		done
 	fi
 	IFS=$' \t\n'
-	COMPREPLY=( ${COMPREPLY[@]} $( compgen -d $cur ) )
+	COMPREPLY=( ${COMPREPLY[@]} $( compgen -d -- $cur ) )
 
 	return 0
 }
@@ -1378,7 +1380,7 @@ _command()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	if [ $COMP_CWORD -eq 1 ]; then
-		COMPREPLY=( $( compgen -c $cur ) )
+		COMPREPLY=( $( compgen -c -- $cur ) )
 	elif complete -p ${COMP_WORDS[1]} &>/dev/null; then
 		cspec=$( complete -p ${COMP_WORDS[1]} )
 		if [ "${cspec#*-F }" != "$cspec" ]; then
@@ -1402,15 +1404,15 @@ _command()
 			# complete -[abcdefgjkvu]
 			func=$( echo $cspec | \
 				sed -e 's/^.*\(-[abcdefgjkvu]\).*$/\1/' )
-			COMPREPLY=( $( compgen $func $cur ) )
+			COMPREPLY=( $( compgen $func -- $cur ) )
 		elif [ "${cspec#*-A}" != "$cspec" ]; then
 			# complete -A <type>
 			func=${cspec#*-A }
 			func=${func%% *}
-			COMPREPLY=( $( compgen -A $func $cur ) )
+			COMPREPLY=( $( compgen -A $func -- $cur ) )
 		fi
 	else
-		COMPREPLY=( $( compgen -f $cur ) )
+		COMPREPLY=( $( compgen -f -- $cur ) )
 	fi
 }
 complete -F _command -o filenames nohup exec nice eval strace sudo
@@ -1425,7 +1427,7 @@ _root_command()
 }
 complete -F _command -o filenames sudo
 
-# Basic Perforce completion by Frank Cusack (frank@google.com)
+# Perforce completion by Frank Cusack (frank@google.com)
 #
 have p4 &&
 _p4()
@@ -1450,16 +1452,16 @@ _p4()
 		text binary resource"
 
 	if [ $COMP_CWORD -eq 1 ]; then
-		COMPREPLY=( $( compgen -W "$p4commands" $cur ) )
+		COMPREPLY=( $( compgen -W "$p4commands" -- $cur ) )
 	elif [ $COMP_CWORD -eq 2 ]; then
 		case "$prev" in
 		help)
 			COMPREPLY=( $( compgen -W "simple commands \
 				environment filetypes jobview revisions \
-				usage views $p4commands" $cur ) )
+				usage views $p4commands" -- $cur ) )
 			;;
 		admin)
-			COMPREPLY=( $( compgen -W "checkpoint stop" $cur ) )
+			COMPREPLY=( $( compgen -W "checkpoint stop" -- $cur ) )
 			;;
 		*)
 			;;
@@ -1470,7 +1472,8 @@ _p4()
 		-t)
 			case "$prev2" in
 			add|edit|reopen)
-				COMPREPLY=( $(compgen -W "$p4filetypes" $cur) )
+				COMPREPLY=( $( compgen -W "$p4filetypes" \
+					       -- $cur) )
 				;;
 			*)
 				;;
@@ -1516,7 +1519,7 @@ _nslookup()
 	COMPREPLY=( $( compgen -P '-' -W 'all class= debug d2 domain= \
 			       srchlist= defname search port= querytype= \
 			       type= recurse retry root timeout vc \
-			       ignoretc' $cur ) )
+			       ignoretc' -- $cur ) )
 }
 [ "$have" ] && complete -F _nslookup nslookup
 
@@ -1533,22 +1536,23 @@ _mysqladmin()
 
 	case "$prev" in
 	-u)
-		COMPREPLY=( $( compgen -u $cur ) )
+		COMPREPLY=( $( compgen -u -- $cur ) )
 		return 0
 		;;
 	*)
 		;;
 	esac
 
-	COMPREPLY=( $( compgen -P '-' -W '# f ? C h p P i r E s S t u \
-					      v V w' ${cur#-} ) )
+	COMPREPLY=( $( compgen -W '-# -f -? -C -h -p -P -i -r -E -s -S -t -u \
+					      -v -V -w' -- $cur ) )
 
 	COMPREPLY=( ${COMPREPLY[@]} \
 		    $( compgen -W 'create drop extended-status flush-hosts \
 				   flush-logs flush-status flush-tables \
 				   flush-threads flush-privileges kill \
 				   password ping processlist reload refresh \
-				   shutdown status variables version' $cur ) )
+				   shutdown status variables version' \
+		       -- $cur ) )
 }
 [ "$have" ] && complete -F _mysqladmin mysqladmin
 
@@ -1570,7 +1574,8 @@ _zip()
 
 	_expand || return 0
 
-	COMPREPLY=( $( compgen -f -X "$xspec" $cur ) $( compgen -d $cur ) )
+	COMPREPLY=( $( compgen -f -X "$xspec" -- $cur ) \
+		    $( compgen -d -- $cur ) )
 }
 [ "$have" ] && complete -F _zip -o filenames gzip bzip2
 
@@ -1596,7 +1601,7 @@ _openssl()
 			des-ede-cfb des-ede-ofb des-ede3 des-ede3-cbc \
 			des-ede3-cfb des-ede3-ofb des-ofb des3 desx rc2 \
 			rc2-40-cbc rc2-64-cbc rc2-cbc rc2-cfb rc2-ecb rc2-ofb \
-			rc4 rc4-40' $cur ) )
+			rc4 rc4-40' -- $cur ) )
         fi
 
         return 0
@@ -1647,7 +1652,7 @@ _ncftp()
 
 	if [ $COMP_CWORD -eq 1 ] && [ -f ~/.ncftp/bookmarks ]; then
 		COMPREPLY=( $( compgen -W '`cut --output-delimiter " " \
-			       -s -f1-2 -d, ~/.ncftp/bookmarks`' $cur ) )
+			       -s -f1-2 -d, ~/.ncftp/bookmarks`' -- $cur ) )
         fi
 
         return 0
@@ -1666,7 +1671,7 @@ _gdb()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [ $COMP_CWORD -eq 1 ]; then
-		COMPREPLY=( $( compgen -c $cur ) )
+		COMPREPLY=( $( compgen -c -- $cur ) )
 	elif [ $COMP_CWORD -eq 2 ]; then
 		COMPREPLY=( ${COMPREPLY[@]} $( ps ahx | sed -e 's#[]\[()]##g' |\
 					awk '{p=$5;sub("^.*/","",p); \
@@ -1695,7 +1700,8 @@ _psql()
 	-U)
 		COMPREPLY=( $( psql -qtc 'select usename from pg_user' \
 			       2>/dev/null | grep "^ $cur" ) )
-		[ ${#COMPREPLY[@]} -eq 0 ] && COMPREPLY=( $( compgen -u $cur ) ) 
+		[ ${#COMPREPLY[@]} -eq 0 ] && \
+			COMPREPLY=( $( compgen -u -- $cur ) ) 
 		return 0
 		;;
 	*)
@@ -1803,7 +1809,7 @@ _cardctl ()
 	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -W 'status config ident suspend \
 					   resume reset eject insert scheme' \
-			       $cur ) )
+			       -- $cur ) )
 	fi
 }
 [ "$have" ] && complete -F _cardctl cardctl
@@ -1819,7 +1825,7 @@ _alias()
 
 	case "$COMP_LINE" in
 	*[^=])
-		COMPREPLY=( $( compgen -A alias -S '=' $cur ) )
+		COMPREPLY=( $( compgen -A alias -S '=' -- $cur ) )
 		;;
         *=)
 		COMPREPLY=( "$( alias ${cur%=} | \
@@ -1840,7 +1846,7 @@ _export()
 
 	case "$COMP_LINE" in
 	*[^=])
-		COMPREPLY=( $( compgen -v -S '=' $cur ) )
+		COMPREPLY=( $( compgen -v -S '=' -- $cur ) )
 		;;
         *=)
 		COMPREPLY=( $( eval echo $`echo ${cur%=}` ) )
@@ -1859,7 +1865,7 @@ _function()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	if [ $COMP_CWORD -eq 1 ]; then
-		COMPREPLY=( $(compgen -A function $cur ) )
+		COMPREPLY=( $(compgen -A function -- $cur ) )
 	else
 		COMPREPLY=( "() $( type -- ${COMP_WORDS[1]} | sed -e 1,2d )" )
 	fi
