@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.539 2003/03/29 08:29:49 ianmacd Exp $
+#   $Id: bash_completion,v 1.540 2003/04/08 07:48:47 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -4452,6 +4452,24 @@ _mplayer()
 }
 }
 [ -n "${have:-}" ] && complete $filenames -F _mplayer mplayer mencoder gmplayer
+
+# KDE dcop completion
+#
+have dcop &&
+_dcop()
+{
+	local cur compstr
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	if [ -z $cur ]; then
+	    compstr=${COMP_WORDS[*]}
+	else
+	    compstr=$( command echo ${COMP_WORDS[*]} | sed "s/ $cur$//" )
+	fi
+	COMPREPLY=( $( compgen -W '$( command $compstr | sed s/\(.*\)// )'  -- $cur ) )
+}
+[ "${have:-}" ] && complete -F _dcop dcop
 
 # wvdial(1) completion
 #
