@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.600 2003/08/03 03:07:38 ianmacd Exp $
+#   $Id: bash_completion,v 1.601 2003/08/03 03:19:30 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2213,69 +2213,77 @@ _route()
 have make &&
 _make()
 {
-	local mdef makef gcmd cur prev i
+	local makef cur prev i
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	# if prev argument is -f, return possible filename completions.
-	# we could be a little smarter here and return matches against
-	# `makefile Makefile *.mk', whatever exists
-	if [[ "$prev" == -*f ]]; then
-		_filedir
-		return 0
-	fi
+	case $prev in
+		-@(f|o|W))
+			_filedir
+			return 0
+			;;
+		-@(I|C))
+			_filedir -d
+			return 0
+			;;
+	esac
 
-	# check for a long option
-	if [[ "$cur" == --* ]]; then
-		_longopt $1
-		return 0
-	fi
+	case $cur in
+		--@(file=|makefile=))
+			_filedir
+			return 0
+			;;
+		--@(directory=|include-dir=))
+			_filedir -d
+			return 0
+			;;
+	esac
 
-	# if we want an option, return the possible posix options
 	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-e -f -i -k -n -p -q -r -S -s -t' \
-			       -- $cur ) )
-		return 0
-	fi
-
-	# make reads `GNUmakefile', then `makefile', then `Makefile'
-	if [ -f GNUmakefile ]; then
-		mdef=GNUmakefile
-	elif [ -f makefile ]; then
-		mdef=makefile
-	elif [ -f Makefile ]; then
-		mdef=Makefile
-	else
-		mdef=*.mk	       # local convention
-	fi
-
-	# before we scan for targets, see if a makefile name was specified
-	# with -f
-	for (( i=0; i < ${#COMP_WORDS[@]}; i++ )); do
-		if [[ ${COMP_WORDS[i]} == -*f ]]; then
-			eval makef=${COMP_WORDS[i+1]} # eval for tilde expansion
-			break
+		COMPREPLY=( $( compgen -W '-b -m -B -C -d -e -f -h -i -I\
+			-j -l -k -n -o -p -q -r -R - s -S -t -v -w -W \
+			--always-make --directory= --debug \
+			--environment-overrides --file= --makefile= --help \
+			--ignore-errors --include-dir= --jobs --load-average \
+			--max-load --keep-going --just-print --dry-run \
+			--recon --old-file= --assume-old= --print-data-base \
+			--question --no-builtin-rules --no-builtin-variables \
+			--silent --quiet --no-keep-goind --stop --touch \
+			--version --print-directory --no-print-directory \
+			--what-if= --new-file= --assume-new= \
+			--warn-undefined-variables' -- $cur ) )
+        else
+		# make reads `GNUmakefile', then `makefile', then `Makefile'
+		if [ -f GNUmakefile ]; then
+			makef=GNUmakefile
+		elif [ -f makefile ]; then
+			makef=makefile
+		elif [ -f Makefile ]; then
+			makef=Makefile
+		else
+			makef=*.mk	       # local convention
 		fi
-	done
 
-	[ -z "$makef" ] && makef=$mdef
+		# before we scan for targets, see if a makefile name was specified
+		# with -f
+		for (( i=0; i < ${#COMP_WORDS[@]}; i++ )); do
+			if [[ ${COMP_WORDS[i]} == -f ]]; then
+				# eval for tilde expansion
+				eval makef=${COMP_WORDS[i+1]}
+				break
+			fi
+		done
 
-	# if we have a partial word to complete, restrict completions to
-	# matches of that word
-	[ -n "$2" ] && gcmd='grep "^$2"' || gcmd=cat
+		[ ! -f $makef ] && return 0
 
-	COMPREPLY=( $( grep -v '^\w\w*[[:space:]]*:=' $makef 2>/dev/null | \
-		       awk 'BEGIN {FS=":"} /^[^.#'$'\t''][^=]*:/ {print $1}' | \
-		       eval $gcmd ) )
+		COMPREPLY=( $( awk -F':' '/^[^\t ]*:/ {print $1}' $makef \
+			       2>/dev/null | grep -v "^[.%#]" | grep "^$cur" ))
 
-	# default to filename completion if all else failed
-	[ ${#COMPREPLY[@]} -eq 0 ] && _filedir
-
-	return 0
+	fi
 }
-[ -n "${have:-}" ] && complete -F _make -X '+($*|*.[ch])' $default $filenames make gmake pmake
+[ -n "${have:-}" ] && complete -F _make $default $filenames make gmake pmake
 
 # GNU tar(1) completion
 #
