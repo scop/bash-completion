@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.725 2004/07/04 00:26:29 ianmacd Exp $
+#   $Id: bash_completion,v 1.726 2004/07/04 00:31:33 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -277,7 +277,10 @@ _pgids()
 #
 _uids()
 {
-	if type perl &>/dev/null; then
+	if type getent &>/dev/null; then
+	    COMPREPLY=( $( getent passwd | \
+			    awk -F: '{if ($3 ~ /^'$cur'/) print $3}' ) )
+	elif type perl &>/dev/null; then
 	    COMPREPLY=( $( compgen -W '$( perl -e '"'"'while (($uid) = (getpwent)[2]) { print $uid . "\n" }'"'"' )' -- $cur ) )
 	else
 	    # make do with /etc/passwd
@@ -290,7 +293,10 @@ _uids()
 #
 _gids()
 {
-	if type perl &>/dev/null; then
+	if type getent &>/dev/null; then
+	    COMPREPLY=( $( getent group | \
+			    awk -F: '{if ($3 ~ /^'$cur'/) print $3}' ) )
+	elif type perl &>/dev/null; then
 	    COMPREPLY=( $( compgen -W '$( perl -e '"'"'while (($gid) = (getgrent)[2]) { print $gid . "\n" }'"'"' )' -- $cur ) )
 	else
 	    # make do with /etc/group
