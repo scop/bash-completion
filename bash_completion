@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.753 2004/10/15 06:42:27 ianmacd Exp $
+#   $Id: bash_completion,v 1.754 2004/10/15 06:47:39 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1822,7 +1822,7 @@ _apt_get()
 		remove)
 			if [ -f /etc/debian_version ]; then
 				# Debian system
-				COMPREPLY=( $( _comp-dpkg-installed-packages \
+				COMPREPLY=( $( _comp_dpkg_installed_packages \
 						$cur ) )
 			else
 				# assume RPM based
@@ -1994,7 +1994,7 @@ _aptitude()
 		   return 0
 		   ;;
 	       @(purge|remove|reinstall|forbid-version))
-  		   COMPREPLY=( $( _comp-dpkg-installed-packages $cur ) )
+  		   COMPREPLY=( $( _comp_dpkg_installed_packages $cur ) )
 		   return 0
 		   ;;
 	       unhold)
@@ -2065,7 +2065,7 @@ _apt_build()
 			return 0
 			;;
 		remove)
-			COMPREPLY=( $( _comp-dpkg-installed-packages \
+			COMPREPLY=( $( _comp_dpkg_installed_packages \
 					$cur ) )
 			return 0
 			;;
@@ -3448,7 +3448,7 @@ _cardctl()
 # This function is required by _dpkg() and _dpkg-reconfigure()
 #
 have dpkg && {
-_comp-dpkg-installed-packages()
+_comp_dpkg_installed_packages()
 {
 	grep -A 2 "Package: $1" /var/lib/dpkg/status | \
 		grep -B 2 'ok installed' | grep "Package: $1" | cut -d\  -f2
@@ -3494,7 +3494,7 @@ _dpkg()
 		return 0
 		;;
 	-@(r|L|P|-@(remove|purge|listfiles)))
-		COMPREPLY=( $( _comp-dpkg-installed-packages $cur ) )
+		COMPREPLY=( $( _comp_dpkg_installed_packages $cur ) )
 		return 0
 		;;
 	*)
@@ -3563,7 +3563,7 @@ _dpkg_reconfigure()
 				       -u --unseen-only -h --help -s --showold \
 				       --force --terse' -- $cur ) )
 	else
-	    COMPREPLY=( $( _comp-dpkg-installed-packages $cur ) )
+	    COMPREPLY=( $( _comp_dpkg_installed_packages $cur ) )
 	fi
 }
 [ -n "${have:-}" ] && complete -F _dpkg_reconfigure $default dpkg-reconfigure
