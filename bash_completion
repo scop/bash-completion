@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.472 2002/12/05 02:31:52 ianmacd Exp $
+#   $Id: bash_completion,v 1.473 2002/12/05 02:47:49 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -867,7 +867,7 @@ _ipsec()
 have postfix && {
 # postfix(1)
 #
-_postfix ()
+_postfix()
 {
 	COMPREPLY=( $( compgen -W 'start stop reload abort flush check' -- \
 		"${COMP_WORDS[COMP_CWORD]}" ) )
@@ -4007,9 +4007,9 @@ _links()
 }
 [ "$have" ] && complete -F _links $filenames links
 
+[ $UNAME = FreeBSD ] && {
 # FreeBSD package management tools completion
 #
-[ $UNAME = FreeBSD ] &&
 _pkg_delete()
 {
 	local cur pkgdir
@@ -4022,7 +4022,33 @@ _pkg_delete()
 
 	return 0
 }
-[ $UNAME = FreeBSD ] && complete -F _pkg_delete $dirnames pkg_delete pkg_info
+complete -F _pkg_delete $dirnames pkg_delete pkg_info
+
+# FreeBSD kernel modules commands
+#
+_kldload()
+{
+	local cur moddir
+
+	moddir=/modules/
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	COMPREPLY=( $( compgen -f $moddir$cur ) )
+	COMPREPLY=( ${COMPREPLY[@]#$moddir} )
+	COMPREPLY=( ${COMPREPLY[@]%.ko} )
+
+	return 0
+}
+complete -F _kldload $filenames kldload
+
+_kldunload()
+{
+	local cur
+	cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=( $(kldstat | sed -ne "s/^.*[ \t]\+\($cur[a-z_]\+\).ko$/\1/p") )
+}
+complete -F _kldunload $filenames kldunload
+}
 
 # Slackware Linux removepkg completion
 #
