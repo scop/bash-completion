@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.612 2003/08/18 09:33:29 ianmacd Exp $
+#   $Id: bash_completion,v 1.613 2003/08/18 09:54:07 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -459,11 +459,9 @@ _service()
 #
 _chown()
 {
-	local cur prev user group i
-
-	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
-	prev=${COMP_WORDS[COMP_CWORD-1]}
+	local user
+	local cur=${COMP_WORDS[COMP_CWORD]}
+	local prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# options completion
 	if [[ "$cur" == -* ]]; then
@@ -473,22 +471,19 @@ _chown()
 		return 0
 	fi
 
-	# first parameter on line or first since an option?
-	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
-		if [[ "$cur" == [a-zA-Z]*[.:]* ]] && \
+	if (( COMP_CWORD == 1 )) || [[ "$prev" == -* ]]; then
+		if [[ $cur = *@(\\:|.)* ]] && \
 		   [[ ${BASH_VERSINFO[1]} > 04 ]]; then
-			user=${cur%%?(\\)[.:]*}
-			group=${cur#*[.:]}
-			COMPREPLY=( $( compgen -P $user':' \
-					-g -- $group 2>/dev/null) )
+			user=${cur%%*([^:.])}
+			COMPREPLY=( $(compgen -P ${user/\\\\} -g -- ${cur##*[.:]}) )
+		elif [[ $cur = *:* ]] && [[ ${BASH_VERSINFO[1]} > 04 ]]; then
+			COMPREPLY=( $( compgen -g -- ${cur##*[.:]} ) )
 		else
-			COMPREPLY=( $( compgen -S ':' -u $cur ) )
+			COMPREPLY=( $( compgen -S : -u -- $cur ) )
 		fi
 	else
 		_filedir
 	fi
-
-	return 0
 }
 complete -F _chown $filenames chown
 
