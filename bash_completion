@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.74 2002/01/29 21:33:49 ianmacd Exp $
+#   $Id: bash_completion,v 1.75 2002/01/29 23:06:26 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -26,7 +26,7 @@
 
 # Alter the following to reflect the location of this file
 #
-declare -r BASH_COMPLETION=/etc/bash_completion
+[ -z "$BASH_COMPLETION" ] && declare -r BASH_COMPLETION=/etc/bash_completion
 
 # Set a couple of useful vars
 #
@@ -295,7 +295,7 @@ _man()
 	# default completion if parameter contains /
 	[[ "$cur" == */* ]] && return 0
 	# default to command completion if no man.config
-	if [ ! -f /etc/man.config ]; then
+	if [ ! -r /etc/man.config ]; then
 		COMPREPLY=( $( compgen -c $cur ) )
 		return 0
 	fi
@@ -504,18 +504,24 @@ _ifconfig()
 }
 [ $OS = Linux ] && complete -F _ifconfig ifconfig
 
-# RedHat Linux if{up,down} completion by Frank Sweetser <fs@wpi.edu>
+# RedHat & Debian Linux if{up,down} completion
 #
 [ $OS = Linux ] && ( have ifup || have ifdown ) &&
 _ifupdown()
 {
-       local cur
+	local cur
 
-       COMPREPLY=()
-       cur=${COMP_WORDS[COMP_CWORD]}
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
 
-       if [ $COMP_CWORD = 1 ] ; then
-	       COMPREPLY=( $(  \ls /etc/sysconfig/network-scripts/ifcfg-* | sed -ne 's/.*ifcfg-\('$cur'.*\)/\1/p' ) )
+	if [ $COMP_CWORD = 1 ]; then
+		if [ -f /etc/debian_version ]; then
+			# Debian system
+			COMPREPLY=( $( sed -ne 's/^iface \([^ ]\+\).*$/\1/p' /etc/network/interfaces ) )
+		else
+			# Assume Red Hat
+			COMPREPLY=( $( \ls /etc/sysconfig/network-scripts/ifcfg-* | sed -ne 's/.*ifcfg-\('$cur'.*\)/\1/p' ) )
+		fi
        fi
 
        return 0
@@ -610,7 +616,7 @@ _rpm()
 
 	add_package_list()
 	{
-		if [ -f /var/log/rpmpkgs ]; then
+		if [ -r /var/log/rpmpkgs ]; then
 			# using RHL 7.2 - this is quicker than querying the DB
 			COMPREPLY=( ${COMPREPLY[@]}
 			$( sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+.*\.rpm$/\1/p' /var/log/rpmpkgs ) )
