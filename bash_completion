@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.53 2002/01/09 16:32:30 ianmacd Exp $
+#   $Id: bash_completion,v 1.54 2002/01/14 21:38:22 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1467,6 +1467,38 @@ _nslookup()
 			       ignoretc' $cur ) )
 }
 [ "$have" ] && complete -F _nslookup nslookup
+
+# mysqladmin(1) completion
+#
+have mysqladmin &&
+_mysqladmin()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]} 
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+	-u)
+		COMPREPLY=( $( compgen -u $cur ) )
+		return 0
+		;;
+	*)
+		;;
+	esac
+
+	COMPREPLY=( $( compgen -P '-' -W '# f ? C h p P i r E s S t u \
+					      v V w' ${cur#-} ) )
+
+	COMPREPLY=( ${COMPREPLY[@]} \
+		    $( compgen -W 'create drop extended-status flush-hosts \
+				   flush-logs flush-status flush-tables \
+				   flush-threads flush-privileges kill \
+				   password ping processlist reload refresh \
+				   shutdown status variables version' $cur ) )
+}
+[ "$have" ] && complete -F _mysqladmin mysqladmin
 
 # Return 1 if $1 appears to contain a redirection operator.  Handles backslash
 # quoting (barely).
