@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.627 2003/09/13 17:06:14 ianmacd Exp $
+#   $Id: bash_completion,v 1.628 2003/09/17 07:41:37 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -3448,7 +3448,7 @@ _java_classes()
 {
 	local classpath i
 
-	# find wich classpath to use
+	# find which classpath to use
 	_java_find_classpath
 
 	# convert package syntax to path syntax
@@ -3457,27 +3457,22 @@ _java_classes()
 	for i in ${classpath//:/ }; do
 		if [ -r $i ] && [[ "$i" == *.@(jar|zip) ]]; then
 			if type zipinfo &> /dev/null; then
-				COMPREPLY=( ${COMPREPLY[@]} $( zipinfo -1 $i |
-				grep "^$cur" | grep -v "META-INF" |
-				sed -e 's|\('$cur'[^/]*/\).*|\1|' | sort |
-				uniq ) )
+				COMPREPLY=( ${COMPREPLY[@]} $( zipinfo -1 \
+				"$i" | grep "^$cur" | grep '\.class$' | \
+				grep -v "\\$" ) )
 			else
-				COMPREPLY=( ${COMPREPLY[@]} $( jar tf $i $cur |
-				grep -v "META-INF" | sed -e \
-				's|\('$cur'[^/]*/\).*|\1|' | sort | uniq ) )
+				COMPREPLY=( ${COMPREPLY[@]} $( jar tf "$i" \
+				"$cur" | grep "\.class$" | grep -v "\\$" ) )
 			fi
 
 		elif [ -d $i ]; then
-			COMPREPLY=( ${COMPREPLY[@]} $( command ls -F -d \
-				$i/$cur* 2>/dev/null | sed -e 's|^'$i'/||' ) )
+			i=${i%/}
+			COMPREPLY=( ${COMPREPLY[@]} $( find "$i" -type f \
+			-path "$i/$cur*.class" 2>/dev/null | \
+			grep -v "\\$" | sed -e "s|^$i/||" ) )
 		fi
 	done
-	# keep only packages and classes
-	COMPREPLY=(
-		$( echo ${COMPREPLY[@]} | tr " " "\n" | grep "/$")
-		$( echo ${COMPREPLY[@]} | tr " " "\n" | grep "\.class$" | \
-		   grep -v "\\$" )
-	)
+
 	# remove class extension
 	COMPREPLY=( ${COMPREPLY[@]%.class} )
 	# convert path syntax to package syntax
