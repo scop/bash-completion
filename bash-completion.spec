@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.97 2003/08/03 02:54:39 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.98 2003/08/03 03:59:43 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030721
+Version: 20030803
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,16 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Sun Aug  3 2003 Ian Macdonald <ian@caliban.org>
+- 'make' completion rewrite
+- various rpm completion fixes
+- tcpdump completion fixes
+- mplayer completion improvements
+- allow find completion to return filenames in addition to options if
+  completing on a null token
+- perldoc clean-up
+- vi et al no longer complete on Java .class files
+
 * Mon Jul 21 2003 Ian Macdonald <ian@caliban.org>
 - .shtml completion for browsers
 - extra extension completions for xine and xanim
@@ -87,8 +97,8 @@ fi
 
 * Mon Jun 30 2003 Ian Macdonald <ian@caliban.org>
 - fix process truncation problem with killall completion
-- psql update from Guillaume Rousse <rousse@ccr.jussieu.fr>
-- new urpmi update from Guillaume Rousse <rousse@ccr.jussieu.fr>
+- psql update from
+- new urpmi update
 - allow mplayer to complete on .dump files
 - add xhost to host completion
 
@@ -319,9 +329,9 @@ fi
 
 * Sat Aug  3 2002 Ian Macdonald <ian@caliban.org>
 - silence eval errors in _filedir_xspec() when quoting goes awry
-- add apt-build completion by Rafael Sepúlveda <drs@gnulinux.org.mx>
+- add apt-build completion
 - add elinks to commands performing .html completion
-- perl and perldoc completion by Alex Shinn <foof@synthcode.com>
+- perl and perldoc completion
 - apparently, vim can edit .gz and .bz2 files, so don't exclude these from
   the completion list
 - fix sed error when completing a relative path in insmod completion
@@ -859,8 +869,8 @@ fi
 - removed previous fix to _rpm, since it broke more than it fixed
 
 * Thu Aug 16 2001 Ian Macdonald <ian@caliban.org>
-- better Perforce completion from Frank Cusack <frank@google.com>
-- _command meta-command completion from Frank Cusack <frank@google.com>
+- better Perforce completion
+- _command meta-command completion
 - bug fix to _rpm
 
 * Thu Jul 12 2001 Ian Macdonald <ian@caliban.org>
