@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.303 2002/05/05 23:28:59 ianmacd Exp $
+#   $Id: bash_completion,v 1.304 2002/05/06 01:31:28 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1548,8 +1548,8 @@ _chkconfig()
 #
 _known_hosts()
 {
-	local cur user suffix
-	local -a kh
+	local cur user suffix global_kh user_kh
+	local -a kh config
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -1557,10 +1557,32 @@ _known_hosts()
 	[[ $cur == *@* ]] && user=${cur%@*}@ && cur=${cur#*@}
 	kh=()
 
-	[ -r /etc/known_hosts ]    && kh[0]=/etc/known_hosts
-	[ -r /etc/known_hosts2 ]   && kh[1]=/etc/known_hosts2
-	[ -r ~/.ssh/known_hosts ]  && kh[2]=~/.ssh/known_hosts
-	[ -r ~/.ssh/known_hosts2 ] && kh[3]=~/.ssh/known_hosts2
+	# ssh config files
+	[ -r /etc/ssh/ssh_config ] && config[0]=/etc/ssh/ssh_config
+	[ -r ~/.ssh/config ]	   && config[1]=~/.ssh/config
+
+	if [ ${#config[@]} -gt 0 ]; then
+	    # expand path (if present) to global known hosts file
+	    global_kh=$( eval echo $( sed -ne 's/^GlobalKnownHostsFile['$'\t '']*\(.*\)$/\1/p' ${config[@]} ) )
+	    # expand path (if present) to user known hosts file
+	    user_kh=$( eval echo $( sed -ne 's/^UserKnownHostsFile['$'\t '']*\(.*\)$/\1/p' ${config[@]} ) )
+	fi
+
+	# choose which global known hosts file to use
+	if [ -r "$global_kh" ]; then
+	    kh=( "$global_kh" )
+	else
+	    [ -r /etc/known_hosts ]    && kh[0]=/etc/known_hosts
+	    [ -r /etc/known_hosts2 ]   && kh[1]=/etc/known_hosts2
+	fi
+
+	# choose which user known hosts file to use
+	if [ -r "$user_kh" ]; then
+	    kh=( ${kh[@]} "$user_kh" )
+	else
+	    [ -r ~/.ssh/known_hosts ]  && kh=( ${kh[@]} ~/.ssh/known_hosts )
+	    [ -r ~/.ssh/known_hosts2 ] && kh=( ${kh[@]} ~/.ssh/known_hosts2 )
+	fi
 
 	# If we have known_hosts files to use
 	if [ ${#kh[@]} -gt 0 ]; then
@@ -1622,8 +1644,8 @@ _ssh()
 	*)
 	    _known_hosts
 
-	    [ -r /etc/ssh/config ] && config[0]=/etc/ssh/config
-	    [ -r ~/.ssh/config ]   && config[1]=~/.ssh/config
+	    [ -r /etc/ssh/ssh_config ]	&& config[0]=/etc/ssh/ssh_config
+	    [ -r ~/.ssh/config ]	&& config[1]=~/.ssh/config
 	
 	    # get host aliases from config files
 	    if [ ${#config[@]} -gt 0 ]; then
