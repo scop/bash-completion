@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.76 2002/12/23 18:29:32 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.77 2002/12/23 18:56:33 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
@@ -72,6 +72,7 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Mon Dec 23 2002 Ian Macdonald <ian@caliban.org>
 - add groups(1) to list of commands that complete on user names
 - add dig(1) to commands that complete on known hosts
 - in known hosts completion, also check for known hosts files in
