@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.22 2001/08/16 17:27:02 ianmacd Exp $
+#   $Id: bash_completion,v 1.23 2001/08/16 17:49:39 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -80,9 +80,6 @@ complete -A helptopic help
 
 # unalias completes with aliases
 complete -a unalias
-
-# various commands complete with commands
-complete -c command type nohup exec nice eval strace gdb sudo
 
 # bind completes with readline bindings (make this more intelligent)
 complete -A binding bind
@@ -1253,26 +1250,82 @@ _cd()
 }
 complete -F _cd -o filenames cd
 
-# Basic Perforce completion
+# A meta-command completion function, for commands like sudo, which often
+# need to complete on a command, followed by a file-name
+#
+_command()
+{
+	local cur
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [ $COMP_CWORD -eq 1 ]; then
+		COMPREPLY=( $( compgen -c $cur ) )
+	else
+		# XXX sudo chkconfig should complete just as chkconfig would
+		COMPREPLY=( $( compgen -f $cur ) )
+	fi
+}
+complete -F _command -o filenames type nohup exec nice eval strace sudo gdb
+
+# Basic Perforce completion by Frank Cusack (frank@google.com)
 #
 have p4 &&
 _p4()
 {
-	local cur
+	local cur prev prev2 p4commands p4filetypes
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
-	
-	[ $COMP_CWORD -gt 1 ] && return 0
-	COMPREPLY=( $( compgen -W 'add admin branch branches change changes \
-			client clinets counter counters delete depot depots \
-			describe diff diff2 dirs edit filelog files fix fixes \
-			flush fstat group groups have help info integrate \
-			integrated job jobs jobspec label labels labelsync \
-			lock obliterate opened passwd print protect rename \
-			reopen resolve resolved revert review reviews set \
-			submit sync triggers typemap unlock user users verify \
-			where' $cur ) )
+        prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	# rename isn't really a command
+	p4commands="add admin branch branches change changes client \
+		clients counter counters delete depot depots describe \
+		diff diff2 dirs edit filelog files fix fixes flush \
+		fstat group groups have help info integrate integrated \
+		job jobs jobspec label labels labelsync lock obliterate \
+		opened passwd print protect rename reopen resolve \
+		resolved revert review reviews set submit sync triggers \
+		typemap unlock user users verify where"
+	p4filetypes="ctext cxtext ktext kxtext ltext tempobj ubinary \
+		uresource uxbinary xbinary xltext xtempobj xtext \
+		text binary resource"
+
+	if [ $COMP_CWORD -eq 1 ]; then
+		COMPREPLY=( $( compgen -W "$p4commands" $cur ) )
+	elif [ $COMP_CWORD -eq 2 ]; then
+		case "$prev" in
+		help)
+			COMPREPLY=( $( compgen -W "simple commands \
+				environment filetypes jobview revisions \
+				usage views $p4commands" $cur ) )
+			;;
+		admin)
+			COMPREPLY=( $( compgen -W "checkpoint stop" $cur ) )
+			;;
+		*)
+			;;
+		esac
+	elif [ $COMP_CWORD -gt 2 ]; then
+        	prev2=${COMP_WORDS[COMP_CWORD-2]}
+		case "$prev" in
+		-t)
+			case "$prev2" in
+			add|edit|reopen)
+				COMPREPLY=( $(compgen -W "$p4filetypes" $cur) )
+				;;
+			*)
+				;;
+			esac
+			;;
+		*)
+			;;
+		esac
+	fi
+
+	return 0
 }
 [ "$have" ] && complete -F _p4 -o default p4
 
