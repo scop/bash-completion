@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.99 2003/08/11 20:35:46 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.100 2003/08/21 10:02:40 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030811
+Version: 20030821
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,15 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Thu Aug 21 2003 Ian Macdonald <ian@caliban.org>
+- add mc completion
+- add postcat completion and minor improvements to other Postfix commands
+- make chown completion work, whether or not the colon between user and
+  group name is escaped
+- bind pkill to same completion function as killall for now
+- xine can also play .wav files
+- allow rpm to complete on .nosrc.rpm packages
+
 * Mon Aug 11 2003 Ian Macdonald <ian@caliban.org>
 - more make completion fixes
 - add mkisofs completion
