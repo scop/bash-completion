@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.302 2002/05/05 22:46:30 ianmacd Exp $
+#   $Id: bash_completion,v 1.303 2002/05/05 23:28:59 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1604,7 +1604,8 @@ complete -F _known_hosts traceroute ping fping telnet host nslookup rsh \
 have ssh &&
 _ssh()
 {
-	local cur prev
+	local cur prev hosts
+	local -a config
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -1620,6 +1621,16 @@ _ssh()
 	    ;;
 	*)
 	    _known_hosts
+
+	    [ -r /etc/ssh/config ] && config[0]=/etc/ssh/config
+	    [ -r ~/.ssh/config ]   && config[1]=~/.ssh/config
+	
+	    # get host aliases from config files
+	    if [ ${#config[@]} -gt 0 ]; then
+		hosts=$( compgen -W "$( sed -ne "s/^Host["$'\t '"]*\([^*?]*\)$/\1/p" ${config[@]} )" -- $cur)
+		COMPREPLY=( ${COMPREPLY[@]} $hosts )
+	    fi
+
 	    [ $COMP_CWORD -eq 1 ] || \
 		COMPREPLY=( ${COMPREPLY[@]} $( compgen -c -- $cur ) )
 	esac
