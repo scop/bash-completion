@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.260 2002/04/05 19:45:05 ianmacd Exp $
+#   $Id: bash_completion,v 1.261 2002/04/06 22:18:59 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2418,7 +2418,7 @@ complete -F _configure_func $default configure
 # urpmi media function required by other urpmi functions
 #
 have urpmi &&
-_urpmi.media()
+_urpmi_media()
 {
 	# return list of available urpmi media
 	COMPREPLY=( $( awk -F'{' '/{/ {print $1}' /etc/urpmi/urpmi.cfg | \
@@ -2438,7 +2438,7 @@ _urpmi()
 
 	case "$prev" in
 		--media)
-			_urpmi.media
+			_urpmi_media
 			return 0;;
 	esac
 
@@ -2459,7 +2459,7 @@ _urpmi()
 # Mandrake urpmi.update completion
 #
 have urpmi.update &&
-_urpmi.update()
+_urpmi_update()
 {
 	local cur
 
@@ -2471,15 +2471,15 @@ _urpmi.update()
 		COMPREPLY=( $( compgen -W '-a -c -d -f --curl --wget' -- $cur))
 	else
 		# return list of available media
-		_urpmi.media
+		_urpmi_media
 	fi
 }
-[ "$have" ] && complete -F _urpmi.update urpmi.update
+[ "$have" ] && complete -F _urpmi_update urpmi.update
 
 # Mandrake urpmi.addmedia completion
 #
 have urpmi.addmedia &&
-_urpmi.addmedia()
+_urpmi_addmedia()
 {
 	local cur i args
 
@@ -2501,7 +2501,7 @@ _urpmi.addmedia()
 		case $args in
 			1)
 				# return list of available media
-				_urpmi.media
+				_urpmi_media
 				;;
 			2)
 				# return list of available protocols
@@ -2515,11 +2515,12 @@ _urpmi.addmedia()
 		esac
 	fi
 }
-[ "$have" ] && complete -F _urpmi.addmedia urpmi.addmedia
+[ "$have" ] && complete -F _urpmi_addmedia urpmi.addmedia
 
 # Mandrake urpmi.removemedia completion
 #
-_urpmi.removemedia()
+have urpmi.removemedia &&
+_urpmi_removemedia()
 {
 	local cur
 
@@ -2531,11 +2532,11 @@ _urpmi.removemedia()
 		COMPREPLY=( $( compgen -W '-a -c' -- $cur ) )
 	else
 		# elsewhere, return list of available media
-		_urpmi.media
+		_urpmi_media
 	fi
 
 }
-[ "$have" ] && complete -F _urpmi.removemedia urpmi.removemedia
+[ "$have" ] && complete -F _urpmi_removemedia urpmi.removemedia
 
 # Debian Linux reportbug(1) completion
 #
