@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.52 2002/07/16 08:19:26 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.53 2002/07/23 16:01:41 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020716
+Version: 20020723
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,13 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Tue Jul 23 2002 Ian Macdonald <ian@caliban.org>
+- add _user_at_host() for user@host style completion. Use this for finger
+  and talk
+- scp completion now no longer appends a space with bash 2.05b
+- scp completion now discards stderr when performing remote path completion
+- allow '@' in the release of RPM packages for rpm completion
+
 * Tue Jul 16 2002 Ian Macdonald <ian@caliban.org>
 - mount completion will now complete on Samba shares (only the volume, not
   the hostname part)
