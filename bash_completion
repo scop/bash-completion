@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.606 2003/08/04 05:15:28 ianmacd Exp $
+#   $Id: bash_completion,v 1.607 2003/08/05 00:32:25 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -231,16 +231,26 @@ _pgids()
 #
 _uids()
 {
-	COMPREPLY=( $( awk 'BEGIN {FS=":"} {if ($3 ~ /^'$cur'/) print $3}' \
-			/etc/passwd ) )
+	if type perl &>/dev/null; then
+	    COMPREPLY=( $( compgen -W '$( perl -e '"'"'while (($uid) = (getpwent)[2]) { print $uid . "\n" }'"'"' )' -- $cur ) )
+	else
+	    # make do with /etc/passwd
+	    COMPREPLY=( $( awk 'BEGIN {FS=":"} {if ($3 ~ /^'$cur'/) print $3}'\
+			    /etc/passwd ) )
+	fi
 }
 
 # This function completes on group IDs
 #
 _gids()
 {
-	COMPREPLY=( $( awk 'BEGIN {FS=":"} {if ($3 ~ /^'$cur'/) print $3}' \
-			/etc/group ) )
+	if type perl &>/dev/null; then
+	    COMPREPLY=( $( compgen -W '$( perl -e '"'"'while (($gid) = (getgrent)[2]) { print $gid . "\n" }'"'"' )' -- $cur ) )
+	else
+	    # make do with /etc/group
+	    COMPREPLY=( $( awk 'BEGIN {FS=":"} {if ($3 ~ /^'$cur'/) print $3}'\
+			    /etc/group ) )
+	fi
 }
 
 # Linux ifconfig(8) and iwconfig(8) helper function
