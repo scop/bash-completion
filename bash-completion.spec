@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.39 2002/05/28 20:35:58 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.40 2002/06/01 18:51:08 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020528
+Version: 20020601
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,12 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Sat Jun  1 2002 Ian Macdonald <ian@caliban.org>
+- add basic completion for RCS suite (rcs, rlog, ci, co)
+- fix bug in known hosts completion on platforms with no GNU sed
+- fix bug present in both _comp-dpkg-installed-packages() and
+  _comp-dpkg-hold-packages() that results in all packages being returned
+
 * Tue May 28 2002 Ian Macdonald <ian@caliban.org>
 - java -jar completes on .jar files
 - urpmi now completes on rpm files
