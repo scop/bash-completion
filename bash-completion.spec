@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.88 2003/05/01 05:49:13 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.89 2003/05/04 19:41:11 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030501
+Version: 20030505
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -33,43 +33,50 @@ reflect this version in the $BASH_VERSION test.
 
 %install
 rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}
-install bash_completion $RPM_BUILD_ROOT%{_sysconfdir}
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/bash_completion.d
+install -d -m 0755 $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
+install -d -m 0755 $RPM_BUILD_ROOT%{_sysconfdir}/bash_completion.d
+install -m 0644 bash_completion $RPM_BUILD_ROOT%{_sysconfdir}/
+cat <<'EOF' > bash_completion.sh
+#!/bin/bash
+
+# check for bash
+[ -z "$BASH_VERSION" ] && return
+
+# check for correct version of bash
+bash=${BASH_VERSION%.*}; bmajor=${bash%.*}; bminor=${bash#*.}
+if [ $bmajor -eq 2 ] && [ $bminor '>' 04 ] && [ -r %{_sysconfdir}/bash_completion ]; then
+	# source completion code
+        . %{_sysconfdir}/bash_completion
+fi
+unset bash bminor bmajor
+EOF
+
+install -m 0644 bash_completion.sh $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post
-if ! grep -q '\[ -f '%{_sysconfdir}'/bash_completion \]' \
-     %{_sysconfdir}/bashrc 2>/dev/null; then
-    cat <<'EOF' >> %{_sysconfdir}/bashrc
-# START bash completion -- do not remove this line
-bash=${BASH_VERSION%.*}; bmajor=${bash%.*}; bminor=${bash#*.}
-if [ "$PS1" ] && [ $bmajor -eq 2 ] && [ $bminor '>' 04 ] \
-   && [ -f %{_sysconfdir}/bash_completion ]; then	# interactive shell
-	# Source completion code
-        . %{_sysconfdir}/bash_completion
-fi
-unset bash bmajor bminor
-# END bash completion -- do not remove this line
-EOF
-fi
-
-%postun
-if [ "$1" -eq 0 ]; then
-    sed -e '/^# START bash completion/,/^# END bash completion/d' /etc/bashrc \
-	> /etc/bashrc.tmp
-    mv -f /etc/bashrc.tmp /etc/bashrc
+%pre
+if grep -q '^# START bash completion' %{_sysconfdir}/bashrc; then
+    sed -e '/^# START bash completion/,/^# END bash completion/d' %{_sysconfdir}/bashrc > %{_sysconfdir}/bashrc.$$
+    chmod --reference %{_sysconfdir}/bashrc %{_sysconfdir}/bashrc.$$
+    touch -r %{_sysconfdir}/bashrc %{_sysconfdir}/bashrc.$$
+    mv -f %{_sysconfdir}/bashrc.$$ %{_sysconfdir}/bashrc
 fi
 
 %files
 %defattr(-,root,root)
 %config %{_sysconfdir}/bash_completion
+%config %{_sysconfdir}/profile.d/bash_completion.sh
 %dir %{_sysconfdir}/bash_completion.d/
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Mon May  5 2003 Ian Macdonald <ian@caliban.org>
+- fixed rpm completion for Mandrake 9.1
+- this RPM now has much cleaner installation. /etc/bashrc is no longer
+  modified; instead, we work from a small stub script in /etc/profile.d/
+
 * Thu May  1 2003 Ian Macdonald <ian@caliban.org>
 - minor fix to _insmod() to get modprobe -k <Tab> to do something
 - some rpm completion speed-ups
