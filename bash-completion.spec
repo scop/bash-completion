@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.46 2002/06/21 09:14:58 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.47 2002/06/24 16:36:49 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020621
+Version: 20020624
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,12 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Mon Jun 24 2002 Ian Macdonald <ian@caliban.org>
+- avoid tilde expansion in _expand()
+- gdb completion defaults to -o filenames, not -o default
+- simplify process matching code in gdb completion
+- allow unzip to complete on Java Enterprise Application Archive files (.ear)
+
 * Fri Jun 21 2002 Ian Macdonald <ian@caliban.org>
 - add edit and unedit to cvs completion
 - don't exclude .o files from make completion
