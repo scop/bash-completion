@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.448 2002/10/17 07:20:05 ianmacd Exp $
+#   $Id: bash_completion,v 1.449 2002/10/17 20:51:25 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1941,11 +1941,11 @@ _scp()
 			# default to home dir of specified user on remote host
 			path=$( ssh -o 'Batchmode yes' $userhost pwd 2>/dev/null)
 		fi
-		# escape spaces; remove executables, aliases and pipes;
+		# escape spaces; remove executables, aliases, pipes and sockets;
 		# add space at end of file names; change newlines into spaces
 		COMPREPLY=( $( ssh -o 'Batchmode yes' $userhost \
 				ls -aF1d "$path*" | sed -e 's/ /\\\\\\\ /g' \
-				-e 's/[*@|]$//g' -e 's/[^\/]$/& /g' \
+				-e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' \
 				-e 's/\
 				//g' ) )
 				
@@ -3978,7 +3978,7 @@ _pkg_delete()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	COMPREPLY=( $( compgen -d $pkgdir$cur ) )
-	COMPREPLY=${COMPREPLY[@]#$pkgdir}
+	COMPREPLY=( ${COMPREPLY[@]#$pkgdir} )
 
 	return 0
 }
