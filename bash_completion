@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.210 2002/03/22 16:54:52 ianmacd Exp $
+#   $Id: bash_completion,v 1.211 2002/03/23 22:59:49 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -466,16 +466,12 @@ _kill()
 		_signals
 	else
 		# return list of available PIDs
-		COMPREPLY=( $( ps ahx | awk '{print $1}' | grep ^$cur ) )
+		COMPREPLY=( $( \ls /proc | grep '^[0-9]\+'| grep ^$cur ) )
 	fi
 }
 complete -F _kill kill
 
-# Linux killall(1) completion. This wouldn't be much use on, say,
-# Solaris, where killall does exactly that: kills ALL processes.
-#
-# This could be improved. For example, it currently doesn't take
-# command line options into account
+# Linux killall(1) completion.
 #
 [ $OS = Linux ] &&
 _killall()
@@ -488,15 +484,7 @@ _killall()
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
 		_signals
 	else
-		# escaoe slashes for awk
-		cur=${cur//\//\\\/}
-		# get a list of processes (the sub() in the awk takes care
-		# of getting the basename of the process, the first sed
-		# evaluation takes care of swapped out processes, and the
-		# second takes care of getting the basename of the process)
-		COMPREPLY=( $( ps ahx | sed -e 's#[]\[()]##g' | \
-		   awk '{p=$5;sub("^.*/","",p);if (p ~ /^'$cur'/) print $5}' | \
-		   sed  -e 's#^.*/##' ) )
+		COMPREPLY=( $( ps axcho ucomm | grep ^$cur ) )
 	fi
 
 	return 0
@@ -526,7 +514,7 @@ _find()
 		;;
 	-fstype)
 		# this is highly non-portable
-		COMPREPLY=( $( cut -d$'\t' -f 2 /proc/filesystems | grep ^$cur ) )
+		COMPREPLY=( $( cut -d$'\t' -f 2 /proc/filesystems | grep ^$cur))
 		return 0
 		;;
 	-gid)
