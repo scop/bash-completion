@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.587 2003/07/11 08:48:07 ianmacd Exp $
+#   $Id: bash_completion,v 1.588 2003/07/11 09:22:55 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -729,7 +729,7 @@ _killall()
 #
 _find()
 {
-	local cur prev
+	local cur prev i switchfound
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -740,7 +740,7 @@ _find()
 		COMPREPLY=( $( compgen -W '0 1 2 3 4 5 6 7 8 9' -- $cur ) )
 		return 0
 		;;
-	-?(a)newer|-fls|-fprint?(0|f)|-?(i)?(l)name)
+	-?(a|c)newer|-fls|-fprint?(0|f)|-?(i)?(l)name)
 		_filedir
 		return 0
 		;;
@@ -782,8 +782,13 @@ _find()
 
 	_expand || return 0
 
+	# set switchfound to 1 if there is already a switch argument
+	for i in ${COMP_WORDS[@]}; do
+		[[ "$i" = -* ]] && switchfound=1 && break
+	done
+
 	# handle case where first parameter is not a dash option
-	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]]; then
+	if [ "$switchfound" != 1 ] && [[ "$cur" != -* ]]; then
 		_filedir -d
 		return 0
 	fi
