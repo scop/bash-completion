@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.706 2004/05/24 08:28:20 ianmacd Exp $
+#   $Id: bash_completion,v 1.707 2004/05/24 09:00:23 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -4022,28 +4022,26 @@ _querybts()
 
 # update-alternatives completion
 #
-have update-alternatives &&
+have update-alternatives && {
+installed_alternatives()
+{
+	local admindir
+	# find the admin dir
+	for i in alternatives dpkg/alternatives rpm/alternatives; do
+		[ -d /var/lib/$i ] && admindir=/var/lib/$i && break
+	done
+	for (( i=1; i < COMP_CWORD; i++ )); do
+		if [[ "${COMP_WORDS[i]}" == --admindir ]]; then
+			admindir=${COMP_WORDS[i+1]}
+			break
+		fi
+	done
+	COMPREPLY=( $( command ls $admindir | grep "^$cur" ) )
+}
+
 _update_alternatives()
 {
-	installed_alternatives()
-	{
-		local admindir
-		# find wich admin dir to use
-		if [ -f /etc/debian_version ]; then
-			admindir=/var/lib/dpkg/alternatives
-		else
-			admindir=/var/lib/rpm/alternatives
-		fi
-		for (( i=1; i < COMP_CWORD; i++ )); do
-			if [[ "${COMP_WORDS[i]}" == --admindir ]]; then
-				admindir=${COMP_WORDS[i+1]}
-				break
-			fi
-		done
-		COMPREPLY=( $( command ls $admindir | grep "^$cur" ) )
-	}
-
-	local cur prev mode args
+	local cur prev mode args i
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -4108,7 +4106,8 @@ _update_alternatives()
 			       --config' -- $cur ) )
 	esac
 }
-[ -n "${have:-}" ] && complete -F _update_alternatives update-alternatives
+complete -F _update_alternatives update-alternatives
+}
 
 # Python completion
 #
