@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.78 2002/12/31 17:02:12 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.79 2003/01/18 09:39:01 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20021231
+Version: 20030118
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,19 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Sat Jan 18 2003 Ian Macdonald <ian@caliban.org>
+- fix mount completion so that it also works on Solaris
+- improve handling of 'cvs export'
+- fixes to man completion to make it work on Solaris
+
+* Mon Jan 13 2003 Ian Macdonald <ian@caliban.org>
+- allow vim et al to complete on .a files and ld.so.conf
+- cd should also complete on variable names if cdable_vars is set
+- jar completes on .war as well as .jar
+- when completing on classes inside Java JAR files, use zipinfo instead of
+  the jar command, if it is available
+- silence awk errors in known_hosts completion
+
 * Tue Dec 31 2002 Ian Macdonald <ian@caliban.org>
 - extensive gpg(1) completion
 - wvdial(1) completion
