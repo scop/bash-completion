@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.45 2002/06/19 08:20:01 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.46 2002/06/21 09:14:58 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020619
+Version: 20020621
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,12 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Fri Jun 21 2002 Ian Macdonald <ian@caliban.org>
+- add edit and unedit to cvs completion
+- don't exclude .o files from make completion
+- {gzip,bzip2} -t should also complete on .gz and .bz2 files, respectively
+- man completion still needed one fix for FreeBSD
+
 * Wed Jun 19 2002 Ian Macdonald <ian@caliban.org>
 - allow .tbz as an extension during tar completion
 - check for non-Linux and presence of gsed (GNU sed). If it's there, alias
