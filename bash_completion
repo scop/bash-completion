@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.575 2003/06/07 22:46:04 ianmacd Exp $
+#   $Id: bash_completion,v 1.576 2003/06/07 22:59:37 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -213,7 +213,7 @@ _pgids()
 
 # Linux ifconfig(8) and iwconfig(8) helper function
 #
-[ $UNAME = Linux ] && { have ifconfig || have iwconfig; } &&
+[ $UNAME = Linux -o $UNAME = FreeBSD ] && { have ifconfig || have iwconfig; } &&
 _ifwconfig()
 {
 	COMPREPLY=()
@@ -240,7 +240,8 @@ _ifwconfig()
 	esac
 
 	COMPREPLY=( $( eval "$@" 2>/dev/null | \
-			sed -ne 's|^\('$cur'[^ ]*\).*$|\1|p' ) )
+			sed -ne 
+			  's|^\('$cur'[^[:space:][:punct:]]\{1,\}\).*$|\1|p') )
 }
 
 # start of section containing completion functions for bash built-ins
@@ -817,7 +818,7 @@ complete -F _find $filenames find
 
 # Linux ifconfig(8) completion
 #
-[ $UNAME = Linux ] && have ifconfig &&
+[ $UNAME = Linux -o $UNAME = FreeBSD ] && have ifconfig &&
 _ifconfig()
 {
 	local cur
@@ -829,7 +830,8 @@ _ifconfig()
 
 	COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
 }
-[ $UNAME = Linux ] && have ifconfig && complete -F _ifconfig ifconfig
+[ $UNAME = Linux -o $UNAME = FreeBSD ] && have ifconfig &&
+  complete -F _ifconfig ifconfig
 
 # Linux iwconfig(8) completion
 #
