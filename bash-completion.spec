@@ -1,5 +1,5 @@
 Name:		bash-completion
-Version:	20031125
+Version:	20031225
 Release:	alt01
 
 Summary:	bash-completion offers programmable completion for bash
@@ -33,16 +33,21 @@ if [ "\$PS1" ] && [ "\$bmajor" -eq 2 ] && [ "\$bminor" '>' 04 ] \\
 fi
 unset bash bmajor bminor
 __PROFILE__
-%__chmod +x %buildroot%_sysconfdir/profile.d/%name.sh
 
 %files
 %doc README Changelog contrib
 %_sysconfdir/bash_completion
 %dir %_sysconfdir/bash_completion.d
-%_sysconfdir/profile.d/%name.sh
+%attr(0755,root,root) %_sysconfdir/profile.d/%name.sh
 
 
 %changelog
+* Fri Dec 26 2003 Alex Murygin <murygin@altlinux.ru> 20031225-alt01
+- new version
+
+* Tue Dec 16 2003 Alex Murygin <murygin@altlinux.ru> 20031215-alt01
+- new version
+
 * Sat Dec 06 2003 Alex Murygin <murygin@altlinux.ru> 20031125-alt01
 - First build for Sisyphus.
 

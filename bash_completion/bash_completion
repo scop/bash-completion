@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.657 2003/11/25 19:07:20 ianmacd Exp $
+#   $Id: bash_completion,v 1.667 2003/12/24 23:19:13 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -22,7 +22,7 @@
 #
 #   http://www.caliban.org/bash/index.shtml#completion
 #
-#   RELEASE: 20031125
+#   RELEASE: 20031225
 
 [ -n "${DEBUG:-}" ] && set -v || set +v
 
@@ -91,7 +91,7 @@ complete -f -X '!*.@(gif|jp?(e)g|tif?(f)|png|p[bgp]m|bmp|x[bp]m|rle|rgb|pcx|fits
 complete -f -X '!*.@(@(?(e)ps|?(E)PS|pdf|PDF)?(.gz|.GZ|.bz2|.BZ2|.Z))' gv ggv
 complete -f -X '!*.@(dvi|DVI)?(.@(gz|Z|bz2))' xdvi
 complete -f -X '!*.@(dvi|DVI)' dvips dviselect dvitype
-complete -f -X '!*.@(pdf|PDF)' acroread xpdf
+complete -f -X '!*.@(pdf|PDF)' acroread gpdf xpdf
 complete -f -X '!*.texi*' makeinfo texi2html
 complete -f -X '!*.@(?(la)tex|?(LA)TEX|texi|TEXI|dtx|DTX|ins|INS)' tex latex slitex jadetex pdfjadetex pdftex pdflatex texi2dvi
 complete -f -X '!*.@(mp3|MP3|m3u)' mpg123 mpg321
@@ -99,7 +99,7 @@ complete -f -X '!*.@(mp?(e)g|MP?(E)G|wma|avi|AVI|asf|vob|bin|dat|vcd|ps|pes|fli|
 complete -f -X '!*.@(avi|asf|wmv)' aviplay
 complete -f -X '!*.@(rm|ram|smi?(l))' realplay
 complete -f -X '!*.@(mpg|mpeg|avi|mov|qt)' xanim
-complete -f -X '!*.@(ogg|OGG|m3u)' ogg123
+complete -f -X '!*.@(ogg|OGG|m3u|flac|spx)' ogg123
 complete -f -X '!*.@(mp3|MP3|ogg|OGG|pls|m3u)' gqmpeg freeamp
 complete -f -X '!*.@(mp[23]|MP[23]|ogg|OGG|wav|WAV|pls|m3u|xm|mod|s[3t]m|it|mtm|ult|flac)' xmms
 complete -f -X '!*.fig' xfig
@@ -791,7 +791,7 @@ _killall()
 #
 _find()
 {
-	local cur prev i switchfound
+	local cur prev i exprfound onlyonce
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -834,8 +834,14 @@ _find()
 		COMPREPLY=( $( compgen -u -- $cur ) )
 		return 0
 		;;
+	-exec|-ok)
+		COMP_WORDS=(COMP_WORDS[0] $cur)
+		COMP_CWORD=1
+		_command
+		return 0
+		;;
 	-[acm]min|-[acm]time|-?(i)?(l)name|-inum|-?(i)path|-?(i)regex| \
-	-links|-perm|-size|-used|-exec|-ok|-printf)
+	-links|-perm|-size|-used|-printf)
 		# do nothing, just wait for a parameter to be given
 		return 0
 		;;
@@ -843,13 +849,13 @@ _find()
 
 	_expand || return 0
 
-	# set switchfound to 1 if there is already a switch argument
+	# set exprfound to 1 if there is already an expression present
 	for i in ${COMP_WORDS[@]}; do
-		[[ "$i" = -* ]] && switchfound=1 && break
+		[[ "$i" = [-\(\),\!]* ]] && exprfound=1 && break
 	done
 
 	# handle case where first parameter is not a dash option
-	if [ "$switchfound" != 1 ] && [[ "$cur" != -* ]]; then
+	if [ "$exprfound" != 1 ] && [[ "$cur" != [-\(\),\!]* ]]; then
 		_filedir -d
 		return 0
 	fi
@@ -865,10 +871,16 @@ _find()
 			-print -print0 -printf -prune -ls' -- $cur ) )
 
 	# this removes any options from the list of completions that have
-	# already been specified somewhere on the command line.
+	# already been specified somewhere on the command line, as long as
+	# these options can only be used once (in a word, "options", in
+	# opposition to "tests" and "actions", as in the find(1) manpage).
+	onlyonce=' -daystart -depth -follow -help -maxdepth -mindepth -mount \
+		   -noleaf -version -xdev '
 	COMPREPLY=( $( echo "${COMP_WORDS[@]}" | \
 		       (while read -d ' ' i; do
-			    [ "$i" == "" ] && continue
+			    [ "$i" == "" ] ||
+			    [ "${onlyonce/ ${i%% *} / }" == "$onlyonce" ] &&
+			    continue
 			    # flatten array with spaces on either side,
 			    # otherwise we cannot grep on word boundaries of
 			    # first and last word
@@ -1797,14 +1809,15 @@ _apt_cache()
 		COMPREPLY=( $( compgen -W '-h -v -p -s -q -i -f -a -g -c \
 				-o --help --version --pkg-cache --src-cache \
 				--quiet --important --full --all-versions \
-				--generate --no-generate --names-only \
-				--all-names --config-file --option \
-				--recurse' -- $cur ) )
+				--no-all-versions --generate --no-generate \
+				--names-only --all-names --recurse \
+				--config-file --option' -- $cur ) )
 	else
 
-		COMPREPLY=( $( compgen -W 'add gencaches showpkg show stats \
-				dumpavail unmet check search dump dotty policy \
-				depends pkgnames showsrc' -- $cur ) )
+		COMPREPLY=( $( compgen -W 'add gencaches showpkg showsrc \
+				stats dump dumpavail unmet search search \
+				depends rdepends pkgnames dotty xvcg \
+				policy' -- $cur ) )
 
 	fi
 
@@ -2411,7 +2424,7 @@ _make()
 
 		COMPREPLY=( $( awk -F':' '/^[a-zA-Z0-9][^$#\/\t=]*:([^=]|$)/ \
 				{split($1,A,/ /);for(i in A)print A[i]}' \
-		                $makef 2>/dev/null | grep "^$cur" ))
+				$makef 2>/dev/null | grep "^$cur" ))
 	fi
 }
 [ -n "${have:-}" ] && complete -F _make $default make gmake pmake
@@ -3710,90 +3723,122 @@ _pineaddr()
 have mutt && {
 _muttaddr()
 {
-        _muttaliases
-        _muttquery
-        return 0
+	_muttaliases
+	_muttquery
+	return 0
+}
+
+_muttconffiles()
+{
+	local file sofar
+	local -a newconffiles
+	sofar=" $1 "
+	shift
+	while [[ "$1" ]]; do
+	    newconffiles=( $(sed -rn 's/^source[[:space:]]+([^[:space:]]+).*$/\1/p' $(eval echo $1) ) )
+	    for file in ${newconffiles[@]}; do
+		[[ ! "$file" ]] || [[ "${sofar/ ${file} / }" != "$sofar" ]] &&
+		    continue
+		sofar="$sofar $file"
+		sofar=" $(eval _muttconffiles \"$sofar\" $file) "
+	    done
+	    shift
+	done
+	echo $sofar
 }
 
 _muttaliases()
 {
-        local cur muttrc
-	local -a aliases
+	local cur muttrc
+	local -a conffiles aliases
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-        [ -f ~/.mutt/muttrc ] && muttrc="~/.mutt/muttrc"
-        [ -f ~/.muttrc ] && muttrc="~/.muttrc"
-        [ -z "$muttrc" ] && return 0
-        # TODO: this only checks for one level on sourced files
-        conffiles=( $muttrc $(sed -rn 's/^source[[:space:]]+([^[:space:]]+).*$/\1/p' $(eval echo $muttrc)) )
-        aliases=( $( sed -rn 's/^alias[[:space:]]+([^[:space:]]+).*$/\1/p' $(eval echo ${conffiles[@]}) ) )
+	[ -f ~/.mutt/muttrc ] && muttrc="~/.mutt/muttrc"
+	[ -f ~/.muttrc ] && muttrc="~/.muttrc"
+	[ -z "$muttrc" ] && return 0
+	conffiles=( $(eval _muttconffiles $muttrc $muttrc) )
+	aliases=( $( sed -rn 's/^alias[[:space:]]+([^[:space:]]+).*$/\1/p' \
+			$(eval echo ${conffiles[@]}) ) )
 	COMPREPLY=( ${COMPREPLY[@]} $( compgen -W "${aliases[*]}" -- $cur ) )
 
-        return 0
+	return 0
 }
 
 _muttquery()
 {
-        local cur querycmd
+	local cur querycmd
 	local -a queryresults
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-        querycmd="$( mutt -Q query_command  | sed -r 's/^query_command=\"(.*)\"$/\1/; s/%s/'$cur'/' )"
-        if [ -z "$cur" -o -z "$querycmd" ]; then
-            queryresults=()
-        else 
-            queryresults=( $( $querycmd | sed -nr '2,$s/^([^[:space:]]+).*/\1/p' ) )
-        fi
+	querycmd="$( mutt -Q query_command  | sed -r 's/^query_command=\"(.*)\"$/\1/; s/%s/'$cur'/' )"
+	if [ -z "$cur" -o -z "$querycmd" ]; then
+	    queryresults=()
+	else 
+	    queryresults=( $( $querycmd | \
+	      sed -nr '2,$s/^([^[:space:]]+).*/\1/p' ) )
+	fi
 
-	COMPREPLY=( ${COMPREPLY[@]} $( compgen -W "${queryresults[*]}" -- $cur ) )
+	COMPREPLY=( ${COMPREPLY[@]} $( compgen -W "${queryresults[*]}" \
+			-- $cur ) )
 
-        return 0
+	return 0
 }
 
 _muttfiledir()
 {
-        local cur folder spoolfile
+	local cur folder spoolfile
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-        # This is currently not working so well. Perhaps this function should
-        # just call _filedir() for the moment.
-        if [[ $cur == [=+]* ]]; then
-                folder="$( mutt -Q folder | sed -r 's/^folder=\"(.*)\"$/\1/' )"
-                [ ! -z "$folder" ] && eval cur="${cur/[=+]/$folder\/}"
-        elif [ "$cur" == !* ]; then
-                spoolfile="$( mutt -Q spoolfile | sed -r 's/^spoolfile=\"(.*)\"$/\1/' )"
-                [ ! -z "$spoolfile" ] && eval cur="${cur/^!/$spoolfile}";
-        fi
-        _filedir
+	# This is currently not working so well. Perhaps this function should
+	# just call _filedir() for the moment.
+	if [[ $cur == [=+]* ]]; then
+		folder="$( mutt -Q folder | sed -r 's/^folder=\"(.*)\"$/\1/' )"
+		[ ! -z "$folder" ] && eval cur="${cur/[=+]/$folder\/}"
+	elif [ "$cur" == !* ]; then
+		spoolfile="$( mutt -Q spoolfile | sed -r 's/^spoolfile=\"(.*)\"$/\1/' )"
+		[ ! -z "$spoolfile" ] && eval cur="${cur/^!/$spoolfile}";
+	fi
+	_filedir
 
-        return 0
+	return 0
 }
 
 _mutt()
 {
-        local prev
+	local cur prev
+	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	COMPREPLY=()
 
-	case "$prev" in
-        -@(a|f|F|H|i))
-                _muttfiledir
-                return 0
-                ;;
-        -A)
-                _muttaliases
-                return 0
-                ;;
-        -@(e|m|Q|s|h|p|R|v|y|z|Z))
-                return 0
-                ;;
-	*)
-		_muttaddr
+	case "$cur" in
+	-*)
+		COMPREPLY=( $( compgen -W '-A -a -b -c -e -f -F -H -i -m -n \
+					    -p -Q -R -s -v -x -y -z -Z -h' \
+					    -- $cur ) )
 		return 0
 		;;
-        esac
-        
+	*)
+	    case "$prev" in
+	    -@(a|f|F|H|i))
+		    _muttfiledir
+		    return 0
+		    ;;
+	    -A)
+		    _muttaliases
+		    return 0
+		    ;;
+	    -@(e|m|Q|s|h|p|R|v|y|z|Z))
+		    return 0
+		    ;;
+	    *)
+		    _muttaddr
+		    return 0
+		    ;;
+	    esac
+	    ;;
+	esac
+	
 }
 complete -F _mutt $filenames mutt
 }
@@ -4666,7 +4711,7 @@ _mplayer()
 					ck-bmax= ck-r= ck-g= ck-b= \
 					ignore-cache= ol-osd= olh-cor= \
 					olw-cor= olx-cor= oly-cor= overlay \
-					overlay-ratio= update-cache' -- $cur ) )
+					overlay-ratio= update-cache' -- $cur ))
 			return 0
 			;;
 		-tv)
@@ -4680,7 +4725,8 @@ _mplayer()
 			return 0
 			;;
 		-mf)
-			COMPREPLY=( $( compgen -W 'on w= h= fps= type=' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'on w= h= fps= type=' \
+					-- $cur ) )
 			return 0
 			;;
 		-cdda)
@@ -5203,7 +5249,7 @@ _yum()
 		    return 0
 		    ;;
 		*)
-                    _rpm_installed_packages
+		    _rpm_installed_packages
 		    return 0
 		    ;;
 		esac
@@ -5251,18 +5297,390 @@ _yum_arch()
     cur=${COMP_WORDS[COMP_CWORD]}
 
     case "$cur" in
-        -*)
-            COMPREPLY=( $( compgen -W '-d -v -vv -n -c -z -s -l -q' -- $cur ) )
-            ;;
-        *)
-            _filedir -d
-            ;;
+	-*)
+	    COMPREPLY=( $( compgen -W '-d -v -vv -n -c -z -s -l -q' -- $cur ) )
+	    ;;
+	*)
+	    _filedir -d
+	    ;;
     esac
 
     return 0
 
 }
 complete -F _yum_arch $filenames yum-arch
+
+# ImageMagick completion
+#
+have convert && {
+_ImageMagick()
+{
+	local prev
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-channel)
+			COMPREPLY=( $( compgen -W 'Red Green Blue Opacity \
+				Matte Cyan Magenta Yellow Black' -- $cur ) )
+			return 0
+			;;
+		-colormap)
+			COMPREPLY=( $( compgen -W 'shared private' -- $cur ) )
+			return 0
+			;;
+		-colorspace)
+			COMPREPLY=( $( compgen -W 'GRAY OHTA RGB Transparent \
+				XYZ YCbCr YIQ YPbPr YUV CMYK' -- $cur ) )
+			return 0
+			;;
+		-compose)
+			COMPREPLY=( $( compgen -W 'Over In Out Atop Xor Plus \
+				Minus Add Subtract Difference Multiply Bumpmap\
+				Copy CopyRed CopyGreen CopyBlue CopyOpacity' \
+				-- $cur ) )
+			return 0
+			;;
+		-compress)
+			COMPREPLY=( $( compgen -W 'None BZip Fax Group4 JPEG \
+				Lossless LZW RLE Zip' -- $cur ) )
+			return 0
+			;;
+		-dispose)
+			COMPREPLY=( $( compgen -W 'Undefined None Background \
+						    Previous' -- $cur ) )
+			return 0
+			;;
+		-encoding)
+			COMPREPLY=( $( compgen -W 'AdobeCustom AdobeExpert \
+				AdobeStandard AppleRoman BIG5 GB2312 Latin2 \
+				None SJIScode Symbol Unicode Wansung' -- $cur))
+			return 0
+			;;
+		-endian)
+			COMPREPLY=( $( compgen -W 'MSB LSB' -- $cur ) )
+			return 0
+			;;
+		-filter)
+			COMPREPLY=( $( compgen -W 'Point Box Triangle Hermite \
+				Hanning Hamming Blackman Gaussian Quadratic \
+				Cubic Catrom Mitchell Lanczos Bessel Sinc' \
+				-- $cur ) )
+			return 0
+			;;
+		-format)
+			COMPREPLY=( $( convert -list format | \
+				    awk '/ [r-][w-][+-] / {print $1}' | \
+				    tr -d '*' | tr [:upper:] [:lower:] | \
+				    grep "^$cur" ) )
+			return 0
+			;;
+		-gravity)
+			COMPREPLY=( $( compgen -W 'Northwest North NorthEast \
+				West Center East SouthWest South SouthEast' \
+				-- $cur ) )
+			return 0
+			;;
+		-intent)
+			COMPREPLY=( $( compgen -W 'Absolute Perceptual \
+					Relative Saturation' -- $cur ) )
+			return 0
+			;;
+		-interlace)
+			COMPREPLY=( $( compgen -W 'None Line Plane Partition' \
+					-- $cur ) )
+			return 0
+			;;
+		-limit)
+			COMPREPLY=( $( compgen -W 'Disk File Map Memory' \
+					-- $cur ) )
+			return 0
+			;;
+		-list)
+			COMPREPLY=( $( compgen -W 'Delegate Format Magic \
+					Module Resource Type' -- $cur ) )
+			return 0
+			;;
+		-map)
+			COMPREPLY=( $( compgen -W 'best default gray red \
+					green blue' -- $cur ) )
+			_filedir
+			return 0
+			;;
+		-noise)
+			COMPREPLY=( $( compgen -W 'Uniform Gaussian \
+					Multiplicative \
+				Impulse Laplacian Poisson' -- $cur ) )
+			return 0
+			;;
+		-preview)
+			COMPREPLY=( $( compgen -W 'Rotate Shear Roll Hue \
+					Saturation Brightness Gamma Spiff \
+					Dull Grayscale Quantize Despeckle \
+					ReduceNoise AddNoise Sharpen Blur \
+					Treshold EdgeDetect Spread Shade \
+					Raise Segment Solarize Swirl Implode \
+					Wave OilPaint CharcoalDrawing JPEG' \
+					-- $cur ) )
+			return 0
+			;;
+		-@(mask|profile|texture|tile|write))
+			_filedir
+			return 0
+			;;
+		-type)
+			COMPREPLY=( $( compgen -W 'Bilevel Grayscale Palette \
+					PaletteMatte TrueColor TrueColorMatte \
+					ColorSeparation ColorSeparationlMatte \
+					Optimize' -- $cur ) )
+			return 0
+			;;
+		-units)
+			COMPREPLY=( $( compgen -W 'Undefined PixelsPerInch \
+					PixelsPerCentimeter' -- $cur ) )
+			return 0
+			;;
+		-virtual-pixel)
+			COMPREPLY=( $( compgen -W 'Constant Edge mirror tile' \
+					-- $cur ) )
+			return 0
+			;;
+		-visual)
+			COMPREPLY=( $( compgen -W 'StaticGray GrayScale \
+					StaticColor PseudoColor TrueColor \
+					DirectColor defaut visualid' -- $cur ))
+			return 0
+			;;
+	esac
+}
+
+_convert()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	_ImageMagick
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-adjoin -affine -antialias -append \
+			-authenticate -average -background -black-threshold \
+			-blue-primary -blur -border -bordercolor -channel \
+			-charcoal -chop -clip -coalesce -colorize -colors \
+			-colorspace -comment -compress -contrast -convolve \
+			-crop -cycle -debug -deconstruct -delay -density \
+			-depth -despeckle -display -dispose -dither -draw \
+			-edge -emboss -encoding -endian -enhance -equalize \
+			-extract -fill -filter -flatten -flip -flop -font \
+			-frame -fuzz -gamma -gaussian -geometry \
+			-green-primary -gravity -help -implode -intent \
+			-interlace -label -lat -level -limit -list -log -loop \
+			-map -mask -matte -median -modulate -monochrome \
+			-morph -mosaic -negate -noop -noise -normalize \
+			-opaque -ordered-dither -page -paint -ping -pointsize \
+			-preview -profile -quality -raise -random-threshold \
+			-region -raise -red-primary -render -resize -resample \
+			-roll -rotate -sample -sampling-factor -scale -scene \
+			-seed -segment -shade -sharpen -shave -shear -size \
+			-solarize -spread -stroke -strokewidth -swirl \
+			-texture -threshold -thumbnail -tile -transform \
+			-transparent -treedepth -trim -type -undercolor \
+			-units -unsharp -verbose -version -view \
+			-virtual-pixel -wave -white-point -white-threshold \
+			-write' -- $cur ) )
+	elif [[ "$cur" == +* ]]; then
+		COMPREPLY=( $( compgen -W '+adjoin +append +compress \
+			+contrast +debug +dither +endian +gamma +label +map \
+			+mask +matte +negate +noise +page +raise +render \
+			+write' -- $cur ) ) 
+	else
+		_filedir
+	fi
+}
+complete -F _convert $filenames convert
+
+_mogrify()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	_ImageMagick
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-affine -antialias -authenticate \
+			-background -black-threshold -blue-primary -blur \
+			-border -bordercolor -channel -charcoal -chop \
+			-colorize -colors -colorspace -comment -compress \
+			-contrast -convolve -crop -cycle -debug -delay \
+			-density -depth -despeckle -display -dispose -dither \
+			-draw -edge -emboss -encoding -endian -enhance \
+			-equalize -extract -fill -filter -flip -flop -font \
+			-format -frame -fuzz -gamma -gaussian -geometry \
+			-green-primary -implode -interlace -help -label -lat \
+			-level -limit -list -log -loop -map -mask -matte \
+			-median -modulate -monochrome -negate -noop \
+			-normalize -opaque -page -paint -fill -ordered-dither \
+			-pointsize -profile -quality -raise -random-threshold \
+			-red-primary -region -resample -resize -roll -rotate \
+			-sample -sampling-factor -scale -scene -seed -segment \
+			-shade -sharpen -shear -size -solarize -spread \
+			-stroke -strokewidth -swirl -texture -threshold \
+			-thumbnail -tile -transform -transparent -treedepth \
+			-trim -type -undercolor -units -unsharp -verbose \
+			-version -view -virtual-pixel -wave -white-point \
+			-white-threshold' -- $cur ) )
+	elif [[ "$cur" == +* ]]; then
+		COMPREPLY=( $( compgen -W '+compress +contrast +debug +dither \
+			+endian +gamma +label +map +mask +matte +negate +page \
+			+raise' -- $cur ) ) 
+	else
+		_filedir
+	fi
+}
+complete -F _mogrify $filenames mogrify
+
+_display()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	_ImageMagick
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-authenticate -backdrop -border \
+			-colormap -colors -colorspace -comment -compress \
+			-contrast -crop -debug -delay -density -depth \
+			-despeckle -display -dispose -dither -edge -endian \
+			-enhance -extract -filter -flip -flop -frame -gamma \
+			-geometry -help -immutable -interlace -label -limit \
+			-log -map -matte -monochrome -negate -noop -page \
+			-quality -raise -remote -roll -rotate -sample \
+			-sampling-factor -scene -segment -sharpen -size \
+			-texture -treedepth -trim -update -verbose -version \
+			-virtual-pixel -window -window_group -write' -- $cur))
+	elif [[ "$cur" == +* ]]; then
+		COMPREPLY=( $( compgen -W '+compress +contrast +debug +dither \
+			+endian +gamma +label +map +matte +negate +page \
+			+raise +write' -- $cur ) ) 
+	else
+		_filedir
+	fi
+}
+complete -F _display $filenames display
+
+_animate()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	_ImageMagick
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-authenticate -backdrop -colormap \
+			-colors -colorspace -crop -debug -delay -density \
+			-depth -display -dither -extract -gamma -geometry \
+			-help -interlace -limit -log -matte -map -monochrome \
+			-noop -pause -remote -rotate -sampling-factor -scene \
+			-size -treedepth -trim -verbose -version -visual \
+			-virtual-pixel -window' -- $cur ) )
+	elif [[ "$cur" == +* ]]; then
+		COMPREPLY=( $( compgen -W '+debug +dither +gamma +map +matte' -- $cur ) ) 
+	else
+		_filedir
+	fi
+}
+complete -F _animate $filenames animate
+
+_identify()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	_ImageMagick
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-authenticate -debug -density \
+			-depth -extract -format -help -interlace -limit -list \
+			-log -size -sampling-factor -verbose -version \
+			-virtual-pixel' -- $cur ) )
+	elif [[ "$cur" == +* ]]; then
+		COMPREPLY=( $( compgen -W '+debug ' -- $cur ) ) 
+	else
+		_filedir
+	fi
+}
+complete -F _identify $filenames identify
+
+_montage()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	_ImageMagick
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-adjoin -affine -authenticate \
+			-blue-primary -blur -colors -colorspace -comment \
+			-compose -compress -crop -debug -density -depth \
+			-display -dispose -dither -draw -encoding -endian \
+			-extract -fill -filter -flip -flop -frame -gamma \
+			-geometry -gravity -green-primary -interlace -help \
+			-label -limit -log -matte -mode -monochrome -noop \
+			-page -pointsize -quality -red-primary -resize \
+			-rotate -sampling-factor -scene -shadow -size \
+			-stroke -texture -thumbnail -tile -transform \
+			-transparent -treedepth -trim -type -verbose \
+			-version -virtual-pixel -white-point' -- $cur ) )
+	elif [[ "$cur" == +* ]]; then
+		COMPREPLY=( $( compgen -W '+adjoin +compress +debug +dither \
+			+endian +gamma +label +matte +page' -- $cur ) ) 
+	else
+		_filedir
+	fi
+}
+complete -F _montage $filenames montage
+
+_composite()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	_ImageMagick
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-affine -authenticate \
+			-blue-primary -colors -colorspace -comment -compose \
+			-compress -debug -density -depth -displace -display \
+			-dispose -dissolve -dither -encoding -endian -extract \
+			-filter -font -geometry -gravity -green-primary -help \
+			-interlace -label -limit -log -matte -monochrome \
+			-negate -page -profile -quality -red-primary -rotate \
+			-resize -sampling-factor -scene -sharpen -size \
+			-stegano -stereo -thumbnail -tile -transform \
+			-treedepth -type -units -unsharp -verbose -version \
+			-virtual-pixel -watermark -white-point -write' \
+			-- $cur ) )
+	elif [[ "$cur" == +* ]]; then
+		COMPREPLY=( $( compgen -W '+compress +debug +dither +endian +label \
+			+matte +negate +page +write' -- $cur ) ) 
+	else
+		_filedir
+	fi
+}
+complete -F _composite $filenames composite
+}
 
 _filedir_xspec()
 {
