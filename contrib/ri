@@ -1,0 +1,45 @@
+# ri completion for Ruby documentation by Ian Macdonald <ian@caliban.org>
+#
+# $Id: ri,v 1.1 2002/04/22 07:47:13 ianmacd Exp $
+#
+ri_get_methods()
+{
+	COMPREPLY=( "$( ri ${classes[@]} | ruby -ane 'if /^-/.../^-/ and \
+			! /^-/ and ! /^ +(class|module): / then \
+			print $_.strip.split(", ").grep(/^[^[]*$/).join("\n"); \
+			end' | sort -u )" )
+	COMPREPLY=( $( compgen $prefix -W '${COMPREPLY[@]}' -- $method ) )
+}
+
+_ri()
+{
+	local cur class classes method prefix IFS
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	# need to also split on commas
+	IFS=$', \n\t'
+	if [[ "$cur" == [A-Z]*#* ]]; then
+		# we're completing on class#method
+		class=${cur%#*}
+		method=${cur#*#}
+		classes=( $class )
+		prefix="-P $class#"
+		ri_get_methods
+		return 0
+	fi
+
+	classes=( $( ri | ruby -ne 'if /^I have/..$stdin.eof then \
+				      if /^ .*[A-Z]/ then print; end; end' ) )
+	if [[ "$cur" == [A-Z]* ]]; then
+		# we're completing on class
+		COMPREPLY=( $( compgen -W '${classes[@]}' -- $cur ) )
+		return 0
+	fi
+
+	# we're completing on methods
+	method=$cur
+	ri_get_methods
+}
+complete -F _ri ri
