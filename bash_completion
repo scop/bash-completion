@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.225 2002/03/26 20:28:58 ianmacd Exp $
+#   $Id: bash_completion,v 1.226 2002/03/27 07:32:19 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -86,7 +86,7 @@ complete -A stopped -P '%' bg
 # other job commands
 complete -j -P '%' fg jobs disown
 
-# export and others complete with shell variables
+# readonly and unset complete with shell variables
 complete -v readonly unset
 
 # set completes with set options
@@ -1697,14 +1697,18 @@ _cd()
 			# create an array of matched subdirs
 			dirs=( $( compgen -d $i/$cur ) )
 			# add subdirs to list of completions as necessary
-			[ ${#dirs[@]} ] && COMPREPLY=( ${COMPREPLY[@]} ${dirs[@]#$i/})
+			[ ${#dirs[@]} ] && COMPREPLY=( ${COMPREPLY[@]} \
+							${dirs[@]#$i/})
 		done
 	fi
 	IFS=$' \t\n'
 	_filedir -d
-	# remove leading ./ from completions
 	for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
+		# remove leading ./ from completions
 		COMPREPLY[i]=${COMPREPLY[i]#.\/}
+		# turn relative paths from current dir into absolute ones
+		[[ ${COMPREPLY[i]} != */* ]] && [ -d ${COMPREPLY[i]} ] && \
+			COMPREPLY[i]=$PWD/${COMPREPLY[i]}
 	done
 
 	return 0
