@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.659 2003/12/15 09:09:01 ianmacd Exp $
+#   $Id: bash_completion,v 1.660 2003/12/15 09:30:23 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2412,7 +2412,7 @@ _make()
 
 		COMPREPLY=( $( awk -F':' '/^[a-zA-Z0-9][^$#\/\t=]*:([^=]|$)/ \
 				{split($1,A,/ /);for(i in A)print A[i]}' \
-		                $makef 2>/dev/null | grep "^$cur" ))
+				$makef 2>/dev/null | grep "^$cur" ))
 	fi
 }
 [ -n "${have:-}" ] && complete -F _make $default make gmake pmake
@@ -3711,90 +3711,90 @@ _pineaddr()
 have mutt && {
 _muttaddr()
 {
-        _muttaliases
-        _muttquery
-        return 0
+	_muttaliases
+	_muttquery
+	return 0
 }
 
 _muttaliases()
 {
-        local cur muttrc
+	local cur muttrc
 	local -a aliases
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-        [ -f ~/.mutt/muttrc ] && muttrc="~/.mutt/muttrc"
-        [ -f ~/.muttrc ] && muttrc="~/.muttrc"
-        [ -z "$muttrc" ] && return 0
-        # TODO: this only checks for one level on sourced files
-        conffiles=( $muttrc $(sed -rn 's/^source[[:space:]]+([^[:space:]]+).*$/\1/p' $(eval echo $muttrc)) )
-        aliases=( $( sed -rn 's/^alias[[:space:]]+([^[:space:]]+).*$/\1/p' $(eval echo ${conffiles[@]}) ) )
+	[ -f ~/.mutt/muttrc ] && muttrc="~/.mutt/muttrc"
+	[ -f ~/.muttrc ] && muttrc="~/.muttrc"
+	[ -z "$muttrc" ] && return 0
+	# TODO: this only checks for one level on sourced files
+	conffiles=( $muttrc $(sed -rn 's/^source[[:space:]]+([^[:space:]]+).*$/\1/p' $(eval echo $muttrc)) )
+	aliases=( $( sed -rn 's/^alias[[:space:]]+([^[:space:]]+).*$/\1/p' $(eval echo ${conffiles[@]}) ) )
 	COMPREPLY=( ${COMPREPLY[@]} $( compgen -W "${aliases[*]}" -- $cur ) )
 
-        return 0
+	return 0
 }
 
 _muttquery()
 {
-        local cur querycmd
+	local cur querycmd
 	local -a queryresults
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-        querycmd="$( mutt -Q query_command  | sed -r 's/^query_command=\"(.*)\"$/\1/; s/%s/'$cur'/' )"
-        if [ -z "$cur" -o -z "$querycmd" ]; then
-            queryresults=()
-        else 
-            queryresults=( $( $querycmd | sed -nr '2,$s/^([^[:space:]]+).*/\1/p' ) )
-        fi
+	querycmd="$( mutt -Q query_command  | sed -r 's/^query_command=\"(.*)\"$/\1/; s/%s/'$cur'/' )"
+	if [ -z "$cur" -o -z "$querycmd" ]; then
+	    queryresults=()
+	else 
+	    queryresults=( $( $querycmd | sed -nr '2,$s/^([^[:space:]]+).*/\1/p' ) )
+	fi
 
 	COMPREPLY=( ${COMPREPLY[@]} $( compgen -W "${queryresults[*]}" -- $cur ) )
 
-        return 0
+	return 0
 }
 
 _muttfiledir()
 {
-        local cur folder spoolfile
+	local cur folder spoolfile
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-        # This is currently not working so well. Perhaps this function should
-        # just call _filedir() for the moment.
-        if [[ $cur == [=+]* ]]; then
-                folder="$( mutt -Q folder | sed -r 's/^folder=\"(.*)\"$/\1/' )"
-                [ ! -z "$folder" ] && eval cur="${cur/[=+]/$folder\/}"
-        elif [ "$cur" == !* ]; then
-                spoolfile="$( mutt -Q spoolfile | sed -r 's/^spoolfile=\"(.*)\"$/\1/' )"
-                [ ! -z "$spoolfile" ] && eval cur="${cur/^!/$spoolfile}";
-        fi
-        _filedir
+	# This is currently not working so well. Perhaps this function should
+	# just call _filedir() for the moment.
+	if [[ $cur == [=+]* ]]; then
+		folder="$( mutt -Q folder | sed -r 's/^folder=\"(.*)\"$/\1/' )"
+		[ ! -z "$folder" ] && eval cur="${cur/[=+]/$folder\/}"
+	elif [ "$cur" == !* ]; then
+		spoolfile="$( mutt -Q spoolfile | sed -r 's/^spoolfile=\"(.*)\"$/\1/' )"
+		[ ! -z "$spoolfile" ] && eval cur="${cur/^!/$spoolfile}";
+	fi
+	_filedir
 
-        return 0
+	return 0
 }
 
 _mutt()
 {
-        local prev
+	local prev
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	COMPREPLY=()
 
 	case "$prev" in
-        -@(a|f|F|H|i))
-                _muttfiledir
-                return 0
-                ;;
-        -A)
-                _muttaliases
-                return 0
-                ;;
-        -@(e|m|Q|s|h|p|R|v|y|z|Z))
-                return 0
-                ;;
+	-@(a|f|F|H|i))
+		_muttfiledir
+		return 0
+		;;
+	-A)
+		_muttaliases
+		return 0
+		;;
+	-@(e|m|Q|s|h|p|R|v|y|z|Z))
+		return 0
+		;;
 	*)
 		_muttaddr
 		return 0
 		;;
-        esac
-        
+	esac
+	
 }
 complete -F _mutt $filenames mutt
 }
@@ -5204,7 +5204,7 @@ _yum()
 		    return 0
 		    ;;
 		*)
-                    _rpm_installed_packages
+		    _rpm_installed_packages
 		    return 0
 		    ;;
 		esac
@@ -5252,12 +5252,12 @@ _yum_arch()
     cur=${COMP_WORDS[COMP_CWORD]}
 
     case "$cur" in
-        -*)
-            COMPREPLY=( $( compgen -W '-d -v -vv -n -c -z -s -l -q' -- $cur ) )
-            ;;
-        *)
-            _filedir -d
-            ;;
+	-*)
+	    COMPREPLY=( $( compgen -W '-d -v -vv -n -c -z -s -l -q' -- $cur ) )
+	    ;;
+	*)
+	    _filedir -d
+	    ;;
     esac
 
     return 0
