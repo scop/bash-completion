@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.633 2003/10/07 06:50:08 ianmacd Exp $
+#   $Id: bash_completion,v 1.634 2003/10/07 08:02:00 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -42,12 +42,29 @@ fi
 #
 UNAME=$( uname -s )
 RELEASE=$( uname -r )
-if [[ ${BASH_VERSINFO[1]} > 04 ]]; then
+
+# features supported by bash 2.05 and higher
+if [ ${BASH_VERSINFO[0]} -eq 2 ] && [[ ${BASH_VERSINFO[1]} > 04 ]] ||
+   [ ${BASH_VERSINFO[0]} -gt 2 ]; then
 	default="-o default"
 	dirnames="-o dirnames"
 	filenames="-o filenames"
 fi
-[[ ${BASH_VERSINFO[1]} = "05b" ]] && nospace="-o nospace" || nospace=""
+# features supported by bash 2.05b and higher
+if [ ${BASH_VERSINFO[0]} -eq 2 ] && [[ ${BASH_VERSINFO[1]} = "05b" ]] ||
+   [ ${BASH_VERSINFO[0]} -gt 2 ]; then
+	nospace="-o nospace"
+else
+	nospace=""
+fi
+# features supported by bash 3.0 and higher
+if [ ${BASH_VERSINFO[0]} -gt 2 ]; then
+	bashdefault="-o bashdefault"
+	plusdirs="-o plusdirs"
+else
+	bashdefault=""
+	plusdirs=""
+fi
 
 # Turn on extended globbing and programmable completion
 shopt -s extglob progcomp
@@ -97,8 +114,10 @@ complete -f -X '!*.@(?([xX]|[sS])[hH][tT][mM]?([lL]))' netscape mozilla lynx ope
 complete -u su usermod userdel passwd chage write chfn groups slay
 
 # group commands see only groups
-[[ ${BASH_VERSINFO[1]} > 04 ]] &&
+if [ ${BASH_VERSINFO[0]} -eq 2 ] && [[ ${BASH_VERSINFO[1]} > 04 ]] ||
+   [ ${BASH_VERSINFO[0]} -gt 2 ]; then
 	complete -g groupmod groupdel newgrp 2>/dev/null
+fi
 
 # bg completes with stopped jobs
 complete -A stopped -P '%' bg
@@ -403,7 +422,11 @@ _complete()
 	if [[ "$cur" == -* ]]; then
 		# relevant options completion
 		options="-a -b -c -d -e -f -g -j -k -s -v -u -A -G -W -P -S -X -F -C"
-		[[ ${BASH_VERSINFO[1]} > 04 ]] && options="$options -o"
+		if [ ${BASH_VERSINFO[0]} -eq 2 ] &&
+		   [[ ${BASH_VERSINFO[1]} > 04 ]] ||
+		   [ ${BASH_VERSINFO[0]} -gt 2 ]; then
+			options="$options -o"
+		fi
 		COMPREPLY=( $( compgen -W "$options" -- $cur ) )
 	else
 		COMPREPLY=( $( compgen -A command -- $cur ) )
@@ -475,17 +498,24 @@ _chown()
 	fi
 
 	if (( COMP_CWORD == 1 )) || [[ "$prev" == -* ]]; then
-		if [[ $cur = *@(\\:|.)* ]] && \
-		   [[ ${BASH_VERSINFO[1]} > 04 ]]; then
+	    if [[ $cur = *@(\\:|.)* ]]; then
+		if [ ${BASH_VERSINFO[0]} -eq 2 ] &&
+		   [[ ${BASH_VERSINFO[1]} > 04 ]] ||
+		   [ ${BASH_VERSINFO[0]} -gt 2 ]; then
 			user=${cur%%*([^:.])}
 			COMPREPLY=( $(compgen -P ${user/\\\\} -g -- ${cur##*[.:]}) )
-		elif [[ $cur = *:* ]] && [[ ${BASH_VERSINFO[1]} > 04 ]]; then
-			COMPREPLY=( $( compgen -g -- ${cur##*[.:]} ) )
-		else
-			COMPREPLY=( $( compgen -S : -u -- $cur ) )
 		fi
+	    elif [[ $cur = *:* ]]; then
+		if [ ${BASH_VERSINFO[0]} -eq 2 ] &&
+		   [[ ${BASH_VERSINFO[1]} > 04 ]] ||
+		   [ ${BASH_VERSINFO[0]} -gt 2 ]; then
+			COMPREPLY=( $( compgen -g -- ${cur##*[.:]} ) )
+		fi
+	    else
+			COMPREPLY=( $( compgen -S : -u -- $cur ) )
+	    fi
 	else
-		_filedir
+	    _filedir
 	fi
 }
 complete -F _chown $filenames chown
@@ -511,8 +541,11 @@ _chgrp()
 	# first parameter on line or first since an option?
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]] || \
 	   [[ "$prev" == -* ]]; then
-		[[ ${BASH_VERSINFO[1]} > 04 ]] && \
-			COMPREPLY=( $( compgen -g $cur 2>/dev/null) )
+		if [ ${BASH_VERSINFO[0]} -eq 2 ] &&
+		   [[ ${BASH_VERSINFO[1]} > 04 ]] ||
+		   [ ${BASH_VERSINFO[0]} -gt 2 ]; then
+			COMPREPLY=( $( compgen -g $cur 2>/dev/null ) )
+		fi
 	else
 		_expand || return 0
 	fi
@@ -800,8 +833,11 @@ _find()
 		return 0
 		;;
 	-group)
-		[[ ${BASH_VERSINFO[1]} > 04 ]] && \
+		if [ ${BASH_VERSINFO[0]} -eq 2 ] &&
+		   [[ ${BASH_VERSINFO[1]} > 04 ]] ||
+		   [ ${BASH_VERSINFO[0]} -gt 2 ]; then
 			COMPREPLY=( $( compgen -g -- $cur 2>/dev/null) )
+		fi
 		return 0
 		;;
 	-?(x)type)
