@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.332 2002/05/21 17:10:13 ianmacd Exp $
+#   $Id: bash_completion,v 1.333 2002/05/28 20:16:05 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2822,7 +2822,8 @@ _urpmi()
 	case "$prev" in
 		--media)
 			_urpmi_media
-			return 0;;
+			return 0
+			;;
 	esac
 
 	if [[ "$cur" == -* ]]; then
@@ -2832,12 +2833,85 @@ _urpmi()
 			--noclean --complete --force --wget --curl --X \
 			--best-output' -- $cur ) )
 	else
-		# return list of available packages
-		COMPREPLY=( $( gzip -dc /var/lib/urpmi/synthesis.hdlist.* | \
-			       awk -F'@' '/info/ {print $1}' | grep "^$cur" ) )
+		# return rpm files and available packages
+		_filedir rpm
+		COMPREPLY=( ${COMPREPLY[@]} $( gzip -dc /var/lib/urpmi/synthesis.hdlist.* | awk -F'@' '/info/ {print $1}' | grep "^$cur" ) )
 	fi
 }
 [ "$have" ] && complete -F _urpmi urpmi
+
+# Mandrake urpmq completion
+#
+have urpmq &&
+_urpmq()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		--media)
+			_urpmi_media
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		# return list of available options
+		COMPREPLY=( $( compgen -W '-h -v -d -u -c -p -P -y -s -g -r -f \
+			--help --update --media --auto-select --fuzzy --src \
+			--headers --sources --force' -- $cur ) )
+	else
+		# return rpm files and available packages
+		_filedir rpm
+		COMPREPLY=( ${COMPREPLY[@]} $( gzip -dc /var/lib/urpmi/synthesis.hdlist.* | awk -F'@' '/info/ {print $1}' | grep "^$cur" ) )
+	fi
+}
+[ "$have" ] && complete -F _urpmq urpmq
+
+# Mandrake urpme completion
+#
+have urpme &&
+_urpme()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		# return list of available options
+		COMPREPLY=( $( compgen -W '-a --auto' -- $cur ) )
+	else
+		# return list of available packages
+		rpm_installed_packages
+	fi
+}
+[ "$have" ] && complete -F _urpme urpme
+
+# Mandrake urpmf completion
+#
+have urpmf &&
+_urpmf()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		# return list of available options
+		COMPREPLY=( $( compgen -W '--help --quiet --all --name \
+		--group --size --serial --summary --description --provides \
+		--requires --files --conflicts --obsoletes --prereqs' -- $cur ) )
+	else
+		# return available files
+		_filedir
+	fi
+}
+[ "$have" ] && complete -F _urpmf urpmf
 
 # Mandrake urpmi.update completion
 #
