@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.305 2002/05/07 08:16:32 ianmacd Exp $
+#   $Id: bash_completion,v 1.306 2002/05/08 17:23:51 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -750,6 +750,15 @@ _ipsec()
 # Postfix completion.
 #
 have postfix && {
+# postfix(1)
+#
+_postfix ()
+{
+	COMPREPLY=( $( compgen -W 'start stop reload abort flush check' -- \
+		"${COMP_WORDS[COMP_CWORD]}" ) )
+}
+complete -F _postfix postfix
+
 # postalias(1) and postmap(1)
 #
 _postmap()
@@ -760,7 +769,7 @@ _postmap()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [[ $cur == '-' ]]; then
-		COMPREPLY=(-N -f -i -n -r -v -w -c -d -q)
+		COMPREPLY=(-N -f -i -n -o -r -v -w -c -d -q)
 		return 0
 	fi
 	if [[ $prev == '-c' ]]; then
