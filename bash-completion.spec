@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.36 2002/05/19 17:00:01 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.37 2002/05/19 17:05:25 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
@@ -80,6 +80,7 @@ fi
 - scp completion now also completes on host aliases from ssh config files
 - add a Requires for textutils, since %post needs cat(1)
 - add a Requires for fileutils, since %postun needs mv(1)
+- bug fixes to some of the Debian package management functions
 
 * Thu May 16 2002 Ian Macdonald <ian@caliban.org>
 - fix bug in cvs completion when completing on filenames that contain regex
