@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.142 2002/02/22 16:48:21 ianmacd Exp $
+#   $Id: bash_completion,v 1.143 2002/02/24 06:43:48 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1738,7 +1738,9 @@ _psql()
 		return 0
 		;;
 	-U)
-		COMPREPLY=( $( compgen -u $cur ) ) 
+		COMPREPLY=( $( psql -qtc 'select usename from pg_user' \
+			       2>/dev/null | grep "^ $cur" ) )
+		[ ${#COMPREPLY[@]} -eq 0 ] && COMPREPLY=( $( compgen -u $cur ) ) 
 		return 0
 		;;
 	*)
