@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.650 2003/11/05 19:41:32 ianmacd Exp $
+#   $Id: bash_completion,v 1.651 2003/11/12 10:10:52 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2409,8 +2409,9 @@ _make()
 
 		[ ! -f $makef ] && return 0
 
-		COMPREPLY=( $( awk -F':' '/^[a-zA-Z0-9][^\/\t=]+:/ {print $1}'\
-				$makef 2>/dev/null | grep "^$cur" ))
+		COMPREPLY=( $( awk -F':' '/^[a-zA-Z0-9][^$#\/\t=]*:([^=]|$)/ \
+				{split($1,A,/ /);for(i in A)print A[i]}' \
+		                $makef 2>/dev/null | grep "^$cur" ))
 	fi
 }
 [ -n "${have:-}" ] && complete -F _make $default make gmake pmake
