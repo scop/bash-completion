@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.768 2005/01/03 03:11:55 ianmacd Exp $
+#   $Id: bash_completion,v 1.769 2005/01/03 03:42:12 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -654,6 +654,10 @@ _mount()
 		# Solaris
 		COMPREPLY=( $( awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' \
 				/etc/vfstab | grep "^$cur" ) )
+	elif [ ! -e /etc/fstab ]; then
+		# probably Cygwin
+		COMPREPLY=( $( mount | awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' \
+				 | grep "^$cur" ) )
 	else
 		# probably Linux
 		COMPREPLY=( $( awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' \
@@ -897,6 +901,7 @@ _find()
 		;;
 	-fstype)
 		# this is highly non-portable
+		[ -e /proc/filesystems ] &&
 		COMPREPLY=( $( cut -d$'\t' -f 2 /proc/filesystems | \
 				grep "^$cur" ) )
 		return 0
