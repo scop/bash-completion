@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.100 2003/08/21 10:02:40 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.101 2003/09/11 23:16:21 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030821
+Version: 20030911
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,13 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Thu Sep 11 2003 Ian Macdonald <ian@caliban.org>
+- gzip and bzip2 rewrite
+- fix service completion from completing on ~ and function files
+- add .xpi files to unzip completion
+- properly skip classpath string in Java completion
+- minor ant completion fix
+
 * Thu Aug 21 2003 Ian Macdonald <ian@caliban.org>
 - add mc completion
 - add postcat completion and minor improvements to other Postfix commands
