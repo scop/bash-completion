@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.226 2002/03/27 07:32:19 ianmacd Exp $
+#   $Id: bash_completion,v 1.227 2002/03/27 19:33:34 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2149,6 +2149,14 @@ _dpkg()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
+	# find the last option flag
+	if [[ $cur != -* ]]; then
+		while [[ $prev != -* && $COMP_CWORD != 1 ]]; do
+		      COMP_CWORD=$((COMP_CWORD-1))
+		      prev=${COMP_WORDS[COMP_CWORD-1]}
+		done
+	fi
+
 	case "$prev" in 
 	-i|--install|--unpack|-A|--record-avail|-c|--contents|-I|--info| \
 	--fsys-tarfile|-f|--field|-e|--control|-X|--extract)
@@ -2160,7 +2168,7 @@ _dpkg()
 		COMPREPLY=( $( compgen -d -- $cur ) )
 		return 0
 		;;
-   	-s|--status|-p|--print-avail|-L|--listfiles)
+   	-s|--status|-p|--print-avail|-l|--list)
 		COMPREPLY=( $( apt-cache pkgnames $cur ) )
 		return 0
 		;;
@@ -2168,7 +2176,7 @@ _dpkg()
 		_filedir
 		return 0
 		;;
-	-r|--remove|--purge)
+	-r|--remove|--purge|-L|--listfiles)
 		COMPREPLY=( $( _comp-dpkg-installed-packages $cur ) )
 		return 0
 		;;
@@ -2184,7 +2192,16 @@ _dpkg()
 			-S --search -C --audit --print-architecture \
 			--print-gnu-build-architecture \
 			--print-installation-architecture \
-			--compare-versions --help --version --force-help -Dh \
+			--compare-versions --help --version --force-help \
+			--force-all --force-auto-select --force-downgrade \
+			--force-configure-any --force-hold --force-bad-path \
+			--force-not-root --force-overwrite \
+			--force-overwrite-diverted --force-bad-verify \
+		        --force-depends-version --force-depends \
+			--force-confnew --force-confold --force-confdef \
+			--force-miss --force-conflicts --force-architecture \
+			--force-overwrite-dir --force-remove-reinstreq \
+			--force-remove-essential -Dh \
 			--debug=help --licence --admindir= --root= --instdir= \
 			-O --selected-only -E --skip-same-version \
 			-G --refuse-downgrade -B --auto-deconfigure \
