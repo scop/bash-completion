@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.121 2002/02/17 16:50:17 ianmacd Exp $
+#   $Id: bash_completion,v 1.122 2002/02/18 09:26:34 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -38,7 +38,7 @@ shopt -s extglob progcomp
 # completion examples provided with the bash 2.04 source distribution
 
 # Make directory commands see only directories
-complete -d mkdir rmdir pushd
+complete -d pushd
 
 # the following section lists completions that are redefined later
 # START exclude -- do NOT remove this line
@@ -1721,7 +1721,10 @@ _psql ()
 
 _longopt()
 {
-	case "$2" in
+	local cur
+
+	cur=${COMP_WORDS[COMP_CWORD]}
+	case "$cur" in
 	-*)
 		;;
 	*)
@@ -1742,12 +1745,23 @@ _longopt()
 
 	COMPREPLY=( $( "$cmd" --help | sed  -e '/--/!d' \
 					    -e 's/.*--\([^ ]*\).*/--\1/'| \
-		       grep ^"$2" | sort -u ) )
+		       grep ^$cur | sort -u ) )
 	unset cmd
 }
-complete -o default -F _longopt ldd wget bash id info
+complete -F _longopt -o dirnames mkdir rmdir
+# makeinfo and texi2dvi are defined elsewhere
+for i in a2ps autoconf automake bc gprof ld nm objcopy objdump readelf \
+	 strip bison cpio diff patch enscript cp df dir du ln ls mkfifo \
+	 mknod mv rm touch vdir xargs awk gperf grep gpg grub indent \
+	 less m4 sed shar date env seq su tee uname who texindex \
+	 cat csplit cut expand fmt fold head md5sum nl od paste pr \
+	 ptx sha1sum sort split tac tail tr unexpand uniq wc units wget \
+	 rsync ldd bash id info; do
+    have $i && complete -F _longopt -o default $i
+done
+unset i
 
-# gcc(1) completion by Phil Edwards <phil@jaj.com>
+# gcc(1) completion, originally by Phil Edwards <phil@jaj.com>
 #
 # The only unusual feature is that we don't parse "gcc --help -v" output
 # directly, because that would include the options of all the other backend
@@ -1760,15 +1774,19 @@ complete -o default -F _longopt ldd wget bash id info
 have gcc &&
 _gcc()
 {
-	local cc cmd backend
+	local cur cc cmd backend
 
-	[[ "$2" != -* ]] && return 0
+	cur=${COMP_WORDS[COMP_CWORD]}
+	[[ "$cur" != -* ]] && return 0
 
-	_longopt "$1" "$2" "" no_completion
+	_longopt "$1" "$cur" "" no_completion
 
 	case "$cmd" in
 	gcj)
 		backend=jc1
+		;;
+	gpc)
+		backend=gpc1
 		;;
 	*77)
 		backend=f771
@@ -1785,9 +1803,9 @@ _gcc()
     # for FORTRAN/Java it's an error
     COMPREPLY=( $( $cc --help 2>/dev/null | tr '\t' ' ' | \
                    sed -e '/^  *-/!d' -e 's/ *-\([^ ]*\).*/-\1/' | \
-                   grep ^"$2" | sort -u ) )
+                   grep ^$cur | sort -u ) )
 }
-[ "$have" ] && complete -o default -F _gcc gcc g++ c++ g77 gcj
+[ "$have" ] && complete -o default -F _gcc gcc g++ c++ g77 gcj gpc
 [ $OS = Linux ] && complete -o default -F _gcc cc
 
 # bash alias completion
@@ -1916,7 +1934,6 @@ _filedir()
 	COMPREPLY=( ${COMPREPLY[@]} $( eval compgen -f \"$cur\" ) \
 		    $( compgen -d $cur ) )
 }
-complete -F _filedir -o filenames cat less more ln strip
 
 _filedir_xspec()
 {
