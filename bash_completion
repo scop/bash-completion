@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.84 2002/02/04 03:15:42 ianmacd Exp $
+#   $Id: bash_completion,v 1.85 2002/02/04 19:07:33 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1131,8 +1131,8 @@ _scp()
 
 	_expand || return 0
 
-	_known_hosts
-	COMPREPLY=( ${COMPREPLY[@]} $( compgen -f $cur ) )
+	[[ "$cur" == */* ]] || _known_hosts
+	_filedir
 
 	return 0
 }
@@ -1711,12 +1711,12 @@ _filedir()
 	local IFS cur
 
 	IFS=$'\t\n'
-	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	_expand || return 0
 
-	COMPREPLY=( $( eval compgen -f $cur ) $( compgen -d $cur ) )
+	COMPREPLY=( ${COMPREPLY[@]} $( eval compgen -f $cur ) \
+		    $( compgen -d $cur ) )
 }
 complete -F _filedir -o filenames cat less more ln strip
 
