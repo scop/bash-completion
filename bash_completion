@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.193 2002/03/11 02:15:09 ianmacd Exp $
+#   $Id: bash_completion,v 1.194 2002/03/11 18:38:17 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -25,6 +25,8 @@
 # Alter the following to reflect the location of this file
 #
 [ -z "$BASH_COMPLETION" ] && declare -r BASH_COMPLETION=/etc/bash_completion
+[ -z "$BASH_COMPLETION_DIR" ] && \
+	declare -r BASH_COMPLETION_DIR=/etc/bash_completion.d
 
 # Set a couple of useful vars
 #
@@ -1623,7 +1625,8 @@ _iptables()
 
 	case "$prev" in
 	-*[AIDPFXL])
-		COMPREPLY=( $( compgen -W '`iptables $table -nL | sed -ne "s/^Chain \([^ ]\+\).*$/\1/p"`' -- $cur ) )
+		COMPREPLY=( $( compgen -W '`iptables $table -nL | \
+			    sed -ne "s/^Chain \([^ ]\+\).*$/\1/p"`' -- $cur ) )
 		;;
 	-*t)
 		COMPREPLY=( $( compgen -W 'nat filter mangle' -- $cur ) )
@@ -2563,10 +2566,11 @@ fi
 unset list[@]
 
 # source completion directory definitions
-for i in /etc/bash_completion.d/*; do
-    [ -r $i ] && . $i
-done
- 
+if [ -r $BASH_COMPLETION_DIR -a -x $BASH_COMPLETION_DIR ]; then
+	for i in $BASH_COMPLETION_DIR/*; do
+		[ -r $i ] && . $i
+	done
+fi
 # source user completion file
 [ $BASH_COMPLETION != ~/.bash_completion -a -r ~/.bash_completion ] \
 	&& . ~/.bash_completion
