@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.287 2002/04/29 20:21:41 ianmacd Exp $
+#   $Id: bash_completion,v 1.288 2002/04/29 20:36:04 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2111,9 +2111,24 @@ _gdb()
 }
 [ $have ] && complete -F _gdb $default gdb
 
+# Postgresql completion
+#
+have psql && {
+_pg_databases() 
+{
+	COMPREPLY=( $( psql -l 2>/dev/null | \
+			sed -ne 's|^ \('$cur'[^ ]*\).*$|\1|p' ) )
+}
+
+_pg_users()
+{
+	COMPREPLY=( $( psql -qtc 'select usename from pg_user' 2>/dev/null | \
+			grep "^ $cur" ) )
+	[ ${#COMPREPLY[@]} -eq 0 ] && COMPREPLY=( $( compgen -u -- $cur ) )
+}
+
 # psql(1) completion
 #
-have psql &&
 _psql() 
 {
 	local cur prev
@@ -2128,19 +2143,93 @@ _psql()
 		return 0
 		;;
 	-U)
-		COMPREPLY=( $( psql -qtc 'select usename from pg_user' \
-			       2>/dev/null | grep "^ $cur" ) )
-		[ ${#COMPREPLY[@]} -eq 0 ] && \
-			COMPREPLY=( $( compgen -u -- $cur ) ) 
+		_pg_users
 		return 0
 		;;
-	*)
-		COMPREPLY=( $( psql -l | sed -ne 's|^ \('$cur'[^ ]*\).*$|\1|p' ) )
+	-d)
+		_pg_databases
+		return 0
+		;;
+	-@(o|f))
+		_filedir
 		return 0
 		;;
 	esac
+
+	if [[ "$cur" == -* ]]; then
+		# return list of available options
+		COMPREPLY=( $( compgen -W '-a -A -c -d -e -E -f -F -h -H \
+			-l -n -o -p -P -q -R -s -S -t -T -U -v -V -W -x -X \
+			--help' -- $cur ) )
+	else
+		# return list of available databases
+		_pg_databases
+	fi
 }
-[ "$have" ] && complete -F _psql $default psql
+complete -F _psql $default psql
+
+# createdb(1) completion
+#
+_createdb() 
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+	-@(h|-host=)) 
+		_known_hosts
+		return 0
+		;;
+	-@(U|-username=))
+		_pg_users
+		return 0
+		;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-D -T -E -h -p -U -W -e -q \
+			--location= --template= --encoding= --host= --port= \
+			--username= --password --echo --quiet --help' -- $cur ) )
+	else
+		_pg_databases
+	fi
+}
+complete -F _createdb $default createdb
+
+# dropdb(1) completion
+#
+_dropdb() 
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+	-@(h|-host=)) 
+		_known_hosts
+		return 0
+		;;
+	-@(U|-username=))
+		_pg_users
+		return 0
+		;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-h -p -U -W -e -q \
+				--host= --port= --username= --password \
+				--interactive --echo --quiet --help' -- $cur ) )
+	else
+		_pg_databases
+	fi
+}
+complete -F _dropdb $default dropdb
+}
 
 _longopt()
 {
