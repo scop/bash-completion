@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.111 2004/01/01 07:40:39 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.112 2004/02/10 10:25:43 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20040101
+Version: 20040210
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,18 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Tue Feb 10 2004 Ian Macdonald <ian@caliban.org>
+- fix broken command completion for sudo and others
+- make apt-cache know about the 'rdepends' option
+- install yum-arch completion only if we also have yum
+- add dd completion
+- xine and mplayer can complete on .VOB files
+- make xspec parsing immune to comments
+- allow mplayer to complete on .m2v files, too
+- make export completion do proper quoting when completing a variable's value
+- add 'up' as a synonym of 'update' in cvs completion
+- xine can also complete on .asx files
+
 * Thu Jan  1 2004 Ian Macdonald <ian@caliban.org>
 - avoid pulling in .rpm* files from $BASH_COMPLETION_DIR/*
 - Postfix completion enhancement
