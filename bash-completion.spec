@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.50 2002/07/04 07:14:59 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.51 2002/07/11 07:55:32 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020704
+Version: 20020711
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,10 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Thu Jul 11 2002 Ian Macdonald <ian@caliban.org>
+- PINE address book completion fix
+- allow WINE to complete on .scr files
+
 * Thu Jul  4 2002 Ian Macdonald <ian@caliban.org>
 - urpmi completion update
 - touch-ups to mplayer completion
