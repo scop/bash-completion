@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.324 2002/05/18 00:35:26 ianmacd Exp $
+#   $Id: bash_completion,v 1.325 2002/05/18 19:05:08 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -76,7 +76,6 @@ complete -f -X '!*.fig' xfig
 complete -f -X '!*.@(mid?(i))' timidity playmidi
 complete -f -X '*.@(o|so|so.*|a|tar|?(t)gz|?(t)bz2|rpm|zip|ZIP|gif|GIF|jp?(e)g|JP?(E)G|mp3|MP3|mpg|MPG|avi|AVI|asf|ASF' vi vim emacs
 complete -f -X '!*.@(exe|EXE|com|COM)' wine
-complete -f -X '!*.@(py|pyc|pyo)' python
 # FINISH exclude -- do not remove this line
 
 # start of section containing compspecs that can be handled within bash
@@ -127,11 +126,13 @@ have()
 }
 
 # This function performs file and directory completion. It's better than
-# simply using 'compgen -f', because it honours spaces in filenames
+# simply using 'compgen -f', because it honours spaces in filenames.
+# If passed -d, it completes only on directories. If passed anything else,
+# it's assumed to be a fileglob to complete on.
 #
 _filedir()
 {
-	local IFS=$'\t\n'
+	local IFS=$'\t\n' xspec
 
 	_expand || return 0
 
@@ -139,7 +140,10 @@ _filedir()
 		COMPREPLY=( ${COMPREPLY[@]} $( compgen -d -- $cur ) )
 		return 0
 	fi
-	COMPREPLY=( ${COMPREPLY[@]} $( compgen -f -- \"$cur\" ) )
+
+	xspec=${1:+"!*.$1"}	# set only if glob passed in as $1
+	COMPREPLY=( ${COMPREPLY[@]} $( compgen -f -X "$xspec" -- "$cur" )
+		    $( compgen -d -- "$cur" ) )
 }
 
 # This function completes on signal names
@@ -1093,13 +1097,6 @@ rpm_group_completion()
 	COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\ /g' | tr '\n' '\t' ) )
 }
 
-file_glob()
-{
-	_expand || return 0
-	COMPREPLY=( $( compgen -f -X "!*.$1" -- $cur ) \
-		    $( compgen -d -- $cur ) )
-}
-
 # rpm(8) completion
 # 
 _rpm()
@@ -1159,7 +1156,7 @@ _rpm()
 		;;
 	--specfile)
 		# complete on .spec files
-		file_glob spec
+		_filedir spec
 		return 0
 		;;
 	--whatprovides)
@@ -3131,6 +3128,25 @@ _update_alternatives()
 	esac
 }
 [ "$have" ] && complete -F _update_alternatives update-alternatives
+
+# Python completion
+#
+have python &&
+_python()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	# first parameter on line a Python script?
+	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]]; then
+		_filedir '@(py|pyc|pyo)'
+	fi
+
+	return 0
+}
+[ "$have" ] && complete -F _python $default python
 
 _filedir_xspec()
 {
