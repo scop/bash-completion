@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.9 2000/10/29 23:17:19 ianmacd Exp $
+#   $Id: bash_completion,v 1.10 2000/11/20 21:41:43 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -527,8 +527,7 @@ _cvs()
 }
 complete -F _cvs cvs
 
-# rpm(8) completion. This isn't exhaustive yet, but still provides
-# quite a lot of functionality.
+# rpm(8) completion. This is quite comprehensive now and covers rpm 4.x
 # 
 _rpm()
 {
@@ -543,6 +542,12 @@ _rpm()
 				COMPREPLY[i]=--${COMPREPLY[i]}
 			fi
 		done
+	}
+
+	add_package_list()
+	{
+		COMPREPLY=( ${COMPREPLY[@]} $( rpm -qa | \
+		   sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+$/\1/p' ) )
 	}
 
 	local cur cur_nodash prev
@@ -570,7 +575,9 @@ _rpm()
 		--*)
 			COMPREPLY=( $( compgen -W 'help version initdb \
 			checksig recompile rebuild resign addsign rebuilddb \
-			showrc setperms setgids' ${cur_nodash#-} ) )
+			showrc setperms setgids tarbuild eval install \
+			upgrade query freshen erase verify querytags' \
+			${cur_nodash#-} ) )
 			dashify
 			return 0
 			;;
@@ -588,16 +595,31 @@ _rpm()
 		COMPREPLY=( $( compgen -d $cur ) )
 		return 0
 		;;
+	--eval)
+		# get a list of macros (char class contains a space and tab)
+		COMPREPLY=( $( sed -ne 's/^\(%'${cur#\%}'[^ 	]*\).*$/\1/p' \
+			       /usr/lib/rpm/macros ) )
+		return 0
+		;;
+	--pipe)
+		COMPREPLY=( $( compgen -c $cur ) )
+		return 0
+		;;
+	--rcfile)
+		COMPREPLY=( $( compgen -f $cur ) )
+		return 0
+		;;
 	esac
 
 	case "${COMP_WORDS[1]}" in
-	-[iFU]*)
+	-@([iFU]*|-install|-freshen|-upgrade))
 		# complete on list of relevant options
 		COMPREPLY=( $( compgen -W 'percent force test replacepkgs \
 		replacefiles root excludedocs includedocs noscripts rcfile \
 		ignorearch dbpath prefix ignoreos nodeps allfiles ftpproxy \
 		ftpport justdb httpproxy httpport noorder relocate badreloc \
-		notriggers excludepath ignoresize oldpackage' ${cur_nodash#-} ))
+		notriggers excludepath ignoresize oldpackage define eval \
+		pipe queryformat' ${cur_nodash#-} ))
 		dashify
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
@@ -609,8 +631,9 @@ _rpm()
 		# complete on list of relevant options
 		COMPREPLY=( $( compgen -W 'scripts root rcfile whatprovides \
 		whatrequires requires triggeredby ftpport ftpproxy httpproxy \
-		httpport provides triggers dump changelog dbpath filesbypkg' \
-		${cur_nodash#-} ) )
+		httpport provides triggers dump changelog dbpath filesbypkg \
+		define eval pipe showrc info list state docfiles \
+		configfiles queryformat' ${cur_nodash#-} ) )
 		dashify
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
@@ -623,25 +646,26 @@ _rpm()
 		COMPREPLY=( $( compgen -f $cur ) )
 		return 0
 		;;
-	-e)
+	-*g)
+		# package group completion
+		local IFS=$(echo -e "\t")
+		# remove trailing backslash, or grep will complain
+		cur=${cur%'\'}
+		COMPREPLY=( $( rpm -qa --queryformat '%{group}\n' | \
+			       grep ^$cur ) )
+		# backslash escape spaces and translate newlines to tabs
+		COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\ /g' | \
+			       tr '\n' '\t' ) )
+		return 0
+		;;
+	-@(e|-erase))
 		# complete on list of relevant options
 		COMPREPLY=( $( compgen -W 'allmatches noscripts notriggers \
 		nodeps test' ${cur_nodash#-} ) )
 		dashify
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
-		# complete on basename of installed RPMs
-		COMPREPLY=( $( rpm -qa | \
-		   sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+$/\1/p' ) )
-		return 0
-		;;
-	-qa*)
-		# complete on list of relevant options
-		COMPREPLY=( $( compgen -W 'scripts root rcfile whatprovides \
-		whatrequires requires triggeredby ftpport ftpproxy httpproxy \
-		httpport provides triggers dump changelog dbpath specfile \
-		querybynumber last filesbypkg' ${cur_nodash#-} ) )
-		dashify
+		add_package_list
 		return 0
 		;;
 	-q*)
@@ -649,49 +673,53 @@ _rpm()
 		COMPREPLY=( $( compgen -W 'scripts root rcfile whatprovides \
 		whatrequires requires triggeredby ftpport ftpproxy httpproxy \
 		httpport provides triggers dump changelog dbpath specfile \
-		querybynumber last filesbypkg' ${cur_nodash#-} ) )
+		querybynumber last filesbypkg define eval pipe showrc info \
+		list state docfiles configfiles queryformat' \
+		${cur_nodash#-} ) )
+		dashify
+		# return if $cur is an option
+		[[ "$cur" == -* ]] && return 0
+		# don't complete on packages if we are querying all packages
+		[[ ${COMP_WORDS[1]} == -qa* ]] && return 0
+		add_package_list
+		return 0
+		;;
+	-@(K|-checksig))
+		# complete on list of relevant options
+		COMPREPLY=( $( compgen -W 'nopgp nogpg nomd5' \
+		${cur_nodash#-} ) )
 		dashify
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		# add a list of RPMS to possible completions
-		COMPREPLY=( ${COMPREPLY[@]} $( rpm -qa | \
-		   sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+$/\1/p' ) )
+		COMPREPLY=( ${COMPREPLY[@]} $( compgen -G $cur\*.rpm ) )
 		return 0
 		;;
-	-[Vy]*)
+	-@([Vy]*|-verify))
 		# complete on list of relevant options
 		COMPREPLY=( $( compgen -W 'root rcfile dbpath nodeps nofiles \
-		noscripts nomd5 nopgp' ${cur_nodash#-} ) )
+		noscripts nomd5' ${cur_nodash#-} ) )
 		dashify
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		# add a list of RPMS to possible completions
-		COMPREPLY=( ${COMPREPLY[@]} $( rpm -qa | \
-		   sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+$/\1/p' ) )
 		return 0
 		;;
-	-b*)
+	-[bt]*)
 		# complete on list of relevant options
 		COMPREPLY=( $( compgen -W 'short-circuit timecheck clean \
-		rmsource test sign buildroot target buildarch buildos' \
-		${cur_nodash#-} ) )
+		rmsource test sign buildroot target buildarch buildos \
+		nobuild' ${cur_nodash#-} ) )
 		dashify
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
-		# complete on .spec files
-		COMPREPLY=( $( compgen -G $cur\*.spec ) )
-		return 0
-		;;
-	-t*)
-		# complete on list of relevant options
-		COMPREPLY=( $( compgen -W 'short-circuit timecheck clean \
-		rmsource test sign buildroot target buildarch buildos' \
-		${cur_nodash#-} ) )
-		dashify
-		# return if $cur is an option
-		[[ "$cur" == -* ]] && return 0
-		# complete on .tar.gz files
-		COMPREPLY=( $( compgen -G $cur\*.tar.gz ) )
+		if [[ ${COMP_WORDS[1]} == -b* ]]; then
+			# complete on .spec files
+			COMPREPLY=( $( compgen -G $cur\*.spec ) )
+		else
+			# complete on .tar files
+			COMPREPLY=( $( compgen -G $cur\*.+(tgz|tar.+(gz|bz2)) ) )
+		fi
 		return 0
 		;;
 	--re@(build|compile))
@@ -699,15 +727,18 @@ _rpm()
 		COMPREPLY=( $( compgen -G $cur\*.src.rpm ) )
 		return 0
 		;;
-	--@(checksig|@(re|add)sign))
+	--tarbuild)
+		# complete on tarred sources
+		COMPREPLY=( $( compgen -G $cur\*.+(tgz|tar.+(gz|bz2)) ) )
+		return 0
+		;;
+	--@(re|add)sign)
 		# complete on RPMs
 		COMPREPLY=( $( compgen -G $cur\*.rpm ) )
 		return 0
 		;;
 	--set@(perms|gids))
-		# complete on installed RPMs
-		COMPREPLY=( ${COMPREPLY[@]} $( rpm -qa | \
-		   sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+$/\1/p' ) )
+		add_package_list
 		return 0
 		;;
 	esac
