@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.412 2002/09/28 18:12:24 ianmacd Exp $
+#   $Id: bash_completion,v 1.413 2002/09/28 18:33:12 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1608,7 +1608,7 @@ complete -F _aptitude $default aptitude
 
 # Debian apt-build(1) completion.
 #
-have apt-build &&
+#have apt-build &&
 _apt_build()
 {
 	local cur prev special i
@@ -1618,48 +1618,51 @@ _apt_build()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	for (( i=0; i < ${#COMP_WORDS}-1; i++ )); do
-		if [[ ${COMP_WORDS[i]} == @(install|remove|source) ]]; then
+		if [[ ${COMP_WORDS[i]} == @(install|remove|source|info|clean) ]]; then
 			special=${COMP_WORDS[i]}
 		fi
 	done
+
 	if [ -n "$special" ]; then
 		case $special in
-		@(install|source))
+		@(install|source|info))
 			COMPREPLY=( $( apt-cache pkgnames $cur ) )
 			return 0
 			;;
 		remove)
 			COMPREPLY=( $( _comp-dpkg-installed-packages \
-						$cur ) )
+					$cur ) )
+			return 0
+			;;
+		*)
 			return 0
 			;;
 		esac
 	fi
 
-	if  [[ "$prev" = --patch ]]; then
+	if  [[ "$prev" == --@(patch|repository-dir) ]]; then
 		_filedir
 		return 0
-
-	elif [[ "$prev" = --patch-strip ]]; then
-		 return 0
-
-	#a little hand in this option will be helpful :)
-	elif [[ "$prev" = --build-command ]]; then
-		 return 0
-
+	elif [[ "$prev" == -@(*h|-@(patch-strip|build-@(dir|command)|help)) ]]; then
+		return 0
 	else
 		COMPREPLY=( $( compgen -W "update upgrade install remove \
-				  source dist-upgrade clean \
-				  --reinstall --rebuild --remove-builddep \
-				  --no-wrapper --purge --build-command \
-				  --patch --patch-strip -p --yes -y \
-				  --version -v --no-source" -- $cur ) )
+				source dist-upgrade world clean info \
+				--help --show-upgraded -u --build-dir \
+				--repository-dir --build-only \
+				--build-command --reinstall --rebuild \
+				--remove-builddep --no-wrapper --purge \
+				--reinstall --rebuild --remove-builddep \
+				--no-wrapper --purge --build-command \
+				--patch --patch-strip -p --yes -y \
+				--version -v --no-source" -- $cur ) )
 	fi
 
 
 	return 0
 }
-[ "$have" ] && complete -F _apt_build $filenames apt-build
+#[ "$have" ] && complete -F _apt_build $filenames apt-build
+complete -F _apt_build $filenames apt-build
 
 # chsh(1) completion
 #
