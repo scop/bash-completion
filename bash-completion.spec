@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.30 2002/04/30 16:16:50 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.31 2002/05/04 20:43:04 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020430
+Version: 20020504
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,16 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Sat May  4 2002 Ian Macdonald <ian@caliban.org>
+- add python completion on .py, .pyc and .pyo files
+- cvs completion now handles diff
+- make xine complete on the same files as mplayer
+- cvs completion code clean-up
+  at run-time anyway
+- add long option completion to psql completion
+- _filedir_xspec(): avoid eval errors when completing within backticks or
+  quotes
+
 * Tue Apr 30 2002 Ian Macdonald <ian@caliban.org>
 - reworking of Postgresql completion
 - add PINE address-book completion
