@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.341 2002/06/01 21:01:05 ianmacd Exp $
+#   $Id: bash_completion,v 1.342 2002/06/01 21:16:20 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -263,6 +263,60 @@ _function()
 	fi
 }
 complete -F _function function declare typeset
+
+# bash complete completion
+#
+_complete()
+{
+	local cur prev options
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-o)
+			options="default dirnames filenames"
+			[ ${BASH_VERSINFO[1]} = "05b" ] && options="$options nospace"
+			COMPREPLY=( $( compgen -W "$options" -- $cur ) )
+			return 0
+			;;
+
+		-A)
+			COMPREPLY=( $( compgen -W 'alias arrayvar binding \
+				builtin command directory disabled enabled \
+				export file function group helptopic hostname \
+				job keyword running service setopt shopt \
+				signal stopped user variable' -- $cur ) )
+			return 0
+			;;
+
+		-C)
+			COMPREPLY=( $( compgen -A command -- $cur ) )
+			return 0
+			;;
+		-F)
+			COMPREPLY=( $( compgen -A function -- $cur ) )
+			return 0
+			;;
+		-@(p|r))
+			COMPREPLY=( $( complete -p | sed -e 's|.* ||' | \
+					grep "^$cur" ) )
+			return 0
+			;;
+
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		# relevant options completion
+		options="-a -b -c -d -e -f -g -j -k -s -v -u -A -G -W -P -S -X -F -C"
+		[ ${BASH_VERSINFO[1]} '>' 04 ] && options="$options -o"
+		COMPREPLY=( $( compgen -W "$options" -- $cur ) )
+	else
+		COMPREPLY=( $( compgen -A command -- $cur ) )
+	fi
+}
+complete -F _complete complete
 
 # start of section containing completion functions for external programs
 
