@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.434 2002/10/09 07:29:14 ianmacd Exp $
+#   $Id: bash_completion,v 1.435 2002/10/10 08:38:05 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -3650,19 +3650,51 @@ _update_alternatives()
 have python &&
 _python()
 {
-	local cur
+	local prev cur
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	# first parameter on line a Python script?
-	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]]; then
+	case "$prev" in
+	-Q)
+		COMPREPLY=( $( compgen -W "old new warn warnall" -- $cur ) )
+		return 0
+		;;
+	-W)
+		COMPREPLY=( $( compgen -W "ignore default all module once error" -- $cur ) )
+		return 0
+		;;
+	-c)
 		_filedir '@(py|pyc|pyo)'
+		return 0
+		;;
+	!(python|-?))
+		[[ ${COMP_WORDS[COMP_CWORD-2]} != -@(Q|W)) ]] && _filedir
+		;;
+	esac
+
+
+	# if '-c' is already given, complete all kind of files.
+	for (( i=0; i < ${#COMP_WORDS}-1; i++ )); do
+		if [[ ${COMP_WORDS[i]} == -c ]]; then
+		        _filedir
+		fi
+	done
+
+
+	if [[ "$cur" != -* ]]; then
+		_filedir '@(py|pyc|pyo)'
+	else
+	        COMPREPLY=( $( compgen -W "- -d -E -h -i -O -Q -S -t -u \
+                                           -U -v -V -W -x -c" -- $cur ) )
 	fi
+
+
 
 	return 0
 }
-[ "$have" ] && complete -F _python $default python
+[ "$have" ] && complete -F _python $filenames python
 
 # Perl completion
 #
