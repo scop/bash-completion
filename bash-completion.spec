@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.27 2002/04/18 16:09:18 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.28 2002/04/22 08:26:31 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020418
+Version: 20020422
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,15 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Mon Apr 22 2002 Ian Macdonald <ian@caliban.org>
+- _filedir(): fix error when completing on a quoted parameter
+- add dict completion in contrib
+- tex, latex et al now also complete on .latex files
+- _cd(): remove useless call of _expand()
+- move ri completion into contrib, because it's relatively uncommon
+- use $UNAME instead of $OS, since the latter purportedly interacts badly
+  in environments such as Cygwin
+
 * Thu Apr 18 2002 Ian Macdonald <ian@caliban.org>
 - add 'annotate' to list of cvs commands that perform completion
 - added ri (Ruby documentation) completion
