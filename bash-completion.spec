@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.7 2002/02/25 23:21:51 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.8 2002/02/27 16:59:13 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020225
+Version: 20020227
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -71,6 +71,18 @@ fi
 %doc README Changelog
 
 %changelog
+* Wed Feb 27 2002 Ian Macdonald <ian@caliban.org>
+- dpkg completion added for Debian Linux
+- cardctl completion added
+- sudo now calls _root_command() to set a more likely root $PATH
+- added long option completion to make completion
+- minor bug fixes to make, chown and chgrp completion
+- _command() now calls _filedir() when subcompletion returns nothing
+- psql completion now performs default bash completion if nothing else returned
+- innumerable potential opportunities for compgen errors removed
+- large scale code clean-up
+- documentation dir was accidentally mode 0644, not 0755
+
 * Mon Feb 25 2002 Ian Macdonald <ian@caliban.org>
 - fixed compgen error in some long options of _rpm()
 - in _psql(), try to get list of valid users from Postgres before resorting to
