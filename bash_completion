@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.165 2002/02/28 06:39:10 ianmacd Exp $
+#   $Id: bash_completion,v 1.166 2002/02/28 23:23:14 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -595,18 +595,176 @@ _ipsec()
 have cvs &&
 _cvs()
 {
-	local cur prev
+	set_prefix()
+	{
+		[ "$prefix" = "" ] || prefix=${cur%/*}/
+		[ -r ${prefix}CVS/Entries ] || prefix=""
+	}
+
+	get_entries()
+	{
+
+		entries=( $( cut -d/ -f2 -s ${prefix}CVS/Entries | \
+			     grep "^$cur" ) )
+	}
+
+	get_modules()
+	{
+
+		COMPREPLY=( $( \ls -d $cvsroot/!(CVSROOT) 2>/dev/null ) )
+		COMPREPLY=( ${COMPREPLY[@]/$cvsroot/} )
+		COMPREPLY=( ${COMPREPLY[@]/\//} )
+	}
+
+	local cur count mode i cvsroot pwd
+	local -a flags miss files entries changed newremoved
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
-	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
-		COMPREPLY=( $( compgen -W 'add admin checkout commit diff \
-		export history import log rdiff release remove rtag status \
-		tag update' $cur ))
-	fi
+	count=1
+	for i in ${COMP_WORDS[@]}; do
+		[ $count -eq $COMP_CWORD ] && break
+		if [ -z "$mode" ]; then
+			case $i in
+			-d)
+				cvsroot=${COMP_WORDS[((++count))]}
+				;;
+			@(add|new))
+				mode=add
+				;;
+			@(admin|rcs))
+				mode=admin
+				;;
+			@(checkout|co|get))
+				mode=checkout
+				;;
+			@(commit|ci))
+				mode=commit
+				;;
+			@(diff|@(ex|im)port|history|release|status|update))
+				mode=$i
+				;;
+			?(r)log)
+				mode=log
+				;;
+			@(rdiff|patch))
+				mode=rdiff
+				;;
+			@(remove|rm|delete))
+				mode=remove
+				;;
+			@(rtag|rfreeze))
+				mode=rtag
+				;;
+			@(tag|freeze))
+				mode=tag
+				;;
+			*)
+				;;
+			esac
+			continue
+		elif [[ "$i" = -* ]]; then
+			flags=( ${flags[@]} $i )
+		fi
+		count=$((++count))
+	done
 
+	case "$mode" in
+	add)
+		if [[ "$cur" != -* ]] ; then
+			set_prefix
+			if [ $COMP_CWORD -gt 1 -a -r ${prefix}CVS/Entries ]; then
+				get_entries
+				[ -z "$cur" ] && \
+				files=$( \ls -d ${prefix}!(CVS) ) || \
+				files=$( \ls -d ${cur}* )
+				for i in ${entries[@]}; do
+					files=( ${files[@]/%$i/} )
+				done
+				COMPREPLY=( $( compgen -W '${files[@]}' $cur ) )
+			fi
+		else
+			COMPREPLY=( $( compgen -W '-k -m' -- $cur ) )
+		fi
+		;;
+	admin)
+		if [[ "$cur" = -* ]] ; then
+			COMPREPLY=( $( compgen -W '-i -a -A -e -b -c -k -l -u \
+						   -L -U -m -M -n -N -o -q -I \
+						   -s -t -t- -T -V -x -z' -- \
+					$cur ) )
+		fi
+		;;
+	checkout)
+		if [[ "$cur" != -* ]] ; then
+			# can only do for local repositories
+			[ -z "$cvsroot" ] && cvsroot=$CVSROOT
+			if [ -r $cvsroot ]; then
+				get_modules
+				COMPREPLY=( $( compgen -W \
+					       '${COMPREPLY[@]}' $cur ) )
+			fi
+		else
+			COMPREPLY=( $( compgen -W '-A -N -P -R -c -f -l -n -p \
+						  -s -r -D -d -k -j' -- $cur ) )
+		fi
+		;;
+	commit)
+		set_prefix
+		if [[ "$cur" != -* ]] && [ -r ${prefix}CVS/Entries ]; then
+			# this is the least computationally intensive way
+			# found so far, but other changes (something other than
+			# changed/removed/new) may be missing
+			changed=$( cvs diff --brief 2>&1 | \
+			sed -ne 's/^Files [^ ]\+ and \([^ ]\+\) differ$/\1/p' )
+			newremoved=$( cvs diff --brief 2>&1 | \
+			sed -ne 's/^cvs diff: \([^ ]\+\), no comparison available$/\1/p' )
+			COMPREPLY=( $( compgen -W '${changed[@]} \
+						   ${newremoved[@]}' $cur ) )
+		else
+			COMPREPLY=( $( compgen -W '-n -R -l -f -F -m -r' -- \
+				       $cur ) )
+		fi
+		;;
+	remove)
+		if [[ "$cur" != -* ]] ; then
+			set_prefix
+			if [ $COMP_CWORD -gt 1 -a -r ${prefix}CVS/Entries ]; then
+				get_entries
+				# find out what files are missing
+				for i in ${entries[@]}; do
+					[ ! -r "$i" ] && miss=( ${miss[@]} $i )
+				done
+				COMPREPLY=( $( compgen -W '${miss[@]}' $cur ) )
+			fi
+		else
+			COMPREPLY=( $( compgen -W '-f -l -R' -- $cur ) )
+		fi
+		;;
+	import)
+		if [[ "$cur" != -* ]] ; then
+			# starts with same algorithm as checkout
+			[ -z "$cvsroot" ] && cvsroot=$CVSROOT
+			[ -r $cvsroot ] && get_modules
+			pwd=$( pwd )
+			pwd=${pwd##*/}
+			COMPREPLY=( $( compgen -W '${COMPREPLY[@]} $pwd' $cur ))
+		else
+			COMPREPLY=( $( compgen -W '-d -k -I -b -m -W' -- $cur ))
+		fi
+		;;
+	*)
+		COMPREPLY=( $( compgen -W 'add admin checkout ci co commit \
+					   diff delete export freeze get \
+					   history import log new patch rcs \
+					   rdiff release remove rfreeze rlog \
+					   rm rtag status tag update -H -Q -q \
+					   -b -d -e -f -l -n -t -r -v -w -x \
+					   -z --help --version' -- $cur ) )
+		;;
+	esac
+	
 	return 0
 }
 [ "$have" ] && complete -F _cvs -o default cvs
@@ -1002,7 +1160,8 @@ _chkconfig()
 #
 _known_hosts()
 {
-	local cur kh user suffix
+	local cur user suffix
+	local -a kh
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -1912,7 +2071,6 @@ complete -F _function function
 
 _expand()
 {
-	# avoid eval error if parameter ends with \
 	[ "$cur" != "${cur%\\}" ] && cur="$cur"'\'
 	
 	# expand ~username type directory specifications
