@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.128 2002/02/18 18:36:00 ianmacd Exp $
+#   $Id: bash_completion,v 1.129 2002/02/18 18:55:25 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -637,20 +637,10 @@ _rpm()
 
 	file_glob()
 	{
-		local suffix
-
 		_expand || return 0
 
-		# get extension of current word, if relevant
-		suffix=${cur##*.}
-		# nullify it if it's not a substring of the extension we're
-		# completing on
-		[ "$suffix" != "${1:0:${#suffix}}" ] && suffix=""
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -G $cur\*${1:${#suffix}} ) )
-		# directory completion if all else fails
-		if [ ${#COMPREPLY[@]} = 0 ]; then
-	    		COMPREPLY=( $( compgen -d $cur ) )
-		fi
+		COMPREPLY=( ${COMPREPLY[@]} $( compgen -f -X "!*.$1" $cur ) )
+	    	COMPREPLY=( ${COMPREPLY[@]} $( compgen -d $cur ) )
 	}
 
 	local cur cur_nodash prev
