@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.460 2002/10/26 05:54:48 ianmacd Exp $
+#   $Id: bash_completion,v 1.461 2002/10/26 06:04:45 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -3292,20 +3292,38 @@ complete -F _configure_func $default configure
 have urpmq && {
 _urpmi_media()
 {
-	local IFS=$'\t\n'
-	# return list of available urpmi media
-	COMPREPLY=( $( sed -ne "s/^\(.\+\) \(\(file\|removable\|ftp\|http\):\/\/.*\)\? {$/\1/p" /etc/urpmi/urpmi.cfg | grep "^${cur//\\\\/\\\\}" ) )
+	local media
+	# first try new urpmq option to get media list
+	media=$( urpmq --list-media 2>/dev/null ) 
+	# default to old manual media extraction
+	[ -z "$media" ] && media=( $( sed -ne "s/^\(.\+\) \(\(file\|removable\|ftp\|http\):\/\/.*\)\? {$/\1/p" /etc/urpmi/urpmi.cfg | grep "^${cur//\\\\/\\\\}" ) )
+	# return list of available media
+	COMPREPLY=( $( echo $media | tr " " "\n" | grep "^$cur" ) )
 }
 
 _urpmi_packages()
 {
-	local packages
+	local packages media
+	# find if a particular media has been specified
+	for (( i=1; i < COMP_CWORD; i++ )); do
+		if [[ "${COMP_WORDS[i]}" == --media ]]; then
+			media=${COMP_WORDS[i+1]}
+			break
+		fi
+	done
+
 	# first try new urpmq option to get package list
-	packages=$( urpmq --list 2>/dev/null ) 
+	packages=$( urpmq --media $media --list 2>/dev/null ) 
 	# default to old manual database extraction
-	[ -z "$packages" ] && packages=$( gzip -dc /var/lib/urpmi/synthesis.hdlist.* | awk -F'@' '/info/ {print $1}' )
+	[ -z "$packages" ] && packages=$( gzip -dc /var/lib/urpmi/synthesis.hdlist.$media* | awk -F'@' '/info/ {print $1}' )
 	# return list of available packages
 	COMPREPLY=( $( echo $packages | tr " " "\n" | grep "^$cur" ) )
+}
+
+_urpmi_aliases()
+{
+	# return list of available nodes
+	COMPREPLY=( $( urpmq --list-aliases 2>/dev/null | grep "^$cur" ) )
 }
 }
 
@@ -3325,14 +3343,20 @@ _urpmi()
 			_urpmi_media
 			return 0
 			;;
+		--parallel)
+			_urpmi_aliases
+			return 0
+			;;
 	esac
 
 	if [[ "$cur" == -* ]]; then
 		# return list of available options
 		COMPREPLY=( $( compgen -W '-a -p -P -y -s -q -v --help \
-			--update --media --auto --auto-select --fuzzy --src \
-			--noclean --force --wget --curl --bug --env --X \
-			--best-output' -- $cur ) )
+			--update --media --synthesis --auto --auto-select \
+			--fuzzy --src --clean --noclean --force --allow-nodeps \
+			--allow-force --parallel --wget --curl --proxy \
+			--proxy-user --bug --env --X --best-output \
+			--verify-rpm --test' -- $cur ) )
 	else
 		# return rpm files and available packages
 		_urpmi_packages
@@ -3357,13 +3381,19 @@ _urpmq()
 			_urpmi_media
 			return 0
 			;;
+		--parallel)
+			_urpmi_nodes
+			return 0
+			;;
 	esac
 
 	if [[ "$cur" == -* ]]; then
 		# return list of available options
 		COMPREPLY=( $( compgen -W '-h -v -d -u -c -P -y -s -g -r -f \
-			--help --update --media --auto-select --fuzzy --list --src \
-			--headers --sources --force' -- $cur ) )
+			--help --update --media --synthesis --auto-select \
+			--fuzzy --all --list --list-media --list-nodes \
+			--list-aliases --src --headers --sources --force \
+			--parallel --wget --curl --proxy --proxy-user' -- $cur))
 	else
 		# return rpm files and available packages
 		_urpmi_packages
@@ -3384,7 +3414,7 @@ _urpme()
 
 	if [[ "$cur" == -* ]]; then
 		# return list of available options
-		COMPREPLY=( $( compgen -W '-a --auto' -- $cur ) )
+		COMPREPLY=( $( compgen -W '-a --help --auto' -- $cur ) )
 	else
 		# return list of available packages
 		_rpm_installed_packages
@@ -3405,8 +3435,9 @@ _urpmf()
 	if [[ "$cur" == -* ]]; then
 		# return list of available options
 		COMPREPLY=( $( compgen -W '--help --quiet --all --name \
-		--group --size --serial --summary --description --provides \
-		--requires --files --conflicts --obsoletes --prereqs' -- $cur ) )
+			--group --size --serial --summary --description \
+			--provides --requires --files --conflicts --obsoletes \
+			--prereqs' -- $cur ) )
 	else
 		# return available files
 		_filedir
@@ -3426,7 +3457,8 @@ _urpmi_update()
 
 	if [[ "$cur" == -* ]]; then
 		# return list of available options
-		COMPREPLY=( $( compgen -W '-a -c -d -f --curl --wget' -- $cur))
+		COMPREPLY=( $( compgen -W '-a -c -d -f --help --curl --wget \
+		--proxy --proxy-user' -- $cur))
 	else
 		# return list of available media
 		_urpmi_media
@@ -3446,8 +3478,8 @@ _urpmi_addmedia()
 
 	if [[ "$cur" == -* ]]; then
 		# return list of available options
-		COMPREPLY=( $( compgen -W '-c -h -f --wget --curl --update \
-				--distrib' -- $cur ) )
+		COMPREPLY=( $( compgen -W '-c -h -f --help --wget --curl \
+			--proxy --proxy-user --update --distrib' -- $cur ) )
 	else
 		# count number of mandatory args given sofar
 		args=$COMP_CWORD
@@ -3487,7 +3519,7 @@ _urpmi_removemedia()
 
 	if [[ "$cur" == -* ]]; then
 		# if word begins with a dash, return list of available options
-		COMPREPLY=( $( compgen -W '-a -c' -- $cur ) )
+		COMPREPLY=( $( compgen -W '-a -c --help' -- $cur ) )
 	else
 		# elsewhere, return list of available media
 		_urpmi_media
