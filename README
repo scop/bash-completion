@@ -1,16 +1,42 @@
-$Id: README,v 1.1 2002/02/09 09:41:35 ianmacd Exp $
+$Id: README,v 1.2 2002/02/12 16:54:57 ianmacd Exp $
+
+
+INSTALLATION
+------------
 
 If you are installing the source file manually as opposed to using a packaging
 system such as dpkg or rpm, put it somewhere on your system and source it from
 either /etc/bashrc or ~/.bashrc.
 
-If you are putting it somewhere other than /etc/bash_completion, you will need
-to edit the top of the file to make $BASH_COMPLETION point to the correct
-location.
+Here's one possible way of doing that from /etc/bashrc:
+
+bash=${BASH_VERSION%.*}; bmajor=${bash%.*}; bminor=${bash#*.}
+if [ "$PS1" ] && [ $bmajor -eq 2 ] && [ $bminor '>' 04 ] \
+   && [ -f /etc/bash_completion ]; then # interactive shell
+        # Source completion code
+        . /etc/bash_completion
+fi
+unset bash bmajor bminor
+
+This code checks that the version of bash that is parsing the code is later
+than 2.04 and, if so, sources the bash completion code.
+
+While this code may, at first, seem overly complex, the advantage of using it
+is that it will also parse correctly when interpreted by bash 1.x. If you have
+bash 1.x and bash 2.x users on your system, you must avoid using constructs
+that were not valid under 1.x syntax.
+
+If you are putting the bash completion source file somewhere other than
+/etc/bash_completion, you will need to edit the top of the file to make
+$BASH_COMPLETION point to the correct location.
 
 The line you need to adjust is this one:
 
 [ -z "$BASH_COMPLETION" ] && declare -r BASH_COMPLETION=/etc/bash_completion
+
+
+TROUBLESHOOTING
+---------------
 
 If you get errors about 'complete' or 'compgen' not accepting the -g flag,
 you are probably running bash 2.05 and should either apply the group completion
