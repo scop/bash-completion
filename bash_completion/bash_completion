@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.672 2004/01/01 07:39:28 ianmacd Exp $
+#   $Id: bash_completion,v 1.690 2004/02/15 03:45:21 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -22,7 +22,7 @@
 #
 #   http://www.caliban.org/bash/index.shtml#completion
 #
-#   RELEASE: 20040101
+#   RELEASE: 20040214
 
 [ -n "${DEBUG:-}" ] && set -v || set +v
 
@@ -95,7 +95,7 @@ complete -f -X '!*.@(pdf|PDF)' acroread gpdf xpdf
 complete -f -X '!*.texi*' makeinfo texi2html
 complete -f -X '!*.@(?(la)tex|?(LA)TEX|texi|TEXI|dtx|DTX|ins|INS)' tex latex slitex jadetex pdfjadetex pdftex pdflatex texi2dvi
 complete -f -X '!*.@(mp3|MP3|m3u)' mpg123 mpg321
-complete -f -X '!*.@(mp?(e)g|MP?(E)G|wma|avi|AVI|asf|vob|bin|dat|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|MOV|qt|QT|wmv|mp3|MP3|ogg|OGG|ogm|OGM|mp4|MP4|wav|WAV)' xine
+complete -f -X '!*.@(mp?(e)g|MP?(E)G|wma|avi|AVI|asf|vob|VOB|bin|dat|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|MOV|qt|QT|wmv|mp3|MP3|ogg|OGG|ogm|OGM|mp4|MP4|wav|WAV|asx|ASX)' xine
 complete -f -X '!*.@(avi|asf|wmv)' aviplay
 complete -f -X '!*.@(rm|ram|smi?(l))' realplay
 complete -f -X '!*.@(mpg|mpeg|avi|mov|qt)' xanim
@@ -178,7 +178,7 @@ _filedir()
 	fi
 
 	xspec=${1:+"!*.$1"}	# set only if glob passed in as $1
-	COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -f -X "$xspec" -- "$cur" )
+	COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -f -X "$xspec" -- "$cur" ) \
 		    $( compgen -d -- "$cur" ) )
 }
 
@@ -344,7 +344,10 @@ _export()
 		COMPREPLY=( $( compgen -v -S '=' -- $cur ) )
 		;;
 	*=)
-		COMPREPLY=( $( eval echo $`echo ${cur%=}` ) )
+		COMPREPLY=( "$( eval echo -n \"$`echo ${cur%=}`\" |
+			( echo -n \'
+			  sed -e 's/'\''/'\''\\\'\'''\''/g'
+			  echo -n \' ) )" )
 		;;
 	esac
 }
@@ -1251,8 +1254,11 @@ _cvs()
 			@(ex?(p?(ort))))
 				mode=export
 				;;
-			@(annotate|diff|history|import|release|status|update|?(un)edit))
+			@(annotate|diff|history|import|release|status|?(un)edit))
 				mode=$i
+				;;
+			@(update|up))
+				mode=update
 				;;
 			?(r)log)
 				mode=log
@@ -1405,8 +1411,8 @@ _cvs()
 					   freeze get history import log new \
 					   patch rcs rdiff release remove \
 					   rfreeze rlog rm rtag status tag \
-					   unedit update -H -Q -q -b -d -e -f \
-					   -l -n -t -r -v -w -x -z --help \
+					   unedit up update -H -Q -q -b -d -e \
+					   -f -l -n -t -r -v -w -x -z --help \
 					   --version' -- $cur ) )
 		;;
 	*)
@@ -1786,7 +1792,7 @@ _apt_cache()
 	
 	if [ "$cur" != show ]; then
 	    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-		if [[ ${COMP_WORDS[i]} == @(add|depends|dotty|policy|show?(pkg|src)) ]]; then
+		if [[ ${COMP_WORDS[i]} == @(add|depends|dotty|policy|rdepends|show?(pkg|src)) ]]; then
 		    special=${COMP_WORDS[i]}
 		fi
 	    done
@@ -1997,9 +2003,13 @@ _chsh()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [ "$prev" = "-s" ]; then
-		COMPREPLY=( $( chsh -l | grep "^$cur" ) )
+	  if [ -f /etc/debian_version ]; then
+	    COMPREPLY=( $( </etc/shells ) )
+	  else
+	    COMPREPLY=( $( chsh -l | grep "^$cur" ) )
+	  fi
 	else
-		COMPREPLY=( $( compgen -u -- $cur ) )
+	  COMPREPLY=( $( compgen -u -- $cur ) )
 	fi
 
 	return 0
@@ -2444,7 +2454,7 @@ _make()
 				$makef 2>/dev/null | grep "^$cur" ))
 	fi
 }
-[ -n "${have:-}" ] && complete -F _make $default make gmake pmake
+[ -n "${have:-}" ] && complete -F _make $filenames make gmake pmake
 
 # GNU tar(1) completion
 #
@@ -2693,7 +2703,7 @@ fi
 #
 _command()
 {
-	local cur func cline cspec noglob IFS=$' \t\n' cmd \
+	local cur func cline cspec noglob cmd \
 	      _COMMAND_FUNC _COMMAND_FUNC_ARGS
 
 	COMPREPLY=()
@@ -2701,9 +2711,7 @@ _command()
 	cmd=${COMP_WORDS[1]}
 
 	if [ $COMP_CWORD -eq 1 ]; then
-		IFS=$'\n\t'
 		COMPREPLY=( $( compgen -c -- $cur ) )
-		IFS=$' \t\n'
 	elif complete -p $cmd &>/dev/null; then
 		cspec=$( complete -p $cmd )
 		if [ "${cspec#* -F }" != "$cspec" ]; then
@@ -2729,6 +2737,7 @@ _command()
 			COMP_WORDS=( $cline )
 			# reset noglob if necessary
 			[ $noglob -eq 1 ] && shopt -uo noglob
+			$func $cline
 			# this is needed in case user finished entering command and pressed tab (e.g. sudo ls <Tab>)
 			COMP_CWORD=$(( $COMP_CWORD > 0 ? $COMP_CWORD : 1 ))
 			cur=${COMP_WORDS[COMP_CWORD]}
@@ -2743,17 +2752,13 @@ _command()
 				cspec=${cspec#*-o }
 				cspec=${cspec%% *}
 				if [[ "$cspec" != @(dir|file)names ]]; then
-					IFS=$'\n\t'
-					COMPREPLY=( ${COMPREPLY[@]//\\\\:/:} )
-					IFS=$' \t\n'
+					COMPREPLY=("${COMPREPLY[@]//\\\\:/:}")
 				fi
 			fi
 		elif [ -n "$cspec" ]; then
 			cspec=${cspec#complete};
 			cspec=${cspec%%$cmd};
-			IFS=$'\n\t'
 			COMPREPLY=( $( eval compgen "$cspec" -- "$cur" ) );
-			IFS=$' \t\n'
 		fi
 	fi
 
@@ -2811,6 +2816,8 @@ _ant()
 		COMPREPLY=( $( awk -F'"' '/<target name="/ {print $2}' \
 				$buildfile | grep "^$cur" )
 			    $( awk -F"'" "/<target name='/ "'{print $2}' \
+				$buildfile | grep "^$cur" )
+			    $( awk -F'"' '/<target [^n]/ {if ($1 ~ /name=/) { print $2 } else if ($3 ~ /name=/) {print $4} else if ($5 ~ /name=/) {print $6}}' \
 				$buildfile | grep "^$cur" ) )
 	fi
 }
@@ -3312,9 +3319,8 @@ _cardctl()
 have dpkg && {
 _comp-dpkg-installed-packages()
 {
-	grep -B 2 'ok installed' /var/lib/dpkg/status | grep "Package: $1" | \
-		cut -d\  -f2
-
+	grep -A 1 "Package: $1" /var/lib/dpkg/status | \
+		grep -B 1 'ok installed' | grep "Package: $1" | cut -d\  -f2
 }
 
 # Debian dpkg(8) completion
@@ -4844,7 +4850,7 @@ _mplayer()
 					-xvidencopts -of --verbose' -- $cur) )
 			;;
 		*)
-			_filedir '@(mp?(e)g|MP?(E)G|wm[av]|avi|AVI|asf|vob|bin|dat|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|MOV|qt|QT|mp[34]|MP[34]|og[gm]|OG[GM]|wav|WAV|dump|DUMP|mkv|MKV|m4a|aac)'
+			_filedir '@(mp?(e)g|MP?(E)G|wm[av]|avi|AVI|asf|vob|VOB|bin|dat|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|MOV|qt|QT|mp[34]|MP[34]|og[gm]|OG[GM]|wav|WAV|dump|DUMP|mkv|MKV|m4a|aac|m2v)'
 			;;
 	esac
 
@@ -5250,7 +5256,7 @@ _mc()
 
 # yum(8) completion
 #
-have yum &&
+have yum && {
 _yum()
 {
 	local cur prev special
@@ -5332,6 +5338,7 @@ _yum_arch()
 
 }
 complete -F _yum_arch $filenames yum-arch
+}
 
 # ImageMagick completion
 #
@@ -5705,6 +5712,39 @@ _composite()
 complete -F _composite $filenames composite
 }
 
+# dd(1) completion
+#
+have dd &&
+_dd()
+{
+         local cur
+
+         COMPREPLY=()
+         cur=${COMP_WORDS[COMP_CWORD]}
+
+         case "$cur" in
+         if=*|of=*)
+                 cur=${cur#*=}
+                 _filedir
+                 return 0
+                 ;;
+         conv=*)
+                 cur=${cur#*=}
+                 COMPREPLY=( $( compgen -W 'ascii ebcdic ibm block unblock \
+                                lcase notrunc ucase swab noerror sync' \
+                                -- $cur ) )
+                 return 0
+                 ;;
+         esac
+
+         _expand || return 0
+
+         COMPREPLY=( $( compgen -W '--help --version' -- $cur ) \
+                     $( compgen -W 'bs cbs conv count ibs if obs of seek 
+skip' -S '=' -- $cur ) )
+}
+[ "${have:-}" ] && complete -F _dd $nospace dd
+
 _filedir_xspec()
 {
 	local IFS cur xspec
@@ -5716,7 +5756,8 @@ _filedir_xspec()
 	_expand || return 0
 
 	# get first exclusion compspec that matches this command
-	xspec=$( sed -ne '/ '${1##*/}'/{p;q;}' $BASH_COMPLETION )
+	xspec=$( grep '^complete ' $BASH_COMPLETION | \
+		  sed -ne '/ '${1##*/}'/{p;q;}' )
 	# prune to leave nothing but the -X spec
 	xspec=${xspec#*-X }
 	xspec=${xspec%% *}
@@ -5763,7 +5804,7 @@ unset i
 [ $BASH_COMPLETION != ~/.bash_completion -a -r ~/.bash_completion ] \
 	&& . ~/.bash_completion
 unset -f have
-unset UNAME RELEASE have default dirnames filenames nospace bashdefault plusdirs
+unset UNAME RELEASE default dirnames filenames nospace bashdefault plusdirs
 
 ###  Local Variables:
 ###  mode: shell-script

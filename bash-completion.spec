@@ -1,5 +1,5 @@
 Name:		bash-completion
-Version:	20040101
+Version:	20040214
 Release:	alt01
 
 Summary:	bash-completion offers programmable completion for bash
@@ -35,13 +35,17 @@ unset bash bmajor bminor
 __PROFILE__
 
 %files
-%doc README Changelog contrib
+%doc README Changelog contrib BUGS
 %_sysconfdir/bash_completion
 %dir %_sysconfdir/bash_completion.d
 %attr(0755,root,root) %_sysconfdir/profile.d/%name.sh
 
 
 %changelog
+* Mon Mar 15 2004 Alex Murygin <murygin@altlinux.ru> 20040214-alt01
+- new version
+- added BUGS to doc
+
 * Thu Jan 08 2004 Alex Murygin <murygin@altlinux.ru> 20040101-alt01
 - new version
 
