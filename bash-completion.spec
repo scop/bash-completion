@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.115 2004/03/31 17:43:40 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.116 2004/03/31 17:44:58 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
@@ -84,6 +84,7 @@ fi
 - allow cvs completion to handle the various sub-command abbreviataions
 - fix man and cc completion for Cygwin
 - some versions of bash don't like function names containing hyphens
+- some new completions in contrib
 
 * Tue Feb 10 2004 Ian Macdonald <ian@caliban.org>
 - big speed up for dpkg completion
