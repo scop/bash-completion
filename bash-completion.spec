@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.59 2002/08/19 17:00:07 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.60 2002/09/09 18:35:49 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020819
+Version: 20020909
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,12 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Mon Sep  9 2002 Ian Macdonald <ian@caliban.org>
+- fix for 'cvs add', where filename ends with another filename
+- add option completion for chown and chgrp
+- add .ogm and .mp4 to mplayer and xine
+- more file-types for xmms to complete on
+
 * Mon Aug 19 2002 Ian Macdonald <ian@caliban.org>
 - add Linux iwconfig(8) completion
 - xmms can now also complete on .xm, .mod and .s3m files
