@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.109 2002/02/13 18:33:29 ianmacd Exp $
+#   $Id: bash_completion,v 1.110 2002/02/13 19:20:59 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1693,6 +1693,34 @@ _gdb()
 	fi
 }
 [ $have ] && complete -F _gdb -o default gdb
+
+# psql(1) completion
+#
+have psql &&
+_psql () 
+{
+	local cur
+
+	COMREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+	-h) 
+		_known_hosts
+		return 0
+		;;
+	-U)
+		COMPREPLY=( $( compgen -u $cur ) ) 
+		return 0
+		;;
+	*)
+		COMPREPLY=( $( psql -l | sed -ne 's/^ \('$cur'[^ ]*\).*$/\1/p' ) )
+		return 0
+		;;
+	esac
+}
+[ "$have" ] && complete -F _psql psql
 
 # bash alias completion
 #
