@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.32 2001/12/05 18:05:49 ianmacd Exp $
+#   $Id: bash_completion,v 1.33 2001/12/11 21:25:53 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1336,7 +1336,26 @@ _p4()
 }
 [ "$have" ] && complete -F _p4 -o default p4 g4
 
-# 
+# ant completion is modified from the original submitted by
+# Claus-Peter Klas <peter.klas@uni-dortmund.de>
+#
+have ant &&
+_ant_targets()
+{
+	COMPREPLY=()
+	local gcmd
+
+	# if we have a partial word to complete, restrict completions to
+	# matches of that word
+	[ ! -f build.xml ] && return 0
+
+	[ -n "$2" ] && gcmd='grep "^$2"' || gcmd=cat
+
+	COMPREPLY=( $( awk 'BEGIN {FS="\""} /\<target/ {print $2}' < build.xml \
+	| tr -s ' ' '\012' | sort -u | eval $gcmd ) )
+}
+[ "$have" ] && complete -F _ant_targets ant
+
 # Return 1 if $1 appears to contain a redirection operator.  Handles backslash
 # quoting (barely).
 #
