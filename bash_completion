@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.67 2002/01/24 00:13:21 ianmacd Exp $
+#   $Id: bash_completion,v 1.68 2002/01/24 00:36:30 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -36,9 +36,6 @@ shopt -s extglob progcomp
 
 # Make directory commands see only directories
 complete -d mkdir rmdir pushd
-
-# Make file commands see only files
-complete -f cat less more ln strip
 
 # the following section lists completions that are redefined later
 # START exclude -- do NOT remove this line
@@ -1611,7 +1608,21 @@ _configure_func ()
 }
 complete -F _configure_func configure
 
-_file_and_dir()
+_filedir()
+{
+	local IFS cur
+
+	IFS=$'\t\n'
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	_expand || return 0
+
+	COMPREPLY=( $( eval compgen -f $cur ) $( compgen -d $cur ) )
+}
+complete -F _filedir -o filenames cat less more ln strip
+
+_filedir_xspec()
 {
 	local IFS cur xspec
 
@@ -1649,7 +1660,7 @@ list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' \
 if [ ${#list[@]} -gt 0 ]; then
     eval complete -r ${list[@]}
     # install new compspecs
-    eval complete -F _file_and_dir -o filenames ${list[@]}
+    eval complete -F _filedir_xspec -o filenames ${list[@]}
 fi
 unset list[@]
     
