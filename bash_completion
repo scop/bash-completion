@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.167 2002/02/28 23:37:10 ianmacd Exp $
+#   $Id: bash_completion,v 1.168 2002/03/01 01:42:13 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -179,8 +179,6 @@ _umount()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	# could rewrite the cut | grep to be a sed command, but this is
-	# clearer and doesn't result in much overhead
 	COMPREPLY=( $( mount | cut -d' ' -f 3 | grep ^$cur ) )
 
 	return 0
@@ -264,7 +262,7 @@ _insmod()
 	elif [ -r $modpath -a -x $modpath ]; then
 		# do module name completion
 		COMPREPLY=( $( \ls -R $modpath | \
-				sed -ne 's/^\('$cur'.*\)\.o$/\1/p') )
+				sed -ne 's|^\('$cur'.*\)\.o$|\1|p') )
 	else 
 		_filedir
 	fi
@@ -378,6 +376,8 @@ _killall()
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
 		_signals
 	else
+		# escaoe slashes for awk
+		cur=${cur//\//\\\/}
 		# get a list of processes (the sub() in the awk takes care
 		# of getting the basename of the process, the first sed
 		# evaluation takes care of swapped out processes, and the
@@ -517,7 +517,7 @@ _ifconfig()
 	esac
 
 	COMPREPLY=( $( /sbin/ifconfig -a | \
-		       sed -ne 's/^\('$cur'[^ ]*\).*$/\1/p' ))
+		       sed -ne 's|^\('$cur'[^ ]*\).*$|\1|p' ))
 }
 [ $OS = Linux ] && complete -F _ifconfig ifconfig
 
@@ -534,10 +534,10 @@ _ifupdown()
 	if [ $COMP_CWORD -eq 1 ]; then
 		if [ -f /etc/debian_version ]; then
 			# Debian system
-			COMPREPLY=( $( sed -ne 's/^iface \([^ ]\+\).*$/\1/p' /etc/network/interfaces ) )
+			COMPREPLY=( $( sed -ne 's|^iface \([^ ]\+\).*$|\1|p' /etc/network/interfaces ) )
 		else
 			# Assume Red Hat
-			COMPREPLY=( $( \ls /etc/sysconfig/network-scripts/ifcfg-* | sed -ne 's/.*ifcfg-\('$cur'.*\)/\1/p' ) )
+			COMPREPLY=( $( \ls /etc/sysconfig/network-scripts/ifcfg-* | sed -ne 's|.*ifcfg-\('$cur'.*\)|\1|p' ) )
 		fi
        fi
 
@@ -780,10 +780,10 @@ _rpm()
 			/var/log/rpmpkgs -nt /var/lib/rpm/Packages ]; then
 			# using RHL 7.2 - this is quicker than querying the DB
 			COMPREPLY=( ${COMPREPLY[@]} \
-			$( sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+.*\.rpm$/\1/p' /var/log/rpmpkgs ) )
+			$( sed -ne 's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+.*\.rpm$|\1|p' /var/log/rpmpkgs ) )
 		else
 			COMPREPLY=( ${COMPREPLY[@]} $( rpm -qa | \
-			sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+$/\1/p' ) )
+			sed -ne 's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+$|\1|p' ) )
 		fi
 	}
 
@@ -836,7 +836,7 @@ _rpm()
 		;;
 	--eval)
 		# get a list of macros
-		COMPREPLY=( $( sed -ne 's/^\(%'${cur#\%}'[^ '$'\t'']*\).*$/\1/p' \
+		COMPREPLY=( $( sed -ne 's|^\(%'${cur#\%}'[^ '$'\t'']*\).*$|\1|p' \
 			       /usr/lib/rpm/macros ) )
 		return 0
 		;;
@@ -1272,7 +1272,7 @@ _route()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [ "$prev" = dev ]; then
-	    COMPREPLY=( $( ifconfig -a | sed -ne 's/^\('$cur'[^ ]*\).*$/\1/p' ))
+	    COMPREPLY=( $( ifconfig -a | sed -ne 's|^\('$cur'[^ ]*\).*$|\1|p' ))
 	    return 0
 	fi
 
@@ -1784,11 +1784,11 @@ _screen()
 	case "$prev" in
 	-[rR])
 		# list detached
-		COMPREPLY=( $( \screen -ls | sed -ne 's/^['$'\t'']\+\('$cur'[^'$'\t'']\+\).*Detached.*$/\1/p' ) )
+		COMPREPLY=( $( \screen -ls | sed -ne 's|^['$'\t'']\+\('$cur'[^'$'\t'']\+\).*Detached.*$|\1|p' ) )
 		;;
 	-[dDx])
 		# list attached
-		COMPREPLY=( $( \screen -ls | sed -ne 's/^['$'\t'']\+\('$cur'[^'$'\t'']\+\).*Attached.*$/\1/p' ) )
+		COMPREPLY=( $( \screen -ls | sed -ne 's|^['$'\t'']\+\('$cur'[^'$'\t'']\+\).*Attached.*$|\1|p' ) )
 		;;
 	-s)
 		# shells
@@ -1835,6 +1835,8 @@ _gdb()
 	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -c -- $cur ) )
 	elif [ $COMP_CWORD -eq 2 ]; then
+		# escaoe slashes for awk
+		prev=${prev//\//\\\/}
 		COMPREPLY=( ${COMPREPLY[@]} $( ps ahx | sed -e 's#[]\[()]##g' |\
 					awk '{p=$5;sub("^.*/","",p); \
 					if (p ~ /^'$prev'/) print $1}' | \
@@ -1867,7 +1869,7 @@ _psql()
 		return 0
 		;;
 	*)
-		COMPREPLY=( $( psql -l | sed -ne 's/^ \('$cur'[^ ]*\).*$/\1/p' ) )
+		COMPREPLY=( $( psql -l | sed -ne 's|^ \('$cur'[^ ]*\).*$|\1|p' ) )
 		return 0
 		;;
 	esac
@@ -2026,8 +2028,8 @@ _alias()
 		COMPREPLY=( $( compgen -A alias -S '=' -- $cur ) )
 		;;
         *=)
-		COMPREPLY=( "$( alias ${cur%=} | \
-			     sed -e 's/^alias '$cur'\(.*\)$/\1/' )" )
+		COMPREPLY=( "$( alias ${cur%=} 2>/dev/null | \
+			     sed -e 's|^alias '$cur'\(.*\)$|\1|' )" )
 		;;
 	esac
 }
