@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.18 2001/05/21 22:10:29 ianmacd Exp $
+#   $Id: bash_completion,v 1.19 2001/07/09 01:14:13 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -19,6 +19,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program; if not, write to the Free Software Foundation,
 #   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+# Set a couple of useful vars
+#
+OS=$( uname -s )
+RELEASE=$( uname -r )
 
 # Turn on extended globbing and programmable completion
 shopt -s extglob progcomp
@@ -89,6 +94,15 @@ complete -A binding bind
 #
 # A couple of functions may have non-portable, Linux specific code in
 # them, but this will be noted where applicable
+
+# This function is handy for checking whether we have certain programs
+# on the system. No need for bulky functions in memory if we don't.
+#
+have()
+{
+	which $1 &> /dev/null
+	have=$?
+}
 
 
 # GNU chown(1) completion. This should be expanded to allow the use of
@@ -190,6 +204,7 @@ complete -F _mount mount
 # Linux rmmod(1) completion. This completes on a list of all currently
 # installed kernel modules.
 #
+[ $OS = Linux ] &&
 _rmmod()
 {
 	local cur
@@ -201,11 +216,12 @@ _rmmod()
 		       awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}' ) )
 	return 0
 }
-complete -F _rmmod rmmod
+[ $OS = Linux ] && complete -F _rmmod rmmod
 
 # Linux insmod(8) & modprobe(8) completion. This completes on a list of all
 # available modules for the version of the kernel currently running.
 #
+[ $OS = Linux ] &&
 _insmod()
 {
 	local cur prev modpath
@@ -239,7 +255,7 @@ _insmod()
 
 	return 0
 }
-complete -F _insmod insmod modprobe
+[ $OS = Linux ] && complete -F _insmod insmod modprobe
 
 # man(1) completion. This relies on the security enhanced version of
 # GNU locate(1). UNIX variants having non-numeric man page sections
@@ -251,6 +267,7 @@ complete -F _insmod insmod modprobe
 # 'man 3 str<tab>' to obtain a list of all string handling syscalls on
 # the system.
 #
+[ $OS = Linux ] &&
 _man()
 {
         local cur prev cmd
@@ -290,7 +307,7 @@ _man()
 
 	return 0
 }
-complete -F _man -o default man
+[ $OS = Linux ] && complete -F _man -o default man
 
 # Linux killall(1) completion. This wouldn't be much use on, say,
 # Solaris, where killall does exactly that: kills ALL processes.
@@ -431,6 +448,7 @@ complete -F _find -o default find
 
 # Linux ifconfig(8) completion
 #
+[ $OS = Linux ] &&
 _ifconfig()
 {
 	local cur
@@ -463,10 +481,11 @@ _ifconfig()
 
 	COMPREPLY=( $( ifconfig -a | sed -ne 's/^\('$cur'[^ ]*\).*$/\1/p' ))
 }
-complete -F _ifconfig ifconfig
+[ $OS = Linux ] && complete -F _ifconfig ifconfig
 
 # Linux ipsec(8) completion (for FreeS/WAN). Basic.
 #
+[ $OS = Linux ] && have ipsec &&
 _ipsec()
 {
 	local cur
@@ -510,7 +529,7 @@ _ipsec()
 
 	return 0
 }
-complete -F _ipsec ipsec
+[ $OS = Linux ] && [ $have ] && complete -F _ipsec ipsec
 
 # cvs(1) completion
 #
@@ -534,6 +553,7 @@ complete -F _cvs -o default cvs
 
 # rpm(8) completion. This is quite comprehensive now and covers rpm 4.x
 # 
+have rpm &&
 _rpm()
 {
 	dashify()
@@ -786,10 +806,11 @@ _rpm()
 
 	return 0
 }
-complete -F _rpm rpm
+[ $have ] && complete -F _rpm rpm
 
 # Debian Linux apt-get(8) completion.
 #
+have apt-get &&
 _apt-get()
 {
 	local cur prev special
@@ -833,10 +854,11 @@ _apt-get()
 
 	return 0
 }
-complete -F _apt-get apt-get
+[ $have ] && complete -F _apt-get apt-get
 
 # Debian Linux apt-cache(8) completion.
 #
+have apt-cache &&
 _apt-cache()
 {
 	local cur prev special
@@ -879,7 +901,7 @@ _apt-cache()
 
 	return 0
 }
-complete -F _apt-cache apt-cache
+[ $have ] && complete -F _apt-cache apt-cache
 
 # chsh(1) completion
 #
@@ -903,6 +925,7 @@ complete -F _chsh chsh
 
 # chkconfig(8) completion
 #
+have chkconfig &&
 _chkconfig()
 {
 	local cur prev
@@ -939,7 +962,7 @@ _chkconfig()
 
 	return 0
 }
-complete -F _chkconfig chkconfig
+[ $have ] && complete -F _chkconfig chkconfig
 
 # This function performs host completion based on ssh's known_hosts files, defaulting
 # to standard host completion if they don't exist.
@@ -989,6 +1012,7 @@ complete -F _known_hosts traceroute ping fping telnet host nslookup
 # ssh(1) completion. Should be able to improve this with user@host notation,
 # but the '@' seems to trigger some kind of bug in bash's completion.
 #
+have ssh &&
 _ssh()
 {
 	local cur prev
@@ -1020,7 +1044,7 @@ _ssh()
 
 	return 0
 }
-complete -F _ssh ssh slogin sftp
+[ $have ] && complete -F _ssh ssh slogin sftp
 
 # Linux route(8) completion. This could be improved by adding address family
 # completion for -A, etc.
@@ -1132,6 +1156,7 @@ complete -F _make -X '+($*|*.[cho])' make gmake pmake
 # service scripts in the SysV init.d directory, followed by that script's
 # available commands
 #
+have service &&
 _service()
 {
 	local cur sysvdir
@@ -1154,7 +1179,58 @@ _service()
 
 	return 0
 }
-complete -F _service service
+[ $have ] && complete -F _service service
+
+# The beginnings of a completion function for GNU tar(1)
+#
+_tar()
+{
+	local cur
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ ${COMP_WORDS[1]} == *z*f ]]; then
+		COMPREPLY=( $( compgen -G $cur\*.tar.gz ) )
+	elif [[ ${COMP_WORDS[1]} == *j*f ]]; then
+		COMPREPLY=( $( compgen -G $cur\*.tar.bz2 ) )
+	fi
+
+	return 0
+}
+complete -F _tar -o default tar
+
+# Linux iptables(8) completion
+#
+have iptables &&
+_iptables()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+	
+	[ "$prev" = -t ] && COMPREPLY=( $( compgen -W 'nat filter mangle' $cur ) )
+}
+ [ $have ] && complete -F _iptables iptables
+
+# Linux iptables(8) completion
+#
+have tcpdump &&
+_tcpdump()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	COMPREPLY=( $( compgen -W 'host net port src dst ether gateway 
+				   less greater' $cur ) )
+
+}
+[ $have ] && complete -F _tcpdump tcpdump
 
 # This meta-cd function observes the CDPATH variable, so that cd additionally
 # completes on directories under those specified in CDPATH.
@@ -1224,3 +1300,6 @@ _configure_func ()
 	COMPREPLY=( $("$cmd" --help | awk '{if ($1 ~ /--.*/) print $1}' | grep ^"$2" | sort -u) )
 }
 complete -F _configure_func configure
+
+unset -f have
+unset OS RELEASE have
