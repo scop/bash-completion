@@ -1,8 +1,8 @@
-#   bash_completion - some programmable completion functions for bash 2.04
+#   bash_completion - some programmable completion functions for bash 2.05
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.20 2001/07/09 02:55:01 ianmacd Exp $
+#   $Id: bash_completion,v 1.21 2001/07/12 05:52:25 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1236,8 +1236,8 @@ _cd()
 {
         local cur=${COMP_WORDS[COMP_CWORD]} dirs=()
 
-	# that's all if parameter contains a /
-	[[ "$cur" == /* ]] && return 0
+	# standard dir completion if parameter contains a /
+	[[ "$cur" == /* ]] && COMPREPLY=( $( compgen -d $cur ) ) && return 0
 
 	[ -n "$CDPATH" ] && {
 		# we have a CDPATH, so loop on its contents
@@ -1263,6 +1263,7 @@ _p4()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	
+	[ $COMP_CWORD -gt 1 ] && return 0
 	COMPREPLY=( $( compgen -W 'add admin branch branches change changes \
 			client clinets counter counters delete depot depots \
 			describe diff diff2 dirs edit filelog files fix fixes \
@@ -1273,8 +1274,7 @@ _p4()
 			submit sync triggers typemap unlock user users verify \
 			where' $cur ) )
 }
-echo $have
-[ "$have" ] && complete -F _p4 -o filenames p4
+[ "$have" ] && complete -F _p4 -o default p4
 
 # 
 # Return 1 if $1 appears to contain a redirection operator.  Handles backslash
