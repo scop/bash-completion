@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.161 2002/02/27 16:28:26 ianmacd Exp $
+#   $Id: bash_completion,v 1.162 2002/02/27 16:48:20 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -253,7 +253,7 @@ _insmod()
 
 	# do filename completion if we're giving a path to a module
 	if [[ "$cur" == /* ]]; then
-		COMPREPLY=( $( compgen -f $cur ) )
+		_filedir
 		return 0
 	fi
 
@@ -266,7 +266,7 @@ _insmod()
 		COMPREPLY=( $( \ls -R $modpath | \
 				sed -ne 's/^\('$cur'.*\)\.o$/\1/p') )
 	else 
-		COMPREPLY=( $( compgen -f $cur ) )
+		_filedir
 	fi
 
 	return 0
@@ -409,7 +409,7 @@ _find()
 		return 0
 		;;
 	-?(a)newer|-fls|-fprint?(0|f)|-?(i)?(l)name)
-		COMPREPLY=( $( compgen -f -- $cur ) )
+		_filedir
 		return 0
 		;;
 	-fstype)
@@ -450,7 +450,7 @@ _find()
 
 	# handle case where first parameter is not a dash option
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]]; then
-		COMPREPLY=( $( compgen -d $cur ) )
+		_filedir -d
 		return 0
 	fi
 
@@ -673,7 +673,7 @@ _rpm()
 
 	case "$prev" in
 	--@(@(db|exclude)path|prefix|relocate|root))
-		COMPREPLY=( $( compgen -d -- $cur ) )
+		_filedir -d
 		return 0
 		;;
 	--eval)
@@ -687,7 +687,7 @@ _rpm()
 		return 0
 		;;
 	--rcfile)
-		COMPREPLY=( $( compgen -f -- $cur ) )
+		_filedir
 		return 0
 		;;
 	--specfile)
@@ -738,7 +738,7 @@ _rpm()
 		;;
 	-*f)
 		# standard filename completion
-		COMPREPLY=( $( compgen -f -- $cur ) )
+		_filedir
 		;;
 	-@(e|-erase))
 		# complete on list of relevant options
@@ -870,7 +870,7 @@ _apt_get()
 	fi
 
 	if [[ "$prev" == -*c ]] || [ "$prev" = --config-file ]; then
-		COMPREPLY=( $( compgen -f -- $cur ) )
+		_filedir
 	else
 		COMPREPLY=( $( compgen -W 'update upgrade dselect-upgrade \
 				  dist-upgrade install remove source check \
@@ -911,7 +911,7 @@ _apt_cache()
 	if [ -n "$special" ]; then
 		case $special in
 		add)
-			COMPREPLY=( $( compgen -f -- $cur ) )
+			_filedir
 			return 0
 			;;
 		show?(pkg)|depends|dotty)
@@ -923,7 +923,7 @@ _apt_cache()
 
 
 	if [[ "$prev" == -*c ]] || [ "$prev" = --config-file ]; then
-		COMPREPLY=( $( compgen -f -- $cur ) )
+		_filedir
 	else
 		COMPREPLY=( $( compgen -W 'add gencaches showpkg stats dump \
 				dumpavail unmet check search show dotty \
@@ -1153,7 +1153,7 @@ _make()
 	# we could be a little smarter here and return matches against
 	# `makefile Makefile *.mk', whatever exists
 	if [[ "$prev" == -*f ]]; then
-		COMPREPLY=( $( compgen -f -- $cur ) )
+		_filedir
 		return 0
 	fi
 
@@ -1354,7 +1354,7 @@ _cd()
 
 	# standard dir completion if parameter starts with /, ./ or ../
 	if [[ "$cur" == ?(.)?(.)/* ]]; then
-		COMPREPLY=( $( compgen -d $cur ) )
+		_filedir -d
 		return 0
 	fi
 	if [ -n "$CDPATH" ]; then
@@ -1367,7 +1367,7 @@ _cd()
 		done
 	fi
 	IFS=$' \t\n'
-	COMPREPLY=( ${COMPREPLY[@]} $( compgen -d -- $cur ) )
+	_filedir -d
 
 	return 0
 }
@@ -1945,10 +1945,10 @@ _filedir()
 	_expand || return 0
 
 	if [ "$1" = -d ]; then
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -d $cur ) )
+		COMPREPLY=( ${COMPREPLY[@]} $( compgen -d -- $cur ) )
 		return 0
 	fi
-	COMPREPLY=( ${COMPREPLY[@]} $( eval compgen -f \"$cur\" ) )
+	COMPREPLY=( ${COMPREPLY[@]} $( eval compgen -f -- \"$cur\" ) )
 }
 
 _filedir_xspec()
@@ -1967,8 +1967,8 @@ _filedir_xspec()
 	xspec=${xspec#*-X }
 	xspec=${xspec%% *}
 
-	COMPREPLY=( $( eval compgen -f -X "$xspec" \"$cur\" ) \
-		    $( compgen -d $cur ) )
+	COMPREPLY=( $( eval compgen -f -X "$xspec" -- \"$cur\" ) \
+		    $( compgen -d -- $cur ) )
 }
 list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' \
 	  $BASH_COMPLETION | \
