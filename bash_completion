@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.319 2002/05/15 20:56:25 ianmacd Exp $
+#   $Id: bash_completion,v 1.320 2002/05/16 09:05:04 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2009,7 +2009,7 @@ _autorpm()
 #
 _cd()
 {
-	local IFS=$'\t\n' cur=${COMP_WORDS[COMP_CWORD]} dirs=() i
+	local IFS=$'\t\n' cur=${COMP_WORDS[COMP_CWORD]} i j k
 
 	# Use standard dir completion if no CDPATH or parameter starts with /,
 	# ./ or ../
@@ -2022,15 +2022,14 @@ _cd()
 	# we have a CDPATH, so loop on its contents
 	for i in ${CDPATH//:/$'\t'}; do
 		# create an array of matched subdirs
-		dirs=( $( compgen -d $i/$cur ) )
-		# add subdirs to list of completions as necessary
-		[ ${#dirs[@]} ] && COMPREPLY=( ${COMPREPLY[@]} ${dirs[@]#$i/})
+		k=${#COMPREPLY[@]}
+		for j in $( compgen -d $i/$cur); do
+			COMPREPLY[$k]=${j#$i/}
+			k=$((++k))
+		done
 	done
 
 	_filedir -d
-
-	IFS=$' \t\n'
-	COMPREPLY=( ${COMPREPLY[@]} )
 
 	return 0
 }
@@ -2561,8 +2560,8 @@ have cardctl &&
 _cardctl()
 {
 	local cur
-	COMPREPLY=()
 
+	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 
 	if [ $COMP_CWORD -eq 1 ]; then
