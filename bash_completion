@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.674 2004/02/09 20:50:56 ianmacd Exp $
+#   $Id: bash_completion,v 1.675 2004/02/09 20:52:56 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -344,7 +344,10 @@ _export()
 		COMPREPLY=( $( compgen -v -S '=' -- $cur ) )
 		;;
 	*=)
-		COMPREPLY=( $( eval echo $`echo ${cur%=}` ) )
+		COMPREPLY=( "$( eval echo -n \"$`echo ${cur%=}`\" |
+			( echo -n \'
+			  sed -e 's/'\''/'\''\\\'\'''\''/g'
+			  echo -n \' ) )" )
 		;;
 	esac
 }
