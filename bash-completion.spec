@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.41 2002/06/05 09:59:02 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.42 2002/06/09 17:24:08 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020605
+Version: 20020609
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,12 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Sun Jun  9 2002 Ian Macdonald <ian@caliban.org>
+- tar completion now recognises the .tbz2 extension
+- 'tar cf' completed properly, but 'tar -cf' did not
+- galeon, links and curl now also complete on .html files
+- unzip and zipinfo now recognise the .wsz extension
+
 * Wed Jun  5 2002 Ian Macdonald <ian@caliban.org>
 - add .html file completion for netscape, mozilla, lynx, w3m
 - use 'command ls' instead of '\ls', since while the latter avoids aliases,
