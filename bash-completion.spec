@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.90 2003/05/05 06:51:42 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.91 2003/05/27 05:12:52 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030505
+Version: 20030527
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -42,7 +42,8 @@ cat <<'EOF' > bash_completion.sh
 
 # check for correct version of bash
 bash=${BASH_VERSION%.*}; bmajor=${bash%.*}; bminor=${bash#*.}
-if [ $bmajor -eq 2 ] && [ $bminor '>' 04 ] && [ -r %{_sysconfdir}/bash_completion ]; then
+if [ $bmajor -eq 2 ] && [ $bminor '>' 04 ] &&
+   [ -r %{_sysconfdir}/bash_completion ]; then
 	# source completion code
         . %{_sysconfdir}/bash_completion
 fi
@@ -55,6 +56,7 @@ install -m 0644 bash_completion.sh $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
 rm -rf $RPM_BUILD_ROOT
 
 %pre
+# legacy clean-up
 if grep -q '^# START bash completion' %{_sysconfdir}/bashrc; then
     sed -e '/^# START bash completion/,/^# END bash completion/d' %{_sysconfdir}/bashrc > %{_sysconfdir}/bashrc.$$
     chmod --reference %{_sysconfdir}/bashrc %{_sysconfdir}/bashrc.$$
@@ -70,6 +72,17 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Tue May 27 2003 Ian Macdonald <ian@caliban.org>
+- minor apt-cache completion fix
+- handle the case whereby we're sourced from a shell function
+- dpkg completion was missing the -x option
+- add pkg_delete and pkg_info back onto FreeBSD commands that use _pkg_delete()
+- add FreeBSD portinstall completion
+- various bits of code referred to ${#COMP_WORDS} instead of ${#COMP_WORDS[@]}
+- silence stderr in man invocation in perldoc completion
+- make insmod/modprobe completion handle .ko files for the 2.5/2.6 Linux kernel
+- modify _cd() to make an attempt at variable completion
+
 * Mon May  5 2003 Ian Macdonald <ian@caliban.org>
 - fixed rpm completion for Mandrake 9.1
 - this RPM now has much cleaner installation. /etc/bashrc is no longer
