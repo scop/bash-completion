@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.25 2002/04/13 19:25:11 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.26 2002/04/18 16:04:36 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
@@ -73,7 +73,14 @@ fi
 %doc README Changelog contrib/
 
 %changelog
-* Sat Apr 12 2002 Ian Macdonald <ian@caliban.org>
+* Thu Apr 18 2002 Ian Macdonald <ian@caliban.org>
+- add 'annotate' to list of cvs commands that perform completion
+- added ri (Ruby documentation) completion
+- _rpm(): rpm -qf worked, but rpm -q -f didn't. Simiarly, rpm -V -f didn't
+  work; nor did rpm -Vg or rpm -V -g
+- avoid errors when comp{gen,lete} -g aren't available on unpatched bash 2.05
+
+* Sat Apr 13 2002 Ian Macdonald <ian@caliban.org>
 - backed out recalculation of current parameter position after wildcard
   expansion in sudo completion
 
