@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.63 2002/01/22 08:19:47 ianmacd Exp $
+#   $Id: bash_completion,v 1.64 2002/01/23 18:14:19 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -22,7 +22,7 @@
 
 # RELEASE: 20020121
 
-[ -n "$DEBUG" ] && set -v
+[ -n "$DEBUG" ] && set -v || set +v
 # Set a couple of useful vars
 #
 OS=$( uname -s )
@@ -44,19 +44,19 @@ complete -f cat less more ln strip
 # START exclude -- do NOT remove this line
 complete -f -X '*.bz2' bzip2
 complete -f -X '!*.bz2' bunzip2
-complete -f -X '!*.zip' unzip
+complete -f -X '!*.+(zip|ZIP|jar|JAR)' unzip
 complete -f -X '*.gz' gzip
 complete -f -X '*.Z' compress
 complete -f -X '!*.+(Z|gz|tgz|Gz)' gunzip zcat zmore
 complete -f -X '!*.Z' uncompress
 complete -f -X '!*.+(gif|jpg|jpeg|tif|tiff|png|GIF|JPG|TIF|TIFF|PNG|bmp)' ee xv
-complete -f -X '!*.+(?(e)ps|?(E)PS|?(e)ps.gz|pdf|PDF)' gv
+complete -f -X '!*.+(?(e)ps|?(E)PS|?(e)ps.gz|pdf|PDF)' gv ggv
 complete -f -X '!*.+(dvi|DVI)' dvips xdvi dviselect dvitype
 complete -f -X '!*.+(pdf|PDF)' acroread xpdf
 complete -f -X '!*.texi*' makeinfo texi2dvi texi2html
 complete -f -X '!*.+(tex|TEX)' tex latex slitex jadetex pdfjadetex
 complete -f -X '!*.+(mp3|MP3)' mpg123
-complete -f -X '!*.+(mpg|mpeg|avi|asf|vob|bin|vcd|ps|pes|fli|viv|rm|ram|yuv|mp3)' mplayer
+complete -f -X '!*.+(mpg|mpeg|avi|asf|vob|bin|vcd|ps|pes|fli|viv|rm|ram|yuv)' mplayer
 complete -f -X '!*.+(avi|asf)' avifile
 complete -f -X '!*.+(rm|ram)' realplay
 complete -f -X '!*.+(mpg|mpeg|avi|mov)' xanim
@@ -1376,7 +1376,7 @@ _command()
 
 	if [ $COMP_CWORD = 1 ]; then
 		COMPREPLY=( $( compgen -c $cur ) )
-	elif complete -p ${COMP_WORDS[1]} >/dev/null; then
+	elif complete -p ${COMP_WORDS[1]} &>/dev/null; then
 		cspec=$( complete -p ${COMP_WORDS[1]} )
 		if [ "${cspec#*-F }" != "$cspec" ]; then
 			# complete -F <function>
@@ -1394,8 +1394,7 @@ _command()
 			cline="${COMP_LINE#$1 }"
 			# split current command line tokens into array
 			COMP_WORDS=( $cline )
-			# call regular completion function
-			$func "$cline"
+			$func $cline
 		elif [ "${cspec#*-[abcdefgjkvu]}" != "$cspec" ]; then
 			# complete -[abcdefgjkvu]
 			func=$( echo $cspec | \
