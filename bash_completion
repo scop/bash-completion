@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.620 2003/09/11 00:32:22 ianmacd Exp $
+#   $Id: bash_completion,v 1.621 2003/09/11 00:50:30 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -433,7 +433,10 @@ _service()
 
 	# don't complete for things like killall, ssh and mysql if it's
 	# the standalone command, rather than the init script
-	[[ ${COMP_WORDS[0]} != @(*init.d*|service) ]] && return 0
+	[[ ${COMP_WORDS[0]} != @(*init.d/!(functions|~)|service) ]] && return 0
+
+	# don't complete past 2nd token
+	[ $COMP_CWORD -gt 2 ] && return 0
 
 	[ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
 				|| sysvdir=/etc/init.d
