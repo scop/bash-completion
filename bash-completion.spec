@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.70 2002/12/05 21:44:08 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.71 2002/12/13 05:13:32 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20021205
+Version: 20021213
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,13 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Fri Dec 13 2002 Ian Macdonald <ian@caliban.org>
+- ytalk now completes in the same way as talk
+- traceroute6, tracepath and tracepath6 now also complete on known hosts
+- command completion now also performed for ltrace, then, else and do
+- minor fix to gdb completion
+- commands that complete on .htm(l) files now complete on .(x)htm(l)
+
 * Thu Dec  5 2002 Ian Macdonald <ian@caliban.org>
 - first stab at ypmatch(1) and ypcat(1) completion
 - check for insmod and rmmod in path before installing completion functions
