@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.55 2002/07/27 09:15:28 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.56 2002/08/03 09:37:22 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020727
+Version: 20020803
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,15 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Sat Aug  3 2002 Ian Macdonald <ian@caliban.org>
+- silence eval errors in _filedir_xspec() when quoting goes awry
+- add apt-build completion by Rafael Sepúlveda <drs@gnulinux.org.mx>
+- add elinks to commands performing .html completion
+- perl and perldoc completion by Alex Shinn <foof@synthcode.com>
+- apparently, vim can edit .gz and .bz2 files, so don't exclude these from
+  the completion list
+- fix sed error when completing a relative path in insmod completion
+
 * Sat Jul 27 2002 Ian Macdonald <ian@caliban.org>
 - _man(): when completing on man page names, a trailing dot would be removed
   when trying to complete a man page such as syslog.conf
