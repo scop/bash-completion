@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.380 2002/07/12 09:21:06 ianmacd Exp $
+#   $Id: bash_completion,v 1.381 2002/07/15 23:07:02 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -3051,10 +3051,12 @@ _configure_func()
 	# if $COMP_CONFIGURE_HINTS is not null, then completions of the form
 	# --option=SETTING will include 'SETTING' as a contextual hint
 	[[ "$cur" != -* ]] && return 0
+
 	if [ -n "$COMP_CONFIGURE_HINTS" ]; then
-		COMPREPLY=( $( $1 --help | sed -ne 's|^ *\('$cur'[^ '$'\t'',[]\+\).*$|\1|p' ) )
+		COMPREPLY=( $( $1 --help | awk '/^  --\w/ { print $1; if ($2 ~ /--\w/) print $2 }' | sed -e 's/[,[].*//g' | grep ^$cur ) )
+
 	else
-		COMPREPLY=( $( $1 --help | sed -ne 's|^ *\('$cur'[^ '$'\t'',=[]\+=\?\).*$|\1|p' ) )
+		COMPREPLY=( $( $1 --help | awk '/^  --\w/ { print $1; if ($2 ~ /--\w/) print $2 }' | sed -e 's/[,=[].*//g' | grep ^$cur ) )
 	fi
 }
 complete -F _configure_func $default configure
