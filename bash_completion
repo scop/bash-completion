@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.240 2002/04/01 01:12:50 ianmacd Exp $
+#   $Id: bash_completion,v 1.241 2002/04/01 16:45:45 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -715,11 +715,14 @@ _cvs()
 		fi
 	}
 
-	local cur count mode i cvsroot pwd
+	local cur count mode i cvsroot pwd remote
 	local -a flags miss files entries changed newremoved
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
+	remote=no	# set to 'yes' if you would like 'cvs commit' to
+			# complete on remotely checked-out files (requires
+			# passwordless access to the remote repository
 
 	count=1
 	for i in ${COMP_WORDS[@]}; do
@@ -817,15 +820,20 @@ _cvs()
 	commit)
 		set_prefix
 		if [[ "$cur" != -* ]] && [ -r ${prefix}CVS/Entries ]; then
-			# this is the least computationally intensive way
-			# found so far, but other changes (something other than
-			# changed/removed/new) may be missing
-			changed=( $( cvs diff --brief 2>&1 | \
-			sed -ne 's/^Files [^ ]* and \([^ ]*\) differ$/\1/p' ) )
-			newremoved=( $( cvs diff --brief 2>&1 | \
-			sed -ne 's/^cvs diff: \([^ ]*\) .*, no comparison available$/\1/p' ) )
-			COMPREPLY=( $( compgen -W '${changed[@]} \
+			if [ "$remote" = yes ]; then
+				# this is the least computationally intensive
+				# way found so far, but other changes
+				# (something other than changed/removed/new)
+				# may be missing
+				changed=( $( cvs diff --brief 2>&1 | \
+				sed -ne 's/^Files [^ ]* and \([^ ]*\) differ$/\1/p' ) )
+				newremoved=( $( cvs diff --brief 2>&1 | \
+				sed -ne 's/^cvs diff: \([^ ]*\) .*, no comparison available$/\1/p' ) )
+				COMPREPLY=( $( compgen -W '${changed[@]} \
 						   ${newremoved[@]}' -- $cur ) )
+			else
+				COMPREPLY=( $( compgen -f -- $cur ) )
+			fi
 		else
 			COMPREPLY=( $( compgen -W '-n -R -l -f -F -m -r' -- \
 				       $cur ) )
