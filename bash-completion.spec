@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.43 2002/06/11 18:51:06 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.44 2002/06/16 18:37:25 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020611
+Version: 20020616
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,10 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Sun Jun 16 2002 Ian Macdonald <ian@caliban.org>
+- eliminate errors when setting read-only variables
+- fix quoting bug in PINE address completion
+
 * Tue Jun 11 2002 Ian Macdonald <ian@caliban.org>
 - BASH_COMPLETION_DIR had a typo and was set to /etc/bash_completion
   instead of /etc/bash_completion.d
