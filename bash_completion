@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.254 2002/04/03 21:10:49 ianmacd Exp $
+#   $Id: bash_completion,v 1.255 2002/04/03 23:10:35 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -343,7 +343,7 @@ _mount()
 			       grep ^${cur#*:} | awk '{print $1}' ) )
 	else
 		COMPREPLY=( $( awk '{if ($2 ~ /\//) print $2}' /etc/fstab | \
-			       grep ^$cur ) )
+			       grep "^$cur" ) )
 	fi
 
 	return 0
@@ -1071,9 +1071,18 @@ _rpm()
 		fi
 		;;
 	-@(q*|-query))
-		# check whether we're querying installed or uninstalled
-		if [ "${COMP_LINE#*-*([^ ])p}" != "$COMP_LINE" ]; then
-			# there's a -p on the line
+		# check whether we're doing package group completion
+		if [ "${COMP_LINE#*-*([^ ])g}" != "$COMP_LINE" ]; then
+			local IFS=$'\t'
+			# remove trailing backslash, or grep will complain
+			cur=${cur%'\'}
+			COMPREPLY=( $( rpm -qa --queryformat '%{group}\n' | \
+				       grep "^$cur" ) )
+			# backslash escape spaces and translate newlines to tabs
+			COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\ /g' |\
+				       tr '\n' '\t' ) )
+		elif [ "${COMP_LINE#*-*([^ ])p}" != "$COMP_LINE" ]; then
+			# uninstalled package completion
 			if [[ "$cur" == -* ]]; then
 				COMPREPLY=( $( compgen -W '--scripts --root \
 				--rcfile --whatprovides --whatrequires \
@@ -1087,6 +1096,7 @@ _rpm()
 				file_glob rpm
 			fi
 		else
+			# installed package completion
 			if [[ "$cur" == -* ]]; then
 				COMPREPLY=( $( compgen -W '--scripts --root \
 				--rcfile --whatprovides --whatrequires \
@@ -1158,17 +1168,6 @@ _rpm()
 		else
 			file_glob spec
 		fi
-		;;
-	-*g)
-		# package group completion
-		local IFS=$'\t'
-		# remove trailing backslash, or grep will complain
-		cur=${cur%'\'}
-		COMPREPLY=( $( rpm -qa --queryformat '%{group}\n' | \
-			       grep ^$cur ) )
-		# backslash escape spaces and translate newlines to tabs
-		COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\ /g' | \
-			       tr '\n' '\t' ) )
 		;;
 	esac
 
