@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.758 2004/10/17 08:25:34 ianmacd Exp $
+#   $Id: bash_completion,v 1.772 2005/01/04 06:37:42 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -22,7 +22,7 @@
 #
 #   http://www.caliban.org/bash/index.shtml#completion
 #
-#   RELEASE: 20041017
+#   RELEASE: 20050103
 
 [ -n "${DEBUG:-}" ] && set -v || set +v
 
@@ -94,12 +94,13 @@ complete -f -X '!*.@(@(?(e)ps|?(E)PS|pdf|PDF)?(.gz|.GZ|.bz2|.BZ2|.Z))' gv ggv kg
 complete -f -X '!*.@(dvi|DVI)?(.@(gz|Z|bz2))' xdvi
 complete -f -X '!*.@(dvi|DVI)' dvips dviselect dvitype
 complete -f -X '!*.@(pdf|PDF)' acroread gpdf xpdf kpdf
+complete -f -X '!*.@(?(e)ps|?(E)PS)' ps2pdf
 complete -f -X '!*.texi*' makeinfo texi2html
 complete -f -X '!*.@(?(la)tex|?(LA)TEX|texi|TEXI|dtx|DTX|ins|INS)' tex latex slitex jadetex pdfjadetex pdftex pdflatex texi2dvi
 complete -f -X '!*.@(mp3|MP3|m3u)' mpg123 mpg321
 complete -f -X '!*.@(mp?(e)g|MP?(E)G|wma|avi|AVI|asf|vob|VOB|bin|dat|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|MOV|qt|QT|wmv|mp3|MP3|ogg|OGG|ogm|OGM|mp4|MP4|wav|WAV|asx|ASX)' xine
 complete -f -X '!*.@(avi|asf|wmv)' aviplay
-complete -f -X '!*.@(rm|ram|smi?(l))' realplay
+complete -f -X '!*.@(rm?(j)|ra?(m)|smi?(l))' realplay
 complete -f -X '!*.@(mpg|mpeg|avi|mov|qt)' xanim
 complete -f -X '!*.@(ogg|OGG|m3u|flac|spx)' ogg123
 complete -f -X '!*.@(mp3|MP3|ogg|OGG|pls|m3u)' gqmpeg freeamp
@@ -328,6 +329,16 @@ _services()
 	fi
 
 	COMPREPLY=( $( compgen -W '${COMPREPLY[@]#@($sysvdir|$famdir)/}' -- $cur ) )
+}
+
+# This function complete on modules
+#
+_modules()
+{
+	local modpath
+	modpath=/lib/modules/$1
+	COMPREPLY=( $( command ls -R $modpath | \
+			sed -ne 's/^\('$cur'.*\)\.k\?o\(\|.gz\)$/\1/p') )
 }
 
 # Linux ifconfig(8) and iwconfig(8) helper function
@@ -643,6 +654,10 @@ _mount()
 		# Solaris
 		COMPREPLY=( $( awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' \
 				/etc/vfstab | grep "^$cur" ) )
+	elif [ ! -e /etc/fstab ]; then
+		# probably Cygwin
+		COMPREPLY=( $( mount | awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' \
+				 | grep "^$cur" ) )
 	else
 		# probably Linux
 		COMPREPLY=( $( awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' \
@@ -681,7 +696,6 @@ _insmod()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
-	modpath=/lib/modules/`uname -r`
 
 	# behave like lsmod for modprobe -r
 	if [ $1 = "modprobe" ] &&
@@ -703,12 +717,8 @@ _insmod()
 		COMPREPLY=( $( /sbin/modinfo -p ${COMP_WORDS[1]} 2>/dev/null | \
 		       awk '{if ($1 ~ /^parm:/ && $2 ~ /^'$cur'/) { print $2 } \
 			else if ($1 !~ /:/ && $1 ~ /^'$cur'/) { print $1 }}' ) )
-	elif [ -r $modpath -a -x $modpath ]; then
-		# do module name completion
-		COMPREPLY=( $( command ls -R $modpath | \
-			sed -ne 's/^\('$cur'.*\)\.k\?o\(\|.gz\)$/\1/p') )
-	else 
-		_filedir
+	else
+		_modules $(uname -r)
 	fi
 
 	return 0
@@ -891,6 +901,7 @@ _find()
 		;;
 	-fstype)
 		# this is highly non-portable
+		[ -e /proc/filesystems ] &&
 		COMPREPLY=( $( cut -d$'\t' -f 2 /proc/filesystems | \
 				grep "^$cur" ) )
 		return 0
@@ -1002,14 +1013,80 @@ _ifconfig()
 [ $UNAME = Linux ] && have iwconfig &&
 _iwconfig()
 {
+	local cur prev
 	local -a keywords=( essid nwid domain freq channel sens mode ap nick \
 			    rate bit rts frag key enc power )
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		mode)
+			COMPREPLY=( $( compgen -W 'ad-hoc managed master repeater secondary monitor' -- $cur ) )
+			return 0
+			;;
+	esac
 
 	_ifwconfig iwconfig
 
 	COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
 }
 [ $UNAME = Linux ] && complete -F _iwconfig iwconfig
+# Linux iwlist(8) completion
+#
+[ $UNAME = Linux ] && have iwlist &&
+_iwlist()
+{
+	local -a keywords=( scanning frequency rate key power txpower retry )
+
+	_ifwconfig iwconfig
+
+	COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
+}
+[ $UNAME = Linux ] && complete -F _iwlist iwlist
+
+# Linux iwspy(8) completion
+#
+[ $UNAME = Linux ] && have iwspy &&
+_iwspy()
+{
+	local -a keywords=( setthr getthr off )
+
+	_ifwconfig iwconfig
+
+	COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
+}
+[ $UNAME = Linux ] && complete -F _iwspy iwspy
+
+# Linux iwspy(8) completion
+#
+[ $UNAME = Linux ] && have iwpriv &&
+_iwpriv()
+{
+	local cur prev
+	local -a keywords=( --all roam port )
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		roam)
+			COMPREPLY=( $( compgen -W 'on off' -- $cur ) )
+			return 0
+			;;
+		port)
+			COMPREPLY=( $( compgen -W 'ad-hoc managed' -- $cur ) )
+			return 0
+			;;
+	esac
+
+	_ifwconfig iwconfig
+
+	COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
+}
+[ $UNAME = Linux ] && complete -F _iwpriv iwpriv
 
 # RedHat & Debian GNU/Linux if{up,down} completion
 #
@@ -1287,8 +1364,7 @@ get_entries()
 {
 	local IFS=$'\n'
 	[ -r ${prefix:-}CVS/Entries ] && \
-	entries=( $( compgen -W \
-		$( cut -d/ -f2 -s ${prefix:-}CVS/Entries ) -- $cur ) )
+	entries=$(cut -d/ -f2 -s ${prefix:-}CVS/Entries)
 }
 
 get_modules()
@@ -1328,7 +1404,7 @@ _cvs()
 				mode=admin
 				;;
 			ann?(notate))
-				mode = annotate
+				mode=annotate
 				;;
 			@(checkout|co|get))
 				mode=checkout
@@ -1411,6 +1487,14 @@ _cvs()
 					$cur ) )
 		fi
 		;;
+	annotate)
+		if [[ "$cur" = -* ]]; then
+			COMPREPLY=( $( compgen -W '-D -F -f -l -R -r' -- $cur ) )
+		else
+			get_entries
+			COMPREPLY=( $( compgen -W '${entries[@]}' -- $cur ) )
+		fi
+		;;
 	checkout)
 		if [[ "$cur" != -* ]]; then
 			[ -z "$cvsroot" ] && cvsroot=$CVSROOT
@@ -1470,7 +1554,7 @@ _cvs()
 			_longopt diff
 		else
 			get_entries
-			COMPREPLY=( ${entries[@]:-} )
+			COMPREPLY=( $( compgen -W '${entries[@]}' -- $cur ) )
 		fi
 		;;
 	remove)
@@ -2486,7 +2570,7 @@ _route()
 have make &&
 _make()
 {
-	local file makef makef_inc cur prev i
+	local file makef makef_dir="." makef_inc cur prev i
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -2534,19 +2618,29 @@ _make()
 			--what-if= --new-file= --assume-new= \
 			--warn-undefined-variables' -- $cur ) )
 	else
+		# before we check for makefiles, see if a path was specified
+		# with -C
+		for (( i=0; i < ${#COMP_WORDS[@]}; i++ )); do
+			if [[ ${COMP_WORDS[i]} == -C ]]; then
+				# eval for tilde expansion
+				eval makef_dir=${COMP_WORDS[i+1]}
+				break
+			fi
+		done
+
 		# make reads `GNUmakefile', then `makefile', then `Makefile'
-		if [ -f GNUmakefile ]; then
-			makef=GNUmakefile
-		elif [ -f makefile ]; then
-			makef=makefile
-		elif [ -f Makefile ]; then
-			makef=Makefile
+		if [ -f ${makef_dir}/GNUmakefile ]; then
+			makef=${makef_dir}/GNUmakefile
+		elif [ -f ${makef_dir}/makefile ]; then
+			makef=${makef_dir}/makefile
+		elif [ -f ${makef_dir}/Makefile ]; then
+			makef=${makef_dir}/Makefile
 		else
-			makef=*.mk	       # local convention
+			makef=${makef_dir}/*.mk	       # local convention
 		fi
 
-		# before we scan for targets, see if a makefile name was specified
-		# with -f
+		# before we scan for targets, see if a Makefile name was
+		# specified with -f
 		for (( i=0; i < ${#COMP_WORDS[@]}; i++ )); do
 			if [[ ${COMP_WORDS[i]} == -f ]]; then
 				# eval for tilde expansion
@@ -2558,7 +2652,7 @@ _make()
 		[ ! -f $makef ] && return 0
 
 		# deal with included Makefiles
- 		makef_inc=$( grep -E '^-?include' $makef | cut -d' ' -f2 )
+ 		makef_inc=$( grep -E '^-?include' $makef | sed -e "s,^.* ,"$makef_dir"/," )
 
  		for file in $makef_inc; do
  			[ -f $file ] && makef="$makef $file"
@@ -3079,10 +3173,26 @@ _bzip2()
 
 # openssl(1) completion
 #
-have openssl &&
+have openssl && {
+_openssl_sections()
+{
+	local config
+
+	config=/etc/ssl/openssl.cnf
+	for (( i=2; i < COMP_CWORD; i++ )); do
+		if [[ "${COMP_WORDS[i]}" == -config ]]; then
+			config=${COMP_WORDS[i+1]}
+			break
+		fi
+	done
+	[ ! -f $config ] && return 0
+
+	COMPREPLY=( $( awk '/\[.*\]/ {print $2} ' $config | grep "^$cur" ) )
+}
+
 _openssl()
 {
-	local cur
+	local cur prev
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -3100,11 +3210,463 @@ _openssl()
 			des-ede3-cfb des-ede3-ofb des-ofb des3 desx rc2 \
 			rc2-40-cbc rc2-64-cbc rc2-cbc rc2-cfb rc2-ecb rc2-ofb \
 			rc4 rc4-40' -- $cur ) )
+	else
+		prev=${COMP_WORDS[COMP_CWORD-1]}
+		case ${COMP_WORDS[1]} in
+			asn1parse)
+				case $prev in
+					-inform)
+						COMPREPLY=( $( compgen -W 'DER PEM' -- $cur ) )
+						return 0
+						;;
+					-@(in|out|oid))
+						_filedir
+						return 0
+						;;
+					esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-inform -in -out -noout -offset \
+						-length -i -oid -strparse' -- $cur ) )
+				fi
+				;;
+			ca)
+				case $prev in
+					-@(config|revoke|cert|in|out|spkac|ss_cert))
+						_filedir
+						return 0
+						;;
+					-outdir)
+						_filedir -d
+						return 0
+						;;
+					-@(name|crlexts|extensions))
+						_openssl_sections
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-verbose -config -name \
+						-gencrl -revoke -crldays -crlhours -crlexts \
+						-startdate -enddate -days -md -policy -keyfile \
+						-key -passin -cert -in -out -notext -outdir \
+						-infiles -spkac -ss_cert -preserveDN -batch \
+						-msie_hack -extensions' -- $cur ) )
+				fi
+				;;
+			ciphers)
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-v -ssl2 -ssl3 -tls1' -- $cur ) )
+				fi
+				;;
+			crl)
+				case $prev in
+					-@(in|out)form)
+						COMPREPLY=( $( compgen -W 'DER PEM' -- $cur ) )
+						return 0
+						;;
+					-@(in|out|CAfile))
+						_filedir
+						return 0
+						;;
+					-CAPath)
+						_filedir -d
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-inform -outform -text -in -out -noout \
+						-hash -issuer -lastupdate -nextupdate -CAfile -CApath' -- $cur ) )
+				fi
+				;;
+			crl2pkcs7)
+				case $prev in
+					-@(in|out)form)
+						COMPREPLY=( $( compgen -W 'DER PEM' -- $cur ) )
+						return 0
+						;;
+					-@(in|out))
+						_filedir
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-inform -outform -in -out -print_certs' -- $cur ) )
+				fi
+				;;
+			dgst)
+				case $prev in
+					-@(out|sign|verify|prvrify|signature))
+						_filedir
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-md5 -md4 -md2 -sha1 -sha -mdc2 -ripemd160 -dss1 \
+						-c -d -hex -binary -out -sign -verify -prverify -signature' -- $cur ) )
+				else
+						_filedir
+				fi
+			       ;;
+			dsa)
+				case $prev in
+					-@(in|out)form)
+						COMPREPLY=( $( compgen -W 'DER PEM' -- $cur ) )
+						return 0
+						;;
+					-@(in|out))
+						_filedir
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-inform -outform -in -passin -out -passout -des -des3 -idea -text -noout \
+						-modulus -pubin -pubout' -- $cur ) )
+				fi
+				;;
+			dsaparam)
+				case $prev in
+					-@(in|out)form)
+						COMPREPLY=( $( compgen -W 'DER PEM' -- $cur ) )
+						return 0
+						;;
+					-@(in|out|rand))
+						_filedir
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-inform -outform -in -out -noout \
+						-text -C -rand -genkey' -- $cur ) )
+				fi
+				;;
+			enc)
+				case $prev in
+					-@(in|out|kfile))
+						_filedir
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-ciphername -in -out -pass \
+						-e -d -a -A -k -kfile -S -K -iv -p -P -bufsize -debug' -- $cur ) )
+				fi
+				;;
+			dhparam)
+				case $prev in
+					-@(in|out)form)
+						COMPREPLY=( $( compgen -W 'DER PEM' -- $cur ) )
+						return 0
+						;;
+					-@(in|out|rand))
+						_filedir
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-inform -outform -in -out -dsaparam -noout \
+						-text -C -2 -5 -rand' -- $cur ) )
+				fi
+				;;
+			gendsa)
+				case $prev in
+					-@(out|rand))
+						_filedir
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-out -des -des3 -idea -rand' -- $cur ) )
+				else
+						_filedir
+				fi
+				;;
+			genrsa)
+				case $prev in
+					-@(out|rand))
+						_filedir
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-out -passout -des -des3 -idea -f4 -3 -rand' -- $cur ) )
+				fi
+				;;
+			pkcs7)
+				case $prev in
+					-@(in|out)form)
+						COMPREPLY=( $( compgen -W 'DER PEM' -- $cur ) )
+						return 0
+						;;
+					-@(in|out))
+						_filedir
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-inform -outform -in -out -print_certs -text -noout' -- $cur ) )
+				fi
+				;;
+			rand)
+				case $prev in
+					-@(out|rand))
+						_filedir
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-out -rand -base64' -- $cur ) )
+				fi
+				;;
+			req)
+				case "$prev" in
+					-@(in|out|key)form)
+						COMPREPLY=( $( compgen -W 'DER PEM' -- $cur ) )
+						return 0
+						;;
+
+					-@(in|out|rand|key|keyout|config))
+						_filedir
+						return 0
+						;;
+					-extensions)
+						_openssl_sections
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-inform -outform -in \
+						-passin -out -passout -text -noout -verify \
+						-modulus -new -rand -newkey -newkey -nodes \
+						-key -keyform -keyout -md5 -sha1 -md2 -mdc2 \
+						-config -x509 -days -asn1-kludge -newhdr \
+						-extensions -reqexts section' -- $cur ) )
+				fi
+				;;
+			rsa)
+				case $prev in
+					-@(in|out)form)
+						COMPREPLY=( $( compgen -W 'DER NET PEM' -- $cur ) )
+						return 0
+						;;
+					-@(in|out))
+						_filedir
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-inform -outform -in -passin -out -passout \
+						-sgckey -des -des3 -idea -text -noout -modulus -check -pubin \
+						-pubout -engine' -- $cur ) )
+				fi
+				;;
+			rsautl)
+				case $prev in
+					-@(in|out|inkey))
+						_filedir
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-in -out -inkey -pubin -certin -sign -verify \
+						-encrypt -decrypt -pkcs -ssl -raw -hexdump -asn1parse' -- $cur ) )
+				fi
+				;;
+			s_client)
+				case $prev in
+					-connect)
+						_known_hosts
+						return 0
+						;;
+					-@(cert|key|CAfile|rand))
+						_filedir
+						return 0
+						;;
+					-CApath)
+						_filedir -d
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-connect -verify -cert -key -CApath -CAfile \
+						-reconnect -pause -showcerts -debug -msg -nbio_test -state -nbio \
+						-crlf -ign_eof -quiet -ssl2 -ssl3 -tls1 -no_ssl2 -no_ssl3 -no_tls1 \
+						-bugs -cipher -starttls -engine -rand' -- $cur ) )
+				fi
+				;;
+			s_server)
+				case $prev in
+					-@(cert|key|dcert|dkey|dhparam|CAfile|rand))
+						_filedir
+						return 0
+						;;
+					-CApath)
+						_filedir -d
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-accept -context -verify -Verify -cert -key \
+						 -dcert -dkey -dhparam -nbio -nbio_test -crlf -debug -msg -state -CApath \
+						 -CAfile -nocert -cipher -quiet -no_tmp_rsa -ssl2 -ssl3 -tls1 -no_ssl2 \
+						 -no_ssl3 -no_tls1 -no_dhe -bugs -hack -www -WWW -HTTP -engine -id_prefix \
+						 -rand' -- $cur ) )
+				 fi
+				 ;;
+			s_time)
+				case $prev in
+					-connect)
+						_known_hosts
+						return 0
+						;;
+					-@(cert|key|CAfile))
+						_filedir
+						return 0
+						;;
+					-CApath)
+						_filedir -d
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-connect -www -cert -key -CApath -CAfile -reuse \
+						-new -verify -nbio -time -ssl2 -ssl3 -bugs -cipher' -- $cur ) )
+				fi
+				;;
+
+			sess_id) 
+				case $prev in
+					-@(in|out)form)
+						COMPREPLY=( $( compgen -W 'DER PEM' -- $cur ) )
+						return 0
+						;;
+					-@(in|out))
+						_filedir
+						return 0
+						;;
+				esac
+
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-inform -outform -in -out -text -noout \
+						-context ID' -- $cur ) )
+				fi
+				;;
+			smime)
+				case $prev in
+					-@(in|out)form)
+						COMPREPLY=( $( compgen -W 'SMIME DER PEM' -- $cur ) )
+						return 0
+						;;
+					-@(in|out|certfile|signer|recip|inkey|content|rand))
+						_filedir
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-encrypt -decrypt -sign -verify -pk7out -des -des3 \
+						-rc2-40 -rc2-64 -rc2-128 -aes128 -aes192 -aes256 -in -certfile -signer \
+						-recip -inform -passin -inkey -out -outform -content -to -from -subject \
+						-text -rand' -- $cur ) )
+				else
+						_filedir
+				fi
+				;;
+			speed)
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-engine' -- $cur ) )
+				else
+					COMPREPLY=( $( compgen -W 'md2 mdc2 md5 hmac sha1 rmd160 idea-cbc \
+						rc2-cbc rc5-cbc bf-cbc des-cbc des-ede3 rc4 rsa512 rsa1024 rsa2048 \
+						rsa4096 dsa512 dsa1024 dsa2048 idea rc2 des rsa blowfish' -- $cur ) )
+				fi
+				;;
+			verify)
+				case $prev in
+					-@(CAfile|untrusted))
+						_filedir
+						return 0
+						;;
+					-CApath)
+						_filedir -d
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-CApath -CAfile -purpose -untrusted -help -issuer_checks \
+						-verbose -certificates' -- $cur ) )
+				else
+						_filedir
+				fi
+				;;
+			x509)
+				case "$prev" in
+					-@(in|out|CA|CAkey|CAserial|extfile))
+						_filedir
+						return 0
+						;;
+					-@(in|out)form)
+						COMPREPLY=( $( compgen -W 'DER PEM NET' -- $cur ) )
+						return 0
+						;;
+					-@(key|CA|CAkey)form)
+						COMPREPLY=( $( compgen -W 'DER PEM' -- $cur ) )
+						return 0
+						;;
+					-extensions)
+						_openssl_sections
+						return 0
+						;;
+				esac
+
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-inform -outform \
+						-keyform -CAform -CAkeyform -in -out \
+						-serial -hash -subject -issuer -nameopt \
+						-email -startdate -enddate -purpose \
+						-dates -modulus -fingerprint -alias \
+						-noout -trustout -clrtrust -clrreject \
+						-addtrust -addreject -setalias -days \
+						-set_serial -signkey -x509toreq -req \
+						-CA -CAkey -CAcreateserial -CAserial \
+						-text -C -md2 -md5 -sha1 -mdc2 -clrext \
+						-extfile -extensions -engine' -- $cur ) )
+				fi
+				;;
+			@(md5|md4|md2|sha1|sha|mdc2|ripemd160))
+				if [[ "$cur" == -* ]]; then
+					COMPREPLY=( $( compgen -W '-c -d' -- $cur ) )
+				else
+						_filedir
+				fi
+				;;
+		esac
 	fi
 
 	return 0
 }
-[ -n "${have:-}" ] && complete -F _openssl $default openssl
+complete -F _openssl $default openssl
+}
 
 # screen(1) completion
 #
@@ -3123,18 +3685,18 @@ _screen()
 	     "$prev" = "-R" ]; then
 		# list all
 		COMPREPLY=( $( command screen -ls | \
-				sed -ne 's|^['$'\t'']\+[0-9]\+\.\('$cur'[^'$'\t'']\+\).*$|\1|p' ) )
+				sed -ne 's|^['$'\t'']\+\('$cur'[0-9]\+\.[^'$'\t'']\+\).*$|\1|p' ) )
 	else
 		case "$prev" in
 		-[rR])
 			# list detached
 			COMPREPLY=( $( command screen -ls | \
-					sed -ne 's|^['$'\t'']\+[0-9]\+\.\('$cur'[^'$'\t'']\+\).*Detached.*$|\1|p' ) )
+					sed -ne 's|^['$'\t'']\+\('$cur'[0-9]\+\.[^'$'\t'']\+\).*Detached.*$|\1|p' ) )
 			;;
 		-[dDx])
 			# list attached
 			COMPREPLY=( $( command screen -ls | \
-					sed -ne 's|^['$'\t'']\+[0-9]\+\.\('$cur'[^'$'\t'']\+\).*Attached.*$|\1|p' ) )
+					sed -ne 's|^['$'\t'']\+\('$cur'[0-9]\+\.[^'$'\t'']\+\).*Attached.*$|\1|p' ) )
 			;;
 		-s)
 			# shells
@@ -3356,7 +3918,7 @@ _longopt()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( $1 --help 2>&1 | sed -e '/--/!d' \
 				-e 's/.*\(--[-A-Za-z0-9]\+=\?\).*/\1/' | \
-			       grep "^$cur" | sort -u ) )
+			       command grep "^$cur" | sort -u ) )
 	elif [[ "$1" == @(mk|rm)dir ]]; then
 		_filedir -d
 	else
@@ -3416,7 +3978,7 @@ _gcc()
 		# for FORTRAN/Java it's an error
 		COMPREPLY=( $( $cc --help 2>/dev/null | tr '\t' ' ' | \
 			       sed -e '/^  *-/!d' -e 's/ *-\([^ ]*\).*/-\1/' | \
-			       grep "^$cur" | sort -u ) )
+			       command grep "^$cur" | sort -u ) )
 	else
 		_filedir
 	fi
@@ -4392,7 +4954,7 @@ complete -F _perldoc $default perldoc
 have rcs &&
 _rcs()
 {
-	local cur prev file dir
+	local cur prev file dir i
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -4408,9 +4970,14 @@ _rcs()
 
 	for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
 		file=${COMPREPLY[$i]##*/}
-		file=${file%,v}
 		dir=${COMPREPLY[$i]%RCS/*}
 		COMPREPLY[$i]=$dir$file
+	done
+	
+	COMPREPLY=( "${COMPREPLY[@]}" $( compgen -G "$dir/$file*,v" ) )
+
+	for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
+		COMPREPLY[$i]=${COMPREPLY[$i]%,v}
 	done
 
 	# default to files if nothing returned and we're checking in.
@@ -4985,7 +5552,7 @@ _mplayer()
 					-xvidencopts -of --verbose' -- $cur) )
 			;;
 		*)
-			_filedir '@(mp?(e)g|MP?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fli|FLI|viv|VIV|rm|RM|ram|RAM|yuv|YUV|mov|MOV|qt|QT|mp[34]|MP[34]|og[gm]|OG[GM]|wav|WAV|dump|DUMP|mkv|MKV|m4a|M4A|aac|AAC|m2v|M2V|dv|DV)'
+			_filedir '@(mp?(e)g|MP?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fli|FLI|viv|VIV|rm?(j)|RM?(J)|ra?(m)|RA?(M)|yuv|YUV|mov|MOV|qt|QT|mp[34]|MP[34]|og[gm]|OG[GM]|wav|WAV|dump|DUMP|mkv|MKV|m4a|M4A|aac|AAC|m2v|M2V|dv|DV)'
 			;;
 	esac
 
@@ -7200,6 +7767,102 @@ _lvextend()
 }
 complete -F _lvextend lvextend
 }
+
+# mkinitrd(8) completion
+#
+have mkinitrd &&
+_mkinitrd()
+{
+	local cur args
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	# --name value style option
+	case "$prev" in
+		--preload)
+			_modules
+			return 0
+			;;
+	esac
+
+	# --name=value style option
+	if [[ "$cur" == *=* ]]; then
+		prev=${cur/=*/}
+		cur=${cur/*=/}
+		case "$prev" in
+			--@(with|builtin))
+				_modules
+				return 0
+				;;
+			--@(fstab|dsdt))
+				_filedir
+				return 0
+				;;
+			--tmpdir)
+				_filedir -d
+				return 0
+				;;
+		esac
+	fi
+
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '--version -v -f --preload \
+			--with= --omit-scsi-modules --omit-raid-modules \
+			--images-version --fstab= --nocompress --builtin= \
+			--nopivot --noudev --allow-missing --tmpdir= \
+			--initrdfs= --dsdt= --lvm-version= --froce-usb' \
+			-- $cur ) )
+	else
+		# count number of mandatory args given sofar
+		args=1
+		for (( i=1; i < COMP_CWORD; i++ )); do
+			if [[ "${COMP_WORDS[i]}" != -* ]]; then
+				args=$(($args+1))
+			fi
+		done
+
+		case $args in
+			1)
+				_filedir
+				;;
+			2)
+				COMPREPLY=( $( command ls /lib/modules | grep "^$cur" ) )
+				;;
+		esac
+	fi
+
+}
+[ -n "${have:-}" ] && complete -F _mkinitrd mkinitrd
+
+# pkgconfig(1) completion
+#
+have pkg-config &&
+_pkg_config()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ "$cur" == -* ]]; then
+		# return list of available options
+		COMPREPLY=( $( compgen -W '-version --modversion \
+		      --atleast-pkgconfig-version= --libs --libs-only-l \
+		      --libs-only-other --libs-only-L --cflags \
+		      --cflags-only-I --cflags-only-othee --variable= \
+		      --define-variable= --exists --uninstalles \
+		      --atleast-version= --exact-version= --max-version= \
+		      --list-all --debug --print-errors --silence-errors \
+		      --errors-to-stdout -? --help --usage' -- $cur))
+	else
+		COMPREPLY=( $( pkg-config --list-all 2>/dev/null | \
+				    awk '{print $1}' | grep "^$cur" ) )
+	fi
+}
+[ -n "${have:-}" ] && complete -F _pkg_config pkg-config
 
 _filedir_xspec()
 {

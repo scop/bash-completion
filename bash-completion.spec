@@ -1,5 +1,5 @@
 Name:		bash-completion
-Version:	20041017
+Version:	20050103
 Release:	alt01
 
 Summary:	bash-completion offers programmable completion for bash
@@ -8,6 +8,7 @@ Group:		Shells
 URL:		http://www.caliban.org/bash/
 
 Source0:	http://www.caliban.org/files/bash/%name-%version.tar.bz2
+Patch0:	bash-completion-20050103-alt-rsync.patch.gz
 
 Requires:	bash >= 2.05
 BuildArch:	noarch
@@ -18,6 +19,7 @@ of the programmable completion feature of bash 2.04 and later.
 
 %prep
 %setup -q -n bash_completion
+%patch0 -p0
 
 %install
 %__install -d %buildroot%_sysconfdir/bash_completion.d
@@ -42,6 +44,10 @@ __PROFILE__
 
 
 %changelog
+* Mon Jan 10 2005 Alex Murygin <murygin@altlinux.ru> 20050103-alt01
+- new version
+- added bash-completion-20050103-alt-rsync.patch
+
 * Thu Nov 11 2004 Alex Murygin <murygin@altlinux.ru> 20041017-alt01
 - new version
 
