@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.476 2002/12/05 02:58:28 ianmacd Exp $
+#   $Id: bash_completion,v 1.477 2002/12/05 05:22:22 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -478,10 +478,10 @@ _mount()
 }
 complete -F _mount $default mount
 
-# Linux rmmod(1) completion. This completes on a list of all currently
+# Linux rmmod(8) completion. This completes on a list of all currently
 # installed kernel modules.
 #
-[ $UNAME = Linux ] &&
+have rmmod && {
 _rmmod()
 {
 	local cur
@@ -493,12 +493,11 @@ _rmmod()
 		  awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}' 2>/dev/null ))
 	return 0
 }
-[ $UNAME = Linux ] && complete -F _rmmod rmmod
+complete -F _rmmod rmmod
 
 # Linux insmod(8) & modprobe(8) completion. This completes on a list of all
 # available modules for the version of the kernel currently running.
 #
-[ $UNAME = Linux ] &&
 _insmod()
 {
 	local cur prev modpath
@@ -537,7 +536,8 @@ _insmod()
 
 	return 0
 }
-[ $UNAME = Linux ] && complete -F _insmod $filenames insmod modprobe
+complete -F _insmod $filenames insmod modprobe
+}
 
 # man(1) completion. This is GNU, GNU/Linux and Darwin specific, in that
 # 'man <section> <page>' is the expected syntax.
@@ -4156,8 +4156,8 @@ unset list[@]
 if [ -d $BASH_COMPLETION_DIR -a -r $BASH_COMPLETION_DIR -a \
      -x $BASH_COMPLETION_DIR ]; then
 	for i in $BASH_COMPLETION_DIR/*; do
-		[[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*) ]] \
-			&& [ -f $i -a -r $i ] && . $i
+		[[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*) ]] &&
+			[ -f $i -a -r $i ] && . $i
 	done
 fi
 unset i
