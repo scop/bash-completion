@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.420 2002/10/01 09:06:01 ianmacd Exp $
+#   $Id: bash_completion,v 1.421 2002/10/02 03:32:40 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1435,6 +1435,7 @@ _apt_get()
 			special=${COMP_WORDS[i]}
 		fi
 	done
+
 	if [ -n "$special" ]; then
 		case $special in
 		@(install|source|build-dep))
@@ -1455,30 +1456,36 @@ _apt_get()
 		esac
 	fi
 
-	if [[ "$prev" == -*c ]] || [ "$prev" = --config-file ]; then
-		_filedir
+	case "$prev" in
+	    -@(c|-config-file))
+ 		     _filedir
+		     return 0
+		     ;;
 
-	elif [[ "$prev" == -*h ]] || [ "$prev" = --help ]; then
-		return 0
-
-	else
+	    -@(t|-target-release|-default-release))
+		     COMPREPLY=( $( apt-cache policy | \
+				    grep "release.o=Debian,a=$cur" | \
+				    sed -e "s/.*a=\(\w*\).*/\1/" | uniq ) )
+		     return 0
+		     ;;
+ 
+	    *)
 		COMPREPLY=( $( compgen -W 'update upgrade dselect-upgrade \
-				  dist-upgrade install remove source \
-				  build-dep check clean autoclean \
-				  -d -f -h -v -m -q -s -y -u -b -c -o -t \
-				  --download-only --fix-broken --help \
-				  --version --ignore-missing --fix-missing \
-				  --no-download --quiet --simulate \
-				  --just-print --dry-run --recon --no-act \
-				  --yes --assume-yes --show-upgraded \
-				  --compile --build --ignore-hold \
-				  --no-upgrade --force-yes --print-uris \
-				  --purge --reinstall --list-cleanup \
-				  --target-release --default-release \
-				  --trivial-only --no-remove --diff-only \
-				  --only-source --diff-only --tar-only \
-				  --config-file --option' -- $cur ) )
-	fi
+				dist-upgrade install remove source build-dep \
+				check clean autoclean -d -f -h -v -m -q -s -y \
+				-u -t -b -c -o --download-only --fix-broken \
+				--help --version --ignore-missing \
+				--fix-missing --no-download --quiet --simulate \
+				--just-print --dry-run --recon --no-act --yes \
+				--assume-yes --show-upgraded --only-source \
+				--compile --build --ignore-hold \
+				--target-release --no-upgrade --force-yes \
+				--print-uris --purge --reinstall \
+				--list-cleanup --default-release \
+				--trivial-only --no-remove --diff-only \
+				--tar-only --config-file --option' -- $cur ) )
+		;;
+	esac
 
 	return 0
 }
@@ -1497,17 +1504,18 @@ _apt_cache()
 
 	
 	for (( i=0; i < ${#COMP_WORDS}-1; i++ )); do
-		if [[ ${COMP_WORDS[i]} == @(add|show?(pkg)|depends|dotty) ]]; then
+		if [[ ${COMP_WORDS[i]} == @(add|show?(pkg)|depends|dotty|policy) ]]; then
 			special=${COMP_WORDS[i]}
 		fi
 	done
+
 	if [ -n "$special" ]; then
 		case $special in
 		add)
 			_filedir
 			return 0
 			;;
-		show?(pkg)|depends|dotty)
+		show?(pkg)|depends|dotty|policy)
 			COMPREPLY=( $( apt-cache pkgnames $cur ) )
 			return 0
 			;;
@@ -1515,17 +1523,24 @@ _apt_cache()
 	fi
 
 
-	if [[ "$prev" == -*c ]] || [ "$prev" = --config-file ]; then
-		_filedir
-	else
+	case "$prev" in
+	     -@(c|p|s|-config-file|-@(pkg|src)-cache))
+		     _filedir
+		     return 0
+		     ;;
+
+	     *)
+
 		COMPREPLY=( $( compgen -W 'add gencaches showpkg stats dump \
-				dumpavail unmet check search show dotty \
+				dumpavail unmet check search show dotty policy \
 				depends pkgnames -h -v -p -s -q -i -f -a -g -c \
 				-o --help --version --pkg-cache --src-cache \
 				--quiet --important --full --all-versions \
-				--no-generate --names-only --all-names \
-				--config-file --option' -- $cur ) )
-	fi
+				--generate --no-generate --names-only \
+				--all-names --config-file --option \
+				--recurse' -- $cur ) )
+		;;
+	esac
 
 	return 0
 }
@@ -1593,7 +1608,6 @@ _aptitude()
 		;;
 	esac
 
-
 	if [[ "$cur" == -* ]]; then
 	    COMPREPLY=( $( compgen -W "$dashoptions" -- $cur ) )
 	else
@@ -1609,6 +1623,7 @@ complete -F _aptitude $default aptitude
 # Debian apt-build(1) completion.
 #
 have apt-build &&
+_apt_build()
 {
 	local cur prev special i
 
@@ -1639,24 +1654,29 @@ have apt-build &&
 		esac
 	fi
 
-	if  [[ "$prev" == --@(patch|repository-dir) ]]; then
-		_filedir
-		return 0
-	elif [[ "$prev" == -@(*h|-@(patch-strip|build-@(dir|command)|help)) ]]; then
-		return 0
-	else
-		COMPREPLY=( $( compgen -W "update upgrade install remove \
-				source dist-upgrade world clean info \
-				--help --show-upgraded -u --build-dir \
-				--repository-dir --build-only \
-				--build-command --reinstall --rebuild \
-				--remove-builddep --no-wrapper --purge \
-				--reinstall --rebuild --remove-builddep \
-				--no-wrapper --purge --build-command \
-				--patch --patch-strip -p --yes -y \
-				--version -v --no-source" -- $cur ) )
-	fi
+	case "$prev" in
 
+	     --@(patch|build-dir|repository-dir))
+		   _filedir
+		   return 0
+		   ;;
+ 
+	     -@(h|-help))
+		   return 0
+		   ;;
+
+	     *)
+  		   COMPREPLY=( $( compgen -W "update upgrade install remove \
+				  source dist-upgrade world clean info \
+				  clean-repository update-repository \
+				  --help --show-upgraded -u --build-dir \
+				  --repository-dir --build-only \
+				  --build-command --reinstall --rebuild \
+				  --remove-builddep --no-wrapper --purge \
+				  --patch --patch-strip -p --yes -y \
+				  --version -v --no-source" -- $cur ) )
+		   ;;
+	esac
 
 	return 0
 }
@@ -2802,30 +2822,28 @@ _dpkg()
 	fi
 
 	case "$prev" in 
-	-i|--install|--unpack|-A|--record-avail|-c|--contents|-I|--info| \
-	--fsys-tarfile|-f|--field|-e|--control|-X|--extract)
+	-@(i|A|I|f|e|X|-@(install|unpack|record-avail|contents|info| \
+			  fsys-tarfile|field|control|extract)))
 		_filedir 'deb'
 		return 0
 		;;
-	-b|--build)
+	-@(b|-build))
 		_filedir -d
 		return 0
 		;;
-   	-s|--status|-p|--print-avail|-l|--list)
+   	-@(s|p|l|-@(status|print-avail|list)))
 		COMPREPLY=( $( apt-cache pkgnames $cur ) )
 		return 0
 		;;
-	-S|--search)
+	-@(S|-search))
 		_filedir
 		return 0
 		;;
-	-r|--remove|--purge|-L|--listfiles)
+	-@(r|L|-@(remove|purge|listfiles)))
 		COMPREPLY=( $( _comp-dpkg-installed-packages $cur ) )
 		return 0
 		;;
 	*)
-		;;
-	esac
 
 	COMPREPLY=( $( compgen -W '-i --install --unpack -A --record-avail \
 			--configure -r --remove --purge --get-selections \
@@ -2852,6 +2870,10 @@ _dpkg()
 			-b --build -I --info -f --field -c --contents \
 			-x --extract -X --vextract --fsys-tarfile -e --control \
 			--ignore-depends= --abort-after' -- $cur ) )
+		;;
+	esac
+
+
 }
 complete -F _dpkg $filenames dpkg dpkg-deb
 }
@@ -2903,16 +2925,22 @@ _dselect()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	if [ "$prev" = --admindir ]; then
-		_filedir -d
-	elif [[ "$prev" == -*D ]] || [ "$prev" = --debug ]; then
-		_filedir
-	else
-		COMPREPLY=( $( compgen -W 'access update select install \
+	case "$prev" in
+	     --admindir)
+		  _filedir -d
+		  ;;
+
+	     -@(D|debug))
+		  _filedir
+		  ;;
+
+	     *)
+		  COMPREPLY=( $( compgen -W 'access update select install \
 				  config remove quit --admindir --help \
 				  --version --licence --license --expert \
 				  --debug' -- $cur ) )
-	fi
+		  ;;
+	esac
 
 	return 0
 }
