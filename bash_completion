@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.174 2002/03/02 01:13:23 ianmacd Exp $
+#   $Id: bash_completion,v 1.175 2002/03/02 01:56:21 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -387,15 +387,13 @@ _insmod()
 }
 [ $OS = Linux ] && complete -F _insmod -o filenames insmod modprobe
 
-# man(1) completion.  This is Linux specific, in that 'man <section> <page>'
-# is the expected syntax. This allows one to do something like
-# 'man 3 str<tab>' to obtain a list of all string handling syscalls on
-# the system.
+# man(1) completion. This is Linux and Darwin specific, in that
+# 'man <section> <page>' is the expected syntax.
 #
-[ $OS = Linux ] &&
+[ $OS = Linux -o $OS = Darwin ] &&
 _man()
 {
-	local cur prev sect manpath
+	local cur prev sect manpath OS
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
@@ -409,7 +407,13 @@ _man()
 		return 0
 	fi
 
-	manpath=$( man --path )
+	OS=$( uname -s )
+	if [ $OS = Linux ]; then
+		manpath=$( man --path )
+	else
+		manpath=$MANPATH
+	fi
+
 	if [ -z "$manpath" ]; then
 		COMPREPLY=( $( compgen -c -- $cur ) )
 		return 0
@@ -426,7 +430,7 @@ _man()
 	fi
 		
 	# redirect stderr for when path doesn't exist
-	COMPREPLY=( $( eval ls "$manpath" 2>/dev/null ) )
+	COMPREPLY=( $( eval \ls "$manpath" 2>/dev/null ) )
 	# weed out directory path names and paths to man pages
 	COMPREPLY=( ${COMPREPLY[@]##*/?(:)} )
 	# strip suffix from man pages
@@ -440,7 +444,7 @@ _man()
 
 	return 0
 }
-[ $OS = Linux ] && complete -F _man -o filenames man
+[ $OS = Linux -o $OS = Darwin ] && complete -F _man -o filenames man
 
 # kill(1) completion
 #
