@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.141 2002/02/22 08:41:05 ianmacd Exp $
+#   $Id: bash_completion,v 1.142 2002/02/22 16:48:21 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1763,6 +1763,8 @@ _longopt()
 		COMPREPLY=( $( $1 --help | sed  -e '/--/!d' \
 				-e 's/.*\(--[-A-Za-z0-9]\+=\?\).*/\1/' | \
 			       grep ^$cur | sort -u ) )
+	elif [[ "$1" = @(mk|rm)dir ]]; then
+		_filedir -d
 	else
 		_filedir
 	fi
@@ -1924,8 +1926,11 @@ _filedir()
 
 	_expand || return 0
 
-	COMPREPLY=( ${COMPREPLY[@]} $( eval compgen -f \"$cur\" ) \
-		    $( compgen -d $cur ) )
+	if [ "$1" = -d ]; then
+		COMPREPLY=( ${COMPREPLY[@]} $( compgen -d $cur ) )
+		return 0
+	fi
+	COMPREPLY=( ${COMPREPLY[@]} $( eval compgen -f \"$cur\" ) )
 }
 
 _filedir_xspec()
