@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.536 2003/03/18 00:34:02 ianmacd Exp $
+#   $Id: bash_completion,v 1.537 2003/03/27 07:48:09 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -357,6 +357,43 @@ _complete()
 complete -F _complete complete
 
 # start of section containing completion functions for external programs
+
+# This completes on a list of all available service scripts for the
+# 'service' command and/or the SysV init.d directory, followed by
+# that script's available commands
+#
+{ have service || [ -d /etc/init.d/ ]; } &&
+_service()
+{
+	local cur sysvdir
+
+	COMPREPLY=()
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	# don't complete for things like killall, ssh and mysql if it's
+	# the standalone command, rather than the init script
+	[[ ${COMP_WORDS[0]} != @(*init.d*|service) ]] && return 0
+
+	[ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
+				|| sysvdir=/etc/init.d
+
+	if [[ $COMP_CWORD -eq 1 ]] && [[ $prev == "service" ]]; then
+		COMPREPLY=( $( compgen -W '`echo $sysvdir/!(*.rpmsave|*.rpmorig)`' ) )
+		COMPREPLY=( $( compgen -W '${COMPREPLY[@]#$sysvdir/}' -- \
+			       $cur ) )
+	else
+		COMPREPLY=( $( compgen -W '`sed -ne "y/|/ /; \
+					    s/^.*Usage.*{\(.*\)}.*$/\1/p" \
+					    $sysvdir/${prev##*/}`' -- \
+			       $cur ) )
+	fi
+
+	return 0
+}
+[ -n "${have:-}" ] && complete -F _service service
+[ -d /etc/init.d/ ] && complete -F _service $default \
+	$(for i in /etc/init.d/*; do echo ${i##*/}; done)
 
 # chown(1) completion
 #
@@ -2196,42 +2233,6 @@ _make()
 	return 0
 }
 [ -n "${have:-}" ] && complete -F _make -X '+($*|*.[ch])' $default $filenames make gmake pmake
-
-# 
-# This completes on a list of all available service scripts for the
-# 'service' command and/or the SysV init.d directory, followed by
-# that script's available commands
-#
-{ have service || [ -d /etc/init.d/ ]; } &&
-_service()
-{
-	local cur sysvdir
-
-	COMPREPLY=()
-	prev=${COMP_WORDS[COMP_CWORD-1]}
-	cur=${COMP_WORDS[COMP_CWORD]}
-
-	[ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
-				|| sysvdir=/etc/init.d
-
-	if [[ $COMP_CWORD -eq 1 ]] && [[ $prev == "service" ]]; then
-		COMPREPLY=( $( compgen -W '`echo $sysvdir/!(*.rpmsave|*.rpmorig)`' ) )
-		COMPREPLY=( $( compgen -W '${COMPREPLY[@]#$sysvdir/}' -- \
-			       $cur ) )
-	else
-		COMPREPLY=( $( compgen -W '`sed -ne "y/|/ /; \
-					    s/^.*Usage.*{\(.*\)}.*$/\1/p" \
-					    $sysvdir/${prev##*/}`' -- \
-			       $cur ) )
-	fi
-
-	return 0
-}
-[ -n "${have:-}" ] && complete -F _service service
-[ -d /etc/init.d/ ] && complete -F _service \
-	$(for i in /etc/init.d/*; do \
-	    [[ ${i##*/} == @(postfix|killall|ssh|mysql) ]] ||
-	        echo ${i##*/}; done)
 
 # GNU tar(1) completion
 #
