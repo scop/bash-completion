@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.20 2002/04/02 10:00:47 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.21 2002/04/02 10:01:28 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020331
+Version: 20020402
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,15 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Tue Apr  2 2002 Ian Macdonald <ian@caliban.org>
+- add long option completion for netstat
+- add renice(8) completion
+- fix and enhancements for dpkg-reconfigure completion
+- sudo and other commands that perform command completion weren't performing
+  correctly when wildcards in their parameters were expanded
+- 'cvs commit' now defaults to local file completion
+- silence remote completion errors in scp completion
+
 * Sun Mar 31 2002 Ian Macdonald <ian@caliban.org>
 - fix escaping issues in _command()
 - fixes to _ant(), _java() and _urpmi()
