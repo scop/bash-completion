@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.183 2002/03/07 18:35:32 ianmacd Exp $
+#   $Id: bash_completion,v 1.184 2002/03/07 18:44:48 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2214,6 +2214,60 @@ _dpkg()
 			--ignore-depends= --abort-after' -- $cur ) )
 }
 [ "$have" ] && complete -F _dpkg -o filenames dpkg
+
+have java &&
+_java()
+{
+	local cur prev classpath i
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-@(cp|classpath))
+			_filedir
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		# relevant options completion
+		COMPREPLY=( $( compgen -W 'client hotspot server classic cp \
+			       classpath D verbose version showversion ? help \
+			       X' -P '-' -- $cur ) )
+	else
+		# available classes completion
+		# find wich classpath to use
+		if [ -n "$CLASSPATH" ]; then
+			classpath=$CLASSPATH
+		else
+			classpath=.
+		fi
+		for (( i=1; i < COMP_CWORD; i++ )); do
+			if [[ "${COMP_WORDS[i]}" == -classpath ]] || \
+			   [[ "${COMP_WORDS[i]}" == -cp ]]; then
+				classpath=${COMP_WORDS[i+1]}
+				break
+			fi
+		done
+		# parse each classpath element for classes
+		for i in ${classpath//:/ }; do
+			if [ -f $i ] && [[ "$i" == *.@(jar|zip) ]]; then
+				COMPREPLY=( ${COMPREPLY[@]} $( jar tf $i | \
+				grep .class | sed -e 's|\.class||g' \
+						  -e 's|/|.|g' | grep ^$cur ) )
+			elif [ -d $i ]; then
+				COMPREPLY=( ${COMPREPLY[@]} $( find $i -type f \
+					    -name *.class | grep .class | \
+					    sed -e 's|^'$elt'/||' \
+					        -e 's|\.class$||' \
+						-e 's|/|.|g' | grep ^$cur ) )
+			fi
+		done
+	fi
+}
+[ "$have" ] && complete -F _java java
 
 _configure_func()
 {
