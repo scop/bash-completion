@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.721 2004/07/04 00:03:19 ianmacd Exp $
+#   $Id: bash_completion,v 1.722 2004/07/04 00:11:09 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -3886,7 +3886,13 @@ _muttfiledir()
 	# just call _filedir() for the moment.
 	if [[ $cur == [=+]* ]]; then
 		folder="$( mutt -Q folder | sed -r 's|^folder=\"(.*)\"$|\1/' )"
-		[ ! -z "$folder" ] && eval cur="${cur/[=+]/$folder\/}"
+		: folder:=~/Mail
+
+		# Match any file in $folder beginning with $cur
+		# (minus the leading '=' sign).
+		COMPREPLY=( $( compgen -f -- "$folder/${cur:1}" ) )
+		COMPREPLY=( ${COMPREPLY[@]#$folder/} )
+		return 0
 	elif [ "$cur" == !* ]; then
 		spoolfile="$( mutt -Q spoolfile | sed -r 's|^spoolfile=\"(.*)\"$|\1|' )"
 		[ ! -z "$spoolfile" ] && eval cur="${cur/^!/$spoolfile}";
