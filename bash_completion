@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.737 2004/07/11 18:36:39 ianmacd Exp $
+#   $Id: bash_completion,v 1.738 2004/07/19 08:43:10 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1539,7 +1539,7 @@ _rpm_installed_packages()
 		's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.@]\+.*\.rpm$|\1|p' \
 				/var/log/rpmpkgs ) )
 	else
-		COMPREPLY=( $( rpm -qa $options | sed -ne \
+		COMPREPLY=( $( rpm -qa $nodig $nosig | sed -ne \
 		's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.@]\+$|\1|p' ) )
 	fi
 }
@@ -1549,7 +1549,7 @@ _rpm_groups()
 	local IFS=$'\t'
 	# remove trailing backslash, or grep will complain
 	cur=${cur%"\\"}
-	COMPREPLY=( $( rpm -qa $options --queryformat '%{group}\n' | \
+	COMPREPLY=( $( rpm -qa $nodig $nosig --queryformat '%{group}\n' | \
 		       grep "^$cur" ) )
 	# backslash escape spaces and translate newlines to tabs
 	COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\ /g' | tr '\n' '\t' ) )
@@ -1559,19 +1559,20 @@ _rpm_groups()
 # 
 _rpm()
 {
-	local cur prev ver options
+	local cur prev ver nodig nosig
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
-	options=""
+	nodig=""
+	nosig=""
 	ver=$(rpm --version); ver=${ver##* }
   
 	if [[ "$ver" > "4.0.4" ]]; then
-		options="--nodigest"
+		nodig="--nodigest"
 	fi
 	if [[ "$ver" > "4.0.99" ]]; then
-		options="$options --nosignature"
+		nosig="--nosignature"
 	fi
 
 	if [ $COMP_CWORD -eq 1 ]; then
@@ -1631,14 +1632,14 @@ _rpm()
 			_filedir
 		else
 		# complete on capabilities
-			COMPREPLY=( $( rpm -qa $options --queryformat \
+			COMPREPLY=( $( rpm -qa $nodig $nosig --queryformat \
 					'%{providename}\n' | grep "^$cur" ) )
 		fi
 		return 0
 		;;
 	--whatrequires)
 		# complete on capabilities
-		COMPREPLY=( $( rpm -qa $options --queryformat \
+		COMPREPLY=( $( rpm -qa $nodig $nosig --queryformat \
 				'%{requirename}\n' | grep "^$cur" ) )
 		return 0
 		;;
