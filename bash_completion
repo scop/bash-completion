@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.297 2002/05/04 20:42:31 ianmacd Exp $
+#   $Id: bash_completion,v 1.298 2002/05/05 17:42:42 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2354,16 +2354,16 @@ _cardctl()
 
 # This function is required by _dpkg() and _dpkg-reconfigure()
 #
-have dpkg &&
+have dpkg && {
 _comp-dpkg-installed-packages()
 {
-	grep-dctrl -r -F package -s package,status "^$1" /var/lib/dpkg/status \
-		   | grep-dctrl -n -F status -s package installed
+	grep-dctrl -r -P -s package,status "^$1" /var/lib/dpkg/status \
+		| grep-dctrl -n -F status -s package 'ok installed'
+
 }
 
 # Debian Linux dpkg(8) completion
 #
-have dpkg &&
 _dpkg()
 {
 	local cur prev
@@ -2434,6 +2434,7 @@ _dpkg()
 			--ignore-depends= --abort-after' -- $cur ) )
 }
 [ "$have" ] && complete -F _dpkg $filenames dpkg dpkg-deb
+}
 
 # Debian Linux dpkg-reconfigure(8) completion
 #
