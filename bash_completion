@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.715 2004/06/01 08:02:57 ianmacd Exp $
+#   $Id: bash_completion,v 1.716 2004/06/01 08:08:18 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -248,11 +248,25 @@ _pids()
 	COMPREPLY=( $( compgen -W '$( command ps axo pid | sed 1d )' -- $cur ) )
 }
 
+# AIX and Solaris ps prefers X/Open syntax, so we override the above here
+[ $UNAME = SunOS -o $UNAME = AIX ] &&
+_pids()
+{
+        COMPREPLY=( $( compgen -W '$( command ps -efo pid | sed 1d )' -- $cur ))
+}
+
 # This function completes on process group IDs
 #
 _pgids()
 {
 	COMPREPLY=( $( compgen -W '$( command ps axo pgid | sed 1d )' -- $cur ))
+}
+
+# As above, AIX and SunOS prefer X/Open, all else should be BSD
+[ $UNAME = SunOS -o $UNAME = AIX ] &&
+_pgids()
+{
+        COMPREPLY=( $( compgen -W '$( command ps -efo pgid | sed 1d )' -- $cur ))
 }
 
 # This function completes on user IDs
