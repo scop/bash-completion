@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.101 2003/09/11 23:16:21 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.102 2003/09/29 18:06:58 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20030911
+Version: 20030929
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -72,6 +72,12 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Mon Sep 29 2003 Ian Macdonald <ian@caliban.org>
+- various Java fixes
+- urpmi completion removed; it's now maintained by the urpmi people
+- postsuper fix
+- .m3u completion for relevant tools
+
 * Thu Sep 11 2003 Ian Macdonald <ian@caliban.org>
 - gzip and bzip2 rewrite
 - fix service completion from completing on ~ and function files
