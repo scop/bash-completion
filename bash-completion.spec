@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.34 2002/05/14 15:56:59 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.35 2002/05/16 16:19:13 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020514
+Version: 20020516
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,14 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Thu May 16 2002 Ian Macdonald <ian@caliban.org>
+- fix bug in cvs completion when completing on filenames that contain regex
+  metacharacters
+- fix bug that caused null completion list in 'cvs diff'
+- cd completion was failing when CDPATH pointed to directories containing
+  spaces in their names
+- don't include variable assignments when returning targets in make completion
+
 * Tue May 14 2002 Ian Macdonald <ian@caliban.org>
 - _ssh() and _known_hosts(): ssh config file directives are case-insensitive
 - simplify cd completion and fix a bug in unique stem completion
