@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.383 2002/07/16 08:16:50 ianmacd Exp $
+#   $Id: bash_completion,v 1.384 2002/07/22 18:57:28 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -82,7 +82,7 @@ complete -f -X '!*.@(htm?(l))' netscape mozilla lynx wget opera w3m galeon links
 # start of section containing compspecs that can be handled within bash
 
 # user commands see only users
-complete -u finger su usermod userdel passwd chage write talk chfn
+complete -u su usermod userdel passwd chage write chfn
 
 # group commands see only groups
 [ ${BASH_VERSINFO[1]} '>' 04 ] &&
@@ -1627,6 +1627,24 @@ _chkconfig()
 }
 [ "$have" ] && complete -F _chkconfig chkconfig
 
+# This function orovides simple user@host completion
+#
+_user_at_host() {
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	if [[ $cur == *@* ]]; then
+		_known_hosts
+	else
+		COMPREPLY=( $( compgen -S '@' -u -- "$cur" ) )
+	fi
+
+	return 0
+}
+complete -F _user_at_host $nospace talk finger
+
 # This function performs host completion based on ssh's known_hosts files,
 # defaulting to standard host completion if they don't exist.
 #
@@ -1767,7 +1785,7 @@ _scp()
 		path=${cur#*:}
 		if [ -z "$path" ]; then
 			# default to home dir of specified user on remote host
-			path=$( ssh -o 'Batchmode yes' $userhost pwd )
+			path=$( ssh -o 'Batchmode yes' $userhost pwd 2>/dev/null)
 		fi
 		COMPREPLY=( $( compgen -P "$userhost:" \
 			       -W "`echo $( ssh -o 'Batchmode yes' $userhost \
@@ -1780,7 +1798,7 @@ _scp()
 
 	return 0
 }
-complete $filenames -F _scp scp
+complete $filenames -F _scp $nospace scp
 }
 
 # Linux route(8) completion
