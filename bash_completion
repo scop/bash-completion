@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.3 2000/08/29 02:41:27 ianmacd Exp $
+#   $Id: bash_completion,v 1.4 2000/08/29 21:21:00 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -286,11 +286,13 @@ _killall()
         prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [[ "$prev" == -[A-Z0-9]* ]]; then
-		# get a list of processes (the first sed evaluation
-		# takes care of swapped out processes, the second
-		# takes care of getting the basename of the process)
-	       COMPREPLY=( $( ps ahx | awk '{if ($5 ~ /^'$cur'/) print $5}' | \
-			       sed -e 's#[]\[]##g' -e 's#^.*/##' ))
+		# get a list of processes (the gensub() in the awk takes care
+		# of getting the basename of the process, the first sed
+		# evaluation takes care of swapped out processes, and the
+		# second takes care of getting the basename of the process)
+	       COMPREPLY=( $( ps ahx | \
+		   awk '{if (gensub("^.*/","",1,$5) ~ /^'$cur'/) print $5}' | \
+		   sed -e 's#[]\[]##g' -e 's#^.*/##' ))
 		return 0
 	fi
 
@@ -308,8 +310,8 @@ _killall()
 
 	# get processes, adding to signals if applicable
 	COMPREPLY=( ${COMPREPLY[*]} $( ps ahx | \
-		                       awk '{if ($5 ~ /^'$cur'/) print $5}' | \
-				       sed -e 's#[]\[]##g' -e 's#^.*/##' ))
+		   awk '{if (gensub("^.*/","",1,$5) ~ /^'$cur'/) print $5}' | \
+		   sed -e 's#[]\[]##g' -e 's#^.*/##' ))
 	return 0
 }
 complete -F _killall killall
@@ -740,10 +742,17 @@ _ssh()
         cur=${COMP_WORDS[COMP_CWORD]}
         prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	if [[ $prev == -*l ]]; then
+	case "$prev" in
+	-*c)
+	    COMPREPLY=( $( compgen -W 'blowfish 3des 3des-cbc blowfish-cbc \
+			   arcfour cast128-cbc' $cur ) )
+	    return 0
+	    ;;
+	-*l)
 	    COMPREPLY=( $( compgen -u $cur ) )
 	    return 0
-	fi
+	    ;;
+	esac
 
 	[ -r /etc/known_hosts ]   && kh[0]=/etc/known_hosts
 	[ -r ~/.ssh/known_hosts ] && kh[1]=~/.ssh/known_hosts
@@ -765,6 +774,6 @@ _ssh()
 
 	return 0
 }
-complete -F _ssh ssh
+complete -F _ssh ssh slogin
 
 # ]]>
