@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.286 2002/04/27 18:45:24 ianmacd Exp $
+#   $Id: bash_completion,v 1.287 2002/04/29 20:21:41 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -834,8 +834,8 @@ _cvs()
 			if [ $COMP_CWORD -gt 1 -a -r ${prefix}CVS/Entries ]; then
 				get_entries
 				[ -z "$cur" ] && \
-				files=$( \ls -A | grep -v '^CVS$' ) || \
-				files=$( \ls -d ${cur}* )
+				files=$( \ls -A !(CVS) ) || \
+				files=$( \ls -d ${cur}* 2>/dev/null )
 				for i in ${entries[@]}; do
 					files=( ${files[@]%$i} )
 				done
@@ -2445,6 +2445,21 @@ _java()
 	fi
 }
 [ "$have" ] && complete -F _java java
+
+# PINE address-book completion
+#
+have pine &&
+_pineaddr()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	COMPREPLY=( $( compgen -W '$( awk '{print $1}' < ~/.addressbook )' \
+			-- $cur ) )
+}
+[ "$have" ] && complete -F _pineaddr $default pine
 
 _configure_func()
 {
