@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.36 2001/12/18 04:43:25 ianmacd Exp $
+#   $Id: bash_completion,v 1.37 2001/12/20 08:52:12 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -36,19 +36,23 @@ complete -d cd mkdir rmdir pushd
 
 # Make file commands see only files
 complete -f cat less more ln strip
+
+# the following section lists completions that are redefined later
+# START exclude -- do NOT remove this line
 complete -f -X '*.bz2' bzip2
 complete -f -X '!*.bz2' bunzip2
 complete -f -X '!*.zip' unzip
 complete -f -X '*.gz' gzip
 complete -f -X '*.Z' compress
 complete -f -X '!*.+(Z|gz|tgz|Gz)' gunzip zcat zmore
-complete -f -X '!*.Z' uncompress zmore zcat
+complete -f -X '!*.Z' uncompress
 complete -f -X '!*.+(gif|jpg|jpeg|tif|tiff|png|GIF|JPG|TIF|TIFF|PNG|bmp)' ee xv
 complete -f -X '!*.+(ps|PS|ps.gz)' gv
 complete -f -X '!*.+(dvi|DVI)' dvips xdvi dviselect dvitype
 complete -f -X '!*.+(pdf|PDF)' acroread xpdf
 complete -f -X '!*.texi*' makeinfo texi2dvi texi2html
 complete -f -X '!*.+(tex|TEX)' tex latex slitex
+# FINISH exclude -- do not remove this line
 
 # kill sees only signals
 complete -A signal -P '-' kill
@@ -551,7 +555,7 @@ _rpm()
 	add_package_list()
 	{
 		if [ -f /var/log/rpmpkgs ]; then
-		# using RHL 7.2 - this is quicker than querying the DB
+			# using RHL 7.2 - this is quicker than querying the DB
 			COMPREPLY=( ${COMPREPLY[@]}
 			$( sed -ne 's/^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.]\+.*\.rpm$/\1/p' /var/log/rpmpkgs ) )
 		else
@@ -777,7 +781,7 @@ _rpm()
 		;;
 	-*g)
 		# package group completion
-		local IFS=$(echo -e "\t")
+		local IFS=$'\t'
 		# remove trailing backslash, or grep will complain
 		cur=${cur%'\'}
 		COMPREPLY=( $( rpm -qa --queryformat '%{group}\n' | \
@@ -1416,6 +1420,42 @@ _configure_func ()
 }
 complete -F _configure_func configure
 
+_file_and_dir()
+{
+	local cur xspec
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]#-}
+
+	# get first exclusion compspec that matches this command
+	xspec=$( grep " $1" /etc/bash_completion | head -1 )
+	# prune to leave nothing but the -X spec
+	xspec=${xspec#*-X }
+	xspec=${xspec%% *}
+
+	COMPREPLY=( $( eval compgen -f -X "$xspec" $cur ) $( compgen -d $cur ) )
+}
+# read exclusion compspecs
+IFS=$'\n'
+exec 3< /etc/bash_completion
+while read line <&3
+do
+    # only parse relevant section
+    echo $line | grep -q '^# START exclude' && found=1 && read line <&3
+    [ -z "$found" ] && continue
+    echo $line | grep -q '^# FINISH exclude' && break
+    # leave only names of commands for which to make a compspec
+    line=${line##*\'}
+    list=( ${list[@]} $line )
+done
+exec 3<&-
+IFS=$' \t\n'
+# remove previous compspecs
+eval complete -r ${list[@]}
+# install new compspecs
+eval complete -F _file_and_dir -o filenames ${list[@]}
+unset line found list[@]
+    
 # source user completion file
 [ -f ~/.bash_completion ] && . ~/.bash_completion
 unset -f have
