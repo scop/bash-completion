@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.546 2003/04/19 01:12:37 ianmacd Exp $
+#   $Id: bash_completion,v 1.547 2003/04/19 07:43:41 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2451,10 +2451,15 @@ fi
 #
 _command()
 {
-	local cur func cline cspec
+	local cur func cline cspec noglob
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
+
+	# save noglob state
+	shopt -o noglob >/dev/null; noglob=$?
+	# turn on noglob, as things like 'sudo ls *<Tab>' don't work otherwise
+	shopt -so noglob
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -c -- $cur ) )
@@ -2500,6 +2505,9 @@ _command()
 	fi
 
 	[ ${#COMPREPLY[@]} -eq 0 ] && _filedir
+
+	# reset noglob if necessary
+	[ $noglob -eq 1 ] && shopt -uo noglob
 }
 complete -F _command $filenames nohup exec nice eval strace time ltrace then \
 	 else do
