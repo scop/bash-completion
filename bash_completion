@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.40 2001/12/21 08:56:18 ianmacd Exp $
+#   $Id: bash_completion,v 1.41 2002/01/03 01:16:41 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -20,6 +20,7 @@
 #   along with this program; if not, write to the Free Software Foundation,
 #   Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+[ -n "$DEBUG" ] && set -v
 # Set a couple of useful vars
 #
 OS=$( uname -s )
@@ -32,7 +33,7 @@ shopt -s extglob progcomp
 # completion examples provided with the bash 2.04 source distribution
 
 # Make directory commands see only directories
-complete -d cd mkdir rmdir pushd
+complete -d mkdir rmdir pushd
 
 # Make file commands see only files
 complete -f cat less more ln strip
@@ -62,7 +63,7 @@ complete -A signal -P '-' kill
 complete -u finger su usermod userdel passwd
 
 # group commands see only groups
-complete -g groupmod groupdel passwd
+complete -g groupmod groupdel passwd chgrp
 
 # bg completes with stopped jobs
 complete -A stopped -P '%' bg
@@ -169,12 +170,11 @@ complete -F _umount -o filenames umount
 #
 _mount()
 
-{       local cur sm
+{       local cur i sm
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
-	[ -x /sbin/showmount ] && sm=/sbin/showmount
-	[ -x /usr/sbin/showmount ] && sm=/usr/sbin/showmount
+	for i in {,/usr}/sbin/showmount; do [ -x $i ] && sm=$i && break; done
 
 	if [ -n "$sm" ] && [[ "$cur" == *:* ]]; then
 		COMPREPLY=( $( $sm -e --no-headers ${cur%%:*} | \
@@ -363,8 +363,8 @@ _find()
 		return 0
 		;;
 	-fstype)
-		# this is highly non-portable (the option to -d is a tab)
-		COMPREPLY=( $( cut -d'	' -f 2 /proc/filesystems | grep ^$cur ) )
+		# this is highly non-portable
+		COMPREPLY=( $( cut -d$'\t' -f 2 /proc/filesystems | grep ^$cur ) )
 		return 0
 		;;
 	-gid)
@@ -630,8 +630,8 @@ _rpm()
 		return 0
 		;;
 	--eval)
-		# get a list of macros (char class contains a space and tab)
-		COMPREPLY=( $( sed -ne 's/^\(%'${cur#\%}'[^ 	]*\).*$/\1/p' \
+		# get a list of macros
+		COMPREPLY=( $( sed -ne 's/^\(%'${cur#\%}'[^ '$'\t'']*\).*$/\1/p' \
 			       /usr/lib/rpm/macros ) )
 		return 0
 		;;
@@ -1216,7 +1216,7 @@ _iptables()
 }
  [ "$have" ] && complete -F _iptables iptables
 
-# Linux iptables(8) completion
+# tcpdump(8) completion
 #
 have tcpdump &&
 _tcpdump()
@@ -1419,7 +1419,7 @@ _configure_func ()
 	*)	cmd="$1" ;;
 	esac
 
-	COMPREPLY=( $("$cmd" --help | awk '{if ($1 ~ /--.*/) print $1}' | grep ^"$2" | sort -u) )
+	COMPREPLY=( $( "$cmd" --help | sed -ne 's/^ *\('$2'[^ '$'\t'',[]\+\).*$/\1/p' ) )
 }
 complete -F _configure_func configure
 
@@ -1453,9 +1453,11 @@ list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' \
 	)
      ) )
 # remove previous compspecs
-eval complete -r ${list[@]}
-# install new compspecs
-eval complete -F _file_and_dir -o filenames ${list[@]}
+if [ ${#list[@]} -gt 0 ]; then
+    eval complete -r ${list[@]}
+    # install new compspecs
+    eval complete -F _file_and_dir -o filenames ${list[@]}
+fi
 unset list[@]
     
 # source user completion file
