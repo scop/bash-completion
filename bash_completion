@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.234 2002/03/29 08:30:47 ianmacd Exp $
+#   $Id: bash_completion,v 1.235 2002/03/29 16:33:08 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1785,9 +1785,9 @@ _ant()
 
 	if [[ "$cur" == -* ]]; then
 		# relevant options completion
-		COMPREPLY=( $( compgen -W 'help projecthelp version quiet \
-			       verbose debug emacs logfile logger listener \
-			       buildfile D find' -P '-' -- $cur ) )
+		COMPREPLY=( $( compgen -W '-help -projecthelp -version -quiet \
+			       -verbose -debug -emacs -logfile -logger \
+			       -listener -buildfile -D -find' -- $cur ) )
 	else
 		# available targets completion
 		# find wich buildfile to use
@@ -1801,7 +1801,8 @@ _ant()
 		[ ! -f $buildfile ] && return 0
 
 		# parse buildfile for targets
-		COMPREPLY=( $( awk 'BEGIN {FS="\""} /<target name="/ {print $2}' $buildfile | grep ^$cur ) )
+		COMPREPLY=( $( awk -F'"' '/<target name="/ {print $2}' \
+				$buildfile | grep ^$cur ) )
 	fi
 }
 [ "$have" ] && complete -F _ant -o filenames ant
@@ -2234,9 +2235,9 @@ _java()
 
 	if [[ "$cur" == -* ]]; then
 		# relevant options completion
-		COMPREPLY=( $( compgen -W 'client hotspot server classic cp \
-			       classpath D verbose version showversion ? help \
-			       X' -P '-' -- $cur ) )
+		COMPREPLY=( $( compgen -W '-client -hotspot -server -classic \
+			       -cp -classpath -D -verbose -version \
+			       -showversion -? -help -X' -- $cur ) )
 	else
 		# available classes completion
 		# find wich classpath to use
@@ -2260,7 +2261,7 @@ _java()
 						  -e 's|/|.|g' | grep ^$cur ) )
 			elif [ -d $i ]; then
 				COMPREPLY=( ${COMPREPLY[@]} $( find $i -type f \
-					    -name \*.class | grep '\.class' | \
+					    -name \*.class | \
 					    sed -e 's|^'$i'/||' \
 						-e 's|\.class$||' \
 						-e 's|/|.|g' | grep ^$cur ) )
@@ -2312,10 +2313,10 @@ _urpmi()
 
 	if [[ "$cur" == -* ]]; then
 		# return list of available options
-		COMPREPLY=( $( compgen -W 'a p P y s q v -help -update \
-			       -media -auto -auto-select -fuzzy -src -noclean \
-			       -complete -force -wget -curl -X -best-output' \
-			       -P '-' -- $cur ) )
+		COMPREPLY=( $( compgen -W '-a -p -P -y -s -q -v --help \
+			--update --media --auto --auto-select --fuzzy --src \
+			--noclean --complete --force --wget --curl --X \
+			--best-output' -- $cur ) )
 	else
 		# return list of available packages
 		COMPREPLY=( $( gzip -dc /var/lib/urpmi/synthesis.hdlist.* | \
@@ -2336,7 +2337,7 @@ _urpmi.update()
 
 	if [[ "$cur" == -* ]]; then
 		# return list of available options
-		COMPREPLY=( $( compgen -W 'a c d f -curl -wget' -P '-' -- $cur))
+		COMPREPLY=( $( compgen -W '-a -c -d -f --curl --wget' -- $cur))
 	else
 		# return list of available media
 		_urpmi.media
@@ -2356,8 +2357,8 @@ _urpmi.addmedia()
 
 	if [[ "$cur" == -* ]]; then
 		# return list of available options
-		COMPREPLY=( $( compgen -W 'c h f -wget -curl -update -distrib' \
-			       -P '-' -- $cur ) )
+		COMPREPLY=( $( compgen -W '-c -h -f --wget --curl --update \
+				--distrib' -- $cur ) )
 	else
 		# count number of mandatory args given sofar
 		args=$COMP_CWORD
@@ -2396,7 +2397,7 @@ _urpmi.removemedia()
 
 	if [[ "$cur" == -* ]]; then
 		# if word begins with a dash, return list of available options
-		COMPREPLY=( $( compgen -W 'a c' -P '-' -- $cur ) )
+		COMPREPLY=( $( compgen -W '-a -c' -- $cur ) )
 	else
 		# elsewhere, return list of available media
 		_urpmi.media
