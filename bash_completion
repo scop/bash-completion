@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.445 2002/10/17 03:18:34 ianmacd Exp $
+#   $Id: bash_completion,v 1.446 2002/10/17 05:01:21 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -3965,14 +3965,31 @@ _links()
 _pkg_delete()
 {
 	local cur pkgdir
+
 	pkgdir=/var/db/pkg/
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	COMPREPLY=( $( compgen -d $pkgdir$cur | sed -e "s|$pkgdir||" ) )
+	COMPREPLY=( $( compgen -d $pkgdir$cur ) )
+	COMPREPLY=${COMPREPLY[@]#$pkgdir}
 
 	return 0
 }
 [ $UNAME = FreeBSD ] && complete -F _pkg_delete $dirnames pkg_delete pkg_info
+
+# Slackware Linux removepkg completion
+#
+have removepkg && [ -f /etc/slackware-version ] &&
+_removepkg()
+{
+	local packages cur
+
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+
+        COMPREPLY=( $( (cd /var/log/packages; compgen -f -- "$cur") ) )
+}
+[ $have ] && complete -F _removepkg $filenames removepkg &&
+	complete -o dirnames -f -X '!*.tgz' installpkg upgradepkg explodepkg
 
 _filedir_xspec()
 {
