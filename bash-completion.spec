@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.104 2003/10/07 08:57:06 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.105 2003/10/22 09:17:28 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20031007
+Version: 20031022
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,13 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Wed Oct 22 2003 Ian Macdonald <ian@caliban.org>
+- another unbound variable warning removed
+- add completion for vsound and really
+- FreeBSD portinstall speed improvements
+- ee and display also complete on .pcx files
+- yum and yum-arch now use -o filenames
+
 * Mon Oct  7 2003 Ian Macdonald <ian@caliban.org>
 - compatibility fixes for forthcoming bash 3.x
 - added yum(8) and yum-arch(8) completion
