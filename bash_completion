@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.582 2003/06/23 15:39:59 ianmacd Exp $
+#   $Id: bash_completion,v 1.583 2003/06/23 15:54:01 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2815,12 +2815,13 @@ have psql && {
 _pg_databases() 
 {
 	COMPREPLY=( $( psql -l 2>/dev/null | \
-			sed -ne 's|^ \('$cur'[^ ]*\).*$|\1|p' ) )
+			sed -e '1,/^-/d' -e '/^(/,$d' | \
+			awk '{print $1}' | grep "^$cur" ) )
 }
 
 _pg_users()
 {
-	COMPREPLY=( $( psql -qtc 'select usename from pg_user' 2>/dev/null | \
+	COMPREPLY=( $( psql -qtc 'select usename from pg_user' template1 2>/dev/null | \
 			grep "^ $cur" ) )
 	[ ${#COMPREPLY[@]} -eq 0 ] && COMPREPLY=( $( compgen -u -- $cur ) )
 }
