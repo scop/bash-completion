@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.252 2002/04/03 18:56:55 ianmacd Exp $
+#   $Id: bash_completion,v 1.253 2002/04/03 19:19:30 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -32,6 +32,11 @@
 #
 OS=$( uname -s )
 RELEASE=$( uname -r )
+if [ ${BASH_VERSINFO[1]} '>' 04 ]; then
+	default="-o default"
+	dirnames="-o dirnames"
+	filenames="-o filenames"
+fi
 [ ${BASH_VERSINFO[1]} = "05b" ] && nospace="-o nospace"
 
 # Turn on extended globbing and programmable completion
@@ -79,7 +84,7 @@ complete -f -X '!*.@(exe|EXE|com|COM)' wine
 complete -u finger su usermod userdel passwd chage write talk chfn
 
 # group commands see only groups
-[ ${BASH_VERSINFO[1]} '>' 05 ] && complete -g groupmod groupdel
+[ ${BASH_VERSINFO[1]} '>' 04 ] && complete -g groupmod groupdel
 
 # bg completes with stopped jobs
 complete -A stopped -P '%' bg
@@ -223,7 +228,7 @@ _export()
 		;;
 	esac
 }
-complete -F _export -o default export
+complete -F _export $default export
 
 # bash shell function completion
 #
@@ -268,7 +273,7 @@ _chown()
 	# first parameter on line or first since an option?
 	if [ $COMP_CWORD -eq 1 ] || [[ "$prev" == -* ]]; then
 		if [[ "$cur" == [a-zA-Z]*[.:]* ]] && \
-		   [ ${BASH_VERSINFO[1]} '>' 05 ]; then
+		   [ ${BASH_VERSINFO[1]} '>' 04 ]; then
 			user=${cur%%?(\\)[.:]*}
 			group=${cur#*[.:]}
 			COMPREPLY=( $( compgen -P $user'\:' -g -- $group ) )
@@ -279,7 +284,7 @@ _chown()
 
 	return 0
 }
-complete -F _chown -o default chown
+complete -F _chown $default chown
 
 # chgrp(1) completion
 #
@@ -294,7 +299,7 @@ _chgrp()
 	# first parameter on line or first since an option?
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]] || \
 	   [[ "$prev" == -* ]]; then
-		[ ${BASH_VERSINFO[1]} '>' 05 ] && \
+		[ ${BASH_VERSINFO[1]} '>' 04 ] && \
 			COMPREPLY=( $( compgen -g $cur ) )
 	else
 		_expand || return 0
@@ -302,7 +307,7 @@ _chgrp()
 
 	return 0
 }
-complete -F _chgrp -o default chgrp
+complete -F _chgrp $default chgrp
 
 # umount(8) completion. This relies on the mount point being the third
 # space-delimited field in the output of mount(8)
@@ -318,7 +323,7 @@ _umount()
 
 	return 0
 }
-complete -F _umount -o dirnames umount
+complete -F _umount $dirnames umount
 
 # mount(8) completion. This will pull a list of possible mounts out of
 # /etc/fstab, unless the word being completed contains a ':', which
@@ -343,7 +348,7 @@ _mount()
 
 	return 0
 }
-complete -F _mount -o default mount
+complete -F _mount $default mount
 
 # Linux rmmod(1) completion. This completes on a list of all currently
 # installed kernel modules.
@@ -404,7 +409,7 @@ _insmod()
 
 	return 0
 }
-[ $OS = Linux ] && complete -F _insmod -o filenames insmod modprobe
+[ $OS = Linux ] && complete -F _insmod $filenames insmod modprobe
 
 # man(1) completion. This is Linux and Darwin specific, in that
 # 'man <section> <page>' is the expected syntax.
@@ -463,7 +468,7 @@ _man()
 
 	return 0
 }
-[ $OS = Linux -o $OS = Darwin ] && complete -F _man -o filenames man
+[ $OS = Linux -o $OS = Darwin ] && complete -F _man $filenames man
 
 # renice(8) completion
 #
@@ -567,7 +572,7 @@ _find()
 		return 0
 		;;
 	-group)
-		[ ${BASH_VERSINFO[1]} '>' 05 ] && \
+		[ ${BASH_VERSINFO[1]} '>' 04 ] && \
 			COMPREPLY=( $( compgen -g -- $cur ) )
 		return 0
 		;;
@@ -626,7 +631,7 @@ _find()
 	
 	return 0
 }
-complete -F _find -o filenames find
+complete -F _find $filenames find
 
 # Linux ifconfig(8) completion
 #
@@ -935,7 +940,7 @@ _cvs()
 	
 	return 0
 }
-[ "$have" ] && complete -F _cvs -o default cvs
+[ "$have" ] && complete -F _cvs $default cvs
 
 # rpm(8) completion
 # 
@@ -1169,7 +1174,7 @@ _rpm()
 
 	return 0
 }
-[ "$have" ] && complete -F _rpm -o filenames rpm
+[ "$have" ] && complete -F _rpm $filenames rpm
 
 # Debian Linux apt-get(8) completion.
 #
@@ -1216,7 +1221,7 @@ _apt_get()
 
 	return 0
 }
-[ "$have" ] && complete -F _apt_get -o filenames apt-get
+[ "$have" ] && complete -F _apt_get $filenames apt-get
 
 # Debian Linux apt-cache(8) completion.
 #
@@ -1263,8 +1268,8 @@ _apt_cache()
 
 	return 0
 }
-[ "$have" ] && complete -F _apt-cache -o filenames apt-cache
-complete -F _apt_cache -o filenames apt-cache
+[ "$have" ] && complete -F _apt-cache $filenames apt-cache
+complete -F _apt_cache $filenames apt-cache
 
 # chsh(1) completion
 #
@@ -1441,7 +1446,7 @@ _scp()
 
 	return 0
 }
-[ "$have" ] && complete -o filenames -F _scp scp
+[ "$have" ] && complete $filenames -F _scp scp
 
 # Linux route(8) completion
 #
@@ -1547,7 +1552,7 @@ _make()
 
 	return 0
 }
-[ "$have" ] && complete -F _make -X '+($*|*.[cho])' -o filenames make gmake pmake
+[ "$have" ] && complete -F _make -X '+($*|*.[cho])' $filenames make gmake pmake
 
 # Red Hat Linux service completion. This completes on a list of all available
 # service scripts in the SysV init.d directory, followed by that script's
@@ -1618,7 +1623,7 @@ _tar()
 
 	return 0
 }
-complete -F _tar -o filenames tar
+complete -F _tar $filenames tar
 
 # jar(1) completion
 #
@@ -1648,7 +1653,7 @@ _jar()
 			;;
 	esac
 }
-[ "$have" ] && complete -F _jar -o filenames jar
+[ "$have" ] && complete -F _jar $filenames jar
 
 # Linux iptables(8) completion
 #
@@ -1757,7 +1762,7 @@ _cd()
 
 	return 0
 }
-complete -F _cd $nospace -o filenames cd
+complete -F _cd $nospace $filenames cd
 
 # A meta-command completion function for commands like sudo(8), which need to
 # first complete on a command, then complete according to that command's own
@@ -1817,13 +1822,13 @@ _command()
 
 	[ ${#COMPREPLY[@]} -eq 0 ] && _filedir
 }
-complete -F _command -o filenames nohup exec nice eval strace time
+complete -F _command $filenames nohup exec nice eval strace time
 
 _root_command()
 {
 	PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin _command $1
 }
-complete -F _root_command -o filenames sudo fakeroot
+complete -F _root_command $filenames sudo fakeroot
 
 # ant(1) completion
 #
@@ -1870,7 +1875,7 @@ _ant()
 				$buildfile | grep ^$cur ) )
 	fi
 }
-[ "$have" ] && complete -F _ant -o filenames ant
+[ "$have" ] && complete -F _ant $filenames ant
 
 have nslookup &&
 _nslookup()
@@ -1941,7 +1946,7 @@ _zip()
 	COMPREPLY=( $( compgen -f -X "$xspec" -- $cur ) \
 		    $( compgen -d -- $cur ) )
 }
-[ "$have" ] && complete -F _zip -o filenames gzip bzip2
+[ "$have" ] && complete -F _zip $filenames gzip bzip2
 
 # openssl(1) completion
 #
@@ -1970,7 +1975,7 @@ _openssl()
 
 	return 0
 }
-[ $have ] && complete -F _openssl -o default openssl
+[ $have ] && complete -F _openssl $default openssl
 
 # screen(1) completion
 #
@@ -2002,7 +2007,7 @@ _screen()
 
 	return 0
 }
-[ $have ] && complete -F _screen -o default screen
+[ $have ] && complete -F _screen $default screen
 
 # ncftp(1) bookmark completion
 #
@@ -2021,7 +2026,7 @@ _ncftp()
 
 	return 0
 }
-[ $have ] && complete -F _ncftp -o default ncftp
+[ $have ] && complete -F _ncftp $default ncftp
 
 # gdb(1) completion
 #
@@ -2045,7 +2050,7 @@ _gdb()
 					sed -e 's#^.*/##' ))
 	fi
 }
-[ $have ] && complete -F _gdb -o default gdb
+[ $have ] && complete -F _gdb $default gdb
 
 # psql(1) completion
 #
@@ -2076,7 +2081,7 @@ _psql()
 		;;
 	esac
 }
-[ "$have" ] && complete -F _psql -o default psql
+[ "$have" ] && complete -F _psql $default psql
 
 _longopt()
 {
@@ -2111,7 +2116,7 @@ for i in a2ps autoconf automake bc gprof ld nm objcopy objdump readelf strip \
 	 env seq su tee uname who texindex cat csplit cut expand fmt fold head \
 	 md5sum nl od paste pr ptx sha1sum sort split tac tail tr unexpand \
 	 uniq wc units wget rsync ldd bash id info irb mkdir rmdir netstat; do
-    have $i && complete -F _longopt -o filenames $i
+    have $i && complete -F _longopt $filenames $i
 done
 unset i
 
@@ -2162,8 +2167,8 @@ _gcc()
 		_filedir
 	fi
 }
-[ "$have" ] && complete -o filenames -F _gcc gcc g++ c++ g77 gcj gpc
-[ $OS = Linux ] && complete -o filenames -F _gcc cc
+[ "$have" ] && complete $filenames -F _gcc gcc g++ c++ g77 gcj gpc
+[ $OS = Linux ] && complete $filenames -F _gcc cc
 
 # Linux cardctl(8) completion
 #
@@ -2264,7 +2269,7 @@ _dpkg()
 			-x --extract -X --vextract --fsys-tarfile -e --control \
 			--ignore-depends= --abort-after' -- $cur ) )
 }
-[ "$have" ] && complete -F _dpkg -o filenames dpkg dpkg-deb
+[ "$have" ] && complete -F _dpkg $filenames dpkg dpkg-deb
 
 # Debian Linux dpkg-reconfigure(8) completion
 #
@@ -2300,7 +2305,7 @@ _dpkg-reconfigure()
 	    COMPREPLY=( $( _comp-dpkg-installed-packages $cur ) )
 	fi
 }
-[ "$have" ] && complete -F _dpkg-reconfigure -o default dpkg-reconfigure
+[ "$have" ] && complete -F _dpkg-reconfigure $default dpkg-reconfigure
 
 have java &&
 _java()
@@ -2372,7 +2377,7 @@ _configure_func()
 		COMPREPLY=( $( $1 --help | sed -ne 's|^ *\('$cur'[^ '$'\t'',=[]\+=\?\).*$|\1|p' ) )
 	fi
 }
-complete -F _configure_func -o default configure
+complete -F _configure_func $default configure
 
 # urpmi media function required by other urpmi functions
 #
@@ -2567,7 +2572,7 @@ _reportbug()
 	_filedir
 	return 0
 }
-[ "$have" ] && complete -F _reportbug -o filenames reportbug
+[ "$have" ] && complete -F _reportbug $filenames reportbug
 
 # Debian Linux querybts(1) completion
 #
@@ -2600,7 +2605,7 @@ _querybts()
                         wnpp boot-floppies' -- $cur ) \
 	    		$( apt-cache pkgnames -- $cur ) )
 }
-[ "$have" ] && complete -F _querybts -o filenames querybts
+[ "$have" ] && complete -F _querybts $filenames querybts
 
 _filedir_xspec()
 {
@@ -2641,7 +2646,7 @@ list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' \
 if [ ${#list[@]} -gt 0 ]; then
     eval complete -r ${list[@]}
     # install new compspecs
-    eval complete -F _filedir_xspec -o filenames ${list[@]}
+    eval complete -F _filedir_xspec $filenames ${list[@]}
 fi
 unset list[@]
 
@@ -2658,7 +2663,7 @@ unset i
 [ $BASH_COMPLETION != ~/.bash_completion -a -r ~/.bash_completion ] \
 	&& . ~/.bash_completion
 unset -f have
-unset OS RELEASE have nospace
+unset OS RELEASE have default dirnames filenames nospace
 
 ###  Local Variables:
 ###  mode: shell-script
