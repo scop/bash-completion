@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.122 2005/01/13 03:14:40 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.123 2005/01/20 10:10:19 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: Programmable completion for bash %{bashversion} and above.
-Version: 20050112
+Version: 20050120
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,18 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Thu Jan 20 2005 Ian Macdonald <ian@caliban.org>
+- Improve ssh2 known hosts completion.
+- Remove xargs from list of commands that do longopts completion. xargs
+  now does completion like sudo, exec, nice, strace, etc.
+- Pass over switches to metacommands like sudo, nice, exec, etc.
+- unzip should also work on .sxw files.
+- Lots of commands that use _longopts() don't use filenames at all, so
+  these shouldn't be mapped with '-o filenames'.
+- Make dd treat completions as filenames, which is bad for options, but
+  good for filename arguments to 'if' and 'of'.
+- Fix lvresize errors when running as non-root.
+
 * Wed Jan 12 2005 Ian Macdonald <ian@caliban.org>
 - Make completion work for chown/chgrp when group names contain spaces.
 - Wireless tools completion improvements.
