@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.13 2001/01/11 00:09:48 ianmacd Exp $
+#   $Id: bash_completion,v 1.14 2001/01/31 23:30:49 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -200,7 +200,7 @@ _rmmod()
         cur=${COMP_WORDS[COMP_CWORD]}
 
 	COMPREPLY=( $( /sbin/lsmod | \
-		       awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}') )
+		       awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}' ) )
 	return 0
 }
 complete -F _rmmod rmmod
@@ -218,14 +218,15 @@ _insmod()
 	modpath=/lib/modules/`uname -r`
 
 	if [ $COMP_CWORD -gt 1 ]; then
-		COMPREPLY=( $( /sbin/modinfo -p $prev | cut -f 1 -d ' ' ) )
+		COMPREPLY=( $( /sbin/modinfo -p ${COMP_WORDS[1]} | \
+		       awk '{if ($1 ~ /^'$cur'/) print $1}' ) )
 	else
-		COMPREPLY=($( ls -R $modpath | sed -ne 's/^\('$cur'.*\)\.o$/\1/p'))
+		COMPREPLY=( $( ls -R $modpath | sed -ne 's/^\('$cur'.*\)\.o$/\1/p') )
 	fi
 
 	return 0
 }
-complete -F _insmod insmod modprobe modinfo
+complete -F _insmod insmod modprobe
 
 # man(1) completion. This relies on the security enhanced version of
 # GNU locate(1). UNIX variants having non-numeric man page sections
@@ -245,8 +246,8 @@ _man()
         cur=${COMP_WORDS[COMP_CWORD]}
         prev=${COMP_WORDS[COMP_CWORD-1]}
 
-        # filename completion if parameter contains /
-        if [[ "$cur" == /* ]]; then
+        # filename completion if parameter contains / or we have no man.config
+        if [[ "$cur" == /* ]] || [ ! -f /etc/man.config ]; then
                 COMPREPLY=( $( compgen -f $cur ) )
                 return 0
         fi
