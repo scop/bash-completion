@@ -2,7 +2,7 @@
 #
 #   <![CDATA[
 #
-#   $Id: bash_completion,v 1.99 2002/02/11 00:11:03 ianmacd Exp $
+#   $Id: bash_completion,v 1.100 2002/02/11 02:49:26 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -89,7 +89,7 @@ complete -A hostname ssh rsh telnet rlogin ftp ping fping host traceroute \
 	    nslookup
 
 # export and others complete with shell variables
-complete -v export local readonly unset
+complete -v readonly unset
 
 # set completes with set options
 complete -A setopt set
@@ -1681,15 +1681,33 @@ _alias()
 
 	case "$COMP_LINE" in
 	*[^=])
-		COMPREPLY=( $(compgen -A alias $cword) )
+		COMPREPLY=( $( compgen -A alias -S '=' $cur ) )
 		;;
         *=)
 		COMPREPLY=( "$( alias ${cur%=} | \
 			     sed -e 's/^alias '$cur'\(.*\)$/\1/' )" )
 		;;
-    esac
+	esac
 }
 complete -F _alias alias
+
+# bash export completion
+#
+_export()
+{
+	local cur
+	cur=${COMP_WORDS[$COMP_CWORD]};
+
+	case "$COMP_LINE" in
+	*[^=])
+		COMPREPLY=( $( compgen -v -S '=' $cur ) )
+		;;
+        *=)
+		COMPREPLY=( $( eval echo $`echo ${cur%=}` ) )
+		;;
+    esac
+}
+complete -F _export export
 
 # bash shell function completion
 #
