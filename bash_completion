@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.171 2002/03/01 08:55:36 ianmacd Exp $
+#   $Id: bash_completion,v 1.172 2002/03/01 19:29:34 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -607,6 +607,15 @@ _cvs()
 			     grep "^$cur" ) )
 	}
 
+	get_modules()
+	{
+		if [ -n "$prefix" ]; then 
+			COMPREPLY=( $( \ls -d ${cvsroot}/${prefix}/!(CVSROOT) ))
+		else
+			COMPREPLY=( $( \ls -d ${cvsroot}/!(CVSROOT) ) )
+		fi
+	}
+
 	local cur count mode i cvsroot pwd
 	local -a flags miss files entries changed newremoved
 
@@ -695,13 +704,7 @@ _cvs()
 			prefix=${cur%/*}
 			[ -r ${cvsroot}/${prefix} ] || prefix=""
 			if [ -r ${cvsroot}/${prefix} ]; then
-				if [ -n "$prefix" ]; then 
-					COMPREPLY=( $( \ls -d \
-					${cvsroot}/${prefix}/!(CVSROOT) ) )
-				else
-					COMPREPLY=( $( \ls -d \
-					${cvsroot}/!(CVSROOT) ) )
-				fi
+				get_modules
 				COMPREPLY=( ${COMPREPLY[@]#$cvsroot} )
 				COMPREPLY=( ${COMPREPLY[@]#/} )
 				COMPREPLY=( $( compgen -W \
@@ -748,9 +751,9 @@ _cvs()
 		if [[ "$cur" != -* ]]; then
 			# starts with same algorithm as checkout
 			[ -z "$cvsroot" ] && cvsroot=$CVSROOT
-			if [ -r "$cvsroot" ]; then
-				COMPREPLY=( $( \ls -d $cvsroot/!(CVSROOT) \
-						2>/dev/null ) )
+			prefix=${cur%/*}
+			if [ -r ${cvsroot}/${prefix} ]; then
+				get_modules
 				COMPREPLY=( ${COMPREPLY[@]#$cvsroot} )
 				COMPREPLY=( ${COMPREPLY[@]#\/} )
 			fi
