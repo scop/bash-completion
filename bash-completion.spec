@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.28 2002/04/22 08:26:31 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.29 2002/04/27 18:46:04 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020422
+Version: 20020427
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,16 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Sat Apr 27 2002 Ian Macdonald <ian@caliban.org>
+- add update-alternatives completion
+- _urpmi_media(): urpmi completion now deals properly with spaces
+- check that the files we try to source in $BASH_COMPLETION_DIR are actually
+  plain old files
+- zipinfo now completes on the same files as unzip
+- _export(): make 'export FOO=$<Tab>' complete on variable names
+- latex et al now also complete on .dtx and .ins files
+- add Debian dselect(8) completion
+
 * Mon Apr 22 2002 Ian Macdonald <ian@caliban.org>
 - _filedir(): fix error when completing on a quoted parameter
 - add dict completion in contrib
