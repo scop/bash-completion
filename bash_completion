@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.164 2002/02/27 22:36:10 ianmacd Exp $
+#   $Id: bash_completion,v 1.165 2002/02/28 06:39:10 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1726,7 +1726,7 @@ _longopt()
 		COMPREPLY=( $( $1 --help | sed  -e '/--/!d' \
 				-e 's/.*\(--[-A-Za-z0-9]\+=\?\).*/\1/' | \
 			       grep ^$cur | sort -u ) )
-	elif [[ "$1" = @(mk|rm)dir ]]; then
+	elif [[ "$1" == @(mk|rm)dir ]]; then
 		_filedir -d
 	else
 		_filedir
@@ -1912,6 +1912,9 @@ complete -F _function function
 
 _expand()
 {
+	# avoid eval error if parameter ends with \
+	[ "$cur" != "${cur%\\}" ] && cur="$cur"'\'
+	
 	# expand ~username type directory specifications
 	if [[ "$cur" == \~*/* ]]; then
 		eval cur=$cur
