@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.108 2003/11/25 19:09:00 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.109 2003/12/15 09:53:35 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20031125
+Version: 20031215
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,12 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Mon Dec 15 2003 Ian Macdonald <ian@caliban.org>
+- find(1) completion improvements
+- add ImageMagick completion
+- apt-cache completion updates from Danilo Piazzalunga
+- allow gpdf to complete on PDF files
+
 * Tue Nov 25 2003 Ian Macdonald <ian@caliban.org>
 - first cut at mutt(1) completion
 - user completion for w(1)
