@@ -1,8 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   <![CDATA[
-#
-#   $Id: bash_completion,v 1.100 2002/02/11 02:49:26 ianmacd Exp $
+#   $Id: bash_completion,v 1.101 2002/02/11 03:14:08 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1048,10 +1046,11 @@ _chkconfig()
 #
 _known_hosts()
 {
-	local cur kh user
+	local cur kh user suffix
 
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
+	[ "$1" = -c ] && suffix=':'
 	[[ $cur == *@* ]] && user=${cur%@*}@ && cur=${cur#*@}
 	kh=()
 
@@ -1085,11 +1084,11 @@ _known_hosts()
 				       if ($i ~ /'$cur'/) {print $i} \
 				}}' ${kh[@]} ) )
 	    for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
-		COMPREPLY[i]=$user${COMPREPLY[i]}
+		COMPREPLY[i]=$user${COMPREPLY[i]}$suffix
 	    done
 	else
 	    # Just do normal hostname completion
-	    COMPREPLY=( $( compgen -A hostname $cur ) )
+	    COMPREPLY=( $( compgen -A hostname -S $suffix $cur ) )
 	fi
 
 	return 0
@@ -1136,7 +1135,7 @@ _scp()
 
 	_expand || return 0
 
-	[[ "$cur" == */* ]] || _known_hosts
+	[[ "$cur" == */* ]] || _known_hosts -c
 	_filedir
 
 	return 0
