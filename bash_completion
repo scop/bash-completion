@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.180 2002/03/06 20:24:06 ianmacd Exp $
+#   $Id: bash_completion,v 1.181 2002/03/07 17:16:43 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -914,6 +914,21 @@ _rpm()
 	    	COMPREPLY=( ${COMPREPLY[@]} $( compgen -d -- $cur ) )
 	}
 
+	uninstalled_packages()
+	{
+		# complete on list of relevant options
+		COMPREPLY=( $( compgen -W '--scripts --root --rcfile \
+		--whatprovides --whatrequires --requires --triggeredby \
+		--ftpport --ftpproxy --httpproxy --httpport --provides \
+		--triggers --dump --changelog --dbpath --filesbypkg --define \
+		--eval --pipe --showrc --info --list --state --docfiles \
+		--configfiles --queryformat --conflicts --obsoletes' -- $cur ) )
+		# return if $cur is an option
+		[[ "$cur" == -* ]] && return 0
+		# add a list of RPMS to possible completions
+		file_glob rpm
+	}
+
 	local cur prev
 
 	COMPREPLY=()
@@ -1005,17 +1020,7 @@ _rpm()
 		file_glob rpm
 		;;
 	-q*p*)
-		# complete on list of relevant options
-		COMPREPLY=( $( compgen -W '--scripts --root --rcfile \
-		--whatprovides --whatrequires --requires --triggeredby \
-		--ftpport --ftpproxy --httpproxy --httpport --provides \
-		--triggers --dump --changelog --dbpath --filesbypkg --define \
-		--eval --pipe --showrc --info --list --state --docfiles \
-		--configfiles --queryformat --conflicts --obsoletes' -- $cur ) )
-		# return if $cur is an option
-		[[ "$cur" == -* ]] && return 0
-		# add a list of RPMS to possible completions
-		file_glob rpm
+		uninstalled_packages
 		;;
 	-*f)
 		# standard filename completion
@@ -1030,15 +1035,22 @@ _rpm()
 		add_package_list
 		;;
 	-q*)
-		# complete on list of relevant options
-		COMPREPLY=( $( compgen -W '--scripts --root --rcfile \
-		--whatprovides --whatrequires --requires --triggeredby \
-		--ftpport --ftpproxy --httpproxy --httpport --provides \
-		--triggers --dump --changelog --dbpath --specfile \
-		--querybynumber --last --filesbypkg --define --eval --pipe \
-		--showrc --info --list --state --docfiles --configfiles \
-		--queryformat --conflicts --obsoletes --pkgid --hdrid \
-		--fileid --tid' -- $cur ) )
+		# check whether we're querying installed or uninstalled
+		if [ "${COMP_LINE#*-*([^ ])p}" != "$COMP_LINE" ]; then
+			# there's a -p on the line
+			uninstalled_packages
+			return 0
+		else
+			# complete on list of relevant options
+			COMPREPLY=( $( compgen -W '--scripts --root --rcfile \
+			--whatprovides --whatrequires --requires --triggeredby \
+			--ftpport --ftpproxy --httpproxy --httpport --provides \
+			--triggers --dump --changelog --dbpath --specfile \
+			--querybynumber --last --filesbypkg --define --eval \
+			--pipe --showrc --info --list --state --docfiles \
+			--configfiles --queryformat --conflicts --obsoletes \
+			--pkgid --hdrid --fileid --tid' -- $cur ) )
+		fi
 		# return if $cur is an option
 		[[ "$cur" == -* ]] && return 0
 		# don't complete on packages if we are querying all packages
