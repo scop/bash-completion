@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.37 2002/05/19 17:05:25 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.38 2002/05/21 17:09:35 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05a
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20020519
+Version: 20020521
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,11 @@ fi
 %doc README Changelog contrib/
 
 %changelog
+* Tue May 21 2002 Ian Macdonald <ian@caliban.org>
+- add bzme completion (Mandrake)
+- unzip & zipinfo also complete on .war files (as used by Tomcat, etc.)
+- _comp-dpkg-installed-packages(): remove dependence on grep-dctrl
+
 * Sun May 19 2002 Ian Macdonald <ian@caliban.org>
 - Python now completes first on a .@(py|pyc|pyo) file, then on any file
 - rpm helper function _file_glob() has been integrated into _filedir()
