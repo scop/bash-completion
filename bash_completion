@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.764 2005/01/03 02:02:16 ianmacd Exp $
+#   $Id: bash_completion,v 1.765 2005/01/03 02:24:14 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -328,6 +328,16 @@ _services()
 	fi
 
 	COMPREPLY=( $( compgen -W '${COMPREPLY[@]#@($sysvdir|$famdir)/}' -- $cur ) )
+}
+
+# This function complete on modules
+#
+_modules()
+{
+	local modpath
+	modpath=/lib/modules/$1
+	COMPREPLY=( $( command ls -R $modpath | \
+			sed -ne 's/^\('$cur'.*\)\.k\?o\(\|.gz\)$/\1/p') )
 }
 
 # Linux ifconfig(8) and iwconfig(8) helper function
@@ -681,7 +691,6 @@ _insmod()
 	COMPREPLY=()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
-	modpath=/lib/modules/`uname -r`
 
 	# behave like lsmod for modprobe -r
 	if [ $1 = "modprobe" ] &&
@@ -703,12 +712,8 @@ _insmod()
 		COMPREPLY=( $( /sbin/modinfo -p ${COMP_WORDS[1]} 2>/dev/null | \
 		       awk '{if ($1 ~ /^parm:/ && $2 ~ /^'$cur'/) { print $2 } \
 			else if ($1 !~ /:/ && $1 ~ /^'$cur'/) { print $1 }}' ) )
-	elif [ -r $modpath -a -x $modpath ]; then
-		# do module name completion
-		COMPREPLY=( $( command ls -R $modpath | \
-			sed -ne 's/^\('$cur'.*\)\.k\?o\(\|.gz\)$/\1/p') )
-	else 
-		_filedir
+	else
+		_modules $(uname -r)
 	fi
 
 	return 0
