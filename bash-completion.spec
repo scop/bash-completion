@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.62 2002/10/01 09:05:14 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.63 2002/10/05 09:52:25 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20021001
+Version: 20021005
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,17 @@ fi
 %doc BUGS README Changelog contrib/
 
 %changelog
+* Sat Oct  5 2002 Ian Macdonald <ian@caliban.org>
+- make java completion aware of -jar
+- make jar completion accept a leading dash to its option list
+- fix cvs counting bug
+- silence some apt-cache complaints in various completions
+- avoid awk error message in rmmod completion when passed a '\'
+- avoid grep error message in mount completion when passed a '\'
+- avoid double machine name bug in scp completion
+- check for existence of links history file in links completion
+- many Debian command updates
+
 * Tue Oct  1 2002 Ian Macdonald <ian@caliban.org>
 - links completion
 - fix quoting issue in chown and chgrp completion
