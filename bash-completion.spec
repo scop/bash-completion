@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.112 2004/02/10 10:25:43 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.113 2004/02/15 03:49:21 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: bash-completion offers programmable completion for bash %{bashversion}
-Version: 20040210
+Version: 20040214
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,14 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Tue Feb 10 2004 Ian Macdonald <ian@caliban.org>
+- big speed up for dpkg completion
+- fix chsh completion to work on Debian
+- fix for ant completion
+- fix up a continuation error in _filedir()
+- make 'make -f' completion work properly
+- don't unset $have twice at end of script (fix from
+
 * Tue Feb 10 2004 Ian Macdonald <ian@caliban.org>
 - fix broken command completion for sudo and others
 - make apt-cache know about the 'rdepends' option
