@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05a
 #
-#   $Id: bash_completion,v 1.101 2002/02/11 03:14:08 ianmacd Exp $
+#   $Id: bash_completion,v 1.102 2002/02/11 06:06:19 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -946,7 +946,7 @@ _apt-cache()
 
 	
 	for (( i=0; i < ${#COMP_WORDS}-1; i++ )); do
-		if [[ ${COMP_WORDS[i]} == @(add|showpkg) ]]; then
+		if [[ ${COMP_WORDS[i]} == @(add|show?(pkg)|depends|dotty) ]]; then
 			special=${COMP_WORDS[i]}
 		fi
 	done
@@ -956,7 +956,7 @@ _apt-cache()
 			COMPREPLY=( $( compgen -f $cur ) )
 			return 0
 			;;
-		showpkg)
+		show?(pkg)|depends|dotty)
 			COMPREPLY=( $( apt-cache pkgnames $cur ) )
 			return 0
 			;;
@@ -968,7 +968,7 @@ _apt-cache()
 		COMPREPLY=( $( compgen -f $cur ) )
 	else
 		COMPREPLY=( $( compgen -W 'add gencaches showpkg stats dump \
-				dumpavail unmet check search show showpkg \
+				dumpavail unmet check search show dotty \
 				depends pkgnames -h -v -p -s -q -i -f -a -g -c \
 				-o --help --version --pkg-cache --src-cache \
 				--quiet --important --full --all-versions \
@@ -979,6 +979,7 @@ _apt-cache()
 	return 0
 }
 [ "$have" ] && complete -F _apt-cache -o filenames apt-cache
+complete -F _apt-cache -o filenames apt-cache
 
 # chsh(1) completion
 #
