@@ -1,6 +1,6 @@
 #   bash_completion - some programmable completion functions for bash 2.05b
 #
-#   $Id: bash_completion,v 1.799 2005/07/08 01:36:51 ianmacd Exp $
+#   $Id: bash_completion,v 1.800 2005/07/08 01:47:14 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -26,21 +26,15 @@
 
 [ -n "${DEBUG:-}" ] && set -v || set +v
 
-# Alter the following to reflect the location of this file
+# Alter the following to reflect the location of this file.
 #
-if [ -n "${FUNCNAME:-}" ]; then
-	# we're being sourced from within a function, so we can't use
-	# 'declare', as this will create local variables within a function
-	BASH_COMPLETION="${BASH_COMPLETION:-/etc/bash_completion}" 2>/dev/null
-	BASH_COMPLETION_DIR="${BASH_COMPLETION_DIR:=/etc/bash_completion.d}" \
-	  2>/dev/null
-else
-	declare -r BASH_COMPLETION="${BASH_COMPLETION:-/etc/bash_completion}" \
-	  2>/dev/null
-	declare -r \
-	  BASH_COMPLETION_DIR="${BASH_COMPLETION_DIR:=/etc/bash_completion.d}"\
-	  2>/dev/null
-fi
+{
+  # These declarations must go within braces in order to be able to silence
+  # readonly variable errors.
+  BASH_COMPLETION="${BASH_COMPLETION:-/etc/bash_completion}"
+  BASH_COMPLETION_DIR="${BASH_COMPLETION_DIR:=/etc/bash_completion.d}"
+} 2>/dev/null
+readonly BASH_COMPLETION BASH_COMPLETION_DIR
 
 # Set a couple of useful vars
 #
