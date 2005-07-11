@@ -1,6 +1,6 @@
 #   bash_completion - programmable completion functions for bash 3.0
 #
-#   $Id: bash_completion,v 1.808 2005/07/12 00:21:13 ianmacd Exp $
+#   $Id: bash_completion,v 1.809 2005/07/12 00:23:30 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -351,6 +351,34 @@ _modules()
 			sed -ne 's/^\('$cur'.*\)\.k\?o\(\|.gz\)$/\1/p') )
 }
 
+# this function complete on user:group format
+#
+_usergroup()
+{
+	local IFS=$'\n'
+	cur=${cur//\\\\ / }
+	if [[ $cur = *@(\\:|.)* ]] && [ -n "$bash205" ]; then
+		user=${cur%%*([^:.])}
+		COMPREPLY=( $(compgen -P ${user/\\\\} -g -- ${cur##*[.:]}) )
+	elif [[ $cur = *:* ]] && [ -n "$bash205" ]; then
+		COMPREPLY=( $( compgen -g -- ${cur##*[.:]} ) )
+	else
+		COMPREPLY=( $( compgen -S : -u -- $cur ) )
+	fi
+}
+
+# this function count the number of mandatory args
+#
+_count_args()
+{
+	args=1
+	for (( i=1; i < COMP_CWORD; i++ )); do
+		if [[ "${COMP_WORDS[i]}" != -* ]]; then
+			args=$(($args+1))
+		fi
+	done
+}
+
 # start of section containing completion functions for bash built-ins
 
 # bash alias completion
@@ -528,31 +556,25 @@ complete -F _service service
 #
 _chown()
 {
-	local user
-	local cur=${COMP_WORDS[COMP_CWORD]}
-	local prev=${COMP_WORDS[COMP_CWORD-1]}
+	local cur
+	cur=${COMP_WORDS[COMP_CWORD]}
 
 	# options completion
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes \
 		--dereference --no-dereference --from= --silent --quiet \
 		--reference= --recursive --verbose --help --version' -- $cur ) )
-		return 0
-	fi
-
-	if (( COMP_CWORD == 1 )) || [[ "$prev" == -* ]]; then
-	    local IFS=$'\n'
-	    cur=${cur//\\\\ / }
-	    if [[ $cur = *@(\\:|.)* ]] && [ -n "$bash205" ]; then
-		user=${cur%%*([^:.])}
-		COMPREPLY=( $(compgen -P ${user/\\\\} -g -- ${cur##*[.:]}) )
-	    elif [[ $cur = *:* ]] && [ -n "$bash205" ]; then
-		COMPREPLY=( $( compgen -g -- ${cur##*[.:]} ) )
-	    else
-		COMPREPLY=( $( compgen -S : -u -- $cur ) )
-	    fi
 	else
-	    _filedir
+		_count_args
+
+		case $args in
+			1)
+				_usergroup
+				;;
+			*)
+				_filedir
+				;;
+		esac
 	fi
 }
 complete -F _chown $filenames chown
@@ -7912,13 +7934,7 @@ _mkinitrd()
 			--initrdfs= --dsdt= --lvm-version= --froce-usb' \
 			-- $cur ) )
 	else
-		# count number of mandatory args given sofar
-		args=1
-		for (( i=1; i < COMP_CWORD; i++ )); do
-			if [[ "${COMP_WORDS[i]}" != -* ]]; then
-				args=$(($args+1))
-			fi
-		done
+		_count_args
 
 		case $args in
 			1)
