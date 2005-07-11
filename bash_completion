@@ -1,6 +1,6 @@
 #   bash_completion - programmable completion functions for bash 3.0
 #
-#   $Id: bash_completion,v 1.801 2005/07/08 04:20:58 ianmacd Exp $
+#   $Id: bash_completion,v 1.802 2005/07/11 23:36:17 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -6742,20 +6742,20 @@ complete -F _dhclient dhclient
 have lvm && {
 _volumegroups()
 {
-	COMPREPLY=( $( vgscan | \
-		awk -F'"' '/Found/ {if ($2 ~ /^'$cur'/) print $2}' ) )
+	COMPREPLY=( $(compgen -W "$( vgscan 2>/dev/null | \
+	    sed -n -e 's|.*Found.*"\(.*\)".*$|\1|p' )" -- $cur ) )
 }
 
 _physicalvolumes()
 {
-	COMPREPLY=( $( pvscan | \
-		awk '/PV/ {if ($2 ~ /^'$cur'/) print $2}' ) )
+	COMPREPLY=( $(compgen -W "$( pvscan 2>/dev/null | \
+	    sed -n -e 's|^.*PV \(.*\) VG.*$|\1|p' )" -- $cur ) )
 }
 
 _logicalvolumes()
 {
-	COMPREPLY=( $( lvscan 2>/dev/null | \
-		awk -F"'" '{if ($2 ~ /^'$cur'/) print $2}' ) )
+	COMPREPLY=( $(compgen -W "$( lvscan 2>/dev/null | \
+	    sed -n -e "s|^.*'\(.*\)'.*$|\1|p" )" -- $cur ) )
 }
 
 _units()
