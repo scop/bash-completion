@@ -1,6 +1,6 @@
 #   bash_completion - programmable completion functions for bash 3.0
 #
-#   $Id: bash_completion,v 1.807 2005/07/12 00:20:16 ianmacd Exp $
+#   $Id: bash_completion,v 1.808 2005/07/12 00:21:13 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -8134,6 +8134,37 @@ _getent()
 	fi
 } &&
 complete -F _getent getent
+
+# ntpdate(1) completion
+#
+have ntpdate &&
+_ntpdate()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-k)
+			_filedir
+			return 0
+			;;
+		-U)
+			COMPREPLY=( $( compgen -u $cur  ) )
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-4 -6 -b -B -d -Q -q -s -u -v -a\
+			-e -k -p -o -r -t' -- $cur ) )
+	else
+		_known_hosts
+	fi
+} &&
+complete -F _ntpdate ntpdate
 
 _filedir_xspec()
 {
