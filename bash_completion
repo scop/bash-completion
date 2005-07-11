@@ -1,6 +1,6 @@
 #   bash_completion - programmable completion functions for bash 3.0
 #
-#   $Id: bash_completion,v 1.806 2005/07/12 00:19:05 ianmacd Exp $
+#   $Id: bash_completion,v 1.807 2005/07/12 00:20:16 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -8089,6 +8089,51 @@ _id()
 	fi
 } &&
 complete -F _id id
+
+# getent(1) completion
+#
+have getent &&
+_getent()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		passwd)
+			COMPREPLY=( $( compgen -u $cur  ) )
+			return 0
+			;;
+		group)
+			COMPREPLY=( $( compgen -g $cur  ) )
+			return 0
+			;;
+		services)
+			COMPREPLY=( $( compgen -s $cur  ) )
+			return 0
+			;;
+		hosts)
+			COMPREPLY=( $( compgen -A hostname $cur  ) )
+			return 0
+			;;
+		protocols)
+			COMPREPLY=( $( getent protocols | awk '{print $1}' | grep "^$cur" ) )
+			return 0
+			;;
+		networks)
+			COMPREPLY=( $( getent networks | awk '{print $1}' | grep "^$cur" ) )
+			return 0
+			;;
+	esac
+
+
+	if [ $COMP_CWORD -eq 1 ]; then
+		COMPREPLY=( $( compgen -W 'passwd group hosts services protocols networks' -- $cur ) )
+	fi
+} &&
+complete -F _getent getent
 
 _filedir_xspec()
 {
