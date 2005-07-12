@@ -1,6 +1,6 @@
 #   bash_completion - programmable completion functions for bash 3.0
 #
-#   $Id: bash_completion,v 1.812 2005/07/12 07:22:57 ianmacd Exp $
+#   $Id: bash_completion,v 1.813 2005/07/12 07:28:08 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -4557,7 +4557,6 @@ _pineaddr()
 } &&
 complete -F _pineaddr $default pine
 
-
 # mutt completion
 #
 # Mutt doesn't have an "addressbook" like Pine, but it has aliases and
@@ -4595,9 +4594,10 @@ _muttaliases()
 	local -a conffiles aliases
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	[ -f ~/.mutt/muttrc ] && muttrc="~/.mutt/muttrc"
-	[ -f ~/.muttrc ] && muttrc="~/.muttrc"
+	[ -f ~/.${muttcmd}/${muttcmd}rc ] && muttrc="~/.${muttcmd}/${muttcmd}rc"
+	[ -f ~/.${muttcmd}rc ] && muttrc="~/.${muttcmd}rc"
 	[ -z "$muttrc" ] && return 0
+
 	conffiles=( $(eval _muttconffiles $muttrc $muttrc) )
 	aliases=( $( sed -rn 's|^alias[[:space:]]+([^[:space:]]+).*$|\1|p' \
 			$(eval echo ${conffiles[@]}) ) )
@@ -4612,7 +4612,7 @@ _muttquery()
 	local -a queryresults
 	cur=${COMP_WORDS[COMP_CWORD]}
 
-	querycmd="$( mutt -Q query_command  | sed -r 's|^query_command=\"(.*)\"$|\1|; s|%s|'$cur'|' )"
+	querycmd="$( $muttcmd -Q query_command  | sed -r 's|^query_command=\"(.*)\"$|\1|; s|%s|'$cur'|' )"
 	if [ -z "$cur" -o -z "$querycmd" ]; then
 	    queryresults=()
 	else 
@@ -4634,7 +4634,7 @@ _muttfiledir()
 	# This is currently not working so well. Perhaps this function should
 	# just call _filedir() for the moment.
 	if [[ $cur == [=+]* ]]; then
-		folder="$( mutt -Q folder | sed -r 's|^folder=\"(.*)\"$|\1|' )"
+		folder="$( $muttcmd -Q folder | sed -r 's|^folder=\"(.*)\"$|\1|' )"
 		: folder:=~/Mail
 
 		# Match any file in $folder beginning with $cur
@@ -4643,7 +4643,7 @@ _muttfiledir()
 		COMPREPLY=( ${COMPREPLY[@]#$folder/} )
 		return 0
 	elif [ "$cur" == !* ]; then
-		spoolfile="$( mutt -Q spoolfile | sed -r 's|^spoolfile=\"(.*)\"$|\1|' )"
+		spoolfile="$( $muttcmd -Q spoolfile | sed -r 's|^spoolfile=\"(.*)\"$|\1|' )"
 		[ ! -z "$spoolfile" ] && eval cur="${cur/^!/$spoolfile}";
 	fi
 	_filedir
@@ -4658,6 +4658,8 @@ _mutt()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	COMPREPLY=()
+	
+	[ ${COMP_WORDS[0]} == muttng ] && muttcmd="muttng" || muttcmd="mutt"
 
 	case "$cur" in
 	-*)
