@@ -1,6 +1,6 @@
 #   bash_completion - programmable completion functions for bash 3.0
 #
-#   $Id: bash_completion,v 1.810 2005/07/12 00:24:19 ianmacd Exp $
+#   $Id: bash_completion,v 1.811 2005/07/12 06:50:25 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -182,18 +182,23 @@ _rl_enabled()
 #
 _filedir()
 {
-	local IFS=$'\t\n' xspec
+	local IFS=$'\t\n' xspec glob
 
 	_expand || return 0
 
+	glob=$(set +o|grep noglob) # save glob setting.
+	set -f                 # disable pathname expansion (globbing)
+
 	if [ "${1:-}" = -d ]; then
 		COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -d -- $cur ) )
+		eval "$glob"    # restore glob setting.
 		return 0
 	fi
 
 	xspec=${1:+"!*.$1"}	# set only if glob passed in as $1
 	COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -f -X "$xspec" -- "$cur" ) \
 		    $( compgen -d -- "$cur" ) )
+	eval "$glob"    # restore glob setting.
 }
 
 # This function completes on signal names
