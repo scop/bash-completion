@@ -1,6 +1,6 @@
 #   bash_completion - programmable completion functions for bash 3.0
 #
-#   $Id: bash_completion,v 1.816 2005/07/19 06:28:48 ianmacd Exp $
+#   $Id: bash_completion,v 1.817 2005/07/19 06:32:31 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -77,7 +77,7 @@ complete -d pushd
 # Do NOT break these over multiple lines.
 #
 # START exclude -- do NOT remove this line
-complete -f -X '!*.?(t)bz2' bunzip2 bzcat bzcmp bzdiff bzegrep bzfgrep bzgrep
+complete -f -X '!*.?(t)bz?(2)' bunzip2 bzcat bzcmp bzdiff bzegrep bzfgrep bzgrep
 complete -f -X '!*.@(zip|ZIP|jar|JAR|exe|EXE|pk3|war|wsz|ear|zargo|xpi|sxw)' unzip zipinfo
 complete -f -X '*.Z' compress znew
 complete -f -X '!*.@(Z|gz|tgz|Gz|dz)' gunzip zcmp zdiff zcat zegrep zfgrep zgrep zless zmore
@@ -101,7 +101,7 @@ complete -f -X '!*.@(mp3|MP3|ogg|OGG|pls|m3u)' gqmpeg freeamp
 complete -f -X '!*.fig' xfig
 complete -f -X '!*.@(mid?(i))' playmidi
 complete -f -X '!*.@(mid?(i)|rmi|RMI)' timidity
-complete -f -X '*.@(o|so|so.!(conf)|a|tar?(.@(gz|bz2))|tgz|tbz2|rpm|zip|ZIP|gif|GIF|jp?(e)g|JP?(E)G|mp3|MP3|mp?(e)g|MPG|avi|AVI|asf|ASF|ogg|OGG|class|CLASS)' vi vim gvim rvim view rview rgvim rgview gview
+complete -f -X '*.@(o|so|so.!(conf)|a|t@(ar?(.@(Z|gz|bz?(2)))|gz|bz?(2))|rpm|zip|ZIP|gif|GIF|jp?(e)g|JP?(E)G|mp3|MP3|mp?(e)g|MPG|avi|AVI|asf|ASF|ogg|OGG|class|CLASS)' vi vim gvim rvim view rview rgvim rgview gview
 complete -f -X '*.@(o|so|so.!(conf)|a|rpm|gif|GIF|jp?(e)g|JP?(E)G|mp3|MP3|mp?(e)g|MPG|avi|AVI|asf|ASF|ogg|OGG|class|CLASS)' emacs
 complete -f -X '!*.@(exe|EXE|com|COM|scr|SCR)' wine
 complete -f -X '!*.@(zip|ZIP|z|Z|gz|GZ|tgz|TGZ)' bzme
@@ -2791,16 +2791,16 @@ _tar()
 		return 0
 		;;
 	+([^IZzjy])f)
-		ext='t?(ar?(.))@(gz|Z|bz?(2))'
-		regex='t\(ar?(\.)\)\(gz\|Z\|bz2\?\)'
+		ext='t@(ar?(.@(Z|gz|bz?(2)))|gz|bz?(2))'
+		regex='t\(ar\(\.\(Z\|gz\|bz2\?\)\)\?\|gz\|bz2\?\)'
 		;;
 	*[Zz]*f)
 		ext='t?(ar.)@(gz|Z)'
-		regex='t\(ar\.\)\(gz\|Z\)'
+		regex='t\(ar\.\)\?\(gz\|Z\)'
 		;;
 	*[Ijy]*f)
 		ext='t?(ar.)bz?(2)'
-		regex='t\(ar\.\)bz2\?'
+		regex='t\(ar\.\)\?bz2\?'
 		;;
 	*)
 		_filedir
@@ -2814,7 +2814,7 @@ _tar()
 		#
 		# get name of tar file from command line
 		tar=$( echo "$COMP_LINE" | \
-			sed -e 's|^.* \([^ ]*'$regex'\) .*$|\1|' )
+			sed -e 's/^.* \([^ ]*'$regex'\) .*$/\1/' )
 		# devise how to untar and list it
 		untar=t${COMP_WORDS[1]//[^Izjyf]/}
 
