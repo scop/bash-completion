@@ -1,6 +1,6 @@
 #   bash_completion - programmable completion functions for bash 3.0
 #
-#   $Id: bash_completion,v 1.823 2005/07/21 01:09:27 ianmacd Exp $
+#   $Id: bash_completion,v 1.824 2005/07/21 01:20:36 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -5143,7 +5143,13 @@ complete -F _rcs $filenames ci co rlog rcs rcsdiff
 
 # lilo(8) completion
 #
-have lilo &&
+have lilo && {
+_lilo_labels()
+{
+	COMPREPLY=( $( awk -F'=' '/label/ {print $2}' \
+		/etc/lilo.conf | sed -e 's/"//g' | grep "^$cur" ) )
+}
+
 _lilo()
 {
 	local cur prev
@@ -5163,8 +5169,7 @@ _lilo()
 			;;
 		-@(I|D|R))
 			# label completion
-			COMPREPLY=( $( awk -F'=' '/label/ {print $2}' \
-					/etc/lilo.conf | grep "^$cur" ) )
+			_lilo_labels
 			return 0
 			;;
 		-@(A|b|M|u|U))
@@ -5187,8 +5192,9 @@ _lilo()
 			-M -p -P -q -r -R -s -S -t -T -u -U -v -V -w -x -z' -- \
 			$cur ) )
 	fi
-} &&
+}
 complete -F _lilo lilo
+}
 
 # links completion
 #
