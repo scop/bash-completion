@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.124 2005/01/21 22:30:40 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.125 2005/07/20 07:41:09 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: Programmable completion for bash %{bashversion} and above.
-Version: 20050121
+Version: 20050720
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -37,10 +37,10 @@ install -d -m 0755 $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
 install -d -m 0755 $RPM_BUILD_ROOT%{_sysconfdir}/bash_completion.d
 install -m 0644 bash_completion $RPM_BUILD_ROOT%{_sysconfdir}/
 cat <<'EOF' > bash_completion.sh
-# check for bash
+# Check for bash
 [ -z "$BASH_VERSION" ] && return
 
-# check for correct version of bash
+# Check for correct version of bash
 bash=${BASH_VERSION%.*}; bmajor=${bash%.*}; bminor=${bash#*.}
 if [ $bmajor -eq 2 -a $bminor '>' 04 ] || [ $bmajor -gt 2 ]; then
   if [ -r %{_sysconfdir}/bash_completion ]; then
@@ -57,7 +57,7 @@ install -m 0755 bash_completion.sh $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-# legacy clean-up
+# Legacy clean-up
 if grep -q '^# START bash completion' %{_sysconfdir}/bashrc; then
     sed -e '/^# START bash completion/,/^# END bash completion/d' %{_sysconfdir}/bashrc > %{_sysconfdir}/bashrc.$$
     chmod --reference %{_sysconfdir}/bashrc %{_sysconfdir}/bashrc.$$
@@ -73,6 +73,24 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Wed Jul 20 2005 Ian Macdonald <ian@caliban.org>
+- Patterns for tarball matching fixed.
+- Evince completion for .pdf files added.
+- More OpenOffice 2 completions added.
+- Completion for xine front-ends and kplayer/MPlayer added.
+
+* Tue Jul 12 2005 Ian Macdonald <ian@caliban.org>
+- completion added for rpm2cpio, ntpdate, getent, id and cpio.
+- Make mutt completion also work for muttng.
+- tar 1.15.1 can unpack compressed archives, even if [IZzjy] are not given.
+- Fix _filedir(), so that literal filenames that appear to be glob patterns are
+  not treated as such.
+- Fix scp completion when filename contains shell metacharacters.
+- Fix broken sudo completion.
+- More extensions for MPlayer.
+- Support the new open document formats of OpenOffice 2.0.
+- Many minor fixes and enhancements.
+
 * Fri Jan 21 2005 Ian Macdonald <ian@caliban.org>
 - Fix broken _command() completion.
 
