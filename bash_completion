@@ -1,6 +1,6 @@
 #   bash_completion - programmable completion functions for bash 3.0
 #
-#   $Id: bash_completion,v 1.824 2005/07/21 01:20:36 ianmacd Exp $
+#   $Id: bash_completion,v 1.825 2005/07/21 01:26:01 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -6083,8 +6083,32 @@ _mc()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	if [ "$prev" = "-e" -o "$prev" = "-v" ]; then
-		_filedir
+	# -name value style option
+	case "$prev" in
+		-@(e|v|l|P))
+			_filedir
+			return 0
+			;;
+	esac
+
+	# --name=value style option
+	if [[ "$cur" == *=* ]]; then
+		prev=${cur/=*/}
+		cur=${cur/*=/}
+		case "$prev" in
+			--@(edit|view|ftplog|printwd))
+				_filedir
+				return 0
+				;;
+		esac
+	fi
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-a --stickchars -b --nocolor -c \
+			--color -C --colors= -d --nomouse -e --edit= -f \
+			--datadir -k --resetsoft -l --ftplog= -P --printwd= \
+			-s --slow -t --termcap -u --nosubshell -U --subshell \
+			-v --view= -V --version -x --xterm -h --help' -- $cur ) )
 	else
 		_filedir -d
 	fi
