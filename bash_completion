@@ -1,6 +1,6 @@
 #   bash_completion - programmable completion functions for bash 3.0
 #
-#   $Id: bash_completion,v 1.821 2005/07/21 00:54:36 ianmacd Exp $
+#   $Id: bash_completion,v 1.822 2005/07/21 00:57:24 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1016,11 +1016,18 @@ _iwconfig()
 	
 	case $prev in
 		mode)
-			COMPREPLY=( $( compgen -W 'managed ad-hoc master repeater secondary monitor' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'managed ad-hoc master \
+				repeater secondary monitor' -- $cur ) )
 			return 0
 			;;
 		essid)
 			COMPREPLY=( $( compgen -W 'on off any' -- $cur ) )
+			if [ -n "${COMP_IWLIST_SCAN:-}" ]; then
+				COMPREPLY=( ${COMPREPLY[@]:-} \
+					$( iwlist ${COMP_WORDS[1]} scan | \
+					awk -F '"' '/ESSID/ {print $2}' | \
+					grep "^$cur" ))
+			fi
 			return 0
 			;;
 		nwid)
@@ -1028,20 +1035,34 @@ _iwconfig()
 			return 0
 			;;
 		channel)
-			COMPREPLY=( $( iwlist ${COMP_WORDS[1]} channel | sed -n 's/.*Channel \(.*\) : \(.*\) GHz/\1/p') )
+			COMPREPLY=( $( iwlist ${COMP_WORDS[1]} channel | \
+				awk '/^[[:space:]]*Channel/ {print $2}' | \
+				grep "^$cur" ) )
 			return 0
 			;;
 
 		freq)
-			COMPREPLY=( $( iwlist ${COMP_WORDS[1]} channel | sed -n 's/.*Channel \(.*\) : \(.*\) GHz/\2G/p') )
+			COMPREPLY=( $( iwlist ${COMP_WORDS[1]} channel | \
+				awk '/^[[:space:]]*Channel/ {print $4"G"}' | \
+				grep "^$cur" ) )
 			return 0
 			;;
 		ap)
-			COMPREPLY=( $( compgen -W 'auto any off' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'on off any' -- $cur ) )
+			if [ -n "${COMP_IWLIST_SCAN:-}" ]; then
+				COMPREPLY=( ${COMPREPLY[@]:-} \
+					$( iwlist ${COMP_WORDS[1]} scan | \
+					awk -F ': ' '/Address/ {print $2}' | \
+					grep "^$cur" ) )
+			fi
 			return 0
 			;;
 		rate)
-			COMPREPLY=($( iwlist ${COMP_WORDS[1]} rate | sed -n 's/\(.*\)M.*/\1M/p') auto fixed)
+			COMPREPLY=( $( compgen -W 'auto fixed' -- $cur ) )
+			COMPREPLY=( ${COMPREPLY[@]:-} \
+				$( iwlist ${COMP_WORDS[1]} rate | \
+				awk '/^[[:space:]]*[0-9]/ {print $1"M"}' | \
+				grep "^$cur" ) )
 			return 0
 			;;
 		rts)
@@ -1106,7 +1127,9 @@ _iwlist()
 			_available_interfaces -w
 		fi
 	else
-		COMPREPLY=( $( compgen -W 'scanning frequency rate key power txpower retry' -- $cur ) ) 
+		COMPREPLY=( $( compgen -W 'scan scanning freq frequency \
+			channel rate bit bitrate key enc encryption power \
+			txpower retry ap accesspoint peers event' -- $cur ) ) 
 	fi
 } &&
 complete -F _iwlist iwlist
