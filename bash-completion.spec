@@ -1,9 +1,9 @@
-# $Id: bash-completion.spec,v 1.125 2005/07/20 07:41:09 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.126 2005/07/21 19:22:07 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
 Summary: Programmable completion for bash %{bashversion} and above.
-Version: 20050720
+Version: 20050721
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -73,6 +73,15 @@ fi
 %doc BUGS COPYING README Changelog contrib/
 
 %changelog
+* Thu Jul 21 2005 Ian Macdonald <ian@caliban.org>
+- MPlayer options should now use dashes, not underscores.
+- mc completion has been greatly extended.
+- lilo completion fix.
+- iwconfig improvements.
+- Fix tcpdump and dhclient completion to use correct interfaces function.
+- Turn off glob expansion disabling in _filedir(), as this has the annoying
+  side-effect of temporarily cancelling alias expansion.
+
 * Wed Jul 20 2005 Ian Macdonald <ian@caliban.org>
 - Patterns for tarball matching fixed.
 - Evince completion for .pdf files added.
