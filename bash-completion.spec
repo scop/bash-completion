@@ -1,6 +1,6 @@
 Name:		bash-completion
 Version:	20050712
-Release:	alt01
+Release:	alt02
 
 Summary:	bash-completion offers programmable completion for bash
 License:	GPL
@@ -8,6 +8,7 @@ Group:		Shells
 URL:		http://www.caliban.org/bash/
 
 Source0:	http://www.caliban.org/files/bash/%name-%version.tar.bz2
+Source1:	bash-completion.sh
 Patch0:	bash-completion-20050103-alt-rsync.patch.gz
 
 Requires:	bash >= 2.05
@@ -26,15 +27,7 @@ of the programmable completion feature of bash 2.04 and later.
 %__install bash_completion %buildroot%_sysconfdir
 
 %__mkdir_p %buildroot%_sysconfdir/profile.d/
-%__cat <<__PROFILE__ > %buildroot%_sysconfdir/profile.d/%name.sh
-bash=\${BASH_VERSION%.*}; bmajor=\${bash%.*}; bminor=\${bash#*.}
-if [ "\$PS1" ] && [ "\$bmajor" -eq 2 ] && [ "\$bminor" '>' 04 ] \\
-	&& [ -f %_sysconfdir/bash_completion ]; then	# interactive shell
-	# Source completion code
-	. %_sysconfdir/bash_completion
-fi
-unset bash bmajor bminor
-__PROFILE__
+install -p -m755 -D %SOURCE1 $RPM_BUILD_ROOT%_sysconfdir/profile.d/%name.sh
 
 %files
 %doc README Changelog contrib BUGS
@@ -44,6 +37,10 @@ __PROFILE__
 
 
 %changelog
+* Wed Jan 18 2006 Alex Murygin <murygin@altlinux.ru> 20050712-alt02
+- moved %_sysconfdir/profile.d/%name.sh from spec to source1
+- fixing checking bash major version more 2 [8862]
+
 * Thu Jul 14 2005 Alex Murygin <murygin@altlinux.ru> 20050712-alt01
 - new version
 
