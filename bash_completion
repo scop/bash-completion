@@ -1,6 +1,6 @@
 #   bash_completion - programmable completion functions for bash 3.0
 #
-#   $Id: bash_completion,v 1.835 2006/02/23 21:16:16 ianmacd Exp $
+#   $Id: bash_completion,v 1.836 2006/02/23 22:55:44 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -2142,10 +2142,17 @@ complete -F _apt_cache $filenames apt-cache
 # Debian aptitude(1) completion
 #
 have aptitude && {
+have grep-status && {
+_comp_dpkg_hold_packages()
+{
+	grep-status -P -e "^$1" -a -FStatus 'hold' -n -s Package
+}
+} || {
 _comp_dpkg_hold_packages()
 {
 	grep -B 2 'hold' /var/lib/dpkg/status | grep "Package: $1" \
 		| cut -d\  -f2
+}
 }
 
 _aptitude()
@@ -4162,10 +4169,17 @@ complete -F _cardctl cardctl
 # This function is required by _dpkg() and _dpkg-reconfigure()
 #
 have dpkg && {
+have grep-status && {
+_comp_dpkg_installed_packages()
+{
+	grep-status -P -e "^$1" -a -FStatus 'install ok installed' -n -s Package
+}
+} || {
 _comp_dpkg_installed_packages()
 {
 	grep -A 2 "Package: $1" /var/lib/dpkg/status | \
 		grep -B 2 'ok installed' | grep "Package: $1" | cut -d\  -f2
+}
 }
 
 # Debian dpkg(8) completion
