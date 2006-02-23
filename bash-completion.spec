@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.126 2005/07/21 19:22:07 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.127 2006/02/23 16:33:08 ianmacd Exp $
 #
 Name: bash-completion
 %define bashversion 2.05b
@@ -8,7 +8,8 @@ Release: 1
 Group: System Environment/Shells
 License: GPL
 Packager: Ian Macdonald <ian@caliban.org>
-Source: http://www.caliban.org/files/bash/%{name}-%{version}.tar.bz2
+Source0: http://www.caliban.org/files/bash/%{name}-%{version}.tar.bz2
+Source1: bash_completion.sh
 URL: http://www.caliban.org/bash/
 BuildRoot: %{_tmppath}/%{name}-root
 BuildArch: noarch
@@ -36,22 +37,7 @@ rm -rf $RPM_BUILD_ROOT
 install -d -m 0755 $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
 install -d -m 0755 $RPM_BUILD_ROOT%{_sysconfdir}/bash_completion.d
 install -m 0644 bash_completion $RPM_BUILD_ROOT%{_sysconfdir}/
-cat <<'EOF' > bash_completion.sh
-# Check for bash
-[ -z "$BASH_VERSION" ] && return
-
-# Check for correct version of bash
-bash=${BASH_VERSION%.*}; bmajor=${bash%.*}; bminor=${bash#*.}
-if [ $bmajor -eq 2 -a $bminor '>' 04 ] || [ $bmajor -gt 2 ]; then
-  if [ -r %{_sysconfdir}/bash_completion ]; then
-    # source completion code
-    . %{_sysconfdir}/bash_completion
-  fi
-fi
-unset bash bminor bmajor
-EOF
-
-install -m 0755 bash_completion.sh $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/
+sed -e 's@/etc@%{_sysconfdir}@g' %{SOURCE1} > $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/bash_completion.sh
 
 %clean
 rm -rf $RPM_BUILD_ROOT
