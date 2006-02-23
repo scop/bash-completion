@@ -1,6 +1,6 @@
 #   bash_completion - programmable completion functions for bash 3.0
 #
-#   $Id: bash_completion,v 1.831 2005/07/30 06:27:32 ianmacd Exp $
+#   $Id: bash_completion,v 1.832 2006/02/23 18:01:37 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -659,9 +659,9 @@ _mount()
 		host=${cur#//}
 		host=${host%%/*}
 		if [ -n "$host" ]; then
-			COMPREPLY=( $( compgen -W "$( echo $( smbclient -d 0 -NL $host |
-			sed -ne '/^['$'\t '']*Sharename/,/^$/p' |
-			sed -ne '3,$s|^[^A-Za-z]*\([^'$'\t '']*\).*$|//'$host'/\1|p' ) )" -- "$cur" ) )
+			COMPREPLY=( $( compgen -W "$( echo $( smbclient -d 0 -NL $host 2>/dev/null|
+			sed -ne '/^['"$'\t '"']*Sharename/,/^$/p' |
+			sed -ne '3,$s|^[^A-Za-z]*\([^'"$'\t '"']*\).*$|//'$host'/\1|p' ) )" -- "$cur" ) )
 		fi
 	elif [ -r /etc/vfstab ]; then
 		# Solaris
@@ -2475,7 +2475,7 @@ _known_hosts()
 	    fi
 	    # append any available aliases from config files
 	    if [ ${#config[@]} -gt 0 ] && [ -n "$aliases" ]; then
-		hosts=$( compgen -W "$( sed -ne "s/^[Hh][Oo][Ss][Tt]["$'\t '"]*\([^*?]*\)$/\1/p" ${config[@]} )" -- $ocur )
+		hosts=$( compgen -W "$( sed -ne 's/^[Hh][Oo][Ss][Tt]['"$'\t '"']*\([^*?]*\)$/\1/p' ${config[@]} )" -- $ocur )
 		COMPREPLY=( ${COMPREPLY[@]} $hosts )
 	    fi
 
