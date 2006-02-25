@@ -1,7 +1,7 @@
 #   bash_completion - programmable completion functions for bash 3.x
 #		      (backwards compatible with bash 2.05b)
 #
-#   $Id: bash_completion,v 1.859 2006/02/25 13:02:25 ianmacd Exp $
+#   $Id: bash_completion,v 1.860 2006/02/25 13:36:12 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -3165,7 +3165,7 @@ complete -F _root_command $filenames sudo fakeroot really
 
 # ant(1) completion
 #
-have ant &&
+have ant && {
 _ant()
 {
 	local cur prev buildfile i
@@ -3210,8 +3210,11 @@ _ant()
 			    $( awk -F'"' '/<target [^n]/ {if ($1 ~ /name=/) { print $2 } else if ($3 ~ /name=/) {print $4} else if ($5 ~ /name=/) {print $6}}' \
 				$buildfile | grep "^$cur" ) )
 	fi
-} &&
-complete -F _ant $filenames ant
+}
+have complete-ant-cmd.pl && \
+     complete -C complete-ant-cmd.pl -F _ant $filenames ant || \
+     complete -F _ant $filenames ant
+}
 
 have nslookup &&
 _nslookup()
