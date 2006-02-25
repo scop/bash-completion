@@ -1,7 +1,7 @@
 #   bash_completion - programmable completion functions for bash 3.x
 #		      (backwards compatible with bash 2.05b)
 #
-#   $Id: bash_completion,v 1.860 2006/02/25 13:36:12 ianmacd Exp $
+#   $Id: bash_completion,v 1.861 2006/02/26 00:12:40 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -8613,7 +8613,7 @@ _vncviewer()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-        case "$prev" in
+	case "$prev" in
 	-via)
 	   _known_hosts -a
 	   ;;
@@ -8645,6 +8645,34 @@ _sysctl()
 	return 0
 } &&
 complete -F _sysctl sysctl
+
+# invoke-rc.d(8) completion
+#
+have invoke-rc.d &&
+_invokercd()
+{
+    local cur prev options
+
+    COMPREPLY=()
+    cur=${COMP_WORDS[COMP_CWORD]}
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    case $prev in
+	invoke-rc.d)
+	files=$( find /etc/init.d/ -perm +111 | sed 's|^/etc/init.d/||' )
+	COMPREPLY=( $( compgen -W "${files}" -- $cur ) )
+	return 0
+	;;
+
+	*)
+	COMPREPLY=( $( compgen -W 'start stop restart reload force-reload' --
+$cur ) )
+	return 0
+	;;
+    esac
+} &&
+complete -F _invokercd invoke-rc.d
+
 
 _filedir_xspec()
 {
