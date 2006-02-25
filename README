@@ -1,4 +1,4 @@
-$Id: README,v 1.23 2005/07/11 23:19:42 ianmacd Exp $
+$Id: README,v 1.24 2006/02/25 01:38:32 ianmacd Exp $
 
 
 INSTALLATION
@@ -6,7 +6,7 @@ INSTALLATION
 
 The easiest way to install this software is to use a package, such as
 the RPM that I maintain for Red Hat Linux, the .deb package for
-Debian/GNU Linux, etc.
+Debian/GNU Linux or Ubuntu, etc.
 
 If that's not an option or you simply don't want to do this, put the
 bash_completion file somewhere on your system and source it from either
@@ -14,33 +14,39 @@ bash_completion file somewhere on your system and source it from either
 
 Here's one possible way of doing that from /etc/bashrc:
 
-bash=${BASH_VERSION%.*}; bmajor=${bash%.*}; bminor=${bash#*.}
-if [ "$PS1" ] && [ $bmajor -eq 2 ] && [ $bminor '>' 04 ] \
-   && [ -f /etc/bash_completion ]; then # interactive shell
-        # Source completion code
-        . /etc/bash_completion
+# Check for interactive shell.
+if [ -n "$PS1" ]; then
+  if [ $bmajor -eq 2 -a $bminor '>' 04 ] || [ $bmajor -gt 2 ]; then
+    if [ -r /etc/bash_completion ]; then
+      # Source completion code.
+      . /etc/bash_completion
+    fi
+  fi
 fi
-unset bash bmajor bminor
+unset bash bminor bmajor
 
 This code checks that the version of bash that is parsing the code is
 later than 2.04 and, if so, sources the bash completion code.
 
 While this code may, at first, seem overly complex, the advantage of
 using it is that it will also parse correctly when interpreted by bash
-1.x. If you have bash 1.x and bash 2.x users on your system, you must
-avoid using constructs that were not valid under 1.x syntax.
+1.x. If you have bash 1.x and bash 2/3.x users on your system, you
+must avoid using constructs that were not valid under 1.x syntax.
 
 If your system has an /etc/profile.d directory, you might instead want
 to add a script called bash_completion.sh to that directory. Add the
 above code, preceded by the following:
 
-# check for bash
+# Check for bash.
 [ -z "$BASH_VERSION" ] && return
 
 In this case, all *.sh scripts in /etc/profile.d are sourced from
 /etc/bashrc by Bourne-like shells, so you need the extra check for bash
 in order to avoid sourcing the rest of the script if a shell other than
 bash is running.
+
+For your convenience, a sample bash_completion.sh file is included in
+the package.
 
 If you're using MacOS X, /etc/bashrc is apparently not sourced at all.
 In that case, you should put the bash_completion file in /sw/etc and add
@@ -82,7 +88,7 @@ if you still encounter this error.
 Copies of the patches and prepatched versions of bash are available
 from:
 
-			http://www.caliban.org/bash/
+	http://www.caliban.org/bash/
 
 If you find that a given function is producing errors under certain
 circumstances when you attempt completion, try running 'set -v' or
@@ -121,6 +127,22 @@ III.
 Many of the completion functions assume GNU versions of the various
 text utilities that they call (e.g. grep, sed and awk). Your mileage
 may vary.
+
+IV.
+
+If you are seeing 'unbound variable' warnings from bash when hitting
+<Tab>, this is because you have either 'set -u' or 'set -o nounset'
+somewhere in your start-up files. This causes bash to flag the use of
+any uninitialised shell variables as an error.
+
+Whilst I try to avoid references to uninitialised variables in the
+code, there seem to be at least some cases where bash issues this
+warning even though the variable in question has been initialised.
+
+One place this appears to occur is within the _muttconffiles() helper
+function used by mutt completion, where the function calls itself
+recursively. This seems to confuse bash and it issues spurious
+warnings if 'nounset' is set.
 
 
 FAQ
@@ -307,7 +329,7 @@ guidelines in mind:
 
   For example, if you were writing completion code for perldoc(1), the
   use of Perl to achieve your goal would be acceptable. irb(1)
-  completion would make the use of Ruby acceptable.
+  completion would similarly make the use of Ruby acceptable.
 
   Even so, please consider alternatives to these large and slow to
   start interpreters. Use lightweight programs such as grep(1), awk(1)
@@ -317,12 +339,19 @@ guidelines in mind:
   been available since bash 2.04, so you may as well use all the
   features of that version of bash to optimise your code. However, be
   careful when using features added since 2.04, since not everyone
-  will be able to use them.
+  will be able to use them. Be ESPECIALLY careful of using features
+  exclusive to 3.x, as many people are still using 2.x.
 
   For example, here strings (<<<) were not added until 2.05b, so don't
-  use them for the time being. On the other hand, extended globs often
+  use them for the time being.
+
+  Similarly, 3.0 added the use of the regex operator '=~', commonly
+  found in Perl and Ruby. Whilst this is very useful, it's not yet
+  safe to assume its ubiquity.
+  
+  On the other hand, extended globs were added in bash 2.02 and often
   enable you to avoid the use of external programs, which are
-  expensive to fork and execute, so do use those:
+  expensive to fork and execute, so do make full use of those:
 
   ?(pattern-list) - match zero or one occurences of patterns
   *(pattern-list) - match zero or more occurences of patterns
@@ -330,13 +359,13 @@ guidelines in mind:
   @(pattern-list) - match exactly one of the given patterns
   !(pattern-list) - match anything except one of the given patterns
 
-- Following on from the last point, try to save external processes
-  whenever you can. Completion functions need to be fast, so
-  sacrificing some code legibility for speed is acceptable.
+- Following on from the last point, be sparing with the use of
+  external processes whenever you can. Completion functions need to be
+  fast, so sacrificing some code legibility for speed is acceptable.
 
   For example, judicious use of sed(1) can save you from having to
-  call grep(1) and pipe the output to cut, which saves a fork(2) and
-  exec(3).
+  call grep(1) and pipe the output to cut(1), which saves a fork(2)
+  and exec(3).
 
   Sometimes you don't even need sed(1) or other external programs at
   all, though. Use of constructs such as ${parameter#word},
@@ -357,13 +386,14 @@ guidelines in mind:
     bar=${foo//bar/baz}
 
   These forms of parameter substitutions can also be used on arrays,
-  which makes them very powerful.
+  which makes them very powerful (if a little slow).
 
 - Do not write to the file-system under any circumstances. This can
   create race conditions, is inefficient, violates the principle of
   least surprise and lacks robustness.
 
-- Send your patches as unified diffs. You can make this with 'diff -u'.
+- Send your patches as unified diffs. You can make these with
+  'diff -u'.
 
 - Send small, incremental diffs that affect a single function. Don't
   cram massive, unrelated patches into a single diff.
@@ -375,8 +405,8 @@ guidelines in mind:
   have a command with the same name.
 
   In particular, do not use GNU extensions to commands like sed and
-  awk if you have the choice. If you really must use them, however, do
-  feel free to do so.
+  awk if you can write your code another way. If you really must use
+  them, however, do feel free to do so.
 
 - Read the existing source code for examples of how to solve
   particular problems. Read the bash man page for details of all the
@@ -384,10 +414,10 @@ guidelines in mind:
 
 - Please test your code thoroughly before sending it to me. I don't
   have access to all the commands for which I am sent completion
-  functions, so I am unable to test them personally. If your code is
-  accepted into the distribution, a lot of people will try it out, so
-  try to do a thorough job of eradicating all the bugs before you send
-  it to me.
+  functions, so I am unable to test them all personally. If your code
+  is accepted into the distribution, a lot of people will try it out,
+  so try to do a thorough job of eradicating all the bugs before you
+  send it to me.
   
 -- 
 Ian Macdonald <ian@caliban.org>
