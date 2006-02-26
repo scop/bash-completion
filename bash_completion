@@ -1,7 +1,7 @@
 #   bash_completion - programmable completion functions for bash 3.x
 #		      (backwards compatible with bash 2.05b)
 #
-#   $Id: bash_completion,v 1.861 2006/02/26 00:12:40 ianmacd Exp $
+#   $Id: bash_completion,v 1.862 2006/02/26 19:20:21 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -6290,14 +6290,14 @@ _yum()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-		if [[ ${COMP_WORDS[i]} == @(install|update|upgrade|remove) ]]; then
+		if [[ ${COMP_WORDS[i]} == @(install|update|upgrade|remove|erase|deplist) ]]; then
 			special=${COMP_WORDS[i]}
 		fi
 	done
 
 	if [ -n "$special" ]; then
 	    case $special in
-		install)
+		install|deplist)
 		    COMPREPLY=( $( compgen -W '$( yum -C list | cut -d" " -f1 )' -- $cur ) )
 		    return 0
 		    ;;
@@ -6310,7 +6310,7 @@ _yum()
 
 	case $cur in
 	    --*)
-		COMPREPLY=( $( compgen -W '--installroot --version --help' -- $cur ) )
+		COMPREPLY=( $( compgen -W '--installroot --version --help --enablerepo --disablerepo --exclude --obsoletes --noplugins' -- $cur ) )
 		return 0
 		;;
 	    -*)
@@ -6321,10 +6321,13 @@ _yum()
 
 	case $prev in
 	    list)
-		COMPREPLY=( $( compgen -W 'available updates installed extras' -- $cur ) )
+		COMPREPLY=( $( compgen -W 'all available updates installed extras obsoletes recent' -- $cur ) )
 		;;
 	    clean)
-		COMPREPLY=( $( compgen -W 'packages headers oldheaders all' -- $cur ) )
+		COMPREPLY=( $( compgen -W 'packages headers metadata cache dbcache all' -- $cur ) )
+		;;
+	    localinstall)
+		_filedir rpm
 		;;
 	    -c)
 		_filedir
@@ -6335,7 +6338,9 @@ _yum()
 	    *)
 		COMPREPLY=( $( compgen -W 'install update check-update upgrade remove list \
 						search info provides clean groupinstall groupupdate \
-						grouplist ' -- $cur ) )
+						grouplist deplist erase groupinfo groupremove \
+						localinstall localupdate makecache resolvedep \
+						shell whatprovides' -- $cur ) )
 		;;
 	esac
 }
