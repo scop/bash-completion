@@ -1,7 +1,7 @@
 #   bash_completion - programmable completion functions for bash 3.x
 #		      (backwards compatible with bash 2.05b)
 #
-#   $Id: bash_completion,v 1.867 2006/03/01 09:55:31 ianmacd Exp $
+#   $Id: bash_completion,v 1.868 2006/03/01 10:05:29 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -1732,7 +1732,7 @@ have rpm && {
 #
 _rpm_installed_packages()
 {
-	local i
+	local ver nodig nosig
 
 	if [ -r /var/log/rpmpkgs -a \
 		/var/log/rpmpkgs -nt /var/lib/rpm/Packages ]; then
@@ -1741,6 +1741,18 @@ _rpm_installed_packages()
 		's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.@]\+.*\.rpm$|\1|p' \
 				/var/log/rpmpkgs ) )
 	else
+		nodig=""
+		nosig=""
+		ver=$(rpm --version)
+		ver=${ver##* }
+	  
+		if [[ "$ver" > "4.0.4" ]]; then
+			nodig="--nodigest"
+		fi
+		if [[ "$ver" > "4.0.99" ]]; then
+			nosig="--nosignature"
+		fi
+
 		COMPREPLY=( $( rpm -qa $nodig $nosig | sed -ne \
 		's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.@]\+$|\1|p' ) )
 	fi
