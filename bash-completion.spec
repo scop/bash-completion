@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.129 2006/03/01 15:55:37 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.130 2006/03/01 16:19:15 ianmacd Exp $
 #
 Name: bash-completion
 Summary: Programmable completion for bash 2.05b and later.
@@ -99,7 +99,7 @@ fi\
 %config(noreplace) %attr(755,root,root) %{_sysconfdir}/profile.d/bash_completion.sh
 %dir %{_sysconfdir}/bash_completion.d/
 %{_datadir}/%{name}/
-%doc BUGS COPYING README Changelog
+%doc BUGS COPYING README TODO Changelog
 
 %changelog
 * Wed Mar  1 2006 Ian Macdonald <ian@caliban.org> 20060301-1
