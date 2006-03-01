@@ -1,7 +1,7 @@
 #   bash_completion - programmable completion functions for bash 3.x
 #		      (backwards compatible with bash 2.05b)
 #
-#   $Id: bash_completion,v 1.868 2006/03/01 10:05:29 ianmacd Exp $
+#   $Id: bash_completion,v 1.869 2006/03/01 10:13:27 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -8770,6 +8770,43 @@ _invoke_rc_d()
     return 0
 } &&
 complete -F _invoke_rc_d invoke-rc.d
+
+# minicom(1) completion
+#
+have minicom &&
+_minicom()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-@(a|c))
+			COMPREPLY=( $( compgen -W 'on off' -- $cur ) )
+			return 0
+			;;
+		-@(S|C))
+			_filedir
+			return 0
+			;;
+		-P)
+			COMPREPLY=( $( command ls /dev/tty* ) )
+			COMPREPLY=( $( compgen -W '${COMPREPLY[@]} ${COMPREPLY[@]#/dev/}' -- $cur ) )
+			return 0
+			;;
+	esac
+
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-s -o -m -M -z -l -L -w -a -t \
+			-c -S -d -p -C -T -8' -- $cur ) )
+	else
+		COMPREPLY=( $( command ls /etc/minirc.* | sed -e 's|/etc/minirc.||' | grep "^$cur" ) )
+	fi
+} &&
+complete -F _minicom minicom
 
 _filedir_xspec()
 {
