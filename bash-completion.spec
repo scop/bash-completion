@@ -1,8 +1,7 @@
-# $Id: bash-completion.spec,v 1.127 2006/02/23 16:33:08 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.128 2006/03/01 12:27:49 ianmacd Exp $
 #
 Name: bash-completion
-%define bashversion 2.05b
-Summary: Programmable completion for bash %{bashversion} and above.
+Summary: Programmable completion for bash 2.05b and later.
 Version: 20050721
 Release: 1
 Group: System Environment/Shells
@@ -19,25 +18,43 @@ Requires: bash >= 2.05-12, grep, textutils, sed, fileutils
 bash-completion is a collection of shell functions that take advantage of
 the programmable completion feature of bash 2.04 and later.
 
-To use this collection, you ideally need bash 2.05a or later. You can also use
-bash 2.05 if you apply the group name completion patch available at
-http://www.caliban.org/files/bash/bash-2.05-group_completion.patch.
-Alternatively, you can just comment out the lines that contain
-'comp{lete,gen} -g'.
+To use this collection, you should ideally have version 2.05b or later of
+bash. This will ensure that all features work and that you experience the
+least amount of hindrance from bugs in the completion subsystem.
 
-If you're using bash 2.04, in addition to commenting out the lines discussed
-in the previous paragraph, you'll also need to edit %{_sysconfdir}/bashrc to
-reflect this version in the $BASH_VERSION test.
+bash 2.05a may also be used, but certain unavoidable annoyances will be
+experienced. You should upgrade to at least 2.05b.
+
+bash 2.05 may be used if you apply the group name completion patch available
+at http://www.caliban.org/files/bash/bash-2.05-group_completion.patch.
+Alternatively, you can just comment out the lines in
+%{_sysconfdir}/bash_completion that contain 'comp{lete,gen} -g'. However,
+upgrading to at least 2.05b is recommended.
+
+If you're stuck using bash 2.04, in addition to commenting out the lines
+mentioned above, you'll also need to edit %{_sysconfdir}/bashrc
+to reflect this version in the $BASH_VERSION test. Again, an upgrade to at
+least 2.05b is strongly recommended.
 
 %prep
 %setup -n bash_completion
 
 %install
-rm -rf $RPM_BUILD_ROOT
-install -d -m 0755 $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
-install -d -m 0755 $RPM_BUILD_ROOT%{_sysconfdir}/bash_completion.d
-install -m 0644 bash_completion $RPM_BUILD_ROOT%{_sysconfdir}/
+rm -rf $RPM_BUILD_ROOT %{name}-ghosts.list
+install -dm 0755 $RPM_BUILD_ROOT%{_sysconfdir}/profile.d
+install -dm 0755 $RPM_BUILD_ROOT%{_sysconfdir}/bash_completion.d
+install -pm 0644 bash_completion $RPM_BUILD_ROOT%{_sysconfdir}/
 sed -e 's@/etc@%{_sysconfdir}@g' %{SOURCE1} > $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/bash_completion.sh
+touch -r %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/profile.d/bash_completion.sh
+# Take care of contrib files
+install -dm 755 $RPM_BUILD_ROOT%{_datadir}/%{name}
+install -pm 644 contrib/* $RPM_BUILD_ROOT%{_datadir}/%{name}
+cd contrib
+for f in *; do
+  ln -s %{_datadir}/%{name}/$f $RPM_BUILD_ROOT%{_sysconfdir}/bash_completion.d
+  echo "%ghost %{_sysconfdir}/bash_completion.d/$f" >> ../%{name}-ghosts.list
+done
+cd -
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -51,12 +68,38 @@ if grep -q '^# START bash completion' %{_sysconfdir}/bashrc; then
     mv -f %{_sysconfdir}/bashrc.$$ %{_sysconfdir}/bashrc
 fi
 
-%files
+%define bashcomp_trigger() \
+%triggerin -- %1\
+if [ ! -e %{_sysconfdir}/bash_completion.d/%{?2}%{!?2:%1} ] ; then\
+  ln -s %{_datadir}/%{name}/%{?2}%{!?2:%1} %{_sysconfdir}/bash_completion.d\
+fi\
+%triggerun -- %1\
+[ $2 -gt 0 ] || rm -f %{_sysconfdir}/bash_completion.d/%{?2}%{!?2:%1}\
+%{nil}
+
+%bashcomp_trigger bittorrent
+%bashcomp_trigger cksfv
+%bashcomp_trigger clisp
+%bashcomp_trigger freeciv
+%bashcomp_trigger gcc-gnat gnatmake
+%bashcomp_trigger gkrellm
+%bashcomp_trigger mailman
+%bashcomp_trigger mcrypt
+%bashcomp_trigger mtx
+%bashcomp_trigger ruby-ri ri
+%bashcomp_trigger sbcl
+%bashcomp_trigger snownews
+%bashcomp_trigger unace
+%bashcomp_trigger unixODBC isql
+%bashcomp_trigger unrar
+
+%files -f %{name}-ghosts.list
 %defattr(-,root,root)
 %config %{_sysconfdir}/bash_completion
-%config %{_sysconfdir}/profile.d/bash_completion.sh
+%config(noreplace) %attr(755,root,root) %{_sysconfdir}/profile.d/bash_completion.sh
 %dir %{_sysconfdir}/bash_completion.d/
-%doc BUGS COPYING README Changelog contrib/
+%{_datadir}/%{name}/
+%doc BUGS COPYING README Changelog
 
 %changelog
 * Thu Jul 21 2005 Ian Macdonald <ian@caliban.org>
