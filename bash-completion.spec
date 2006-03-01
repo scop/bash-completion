@@ -1,4 +1,4 @@
-# $Id: bash-completion.spec,v 1.130 2006/03/01 16:19:15 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.131 2006/03/01 16:22:45 ianmacd Exp $
 #
 Name: bash-completion
 Summary: Programmable completion for bash 2.05b and later.
@@ -109,6 +109,7 @@ fi\
   white space.
 - gdb completion wasn't completing second parameter correctly when it was
   a file, rather than a PID.
+- Ruby ri completion has been broken for some time. This is now fixed.
 - Various fixes to work around change in how POSIX quoting is handled in
   bash 3.1.
 - subversion completion has been reimplemented from scratch and integrated
@@ -129,7 +130,7 @@ fi\
 - $DEBUG has been renamed $BASH_COMPLETION_DEBUG to avoid namespace clashes
   with other software.
 - man(1) completion now works correctly on OpenBSD.
-- svk completion has been added to contribs.
+- svk and Mercurial completion have been added to contribs.
 - The %%install code that creates bash_completion.sh has been moved to a
   separate file.
 - Ville Skyttä's triggers code from the Fedora Core extras RPM spec file has
