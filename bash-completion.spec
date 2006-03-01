@@ -1,8 +1,8 @@
-# $Id: bash-completion.spec,v 1.128 2006/03/01 12:27:49 ianmacd Exp $
+# $Id: bash-completion.spec,v 1.129 2006/03/01 15:55:37 ianmacd Exp $
 #
 Name: bash-completion
 Summary: Programmable completion for bash 2.05b and later.
-Version: 20050721
+Version: 20060301
 Release: 1
 Group: System Environment/Shells
 License: GPL
@@ -102,6 +102,42 @@ fi\
 %doc BUGS COPYING README Changelog
 
 %changelog
+* Wed Mar  1 2006 Ian Macdonald <ian@caliban.org> 20060301-1
+- Completion for minicom(1), mtr(8), sysctl(8), smartctl(8), vncviewer(1),
+  invoke-rc.d, update-rc.d and dpkg-source has been added.
+- gdb completion of second parameter was broken when first parameter contained
+  white space.
+- gdb completion wasn't completing second parameter correctly when it was
+  a file, rather than a PID.
+- Various fixes to work around change in how POSIX quoting is handled in
+  bash 3.1.
+- subversion completion has been reimplemented from scratch and integrated
+  into the main file.
+- iconv(1) completion has been improved.
+- yum(8) completion has been updated for current version of yum.
+- ant completion will now make use of complete-ant-cmd.pl, if available.
+- cvs(1) completion has been improved with 'update' and 'stat' completion.
+- 'aptitude show' now works in the same way as 'apt-cache show'.
+- make(1) now also completes on file names.
+- MPlayer will now also complete on .flac, .mpc and .3gp files.
+- wine will now also complete on .exe.so files.
+- unzip will now also complete on oowriter's .ott files.
+- xine et al will now complete on .mng files.
+- The list of programs completing on .dvi files has been expanded.
+- The range of files on which timidity and evince complete has been expanded.
+- mkisofs completion now defaults to treating results as file names.
+- $DEBUG has been renamed $BASH_COMPLETION_DEBUG to avoid namespace clashes
+  with other software.
+- man(1) completion now works correctly on OpenBSD.
+- svk completion has been added to contribs.
+- The %%install code that creates bash_completion.sh has been moved to a
+  separate file.
+- Ville Skyttä's triggers code from the Fedora Core extras RPM spec file has
+  been integrated.
+- Preserve timestamps when installing files. This was also lifted from the FC
+  extras package spec file.
+- Many other small optimisations and fixes.
+
 * Thu Jul 21 2005 Ian Macdonald <ian@caliban.org>
 - MPlayer options should now use dashes, not underscores.
 - mc completion has been greatly extended.
