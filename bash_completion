@@ -1,7 +1,7 @@
 #   bash_completion - programmable completion functions for bash 3.x
 #		      (backwards compatible with bash 2.05b)
 #
-#   $Id: bash_completion,v 1.864 2006/03/01 09:40:27 ianmacd Exp $
+#   $Id: bash_completion,v 1.865 2006/03/01 09:47:38 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -5999,19 +5999,20 @@ _iconv()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
+	case "$prev" in
+		-@(f|t|-@(from|to)-code))
+			COMPREPLY=( $( compgen -W \
+			    '$( iconv --list | sed -e "s@//@@;" )' -- "$cur" ) )
+			return 0
+			;;
+	esac
+
+
 	if [[ "$cur" = -* ]]; then
 		COMPREPLY=( $( compgen -W '--from-code -f --to-code -t --list
 		--output -o --verbose' -- "$cur" ) )
 		return 0
 	fi
-	
-
-	if [[ "$prev" == -@(f|t|-@(from|to)-code) ]]; then
-		COMPREPLY=( $( compgen -W \
-		    '$( iconv --list | sed "1,/^$/d; s@//@@;" )' -- "$cur" ) )
-	fi
-		
-	return 0
 } &&
 complete -F _iconv $default iconv
 
