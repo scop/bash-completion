@@ -1,5 +1,5 @@
 Name:		bash-completion
-Version:	20050712
+Version:	20060301
 Release:	alt02
 
 Summary:	bash-completion offers programmable completion for bash
@@ -37,6 +37,9 @@ install -p -m755 -D %SOURCE1 $RPM_BUILD_ROOT%_sysconfdir/profile.d/%name.sh
 
 
 %changelog
+* Sat Mar 04 2006 Alex Murygin <murygin@altlinux.ru> 20060301-alt02
+- new version 
+
 * Wed Jan 18 2006 Alex Murygin <murygin@altlinux.ru> 20050712-alt02
 - moved %_sysconfdir/profile.d/%name.sh from spec to source1
 - fixing checking bash major version more 2 [8862]

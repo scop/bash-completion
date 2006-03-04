@@ -1,6 +1,7 @@
-#   bash_completion - programmable completion functions for bash 3.0
+#   bash_completion - programmable completion functions for bash 3.x
+#		      (backwards compatible with bash 2.05b)
 #
-#   $Id: bash_completion,v 1.815 2005/07/12 19:13:02 ianmacd Exp $
+#   $Id: bash_completion,v 1.872 2006/03/01 16:20:18 ianmacd Exp $
 #
 #   Copyright (C) Ian Macdonald <ian@caliban.org>
 #
@@ -22,9 +23,9 @@
 #
 #   http://www.caliban.org/bash/index.shtml#completion
 #
-#   RELEASE: 20050712
+#   RELEASE: 20060301
 
-[ -n "${DEBUG:-}" ] && set -v || set +v
+[ -n "${BASH_COMPLETION_DEBUG:-}" ] && set -v || set +v
 
 # Alter the following to reflect the location of this file.
 #
@@ -77,8 +78,8 @@ complete -d pushd
 # Do NOT break these over multiple lines.
 #
 # START exclude -- do NOT remove this line
-complete -f -X '!*.?(t)bz2' bunzip2 bzcat bzcmp bzdiff bzegrep bzfgrep bzgrep
-complete -f -X '!*.@(zip|ZIP|jar|JAR|exe|EXE|pk3|war|wsz|ear|zargo|xpi|sxw)' unzip zipinfo
+complete -f -X '!*.?(t)bz?(2)' bunzip2 bzcat bzcmp bzdiff bzegrep bzfgrep bzgrep
+complete -f -X '!*.@(zip|ZIP|jar|JAR|exe|EXE|pk3|war|wsz|ear|zargo|xpi|sxw|ott)' unzip zipinfo
 complete -f -X '*.Z' compress znew
 complete -f -X '!*.@(Z|gz|tgz|Gz|dz)' gunzip zcmp zdiff zcat zegrep zfgrep zgrep zless zmore
 complete -f -X '!*.Z' uncompress
@@ -86,29 +87,33 @@ complete -f -X '!*.@(gif|jp?(e)g|miff|tif?(f)|pn[gm]|p[bgp]m|bmp|xpm|ico|xwd|tga
 complete -f -X '!*.@(gif|jp?(e)g|tif?(f)|png|p[bgp]m|bmp|x[bp]m|rle|rgb|pcx|fits|pm|GIF|JPG|JP?(E)G|TIF?(F)|PNG|P[BGP]M|BMP|X[BP]M|RLE|RGB|PCX|FITS|PM)' xv qiv
 complete -f -X '!*.@(@(?(e)ps|?(E)PS|pdf|PDF)?(.gz|.GZ|.bz2|.BZ2|.Z))' gv ggv kghostview
 complete -f -X '!*.@(dvi|DVI)?(.@(gz|Z|bz2))' xdvi
-complete -f -X '!*.@(dvi|DVI)' dvips dviselect dvitype
+complete -f -X '!*.@(dvi|DVI)' dvips dviselect dvitype kdvi dvipdf advi
 complete -f -X '!*.@(pdf|PDF)' acroread gpdf xpdf kpdf
+complete -f -X '!*.@(@(?(e)ps|?(E)PS)?(.gz|.GZ)|pdf|PDF|gif|jp?(e)g|miff|tif?(f)|pn[gm]|p[bgp]m|bmp|xpm|ico|xwd|tga|pcx|GIF|JP?(E)G|MIFF|TIF?(F)|PN[GM]|P[BGP]M|BMP|XPM|ICO|XWD|TGA|PCX)' evince
 complete -f -X '!*.@(?(e)ps|?(E)PS)' ps2pdf
 complete -f -X '!*.texi*' makeinfo texi2html
 complete -f -X '!*.@(?(la)tex|?(LA)TEX|texi|TEXI|dtx|DTX|ins|INS)' tex latex slitex jadetex pdfjadetex pdftex pdflatex texi2dvi
-complete -f -X '!*.@(mp3|MP3|m3u)' mpg123 mpg321
-complete -f -X '!*.@(mp?(e)g|MP?(E)G|wma|avi|AVI|asf|vob|VOB|bin|dat|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|MOV|qt|QT|wmv|mp3|MP3|ogg|OGG|ogm|OGM|mp4|MP4|wav|WAV|asx|ASX)' xine
+complete -f -X '!*.@(mp3|MP3)' mpg123 mpg321 madplay
+complete -f -X '!*.@(mp?(e)g|MP?(E)G|wma|avi|AVI|asf|vob|VOB|bin|dat|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|MOV|qt|QT|wmv|mp3|MP3|ogg|OGG|ogm|OGM|mp4|MP4|wav|WAV|asx|ASX|mng|MNG)' xine aaxine fbxine kaffeine
 complete -f -X '!*.@(avi|asf|wmv)' aviplay
 complete -f -X '!*.@(rm?(j)|ra?(m)|smi?(l))' realplay
 complete -f -X '!*.@(mpg|mpeg|avi|mov|qt)' xanim
 complete -f -X '!*.@(ogg|OGG|m3u|flac|spx)' ogg123
 complete -f -X '!*.@(mp3|MP3|ogg|OGG|pls|m3u)' gqmpeg freeamp
 complete -f -X '!*.fig' xfig
-complete -f -X '!*.@(mid?(i))' playmidi
-complete -f -X '!*.@(mid?(i)|rmi|RMI)' timidity
-complete -f -X '*.@(o|so|so.!(conf)|a|tar?(.@(gz|bz2))|tgz|tbz2|rpm|zip|ZIP|gif|GIF|jp?(e)g|JP?(E)G|mp3|MP3|mp?(e)g|MPG|avi|AVI|asf|ASF|ogg|OGG|class|CLASS)' vi vim gvim rvim view rview rgvim rgview gview
+complete -f -X '!*.@(mid?(i)|MID?(I))' playmidi
+complete -f -X '!*.@(mid?(i)|MID?(I)|rmi|RMI|rcp|RCP|[gr]36|[GR]36|g18|G18|mod|MOD|xm|XM|it|IT|x3m|X3M)' timidity
+complete -f -X '*.@(o|so|so.!(conf)|a|t@(ar?(.@(Z|gz|bz?(2)))|gz|bz?(2))|rpm|zip|ZIP|gif|GIF|jp?(e)g|JP?(E)G|mp3|MP3|mp?(e)g|MPG|avi|AVI|asf|ASF|ogg|OGG|class|CLASS)' vi vim gvim rvim view rview rgvim rgview gview
 complete -f -X '*.@(o|so|so.!(conf)|a|rpm|gif|GIF|jp?(e)g|JP?(E)G|mp3|MP3|mp?(e)g|MPG|avi|AVI|asf|ASF|ogg|OGG|class|CLASS)' emacs
-complete -f -X '!*.@(exe|EXE|com|COM|scr|SCR)' wine
+complete -f -X '!*.@(exe|EXE|com|COM|scr|SCR|exe.so)' wine
 complete -f -X '!*.@(zip|ZIP|z|Z|gz|GZ|tgz|TGZ)' bzme
 complete -f -X '!*.@(?([xX]|[sS])[hH][tT][mM]?([lL]))' netscape mozilla lynx opera galeon curl dillo elinks amaya
-complete -f -X '!*.@(sxw|stw|sxg|doc|dot|rtf|txt|htm|html|odt|ott)' oowriter  
+complete -f -X '!*.@(sxw|stw|sxg|sgl|doc|dot|rtf|txt|htm|html|odt|ott|odm)' oowriter
 complete -f -X '!*.@(sxi|sti|pps|ppt|pot|odp|otp)' ooimpress
 complete -f -X '!*.@(sxc|stc|xls|xlw|xlt|csv|ods|ots)' oocalc
+complete -f -X '!*.@(sxd|std|sda|sdd|odg|otg)' oodraw
+complete -f -X '!*.@(sxm|smf|mml|odf)' oomath
+complete -f -X '!*.odb' oobase
 complete -f -X '!*.rpm' rpm2cpio
 # FINISH exclude -- do not remove this line
 
@@ -171,7 +176,7 @@ have()
 #
 _rl_enabled() 
 {
-    bind -v | grep '^set[ \t][ \t]*'$1'[ \t][ \t]*on' &>/dev/null
+    [[ "$( bind -v )" = *$1+([[:space:]])on* ]]
 }
 
 
@@ -182,23 +187,23 @@ _rl_enabled()
 #
 _filedir()
 {
-	local IFS=$'\t\n' xspec glob
+	local IFS=$'\t\n' xspec #glob
 
 	_expand || return 0
 
-	glob=$(set +o|grep noglob) # save glob setting.
-	set -f		 # disable pathname expansion (globbing)
+	#glob=$(set +o|grep noglob) # save glob setting.
+	#set -f		 # disable pathname expansion (globbing)
 
 	if [ "${1:-}" = -d ]; then
 		COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -d -- $cur ) )
-		eval "$glob"    # restore glob setting.
+		#eval "$glob"    # restore glob setting.
 		return 0
 	fi
 
 	xspec=${1:+"!*.$1"}	# set only if glob passed in as $1
 	COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -f -X "$xspec" -- "$cur" ) \
 		    $( compgen -d -- "$cur" ) )
-	eval "$glob"    # restore glob setting.
+	#eval "$glob"    # restore glob setting.
 }
 
 # This function completes on signal names
@@ -229,6 +234,11 @@ _configured_interfaces()
 		# SuSE system
 		COMPREPLY=( $( command ls \
 			/etc/sysconfig/network/ifcfg-* | \
+			sed -ne 's|.*ifcfg-\('$cur'.*\)|\1|p' ) )
+	elif [ -f /etc/pld-release ]; then
+		# PLD Linux
+		COMPREPLY=( $( command ls -B \
+			/etc/sysconfig/interfaces | \
 			sed -ne 's|.*ifcfg-\('$cur'.*\)|\1|p' ) )
 	else
 		# Assume Red Hat
@@ -406,7 +416,7 @@ _alias()
 		;;
 	esac
 }
-complete -F _alias alias
+complete -F _alias $nospace alias
 
 # bash export completion
 #
@@ -655,9 +665,9 @@ _mount()
 		host=${cur#//}
 		host=${host%%/*}
 		if [ -n "$host" ]; then
-			COMPREPLY=( $( compgen -W "$( echo $( smbclient -d 0 -NL $host |
-			sed -ne '/^['$'\t '']*Sharename/,/^$/p' |
-			sed -ne '3,$s|^[^A-Za-z]*\([^'$'\t '']*\).*$|//'$host'/\1|p' ) )" -- "$cur" ) )
+			COMPREPLY=( $( compgen -W "$( echo $( smbclient -d 0 -NL $host 2>/dev/null|
+			sed -ne '/^['"$'\t '"']*Sharename/,/^$/p' |
+			sed -ne '3,$s|^[^A-Za-z]*\([^'"$'\t '"']*\).*$|//'$host'/\1|p' ) )" -- "$cur" ) )
 		fi
 	elif [ -r /etc/vfstab ]; then
 		# Solaris
@@ -738,7 +748,8 @@ complete -F _insmod $filenames insmod modprobe modinfo
 # man(1) completion
 #
 [ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin \
-  -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin ] &&
+  -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin \
+  -o $UNAME = OpenBSD ] &&
 _man()
 {
 	local cur prev sect manpath UNAME
@@ -775,9 +786,9 @@ _man()
 
 	manpath=$manpath:
 	if [ -n "$cur" ]; then
-		manpath="${manpath//://*man$sect/$cur* }"
+		manpath="${manpath//://*man$sect/$cur* } ${manpath//://*cat$sect/$cur* }"
 	else
-		manpath="${manpath//://*man$sect/ }"
+		manpath="${manpath//://*man$sect/ } ${manpath//://*cat$sect/ }"
 	fi
 		
 	# redirect stderr for when path doesn't exist
@@ -793,7 +804,8 @@ _man()
 	return 0
 }
 [ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin \
-  -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin ] && \
+  -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin \
+  -o $UNAME = OpenBSD ] && \
 complete -F _man $filenames man
 
 # renice(8) completion
@@ -1013,11 +1025,18 @@ _iwconfig()
 	
 	case $prev in
 		mode)
-			COMPREPLY=( $( compgen -W 'managed ad-hoc master repeater secondary monitor' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'managed ad-hoc master \
+				repeater secondary monitor' -- $cur ) )
 			return 0
 			;;
 		essid)
 			COMPREPLY=( $( compgen -W 'on off any' -- $cur ) )
+			if [ -n "${COMP_IWLIST_SCAN:-}" ]; then
+				COMPREPLY=( ${COMPREPLY[@]:-} \
+					$( iwlist ${COMP_WORDS[1]} scan | \
+					awk -F '"' '/ESSID/ {print $2}' | \
+					grep "^$cur" ))
+			fi
 			return 0
 			;;
 		nwid)
@@ -1025,20 +1044,34 @@ _iwconfig()
 			return 0
 			;;
 		channel)
-			COMPREPLY=( $( iwlist ${COMP_WORDS[1]} channel | sed -n 's/.*Channel \(.*\) : \(.*\) GHz/\1/p') )
+			COMPREPLY=( $( iwlist ${COMP_WORDS[1]} channel | \
+				awk '/^[[:space:]]*Channel/ {print $2}' | \
+				grep "^$cur" ) )
 			return 0
 			;;
 
 		freq)
-			COMPREPLY=( $( iwlist ${COMP_WORDS[1]} channel | sed -n 's/.*Channel \(.*\) : \(.*\) GHz/\2G/p') )
+			COMPREPLY=( $( iwlist ${COMP_WORDS[1]} channel | \
+				awk '/^[[:space:]]*Channel/ {print $4"G"}' | \
+				grep "^$cur" ) )
 			return 0
 			;;
 		ap)
-			COMPREPLY=( $( compgen -W 'auto any off' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'on off any' -- $cur ) )
+			if [ -n "${COMP_IWLIST_SCAN:-}" ]; then
+				COMPREPLY=( ${COMPREPLY[@]:-} \
+					$( iwlist ${COMP_WORDS[1]} scan | \
+					awk -F ': ' '/Address/ {print $2}' | \
+					grep "^$cur" ) )
+			fi
 			return 0
 			;;
 		rate)
-			COMPREPLY=($( iwlist ${COMP_WORDS[1]} rate | sed -n 's/\(.*\)M.*/\1M/p') auto fixed)
+			COMPREPLY=( $( compgen -W 'auto fixed' -- $cur ) )
+			COMPREPLY=( ${COMPREPLY[@]:-} \
+				$( iwlist ${COMP_WORDS[1]} rate | \
+				awk '/^[[:space:]]*[0-9]/ {print $1"M"}' | \
+				grep "^$cur" ) )
 			return 0
 			;;
 		rts)
@@ -1103,7 +1136,9 @@ _iwlist()
 			_available_interfaces -w
 		fi
 	else
-		COMPREPLY=( $( compgen -W 'scanning frequency rate key power txpower retry' -- $cur ) ) 
+		COMPREPLY=( $( compgen -W 'scan scanning freq frequency \
+			channel rate bit bitrate key enc encryption power \
+			txpower retry ap accesspoint peers event' -- $cur ) ) 
 	fi
 } &&
 complete -F _iwlist iwlist
@@ -1518,7 +1553,7 @@ _cvs()
 			@(rtag|rfreeze))
 				mode=rtag
 				;;
-			st?(atus))
+			st?(at?(us)))
 				mode=status
 				;;
 			@(tag|freeze))
@@ -1594,9 +1629,9 @@ _cvs()
 				# way found so far, but other changes
 				# (something other than changed/removed/new)
 				# may be missing
-				changed=( $( cvs diff --brief 2>&1 | \
+				changed=( $( cvs -q diff --brief 2>&1 | \
 				sed -ne 's/^Files [^ ]* and \([^ ]*\) differ$/\1/p' ) )
-				newremoved=( $( cvs diff --brief 2>&1 | \
+				newremoved=( $( cvs -q diff --brief 2>&1 | \
 				sed -ne 's/^cvs diff: \([^ ]*\) .*, no comparison available$/\1/p' ) )
 				COMPREPLY=( $( compgen -W '${changed[@]:-} \
 						   ${newremoved[@]:-}' -- $cur ) )
@@ -1666,15 +1701,22 @@ _cvs()
 			COMPREPLY=( $( compgen -W '-d -k -I -b -m -W' -- $cur ))
 		fi
 		;;
+	update)
+		if [[ "$cur" = -* ]]; then
+			COMPREPLY=( $( compgen -W '-A -P -C -d -f -l -R -p \
+						   -k -r -D -j -I -W' -- \
+						   $cur ) )
+		fi
+		;;
 	"")
 		COMPREPLY=( $( compgen -W 'add admin annotate checkout ci co \
 					   commit diff delete edit export \
 					   freeze get history import log new \
 					   patch rcs rdiff release remove \
-					   rfreeze rlog rm rtag status tag \
-					   unedit up update -H -Q -q -b -d -e \
-					   -f -l -n -t -r -v -w -x -z --help \
-					   --version' -- $cur ) )
+					   rfreeze rlog rm rtag stat status \
+					   tag unedit up update -H -Q -q -b \
+					   -d -e -f -l -n -t -r -v -w -x -z \
+					   --help --version' -- $cur ) )
 		;;
 	*)
 		;;
@@ -1690,7 +1732,7 @@ have rpm && {
 #
 _rpm_installed_packages()
 {
-	local i
+	local ver nodig nosig
 
 	if [ -r /var/log/rpmpkgs -a \
 		/var/log/rpmpkgs -nt /var/lib/rpm/Packages ]; then
@@ -1699,6 +1741,18 @@ _rpm_installed_packages()
 		's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.@]\+.*\.rpm$|\1|p' \
 				/var/log/rpmpkgs ) )
 	else
+		nodig=""
+		nosig=""
+		ver=$(rpm --version)
+		ver=${ver##* }
+	  
+		if [[ "$ver" > "4.0.4" ]]; then
+			nodig="--nodigest"
+		fi
+		if [[ "$ver" > "4.0.99" ]]; then
+			nosig="--nosignature"
+		fi
+
 		COMPREPLY=( $( rpm -qa $nodig $nosig | sed -ne \
 		's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.@]\+$|\1|p' ) )
 	fi
@@ -2115,10 +2169,17 @@ complete -F _apt_cache $filenames apt-cache
 # Debian aptitude(1) completion
 #
 have aptitude && {
+have grep-status && {
+_comp_dpkg_hold_packages()
+{
+	grep-status -P -e "^$1" -a -FStatus 'hold' -n -s Package
+}
+} || {
 _comp_dpkg_hold_packages()
 {
 	grep -B 2 'hold' /var/lib/dpkg/status | grep "Package: $1" \
 		| cut -d\  -f2
+}
 }
 
 _aptitude()
@@ -2139,7 +2200,7 @@ _aptitude()
 		     -Z -v --verbose'
 
 	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-	    if [[ ${COMP_WORDS[i]} == @(install|reinstall|hold|unhold|markauto|unmarkauto|dist-upgrade|download|forbid-version|purge|remove) ]]; then
+	    if [[ ${COMP_WORDS[i]} == @(install|reinstall|hold|unhold|markauto|unmarkauto|dist-upgrade|download|show|forbid-version|purge|remove) ]]; then
 		special=${COMP_WORDS[i]}
 	    fi
 	    #exclude some mutually exclusive options
@@ -2149,7 +2210,7 @@ _aptitude()
 
 	if [[ -n "$special" ]]; then
 	   case $special in
-	       @(install|hold|markauto|unmarkauto|dist-upgrade|download))
+	       @(install|hold|markauto|unmarkauto|dist-upgrade|download|show))
 		   COMPREPLY=( $( apt-cache pkgnames $cur 2> /dev/null ) )
 		   return 0
 		   ;;
@@ -2370,9 +2431,9 @@ _known_hosts()
 
 	if [ ${#config[@]} -gt 0 ]; then
 	    # expand path (if present) to global known hosts file
-	    global_kh=$( eval echo $( sed -ne 's/^[Gg][Ll][Oo][Bb][Aa][Ll][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['$'\t '']*\(.*\)$/\1/p' ${config[@]} ) )
+	    global_kh=$( eval echo $( sed -ne 's/^[Gg][Ll][Oo][Bb][Aa][Ll][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/\1/p' ${config[@]} ) )
 	    # expand path (if present) to user known hosts file
-	    user_kh=$( eval echo $( sed -ne 's/^[Uu][Ss][Ee][Rr][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['$'\t '']*\(.*\)$/\1/p' ${config[@]} ) )
+	    user_kh=$( eval echo $( sed -ne 's/^[Uu][Ss][Ee][Rr][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/\1/p' ${config[@]} ) )
 	fi
 
 	# choose which global known hosts file to use
@@ -2448,7 +2509,7 @@ _known_hosts()
 	    fi
 	    # append any available aliases from config files
 	    if [ ${#config[@]} -gt 0 ] && [ -n "$aliases" ]; then
-		hosts=$( compgen -W "$( echo $( sed -ne "s/^[Hh][Oo][Ss][Tt]["$'\t '"]*\([^*?]*\)$/\1/p" ${config[@]} ) )" -- $ocur )
+		hosts=$( compgen -W "$( sed -ne 's/^[Hh][Oo][Ss][Tt]['"$'\t '"']*\([^*?]*\)$/\1/p' ${config[@]} )" -- $ocur )
 		COMPREPLY=( ${COMPREPLY[@]} $hosts )
 	    fi
 
@@ -2464,7 +2525,7 @@ _known_hosts()
 	return 0
 }
 complete -F _known_hosts traceroute traceroute6 tracepath tracepath6 \
-	ping fping telnet host nslookup rsh rlogin ftp dig ssh-installkeys
+	ping fping telnet host nslookup rsh rlogin ftp dig ssh-installkeys mtr
 
 # ssh(1) completion
 #
@@ -2769,7 +2830,7 @@ _make()
 				$makef 2>/dev/null | command grep "^$cur" ))
 	fi
 } &&
-complete -F _make $filenames make gmake gnumake pmake
+complete -f -F _make $filenames make gmake gnumake pmake
 
 # GNU tar(1) completion
 #
@@ -2791,16 +2852,16 @@ _tar()
 		return 0
 		;;
 	+([^IZzjy])f)
-		ext='t?(ar?(.))@(gz|Z|bz?(2))'
-		regex='t\(ar?(\.)\)\(gz\|Z\|bz2\?\)'
+		ext='t@(ar?(.@(Z|gz|bz?(2)))|gz|bz?(2))'
+		regex='t\(ar\(\.\(Z\|gz\|bz2\?\)\)\?\|gz\|bz2\?\)'
 		;;
 	*[Zz]*f)
 		ext='t?(ar.)@(gz|Z)'
-		regex='t\(ar\.\)\(gz\|Z\)'
+		regex='t\(ar\.\)\?\(gz\|Z\)'
 		;;
 	*[Ijy]*f)
 		ext='t?(ar.)bz?(2)'
-		regex='t\(ar\.\)bz2\?'
+		regex='t\(ar\.\)\?bz2\?'
 		;;
 	*)
 		_filedir
@@ -2814,7 +2875,7 @@ _tar()
 		#
 		# get name of tar file from command line
 		tar=$( echo "$COMP_LINE" | \
-			sed -e 's|^.* \([^ ]*'$regex'\) .*$|\1|' )
+			sed -e 's/^.* \([^ ]*'$regex'\) .*$/\1/' )
 		# devise how to untar and list it
 		untar=t${COMP_WORDS[1]//[^Izjyf]/}
 
@@ -2938,7 +2999,7 @@ _tcpdump()
 			return 0
 			;;
 		-i)
-			_interfaces
+			_available_interfaces -a
 			return 0
 			;;
 	esac
@@ -3116,7 +3177,7 @@ complete -F _root_command $filenames sudo fakeroot really
 
 # ant(1) completion
 #
-have ant &&
+have ant && {
 _ant()
 {
 	local cur prev buildfile i
@@ -3161,8 +3222,11 @@ _ant()
 			    $( awk -F'"' '/<target [^n]/ {if ($1 ~ /name=/) { print $2 } else if ($3 ~ /name=/) {print $4} else if ($5 ~ /name=/) {print $6}}' \
 				$buildfile | grep "^$cur" ) )
 	fi
-} &&
-complete -F _ant $filenames ant
+}
+have complete-ant-cmd.pl && \
+     complete -C complete-ant-cmd.pl -F _ant $filenames ant || \
+     complete -F _ant $filenames ant
+}
 
 have nslookup &&
 _nslookup()
@@ -3886,9 +3950,8 @@ _gdb()
 		COMPREPLY=( $( compgen -c -- $cur ) )
 	elif [ $COMP_CWORD -eq 2 ]; then
 		prev=${prev##*/}
-		COMPREPLY=( $( compgen -W "$( compgen -f core \
-				$( command ps axo comm,pid |
-				awk '{if ($1 ~ /^'$prev'/) print $2}' ) )" \
+		COMPREPLY=( $( compgen -fW "$( command ps axo comm,pid | \
+				awk '{if ($1 ~ /^'"$prev"'/) print $2}' ) )" \
 				-- "$cur" ) )
 	fi
 } &&
@@ -4135,10 +4198,17 @@ complete -F _cardctl cardctl
 # This function is required by _dpkg() and _dpkg-reconfigure()
 #
 have dpkg && {
+have grep-status && {
+_comp_dpkg_installed_packages()
+{
+	grep-status -P -e "^$1" -a -FStatus 'install ok installed' -n -s Package
+}
+} || {
 _comp_dpkg_installed_packages()
 {
 	grep -A 2 "Package: $1" /var/lib/dpkg/status | \
 		grep -B 2 'ok installed' | grep "Package: $1" | cut -d\  -f2
+}
 }
 
 # Debian dpkg(8) completion
@@ -4254,6 +4324,136 @@ _dpkg_reconfigure()
 	fi
 } &&
 complete -F _dpkg_reconfigure $default dpkg-reconfigure
+
+# Debian dpkg-source completion
+#
+have dpkg-source &&
+_dpkg_source()
+{
+	local cur prev options work i action packopts unpackopts
+
+	packopts="-c -l -F -V -T -D -U -W -E -sa -i -I -sk -sp -su -sr -ss -sn -sA -sK -sP -sU -sR"
+	unpackopts="-sp -sn -su"
+	options=`echo "-x -b $packopts $unpackopts" | xargs echo | sort -u | xargs echo`
+
+	COMPREPLY=()
+	if [ "$1" != "dpkg-source" ]; then
+		exit 1
+	fi
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+	action="options"
+	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
+		if [[ ${COMP_WORDS[$i]} == "-x" ]]; then
+			action=unpack
+		elif [[ ${COMP_WORDS[$i]} == "-b" ]]; then
+			action=pack
+		elif [[ ${COMP_WORDS[$i]} == "-h" ]]; then
+			action=help
+		fi
+	done
+	# if currently seeing a complete option, return just itself.
+	for i in $options; do
+		if [ "$cur" = "$i" ]; then
+			COMPREPLY=( "$cur" )
+			return 0
+		fi
+	done
+	case "$action" in
+		"unpack")
+			if [ "$cur" = "-" -o "$cur" = "-s" ]; then
+				COMPREPLY=( $unpackots )
+				return 0
+			fi
+			case "$prev" in
+				"-x")
+					COMPREPLY=( $( compgen -d -- "$cur" ) \
+						    $( compgen -f -X '!*.dsc' -- "$cur" ) )
+					return 0
+					;;
+				*)
+					COMPREPLY=( $unpackopts $(compgen -d -f -- "$cur" ) )
+					return 0
+					;;
+			esac
+			return 0
+			;;
+		"pack")
+			if [ "$cur" = "-" ]; then
+				COMPREPLY=( $packopts )
+				return 0
+			fi
+			if [ "$cur" = "-s" ]; then
+				COMPREPLY=( "-sa" "-sk" "-sp" "-su" "-sr" "-ss" "-sn" \
+			    		"-sA" "-sK" "-sP" "-sU" "-sR" )
+				return 0
+			fi
+			case "$prev" in
+				"-b")
+					COMPREPLY=( $( compgen -d -- "$cur" ) )
+					return 0
+					;;
+				"-c"|"-l"|"-T"|"-i"|"-I")
+					# -c: get controlfile
+					# -l: get per-version info from this file
+					# -T: read variables here, not debian/substvars
+					# -i: <regexp> filter out files to ignore diffs of.
+					# -I: filter out files when building tarballs.
+					# return directory names and file names
+					COMPREPLY=( $( compgen -d -f ) )
+					return 0
+					;;
+				"-F")
+					# -F: force change log format
+					COMPREPLY=( $( ( cd /usr/lib/dpkg/parsechangelog; compgen -f "$cur" ) ) )
+					return 0
+					;;
+				"-V"|"-D")
+					# -V: set a substitution variable
+					# we don't know anything about possible variables or values
+					# so we don't try to suggest any completion.
+					COMPREPLY=()
+					return 0
+					;;
+				"-D")
+					# -D: override or add a .dsc field and value
+					# if $cur doesn't contain a = yet, suggest variable names
+					if echo -- "$cur" | grep -q "="; then
+						# $cur contains a "="
+						COMPREPLY=()
+						return 0
+					else
+						COMPREPLY=( Format Source Version Binary Maintainer Uploader Architecture Standards-Version Build-Depends Files )
+						return 0
+					fi
+					;;
+				"-U")
+					# -U: remove a field
+					# Suggest possible fieldnames
+					COMPREPLY=( Format Source Version Binary Maintainer Uploader Architecture Standards-Version Build-Depends Files )
+					return 0
+					;;
+				*)
+					COMPREPLY=( $packopts )
+					return 0
+					;;
+			esac
+			return 0
+			;;
+		*)
+			# if seeing a partial option, return possible completions.
+			if [ "$cur" = "-s" ]; then
+				COMPREPLY=( "-sa" "-sk" "-sp" "-su" "-sr" "-ss" "-sn" \
+			    		"-sA" "-sK" "-sP" "-sU" "-sR" )
+				return 0
+			fi
+			# else return all possible options.
+			COMPREPLY=( $options )
+			return 0
+			;;
+	esac
+} &&
+complete -F _dpkg_source dpkg-source
 
 # Debian Linux dselect(8) completion.
 #
@@ -4573,6 +4773,7 @@ _muttconffiles()
 {
 	local file sofar
 	local -a newconffiles
+
 	sofar=" $1 "
 	shift
 	while [[ "$1" ]]; do
@@ -5004,7 +5205,7 @@ _perl()
 			-n -a -F -l -0 -I -m -M -P -S -x -i -e ' -- $cur ) )
     return 0
 }
-complete -F _perl $default perl
+complete -F _perl $filenames perl
 
 _perldoc()
 {
@@ -5117,7 +5318,13 @@ complete -F _rcs $filenames ci co rlog rcs rcsdiff
 
 # lilo(8) completion
 #
-have lilo &&
+have lilo && {
+_lilo_labels()
+{
+	COMPREPLY=( $( awk -F'=' '/label/ {print $2}' \
+		/etc/lilo.conf | sed -e 's/"//g' | grep "^$cur" ) )
+}
+
 _lilo()
 {
 	local cur prev
@@ -5137,8 +5344,7 @@ _lilo()
 			;;
 		-@(I|D|R))
 			# label completion
-			COMPREPLY=( $( awk -F'=' '/label/ {print $2}' \
-					/etc/lilo.conf | grep "^$cur" ) )
+			_lilo_labels
 			return 0
 			;;
 		-@(A|b|M|u|U))
@@ -5161,8 +5367,9 @@ _lilo()
 			-M -p -P -q -r -R -s -S -t -T -u -U -v -V -w -x -z' -- \
 			$cur ) )
 	fi
-} &&
+}
 complete -F _lilo lilo
+}
 
 # links completion
 #
@@ -5459,7 +5666,7 @@ _mplayer()
 		-@(vi?(d|vo)|ffactor|sid|slang|spu@(align|aa|gauss))| \
 		-@(vobsubid|delay|bpp|brightness|contrast|dfbopts|display)| \
 		-@(fbmode|geometry|guiwid|hue|icelayer|screen[wh]|wid)| \
-		-@(monitor@(aspect|_@(dotclock|[hv]freq))|panscan|saturation)| \
+		-@(monitor@(aspect|-@(dotclock|[hv]freq))|panscan|saturation)| \
 		-@(xineramascreen|zr@(crop|norm|quality|[xy]doff|[vh]dec))| \
 		-@(aspect|pp|x|y|xy|z|stereo|audio-@(density|delay|preload))| \
 		-@(endpos|osdlevel|ffourcc|sws|channels|skiplimit|format)| \
@@ -5656,8 +5863,8 @@ _mplayer()
 					-contrast -display -double -dr -dxr2 \
 					-fb -fbmode -fbmodeconfig -forcexv -fs \
 					-geometry -hue -icelayer -jpeg \
-					-monitor_dotclock -monitor_hfreq \
-					-monitor_vfreq -monitoraspect \
+					-monitor-dotclock -monitor-hfreq \
+					-monitor-vfreq -monitoraspect \
 					-nograbpointer -noslices -panscan \
 					-rootwin -saturation -screenw -screenh \
 					-stop-xscreensaver -vm -vo -vsync -wid \
@@ -5681,13 +5888,13 @@ _mplayer()
 					-xvidencopts -of --verbose' -- $cur) )
 			;;
 		*)
-			_filedir '@(mp?(e)g|MP?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fli|FLI|viv|VIV|rm?(j)|RM?(J)|ra?(m)|RA?(M)|yuv|YUV|mov|MOV|qt|QT|mp[34]|MP[34]|og[gm]|OG[GM]|wav|WAV|dump|DUMP|mkv|MKV|m4a|M4A|aac|AAC|m2v|M2V|dv|DV|rmvb|RMVB|mid|MID|ts|TS)'
+			_filedir '@(mp?(e)g|MP?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fli|FLI|viv|VIV|rm?(j)|RM?(J)|ra?(m)|RA?(M)|yuv|YUV|mov|MOV|qt|QT|mp[34]|MP[34]|og[gm]|OG[GM]|wav|WAV|dump|DUMP|mkv|MKV|m4a|M4A|aac|AAC|m2v|M2V|dv|DV|rmvb|RMVB|mid|MID|ts|TS|3gp|mpc|MPC|flac|FLAC)'
 			;;
 	esac
 
 	return 0
 }
-complete $filenames -F _mplayer mplayer mencoder gmplayer
+complete $filenames -F _mplayer mplayer mencoder gmplayer kplayer
 }
 
 # KDE dcop completion
@@ -5804,19 +6011,20 @@ _iconv()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
+	case "$prev" in
+		-@(f|t|-@(from|to)-code))
+			COMPREPLY=( $( compgen -W \
+			    '$( iconv --list | sed -e "s@//@@;" )' -- "$cur" ) )
+			return 0
+			;;
+	esac
+
+
 	if [[ "$cur" = -* ]]; then
 		COMPREPLY=( $( compgen -W '--from-code -f --to-code -t --list
 		--output -o --verbose' -- "$cur" ) )
 		return 0
 	fi
-	
-
-	if [[ "$prev" == -@(f|t|-@(from|to)-code) ]]; then
-		COMPREPLY=( $( compgen -W \
-		    '$( iconv --list | sed "1,/^$/d; s@//@@;" )' -- "$cur" ) )
-	fi
-		
-	return 0
 } &&
 complete -F _iconv $default iconv
 
@@ -6038,7 +6246,7 @@ _mkisofs()
 	fi
 
 } &&
-complete -F _mkisofs mkisofs
+complete -F _mkisofs $filenames mkisofs
 
 # mc(1) completion
 #
@@ -6051,8 +6259,32 @@ _mc()
 	cur=${COMP_WORDS[COMP_CWORD]}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	if [ "$prev" = "-e" -o "$prev" = "-v" ]; then
-		_filedir
+	# -name value style option
+	case "$prev" in
+		-@(e|v|l|P))
+			_filedir
+			return 0
+			;;
+	esac
+
+	# --name=value style option
+	if [[ "$cur" == *=* ]]; then
+		prev=${cur/=*/}
+		cur=${cur/*=/}
+		case "$prev" in
+			--@(edit|view|ftplog|printwd))
+				_filedir
+				return 0
+				;;
+		esac
+	fi
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-a --stickchars -b --nocolor -c \
+			--color -C --colors= -d --nomouse -e --edit= -f \
+			--datadir -k --resetsoft -l --ftplog= -P --printwd= \
+			-s --slow -t --termcap -u --nosubshell -U --subshell \
+			-v --view= -V --version -x --xterm -h --help' -- $cur ) )
 	else
 		_filedir -d
 	fi
@@ -6071,14 +6303,14 @@ _yum()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-		if [[ ${COMP_WORDS[i]} == @(install|update|upgrade|remove) ]]; then
+		if [[ ${COMP_WORDS[i]} == @(install|update|upgrade|remove|erase|deplist) ]]; then
 			special=${COMP_WORDS[i]}
 		fi
 	done
 
 	if [ -n "$special" ]; then
 	    case $special in
-		install)
+		install|deplist)
 		    COMPREPLY=( $( compgen -W '$( yum -C list | cut -d" " -f1 )' -- $cur ) )
 		    return 0
 		    ;;
@@ -6091,7 +6323,7 @@ _yum()
 
 	case $cur in
 	    --*)
-		COMPREPLY=( $( compgen -W '--installroot --version --help' -- $cur ) )
+		COMPREPLY=( $( compgen -W '--installroot --version --help --enablerepo --disablerepo --exclude --obsoletes --noplugins' -- $cur ) )
 		return 0
 		;;
 	    -*)
@@ -6102,10 +6334,13 @@ _yum()
 
 	case $prev in
 	    list)
-		COMPREPLY=( $( compgen -W 'available updates installed extras' -- $cur ) )
+		COMPREPLY=( $( compgen -W 'all available updates installed extras obsoletes recent' -- $cur ) )
 		;;
 	    clean)
-		COMPREPLY=( $( compgen -W 'packages headers oldheaders all' -- $cur ) )
+		COMPREPLY=( $( compgen -W 'packages headers metadata cache dbcache all' -- $cur ) )
+		;;
+	    localinstall)
+		_filedir rpm
 		;;
 	    -c)
 		_filedir
@@ -6116,7 +6351,9 @@ _yum()
 	    *)
 		COMPREPLY=( $( compgen -W 'install update check-update upgrade remove list \
 						search info provides clean groupinstall groupupdate \
-						grouplist ' -- $cur ) )
+						grouplist deplist erase groupinfo groupremove \
+						localinstall localupdate makecache resolvedep \
+						shell whatprovides' -- $cur ) )
 		;;
 	esac
 }
@@ -6763,7 +7000,7 @@ have dhclient && _dhclient()
 		COMPREPLY=( $( compgen -W '-p -d -q -1 -r -lf -pf \
 			-cf -sf -s -g -n -nw -w' -- $cur ) )
 	else
-		_interfaces
+		_available_interfaces
 	fi
 } &&
 complete -F _dhclient dhclient
@@ -7973,7 +8210,7 @@ _pkg_config()
 		      --atleast-pkgconfig-version= --libs --libs-only-l \
 		      --libs-only-other --libs-only-L --cflags \
 		      --cflags-only-I --cflags-only-othee --variable= \
-		      --define-variable= --exists --uninstalles \
+		      --define-variable= --exists --uninstalled \
 		      --atleast-version= --exact-version= --max-version= \
 		      --list-all --debug --print-errors --silence-errors \
 		      --errors-to-stdout -? --help --usage' -- $cur))
@@ -8189,6 +8426,811 @@ _ntpdate()
 	fi
 } &&
 complete -F _ntpdate ntpdate
+
+# smartctl(8) completion
+#
+have smartctl && {
+_smartctl_quietmode()
+{
+	COMPREPLY=( $( compgen -W 'errorsonly silent' -- $cur ) )
+}
+_smartctl_device()
+{
+	COMPREPLY=( $( compgen -W 'ata scsi 3ware' -- $cur ) )
+}
+_smartctl_tolerance()
+{
+	COMPREPLY=( $( compgen -W 'warn exit ignore' -- $cur ) )
+}
+_smartctl_badsum()
+{
+	COMPREPLY=( $( compgen -W 'normal conservative permissive verypermissive' -- $cur ) )
+}
+_smartctl_report()
+{
+	COMPREPLY=( $( compgen -W 'ioctl ataioctl scsiioctl' -- $cur ) )
+}
+_smartctl_feature()
+{
+	COMPREPLY=( $( compgen -W 'on off' -- $cur ) )
+}
+_smartctl_log()
+{
+	COMPREPLY=( $( compgen -W 'error selftest selective directory' -- $cur ) )
+}
+_smartctl_vendorattribute()
+{
+	COMPREPLY=( $( compgen -W 'help 9,minutes 9,seconds 9,halfminutes \
+		9,temp 192,emergencyretractcyclect 193,loadunload \
+		194,10xCelsius 194,unknown 198,offlinescanuncsectorct \
+		200,writeerrorcount 201,detectedtacount 220,temp' -- $cur ) )
+}
+_smartctl_firmwarebug()
+{
+	COMPREPLY=( $( compgen -W 'none samsung samsung2' -- $cur ) )
+}
+_smartctl_presets()
+{
+	COMPREPLY=( $( compgen -W 'use ignore show showall' -- $cur ) )
+}
+_smartctl_test()
+{
+	COMPREPLY=( $( compgen -W 'offline short long conveyance select afterselect,on afterselect,off pending' -- $cur ) )
+}
+
+_smartctl()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	# --name value style option
+	case "$prev" in
+		-q)
+			_smartctl_quietmode
+			;;
+		-d)
+			_smartctl_device
+			return 0
+			;;
+		-t)
+			_smartctl_tolerance
+			return 0
+			;;
+		-b)
+			_smartctl_badsum
+			return 0
+			;;
+		-r)
+			_smartctl_report
+			return 0
+			;;
+		-s)
+			_smartctl_feature
+			return 0
+			;;
+		-o)
+			_smartctl_feature
+			return 0
+			;;
+		-S)
+			_smartctl_feature
+			return 0
+			;;
+		-l)
+			_smartctl_log
+			return 0
+			;;
+		-v)
+			_smartctl_vendorattribute
+			return 0
+			;;
+		-F)
+			_smartctl_firmwarebug
+			return 0
+			;;
+		-P)
+			_smartctl_presets
+			return 0
+			;;
+		-t)
+			_smartctl_test
+			return 0
+			;;
+	esac
+
+	# --name=value style option
+	if [[ "$cur" == *=* ]]; then
+		prev=${cur/=*/}
+		cur=${cur/*=/}
+		case "$prev" in
+			--quietmode)
+				_smartctl_quietmode
+				return 0
+				;;
+			--device)
+				_smartctl_device
+				return 0
+				;;
+			--tolerance)
+				_smartctl_tolerance
+				return 0
+				;;
+			--badsum)
+				_smartctl_badsum
+				return 0
+				;;
+			--report)
+				_smartctl_report
+				return 0
+				;;
+			--smart)
+				_smartctl_feature
+				return 0
+				;;
+			--offlineauto)
+				_smartctl_feature
+				return 0
+				;;
+			--saveauto)
+				_smartctl_feature
+				return 0
+				;;
+			--log)
+				_smartctl_log
+				return 0
+				;;
+			--vendorattribute)
+				_smartctl_vendorattribute
+				return 0
+				;;
+			--firmwarebug)
+				_smartctl_firmwarebug
+				return 0
+				;;
+			--presets)
+				_smartctl_presets
+				return 0
+				;;
+			--test)
+				_smartctl_test
+				return 0
+				;;
+		esac
+	fi
+
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-h --help --usage -V --version \
+			--copyright --license-i --info -a --all -q \
+			--quietmode= -d --device= -T --tolerance= -b --badsum= \
+			-r --report= -s --smart= -o --offlineauto= -S \
+			--saveauto= -H --health -c --capabilities -A \
+			--attributes -l --log= -v --vendorattribute= -F \
+			--firmwarebug= -P --presets= -t --test= -C \
+			--captive -X --abort' -- $cur ) )
+	else
+		cur=${cur:=/dev/}
+		_filedir
+	fi
+}
+complete -F _smartctl smartctl
+}
+
+# vncviewer(1) completion
+#
+have vncviewer &&
+_vncviewer()
+{
+	local cur prev
+	local -a config
+    
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+	-via)
+	   _known_hosts -a
+	   ;;
+	*)
+	   # ssh into the the server, find and ping the broadcast address, then
+	   # sort and show the results.
+	   COMPREPLY=( $( ssh -o 'Batchmode yes' $prev \
+			  "ping -bnc 4 255.255.255.255" 2>/dev/null | \
+			  awk -F ' ' '{print $4}' | \
+			  sort -n | uniq | egrep '[0-9]+\.[0-9]+\.' 2>/dev/null ) )
+	esac
+								   
+	return 0
+} &&
+complete -F _vncviewer vncviewer
+
+# sysctl(8) completion
+#
+have sysctl &&
+_sysctl()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	COMPREPLY=( $( compgen -W "$(sysctl -N -a 2>/dev/null)" -- $cur ) )
+
+	return 0
+} &&
+complete -F _sysctl sysctl
+
+# update-rc.d(8) completion
+#
+# Copyright (C) 2004 Servilio Afre Puentes <servilio@gmail.com>
+#
+have update-rc.d &&
+_update_rc_d()
+{
+    local cur prev sysvdir services options valid_options
+
+    cur=${COMP_WORDS[COMP_CWORD]}
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
+	|| sysvdir=/etc/init.d
+
+    services=( $(echo $sysvdir/!(README*|*.sh|*.dpkg*|*.rpm*)) )
+    services=( ${services[@]#$sysvdir/} )
+    options=( -f -n )
+
+    if [[ $COMP_CWORD -eq 1 || "$prev" == -* ]]; then
+	valid_options=( $( \
+	    echo "${COMP_WORDS[@]} ${options[@]}" \
+	    | tr " " "\n" \
+	    | sed -ne "/$( echo "${options[@]}" | sed "s/ /\\|/g" )/p" \
+	    | sort | uniq -u \
+	    ) )
+	COMPREPLY=( $( compgen -W '${options[@]} ${services[@]}' \
+	    -X '$( echo ${COMP_WORDS[@]} | tr " " "|" )' -- $cur ) )
+    elif [[ "$prev" == ?($( echo ${services[@]} | tr " " "|" )) ]]; then
+	COMPREPLY=( $( compgen -W 'remove defaults start stop' -- $cur ) )
+    elif [[ "$prev" == defaults && "$cur" == [0-9] ]]; then
+	COMPREPLY=( 0 1 2 3 4 5 6 7 8 9 )
+    elif [[ "$prev" == defaults && "$cur" == [sk]?([0-9]) ]]; then
+	COMPREPLY=( 0 1 2 3 4 5 6 7 8 9 )
+    elif [[ "$prev" == defaults && -z "$cur" ]]; then
+	COMPREPLY=( 0 1 2 3 4 5 6 7 8 9 s k )
+    elif [[ "$prev" == ?(start|stop) ]]; then
+	if [[ "$cur" == [0-9] || -z "$cur" ]]; then 
+	    COMPREPLY=( 0 1 2 3 4 5 6 7 8 9 )
+	elif [[ "$cur" == [0-9][0-9] ]]; then 
+	    COMPREPLY=( $cur )
+	else
+	    COMPREPLY=()
+	fi
+    elif [[ "$prev" == ?([0-9][0-9]|[0-6S]) ]]; then
+	if [[ -z "$cur" ]]; then
+	    if [[ $prev == [0-9][0-9] ]]; then
+		COMPREPLY=( 0 1 2 3 4 5 6 S )
+	    else
+		COMPREPLY=( 0 1 2 3 4 5 6 S . )
+	    fi
+	elif [[ "$cur" == [0-6S.] ]]; then 
+	    COMPREPLY=( $cur )
+	else
+	    COMPREPLY=()
+	fi
+    elif [[ "$prev" == "." ]]; then
+	COMPREPLY=( $(compgen -W "start stop" -- $cur) )
+    else
+	COMPREPLY=()
+    fi
+
+    return 0
+} &&
+complete -F _update_rc_d update-rc.d
+
+# invoke-rc.d(8) completion
+#
+# Copyright (C) 2004 Servilio Afre Puentes <servilio@gmail.com>
+#
+have invoke-rc.d &&
+_invoke_rc_d()
+{
+    local cur prev sysvdir services options valid_options
+
+    cur=${COMP_WORDS[COMP_CWORD]}
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
+	|| sysvdir=/etc/init.d
+
+    services=( $(echo $sysvdir/!(README*|*.sh|*.dpkg*|*.rpm*)) )
+    services=( ${services[@]#$sysvdir/} )
+    options=( --help --quiet --force --try-anyway --disclose-deny --query --no-fallback )
+
+    if [[ ($COMP_CWORD -eq 1) || ("$prev" == --* ) ]]; then
+	valid_options=( $( \
+	    echo ${COMP_WORDS[@]} ${options[@]} \
+	    | tr " " "\n" \
+	    | sed -ne "/$( echo ${options[@]} | sed "s/ /\\\\|/g" )/p" \
+	    | sort | uniq -u \
+	    ) )
+	COMPREPLY=( $( compgen -W '${valid_options[@]} ${services[@]}' -- \
+	    $cur ) )
+    elif [ -x $sysvdir/$prev ]; then
+	COMPREPLY=( $( compgen -W '`sed -ne "y/|/ /; \
+					    s/^.*Usage:[ ]*[^ ]*[ ]*{*\([^}\"]*\).*$/\1/p" \
+					    $sysvdir/$prev`' -- \
+	    $cur ) )
+    else
+	COMPREPLY=()
+    fi
+
+    return 0
+} &&
+complete -F _invoke_rc_d invoke-rc.d
+
+# minicom(1) completion
+#
+have minicom &&
+_minicom()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-@(a|c))
+			COMPREPLY=( $( compgen -W 'on off' -- $cur ) )
+			return 0
+			;;
+		-@(S|C))
+			_filedir
+			return 0
+			;;
+		-P)
+			COMPREPLY=( $( command ls /dev/tty* ) )
+			COMPREPLY=( $( compgen -W '${COMPREPLY[@]} ${COMPREPLY[@]#/dev/}' -- $cur ) )
+			return 0
+			;;
+	esac
+
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-s -o -m -M -z -l -L -w -a -t \
+			-c -S -d -p -C -T -8' -- $cur ) )
+	else
+		COMPREPLY=( $( command ls /etc/minirc.* | sed -e 's|/etc/minirc.||' | grep "^$cur" ) )
+	fi
+} &&
+complete -F _minicom minicom
+
+# svn completion
+#
+have svn &&
+{
+_svn()
+{
+	local cur prev commands options command
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	commands='add blame praise annotate ann cat checkout co cleanup commit \
+		ci copy cp delete del remove rm diff di export help ? h import \
+		info list ls lock log merge mkdir move mv rename ren \
+		propdel pdel pd propedit pedit pe propget pget pg \
+		proplist plist pl propset pset ps resolved revert \
+		status stat st switch sw unlock update up'
+
+	if [[ $COMP_CWORD -eq 1 ]] ; then
+		if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '--version' -- $cur ) )
+		else
+			COMPREPLY=( $( compgen -W "$commands" -- $cur ) )
+		fi
+	else
+
+		prev=${COMP_WORDS[COMP_CWORD-1]}
+		case $prev in
+			--config-dir)
+				_filedir -d
+				return 0;
+				;;
+			-@(F|-file|-targets))
+				_filedir
+				return 0;
+				;;
+			--encoding)
+				COMPREPLY=( $( compgen -W \
+					'$( iconv --list | sed -e "s@//@@;" )' \
+					-- "$cur" ) )
+				return 0;
+				;;
+			--@(editor|diff|diff3)-cmd)
+				COMP_WORDS=(COMP_WORDS[0] $cur)
+				COMP_CWORD=1
+				_command
+				return 0;
+				;;
+		esac
+
+		command=${COMP_WORDS[1]}
+
+		if [[ "$cur" == -* ]]; then
+			# possible options for the command
+			case $command in
+				add)
+					options='--auto-props --no-auto-props \
+						--force --targets --no-ignore \
+						--non-recursive -N -q --quiet'
+					;;
+				@(blame|annotate|ann|praise))
+					options='-r --revisions --username \
+						--password --no-auth-cache \
+						--non-interactive -v \
+						--verbose --incremental --xml'
+					;;
+				cat)
+					options='-r --revision --username \
+						--password --no-auth-cache \
+						--non-interactive'
+					;;
+				@(checkout|co))
+					options='-r --revision -q --quiet -N \
+						--non-recursive --username \
+						--password --no-auth-cache \
+						--non-interactive \
+						--ignore-externals'
+					;;
+				cleanup)
+					options='--diff3-cmd'
+					;;
+				@(commit|ci))
+					options='-m --message -F --file \
+						--encoding --force-log -q \
+						--quiet --non-recursive -N \
+						--targets --editor-cmd \
+						--username --password \
+						--no-auth-cache \
+						--non-interactive --no-unlock'
+					;;
+				@(copy|cp))
+					options='-m --message -F --file \
+						--encoding --force-log -r \
+						--revision -q --quiet \
+						--editor-cmd -username \
+						--password --no-auth-cache \
+						--non-interactive'
+					;;
+				@(delete|del|remove|rm))
+					options='--force -m --message -F \
+						--file --encoding --force-log \
+						-q --quiet --targets \
+						--editor-cmd -username \
+						--password --no-auth-cache \
+						--non-interactive'
+					;;
+				@(diff|di))
+					options='-r --revision -x --extensions \
+						--diff-cmd --no-diff-deleted \
+						-N --non-recursive --username \
+						--password --no-auth-cache \
+						--non-interactive --force \
+						--old --new --notice-ancestry'
+					;;
+				export)
+					options='-r --revision -q --quiet \
+						--username --password \
+						--no-auth-cache \
+						--non-interactive -N \
+						--non-recursive --force \
+						--native-eol --ignore-externals'
+					;;
+				import)
+					options='--auto-props --no-auto-props \
+						-m --message -F --file \
+						--encoding --force-log -q \
+						--quiet --non-recursive \
+						--no-ignore --editor-cmd \
+						--username --password \
+						--no-auth-cache \
+						--non-interactive'
+					;; 
+				info)
+					options='--username --password \
+						--no-auth-cache \
+						--non-interactive -r \
+						--revision --xml --targets \
+						-R --recursive --incremental'
+					;;
+				@(list|ls))
+					options='-r --revision -v --verbose -R \
+						--recursive --username \
+						--password --no-auth-cache \
+						--non-interactive \
+						--incremental --xml'
+					;;
+				lock)
+					options='-m --message -F --file \
+						--encoding --force-log \
+						--targets --force --username \
+						--password --no-auth-cache \
+						--non-interactive'
+					;;
+				log)
+					options='-r --revision -v --verbose \
+						--targets --username \
+						--password --no-auth-cache \
+						--non-interactive \
+						--stop-on-copy --incremental \
+						--xml -q --quiet --limit'
+					;;
+				merge)
+					options='-r --revision -N \
+						--non-recursive -q --quiet \
+						--force --dry-run --diff3-cmd \
+						--username --password \
+						--no-auth-cache \
+						--non-interactive \
+						--ignore-ancestry'
+					;;
+				mkdir)
+					options='-m --message -F --file \
+						--encoding --force-log -q \
+						--quiet --editor-cmd \
+						--username --password \
+						--no-auth-cache \
+						--non-interactive'
+					;;
+				@(move|mv|rename|ren))
+					options='-m --message -F --file \
+						--encoding --force-log -r \
+						--revision -q --quiet \
+						--force --editor-cmd \
+						--username --password \
+						--no-auth-cache \
+						--non-interactive'
+					;;
+				@(propdel|pdel|pd))
+					options='-q --quiet -R --recursive -r \
+						--revision --revprop \
+						--username --password \
+						--no-auth-cache \
+						--non-interactive'
+					;;
+				@(propedit|pedit|pe))
+					options='-r --revision --revprop \
+						--encoding --editor-cmd \
+						--username --password \
+						--no-auth-cache \
+						--non-interactive --force'
+					;;
+				@(propget|pget|pg))
+					options='-R --recursive -r --revision \
+						--revprop --strict --username \
+						--password --no-auth-cache \
+						--non-interactive'
+					;;
+				@(proplist|plist|pl))
+					options='-v --verbose -R --recursive \
+						-r --revision --revprop -q \
+						--quiet --username --password \
+						--no-auth-cache \
+						--non-interactive'
+					;;
+				@(propset|pset|ps))
+					options='-F --file -q --quiet \
+						--targets -R --recursive \
+						--revprop --encoding \
+						--username --password \
+						--no-auth-cache \
+						--non-interactive -r \
+						--revision --force'
+					;;
+				resolved)
+					options='--targets -R --recursive -q \
+						--quiet'
+					;;
+				revert)
+					options='--targets -R --recursive -q \
+						--quiet'
+					;;
+				@(status|stat|st))
+					options='-u --show-updates -v \
+						--verbose -N --non-recursive \
+						-q --quiet --username \
+						--password --no-auth-cache \
+						--non-interactive --no-ignore \
+						--ignore-externals \
+						--incremental --xml'
+					;;
+				@(switch|sw))
+					options='--relocate -r --revision -N \
+						--non-recursive -q --quiet \
+						--username --password \
+						--no-auth-cache \
+						--non-interactive --diff3-cmd'
+					;;
+				unlock)
+					options='--targets --force --username \
+						--password --no-auth-cache \
+						--non-interactive'
+					;;
+				@(update|up))
+					options='-r --revision -N \
+						--non-recursive -q --quiet \
+						--username --password \
+						--no-auth-cache \
+						--non-interactive \
+						--diff3-cmd --ignore-externals'
+					;;
+			esac
+			options="$options --help -h --config-dir"
+
+			COMPREPLY=( $( compgen -W "$options" -- $cur ) )
+		else
+			if [[ "$command" == @(help|h|\?) ]]; then
+				COMPREPLY=( $( compgen -W "$commands" -- $cur ) )
+			else
+				_filedir
+			fi
+		fi
+	fi
+
+	return 0
+}
+complete -F _svn $default svn
+
+_svnadmin()
+{
+	local cur prev commands options mode
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	commands='create deltify dump help ? hotcopy list-dblogs \
+		list-unused-dblogs load lslocks lstxns recover rmlocks \
+		rmtxns setlog verify'
+
+	if [[ $COMP_CWORD -eq 1 ]] ; then
+		if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '--version' -- $cur ) )
+		else
+			COMPREPLY=( $( compgen -W "$commands" -- $cur ) )
+		fi
+	else
+		prev=${COMP_WORDS[COMP_CWORD-1]}
+		case $prev in
+			--config-dir)
+				_filedir -d
+				return 0;
+				;;
+			--fs-type)
+				COMPREPLY=( $( compgen -W 'fsfs bdb' -- $cur ) )
+				return 0;
+				;;
+		esac
+
+		command=${COMP_WORDS[1]}
+
+		if [[ "$cur" == -* ]]; then
+			# possible options for the command
+			case $command in
+				create)
+					options='--bdb-txn-nosync \
+						--bdb-log-keep --config-dir \
+						--fs-type'
+					;;
+				deltify)
+					options='-r --revision -q --quiet'
+					;;
+				dump)
+					options='-r --revision --incremental \
+						-q --quiet --deltas'
+					;;
+				hotcopy)
+					options='--clean-logs'
+					;;
+				load)
+					options='--ignore-uuid --force-uuid \
+						--parent-dir -q --quiet \
+						--use-pre-commit-hook \
+						--use-post-commit-hook'
+					;;
+				rmtxns)
+					options='-q --quiet'
+					;;
+				setlog)
+					options='-r --revision --bypass-hooks'
+					;;
+			esac
+
+			options="$options --help -h"
+			COMPREPLY=( $( compgen -W "$options" -- $cur ) )
+		else
+			if [[ "$command" == @(help|h|\?) ]]; then
+				COMPREPLY=( $( compgen -W "$commands" -- $cur ) )
+			else
+				_filedir
+			fi
+		fi
+	fi
+
+	return 0
+}
+complete -F _svnadmin $default svnadmin
+
+_svnlook()
+{
+	local cur prev commands options mode
+
+	COMPREPLY=()
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	commands='author cat changed date diff dirs-changed help ? h history \
+		info lock log propget pget pg proplist plist pl tree uuid \
+		youngest'
+
+	if [[ $COMP_CWORD -eq 1 ]] ; then
+		if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W '--version' -- $cur ) )
+		else
+			COMPREPLY=( $( compgen -W "$commands" -- $cur ) )
+		fi
+	else
+		command=${COMP_WORDS[1]}
+
+		if [[ "$cur" == -* ]]; then
+			# possible options for the command
+			case $command in
+				@(author|cat|date|dirs-changed|info|log))
+					options='-r --revision -t \
+						--transaction'
+					;;
+				changed)
+					options='-r --revision -t \
+						--transaction --copy-info'
+					;;
+				diff)
+					options='-r --revision -t \
+						--transaction \
+						--no-diff-deleted \
+						--no-diff-added \
+						--diff-copy-from'
+					;;
+				history)
+					options='-r --revision --show-ids'
+					;;
+				prop@(get|list))
+					options='-r --revision -t \
+						--transaction --revprop'
+					;;
+				tree)
+					options='-r --revision -t \
+						--transaction --show-ids \
+						--full-paths'
+					;;
+			esac
+
+			options="$options --help -h"
+			COMPREPLY=( $( compgen -W "$options" -- $cur ) )
+		else
+			if [[ "$command" == @(help|h|\?) ]]; then
+				COMPREPLY=( $( compgen -W "$commands" -- $cur ) )
+			else
+				_filedir
+			fi
+		fi
+	fi
+
+	return 0
+}
+complete -F _svnlook $default svnlook
+}
 
 _filedir_xspec()
 {
