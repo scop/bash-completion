@@ -1,6 +1,6 @@
 Name:		bash-completion
 Version:	20060301
-Release:	alt02
+Release:	alt03
 
 Summary:	bash-completion offers programmable completion for bash
 License:	GPL
@@ -37,6 +37,9 @@ install -p -m755 -D %SOURCE1 $RPM_BUILD_ROOT%_sysconfdir/profile.d/%name.sh
 
 
 %changelog
+* Fri Jul 14 2006 Alex Murygin <murygin@altlinux.ru> 20060301-alt03
+- fixed [9148] (bash-completion.sh changed)
+
 * Sat Mar 04 2006 Alex Murygin <murygin@altlinux.ru> 20060301-alt02
 - new version 
 
