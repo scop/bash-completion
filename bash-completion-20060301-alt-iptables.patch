@@ -1,0 +1,28 @@
+--- bash_completion.orig	2006-03-01 18:20:18 +0200
++++ bash_completion	2007-10-17 19:29:05 +0300
+@@ -2941,8 +2941,12 @@
+ 		table="-t mangle"
+ 	fi
+ 
++	if [[ $COMP_LINE == *-E* ]]; then
++		rename=yes
++	fi
++
+ 	case "$prev" in
+-	-*[AIDRPFXLZ])
++	-*[AIDRPFXLZEN])
+ 		COMPREPLY=( $( compgen -W '`iptables $table -nL | \
+ 			    sed -ne "s/^Chain \([^ ]\+\).*$/\1/p"`' -- $cur ) )
+ 		;;
+@@ -2968,7 +2972,10 @@
+ 		fi
+ 		;;
+ 	*)
+-		if [[ "$cur" == -* ]]; then
++		if [[ "$rename" -eq "yes" ]]; then
++		    COMPREPLY=( $( compgen -W '`iptables $table -nL | \
++		    sed -ne "s/^Chain \([^ ]\+\).*$/\1/p"`' -- $cur ) )
++		elif [[ "$cur" == -* ]]; then
+ 		    COMPREPLY=( $( compgen -W '-i -o -s -d -p -f -m --append \
+ 		    --delete --insert --replace --list --flush --zero --new \
+ 		    --delete-chain --policy --rename-chain --proto --source \

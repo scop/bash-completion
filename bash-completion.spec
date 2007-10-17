@@ -1,6 +1,6 @@
 Name:		bash-completion
 Version:	20060301
-Release:	alt03
+Release:	alt04
 
 Summary:	bash-completion offers programmable completion for bash
 License:	GPL
@@ -10,6 +10,7 @@ URL:		http://www.caliban.org/bash/
 Source0:	http://www.caliban.org/files/bash/%name-%version.tar.bz2
 Source1:	bash-completion.sh
 Patch0:	bash-completion-20050103-alt-rsync.patch.gz
+Patch0:	bash-completion-20060301-alt-iptables.patch
 
 Requires:	bash >= 2.05
 BuildArch:	noarch
@@ -37,6 +38,10 @@ install -p -m755 -D %SOURCE1 $RPM_BUILD_ROOT%_sysconfdir/profile.d/%name.sh
 
 
 %changelog
+* Wed Oct 17 2007 Alex Murygin <murygin@altlinux.ru> 20060301-alt04
+- fixed [13041] (bash-completion.sh changed)
+- added patch to iptables completion [7382]
+
 * Fri Jul 14 2006 Alex Murygin <murygin@altlinux.ru> 20060301-alt03
 - fixed [9148] (bash-completion.sh changed)
 
