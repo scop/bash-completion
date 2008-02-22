@@ -1,6 +1,6 @@
 Name:		bash-completion
 Version:	20060301
-Release:	alt04
+Release:	alt05
 
 Summary:	bash-completion offers programmable completion for bash
 License:	GPL
@@ -27,17 +27,21 @@ of the programmable completion feature of bash 2.04 and later.
 %__install -d %buildroot%_sysconfdir/bash_completion.d
 %__install bash_completion %buildroot%_sysconfdir
 
-%__mkdir_p %buildroot%_sysconfdir/profile.d/
-install -p -m755 -D %SOURCE1 $RPM_BUILD_ROOT%_sysconfdir/profile.d/%name.sh
+%__mkdir_p %buildroot%_sysconfdir/bashrc.d/
+install -p -m755 -D %SOURCE1 $RPM_BUILD_ROOT%_sysconfdir/bashrc.d/%name.sh
 
 %files
 %doc README Changelog contrib BUGS
 %_sysconfdir/bash_completion
 %dir %_sysconfdir/bash_completion.d
-%attr(0755,root,root) %_sysconfdir/profile.d/%name.sh
+%attr(0755,root,root) %_sysconfdir/bashrc.d/%name.sh
 
 
 %changelog
+* Fri Feb 22 2008 Alex Murygin <murygin@altlinux.ru> 20060301-alt05
+- moved bash-completion.sh from profile.d to bashrc.d 
+    (13532, 9273, 9148, 13041, 14606)
+
 * Wed Oct 17 2007 Alex Murygin <murygin@altlinux.ru> 20060301-alt04
 - fixed [13041] (bash-completion.sh changed)
 - added patch to iptables completion [7382]
