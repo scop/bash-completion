@@ -1,15 +1,20 @@
-# $Id: bash-completion.spec,v 1.131 2006/03/01 16:22:45 ianmacd Exp $
-#
+# $Id: bash-completion.spec,v 1.131 2008/05/01 22:15:45 hanska-guest Exp $
+
+# TODO -- needs someone to review it entirely.
+
 Name: bash-completion
 Summary: Programmable completion for bash 2.05b and later.
-Version: 20060301
+Version: 200805xx
 Release: 1
 Group: System Environment/Shells
 License: GPL
-Packager: Ian Macdonald <ian@caliban.org>
+# TODO
+#Packager: Ian Macdonald <ian@caliban.org>
 Source0: http://www.caliban.org/files/bash/%{name}-%{version}.tar.bz2
+#Source0: http://bash-completion.alioth.debian.org/files/%{name}-%{version}.tar.bz2
 Source1: bash_completion.sh
 URL: http://www.caliban.org/bash/
+#URL: http://bash-completion.alioth.debian.org
 BuildRoot: %{_tmppath}/%{name}-root
 BuildArch: noarch
 Requires: bash >= 2.05-12, grep, textutils, sed, fileutils

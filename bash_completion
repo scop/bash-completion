@@ -1,9 +1,10 @@
 #   bash_completion - programmable completion functions for bash 3.x
 #		      (backwards compatible with bash 2.05b)
 #
-#   $Id: bash_completion,v 1.874 2006/04/24 09:07:37 ianmacd Exp $
+#   $Id: bash_completion,v 1.875 2008/05/01 21:03:54 hanska-guest Exp $
 #
-#   Copyright (C) Ian Macdonald <ian@caliban.org>
+#   Copyright © Ian Macdonald <ian@caliban.org>
+#             © 2008, David Paleino <d.paleino@gmail.com>
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -22,8 +23,9 @@
 #   The latest version of this software can be obtained here:
 #
 #   http://www.caliban.org/bash/index.shtml#completion
+#   ( <http://bash-completion.alioth.debian.org/> )
 #
-#   RELEASE: 20060301
+#   RELEASE: 200805xx
 
 [ -n "${BASH_COMPLETION_DEBUG:-}" ] && set -v || set +v
 
@@ -87,14 +89,16 @@ complete -f -X '!*.@(gif|jp?(e)g|miff|tif?(f)|pn[gm]|p[bgp]m|bmp|xpm|ico|xwd|tga
 complete -f -X '!*.@(gif|jp?(e)g|tif?(f)|png|p[bgp]m|bmp|x[bp]m|rle|rgb|pcx|fits|pm|GIF|JPG|JP?(E)G|TIF?(F)|PNG|P[BGP]M|BMP|X[BP]M|RLE|RGB|PCX|FITS|PM)' xv qiv
 complete -f -X '!*.@(@(?(e)ps|?(E)PS|pdf|PDF)?(.gz|.GZ|.bz2|.BZ2|.Z))' gv ggv kghostview
 complete -f -X '!*.@(dvi|DVI)?(.@(gz|Z|bz2))' xdvi
-complete -f -X '!*.@(dvi|DVI)' dvips dviselect dvitype kdvi dvipdf advi
-complete -f -X '!*.@(pdf|PDF)' acroread gpdf xpdf kpdf
-complete -f -X '!*.@(@(?(e)ps|?(E)PS)?(.gz|.GZ)|pdf|PDF|gif|jp?(e)g|miff|tif?(f)|pn[gm]|p[bgp]m|bmp|xpm|ico|xwd|tga|pcx|GIF|JP?(E)G|MIFF|TIF?(F)|PN[GM]|P[BGP]M|BMP|XPM|ICO|XWD|TGA|PCX)' evince
+complete -f -X '!*.@(dvi|DVI)?(.@(gz|Z|bz2))' kdvi
+complete -f -X '!*.@(dvi|DVI)' dvips dviselect dvitype dvipdf advi
+complete -f -X '!*.@(pdf|PDF)' acroread gpdf xpdf
+complete -f -X '!*.@(?(e)ps|?(E)PS|pdf|PDF)' kpdf
+complete -f -X '!*.@(@(?(e)ps|?(E)PS)?(.gz|.GZ)|cb(r|z)|CB(R|Z)|djv?(u)|DJV?(U)|pdf|PDF|gif|jp?(e)g|miff|tif?(f)|pn[gm]|p[bgp]m|bmp|xpm|ico|xwd|tga|pcx|GIF|JP?(E)G|MIFF|TIF?(F)|PN[GM]|P[BGP]M|BMP|XPM|ICO|XWD|TGA|PCX)' evince
 complete -f -X '!*.@(?(e)ps|?(E)PS)' ps2pdf
 complete -f -X '!*.texi*' makeinfo texi2html
 complete -f -X '!*.@(?(la)tex|?(LA)TEX|texi|TEXI|dtx|DTX|ins|INS)' tex latex slitex jadetex pdfjadetex pdftex pdflatex texi2dvi
 complete -f -X '!*.@(mp3|MP3)' mpg123 mpg321 madplay
-complete -f -X '!*.@(mp?(e)g|MP?(E)G|wma|avi|AVI|asf|vob|VOB|bin|dat|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|MOV|qt|QT|wmv|mp3|MP3|ogg|OGG|ogm|OGM|mp4|MP4|wav|WAV|asx|ASX|mng|MNG)' xine aaxine fbxine kaffeine
+complete -f -X '!*.@(mp?(e)g|MP?(E)G|wma|avi|AVI|asf|vob|VOB|bin|dat|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|MOV|qt|QT|wmv|mp3|MP3|ogg|OGG|ogm|OGM|mp4|MP4|wav|WAV|asx|ASX|mng|MNG|srt)' xine aaxine fbxine kaffeine
 complete -f -X '!*.@(avi|asf|wmv)' aviplay
 complete -f -X '!*.@(rm?(j)|ra?(m)|smi?(l))' realplay
 complete -f -X '!*.@(mpg|mpeg|avi|mov|qt)' xanim
@@ -179,6 +183,21 @@ _rl_enabled()
     [[ "$( bind -v )" = *$1+([[:space:]])on* ]]
 }
 
+# Get the word to complete
+# This is nicer than ${COMP_WORDS[$COMP_CWORD]}, since it handles cases
+# where the user is completing in the middle of a word.
+# (For example, if the line is "ls foobar",
+# and the cursor is here -------->   ^
+# it will complete just "foo", not "foobar", which is what the user wants.)
+_get_cword()
+{
+    local word_start
+
+    cur=${COMP_LINE:0:$COMP_POINT}
+    word_start=`expr "$cur" : '.*['"${COMP_WORDBREAKS}"']'`
+    cur=${cur:$word_start}
+    echo $cur
+}
 
 # This function performs file and directory completion. It's better than
 # simply using 'compgen -f', because it honours spaces in filenames.
@@ -425,7 +444,7 @@ _export()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[$COMP_CWORD]}
+	cur=`_get_cword`
 
 	case "$COMP_LINE" in
 	*=\$*)
@@ -451,7 +470,7 @@ _function()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [[ $1 == @(declare|typeset) ]]; then
@@ -476,7 +495,7 @@ _complete()
 	local cur prev options
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case $prev in
@@ -542,7 +561,7 @@ _service()
 
 	COMPREPLY=()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	# don't complete for things like killall, ssh and mysql if it's
 	# the standalone command, rather than the init script
@@ -573,7 +592,7 @@ complete -F _service service
 _chown()
 {
 	local cur
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	# options completion
 	if [[ "$cur" == -* ]]; then
@@ -602,7 +621,7 @@ _chgrp()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	cur=${cur//\\\\/}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
@@ -635,9 +654,12 @@ _umount()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
+	OLDIFS="$IFS"
+	IFS="\n"
 	COMPREPLY=( $( compgen -W '$( mount | cut -d" " -f 3 )' -- $cur ) )
+	IFS="$OLDIFS"
 
 	return 0
 }
@@ -653,7 +675,7 @@ _mount()
 {       local cur i sm host
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	[[ "$cur" == \\ ]] && cur="/"
 
 	for i in {,/usr}/{,s}bin/showmount; do [ -x $i ] && sm=$i && break; done
@@ -696,7 +718,7 @@ _rmmod()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	COMPREPLY=( $( /sbin/lsmod | \
 		  awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}' 2>/dev/null ))
@@ -713,7 +735,7 @@ _insmod()
 	local cur prev modpath
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# behave like lsmod for modprobe -r
@@ -755,7 +777,7 @@ _man()
 	local cur prev sect manpath UNAME
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	_expand || return 0
@@ -806,7 +828,7 @@ _man()
 [ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin \
   -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin \
   -o $UNAME = OpenBSD ] && \
-complete -F _man $filenames man
+complete -F _man $filenames man apropos whatis
 
 # renice(8) completion
 #
@@ -815,7 +837,7 @@ _renice()
 	local command cur curopt i
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	command=$1
 
 	i=0
@@ -845,7 +867,7 @@ _kill()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
 		# return list of available signals
@@ -865,7 +887,7 @@ _killall()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
 		_signals
@@ -887,7 +909,7 @@ _pgrep()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	COMPREPLY=( $( compgen -W '$( command ps axo command | \
 		      sed -ne "1d; s/^\[\?\([^-][^] ]*\).*$/\1/p" | \
@@ -908,7 +930,7 @@ _find()
 	local cur prev i exprfound onlyonce
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -916,7 +938,7 @@ _find()
 		COMPREPLY=( $( compgen -W '0 1 2 3 4 5 6 7 8 9' -- $cur ) )
 		return 0
 		;;
-	-?(a|c)newer|-fls|-fprint?(0|f)|-?(i)?(l)name)
+	-?(a|c)newer|-fls|-fprint?(0|f)|-?(i)?(l)name|-?(i)wholename)
 		_filedir
 		return 0
 		;;
@@ -980,6 +1002,7 @@ _find()
 			-mindepth -mount -noleaf -version -xdev -amin -anewer \
 			-atime -cmin -cnewer -ctime -empty -false -fstype \
 			-gid -group -ilname -iname -inum -ipath -iregex \
+			-wholename \
 			-links -lname -mmin -mtime -name -newer -nouser \
 			-nogroup -perm -regex -size -true -type -uid -used \
 			-user -xtype -exec -fls -fprint -fprint0 -fprintf -ok \
@@ -1020,7 +1043,7 @@ _iwconfig()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 	
 	case $prev in
@@ -1126,7 +1149,7 @@ _iwlist()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 	
 	if [ $COMP_CWORD -eq 1 ]; then
@@ -1151,7 +1174,7 @@ _iwspy()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		if [[ "$cur" == -* ]]; then
@@ -1173,7 +1196,7 @@ _iwpriv()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -1207,10 +1230,11 @@ _ifupdown()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		_configured_interfaces
+		COMPREPLY=( $(compgen -W '${COMPREPLY[@]}' -- "$cur") )
        fi
 
        return 0
@@ -1226,7 +1250,7 @@ _ipsec()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	
 	if [ $COMP_CWORD -eq 1 ]; then
@@ -1273,7 +1297,7 @@ _postfix()
 {
 	local cur prev
 
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [[ $cur == '-' ]]; then
@@ -1285,11 +1309,11 @@ _postfix()
 		return 0
 	fi
 	if [[ $prev == '-D' ]]; then
-		COMPREPLY=( $( compgen -W 'start' -- "${COMP_WORDS[COMP_CWORD]}" ) )
+		COMPREPLY=( $( compgen -W 'start' -- "`_get_cword`" ) )
 		return 0
 	fi
 	COMPREPLY=( $( compgen -W 'start stop reload abort flush check' -- \
-		"${COMP_WORDS[COMP_CWORD]}" ) )
+		"`_get_cword`" ) )
 }
 complete -F _postfix postfix
 
@@ -1299,7 +1323,7 @@ _postmap()
 {
 	local cur prev len idx
 
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [[ $cur == '-' ]]; then
@@ -1339,7 +1363,7 @@ _postcat()
 {
 	local cur prev pval len idx qfile
 
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [[ $cur == '-' ]]; then
@@ -1379,7 +1403,7 @@ _postconf()
 {
 	local cur prev pval len idx eqext
 
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 	if [[ $cur == '-' ]]; then
 		COMPREPLY=(-c -d -e -h -m -l -n -v)
@@ -1411,7 +1435,7 @@ _postsuper()
 {
 	local cur prev pval len idx
 
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [[ $cur == '-' ]]; then
@@ -1493,7 +1517,7 @@ _cvs()
 	local -a flags miss files entries changed newremoved
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	count=0
 	for i in ${COMP_WORDS[@]}; do
@@ -1776,7 +1800,7 @@ _rpm()
 	local cur prev ver nodig nosig
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 	nodig=""
 	nosig=""
@@ -2022,18 +2046,18 @@ _apt_get()
 	local cur prev special i
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-		if [[ ${COMP_WORDS[i]} == @(install|remove|source|build-dep) ]]; then
+		if [[ ${COMP_WORDS[i]} == @(install|remove|purge|source|build-dep) ]]; then
 			special=${COMP_WORDS[i]}
 		fi
 	done
 
 	if [ -n "$special" ]; then
 		case $special in
-		remove)
+		remove|purge)
 			if [ -f /etc/debian_version ]; then
 				# Debian system
 				COMPREPLY=( $( _comp_dpkg_installed_packages \
@@ -2061,7 +2085,7 @@ _apt_get()
 	    -@(t|-target-release|-default-release))
 		     COMPREPLY=( $( apt-cache policy | \
 				    grep "release.o=Debian,a=$cur" | \
-				    sed -e "s/.*a=\(\w*\).*/\1/" | uniq ) )
+				    sed -e "s/.*a=\(\w*\).*/\1/" | uniq 2> /dev/null) )
 		     return 0
 		     ;;
  
@@ -2080,12 +2104,12 @@ _apt_get()
 				--print-uris --purge --reinstall \
 				--list-cleanup --default-release \
 				--trivial-only --no-remove --diff-only \
-				--tar-only --config-file --option' -- $cur ) )
+				--tar-only --config-file --option --auto-remove' -- $cur ) )
 	else
 
 		COMPREPLY=( $( compgen -W 'update upgrade dselect-upgrade \
-				dist-upgrade install remove source build-dep \
-				check clean autoclean' -- $cur ) )
+				dist-upgrade install remove purge source build-dep \
+				check clean autoclean autoremove' -- $cur ) )
 
 	fi
 
@@ -2102,13 +2126,13 @@ _apt_cache()
 	local cur prev special i
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	
 	if [ "$cur" != show ]; then
 	    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-		if [[ ${COMP_WORDS[i]} == @(add|depends|dotty|policy|rdepends|show?(pkg|src|)) ]]; then
+		if [[ ${COMP_WORDS[i]} == @(add|depends|dotty|madison|policy|rdepends|show?(pkg|src|)) ]]; then
 		    special=${COMP_WORDS[i]}
 		fi
 	    done
@@ -2156,7 +2180,7 @@ _apt_cache()
 		COMPREPLY=( $( compgen -W 'add gencaches show showpkg showsrc \
 				stats dump dumpavail unmet search search \
 				depends rdepends pkgnames dotty xvcg \
-				policy' -- $cur ) )
+				policy madison' -- $cur ) )
 
 	fi
 
@@ -2187,7 +2211,7 @@ _aptitude()
 	local cur dashoptions prev special i
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 
@@ -2200,7 +2224,7 @@ _aptitude()
 		     -Z -v --verbose'
 
 	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-	    if [[ ${COMP_WORDS[i]} == @(install|reinstall|hold|unhold|markauto|unmarkauto|dist-upgrade|download|show|forbid-version|purge|remove) ]]; then
+	    if [[ ${COMP_WORDS[i]} == @(install|reinstall|hold|unhold|markauto|unmarkauto|dist-upgrade|full-upgrade|download|show|forbid-version|purge|remove|changelog|why|why-not|keep|keep-all) ]]; then
 		special=${COMP_WORDS[i]}
 	    fi
 	    #exclude some mutually exclusive options
@@ -2210,7 +2234,7 @@ _aptitude()
 
 	if [[ -n "$special" ]]; then
 	   case $special in
-	       @(install|hold|markauto|unmarkauto|dist-upgrade|download|show))
+	       @(install|hold|markauto|unmarkauto|dist-upgrade|full-upgrade|download|show|changelog|why|why-not))
 		   COMPREPLY=( $( apt-cache pkgnames $cur 2> /dev/null ) )
 		   return 0
 		   ;;
@@ -2228,7 +2252,7 @@ _aptitude()
 
 	case $prev in
 	    # don't complete anything if these options are found
-	    @(autoclean|clean|forget-new|search|upgrade|update))
+	    @(autoclean|clean|forget-new|search|upgrade|safe-upgrade|update|keep-all))
 		return 0
 		;;
 
@@ -2240,7 +2264,7 @@ _aptitude()
 	    -@(t|-target-release|-default-release))
 		COMPREPLY=( $( apt-cache policy | \
 		    grep "release.o=Debian,a=$cur" | \
-		    sed -e "s/.*a=\(\w*\).*/\1/" | uniq ) )
+		    sed -e "s/.*a=\(\w*\).*/\1/" | uniq 2> /dev/null) )
 		return 0
 		;;
 
@@ -2249,11 +2273,11 @@ _aptitude()
 	if [[ "$cur" == -* ]]; then
 	    COMPREPLY=( $( compgen -W "$dashoptions" -- $cur ) )
 	else
-	    COMPREPLY=( $( compgen -W 'update upgrade forget-new clean \
+	    COMPREPLY=( $( compgen -W 'update upgrade safe-upgrade forget-new clean \
 				       autoclean install reinstall remove \
-				       hold unhold purge markauto unmarkauto \
-				       dist-upgrade download search show \
-				       forbid-version' -- $cur ) )
+				       hold unhold purge markauto unmarkauto why why-not \
+				       dist-upgrade full-upgrade download search show \
+				       forbid-version changelog keep-all' -- $cur ) )
 	fi
 
 
@@ -2270,7 +2294,7 @@ _apt_build()
 	local cur prev special i
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
@@ -2335,7 +2359,7 @@ _chsh()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [ "$prev" = "-s" ]; then
@@ -2360,7 +2384,7 @@ _chkconfig()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -2392,7 +2416,7 @@ _user_at_host() {
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [[ $cur == *@* ]]; then
 		_known_hosts
@@ -2413,7 +2437,7 @@ _known_hosts()
        local -a kh khd config
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	ocur=$cur
 
 	[ "$1" = -a ] || [ "$2" = -a ] && aliases='yes'
@@ -2423,17 +2447,17 @@ _known_hosts()
 
 	# ssh config files
 	[ -r /etc/ssh/ssh_config ] &&
-	  config=( ${config[@]} /etc/ssh/ssh_config )
-	[ -r ~/.ssh/config ] &&
-	  config=( ${config[@]} ~/.ssh/config )
-	[ -r ~/.ssh2/config ] &&
-	  config=( ${config[@]} ~/.ssh2/config )
+	  config=( "${config[@]}" "/etc/ssh/ssh_config" )
+	[ -r "${HOME}/.ssh/config" ] &&
+	  config=( "${config[@]}" "${HOME}/.ssh/config" )
+	[ -r "${HOME}/.ssh2/config" ] &&
+	  config=( "${config[@]}" "${HOME}/.ssh2/config" )
 
 	if [ ${#config[@]} -gt 0 ]; then
 	    # expand path (if present) to global known hosts file
-	    global_kh=$( eval echo $( sed -ne 's/^[Gg][Ll][Oo][Bb][Aa][Ll][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/\1/p' ${config[@]} ) )
+	    global_kh=$( eval echo $( sed -ne 's/^[Gg][Ll][Oo][Bb][Aa][Ll][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/\1/p' "${config[@]}" ) )
 	    # expand path (if present) to user known hosts file
-	    user_kh=$( eval echo $( sed -ne 's/^[Uu][Ss][Ee][Rr][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/\1/p' ${config[@]} ) )
+	    user_kh=$( eval echo $( sed -ne 's/^[Uu][Ss][Ee][Rr][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/\1/p' "${config[@]}" ) )
 	fi
 
 	# choose which global known hosts file to use
@@ -2441,27 +2465,27 @@ _known_hosts()
 	    kh=( "$global_kh" )
 	else
 	    [ -r /etc/ssh/ssh_known_hosts ] &&
-	      kh=( ${kh[@]} /etc/ssh/ssh_known_hosts )
+	      kh=( "${kh[@]}" "/etc/ssh/ssh_known_hosts" )
 	    [ -r /etc/ssh/ssh_known_hosts2 ] &&
-	      kh=( ${kh[@]} /etc/ssh/ssh_known_hosts2 )
+	      kh=( "${kh[@]}" "/etc/ssh/ssh_known_hosts2" )
 	    [ -r /etc/known_hosts ] &&
-	      kh=( ${kh[@]} /etc/known_hosts )
+	      kh=( "${kh[@]}" "/etc/known_hosts" )
 	    [ -r /etc/known_hosts2 ] &&
-	      kh=( ${kh[@]} /etc/known_hosts2 )
+	      kh=( "${kh[@]}" "/etc/known_hosts2" )
 	    [ -d /etc/ssh2/knownhosts ] &&
-	      khd=( ${khd[@]} /etc/ssh2/knownhosts/*pub )
+	      khd=( "${khd[@]}" "/etc/ssh2/knownhosts/*pub" )
 	fi
 
 	# choose which user known hosts file to use
 	if [ -r "$user_kh" ]; then
 	    kh=( ${kh[@]} "$user_kh" )
 	else
-	    [ -r ~/.ssh/known_hosts ] &&
-	      kh=( ${kh[@]} ~/.ssh/known_hosts )
-	    [ -r ~/.ssh/known_hosts2 ] &&
-	      kh=( ${kh[@]} ~/.ssh/known_hosts2 )
-	    [ -d ~/.ssh2/hostkeys ] &&
-	      khd=( ${khd[@]} ~/.ssh2/hostkeys/*pub )
+	    [ -r "${HOME}/.ssh/known_hosts" ] &&
+	      kh=( "${kh[@]}" "${HOME}/.ssh/known_hosts" )
+	    [ -r "${HOME}/.ssh/known_hosts2" ] &&
+	      kh=( "${kh[@]}" "${HOME}/.ssh/known_hosts2" )
+	    [ -d "${HOME}/.ssh2/hostkeys" ] &&
+	      khd=( "${khd[@]}" "${HOME}/.ssh2/hostkeys/*pub" )
 	fi
 
 	# If we have known_hosts files to use
@@ -2489,7 +2513,7 @@ _known_hosts()
 
 		# FS needs to look for a comma separated list
 		COMPREPLY=( $( awk 'BEGIN {FS=","}
-				{for (i=1; i<=2; ++i) { \
+				/^[^|]/ {for (i=1; i<=2; ++i) { \
 				       gsub(" .*$", "", $i); \
 				       if ($i ~ /'$cur'/) {print $i} \
 				}}' ${kh[@]} 2>/dev/null ) )
@@ -2509,7 +2533,8 @@ _known_hosts()
 	    fi
 	    # append any available aliases from config files
 	    if [ ${#config[@]} -gt 0 ] && [ -n "$aliases" ]; then
-		hosts=$( compgen -W "$( sed -ne 's/^[Hh][Oo][Ss][Tt]['"$'\t '"']*\([^*?]*\)$/\1/p' ${config[@]} )" -- $ocur )
+	    local host_aliases=$( sed -ne 's/^[Hh][Oo][Ss][Tt]['"$'\t '"']*\([^*?]*\)$/\1/p' ${config[@]} )" )
+	    hosts=$( compgen -W "$host_aliases" -- $ocur )
 		COMPREPLY=( ${COMPREPLY[@]} $hosts )
 	    fi
 
@@ -2525,7 +2550,7 @@ _known_hosts()
 	return 0
 }
 complete -F _known_hosts traceroute traceroute6 tracepath tracepath6 \
-	ping fping telnet host nslookup rsh rlogin ftp dig ssh-installkeys mtr
+	ping ping6 fping fping6 telnet host nslookup rsh rlogin ftp dig ssh-installkeys mtr
 
 # ssh(1) completion
 #
@@ -2536,7 +2561,7 @@ _ssh()
 	local -a config
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -2569,7 +2594,7 @@ _scp()
 
 	local IFS=$'\t\n'
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	_expand || return 0
 
@@ -2588,7 +2613,7 @@ _scp()
 		# add space at end of file names
 		COMPREPLY=( $( ssh -o 'Batchmode yes' $userhost \
 			       command ls -aF1d "$path*" 2>/dev/null | \
-			       sed -e 's/[][(){}<>",:;^&!$&=?`|\ ]/\\\\\\&/g' \
+			       sed -e "s/[][(){}<>\",:;^&!$&=?\`|\\ ']/\\\\\\\\\\\\&/g" \
 				   -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' ) )
 		return 0
 	fi
@@ -2596,7 +2621,7 @@ _scp()
 	[[ "$cur" == */* ]] || _known_hosts -c -a
 		COMPREPLY=( ${COMPREPLY[@]} $( command ls -aF1d $cur* \
 			    2>/dev/null | sed \
-			    -e 's/[][(){}<>",:;^&!$&=?`|\ ]/\\&/g' \
+			    -e "s/[][(){}<>\",:;^&!$&=?\`|\\ ']/\\\\&/g" \
 			    -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' ) )
 	return 0
 }
@@ -2611,7 +2636,7 @@ _rsync()
 	local cur prev shell i userhost path
  
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	_expand || return 0
@@ -2704,7 +2729,7 @@ _route()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [ "$prev" = dev ]; then
@@ -2740,7 +2765,7 @@ _make()
 	local file makef makef_dir="." makef_inc cur prev i
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# --name value style option
@@ -2839,7 +2864,7 @@ _tar()
 	local cur ext regex tar untar
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -W 'c t x u r d A' -- $cur ) )
@@ -2900,7 +2925,7 @@ _jar()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [ $COMP_CWORD = 1 ]; then
 		COMPREPLY=( $( compgen -W 'c t x u' -- $cur ) )
@@ -2929,7 +2954,7 @@ _iptables()
 	local cur prev table chain
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]} 
+	cur=`_get_cword` 
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 	chain='s/^Chain \([^ ]\+\).*$/\1/p'
 
@@ -2990,7 +3015,7 @@ _tcpdump()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -3022,7 +3047,7 @@ _autorpm()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	COMPREPLY=( $( compgen -W '--notty --debug --help --version \
 				   auto add fullinfo info help install list \
@@ -3036,7 +3061,7 @@ complete -F _autorpm autorpm
 #
 _cd()
 {
-	local IFS=$'\t\n' cur=${COMP_WORDS[COMP_CWORD]} i j k
+	local IFS=$'\t\n' cur=`_get_cword` i j k
 
 	# try to allow variable completion
 	if [[ "$cur" == ?(\\)\$* ]]; then
@@ -3094,7 +3119,7 @@ _command()
 	      _COMMAND_FUNC _COMMAND_FUNC_ARGS
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	# If the the first arguments following our meta-command-invoker are
 	# switches, get rid of them. Most definitely not foolproof.
 	done=
@@ -3142,7 +3167,7 @@ _command()
 			# This is needed in case user finished entering
 			# command and pressed tab (e.g. sudo ls <Tab>)
 			COMP_CWORD=$(( $COMP_CWORD > 0 ? $COMP_CWORD : 1 ))
-			cur=${COMP_WORDS[COMP_CWORD]}
+			cur=`_get_cword`
 			_COMMAND_FUNC=$func
 			_COMMAND_FUNC_ARGS=( $cmd $2 $3 )
 			COMP_LINE=$cline
@@ -3183,7 +3208,7 @@ _ant()
 	local cur prev buildfile i
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -3251,7 +3276,7 @@ _mysqladmin()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]} 
+	cur=`_get_cword` 
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -3284,7 +3309,7 @@ _gzip()
 	local cur prev xspec IFS=$'\t\n'
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [[ "$cur" == -* ]]; then
@@ -3323,10 +3348,10 @@ complete -F _gzip $filenames gzip
 have bzip2 &&
 _bzip2()
 {
-	local cur prev xspec
+	local cur prev xspec IFS=$'\t\n'
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [[ "$cur" == -* ]]; then
@@ -3381,7 +3406,7 @@ _openssl()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -W 'asn1parse ca ciphers crl crl2pkcs7 \
@@ -3862,7 +3887,7 @@ _screen()
 	local cur prev preprev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	[ "$COMP_CWORD" -ge 2 ] && preprev=${COMP_WORDS[COMP_CWORD-2]}
@@ -3905,7 +3930,7 @@ _lftp()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [ $COMP_CWORD -eq 1 ] && [ -f ~/.lftp/bookmarks ]; then
 	    COMPREPLY=( $( compgen -W '$( sed -ne "s/^\(.*\)'$'\t''.*$/\1/p" \
@@ -3924,7 +3949,7 @@ _ncftp()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [ $COMP_CWORD -eq 1 ] && [ -f ~/.ncftp/bookmarks ]; then
 	    COMPREPLY=( $( compgen -W '$( sed -ne "s/^\([^,]\{1,\}\),.*$/\1/p" \
@@ -3943,7 +3968,7 @@ _gdb()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [ $COMP_CWORD -eq 1 ]; then
@@ -3981,7 +4006,7 @@ _createdb()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -4012,7 +4037,7 @@ _dropdb()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -4043,7 +4068,7 @@ _psql()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -4088,7 +4113,7 @@ _longopt()
 {
 	local cur opt
 
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [[ "$cur" == --*=* ]]; then
 		opt=${cur%%=*}
@@ -4142,7 +4167,7 @@ _gcc()
 	local cur cc backend
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	_expand || return 0
 
@@ -4185,7 +4210,7 @@ _cardctl()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -W 'status config ident suspend \
@@ -4197,6 +4222,9 @@ complete -F _cardctl cardctl
 
 # This function is required by _dpkg() and _dpkg-reconfigure()
 #
+# TODO: Ubuntu folks removed the "have grep-status" part. In my Debian I got it,
+#       and I believe it's ok if we leave it like it is now. Was that removed because
+#       of Ubuntu's inner weirdness? :) -- David (hanska-guest)
 have dpkg && {
 have grep-status && {
 _comp_dpkg_installed_packages()
@@ -4206,8 +4234,10 @@ _comp_dpkg_installed_packages()
 } || {
 _comp_dpkg_installed_packages()
 {
-	grep -A 2 "Package: $1" /var/lib/dpkg/status | \
-		grep -B 2 'ok installed' | grep "Package: $1" | cut -d\  -f2
+	grep -A 1 "Package: $1" /var/lib/dpkg/status | \
+		grep -B 1 "ok installed|half-installed|unpacked \
+					half-configured|config-files" | \
+		grep "Package: $1" | cut -d\  -f2
 }
 }
 
@@ -4218,7 +4248,7 @@ _dpkg()
 	local cur prev i
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 	i=$COMP_CWORD
 
@@ -4297,7 +4327,7 @@ _dpkg_reconfigure()
 	local cur prev opt
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 
@@ -4340,7 +4370,7 @@ _dpkg_source()
 	if [ "$1" != "dpkg-source" ]; then
 		exit 1
 	fi
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 	action="options"
 	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
@@ -4463,7 +4493,7 @@ _dselect()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -4608,7 +4638,7 @@ _java()
 	local cur prev i
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	for ((i=1; i < $COMP_CWORD; i++)); do
@@ -4664,7 +4694,7 @@ _javadoc()
 	COMPREPLY=()
 	local cur prev
 
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case $prev in
@@ -4715,7 +4745,7 @@ _javac()
 	COMPREPLY=()
 	local cur prev
 
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case $prev in
@@ -4750,7 +4780,7 @@ _pineaddr()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	COMPREPLY=( $( compgen -W '$( awk "{print \$1}" ~/.addressbook 2>/dev/null)' \
 			-- $cur ) )
@@ -4793,7 +4823,7 @@ _muttaliases()
 {
 	local cur muttrc
 	local -a conffiles aliases
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	[ -f ~/.${muttcmd}/${muttcmd}rc ] && muttrc="~/.${muttcmd}/${muttcmd}rc"
 	[ -f ~/.${muttcmd}rc ] && muttrc="~/.${muttcmd}rc"
@@ -4811,7 +4841,7 @@ _muttquery()
 {
 	local cur querycmd
 	local -a queryresults
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	querycmd="$( $muttcmd -Q query_command  | sed -r 's|^query_command=\"(.*)\"$|\1|; s|%s|'$cur'|' )"
 	if [ -z "$cur" -o -z "$querycmd" ]; then
@@ -4830,7 +4860,7 @@ _muttquery()
 _muttfiledir()
 {
 	local cur folder spoolfile
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	# This is currently not working so well. Perhaps this function should
 	# just call _filedir() for the moment.
@@ -4855,7 +4885,7 @@ _muttfiledir()
 _mutt()
 {
 	local cur prev
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	COMPREPLY=()
@@ -4899,7 +4929,7 @@ _configure_func()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	# if $COMP_CONFIGURE_HINTS is not null, then completions of the form
 	# --option=SETTING will include 'SETTING' as a contextual hint
@@ -4922,7 +4952,7 @@ _reportbug()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -4959,8 +4989,12 @@ _reportbug()
 		return 0
 		;;
 	    -T|--tags)
-		COMPREPLY=( $( compgen -W "none patch security upstream sid \
-					   woody potato sarge fixed" -- $cur ))
+		COMPREPLY=( $( compgen -W "none \
+					   woody potato sarge sarge-ignore etch etch-ignore \
+					   lenny lenny-ignore sid experimental confirmed \
+					   d-i fixed fixed-in-experimental fixed-upstream \
+					   help l10n moreinfo patch pending security \
+					   unreproducible upstream wontfix ipv6 lfs" -- $cur ))
 		return 0
 		;;
 	    *)
@@ -4980,8 +5014,13 @@ _reportbug()
 			--smtphost -t --type -T --tags --template -V -x \
 			--no-cc --package-version -z --no-compress \
 			--ui --interface -u \
-			wnpp boot-floppies kernel-image' -- $cur ) \
-	    		$( apt-cache pkgnames -- $cur ) )
+			wnpp boot-floppies kernel bugs.debian.org \
+			cdimage.debian.org general installation-reports \
+			listarchives lists.debian.org mirrors nm.debian.org \
+			press project qa.debian.org release-notes \
+			security.debian.org tech-ctte upgrade-reports \
+			www.debian.org' -- $cur ) \
+	    		$( apt-cache pkgnames -- $cur 2> /dev/null) )
 	_filedir
 	return 0
 } &&
@@ -4995,7 +5034,7 @@ _querybts()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -5015,8 +5054,13 @@ _querybts()
 	COMPREPLY=($( compgen -W '-h --help -v --version -A --archive \
 			-B --bts -l --ldap --no-ldap --proxy= --http_proxy= \
 			-s --source -w --web -u --ui --interface \
-			wnpp boot-floppies' -- $cur ) \
-	    		$( apt-cache pkgnames -- $cur ) )
+			wnpp boot-floppies kernel bugs.debian.org \
+			cdimage.debian.org general installation-reports \
+			listarchives lists.debian.org mirrors nm.debian.org \
+			press project qa.debian.org release-notes \
+			security.debian.org tech-ctte upgrade-reports \
+			www.debian.org' -- $cur ) \
+	    		$( apt-cache pkgnames -- $cur 2> /dev/null) )
 } &&
 complete -F _querybts $filenames querybts
 
@@ -5044,7 +5088,7 @@ _update_alternatives()
 	local cur prev mode args i
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -5117,7 +5161,7 @@ _python()
 	local prev cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]##*/}
 
 	case "$prev" in
@@ -5174,7 +5218,7 @@ _perl()
     local cur prev prefix temp
 
     COMPREPLY=()
-    cur=${COMP_WORDS[COMP_CWORD]}
+    cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
     prefix=""
 
@@ -5188,6 +5232,10 @@ _perl()
 
     # only handle module completion for now
     case "$prev" in
+    -I|-x)
+    	COMPREPLY=( $( compgen -d -P "$prev" -- "$cur" ) )
+    	return 0
+    	;;
 	-m|-M)
 	    _perlmodules
 	    return 0
@@ -5195,7 +5243,7 @@ _perl()
     esac
 
     # handle case where first parameter is not a dash option
-    if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]]; then
+    if [[ "`_get_cword`" != -* ]]; then
 	_filedir
 	return 0
     fi
@@ -5212,7 +5260,7 @@ _perldoc()
     local cur prev prefix temp
 
     COMPREPLY=()
-    cur=${COMP_WORDS[COMP_CWORD]}
+    cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
     prefix=""
 
@@ -5287,7 +5335,7 @@ _rcs()
 	local cur prev file dir i
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	file=${cur##*/}
@@ -5330,7 +5378,7 @@ _lilo()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case $prev in
@@ -5379,7 +5427,7 @@ _links()
 	local cur
   
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
   
 	case "$cur" in
 	    --*)
@@ -5416,7 +5464,7 @@ _pkg_delete()
 	local cur pkgdir prev
 
 	pkgdir=${PKG_DBDIR:-/var/db/pkg}/
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	[ "$prev" = "-o" -o "$prev" = "-p" -o "$prev" = "-W" ] && return 0
@@ -5437,7 +5485,7 @@ _kldload()
 
 	moddir=/modules/
 	[ -d $moddir ] || moddir=/boot/kernel/
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	COMPREPLY=( $( compgen -f $moddir$cur ) )
 	COMPREPLY=( ${COMPREPLY[@]#$moddir} )
@@ -5450,7 +5498,7 @@ complete -F _kldload $filenames kldload
 _kldunload()
 {
 	local cur
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	COMPREPLY=( $(kldstat | sed -ne "s/^.*[ \t]\+\($cur[a-z_]\+\).ko$/\1/p") )
 }
 complete -F _kldunload $filenames kldunload
@@ -5464,7 +5512,7 @@ _portupgrade()
 	local cur pkgdir prev
 
 	pkgdir=${PKG_DBDIR:-/var/db/pkg}/
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	[ "$prev" = "-l" -o "$prev" = "-L" -o "$prev" = "-o" ] && return 0
@@ -5486,7 +5534,7 @@ _portinstall()
 	local -a COMPREPLY2
 
 	portsdir=${PORTSDIR:-/usr/ports}/
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 	# First try INDEX-5
 	indexfile=$portsdir/INDEX-5
@@ -5514,7 +5562,7 @@ _removepkg()
 	local packages cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	COMPREPLY=( $( (cd /var/log/packages; compgen -f -- "$cur") ) )
 } &&
@@ -5529,7 +5577,7 @@ _look()
 	local cur
   
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [ $COMP_CWORD = 1 ]; then
 		COMPREPLY=( $( compgen -W '$(look $cur)' ) )
@@ -5545,7 +5593,7 @@ _ypmatch()
 	local cur map
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	[ $1 = ypcat ] && [ $COMP_CWORD -gt 1 ] && return 0
 	[ $1 = ypmatch ] && [ $COMP_CWORD -gt 2 ] && return 0
@@ -5583,7 +5631,7 @@ _mplayer()
 
 	COMPREPLY=()
 	cmd=${COMP_WORDS[0]}
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -5596,7 +5644,7 @@ _mplayer()
 			return 0
 			;;
 		-audiofile)
-			_filedir '@(mp3|MP3|mpg|MPG|ogg|OGG|wav|WAV|mid|MID)'
+			_filedir '@(mp3|MP3|mpg|MPG|ogg|OGG|wav|WAV|mid|MID|flac|FLAC|mka|MKA)'
 			return 0
 			;;
 		-font)
@@ -5888,7 +5936,7 @@ _mplayer()
 					-xvidencopts -of --verbose' -- $cur) )
 			;;
 		*)
-			_filedir '@(mp?(e)g|MP?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fli|FLI|viv|VIV|rm?(j)|RM?(J)|ra?(m)|RA?(M)|yuv|YUV|mov|MOV|qt|QT|mp[34]|MP[34]|og[gm]|OG[GM]|wav|WAV|dump|DUMP|mkv|MKV|m4a|M4A|aac|AAC|m2v|M2V|dv|DV|rmvb|RMVB|mid|MID|ts|TS|3gp|mpc|MPC|flac|FLAC|vro|VRO|flv|FLV)'
+			_filedir '@(mp?(e)g|MP?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fli|FLI|viv|VIV|rm?(j)|RM?(J)|ra?(m)|RA?(M)|yuv|YUV|mov|MOV|qt|QT|mp[34]|MP[34]|og[gm]|OG[GM]|wav|WAV|dump|DUMP|mk[av]|MK[AV]|m4a|M4A|aac|AAC|m2v|M2V|dv|DV|rmvb|RMVB|mid|MID|ts|TS|3gp|mpc|MPC|flac|FLAC|vro|VRO|flv|FLV)'
 			;;
 	esac
 
@@ -5905,7 +5953,7 @@ _dcop()
 	local cur compstr
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	if [ -z $cur ]; then
 	    compstr=${COMP_WORDS[*]}
 	else
@@ -5923,7 +5971,7 @@ _wvdial()
 	local cur prev config i IFS=$'\t\n'
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case $prev in
@@ -5970,7 +6018,7 @@ _gpg()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -6008,7 +6056,7 @@ _iconv()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -6042,7 +6090,7 @@ _dict()
 	local cur prev host port db dictfile
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 	dictfile=/usr/share/dict/words
 
@@ -6107,7 +6155,7 @@ _cdrecord()
 	local cur prev i generic_options track_options track_mode
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# foo=bar style option
@@ -6184,7 +6232,7 @@ _mkisofs()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -6256,7 +6304,7 @@ _mc()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# -name value style option
@@ -6299,7 +6347,7 @@ _yum()
 	local cur prev special
 	
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
@@ -6365,7 +6413,7 @@ _yum_arch()
 {
     local cur
     COMPREPLY=()
-    cur=${COMP_WORDS[COMP_CWORD]}
+    cur=`_get_cword`
 
     case "$cur" in
 	-*)
@@ -6530,7 +6578,7 @@ _convert()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	_ImageMagick
 
@@ -6576,7 +6624,7 @@ _mogrify()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	_ImageMagick
 
@@ -6618,7 +6666,7 @@ _display()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	_ImageMagick
 
@@ -6649,7 +6697,7 @@ _animate()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	_ImageMagick
 
@@ -6674,7 +6722,7 @@ _identify()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	_ImageMagick
 
@@ -6696,7 +6744,7 @@ _montage()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	_ImageMagick
 
@@ -6727,7 +6775,7 @@ _composite()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	_ImageMagick
 
@@ -6762,7 +6810,7 @@ _dd()
 	 local cur
 
 	 COMPREPLY=()
-	 cur=${COMP_WORDS[COMP_CWORD]}
+	 cur=`_get_cword`
 
 	 case "$cur" in
 	 if=*|of=*)
@@ -6795,7 +6843,7 @@ _cancel()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	COMPREPLY=( $( lpstat | cut -d' ' -f1 | grep "^$cur" ) )
 } &&
@@ -6818,7 +6866,7 @@ _aspell()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# --name value style option
@@ -6909,7 +6957,7 @@ _xmms()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-h --help -r --rew -p --play \
@@ -6932,7 +6980,7 @@ _info()
 	local cur infopath UNAME
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	_expand || return 0
 
@@ -6982,7 +7030,7 @@ have dhclient && _dhclient()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7056,7 +7104,7 @@ _lvmdiskscan()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-d --debug -h -? --help -l \
@@ -7070,7 +7118,7 @@ _pvscan()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-d --debug -e \
@@ -7087,7 +7135,7 @@ _pvs()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7121,7 +7169,7 @@ _pvdisplay()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7145,7 +7193,7 @@ _pvchange()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7171,7 +7219,7 @@ _pvcreate()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7210,7 +7258,7 @@ _pvmove()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7239,7 +7287,7 @@ _pvremove()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-d --debug -f --force -h -? \
@@ -7256,7 +7304,7 @@ _vgscan()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-d --debug -h --help \
@@ -7271,7 +7319,7 @@ _vgs()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7306,7 +7354,7 @@ _vgdisplay()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7331,7 +7379,7 @@ _vgchange()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7358,7 +7406,7 @@ _vgcreate()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7398,7 +7446,7 @@ _vgremove()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-d --debug -h --help -t --test \
@@ -7414,7 +7462,7 @@ _vgrename()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7438,7 +7486,7 @@ _vgreduce()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7469,7 +7517,7 @@ _vgextend()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7502,7 +7550,7 @@ _vgport()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-a --all -d --debug -h \
@@ -7518,7 +7566,7 @@ _vgck()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-d --debug -h \
@@ -7534,7 +7582,7 @@ _vgconvert()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7567,7 +7615,7 @@ _vgcfgbackup()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7592,7 +7640,7 @@ _vgcfgrestore()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7625,7 +7673,7 @@ _vgmerge()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7650,7 +7698,7 @@ _vgsplit()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7684,7 +7732,7 @@ _vgmknodes()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-d --debug -h --help -v --verbose \
@@ -7700,7 +7748,7 @@ _lvscan()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-b --blockdevice -d --debug \
@@ -7715,7 +7763,7 @@ _lvs()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7750,7 +7798,7 @@ _lvdisplay()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7775,7 +7823,7 @@ _lvchange()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7807,7 +7855,7 @@ _lvcreate()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7852,7 +7900,7 @@ _lvremove()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7877,7 +7925,7 @@ _lvrename()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7901,7 +7949,7 @@ _lvreduce()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7931,7 +7979,7 @@ _lvresize()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -7966,7 +8014,7 @@ _lvextend()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -8001,7 +8049,7 @@ _lvm()
 	local prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -W 'dumpconfig help lvchange \
@@ -8139,7 +8187,7 @@ _mkinitrd()
 	local cur args
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# --name value style option
@@ -8202,14 +8250,14 @@ _pkg_config()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [[ "$cur" == -* ]]; then
 		# return list of available options
 		COMPREPLY=( $( compgen -W '-version --modversion \
 		      --atleast-pkgconfig-version= --libs --libs-only-l \
 		      --libs-only-other --libs-only-L --cflags \
-		      --cflags-only-I --cflags-only-othee --variable= \
+		      --cflags-only-I --cflags-only-other --variable= \
 		      --define-variable= --exists --uninstalled \
 		      --atleast-version= --exact-version= --max-version= \
 		      --list-all --debug --print-errors --silence-errors \
@@ -8235,7 +8283,7 @@ _cpio()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# --name value style option
@@ -8340,7 +8388,7 @@ _id()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-a -g --group -G --groups -n --name\
@@ -8359,7 +8407,7 @@ _getent()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case $prev in
@@ -8404,7 +8452,7 @@ _ntpdate()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case $prev in
@@ -8483,7 +8531,7 @@ _smartctl()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	# --name value style option
@@ -8628,7 +8676,7 @@ _vncviewer()
 	local -a config
     
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
@@ -8656,7 +8704,7 @@ _sysctl()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	COMPREPLY=( $( compgen -W "$(sysctl -N -a 2>/dev/null)" -- $cur ) )
 
@@ -8673,7 +8721,7 @@ _update_rc_d()
 {
     local cur prev sysvdir services options valid_options
 
-    cur=${COMP_WORDS[COMP_CWORD]}
+    cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
@@ -8739,7 +8787,7 @@ _invoke_rc_d()
 {
     local cur prev sysvdir services options valid_options
 
-    cur=${COMP_WORDS[COMP_CWORD]}
+    cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
@@ -8779,7 +8827,7 @@ _minicom()
 	local cur prev
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case $prev in
@@ -8803,7 +8851,7 @@ _minicom()
 		COMPREPLY=( $( compgen -W '-s -o -m -M -z -l -L -w -a -t \
 			-c -S -d -p -C -T -8' -- $cur ) )
 	else
-		COMPREPLY=( $( command ls /etc/minirc.* | sed -e 's|/etc/minirc.||' | grep "^$cur" ) )
+		COMPREPLY=( $( command ls /etc/minicom/minirc.* 2>/dev/null | sed -e 's|/etc/minicom/minirc.||' | grep "^$cur" ) )
 	fi
 } &&
 complete -F _minicom minicom
@@ -8817,7 +8865,7 @@ _svn()
 	local cur prev commands options command
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	commands='add blame praise annotate ann cat checkout co cleanup commit \
 		ci copy cp delete del remove rm diff di export help ? h import \
@@ -9090,7 +9138,7 @@ _svnadmin()
 	local cur prev commands options mode
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	commands='create deltify dump help ? hotcopy list-dblogs \
 		list-unused-dblogs load lslocks lstxns recover rmlocks \
@@ -9169,7 +9217,7 @@ _svnlook()
 	local cur prev commands options mode
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	commands='author cat changed date diff dirs-changed help ? h history \
 		info lock log propget pget pg proplist plist pl tree uuid \
@@ -9238,7 +9286,7 @@ _filedir_xspec()
 
 	IFS=$'\t\n'
 	COMPREPLY=()
-	cur=${COMP_WORDS[COMP_CWORD]}
+	cur=`_get_cword`
 
 	_expand || return 0
 

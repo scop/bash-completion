@@ -5,7 +5,7 @@
 
 # Check for recent enough version of bash.
 bash=${BASH_VERSION%.*}; bmajor=${bash%.*}; bminor=${bash#*.}
-#
+
 # Check for interactive shell.
 if [ -n "$PS1" ]; then
   if [ $bmajor -eq 2 -a $bminor '>' 04 ] || [ $bmajor -gt 2 ]; then
