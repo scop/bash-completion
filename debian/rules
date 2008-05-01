@@ -1,0 +1,55 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+d = debian/bash-completion
+
+build: build-stamp
+build-stamp:
+	dh_testdir
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+	dh_clean 
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k 
+	dh_installdirs \
+		etc/bash_completion.d \
+		usr/share/bash \
+		usr/share/doc/bash \
+		usr/share/doc/bash-completion
+	cp -p bash_completion $(d)/usr/share/bash/
+	cp -a contrib $(d)/usr/share/doc/bash-completion/
+	ln -sf ../bash-completion/contrib \
+		$(d)/usr/share/doc/bash/completion-contrib
+	ln -sf ../bash-completion/README.gz \
+		$(d)/usr/share/doc/bash/README.bash_completion.gz
+
+# Build architecture-independent files here.
+binary-indep: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs Changelog
+	dh_installdocs BUGS README TODO
+	dh_installexamples
+	dh_compress -Xcontrib
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+# Build architecture-dependent files here.
+binary-arch: build install
+# We have nothing to do by default.
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure
