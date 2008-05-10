@@ -81,7 +81,7 @@ complete -d pushd
 #
 # START exclude -- do NOT remove this line
 complete -f -X '!*.?(t)bz?(2)' bunzip2 bzcat bzcmp bzdiff bzegrep bzfgrep bzgrep
-complete -f -X '!*.@(zip|ZIP|jar|JAR|exe|EXE|pk3|war|wsz|ear|zargo|xpi|sxw|ott)' unzip zipinfo
+complete -f -X '!*.@(zip|ZIP|jar|JAR|exe|EXE|pk3|war|wsz|ear|zargo|xpi|sxw|ott|od[fgpst])' unzip zipinfo
 complete -f -X '*.Z' compress znew
 complete -f -X '!*.@(Z|gz|tgz|Gz|dz)' gunzip zcmp zdiff zcat zegrep zfgrep zgrep zless zmore
 complete -f -X '!*.Z' uncompress
@@ -105,7 +105,7 @@ complete -f -X '!*.@(mpg|mpeg|avi|mov|qt)' xanim
 complete -f -X '!*.@(ogg|OGG|m3u|flac|spx)' ogg123
 complete -f -X '!*.@(mp3|MP3|ogg|OGG|pls|m3u)' gqmpeg freeamp
 complete -f -X '!*.fig' xfig
-complete -f -X '!*.@(mid?(i)|MID?(I))' playmidi
+complete -f -X '!*.@(mid?(i)|MID?(I)|cmf|CMF)' playmidi
 complete -f -X '!*.@(mid?(i)|MID?(I)|rmi|RMI|rcp|RCP|[gr]36|[GR]36|g18|G18|mod|MOD|xm|XM|it|IT|x3m|X3M)' timidity
 complete -f -X '*.@(o|so|so.!(conf)|a|t@(ar?(.@(Z|gz|bz?(2)))|gz|bz?(2))|rpm|zip|ZIP|gif|GIF|jp?(e)g|JP?(E)G|mp3|MP3|mp?(e)g|MPG|avi|AVI|asf|ASF|ogg|OGG|class|CLASS)' vi vim gvim rvim view rview rgvim rgview gview
 complete -f -X '*.@(o|so|so.!(conf)|a|rpm|gif|GIF|jp?(e)g|JP?(E)G|mp3|MP3|mp?(e)g|MPG|avi|AVI|asf|ASF|ogg|OGG|class|CLASS)' emacs
@@ -197,6 +197,7 @@ _rl_enabled()
 _get_cword()
 {
 	local i
+	local LC_CTYPE=C
 	local WORDBREAKS=${COMP_WORDBREAKS}
 	if [ -n $1 ]; then
 		for (( i=0; i<${#1}; ++i )); do
@@ -690,7 +691,8 @@ complete -F _umount $dirnames umount
 # that instead.
 #
 _mount()
-{       local cur i sm host
+{
+	local cur i sm host
 
 	COMPREPLY=()
 	cur=`_get_cword`
@@ -2068,14 +2070,14 @@ _apt_get()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-		if [[ ${COMP_WORDS[i]} == @(install|remove|purge|source|build-dep) ]]; then
+		if [[ ${COMP_WORDS[i]} == @(install|remove|autoremove|purge|source|build-dep) ]]; then
 			special=${COMP_WORDS[i]}
 		fi
 	done
 
 	if [ -n "$special" ]; then
 		case $special in
-		remove|purge)
+		remove|autoremove|purge)
 			if [ -f /etc/debian_version ]; then
 				# Debian system
 				COMPREPLY=( $( _comp_dpkg_installed_packages \
@@ -2123,6 +2125,7 @@ _apt_get()
 				--list-cleanup --default-release \
                                 --no-install-recommends \
 				--trivial-only --no-remove --diff-only \
+				--no-install-recommends \
 				--tar-only --config-file --option --auto-remove' -- $cur ) )
 	else
 
@@ -4821,8 +4824,10 @@ _muttaddr()
 {
 	_muttaliases
 	_muttquery
-	cur=${COMP_WORDS[COMP_CWORD]}
-	COMPREPLY=( ${COMPREPLY[@]}  $( compgen -u -- "$cur" ) )
+
+	cur=`_get_cword`
+	COMPREPLY=( ${COMPREPLY[@]} $( compgen -u -- $cur ) )
+
 	return 0
 }
 
@@ -5348,7 +5353,7 @@ _perldoc()
 	    ;;
 	*)
 	    _perlmodules
-            COMPREPLY=( ${COMPREPLY[@]} $( compgen -W '$( PAGER=cat man perl |  sed -ne "/perl.*Perl overview/,/perlwin32/p" | awk "\$NF=2 { print \$1}" | grep perl )' -- $cur ) )
+	    COMPREPLY=( ${COMPREPLY[@]} $( compgen -W '$( PAGER=/bin/cat man perl |  sed -ne "/perl.*Perl overview/,/perlwin32/p" | awk "\$NF=2 { print \$1}" | grep perl )' -- $cur ) )
 
 	    return 0
 	    ;;
@@ -5966,7 +5971,7 @@ _mplayer()
 					-xvidencopts -of --verbose' -- $cur) )
 			;;
 		*)
-			_filedir '@(mp?(e)g|MP?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fli|FLI|viv|VIV|rm?(j)|RM?(J)|ra?(m)|RA?(M)|yuv|YUV|mov|MOV|qt|QT|mp[34]|MP[34]|og[gm]|OG[GM]|wav|WAV|dump|DUMP|mkv|MKV|m4a|M4A|aac|AAC|m2v|M2V|dv|DV|rmvb|RMVB|mid|MID|ts|TS|3gp|mpc|MPC|flac|FLAC|flv|FLV|aif|AIF|aiff|AIFF)'
+			_filedir '@(mp?(e)g|MP?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fli|FLI|viv|VIV|rm?(j)|RM?(J)|ra?(m)|RA?(M)|yuv|YUV|mov|MOV|qt|QT|mp[34]|MP[34]|m4[av]|M4[AV]|og[gm]|OG[GM]|wav|WAV|dump|DUMP|mk[av]|MK[AV]|m4a|M4A|aac|AAC|m2v|M2V|dv|DV|rmvb|RMVB|mid|MID|ts|TS|3gp|mpc|MPC|flac|FLAC|vro|VRO|flv|FLV|divx|DIVX|aif?(f)|AIF?(F))'
 			;;
 	esac
 
@@ -9308,6 +9313,15 @@ _svnlook()
 	return 0
 }
 complete -F _svnlook $default svnlook
+
+_rrdtool ()
+{
+	cur=`_get_cword`
+	COMPREPLY=( $( compgen -W 'create update updatev graph dump \
+	                           restore last lastupdate first info \
+	                           fetch tune resize xport' -- $cur ) )
+}
+complete -F _rrdtool rrdtool
 }
 
 _filedir_xspec()
