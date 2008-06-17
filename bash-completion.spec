@@ -1,10 +1,8 @@
-# $Id: bash-completion.spec,v 1.131 2008/05/01 22:15:45 hanska-guest Exp $
-
 # TODO -- needs someone to review it entirely.
 
 Name: bash-completion
 Summary: Programmable completion for bash 2.05b and later.
-Version: 200805xx
+Version: 20080617
 Release: 1
 Group: System Environment/Shells
 License: GPL
