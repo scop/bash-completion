@@ -1,0 +1,57 @@
+#!/usr/bin/perl -w
+
+=head1 NAME
+
+dh_bash-completion - install bash completions for package
+
+=cut
+
+use strict;
+use Debian::Debhelper::Dh_Lib;
+
+=head1 SYNOPSIS
+
+B<dh_bash-completion> [S<I<debhelper options>>]
+
+=head1 DESCRIPTION
+
+dh_bash-completion is a debhelper program that is responsible for installing
+completions for bash, usable installing the "bash-completion" package.
+
+If a file named debian/package.bash-completion exists, then it is
+installed into etc/bash_completion.d in the package build directory.
+This file is used to provide the user with proper completion for available
+commands.
+
+=cut
+
+init();
+
+foreach my $package (@{$dh{DOPACKAGES}}) {
+	next if is_udeb($package);
+
+	my $tmp = tmpdir($package);
+	my $bc_dir = "$tmp/etc/bash_completion.d";
+	my $completions = pkgfile($package,"bash-completion");
+
+	if ($completions ne '') {
+		if (! -d "$bc_dir") {
+			 doit("install", "-d", "$bc_dir");
+		}
+		doit("install", "-p", "-m644", $completions, "$bc_dir/$package");
+	}
+}
+
+=head1 SEE ALSO
+
+L<debhelper(1)>
+
+This program is a part of debhelper.
+
+L<bash(1)>
+
+=head1 AUTHOR
+
+David Paleino <d.paleino@gmail.com>
+
+=cut
