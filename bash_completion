@@ -81,11 +81,13 @@ complete -d pushd
 complete -f -X '!*.?(t)bz?(2)' bunzip2
 # TODO: see #455510
 #complete -f -X '!*.?(t)bz?(2)' bzcat bzcmp bzdiff bzegrep bzfgrep bzgrep
+complete -f -X '!*.*' bzcat bzcmp bzdiff bzegrep bzfgrep bzgrep
 complete -f -X '!*.@(zip|ZIP|jar|JAR|exe|EXE|pk3|war|wsz|ear|zargo|xpi|sxw|ott|od[fgpst])' unzip zipinfo
 complete -f -X '*.Z' compress znew
 complete -f -X '!*.@(Z|gz|tgz|Gz|dz)' gunzip
 # TODO: see #455510
 #complete -f -X '!*.@(Z|gz|tgz|Gz|dz)' zcmp zdiff zcat zegrep zfgrep zgrep zless zmore
+complete -f -X '!*.*' zcmp zdiff zcat zegrep zfgrep zgrep zless zmore
 complete -f -X '!*.Z' uncompress
 complete -f -X '!*.@(gif|jp?(e)g|miff|tif?(f)|pn[gm]|p[bgp]m|bmp|xpm|ico|xwd|tga|pcx|GIF|JP?(E)G|MIFF|TIF?(F)|PN[GM]|P[BGP]M|BMP|XPM|ICO|XWD|TGA|PCX)' ee
 complete -f -X '!*.@(gif|jp?(e)g|miff|tif?(f)|pn[gm]|p[bgp]m|bmp|xpm|ico|xwd|tga|pcx|svg|GIF|JP?(E)G|MIFF|TIF?(F)|PN[GM]|P[BGP]M|BMP|XPM|ICO|XWD|TGA|PCX|SVG)' display
@@ -2126,7 +2128,6 @@ _apt_get()
 				--target-release --no-upgrade --force-yes \
 				--print-uris --purge --reinstall \
 				--list-cleanup --default-release \
-                                --no-install-recommends \
 				--trivial-only --no-remove --diff-only \
 				--no-install-recommends \
 				--tar-only --config-file --option --auto-remove' -- $cur ) )
@@ -2558,7 +2559,7 @@ _known_hosts()
 	    fi
 	    # append any available aliases from config files
 	    if [ ${#config[@]} -gt 0 ] && [ -n "$aliases" ]; then
-	    local host_aliases=$( sed -ne 's/^[Hh][Oo][Ss][Tt]\([Nn][Aa][Mm][Ee]\)\?['"$'\t '"']*\([^*?]*\)$/\2/p' ${config[@]} )" )
+	    local host_aliases=$( sed -ne 's/^[Hh][Oo][Ss][Tt]\([Nn][Aa][Mm][Ee]\)\?['"$'\t '"']*\([^*?]*\)$/\2/p' "${config[@]}" )
 	    hosts=$( compgen -W "$host_aliases" -- $ocur )
 		COMPREPLY=( "${COMPREPLY[@]}" $hosts )
 	    fi
@@ -4270,7 +4271,7 @@ _comp_dpkg_installed_packages()
 					half-configured|config-files" | \
 		grep "Package: $1" | cut -d\  -f2
 }
-}
+#}
 
 # Debian dpkg(8) completion
 #
@@ -4828,7 +4829,7 @@ _muttaddr()
 	_muttquery
 
 	cur=`_get_cword`
-	COMPREPLY=( ${COMPREPLY[@]} $( compgen -u -- $cur ) )
+	COMPREPLY=( "${COMPREPLY[@]}" $( compgen -u -- $cur ) )
 
 	return 0
 }
