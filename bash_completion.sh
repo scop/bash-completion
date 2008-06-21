@@ -1,5 +1,3 @@
-# $Id: bash_completion.sh,v 1.2 2006/02/25 01:21:33 ianmacd Exp $
-
 # Check for bash (and that we haven't already been sourced).
 [ -z "$BASH_VERSION" -o -n "$BASH_COMPLETION" ] && return
 
