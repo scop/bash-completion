@@ -1,18 +1,13 @@
-# TODO -- needs someone to review it entirely.
-
 Name: bash-completion
 Summary: Programmable completion for bash 2.05b and later.
 Version: 20080617
 Release: 1
 Group: System Environment/Shells
 License: GPL
-# TODO
-#Packager: Ian Macdonald <ian@caliban.org>
-Source0: http://www.caliban.org/files/bash/%{name}-%{version}.tar.bz2
-#Source0: http://bash-completion.alioth.debian.org/files/%{name}-%{version}.tar.bz2
+Packager: Bash Completion Maintainers <bash-completion-devel@lists.alioth.debian.org>
+Source0: http://bash-completion.alioth.debian.org/files/%{name}-%{version}.tar.bz2
 Source1: bash_completion.sh
-URL: http://www.caliban.org/bash/
-#URL: http://bash-completion.alioth.debian.org
+URL: http://bash-completion.alioth.debian.org
 BuildRoot: %{_tmppath}/%{name}-root
 BuildArch: noarch
 Requires: bash >= 2.05-12, grep, textutils, sed, fileutils
@@ -105,6 +100,10 @@ fi\
 %doc BUGS COPYING README TODO Changelog
 
 %changelog
+* Sat Jun 21 2008 Bash Completion Maintainers <bash-completion-devel@lists.alioth.debian.org> 20080617-1
+- Project has moved to team maintenance.
+- Full changelog is available in debian/changelog
+
 * Wed Mar  1 2006 Ian Macdonald <ian@caliban.org> 20060301-1
 - Completion for minicom(1), mtr(8), sysctl(8), smartctl(8), vncviewer(1),
   invoke-rc.d, update-rc.d and dpkg-source has been added.

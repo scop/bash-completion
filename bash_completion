@@ -239,13 +239,13 @@ _filedir()
 	#set -f		 # disable pathname expansion (globbing)
 
 	if [ "${1:-}" = -d ]; then
-		COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -d -- $cur ) )
+		COMPREPLY=( "${COMPREPLY[@]:-}" $( compgen -d -- $cur ) )
 		#eval "$glob"    # restore glob setting.
 		return 0
 	fi
 
 	xspec=${1:+"!*.$1"}	# set only if glob passed in as $1
-	COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -f -X "$xspec" -- "$cur" ) \
+	COMPREPLY=( "${COMPREPLY[@]:-}" $( compgen -f -X "$xspec" -- "$cur" ) \
 		    $( compgen -d -- "$cur" ) )
 	#eval "$glob"    # restore glob setting.
 }
@@ -395,7 +395,7 @@ _services()
 	COMPREPLY=( $( builtin echo $sysvdir/!(*.rpmsave|*.rpmorig|*~|functions)) )
 
 	if [ -d $famdir ]; then
-		COMPREPLY=( ${COMPREPLY[@]} $( builtin echo $famdir/!(*.rpmsave|*.rpmorig|*~)) )
+		COMPREPLY=( "${COMPREPLY[@]}" $( builtin echo $famdir/!(*.rpmsave|*.rpmorig|*~)) )
 	fi
 
 	COMPREPLY=( $( compgen -W '${COMPREPLY[@]#@($sysvdir|$famdir)/}' -- $cur ) )
@@ -1049,7 +1049,7 @@ _find()
 			    # remove word from list of completions
 			    COMPREPLY=( ${COMPREPLY/ ${i%% *} / } )
 			done
-			echo ${COMPREPLY[@]})
+			echo "${COMPREPLY[@]}")
 		  ) )
 
 	_filedir
@@ -1078,7 +1078,7 @@ _iwconfig()
 		essid)
 			COMPREPLY=( $( compgen -W 'on off any' -- $cur ) )
 			if [ -n "${COMP_IWLIST_SCAN:-}" ]; then
-				COMPREPLY=( ${COMPREPLY[@]:-} \
+				COMPREPLY=( "${COMPREPLY[@]:-}" \
 					$( iwlist ${COMP_WORDS[1]} scan | \
 					awk -F '"' '/ESSID/ {print $2}' | \
 					grep "^$cur" ))
@@ -1105,7 +1105,7 @@ _iwconfig()
 		ap)
 			COMPREPLY=( $( compgen -W 'on off any' -- $cur ) )
 			if [ -n "${COMP_IWLIST_SCAN:-}" ]; then
-				COMPREPLY=( ${COMPREPLY[@]:-} \
+				COMPREPLY=( "${COMPREPLY[@]:-}" \
 					$( iwlist ${COMP_WORDS[1]} scan | \
 					awk -F ': ' '/Address/ {print $2}' | \
 					grep "^$cur" ) )
@@ -1114,7 +1114,7 @@ _iwconfig()
 			;;
 		rate)
 			COMPREPLY=( $( compgen -W 'auto fixed' -- $cur ) )
-			COMPREPLY=( ${COMPREPLY[@]:-} \
+			COMPREPLY=( "${COMPREPLY[@]:-}" \
 				$( iwlist ${COMP_WORDS[1]} rate | \
 				awk '/^[[:space:]]*[0-9]/ {print $1"M"}' | \
 				grep "^$cur" ) )
@@ -1399,7 +1399,7 @@ _postcat()
 	fi
 
 	qfile=0
-	for idx in ${COMP_WORDS[@]}; do
+	for idx in "${COMP_WORDS[@]}"; do
 		[[ "$idx" = -q ]] && qfile=1 && break
 	done
 	if [[ $qfile == 1 ]]; then
@@ -1543,7 +1543,7 @@ _cvs()
 	cur=`_get_cword`
 
 	count=0
-	for i in ${COMP_WORDS[@]}; do
+	for i in "${COMP_WORDS[@]}"; do
 		[ $count -eq $COMP_CWORD ] && break
 		# Last parameter was the CVSROOT, now go back to mode selection
 		if [ "${COMP_WORDS[((count))]}" == "$cvsroot" -a "$mode" == "cvsroot" ]; then
@@ -1613,7 +1613,7 @@ _cvs()
 				;;
 			esac
 		elif [[ "$i" = -* ]]; then
-			flags=( ${flags[@]:-} $i )
+			flags=( "${flags[@]:-}" $i )
 		fi
 		count=$((++count))
 	done
@@ -1627,7 +1627,7 @@ _cvs()
 				[ -z "$cur" ] && \
 				files=$( command ls -Ad !(CVS) ) || \
 				files=$( command ls -d ${cur}* 2>/dev/null )
-				for i in ${entries[@]:-}; do
+				for i in "${entries[@]:-}"; do
 					files=( ${files[@]/#$i//} )
 				done
 				COMPREPLY=( $( compgen -W '${files[@]}' -- \
@@ -1721,8 +1721,8 @@ _cvs()
 			if [ $COMP_CWORD -gt 1 -a -r ${prefix:-}CVS/Entries ]; then
 				get_entries
 				# find out what files are missing
-				for i in ${entries[@]}; do
-					[ ! -r "$i" ] && miss=( ${miss[@]:-} $i )
+				for i in "${entries[@]}"; do
+					[ ! -r "$i" ] && miss=( "${miss[@]:-}" $i )
 				done
 				COMPREPLY=( $(compgen -W '${miss[@]:-}' -- $cur) )
 			fi
@@ -1813,7 +1813,7 @@ _rpm_groups()
 	COMPREPLY=( $( rpm -qa $nodig $nosig --queryformat '%{group}\n' | \
 		       grep "^$cur" ) )
 	# backslash escape spaces and translate newlines to tabs
-	COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\ /g' | tr '\n' '\t' ) )
+	COMPREPLY=( $( echo "${COMPREPLY[@]}" | sed 's/ /\\ /g' | tr '\n' '\t' ) )
 }
 
 # rpm(8) completion
@@ -2541,18 +2541,18 @@ _known_hosts()
 				/^[^|]/ {for (i=1; i<=2; ++i) { \
 				       gsub(" .*$", "", $i); \
 				       if ($i ~ /'$cur'/) {print $i} \
-				}}' ${kh[@]} 2>/dev/null ) )
+				}}' "${kh[@]}" 2>/dev/null ) )
 	    fi
 	    if [ ${#khd[@]} -gt 0 ]; then
 		# Needs to look for files called
 		# .../.ssh2/key_22_<hostname>.pub
 		# dont fork any processes, because in a cluster environment,
 		# there can be hundreds of hostkeys
-		for i in ${khd[@]} ; do
+		for i in "${khd[@]}" ; do
 		    if [[ "$i" == *key_22_$curd*.pub ]] && [ -r "$i" ] ; then
 			host=${i/#*key_22_/}
 			host=${host/%.pub/}
-			COMPREPLY=( ${COMPREPLY[@]} $host )
+			COMPREPLY=( "${COMPREPLY[@]}" $host )
 		    fi
 		done
 	    fi
@@ -2560,11 +2560,11 @@ _known_hosts()
 	    if [ ${#config[@]} -gt 0 ] && [ -n "$aliases" ]; then
 	    local host_aliases=$( sed -ne 's/^[Hh][Oo][Ss][Tt]\([Nn][Aa][Mm][Ee]\)\?['"$'\t '"']*\([^*?]*\)$/\2/p' ${config[@]} )" )
 	    hosts=$( compgen -W "$host_aliases" -- $ocur )
-		COMPREPLY=( ${COMPREPLY[@]} $hosts )
+		COMPREPLY=( "${COMPREPLY[@]}" $hosts )
 	    fi
 
 	    # Now add results of normal hostname completion
-	    COMPREPLY=( ${COMPREPLY[@]} $( compgen -A hostname -- $ocur ) )
+	    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -A hostname -- $ocur ) )
 
 	    # apply suffix
 	    for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
@@ -2607,7 +2607,7 @@ _ssh()
 	    _known_hosts -a
 
 	    [ $COMP_CWORD -eq 1 ] || \
-		COMPREPLY=( ${COMPREPLY[@]} $( compgen -c -- $cur ) )
+		COMPREPLY=( "${COMPREPLY[@]}" $( compgen -c -- $cur ) )
 	esac
 
 	return 0
@@ -2648,7 +2648,7 @@ _scp()
 
 	[[ "$cur" == */* ]] || _known_hosts -c -a
 		local IFS=$'\t\n'
-		COMPREPLY=( ${COMPREPLY[@]} $( command ls -aF1d $cur* \
+		COMPREPLY=( "${COMPREPLY[@]}" $( command ls -aF1d $cur* \
 			    2>/dev/null | sed \
 			    -e "s/[][(){}<>\",:;^&!$&=?\`|\\ ']/\\\\&/g" \
 			    -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' ) )
@@ -2780,7 +2780,7 @@ _route()
 			   # remove word from list of completions
 			   COMPREPLY=( ${COMPREPLY/ $i / } )
 			done
-		       echo ${COMPREPLY[@]})
+		       echo "${COMPREPLY[@]}")
 		  ) )
 	return 0
 }
@@ -2939,7 +2939,7 @@ _tar()
 	fi
 
 	# file completion on relevant files
-	_filedir $ext
+	_filedir "$ext"
 
 	return 0
 }
@@ -3111,7 +3111,7 @@ _cd()
 	# we have a CDPATH, so loop on its contents
 	for i in ${CDPATH//:/$'\t'}; do
 		# create an array of matched subdirs
-		k=${#COMPREPLY[@]}
+		k="${#COMPREPLY[@]}"
 		for j in $( compgen -d $i/$cur ); do
 			if [[ ( $mark_symdirs && -h $j || $mark_dirs && ! -h $j ) && ! -d ${j#$i/} ]]; then
 				j="${j}/"
@@ -3320,7 +3320,7 @@ _mysqladmin()
 	COMPREPLY=( $( compgen -W '-# -f -? -C -h -p -P -i -r -E -s -S -t -u \
 					      -v -V -w' -- $cur ) )
 
-	COMPREPLY=( ${COMPREPLY[@]} \
+	COMPREPLY=( "${COMPREPLY[@]}" \
 		    $( compgen -W 'create drop extended-status flush-hosts \
 				   flush-logs flush-status flush-tables \
 				   flush-threads flush-privileges kill \
@@ -4294,8 +4294,7 @@ _dpkg()
 	fi
 
 	case "$prev" in
-	-@(c|i|A|I|f|e|x|X|-@(install|unpack|record-avail|contents|info| \
-			  fsys-tarfile|field|control|extract)))
+	-@(c|i|A|I|f|e|x|X|-@(install|unpack|record-avail|contents|info|fsys-tarfile|field|control|extract)))
 		_filedir '?(u)deb'
 		return 0
 		;;
@@ -4615,17 +4614,17 @@ _java_classes()
 	for i in ${classpath//:/ }; do
 		if [ -r $i ] && [[ "$i" == *.@(jar|zip) ]]; then
 			if type zipinfo &> /dev/null; then
-				COMPREPLY=( ${COMPREPLY[@]} $( zipinfo -1 \
+				COMPREPLY=( "${COMPREPLY[@]}" $( zipinfo -1 \
 				"$i" | grep "^$cur" | grep '\.class$' | \
 				grep -v "\\$" ) )
 			else
-				COMPREPLY=( ${COMPREPLY[@]} $( jar tf "$i" \
+				COMPREPLY=( "${COMPREPLY[@]}" $( jar tf "$i" \
 				"$cur" | grep "\.class$" | grep -v "\\$" ) )
 			fi
 
 		elif [ -d $i ]; then
 			i=${i%/}
-			COMPREPLY=( ${COMPREPLY[@]} $( find "$i" -type f \
+			COMPREPLY=( "${COMPREPLY[@]}" $( find "$i" -type f \
 			-path "$i/$cur*.class" 2>/dev/null | \
 			grep -v "\\$" | sed -e "s|^$i/||" ) )
 		fi
@@ -4650,7 +4649,7 @@ _java_packages()
 	# parse each sourcepath element for packages
 	for i in ${sourcepath//:/ }; do
 		if [ -d $i ]; then
-			COMPREPLY=( ${COMPREPLY[@]} $( command ls -F -d \
+			COMPREPLY=( "${COMPREPLY[@]}" $( command ls -F -d \
 				$i/$cur* 2>/dev/null | sed -e 's|^'$i'/||' ) )
 		fi
 	done
@@ -4843,7 +4842,7 @@ _muttconffiles()
 	shift
 	while [[ "$1" ]]; do
 	    newconffiles=( $(sed -rn 's|^source[[:space:]]+([^[:space:]]+).*$|\1|p' $(eval echo $1) ) )
-	    for file in ${newconffiles[@]}; do
+	    for file in "${newconffiles[@]}"; do
 		[[ ! "$file" ]] || [[ "${sofar/ ${file} / }" != "$sofar" ]] &&
 		    continue
 		sofar="$sofar $file"
@@ -4866,8 +4865,8 @@ _muttaliases()
 
 	conffiles=( $(eval _muttconffiles $muttrc $muttrc) )
 	aliases=( $( sed -rn 's|^alias[[:space:]]+([^[:space:]]+).*$|\1|p' \
-			$(eval echo ${conffiles[@]}) ) )
-	COMPREPLY=( ${COMPREPLY[@]} $( compgen -W "${aliases[*]}" -- $cur ) )
+			$(eval echo "${conffiles[@]}") ) )
+	COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "${aliases[*]}" -- $cur ) )
 
 	return 0
 }
@@ -5356,7 +5355,7 @@ _perldoc()
 	    ;;
 	*)
 	    _perlmodules
-	    COMPREPLY=( ${COMPREPLY[@]} $( compgen -W '$( PAGER=/bin/cat man perl |  sed -ne "/perl.*Perl overview/,/perlwin32/p" | awk "\$NF=2 { print \$1}" | grep perl )' -- $cur ) )
+	    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W '$( PAGER=/bin/cat man perl |  sed -ne "/perl.*Perl overview/,/perlwin32/p" | awk "\$NF=2 { print \$1}" | grep perl )' -- $cur ) )
 
 	    return 0
 	    ;;
@@ -5586,7 +5585,7 @@ _portinstall()
 	COMPREPLY2=( $( egrep "^[^\|]+\|$portsdir$cur" < $indexfile | \
 			cut -d'|' -f2 ) )
 	COMPREPLY2=( ${COMPREPLY2[@]#$portsdir} )
-	COMPREPLY=( ${COMPREPLY[@]} ${COMPREPLY2[@]} )
+	COMPREPLY=( "${COMPREPLY[@]}" "${COMPREPLY2[@]}" )
 
 	return 0
 } &&
@@ -5690,13 +5689,13 @@ _mplayer()
 			return 0
 			;;
 		-sub)
-			_filedir '@(srt|SRT|sub|SUB|txt|TXT|utf|UTF|rar|RAR|mpsub|smi|js)'
+			_filedir '@(srt|SRT|sub|SUB|txt|TXT|utf|UTF|rar|RAR|mpsub|smi|js|ssa|SSA|aas|AAS)'
 			return 0
 			;;
 		-vobsub)
 			_filedir '@(idx|IDX|ifo|IFO|sub|SUB)'
 			IFS=$'\t\n'
-			COMPREPLY=( $( for i in ${COMPREPLY[@]}; do
+			COMPREPLY=( $( for i in "${COMPREPLY[@]}"; do
 						if [ -f $i -a -r $i ]; then
 							echo ${i%.*}
 						else
@@ -5933,7 +5932,7 @@ _mplayer()
 					-bps -oldpp -nozoom -noflip -nounicode \
 					-noutf8' -- $cur ) )
 			# add mplayer specific options
-			[[ "$cmd" == @(?(g)mplayer) ]] && COMPREPLY=( ${COMPREPLY[@]} \
+			[[ "$cmd" == @(?(g)mplayer) ]] && COMPREPLY=( "${COMPREPLY[@]}" \
 				$(compgen -W '-autoq -autosync -benchmark \
 					-framedrop -h -help -hardframedrop \
 					-identify -input -lircconf -loop \
@@ -5964,7 +5963,7 @@ _mplayer()
 					-aaosdcolor -aasubcolor -aadriver \
 					-aaextended -aaeight' -- $cur) )
 			# add mencoder specific options
-			[[ "$cmd" = mencoder ]] && COMPREPLY=( ${COMPREPLY[@]} \
+			[[ "$cmd" = mencoder ]] && COMPREPLY=( "${COMPREPLY[@]}" \
 				$(compgen -W '-audio-density -audio-delay \
 					-audio-preload -divx4opts -endpos \
 					-ffourcc -include -info -lameopts \
@@ -6072,7 +6071,7 @@ _gpg()
 	-@(r|-recipient))
 		COMPREPLY=( $( compgen -W "$( gpg --list-keys 2>/dev/null | sed -ne 's@^pub.*<\([^>]*\)>.*$@\1@p')" -- "$cur" ))
 		if [ -e ~/.gnupg/gpg.conf ]; then
-			COMPREPLY=( ${COMPREPLY[@]} $( compgen -W "$( sed -ne 's@^[ \t]*group[ \t][ \t]*\([^=]*\).*$@\1@p' ~/.gnupg/gpg.conf  )" -- "$cur") )
+			COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "$( sed -ne 's@^[ \t]*group[ \t][ \t]*\([^=]*\).*$@\1@p' ~/.gnupg/gpg.conf  )" -- "$cur") )
 		fi
 		return 0
 		;;
@@ -6252,10 +6251,10 @@ _cdrecord()
 	# files are always eligible completion
 	_filedir
 	# track options are always available
-	COMPREPLY=( ${COMPREPLY[@]} $( compgen -W '${track_options[@]}' -- $cur ) )
+	COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W '${track_options[@]}' -- $cur ) )
 	# general options are no more available after file or track option
 	if [ $track_mode -eq 0 ]; then
-		COMPREPLY=( ${COMPREPLY[@]} \
+		COMPREPLY=( "${COMPREPLY[@]}" \
 			    $( compgen -W '${generic_options[@]}' -- $cur ) )
 	fi
 
@@ -9359,16 +9358,16 @@ list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' \
 		line=${line%# START exclude*}
 		line=${line%# FINISH exclude*}
 		line=${line##*\'}
-		list=( ${list[@]:-} $line )
+		list=( "${list[@]:-}" $line )
 	done
-	echo ${list[@]}
+	echo "${list[@]}"
 	)
      ) )
 # remove previous compspecs
 if [ ${#list[@]} -gt 0 ]; then
     eval complete -r ${list[@]}
     # install new compspecs
-    eval complete -F _filedir_xspec $filenames ${list[@]}
+    eval complete -F _filedir_xspec $filenames "${list[@]}"
 fi
 unset list
 
