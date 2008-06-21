@@ -4,7 +4,15 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+VERSION=$(shell parsechangelog | grep ^Version | awk -F": " '{print $$2}' | cut -d"-" -f1)
 d = debian/bash-completion
+
+manpages: dh_bash-completion.1
+dh_bash-completion.1: extra/dh_bash-completion
+	pod2man \
+		--center "Bash-Completion Debhelper" \
+		--release $(VERSION) \
+		$< > extra/$@
 
 build: build-stamp
 build-stamp:
@@ -30,6 +38,7 @@ binary-indep: build install
 	dh_installchangelogs
 	dh_installdocs README TODO
 	dh_installexamples
+	dh_installman extra/dh_bash-completion.1
 	dh_compress -Xcontrib
 	dh_fixperms
 	dh_installdeb
