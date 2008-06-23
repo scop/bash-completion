@@ -257,23 +257,23 @@ _get_cword()
 #
 _filedir()
 {
-	local IFS=$'\t\n' xspec #glob
+	local IFS=$'\t\n' xspec
 
 	_expand || return 0
 
-	#glob=$(set +o|grep noglob) # save glob setting.
-	#set -f		 # disable pathname expansion (globbing)
-
-	if [ "${1:-}" = -d ]; then
-		COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -d -- $cur ) )
-		#eval "$glob"    # restore glob setting.
-		return 0
+	local toks=( ) tmp
+	while read -r tmp; do
+		[[ -n $tmp ]] && toks[${#toks[@]}]=$tmp
+	done < <( compgen -d -- "$(quote_readline "$cur")" )
+	
+	if [[ "$1" != -d ]]; then
+		xspec=${1:+"!*.$1"}
+		while read -r tmp; do
+			[[ -n $tmp ]] && toks[${#toks[@]}]=$tmp
+		done < <( compgen -f -X "$xspec" -- "$(quote_readline "$cur")" )
 	fi
 
-	xspec=${1:+"!*.$1"}	# set only if glob passed in as $1
-	COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -f -X "$xspec" -- "$cur" ) \
-		    $( compgen -d -- "$cur" ) )
-	#eval "$glob"    # restore glob setting.
+	COMPREPLY=( "${COMPREPLY[@]}" "${toks[@]}" )
 }
 
 # This function completes on signal names
