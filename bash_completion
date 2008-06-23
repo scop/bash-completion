@@ -3158,6 +3158,37 @@ else
     complete -F _cd $nospace $filenames cd
 fi
 
+_remove_comp_word()
+{
+	if [[ COMP_CWORD -eq 0 ]]; then
+		return
+	elif [[ ${#COMP_WORDS[@]} -ge 2 ]]; then
+		local old_cw0="${COMP_WORDS[0]}"
+		local new_cw0="${COMP_WORDS[1]}"
+		local old_length="${#COMP_LINE}"
+		COMP_LINE=${COMP_LINE#${old_cw0}}
+		local head=${COMP_LINE:0:${#new_cw0}}
+		local i=1
+		while [[ $head != $new_cw0 ]]; do
+			COMP_LINE=${COMP_LINE:1}
+			head=${COMP_LINE:0:${#new_cw0}}
+			if (( ++i > 10 )); then
+				break
+			fi
+		done
+		local new_length="${#COMP_LINE}"
+		COMP_POINT=$(( COMP_POINT + new_length - old_length ))
+		
+		COMP_CWORD=$(( COMP_CWORD - 1 ))
+		for (( i=0; i < ${#COMP_WORDS[@]} - 1; ++i )); do
+			COMP_WORDS[i]="${COMP_WORDS[i+1]}"
+		done
+		unset COMP_WORDS[${#COMP_WORDS[#]}-1]
+	else
+		return
+	fi
+}
+
 # A meta-command completion function for commands like sudo(8), which need to
 # first complete on a command, then complete according to that command's own
 # completion definition - currently not quite foolproof (e.g. mount and umount
