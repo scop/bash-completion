@@ -1,6 +1,6 @@
 Name: bash-completion
 Summary: Programmable completion for bash 2.05b and later.
-Version: 20080617.2
+Version: 20080617.4
 Release: 1
 Group: System Environment/Shells
 License: GPL
