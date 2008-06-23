@@ -2510,33 +2510,29 @@ _known_hosts()
 	    user_kh=$( eval echo $( sed -ne 's/^[ \t]*[Uu][Ss][Ee][Rr][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/\1/p' "${config[@]}" ) )
 	fi
 
-	# choose which global known hosts file to use
-	if [ -r "$global_kh" ]; then
-	    kh=( "$global_kh" )
-	else
-	    [ -r /etc/ssh/ssh_known_hosts ] &&
-	      kh=( "${kh[@]}" "/etc/ssh/ssh_known_hosts" )
-	    [ -r /etc/ssh/ssh_known_hosts2 ] &&
-	      kh=( "${kh[@]}" "/etc/ssh/ssh_known_hosts2" )
-	    [ -r /etc/known_hosts ] &&
-	      kh=( "${kh[@]}" "/etc/known_hosts" )
-	    [ -r /etc/known_hosts2 ] &&
-	      kh=( "${kh[@]}" "/etc/known_hosts2" )
-	    [ -d /etc/ssh2/knownhosts ] &&
-	      khd=( "${khd[@]}" "/etc/ssh2/knownhosts/*pub" )
-	fi
+	# Global known_hosts files
+	[ -r "$global_kh" ] &&
+		kh=( "${kh[@]}" "$global_kh" )
+	[ -r /etc/ssh/ssh_known_hosts ] &&
+		kh=( "${kh[@]}" /etc/ssh/ssh_known_hosts )
+	[ -r /etc/ssh/ssh_known_hosts2 ] &&
+		kh=( "${kh[@]}" /etc/ssh/ssh_known_hosts2 )
+	[ -r /etc/known_hosts ] &&
+		kh=( "${kh[@]}" /etc/known_hosts )
+	[ -r /etc/known_hosts2 ] &&
+		kh=( "${kh[@]}" /etc/known_hosts2 )
+	[ -d /etc/ssh2/knownhosts ] &&
+		khd=( "${khd[@]}" /etc/ssh2/knownhosts/*pub )
 
-	# choose which user known hosts file to use
-	if [ -r "$user_kh" ]; then
-	    kh=( ${kh[@]} "$user_kh" )
-	else
-	    [ -r "${HOME}/.ssh/known_hosts" ] &&
-	      kh=( "${kh[@]}" "${HOME}/.ssh/known_hosts" )
-	    [ -r "${HOME}/.ssh/known_hosts2" ] &&
-	      kh=( "${kh[@]}" "${HOME}/.ssh/known_hosts2" )
-	    [ -d "${HOME}/.ssh2/hostkeys" ] &&
-	      khd=( "${khd[@]}" "${HOME}/.ssh2/hostkeys/*pub" )
-	fi
+	# User known_hosts files
+	[ -r "$user_kh" ] &&
+		kh=( "${kh[@]}" "$user_kh" )
+	[ -r ~/.ssh/known_hosts" ] &&
+		kh=( "${kh[@]}" ~/.ssh/known_hosts )
+	[ -r ~/.ssh/known_hosts2 ] &&
+		kh=( "${kh[@]}" ~/.ssh/known_hosts2 )
+	[ -d ~/.ssh2/hostkeys ] &&
+		khd=( "${khd[@]}" ~/.ssh2/hostkeys/*pub )
 
 	# If we have known_hosts files to use
 	if [ ${#kh[@]} -gt 0 -o ${#khd[@]} -gt 0 ]; then
@@ -2583,7 +2579,7 @@ _known_hosts()
 	    fi
 	    # append any available aliases from config files
 	    if [ ${#config[@]} -gt 0 ] && [ -n "$aliases" ]; then
-	    local host_aliases=$( sed -ne 's/^[Hh][Oo][Ss][Tt]\([Nn][Aa][Mm][Ee]\)\?['"$'\t '"']*\([^*?]*\)$/\2/p' "${config[@]}" )
+	    local host_aliases=$( sed -ne 's/^[Hh][Oo][Ss][Tt]\([Nn][Aa][Mm][Ee]\)\?['"$'\t '"']\+\([^*?]*\)$/\2/p' "${config[@]}" )
 	    hosts=$( compgen -W "$host_aliases" -- $ocur )
 		COMPREPLY=( "${COMPREPLY[@]}" $hosts )
 	    fi
