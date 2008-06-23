@@ -9382,9 +9382,17 @@ _filedir_xspec()
 	xspec=${xspec#*-X }
 	xspec=${xspec%% *}
 
-	COMPREPLY=( $( eval compgen -f -X "$xspec" -- \
-		    \"${cur#[\`\"\']}\" 2>/dev/null ) \
-		    $( compgen -d -- $cur ) )
+	local toks=( ) tmp
+	
+	while read -r tmp; do
+		[[ -n $tmp ]] && toks[${#toks[@]}]=$tmp
+	done < <( compgen -d -- "$(quote_readline "$cur")" )
+
+	while read -r tmp; do
+		[[ -n $tmp ]] && toks[${#toks[@]}]=$tmp
+	done < <( compgen -f -X $xspec -- "\$(quote_readline "\$cur")" )	
+	
+	COMPREPLY=( "${toks[@]}" )
 }
 list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' \
 	  $BASH_COMPLETION | \
