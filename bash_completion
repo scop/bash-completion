@@ -3193,7 +3193,7 @@ _remove_comp_word()
 		for (( i=0; i < ${#COMP_WORDS[@]} - 1; ++i )); do
 			COMP_WORDS[i]="${COMP_WORDS[i+1]}"
 		done
-		unset COMP_WORDS[${#COMP_WORDS[#]}-1]
+		unset COMP_WORDS[${#COMP_WORDS[@]}-1]
 	else
 		return
 	fi
@@ -3216,8 +3216,8 @@ _command()
 	# switches, get rid of them. Most definitely not foolproof.
 	done=
 	while [ -z $done ] ; do
-	cmd=${COMP_WORDS[0]}
-	    if [[ "$cmd" == -* ]] && [ $COMP_CWORD -ge 1 ]; then
+		cmd=${COMP_WORDS[0]}
+		if [[ "$cmd" == -* ]] && [[ $COMP_CWORD -ge 1 ]]; then
 	    	_remove_comp_word
 	    elif [[ "$cmd" == -* ]] && [[ $COMP_CWORD -eq 0 ]]; then
 	    	return
@@ -3226,7 +3226,7 @@ _command()
 	    fi
 	done
 
-	if [ $COMP_CWORD -eq 0 ]; then
+	if [[ $COMP_CWORD -eq 0 ]]; then
 		COMPREPLY=( $( compgen -c -- $cur ) )
 	elif complete -p $cmd &>/dev/null; then
 		cspec=$( complete -p $cmd )
@@ -3242,7 +3242,7 @@ _command()
 			func=${func%% *}
 			
 			if [[ ${#COMP_WORDS[@]} -ge 2 ]]; then
-				$func $cmd "${COMP_WORDS[${#COMP_WORDS[@]}-1]}" "${COMP_WORDS[${#COMP_WORDS[@]}-2]}"
+				$func $cmd "${COMP_WORDS[${#COMP_WORDS[@]}-1]}"	"${COMP_WORDS[${#COMP_WORDS[@]}-2]}"
 			else
 				$func $cmd "${COMP_WORDS[${#COMP_WORDS[@]}-1]}"
 			fi
