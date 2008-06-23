@@ -4054,6 +4054,7 @@ complete -F _gdb $filenames gdb
 have psql && {
 _pg_databases()
 {
+	return
 	COMPREPLY=( $( psql -l 2>/dev/null | \
 			sed -e '1,/^-/d' -e '/^(/,$d' | \
 			awk '{print $1}' | grep "^$cur" ) )
@@ -4061,9 +4062,10 @@ _pg_databases()
 
 _pg_users()
 {
-	COMPREPLY=( $( psql -qtc 'select usename from pg_user' template1 2>/dev/null | \
-			grep "^ $cur" ) )
-	[ ${#COMPREPLY[@]} -eq 0 ] && COMPREPLY=( $( compgen -u -- $cur ) )
+	#COMPREPLY=( $( psql -qtc 'select usename from pg_user' template1 2>/dev/null | \
+	#		grep "^ $cur" ) )
+	#[ ${#COMPREPLY[@]} -eq 0 ] && COMPREPLY=( $( compgen -u -- $cur ) )
+	COMPREPLY=( $( compgen -u -- $cur ) )
 }
 
 # createdb(1) completion
