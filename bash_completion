@@ -23,7 +23,7 @@
 #
 #   http://bash-completion.alioth.debian.org/
 #
-#   RELEASE: 20080617.4
+#   RELEASE: 20080617.5
 
 if [[ $- == *v* ]]; then
 	BASH_COMPLETION_ORIGINAL_V_VALUE="-v"
@@ -39,12 +39,8 @@ fi
 
 # Alter the following to reflect the location of this file.
 #
-{
-  # These declarations must go within braces in order to be able to silence
-  # readonly variable errors.
-  BASH_COMPLETION="${BASH_COMPLETION:-/etc/bash_completion}"
-  BASH_COMPLETION_DIR="${BASH_COMPLETION_DIR:=/etc/bash_completion.d}"
-} 2>/dev/null || :
+[ -n "$BASH_COMPLETION" ] || BASH_COMPLETION=/etc/bash_completion
+[ -n "$BASH_COMPLETION_DIR" ] || BASH_COMPLETION_DIR=/etc/bash_completion.d
 readonly BASH_COMPLETION BASH_COMPLETION_DIR
 
 # Set a couple of useful vars
@@ -4905,7 +4901,7 @@ _muttaliases()
 {
 	local cur muttrc
 	local -a conffiles aliases
-	cur=`_get_cword`
+	cur=`_get_cword =`
 
 	[ -f ~/.${muttcmd}/${muttcmd}rc ] && muttrc="~/.${muttcmd}/${muttcmd}rc"
 	[ -f ~/.${muttcmd}rc ] && muttrc="~/.${muttcmd}rc"
@@ -5770,7 +5766,7 @@ _mplayer()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
-		-@(ac|afm|vc|vfm|ao|vo|vop|fstype))
+		-@(ac|afm|vc|vfm|ao|vo|vop|fstype|demuxer|vf|af))
 			_mplayer_options_list mplayer $prev
 			return 0
 			;;
@@ -5779,7 +5775,7 @@ _mplayer()
 			return 0
 			;;
 		-audiofile)
-			_filedir '@(mp3|MP3|mpg|MPG|ogg|OGG|wav|WAV|mid|MID|flac|FLAC|mka|MKA)'
+			_filedir '@(mp3|MP3|mpg|MPG|ogg|OGG|w?(a)v|W?(A)V|mid|MID|flac|FLAC|mka|MKA)'
 			return 0
 			;;
 		-font)
@@ -5998,6 +5994,11 @@ _mplayer()
 			COMPREPLY=( $( compgen -W 'force= list=' -- $cur ) )
 			return 0
 			;;
+		-profile)
+			local profiles=$(sed -ne 's|\[\(.*\)\]|\1|p' ~/.mplayer/config)
+			COMPREPLY=( $( compgen -W "$profiles" -- $cur))
+			return 0
+			;;
 	esac
 
 	case "$cur" in
@@ -6028,7 +6029,7 @@ _mplayer()
 					-spuaa -spugauss -pphelp -verbose -v \
 					-noni -noidx -nohr-mp3-seek -extbased \
 					-bps -oldpp -nozoom -noflip -nounicode \
-					-noutf8' -- $cur ) )
+					-noutf8 -profile -vf -af' -- $cur ) )
 			# add mplayer specific options
 			[[ "$cmd" == @(?(g)mplayer) ]] && COMPREPLY=( "${COMPREPLY[@]}" \
 				$(compgen -W '-autoq -autosync -benchmark \
@@ -6071,7 +6072,7 @@ _mplayer()
 					-xvidencopts -of --verbose' -- $cur) )
 			;;
 		*)
-			_filedir '@(mp?(e)g|MP?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fl[iv]|FL[IV]|viv|VIV|rm?(j)|RM?(J)|ra?(m)|RA?(M)|yuv|YUV|mov|MOV|qt|QT|mp[34]|MP[34]|m4[av]|M4[AV]|og[gm]|OG[GM]|wav|WAV|dump|DUMP|mk[av]|MK[AV]|m4a|M4A|aac|AAC|m2v|M2V|dv|DV|rmvb|RMVB|mid|MID|ts|TS|3gp|mpc|MPC|flac|FLAC|vro|VRO|divx|DIVX|aif?(f)|AIF?(F)|m2ts|M2TS)'
+			_filedir '@(mp?(e)g|MP?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fl[iv]|FL[IV]|viv|VIV|rm?(j)|RM?(J)|ra?(m)|RA?(M)|yuv|YUV|mov|MOV|qt|QT|mp[34]|MP[34]|m4[av]|M4[AV]|og[gm]|OG[GM]|w?(a)v|W?(A)V|dump|DUMP|mk[av]|MK[AV]|m4a|M4A|aac|AAC|m2v|M2V|dv|DV|rmvb|RMVB|mid|MID|ts|TS|3g[p2]|mpc|MPC|flac|FLAC|vro|VRO|divx|DIVX|aif?(f)|AIF?(F)|m2ts|M2TS)'
 			;;
 	esac
 
