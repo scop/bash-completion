@@ -4045,7 +4045,22 @@ _gdb()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [ $COMP_CWORD -eq 1 ]; then
-		COMPREPLY=( $( PATH="$PATH:." compgen -d -c -- "$cur" ) )
+		local IFS
+		if [[ "$cur" == */* ]]; then
+			# compgen -c works as expected if $cur contains any slashes.
+			IFS=$'\n'
+			COMPREPLY=( $( PATH="$PATH:." compgen -d -c -- "$cur" ) )
+		else
+			# otherwise compgen -c contains Bash's built-in commands,
+			# functions and aliases. Thus we need to retrieve the program
+			# names manually.
+			IFS=":"
+			local path_array=( $(echo "$PATH") )
+			IFS=$'\n'
+			COMPREPLY=( $( compgen -d -W '$(find "${path_array[@]}" . \
+				-mindepth 1 -maxdepth 1 -not -type d -executable -printf "%f\\n")' \
+				-- "$cur" ) )
+		fi
 	elif [ $COMP_CWORD -eq 2 ]; then
 		prev=${prev##*/}
 		COMPREPLY=( $( compgen -fW "$( command ps axo comm,pid | \
