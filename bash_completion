@@ -2690,6 +2690,30 @@ _scp()
 	return 0
 }
 complete -F _scp $nospace scp
+
+# ssh-copy-id(1) completion
+#
+_ssh-copy-id() {
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+	-*i)
+	    _filedir
+	    ;;
+	*)
+	    _known_hosts -a
+
+	    [ $COMP_CWORD -eq 1 ] || \
+		COMPREPLY=( "${COMPREPLY[@]}" $( compgen -- $cur ) )
+	esac
+
+	return 0
+}
+complete -F _ssh-copy-id $filenames ssh-copy-id
 }
 
 # rsync(1) completion
