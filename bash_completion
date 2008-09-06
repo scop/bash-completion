@@ -4689,9 +4689,15 @@ _java_classes()
 
 		elif [ -d $i ]; then
 			i=${i%/}
+			
+			# See bug #496828
 			COMPREPLY=( "${COMPREPLY[@]}" $( find "$i" -type f \
-			-path "$i/$cur*.class" 2>/dev/null | \
+			-maxdepth 1 -path "$i/$cur*.class" 2>/dev/null | \
 			grep -v "\\$" | sed -e "s|^$i/||" ) )
+			
+			# FIXME: if we have foo.class and foo/, the completion
+			# returns "foo/"... how to give precedence to files
+			# over directories?
 		fi
 	done
 
