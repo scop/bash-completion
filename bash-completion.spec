@@ -1,6 +1,6 @@
 Name:		bash-completion
 Version:	20060301
-Release:	alt05
+Release:	alt06
 
 Summary:	bash-completion offers programmable completion for bash
 License:	GPL
@@ -10,7 +10,7 @@ URL:		http://www.caliban.org/bash/
 Source0:	http://www.caliban.org/files/bash/%name-%version.tar.bz2
 Source1:	bash-completion.sh
 Patch0:	bash-completion-20050103-alt-rsync.patch.gz
-Patch0:	bash-completion-20060301-alt-iptables.patch
+Patch1:	bash-completion-20060301-alt-iptables.patch
 
 Requires:	bash >= 2.05
 BuildArch:	noarch
@@ -22,9 +22,10 @@ of the programmable completion feature of bash 2.04 and later.
 %prep
 %setup -q -n bash_completion
 %patch0 -p0
+%patch1 -p0
 
 %install
-%__install -d %buildroot%_sysconfdir/bash_completion.d
+%__install -d %buildroot%_sysconfdir/bash_completion.d/bash-completion.sh
 %__install bash_completion %buildroot%_sysconfdir
 
 %__mkdir_p %buildroot%_sysconfdir/bashrc.d/
@@ -38,6 +39,9 @@ install -p -m755 -D %SOURCE1 $RPM_BUILD_ROOT%_sysconfdir/bashrc.d/%name.sh
 
 
 %changelog
+* Tue Sep 23 2008 Alex Murygin <murygin@altlinux.ru> 20060301-alt06
+- patches section typo fix
+
 * Fri Feb 22 2008 Alex Murygin <murygin@altlinux.ru> 20060301-alt05
 - moved bash-completion.sh from profile.d to bashrc.d 
     (13532, 9273, 9148, 13041, 14606)
