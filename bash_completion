@@ -269,16 +269,23 @@ _filedir()
 
 	_expand || return 0
 
-	local toks=( ) tmp
-	while read -r tmp; do
-		[[ -n $tmp ]] && toks[${#toks[@]}]=$tmp
-	done < <( compgen -d -- "$(quote_readline "$cur")" )
+	toks=( ${toks[@]} $(
+		compgen -d -- "$(quote_readline "$cur")" | {
+			while read -r tmp; do
+				[[ -n $tmp ]] && echo $tmp
+			done
+		}
+	))
 	
 	if [[ "$1" != -d ]]; then
 		xspec=${1:+"!*.$1"}
-		while read -r tmp; do
-			[[ -n $tmp ]] && toks[${#toks[@]}]=$tmp
-		done < <( compgen -f -X "$xspec" -- "$(quote_readline "$cur")" )
+		toks=( ${toks[@]} $(
+			compgen -f -X "$xspec" -- "$(quote_readline "$cur")" | {
+				while read -r tmp; do
+					[[ -n $tmp ]] && echo $tmp
+				done
+			}
+		))
 	fi
 
 	COMPREPLY=( "${COMPREPLY[@]}" "${toks[@]}" )
@@ -9570,15 +9577,21 @@ _filedir_xspec()
 	xspec=${xspec#*-X }
 	xspec=${xspec%% *}
 
-	local toks=( ) tmp
+	toks=( $(
+		compgen -d -- "$(quote_readline "$cur")" | {
+			while read -r tmp; do
+				[[ -n $tmp ]] && echo $tmp
+			done
+		}
+	))
 	
-	while read -r tmp; do
-		[[ -n $tmp ]] && toks[${#toks[@]}]=$tmp
-	done < <( compgen -d -- "$(quote_readline "$cur")" )
-
-	while read -r tmp; do
-		[[ -n $tmp ]] && toks[${#toks[@]}]=$tmp
-	done < <( eval compgen -f -X $xspec -- "\$(quote_readline "\$cur")" )	
+	toks=( ${toks[@]} $(
+		eval compgen -f -X $xspec -- "\$(quote_readline "\$cur")" | {
+			while read -r tmp; do
+				[[ -n $tmp ]] && echo $tmp
+			done
+		}
+	))
 	
 	COMPREPLY=( "${toks[@]}" )
 }
