@@ -269,10 +269,18 @@ _filedir()
 
 	_expand || return 0
 
+	local toks=( ) tmp
+	
 	toks=( ${toks[@]} $(
 		compgen -d -- "$(quote_readline "$cur")" | {
 			while read -r tmp; do
-				[[ -n $tmp ]] && echo $tmp
+				# TODO: I've removed a "[ -n $tmp ] &&" before,
+				#       and everything works again. If this bug
+				#       suddenly appears again (i.e. "cd /b<TAB>"
+				#       becomes "cd /"), remember to check for
+				#       other similar conditionals (here and
+				#       _filedir_xspec()). --David
+				echo $tmp
 			done
 		}
 	))
@@ -282,7 +290,7 @@ _filedir()
 		toks=( ${toks[@]} $(
 			compgen -f -X "$xspec" -- "$(quote_readline "$cur")" | {
 				while read -r tmp; do
-					[[ -n $tmp ]] && echo $tmp
+					[ -n $tmp ] && echo $tmp
 				done
 			}
 		))
@@ -9577,10 +9585,12 @@ _filedir_xspec()
 	xspec=${xspec#*-X }
 	xspec=${xspec%% *}
 
+	local toks=( ) tmp
 	toks=( ${toks[@]} $(
 		compgen -d -- "$(quote_readline "$cur")" | {
 			while read -r tmp; do
-				[[ -n $tmp ]] && echo $tmp
+				# see long TODO comment in _filedir() --David
+				echo $tmp
 			done
 		}
 	))
@@ -9588,7 +9598,7 @@ _filedir_xspec()
 	toks=( ${toks[@]} $(
 		eval compgen -f -X $xspec -- "\$(quote_readline "\$cur")" | {
 			while read -r tmp; do
-				[[ -n $tmp ]] && echo $tmp
+				[ -n $tmp ] && echo $tmp
 			done
 		}
 	))
