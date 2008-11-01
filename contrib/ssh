@@ -4,6 +4,7 @@ have ssh && {
 _ssh()
 {
 	local cur prev
+	local optconfigfile
 	local -a config
 
 	COMPREPLY=()
@@ -11,6 +12,9 @@ _ssh()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
+	-F)
+		_filedir
+		;;
 	-*c)
 	    COMPREPLY=( $( compgen -W 'blowfish 3des 3des-cbc blowfish-cbc \
 			   arcfour cast128-cbc' -- $cur ) )
@@ -22,9 +26,24 @@ _ssh()
 	    COMPREPLY=( $( compgen -u -- $cur ) )
 	    ;;
 	*)
-	    _known_hosts -a
+		# Search COMP_WORDS for '-F configfile' argument
+		set -- "${COMP_WORDS[@]}"
+		while [ $# -gt 0 ]; do
+			if [ "${1:0:2}" = -F ]; then
+				if [ ${#1} -gt 2 ]; then
+					optconfigfile="$1"
+				else
+					shift
+					optconfigfile="-F$1"
+				fi
+				break
+			fi
+			shift
+		done
+		
+	    _known_hosts -a $optconfigfile
 
-	    [ $COMP_CWORD -eq 1 ] || \
+	    [ $COMP_CWORD -eq 1 -o -n "$optconfigfile" ] || \
 		COMPREPLY=( "${COMPREPLY[@]}" $( compgen -c -- $cur ) )
 	esac
 
@@ -37,6 +56,7 @@ shopt -u hostcomplete && complete -F _ssh ssh slogin sftp xhost autossh
 _scp()
 {
 	local cur userhost path
+	local optconfigfile
 
 	COMPREPLY=()
 	cur=`_get_cword ":"`
@@ -63,8 +83,23 @@ _scp()
 				   -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' ) )
 		return 0
 	fi
+	
+	# Search COMP_WORDS for '-F configfile' argument
+	set -- "${COMP_WORDS[@]}"
+	while [ $# -gt 0 ]; do
+		if [ "${1:0:2}" = -F ]; then
+			if [ ${#1} -gt 2 ]; then
+				optconfigfile="$1"
+			else
+				shift
+				optconfigfile="-F$1"
+			fi
+			break
+		fi
+		shift
+	done
 
-	[[ "$cur" == */* ]] || _known_hosts -c -a
+	[[ "$cur" == */* ]] || _known_hosts -c -a $optconfigfile
 		local IFS=$'\t\n'
 		COMPREPLY=( "${COMPREPLY[@]}" $( command ls -aF1d $cur* \
 			    2>/dev/null | sed \
