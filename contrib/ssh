@@ -31,17 +31,17 @@ _ssh()
 		while [ $# -gt 0 ]; do
 			if [ "${1:0:2}" = -F ]; then
 				if [ ${#1} -gt 2 ]; then
-					optconfigfile="$1"
+					optconfigfile="$(dequote "$1")"
 				else
 					shift
-					optconfigfile="-F$1"
+					[ "$1" ] && optconfigfile="$(dequote "-F$1")"
 				fi
 				break
 			fi
 			shift
 		done
 		
-	    _known_hosts -a $optconfigfile
+	    _known_hosts -a "$optconfigfile"
 
 	    [ $COMP_CWORD -eq 1 -o -n "$optconfigfile" ] || \
 		COMPREPLY=( "${COMPREPLY[@]}" $( compgen -c -- $cur ) )
@@ -89,17 +89,17 @@ _scp()
 	while [ $# -gt 0 ]; do
 		if [ "${1:0:2}" = -F ]; then
 			if [ ${#1} -gt 2 ]; then
-				optconfigfile="$1"
+				optconfigfile="$(dequote "$1")"
 			else
 				shift
-				optconfigfile="-F$1"
+				[ "$1" ] && optconfigfile="$(dequote "-F$1")"
 			fi
 			break
 		fi
 		shift
 	done
 
-	[[ "$cur" == */* ]] || _known_hosts -c -a $optconfigfile
+	[[ "$cur" == */* ]] || _known_hosts -c -a "$optconfigfile"
 		local IFS=$'\t\n'
 		COMPREPLY=( "${COMPREPLY[@]}" $( command ls -aF1d $cur* \
 			    2>/dev/null | sed \
