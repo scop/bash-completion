@@ -5295,24 +5295,28 @@ _perlmodules()
 _perl()
 {
     local cur prev prefix temp
+    local optPrefix optSuffix
 
     COMPREPLY=()
     cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
     prefix=""
 
-    # completing an option (may or may not be separated by a space)
+    # If option not followed by whitespace, reassign prev and cur
     if [[ "$cur" == -?* ]]; then
 	temp=$cur
 	prev=${temp:0:2}
 	cur=${temp:2}
+	optPrefix=-P$prev
+	optSuffix=-S/
 	prefix=$prev
     fi
 
     # only handle module completion for now
     case "$prev" in
     -I|-x)
-    	COMPREPLY=( $( compgen -d -P "$prev" -- "$cur" ) )
+    	local IFS=$'\t\n'
+    	COMPREPLY=( $( compgen -d $optPrefix $optSuffix -- "$cur" ) )
     	return 0
     	;;
 	-m|-M)
@@ -5332,7 +5336,7 @@ _perl()
 			-n -a -F -l -0 -I -m -M -P -S -x -i -e ' -- $cur ) )
     return 0
 }
-complete -F _perl $filenames perl
+complete -F _perl $nospace $filenames perl
 
 _perldoc()
 {
