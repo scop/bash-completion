@@ -1,0 +1,17 @@
+# Qt qdbus completion
+#
+have qdbus &&
+_qdbus()
+{
+	local cur compstr
+	
+	COMPREPLY=()
+	cur=`_get_cword`
+	if [ -z "$cur" ]; then
+		compstr=${COMP_WORDS[*]}
+	else
+		compstr=$( command echo ${COMP_WORDS[*]} | sed "s/ ${cur/\//\\/}$//" )
+	fi
+	COMPREPLY=( $( compgen -W '$( command $compstr | sed s/\(.*\)// )' -- "$cur" ) )
+} &&
+complete -F _qdbus qdbus
