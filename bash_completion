@@ -2851,17 +2851,6 @@ _make()
 			fi
 		done
 
-		# make reads `GNUmakefile', then `makefile', then `Makefile'
-		if [ -f ${makef_dir}/GNUmakefile ]; then
-			makef=${makef_dir}/GNUmakefile
-		elif [ -f ${makef_dir}/makefile ]; then
-			makef=${makef_dir}/makefile
-		elif [ -f ${makef_dir}/Makefile ]; then
-			makef=${makef_dir}/Makefile
-		else
-			makef=${makef_dir}/*.mk	       # local convention
-		fi
-
 		# before we scan for targets, see if a Makefile name was
 		# specified with -f
 		for (( i=0; i < ${#COMP_WORDS[@]}; i++ )); do
@@ -2872,18 +2861,14 @@ _make()
 			fi
 		done
 
-		[ ! -f $makef ] && return 0
+		[ -n "$makef" ] && makef="-f ${makef}"
+		[ -n "$makef_dir" ] && makef_dir="-C ${makef_dir}"
+		
+		COMPREPLY=( $( make -qp $makef $makef_dir 2>/dev/null | \
+					awk -F':' '/^[a-zA-Z0-9][^$#\/\t=]*:([^=]|$)/ \
+					{split($1,A,/ /);for(i in A)print A[i]}' | \
+					command grep "^$cur" ))
 
-		# deal with included Makefiles
- 		makef_inc=$( grep -E '^-?include' $makef | sed -e "s,^.* ,"$makef_dir"/," )
-
- 		for file in $makef_inc; do
- 			[ -f $file ] && makef="$makef $file"
- 		done
-
-		COMPREPLY=( $( awk -F':' '/^[a-zA-Z0-9][^$#\/\t=]*:([^=]|$)/ \
-				{split($1,A,/ /);for(i in A)print A[i]}' \
-				$makef 2>/dev/null | command grep "^$cur" ))
 	fi
 } &&
 complete -f -F _make $filenames make gmake gnumake pmake
