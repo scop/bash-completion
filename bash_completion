@@ -4997,10 +4997,9 @@ _configure_func()
 	[[ "$cur" != -* ]] && return 0
 
 	if [ -n "$COMP_CONFIGURE_HINTS" ]; then
-		COMPREPLY=( $( $1 --help | awk '/^  --[A-Za-z]/ { print $1; if ($2 ~ /--[A-Za-z]/) print $2 }' | sed -e 's/[[,].*//g' | grep ^$cur ) )
-
+		COMPREPLY=( $( $1 --help 2>&1 | awk '/^  --[A-Za-z]/ { print $1; if ($2 ~ /--[A-Za-z]/) print $2 }' | sed -e 's/[[,].*//g' | grep ^$cur ) )
 	else
-		COMPREPLY=( $( $1 --help | awk '/^  --[A-Za-z]/ { print $1; if ($2 ~ /--[A-Za-z]/) print $2 }' | sed -e 's/[[,=].*//g' | grep ^$cur ) )
+		COMPREPLY=( $( $1 --help 2>&1 | awk '/^  --[A-Za-z]/ { print $1; if ($2 ~ /--[A-Za-z]/) print $2 }' | sed -e 's/[[,=].*//g' | grep ^$cur ) )
 	fi
 }
 complete -F _configure_func $default configure
@@ -9181,7 +9180,7 @@ _filedir_xspec()
 	))
 	
 	toks=( ${toks[@]-} $(
-		eval compgen -f -X $xspec -- "\$(quote_readline "\$cur")" | {
+		eval compgen -f -X "$xspec" -- "\$(quote_readline "\$cur")" | {
 			while read -r tmp; do
 				[ -n $tmp ] && echo $tmp
 			done
