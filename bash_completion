@@ -443,10 +443,10 @@ _services()
 	local sysvdir famdir
 	[ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
 	famdir=/etc/xinetd.d
-	COMPREPLY=( $( builtin echo $sysvdir/!(*.rpmsave|*.rpmorig|*~|functions)) )
+	COMPREPLY=( $( builtin echo $sysvdir/!(*.rpm@(orig|new|save)|*~|functions)) )
 
 	if [ -d $famdir ]; then
-		COMPREPLY=( "${COMPREPLY[@]}" $( builtin echo $famdir/!(*.rpmsave|*.rpmorig|*~)) )
+		COMPREPLY=( "${COMPREPLY[@]}" $( builtin echo $famdir/!(*.rpm@(orig|new|save)|*~)) )
 	fi
 
 	COMPREPLY=( $( compgen -W '${COMPREPLY[@]#@($sysvdir|$famdir)/}' -- $cur ) )
@@ -9017,7 +9017,7 @@ _update_rc_d()
     [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
 	|| sysvdir=/etc/init.d
 
-    services=( $(echo $sysvdir/!(README*|*.sh|*.dpkg*|*.rpm*)) )
+    services=( $(echo $sysvdir/!(README*|*.sh|*.dpkg*|*.rpm@(orig|new|save))) )
     services=( ${services[@]#$sysvdir/} )
     options=( -f -n )
 
@@ -9083,7 +9083,7 @@ _invoke_rc_d()
     [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
 	|| sysvdir=/etc/init.d
 
-    services=( $(echo $sysvdir/!(README*|*.sh|*.dpkg*|*.rpm*)) )
+    services=( $(echo $sysvdir/!(README*|*.sh|*.dpkg*|*.rpm@(orig|new|save))) )
     services=( ${services[@]#$sysvdir/} )
     options=( --help --quiet --force --try-anyway --disclose-deny --query --no-fallback )
 
@@ -9221,7 +9221,7 @@ unset list
 if [ -d $BASH_COMPLETION_DIR -a -r $BASH_COMPLETION_DIR -a \
      -x $BASH_COMPLETION_DIR ]; then
 	for i in $BASH_COMPLETION_DIR/*; do
-		[[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|.rpm*) ]] &&
+		[[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|*.rpm@(orig|new|save)) ]] &&
 			[ \( -f $i -o -h $i \) -a -r $i ] && . $i
 	done
 fi
