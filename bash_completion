@@ -6466,6 +6466,21 @@ complete -F _mc $filenames mc
 # yum(8) completion
 #
 have yum && {
+_yum_list()
+{
+	if [ "$1" = "all" ] ; then
+		# Try to strip in between headings like "Available Packages"
+		# This will obviously only work for English :P
+		COMPREPLY=( $( yum -d 0 -C list $1 "$cur*" 2>/dev/null | \
+		     grep -iv '^\(Available\|Installed\|Updated\) Packages' | \
+		     sed -e 's/[[:space:]].*//' ) )
+	else
+		# Drop first line (e.g. "Updated Packages")
+		COMPREPLY=( $( yum -d 0 -C list $1 "$cur*" 2>/dev/null | \
+			sed -ne 1d -e 's/[[:space:]].*//p' ) )
+	fi
+}
+
 _yum()
 {
 	local cur prev special
@@ -6475,19 +6490,28 @@ _yum()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-		if [[ ${COMP_WORDS[i]} == @(install|update|upgrade|remove|erase|deplist) ]]; then
+		if [[ ${COMP_WORDS[i]} == @(install|update|upgrade|remove|erase|deplist|info) ]]; then
 			special=${COMP_WORDS[i]}
 		fi
 	done
 
 	if [ -n "$special" ]; then
 	    case $special in
-		install|deplist)
-		    COMPREPLY=( $( compgen -W '$( yum -C list | cut -d" " -f1 )' -- $cur ) )
+		install)
+		    _yum_list available
 		    return 0
 		    ;;
-		*)
-		    _rpm_installed_packages
+		deplist|info)
+		    _yum_list all
+		    return 0
+		    ;;
+		upgrade|update)
+		    _yum_list updates
+		    return 0
+		    ;;
+		remove|erase)
+		    # _rpm_installed_packages is not arch-qualified
+		    _yum_list installed
 		    return 0
 		    ;;
 		esac
@@ -6511,7 +6535,8 @@ _yum()
 	    clean)
 		COMPREPLY=( $( compgen -W 'packages headers metadata cache dbcache all' -- $cur ) )
 		;;
-	    localinstall)
+	    localinstall|localupdate)
+	        # TODO: should not match *src.rpm
 		_filedir rpm
 		;;
 	    -c)
