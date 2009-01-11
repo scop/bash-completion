@@ -848,19 +848,19 @@ complete -F _insmod $filenames insmod modprobe modinfo
   -o $UNAME = OpenBSD ] &&
 _man()
 {
-	local cur prev sect manpath manext UNAME
+	local cur prev sect manpath manext mansect UNAME
 
 	manext="@([0-9lnp]|[0-9][px]|man)?(.@(gz|bz2|lzma))"
+	mansect="@([0-9lnp]|[0-9][px])"
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 	
-	case $prev in
-		-l)
-			_filedir $manext
-			return 0;
-	esac
+	if [[ "$prev" == -l ]]; then
+		_filedir $manext
+		return 0
+	fi
 
 	_expand || return 0
 
@@ -886,7 +886,7 @@ _man()
 	fi
 
 	# determine manual section to search
-	[[ "$prev" == @([0-9lnp]|[0-9][px]) ]] && sect=$prev || sect='*'
+	[[ "$prev" == $mansect ]] && sect=$prev || sect='*'
 
 	manpath=$manpath:
 	if [ -n "$cur" ]; then
@@ -903,7 +903,7 @@ _man()
 	COMPREPLY=( ${COMPREPLY[@]%.@(gz|bz2|lzma)} )
 	COMPREPLY=( $( compgen -W '${COMPREPLY[@]%.*}' -- "${cur//\\\\/}" ) )
 
-	if [[ "$prev" != @([0-9lnp]|[0-9][px]) ]]; then
+	if [[ "$prev" != $mansect ]]; then
 		# File based completion for the rest, prepending ./ if needed
 		# (man 1.6f needs that for man pages in current dir)
 		local start=${#COMPREPLY[@]}
@@ -6478,7 +6478,7 @@ complete -F _mc $filenames mc
 have yum && {
 _yum_list()
 {
-	if [ "$1" = "all" ] ; then
+	if [[ "$1" == all ]] ; then
 		# Try to strip in between headings like "Available Packages"
 		# This will obviously only work for English :P
 		COMPREPLY=( $( yum -d 0 -C list $1 "$cur*" 2>/dev/null | \
