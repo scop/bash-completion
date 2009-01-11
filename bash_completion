@@ -8751,19 +8751,24 @@ _getent()
 			COMPREPLY=( $( compgen -A hostname $cur  ) )
 			return 0
 			;;
-		protocols)
-			COMPREPLY=( $( getent protocols | awk '{print $1}' | grep "^$cur" ) )
+		protocols|networks|ahosts|ahostsv4|ahostsv6|rpc)
+			COMPREPLY=( $( getent $prev | \
+				sed -ne 's|^\('$cur'[^[:space:]]*\).*|\1|p' ) )
 			return 0
 			;;
-		networks)
-			COMPREPLY=( $( getent networks | awk '{print $1}' | grep "^$cur" ) )
+		aliases|shadow)
+			COMPREPLY=( $( getent $prev | \
+				sed -ne 's|^\('$cur'[^:]*\).*|\1|p' ) )
 			return 0
 			;;
 	esac
 
 
 	if [ $COMP_CWORD -eq 1 ]; then
-		COMPREPLY=( $( compgen -W 'passwd group hosts services protocols networks' -- $cur ) )
+		COMPREPLY=( $( compgen -W 'passwd group hosts services \
+					   protocols networks ahosts ahostsv4 \
+					   ahostsv6 aliases ethers netgroup \
+					   rpc shadow' -- $cur ) )
 	fi
 } &&
 complete -F _getent getent
