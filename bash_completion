@@ -1928,8 +1928,9 @@ _rpm()
 		;;
 	--eval)
 		# get a list of macros
-		COMPREPLY=( $( sed -ne 's|^\(%'${cur#\%}'[^ '$'\t'']*\).*$|\1|p' \
-			       /usr/lib/rpm/macros ) )
+		COMPREPLY=( $( rpm --showrc | sed -ne \
+		's/^-\?[0-9]\+[:=][[:space:]]\+\('${cur#%}'[^[:space:](]*\).*/\1/p' ) )
+		COMPREPLY=( "${COMPREPLY[@]/#/%}" )
 		return 0
 		;;
 	--pipe)
