@@ -1836,7 +1836,7 @@ have rpm && {
 #
 _rpm_installed_packages()
 {
-	local ver nodig nosig
+	local ver nodig="$1" nosig="$2"
 
 	if [ -r /var/log/rpmpkgs -a \
 		/var/log/rpmpkgs -nt /var/lib/rpm/Packages ]; then
@@ -1845,20 +1845,8 @@ _rpm_installed_packages()
 		's|^\('$cur'[^[:space:]]*\)-[^[:space:]-]\+-[^[:space:]-]\+\.rpm$|\1|p' \
 				/var/log/rpmpkgs ) )
 	else
-		nodig=""
-		nosig=""
-		ver=$(rpm --version)
-		ver=${ver##* }
-
-		if [[ "$ver" > "4.0.4" ]]; then
-			nodig="--nodigest"
-		fi
-		if [[ "$ver" > "4.0.99" ]]; then
-			nosig="--nosignature"
-		fi
-
-		COMPREPLY=( $( rpm -qa $nodig $nosig | sed -ne \
-		's|^\('$cur'.*\)-[0-9a-zA-Z._]\+-[0-9a-z.@]\+$|\1|p' ) )
+		_rpm_nodigsig
+		COMPREPLY=( $( rpm -qa $nodig $nosig --qf='%{NAME} ' "$cur*" ) )
 	fi
 }
 
@@ -1873,25 +1861,35 @@ _rpm_groups()
 	COMPREPLY=( $( echo "${COMPREPLY[@]}" | sed 's/ /\\ /g' | tr '\n' '\t' ) )
 }
 
+_rpm_nodigsig()
+{
+	if [ -z "$nodig" -a -z "$nosig" ]; then
+		local rpmver
+	
+		rpmver=$(rpm --version)
+		rpmver=${rpmver##* }
+
+		if [[ "$rpmver" > "4.0.4" ]]; then
+			nodig="--nodigest"
+		fi
+		if [[ "$rpmver" > "4.0.99" ]]; then
+			nosig="--nosignature"
+		fi
+	fi
+}
+
 # rpm(8) completion
 #
 _rpm()
 {
-	local cur prev ver nodig nosig
+	local cur prev nodig nosig
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 	nodig=""
 	nosig=""
-	ver=$(rpm --version); ver=${ver##* }
-
-	if [[ "$ver" > "4.0.4" ]]; then
-		nodig="--nodigest"
-	fi
-	if [[ "$ver" > "4.0.99" ]]; then
-		nosig="--nosignature"
-	fi
+	_rpm_nodigsig
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		# first parameter on line
@@ -1985,7 +1983,7 @@ _rpm()
 			COMPREPLY=( $( compgen -W '--allmatches --noscripts \
 			--notriggers --nodeps --test --repackage' -- $cur ) )
 		else
-			_rpm_installed_packages
+			_rpm_installed_packages "$nodig" "$nosig"
 		fi
 		;;
 	-@(q*|-query))
@@ -2037,7 +2035,7 @@ _rpm()
 				--fileid --tid --nodigest --nosignature \
 				--triggerscripts' -- $cur ) )
 			elif [ "${COMP_LINE#* -*([^ -])a}" == "$COMP_LINE" ]; then
-				_rpm_installed_packages
+				_rpm_installed_packages "$nodig" "$nosig"
 			fi
 		fi
 		;;
@@ -2064,7 +2062,7 @@ _rpm()
 		elif [ "${COMP_LINE#* -*([^ -])p}" != "$COMP_LINE" ]; then
 			_filedir 'rpm'
 		else
-			_rpm_installed_packages
+			_rpm_installed_packages "$nodig" "$nosig"
 		fi
 		;;
 	-[bt]*)
@@ -2094,7 +2092,7 @@ _rpm()
 		_filedir 'rpm'
 		;;
 	--set@(perms|gids))
-		_rpm_installed_packages
+		_rpm_installed_packages "$nodig" "$nosig"
 		;;
 	--@(clean|rms@(ource|pec)))
 		if [[ "$cur" == -* ]]; then
