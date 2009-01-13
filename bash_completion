@@ -2085,7 +2085,7 @@ _rpm()
 		elif [[ ${COMP_WORDS[1]} == -b* ]]; then
 			_filedir 'spec'
 		else
-			_filedir '@(tgz|tar.@(gz|bz2))'
+			_filedir '@(tgz|tar.@(gz|bz2|lzma))'
 		fi
 		;;
 	--re@(build|compile))
@@ -2097,7 +2097,7 @@ _rpm()
 		fi
 		;;
 	--tarbuild)
-		_filedir '@(tgz|tar.@(gz|bz2))'
+		_filedir '@(tgz|tar.@(gz|bz2|lzma))'
 		;;
 	--@(re|add)sign)
 		_filedir 'rpm'
@@ -2902,9 +2902,9 @@ _tar()
 		_filedir
 		return 0
 		;;
-	+([^IZzjy])f)
-		ext='t@(ar?(.@(Z|gz|bz?(2)))|gz|bz?(2))'
-		regex='t\(ar\(\.\(Z\|gz\|bz2\?\)\)\?\|gz\|bz2\?\)'
+	+([^IZzJjy])f)
+		ext='t@(ar?(.@(Z|gz|bz?(2)|lz?(ma)))|gz|bz?(2)|lz?(ma))'
+		regex='t\(ar\(\.\(Z\|gz\|bz2\?\|lzma\)\)\?\|gz\|bz2\?\|lzma\)'
 		;;
 	*[Zz]*f)
 		ext='t?(ar.)@(gz|Z)'
@@ -2913,6 +2913,10 @@ _tar()
 	*[Ijy]*f)
 		ext='t?(ar.)bz?(2)'
 		regex='t\(ar\.\)\?bz2\?'
+		;;
+	*[J]*f)
+		ext='t?(ar.)lz?(ma)'
+		regex='t\(ar\.\)\?lzma\?'
 		;;
 	*)
 		_filedir
@@ -7344,7 +7348,7 @@ _info()
 		fi;
 	done
 	# strip suffix from info pages
-	COMPREPLY=( ${COMPREPLY[@]%.@(gz|bz2)} )
+	COMPREPLY=( ${COMPREPLY[@]%.@(gz|bz2|lzma)} )
 	COMPREPLY=( $( compgen -W '${COMPREPLY[@]%.*}' -- "${cur//\\\\/}" ) )
 
 	return 0
