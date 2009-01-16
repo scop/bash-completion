@@ -303,6 +303,18 @@ _filedir()
 	COMPREPLY=( "${COMPREPLY[@]}" "${toks[@]}" )
 }
 
+# This function tries to parse the output of $command --help
+#
+_parse_help() {
+	local cmd
+	cmd=$1
+	$cmd --help | \
+		grep -- "^[[:space:]]*-" | \
+		tr "," " " | \
+		awk '{print $1; if ($2 ~ /-.*/) { print $2 } }' | \
+		sed -e "s:=.*::g"
+}
+
 # This function completes on signal names
 #
 _signals()
@@ -3357,20 +3369,16 @@ complete -F _mysqladmin mysqladmin
 have gzip &&
 _gzip()
 {
-	local cur prev xspec
+	local cur prev xspec helpopts
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
+	helpopts=`_parse_help gzip`
 
 	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-c -d -f \
-			-h -l -L -n -N -q -r -S -t -v -V \
-			-1 -2 -3 -4 -5 -6 -7 -8 -9 \
-			--stdout --decompress --force --help --list \
-			--license --no-name --name --quiet --recursive \
-			--suffix --test --verbose --version --fast \
-			--best --rsyncable' -- $cur ) )
+		COMPREPLY=( $( compgen -W "$helpopts -2 -3 -4 -5 -6 -7 -8" \
+						-- "$cur" ) )
 		return 0
 	fi
 
