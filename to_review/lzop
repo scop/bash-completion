@@ -1,0 +1,53 @@
+# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
+# ex: ts=8 sw=8 noet filetype=sh
+#
+# lzop(1) completion
+
+have lzop &&
+_lzop()
+{
+	local cur prev xspec
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	# TODO: -p: takes a dir argument, without a separating space
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-d -x -l -t -h -I -V -L -1 -2 -3 \
+			-4 -5 -6 -7 -8 -9 -q -v -c -f -F -n -N -P -k -U -o \
+			-S --fast --best --decompress --uncompress --extract \
+			--test --list --ls --info --sysinfo --license --help \
+			--version --stdout --to-stdout --output --path \
+			--force --no-checksum --no-name --name --no-mode \
+			--no-time --suffix --keep --unlink --delete --crc32 \
+			--no-warn --ignore-warn --quiet --silent --verbose \
+			--no-stdin --filter --checksum --no-color --mono \
+			--color' -- $cur ) )
+		return 0
+	fi
+
+	case "$prev" in
+		-o|--output)	_filedir ; return 0 ;;
+		--path)		_filedir -d ; return 0 ;;
+		-S|--suffix)	return 0 ;;
+	esac
+
+	xspec="*.?(t)lzo"
+	case "$prev" in
+		--@(@(de|un)compress|extract|list|ls|info|test))
+				xspec="!"$xspec ;;
+		--force)	xspec= ;;
+		--*)		;;
+		-*f*|'<'|'>')	xspec= ;;
+		-*[dltx]*)	xspec="!"$xspec ;;
+	esac
+
+	_expand || return 0
+
+	local IFS=$'\t\n'
+	COMPREPLY=( $( compgen -f -X "$xspec" -- $cur ) \
+		    $( compgen -d -- $cur ) )
+} &&
+complete -F _lzop $filenames lzop
