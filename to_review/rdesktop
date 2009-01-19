@@ -1,0 +1,52 @@
+# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
+# ex: ts=8 sw=8 noet filetype=sh
+#
+# bash completion for rdesktop
+
+have rdesktop &&
+_rdesktop()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-k)
+			COMPREPLY=( $( command ls \
+				/usr/share/rdesktop/keymaps 2>/dev/null | \
+				egrep -v '(common|modifiers)' ) )
+			COMPREPLY=( ${COMPREPLY[@]:-} $( command ls \
+				$HOME/.rdesktop/keymaps 2>/dev/null ) )
+			COMPREPLY=( ${COMPREPLY[@]:-} $( command ls \
+				./keymaps 2>/dev/null ) )
+			COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
+			return 0
+			;;
+		-a)
+			COMPREPLY=( $( compgen -W '8 15 16 24' -- $cur ) )
+			return 0
+			;;
+		-x)
+			COMPREPLY=( $( compgen -W 'b broadband m modem l lan' \
+				-- $cur ) )
+			return 0
+			;;
+		-r)
+			COMPREPLY=( $( compgen -W 'comport: disk: lptport: \
+				printer: sound: lspc scard' -- $cur ) )
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-u -d -s -c -p -n -k -g -f -b -A -B \
+			-e -E -m -C -D -K -S -T -N -X -a -z -X -P -r -0 -4 -5' \
+			-- $cur ) )
+	else
+		_known_hosts
+	fi
+
+} &&
+complete -F _rdesktop rdesktop
