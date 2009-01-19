@@ -1,0 +1,72 @@
+# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
+# ex: ts=8 sw=8 noet filetype=sh
+#
+# bash completion for qemu
+
+have qemu &&
+_qemu()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-@(fd[ab]|hd[abcd]|cdrom|option-rom|kernel|initrd))
+			_filedir
+			return 0
+			;;
+		-boot)
+			COMPREPLY=( $( compgen -W 'a c d n' -- $cur ) )
+			return 0
+			;;
+		-k)
+			COMPREPLY=( $( compgen -W 'ar de-ch es fo fr-ca hu ja \
+				mk no pt-br sv da en-gb et fr fr-ch is lt nl pl\
+				ru th de en-us fi fr-be hr it lv nl-be pt sl \
+				tr' -- $cur ) )
+			return 0
+			;;
+		-soundhw)
+			COMPREPLY=( $( compgen -W "$( qemu -soundhw ? | awk \
+				'/^[[:lower:]]/ {print $1}' ) all" -- $cur ) )
+			return 0
+			;;
+		-M)
+			COMPREPLY=( $( compgen -W "$( qemu -M ? | awk \
+				'/^[[:lower:]]/ {print $1}' )" -- $cur ) )
+			return 0
+			;;
+		-usbdevice)
+			COMPREPLY=( $( compgen -W 'mouse tablet disk: host:' \
+				-- $cur ) )
+			return 0
+			;;
+		-net)
+			COMPREPLY=( $( compgen -W 'nic user tap socket none' \
+				-- $cur ) )
+			return 0
+			;;
+		-@(serial|parallel|monitor))
+			COMPREPLY=( $( compgen -W 'vc pty none null /dev/ \
+				file: stdio pipe: COM udp: tcp: telnet: unix:' \
+				-- $cur ) )
+			return 0
+			;;
+	esac
+
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-M -fa -fdb -hda -hdb -hdc -hdd \
+		-cdrom -boot -snapshot -no-fd-bootchk -m -smp -nographic -vnc \
+		-k -audio-help -soundhw -localtime -full-screen -pidfile \
+		-daemonize -win2k-hacks -option-rom -usb -usbdevice -net -tftp \
+		-smb -redir -kernel -append -initrd -serial -parallel -monitor \
+		-s -p -S -d -hdachs -L -std-vga -no-acpi -no-reboot -loadvm \
+		-semihosting' -- $cur ) )
+	else
+		_filedir
+	fi
+} &&
+complete -F _qemu qemu
