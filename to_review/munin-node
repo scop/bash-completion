@@ -1,0 +1,99 @@
+# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
+# ex: ts=8 sw=8 noet filetype=sh
+#
+# bash completion for munin node
+
+have munin-run &&
+_munin-run()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		--@(config|sconffile))
+			_filedir
+			return 0
+			;;
+		--@(service|sconf)dir)
+			_filedir -d
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '--config --servicedir --sconfdir \
+			--sconffile --help --debug --version' -- $cur ) )
+	else
+		COMPREPLY=( $( command ls /etc/munin/plugins | grep "^$cur" ) )
+	fi
+} &&
+complete -F _munin-run munin-run
+
+have munin-update &&
+_munin-update()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		--config)
+			_filedir
+			return 0
+			;;
+		--host)
+			_known_hosts
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '--force-root --[no]force-root \
+			--service --host --config --help --debug --nodebug \
+			--fork --nofork --stdout --nostdout --timeout' \
+			-- $cur ) )
+	fi
+} &&
+complete -F _munin-update munin-update
+
+have munin-node-configure &&
+_munin-node-configure()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		--config)
+			_filedir
+			return 0
+			;;
+		--@(service|lib)dir)
+			_filedir -d
+			return 0
+			;;
+		--snmp)
+			_known_hosts
+			return 0
+			;;
+		--snmpversion)
+			COMPREPLY=( $( compgen -W '1 2c 3' -- $cur ) )
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '--help --version --debug --config \
+			--servicedir --libdir --families --suggest --shell \
+			--remove-also --snmp --snmpversion --snmpcommunity' \
+			-- $cur ) )
+	fi
+} &&
+complete -F _munin-node-configure munin-node-configure
