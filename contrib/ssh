@@ -43,7 +43,7 @@ _ssh()
 			fi
 			shift
 		done
-		
+
 	    _known_hosts -a "$optconfigfile"
 
 	    [ $COMP_CWORD -eq 1 -o -n "$optconfigfile" ] || \
@@ -86,7 +86,7 @@ _scp()
 				   -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' ) )
 		return 0
 	fi
-	
+
 	# Search COMP_WORDS for '-F configfile' argument
 	set -- "${COMP_WORDS[@]}"
 	while [ $# -gt 0 ]; do
@@ -103,11 +103,13 @@ _scp()
 	done
 
 	[[ "$cur" == */* ]] || _known_hosts -c -a "$optconfigfile"
-		local IFS=$'\t\n'
-		COMPREPLY=( "${COMPREPLY[@]}" $( command ls -aF1d $cur* \
-			    2>/dev/null | sed \
-			    -e "s/[][(){}<>\",:;^&\!$=?\`|\\ ']/\\\\&/g" \
-			    -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' ) )
+
+	local IFS=$'\t\n'
+	COMPREPLY=( "${COMPREPLY[@]}" $( command ls -aF1d $cur* \
+		    2>/dev/null | sed \
+		    -e "s/[][(){}<>\",:;^&\!$=?\`|\\ ']/\\\\&/g" \
+		    -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' ) )
+
 	return 0
 }
 complete -F _scp $nospace scp
