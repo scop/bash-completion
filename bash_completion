@@ -485,6 +485,14 @@ _modules()
 			sed -ne 's/^\('$cur'.*\)\.k\?o\(\|.gz\)$/\1/p') )
 }
 
+# This function completes on installed modules
+#
+_installed_modules()
+{
+	COMPREPLY=( $( compgen -W "$( /sbin/lsmod | \
+				  awk '{if (NR != 1) print $1}' )" -- $1 ) )
+}
+
 # This function completes on user:group format
 #
 _usergroup()
@@ -817,8 +825,7 @@ _rmmod()
 	COMPREPLY=()
 	cur=`_get_cword`
 
-	COMPREPLY=( $( /sbin/lsmod | \
-		  awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}' 2>/dev/null ))
+	_installed_modules "$cur"
 	return 0
 }
 complete -F _rmmod rmmod
@@ -838,8 +845,7 @@ _insmod()
 	# behave like lsmod for modprobe -r
 	if [ $1 = "modprobe" ] &&
 	   [ "${COMP_WORDS[1]}" = "-r" ]; then
-		COMPREPLY=( $( /sbin/lsmod | \
-				awk '{if (NR != 1 && $1 ~ /^'$cur'/) print $1}' ) )
+		_installed_modules "$cur"
 		return 0
 	fi
 
