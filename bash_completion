@@ -44,9 +44,8 @@ fi
 #
 [ -n "$BASH_COMPLETION" ] || BASH_COMPLETION=/etc/bash_completion
 [ -n "$BASH_COMPLETION_DIR" ] || BASH_COMPLETION_DIR=/etc/bash_completion.d
-#[ -n "$BASH_COMPLETION" ] || BASH_COMPLETION=$(pwd)/bash_completion
-#[ -n "$BASH_COMPLETION_DIR" ] || BASH_COMPLETION_DIR=$(pwd)/contrib
-readonly BASH_COMPLETION BASH_COMPLETION_DIR
+[ -n "$BASH_COMPLETION_COMPAT_DIR" ] || BASH_COMPLETION_COMPAT_DIR=/etc/bash_completion.d
+readonly BASH_COMPLETION BASH_COMPLETION_DIR BASH_COMPLETION_COMPAT_DIR
 
 # Set a couple of useful vars
 #
@@ -9295,6 +9294,13 @@ if [ -d $BASH_COMPLETION_DIR -a -r $BASH_COMPLETION_DIR -a \
 	for i in $BASH_COMPLETION_DIR/*; do
 		[[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|*.rpm@(orig|new|save)) ]] &&
 			[ \( -f $i -o -h $i \) -a -r $i ] && . $i
+	done
+fi
+if [ -d $BASH_COMPLETION_COMPAT_DIR -a -r $BASH_COMPLETION_COMPAT_DIR -a \
+	 -x $BASH_COMPLETION_COMPAT_DIR ]; then
+	for i in $BASH_COMPLETION_COMPAT_DIR/*; do
+		[[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|*.rpm@(orig|new|save)) ]] &&
+			[ \( -f $i -o -h $i \) -a -r $i ] && . $i		
 	done
 fi
 unset i
