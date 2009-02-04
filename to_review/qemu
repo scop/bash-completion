@@ -13,8 +13,12 @@ _qemu()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case $prev in
-		-@(fd[ab]|hd[abcd]|cdrom|option-rom|kernel|initrd))
+		-@(fd[ab]|hd[abcd]|cdrom|option-rom|kernel|initrd|bootp|pidfile|loadvm))
 			_filedir
+			return 0
+			;;
+		-@(tftp|smb|L))
+			_filedir -d
 			return 0
 			;;
 		-boot)
@@ -38,33 +42,57 @@ _qemu()
 				'/^[[:lower:]]/ {print $1}' )" -- $cur ) )
 			return 0
 			;;
+		-cpu)
+			COMPREPLY=( $( compgen -W "$( qemu -cpu ? | awk \
+				'{print $2}' )" -- $cur ) )
+			return 0
+			;;
 		-usbdevice)
-			COMPREPLY=( $( compgen -W 'mouse tablet disk: host:' \
-				-- $cur ) )
+			COMPREPLY=( $( compgen -W 'mouse tablet disk: host: \
+				serial: braille net' -- $cur ) )
 			return 0
 			;;
 		-net)
-			COMPREPLY=( $( compgen -W 'nic user tap socket none' \
+			COMPREPLY=( $( compgen -W 'nic user tap socket vde none' \
 				-- $cur ) )
 			return 0
 			;;
 		-@(serial|parallel|monitor))
 			COMPREPLY=( $( compgen -W 'vc pty none null /dev/ \
-				file: stdio pipe: COM udp: tcp: telnet: unix:' \
-				-- $cur ) )
+				file: stdio pipe: COM udp: tcp: telnet: unix: \
+				mon: braille' -- $cur ) )
+			return 0
+			;;
+		-redir)
+			COMPREPLY=( $( compgen -S":" -W 'tcp udp' -- $cur ) )
+			return 0
+			;;
+		-bt)
+			COMPREPLY=( $( compgen -W 'hci vhci device' -- $cur ) )
+			return 0
+			;;
+		-vga)
+			COMPREPLY=( $( compgen -W 'cirrus std vmware' -- $cur ) )
+			return 0
+			;;
+		-drive)
+			COMPREPLY=( $( compgen -S"=" -W 'file if bus index media \
+				cyls snapshot cache format' -- $cur	) )
 			return 0
 			;;
 	esac
 
 
 	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-M -fa -fdb -hda -hdb -hdc -hdd \
+		COMPREPLY=( $( compgen -W '-M -fda -fdb -hda -hdb -hdc -hdd \
 		-cdrom -boot -snapshot -no-fd-bootchk -m -smp -nographic -vnc \
 		-k -audio-help -soundhw -localtime -full-screen -pidfile \
 		-daemonize -win2k-hacks -option-rom -usb -usbdevice -net -tftp \
 		-smb -redir -kernel -append -initrd -serial -parallel -monitor \
 		-s -p -S -d -hdachs -L -std-vga -no-acpi -no-reboot -loadvm \
-		-semihosting' -- $cur ) )
+		-semihosting -cpu -bt -vga -drive -startdate -name -curses \
+		-no-frame -no-quit -bootp -echr -no-shutdown -icount -g \
+		-prom-env' -- $cur ) )
 	else
 		_filedir
 	fi
