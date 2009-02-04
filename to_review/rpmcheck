@@ -1,0 +1,30 @@
+# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
+# ex: ts=8 sw=8 noet filetype=sh
+#
+# bash completion for rpmcheck
+
+have rpmcheck &&
+_rpmcheck()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-base)
+			_filedir
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-explain -failures -successes \
+			-dump -dump-all -base -help -compressed-input' \
+			-- $cur ) )
+	else
+		_filedir
+	fi
+} &&
+complete -F _rpmcheck rpmcheck $files
