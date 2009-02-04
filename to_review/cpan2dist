@@ -6,7 +6,7 @@
 have cpan2dist &&
 _cpan2dist()
 {
-	local cur prev
+	local cur prev packagelist cpandirs
 
 	COMPREPLY=()
 	cur=`_get_cword`
@@ -24,7 +24,7 @@ _cpan2dist()
 	esac
 
 	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '--help --skiptest --force \
+		COMPREPLY=( $( compgen -W '--help --skiptest --force --install \
 			--verbose --keepsource --makefile --buildprereq \
 			--archive --flushcache --defaults --edit-metafile \
 			--format --ban --banlist --ignore --ignorelist \
@@ -32,8 +32,12 @@ _cpan2dist()
 			--set-program --dist-opts --default-banlist \
 			--default-ignorelist' -- $cur ) )
 	else
+		cpandirs=( "$HOME/.cpanplus/" "$HOME/.cpan/source/modules/" )
+		for dir in ${cpandirs[@]}; do
+			[ -d "$dir" -a -r "$dir/02packages.details.txt.gz" ] && packagelist="$dir/02packages.details.txt.gz"
+		done
 		COMPREPLY=( $( zgrep "^${cur//-/::}" \
-			$HOME/.cpanplus/02packages.details.txt.gz 2>/dev/null \
+			$packagelist 2>/dev/null \
 			| awk '{print $1}' | sed -e 's/::/-/g' ) ) 
 	fi
 } &&
