@@ -1,0 +1,309 @@
+# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
+# ex: ts=8 sw=8 noet filetype=sh
+#
+# bash completion for quota-tools
+
+have quota && {
+_user_or_group()
+{
+	local i
+
+	# complete on groups if -g was given
+	for (( i=1; i < COMP_CWORD; i++ )); do
+		if [[ "${COMP_WORDS[i]}" == -g ]]; then
+			COMPREPLY=( $( compgen -g -- $cur ) )
+			return 0
+		fi
+	done
+
+	# otherwise complete on users
+	COMPREPLY=( $( compgen -u -- $cur ) )
+}
+
+_quota_formats()
+{
+	COMPREPLY=( $( compgen -W 'vfsold vfsv0 rpc xfs' -- $cur ) )
+}
+
+_filesystems()
+{
+	#  Only list filesystems starting with "/", otherwise we also get
+	#+ "binfmt_misc", "proc", "tmpfs", ...
+	COMPREPLY=( $( compgen -W "$(awk '/^\// {print $1}' /etc/mtab)" \
+		-- $cur ) )
+}
+
+_quota()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-F)
+			_quota_formats
+			return 0
+			;;
+	esac
+	
+	if [[ "$cur" == *=* ]]; then
+		prev=${cur/=*/}
+		cur=${cur/*=/}
+		case $prev in
+			--format)
+				_quota_formats
+				return 0
+				;;
+		esac
+	fi
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-F --format= -g --group -u --user -v --verbose \
+			-s --human-readable -p --raw-grace -i --no-autofs -l --local-only \
+			-A --all-nfs -m --no-mixed-pathnames -q --quiet -Q --quiet-refuse \
+			-w --no-wrap' -- $cur ) )
+	else
+		_user_or_group
+	fi
+}
+complete -F _quota $default quota
+
+_setquota()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-F)
+			_quota_formats
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == *=* ]]; then
+		prev=${cur/=*/}
+		cur=${cur/*=/}
+		case $prev in
+			--format)
+				_quota_formats
+				return 0
+				;;
+		esac
+	fi
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-r --remote -m --no-mixed-pathnames \
+			-F --format= -g --group -u --user -p --prototype= -b --batch \
+			-c --continue-batch -t --edit-period -T --edit-times -a --all' -- $cur ) )
+	else
+		_count_args
+
+		case $args in
+			1)
+				_user_or_group
+				;;
+			2)
+				_filesystems
+				;;
+		esac
+
+	fi
+}
+complete -F _setquota $default setquota
+
+_edquota()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-F)
+			_quota_formats
+			return 0
+			;;
+		-@(f|-filesystem))
+			_filesystems
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == *=* ]]; then
+		prev=${cur/=*/}
+		cur=${cur/*=/}
+		case $prev in
+			--format)
+				_quota_formats
+				return 0
+				;;
+		esac
+	fi
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-r --remote -m --no-mixed-pathnames \
+			-g --group -u --user -p --prototype= -F --format= -f --filesystem \
+			-t --edit-period -T --edit-times' -- $cur ) )
+	else
+		_user_or_group
+	fi
+}
+complete -F _edquota $default edquota
+
+_quotacheck()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-F)
+			_quota_formats
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == *=* ]]; then
+		prev=${cur/=*/}
+		cur=${cur/*=/}
+		case $prev in
+			--format)
+				_quota_formats
+				return 0
+				;;
+		esac
+	fi
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-b --backup -v --verbose -d --debug \
+			-g --group -u --user -c --create-files -f --force -i \
+			--interactive -n --use-first-dquot -M --try-remount -m \
+			--no-remount -R --exclude-root -F --format= -a --all' \
+			-- $cur ) )
+	else
+		_filesystems
+	fi
+}
+complete -F _quotacheck $default quotacheck
+
+_repquota()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-F)
+			_quota_formats
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == *=* ]]; then
+		prev=${cur/=*/}
+		cur=${cur/*=/}
+		case $prev in
+			--format)
+				_quota_formats
+				return 0
+				;;
+		esac
+	fi
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-a --all -v --verbose -s --human-readable \
+			-c --batch-translation -C --no-batch-translation -t \
+			--truncate-names -n --no-names -p --raw-grace -i --no-autofs \
+			-u --user -g --group -F --format=' -- $cur ) )
+	else
+		_filesystems
+	fi
+}
+complete -F _repquota $default repquota
+
+_quotaon()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	echo --$cmd--
+	case $prev in
+		-F)
+			_quota_formats
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == *=* ]]; then
+		prev=${cur/=*/}
+		cur=${cur/*=/}
+		case $prev in
+			--format)
+				_quota_formats
+				return 0
+				;;
+		esac
+	fi
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-a --all -v --verbose -u --user \
+			-g --group -f --off -p --print-state -F --format=' -- $cur ) )
+	else
+		_filesystems
+	fi
+}
+complete -F _quotaon $default quotaon
+
+_quotaoff()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-F)
+			_quota_formats
+			return 0
+			;;
+		-@(x|-xfs-command))
+			COMPREPLY=( $( compgen -W 'delete enforce' -- $cur ) )
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == *=* ]]; then
+		prev=${cur/=*/}
+		cur=${cur/*=/}
+		case $prev in
+			--format)
+				_quota_formats
+				return 0
+				;;
+		esac
+	fi
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-a --all -v --verbose -u --user \
+			-g --group -p --print-state -x --xfs-command -F --format=' \
+			-- $cur ) )
+	else
+		_filesystems
+	fi
+}
+complete -F _quotaoff $default quotaoff
+}
