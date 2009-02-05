@@ -6,7 +6,7 @@
 have minicom &&
 _minicom()
 {
-	local cur prev
+	local cur prev confdir
 
 	COMPREPLY=()
 	cur=`_get_cword`
@@ -31,9 +31,16 @@ _minicom()
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-s -o -m -M -z -l -L -w -a -t \
-			-c -S -d -p -C -T -8' -- $cur ) )
+			-c -S -d -p -C -T -7 -8' -- $cur ) )
+		return 0
 	else
-		COMPREPLY=( $( command ls /etc/minirc.* | sed -e 's|/etc/minirc.||' | grep "^$cur" ) )
+		[ -n "$( command ls /etc/minirc.* 2>/dev/null)" ] && confdir=/etc
+		[ -n "$( command ls /etc/minicom/minirc.* 2>/dev/null)" ] && confdir=/etc/minicom
+		if [ -n "$confdir" ]; then
+			COMPREPLY=( $( compgen -W '$( command ls $confdir/minirc.* | \
+				sed -e "s|$confdir/minirc.||")' -- $cur ) )
+			return 0
+		fi
 	fi
 } &&
-complete -F _minicom minicom
+complete -F _minicom $default minicom
