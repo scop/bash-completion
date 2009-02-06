@@ -390,11 +390,12 @@ _expand()
 	# FIXME: Why was this here?
 	#[ "$cur" != "${cur%\\}" ] && cur="$cur\\"
 
-	# expand ~username type directory specifications
+	# Expand ~username type directory specifications.  We want to expand
+	# ~foo/... to /home/foo/... to avoid problems when $cur starting with
+	# a tilde is fed to commands and ending up quoted instead of expanded.
+
 	if [[ "$cur" == \~*/* ]]; then
-		# Don't expand ~foo at /home/foo/. (See #489720)
-		#eval cur=$cur
-		return
+		eval cur=$cur
 	elif [[ "$cur" == \~* ]]; then
 		cur=${cur#\~}
 		COMPREPLY=( $( compgen -P '~' -u $cur ) )
