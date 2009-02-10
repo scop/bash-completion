@@ -5361,16 +5361,12 @@ _perl()
 	    ;;
     esac
 
-    # handle case where first parameter is not a dash option
-    if [[ "`_get_cword`" != -* ]]; then
+    if [[ "$cur" == -* ]]; then
+	    COMPREPLY=( $( compgen -W '-C -s -T -u -U -W -X -h -v -V -c -w -d \
+		    -D -p -n -a -F -l -0 -I -m -M -P -S -x -i -e ' -- $cur ) )
+    else
 	_filedir
-	return 0
     fi
-
-    # complete using basic options
-    COMPREPLY=( $( compgen -W '-C -s -T -u -U -W -X -h -v -V -c -w -d -D -p \
-			-n -a -F -l -0 -I -m -M -P -S -x -i -e ' -- $cur ) )
-    return 0
 }
 complete -F _perl $nospace $filenames perl
 
@@ -5427,21 +5423,15 @@ _perldoc()
 	    ;;
     esac
 
-    case $cur in
-	-*)
+    if [[ "$cur" == -* ]]; then
 	    COMPREPLY=( $( compgen -W '-h -v -t -u -m -l -F -X -f -q' -- $cur ))
-	    return 0
-	    ;;
-	*/*)
-	    return 0
-	    ;;
-	*)
-	    _perlmodules
-	    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W '$( PAGER=/bin/cat man perl |  sed -ne "/perl.*Perl overview/,/perlwin32/p" | awk "\$NF=2 { print \$1}" | grep perl )' -- $cur ) )
-
-	    return 0
-	    ;;
-    esac
+    else
+	    # return available modules (unless it is clearly a file)
+	    if [[ "$cur" != */* ]]; then
+		    _perlmodules
+		    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W '$( PAGER=/bin/cat man perl |  sed -ne "/perl.*Perl overview/,/perlwin32/p" | awk "\$NF=2 { print \$1}" | grep perl )' -- $cur ) )
+	    fi
+    fi
 }
 complete -F _perldoc $default perldoc
 }
