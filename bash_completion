@@ -3189,35 +3189,20 @@ else
     complete -F _cd $nospace cd
 fi
 
-_remove_comp_word()
+# a wrapper method for the next one, when the offset is unknown
+_command()
 {
-	if [[ COMP_CWORD -eq 0 ]]; then
-		return
-	elif [[ ${#COMP_WORDS[@]} -ge 2 ]]; then
-		local old_cw0="${COMP_WORDS[0]}"
-		local new_cw0="${COMP_WORDS[1]}"
-		local old_length="${#COMP_LINE}"
-		COMP_LINE=${COMP_LINE#${old_cw0}}
-		local head=${COMP_LINE:0:${#new_cw0}}
-		local i=1
-		while [[ $head != $new_cw0 ]]; do
-			COMP_LINE=${COMP_LINE:1}
-			head=${COMP_LINE:0:${#new_cw0}}
-			if (( ++i > 10 )); then
-				break
-			fi
-		done
-		local new_length="${#COMP_LINE}"
-		COMP_POINT=$(( COMP_POINT + new_length - old_length ))
-		
-		COMP_CWORD=$(( COMP_CWORD - 1 ))
-		for (( i=0; i < ${#COMP_WORDS[@]} - 1; ++i )); do
-			COMP_WORDS[i]="${COMP_WORDS[i+1]}"
-		done
-		unset COMP_WORDS[${#COMP_WORDS[@]}-1]
-	else
-		return
-	fi
+	local offset i
+
+	# find actual offset, as position of the first non-option
+	offset=1
+	for (( i=1; i <= COMP_CWORD; i++ )); do
+		if [[ "${COMP_WORDS[i]}" != -* ]]; then
+			offset=$i
+			break
+		fi
+	done
+	_command_offset $offset
 }
 
 # A meta-command completion function for commands like sudo(8), which need to
@@ -3225,38 +3210,48 @@ _remove_comp_word()
 # completion definition - currently not quite foolproof (e.g. mount and umount
 # don't work properly), but still quite useful.
 #
-_command()
+_command_offset()
 {
-	local cur func cline cspec noglob cmd done i \
+	local cur func cline cspec noglob cmd i char_offset word_offset \
 	      _COMMAND_FUNC _COMMAND_FUNC_ARGS
 
-	_remove_comp_word
+	word_offset=$1
+
+	# rewrite current completion context before invoking
+	# actual command completion
+
+	# find new first word position, then
+	# rewrite COMP_LINE and adjust COMP_POINT
+	local first_word=${COMP_WORDS[$word_offset]}
+	for (( i=0; i <= ${#COMP_LINE}; i++ )); do
+		if [[ "${COMP_LINE:$i:${#first_word}}" == "$first_word" ]]; then
+			char_offset=$i
+			break
+		fi
+	done
+	COMP_LINE=${COMP_LINE:$char_offset}
+	COMP_POINT=$(( COMP_POINT - $char_offset ))
+
+	# shift COMP_WORDS elements and adjust COMP_CWORD
+	for (( i=0; i <= COMP_CWORD - $word_offset; i++ )); do
+		COMP_WORDS[i]=${COMP_WORDS[i+$word_offset]}
+	done
+	for (( i; i <= COMP_CWORD; i++ )); do
+		unset COMP_WORDS[i];
+	done
+	COMP_CWORD=$(( $COMP_CWORD - $word_offset ))
+
 	COMPREPLY=()
 	cur=`_get_cword`
-	# If the the first arguments following our meta-command-invoker are
-	# switches, get rid of them. Most definitely not foolproof.
-	done=
-	while [ -z $done ] ; do
-		cmd=${COMP_WORDS[0]}
-		if [[ "$cmd" == -* ]] && [[ $COMP_CWORD -ge 1 ]]; then
-	    	_remove_comp_word
-	    elif [[ "$cmd" == -* ]] && [[ $COMP_CWORD -eq 0 ]]; then
-	    	return
-	    else
-			done=1
-	    fi
-	done
 
 	if [[ $COMP_CWORD -eq 0 ]]; then
 		COMPREPLY=( $( compgen -c -- $cur ) )
-	elif complete -p $cmd &>/dev/null; then
+	else
+		cmd=${COMP_WORDS[0]}
+		if complete -p $cmd &>/dev/null; then
 		cspec=$( complete -p $cmd )
 		if [ "${cspec#* -F }" != "$cspec" ]; then
 			# complete -F <function>
-			#
-			# COMP_CWORD and COMP_WORDS() are not read-only,
-			# so we can set them before handing off to regular
-			# completion routine
 
 			# get function name
 			func=${cspec#*-F }
@@ -3283,11 +3278,12 @@ _command()
 			cspec=${cspec%%$cmd};
 			COMPREPLY=( $( eval compgen "$cspec" -- "$cur" ) );
 		fi
+		fi
 	fi
 
 	[ ${#COMPREPLY[@]} -eq 0 ] && _filedir
 }
-complete -F _command $filenames nohup exec nice eval strace time ltrace then \
+complete -F _command $filenames nohup exec nice eval time ltrace then \
 	else do vsound command xargs tsocks
 
 _root_command()
