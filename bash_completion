@@ -428,6 +428,31 @@ _pgids()
 	COMPREPLY=( $( compgen -W '$( command ps axo pgid | sed 1d )' -- $cur ))
 }
 
+# This function completes on process names.
+# AIX and SunOS prefer X/Open, all else should be BSD.
+[ $UNAME = SunOS -o $UNAME = AIX ] &&
+_pnames()
+{
+	COMPREPLY=( $( compgen -W '$( command ps -efo comm | \
+			           sed -e 1d -e "s:.*/::" -e "s/^-//" \
+				       -e "s/^<defunct>$//")' \
+			           -- $cur ) )
+} ||
+_pnames()
+{
+	# FIXME: completes "[kblockd/0]" to "0". Previously it was completed
+	# to "kblockd" which isn't correct either. "kblockd/0" would be
+	# arguably most correct, but killall from psmisc 22 treats arguments
+	# containing "/" specially unless -r is given so that wouldn't quite
+	# work either. Perhaps it'd be best to not complete these to anything
+	# for now.
+	COMPREPLY=( $( compgen -W '$( command ps axo command | \
+			           sed -e "1d; s/ .*//; s:.*/::; s/:$//;" \
+			               -e "s/^[[(-]//; s/[])]$//" \
+				       -e "s/^<defunct>$//")' \
+			           -- $cur ) )
+}
+
 # This function completes on user IDs
 #
 _uids()
@@ -1028,17 +1053,7 @@ _killall()
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
 		_signals
 	else
-		# FIXME: completes "[kblockd/0]" to "0". Previously it was
-		# completed to "kblockd" which isn't correct either.
-		# "kblockd/0" would be arguably most correct, but killall from
-		# psmisc 22 treats arguments containing "/" specially unless
-		# -r is given so that wouldn't quite work either. Perhaps it'd
-		# be best to not complete these to anything for now.
-		COMPREPLY=( $( compgen -W '$( command ps axo command | \
-			           sed -e "1d; s/ .*//; s:.*/::; s/:$//;" \
-			               -e "s/^[[(-]//; s/[])]$//" \
-				       -e "s/^<defunct>$//")' \
-			           -- $cur ) )
+		_pnames
 	fi
 
 	return 0
