@@ -1028,9 +1028,15 @@ _killall()
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
 		_signals
 	else
+		# FIXME: completes "[kblockd/0]" to "0". Previously it was
+		# completed to "kblockd" which isn't correct either.
+		# "kblockd/0" would be arguably most correct, but killall from
+		# psmisc 22 treats arguments containing "/" specially unless
+		# -r is given so that wouldn't quite work either. Perhaps it'd
+		# be best to not complete these to anything for now.
 		COMPREPLY=( $( compgen -W '$( command ps axo command | \
-			           sed -e "1d; s/ .*//; s:^/.*/::; s/:$//;" \
-			               -e "s/^[[(-]//; s/[])]$//; s:/.*::" \
+			           sed -e "1d; s/ .*//; s:.*/::; s/:$//;" \
+			               -e "s/^[[(-]//; s/[])]$//" \
 				       -e "s/^<defunct>$//")' \
 			           -- $cur ) )
 	fi
