@@ -428,6 +428,33 @@ _pgids()
 	COMPREPLY=( $( compgen -W '$( command ps axo pgid | sed 1d )' -- $cur ))
 }
 
+# This function completes on process names.
+# AIX and SunOS prefer X/Open, all else should be BSD.
+[ $UNAME = SunOS -o $UNAME = AIX ] &&
+_pnames()
+{
+	COMPREPLY=( $( compgen -W '$( command ps -efo comm | \
+			           sed -e 1d -e "s:.*/::" -e "s/^-//" \
+				       -e "s/^<defunct>$//")' \
+			           -- $cur ) )
+} ||
+_pnames()
+{
+	# FIXME: completes "[kblockd/0]" to "0". Previously it was completed
+	# to "kblockd" which isn't correct either. "kblockd/0" would be
+	# arguably most correct, but killall from psmisc 22 treats arguments
+	# containing "/" specially unless -r is given so that wouldn't quite
+	# work either. Perhaps it'd be best to not complete these to anything
+	# for now.
+	# Not using "ps axo comm" because under some Linux kernels, it
+	# truncates command names (see e.g. http://bugs.debian.org/497540#19)
+	COMPREPLY=( $( compgen -W '$( command ps axo command | \
+			           sed -e "1d; s/ .*//; s:.*/::; s/:$//;" \
+			               -e "s/^[[(-]//; s/[])]$//" \
+				       -e "s/^<defunct>$//")' \
+			           -- $cur ) )
+}
+
 # This function completes on user IDs
 #
 _uids()
@@ -522,6 +549,22 @@ _count_args()
 	done
 }
 
+# This function complete on PCI IDs
+#
+_pci_ids()
+{
+	COMPREPLY=( ${COMPREPLY[@]:-} \
+		$( compgen -W "$( lspci -n | awk '{print $3}')" -- $cur ) )
+}
+
+# This function complete on USB IDs
+#
+_usb_ids()
+{
+	COMPREPLY=( ${COMPREPLY[@]:-} \
+		$( compgen -W "$( lsusb | awk '{print $6}')" -- $cur ) )
+}
+
 # start of section containing completion functions for bash built-ins
 
 # bash alias completion
@@ -535,7 +578,7 @@ _alias()
 
 	case "$COMP_LINE" in
 	*[^=])
-		COMPREPLY=( $( compgen -A alias -S '=' -- $cur ) )
+		COMPREPLY=( $( compgen -A alias -- $cur ) )
 		;;
 	*=)
 		COMPREPLY=( "$( alias ${cur%=} 2>/dev/null | \
@@ -999,9 +1042,9 @@ _kill()
 }
 complete -F _kill kill
 
-# Linux and FreeBSD killall(1) completion.
+# killall(1) (Linux and FreeBSD) and pkill(1) completion.
 #
-[ $UNAME = Linux -o $UNAME = FreeBSD ] &&
+[ $UNAME = Linux -o $UNAME = FreeBSD ] || have pkill &&
 _killall()
 {
 	local cur
@@ -1012,19 +1055,17 @@ _killall()
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
 		_signals
 	else
-		COMPREPLY=( $( compgen -W '$( command ps axo command | \
-			           sed -e "1d; s/ .*//g; s:^/.*/::g; s/:$//g;" \
-			               -e "s/^-//g; s/^\[//g; s/\]$//g; s:/.*::g")' \
-			           -- $cur ) )
+		_pnames
 	fi
 
 	return 0
 }
-[ $UNAME = Linux -o $UNAME = FreeBSD ] && complete -F _killall killall pkill
+[ $UNAME = Linux -o $UNAME = FreeBSD ] && complete -F _killall killall
+have pkill && complete -F _killall pkill
 
-# Linux and FreeBSD pgrep(1) completion.
+# pgrep(1) completion.
 #
-[ $UNAME = Linux -o $UNAME = FreeBSD ] &&
+[ $UNAME = Linux ] || have pgrep &&
 _pgrep()
 {
 	local cur
@@ -1032,13 +1073,12 @@ _pgrep()
 	COMPREPLY=()
 	cur=`_get_cword`
 
-	COMPREPLY=( $( compgen -W '$( command ps axo command | \
-		      sed -ne "1d; s/^\[\?\([^-][^] ]*\).*$/\1/p" | \
-		      sed -e "s/.*\///" )' -- $cur ) )
+	_pnames
 
 	return 0
 }
-[ $UNAME = Linux -o $UNAME = FreeBSD ] && complete -F _pgrep pgrep
+have pgrep && complete -F _pgrep pgrep
+
 # Linux pidof(8) completion.
 [ $UNAME = Linux ] && complete -F _pgrep pidof
 
@@ -3172,35 +3212,20 @@ else
     complete -F _cd $nospace cd
 fi
 
-_remove_comp_word()
+# a wrapper method for the next one, when the offset is unknown
+_command()
 {
-	if [[ COMP_CWORD -eq 0 ]]; then
-		return
-	elif [[ ${#COMP_WORDS[@]} -ge 2 ]]; then
-		local old_cw0="${COMP_WORDS[0]}"
-		local new_cw0="${COMP_WORDS[1]}"
-		local old_length="${#COMP_LINE}"
-		COMP_LINE=${COMP_LINE#${old_cw0}}
-		local head=${COMP_LINE:0:${#new_cw0}}
-		local i=1
-		while [[ $head != $new_cw0 ]]; do
-			COMP_LINE=${COMP_LINE:1}
-			head=${COMP_LINE:0:${#new_cw0}}
-			if (( ++i > 10 )); then
-				break
-			fi
-		done
-		local new_length="${#COMP_LINE}"
-		COMP_POINT=$(( COMP_POINT + new_length - old_length ))
-		
-		COMP_CWORD=$(( COMP_CWORD - 1 ))
-		for (( i=0; i < ${#COMP_WORDS[@]} - 1; ++i )); do
-			COMP_WORDS[i]="${COMP_WORDS[i+1]}"
-		done
-		unset COMP_WORDS[${#COMP_WORDS[@]}-1]
-	else
-		return
-	fi
+	local offset i
+
+	# find actual offset, as position of the first non-option
+	offset=1
+	for (( i=1; i <= COMP_CWORD; i++ )); do
+		if [[ "${COMP_WORDS[i]}" != -* ]]; then
+			offset=$i
+			break
+		fi
+	done
+	_command_offset $offset
 }
 
 # A meta-command completion function for commands like sudo(8), which need to
@@ -3208,38 +3233,48 @@ _remove_comp_word()
 # completion definition - currently not quite foolproof (e.g. mount and umount
 # don't work properly), but still quite useful.
 #
-_command()
+_command_offset()
 {
-	local cur func cline cspec noglob cmd done i \
+	local cur func cline cspec noglob cmd i char_offset word_offset \
 	      _COMMAND_FUNC _COMMAND_FUNC_ARGS
 
-	_remove_comp_word
+	word_offset=$1
+
+	# rewrite current completion context before invoking
+	# actual command completion
+
+	# find new first word position, then
+	# rewrite COMP_LINE and adjust COMP_POINT
+	local first_word=${COMP_WORDS[$word_offset]}
+	for (( i=0; i <= ${#COMP_LINE}; i++ )); do
+		if [[ "${COMP_LINE:$i:${#first_word}}" == "$first_word" ]]; then
+			char_offset=$i
+			break
+		fi
+	done
+	COMP_LINE=${COMP_LINE:$char_offset}
+	COMP_POINT=$(( COMP_POINT - $char_offset ))
+
+	# shift COMP_WORDS elements and adjust COMP_CWORD
+	for (( i=0; i <= COMP_CWORD - $word_offset; i++ )); do
+		COMP_WORDS[i]=${COMP_WORDS[i+$word_offset]}
+	done
+	for (( i; i <= COMP_CWORD; i++ )); do
+		unset COMP_WORDS[i];
+	done
+	COMP_CWORD=$(( $COMP_CWORD - $word_offset ))
+
 	COMPREPLY=()
 	cur=`_get_cword`
-	# If the the first arguments following our meta-command-invoker are
-	# switches, get rid of them. Most definitely not foolproof.
-	done=
-	while [ -z $done ] ; do
-		cmd=${COMP_WORDS[0]}
-		if [[ "$cmd" == -* ]] && [[ $COMP_CWORD -ge 1 ]]; then
-	    	_remove_comp_word
-	    elif [[ "$cmd" == -* ]] && [[ $COMP_CWORD -eq 0 ]]; then
-	    	return
-	    else
-			done=1
-	    fi
-	done
 
 	if [[ $COMP_CWORD -eq 0 ]]; then
 		COMPREPLY=( $( compgen -c -- $cur ) )
-	elif complete -p $cmd &>/dev/null; then
+	else
+		cmd=${COMP_WORDS[0]}
+		if complete -p $cmd &>/dev/null; then
 		cspec=$( complete -p $cmd )
 		if [ "${cspec#* -F }" != "$cspec" ]; then
 			# complete -F <function>
-			#
-			# COMP_CWORD and COMP_WORDS() are not read-only,
-			# so we can set them before handing off to regular
-			# completion routine
 
 			# get function name
 			func=${cspec#*-F }
@@ -3266,11 +3301,12 @@ _command()
 			cspec=${cspec%%$cmd};
 			COMPREPLY=( $( eval compgen "$cspec" -- "$cur" ) );
 		fi
+		fi
 	fi
 
 	[ ${#COMPREPLY[@]} -eq 0 ] && _filedir
 }
-complete -F _command $filenames nohup exec nice eval strace time ltrace then \
+complete -F _command $filenames nohup exec nice eval time ltrace then \
 	else do vsound command xargs tsocks
 
 _root_command()
@@ -5360,16 +5396,12 @@ _perl()
 	    ;;
     esac
 
-    # handle case where first parameter is not a dash option
-    if [[ "`_get_cword`" != -* ]]; then
+    if [[ "$cur" == -* ]]; then
+	    COMPREPLY=( $( compgen -W '-C -s -T -u -U -W -X -h -v -V -c -w -d \
+		    -D -p -n -a -F -l -0 -I -m -M -P -S -x -i -e ' -- $cur ) )
+    else
 	_filedir
-	return 0
     fi
-
-    # complete using basic options
-    COMPREPLY=( $( compgen -W '-C -s -T -u -U -W -X -h -v -V -c -w -d -D -p \
-			-n -a -F -l -0 -I -m -M -P -S -x -i -e ' -- $cur ) )
-    return 0
 }
 complete -F _perl $nospace $filenames perl
 
@@ -5426,21 +5458,15 @@ _perldoc()
 	    ;;
     esac
 
-    case $cur in
-	-*)
+    if [[ "$cur" == -* ]]; then
 	    COMPREPLY=( $( compgen -W '-h -v -t -u -m -l -F -X -f -q' -- $cur ))
-	    return 0
-	    ;;
-	*/*)
-	    return 0
-	    ;;
-	*)
-	    _perlmodules
-	    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W '$( PAGER=/bin/cat man perl |  sed -ne "/perl.*Perl overview/,/perlwin32/p" | awk "\$NF=2 { print \$1}" | grep perl )' -- $cur ) )
-
-	    return 0
-	    ;;
-    esac
+    else
+	    # return available modules (unless it is clearly a file)
+	    if [[ "$cur" != */* ]]; then
+		    _perlmodules
+		    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W '$( PAGER=/bin/cat man perl |  sed -ne "/perl.*Perl overview/,/perlwin32/p" | awk "\$NF=2 { print \$1}" | grep perl )' -- $cur ) )
+	    fi
+    fi
 }
 complete -F _perldoc $default perldoc
 }
@@ -6322,7 +6348,7 @@ complete -F _dict $default dict rdict
 
 # cdrecord(1) completion
 #
-have cdrecord &&
+(have cdrecord || have wodim) &&
 _cdrecord()
 {
 	local cur prev i generic_options track_options track_mode
@@ -6395,11 +6421,11 @@ _cdrecord()
 	fi
 
 } &&
-complete -F _cdrecord $filenames cdrecord
+complete -F _cdrecord $filenames cdrecord wodim
 
 # mkisofs(8) completion
 #
-have mkisofs &&
+(have mkisofs || have genisoimage) &&
 _mkisofs()
 {
 	local cur prev
@@ -6467,7 +6493,7 @@ _mkisofs()
 	fi
 
 } &&
-complete -F _mkisofs $filenames mkisofs
+complete -F _mkisofs $filenames mkisofs genisoimage
 
 # mc(1) completion
 #
