@@ -273,15 +273,19 @@ _filedir()
 
 	local toks=( ) tmp
 	
+	# TODO: I've removed a "[ -n $tmp ] &&" before `echo $tmp',
+	#       and everything works again. If this bug
+	#       suddenly appears again (i.e. "cd /b<TAB>"
+	#       becomes "cd /"), remember to check for
+	#       other similar conditionals (here and
+	#       _filedir_xspec()). --David
+	# NOTE: The comment above has been moved outside of the subshell below, 
+	#       because quotes-in-comments-in-a-subshell cause errors on
+	#       bash-3.1.  See also: 
+	#       http://www.mail-archive.com/bug-bash@gnu.org/msg01667.html
 	toks=( ${toks[@]-} $(
 		compgen -d -- "$(quote_readline "$cur")" | {
 			while read -r tmp; do
-				# TODO: I've removed a "[ -n $tmp ] &&" before,
-				#       and everything works again. If this bug
-				#       suddenly appears again (i.e. "cd /b<TAB>"
-				#       becomes "cd /"), remember to check for
-				#       other similar conditionals (here and
-				#       _filedir_xspec()). --David
 				echo $tmp
 			done
 		}
