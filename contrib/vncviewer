@@ -1,13 +1,68 @@
 # -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
 # ex: ts=8 sw=8 noet filetype=sh
 #
-# bash completion for vncviewer (4.1.1)
+# bash completion for vncviewer
+
+
+_vncviewer_bootstrap() {
+	local fname
+	case "$(_realcommand vncviewer)" in
+		# If `vncviewer' not installed, default file-dir completion 
+		'') _filedir `_get_cword` ;;
+		*xvnc4viewer)      fname=_xvnc4viewer    ;;
+		*tightvncviewer|*) fname=_tightvncviewer ;;
+	esac
+	if [ $fname ]; then
+		# Install real completion for subsequent completions
+		complete -F $fname vncviewer
+		$fname  # Generate completions once for now
+		unset -f _vncviewer_bootstrap
+	fi
+} &&
+complete -F _vncviewer_bootstrap vncviewer
+
+
+_tightvncviewer()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-passwd)
+			_filedir
+			return 0
+			;;
+		-encodings)
+			COMPREPLY=( $( compgen -W 'copyrect tight hextile zlib \
+				corre rre raw' -- $cur ) )
+			return 0
+			;;
+		-via)
+			_known_hosts
+			return 0
+			;;
+	esac
+
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-help -listen -via -shared -noshared\
+			-viewonly -fullscreen -noraiseonbeep -passwd -encodings\
+			-bgr233 -owncmap -truecolour -truecolor -depth \
+			-compresslevel -quality -nojpeg -nocursorshape \
+			-x11cursor' -- $cur ) )
+	else
+		_known_hosts
+	fi
+} &&
+complete -F _tightvncviewer tightvncviewer
 
 
 # NOTE: - VNC Viewer options are case-insensivite.  Preferred case is taken from -help.
 #       - Both single dash (-) and double dash (--) are allowed as option prefix
-have vncviewer &&
-_vncviewer()
+_xvnc4viewer()
 {
 	local cur prev
 
@@ -68,4 +123,4 @@ _vncviewer()
 		_known_hosts
 	fi
 } &&
-complete -F _vncviewer vncviewer
+complete -F _xvnc4viewer xvnc4viewer
