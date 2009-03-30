@@ -55,16 +55,15 @@ _yum()
 		esac
 	fi
 
-	case $cur in
-	    --*)
-		COMPREPLY=( $( compgen -W '--installroot --version --help --enablerepo --disablerepo --exclude --obsoletes --noplugins' -- $cur ) )
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-h --help -t --tolerant -C -c -R \
+			-d --showduplicates -e -q --quiet -v --verbose -y \
+			--version --installroot --enablerepo --disablerepo -x \
+			--exclude --disableexcludes --obsoletes --noplugins \
+			--nogpgcheck --disableplugin --enableplugin \
+			--skip-broken --color' -- $cur ) )
 		return 0
-		;;
-	    -*)
-		COMPREPLY=( $( compgen -W '-c -e -d -y -t -R -C -h' -- $cur ) )
-		return 0
-		;;
-	esac
+	fi
 
 	case $prev in
 	    list)
@@ -84,11 +83,12 @@ _yum()
 		_filedir -d
 		;;
 	    *)
-		COMPREPLY=( $( compgen -W 'install update check-update upgrade remove list \
-						search info provides clean groupinstall groupupdate \
-						grouplist deplist erase groupinfo groupremove \
-						localinstall localupdate makecache resolvedep \
-						shell whatprovides' -- $cur ) )
+		COMPREPLY=( $( compgen -W 'install update check-update \
+			upgrade remove erase list info provides whatprovides \
+			clean makecache groupinstall groupupdate grouplist \
+			groupremove groupinfo search shell resolvedep \
+			localinstall localupdate deplist repolist help' \
+			-- $cur ) )
 		;;
 	esac
 }
