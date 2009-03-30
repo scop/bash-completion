@@ -26,7 +26,7 @@
 #
 #   http://bash-completion.alioth.debian.org/
 #
-#   RELEASE: 200902xx
+#   RELEASE: 1.x
 
 if [[ $- == *v* ]]; then
 	BASH_COMPLETION_ORIGINAL_V_VALUE="-v"
@@ -107,8 +107,8 @@ complete -f -X '!*.@(dvi|DVI)?(.@(gz|Z|bz2))' kdvi
 complete -f -X '!*.@(dvi|DVI)' dvips dviselect dvitype dvipdf advi dvipdfm dvipdfmx
 complete -f -X '!*.@(pdf|PDF)' acroread gpdf xpdf
 complete -f -X '!*.@(?(e)ps|?(E)PS|pdf|PDF)' kpdf
-complete -f -X '!*.@(@(?(e)ps|?(E)PS|pdf|PDF)?(.gz|.GZ|.bz2|.BZ2)|cb[rz]|CB[RZ]|djv?(u)|DJV?(U)|dvi|DVI|gif|jp?(e)g|miff|tif?(f)|pn[gm]|p[bgp]m|bmp|xpm|ico|xwd|tga|pcx|GIF|JP?(E)G|MIFF|TIF?(F)|PN[GM]|P[BGP]M|BMP|XPM|ICO|XWD|TGA|PCX)' evince
-complete -f -X '!*.@(?(e)ps|?(E)PS)' ps2pdf
+complete -f -X '!*.@(@(?(e)ps|?(E)PS|pdf|PDF)?(.gz|.GZ|.bz2|.BZ2)|cb[rz]|CB[RZ]|djv?(u)|DJV?(U)|dvi|DVI|gif|jp?(e)g|miff|tif?(f)|pn[gm]|p[bgp]m|bmp|xpm|ico|xwd|tga|pcx|GIF|JP?(E)G|MIFF|TIF?(F)|PN[GM]|P[BGP]M|BMP|XPM|ICO|XWD|TGA|PCX)' evince okular
+complete -f -X '!*.@(?(e)ps|?(E)PS|pdf|PDF)' ps2pdf ps2pdf12 ps2pdf13 ps2pdf14 ps2pdfwr
 complete -f -X '!*.texi*' makeinfo texi2html
 complete -f -X '!*.@(?(la)tex|?(LA)TEX|texi|TEXI|dtx|DTX|ins|INS)' tex latex slitex jadetex pdfjadetex pdftex pdflatex texi2dvi
 complete -f -X '!*.@(mp3|MP3)' mpg123 mpg321 madplay
@@ -274,15 +274,19 @@ _filedir()
 
 	local toks=( ) tmp
 	
+	# TODO: I've removed a "[ -n $tmp ] &&" before `echo $tmp',
+	#       and everything works again. If this bug
+	#       suddenly appears again (i.e. "cd /b<TAB>"
+	#       becomes "cd /"), remember to check for
+	#       other similar conditionals (here and
+	#       _filedir_xspec()). --David
+	# NOTE: The comment above has been moved outside of the subshell below, 
+	#       because quotes-in-comments-in-a-subshell cause errors on
+	#       bash-3.1.  See also: 
+	#       http://www.mail-archive.com/bug-bash@gnu.org/msg01667.html
 	toks=( ${toks[@]-} $(
 		compgen -d -- "$(quote_readline "$cur")" | {
 			while read -r tmp; do
-				# TODO: I've removed a "[ -n $tmp ] &&" before,
-				#       and everything works again. If this bug
-				#       suddenly appears again (i.e. "cd /b<TAB>"
-				#       becomes "cd /"), remember to check for
-				#       other similar conditionals (here and
-				#       _filedir_xspec()). --David
 				echo $tmp
 			done
 		}
@@ -428,6 +432,33 @@ _pgids()
 	COMPREPLY=( $( compgen -W '$( command ps axo pgid | sed 1d )' -- $cur ))
 }
 
+# This function completes on process names.
+# AIX and SunOS prefer X/Open, all else should be BSD.
+[ $UNAME = SunOS -o $UNAME = AIX ] &&
+_pnames()
+{
+	COMPREPLY=( $( compgen -W '$( command ps -efo comm | \
+			           sed -e 1d -e "s:.*/::" -e "s/^-//" \
+				       -e "s/^<defunct>$//")' \
+			           -- $cur ) )
+} ||
+_pnames()
+{
+	# FIXME: completes "[kblockd/0]" to "0". Previously it was completed
+	# to "kblockd" which isn't correct either. "kblockd/0" would be
+	# arguably most correct, but killall from psmisc 22 treats arguments
+	# containing "/" specially unless -r is given so that wouldn't quite
+	# work either. Perhaps it'd be best to not complete these to anything
+	# for now.
+	# Not using "ps axo comm" because under some Linux kernels, it
+	# truncates command names (see e.g. http://bugs.debian.org/497540#19)
+	COMPREPLY=( $( compgen -W '$( command ps axo command | \
+			           sed -e "1d; s/ .*//; s:.*/::; s/:$//;" \
+			               -e "s/^[[(-]//; s/[])]$//" \
+				       -e "s/^<defunct>$//")' \
+			           -- $cur ) )
+}
+
 # This function completes on user IDs
 #
 _uids()
@@ -510,6 +541,25 @@ _usergroup()
 	fi
 }
 
+
+# Get real command.
+# - arg: $1  Command
+# - stdout:  Filename of command in PATH with possible symbolic links resolved.
+#            Empty string if command not found.
+# - return:  True (0) if command found, False (> 0) if not.
+_realcommand() {
+	type -P "$1" > /dev/null && {
+		if type -p realpath > /dev/null; then
+			realpath "$(type -P "$1")"
+		elif type -p readlink > /dev/null; then
+			readlink -f "$(type -P "$1")"
+		else
+			type -P "$1"
+		fi
+	}
+}
+
+
 # this function count the number of mandatory args
 #
 _count_args()
@@ -547,7 +597,7 @@ _alias()
 	local cur
 
 	COMPREPLY=()
-	cur=${COMP_WORDS[$COMP_CWORD]}
+	cur=`_get_cword`
 
 	case "$COMP_LINE" in
 	*[^=])
@@ -1015,9 +1065,9 @@ _kill()
 }
 complete -F _kill kill
 
-# Linux and FreeBSD killall(1) completion.
+# killall(1) (Linux and FreeBSD) and pkill(1) completion.
 #
-[ $UNAME = Linux -o $UNAME = FreeBSD ] &&
+[ $UNAME = Linux -o $UNAME = FreeBSD ] || have pkill &&
 _killall()
 {
 	local cur
@@ -1028,20 +1078,17 @@ _killall()
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
 		_signals
 	else
-		COMPREPLY=( $( compgen -W '$( command ps axo command | \
-			           sed -e "1d; s/ .*//; s:^/.*/::; s/:$//;" \
-			               -e "s/^[[(-]//; s/[])]$//; s:/.*::" \
-				       -e "s/^<defunct>$//")' \
-			           -- $cur ) )
+		_pnames
 	fi
 
 	return 0
 }
-[ $UNAME = Linux -o $UNAME = FreeBSD ] && complete -F _killall killall pkill
+[ $UNAME = Linux -o $UNAME = FreeBSD ] && complete -F _killall killall
+have pkill && complete -F _killall pkill
 
-# Linux and FreeBSD pgrep(1) completion.
+# pgrep(1) completion.
 #
-[ $UNAME = Linux -o $UNAME = FreeBSD ] &&
+[ $UNAME = Linux ] || have pgrep &&
 _pgrep()
 {
 	local cur
@@ -1049,13 +1096,12 @@ _pgrep()
 	COMPREPLY=()
 	cur=`_get_cword`
 
-	COMPREPLY=( $( compgen -W '$( command ps axo command | \
-		      sed -ne "1d; s/^\[\?\([^-][^] ]*\).*$/\1/p" | \
-		      sed -e "s/.*\///" )' -- $cur ) )
+	_pnames
 
 	return 0
 }
-[ $UNAME = Linux -o $UNAME = FreeBSD ] && complete -F _pgrep pgrep
+have pgrep && complete -F _pgrep pgrep
+
 # Linux pidof(8) completion.
 [ $UNAME = Linux ] && complete -F _pgrep pidof
 
@@ -2018,6 +2064,11 @@ _rpm()
 				'%{requirename}\n' | grep "^$cur" ) )
 		return 0
 		;;
+	--target)
+		COMPREPLY=( $( compgen -W "$( command rpm --showrc | sed -ne \
+		's/^\s*compatible\s\+build\s\+archs\s*:\s*\(.*\)/\1/ p' )" -- $cur ) )
+		return 0
+		;;
 	esac
 
 	case "${COMP_WORDS[1]}" in
@@ -2128,8 +2179,7 @@ _rpm()
 		if [[ "$cur" == -* ]]; then
 			COMPREPLY=( $( compgen -W '--short-circuit --timecheck \
 			--clean --rmsource --rmspec --test --sign --buildroot \
-			--target -- buildarch --buildos --nobuild --nodeps \
-			--nodirtokens' -- $cur ) )
+			--target --nobuild --nodeps --nodirtokens' -- $cur ) )
 		elif [[ ${COMP_WORDS[1]} == -b* ]]; then
 			_filedir 'spec'
 		else
@@ -2952,7 +3002,7 @@ _tar()
 		;;
 	+([^IZzJjy])f)
 		ext='t@(ar?(.@(Z|gz|bz?(2)|lz?(ma)))|gz|bz?(2)|lz?(ma))'
-		regex='t\(ar\(\.\(Z\|gz\|bz2\?\|lzma\)\)\?\|gz\|bz2\?\|lzma\)'
+		regex='t\(ar\(\.\(Z\|gz\|bz2\?\|lzma\|xz\)\)\?\|gz\|bz2\?\|lzma\|xz\)'
 		;;
 	*[Zz]*f)
 		ext='t?(ar.)@(gz|Z)'
@@ -2963,8 +3013,8 @@ _tar()
 		regex='t\(ar\.\)\?bz2\?'
 		;;
 	*[J]*f)
-		ext='t?(ar.)lz?(ma)'
-		regex='t\(ar\.\)\?lzma\?'
+		ext='t?(ar.)@(lz?(ma)|xz)'
+		regex='t\(ar\.\)\?\(lzma\|xz\)\?'
 		;;
 	*)
 		_filedir
@@ -3015,7 +3065,7 @@ _jar()
 			_filedir
 			;;
 		*f)
-			_filedir '?(e|j|w)ar'
+			_filedir '?([ejw]ar|zip|[EJW]AR|ZIP)'
 			;;
 		*)
 			_filedir
@@ -5772,7 +5822,7 @@ _mplayer()
 			return 0
 			;;
 		-audiofile)
-			_filedir '@(mp3|MP3|mpg|MPG|ogg|OGG|w?(a)v|W?(A)V|mid|MID|flac|FLAC|mka|MKA)'
+			_filedir '@(mp3|MP3|mpg|MPG|ogg|OGG|w?(a)v|W?(A)V|mid|MID|flac|FLAC|mka|MKA|ape|APE)'
 			return 0
 			;;
 		-font)
@@ -5992,8 +6042,7 @@ _mplayer()
 			return 0
 			;;
 		-profile)
-			local profiles=$(sed -ne 's|\[\(.*\)\]|\1|p' ~/.mplayer/config)
-			COMPREPLY=( $( compgen -W "$profiles" -- $cur))
+			_mplayer_options_list $cmd $prev
 			return 0
 			;;
 	esac
@@ -6069,7 +6118,7 @@ _mplayer()
 					-xvidencopts -of --verbose' -- $cur) )
 			;;
 		*)
-			_filedir '@(mp?(e)g|MP?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fl[iv]|FL[IV]|viv|VIV|rm?(j)|RM?(J)|ra?(m)|RA?(M)|yuv|YUV|mov|MOV|qt|QT|mp[234]|MP[234]|m4[av]|M4[AV]|og[gmavx]|OG[GMAVX]|w?(a)v|W?(A)V|dump|DUMP|mk[av]|MK[AV]|m4a|M4A|aac|AAC|m2v|M2V|dv|DV|rmvb|RMVB|mid|MID|ts|TS|3g[p2]|mpc|MPC|flac|FLAC|vro|VRO|divx|DIVX|aif?(f)|AIF?(F)|m2ts|M2TS|vdr|VDR|xvid|XVID)'
+			_filedir '@(mp?(e)g|MP?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fl[iv]|FL[IV]|viv|VIV|rm?(j)|RM?(J)|ra?(m)|RA?(M)|yuv|YUV|mov|MOV|qt|QT|mp[234]|MP[234]|m4[av]|M4[AV]|og[gmavx]|OG[GMAVX]|w?(a)v|W?(A)V|dump|DUMP|mk[av]|MK[AV]|m4a|M4A|aac|AAC|m2v|M2V|dv|DV|rmvb|RMVB|mid|MID|ts|TS|3g[p2]|mpc|MPC|flac|FLAC|vro|VRO|divx|DIVX|aif?(f)|AIF?(F)|m2ts|M2TS|vdr|VDR|xvid|XVID|ape|APE)'
 			;;
 	esac
 
@@ -8993,35 +9042,6 @@ _smartctl()
 }
 complete -F _smartctl smartctl
 }
-
-# vncviewer(1) completion
-#
-have vncviewer &&
-_vncviewer()
-{
-	local cur prev
-	local -a config
-
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
-
-	case "$prev" in
-	-via)
-	   _known_hosts -a
-	   ;;
-	*)
-	   # ssh into the the server, find and ping the broadcast address, then
-	   # sort and show the results.
-	   COMPREPLY=( $( ssh -o 'Batchmode yes' $prev \
-			  "ping -bnc 4 255.255.255.255" 2>/dev/null | \
-			  awk -F ' ' '{print $4}' | \
-			  sort -n | uniq | egrep '[0-9]+\.[0-9]+\.' 2>/dev/null ) )
-	esac
-
-	return 0
-} &&
-complete -F _vncviewer vncviewer
 
 # sysctl(8) completion
 #
