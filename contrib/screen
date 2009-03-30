@@ -6,6 +6,19 @@
 # screen(1) completion
 #
 have screen &&
+_screen_sessions()
+{
+	local pattern
+
+	if [ -n "$1" ]; then
+		pattern=".*$1.*"
+	else
+	pattern=".*"
+	fi
+
+	COMPREPLY=( $( command screen -ls | \
+		sed -ne 's|^['$'\t'']\+\('$cur'[0-9]\+\.[^'$'\t'']\+\)'$pattern'$|\1|p' ) )
+} &&
 _screen()
 {
 	local cur prev preprev
@@ -16,32 +29,34 @@ _screen()
 
 	[ "$COMP_CWORD" -ge 2 ] && preprev=${COMP_WORDS[COMP_CWORD-2]}
 
-	if [ "$preprev" = "-d" -o "$preprev" = "-D" -a "$prev" = "-r" -o \
-	     "$prev" = "-R" ]; then
-		# list all
-		COMPREPLY=( $( command screen -ls | \
-				sed -ne 's|^['$'\t'']\+\('$cur'[0-9]\+\.[^'$'\t'']\+\).*$|\1|p' ) )
-	else
-		case "$prev" in
+	case "$preprev" in
+		-[dD])
+			_screen_sessions
+			return 0
+		;;
+	esac
+
+	case "$prev" in
 		-[rR])
 			# list detached
-			COMPREPLY=( $( command screen -ls | \
-					sed -ne 's|^['$'\t'']\+\('$cur'[0-9]\+\.[^'$'\t'']\+\).*Detached.*$|\1|p' ) )
+			_screen_sessions 'Detached'
+			return 0
 			;;
 		-[dDx])
 			# list attached
-			COMPREPLY=( $( command screen -ls | \
-					sed -ne 's|^['$'\t'']\+\('$cur'[0-9]\+\.[^'$'\t'']\+\).*Attached.*$|\1|p' ) )
+			_screen_sessions 'Attached'
+			return 0
 			;;
 		-s)
 			# shells
 			COMPREPLY=( $( grep ^${cur:-[^#]} /etc/shells ) )
 			;;
-		*)
+		-c)
+			_filedirs
+			return 0
 			;;
 		esac
 	fi
 
-	return 0
 } &&
 complete -F _screen $default screen
