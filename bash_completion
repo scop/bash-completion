@@ -3973,49 +3973,6 @@ _openssl()
 complete -F _openssl $default openssl
 }
 
-# screen(1) completion
-#
-have screen &&
-_screen()
-{
-	local cur prev preprev
-
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
-
-	[ "$COMP_CWORD" -ge 2 ] && preprev=${COMP_WORDS[COMP_CWORD-2]}
-
-	if [ "$preprev" = "-d" -o "$preprev" = "-D" -a "$prev" = "-r" -o \
-	     "$prev" = "-R" ]; then
-		# list all
-		COMPREPLY=( $( command screen -ls | \
-				sed -ne 's|^['$'\t'']\+\('$cur'[0-9]\+\.[^'$'\t'']\+\).*$|\1|p' ) )
-	else
-		case "$prev" in
-		-[rR])
-			# list detached
-			COMPREPLY=( $( command screen -ls | \
-					sed -ne 's|^['$'\t'']\+\('$cur'[0-9]\+\.[^'$'\t'']\+\).*Detached.*$|\1|p' ) )
-			;;
-		-[dDx])
-			# list attached
-			COMPREPLY=( $( command screen -ls | \
-					sed -ne 's|^['$'\t'']\+\('$cur'[0-9]\+\.[^'$'\t'']\+\).*Attached.*$|\1|p' ) )
-			;;
-		-s)
-			# shells
-			COMPREPLY=( $( grep ^${cur:-[^#]} /etc/shells ) )
-			;;
-		*)
-			;;
-		esac
-	fi
-
-	return 0
-} &&
-complete -F _screen $default screen
-
 # lftp(1) bookmark completion
 #
 have lftp &&
