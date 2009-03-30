@@ -1,0 +1,66 @@
+# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
+# ex: ts=8 sw=8 noet filetype=sh
+#
+# bash completion for screen
+
+# screen(1) completion
+#
+have screen &&
+_screen_sessions()
+{
+	local pattern
+
+	if [ -n "$1" ]; then
+		pattern=".*$1.*"
+	else
+	pattern=".*"
+	fi
+
+	COMPREPLY=( $( command screen -ls | \
+		sed -ne 's|^['$'\t'']\+\('$cur'[0-9]\+\.[^'$'\t'']\+\)'$pattern'$|\1|p' ) )
+} &&
+_screen()
+{
+	local cur prev preprev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	[ "$COMP_CWORD" -ge 2 ] && preprev=${COMP_WORDS[COMP_CWORD-2]}
+
+	case "$preprev" in
+		-[dD])
+			_screen_sessions
+			return 0
+		;;
+	esac
+
+	case "$prev" in
+		-[rR])
+			# list detached
+			_screen_sessions 'Detached'
+			return 0
+			;;
+		-[dDx])
+			# list attached
+			_screen_sessions 'Attached'
+			return 0
+			;;
+		-s)
+			# shells
+			COMPREPLY=( $( grep ^${cur:-[^#]} /etc/shells ) )
+			;;
+		-c)
+			_filedirs
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-a -A -c -d -D -e -f -fn -fa -h -i \
+			-l -ln -ls -list -L -m -O -p -q -r -R -s -S -t -U -v \
+			-wipe -x -X' -- $cur ) )
+	fi
+} &&
+complete -F _screen $default screen
