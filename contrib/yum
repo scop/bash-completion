@@ -19,6 +19,15 @@ _yum_list()
 	fi
 }
 
+_yum_repolist()
+{
+	# -d 0 causes repolist to output nothing as of yum 3.2.22:
+	# http://yum.baseurl.org/ticket/83
+	# Drop first ("repo id	repo name") axnd last ("repolist: ...") rows
+	yum --noplugins -C repolist $1 2>/dev/null | \
+		sed -ne '/^repo\(\s\+id\|list:\)/d' -e 's/\s.*//p'
+}
+
 _yum()
 {
 	local cur prev special
@@ -72,6 +81,9 @@ _yum()
 	    clean)
 		COMPREPLY=( $( compgen -W 'packages headers metadata cache dbcache all' -- $cur ) )
 		;;
+	    repolist)
+		COMPREPLY=( $( compgen -W 'all enabled disabled' -- $cur ) )
+		;;
 	    localinstall|localupdate)
 	        # TODO: should not match *src.rpm
 		_filedir rpm
@@ -81,6 +93,15 @@ _yum()
 		;;
 	    --installroot)
 		_filedir -d
+		;;
+	    --enablerepo)
+		COMPREPLY=( $( compgen -W '$( _yum_repolist disabled )' -- $cur ) )
+		;;
+	    --disablerepo)
+		COMPREPLY=( $( compgen -W '$( _yum_repolist enabled )' -- $cur ) )
+		;;
+	    --disableexcludes)
+		COMPREPLY=( $( compgen -W '$( _yum_repolist all ) all main' -- $cur ) )
 		;;
 	    *)
 		COMPREPLY=( $( compgen -W 'install update check-update \
