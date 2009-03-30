@@ -43,24 +43,24 @@ _yum()
 	done
 
 	if [ -n "$special" ]; then
-	    case $special in
-		install)
-		    _yum_list available
-		    return 0
-		    ;;
-		deplist|info)
-		    _yum_list all
-		    return 0
-		    ;;
-		upgrade|update)
-		    _yum_list updates
-		    return 0
-		    ;;
-		remove|erase)
-		    # _rpm_installed_packages is not arch-qualified
-		    _yum_list installed
-		    return 0
-		    ;;
+		case $special in
+			install)
+				_yum_list available
+				return 0
+				;;
+			deplist|info)
+				_yum_list all
+				return 0
+				;;
+			upgrade|update)
+				_yum_list updates
+				return 0
+				;;
+			remove|erase)
+				# _rpm_installed_packages is not arch-qualified
+				_yum_list installed
+				return 0
+				;;
 		esac
 	fi
 
@@ -75,42 +75,49 @@ _yum()
 	fi
 
 	case $prev in
-	    list)
-		COMPREPLY=( $( compgen -W 'all available updates installed extras obsoletes recent' -- $cur ) )
-		;;
-	    clean)
-		COMPREPLY=( $( compgen -W 'packages headers metadata cache dbcache all' -- $cur ) )
-		;;
-	    repolist)
-		COMPREPLY=( $( compgen -W 'all enabled disabled' -- $cur ) )
-		;;
-	    localinstall|localupdate)
-	        # TODO: should not match *src.rpm
-		_filedir rpm
-		;;
-	    -c)
-		_filedir
-		;;
-	    --installroot)
-		_filedir -d
-		;;
-	    --enablerepo)
-		COMPREPLY=( $( compgen -W '$( _yum_repolist disabled )' -- $cur ) )
-		;;
-	    --disablerepo)
-		COMPREPLY=( $( compgen -W '$( _yum_repolist enabled )' -- $cur ) )
-		;;
-	    --disableexcludes)
-		COMPREPLY=( $( compgen -W '$( _yum_repolist all ) all main' -- $cur ) )
-		;;
-	    *)
-		COMPREPLY=( $( compgen -W 'install update check-update \
-			upgrade remove erase list info provides whatprovides \
-			clean makecache groupinstall groupupdate grouplist \
-			groupremove groupinfo search shell resolvedep \
-			localinstall localupdate deplist repolist help' \
-			-- $cur ) )
-		;;
+		list)
+			COMPREPLY=( $( compgen -W 'all available updates \
+				installed extras obsoletes recent' -- $cur ) )
+			;;
+		clean)
+			COMPREPLY=( $( compgen -W 'packages headers metadata \
+				cache dbcache all' -- $cur ) )
+			;;
+		repolist)
+			COMPREPLY=( $( compgen -W 'all enabled disabled' \
+				-- $cur ) )
+			;;
+		localinstall|localupdate)
+			# TODO: should not match *src.rpm
+			_filedir rpm
+			;;
+		-c)
+			_filedir
+			;;
+		--installroot)
+			_filedir -d
+			;;
+		--enablerepo)
+			COMPREPLY=( $( compgen -W '$( _yum_repolist \
+				disabled )' -- $cur ) )
+			;;
+		--disablerepo)
+			COMPREPLY=( $( compgen -W '$( _yum_repolist \
+				enabled )' -- $cur ) )
+			;;
+		--disableexcludes)
+			COMPREPLY=( $( compgen -W '$( _yum_repolist all ) \
+				all main' -- $cur ) )
+			;;
+		*)
+			COMPREPLY=( $( compgen -W 'install update \
+				check-update upgrade remove erase list info \
+				provides whatprovides clean makecache \
+				groupinstall groupupdate grouplist \
+				groupremove groupinfo search shell resolvedep \
+				localinstall localupdate deplist repolist \
+				help' -- $cur ) )
+			;;
 	esac
 }
 } &&
@@ -121,19 +128,20 @@ complete -F _yum $filenames yum
 have yum-arch &&
 _yum_arch()
 {
-    local cur
-    COMPREPLY=()
-    cur=`_get_cword`
+	local cur
+	COMPREPLY=()
+	cur=`_get_cword`
 
-    case "$cur" in
-	-*)
-	    COMPREPLY=( $( compgen -W '-d -v -vv -n -c -z -s -l -q' -- $cur ) )
-	    ;;
-	*)
-	    _filedir -d
-	    ;;
-    esac
+	case "$cur" in
+		-*)
+			COMPREPLY=( $( compgen -W '-d -v -vv -n -c -z -s -l \
+				-q' -- $cur ) )
+			;;
+		*)
+			_filedir -d
+			;;
+	esac
 
-    return 0
+	return 0
 } &&
 complete -F _yum_arch $filenames yum-arch
