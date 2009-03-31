@@ -46,4 +46,4 @@ bashcomp_DATA = contrib/apache2ctl \
 		contrib/unace \
 		contrib/unrar
 
-EXTRA_DIST = $(sysconf_DATA) $(bashcomp_DATA) to_review
+EXTRA_DIST = $(sysconf_DATA) $(bashcomp_DATA)
