@@ -259,73 +259,10 @@ _mplayer()
 
 	case "$cur" in
 		-*)
-			COMPREPLY=( $( compgen -W '-aid -alang -audio-demuxer \
-					-audiofile -cdrom-device -cache -cdda \
-					-channels -chapter -csslib -demuxer \
-					-dvd -dvd-device -dvdangle -dvdauth \
-					-dvdkey -dvdnav -forceidx -fps -frames \
-					-hr-mp3-seek -idx -mc -mf -ni -nobps \
-					-passwd -rawaudio -rtsp-stream-over-tcp\
-					-skipopening -sb -srate -ss -tv -user \
-					-vcd -vid -vivo -ifo -ffactor -font \
-					-noautosub -nooverlapsub -sid -slang \
-					-sub -subcc -subcp -sub-demuxer \
-					-subdelay -subfont-autoscale \
-					-subfont-blur -subfont-encoding \
-					-subfont-osd-scale -subfont-outline \
-					-subfont-text-scale -subfps -subfile \
-					-subpos -unicode -utf8 -vobsub \
-					-vobsubid -ac -afm -aspect -flip \
-					-lavdopts -noaspect -nosound -pp -ssf \
-					-stereo -sws -vc -vfm -vop -xvidopts\
-					-xy -zoom -bandwidth -cuefile \
-					-noextbased -rawvideo -overlapsub \
-					-sub-bg-alpha -sub-bg-color -subalign \
-					-subwidth -sub-no-text-pp -spualign \
-					-spuaa -spugauss -pphelp -verbose -v \
-					-noni -noidx -nohr-mp3-seek -extbased \
-					-bps -oldpp -nozoom -noflip -nounicode \
-					-noutf8 -profile -vf -af' -- $cur ) )
-			# add mplayer specific options
-			[[ "$cmd" == @(?(g)mplayer) ]] && COMPREPLY=( "${COMPREPLY[@]}" \
-				$(compgen -W '-autoq -autosync -benchmark \
-					-framedrop -h -help -hardframedrop \
-					-identify -input -lircconf -loop \
-					-nojoystick -nolirc -nortc -playlist \
-					-quiet -really-quiet -rnd -sdp -skin \
-					-slave -softsleep -speed -sstep \
-					-use-stdin -dumpaudio -dumpfile \
-					-dumpstream -dumpvideo -dumpmicrodvdsub\
-					-dumpmpsub -dumpsrtsub -dumpjacosub \
-					-dumpsami -dumpsub -osdlevel -af \
-					-af-adv -ao -aofile -aop -delay -mixer \
-					-nowaveheader -bpp -brightness \
-					-contrast -display -double -dr -dxr2 \
-					-fb -fbmode -fbmodeconfig -forcexv -fs \
-					-geometry -hue -icelayer -jpeg \
-					-monitor-dotclock -monitor-hfreq \
-					-monitor-vfreq -monitoraspect \
-					-nograbpointer -noslices -panscan \
-					-rootwin -saturation -screenw -screenh \
-					-stop-xscreensaver -vm -vo -vsync -wid \
-					-xineramascreen -z -zrbw -zrcrop \
-					-zrdev -zrfd -zrhelp -zrnorm -zrquality \
-					-zrvdec -zrhdec -zrxdoff -zrydoff -y \
-					-edl -edlout -enqueue -fixed-vo \
-					-menu -menu-root -menu-cfg -shuffle \
-					-format -aahelp -dfbopts -fstype \
-					-guiwid -nokeepaspect -x --help \
-					-aaosdcolor -aasubcolor -aadriver \
-					-aaextended -aaeight' -- $cur) )
-			# add mencoder specific options
-			[[ "$cmd" = mencoder ]] && COMPREPLY=( "${COMPREPLY[@]}" \
-				$(compgen -W '-audio-density -audio-delay \
-					-audio-preload -divx4opts -endpos \
-					-ffourcc -include -info -lameopts \
-					-lavcopts -noskip -o -oac -ofps -ovc \
-					-passlogfile -skiplimit -vobsubout \
-					-vobsuboutindex -vobsuboutid \
-					-xvidencopts -of --verbose' -- $cur) )
+			COMPREPLY=( $( compgen -W '$( $cmd -list-options 2>/dev/null | \
+			sed -ne '1,/^[[:space:]]*Name/d' \
+			     -e "s/^[[:space:]]*/-/" -e "s/[[:space:]:].*//" \
+			     -e "/^-\(Total\|.*\*\)\?$/!p" )' -- $cur ) )
 			;;
 		*)
 			_filedir '@(mp?(e)g|MP?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fl[iv]|FL[IV]|viv|VIV|rm?(j)|RM?(J)|ra?(m)|RA?(M)|yuv|YUV|mov|MOV|qt|QT|mp[234]|MP[234]|m4[av]|M4[AV]|og[gmavx]|OG[GMAVX]|w?(a)v|W?(A)V|dump|DUMP|mk[av]|MK[AV]|m4a|M4A|aac|AAC|m2v|M2V|dv|DV|rmvb|RMVB|mid|MID|ts|TS|3g[p2]|mpc|MPC|flac|FLAC|vro|VRO|divx|DIVX|aif?(f)|AIF?(F)|m2ts|M2TS|vdr|VDR|xvid|XVID|ape|APE)'
