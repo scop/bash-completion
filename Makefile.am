@@ -39,12 +39,15 @@ bashcomp_DATA = contrib/apache2ctl \
 		contrib/rdesktop \
 		contrib/ri \
 		contrib/sbcl \
+		contrib/screen \
 		contrib/sitecopy \
 		contrib/snownews \
 		contrib/ssh \
 		contrib/_subversion \
 		contrib/svk \
 		contrib/unace \
-		contrib/unrar
+		contrib/unrar \
+		contrib/vncviewer \
+		contrib/yum
 
 EXTRA_DIST = $(sysconf_DATA) $(bashcomp_DATA) to_review
