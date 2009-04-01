@@ -28,6 +28,7 @@ bashcomp_DATA = contrib/apache2ctl \
 		contrib/minicom \
 		contrib/modules \
 		contrib/monodevelop \
+		contrib/mplayer \
 		contrib/mtx \
 		contrib/net-tools \
 		contrib/p4 \
