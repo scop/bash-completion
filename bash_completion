@@ -74,6 +74,10 @@ if [ ${BASH_VERSINFO[0]} -gt 2 ]; then
 	bashdefault="-o bashdefault"
 	plusdirs="-o plusdirs"
 fi
+# features supported by bash 4.0 and higher
+if [ ${BASH_VERSINFO[0]} -gt 3 ]; then
+	declare -r bash4=$BASH_VERSION 2>/dev/null || :
+fi
 
 # Turn on extended globbing and programmable completion
 shopt -s extglob progcomp
@@ -209,7 +213,7 @@ quote()
 # results in the original argument
 quote_readline()
 {
-	if [[ "${BASH_VERSINFO[0]}" -ge 4 ]] ; then
+	if [ -n "$bash4" ] ; then
 		# This function isn't really necessary on bash 4
 		# See: http://lists.gnu.org/archive/html/bug-bash/2009-03/msg00155.html
 		echo "${1}"
