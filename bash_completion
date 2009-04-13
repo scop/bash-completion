@@ -2062,16 +2062,24 @@ _rpm()
 		if [[ "$cur" == */* ]]; then
 			_filedir
 		else
-		# complete on capabilities
-			COMPREPLY=( $( rpm -qa $nodig $nosig --queryformat \
-					'%{providename}\n' | grep "^$cur" ) )
+			# complete on capabilities
+			local IFS=$'\n'
+			COMPREPLY=( $( compgen -W "$( rpm -qa $nodig $nosig \
+					--queryformat='%{providename}\n' )" \
+					-- $cur ) )
 		fi
 		return 0
 		;;
 	--whatrequires)
-		# complete on capabilities
-		COMPREPLY=( $( rpm -qa $nodig $nosig --queryformat \
-				'%{requirename}\n' | grep "^$cur" ) )
+		if [[ "$cur" == */* ]]; then
+			_filedir
+		else
+			# complete on capabilities
+			local IFS=$'\n'
+			COMPREPLY=( $( compgen -W "$( rpm -qa $nodig $nosig \
+					--queryformat='%{requirename}\n' )" \
+					-- $cur ) )
+		fi
 		return 0
 		;;
 	--target)
