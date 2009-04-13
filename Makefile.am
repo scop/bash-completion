@@ -26,6 +26,7 @@ bashcomp_DATA = contrib/apache2ctl \
 		contrib/mailman \
 		contrib/mcrypt \
 		contrib/minicom \
+		contrib/mkinitrd \
 		contrib/modules \
 		contrib/monodevelop \
 		contrib/mplayer \
