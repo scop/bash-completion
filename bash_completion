@@ -2569,13 +2569,10 @@ _chsh()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [ "$prev" = "-s" ]; then
-	  if [ -f /etc/debian_version ]; then
-	    COMPREPLY=( $( </etc/shells ) )
-	  else
-	    COMPREPLY=( $( chsh -l | grep "^$cur" ) )
-	  fi
+		COMPREPLY=( $( compgen -W '$( grep "^[[:space:]]*/" \
+				/etc/shells 2>/dev/null )' -- $cur ) )
 	else
-	  COMPREPLY=( $( compgen -u -- $cur ) )
+		COMPREPLY=( $( compgen -u -- $cur ) )
 	fi
 
 	return 0
