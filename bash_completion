@@ -855,11 +855,12 @@ complete -F _umount $dirnames umount
 #
 _mount()
 {
-	local cur i sm host
+	local cur i sm host prev
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	[[ "$cur" == \\ ]] && cur="/"
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	for i in {,/usr}/{,s}bin/showmount; do [ -x $i ] && sm=$i && break; done
 
@@ -884,8 +885,14 @@ _mount()
 				 | grep "^$cur" ) )
 	else
 		# probably Linux
-		COMPREPLY=( $( awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' \
+		if [ $prev = -L ]; then
+			COMPREPLY=( $( compgen -W '$(sed -ne "s/^[[:space:]]*LABEL=\([^[:space:]]*\).*/\1/p" /etc/fstab )' -- $cur ) )
+		elif [ $prev = -U ]; then
+			COMPREPLY=( $( compgen -W '$(sed -ne "s/^[[:space:]]*UUID=\([^[:space:]]*\).*/\1/p" /etc/fstab )' -- $cur ) )
+		else
+			COMPREPLY=( $( awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' \
 				/etc/fstab | grep "^$cur" ) )
+		fi
 	fi
 
 	return 0
