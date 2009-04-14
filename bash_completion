@@ -317,6 +317,23 @@ _filedir()
 	COMPREPLY=( "${COMPREPLY[@]}" "${toks[@]}" )
 }
 
+# This function splits $cur=--foo=bar into $prev=--foo, $cur=bar, making it
+# easier to support both "--foo bar" and "--foo=bar" style completions.
+# Returns 0 if current option was split, 1 otherwise.
+#
+_split_longopt()
+{
+	if [[ "$cur" == --?*=* ]]; then
+		# Cut also backslash before '=' in case it ended up there
+		# for some reason.
+		prev="${cur%%?(\\)=*}"
+		cur="${cur#*=}"
+		return 0
+	fi
+
+	return 1
+}
+
 # This function tries to parse the output of $command --help
 #
 _parse_help() {
