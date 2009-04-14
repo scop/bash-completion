@@ -3548,17 +3548,21 @@ complete -F _bzip2 $filenames bzip2
 have openssl && {
 _openssl_sections()
 {
-	local config
+	local config f
 
-	config=/etc/ssl/openssl.cnf
-	[ ! -f $config ] && config=/usr/share/ssl/openssl.cnf
 	for (( i=2; i < COMP_CWORD; i++ )); do
 		if [[ "${COMP_WORDS[i]}" == -config ]]; then
 			config=${COMP_WORDS[i+1]}
 			break
 		fi
 	done
-	[ ! -f $config ] && return 0
+	if [ -z "$config" ]; then
+		for f in /etc/ssl/openssl.cnf /etc/pki/tls/openssl.cnf \
+			/usr/share/ssl/openssl.cnf; do
+			[ -f $f ] && config=$f && break
+		done
+	fi
+	[ ! -f "$config" ] && return 0
 
 	COMPREPLY=( $( awk '/\[.*\]/ {print $2} ' $config | grep "^$cur" ) )
 }
