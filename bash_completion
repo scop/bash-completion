@@ -791,14 +791,19 @@ complete -F _service service
 #
 _chown()
 {
-	local cur
+	local cur prev split=false
 	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	_split_longopt && split=true
+
+	$split && return 0
 
 	# options completion
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes \
-		--dereference --no-dereference --from= --silent --quiet \
-		--reference= --recursive --verbose --help --version' -- $cur ) )
+		--dereference --no-dereference --from --silent --quiet \
+		--reference --recursive --verbose --help --version' -- $cur ) )
 	else
 		_count_args
 
@@ -818,18 +823,22 @@ complete -F _chown $filenames chown
 #
 _chgrp()
 {
-	local cur prev
+	local cur prev split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	cur=${cur//\\\\/}
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
+	_split_longopt && split=true
+
+	$split && return 0
+		
 	# options completion
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes \
 		--dereference --no-dereference --silent --quiet \
-		--reference= --recursive --verbose --help --version' -- $cur ) )
+		--reference --recursive --verbose --help --version' -- $cur ) )
 		return 0
 	fi
 
