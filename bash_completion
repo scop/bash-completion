@@ -375,7 +375,7 @@ _configured_interfaces()
 #
 _kernel_versions()
 {
-	COMPREPLY=( $( command ls /lib/modules | grep "^$cur" ) )
+	COMPREPLY=( $( compgen -W '$( command ls /lib/modules )' -- $cur ) )
 }
 
 # This function completes on all available network interfaces
@@ -475,14 +475,12 @@ _pnames()
 _uids()
 {
 	if type getent &>/dev/null; then
-	    COMPREPLY=( $( getent passwd | \
-			    awk -F: '{if ($3 ~ /^'$cur'/) print $3}' ) )
+	    COMPREPLY=( $( compgen -W '$( getent passwd | cut -d: -f3 )' -- $cur ) )
 	elif type perl &>/dev/null; then
 	    COMPREPLY=( $( compgen -W '$( perl -e '"'"'while (($uid) = (getpwent)[2]) { print $uid . "\n" }'"'"' )' -- $cur ) )
 	else
 	    # make do with /etc/passwd
-	    COMPREPLY=( $( awk 'BEGIN {FS=":"} {if ($3 ~ /^'$cur'/) print $3}'\
-			    /etc/passwd ) )
+	    COMPREPLY=( $( compgen -W '$( cut -d: -f3 /etc/passwd )' -- $cur ) )
 	fi
 }
 
@@ -710,8 +708,8 @@ _complete()
 			return 0
 			;;
 		-@(p|r))
-			COMPREPLY=( $( complete -p | sed -e 's|.* ||' | \
-					grep "^$cur" ) )
+			COMPREPLY=( $( complete -p | sed -e 's|.* ||' ) )
+			COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
 			return 0
 			;;
 
@@ -877,12 +875,10 @@ _mount()
 		fi
 	elif [ -r /etc/vfstab ]; then
 		# Solaris
-		COMPREPLY=( $( awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' \
-				/etc/vfstab | grep "^$cur" ) )
+		COMPREPLY=( $( compgen -W "$( awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' /etc/vfstab )" -- $cur ) )
 	elif [ ! -e /etc/fstab ]; then
 		# probably Cygwin
-		COMPREPLY=( $( mount | awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' \
-				 | grep "^$cur" ) )
+		COMPREPLY=( $( compgen -W "$( mount | awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' )" -- $cur ) )
 	else
 		# probably Linux
 		if [ $prev = -L ]; then
@@ -890,8 +886,7 @@ _mount()
 		elif [ $prev = -U ]; then
 			COMPREPLY=( $( compgen -W '$(sed -ne "s/^[[:space:]]*UUID=\([^[:space:]]*\).*/\1/p" /etc/fstab )' -- $cur ) )
 		else
-			COMPREPLY=( $( awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' \
-				/etc/fstab | grep "^$cur" ) )
+			COMPREPLY=( $( compgen -W "$( awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' /etc/fstab )" -- $cur ) )
 		fi
 	fi
 
@@ -1147,8 +1142,7 @@ _find()
 	-fstype)
 		# this is highly non-portable
 		[ -e /proc/filesystems ] &&
-		COMPREPLY=( $( cut -d$'\t' -f 2 /proc/filesystems | \
-				grep "^$cur" ) )
+		COMPREPLY=( $( compgen -W "$( cut -d$'\t' -f2 /proc/filesystems )" -- $cur ) )
 		return 0
 		;;
 	-gid)
@@ -5240,7 +5234,7 @@ _installed_alternatives()
 			break
 		fi
 	done
-	COMPREPLY=( $( command ls $admindir | grep "^$cur" ) )
+	COMPREPLY=( $( compgen -W '$( command ls $admindir )' -- $cur ) )
 }
 
 _update_alternatives()
@@ -6114,8 +6108,8 @@ _mkisofs()
 			return 0
 			;;
 		-*-charset)
-			COMPREPLY=( $( mkisofs -input-charset help 2>&1 | \
-					tail -n +3 | grep "^$cur") )
+			COMPREPLY=( $( compgen -W '$( mkisofs -input-charset \
+					help 2>&1 | tail -n +3 )' -- $cur ) )
 			return 0
 			;;
 		-uid)
@@ -6270,10 +6264,10 @@ _ImageMagick()
 			return 0
 			;;
 		-format)
-			COMPREPLY=( $( convert -list format | \
+			COMPREPLY=( $( compgen -W "$( convert -list format | \
 				    awk '/ [r-][w-][+-] / {print $1}' | \
-				    tr -d '*' | tr [:upper:] [:lower:] | \
-				    grep "^$cur" ) )
+				    tr -d '*' | tr [:upper:] [:lower:] )" \
+				    -- $cur ) )
 			return 0
 			;;
 		-gravity)
@@ -6791,7 +6785,7 @@ _cancel()
 	COMPREPLY=()
 	cur=`_get_cword`
 
-	COMPREPLY=( $( lpstat | cut -d' ' -f1 | grep "^$cur" ) )
+	COMPREPLY=( $( compgen -W "$( lpstat | cut -d' ' -f1 )" -- $cur ) )
 } &&
 complete -F _cancel $filenames cancel
 
@@ -8150,8 +8144,8 @@ _pkg_config()
 		      --list-all --debug --print-errors --silence-errors \
 		      --errors-to-stdout -? --help --usage' -- $cur))
 	else
-		COMPREPLY=( $( pkg-config --list-all 2>/dev/null | \
-				    awk '{print $1}' | grep "^$cur" ) )
+		COMPREPLY=( $( compgen -W "$( pkg-config --list-all \
+				2>/dev/null | awk '{print $1}' )" -- $cur ) )
 	fi
 } &&
 complete -F _pkg_config pkg-config
