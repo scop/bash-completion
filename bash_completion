@@ -4294,25 +4294,19 @@ complete -F _psql $default psql
 
 _longopt()
 {
-	local cur opt
+	local cur prev
 
 	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	if [[ "$cur" == --*=* ]]; then
-		opt=${cur%%=*}
-		# cut backslash that gets inserted before '=' sign
-		opt=${opt%\\*}
-		cur=${cur#*=}
+	if _split_longopt; then
 		_filedir
-		# FIXME: see #297065... adding "-o nospace" (or $nospace),
-		# should do the trick, but seems not working... ideas?
-		COMPREPLY=( $( compgen -P "$opt=" -W '${COMPREPLY[@]}' -- $cur))
 		return 0
 	fi
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( $1 --help 2>&1 | sed -e '/--/!d' \
-				-e 's/.*\(--[-A-Za-z0-9]\+=\?\).*/\1/' | \
+				-e 's/.*\(--[-A-Za-z0-9]\+\).*/\1/' | \
 			       command grep "^$cur" | sort -u ) )
 	elif [[ "$1" == rmdir ]]; then
 		_filedir -d
