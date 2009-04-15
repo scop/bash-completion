@@ -2966,52 +2966,39 @@ _route()
 have make || have gmake || have gnumake || have pmake &&
 _make()
 {
-	local file makef makef_dir="." makef_inc cur prev i
+	local file makef makef_dir="." makef_inc cur prev i split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	# --name value style option
+	_split_longopt && split=true
+
 	case $prev in
-		-@(f|o|W))
+		-@(f|o|W|-?(make)file))
 			_filedir
 			return 0
 			;;
-		-@(I|C))
+		-I|-C|--directory|--include-dir)
 			_filedir -d
 			return 0
 			;;
 	esac
 
-	# --name=value style option
-	if [[ "$cur" == *=* ]]; then
-		prev=${cur/=*/}
-		cur=${cur/*=/}
-		case "$prev" in
-			--@(file|makefile))
-				_filedir
-				return 0
-				;;
-			--@(directory|include-dir))
-				_filedir -d
-				return 0
-				;;
-		esac
-	fi
+	$split && return 0
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-b -m -B -C -d -e -f -h -i -I\
 			-j -l -k -n -o -p -q -r -R - s -S -t -v -w -W \
-			--always-make --directory= --debug \
-			--environment-overrides --file= --makefile= --help \
-			--ignore-errors --include-dir= --jobs --load-average \
+			--always-make --directory --debug \
+			--environment-overrides --file --makefile --help \
+			--ignore-errors --include-dir --jobs --load-average \
 			--max-load --keep-going --just-print --dry-run \
-			--recon --old-file= --assume-old= --print-data-base \
+			--recon --old-file --assume-old --print-data-base \
 			--question --no-builtin-rules --no-builtin-variables \
 			--silent --quiet --no-keep-goind --stop --touch \
 			--version --print-directory --no-print-directory \
-			--what-if= --new-file= --assume-new= \
+			--what-if --new-file --assume-new \
 			--warn-undefined-variables' -- $cur ) )
 	else
 		# before we check for makefiles, see if a path was specified
