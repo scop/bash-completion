@@ -2636,14 +2636,16 @@ complete -F _chsh chsh
 have chkconfig &&
 _chkconfig()
 {
-	local cur prev
+	local cur prev split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
+	_split_longopt && split=true
+
 	case "$prev" in
-	@([1-6]|--@(list|add|del)))
+	@(?(--level=)[1-6]|--@(list|add|del|override)))
 		_services
 		return 0
 		;;
@@ -2652,6 +2654,8 @@ _chkconfig()
 		return 0
 		;;
 	esac
+
+	$split && return 0
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '--list --add --del --override \
