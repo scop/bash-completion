@@ -2700,6 +2700,7 @@ _known_hosts()
 	local configfile
 	local cur curd ocur user suffix aliases global_kh user_kh hosts i host
 	local -a kh khd config
+	local IFS=$'\n'
 
 	COMPREPLY=()
 	cur=`_get_cword`
@@ -2731,15 +2732,21 @@ _known_hosts()
 	fi
 
 	if [ ${#config[@]} -gt 0 ]; then
-	    # expand path (if present) to global known hosts file
-	    global_kh=$( echo $( sed -ne 's/^[ \t]*[Gg][Ll][Oo][Bb][Aa][Ll][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/\1/p' "${config[@]}" ) )
-	    # expand path (if present) to user known hosts file
-	    user_kh=$( echo $( sed -ne 's/^[ \t]*[Uu][Ss][Ee][Rr][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/\1/p' "${config[@]}" ) )
+		# expand path (if present) to global known hosts file
+		global_kh=($( sed -ne 's/^[ \t]*[Gg][Ll][Oo][Bb][Aa][Ll][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/\1/p' "${config[@]}" ))
+		for (( i=0; i < ${#global_kh[@]}; i++ )); do
+			global_kh[i]=$(echo "${global_kh[i]//\"/}")
+		done
+		# expand path (if present) to user known hosts file
+		user_kh=($( sed -ne 's/^[ \t]*[Uu][Ss][Ee][Rr][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/\1/p' "${config[@]}" ))
+		for (( i=0; i < ${#user_kh[@]}; i++ )); do
+			user_kh[i]=$(echo "${user_kh[i]//\"/}")
+		done
 	fi
 
 	# Global known_hosts files
 	[ -r "$global_kh" ] &&
-		kh=( "${kh[@]}" "$global_kh" )
+		kh=( "${kh[@]}" "${global_kh[@]}" )
 	if [ -z "$configfile" ]; then
 		[ -r /etc/ssh/ssh_known_hosts ] &&
 		  kh=( "${kh[@]}" /etc/ssh/ssh_known_hosts )
@@ -2755,7 +2762,7 @@ _known_hosts()
 
 	# User known_hosts files
 	[ -r "$user_kh" ] &&
-		kh=( "${kh[@]}" "$user_kh" )
+		kh=( "${kh[@]}" "${user_kh[@]}" )
 	if [ -z "$configfile" ]; then
 		[ -r ~/.ssh/known_hosts ] &&
 		  kh=( "${kh[@]}" ~/.ssh/known_hosts )
