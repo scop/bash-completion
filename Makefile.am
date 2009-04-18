@@ -42,6 +42,7 @@ bashcomp_DATA = contrib/apache2ctl \
 		contrib/sbcl \
 		contrib/screen \
 		contrib/sitecopy \
+		contrib/smartctl \
 		contrib/snownews \
 		contrib/ssh \
 		contrib/_subversion \
