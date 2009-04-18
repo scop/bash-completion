@@ -56,136 +56,74 @@ _smartctl_test()
 
 _smartctl()
 {
-	local cur prev
+	local cur prev split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	# --name value style option
+	_split_longopt && split=true
+
 	case "$prev" in
-		-q)
+		-q|--quietmode)
 			_smartctl_quietmode
 			;;
-		-d)
+		-d|--device)
 			_smartctl_device
 			return 0
 			;;
-		-t)
+		-t|--tolerance)
 			_smartctl_tolerance
 			return 0
 			;;
-		-b)
+		-b|--badsum)
 			_smartctl_badsum
 			return 0
 			;;
-		-r)
+		-r|--report)
 			_smartctl_report
 			return 0
 			;;
-		-s)
+		-n|--nocheck)
+			_smartctl_powermode
+			return 0
+			;;
+		-s|--smart|-o|--offlineauto|-S|--saveauto)
 			_smartctl_feature
 			return 0
 			;;
-		-o)
-			_smartctl_feature
-			return 0
-			;;
-		-S)
-			_smartctl_feature
-			return 0
-			;;
-		-l)
+		-l|--log)
 			_smartctl_log
 			return 0
 			;;
-		-v)
+		-v|--vendorattribute)
 			_smartctl_vendorattribute
 			return 0
 			;;
-		-F)
+		-F|--firmwarebug)
 			_smartctl_firmwarebug
 			return 0
 			;;
-		-P)
+		-P|--presets)
 			_smartctl_presets
 			return 0
 			;;
-		-t)
+		-t|--test)
 			_smartctl_test
 			return 0
 			;;
 	esac
 
-	# --name=value style option
-	if [[ "$cur" == *=* ]]; then
-		prev=${cur/=*/}
-		cur=${cur/*=/}
-		case "$prev" in
-			--quietmode)
-				_smartctl_quietmode
-				return 0
-				;;
-			--device)
-				_smartctl_device
-				return 0
-				;;
-			--tolerance)
-				_smartctl_tolerance
-				return 0
-				;;
-			--badsum)
-				_smartctl_badsum
-				return 0
-				;;
-			--report)
-				_smartctl_report
-				return 0
-				;;
-			--smart)
-				_smartctl_feature
-				return 0
-				;;
-			--offlineauto)
-				_smartctl_feature
-				return 0
-				;;
-			--saveauto)
-				_smartctl_feature
-				return 0
-				;;
-			--log)
-				_smartctl_log
-				return 0
-				;;
-			--vendorattribute)
-				_smartctl_vendorattribute
-				return 0
-				;;
-			--firmwarebug)
-				_smartctl_firmwarebug
-				return 0
-				;;
-			--presets)
-				_smartctl_presets
-				return 0
-				;;
-			--test)
-				_smartctl_test
-				return 0
-				;;
-		esac
-	fi
-
+	$split && return 0
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-h --help --usage -V --version \
 			--copyright --license-i --info -a --all -q \
-			--quietmode= -d --device= -T --tolerance= -b --badsum= \
-			-r --report= -s --smart= -o --offlineauto= -S \
-			--saveauto= -H --health -c --capabilities -A \
-			--attributes -l --log= -v --vendorattribute= -F \
-			--firmwarebug= -P --presets= -t --test= -C \
+			--quietmode -d --device -T --tolerance -b --badsum \
+			-r --report -s --smart -o --offlineauto -S \
+			--saveauto -H --health -c --capabilities -A \
+			--attributes -l --log -v --vendorattribute -F \
+			--firmwarebug -P --presets -t --test -C \
 			--captive -X --abort' -- $cur ) )
 	else
 		cur=${cur:=/dev/}
