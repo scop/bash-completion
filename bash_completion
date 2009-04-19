@@ -567,6 +567,13 @@ _usergroup()
 	fi
 }
 
+# This function completes on valid shells
+#
+_shells()
+{
+	COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W '$( grep "^[[:space:]]*/" \
+			/etc/shells 2>/dev/null )' -- $cur ) )
+}
 
 # Get real command.
 # - arg: $1  Command
@@ -2621,8 +2628,7 @@ _chsh()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	if [ "$prev" = "-s" ]; then
-		COMPREPLY=( $( compgen -W '$( grep "^[[:space:]]*/" \
-				/etc/shells 2>/dev/null )' -- $cur ) )
+		_shells
 	else
 		COMPREPLY=( $( compgen -u -- $cur ) )
 	fi
