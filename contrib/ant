@@ -13,27 +13,41 @@ _ant()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
-		-buildfile|-f)
+		-buildfile|-file|-f)
 			_filedir 'xml'
 			return 0
 			;;
-		-logfile)
+		-logfile|-l)
 			_filedir
+			return 0
+			;;
+		-propertyfile)
+			_filedir properties
+			return 0
+			;;
+		-nice)
+			COMPREPLY=( $( compgen -W '1 2 3 4 5 6 7 8 9 10' \
+				-- $cur ) )
+			return 0
+			;;
+		-lib|-logger|-listener|-D|-inputhandler|-main)
 			return 0
 			;;
 	esac
 
 	if [[ "$cur" == -* ]]; then
-		# relevant options completion
-		COMPREPLY=( $( compgen -W '-help -projecthelp -version -quiet \
-			       -verbose -debug -emacs -logfile -logger \
-			       -listener -buildfile -f -D -find' -- $cur ) )
+		COMPREPLY=( $( compgen -W '-help -h -projecthelp -p -version \
+			-diagnostics -quiet -q -verbose -v -debug -d -emacs -e \
+			-lib -logfile -l -logger -listener -noinput -buildfile \
+			-file -f -D -keep-going -k -propertyfile -inputhandler \
+			-find -s -nice -nouserlib -noclasspath -autoproxy \
+			-main' -- $cur ) )
 	else
 		# available targets completion
 		# find which buildfile to use
 		buildfile=build.xml
 		for (( i=1; i < COMP_CWORD; i++ )); do
-			if [[ "${COMP_WORDS[i]}" == -buildfile ]]; then
+			if [[ "${COMP_WORDS[i]}" == -@(?(build)file|f) ]]; then
 				buildfile=${COMP_WORDS[i+1]}
 				break
 			fi
@@ -41,12 +55,12 @@ _ant()
 		[ ! -f $buildfile ] && return 0
 
 		# parse buildfile for targets
-		COMPREPLY=( $( awk -F'"' '/<target name="/ {print $2}' \
-				$buildfile | grep "^$cur" )
-			    $( awk -F"'" "/<target name='/ "'{print $2}' \
-				$buildfile | grep "^$cur" )
-			    $( awk -F'"' '/<target [^n]/ {if ($1 ~ /name=/) { print $2 } else if ($3 ~ /name=/) {print $4} else if ($5 ~ /name=/) {print $6}}' \
-				$buildfile | grep "^$cur" ) )
+		# some versions of sed complain if there's no trailing linefeed,
+		# hence the 2>/dev/null
+		COMPREPLY=( $( compgen -W "$( cat $buildfile | \
+			tr "'\t\n>" "\"  \n" | \
+			sed -ne 's/.*<target .*name="\([^"]*\).*/\1/p' \
+			2>/dev/null )" -- $cur ) )
 	fi
 }
 have complete-ant-cmd.pl && \
