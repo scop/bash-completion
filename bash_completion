@@ -3409,59 +3409,6 @@ _root_command()
 }
 complete -F _root_command $filenames sudo fakeroot really gksudo gksu kdesudo
 
-# ant(1) completion
-#
-have ant && {
-_ant()
-{
-	local cur prev buildfile i
-
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
-
-	case "$prev" in
-		-buildfile|-f)
-			_filedir 'xml'
-			return 0
-			;;
-		-logfile)
-			_filedir
-			return 0
-			;;
-	esac
-
-	if [[ "$cur" == -* ]]; then
-		# relevant options completion
-		COMPREPLY=( $( compgen -W '-help -projecthelp -version -quiet \
-			       -verbose -debug -emacs -logfile -logger \
-			       -listener -buildfile -f -D -find' -- $cur ) )
-	else
-		# available targets completion
-		# find which buildfile to use
-		buildfile=build.xml
-		for (( i=1; i < COMP_CWORD; i++ )); do
-			if [[ "${COMP_WORDS[i]}" == -buildfile ]]; then
-				buildfile=${COMP_WORDS[i+1]}
-				break
-			fi
-		done
-		[ ! -f $buildfile ] && return 0
-
-		# parse buildfile for targets
-		COMPREPLY=( $( awk -F'"' '/<target name="/ {print $2}' \
-				$buildfile | grep "^$cur" )
-			    $( awk -F"'" "/<target name='/ "'{print $2}' \
-				$buildfile | grep "^$cur" )
-			    $( awk -F'"' '/<target [^n]/ {if ($1 ~ /name=/) { print $2 } else if ($3 ~ /name=/) {print $4} else if ($5 ~ /name=/) {print $6}}' \
-				$buildfile | grep "^$cur" ) )
-	fi
-}
-have complete-ant-cmd.pl && \
-     complete -C complete-ant-cmd.pl -F _ant $filenames ant || \
-     complete -F _ant $filenames ant
-}
-
 have nslookup &&
 _nslookup()
 {

@@ -2,7 +2,8 @@
 sysconf_DATA = bash_completion
 
 bashcompdir = $(sysconfdir)/bash_completion.d
-bashcomp_DATA = contrib/apache2ctl \
+bashcomp_DATA = contrib/ant \
+		contrib/apache2ctl \
 		contrib/bitkeeper \
 		contrib/bittorrent \
 		contrib/brctl \
