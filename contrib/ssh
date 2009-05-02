@@ -4,6 +4,29 @@
 # ssh(1) completion
 #
 have ssh && {
+
+_ssh_options() {
+	COMPREPLY=( $( compgen -W 'AddressFamily BatchMode BindAddress \
+		ChallengeResponseAuthentication CheckHostIP Cipher Ciphers \
+		ClearAllForwardings Compression CompressionLevel \
+		ConnectionAttempts ConnectTimeout ControlMaster ControlPath \
+		DynamicForward EscapeChar ExitOnForwardFailure ForwardAgent \
+		ForwardX11 ForwardX11Trusted GatewayPorts GlobalKnownHostsFile \
+		GSSAPIAuthentication GSSAPIDelegateCredentials HashKnownHosts \
+		Host HostbasedAuthentication HostKeyAlgorithms HostKeyAlias \
+		HostName IdentityFile IdentitiesOnly KbdInteractiveDevices \
+		LocalCommand LocalForward LogLevel MACs \
+		NoHostAuthenticationForLocalhost NumberOfPasswordPrompts \
+		PasswordAuthentication PermitLocalCommand Port \
+		PreferredAuthentications Protocol ProxyCommand \
+		PubkeyAuthentication RekeyLimit RemoteForward \
+		RhostsRSAAuthentication RSAAuthentication SendEnv \
+		ServerAliveInterval ServerAliveCountMax SmartcardDevice \
+		StrictHostKeyChecking TCPKeepAlive Tunnel TunnelDevice \
+		UsePrivilegedPort User UserKnownHostsFile VerifyHostKeyDNS \
+		VisualHostKey XAuthLocation' -- $cur ) )
+}
+
 _ssh()
 {
 	local cur prev
@@ -37,32 +60,7 @@ _ssh()
 			return 0
 			;;
 		-o)
-			COMPREPLY=( $( compgen -W 'AddressFamily BatchMode \
-				BindAddress ChallengeResponseAuthentication \
-				CheckHostIP Cipher Ciphers ClearAllForwardings \
-				Compression CompressionLevel \
-				ConnectionAttempts ConnectTimeout \
-				ControlMaster ControlPath DynamicForward \
-				EscapeChar ExitOnForwardFailure ForwardAgent \
-				ForwardX11 ForwardX11Trusted GatewayPorts \
-				GlobalKnownHostsFile GSSAPIAuthentication \
-				GSSAPIDelegateCredentials HashKnownHosts Host \
-				HostbasedAuthentication HostKeyAlgorithms \
-				HostKeyAlias HostName IdentityFile \
-				IdentitiesOnly KbdInteractiveDevices \
-				LocalCommand LocalForward LogLevel MACs \
-				NoHostAuthenticationForLocalhost \
-				NumberOfPasswordPrompts PasswordAuthentication \
-				PermitLocalCommand Port \
-				PreferredAuthentications Protocol \
-				ProxyCommand PubkeyAuthentication RekeyLimit \
-				RemoteForward RhostsRSAAuthentication \
-				RSAAuthentication SendEnv ServerAliveInterval \
-				ServerAliveCountMax SmartcardDevice \
-				StrictHostKeyChecking TCPKeepAlive Tunnel \
-				TunnelDevice UsePrivilegedPort User \
-				UserKnownHostsFile VerifyHostKeyDNS \
-				VisualHostKey XAuthLocation' -- $cur ) )
+			_ssh_options
 			return 0
 			;;
 		-w)
@@ -105,7 +103,55 @@ _ssh()
 
 	return 0
 }
-shopt -u hostcomplete && complete -F _ssh ssh slogin sftp autossh
+shopt -u hostcomplete && complete -F _ssh ssh slogin autossh
+
+# sftp(1) completion
+#
+_sftp()
+{
+	local cur prev
+	local optconfigfile
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(b|F|P))
+			_filedirs
+			return 0
+			;;
+		-o)
+			_ssh_options
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-1 -C -v -B -b -F -o -P -R -S -s' \
+			-- $cur ) )
+	else
+		# Search COMP_WORDS for '-F configfile' argument
+		set -- "${COMP_WORDS[@]}"
+		while [ $# -gt 0 ]; do
+			if [ "${1:0:2}" = -F ]; then
+				if [ ${#1} -gt 2 ]; then
+					optconfigfile="$(dequote "$1")"
+				else
+					shift
+					[ "$1" ] && optconfigfile="$(dequote "-F$1")"
+				fi
+				break
+			fi
+			shift
+		done
+		_known_hosts -a "$optconfigfile"
+	fi
+
+	return 0
+}
+shopt -u hostcomplete && complete -F _sftp sftp
+
 
 # scp(1) completion
 #
