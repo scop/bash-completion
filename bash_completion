@@ -2701,6 +2701,7 @@ shopt -u hostcomplete && complete -F _user_at_host $nospace talk ytalk finger
 # Arguments:  -a             Use aliases
 #             -c             Use `:' suffix
 #             -F configfile  Use `configfile' for configuration settings
+#             -h host	     Complete on given host
 _known_hosts()
 {
 	local configfile
@@ -2708,18 +2709,23 @@ _known_hosts()
 	local -a kh khd config
 	local IFS=$'\n'
 
-	COMPREPLY=()
-	cur=`_get_cword`
-	ocur=$cur
-
 	local OPTIND=1
-	while getopts "acF:" flag "$@"; do
+	local cur_set=0
+	while getopts "acF:h:" flag "$@"; do
 		case $flag in
 			a) aliases='yes' ;;
 			c) suffix=':' ;;
 			F) configfile="$OPTARG" ;;
+			h) cur="$OPTARG"; cur_set=1 ;;
 		esac
 	done
+
+	COMPREPLY=()
+	if [ $cur_set = 0 ]; then
+		cur=`_get_cword`
+	fi
+	ocur=$cur
+
     
 	[[ $cur == *@* ]] && user=${cur%@*}@ && cur=${cur#*@}
 	kh=()
