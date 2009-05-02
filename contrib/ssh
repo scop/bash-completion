@@ -179,15 +179,17 @@ _ssh_copy_id() {
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
-		-*i)
-		_filedir
-		;;
-	*)
-		_known_hosts -a
-
-		[ $COMP_CWORD -eq 1 ] || \
-			COMPREPLY=( "${COMPREPLY[@]}" $( compgen -- $cur ) )
+		-i)
+			_filedir
+			return 0
+			;;
 	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-i' -- $cur ) )
+	else
+		_known_hosts -a
+	fi
 
 	return 0
 }
