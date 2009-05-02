@@ -17,38 +17,48 @@ _ssh()
 	case "$prev" in
 	-F)
 		_filedir
+		return 0
 		;;
-	-*c)
+	-c)
 	    COMPREPLY=( $( compgen -W 'blowfish 3des 3des-cbc blowfish-cbc \
 			   arcfour cast128-cbc' -- $cur ) )
+	    return 0
 	    ;;
-	-*i)
+	-i)
 	    _filedir
+	    return 0
 	    ;;
-	-*l)
+	-l)
 	    COMPREPLY=( $( compgen -u -- $cur ) )
+	    return 0
 	    ;;
-	*)
-		# Search COMP_WORDS for '-F configfile' argument
-		set -- "${COMP_WORDS[@]}"
-		while [ $# -gt 0 ]; do
-			if [ "${1:0:2}" = -F ]; then
-				if [ ${#1} -gt 2 ]; then
-					optconfigfile="$(dequote "$1")"
-				else
-					shift
-					[ "$1" ] && optconfigfile="$(dequote "-F$1")"
-				fi
-				break
-			fi
-			shift
-		done
-
-	    _known_hosts -a "$optconfigfile"
-
-	    [ $COMP_CWORD -eq 1 -o -n "$optconfigfile" ] || \
-		COMPREPLY=( "${COMPREPLY[@]}" $( compgen -c -- $cur ) )
 	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-1 -2 -4 -6 -A -a -C -f -g -K -k -M \
+			-N -n -q -s -T -t -V -v -X -v -Y -y -b -b -c -D -e -F \
+			-i -L -l -m -O -o -p -R -S -w' -- $cur ) )
+	else
+		if [ $COMP_CWORD -eq 1 ]; then
+			# Search COMP_WORDS for '-F configfile' argument
+			set -- "${COMP_WORDS[@]}"
+			while [ $# -gt 0 ]; do
+				if [ "${1:0:2}" = -F ]; then
+					if [ ${#1} -gt 2 ]; then
+						optconfigfile="$(dequote "$1")"
+					else
+						shift
+						[ "$1" ] && optconfigfile="$(dequote "-F$1")"
+					fi
+					break
+				fi
+				shift
+			done
+			_known_hosts -a "$optconfigfile"
+		else
+			COMPREPLY=( "${COMPREPLY[@]}" $( compgen -c -- $cur ) )
+		fi
+	fi
 
 	return 0
 }
