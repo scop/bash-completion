@@ -2704,28 +2704,31 @@ shopt -u hostcomplete && complete -F _user_at_host $nospace talk ytalk finger
 #             -h host	     Complete on given host
 _known_hosts()
 {
+	local cur
+
+	COMPREPLY=()
+	cur=`_get_cword`
+
+	_known_hosts_real $@
+}
+
+_known_hosts_real()
+{
 	local configfile
-	local cur curd ocur user suffix aliases global_kh user_kh hosts i host
+	local curd ocur user suffix aliases global_kh user_kh hosts i host
 	local -a kh khd config
 	local IFS=$'\n'
 
 	local OPTIND=1
-	local cur_set=0
-	while getopts "acF:h:" flag "$@"; do
+	while getopts "acF:" flag "$@"; do
 		case $flag in
 			a) aliases='yes' ;;
 			c) suffix=':' ;;
 			F) configfile="$OPTARG" ;;
-			h) cur="$OPTARG"; cur_set=1 ;;
 		esac
 	done
 
-	COMPREPLY=()
-	if [ $cur_set = 0 ]; then
-		cur=`_get_cword`
-	fi
 	ocur=$cur
-
     
 	[[ $cur == *@* ]] && user=${cur%@*}@ && cur=${cur#*@}
 	kh=()
