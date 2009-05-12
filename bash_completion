@@ -4735,19 +4735,19 @@ _java_classes()
 	# parse each classpath element for classes
 	for i in ${classpath//:/ }; do
 		if [ -r $i ] && [[ "$i" == *.@(jar|zip) ]]; then
-			if type zipinfo &> /dev/null; then
+			if type zipinfo &>/dev/null; then
 				COMPREPLY=( "${COMPREPLY[@]}" $( zipinfo -1 \
-				"$i" | grep "^$cur" | grep '\.class$' | \
-				grep -v "\\$" ) )
+					"$i" "$cur*" 2>/dev/null | \
+					grep '^[^$]*\.class$' ) )
 			else
 				COMPREPLY=( "${COMPREPLY[@]}" $( jar tf "$i" \
-				"$cur" | grep "\.class$" | grep -v "\\$" ) )
+					"$cur" | grep '^[^$]*\.class$' ) )
 			fi
 
 		elif [ -d $i ]; then
 			i=${i%/}
 			
-			# See bug #496828
+			# See Debian bug #496828
 			COMPREPLY=( "${COMPREPLY[@]}" $( find "$i" -type f \
 			-maxdepth 1 -path "$i/$cur*.class" 2>/dev/null | \
 			grep -v "\\$" | sed -e "s|^$i/||" ) )
