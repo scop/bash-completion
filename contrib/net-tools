@@ -6,51 +6,33 @@
 have mii-tool &&
 _mii_tool()
 {
-	local cur prev
+	local cur prev split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	# --name value style option
+	_split_longopt && split=true
+
 	case $prev in
-		-F)
+		-F|--force)
 			COMPREPLY=( $( compgen -W '100baseTx-FD 100baseTx-HD \
 				10baseT-FD 10baseT-HD' -- $cur ) )
 			return 0
 			;;
-		-A)
+		-A|--advertise)
 			COMPREPLY=( $( compgen -W '100baseT4 100baseTx-FD 100baseTx-HD \
 				10baseT-FD 10baseT-HD' -- $cur ) )
 			return 0
 			;;
 	esac
 
-
-	# --name=value style option
-	if [[ "$cur" == *=* ]]; then
-		prev=${cur/=*/}
-		cur=${cur/*=/}
-		case "$prev" in
-			--force)
-				COMPREPLY=( $( compgen -W '100baseTx-FD \
-					100baseTx-HD 10baseT-FD \
-					10baseT-HD' -- $cur ) )
-				return 0
-				;;
-			--advertise)
-				COMPREPLY=( $( compgen -W '100baseT4 \
-					100baseTx-FD 100baseTx-HD 10baseT-FD \
-					10baseT-HD' -- $cur ) )
-				return 0
-				;;
-		esac
-	fi
+	$split && return 0
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-v --verbose -V --version -R \
 			--reset -r --restart -w  --watch -l --log -A \
-			--advertise= -F --force=' -- $cur ) )
+			--advertise -F --force' -- $cur ) )
 	else
 		_available_interfaces -a
 	fi
@@ -60,13 +42,14 @@ complete -F _mii_tool $default mii-tool
 have mii-diag &&
 _mii_diag()
 {
-	local cur prev
+	local cur prev split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	# --name value style option
+	_split_longopt && split=true
+
 	case $prev in
 		-@(F|A|-advertise|-fixed-speed))
 			COMPREPLY=( $( compgen -W '100baseT4 100baseTx \
@@ -75,6 +58,8 @@ _mii_diag()
 				return 0
 			;;
 	esac
+
+	$split && return 0
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-A --advertise -F --fixed-speed -a \
