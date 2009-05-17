@@ -8478,43 +8478,6 @@ _invoke_rc_d()
 } &&
 complete -F _invoke_rc_d invoke-rc.d
 
-# minicom(1) completion
-#
-have minicom &&
-_minicom()
-{
-	local cur prev
-
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
-
-	case $prev in
-		-@(a|c))
-			COMPREPLY=( $( compgen -W 'on off' -- $cur ) )
-			return 0
-			;;
-		-@(S|C))
-			_filedir
-			return 0
-			;;
-		-P)
-			COMPREPLY=( $( command ls /dev/tty* ) )
-			COMPREPLY=( $( compgen -W '${COMPREPLY[@]} ${COMPREPLY[@]#/dev/}' -- $cur ) )
-			return 0
-			;;
-	esac
-
-
-	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-s -o -m -M -z -l -L -w -a -t \
-			-c -S -d -p -C -T -8' -- $cur ) )
-	else
-		COMPREPLY=( $( command ls /etc/minicom/minirc.* 2>/dev/null | sed -e 's|/etc/minicom/minirc.||' | grep "^$cur" ) )
-	fi
-} &&
-complete -F _minicom minicom
-
 have rrdtool &&
 _rrdtool ()
 {
