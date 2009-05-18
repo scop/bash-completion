@@ -6,24 +6,40 @@ bashcomp_DATA = contrib/ant \
 		contrib/apache2ctl \
 		contrib/bitkeeper \
 		contrib/bittorrent \
+		contrib/bluez-utils \
 		contrib/brctl \
+		contrib/bzip2 \
+		contrib/cfengine \
 		contrib/cksfv \
 		contrib/clisp \
 		contrib/cowsay \
 		contrib/cpan2dist \
+		contrib/cpio \
+		contrib/dd \
+		contrib/dhclient \
 		contrib/dsniff \
 		contrib/freeciv \
 		contrib/gcl \
+		contrib/gdb \
+		contrib/genisoimage \
+		contrib/getent \
 		contrib/gkrellm \
 		contrib/gnatmake \
 		contrib/gpg2 \
+		contrib/gzip \
 		contrib/harbour \
+		contrib/heimdal \
+		contrib/imagemagick \
 		contrib/isql \
 		contrib/larch \
+		contrib/ldapvi \
+		contrib/lftp \
 		contrib/lilypond \
 		contrib/lisp \
 		contrib/lzma \
+		contrib/lvm \
 		contrib/lzop \
+		contrib/mc \
 		contrib/mailman \
 		contrib/mcrypt \
 		contrib/minicom \
@@ -31,26 +47,43 @@ bashcomp_DATA = contrib/ant \
 		contrib/modules \
 		contrib/monodevelop \
 		contrib/mplayer \
+		contrib/msynctool \
 		contrib/mtx \
+		contrib/munin-node \
+		contrib/ncftp \
 		contrib/net-tools \
+		contrib/ntpdate \
+		contrib/openldap \
+		contrib/openssl \
 		contrib/p4 \
+		contrib/pkg-config \
 		contrib/povray \
 		contrib/qdbus \
 		contrib/qemu \
 		contrib/quota-tools \
 		contrib/rdesktop \
+		contrib/repomanage \
 		contrib/ri \
+		contrib/rpcdebug \
+		contrib/rpmcheck \
+		contrib/samba \
 		contrib/sbcl \
 		contrib/screen \
+		contrib/shadow \
 		contrib/sitecopy \
 		contrib/smartctl \
 		contrib/snownews \
 		contrib/ssh \
+		contrib/strace \
 		contrib/_subversion \
 		contrib/svk \
 		contrib/unace \
 		contrib/unrar \
 		contrib/vncviewer \
+		contrib/wodim \
+		contrib/xhost \
+		contrib/xm \
+		contrib/xmllint \
 		contrib/yum
 
 EXTRA_DIST = $(sysconf_DATA) $(bashcomp_DATA) to_review
