@@ -53,6 +53,11 @@ UNAME=$( uname -s )
 # strip OS type and version under Cygwin (e.g. CYGWIN_NT-5.1 => Cygwin)
 UNAME=${UNAME/CYGWIN_*/Cygwin}
 
+case ${UNAME} in
+	Linux|GNU|GNU/*) USERLAND=GNU ;;
+	*) USERLAND=${UNAME} ;;
+esac
+
 # features supported by bash 2.05 and higher
 if [ ${BASH_VERSINFO[0]} -eq 2 ] && [[ ${BASH_VERSINFO[1]} > 04 ]] ||
    [ ${BASH_VERSINFO[0]} -gt 2 ]; then
@@ -190,7 +195,7 @@ have()
 
 # use GNU sed if we have it, since its extensions are still used in our code
 #
-[ $UNAME != Linux ] && have gsed && alias sed=gsed
+[ $USERLAND != GNU ] && have gsed && alias sed=gsed
 
 # This function checks whether a given readline variable
 # is `on'.
@@ -998,7 +1003,7 @@ complete -F _insmod $filenames insmod modprobe modinfo
 
 # man(1) completion
 #
-[ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin \
+[ $USERLAND = GNU -o $UNAME = Darwin \
   -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin \
   -o $UNAME = OpenBSD ] &&
 _man()
@@ -1028,7 +1033,7 @@ _man()
 	UNAME=$( uname -s )
 	# strip OS type and version under Cygwin
 	UNAME=${UNAME/CYGWIN_*/Cygwin}
-	if [ $UNAME = GNU -o $UNAME = Linux -o $UNAME = FreeBSD \
+	if [ $USERLAND = GNU -o $UNAME = FreeBSD \
 	     -o $UNAME = Cygwin ]; then
 		manpath=$( manpath 2>/dev/null || command man --path )
 	else
@@ -1070,7 +1075,7 @@ _man()
 
 	return 0
 }
-[ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Darwin \
+[ $USERLAND = GNU -o $UNAME = Darwin \
   -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin \
   -o $UNAME = OpenBSD ] && \
 complete -F _man $filenames man apropos whatis
@@ -1466,7 +1471,7 @@ complete -F _iwpriv iwpriv
 
 # Red Hat & Debian GNU/Linux if{up,down} completion
 #
-[ $UNAME = Linux ] && { have ifup || have ifdown; } &&
+[ $USERLAND = GNU ] && { have ifup || have ifdown; } &&
 _ifupdown()
 {
 	local cur
@@ -1482,7 +1487,7 @@ _ifupdown()
        return 0
 } &&
 complete -F _ifupdown ifup ifdown
-[ $UNAME = Linux ] && have ifstatus && complete -F _ifupdown ifstatus
+[ $USERLAND = GNU ] && have ifstatus && complete -F _ifupdown ifstatus
 
 # Linux ipsec(8) completion (for FreeS/WAN)
 #
@@ -3711,7 +3716,7 @@ _gcc()
 	fi
 } &&
 complete $filenames -F _gcc gcc g++ c++ g77 gcj gpc
-[ $UNAME = GNU -o $UNAME = Linux -o $UNAME = Cygwin ] && \
+[ $USERLAND = GNU -o $UNAME = Cygwin ] && \
 [ -n "${have:-}" ] && complete $filenames -F _gcc cc
 
 # Linux cardctl(8) completion
