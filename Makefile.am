@@ -19,6 +19,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/dd \
 		contrib/dhclient \
 		contrib/dsniff \
+		contrib/findutils \
 		contrib/freeciv \
 		contrib/gcl \
 		contrib/gdb \
