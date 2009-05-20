@@ -69,6 +69,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/ri \
 		contrib/rpcdebug \
 		contrib/rpmcheck \
+		contrib/rsync \
 		contrib/samba \
 		contrib/sbcl \
 		contrib/screen \
