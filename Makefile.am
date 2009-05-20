@@ -40,6 +40,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/lzma \
 		contrib/lvm \
 		contrib/lzop \
+		contrib/make \
 		contrib/mc \
 		contrib/mailman \
 		contrib/mcrypt \
