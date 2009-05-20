@@ -82,6 +82,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/strace \
 		contrib/_subversion \
 		contrib/svk \
+		contrib/tar \
 		contrib/unace \
 		contrib/unrar \
 		contrib/vncviewer \
