@@ -1,0 +1,200 @@
+# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
+# ex: ts=8 sw=8 noet filetype=sh
+#
+# bash completion for postfix
+
+have postfix && {
+# postfix(1)
+#
+_postfix()
+{
+	local cur prev
+
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [[ $cur == '-' ]]; then
+		COMPREPLY=(-c -D -v)
+		return 0
+	fi
+	if [[ $prev == '-c' ]]; then
+		_filedir -d
+		return 0
+	fi
+	if [[ $prev == '-D' ]]; then
+		COMPREPLY=( $( compgen -W 'start' -- "`_get_cword`" ) )
+		return 0
+	fi
+	COMPREPLY=( $( compgen -W 'start stop reload abort flush check' -- \
+		"`_get_cword`" ) )
+}
+complete -F _postfix postfix
+
+# postalias(1) and postmap(1)
+#
+_postmap()
+{
+	local cur prev len idx
+
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [[ $cur == '-' ]]; then
+		COMPREPLY=(-N -f -i -n -o -p -r -v -w -c -d -q)
+		return 0
+	fi
+	if [[ $prev == '-c' ]]; then
+		_filedir -d
+		return 0
+	fi
+	if [[ $prev == -[dq] ]]; then
+		return 0
+	fi
+
+	if [[ "$cur" == *:* ]]; then
+	       	COMPREPLY=( $( compgen -f -- ${cur#*:} ) )
+	else
+		len=${#cur}
+		idx=0
+		for pval in $( /usr/sbin/postconf -m ); do
+			if [[ "$cur" == "${pval:0:$len}" ]]; then
+				COMPREPLY[$idx]="$pval:"
+				idx=$(($idx+1))
+			fi
+		done
+		if [[ $idx -eq 0 ]]; then
+			COMPREPLY=( $( compgen -f -- "$cur" ) )
+		fi
+	fi
+	return 0
+}
+complete -F _postmap postmap postalias
+
+# postcat(1)
+#
+_postcat()
+{
+	local cur prev pval len idx qfile
+
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [[ $cur == '-' ]]; then
+		COMPREPLY=(-c -q -v)
+		return 0
+	fi
+	if [[ $prev == '-c' ]]; then
+		_filedir -d
+		return 0
+	fi
+
+	qfile=0
+	for idx in "${COMP_WORDS[@]}"; do
+		[[ "$idx" = -q ]] && qfile=1 && break
+	done
+	if [[ $qfile == 1 ]]; then
+		len=${#cur}
+		idx=0
+		for pval in $( mailq | \
+			sed -e '1d; $d; /^[^0-9A-Z]\|^$/d; s/[* !].*$//' ); do
+			if [[ "$cur" == "${pval:0:$len}" ]]; then
+				COMPREPLY[$idx]=$pval
+				idx=$(($idx+1))
+			fi
+		done
+		return 0
+	else
+		_filedir
+		return 0
+	fi
+}
+complete -F _postcat postcat
+
+# postconf(1)
+#
+_postconf()
+{
+	local cur prev pval len idx eqext
+
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+	if [[ $cur == '-' ]]; then
+		COMPREPLY=(-c -d -e -h -m -l -n -v)
+		return 0
+	fi
+	if [[ $prev == '-c' ]]; then
+		_filedir -d
+		return 0
+	fi
+	if [[ $prev == '-e' ]]; then
+		cur=${cur#[\"\']}
+		eqext='='
+	fi
+	len=${#cur}
+	idx=0
+	for pval in $( /usr/sbin/postconf | cut -d ' ' -f 1 ); do
+		if [[ "$cur" == "${pval:0:$len}" ]]; then
+			COMPREPLY[$idx]="$pval$eqext"
+			idx=$(($idx+1))
+		fi
+	done
+	return 0
+}
+complete -F _postconf postconf
+
+# postsuper(1)
+#
+_postsuper()
+{
+	local cur prev pval len idx
+
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [[ $cur == '-' ]]; then
+		COMPREPLY=(-c -d -h -H -p -r -s -v)
+		return 0
+	fi
+	case $prev in
+	-[dr])
+		len=${#cur}
+		idx=0
+		for pval in $( echo ALL; mailq | \
+			sed -e '1d; $d; /^[^0-9A-Z]\|^$/d; s/[* !].*$//' ); do
+			if [[ "$cur" == "${pval:0:$len}" ]]; then
+				COMPREPLY[$idx]=$pval
+				idx=$(($idx+1))
+			fi
+		done
+		return 0
+		;;
+	-h)
+		len=${#cur}
+		idx=0
+		for pval in $( echo ALL; mailq | \
+			sed -e '1d; $d; /^[^0-9A-Z]\|^$/d; s/[* ].*$//; /!$/d' ); do
+			if [[ "$cur" == "${pval:0:$len}" ]]; then
+				COMPREPLY[$idx]=$pval
+				idx=$(($idx+1))
+			fi
+		done
+		return 0
+		;;
+	-H)
+		len=${#cur}
+		idx=0
+		for pval in $( echo ALL; mailq | \
+			sed -e '1d; $d; /^[^0-9A-Z]\|^$/d; /^[0-9A-Z]*[* ]/d; s/!.*$//' ); do
+			if [[ "$cur" == "${pval:0:$len}" ]]; then
+				COMPREPLY[$idx]=$pval
+				idx=$(($idx+1))
+			fi
+		done
+		return 0
+		;;
+	esac
+	COMPREPLY=( $( compgen -W 'hold incoming active deferred' -- $cur ) )
+	return 0
+}
+complete -F _postsuper postsuper
+}
