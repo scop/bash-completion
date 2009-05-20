@@ -57,6 +57,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/openssl \
 		contrib/p4 \
 		contrib/pkg-config \
+		contrib/postgresql \
 		contrib/povray \
 		contrib/qdbus \
 		contrib/qemu \
