@@ -48,6 +48,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/monodevelop \
 		contrib/mplayer \
 		contrib/msynctool \
+		contrib/mysqladmin \
 		contrib/mtx \
 		contrib/munin-node \
 		contrib/ncftp \
