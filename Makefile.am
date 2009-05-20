@@ -4,6 +4,7 @@ sysconf_DATA = bash_completion
 bashcompdir = $(sysconfdir)/bash_completion.d
 bashcomp_DATA = contrib/ant \
 		contrib/apache2ctl \
+		contrib/bind-utils \
 		contrib/bitkeeper \
 		contrib/bittorrent \
 		contrib/bluez-utils \
