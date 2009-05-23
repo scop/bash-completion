@@ -1008,7 +1008,7 @@ complete -F _insmod $filenames insmod modprobe modinfo
   -o $UNAME = OpenBSD ] &&
 _man()
 {
-	local cur prev sect manpath manext mansect UNAME
+	local cur prev sect manpath manext mansect uname
 
 	manext="@([0-9lnp]|[0-9][px]|man)?(.@(gz|bz2|lzma))"
 	mansect="@([0-9lnp]|[0-9][px])"
@@ -1030,11 +1030,8 @@ _man()
 		return 0
 	fi
 
-	UNAME=$( uname -s )
-	# strip OS type and version under Cygwin
-	UNAME=${UNAME/CYGWIN_*/Cygwin}
-	if [ $USERLAND = GNU -o $UNAME = FreeBSD \
-	     -o $UNAME = Cygwin ]; then
+	uname=$( uname -s )
+	if [[ $uname == @(Linux|GNU|GNU/*|FreeBSD|Cygwin|CYGWIN_*) ]]; then
 		manpath=$( manpath 2>/dev/null || command man --path )
 	else
 		manpath=$MANPATH
