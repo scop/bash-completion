@@ -70,6 +70,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/quota-tools \
 		contrib/rdesktop \
 		contrib/repomanage \
+		contrib/reportbug \
 		contrib/ri \
 		contrib/rpcdebug \
 		contrib/rpmcheck \
