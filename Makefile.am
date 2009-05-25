@@ -36,6 +36,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/larch \
 		contrib/ldapvi \
 		contrib/lftp \
+		contrib/lilo \
 		contrib/lilypond \
 		contrib/lisp \
 		contrib/lzma \
