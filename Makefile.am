@@ -96,6 +96,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/svk \
 		contrib/sysctl \
 		contrib/tar \
+		contrib/tcpdump \
 		contrib/unace \
 		contrib/unrar \
 		contrib/update-alternatives \
