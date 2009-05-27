@@ -64,6 +64,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/openldap \
 		contrib/openssl \
 		contrib/p4 \
+		contrib/perl \
 		contrib/pkg-config \
 		contrib/postgresql \
 		contrib/postfix \
