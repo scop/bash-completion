@@ -17,6 +17,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/cowsay \
 		contrib/cpan2dist \
 		contrib/cpio \
+		contrib/dcop \
 		contrib/dd \
 		contrib/dhclient \
 		contrib/dsniff \
