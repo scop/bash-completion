@@ -69,6 +69,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/postgresql \
 		contrib/postfix \
 		contrib/povray \
+		contrib/python \
 		contrib/qdbus \
 		contrib/qemu \
 		contrib/quota-tools \
