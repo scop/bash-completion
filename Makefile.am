@@ -35,6 +35,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/harbour \
 		contrib/heimdal \
 		contrib/imagemagick \
+		contrib/iptables \
 		contrib/isql \
 		contrib/java \
 		contrib/larch \
