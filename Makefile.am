@@ -96,6 +96,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/tar \
 		contrib/unace \
 		contrib/unrar \
+		contrib/update-alternatives \
 		contrib/vncviewer \
 		contrib/wodim \
 		contrib/wvdial \
