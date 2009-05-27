@@ -92,6 +92,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/unrar \
 		contrib/vncviewer \
 		contrib/wodim \
+		contrib/wvdial \
 		contrib/xhost \
 		contrib/xm \
 		contrib/xmllint \

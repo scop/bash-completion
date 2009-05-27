@@ -4462,53 +4462,6 @@ _dcop()
 } &&
 complete -F _dcop dcop
 
-# wvdial(1) completion
-#
-have wvdial &&
-_wvdial()
-{
-	local cur prev config i IFS=$'\t\n'
-
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
-
-	case $prev in
-		--config)
-			_filedir
-			return 0
-			;;
-	esac
-
-	case $cur in
-		-*)
-			COMPREPLY=( $( compgen -W '--config --chat \
-				--remotename --help --version --no-syslog' \
-				-- $cur ) )
-			;;
-		*)
-			# start with global and personal config files
-		       	config="/etc/wvdial.conf"$'\t'"$HOME/.wvdialrc"
-			# replace with command line config file if present
-			for (( i=1; i < COMP_CWORD; i++ )); do
-				if [[ "${COMP_WORDS[i]}" == "--config" ]]; then
-					config=${COMP_WORDS[i+1]}
-					break
-				fi
-			done
-			# parse config files for sections and
-			# remove default section
-			COMPREPLY=( $( sed -ne \
-				    "s|^\[Dialer \($cur.*\)\]$|\1|p" \
-				    $config 2>/dev/null |grep -v '^Defaults$'))
-			# escape spaces
-			COMPREPLY=${COMPREPLY// /\\ }
-			;;
-	esac
-
-} &&
-complete -F _wvdial wvdial
-
 # gpg(1) completion
 #
 have gpg &&
