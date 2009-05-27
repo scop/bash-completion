@@ -98,6 +98,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/xhost \
 		contrib/xm \
 		contrib/xmllint \
+		contrib/xrandr \
 		contrib/yum
 
 EXTRA_DIST = $(sysconf_DATA) $(bashcomp_DATA) to_review
