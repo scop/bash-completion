@@ -27,6 +27,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/genisoimage \
 		contrib/getent \
 		contrib/gkrellm \
+		contrib/gpg \
 		contrib/gnatmake \
 		contrib/gpg2 \
 		contrib/gzip \
