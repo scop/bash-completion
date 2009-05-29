@@ -104,6 +104,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/unrar \
 		contrib/update-alternatives \
 		contrib/vncviewer \
+		contrib/wireless-tools \
 		contrib/wodim \
 		contrib/wvdial \
 		contrib/xhost \
