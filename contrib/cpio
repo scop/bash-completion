@@ -11,51 +11,35 @@ _cpio_format()
 
 _cpio()
 {
-	local cur prev
+	local cur prev split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
+	_split_longopt && split=true
+
 	# --name value style option
 	case $prev in
-		-H)
+		-H|--format)
 			_cpio_format
 			return 0
 			;;
-		-@(E|F|I))
+		-@(E|F|I|-?(pattern-)file))
 			_filedir
 			return 0
 			;;
-		-R)
+		-R|--owner)
 			_usergroup
+			return 0
+			;;
+		--rsh-command)
+			COMPREPLY=( $( compgen -c -- $cur ) )
 			return 0
 			;;
 	esac
 
-	# --name=value style option
-	if [[ "$cur" == *=* ]]; then
-		prev=${cur/=*/}
-		cur=${cur/*=/}
-		case $prev in
-			--format)
-				_cpio_format
-				return 0
-				;;
-			--@(file|pattern-file))
-				_filedir
-				return 0
-				;;
-			--owner)
-				_usergroup
-				return 0
-				;;
-			--rsh-command)
-				COMPREPLY=( $( compgen -c -- $cur ) )
-				return 0
-				;;
-		esac
-	fi
+	$split && return 0
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		COMPREPLY=( $( compgen -W '-o --create -i --extract -p --pass-through' -- $cur) )
@@ -64,11 +48,11 @@ _cpio()
 			-@(o|-create))
 				if [[ "$cur" == -* ]]; then
 					COMPREPLY=( $( compgen -W '-0 -a -c -v -A -B\
-						-L -V -C -H -M -O -F --file= --format=\
-						--message= --null --reset-access-time\
-						--verbose --dot --append --block-size=\
-						--dereference --io-size= --quiet\
-						--force-local --rsh-command= --help\
+						-L -V -C -H -M -O -F --file --format\
+						--message --null --reset-access-time\
+						--verbose --dot --append --block-size\
+						--dereference --io-size --quiet\
+						--force-local --rsh-command --help\
 						--version' -- $cur ) )
 				fi
 				;;
@@ -76,18 +60,18 @@ _cpio()
 				if [[ "$cur" == -* ]]; then
 					COMPREPLY=( $( compgen -W '-b -c -d -f -m -n -r\
 						-t -s -u -v -B -S -V -C -E -H -M -R -I\
-						-F --file= --make-directories\
+						-F --file --make-directories\
 						--nonmatching\
 						--preserve-modification-time\
 						--numeric-uid-gid --rename -t --list\
 						--swap-bytes --swap --dot\
-						--unconditional --verbose --block-size=\
-						--swap-halfwords --io-size=\
-						--pattern-file= --format= --owner=\
-						--no-preserve-owner --message=\
+						--unconditional --verbose --block-size\
+						--swap-halfwords --io-size\
+						--pattern-file --format --owner\
+						--no-preserve-owner --message\
 						--force-local --no-absolute-filenames\
 						--sparse --only-verify-crc --quiet\
-						--rsh-command= --help\
+						--rsh-command --help\
 						--version' -- $cur ) )
 				fi
 				;;
@@ -98,7 +82,7 @@ _cpio()
 						--make-directories --link --quiet\
 						--preserve-modification-time\
 						--unconditional --verbose --dot\
-						--dereference --owner=\
+						--dereference --owner\
 						--no-preserve-owner --sparse --help\
 						--version' -- $cur ) )
 				else

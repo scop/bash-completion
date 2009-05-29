@@ -42,6 +42,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/larch \
 		contrib/ldapvi \
 		contrib/lftp \
+		contrib/lilo \
 		contrib/lilypond \
 		contrib/links \
 		contrib/lisp \
@@ -78,6 +79,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/quota-tools \
 		contrib/rdesktop \
 		contrib/repomanage \
+		contrib/reportbug \
 		contrib/ri \
 		contrib/rcs \
 		contrib/rpcdebug \

@@ -35,32 +35,25 @@ _filesystems()
 
 _quota()
 {
-	local cur prev
+	local cur prev split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
+	_split_longopt && split=true
+
 	case $prev in
-		-F)
+		-F|--format)
 			_quota_formats
 			return 0
 			;;
 	esac
-	
-	if [[ "$cur" == *=* ]]; then
-		prev=${cur/=*/}
-		cur=${cur/*=/}
-		case $prev in
-			--format)
-				_quota_formats
-				return 0
-				;;
-		esac
-	fi
+
+	$split && return 0
 
 	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-F --format= -g --group -u --user -v --verbose \
+		COMPREPLY=( $( compgen -W '-F --format -g --group -u --user -v --verbose \
 			-s --human-readable -p --raw-grace -i --no-autofs -l --local-only \
 			-A --all-nfs -m --no-mixed-pathnames -q --quiet -Q --quiet-refuse \
 			-w --no-wrap' -- $cur ) )
@@ -72,33 +65,26 @@ complete -F _quota $default quota
 
 _setquota()
 {
-	local cur prev
+	local cur prev split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
+	_split_longopt && split=true
+
 	case $prev in
-		-F)
+		-F|--format)
 			_quota_formats
 			return 0
 			;;
 	esac
 
-	if [[ "$cur" == *=* ]]; then
-		prev=${cur/=*/}
-		cur=${cur/*=/}
-		case $prev in
-			--format)
-				_quota_formats
-				return 0
-				;;
-		esac
-	fi
+	$split && return 0
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-r --remote -m --no-mixed-pathnames \
-			-F --format= -g --group -u --user -p --prototype= -b --batch \
+			-F --format -g --group -u --user -p --prototype -b --batch \
 			-c --continue-batch -t --edit-period -T --edit-times -a --all' -- $cur ) )
 	else
 		_count_args
@@ -118,14 +104,16 @@ complete -F _setquota $default setquota
 
 _edquota()
 {
-	local cur prev
+	local cur prev split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
+	_split_longopt && split=true
+
 	case $prev in
-		-F)
+		-F|--format)
 			_quota_formats
 			return 0
 			;;
@@ -135,20 +123,11 @@ _edquota()
 			;;
 	esac
 
-	if [[ "$cur" == *=* ]]; then
-		prev=${cur/=*/}
-		cur=${cur/*=/}
-		case $prev in
-			--format)
-				_quota_formats
-				return 0
-				;;
-		esac
-	fi
+	$split && return 0
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-r --remote -m --no-mixed-pathnames \
-			-g --group -u --user -p --prototype= -F --format= -f --filesystem \
+			-g --group -u --user -p --prototype -F --format -f --filesystem \
 			-t --edit-period -T --edit-times' -- $cur ) )
 	else
 		_user_or_group
@@ -158,35 +137,28 @@ complete -F _edquota $default edquota
 
 _quotacheck()
 {
-	local cur prev
+	local cur prev split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
+	_split_longopt && split=true
+
 	case $prev in
-		-F)
+		-F|--format)
 			_quota_formats
 			return 0
 			;;
 	esac
 
-	if [[ "$cur" == *=* ]]; then
-		prev=${cur/=*/}
-		cur=${cur/*=/}
-		case $prev in
-			--format)
-				_quota_formats
-				return 0
-				;;
-		esac
-	fi
+	$split && return 0
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-b --backup -v --verbose -d --debug \
 			-g --group -u --user -c --create-files -f --force -i \
 			--interactive -n --use-first-dquot -M --try-remount -m \
-			--no-remount -R --exclude-root -F --format= -a --all' \
+			--no-remount -R --exclude-root -F --format -a --all' \
 			-- $cur ) )
 	else
 		_filesystems
@@ -196,35 +168,28 @@ complete -F _quotacheck $default quotacheck
 
 _repquota()
 {
-	local cur prev
+	local cur prev split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
+	_split_longopt && split=true
+
 	case $prev in
-		-F)
+		-F|--format)
 			_quota_formats
 			return 0
 			;;
 	esac
 
-	if [[ "$cur" == *=* ]]; then
-		prev=${cur/=*/}
-		cur=${cur/*=/}
-		case $prev in
-			--format)
-				_quota_formats
-				return 0
-				;;
-		esac
-	fi
+	$split && return 0
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-a --all -v --verbose -s --human-readable \
 			-c --batch-translation -C --no-batch-translation -t \
 			--truncate-names -n --no-names -p --raw-grace -i --no-autofs \
-			-u --user -g --group -F --format=' -- $cur ) )
+			-u --user -g --group -F --format' -- $cur ) )
 	else
 		_filesystems
 	fi
@@ -233,34 +198,26 @@ complete -F _repquota $default repquota
 
 _quotaon()
 {
-	local cur prev
+	local cur prev split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	echo --$cmd--
+	_split_longopt && split=true
+
 	case $prev in
-		-F)
+		-F|--format)
 			_quota_formats
 			return 0
 			;;
 	esac
 
-	if [[ "$cur" == *=* ]]; then
-		prev=${cur/=*/}
-		cur=${cur/*=/}
-		case $prev in
-			--format)
-				_quota_formats
-				return 0
-				;;
-		esac
-	fi
+	$split && return 0
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-a --all -v --verbose -u --user \
-			-g --group -f --off -p --print-state -F --format=' -- $cur ) )
+			-g --group -f --off -p --print-state -F --format' -- $cur ) )
 	else
 		_filesystems
 	fi
@@ -269,14 +226,16 @@ complete -F _quotaon $default quotaon
 
 _quotaoff()
 {
-	local cur prev
+	local cur prev split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
+	_split_longopt && split=true
+
 	case $prev in
-		-F)
+		-F|--format)
 			_quota_formats
 			return 0
 			;;
@@ -286,20 +245,11 @@ _quotaoff()
 			;;
 	esac
 
-	if [[ "$cur" == *=* ]]; then
-		prev=${cur/=*/}
-		cur=${cur/*=/}
-		case $prev in
-			--format)
-				_quota_formats
-				return 0
-				;;
-		esac
-	fi
+	$split && return 0
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-a --all -v --verbose -u --user \
-			-g --group -p --print-state -x --xfs-command -F --format=' \
+			-g --group -p --print-state -x --xfs-command -F --format' \
 			-- $cur ) )
 	else
 		_filesystems
