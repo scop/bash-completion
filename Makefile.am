@@ -55,6 +55,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/mcrypt \
 		contrib/minicom \
 		contrib/mkinitrd \
+		contrib/mock \
 		contrib/modules \
 		contrib/monodevelop \
 		contrib/mplayer \
