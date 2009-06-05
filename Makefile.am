@@ -87,6 +87,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/openssl \
 		contrib/p4 \
 		contrib/perl \
+		contrib/pine \
 		contrib/pkg-config \
 		contrib/postgresql \
 		contrib/postfix \
