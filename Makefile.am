@@ -102,6 +102,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/_subversion \
 		contrib/svk \
 		contrib/sysctl \
+		contrib/sysv-rc \
 		contrib/tar \
 		contrib/tcpdump \
 		contrib/unace \
