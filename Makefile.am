@@ -41,6 +41,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/info \
 		contrib/iptables \
 		contrib/isql \
+		contrib/jar \
 		contrib/java \
 		contrib/larch \
 		contrib/ldapvi \
