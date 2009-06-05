@@ -1,0 +1,39 @@
+# chkconfig(8) completion
+#
+have chkconfig &&
+_chkconfig()
+{
+	local cur prev split=false
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	_split_longopt && split=true
+
+	case "$prev" in
+	@(?(--level=)[1-6]|--@(list|add|del|override)))
+		_services
+		return 0
+		;;
+	--level)
+		COMPREPLY=( $( compgen -W '1 2 3 4 5 6' -- $cur ) )
+		return 0
+		;;
+	esac
+
+	$split && return 0
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '--list --add --del --override \
+						--level' -- $cur ) )
+	else
+		if [ $COMP_CWORD -eq 2 -o $COMP_CWORD -eq 4 ]; then
+			COMPREPLY=( $( compgen -W 'on off reset \
+						resetpriorities' -- $cur ) )
+		else
+			_services
+		fi
+	fi
+} &&
+complete -F _chkconfig chkconfig

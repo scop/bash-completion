@@ -12,6 +12,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/bluez-utils \
 		contrib/brctl \
 		contrib/bzip2 \
+		contrib/chkconfig \
 		contrib/cfengine \
 		contrib/cksfv \
 		contrib/clisp \
