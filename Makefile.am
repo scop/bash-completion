@@ -9,6 +9,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/aptitude \
 		contrib/aspell \
 		contrib/autorpm \
+		contrib/bash-builtins \
 		contrib/bind-utils \
 		contrib/bitkeeper \
 		contrib/bittorrent \
