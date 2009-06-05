@@ -133,4 +133,5 @@ bashcomp_DATA = contrib/ant \
 		contrib/xrandr \
 		contrib/yum
 
-EXTRA_DIST = $(sysconf_DATA) $(bashcomp_DATA) to_review
+EXTRA_DIST = $(sysconf_DATA) $(bashcomp_DATA) to_review \
+		contrib/_subversion
