@@ -33,6 +33,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/dsniff \
 		contrib/findutils \
 		contrib/freeciv \
+		contrib/gcc \
 		contrib/gcl \
 		contrib/gdb \
 		contrib/genisoimage \
