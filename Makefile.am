@@ -63,6 +63,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/mysqladmin \
 		contrib/mtx \
 		contrib/munin-node \
+		contrib/mutt \
 		contrib/ncftp \
 		contrib/net-tools \
 		contrib/ntpdate \
