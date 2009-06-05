@@ -5,6 +5,7 @@ bashcompdir = $(sysconfdir)/bash_completion.d
 bashcomp_DATA = contrib/ant \
 		contrib/apache2ctl \
 		contrib/apt-build \
+		contrib/aptitude \
 		contrib/aspell \
 		contrib/autorpm \
 		contrib/bind-utils \
