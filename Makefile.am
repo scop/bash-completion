@@ -94,6 +94,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/ri \
 		contrib/rcs \
 		contrib/rpcdebug \
+		contrib/rpm \
 		contrib/rpmcheck \
 		contrib/rrdtool \
 		contrib/rsync \
