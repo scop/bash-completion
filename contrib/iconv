@@ -1,0 +1,27 @@
+# iconv(1) completion
+#
+have iconv &&
+_iconv()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(f|t|-@(from|to)-code))
+			COMPREPLY=( $( compgen -W \
+			    '$( iconv --list | sed -e "s@//@@;" )' -- "$cur" ) )
+			return 0
+			;;
+	esac
+
+
+	if [[ "$cur" = -* ]]; then
+		COMPREPLY=( $( compgen -W '--from-code -f --to-code -t --list
+		--output -o --verbose' -- "$cur" ) )
+		return 0
+	fi
+} &&
+complete -F _iconv $default iconv

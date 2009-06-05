@@ -34,6 +34,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/gzip \
 		contrib/harbour \
 		contrib/heimdal \
+		contrib/iconv \
 		contrib/imagemagick \
 		contrib/info \
 		contrib/iptables \
