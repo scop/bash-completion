@@ -99,7 +99,6 @@ bashcomp_DATA = contrib/ant \
 		contrib/snownews \
 		contrib/ssh \
 		contrib/strace \
-		contrib/_subversion \
 		contrib/svk \
 		contrib/sysctl \
 		contrib/sysv-rc \
