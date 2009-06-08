@@ -56,6 +56,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/isql \
 		contrib/jar \
 		contrib/java \
+		contrib/kldload \
 		contrib/larch \
 		contrib/ldapvi \
 		contrib/lftp \
@@ -91,6 +92,8 @@ bashcomp_DATA = contrib/ant \
 		contrib/perl \
 		contrib/pine \
 		contrib/pkg-config \
+		contrib/pkg_install \
+		contrib/portupgrade \
 		contrib/postgresql \
 		contrib/postfix \
 		contrib/povray \

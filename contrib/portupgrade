@@ -1,0 +1,54 @@
+# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
+# ex: ts=8 sw=8 noet filetype=sh
+#
+# bash completion for FreeBSD portupgrade package
+
+have portupgrade &&
+_portupgrade()
+{
+	local cur pkgdir prev
+
+	pkgdir=${PKG_DBDIR:-/var/db/pkg}/
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	[ "$prev" = "-l" -o "$prev" = "-L" -o "$prev" = "-o" ] && return 0
+
+	COMPREPLY=( $( compgen -d $pkgdir$cur ) )
+	COMPREPLY=( ${COMPREPLY[@]#$pkgdir} )
+	COMPREPLY=( ${COMPREPLY[@]%-*} )
+
+	return 0
+} &&
+complete -F _portupgrade $dirnames portupgrade
+
+have portinstall &&
+_portinstall()
+{
+	local cur portsdir prev indexfile
+	local -a COMPREPLY2
+
+	portsdir=${PORTSDIR:-/usr/ports}/
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+	# First try INDEX-5
+	indexfile=$portsdir/INDEX-5
+	# Then INDEX if INDEX-5 does not exist or system is not FreeBSD 5.x
+	[ "${OSTYPE%.*}" = "freebsd5" -a -f $indexfile ] ||
+	  indexfile=$portsdir/INDEX
+
+	[ "$prev" = "-l" -o "$prev" = "-L" -o "$prev" = "-o" ] && return 0
+
+	COMPREPLY=( $( egrep "^$cur" < $indexfile | cut -d'|' -f1 ) )
+	COMPREPLY2=( $( egrep "^[^\|]+\|$portsdir$cur" < $indexfile | \
+			cut -d'|' -f2 ) )
+	COMPREPLY2=( ${COMPREPLY2[@]#$portsdir} )
+	COMPREPLY=( "${COMPREPLY[@]}" "${COMPREPLY2[@]}" )
+
+	return 0
+} &&
+complete -F _portinstall $dirnames portinstall
+
+# _pkg_delete is in pkg_install
+type _pkg_delete &>/dev/null && have pkg_deinstall && \
+complete -F _pkg_delete $dirnames pkg_deinstall
