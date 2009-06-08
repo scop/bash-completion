@@ -22,13 +22,11 @@ _rpm_installed_packages()
 
 _rpm_groups()
 {
-	local IFS=$'\t'
-	# remove trailing backslash, or grep will complain
-	cur=${cur%"\\"}
-	COMPREPLY=( $( rpm -qa $nodig $nosig --queryformat '%{group}\n' | \
-		       grep "^$cur" ) )
-	# backslash escape spaces and translate newlines to tabs
-	COMPREPLY=( $( echo "${COMPREPLY[@]}" | sed 's/ /\\ /g' | tr '\n' '\t' ) )
+	# TODO: shown completions are wrong but real ones work nevertheless
+	# http://lists.alioth.debian.org/pipermail/bash-completion-devel/2009-May/001486.html
+	local IFS=$'\n'
+	COMPREPLY=( $( compgen -W "$( rpm -qa $nodig $nosig --queryformat \
+		'%{group}\n' )" -- $cur ) )
 }
 
 _rpm_nodigsig()
