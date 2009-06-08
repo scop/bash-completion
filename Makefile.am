@@ -93,6 +93,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/pine \
 		contrib/pkg-config \
 		contrib/pkg_install \
+		contrib/pkgtools \
 		contrib/portupgrade \
 		contrib/postgresql \
 		contrib/postfix \
