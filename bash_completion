@@ -1591,34 +1591,6 @@ _look()
 } &&
 complete -F _look $default look
 
-# ypcat(1) and ypmatch(1) completion
-#
-have ypmatch &&
-_ypmatch()
-{
-	local cur map
-
-	COMPREPLY=()
-	cur=`_get_cword`
-
-	[ $1 = ypcat ] && [ $COMP_CWORD -gt 1 ] && return 0
-	[ $1 = ypmatch ] && [ $COMP_CWORD -gt 2 ] && return 0
-
-	if [ $1 = ypmatch ] && [ $COMP_CWORD -eq 1 ] && \
-	   [ ${#COMP_WORDS[@]} -eq 3 ]; then
-		map=${COMP_WORDS[2]}
-		COMPREPLY=( $( compgen -W '$( ypcat $map | \
-						cut -d':' -f 1 )' -- $cur) )
-	else
-		[ $1 = ypmatch ] && [ $COMP_CWORD -ne 2 ] && return 0
-		COMPREPLY=( $( compgen -W \
-			      '$( echo $(ypcat -x | cut -d"\"" -f 2))' -- $cur))
-	fi
-
-	return 0
-} &&
-complete -F _ypmatch ypmatch ypcat
-
 # CUPS cancel(1) completion
 #
 have cancel &&
