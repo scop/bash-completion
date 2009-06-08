@@ -22,6 +22,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/cfengine \
 		contrib/cksfv \
 		contrib/clisp \
+		contrib/configure \
 		contrib/cowsay \
 		contrib/cpan2dist \
 		contrib/cpio \
