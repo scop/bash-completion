@@ -30,7 +30,7 @@ _yum_repolist()
 
 _yum()
 {
-	local cur prev special
+	local cur prev special split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
@@ -69,15 +69,7 @@ _yum()
 		esac
 	fi
 
-	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-h --help -t --tolerant -C -c -R \
-			-d --showduplicates -e -q --quiet -v --verbose -y \
-			--version --installroot --enablerepo --disablerepo -x \
-			--exclude --disableexcludes --obsoletes --noplugins \
-			--nogpgcheck --disableplugin --enableplugin \
-			--skip-broken --color' -- $cur ) )
-		return 0
-	fi
+	_split_longopt && split=true
 
 	case $prev in
 		list)
@@ -118,6 +110,17 @@ _yum()
 			COMPREPLY=( $( compgen -W '$( _yum_repolist all ) \
 				all main' -- $cur ) )
 			;;
+		--color)
+			COMPREPLY=( $( compgen -W 'always auto never' -- $cur ))
+			;;
+		-R|-x|--exclude)
+			# argument required but no completions available
+			return 0
+			;;
+		-h|--help|--version)
+			# no other options useful with these
+			return 0
+			;;
 		*)
 			COMPREPLY=( $( compgen -W 'install update \
 				check-update upgrade remove erase list info \
@@ -128,6 +131,18 @@ _yum()
 				help' -- $cur ) )
 			;;
 	esac
+
+	$split && return 0
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-h --help -t --tolerant -C -c -R \
+			-d --showduplicates -e -q --quiet -v --verbose -y \
+			--version --installroot --enablerepo --disablerepo -x \
+			--exclude --disableexcludes --obsoletes --noplugins \
+			--nogpgcheck --disableplugin --enableplugin \
+			--skip-broken --color' -- $cur ) )
+		return 0
+	fi
 }
 } &&
 complete -F _yum $filenames yum
