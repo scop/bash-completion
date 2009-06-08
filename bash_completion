@@ -1204,42 +1204,6 @@ _known_hosts_real()
 complete -F _known_hosts traceroute traceroute6 tracepath tracepath6 \
 	ping ping6 fping fping6 telnet host nslookup rsh rlogin ftp dig ssh-installkeys mtr
 
-# Linux route(8) completion
-#
-[ $UNAME = Linux ] &&
-_route()
-{
-	local cur prev
-
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
-
-	if [ "$prev" = dev ]; then
-	    COMPREPLY=( $( ifconfig -a | sed -ne 's|^\('$cur'[^ ]*\).*$|\1|p' ))
-	    return 0
-	fi
-
-	COMPREPLY=( $( compgen -W 'add del -host -net netmask metric mss \
-				   window irtt reject mod dyn reinstate dev \
-				   default gw' -- $cur ) )
-
-	COMPREPLY=( $( echo " ${COMP_WORDS[@]}" | \
-		       (while read -d ' ' i; do
-			   [ "$i" == "" ] && continue
-			   # flatten array with spaces on either side,
-			   # otherwise we cannot grep on word
-			   # boundaries of first and last word
-			   COMPREPLY=" ${COMPREPLY[@]} "
-			   # remove word from list of completions
-			   COMPREPLY=( ${COMPREPLY/ $i / } )
-			done
-		       echo "${COMPREPLY[@]}")
-		  ) )
-	return 0
-}
-[ $UNAME = Linux ] && complete -F _route route
-
 # This meta-cd function observes the CDPATH variable, so that cd additionally
 # completes on directories under those specified in CDPATH.
 #

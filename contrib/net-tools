@@ -72,3 +72,39 @@ _mii_diag()
 	fi
 } &&
 complete -F _mii_diag $default mii-diag
+
+# Linux route(8) completion
+#
+[ $UNAME = Linux ] &&
+_route()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	if [ "$prev" = dev ]; then
+	    COMPREPLY=( $( ifconfig -a | sed -ne 's|^\('$cur'[^ ]*\).*$|\1|p' ))
+	    return 0
+	fi
+
+	COMPREPLY=( $( compgen -W 'add del -host -net netmask metric mss \
+				   window irtt reject mod dyn reinstate dev \
+				   default gw' -- $cur ) )
+
+	COMPREPLY=( $( echo " ${COMP_WORDS[@]}" | \
+		       (while read -d ' ' i; do
+			   [ "$i" == "" ] && continue
+			   # flatten array with spaces on either side,
+			   # otherwise we cannot grep on word
+			   # boundaries of first and last word
+			   COMPREPLY=" ${COMPREPLY[@]} "
+			   # remove word from list of completions
+			   COMPREPLY=( ${COMPREPLY/ $i / } )
+			done
+		       echo "${COMPREPLY[@]}")
+		  ) )
+	return 0
+}
+[ $UNAME = Linux ] && complete -F _route route
