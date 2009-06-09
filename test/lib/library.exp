@@ -1,0 +1,264 @@
+# Execute a bash command and make sure the exit status is succesful.
+# If not, output the error message.
+# @param string $cmd  Bash command line to execute.  If emptry string (""), the
+#                     exit status of the previously executed bash command will be 
+#                     checked; specify `title' to adorn the error message.
+# @param string $title  (optional) Command title.  If empty, `cmd' is used.
+proc assert_bash_exec {{aCmd ""} {title ""}} {
+    if {[string length $aCmd] != 0} {
+        send "$aCmd\r"
+        expect -ex "$aCmd\r\n"
+    }; # if
+    if {[string length $title] == 0} {set title $aCmd}
+    expect -ex "/@"
+    set out $expect_out(buffer);  # Catch (non-expected) output
+    set cmd "echo $?"
+    send "$cmd\r"
+    expect {
+        -ex "$cmd\r\n0\r\n/@" {}
+        /@ {
+            if {[info exists multipass_name]} {
+                fail "ERROR executing bash command \"$title\""
+            }; # if
+            send_user "ERROR executing bash command \"$title\"\n$out"
+        }
+    }; # expect
+}; # assert_bash_exec()
+
+
+# Test `type ...' in bash
+# Indicate "unsupported" if `type' exits with error status.
+# @param string $command  Command to locate
+proc assert_bash_type {command} {
+    set test "$command should be available in bash"
+    set cmd "type $command &> /dev/null && echo -n 0 || echo -n 1"  
+    send "$cmd\r"
+    expect "$cmd\r\n"
+    expect {
+        -ex 0 { set result true }
+        -ex 1 { set result false; unsupported "$test" }
+    }; # expect
+    expect "/@"
+    return $result
+}; # assert_bash_type()
+
+
+# Make sure the expected items are also returned by TAB-completing the
+# specified command.
+# Break items into chunks because `expect' seems to have a limited buffer size
+# @param list $expected
+# @param string $cmd  Command given to generate items
+# @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param integer $size  (optional) Chunk size.  Default is 20.
+# @result boolean  True if successful, False if not
+proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
+    if {$test == ""} {set test "$cmd should show completions"}
+    send "$cmd\t"
+    expect -ex "$cmd\r\n"
+    if {[match_items $expected $test]} {
+        expect {
+            -re "$prompt$cmd$" { pass "$test" }
+            -re $prompt { unresolved "$test at prompt" }
+            -re eof { unresolved "eof" }
+        }
+    } else {
+        fail "$test"
+    }; # if
+}; # assert_complete()
+
+
+# Make sure the bash environment hasn't changed between now and the last call
+# to `save_env()'.
+# @param string $sed  Sed commands to preprocess diff output.
+#                     E.g.: s/COMP_PATH=.*/COMP_PATH=PATH/
+# @param string $file  Filename to generate environment save file from.  See
+#                      `gen_env_filename()'.
+# @param string $diff  Expected diff output (after being processed by $sed)
+# @see save_env()
+proc assert_env_unmodified {{sed ""} {file ""} {diff ""}} {
+    set test "Environment should not be modified"
+    _save_env [gen_env_filename $file 2]
+
+        # Prepare sed script
+
+        # Escape special bash characters ("\)
+    regsub -all {([\"\\])} $sed {\\\1} sed
+        # Escape newlines
+    regsub -all {\n} [string trim $sed] "\r\n" sed
+        # Mark end of sed script, so that `expect' can match on that
+    append sed "# End of sed script"
+
+        # Prepare diff script
+
+        # If diff is filled, escape newlines and make sure it ends with a newline
+    if {[string length [string trim $diff]]} {
+        regsub -all {\n} [string trim $diff] "\r\n" diff
+        append diff "\r\n"
+    } else {
+        set diff ""
+    }; # if
+
+        # Execute diff
+
+    set cmd "diff_env \"[gen_env_filename $file 1]\" \"[gen_env_filename $file 2]\" \"$sed\""
+    send "$cmd\r"
+    expect "# End of sed script\"\r\n"
+
+    expect {
+        -re "^$diff[wd]@$" { pass "$test" }
+        -re [wd]@ { 
+            fail "$test" 
+
+            # Show diff to user
+
+            set diff $expect_out(buffer)
+            # Remove possible `\r\n[wd]@' from end of diff
+            if {[string last "\r\n[wd]@" $diff] == [string length $diff] - [string length "\r\n[wd]@"]} {
+                set diff [string range $diff 0 [expr [string last "\r\n[wd]@" $diff] - 1]]
+            }; # if
+            send_user $diff;
+        }
+    }; # expect
+}; # assert_env_unmodified()
+
+
+# Make sure the specified command executed from within Tcl/Expect.
+# Fail the test with status UNSUPPORTED if Tcl fails with error "POSIX/ENOENT
+# (No such file or directory)", or UNRESOLVED if other error occurs.  
+# NOTE: Further tests are assumed if executing the command is successful.  The
+#       test isn't immediately declared to have PASSED if the command is
+#       executed successful.
+# @param string $command
+# @param string $stdout  (optional) Reference to variable to hold stdout.
+# @param string $test (optional)  Test titel
+# @see assert_bash_exec()
+proc assert_exec {cmd {stdout ''} {test ''}} {
+    if {$test == ""} {set test "$cmd should execute successful"}
+    upvar $stdout results
+    set status [catch {eval exec $cmd} results]
+    if {$status == 0} {
+        set result true
+    } else {
+        set result false
+            # Command not found (POSIX/ENOENT = no such file or directory)?
+        if {[lindex $::errorCode 0] == "POSIX" && [lindex $::errorCode 1] == "ENOENT"} {
+            # Yes, command not found;
+                # Indicate test is unsupported
+            unsupported "$test"
+        } else {
+            unresolved "$test"
+        }; # if
+    }; # if
+    return $result
+}; # assert_exec()
+
+
+# Expect items.
+# Break items into chunks because `expect' seems to have a limited buffer size
+# @param list $items
+# @param integer $size  Chunk size
+# @result boolean  True if successful, False if not
+proc match_items {items test {size 20}} {
+    set result false
+    for {set i 0} {$i < [llength $items]} {set i [expr {$i + $size}]} {
+        set expected ""
+        for {set j 0} {$j < $size && $i + $j < [llength $items]} {incr j} {
+            set item "[lindex $items [expr {$i + $j}]]"
+                # Escape special regexp characters
+            regsub -all {([\[\]\(\)\.\\\+])} $item {\\\1} item
+            set expected "${expected}$item\\s+"
+        }; # for
+        expect {
+            -re "$expected" { set result true }
+            default { set result false; break }
+            timeout { set result false; break }
+        }; # expect
+    }; # for
+    return $result
+}; # match_items()
+
+
+
+# Get real command.
+# - arg: $1  Command
+# - stdout:  Filename of command in PATH with possible symbolic links resolved.
+# - return:  Command found, empty string if not found
+proc realcommand {cmd} {
+    set result ""
+    if [string length [set path [auto_execok $cmd]]] {
+        if {[string length [auto_execok realpath]]} {
+            set result [exec realpath $path]
+        } elseif {[string length [auto_execok readlink]]} {
+            set result [exec readlink -f $path]
+        } else {
+            set result $path
+        }; # if
+    }; # if
+    return $result
+}; # realcommand()
+
+
+# Generate filename to save environment to.
+# @param string $file  File-basename to save environment to.  If the file has a
+#                      `.exp' suffix, it is removed.  E.g.:
+#                      - "file.exp" becomes "file.env1~"
+#                      - "" becomes "env.env1~"
+#                      - "filename" becomes "filename.env1~"
+#                      The file will be stored in the $TESTDIR/tmp directory.
+# @param integer $seq  Sequence number.  Must be either 1 or 2.
+proc gen_env_filename {{file ""} {seq 1}} {
+    if {[string length $file] == 0} {
+        set file "env"
+    } else {
+            # Remove possible directories
+        set file [file tail $file]
+            # Remove possible '.exp' suffix from filename
+        if {[string last ".exp" $file] == [string length $file] - [string length ".exp"]} {
+            set file [string range $file 0 [expr [string last ".exp" $file] - 1]]
+        }; # if
+    }; # if
+    return "\$TESTDIR/tmp/$file.env$seq~"
+}; # gen_env_filename()
+
+
+# Save the environment for later comparison
+# @param string $file  Filename to generate environment save file from.  See
+#                      `gen_env_filename()'.
+proc save_env {{file ""}} {
+    _save_env [gen_env_filename $file 1]
+}; # save_env()
+
+
+# Save the environment for later comparison
+# @param string  File to save the environment to.  Default is "$TESTDIR/tmp/env1~".
+# @see assert_env_unmodified()
+proc _save_env {{file ""}} {
+    assert_bash_exec "{ set; declare -F; } > $file"
+}; # save_env()
+
+
+# Interrupt completion and sync with prompt.
+# Send signals QUIT & INT.
+proc sync_after_int {} {
+    set test "Sync after INT"
+    sleep .1
+    send \031\003;  # QUIT/INT
+    expect /@
+}; # sync_after_int()
+
+
+proc sync_after_tab {} {
+        # NOTE: Wait in case completion returns nothing - because `units' isn't
+        #       installed, so that "^$cdm.*$" doesn't match too early - before
+        #       comp_install has finished
+    sleep .4
+}; # sync_after_tab()
+
+
+# Return current working directory with `TESTDIR' stripped
+# @return string  Working directory.  E.g. /, or /fixtures/
+proc wd {} {
+    global TESTDIR
+        # Remove `$TESTDIR' prefix from current working directory
+    set wd [string replace [pwd] 0 [expr [string length $TESTDIR] - 1]]/
+}

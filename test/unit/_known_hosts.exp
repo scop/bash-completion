@@ -1,0 +1,63 @@
+proc setup {} {
+    save_env
+}; # setup()
+
+
+proc teardown {} {
+    assert_env_unmodified {/COMPREPLY=/d}
+}; # teardown()
+
+
+setup
+
+
+set test "Hosts should be put in COMPREPLY"
+
+    # Build string list of hostnames, separated by regexp whitespace marker (\s+).
+    # Example string: host1\s+host2\s+host3
+
+set hosts [exec bash -c "compgen -A hostname"]
+    # Hosts `gee' and `hus' are defined in ./fixtures/_known_hosts/config
+    # Hosts `doo' and `ike' are defined in ./fixtures/_known_hosts/known_hosts
+lappend hosts doo gee hus ike
+set hosts [lsort -ascii $hosts]
+set hosts [join $hosts "\\s+"]
+    # Call _known_hosts
+set cmd {_known_hosts -aF fixtures/_known_hosts/config; echo_array COMPREPLY}
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    -re "^$hosts\r\n/@$"  { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "Config file containing space should work"
+    # Build string list of hostnames, separated by regexp whitespace marker (\s+).
+    # Example string: host1\s+host2\s+host3
+set hosts [exec bash -c "compgen -A hostname"]
+    # Hosts `gee' and `hus' are defined in ./fixtures/_known_hosts/spaced  conf
+    # Hosts `doo' and `ike' are defined in ./fixtures/_known_hosts/known_hosts
+    # Host `two' is defined in ./fixtures/_known_hosts/known_hosts2
+lappend hosts gee hus
+set hosts [lsort -ascii $hosts]
+set hosts [join $hosts "\\s+"]
+    # Call _known_hosts
+set cmd {_known_hosts -F 'fixtures/_known_hosts/spaced  conf'; echo_array COMPREPLY}
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    -re "^$hosts\r\n/@$"  { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+teardown
