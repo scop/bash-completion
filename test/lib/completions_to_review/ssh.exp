@@ -1,0 +1,75 @@
+proc setup {} {
+}; # setup()
+
+
+proc teardown {} {
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should complete ssh known-hosts"
+    # Build string list of hostnames, separated by regexp whitespace marker (\s+).
+    # Example string: host1\s+host2\s+host3
+set hosts [exec bash -c "compgen -A hostname"]
+    # Hosts `gee' and `hus' are defined in ./fixtures/ssh/config
+    # Hosts `doo' and `ike' are defined in ./fixtures/ssh/known_hosts
+lappend hosts doo gee hus ike
+set hosts [lsort -ascii $hosts]
+set hosts [join $hosts "\\s+"]
+    # Try completion
+set cmd "ssh -F fixtures/ssh/config "
+send "$cmd\t"
+set expected "^$cmd\r\n$hosts\r\n/@$cmd$"
+expect {
+    -re $expected  { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "-F without space shouldn't error"
+    # Try completion
+set cmd "ssh -F"
+send "$cmd\t "
+set expected "^$cmd $"
+expect {
+    -re "^${cmd}bash: option requires an argument -- F" { fail "$test" }
+    -re $expected  { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "Config file containing space should work"
+    # Build string list of hostnames, separated by regexp whitespace marker (\s+).
+    # Example string: host1\s+host2\s+host3
+set hosts [exec bash -c "compgen -A hostname"]
+    # Hosts `gee' and `hus' are defined in ./fixtures/ssh/config
+    # Hosts `doo' and `ike' are defined in ./fixtures/ssh/known_hosts
+    # Host `two' is defined in ./fixtures/ssh/known_hosts2
+lappend hosts doo gee hus ike two
+set hosts [lsort -ascii $hosts]
+set hosts [join $hosts "\\s+"]
+    # Try completion
+set cmd "ssh -F 'fixtures/ssh/spaced  conf' "
+send "$cmd\t"
+set expected "^$cmd\r\n$hosts\r\n/@$cmd$"
+expect {
+    -re $expected  { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+teardown

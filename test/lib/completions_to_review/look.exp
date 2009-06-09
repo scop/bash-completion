@@ -1,0 +1,29 @@
+proc setup {} {
+}; # setup()
+
+
+proc teardown {} {
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should complete"
+    # Try completion
+set cmd "look foo "
+send "$cmd\t"
+  # NOTE: Wait in case `look' returns nothing, so that "^$cdm.*$" doesn't match
+  #       too early -- before comp_install has finished
+sleep .4
+expect {
+    -re "^${cmd}(bash: look: command not found\r\n|)\r\n.*$cmd$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}; # expect
+
+
+sync_after_int
+
+
+teardown

@@ -1,0 +1,40 @@
+proc setup {} {
+}; # setup()
+
+
+proc teardown {} {
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should complete"
+    # Try completion
+set cmd "iwconfig --"
+send "$cmd\t"
+expect {
+    -re "^$cmd\r\n.*$cmd$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "Tab should not complain about _available_interfaces() not being available"
+    # Try completion
+set cmd "iwconfig #"
+send "$cmd\t"
+expect {
+    -re "^$cmd$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}; # expect
+
+
+sync_after_int
+
+
+teardown

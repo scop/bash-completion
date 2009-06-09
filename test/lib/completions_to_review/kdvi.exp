@@ -1,0 +1,35 @@
+proc setup {} {
+    set test setup
+    set cmd "touch fixture1/t.{dvi{,.gz,.bz2},DVI{,.gz,.bz2}}";  # Create temporary files
+    send "$cmd\r"
+    expect -ex "$cmd\r\n/@"
+}; # setup()
+
+
+proc teardown {} {
+    set test teardown
+    set cmd "rm fixture1/t.{dvi{,.gz,.bz2},DVI{,.gz,.bz2}}";  # Remove temporary files
+    send "$cmd\r"
+    expect -ex "$cmd\r\n/@"
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should complete kdvi"
+    # Try completion
+set cmd "kdvi fixture1/"
+send "$cmd\t"
+expect {
+    -re "^${cmd}\r\n(\.svn/ +|)bar bar.d/ +foo.d/ +(\.svn/ +|)t.dvi +t.DVI +t.dvi.bz2 +t.DVI.bz2 +t.dvi.gz +t.DVI.gz *\r\n/@$cmd$"  { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+#sleep .5
+sync_after_int
+
+
+teardown

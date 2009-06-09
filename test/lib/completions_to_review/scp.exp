@@ -1,0 +1,119 @@
+proc setup {} {
+    set test setup
+    set cmd "cd fixtures/scp"
+    send "$cmd\r"
+    expect -re "^$cmd\r\n/fixtures/scp/@"
+}; # setup()
+
+
+proc teardown {} {
+    set test teardown
+    set cmd "cd ../.."
+    send "$cmd\r"
+    expect -re "^$cmd\r\n/@"
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should complete remote pwd"
+
+    # Retrieving `host_pwd' from ssh-host `bash_completion_lib' yields error? 
+    # NOTE: The host should be set in e.g. .ssh/config or /etc/ssh_config
+if { 
+    [catch {
+	exec -- ssh -o "Batchmode yes" bash_completion_lib pwd 2>> /dev/null
+    } host_pwd] 
+} {
+    # Yes, retrieving pwd from ssh yields error; reset `host_pwd'
+    set host_pwd ""
+}
+
+    # Try completion
+set cmd "scp bash_completion_lib:"
+send "$cmd\t"
+sync_after_tab
+expect {
+    -re "^$cmd$host_pwd.*$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+}; # expect
+
+
+sleep .5
+sync_after_int
+
+
+set test "Tab should complete scp known-hosts"
+
+    # Build string list of completions, separated by regexp whitespace marker (\s+).
+    # Example string: comp1\s+comp2\s+comp3
+
+    # Get hostnames
+set comps [exec bash -c "compgen -A hostname"]
+    # Hosts `gee' and `hus' are defined in ./fixtures/scp/config
+    # Hosts `doo' and `ike' are defined in ./fixtures/scp/known_hosts
+lappend comps doo gee hus ike
+    # Append filenames `config' and `known_hosts'
+lappend comps config known_hosts "spaced\\\\ \\\\ conf"
+set comps [lsort -ascii $comps]
+set comps [join $comps ":{0,1}\\s+"]
+    # Try completion
+set cmd "scp -F config "
+send "$cmd\t"
+set expected "^${cmd}\r\n$comps:{0,1}\\s*/fixtures/scp/@$cmd$"
+expect {
+    -re $expected  { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "-F without space shouldn't error"
+    # Try completion
+set cmd "scp -F"
+send "$cmd\t "
+set expected "^$cmd $"
+expect {
+    -re "^${cmd}bash: option requires an argument -- F" { fail "$test" }
+    -re $expected  { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "Config file containing space should work"
+
+    # Build string list of completions, separated by regexp whitespace marker (\s+).
+    # Example string: comp1\s+comp2\s+comp3
+
+    # Get hostnames
+set comps [exec bash -c "compgen -A hostname"]
+    # Hosts `gee' and `hus' are defined in ./fixtures/scp/config
+    # Hosts `doo' and `ike' are defined in ./fixtures/scp/known_hosts
+lappend comps doo gee hus ike
+    # Append filenames `config' and `known_hosts'
+lappend comps config known_hosts "spaced\\\\ \\\\ conf"
+set comps [lsort -ascii $comps]
+set comps [join $comps ":{0,1}\\s+"]
+    # Try completion
+set cmd "scp -F 'spaced  conf' "
+send "$cmd\t"
+set expected "^${cmd}\r\n$comps:{0,1}\\s*/fixtures/scp/@$cmd$"
+expect {
+    -re $expected  { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+teardown

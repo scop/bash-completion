@@ -1,0 +1,40 @@
+proc setup {} {
+}; # setup()
+
+
+proc teardown {} {
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should show completions"
+    # Try completion
+set cmd "killall "
+send "$cmd\t"
+expect {
+    -re "$cmd\r\n.*/@$cmd$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "Tab should complete signals"
+    # Try completion
+set cmd "killall -"
+send "$cmd\t"
+expect {
+    -re "$cmd\r\n.*-KILL.*/@$cmd$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}; # expect
+
+
+sync_after_int
+
+
+teardown

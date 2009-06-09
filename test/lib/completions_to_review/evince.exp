@@ -1,0 +1,32 @@
+proc setup {} {
+    set cmd "touch fixture1/t.{CB{R,Z},DJV{,U},cb{r,z},djv{,u}}";  # Create temporary files
+    send "$cmd\r"
+    expect -ex "$cmd\r\n/@"
+}; # setup()
+
+
+proc teardown {} {
+    set cmd "rm fixture1/t.{CB{R,Z},DJV{,U},cb{r,z},djv{,u}}";  # Remove temporary files
+    send "$cmd\r"
+    expect -ex "$cmd\r\n/@"
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should complete evince"
+    # Try completion
+set cmd "evince fixture1/"
+send "$cmd\t"
+expect {
+    -re "^${cmd}\r\n(\.svn/ +|)bar bar.d/ +foo.d/ +(\.svn/ +|)t.cbr +t.CBR +t.cbz +t.CBZ +t.djv +t.DJV +t.djvu +t.DJVU *\r\n/@$cmd$"  { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+teardown

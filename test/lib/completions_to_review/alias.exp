@@ -1,0 +1,57 @@
+proc setup {} {
+    set test setup
+    set cmd "unalias -a";  # Remove all aliases
+    send "$cmd\r"
+    expect -ex "$cmd\r\n/@"
+    set cmd "alias foo=bar"
+    send "$cmd\r"
+    expect -ex "$cmd\r\n/@"
+    set cmd "alias bar='foo foo'"
+    send "$cmd\r"
+    expect -ex "$cmd\r\n/@"
+}; # setup()
+
+
+proc teardown {} {
+    set test teardown
+    set cmd "unalias -a";  # Remove all aliases
+    send "$cmd\r"
+    expect -ex "$cmd\r\n/@"
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should complete alias"
+    # Try completion
+set cmd "alias "
+send "$cmd\t"
+set expected "^$cmd\r\nbar +foo *\r\n/@$cmd$"
+expect {
+    -re $expected  { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "Tab should complete alias at cursor position"
+    # Try completion
+set cmd "alias foo"
+append cmd \002\002\002; # \002 = ^B = Move cursor left in bash emacs mode
+send "$cmd\t"
+expect {
+    -re "^alias foo\b\b\b\r\nbar +foo *\r\n/@alias foo\b\b\b$" { pass "$test" }
+    -re "^alias foo\b\b\bfoo=foo\b\b\b$" { fail "$test: Wrong cursor position" }
+    -re /@ { unresolved "$test" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+teardown

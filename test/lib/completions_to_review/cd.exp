@@ -1,0 +1,67 @@
+proc setup {} {
+}; # setup()
+
+
+proc teardown {} {
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should complete"
+    # Try completion
+set cmd "cd fixture1/"
+send "$cmd\t"
+expect {
+    -re "^$cmd\r\n.*$cmd$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "Tab should complete cd at cursor position"
+    # Try completion
+set cmd "cd fixture1/foo"
+append cmd \002\002\002; # \002 = ^B = Move cursor left in bash emacs mode
+#append cmd \033\0133D; # Escape-[-D = Cursor left
+send "$cmd\t"
+expect {
+    -re "cd fixture1/foo\b\b\b\r\n(\.svn/ +|)bar bar.d/ +foo.d/ *(\.svn/ *|)\r\n/@cd fixture1/foo\b\b\b$" { pass "$test" }
+	-re "^cd fixture1/foo\b\b\bfoo.d/foo\b\b\b$" { fail "$test: Wrong cursor position" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "Tab should complete CDPATH"
+    # Set CDPATH
+set cmd "CDPATH=\$PWD"
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect -ex "/@"
+    # Try completion
+set cmd "cd fixture1/fo"
+send "$cmd\t"
+expect {
+    -re "cd fixture1/foo.d/$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+sync_after_int
+
+    # Reset CDPATH
+set cmd "unset CDPATH"
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect -ex "/@"
+
+
+
+teardown

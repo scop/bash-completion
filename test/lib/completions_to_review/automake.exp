@@ -1,0 +1,31 @@
+proc setup {} {
+}; # setup()
+
+
+proc teardown {} {
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should complete"
+    # Try completion
+set cmd "automake "
+send "$cmd\t"
+expect {
+    -re "^$cmd\r\n.*$cmd$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}; # expect
+
+
+# Interrupt command
+
+set test "Sync after INT"
+sleep .1
+send \031\003;  # QUIT/INT
+expect -ex /@
+
+
+teardown

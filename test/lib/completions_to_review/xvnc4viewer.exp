@@ -1,0 +1,57 @@
+proc setup {} {
+}; # setup()
+
+
+proc teardown {} {
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should complete options"
+set options {
+    -AcceptClipboard -AutoSelect -DebugDelay -display
+    -DotWhenNoCursor -FullColor -FullColour -FullScreen
+    -geometry -help -listen -Log
+    -LowColourLevel -MenuKey -name -Parent
+    -passwd -PasswordFile -PointerEventInterval -PreferredEncoding
+    -SendClipboard -SendPrimary -Shared -UseLocalCursor
+    -via -ViewOnly -WMDecorationHeight -WMDecorationWidth
+    -ZlibLevel
+}
+assert_complete $options {vncviewer -}
+
+
+sync_after_int
+
+
+set test "-PreferredEncoding should show encodings"
+    # Try completion
+set cmd "xvnc4viewer -PreferredEncoding "
+send "$cmd\t"
+expect {
+    -re "^$cmd\r\nhextile\\s+raw\\s+zrle\\s+/@$cmd$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "--preferredencoding should show encodings"
+    # Try completion
+set cmd "xvnc4viewer --preferredencoding "
+send "$cmd\t"
+expect {
+    -re "^$cmd\r\nhextile\\s+raw\\s+zrle\\s+/@$cmd$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}; # expect
+
+
+sync_after_int
+
+
+teardown

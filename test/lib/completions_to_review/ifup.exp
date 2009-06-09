@@ -1,0 +1,44 @@
+proc setup {} {
+}; # setup()
+
+
+proc teardown {} {
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should show completions"
+    # Try completion
+set cmd "ifup "
+send "$cmd\t"
+expect {
+    -re "^$cmd.*\r\n/@$cmd$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "Argument should complete"
+    # Set test function for _configured_interfaces()
+set cmd "_configured_interfaces() { COMPREPLY=( foo bar ); }"
+send "$cmd\r"
+expect -ex "$cmd\r\n/@"
+    # Try completion
+set cmd "ifup f"
+send "$cmd\t"
+expect {
+    -re "^${cmd}oo\\s*$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}; # expect
+
+
+sync_after_int
+
+
+teardown

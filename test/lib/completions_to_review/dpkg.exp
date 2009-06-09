@@ -1,0 +1,38 @@
+proc setup {} {
+}; # setup()
+
+
+proc teardown {} {
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should complete"
+    # Try completion
+set cmd "dpkg --c"
+send "$cmd\t"
+expect {
+    -re "^$cmd\r\n.*/@$cmd$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}; # expect
+
+
+sync_after_int
+
+
+    # Build list of installed packages
+    # NOTE: If an argument is passed to `--get-selections', `dpkg' also returns
+    #       packages with status "purged".  Be sure to add `| grep install$' to
+    #       pipeline before 'cut' in that case. -- FVu, Sun Feb 22 10:08:34 CET 2009
+if {[assert_exec {dpkg --get-selections | cut -f1 | sort} packages]} {
+    assert_complete $packages {dpkg -L }
+}; # if
+
+
+sync_after_int
+
+
+teardown

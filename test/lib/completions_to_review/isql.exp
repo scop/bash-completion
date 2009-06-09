@@ -1,0 +1,34 @@
+proc setup {} {
+}; # setup()
+
+
+proc teardown {} {
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should show completions"
+    # Try completion
+set cmd "isql "
+send "$cmd\t"
+expect {
+	# TODO: If $ODBCINI is set, match completions
+	#       -- FVu, Fri Feb 27 22:58:05 CET 2009
+    -re "^$cmd.*" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}; # expect
+
+
+    # Because we don't wait for prompt (/@), wait a moment
+    # for `comp_load' to install real completion.  This can
+    # be removed if the TODO above is fixed.
+    # -- FVu, Fri Feb 27 23:14:49 CET 2009
+sleep .5
+
+sync_after_int
+
+
+teardown
