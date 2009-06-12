@@ -3,11 +3,30 @@
 #
 # Mailman completion by Guillaume Rousse <rousse@ccr.jussieu.fr>
 
+have list_lists && {
 _mailman_lists()
 {
 	COMPREPLY=( $( compgen -W '$( list_lists -b )' -- $cur ) )
 }
 
+_list_lists()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=`_get_cword`
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-a --advertised \
+			--virtual-host-overview -V -b --bare \
+			-h --help' -- $cur ) )
+	fi
+
+} &&
+complete -F _list_lists list_lists
+}
+
+have add_members &&
 _add_members()
 {
 	local cur prev
@@ -35,9 +54,10 @@ _add_members()
 		_mailman_lists
 	fi
 
-}
+} &&
 complete -F _add_members add_members
 
+have remove_members &&
 _remove_members()
 {
 
@@ -62,9 +82,10 @@ _remove_members()
 		_mailman_lists
 	fi
 
-}
+} &&
 complete -F _remove_members remove_members
 
+have find_member &&
 _find_member()
 {
 
@@ -86,9 +107,10 @@ _find_member()
 			--exclude= --owners -w --help -h' -- $cur ) )
 	fi
 
-}
+} &&
 complete -F _find_member find_member
 
+have clone_member &&
 _clone_member()
 {
 
@@ -110,9 +132,10 @@ _clone_member()
 		--admin -a --quiet -q --nomodify -n --help -h' -- $cur ) )
 	fi
 
-}
+} &&
 complete -F _clone_member clone_member
 
+have sync_members &&
 _sync_members()
 {
 	local cur prev
@@ -140,25 +163,10 @@ _sync_members()
 		_mailman_lists
 	fi
 
-}
+} &&
 complete -F _sync_members sync_members
 
-_list_lists()
-{
-	local cur
-
-	COMPREPLY=()
-	cur=`_get_cword`
-
-	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-a --advertised \
-			--virtual-host-overview= -V -b --bare \
-			-h --help' -- $cur ) )
-	fi
-
-}
-complete -F _list_lists list_lists
-
+have unshunt &&
 _unshunt()
 {
 	local cur
@@ -172,9 +180,10 @@ _unshunt()
 		_filedir -d
 	fi
 
-}
+} &&
 complete -F _unshunt unshunt
 
+have list_admins &&
 _list_admins()
 {
 	local cur
@@ -189,9 +198,10 @@ _list_admins()
 		_mailman_lists
 	fi
 
-}
+} &&
 complete -F _list_admins list_admins
 
+have list_owners &&
 _list_owners()
 {
 	local cur
@@ -206,9 +216,10 @@ _list_owners()
 		_mailman_lists
 	fi
 
-}
+} &&
 complete -F _list_owners list_owners
 
+have list_members &&
 _list_members()
 {
 	local cur prev
@@ -241,9 +252,10 @@ _list_members()
 		_mailman_lists
 	fi
 
-}
+} &&
 complete -F _list_members list_members
 
+have change_pw &&
 _change_pw()
 {
 	local cur prev
@@ -264,9 +276,10 @@ _change_pw()
 			--password= -p --quiet -q -h --help' -- $cur ) )
 	fi
 
-}
+} &&
 complete -F _change_pw change_pw
 
+have withlist &&
 _withlist()
 {
 	local cur
@@ -281,9 +294,10 @@ _withlist()
 		_mailman_lists
 	fi
 
-}
+} &&
 complete -F _withlist withlist
 
+have newlist &&
 _newlist()
 {
 	local cur
@@ -297,9 +311,10 @@ _newlist()
 		_mailman_lists
 	fi
 
-}
+} &&
 complete -F _newlist newlist
 
+have rmlist &&
 _rmlist()
 {
 	local cur
@@ -314,9 +329,10 @@ _rmlist()
 		_mailman_lists
 	fi
 
-}
+} &&
 complete -F _rmlist rmlist
 
+have config_list &&
 _config_list()
 {
 	local cur prev
@@ -340,9 +356,10 @@ _config_list()
 		_mailman_lists
 	fi
 
-}
+} &&
 complete -F _config_list $filenames config_list
 
+have arch &&
 _arch()
 {
 	local cur prev
@@ -382,9 +399,10 @@ _arch()
 		esac
 	fi
 
-}
+} &&
 complete -F _arch $filenames arch
 
+have cleanarch &&
 _cleanarch()
 {
 	local cur
@@ -397,9 +415,10 @@ _cleanarch()
 			-q --quiet -h --help' -- $cur ) )
 	fi
 
-}
+} &&
 complete -F _cleanarch cleanarch
 
+have inject &&
 _inject()
 {
 	local cur prev
@@ -422,9 +441,10 @@ _inject()
 		_filedir
 	fi
 
-}
+} &&
 complete -F _inject $filenames inject
 
+have dumpdb &&
 _dumpdb()
 {
 	local cur
@@ -438,9 +458,10 @@ _dumpdb()
 		_filedir
 	fi
 
-}
+} &&
 complete -F _dumpdb $filenames dumpdb
 
+have check_db &&
 _check_db()
 {
 	local cur
@@ -455,9 +476,10 @@ _check_db()
 		_mailman_lists
 	fi
 
-}
+} &&
 complete -F _check_db check_db
 
+have check_perms &&
 _check_perms()
 {
 	local cur
@@ -469,9 +491,10 @@ _check_perms()
 		COMPREPLY=( $( compgen -W '-f -v -h' -- $cur ) )
 	fi
 
-}
+} &&
 complete -F _check_perms check_perms
 
+have genaliases &&
 _genaliases()
 {
 	local cur
@@ -483,9 +506,10 @@ _genaliases()
 		COMPREPLY=( $( compgen -W '-q --quiet -h --help' -- $cur ) )
 	fi
 
-}
+} &&
 complete -F _genaliases genaliases
 
+have mmsitepass &&
 _mmsitepass()
 {
 	local cur
@@ -497,9 +521,10 @@ _mmsitepass()
 		COMPREPLY=( $( compgen -W '-c --listcreator -h --help' -- $cur ) )
 	fi
 
-}
+} &&
 complete -F _mmsitepass mmsitepass
 
+have qrunner &&
 _qrunner()
 {
 	local cur
@@ -512,9 +537,10 @@ _qrunner()
 			-l --list -v --verbose -s --subproc -h --help' -- $cur ) )
 	fi
 
-}
+} &&
 complete -F _qrunner qrunner
 
+have mailmanctl &&
 _mailmanctl()
 {
 	local cur
@@ -529,5 +555,5 @@ _mailmanctl()
 		COMPREPLY=( $( compgen -W 'start stop restart reopen' -- $cur ) )
 	fi
 
-}
+} &&
 complete -F _mailmanctl mailmanctl
