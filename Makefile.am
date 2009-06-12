@@ -17,9 +17,9 @@ bashcomp_DATA = contrib/ant \
 		contrib/brctl \
 		contrib/bzip2 \
 		contrib/cardctl \
+		contrib/cfengine \
 		contrib/chkconfig \
 		contrib/chsh \
-		contrib/cfengine \
 		contrib/cksfv \
 		contrib/clisp \
 		contrib/configure \
@@ -43,8 +43,8 @@ bashcomp_DATA = contrib/ant \
 		contrib/genisoimage \
 		contrib/getent \
 		contrib/gkrellm \
-		contrib/gpg \
 		contrib/gnatmake \
+		contrib/gpg \
 		contrib/gpg2 \
 		contrib/gzip \
 		contrib/harbour \
@@ -64,13 +64,13 @@ bashcomp_DATA = contrib/ant \
 		contrib/lilypond \
 		contrib/links \
 		contrib/lisp \
-		contrib/lzma \
 		contrib/lvm \
+		contrib/lzma \
 		contrib/lzop \
+		contrib/mailman \
 		contrib/make \
 		contrib/man \
 		contrib/mc \
-		contrib/mailman \
 		contrib/mcrypt \
 		contrib/minicom \
 		contrib/mkinitrd \
@@ -79,10 +79,10 @@ bashcomp_DATA = contrib/ant \
 		contrib/monodevelop \
 		contrib/mplayer \
 		contrib/msynctool \
-		contrib/mysqladmin \
 		contrib/mtx \
 		contrib/munin-node \
 		contrib/mutt \
+		contrib/mysqladmin \
 		contrib/ncftp \
 		contrib/net-tools \
 		contrib/ntpdate \
@@ -95,18 +95,18 @@ bashcomp_DATA = contrib/ant \
 		contrib/pkg_install \
 		contrib/pkgtools \
 		contrib/portupgrade \
-		contrib/postgresql \
 		contrib/postfix \
+		contrib/postgresql \
 		contrib/povray \
 		contrib/python \
 		contrib/qdbus \
 		contrib/qemu \
 		contrib/quota-tools \
+		contrib/rcs \
 		contrib/rdesktop \
 		contrib/repomanage \
 		contrib/reportbug \
 		contrib/ri \
-		contrib/rcs \
 		contrib/rpcdebug \
 		contrib/rpm \
 		contrib/rpmcheck \
@@ -130,12 +130,14 @@ bashcomp_DATA = contrib/ant \
 		contrib/unrar \
 		contrib/update-alternatives \
 		contrib/vncviewer \
+		contrib/vpnc \
 		contrib/wireless-tools \
 		contrib/wodim \
 		contrib/wvdial \
 		contrib/xhost \
 		contrib/xm \
 		contrib/xmllint \
+		contrib/xmms \
 		contrib/xrandr \
 		contrib/yp-tools \
 		contrib/yum
