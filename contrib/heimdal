@@ -29,61 +29,38 @@ _heimdal_encodings()
 
 _ktutil()
 {
-	local cur prev command options
+	local cur prev command options split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
+	_split_longopt && split=true
+
 	case $prev in
-		-p)
+		-p|--principal)
 			_heimdal_principals
 			return 0
 			;;
-		-e)
+		-e|--enctype)
 			_heimdal_encodings
 			return 0
 			;;
-		-a)
+		-a|--admin-server)
 			_known_hosts
 			return 0
 			;;
-		-r)
+		-r|--realm)
 			_heimdal_realms
 			return 0
 			;;
-		-@(s|k))
+		-@(s|k|-@(srv|key)tab))
 			_filedir
 			return 0
 			;;
 	esac
 
-	if [[ "$cur" == *=* ]]; then
-		prev=${cur/=*/}
-		cur=${cur/*=/}
-		case "$prev" in
-			--principal)
-				_heimdal_principals
-				return 0
-				;;
-			--enctype)
-				_heimdal_encodings
-				return 0
-				;;
-			--admin-server)
-				_known_hosts
-				return 0
-				;;
-			--realm)
-				_heimdal_realms
-				return 0
-				;;
-			--@(srv|key)tab)
-				_filedir
-				return 0
-				;;
-		esac
-	fi
+	$split && return 0
 
 	commands='add change copy get list remove rename purge srvconvert \
 		srv2keytab srvcreate key2srvtab'
@@ -105,34 +82,33 @@ _ktutil()
 	if [[ "$cur" == -* ]]; then
 		case $command in
 			add)
-				options='-p --principal= -V -e --enctype= -w \
-					--password= -r --random -s --no-salt \
+				options='-p --principal -V -e --enctype -w \
+					--password -r --random -s --no-salt \
 					-h --hex'
 			;;
 			change)
-				options='-r --realm= -a --admin-server -s \
-					--server-port='
+				options='-r --realm -a --admin-server -s \
+					--server-port'
 			;;
 			get)
-				options='-p --principal= -e --enctype= -r \
-					--realm= -a --admin-server= -s server \
-					--server-port='
+				options='-p --principal -e --enctype -r \
+					--realm -a --admin-server -s server \
+					--server-port'
 				;;
 			list)
 				options='--keys --timestamp'
 				;;
 			remove)
-				options='-p --principal= -V --kvno -e \
-					--enctype='
+				options='-p --principal -V --kvno -e --enctype'
 				;;
 			purge)
-				options='--age='
+				options='--age'
 				;;
 			@(srv2keytab|key2srvtab))
-				options='-s --srvtab='
+				options='-s --srvtab'
 				;;
 			*)
-				options='-k --keytab= -v --verbose --version \
+				options='-k --keytab -v --verbose --version \
 					-v --help'
 				;;
 		esac
