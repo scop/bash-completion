@@ -1,0 +1,99 @@
+proc setup {} {
+    save_env
+}; # setup()
+
+
+proc teardown {} {
+    assert_env_unmodified
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should complete hostnames"
+
+    # Build string list of hostnames, separated by regexp whitespace (\s+)
+    # Example string: host1\s+host2\s+host3
+
+set hosts {}
+foreach h [exec bash -c "compgen -A hostname"] {
+    # Escape special regexp characters (+) in hostname
+    regsub -all {([\+])} $h {\\\1} h
+    lappend hosts $h
+}; # foreach
+set hosts [lsort -ascii $hosts]
+set hosts [join $hosts "\\s+"]
+    # Try completion
+set cmd "xhost "
+send "$cmd\t"
+set expected "^$cmd\r\n$hosts\r\n/@$cmd$"
+expect {
+    -re $expected  { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "Tab should complete hostnames prefixed with +"
+
+    # Build string list of hostnames, separated by regexp whitespace (\s+) and
+    # 'plus' (+) prefix
+    # Example string: \+host1\s+\+host2\s+\+host3
+
+set hosts {}
+foreach h [exec bash -c "compgen -A hostname"] {
+    # Escape special regexp characters (+) in hostname
+    regsub -all {([\+])} $h {\\\1} h
+    lappend hosts $h
+}; # foreach
+set hosts [lsort -ascii $hosts]
+set hosts "\\+[join $hosts "\\s+\\+"]"
+    # Try completion
+set cmd "xhost +"
+send "$cmd\t"
+    # Escape special regexp characters (+) in cmd
+regsub -all {([\+])} $cmd {\\\1} cmd
+set expected "^$cmd\r\n$hosts\r\n/@$cmd$"
+expect {
+    -re $expected  { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "Tab should complete hostnames prefixed with -"
+
+    # Build string list of hostnames, separated by regexp whitespace (\s+) and
+    # 'minus' (-) prefix
+    # Example string: -host1\s+-host2\s+-host3
+
+set hosts {}
+foreach h [exec bash -c "compgen -A hostname"] {
+    # Escape special regexp characters (+) in hostname
+    regsub -all {([\+])} $h {\\\1} h
+    lappend hosts $h
+}; # foreach
+set hosts [lsort -ascii $hosts]
+set hosts "-[join $hosts "\\s+-"]"
+    # Try completion
+set cmd "xhost -"
+send "$cmd\t"
+set expected "^$cmd\r\n$hosts\r\n/@$cmd$"
+expect {
+    -re $expected  { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+teardown
