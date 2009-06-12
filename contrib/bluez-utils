@@ -46,35 +46,30 @@ _get_command()
 
 _hcitool()
 {
-	local cur prev
+	local cur prev split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	_split_longopt && split=true
 
 	case $prev in
 		-i)
 			_bluetooth_devices
 			return 0;
 			;;
+		--role)
+			COMPREPLY=( $( compgen -W 'm s' -- $cur ) )
+			return 0;
+			;;
+		--pkt-type)
+			_bluetooth_packet_types
+			return 0;
+			;;
 	esac
 
-	# --name=value style option
-	if [[ "$cur" == *=* ]]; then
-		prev=${cur/=*/}
-		cur=${cur/*=/}
-		case $prev in
-			--role)
-				COMPREPLY=( $( compgen -W 'm s' -- $cur ) )
-				return 0;
-				;;
-			--pkt-type)
-				_bluetooth_packet_types
-				return 0;
-				;;
-		esac
-	fi
-
+	$split && return 0
 
 	_get_command
 	if [ -z $command ]; then
@@ -95,8 +90,8 @@ _hcitool()
 				;;
 			cc)
 				if [[ "$cur" == -* ]]; then
-					COMPREPLY=( $( compgen -W '--role= \
-						--pkt-type=' -- $cur ) )
+					COMPREPLY=( $( compgen -W '--role \
+						--pkt-type' -- $cur ) )
 				else
 					_count_args
 					if [ $args -eq 2 ]; then
@@ -137,11 +132,13 @@ complete -F _hcitool hcitool
 
 _sdptool()
 {
-	local cur prev
+	local cur prev split=false
 
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	_split_longopt && split=true
 
 	case $prev in
 		--bdaddr)
@@ -149,6 +146,8 @@ _sdptool()
 			return 0;
 			;;
 	esac
+
+	$split && return 0
 
 	_get_command
 	if [ -z $command ]; then
@@ -178,8 +177,8 @@ _sdptool()
 				;;
 			add)
 				if [[ "$cur" == -* ]]; then
-					COMPREPLY=( $( compgen -W '--handle= \
-						--channel=' -- $cur ) )
+					COMPREPLY=( $( compgen -W '--handle \
+						--channel' -- $cur ) )
 				else
 					_bluetooth_services
 				fi
