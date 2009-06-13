@@ -1045,13 +1045,7 @@ _user_at_host() {
 }
 shopt -u hostcomplete && complete -F _user_at_host $nospace talk ytalk finger
 
-# This function performs host completion based on ssh's known_hosts files,
-# defaulting to standard host completion if they don't exist.
-#
-# Arguments:  -a             Use aliases
-#             -c             Use `:' suffix
-#             -F configfile  Use `configfile' for configuration settings
-#             -h host	     Complete on given host
+# See: _known_hosts_real()
 _known_hosts()
 {
 	local cur
@@ -1062,19 +1056,30 @@ _known_hosts()
 	_known_hosts_real "$@"
 }
 
+# Helper function for completing _known_hosts.
+# This function performs host completion based on ssh's known_hosts files,
+# defaulting to standard host completion if they don't exist.
+# Arguments:  -a             Use aliases
+#             -c             Use `:' suffix
+#             -F configfile  Use `configfile' for configuration settings
+#             -h hostname    Use hostname to complete on
+#             -p PREFIX      Use PREFIX
+# Return: Completions are added to COMPREPLY[]
 _known_hosts_real()
 {
-	local configfile flag
-	local curd ocur user suffix aliases global_kh user_kh hosts i host
+	local configfile flag prefix
+	local cur curd ocur user suffix aliases global_kh user_kh hosts i host
 	local -a kh khd config
 	local IFS=$'\n'
 
 	local OPTIND=1
-	while getopts "acF:" flag "$@"; do
+	while getopts "acF:h:p:" flag "$@"; do
 		case $flag in
 			a) aliases='yes' ;;
 			c) suffix=':' ;;
-			F) configfile="$OPTARG" ;;
+			F) configfile=$OPTARG ;;
+			h) cur=$OPTARG ;;
+			p) prefix=$OPTARG ;;
 		esac
 	done
 
@@ -1190,16 +1195,14 @@ _known_hosts_real()
 	    # Now add results of normal hostname completion
 	    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -A hostname -- $ocur ) )
 
-	    # apply suffix
+	    # apply suffix and prefix
 	    for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
-		COMPREPLY[i]=$user${COMPREPLY[i]}$suffix
+		COMPREPLY[i]=$prefix$user${COMPREPLY[i]}$suffix
 	    done
 	elif [ -z "$configfile" ]; then
 	    # Just do normal hostname completion
 	    COMPREPLY=( $( compgen -A hostname -S "$suffix" -- $cur ) )
 	fi
-
-	[ $ocur ] && cur=$ocur || unset -v cur
 
 	return 0
 }

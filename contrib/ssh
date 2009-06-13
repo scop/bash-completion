@@ -80,25 +80,22 @@ _ssh()
 			-N -n -q -s -T -t -V -v -X -v -Y -y -b -b -c -D -e -F \
 			-i -L -l -m -O -o -p -R -S -w' -- $cur ) )
 	else
-		#if [ $COMP_CWORD -eq 1 ]; then
-			# Search COMP_WORDS for '-F configfile' argument
-			set -- "${COMP_WORDS[@]}"
-			while [ $# -gt 0 ]; do
-				if [ "${1:0:2}" = -F ]; then
-					if [ ${#1} -gt 2 ]; then
-						optconfigfile="$(dequote "$1")"
-					else
-						shift
-						[ "$1" ] && optconfigfile="$(dequote "-F$1")"
-					fi
-					break
+		# Search COMP_WORDS for '-F configfile' argument
+		set -- "${COMP_WORDS[@]}"
+		while [ $# -gt 0 ]; do
+			if [ "${1:0:2}" = -F ]; then
+				if [ ${#1} -gt 2 ]; then
+					optconfigfile="$(dequote "$1")"
+				else
+					shift
+					[ "$1" ] && optconfigfile="$(dequote "-F$1")"
 				fi
-				shift
-			done
-			_known_hosts_real -a "$optconfigfile"
-		#else
-			COMPREPLY=( "${COMPREPLY[@]}" $( compgen -c -- $cur ) )
-		#fi
+				break
+			fi
+			shift
+		done
+		_known_hosts_real -a "$optconfigfile" -h "$cur"
+		COMPREPLY=( "${COMPREPLY[@]}" $( compgen -c -- $cur ) )
 	fi
 
 	return 0
@@ -145,7 +142,7 @@ _sftp()
 			fi
 			shift
 		done
-		_known_hosts_real -a "$optconfigfile"
+		_known_hosts_real -a "$optconfigfile" -h "$cur"
 	fi
 
 	return 0
@@ -201,7 +198,7 @@ _scp()
 		shift
 	done
 
-	[[ "$cur" == */* ]] || _known_hosts_real -c -a "$optconfigfile"
+	[[ "$cur" == */* ]] || _known_hosts_real -c -a "$optconfigfile" -h "$cur"
 
 	# This approach is used instead of _filedir to get a space appended
 	# after local file/dir completions, and $nospace retained for others.
@@ -234,7 +231,7 @@ _ssh_copy_id() {
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-i' -- $cur ) )
 	else
-		_known_hosts_real -a
+		_known_hosts_real -a -h "$cur"
 	fi
 
 	return 0
