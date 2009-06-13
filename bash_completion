@@ -1036,7 +1036,7 @@ _user_at_host() {
 	cur=`_get_cword`
 
 	if [[ $cur == *@* ]]; then
-		_known_hosts
+		_known_hosts_real -h "$cur"
 	else
 		COMPREPLY=( $( compgen -u -- "$cur" ) )
 	fi
@@ -1068,7 +1068,7 @@ _known_hosts()
 _known_hosts_real()
 {
 	local configfile flag prefix
-	local cur curd ocur user suffix aliases global_kh user_kh hosts i host
+	local cur curd awkcur user suffix aliases global_kh user_kh hosts i host
 	local -a kh khd config
 	local IFS=$'\n'
 
@@ -1083,8 +1083,6 @@ _known_hosts_real()
 		esac
 	done
 
-	ocur=$cur
-    
 	[[ $cur == *@* ]] && user=${cur%@*}@ && cur=${cur#*@}
 	kh=()
 
@@ -1145,22 +1143,22 @@ _known_hosts_real()
 	# If we have known_hosts files to use
 	if [ ${#kh[@]} -gt 0 -o ${#khd[@]} -gt 0 -o -n "$configfile" ]; then
 	    # Escape slashes and dots in paths for awk
-	    cur=${cur//\//\\\/}
-	    cur=${cur//\./\\\.}
-	    curd=$cur
+	    awkcur=${cur//\//\\\/}
+	    awkcur=${awkcur//\./\\\.}
+	    curd=$awkcur
 
-	    if [[ "$cur" == [0-9]*.* ]]; then
+	    if [[ "$awkcur" == [0-9]*.* ]]; then
 		# Digits followed by a dot - just search for that
-		cur="^$cur.*"
-	    elif [[ "$cur" == [0-9]* ]]; then
+		awkcur="^$awkcur.*"
+	    elif [[ "$awkcur" == [0-9]* ]]; then
 		# Digits followed by no dot - search for digits followed
 		# by a dot
-		cur="^$cur.*\."
-	    elif [ -z "$cur" ]; then
+		awkcur="^$awkcur.*\."
+	    elif [ -z "$awkcur" ]; then
 		# A blank - search for a dot or an alpha character
-		cur="[a-z.]"
+		awkcur="[a-z.]"
 	    else
-		cur="^$cur"
+		awkcur="^$awkcur"
 	    fi
 
 	    if [ ${#kh[@]} -gt 0 ]; then
@@ -1169,7 +1167,7 @@ _known_hosts_real()
 		COMPREPLY=( $( awk 'BEGIN {FS=","}
 				/^\s*[^|\#]/ {for (i=1; i<=2; ++i) { \
 				       gsub(" .*$", "", $i); \
-				       if ($i ~ /'$cur'/) {print $i} \
+				       if ($i ~ /'$awkcur'/) {print $i} \
 				}}' "${kh[@]}" 2>/dev/null ) )
 	    fi
 	    if [ ${#khd[@]} -gt 0 ]; then
@@ -1178,7 +1176,7 @@ _known_hosts_real()
 		# dont fork any processes, because in a cluster environment,
 		# there can be hundreds of hostkeys
 		for i in "${khd[@]}" ; do
-		    if [[ "$i" == *key_22_$curd*.pub ]] && [ -r "$i" ] ; then
+		    if [[ "$i" == *key_22_$awkcurd*.pub ]] && [ -r "$i" ] ; then
 			host=${i/#*key_22_/}
 			host=${host/%.pub/}
 			COMPREPLY=( "${COMPREPLY[@]}" $host )
@@ -1188,12 +1186,12 @@ _known_hosts_real()
 	    # append any available aliases from config files
 	    if [ ${#config[@]} -gt 0 ] && [ -n "$aliases" ]; then
 	    local host_aliases=$( sed -ne 's/^[ \t]*[Hh][Oo][Ss][Tt]\([Nn][Aa][Mm][Ee]\)\?['"$'\t '"']\+\([^#*?]*\)\(#.*\)\?$/\2/p' "${config[@]}" )
-	    hosts=$( compgen -W "$host_aliases" -- $ocur )
+	    hosts=$( compgen -W "$host_aliases" -- $cur )
 		COMPREPLY=( "${COMPREPLY[@]}" $hosts )
 	    fi
 
 	    # Now add results of normal hostname completion
-	    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -A hostname -- $ocur ) )
+	    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -A hostname -- $cur ) )
 
 	    # apply suffix and prefix
 	    for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
