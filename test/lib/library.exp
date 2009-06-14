@@ -43,6 +43,18 @@ proc assert_bash_type {command} {
 }; # assert_bash_type()
 
 
+# Make sure any completions are returned
+proc assert_complete_any {cmd {test ""} {prompt /@}} {
+    if {$test == ""} {set test "$cmd should show completions"}
+    send "$cmd\t"
+    expect {
+        -re "^$cmd\r\n.*$prompt$cmd$" { pass "$test" }
+        -re /@ { unresolved "$test at prompt" }
+        -re eof { unresolved "eof" }
+    }; # expect
+}; # assert_complete_any()
+
+
 # Make sure the expected items are also returned by TAB-completing the
 # specified command.
 # Break items into chunks because `expect' seems to have a limited buffer size
