@@ -12,197 +12,85 @@ setup
 
 
 set test "Tab should complete hostnames"
-
-    # Build string list of hostnames, separated by regexp whitespace (\s+)
-    # Example string: host1\s+host2\s+host3
-
+    # Build string list of hostnames
 set hosts {}
 foreach h [exec bash -c "compgen -A hostname"] {
-    # Escape special regexp characters (+) in hostname
-    regsub -all {([\+])} $h {\\\1} h
     lappend hosts $h
 }; # foreach
-set hosts [lsort -ascii $hosts]
-set hosts [join $hosts "\\s+"]
-    # Try completion
-set cmd "xhost "
-send "$cmd\t"
-set expected "^$cmd\r\n$hosts\r\n/@$cmd$"
-expect {
-    -re $expected  { pass "$test" }
-    -re /@ { unresolved "$test at prompt" }
-    default { unresolved "$test" }
-}; # expect
+assert_complete $hosts "xhost " $test
 
 
 sync_after_int
 
 
 set test "Tab should complete partial hostname"
-
-    # Build string list of hostnames, separated by regexp whitespace (\s+)
-    # Example string: host1\s+host2\s+host3
-
+# Build string list of hostnames, starting with the character of the first hostname
 set hosts {}
 set char ""
 foreach h [exec bash -c "compgen -A hostname"] {
     if {$char == ""} {set char [string range $h 0 0]}
         # Only append hostname if starting with $char
     if {[string range $h 0 0] == "$char"} {
-        # Escape special regexp characters (+) in hostname
-        regsub -all {([\+])} $h {\\\1} h
         lappend hosts $h
     }; # if
 }; # foreach
-    # Try completion
-set cmd "xhost $char"
-send "$cmd\t"
-    # Escape possible special regexp characters (+) in cmd
-regsub -all {([\+])} $cmd {\\\1} cmd
-if {[llength $hosts] == 1} {
-    set expected "^xhost $hosts "
-} else {
-    set hosts [lsort -ascii $hosts]
-    set hosts [join $hosts "\\s+"]
-    set expected "^$cmd\r\n$hosts\r\n/@$cmd$"
-}; # if
-expect {
-    -re $expected  { pass "$test" }
-    -re /@ { unresolved "$test at prompt" }
-    default { unresolved "$test" }
-}; # expect
+assert_complete $hosts "xhost $char" $test
 
 
 sync_after_int
 
 
 set test "Tab should complete hostnames prefixed with +"
-
-    # Build string list of hostnames, separated by regexp whitespace (\s+) and
-    # 'plus' (+) prefix
-    # Example string: \+host1\s+\+host2\s+\+host3
-
+# Build string list of hostnames, prefixed with plus (+)
 set hosts {}
 foreach h [exec bash -c "compgen -A hostname"] {
-    # Escape special regexp characters (+) in hostname
-    regsub -all {([\+])} $h {\\\1} h
-    lappend hosts $h
+    lappend hosts "+$h"
 }; # foreach
-set hosts [lsort -ascii $hosts]
-set hosts "\\+[join $hosts "\\s+\\+"]"
-    # Try completion
-set cmd "xhost +"
-send "$cmd\t"
-    # Escape special regexp characters (+) in cmd
-regsub -all {([\+])} $cmd {\\\1} cmd
-set expected "^$cmd\r\n$hosts\r\n/@$cmd$"
-expect {
-    -re $expected  { pass "$test" }
-    -re /@ { unresolved "$test at prompt" }
-    default { unresolved "$test" }
-}; # expect
+assert_complete $hosts "xhost \+" $test
 
 
 sync_after_int
 
 
 set test "Tab should complete partial hostname prefixed with +"
-
-    # Build string list of hostnames, starting with the character of the first
-    # host.  Separate hostnames by regexp whitespace (\s+) and 'plus' (+)
-    # prefix.  Example string: \+host1\s+\+host2\s+\+host3
-
+    # Build string list of hostnames, starting with character of first host.
 set hosts {}
 foreach h [exec bash -c "compgen -A hostname"] {
     if {$char == ""} {set char [string range $h 0 0]}
         # Only append hostname if starting with $char
     if {[string range $h 0 0] == "$char"} {
-        # Escape special regexp characters (+) in hostname
-        regsub -all {([\+])} $h {\\\1} h
-        lappend hosts $h
+        lappend hosts "+$h"
     }; # if
 }; # foreach
-    # Try completion
-set cmd "xhost +$char"
-send "$cmd\t"
-if {[llength $hosts] == 1} {
-    set expected "^xhost \\+$hosts "
-} else {
-        # Escape special regexp characters (+) in cmd
-    regsub -all {([\+])} $cmd {\\\1} cmd
-    set hosts [lsort -ascii $hosts]
-    set hosts [join $hosts "\\s+"]
-    set expected "^$cmd\r\n$hosts\r\n/@$cmd$"
-}; # if
-expect {
-    -re $expected  { pass "$test" }
-    -re /@ { unresolved "$test at prompt" }
-    default { unresolved "$test" }
-}; # expect
+assert_complete $hosts "xhost +$char"
 
 
 sync_after_int
 
 
 set test "Tab should complete hostnames prefixed with -"
-
-    # Build string list of hostnames, separated by regexp whitespace (\s+) and
-    # 'minus' (-) prefix
-    # Example string: -host1\s+-host2\s+-host3
-
+    # Build string list of hostnames, prefix with minus (-)
 set hosts {}
 foreach h [exec bash -c "compgen -A hostname"] {
-    # Escape special regexp characters (+) in hostname
-    regsub -all {([\+])} $h {\\\1} h
-    lappend hosts $h
+    lappend hosts "-$h"
 }; # foreach
-set hosts [lsort -ascii $hosts]
-set hosts "-[join $hosts "\\s+-"]"
-    # Try completion
-set cmd "xhost -"
-send "$cmd\t"
-set expected "^$cmd\r\n$hosts\r\n/@$cmd$"
-expect {
-    -re $expected  { pass "$test" }
-    -re /@ { unresolved "$test at prompt" }
-    default { unresolved "$test" }
-}; # expect
+assert_complete $hosts "xhost -" $test
 
 
 sync_after_int
 
 
 set test "Tab should complete partial hostname prefixed with -"
-
-    # Build string list of hostnames, starting with the character of the first
-    # host.  Separate hostnames by regexp whitespace (\s+) and 'minus' (-)
-    # prefix.  Example string: -host1\s+-host2\s+-host3
-
+    # Build list of hostnames, starting with character of first host
 set hosts {}
 foreach h [exec bash -c "compgen -A hostname"] {
     if {$char == ""} {set char [string range $h 0 0]}
         # Only append hostname if starting with $char
     if {[string range $h 0 0] == "$char"} {
-        # Escape special regexp characters (+) in hostname
-        regsub -all {([\+])} $h {\\\1} h
-        lappend hosts $h
+        lappend hosts "-$h"
     }; # if
 }; # foreach
-    # Try completion
-set cmd "xhost -$char"
-send "$cmd\t"
-if {[llength $hosts] == 1} {
-    set expected "^xhost -$hosts "
-} else {
-    set hosts [lsort -ascii $hosts]
-    set hosts "-[join $hosts "\\s+-"]"
-    set expected "^$cmd\r\n$hosts\r\n/@$cmd$"
-}; # if
-expect {
-    -re $expected  { pass "$test" }
-    -re /@ { unresolved "$test at prompt" }
-    default { unresolved "$test" }
-}; # expect
+assert_complete $hosts "xhost -$char" $test
 
 
 sync_after_int
