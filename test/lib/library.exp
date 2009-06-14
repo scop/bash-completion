@@ -54,13 +54,28 @@ proc assert_bash_type {command} {
 proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
     if {$test == ""} {set test "$cmd should show completions"}
     send "$cmd\t"
-    expect -ex "$cmd\r\n"
+    if {[llength $expected] == 1} {
+        expect -ex "$cmd"
+        # Assume second word is word to complete on.
+        set cur [lindex [split $cmd] 1]
+        # Remove second word from beginning of single item $expected
+        if {[string first $cur $expected] == 0} {
+            set expected [string range $expected [string length $cur] end]
+        }; # if
+    } else {
+        expect -ex "$cmd\r\n"
+    }; # if
+
     if {[match_items $expected $test]} {
-        expect {
-            -re "$prompt$cmd$" { pass "$test" }
-            -re $prompt { unresolved "$test at prompt" }
-            -re eof { unresolved "eof" }
-        }
+        if {[llength $expected] == 1} {
+            pass "$test"
+        } else {
+            expect {
+                -re "$prompt$cmd$" { pass "$test" }
+                -re $prompt { unresolved "$test at prompt" }
+                -re eof { unresolved "eof" }
+            }; # expect
+        }; # if
     } else {
         fail "$test"
     }; # if
@@ -159,6 +174,7 @@ proc assert_exec {cmd {stdout ''} {test ''}} {
 # @param integer $size  Chunk size
 # @result boolean  True if successful, False if not
 proc match_items {items test {size 20}} {
+    set items [lsort -ascii $items]
     set result false
     for {set i 0} {$i < [llength $items]} {set i [expr {$i + $size}]} {
         set expected ""
@@ -166,7 +182,8 @@ proc match_items {items test {size 20}} {
             set item "[lindex $items [expr {$i + $j}]]"
                 # Escape special regexp characters
             regsub -all {([\[\]\(\)\.\\\+])} $item {\\\1} item
-            set expected "${expected}$item\\s+"
+            append expected $item
+            if {[llength $items] > 1} {append expected {\s+}}
         }; # for
         expect {
             -re "$expected" { set result true }

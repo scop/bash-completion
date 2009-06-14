@@ -12,134 +12,62 @@ setup
 
 
 set test "Tab should complete usernames"
-
-    # Build string list of usernames, separated by regexp whitespace (\s+)
-    # Example string: user1\s+user2\s+user3
-
+# Build string list of usernames
 set users {}
 foreach u [exec bash -c "compgen -A user"] {
-    # Escape special regexp characters (+) in username
-    regsub -all {([\+])} $u {\\\1} h
     lappend users $u
 }; # foreach
-set users [lsort -ascii $users]
-set users [join $users "\\s+"]
-    # Try completion
-set cmd "finger "
-send "$cmd\t"
-set expected "^$cmd\r\n$users\r\n/@$cmd$"
-expect {
-    -re $expected  { pass "$test" }
-    -re /@ { unresolved "$test at prompt" }
-    default { unresolved "$test" }
-}; # expect
+assert_complete $users "finger " $test
 
 
 sync_after_int
 
 
 set test "Tab should complete partial username"
-
-    # Build string list of usernames, starting with the character of the first
-    # username.  Separate usernames by regexp whitespace (\s+) and 'plus' (+)
-    # prefix.  Example string: \+user1\s+\+user2\s+\+user3
-
+# Build string list of usernames, starting with the character of the 
+# first username.
 set users {}
 set char ""
 foreach u [exec bash -c "compgen -A user"] {
     if {$char == ""} {set char [string range $u 0 0]}
         # Only append username if starting with $char
     if {[string range $u 0 0] == "$char"} {
-        # Escape possible special regexp characters (+) in username
-        regsub -all {([\+])} $u {\\\1} u
         lappend users $u
     }; # if
 }; # foreach
-    # Try completion
-set cmd "finger $char"
-send "$cmd\t"
-if {[llength $users] == 1} {
-    set expected "^finger $users"
-} else {
-    set users [lsort -ascii $users]
-    set users [join $users "\\s+"]
-    set expected "^$cmd\r\n$users\r\n/@$cmd$"
-}; # if
-expect {
-    -re $expected  { pass "$test" }
-    -re /@ { unresolved "$test at prompt" }
-    default { unresolved "$test" }
-}; # expect
+assert_complete $users "finger $char" $test
 
 
 sync_after_int
 
 
 set test "Tab should complete hostnames"
-
-    # Build string list of hostnames, separated by regexp whitespace (\s+)
-    # Example string: host1\s+host2\s+host3
-
+# Build string list of hostnames
 set hosts {}
 foreach h [exec bash -c "compgen -A hostname"] {
-    # Escape special regexp characters (+) in hostname
-    regsub -all {([\+])} $h {\\\1} h
     # Prefix hosts with username 'test@'
     lappend hosts "test@$h"
 }; # foreach
-    # Try completion
-set cmd "finger test@"
-send "$cmd\t"
-if {[llength $hosts] == 1} {
-    set expected "^$cmd$hosts "
-} else {
-    set hosts [lsort -ascii $hosts]
-    set hosts [join $hosts "\\s+"]
-    set expected "^$cmd\r\n$hosts\r\n/@$cmd$"
-}; # if
-expect {
-    -re $expected  { pass "$test" }
-    -re /@ { unresolved "$test at prompt" }
-    default { unresolved "$test" }
-}; # expect
+assert_complete $hosts "finger test@" $test
 
 
 sync_after_int
 
 
 set test "Tab should complete partial hostname"
-
-    # Build string list of hostnames, starting with the character of the first
-    # host.  Separate hostnames by regexp whitespace (\s+) and 'plus' (+)
-    # prefix.  Example string: \+host1\s+\+host2\s+\+host3
-
+# Build string list of hostnames, starting with the character of the first
+# host.
 set hosts {}
 set char ""
 foreach h [exec bash -c "compgen -A hostname"] {
     if {$char == ""} {set char [string range $h 0 0]}
         # Only append hostname if starting with $char
     if {[string range $h 0 0] == "$char"} {
-        # Escape special regexp characters (+) in hostname
-        regsub -all {([\+])} $h {\\\1} h
         # Prefix hosts with username 'test@'
         lappend hosts "test@$h"
     }; # if
 }; # foreach
-    # Try completion
-set cmd "finger test@$char"
-send "$cmd\t"
-if {[llength $hosts] == 1} {
-    set expected "^finger $hosts"
-} else {
-    set hosts [lsort -ascii $hosts]
-    set hosts [join $hosts "\\s+"]
-    set expected "^$cmd\r\n$hosts\r\n/@$cmd$"
-}; # if
-expect {
-    -re $expected  { pass "$test" }
-    -re /@ { unresolved "$test at prompt" }
-    default { unresolved "$test" }
-}; # expect
+assert_complete $hosts "finger test@$char" $test
 
 
 sync_after_int
