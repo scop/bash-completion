@@ -43,18 +43,6 @@ proc assert_bash_type {command} {
 }; # assert_bash_type()
 
 
-# Make sure any completions are returned
-proc assert_complete_any {cmd {test ""} {prompt /@}} {
-    if {$test == ""} {set test "$cmd should show completions"}
-    send "$cmd\t"
-    expect {
-        -re "^$cmd\r\n.*$prompt$cmd$" { pass "$test" }
-        -re /@ { unresolved "$test at prompt" }
-        -re eof { unresolved "eof" }
-    }; # expect
-}; # assert_complete_any()
-
-
 # Make sure the expected items are also returned by TAB-completing the
 # specified command.
 # Break items into chunks because `expect' seems to have a limited buffer size
@@ -92,6 +80,24 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
         fail "$test"
     }; # if
 }; # assert_complete()
+
+
+# Make sure any completions are returned
+proc assert_complete_any {cmd {test ""} {prompt /@}} {
+    if {$test == ""} {set test "$cmd should show completions"}
+    send "$cmd\t"
+    expect -ex "$cmd"
+        # Escape special regexp characters
+    regsub -all {([\[\]\(\)\.\\\+])} $cmd {\\\1} cmd
+        # NOTE: A timeout of 1 is used to match quicker when no completion are
+        #       returned.  E.g. within `cancel.exp' when no print jobs are available.
+    expect {
+        -timeout 1
+        -re "^\r\n.*$prompt$cmd$" { pass "$test" }
+        -re /@ { unresolved "$test at prompt" }
+        -re eof { unresolved "eof" }
+    }; # expect
+}; # assert_complete_any()
 
 
 # Make sure the bash environment hasn't changed between now and the last call

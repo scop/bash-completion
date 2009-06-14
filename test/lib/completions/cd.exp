@@ -12,13 +12,7 @@ setup
 
 
 set test "Tab should complete"
-    # Try completion
-set cmd "cd fixture1/"
-send "$cmd\t"
-expect {
-    -re "^$cmd\r\n.*$cmd$" { pass "$test" }
-    -re /@ { unresolved "$test at prompt" }
-}; # expect
+assert_complete {"bar bar.d/" foo.d/} "cd fixture1/" $test
 
 
 sync_after_int
@@ -43,27 +37,11 @@ sync_after_int
 
 set test "Tab should complete CDPATH"
     # Set CDPATH
-set cmd "CDPATH=\$PWD"
-send "$cmd\r"
-expect -ex "$cmd\r\n"
-expect -ex "/@"
-    # Try completion
-set cmd "cd fixture1/fo"
-send "$cmd\t"
-expect {
-    -re "cd fixture1/foo.d/$" { pass "$test" }
-    -re /@ { unresolved "$test at prompt" }
-    default { unresolved "$test" }
-}; # expect
-
+assert_bash_exec "CDPATH=\$PWD";
+assert_complete "fixture1/foo.d/" "cd fixture1/fo" $test
 sync_after_int
-
     # Reset CDPATH
-set cmd "unset CDPATH"
-send "$cmd\r"
-expect -ex "$cmd\r\n"
-expect -ex "/@"
-
+assert_bash_exec "unset CDPATH"
 
 
 teardown
