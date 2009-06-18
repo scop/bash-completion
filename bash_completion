@@ -1194,6 +1194,13 @@ _known_hosts_real()
 		COMPREPLY=( "${COMPREPLY[@]}" $hosts )
 	    fi
 
+        # Add hosts reported by avahi, if it's available
+        if type avahi-browse >&/dev/null; then
+        COMPREPLY=( "${COMPREPLY[@]}" $(
+            compgen -W "$( avahi-browse -kcpr _workstation._tcp | \
+                           grep ^= | cut -d\; -f7 | sort -u )" -- $cur ) )
+        fi
+
 	    # Now add results of normal hostname completion
 	    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -A hostname -- $cur ) )
 
