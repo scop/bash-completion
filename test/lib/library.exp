@@ -213,6 +213,18 @@ proc assert_exec {cmd {stdout ''} {test ''}} {
 }; # assert_exec()
 
 
+# Get known hostnames
+# @return list  Hostnames
+proc get_hosts {} {
+    set hosts [exec bash -c "compgen -A hostname"]
+    lappend hosts [exec bash -c {
+        type avahi-browse >&/dev/null && 
+            avahi-browse -kcpr _workstation._tcp | grep ^= | cut -d\; -f7 | sort -u
+    }]
+    return $hosts
+}; # get_hosts()
+
+
 # Expect items.
 # Break items into chunks because `expect' seems to have a limited buffer size
 # @param list $items
