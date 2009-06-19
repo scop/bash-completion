@@ -56,9 +56,9 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
     send "$cmd\t"
     if {[llength $expected] == 1} {
         expect -ex "$cmd"
-        # Assume second word is word to complete on.
+            # Assume second word is word to complete on.
         set cur [lindex [split $cmd] 1]
-        # Remove second word from beginning of single item $expected
+            # Remove second word from beginning of single item $expected
         if {[string first $cur $expected] == 0} {
             set expected [string range $expected [string length $cur] end]
         }; # if
@@ -80,6 +80,33 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
         fail "$test"
     }; # if
 }; # assert_complete()
+
+
+# Make sure a partial argument is completed.
+# A completion is tried with `$partial', or if this is empty, the first
+# character of the first item of `$expected'.  Only the items from $expected,
+# starting with this character are then expected as completions.
+# @param list $expected  List of all completions.
+# @param string $cmd  Command given to generate items
+# @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param integer $size  (optional) Chunk size.  Default is 20.
+# @result boolean  True if successful, False if not
+proc assert_complete_partial {expected cmd {partial ""} {test ""} {prompt /@} {size 20}} {
+    if {$test == ""} {set test "$cmd should complete partial argument"}
+    if {[llength $expected] == 0} {
+        unresolved "$test"
+    } else {
+        set pick {}
+        foreach item $expected {
+            if {$partial == ""} {set partial [string range $item 0 0]}
+                # Only append item if starting with $partial
+            if {[string range $item 0 [expr [string length $partial] - 1]] == "$partial"} {
+                lappend pick $item
+            }; # if
+        }; # foreach
+        assert_complete $pick "$cmd $partial" $test $prompt $size
+    }; # if
+}; # assert_complete_partial()
 
 
 # Make sure any completions are returned
@@ -201,13 +228,24 @@ proc match_items {items test {size 20}} {
                 # Escape special regexp characters
             regsub -all {([\[\]\(\)\.\\\+])} $item {\\\1} item
             append expected $item
-            if {[llength $items] > 1} {append expected {\s+}}
+            if {[llength $items] > 1} {append expected {\s+}};
         }; # for
-        expect {
-            -re "$expected" { set result true }
-            default { set result false; break }
-            timeout { set result false; break }
-        }; # expect
+        if {[llength $items] == 1} {
+            expect {
+                -timeout 1
+                -re "$expected" { set result true }
+                "\r\n" { set result false; break }
+                default { set result false; break }
+                timeout { set result false; break }
+            }; # expect
+        } else {
+            expect {
+                -timeout 1
+                -re "$expected" { set result true }
+                default { set result false; break }
+                timeout { set result false; break }
+            }; # expect
+        }; # if
     }; # for
     return $result
 }; # match_items()
