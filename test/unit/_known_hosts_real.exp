@@ -8,15 +8,21 @@ proc teardown {} {
 }; # teardown()
 
 
+proc get_hosts {} {
+    set hosts [exec bash -c "compgen -A hostname"]
+    lappend hosts [exec bash -c {
+        type avahi-browse >&/dev/null && 
+            avahi-browse -kcpr _workstation._tcp | grep ^= | cut -d\; -f7 | sort -u
+    }]
+    return $hosts
+}; # get_hosts()
+
+
 setup
 
 
 set test "Hosts should be put in COMPREPLY"
-
-    # Build string list of hostnames, separated by regexp whitespace marker (\s+).
-    # Example string: host1\s+host2\s+host3
-
-set hosts [exec bash -c "compgen -A hostname"]
+set hosts [get_hosts]
     # Hosts `gee' and `hus' are defined in ./fixtures/_known_hosts_real/config
     # Hosts `doo' and `ike' are defined in ./fixtures/_known_hosts_real/known_hosts
 lappend hosts doo gee hus ike
@@ -37,9 +43,7 @@ sync_after_int
 
 
 set test "Config file containing space should work"
-    # Build string list of hostnames, separated by regexp whitespace marker (\s+).
-    # Example string: host1\s+host2\s+host3
-set hosts [exec bash -c "compgen -A hostname"]
+set hosts [get_hosts]
     # Hosts `gee' and `hus' are defined in ./fixtures/_known_hosts_real/spaced  conf
     # Hosts `doo' and `ike' are defined in ./fixtures/_known_hosts_real/known_hosts
     # Host `two' is defined in ./fixtures/_known_hosts_real/known_hosts2
@@ -47,7 +51,7 @@ lappend hosts gee hus doo ike two
 set hosts [lsort -ascii $hosts]
 set hosts [join $hosts "\\s+"]
     # Call _known_hosts
-set cmd {_known_hosts -aF 'fixtures/_known_hosts_real/spaced  conf'; echo_array COMPREPLY}
+set cmd {_known_hosts_real -aF 'fixtures/_known_hosts_real/spaced  conf'; echo_array COMPREPLY}
 send "$cmd\r"
 expect -ex "$cmd\r\n"
 expect {
