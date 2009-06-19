@@ -24,18 +24,7 @@ sync_after_int
 
 
 set test "Tab should complete partial username"
-# Build string list of usernames, starting with the character of the 
-# first username.
-set users {}
-set char ""
-foreach u [exec bash -c "compgen -A user"] {
-    if {$char == ""} {set char [string range $u 0 0]}
-        # Only append username if starting with $char
-    if {[string range $u 0 0] == "$char"} {
-        lappend users $u
-    }; # if
-}; # foreach
-assert_complete $users "finger $char" $test
+assert_complete_partial [exec bash -c "compgen -A user"] "finger"
 
 
 sync_after_int
