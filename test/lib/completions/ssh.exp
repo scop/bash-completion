@@ -42,4 +42,31 @@ expect {
 sync_after_int
 
 
+set test "First argument shouldn't complete with commands"
+# NOTE: This test assumes the machine running this test has a command "bash"
+#       but no host named "bash" ...
+set cmd "ssh bas"
+send "$cmd\t"
+expect -ex "$cmd"
+expect {
+    -timeout 1
+        # In case multiple commands `bas*' are completed
+    -re "^\r\n.*bash.*\r\n/@$cmd$" { fail "$test" }
+        # In case the single command `bash' is completed
+    -re "h $" { fail "$test" }
+    -re ".+" { unresolved "$test" }
+    timeout { pass "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "Tab should complete partial hostname"
+assert_complete_partial [get_hosts] "ssh"
+
+
+sync_after_int
+
+
 teardown
