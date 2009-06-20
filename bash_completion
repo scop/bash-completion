@@ -1196,10 +1196,15 @@ _known_hosts_real()
 
         # Add hosts reported by avahi, if it's available
         # and if the daemon is started.
+        # The original call to avahi-browse also had "-k", to avoid
+        #  lookups into avahi's services DB. We don't need the name
+        #  of the service, and if it contains ";", it may mistify
+        #  the result. But on Gentoo (at least), -k isn't available
+        #  (even if mentioned in the manpage), so...
         if type avahi-browse >&/dev/null; then
             if [ -n "$(pidof avahi-daemon)" ]; then
                 COMPREPLY=( "${COMPREPLY[@]}" $(
-                    compgen -W "$( avahi-browse -kcpr _workstation._tcp | \
+                    compgen -W "$( avahi-browse -cpr _workstation._tcp | \
                                    grep ^= | cut -d\; -f7 | sort -u )" -- $cur ) )
             fi
         fi
