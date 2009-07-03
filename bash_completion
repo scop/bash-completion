@@ -1036,7 +1036,7 @@ _user_at_host() {
 	cur=`_get_cword`
 
 	if [[ $cur == *@* ]]; then
-		_known_hosts_real -h "$cur"
+		_known_hosts_real "$cur"
 	else
 		COMPREPLY=( $( compgen -u -- "$cur" ) )
 	fi
@@ -1049,24 +1049,21 @@ shopt -u hostcomplete && complete -F _user_at_host $nospace talk ytalk finger
 #       `_known_hosts_real' instead.
 _known_hosts()
 {
-	local cur
-
 	COMPREPLY=()
-	cur=`_get_cword`
 
 	# NOTE: Passing "$@" is deprecated.  See NOTE above.
-	_known_hosts_real -h "$cur" "$@"
+	_known_hosts_real "$@" "$(_get_cword)"
 }
 
 # Helper function for completing _known_hosts.
 # This function performs host completion based on ssh's known_hosts files,
 # defaulting to standard host completion if they don't exist.
-# Arguments:  -a             Use aliases
-#             -c             Use `:' suffix
-#             -F configfile  Use `configfile' for configuration settings
-#             -h hostname    Use hostname to complete on
-#             -p PREFIX      Use PREFIX
-# Return: Completions are added to COMPREPLY[]
+# Usage: _known_hosts_real [OPTIONS] CWORD
+# Options:  -a             Use aliases
+#           -c             Use `:' suffix
+#           -F configfile  Use `configfile' for configuration settings
+#           -p PREFIX      Use PREFIX
+# Return: Completions, starting with CWORD, are added to COMPREPLY[]
 _known_hosts_real()
 {
 	local configfile flag prefix
@@ -1075,15 +1072,16 @@ _known_hosts_real()
 	local IFS=$'\n'
 
 	local OPTIND=1
-	while getopts "acF:h:p:" flag "$@"; do
+	while getopts "acF:p:" flag "$@"; do
 		case $flag in
 			a) aliases='yes' ;;
 			c) suffix=':' ;;
 			F) configfile=$OPTARG ;;
-			h) cur=$OPTARG ;;
 			p) prefix=$OPTARG ;;
 		esac
 	done
+	[ $# -lt $OPTIND ] && echo "error: $FUNCNAME: missing mandatory argument CWORD"
+	cur=${!OPTIND}; let "OPTIND += 1"
 	[ $# -ge $OPTIND ] && echo "error: $FUNCNAME("$@"): unprocessed arguments:"\
 	    $(while [ $# -ge $OPTIND ]; do echo ${!OPTIND}; shift; done)
 
