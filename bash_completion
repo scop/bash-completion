@@ -1069,7 +1069,6 @@ _known_hosts_real()
 	local configfile flag prefix
 	local cur curd awkcur user suffix aliases global_kh user_kh hosts i host
 	local -a kh khd config
-	local IFS=$'\n'
 
 	local OPTIND=1
 	while getopts "acF:p:" flag "$@"; do
@@ -1102,6 +1101,7 @@ _known_hosts_real()
 	fi
 
 	if [ ${#config[@]} -gt 0 ]; then
+		local OIFS=$IFS IFS=$'\n'
 		# expand path (if present) to global known hosts file
 		global_kh=($( sed -ne 's/^[ \t]*[Gg][Ll][Oo][Bb][Aa][Ll][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/\1/p' "${config[@]}" ))
 		for (( i=0; i < ${#global_kh[@]}; i++ )); do
@@ -1112,6 +1112,7 @@ _known_hosts_real()
 		for (( i=0; i < ${#user_kh[@]}; i++ )); do
 			user_kh[i]=$(echo "${user_kh[i]//\"/}")
 		done
+		IFS=$OIFS
 	fi
 
 	# Global known_hosts files
