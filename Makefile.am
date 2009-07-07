@@ -137,6 +137,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/xhost \
 		contrib/xm \
 		contrib/xmllint \
+		contrib/xmlwf \
 		contrib/xmms \
 		contrib/xrandr \
 		contrib/yp-tools \
