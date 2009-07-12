@@ -11,7 +11,18 @@ proc teardown {} {
 setup
 
 
-assert_complete_any "cancel "
+    # Adding a print job is successful?
+if {[assert_exec {lp -H hold fixture1/foo} job]} {
+    # Yes, adding a print-job is successful;
+        # Retrieve job-id, so we can cancel the job after the test
+    set job_id [lindex [split $job] 3]
+        # Retrieve list of all current print jobs
+    assert_exec {lpstat | cut -d\040 -f1} jobs
+        # Completion should show all print jobs
+    assert_complete $jobs "cancel "
+        # Remove/cancel the test print job
+    assert_exec "cancel $job_id"
+}; # if
 
 
 sync_after_int
