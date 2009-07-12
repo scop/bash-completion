@@ -1,3 +1,11 @@
+    # Source `init.tcl' again to restore the `unknown' procedure
+    # NOTE: DejaGnu has an old `unknown' procedure which unfortunately disables
+    #       tcl auto-loading.
+source [file join [info library] init.tcl]
+package require textutil::string
+
+
+
 # Execute a bash command and make sure the exit status is succesful.
 # If not, output the error message.
 # @param string $cmd  Bash command line to execute.  If emptry string (""), the
@@ -70,8 +78,9 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
         if {[llength $expected] == 1} {
             pass "$test"
         } else {
+            set common [::textutil::string::longestCommonPrefixList $expected]
             expect {
-                -ex "$prompt$cmd" { pass "$test" }
+                -ex "$prompt$cmd$common" { pass "$test" }
                 -re $prompt { unresolved "$test at prompt" }
                 -re eof { unresolved "eof" }
             }; # expect
