@@ -125,10 +125,7 @@ proc assert_complete_any {cmd {test ""} {prompt /@}} {
     expect -ex "$cmd"
         # Escape special regexp characters
     regsub -all {([\[\]\(\)\.\\\+])} $cmd {\\\1} cmd
-        # NOTE: A timeout of 1 is used to match quicker when no completion are
-        #       returned.  E.g. within `cancel.exp' when no print jobs are available.
     expect {
-        -timeout 1
         -re "^\r\n.*$prompt$cmd$" { pass "$test" }
         -re /@ { unresolved "$test at prompt" }
         -re eof { unresolved "eof" }
@@ -253,7 +250,6 @@ proc match_items {items test {size 20}} {
         }; # for
         if {[llength $items] == 1} {
             expect {
-                -timeout 1
                 -re "$expected" { set result true }
                 "\r\n" { set result false; break }
                 default { set result false; break }
@@ -261,7 +257,6 @@ proc match_items {items test {size 20}} {
             }; # expect
         } else {
             expect {
-                -timeout 1
                 -re "$expected" { set result true }
                 default { set result false; break }
                 timeout { set result false; break }
