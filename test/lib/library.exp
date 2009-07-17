@@ -12,19 +12,20 @@ package require textutil::string
 #                     exit status of the previously executed bash command will be 
 #                     checked; specify `title' to adorn the error message.
 # @param string $title  (optional) Command title.  If empty, `cmd' is used.
-proc assert_bash_exec {{aCmd ""} {title ""}} {
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
+proc assert_bash_exec {{aCmd ""} {title ""} {prompt /@}} {
     if {[string length $aCmd] != 0} {
         send "$aCmd\r"
         expect -ex "$aCmd\r\n"
     }; # if
     if {[string length $title] == 0} {set title $aCmd}
-    expect -ex "/@"
+    expect -ex $prompt
     set out $expect_out(buffer);  # Catch (non-expected) output
     set cmd "echo $?"
     send "$cmd\r"
     expect {
-        -ex "$cmd\r\n0\r\n/@" {}
-        /@ {
+        -ex "$cmd\r\n0\r\n$prompt" {}
+        $prompt {
             if {[info exists multipass_name]} {
                 fail "ERROR executing bash command \"$title\""
             }; # if
@@ -51,12 +52,13 @@ proc assert_bash_type {command} {
 }; # assert_bash_type()
 
 
-# Make sure the expected items are also returned by TAB-completing the
-# specified command.
+# Make sure the expected items are returned by TAB-completing the specified
+# command.
 # Break items into chunks because `expect' seems to have a limited buffer size
 # @param list $expected
 # @param string $cmd  Command given to generate items
 # @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
 # @param integer $size  (optional) Chunk size.  Default is 20.
 # @result boolean  True if successful, False if not
 proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
@@ -78,9 +80,14 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
         if {[llength $expected] == 1} {
             pass "$test"
         } else {
+            # Remove optional (partial) argument from `cmd'.
+            # E.g. "finger test@" becomes "finger"
+            set cmd2 [lindex [split $cmd] 0]
+            # Determine common prefix of completions
             set common [::textutil::string::longestCommonPrefixList $expected]
+            if {[string length $common] > 0} {set common " $common"}
             expect {
-                -ex "$prompt$cmd$common" { pass "$test" }
+                -ex "$prompt$cmd2$common" { pass "$test" }
                 -re $prompt { unresolved "$test at prompt" }
                 -re eof { unresolved "eof" }
             }; # expect
@@ -98,6 +105,7 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
 # @param list $expected  List of all completions.
 # @param string $cmd  Command given to generate items
 # @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
 # @param integer $size  (optional) Chunk size.  Default is 20.
 # @result boolean  True if successful, False if not
 proc assert_complete_partial {expected cmd {partial ""} {test ""} {prompt /@} {size 20}} {
@@ -127,7 +135,7 @@ proc assert_complete_any {cmd {test ""} {prompt /@}} {
     regsub -all {([\[\]\(\)\.\\\+])} $cmd {\\\1} cmd
     expect {
         -re "^\r\n.*$prompt$cmd$" { pass "$test" }
-        -re /@ { unresolved "$test at prompt" }
+        -re $prompt { unresolved "$test at prompt" }
         -re eof { unresolved "eof" }
     }; # expect
 }; # assert_complete_any()
@@ -136,7 +144,14 @@ proc assert_complete_any {cmd {test ""} {prompt /@}} {
 # Make sure the bash environment hasn't changed between now and the last call
 # to `save_env()'.
 # @param string $sed  Sed commands to preprocess diff output.
-#                     E.g.: s/COMP_PATH=.*/COMP_PATH=PATH/
+#                     Example calls:
+#                  
+#                         # Replace `COMP_PATH=.*' with `COMP_PATH=PATH'
+#                         assert_env_unmodified {s/COMP_PATH=.*/COMP_PATH=PATH/}
+#                  
+#                         # Remove lines containing with `OLDPWD='
+#                         assert_env_unmodified {/OLDPWD=/d}
+# 
 # @param string $file  Filename to generate environment save file from.  See
 #                      `gen_env_filename()'.
 # @param string $diff  Expected diff output (after being processed by $sed)
@@ -328,11 +343,12 @@ proc _save_env {{file ""}} {
 
 # Interrupt completion and sync with prompt.
 # Send signals QUIT & INT.
-proc sync_after_int {} {
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
+proc sync_after_int {{prompt /@}} {
     set test "Sync after INT"
     sleep .1
     send \031\003;  # QUIT/INT
-    expect /@
+    expect $prompt
 }; # sync_after_int()
 
 

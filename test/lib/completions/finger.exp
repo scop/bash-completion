@@ -33,11 +33,11 @@ sync_after_int
 set test "Tab should complete hostnames"
 # Build string list of hostnames
 set hosts {}
-foreach h [exec bash -c "compgen -A hostname"] {
+foreach h [get_hosts] {
     # Prefix hosts with username 'test@'
     lappend hosts "test@$h"
 }; # foreach
-assert_complete $hosts "finger test@" $test
+assert_complete_partial $hosts finger test@ $test
 
 
 sync_after_int
@@ -48,7 +48,7 @@ set test "Tab should complete partial hostname"
 # host.
 set hosts {}
 set char ""
-foreach h [exec bash -c "compgen -A hostname"] {
+foreach h [get_hosts] {
     if {$char == ""} {set char [string range $h 0 0]}
         # Only append hostname if starting with $char
     if {[string range $h 0 0] == "$char"} {
