@@ -1,23 +1,17 @@
 proc setup {} {
+    save_env
 }; # setup()
 
 
 proc teardown {} {
+    assert_env_unmodified {/OLDPWD=/d}
 }; # teardown()
 
 
 setup
 
 
-set test "Tab should show completions"
-    # Try completion
-set cmd "find "
-send "$cmd\t"
-expect {
-    -re "$cmd\r\n.*$cmd$" { pass "$test" }
-    -re /@ { unresolved "$test at prompt" }
-    -re eof { unresolved "eof" }
-}; # expect
+assert_complete_any "find "
 
 
 sync_after_int
@@ -35,29 +29,16 @@ sync_after_int
 
 
 set test "-wholename should complete files/dirs"
-    # Change directory
-set cmd "cd fixture1"
-send "$cmd\r"
-expect -ex "$cmd\r\n/fixture1/@"
-    # Complete
-set cmd "find -wholename "
-send "$cmd\t"
-expect {
-    -re "$cmd\r\n(\.svn/ +|)bar +bar bar.d/ +foo +foo.d/ *(\.svn/ *|)\r\n/fixture1/@$cmd$" { 
-	pass "$test" 
-    }
-    -re /@ { unresolved "$test at prompt" }
-    -re eof { unresolved "eof" }
-}; # expect
+    # Change directory to `fixture1'
+set dir fixture1
+set prompt "/$dir/@"
+assert_bash_exec "cd $dir" "" $prompt
+    # NOTE: `-p' adds a slash to directories
+set files [split [exec bash -c "cd $dir && ls -p"] "\n"]
+assert_complete $files "find -wholename " "" $prompt
+sync_after_int $prompt
+assert_bash_exec "cd \$TESTDIR"
 
-
-sync_after_int
-
-
-    # Restore directory
-set cmd "cd .."
-send "$cmd\r"
-expect -ex "$cmd\r\n/@"
 
 
 set test "-uid should complete uids"
@@ -65,9 +46,7 @@ set test "-uid should complete uids"
 set cmd "find -uid "
 send "$cmd\t"
 expect {
-    -re "$cmd\r\n\\d+.*/@$cmd$" { 
-	pass "$test" 
-    }
+    -re "$cmd\r\n\\d+.*/@$cmd$" { pass "$test" }
     -re /@ { unresolved "$test at prompt" }
     -re eof { unresolved "eof" }
 }; # expect
@@ -81,9 +60,7 @@ set test "-gid should complete gids"
 set cmd "find -gid "
 send "$cmd\t"
 expect {
-    -re "$cmd\r\n\\d+.*/@$cmd$" { 
-	pass "$test" 
-    }
+    -re "$cmd\r\n\\d+.*/@$cmd$" { pass "$test" }
     -re /@ { unresolved "$test at prompt" }
     -re eof { unresolved "eof" }
 }; # expect

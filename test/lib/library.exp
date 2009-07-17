@@ -134,7 +134,11 @@ proc assert_complete_any {cmd {test ""} {prompt /@}} {
         # Escape special regexp characters
     regsub -all {([\[\]\(\)\.\\\+])} $cmd {\\\1} cmd
     expect {
-        -re "^\r\n.*$prompt$cmd$" { pass "$test" }
+        # NOTE: The `\S*' (zero or more non-whitespace characters) matches a
+        #       possible enlargement of a command's partial completion if the
+        #       list of completions have a larger common prefix.
+        #       E.g. `fmt -' becomes `fmt --' (two dashes) when completing
+        -re "^\r\n.*$prompt$cmd\\S*$" { pass "$test" }
         -re $prompt { unresolved "$test at prompt" }
         -re eof { unresolved "eof" }
     }; # expect
@@ -238,10 +242,16 @@ proc assert_exec {cmd {stdout ''} {test ''}} {
 # @return list  Hostnames
 proc get_hosts {} {
     set hosts [exec bash -c "compgen -A hostname"]
-    lappend hosts [exec bash -c {
-        type avahi-browse >&/dev/null && 
-            avahi-browse -kcpr _workstation._tcp | grep ^= | cut -d\; -f7 | sort -u
+    # NOTE: Circumenventing `avahi_host' and appending directly to `hosts'
+    #       causes an empty element to be inserted in `hosts'.
+    #       -- FVu, Fri Jul 17 23:11:46 CEST 2009
+    set avahi_hosts [exec bash -c {
+        type avahi-browse >&/dev/null && [ -n "$(pidof avahi-daemon)" ]
+            avahi-browse -cpr _workstation._tcp | grep ^= | cut -d\; -f7 | sort -u
     }]
+    if {[llength $avahi_hosts] > 1} {
+        lappend hosts $avahi_hosts
+    }; # if
     return $hosts
 }; # get_hosts()
 
