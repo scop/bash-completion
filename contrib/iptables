@@ -23,8 +23,12 @@ _iptables()
 
 	_split_longopt
 
+	if [[ $COMP_LINE == *-E* ]]; then
+		rename=yes
+	fi
+
 	case "$prev" in
-	-*[AIDRPFXLZ])
+	-*[AIDRPFXLZEN])
 		COMPREPLY=( $( compgen -W '`iptables $table -nL | \
 			    sed -ne "s/^Chain \([^ ]\+\).*$/\1/p"`' -- $cur ) )
 		;;
@@ -50,7 +54,10 @@ _iptables()
 		fi
 		;;
 	*)
-		if [[ "$cur" == -* ]]; then
+		if [[ "$rename" -eq "yes" ]]; then
+		    COMPREPLY=( $( compgen -W '`iptables $table -nL | \
+		    sed -ne "s/^Chain \([^ ]\+\).*$/\1/p"`' -- $cur ) )
+		elif [[ "$cur" == -* ]]; then
 		    COMPREPLY=( $( compgen -W '-i -o -s -d -p -f -m --append \
 		    --delete --insert --replace --list --flush --zero --new \
 		    --delete-chain --policy --rename-chain --proto --source \
