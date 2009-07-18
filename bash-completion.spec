@@ -1,49 +1,58 @@
-Name:		bash-completion
-Version:	20060301
-Release:	alt06
+Name: bash-completion
+Epoch: 1
+Version: 1.0
+Release: alt1
 
-Summary:	bash-completion offers programmable completion for bash
-License:	GPL
-Group:		Shells
-URL:		http://www.caliban.org/bash/
+Summary: bash-completion offers programmable completion for bash
+License: GPL2
+Group: Shells
+Url: http://www.caliban.org/bash/
+# http://bash-completion.alioth.debian.org/
 
-Source0:	http://www.caliban.org/files/bash/%name-%version.tar.bz2
-Source1:	bash-completion.sh
-Patch0:	bash-completion-20050103-alt-rsync.patch.gz
-Patch1:	bash-completion-20060301-alt-iptables.patch
+Packager: Ildar Mulyukov <ildar@altlinux.ru>
 
-Requires:	bash >= 2.05
-BuildArch:	noarch
+Source: %name-%version.tar
+# git://git.debian.org/git/bash-completion/bash-completion.git
+Patch: bash-completion-20050103-alt-rsync.patch
+Patch1: bash-completion-20060301-alt-iptables.patch
+
+Requires: bash >= 2.05
+BuildArch: noarch
 
 %description
 bash-completion is a collection of shell functions that take advantage
 of the programmable completion feature of bash 2.04 and later.
 
 %prep
-%setup -q -n bash_completion
-%patch0 -p0
-%patch1 -p0
+%setup -q
+%patch0 -p1
+%patch1 -p1
+
+%build
+./autogen.sh
+%configure
 
 %install
-%__install -d %buildroot%_sysconfdir/bash_completion.d/bash-completion.sh
-%__install bash_completion %buildroot%_sysconfdir
-
-%__mkdir_p %buildroot%_sysconfdir/bashrc.d/
-install -p -m755 -D %SOURCE1 $RPM_BUILD_ROOT%_sysconfdir/bashrc.d/%name.sh
+%makeinstall
+mkdir -p %buildroot%_sysconfdir/bashrc.d/
+install -p -m755 -D bash_completion.sh %buildroot%_sysconfdir/bashrc.d/
 
 %files
-%doc README Changelog contrib BUGS
+%doc AUTHORS CHANGES README TODO doc/*.txt
 %_sysconfdir/bash_completion
-%dir %_sysconfdir/bash_completion.d
-%attr(0755,root,root) %_sysconfdir/bashrc.d/%name.sh
-
+%_sysconfdir/bash_completion.d
+%_sysconfdir/bashrc.d/bash_completion.sh
 
 %changelog
+* Sat Jul 18 2009 Ildar Mulyukov <ildar@altlinux.ru> 1:1.0-alt1
+- new source origin
+- Epoch up - new versioning scheme
+
 * Tue Sep 23 2008 Alex Murygin <murygin@altlinux.ru> 20060301-alt06
 - patches section typo fix
 
 * Fri Feb 22 2008 Alex Murygin <murygin@altlinux.ru> 20060301-alt05
-- moved bash-completion.sh from profile.d to bashrc.d 
+- moved bash-completion.sh from profile.d to bashrc.d
     (13532, 9273, 9148, 13041, 14606)
 
 * Wed Oct 17 2007 Alex Murygin <murygin@altlinux.ru> 20060301-alt04
@@ -54,7 +63,7 @@ install -p -m755 -D %SOURCE1 $RPM_BUILD_ROOT%_sysconfdir/bashrc.d/%name.sh
 - fixed [9148] (bash-completion.sh changed)
 
 * Sat Mar 04 2006 Alex Murygin <murygin@altlinux.ru> 20060301-alt02
-- new version 
+- new version
 
 * Wed Jan 18 2006 Alex Murygin <murygin@altlinux.ru> 20050712-alt02
 - moved %_sysconfdir/profile.d/%name.sh from spec to source1
