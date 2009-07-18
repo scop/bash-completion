@@ -134,13 +134,23 @@ proc assert_complete_any {cmd {test ""} {prompt /@}} {
         # Escape special regexp characters
     regsub -all {([\[\]\(\)\.\\\+])} $cmd {\\\1} cmd
     expect {
+        -timeout 1
+        # Match completions, multiple words
         # NOTE: The `\S*' (zero or more non-whitespace characters) matches a
-        #       possible enlargement of a command's partial completion if the
-        #       list of completions have a larger common prefix.
+        #       longest common prefix of the completions shown.
         #       E.g. `fmt -' becomes `fmt --' (two dashes) when completing
         -re "^\r\n.*$prompt$cmd\\S*$" { pass "$test" }
+        timeout {
+            expect {
+                # Match completion, single word.  This word is shown on the
+                # same line as the command.
+                -re "^\\w+ $" { pass "$test" }
+                # Try matching multiple words again, with new timeout
+                -re "^\r\n.*$prompt$cmd\\S*$" { pass "$test" }
+            }
+        }
         -re $prompt { unresolved "$test at prompt" }
-        -re eof { unresolved "eof" }
+        eof { unresolved "eof" }
     }; # expect
 }; # assert_complete_any()
 
