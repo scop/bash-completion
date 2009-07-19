@@ -54,7 +54,6 @@ proc assert_bash_type {command} {
 
 # Make sure the expected items are returned by TAB-completing the specified
 # command.
-# Break items into chunks because `expect' seems to have a limited buffer size
 # @param list $expected
 # @param string $cmd  Command given to generate items
 # @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
@@ -98,34 +97,6 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
 }; # assert_complete()
 
 
-# Make sure a partial argument is completed.
-# A completion is tried with `$partial', or if this is empty, the first
-# character of the first item of `$expected'.  Only the items from $expected,
-# starting with this character are then expected as completions.
-# @param list $expected  List of all completions.
-# @param string $cmd  Command given to generate items
-# @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
-# @param string $prompt  (optional) Bash prompt.  Default is "/@"
-# @param integer $size  (optional) Chunk size.  Default is 20.
-# @result boolean  True if successful, False if not
-proc assert_complete_partial {expected cmd {partial ""} {test ""} {prompt /@} {size 20}} {
-    if {$test == ""} {set test "$cmd should complete partial argument"}
-    if {[llength $expected] == 0} {
-        unresolved "$test"
-    } else {
-        set pick {}
-        foreach item $expected {
-            if {$partial == ""} {set partial [string range $item 0 0]}
-                # Only append item if starting with $partial
-            if {[string range $item 0 [expr [string length $partial] - 1]] == "$partial"} {
-                lappend pick $item
-            }; # if
-        }; # foreach
-        assert_complete $pick "$cmd $partial" $test $prompt $size
-    }; # if
-}; # assert_complete_partial()
-
-
 # Make sure any completions are returned
 proc assert_complete_any {cmd {test ""} {prompt /@}} {
     if {$test == ""} {set test "$cmd should show completions"}
@@ -153,6 +124,53 @@ proc assert_complete_any {cmd {test ""} {prompt /@}} {
         eof { unresolved "eof" }
     }; # expect
 }; # assert_complete_any()
+
+
+# Make sure the expected files are returned by TAB-completing the
+# specified command in the specified subdirectory.
+# @param list $expected
+# @param string $cmd  Command given to generate items
+# @param string $dir  Subdirectory to attempt completion in.  The directory must be relative from the $TESTDIR and without a trailing slash.  E.g. `fixtures/evince'
+# @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
+# @param integer $size  (optional) Chunk size.  Default is 20.
+# @result boolean  True if successful, False if not
+proc assert_complete_dir {expected cmd dir {test ""} {size 20}} {
+    set prompt "/$dir/@"
+    assert_bash_exec "cd $dir" "" $prompt
+    assert_complete $expected $cmd $test $prompt $size
+    sync_after_int $prompt
+    assert_bash_exec "cd \$TESTDIR"
+}; # assert_complete_dir
+    
+
+
+# Make sure a partial argument is completed.
+# A completion is tried with `$partial', or if this is empty, the first
+# character of the first item of `$expected'.  Only the items from $expected,
+# starting with this character are then expected as completions.
+# @param list $expected  List of all completions.
+# @param string $cmd  Command given to generate items
+# @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
+# @param integer $size  (optional) Chunk size.  Default is 20.
+# @result boolean  True if successful, False if not
+proc assert_complete_partial {expected cmd {partial ""} {test ""} {prompt /@} {size 20}} {
+    if {$test == ""} {set test "$cmd should complete partial argument"}
+    if {[llength $expected] == 0} {
+        unresolved "$test"
+    } else {
+        set pick {}
+        foreach item $expected {
+            if {$partial == ""} {set partial [string range $item 0 0]}
+                # Only append item if starting with $partial
+            if {[string range $item 0 [expr [string length $partial] - 1]] == "$partial"} {
+                lappend pick $item
+            }; # if
+        }; # foreach
+        assert_complete $pick "$cmd $partial" $test $prompt $size
+    }; # if
+}; # assert_complete_partial()
 
 
 # Make sure the bash environment hasn't changed between now and the last call
@@ -248,7 +266,7 @@ proc assert_exec {cmd {stdout ''} {test ''}} {
 }; # assert_exec()
 
 
-# Get known hostnames
+# Get hostnames
 # @return list  Hostnames
 proc get_hosts {} {
     set hosts [exec bash -c "compgen -A hostname"]
@@ -264,6 +282,25 @@ proc get_hosts {} {
     }; # if
     return $hosts
 }; # get_hosts()
+
+
+# Get signals
+# This function is written in analogy to the bash function `_signals()' in
+# `bash_completion'.
+# @return list  Signals starting with `SIG', but with the `SIG' prefix removed.
+proc get_signals {} {
+    set signals {}
+    foreach signal [exec bash -c {compgen -A signal}] {
+            # Does signal start with `SIG'?
+        if {[string range $signal 0 [expr [string length "SIG"] - 1]] == "SIG"} {
+                # Remove `SIG' prefix
+            set signal [string range $signal 3 end]
+                # Add signal (with dash (-) prefix) to list
+            lappend signals -$signal
+        }; # if
+    }; # foreach
+    return $signals
+}; # get_signals()
 
 
 # Expect items.
@@ -368,7 +405,12 @@ proc sync_after_int {{prompt /@}} {
     set test "Sync after INT"
     sleep .1
     send \031\003;  # QUIT/INT
-    expect $prompt
+        # NOTE: Regexp `.*' causes `expect' to discard previous unknown output.
+        #       This is necessary if a completion doesn't match expectations.
+        #       For instance with `filetype_xpec' completion (e.g. `kdvi') if
+        #       one expects `.txt' as a completion (wrong, because it isn't
+        #       there), the unmatched completions need to be cleaned up.
+    expect -re ".*$prompt$"
 }; # sync_after_int()
 
 
