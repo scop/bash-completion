@@ -140,6 +140,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/xmlwf \
 		contrib/xmms \
 		contrib/xrandr \
+		contrib/xz \
 		contrib/yp-tools \
 		contrib/yum
 
