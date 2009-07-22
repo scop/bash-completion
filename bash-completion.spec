@@ -1,20 +1,23 @@
 Name: bash-completion
 Epoch: 1
 Version: 1.0
-Release: alt1
+Release: alt2
 
 Summary: bash-completion offers programmable completion for bash
 License: GPL2
 Group: Shells
-Url: http://www.caliban.org/bash/
-# http://bash-completion.alioth.debian.org/
+Url: http://%name.alioth.debian.org/
+# Old http://www.caliban.org/bash/
 
 Packager: Ildar Mulyukov <ildar@altlinux.ru>
 
 Source: %name-%version.tar
 # git://git.debian.org/git/bash-completion/bash-completion.git
-Patch: bash-completion-20050103-alt-rsync.patch
-Patch1: bash-completion-20060301-alt-iptables.patch
+Source1: rpm-cache.filetrigger
+Source2: _known_hosts_fix
+Patch: %name-20050103-alt-rsync.patch
+Patch1: %name-20060301-alt-iptables.patch
+Patch2: %name-bug15250.patch
 
 Requires: bash >= 2.05
 BuildArch: noarch
@@ -27,6 +30,7 @@ of the programmable completion feature of bash 2.04 and later.
 %setup -q
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %build
 ./autogen.sh
@@ -34,18 +38,26 @@ of the programmable completion feature of bash 2.04 and later.
 
 %install
 %makeinstall
-mkdir -p %buildroot%_sysconfdir/bashrc.d/
-install -p -m755 -D bash_completion.sh %buildroot%_sysconfdir/bashrc.d/
+install -p -m644 %SOURCE2 %buildroot%_sysconfdir/bash_completion.d/
+
+install -p -m755 -D bash_completion.sh %buildroot%_sysconfdir/bashrc.d/bash_completion.sh
+mkdir -p %buildroot%_rpmlibdir
+install -p -m755 %SOURCE1 %buildroot%_rpmlibdir/
 
 %files
 %doc AUTHORS CHANGES README TODO doc/*.txt
 %_sysconfdir/bash_completion
 %_sysconfdir/bash_completion.d
 %_sysconfdir/bashrc.d/bash_completion.sh
+%_rpmlibdir/*
 
 %changelog
+* Sun Jul 19 2009 Ildar Mulyukov <ildar@altlinux.ru> 1:1.0-alt2
+- add rpm filetrigger for updating a rpm cache
+- Closes: #15250
+
 * Sat Jul 18 2009 Ildar Mulyukov <ildar@altlinux.ru> 1:1.0-alt1
-- new source origin
+- new source origin (Closes: #18940)
 - Epoch up - new versioning scheme
 
 * Tue Sep 23 2008 Alex Murygin <murygin@altlinux.ru> 20060301-alt06

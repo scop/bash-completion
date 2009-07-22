@@ -1,0 +1,14 @@
+#!/bin/sh
+
+CACHE=/var/log/rpmpkgs
+
+if false; then
+    # Do not update more then 1 time per day
+    [ -s $CACHE ] &&
+	find $CACHE -mtime 0 > /dev/null &&
+	exit 0
+fi
+
+
+rpm -qa --qf '%{name}-%{version}-%{release}.%{arch}.rpm\n' \
+           | sort > $CACHE
