@@ -1,0 +1,95 @@
+proc setup {} {
+    save_env
+}; # setup()
+
+
+proc teardown {} {
+    assert_env_unmodified
+}; # teardown()
+
+
+setup
+
+
+assert_complete_any "perl "
+
+
+sync_after_int
+
+
+set test "Second argument should file complete"
+set cmd "perl foo fixture1/f"
+send "$cmd\t"
+expect {
+    -re "^$cmd\r\nfoo +foo.d/ *\r\n/@${cmd}oo$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}
+
+
+sync_after_int
+
+
+set test "-I without space should complete directories"
+set cmd "perl -Ifixture1/"
+send "$cmd\t"
+expect {
+    -re "^$cmd\r\nbar bar.d/ +foo.d/ *\r\n/@$cmd$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}
+
+
+sync_after_int
+
+
+set test "-I with space should complete directories"
+set cmd "perl -I fixture1/"
+send "$cmd\t"
+expect {
+    -re "^$cmd\r\nbar bar.d/ +foo.d/ *\r\n/@$cmd$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}
+
+
+sync_after_int
+
+
+set test "-x without space should complete directories"
+set cmd "perl -xfixture1/b"
+send "$cmd\t"
+expect {
+    -re "^${cmd}ar\\\\ bar.d/ *$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}
+
+
+sync_after_int
+
+
+set test "-x with space should complete directories"
+set cmd "perl -x fixture1/b"
+send "$cmd\t"
+expect {
+    -re "^${cmd}ar\\\\ bar.d/ *$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}
+
+
+sync_after_int
+
+
+set test "- should complete options"
+set options {
+    -0 -a -c -C -d -D -e -F -h -i -I -l -m -M -n -p -P -s -S -T -u -U -v -V -w -W -x -X
+}
+assert_complete $options "perl -"
+
+
+sync_after_int
+
+
+teardown
