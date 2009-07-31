@@ -65,8 +65,12 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
     send "$cmd\t"
     if {[llength $expected] == 1} {
         expect -ex "$cmd"
-            # Assume second word is word to complete on.
-        set cur [lindex [split $cmd] 1]
+        set cmds [split $cmd]
+        set cur "";  # Default to empty word to complete on
+        if {[llength $cmds] > 1} {
+                # Assume last word of `$cmd' is word to complete on.
+            set cur [lindex $cmds [expr [llength $cmds] - 1]]
+        }; # if
             # Remove second word from beginning of single item $expected
         if {[string first $cur $expected] == 0} {
             set expected [string range $expected [string length $cur] end]
@@ -181,7 +185,7 @@ proc assert_complete_partial {expected cmd {partial ""} {test ""} {prompt /@} {s
 #                         # Replace `COMP_PATH=.*' with `COMP_PATH=PATH'
 #                         assert_env_unmodified {s/COMP_PATH=.*/COMP_PATH=PATH/}
 #                  
-#                         # Remove lines containing with `OLDPWD='
+#                         # Remove lines containing `OLDPWD='
 #                         assert_env_unmodified {/OLDPWD=/d}
 # 
 # @param string $file  Filename to generate environment save file from.  See
@@ -277,7 +281,7 @@ proc get_hosts {} {
         type avahi-browse >&/dev/null && [ -n "$(pidof avahi-daemon)" ]
             avahi-browse -cpr _workstation._tcp | grep ^= | cut -d\; -f7 | sort -u
     }]
-    if {[llength $avahi_hosts] > 1} {
+    if {[llength $avahi_hosts] > 0} {
         lappend hosts $avahi_hosts
     }; # if
     return $hosts
@@ -342,7 +346,6 @@ proc match_items {items test {size 20}} {
 
 # Get real command.
 # - arg: $1  Command
-# - stdout:  Filename of command in PATH with possible symbolic links resolved.
 # - return:  Command found, empty string if not found
 proc realcommand {cmd} {
     set result ""

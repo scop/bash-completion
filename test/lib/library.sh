@@ -10,7 +10,7 @@
 # @param $1  Additional sed script
 diff_env() {
 	diff "$1" "$2" | sed -e "
-	/^[0-9]\+[acd]/d  # Remove diff line indicators
+	/^[0-9,]\+[acd]/d  # Remove diff line indicators
 	/---/d            # Remove diff block separators
 	/[<>] _=/d        # Remove underscore variable
 	/[<>] PPID=/d     # Remove PPID bash variable
