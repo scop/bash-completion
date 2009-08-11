@@ -1152,76 +1152,75 @@ _known_hosts_real()
 
 	# If we have known_hosts files to use
 	if [ ${#kh[@]} -gt 0 -o ${#khd[@]} -gt 0 -o -n "$configfile" ]; then
-	    # Escape slashes and dots in paths for awk
-	    awkcur=${cur//\//\\\/}
-	    awkcur=${awkcur//\./\\\.}
-	    curd=$awkcur
+		# Escape slashes and dots in paths for awk
+		awkcur=${cur//\//\\\/}
+		awkcur=${awkcur//\./\\\.}
+		curd=$awkcur
 
-	    if [[ "$awkcur" == [0-9]*.* ]]; then
-		# Digits followed by a dot - just search for that
-		awkcur="^$awkcur.*"
-	    elif [[ "$awkcur" == [0-9]* ]]; then
-		# Digits followed by no dot - search for digits followed
-		# by a dot
-		awkcur="^$awkcur.*\."
-	    elif [ -z "$awkcur" ]; then
-		# A blank - search for a dot or an alpha character
-		awkcur="[a-z.]"
-	    else
-		awkcur="^$awkcur"
-	    fi
+		if [[ "$awkcur" == [0-9]*.* ]]; then
+			# Digits followed by a dot - just search for that
+			awkcur="^$awkcur.*"
+		elif [[ "$awkcur" == [0-9]* ]]; then
+			# Digits followed by no dot - search for digits followed
+			# by a dot
+			awkcur="^$awkcur.*\."
+		elif [ -z "$awkcur" ]; then
+			# A blank - search for a dot or an alpha character
+			awkcur="[a-z.]"
+		else
+			awkcur="^$awkcur"
+		fi
 
-	    if [ ${#kh[@]} -gt 0 ]; then
-
-		# FS needs to look for a comma separated list
-		COMPREPLY=( $( awk 'BEGIN {FS=","}
+		if [ ${#kh[@]} -gt 0 ]; then
+			# FS needs to look for a comma separated list
+			COMPREPLY=( $( awk 'BEGIN {FS=","}
 				/^\s*[^|\#]/ {for (i=1; i<=2; ++i) { \
 				       gsub(" .*$", "", $i); \
 				       if ($i ~ /'$awkcur'/) {print $i} \
 				}}' "${kh[@]}" 2>/dev/null ) )
-	    fi
-	    if [ ${#khd[@]} -gt 0 ]; then
-		# Needs to look for files called
-		# .../.ssh2/key_22_<hostname>.pub
-		# dont fork any processes, because in a cluster environment,
-		# there can be hundreds of hostkeys
-		for i in "${khd[@]}" ; do
-		    if [[ "$i" == *key_22_$awkcurd*.pub ]] && [ -r "$i" ] ; then
-			host=${i/#*key_22_/}
-			host=${host/%.pub/}
-			COMPREPLY=( "${COMPREPLY[@]}" $host )
-		    fi
+		fi
+		if [ ${#khd[@]} -gt 0 ]; then
+			# Needs to look for files called
+			# .../.ssh2/key_22_<hostname>.pub
+			# dont fork any processes, because in a cluster environment,
+			# there can be hundreds of hostkeys
+			for i in "${khd[@]}" ; do
+				if [[ "$i" == *key_22_$awkcurd*.pub ]] && [ -r "$i" ] ; then
+					host=${i/#*key_22_/}
+					host=${host/%.pub/}
+					COMPREPLY=( "${COMPREPLY[@]}" $host )
+				fi
+			done
+		fi
+		# append any available aliases from config files
+		if [ ${#config[@]} -gt 0 ] && [ -n "$aliases" ]; then
+			local host_aliases=$( sed -ne 's/^[ \t]*[Hh][Oo][Ss][Tt]\([Nn][Aa][Mm][Ee]\)\?['"$'\t '"']\+\([^#*?]*\)\(#.*\)\?$/\2/p' "${config[@]}" )
+			hosts=$( compgen -W "$host_aliases" -- $cur )
+				COMPREPLY=( "${COMPREPLY[@]}" $hosts )
+		fi
+
+		# Add hosts reported by avahi, if it's available
+		# and if the daemon is started.
+		# The original call to avahi-browse also had "-k", to avoid
+		#  lookups into avahi's services DB. We don't need the name
+		#  of the service, and if it contains ";", it may mistify
+		#  the result. But on Gentoo (at least), -k isn't available
+		#  (even if mentioned in the manpage), so...
+		if type avahi-browse >&/dev/null; then
+			if [ -n "$(pidof avahi-daemon)" ]; then
+				COMPREPLY=( "${COMPREPLY[@]}" $(
+					compgen -W "$( avahi-browse -cpr _workstation._tcp | \
+					grep ^= | cut -d\; -f7 | sort -u )" -- $cur ) )
+			fi
+		fi
+
+		# Now add results of normal hostname completion
+		COMPREPLY=( "${COMPREPLY[@]}" $( compgen -A hostname -- $cur ) )
+
+		# apply suffix and prefix
+		for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
+			COMPREPLY[i]=$prefix$user${COMPREPLY[i]}$suffix
 		done
-	    fi
-	    # append any available aliases from config files
-	    if [ ${#config[@]} -gt 0 ] && [ -n "$aliases" ]; then
-	    local host_aliases=$( sed -ne 's/^[ \t]*[Hh][Oo][Ss][Tt]\([Nn][Aa][Mm][Ee]\)\?['"$'\t '"']\+\([^#*?]*\)\(#.*\)\?$/\2/p' "${config[@]}" )
-	    hosts=$( compgen -W "$host_aliases" -- $cur )
-		COMPREPLY=( "${COMPREPLY[@]}" $hosts )
-	    fi
-
-        # Add hosts reported by avahi, if it's available
-        # and if the daemon is started.
-        # The original call to avahi-browse also had "-k", to avoid
-        #  lookups into avahi's services DB. We don't need the name
-        #  of the service, and if it contains ";", it may mistify
-        #  the result. But on Gentoo (at least), -k isn't available
-        #  (even if mentioned in the manpage), so...
-        if type avahi-browse >&/dev/null; then
-            if [ -n "$(pidof avahi-daemon)" ]; then
-                COMPREPLY=( "${COMPREPLY[@]}" $(
-                    compgen -W "$( avahi-browse -cpr _workstation._tcp | \
-                                   grep ^= | cut -d\; -f7 | sort -u )" -- $cur ) )
-            fi
-        fi
-
-	    # Now add results of normal hostname completion
-	    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -A hostname -- $cur ) )
-
-	    # apply suffix and prefix
-	    for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
-		COMPREPLY[i]=$prefix$user${COMPREPLY[i]}$suffix
-	    done
 	elif [ -z "$configfile" ]; then
 	    # Just do normal hostname completion
 	    COMPREPLY=( $( compgen -A hostname -S "$suffix" -- $cur ) )
