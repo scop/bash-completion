@@ -1214,16 +1214,16 @@ _known_hosts_real()
 			fi
 		fi
 
-		# Now add results of normal hostname completion
-		COMPREPLY=( "${COMPREPLY[@]}" $( compgen -A hostname -- $cur ) )
-
 		# apply suffix and prefix
 		for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
 			COMPREPLY[i]=$prefix$user${COMPREPLY[i]}$suffix
 		done
-	elif [ -z "$configfile" ]; then
-	    # Just do normal hostname completion
-	    COMPREPLY=( $( compgen -A hostname -S "$suffix" -- $cur ) )
+	fi
+
+	# Add results of normal hostname completion, unless `COMP_KNOWN_HOSTS_WITH_HOSTFILE'
+	# is set to an empty value.
+	if [ -n "${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1}" ]; then
+		COMPREPLY=( "${COMPREPLY[@]}" $( compgen -A hostname -P "$prefix$user" -S "$suffix" -- $cur ) )
 	fi
 
 	return 0
