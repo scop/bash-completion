@@ -274,18 +274,26 @@ proc assert_exec {cmd {stdout ''} {test ''}} {
 # @return list  Hostnames
 proc get_hosts {} {
     set hosts [exec bash -c "compgen -A hostname"]
-    # NOTE: Circumenventing `avahi_host' and appending directly to `hosts'
+    # NOTE: Circumventing var `avahi_hosts' and appending directly to `hosts'
     #       causes an empty element to be inserted in `hosts'.
     #       -- FVu, Fri Jul 17 23:11:46 CEST 2009
-    set avahi_hosts [exec bash -c {
-        type avahi-browse >&/dev/null && [ -n "$(pidof avahi-daemon)" ]
-            avahi-browse -cpr _workstation._tcp | grep ^= | cut -d\; -f7 | sort -u
-    }]
+    set avahi_hosts [get_hosts_avahi]
     if {[llength $avahi_hosts] > 0} {
         lappend hosts $avahi_hosts
     }; # if
     return $hosts
 }; # get_hosts()
+
+
+# Get hostnames according to avahi
+# @return list  Hostnames
+proc get_hosts_avahi {} {
+    set hosts [exec bash -c {
+        type avahi-browse >&/dev/null && [ -n "$(pidof avahi-daemon)" ]
+            avahi-browse -cpr _workstation._tcp | grep ^= | cut -d\; -f7 | sort -u
+    }]
+    return $hosts
+}; # get_hosts_avahi()
 
 
 # Get signals
