@@ -52,6 +52,29 @@ proc assert_bash_type {command} {
 }; # assert_bash_type()
 
 
+# Make sure the expected list is returned by executing the specified command.
+# @param list $expected
+# @param string $cmd  Command given to generate items
+# @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
+# @param integer $size  (optional) Chunk size.  Default is 20.
+# @result boolean  True if successful, False if not
+proc assert_bash_list {expected cmd {test ""} {prompt /@} {size 20}} {
+    if {$test == ""} {set test "$cmd should show expected output"}
+    send "$cmd\r\n"
+    expect -ex "$cmd\r\n"
+
+    if {[match_items $expected $test]} {
+        expect {
+            -re $prompt { pass "$test" }
+            -re eof { unresolved "eof" }
+        }; # expect
+    } else {
+        fail "$test"
+    }; # if
+}; # assert_bash_list()
+
+
 # Make sure the expected items are returned by TAB-completing the specified
 # command.
 # @param list $expected
@@ -328,7 +351,7 @@ proc match_items {items test {size 20}} {
         for {set j 0} {$j < $size && $i + $j < [llength $items]} {incr j} {
             set item "[lindex $items [expr {$i + $j}]]"
                 # Escape special regexp characters
-            regsub -all {([\[\]\(\)\.\\\+])} $item {\\\1} item
+            regsub -all {([\[\]\(\)\.\\\+\*])} $item {\\\1} item
             append expected $item
             if {[llength $items] > 1} {append expected {\s+}};
         }; # for
