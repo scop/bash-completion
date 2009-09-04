@@ -121,6 +121,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/snownews \
 		contrib/ssh \
 		contrib/strace \
+		contrib/sudo \
 		contrib/svk \
 		contrib/sysctl \
 		contrib/sysv-rc \
