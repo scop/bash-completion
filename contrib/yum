@@ -28,6 +28,12 @@ _yum_repolist()
 		sed -ne '/^repo\(\s\+id\|list:\)/d' -e 's/[[:space:]].*//p'
 }
 
+_yum_plugins()
+{
+	command ls /usr/lib/yum-plugins/*.py{,c,o} 2>/dev/null \
+		| sed -ne 's|.*/\([^./]*\)\.py[co]\?$|\1|p' | sort -u
+}
+
 _yum()
 {
 	local cur prev special split=false
@@ -109,6 +115,9 @@ _yum()
 		--disableexcludes)
 			COMPREPLY=( $( compgen -W '$( _yum_repolist all ) \
 				all main' -- $cur ) )
+			;;
+		--enableplugin|--disableplugin)
+			COMPREPLY=( $( compgen -W '$( _yum_plugins )' -- $cur ))
 			;;
 		--color)
 			COMPREPLY=( $( compgen -W 'always auto never' -- $cur ))
