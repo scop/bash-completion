@@ -311,10 +311,15 @@ proc get_hosts {} {
 # Get hostnames according to avahi
 # @return list  Hostnames
 proc get_hosts_avahi {} {
-    set hosts [exec bash -c {
+        # Retrieving hosts is successful?
+    if { [catch {exec bash -c {
         type avahi-browse >&/dev/null && [ -n "$(pidof avahi-daemon)" ]
-            avahi-browse -cpr _workstation._tcp | grep ^= | cut -d\; -f7 | sort -u
-    }]
+            && avahi-browse -cpr _workstation._tcp | grep ^= | cut -d\; -f7 | sort -u
+    }} hosts] } {
+        # No, retrieving hosts yields error;
+            # Reset hosts
+        set hosts {}
+    }; # if
     return $hosts
 }; # get_hosts_avahi()
 
