@@ -246,33 +246,29 @@ dequote()
 # for things like scp where we want to return host:path and not only path.
 _get_cword()
 {
-	if [[ "${#COMP_WORDS[COMP_CWORD]}" -eq 0 ]] || [[ "$COMP_POINT" == "${#COMP_LINE}" ]]; then
-		printf "%s" "${COMP_WORDS[COMP_CWORD]}"
-	else
-		local i
-		local cur="$COMP_LINE"
-		local index="$COMP_POINT"
-		for (( i = 0; i <= COMP_CWORD; ++i )); do
-			while [[ "${#cur}" -ge ${#COMP_WORDS[i]} ]] && [[ "${cur:0:${#COMP_WORDS[i]}}" != "${COMP_WORDS[i]}" ]]; do
-				cur="${cur:1}"
-				index="$(( index - 1 ))"
-			done
-			if [[ "$i" -lt "$COMP_CWORD" ]]; then
-				local old_size="${#cur}"
-				cur="${cur#${COMP_WORDS[i]}}"
-				local new_size="${#cur}"
-				index="$(( index - old_size + new_size ))"
-			fi
+	local i
+	local LC_CTYPE=C
+	local WORDBREAKS=${COMP_WORDBREAKS}
+	if [ -n $1 ]; then
+		for (( i=0; i<${#1}; ++i )); do
+			local char=${1:$i:1}
+			WORDBREAKS=${WORDBREAKS//$char/}
 		done
-
-		if [[ "${COMP_WORDS[COMP_CWORD]:0:${#cur}}" != "$cur" ]]; then
-			# We messed up! At least return the whole word so things
-			# keep working
-			printf "%s" "${COMP_WORDS[COMP_CWORD]}"
-		else
-			printf "%s" "${cur:0:$index}"
-		fi
 	fi
+	local cur=${COMP_LINE:0:$COMP_POINT}
+	local tmp="${cur}"
+	local word_start=`expr "$tmp" : '.*['"${WORDBREAKS}"']'`
+	while [ "$word_start" -ge 2 ]; do
+		local char=${cur:$(( $word_start - 2 )):1}
+		if [ "$char" != "\\" ]; then
+			break
+		fi
+		tmp=${COMP_LINE:0:$(( $word_start - 2 ))}
+		word_start=`expr "$tmp" : '.*['"${WORDBREAKS}"']'`
+	done
+
+	cur=${cur:$word_start}
+	printf "%s" "$cur"
 }
 
 # This function performs file and directory completion. It's better than
@@ -551,7 +547,7 @@ _modules()
 #
 _installed_modules()
 {
-	COMPREPLY=( $( compgen -W "$( /sbin/lsmod | \
+	COMPREPLY=( $( compgen -W "$( PATH="$PATH:/sbin" lsmod | \
 				  awk '{if (NR != 1) print $1}' )" -- $1 ) )
 }
 
@@ -1176,7 +1172,7 @@ _known_hosts_real()
 			COMPREPLY=( $( awk 'BEGIN {FS=","}
 				/^\s*[^|\#]/ {for (i=1; i<=2; ++i) { \
 				       gsub(" .*$", "", $i); \
-				       if ($i ~ /'$awkcur'/) {print $i} \
+				       if ($i ~ /'"$awkcur"'/) {print $i} \
 				}}' "${kh[@]}" 2>/dev/null ) )
 		fi
 		if [ ${#khd[@]} -gt 0 ]; then
