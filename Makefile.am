@@ -53,6 +53,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/imagemagick \
 		contrib/info \
 		contrib/iptables \
+		contrib/ipmitool \
 		contrib/isql \
 		contrib/jar \
 		contrib/java \
