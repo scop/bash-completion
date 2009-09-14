@@ -73,7 +73,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/man \
 		contrib/mc \
 		contrib/mcrypt \
-		contrib/mdam \
+		contrib/mdadm \
 		contrib/minicom \
 		contrib/mkinitrd \
 		contrib/mock \
