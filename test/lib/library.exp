@@ -1,22 +1,31 @@
+    # Source `init.tcl' again to restore the `unknown' procedure
+    # NOTE: DejaGnu has an old `unknown' procedure which unfortunately disables
+    #       tcl auto-loading.
+source [file join [info library] init.tcl]
+package require textutil::string
+
+
+
 # Execute a bash command and make sure the exit status is succesful.
 # If not, output the error message.
 # @param string $cmd  Bash command line to execute.  If emptry string (""), the
 #                     exit status of the previously executed bash command will be 
 #                     checked; specify `title' to adorn the error message.
 # @param string $title  (optional) Command title.  If empty, `cmd' is used.
-proc assert_bash_exec {{aCmd ""} {title ""}} {
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
+proc assert_bash_exec {{aCmd ""} {title ""} {prompt /@}} {
     if {[string length $aCmd] != 0} {
         send "$aCmd\r"
         expect -ex "$aCmd\r\n"
     }; # if
     if {[string length $title] == 0} {set title $aCmd}
-    expect -ex "/@"
+    expect -ex $prompt
     set out $expect_out(buffer);  # Catch (non-expected) output
     set cmd "echo $?"
     send "$cmd\r"
     expect {
-        -ex "$cmd\r\n0\r\n/@" {}
-        /@ {
+        -ex "$cmd\r\n0\r\n$prompt" {}
+        $prompt {
             if {[info exists multipass_name]} {
                 fail "ERROR executing bash command \"$title\""
             }; # if
@@ -43,12 +52,35 @@ proc assert_bash_type {command} {
 }; # assert_bash_type()
 
 
-# Make sure the expected items are also returned by TAB-completing the
-# specified command.
-# Break items into chunks because `expect' seems to have a limited buffer size
+# Make sure the expected list is returned by executing the specified command.
 # @param list $expected
 # @param string $cmd  Command given to generate items
 # @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
+# @param integer $size  (optional) Chunk size.  Default is 20.
+# @result boolean  True if successful, False if not
+proc assert_bash_list {expected cmd {test ""} {prompt /@} {size 20}} {
+    if {$test == ""} {set test "$cmd should show expected output"}
+    send "$cmd\r\n"
+    expect -ex "$cmd\r\n"
+
+    if {[match_items $expected $test]} {
+        expect {
+            -re $prompt { pass "$test" }
+            -re eof { unresolved "eof" }
+        }; # expect
+    } else {
+        fail "$test"
+    }; # if
+}; # assert_bash_list()
+
+
+# Make sure the expected items are returned by TAB-completing the specified
+# command.
+# @param list $expected
+# @param string $cmd  Command given to generate items
+# @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
 # @param integer $size  (optional) Chunk size.  Default is 20.
 # @result boolean  True if successful, False if not
 proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
@@ -56,8 +88,12 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
     send "$cmd\t"
     if {[llength $expected] == 1} {
         expect -ex "$cmd"
-            # Assume second word is word to complete on.
-        set cur [lindex [split $cmd] 1]
+        set cmds [split $cmd]
+        set cur "";  # Default to empty word to complete on
+        if {[llength $cmds] > 1} {
+                # Assume last word of `$cmd' is word to complete on.
+            set cur [lindex $cmds [expr [llength $cmds] - 1]]
+        }; # if
             # Remove second word from beginning of single item $expected
         if {[string first $cur $expected] == 0} {
             set expected [string range $expected [string length $cur] end]
@@ -70,8 +106,14 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
         if {[llength $expected] == 1} {
             pass "$test"
         } else {
+            # Remove optional (partial) argument from `cmd'.
+            # E.g. "finger test@" becomes "finger"
+            set cmd2 [lindex [split $cmd] 0]
+            # Determine common prefix of completions
+            set common [::textutil::string::longestCommonPrefixList $expected]
+            if {[string length $common] > 0} {set common " $common"}
             expect {
-                -ex "$prompt$cmd" { pass "$test" }
+                -ex "$prompt$cmd2$common" { pass "$test" }
                 -re $prompt { unresolved "$test at prompt" }
                 -re eof { unresolved "eof" }
             }; # expect
@@ -82,6 +124,54 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
 }; # assert_complete()
 
 
+# Make sure any completions are returned
+proc assert_complete_any {cmd {test ""} {prompt /@}} {
+    if {$test == ""} {set test "$cmd should show completions"}
+    send "$cmd\t"
+    expect -ex "$cmd"
+        # Escape special regexp characters
+    regsub -all {([\[\]\(\)\.\\\+])} $cmd {\\\1} cmd
+    expect {
+        -timeout 1
+        # Match completions, multiple words
+        # NOTE: The `\S*' (zero or more non-whitespace characters) matches a
+        #       longest common prefix of the completions shown.
+        #       E.g. `fmt -' becomes `fmt --' (two dashes) when completing
+        -re "^\r\n.*$prompt$cmd\\S*$" { pass "$test" }
+        timeout {
+            expect {
+                # Match completion, single word.  This word is shown on the
+                # same line as the command.
+                -re "^\\w+ $" { pass "$test" }
+                # Try matching multiple words again, with new timeout
+                -re "^\r\n.*$prompt$cmd\\S*$" { pass "$test" }
+            }
+        }
+        -re $prompt { unresolved "$test at prompt" }
+        eof { unresolved "eof" }
+    }; # expect
+}; # assert_complete_any()
+
+
+# Make sure the expected files are returned by TAB-completing the
+# specified command in the specified subdirectory.
+# @param list $expected
+# @param string $cmd  Command given to generate items
+# @param string $dir  Subdirectory to attempt completion in.  The directory must be relative from the $TESTDIR and without a trailing slash.  E.g. `fixtures/evince'
+# @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
+# @param integer $size  (optional) Chunk size.  Default is 20.
+# @result boolean  True if successful, False if not
+proc assert_complete_dir {expected cmd dir {test ""} {size 20}} {
+    set prompt "/$dir/@"
+    assert_bash_exec "cd $dir" "" $prompt
+    assert_complete $expected $cmd $test $prompt $size
+    sync_after_int $prompt
+    assert_bash_exec "cd \$TESTDIR"
+}; # assert_complete_dir
+    
+
+
 # Make sure a partial argument is completed.
 # A completion is tried with `$partial', or if this is empty, the first
 # character of the first item of `$expected'.  Only the items from $expected,
@@ -89,6 +179,7 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
 # @param list $expected  List of all completions.
 # @param string $cmd  Command given to generate items
 # @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
 # @param integer $size  (optional) Chunk size.  Default is 20.
 # @result boolean  True if successful, False if not
 proc assert_complete_partial {expected cmd {partial ""} {test ""} {prompt /@} {size 20}} {
@@ -109,28 +200,17 @@ proc assert_complete_partial {expected cmd {partial ""} {test ""} {prompt /@} {s
 }; # assert_complete_partial()
 
 
-# Make sure any completions are returned
-proc assert_complete_any {cmd {test ""} {prompt /@}} {
-    if {$test == ""} {set test "$cmd should show completions"}
-    send "$cmd\t"
-    expect -ex "$cmd"
-        # Escape special regexp characters
-    regsub -all {([\[\]\(\)\.\\\+])} $cmd {\\\1} cmd
-        # NOTE: A timeout of 1 is used to match quicker when no completion are
-        #       returned.  E.g. within `cancel.exp' when no print jobs are available.
-    expect {
-        -timeout 1
-        -re "^\r\n.*$prompt$cmd$" { pass "$test" }
-        -re /@ { unresolved "$test at prompt" }
-        -re eof { unresolved "eof" }
-    }; # expect
-}; # assert_complete_any()
-
-
 # Make sure the bash environment hasn't changed between now and the last call
 # to `save_env()'.
 # @param string $sed  Sed commands to preprocess diff output.
-#                     E.g.: s/COMP_PATH=.*/COMP_PATH=PATH/
+#                     Example calls:
+#                  
+#                         # Replace `COMP_PATH=.*' with `COMP_PATH=PATH'
+#                         assert_env_unmodified {s/COMP_PATH=.*/COMP_PATH=PATH/}
+#                  
+#                         # Remove lines containing `OLDPWD='
+#                         assert_env_unmodified {/OLDPWD=/d}
+# 
 # @param string $file  Filename to generate environment save file from.  See
 #                      `gen_env_filename()'.
 # @param string $diff  Expected diff output (after being processed by $sed)
@@ -213,16 +293,54 @@ proc assert_exec {cmd {stdout ''} {test ''}} {
 }; # assert_exec()
 
 
-# Get known hostnames
+# Get hostnames
 # @return list  Hostnames
 proc get_hosts {} {
     set hosts [exec bash -c "compgen -A hostname"]
-    lappend hosts [exec bash -c {
-        type avahi-browse >&/dev/null && 
-            avahi-browse -kcpr _workstation._tcp | grep ^= | cut -d\; -f7 | sort -u
-    }]
+    # NOTE: Circumventing var `avahi_hosts' and appending directly to `hosts'
+    #       causes an empty element to be inserted in `hosts'.
+    #       -- FVu, Fri Jul 17 23:11:46 CEST 2009
+    set avahi_hosts [get_hosts_avahi]
+    if {[llength $avahi_hosts] > 0} {
+        lappend hosts $avahi_hosts
+    }; # if
     return $hosts
 }; # get_hosts()
+
+
+# Get hostnames according to avahi
+# @return list  Hostnames
+proc get_hosts_avahi {} {
+        # Retrieving hosts is successful?
+    if { [catch {exec bash -c {
+        type avahi-browse >&/dev/null && [ -n "$(pidof avahi-daemon)" ]
+            && avahi-browse -cpr _workstation._tcp | grep ^= | cut -d\; -f7 | sort -u
+    }} hosts] } {
+        # No, retrieving hosts yields error;
+            # Reset hosts
+        set hosts {}
+    }; # if
+    return $hosts
+}; # get_hosts_avahi()
+
+
+# Get signals
+# This function is written in analogy to the bash function `_signals()' in
+# `bash_completion'.
+# @return list  Signals starting with `SIG', but with the `SIG' prefix removed.
+proc get_signals {} {
+    set signals {}
+    foreach signal [exec bash -c {compgen -A signal}] {
+            # Does signal start with `SIG'?
+        if {[string range $signal 0 [expr [string length "SIG"] - 1]] == "SIG"} {
+                # Remove `SIG' prefix
+            set signal [string range $signal 3 end]
+                # Add signal (with dash (-) prefix) to list
+            lappend signals -$signal
+        }; # if
+    }; # foreach
+    return $signals
+}; # get_signals()
 
 
 # Expect items.
@@ -231,20 +349,19 @@ proc get_hosts {} {
 # @param integer $size  Chunk size
 # @result boolean  True if successful, False if not
 proc match_items {items test {size 20}} {
-    set items [lsort -ascii $items]
+    set items [exec sort << [join $items "\n"]]
     set result false
     for {set i 0} {$i < [llength $items]} {set i [expr {$i + $size}]} {
         set expected ""
         for {set j 0} {$j < $size && $i + $j < [llength $items]} {incr j} {
             set item "[lindex $items [expr {$i + $j}]]"
                 # Escape special regexp characters
-            regsub -all {([\[\]\(\)\.\\\+])} $item {\\\1} item
+            regsub -all {([\[\]\(\)\.\\\+\*])} $item {\\\1} item
             append expected $item
             if {[llength $items] > 1} {append expected {\s+}};
         }; # for
         if {[llength $items] == 1} {
             expect {
-                -timeout 1
                 -re "$expected" { set result true }
                 "\r\n" { set result false; break }
                 default { set result false; break }
@@ -252,7 +369,6 @@ proc match_items {items test {size 20}} {
             }; # expect
         } else {
             expect {
-                -timeout 1
                 -re "$expected" { set result true }
                 default { set result false; break }
                 timeout { set result false; break }
@@ -266,7 +382,6 @@ proc match_items {items test {size 20}} {
 
 # Get real command.
 # - arg: $1  Command
-# - stdout:  Filename of command in PATH with possible symbolic links resolved.
 # - return:  Command found, empty string if not found
 proc realcommand {cmd} {
     set result ""
@@ -324,11 +439,17 @@ proc _save_env {{file ""}} {
 
 # Interrupt completion and sync with prompt.
 # Send signals QUIT & INT.
-proc sync_after_int {} {
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
+proc sync_after_int {{prompt /@}} {
     set test "Sync after INT"
     sleep .1
     send \031\003;  # QUIT/INT
-    expect /@
+        # NOTE: Regexp `.*' causes `expect' to discard previous unknown output.
+        #       This is necessary if a completion doesn't match expectations.
+        #       For instance with `filetype_xpec' completion (e.g. `kdvi') if
+        #       one expects `.txt' as a completion (wrong, because it isn't
+        #       there), the unmatched completions need to be cleaned up.
+    expect -re ".*$prompt$"
 }; # sync_after_int()
 
 

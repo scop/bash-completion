@@ -1,0 +1,77 @@
+proc setup {} {
+    save_env
+}; # setup()
+
+
+proc teardown {} {
+    assert_env_unmodified {
+        /BASH_LINENO=/d
+        /BASH_SOURCE=/d
+        /OLDPWD=/d
+    }
+}; # teardown()
+
+
+setup
+
+
+    # Build string list of expected completions
+set expected [get_hosts]
+    # Hosts `gee' and `hus' are defined in ./fixtures/sftp/config
+    # Hosts `doo' and `ike' are defined in ./fixtures/sftp/known_hosts
+lappend expected doo gee hus ike
+set dir fixtures/scp
+assert_complete_dir $expected "sftp -F config " $dir
+
+
+sync_after_int
+
+
+set test "-F without space shouldn't error"
+    # Try completion
+set cmd "sftp -F"
+send "$cmd\t "
+expect {
+    -re "^${cmd}bash: option requires an argument -- F" { fail "$test" }
+    -re "^$cmd\r\n.*\r\n/@" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+    # Build string list of expected completions
+    # Get hostnames and give them a colon (:) suffix
+set expected [get_hosts]
+    # Hosts `gee', `hus' and `jar' are defined in "./fixtures/scp/spaced  conf"
+    # Hosts `doo' and `ike' are defined in ./fixtures/scp/known_hosts
+lappend expected doo gee hus ike jar
+set dir fixtures/scp
+assert_complete_dir $expected "sftp -F 'spaced  conf' " $dir
+
+
+sync_after_int
+
+
+set test "-F should complete filename"
+set dir fixtures/sftp
+set prompt "/$dir/@"
+assert_bash_exec "cd $dir" "" $prompt
+set cmd "ssh -Fsp"
+send "$cmd\t"
+expect -ex "$cmd"
+expect {
+    -ex "aced\\ \\ conf"  { pass "$test" }
+        # _filedir works only if `-o filenames' is in effect, which isn't the
+        # case for `sftp'
+    -re "aced  conf" { xfail "$test" }
+    -re $prompt { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+sync_after_int $prompt
+assert_bash_exec "cd \$TESTDIR"
+
+
+teardown

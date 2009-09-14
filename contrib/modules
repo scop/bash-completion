@@ -17,7 +17,9 @@
 # module command is an alias, and the `module avail' command returns
 # its output as stderr.
 
-type module &>/dev/null && {
+# Test for existence of /etc/profile.d/modules.sh too because we may end up
+# being sourced before it and thus before the `module' alias has been defined.
+have module || [ -f /etc/profile.d/modules.sh ] && {
 
 _module_list ()
 {
@@ -80,5 +82,5 @@ _module () {
    fi
    return 0
 }
-complete -o default -F _module module
+complete -F _module $default module
 }

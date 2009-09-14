@@ -65,6 +65,7 @@ if [ ${BASH_VERSINFO[0]} -eq 2 ] && [[ ${BASH_VERSINFO[1]} > 04 ]] ||
 	default="-o default"
 	dirnames="-o dirnames"
 	filenames="-o filenames"
+	compopt=:
 fi
 # features supported by bash 2.05b and higher
 if [ ${BASH_VERSINFO[0]} -eq 2 ] && [[ ${BASH_VERSINFO[1]} = "05b" ]] ||
@@ -81,6 +82,7 @@ fi
 # features supported by bash 4.0 and higher
 if [ ${BASH_VERSINFO[0]} -gt 3 ]; then
 	declare -r bash4=$BASH_VERSION 2>/dev/null || :
+	compopt=compopt
 fi
 
 # Turn on extended globbing and programmable completion
@@ -96,17 +98,16 @@ complete -d pushd
 # Do NOT break these over multiple lines.
 #
 # START exclude -- do NOT remove this line
-complete -f -X '!*.?(t)bz?(2)' bunzip2
-# TODO: see #455510
-#complete -f -X '!*.?(t)bz?(2)' bzcat bzcmp bzdiff bzegrep bzfgrep bzgrep
-complete -f -X '!*.*' bzcat bzcmp bzdiff bzegrep bzfgrep bzgrep
+# bzcmp, bzdiff, bz*grep, bzless, bzmore intentionally not here, see Debian: #455510
+complete -f -X '!*.?(t)bz?(2)' bunzip2 bzcat
 complete -f -X '!*.@(zip|ZIP|jar|JAR|exe|EXE|pk3|war|wsz|ear|zargo|xpi|sxw|ott|od[fgpst]|epub)' unzip zipinfo
 complete -f -X '*.Z' compress znew
-complete -f -X '!*.@(Z|gz|tgz|Gz|dz)' gunzip
-# TODO: see #455510
-#complete -f -X '!*.@(Z|gz|tgz|Gz|dz)' zcmp zdiff zcat zegrep zfgrep zgrep zless zmore
-complete -f -X '!*.*' zcmp zdiff zcat zegrep zfgrep zgrep zless zmore
+# zcmp, zdiff, z*grep, zless, zmore intentionally not here, see Debian: #455510
+complete -f -X '!*.@(Z|gz|tgz|Gz|dz)' gunzip zcat
 complete -f -X '!*.Z' uncompress
+# lzcmp, lzdiff intentionally not here, see Debian: #455510
+complete -f -X '!*.lzma' lzcat lzegrep lzfgrep lzgrep lzless lzmore unlzma
+complete -f -X '!*.@(xz|lzma)' unxz xzcat
 complete -f -X '!*.@(gif|jp?(e)g|miff|tif?(f)|pn[gm]|p[bgp]m|bmp|xpm|ico|xwd|tga|pcx|GIF|JP?(E)G|MIFF|TIF?(F)|PN[GM]|P[BGP]M|BMP|XPM|ICO|XWD|TGA|PCX)' ee
 complete -f -X '!*.@(gif|jp?(e)g|tif?(f)|png|p[bgp]m|bmp|x[bp]m|rle|rgb|pcx|fits|pm|GIF|JPG|JP?(E)G|TIF?(F)|PNG|P[BGP]M|BMP|X[BP]M|RLE|RGB|PCX|FITS|PM)' xv qiv
 complete -f -X '!*.@(@(?(e)ps|?(E)PS|pdf|PDF)?(.gz|.GZ|.bz2|.BZ2|.Z))' gv ggv kghostview
@@ -120,7 +121,7 @@ complete -f -X '!*.@(?(e)ps|?(E)PS|pdf|PDF)' ps2pdf ps2pdf12 ps2pdf13 ps2pdf14 p
 complete -f -X '!*.texi*' makeinfo texi2html
 complete -f -X '!*.@(?(la)tex|?(LA)TEX|texi|TEXI|dtx|DTX|ins|INS)' tex latex slitex jadetex pdfjadetex pdftex pdflatex texi2dvi
 complete -f -X '!*.@(mp3|MP3)' mpg123 mpg321 madplay
-complete -f -X '!*@(.@(mp?(e)g|MP?(E)G|wma|avi|AVI|asf|vob|VOB|bin|dat|divx|DIVX|vcd|ps|pes|fli|flv|FLV|viv|rm|ram|yuv|mov|MOV|qt|QT|wmv|mp[234]|MP[234]|m4[pv]|M4[PV]|mkv|MKV|ogg|OGG|ogm|OGM|wav|WAV|asx|ASX|mng|MNG|srt|m[eo]d|M[EO]D|s[3t]m|S[3T]M|it|IT|xm|XM)|+([0-9]).@(vdr|VDR))' xine aaxine fbxine kaffeine
+complete -f -X '!*@(.@(mp?(e)g|MP?(E)G|wma|avi|AVI|asf|vob|VOB|bin|dat|divx|DIVX|vcd|ps|pes|fli|flv|FLV|viv|rm|ram|yuv|mov|MOV|qt|QT|wmv|mp[234]|MP[234]|m4[pv]|M4[PV]|mkv|MKV|og[gmv]|OG[GMV]|wav|WAV|asx|ASX|mng|MNG|srt|m[eo]d|M[EO]D|s[3t]m|S[3T]M|it|IT|xm|XM)|+([0-9]).@(vdr|VDR))' xine aaxine fbxine kaffeine
 complete -f -X '!*.@(avi|asf|wmv)' aviplay
 complete -f -X '!*.@(rm?(j)|ra?(m)|smi?(l))' realplay
 complete -f -X '!*.@(mpg|mpeg|avi|mov|qt)' xanim
@@ -144,6 +145,7 @@ complete -f -X '!*.odb' oobase
 complete -f -X '!*.rpm' rpm2cpio
 complete -f -X '!*.sqlite' sqlite3
 complete -f -X '!*.aux' bibtex
+complete -f -X '!*.po' poedit gtranslator kbabel lokalize
 # FINISH exclude -- do not remove this line
 
 # start of section containing compspecs that can be handled within bash
@@ -211,7 +213,7 @@ quote()
 	echo \'${1//\'/\'\\\'\'}\' #'# Help vim syntax highlighting
 }
 
-# This function quotes the argument in a way so that readline dequoting 
+# This function quotes the argument in a way so that readline dequoting
 # results in the original argument
 quote_readline()
 {
@@ -244,33 +246,29 @@ dequote()
 # for things like scp where we want to return host:path and not only path.
 _get_cword()
 {
-	if [[ "${#COMP_WORDS[COMP_CWORD]}" -eq 0 ]] || [[ "$COMP_POINT" == "${#COMP_LINE}" ]]; then
-		printf "%s" "${COMP_WORDS[COMP_CWORD]}"
-	else
-		local i
-		local cur="$COMP_LINE"
-		local index="$COMP_POINT"
-		for (( i = 0; i <= COMP_CWORD; ++i )); do
-			while [[ "${#cur}" -ge ${#COMP_WORDS[i]} ]] && [[ "${cur:0:${#COMP_WORDS[i]}}" != "${COMP_WORDS[i]}" ]]; do
-				cur="${cur:1}"
-				index="$(( index - 1 ))"
-			done
-			if [[ "$i" -lt "$COMP_CWORD" ]]; then
-				local old_size="${#cur}"
-				cur="${cur#${COMP_WORDS[i]}}"
-				local new_size="${#cur}"
-				index="$(( index - old_size + new_size ))"
-			fi
+	local i
+	local LC_CTYPE=C
+	local WORDBREAKS=${COMP_WORDBREAKS}
+	if [ -n $1 ]; then
+		for (( i=0; i<${#1}; ++i )); do
+			local char=${1:$i:1}
+			WORDBREAKS=${WORDBREAKS//$char/}
 		done
-		
-		if [[ "${COMP_WORDS[COMP_CWORD]:0:${#cur}}" != "$cur" ]]; then
-			# We messed up! At least return the whole word so things 
-			# keep working
-			printf "%s" "${COMP_WORDS[COMP_CWORD]}"
-		else
-			printf "%s" "${cur:0:$index}"
-		fi
 	fi
+	local cur=${COMP_LINE:0:$COMP_POINT}
+	local tmp="${cur}"
+	local word_start=`expr "$tmp" : '.*['"${WORDBREAKS}"']'`
+	while [ "$word_start" -ge 2 ]; do
+		local char=${cur:$(( $word_start - 2 )):1}
+		if [ "$char" != "\\" ]; then
+			break
+		fi
+		tmp=${COMP_LINE:0:$(( $word_start - 2 ))}
+		word_start=`expr "$tmp" : '.*['"${WORDBREAKS}"']'`
+	done
+
+	cur=${cur:$word_start}
+	printf "%s" "$cur"
 }
 
 # This function performs file and directory completion. It's better than
@@ -286,16 +284,16 @@ _filedir()
 
 	local -a toks
 	local tmp
-	
+
 	# TODO: I've removed a "[ -n $tmp ] &&" before `echo $tmp',
 	#       and everything works again. If this bug
 	#       suddenly appears again (i.e. "cd /b<TAB>"
 	#       becomes "cd /"), remember to check for
 	#       other similar conditionals (here and
 	#       _filedir_xspec()). --David
-	# NOTE: The comment above has been moved outside of the subshell below, 
+	# NOTE: The comment above has been moved outside of the subshell below,
 	#       because quotes-in-comments-in-a-subshell cause errors on
-	#       bash-3.1.  See also: 
+	#       bash-3.1.  See also:
 	#       http://www.mail-archive.com/bug-bash@gnu.org/msg01667.html
 	toks=( ${toks[@]-} $(
 		compgen -d -- "$(quote_readline "$cur")" | {
@@ -304,7 +302,7 @@ _filedir()
 			done
 		}
 	))
-	
+
 	if [[ "$1" != -d ]]; then
 		xspec=${1:+"!*.$1"}
 		toks=( ${toks[@]-} $(
@@ -549,7 +547,7 @@ _modules()
 #
 _installed_modules()
 {
-	COMPREPLY=( $( compgen -W "$( /sbin/lsmod | \
+	COMPREPLY=( $( compgen -W "$( PATH="$PATH:/sbin" lsmod | \
 				  awk '{if (NR != 1) print $1}' )" -- $1 ) )
 }
 
@@ -637,7 +635,7 @@ _usb_ids()
 { have service || [ -d /etc/init.d/ ]; } &&
 _service()
 {
-	local cur sysvdir
+	local cur prev sysvdir
 
 	COMPREPLY=()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
@@ -729,7 +727,7 @@ _chgrp()
 	fi
 
 	$split && return 0
-		
+
 	# options completion
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes \
@@ -1045,19 +1043,24 @@ _user_at_host() {
 }
 shopt -u hostcomplete && complete -F _user_at_host $nospace talk ytalk finger
 
-# NOTE: Using this function as a helper function is deprecated.  Use 
+# NOTE: Using this function as a helper function is deprecated.  Use
 #       `_known_hosts_real' instead.
 _known_hosts()
 {
+	local options
 	COMPREPLY=()
 
-	# NOTE: Passing "$@" is deprecated.  See NOTE above.
-	_known_hosts_real "$@" "$(_get_cword)"
+	# NOTE: Using `_known_hosts' as a helper function and passing options
+	#       to `_known_hosts' is deprecated: Use `_known_hosts_real' instead.
+	[ "$1" = -a ] || [ "$2" = -a ] && options=-a
+	[ "$1" = -c ] || [ "$2" = -c ] && options="$options -c"
+	_known_hosts_real $options "$(_get_cword)"
 }
 
 # Helper function for completing _known_hosts.
-# This function performs host completion based on ssh's known_hosts files,
-# defaulting to standard host completion if they don't exist.
+# This function performs host completion based on ssh's known_hosts files.
+# Also hosts from HOSTFILE (compgen -A hostname) are added, unless
+# COMP_KNOWN_HOSTS_WITH_HOSTFILE is set to an empty value.
 # Usage: _known_hosts_real [OPTIONS] CWORD
 # Options:  -a             Use aliases
 #           -c             Use `:' suffix
@@ -1069,7 +1072,6 @@ _known_hosts_real()
 	local configfile flag prefix
 	local cur curd awkcur user suffix aliases global_kh user_kh hosts i host
 	local -a kh khd config
-	local IFS=$'\n'
 
 	local OPTIND=1
 	while getopts "acF:p:" flag "$@"; do
@@ -1102,16 +1104,18 @@ _known_hosts_real()
 	fi
 
 	if [ ${#config[@]} -gt 0 ]; then
+		local OIFS=$IFS IFS=$'\n'
 		# expand path (if present) to global known hosts file
-		global_kh=($( sed -ne 's/^[ \t]*[Gg][Ll][Oo][Bb][Aa][Ll][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/\1/p' "${config[@]}" ))
+		global_kh=($( sed -ne 's/^[ \t]*[Gg][Ll][Oo][Bb][Aa][Ll][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/"\1"/p' "${config[@]}" ))
 		for (( i=0; i < ${#global_kh[@]}; i++ )); do
 			global_kh[i]=$(echo "${global_kh[i]//\"/}")
 		done
 		# expand path (if present) to user known hosts file
-		user_kh=($( sed -ne 's/^[ \t]*[Uu][Ss][Ee][Rr][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/\1/p' "${config[@]}" ))
+		user_kh=($( sed -ne 's/^[ \t]*[Uu][Ss][Ee][Rr][Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/"\1"/p' "${config[@]}" ))
 		for (( i=0; i < ${#user_kh[@]}; i++ )); do
 			user_kh[i]=$(echo "${user_kh[i]//\"/}")
 		done
+		IFS=$OIFS
 	fi
 
 	# Global known_hosts files
@@ -1144,79 +1148,78 @@ _known_hosts_real()
 
 	# If we have known_hosts files to use
 	if [ ${#kh[@]} -gt 0 -o ${#khd[@]} -gt 0 -o -n "$configfile" ]; then
-	    # Escape slashes and dots in paths for awk
-	    awkcur=${cur//\//\\\/}
-	    awkcur=${awkcur//\./\\\.}
-	    curd=$awkcur
+		# Escape slashes and dots in paths for awk
+		awkcur=${cur//\//\\\/}
+		awkcur=${awkcur//\./\\\.}
+		curd=$awkcur
 
-	    if [[ "$awkcur" == [0-9]*.* ]]; then
-		# Digits followed by a dot - just search for that
-		awkcur="^$awkcur.*"
-	    elif [[ "$awkcur" == [0-9]* ]]; then
-		# Digits followed by no dot - search for digits followed
-		# by a dot
-		awkcur="^$awkcur.*\."
-	    elif [ -z "$awkcur" ]; then
-		# A blank - search for a dot or an alpha character
-		awkcur="[a-z.]"
-	    else
-		awkcur="^$awkcur"
-	    fi
+		if [[ "$awkcur" == [0-9]*.* ]]; then
+			# Digits followed by a dot - just search for that
+			awkcur="^$awkcur.*"
+		elif [[ "$awkcur" == [0-9]* ]]; then
+			# Digits followed by no dot - search for digits followed
+			# by a dot
+			awkcur="^$awkcur.*\."
+		elif [ -z "$awkcur" ]; then
+			# A blank - search for a dot or an alpha character
+			awkcur="[a-z.]"
+		else
+			awkcur="^$awkcur"
+		fi
 
-	    if [ ${#kh[@]} -gt 0 ]; then
-
-		# FS needs to look for a comma separated list
-		COMPREPLY=( $( awk 'BEGIN {FS=","}
+		if [ ${#kh[@]} -gt 0 ]; then
+			# FS needs to look for a comma separated list
+			COMPREPLY=( $( awk 'BEGIN {FS=","}
 				/^\s*[^|\#]/ {for (i=1; i<=2; ++i) { \
 				       gsub(" .*$", "", $i); \
-				       if ($i ~ /'$awkcur'/) {print $i} \
+				       if ($i ~ /'"$awkcur"'/) {print $i} \
 				}}' "${kh[@]}" 2>/dev/null ) )
-	    fi
-	    if [ ${#khd[@]} -gt 0 ]; then
-		# Needs to look for files called
-		# .../.ssh2/key_22_<hostname>.pub
-		# dont fork any processes, because in a cluster environment,
-		# there can be hundreds of hostkeys
-		for i in "${khd[@]}" ; do
-		    if [[ "$i" == *key_22_$awkcurd*.pub ]] && [ -r "$i" ] ; then
-			host=${i/#*key_22_/}
-			host=${host/%.pub/}
-			COMPREPLY=( "${COMPREPLY[@]}" $host )
-		    fi
+		fi
+		if [ ${#khd[@]} -gt 0 ]; then
+			# Needs to look for files called
+			# .../.ssh2/key_22_<hostname>.pub
+			# dont fork any processes, because in a cluster environment,
+			# there can be hundreds of hostkeys
+			for i in "${khd[@]}" ; do
+				if [[ "$i" == *key_22_$awkcurd*.pub ]] && [ -r "$i" ] ; then
+					host=${i/#*key_22_/}
+					host=${host/%.pub/}
+					COMPREPLY=( "${COMPREPLY[@]}" $host )
+				fi
+			done
+		fi
+		# append any available aliases from config files
+		if [ ${#config[@]} -gt 0 ] && [ -n "$aliases" ]; then
+			local host_aliases=$( sed -ne 's/^[ \t]*[Hh][Oo][Ss][Tt]\([Nn][Aa][Mm][Ee]\)\?['"$'\t '"']\+\([^#*?]*\)\(#.*\)\?$/\2/p' "${config[@]}" )
+			hosts=$( compgen -W "$host_aliases" -- $cur )
+				COMPREPLY=( "${COMPREPLY[@]}" $hosts )
+		fi
+
+		# Add hosts reported by avahi, if it's available
+		# and if the daemon is started.
+		# The original call to avahi-browse also had "-k", to avoid
+		#  lookups into avahi's services DB. We don't need the name
+		#  of the service, and if it contains ";", it may mistify
+		#  the result. But on Gentoo (at least), -k isn't available
+		#  (even if mentioned in the manpage), so...
+		if type avahi-browse >&/dev/null; then
+			if [ -n "$(pidof avahi-daemon)" ]; then
+				COMPREPLY=( "${COMPREPLY[@]}" $(
+					compgen -W "$( avahi-browse -cpr _workstation._tcp | \
+					grep ^= | cut -d\; -f7 | sort -u )" -- $cur ) )
+			fi
+		fi
+
+		# apply suffix and prefix
+		for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
+			COMPREPLY[i]=$prefix$user${COMPREPLY[i]}$suffix
 		done
-	    fi
-	    # append any available aliases from config files
-	    if [ ${#config[@]} -gt 0 ] && [ -n "$aliases" ]; then
-	    local host_aliases=$( sed -ne 's/^[ \t]*[Hh][Oo][Ss][Tt]\([Nn][Aa][Mm][Ee]\)\?['"$'\t '"']\+\([^#*?]*\)\(#.*\)\?$/\2/p' "${config[@]}" )
-	    hosts=$( compgen -W "$host_aliases" -- $cur )
-		COMPREPLY=( "${COMPREPLY[@]}" $hosts )
-	    fi
+	fi
 
-        # Add hosts reported by avahi, if it's available
-        # and if the daemon is started.
-        # The original call to avahi-browse also had "-k", to avoid
-        #  lookups into avahi's services DB. We don't need the name
-        #  of the service, and if it contains ";", it may mistify
-        #  the result. But on Gentoo (at least), -k isn't available
-        #  (even if mentioned in the manpage), so...
-        if type avahi-browse >&/dev/null; then
-            if [ -n "$(pidof avahi-daemon)" ]; then
-                COMPREPLY=( "${COMPREPLY[@]}" $(
-                    compgen -W "$( avahi-browse -cpr _workstation._tcp | \
-                                   grep ^= | cut -d\; -f7 | sort -u )" -- $cur ) )
-            fi
-        fi
-
-	    # Now add results of normal hostname completion
-	    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -A hostname -- $cur ) )
-
-	    # apply suffix and prefix
-	    for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
-		COMPREPLY[i]=$prefix$user${COMPREPLY[i]}$suffix
-	    done
-	elif [ -z "$configfile" ]; then
-	    # Just do normal hostname completion
-	    COMPREPLY=( $( compgen -A hostname -S "$suffix" -- $cur ) )
+	# Add results of normal hostname completion, unless `COMP_KNOWN_HOSTS_WITH_HOSTFILE'
+	# is set to an empty value.
+	if [ -n "${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1}" ]; then
+		COMPREPLY=( "${COMPREPLY[@]}" $( compgen -A hostname -P "$prefix$user" -S "$suffix" -- $cur ) )
 	fi
 
 	return 0
@@ -1346,7 +1349,7 @@ _command_offset()
 			# get function name
 			func=${cspec#*-F }
 			func=${func%% *}
-			
+
 			if [[ ${#COMP_WORDS[@]} -ge 2 ]]; then
 				$func $cmd "${COMP_WORDS[${#COMP_WORDS[@]}-1]}"	"${COMP_WORDS[${#COMP_WORDS[@]}-2]}"
 			else
@@ -1490,7 +1493,7 @@ _filedir_xspec()
 			done
 		}
 	))
-	
+
 	toks=( ${toks[@]-} $(
 		eval compgen -f -X "$xspec" -- "\$(quote_readline "\$cur")" | {
 			while read -r tmp; do
@@ -1498,7 +1501,7 @@ _filedir_xspec()
 			done
 		}
 	))
-	
+
 	COMPREPLY=( "${toks[@]}" )
 }
 list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' \
@@ -1530,7 +1533,7 @@ if [ -d $BASH_COMPLETION_COMPAT_DIR -a -r $BASH_COMPLETION_COMPAT_DIR -a \
 	 -x $BASH_COMPLETION_COMPAT_DIR ]; then
 	for i in $BASH_COMPLETION_COMPAT_DIR/*; do
 		[[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|*.rpm@(orig|new|save)) ]] &&
-			[ \( -f $i -o -h $i \) -a -r $i ] && . $i		
+			[ \( -f $i -o -h $i \) -a -r $i ] && . $i
 	done
 fi
 if [ -d $BASH_COMPLETION_DIR -a -r $BASH_COMPLETION_DIR -a \
@@ -1547,7 +1550,8 @@ unset i
 [ $BASH_COMPLETION != ~/.bash_completion -a -r ~/.bash_completion ] \
 	&& . ~/.bash_completion
 unset -f have
-unset UNAME USERLAND default dirnames filenames have nospace bashdefault plusdirs
+unset UNAME USERLAND default dirnames filenames have nospace bashdefault \
+	plusdirs compopt
 
 set $BASH_COMPLETION_ORIGINAL_V_VALUE
 unset BASH_COMPLETION_ORIGINAL_V_VALUE

@@ -34,11 +34,13 @@ bash-completion (1.x)
   * Added avahi-discovered hosts to _known_hosts_real() (Debian: #518561)
 
   [ Ville Skyttä ]
-  * Split yum and yum-arch completion into contrib/yum.
-  * Install yum-arch completion only if yum-arch is installed.
+  * Split yum completion to contrib/_yum (no longer installed by default, the
+    intent is to move it to yum upstream soon).
+  * Split yum-arch completion into contrib/yum-arch, load completion only if
+    yum-arch is installed.
   * Update list of yum commands and options.
-  * Add yum repolist, --enable/disablerepo, --disableexcludes, -d, -e, and
-    --color completions.
+  * Add yum repolist, --enable/disablerepo, --disableexcludes, -d, -e, --color,
+    and --enable/disableplugin completions.
   * Add chkconfig --override and resetpriorities completions.
   * Split mplayer and friends completions to contrib/mplayer.
   * Parse top level mplayer and friends option completions from -list-options.
@@ -71,8 +73,8 @@ bash-completion (1.x)
     completion, assume only that --*file*= does, and that --*dir*= takes dirs.
   * Add make --old/new-file, --assume-old/new, --what-if value completions.
   * Add smartctl -n/--nocheck completion, add more other value completions.
-  * Fix leaking $prev from cpio, dsniff, freeciv, gkrellm, mkinitrd, and
-    tcpdump completions.
+  * Fix leaking $prev from cpio, dsniff, freeciv, gkrellm, mkinitrd, service,
+    and tcpdump completions.
   * Split ant completion to contrib/ant, improve the built in one.
   * Improve postfix completion.
   * Improve samba completion.
@@ -92,6 +94,21 @@ bash-completion (1.x)
     to get various completions instead of simply "mplayer" or "mencoder".
   * Associate OOXML/MS Office 2007 extensions with OpenOffice applications.
   * Associate .tsv with oocalc.
+  * Add xmlwf completion.
+  * Associate *.po with poedit, gtranslator, kbabel, and lokalize.
+  * Add xz, xzcat, xzdec, and unxz completion.
+  * Add lzcat, lz*grep, lzless, lzmore, and unlzma completion.
+  * Load "modules" completion if /etc/profile.d/modules.sh exists even if
+    the "module" alias has not been defined (yet).
+  * Add *.ogv to xine-based players (Debian: #540033).
+  * Add $compopt (":" i.e. no-op with bash < 4, "compopt" with >= 4).
+  * Complete bzcat and zcat only on compressed files.
+  * Do not require a dot in bzcmp, bzdiff, bz*grep, zcmp, zdiff, z*grep, zless,
+    and zmore filename completions.
+  * Add xz and compress support and more tarball filename extensions to
+    rpmbuild -t*/--tarbuild completion.
+  * Don't hardcode path to lsmod.
+  * Fix sbcl file/dirname completion (Debian: #545743).
 
   [ Todd Zullinger ]
   * Make yum complete on filenames after install, deplist, update and upgrade
@@ -135,6 +152,13 @@ bash-completion (1.x)
   [ Freddy Vulto ]
   * Patched _known_hosts() to support multiple {Global,User}KnownHosts in SSH
     config files, thanks to Thomas Nilsson (Alioth: #311595) (Debian: #524190)
+  * Fix leaking $i from info, man and python completions.
+  * Added setting COMP_KNOWN_HOSTS_WITH_HOSTFILE. _known_hosts_real() will add
+    hosts from HOSTFILE, unless COMP_KNOWN_HOSTS_WITH_HOSTFILE is set to an
+    empty value (Alioth: #311821)
+  * Fix _known_hosts_real() to not glob awk script - thanks to Eric Blake
+    (Alioth #311614)
+  * Fix leaking $muttcmd from mutt completion
 
  -- David Paleino <d.paleino@gmail.com>  Thu, 18 Jun 2009 13:12:36 +0200
 
@@ -345,7 +369,7 @@ bash-completion (20080617.4) experimental; urgency=low
     - _known_hosts(): use files from UserKnownHostsFile options in 
                       addition to standard ones.
     - fixed _command() to correctly prune the command line
-    - disabled completion of PostgreSQL users and databases
+    - disabled completion of PostgreSQL users and databases (Ubuntu: #164772)
     - fixed _java_packages()
     - fixed _muttquery()
     - added flv/FLV completion to mplayer

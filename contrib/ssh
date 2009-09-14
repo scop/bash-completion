@@ -29,8 +29,7 @@ _ssh_options() {
 
 _ssh()
 {
-	local cur prev
-	local optconfigfile
+	local cur prev configfile
 	local -a config
 
 	COMPREPLY=()
@@ -75,26 +74,32 @@ _ssh()
 			;;
 	esac
 
-	if [[ "$cur" == -* ]]; then
+	if [[ "$cur" == -F* ]]; then
+		cur=${cur#-F}
+		_filedir
+		# Prefix completions with '-F'
+		COMPREPLY=( "${COMPREPLY[@]/#/-F}" )
+		cur=-F$cur  # Restore cur
+	elif [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-1 -2 -4 -6 -A -a -C -f -g -K -k -M \
 			-N -n -q -s -T -t -V -v -X -v -Y -y -b -b -c -D -e -F \
 			-i -L -l -m -O -o -p -R -S -w' -- $cur ) )
 	else
-		# Search COMP_WORDS for '-F configfile' argument
+		# Search COMP_WORDS for '-F configfile' or '-Fconfigfile' argument
 		set -- "${COMP_WORDS[@]}"
 		while [ $# -gt 0 ]; do
 			if [ "${1:0:2}" = -F ]; then
 				if [ ${#1} -gt 2 ]; then
-					optconfigfile="$(dequote "$1")"
+					configfile="$(dequote "${1:2}")"
 				else
 					shift
-					[ "$1" ] && optconfigfile="$(dequote "-F$1")"
+					[ "$1" ] && configfile="$(dequote "$1")"
 				fi
 				break
 			fi
 			shift
 		done
-		_known_hosts_real -a $optconfigfile "$cur"
+		_known_hosts_real -a -F "$configfile" "$cur"
 		if [ $COMP_CWORD -ne 1 ]; then
 			COMPREPLY=( "${COMPREPLY[@]}" $( compgen -c -- $cur ) )
 		fi
@@ -108,8 +113,7 @@ shopt -u hostcomplete && complete -F _ssh ssh slogin autossh
 #
 _sftp()
 {
-	local cur prev
-	local optconfigfile
+	local cur prev configfile
 
 	COMPREPLY=()
 	cur=`_get_cword`
@@ -117,7 +121,7 @@ _sftp()
 
 	case "$prev" in
 		-@(b|F|P))
-			_filedirs
+			_filedir
 			return 0
 			;;
 		-o)
@@ -126,7 +130,13 @@ _sftp()
 			;;
 	esac
 
-	if [[ "$cur" == -* ]]; then
+	if [[ "$cur" == -F* ]]; then
+		cur=${cur#-F}
+		_filedir
+		# Prefix completions with '-F'
+		COMPREPLY=( "${COMPREPLY[@]/#/-F}" )
+		cur=-F$cur  # Restore cur
+	elif [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-1 -C -v -B -b -F -o -P -R -S -s' \
 			-- $cur ) )
 	else
@@ -135,16 +145,16 @@ _sftp()
 		while [ $# -gt 0 ]; do
 			if [ "${1:0:2}" = -F ]; then
 				if [ ${#1} -gt 2 ]; then
-					optconfigfile="$(dequote "$1")"
+					configfile="$(dequote "${1:2}")"
 				else
 					shift
-					[ "$1" ] && optconfigfile="$(dequote "-F$1")"
+					[ "$1" ] && configfile="$(dequote "$1")"
 				fi
 				break
 			fi
 			shift
 		done
-		_known_hosts_real -a $optconfigfile "$cur"
+		_known_hosts_real -a -F "$configfile" "$cur"
 	fi
 
 	return 0
@@ -156,8 +166,7 @@ shopt -u hostcomplete && complete -F _sftp sftp
 #
 _scp()
 {
-	local cur userhost path
-	local optconfigfile
+	local configfile cur userhost path prefix
 
 	COMPREPLY=()
 	cur=`_get_cword ":"`
@@ -185,30 +194,34 @@ _scp()
 		return 0
 	fi
 
-	# Search COMP_WORDS for '-F configfile' argument
-	set -- "${COMP_WORDS[@]}"
-	while [ $# -gt 0 ]; do
-		if [ "${1:0:2}" = -F ]; then
-			if [ ${#1} -gt 2 ]; then
-				optconfigfile="$(dequote "$1")"
-			else
-				shift
-				[ "$1" ] && optconfigfile="$(dequote "-F$1")"
+	if [[ "$cur" = -F* ]]; then
+		cur=${cur#-F}
+		prefix=-F
+	else
+		# Search COMP_WORDS for '-F configfile' or '-Fconfigfile' argument
+		set -- "${COMP_WORDS[@]}"
+		while [ $# -gt 0 ]; do
+			if [ "${1:0:2}" = -F ]; then
+				if [ ${#1} -gt 2 ]; then
+					configfile="$(dequote "${1:2}")"
+				else
+					shift
+					[ "$1" ] && configfile="$(dequote "$1")"
+				fi
+				break
 			fi
-			break
-		fi
-		shift
-	done
+			shift
+		done
 
-	[[ "$cur" == */* ]] || _known_hosts_real -c -a $optconfigfile "$cur"
-
+		[[ "$cur" == */* ]] || _known_hosts_real -c -a -F "$configfile" "$cur"
+	fi
 	# This approach is used instead of _filedir to get a space appended
 	# after local file/dir completions, and $nospace retained for others.
 	local IFS=$'\t\n'
 	COMPREPLY=( "${COMPREPLY[@]}" $( command ls -aF1d $cur* \
 		    2>/dev/null | sed \
 		    -e "s/[][(){}<>\",:;^&\!$=?\`|\\ ']/\\\\&/g" \
-		    -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' ) )
+		    -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' -e "s/^/$prefix/") )
 
 	return 0
 }

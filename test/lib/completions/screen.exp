@@ -1,0 +1,44 @@
+proc setup {} {
+    save_env
+}; # setup()
+
+
+proc teardown {} {
+    assert_env_unmodified {/OLDPWD=/d}
+}; # teardown()
+
+
+setup
+
+
+assert_complete_any "screen -"
+
+
+sync_after_int
+
+
+set test "-c should complete files/dirs"
+set dir fixture1
+set prompt "/$dir/@"
+assert_bash_exec "cd $dir" "" $prompt
+set cmd "screen -c "
+set expected {bar {bar bar.d} foo {foo.d}}
+send "$cmd\t"
+expect -ex "$cmd"
+expect {
+    -re "bar\\s+bar\\\\ bar.d\\s+foo\\s+foo.d"  { pass "$test" }
+        # _filedir works only if `-o filenames' is in effect, which isn't the
+        # case for `screen'
+    -re "bar\\s+bar bar.d\\s+foo\\s+foo.d" { xfail "$test" }
+    -re $prompt { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+sync_after_int $prompt
+assert_bash_exec "cd \$TESTDIR"
+
+
+
+sync_after_int
+
+
+teardown

@@ -1,0 +1,35 @@
+# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
+# ex: ts=8 sw=8 noet filetype=sh
+#
+# bash completion for xmlwf(1)
+
+have xmlwf &&
+_xmlwf()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-d)
+			_filedir -d
+			return 0
+			;;
+		-e)
+			COMPREPLY=( $( compgen -W 'US-ASCII UTF-8 UTF-16 \
+				ISO-8859-1' -- $cur ) )
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-c -d -e -m -n -p -r -s -t -v -w \
+			-x' -- $cur ) )
+		return 0
+	fi
+
+	_filedir '@(*ml|htm|svg)'
+} &&
+complete -F _xmlwf $filenames xmlwf

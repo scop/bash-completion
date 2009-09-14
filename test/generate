@@ -1,0 +1,68 @@
+#!/bin/bash -eu
+# Generate skeleton files for completion of specified command.
+# Test skeleton files are generated as well.
+# @param $1 string  Command, e.g. 'make'
+# @param $2 string  Completion function, e.g. _command
+# @param $3 string  Completion arguments, e.g. '-o filenames'
+
+
+# Generate test code
+# @param $1 string  Command, e.g. 'make'
+generate_test_completion() {
+    local path="completion/$1.exp"
+            # Does file already exist?
+    #if [ ! -f "$path" ]; then
+            # No, file doesn't exist; generate file
+    cat <<EXPECT > "$path"
+if {[assert_bash_type $1]} {
+    source "lib/completions/$1.exp"
+}; # if
+EXPECT
+    #fi
+} # generate_test_completion()
+
+
+# Generate test code
+# @param $1 string  Command, e.g. 'make'
+# @param $2 string  Completion function, e.g. _command
+# @param $3 string  Completion arguments, e.g. ' -o filenames'
+generate_test_lib_completions() {
+    local path="lib/completions/$1.exp"
+            # Does file already exist?
+    #if [ ! -f "$path" ]; then
+            # No, file doesn't exist; generate file
+    cat <<EXPECT > "$path"
+proc setup {} {
+    save_env
+}; # setup()
+
+
+proc teardown {} {
+    assert_env_unmodified
+}; # teardown()
+
+
+setup
+
+
+assert_complete_any "$1 "
+
+
+sync_after_int
+
+
+teardown
+EXPECT
+    #fi
+} # generate_test_lib_completions()
+
+
+        # If argument count is wrong, show help
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 command"
+    echo "Example: $0 make"
+    exit 1
+fi
+
+generate_test_completion "$1"
+generate_test_lib_completions "$1"
