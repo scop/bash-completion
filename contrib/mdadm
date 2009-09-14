@@ -1,0 +1,159 @@
+# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
+# ex: ts=8 sw=8 noet filetype=sh
+#
+# bash completion for mdadm
+
+have mdam && {
+_mdadm_raid_level()
+{
+	local mode
+
+	for (( i=1; i < COMP_CWORD; i++ )); do
+		case ${COMP_WORDS[i]} in
+			-@(C|-create))
+				mode=create
+				break
+				;;
+			-@(B|-build))
+				mode=build
+				break
+				;;
+		esac
+	done
+
+	case $mode in
+		create)
+			COMPREPLY=( $( compgen -W 'linear raid0 0 stripe raid1 1 mirror raid4 4 raid5 5 raid6 6 raid10 10 multipath mp faulty' -- $cur ) )
+			;;
+		build)
+			COMPREPLY=( $( compgen -W 'linear stripe raid0 0 raid1 multipath mp faulty' -- $cur ) )
+			;;
+	esac
+}
+
+__mdadm_raid_layout()
+{
+	local level
+	for (( i=1; i < COMP_CWORD; i++ )); do
+		if [[ "${COMP_WORDS[i]}" == -@(l|-level) ]]; then
+			level=${COMP_WORDS[i+1]}
+			break
+		fi
+	done
+
+	case $level in
+		raid5)
+			COMPREPLY=( $( compgen -W 'left-asymmetric left-symmetric right-asymmetric right-symmetric la ra ls rs' -- $cur ) )
+			;;
+		raid10)
+			COMPREPLY=( $( compgen -W 'n o p' -- $cur ) )
+			;;
+		faulty)
+			COMPREPLY=( $( compgen -W 'write-transient wt read-transient rt write-persistent wp read-persistent rp write-all read-fixable rf clear flush none' -- $cur ) )
+			;;
+	esac
+}
+
+_mdadm_auto_flag()
+{
+	COMPREPLY=( $( compgen -W 'no yes md mdp part p' -- $cur ) )
+}
+
+_mdadm_update_flag()
+{
+	COMPREPLY=( $( compgen -W 'sparc2.2 summaries uuid name homehost resync byteorder super-minor' -- $cur ) )
+}
+
+
+_mdadm()
+{
+	local cur prev mode options
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	# --name value style option
+	case $prev in
+		-@(c|b))
+			_filedir
+			return 0
+			;;
+		-l)
+			_mdam_raid_level
+			return 0
+			;;
+		-p)
+			_mdam_raid_layout
+			return 0
+			;;
+		-a)
+			_mdam_auto_flag
+			return 0
+			;;
+		-U)
+			_mdam_update_flag
+			return 0
+			;;
+	esac
+
+	# --name=value style option
+	if [[ "$cur" == *=* ]]; then
+		prev=${cur/=*/}
+		cur=${cur/*=/}
+		case "$prev" in
+		--@(config|bitmap|backup-file))
+			_filedir
+			return 0
+			;;
+		--level)
+			_mdam_raid_level
+			return 0
+			;;
+		--@(layout|parity))
+			_mdam_raid_layout
+			return 0
+			;;
+		--auto)
+			_mdam_auto_flag
+			return 0
+			;;
+		--update)
+			_mdam_update_flag
+			return 0
+			;;
+		esac
+	fi
+
+        options='-h --help --help-options -V --version -v --verbose -q --quiet -b --brief -f --force -c --config= -s --scan -e --metadata= --homehost='
+
+	if [[ "$cur" == -* ]]; then
+		if [[ $COMP_CWORD -eq 1 ]] ; then
+			COMPREPLY=( $( compgen -W "$options -A --assemble -B --build -C --create -F --follow --monitor -G --grow" -- $cur ) )
+		else
+			case ${COMP_WORDS[COMP_CWORD-1]} in
+				-@(A|-assemble))
+					COMPREPLY=( $( compgen -W "$options -u --uuid= -m --super-minor= -N --name= -f --force -R --run --no-degraded -a --auto -b --bitmap= --backup-file= -U --update= --auto-update-homehost" -- $cur ) )
+					;;
+				-@(B|C|G|-build|-create|-grow))
+					COMPREPLY=( $( compgen -W "$options -n --raid-devices= -x --spare-devices= -z --size= -c --chunk= --rounding= -l --level= -p --layout= --parity= -b --bitmap= --bitmap-chunk= -W --write-mostly --write-behind= --assume-clean --backup-file= -N --name= -R --run -f --force -a --auto" -- $cur ) )
+					;;
+				-@(F|-follow|-monitor))
+					COMPREPLY=( $( compgen -W "$options -m --mail -p --program --alert -y --syslog -d --delay -f --daemonise -i --pid-file -1 --oneshot -t --test" -- $cur ) )
+
+					;;
+				@(/dev/*|--add|--fail|--remove))
+					COMPREPLY=( $( compgen -W "$options -a --add --re-add -r --remove -f --fail --set-faulty" -- $cur ) )
+					;;
+				*)
+					COMPREPLY=( $( compgen -W "$options -Q --query -D --detail -E --examine --sparc2.2 -X --examine-bitmap -R --run -S --stop -o --readonly -w --readwrite --zero-superblock -t --test" -- $cur ) )
+					;;
+			esac
+		fi
+	else
+		cur=${cur:=/dev/}
+		_filedir
+	fi
+}
+complete -F _mdadm mdadm
+}
