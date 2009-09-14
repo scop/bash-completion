@@ -1,0 +1,57 @@
+#!/bin/sh
+
+while getopts ":di" flag; do
+    case $flag in
+	d) debug=1;;
+	i) install=1;;
+    esac
+done
+
+shift $((OPTIND - 1))
+
+if [ $# -ne 2 ]; then
+    echo "usage: $0 <completion_dir> <installation_dir>"
+    exit 1
+fi
+
+completion_dir=$1
+if [ ! -d $completion_dir ]; then
+    echo "invalid directory $completion_dir"
+    exit 1
+fi
+
+installation_dir=$2
+if [ ! -d $installation_dir ]; then
+    echo "invalid directory $installation_dir"
+    exit 1
+fi
+
+have()
+{
+	PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin type $1 &>/dev/null
+}
+
+# many scripts requires this
+shopt -s extglob
+
+for script in $completion_dir/*; do
+    # reset completion
+    complete -r
+
+    # source script
+    source $script 2>/dev/null
+
+    # check completion output
+    output=$(complete -p)
+    if [ -n "$output" ]; then
+	if [ -n "$install" ]; then
+	    ln -sf $script $installation_dir/$(basename $script)
+	else
+	    echo "$script OK"
+	fi
+    fi
+
+    if [ -n "$debug" ]; then
+        echo $output
+    fi
+done
