@@ -73,6 +73,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/man \
 		contrib/mc \
 		contrib/mcrypt \
+		contrib/mdam \
 		contrib/minicom \
 		contrib/mkinitrd \
 		contrib/mock \
@@ -107,6 +108,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/rdesktop \
 		contrib/repomanage \
 		contrib/reportbug \
+		contrib/resolvconf \
 		contrib/ri \
 		contrib/rpcdebug \
 		contrib/rpm \
