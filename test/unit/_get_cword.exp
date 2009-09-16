@@ -9,6 +9,9 @@ proc teardown {} {
         /COMP_LINE=/d
         /COMP_POINT=/d
         /COMP_WORDS=/d
+        # Delete 'COMP_WORDBREAKS' occupying two lines
+        /COMP_WORDBREAKS=/{N
+        d}
     }
 }; # teardown()
 
@@ -48,26 +51,36 @@ set cmd {COMP_WORDS=(a 'b\ c'); COMP_CWORD=1; COMP_LINE='a b\ c'; COMP_POINT=6; 
 assert_bash_list {{"b\\ c"}} $cmd $test
 
 
+set test {a b\| c should return b\ };  # | = cursor position
+set cmd {COMP_WORDS=(a 'b\ c'); COMP_CWORD=1; COMP_LINE='a b\ c'; COMP_POINT=4; _get_cword}
+assert_bash_list {{"b\\"}} $cmd $test
+
+
+set test {a "b\| should return b\ };  # | = cursor position
+set cmd {COMP_WORDS=(a '"b\'); COMP_CWORD=1; COMP_LINE='a "b\'; COMP_POINT=5; _get_cword}
+assert_bash_list {{"b\\"}} $cmd $test
+
+
 # See http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=474094 for useful ideas
 # to make this test pass.
-set test {a 'b c| should return 'b c};  # | = cursor position
-set cmd {COMP_WORDS=(a \' b c); COMP_CWORD=3; COMP_LINE=a\ \'b\ c; COMP_POINT=6; _get_cword}
+set test {a 'b c| should return b c};  # | = cursor position
+set cmd {COMP_WORDS=(a \' b c); COMP_CWORD=1; COMP_LINE=a\ \'b\ c; COMP_POINT=6; _get_cword}
 send "$cmd\r"
 expect -ex "$cmd\r\n"
 expect {
-    -ex "'b c\r\n/@" { pass "$test" }
+    -ex "b c/@" { pass "$test" }
     -ex "c/@" { xfail "$test" }
 }; # expect
 
 
 # See http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=474094 for useful ideas
 # to make this test pass.
-set test {a "b c| should return "b c};  # | = cursor position
+set test {a "b c| should return b c};  # | = cursor position
 set cmd {COMP_WORDS=(a \" b c); COMP_CWORD=3; COMP_LINE=a\ \"b\ c; COMP_POINT=6; _get_cword}
 send "$cmd\r"
 expect -ex "$cmd\r\n"
 expect {
-    -ex "\"b c\r\n/@" { pass "$test" }
+    -ex "b c/@" { pass "$test" }
     -ex "c/@" { xfail "$test" }
 }; # expect
 
@@ -87,6 +100,31 @@ assert_bash_list b:c $cmd $test
 set test "a -n| should return -n";  # | = cursor position
 set cmd {COMP_WORDS=(a -n); COMP_CWORD=1; COMP_LINE='a -n'; COMP_POINT=4; _get_cword}
 assert_bash_list -n $cmd $test
+
+
+set test {a b>c| should return c};  # | = cursor position
+set cmd {COMP_WORDS=(a b \> c); COMP_CWORD=3; COMP_LINE='a b>c'; COMP_POINT=5; _get_cword}
+assert_bash_list c $cmd $test
+
+
+set test {a b=c| should return c};  # | = cursor position
+set cmd {COMP_WORDS=(a b = c); COMP_CWORD=3; COMP_LINE='a b=c'; COMP_POINT=5; _get_cword}
+assert_bash_list c $cmd $test
+
+
+set test {a *| should return *};  # | = cursor position
+set cmd {COMP_WORDS=(a \*); COMP_CWORD=1; COMP_LINE='a *'; COMP_POINT=4; _get_cword}
+assert_bash_list * $cmd $test
+
+
+set test {a $(b c| should return c};  # | = cursor position
+set cmd {COMP_WORDS=(a '$(b c'); COMP_CWORD=1; COMP_LINE='a $(b c'; COMP_POINT=7; _get_cword}
+assert_bash_list c $cmd $test
+
+
+set test {a $(b c\ d| should return c\ d};  # | = cursor position
+set cmd {COMP_WORDS=(a '$(b c\ d'); COMP_CWORD=1; COMP_LINE='a $(b c\ d'; COMP_POINT=10; _get_cword}
+assert_bash_list c $cmd $test
 
 
 teardown
