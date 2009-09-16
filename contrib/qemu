@@ -13,11 +13,11 @@ _qemu()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case $prev in
-		-@(fd[ab]|hd[abcd]|cdrom|option-rom|kernel|initrd|bootp|pidfile|loadvm))
+		-@(fd[ab]|hd[abcd]|cdrom|option-rom|kernel|initrd|bootp|pidfile|loadvm|mtdblock|sd|pflash|bios))
 			_filedir
 			return 0
 			;;
-		-@(tftp|smb|L))
+		-@(tftp|smb|L|chroot))
 			_filedir -d
 			return 0
 			;;
@@ -53,7 +53,7 @@ _qemu()
 			return 0
 			;;
 		-net)
-			COMPREPLY=( $( compgen -W 'nic user tap socket vde none' \
+			COMPREPLY=( $( compgen -W 'nic user tap socket vde none dump' \
 				-- $cur ) )
 			return 0
 			;;
@@ -72,12 +72,33 @@ _qemu()
 			return 0
 			;;
 		-vga)
-			COMPREPLY=( $( compgen -W 'cirrus std vmware' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'cirrus std vmware xenfb none' -- $cur ) )
 			return 0
 			;;
 		-drive)
-			COMPREPLY=( $( compgen -S"=" -W 'file if bus index media \
-				cyls snapshot cache format' -- $cur	) )
+			COMPREPLY=( $( compgen -S"=" -W 'file if bus unit index media \
+				cyls snapshot cache format serial addr' -- $cur	) )
+			return 0
+			;;
+		-ballon)
+			COMPREPLY=( $( compgen -W 'none virtio' -- $cur ) )
+			return 0
+			;;
+		-smbios)
+			COMPREPLY=( $( compgen -W 'file type' -- $cur ) )
+			return 0
+			;;
+		-watchdog)
+			COMPREPLY=( $( compgen -W "$( qemu -watchdog ? 2>&1 | awk '{print $1}' )" -- $cur ) )
+			return 0
+			;;
+		-watchdog-action)
+			COMPREPLY=( $( compgen -W 'reset shutdown poweroff pause \
+			debug none' -- $cur ) )
+			return 0
+			;;
+		-runas)
+			COMPREPLY=( $( compgen -u -- $cur ) )
 			return 0
 			;;
 	esac
@@ -87,12 +108,17 @@ _qemu()
 		COMPREPLY=( $( compgen -W '-M -fda -fdb -hda -hdb -hdc -hdd \
 		-cdrom -boot -snapshot -no-fd-bootchk -m -smp -nographic -vnc \
 		-k -audio-help -soundhw -localtime -full-screen -pidfile \
-		-daemonize -win2k-hacks -option-rom -usb -usbdevice -net -tftp \
+		-daemonize -win2k-hack -option-rom -usb -usbdevice -net -tftp \
 		-smb -redir -kernel -append -initrd -serial -parallel -monitor \
 		-s -p -S -d -hdachs -L -std-vga -no-acpi -no-reboot -loadvm \
 		-semihosting -cpu -bt -vga -drive -startdate -name -curses \
 		-no-frame -no-quit -bootp -echr -no-shutdown -icount -g \
-		-prom-env' -- $cur ) )
+		-prom-env -h -help -version -numa -mtdblock -sd -pflash \
+		-device -uuid -alt-grab -sdl -portrait -rtc-td-hack -no-hpet \
+		-balloon -acpitable -smbios -singlestep -gdb -hdachs -bios \
+		-kernel-kqemu -enable-kqemu -enable-kvm -clock -watchdog \
+		-watchdog-action -virtioconsole -show-cursor -tb-size -incoming \
+		-chroot -runas' -- $cur ) )
 	else
 		_filedir
 	fi
