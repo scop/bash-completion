@@ -18,6 +18,12 @@ proc unit_start {} {
     assert_bash_exec {} "bash --rcfile config/bashrc"
     assert_bash_exec {BASH_COMPLETION_DIR=$(cd ..; pwd)/contrib}
     assert_bash_exec {BASH_COMPLETION=$(cd ..; pwd)/bash_completion}
+    # Bash < 3.2.41 has a bug where 'history' disappears from SHELLOPTS
+    # whenever a shopt setting is sourced or eval'ed.  Disabling 'history'
+    # makes it not show in tests "Environment should not be modified"
+    # for bash < 3.2.41.
+    # -- FVu, Tue Sep 15 22:52:00 CEST 2009
+    assert_bash_exec {is_bash_version_minimal 3 2 41 || set +o history}
     assert_bash_exec {source $BASH_COMPLETION}
 }; # unit_start()
 
