@@ -225,8 +225,6 @@ proc assert_env_unmodified {{sed ""} {file ""} {diff ""}} {
     regsub -all {([\"\\])} $sed {\\\1} sed
         # Escape newlines
     regsub -all {\n} [string trim $sed] "\r\n" sed
-        # Mark end of sed script, so that `expect' can match on that
-    append sed "# End of sed script"
 
         # Prepare diff script
 
@@ -240,9 +238,12 @@ proc assert_env_unmodified {{sed ""} {file ""} {diff ""}} {
 
         # Execute diff
 
-    set cmd "diff_env \"[gen_env_filename $file 1]\" \"[gen_env_filename $file 2]\" \"$sed\""
+    # NOTE: The dummy argument 'LAST-ARG' sets bash variable $_ (last argument) to
+    #       'LAST-ARG' so that $_ doesn't mess up the diff (as it would if $_
+    #       was the (possibly multi-lined) sed script).
+    set cmd "diff_env \"[gen_env_filename $file 1]\" \"[gen_env_filename $file 2]\" \"$sed\" LAST-ARG"
     send "$cmd\r"
-    expect "# End of sed script\"\r\n"
+    expect "LAST-ARG\r\n"
 
     expect {
         -re "^$diff[wd]@$" { pass "$test" }
@@ -313,7 +314,7 @@ proc get_hosts {} {
 proc get_hosts_avahi {} {
         # Retrieving hosts is successful?
     if { [catch {exec bash -c {
-        type avahi-browse >&/dev/null && [ -n "$(pidof avahi-daemon)" ]
+        type avahi-browse >&/dev/null && [ -n "$(pidof avahi-daemon)" ] \
             && avahi-browse -cpr _workstation._tcp | grep ^= | cut -d\; -f7 | sort -u
     }} hosts] } {
         # No, retrieving hosts yields error;
