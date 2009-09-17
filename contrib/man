@@ -8,7 +8,7 @@
   -o $UNAME = OpenBSD ] &&
 _man()
 {
-	local cur i prev sect manpath manext mansect uname
+	local cur i prev sect manpath manext mansect uname version subcommands
 
 	manext="@([0-9lnp]|[0-9][px]|man|3pm)?(.@(gz|bz2|lzma))"
 	mansect="@([0-9lnp]|[0-9][px]|3pm)"
@@ -16,6 +16,7 @@ _man()
 	COMPREPLY=()
 	cur=`_get_cword`
 	prev=${COMP_WORDS[COMP_CWORD-1]}
+	version=$(man --version | cut -d\  -f2)
 
 	if [[ "$prev" == -l ]]; then
 		_filedir $manext
@@ -50,6 +51,19 @@ _man()
 		manpath="${manpath//://*man$sect/$cur* } ${manpath//://*cat$sect/$cur* }"
 	else
 		manpath="${manpath//://*man$sect/ } ${manpath//://*cat$sect/ }"
+	fi
+
+	# Check whether $prev has "subcommand" manpages -- not always right! (try man hg ssh, then $ hg ssh)
+	# Unfortunately, there's no way to check whether a completion is a valid subcommand or not.
+	# man cmd subcmd is only supported from man-db 2.5.6
+	if ([ ${version:0:1} -eq 2 ] && [ ${version:2:1} -eq 5 ] && [ ${version:4:1} -gt 5 ]) ||
+	   ([ ${version:0:1} -eq 2 ] && [ ${version:2:1} -gt 5 ]) ||
+	   [ ${version:0:1} -gt 2 ]; then
+		subcommands=$(whatis -w "$prev-*" | awk '{print $1}' | sed -e "s/$prev-//g" | tr "\n" " ")
+		if [ -n "$subcommands" ]; then
+			COMPREPLY=( $( compgen -W "$subcommands" -- $cur ) )
+			return 0
+		fi
 	fi
 
 	# redirect stderr for when path doesn't exist
