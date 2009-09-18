@@ -1,0 +1,116 @@
+# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
+# ex: ts=8 sw=8 noet filetype=sh
+#
+# bash completion for lintian(1) and lintian-info(1)
+
+have lintian && {
+_lintian()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+	-@(-tags-from-file|-cfg|p|-packages-file))
+		_filedir
+		return 0
+		;;
+	--@(archivedir|rootdir|lab|dist))
+		_filedir -d
+		return 0
+		;;
+	-@(C|-check-part|X|-dont-check-part))
+		COMPREPLY=( $( compgen -W 'bin binaries chg changelog-file \
+			cnf conffiles dctl control-file ctl control-files cpy \
+			copyright-file deb cruft dfmt deb-format dc debconf dh \
+			debhelper drm debian-readme des description etc etcfiles \
+			fld fields fil files hus huge-usr-share info infofiles \
+			ini init.d man manpages md5 md5sums men menus mnf \
+			menu-format nmu pat patch-systems pd po-debconf rul rules \
+			scr scripts shl shared-libs spl spelling std \
+			standards-version v-s version-substvars watch watch-file' -- $cur ) )
+		return 0
+		;;
+#	-@(T|-tags))
+#		# This option wants a comma-separated list
+#		# Disabled because completion doesn't work right after the comma.
+#		compopt -o nospace lintian
+#		COMPREPLY=( $( compgen -S',' -W '$( grep ^Tag /usr/share/lintian/checks/*.desc | cut -d\  -f2 )' -- $cur ) )
+#		return 0
+#		;;
+	--color)
+		COMPREPLY=( $( compgen -W 'never always auto html' -- $cur ) )
+		return 0
+		;;
+	-@(U|-unpack-info))
+		COMPREPLY=( $( compgen -W 'changelog-file copyright-file debfiles \
+			debian-readme diffstat doc-base-files file-info init.d md5sums \
+			menu-files objdump-info override-file scripts \
+			source-control-file strings' -- $cur ) )
+		return 0
+		;;
+	--@(area|section))
+		COMPREPLY=( $( compgen -W 'main contrib non-free' -- $cur ) )
+		return 0
+		;;
+	
+	esac
+
+	case $cur in
+	-*)
+		COMPREPLY=( $( compgen -W '-S --setup-lab -R --remove-lab \
+			-c --check -C --check-part -X --dont-check-part -T --tags \
+			--tags-from-file -u --unpack -r --remove -h --help -v \
+			--verbose -V --version --print-version -d --debug -q \
+			--quiet -i --info -I --display-info -E --display-experimental \
+			--pedantic -L --display-level --display-source -l \
+			--unpack-level -o --no-override --show-overrides --color \
+			-U --unpack-info -m --md5sums --checksums --allow-root \
+			--fail-on-warnings --keep-lab --cfg --lab --archivedir \
+			--dist --area --arch --root -a --all -b --binary -s \
+			--source --udeb -p --packages-file' -- $cur ) )
+		;;
+	*)
+		;;
+	esac
+
+	_filedir '@(deb|dsc|changes)'
+
+	return 0
+}
+complete -F _lintian $filenames lintian
+	
+_lintian_info() {
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[1]}
+
+	case $prev in
+	-@(t|-tags))
+		COMPREPLY=( $( compgen -W '$( grep ^Tag /usr/share/lintian/checks/*.desc | cut -d\  -f2 )' -- $cur ) )
+		return 0
+		;;
+	-@(a|-annotate))
+		_filedir
+		return 0
+		;;
+	esac
+
+	case $cur in
+	-*)
+		COMPREPLY=( $( compgen -W '-a --annotate -t --tags' -- $cur ) )
+		;;
+	*)
+		_filedir
+		;;
+	esac
+
+	return 0
+}
+complete -F _lintian_info $filenames lintian-info
+
+}
