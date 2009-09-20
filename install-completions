@@ -3,36 +3,42 @@
 # found in a given directory, and symlinking those matching
 # an installed command to another directory
 
-while getopts ":di" flag; do
+have()
+{
+    PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin type $1 &>/dev/null
+}
+
+usage()
+{
+    echo "usage: $0 <completion_dir> [installation_dir]"
+}
+
+while getopts ":h" flag; do
     case $flag in
-	d) debug=1;;
-	i) install=1;;
+	h) usage; exit 0;;
     esac
 done
 
 shift $((OPTIND - 1))
 
-if [ $# -ne 2 ]; then
-    echo "usage: $0 <completion_dir> <installation_dir>"
+completion_dir=$1
+if [ -z "$completion_dir" ]; then
+    echo "missing completion directory"
+    usage
     exit 1
 fi
-
-completion_dir=$1
 if [ ! -d $completion_dir ]; then
     echo "invalid directory $completion_dir"
+    usage
     exit 1
 fi
 
 installation_dir=$2
 if [ ! -d $installation_dir ]; then
     echo "invalid directory $installation_dir"
+    usage
     exit 1
 fi
-
-have()
-{
-	PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin type $1 &>/dev/null
-}
 
 # many scripts requires this
 shopt -s extglob
@@ -46,15 +52,15 @@ for script in $completion_dir/*; do
 
     # check completion output
     output=$(complete -p)
-    if [ -n "$output" ]; then
-	if [ -n "$install" ]; then
-	    ln -sf $script $installation_dir/$(basename $script)
-	else
-	    echo "$script OK"
-	fi
+
+    if [ -z "$output" ]; then
+	continue
     fi
 
-    if [ -n "$debug" ]; then
-        echo $output
+    if [ -n "$installation_dir" ]; then
+	ln -sf $script $installation_dir/$(basename $script)
+    else
+	echo "$script OK"
     fi
+
 done
