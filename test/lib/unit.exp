@@ -8,14 +8,16 @@ proc unit_exit {} {
 
 
 proc unit_start {} {
-    global TESTDIR spawn_id
+    global TESTDIR TOOL_EXECUTABLE spawn_id
     set test "unit_start"
     set TESTDIR [pwd]
 
         # Start bash and load bash-completion
 
-    exp_spawn bash --rcfile config/bashrc
-    assert_bash_exec {} "bash --rcfile config/bashrc"
+    # If `--tool_exec' option not specified, use "bash"
+    if {! [info exists TOOL_EXECUTABLE]} {set TOOL_EXECUTABLE bash}
+    exp_spawn $TOOL_EXECUTABLE --rcfile config/bashrc
+    assert_bash_exec {} "$TOOL_EXECUTABLE --rcfile config/bashrc"
     assert_bash_exec {BASH_COMPLETION_DIR=$(cd ..; pwd)/contrib}
     assert_bash_exec {BASH_COMPLETION=$(cd ..; pwd)/bash_completion}
     # Bash < 3.2.41 has a bug where 'history' disappears from SHELLOPTS
