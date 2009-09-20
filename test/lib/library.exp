@@ -13,14 +13,26 @@ package require textutil::string
 #                     checked; specify `title' to adorn the error message.
 # @param string $title  (optional) Command title.  If empty, `cmd' is used.
 # @param string $prompt  (optional) Bash prompt.  Default is "/@"
-proc assert_bash_exec {{aCmd ""} {title ""} {prompt /@}} {
+# @param string $stdout  (optional) Reference to variable to hold stdout.
+proc assert_bash_exec {{aCmd ""} {title ""} {prompt /@} {stdout ''}} {
+    upvar $stdout results
     if {[string length $aCmd] != 0} {
         send "$aCmd\r"
         expect -ex "$aCmd\r\n"
     }; # if
     if {[string length $title] == 0} {set title $aCmd}
     expect -ex $prompt
-    set out $expect_out(buffer);  # Catch (non-expected) output
+    set results $expect_out(buffer);  # Catch output
+        # Remove $prompt suffix from output
+    set results [
+        string range $results 0 [
+            expr [string length $results] - [string length "/@"] - 1
+        ]
+    ]
+
+
+
+
     set cmd "echo $?"
     send "$cmd\r"
     expect {
@@ -222,7 +234,7 @@ proc assert_env_unmodified {{sed ""} {file ""} {diff ""}} {
         # Prepare sed script
 
         # Escape special bash characters ("\)
-    regsub -all {([\"\\])} $sed {\\\1} sed
+    regsub -all {([\"\\])} $sed {\\\1} sed;  #"# (fix Vim syntax highlighting)
         # Escape newlines
     regsub -all {\n} [string trim $sed] "\r\n" sed
 
@@ -468,4 +480,4 @@ proc wd {} {
     global TESTDIR
         # Remove `$TESTDIR' prefix from current working directory
     set wd [string replace [pwd] 0 [expr [string length $TESTDIR] - 1]]/
-}
+}; # wd()
