@@ -30,9 +30,6 @@ proc assert_bash_exec {{aCmd ""} {title ""} {prompt /@} {stdout ''}} {
         ]
     ]
 
-
-
-
     set cmd "echo $?"
     send "$cmd\r"
     expect {
@@ -41,7 +38,7 @@ proc assert_bash_exec {{aCmd ""} {title ""} {prompt /@} {stdout ''}} {
             if {[info exists multipass_name]} {
                 fail "ERROR executing bash command \"$title\""
             }; # if
-            send_user "ERROR executing bash command \"$title\"\n$out"
+            send_user "ERROR executing bash command \"$title\"\n$stdout"
         }
     }; # expect
 }; # assert_bash_exec()
@@ -368,8 +365,8 @@ proc match_items {items test {size 20}} {
         set expected ""
         for {set j 0} {$j < $size && $i + $j < [llength $items]} {incr j} {
             set item "[lindex $items [expr {$i + $j}]]"
-                # Escape special regexp characters
-            regsub -all {([\[\]\(\)\.\\\+\*])} $item {\\\1} item
+                # Escape special regexp characters ([]().\*^$)
+            regsub -all {([\[\]\(\)\.\\\+\*\^\$])} $item {\\\1} item
             append expected $item
             if {[llength $items] > 1} {append expected {\s+}};
         }; # for

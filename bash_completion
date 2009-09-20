@@ -233,43 +233,143 @@ dequote()
 	eval echo "$1"
 }
 
-# Get the word to complete
+# Get the word to complete.
 # This is nicer than ${COMP_WORDS[$COMP_CWORD]}, since it handles cases
 # where the user is completing in the middle of a word.
 # (For example, if the line is "ls foobar",
 # and the cursor is here -------->   ^
 # it will complete just "foo", not "foobar", which is what the user wants.)
-#
-#
-# Accepts an optional parameter indicating which characters out of
-# $COMP_WORDBREAKS should NOT be considered word breaks. This is useful
-# for things like scp where we want to return host:path and not only path.
+# @param $1 string  (optional) Characters out of $COMP_WORDBREAKS which should
+#     NOT be considered word breaks. This is useful for things like scp where
+#     we want to return host:path and not only path.
+#     NOTE: This parameter only applies to bash-4.
+
 _get_cword()
+{
+    if [ -n "$bash4" ] ; then
+	__get_cword4 "$@"
+    else
+	__get_cword3
+    fi
+} # _get_cword()
+
+
+# Get the word to complete on bash-3, where words are not broken by
+# COMP_WORDBREAKS characters and the COMP_CWORD variables look like this, for
+# example:
+#
+#     $ a b:c<TAB>
+#     COMP_CWORD: 1
+#     COMP_CWORDS:
+#     0: a
+#     1: b:c
+#
+# See also:
+# _get_cword, main routine
+# __get_cword4, bash-4 variant
+#
+__get_cword3()
+{
+	if [[ "${#COMP_WORDS[COMP_CWORD]}" -eq 0 ]] || [[ "$COMP_POINT" == "${#COMP_LINE}" ]]; then
+		printf "%s" "${COMP_WORDS[COMP_CWORD]}"
+	else
+		local i
+		local cur="$COMP_LINE"
+		local index="$COMP_POINT"
+		for (( i = 0; i <= COMP_CWORD; ++i )); do
+			while [[
+				# Current COMP_WORD fits in $cur?
+				"${#cur}" -ge ${#COMP_WORDS[i]} &&
+				# $cur doesn't match COMP_WORD?
+				"${cur:0:${#COMP_WORDS[i]}}" != "${COMP_WORDS[i]}"
+			]]; do
+				# Strip first character
+				cur="${cur:1}"
+				# Decrease cursor position
+				index="$(( index - 1 ))"
+			done
+
+			# Does found COMP_WORD matches COMP_CWORD?
+			if [[ "$i" -lt "$COMP_CWORD" ]]; then
+				# No, COMP_CWORD lies further;
+				local old_size="${#cur}"
+				cur="${cur#${COMP_WORDS[i]}}"
+				local new_size="${#cur}"
+				index="$(( index - old_size + new_size ))"
+			fi
+		done
+
+		if [[ "${COMP_WORDS[COMP_CWORD]:0:${#cur}}" != "$cur" ]]; then
+			# We messed up! At least return the whole word so things
+			# keep working
+			printf "%s" "${COMP_WORDS[COMP_CWORD]}"
+		else
+			printf "%s" "${cur:0:$index}"
+		fi
+	fi
+} # __get_cword3()
+
+
+# Get the word to complete on bash-4, where words are splitted by
+# COMP_WORDBREAKS characters (default is " \t\n\"'><=;|&(:") and the COMP_CWORD
+# variables look like this, for example:
+#
+#     $ a b:c<TAB>
+#     COMP_CWORD: 3
+#     COMP_CWORDS:
+#     0: a
+#     1: b
+#     2: :
+#     3: c
+#
+# @oaram $1 string
+# $1 string  (optional) Characters out of $COMP_WORDBREAKS which should
+#     NOT be considered word breaks. This is useful for things like scp where
+#     we want to return host:path and not only path.
+# See also:
+# _get_cword, main routine
+# __get_cword3, bash-3 variant
+#
+__get_cword4()
 {
 	local i
 	local LC_CTYPE=C
-	local WORDBREAKS=${COMP_WORDBREAKS}
-	if [ -n $1 ]; then
+	local WORDBREAKS=$COMP_WORDBREAKS
+	# Strip single quote (') and double quote (") from WORDBREAKS to
+	# workaround a bug in bash-4.0, where quoted words are split
+	# unintended, see:
+	# http://www.mail-archive.com/bug-bash@gnu.org/msg06095.html
+	# This fixes simple quoting (e.g. $ a "b<TAB> returns "b instead of b)
+	# but still fails quoted spaces (e.g. $ a "b c<TAB> returns c instead
+	# of "b c).
+	WORDBREAKS=${WORDBREAKS//\"/}
+	WORDBREAKS=${WORDBREAKS//\'/}
+	if [ -n "$1" ]; then
 		for (( i=0; i<${#1}; ++i )); do
 			local char=${1:$i:1}
 			WORDBREAKS=${WORDBREAKS//$char/}
 		done
 	fi
 	local cur=${COMP_LINE:0:$COMP_POINT}
-	local tmp="${cur}"
-	local word_start=`expr "$tmp" : '.*['"${WORDBREAKS}"']'`
+	local tmp=$cur
+	local word_start=`expr "$tmp" : '.*['"$WORDBREAKS"']'`
 	while [ "$word_start" -ge 2 ]; do
+		# Get character before $word_start
 		local char=${cur:$(( $word_start - 2 )):1}
+		# If the WORDBREAK character isn't escaped, exit loop
 		if [ "$char" != "\\" ]; then
 			break
 		fi
+		# The WORDBREAK character is escaped;
+		# Recalculate $word_start
 		tmp=${COMP_LINE:0:$(( $word_start - 2 ))}
-		word_start=`expr "$tmp" : '.*['"${WORDBREAKS}"']'`
+		word_start=`expr "$tmp" : '.*['"$WORDBREAKS"']'`
 	done
 
 	cur=${cur:$word_start}
 	printf "%s" "$cur"
-}
+} # _get_cword4()
+
 
 # This function performs file and directory completion. It's better than
 # simply using 'compgen -f', because it honours spaces in filenames.
