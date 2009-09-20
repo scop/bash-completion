@@ -109,6 +109,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/repomanage \
 		contrib/reportbug \
 		contrib/resolvconf \
+		contrib/rfkill \
 		contrib/ri \
 		contrib/rpcdebug \
 		contrib/rpm \

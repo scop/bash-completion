@@ -1,0 +1,36 @@
+# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
+# ex: ts=8 sw=8 noet filetype=sh
+#
+# bash completion for rfkill
+
+have rfkill &&
+_rfkill()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '--version' -- $cur ) )
+	else
+		case $COMP_CWORD in
+			1)
+				COMPREPLY=( $( compgen -W "help event list \
+					block unblock" -- $cur ) )
+				;;
+			2)
+				prev=${COMP_WORDS[COMP_CWORD-1]}
+				if [ $prev == block -o $prev == unblock ]; then
+					COMPREPLY=( $( compgen -W \
+						"$(rfkill list | awk -F: \
+						'/^[0-9]/ {print $1}') \
+						all wifi bluetooth uwb wimax \
+						wwan gps" -- $cur ) )
+				fi
+				;;
+		esac
+	fi
+} &&
+complete -F _rfkill rfkill
+
