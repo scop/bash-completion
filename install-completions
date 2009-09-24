@@ -40,8 +40,17 @@ if [ ! -d $installation_dir ]; then
     exit 1
 fi
 
-# many scripts requires this
+# many scripts require this
 shopt -s extglob
+
+# and some require this also
+UNAME=$(uname -s)
+UNAME=${UNAME/CYGWIN_*/Cygwin}
+
+case $UNAME in
+    Linux|GNU|GNU/*) USERLAND=GNU ;;
+    *) USERLAND=$UNAME ;;
+esac
 
 for script in $completion_dir/*; do
     # reset completion
