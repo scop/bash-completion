@@ -6,12 +6,12 @@
 have xm && {
 _xen_domain_names()
 {
-	COMPREPLY=( $(compgen -W "$( xm list 2>/dev/null | awk '!/Name|Domain-0/ { print $1 }'  )" -- $cur) )
+	COMPREPLY=( $(compgen -W "$( xm list 2>/dev/null | awk '!/Name|Domain-0/ { print $1 }'  )" -- "$cur") )
 }
 
 _xen_domain_ids()
 {
-	COMPREPLY=( $(compgen -W "$( xm list 2>/dev/null | awk '!/Name|Domain-0/ { print $2 }' )" -- $cur) )
+	COMPREPLY=( $(compgen -W "$( xm list 2>/dev/null | awk '!/Name|Domain-0/ { print $2 }' )" -- "$cur") )
 }
 
 _xm()
@@ -34,7 +34,7 @@ _xm()
 		cfgbootpolicy dumppolicy help'
 
 	if [[ $COMP_CWORD -eq 1 ]] ; then
-		COMPREPLY=( $( compgen -W "$commands" -- $cur ) )
+		COMPREPLY=( $( compgen -W "$commands" -- "$cur" ) )
 	else
 		prev=${COMP_WORDS[COMP_CWORD-1]}
 		if [[ "$cur" == *=* ]]; then
@@ -79,7 +79,7 @@ _xm()
 						--console_autoconnect'
 					;;
 			esac
-			COMPREPLY=( $( compgen -W "$options" -- $cur ) )
+			COMPREPLY=( $( compgen -W "$options" -- "$cur" ) )
 		else
 			case $command in
 				@(console|destroy|domname|domid|list|mem-@(set|max)|pause|reboot|rename|shutdown|unpause|vcpu-@(list|pin|set)|block-list|network-list|vtpm-list))
@@ -122,7 +122,7 @@ _xm()
 							_xen_domain_names
 							;;
 						3)
-							COMPREPLY=( $(compgen -W "r s e i u b" -- $cur) )
+							COMPREPLY=( $(compgen -W "r s e i u b" -- "$cur") )
 							;;
 					esac
 					;;
@@ -133,10 +133,10 @@ _xm()
 							_xen_domain_names
 							;;
 						3)
-							COMPREPLY=( $(compgen -W "phy: file:" -- $cur) )
+							COMPREPLY=( $(compgen -W "phy: file:" -- "$cur") )
 							;;
 						5)
-							COMPREPLY=( $(compgen -W "w r" -- $cur) )
+							COMPREPLY=( $(compgen -W "w r" -- "$cur") )
 							;;
 						6)
 							_xen_domain_names
@@ -150,7 +150,7 @@ _xm()
 							_xen_domain_names
 							;;
 						3)
-							COMPREPLY=( $(compgen -W "$( xm block-list $prev 2>/dev/null | awk '!/Vdev/ { print $1 }' )" -- $cur) )
+							COMPREPLY=( $(compgen -W "$( xm block-list $prev 2>/dev/null | awk '!/Vdev/ { print $1 }' )" -- "$cur") )
 							;;
 					esac
 					;;
@@ -161,7 +161,7 @@ _xm()
 							_xen_domain_names
 							;;
 						*)
-							COMPREPLY=( $(compgen -W "script= ip= mac= bridge= backend=" -- $cur) )
+							COMPREPLY=( $(compgen -W "script= ip= mac= bridge= backend=" -- "$cur") )
 							;;
 					esac
 					;;
@@ -172,7 +172,7 @@ _xm()
 							_xen_domain_names
 							;;
 						3)
-							COMPREPLY=( $(compgen -W "$( xm network-list $prev 2>/dev/null | awk '!/Idx/ { print $1 }' )" -- $cur) )
+							COMPREPLY=( $(compgen -W "$( xm network-list $prev 2>/dev/null | awk '!/Idx/ { print $1 }' )" -- "$cur") )
 							;;
 					esac
 					;;
@@ -189,7 +189,7 @@ _xm()
 					COMPREPLY=( ${COMPREPLY[@]:-} \
 						$( compgen -W '$( command ls \
 						/etc/xen 2>/dev/null )' \
-						-- $cur ) )
+						-- "$cur" ) )
 					;;
 				new)
 					case $prev in

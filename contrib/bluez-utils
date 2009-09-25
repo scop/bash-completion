@@ -8,27 +8,27 @@ _bluetooth_adresses()
 {
 	if [ -n "${COMP_BLUETOOTH_SCAN:-}" ]; then
 		COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -W "$( hcitool scan | \
-			awk '/^\t/{print $1}' )" -- $cur ) )
+			awk '/^\t/{print $1}' )" -- "$cur" ) )
 	fi
 }
 
 _bluetooth_devices()
 {
 	COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -W "$( hcitool dev | \
-		awk '/^\t/{print $1}' )" -- $cur ) )
+		awk '/^\t/{print $1}' )" -- "$cur" ) )
 }
 
 _bluetooth_services()
 {
 	COMPREPLY=( $( compgen -W 'DID SP DUN LAN FAX OPUSH FTP HS HF HFAG \
 		SAP NAP GN PANU HCRP HID CIP A2SRC A2SNK AVRCT AVRTG UDIUE \
-		UDITE SYNCML' -- $cur ) )
+		UDITE SYNCML' -- "$cur" ) )
 }
 
 _bluetooth_packet_types()
 {
 	COMPREPLY=( $( compgen -W 'DM1 DM3 DM5 DH1 DH3 DH5 HV1 HV2 HV3' -- \
-		$cur ) )
+		"$cur" ) )
 }
 
 _get_command()
@@ -60,7 +60,7 @@ _hcitool()
 			return 0;
 			;;
 		--role)
-			COMPREPLY=( $( compgen -W 'm s' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'm s' -- "$cur" ) )
 			return 0;
 			;;
 		--pkt-type)
@@ -74,11 +74,11 @@ _hcitool()
 	_get_command
 	if [ -z $command ]; then
 		if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W '-h -i' -- $cur ) )
+			COMPREPLY=( $( compgen -W '-h -i' -- "$cur" ) )
 		else
 			COMPREPLY=( $( compgen -W 'dev inq scan name info \
 				spinq epinq cmd con cc dc sr cpt rssi lq tpl \
-				afh lst auth enc key clkoff clock' -- $cur ) )
+				afh lst auth enc key clkoff clock' -- "$cur" ) )
 		fi
 	else
 		case $command in
@@ -91,7 +91,7 @@ _hcitool()
 			cc)
 				if [[ "$cur" == -* ]]; then
 					COMPREPLY=( $( compgen -W '--role \
-						--pkt-type' -- $cur ) )
+						--pkt-type' -- "$cur" ) )
 				else
 					_count_args
 					if [ $args -eq 2 ]; then
@@ -105,7 +105,7 @@ _hcitool()
 					_bluetooth_adresses
 				else
 					COMPREPLY=( $( compgen -W \
-						'master slave' -- $cur ) )
+						'master slave' -- "$cur" ) )
 				fi
 				;;
 			cpt)
@@ -122,7 +122,7 @@ _hcitool()
 					_bluetooth_adresses
 				else
 					COMPREPLY=( $( compgen -W \
-						'0 1' -- $cur ) )
+						'0 1' -- "$cur" ) )
 				fi
 				;;
 		esac
@@ -152,17 +152,17 @@ _sdptool()
 	_get_command
 	if [ -z $command ]; then
 		if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W '--help' -- $cur ) )
+			COMPREPLY=( $( compgen -W '--help' -- "$cur" ) )
 		else
 			COMPREPLY=( $( compgen -W 'search browse records add \
-				del get setattr setseq' -- $cur ) )
+				del get setattr setseq' -- "$cur" ) )
 		fi
 	else
 		case $command in
 			search)
 				if [[ "$cur" == -* ]]; then
 					COMPREPLY=( $( compgen -W '--bdaddr \
-						--tree --raw --xml' -- $cur ) )
+						--tree --raw --xml' -- "$cur" ) )
 				else
 					_bluetooth_services
 				fi
@@ -170,7 +170,7 @@ _sdptool()
 			@(browse|records))
 				if [[ "$cur" == -* ]]; then
 					COMPREPLY=( $( compgen -W '--tree \
-						--raw --xml' -- $cur ) )
+						--raw --xml' -- "$cur" ) )
 				else
 					_bluetooth_adresses
 				fi
@@ -178,7 +178,7 @@ _sdptool()
 			add)
 				if [[ "$cur" == -* ]]; then
 					COMPREPLY=( $( compgen -W '--handle \
-						--channel' -- $cur ) )
+						--channel' -- "$cur" ) )
 				else
 					_bluetooth_services
 				fi
@@ -186,7 +186,7 @@ _sdptool()
 			get)
 				if [[ "$cur" == -* ]]; then
 					COMPREPLY=( $( compgen -W '--bdaddr \
-						--tree --raw --xml' -- $cur ) )
+						--tree --raw --xml' -- "$cur" ) )
 				fi
 				;;
 		esac
@@ -210,7 +210,7 @@ _l2ping()
 	esac
 
 	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-i -s -c -t -f -r' -- $cur ) )
+		COMPREPLY=( $( compgen -W '-i -s -c -t -f -r' -- "$cur" ) )
 	else
 		_bluetooth_adresses
 	fi
@@ -243,10 +243,10 @@ _rfcomm()
 		if [[ "$cur" == -* ]]; then
 			COMPREPLY=( $( compgen -W '-h --help -a -r --raw -f \
 				--config -i -A --auth -E --encrypt -S --secure \
-				-M --master' -- $cur ) )
+				-M --master' -- "$cur" ) )
 		else
 			COMPREPLY=( $( compgen -W 'show connect listen watch \
-				bind release' -- $cur ) )
+				bind release' -- "$cur" ) )
 		fi
 	else
 		_count_args
@@ -284,10 +284,10 @@ _ciptool()
 	_get_command
 	if [ -z $command ]; then
 		if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W '-h --help -i' -- $cur ) )
+			COMPREPLY=( $( compgen -W '-h --help -i' -- "$cur" ) )
 		else
 			COMPREPLY=( $( compgen -W 'show search connect release \
-				loopback' -- $cur ) )
+				loopback' -- "$cur" ) )
 		fi
 	else
 		case $command in
@@ -318,13 +318,13 @@ _dfutool()
 	esac
 
 	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-h --help -d --device' -- $cur ) )
+		COMPREPLY=( $( compgen -W '-h --help -d --device' -- "$cur" ) )
 	else
 		_count_args
 		case $args in
 			1)
 				COMPREPLY=( $( compgen -W 'verify modify \
-					upgrade archive' -- $cur ) )
+					upgrade archive' -- "$cur" ) )
 				;;
 			2)
 				_filedir
@@ -344,7 +344,7 @@ _hciconfig()
 	_get_command
 	if [ -z $command ]; then
 		if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W '-h --help -a --all' -- $cur ) )
+			COMPREPLY=( $( compgen -W '-h --help -a --all' -- "$cur" ) )
 		else
 			COMPREPLY=( $( compgen -W 'up down reset rstat auth \
 				noauth encrypt noencrypt secmgr nosecmgr \
@@ -352,7 +352,7 @@ _hciconfig()
 				voice iac inqmode inqdata inqtype inqparams \
 				pageparms pageto afhmode aclmtu scomtu putkey \
 				delkey commands features version revision lm' \
-				-- $cur ) )
+				-- "$cur" ) )
 		fi
 	else
 		case $command in
@@ -366,7 +366,7 @@ _hciconfig()
 				_count_args
 				if [ $args -eq 2 ]; then
 					COMPREPLY=( $( compgen -W 'MASTER \
-						SLAVE NONE ACCEPT' -- $cur ) )
+						SLAVE NONE ACCEPT' -- "$cur" ) )
 				fi
 				;;
 			ptype)
@@ -388,28 +388,28 @@ _hciattach()
 	cur=`_get_cword`
 
 	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-n -p -t -b -s -l' -- $cur ) )
+		COMPREPLY=( $( compgen -W '-n -p -t -b -s -l' -- "$cur" ) )
 	else
 		_count_args
 		case $args in
 			1)
 				COMPREPLY=( $( command ls /dev/tty* ) )
 				COMPREPLY=( $( compgen -W '${COMPREPLY[@]} \
-					${COMPREPLY[@]#/dev/}' -- $cur ) )
+					${COMPREPLY[@]#/dev/}' -- "$cur" ) )
 				;;
 			2)
 				COMPREPLY=( $( compgen -W 'any ericsson digi \
 					xircom csr bboxes swave bcsp 0x0105 \
-					0x080a 0x0160 0x0002' -- $cur ) )
+					0x080a 0x0160 0x0002' -- "$cur" ) )
 				;;
 			3)
 				COMPREPLY=( $( compgen -W '9600 19200 38400 \
 					57600 115200 230400 460800 921600' \
-					-- $cur ) )
+					-- "$cur" ) )
 				;;
 			4)
 				COMPREPLY=( $( compgen -W 'flow noflow' \
-					-- $cur ) )
+					-- "$cur" ) )
 				;;
 			5)
 				_bluetooth_adresses
@@ -429,7 +429,7 @@ _hid2hci()
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-h --help -q --quiet -0 --tohci -1 \
-			--tohid' -- $cur ) )
+			--tohid' -- "$cur" ) )
 	fi
 }
 complete -F _hid2hci hid2hci
@@ -442,11 +442,11 @@ _avctrl()
 	cur=`_get_cword`
 
 	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-h --help -q --quiet' -- $cur ) )
+		COMPREPLY=( $( compgen -W '-h --help -q --quiet' -- "$cur" ) )
 	else
 		_count_args
 		if [ $args -eq 1 ]; then
-			COMPREPLY=( $( compgen -W 'discover switch' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'discover switch' -- "$cur" ) )
 		fi
 	fi
 }

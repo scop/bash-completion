@@ -52,7 +52,7 @@ _dpkg()
 		return 0
 		;;
    	-@(s|p|l|-@(status|print-avail|list)))
-		COMPREPLY=( $( apt-cache pkgnames $cur 2>/dev/null ) )
+		COMPREPLY=( $( apt-cache pkgnames "$cur" 2>/dev/null ) )
 		return 0
 		;;
 	-@(S|-search))
@@ -60,7 +60,7 @@ _dpkg()
 		return 0
 		;;
 	-@(r|L|P|-@(remove|purge|listfiles)))
-		COMPREPLY=( $( _comp_dpkg_installed_packages $cur ) )
+		COMPREPLY=( $( _comp_dpkg_installed_packages "$cur" ) )
 		return 0
 		;;
 	*)
@@ -89,7 +89,7 @@ _dpkg()
 			--no-debsig --no-act -D --debug --status-fd \
 			-b --build -I --info -f --field -c --contents \
 			-x --extract -X --vextract --fsys-tarfile -e --control \
-			--ignore-depends --abort-after' -- $cur ) )
+			--ignore-depends --abort-after' -- "$cur" ) )
 		;;
 	esac
 
@@ -115,11 +115,11 @@ _dpkg_reconfigure()
 		opt=( $( echo /usr/share/perl5/Debconf/FrontEnd/* ) )
 		opt=( ${opt[@]##*/} )
 		opt=( ${opt[@]%.pm} )
-		COMPREPLY=( $( compgen -W '${opt[@]}' -- $cur ) )
+		COMPREPLY=( $( compgen -W '${opt[@]}' -- "$cur" ) )
 		return 0
 		;;
 	    -@(p|-priority))
-  		COMPREPLY=( $( compgen -W 'low medium high critical' -- $cur ) )
+  		COMPREPLY=( $( compgen -W 'low medium high critical' -- "$cur" ) )
 		return 0
 		;;
 	esac
@@ -127,9 +127,9 @@ _dpkg_reconfigure()
 	if [[ "$cur" == -* ]]; then
 	    COMPREPLY=( $( compgen -W '-f --frontend -p --priority -a --all \
 				       -u --unseen-only -h --help -s --showold \
-				       --force --terse' -- $cur ) )
+				       --force --terse' -- "$cur" ) )
 	else
-	    COMPREPLY=( $( _comp_dpkg_installed_packages $cur ) )
+	    COMPREPLY=( $( _comp_dpkg_installed_packages "$cur" ) )
 	fi
 } &&
 complete -F _dpkg_reconfigure $default dpkg-reconfigure

@@ -27,7 +27,7 @@ _openssl_sections()
 	[ ! -f "$config" ] && return 0
 
 	COMPREPLY=( $( compgen -W "$( awk '/\[.*\]/ {print $2}' $config )" \
-		-- $cur ) )
+		-- "$cur" ) )
 }
 
 _openssl()
@@ -53,7 +53,7 @@ _openssl()
 		rc4-40'
 
 	if [ $COMP_CWORD -eq 1 ]; then
-		COMPREPLY=( $( compgen -W "$commands" -- $cur ) )
+		COMPREPLY=( $( compgen -W "$commands" -- "$cur" ) )
 	else
 		command=${COMP_WORDS[1]}
 		prev=${COMP_WORDS[COMP_CWORD-1]}
@@ -80,7 +80,7 @@ _openssl()
 						formats="$formats SMIME"
 						;;
 				esac
-				COMPREPLY=( $( compgen -W "$formats" -- $cur ) )
+				COMPREPLY=( $( compgen -W "$formats" -- "$cur" ) )
 				return 0
 				;;
 			-connect)
@@ -89,12 +89,12 @@ _openssl()
 				;;
 			-starttls)
 				COMPREPLY=( $( compgen -W 'smtp pop3 imap ftp' \
-					-- $cur ) )
+					-- "$cur" ) )
 				return 0
 				;;
 			-cipher)
 				COMPREPLY=( $( compgen -W "$(openssl ciphers | \
-					tr ':' '\n')" -- $cur ) )
+					tr ':' '\n')" -- "$cur" ) )
 				return 0
 				;;
 		esac
@@ -278,7 +278,7 @@ _openssl()
 					options='-c -d'
 					;;
 			esac
-			COMPREPLY=( $( compgen -W "$options" -- $cur ) )
+			COMPREPLY=( $( compgen -W "$options" -- "$cur" ) )
 		else
 			if [[ "$command" == speed ]]; then
 				COMPREPLY=( $( compgen -W 'md2 mdc2 md5 hmac \
@@ -286,7 +286,7 @@ _openssl()
 					bf-cbc des-cbc des-ede3 rc4 rsa512 \
 					rsa1024 rsa2048 rsa4096 dsa512 dsa1024 \
 					dsa2048 idea rc2 des rsa blowfish' -- \
-					$cur ) )
+					"$cur" ) )
 			else
 				_filedir
 			fi

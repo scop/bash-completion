@@ -126,7 +126,7 @@ _cvs()
 					       $cur ) )
 			fi
 		else
-			COMPREPLY=( $( compgen -W '-k -m' -- $cur ) )
+			COMPREPLY=( $( compgen -W '-k -m' -- "$cur" ) )
 		fi
 		;;
 	admin)
@@ -139,10 +139,10 @@ _cvs()
 		;;
 	annotate)
 		if [[ "$cur" = -* ]]; then
-			COMPREPLY=( $( compgen -W '-D -F -f -l -R -r' -- $cur ) )
+			COMPREPLY=( $( compgen -W '-D -F -f -l -R -r' -- "$cur" ) )
 		else
 			get_entries
-			COMPREPLY=( $( compgen -W '${entries[@]}' -- $cur ) )
+			COMPREPLY=( $( compgen -W '${entries[@]}' -- "$cur" ) )
 		fi
 		;;
 	checkout)
@@ -150,10 +150,10 @@ _cvs()
 			[ -z "$cvsroot" ] && cvsroot=$CVSROOT
 			COMPREPLY=( $( cvs -d "$cvsroot" co -c 2> /dev/null | \
 					awk '{print $1}' ) )
-			COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
+			COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
 		else
 			COMPREPLY=( $( compgen -W '-A -N -P -R -c -f -l -n -p \
-						  -s -r -D -d -k -j' -- $cur ) )
+						  -s -r -D -d -k -j' -- "$cur" ) )
 		fi
 		;;
 	commit)
@@ -173,7 +173,7 @@ _cvs()
 				newremoved=( $( cvs -q diff --brief 2>&1 | \
 				sed -ne 's/^cvs diff: \([^ ]*\) .*, no comparison available$/\1/p' ) )
 				COMPREPLY=( $( compgen -W '${changed[@]:-} \
-						   ${newremoved[@]:-}' -- $cur ) )
+						   ${newremoved[@]:-}' -- "$cur" ) )
 			else
 				COMPREPLY=( $(compgen $default -- "$cur") )
 			fi
@@ -186,17 +186,17 @@ _cvs()
 		if [ -r ~/.cvspass ]; then
 			# Ugly escaping because of bash treating ':' specially
 			cvsroots=$( sed 's/^[^ ]* //; s/:/\\:/g' ~/.cvspass )
-			COMPREPLY=( $( compgen -W '$cvsroots' -- $cur ) )
+			COMPREPLY=( $( compgen -W '$cvsroots' -- "$cur" ) )
 		fi
 		;;
 	export)
 		if [[ "$cur" != -* ]]; then
 			[ -z "$cvsroot" ] && cvsroot=$CVSROOT
 			COMPREPLY=( $( cvs -d "$cvsroot" co -c | awk '{print $1}' ) )
-			COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
+			COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
 		else
 			COMPREPLY=( $( compgen -W '-N -f -l -R -n \
-						  -r -D -d -k' -- $cur ) )
+						  -r -D -d -k' -- "$cur" ) )
 		fi
 		;;
 	diff)
@@ -204,7 +204,7 @@ _cvs()
 			_longopt diff
 		else
 			get_entries
-			COMPREPLY=( $( compgen -W '${entries[@]:-}' -- $cur ) )
+			COMPREPLY=( $( compgen -W '${entries[@]:-}' -- "$cur" ) )
 		fi
 		;;
 	remove)
@@ -216,10 +216,10 @@ _cvs()
 				for i in "${entries[@]}"; do
 					[ ! -r "$i" ] && miss=( "${miss[@]}" $i )
 				done
-				COMPREPLY=( $(compgen -W '${miss[@]:-}' -- $cur) )
+				COMPREPLY=( $(compgen -W '${miss[@]:-}' -- "$cur") )
 			fi
 		else
-			COMPREPLY=( $( compgen -W '-f -l -R' -- $cur ) )
+			COMPREPLY=( $( compgen -W '-f -l -R' -- "$cur" ) )
 		fi
 		;;
 	import)
@@ -237,14 +237,14 @@ _cvs()
 			COMPREPLY=( $( compgen -W '${COMPREPLY[@]} $pwd' -- \
 				       $cur ) )
 		else
-			COMPREPLY=( $( compgen -W '-d -k -I -b -m -W' -- $cur ))
+			COMPREPLY=( $( compgen -W '-d -k -I -b -m -W' -- "$cur" ))
 		fi
 		;;
 	update)
 		if [[ "$cur" = -* ]]; then
 			COMPREPLY=( $( compgen -W '-A -P -C -d -f -l -R -p \
 						   -k -r -D -j -I -W' -- \
-						   $cur ) )
+						   "$cur" ) )
 		fi
 		;;
 	"")
@@ -255,7 +255,7 @@ _cvs()
 					   rfreeze rlog rm rtag stat status \
 					   tag unedit up update -H -Q -q -b \
 					   -d -e -f -l -n -t -r -v -w -x -z \
-					   --help --version' -- $cur ) )
+					   --help --version' -- "$cur" ) )
 		;;
 	*)
 		;;

@@ -7,29 +7,29 @@ have lvm && {
 _volumegroups()
 {
 	COMPREPLY=( $(compgen -W "$( vgscan 2>/dev/null | \
-	    sed -n -e 's|.*Found.*"\(.*\)".*$|\1|p' )" -- $cur ) )
+	    sed -n -e 's|.*Found.*"\(.*\)".*$|\1|p' )" -- "$cur" ) )
 }
 
 _physicalvolumes()
 {
 	COMPREPLY=( $(compgen -W "$( pvscan 2>/dev/null | \
-	    sed -n -e 's|^.*PV \(.*\) VG.*$|\1|p' )" -- $cur ) )
+	    sed -n -e 's|^.*PV \(.*\) VG.*$|\1|p' )" -- "$cur" ) )
 }
 
 _logicalvolumes()
 {
 	COMPREPLY=( $(compgen -W "$( lvscan 2>/dev/null | \
-	    sed -n -e "s|^.*'\(.*\)'.*$|\1|p" )" -- $cur ) )
+	    sed -n -e "s|^.*'\(.*\)'.*$|\1|p" )" -- "$cur" ) )
 }
 
 _units()
 {
-	COMPREPLY=( $( compgen -W 'h s b k m g t H K M G T' -- $cur ) )
+	COMPREPLY=( $( compgen -W 'h s b k m g t H K M G T' -- "$cur" ) )
 }
 
 _sizes()
 {
-	COMPREPLY=( $( compgen -W 'k K m M g G t T' -- $cur ) )
+	COMPREPLY=( $( compgen -W 'k K m M g G t T' -- "$cur" ) )
 }
 
 _args()
@@ -56,7 +56,7 @@ _lvmdiskscan()
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-d --debug -h -? --help -l \
-			--lvmpartition -v --verbose --version' -- $cur ) )
+			--lvmpartition -v --verbose --version' -- "$cur" ) )
 	fi
 }
 complete -F _lvmdiskscan lvmdiskscan
@@ -73,7 +73,7 @@ _pvscan()
 			--exported -n --novolumegroup -h -? \
 			--help --ignorelockingfailure -P \
 			--partial -s --short -u --uuid -v \
-			--verbose --version' -- $cur ) )
+			--verbose --version' -- "$cur" ) )
 	fi
 }
 complete -F _pvscan pvscan
@@ -91,7 +91,7 @@ _pvs()
 			COMPREPLY=( $( compgen -W 'pv_fmt pv_uuid \
 				pv_size pv_free pv_used pv_name \
 				pv_attr pv_pe_count \
-				pv_pe_alloc_count' -- $cur ) )
+				pv_pe_alloc_count' -- "$cur" ) )
 			return 0
 			;;
 		--units)
@@ -105,7 +105,7 @@ _pvs()
 			-h -? --help --ignorelockingfailure --noheadings \
 			--nosuffix -o --options -O --sort \
 			--separator --unbuffered --units \
-			-v --verbose --version' -- $cur ) )
+			-v --verbose --version' -- "$cur" ) )
 	else
 		_physicalvolumes
 	fi
@@ -129,7 +129,7 @@ _pvdisplay()
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-c --colon -C --columns --units \
-			-v --verbose -d --debug -h --help --version' -- $cur ) )
+			-v --verbose -d --debug -h --help --version' -- "$cur" ) )
 	else
 		_physicalvolumes
 	fi
@@ -146,7 +146,7 @@ _pvchange()
 
 	case "$prev" in
 		-@(A|x|-autobackup|--allocatable))
-			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
 			return 0
 			;;
 	esac
@@ -155,7 +155,7 @@ _pvchange()
 		COMPREPLY=( $( compgen -W '-a --all -A --autobackup \
 			-d --debug -h --help -t --test -u --uuid -x \
 			--allocatable -v --verbose --addtag --deltag \
-			--version' -- $cur ) )
+			--version' -- "$cur" ) )
 	else
 		_physicalvolumes
 	fi
@@ -176,11 +176,11 @@ _pvcreate()
 			return 0
 			;;
 		-@(M|-metadatatype))
-			COMPREPLY=( $( compgen -W '1 2' -- $cur ) )
+			COMPREPLY=( $( compgen -W '1 2' -- "$cur" ) )
 			return 0
 			;;
 		--metadatacopies)
-			COMPREPLY=( $( compgen -W '0 1 2' -- $cur ) )
+			COMPREPLY=( $( compgen -W '0 1 2' -- "$cur" ) )
 			return 0
 			;;
 		--@(metadatasize|setphysicalvolumesize))
@@ -194,7 +194,7 @@ _pvcreate()
 			--force -h -? --help --labelsector -M --metadatatype \
 			--metadatacopies --metadatasize \
 			--setphysicalvolumesize -t --test -u --uuid uuid -v \
-			--verbose -y --yes --version' -- $cur ) )
+			--verbose -y --yes --version' -- "$cur" ) )
 	else
 		_physicalvolumes
 	fi
@@ -211,7 +211,7 @@ _pvmove()
 
 	case "$prev" in
 		-@(A|-autobackup))
-			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
 			return 0
 			;;
 		-@(n|-name))
@@ -223,7 +223,7 @@ _pvmove()
 		COMPREPLY=( $( compgen -W '--abort -A --autobackup \
 			-b --background -d --debug -f --force -h -? \
 			--help -i --interval -t --test -v --verbose \
-			--version -n --name' -- $cur ) )
+			--version -n --name' -- "$cur" ) )
 	else
 		_physicalvolumes
 	fi
@@ -240,7 +240,7 @@ _pvremove()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-d --debug -f --force -h -? \
 			--help -y --yes -t --test -v --verbose \
-			--version' -- $cur ) )
+			--version' -- "$cur" ) )
 	else
 		_physicalvolumes
 	fi
@@ -257,7 +257,7 @@ _vgscan()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-d --debug -h --help \
 			--ignorelockingfailure --mknodes -P \
-			--partial -v --verbose --version' -- $cur ) )
+			--partial -v --verbose --version' -- "$cur" ) )
 	fi
 }
 complete -F _vgscan vgscan
@@ -276,7 +276,7 @@ _vgs()
 				vg_attr vg_size vg_free vg_sysid \
 				vg_extent_size vg_extent_count vg_free_count \
 				max_lv max_pv pv_count lv_count snap_count \
-				vg_seqno' -- $cur ) )
+				vg_seqno' -- "$cur" ) )
 			return 0
 			;;
 		--units)
@@ -290,7 +290,7 @@ _vgs()
 			-h --help --ignorelockingfailure --noheadings \
 			--nosuffix -o --options -O --sort -P --partial \
 			--separator --unbuffered --units \
-			-v --verbose --version' -- $cur ) )
+			-v --verbose --version' -- "$cur" ) )
 	else
 		_volumegroups
 	fi
@@ -315,7 +315,7 @@ _vgdisplay()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-c --colon -C --columns --units \
 			-P --partial -A --activevolumegroups -v --verbose \
-			-d --debug -h --help --version' -- $cur ) )
+			-d --debug -h --help --version' -- "$cur" ) )
 	else
 		_volumegroups
 	fi
@@ -332,7 +332,7 @@ _vgchange()
 
 	case "$prev" in
 		-@(a|A|x|-available|-autobackup|-resizeable))
-			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
 			return 0
 			;;
 	esac
@@ -342,7 +342,7 @@ _vgchange()
 			--partial -d --debug -h --help --ignorelockingfailure \
 			-t --test -u --uuid -v --verbose --version -a \
 			--available -x --resizeable -l --logicalvolume \
-			--addtag --deltag' -- $cur ) )
+			--addtag --deltag' -- "$cur" ) )
 	else
 		_volumegroups
 	fi
@@ -359,11 +359,11 @@ _vgcreate()
 
 	case "$prev" in
 		-@(A|-autobackup))
-			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
 			return 0
 			;;
 		-@(M|-metadatatype))
-			COMPREPLY=( $( compgen -W '1 2' -- $cur ) )
+			COMPREPLY=( $( compgen -W '1 2' -- "$cur" ) )
 			return 0
 			;;
 		-@(s|-physicalextentsize))
@@ -377,7 +377,7 @@ _vgcreate()
 			--alloc -d --debug -h --help -l --maxlogicalvolumes \
 			-M --metadatatype -p --maxphysicalvolumes -s \
 			--physicalextentsize -t --test -v --verbose \
-			--version' -- $cur ) )
+			--version' -- "$cur" ) )
 	else
 		_args
 		if [ $args -eq 0 ]; then
@@ -398,7 +398,7 @@ _vgremove()
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-d --debug -h --help -t --test \
-		-v --verbose --version' -- $cur ) )
+		-v --verbose --version' -- "$cur" ) )
 	else
 		_volumegroups
 	fi
@@ -415,14 +415,14 @@ _vgrename()
 
 	case "$prev" in
 		-@(A|-autobackup))
-			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
 			return 0
 			;;
 	esac
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-A --autobackup -d --debug -h \
-			-? --help -t --test -v --verbose --version' -- $cur ) )
+			-? --help -t --test -v --verbose --version' -- "$cur" ) )
 	else
 		_volumegroups
 	fi
@@ -439,7 +439,7 @@ _vgreduce()
 
 	case "$prev" in
 		-@(A|-autobackup))
-			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
 			return 0
 			;;
 	esac
@@ -447,7 +447,7 @@ _vgreduce()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-a --all -A --autobackup -d \
 			--debug -h --help --removemissing -t --test -v \
-			--verbose --version' -- $cur ) )
+			--verbose --version' -- "$cur" ) )
 
 	else
 		_args
@@ -470,7 +470,7 @@ _vgextend()
 
 	case "$prev" in
 		-@(A|-autobackup))
-			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
 			return 0
 			;;
 		-@(L|-size))
@@ -481,7 +481,7 @@ _vgextend()
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-A --autobackup -d --debug -h \
-			-? --help -t --test -v --verbose --version' -- $cur ) )
+			-? --help -t --test -v --verbose --version' -- "$cur" ) )
 	else
 		_args
 		if [ $args -eq 0 ]; then
@@ -502,7 +502,7 @@ _vgport()
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-a --all -d --debug -h \
-			-? --help -v --verbose --version' -- $cur ) )
+			-? --help -v --verbose --version' -- "$cur" ) )
 	else
 		_volumegroups
 	fi
@@ -518,7 +518,7 @@ _vgck()
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-d --debug -h \
-			-? --help -v --verbose --version' -- $cur ) )
+			-? --help -v --verbose --version' -- "$cur" ) )
 	else
 		_volumegroups
 	fi
@@ -535,11 +535,11 @@ _vgconvert()
 
 	case "$prev" in
 		-@(M|-metadatatype))
-			COMPREPLY=( $( compgen -W '1 2' -- $cur ) )
+			COMPREPLY=( $( compgen -W '1 2' -- "$cur" ) )
 			return 0
 			;;
 		--metadatacopies)
-			COMPREPLY=( $( compgen -W '0 1 2' -- $cur ) )
+			COMPREPLY=( $( compgen -W '0 1 2' -- "$cur" ) )
 			return 0
 			;;
 		--metadatasize)
@@ -551,7 +551,7 @@ _vgconvert()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-d --debug -h --help --labelsector \
 			-M --metadatatype --metadatacopies --metadatasize \
-			-t --test -v --verbose --version' -- $cur ) )
+			-t --test -v --verbose --version' -- "$cur" ) )
 	else
 		_volumegroups
 	fi
@@ -576,7 +576,7 @@ _vgcfgbackup()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-d --debug -f --file -h --help \
 			--ignorelockingfailure -P --partial -v --verbose \
-			--version' -- $cur ) )
+			--version' -- "$cur" ) )
 	else
 		_volumegroups
 	fi
@@ -597,7 +597,7 @@ _vgcfgrestore()
 			return 0
 			;;
 		-@(M|-metadatatype))
-			COMPREPLY=( $( compgen -W '1 2' -- $cur ) )
+			COMPREPLY=( $( compgen -W '1 2' -- "$cur" ) )
 			return 0
 			;;
 		-@(n|-name))
@@ -609,7 +609,7 @@ _vgcfgrestore()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-d --debug -f --file -l --list \
 			-h --help -M --Metadatatype -n --name -t --test \
-			-v --verbose --version' -- $cur ) )
+			-v --verbose --version' -- "$cur" ) )
 	else
 		_volumegroups
 	fi
@@ -626,7 +626,7 @@ _vgmerge()
 
 	case "$prev" in
 		-@(A|-autobackup))
-			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
 			return 0
 			;;
 	esac
@@ -634,7 +634,7 @@ _vgmerge()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-A --autobackup -d --debug \
 			-h --help -l --list -t --test -v --verbose \
-			--version' -- $cur ) )
+			--version' -- "$cur" ) )
 	else
 		_volumegroups
 	fi
@@ -651,11 +651,11 @@ _vgsplit()
 
 	case "$prev" in
 		-@(A|-autobackup))
-			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
 			return 0
 			;;
 		-@(M|-metadatatype))
-			COMPREPLY=( $( compgen -W '1 2' -- $cur ) )
+			COMPREPLY=( $( compgen -W '1 2' -- "$cur" ) )
 			return 0
 			;;
 	esac
@@ -663,7 +663,7 @@ _vgsplit()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-A --autobackup -d --debug \
 			-h --help -l --list -M --metadatatype -t --test \
-			-v --verbose --version' -- $cur ) )
+			-v --verbose --version' -- "$cur" ) )
 	else
 		_args
 		if [ $args -eq 0 -o $args -eq 1 ]; then
@@ -684,7 +684,7 @@ _vgmknodes()
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-d --debug -h --help -v --verbose \
-			--version' -- $cur ) )
+			--version' -- "$cur" ) )
 	else
 		_volumegroups
 	fi
@@ -701,7 +701,7 @@ _lvscan()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-b --blockdevice -d --debug \
 			-h -? --help --ignorelockingfailure -P \
-			--partial -v --verbose --version' -- $cur ) )
+			--partial -v --verbose --version' -- "$cur" ) )
 	fi
 }
 complete -F _lvscan lvscan
@@ -720,7 +720,7 @@ _lvs()
 				lv_attr lv_minor lv_size seg_count \
 				origin snap_percent segtype stripes \
 				stripesize chunksize seg_start \
-				seg_size' -- $cur ) )
+				seg_size' -- "$cur" ) )
 			return 0
 			;;
 		--units)
@@ -734,7 +734,7 @@ _lvs()
 			-h --help --ignorelockingfailure --noheadings \
 			--nosuffix -o --options -O --sort -P --partial \
 			--segments --separator --unbuffered --units \
-			-v --verbose --version' -- $cur ) )
+			-v --verbose --version' -- "$cur" ) )
 	else
 		_logicalvolumes
 	fi
@@ -759,7 +759,7 @@ _lvdisplay()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-c --colon -C --columns --units \
 			-P --partial -m --maps -v --verbose -d --debug -h \
-			--help --version' -- $cur ) )
+			--help --version' -- "$cur" ) )
 	else
 		_logicalvolumes
 	fi
@@ -776,11 +776,11 @@ _lvchange()
 
 	case "$prev" in
 		-@(a|A|C|M|-available|-autobackup|-continguous|-persistent))
-			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
 			return 0
 			;;
 		-@(p|-permission))
-			COMPREPLY=( $( compgen -W 'r rw' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'r rw' -- "$cur" ) )
 			return 0
 			;;
 	esac
@@ -791,7 +791,7 @@ _lvchange()
 			-f --force -h --help --ignorelockingfailure -M \
 			--persistent --major major --minor minor -P --partial \
 			-p --permission -r --readahead --refresh -t --test \
-			-v --verbose --version' -- $cur ) )
+			-v --verbose --version' -- "$cur" ) )
 	else
 		_logicalvolumes
 	fi
@@ -808,7 +808,7 @@ _lvcreate()
 
 	case "$prev" in
 		-@(A|C|M|Z|-autobackup|-continguous|-persistent|-zero))
-			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
 			return 0
 			;;
 		-@(L|-size))
@@ -816,7 +816,7 @@ _lvcreate()
 			return 0
 			;;
 		-@(p|-permission))
-			COMPREPLY=( $( compgen -W 'r rw' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'r rw' -- "$cur" ) )
 			return 0
 			;;
 		-@(n|-name))
@@ -831,7 +831,7 @@ _lvcreate()
 			-I --stripesize -l --extents -L --size -M --persistent \
 			--major --minor -n --name -p --permission -r \
 			--readahead -t --test --type -v --verbose -Z --zero \
-			--version' -- $cur ) )
+			--version' -- "$cur" ) )
 	else
 		_args
 		if [ $args -eq 0 ]; then
@@ -853,7 +853,7 @@ _lvremove()
 
 	case "$prev" in
 		-@(A|-autobackup))
-			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
 			return 0
 			;;
 	esac
@@ -861,7 +861,7 @@ _lvremove()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-A --autobackup -d --debug -f \
 			--force -h -?  --help -t --test -v --verbose \
-			--version' -- $cur ) )
+			--version' -- "$cur" ) )
 	else
 		_logicalvolumes
 	fi
@@ -878,14 +878,14 @@ _lvrename()
 
 	case "$prev" in
 		-@(A|-autobackup))
-			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
 			return 0
 			;;
 	esac
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-A --autobackup -d --debug -h \
-			-? --help -t --test -v --verbose --version' -- $cur ) )
+			-? --help -t --test -v --verbose --version' -- "$cur" ) )
 	else
 		_logicalvolumes
 	fi
@@ -902,7 +902,7 @@ _lvreduce()
 
 	case "$prev" in
 		-@(A|-autobackup))
-			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
 			return 0
 			;;
 		-@(L|-size))
@@ -915,7 +915,7 @@ _lvreduce()
 		COMPREPLY=( $( compgen -W '-A --autobackup -d \
 			--debug -f --force -h --help -l --extents \
 			-L --size -n --nofsck -r --resizefs -t --test \
-			-v --verbose --version' -- $cur ) )
+			-v --verbose --version' -- "$cur" ) )
 	else
 		_logicalvolumes
 	fi
@@ -932,7 +932,7 @@ _lvresize()
 
 	case "$prev" in
 		-@(A|-autobackup))
-			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
 			return 0
 			;;
 		-@(L|-size))
@@ -945,7 +945,7 @@ _lvresize()
 		COMPREPLY=( $( compgen -W '-A --autobackup --alloc -d \
 			--debug -h --help -i --stripes -I --stripesize \
 			-l --extents -L --size -n --nofsck -r --resizefs \
-			-t --test --type -v --verbose --version' -- $cur ) )
+			-t --test --type -v --verbose --version' -- "$cur" ) )
 	else
 		_args
 		if [ $args -eq 0 ]; then
@@ -967,7 +967,7 @@ _lvextend()
 
 	case "$prev" in
 		-@(A|-autobackup))
-			COMPREPLY=( $( compgen -W 'y n' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
 			return 0
 			;;
 		-@(L|-size))
@@ -980,7 +980,7 @@ _lvextend()
 		COMPREPLY=( $( compgen -W '-A --autobackup --alloc -d \
 			--debug -h --help -i --stripes -I --stripesize \
 			-l --extents -L --size -n --nofsck -r --resizefs \
-			-t --test --type -v --verbose --version' -- $cur ) )
+			-t --test --type -v --verbose --version' -- "$cur" ) )
 	else
 		_args
 		if [ $args -eq 0 ]; then
@@ -1010,7 +1010,7 @@ _lvm()
 			vgcreate vgdisplay vgexport vgextend \
 			vgimport vgmerge vgmknodes vgreduce \
 			vgremove vgrename vgs vgscan vgsplit \
-			version' -- $cur ) )
+			version' -- "$cur" ) )
 	else
 		case ${COMP_WORDS[1]} in
 			pvchange)
