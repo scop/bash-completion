@@ -9,7 +9,7 @@ _pg_databases()
 	return # See https://launchpad.net/bugs/164772
 	COMPREPLY=( $( compgen -W "$( psql -l 2>/dev/null | \
 			sed -e '1,/^-/d' -e '/^(/,$d' | \
-			awk '{print $1}' )" -- $cur ) )
+			awk '{print $1}' )" -- "$cur" ) )
 }
 
 _pg_users()
@@ -18,7 +18,7 @@ _pg_users()
 	#COMPREPLY=( $( psql -qtc 'select usename from pg_user' template1 2>/dev/null | \
 	#		grep "^ $cur" ) )
 	#[ ${#COMPREPLY[@]} -eq 0 ] && COMPREPLY=( $( compgen -u -- $cur ) )
-	COMPREPLY=( $( compgen -u -- $cur ) )
+	COMPREPLY=( $( compgen -u -- "$cur" ) )
 }
 
 # createdb(1) completion
@@ -58,7 +58,7 @@ _createdb()
 		COMPREPLY=( $( compgen -W '-D -T -E -h -p -U -W -e -q \
 			--tablespace --template --encoding --host --port \
 			--username --password --echo --quiet --help --version' \
-			-- $cur ))
+			-- "$cur" ))
 	else
 		_pg_databases
 	fi
@@ -97,7 +97,7 @@ _dropdb()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-h -p -U -W -i -e -q \
 			--host --port --username --password --interactive \
-			--echo --quiet --help --version' -- $cur ) )
+			--echo --quiet --help --version' -- "$cur" ) )
 	else
 		_pg_databases
 	fi
@@ -157,7 +157,7 @@ _psql()
 			-S --single-line -t --tuples-only -T --table-attr \
 			-U --username -v --set --variable -V --version \
 			-W --password -x --expanded -X --no-psqlrc \
-			-1 --single-transaction -? --help' -- $cur ) )
+			-1 --single-transaction -? --help' -- "$cur" ) )
 	else
 		# return list of available databases
 		_pg_databases

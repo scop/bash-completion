@@ -7,7 +7,7 @@ have perl &&
 {
 _perlmodules()
 {
-    COMPREPLY=( $( compgen -P "$prefix" -W "$( perl -e 'sub mods { my ($base,$dir)=@_; return if  $base !~ /^\Q$ENV{cur}/; chdir($dir) or return; for (glob(q[*.pm])) {s/\.pm$//; print qq[$base$_\n]}; mods(/^(?:[.\d]+|$Config{archname}-$Config{osname}|auto)$/ ? undef : qq[${base}${_}\\\\:\\\\:],qq[$dir/$_]) for grep {-d} glob(q[*]); } mods(undef,$_) for @INC;' )" -- $cur ) )
+    COMPREPLY=( $( compgen -P "$prefix" -W "$( perl -e 'sub mods { my ($base,$dir)=@_; return if  $base !~ /^\Q$ENV{cur}/; chdir($dir) or return; for (glob(q[*.pm])) {s/\.pm$//; print qq[$base$_\n]}; mods(/^(?:[.\d]+|$Config{archname}-$Config{osname}|auto)$/ ? undef : qq[${base}${_}\\\\:\\\\:],qq[$dir/$_]) for grep {-d} glob(q[*]); } mods(undef,$_) for @INC;' )" -- "$cur" ) )
 }
 
 _perl()
@@ -45,7 +45,7 @@ _perl()
 
     if [[ "$cur" == -* ]]; then
 	    COMPREPLY=( $( compgen -W '-C -s -T -u -U -W -X -h -v -V -c -w -d \
-		    -D -p -n -a -F -l -0 -I -m -M -P -S -x -i -e ' -- $cur ) )
+		    -D -p -n -a -F -l -0 -I -m -M -P -S -x -i -e ' -- "$cur" ) )
     else
 	_filedir
     fi
@@ -100,18 +100,18 @@ _perldoc()
 	    getnetbyaddr getnetbyname getnetent getprotobyname \
 	    getprotobynumber getprotoent getservbyname getservbyport \
 	    getservent sethostent setnetent setprotoent setservent \
-	    gmtime localtime time times' -- $cur ) )
+	    gmtime localtime time times' -- "$cur" ) )
 	    return 0
 	    ;;
     esac
 
     if [[ "$cur" == -* ]]; then
-	    COMPREPLY=( $( compgen -W '-h -v -t -u -m -l -F -X -f -q' -- $cur ))
+	    COMPREPLY=( $( compgen -W '-h -v -t -u -m -l -F -X -f -q' -- "$cur" ))
     else
 	    # return available modules (unless it is clearly a file)
 	    if [[ "$cur" != */* ]]; then
 		    _perlmodules
-		    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W '$( PAGER=/bin/cat man perl |  sed -ne "/perl.*Perl overview/,/perlwin32/p" | awk "\$NF=2 { print \$1}" | grep perl )' -- $cur ) )
+		    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W '$( PAGER=/bin/cat man perl |  sed -ne "/perl.*Perl overview/,/perlwin32/p" | awk "\$NF=2 { print \$1}" | grep perl )' -- "$cur" ) )
 	    fi
     fi
 }

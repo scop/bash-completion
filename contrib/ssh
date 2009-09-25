@@ -24,7 +24,7 @@ _ssh_options() {
 		ServerAliveInterval ServerAliveCountMax SmartcardDevice \
 		StrictHostKeyChecking TCPKeepAlive Tunnel TunnelDevice \
 		UsePrivilegedPort User UserKnownHostsFile VerifyHostKeyDNS \
-		VisualHostKey XAuthLocation' -- $cur ) )
+		VisualHostKey XAuthLocation' -- "$cur" ) )
 }
 
 _ssh()
@@ -45,17 +45,17 @@ _ssh()
 			COMPREPLY=( $( compgen -W '3des-cbc aes128-cbc \
 				aes192-cbc aes256-cbc aes128-ctr aes192-ctr \
 				aes256-ctr arcfour128 arcfour256 arcfour \
-				blowfish-cbc cast128-cbc' -- $cur ) )
+				blowfish-cbc cast128-cbc' -- "$cur" ) )
 			return 0
 			;;
 		-c)
 			COMPREPLY=( $( compgen -W 'hmac-md5 hmac-sha1 \
 				umac-64@openssh.com hmac-ripemd160 \
-				hmac-sha1-96 hmac-md5-96' -- $cur ) )
+				hmac-sha1-96 hmac-md5-96' -- "$cur" ) )
 			return 0
 			;;
 		-l)
-			COMPREPLY=( $( compgen -u -- $cur ) )
+			COMPREPLY=( $( compgen -u -- "$cur" ) )
 			return 0
 			;;
 		-o)
@@ -69,7 +69,7 @@ _ssh()
 		-b)
 			COMPREPLY=( $( compgen -W "$(/sbin/ifconfig | \
 				awk '/adr:/ {print $2}' | \
-				awk -F: '{print $2}' )" -- $cur ) )
+				awk -F: '{print $2}' )" -- "$cur" ) )
 			return 0
 			;;
 	esac
@@ -83,7 +83,7 @@ _ssh()
 	elif [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-1 -2 -4 -6 -A -a -C -f -g -K -k -M \
 			-N -n -q -s -T -t -V -v -X -v -Y -y -b -b -c -D -e -F \
-			-i -L -l -m -O -o -p -R -S -w' -- $cur ) )
+			-i -L -l -m -O -o -p -R -S -w' -- "$cur" ) )
 	else
 		# Search COMP_WORDS for '-F configfile' or '-Fconfigfile' argument
 		set -- "${COMP_WORDS[@]}"
@@ -101,7 +101,7 @@ _ssh()
 		done
 		_known_hosts_real -a -F "$configfile" "$cur"
 		if [ $COMP_CWORD -ne 1 ]; then
-			COMPREPLY=( "${COMPREPLY[@]}" $( compgen -c -- $cur ) )
+			COMPREPLY=( "${COMPREPLY[@]}" $( compgen -c -- "$cur" ) )
 		fi
 	fi
 
@@ -138,7 +138,7 @@ _sftp()
 		cur=-F$cur  # Restore cur
 	elif [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-1 -C -v -B -b -F -o -P -R -S -s' \
-			-- $cur ) )
+			-- "$cur" ) )
 	else
 		# Search COMP_WORDS for '-F configfile' argument
 		set -- "${COMP_WORDS[@]}"
@@ -244,7 +244,7 @@ _ssh_copy_id() {
 	esac
 
 	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-i' -- $cur ) )
+		COMPREPLY=( $( compgen -W '-i' -- "$cur" ) )
 	else
 		_known_hosts_real -a "$cur"
 	fi

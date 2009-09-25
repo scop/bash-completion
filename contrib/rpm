@@ -26,7 +26,7 @@ _rpm_groups()
 	# http://lists.alioth.debian.org/pipermail/bash-completion-devel/2009-May/001486.html
 	local IFS=$'\n'
 	COMPREPLY=( $( compgen -W "$( rpm -qa $nodig $nosig --queryformat \
-		'%{group}\n' )" -- $cur ) )
+		'%{group}\n' )" -- "$cur" ) )
 }
 
 _rpm_nodigsig()
@@ -64,11 +64,11 @@ _rpm()
 		case "$cur" in
 		-b*)
 			COMPREPLY=( $( compgen -W '-ba -bb -bc -bi -bl -bp -bs'\
-				       -- $cur ) )
+				       -- "$cur" ) )
 			;;
 		-t*)
 			COMPREPLY=( $( compgen -W '-ta -tb -tc -ti -tl -tp -ts'\
-				       -- $cur ) )
+				       -- "$cur" ) )
 			;;
 		--*)
 			COMPREPLY=( $( compgen -W '--help --version --initdb \
@@ -76,11 +76,11 @@ _rpm()
 			--rebuilddb --showrc --setperms --setugids --tarbuild \
 			--eval --install --upgrade --query --freshen --erase \
 			--verify --querytags --rmsource --rmspec --clean \
-			--import' -- $cur ) )
+			--import' -- "$cur" ) )
 			;;
 		*)
 			COMPREPLY=( $( compgen -W '-b -e -E -F -i -q -t -U -V' \
-				       -- $cur ) )
+				       -- "$cur" ) )
 			;;
 		esac
 
@@ -100,7 +100,7 @@ _rpm()
 		return 0
 		;;
 	--pipe)
-		COMPREPLY=( $( compgen -c -- $cur ) )
+		COMPREPLY=( $( compgen -c -- "$cur" ) )
 		return 0
 		;;
 	--rcfile)
@@ -120,7 +120,7 @@ _rpm()
 			local IFS=$'\n'
 			COMPREPLY=( $( compgen -W "$( rpm -qa $nodig $nosig \
 					--queryformat='%{providename}\n' )" \
-					-- $cur ) )
+					-- "$cur" ) )
 		fi
 		return 0
 		;;
@@ -132,13 +132,13 @@ _rpm()
 			local IFS=$'\n'
 			COMPREPLY=( $( compgen -W "$( rpm -qa $nodig $nosig \
 					--queryformat='%{requirename}\n' )" \
-					-- $cur ) )
+					-- "$cur" ) )
 		fi
 		return 0
 		;;
 	--target)
 		COMPREPLY=( $( compgen -W "$( command rpm --showrc | sed -ne \
-		's/^\s*compatible\s\+build\s\+archs\s*:\s*\(.*\)/\1/ p' )" -- $cur ) )
+		's/^\s*compatible\s\+build\s\+archs\s*:\s*\(.*\)/\1/ p' )" -- "$cur" ) )
 		return 0
 		;;
 	esac
@@ -154,7 +154,7 @@ _rpm()
 			--noorder --relocate --badreloc --notriggers \
 			--excludepath --ignoresize --oldpackage --define \
 			--eval --pipe --queryformat --repackage --nosuggests \
-			--nodigest --nosignature' -- $cur ) )
+			--nodigest --nosignature' -- "$cur" ) )
 		else
 			_filedir 'rpm'
 		fi
@@ -162,7 +162,7 @@ _rpm()
 	-@(e|-erase))
 		if [[ "$cur" == -* ]]; then
 			COMPREPLY=( $( compgen -W '--allmatches --noscripts \
-			--notriggers --nodeps --test --repackage' -- $cur ) )
+			--notriggers --nodeps --test --repackage' -- "$cur" ) )
 		else
 			_rpm_installed_packages "$nodig" "$nosig"
 		fi
@@ -181,7 +181,7 @@ _rpm()
 				--conflicts --obsoletes \
 				--nodigest --nosignature \
 				--suggests --enhances \
-				--triggerscripts' -- $cur ) )
+				--triggerscripts' -- "$cur" ) )
 		    else
 			_filedir
 		    fi
@@ -198,7 +198,7 @@ _rpm()
 				--define --eval --pipe --showrc --info --list \
 				--state --docfiles --configfiles --queryformat\
 				--conflicts --obsoletes --nodigest \
-				--nosignature' -- $cur ) )
+				--nosignature' -- "$cur" ) )
 			else
 				_filedir 'rpm'
 			fi
@@ -215,7 +215,7 @@ _rpm()
 				--docfiles --configfiles --queryformat \
 				--conflicts --obsoletes --pkgid --hdrid \
 				--fileid --tid --nodigest --nosignature \
-				--triggerscripts' -- $cur ) )
+				--triggerscripts' -- "$cur" ) )
 			elif [ "${COMP_LINE#* -*([^ -])a}" == "$COMP_LINE" ]; then
 				_rpm_installed_packages "$nodig" "$nosig"
 			fi
@@ -224,7 +224,7 @@ _rpm()
 	-@(K*|-checksig))
 		if [[ "$cur" == -* ]]; then
 			COMPREPLY=( $( compgen -W '--nopgp --nogpg --nomd5 \
-					--nodigest --nosignature' -- $cur ) )
+					--nodigest --nosignature' -- "$cur" ) )
 		else
 			_filedir 'rpm'
 		fi
@@ -235,7 +235,7 @@ _rpm()
 			--nodeps --nogroup --nolinkto --nomode --nomtime \
 			--nordev --nouser --nofiles --noscripts --nomd5 \
 			--querytags --specfile --whatrequires --whatprovides \
-			--nodigest --nosignature' -- $cur ) )
+			--nodigest --nosignature' -- "$cur" ) )
 		# check whether we're doing file completion
 		elif [ "${COMP_LINE#* -*([^ -])f}" != "$COMP_LINE" ]; then
 			_filedir
@@ -251,7 +251,7 @@ _rpm()
 		if [[ "$cur" == -* ]]; then
 			COMPREPLY=( $( compgen -W '--short-circuit --timecheck \
 			--clean --rmsource --rmspec --test --sign --buildroot \
-			--target --nobuild --nodeps --nodirtokens' -- $cur ) )
+			--target --nobuild --nodeps --nodirtokens' -- "$cur" ) )
 		elif [[ ${COMP_WORDS[1]} == -b* ]]; then
 			_filedir 'spec'
 		else
@@ -261,7 +261,7 @@ _rpm()
 	--re@(build|compile))
 		if [[ "$cur" == -* ]]; then
 			COMPREPLY=( $( compgen -W '--nodeps --rmsource \
-			  --rmspec --sign --nodirtokens --target' -- $cur ) )
+			  --rmspec --sign --nodirtokens --target' -- "$cur" ) )
 		else
 			_filedir '?(no)src.rpm'
 		fi
@@ -278,7 +278,7 @@ _rpm()
 	--@(clean|rms@(ource|pec)))
 		if [[ "$cur" == -* ]]; then
 			COMPREPLY=( $( compgen -W '--clean --rmsource \
-					--rmspec' -- $cur ) )
+					--rmspec' -- "$cur" ) )
 		else
 			_filedir 'spec'
 		fi
@@ -286,7 +286,7 @@ _rpm()
 	--@(import|dbpath|root))
 		if [[ "$cur" == -* ]]; then
 			COMPREPLY=( $( compgen -W '--import --dbpath --root' \
-					-- $cur ) )
+					-- "$cur" ) )
 		else
 			_filedir
 		fi

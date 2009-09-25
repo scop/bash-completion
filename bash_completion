@@ -475,17 +475,17 @@ _configured_interfaces()
 		# SuSE system
 		COMPREPLY=( $( command ls \
 			/etc/sysconfig/network/ifcfg-* | \
-			sed -ne 's|.*ifcfg-\('$cur'.*\)|\1|p' ) )
+			sed -ne 's|.*ifcfg-\('"$cur"'.*\)|\1|p' ) )
 	elif [ -f /etc/pld-release ]; then
 		# PLD Linux
 		COMPREPLY=( $( command ls -B \
 			/etc/sysconfig/interfaces | \
-			sed -ne 's|.*ifcfg-\('$cur'.*\)|\1|p' ) )
+			sed -ne 's|.*ifcfg-\('"$cur"'.*\)|\1|p' ) )
 	else
 		# Assume Red Hat
 		COMPREPLY=( $( command ls \
 			/etc/sysconfig/network-scripts/ifcfg-* | \
-			sed -ne 's|.*ifcfg-\('$cur'.*\)|\1|p' ) )
+			sed -ne 's|.*ifcfg-\('"$cur"'.*\)|\1|p' ) )
 	fi
 }
 
@@ -493,7 +493,7 @@ _configured_interfaces()
 #
 _kernel_versions()
 {
-	COMPREPLY=( $( compgen -W '$( command ls /lib/modules )' -- $cur ) )
+	COMPREPLY=( $( compgen -W '$( command ls /lib/modules )' -- "$cur" ) )
 }
 
 # This function completes on all available network interfaces
@@ -513,7 +513,7 @@ _available_interfaces()
 	fi
 
 	COMPREPLY=( $( eval $cmd 2>/dev/null | \
-		sed -ne 's|^\('$cur'[^[:space:][:punct:]]\{1,\}\).*$|\1|p') )
+		sed -ne 's|^\('"$cur"'[^[:space:][:punct:]]\{1,\}\).*$|\1|p') )
 }
 
 # This function expands tildes in pathnames
@@ -531,7 +531,7 @@ _expand()
 		eval cur=$cur
 	elif [[ "$cur" == \~* ]]; then
 		cur=${cur#\~}
-		COMPREPLY=( $( compgen -P '~' -u $cur ) )
+		COMPREPLY=( $( compgen -P '~' -u "$cur" ) )
 		[ ${#COMPREPLY[@]} -eq 1 ] && eval COMPREPLY[0]=${COMPREPLY[0]}
 		return ${#COMPREPLY[@]}
 	fi
@@ -542,11 +542,11 @@ _expand()
 [ $UNAME = SunOS -o $UNAME = AIX ] &&
 _pids()
 {
-	COMPREPLY=( $( compgen -W '$( command ps -efo pid | sed 1d )' -- $cur ))
+	COMPREPLY=( $( compgen -W '$( command ps -efo pid | sed 1d )' -- "$cur" ))
 } ||
 _pids()
 {
-	COMPREPLY=( $( compgen -W '$( command ps axo pid= )' -- $cur ) )
+	COMPREPLY=( $( compgen -W '$( command ps axo pid= )' -- "$cur" ) )
 }
 
 # This function completes on process group IDs.
@@ -554,11 +554,11 @@ _pids()
 [ $UNAME = SunOS -o $UNAME = AIX ] &&
 _pgids()
 {
-	COMPREPLY=( $( compgen -W '$( command ps -efo pgid | sed 1d )' -- $cur ))
+	COMPREPLY=( $( compgen -W '$( command ps -efo pgid | sed 1d )' -- "$cur" ))
 } ||
 _pgids()
 {
-	COMPREPLY=( $( compgen -W '$( command ps axo pgid= )' -- $cur ))
+	COMPREPLY=( $( compgen -W '$( command ps axo pgid= )' -- "$cur" ))
 }
 
 # This function completes on process names.
@@ -569,7 +569,7 @@ _pnames()
 	COMPREPLY=( $( compgen -W '$( command ps -efo comm | \
 			           sed -e 1d -e "s:.*/::" -e "s/^-//" \
 				       -e "s/^<defunct>$//")' \
-			           -- $cur ) )
+			           -- "$cur" ) )
 } ||
 _pnames()
 {
@@ -585,7 +585,7 @@ _pnames()
 			           sed -e "s/ .*//; s:.*/::; s/:$//;" \
 			               -e "s/^[[(-]//; s/[])]$//" \
 				       -e "s/^<defunct>$//")' \
-			           -- $cur ) )
+			           -- "$cur" ) )
 }
 
 # This function completes on user IDs
@@ -593,12 +593,12 @@ _pnames()
 _uids()
 {
 	if type getent &>/dev/null; then
-	    COMPREPLY=( $( compgen -W '$( getent passwd | cut -d: -f3 )' -- $cur ) )
+	    COMPREPLY=( $( compgen -W '$( getent passwd | cut -d: -f3 )' -- "$cur" ) )
 	elif type perl &>/dev/null; then
-	    COMPREPLY=( $( compgen -W '$( perl -e '"'"'while (($uid) = (getpwent)[2]) { print $uid . "\n" }'"'"' )' -- $cur ) )
+	    COMPREPLY=( $( compgen -W '$( perl -e '"'"'while (($uid) = (getpwent)[2]) { print $uid . "\n" }'"'"' )' -- "$cur" ) )
 	else
 	    # make do with /etc/passwd
-	    COMPREPLY=( $( compgen -W '$( cut -d: -f3 /etc/passwd )' -- $cur ) )
+	    COMPREPLY=( $( compgen -W '$( cut -d: -f3 /etc/passwd )' -- "$cur" ) )
 	fi
 }
 
@@ -608,12 +608,12 @@ _gids()
 {
 	if type getent &>/dev/null; then
 	    COMPREPLY=( $( getent group | \
-			    awk -F: '{if ($3 ~ /^'$cur'/) print $3}' ) )
+			    awk -F: '{if ($3 ~ /^'"$cur"'/) print $3}' ) )
 	elif type perl &>/dev/null; then
-	    COMPREPLY=( $( compgen -W '$( perl -e '"'"'while (($gid) = (getgrent)[2]) { print $gid . "\n" }'"'"' )' -- $cur ) )
+	    COMPREPLY=( $( compgen -W '$( perl -e '"'"'while (($gid) = (getgrent)[2]) { print $gid . "\n" }'"'"' )' -- "$cur" ) )
 	else
 	    # make do with /etc/group
-	    COMPREPLY=( $( awk 'BEGIN {FS=":"} {if ($3 ~ /^'$cur'/) print $3}'\
+	    COMPREPLY=( $( awk 'BEGIN {FS=":"} {if ($3 ~ /^'"$cur"'/) print $3}'\
 			    /etc/group ) )
 	fi
 }
@@ -631,7 +631,7 @@ _services()
 		COMPREPLY=( "${COMPREPLY[@]}" $( builtin echo $famdir/!(*.rpm@(orig|new|save)|*~)) )
 	fi
 
-	COMPREPLY=( $( compgen -W '${COMPREPLY[@]#@($sysvdir|$famdir)/}' -- $cur ) )
+	COMPREPLY=( $( compgen -W '${COMPREPLY[@]#@($sysvdir|$famdir)/}' -- "$cur" ) )
 }
 
 # This function completes on modules
@@ -641,7 +641,7 @@ _modules()
 	local modpath
 	modpath=/lib/modules/$1
 	COMPREPLY=( $( command ls -R $modpath | \
-			sed -ne 's/^\('$cur'.*\)\.k\?o\(\|.gz\)$/\1/p') )
+			sed -ne 's/^\('"$cur"'.*\)\.k\?o\(\|.gz\)$/\1/p') )
 }
 
 # This function completes on installed modules
@@ -664,7 +664,7 @@ _usergroup()
 	elif [[ $cur = *:* ]] && [ -n "$bash205" ]; then
 		COMPREPLY=( $( compgen -g -- ${cur##*[.:]} ) )
 	else
-		COMPREPLY=( $( compgen -S : -u -- $cur ) )
+		COMPREPLY=( $( compgen -S : -u -- "$cur" ) )
 	fi
 }
 
@@ -673,7 +673,7 @@ _usergroup()
 _shells()
 {
 	COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W '$( grep "^[[:space:]]*/" \
-			/etc/shells 2>/dev/null )' -- $cur ) )
+			/etc/shells 2>/dev/null )' -- "$cur" ) )
 }
 
 # Get real command.
@@ -711,7 +711,7 @@ _count_args()
 _pci_ids()
 {
 	COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -W \
-		"$( PATH="$PATH:/sbin" lspci -n | awk '{print $3}')" -- $cur ) )
+		"$( PATH="$PATH:/sbin" lspci -n | awk '{print $3}')" -- "$cur" ) )
 }
 
 # This function completes on USB IDs
@@ -719,7 +719,7 @@ _pci_ids()
 _usb_ids()
 {
 	COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -W \
-		"$( PATH="$PATH:/sbin" lsusb | awk '{print $6}' )" -- $cur ) )
+		"$( PATH="$PATH:/sbin" lsusb | awk '{print $6}' )" -- "$cur" ) )
 }
 
 # start of section containing completion functions for external programs
@@ -757,7 +757,7 @@ _service()
 	else
 		COMPREPLY=( $( compgen -W '`sed -ne "y/|/ /; \
 				s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\1/p" \
-				$sysvdir/${prev##*/} 2>/dev/null`' -- $cur ) )
+				$sysvdir/${prev##*/} 2>/dev/null`' -- "$cur" ) )
 	fi
 
 	return 0
@@ -793,7 +793,7 @@ _chown()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes \
 		--dereference --no-dereference --from --silent --quiet \
-		--reference --recursive --verbose --help --version' -- $cur ) )
+		--reference --recursive --verbose --help --version' -- "$cur" ) )
 	else
 		_count_args
 
@@ -833,7 +833,7 @@ _chgrp()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes \
 		--dereference --no-dereference --silent --quiet \
-		--reference --recursive --verbose --help --version' -- $cur ) )
+		--reference --recursive --verbose --help --version' -- "$cur" ) )
 		return 0
 	fi
 
@@ -841,7 +841,7 @@ _chgrp()
 	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]] || \
 	   [[ "$prev" == -* ]] && [ -n "$bash205" ]; then
 		local IFS=$'\n'
-		COMPREPLY=( $( compgen -g $cur 2>/dev/null ) )
+		COMPREPLY=( $( compgen -g "$cur" 2>/dev/null ) )
 	else
 		_filedir || return 0
 	fi
@@ -860,7 +860,7 @@ _umount()
 	COMPREPLY=()
 	cur=`_get_cword`
 
-	COMPREPLY=( $( compgen -W '$( mount | cut -d" " -f 3 )' -- $cur ) )
+	COMPREPLY=( $( compgen -W '$( mount | cut -d" " -f 3 )' -- "$cur" ) )
 
 	return 0
 }
@@ -896,18 +896,18 @@ _mount()
 		fi
 	elif [ -r /etc/vfstab ]; then
 		# Solaris
-		COMPREPLY=( $( compgen -W "$( awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' /etc/vfstab )" -- $cur ) )
+		COMPREPLY=( $( compgen -W "$( awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' /etc/vfstab )" -- "$cur" ) )
 	elif [ ! -e /etc/fstab ]; then
 		# probably Cygwin
-		COMPREPLY=( $( compgen -W "$( mount | awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' )" -- $cur ) )
+		COMPREPLY=( $( compgen -W "$( mount | awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' )" -- "$cur" ) )
 	else
 		# probably Linux
 		if [ $prev = -L ]; then
-			COMPREPLY=( $( compgen -W '$(sed -ne "s/^[[:space:]]*LABEL=\([^[:space:]]*\).*/\1/p" /etc/fstab )' -- $cur ) )
+			COMPREPLY=( $( compgen -W '$(sed -ne "s/^[[:space:]]*LABEL=\([^[:space:]]*\).*/\1/p" /etc/fstab )' -- "$cur" ) )
 		elif [ $prev = -U ]; then
-			COMPREPLY=( $( compgen -W '$(sed -ne "s/^[[:space:]]*UUID=\([^[:space:]]*\).*/\1/p" /etc/fstab )' -- $cur ) )
+			COMPREPLY=( $( compgen -W '$(sed -ne "s/^[[:space:]]*UUID=\([^[:space:]]*\).*/\1/p" /etc/fstab )' -- "$cur" ) )
 		else
-			COMPREPLY=( $( compgen -W "$( awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' /etc/fstab )" -- $cur ) )
+			COMPREPLY=( $( compgen -W "$( awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' /etc/fstab )" -- "$cur" ) )
 		fi
 	fi
 
@@ -987,7 +987,7 @@ _renice()
 		curopt=${COMP_WORDS[COMP_CWORD-$i]}
 		case "$curopt" in
 		-u)
-			COMPREPLY=( $( compgen -u -- $cur ) )
+			COMPREPLY=( $( compgen -u -- "$cur" ) )
 			;;
 		-g)
 			_pgids
@@ -1095,7 +1095,7 @@ _ipsec()
 		COMPREPLY=( $( compgen -W 'auto barf eroute klipsdebug look \
 					   manual pluto ranbits rsasigkey \
 					   setup showdefaults showhostkey spi \
-					   spigrp tncfg whack' -- $cur ) )
+					   spigrp tncfg whack' -- "$cur" ) )
 		return 0
 	fi
 
@@ -1104,18 +1104,18 @@ _ipsec()
 		COMPREPLY=( $( compgen -W '--asynchronous --up --add --delete \
 					   --replace --down --route --unroute \
 					   --ready --status --rereadsecrets' \
-					-- $cur ) )
+					-- "$cur" ) )
 		;;
 	manual)
 		COMPREPLY=( $( compgen -W '--up --down --route --unroute \
-					   --union' -- $cur ) )
+					   --union' -- "$cur" ) )
 		;;
 	ranbits)
 		COMPREPLY=( $( compgen -W '--quick --continuous --bytes' \
 					  -- $cur ) )
 		;;
 	setup)
-		COMPREPLY=( $( compgen -W '--start --stop --restart' -- $cur ) )
+		COMPREPLY=( $( compgen -W '--start --stop --restart' -- "$cur" ) )
 		;;
 
 	*)
@@ -1294,7 +1294,7 @@ _known_hosts_real()
 		# append any available aliases from config files
 		if [ ${#config[@]} -gt 0 ] && [ -n "$aliases" ]; then
 			local host_aliases=$( sed -ne 's/^[ \t]*[Hh][Oo][Ss][Tt]\([Nn][Aa][Mm][Ee]\)\?['"$'\t '"']\+\([^#*?]*\)\(#.*\)\?$/\2/p' "${config[@]}" )
-			hosts=$( compgen -W "$host_aliases" -- $cur )
+			hosts=$( compgen -W "$host_aliases" -- "$cur" )
 				COMPREPLY=( "${COMPREPLY[@]}" $hosts )
 		fi
 
@@ -1309,7 +1309,7 @@ _known_hosts_real()
 			if [ -n "$(pidof avahi-daemon)" ]; then
 				COMPREPLY=( "${COMPREPLY[@]}" $(
 					compgen -W "$( avahi-browse -cpr _workstation._tcp | \
-					grep ^= | cut -d\; -f7 | sort -u )" -- $cur ) )
+					grep ^= | cut -d\; -f7 | sort -u )" -- "$cur" ) )
 			fi
 		fi
 
@@ -1322,7 +1322,7 @@ _known_hosts_real()
 	# Add results of normal hostname completion, unless `COMP_KNOWN_HOSTS_WITH_HOSTFILE'
 	# is set to an empty value.
 	if [ -n "${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1}" ]; then
-		COMPREPLY=( "${COMPREPLY[@]}" $( compgen -A hostname -P "$prefix$user" -S "$suffix" -- $cur ) )
+		COMPREPLY=( "${COMPREPLY[@]}" $( compgen -A hostname -P "$prefix$user" -S "$suffix" -- "$cur" ) )
 	fi
 
 	return 0
@@ -1441,7 +1441,7 @@ _command_offset()
 	cur=`_get_cword`
 
 	if [[ $COMP_CWORD -eq 0 ]]; then
-		COMPREPLY=( $( compgen -c -- $cur ) )
+		COMPREPLY=( $( compgen -c -- "$cur" ) )
 	else
 		cmd=${COMP_WORDS[0]}
 		if complete -p $cmd &>/dev/null; then
@@ -1510,7 +1510,7 @@ _longopt()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W "$( $1 --help 2>&1 | sed -e '/--/!d' \
 				-e 's/.*\(--[-A-Za-z0-9]\+\).*/\1/' |sort -u )"\
-				-- $cur ) )
+				-- "$cur" ) )
 	elif [[ "$1" == rmdir ]]; then
 		_filedir -d
 	else
@@ -1561,9 +1561,9 @@ _id()
 
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-a -g --group -G --groups -n --name\
-			-r --real -u --user --help --version' -- $cur ) )
+			-r --real -u --user --help --version' -- "$cur" ) )
 	else
-		COMPREPLY=( $( compgen -u $cur  ) )
+		COMPREPLY=( $( compgen -u "$cur" ) )
 	fi
 } &&
 complete -F _id id

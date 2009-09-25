@@ -18,28 +18,28 @@ _iwconfig()
 	case $prev in
 		mode)
 			COMPREPLY=( $( compgen -W 'managed ad-hoc master \
-				repeater secondary monitor' -- $cur ) )
+				repeater secondary monitor' -- "$cur" ) )
 			return 0
 			;;
 		essid)
-			COMPREPLY=( $( compgen -W 'on off any' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'on off any' -- "$cur" ) )
 			if [ -n "${COMP_IWLIST_SCAN:-}" ]; then
 				COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W \
 					"$( iwlist ${COMP_WORDS[1]} scan | \
 					awk -F '\"' '/ESSID/ {print $2}' )" \
-					-- $cur ) )
+					-- "$cur" ) )
 			fi
 			return 0
 			;;
 		nwid)
-			COMPREPLY=( $( compgen -W 'on off' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'on off' -- "$cur" ) )
 			return 0
 			;;
 		channel)
 			COMPREPLY=( $( compgen -W \
 				"$( iwlist ${COMP_WORDS[1]} channel | \
 				awk '/^[[:space:]]*Channel/ {print $2}' )" \
-				-- $cur ) )
+				-- "$cur" ) )
 			return 0
 			;;
 
@@ -47,58 +47,58 @@ _iwconfig()
 			COMPREPLY=( $( compgen -W \
 				"$( iwlist ${COMP_WORDS[1]} channel | \
 				awk '/^[[:space:]]*Channel/ {print $4\"G\"}')" \
-				-- $cur ) )
+				-- "$cur" ) )
 			return 0
 			;;
 		ap)
-			COMPREPLY=( $( compgen -W 'on off any' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'on off any' -- "$cur" ) )
 			if [ -n "${COMP_IWLIST_SCAN:-}" ]; then
 				COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W \
 					"$( iwlist ${COMP_WORDS[1]} scan | \
 					awk -F ': ' '/Address/ {print $2}' )" \
-					-- $cur ) )
+					-- "$cur" ) )
 			fi
 			return 0
 			;;
 		rate)
-			COMPREPLY=( $( compgen -W 'auto fixed' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'auto fixed' -- "$cur" ) )
 			COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W \
 				"$( iwlist ${COMP_WORDS[1]} rate | \
 				awk '/^[[:space:]]*[0-9]/ {print $1\"M\"}' )" \
-				-- $cur ) )
+				-- "$cur" ) )
 			return 0
 			;;
 		rts|frag)
-			COMPREPLY=( $( compgen -W 'auto fixed off' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'auto fixed off' -- "$cur" ) )
 			return 0
 			;;
 		key|enc)
-			COMPREPLY=( $( compgen -W 'off on open restricted' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'off on open restricted' -- "$cur" ) )
 			return 0
 			;;
 		power)
-			COMPREPLY=( $( compgen -W 'period timeout off on' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'period timeout off on' -- "$cur" ) )
 			return 0
 			;;
 		txpower)
-			COMPREPLY=( $( compgen -W 'off on auto' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'off on auto' -- "$cur" ) )
 			return 0
 			;;
 		retry)
-			COMPREPLY=( $( compgen -W 'limit lifetime' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'limit lifetime' -- "$cur" ) )
 			return 0
 			;;
 	esac
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W '--help --version' -- $cur ) )
+			COMPREPLY=( $( compgen -W '--help --version' -- "$cur" ) )
 		else
 			_available_interfaces -w
 		fi
 	else
 		COMPREPLY=( $( compgen -W 'essid nwid mode freq channel sens mode \
-			ap nick rate rts frag enc key power txpower commit' -- $cur ) )
+			ap nick rate rts frag enc key power txpower commit' -- "$cur" ) )
 	fi
 
 } &&
@@ -116,14 +116,14 @@ _iwlist()
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W '--help --version' -- $cur ) )
+			COMPREPLY=( $( compgen -W '--help --version' -- "$cur" ) )
 		else
 			_available_interfaces -w
 		fi
 	else
 		COMPREPLY=( $( compgen -W 'scan scanning freq frequency \
 			channel rate bit bitrate key enc encryption power \
-			txpower retry ap accesspoint peers event' -- $cur ) )
+			txpower retry ap accesspoint peers event' -- "$cur" ) )
 	fi
 } &&
 complete -F _iwlist iwlist
@@ -139,12 +139,12 @@ _iwspy()
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W '--help --version' -- $cur ) )
+			COMPREPLY=( $( compgen -W '--help --version' -- "$cur" ) )
 		else
 			_available_interfaces -w
 		fi
 	else
-		COMPREPLY=( $( compgen -W 'setthr getthr off' -- $cur ) )
+		COMPREPLY=( $( compgen -W 'setthr getthr off' -- "$cur" ) )
 	fi
 } &&
 complete -F _iwspy iwspy
@@ -161,23 +161,23 @@ _iwpriv()
 
 	case "$prev" in
 		roam)
-			COMPREPLY=( $( compgen -W 'on off' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'on off' -- "$cur" ) )
 			return 0
 			;;
 		port)
-			COMPREPLY=( $( compgen -W 'ad-hoc managed' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'ad-hoc managed' -- "$cur" ) )
 			return 0
 			;;
 	esac
 
 	if [ $COMP_CWORD -eq 1 ]; then
 		if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W '--help --version' -- $cur ) )
+			COMPREPLY=( $( compgen -W '--help --version' -- "$cur" ) )
 		else
 			_available_interfaces -w
 		fi
 	else
-		COMPREPLY=( $( compgen -W '--all roam port' -- $cur ) )
+		COMPREPLY=( $( compgen -W '--all roam port' -- "$cur" ) )
 	fi
 } &&
 complete -F _iwpriv iwpriv
