@@ -961,7 +961,7 @@ _insmod()
 		# do module parameter completion
 		COMPREPLY=( $( /sbin/modinfo -p ${COMP_WORDS[1]} 2>/dev/null | \
 		       awk '{if ($1 ~ /^parm:/ && $2 ~ /^'$cur'/) { print $2 } \
-			else if ($1 !~ /:/ && $1 ~ /^'$cur'/) { print $1 }}' ) )
+			else if ($1 !~ /:/ && $1 ~ /^'"$cur"'/) { print $1 }}' ) )
 	else
 		_modules $(uname -r)
 	fi
@@ -1112,7 +1112,7 @@ _ipsec()
 		;;
 	ranbits)
 		COMPREPLY=( $( compgen -W '--quick --continuous --bytes' \
-					  -- $cur ) )
+					  -- "$cur" ) )
 		;;
 	setup)
 		COMPREPLY=( $( compgen -W '--start --stop --restart' -- "$cur" ) )
@@ -1544,7 +1544,7 @@ _look()
 	cur=`_get_cword`
 
 	if [ $COMP_CWORD = 1 ]; then
-		COMPREPLY=( $( compgen -W '$(look $cur 2>/dev/null)' ) )
+		COMPREPLY=( $( compgen -W '$(look "$cur" 2>/dev/null)' ) )
 	fi
 } &&
 complete -F _look $default look
