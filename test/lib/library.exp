@@ -7,15 +7,20 @@ package require textutil::string
 
 
 # Execute a bash command and make sure the exit status is succesful.
+# The command is expected to return no output.  See `assert_bash_exec_out' if
+# you want to catch output from the bash command.
 # If not, output the error message.
 # @param string $cmd  Bash command line to execute.  If emptry string (""), the
 #                     exit status of the previously executed bash command will be 
 #                     checked; specify `title' to adorn the error message.
 # @param string $title  (optional) Command title.  If empty, `cmd' is used.
 # @param string $prompt  (optional) Bash prompt.  Default is "/@"
-# @param string $stdout  (optional) Reference to variable to hold stdout.
-proc assert_bash_exec {{aCmd ""} {title ""} {prompt /@} {stdout ''}} {
-    upvar $stdout results
+# @param mixed $out  (optional) Reference to variable to hold output.
+#                    If variable equals -1 (default) the bash command is expected
+#                    to return no output.  If variable equals 0, any output
+#                    from the bash command is disregarded.
+proc assert_bash_exec {{aCmd ""} {title ""} {prompt /@} {out -1}} {
+    if {$out != 0 && $out != -1} {upvar $out results}
     if {[string length $aCmd] != 0} {
         send "$aCmd\r"
         expect -ex "$aCmd\r\n"
@@ -29,6 +34,12 @@ proc assert_bash_exec {{aCmd ""} {title ""} {prompt /@} {stdout ''}} {
             expr [string length $results] - [string length "/@"] - 1
         ]
     ]
+    if {$out == -1 && [string length $results] > 0} {
+        if {[info exists multipass_name]} {
+            fail "ERROR Unexpected output from bash command \"$title\""
+        }; # if
+        send_user "ERROR Unexpected output from bash command \"$title\":\n$results"
+    }; # if
 
     set cmd "echo $?"
     send "$cmd\r"
@@ -38,7 +49,7 @@ proc assert_bash_exec {{aCmd ""} {title ""} {prompt /@} {stdout ''}} {
             if {[info exists multipass_name]} {
                 fail "ERROR executing bash command \"$title\""
             }; # if
-            send_user "ERROR executing bash command \"$title\"\n$stdout"
+            send_user "ERROR executing bash command \"$title\""
         }
     }; # expect
 }; # assert_bash_exec()
