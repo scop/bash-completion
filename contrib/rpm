@@ -50,7 +50,7 @@ _rpm_nodigsig()
 #
 _rpm()
 {
-	local cur prev nodig nosig
+	local cur prev opts nodig nosig
 
 	COMPREPLY=()
 	cur=`_get_cword`
@@ -147,79 +147,71 @@ _rpm()
 		;;
 	esac
 
+	# options common to all modes
+	opts="--define --eval --macros --nodigest --nosignature --rcfile
+		--quiet --pipe --verbose"
+
 	case "${COMP_WORDS[1]}" in
 	-@([iFU]*|-install|-freshen|-upgrade))
 		if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W '--percent --force --test \
-			--replacepkgs --replacefiles --root --excludedocs \
-			--includedocs --noscripts --rcfile --ignorearch \
+			COMPREPLY=( $( compgen -W "$opts --percent --force \
+			--test --replacepkgs --replacefiles --root \
+			--excludedocs --includedocs --noscripts --ignorearch \
 			--dbpath --prefix --ignoreos --nodeps --allfiles \
 			--ftpproxy --ftpport --justdb --httpproxy --httpport \
 			--noorder --relocate --badreloc --notriggers \
-			--excludepath --ignoresize --oldpackage --define \
-			--eval --pipe --queryformat --repackage --nosuggests \
-			--nodigest --nosignature' -- "$cur" ) )
+			--excludepath --ignoresize --oldpackage \
+			--queryformat --repackage --nosuggests" -- "$cur" ) )
 		else
 			_filedir 'rpm'
 		fi
 		;;
 	-@(e|-erase))
 		if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W '--allmatches --noscripts \
-			--notriggers --nodeps --test --repackage' -- "$cur" ) )
+			COMPREPLY=( $( compgen -W "$opts --allmatches \
+			--noscripts --notriggers --nodeps --test --repackage" \
+			-- "$cur" ) )
 		else
 			_rpm_installed_packages "$nodig" "$nosig"
 		fi
 		;;
 	-@(q*|-query))
-		# check whether we're doing file completion
+		# options common to all query types
+		opts="$opts --changelog --configfiles --conflicts --docfiles
+			--dump --enhances --filesbypkg --filecaps --fileclass
+			--filecolor --fileprovide --filerequire --filesbypkg
+			--info --list --obsoletes --pipe --provides
+			--queryformat --rcfile --requires --scripts --suggests
+			--triggeredby --triggers --whatprovides --whatrequires
+			--xml"
+
 		if [ "${COMP_LINE#* -*([^ -])f}" != "$COMP_LINE" ]; then
+		    # -qf completion
 		    if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W '--scripts --root \
-				--rcfile --requires --ftpport --ftpproxy \
-				--httpproxy --httpport --provides --triggers \
-				--dump --changelog --dbpath \
-				--last --filesbypkg \
-				--info --list --state \
-				--docfiles --configfiles --queryformat \
-				--conflicts --obsoletes \
-				--nodigest --nosignature \
-				--suggests --enhances \
-				--triggerscripts' -- "$cur" ) )
+
+			COMPREPLY=( $( compgen -W "$opts --dbpath --fscontext
+				--last --root --state" -- "$cur" ) )
 		    else
 			_filedir
 		    fi
 		elif [ "${COMP_LINE#* -*([^ -])g}" != "$COMP_LINE" ]; then
+			# -qg completion
 			_rpm_groups
 		elif [ "${COMP_LINE#* -*([^ -])p}" != "$COMP_LINE" ]; then
-			# uninstalled package completion
+			# -qp; uninstalled package completion
 			if [[ "$cur" == -* ]]; then
-				COMPREPLY=( $( compgen -W '--scripts --root \
-				--rcfile --whatprovides --whatrequires \
-				--requires --triggeredby --ftpport --ftpproxy \
-				--httpproxy --httpport --provides --triggers \
-				--dump --changelog --dbpath --filesbypkg \
-				--define --eval --pipe --showrc --info --list \
-				--state --docfiles --configfiles --queryformat\
-				--conflicts --obsoletes --nodigest \
-				--nosignature' -- "$cur" ) )
+				COMPREPLY=( $( compgen -W "$opts --ftpport
+					--ftpproxy --httpport --httpproxy" \
+					-- "$cur" ) )
 			else
 				_filedir 'rpm'
 			fi
 		else
-			# installed package completion
+			# -q; installed package completion
 			if [[ "$cur" == -* ]]; then
-				COMPREPLY=( $( compgen -W '--scripts --root \
-				--rcfile --whatprovides --whatrequires \
-				--requires --triggeredby --ftpport --ftpproxy \
-				--httpproxy --httpport --provides --triggers \
-				--dump --changelog --dbpath --specfile \
-				--querybynumber --last --filesbypkg --define \
-				--eval --pipe --showrc --info --list --state \
-				--docfiles --configfiles --queryformat \
-				--conflicts --obsoletes --pkgid --hdrid \
-				--fileid --tid --nodigest --nosignature \
-				--triggerscripts' -- "$cur" ) )
+				COMPREPLY=( $( compgen -W "$opts --dbpath
+					--fscontext --last --root --state" \
+					-- "$cur" ) )
 			elif [ "${COMP_LINE#* -*([^ -])a}" == "$COMP_LINE" ]; then
 				_rpm_installed_packages "$nodig" "$nosig"
 			fi
@@ -227,19 +219,19 @@ _rpm()
 		;;
 	-@(K*|-checksig))
 		if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W '--nopgp --nogpg --nomd5 \
-					--nodigest --nosignature' -- "$cur" ) )
+			COMPREPLY=( $( compgen -W "$opts --nopgp --nogpg \
+				--nomd5" -- "$cur" ) )
 		else
 			_filedir 'rpm'
 		fi
 		;;
 	-@([Vy]*|-verify))
 		if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W '--root --rcfile --dbpath \
+			COMPREPLY=( $( compgen -W "$opts --root --dbpath \
 			--nodeps --nogroup --nolinkto --nomode --nomtime \
 			--nordev --nouser --nofiles --noscripts --nomd5 \
-			--querytags --specfile --whatrequires --whatprovides \
-			--nodigest --nosignature' -- "$cur" ) )
+			--querytags --specfile --whatrequires --whatprovides" \
+			-- "$cur" ) )
 		# check whether we're doing file completion
 		elif [ "${COMP_LINE#* -*([^ -])f}" != "$COMP_LINE" ]; then
 			_filedir
@@ -253,9 +245,10 @@ _rpm()
 		;;
 	-[bt]*)
 		if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W '--short-circuit --timecheck \
-			--clean --rmsource --rmspec --test --sign --buildroot \
-			--target --nobuild --nodeps --nodirtokens' -- "$cur" ) )
+			COMPREPLY=( $( compgen -W "$opts --short-circuit \
+			--timecheck --clean --rmsource --rmspec --test --sign \
+			--buildroot --target --nobuild --nodeps --nodirtokens" \
+			-- "$cur" ) )
 		elif [[ ${COMP_WORDS[1]} == -b* ]]; then
 			_filedir 'spec'
 		else
@@ -264,8 +257,8 @@ _rpm()
 		;;
 	--re@(build|compile))
 		if [[ "$cur" == -* ]]; then
-			COMPREPLY=( $( compgen -W '--nodeps --rmsource \
-			  --rmspec --sign --nodirtokens --target' -- "$cur" ) )
+			COMPREPLY=( $( compgen -W "$opts --nodeps --rmsource \
+			  --rmspec --sign --nodirtokens --target" -- "$cur" ) )
 		else
 			_filedir '?(no)src.rpm'
 		fi
