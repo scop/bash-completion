@@ -1,6 +1,3 @@
-# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
-# ex: ts=8 sw=8 noet filetype=sh
-#
 # Bash library for bash-completion DejaGnu testsuite
 
 
@@ -45,3 +42,10 @@ is_bash_version_minimal() {
 	]]
 } # is_bash_version_minimal()
 
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 8
+# sh-indent-comment: t
+# indent-tabs-mode: t
+# End:
+# ex: ts=8 sw=8 noet filetype=sh
