@@ -21,7 +21,7 @@ Debian/Ubuntu
 
 On Debian/Ubuntu you can use `apt-get`:
 -------------
-sudo apt-get install dejagnu
+sudo apt-get install dejagnu tcllib
 -------------
 This should also install the necessary `expect` and `tcl` packages.
 
@@ -54,8 +54,11 @@ The tests are grouped into different areas, called _tool_ in DejaGnu:
 
 Each tool has a slightly different way of loading the test fixtures, see <<Test_context,Test context>> below.
 
+
+
+
 Running the tests
-~~~~~~~~~~~~~~~~~
+-----------------
 
 The tests are run by calling `runtest` in the test directory:
 -----------------------
@@ -69,6 +72,37 @@ The commands above are already wrapped up in shell scripts within the `test` dir
 ./runInstall
 ./runUnit
 -----------------------
+
+
+Running tests via cron
+~~~~~~~~~~~~~~~~~~~~~~
+
+The test suite requires a connected terminal (tty).  When invoked via cron, no tty is connected and the test suite may respond with this error:
+---------------------------------------------
+can't read "multipass_name": no such variable
+---------------------------------------------
+
+To run the tests successfully via cron, connect a terminal by redirecting stdin from a tty, e.g. /dev/tty50:
+----------------------
+./runUnit < /dev/tty50
+----------------------
+
+If the process doesn't run as root, root will have to change the owner and
+permissions of the tty.
+
+In Linux, you can press alt-Fx or ctrl-alt-Fx to switch the console from
+/dev/tty1 to tty7.  There are many more /dev/tty* which are not accessed via
+function keys.  To be safe, use a tty greater than tty7?
+
+
+Specifying bash binary
+~~~~~~~~~~~~~~~~~~~~~~
+
+The test suite standard uses `bash` as found in the tcl path (/bin/bash).  Using `--tool_exec` you can specify which bash binary you want to run the test suite against, e.g.:
+
+----------------
+./runUnit --tool_exec /opt/bash-4.0/bin/bash
+----------------
 
 
 
