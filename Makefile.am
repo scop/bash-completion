@@ -2,48 +2,150 @@
 sysconf_DATA = bash_completion
 
 bashcompdir = $(sysconfdir)/bash_completion.d
-bashcomp_DATA = contrib/apache2ctl \
+bashcomp_DATA = contrib/ant \
+		contrib/apache2ctl \
+		contrib/apt \
+		contrib/apt-build \
+		contrib/aptitude \
+		contrib/aspell \
+		contrib/autorpm \
+		contrib/bash-builtins \
+		contrib/bind-utils \
 		contrib/bitkeeper \
 		contrib/bittorrent \
+		contrib/bluez-utils \
 		contrib/brctl \
+		contrib/bzip2 \
+		contrib/cardctl \
+		contrib/cfengine \
+		contrib/chkconfig \
+		contrib/chsh \
 		contrib/cksfv \
 		contrib/clisp \
+		contrib/configure \
 		contrib/cowsay \
 		contrib/cpan2dist \
+		contrib/cpio \
+		contrib/cups \
+		contrib/cvs \
+		contrib/dcop \
+		contrib/dd \
+		contrib/dhclient \
+		contrib/dict \
+		contrib/dpkg \
+		contrib/dselect \
 		contrib/dsniff \
+		contrib/findutils \
 		contrib/freeciv \
+		contrib/gcc \
 		contrib/gcl \
+		contrib/gdb \
+		contrib/genisoimage \
+		contrib/getent \
 		contrib/gkrellm \
 		contrib/gnatmake \
+		contrib/gpg \
 		contrib/gpg2 \
+		contrib/gzip \
 		contrib/harbour \
+		contrib/heimdal \
+		contrib/iconv \
+		contrib/imagemagick \
+		contrib/info \
+		contrib/iptables \
+		contrib/ipmitool \
 		contrib/isql \
+		contrib/jar \
+		contrib/java \
+		contrib/kldload \
 		contrib/larch \
+		contrib/ldapvi \
+		contrib/lftp \
+		contrib/lilo \
 		contrib/lilypond \
+		contrib/links \
 		contrib/lisp \
+		contrib/lvm \
 		contrib/lzma \
 		contrib/lzop \
 		contrib/mailman \
+		contrib/make \
+		contrib/man \
+		contrib/mc \
 		contrib/mcrypt \
+		contrib/mdadm \
 		contrib/minicom \
+		contrib/mkinitrd \
+		contrib/mock \
 		contrib/modules \
 		contrib/monodevelop \
+		contrib/mplayer \
+		contrib/msynctool \
 		contrib/mtx \
+		contrib/munin-node \
+		contrib/mutt \
+		contrib/mysqladmin \
+		contrib/ncftp \
 		contrib/net-tools \
+		contrib/ntpdate \
+		contrib/openldap \
+		contrib/openssl \
 		contrib/p4 \
+		contrib/perl \
+		contrib/pine \
+		contrib/pkg-config \
+		contrib/pkg_install \
+		contrib/pkgtools \
+		contrib/portupgrade \
+		contrib/postfix \
+		contrib/postgresql \
 		contrib/povray \
+		contrib/python \
 		contrib/qdbus \
 		contrib/qemu \
 		contrib/quota-tools \
+		contrib/rcs \
 		contrib/rdesktop \
+		contrib/repomanage \
+		contrib/reportbug \
+		contrib/resolvconf \
+		contrib/rfkill \
 		contrib/ri \
+		contrib/rpcdebug \
+		contrib/rpm \
+		contrib/rpmcheck \
+		contrib/rrdtool \
+		contrib/rsync \
+		contrib/samba \
 		contrib/sbcl \
+		contrib/screen \
+		contrib/shadow \
 		contrib/sitecopy \
+		contrib/smartctl \
 		contrib/snownews \
 		contrib/ssh \
-		contrib/_subversion \
+		contrib/strace \
 		contrib/svk \
+		contrib/sysctl \
+		contrib/sysv-rc \
+		contrib/tar \
+		contrib/tcpdump \
 		contrib/unace \
-		contrib/unrar
+		contrib/unrar \
+		contrib/update-alternatives \
+		contrib/vncviewer \
+		contrib/vpnc \
+		contrib/wireless-tools \
+		contrib/wodim \
+		contrib/wvdial \
+		contrib/xhost \
+		contrib/xm \
+		contrib/xmllint \
+		contrib/xmlwf \
+		contrib/xmms \
+		contrib/xrandr \
+		contrib/xz \
+		contrib/yp-tools \
+		contrib/yum-arch
 
-EXTRA_DIST = $(sysconf_DATA) $(bashcomp_DATA)
+EXTRA_DIST = $(sysconf_DATA) $(bashcomp_DATA) contrib/_subversion contrib/_yum

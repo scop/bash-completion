@@ -1,0 +1,40 @@
+# bash completion for mysqladmin
+
+have mysqladmin &&
+_mysqladmin()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+	-u)
+		COMPREPLY=( $( compgen -u -- "$cur" ) )
+		return 0
+		;;
+	*)
+		;;
+	esac
+
+	COMPREPLY=( $( compgen -W '-# -f -? -C -h -p -P -i -r -E -s -S -t -u \
+					      -v -V -w' -- "$cur" ) )
+
+	COMPREPLY=( "${COMPREPLY[@]}" \
+		    $( compgen -W 'create drop extended-status flush-hosts \
+				   flush-logs flush-status flush-tables \
+				   flush-threads flush-privileges kill \
+				   password ping processlist reload refresh \
+				   shutdown status variables version' \
+		       -- "$cur" ) )
+} &&
+complete -F _mysqladmin mysqladmin
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 8
+# sh-indent-comment: t
+# indent-tabs-mode: t
+# End:
+# ex: ts=8 sw=8 noet filetype=sh

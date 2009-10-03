@@ -1,0 +1,491 @@
+    # Source `init.tcl' again to restore the `unknown' procedure
+    # NOTE: DejaGnu has an old `unknown' procedure which unfortunately disables
+    #       tcl auto-loading.
+source [file join [info library] init.tcl]
+package require textutil::string
+
+
+
+# Execute a bash command and make sure the exit status is succesful.
+# The command is expected to return no output.  See `assert_bash_exec_out' if
+# you want to catch output from the bash command.
+# If not, output the error message.
+# @param string $cmd  Bash command line to execute.  If emptry string (""), the
+#                     exit status of the previously executed bash command will be 
+#                     checked; specify `title' to adorn the error message.
+# @param string $title  (optional) Command title.  If empty, `cmd' is used.
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
+# @param mixed $out  (optional) Reference to variable to hold output.
+#                    If variable equals -1 (default) the bash command is expected
+#                    to return no output.  If variable equals 0, any output
+#                    from the bash command is disregarded.
+proc assert_bash_exec {{aCmd ""} {title ""} {prompt /@} {out -1}} {
+    if {$out != 0 && $out != -1} {upvar $out results}
+    if {[string length $aCmd] != 0} {
+        send "$aCmd\r"
+        expect -ex "$aCmd\r\n"
+    }; # if
+    if {[string length $title] == 0} {set title $aCmd}
+    expect -ex $prompt
+    set results $expect_out(buffer);  # Catch output
+        # Remove $prompt suffix from output
+    set results [
+        string range $results 0 [
+            expr [string length $results] - [string length $prompt] - 1
+        ]
+    ]
+    if {$out == -1 && [string length $results] > 0} {
+        if {[info exists multipass_name]} {
+            fail "ERROR Unexpected output from bash command \"$title\""
+        }; # if
+        send_user "ERROR Unexpected output from bash command \"$title\":\n$results"
+    }; # if
+
+    set cmd "echo $?"
+    send "$cmd\r"
+    expect {
+        -ex "$cmd\r\n0\r\n$prompt" {}
+        $prompt {
+            if {[info exists multipass_name]} {
+                fail "ERROR executing bash command \"$title\""
+            }; # if
+            send_user "ERROR executing bash command \"$title\""
+        }
+    }; # expect
+}; # assert_bash_exec()
+
+
+# Test `type ...' in bash
+# Indicate "unsupported" if `type' exits with error status.
+# @param string $command  Command to locate
+proc assert_bash_type {command} {
+    set test "$command should be available in bash"
+    set cmd "type $command &> /dev/null && echo -n 0 || echo -n 1"  
+    send "$cmd\r"
+    expect "$cmd\r\n"
+    expect {
+        -ex 0 { set result true }
+        -ex 1 { set result false; unsupported "$test" }
+    }; # expect
+    expect "/@"
+    return $result
+}; # assert_bash_type()
+
+
+# Make sure the expected list is returned by executing the specified command.
+# @param list $expected
+# @param string $cmd  Command given to generate items
+# @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
+# @param integer $size  (optional) Chunk size.  Default is 20.
+# @result boolean  True if successful, False if not
+proc assert_bash_list {expected cmd {test ""} {prompt /@} {size 20}} {
+    if {$test == ""} {set test "$cmd should show expected output"}
+    send "$cmd\r\n"
+    expect -ex "$cmd\r\n"
+
+    if {[match_items $expected $test]} {
+        expect {
+            -re $prompt { pass "$test" }
+            -re eof { unresolved "eof" }
+        }; # expect
+    } else {
+        fail "$test"
+    }; # if
+}; # assert_bash_list()
+
+
+# Make sure the expected items are returned by TAB-completing the specified
+# command.
+# @param list $expected
+# @param string $cmd  Command given to generate items
+# @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
+# @param integer $size  (optional) Chunk size.  Default is 20.
+# @result boolean  True if successful, False if not
+proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
+    if {$test == ""} {set test "$cmd should show completions"}
+    send "$cmd\t"
+    if {[llength $expected] == 1} {
+        expect -ex "$cmd"
+        set cmds [split $cmd]
+        set cur "";  # Default to empty word to complete on
+        if {[llength $cmds] > 1} {
+                # Assume last word of `$cmd' is word to complete on.
+            set cur [lindex $cmds [expr [llength $cmds] - 1]]
+        }; # if
+            # Remove second word from beginning of single item $expected
+        if {[string first $cur $expected] == 0} {
+            set expected [string range $expected [string length $cur] end]
+        }; # if
+    } else {
+        expect -ex "$cmd\r\n"
+    }; # if
+
+    if {[match_items $expected $test]} {
+        if {[llength $expected] == 1} {
+            pass "$test"
+        } else {
+            # Remove optional (partial) argument from `cmd'.
+            # E.g. "finger test@" becomes "finger"
+            set cmd2 [lindex [split $cmd] 0]
+            # Determine common prefix of completions
+            set common [::textutil::string::longestCommonPrefixList $expected]
+            if {[string length $common] > 0} {set common " $common"}
+            expect {
+                -ex "$prompt$cmd2$common" { pass "$test" }
+                -re $prompt { unresolved "$test at prompt" }
+                -re eof { unresolved "eof" }
+            }; # expect
+        }; # if
+    } else {
+        fail "$test"
+    }; # if
+}; # assert_complete()
+
+
+# Make sure any completions are returned
+proc assert_complete_any {cmd {test ""} {prompt /@}} {
+    if {$test == ""} {set test "$cmd should show completions"}
+    send "$cmd\t"
+    expect -ex "$cmd"
+        # Escape special regexp characters
+    regsub -all {([\[\]\(\)\.\\\+])} $cmd {\\\1} cmd
+    expect {
+        -timeout 1
+        # Match completions, multiple words
+        # NOTE: The `\S*' (zero or more non-whitespace characters) matches a
+        #       longest common prefix of the completions shown.
+        #       E.g. `fmt -' becomes `fmt --' (two dashes) when completing
+        -re "^\r\n.*$prompt$cmd\\S*$" { pass "$test" }
+        timeout {
+            expect {
+                # Match completion, single word.  This word is shown on the
+                # same line as the command.
+                -re "^\\w+ $" { pass "$test" }
+                # Try matching multiple words again, with new timeout
+                -re "^\r\n.*$prompt$cmd\\S*$" { pass "$test" }
+            }
+        }
+        -re $prompt { unresolved "$test at prompt" }
+        eof { unresolved "eof" }
+    }; # expect
+}; # assert_complete_any()
+
+
+# Make sure the expected files are returned by TAB-completing the
+# specified command in the specified subdirectory.
+# @param list $expected
+# @param string $cmd  Command given to generate items
+# @param string $dir  Subdirectory to attempt completion in.  The directory must be relative from the $TESTDIR and without a trailing slash.  E.g. `fixtures/evince'
+# @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
+# @param integer $size  (optional) Chunk size.  Default is 20.
+# @result boolean  True if successful, False if not
+proc assert_complete_dir {expected cmd dir {test ""} {size 20}} {
+    set prompt "/$dir/@"
+    assert_bash_exec "cd $dir" "" $prompt
+    assert_complete $expected $cmd $test $prompt $size
+    sync_after_int $prompt
+    assert_bash_exec "cd \$TESTDIR"
+}; # assert_complete_dir
+    
+
+
+# Make sure a partial argument is completed.
+# A completion is tried with `$partial', or if this is empty, the first
+# character of the first item of `$expected'.  Only the items from $expected,
+# starting with this character are then expected as completions.
+# @param list $expected  List of all completions.
+# @param string $cmd  Command given to generate items
+# @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
+# @param integer $size  (optional) Chunk size.  Default is 20.
+# @result boolean  True if successful, False if not
+proc assert_complete_partial {expected cmd {partial ""} {test ""} {prompt /@} {size 20}} {
+    if {$test == ""} {set test "$cmd should complete partial argument"}
+    if {[llength $expected] == 0} {
+        unresolved "$test"
+    } else {
+        set pick {}
+        foreach item $expected {
+            if {$partial == ""} {set partial [string range $item 0 0]}
+                # Only append item if starting with $partial
+            if {[string range $item 0 [expr [string length $partial] - 1]] == "$partial"} {
+                lappend pick $item
+            }; # if
+        }; # foreach
+        assert_complete $pick "$cmd $partial" $test $prompt $size
+    }; # if
+}; # assert_complete_partial()
+
+
+# Make sure the bash environment hasn't changed between now and the last call
+# to `save_env()'.
+# @param string $sed  Sed commands to preprocess diff output.
+#                     Example calls:
+#                  
+#                         # Replace `COMP_PATH=.*' with `COMP_PATH=PATH'
+#                         assert_env_unmodified {s/COMP_PATH=.*/COMP_PATH=PATH/}
+#                  
+#                         # Remove lines containing `OLDPWD='
+#                         assert_env_unmodified {/OLDPWD=/d}
+# 
+# @param string $file  Filename to generate environment save file from.  See
+#                      `gen_env_filename()'.
+# @param string $diff  Expected diff output (after being processed by $sed)
+# @see save_env()
+proc assert_env_unmodified {{sed ""} {file ""} {diff ""}} {
+    set test "Environment should not be modified"
+    _save_env [gen_env_filename $file 2]
+
+        # Prepare sed script
+
+        # Escape special bash characters ("\)
+    regsub -all {([\"\\])} $sed {\\\1} sed;  #"# (fix Vim syntax highlighting)
+        # Escape newlines
+    regsub -all {\n} [string trim $sed] "\r\n" sed
+
+        # Prepare diff script
+
+        # If diff is filled, escape newlines and make sure it ends with a newline
+    if {[string length [string trim $diff]]} {
+        regsub -all {\n} [string trim $diff] "\r\n" diff
+        append diff "\r\n"
+    } else {
+        set diff ""
+    }; # if
+
+        # Execute diff
+
+    # NOTE: The dummy argument 'LAST-ARG' sets bash variable $_ (last argument) to
+    #       'LAST-ARG' so that $_ doesn't mess up the diff (as it would if $_
+    #       was the (possibly multi-lined) sed script).
+    set cmd "diff_env \"[gen_env_filename $file 1]\" \"[gen_env_filename $file 2]\" \"$sed\" LAST-ARG"
+    send "$cmd\r"
+    expect "LAST-ARG\r\n"
+
+    expect {
+        -re "^$diff[wd]@$" { pass "$test" }
+        -re [wd]@ { 
+            fail "$test" 
+
+            # Show diff to user
+
+            set diff $expect_out(buffer)
+            # Remove possible `\r\n[wd]@' from end of diff
+            if {[string last "\r\n[wd]@" $diff] == [string length $diff] - [string length "\r\n[wd]@"]} {
+                set diff [string range $diff 0 [expr [string last "\r\n[wd]@" $diff] - 1]]
+            }; # if
+            send_user $diff;
+        }
+    }; # expect
+}; # assert_env_unmodified()
+
+
+# Make sure the specified command executed from within Tcl/Expect.
+# Fail the test with status UNSUPPORTED if Tcl fails with error "POSIX/ENOENT
+# (No such file or directory)", or UNRESOLVED if other error occurs.  
+# NOTE: Further tests are assumed if executing the command is successful.  The
+#       test isn't immediately declared to have PASSED if the command is
+#       executed successful.
+# @param string $command
+# @param string $stdout  (optional) Reference to variable to hold stdout.
+# @param string $test (optional)  Test titel
+# @see assert_bash_exec()
+proc assert_exec {cmd {stdout ''} {test ''}} {
+    if {$test == ""} {set test "$cmd should execute successful"}
+    upvar $stdout results
+    set status [catch {eval exec $cmd} results]
+    if {$status == 0} {
+        set result true
+    } else {
+        set result false
+            # Command not found (POSIX/ENOENT = no such file or directory)?
+        if {[lindex $::errorCode 0] == "POSIX" && [lindex $::errorCode 1] == "ENOENT"} {
+            # Yes, command not found;
+                # Indicate test is unsupported
+            unsupported "$test"
+        } else {
+            unresolved "$test"
+        }; # if
+    }; # if
+    return $result
+}; # assert_exec()
+
+
+# Get hostnames
+# @return list  Hostnames
+proc get_hosts {} {
+    set hosts [exec bash -c "compgen -A hostname"]
+    # NOTE: Circumventing var `avahi_hosts' and appending directly to `hosts'
+    #       causes an empty element to be inserted in `hosts'.
+    #       -- FVu, Fri Jul 17 23:11:46 CEST 2009
+    set avahi_hosts [get_hosts_avahi]
+    if {[llength $avahi_hosts] > 0} {
+        lappend hosts $avahi_hosts
+    }; # if
+    return $hosts
+}; # get_hosts()
+
+
+# Get hostnames according to avahi
+# @return list  Hostnames
+proc get_hosts_avahi {} {
+        # Retrieving hosts is successful?
+    if { [catch {exec bash -c {
+        type avahi-browse >&/dev/null && [ -n "$(pidof avahi-daemon)" ] \
+            && avahi-browse -cpr _workstation._tcp | grep ^= | cut -d\; -f7 | sort -u
+    }} hosts] } {
+        # No, retrieving hosts yields error;
+            # Reset hosts
+        set hosts {}
+    }; # if
+    return $hosts
+}; # get_hosts_avahi()
+
+
+# Get signals
+# This function is written in analogy to the bash function `_signals()' in
+# `bash_completion'.
+# @return list  Signals starting with `SIG', but with the `SIG' prefix removed.
+proc get_signals {} {
+    set signals {}
+    foreach signal [exec bash -c {compgen -A signal}] {
+            # Does signal start with `SIG'?
+        if {[string range $signal 0 [expr [string length "SIG"] - 1]] == "SIG"} {
+                # Remove `SIG' prefix
+            set signal [string range $signal 3 end]
+                # Add signal (with dash (-) prefix) to list
+            lappend signals -$signal
+        }; # if
+    }; # foreach
+    return $signals
+}; # get_signals()
+
+
+# Expect items.
+# Break items into chunks because `expect' seems to have a limited buffer size
+# @param list $items
+# @param integer $size  Chunk size
+# @result boolean  True if successful, False if not
+proc match_items {items test {size 20}} {
+    set items [exec sort << [join $items "\n"]]
+    set result false
+    for {set i 0} {$i < [llength $items]} {set i [expr {$i + $size}]} {
+        set expected ""
+        for {set j 0} {$j < $size && $i + $j < [llength $items]} {incr j} {
+            set item "[lindex $items [expr {$i + $j}]]"
+                # Escape special regexp characters ([]().\*^$)
+            regsub -all {([\[\]\(\)\.\\\+\*\^\$])} $item {\\\1} item
+            append expected $item
+            if {[llength $items] > 1} {append expected {\s+}};
+        }; # for
+        if {[llength $items] == 1} {
+            expect {
+                -re "^$expected$" { set result true }
+                "\r\n" { set result false; break }
+                default { set result false; break }
+                timeout { set result false; break }
+            }; # expect
+        } else {
+            expect {
+                -re "^$expected" { set result true }
+                default { set result false; break }
+                timeout { set result false; break }
+            }; # expect
+        }; # if
+    }; # for
+    return $result
+}; # match_items()
+
+
+
+# Get real command.
+# - arg: $1  Command
+# - return:  Command found, empty string if not found
+proc realcommand {cmd} {
+    set result ""
+    if [string length [set path [auto_execok $cmd]]] {
+        if {[string length [auto_execok realpath]]} {
+            set result [exec realpath $path]
+        } elseif {[string length [auto_execok readlink]]} {
+            set result [exec readlink -f $path]
+        } else {
+            set result $path
+        }; # if
+    }; # if
+    return $result
+}; # realcommand()
+
+
+# Generate filename to save environment to.
+# @param string $file  File-basename to save environment to.  If the file has a
+#                      `.exp' suffix, it is removed.  E.g.:
+#                      - "file.exp" becomes "file.env1~"
+#                      - "" becomes "env.env1~"
+#                      - "filename" becomes "filename.env1~"
+#                      The file will be stored in the $TESTDIR/tmp directory.
+# @param integer $seq  Sequence number.  Must be either 1 or 2.
+proc gen_env_filename {{file ""} {seq 1}} {
+    if {[string length $file] == 0} {
+        set file "env"
+    } else {
+            # Remove possible directories
+        set file [file tail $file]
+            # Remove possible '.exp' suffix from filename
+        if {[string last ".exp" $file] == [string length $file] - [string length ".exp"]} {
+            set file [string range $file 0 [expr [string last ".exp" $file] - 1]]
+        }; # if
+    }; # if
+    return "\$TESTDIR/tmp/$file.env$seq~"
+}; # gen_env_filename()
+
+
+# Save the environment for later comparison
+# @param string $file  Filename to generate environment save file from.  See
+#                      `gen_env_filename()'.
+proc save_env {{file ""}} {
+    _save_env [gen_env_filename $file 1]
+}; # save_env()
+
+
+# Save the environment for later comparison
+# @param string  File to save the environment to.  Default is "$TESTDIR/tmp/env1~".
+# @see assert_env_unmodified()
+proc _save_env {{file ""}} {
+    assert_bash_exec "{ set; declare -F; } > $file"
+}; # save_env()
+
+
+# Interrupt completion and sync with prompt.
+# Send signals QUIT & INT.
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
+proc sync_after_int {{prompt /@}} {
+    set test "Sync after INT"
+    sleep .1
+    send \031\003;  # QUIT/INT
+        # NOTE: Regexp `.*' causes `expect' to discard previous unknown output.
+        #       This is necessary if a completion doesn't match expectations.
+        #       For instance with `filetype_xpec' completion (e.g. `kdvi') if
+        #       one expects `.txt' as a completion (wrong, because it isn't
+        #       there), the unmatched completions need to be cleaned up.
+    expect -re ".*$prompt$"
+}; # sync_after_int()
+
+
+proc sync_after_tab {} {
+        # NOTE: Wait in case completion returns nothing - because `units' isn't
+        #       installed, so that "^$cdm.*$" doesn't match too early - before
+        #       comp_install has finished
+    sleep .4
+}; # sync_after_tab()
+
+
+# Return current working directory with `TESTDIR' stripped
+# @return string  Working directory.  E.g. /, or /fixtures/
+proc wd {} {
+    global TESTDIR
+        # Remove `$TESTDIR' prefix from current working directory
+    set wd [string replace [pwd] 0 [expr [string length $TESTDIR] - 1]]/
+}; # wd()

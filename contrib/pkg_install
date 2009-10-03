@@ -1,0 +1,31 @@
+# bash completion for FreeBSD base package management tools
+
+[ $UNAME = FreeBSD ] &&
+{
+
+_pkg_delete()
+{
+	local cur pkgdir prev
+
+	pkgdir=${PKG_DBDIR:-/var/db/pkg}/
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	[ "$prev" = "-o" -o "$prev" = "-p" -o "$prev" = "-W" ] && return 0
+
+	COMPREPLY=( $( compgen -d "$pkgdir$cur" ) )
+	COMPREPLY=( ${COMPREPLY[@]#$pkgdir} )
+
+	return 0
+}
+complete -F _pkg_delete $dirnames pkg_delete pkg_info
+
+}
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 8
+# sh-indent-comment: t
+# indent-tabs-mode: t
+# End:
+# ex: ts=8 sw=8 noet filetype=sh

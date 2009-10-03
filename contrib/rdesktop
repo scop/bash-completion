@@ -1,6 +1,3 @@
-# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
-# ex: ts=8 sw=8 noet filetype=sh
-#
 # bash completion for rdesktop
 
 have rdesktop &&
@@ -21,11 +18,11 @@ _rdesktop()
 				$HOME/.rdesktop/keymaps 2>/dev/null ) )
 			COMPREPLY=( ${COMPREPLY[@]:-} $( command ls \
 				./keymaps 2>/dev/null ) )
-			COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- $cur ) )
+			COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
 			return 0
 			;;
 		-a)
-			COMPREPLY=( $( compgen -W '8 15 16 24' -- $cur ) )
+			COMPREPLY=( $( compgen -W '8 15 16 24' -- "$cur" ) )
 			return 0
 			;;
 		-x)
@@ -36,7 +33,7 @@ _rdesktop()
 		-r)
 			# FIXME: should do $nospace for the colon options
 			COMPREPLY=( $( compgen -W 'comport: disk: lptport: \
-				printer: sound: lspci scard' -- $cur ) )
+				printer: sound: lspci scard' -- "$cur" ) )
 			return 0
 			;;
 	esac
@@ -44,10 +41,18 @@ _rdesktop()
 	if [[ "$cur" == -* ]]; then
 		COMPREPLY=( $( compgen -W '-u -d -s -c -p -n -k -g -f -b -L \
 			-A -B -e -E -m -C -D -K -S -T -N -X -a -z -x -P -r \
-			-0 -4 -5' -- $cur ) )
+			-0 -4 -5' -- "$cur" ) )
 	else
-		_known_hosts
+		_known_hosts_real "$cur"
 	fi
 
 } &&
 complete -F _rdesktop rdesktop
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 8
+# sh-indent-comment: t
+# indent-tabs-mode: t
+# End:
+# ex: ts=8 sw=8 noet filetype=sh

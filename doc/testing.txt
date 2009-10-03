@@ -1,0 +1,459 @@
+Automated testing
+=================
+
+Introduction
+------------
+The bash-completion package contains an automated test suite.  Running the tests should help verifying that bash-completion works as expected.  The tests are also very helpful in uncovering software regressions at an early stage.
+
+The bash-completion test suite is written on top of the http://www.gnu.org/software/dejagnu/[DejaGnu] testing framework.  DejaGnu is written in http://expect.nist.gov[Expect], which in turn uses http://tcl.sourceforge.net[Tcl] -- Tool command language.
+
+
+
+
+Installing dependencies
+-----------------------
+
+Installing dependencies should be easy using your local package manager.
+
+
+Debian/Ubuntu
+~~~~~~~~~~~~~
+
+On Debian/Ubuntu you can use `apt-get`:
+-------------
+sudo apt-get install dejagnu tcllib
+-------------
+This should also install the necessary `expect` and `tcl` packages.
+
+Fedora/RHEL/CentOS
+~~~~~~~~~~~~~~~~~~
+
+On Fedora and RHEL/CentOS (with EPEL) you can use `yum`:
+-------------
+sudo yum install dejagnu tcllib
+-------------
+This should also install the necessary `expect` and `tcl` packages.
+
+
+
+Structure
+---------
+
+
+Main areas (DejaGnu tools)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The tests are grouped into different areas, called _tool_ in DejaGnu:
+
+*completion*::
+  Functional tests per completion.
+*install*:: 
+  Functional tests for installation and caching of the main bash-completion package.
+*unit*:: 
+  Unit tests for bash-completion helper functions.
+
+Each tool has a slightly different way of loading the test fixtures, see <<Test_context,Test context>> below.
+
+
+
+
+Running the tests
+-----------------
+
+The tests are run by calling `runtest` in the test directory:
+-----------------------
+runtest --outdir log --tool completion
+runtest --outdir log --tool install
+runtest --outdir log --tool unit
+-----------------------
+The commands above are already wrapped up in shell scripts within the `test` directory:
+-----------------------
+./runCompletion
+./runInstall
+./runUnit
+-----------------------
+
+
+Running tests via cron
+~~~~~~~~~~~~~~~~~~~~~~
+
+The test suite requires a connected terminal (tty).  When invoked via cron, no tty is connected and the test suite may respond with this error:
+---------------------------------------------
+can't read "multipass_name": no such variable
+---------------------------------------------
+
+To run the tests successfully via cron, connect a terminal by redirecting
+stdin from a tty, e.g. /dev/tty40.  (In Linux, you can press alt-Fx or
+ctrl-alt-Fx to switch the console from /dev/tty1 to tty7.  There are many more
+/dev/tty* which are not accessed via function keys.  To be safe, use a tty
+greater than tty7)
+
+----------------------
+./runUnit < /dev/tty40
+----------------------
+
+If the process doesn't run as root (recommended), root will have to change the
+owner and permissions of the tty:
+-------------------------
+sudo chmod o+r /dev/tty40
+-------------------------
+
+To start the test at 01:00, set the crontab to this:
+
+* 1 * * * cd bash-completion/test && ./cron.sh < /dev/tty40
+
+Here's an example batch file `cron.sh`, to be put in the bash-completion `test`
+directory.  This batch file only e-mails the output of each test-run if the
+test-run fails.
+
+[source,bash]
+---------------------------------------------------------------------
+#!/bin/sh
+
+set -e  # Exit if simple command fails
+set -u  # Error if variable is undefined
+
+LOG=/tmp/bash-completion.log~
+
+    # Retrieve latest sources
+git pull
+
+    # Run tests on bash-3
+
+./runUnit       > $LOG || cat $LOG
+./runCompletion > $LOG || cat $LOG
+
+    # Run tests on bash-4
+
+./runUnit --outdir log/bash-4 --tool_exec /opt/bash-4.0/bin/bash > $LOG || cat $LOG
+./runCompletion --outdir log/bash-4 --tool_exec /opt/bash-4.0/bin/bash > $LOG || cat $LOG
+
+    # Clean up log file
+[ -f $LOG ] && rm $LOG
+---------------------------------------------------------------------
+
+Specifying bash binary
+~~~~~~~~~~~~~~~~~~~~~~
+
+The test suite standard uses `bash` as found in the tcl path (/bin/bash).  Using `--tool_exec` you can specify which bash binary you want to run the test suite against, e.g.:
+
+----------------
+./runUnit --tool_exec /opt/bash-4.0/bin/bash
+----------------
+
+
+
+
+Maintenance
+-----------
+
+
+Adding a completion test
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can run `cd test && ./generate` to add a test.
+
+
+Fixing a completion test
+~~~~~~~~~~~~~~~~~~~~~~~~
+Let's consider this real-life example where an ssh completion bug is fixed.  First you're triggered by unsuccessful tests:
+
+----------------------------------
+$ ./runCompletion
+...
+        === completion Summary ===
+
+# of expected passes        283
+# of unexpected failures    8
+# of unresolved testcases   2
+# of unsupported tests      47
+----------------------------------
+
+Take a look in `log/completion.log` to find out which specific command is failing.
+
+-----------------------
+$ vi log/completion.log
+-----------------------
+
+Search for `UNRESOLVED` or `FAIL`.  From there scroll up to see which `.exp` test is failing:
+
+---------------------------------------------------------
+/@Running ./completion/ssh.exp ...
+...
+UNRESOLVED: Tab should complete ssh known-hosts at prompt
+---------------------------------------------------------
+
+In this case it appears `ssh.exp` is causing the problem.  Isolate the `ssh` tests by specifying just `ssh.exp` to run.  Furthermore add the `--debug` flag, so output gets logged in `dbg.log`:
+
+----------------------------------
+$ ./runCompletion ssh.exp --debug
+...
+        === completion Summary ===
+
+# of expected passes        1
+# of unresolved testcases   1
+----------------------------------
+
+Now we can have a detailed look in `dbg.log` to find out what's going wrong.  Open `dbg.log` and search for `UNRESOLVED` (or `FAIL` if that's what you're looking for):
+
+---------------------------------------------------------
+UNRESOLVED: Tab should complete ssh known-hosts at prompt
+---------------------------------------------------------
+
+From there, search up for the first line saying: 
+
+-------------------------------------------------
+expect: does "..." match regular expression "..."
+-------------------------------------------------
+
+This tells you where the actual output differs from the expected output.  In this case it looks like the test "ssh -F fixtures/ssh/config <TAB>" is expecting just hostnames, whereas the actual completion is containing commands - but no hostnames.
+So what should be expected after "ssh -F fixtures/ssh/config <TAB>" are *both* commands and hostnames.  This means both the test and the completion need fixing.  Let's start with the test.
+
+----------------------------
+$ vi lib/completions/ssh.exp
+----------------------------
+
+Search for the test "Tab should complete ssh known-hosts".  Here you could've seen that what was expected were hostnames ($hosts):
+
+-----------------------------------------
+set expected "^$cmd\r\n$hosts\r\n/@$cmd$"
+-----------------------------------------
+
+Adding *all* commands (which could well be over 2000) to 'expected', seems a bit overdone so we're gonna change things here.  Lets expect the unit test for `_known_hosts` assures all hosts are returned.  Then all we need to do here is expect one host and one command, just to be kind of sure that both hosts and commands are completed.
+
+Looking in the fixture for ssh:
+
+-----------------------------
+$ vi fixtures/ssh/known_hosts
+-----------------------------
+
+it looks like we can add an additional host 'ls_known_host'.  Now if we would perform the test "ssh -F fixtures/ssh/config ls<TAB>" both the command `ls` and the host `ls_known_host` should come up.  Let's modify the test so:
+
+--------------------------------------------------------
+$ vi lib/completions/ssh.exp
+...
+set expected "^$cmd\r\n.*ls.*ls_known_host.*\r\n/@$cmd$"
+--------------------------------------------------------
+
+Running the test reveals we still have an unresolved test:
+
+----------------------------------
+$ ./runCompletion ssh.exp --debug
+...
+        === completion Summary ===
+
+# of expected passes        1
+# of unresolved testcases   1
+----------------------------------
+
+But if now look into the log file `dbg.log` we can see the completion only returns commands starting with 'ls' but fails to match our regular expression which also expects the hostname `ls_known_host':
+
+-----------------------
+$ vi dbg.log
+...
+expect: does "ssh -F fixtures/ssh/config ls\r\nls           lsattr       lsb_release  lshal        lshw         lsmod        lsof         lspci        lspcmcia     lspgpot      lss16toppm\r\nlsusb\r\n/@ssh -F fixtures/ssh/config ls" (spawn_id exp9) match regular expression "^ssh -F fixtures/ssh/config ls\r\n.*ls.*ls_known_host.*\r\n/@ssh -F fixtures/ssh/config ls$"? no
+-----------------------
+
+Now let's fix ssh completion:
+
+-------------------
+$ vi ../contrib/ssh
+...
+-------------------
+
+until the test shows:
+
+----------------------------------
+$ ./runCompletion ssh.exp
+...
+        === completion Summary ===
+
+# of expected passes        2
+----------------------------------
+
+Fixing a unit test
+~~~~~~~~~~~~~~~~~~
+Now let's consider a unit test failure.  First you're triggered by unsuccessful tests:
+
+----------------------------------
+$ ./runUnit
+...
+        === unit Summary ===
+
+# of expected passes        1
+# of unexpected failures    1
+----------------------------------
+
+Take a look in `log/unit.log` to find out which specific command is failing.
+
+-----------------
+$ vi log/unit.log
+-----------------
+
+Search for `UNRESOLVED` or `FAIL`.  From there scroll up to see which `.exp` test is failing:
+
+------------------------------------------
+/@Running ./unit/_known_hosts_real.exp ...
+...
+FAIL: Environment should stay clean
+------------------------------------------
+
+In this case it appears `_known_hosts_real.exp` is causing the problem.  Isolate the `_known_hosts_real` test by specifying just `_known_hosts_real.exp` to run.  Furthermore add the `--debug` flag, so output gets logged in `dbg.log`:
+
+----------------------------------
+$ ./runUnit _known_hosts_real.exp --debug
+...
+        === completion Summary ===
+
+# of expected passes        1
+# of unexpected failures    1
+----------------------------------
+
+Now, if we haven't already figured out the problem, we can have a detailed look in `dbg.log` to find out what's going wrong.  Open `dbg.log` and search for `UNRESOLVED` (or `FAIL` if that's what you're looking for):
+
+-----------------------------------
+FAIL: Environment should stay clean
+-----------------------------------
+
+From there, search up for the first line saying: 
+
+-------------------------------------------------
+expect: does "..." match regular expression "..."
+-------------------------------------------------
+
+This tells you where the actual output differs from the expected output.  In this case it looks like the the function `_known_hosts_real` is unexpectedly modifying global variables `cur` and `flag`.  In case you need to modify the test:
+
+-----------------------------------
+$ vi lib/unit/_known_hosts_real.exp
+-----------------------------------
+
+Rationale
+---------
+
+
+Naming conventions
+~~~~~~~~~~~~~~~~~~
+
+Test suite or testsuite
+^^^^^^^^^^^^^^^^^^^^^^^
+The primary Wikipedia page is called
+http://en.wikipedia.org/wiki/Test_suite[test suite] and not testsuite, so that's what this
+document sticks to.
+
+script/generate
+^^^^^^^^^^^^^^^
+The name and location of this code generation script come from Ruby on Rails' http://en.wikibooks.org/wiki/Ruby_on_Rails/Tools/Generators[script/generate].
+
+
+
+
+== Reference
+
+Within test scripts the following library functions can be used:
+
+[[Test_context]]
+== Test context
+
+The test environment needs to be put to fixed states when testing.  For instance the bash prompt (PS1) is set to the current test directory, followed by an ampersand (@).  The default settings for `bash` reside in `config/bashrc` and `config/inputrc`.
+
+For each tool (completion, install, unit) a slightly different context is in effect.
+
+=== What happens when tests are run?
+
+==== completion
+
+When the completions are tested, invoking DejaGnu will result in a call to `completion_start()` which in turn will start `bash --rcfile config/bashrc`.
+
+.What happens when completion tests are run?
+----
+               | runtest --tool completion
+               V
+    +----------+-----------+
+    |  lib/completion.exp  |
+    |  lib/library.exp     |
+    |  config/default.exp  |
+    +----------+-----------+
+               :
+               V
+    +----------+-----------+    +---------------+    +----------------+
+    |  completion_start()  +<---+ config/bashrc +<---| config/inputrc |
+    | (lib/completion.exp) |    +---------------+    +----------------+
+    +----------+-----------+
+               |                                   ,+----------------------------+
+               |                               ,--+-+  "Actual completion tests" |
+               V                              /   +------------------------------+
+    +----------+-----------+    +-----------------------+
+    |   completion/*.exp   +<---| lib/completions/*.exp | 
+    +----------+-----------+    +-----------------------+ 
+               |          \                        ,+--------------------------------+
+               |           `----------------------+-+  "Completion invocation tests" |
+               V                                  +----------------------------------+
+    +----------+-----------+
+    |   completion_exit()  |
+    | (lib/completion.exp) |
+    +----------------------+
+----
+Setting up bash once within `completion_start()` has the speed advantage that bash - and bash-completion - need only initialize once when testing multiple completions, e.g.:
+----
+    runtest --tool completion alias.exp cd.exp
+----
+==== install
+
+.What happens when install tests are run?
+----
+                 | runtest --tool install
+                 V
+            +----+----+
+            | DejaGnu |
+            +----+----+
+                 |
+                 V
+    +------------+---------------+
+    | (file: config/default.exp) |
+    +------------+---------------+
+                 |
+                 V
+    +------------+------------+
+    | (file: lib/install.exp) |
+    +-------------------------+
+----
+
+==== unit
+
+.What happens when unit tests are run?
+----
+               | runtest --tool unit
+               V
+          +----+----+
+          | DejaGnu |
+          +----+----+
+               |
+               V
+    +----------+-----------+
+    |          -           |
+    | (file: lib/unit.exp) |
+    +----------------------+
+----
+
+=== bashrc
+
+This is the bash configuration file (bashrc) used for testing:
+
+[source,bash]
+---------------------------------------------------------------------
+include::bashrc[]
+---------------------------------------------------------------------
+
+
+=== inputrc
+
+This is the readline configuration file (inputrc) used for testing:
+
+[source,bash]
+---------------------------------------------------------------------
+include::inputrc[]
+---------------------------------------------------------------------
+
+
+Index
+=====

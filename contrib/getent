@@ -1,0 +1,57 @@
+# bash completion for getent
+
+have getent &&
+_getent()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		passwd)
+			COMPREPLY=( $( compgen -u "$cur"  ) )
+			return 0
+			;;
+		group)
+			COMPREPLY=( $( compgen -g "$cur"  ) )
+			return 0
+			;;
+		services)
+			COMPREPLY=( $( compgen -s "$cur"  ) )
+			return 0
+			;;
+		hosts)
+			COMPREPLY=( $( compgen -A hostname "$cur"  ) )
+			return 0
+			;;
+		protocols|networks|ahosts|ahostsv4|ahostsv6|rpc)
+			COMPREPLY=( $( getent "$prev" | \
+				sed -ne 's|^\('"$cur"'[^[:space:]]*\).*|\1|p' ) )
+			return 0
+			;;
+		aliases|shadow)
+			COMPREPLY=( $( getent "$prev" | \
+				sed -ne 's|^\('"$cur"'[^:]*\).*|\1|p' ) )
+			return 0
+			;;
+	esac
+
+
+	if [ $COMP_CWORD -eq 1 ]; then
+		COMPREPLY=( $( compgen -W 'passwd group hosts services \
+					   protocols networks ahosts ahostsv4 \
+					   ahostsv6 aliases ethers netgroup \
+					   rpc shadow' -- "$cur" ) )
+	fi
+} &&
+complete -F _getent getent
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 8
+# sh-indent-comment: t
+# indent-tabs-mode: t
+# End:
+# ex: ts=8 sw=8 noet filetype=sh

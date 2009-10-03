@@ -1,0 +1,38 @@
+# bash completion for FreeBSD kernel module commands
+
+[ $UNAME = FreeBSD ] &&
+{
+
+_kldload()
+{
+	local cur moddir
+
+	moddir=/modules/
+	[ -d $moddir ] || moddir=/boot/kernel/
+	cur=`_get_cword`
+
+	COMPREPLY=( $( compgen -f "$moddir$cur" ) )
+	COMPREPLY=( ${COMPREPLY[@]#$moddir} )
+	COMPREPLY=( ${COMPREPLY[@]%.ko} )
+
+	return 0
+}
+complete -F _kldload $filenames kldload
+
+_kldunload()
+{
+	local cur
+	cur=`_get_cword`
+	COMPREPLY=( $(kldstat | sed -ne "s/^.*[ \t]\+\($cur[a-z_]\+\).ko$/\1/p") )
+}
+complete -F _kldunload $filenames kldunload
+
+}
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 8
+# sh-indent-comment: t
+# indent-tabs-mode: t
+# End:
+# ex: ts=8 sw=8 noet filetype=sh

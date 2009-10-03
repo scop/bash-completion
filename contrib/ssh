@@ -1,13 +1,32 @@
-# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
-# ex: ts=8 sw=8 noet filetype=sh
-#
 # ssh(1) completion
-#
+
 have ssh && {
+
+_ssh_options() {
+	COMPREPLY=( $( compgen -W 'AddressFamily BatchMode BindAddress \
+		ChallengeResponseAuthentication CheckHostIP Cipher Ciphers \
+		ClearAllForwardings Compression CompressionLevel \
+		ConnectionAttempts ConnectTimeout ControlMaster ControlPath \
+		DynamicForward EscapeChar ExitOnForwardFailure ForwardAgent \
+		ForwardX11 ForwardX11Trusted GatewayPorts GlobalKnownHostsFile \
+		GSSAPIAuthentication GSSAPIDelegateCredentials HashKnownHosts \
+		Host HostbasedAuthentication HostKeyAlgorithms HostKeyAlias \
+		HostName IdentityFile IdentitiesOnly KbdInteractiveDevices \
+		LocalCommand LocalForward LogLevel MACs \
+		NoHostAuthenticationForLocalhost NumberOfPasswordPrompts \
+		PasswordAuthentication PermitLocalCommand Port \
+		PreferredAuthentications Protocol ProxyCommand \
+		PubkeyAuthentication RekeyLimit RemoteForward \
+		RhostsRSAAuthentication RSAAuthentication SendEnv \
+		ServerAliveInterval ServerAliveCountMax SmartcardDevice \
+		StrictHostKeyChecking TCPKeepAlive Tunnel TunnelDevice \
+		UsePrivilegedPort User UserKnownHostsFile VerifyHostKeyDNS \
+		VisualHostKey XAuthLocation' -- "$cur" ) )
+}
+
 _ssh()
 {
-	local cur prev
-	local optconfigfile
+	local cur prev configfile
 	local -a config
 
 	COMPREPLY=()
@@ -15,51 +34,136 @@ _ssh()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
-	-F)
+		-@(F|i|S))
+			_filedir
+			return 0
+			;;
+		-c)
+			COMPREPLY=( $( compgen -W '3des-cbc aes128-cbc \
+				aes192-cbc aes256-cbc aes128-ctr aes192-ctr \
+				aes256-ctr arcfour128 arcfour256 arcfour \
+				blowfish-cbc cast128-cbc' -- "$cur" ) )
+			return 0
+			;;
+		-c)
+			COMPREPLY=( $( compgen -W 'hmac-md5 hmac-sha1 \
+				umac-64@openssh.com hmac-ripemd160 \
+				hmac-sha1-96 hmac-md5-96' -- "$cur" ) )
+			return 0
+			;;
+		-l)
+			COMPREPLY=( $( compgen -u -- "$cur" ) )
+			return 0
+			;;
+		-o)
+			_ssh_options
+			return 0
+			;;
+		-w)
+			_available_interfaces
+			return 0
+			;;
+		-b)
+			COMPREPLY=( $( compgen -W "$(/sbin/ifconfig | \
+				awk '/adr:/ {print $2}' | \
+				awk -F: '{print $2}' )" -- "$cur" ) )
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -F* ]]; then
+		cur=${cur#-F}
 		_filedir
-		;;
-	-*c)
-	    COMPREPLY=( $( compgen -W 'blowfish 3des 3des-cbc blowfish-cbc \
-			   arcfour cast128-cbc' -- $cur ) )
-	    ;;
-	-*i)
-	    _filedir
-	    ;;
-	-*l)
-	    COMPREPLY=( $( compgen -u -- $cur ) )
-	    ;;
-	*)
-		# Search COMP_WORDS for '-F configfile' argument
+		# Prefix completions with '-F'
+		COMPREPLY=( "${COMPREPLY[@]/#/-F}" )
+		cur=-F$cur  # Restore cur
+	elif [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-1 -2 -4 -6 -A -a -C -f -g -K -k -M \
+			-N -n -q -s -T -t -V -v -X -v -Y -y -b -b -c -D -e -F \
+			-i -L -l -m -O -o -p -R -S -w' -- "$cur" ) )
+	else
+		# Search COMP_WORDS for '-F configfile' or '-Fconfigfile' argument
 		set -- "${COMP_WORDS[@]}"
 		while [ $# -gt 0 ]; do
 			if [ "${1:0:2}" = -F ]; then
 				if [ ${#1} -gt 2 ]; then
-					optconfigfile="$(dequote "$1")"
+					configfile="$(dequote "${1:2}")"
 				else
 					shift
-					[ "$1" ] && optconfigfile="$(dequote "-F$1")"
+					[ "$1" ] && configfile="$(dequote "$1")"
 				fi
 				break
 			fi
 			shift
 		done
-
-	    _known_hosts -a "$optconfigfile"
-
-	    [ $COMP_CWORD -eq 1 -o -n "$optconfigfile" ] || \
-		COMPREPLY=( "${COMPREPLY[@]}" $( compgen -c -- $cur ) )
-	esac
+		_known_hosts_real -a -F "$configfile" "$cur"
+		if [ $COMP_CWORD -ne 1 ]; then
+			COMPREPLY=( "${COMPREPLY[@]}" $( compgen -c -- "$cur" ) )
+		fi
+	fi
 
 	return 0
 }
-shopt -u hostcomplete && complete -F _ssh ssh slogin sftp xhost autossh
+shopt -u hostcomplete && complete -F _ssh ssh slogin autossh
+
+# sftp(1) completion
+#
+_sftp()
+{
+	local cur prev configfile
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(b|F|P))
+			_filedir
+			return 0
+			;;
+		-o)
+			_ssh_options
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -F* ]]; then
+		cur=${cur#-F}
+		_filedir
+		# Prefix completions with '-F'
+		COMPREPLY=( "${COMPREPLY[@]/#/-F}" )
+		cur=-F$cur  # Restore cur
+	elif [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-1 -C -v -B -b -F -o -P -R -S -s' \
+			-- "$cur" ) )
+	else
+		# Search COMP_WORDS for '-F configfile' argument
+		set -- "${COMP_WORDS[@]}"
+		while [ $# -gt 0 ]; do
+			if [ "${1:0:2}" = -F ]; then
+				if [ ${#1} -gt 2 ]; then
+					configfile="$(dequote "${1:2}")"
+				else
+					shift
+					[ "$1" ] && configfile="$(dequote "$1")"
+				fi
+				break
+			fi
+			shift
+		done
+		_known_hosts_real -a -F "$configfile" "$cur"
+	fi
+
+	return 0
+}
+shopt -u hostcomplete && complete -F _sftp sftp
+
 
 # scp(1) completion
 #
 _scp()
 {
-	local cur userhost path
-	local optconfigfile
+	local configfile cur userhost path prefix
 
 	COMPREPLY=()
 	cur=`_get_cword ":"`
@@ -87,34 +191,38 @@ _scp()
 		return 0
 	fi
 
-	# Search COMP_WORDS for '-F configfile' argument
-	set -- "${COMP_WORDS[@]}"
-	while [ $# -gt 0 ]; do
-		if [ "${1:0:2}" = -F ]; then
-			if [ ${#1} -gt 2 ]; then
-				optconfigfile="$(dequote "$1")"
-			else
-				shift
-				[ "$1" ] && optconfigfile="$(dequote "-F$1")"
+	if [[ "$cur" = -F* ]]; then
+		cur=${cur#-F}
+		prefix=-F
+	else
+		# Search COMP_WORDS for '-F configfile' or '-Fconfigfile' argument
+		set -- "${COMP_WORDS[@]}"
+		while [ $# -gt 0 ]; do
+			if [ "${1:0:2}" = -F ]; then
+				if [ ${#1} -gt 2 ]; then
+					configfile="$(dequote "${1:2}")"
+				else
+					shift
+					[ "$1" ] && configfile="$(dequote "$1")"
+				fi
+				break
 			fi
-			break
-		fi
-		shift
-	done
+			shift
+		done
 
-	[[ "$cur" == */* ]] || _known_hosts -c -a "$optconfigfile"
-
+		[[ "$cur" == */* ]] || _known_hosts_real -c -a -F "$configfile" "$cur"
+	fi
 	# This approach is used instead of _filedir to get a space appended
 	# after local file/dir completions, and $nospace retained for others.
 	local IFS=$'\t\n'
 	COMPREPLY=( "${COMPREPLY[@]}" $( command ls -aF1d $cur* \
 		    2>/dev/null | sed \
 		    -e "s/[][(){}<>\",:;^&\!$=?\`|\\ ']/\\\\&/g" \
-		    -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' ) )
+		    -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' -e "s/^/$prefix/") )
 
 	return 0
 }
-complete -F _scp $nospace scp
+complete -F _scp $nospace scp sshfs
 
 # ssh-copy-id(1) completion
 #
@@ -126,17 +234,27 @@ _ssh_copy_id() {
 	prev=${COMP_WORDS[COMP_CWORD-1]}
 
 	case "$prev" in
-	-*i)
-	    _filedir
-	    ;;
-	*)
-	    _known_hosts -a
-
-	    [ $COMP_CWORD -eq 1 ] || \
-		COMPREPLY=( "${COMPREPLY[@]}" $( compgen -- $cur ) )
+		-i)
+			_filedir
+			return 0
+			;;
 	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-i' -- "$cur" ) )
+	else
+		_known_hosts_real -a "$cur"
+	fi
 
 	return 0
 }
 complete -F _ssh_copy_id $filenames ssh-copy-id
 }
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 8
+# sh-indent-comment: t
+# indent-tabs-mode: t
+# End:
+# ex: ts=8 sw=8 noet filetype=sh

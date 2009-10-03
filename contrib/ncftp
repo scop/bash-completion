@@ -1,0 +1,26 @@
+# bash completion for ncftp
+
+have ncftp &&
+_ncftp()
+{
+	local cur
+
+	COMPREPLY=()
+	cur=`_get_cword`
+
+	if [ $COMP_CWORD -eq 1 ] && [ -f ~/.ncftp/bookmarks ]; then
+	    COMPREPLY=( $( compgen -W '$( sed -ne "s/^\([^,]\{1,\}\),.*$/\1/p" \
+			   ~/.ncftp/bookmarks )' -- "$cur" ) )
+	fi
+
+	return 0
+} &&
+complete -F _ncftp $default ncftp
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 8
+# sh-indent-comment: t
+# indent-tabs-mode: t
+# End:
+# ex: ts=8 sw=8 noet filetype=sh

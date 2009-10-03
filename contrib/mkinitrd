@@ -1,0 +1,60 @@
+# bash completion for mkinitrd
+
+have mkinitrd &&
+_mkinitrd()
+{
+	local cur prev args split=false
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	_split_longopt && split=true
+
+	case "$prev" in
+		--@(preload|with|builtin))
+			_modules
+			return 0
+			;;
+		--@(fstab|dsdt))
+			_filedir
+			return 0
+			;;
+		--net-dev)
+			_available_interfaces
+			return 0
+			;;
+	esac
+
+	$split && return 0
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '--version --help -v -f --preload \
+			--force-scsi-probe --omit-scsi-modules \
+			--omit-ide-modules --image-version --force-raid-probe \
+			--omit-raid-modules --with --force-lvm-probe \
+			--omit-lvm-modules --builtin --omit-dmraid --net-dev \
+			--fstab --nocompress --dsdt --bootchart' -- "$cur" ) )
+	else
+		_count_args
+
+		case $args in
+			1)
+				_filedir
+				;;
+			2)
+				_kernel_versions
+				;;
+		esac
+	fi
+
+} &&
+complete -F _mkinitrd mkinitrd
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 8
+# sh-indent-comment: t
+# indent-tabs-mode: t
+# End:
+# ex: ts=8 sw=8 noet filetype=sh

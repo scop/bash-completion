@@ -1,8 +1,6 @@
-# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
-# ex: ts=8 sw=8 noet filetype=sh
-#
 # Perforce completion by Frank Cusack <frank@google.com>
 
+have p4 &&
 _p4()
 {
 	local cur prev prev2 p4commands p4filetypes
@@ -18,16 +16,16 @@ _p4()
 		text binary resource"
 
 	if [ $COMP_CWORD -eq 1 ]; then
-		COMPREPLY=( $( compgen -W "$p4commands" -- $cur ) )
+		COMPREPLY=( $( compgen -W "$p4commands" -- "$cur" ) )
 	elif [ $COMP_CWORD -eq 2 ]; then
 		case "$prev" in
 		help)
 			COMPREPLY=( $( compgen -W "simple commands \
 				environment filetypes jobview revisions \
-				usage views $p4commands" -- $cur ) )
+				usage views $p4commands" -- "$cur" ) )
 			;;
 		admin)
-			COMPREPLY=( $( compgen -W "checkpoint stop" -- $cur ) )
+			COMPREPLY=( $( compgen -W "checkpoint stop" -- "$cur" ) )
 			;;
 		*)
 			;;
@@ -39,7 +37,7 @@ _p4()
 			case "$prev2" in
 			add|edit|reopen)
 				COMPREPLY=( $( compgen -W "$p4filetypes" \
-					       -- $cur) )
+					       -- "$cur") )
 				;;
 			*)
 				;;
@@ -51,5 +49,13 @@ _p4()
 	fi
 
 	return 0
-}
+} &&
 complete -F _p4 $default p4 g4
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 8
+# sh-indent-comment: t
+# indent-tabs-mode: t
+# End:
+# ex: ts=8 sw=8 noet filetype=sh

@@ -1,0 +1,37 @@
+# bash completion for dhclient
+
+have dhclient && _dhclient()
+{
+	local cur prev
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case "$prev" in
+		-@(cf|lf|pf|sf))
+			_filedir
+			return 0
+			;;
+		-s)
+			_known_hosts_real "$cur"
+			return 0
+			;;
+	esac
+
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-p -d -q -1 -r -lf -pf \
+			-cf -sf -s -g -n -nw -w' -- "$cur" ) )
+	else
+		_available_interfaces
+	fi
+} &&
+complete -F _dhclient dhclient
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 8
+# sh-indent-comment: t
+# indent-tabs-mode: t
+# End:
+# ex: ts=8 sw=8 noet filetype=sh

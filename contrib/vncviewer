@@ -1,13 +1,10 @@
-# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
-# ex: ts=8 sw=8 noet filetype=sh
-#
 # bash completion for vncviewer
 
-
+have vncviewer &&
 _vncviewer_bootstrap() {
 	local fname
 	case "$(_realcommand vncviewer)" in
-		# If `vncviewer' not installed, default file-dir completion 
+		# If `vncviewer' not installed, default file-dir completion
 		'') _filedir `_get_cword` ;;
 		*xvnc4viewer)      fname=_xvnc4viewer    ;;
 		*tightvncviewer|*) fname=_tightvncviewer ;;
@@ -21,7 +18,7 @@ _vncviewer_bootstrap() {
 } &&
 complete -F _vncviewer_bootstrap vncviewer
 
-
+have tightvncviewer &&
 _tightvncviewer()
 {
 	local cur prev
@@ -37,11 +34,11 @@ _tightvncviewer()
 			;;
 		-encodings)
 			COMPREPLY=( $( compgen -W 'copyrect tight hextile zlib \
-				corre rre raw' -- $cur ) )
+				corre rre raw' -- "$cur" ) )
 			return 0
 			;;
 		-via)
-			_known_hosts
+			_known_hosts_real "$cur"
 			return 0
 			;;
 	esac
@@ -54,7 +51,7 @@ _tightvncviewer()
 			-compresslevel -quality -nojpeg -nocursorshape \
 			-x11cursor' -- $cur ) )
 	else
-		_known_hosts
+		_known_hosts_real "$cur"
 	fi
 } &&
 complete -F _tightvncviewer tightvncviewer
@@ -62,6 +59,7 @@ complete -F _tightvncviewer tightvncviewer
 
 # NOTE: - VNC Viewer options are case-insensivite.  Preferred case is taken from -help.
 #       - Both single dash (-) and double dash (--) are allowed as option prefix
+have xvnc4viewer &&
 _xvnc4viewer()
 {
 	local cur prev
@@ -84,7 +82,7 @@ _xvnc4viewer()
 			;;
 		# -via
 		-[vV][iI][aA])
-			_known_hosts
+			_known_hosts_real "$cur"
 			return 0
 			;;
 	esac
@@ -116,11 +114,19 @@ _xvnc4viewer()
 			# Variable 'nocasematch' isn't available;
 			# Convert completions to lowercase
 			COMPREPLY=( $( compgen -W "$(
-			    echo ${options[@]/#/$dash} | tr [:upper:] [:lower:]	
+			    echo ${options[@]/#/$dash} | tr [:upper:] [:lower:]
 			)" -- "$(echo "$cur" | tr [:upper:] [:lower:])" ) )
 		fi
 	else
-		_known_hosts
+		_known_hosts_real "$cur"
 	fi
 } &&
 complete -F _xvnc4viewer xvnc4viewer
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 8
+# sh-indent-comment: t
+# indent-tabs-mode: t
+# End:
+# ex: ts=8 sw=8 noet filetype=sh

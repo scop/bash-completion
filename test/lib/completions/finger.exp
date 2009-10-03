@@ -1,0 +1,52 @@
+proc setup {} {
+    save_env
+}; # setup()
+
+
+proc teardown {} {
+    assert_env_unmodified
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should complete usernames"
+# Build string list of usernames
+set users {}
+foreach u [exec bash -c "compgen -A user"] {
+    lappend users $u
+}; # foreach
+assert_complete $users "finger " $test
+
+
+sync_after_int
+
+
+set test "Tab should complete partial username"
+assert_complete_partial [exec bash -c "compgen -A user"] "finger"
+
+
+sync_after_int
+
+
+set test "Tab should complete partial hostname"
+# Build string list of hostnames, starting with the character of the first
+# host.
+set hosts {}
+set char ""
+foreach h [get_hosts] {
+    if {$char == ""} {set char [string range $h 0 0]}
+        # Only append hostname if starting with $char
+    if {[string range $h 0 0] == "$char"} {
+        # Prefix hosts with username 'test@'
+        lappend hosts "test@$h"
+    }; # if
+}; # foreach
+assert_complete $hosts "finger test@$char" $test
+
+
+sync_after_int
+
+
+teardown

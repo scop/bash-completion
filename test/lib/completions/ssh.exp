@@ -1,0 +1,106 @@
+proc setup {} {
+    save_env
+}; # setup()
+
+
+proc teardown {} {
+    assert_env_unmodified {
+        /BASH_LINENO=/d
+        /BASH_SOURCE=/d
+        /OLDPWD=/d
+    }
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should complete both commands and hostname"
+    # Try completion
+set dir fixtures/ssh
+set prompt "/$dir/@"
+assert_bash_exec "cd $dir" "" $prompt
+set cmd "ssh -F config ls"
+send "$cmd\t"
+set expected "^$cmd\r\n.*ls.*ls_known_host.*\r\n$prompt$cmd$"
+expect {
+    -re $expected  { pass "$test" }
+    -re $prompt { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+sync_after_int $prompt
+assert_bash_exec "cd \$TESTDIR"
+
+
+sync_after_int
+
+
+set test "-F without space shouldn't error"
+    # Try completion
+set cmd "ssh -F"
+send "$cmd\t "
+set expected "^$cmd $"
+expect {
+    -re "^${cmd}bash: option requires an argument -- F" { fail "$test" }
+    -re "^$cmd\r\n.*\r\n/@" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "First argument shouldn't complete with commands"
+# NOTE: This test assumes the machine running this test has a command "bash"
+#       but no host named "bash" ...
+set cmd "ssh bas"
+send "$cmd\t"
+expect -ex "$cmd"
+expect {
+    -timeout 1
+        # In case multiple commands `bas*' - besides `bash' - are completed
+    -re "^\r\n.*bash.*\r\n/@$cmd$" { fail "$test" }
+        # In case the single command `bash' is completed
+    -re "h $" { fail "$test" }
+        # In case the hostname `bash_completion' is completed.
+        # See `scp' tests in `lib/completions/scp.exp'
+    -re "h_completion $" { pass "$test" }
+    -re ".+" { unresolved "$test" }
+    timeout { pass "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "First argument should complete partial hostname"
+assert_complete_partial [get_hosts] ssh
+
+
+sync_after_int
+
+
+set test "-F should complete filename"
+set dir fixtures/ssh
+set prompt "/$dir/@"
+assert_bash_exec "cd $dir" "" $prompt
+set cmd "ssh -Fsp"
+send "$cmd\t"
+expect -ex "$cmd"
+expect {
+    -ex "aced\\ \\ conf"  { pass "$test" }
+        # _filedir works only if `-o filenames' is in effect, which isn't the
+        # case for `ssh'
+    -re "aced  conf" { xfail "$test" }
+    -re $prompt { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+sync_after_int $prompt
+assert_bash_exec "cd \$TESTDIR"
+
+
+sync_after_int
+
+
+teardown

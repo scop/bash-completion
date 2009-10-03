@@ -1,0 +1,31 @@
+# bash completion for resolvconf
+
+have resolvconf &&
+_resolvconf()
+{
+	local cur command
+
+	COMPREPLY=()
+	cur=`_get_cword`
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+
+	case $prev in
+		-@(a|d))
+			_available_interfaces
+			return 0
+			;;
+	esac
+	
+	if [[ "$cur" == -* ]]; then
+		COMPREPLY=( $( compgen -W '-a -d -u' -- "$cur" ) )
+	fi
+} &&
+complete -F _resolvconf resolvconf
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 8
+# sh-indent-comment: t
+# indent-tabs-mode: t
+# End:
+# ex: ts=8 sw=8 noet filetype=sh

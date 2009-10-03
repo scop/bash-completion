@@ -1,11 +1,9 @@
-# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
-# ex: ts=8 sw=8 noet filetype=sh
-#
 # civserver completion by Guillaume Rousse <rousse@ccr.jussieu.fr>
 
+have civserver &&
 _civserver()
 {
-	local cur
+	local cur prev
 
 	COMPREPLY=()
 	cur=`_get_cword`
@@ -22,17 +20,18 @@ _civserver()
 		COMPREPLY=( $( compgen -W '-d -f -g -h -i -l -m -M -p -q -r -v\
 			--debug --file --gamelog --help --info --log --meta \
 			--Metaserver --port --quitidle --read --version' \
-			-- $cur ) )
+			-- "$cur" ) )
 	fi
 
-}
+} &&
 complete -F _civserver civserver
 
 # civclient completion by Guillaume Rousse <rousse@ccr.jussieu.fr>
 #
+have civclient &&
 _civclient()
 {
-	local cur
+	local cur prev
 
 	COMPREPLY=()
 	cur=`_get_cword`
@@ -44,11 +43,11 @@ _civclient()
 			return 0
 			;;
 		-@(P|-Plugin))
-			COMPREPLY=( $( compgen -W 'none esd sdl' -- $cur ) )
+			COMPREPLY=( $( compgen -W 'none esd sdl' -- "$cur" ) )
 			return 0
 			;;
 		-@(s|-server))
-			_known_hosts
+			_known_hosts_real "$cur"
 			return 0
 			;;
 	esac
@@ -57,8 +56,16 @@ _civclient()
 		COMPREPLY=( $( compgen -W '-a -d -h -l -m -n -p -P -s -S -t -v\
 			--autoconnect --debug --help --log --meta --name \
 			--port --Plugin --server --Sound --tiles --version' \
-			-- $cur ) )
+			-- "$cur" ) )
 	fi
 
-}
+} &&
 complete -F _civclient civclient
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 8
+# sh-indent-comment: t
+# indent-tabs-mode: t
+# End:
+# ex: ts=8 sw=8 noet filetype=sh
