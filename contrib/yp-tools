@@ -3,33 +3,33 @@
 have ypmatch &&
 _ypmatch()
 {
-	local cur map
+    local cur map
 
-	COMPREPLY=()
-	cur=`_get_cword`
+    COMPREPLY=()
+    cur=`_get_cword`
 
-	[ $1 = ypcat ] && [ $COMP_CWORD -gt 1 ] && return 0
-	[ $1 = ypmatch ] && [ $COMP_CWORD -gt 2 ] && return 0
+    [ $1 = ypcat ] && [ $COMP_CWORD -gt 1 ] && return 0
+    [ $1 = ypmatch ] && [ $COMP_CWORD -gt 2 ] && return 0
 
-	if [ $1 = ypmatch ] && [ $COMP_CWORD -eq 1 ] && \
-	   [ ${#COMP_WORDS[@]} -eq 3 ]; then
-		map=${COMP_WORDS[2]}
-		COMPREPLY=( $( compgen -W '$( ypcat $map | \
-						cut -d':' -f 1 )' -- "$cur") )
-	else
-		[ $1 = ypmatch ] && [ $COMP_CWORD -ne 2 ] && return 0
-		COMPREPLY=( $( compgen -W \
-			      '$( echo $(ypcat -x | cut -d"\"" -f 2))' -- "$cur"))
-	fi
+    if [ $1 = ypmatch ] && [ $COMP_CWORD -eq 1 ] && \
+       [ ${#COMP_WORDS[@]} -eq 3 ]; then
+        map=${COMP_WORDS[2]}
+        COMPREPLY=( $( compgen -W '$( ypcat $map | \
+            cut -d':' -f 1 )' -- "$cur") )
+    else
+        [ $1 = ypmatch ] && [ $COMP_CWORD -ne 2 ] && return 0
+        COMPREPLY=( $( compgen -W \
+            '$( echo $(ypcat -x | cut -d"\"" -f 2))' -- "$cur"))
+    fi
 
-	return 0
+    return 0
 } &&
 complete -F _ypmatch ypmatch ypcat
 
 # Local variables:
 # mode: shell-script
-# sh-basic-offset: 8
+# sh-basic-offset: 4
 # sh-indent-comment: t
-# indent-tabs-mode: t
+# indent-tabs-mode: nil
 # End:
-# ex: ts=8 sw=8 noet filetype=sh
+# ex: ts=4 sw=4 et filetype=sh

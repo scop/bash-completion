@@ -5,33 +5,36 @@
 have sitecopy &&
 _sitecopy()
 {
-	local cur
+    local cur
 
-	COMPREPLY=()
-	cur=`_get_cword`
+    COMPREPLY=()
+    cur=`_get_cword`
 
-	case "$cur" in
-	    --*)
-	    	COMPREPLY=( $( compgen -W "$(sitecopy -h | grep -e '--\w' | awk '{sub (/=(FILE|PATH)/, "", $2); print $2}')" -- "$cur" ) )
-		;;
-	    -*)
-	    	COMPREPLY=( $( compgen -W "$(sitecopy -h | grep -e '-\w' | awk '{sub (",", "", $1); print $1}')" -- "$cur" ) )
-		;;
-	    *)
-		if [ -r ~/.sitecopyrc ]; then
-		    COMPREPLY=( $( compgen -W "$(grep '^["$'\t '"]*site'  ~/.sitecopyrc | awk '{print $2}')" -- "$cur" ) )
-		fi
-		;;
-	esac
+    case "$cur" in
+        --*)
+            COMPREPLY=( $( compgen -W "$(sitecopy -h | grep -e '--\w' | \
+                awk '{sub (/=(FILE|PATH)/, "", $2); print $2}')" -- "$cur" ) )
+            ;;
+        -*)
+            COMPREPLY=( $( compgen -W "$(sitecopy -h | grep -e '-\w' | \
+                awk '{sub (",", "", $1); print $1}')" -- "$cur" ) )
+            ;;
+        *)
+            if [ -r ~/.sitecopyrc ]; then
+                COMPREPLY=( $( compgen -W "$(grep '^["$'\t '"]*site' \
+                    ~/.sitecopyrc | awk '{print $2}')" -- "$cur" ) )
+            fi
+            ;;
+    esac
 
-	return 0
+    return 0
 } &&
 complete -F _sitecopy $default sitecopy
 
 # Local variables:
 # mode: shell-script
-# sh-basic-offset: 8
+# sh-basic-offset: 4
 # sh-indent-comment: t
-# indent-tabs-mode: t
+# indent-tabs-mode: nil
 # End:
-# ex: ts=8 sw=8 noet filetype=sh
+# ex: ts=4 sw=4 et filetype=sh

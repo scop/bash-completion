@@ -11,40 +11,40 @@
 have gcc &&
 _gcc()
 {
-	local cur cc backend
+    local cur cc backend
 
-	COMPREPLY=()
-	cur=`_get_cword`
+    COMPREPLY=()
+    cur=`_get_cword`
 
-	_expand || return 0
+    _expand || return 0
 
-	case "$1" in
-	gcj)
-		backend=jc1
-		;;
-	gpc)
-		backend=gpc1
-		;;
-	*77)
-		backend=f771
-		;;
-	*)
-		backend=cc1	# (near-)universal backend
-		;;
-	esac
+    case "$1" in
+        gcj)
+            backend=jc1
+            ;;
+        gpc)
+            backend=gpc1
+            ;;
+        *77)
+            backend=f771
+            ;;
+        *)
+            backend=cc1 # (near-)universal backend
+            ;;
+    esac
 
-	if [[ "$cur" == -* ]]; then
-		cc=$( $1 -print-prog-name=$backend )
-		# sink stderr:
-		# for C/C++/ObjectiveC it's useless
-		# for FORTRAN/Java it's an error
-		COMPREPLY=( $( compgen -W "$( $cc --help 2>/dev/null | \
-			       tr '\t' ' ' | \
-			       sed -e '/^  *-/!d' -e 's/ *-\([^ ]*\).*/-\1/' | \
-			       sort -u )" -- "$cur" ) )
-	else
-		_filedir
-	fi
+    if [[ "$cur" == -* ]]; then
+        cc=$( $1 -print-prog-name=$backend )
+        # sink stderr:
+        # for C/C++/ObjectiveC it's useless
+        # for FORTRAN/Java it's an error
+        COMPREPLY=( $( compgen -W "$( $cc --help 2>/dev/null | \
+           tr '\t' ' ' | \
+           sed -e '/^  *-/!d' -e 's/ *-\([^ ]*\).*/-\1/' | \
+           sort -u )" -- "$cur" ) )
+    else
+        _filedir
+    fi
 } &&
 complete $filenames -F _gcc gcc g++ c++ g77 gcj gpc
 [ $USERLAND = GNU -o $UNAME = Cygwin ] && \
@@ -52,8 +52,8 @@ complete $filenames -F _gcc gcc g++ c++ g77 gcj gpc
 
 # Local variables:
 # mode: shell-script
-# sh-basic-offset: 8
+# sh-basic-offset: 4
 # sh-indent-comment: t
-# indent-tabs-mode: t
+# indent-tabs-mode: nil
 # End:
-# ex: ts=8 sw=8 noet filetype=sh
+# ex: ts=4 sw=4 et filetype=sh

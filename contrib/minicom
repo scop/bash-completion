@@ -3,49 +3,52 @@
 have minicom &&
 _minicom()
 {
-	local cur prev confdir
+    local cur prev confdir
 
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	case $prev in
-		-@(a|c))
-			COMPREPLY=( $( compgen -W 'on off' -- "$cur" ) )
-			return 0
-			;;
-		-@(S|C))
-			_filedir
-			return 0
-			;;
-		-P)
-			COMPREPLY=( $( command ls /dev/tty* ) )
-			COMPREPLY=( $( compgen -W '${COMPREPLY[@]} ${COMPREPLY[@]#/dev/}' -- "$cur" ) )
-			return 0
-			;;
-	esac
+    case $prev in
+        -@(a|c))
+            COMPREPLY=( $( compgen -W 'on off' -- "$cur" ) )
+            return 0
+            ;;
+        -@(S|C))
+            _filedir
+            return 0
+            ;;
+        -P)
+            COMPREPLY=( $( command ls /dev/tty* ) )
+            COMPREPLY=( $( compgen -W '${COMPREPLY[@]} ${COMPREPLY[@]#/dev/}' \
+                -- "$cur" ) )
+            return 0
+            ;;
+    esac
 
 
-	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-s -o -m -M -z -l -L -w -a -t \
-			-c -S -d -p -C -T -7 -8' -- "$cur" ) )
-		return 0
-	else
-		[ -n "$( command ls /etc/minirc.* 2>/dev/null)" ] && confdir=/etc
-		[ -n "$( command ls /etc/minicom/minirc.* 2>/dev/null)" ] && confdir=/etc/minicom
-		if [ -n "$confdir" ]; then
-			COMPREPLY=( $( compgen -W '$( command ls $confdir/minirc.* | \
-				sed -e "s|$confdir/minirc.||")' -- "$cur" ) )
-			return 0
-		fi
-	fi
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-s -o -m -M -z -l -L -w -a -t \
+            -c -S -d -p -C -T -7 -8' -- "$cur" ) )
+        return 0
+    else
+        [ -n "$( command ls /etc/minirc.* 2>/dev/null)" ] \
+            && confdir=/etc
+        [ -n "$( command ls /etc/minicom/minirc.* 2>/dev/null)" ] \
+            && confdir=/etc/minicom
+        if [ -n "$confdir" ]; then
+            COMPREPLY=( $( compgen -W '$( command ls $confdir/minirc.* | \
+                sed -e "s|$confdir/minirc.||")' -- "$cur" ) )
+            return 0
+        fi
+    fi
 } &&
 complete -F _minicom $default minicom
 
 # Local variables:
 # mode: shell-script
-# sh-basic-offset: 8
+# sh-basic-offset: 4
 # sh-indent-comment: t
-# indent-tabs-mode: t
+# indent-tabs-mode: nil
 # End:
-# ex: ts=8 sw=8 noet filetype=sh
+# ex: ts=4 sw=4 et filetype=sh
