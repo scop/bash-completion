@@ -82,18 +82,55 @@ The test suite requires a connected terminal (tty).  When invoked via cron, no t
 can't read "multipass_name": no such variable
 ---------------------------------------------
 
-To run the tests successfully via cron, connect a terminal by redirecting stdin from a tty, e.g. /dev/tty50:
+To run the tests successfully via cron, connect a terminal by redirecting
+stdin from a tty, e.g. /dev/tty40.  (In Linux, you can press alt-Fx or
+ctrl-alt-Fx to switch the console from /dev/tty1 to tty7.  There are many more
+/dev/tty* which are not accessed via function keys.  To be safe, use a tty
+greater than tty7)
+
 ----------------------
-./runUnit < /dev/tty50
+./runUnit < /dev/tty40
 ----------------------
 
-If the process doesn't run as root, root will have to change the owner and
-permissions of the tty.
+If the process doesn't run as root (recommended), root will have to change the
+owner and permissions of the tty:
+-------------------------
+sudo chmod o+r /dev/tty40
+-------------------------
 
-In Linux, you can press alt-Fx or ctrl-alt-Fx to switch the console from
-/dev/tty1 to tty7.  There are many more /dev/tty* which are not accessed via
-function keys.  To be safe, use a tty greater than tty7?
+To start the test at 01:00, set the crontab to this:
 
+* 1 * * * cd bash-completion/test && ./cron.sh < /dev/tty40
+
+Here's an example batch file `cron.sh`, to be put in the bash-completion `test`
+directory.  This batch file only e-mails the output of each test-run if the
+test-run fails.
+
+[source,bash]
+---------------------------------------------------------------------
+#!/bin/sh
+
+set -e  # Exit if simple command fails
+set -u  # Error if variable is undefined
+
+LOG=/tmp/bash-completion.log~
+
+    # Retrieve latest sources
+git pull
+
+    # Run tests on bash-3
+
+./runUnit       > $LOG || cat $LOG
+./runCompletion > $LOG || cat $LOG
+
+    # Run tests on bash-4
+
+./runUnit --outdir log/bash-4 --tool_exec /opt/bash-4.0/bin/bash > $LOG || cat $LOG
+./runCompletion --outdir log/bash-4 --tool_exec /opt/bash-4.0/bin/bash > $LOG || cat $LOG
+
+    # Clean up log file
+[ -f $LOG ] && rm $LOG
+---------------------------------------------------------------------
 
 Specifying bash binary
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -124,12 +161,12 @@ Let's consider this real-life example where an ssh completion bug is fixed.  Fir
 ----------------------------------
 $ ./runCompletion
 ...
-		=== completion Summary ===
+        === completion Summary ===
 
-# of expected passes		283
-# of unexpected failures	8
-# of unresolved testcases	2
-# of unsupported tests		47
+# of expected passes        283
+# of unexpected failures    8
+# of unresolved testcases   2
+# of unsupported tests      47
 ----------------------------------
 
 Take a look in `log/completion.log` to find out which specific command is failing.
@@ -151,10 +188,10 @@ In this case it appears `ssh.exp` is causing the problem.  Isolate the `ssh` tes
 ----------------------------------
 $ ./runCompletion ssh.exp --debug
 ...
-		=== completion Summary ===
+        === completion Summary ===
 
-# of expected passes		1
-# of unresolved testcases	1
+# of expected passes        1
+# of unresolved testcases   1
 ----------------------------------
 
 Now we can have a detailed look in `dbg.log` to find out what's going wrong.  Open `dbg.log` and search for `UNRESOLVED` (or `FAIL` if that's what you're looking for):
@@ -203,10 +240,10 @@ Running the test reveals we still have an unresolved test:
 ----------------------------------
 $ ./runCompletion ssh.exp --debug
 ...
-		=== completion Summary ===
+        === completion Summary ===
 
-# of expected passes		1
-# of unresolved testcases	1
+# of expected passes        1
+# of unresolved testcases   1
 ----------------------------------
 
 But if now look into the log file `dbg.log` we can see the completion only returns commands starting with 'ls' but fails to match our regular expression which also expects the hostname `ls_known_host':
@@ -229,9 +266,9 @@ until the test shows:
 ----------------------------------
 $ ./runCompletion ssh.exp
 ...
-		=== completion Summary ===
+        === completion Summary ===
 
-# of expected passes		2
+# of expected passes        2
 ----------------------------------
 
 Fixing a unit test
@@ -241,10 +278,10 @@ Now let's consider a unit test failure.  First you're triggered by unsuccessful 
 ----------------------------------
 $ ./runUnit
 ...
-		=== unit Summary ===
+        === unit Summary ===
 
-# of expected passes		1
-# of unexpected failures	1
+# of expected passes        1
+# of unexpected failures    1
 ----------------------------------
 
 Take a look in `log/unit.log` to find out which specific command is failing.
@@ -266,10 +303,10 @@ In this case it appears `_known_hosts_real.exp` is causing the problem.  Isolate
 ----------------------------------
 $ ./runUnit _known_hosts_real.exp --debug
 ...
-		=== completion Summary ===
+        === completion Summary ===
 
-# of expected passes		1
-# of unexpected failures	1
+# of expected passes        1
+# of unexpected failures    1
 ----------------------------------
 
 Now, if we haven't already figured out the problem, we can have a detailed look in `dbg.log` to find out what's going wrong.  Open `dbg.log` and search for `UNRESOLVED` (or `FAIL` if that's what you're looking for):
@@ -364,13 +401,13 @@ Setting up bash once within `completion_start()` has the speed advantage that ba
 
 .What happens when install tests are run?
 ----
-  	         | runtest --tool install
-  	         V
-  	    +----+----+
-  	    | DejaGnu |
-  	    +----+----+
-  	         |
-  	         V
+                 | runtest --tool install
+                 V
+            +----+----+
+            | DejaGnu |
+            +----+----+
+                 |
+                 V
     +------------+---------------+
     | (file: config/default.exp) |
     +------------+---------------+
@@ -385,13 +422,13 @@ Setting up bash once within `completion_start()` has the speed advantage that ba
 
 .What happens when unit tests are run?
 ----
-	       | runtest --tool unit
-	       V
-	  +----+----+
-	  | DejaGnu |
-	  +----+----+
-	       |
-	       V
+               | runtest --tool unit
+               V
+          +----+----+
+          | DejaGnu |
+          +----+----+
+               |
+               V
     +----------+-----------+
     |          -           |
     | (file: lib/unit.exp) |
