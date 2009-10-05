@@ -3,47 +3,51 @@
 have gpg2 && {
 _gpg2 ()
 {
-	local cur prev
+    local cur prev
 
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	case "$prev" in
-		--homedir)
-			_filedir -d
-			return 0
-			;;
-		-@(s|-sign|-clearsign|-options|-decrypt))
-			_filedir
-			return 0
-			;;
-		--@(export|@(?(l|nr|nrl)sign|edit)-key))
-			# return list of public keys
-			COMPREPLY=( $( compgen -W "$( gpg2 --list-keys 2>/dev/null | sed -ne 's@^pub.*/\([^ ]*\).*$@\1@p;s@^.*\(<\([^>]*\)>\).*$@\2@p')" -- "$cur" ))
-			return 0
-			;;
-		-@(r|-recipient))
-			COMPREPLY=( $( compgen -W "$( gpg2 --list-keys 2>/dev/null | sed -ne 's@^.*<\([^>]*\)>.*$@\1@p')" -- "$cur" ))
-			if [ -e ~/.gnupg/gpg.conf ]; then
-				COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "$( sed -ne 's@^[ \t]*group[ \t][ \t]*\([^=]*\).*$@\1@p' ~/.gnupg/gpg.conf)" -- "$cur"))
-			fi
-		return 0
-		;;
-	esac
+    case "$prev" in
+        --homedir)
+            _filedir -d
+            return 0
+            ;;
+        -@(s|-sign|-clearsign|-options|-decrypt))
+            _filedir
+            return 0
+            ;;
+        --@(export|@(?(l|nr|nrl)sign|edit)-key))
+            # return list of public keys
+            COMPREPLY=( $( compgen -W "$( gpg2 --list-keys 2>/dev/null | \
+                sed -ne 's@^pub.*/\([^ ]*\).*$@\1@p;s@^.*\(<\([^>]*\)>\).*$@\2@p')" -- "$cur" ))
+            return 0
+            ;;
+        -@(r|-recipient))
+            COMPREPLY=( $( compgen -W "$( gpg2 --list-keys 2>/dev/null | \
+                sed -ne 's@^.*<\([^>]*\)>.*$@\1@p')" -- "$cur" ))
+            if [ -e ~/.gnupg/gpg.conf ]; then
+                COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "$( sed -ne \
+                    's@^[ \t]*group[ \t][ \t]*\([^=]*\).*$@\1@p' \
+                    ~/.gnupg/gpg.conf)" -- "$cur"))
+            fi
+        return 0
+        ;;
+    esac
 
-	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-s -b -e -c -d -k -K -a -r -u -z -o -v \
-									-n -N -i -h -R -t $(gpg2 --dump-options)' -- "$cur" ) )
-	fi
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-s -b -e -c -d -k -K -a -r -u -z -o -v \
+            -n -N -i -h -R -t $(gpg2 --dump-options)' -- "$cur" ) )
+    fi
 } &&
 complete -F _gpg2 $default gpg2
 }
 
 # Local variables:
 # mode: shell-script
-# sh-basic-offset: 8
+# sh-basic-offset: 4
 # sh-indent-comment: t
-# indent-tabs-mode: t
+# indent-tabs-mode: nil
 # End:
-# ex: ts=8 sw=8 noet filetype=sh
+# ex: ts=4 sw=4 et filetype=sh

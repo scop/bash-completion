@@ -47,7 +47,6 @@ bashcomp_DATA = contrib/ant \
 		contrib/gpg \
 		contrib/gpg2 \
 		contrib/gzip \
-		contrib/harbour \
 		contrib/heimdal \
 		contrib/iconv \
 		contrib/imagemagick \
@@ -62,7 +61,6 @@ bashcomp_DATA = contrib/ant \
 		contrib/ldapvi \
 		contrib/lftp \
 		contrib/lilo \
-		contrib/lilypond \
 		contrib/links \
 		contrib/lisp \
 		contrib/lvm \

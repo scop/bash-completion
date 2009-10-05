@@ -2,57 +2,57 @@
 
 have vncviewer &&
 _vncviewer_bootstrap() {
-	local fname
-	case "$(_realcommand vncviewer)" in
-		# If `vncviewer' not installed, default file-dir completion
-		'') _filedir `_get_cword` ;;
-		*xvnc4viewer)      fname=_xvnc4viewer    ;;
-		*tightvncviewer|*) fname=_tightvncviewer ;;
-	esac
-	if [ $fname ]; then
-		# Install real completion for subsequent completions
-		complete -F $fname vncviewer
-		$fname  # Generate completions once for now
-		unset -f _vncviewer_bootstrap
-	fi
+    local fname
+    case "$(_realcommand vncviewer)" in
+        # If `vncviewer' not installed, default file-dir completion
+        '') _filedir `_get_cword` ;;
+        *xvnc4viewer)      fname=_xvnc4viewer    ;;
+        *tightvncviewer|*) fname=_tightvncviewer ;;
+    esac
+    if [ $fname ]; then
+        # Install real completion for subsequent completions
+        complete -F $fname vncviewer
+        $fname  # Generate completions once for now
+        unset -f _vncviewer_bootstrap
+    fi
 } &&
 complete -F _vncviewer_bootstrap vncviewer
 
 have tightvncviewer &&
 _tightvncviewer()
 {
-	local cur prev
+    local cur prev
 
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	case $prev in
-		-passwd)
-			_filedir
-			return 0
-			;;
-		-encodings)
-			COMPREPLY=( $( compgen -W 'copyrect tight hextile zlib \
-				corre rre raw' -- "$cur" ) )
-			return 0
-			;;
-		-via)
-			_known_hosts_real "$cur"
-			return 0
-			;;
-	esac
+    case $prev in
+        -passwd)
+            _filedir
+            return 0
+            ;;
+        -encodings)
+            COMPREPLY=( $( compgen -W 'copyrect tight hextile zlib \
+                corre rre raw' -- "$cur" ) )
+            return 0
+            ;;
+        -via)
+            _known_hosts_real "$cur"
+            return 0
+            ;;
+    esac
 
 
-	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-help -listen -via -shared -noshared\
-			-viewonly -fullscreen -noraiseonbeep -passwd -encodings\
-			-bgr233 -owncmap -truecolour -truecolor -depth \
-			-compresslevel -quality -nojpeg -nocursorshape \
-			-x11cursor' -- $cur ) )
-	else
-		_known_hosts_real "$cur"
-	fi
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-help -listen -via -shared -noshared\
+            -viewonly -fullscreen -noraiseonbeep -passwd -encodings\
+            -bgr233 -owncmap -truecolour -truecolor -depth \
+            -compresslevel -quality -nojpeg -nocursorshape \
+            -x11cursor' -- $cur ) )
+    else
+        _known_hosts_real "$cur"
+    fi
 } &&
 complete -F _tightvncviewer tightvncviewer
 
@@ -62,71 +62,71 @@ complete -F _tightvncviewer tightvncviewer
 have xvnc4viewer &&
 _xvnc4viewer()
 {
-	local cur prev
+    local cur prev
 
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	# Convert double dash to single dash
-	case ${prev/#--/-} in
-		# -passwd, -PasswordFile
-		-[pP][aA][sS][sS][wW][dD]|-[pP][aA][sS][sS][wW][oO][rR][dD][fF][iI][lL][eE])
-			_filedir
-			return 0
-			;;
-		# -PreferredEncoding
-		-[pP][rR][eE][fF][eE][rR][rR][eE][dD][eE][nN][cC][oO][dD][iI][nN][gG])
-			COMPREPLY=( $( compgen -W 'zrle hextile raw' -- $cur ) )
-			return 0
-			;;
-		# -via
-		-[vV][iI][aA])
-			_known_hosts_real "$cur"
-			return 0
-			;;
-	esac
+    # Convert double dash to single dash
+    case ${prev/#--/-} in
+        # -passwd, -PasswordFile
+        -[pP][aA][sS][sS][wW][dD]|-[pP][aA][sS][sS][wW][oO][rR][dD][fF][iI][lL][eE])
+            _filedir
+            return 0
+            ;;
+        # -PreferredEncoding
+        -[pP][rR][eE][fF][eE][rR][rR][eE][dD][eE][nN][cC][oO][dD][iI][nN][gG])
+            COMPREPLY=( $( compgen -W 'zrle hextile raw' -- $cur ) )
+            return 0
+            ;;
+        # -via
+        -[vV][iI][aA])
+            _known_hosts_real "$cur"
+            return 0
+            ;;
+    esac
 
-	if [[ "$cur" == -* || "$cur" == --* ]]; then
-		# Default to vncviewer camelcase options, see `vncviewer -help'
-		local dash options=( \
-			AcceptClipboard AutoSelect DebugDelay display \
-			DotWhenNoCursor FullColor FullColour FullScreen \
-			geometry help listen Log \
-			LowColourLevel MenuKey name Parent \
-			passwd PasswordFile PointerEventInterval PreferredEncoding \
-			SendClipboard SendPrimary Shared UseLocalCursor \
-			via ViewOnly WMDecorationHeight WMDecorationWidth \
-			ZlibLevel \
-		)
-		[[ "$cur" == --* ]] && dash=-- || dash=-
-		# Is a `nocasematch' variable available (bash > v3.1)?
-		if shopt nocasematch 2> /dev/null | grep -q ^nocasematch; then
-			# Variable `nocasematch' is available
-			# Use vncviewer camelcase options
-			local option oldNoCaseMatch=$(shopt -p nocasematch)
-			shopt -s nocasematch
-			COMPREPLY=( $( for option in "${options[@]}"; do
-				[[ $dash$option == "$cur"* ]] && echo $dash$option
-			done ) )
-			eval "$oldNoCaseMatch" 2> /dev/null
-		else
-			# Variable 'nocasematch' isn't available;
-			# Convert completions to lowercase
-			COMPREPLY=( $( compgen -W "$(
-			    echo ${options[@]/#/$dash} | tr [:upper:] [:lower:]
-			)" -- "$(echo "$cur" | tr [:upper:] [:lower:])" ) )
-		fi
-	else
-		_known_hosts_real "$cur"
-	fi
+    if [[ "$cur" == -* || "$cur" == --* ]]; then
+        # Default to vncviewer camelcase options, see `vncviewer -help'
+        local dash options=( \
+            AcceptClipboard AutoSelect DebugDelay display \
+            DotWhenNoCursor FullColor FullColour FullScreen \
+            geometry help listen Log \
+            LowColourLevel MenuKey name Parent \
+            passwd PasswordFile PointerEventInterval PreferredEncoding \
+            SendClipboard SendPrimary Shared UseLocalCursor \
+            via ViewOnly WMDecorationHeight WMDecorationWidth \
+            ZlibLevel \
+        )
+        [[ "$cur" == --* ]] && dash=-- || dash=-
+        # Is a `nocasematch' variable available (bash > v3.1)?
+        if shopt nocasematch 2> /dev/null | grep -q ^nocasematch; then
+            # Variable `nocasematch' is available
+            # Use vncviewer camelcase options
+            local option oldNoCaseMatch=$(shopt -p nocasematch)
+            shopt -s nocasematch
+            COMPREPLY=( $( for option in "${options[@]}"; do
+                [[ $dash$option == "$cur"* ]] && echo $dash$option
+            done ) )
+            eval "$oldNoCaseMatch" 2> /dev/null
+        else
+            # Variable 'nocasematch' isn't available;
+            # Convert completions to lowercase
+            COMPREPLY=( $( compgen -W "$(
+                echo ${options[@]/#/$dash} | tr [:upper:] [:lower:]
+                )" -- "$(echo "$cur" | tr [:upper:] [:lower:])" ) )
+        fi
+    else
+        _known_hosts_real "$cur"
+    fi
 } &&
 complete -F _xvnc4viewer xvnc4viewer
 
 # Local variables:
 # mode: shell-script
-# sh-basic-offset: 8
+# sh-basic-offset: 4
 # sh-indent-comment: t
-# indent-tabs-mode: t
+# indent-tabs-mode: nil
 # End:
-# ex: ts=8 sw=8 noet filetype=sh
+# ex: ts=4 sw=4 et filetype=sh

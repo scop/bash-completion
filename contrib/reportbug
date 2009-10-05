@@ -3,125 +3,125 @@
 have reportbug &&
 _reportbug()
 {
-	local cur prev
+    local cur prev
 
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	case "$prev" in
-	    -f|--filename|-i|--include|--mta|-o|--output)
-		_filedir
-		return 0
-		;;
-	    -B|--bts)
-		COMPREPLY=( $( compgen -W "debian guug kde mandrake help" -- \
-			       "$cur" ))
-		return 0
-		;;
-	    -e|--editor|--mua)
-		COMP_WORDS=(COMP_WORDS[0] "$cur")
-		COMP_CWORD=1
-		_command
-		return 0
-		;;
-	    --mode)
-		COMPREPLY=( $( compgen -W "novice standard expert" -- "$cur" ) )
-		return 0
-		;;
-	    -S|--severity)
-		COMPREPLY=( $( compgen -W "grave serious important normal \
-					   minor wishlist" -- "$cur" ) )
-		return 0
-		;;
-	    -u|--ui|--interface)
-		COMPREPLY=( $( compgen -W "newt text gnome" -- "$cur" ) )
-		return 0
-		;;
-	    -t|--type)
-		COMPREPLY=( $( compgen -W "gnats debbugs" -- "$cur" ) )
-		return 0
-		;;
-	    -T|--tags)
-		COMPREPLY=( $( compgen -W "none \
-					   woody potato sarge sarge-ignore etch etch-ignore \
-					   lenny lenny-ignore sid experimental confirmed \
-					   d-i fixed fixed-in-experimental fixed-upstream \
-					   help l10n moreinfo patch pending security \
-					   unreproducible upstream wontfix ipv6 lfs" -- "$cur" ))
-		return 0
-		;;
-	    *)
-		;;
-	esac
+    case "$prev" in
+        -f|--filename|-i|--include|--mta|-o|--output)
+            _filedir
+            return 0
+            ;;
+        -B|--bts)
+            COMPREPLY=( $( compgen -W "debian guug kde mandrake help" -- \
+                "$cur" ))
+            return 0
+            ;;
+        -e|--editor|--mua)
+            COMP_WORDS=(COMP_WORDS[0] "$cur")
+            COMP_CWORD=1
+            _command
+            return 0
+            ;;
+        --mode)
+            COMPREPLY=( $( compgen -W "novice standard expert" -- "$cur" ) )
+            return 0
+            ;;
+        -S|--severity)
+            COMPREPLY=( $( compgen -W "grave serious important normal \
+                minor wishlist" -- "$cur" ) )
+            return 0
+            ;;
+        -u|--ui|--interface)
+            COMPREPLY=( $( compgen -W "newt text gnome" -- "$cur" ) )
+            return 0
+            ;;
+        -t|--type)
+            COMPREPLY=( $( compgen -W "gnats debbugs" -- "$cur" ) )
+            return 0
+            ;;
+        -T|--tags)
+            COMPREPLY=( $( compgen -W "none \
+                woody potato sarge sarge-ignore etch etch-ignore \
+                lenny lenny-ignore sid experimental confirmed \
+                d-i fixed fixed-in-experimental fixed-upstream \
+                help l10n moreinfo patch pending security \
+                unreproducible upstream wontfix ipv6 lfs" -- "$cur" ))
+            return 0
+            ;;
+        *)
+            ;;
+    esac
 
-	COMPREPLY=($( compgen -W '-h --help -v --version -a --af -b \
-			--no-query-bts --query-bts -B --bts -c --configure \
-			--no-config-files --check-available -d --debug \
-			--no-check-available -e --editor --email -f \
-			--filename -g --gnupg -H --header -i --include -j \
-			--justification -l --ldap --no-ldap -L --list-cc -m \
-			--maintonly --mode --mua --mta --mutt -n --mh --nmh \
-			-o --output -p --print -P --pgp --proxy --http_proxy\
-			-q --quiet -Q --query-only --realname --report-quiet \
-			--reply-to --replyto -s --subject -S --severity \
-			--smtphost -t --type -T --tags --template -V -x \
-			--no-cc --package-version -z --no-compress \
-			--ui --interface -u \
-			wnpp boot-floppies kernel bugs.debian.org \
-			cdimage.debian.org general installation-reports \
-			listarchives lists.debian.org mirrors nm.debian.org \
-			press project qa.debian.org release-notes \
-			security.debian.org tech-ctte upgrade-reports \
-			www.debian.org' -- "$cur" ) \
-	    		$( apt-cache pkgnames -- "$cur" 2> /dev/null) )
-	_filedir
-	return 0
+    COMPREPLY=($( compgen -W '-h --help -v --version -a --af -b \
+        --no-query-bts --query-bts -B --bts -c --configure \
+        --no-config-files --check-available -d --debug \
+        --no-check-available -e --editor --email -f \
+        --filename -g --gnupg -H --header -i --include -j \
+        --justification -l --ldap --no-ldap -L --list-cc -m \
+        --maintonly --mode --mua --mta --mutt -n --mh --nmh \
+        -o --output -p --print -P --pgp --proxy --http_proxy\
+        -q --quiet -Q --query-only --realname --report-quiet \
+        --reply-to --replyto -s --subject -S --severity \
+        --smtphost -t --type -T --tags --template -V -x \
+        --no-cc --package-version -z --no-compress \
+        --ui --interface -u \
+        wnpp boot-floppies kernel bugs.debian.org \
+        cdimage.debian.org general installation-reports \
+        listarchives lists.debian.org mirrors nm.debian.org \
+        press project qa.debian.org release-notes \
+        security.debian.org tech-ctte upgrade-reports \
+        www.debian.org' -- "$cur" ) \
+        $( apt-cache pkgnames -- "$cur" 2> /dev/null) )
+    _filedir
+    return 0
 } &&
 complete -F _reportbug $filenames reportbug
 
 have querybts &&
 _querybts()
 {
-	local cur prev split=false
+    local cur prev split=false
 
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	_split_longopt && split=true
+    _split_longopt && split=true
 
-	case "$prev" in
-	    -B|--bts)
-		COMPREPLY=( $( compgen -W "debian guug kde mandrake help" -- \
-			       "$cur" ))
-		return 0
-		;;
-	    -u|--ui|--interface)
-		COMPREPLY=($( compgen -W "newt text gnome" -- "$cur" ))
-		return 0
-		;;
-	esac
+    case "$prev" in
+        -B|--bts)
+            COMPREPLY=( $( compgen -W "debian guug kde mandrake help" \
+                -- "$cur" ))
+            return 0
+            ;;
+        -u|--ui|--interface)
+            COMPREPLY=($( compgen -W "newt text gnome" -- "$cur" ))
+            return 0
+            ;;
+    esac
 
-	$split && return 0
+    $split && return 0
 
-	COMPREPLY=($( compgen -W '-h --help -v --version -A --archive \
-			-B --bts -l --ldap --no-ldap --proxy --http_proxy \
-			-s --source -w --web -u --ui --interface \
-			wnpp boot-floppies kernel bugs.debian.org \
-			cdimage.debian.org general installation-reports \
-			listarchives lists.debian.org mirrors nm.debian.org \
-			press project qa.debian.org release-notes \
-			security.debian.org tech-ctte upgrade-reports \
-			www.debian.org' -- "$cur" ) \
-	    		$( apt-cache pkgnames -- "$cur" 2> /dev/null) )
+    COMPREPLY=($( compgen -W '-h --help -v --version -A --archive \
+        -B --bts -l --ldap --no-ldap --proxy --http_proxy \
+        -s --source -w --web -u --ui --interface \
+        wnpp boot-floppies kernel bugs.debian.org \
+        cdimage.debian.org general installation-reports \
+        listarchives lists.debian.org mirrors nm.debian.org \
+        press project qa.debian.org release-notes \
+        security.debian.org tech-ctte upgrade-reports \
+        www.debian.org' -- "$cur" ) \
+        $( apt-cache pkgnames -- "$cur" 2> /dev/null) )
 } &&
 complete -F _querybts $filenames querybts
 
 # Local variables:
 # mode: shell-script
-# sh-basic-offset: 8
+# sh-basic-offset: 4
 # sh-indent-comment: t
-# indent-tabs-mode: t
+# indent-tabs-mode: nil
 # End:
-# ex: ts=8 sw=8 noet filetype=sh
+# ex: ts=4 sw=4 et filetype=sh
