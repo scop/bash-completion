@@ -147,4 +147,5 @@ bashcomp_DATA = contrib/ant \
 		contrib/yp-tools \
 		contrib/yum-arch
 
-EXTRA_DIST = $(sysconf_DATA) $(bashcomp_DATA) contrib/_subversion contrib/_yum
+EXTRA_DIST = CHANGES $(sysconf_DATA) $(bashcomp_DATA) \
+	contrib/_subversion contrib/_yum
