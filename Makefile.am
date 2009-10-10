@@ -147,5 +147,8 @@ bashcomp_DATA = contrib/ant \
 		contrib/yp-tools \
 		contrib/yum-arch
 
-EXTRA_DIST = CHANGES $(sysconf_DATA) $(bashcomp_DATA) \
+profiledir = $(sysconfdir)/profile.d
+profile_DATA = bash_completion.sh
+
+EXTRA_DIST = CHANGES $(sysconf_DATA) $(bashcomp_DATA) $(profile_DATA) \
 	contrib/_subversion contrib/_yum
