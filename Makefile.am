@@ -14,7 +14,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/bind-utils \
 		contrib/bitkeeper \
 		contrib/bittorrent \
-		contrib/bluez-utils \
+		contrib/bluez \
 		contrib/brctl \
 		contrib/bzip2 \
 		contrib/cardctl \
