@@ -398,26 +398,27 @@ _filedir()
     #       bash-3.1.  See also:
     #       http://www.mail-archive.com/bug-bash@gnu.org/msg01667.html
     toks=( ${toks[@]-} $(
-    compgen -d -- "$(quote_readline "$cur")" | {
-    while read -r tmp; do
-        echo $tmp
-    done
-}
-))
+        compgen -d -- "$(quote_readline "$cur")" | {
+            while read -r tmp; do
+                echo $tmp
+            done
+        }
+    ))
 
-if [[ "$1" != -d ]]; then
-    xspec=${1:+"!*.$1"}
-    toks=( ${toks[@]-} $(
-    compgen -f -X "$xspec" -- "$(quote_readline "$cur")" | {
-    while read -r tmp; do
-        [ -n $tmp ] && echo $tmp
-    done
-}
-))
+    if [[ "$1" != -d ]]; then
+        xspec=${1:+"!*.$1"}
+        toks=( ${toks[@]-} $(
+            compgen -f -X "$xspec" -- "$(quote_readline "$cur")" | {
+                while read -r tmp; do
+                    [ -n $tmp ] && echo $tmp
+                done
+            }
+        ))
     fi
 
     COMPREPLY=( "${COMPREPLY[@]}" "${toks[@]}" )
-}
+} # _filedir()
+
 
 # This function splits $cur=--foo=bar into $prev=--foo, $cur=bar, making it
 # easier to support both "--foo bar" and "--foo=bar" style completions.
@@ -684,14 +685,14 @@ _shells()
 # - return:  True (0) if command found, False (> 0) if not.
 _realcommand() {
     type -P "$1" > /dev/null && {
-    if type -p realpath > /dev/null; then
-        realpath "$(type -P "$1")"
-    elif type -p readlink > /dev/null; then
-        readlink -f "$(type -P "$1")"
-    else
-        type -P "$1"
-    fi
-}
+        if type -p realpath > /dev/null; then
+            realpath "$(type -P "$1")"
+        elif type -p readlink > /dev/null; then
+            readlink -f "$(type -P "$1")"
+        else
+            type -P "$1"
+        fi
+    }
 }
 
 
@@ -735,242 +736,249 @@ deinstall clean clean-depends kernel buildworld' make
 # that script's available commands
 #
 { have service || [ -d /etc/init.d/ ]; } &&
-    _service()
-    {
-        local cur prev sysvdir
+_service()
+{
+    local cur prev sysvdir
 
-        COMPREPLY=()
-        prev=${COMP_WORDS[COMP_CWORD-1]}
-        cur=`_get_cword`
+    COMPREPLY=()
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+    cur=`_get_cword`
 
-        # don't complete for things like killall, ssh and mysql if it's
-        # the standalone command, rather than the init script
-        [[ ${COMP_WORDS[0]} != @(*init.d/!(functions|~)|service) ]] && return 0
+    # don't complete for things like killall, ssh and mysql if it's
+    # the standalone command, rather than the init script
+    [[ ${COMP_WORDS[0]} != @(*init.d/!(functions|~)|service) ]] && return 0
 
-        # don't complete past 2nd token
-        [ $COMP_CWORD -gt 2 ] && return 0
+    # don't complete past 2nd token
+    [ $COMP_CWORD -gt 2 ] && return 0
 
-        [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
-        || sysvdir=/etc/init.d
+    [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
+    || sysvdir=/etc/init.d
 
-        if [[ $COMP_CWORD -eq 1 ]] && [[ $prev == "service" ]]; then
-            _services
-        else
-            COMPREPLY=( $( compgen -W '`sed -ne "y/|/ /; \
-            s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\1/p" \
-            $sysvdir/${prev##*/} 2>/dev/null`' -- "$cur" ) )
-        fi
+    if [[ $COMP_CWORD -eq 1 ]] && [[ $prev == "service" ]]; then
+        _services
+    else
+        COMPREPLY=( $( compgen -W '`sed -ne "y/|/ /; \
+        s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\1/p" \
+        $sysvdir/${prev##*/} 2>/dev/null`' -- "$cur" ) )
+    fi
 
-        return 0
-    } &&
-    complete -F _service service
-    [ -d /etc/init.d/ ] && complete -F _service $default \
-    $(for i in /etc/init.d/*; do echo ${i##*/}; done)
+    return 0
+} &&
+complete -F _service service
+[ -d /etc/init.d/ ] && complete -F _service $default \
+$(for i in /etc/init.d/*; do echo ${i##*/}; done)
 
-    # chown(1) completion
-    #
-    _chown()
-    {
-        local cur prev split=false
-        cur=`_get_cword`
-        prev=${COMP_WORDS[COMP_CWORD-1]}
 
-        _split_longopt && split=true
+# chown(1) completion
+#
+_chown()
+{
+    local cur prev split=false
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-        case "$prev" in
-            --from)
-                _usergroup
-                return 0
-                ;;
-            --reference)
-                _filedir
-                return 0
-                ;;
-        esac
+    _split_longopt && split=true
 
-        $split && return 0
-
-        # options completion
-        if [[ "$cur" == -* ]]; then
-            COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes \
-            --dereference --no-dereference --from --silent --quiet \
-            --reference --recursive --verbose --help --version' -- "$cur" ) )
-        else
-            _count_args
-
-            case $args in
-                1)
-                    _usergroup
-                    ;;
-                *)
-                    _filedir
-                    ;;
-            esac
-        fi
-    }
-    complete -F _chown $filenames chown
-
-    # chgrp(1) completion
-    #
-    _chgrp()
-    {
-        local cur prev split=false
-
-        COMPREPLY=()
-        cur=`_get_cword`
-        cur=${cur//\\\\/}
-        prev=${COMP_WORDS[COMP_CWORD-1]}
-
-        _split_longopt && split=true
-
-        if [[ "$prev" == --reference ]]; then
+    case "$prev" in
+        --from)
+            _usergroup
+            return 0
+            ;;
+        --reference)
             _filedir
             return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    # options completion
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes \
+        --dereference --no-dereference --from --silent --quiet \
+        --reference --recursive --verbose --help --version' -- "$cur" ) )
+    else
+        _count_args
+
+        case $args in
+            1)
+                _usergroup
+                ;;
+            *)
+                _filedir
+                ;;
+        esac
+    fi
+} # _chown()
+complete -F _chown $filenames chown
+
+
+# chgrp(1) completion
+#
+_chgrp()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    cur=`_get_cword`
+    cur=${cur//\\\\/}
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    _split_longopt && split=true
+
+    if [[ "$prev" == --reference ]]; then
+        _filedir
+        return 0
+    fi
+
+    $split && return 0
+
+    # options completion
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes \
+        --dereference --no-dereference --silent --quiet \
+        --reference --recursive --verbose --help --version' -- "$cur" ) )
+        return 0
+    fi
+
+    # first parameter on line or first since an option?
+    if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]] || \
+        [[ "$prev" == -* ]] && [ -n "$bash205" ]; then
+        local IFS=$'\n'
+        COMPREPLY=( $( compgen -g "$cur" 2>/dev/null ) )
+    else
+        _filedir || return 0
+    fi
+
+    return 0
+} # _chgrp()
+complete -F _chgrp $filenames chgrp
+
+
+# umount(8) completion. This relies on the mount point being the third
+# space-delimited field in the output of mount(8)
+#
+_umount()
+{
+    local cur IFS=$'\n'
+
+    COMPREPLY=()
+    cur=`_get_cword`
+
+    COMPREPLY=( $( compgen -W '$( mount | cut -d" " -f 3 )' -- "$cur" ) )
+
+    return 0
+}
+complete -F _umount $dirnames umount
+
+
+# mount(8) completion. This will pull a list of possible mounts out of
+# /etc/{,v}fstab, unless the word being completed contains a ':', which
+# would indicate the specification of an NFS server. In that case, we
+# query the server for a list of all available exports and complete on
+# that instead.
+#
+_mount()
+{
+    local cur i sm host prev
+
+    COMPREPLY=()
+    cur=`_get_cword`
+    [[ "$cur" == \\ ]] && cur="/"
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    for i in {,/usr}/{,s}bin/showmount; do [ -x $i ] && sm=$i && break; done
+
+    if [ -n "$sm" ] && [[ "$cur" == *:* ]]; then
+        COMPREPLY=( $( $sm -e ${cur%%:*} | sed 1d | \
+        grep ^${cur#*:} | awk '{print $1}' ) )
+    elif [[ "$cur" == //* ]]; then
+        host=${cur#//}
+        host=${host%%/*}
+        if [ -n "$host" ]; then
+            COMPREPLY=( $( compgen -W "$( echo $( smbclient -d 0 -NL $host 2>/dev/null|
+            sed -ne '/^['"$'\t '"']*Sharename/,/^$/p' |
+            sed -ne '3,$s|^[^A-Za-z]*\([^'"$'\t '"']*\).*$|//'$host'/\1|p' ) )" -- "$cur" ) )
         fi
-
-        $split && return 0
-
-        # options completion
-        if [[ "$cur" == -* ]]; then
-            COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes \
-            --dereference --no-dereference --silent --quiet \
-            --reference --recursive --verbose --help --version' -- "$cur" ) )
-            return 0
-        fi
-
-        # first parameter on line or first since an option?
-        if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]] || \
-            [[ "$prev" == -* ]] && [ -n "$bash205" ]; then
-            local IFS=$'\n'
-            COMPREPLY=( $( compgen -g "$cur" 2>/dev/null ) )
+    elif [ -r /etc/vfstab ]; then
+        # Solaris
+        COMPREPLY=( $( compgen -W "$( awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' /etc/vfstab )" -- "$cur" ) )
+    elif [ ! -e /etc/fstab ]; then
+        # probably Cygwin
+        COMPREPLY=( $( compgen -W "$( mount | awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' )" -- "$cur" ) )
+    else
+        # probably Linux
+        if [ $prev = -L ]; then
+            COMPREPLY=( $( compgen -W '$(sed -ne "s/^[[:space:]]*LABEL=\([^[:space:]]*\).*/\1/p" /etc/fstab )' -- "$cur" ) )
+        elif [ $prev = -U ]; then
+            COMPREPLY=( $( compgen -W '$(sed -ne "s/^[[:space:]]*UUID=\([^[:space:]]*\).*/\1/p" /etc/fstab )' -- "$cur" ) )
         else
-            _filedir || return 0
+            COMPREPLY=( $( compgen -W "$( awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' /etc/fstab )" -- "$cur" ) )
         fi
+    fi
 
-        return 0
-    }
-    complete -F _chgrp $filenames chgrp
+    return 0
+} # _mount()
+complete -F _mount $default $dirnames mount
 
-    # umount(8) completion. This relies on the mount point being the third
-    # space-delimited field in the output of mount(8)
-    #
-    _umount()
-    {
-        local cur IFS=$'\n'
 
-        COMPREPLY=()
-        cur=`_get_cword`
+# Linux rmmod(8) completion. This completes on a list of all currently
+# installed kernel modules.
+#
+have rmmod && {
+_rmmod()
+{
+    local cur
 
-        COMPREPLY=( $( compgen -W '$( mount | cut -d" " -f 3 )' -- "$cur" ) )
+    COMPREPLY=()
+    cur=`_get_cword`
 
-        return 0
-    }
-    complete -F _umount $dirnames umount
+    _installed_modules "$cur"
+    return 0
+} # _rmmod()
+complete -F _rmmod rmmod
 
-    # mount(8) completion. This will pull a list of possible mounts out of
-    # /etc/{,v}fstab, unless the word being completed contains a ':', which
-    # would indicate the specification of an NFS server. In that case, we
-    # query the server for a list of all available exports and complete on
-    # that instead.
-    #
-    _mount()
-    {
-        local cur i sm host prev
 
-        COMPREPLY=()
-        cur=`_get_cword`
-        [[ "$cur" == \\ ]] && cur="/"
-        prev=${COMP_WORDS[COMP_CWORD-1]}
+# Linux insmod(8), modprobe(8) and modinfo(8) completion. This completes on a
+# list of all available modules for the version of the kernel currently
+# running.
+#
+_insmod()
+{
+    local cur prev modpath
 
-        for i in {,/usr}/{,s}bin/showmount; do [ -x $i ] && sm=$i && break; done
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-        if [ -n "$sm" ] && [[ "$cur" == *:* ]]; then
-            COMPREPLY=( $( $sm -e ${cur%%:*} | sed 1d | \
-            grep ^${cur#*:} | awk '{print $1}' ) )
-        elif [[ "$cur" == //* ]]; then
-            host=${cur#//}
-            host=${host%%/*}
-            if [ -n "$host" ]; then
-                COMPREPLY=( $( compgen -W "$( echo $( smbclient -d 0 -NL $host 2>/dev/null|
-                sed -ne '/^['"$'\t '"']*Sharename/,/^$/p' |
-                sed -ne '3,$s|^[^A-Za-z]*\([^'"$'\t '"']*\).*$|//'$host'/\1|p' ) )" -- "$cur" ) )
-            fi
-        elif [ -r /etc/vfstab ]; then
-            # Solaris
-            COMPREPLY=( $( compgen -W "$( awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' /etc/vfstab )" -- "$cur" ) )
-        elif [ ! -e /etc/fstab ]; then
-            # probably Cygwin
-            COMPREPLY=( $( compgen -W "$( mount | awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' )" -- "$cur" ) )
-        else
-            # probably Linux
-            if [ $prev = -L ]; then
-                COMPREPLY=( $( compgen -W '$(sed -ne "s/^[[:space:]]*LABEL=\([^[:space:]]*\).*/\1/p" /etc/fstab )' -- "$cur" ) )
-            elif [ $prev = -U ]; then
-                COMPREPLY=( $( compgen -W '$(sed -ne "s/^[[:space:]]*UUID=\([^[:space:]]*\).*/\1/p" /etc/fstab )' -- "$cur" ) )
-            else
-                COMPREPLY=( $( compgen -W "$( awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' /etc/fstab )" -- "$cur" ) )
-            fi
-        fi
-
-        return 0
-    }
-    complete -F _mount $default $dirnames mount
-
-    # Linux rmmod(8) completion. This completes on a list of all currently
-    # installed kernel modules.
-    #
-    have rmmod && {
-    _rmmod()
-    {
-        local cur
-
-        COMPREPLY=()
-        cur=`_get_cword`
-
+    # behave like lsmod for modprobe -r
+    if [ $1 = "modprobe" ] &&
+        [ "${COMP_WORDS[1]}" = "-r" ]; then
         _installed_modules "$cur"
         return 0
-    }
-    complete -F _rmmod rmmod
+    fi
 
-    # Linux insmod(8), modprobe(8) and modinfo(8) completion. This completes on a
-    # list of all available modules for the version of the kernel currently
-    # running.
-    #
-    _insmod()
-    {
-        local cur prev modpath
-
-        COMPREPLY=()
-        cur=`_get_cword`
-        prev=${COMP_WORDS[COMP_CWORD-1]}
-
-        # behave like lsmod for modprobe -r
-        if [ $1 = "modprobe" ] &&
-            [ "${COMP_WORDS[1]}" = "-r" ]; then
-            _installed_modules "$cur"
-            return 0
-        fi
-
-        # do filename completion if we're giving a path to a module
-        if [[ "$cur" == */* ]]; then
-            _filedir '@(?(k)o?(.gz))'
-            return 0
-        fi
-
-        if [ $COMP_CWORD -gt 1 ] &&
-            [[ "${COMP_WORDS[COMP_CWORD-1]}" != -* ]]; then
-            # do module parameter completion
-            COMPREPLY=( $( /sbin/modinfo -p ${COMP_WORDS[1]} 2>/dev/null | \
-            awk '{if ($1 ~ /^parm:/ && $2 ~ /^'"$cur"'/) { print $2 } \
-        else if ($1 !~ /:/ && $1 ~ /^'"$cur"'/) { print $1 }}' ) )
-        else
-            _modules $(uname -r)
-        fi
-
+    # do filename completion if we're giving a path to a module
+    if [[ "$cur" == */* ]]; then
+        _filedir '@(?(k)o?(.gz))'
         return 0
-    }
-    complete -F _insmod $filenames insmod modprobe modinfo
-}
+    fi
+
+    if [ $COMP_CWORD -gt 1 ] &&
+        [[ "${COMP_WORDS[COMP_CWORD-1]}" != -* ]]; then
+        # do module parameter completion
+        COMPREPLY=( $( /sbin/modinfo -p ${COMP_WORDS[1]} 2>/dev/null | \
+        awk '{if ($1 ~ /^parm:/ && $2 ~ /^'"$cur"'/) { print $2 } \
+    else if ($1 !~ /:/ && $1 ~ /^'"$cur"'/) { print $1 }}' ) )
+    else
+        _modules $(uname -r)
+    fi
+
+    return 0
+} # _insmod
+complete -F _insmod $filenames insmod modprobe modinfo
+} # have rmmod
+
 
 # renice(8) completion
 #
@@ -1001,6 +1009,7 @@ _renice()
     done
 }
 complete -F _renice renice
+
 
 # kill(1) completion
 #
@@ -1156,7 +1165,7 @@ _known_hosts()
     [ "$1" = -a ] || [ "$2" = -a ] && options=-a
     [ "$1" = -c ] || [ "$2" = -c ] && options="$options -c"
     _known_hosts_real $options "$(_get_cword)"
-}
+} # _known_hosts()
 
 # Helper function for completing _known_hosts.
 # This function performs host completion based on ssh's known_hosts files.
@@ -1324,7 +1333,7 @@ _known_hosts_real()
     fi
 
     return 0
-}
+} # _known_hosts_real()
 complete -F _known_hosts traceroute traceroute6 tracepath tracepath6 \
 ping ping6 fping fping6 telnet host nslookup rsh rlogin ftp dig ssh-installkeys mtr
 
