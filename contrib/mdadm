@@ -101,6 +101,8 @@ _mdadm()
             ;;
     esac
 
+    # TODO: use _split_longopt
+
     # --name=value style option
     if [[ "$cur" == *=* ]]; then
         prev=${cur/=*/}
@@ -129,44 +131,44 @@ _mdadm()
         esac
     fi
 
-    options='-h --help --help-options -V --version -v --verbose -q --quiet -b \
-        --brief -f --force -c --config= -s --scan -e --metadata= --homehost='
+    options='--help --help-options --version --verbose --quiet \
+        --brief --force --config= --scan --metadata= --homehost='
 
     if [[ "$cur" == -* ]]; then
         if [[ $COMP_CWORD -eq 1 ]] ; then
-            COMPREPLY=( $( compgen -W "$options -A --assemble -B --build -C \
-                --create -F --follow --monitor -G --grow" -- "$cur" ) )
+            COMPREPLY=( $( compgen -W "$options --assemble --build \
+                --create --monitor --grow" -- "$cur" ) )
         else
             case ${COMP_WORDS[COMP_CWORD-1]} in
                 -@(A|-assemble))
-                    COMPREPLY=( $( compgen -W "$options -u --uuid= -m \
-                        --super-minor= -N --name= -f --force -R --run \
-                        --no-degraded -a --auto -b --bitmap= --backup-file= \
-                        -U --update= --auto-update-homehost" -- "$cur" ) )
+                    COMPREPLY=( $( compgen -W "$options --uuid= \
+                        --super-minor= --name= --force --run \
+                        --no-degraded --auto --bitmap= --backup-file= \
+                        --update= --auto-update-homehost" -- "$cur" ) )
                     ;;
                 -@(B|C|G|-build|-create|-grow))
-                    COMPREPLY=( $( compgen -W "$options -n --raid-devices= -x \
-                        --spare-devices= -z --size= -c --chunk= --rounding= -l \
-                        --level= -p --layout= --parity= -b --bitmap= \
-                        --bitmap-chunk= -W --write-mostly --write-behind= \
-                        --assume-clean --backup-file= -N --name= -R --run -f \
-                        --force -a --auto" -- "$cur" ) )
+                    COMPREPLY=( $( compgen -W "$options --raid-devices= \
+                        --spare-devices= --size= --chunk= --rounding= \
+                        --level= --layout= --parity= --bitmap= \
+                        --bitmap-chunk= --write-mostly --write-behind= \
+                        --assume-clean --backup-file= --name= --run \
+                        --force --auto" -- "$cur" ) )
                     ;;
                 -@(F|-follow|-monitor))
-                    COMPREPLY=( $( compgen -W "$options -m --mail -p --program \
-                        --alert -y --syslog -d --delay -f --daemonise -i \
-                        --pid-file -1 --oneshot -t --test" -- "$cur" ) )
+                    COMPREPLY=( $( compgen -W "$options --mail --program \
+                        --alert --syslog --delay --daemonise \
+                        --pid-file --oneshot --test" -- "$cur" ) )
 
                     ;;
                 @(/dev/*|--add|--fail|--remove))
-                    COMPREPLY=( $( compgen -W "$options -a --add --re-add -r \
-                        --remove -f --fail --set-faulty" -- "$cur" ) )
+                    COMPREPLY=( $( compgen -W "$options --add --re-add \
+                        --remove --fail --set-faulty" -- "$cur" ) )
                     ;;
                 *)
-                    COMPREPLY=( $( compgen -W "$options -Q --query -D --detail \
-                        -E --examine --sparc2.2 -X --examine-bitmap -R --run \
-                        -S --stop -o --readonly -w --readwrite \
-                        --zero-superblock -t --test" -- "$cur" ) )
+                    COMPREPLY=( $( compgen -W "$options --query --detail \
+                        --examine --sparc2.2 --examine-bitmap --run \
+                        --stop --readonly --readwrite \
+                        --zero-superblock --test" -- "$cur" ) )
                     ;;
             esac
         fi
