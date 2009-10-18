@@ -64,33 +64,33 @@ _ri()
         # integrated ri from Ruby 1.9
         classes=( $( ri -c | ruby -ne 'if /^\s*$/..$stdin.eof then \
         if /, [A-Z]+/ then print; end; end' ) )
-        elif [ "$ri_version" = "ri 1.8a" ]; then
-            classes=( $( ruby -W0 $ri_path | \
+    elif [ "$ri_version" = "ri 1.8a" ]; then
+        classes=( $( ruby -W0 $ri_path | \
             ruby -ne 'if /^'"'"'ri'"'"' has/..$stdin.eof then \
             if /^ .*[A-Z]/ then print; end; end' ))
-            else
-                classes=( $( ruby -W0 $ri_path | \
-                ruby -ne 'if /^I have/..$stdin.eof then \
+    else
+        classes=( $( ruby -W0 $ri_path | \
+            ruby -ne 'if /^I have/..$stdin.eof then \
                 if /^ .*[A-Z]/ then print; end; end' ))
-                fi
+    fi
 
-                COMPREPLY=( $( compgen -W '${classes[@]}' -- "$cur" ) )
-                if [[ "$cur" == [A-Z]* ]]; then
-                    # we're completing on class or module alone
-                    return 0
-                fi
+    COMPREPLY=( $( compgen -W '${classes[@]}' -- "$cur" ) )
+    if [[ "$cur" == [A-Z]* ]]; then
+        # we're completing on class or module alone
+        return 0
+    fi
 
-                # we're completing on methods
-                method=$cur
-                ri_get_methods
-            }
-            complete -F _ri ri
-        }
+    # we're completing on methods
+    method=$cur
+    ri_get_methods
+}
+complete -F _ri ri
+}
 
-        # Local variables:
-        # mode: shell-script
-        # sh-basic-offset: 4
-        # sh-indent-comment: t
-        # indent-tabs-mode: nil
-        # End:
-        # ex: ts=4 sw=4 et filetype=sh
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
