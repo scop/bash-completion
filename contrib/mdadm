@@ -1,6 +1,7 @@
 # bash completion for mdadm
 
-have mdadm && {
+have mdadm &&
+{
 _mdadm_raid_level()
 {
     local mode
@@ -71,68 +72,41 @@ _mdadm_update_flag()
 
 _mdadm()
 {
-    local cur prev mode options
+    local cur prev mode options split=false
 
     COMPREPLY=()
     cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
-    # --name value style option
+    _split_longopt && split=true
+
     case $prev in
-        -@(c|b))
+        -c|--config|-b|--bitmap|--backup-file)
             _filedir
             return 0
             ;;
-        -l)
+        -l|--level)
             _mdadm_raid_level
             return 0
             ;;
-        -p)
+        -p|--layout|--parity)
             _mdadm_raid_layout
             return 0
             ;;
-        -a)
+        -a|--auto)
             _mdadm_auto_flag
             return 0
             ;;
-        -U)
+        -U|--update)
             _mdadm_update_flag
             return 0
             ;;
     esac
 
-    # TODO: use _split_longopt
-
-    # --name=value style option
-    if [[ "$cur" == *=* ]]; then
-        prev=${cur/=*/}
-        cur=${cur/*=/}
-        case "$prev" in
-        --@(config|bitmap|backup-file))
-            _filedir
-            return 0
-            ;;
-        --level)
-            _mdadm_raid_level
-            return 0
-            ;;
-        --@(layout|parity))
-            _mdadm_raid_layout
-            return 0
-            ;;
-        --auto)
-            _mdadm_auto_flag
-            return 0
-            ;;
-        --update)
-            _mdadm_update_flag
-            return 0
-            ;;
-        esac
-    fi
+    $split && return 0
 
     options='--help --help-options --version --verbose --quiet \
-        --brief --force --config= --scan --metadata= --homehost='
+        --brief --force --config --scan --metadata --homehost'
 
     if [[ "$cur" == -* ]]; then
         if [[ $COMP_CWORD -eq 1 ]] ; then
@@ -141,17 +115,17 @@ _mdadm()
         else
             case ${COMP_WORDS[COMP_CWORD-1]} in
                 -@(A|-assemble))
-                    COMPREPLY=( $( compgen -W "$options --uuid= \
-                        --super-minor= --name= --force --run \
-                        --no-degraded --auto --bitmap= --backup-file= \
-                        --update= --auto-update-homehost" -- "$cur" ) )
+                    COMPREPLY=( $( compgen -W "$options --uuid \
+                        --super-minor --name --force --run \
+                        --no-degraded --auto --bitmap --backup-file \
+                        --update --auto-update-homehost" -- "$cur" ) )
                     ;;
                 -@(B|C|G|-build|-create|-grow))
-                    COMPREPLY=( $( compgen -W "$options --raid-devices= \
-                        --spare-devices= --size= --chunk= --rounding= \
-                        --level= --layout= --parity= --bitmap= \
-                        --bitmap-chunk= --write-mostly --write-behind= \
-                        --assume-clean --backup-file= --name= --run \
+                    COMPREPLY=( $( compgen -W "$options --raid-devices \
+                        --spare-devices --size --chunk --rounding \
+                        --level --layout --parity --bitmap \
+                        --bitmap-chunk --write-mostly --write-behind \
+                        --assume-clean --backup-file --name --run \
                         --force --auto" -- "$cur" ) )
                     ;;
                 -@(F|-follow|-monitor))
