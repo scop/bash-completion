@@ -10,28 +10,37 @@ _gkrellm()
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     case "$prev" in
-        -@(t|-theme))
+        -t|--theme)
             _filedir -d
             return 0
             ;;
-        -@(p|-plugin))
-            _filedir 'so'
+        -p|--plugin)
+            _filedir so
             return 0
             ;;
-        -@(s|-server))
+        -s|--server)
             _known_hosts_real "$cur"
+            return 0
+            ;;
+        -l|--logfile)
+            _filedir
+            return 0
+            ;;
+        -g|--geometry|-c|--config|-P|--port|-d|--debug-level)
+            # Argument required but no completions available
             return 0
             ;;
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--help --theme --server \
-            --geometry --wm --withdrawn --config --nc \
-            --force-host-config --demo --plugin --port' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--theme --geometry --wm --m2 --nt \
+            --withdrawn --config --force-host-config --server --port --nc \
+            --config-clean --nolock --plugin --demo --logfile --version \
+            --debug-level --help' -- "$cur" ) )
     fi
 
 } &&
-complete -F _gkrellm gkrellm gkrellm2
+complete -F _gkrellm $filenames gkrellm gkrellm2
 
 # Local variables:
 # mode: shell-script
