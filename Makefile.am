@@ -136,6 +136,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/vpnc \
 		contrib/wireless-tools \
 		contrib/wodim \
+		contrib/wtf \
 		contrib/wvdial \
 		contrib/xhost \
 		contrib/xm \
