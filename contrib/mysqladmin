@@ -3,23 +3,30 @@
 have mysqladmin &&
 _mysqladmin()
 {
-    local cur prev
+    local cur prev split=false
 
     COMPREPLY=()
     cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
+    _split_longopt && split=true
+
     case "$prev" in
-        -u)
+        -u|--user)
             COMPREPLY=( $( compgen -u -- "$cur" ) )
             return 0
             ;;
-        *)
-            ;;
     esac
 
-    COMPREPLY=( $( compgen -W '-# -f -? -C -h -p -P -i -r -E -s -S -t -u \
-        -v -V -w' -- "$cur" ) )
+    $split && return 0
+
+    COMPREPLY=( $( compgen -W '--count --debug-check --debug-info --force \
+        --compress --character-sets-dir --default-character-set --help --host \
+        --no-beep --password --port --protocol --relative --set-variable \
+        --silent --socket --sleep --ssl --ssl-ca --ssl-capath --ssl-cert \
+        --ssl-cipher --ssl-key --ssl-verify-server-cert --user --verbose \
+        --version --vertical --wait --connect_timeout --shutdown_timeout' \
+        -- "$cur" ) )
 
     COMPREPLY=( "${COMPREPLY[@]}" \
         $( compgen -W 'create debug drop extended-status flush-hosts \
