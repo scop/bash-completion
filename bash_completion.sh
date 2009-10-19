@@ -4,9 +4,9 @@
 # Check for recent enough version of bash.
 bash=${BASH_VERSION%.*}; bmajor=${bash%.*}; bminor=${bash#*.}
 if [ $bmajor -eq 2 -a $bminor '>' 04 ] || [ $bmajor -gt 2 ]; then
-  if [ -r /etc/bash_completion ]; then
-    # Source completion code.
-    . /etc/bash_completion
-  fi
+    if [ -r /etc/bash_completion ]; then
+        # Source completion code.
+        . /etc/bash_completion
+    fi
 fi
 unset bash bminor bmajor

@@ -20,41 +20,42 @@ have module || [ -f /etc/profile.d/modules.sh ] && {
 
 _module_list ()
 {
-   local modules="$( echo $LOADEDMODULES | sed 's/:/ /g' | sort )"
-   compgen -W "$modules" -- $1
+    local modules="$( echo $LOADEDMODULES | sed 's/:/ /g' | sort )"
+    compgen -W "$modules" -- $1
 }
 
 _module_path ()
 {
-   local modules="$( echo $MODULEPATH | sed 's/:/ /g' | sort )"
-   compgen -W "$modules" -- $1
+    local modules="$( echo $MODULEPATH | sed 's/:/ /g' | sort )"
+    compgen -W "$modules" -- $1
 }
 
 _module_avail ()
 {
-   local modules="$( \
-      module avail 2>&1 | \
-      egrep -v '^(-|$)' | \
-      xargs printf '%s\n' | sort )"
+    local modules="$( \
+        module avail 2>&1 | \
+        egrep -v '^(-|$)' | \
+        xargs printf '%s\n' | sort )"
 
-   compgen -W "$modules" -- $1
+    compgen -W "$modules" -- $1
 }
 
 # A completion function for the module alias
-_module () {
-   local cur prev options
+_module ()
+{
+    local cur prev options
 
-   COMPREPLY=()
-   cur=`_get_cword`
-   prev=${COMP_WORDS[COMP_CWORD-1]}
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-   if [ $COMP_CWORD -eq 1 ] ; then
-      # First parameter on line -- we expect it to be a mode selection
+    if [ $COMP_CWORD -eq 1 ] ; then
+        # First parameter on line -- we expect it to be a mode selection
 
-      options="$( module help 2>&1 | egrep '^[[:space:]]*\+' | \
-		  awk '{print $2}' | sed -e 's/|/ /g' | sort )"
+        options="$( module help 2>&1 | egrep '^[[:space:]]*\+' | \
+                    awk '{print $2}' | sed -e 's/|/ /g' | sort )"
 
-      COMPREPLY=( $(compgen -W "$options" -- "$cur") )
+        COMPREPLY=( $(compgen -W "$options" -- "$cur") )
 
     elif [ $COMP_CWORD -eq 2 ] ; then
         case "$prev" in
@@ -74,8 +75,8 @@ _module () {
                 COMPREPLY=( $(_module_avail "$cur") )
                 ;;
         esac
-   fi
-   return 0
+    fi
+    return 0
 }
 complete -F _module $default module
 }
