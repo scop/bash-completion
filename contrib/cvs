@@ -28,6 +28,11 @@ _cvs_commands()
     cvs --help-commands 2>&1 | awk '/^(     *|\t)/ { print $1 }'
 }
 
+_cvs_options()
+{
+    cvs --help-options 2>&1 | awk '/^(     *|\t)-/ { print $1 }'
+}
+
 _cvs()
 {
     local cur count mode i cvsroot cvsroots pwd
@@ -248,8 +253,7 @@ _cvs()
             fi
             ;;
         "")
-            COMPREPLY=( $( compgen -W '$( _cvs_commands ) \
-                -Q -q -b -d -e -f -l -n -t -r -w -x -z \
+            COMPREPLY=( $( compgen -W '$( _cvs_commands ) $( _cvs_options ) \
                 --help --help-commands --help-options --version' -- "$cur" ) )
             ;;
         *)
