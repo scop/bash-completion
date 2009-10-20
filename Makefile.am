@@ -105,7 +105,6 @@ bashcomp_DATA = contrib/ant \
 		contrib/quota-tools \
 		contrib/rcs \
 		contrib/rdesktop \
-		contrib/repomanage \
 		contrib/reportbug \
 		contrib/resolvconf \
 		contrib/rfkill \
@@ -152,4 +151,4 @@ profiledir = $(sysconfdir)/profile.d
 profile_DATA = bash_completion.sh
 
 EXTRA_DIST = CHANGES $(sysconf_DATA) $(bashcomp_DATA) $(profile_DATA) \
-	contrib/_subversion contrib/_yum
+	contrib/_subversion contrib/_yum contrib/_yum-utils
