@@ -23,6 +23,11 @@ get_modules()
     fi
 }
 
+_cvs_commands()
+{
+    cvs --help-commands 2>&1 | awk '/^    / { print $1 }'
+}
+
 _cvs()
 {
     local cur count mode i cvsroot cvsroots pwd
@@ -40,6 +45,10 @@ _cvs()
         fi
         if [ -z "$mode" ]; then
             case $i in
+            -H|--help)
+                COMPREPLY=( $( compgen -W "$( _cvs_commands )" -- "$cur" ) )
+                return 0
+                ;;
             -d)
                 mode=cvsroot
                 cvsroot=${COMP_WORDS[((count+1))]}
@@ -239,14 +248,9 @@ _cvs()
             fi
             ;;
         "")
-            COMPREPLY=( $( compgen -W 'add admin annotate checkout ci co \
-                commit diff delete edit export \
-                freeze get history import log new \
-                patch rcs rdiff release remove \
-                rfreeze rlog rm rtag stat status \
-                tag unedit up update -H -Q -q -b \
-                -d -e -f -l -n -t -r -v -w -x -z \
-                --help --version' -- "$cur" ) )
+            COMPREPLY=( $( compgen -W '$( _cvs_commands ) \
+                -Q -q -b -d -e -f -l -n -t -r -w -x -z \
+                --help --help-commands --help-options --version' -- "$cur" ) )
             ;;
         *)
             ;;
