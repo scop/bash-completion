@@ -13,6 +13,9 @@ _rpm_installed_packages()
         COMPREPLY=( $( sed -ne \
             's|^\('$cur'[^[:space:]]*\)-[^[:space:]-]\+-[^[:space:]-]\+\.rpm$|\1|p' \
             /var/log/rpmpkgs ) )
+    elif type rpmqpack &>/dev/null ; then
+        # SUSE's rpmqpack is faster than rpm -qa
+        COMPREPLY=( $( compgen -W '$( rpmqpack )' -- "$cur" ) )
     else
         _rpm_nodigsig
         COMPREPLY=( $( rpm -qa $nodig $nosig --qf='%{NAME} ' "$cur*" ) )
