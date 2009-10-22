@@ -759,7 +759,7 @@ _service()
     return 0
 } &&
 complete -F _service service
-[ -d /etc/init.d/ ] && complete -F _service $default \
+[ -d /etc/init.d/ ] && complete -F _service -o default \
 $(for i in /etc/init.d/*; do echo ${i##*/}; done)
 
 
@@ -804,7 +804,7 @@ _chown()
         esac
     fi
 } # _chown()
-complete -F _chown $filenames chown
+complete -F _chown -o filenames chown
 
 
 # chgrp(1) completion
@@ -846,7 +846,7 @@ _chgrp()
 
     return 0
 } # _chgrp()
-complete -F _chgrp $filenames chgrp
+complete -F _chgrp -o filenames chgrp
 
 
 # umount(8) completion. This relies on the mount point being the third
@@ -863,7 +863,7 @@ _umount()
 
     return 0
 }
-complete -F _umount $dirnames umount
+complete -F _umount -o dirnames umount
 
 
 # mount(8) completion. This will pull a list of possible mounts out of
@@ -913,7 +913,7 @@ _mount()
 
     return 0
 } # _mount()
-complete -F _mount $default $dirnames mount
+complete -F _mount -o default -o dirnames mount
 
 
 # Linux rmmod(8) completion. This completes on a list of all currently
@@ -970,7 +970,7 @@ _insmod()
 
     return 0
 } # _insmod
-complete -F _insmod $filenames insmod modprobe modinfo
+complete -F _insmod -o filenames insmod modprobe modinfo
 } # have rmmod
 
 
@@ -1145,7 +1145,7 @@ _user_at_host() {
 
     return 0
 }
-shopt -u hostcomplete && complete -F _user_at_host $nospace talk ytalk finger
+shopt -u hostcomplete && complete -F _user_at_host -o nospace talk ytalk finger
 
 # NOTE: Using this function as a helper function is deprecated.  Use
 #       `_known_hosts_real' instead.
@@ -1381,9 +1381,9 @@ _cd()
     return 0
 }
 if shopt -q cdable_vars; then
-    complete -v -F _cd $nospace cd
+    complete -v -F _cd -o nospace cd
 else
-    complete -F _cd $nospace cd
+    complete -F _cd -o nospace cd
 fi
 
 # a wrapper method for the next one, when the offset is unknown
@@ -1480,14 +1480,14 @@ _command_offset()
 
     [ ${#COMPREPLY[@]} -eq 0 ] && _filedir
 }
-complete -F _command $filenames nohup exec nice eval time ltrace then \
+complete -F _command -o filenames nohup exec nice eval time ltrace then \
     else do vsound command xargs tsocks
 
 _root_command()
 {
     PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin _command $1 $2 $3
 }
-complete -F _root_command $filenames sudo fakeroot really gksudo gksu kdesudo
+complete -F _root_command -o filenames sudo fakeroot really gksudo gksu kdesudo
 
 _longopt()
 {
@@ -1525,12 +1525,12 @@ for i in a2ps autoconf automake bc gprof ld nm objcopy objdump readelf strip \
     tee who texindex cat csplit cut expand fmt fold head \
     md5sum nl od paste pr ptx sha1sum sort split tac tail tr unexpand \
     uniq wc ldd bash id irb mkdir rmdir; do
-    have $i && complete -F _longopt $filenames $i
+    have $i && complete -F _longopt -o filenames $i
 done
 
 # These commands do not use filenames, so '-o filenames' is not needed.
 for i in env netstat seq uname units wget; do
-    have $i && complete -F _longopt $default $i
+    have $i && complete -F _longopt -o default $i
 done
 unset i
 
@@ -1548,7 +1548,7 @@ _look()
         COMPREPLY=( $( compgen -W '$(look "$cur" 2>/dev/null)' ) )
     fi
 } &&
-complete -F _look $default look
+complete -F _look -o default look
 
 # id(1) completion
 #
@@ -1627,7 +1627,7 @@ list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' $BASH_COMPLETION | \
 if [ ${#list[@]} -gt 0 ]; then
     eval complete -r ${list[@]}
     # install new compspecs
-    eval complete -F _filedir_xspec $filenames "${list[@]}"
+    eval complete -F _filedir_xspec -o filenames "${list[@]}"
 fi
 unset list
 
