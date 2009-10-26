@@ -3,9 +3,14 @@ Automated testing
 
 Introduction
 ------------
-The bash-completion package contains an automated test suite.  Running the tests should help verifying that bash-completion works as expected.  The tests are also very helpful in uncovering software regressions at an early stage.
+The bash-completion package contains an automated test suite.  Running the
+tests should help verifying that bash-completion works as expected.  The tests
+are also very helpful in uncovering software regressions at an early stage.
 
-The bash-completion test suite is written on top of the http://www.gnu.org/software/dejagnu/[DejaGnu] testing framework.  DejaGnu is written in http://expect.nist.gov[Expect], which in turn uses http://tcl.sourceforge.net[Tcl] -- Tool command language.
+The bash-completion test suite is written on top of the
+http://www.gnu.org/software/dejagnu/[DejaGnu] testing framework.  DejaGnu is
+written in http://expect.nist.gov[Expect], which in turn uses
+http://tcl.sourceforge.net[Tcl] -- Tool command language.
 
 
 
@@ -48,11 +53,13 @@ The tests are grouped into different areas, called _tool_ in DejaGnu:
 *completion*::
   Functional tests per completion.
 *install*:: 
-  Functional tests for installation and caching of the main bash-completion package.
+  Functional tests for installation and caching of the main bash-completion
+  package.
 *unit*:: 
   Unit tests for bash-completion helper functions.
 
-Each tool has a slightly different way of loading the test fixtures, see <<Test_context,Test context>> below.
+Each tool has a slightly different way of loading the test fixtures, see
+<<Test_context,Test context>> below.
 
 
 
@@ -66,7 +73,8 @@ runtest --outdir log --tool completion
 runtest --outdir log --tool install
 runtest --outdir log --tool unit
 -----------------------
-The commands above are already wrapped up in shell scripts within the `test` directory:
+The commands above are already wrapped up in shell scripts within the `test`
+directory:
 -----------------------
 ./runCompletion
 ./runInstall
@@ -77,7 +85,8 @@ The commands above are already wrapped up in shell scripts within the `test` dir
 Running tests via cron
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The test suite requires a connected terminal (tty).  When invoked via cron, no tty is connected and the test suite may respond with this error:
+The test suite requires a connected terminal (tty).  When invoked via cron, no
+tty is connected and the test suite may respond with this error:
 ---------------------------------------------
 can't read "multipass_name": no such variable
 ---------------------------------------------
@@ -135,7 +144,9 @@ git pull
 Specifying bash binary
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The test suite standard uses `bash` as found in the tcl path (/bin/bash).  Using `--tool_exec` you can specify which bash binary you want to run the test suite against, e.g.:
+The test suite standard uses `bash` as found in the tcl path (/bin/bash).
+Using `--tool_exec` you can specify which bash binary you want to run the test
+suite against, e.g.:
 
 ----------------
 ./runUnit --tool_exec /opt/bash-4.0/bin/bash
@@ -156,7 +167,8 @@ You can run `cd test && ./generate` to add a test.
 
 Fixing a completion test
 ~~~~~~~~~~~~~~~~~~~~~~~~
-Let's consider this real-life example where an ssh completion bug is fixed.  First you're triggered by unsuccessful tests:
+Let's consider this real-life example where an ssh completion bug is fixed.
+First you're triggered by unsuccessful tests:
 
 ----------------------------------
 $ ./runCompletion
@@ -169,13 +181,15 @@ $ ./runCompletion
 # of unsupported tests      47
 ----------------------------------
 
-Take a look in `log/completion.log` to find out which specific command is failing.
+Take a look in `log/completion.log` to find out which specific command is
+failing.
 
 -----------------------
 $ vi log/completion.log
 -----------------------
 
-Search for `UNRESOLVED` or `FAIL`.  From there scroll up to see which `.exp` test is failing:
+Search for `UNRESOLVED` or `FAIL`.  From there scroll up to see which `.exp`
+test is failing:
 
 ---------------------------------------------------------
 /@Running ./completion/ssh.exp ...
@@ -183,7 +197,9 @@ Search for `UNRESOLVED` or `FAIL`.  From there scroll up to see which `.exp` tes
 UNRESOLVED: Tab should complete ssh known-hosts at prompt
 ---------------------------------------------------------
 
-In this case it appears `ssh.exp` is causing the problem.  Isolate the `ssh` tests by specifying just `ssh.exp` to run.  Furthermore add the `--debug` flag, so output gets logged in `dbg.log`:
+In this case it appears `ssh.exp` is causing the problem.  Isolate the `ssh`
+tests by specifying just `ssh.exp` to run.  Furthermore add the `--debug` flag,
+so output gets logged in `dbg.log`:
 
 ----------------------------------
 $ ./runCompletion ssh.exp --debug
@@ -194,7 +210,9 @@ $ ./runCompletion ssh.exp --debug
 # of unresolved testcases   1
 ----------------------------------
 
-Now we can have a detailed look in `dbg.log` to find out what's going wrong.  Open `dbg.log` and search for `UNRESOLVED` (or `FAIL` if that's what you're looking for):
+Now we can have a detailed look in `dbg.log` to find out what's going wrong.
+Open `dbg.log` and search for `UNRESOLVED` (or `FAIL` if that's what you're
+looking for):
 
 ---------------------------------------------------------
 UNRESOLVED: Tab should complete ssh known-hosts at prompt
@@ -206,20 +224,30 @@ From there, search up for the first line saying:
 expect: does "..." match regular expression "..."
 -------------------------------------------------
 
-This tells you where the actual output differs from the expected output.  In this case it looks like the test "ssh -F fixtures/ssh/config <TAB>" is expecting just hostnames, whereas the actual completion is containing commands - but no hostnames.
-So what should be expected after "ssh -F fixtures/ssh/config <TAB>" are *both* commands and hostnames.  This means both the test and the completion need fixing.  Let's start with the test.
+This tells you where the actual output differs from the expected output.  In
+this case it looks like the test "ssh -F fixtures/ssh/config <TAB>" is
+expecting just hostnames, whereas the actual completion is containing commands
+- but no hostnames.
+So what should be expected after "ssh -F fixtures/ssh/config <TAB>" are *both*
+commands and hostnames.  This means both the test and the completion need
+fixing.  Let's start with the test.
 
 ----------------------------
 $ vi lib/completions/ssh.exp
 ----------------------------
 
-Search for the test "Tab should complete ssh known-hosts".  Here you could've seen that what was expected were hostnames ($hosts):
+Search for the test "Tab should complete ssh known-hosts".  Here you could've
+seen that what was expected were hostnames ($hosts):
 
 -----------------------------------------
 set expected "^$cmd\r\n$hosts\r\n/@$cmd$"
 -----------------------------------------
 
-Adding *all* commands (which could well be over 2000) to 'expected', seems a bit overdone so we're gonna change things here.  Lets expect the unit test for `_known_hosts` assures all hosts are returned.  Then all we need to do here is expect one host and one command, just to be kind of sure that both hosts and commands are completed.
+Adding *all* commands (which could well be over 2000) to 'expected', seems a
+bit overdone so we're gonna change things here.  Lets expect the unit test for
+`_known_hosts` assures all hosts are returned.  Then all we need to do here is
+expect one host and one command, just to be kind of sure that both hosts and
+commands are completed.
 
 Looking in the fixture for ssh:
 
@@ -227,7 +255,9 @@ Looking in the fixture for ssh:
 $ vi fixtures/ssh/known_hosts
 -----------------------------
 
-it looks like we can add an additional host 'ls_known_host'.  Now if we would perform the test "ssh -F fixtures/ssh/config ls<TAB>" both the command `ls` and the host `ls_known_host` should come up.  Let's modify the test so:
+it looks like we can add an additional host 'ls_known_host'.  Now if we would
+perform the test "ssh -F fixtures/ssh/config ls<TAB>" both the command `ls` and
+the host `ls_known_host` should come up.  Let's modify the test so:
 
 --------------------------------------------------------
 $ vi lib/completions/ssh.exp
@@ -246,7 +276,9 @@ $ ./runCompletion ssh.exp --debug
 # of unresolved testcases   1
 ----------------------------------
 
-But if now look into the log file `dbg.log` we can see the completion only returns commands starting with 'ls' but fails to match our regular expression which also expects the hostname `ls_known_host':
+But if now look into the log file `dbg.log` we can see the completion only
+returns commands starting with 'ls' but fails to match our regular expression
+which also expects the hostname `ls_known_host':
 
 -----------------------
 $ vi dbg.log
@@ -273,7 +305,8 @@ $ ./runCompletion ssh.exp
 
 Fixing a unit test
 ~~~~~~~~~~~~~~~~~~
-Now let's consider a unit test failure.  First you're triggered by unsuccessful tests:
+Now let's consider a unit test failure.  First you're triggered by unsuccessful
+tests:
 
 ----------------------------------
 $ ./runUnit
@@ -290,7 +323,8 @@ Take a look in `log/unit.log` to find out which specific command is failing.
 $ vi log/unit.log
 -----------------
 
-Search for `UNRESOLVED` or `FAIL`.  From there scroll up to see which `.exp` test is failing:
+Search for `UNRESOLVED` or `FAIL`.  From there scroll up to see which `.exp`
+test is failing:
 
 ------------------------------------------
 /@Running ./unit/_known_hosts_real.exp ...
@@ -298,7 +332,10 @@ Search for `UNRESOLVED` or `FAIL`.  From there scroll up to see which `.exp` tes
 FAIL: Environment should stay clean
 ------------------------------------------
 
-In this case it appears `_known_hosts_real.exp` is causing the problem.  Isolate the `_known_hosts_real` test by specifying just `_known_hosts_real.exp` to run.  Furthermore add the `--debug` flag, so output gets logged in `dbg.log`:
+In this case it appears `_known_hosts_real.exp` is causing the problem.
+Isolate the `_known_hosts_real` test by specifying just `_known_hosts_real.exp`
+to run.  Furthermore add the `--debug` flag, so output gets logged in
+`dbg.log`:
 
 ----------------------------------
 $ ./runUnit _known_hosts_real.exp --debug
@@ -309,7 +346,9 @@ $ ./runUnit _known_hosts_real.exp --debug
 # of unexpected failures    1
 ----------------------------------
 
-Now, if we haven't already figured out the problem, we can have a detailed look in `dbg.log` to find out what's going wrong.  Open `dbg.log` and search for `UNRESOLVED` (or `FAIL` if that's what you're looking for):
+Now, if we haven't already figured out the problem, we can have a detailed look
+in `dbg.log` to find out what's going wrong.  Open `dbg.log` and search for
+`UNRESOLVED` (or `FAIL` if that's what you're looking for):
 
 -----------------------------------
 FAIL: Environment should stay clean
@@ -321,7 +360,10 @@ From there, search up for the first line saying:
 expect: does "..." match regular expression "..."
 -------------------------------------------------
 
-This tells you where the actual output differs from the expected output.  In this case it looks like the the function `_known_hosts_real` is unexpectedly modifying global variables `cur` and `flag`.  In case you need to modify the test:
+This tells you where the actual output differs from the expected output.  In
+this case it looks like the the function `_known_hosts_real` is unexpectedly
+modifying global variables `cur` and `flag`.  In case you need to modify the
+test:
 
 -----------------------------------
 $ vi lib/unit/_known_hosts_real.exp
@@ -337,12 +379,13 @@ Naming conventions
 Test suite or testsuite
 ^^^^^^^^^^^^^^^^^^^^^^^
 The primary Wikipedia page is called
-http://en.wikipedia.org/wiki/Test_suite[test suite] and not testsuite, so that's what this
-document sticks to.
+http://en.wikipedia.org/wiki/Test_suite[test suite] and not testsuite, so
+that's what this document sticks to.
 
 script/generate
 ^^^^^^^^^^^^^^^
-The name and location of this code generation script come from Ruby on Rails' http://en.wikibooks.org/wiki/Ruby_on_Rails/Tools/Generators[script/generate].
+The name and location of this code generation script come from Ruby on Rails'
+http://en.wikibooks.org/wiki/Ruby_on_Rails/Tools/Generators[script/generate].
 
 
 
@@ -354,15 +397,20 @@ Within test scripts the following library functions can be used:
 [[Test_context]]
 == Test context
 
-The test environment needs to be put to fixed states when testing.  For instance the bash prompt (PS1) is set to the current test directory, followed by an ampersand (@).  The default settings for `bash` reside in `config/bashrc` and `config/inputrc`.
+The test environment needs to be put to fixed states when testing.  For
+instance the bash prompt (PS1) is set to the current test directory, followed
+by an ampersand (@).  The default settings for `bash` reside in `config/bashrc`
+and `config/inputrc`.
 
-For each tool (completion, install, unit) a slightly different context is in effect.
+For each tool (completion, install, unit) a slightly different context is in
+effect.
 
 === What happens when tests are run?
 
 ==== completion
 
-When the completions are tested, invoking DejaGnu will result in a call to `completion_start()` which in turn will start `bash --rcfile config/bashrc`.
+When the completions are tested, invoking DejaGnu will result in a call to
+`completion_start()` which in turn will start `bash --rcfile config/bashrc`.
 
 .What happens when completion tests are run?
 ----
@@ -393,7 +441,9 @@ When the completions are tested, invoking DejaGnu will result in a call to `comp
     | (lib/completion.exp) |
     +----------------------+
 ----
-Setting up bash once within `completion_start()` has the speed advantage that bash - and bash-completion - need only initialize once when testing multiple completions, e.g.:
+Setting up bash once within `completion_start()` has the speed advantage that
+bash - and bash-completion - need only initialize once when testing multiple
+completions, e.g.:
 ----
     runtest --tool completion alias.exp cd.exp
 ----
