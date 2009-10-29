@@ -7,13 +7,9 @@ _qdbus()
 
     COMPREPLY=()
     cur=`_get_cword`
-    if [ -z "$cur" ]; then
-        compstr=${COMP_WORDS[*]}
-    else
-        compstr=$( command echo ${COMP_WORDS[*]} | sed "s/ ${cur/\//\\/}$//" )
-    fi
-        COMPREPLY=( $( compgen -W '$( command $compstr | sed s/\(.*\)// )' \
-            -- "$cur" ) )
+    [ -n "$cur" ] && unset COMP_WORDS[${#COMP_WORDS[@]}-1]
+    COMPREPLY=( $( compgen -W '$( command ${COMP_WORDS[@]} | sed s/\(.*\)// )' \
+        -- "$cur" ) )
 } &&
 complete -F _qdbus qdbus
 
