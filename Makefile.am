@@ -3,7 +3,8 @@ AUTOMAKE_OPTIONS = dist-bzip2
 sysconf_DATA = bash_completion
 
 bashcompdir = $(sysconfdir)/bash_completion.d
-bashcomp_DATA = contrib/ant \
+bashcomp_DATA = contrib/abook \
+		contrib/ant \
 		contrib/apache2ctl \
 		contrib/apt \
 		contrib/apt-build \
