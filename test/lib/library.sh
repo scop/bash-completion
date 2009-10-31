@@ -18,11 +18,9 @@ diff_env() {
 # Output array elements, sorted and separated by newline
 # Unset variable after outputting.
 # @param $1  Name of array variable to process
-# @param $2  -u (optional) Unset variable after echo
 echo_array() {
 	local IFS=$'\n'
 	eval printf "%s" \"\${$1[*]}\" | sort
-    unset -v $1
 }
 
 

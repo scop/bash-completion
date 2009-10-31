@@ -16,7 +16,7 @@ set hosts [get_hosts]
     # Hosts `gee', `hus' and `jar' are defined in ./fixtures/_known_hosts_real/config
     # doo, ike, jub, 10.0.0.1, kyl and 100.0.0.2 in ./fixtures/_known_hosts_real/known_hosts
 lappend hosts doo gee hus ike jar jub kyl 10.0.0.1 100.0.0.2
-set cmd {_known_hosts_real -aF fixtures/_known_hosts_real/config ''; echo_array COMPREPLY}
+set cmd {unset COMPREPLY; _known_hosts_real -aF fixtures/_known_hosts_real/config ''; echo_array COMPREPLY}
 assert_bash_list $hosts $cmd $test
 
 
@@ -34,7 +34,7 @@ foreach host $hosts {
     lappend expected "user@$host:"
 }; # foreach
     # Call _known_hosts
-set cmd {_known_hosts_real -acF fixtures/_known_hosts_real/config 'user@'; echo_array COMPREPLY}
+set cmd {unset COMPREPLY; _known_hosts_real -acF fixtures/_known_hosts_real/config 'user@'; echo_array COMPREPLY}
 assert_bash_list $expected $cmd $test
 
 
@@ -49,7 +49,7 @@ lappend hosts gee hus doo ike two
 set hosts [lsort -ascii $hosts]
 set hosts [join $hosts "\\s+"]
     # Call _known_hosts
-set cmd {_known_hosts_real -aF 'fixtures/_known_hosts_real/spaced  conf' ''; echo_array COMPREPLY}
+set cmd {unset COMPREPLY; _known_hosts_real -aF 'fixtures/_known_hosts_real/spaced  conf' ''; echo_array COMPREPLY}
 send "$cmd\r"
 expect -ex "$cmd\r\n"
 expect {
@@ -69,7 +69,7 @@ set hosts [get_hosts_avahi]
     # doo, ike, jub, 10.0.0.1, kyl and 100.0.0.2 in ./fixtures/_known_hosts_real/known_hosts
 lappend hosts doo gee hus ike jar jub kyl 10.0.0.1 100.0.0.2
     # Call _known_hosts
-set cmd {_known_hosts_real -aF fixtures/_known_hosts_real/config ''; echo_array COMPREPLY}
+set cmd {unset COMPREPLY; _known_hosts_real -aF fixtures/_known_hosts_real/config ''; echo_array COMPREPLY}
 assert_bash_list $hosts $cmd $test
 sync_after_int
 assert_bash_exec "unset -v COMP_KNOWN_HOSTS_WITH_HOSTFILE"
