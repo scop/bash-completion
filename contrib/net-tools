@@ -84,23 +84,18 @@ _route()
         return 0
     fi
 
-    COMPREPLY=( $( compgen -W 'add del -host -net netmask metric mss \
-        window irtt reject mod dyn reinstate dev \
-        default gw' -- "$cur" ) )
-
-    COMPREPLY=( $( echo " ${COMP_WORDS[@]}" | \
-        (while read -d ' ' i; do
-            [ "$i" == "" ] && continue
-            # flatten array with spaces on either side,
-            # otherwise we cannot grep on word
-            # boundaries of first and last word
-            COMPREPLY=" ${COMPREPLY[@]} "
-            # remove word from list of completions
-            COMPREPLY=( ${COMPREPLY/ $i / } )
+    # Remove already given options from completions
+    local i found
+    for opt in add del -host -net netmask metric mss window irtt reject mod \
+        dyn reinstate dev default gw; do
+        found=false
+        for (( i=1; i < ${#COMP_WORDS[@]}-1; i++ )); do
+            [ "${COMP_WORDS[i]}" = "$opt" ] && found=true && break
         done
-           echo "${COMPREPLY[@]}")
-        ) )
-    return 0
+        $found || COMPREPLY[${#COMPREPLY[@]}]="$opt"
+    done
+
+    COMPREPLY=( $( compgen -W '"${COMPREPLY[@]}"' -- "$cur" ) )
 } &&
 complete -F _route route
 
