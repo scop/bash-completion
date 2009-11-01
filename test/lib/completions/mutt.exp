@@ -4,7 +4,7 @@ proc setup {} {
 
 
 proc teardown {} {
-    assert_env_unmodified
+    assert_env_unmodified {/OLDPWD=/d}
 }; # teardown()
 
 
@@ -12,6 +12,19 @@ setup
 
 
 assert_complete_any "mutt -"
+
+
+sync_after_int
+
+
+set test "mutt should complete mailboxes" 
+set expected {foo/ bar/ muttrc}
+assert_complete_dir $expected "mutt -F muttrc -f =" fixtures/mutt
+
+
+set test "mutt should complete aliases" 
+set expected {a1 a2}
+assert_complete_dir $expected "mutt -F muttrc -A " fixtures/mutt
 
 
 sync_after_int
