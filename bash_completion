@@ -480,23 +480,23 @@ _configured_interfaces()
 {
     if [ -f /etc/debian_version ]; then
         # Debian system
-        COMPREPLY=( $( sed -ne 's|^iface \([^ ]\+\).*$|\1|p' \
-        /etc/network/interfaces ) )
+        COMPREPLY=( $( compgen -W "$( sed -ne 's|^iface \([^ ]\+\).*$|\1|p' \
+            /etc/network/interfaces )" -- "$cur" ) )
     elif [ -f /etc/SuSE-release ]; then
         # SuSE system
-        COMPREPLY=( $( command ls \
-        /etc/sysconfig/network/ifcfg-* | \
-        sed -ne 's|.*ifcfg-\('"$cur"'.*\)|\1|p' ) )
+        COMPREPLY=( $( compgen -W "$( command ls \
+            /etc/sysconfig/network/ifcfg-* | \
+            sed -ne 's|.*ifcfg-\(.*\)|\1|p' )" -- "$cur" ) )
     elif [ -f /etc/pld-release ]; then
         # PLD Linux
-        COMPREPLY=( $( command ls -B \
-        /etc/sysconfig/interfaces | \
-        sed -ne 's|.*ifcfg-\('"$cur"'.*\)|\1|p' ) )
+        COMPREPLY=( $( compgen -W "$( command ls -B \
+            /etc/sysconfig/interfaces | \
+            sed -ne 's|.*ifcfg-\(.*\)|\1|p' )" -- "$cur" ) )
     else
         # Assume Red Hat
-        COMPREPLY=( $( command ls \
-        /etc/sysconfig/network-scripts/ifcfg-* | \
-        sed -ne 's|.*ifcfg-\('"$cur"'.*\)|\1|p' ) )
+        COMPREPLY=( $( compgen -W "$( command ls \
+            /etc/sysconfig/network-scripts/ifcfg-* | \
+            sed -ne 's|.*ifcfg-\(.*\)|\1|p' )" -- "$cur" ) )
     fi
 }
 
@@ -524,7 +524,8 @@ _available_interfaces()
     fi
 
     COMPREPLY=( $( eval PATH="$PATH:/sbin" $cmd 2>/dev/null | \
-        sed -ne 's|^\('"$cur"'[^[:space:][:punct:]]\{1,\}\).*$|\1|p') )
+        awk '/^[^[:space:]]/ { print $1 }' ) )
+    COMPREPLY=( $( compgen -W '${COMPREPLY[@]/%[[:punct:]]/}' -- "$cur" ) )
 }
 
 # This function expands tildes in pathnames
@@ -618,14 +619,13 @@ _uids()
 _gids()
 {
     if type getent &>/dev/null; then
-        COMPREPLY=( $( getent group | \
-        awk -F: '{if ($3 ~ /^'"$cur"'/) print $3}' ) )
+        COMPREPLY=( $( compgen -W '$( getent group | cut -d: -f3 )' \
+            -- "$cur" ) )
     elif type perl &>/dev/null; then
         COMPREPLY=( $( compgen -W '$( perl -e '"'"'while (($gid) = (getgrent)[2]) { print $gid . "\n" }'"'"' )' -- "$cur" ) )
     else
         # make do with /etc/group
-        COMPREPLY=( $( awk 'BEGIN {FS=":"} {if ($3 ~ /^'"$cur"'/) print $3}'\
-        /etc/group ) )
+        COMPREPLY=( $( compgen -W '$( cut -d: -f3 /etc/group )' -- "$cur" ) )
     fi
 }
 
@@ -651,8 +651,8 @@ _modules()
 {
     local modpath
     modpath=/lib/modules/$1
-    COMPREPLY=( $( command ls -R $modpath | \
-    sed -ne 's/^\('"$cur"'.*\)\.k\?o\(\|.gz\)$/\1/p') )
+    COMPREPLY=( $( compgen -W "$( command ls -R $modpath | \
+        sed -ne 's/^\(.*\)\.k\?o\(\|.gz\)$/\1/p' )" -- "$cur" ) )
 }
 
 # This function completes on installed modules
@@ -660,7 +660,7 @@ _modules()
 _installed_modules()
 {
     COMPREPLY=( $( compgen -W "$( PATH="$PATH:/sbin" lsmod | \
-    awk '{if (NR != 1) print $1}' )" -- $1 ) )
+        awk '{if (NR != 1) print $1}' )" -- "$1" ) )
 }
 
 # This function completes on user:group format
@@ -899,15 +899,17 @@ _mount()
     for i in {,/usr}/{,s}bin/showmount; do [ -x $i ] && sm=$i && break; done
 
     if [ -n "$sm" ] && [[ "$cur" == *:* ]]; then
-        COMPREPLY=( $( $sm -e ${cur%%:*} | sed 1d | \
-        grep ^${cur#*:} | awk '{print $1}' ) )
+        COMPREPLY=( $( compgen -W "$( $sm -e ${cur%%:*} | sed 1d | \
+            awk '{print $1}' )" -- "$cur" ) )
     elif [[ "$cur" == //* ]]; then
         host=${cur#//}
         host=${host%%/*}
         if [ -n "$host" ]; then
-            COMPREPLY=( $( compgen -W "$( echo $( smbclient -d 0 -NL $host 2>/dev/null|
-            sed -ne '/^['"$'\t '"']*Sharename/,/^$/p' |
-            sed -ne '3,$s|^[^A-Za-z]*\([^'"$'\t '"']*\).*$|//'$host'/\1|p' ) )" -- "$cur" ) )
+            COMPREPLY=( $( compgen -P "//$host" -W \
+                "$( smbclient -d 0 -NL $host 2>/dev/null |
+                sed -ne '/^['"$'\t '"']*Sharename/,/^$/p' |
+                sed -ne '3,$s|^[^A-Za-z]*\([^'"$'\t '"']*\).*$|/\1|p' )" \
+                    -- "${cur#//$host}" ) )
         fi
     elif [ -r /etc/vfstab ]; then
         # Solaris
@@ -976,9 +978,8 @@ _insmod()
     if [ $COMP_CWORD -gt 1 ] &&
         [[ "${COMP_WORDS[COMP_CWORD-1]}" != -* ]]; then
         # do module parameter completion
-        COMPREPLY=( $( /sbin/modinfo -p ${COMP_WORDS[1]} 2>/dev/null | \
-        awk '{if ($1 ~ /^parm:/ && $2 ~ /^'"$cur"'/) { print $2 } \
-    else if ($1 !~ /:/ && $1 ~ /^'"$cur"'/) { print $1 }}' ) )
+        COMPREPLY=( $( compgen -W "$( /sbin/modinfo -p ${COMP_WORDS[1]} | \
+            cut -d: -f1 )" -- "$cur" ) )
     else
         _modules $(uname -r)
     fi
