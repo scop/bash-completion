@@ -2,10 +2,21 @@
 
 _configure()
 {
-    local cur
+    local cur prev split=false
 
     COMPREPLY=()
     cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    _split_longopt && split=true
+
+    case "$prev" in
+        --prefix|--exec-prefix|--*dir)
+            _filedir -d
+            ;;
+    esac
+
+    $split && return 0
 
     # if $COMP_CONFIGURE_HINTS is not null, then completions of the form
     # --option=SETTING will include 'SETTING' as a contextual hint
@@ -21,7 +32,7 @@ _configure()
             grep ^$cur ) )
     fi
 }
-complete -F _configure -o default configure
+complete -F _configure -o filenames configure
 
 # Local variables:
 # mode: shell-script
