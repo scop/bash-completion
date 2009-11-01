@@ -30,7 +30,6 @@ bashcomp_DATA = contrib/abook \
 		contrib/cpio \
 		contrib/cups \
 		contrib/cvs \
-		contrib/dcop \
 		contrib/dd \
 		contrib/dhclient \
 		contrib/dict \
