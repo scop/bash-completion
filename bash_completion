@@ -451,11 +451,8 @@ _split_longopt()
 _parse_help() {
     local cmd
     cmd=$1
-    $cmd --help | \
-    grep -- "^[[:space:]]*-" | \
-    tr "," " " | \
-    awk '{print $1; if ($2 ~ /-.*/) { print $2 } }' | \
-    sed -e "s:=.*::g"
+    $cmd --help | grep -- "^[[:space:]]*-" | tr "," " " | \
+        awk '{print $1; if ($2 ~ /-.*/) { print $2 } }' | sed -e "s:=.*::g"
 }
 
 # This function completes on signal names
@@ -579,9 +576,7 @@ _pgids()
 _pnames()
 {
     COMPREPLY=( $( compgen -W '$( command ps -efo comm | \
-    sed -e 1d -e "s:.*/::" -e "s/^-//" \
-    -e "s/^<defunct>$//")' \
-    -- "$cur" ) )
+        sed -e 1d -e "s:.*/::" -e "s/^-//" -e "s/^<defunct>$//")' -- "$cur" ) )
 } ||
 _pnames()
 {
@@ -594,10 +589,8 @@ _pnames()
     # Not using "ps axo comm" because under some Linux kernels, it
     # truncates command names (see e.g. http://bugs.debian.org/497540#19)
     COMPREPLY=( $( compgen -W '$( command ps axo command= | \
-    sed -e "s/ .*//" -e "s:.*/::" -e "s/:$//" \
-    -e "s/^[[(-]//" -e "s/[])]$//" \
-    -e "s/^<defunct>$//")' \
-    -- "$cur" ) )
+        sed -e "s/ .*//" -e "s:.*/::" -e "s/:$//" -e "s/^[[(-]//" \
+            -e "s/[])]$//" -e "s/^<defunct>$//")' -- "$cur" ) )
 }
 
 # This function completes on user IDs
@@ -684,7 +677,7 @@ _usergroup()
 _shells()
 {
     COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W '$( grep "^[[:space:]]*/" \
-    /etc/shells 2>/dev/null )' -- "$cur" ) )
+        /etc/shells 2>/dev/null )' -- "$cur" ) )
 }
 
 # Get real command.
@@ -723,7 +716,7 @@ _count_args()
 _pci_ids()
 {
     COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -W \
-    "$( PATH="$PATH:/sbin" lspci -n | awk '{print $3}')" -- "$cur" ) )
+        "$( PATH="$PATH:/sbin" lspci -n | awk '{print $3}')" -- "$cur" ) )
 }
 
 # This function completes on USB IDs
@@ -731,15 +724,15 @@ _pci_ids()
 _usb_ids()
 {
     COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -W \
-    "$( PATH="$PATH:/sbin" lsusb | awk '{print $6}' )" -- "$cur" ) )
+        "$( PATH="$PATH:/sbin" lsusb | awk '{print $6}' )" -- "$cur" ) )
 }
 
 # start of section containing completion functions for external programs
 
 # a little help for FreeBSD ports users
-[ $UNAME = FreeBSD ] && complete -W 'index search fetch fetch-list \
-extract patch configure build install reinstall \
-deinstall clean clean-depends kernel buildworld' make
+[ $UNAME = FreeBSD ] && complete -W 'index search fetch fetch-list extract \
+    patch configure build install reinstall deinstall clean clean-depends \
+    kernel buildworld' make
 
 # This completes on a list of all available service scripts for the
 # 'service' command and/or the SysV init.d directory, followed by
@@ -761,22 +754,21 @@ _service()
     # don't complete past 2nd token
     [ $COMP_CWORD -gt 2 ] && return 0
 
-    [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
-    || sysvdir=/etc/init.d
+    [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
 
     if [[ $COMP_CWORD -eq 1 ]] && [[ $prev == "service" ]]; then
         _services
     else
         COMPREPLY=( $( compgen -W '`sed -e "y/|/ /" \
-        -ne "s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p" \
-        $sysvdir/${prev##*/} 2>/dev/null`' -- "$cur" ) )
+            -ne "s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p" \
+            $sysvdir/${prev##*/} 2>/dev/null`' -- "$cur" ) )
     fi
 
     return 0
 } &&
 complete -F _service service
 [ -d /etc/init.d/ ] && complete -F _service -o default \
-$(for i in /etc/init.d/*; do echo ${i##*/}; done)
+    $(for i in /etc/init.d/*; do echo ${i##*/}; done)
 
 
 # chown(1) completion
@@ -804,9 +796,9 @@ _chown()
 
     # options completion
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes \
-        --dereference --no-dereference --from --silent --quiet \
-        --reference --recursive --verbose --help --version' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes --dereference \
+            --no-dereference --from --silent --quiet --reference --recursive \
+            --verbose --help --version' -- "$cur" ) )
     else
         _count_args
 
@@ -845,9 +837,9 @@ _chgrp()
 
     # options completion
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes \
-        --dereference --no-dereference --silent --quiet \
-        --reference --recursive --verbose --help --version' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes --dereference \
+            --no-dereference --silent --quiet --reference --recursive \
+            --verbose --help --version' -- "$cur" ) )
         return 0
     fi
 
@@ -1113,10 +1105,9 @@ _ipsec()
 
 
     if [ $COMP_CWORD -eq 1 ]; then
-        COMPREPLY=( $( compgen -W 'auto barf eroute klipsdebug look \
-        manual pluto ranbits rsasigkey \
-        setup showdefaults showhostkey spi \
-        spigrp tncfg whack' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W 'auto barf eroute klipsdebug look manual \
+            pluto ranbits rsasigkey setup showdefaults showhostkey spi spigrp \
+            tncfg whack' -- "$cur" ) )
         return 0
     fi
 
@@ -1345,8 +1336,9 @@ _known_hosts_real()
 
     return 0
 } # _known_hosts_real()
-complete -F _known_hosts traceroute traceroute6 tracepath tracepath6 \
-ping ping6 fping fping6 telnet host nslookup rsh rlogin ftp dig ssh-installkeys mtr
+complete -F _known_hosts traceroute traceroute6 tracepath tracepath6 ping \
+    ping6 fping fping6 telnet host nslookup rsh rlogin ftp dig mtr \
+    ssh-installkeys
 
 # This meta-cd function observes the CDPATH variable, so that cd additionally
 # completes on directories under those specified in CDPATH.
@@ -1427,7 +1419,7 @@ _command()
 _command_offset()
 {
     local cur func cline cspec noglob cmd i char_offset word_offset \
-    _COMMAND_FUNC _COMMAND_FUNC_ARGS
+        _COMMAND_FUNC _COMMAND_FUNC_ARGS
 
     word_offset=$1
 
