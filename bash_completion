@@ -594,8 +594,8 @@ _pnames()
     # Not using "ps axo comm" because under some Linux kernels, it
     # truncates command names (see e.g. http://bugs.debian.org/497540#19)
     COMPREPLY=( $( compgen -W '$( command ps axo command= | \
-    sed -e "s/ .*//; s:.*/::; s/:$//;" \
-    -e "s/^[[(-]//; s/[])]$//" \
+    sed -e "s/ .*//" -e "s:.*/::" -e "s/:$//" \
+    -e "s/^[[(-]//" -e "s/[])]$//" \
     -e "s/^<defunct>$//")' \
     -- "$cur" ) )
 }
@@ -767,8 +767,8 @@ _service()
     if [[ $COMP_CWORD -eq 1 ]] && [[ $prev == "service" ]]; then
         _services
     else
-        COMPREPLY=( $( compgen -W '`sed -ne "y/|/ /; \
-        s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p" \
+        COMPREPLY=( $( compgen -W '`sed -e "y/|/ /" \
+        -ne "s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p" \
         $sysvdir/${prev##*/} 2>/dev/null`' -- "$cur" ) )
     fi
 
