@@ -57,6 +57,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/isql \
 		contrib/jar \
 		contrib/java \
+		contrib/k3b \
 		contrib/kldload \
 		contrib/larch \
 		contrib/ldapvi \
