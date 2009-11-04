@@ -1,53 +1,58 @@
-# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
-# ex: ts=8 sw=8 noet filetype=sh
-#
 # bash completion for info
 
 have info &&
 _info()
 {
-	local cur infopath
+    local cur i infopath
 
-	COMPREPLY=()
-	cur=`_get_cword`
+    COMPREPLY=()
+    cur=`_get_cword`
 
-	_expand || return 0
+    _expand || return 0
 
-	# default completion if parameter contains /
-	if [[ "$cur" == */* ]]; then
-		_filedir
-		return 0
-	fi
+    # default completion if parameter contains /
+    if [[ "$cur" == */* ]]; then
+        _filedir
+        return 0
+    fi
 
-	infopath='/usr/share/info'
+    infopath='/usr/share/info'
 
-	if [ "${INFOPATH: -1:1}" == ':' ]; then
-		infopath=${INFOPATH}${infopath}
-	elif [ ${INFOPATH:+set} ]; then
-		infopath=$INFOPATH
-	fi
+    if [ "${INFOPATH: -1:1}" == ':' ]; then
+        infopath=${INFOPATH}${infopath}
+    elif [ ${INFOPATH:+set} ]; then
+        infopath=$INFOPATH
+    fi
 
-	infopath=$infopath:
-	if [ -n "$cur" ]; then
-		infopath="${infopath//://$cur* }"
-	else
-		infopath="${infopath//:// }"
-	fi
+    infopath=$infopath:
+    if [ -n "$cur" ]; then
+        infopath="${infopath//://$cur* }"
+    else
+        infopath="${infopath//:// }"
+    fi
 
-	# redirect stderr for when path doesn't exist
-	COMPREPLY=( $( eval command ls "$infopath" 2>/dev/null ) )
-	# weed out directory path names and paths to info pages
-	COMPREPLY=( ${COMPREPLY[@]##*/?(:)} )
-	# weed out info dir file
-	for (( i=0 ; i < ${#COMPREPLY[@]} ; ++i )); do
-		if [ "${COMPREPLY[$i]}" == 'dir' ]; then
-			unset COMPREPLY[$i];
-		fi;
-	done
-	# strip suffix from info pages
-	COMPREPLY=( ${COMPREPLY[@]%.@(gz|bz2|lzma)} )
-	COMPREPLY=( $( compgen -W '${COMPREPLY[@]%.*}' -- "${cur//\\\\/}" ) )
+    # redirect stderr for when path doesn't exist
+    COMPREPLY=( $( eval command ls "$infopath" 2>/dev/null ) )
+    # weed out directory path names and paths to info pages
+    COMPREPLY=( ${COMPREPLY[@]##*/?(:)} )
+    # weed out info dir file
+    for (( i=0 ; i < ${#COMPREPLY[@]} ; ++i )); do
+        if [ "${COMPREPLY[$i]}" == 'dir' ]; then
+            unset COMPREPLY[$i];
+        fi;
+    done
+    # strip suffix from info pages
+    COMPREPLY=( ${COMPREPLY[@]%.@(gz|bz2|xz|lzma)} )
+    COMPREPLY=( $( compgen -W '${COMPREPLY[@]%.*}' -- "${cur//\\\\/}" ) )
 
-	return 0
+    return 0
 } &&
-complete -F _info $filenames info
+complete -F _info -o filenames info
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

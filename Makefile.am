@@ -1,8 +1,10 @@
+AUTOMAKE_OPTIONS = dist-bzip2
 
 sysconf_DATA = bash_completion
 
 bashcompdir = $(sysconfdir)/bash_completion.d
-bashcomp_DATA = contrib/ant \
+bashcomp_DATA = contrib/abook \
+		contrib/ant \
 		contrib/apache2ctl \
 		contrib/apt \
 		contrib/apt-build \
@@ -13,7 +15,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/bind-utils \
 		contrib/bitkeeper \
 		contrib/bittorrent \
-		contrib/bluez-utils \
+		contrib/bluez \
 		contrib/brctl \
 		contrib/bzip2 \
 		contrib/cardctl \
@@ -28,7 +30,6 @@ bashcomp_DATA = contrib/ant \
 		contrib/cpio \
 		contrib/cups \
 		contrib/cvs \
-		contrib/dcop \
 		contrib/dd \
 		contrib/dhclient \
 		contrib/dict \
@@ -47,12 +48,12 @@ bashcomp_DATA = contrib/ant \
 		contrib/gpg \
 		contrib/gpg2 \
 		contrib/gzip \
-		contrib/harbour \
 		contrib/heimdal \
 		contrib/iconv \
 		contrib/imagemagick \
 		contrib/info \
 		contrib/iptables \
+		contrib/ipmitool \
 		contrib/isql \
 		contrib/jar \
 		contrib/java \
@@ -61,7 +62,6 @@ bashcomp_DATA = contrib/ant \
 		contrib/ldapvi \
 		contrib/lftp \
 		contrib/lilo \
-		contrib/lilypond \
 		contrib/links \
 		contrib/lisp \
 		contrib/lvm \
@@ -72,6 +72,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/man \
 		contrib/mc \
 		contrib/mcrypt \
+		contrib/mdadm \
 		contrib/minicom \
 		contrib/mkinitrd \
 		contrib/mock \
@@ -104,8 +105,9 @@ bashcomp_DATA = contrib/ant \
 		contrib/quota-tools \
 		contrib/rcs \
 		contrib/rdesktop \
-		contrib/repomanage \
 		contrib/reportbug \
+		contrib/resolvconf \
+		contrib/rfkill \
 		contrib/ri \
 		contrib/rpcdebug \
 		contrib/rpm \
@@ -133,6 +135,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/vpnc \
 		contrib/wireless-tools \
 		contrib/wodim \
+		contrib/wtf \
 		contrib/wvdial \
 		contrib/xhost \
 		contrib/xm \
@@ -140,7 +143,12 @@ bashcomp_DATA = contrib/ant \
 		contrib/xmlwf \
 		contrib/xmms \
 		contrib/xrandr \
+		contrib/xz \
 		contrib/yp-tools \
-		contrib/yum
+		contrib/yum-arch
 
-EXTRA_DIST = $(sysconf_DATA) $(bashcomp_DATA) contrib/_subversion
+profiledir = $(sysconfdir)/profile.d
+profile_DATA = bash_completion.sh
+
+EXTRA_DIST = CHANGES $(sysconf_DATA) $(bashcomp_DATA) $(profile_DATA) \
+	contrib/_subversion contrib/_yum contrib/_yum-utils

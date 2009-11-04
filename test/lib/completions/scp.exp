@@ -1,0 +1,121 @@
+proc setup {} {
+    save_env
+}; # setup()
+
+
+proc teardown {} {
+    assert_env_unmodified {
+        /BASH_LINENO=/d
+        /BASH_SOURCE=/d
+        /OLDPWD=/d
+    }
+}; # teardown()
+
+
+setup
+
+
+set test "Tab should complete remote pwd"
+set host bash_completion
+
+    # Retrieving home directory (host_pwd) from ssh-host `bash_completion'
+    # yields error? 
+if { 
+    [catch {
+	exec -- ssh -o "Batchmode yes" -o "ConnectTimeout 1" $host pwd 2>> /dev/null
+    } host_pwd] 
+} {
+    # Yes, retrieving pwd from ssh yields error; reset `host_pwd'
+        # Indicate host pwd is unknown and test is unsupported
+        # NOTE: To support this test, set the hostname "bash_completion"
+        #       in `$HOME/.ssh/config' or `/etc/ssh_config'
+    set host_pwd ""
+    unsupported $test
+}; # if
+
+
+    # Try completion
+set cmd "scp $host:"
+send "$cmd\t"
+sync_after_tab
+expect {
+    -re "^$cmd$host_pwd.*$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "Tab should complete known-hosts"
+
+    # Build string list of expected completions
+    # Get hostnames and give them a colon (:) suffix
+    # Hosts `gee' and `hus' are defined in ./fixtures/scp/config
+    # Hosts `doo' and `ike' are defined in ./fixtures/scp/known_hosts
+set expected {}
+foreach host [get_hosts] {
+    lappend expected "$host:"
+}; # foreach
+lappend expected doo: gee: hus: ike:
+    # Append local filenames
+lappend expected config known_hosts "spaced\\\\ \\\\ conf"
+set dir fixtures/scp
+assert_complete_dir $expected "scp -F config " $dir
+
+
+sync_after_int
+
+
+set test "-F without space shouldn't error"
+    # Try completion
+set cmd "scp -F"
+send "$cmd\t "
+expect {
+    -re "^${cmd}bash: option requires an argument -- F" { fail "$test" }
+    -re "^$cmd\r\n.*\r\n/@" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "Config file containing space should work"
+    # Build string list of expected completions
+    # Get hostnames and give them a colon (:) suffix
+set expected {}
+foreach host [get_hosts] {
+    lappend expected "$host:"
+}; # foreach
+    # Hosts `gee', `hus' and `jar' are defined in "./fixtures/scp/spaced  conf"
+    # Hosts `doo' and `ike' are defined in ./fixtures/scp/known_hosts
+lappend expected doo: gee: hus: ike: jar:
+    # Append local filenames
+lappend expected config known_hosts "spaced\\\\ \\\\ conf"
+set dir fixtures/scp
+#assert_complete_dir $expected "scp -F 'spaced  conf' " $dir
+set prompt "/$dir/@"
+assert_bash_exec "cd $dir" "" $prompt
+set cmd "scp -F 'spaced  conf' "
+send "$cmd\t"
+expect -ex "$cmd\r\n"
+if {[match_items $expected $test]} {
+    expect {
+        -re $prompt { pass "$test" }
+        -re eof { unresolved "eof" }
+    }; # expect
+} else {
+    # Expected failure (known bug) because of bash-4 bug in quoted words:
+    # http://www.mail-archive.com/bug-bash@gnu.org/msg06095.html
+    if {$bash_versinfo_0 >= 4} {xfail "$test"} {fail "$test"}
+}; # if
+sync_after_int $prompt
+assert_bash_exec "cd \$TESTDIR"
+
+
+sync_after_int
+
+
+teardown

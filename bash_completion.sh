@@ -2,11 +2,9 @@
 [ -z "$BASH_VERSION" -o -z "$PS1" -o -n "$BASH_COMPLETION" ] && return
 
 # Check for recent enough version of bash.
-bash=${BASH_VERSION%.*}; bmajor=${bash%.*}; bminor=${bash#*.}
-if [ $bmajor -eq 2 -a $bminor '>' 04 ] || [ $bmajor -gt 2 ]; then
-  if [ -r /etc/bash_completion ]; then
+bash=${BASH_VERSION%.*}; bmajor=${bash%.*}
+if [ $bmajor -ge 3 -a -r /etc/bash_completion ]; then
     # Source completion code.
     . /etc/bash_completion
-  fi
 fi
-unset bash bminor bmajor
+unset bash bmajor

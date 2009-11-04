@@ -1,68 +1,72 @@
-# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
-# ex: ts=8 sw=8 noet filetype=sh
-#
 # bash completion for GNU tar
 
 have tar && {
 _tar()
 {
-	local cur ext regex tar untar
+    local cur ext regex tar untar
 
-	COMPREPLY=()
-	cur=`_get_cword`
+    COMPREPLY=()
+    cur=`_get_cword`
 
-	if [ $COMP_CWORD -eq 1 ]; then
-		COMPREPLY=( $( compgen -W 'c t x u r d A' -- $cur ) )
-		return 0
-	fi
+    if [ $COMP_CWORD -eq 1 ]; then
+        COMPREPLY=( $( compgen -W 'c t x u r d A' -- "$cur" ) )
+        return 0
+    fi
 
-	case "${COMP_WORDS[1]}" in
-	?(-)[cr]*f)
-		_filedir
-		return 0
-		;;
-	+([^IZzJjy])f)
-		ext='t@(ar?(.@(Z|gz|bz?(2)|lz?(ma)))|gz|bz?(2)|lz?(ma))'
-		regex='t\(ar\(\.\(Z\|gz\|bz2\?\|lzma\|xz\)\)\?\|gz\|bz2\?\|lzma\|xz\)'
-		;;
-	*[Zz]*f)
-		ext='t?(ar.)@(gz|Z)'
-		regex='t\(ar\.\)\?\(gz\|Z\)'
-		;;
-	*[Ijy]*f)
-		ext='t?(ar.)bz?(2)'
-		regex='t\(ar\.\)\?bz2\?'
-		;;
-	*[J]*f)
-		ext='t?(ar.)@(lz?(ma)|xz)'
-		regex='t\(ar\.\)\?\(lzma\|xz\)\?'
-		;;
-	*)
-		_filedir
-		return 0
-		;;
+    case "${COMP_WORDS[1]}" in
+    ?(-)[cr]*f)
+        _filedir
+        return 0
+        ;;
+    +([^IZzJjy])f)
+        ext='t@(ar?(.@(Z|gz|bz?(2)|lz?(ma)))|gz|bz?(2)|lz?(ma))'
+        regex='t\(ar\(\.\(Z\|gz\|bz2\?\|lzma\|xz\)\)\?\|gz\|bz2\?\|lzma\|xz\)'
+        ;;
+    *[Zz]*f)
+        ext='t?(ar.)@(gz|Z)'
+        regex='t\(ar\.\)\?\(gz\|Z\)'
+        ;;
+    *[Ijy]*f)
+        ext='t?(ar.)bz?(2)'
+        regex='t\(ar\.\)\?bz2\?'
+        ;;
+    *[J]*f)
+        ext='t?(ar.)@(lz?(ma)|xz)'
+        regex='t\(ar\.\)\?\(lzma\|xz\)\?'
+        ;;
+    *)
+        _filedir
+        return 0
+        ;;
 
-	esac
+    esac
 
-	if [[ "$COMP_LINE" == *$ext' ' ]]; then
-		# complete on files in tar file
-		#
-		# get name of tar file from command line
-		tar=$( echo "$COMP_LINE" | \
-			sed -e 's/^.* \([^ ]*'$regex'\) .*$/\1/' )
-		# devise how to untar and list it
-		untar=t${COMP_WORDS[1]//[^Izjyf]/}
+    if [[ "$COMP_LINE" == *$ext' ' ]]; then
+        # complete on files in tar file
+        #
+        # get name of tar file from command line
+        tar=$( echo "$COMP_LINE" | sed -e 's/^.* \([^ ]*'$regex'\) .*$/\1/' )
+        # devise how to untar and list it
+        untar=t${COMP_WORDS[1]//[^Izjyf]/}
 
-		COMPREPLY=( $( compgen -W "$( echo $( tar $untar $tar \
-				2>/dev/null ) )" -- "$cur" ) )
-		return 0
-	fi
+        COMPREPLY=( $( compgen -W "$( echo $( tar $untar $tar \
+            2>/dev/null ) )" -- "$cur" ) )
+        return 0
+    fi
 
-	# file completion on relevant files
-	_filedir "$ext"
+    # file completion on relevant files
+    _filedir "$ext"
 
-	return 0
+    return 0
 }
-[ -n "${COMP_TAR_INTERNAL_PATHS:-}" ] && complete -F _tar $dirnames tar ||
-	complete -F _tar $filenames tar
+[ -n "${COMP_TAR_INTERNAL_PATHS:-}" ] && complete -F _tar -o dirnames tar ||
+    complete -F _tar -o filenames tar
 }
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
