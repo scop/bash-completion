@@ -1,0 +1,39 @@
+# bash completion for ipmitool
+
+have ipmitool &&
+_ipmitool()
+{
+    local cur prev
+
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    case "$prev" in
+        -I)
+            COMPREPLY=( $( compgen -W 'open imb lan lanplus free' -- "$cur" ) )
+            return 0
+            ;;
+    esac
+
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-h -V -v -c -d -I -H -p -U -f -S -a \
+            -e -C -k -y -K -A -P -E -K -m -b -r -B -T -l -o -O' -- "$cur" ) )
+    else
+        COMPREPLY=( $( compgen -W 'raw i2c spd lan chassis power event \
+            mc sdr sensor fru gendev sel pef sol tsol isol user \
+            channel session sunoem kontronoem picmg fwum firewall \
+            exec set hpm ekanalyzer' -- "$cur" ) )
+    fi
+
+} &&
+complete -F _ipmitool ipmitool
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

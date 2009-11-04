@@ -1,303 +1,305 @@
-# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
-# ex: ts=8 sw=8 noet filetype=sh
-#
 # bash completion for samba
 
 have smbclient && {
 _samba_resolve_order()
 {
-	COMPREPLY=( $( compgen -W 'lmhosts host wins bcast' -- $cur ) )
+    COMPREPLY=( $( compgen -W 'lmhosts host wins bcast' -- "$cur" ) )
 }
 
 _samba_domains()
 {
-	if [ -n "${COMP_SAMBA_SCAN:-}" ]; then
-		COMPREPLY=( $( compgen -W '$( smbtree -N -D )' -- $cur ) )
-	fi
+    if [ -n "${COMP_SAMBA_SCAN:-}" ]; then
+        COMPREPLY=( $( compgen -W '$( smbtree -N -D )' -- "$cur" ) )
+    fi
 }
 
 _samba_hosts()
 {
-	if [ -n "${COMP_SAMBA_SCAN:-}" ]; then
-		COMPREPLY=( $( compgen -W "$( smbtree -N -S | \
-			sed -ne 's/^[[:space:]]*\\\\*\([^[:space:]]*\).*/\1/p' \
-			)" -- $cur ) )
-	fi
+    if [ -n "${COMP_SAMBA_SCAN:-}" ]; then
+        COMPREPLY=( $( compgen -W "$( smbtree -N -S | \
+            sed -ne 's/^[[:space:]]*\\\\*\([^[:space:]]*\).*/\1/p' \
+            )" -- $cur ) )
+    fi
 }
 
 _samba_debuglevel()
 {
-	COMPREPLY=( $( compgen -W '0 1 2 3 4 5 6 7 8 9 10' -- $cur ) )
+    COMPREPLY=( $( compgen -W '0 1 2 3 4 5 6 7 8 9 10' -- "$cur" ) )
 }
 
 _smbclient()
 {
-	local cur prev split=false
+    local cur prev split=false
 
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	_split_longopt && split=true
+    _split_longopt && split=true
 
-	case $prev in
-		-R)
-			_samba_resolve_order
-			return 0;
-			;;
-		-t)
-			COMPREPLY=( $( compgen -W 'SJIS EUC JIS7 JIS8 JUNET \
-				HEX CAP' -- $cur ) )
-			return 0;
-			;;
-		-s|-A|--authentication-file)
-			_filedir
-			return 0;
-			;;
-		-l|--log-basename|-D)
-			_filedir -d
-			return 0;
-			;;
-		-O)
-			COMPREPLY=( $( compgen -W 'SO_KEEPALIVE SO_REUSEADDR \
-				SO_BROADCAST TCP_NODELAY IPTOS_LOWDELAY \
-				IPTOS_THROUGHPUT SO_SNDBUF SO_RCVBUF \
-				SO_SNDLOWAT SO_RCVLOWAT' -- $cur ) )
-			return 0;
-			;;
-		-T)
-			COMPREPLY=( $( compgen -W 'c x I X F b g q r N a' -- \
-				$cur ) )
-			return 0;
-			;;
-		-W|--workgroup)
-			_samba_domains
-			return 0;
-			;;
-		-d|--debuglevel)
-			_samba_debuglevel
-			return 0
-			;;
-		-p|--port|-M|-I|-b|-U|--user|-n|-i|-T|-c)
-			# argument required but no completions available
-			return 0
-			;;
-		-\?|--help|-V|--version)
-			# all other arguments are noop with these
-			return 0
-			;;
-	esac
+    case $prev in
+        -R)
+            _samba_resolve_order
+            return 0;
+            ;;
+        -t)
+            COMPREPLY=( $( compgen -W 'SJIS EUC JIS7 JIS8 JUNET HEX CAP' \
+                -- "$cur" ) )
+            return 0;
+            ;;
+        -s|-A|--authentication-file)
+            _filedir
+            return 0;
+            ;;
+        -l|--log-basename|-D)
+            _filedir -d
+            return 0;
+            ;;
+        -O)
+            COMPREPLY=( $( compgen -W 'SO_KEEPALIVE SO_REUSEADDR \
+                SO_BROADCAST TCP_NODELAY IPTOS_LOWDELAY \
+                IPTOS_THROUGHPUT SO_SNDBUF SO_RCVBUF \
+                SO_SNDLOWAT SO_RCVLOWAT' -- "$cur" ) )
+            return 0;
+            ;;
+        -T)
+            COMPREPLY=( $( compgen -W 'c x I X F b g q r N a' -- "$cur" ) )
+            return 0;
+            ;;
+        -W|--workgroup)
+            _samba_domains
+            return 0;
+            ;;
+        -d|--debuglevel)
+            _samba_debuglevel
+            return 0
+            ;;
+        -p|--port|-M|-I|-b|-U|--user|-n|-i|-T|-c)
+            # argument required but no completions available
+            return 0
+            ;;
+        -\?|--help|-V|--version)
+            # all other arguments are noop with these
+            return 0
+            ;;
+    esac
 
-	$split && return 0
+    $split && return 0
 
-	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-b -d -L -U -I -M -m -A -N -i -O \
-			-p -R -s -k -P -c -D -W -l -E --debuglevel \
-			--log-basename --workgroup' -- $cur ) )
-	fi
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-b -d -L -U -I -M -m -A -N -i -O \
+            -p -R -s -k -P -c -D -W -l -E --debuglevel \
+            --log-basename --workgroup' -- "$cur" ) )
+    fi
 }
 complete -F _smbclient smbclient
 
 _smbget()
 {
-	local cur prev split=false
+    local cur prev split=false
 
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	_split_longopt && split=true
+    _split_longopt && split=true
 
-	case $prev in
-		-@(o|f|-outputfile|-rcfile))
-			_filedir
-			return 0;
-			;;
-		-d|--debuglevel)
-			_samba_debuglevel
-			return 0
-			;;
-	esac
+    case $prev in
+        -@(o|f|-outputfile|-rcfile))
+            _filedir
+            return 0;
+            ;;
+        -d|--debuglevel)
+            _samba_debuglevel
+            return 0
+            ;;
+    esac
 
-	$split && return 0
+    $split && return 0
 
-	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-a --guest -r --resume -R \
-			--recursive -u --username -p --password -w \
-			--workgroup -n --nonprompt -d --debuglevel -D --dots \
-			-P --keep-permissions -o --outputfile -f --rcfile -q \
-			--quiet -v --verbose -b --blocksize -? --help --usage' \
-			-- $cur ) )
-	fi
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-a --guest -r --resume -R --recursive -u \
+            --username -p --password -w --workgroup -n --nonprompt -d \
+            --debuglevel -D --dots -P --keep-permissions -o --outputfile -f \
+            --rcfile -q --quiet -v --verbose -b --blocksize -? --help --usage' \
+            -- "$cur" ) )
+    fi
 }
 complete -F _smbget smbget
 
 _smbcacls()
 {
-	local cur prev split=false
+    local cur prev split=false
 
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	_split_longopt && split=true
+    _split_longopt && split=true
 
-	case $prev in
-		-s)
-			_filedir
-			return 0;
-			;;
-		-l|--log-basename)
-			_filedir -d
-			return 0;
-			;;
-		-d|--debuglevel)
-			_samba_debuglevel
-			return 0
-			;;
-	esac
+    case $prev in
+        -s)
+            _filedir
+            return 0;
+            ;;
+        -l|--log-basename)
+            _filedir -d
+            return 0;
+            ;;
+        -d|--debuglevel)
+            _samba_debuglevel
+            return 0
+            ;;
+    esac
 
-	$split && return 0
+    $split && return 0
 
-	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-a -M -D -S -U -C -G --numeric -t \
-			-h --help -V -s -d --debuglevel -l --log-basename' -- \
-			$cur ) )
-	fi
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-a -M -D -S -U -C -G --numeric -t \
+            -h --help -V -s -d --debuglevel -l --log-basename' -- "$cur" ) )
+    fi
 }
 complete -F _smbcacls smbcacls
 
 _smbcquotas()
 {
-	local cur prev split=false
+    local cur prev split=false
 
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	_split_longopt && split=true
+    _split_longopt && split=true
 
-	case $prev in
-		-s|-A|--authentication-file)
-			_filedir
-			return 0;
-			;;
-		-l|--log-basename)
-			_filedir -d
-			return 0;
-			;;
-		-d|--debuglevel)
-			_samba_debuglevel
-			return 0
-			;;
-	esac
+    case $prev in
+        -s|-A|--authentication-file)
+            _filedir
+            return 0;
+            ;;
+        -l|--log-basename)
+            _filedir -d
+            return 0;
+            ;;
+        -d|--debuglevel)
+            _samba_debuglevel
+            return 0
+            ;;
+    esac
 
-	$split && return 0
+    $split && return 0
 
-	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-u -L -F -S -n -t -v -h --help -V \
-			-s -d --debuglevel -l --log-basename -N -k -A \
-			--authentication-file -U --user' -- $cur ) )
-	fi
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-u -L -F -S -n -t -v -h --help -V \
+            -s --debuglevel --log-basename -N -k \
+            --authentication-file --user' -- "$cur" ) )
+    fi
 }
 complete -F _smbcquotas smbcquotas
 
 _smbpasswd()
 {
-	local cur prev
+    local cur prev
 
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	case $prev in
-		-r)
-			_samba_hosts
-			return 0;
-			;;
-		-R)
-			_samba_resolve_order
-			return 0;
-			;;
-		-c)
-			_filedir
-			return 0;
-			;;
-		-D)
-			_samba_debuglevel
-			return 0
-			;;
-	esac
+    case $prev in
+        -r)
+            _samba_hosts
+            return 0;
+            ;;
+        -R)
+            _samba_resolve_order
+            return 0;
+            ;;
+        -c)
+            _filedir
+            return 0;
+            ;;
+        -D)
+            _samba_debuglevel
+            return 0
+            ;;
+    esac
 
-	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-a -c -x -d -e -D -n -r -R -m -U -h \
-			-s -w -W -i -L' -- $cur ) )
-	fi
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-a -c -x -d -e -D -n -r -R -m -U -h \
+            -s -w -W -i -L' -- "$cur" ) )
+    fi
 }
 complete -F _smbpasswd smbpasswd
 
 _smbtar()
 {
-	local cur prev
+    local cur prev
 
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	case $prev in
-		-@(r|t))
-			_filedir tar
-			return 0;
-			;;
-		-s)
-			_samba_hosts
-			return 0;
-			;;
-		-l)
-			_samba_debuglevel
-			return 0
-			;;
-	esac
+    case $prev in
+        -@(r|t))
+            _filedir tar
+            return 0;
+            ;;
+        -s)
+            _samba_hosts
+            return 0;
+            ;;
+        -l)
+            _samba_debuglevel
+            return 0
+            ;;
+    esac
 
-	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-r -i -a -v -s -p -x -X -N -b -d -l \
-			-u -t' -- $cur ) )
-	fi
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-r -i -a -v -s -p -x -X -N -b -d -l -u -t' \
+            -- "$cur" ) )
+    fi
 }
 complete -F _smbtar smbtar
 
 _smbtree()
 {
-	local cur prev split=false
+    local cur prev split=false
 
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	_split_longopt && split=true
+    _split_longopt && split=true
 
-	case $prev in
-		-s|-A|--authentication-file)
-			_filedir
-			return 0;
-			;;
-		-l|--log-basename)
-			_filedir -d
-			return 0;
-			;;
-		-d|--debuglevel)
-			_samba_debuglevel
-			return 0
-			;;
-	esac
+    case $prev in
+        -s|-A|--authentication-file)
+            _filedir
+            return 0;
+            ;;
+        -l|--log-basename)
+            _filedir -d
+            return 0;
+            ;;
+        -d|--debuglevel)
+            _samba_debuglevel
+            return 0
+            ;;
+    esac
 
-	$split && return 0
+    $split && return 0
 
-	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-b -D -S -V -s -d --debuglevel -l \
-			--log-basename -N -k -A --authentication-file -U --user\
-			-h --help' -- $cur ) )
-	fi
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-b -D -S -V -s -d --debuglevel -l \
+            --log-basename -N -k -A --authentication-file -U --user\
+            -h --help' -- "$cur" ) )
+    fi
 }
 complete -F _smbtree smbtree
 }
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

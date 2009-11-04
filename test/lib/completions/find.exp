@@ -1,0 +1,68 @@
+proc setup {} {
+    save_env
+}; # setup()
+
+
+proc teardown {} {
+    assert_env_unmodified {/OLDPWD=/d}
+}; # teardown()
+
+
+setup
+
+
+assert_complete_any "find "
+
+
+sync_after_int
+
+
+set options [list -amin -anewer -atime -cmin -cnewer -ctime -daystart -depth -empty -exec \
+    -false -fls -follow -fprint -fprint0 -fprintf -fstype -gid -group -help -ilname -iname \
+    -inum -ipath -iregex -iwholename -links -lname -ls -maxdepth -mindepth -mmin -mount \
+    -mtime -name -newer -nogroup -noleaf -nouser -ok -perm -print -print0 -printf -prune \
+    -regex -size -true -type -uid -used -user -version -wholename -xdev -xtype]
+assert_complete $options {find -}
+
+
+sync_after_int
+
+
+set test "-wholename should complete files/dirs"
+set dir fixture1
+set files [split [exec bash -c "cd $dir && ls -p"] "\n"]
+assert_complete_dir $files "find -wholename " $dir
+
+
+sync_after_int
+
+
+set test "-uid should complete uids"
+    # Complete
+set cmd "find -uid "
+send "$cmd\t"
+expect {
+    -re "$cmd\r\n\\d+.*/@$cmd$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}; # expect
+
+
+sync_after_int
+
+
+set test "-gid should complete gids"
+    # Complete
+set cmd "find -gid "
+send "$cmd\t"
+expect {
+    -re "$cmd\r\n\\d+.*/@$cmd$" { pass "$test" }
+    -re /@ { unresolved "$test at prompt" }
+    -re eof { unresolved "eof" }
+}; # expect
+
+
+sync_after_int
+
+
+teardown

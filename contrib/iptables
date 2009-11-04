@@ -1,72 +1,78 @@
-# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
-# ex: ts=8 sw=8 noet filetype=sh
-#
 # bash completion for iptables
 
 have iptables &&
 _iptables()
 {
-	local cur prev table chain
+    local cur prev table chain
 
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
-	chain='s/^Chain \([^ ]\+\).*$/\1/p'
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+    chain='s/^Chain \([^ ]\+\).*$/\1/p'
 
-	if [[ $COMP_LINE == *-t\ *filter* ]]; then
-		table="-t filter"
-	elif [[ $COMP_LINE == *-t\ *nat* ]]; then
-		table="-t nat"
-	elif [[ $COMP_LINE == *-t\ *mangle* ]]; then
-		table="-t mangle"
-	fi
+    if [[ $COMP_LINE == *-t\ *filter* ]]; then
+        table="-t filter"
+    elif [[ $COMP_LINE == *-t\ *nat* ]]; then
+        table="-t nat"
+    elif [[ $COMP_LINE == *-t\ *mangle* ]]; then
+        table="-t mangle"
+    fi
 
-	_split_longopt
+    _split_longopt
 
-	if [[ $COMP_LINE == *-E* ]]; then
-		rename=yes
-	fi
+    if [[ $COMP_LINE == *-E* ]]; then
+        rename=yes
+    fi
 
-	case "$prev" in
-	-*[AIDRPFXLZEN])
-		COMPREPLY=( $( compgen -W '`iptables $table -nL | \
-			    sed -ne "s/^Chain \([^ ]\+\).*$/\1/p"`' -- $cur ) )
-		;;
-	-*t)
-		COMPREPLY=( $( compgen -W 'nat filter mangle' -- $cur ) )
-		;;
-	-j)
-		if [ "$table" = "-t filter" -o "$table" = "" ]; then
-		    COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT \
-		    `iptables $table -nL | sed -ne "$chain" \
-		    -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' -- \
-		    $cur ) )
-		elif [ "$table" = "-t nat" ]; then
-		    COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT \
-		    MIRROR SNAT DNAT MASQUERADE `iptables $table -nL | \
-		    sed -ne "$chain" -e "s/OUTPUT|PREROUTING|POSTROUTING//"`' \
-		    -- $cur ) )
-		elif [ "$table" = "-t mangle" ]; then
-		    COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT \
-		    MARK TOS `iptables $table -nL | sed -ne "$chain" \
-		    -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' -- \
-		    $cur ) )
-		fi
-		;;
-	*)
-		if [[ "$rename" -eq "yes" ]]; then
-		    COMPREPLY=( $( compgen -W '`iptables $table -nL | \
-		    sed -ne "s/^Chain \([^ ]\+\).*$/\1/p"`' -- $cur ) )
-		elif [[ "$cur" == -* ]]; then
-		    COMPREPLY=( $( compgen -W '-i -o -s -d -p -f -m --append \
-		    --delete --insert --replace --list --flush --zero --new \
-		    --delete-chain --policy --rename-chain --proto --source \
-		    --destination --in-interface --jump --match --numeric \
-		    --out-interface --table --verbose --line-numbers --exact \
-		    --fragment --modprobe --set-counters --version' -- "$cur") )
-		fi
-		;;
-	esac
+    case "$prev" in
+    -*[AIDRPFXLZEN])
+        COMPREPLY=( $( compgen -W '`iptables $table -nL | \
+                sed -ne "s/^Chain \([^ ]\+\).*$/\1/p"`' -- "$cur" ) )
+        ;;
+    -*t)
+        COMPREPLY=( $( compgen -W 'nat filter mangle' -- "$cur" ) )
+        ;;
+    -j)
+        if [ "$table" = "-t filter" -o "$table" = "" ]; then
+            COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT \
+                `iptables $table -nL | sed -ne "$chain" \
+                -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' -- \
+                "$cur" ) )
+        elif [ "$table" = "-t nat" ]; then
+            COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT \
+                MIRROR SNAT DNAT MASQUERADE `iptables $table -nL | \
+                sed -ne "$chain" -e "s/OUTPUT|PREROUTING|POSTROUTING//"`' \
+                -- "$cur" ) )
+        elif [ "$table" = "-t mangle" ]; then
+            COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT \
+                MARK TOS `iptables $table -nL | sed -ne "$chain" \
+                -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' -- \
+                "$cur" ) )
+        fi
+        ;;
+    *)
+        if [[ "$rename" -eq "yes" ]]; then
+            COMPREPLY=( $( compgen -W '`iptables $table -nL | \
+                sed -ne "s/^Chain \([^ ]\+\).*$/\1/p"`' -- $cur ) )
+        elif [[ "$cur" == -* ]]; then
+            COMPREPLY=( $( compgen -W '--in-interface --out-interface --source \
+                --destination --protocol --fragment --match --append \
+                --delete --insert --replace --list --flush --zero --new \
+                --delete-chain --policy --rename-chain --proto --source \
+                --destination --in-interface --jump --match --numeric \
+                --out-interface --table --verbose --line-numbers --exact \
+                --fragment --modprobe --set-counters --version' -- "$cur") )
+        fi
+        ;;
+    esac
 
 } &&
 complete -F _iptables iptables
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
