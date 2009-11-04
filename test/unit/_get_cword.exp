@@ -4,7 +4,15 @@ proc setup {} {
 
 
 proc teardown {} {
-    assert_env_unmodified
+    assert_env_unmodified {
+        /COMP_CWORD=/d
+        /COMP_LINE=/d
+        /COMP_POINT=/d
+        /COMP_WORDS=/d
+        # Delete 'COMP_WORDBREAKS' occupying two lines
+        /COMP_WORDBREAKS=/{N
+        d}
+    }
 }; # teardown()
 
 
@@ -20,6 +28,189 @@ sync_after_int
 
 # See also ./lib/completions/alias.exp.  Here `_get_cword' is actually tested
 # by moving the cursor left into the current word.
+
+
+set test "a b| should return b";  # | = cursor position
+set cmd {COMP_WORDS=(a b); COMP_CWORD=1; COMP_LINE='a b'; COMP_POINT=3; _get_cword}
+assert_bash_list b $cmd $test
+
+
+sync_after_int
+
+
+set test "a | should return nothing";  # | = cursor position
+set cmd {COMP_WORDS=(a); COMP_CWORD=1; COMP_LINE='a '; COMP_POINT=2; _get_cword}
+send "$cmd\r"
+expect -ex "$cmd\r\n/@" {pass "$test"}
+
+
+sync_after_int
+
+
+set test "a b|c should return b";  # | = cursor position
+set cmd {COMP_WORDS=(a bc); COMP_CWORD=1; COMP_LINE='a bc'; COMP_POINT=3; _get_cword}
+assert_bash_list b $cmd $test
+
+
+sync_after_int
+
+
+set test {a b\ c| should return b\ c};  # | = cursor position
+set cmd {COMP_WORDS=(a 'b\ c'); COMP_CWORD=1; COMP_LINE='a b\ c'; COMP_POINT=6; _get_cword}
+assert_bash_list {{"b\\ c"}} $cmd $test
+
+
+sync_after_int
+
+
+set test {a b\| c should return b\ };  # | = cursor position
+set cmd {COMP_WORDS=(a 'b\ c'); COMP_CWORD=1; COMP_LINE='a b\ c'; COMP_POINT=4; _get_cword}
+assert_bash_list {{"b\\"}} $cmd $test
+
+
+sync_after_int
+
+
+set test {a "b\| should return "b\ };  # | = cursor position
+set cmd {COMP_WORDS=(a '"b\'); COMP_CWORD=1; COMP_LINE='a "b\'; COMP_POINT=5; _get_cword}
+assert_bash_list {{"\"b\\"}} $cmd $test
+
+
+sync_after_int
+
+
+# See http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=474094 for useful ideas
+# to make this test pass.
+set test {a 'b c| should return 'b c};  # | = cursor position
+if {$bash_versinfo_0 <= 3} {
+    set cmd {COMP_WORDS=(a "'b c"); COMP_CWORD=1}
+} else {
+    set cmd {COMP_WORDS=(a "'" b c); COMP_CWORD=3}
+}; # if
+append cmd {; COMP_LINE="a 'b c"; COMP_POINT=6; _get_cword}
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    -ex "'b c/@" { pass "$test" }
+    -ex "c/@" { xfail "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+# See http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=474094 for useful ideas
+# to make this test pass.
+set test {a "b c| should return "b c};  # | = cursor position
+set cmd {COMP_WORDS=(a "\"b c"); COMP_CWORD=1; COMP_LINE="a \"b c"; COMP_POINT=6; _get_cword};
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    -ex "\"b c/@" { pass "$test" }
+    -ex "c/@" { xfail "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+set test {a b:c| should return b:c (bash-3) or c (bash-4)};  # | = cursor position
+if {$bash_versinfo_0 <= 3} {
+    set cmd {COMP_WORDS=(a "b:c"); COMP_CWORD=1}
+    set expected b:c
+} else {
+    set cmd {COMP_WORDS=(a b : c); COMP_CWORD=3}
+    set expected c
+}; # if
+append cmd {; COMP_LINE='a b:c'; COMP_POINT=5; _get_cword}
+assert_bash_list $expected $cmd $test
+
+
+sync_after_int
+
+
+set test {a b:c| with WORDBREAKS -= : should return b:c};  # | = cursor position
+if {$bash_versinfo_0 <= 3} {
+    set cmd {COMP_WORDS=(a "b:c"); COMP_CWORD=1}
+} else {
+    set cmd {COMP_WORDS=(a b : c); COMP_CWORD=3}
+}; # if
+append cmd {; COMP_LINE='a b:c'; COMP_POINT=5; _get_cword :}
+assert_bash_list b:c $cmd $test
+
+
+sync_after_int
+
+
+# This test makes sure `_get_cword' doesn't use `echo' to return it's value,
+# because -n might be interpreted by `echo' and thus will not be returned.
+set test "a -n| should return -n";  # | = cursor position
+set cmd {COMP_WORDS=(a -n); COMP_CWORD=1; COMP_LINE='a -n'; COMP_POINT=4; _get_cword}
+assert_bash_list -n $cmd $test
+
+
+sync_after_int
+
+
+set test {a b>c| should return c};  # | = cursor position
+set cmd {COMP_WORDS=(a b \> c); COMP_CWORD=3; COMP_LINE='a b>c'; COMP_POINT=5; _get_cword}
+assert_bash_list c $cmd $test
+
+
+sync_after_int
+
+
+set test {a b=c| should return b=c (bash-3) or c (bash-4)};  # | = cursor position
+if {$bash_versinfo_0 <= 3} {
+    set cmd {COMP_WORDS=(a "b=c"); COMP_CWORD=1}
+    set expected b=c
+} else {
+    set cmd {COMP_WORDS=(a b = c); COMP_CWORD=3}
+    set expected c
+}; # if
+append cmd {; COMP_LINE='a b=c'; COMP_POINT=5; _get_cword}
+assert_bash_list $expected $cmd $test
+
+
+sync_after_int
+
+
+set test {a *| should return *};  # | = cursor position
+set cmd {COMP_WORDS=(a \*); COMP_CWORD=1; COMP_LINE='a *'; COMP_POINT=4; _get_cword}
+assert_bash_list * $cmd $test
+
+
+sync_after_int
+
+
+set test {a $(b c| should return $(b c};  # | = cursor position
+set cmd {COMP_WORDS=(a '$(b c'); COMP_CWORD=1; COMP_LINE='a $(b c'; COMP_POINT=7; _get_cword}
+#assert_bash_list {{$(b\ c}} $cmd $test
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    -ex "\$(b c/@" { pass "$test" }
+    # Expected failure on bash-4
+    -ex "c/@" { xfail "$test" }
+}; # expect
+
+
+sync_after_int
+
+
+set test {a $(b c\ d| should return $(b c\ d};  # | = cursor position
+set cmd {COMP_WORDS=(a '$(b c\ d'); COMP_CWORD=1; COMP_LINE='a $(b c\ d'; COMP_POINT=10; _get_cword}
+#assert_bash_list {{$(b\ c\\\ d}} $cmd $test
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    -ex "\$(b c\\ d/@" { pass "$test" }
+    # Expected failure on bash-4
+    -ex "c\\ d/@" { xfail "$test" }
+}; # expect
+
+
+sync_after_int
 
 
 teardown

@@ -1,23 +1,45 @@
-# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
-# ex: ts=8 sw=8 noet filetype=sh
-#
 # bash completion for configure
 
 _configure()
 {
-	local cur
+    local cur prev split=false
 
-	COMPREPLY=()
-	cur=`_get_cword`
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	# if $COMP_CONFIGURE_HINTS is not null, then completions of the form
-	# --option=SETTING will include 'SETTING' as a contextual hint
-	[[ "$cur" != -* ]] && return 0
+    _split_longopt && split=true
 
-	if [ -n "$COMP_CONFIGURE_HINTS" ]; then
-		COMPREPLY=( $( $1 --help 2>&1 | awk '/^  --[A-Za-z]/ { print $1; if ($2 ~ /--[A-Za-z]/) print $2 }' | sed -e 's/[[,].*//g' | grep ^$cur ) )
-	else
-		COMPREPLY=( $( $1 --help 2>&1 | awk '/^  --[A-Za-z]/ { print $1; if ($2 ~ /--[A-Za-z]/) print $2 }' | sed -e 's/[[,=].*//g' | grep ^$cur ) )
-	fi
+    case "$prev" in
+        --prefix|--exec-prefix|--*dir)
+            _filedir -d
+            ;;
+    esac
+
+    $split && return 0
+
+    # if $COMP_CONFIGURE_HINTS is not null, then completions of the form
+    # --option=SETTING will include 'SETTING' as a contextual hint
+    [[ "$cur" != -* ]] && return 0
+
+    if [ -n "$COMP_CONFIGURE_HINTS" ]; then
+        COMPREPLY=( $( compgen -W "$( $1 --help 2>&1 | \
+            awk '/^  --[A-Za-z]/ { print $1; \
+            if ($2 ~ /--[A-Za-z]/) print $2 }' | sed -e 's/[[,].*//g' )" \
+            -- "$cur" ) )
+    else
+        COMPREPLY=( $( compgen -W "$( $1 --help 2>&1 | \
+            awk '/^  --[A-Za-z]/ { print $1; \
+            if ($2 ~ /--[A-Za-z]/) print $2 }' | sed -e 's/[[,=].*//g' )" \
+            -- "$cur" ) )
+    fi
 }
-complete -F _configure $default configure
+complete -F _configure -o filenames configure
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

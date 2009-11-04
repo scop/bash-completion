@@ -1,44 +1,48 @@
-# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
-# ex: ts=8 sw=8 noet filetype=sh
-#
 # bash completion for brctl
 
 have brctl &&
 _brctl()
 {
-	local cur command
+    local cur command
 
-	COMPREPLY=()
-	cur=`_get_cword`
-	command=${COMP_WORDS[1]}
+    COMPREPLY=()
+    cur=`_get_cword`
+    command=${COMP_WORDS[1]}
 
-	case $COMP_CWORD in
-		1)
-			COMPREPLY=( $( compgen -W "addbr delbr addif delif \
-				setageing setbridgeprio setfd sethello \
-				setmaxage setpathcost setportprio show \
-				showmacs showstp stp" -- $cur ) )
-			;;
-		2)
-			case $command in
-				show)
-					;;
-				*)
-					COMPREPLY=( $( compgen -W "$(brctl \
-						show | sed '1d' | \
-						awk '{print $1}' )" -- $cur ) )
-			esac
-			;;
-		3)
-			case $command in
-				@(add|del)if)
-					_configured_interfaces
-					;;
-				stp)
-					COMPREPLY=( $( compgen -W 'on off' -- $cur ) )
-					;;
-			esac
-			;;
-	esac
+    case $COMP_CWORD in
+        1)
+            COMPREPLY=( $( compgen -W "addbr delbr addif delif \
+                setageing setbridgeprio setfd sethello \
+                setmaxage setpathcost setportprio show \
+                showmacs showstp stp" -- "$cur" ) )
+            ;;
+        2)
+            case $command in
+                show)
+                    ;;
+                *)
+                    COMPREPLY=( $( compgen -W "$(brctl show | sed '1d' | \
+                        awk '{print $1}' )" -- "$cur" ) )
+            esac
+            ;;
+        3)
+            case $command in
+                @(add|del)if)
+                    _configured_interfaces
+                    ;;
+                stp)
+                    COMPREPLY=( $( compgen -W 'on off' -- "$cur" ) )
+                    ;;
+            esac
+            ;;
+    esac
 } &&
-complete -F _brctl $default brctl
+complete -F _brctl -o default brctl
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

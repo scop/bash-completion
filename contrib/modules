@@ -1,6 +1,3 @@
-# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
-# ex: ts=8 sw=8 noet filetype=sh
-#
 # module completion by Ted Stern <stern@cray.com>
 #
 # Completion for Environment Modules `module' alias.
@@ -17,68 +14,77 @@
 # module command is an alias, and the `module avail' command returns
 # its output as stderr.
 
-type module &>/dev/null && {
+# Test for existence of /etc/profile.d/modules.sh too because we may end up
+# being sourced before it and thus before the `module' alias has been defined.
+have module || [ -f /etc/profile.d/modules.sh ] && {
 
 _module_list ()
 {
-   local modules="$( echo $LOADEDMODULES | sed 's/:/ /g' | sort )"
-   compgen -W "$modules" -- $1
+    local modules="$( echo $LOADEDMODULES | sed 's/:/ /g' | sort )"
+    compgen -W "$modules" -- $1
 }
 
 _module_path ()
 {
-   local modules="$( echo $MODULEPATH | sed 's/:/ /g' | sort )"
-   compgen -W "$modules" -- $1
+    local modules="$( echo $MODULEPATH | sed 's/:/ /g' | sort )"
+    compgen -W "$modules" -- $1
 }
 
 _module_avail ()
 {
-   local modules="$( \
-      module avail 2>&1 | \
-      egrep -v '^(-|$)' | \
-      xargs printf '%s\n' | sort )"
+    local modules="$( \
+        module avail 2>&1 | \
+        egrep -v '^(-|$)' | \
+        xargs printf '%s\n' | sort )"
 
-   compgen -W "$modules" -- $1
+    compgen -W "$modules" -- $1
 }
 
 # A completion function for the module alias
-_module () {
-   local cur prev options
+_module ()
+{
+    local cur prev options
 
-   COMPREPLY=()
-   cur=`_get_cword`
-   prev=${COMP_WORDS[COMP_CWORD-1]}
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-   if [ $COMP_CWORD -eq 1 ] ; then
-      # First parameter on line -- we expect it to be a mode selection
+    if [ $COMP_CWORD -eq 1 ] ; then
+        # First parameter on line -- we expect it to be a mode selection
 
-      options="$( module help 2>&1 | egrep '^[[:space:]]*\+' | \
-		  awk '{print $2}' | sed -e 's/|/ /g' | sort )"
+        options="$( module help 2>&1 | egrep '^[[:space:]]*\+' | \
+                    awk '{print $2}' | sed -e 's/|/ /g' | sort )"
 
-      COMPREPLY=( $(compgen -W "$options" -- $cur) )
+        COMPREPLY=( $(compgen -W "$options" -- "$cur") )
 
-   elif [ $COMP_CWORD -eq 2 ] ; then
-
-      case "$prev" in
-      @(add|display|help|load|show|whatis))
-          COMPREPLY=( $(_module_avail $cur) )
-          ;;
-
-      @(rm|switch|swap|unload|update))
-          COMPREPLY=( $(_module_list $cur) )
-          ;;
-      unuse)
-          COMPREPLY=( $(_module_path $cur) )
-         ;;
-      esac
-   elif [ $COMP_CWORD -eq 3 ] ; then
-      case ${COMP_WORDS[1]} in
-         @(sw?(ap|itch)))
-            COMPREPLY=( $(_module_avail $cur) )
-            ;;
-      esac
-   fi
-   return 0
+    elif [ $COMP_CWORD -eq 2 ] ; then
+        case "$prev" in
+            @(add|display|help|load|show|whatis))
+                COMPREPLY=( $(_module_avail "$cur") )
+                ;;
+            @(rm|switch|swap|unload|update))
+                COMPREPLY=( $(_module_list "$cur") )
+                ;;
+            unuse)
+                COMPREPLY=( $(_module_path "$cur") )
+                ;;
+        esac
+    elif [ $COMP_CWORD -eq 3 ] ; then
+        case ${COMP_WORDS[1]} in
+            @(sw?(ap|itch)))
+                COMPREPLY=( $(_module_avail "$cur") )
+                ;;
+        esac
+    fi
+    return 0
 }
-complete -o default -F _module module
+complete -F _module -o default module
 }
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
