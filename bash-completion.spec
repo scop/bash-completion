@@ -1,7 +1,12 @@
+#TODO
+#	"nice -n xx" completion
+
+%def_disable tests
+
 Name: bash-completion
 Epoch: 1
-Version: 1.0
-Release: alt2
+Version: 1.99
+Release: alt1
 
 Summary: bash-completion offers programmable completion for bash
 License: GPL2
@@ -14,10 +19,13 @@ Packager: Ildar Mulyukov <ildar@altlinux.ru>
 Source: %name-%version.tar
 # git://git.debian.org/git/bash-completion/bash-completion.git
 Source1: rpm-cache.filetrigger
-Source2: _known_hosts_fix
 Patch: %name-20050103-alt-rsync.patch
 Patch1: %name-20060301-alt-iptables.patch
 Patch2: %name-bug15250.patch
+
+%if_enabled tests
+BuildRequires: dejagnu tcllib
+%endif
 
 Requires: bash >= 2.05
 BuildArch: noarch
@@ -34,13 +42,19 @@ of the programmable completion feature of bash 2.04 and later.
 
 %build
 ./autogen.sh
-%configure
+%configure && make
+%if_enabled tests
+	pushd test
+	./runCompletion
+	./runInstall
+	./runUnit
+	popd
+%endif
 
 %install
 %makeinstall
-install -p -m644 %SOURCE2 %buildroot%_sysconfdir/bash_completion.d/
 
-install -p -m755 -D bash_completion.sh %buildroot%_sysconfdir/bashrc.d/bash_completion.sh
+mv %buildroot%_sysconfdir/{profile.d,bashrc.d}
 mkdir -p %buildroot%_rpmlibdir
 install -p -m755 %SOURCE1 %buildroot%_rpmlibdir/
 
@@ -52,6 +66,11 @@ install -p -m755 %SOURCE1 %buildroot%_rpmlibdir/
 %_rpmlibdir/*
 
 %changelog
+* Wed Nov 04 2009 Ildar Mulyukov <ildar@altlinux.ru> 1:1.99-alt1
+- new version
+- patches rebase
+- remove unneeded _known_hosts_fix
+
 * Sun Jul 19 2009 Ildar Mulyukov <ildar@altlinux.ru> 1:1.0-alt2
 - add rpm filetrigger for updating a rpm cache
 - Closes: #15250
