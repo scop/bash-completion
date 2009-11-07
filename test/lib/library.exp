@@ -102,8 +102,15 @@ proc assert_bash_list {expected cmd {test ""} {prompt /@} {size 20}} {
 # @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
 # @param string $prompt  (optional) Bash prompt.  Default is "/@"
 # @param integer $size  (optional) Chunk size.  Default is 20.
+# @param string $cword  (optional) Last argument of $cmd which is an
+#     argument-to-complete and to be replaced with the longest common prefix
+#     of $expected.  If empty string (default), `assert_complete' autodetects
+#     if the last argument is an argument-to-complete by checking if $cmd
+#     doesn't end with whitespace.  Specifying `cword' is only necessary if
+#     this autodetection fails, e.g.  when the last whitespace is escaped or
+#     quoted, e.g. "finger foo\ " or "finger 'foo "
 # @result boolean  True if successful, False if not
-proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
+proc assert_complete {expected cmd {test ""} {prompt /@} {size 20} {cword ""}} {
     if {$test == ""} {set test "$cmd should show completions"}
     send "$cmd\t"
     if {[llength $expected] == 1} {
@@ -126,12 +133,13 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
         if {[llength $expected] == 1} {
             pass "$test"
         } else {
-            # Remove optional (partial) argument from `cmd'.
+            # Remove optional (partial) last argument-to-complete from `cmd',
             # E.g. "finger test@" becomes "finger"
-            set cmd2 [lrange [split $cmd] 0 end-1]
+
+            set cmd2 [_remove_cword_from_cmd $cmd $cword]
             # Determine common prefix of completions
             set common [::textutil::string::longestCommonPrefixList $expected]
-            if {[string length $common] > 0} {set common " $common"}
+            #if {[string length $common] > 0} {set common " $common"}
             expect {
                 -ex "$prompt$cmd2$common" { pass "$test" }
                 -re $prompt { unresolved "$test at prompt" }
@@ -142,6 +150,42 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
         fail "$test"
     }; # if
 }; # assert_complete()
+
+
+# @param string $cmd  Command to remove cword from
+# @param string $cword  (optional) Last argument of $cmd which is an
+#     argument-to-complete and to be deleted.  If empty string (default),
+#     `_remove_cword_from_cmd' autodetects if the last argument is an
+#     argument-to-complete by checking if $cmd doesn't end with whitespace.
+#     Specifying `cword' is only necessary if this autodetection fails, e.g.
+#     when the last whitespace is escaped or quoted, e.g. "finger foo\ " or
+#     "finger 'foo "
+# @return string  Command with cword removed
+proc _remove_cword_from_cmd {cmd {cword ""}} {
+    set cmd2 $cmd
+    # Is $cword specified?
+    if {[string length $cword] > 0} {
+        # Remove $cword from end of $cmd
+        if {[string last $cword $cmd] == [string length $cmd] - [string length $cword]} {
+            set cmd2 [string range $cmd 0 [expr [string last $cword $cmd] - 1]]
+        }; # if
+    } else {
+        # No, $cword not specified;
+        # Check if last argument is really an-argument-to-complete, i.e.
+        # doesn't end with whitespace.
+        # NOTE: This check fails if trailing whitespace is escaped or quoted,
+        #       e.g. "finger foo\ " or "finger 'foo ".  Specify parameter
+        #       $cword in those cases.
+        # Is last char whitespace?
+        if {! [string is space [string range $cmd end end]]} {
+            # No, last char isn't whitespace;
+            # Remove argument-to-complete from end of $cmd
+            set cmd2 [lrange [split $cmd] 0 end-1]
+            append cmd2 " "
+        }; # if
+    }; # if
+    return $cmd2
+}; # _remove_cword_from_cmd()
 
 
 # Make sure any completions are returned
@@ -181,11 +225,12 @@ proc assert_complete_any {cmd {test ""} {prompt /@}} {
 # @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
 # @param string $prompt  (optional) Bash prompt.  Default is "/@"
 # @param integer $size  (optional) Chunk size.  Default is 20.
+# @param string $cword  (optional) Last word of $cmd to complete.  See: assert_complete()
 # @result boolean  True if successful, False if not
-proc assert_complete_dir {expected cmd dir {test ""} {size 20}} {
+proc assert_complete_dir {expected cmd dir {test ""} {size 20} {cword ""}} {
     set prompt "/$dir/@"
     assert_bash_exec "cd $dir" "" $prompt
-    assert_complete $expected $cmd $test $prompt $size
+    assert_complete $expected $cmd $test $prompt $size $cword
     sync_after_int $prompt
     assert_bash_exec "cd \$TESTDIR"
 }; # assert_complete_dir
@@ -198,6 +243,7 @@ proc assert_complete_dir {expected cmd dir {test ""} {size 20}} {
 # starting with this character are then expected as completions.
 # @param list $expected  List of all completions.
 # @param string $cmd  Command given to generate items
+# @param string $partial  Word to complete
 # @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
 # @param string $prompt  (optional) Bash prompt.  Default is "/@"
 # @param integer $size  (optional) Chunk size.  Default is 20.
@@ -215,7 +261,7 @@ proc assert_complete_partial {expected cmd {partial ""} {test ""} {prompt /@} {s
                 lappend pick $item
             }; # if
         }; # foreach
-        assert_complete $pick "$cmd $partial" $test $prompt $size
+        assert_complete $pick "$cmd $partial" $test $prompt $size $partial
     }; # if
 }; # assert_complete_partial()
 
@@ -468,7 +514,7 @@ proc sync_after_int {{prompt /@}} {
     send \031\003;  # QUIT/INT
         # NOTE: Regexp `.*' causes `expect' to discard previous unknown output.
         #       This is necessary if a completion doesn't match expectations.
-        #       For instance with `filetype_xpec' completion (e.g. `kdvi') if
+        #       For instance with `filetype_xspec' completion (e.g. `kdvi') if
         #       one expects `.txt' as a completion (wrong, because it isn't
         #       there), the unmatched completions need to be cleaned up.
     expect -re ".*$prompt$"
