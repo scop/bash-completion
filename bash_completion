@@ -382,6 +382,36 @@ __get_cword4()
 } # [ ${BASH_VERSINFO[0]} -ge 4 ]
 
 
+# If the word-to-complete contains a colon (:), left-trim COMPREPLY items with
+# word-to-complete.
+# On bash-3, and bash-4 with a colon in COMP_WORDBREAKS, words containing
+# colons are always completed as entire words if the word to complete contains
+# a colon.  This function fixes this, by removing the colon-containing-prefix
+# from COMPREPLY items.
+# See also: Bash FAQ - E13) Why does filename completion misbehave if a colon
+# appears in the filename? - http://tiswww.case.edu/php/chet/bash/FAQ
+# @param $1 current word to complete (cur)
+# @modifies global array $COMPREPLY
+__ltrim_colon_completions() {
+    # If word-to-complete contains a colon,
+    # and bash-version < 4,
+    # or bash-version >= 4 and COMP_WORDBREAKS contains a colon
+    if [[
+        "$1" == *:* && (
+            ${BASH_VERSINFO[0]} -lt 4 || 
+            (${BASH_VERSINFO[0]} -ge 4 && "$COMP_WORDBREAKS" == *:*) 
+        )
+    ]]; then
+        # Remove colon-word prefix from COMPREPLY items
+        local colon_word=${1%${1##*:}}
+        local i=${#COMPREPLY[*]}
+        while [ $((--i)) -ge 0 ]; do
+            COMPREPLY[$i]=${COMPREPLY[$i]#"$colon_word"}
+        done
+    fi
+} # __ltrim_colon_completions()
+
+
 # This function performs file and directory completion. It's better than
 # simply using 'compgen -f', because it honours spaces in filenames.
 # If passed -d, it completes only on directories. If passed anything else,
@@ -1157,7 +1187,7 @@ _user_at_host() {
     local cur
 
     COMPREPLY=()
-    cur=`_get_cword`
+    cur=`_get_cword :`
 
     if [[ $cur == *@* ]]; then
         _known_hosts_real "$cur"
@@ -1180,7 +1210,7 @@ _known_hosts()
     #       to `_known_hosts' is deprecated: Use `_known_hosts_real' instead.
     [ "$1" = -a ] || [ "$2" = -a ] && options=-a
     [ "$1" = -c ] || [ "$2" = -c ] && options="$options -c"
-    _known_hosts_real $options "$(_get_cword)"
+    _known_hosts_real $options "$(_get_cword :)"
 } # _known_hosts()
 
 # Helper function for completing _known_hosts.
@@ -1347,6 +1377,8 @@ _known_hosts_real()
     if [ -n "${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1}" ]; then
         COMPREPLY=( "${COMPREPLY[@]}" $( compgen -A hostname -P "$prefix$user" -S "$suffix" -- "$cur" ) )
     fi
+
+    __ltrim_colon_completions "$prefix$user$cur"
 
     return 0
 } # _known_hosts_real()
