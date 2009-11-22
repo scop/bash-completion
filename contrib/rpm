@@ -90,7 +90,7 @@ _rpm()
     fi
 
     case "$prev" in
-        --@(@(db|exclude)path|prefix|relocate|root))
+        --dbpath|--excludepath|--prefix|--relocate|--root)
             _filedir -d
             return 0
             ;;
@@ -154,7 +154,7 @@ _rpm()
         --quiet --pipe --verbose"
 
     case "${COMP_WORDS[1]}" in
-        -@([iFU]*|-install|-freshen|-upgrade))
+        -[iFU]*|--install|--freshen|--upgrade)
             if [[ "$cur" == -* ]]; then
                 COMPREPLY=( $( compgen -W "$opts --percent --force \
                 --test --replacepkgs --replacefiles --root \
@@ -168,7 +168,7 @@ _rpm()
                 _filedir 'rpm'
             fi
             ;;
-        -@(e|-erase))
+        -e|--erase)
             if [[ "$cur" == -* ]]; then
                 COMPREPLY=( $( compgen -W "$opts --allmatches \
                 --noscripts --notriggers --nodeps --test --repackage" \
@@ -177,7 +177,7 @@ _rpm()
                 _rpm_installed_packages "$nodig" "$nosig"
             fi
             ;;
-        -@(q*|-query))
+        -q*|--query)
             # options common to all query types
             opts="$opts --changelog --configfiles --conflicts --docfiles
                 --dump --enhances --filesbypkg --filecaps --fileclass
@@ -215,7 +215,7 @@ _rpm()
                 fi
             fi
             ;;
-        -@(K*|-checksig))
+        -K*|--checksig)
             if [[ "$cur" == -* ]]; then
                 COMPREPLY=( $( compgen -W "$opts --nopgp --nogpg --nomd5" \
                     -- "$cur" ) )
@@ -223,7 +223,7 @@ _rpm()
                 _filedir 'rpm'
             fi
             ;;
-        -@([Vy]*|-verify))
+        -[Vy]*|--verify)
             if [[ "$cur" == -* ]]; then
                 COMPREPLY=( $( compgen -W "$opts --root --dbpath --nodeps \
                     --nogroup --nolinkto --nomode --nomtime --nordev --nouser \
@@ -251,7 +251,7 @@ _rpm()
                 _filedir '@(t?(ar.)@([gx]z|bz?(2))|tar.@(lzma|Z))'
             fi
             ;;
-        --re@(build|compile))
+        --rebuild|--recompile)
             if [[ "$cur" == -* ]]; then
                 COMPREPLY=( $( compgen -W "$opts --nodeps --rmsource \
                   --rmspec --sign --nodirtokens --target" -- "$cur" ) )
@@ -262,13 +262,13 @@ _rpm()
         --tarbuild)
             _filedir '@(t?(ar.)@([gx]z|bz?(2))|tar.@(lzma|Z))'
             ;;
-        --@(re|add)sign)
+        --resign|--addsign)
             _filedir 'rpm'
             ;;
-        --set@(perms|gids))
+        --setperms|--setgids)
             _rpm_installed_packages "$nodig" "$nosig"
             ;;
-        --@(clean|rms@(ource|pec)))
+        --clean|--rmsource|--rmspec)
             if [[ "$cur" == -* ]]; then
                 COMPREPLY=( $( compgen -W '--clean --rmsource --rmspec' \
                     -- "$cur" ) )
@@ -276,7 +276,7 @@ _rpm()
                 _filedir 'spec'
             fi
             ;;
-        --@(import|dbpath|root))
+        --import|--dbpath|--root)
             if [[ "$cur" == -* ]]; then
             COMPREPLY=( $( compgen -W '--import --dbpath --root' \
                     -- "$cur" ) )
