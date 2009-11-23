@@ -578,7 +578,7 @@ _expand()
 
 # This function completes on process IDs.
 # AIX and Solaris ps prefers X/Open syntax.
-[ $UNAME = SunOS -o $UNAME = AIX ] &&
+[[ $UNAME == SunOS || $UNAME == AIX ]] &&
 _pids()
 {
     COMPREPLY=( $( compgen -W '$( command ps -efo pid | sed 1d )' -- "$cur" ))
@@ -590,7 +590,7 @@ _pids()
 
 # This function completes on process group IDs.
 # AIX and SunOS prefer X/Open, all else should be BSD.
-[ $UNAME = SunOS -o $UNAME = AIX ] &&
+[[ $UNAME == SunOS || $UNAME == AIX ]] &&
 _pgids()
 {
     COMPREPLY=( $( compgen -W '$( command ps -efo pgid | sed 1d )' -- "$cur" ))
@@ -602,7 +602,7 @@ _pgids()
 
 # This function completes on process names.
 # AIX and SunOS prefer X/Open, all else should be BSD.
-[ $UNAME = SunOS -o $UNAME = AIX ] &&
+[[ $UNAME == SunOS || $UNAME == AIX ]] &&
 _pnames()
 {
     COMPREPLY=( $( compgen -W '$( command ps -efo comm | \
@@ -888,8 +888,7 @@ _chgrp()
     fi
 
     # first parameter on line or first since an option?
-    if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]] || \
-        [[ "$prev" == -* ]]; then
+    if [[ $COMP_CWORD -eq 1 && "$cur" != -* || "$prev" == -* ]]; then
         local IFS=$'\n'
         COMPREPLY=( $( compgen -g "$cur" 2>/dev/null ) )
     else
@@ -935,7 +934,7 @@ _mount()
 
     for i in {,/usr}/{,s}bin/showmount; do [ -x $i ] && sm=$i && break; done
 
-    if [ -n "$sm" ] && [[ "$cur" == *:* ]]; then
+    if [[ -n "$sm" && "$cur" == *:* ]]; then
         COMPREPLY=( $( compgen -W "$( $sm -e ${cur%%:*} | sed 1d | \
             awk '{print $1}' )" -- "$cur" ) )
     elif [[ "$cur" == //* ]]; then
@@ -1000,8 +999,7 @@ _insmod()
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     # behave like lsmod for modprobe -r
-    if [ ${1##*/} = "modprobe" ] &&
-        [ "${COMP_WORDS[1]}" = "-r" ]; then
+    if [[ ${1##*/} == modprobe && "${COMP_WORDS[1]}" == -r ]]; then
         _installed_modules "$cur"
         return 0
     fi
@@ -1012,8 +1010,7 @@ _insmod()
         return 0
     fi
 
-    if [ $COMP_CWORD -gt 1 ] &&
-        [[ "${COMP_WORDS[COMP_CWORD-1]}" != -* ]]; then
+    if [[ $COMP_CWORD -gt 1 && "${COMP_WORDS[COMP_CWORD-1]}" != -* ]]; then
         # do module parameter completion
         COMPREPLY=( $( compgen -W "$( /sbin/modinfo -p ${COMP_WORDS[1]} | \
             cut -d: -f1 )" -- "$cur" ) )
@@ -1039,7 +1036,7 @@ _renice()
 
     i=0
     # walk back through command line and find last option
-    while [ $i -le $COMP_CWORD -a ${#COMPREPLY[@]} -eq 0 ]; do
+    while [[ $i -le $COMP_CWORD && ${#COMPREPLY[@]} -eq 0 ]]; do
         curopt=${COMP_WORDS[COMP_CWORD-$i]}
         case "$curopt" in
             -u)
@@ -1067,7 +1064,7 @@ _kill()
     COMPREPLY=()
     cur=`_get_cword`
 
-    if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
+    if [[ $COMP_CWORD -eq 1 && "$cur" == -* ]]; then
         # return list of available signals
         _signals
     else
@@ -1079,7 +1076,7 @@ complete -F _kill kill
 
 # killall(1) (Linux and FreeBSD) and pkill(1) completion.
 #
-[ $UNAME = Linux -o $UNAME = FreeBSD ] || have pkill &&
+[[ $UNAME == Linux || $UNAME == FreeBSD ]] || have pkill &&
 _killall()
 {
     local cur
@@ -1087,7 +1084,7 @@ _killall()
     COMPREPLY=()
     cur=`_get_cword`
 
-    if [ $COMP_CWORD -eq 1 ] && [[ "$cur" == -* ]]; then
+    if [[ $COMP_CWORD -eq 1 && "$cur" == -* ]]; then
         _signals
     else
         _pnames
@@ -1095,7 +1092,7 @@ _killall()
 
     return 0
 }
-[ $UNAME = Linux -o $UNAME = FreeBSD ] && complete -F _killall killall
+[[ $UNAME == Linux || $UNAME == FreeBSD ]] && complete -F _killall killall
 have pkill && complete -F _killall pkill
 
 # pgrep(1) completion.
@@ -1208,8 +1205,8 @@ _known_hosts()
 
     # NOTE: Using `_known_hosts' as a helper function and passing options
     #       to `_known_hosts' is deprecated: Use `_known_hosts_real' instead.
-    [ "$1" = -a ] || [ "$2" = -a ] && options=-a
-    [ "$1" = -c ] || [ "$2" = -c ] && options="$options -c"
+    [[ "$1" == -a || "$2" == -a ]] && options=-a
+    [[ "$1" == -c || "$2" == -c ]] && options="$options -c"
     _known_hosts_real $options "$(_get_cword :)"
 } # _known_hosts()
 
@@ -1303,7 +1300,7 @@ _known_hosts_real()
     fi
 
     # If we have known_hosts files to use
-    if [ ${#kh[@]} -gt 0 -o ${#khd[@]} -gt 0 -o -n "$configfile" ]; then
+    if [[ ${#kh[@]} -gt 0 || ${#khd[@]} -gt 0 || -n "$configfile" ]]; then
         # Escape slashes and dots in paths for awk
         awkcur=${cur//\//\\\/}
         awkcur=${awkcur//\./\\\.}
@@ -1339,7 +1336,7 @@ _known_hosts_real()
             # dont fork any processes, because in a cluster environment,
             # there can be hundreds of hostkeys
             for i in "${khd[@]}" ; do
-                if [[ "$i" == *key_22_$awkcurd*.pub ]] && [ -r "$i" ] ; then
+                if [[ "$i" == *key_22_$awkcurd*.pub && -r "$i" ]]; then
                     host=${i/#*key_22_/}
                     host=${host/%.pub/}
                     COMPREPLY=( "${COMPREPLY[@]}" $host )
@@ -1347,7 +1344,7 @@ _known_hosts_real()
             done
         fi
         # append any available aliases from config files
-        if [ ${#config[@]} -gt 0 ] && [ -n "$aliases" ]; then
+        if [[ ${#config[@]} -gt 0 && -n "$aliases" ]]; then
             local host_aliases=$( sed -ne 's/^[ \t]*[Hh][Oo][Ss][Tt]\([Nn][Aa][Mm][Ee]\)\?['"$'\t '"']\{1,\}\([^#*?]*\)\(#.*\)\?$/\2/p' "${config[@]}" )
             hosts=$( compgen -W "$host_aliases" -- "$cur" )
             COMPREPLY=( "${COMPREPLY[@]}" $hosts )
@@ -1404,7 +1401,7 @@ _cd()
 
     # Use standard dir completion if no CDPATH or parameter starts with /,
     # ./ or ../
-    if [ -z "${CDPATH:-}" ] || [[ "$cur" == ?(.)?(.)/* ]]; then
+    if [[ -z "${CDPATH:-}" || "$cur" == ?(.)?(.)/* ]]; then
         _filedir -d
         return 0
     fi
@@ -1428,7 +1425,7 @@ _cd()
 
     if [[ ${#COMPREPLY[@]} -eq 1 ]]; then
         i=${COMPREPLY[0]}
-        if [ "$i" == "$cur" ] && [[ $i != "*/" ]]; then
+        if [[ "$i" == "$cur" && $i != "*/" ]]; then
             COMPREPLY[0]="${i}/"
         fi
     fi
@@ -1687,27 +1684,27 @@ fi
 unset list
 
 # source completion directory definitions
-if [ -d $BASH_COMPLETION_COMPAT_DIR -a -r $BASH_COMPLETION_COMPAT_DIR -a \
-    -x $BASH_COMPLETION_COMPAT_DIR ]; then
+if [[ -d $BASH_COMPLETION_COMPAT_DIR && -r $BASH_COMPLETION_COMPAT_DIR && \
+    -x $BASH_COMPLETION_COMPAT_DIR ]]; then
     for i in $(LC_ALL=C command ls $BASH_COMPLETION_COMPAT_DIR); do
         i=$BASH_COMPLETION_COMPAT_DIR/$i
-        [[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|*.rpm@(orig|new|save)) ]] &&
-        [ \( -f $i -o -h $i \) -a -r $i ] && . $i
+        [[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|*.rpm@(orig|new|save)) \
+            && ( -f $i || -h $i ) && -r $i ]] && . $i
     done
 fi
-if [ -d $BASH_COMPLETION_DIR -a -r $BASH_COMPLETION_DIR -a \
-    $BASH_COMPLETION_DIR != $BASH_COMPLETION_COMPAT_DIR -a \
-    -x $BASH_COMPLETION_DIR ]; then
+if [[ $BASH_COMPLETION_DIR != $BASH_COMPLETION_COMPAT_DIR && \
+    -d $BASH_COMPLETION_DIR && -r $BASH_COMPLETION_DIR && \
+    -x $BASH_COMPLETION_DIR ]]; then
     for i in $(LC_ALL=C command ls $BASH_COMPLETION_DIR); do
         i=$BASH_COMPLETION_DIR/$i
-        [[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|*.rpm@(orig|new|save)) ]] &&
-        [ \( -f $i -o -h $i \) -a -r $i ] && . $i
+        [[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|*.rpm@(orig|new|save)) \
+            && ( -f $i || -h $i ) && -r $i ]] && . $i
     done
 fi
 unset i
 
 # source user completion file
-[ $BASH_COMPLETION != ~/.bash_completion -a -r ~/.bash_completion ] \
+[[ $BASH_COMPLETION != ~/.bash_completion && -r ~/.bash_completion ]] \
     && . ~/.bash_completion
 unset -f have
 unset UNAME USERLAND have
