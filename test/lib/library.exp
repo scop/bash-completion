@@ -127,6 +127,8 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20} {cword ""}} {
         }; # if
     } else {
         expect -ex "$cmd\r\n"
+        # Make sure expected items are unique
+        set expected [lsort -unique $expected]
     }; # if
 
     if {[match_items $expected $test]} {
@@ -371,7 +373,7 @@ proc get_hosts {} {
     if {[llength $avahi_hosts] > 0} {
         lappend hosts $avahi_hosts
     }; # if
-    return [lsort -unique $hosts]
+    return $hosts
 }; # get_hosts()
 
 
@@ -416,7 +418,9 @@ proc get_signals {} {
 # @param integer $size  Chunk size
 # @result boolean  True if successful, False if not
 proc match_items {items test {size 20}} {
-    set items [exec sort | uniq << [join $items "\n"]]
+    # NOTE: `exec sort' is used instead of `lsort' to achieve exactly the
+    #       same sort order as in bash -- FVu, Wed Nov 25 22:25:28 CET 2009
+    set items [exec sort << [join $items "\n"]]
     set result false
     for {set i 0} {$i < [llength $items]} {set i [expr {$i + $size}]} {
         set expected ""
