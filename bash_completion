@@ -1256,6 +1256,7 @@ _known_hosts_real()
         config=( "${config[@]}" "${HOME}/.ssh2/config" )
     fi
 
+    # Known hosts files from configs
     if [ ${#config[@]} -gt 0 ]; then
         local OIFS=$IFS IFS=$'\n'
         local -a tmpkh
@@ -1263,7 +1264,7 @@ _known_hosts_real()
         # TODO(?): try to make known hosts files with more than one consecutive
         #          spaces in their name work (watch out for ~ expansion
         #          breakage! Alioth#311595)
-        tmpkh=( $( sed -ne 's/^[ \t]*\([Gg][Ll][Oo][Bb][Aa][Ll]\|[Uu][Ss][Ee][Rr]\)[Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/\2/p' "${config[@]}" ) )
+        tmpkh=( $( sed -ne 's/^[ \t]*\([Gg][Ll][Oo][Bb][Aa][Ll]\|[Uu][Ss][Ee][Rr]\)[Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee]['"$'\t '"']*\(.*\)$/\2/p' "${config[@]}" | sort -u ) )
         for i in "${tmpkh[@]//\"/}"; do
             i=$( eval echo "$i" ) # expand ~
             [ -r "$i" ] && kh=( "${kh[@]}" "$i" )
