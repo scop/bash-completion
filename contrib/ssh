@@ -170,10 +170,11 @@ _scp()
 
     _expand || return 0
 
+    # things we want to backslash escape
+    local esc="[][(){}<>\",:;^&\!$=?\`|\\ ']"
+
     if [[ "$cur" == *:* ]]; then
         local IFS=$'\t\n'
-        # things we want to backslash escape
-        local esc="[][(){}<>\",:;^&\!$=?\`|\\ ']"
         # remove backslash escape from :
         cur=${cur/\\:/:}
         userhost=${cur%%?(\\):*}
@@ -218,7 +219,7 @@ _scp()
     # after local file/dir completions, and -o nospace retained for others.
     local IFS=$'\t\n'
     COMPREPLY=( "${COMPREPLY[@]}" $( command ls -aF1d $cur* 2>/dev/null | sed \
-        -e "s/[][(){}<>\",:;^&\!$=?\`|\\ ']/\\\\&/g" \
+        -e "s/$esc/\\\\&/g" \
         -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' -e "s/^/$prefix/") )
 
     return 0
