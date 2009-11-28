@@ -41,19 +41,26 @@ assert_bash_list $expected $cmd $test
 sync_after_int
 
 
-set test "Config file containing space should work"
+set test "Files containing consecutive spaces should work"
 set hosts [get_hosts]
-    # Hosts `gee' and `hus' are defined in ./fixtures/_known_hosts_real/spaced  conf
+set hosts_orig $hosts
+    # Hosts `gee' and `hus' are defined in `./fixtures/_known_hosts_real/spaced  conf'
     # Host `two' is defined in ./fixtures/_known_hosts_real/known_hosts2
-lappend hosts gee hus doo ike two
-set hosts [lsort -ascii $hosts]
-set hosts [join $hosts "\\s+"]
+lappend hosts gee hus two
+set hosts_config $hosts
+    # Hosts `doo' and `ike' are defined in `./fixtures/_known_hosts_/spaced  known_hosts'
+lappend hosts doo ike
+set hosts        [join [lsort -ascii $hosts       ] "\\s+"]
+set hosts_orig   [join [lsort -ascii $hosts_orig  ] "\\s+"]
+set hosts_config [join [lsort -ascii $hosts_config] "\\s+"]
     # Call _known_hosts
 set cmd {unset COMPREPLY; _known_hosts_real -aF 'fixtures/_known_hosts_real/spaced  conf' ''; echo_array COMPREPLY}
 send "$cmd\r"
 expect -ex "$cmd\r\n"
 expect {
     -re "^$hosts\r\n/@$"  { pass "$test" }
+    -re "^$hosts_orig\r\n/@$"  { xfail "$test (config file)" }
+    -re "^$hosts_config\r\n/@$"  { xfail "$test (known hosts file)" }
     -re /@ { unresolved "$test at prompt" }
     default { unresolved "$test" }
 }; # expect
