@@ -6,20 +6,18 @@ have ssh &&
 _ssh_options() {
     COMPREPLY=( $( compgen -W 'AddressFamily BatchMode BindAddress \
         ChallengeResponseAuthentication CheckHostIP Cipher Ciphers \
-        ClearAllForwardings Compression CompressionLevel \
-        ConnectionAttempts ConnectTimeout ControlMaster ControlPath \
-        DynamicForward EscapeChar ExitOnForwardFailure ForwardAgent \
-        ForwardX11 ForwardX11Trusted GatewayPorts GlobalKnownHostsFile \
-        GSSAPIAuthentication GSSAPIDelegateCredentials HashKnownHosts \
-        Host HostbasedAuthentication HostKeyAlgorithms HostKeyAlias \
-        HostName IdentityFile IdentitiesOnly KbdInteractiveDevices \
-        LocalCommand LocalForward LogLevel MACs \
+        ClearAllForwardings Compression CompressionLevel ConnectionAttempts \
+        ConnectTimeout ControlMaster ControlPath DynamicForward EscapeChar \
+        ExitOnForwardFailure ForwardAgent ForwardX11 ForwardX11Trusted \
+        GatewayPorts GlobalKnownHostsFile GSSAPIAuthentication \
+        GSSAPIDelegateCredentials HashKnownHosts Host HostbasedAuthentication \
+        HostKeyAlgorithms HostKeyAlias HostName IdentityFile IdentitiesOnly \
+        KbdInteractiveDevices LocalCommand LocalForward LogLevel MACs \
         NoHostAuthenticationForLocalhost NumberOfPasswordPrompts \
         PasswordAuthentication PermitLocalCommand Port \
-        PreferredAuthentications Protocol ProxyCommand \
-        PubkeyAuthentication RekeyLimit RemoteForward \
-        RhostsRSAAuthentication RSAAuthentication SendEnv \
-        ServerAliveInterval ServerAliveCountMax SmartcardDevice \
+        PreferredAuthentications Protocol ProxyCommand PubkeyAuthentication \
+        RekeyLimit RemoteForward RhostsRSAAuthentication RSAAuthentication \
+        SendEnv ServerAliveInterval ServerAliveCountMax SmartcardDevice \
         StrictHostKeyChecking TCPKeepAlive Tunnel TunnelDevice \
         UsePrivilegedPort User UserKnownHostsFile VerifyHostKeyDNS \
         VisualHostKey XAuthLocation' -- "$cur" ) )
@@ -40,16 +38,14 @@ _ssh()
             return 0
             ;;
         -c)
-            COMPREPLY=( $( compgen -W '3des-cbc aes128-cbc \
-                aes192-cbc aes256-cbc aes128-ctr aes192-ctr \
-                aes256-ctr arcfour128 arcfour256 arcfour \
-                blowfish-cbc cast128-cbc' -- "$cur" ) )
+            COMPREPLY=( $( compgen -W '3des-cbc aes128-cbc aes192-cbc \
+                aes256-cbc aes128-ctr aes192-ctr aes256-ctr arcfour128 \
+                arcfour256 arcfour blowfish-cbc cast128-cbc' -- "$cur" ) )
             return 0
             ;;
         -c)
-            COMPREPLY=( $( compgen -W 'hmac-md5 hmac-sha1 \
-                umac-64@openssh.com hmac-ripemd160 \
-                hmac-sha1-96 hmac-md5-96' -- "$cur" ) )
+            COMPREPLY=( $( compgen -W 'hmac-md5 hmac-sha1 umac-64@openssh.com \
+                hmac-ripemd160 hmac-sha1-96 hmac-md5-96' -- "$cur" ) )
             return 0
             ;;
         -l)
@@ -175,7 +171,7 @@ _scp()
 
     if [[ "$cur" == *:* ]]; then
         local IFS=$'\t\n'
-        # remove backslash escape from :
+        # remove backslash escape from the first colon
         cur=${cur/\\:/:}
         userhost=${cur%%?(\\):*}
         path=${cur#*:}
@@ -189,9 +185,8 @@ _scp()
         # add space at end of file names
         COMPREPLY=( $( ssh -o 'Batchmode yes' $userhost \
             command ls -aF1d "$path*" 2>/dev/null | \
-            sed -e "s/$esc/\\\\\\\\\\\\&/g" \
-            -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' ) )
-                return 0
+            sed -e 's/'$esc'/\\\\\\&/g' -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' ) )
+        return 0
     fi
 
     if [[ "$cur" = -F* ]]; then
@@ -218,9 +213,9 @@ _scp()
     # This approach is used instead of _filedir to get a space appended
     # after local file/dir completions, and -o nospace retained for others.
     local IFS=$'\t\n'
-    COMPREPLY=( "${COMPREPLY[@]}" $( command ls -aF1d $cur* 2>/dev/null | sed \
-        -e "s/$esc/\\\\&/g" \
-        -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' -e "s/^/$prefix/") )
+    COMPREPLY=( "${COMPREPLY[@]}" $( command ls -aF1d $cur* 2>/dev/null | \
+        sed -e "s/$esc/\\\\&/g" -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' \
+        -e "s/^/$prefix/") )
 
     return 0
 }
