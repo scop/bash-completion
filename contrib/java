@@ -250,6 +250,172 @@ _javac()
 } &&
 complete -F _javac -o filenames javac
 
+have pack200 &&
+_pack200()
+{
+    COMPREPLY=()
+    local cur=`_get_cword` prev=`_get_pword`
+
+    case "$prev" in
+        -S|--segment-limit|-P|--pass-file|-C|--class-attribute|\
+        -F|--field-attribute|-M|--method-attribute|-D|--code-attribute|\
+        '-?'|-h|--help|-V|--version|-J)
+            return 0
+            ;;
+        -E|--effort)
+            COMPREPLY=( $( compgen -W '0 1 2 3 4 5 6 7 8 9' -- "$cur" ) )
+            return 0
+            ;;
+        -H|--deflate-hint)
+            COMPREPLY=( $( compgen -W 'true false keep' -- "$cur" ) )
+            return 0
+            ;;
+        -m|--modification-time)
+            COMPREPLY=( $( compgen -W 'latest keep' -- "$cur" ) )
+            return 0
+            ;;
+        -U|--unknown-attribute)
+            COMPREPLY=( $( compgen -W 'error strip pass' -- "$cur" ) )
+            return 0
+            ;;
+        -f|--config-file)
+            _filedir properties
+            return 0
+            ;;
+        -l|--log-file)
+            COMPREPLY=( $( compgen -W '-' -- "$cur" ) )
+            _filedir log
+            return 0
+            ;;
+    esac
+
+    # Check if a pack or a jar was already given.
+    local i pack=false jar=false
+    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )) ; do
+        case "${COMP_WORDS[i]}" in
+            *.pack|*.pack.gz) pack=true ;;
+            *.jar) jar=true ;;
+        esac
+    done
+
+    if ! $pack ; then
+        if [[ "$cur" == -* ]] ; then
+            COMPREPLY=( $( compgen -W '--no-gzip --gzip --strip-debug \
+                --no-keep-file-order --segment-limit= --effort= \
+                --deflate-hint= --modification-time= --pass-file= \
+                --unknown-attribute= --class-attribute= --field-attribute= \
+                --method-attribute= --code-attribute= --config-file= \
+                --verbose --quiet --log-file= --help --version -J' -- "$cur" ) )
+            [[ ${#COMPREPLY[@]} -eq 1 && ${COMPREPLY[0]} == *= ]] && \
+                type compopt &>/dev/null && compopt -o nospace
+        else
+            _filedir 'pack?(.gz)'
+        fi
+    elif ! $jar ; then
+        _filedir jar
+    fi
+} &&
+complete -F _pack200 pack200
+
+have unpack200 &&
+_unpack200()
+{
+    COMPREPLY=()
+    local cur=`_get_cword` prev=`_get_pword`
+
+    case "$prev" in
+        '-?'|-h|--help|-V|--version|-J)
+            return 0
+            ;;
+        -H|--deflate-hint)
+            COMPREPLY=( $( compgen -W 'true false keep' -- "$cur" ) )
+            return 0
+            ;;
+        -l|--log-file)
+            COMPREPLY=( $( compgen -W '-' -- "$cur" ) )
+            _filedir log
+            return 0
+            ;;
+    esac
+
+    # Check if a pack or a jar was already given.
+    local i pack=false jar=false
+    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )) ; do
+        case "${COMP_WORDS[i]}" in
+            *.pack|*.pack.gz) pack=true ;;
+            *.jar) jar=true ;;
+        esac
+    done
+
+    if ! $pack ; then
+        if [[ "$cur" == -* ]] ; then
+            COMPREPLY=( $( compgen -W '--deflate-hint= --remove-pack-file \
+                --verbose --quiet --log-file= --help --version' -- "$cur" ) )
+            [[ ${#COMPREPLY[@]} -eq 1 && ${COMPREPLY[0]} == *= ]] && \
+                type compopt &>/dev/null && compopt -o nospace
+        else
+            _filedir 'pack?(.gz)'
+        fi
+    elif ! $jar ; then
+        _filedir jar
+    fi
+} &&
+complete -F _unpack200 unpack200
+
+have jarsigner &&
+_jarsigner()
+{
+    COMPREPLY=()
+    local cur=`_get_cword` prev=`_get_pword`
+
+    case "$prev" in
+        -keystore)
+            COMPREPLY=( $( compgen -W 'NONE' -- "$cur" ) )
+            _filedir '@(jks|ks|p12|pfx)'
+            return 0
+            ;;
+        -storepass|-keypass|-sigfile|-digestalg|-sigalg|-tsacert|-altsigner|\
+        -altsignerpath|-providerName|-providerClass|-providerArg)
+            return 0
+            ;;
+        -storetype)
+            COMPREPLY=( $( compgen -W 'JKS PKCS11 PKCS12' -- "$cur" ) )
+            return 0
+            ;;
+        -signedjar)
+            _filedir jar
+            return 0
+            ;;
+        -tsa)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    # Check if a jar was already given.
+    local i jar=false
+    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )) ; do
+        if [[ "${COMP_WORDS[i]}" == *.jar && \
+            "${COMP_WORDS[i-1]}" != -signedjar ]] ; then
+            jar=true
+            break
+        fi
+    done
+
+    if ! $jar ; then
+        if [[ "$cur" == -* ]] ; then
+            # Documented as "should not be used": -internalsf, -sectionsonly
+            COMPREPLY=( $( compgen -W '-keystore -storepass -storetype \
+                -keypass -sigfile -signedjar -digestalg -sigalg -verify \
+                -verbose -certs -tsa -tsacert -altsigner -altsignerpath \
+                -protected -providerName -providerClass -providerArg' \
+                -- "$cur" ) )
+        fi
+        _filedir jar
+    fi
+} &&
+complete -F _jarsigner -o filenames jarsigner
+
 # Local variables:
 # mode: shell-script
 # sh-basic-offset: 4
