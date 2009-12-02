@@ -557,6 +557,46 @@ _available_interfaces()
     COMPREPLY=( $( compgen -W '${COMPREPLY[@]/%[[:punct:]]/}' -- "$cur" ) )
 }
 
+
+# Expand variable starting with tilde (~)
+# Only the first portion of the variable from the tilde up to the first slash
+# (~../) is expanded.  The remainder of the variable, containing for example
+# a dollar sign variable ($) or asterisk (*) is not expanded.
+# Example usage:
+#
+#    $ v="~"; __expand_tilde v; echo "$v"
+#
+# Example output:
+#
+#       v                  output
+#    --------         ----------------
+#    ~                /home/user
+#    ~foo/bar         /home/foo/bar
+#    ~foo/$HOME       /home/foo/$HOME
+#    ~foo/a  b        /home/foo/a  b
+#    ~foo/*           /home/foo/*
+#  
+# @param $1  Name of variable (not the value of the variable) to expand
+__expand_tilde_by_ref() {
+    # Does $1 start with tilde (~)?
+    if [ "${!1:0:1}" = "~" ]; then
+        # Does $1 contain slash (/)?
+        if [ "${!1}" != "${!1//\/}" ]; then
+            # Yes, $1 contains slash;
+            # 1: Remove * including and after first slash (/), i.e. "~a/b"
+            #    becomes "~a".  Double quotes allow eval.
+            # 2: Remove * before the first slash (/), i.e. "~a/b"
+            #    becomes "b".  Single quotes prevent eval.
+            #       +-----1----+ +---2----+
+            eval $1="${!1/%\/*}"/'${!1#*/}'
+        else 
+            # No, $1 doesn't contain slash
+            eval $1="${!1}"
+        fi
+    fi
+} # __expand_tilde_by_ref()
+
+
 # This function expands tildes in pathnames
 #
 _expand()
@@ -1270,8 +1310,8 @@ _known_hosts_real()
         for i in "${tmpkh[@]}"; do
             # Remove possible quotes
             i=${i//\"}
-            # Eval/expand `~' or `~user', only if first char is tilde (~)
-            [ "${i:0:1}" = "~" ] && i=$( eval echo "$i" )
+            # Eval/expand possible `~' or `~user'
+            __expand_tilde_by_ref i
             [ -r "$i" ] && kh=( "${kh[@]}" "$i" )
         done
         IFS=$OIFS
