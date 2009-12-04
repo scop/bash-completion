@@ -26,10 +26,13 @@ set expected {bar {bar bar.d} foo {foo.d}}
 send "$cmd\t"
 expect -ex "$cmd"
 expect {
-    -re "bar\\s+bar\\\\ bar.d\\s+foo\\s+foo.d"  { pass "$test" }
-        # _filedir works only if `-o filenames' is in effect, which isn't the
-        # case for `screen'
-    -re "bar\\s+bar bar.d\\s+foo\\s+foo.d" { xfail "$test" }
+    -re "\r\nbar\\s+bar bar.d/\\s+foo\\s+foo.d/"  { pass "$test" }
+        # Directories might not be suffixed with a slash (/).  This is because
+        # _filedir only works if `-o filenames' is in effect, which isn't the
+        # case for `screen' on bash-3, so an expected failure (xfail)
+    -re "\r\nbar\\s+bar bar.d\\s+foo\\s+foo.d" { 
+        if {$bash_versinfo_0 < 4} {xfail "$test"} {fail "$test"}
+    }
     -re $prompt { unresolved "$test at prompt" }
     default { unresolved "$test" }
 }; # expect
