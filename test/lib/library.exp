@@ -298,8 +298,8 @@ proc _ltrim_colon_completions {cword items} {
     # or bash-version >= 4 and COMP_WORDBREAKS contains a colon
     if {
         [string first : $cword_out] > -1 && (
-            $::bash_versinfo_0 < 4 ||
-            ($::bash_versinfo_0 >= 4 && [string first ":" $::COMP_WORDBREAKS] > -1)
+            [lindex $::BASH_VERSINFO 0] < 4 ||
+            ([lindex $::BASH_VERSINFO 0] >= 4 && [string first ":" $::COMP_WORDBREAKS] > -1)
         )
     } {
         for {set i 0} {$i < [llength $items_out]} {incr i} {
@@ -468,6 +468,17 @@ proc bash_sort {items} {
 }; # bash_sort()
 
 
+# Initialize tcl globals with bash variables
+proc init_tcl_bash_globals {} {
+    global BASH_VERSINFO BASH_VERSION COMP_WORDBREAKS
+    assert_bash_exec {printf "%s" "$COMP_WORDBREAKS"} {} /@ COMP_WORDBREAKS
+    assert_bash_exec {printf "%s " "${BASH_VERSINFO[@]}"} "" /@ BASH_VERSINFO
+    set BASH_VERSINFO [eval list $BASH_VERSINFO]
+    assert_bash_exec {printf "%s" "$BASH_VERSION"} "" /@ BASH_VERSION
+    assert_bash_exec {printf "%s" "$TESTDIR"} "" /@ TESTDIR
+}; # init_tcl_bash_globals()
+
+
 # Expect items.
 # Break items into chunks because `expect' seems to have a limited buffer size
 # @param list $items
@@ -564,6 +575,31 @@ proc save_env {{file ""}} {
 proc _save_env {{file ""}} {
     assert_bash_exec "{ set; declare -F; } > $file"
 }; # save_env()
+
+
+# Source bash_completion package
+proc source_bash_completion {} {
+    assert_bash_exec {BASH_COMPLETION_DIR=$(cd $TESTDIR/..; pwd)/contrib}
+    assert_bash_exec {BASH_COMPLETION=$(cd $TESTDIR/..; pwd)/bash_completion}
+    assert_bash_exec {source $BASH_COMPLETION}
+}; # source_bash_completion()
+
+
+# Start bash running as test environment.
+proc start_bash {} {
+    global TESTDIR TOOL_EXECUTABLE spawn_id
+    set TESTDIR [pwd]
+    # If `--tool_exec' option not specified, use "bash"
+    if {! [info exists TOOL_EXECUTABLE]} {set TOOL_EXECUTABLE bash}
+    exp_spawn $TOOL_EXECUTABLE --rcfile config/bashrc
+    assert_bash_exec {} "$TOOL_EXECUTABLE --rcfile config/bashrc"
+    # Bash < 3.2.41 has a bug where 'history' disappears from SHELLOPTS
+    # whenever a shopt setting is sourced or eval'ed.  Disabling 'history'
+    # makes it not show in tests "Environment should not be modified"
+    # for bash < 3.2.41.
+    # -- FVu, Tue Sep 15 22:52:00 CEST 2009
+    assert_bash_exec {is_bash_version_minimal 3 2 41 || set +o history}
+}; # start_bash()
 
 
 # Interrupt completion and sync with prompt.
