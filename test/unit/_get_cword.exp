@@ -79,47 +79,68 @@ assert_bash_list {"\"b\\"} $cmd $test
 sync_after_int
 
 
-# See http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=474094 for useful ideas
-# to make this test pass.
 set test {a 'b c| should return 'b c};  # | = cursor position
-if {[lindex $::BASH_VERSINFO 0] <= 3} {
-    set cmd {COMP_WORDS=(a "'b c"); COMP_CWORD=1}
-} else {
+if {
+    [lindex $::BASH_VERSINFO 0] == 4 && 
+    [lindex $::BASH_VERSINFO 1] == 0 &&
+    [lindex $::BASH_VERSINFO 2] < 35
+} {
     set cmd {COMP_WORDS=(a "'" b c); COMP_CWORD=3}
+} else {
+    set cmd {COMP_WORDS=(a "'b c"); COMP_CWORD=1}
 }; # if
 append cmd {; COMP_LINE="a 'b c"; COMP_POINT=6; _get_cword}
 send "$cmd\r"
 expect -ex "$cmd\r\n"
 expect {
     -ex "'b c/@" { pass "$test" }
-    -ex "c/@" { xfail "$test" }
+    -ex "c/@" { 
+        if {
+            [lindex $::BASH_VERSINFO 0] == 4 &&
+            [lindex $::BASH_VERSINFO 1] == 0 &&
+            [lindex $::BASH_VERSINFO 2] < 35
+        } {xfail "$test"} {fail "$test"}
+    }
 }; # expect
 
 
 sync_after_int
 
 
-# See http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=474094 for useful ideas
-# to make this test pass.
 set test {a "b c| should return "b c};  # | = cursor position
-set cmd {COMP_WORDS=(a "\"b c"); COMP_CWORD=1; COMP_LINE="a \"b c"; COMP_POINT=6; _get_cword};
+if {
+    [lindex $::BASH_VERSINFO 0] == 4 && 
+    [lindex $::BASH_VERSINFO 1] == 0 &&
+    [lindex $::BASH_VERSINFO 2] < 35
+} {
+    set cmd {COMP_WORDS=(a "\"" b c); COMP_CWORD=3}
+} else {
+    set cmd {COMP_WORDS=(a "\"b c"); COMP_CWORD=1}
+}; # if
+append cmd {; COMP_LINE="a \"b c"; COMP_POINT=6; _get_cword};
 send "$cmd\r"
 expect -ex "$cmd\r\n"
 expect {
     -ex "\"b c/@" { pass "$test" }
-    -ex "c/@" { xfail "$test" }
+    -ex "c/@" {
+        if {
+            [lindex $::BASH_VERSINFO 0] == 4 &&
+            [lindex $::BASH_VERSINFO 1] == 0 &&
+            [lindex $::BASH_VERSINFO 2] < 35
+        } {xfail "$test"} {fail "$test"}
+    }
 }; # expect
 
 
 sync_after_int
 
 
-set test {a b:c| should return b:c (bash-3) or c (bash-4)};  # | = cursor position
+set test {a b:c| with WORDBREAKS += : should return b:c (bash-3) or c (bash-4)};  # | = cursor position
 if {[lindex $::BASH_VERSINFO 0] <= 3} {
     set cmd {COMP_WORDS=(a "b:c"); COMP_CWORD=1}
     set expected b:c
 } else {
-    set cmd {COMP_WORDS=(a b : c); COMP_CWORD=3}
+    set cmd {add_comp_wordbreak_char :; COMP_WORDS=(a b : c); COMP_CWORD=3}
     set expected c
 }; # if
 append cmd {; COMP_LINE='a b:c'; COMP_POINT=5; _get_cword}
@@ -137,6 +158,14 @@ if {[lindex $::BASH_VERSINFO 0] <= 3} {
 }; # if
 append cmd {; COMP_LINE='a b:c'; COMP_POINT=5; _get_cword :}
 assert_bash_list b:c $cmd $test
+
+
+sync_after_int
+
+
+set test {a :| with WORDBREAKS -= : should return :};  # | = cursor position
+set cmd {COMP_WORDS=(a :); COMP_CWORD=1; COMP_LINE='a :'; COMP_POINT=3; _get_cword :}
+assert_bash_list : $cmd $test
 
 
 sync_after_int

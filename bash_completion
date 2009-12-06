@@ -208,178 +208,129 @@ dequote()
     eval echo "$1" 2> /dev/null
 }
 
+
+# Reassemble command line words, excluding specified characters from the
+# list of word completion separators (COMP_WORDBREAKS).
+# @param $1 chars  Characters out of $COMP_WORDBREAKS which should
+#     NOT be considered word breaks. This is useful for things like scp where
+#     we want to return host:path and not only path, so we would pass the
+#     colon (:) as $1 here.
+# @param $2 words  Name of variable to return words to
+# @param $3 cword  Name of variable to return cword to
+#
+__reassemble_comp_words_by_ref() {
+    local exclude i j ref
+    # On bash-3, `COMP_WORDBREAKS' is empty which is ok; no additional
+    # word breaking is done on bash-3.
+    local wordbreaks="$COMP_WORDBREAKS"
+    # Exclude word separator characters?
+    if [[ $1 ]]; then
+        # Yes, exclude word separator characters;
+        # Exclude only those characters, which were really included
+        exclude="${1//[^$COMP_WORDBREAKS]}"
+    fi
+        
+    # Are characters excluded which were former included?
+    if [[ $exclude ]]; then
+        # Yes, list of word completion separators has shrunk;
+        # Re-assemble words to complete
+        for (( i=0, j=0; i < ${#COMP_WORDS[@]}; i++, j++)); do
+            # Is current word not word 0 (the command itself) and is word of
+            # length 1 and is word newly excluded from being word separator?
+            while [[ $i -gt 0 && ${#COMP_WORDS[$i]} == 1 && ${COMP_WORDS[$i]//[^$exclude]} ]]; do
+                [ $j -ge 2 ] && ((j--))
+                # Append word separator to current word
+                ref="$2[$j]"
+                eval $2[$j]=\""${!ref}${COMP_WORDS[$i]}"\"
+                # Indicate new cword
+                [ $i = $COMP_CWORD ] && eval $3=$j
+                # Indicate next word if available, else end *both* while and for loop
+                (( $i < ${#COMP_WORDS[@]} - 1)) && ((i++)) || break 2
+            done
+            # Append word to current word
+            ref="$2[$j]"
+            eval $2[$j]=\""${!ref}${COMP_WORDS[$i]}"\"
+            # Indicate new cword
+            [ $i = $COMP_CWORD ] && eval $3=$j
+        done
+    else
+        # No, list of word completions separators hasn't changed;
+        eval $2=\( \"\${COMP_WORDS[@]}\" \)
+        eval $3=$COMP_CWORD
+    fi
+} # __reassemble_comp_words_by_ref()
+
+
 # Get the word to complete.
 # This is nicer than ${COMP_WORDS[$COMP_CWORD]}, since it handles cases
 # where the user is completing in the middle of a word.
 # (For example, if the line is "ls foobar",
 # and the cursor is here -------->   ^
-# it will complete just "foo", not "foobar", which is what the user wants.)
-# @param $1 string  (optional) Characters out of $COMP_WORDBREAKS which should
-#     NOT be considered word breaks. This is useful for things like scp where
-#     we want to return host:path and not only path.
-#     NOTE: This parameter only applies to bash-4.
-
+# @param $1 string  Characters out of $COMP_WORDBREAKS which should NOT be
+#     considered word breaks. This is useful for things like scp where
+#     we want to return host:path and not only path, so we would pass the
+#     colon (:) as $1 in this case.  Bash-3 doesn't do word splitting, so this
+#     ensures we get the same word on both bash-3 and bash-4.
+# @param $2 integer  Index number of word to return, negatively offset to the
+#     current word (default is 0, previous is 1), respecting the exclusions
+#     given at $1.  For example, `__get_cword4 "=:" 1' returns the word left of
+#     the current word, respecting the exclusions "=:".
+#
 _get_cword()
 {
-    if [ ${BASH_VERSINFO[0]} -ge 4 ] ; then
-        __get_cword4 "$@"
-    else
-        __get_cword3 "$2"
-    fi
-} # _get_cword()
+    local cword words
+    __reassemble_comp_words_by_ref "$1" words cword
 
-# Get word previous to the current word;
-# Accepts the same arguments as _get_cword()
-#
-# This is a good alternative to `prev=${COMP_WORDS[COMP_CWORD-1]}' because bash4
-# will properly return the previous word with respect to any given exclusions to
-# COMP_WORDBREAKS.
-_get_pword() { _get_cword "${@:-}" 1; }
-
-# Get the word to complete on bash-3, where words are not broken by
-# COMP_WORDBREAKS characters and the COMP_CWORD variables look like this, for
-# example:
-#
-#     $ a b:c<TAB>
-#     COMP_CWORD: 1
-#     COMP_CWORDS:
-#     0: a
-#     1: b:c
-#
-# See also:
-# _get_cword, main routine
-# __get_cword4, bash-4 variant
-#
-[ ${BASH_VERSINFO[0]} -lt 4 ] &&
-__get_cword3()
-{
-    # return previous word offset by $1
-    if [[ ${1//[^0-9]/} ]]; then
-        printf "%s" "${COMP_WORDS[COMP_CWORD-$1]}"
-    elif [[ "${#COMP_WORDS[COMP_CWORD]}" -eq 0 ]] || [[ "$COMP_POINT" == "${#COMP_LINE}" ]]; then
-        printf "%s" "${COMP_WORDS[COMP_CWORD]}"
+    # return previous word offset by $2
+    if [[ ${2//[^0-9]/} ]]; then
+        printf "%s" "${words[cword-$2]}"
+    elif [[ "${#words[cword]}" -eq 0 ]] || [[ "$COMP_POINT" == "${#COMP_LINE}" ]]; then
+        printf "%s" "${words[cword]}"
     else
         local i
         local cur="$COMP_LINE"
         local index="$COMP_POINT"
-        for (( i = 0; i <= COMP_CWORD; ++i )); do
+        for (( i = 0; i <= cword; ++i )); do
             while [[
-                # Current COMP_WORD fits in $cur?
-                "${#cur}" -ge ${#COMP_WORDS[i]} &&
-                # $cur doesn't match COMP_WORD?
-                "${cur:0:${#COMP_WORDS[i]}}" != "${COMP_WORDS[i]}"
+                # Current word fits in $cur?
+                "${#cur}" -ge ${#words[i]} &&
+                # $cur doesn't match cword?
+                "${cur:0:${#words[i]}}" != "${words[i]}"
                 ]]; do
                 # Strip first character
                 cur="${cur:1}"
                 # Decrease cursor position
-                index="$(( index - 1 ))"
+                ((index--))
             done
 
-            # Does found COMP_WORD matches COMP_CWORD?
-            if [[ "$i" -lt "$COMP_CWORD" ]]; then
-                # No, COMP_CWORD lies further;
+            # Does found word matches cword?
+            if [[ "$i" -lt "$cword" ]]; then
+                # No, cword lies further;
                 local old_size="${#cur}"
-                cur="${cur#${COMP_WORDS[i]}}"
+                cur="${cur#${words[i]}}"
                 local new_size="${#cur}"
-                index="$(( index - old_size + new_size ))"
+                index=$(( index - old_size + new_size ))
             fi
         done
 
-        if [[ "${COMP_WORDS[COMP_CWORD]:0:${#cur}}" != "$cur" ]]; then
+        if [[ "${words[cword]:0:${#cur}}" != "$cur" ]]; then
             # We messed up! At least return the whole word so things
             # keep working
-            printf "%s" "${COMP_WORDS[COMP_CWORD]}"
+            printf "%s" "${words[cword]}"
         else
             printf "%s" "${cur:0:$index}"
         fi
     fi
-} # __get_cword3()
+} # _get_cword()
 
 
-# Get the word to complete on bash-4, where words are splitted by
-# COMP_WORDBREAKS characters (default is " \t\n\"'><=;|&(:") and the COMP_CWORD
-# variables look like this, for example:
+# Get word previous to the current word.
+# This is a good alternative to `prev=${COMP_WORDS[COMP_CWORD-1]}' because bash4
+# will properly return the previous word with respect to any given exclusions to
+# COMP_WORDBREAKS.
+# @see _get_cword()
 #
-#     $ a b:c<TAB>
-#     COMP_CWORD: 3
-#     COMP_CWORDS:
-#     0: a
-#     1: b
-#     2: :
-#     3: c
-#
-# @param $1 string
-# $1 string  (optional) Characters out of $COMP_WORDBREAKS which should
-#     NOT be considered word breaks. This is useful for things like scp where
-#     we want to return host:path and not only path.
-# @param $2 integer
-# $2 integer (optional) Return word according to $COMP_WORDBREAKS, negatively
-#     offset by the value. For example, `__get_cword4 "=:" -1' returns the word
-#     left of the current word, respecting the exclusions given at $1
-# See also:
-# _get_cword, main routine
-# __get_cword3, bash-3 variant
-#
-[ ${BASH_VERSINFO[0]} -ge 4 ] && {
-# return index of first occuring break character in $1; return 0 if none
-__break_index() {
-    if [[ $1 == *[$WORDBREAKS]* ]]; then
-        local w="${1%[$WORDBREAKS]*}"
-        echo $((${#w}+1))
-    else
-        echo 0
-    fi
-} # __break_index()
-
-# return the index of the start of the last word in $@
-__word_start() {
-    local buf="$@"
-    local start="$(__break_index "$buf")"
-    while [[ $start -ge 2 ]]; do
-        # Get character before $start
-        local char="${cur:$(( start - 2 )):1}"
-        # If the WORDBREAK character isn't escaped, exit loop
-        [[ $char != \\ ]] && break
-        # The WORDBREAK character is escaped; recalculate $start
-        buf="${COMP_LINE:0:$(( start - 2 ))}"
-        start=$(__break_index "$buf")
-    done
-    echo $start
-} # __word_start()
-
-__get_cword4()
-{
-    local exclude="$1" n_idx="${2:-0}"
-    local i
-    local LC_CTYPE=C
-    local WORDBREAKS="$COMP_WORDBREAKS"
-    # Strip single quote (') and double quote (") from WORDBREAKS to
-    # workaround a bug in bash-4.0, where quoted words are split
-    # unintended, see:
-    # http://www.mail-archive.com/bug-bash@gnu.org/msg06095.html
-    # This fixes simple quoting (e.g. $ a "b<TAB> returns "b instead of b)
-    # but still fails quoted spaces (e.g. $ a "b c<TAB> returns c instead
-    # of "b c).
-    WORDBREAKS="${WORDBREAKS//[\"\']/}"
-    if [[ $exclude ]]; then
-        for (( i=0; i<${#exclude}; ++i )); do
-            local char="${exclude:$i:1}"
-            WORDBREAKS="${WORDBREAKS//$char/}"
-        done
-    fi
-    local cur="${COMP_LINE:0:$COMP_POINT}"
-    local tmp="$cur"
-
-    # calculate current word, negatively offset by n_idx
-    cur="${tmp:$(__word_start "$tmp")}"
-    while [[ $n_idx -gt 0 ]]; do
-        local tmp="${tmp%[$WORDBREAKS]$cur}"    # truncate passed string
-        local cur="${tmp:$(__word_start "$tmp")}" # then recalculate
-        ((--n_idx))
-    done
-    printf "%s" "$cur"
-} # __get_cword4()
-} # [ ${BASH_VERSINFO[0]} -ge 4 ]
+_get_pword() { _get_cword "${@:-}" 1; }
 
 
 # If the word-to-complete contains a colon (:), left-trim COMPREPLY items with
@@ -388,10 +339,17 @@ __get_cword4()
 # colons are always completed as entire words if the word to complete contains
 # a colon.  This function fixes this, by removing the colon-containing-prefix
 # from COMPREPLY items.
+# The preferred solution is to remove the colon (:) from COMP_WORDBREAKS in
+# your .bashrc:
+#
+#    # Remove colon (:) from list of word completion separators
+#    COMP_WORDBREAKS=${COMP_WORDBREAKS//:}
+#
 # See also: Bash FAQ - E13) Why does filename completion misbehave if a colon
 # appears in the filename? - http://tiswww.case.edu/php/chet/bash/FAQ
 # @param $1 current word to complete (cur)
 # @modifies global array $COMPREPLY
+#
 __ltrim_colon_completions() {
     # If word-to-complete contains a colon,
     # and bash-version < 4,
