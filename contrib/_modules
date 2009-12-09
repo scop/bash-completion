@@ -37,7 +37,7 @@ _module_avail ()
 {
     local modules="$( \
         module avail 2>&1 | \
-        egrep -v '^(-|$)' | \
+        grep -E -v '^(-|$)' | \
         xargs printf '%s\n' | sed -e 's/(default)//g' | sort )"
 
     compgen -W "$modules" -- $1
@@ -55,7 +55,7 @@ _module ()
     if [ $COMP_CWORD -eq 1 ] ; then
         # First parameter on line -- we expect it to be a mode selection
 
-        options="$( module help 2>&1 | egrep '^[[:space:]]*\+' | \
+        options="$( module help 2>&1 | grep -E '^[[:space:]]*\+' | \
                     awk '{print $2}' | sed -e 's/|/ /g' | sort )"
 
         COMPREPLY=( $(compgen -W "$options" -- "$cur") )
