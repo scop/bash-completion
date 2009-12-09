@@ -26,13 +26,13 @@ _update_alternatives()
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     case "$prev" in
-    --altdir|--admindir)
-        _filedir -d
-        return 0
-        ;;
-    --help|--version)
-        return 0
-        ;;
+        --altdir|--admindir)
+            _filedir -d
+            return 0
+            ;;
+        --help|--version)
+            return 0
+            ;;
     esac
 
     # find which mode to use and how many real args used so far
@@ -45,43 +45,43 @@ _update_alternatives()
     done
 
     case $mode in
-    --install)
-        case $args in
-        1)
-            _filedir
+        --install)
+            case $args in
+                1)
+                    _filedir
+                    ;;
+                2)
+                    _installed_alternatives
+                    ;;
+                3)
+                    _filedir
+                    ;;
+            esac
             ;;
-        2)
+        --remove)
+            case $args in
+                1)
+                    _installed_alternatives
+                    ;;
+                2)
+                    _filedir
+                    ;;
+            esac
+            ;;
+        --auto)
             _installed_alternatives
             ;;
-        3)
-            _filedir
-            ;;
-        esac
-        ;;
-    --remove)
-        case $args in
-        1)
+        --remove-all)
             _installed_alternatives
             ;;
-        2)
-            _filedir
+        --display)
+            _installed_alternatives
             ;;
-        esac
-        ;;
-    --auto)
-        _installed_alternatives
-        ;;
-    --remove-all)
-        _installed_alternatives
-        ;;
-    --display)
-        _installed_alternatives
-        ;;
-    --config)
-        _installed_alternatives
-        ;;
-    *)
-        COMPREPLY=( $( compgen -W '--verbose --quiet --help --version \
+        --config)
+            _installed_alternatives
+            ;;
+        *)
+            COMPREPLY=( $( compgen -W '--verbose --quiet --help --version \
                    --altdir --admindir' -- "$cur" ) \
                 $( compgen -W '--install --remove --auto --display \
                    --config' -- "$cur" ) )
