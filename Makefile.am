@@ -77,7 +77,6 @@ bashcomp_DATA = contrib/abook \
 		contrib/minicom \
 		contrib/mkinitrd \
 		contrib/mock \
-		contrib/modules \
 		contrib/monodevelop \
 		contrib/mplayer \
 		contrib/msynctool \
@@ -152,4 +151,4 @@ profiledir = $(sysconfdir)/profile.d
 profile_DATA = bash_completion.sh
 
 EXTRA_DIST = CHANGES $(sysconf_DATA) $(bashcomp_DATA) $(profile_DATA) \
-	contrib/_subversion contrib/_yum contrib/_yum-utils
+	contrib/_modules contrib/_subversion contrib/_yum contrib/_yum-utils
