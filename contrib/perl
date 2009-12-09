@@ -4,7 +4,8 @@ have perl &&
 {
 _perlmodules()
 {
-    COMPREPLY=( $( compgen -P "$prefix" -W "$( perl -e 'sub mods { my ($base,$dir)=@_; return if  $base !~ /^\Q$ENV{cur}/; chdir($dir) or return; for (glob(q[*.pm])) {s/\.pm$//; print qq[$base$_\n]}; mods(/^(?:[.\d]+|$Config{archname}-$Config{osname}|auto)$/ ? undef : qq[${base}${_}\\\\:\\\\:],qq[$dir/$_]) for grep {-d} glob(q[*]); } mods(undef,$_) for @INC;' )" -- "$cur" ) )
+    COMPREPLY=( $( compgen -P "$prefix" -W "$( perl -e 'sub mods { my ($base,$dir)=@_; return if  $base !~ /^\Q$ENV{cur}/; chdir($dir) or return; for (glob(q[*.pm])) {s/\.pm$//; print qq[$base$_\n]}; mods(/^(?:[.\d]+|$Config{archname}-$Config{osname}|auto)$/ ? undef : qq[${base}${_}::],qq[$dir/$_]) for grep {-d} glob(q[*]); } mods(undef,$_) for @INC;' )" -- "$cur" ) )
+    __ltrim_colon_completions "$1"
 }
 
 _perl()
@@ -35,7 +36,7 @@ _perl()
             return 0
             ;;
         -m|-M)
-            _perlmodules
+            _perlmodules "$cur"
             return 0
             ;;
     esac
@@ -107,7 +108,7 @@ _perldoc()
     else
         # return available modules (unless it is clearly a file)
         if [[ "$cur" != */* ]]; then
-            _perlmodules
+            _perlmodules "$cur"
             COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W \
                 '$( PAGER=/bin/cat man perl |  \
                 sed -ne "/perl.*Perl overview/,/perlwin32/p" | \
