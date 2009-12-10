@@ -1,0 +1,70 @@
+proc setup {} {
+    save_env
+}; # setup()
+
+
+proc teardown {} {
+    assert_env_unmodified {
+        /args=/d
+        /COMP_CWORD=/d
+        /COMP_LINE=/d
+        /COMP_POINT=/d
+        /COMP_WORDS=/d
+        # Delete 'COMP_WORDBREAKS' occupying two lines
+        /COMP_WORDBREAKS=/{N
+        d}
+    }
+}; # teardown()
+
+
+setup
+
+
+set test "_count_args should run without errors"
+assert_bash_exec {_count_args > /dev/null} $test
+
+
+sync_after_int
+
+
+set test "a b| should set args to 1";  # | = cursor position
+set cmd {COMP_WORDS=(a b); COMP_CWORD=1; COMP_LINE='a b'; COMP_POINT=3; _count_args; echo -n $args}
+assert_bash_list 1 $cmd $test
+
+
+sync_after_int
+
+
+set test "a b|c should set args to 1";  # | = cursor position
+set cmd {COMP_WORDS=(a bc); COMP_CWORD=1; COMP_LINE='a bc'; COMP_POINT=3; _count_args; echo -n $args}
+assert_bash_list 1 $cmd $test
+
+
+sync_after_int
+
+
+set test "a b c| should set args to 2";  # | = cursor position
+set cmd {COMP_WORDS=(a b c); COMP_CWORD=2; COMP_LINE='a b c'; COMP_POINT=4; _count_args; echo -n $args}
+assert_bash_list 2 $cmd $test
+
+
+sync_after_int
+
+
+set test "a b| c should set args to 1";  # | = cursor position
+set cmd {COMP_WORDS=(a b c); COMP_CWORD=1; COMP_LINE='a b c'; COMP_POINT=3; _count_args; echo -n $args}
+assert_bash_list 1 $cmd $test
+
+
+sync_after_int
+
+
+set test "a b -c d| should set args to 2";  # | = cursor position
+set cmd {COMP_WORDS=(a b -c d); COMP_CWORD=3; COMP_LINE='a b -c d'; COMP_POINT=6; _count_args; echo -n $args}
+assert_bash_list 2 $cmd $test
+
+
+sync_after_int
+
+
+teardown
