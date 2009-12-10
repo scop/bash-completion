@@ -728,15 +728,16 @@ _realcommand() {
 
 
 # This function counts the number of args
-#
+# @param $1 chars  Characters out of $COMP_WORDBREAKS which should
+#     NOT be considered word breaks. See __reassemble_comp_words_by_ref.
 _count_args()
 {
-    local i
+    local i cword words
+    __reassemble_comp_words_by_ref "$1" words cword
+
     args=1
-    for (( i=1; i < COMP_CWORD; i++ )); do
-        if [[ "${COMP_WORDS[i]}" != -* ]]; then
-            args=$(($args+1))
-        fi
+    for i in "${words[@]:1:cword-1}"; do
+        [[ "$i" != -* ]] && args=$(($args+1))
     done
 }
 
