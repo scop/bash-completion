@@ -95,6 +95,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/pkg-config \
 		contrib/pkg_install \
 		contrib/pkgtools \
+		contrib/pm-utils \
 		contrib/portupgrade \
 		contrib/postfix \
 		contrib/postgresql \
