@@ -1225,7 +1225,7 @@ _known_hosts()
 _known_hosts_real()
 {
     local configfile flag prefix
-    local cur curd awkcur user suffix aliases hosts i host
+    local cur curd awkcur user suffix aliases i host
     local -a kh khd config
 
     local OPTIND=1
@@ -1347,9 +1347,8 @@ _known_hosts_real()
         fi
         # append any available aliases from config files
         if [[ ${#config[@]} -gt 0 && -n "$aliases" ]]; then
-            local host_aliases=$( sed -ne 's/^[ \t]*[Hh][Oo][Ss][Tt]\([Nn][Aa][Mm][Ee]\)\?['"$'\t '"']\{1,\}\([^#*?]*\)\(#.*\)\?$/\2/p' "${config[@]}" )
-            hosts=$( compgen -W "$host_aliases" -- "$cur" )
-            COMPREPLY=( "${COMPREPLY[@]}" $hosts )
+            local hosts=$( sed -ne 's/^[ \t]*[Hh][Oo][Ss][Tt]\([Nn][Aa][Mm][Ee]\)\?['"$'\t '"']\{1,\}\([^#*?]*\)\(#.*\)\?$/\2/p' "${config[@]}" )
+            COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "$hosts" -- "$cur" ) )
         fi
 
         # Add hosts reported by avahi, if it's available
