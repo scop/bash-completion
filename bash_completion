@@ -1212,8 +1212,9 @@ _known_hosts()
 } # _known_hosts()
 
 # Helper function for completing _known_hosts.
-# This function performs host completion based on ssh's known_hosts files.
-# Also hosts from HOSTFILE (compgen -A hostname) are added, unless
+# This function performs host completion based on ssh's config and known_hosts
+# files, as well as hostnames reported by avahi-browse.  Also hosts from
+# HOSTFILE (compgen -A hostname) are added, unless
 # COMP_KNOWN_HOSTS_WITH_HOSTFILE is set to an empty value.
 # Usage: _known_hosts_real [OPTIONS] CWORD
 # Options:  -a             Use aliases
@@ -1370,10 +1371,11 @@ _known_hosts_real()
         done
     fi
 
-    # Add results of normal hostname completion, unless `COMP_KNOWN_HOSTS_WITH_HOSTFILE'
-    # is set to an empty value.
+    # Add results of normal hostname completion, unless
+    # `COMP_KNOWN_HOSTS_WITH_HOSTFILE' is set to an empty value.
     if [ -n "${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1}" ]; then
-        COMPREPLY=( "${COMPREPLY[@]}" $( compgen -A hostname -P "$prefix$user" -S "$suffix" -- "$cur" ) )
+        COMPREPLY=( "${COMPREPLY[@]}"
+            $( compgen -A hostname -P "$prefix$user" -S "$suffix" -- "$cur" ) )
     fi
 
     __ltrim_colon_completions "$prefix$user$cur"
