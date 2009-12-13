@@ -1351,23 +1351,22 @@ _known_hosts_real()
             COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "$hosts" -- "$cur" ) )
         fi
 
-        # Add hosts reported by avahi, if it's available
-        # and if the daemon is started.
-        # The original call to avahi-browse also had "-k", to avoid
-        #  lookups into avahi's services DB. We don't need the name
-        #  of the service, and if it contains ";", it may mistify
-        #  the result. But on Gentoo (at least), -k isn't available
-        #  (even if mentioned in the manpage), so...
-        if type avahi-browse >&/dev/null; then
-            COMPREPLY=( "${COMPREPLY[@]}" $(
-            compgen -W "$( avahi-browse -cpr _workstation._tcp 2>/dev/null | \
-            grep ^= | cut -d\; -f7 | sort -u )" -- "$cur" ) )
-        fi
-
         # apply suffix and prefix
         for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
             COMPREPLY[i]=$prefix$user${COMPREPLY[i]}$suffix
         done
+    fi
+
+    # Add hosts reported by avahi-browse, if it's available.
+    # The original call to avahi-browse also had "-k", to avoid lookups into
+    # avahi's services DB. We don't need the name of the service, and if it
+    # contains ";", it may mistify the result. But on Gentoo (at least),
+    # -k isn't available (even if mentioned in the manpage), so...
+    if type avahi-browse >&/dev/null; then
+        COMPREPLY=( "${COMPREPLY[@]}" $( \
+            compgen -P "$prefix$user" -S "$suffix" -W \
+            "$( avahi-browse -cpr _workstation._tcp 2>/dev/null | \
+                 grep ^= | cut -d\; -f7 | sort -u )" -- "$cur" ) )
     fi
 
     # Add results of normal hostname completion, unless
