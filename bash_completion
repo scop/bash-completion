@@ -1302,7 +1302,7 @@ _known_hosts_real()
     fi
 
     # If we have known_hosts files to use
-    if [[ ${#kh[@]} -gt 0 || ${#khd[@]} -gt 0 || -n "$configfile" ]]; then
+    if [[ ${#kh[@]} -gt 0 || ${#khd[@]} -gt 0 ]]; then
         # Escape slashes and dots in paths for awk
         awkcur=${cur//\//\\\/}
         awkcur=${awkcur//\./\\\.}
@@ -1345,16 +1345,18 @@ _known_hosts_real()
                 fi
             done
         fi
-        # append any available aliases from config files
-        if [[ ${#config[@]} -gt 0 && -n "$aliases" ]]; then
-            local hosts=$( sed -ne 's/^[ \t]*[Hh][Oo][Ss][Tt]\([Nn][Aa][Mm][Ee]\)\?['"$'\t '"']\{1,\}\([^#*?]*\)\(#.*\)\?$/\2/p' "${config[@]}" )
-            COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "$hosts" -- "$cur" ) )
-        fi
 
         # apply suffix and prefix
         for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
             COMPREPLY[i]=$prefix$user${COMPREPLY[i]}$suffix
         done
+    fi
+
+    # append any available aliases from config files
+    if [[ ${#config[@]} -gt 0 && -n "$aliases" ]]; then
+        local hosts=$( sed -ne 's/^[ \t]*[Hh][Oo][Ss][Tt]\([Nn][Aa][Mm][Ee]\)\?['"$'\t '"']\{1,\}\([^#*?]*\)\(#.*\)\?$/\2/p' "${config[@]}" )
+        COMPREPLY=( "${COMPREPLY[@]}" $( compgen  -P "$prefix$user" \
+            -S "$suffix" -W "$hosts" -- "$cur" ) )
     fi
 
     # Add hosts reported by avahi-browse, if it's available.
