@@ -440,7 +440,7 @@ _split_longopt()
 _parse_help() {
     local cmd
     cmd=$1
-    $cmd --help | grep -- "^[[:space:]]*-" | tr "," " " | \
+    $cmd --help | command grep -- "^[[:space:]]*-" | tr "," " " | \
         awk '{print $1; if ($2 ~ /-.*/) { print $2 } }' | sed -e "s:=.*::g"
 }
 
@@ -706,8 +706,9 @@ _usergroup()
 #
 _shells()
 {
-    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W '$( grep "^[[:space:]]*/" \
-        /etc/shells 2>/dev/null )' -- "$cur" ) )
+    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W \
+        '$( command grep "^[[:space:]]*/" /etc/shells 2>/dev/null )' \
+        -- "$cur" ) )
 }
 
 # Get real command.
@@ -1368,7 +1369,7 @@ _known_hosts_real()
         COMPREPLY=( "${COMPREPLY[@]}" $( \
             compgen -P "$prefix$user" -S "$suffix" -W \
             "$( avahi-browse -cpr _workstation._tcp 2>/dev/null | \
-                 grep ^= | cut -d\; -f7 | sort -u )" -- "$cur" ) )
+                 command grep ^= | cut -d\; -f7 | sort -u )" -- "$cur" ) )
     fi
 
     # Add results of normal hostname completion, unless

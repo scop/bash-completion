@@ -64,10 +64,10 @@ _java_classes()
             if type zipinfo &>/dev/null; then
                 COMPREPLY=( "${COMPREPLY[@]}" $( zipinfo -1 \
                     "$i" "$cur*" 2>/dev/null | \
-                    grep '^[^$]*\.class$' ) )
+                    command grep '^[^$]*\.class$' ) )
             else
                 COMPREPLY=( "${COMPREPLY[@]}" $( jar tf "$i" \
-                    "$cur" | grep '^[^$]*\.class$' ) )
+                    "$cur" | command grep '^[^$]*\.class$' ) )
             fi
 
         elif [ -d $i ]; then
@@ -76,7 +76,7 @@ _java_classes()
             # See Debian bug #496828
             COMPREPLY=( "${COMPREPLY[@]}" $( find "$i" -type f \
                 -maxdepth 1 -path "$i/$cur*.class" 2>/dev/null | \
-                grep -v "\\$" | sed -e "s|^$i/||" ) )
+                command grep -v "\\$" | sed -e "s|^$i/||" ) )
 
             # FIXME: if we have foo.class and foo/, the completion
             # returns "foo/"... how to give precedence to files
@@ -108,7 +108,7 @@ _java_packages()
         fi
     done
     # keep only packages
-    COMPREPLY=( $( tr " " "\n" <<<"${COMPREPLY[@]}" | grep "/$" ) )
+    COMPREPLY=( $( tr " " "\n" <<<"${COMPREPLY[@]}" | command grep "/$" ) )
     # remove packages extension
     COMPREPLY=( ${COMPREPLY[@]%/} )
     # convert path syntax to package syntax
