@@ -56,7 +56,7 @@ _muttconffiles()
     sofar=" $1 "
     shift
     while [[ "$1" ]]; do
-        newconffiles=( $(sed -rn 's|^source[[:space:]]+([^[:space:]]+).*$|\1|p' $(eval echo $1) ) )
+        newconffiles=( $(sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' $(eval echo $1) ) )
         for file in "${newconffiles[@]}"; do
             [[ ! "$file" ]] || [[ "${sofar/ ${file} / }" != "$sofar" ]] &&
                 continue
@@ -79,7 +79,7 @@ _muttaliases()
     [ -z "$muttrc" ] && return 0
 
     conffiles=( $(eval _muttconffiles $muttrc $muttrc) )
-    aliases=( $( sed -rn 's|^alias[[:space:]]+([^[:space:]]+).*$|\1|p' \
+    aliases=( $( sed -n 's|^alias[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' \
         $(eval echo "${conffiles[@]}") ) )
     COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "${aliases[*]}" -- "$cur" ) )
 
@@ -93,11 +93,12 @@ _muttquery()
     local cur=$1 querycmd muttcmd=${COMP_WORDS[0]}
     local -a queryresults
 
-    querycmd="$( $muttcmd -Q query_command  | sed -r 's|^query_command=\"(.*)\"$|\1|; s|%s|'$cur'|' )"
+    querycmd="$( $muttcmd -Q query_command | sed -e 's|^query_command=\"\(.*\)\"$|\1|' -e 's|%s|'$cur'|' )"
     if [[ -z "$cur" || -z "$querycmd" ]]; then
         queryresults=()
     else
-        queryresults=( $( $querycmd | sed -nr '2,$s|^([^[:space:]]+).*|\1|p' ) )
+        queryresults=( $( $querycmd | \
+            sed -n '2,$s|^\([^[:space:]]\{1,\}\).*|\1|p' ) )
     fi
 
     COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "${queryresults[*]}" \
@@ -114,7 +115,7 @@ _muttfiledir()
 
     muttrc=$(_muttrc)
     if [[ $cur == [=+]* ]]; then
-        folder="$( $muttcmd -F "$muttrc" -Q folder | sed -r 's|^folder=\"(.*)\"$|\1|' )"
+        folder="$( $muttcmd -F "$muttrc" -Q folder | sed -e 's|^folder=\"\(.*\)\"$|\1|' )"
         : folder:=~/Mail
 
         # Match any file in $folder beginning with $cur
@@ -124,7 +125,7 @@ _muttfiledir()
         return 0
     elif [ "$cur" == !* ]; then
         spoolfile="$( $muttcmd -F "$muttrc" -Q spoolfile | \
-            sed -r 's|^spoolfile=\"(.*)\"$|\1|' )"
+            sed -e 's|^spoolfile=\"\(.*\)\"$|\1|' )"
         [ ! -z "$spoolfile" ] && eval cur="${cur/^!/$spoolfile}";
     fi
     _filedir
