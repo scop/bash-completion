@@ -13,7 +13,7 @@ _update_rc_d()
     [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
     || sysvdir=/etc/init.d
 
-    services=( $(echo $sysvdir/!(README*|*.sh|*.dpkg*|*.rpm@(orig|new|save))) )
+    services=( $(printf '%s ' $sysvdir/!(README*|*.sh|*.dpkg*|*.rpm@(orig|new|save))) )
     services=( ${services[@]#$sysvdir/} )
     options=( -f -n )
 
@@ -78,7 +78,8 @@ _invoke_rc_d()
     [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
     || sysvdir=/etc/init.d
 
-    services=( $(echo $sysvdir/!(README*|*.sh|*.dpkg*|*.rpm@(orig|new|save))) )
+    services=( $( printf '%s ' \
+        $sysvdir/!(README*|*.sh|*.dpkg*|*.rpm@(orig|new|save)) ) )
     services=( ${services[@]#$sysvdir/} )
     options=( --help --quiet --force --try-anyway --disclose-deny --query \
         --no-fallback )

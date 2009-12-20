@@ -383,7 +383,7 @@ _filedir()
     local -a toks
     local tmp
 
-    # TODO: I've removed a "[ -n $tmp ] &&" before `echo $tmp',
+    # TODO: I've removed a "[ -n $tmp ] &&" before `printf '%s\n' $tmp',
     #       and everything works again. If this bug
     #       suddenly appears again (i.e. "cd /b<TAB>"
     #       becomes "cd /"), remember to check for
@@ -396,7 +396,7 @@ _filedir()
     toks=( ${toks[@]-} $(
         compgen -d -- "$(quote_readline "$cur")" | {
             while read -r tmp; do
-                echo $tmp
+                printf '%s\n' $tmp
             done
         }
     ))
@@ -406,7 +406,7 @@ _filedir()
         toks=( ${toks[@]-} $(
             compgen -f -X "$xspec" -- "$(quote_readline "$cur")" | {
                 while read -r tmp; do
-                    [ -n $tmp ] && echo $tmp
+                    [ -n $tmp ] && printf '%s\n' $tmp
                 done
             }
         ))
@@ -658,10 +658,12 @@ _services()
     local sysvdir famdir
     [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
     famdir=/etc/xinetd.d
-    COMPREPLY=( $( builtin echo $sysvdir/!(*.rpm@(orig|new|save)|*~|functions)) )
+    COMPREPLY=( $( printf '%s\n' \
+        $sysvdir/!(*.rpm@(orig|new|save)|*~|functions) ) )
 
     if [ -d $famdir ]; then
-        COMPREPLY=( "${COMPREPLY[@]}" $( builtin echo $famdir/!(*.rpm@(orig|new|save)|*~)) )
+        COMPREPLY=( "${COMPREPLY[@]}" $( printf '%s\n' \
+            $famdir/!(*.rpm@(orig|new|save)|*~) ) )
     fi
 
     COMPREPLY=( $( compgen -W '${COMPREPLY[@]#@($sysvdir|$famdir)/}' -- "$cur" ) )
@@ -814,7 +816,7 @@ _service()
 } &&
 complete -F _service service
 [ -d /etc/init.d/ ] && complete -F _service -o default \
-    $(for i in /etc/init.d/*; do echo ${i##*/}; done)
+    $(for i in /etc/init.d/*; do printf '%s\n' ${i##*/}; done)
 
 
 # chown(1) completion
@@ -1241,7 +1243,7 @@ _known_hosts_real()
     [ $# -lt $OPTIND ] && echo "error: $FUNCNAME: missing mandatory argument CWORD"
     cur=${!OPTIND}; let "OPTIND += 1"
     [ $# -ge $OPTIND ] && echo "error: $FUNCNAME("$@"): unprocessed arguments:"\
-    $(while [ $# -ge $OPTIND ]; do echo ${!OPTIND}; shift; done)
+    $(while [ $# -ge $OPTIND ]; do printf '%s\n' ${!OPTIND}; shift; done)
 
     [[ $cur == *@* ]] && user=${cur%@*}@ && cur=${cur#*@}
     kh=()
@@ -1649,7 +1651,7 @@ _filedir_xspec()
         compgen -d -- "$(quote_readline "$cur")" | {
         while read -r tmp; do
             # see long TODO comment in _filedir() --David
-            echo $tmp
+            printf '%s\n' $tmp
         done
         }
         ))
@@ -1657,7 +1659,7 @@ _filedir_xspec()
     toks=( ${toks[@]-} $(
         eval compgen -f -X "$xspec" -- "\$(quote_readline "\$cur")" | {
         while read -r tmp; do
-            [ -n $tmp ] && echo $tmp
+            [ -n $tmp ] && printf '%s\n' $tmp
         done
         }
         ))
@@ -1676,7 +1678,7 @@ list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' $BASH_COMPLETION | \
         line=${line##*\'}
         list=( "${list[@]}" $line )
     done
-    echo "${list[@]}"
+    printf '%s ' "${list[@]}"
     )
     ) )
 # remove previous compspecs
