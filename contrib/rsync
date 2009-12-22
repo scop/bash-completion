@@ -14,76 +14,70 @@ _rsync()
     _expand || return 0
 
     case "$prev" in
-    --config|--password-file|--include-from|--exclude-from)
-        _filedir
-        return 0
-        ;;
-    -T|--temp-dir|--compare-dest)
-        _filedir -d
-        return 0
-        ;;
-    -e|--rsh)
-        COMPREPLY=( $( compgen -W 'rsh ssh' -- "$cur" ) )
-        return 0
-        ;;
+        --config|--password-file|--include-from|--exclude-from)
+            _filedir
+            return 0
+            ;;
+        -T|--temp-dir|--compare-dest)
+            _filedir -d
+            return 0
+            ;;
+        -e|--rsh)
+            COMPREPLY=( $( compgen -W 'rsh ssh' -- "$cur" ) )
+            return 0
+            ;;
     esac
 
     case "$cur" in
-    -*)
-        COMPREPLY=( $( compgen -W '-D --verbose --quiet --checksum \
-            --archive --recursive --relative --backup \
-            --backup-dir --suffix= --update --links \
-            --copy-links --copy-unsafe-links --safe-links \
-            --hard-links --perms --owner --group --devices\
-            --times --sparse --dry-run --whole-file \
-            --no-whole-file --one-file-system \
-            --block-size= --rsh= --rsync-path= \
-            --cvs-exclude --existing --ignore-existing \
-            --delete --delete-excluded --delete-after \
-            --ignore-errors --max-delete= --partial \
-            --force --numeric-ids --timeout= \
-            --ignore-times --size-only --modify-window= \
-            --temp-dir= --compare-dest= --compress \
-            --exclude= --exclude-from= --include= \
-            --include-from= --version --daemon --no-detach\
-            --address= --config= --port= --blocking-io \
-            --no-blocking-io --stats --progress \
-            --log-format= --password-file= --bwlimit= \
-            --write-batch= --read-batch= --ipv4 --ipv6 --help' -- "$cur" ) )
-        ;;
-    *:*)
-        # find which remote shell is used
-        shell=ssh
-        for (( i=1; i < COMP_CWORD; i++ )); do
-            if [[ "${COMP_WORDS[i]}" == -@(e|-rsh) ]]; then
-                shell=${COMP_WORDS[i+1]}
-                break
+        -*)
+            COMPREPLY=( $( compgen -W '-D --verbose --quiet --checksum \
+                --archive --recursive --relative --backup --backup-dir \
+                --suffix= --update --links --copy-links --copy-unsafe-links \
+                --safe-links --hard-links --perms --owner --group --devices \
+                --times --sparse --dry-run --whole-file --no-whole-file \
+                --one-file-system --block-size= --rsh= --rsync-path= \
+                --cvs-exclude --existing --ignore-existing --delete \
+                --delete-excluded --delete-after --ignore-errors \
+                --max-delete= --partial --force --numeric-ids --timeout= \
+                --ignore-times --size-only --modify-window= --temp-dir= \
+                --compare-dest= --compress --exclude= --exclude-from= \
+                --include= --include-from= --version --daemon --no-detach \
+                --address= --config= --port= --blocking-io --no-blocking-io \
+                --stats --progress --log-format= --password-file= --bwlimit= \
+                --write-batch= --read-batch= --ipv4 --ipv6 --help' -- "$cur" ) )
+            ;;
+        *:*)
+            # find which remote shell is used
+            shell=ssh
+            for (( i=1; i < COMP_CWORD; i++ )); do
+                if [[ "${COMP_WORDS[i]}" == -@(e|-rsh) ]]; then
+                    shell=${COMP_WORDS[i+1]}
+                    break
+                fi
+            done
+            if [[ "$shell" == ssh ]]; then
+                # remove backslash escape from :
+                cur=${cur/\\:/:}
+                userhost=${cur%%?(\\):*}
+                path=${cur#*:}
+                # unescape spaces
+                path=${path//\\\\\\\\ / }
+                if [ -z "$path" ]; then
+                    # default to home dir of specified user on remote host
+                    path=$(ssh -o 'Batchmode yes' $userhost pwd 2>/dev/null)
+                fi
+                # escape spaces; remove executables, aliases, pipes and sockets;
+                # add space at end of file names
+                COMPREPLY=( $( ssh -o 'Batchmode yes' $userhost \
+                    command ls -aF1d "$path*" 2>/dev/null | \
+                    sed -e 's/ /\\\\\\\ /g' -e 's/[*@|=]$//g' \
+                    -e 's/[^\/]$/& /g' ) )
             fi
-        done
-        if [[ "$shell" == ssh ]]; then
-            # remove backslash escape from :
-            cur=${cur/\\:/:}
-            userhost=${cur%%?(\\):*}
-            path=${cur#*:}
-            # unescape spaces
-            path=${path//\\\\\\\\ / }
-            if [ -z "$path" ]; then
-                # default to home dir of specified
-                # user on remote host
-                path=$(ssh -o 'Batchmode yes' $userhost pwd 2>/dev/null)
-            fi
-            # escape spaces; remove executables, aliases, pipes
-            # and sockets; add space at end of file names
-            COMPREPLY=( $( ssh -o 'Batchmode yes' $userhost \
-                command ls -aF1d "$path*" 2>/dev/null | \
-                sed -e 's/ /\\\\\\\ /g' -e 's/[*@|=]$//g' \
-                -e 's/[^\/]$/& /g' ) )
-        fi
-        ;;
-    *)
-        _known_hosts_real -c -a "$cur"
-        _filedir
-        ;;
+            ;;
+        *)
+            _known_hosts_real -c -a "$cur"
+            _filedir
+            ;;
     esac
 
     return 0
