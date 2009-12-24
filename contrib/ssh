@@ -7,13 +7,14 @@ _ssh_ciphers()
 {
     COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W '3des-cbc aes128-cbc \
         aes192-cbc aes256-cbc aes128-ctr aes192-ctr aes256-ctr arcfour128 \
-        arcfour256 arcfour blowfish-cbc cast128-cbc' -- "$1" ) )
+        arcfour256 arcfour blowfish-cbc cast128-cbc' -- "$cur" ) )
 }
 
 _ssh_macs()
 {
     COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W 'hmac-md5 hmac-sha1 \
-        umac-64@openssh.com hmac-ripemd160 hmac-sha1-96 hmac-md5-96' -- "$1" ) )
+        umac-64@openssh.com hmac-ripemd160 hmac-sha1-96 hmac-md5-96' \
+        -- "$cur" ) )
 }
 
 _ssh_options()
@@ -45,9 +46,9 @@ _ssh_options()
 _ssh_suboption()
 {
     # Split into subopt and subval
-    local subopt=${1%%=*} subval=${1#*=}
+    local prev=${1%%=*} cur=${1#*=}
 
-    case "$subopt" in
+    case "$prev" in
         BatchMode|ChallengeResponseAuthentication|CheckHostIP|\
         ClearAllForwardings|Compression|ExitOnForwardFailure|ForwardAgent|\
         ForwardX11|ForwardX11Trusted|GatewayPorts|GSSAPIAuthentication|\
@@ -58,31 +59,30 @@ _ssh_suboption()
         PubkeyAuthentication|RhostsRSAAuthentication|RSAAuthentication|\
         StrictHostKeyChecking|TCPKeepAlive|UsePrivilegedPort|\
         VerifyHostKeyDNS|VisualHostKey)
-            COMPREPLY=( $( compgen -W 'yes no' -- "$subval") )
+            COMPREPLY=( $( compgen -W 'yes no' -- "$cur") )
             ;;
         AddressFamily)
-            COMPREPLY=( $( compgen -W 'any inet inet6' -- "$subval" ) )
+            COMPREPLY=( $( compgen -W 'any inet inet6' -- "$cur" ) )
             ;;
         Cipher)
-            COMPREPLY=( $( compgen -W 'blowfish des 3des' -- "$subval" ) )
+            COMPREPLY=( $( compgen -W 'blowfish des 3des' -- "$cur" ) )
             ;;
         Protocol)
-            COMPREPLY=( $( compgen -W '1 2 1,2 2,1' -- "$subval" ) )
+            COMPREPLY=( $( compgen -W '1 2 1,2 2,1' -- "$cur" ) )
             ;;
         Tunnel)
             COMPREPLY=( $( compgen -W 'yes no point-to-point ethernet' \
-                    -- "$subval" ) )
+                    -- "$cur" ) )
             ;;
         PreferredAuthentications)
             COMPREPLY=( $( compgen -W 'gssapi-with-mic host-based \
-                    publickey keyboard-interactive password' \
-                    -- "$subval" ) )
+                    publickey keyboard-interactive password' -- "$cur" ) )
             ;;
         MACs)
-            _ssh_macs "$subval"
+            _ssh_macs
             ;;
         Ciphers)
-            _ssh_ciphers "$subval"
+            _ssh_ciphers
             ;;
     esac
     return 0
@@ -119,11 +119,11 @@ _ssh()
             return 0
             ;;
         -c)
-            _ssh_ciphers "$cur"
+            _ssh_ciphers
             return 0
             ;;
         -m)
-            _ssh_macs "$cur"
+            _ssh_macs
             return 0
             ;;
         -l)
