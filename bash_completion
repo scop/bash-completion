@@ -188,19 +188,14 @@ quote()
     echo \'${1//\'/\'\\\'\'}\' #'# Help vim syntax highlighting
 }
 
-# This function quotes the argument in a way so that readline dequoting
-# results in the original argument
+# @see _quote_readline_by_ref()
 quote_readline()
 {
-    if [ ${BASH_VERSINFO[0]} -ge 4 ]; then
-        # This function isn't really necessary on bash 4
-        # See: http://lists.gnu.org/archive/html/bug-bash/2009-03/msg00155.html
-        echo "${1}"
-        return
-    fi
-    local t="${1//\\/\\\\}"
-    echo \'${t//\'/\'\\\'\'}\' #'# Help vim syntax highlighting
-}
+    local quoted
+    _quote_readline_by_ref "$1" ret
+    printf %s "$ret"
+} # quote_readline()
+
 
 # This function shell-dequotes the argument
 dequote()
@@ -224,8 +219,6 @@ __reassemble_comp_words_by_ref() {
     if [[ $1 ]]; then
         # Yes, exclude word separator characters;
         # Exclude only those characters, which were really included
-        # NOTE: On bash-3, `COMP_WORDBREAKS' is empty which is ok; no
-        #       additional word breaking is done on bash-3.
         exclude="${1//[^$COMP_WORDBREAKS]}"
     fi
         
@@ -240,7 +233,7 @@ __reassemble_comp_words_by_ref() {
                 [ $j -ge 2 ] && ((j--))
                 # Append word separator to current word
                 ref="$2[$j]"
-                eval $2[$j]=\""${!ref}${COMP_WORDS[$i]}"\"
+                eval $2[$j]=\${!ref}\${COMP_WORDS[i]}
                 # Indicate new cword
                 [ $i = $COMP_CWORD ] && eval $3=$j
                 # Indicate next word if available, else end *both* while and for loop
@@ -248,7 +241,7 @@ __reassemble_comp_words_by_ref() {
             done
             # Append word to current word
             ref="$2[$j]"
-            eval $2[$j]=\""${!ref}${COMP_WORDS[$i]}"\"
+            eval $2[$j]=\${!ref}\${COMP_WORDS[i]}
             # Indicate new cword
             [ $i = $COMP_CWORD ] && eval $3=$j
         done
@@ -295,7 +288,7 @@ _get_cword()
                 "${#cur}" -ge ${#words[i]} &&
                 # $cur doesn't match cword?
                 "${cur:0:${#words[i]}}" != "${words[i]}"
-                ]]; do
+            ]]; do
                 # Strip first character
                 cur="${cur:1}"
                 # Decrease cursor position
@@ -369,6 +362,46 @@ __ltrim_colon_completions() {
 } # __ltrim_colon_completions()
 
 
+# This function quotes the argument in a way so that readline dequoting
+# results in the original argument.  This is necessary for at least
+# `compgen' which requires its arguments quoted/escaped:
+#
+#     $ ls "a'b/"
+#     c
+#     $ compgen -f "a'b/"       # Wrong, doesn't return output
+#     $ compgen -f "a\'b/"      # Good (bash-4)
+#     a\'b/c
+#     $ compgen -f "a\\\\\'b/"  # Good (bash-3)
+#     a\'b/c
+#
+# See also: http://lists.gnu.org/archive/html/bug-bash/2009-03/msg00155.html
+# @param $1  Argument to quote
+# @param $2  Name of variable to return result to
+_quote_readline_by_ref()
+{
+   # If bash <= 3 and argument starts with single quote ('), double-escape
+#   if [[ ${BASH_VERSINFO[0]} -le 3 && ${1:0:1} == "'" ]]; then
+#        local t
+#        printf -v t %q "${1:1}"
+#        printf -v $2 %q "$t"
+#   else
+#        printf -v $2 %q "$1"
+#   fi
+    if [[ ${1:0:1} == "'" ]]; then
+        # Quote word, leaving out first character
+        printf -v $2 %q "${1:1}"
+        if [[ ${BASH_VERSINFO[0]} -le 3 ]]; then
+            # Double-quote word on bash-3
+            printf -v $2 %q ${!2}
+        fi
+    elif [[ ${BASH_VERSINFO[0]} -le 3 && ${1:0:1} == '"' ]]; then
+        printf -v $2 %q "${1:1}"
+    else
+        printf -v $2 %q "$1"
+    fi
+} # _quote_readline_by_ref()
+
+
 # This function performs file and directory completion. It's better than
 # simply using 'compgen -f', because it honours spaces in filenames.
 # If passed -d, it completes only on directories. If passed anything else,
@@ -376,12 +409,12 @@ __ltrim_colon_completions() {
 #
 _filedir()
 {
-    local IFS=$'\t\n' xspec
+    local i IFS=$'\t\n' xspec
 
-    _expand || return 0
+    __expand_tilde_by_ref cur
 
     local -a toks
-    local tmp
+    local quoted tmp
 
     # TODO: I've removed a "[ -n $tmp ] &&" before `printf '%s\n' $tmp',
     #       and everything works again. If this bug
@@ -393,28 +426,74 @@ _filedir()
     #       because quotes-in-comments-in-a-subshell cause errors on
     #       bash-3.1.  See also:
     #       http://www.mail-archive.com/bug-bash@gnu.org/msg01667.html
+    _quote_readline_by_ref "$cur" quoted
     toks=( ${toks[@]-} $(
-        compgen -d -- "$(quote_readline "$cur")" | {
+        compgen -d -- "$quoted" | {
             while read -r tmp; do
                 printf '%s\n' $tmp
             done
         }
     ))
 
+    # On bash-3, special characters need to be escaped extra.  This is
+    # unless the first character is a single quote (').  If the single
+    # quote appears further down the string, bash default completion also
+    # fails, e.g.:
+    #
+    #     $ ls 'a&b/'
+    #     f
+    #     $ foo 'a&b/<TAB>  # Becomes: foo 'a&b/f'
+    #     $ foo a'&b/<TAB>  # Nothing happens
+    #
     if [[ "$1" != -d ]]; then
         xspec=${1:+"!*.$1"}
-        toks=( ${toks[@]-} $(
-            compgen -f -X "$xspec" -- "$(quote_readline "$cur")" | {
-                while read -r tmp; do
-                    [ -n $tmp ] && printf '%s\n' $tmp
+        if [[ ${cur:0:1} == "'" && ${BASH_VERSINFO[0]} -ge 4 ]]; then
+            toks=( ${toks[@]-} $(
+                eval compgen -f -X \"\$xspec\" -- $quoted
+            ) )
+        else
+            toks=( ${toks[@]-} $(
+                compgen -f -X "$xspec" -- $quoted
+            ) )
+        fi
+        if [ ${#toks[@]} -ne 0 ]; then
+            # If `compopt' is available, set `-o filenames'
+            compopt &>/dev/null && compopt -o filenames ||
+            # No, `compopt' isn't available;
+            # Is `-o filenames' set?
+            [[ "$(complete -p ${COMP_WORDS[0]})" == *"-o filenames"* ]] || {
+                # No, `-o filenames' isn't set;
+                # Emulate `-o filenames'
+                # NOTE: A side-effect of emulating `-o filenames' is that backslash escape
+                #       characters are visible within the list of presented completions, e.g.
+                #       the completions look like:
+                #
+                #           $ foo a<TAB>
+                #           a\ b/  a\$b/
+                #
+                #       whereas with `-o filenames' active the completions look like:
+                #
+                #           $ ls a<TAB>
+                #           a b/  a$b/
+                #
+                for ((i=0; i < ${#toks[@]}; i++)); do
+                    # If directory exists, append slash (/)
+                    if [[ ${cur:0:1} != "'" ]]; then
+                        [[ -d ${toks[i]} ]] && toks[i]="${toks[i]}"/
+                        if [[ ${cur:0:1} == '"' ]]; then
+                            toks[i]=${toks[i]//\\/\\\\}       
+                            toks[i]=${toks[i]//\"/\\\"}
+                            toks[i]=${toks[i]//\$/\\\$}
+                        else
+                            toks[i]=$(printf %q ${toks[i]})       
+                        fi
+                    fi
                 done
             }
-        ))
+        fi
     fi
 
     COMPREPLY=( "${COMPREPLY[@]}" "${toks[@]}" )
-    [ ${#COMPREPLY[@]} -ne 0 ] && type compopt &>/dev/null && \
-        compopt -o filenames
 } # _filedir()
 
 

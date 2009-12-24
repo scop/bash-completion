@@ -253,4 +253,32 @@ expect {
 sync_after_int
 
 
+set test {a 'b&c| should return 'b&c};  # | = cursor position
+if {
+    [lindex $::BASH_VERSINFO 0] == 4 && 
+    [lindex $::BASH_VERSINFO 1] == 0 &&
+    [lindex $::BASH_VERSINFO 2] < 35
+} {
+    set cmd {COMP_WORDS=(a "'" b "&" c); COMP_CWORD=4}
+} else {
+    set cmd {COMP_WORDS=(a "'b&c"); COMP_CWORD=1}
+}; # if
+append cmd {; COMP_LINE="a 'b&c"; COMP_POINT=6; _get_cword}
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    -ex "'b&c/@" { pass "$test" }
+    -ex "c/@" { 
+        if {
+            [lindex $::BASH_VERSINFO 0] == 4 &&
+            [lindex $::BASH_VERSINFO 1] == 0 &&
+            [lindex $::BASH_VERSINFO 2] < 35
+        } {xfail "$test"} {fail "$test"}
+    }
+}; # expect
+
+
+sync_after_int
+
+
 teardown

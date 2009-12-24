@@ -33,6 +33,11 @@ expect {
     -re "\r\nbar\\s+bar bar.d\\s+foo\\s+foo.d" { 
         if {[lindex $BASH_VERSINFO 0] < 4} {xfail "$test"} {fail "$test"}
     }
+    -re "\r\nbar\\s+bar\\\\ bar.d/\\s+foo\\s+foo.d/" {
+        # On bash-3, the space in `bar bar.d' is escaped with a backslash
+        # as a side-effect of emulating `-o filenames'.
+        if {[lindex $BASH_VERSINFO 0] <= 3} {pass "$test"} {fail "$test"}
+    }
     -re $prompt { unresolved "$test at prompt" }
     default { unresolved "$test" }
 }; # expect
