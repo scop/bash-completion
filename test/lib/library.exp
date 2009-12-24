@@ -81,10 +81,10 @@ proc assert_bash_type {command} {
 # @result boolean  True if successful, False if not
 proc assert_bash_list {expected cmd {test ""} {prompt /@} {size 20}} {
     if {$test == ""} {set test "$cmd should show expected output"}
-    send "$cmd\r\n"
+    send "$cmd\r"
     expect -ex "$cmd\r\n"
 
-    if {[match_items $expected $test]} {
+    if {[match_items $expected $test $prompt $size]} {
         expect {
             -re $prompt { pass "$test" }
             -re eof { unresolved "eof" }
@@ -93,6 +93,15 @@ proc assert_bash_list {expected cmd {test ""} {prompt /@} {size 20}} {
         fail "$test"
     }; # if
 }; # assert_bash_list()
+
+
+proc assert_bash_list_dir {expected cmd dir {test ""} {prompt /@} {size 20}} {
+    set prompt "/$dir/@"
+    assert_bash_exec "cd $dir" "" $prompt
+    assert_bash_list $expected $cmd $test $prompt $size
+    sync_after_int $prompt
+    assert_bash_exec "cd \$TESTDIR"
+}; # assert_bash_list_dir()
 
 
 # Make sure the expected items are returned by TAB-completing the specified
@@ -142,7 +151,7 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20} {cword ""} {f
         _ltrim_colon_completions cword expected
     }; # if
 
-    if {[match_items $expected $test]} {
+    if {[match_items $expected $test $prompt $size]} {
         if {[llength $expected] == 1} {
             pass "$test"
         } else {
@@ -484,7 +493,7 @@ proc init_tcl_bash_globals {} {
 # @param list $items
 # @param integer $size  Chunk size
 # @result boolean  True if successful, False if not
-proc match_items {items test {size 20}} {
+proc match_items {items test {prompt /@} {size 20}} {
     # NOTE: `exec sort' is used instead of `lsort' to achieve exactly the
     #       same sort order as in bash -- FVu, Wed Nov 25 22:25:28 CET 2009
     set items [bash_sort $items]
@@ -501,8 +510,10 @@ proc match_items {items test {size 20}} {
         }; # for
         if {[llength $items] == 1} {
             expect {
+                -re "^$expected\r\n$" { set result true }
                 # NOTE: The optional space ( ?) depends on whether -o nospace is active
                 -re "^$expected ?$" { set result true }
+                -re "^$prompt$" {set result false; break }
                 "\r\n" { set result false; break }
                 default { set result false; break }
                 timeout { set result false; break }
