@@ -3,6 +3,19 @@
 have ssh &&
 {
 
+_ssh_ciphers()
+{
+    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W '3des-cbc aes128-cbc \
+        aes192-cbc aes256-cbc aes128-ctr aes192-ctr aes256-ctr arcfour128 \
+        arcfour256 arcfour blowfish-cbc cast128-cbc' -- "$1" ) )
+}
+
+_ssh_macs()
+{
+    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W 'hmac-md5 hmac-sha1 \
+        umac-64@openssh.com hmac-ripemd160 hmac-sha1-96 hmac-md5-96' -- "$1" ) )
+}
+
 _ssh_options()
 {
     type compopt &>/dev/null && compopt -o nospace
@@ -66,14 +79,10 @@ _ssh_suboption()
                     -- "$subval" ) )
             ;;
         MACs)
-            COMPREPLY=( $( compgen -W 'hmac-md5 hmac-sha1 umac-64@openssh.com \
-                hmac-ripemd160 hmac-sha1-96 hmac-md5-96' -- "subval" ) )
+            _ssh_macs "$subval"
             ;;
         Ciphers)
-            COMPREPLY=( $( compgen -W '3des-cbc aes128-cbc aes192-cbc \
-                    aes256-cbc aes128-ctr aes192-ctr aes256-ctr arcfour128 \
-                    arcfour256 arcfour blowfish-cbc cast128-cbc' \
-                    -- "$subval" ) )
+            _ssh_ciphers "$subval"
             ;;
     esac
     return 0
@@ -110,14 +119,11 @@ _ssh()
             return 0
             ;;
         -c)
-            COMPREPLY=( $( compgen -W '3des-cbc aes128-cbc aes192-cbc \
-                aes256-cbc aes128-ctr aes192-ctr aes256-ctr arcfour128 \
-                arcfour256 arcfour blowfish-cbc cast128-cbc' -- "$cur" ) )
+            _ssh_ciphers "$cur"
             return 0
             ;;
         -m)
-            COMPREPLY=( $( compgen -W 'hmac-md5 hmac-sha1 umac-64@openssh.com \
-                hmac-ripemd160 hmac-sha1-96 hmac-md5-96' -- "$cur" ) )
+            _ssh_macs "$cur"
             return 0
             ;;
         -l)
