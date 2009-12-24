@@ -123,6 +123,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/smartctl \
 		contrib/snownews \
 		contrib/ssh \
+		contrib/sshfs \
 		contrib/strace \
 		contrib/svk \
 		contrib/sysctl \
