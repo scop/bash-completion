@@ -3,8 +3,10 @@
 have ssh &&
 {
 
-_ssh_options() {
-    COMPREPLY=( $( compgen -W 'AddressFamily BatchMode BindAddress \
+_ssh_options()
+{
+    type compopt &>/dev/null && compopt -o nospace
+    COMPREPLY=( $( compgen -S = -W 'AddressFamily BatchMode BindAddress \
         ChallengeResponseAuthentication CheckHostIP Cipher Ciphers \
         ClearAllForwardings Compression CompressionLevel ConnectionAttempts \
         ConnectTimeout ControlMaster ControlPath DynamicForward EscapeChar \
@@ -23,6 +25,74 @@ _ssh_options() {
         VisualHostKey XAuthLocation' -- "$cur" ) )
 }
 
+# Complete a ssh suboption (like ForwardAgent=y<tab>)
+# Only one parameter: the string to complete including the equal sign.
+# Not all suboptions are completed.
+# Doesn't handle comma-separated lists.
+_ssh_suboption()
+{
+    # Split into subopt and subval
+    local subopt=${1%%=*} subval=${1#*=}
+
+    case "$subopt" in
+        BatchMode|ChallengeResponseAuthentication|CheckHostIP|\
+        ClearAllForwardings|Compression|ExitOnForwardFailure|ForwardAgent|\
+        ForwardX11|ForwardX11Trusted|GatewayPorts|GSSAPIAuthentication|\
+        GSSAPIKeyExchange|GSSAPIDelegateCredentials|GSSAPITrustDns|\
+        HashKnownHosts|HostbasedAuthentication|IdentitiesOnly|\
+        KbdInteractiveAuthentication|KbdInteractiveDevices|\
+        NoHostAuthenticationForLocalhost|PasswordAuthentication|\
+        PubkeyAuthentication|RhostsRSAAuthentication|RSAAuthentication|\
+        StrictHostKeyChecking|TCPKeepAlive|UsePrivilegedPort|\
+        VerifyHostKeyDNS|VisualHostKey)
+            COMPREPLY=( $( compgen -W 'yes no' -- "$subval") )
+            ;;
+        AddressFamily)
+            COMPREPLY=( $( compgen -W 'any inet inet6' -- "$subval" ) )
+            ;;
+        Cipher)
+            COMPREPLY=( $( compgen -W 'blowfish des 3des' -- "$subval" ) )
+            ;;
+        Protocol)
+            COMPREPLY=( $( compgen -W '1 2 1,2 2,1' -- "$subval" ) )
+            ;;
+        Tunnel)
+            COMPREPLY=( $( compgen -W 'yes no point-to-point ethernet' \
+                    -- "$subval" ) )
+            ;;
+        PreferredAuthentications)
+            COMPREPLY=( $( compgen -W 'gssapi-with-mic host-based \
+                    publickey keyboard-interactive password' \
+                    -- "$subval" ) )
+            ;;
+        MACs)
+            COMPREPLY=( $( compgen -W 'hmac-md5 hmac-sha1 umac-64@openssh.com \
+                hmac-ripemd160 hmac-sha1-96 hmac-md5-96' -- "subval" ) )
+            ;;
+        Ciphers)
+            COMPREPLY=( $( compgen -W '3des-cbc aes128-cbc aes192-cbc \
+                    aes256-cbc aes128-ctr aes192-ctr aes256-ctr arcfour128 \
+                    arcfour256 arcfour blowfish-cbc cast128-cbc' \
+                    -- "$subval" ) )
+            ;;
+    esac
+    return 0
+}
+
+# Try to complete -o SubOptions=
+#
+# Returns 0 if the completion was handled or non-zero otherwise.
+_ssh_suboption_check()
+{
+    # Get prev and cur words without splitting on =
+    local cureq=`_get_cword :=` preveq=`_get_pword :=`
+    if [[ $cureq == *=* && $preveq == -o ]]; then
+        _ssh_suboption $cureq
+        return $?
+    fi
+    return 1
+}
+
 _ssh()
 {
     local cur prev configfile
@@ -31,6 +101,8 @@ _ssh()
     COMPREPLY=()
     cur=`_get_cword :`
     prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    _ssh_suboption_check && return 0
 
     case "$prev" in
         -F|-i|-S)
@@ -111,6 +183,8 @@ _sftp()
     COMPREPLY=()
     cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    _ssh_suboption_check && return 0
 
     case "$prev" in
         -b|-F|-P)
