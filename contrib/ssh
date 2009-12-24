@@ -3,6 +3,13 @@
 have ssh &&
 {
 
+_ssh_bindaddress()
+{
+    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W \
+        "$( PATH="$PATH:/sbin" ifconfig | \
+        sed -ne 's/.*addr:\([^[:space:]]*\).*/\1/p' )" -- "$cur" ) )
+}
+
 _ssh_ciphers()
 {
     COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W '3des-cbc aes128-cbc \
@@ -63,6 +70,9 @@ _ssh_suboption()
             ;;
         AddressFamily)
             COMPREPLY=( $( compgen -W 'any inet inet6' -- "$cur" ) )
+            ;;
+        BindAddress)
+            _ssh_bindaddress
             ;;
         Cipher)
             COMPREPLY=( $( compgen -W 'blowfish des 3des' -- "$cur" ) )
@@ -139,8 +149,7 @@ _ssh()
             return 0
             ;;
         -b)
-            COMPREPLY=( $( compgen -W "$( PATH="$PATH:/sbin" ifconfig | \
-                sed -ne 's/.*addr:\([^[:space:]]*\).*/\1/p' )" -- "$cur" ) )
+            _ssh_bindaddress
             return 0
             ;;
     esac
