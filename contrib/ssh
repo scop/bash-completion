@@ -248,10 +248,36 @@ shopt -u hostcomplete && complete -F _sftp sftp
 #
 _scp()
 {
-    local configfile cur userhost path prefix
+    local configfile cur prev userhost path prefix
 
     COMPREPLY=()
     cur=`_get_cword ":"`
+    prev=`_get_pword ":"`
+
+    _ssh_suboption_check && {
+        COMPREPLY=( "${COMPREPLY[@]/%/ }" )
+        return 0
+    }
+
+    case "$prev" in
+        -l|-P)
+            return 0
+            ;;
+        -F|-i|-S)
+            _filedir
+            type compopt &>/dev/null && compopt +o nospace
+            return 0
+            ;;
+        -c)
+            _ssh_ciphers
+            COMPREPLY=( "${COMPREPLY[@]/%/ }" )
+            return 0
+            ;;
+        -o)
+            _ssh_options
+            return 0
+            ;;
+    esac
 
     _expand || return 0
 
@@ -297,7 +323,20 @@ _scp()
             shift
         done
 
-        [[ "$cur" == */* ]] || _known_hosts_real -c -a -F "$configfile" "$cur"
+        case "$cur" in
+            -*)
+                COMPREPLY=( $( compgen -W '-1 -2 -4 -6 -B -C -c -F -i -l -o \
+                    -P -p -q -r -S -v' -- "$cur" ) )
+                COMPREPLY=( "${COMPREPLY[@]/%/ }" )
+                return 0
+                ;;
+            */*)
+                # pass through
+                ;;
+            *)
+                _known_hosts_real -c -a -F "$configfile" "$cur"
+                ;;
+        esac
     fi
 
     # This approach is used instead of _filedir to get a space appended
