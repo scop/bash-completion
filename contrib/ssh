@@ -243,12 +243,51 @@ _sftp()
 }
 shopt -u hostcomplete && complete -F _sftp sftp
 
+# things we want to escape in remote scp paths
+_scp_path_esc="[][(){}<>\",:;^&\!$=?\`|\\ ']"
+
+_scp_remote_files()
+{
+    local IFS=$'\t\n'
+
+    # remove backslash escape from the first colon
+    local cur=${1/\\:/:}
+
+    local userhost=${cur%%?(\\):*}
+    local path=${cur#*:}
+
+    # unescape (3 backslashes to 1 for chars we escaped)
+    path=$( sed -e 's/\\\\\\\('$_scp_path_esc'\)/\\\1/g' <<<"$path" )
+
+    # default to home dir of specified user on remote host
+    if [ -z "$path" ]; then
+        path=$(ssh -o 'Batchmode yes' $userhost pwd 2>/dev/null)
+    fi
+
+    # escape spaces; remove executables, aliases, pipes and sockets;
+    # add space at end of file names
+    COMPREPLY=( "${COMPREPLY[@]}" $( ssh -o 'Batchmode yes' $userhost \
+        command ls -aF1d "$path*" 2>/dev/null | \
+        sed -e 's/'$_scp_path_esc'/\\\\\\&/g' -e 's/[*@|=]$//g' \
+        -e 's/[^\/]$/& /g' ) )
+}
+
+# This approach is used instead of _filedir to get a space appended
+# after local file/dir completions, and -o nospace retained for others.
+# Args: 1=prefix to strip (optional)
+_scp_local_files()
+{
+    local IFS=$'\t\n'
+    COMPREPLY=( "${COMPREPLY[@]}" $( command ls -aF1d $cur* 2>/dev/null | \
+        sed -e "s/$_scp_path_esc/\\\\&/g" -e 's/[*@|=]$//g' \
+        -e 's/[^\/]$/& /g' -e "s/^/$1/") )
+}
 
 # scp(1) completion
 #
 _scp()
 {
-    local configfile cur prev userhost path prefix
+    local configfile cur prev prefix
 
     COMPREPLY=()
     cur=`_get_cword ":"`
@@ -281,30 +320,12 @@ _scp()
 
     _expand || return 0
 
-    # things we want to backslash escape
-    local esc="[][(){}<>\",:;^&\!$=?\`|\\ ']"
-
     if [[ "$cur" == *:* ]]; then
-        local IFS=$'\t\n'
-        # remove backslash escape from the first colon
-        cur=${cur/\\:/:}
-        userhost=${cur%%?(\\):*}
-        path=${cur#*:}
-        # unescape (3 backslashes to 1 for chars we escaped)
-        path=$( sed -e 's/\\\\\\\('$esc'\)/\\\1/g' <<<"$path" )
-        if [ -z "$path" ]; then
-            # default to home dir of specified user on remote host
-            path=$(ssh -o 'Batchmode yes' $userhost pwd 2>/dev/null)
-        fi
-        # escape spaces; remove executables, aliases, pipes and sockets;
-        # add space at end of file names
-        COMPREPLY=( $( ssh -o 'Batchmode yes' $userhost \
-            command ls -aF1d "$path*" 2>/dev/null | \
-            sed -e 's/'$esc'/\\\\\\&/g' -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' ) )
+        _scp_remote_files "$cur"
         return 0
     fi
 
-    if [[ "$cur" = -F* ]]; then
+    if [[ "$cur" == -F* ]]; then
         cur=${cur#-F}
         prefix=-F
     else
@@ -339,12 +360,7 @@ _scp()
         esac
     fi
 
-    # This approach is used instead of _filedir to get a space appended
-    # after local file/dir completions, and -o nospace retained for others.
-    local IFS=$'\t\n'
-    COMPREPLY=( "${COMPREPLY[@]}" $( command ls -aF1d $cur* 2>/dev/null | \
-        sed -e "s/$esc/\\\\&/g" -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' \
-        -e "s/^/$prefix/") )
+    _scp_local_files "$prefix"
 
     return 0
 }

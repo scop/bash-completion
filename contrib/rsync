@@ -5,11 +5,9 @@ _rsync()
 {
     # TODO: _split_longopt
 
-    local cur prev shell i userhost path
-
     COMPREPLY=()
-    cur=`_get_cword :`
-    prev=${COMP_WORDS[COMP_CWORD-1]}
+    local cur=`_get_cword :`
+    local prev=`_get_pword :`
 
     _expand || return 0
 
@@ -63,42 +61,27 @@ _rsync()
                 --no-detach' -- "$cur" ) )
             ;;
         *:*)
-            # find which remote shell is used
-            shell=ssh
-            for (( i=1; i < COMP_CWORD; i++ )); do
-                if [[ "${COMP_WORDS[i]}" == -@(e|-rsh) ]]; then
-                    shell=${COMP_WORDS[i+1]}
-                    break
-                fi
-            done
-            if [[ "$shell" == ssh ]]; then
-                # remove backslash escape from :
-                cur=${cur/\\:/:}
-                userhost=${cur%%?(\\):*}
-                path=${cur#*:}
-                # unescape spaces
-                path=${path//\\\\\\\\ / }
-                if [ -z "$path" ]; then
-                    # default to home dir of specified user on remote host
-                    path=$(ssh -o 'Batchmode yes' $userhost pwd 2>/dev/null)
-                fi
-                # escape spaces; remove executables, aliases, pipes and sockets;
-                # add space at end of file names
-                COMPREPLY=( $( ssh -o 'Batchmode yes' $userhost \
-                    command ls -aF1d "$path*" 2>/dev/null | \
-                    sed -e 's/ /\\\\\\\ /g' -e 's/[*@|=]$//g' \
-                    -e 's/[^\/]$/& /g' ) )
+            if type _scp_remote_files &>/dev/null; then
+                # find which remote shell is used
+                local i shell=ssh
+                for (( i=1; i < COMP_CWORD; i++ )); do
+                    if [[ "${COMP_WORDS[i]}" == -@(e|-rsh) ]]; then
+                        shell=${COMP_WORDS[i+1]}
+                        break
+                    fi
+                done
+                [ "$shell" = ssh ] && _scp_remote_files "$cur"
             fi
             ;;
         *)
             _known_hosts_real -c -a "$cur"
-            _filedir
+            type _scp_local_files &>/dev/null && _scp_local_files || _filedir
             ;;
     esac
 
     return 0
 } &&
-complete -F _rsync -o nospace -o filenames rsync
+complete -F _rsync -o nospace rsync
 
 # Local variables:
 # mode: shell-script
