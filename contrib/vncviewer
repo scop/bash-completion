@@ -6,7 +6,8 @@ _vncviewer_bootstrap()
     local fname
     case "$(_realcommand vncviewer)" in
         *xvnc4viewer)      fname=_xvnc4viewer    ;;
-        *tightvncviewer|*) fname=_tightvncviewer ;;
+        *tightvncviewer)   fname=_tightvncviewer ;;
+        *)                 fname=_vncviewer      ;;
     esac
 
     # Install real completion for subsequent completions
@@ -14,11 +15,15 @@ _vncviewer_bootstrap()
     $fname  # Generate completions once for now
     unset -f _vncviewer_bootstrap
 } &&
-complete -F _vncviewer_bootstrap vncviewer
+complete -F _vncviewer_bootstrap vncviewer &&
+_vncviewer()
+{
+    COMPREPLY=()
+    local cur=`_get_cword`
+    _known_hosts_real "$cur"
+}
 
-# _tightvncviewer is our default in bootstrap above, so always define it
-# even if only vncviewer is available.
-have vncviewer || have tightvncviewer &&
+have tightvncviewer &&
 _tightvncviewer()
 {
     local cur prev
@@ -53,8 +58,8 @@ _tightvncviewer()
     else
         _known_hosts_real "$cur"
     fi
-}
-have tightvncviewer && complete -F _tightvncviewer tightvncviewer
+} &&
+complete -F _tightvncviewer tightvncviewer
 
 
 # NOTE: - VNC Viewer options are case insensitive.
