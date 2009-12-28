@@ -43,6 +43,15 @@ _cvs_kflags()
     COMPREPLY=( $( compgen -W 'kv kvl k o b v' -- "$cur" ) )
 }
 
+_cvs_roots()
+{
+    if [ -r ~/.cvspass ]; then
+        # Ugly escaping because of bash treating ':' specially
+        cvsroots=$( sed -e 's/^[^ ]* //' -e 's/:/\\:/g' ~/.cvspass )
+        COMPREPLY=( $( compgen -W '$cvsroots' -- "$cur" ) )
+    fi
+}
+
 _cvs()
 {
     local cur prev count mode i cvsroot cvsroots pwd
@@ -252,11 +261,7 @@ _cvs()
             fi
             ;;
         cvsroot)
-            if [ -r ~/.cvspass ]; then
-                # Ugly escaping because of bash treating ':' specially
-                cvsroots=$( sed -e 's/^[^ ]* //' -e 's/:/\\:/g' ~/.cvspass )
-                COMPREPLY=( $( compgen -W '$cvsroots' -- "$cur" ) )
-            fi
+            _cvs_roots
             ;;
         export)
             case "$prev" in
