@@ -45,9 +45,11 @@ _cvs_kflags()
 
 _cvs_roots()
 {
+    # TODO: this works very poorly because of the colons
     if [ -r ~/.cvspass ]; then
         # Ugly escaping because of bash treating ':' specially
-        cvsroots=$( sed -e 's/^[^ ]* //' -e 's/:/\\:/g' ~/.cvspass )
+        # TODO: this ugly escaping doesn't help :P
+        cvsroots=$( awk '{ print $2 }' ~/.cvspass | sed -e 's/:/\\:/g' )
         COMPREPLY=( $( compgen -W '$cvsroots' -- "$cur" ) )
     fi
 }
