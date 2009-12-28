@@ -45,13 +45,13 @@ _cvs_kflags()
 
 _cvs_roots()
 {
-    # TODO: this works very poorly because of the colons
-    if [ -r ~/.cvspass ]; then
-        # Ugly escaping because of bash treating ':' specially
-        # TODO: this ugly escaping doesn't help :P
-        cvsroots=$( awk '{ print $2 }' ~/.cvspass | sed -e 's/:/\\:/g' )
-        COMPREPLY=( $( compgen -W '$cvsroots' -- "$cur" ) )
-    fi
+    local -a cvsroots
+    cvsroots=( $CVSROOT )
+    [ -r ~/.cvspass ] && \
+        cvsroots=( "${cvsroots[@]}" $( awk '{ print $2 }' ~/.cvspass ) )
+    [ -r CVS/Root ] && cvsroots=( "${cvsroots[@]}" $(cat CVS/Root) )
+    COMPREPLY=( $( compgen -W '${cvsroots[@]}' -- "$cur" ) )
+    __ltrim_colon_completions "$cur"
 }
 
 _cvs()
@@ -60,8 +60,8 @@ _cvs()
     local -a flags miss files entries changed newremoved
 
     COMPREPLY=()
-    cur=`_get_cword`
-    prev=${COMP_WORDS[COMP_CWORD-1]}
+    cur=`_get_cword :`
+    prev=`_get_pword :`
 
     count=0
     for i in "${COMP_WORDS[@]}"; do
@@ -263,6 +263,8 @@ _cvs()
             fi
             ;;
         cvsroot)
+            # TODO: works poorly because of the colons and -o default,
+            #       could we drop -o default?  works ok without it in cvsps
             _cvs_roots
             ;;
         export)
