@@ -38,6 +38,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/dsniff \
 		contrib/findutils \
 		contrib/freeciv \
+		contrib/fuse \
 		contrib/gcc \
 		contrib/gcl \
 		contrib/gdb \
