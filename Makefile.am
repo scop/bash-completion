@@ -147,6 +147,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/xmlwf \
 		contrib/xmms \
 		contrib/xrandr \
+		contrib/xsltproc \
 		contrib/xz \
 		contrib/yp-tools \
 		contrib/yum-arch
