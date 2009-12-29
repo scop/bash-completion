@@ -155,5 +155,10 @@ bashcomp_DATA = contrib/abook \
 profiledir = $(sysconfdir)/profile.d
 profile_DATA = bash_completion.sh
 
-EXTRA_DIST = CHANGES $(sysconf_DATA) $(bashcomp_DATA) $(profile_DATA) \
+bash_completion.sh: bash_completion.sh.in Makefile
+	sed -e 's|@sysconfdir[@]|$(sysconfdir)|' <$(srcdir)/$@.in >$@
+
+CLEANFILES = bash_completion.sh
+
+EXTRA_DIST = CHANGES $(sysconf_DATA) $(bashcomp_DATA) bash_completion.sh.in \
 	contrib/_modules contrib/_subversion contrib/_yum contrib/_yum-utils
