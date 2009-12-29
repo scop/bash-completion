@@ -1,5 +1,4 @@
 SUBDIRS = test
-AUTOMAKE_OPTIONS = dist-bzip2
 
 sysconf_DATA = bash_completion
 
