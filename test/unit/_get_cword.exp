@@ -161,6 +161,19 @@ assert_bash_list b:c $cmd $test
 sync_after_int
 
 
+set test {a b c:| with WORDBREAKS -= : should return c:};  # | = cursor position
+if {[lindex $::BASH_VERSINFO 0] <= 3} {
+    set cmd {COMP_WORDS=(a b c:); COMP_CWORD=2}
+} else {
+    set cmd {COMP_WORDS=(a b c :); COMP_CWORD=3}
+}; # if
+append cmd {; COMP_LINE='a b c:'; COMP_POINT=6; _get_cword :}
+assert_bash_list c: $cmd $test
+
+
+sync_after_int
+
+
 set test {a :| with WORDBREAKS -= : should return :};  # | = cursor position
 set cmd {COMP_WORDS=(a :); COMP_CWORD=1; COMP_LINE='a :'; COMP_POINT=3; _get_cword :}
 assert_bash_list : $cmd $test
