@@ -417,6 +417,16 @@ proc assert_exec {cmd {stdout ''} {test ''}} {
 }; # assert_exec()
 
 
+# Sort list.
+# `exec sort' is used instead of `lsort' to achieve exactly the
+#  same sort order as in bash.
+# @param list $items
+# @return list  Sort list
+proc bash_sort {items} {
+    return [split [exec sort << [join $items "\n"]] "\n"]
+}; # bash_sort()
+
+
 # Get hostnames
 # @return list  Hostnames
 proc get_hosts {} {
@@ -467,16 +477,6 @@ proc get_signals {} {
 }; # get_signals()
 
 
-# Sort list.
-# `exec sort' is used instead of `lsort' to achieve exactly the
-#  same sort order as in bash.
-# @param list $items
-# @return list  Sort list
-proc bash_sort {items} {
-    return [split [exec sort << [join $items "\n"]] "\n"]
-}; # bash_sort()
-
-
 # Initialize tcl globals with bash variables
 proc init_tcl_bash_globals {} {
     global BASH_VERSINFO BASH_VERSION COMP_WORDBREAKS
@@ -486,6 +486,12 @@ proc init_tcl_bash_globals {} {
     assert_bash_exec {printf "%s" "$BASH_VERSION"} "" /@ BASH_VERSION
     assert_bash_exec {printf "%s" "$TESTDIR"} "" /@ TESTDIR
 }; # init_tcl_bash_globals()
+
+
+# Detect if test suite is running under Cygwin/Windows
+proc is_cygwin {} {
+    expr {[string first [string tolower [exec uname -s]] cygwin] >= 0}
+}; # is_cygwin()
 
 
 # Expect items.
