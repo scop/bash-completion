@@ -117,6 +117,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/rpmcheck \
 		contrib/rrdtool \
 		contrib/rsync \
+		contrib/rtcwake \
 		contrib/samba \
 		contrib/sbcl \
 		contrib/screen \

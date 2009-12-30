@@ -1,0 +1,39 @@
+# bash completion for rtcwake
+
+have rtcwake &&
+_rtcwake()
+{
+    COMPREPLY=()
+    local cur=`_get_cword` prev=`_get_pword` split=false
+
+    _split_longopt && split=true
+
+    case "$prev" in
+        --help|-h|--version|-V|--seconds|-s|--time|-t)
+            return 0
+            ;;
+        --mode|-m)
+            COMPREPLY=( $( compgen -W 'standby mem disk on no off' -- "$cur" ) )
+            return 0
+            ;;
+        --device|-d)
+            COMPREPLY=( $( command ls -d /dev/rtc* 2>/dev/null ) )
+            COMPREPLY=( $( compgen -W '${COMPREPLY[@]#/dev/}' -- "$cur" ) )
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    COMPREPLY=( $( compgen -W '--device --local --mode --seconds --time --utc \
+        --verbose --version --help' -- "$cur" ) )
+} &&
+complete -F _rtcwake rtcwake
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
