@@ -11,15 +11,22 @@ proc setup {} {
     assert_bash_exec { \
         complete -F _f -o filenames f2 \
     }
-    # Create directory `a*b'
-    # NOTE: directory `a*b' isn't included in Git, because a directory
-    #       containing an asterisk (*) causes troubles on Cygwin/Windows
-    assert_bash_exec {(cd fixtures/_filedir && [ ! -d a\*b ] && mkdir a\*b && touch a\*b/j || true)}
+    # Create directories `a*b' and `a\b' only when not running on Cygwin/Windows;
+    # directories containing `*' or `\' aren't allowed on Cygwin/Windows
+    if {! [is_cygwin]} {
+        # Create directory `a*b'
+        assert_bash_exec {(cd fixtures/_filedir && [ ! -d a\*b ] && mkdir a\*b && touch a\*b/j || true)}
+        # Create directory `a\b'
+        assert_bash_exec {(cd fixtures/_filedir && [ ! -d a\\b ] && mkdir a\\b && touch a\\b/g || true)}
+    }; # if
 }; # setup()
 
 
 proc teardown {} {
-    assert_bash_exec {(cd fixtures/_filedir && rm -- a\*b/j && rmdir a\*b/ || true)}
+    if {! [is_cygwin]} {
+        assert_bash_exec {(cd fixtures/_filedir && rm -- a\\b/g && rmdir a\\b/ || true)}
+        assert_bash_exec {(cd fixtures/_filedir && rm -- a\*b/j && rmdir a\*b/ || true)}
+    }; # if
     assert_bash_exec {unset COMPREPLY cur}
     assert_bash_exec {unset -f _f}
     assert_bash_exec {complete -r f}
@@ -79,12 +86,17 @@ foreach name {f f2} {
     sync_after_int
 
 
-    set test "completing $name a\\\\b/ should return g"
-    set cmd "$name a\\\\b/"
-    assert_complete_dir g $cmd "fixtures/_filedir"
+    # Execute these tests only when not running on Cygwin/Windows, because
+    # directories containing asterisk (*) or backslash (\) aren't allowed on
+    # Cygwin/Windows
+    if {! [is_cygwin]} {
+        set test "completing $name a\\\\b/ should return g"
+        set cmd "$name a\\\\b/"
+        assert_complete_dir g $cmd "fixtures/_filedir"
 
 
-    sync_after_int
+        sync_after_int
+    }; # if
 
 
     set test "completing $name a\\&b/ should return f"
@@ -147,12 +159,16 @@ foreach name {f f2} {
         sync_after_int
 
 
-        set test "completing $name 'a\\b/ should return g"
-        set cmd "$name 'a\\b/"
-        assert_complete_dir {g'} $cmd "fixtures/_filedir"
+        # Execute these tests only when not running on Cygwin/Windows, because
+        # directories containing `*' or `\' aren't allowed on Cygwin/Windows
+        if {! [is_cygwin]} {
+            set test "completing $name 'a\\b/ should return g"
+            set cmd "$name 'a\\b/"
+            assert_complete_dir {g'} $cmd "fixtures/_filedir"
 
 
-        sync_after_int
+            sync_after_int
+        }; # if
 
 
         set test "completing $name 'a&b/ should return f"
