@@ -222,14 +222,19 @@ __reassemble_comp_words_by_ref() {
         exclude="${1//[^$COMP_WORDBREAKS]}"
     fi
         
+    # Default to cword unchanged
+    eval $3=$COMP_CWORD
     # Are characters excluded which were former included?
     if [[ $exclude ]]; then
         # Yes, list of word completion separators has shrunk;
         # Re-assemble words to complete
         for (( i=0, j=0; i < ${#COMP_WORDS[@]}; i++, j++)); do
-            # Is current word not word 0 (the command itself) and is word made up of
-            # just word separator characters to be excluded?
-            while [[ $i -gt 0 && ${COMP_WORDS[$i]//[^$exclude]} == ${COMP_WORDS[$i]} ]]; do
+            # Is current word not word 0 (the command itself) and is word not
+            # empty and is word made up of just word separator characters to be
+            # excluded?
+            while [[ $i -gt 0 && ${COMP_WORDS[$i]} && 
+                ${COMP_WORDS[$i]//[^$exclude]} == ${COMP_WORDS[$i]} 
+            ]]; do
                 [ $j -ge 2 ] && ((j--))
                 # Append word separator to current word
                 ref="$2[$j]"
@@ -243,12 +248,11 @@ __reassemble_comp_words_by_ref() {
             ref="$2[$j]"
             eval $2[$j]=\${!ref}\${COMP_WORDS[i]}
             # Indicate new cword
-            [ $i = $COMP_CWORD ] && eval $3=$j
+            [ $i = $COMP_CWORD ] && [[ ${COMP_WORDS[i]} ]] && eval $3=$j
         done
     else
         # No, list of word completions separators hasn't changed;
         eval $2=\( \"\${COMP_WORDS[@]}\" \)
-        eval $3=$COMP_CWORD
     fi
 } # __reassemble_comp_words_by_ref()
 
