@@ -80,6 +80,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/mkinitrd \
 		contrib/mock \
 		contrib/monodevelop \
+		contrib/mount \
 		contrib/mplayer \
 		contrib/msynctool \
 		contrib/mtx \
