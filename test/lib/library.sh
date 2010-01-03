@@ -15,12 +15,16 @@ add_comp_wordbreak_char() {
 # @param $2  File 2
 # @param $3  Additional sed script
 diff_env() {
-	diff "$1" "$2" | sed -e "
-	/^[0-9,]\{1,\}[acd]/d  # Remove diff line indicators
-	/---/d                 # Remove diff block separators
-	/[<>] _=/d             # Remove underscore variable
-	/[<>] PPID=/d          # Remove PPID bash variable
-	$3"
+    diff "$1" "$2" | sed -e "
+# Remove diff line indicators
+        /^[0-9,]\{1,\}[acd]/d
+# Remove diff block separators
+        /---/d
+# Remove underscore variable
+        /[<>] _=/d
+# Remove PPID bash variable
+        /[<>] PPID=/d
+        $3"
 } # diff_env()
 
 
