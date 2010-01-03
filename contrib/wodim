@@ -3,37 +3,36 @@
 have cdrecord || have wodim &&
 _cdrecord()
 {
-    local cur prev i generic_options track_options track_mode
+    local cur prev i generic_options track_options track_mode split=false
 
     COMPREPLY=()
     cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
-    # foo=bar style option
-    if [[ "$cur" == *=* ]]; then
-        prev=${cur/=*/}
-        cur=${cur/*=/}
-        case $prev in
-            textfile|cuefile)
-                _filedir
-                return 0
-                ;;
-            blank)
-                COMPREPLY=( $( compgen -W 'help all fast \
-                    track unreserve trtail unclose session' \
-                    -- "$cur" ) )
-                return 0
-                ;;
-            driveropts)
-                COMPREPLY=( $( compgen -W 'burnfree noburnfree\
-                    varirec= audiomaster forcespeed noforcespeed\
-                    speedread nospeedread singlesession \
-                    nosinglesession hidecdr nohidecdr tattooinfo\
-                    tattoofile=' -- "$cur" ) )
-                return 0
-                ;;
-        esac
-    fi
+    _split_longopt && split=true
+
+    case $prev in
+        textfile|cuefile)
+            _filedir
+            return 0
+            ;;
+        blank)
+            COMPREPLY=( $( compgen -W 'help all fast \
+                track unreserve trtail unclose session' \
+                -- "$cur" ) )
+            return 0
+            ;;
+        driveropts)
+            COMPREPLY=( $( compgen -W 'burnfree noburnfree\
+                varirec= audiomaster forcespeed noforcespeed\
+                speedread nospeedread singlesession \
+                nosinglesession hidecdr nohidecdr tattooinfo\
+                tattoofile=' -- "$cur" ) )
+            return 0
+            ;;
+    esac
+
+    $split && return 0
 
     generic_options=(-version -v -V -d -silent -force -immed -dummy \
         -dao -raw -raw96r -raw96p -raw16 -multi -msinfo -toc \
