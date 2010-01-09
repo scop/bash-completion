@@ -221,7 +221,7 @@ proc assert_complete_any {cmd {test ""} {prompt /@}} {
     send "$cmd\t"
     expect -ex "$cmd"
         # Escape special regexp characters
-    regsub -all {([\[\]\(\)\.\\\+])} $cmd {\\\1} cmd
+    regsub -all {([\^$+*?.|(){}[\]\\])} $cmd {\\\1} cmd
     expect {
         -timeout 1
         # Match completions, multiple words
@@ -506,8 +506,8 @@ proc match_items {items test {prompt /@} {size 20}} {
         set expected ""
         for {set j 0} {$j < $size && $i + $j < [llength $items]} {incr j} {
             set item "[lindex $items [expr {$i + $j}]]"
-                # Escape special regexp characters ([]().\*^$)
-            regsub -all {([\[\]\(\)\.\\\+\*\^\$])} $item {\\\1} item
+                # Escape special regexp characters
+            regsub -all {([\^$+*?.|(){}[\]\\])} $item {\\\1} item
             append expected $item
             if {[llength $items] > 1} {append expected {\s+}};
         }; # for
