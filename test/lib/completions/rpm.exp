@@ -1,0 +1,37 @@
+proc setup {} {
+    save_env
+}; # setup()
+
+
+proc teardown {} {
+    assert_env_unmodified
+}; # teardown()
+
+
+set _old_match_max [match_max]
+match_max 100000
+
+setup
+
+
+assert_complete_any "rpm "
+
+
+sync_after_int
+
+
+assert_complete_any "rpm -q "
+
+
+sync_after_int
+
+
+assert_complete_any "rpm --eval %"
+
+
+sync_after_int
+
+
+teardown
+
+match_max $_old_match_max
