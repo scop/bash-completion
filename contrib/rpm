@@ -10,9 +10,9 @@ _rpm_installed_packages()
     if [[ -r /var/log/rpmpkgs && \
         /var/log/rpmpkgs -nt /var/lib/rpm/Packages ]]; then
         # using RHL 7.2 or later - this is quicker than querying the DB
-        COMPREPLY=( $( sed -ne \
-            's|^\('$cur'[^[:space:]]*\)-[^[:space:]-]\{1,\}-[^[:space:]-]\{1,\}\.rpm$|\1|p' \
-            /var/log/rpmpkgs ) )
+        COMPREPLY=( $( compgen -W "$( sed -ne \
+            's|^\([^[:space:]]\{1,\}\)-[^[:space:]-]\{1,\}-[^[:space:]-]\{1,\}\.rpm$|\1|p' \
+            /var/log/rpmpkgs )" -- "$cur" ) )
     elif type rpmqpack &>/dev/null ; then
         # SUSE's rpmqpack is faster than rpm -qa
         COMPREPLY=( $( compgen -W '$( rpmqpack )' -- "$cur" ) )
@@ -96,9 +96,9 @@ _rpm()
             ;;
         --eval|-E)
             # get a list of macros
-            COMPREPLY=( $( rpm --showrc | sed -ne \
-                's/^-\{0,1\}[0-9]\{1,\}[:=][[:space:]]\{1,\}\('${cur#%}'[^[:space:](]*\).*/\1/p' ) )
-            COMPREPLY=( "${COMPREPLY[@]/#/%}" )
+            COMPREPLY=( $( compgen -W "$( rpm --showrc | sed -ne \
+                's/^-\{0,1\}[0-9]\{1,\}[:=][[:space:]]\{1,\}\([^[:space:](]\{3,\}\).*/%\1/p' )" \
+                -- "$cur" ) )
             return 0
             ;;
         --pipe)
