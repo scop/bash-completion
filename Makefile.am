@@ -56,6 +56,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/info \
 		contrib/iptables \
 		contrib/ipmitool \
+		contrib/ipv6calc \
 		contrib/isql \
 		contrib/jar \
 		contrib/java \
