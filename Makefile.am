@@ -1,4 +1,4 @@
-AUTOMAKE_OPTIONS = dist-bzip2
+SUBDIRS = test
 
 sysconf_DATA = bash_completion
 
@@ -30,6 +30,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/cpio \
 		contrib/cups \
 		contrib/cvs \
+		contrib/cvsps \
 		contrib/dd \
 		contrib/dhclient \
 		contrib/dict \
@@ -38,6 +39,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/dsniff \
 		contrib/findutils \
 		contrib/freeciv \
+		contrib/fuse \
 		contrib/gcc \
 		contrib/gcl \
 		contrib/gdb \
@@ -54,9 +56,11 @@ bashcomp_DATA = contrib/abook \
 		contrib/info \
 		contrib/iptables \
 		contrib/ipmitool \
+		contrib/ipv6calc \
 		contrib/isql \
 		contrib/jar \
 		contrib/java \
+		contrib/k3b \
 		contrib/kldload \
 		contrib/larch \
 		contrib/ldapvi \
@@ -76,8 +80,8 @@ bashcomp_DATA = contrib/abook \
 		contrib/minicom \
 		contrib/mkinitrd \
 		contrib/mock \
-		contrib/modules \
 		contrib/monodevelop \
+		contrib/mount \
 		contrib/mplayer \
 		contrib/msynctool \
 		contrib/mtx \
@@ -95,6 +99,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/pkg-config \
 		contrib/pkg_install \
 		contrib/pkgtools \
+		contrib/pm-utils \
 		contrib/portupgrade \
 		contrib/postfix \
 		contrib/postgresql \
@@ -114,6 +119,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/rpmcheck \
 		contrib/rrdtool \
 		contrib/rsync \
+		contrib/rtcwake \
 		contrib/samba \
 		contrib/sbcl \
 		contrib/screen \
@@ -122,6 +128,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/smartctl \
 		contrib/snownews \
 		contrib/ssh \
+		contrib/sshfs \
 		contrib/strace \
 		contrib/svk \
 		contrib/sysctl \
@@ -143,6 +150,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/xmlwf \
 		contrib/xmms \
 		contrib/xrandr \
+		contrib/xsltproc \
 		contrib/xz \
 		contrib/yp-tools \
 		contrib/yum-arch
@@ -150,5 +158,10 @@ bashcomp_DATA = contrib/abook \
 profiledir = $(sysconfdir)/profile.d
 profile_DATA = bash_completion.sh
 
-EXTRA_DIST = CHANGES $(sysconf_DATA) $(bashcomp_DATA) $(profile_DATA) \
-	contrib/_subversion contrib/_yum contrib/_yum-utils
+bash_completion.sh: bash_completion.sh.in Makefile
+	sed -e 's|@sysconfdir[@]|$(sysconfdir)|' <$(srcdir)/$@.in >$@
+
+CLEANFILES = bash_completion.sh
+
+EXTRA_DIST = CHANGES $(sysconf_DATA) $(bashcomp_DATA) bash_completion.sh.in \
+	contrib/_modules contrib/_subversion contrib/_yum contrib/_yum-utils

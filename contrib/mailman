@@ -1,4 +1,4 @@
-# Mailman completion by Guillaume Rousse <rousse@ccr.jussieu.fr>
+# mailman completion
 
 have list_lists && {
 _mailman_lists()
@@ -33,12 +33,12 @@ _add_members()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(r|d|-regular-members-file|-digest-members-file))
+    case $prev in
+        -r|-d|--regular-members-file|--digest-members-file)
             _filedir
             return 0
             ;;
-        -@(w|a|-welcome-msg|-admin-notify))
+        -w|-a|--welcome-msg|--admin-notify)
             COMPREPLY=( $( compgen -W 'y n' -- "$cur") )
             return 0
             ;;
@@ -68,8 +68,8 @@ _remove_members()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(f|-file))
+    case $prev in
+        -f|--file)
             _filedir
             return 0
             ;;
@@ -98,8 +98,8 @@ _find_member()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(l|x|-listname|-exclude))
+    case $prev in
+        -l|-x|--listname|--exclude)
             _mailman_lists
             return 0
             ;;
@@ -126,8 +126,8 @@ _clone_member()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(l|-listname))
+    case $prev in
+        -l|--listname)
             _mailman_lists
             return 0
             ;;
@@ -154,12 +154,12 @@ _sync_members()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(w|g|d|--welcome-msg|-goodbye-msg|-digest))
+    case $prev in
+        -w|-g|-d|--welcome-msg|--goodbye-msg|--digest)
             COMPREPLY=( $( compgen -W 'y n' -- "$cur") )
             return 0
             ;;
-        -@(d|-file))
+        -d|--file)
             _filedir
             return 0
             ;;
@@ -240,16 +240,16 @@ _list_members()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(o|-output))
+    case $prev in
+        -o|--output)
             _filedir
             return 0
             ;;
-        -@(d|-digest))
+        -d|--digest)
             COMPREPLY=( $( compgen -W 'mime plain' -- "$cur") )
             return 0
             ;;
-        -@(n|-nomail))
+        -n|--nomail)
             COMPREPLY=( $( compgen -W 'byadmin byuser bybounce unknown' \
                 -- "$cur") )
             return 0
@@ -279,8 +279,8 @@ _change_pw()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(l|-listname))
+    case $prev in
+        -l|--listname)
             _mailman_lists
             return 0
             ;;
@@ -359,8 +359,8 @@ _config_list()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(i|o|-inputfile|-outputfile))
+    case $prev in
+        -i|-o|--inputfile|--outputfile)
             _filedir
             return 0
             ;;
@@ -378,7 +378,9 @@ _config_list()
 } &&
 complete -F _config_list -o filenames config_list
 
-have arch &&
+# Try to detect whether this is the mailman "arch" to avoid installing
+# it for the coreutils/util-linux-ng one.
+have arch && have mailmanctl &&
 _arch()
 {
     local cur prev split=false
@@ -389,12 +391,12 @@ _arch()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(w|g|d|--welcome-msg|-goodbye-msg|-digest))
+    case $prev in
+        -w|-g|-d|--welcome-msg|--goodbye-msg|--digest)
             COMPREPLY=( $( compgen -W 'y n' -- "$cur") )
             return 0
             ;;
-        -@(d|-file))
+        -d|--file)
             _filedir
             return 0
             ;;
@@ -452,8 +454,8 @@ _inject()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(l|-listname))
+    case $prev in
+        -l|--listname)
             _mailman_lists
             return 0
             ;;

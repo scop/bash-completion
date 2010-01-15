@@ -9,7 +9,8 @@ _comp_dpkg_hold_packages()
 } || {
 _comp_dpkg_hold_packages()
 {
-    grep -B 2 'hold' /var/lib/dpkg/status | grep "Package: $1" | cut -d\  -f2
+    command grep -B 2 'hold' /var/lib/dpkg/status | \
+        command grep "Package: $1" | cut -d\  -f2
 }
 }
 
@@ -40,11 +41,13 @@ _aptitude()
 
     if [[ -n "$special" ]]; then
        case $special in
-           @(install|hold|@(|un)markauto|@(dist|full)-upgrade|download|show|changelog|why@(|-not)|build-dep|@(add|remove)-user-tag))
+           install|hold|markauto|unmarkauto|dist-upgrade|full-upgrade| \
+           download|show|changelog|why|why-not|build-dep|add-user-tag| \
+           remove-user-tag)
                COMPREPLY=( $( apt-cache pkgnames $cur 2> /dev/null ) )
                return 0
                ;;
-           @(purge|remove|reinstall|forbid-version))
+           purge|remove|reinstall|forbid-version)
                COMPREPLY=( $( _comp_dpkg_installed_packages "$cur" ) )
                return 0
                ;;
@@ -57,16 +60,16 @@ _aptitude()
 
     case $prev in
         # don't complete anything if these options are found
-        @(@(auto|)clean|forget-new|search|@(|safe-)upgrade|update|keep-all))
+        autoclean|clean|forget-new|search|safe-upgrade|upgrade|update|keep-all)
             return 0
             ;;
         -S)
             _filedir
             return 0
             ;;
-        -@(t|-@(target|default)-release))
+        -t|--target-release|--default-release)
             COMPREPLY=( $( apt-cache policy | \
-                grep "release.o=Debian,a=$cur" | \
+                command grep "release.o=Debian,a=$cur" | \
                 sed -e "s/.*a=\(\w*\).*/\1/" | uniq 2> /dev/null ) )
             return 0
             ;;

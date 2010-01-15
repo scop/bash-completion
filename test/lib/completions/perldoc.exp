@@ -17,4 +17,22 @@ assert_complete_any "perldoc -"
 sync_after_int
 
 
+set test "perldoc should complete word containing colons"
+set cmd "perldoc HTML::"
+send "$cmd\t"
+expect {
+    # Assuming the module `HTML::Parser' is always installed
+    -re "\\sParser\\s" { pass "$test" }
+    # Assuming there's no perl module named `fixtures', but only our directory
+    # `test/fixtures' which is presented falsely.
+    -re "\\sfixtures/\\s" { fail "$test" }
+    -re "perldoc HTML::HTML::" { fail "$test" }
+    -re /@ { unresolved "$test" }
+    default { unresolved "$test" }
+}; # expect
+
+
+sync_after_int
+
+
 teardown

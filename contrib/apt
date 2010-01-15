@@ -35,14 +35,14 @@ _apt_get()
         esac
     fi
 
-    case "$prev" in
-        -@(c|-config-file))
+    case $prev in
+        -c|--config-file)
              _filedir
              return 0
              ;;
-        -@(t|-target-release|-default-release))
+        -t|--target-release|--default-release)
              COMPREPLY=( $( apt-cache policy | \
-                 grep "release.o=Debian,a=$cur" | \
+                 command grep "release.o=Debian,a=$cur" | \
                  sed -e "s/.*a=\(\w*\).*/\1/" | uniq 2> /dev/null) )
              return 0
              ;;
@@ -98,8 +98,7 @@ _apt_cache()
 
         showsrc)
             COMPREPLY=( $( apt-cache dumpavail | \
-                            grep "^Source: $cur" | sort | \
-                            uniq | cut -f2 -d" " ) )
+                command grep "^Source: $cur" | sort -u | cut -f2 -d" " ) )
             return 0
             ;;
 
@@ -112,8 +111,8 @@ _apt_cache()
     fi
 
 
-    case "$prev" in
-         -@(c|p|s|-config-file|-@(pkg|src)-cache))
+    case $prev in
+         -c|-p|-s|--config-file|--pkg-cache|--src-cache)
              _filedir
              return 0
              ;;

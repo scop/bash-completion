@@ -18,8 +18,8 @@ _mplayer()
     cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
-    case "$prev" in
-        -@([av][cfo]|[av]fm|vop|fstype|demuxer|o[av]c|of|profile))
+    case $prev in
+        -[av][cfo]|-[av]fm|-vop|-fstype|-demuxer|-o[av]c|-of|-profile)
             _mplayer_options_list $cmd $prev
             return 0
             ;;
@@ -39,10 +39,10 @@ _mplayer()
             _filedir '@(idx|IDX|ifo|IFO|sub|SUB)'
             IFS=$'\t\n'
             COMPREPLY=( $( for i in "${COMPREPLY[@]}"; do
-                        if [ -f $i -a -r $i ]; then
-                            echo ${i%.*}
+                        if [[ -f $i && -r $i ]]; then
+                            printf '%s\n' ${i%.*}
                         else
-                            echo $i
+                            printf '%s\n' $i
                         fi
                        done ) )
             IFS=$' \t\n'
@@ -67,7 +67,7 @@ _mplayer()
 
             IFS=$'\t\n'
             for i in ~/.mplayer/Skin $skinsdir; do
-                if [ -d $i -a -r $i ]; then
+                if [[ -d $i && -r $i ]]; then
                     for j in $( compgen -d $i/$cur ); do
                         COMPREPLY[$k]=${j#$i/}
                         k=$((++k))
@@ -77,30 +77,42 @@ _mplayer()
             IFS=$' \t\n'
             return 0
             ;;
-        -@(mixer|@(cdrom|dvd)-device|dvdauth|fb|zrdev))
+        -cdrom-device)
+            _cd_devices
+            _dvd_devices
+            return 0
+            ;;
+        -dvd-device)
+            _dvd_devices
+            return 0
+            ;;
+        -mixer|-dvdauth|-fb|-zrdev)
             cur=${cur:=/dev/}
             _filedir
             return 0
             ;;
-        -@(edl?(out)|lircconf|menu-cfg|playlist|csslib|dumpfile)| \
-        -@(subfile|vobsub|aofile|fbmodeconfig|include|o|dvdkey)| \
+        -edl|-edlout|-lircconf|-menu-cfg|-playlist|-csslib|-dumpfile| \
+        -subfile|-vobsub|-aofile|-fbmodeconfig|-include|-o|-dvdkey| \
         -passlogfile)
             _filedir
             return 0
             ;;
-        -@(auto@(q|sync)|loop|menu-root|speed|sstep|aid|alang)| \
-        -@(?(@(audio|sub)-)demuxer|bandwidth|cache|chapter)| \
-        -@(dvd?(angle)|fps|frames|mc|passwd|user|sb|srate|ss|vcd)| \
-        -@(vi?(d|vo)|ffactor|sid|slang|spu@(align|aa|gauss))| \
-        -@(vobsubid|delay|bpp|brightness|contrast|dfbopts|display)| \
-        -@(fbmode|geometry|guiwid|hue|icelayer|screen[wh]|wid)| \
-        -@(monitor@(aspect|-@(dotclock|[hv]freq))|panscan|saturation)| \
-        -@(xineramascreen|zr@(crop|norm|quality|[xy]doff|[vh]dec))| \
-        -@(aspect|pp|x|y|xy|z|stereo|audio-@(density|delay|preload))| \
-        -@(endpos|osdlevel|ffourcc|sws|channels|skiplimit|format)| \
-        -@(ofps|aa@(driver|@(osd|sub)color)|vobsubout?(i@(ndex|d)))| \
-        -sub@(-bg-@(alpha|color)|cp|delay|fps|pos|align|width)| \
-        -sub@(font-@(blur|outline|autoscale|encoding|@(osd|text)-scale)))
+        -autoq|-autosync|-loop|-menu-root|-speed|-sstep|-aid|-alang| \
+        -audo-demuxer|-sub-demuxer|-demuxer|-bandwidth|-cache|-chapter| \
+        -dvd|-dvdangle|-fps|-frames|-mc|-passwd|-user|-sb|-srate|-ss|-vcd| \
+        -vi|-vid|-vivo|-ffactor|-sid|-slang|-spualign|-spuaa|-spugauss| \
+        -vobsubid|-delay|-bpp|-brightness|-contrast|-dfbopts|-display| \
+        -fbmode|-geometry|-guiwid|-hue|-icelayer|-screen[wh]|-wid| \
+        -monitoraspect|-monitor-dotclock|-monitor-[hv]freq|-panscan| \
+        -saturation|-xineramascreen|-zrcrop|-zrnorm|-zrquality| \
+        -zr[xy]doff|-zr[vh]dec|-aspect|-pp|-x|-y|-xy|-z|-stereo| \
+        -audio-density|-audio-delay|-audio-preload|-endpos|-osdlevel| \
+        -ffourcc|-sws|-channels|-skiplimit|-format|-ofps|-aadriver| \
+        -aaosdcolor|-aasubcolor|-vobsubout|-vobsuboutid|-vobsuboutindex| \
+        -sub-bg-alpha|-sub-bg-color|-sub-cp|-sub-delay|-sub-fps|-sub-pos| \
+        -sub-align|-sub-width|-subfont-blur|-subfont-outline| \
+        -subfont-autoscale|-subfont-encoding|-subfont-osd-scale| \
+        -subfont-osd-text)
             return 0
             ;;
         -lavdopts)
@@ -217,12 +229,12 @@ _mplayer()
             ;;
     esac
 
-    case "$cur" in
+    case $cur in
         -*)
             COMPREPLY=( $( compgen -W '$( $cmd -list-options 2>/dev/null | \
                 sed -ne '1,/^[[:space:]]*Name/d' \
                     -e "s/^[[:space:]]*/-/" -e "s/[[:space:]:].*//" \
-                    -e "/^-\(Total\|.*\*\)\?$/!p" )' -- "$cur" ) )
+                    -e "/^-\(Total\|.*\*\)\{0,1\}$/!p" )' -- "$cur" ) )
             ;;
         *)
             _filedir '@(mp?(e)g|MP?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fl[iv]|FL[IV]|viv|VIV|rm?(j)|RM?(J)|ra?(m)|RA?(M)|yuv|YUV|mov|MOV|qt|QT|mp[234]|MP[234]|m4[av]|M4[AV]|og[gmavx]|OG[GMAVX]|w?(a)v|W?(A)V|dump|DUMP|mk[av]|MK[AV]|m4a|M4A|aac|AAC|m[24]v|M[24]V|dv|DV|rmvb|RMVB|mid|MID|ts|TS|3g[p2]|mpc|MPC|flac|FLAC|vro|VRO|divx|DIVX|aif?(f)|AIF?(F)|m2ts|M2TS|vdr|VDR|xvid|XVID|ape|APE)'

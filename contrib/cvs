@@ -43,20 +43,31 @@ _cvs_kflags()
     COMPREPLY=( $( compgen -W 'kv kvl k o b v' -- "$cur" ) )
 }
 
+_cvs_roots()
+{
+    local -a cvsroots
+    cvsroots=( $CVSROOT )
+    [ -r ~/.cvspass ] && \
+        cvsroots=( "${cvsroots[@]}" $( awk '{ print $2 }' ~/.cvspass ) )
+    [ -r CVS/Root ] && cvsroots=( "${cvsroots[@]}" $(cat CVS/Root) )
+    COMPREPLY=( $( compgen -W '${cvsroots[@]}' -- "$cur" ) )
+    __ltrim_colon_completions "$cur"
+}
+
 _cvs()
 {
     local cur prev count mode i cvsroot cvsroots pwd
     local -a flags miss files entries changed newremoved
 
     COMPREPLY=()
-    cur=`_get_cword`
-    prev=${COMP_WORDS[COMP_CWORD-1]}
+    cur=`_get_cword :`
+    prev=`_get_pword :`
 
     count=0
     for i in "${COMP_WORDS[@]}"; do
         [ $count -eq $COMP_CWORD ] && break
         # Last parameter was the CVSROOT, now go back to mode selection
-        if [ "${COMP_WORDS[((count))]}" == "$cvsroot" -a "$mode" == "cvsroot" ]; then
+        if [[ "${COMP_WORDS[((count))]}" == "$cvsroot" && "$mode" == cvsroot ]]; then
             mode=""
         fi
         if [ -z "$mode" ]; then
@@ -69,58 +80,58 @@ _cvs()
                     mode=cvsroot
                     cvsroot=${COMP_WORDS[((count+1))]}
                     ;;
-                @(ad?(d)|new))
+                ad|add|new)
                     mode=add
                     ;;
-                @(adm?(in)|rcs))
+                adm|admin|rcs)
                     mode=admin
                     ;;
-                ann?(otate))
+                ann|annotate)
                     mode=annotate
                     ;;
-                @(checkout|co|get))
+                checkout|co|get)
                     mode=checkout
                     ;;
-                @(com?(mit)|ci))
+                com|commit|ci)
                     mode=commit
                     ;;
-                di?(f?(f)))
+                di|dif|diff)
                     mode=diff
                     ;;
-                ex?(p?(ort)))
+                ex|exp|export)
                     mode=export
                     ;;
-                ?(un)edit)
+                edit|unedit)
                     mode=$i
                     ;;
-                hi?(s?(tory)))
+                hi|his|history)
                     mode=history
                     ;;
-                im?(p?(ort)))
+                im|imp|import)
                     mode=import
                     ;;
-                re?(l?(ease)))
+                re|rel|release)
                     mode=release
                     ;;
-                ?(r)log)
+                log|rlog)
                     mode=log
                     ;;
-                @(rdiff|patch))
+                rdiff|patch)
                     mode=rdiff
                     ;;
-                @(remove|rm|delete))
+                remove|rm|delete)
                     mode=remove
                     ;;
-                @(rtag|rfreeze))
+                rtag|rfreeze)
                     mode=rtag
                     ;;
-                st?(at?(us)))
+                st|stat|status)
                     mode=status
                     ;;
-                @(tag|freeze))
+                tag|freeze)
                     mode=tag
                     ;;
-                up?(d?(ate)))
+                up|upd|update)
                     mode=update
                     ;;
             esac
@@ -130,9 +141,9 @@ _cvs()
         count=$((++count))
     done
 
-    case "$mode" in
+    case $mode in
         add)
-            case "$prev" in
+            case $prev in
                 -m)
                     return 0
                     ;;
@@ -144,7 +155,7 @@ _cvs()
 
             if [[ "$cur" != -* ]]; then
                 set_prefix
-                if [ $COMP_CWORD -gt 1 -a -r ${prefix:-}CVS/Entries ]; then
+                if [[ $COMP_CWORD -gt 1 && -r ${prefix:-}CVS/Entries ]]; then
                     get_entries
                     [ -z "$cur" ] && \
                     files=$( command ls -Ad !(CVS) ) || \
@@ -160,7 +171,7 @@ _cvs()
             fi
             ;;
         admin)
-            case "$prev" in
+            case $prev in
                 -a|-A|-b|-c|-e|-l|-m|-n|-N|-o|-s|-t-|-u)
                     return 0
                     ;;
@@ -191,7 +202,7 @@ _cvs()
             fi
             ;;
         checkout)
-            case "$prev" in
+            case $prev in
                 -r|-D|j)
                     return 0
                     ;;
@@ -216,7 +227,7 @@ _cvs()
             fi
             ;;
         commit)
-            case "$prev" in
+            case $prev in
                 -m|-r)
                     return 0
                     ;;
@@ -252,14 +263,12 @@ _cvs()
             fi
             ;;
         cvsroot)
-            if [ -r ~/.cvspass ]; then
-                # Ugly escaping because of bash treating ':' specially
-                cvsroots=$( sed 's/^[^ ]* //; s/:/\\:/g' ~/.cvspass )
-                COMPREPLY=( $( compgen -W '$cvsroots' -- "$cur" ) )
-            fi
+            # TODO: works poorly because of the colons and -o default,
+            #       could we drop -o default?  works ok without it in cvsps
+            _cvs_roots
             ;;
         export)
-            case "$prev" in
+            case $prev in
                 -r|-D)
                     return 0
                     ;;
@@ -293,7 +302,7 @@ _cvs()
         remove)
             if [[ "$cur" != -* ]]; then
                 set_prefix
-                if [ $COMP_CWORD -gt 1 -a -r ${prefix:-}CVS/Entries ]; then
+                if [[ $COMP_CWORD -gt 1 && -r ${prefix:-}CVS/Entries ]]; then
                     get_entries
                     # find out what files are missing
                     for i in "${entries[@]}"; do
@@ -307,7 +316,7 @@ _cvs()
             fi
             ;;
         import)
-            case "$prev" in
+            case $prev in
                 -I|-b|-m|-W)
                     return 0
                     ;;
@@ -335,7 +344,7 @@ _cvs()
             fi
             ;;
         update)
-            case "$prev" in
+            case $prev in
                 -r|-D|-j|-I|-W)
                     return 0
                     ;;
@@ -351,7 +360,7 @@ _cvs()
             fi
             ;;
         "")
-            case "$prev" in
+            case $prev in
                 -T)
                     _filedir -d
                     return 0

@@ -13,7 +13,7 @@ _tar()
         return 0
     fi
 
-    case "${COMP_WORDS[1]}" in
+    case ${COMP_WORDS[1]} in
     ?(-)[cr]*f)
         _filedir
         return 0
@@ -45,11 +45,11 @@ _tar()
         # complete on files in tar file
         #
         # get name of tar file from command line
-        tar=$( echo "$COMP_LINE" | sed -e 's/^.* \([^ ]*'$regex'\) .*$/\1/' )
+        tar=$( sed -e 's/^.* \([^ ]*'$regex'\) .*$/\1/' <<<"$COMP_LINE" )
         # devise how to untar and list it
         untar=t${COMP_WORDS[1]//[^Izjyf]/}
 
-        COMPREPLY=( $( compgen -W "$( echo $( tar $untar $tar \
+        COMPREPLY=( $( compgen -W "$( printf '%s ' $( tar $untar $tar \
             2>/dev/null ) )" -- "$cur" ) )
         return 0
     fi

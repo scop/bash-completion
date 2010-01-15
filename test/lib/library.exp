@@ -6,11 +6,11 @@ package require textutil::string
 
 
 
-# Execute a bash command and make sure the exit status is succesful.
+# Execute a bash command and make sure the exit status is successful.
 # The command is expected to return no output.  See `assert_bash_exec_out' if
 # you want to catch output from the bash command.
 # If not, output the error message.
-# @param string $cmd  Bash command line to execute.  If emptry string (""), the
+# @param string $cmd  Bash command line to execute.  If empty string (""), the
 #                     exit status of the previously executed bash command will be 
 #                     checked; specify `title' to adorn the error message.
 # @param string $title  (optional) Command title.  If empty, `cmd' is used.
@@ -75,16 +75,16 @@ proc assert_bash_type {command} {
 # Make sure the expected list is returned by executing the specified command.
 # @param list $expected
 # @param string $cmd  Command given to generate items
-# @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param string $test  (optional) Test title.  Default is "$cmd<TAB> should show completions"
 # @param string $prompt  (optional) Bash prompt.  Default is "/@"
 # @param integer $size  (optional) Chunk size.  Default is 20.
 # @result boolean  True if successful, False if not
 proc assert_bash_list {expected cmd {test ""} {prompt /@} {size 20}} {
     if {$test == ""} {set test "$cmd should show expected output"}
-    send "$cmd\r\n"
+    send "$cmd\r"
     expect -ex "$cmd\r\n"
 
-    if {[match_items $expected $test]} {
+    if {[match_items $expected $test $prompt $size]} {
         expect {
             -re $prompt { pass "$test" }
             -re eof { unresolved "eof" }
@@ -95,43 +95,78 @@ proc assert_bash_list {expected cmd {test ""} {prompt /@} {size 20}} {
 }; # assert_bash_list()
 
 
+proc assert_bash_list_dir {expected cmd dir {test ""} {prompt /@} {size 20}} {
+    set prompt "/$dir/@"
+    assert_bash_exec "cd $dir" "" $prompt
+    assert_bash_list $expected $cmd $test $prompt $size
+    sync_after_int $prompt
+    assert_bash_exec "cd \$TESTDIR"
+}; # assert_bash_list_dir()
+
+
 # Make sure the expected items are returned by TAB-completing the specified
 # command.
 # @param list $expected
 # @param string $cmd  Command given to generate items
-# @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param string $test  (optional) Test title.  Default is "$cmd<TAB> should show completions"
 # @param string $prompt  (optional) Bash prompt.  Default is "/@"
 # @param integer $size  (optional) Chunk size.  Default is 20.
+# @param string $cword  (optional) Last argument of $cmd which is an
+#     argument-to-complete and to be replaced with the longest common prefix
+#     of $expected.  If empty string (default), `assert_complete' autodetects
+#     if the last argument is an argument-to-complete by checking if $cmd
+#     doesn't end with whitespace.  Specifying `cword' is only necessary if
+#     this autodetection fails, e.g.  when the last whitespace is escaped or
+#     quoted, e.g. "finger foo\ " or "finger 'foo "
+# @param list $filters  (optional) List of filters to apply to this function to tweak
+#     the expected completions and argument-to-complete.  Possible values:
+#     - "ltrim_colon_completions"
 # @result boolean  True if successful, False if not
-proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
+proc assert_complete {expected cmd {test ""} {prompt /@} {size 20} {cword ""} {filters ""}} {
     if {$test == ""} {set test "$cmd should show completions"}
     send "$cmd\t"
     if {[llength $expected] == 1} {
         expect -ex "$cmd"
-        set cmds [split $cmd]
-        set cur "";  # Default to empty word to complete on
-        if {[llength $cmds] > 1} {
-                # Assume last word of `$cmd' is word to complete on.
-            set cur [lindex $cmds [expr [llength $cmds] - 1]]
-        }; # if
-            # Remove second word from beginning of single item $expected
-        if {[string first $cur $expected] == 0} {
-            set expected [string range $expected [string length $cur] end]
+        if {[lsearch -exact $filters "ltrim_colon_completions"] == -1} {
+            set cmds [split $cmd]
+            set cur "";  # Default to empty word to complete on
+            if {[llength $cmds] > 1} {
+                    # Assume last word of `$cmd' is word to complete on.
+                set cur [lindex $cmds [expr [llength $cmds] - 1]]
+            }; # if
+                # Remove second word from beginning of single item $expected
+            if {[string first $cur $expected] == 0} {
+                set expected [string range $expected [string length $cur] end]
+            }; # if
         }; # if
     } else {
         expect -ex "$cmd\r\n"
+        # Make sure expected items are unique
+        set expected [lsort -unique $expected]
     }; # if
 
-    if {[match_items $expected $test]} {
+    if {[lsearch -exact $filters "ltrim_colon_completions"] != -1} {
+            # If partial contains colon (:), remove partial from begin of items
+            # See also: bash_completion.__ltrim_colon_completions()
+        _ltrim_colon_completions cword expected
+    }; # if
+
+    if {[match_items $expected $test $prompt $size]} {
         if {[llength $expected] == 1} {
             pass "$test"
         } else {
-            # Remove optional (partial) argument from `cmd'.
+            # Remove optional (partial) last argument-to-complete from `cmd',
             # E.g. "finger test@" becomes "finger"
-            set cmd2 [lrange [split $cmd] 0 end-1]
+
+            if {[lsearch -exact $filters "ltrim_colon_completions"] != -1} {
+                set cmd2 $cmd
+            } else {
+                set cmd2 [_remove_cword_from_cmd $cmd $cword]
+            }; # if
+
             # Determine common prefix of completions
             set common [::textutil::string::longestCommonPrefixList $expected]
-            if {[string length $common] > 0} {set common " $common"}
+            #if {[string length $common] > 0} {set common " $common"}
             expect {
                 -ex "$prompt$cmd2$common" { pass "$test" }
                 -re $prompt { unresolved "$test at prompt" }
@@ -144,13 +179,49 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20}} {
 }; # assert_complete()
 
 
+# @param string $cmd  Command to remove cword from
+# @param string $cword  (optional) Last argument of $cmd which is an
+#     argument-to-complete and to be deleted.  If empty string (default),
+#     `_remove_cword_from_cmd' autodetects if the last argument is an
+#     argument-to-complete by checking if $cmd doesn't end with whitespace.
+#     Specifying `cword' is only necessary if this autodetection fails, e.g.
+#     when the last whitespace is escaped or quoted, e.g. "finger foo\ " or
+#     "finger 'foo "
+# @return string  Command with cword removed
+proc _remove_cword_from_cmd {cmd {cword ""}} {
+    set cmd2 $cmd
+    # Is $cword specified?
+    if {[string length $cword] > 0} {
+        # Remove $cword from end of $cmd
+        if {[string last $cword $cmd] == [string length $cmd] - [string length $cword]} {
+            set cmd2 [string range $cmd 0 [expr [string last $cword $cmd] - 1]]
+        }; # if
+    } else {
+        # No, $cword not specified;
+        # Check if last argument is really an-argument-to-complete, i.e.
+        # doesn't end with whitespace.
+        # NOTE: This check fails if trailing whitespace is escaped or quoted,
+        #       e.g. "finger foo\ " or "finger 'foo ".  Specify parameter
+        #       $cword in those cases.
+        # Is last char whitespace?
+        if {! [string is space [string range $cmd end end]]} {
+            # No, last char isn't whitespace;
+            # Remove argument-to-complete from end of $cmd
+            set cmd2 [lrange [split $cmd] 0 end-1]
+            append cmd2 " "
+        }; # if
+    }; # if
+    return $cmd2
+}; # _remove_cword_from_cmd()
+
+
 # Make sure any completions are returned
 proc assert_complete_any {cmd {test ""} {prompt /@}} {
     if {$test == ""} {set test "$cmd should show completions"}
     send "$cmd\t"
     expect -ex "$cmd"
         # Escape special regexp characters
-    regsub -all {([\[\]\(\)\.\\\+])} $cmd {\\\1} cmd
+    regsub -all {([\^$+*?.|(){}[\]\\])} $cmd {\\\1} cmd
     expect {
         -timeout 1
         # Match completions, multiple words
@@ -178,14 +249,15 @@ proc assert_complete_any {cmd {test ""} {prompt /@}} {
 # @param list $expected
 # @param string $cmd  Command given to generate items
 # @param string $dir  Subdirectory to attempt completion in.  The directory must be relative from the $TESTDIR and without a trailing slash.  E.g. `fixtures/evince'
-# @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param string $test  (optional) Test title.  Default is "$cmd<TAB> should show completions"
 # @param string $prompt  (optional) Bash prompt.  Default is "/@"
 # @param integer $size  (optional) Chunk size.  Default is 20.
+# @param string $cword  (optional) Last word of $cmd to complete.  See: assert_complete()
 # @result boolean  True if successful, False if not
-proc assert_complete_dir {expected cmd dir {test ""} {size 20}} {
+proc assert_complete_dir {expected cmd dir {test ""} {size 20} {cword ""}} {
     set prompt "/$dir/@"
     assert_bash_exec "cd $dir" "" $prompt
-    assert_complete $expected $cmd $test $prompt $size
+    assert_complete $expected $cmd $test $prompt $size $cword
     sync_after_int $prompt
     assert_bash_exec "cd \$TESTDIR"
 }; # assert_complete_dir
@@ -198,16 +270,22 @@ proc assert_complete_dir {expected cmd dir {test ""} {size 20}} {
 # starting with this character are then expected as completions.
 # @param list $expected  List of all completions.
 # @param string $cmd  Command given to generate items
-# @param string $test  (optional) Test titel.  Default is "$cmd<TAB> should show completions"
+# @param string $partial  Word to complete
+# @param string $test  (optional) Test title.  Default is "$cmd<TAB> should show completions"
 # @param string $prompt  (optional) Bash prompt.  Default is "/@"
 # @param integer $size  (optional) Chunk size.  Default is 20.
+# @param list $filters  (optional) List of filters to apply to this function to tweak
+#     the expected completions and argument-to-complete.
+#     @see assert_complete()
 # @result boolean  True if successful, False if not
-proc assert_complete_partial {expected cmd {partial ""} {test ""} {prompt /@} {size 20}} {
+proc assert_complete_partial {expected cmd {partial ""} {test ""} {prompt /@} {size 20} {filters ""}} {
     if {$test == ""} {set test "$cmd should complete partial argument"}
     if {[llength $expected] == 0} {
         unresolved "$test"
     } else {
         set pick {}
+        # Make sure expected items are unique
+        set expected [lsort -unique $expected]
         foreach item $expected {
             if {$partial == ""} {set partial [string range $item 0 0]}
                 # Only append item if starting with $partial
@@ -215,9 +293,34 @@ proc assert_complete_partial {expected cmd {partial ""} {test ""} {prompt /@} {s
                 lappend pick $item
             }; # if
         }; # foreach
-        assert_complete $pick "$cmd $partial" $test $prompt $size
+        assert_complete $pick "$cmd $partial" $test $prompt $size $partial $filters
     }; # if
 }; # assert_complete_partial()
+
+
+# See also: bash_completion._ltrim_colon_completions
+proc _ltrim_colon_completions {cword items} {
+    upvar 1 $cword cword_out
+    upvar 1 $items items_out
+    # If word-to-complete contains a colon,
+    # and bash-version < 4,
+    # or bash-version >= 4 and COMP_WORDBREAKS contains a colon
+    if {
+        [string first : $cword_out] > -1 && (
+            [lindex $::BASH_VERSINFO 0] < 4 ||
+            ([lindex $::BASH_VERSINFO 0] >= 4 && [string first ":" $::COMP_WORDBREAKS] > -1)
+        )
+    } {
+        for {set i 0} {$i < [llength $items_out]} {incr i} {
+            set item [lindex $items_out $i]
+            if {[string first $cword_out $item] == 0} {
+                # Strip colon-prefix
+                lset items_out $i [string range $item [string length $cword_out] end]
+            }; # if
+        }; # for
+        #set cword_out ""
+    }; # if
+}; # _ltrim_colon_completions()
 
 
 # Make sure the bash environment hasn't changed between now and the last call
@@ -291,10 +394,10 @@ proc assert_env_unmodified {{sed ""} {file ""} {diff ""}} {
 #       executed successful.
 # @param string $command
 # @param string $stdout  (optional) Reference to variable to hold stdout.
-# @param string $test (optional)  Test titel
+# @param string $test (optional)  Test title
 # @see assert_bash_exec()
 proc assert_exec {cmd {stdout ''} {test ''}} {
-    if {$test == ""} {set test "$cmd should execute successful"}
+    if {$test == ""} {set test "$cmd should execute successfully"}
     upvar $stdout results
     set status [catch {eval exec $cmd} results]
     if {$status == 0} {
@@ -312,6 +415,16 @@ proc assert_exec {cmd {stdout ''} {test ''}} {
     }; # if
     return $result
 }; # assert_exec()
+
+
+# Sort list.
+# `exec sort' is used instead of `lsort' to achieve exactly the
+#  same sort order as in bash.
+# @param list $items
+# @return list  Sort list
+proc bash_sort {items} {
+    return [split [exec sort << [join $items "\n"]] "\n"]
+}; # bash_sort()
 
 
 # Get hostnames
@@ -334,8 +447,8 @@ proc get_hosts {} {
 proc get_hosts_avahi {} {
         # Retrieving hosts is successful?
     if { [catch {exec bash -c {
-        type avahi-browse >&/dev/null && [ -n "$(pidof avahi-daemon)" ] \
-            && avahi-browse -cpr _workstation._tcp | grep ^= | cut -d\; -f7 | sort -u
+        type avahi-browse >&/dev/null \
+            && avahi-browse -cpr _workstation._tcp 2>/dev/null | command grep ^= | cut -d\; -f7 | sort -u
     }} hosts] } {
         # No, retrieving hosts yields error;
             # Reset hosts
@@ -364,27 +477,46 @@ proc get_signals {} {
 }; # get_signals()
 
 
+# Initialize tcl globals with bash variables
+proc init_tcl_bash_globals {} {
+    global BASH_VERSINFO BASH_VERSION COMP_WORDBREAKS
+    assert_bash_exec {printf "%s" "$COMP_WORDBREAKS"} {} /@ COMP_WORDBREAKS
+    assert_bash_exec {printf "%s " "${BASH_VERSINFO[@]}"} "" /@ BASH_VERSINFO
+    set BASH_VERSINFO [eval list $BASH_VERSINFO]
+    assert_bash_exec {printf "%s" "$BASH_VERSION"} "" /@ BASH_VERSION
+    assert_bash_exec {printf "%s" "$TESTDIR"} "" /@ TESTDIR
+}; # init_tcl_bash_globals()
+
+
+# Detect if test suite is running under Cygwin/Windows
+proc is_cygwin {} {
+    expr {[string first [string tolower [exec uname -s]] cygwin] >= 0}
+}; # is_cygwin()
+
+
 # Expect items.
 # Break items into chunks because `expect' seems to have a limited buffer size
 # @param list $items
 # @param integer $size  Chunk size
 # @result boolean  True if successful, False if not
-proc match_items {items test {size 20}} {
-    set items [exec sort << [join $items "\n"]]
+proc match_items {items test {prompt /@} {size 20}} {
+    set items [bash_sort $items]
     set result false
     for {set i 0} {$i < [llength $items]} {set i [expr {$i + $size}]} {
         set expected ""
         for {set j 0} {$j < $size && $i + $j < [llength $items]} {incr j} {
             set item "[lindex $items [expr {$i + $j}]]"
-                # Escape special regexp characters ([]().\*^$)
-            regsub -all {([\[\]\(\)\.\\\+\*\^\$])} $item {\\\1} item
+                # Escape special regexp characters
+            regsub -all {([\^$+*?.|(){}[\]\\])} $item {\\\1} item
             append expected $item
             if {[llength $items] > 1} {append expected {\s+}};
         }; # for
         if {[llength $items] == 1} {
             expect {
+                -re "^$expected\r\n$" { set result true }
                 # NOTE: The optional space ( ?) depends on whether -o nospace is active
                 -re "^$expected ?$" { set result true }
+                -re "^$prompt$" {set result false; break }
                 "\r\n" { set result false; break }
                 default { set result false; break }
                 timeout { set result false; break }
@@ -459,6 +591,32 @@ proc _save_env {{file ""}} {
 }; # save_env()
 
 
+# Source bash_completion package
+proc source_bash_completion {} {
+    assert_bash_exec {BASH_COMPLETION_DIR=$(cd $TESTDIR/..; pwd)/contrib}
+    assert_bash_exec {BASH_COMPLETION_COMPAT_DIR=$BASH_COMPLETION_DIR}
+    assert_bash_exec {BASH_COMPLETION=$(cd $TESTDIR/..; pwd)/bash_completion}
+    assert_bash_exec {source $BASH_COMPLETION}
+}; # source_bash_completion()
+
+
+# Start bash running as test environment.
+proc start_bash {} {
+    global TESTDIR TOOL_EXECUTABLE spawn_id
+    set TESTDIR [pwd]
+    # If `--tool_exec' option not specified, use "bash"
+    if {! [info exists TOOL_EXECUTABLE]} {set TOOL_EXECUTABLE bash}
+    exp_spawn $TOOL_EXECUTABLE --rcfile config/bashrc
+    assert_bash_exec {} "$TOOL_EXECUTABLE --rcfile config/bashrc"
+    # Bash < 3.2.41 has a bug where 'history' disappears from SHELLOPTS
+    # whenever a shopt setting is sourced or eval'ed.  Disabling 'history'
+    # makes it not show in tests "Environment should not be modified"
+    # for bash < 3.2.41.
+    # -- FVu, Tue Sep 15 22:52:00 CEST 2009
+    assert_bash_exec {is_bash_version_minimal 3 2 41 || set +o history}
+}; # start_bash()
+
+
 # Interrupt completion and sync with prompt.
 # Send signals QUIT & INT.
 # @param string $prompt  (optional) Bash prompt.  Default is "/@"
@@ -468,7 +626,7 @@ proc sync_after_int {{prompt /@}} {
     send \031\003;  # QUIT/INT
         # NOTE: Regexp `.*' causes `expect' to discard previous unknown output.
         #       This is necessary if a completion doesn't match expectations.
-        #       For instance with `filetype_xpec' completion (e.g. `kdvi') if
+        #       For instance with `filetype_xspec' completion (e.g. `kdvi') if
         #       one expects `.txt' as a completion (wrong, because it isn't
         #       there), the unmatched completions need to be cleaned up.
     expect -re ".*$prompt$"

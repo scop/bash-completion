@@ -9,7 +9,7 @@ _portupgrade()
     cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
-    [ "$prev" = "-l" -o "$prev" = "-L" -o "$prev" = "-o" ] && return 0
+    [[ "$prev" == -l || "$prev" == -L || "$prev" == -o ]] && return 0
 
     COMPREPLY=( $( compgen -d "$pkgdir$cur" ) )
     COMPREPLY=( ${COMPREPLY[@]#$pkgdir} )
@@ -31,13 +31,13 @@ _portinstall()
     # First try INDEX-5
     indexfile=$portsdir/INDEX-5
     # Then INDEX if INDEX-5 does not exist or system is not FreeBSD 5.x
-    [ "${OSTYPE%.*}" = "freebsd5" -a -f $indexfile ] ||
-      indexfile=$portsdir/INDEX
+    [[ "${OSTYPE%.*}" == freebsd5 && -f $indexfile ]] ||
+        indexfile=$portsdir/INDEX
 
-    [ "$prev" = "-l" -o "$prev" = "-L" -o "$prev" = "-o" ] && return 0
+    [[ "$prev" == -l || "$prev" == -L || "$prev" == -o ]] && return 0
 
-    COMPREPLY=( $( egrep "^$cur" < $indexfile | cut -d'|' -f1 ) )
-    COMPREPLY2=( $( egrep "^[^\|]+\|$portsdir$cur" < $indexfile | \
+    COMPREPLY=( $( command grep -E "^$cur" < $indexfile | cut -d'|' -f1 ) )
+    COMPREPLY2=( $( command grep -E "^[^\|]+\|$portsdir$cur" < $indexfile | \
         cut -d'|' -f2 ) )
     COMPREPLY2=( ${COMPREPLY2[@]#$portsdir} )
     COMPREPLY=( "${COMPREPLY[@]}" "${COMPREPLY2[@]}" )

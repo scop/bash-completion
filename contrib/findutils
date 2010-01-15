@@ -11,12 +11,13 @@ _find()
     cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
-    case "$prev" in
-    -@(max|min)depth)
+    case $prev in
+    -maxdepth|-mindepth)
         COMPREPLY=( $( compgen -W '0 1 2 3 4 5 6 7 8 9' -- "$cur" ) )
         return 0
         ;;
-    -?(a|c)newer|-fls|-fprint?(0|f)|-?(i)?(l)name|-?(i)wholename)
+    -newer|-anewer|-cnewer|-fls|-fprint|-fprint0|-fprintf|-name|-iname| \
+    -lname|-ilname|-wholename|-iwholename)
         _filedir
         return 0
         ;;
@@ -35,7 +36,7 @@ _find()
         COMPREPLY=( $( compgen -g -- "$cur" 2>/dev/null) )
         return 0
         ;;
-    -?(x)type)
+    -xtype|-type)
         COMPREPLY=( $( compgen -W 'b c d p f l s' -- "$cur" ) )
         return 0
         ;;
@@ -53,8 +54,9 @@ _find()
         _command
         return 0
         ;;
-    -[acm]min|-[acm]time|-?(i)?(l)?(whole)name|-inum|-?(i)path|-?(i)regex| \
-    -links|-perm|-size|-used|-printf)
+    -[acm]min|-[acm]time|-iname|-lname|-wholename|-iwholename|-lwholename| \
+    -ilwholename|-inum|-path|-ipath|-regex|-iregex|-links|-perm|-size| \
+    -used|-printf)
         # do nothing, just wait for a parameter to be given
         return 0
         ;;
@@ -68,7 +70,7 @@ _find()
     done
 
     # handle case where first parameter is not a dash option
-    if [ "$exprfound" != 1 ] && [[ "$cur" != [-\(\),\!]* ]]; then
+    if [[ "$exprfound" != 1 && "$cur" != [-\(\),\!]* ]]; then
         _filedir -d
         return 0
     fi
@@ -90,10 +92,9 @@ _find()
     # opposition to "tests" and "actions", as in the find(1) manpage).
     onlyonce=' -daystart -depth -follow -help -maxdepth -mindepth -mount \
        -noleaf -version -xdev '
-    COMPREPLY=( $( echo "${COMP_WORDS[@]}" | \
+    COMPREPLY=( $( \
            (while read -d ' ' i; do
-            [ "$i" == "" ] ||
-            [ "${onlyonce/ ${i%% *} / }" == "$onlyonce" ] &&
+            [[ -z "$i" || "${onlyonce/ ${i%% *} / }" == "$onlyonce" ]] &&
             continue
             # flatten array with spaces on either side,
             # otherwise we cannot grep on word boundaries of
@@ -102,7 +103,7 @@ _find()
             # remove word from list of completions
             COMPREPLY=( ${COMPREPLY/ ${i%% *} / } )
             done
-            echo "${COMPREPLY[@]}")
+            printf '%s ' "${COMPREPLY[@]}") <<<"${COMP_WORDS[@]}"
           ) )
 
     _filedir

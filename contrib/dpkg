@@ -8,11 +8,11 @@ _comp_dpkg_installed_packages()
 } || {
 _comp_dpkg_installed_packages()
 {
-    grep -A 1 "Package: $1" /var/lib/dpkg/status | \
-        grep -B 1 -Ee "ok installed|half-installed|unpacked| \
+    command grep -A 1 "Package: $1" /var/lib/dpkg/status | \
+        command grep -B 1 -Ee "ok installed|half-installed|unpacked| \
             half-configured|config-files" \
             -Ee "^Essential: yes" | \
-        grep "Package: $1" | cut -d\  -f2
+        command grep "Package: $1" | cut -d\  -f2
 }
 }
 
@@ -39,24 +39,26 @@ _dpkg()
         done
     fi
 
-    case "$prev" in
-        -@(c|i|A|I|f|e|x|X|W|-@(install|unpack|record-avail|contents|info|fsys-tarfile|field|control|extract|show)))
+    case $prev in
+        -c|-i|-A|-I|-f|-e|-x|-X|-W|--install|--unpack|--record-avail| \
+        --contents|--info|--fsys-tarfile|--field|--control|--extract| \
+        --show)
             _filedir '?(u)deb'
             return 0
             ;;
-        -@(b|-build))
+        -b|--build)
             _filedir -d
             return 0
             ;;
-        -@(s|p|l|-@(status|print-avail|list)))
+        -s|-p|-l|--status|--print-avail|--list)
             COMPREPLY=( $( apt-cache pkgnames "$cur" 2>/dev/null ) )
             return 0
             ;;
-        -@(S|-search))
+        -S|--search)
             _filedir
             return 0
             ;;
-        -@(r|L|P|-@(remove|purge|listfiles)))
+        -r|-L|-P|--remove|--purge|--listfiles)
             COMPREPLY=( $( _comp_dpkg_installed_packages "$cur" ) )
             return 0
             ;;
@@ -106,15 +108,15 @@ _dpkg_reconfigure()
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
 
-    case "$prev" in
-        -@(f|-frontend))
-        opt=( $( echo /usr/share/perl5/Debconf/FrontEnd/* ) )
+    case $prev in
+        -f|--frontend)
+        opt=( $( printf '%s\n' /usr/share/perl5/Debconf/FrontEnd/* ) )
         opt=( ${opt[@]##*/} )
         opt=( ${opt[@]%.pm} )
         COMPREPLY=( $( compgen -W '${opt[@]}' -- "$cur" ) )
         return 0
         ;;
-        -@(p|-priority))
+        -p|--priority)
         COMPREPLY=( $( compgen -W 'low medium high critical' -- "$cur" ) )
         return 0
         ;;
@@ -163,14 +165,14 @@ _dpkg_source()
             return 0
         fi
     done
-    case "$action" in
-        "unpack")
-            if [ "$cur" = "-" -o "$cur" = "-s" ]; then
+    case $action in
+        unpack)
+            if [[ "$cur" == - || "$cur" == -s ]]; then
                 COMPREPLY=( $unpackopts )
                 return 0
             fi
-            case "$prev" in
-                "-x")
+            case $prev in
+                -x)
                     COMPREPLY=( $( compgen -d -- "$cur" ) \
                             $( compgen -f -X '!*.dsc' -- "$cur" ) )
                     return 0
@@ -182,7 +184,7 @@ _dpkg_source()
             esac
             return 0
             ;;
-        "pack")
+        pack)
             if [ "$cur" = "-" ]; then
                 COMPREPLY=( $packopts )
                 return 0
@@ -192,12 +194,12 @@ _dpkg_source()
                     "-sA" "-sK" "-sP" "-sU" "-sR" )
                 return 0
             fi
-            case "$prev" in
-                "-b")
+            case $prev in
+                -b)
                     COMPREPLY=( $( compgen -d -- "$cur" ) )
                     return 0
                     ;;
-                "-c"|"-l"|"-T"|"-i"|"-I")
+                -c|-l|-T|-i|-I)
                     # -c: get controlfile
                     # -l: get per-version info from this file
                     # -T: read variables here, not debian/substvars
@@ -207,22 +209,22 @@ _dpkg_source()
                     COMPREPLY=( $( compgen -d -f ) )
                     return 0
                     ;;
-                "-F")
+                -F)
                     # -F: force change log format
                     COMPREPLY=( $( ( cd /usr/lib/dpkg/parsechangelog; compgen -f "$cur" ) ) )
                     return 0
                     ;;
-                "-V"|"-D")
+                -V|-D)
                     # -V: set a substitution variable
                     # we don't know anything about possible variables or values
                     # so we don't try to suggest any completion.
                     COMPREPLY=()
                     return 0
                     ;;
-                "-D")
+                -D)
                     # -D: override or add a .dsc field and value
                     # if $cur doesn't contain a = yet, suggest variable names
-                    if echo -- "$cur" | grep -q "="; then
+                    if [[ "$cur" == *=* ]]; then
                         # $cur contains a "="
                         COMPREPLY=()
                         return 0
@@ -231,7 +233,7 @@ _dpkg_source()
                         return 0
                     fi
                     ;;
-                "-U")
+                -U)
                     # -U: remove a field
                     # Suggest possible fieldnames
                     COMPREPLY=( Format Source Version Binary Maintainer Uploader Architecture Standards-Version Build-Depends Files )

@@ -8,7 +8,7 @@ _iptables()
     COMPREPLY=()
     cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
-    chain='s/^Chain \([^ ]\+\).*$/\1/p'
+    chain='s/^Chain \([^ ]\{1,\}\).*$/\1/p'
 
     if [[ $COMP_LINE == *-t\ *filter* ]]; then
         table="-t filter"
@@ -24,16 +24,16 @@ _iptables()
         rename=yes
     fi
 
-    case "$prev" in
+    case $prev in
     -*[AIDRPFXLZEN])
         COMPREPLY=( $( compgen -W '`iptables $table -nL | \
-                sed -ne "s/^Chain \([^ ]\+\).*$/\1/p"`' -- "$cur" ) )
+                sed -ne "s/^Chain \([^ ]\{1,\}\).*$/\1/p"`' -- "$cur" ) )
         ;;
     -*t)
         COMPREPLY=( $( compgen -W 'nat filter mangle' -- "$cur" ) )
         ;;
     -j)
-        if [ "$table" = "-t filter" -o "$table" = "" ]; then
+        if [[ "$table" == "-t filter" || -z "$table" ]]; then
             COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT \
                 `iptables $table -nL | sed -ne "$chain" \
                 -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' -- \

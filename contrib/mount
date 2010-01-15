@@ -1,0 +1,80 @@
+# mount(8) completion. This will pull a list of possible mounts out of
+# /etc/{,v}fstab, unless the word being completed contains a ':', which
+# would indicate the specification of an NFS server. In that case, we
+# query the server for a list of all available exports and complete on
+# that instead.
+#
+have mount &&
+{
+
+_mount()
+{
+    local cur i sm host prev
+
+    COMPREPLY=()
+    cur=`_get_cword`
+    [[ "$cur" == \\ ]] && cur="/"
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    for i in {,/usr}/{,s}bin/showmount; do [ -x $i ] && sm=$i && break; done
+
+    if [[ -n "$sm" && "$cur" == *:* ]]; then
+        COMPREPLY=( $( compgen -W "$( $sm -e ${cur%%:*} | \
+            awk 'NR>1 {print $1}' )" -- "$cur" ) )
+    elif [[ "$cur" == //* ]]; then
+        host=${cur#//}
+        host=${host%%/*}
+        if [ -n "$host" ]; then
+            COMPREPLY=( $( compgen -P "//$host" -W \
+                "$( smbclient -d 0 -NL $host 2>/dev/null |
+                sed -ne '/^['"$'\t '"']*Sharename/,/^$/p' |
+                sed -ne '3,$s|^[^A-Za-z]*\([^'"$'\t '"']*\).*$|/\1|p' )" \
+                    -- "${cur#//$host}" ) )
+        fi
+    elif [ -r /etc/vfstab ]; then
+        # Solaris
+        COMPREPLY=( $( compgen -W "$( awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' /etc/vfstab )" -- "$cur" ) )
+    elif [ ! -e /etc/fstab ]; then
+        # probably Cygwin
+        COMPREPLY=( $( compgen -W "$( mount | awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' )" -- "$cur" ) )
+    else
+        # probably Linux
+        if [ $prev = -L ]; then
+            COMPREPLY=( $( compgen -W '$(sed -ne "s/^[[:space:]]*LABEL=\([^[:space:]]*\).*/\1/p" /etc/fstab )' -- "$cur" ) )
+        elif [ $prev = -U ]; then
+            COMPREPLY=( $( compgen -W '$(sed -ne "s/^[[:space:]]*UUID=\([^[:space:]]*\).*/\1/p" /etc/fstab )' -- "$cur" ) )
+        else
+            COMPREPLY=( $( compgen -W "$( awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' /etc/fstab )" -- "$cur" ) )
+        fi
+    fi
+
+    return 0
+} &&
+complete -F _mount -o default -o dirnames mount
+
+# umount(8) completion. This relies on the mount point being the third
+# space-delimited field in the output of mount(8)
+#
+have umount &&
+_umount()
+{
+    local cur IFS=$'\n'
+
+    COMPREPLY=()
+    cur=`_get_cword`
+
+    COMPREPLY=( $( compgen -W '$( mount | cut -d" " -f 3 )' -- "$cur" ) )
+
+    return 0
+} &&
+complete -F _umount -o dirnames umount
+
+}
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

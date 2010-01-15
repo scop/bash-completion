@@ -1,4 +1,4 @@
-# unace(1) completion by Guillaume Rousse <rousse@ccr.jussieu.fr>
+# unace(1) completion
 
 have unace &&
 _unace()
@@ -8,22 +8,16 @@ _unace()
     COMPREPLY=()
     cur=`_get_cword`
 
-    case "$cur" in
-        -*)
-            COMPREPLY=( $( compgen -W '-c -c- -f -f- -o -o- -p -y -y-' \
-                -- "$cur" ) )
-            ;;
-        *)
+
+    if [[ "$cur" == -* ]] ; then
+        COMPREPLY=( $( compgen -W '-c -c- -f -f- -o -o- -p -y -y-' -- "$cur" ) )
+    else
         if [ $COMP_CWORD -eq 1 ]; then
             COMPREPLY=( $( compgen -W 'e l t v x' -- "$cur" ) )
         else
             _filedir '@(ace|ACE)'
         fi
-        ;;
-    esac
-
-    return 0
-
+    fi
 } &&
 complete -F _unace -o filenames unace
 

@@ -25,19 +25,19 @@ _update_alternatives()
     cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
-    case "$prev" in
-    --@(altdir|admindir))
-        _filedir -d
-        return 0
-        ;;
-    --@(help|version))
-        return 0
-        ;;
+    case $prev in
+        --altdir|--admindir)
+            _filedir -d
+            return 0
+            ;;
+        --help|--usage|--version)
+            return 0
+            ;;
     esac
 
     # find which mode to use and how many real args used so far
     for (( i=1; i < COMP_CWORD; i++ )); do
-        if [[ "${COMP_WORDS[i]}" == --@(install|remove|auto|display|config|remove-all) ]]; then
+        if [[ "${COMP_WORDS[i]}" == --@(install|remove|auto|display|config|remove-all|set) ]]; then
             mode=${COMP_WORDS[i]}
             args=$(($COMP_CWORD - i))
             break
@@ -45,46 +45,48 @@ _update_alternatives()
     done
 
     case $mode in
-    --install)
-        case $args in
-        1)
-            _filedir
+        --install)
+            case $args in
+                1|3)
+                    _filedir
+                    ;;
+                2)
+                    _installed_alternatives
+                    ;;
+                4)
+                    # priority - no completions
+                    ;;
+                *)
+                    case $((args % 4)) in
+                        0|2)
+                            _filedir
+                            ;;
+                        1)
+                            COMPREPLY=( $( compgen -W '--slave' -- "$cur" ) )
+                            ;;
+                        3)
+                            _installed_alternatives
+                            ;;
+                    esac
+            esac
             ;;
-        2)
+        --remove|--set)
+            case $args in
+                1)
+                    _installed_alternatives
+                    ;;
+                2)
+                    _filedir
+                    ;;
+            esac
+            ;;
+        --auto|--remove-all|--display|--config)
             _installed_alternatives
             ;;
-        3)
-            _filedir
-            ;;
-        esac
-        ;;
-    --remove)
-        case $args in
-        1)
-            _installed_alternatives
-            ;;
-        2)
-            _filedir
-            ;;
-        esac
-        ;;
-    --auto)
-        _installed_alternatives
-        ;;
-    --remove-all)
-        _installed_alternatives
-        ;;
-    --display)
-        _installed_alternatives
-        ;;
-    --config)
-        _installed_alternatives
-        ;;
-    *)
-        COMPREPLY=( $( compgen -W '--verbose --quiet --help --version \
-                   --altdir --admindir' -- "$cur" ) \
-                $( compgen -W '--install --remove --auto --display \
-                   --config' -- "$cur" ) )
+        *)
+            COMPREPLY=( $( compgen -W '--verbose --quiet --help --version \
+                --altdir --admindir --install --remove --auto --display \
+                --config --set' -- "$cur" ) )
     esac
 }
 complete -F _update_alternatives update-alternatives alternatives

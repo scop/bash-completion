@@ -1,0 +1,31 @@
+#!/bin/bash
+# Run test of specified tool.
+# The first directory of the first file (first argument ending with .exp) is
+# used as the `tool' specification.
+# Usage: ./run [FILE]...
+# Example run: ./run unit/_get_cword.exp unit/compgen.exp
+
+
+# Process arguments
+# @param $1  Name of variable to return `tool' name
+# @param $2  Name of variable to return processed arguments
+# @param $@  Arguments to process
+process_args() {
+    local arg
+    for arg in "${@:3}"; do
+        case "$arg" in
+            completion/*.exp|unit/*.exp)
+                [[ ${!1} ]] || printf -v $1 "${arg%%/*}"
+                eval $2[\${#$2[@]}]=\""${arg#*/}"\"
+                ;;
+            *)
+                eval $2[\${#$2[@]}]=\""$arg"\"
+        esac
+    done
+}
+
+args=()
+process_args tool args "$@"
+runtest --outdir log --tool $tool "${args[@]}" 
+
+unset -v args tool

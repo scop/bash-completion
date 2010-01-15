@@ -1,3 +1,6 @@
+# Use of this file is deprecated, upstream completion is available in
+# modules >= 3.2.7, use that instead.
+#
 # module completion by Ted Stern <stern@cray.com>
 #
 # Completion for Environment Modules `module' alias.
@@ -20,13 +23,13 @@ have module || [ -f /etc/profile.d/modules.sh ] && {
 
 _module_list ()
 {
-    local modules="$( echo $LOADEDMODULES | sed 's/:/ /g' | sort )"
+    local modules="$( sed 's/:/ /g' <<<$LOADEDMODULES | sort )"
     compgen -W "$modules" -- $1
 }
 
 _module_path ()
 {
-    local modules="$( echo $MODULEPATH | sed 's/:/ /g' | sort )"
+    local modules="$( sed 's/:/ /g' <<<$MODULEPATH | sort )"
     compgen -W "$modules" -- $1
 }
 
@@ -34,8 +37,8 @@ _module_avail ()
 {
     local modules="$( \
         module avail 2>&1 | \
-        egrep -v '^(-|$)' | \
-        xargs printf '%s\n' | sort )"
+        command grep -E -v '^(-|$)' | \
+        xargs printf '%s\n' | sed -e 's/(default)//g' | sort )"
 
     compgen -W "$modules" -- $1
 }
@@ -52,17 +55,17 @@ _module ()
     if [ $COMP_CWORD -eq 1 ] ; then
         # First parameter on line -- we expect it to be a mode selection
 
-        options="$( module help 2>&1 | egrep '^[[:space:]]*\+' | \
+        options="$( module help 2>&1 | command grep -E '^[[:space:]]*\+' | \
                     awk '{print $2}' | sed -e 's/|/ /g' | sort )"
 
         COMPREPLY=( $(compgen -W "$options" -- "$cur") )
 
     elif [ $COMP_CWORD -eq 2 ] ; then
-        case "$prev" in
-            @(add|display|help|load|show|whatis))
+        case $prev in
+            add|display|help|load|show|whatis)
                 COMPREPLY=( $(_module_avail "$cur") )
                 ;;
-            @(rm|switch|swap|unload|update))
+            rm|switch|swap|unload|update)
                 COMPREPLY=( $(_module_list "$cur") )
                 ;;
             unuse)
@@ -71,7 +74,7 @@ _module ()
         esac
     elif [ $COMP_CWORD -eq 3 ] ; then
         case ${COMP_WORDS[1]} in
-            @(sw?(ap|itch)))
+            swap|switch)
                 COMPREPLY=( $(_module_avail "$cur") )
                 ;;
         esac
