@@ -8,9 +8,6 @@ proc teardown {} {
 }; # teardown()
 
 
-set _old_match_max [match_max]
-match_max 100000
-
 setup
 
 
@@ -20,18 +17,13 @@ assert_complete_any "rpm "
 sync_after_int
 
 
-assert_complete_any "rpm -q "
-
-
-sync_after_int
-
-
-assert_complete_any "rpm --eval %"
+    # Build list of installed packages
+if {[assert_exec {rpm -qa --qf=%\{NAME\}\n | sort -u} packages]} {
+    assert_complete $packages "rpm -q "
+}; # if
 
 
 sync_after_int
 
 
 teardown
-
-match_max $_old_match_max
