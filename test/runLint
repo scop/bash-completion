@@ -1,0 +1,34 @@
+#!/bin/bash
+
+gitgrep()
+{
+    local out=$(git grep -I -E -n "$1" | \
+        grep -E '^(bash_completion|contrib/|test/)' | \
+        grep -Fv 'test/runLint')
+    if [ -n "$out" ] ; then
+        printf '***** %s\n' "$2"
+        printf '%s\n\n' "$out"
+    fi
+}
+
+gitgrep "\bawk\b.*-F([[:space:]]|[[:space:]]*[\"'][^\"']{2,})" \
+    'awk with -F char or -F ERE, use -Fchar instead (Solaris)'
+    
+gitgrep '\bsed\b.*\\[?+]' \
+    'sed with ? or +, use POSIX BRE instead (\{m,n\})'
+
+gitgrep '\bsed\b.*(\(\\?\||\|\\?\))' \
+    "sed with empty alternative in parens, use '\(...\)\{0,1\}' instead"
+
+# TODO: really nonportable? appears to work fine in Linux, FreeBSD, Solaris
+#gitgrep '\bsed\b.*;' \
+#    'sed with ;, use multiple -e options instead (POSIX?) (false positives?)'
+
+gitgrep '\bsed\b.*-[^[:space:]]*[rE]' \
+    'sed with -r or -E, drop and use POSIX BRE instead'
+
+gitgrep '\b[ef]grep\b' \
+    '[ef]grep, use grep -[EF] instead (historical/deprecated)'
+
+# TODO: $ in sed subexpression used as an anchor (POSIX BRE optional, not in
+#       Solaris/FreeBSD)
