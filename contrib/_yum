@@ -10,7 +10,7 @@ _yum_list()
         # Try to strip in between headings like "Available Packages"
         # This will obviously only work for English :P
         COMPREPLY=( $( yum -d 0 -C list $1 "$cur*" 2>/dev/null | \
-            sed -ne '/^\(Available\|Installed\|Updated\) /d' \
+            sed -ne '/^Available /d' -e '/^Installed /d' -e '/^Updated /d' \
             -e 's/[[:space:]].*//p' ) )
     else
         # Drop first line (e.g. "Updated Packages")
@@ -25,7 +25,7 @@ _yum_repolist()
     # http://yum.baseurl.org/ticket/83
     # Drop first ("repo id      repo name") and last ("repolist: ...") rows
     yum --noplugins -C repolist $1 2>/dev/null | \
-        sed -ne '/^repo\(\s\s*id\|list:\)/d' -e 's/[[:space:]].*//p'
+        sed -ne '/^repo\s\s*id/d' -e '/^repolist:/d' -e 's/[[:space:]].*//p'
 }
 
 _yum_plugins()
