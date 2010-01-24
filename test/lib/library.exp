@@ -7,15 +7,13 @@ package require textutil::string
 
 
 # Execute a bash command and make sure the exit status is successful.
-# The command is expected to return no output.  See `assert_bash_exec_out' if
-# you want to catch output from the bash command.
 # If not, output the error message.
 # @param string $cmd  Bash command line to execute.  If empty string (""), the
 #                     exit status of the previously executed bash command will be 
 #                     checked; specify `title' to adorn the error message.
 # @param string $title  (optional) Command title.  If empty, `cmd' is used.
 # @param string $prompt  (optional) Bash prompt.  Default is "/@"
-# @param mixed $out  (optional) Reference to variable to hold output.
+# @param mixed $out  (optional) Reference to (tcl) variable to hold output.
 #                    If variable equals -1 (default) the bash command is expected
 #                    to return no output.  If variable equals 0, any output
 #                    from the bash command is disregarded.
@@ -427,8 +425,18 @@ proc bash_sort {items} {
 }; # bash_sort()
 
 
+# Get 'known' hostnames.  Looks also in ssh's 'known_hosts' files.
+# @return list  Hostnames
+# @see get_hosts()
+proc get_known_hosts {} {
+    assert_bash_exec {_known_hosts_real ''; echo_array COMPREPLY} {} /@ result
+    return $result
+}; # get_known_hosts()
+
+
 # Get hostnames
 # @return list  Hostnames
+# @see get_known_hosts()
 proc get_hosts {} {
     set hosts [exec bash -c "compgen -A hostname"]
     # NOTE: Circumventing var `avahi_hosts' and appending directly to `hosts'
