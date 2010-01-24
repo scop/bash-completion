@@ -16,7 +16,9 @@ _mount()
     [[ "$cur" == \\ ]] && cur="/"
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
-    for i in {,/usr}/{,s}bin/showmount; do [ -x $i ] && sm=$i && break; done
+    for i in $(type -P showmount) {,/usr}/{,s}bin/showmount; do
+        [ -x $i ] && sm=$i && break
+    done
 
     if [[ -n "$sm" && "$cur" == *:* ]]; then
         COMPREPLY=( $( compgen -W "$( $sm -e ${cur%%:*} | \
