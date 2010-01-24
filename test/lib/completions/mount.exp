@@ -1,0 +1,33 @@
+proc setup {} {
+    save_env
+};
+
+
+proc teardown {} {
+    assert_env_unmodified
+};
+
+
+setup
+
+
+assert_complete_any "mount "
+
+
+sync_after_int
+
+
+set test "Check completing nfs mounts"
+set expected [list /test/path /test/path2 /second/path]
+set cmd "mount mocksrv:/"
+assert_bash_exec {OLDPATH="$PATH"; PATH="$TESTDIR/fixtures/mount/bin:$PATH";}
+# This needs an explicit cword param or will output "unresolved".
+assert_complete $expected $cmd $test "/@" 20 "/"
+sync_after_int
+assert_bash_exec {PATH="$OLDPATH"; unset -v OLDPATH}
+
+
+sync_after_int
+
+
+teardown

@@ -12,9 +12,9 @@ _mount()
     local cur i sm host prev
 
     COMPREPLY=()
-    cur=`_get_cword`
+    cur=`_get_cword ':'`
+    prev=`_get_pword ':'`
     [[ "$cur" == \\ ]] && cur="/"
-    prev=${COMP_WORDS[COMP_CWORD-1]}
 
     for i in $(type -P showmount) {,/usr}/{,s}bin/showmount; do
         [ -x $i ] && sm=$i && break
@@ -22,7 +22,7 @@ _mount()
 
     if [[ -n "$sm" && "$cur" == *:* ]]; then
         COMPREPLY=( $( compgen -W "$( $sm -e ${cur%%:*} | \
-            awk 'NR>1 {print $1}' )" -- "$cur" ) )
+            awk 'NR>1 {print $1}' )" -- "${cur#*:}" ) )
     elif [[ "$cur" == //* ]]; then
         host=${cur#//}
         host=${host%%/*}
