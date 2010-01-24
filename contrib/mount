@@ -9,21 +9,23 @@ have mount &&
 
 _mount()
 {
-    local cur i sm host prev
+    local cur sm host prev
 
     COMPREPLY=()
     cur=`_get_cword ':'`
     prev=`_get_pword ':'`
     [[ "$cur" == \\ ]] && cur="/"
 
-    for i in $(type -P showmount) {,/usr}/{,s}bin/showmount; do
-        [ -x $i ] && sm=$i && break
-    done
+    if [[ "$cur" == *:* ]]; then
+        for sm in $(type -P showmount) {,/usr}/{,s}bin/showmount; do
+            [ -x $sm ] || continue
+            COMPREPLY=( $( compgen -W "$( $sm -e ${cur%%:*} | \
+                awk 'NR>1 {print $1}' )" -- "${cur#*:}" ) )
+            return 0
+        done
+    fi
 
-    if [[ -n "$sm" && "$cur" == *:* ]]; then
-        COMPREPLY=( $( compgen -W "$( $sm -e ${cur%%:*} | \
-            awk 'NR>1 {print $1}' )" -- "${cur#*:}" ) )
-    elif [[ "$cur" == //* ]]; then
+    if [[ "$cur" == //* ]]; then
         host=${cur#//}
         host=${host%%/*}
         if [ -n "$host" ]; then
