@@ -6,7 +6,7 @@
 Name: bash-completion
 Epoch: 1
 Version: 1.99
-Release: alt1
+Release: alt2
 
 Summary: bash-completion offers programmable completion for bash
 License: GPL2
@@ -19,9 +19,9 @@ Packager: Ildar Mulyukov <ildar@altlinux.ru>
 Source: %name-%version.tar
 # git://git.debian.org/git/bash-completion/bash-completion.git
 Source1: rpm-cache.filetrigger
-Patch: %name-20050103-alt-rsync.patch
 Patch1: %name-20060301-alt-iptables.patch
 Patch2: %name-bug15250.patch
+Source2: mutt
 
 %if_enabled tests
 BuildRequires: dejagnu tcllib
@@ -36,7 +36,6 @@ of the programmable completion feature of bash 2.04 and later.
 
 %prep
 %setup -q
-%patch0 -p1
 %patch1 -p1
 %patch2 -p1
 
@@ -53,10 +52,14 @@ of the programmable completion feature of bash 2.04 and later.
 
 %install
 %makeinstall
+install -p -m644 %SOURCE2 %buildroot%_sysconfdir/bash_completion.d/
 
 mv %buildroot%_sysconfdir/{profile.d,bashrc.d}
 mkdir -p %buildroot%_rpmlibdir
 install -p -m755 %SOURCE1 %buildroot%_rpmlibdir/
+
+#small regression fix
+echo "complete -F _known_hosts showmount" >> %buildroot%_sysconfdir/bash_completion.d/_alt.fixes
 
 %files
 %doc AUTHORS CHANGES README TODO doc/*.txt
@@ -66,6 +69,12 @@ install -p -m755 %SOURCE1 %buildroot%_rpmlibdir/
 %_rpmlibdir/*
 
 %changelog
+* Tue Dec 29 2009 Ildar Mulyukov <ildar@altlinux.ru> 1:1.99-alt2
+- new git version
+- %name-20050103-alt-rsync.patch pushed to upstream
+- mutt completion from Gentoo bugzilla: http://bugs.gentoo.org/attachment.cgi?id=208607
+- quick regression fix for showmount
+
 * Wed Nov 04 2009 Ildar Mulyukov <ildar@altlinux.ru> 1:1.99-alt1
 - new version
 - patches rebase
