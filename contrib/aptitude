@@ -1,19 +1,6 @@
 # Debian aptitude(1) completion
 
-have aptitude && {
-have grep-status && {
-_comp_dpkg_hold_packages()
-{
-    grep-status -P -e "^$1" -a -FStatus 'hold' -n -s Package
-}
-} || {
-_comp_dpkg_hold_packages()
-{
-    command grep -B 2 'hold' /var/lib/dpkg/status | \
-        command grep "Package: $1" | cut -d\  -f2
-}
-}
-
+have aptitude &&
 _aptitude()
 {
     local cur dashoptions prev special i
@@ -28,10 +15,10 @@ _aptitude()
         --display-format -O --sort -w --width -f -r -g \
         --with-recommends -R -G --without-recommends -t \
         --target-release -V --show-versions -D --show-deps\
-        -Z -v --verbose --purge-unused --schedule-only'
+        -Z -v --verbose --schedule-only'
 
     for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-        if [[ ${COMP_WORDS[i]} == @(@(|re)install|@(|un)hold|@(|un)markauto|@(dist|full)-upgrade|download|show|forbid-version|purge|remove|changelog|why@(|-not)|keep@(|-all)|build-dep|@(add|remove)-user-tag) ]]; then
+        if [[ ${COMP_WORDS[i]} == @(@(|re)install|@(|un)hold|@(|un)markauto|@(dist|full)-upgrade|download|show|forbid-version|remove|changelog|why@(|-not)|keep@(|-all)|build-dep) ]]; then
         special=${COMP_WORDS[i]}
         fi
         #exclude some mutually exclusive options
@@ -42,17 +29,18 @@ _aptitude()
     if [[ -n "$special" ]]; then
        case $special in
            install|hold|markauto|unmarkauto|dist-upgrade|full-upgrade| \
-           download|show|changelog|why|why-not|build-dep|add-user-tag| \
-           remove-user-tag)
+           download|show|changelog|why|why-not|build-dep)
                COMPREPLY=( $( apt-cache pkgnames $cur 2> /dev/null ) )
                return 0
                ;;
-           purge|remove|reinstall|forbid-version)
-               COMPREPLY=( $( _comp_dpkg_installed_packages "$cur" ) )
-               return 0
-               ;;
-           unhold)
-               COMPREPLY=( $( _comp_dpkg_hold_packages "$cur" ) )
+           remove|reinstall|forbid-version)
+               if [ -f /etc/debian_version ]; then
+                    # Debian system
+                    COMPREPLY=( $( _comp_dpkg_installed_packages "$cur" ) )
+               else
+                    # assume RPM based
+                    _rpm_installed_packages
+               fi
                return 0
                ;;
        esac
@@ -67,12 +55,6 @@ _aptitude()
             _filedir
             return 0
             ;;
-        -t|--target-release|--default-release)
-            COMPREPLY=( $( apt-cache policy | \
-                command grep "release.o=Debian,a=$cur" | \
-                sed -e "s/.*a=\(\w*\).*/\1/" | uniq 2> /dev/null ) )
-            return 0
-            ;;
     esac
 
     if [[ "$cur" == -* ]]; then
@@ -80,16 +62,14 @@ _aptitude()
     else
         COMPREPLY=( $( compgen -W 'update upgrade safe-upgrade forget-new \
             clean autoclean install reinstall remove \
-            hold unhold purge markauto unmarkauto why why-not \
+            hold unhold markauto unmarkauto why why-not \
             dist-upgrade full-upgrade download search show \
-            forbid-version changelog keep-all build-dep \
-            add-user-tag remove-user-tag' -- "$cur" ) )
+            forbid-version changelog keep-all build-dep' -- "$cur" ) )
     fi
 
     return 0
 }
 complete -F _aptitude -o default aptitude
-}
 
 # Local variables:
 # mode: shell-script

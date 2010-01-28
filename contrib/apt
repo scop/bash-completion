@@ -10,20 +10,29 @@ _apt_get()
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
     for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-        if [[ ${COMP_WORDS[i]} == @(install|remove|autoremove|purge|source|build-dep) ]]; then
+        if [[ ${COMP_WORDS[i]} == @(install|remove|reinstall|source|build-dep) ]]; then
             special=${COMP_WORDS[i]}
         fi
     done
 
     if [ -n "$special" ]; then
         case $special in
-            remove|autoremove|purge)
+            remove)
                 if [ -f /etc/debian_version ]; then
                     # Debian system
                     COMPREPLY=( $( _comp_dpkg_installed_packages $cur ) )
                 else
                     # assume RPM based
                     _rpm_installed_packages
+                fi
+                return 0
+                ;;
+            install)
+                if  [[ $cur == /* || $cur == ./* ]] ; then
+                    _filedir '@(rpm|RPM)'
+                else
+                    COMPREPLY=( $( apt-cache --no-generate pkgnames "$cur" \
+                        2> /dev/null ) )
                 fi
                 return 0
                 ;;
@@ -54,7 +63,7 @@ _apt_get()
             --fix-missing --no-download --quiet --simulate --just-print \
             --dry-run --recon --no-act --yes --assume-yes --show-upgraded \
             --only-source --compile --build --ignore-hold --target-release \
-            --no-upgrade --force-yes --print-uris --purge --reinstall \
+            --no-upgrade --force-yes --print-uris --reinstall \
             --list-cleanup --default-release --trivial-only --no-remove \
             --diff-only --no-install-recommends --tar-only --config-file \
             --option --auto-remove' -- "$cur" ) )
@@ -82,7 +91,7 @@ _apt_cache()
 
     if [ "$cur" != show ]; then
         for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-        if [[ ${COMP_WORDS[i]} == @(add|depends|dotty|madison|policy|rdepends|show?(pkg|src|)) ]]; then
+        if [[ ${COMP_WORDS[i]} == @(add|depends|dotty|policy|rdepends|show?(pkg|src|)) ]]; then
             special=${COMP_WORDS[i]}
         fi
         done
