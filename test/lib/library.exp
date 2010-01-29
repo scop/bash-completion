@@ -104,7 +104,7 @@ proc assert_bash_list_dir {expected cmd dir {test ""} {prompt /@} {size 20}} {
 
 # Make sure the expected items are returned by TAB-completing the specified
 # command.
-# @param list $expected
+# @param list $expected  Expected completions.
 # @param string $cmd  Command given to generate items
 # @param string $test  (optional) Test title.  Default is "$cmd<TAB> should show completions"
 # @param string $prompt  (optional) Bash prompt.  Default is "/@"
@@ -113,66 +113,72 @@ proc assert_bash_list_dir {expected cmd dir {test ""} {prompt /@} {size 20}} {
 #     argument-to-complete and to be replaced with the longest common prefix
 #     of $expected.  If empty string (default), `assert_complete' autodetects
 #     if the last argument is an argument-to-complete by checking if $cmd
-#     doesn't end with whitespace.  Specifying `cword' is only necessary if
-#     this autodetection fails, e.g.  when the last whitespace is escaped or
+#     doesn't end with whitespace.  Specifying `cword' should only be necessary
+#     if this autodetection fails, e.g.  when the last whitespace is escaped or
 #     quoted, e.g. "finger foo\ " or "finger 'foo "
 # @param list $filters  (optional) List of filters to apply to this function to tweak
 #     the expected completions and argument-to-complete.  Possible values:
 #     - "ltrim_colon_completions"
 # @result boolean  True if successful, False if not
 proc assert_complete {expected cmd {test ""} {prompt /@} {size 20} {cword ""} {filters ""}} {
-    if {$test == ""} {set test "$cmd should show completions"}
-    send "$cmd\t"
-    if {[llength $expected] == 1} {
-        expect -ex "$cmd"
-        if {[lsearch -exact $filters "ltrim_colon_completions"] == -1} {
-            set cmds [split $cmd]
-            set cur "";  # Default to empty word to complete on
-            if {[llength $cmds] > 1} {
-                    # Assume last word of `$cmd' is word to complete on.
-                set cur [lindex $cmds [expr [llength $cmds] - 1]]
-            }; # if
-                # Remove second word from beginning of single item $expected
-            if {[string first $cur $expected] == 0} {
-                set expected [string range $expected [string length $cur] end]
-            }; # if
-        }; # if
+    if {[llength $expected] == 0} {
+        assert_no_complete $cmd $test
     } else {
-        expect -ex "$cmd\r\n"
-        # Make sure expected items are unique
-        set expected [lsort -unique $expected]
-    }; # if
-
-    if {[lsearch -exact $filters "ltrim_colon_completions"] != -1} {
-            # If partial contains colon (:), remove partial from begin of items
-            # See also: bash_completion.__ltrim_colon_completions()
-        _ltrim_colon_completions cword expected
-    }; # if
-
-    if {[match_items $expected $test $prompt $size]} {
+        if {$test == ""} {set test "$cmd should show completions"}
+        send "$cmd\t"
         if {[llength $expected] == 1} {
-            pass "$test"
-        } else {
-            # Remove optional (partial) last argument-to-complete from `cmd',
-            # E.g. "finger test@" becomes "finger"
+            expect -ex "$cmd"
 
-            if {[lsearch -exact $filters "ltrim_colon_completions"] != -1} {
-                set cmd2 $cmd
-            } else {
-                set cmd2 [_remove_cword_from_cmd $cmd $cword]
+            if {[lsearch -exact $filters "ltrim_colon_completions"] == -1} {
+                set cur "";  # Default to empty word to complete on
+                set words [split_words_bash $cmd]
+                if {[llength $words] > 1} {
+                        # Assume last word of `$cmd' is word to complete on.
+                    set index [expr [llength $words] - 1]
+                    set cur [lindex $words $index]
+                }; # if
+                    # Remove second word from beginning of single item $expected
+                if {[string first $cur $expected] == 0} {
+                    set expected [list [string range $expected [string length $cur] end]]
+                }; # if
             }; # if
-
-            # Determine common prefix of completions
-            set common [::textutil::string::longestCommonPrefixList $expected]
-            #if {[string length $common] > 0} {set common " $common"}
-            expect {
-                -ex "$prompt$cmd2$common" { pass "$test" }
-                -re $prompt { unresolved "$test at prompt" }
-                -re eof { unresolved "eof" }
-            }; # expect
+        } else {
+            expect -ex "$cmd\r\n"
+            # Make sure expected items are unique
+            set expected [lsort -unique $expected]
         }; # if
-    } else {
-        fail "$test"
+
+        if {[lsearch -exact $filters "ltrim_colon_completions"] != -1} {
+                # If partial contains colon (:), remove partial from begin of items
+                # See also: bash_completion.__ltrim_colon_completions()
+            _ltrim_colon_completions cword expected
+        }; # if
+
+        if {[match_items $expected $test $prompt $size]} {
+            if {[llength $expected] == 1} {
+                pass "$test"
+            } else {
+                # Remove optional (partial) last argument-to-complete from `cmd',
+                # E.g. "finger test@" becomes "finger"
+
+                if {[lsearch -exact $filters "ltrim_colon_completions"] != -1} {
+                    set cmd2 $cmd
+                } else {
+                    set cmd2 [_remove_cword_from_cmd $cmd $cword]
+                }; # if
+
+                # Determine common prefix of completions
+                set common [::textutil::string::longestCommonPrefixList $expected]
+                #if {[string length $common] > 0} {set common " $common"}
+                expect {
+                    -ex "$prompt$cmd2$common" { pass "$test" }
+                    -re $prompt { unresolved "$test at prompt" }
+                    -re eof { unresolved "eof" }
+                }; # expect
+            }; # if
+        } else {
+            fail "$test"
+        }; # if
     }; # if
 }; # assert_complete()
 
@@ -213,13 +219,18 @@ proc _remove_cword_from_cmd {cmd {cword ""}} {
 }; # _remove_cword_from_cmd()
 
 
+# Escape regexp special characters
+proc _escape_regexp_chars {var} {
+    upvar $var str
+    regsub -all {([\^$+*?.|(){}[\]\\])} $str {\\\1} str
+}
+
 # Make sure any completions are returned
 proc assert_complete_any {cmd {test ""} {prompt /@}} {
     if {$test == ""} {set test "$cmd should show completions"}
     send "$cmd\t"
     expect -ex "$cmd"
-        # Escape special regexp characters
-    regsub -all {([\^$+*?.|(){}[\]\\])} $cmd {\\\1} cmd
+    _escape_regexp_chars cmd
     expect {
         -timeout 1
         # Match completions, multiple words
@@ -415,6 +426,29 @@ proc assert_exec {cmd {stdout ''} {test ''}} {
 }; # assert_exec()
 
 
+# Check that no completion is attempted on a certain command.
+# Params:
+# @cmd The command to attempt to complete.
+# @test Optional parameter with test name.
+proc assert_no_complete {{cmd} {test ""}} {
+    if {[string length $test] == 0} {
+        set test "$cmd shouldn't complete"
+    }; # if
+
+    send "$cmd\t"
+    expect -ex "$cmd"
+
+    # We can't anchor on $, simulate typing a magical string instead.
+    set endguard "Magic End Guard"
+    send "$endguard"
+    expect {
+        -re "^$endguard$" { pass "$test" }
+        default { fail "$test" }
+        timeout { fail "$test" }
+    }; # expect
+}; # assert_no_complete()
+
+
 # Sort list.
 # `exec sort' is used instead of `lsort' to achieve exactly the
 #  same sort order as in bash.
@@ -515,8 +549,7 @@ proc match_items {items test {prompt /@} {size 20}} {
         if {$i > $size} { set expected "\\s*" } else { set expected "" }
         for {set j 0} {$j < $size && $i + $j < [llength $items]} {incr j} {
             set item "[lindex $items [expr {$i + $j}]]"
-                # Escape special regexp characters
-            regsub -all {([\^$+*?.|(){}[\]\\])} $item {\\\1} item
+            _escape_regexp_chars item
             append expected $item
             if {[llength $items] > 1} {append expected {\s+}};
         }; # for
@@ -607,6 +640,46 @@ proc source_bash_completion {} {
     assert_bash_exec {BASH_COMPLETION=$(cd $TESTDIR/..; pwd)/bash_completion}
     assert_bash_exec {source $BASH_COMPLETION}
 }; # source_bash_completion()
+
+
+# Split line into words, disregarding backslash escapes (e.g. \b (backspace),
+# \g (bell)), but taking backslashed spaces into account.
+# Aimed for simulating bash word splitting.
+# Example usage:
+#
+#     % set a {f cd\ \be}
+#     % split_words $a
+#     f {cd\ \be}
+#
+# @param string  Line to split
+# @return list  Words
+proc split_words_bash {line} {
+    set words {}
+    set glue false
+    foreach part [split $line] {
+        set glue_next false
+        # Does `part' end with a backslash (\)?
+        if {[string last "\\" $part] == [string length $part] - [string length "\\"]} {
+            # Remove end backslash
+            set part [string range $part 0 [expr [string length $part] - [string length "\\"] - 1]]
+            # Indicate glue on next run
+            set glue_next true
+        }; # if
+        # Must `part' be appended to latest word (= glue)?
+        if {[llength $words] > 0 && [string is true $glue]} {
+            # Yes, join `part' to latest word;
+            set zz [lindex $words [expr [llength $words] - 1]]
+            # Separate glue with backslash-space (\ );
+            lset words [expr [llength $words] - 1] "$zz\\ $part"
+        } else {
+            # No, don't append word to latest word;
+            # Append `part' as separate word
+            lappend words $part
+        }; # if
+        set glue $glue_next
+    }; # foreach
+    return $words
+}; # split_words_bash()
 
 
 # Start bash running as test environment.

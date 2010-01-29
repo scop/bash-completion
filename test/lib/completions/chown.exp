@@ -1,0 +1,70 @@
+proc setup {} {
+    save_env
+}; # setup()
+
+proc teardown {} {
+    assert_env_unmodified
+}; # teardown()
+
+
+setup
+
+
+assert_complete_any "chown "
+sync_after_int
+
+
+# All the tests use the root:root user and group. They're assumed to exist.
+set fulluser "root"
+set fullgroup "root"
+
+# Partial username is assumed to be unambiguous.
+set partuser "roo"
+set partgroup "roo"
+
+# Skip tests if root:root not available or if roo:roo matches multiple
+# users/groups
+if {[exec bash -c "compgen -A user $partuser" | wc -l] > 1 ||
+    [exec bash -c "compgen -A user $fulluser" | wc -l] != 1 ||
+    [exec bash -c "compgen -A group $partgroup" | wc -l] > 1 ||
+    [exec bash -c "compgen -A group $fullgroup" | wc -l] != 1} {
+    untested "Not running complex chown tests."
+} else {
+    assert_complete $fulluser "chown $partuser"
+    sync_after_int
+
+    assert_complete $fulluser:$fullgroup "chown $fulluser:$partgroup"
+    sync_after_int
+
+    # One slash should work correctly (doubled here for tcl).
+    assert_complete $fulluser\\:$fullgroup "chown $fulluser\\:$partgroup"
+    sync_after_int
+
+    foreach prefix {
+        "funky\\ user:" "funky\\ user\\:" "funky.user:" "funky\\.user:" "fu\\ nky.user\\:"
+        "f\\ o\\ o\\.\\bar:" "foo\\_b\\ a\\.r\\ :"
+    } {
+        set test "Check preserve special chars in $prefix$partgroup<TAB>"
+        #assert_complete_into "chown $prefix$partgroup" "chown $prefix$fullgroup " $test
+        assert_complete $prefix$fullgroup "chown $prefix$partgroup" $test
+        sync_after_int
+    }
+
+    # Check that we give up in degenerate cases instead of spewing various junk.
+
+    assert_no_complete "chown $fulluser\\\\:$partgroup"
+    sync_after_int
+
+    assert_no_complete "chown $fulluser\\\\\\:$partgroup"
+    sync_after_int
+
+    assert_no_complete "chown $fulluser\\\\\\\\:$partgroup"
+    sync_after_int
+
+    # Colons in user/groupnames are not usually allowed.
+    assert_no_complete "chown foo:bar:$partgroup"
+    sync_after_int
+}
+
+
+teardown

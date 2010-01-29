@@ -771,20 +771,38 @@ _installed_modules()
         awk '{if (NR != 1) print $1}' )" -- "$1" ) )
 }
 
-# This function completes on user:group format
+# This function completes on user or user:group format; as for chown and cpio.
 #
+# The : must be added manually; it will only complete usernames initially.
+# The legacy user.group format is not supported.
+#
+# It assumes compopt -o filenames; but doesn't touch it.
 _usergroup()
 {
     local IFS=$'\n'
-    cur=${cur//\\\\ / }
-    if [[ $cur = *@(\\:|.)* ]]; then
-        user=${cur%%*([^:.])}
-        COMPREPLY=( $(compgen -P ${user/\\\\} -g -- ${cur##*[.:]}) )
+    if [[ $cur = *\\\\* || $cur = *:*:* ]]; then
+        # Give up early on if something seems horribly wrong.
+        return
+    elif [[ $cur = *\\:* ]]; then
+        # Completing group after 'user\:gr<TAB>'.
+        # Reply with a list of groups prefixed with 'user:', readline will
+        # escape to the colon.
+        local prefix
+        prefix=${cur%%*([^:])}
+        prefix=${prefix//\\}
+        COMPREPLY=( $( compgen -P "$prefix" -g -- "${cur#*[:]}" ) )
     elif [[ $cur = *:* ]]; then
-        COMPREPLY=( $( compgen -g -- ${cur##*[.:]} ) )
+        # Completing group after 'user:gr<TAB>'.
+        # Reply with a list of unprefixed groups since readline with split on :
+        # and only replace the 'gr' part
+        COMPREPLY=( $( compgen -g -- "${cur#*:}" ) )
     else
-        type compopt &>/dev/null && compopt -o nospace
-        COMPREPLY=( $( compgen -S : -u -- "$cur" ) )
+        # Completing a partial 'usernam<TAB>'.
+        #
+        # Don't suffix with a : because readline will escape it and add a
+        # slash. It's better to complete into 'chown username ' than 'chown
+        # username\:'.
+        COMPREPLY=( $( compgen -u -- "$cur" ) )
     fi
 }
 
@@ -908,8 +926,10 @@ complete -F _service service
 _chown()
 {
     local cur prev split=false
-    cur=`_get_cword`
-    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    # Get cur and prev words; but don't treat user:group as separate words.
+    cur=`_get_cword :`
+    prev=`_get_pword :`
 
     _split_longopt && split=true
 
@@ -926,22 +946,22 @@ _chown()
 
     $split && return 0
 
-    # options completion
     if [[ "$cur" == -* ]]; then
+        # Complete -options
         COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes --dereference \
             --no-dereference --from --silent --quiet --reference --recursive \
             --verbose --help --version' -- "$cur" ) )
     else
-        _count_args
+        local args
 
-        case $args in
-            1)
-                _usergroup
-                ;;
-            *)
-                _filedir
-                ;;
-        esac
+        # The first argument is an usergroup; the rest are filedir.
+        _count_args :
+
+        if [[ $args == 1 ]]; then
+            _usergroup
+        else
+            _filedir
+        fi
     fi
 } # _chown()
 complete -F _chown -o filenames chown
