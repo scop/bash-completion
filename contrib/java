@@ -71,12 +71,11 @@ _java_classes()
             fi
 
         elif [ -d $i ]; then
-            i=${i%/}
-
-            # See Debian bug #496828
-            COMPREPLY=( "${COMPREPLY[@]}" $( find "$i" -type f \
-                -maxdepth 1 -path "$i/$cur*.class" 2>/dev/null | \
-                command grep -v "\\$" | sed -e "s|^$i/||" ) )
+            # Intentionally looking for *.class only in $i (not subdirs),
+            # see Debian bug #496828.
+            COMPREPLY=( "${COMPREPLY[@]}"
+                $( command ls $i/$cur*.class 2>/dev/null | \
+                    sed -ne '/\$/d' -e "s|^$i//*||p" ) )
 
             # FIXME: if we have foo.class and foo/, the completion
             # returns "foo/"... how to give precedence to files
