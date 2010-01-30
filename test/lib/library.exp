@@ -397,15 +397,17 @@ proc assert_env_unmodified {{sed ""} {file ""} {diff ""}} {
 
 # Make sure the specified command executed from within Tcl/Expect.
 # Fail the test with status UNSUPPORTED if Tcl fails with error "POSIX/ENOENT
-# (No such file or directory)", or UNRESOLVED if other error occurs.  
+# (No such file or directory)", or with the given Tcl failure status command
+# (default "unresolved") if other error occurs.
 # NOTE: Further tests are assumed if executing the command is successful.  The
 #       test isn't immediately declared to have PASSED if the command is
 #       executed successful.
 # @param string $command
 # @param string $stdout  (optional) Reference to variable to hold stdout.
 # @param string $test (optional)  Test title
+# @param string $failcmd (optional, default "unresolved")  Failure command
 # @see assert_bash_exec()
-proc assert_exec {cmd {stdout ''} {test ''}} {
+proc assert_exec {cmd {stdout ''} {test ''} {failcmd "unresolved"}} {
     if {$test == ""} {set test "$cmd should execute successfully"}
     upvar $stdout results
     set status [catch {eval exec $cmd} results]
@@ -419,7 +421,7 @@ proc assert_exec {cmd {stdout ''} {test ''}} {
                 # Indicate test is unsupported
             unsupported "$test"
         } else {
-            unresolved "$test"
+            $failcmd "$test"
         }; # if
     }; # if
     return $result
