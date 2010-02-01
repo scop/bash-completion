@@ -24,10 +24,14 @@ set partgroup "roo"
 
 # Skip tests if root:root not available or if roo:roo matches multiple
 # users/groups
-if {[exec bash -c "compgen -A user $partuser" | wc -l] > 1 ||
-    [exec bash -c "compgen -A user $fulluser" | wc -l] != 1 ||
-    [exec bash -c "compgen -A group $partgroup" | wc -l] > 1 ||
-    [exec bash -c "compgen -A group $fullgroup" | wc -l] != 1} {
+#
+# compgen -A is used because it's a bash builtin and available everywhere.
+# The || true part prevents exec from throwing an exception if nothing is
+# found.
+if {[exec bash -c "compgen -A user $partuser || true" | wc -l] > 1 ||
+    [exec bash -c "compgen -A user $fulluser || true" | wc -l] != 1 ||
+    [exec bash -c "compgen -A group $partgroup || true" | wc -l] > 1 ||
+    [exec bash -c "compgen -A group $fullgroup || true" | wc -l] != 1} {
     untested "Not running complex chown tests."
 } else {
     assert_complete $fulluser "chown $partuser"
