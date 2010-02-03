@@ -14,26 +14,21 @@ assert_complete_any "chown "
 sync_after_int
 
 
-# All the tests use the root:root user and group. They're assumed to exist.
-set fulluser "root"
-set fullgroup "root"
+# Find user/group suitable for testing.
+set failed_find_unique_completion 0
+foreach ug {user group} {
+    # compgen -A is used because it's a bash builtin and available everywhere.
+    # The || true part prevents exec from throwing an exception if nothing is
+    # found (very very unlikely).
+    set list [split [exec bash -c "compgen -A $ug || true"] "\n"]
+    if {![find_unique_completion_pair $list part$ug full$ug]} {
+        untested "Not running complex chown tests; no suitable test $ug found."
+        set failed_find_unique_completion 1
+    }
+}
 
-# Partial username is assumed to be unambiguous.
-set partuser "roo"
-set partgroup "roo"
-
-# Skip tests if root:root not available or if roo:roo matches multiple
-# users/groups
-#
-# compgen -A is used because it's a bash builtin and available everywhere.
-# The || true part prevents exec from throwing an exception if nothing is
-# found.
-if {[exec bash -c "compgen -A user $partuser || true" | wc -l] > 1 ||
-    [exec bash -c "compgen -A user $fulluser || true" | wc -l] != 1 ||
-    [exec bash -c "compgen -A group $partgroup || true" | wc -l] > 1 ||
-    [exec bash -c "compgen -A group $fullgroup || true" | wc -l] != 1} {
-    untested "Not running complex chown tests."
-} else {
+# These tests require an unique completion.
+if {!$failed_find_unique_completion} {
     assert_complete $fulluser "chown $partuser"
     sync_after_int
 
