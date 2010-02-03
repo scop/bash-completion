@@ -684,6 +684,73 @@ proc split_words_bash {line} {
 }; # split_words_bash()
 
 
+# Given a list of items this proc finds a (part, full) pair so that when
+# completing from $part $full will be the only option.
+#
+# Arguments:
+#       list        The list of full completions.
+#       partName    Output parameter for the partial string.
+#       fullName    Output parameter for the full string, member of item.
+#
+# Results:
+#       1, or 0 if no suitable result was found.
+proc find_unique_completion_pair {{list} {partName} {fullName}} {
+    upvar $partName part
+    upvar $fullName full
+    set bestscore 0
+    set list [lsort $list]
+    set n [llength $list]
+    for {set i 0} {$i < $n} {incr i} {
+        set cur [lindex $list $i]
+        set curlen [string length $cur]
+
+        set prev [lindex $list [expr {$i - 1}]]
+        set next [lindex $list [expr {$i + 1}]]
+        set diffprev [expr {$prev == ""}]
+        set diffnext [expr {$next == ""}]
+
+        # Analyse each item of the list and look for the minimum length of the
+        # partial prefix which is distinct from both $next and $prev. The list
+        # is sorted so the prefix will be unique in the entire list.
+        #
+        # In the worst case we analyse every character in the list 3 times.
+        # That's actually very fast, sorting could take more.
+        for {set j 0} {$j < $curlen} {incr j} {
+            set curchar [string index $cur $j]
+            if {!$diffprev && [string index $prev $j] != $curchar} {
+                set diffprev 1
+            }
+            if {!$diffnext && [string index $next $j] != $curchar} {
+                set diffnext 1
+            }
+            if {$diffnext && $diffprev} {
+                break
+            }
+        }
+
+        # At the end of the loop $j is the index of last character of
+        # the unique partial prefix. The length is one plus that.
+        set parlen [expr {$j + 1}]
+        if {$parlen >= $curlen} {
+            continue
+        }
+
+        # Try to find the most "readable pair"; look for a long pair where
+        # $part is about half of $full.
+        if {$parlen < $curlen / 2} {
+            set parlen [expr {$curlen / 2}]
+        }
+        set score [expr {$curlen - $parlen}]
+        if {$score > $bestscore} {
+            set bestscore $score
+            set part [string range $cur 0 [expr {$parlen - 1}]]
+            set full $cur
+        }
+    }
+    return [expr {$bestscore != 0}]
+}
+
+
 # Start bash running as test environment.
 proc start_bash {} {
     global TESTDIR TOOL_EXECUTABLE spawn_id
