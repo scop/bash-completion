@@ -177,8 +177,12 @@ base: base.in Makefile
 		-e 's|@sysconfdir[@]|$(sysconfdir)|g' \
 		-e 's|@compatdir[@]|$(compatdir)|g' <$(srcdir)/$@.in >$@
 
-CLEANFILES = bash_completion.sh base bash_completion
+install-completions: install-completions.in Makefile
+	sed -e 's|@compatdir[@]|$(compatdir)|g' \
+		-e 's|@contribdir[@]|$(contribdir)|g' <$(srcdir)/$@.in >$@
+
+CLEANFILES = bash_completion.sh base bash_completion install-completions
 
 EXTRA_DIST = CHANGES $(dataroot_DATA) $(contrib_DATA) bash_completion.sh.in \
-	base.in bash_completion.in \
+	base.in bash_completion.in install-completions.in \
 	contrib/_modules contrib/_subversion contrib/_yum contrib/_yum-utils
