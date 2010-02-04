@@ -37,12 +37,16 @@ else
     set +v
 fi
 
-# Alter the following to reflect the location of this file.
-#
-[ -n "$BASH_COMPLETION" ] || BASH_COMPLETION=/etc/bash_completion
-[ -n "$BASH_COMPLETION_DIR" ] || BASH_COMPLETION_DIR=/etc/bash_completion.d
-[ -n "$BASH_COMPLETION_COMPAT_DIR" ] || BASH_COMPLETION_COMPAT_DIR=/etc/bash_completion.d
-readonly BASH_COMPLETION BASH_COMPLETION_DIR BASH_COMPLETION_COMPAT_DIR
+# Load the configuration
+[ -e "@sysconfdir@/bash-completion.conf" ] && . @sysconfdir@/bash-completion.conf
+[ -e "~/.config/bash-completion.conf" ] && . ~/.config/bash-completion.conf
+
+# Set some defaults, in case the above files don't exist
+[ -n "$COMP_BASE" ] || COMP_BASE=@bashcompdir@/base
+[ -n "$COMP_ENABLED_DIR" ] || COMP_ENABLED_DIR=@compatdir@
+[ -n "$COMP_USER_DIR" ] || COMP_USER_DIR=~/.bash_completion.d/
+[ -n "$COMP_USER_ENABLED" ] || COMP_USER_ENABLED="false"
+readonly COMP_BASE COMP_ENABLED_DIR COMP_USER_DIR
 
 # Set a couple of useful vars
 #
@@ -1674,7 +1678,7 @@ _filedir_xspec()
 
     # get first exclusion compspec that matches this command
     xspec=$( awk "/^complete[ \t]+.*[ \t]${1##*/}([ \t]|\$)/ { print \$0; exit }" \
-        $BASH_COMPLETION )
+        $COMP_BASE )
     # prune to leave nothing but the -X spec
     xspec=${xspec#*-X }
     xspec=${xspec%% *}
@@ -1701,7 +1705,7 @@ _filedir_xspec()
 
     COMPREPLY=( "${toks[@]}" )
 }
-list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' $BASH_COMPLETION | \
+list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' $COMP_BASE | \
     # read exclusion compspecs
     (
     while read line
@@ -1725,28 +1729,26 @@ fi
 unset list
 
 # source completion directory definitions
-if [[ -d $BASH_COMPLETION_COMPAT_DIR && -r $BASH_COMPLETION_COMPAT_DIR && \
-    -x $BASH_COMPLETION_COMPAT_DIR ]]; then
-    for i in $(LC_ALL=C command ls $BASH_COMPLETION_COMPAT_DIR); do
-        i=$BASH_COMPLETION_COMPAT_DIR/$i
+if [[ -d $COMP_ENABLED_DIR && -r $COMP_ENABLED_DIR && \
+    -x $COMP_ENABLED_DIR ]]; then
+    for i in $(LC_ALL=C command ls $COMP_ENABLED_DIR); do
+        i=$COMP_ENABLED_DIR/$i
         [[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|*.rpm@(orig|new|save)) \
             && ( -f $i || -h $i ) && -r $i ]] && . $i
     done
 fi
-if [[ $BASH_COMPLETION_DIR != $BASH_COMPLETION_COMPAT_DIR && \
-    -d $BASH_COMPLETION_DIR && -r $BASH_COMPLETION_DIR && \
-    -x $BASH_COMPLETION_DIR ]]; then
-    for i in $(LC_ALL=C command ls $BASH_COMPLETION_DIR); do
-        i=$BASH_COMPLETION_DIR/$i
+
+if [[ $COMP_USER_ENABLED != "false" && \
+    $COMP_USER_DIR != $COMP_ENABLED_DIR && \
+    -d $COMP_USER_DIR && -r $COMP_USER_DIR && -x $COMP_USER_DIR ]]; then
+    for i in $(LC_ALL=C command ls $COMP_USER_DIR); do
+        i=$COMP_USER_DIR/$i
         [[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|*.rpm@(orig|new|save)) \
             && ( -f $i || -h $i ) && -r $i ]] && . $i
     done
 fi
 unset i
 
-# source user completion file
-[[ $BASH_COMPLETION != ~/.bash_completion && -r ~/.bash_completion ]] \
-    && . ~/.bash_completion
 unset -f have
 unset UNAME USERLAND have
 
