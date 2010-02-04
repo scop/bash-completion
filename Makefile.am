@@ -1,9 +1,20 @@
 SUBDIRS = test
 
+bin_SCRIPTS = install-completions
+
+compatdir = $(sysconfdir)/bash_completion.d
+compat_DATA =
+
 sysconf_DATA = bash_completion
 
-bashcompdir = $(sysconfdir)/bash_completion.d
-bashcomp_DATA = contrib/abook \
+bashcompdir = $(datarootdir)/bash-completion
+bashcomp_DATA = base
+
+profiledir = $(sysconfdir)/profile.d
+profile_DATA = bash_completion.sh
+
+contribdir = $(bashcompdir)/contrib/
+contrib_DATA = contrib/abook \
 		contrib/ant \
 		contrib/apache2ctl \
 		contrib/apt \
@@ -155,13 +166,19 @@ bashcomp_DATA = contrib/abook \
 		contrib/yp-tools \
 		contrib/yum-arch
 
-profiledir = $(sysconfdir)/profile.d
-profile_DATA = bash_completion.sh
-
 bash_completion.sh: bash_completion.sh.in Makefile
-	sed -e 's|@sysconfdir[@]|$(sysconfdir)|' <$(srcdir)/$@.in >$@
+	sed -e 's|@bashcompdir[@]|$(bashcompdir)|g' <$(srcdir)/$@.in >$@
 
-CLEANFILES = bash_completion.sh
+bash_completion: bash_completion.in Makefile
+	sed -e 's|@bashcompdir[@]|$(bashcompdir)|g' <$(srcdir)/$@.in >$@
 
-EXTRA_DIST = CHANGES $(sysconf_DATA) $(bashcomp_DATA) bash_completion.sh.in \
+base: base.in Makefile
+	sed -e 's|@bashcompdir[@]|$(bashcompdir)|g' \
+		-e 's|@sysconfdir[@]|$(sysconfdir)|g' \
+		-e 's|@compatdir[@]|$(compatdir)|g' <$(srcdir)/$@.in >$@
+
+CLEANFILES = bash_completion.sh base bash_completion
+
+EXTRA_DIST = CHANGES $(dataroot_DATA) $(contrib_DATA) bash_completion.sh.in \
+	base.in bash_completion.in \
 	contrib/_modules contrib/_subversion contrib/_yum contrib/_yum-utils
