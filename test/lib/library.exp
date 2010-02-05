@@ -451,6 +451,23 @@ proc assert_no_complete {{cmd} {test ""}} {
 }; # assert_no_complete()
 
 
+# Source/run file with additional tests if completion for the specified command
+# is installed in bash.
+# @param string $command  Command to check completion availability for.
+# @param string $file  (optional) File to source/run.  Default is
+#                      "lib/completions/$cmd.exp".
+proc assert_source_completions {command {file ""}} {
+    if {[is_bash_completion_installed_for $command]} {
+        if {[string length $file] == 0} {
+            set file "lib/completions/$command.exp"
+        }
+        source $file
+    } else {
+        untested $command
+    }
+}; # assert_source_completions()
+
+
 # Sort list.
 # `exec sort' is used instead of `lsort' to achieve exactly the
 #  same sort order as in bash.
@@ -532,6 +549,24 @@ proc init_tcl_bash_globals {} {
     assert_bash_exec {printf "%s" "$BASH_VERSION"} "" /@ BASH_VERSION
     assert_bash_exec {printf "%s" "$TESTDIR"} "" /@ TESTDIR
 }; # init_tcl_bash_globals()
+
+
+# Check whether completion is installed for the specified command by executing
+# `complete -p ...' in bash.
+# @param string $command  Command to check completion availability for.
+# @return boolean  True (1) if completion is installed, False (0) if not.
+proc is_bash_completion_installed_for {command} {
+    set test "$command should have completion installed in bash"
+    set cmd "complete -p $command &> /dev/null && echo -n 0 || echo -n 1"  
+    send "$cmd\r"
+    expect "$cmd\r\n"
+    expect {
+        -ex 0 { set result true }
+        -ex 1 { set result false }
+    }
+    expect "/@"
+    return $result
+}; # is_bash_completion_installed_for()
 
 
 # Detect if test suite is running under Cygwin/Windows
