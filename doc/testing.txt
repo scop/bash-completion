@@ -62,6 +62,50 @@ Each tool has a slightly different way of loading the test fixtures, see
 <<Test_context,Test context>> below.
 
 
+Completion
+~~~~~~~~~~
+
+Completion tests are spread over two directories: `completion/\*.exp` calls
+completions in `lib/completions/\*.exp`.  This two-file system stems from
+bash-completion-lib (http://code.google.com/p/bash-completion-lib/, containing
+dynamic loading of completions) where tests are run twice per completion; once
+before dynamic loading and a second time after to confirm that all dynamic
+loading has gone well.
+
+For example:
+
+----
+set test "Completion via comp_load() should be installed"
+set cmd "complete -p awk"
+send "$cmd\r"
+expect {
+    -re "^$cmd\r\ncomplete -o filenames -F comp_load awk\r\n/@$" { pass "$test" }
+    -re /@ { fail "$test at prompt" }
+}
+
+
+source "lib/completions/awk.exp"
+
+
+set test "Completion via _longopt() should be installed"
+set cmd "complete -p awk"
+send "$cmd\r"
+expect {
+    -re "^$cmd\r\ncomplete -o filenames -F _longopt awk\r\n/@$" { pass "$test" }
+    -re /@ { fail "$test at prompt" }
+}
+
+
+source "lib/completions/awk.exp"
+----
+
+Looking to the completion tests from a broader perspective, every test for a
+command has two stages which are now reflected in the two files:
+
+. Tests concerning the command completions' environment (typically in
+`test/completion/foo`)
+. Tests invoking actual command completion (typically in
+`test/lib/completions/foo`)
 
 
 Running the tests
