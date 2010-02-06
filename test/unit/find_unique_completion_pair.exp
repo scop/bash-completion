@@ -1,0 +1,37 @@
+# Note: This test actually tests a function in the test library. It doesn't
+# need bash running; but it doesn't hurt either.
+
+# Run one test. Look below for usage.
+proc test_find_ucp {{list} {epart} {econt} {eret 1}} {
+    set efull "$epart$econt"
+    set rret [find_unique_completion_pair $list rpart rfull]
+    if {$eret != $rret} {
+        if {$eret} {
+            fail "find_unique_completion_pair: Nothing found for {$list}"
+        } else {
+            fail "find_unique_completion_pair: Expected failure for {$list}"
+        }
+    } elseif {!$eret} {
+        pass "find_unique_completion_pair: No results for list {$list}"
+    } elseif {$rpart != $epart || $rfull != $efull} {
+        fail "find_unique_completion_pair: Got \"$rpart\", \"$rfull\" \
+                instead of \"$epart\", \"$efull\" for list {$list}"
+    } else {
+        pass "find_unique_completion_pair: Got \"$epart\", \"$efull\" \
+                for list {$list}"
+    }
+}
+
+test_find_ucp {a} 0 0 0
+test_find_ucp {ab} a b
+test_find_ucp {a ab abcd abc} 0 0 0
+test_find_ucp {a ab abcde abc} abcd e
+test_find_ucp {user1 user2} 0 0 0
+test_find_ucp {root username2 username1} ro ot
+test_find_ucp {root username21 username2} ro ot
+test_find_ucp {long_user_name lang_user_name long_usor_name} lang_us er_name
+test_find_ucp {lang_user_name1 long_user_name lang_user_name long_usor_name} \
+          long_use r_name
+test_find_ucp {root username} user name
+test_find_ucp {a aladin} ala din
+test_find_ucp {ala aladin} alad in
