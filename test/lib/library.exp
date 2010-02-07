@@ -79,18 +79,22 @@ proc assert_bash_type {command} {
 # @result boolean  True if successful, False if not
 proc assert_bash_list {expected cmd {test ""} {prompt /@} {size 20}} {
     if {$test == ""} {set test "$cmd should show expected output"}
-    send "$cmd\r"
-    expect -ex "$cmd\r\n"
-
-    if {[match_items $expected $test $prompt $size]} {
-        expect {
-            -re $prompt { pass "$test" }
-            -re eof { unresolved "eof" }
-        }; # expect
+    if {[llength $expected] == 0} {
+        assert_no_output $cmd $test $prompt
     } else {
-        fail "$test"
-    }; # if
-}; # assert_bash_list()
+        send "$cmd\r"
+        expect -ex "$cmd\r\n"
+
+        if {[match_items $expected $test $prompt $size]} {
+            expect {
+                -re $prompt { pass "$test" }
+                -re eof { unresolved "eof" }
+            }
+        } else {
+            fail "$test"
+        }
+    }
+}
 
 
 proc assert_bash_list_dir {expected cmd dir {test ""} {prompt /@} {size 20}} {
@@ -449,6 +453,26 @@ proc assert_no_complete {{cmd} {test ""}} {
         timeout { fail "$test" }
     }; # expect
 }; # assert_no_complete()
+
+
+# Check that no output is generated on a certain command.
+# @param string $cmd  The command to attempt to complete.
+# @param string $test  Optional parameter with test name.
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
+proc assert_no_output {{cmd} {test ""} {prompt /@}} {
+    if {[string length $test] == 0} {
+        set test "$cmd shouldn't generate output"
+    }
+
+    send "$cmd\r"
+    expect -ex "$cmd"
+
+    expect {
+        -re "^\r\n$prompt$" { pass "$test" }
+        default { fail "$test" }
+        timeout { fail "$test" }
+    }
+}
 
 
 # Source/run file with additional tests if completion for the specified command

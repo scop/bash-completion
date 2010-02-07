@@ -253,6 +253,142 @@ __reassemble_comp_words_by_ref() {
 } # __reassemble_comp_words_by_ref()
 
 
+# @param $1 exclude  Characters out of $COMP_WORDBREAKS which should NOT be
+#     considered word breaks. This is useful for things like scp where
+#     we want to return host:path and not only path, so we would pass the
+#     colon (:) as $1 in this case.  Bash-3 doesn't do word splitting, so this
+#     ensures we get the same word on both bash-3 and bash-4.
+# @param $2 words  Name of variable to return words to
+# @param $3 cword  Name of variable to return cword to
+# @param $4 cur  Name of variable to return current word to complete to
+# @see ___get_cword_at_cursor_by_ref()
+__get_cword_at_cursor_by_ref() {
+    # NOTE: The call to the main function ___get_cword_at_cursor_by_ref() is
+    #       wrapped to make collisions with local variable names less likely.
+    local __words __cword __cur
+    ___get_cword_at_cursor_by_ref "$1" __words __cword __cur
+
+    eval $2=\( \"\${__words[@]}\" \)
+    eval $3=\$__cword
+    eval $4=\$__cur
+}
+
+
+# @param $1 exclude
+# @param $2 words  Name of variable to return words to
+# @param $3 cword  Name of variable to return cword to
+# @param $4 cur  Name of variable to return current word to complete to
+# @note  Do not call this function directly but call 
+#     `__get_cword_at_cursor_by_ref()' instead to make variable name collisions
+#     less likely
+# @see __get_cword_at_cursor_by_ref()
+___get_cword_at_cursor_by_ref() {
+    local cword words
+    __reassemble_comp_words_by_ref "$1" words cword
+
+    local i
+    local cur="$COMP_LINE"
+    local index="$COMP_POINT"
+    for (( i = 0; i <= cword; ++i )); do
+        while [[
+            # Current word fits in $cur?
+            "${#cur}" -ge ${#words[i]} &&
+            # $cur doesn't match cword?
+            "${cur:0:${#words[i]}}" != "${words[i]}"
+        ]]; do
+            # Strip first character
+            cur="${cur:1}"
+            # Decrease cursor position
+            ((index--))
+        done
+
+        # Does found word matches cword?
+        if [[ "$i" -lt "$cword" ]]; then
+            # No, cword lies further;
+            local old_size="${#cur}"
+            cur="${cur#${words[i]}}"
+            local new_size="${#cur}"
+            index=$(( index - old_size + new_size ))
+        fi
+    done
+
+    if [[ "${words[cword]:0:${#cur}}" != "$cur" ]]; then
+        # We messed up. At least return the whole word so things keep working
+        eval $4=\"\${words[cword]}\"
+    else
+        eval $4=\"\${cur:0:\$index}\"
+    fi
+
+    eval $2=\( \"\${words[@]}\" \)
+    eval $3=\$cword
+}
+
+
+# Get the word to complete and optional previous words.
+# This is nicer than ${COMP_WORDS[$COMP_CWORD]}, since it handles cases
+# where the user is completing in the middle of a word.
+# (For example, if the line is "ls foobar",
+# and the cursor is here -------->   ^
+# Also one is able to cross over possible wordbreak characters.
+# Usage: _get_comp_words_by_ref [OPTIONS] VAR1 [VAR2 [VAR3]]
+# Example usage:
+#
+#    $ _get_comp_words_by_ref -n : cur prev
+#
+# Options:  -n EXCLUDE  Characters out of $COMP_WORDBREAKS which should NOT
+#     be considered word breaks. This is useful for things like scp where
+#     we want to return host:path and not only path, so we would pass the
+#     colon (:) as -n option in this case.  Bash-3 doesn't do word splitting,
+#     so this ensures we get the same word on both bash-3 and bash-4.
+# @see __get_comp_words_by_ref
+_get_comp_words_by_ref() {
+    # NOTE: The call to the main function __get_comp_words_by_ref() is wrapped
+    #       to make collisions with local variable name less likely.
+    local __words __cword __cur __var __vars 
+    __get_comp_words_by_ref __words __cword __cur __vars "$@"
+    set -- "${__vars[@]}"
+    eval $1=\$__cur
+    shift
+    for __var; do
+        ((__cword--))
+        [[ ${__words[__cword]} ]] && eval $__var=\${__words[__cword]}
+    done
+}
+
+
+# @param $1 words  Name of variable to return words to
+# @param $2 cword  Name of variable to return cword to
+# @param $3 cur  Name of variable to return current word to complete to
+# @param $4 varnames  Name of variable to return array of variable names to
+# @param $@  Arguments to _get_comp_words_by_ref()
+# @note  Do not call this function directly but call `_get_comp_words_by_ref()'
+#     instead to make variable name collisions less likely
+# @see _get_comp_words_by_ref()
+__get_comp_words_by_ref()
+{
+    local exclude flag i OPTIND=5  # Skip first four arguments
+    local cword words cur varnames=()
+    while getopts "n:" flag "$@"; do
+        case $flag in
+            n) exclude=$OPTARG ;;
+        esac
+    done
+    varnames=( ${!OPTIND} )
+    let "OPTIND += 1"
+    while [[ $# -ge $OPTIND ]]; do 
+        varnames+=( ${!OPTIND} )
+        let "OPTIND += 1"
+    done
+
+    __get_cword_at_cursor_by_ref "$exclude" words cword cur
+
+    eval $1=\( \"\${words[@]}\" \)
+    eval $2=\$cword
+    eval $3=\$cur
+    eval $4=\( \"\${varnames[@]}\" \)
+}
+
+
 # Get the word to complete.
 # This is nicer than ${COMP_WORDS[$COMP_CWORD]}, since it handles cases
 # where the user is completing in the middle of a word.
