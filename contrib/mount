@@ -19,13 +19,14 @@ _reply_compgen_array()
     # argument.
     local i wlist
     for i in ${!COMPREPLY[*]}; do
-        local q=`printf %q "${COMPREPLY[$i]}"`
-        wlist+=$(quote "$q")$'\n'
+        local q=$(quote "$(printf %q "${COMPREPLY[$i]}")")
+        wlist+=$q$'\n'
     done
 
     # We also have to add another round of escaping to $cur.
     local ecur="$cur"
     ecur="${ecur//\\/\\\\}"
+    ecur="${ecur//\'/\'}"
 
     # Actually generate completions.
     local oldifs=$IFS
@@ -47,8 +48,8 @@ _linux_fstab()
         if [[ $fs_spec = [#]* ]]; then continue; fi
         local oldifs="$IFS"
         IFS=$'\0'
-        [[ $fs_spec = */* ]] && eval "COMPREPLY+=( $'$fs_spec' )";
-        [[ $fs_file = */* ]] && eval "COMPREPLY+=( $'$fs_file' )";
+        [[ $fs_spec = */* ]] && eval "COMPREPLY+=( $'${fs_spec//\'/\047}' )";
+        [[ $fs_file = */* ]] && eval "COMPREPLY+=( $'${fs_file//\'/\047}' )";
         IFS="$oldifs"
     done
 
