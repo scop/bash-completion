@@ -26,19 +26,11 @@ _reply_compgen_array()
     # We also have to add another round of escaping to $cur.
     local ecur="$cur"
     ecur="${ecur//\\/\\\\}"
-    ecur="${ecur/#$\'/\$\'}"
 
     # Actually generate completions.
-    local oldifs="$IFS"
+    local oldifs=$IFS
     IFS=$'\n' eval 'COMPREPLY=(`compgen -W "$wlist" -- "${ecur}"`)'
-    IFS="$oldifs"
-
-    # Strip starting $' in reply if present in cur.
-    # This is necesarry because readline interprets everything after ' as a
-    # separate word for completion.
-    if [[ $cur == $\'* ]]; then #'
-        COMPREPLY=( "${COMPREPLY[@]/#$\'}" )
-    fi
+    IFS=$oldifs
 }
 
 # Complete linux fstab entries.
