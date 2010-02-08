@@ -1030,8 +1030,7 @@ _service()
     local cur prev sysvdir
 
     COMPREPLY=()
-    prev=${COMP_WORDS[COMP_CWORD-1]}
-    cur=`_get_cword`
+    _get_comp_words_by_ref cur prev
 
     # don't complete for things like killall, ssh and mysql if it's
     # the standalone command, rather than the init script
@@ -1064,8 +1063,7 @@ _chown()
     local cur prev split=false
 
     # Get cur and prev words; but don't treat user:group as separate words.
-    cur=`_get_cword :`
-    prev=`_get_pword :`
+    _get_comp_words_by_ref -n : cur prev
 
     _split_longopt && split=true
 
@@ -1110,9 +1108,8 @@ _chgrp()
     local cur prev split=false
 
     COMPREPLY=()
-    cur=`_get_cword`
+    _get_comp_words_by_ref cur prev
     cur=${cur//\\\\/}
-    prev=${COMP_WORDS[COMP_CWORD-1]}
 
     _split_longopt && split=true
 
@@ -1153,7 +1150,7 @@ _rmmod()
     local cur
 
     COMPREPLY=()
-    cur=`_get_cword`
+    _get_comp_words_by_ref cur
 
     _installed_modules "$cur"
     return 0
@@ -1170,8 +1167,7 @@ _insmod()
     local cur prev modpath
 
     COMPREPLY=()
-    cur=`_get_cword`
-    prev=${COMP_WORDS[COMP_CWORD-1]}
+    _get_comp_words_by_ref cur prev
 
     # behave like lsmod for modprobe -r
     if [[ ${1##*/} == modprobe && "${COMP_WORDS[1]}" == -r ]]; then
@@ -1206,7 +1202,7 @@ _renice()
     local command cur curopt i
 
     COMPREPLY=()
-    cur=`_get_cword`
+    _get_comp_words_by_ref cur
     command=$1
 
     i=0
@@ -1237,7 +1233,7 @@ _kill()
     local cur
 
     COMPREPLY=()
-    cur=`_get_cword`
+    _get_comp_words_by_ref cur
 
     if [[ $COMP_CWORD -eq 1 && "$cur" == -* ]]; then
         # return list of available signals
@@ -1257,7 +1253,7 @@ _killall()
     local cur
 
     COMPREPLY=()
-    cur=`_get_cword`
+    _get_comp_words_by_ref cur
 
     if [[ $COMP_CWORD -eq 1 && "$cur" == -* ]]; then
         _signals
@@ -1278,7 +1274,7 @@ _pgrep()
     local cur
 
     COMPREPLY=()
-    cur=`_get_cword`
+    _get_comp_words_by_ref cur
 
     _pnames
 
@@ -1297,7 +1293,7 @@ _ifupdown()
     local cur
 
     COMPREPLY=()
-    cur=`_get_cword`
+    _get_comp_words_by_ref cur
 
     if [ $COMP_CWORD -eq 1 ]; then
         _configured_interfaces
@@ -1317,8 +1313,7 @@ _ipsec()
     local cur
 
     COMPREPLY=()
-    cur=`_get_cword`
-
+    _get_comp_words_by_ref cur
 
     if [ $COMP_CWORD -eq 1 ]; then
         COMPREPLY=( $( compgen -W 'auto barf eroute klipsdebug look manual \
@@ -1359,7 +1354,7 @@ _user_at_host() {
     local cur
 
     COMPREPLY=()
-    cur=`_get_cword :`
+    _get_comp_words_by_ref -n : cur
 
     if [[ $cur == *@* ]]; then
         _known_hosts_real "$cur"
@@ -1565,7 +1560,8 @@ complete -F _known_hosts traceroute traceroute6 tracepath tracepath6 ping \
 #
 _cd()
 {
-    local IFS=$'\t\n' cur=`_get_cword` i j k
+    local IFS=$'\t\n' i j k
+    _get_comp_words_by_ref cur
 
     # try to allow variable completion
     if [[ "$cur" == ?(\\)\$* ]]; then
@@ -1668,7 +1664,7 @@ _command_offset()
     COMP_CWORD=$(( $COMP_CWORD - $word_offset ))
 
     COMPREPLY=()
-    cur=`_get_cword`
+    _get_comp_words_by_ref cur
 
     if [[ $COMP_CWORD -eq 0 ]]; then
         COMPREPLY=( $( compgen -c -- "$cur" ) )
@@ -1722,8 +1718,7 @@ _longopt()
 {
     local cur prev
 
-    cur=`_get_cword`
-    prev=${COMP_WORDS[COMP_CWORD-1]}
+    _get_comp_words_by_ref cur prev
 
     if _split_longopt; then
         case "$prev" in
@@ -1771,7 +1766,7 @@ _look()
     local cur
 
     COMPREPLY=()
-    cur=`_get_cword`
+    _get_comp_words_by_ref cur
 
     if [ $COMP_CWORD = 1 ]; then
         COMPREPLY=( $( compgen -W '$(look "$cur" 2>/dev/null)' -- "$cur" ) )
@@ -1787,7 +1782,7 @@ _id()
     local cur
 
     COMPREPLY=()
-    cur=`_get_cword`
+    _get_comp_words_by_ref cur
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '-a -g --group -G --groups -n --name\
@@ -1804,7 +1799,7 @@ _filedir_xspec()
 
     IFS=$'\t\n'
     COMPREPLY=()
-    cur=`_get_cword`
+    _get_comp_words_by_ref cur
 
     _expand || return 0
 
