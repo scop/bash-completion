@@ -102,7 +102,7 @@ proc assert_bash_list_dir {expected cmd dir {test ""} {prompt /@} {size 20}} {
     assert_bash_exec "cd $dir" "" $prompt
     assert_bash_list $expected $cmd $test $prompt $size
     sync_after_int $prompt
-    assert_bash_exec "cd \$TESTDIR"
+    assert_bash_exec {cd "$TESTDIR"}
 }; # assert_bash_list_dir()
 
 
@@ -272,7 +272,7 @@ proc assert_complete_dir {expected cmd dir {test ""} {size 20} {cword ""}} {
     assert_bash_exec "cd $dir" "" $prompt
     assert_complete $expected $cmd $test $prompt $size $cword
     sync_after_int $prompt
-    assert_bash_exec "cd \$TESTDIR"
+    assert_bash_exec {cd "$TESTDIR"}
 }; # assert_complete_dir
     
 
@@ -692,16 +692,16 @@ proc save_env {{file ""}} {
 # @param string  File to save the environment to.  Default is "$TESTDIR/tmp/env1~".
 # @see assert_env_unmodified()
 proc _save_env {{file ""}} {
-    assert_bash_exec "{ set; declare -F; shopt -p; } > $file"
+    assert_bash_exec "{ set; declare -F; shopt -p; } > \"$file\""
 }; # _save_env()
 
 
 # Source bash_completion package
 proc source_bash_completion {} {
-    assert_bash_exec {BASH_COMPLETION_DIR=$(cd $TESTDIR/..; pwd)/contrib}
+    assert_bash_exec {BASH_COMPLETION_DIR=$(cd "$TESTDIR/.."; pwd)/contrib}
     assert_bash_exec {BASH_COMPLETION_COMPAT_DIR=$BASH_COMPLETION_DIR}
-    assert_bash_exec {BASH_COMPLETION=$(cd $TESTDIR/..; pwd)/bash_completion}
-    assert_bash_exec {source $BASH_COMPLETION}
+    assert_bash_exec {BASH_COMPLETION=$(cd "$TESTDIR/.."; pwd)/bash_completion}
+    assert_bash_exec {source "$BASH_COMPLETION"}
 }; # source_bash_completion()
 
 
