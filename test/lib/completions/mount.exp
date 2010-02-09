@@ -57,6 +57,23 @@ assert_bash_exec {PATH="$OLDPATH"; unset -v OLDPATH}
 sync_after_int
 
 
+set test "Testing internal __linux_fstab_unescape function for mount"
+# One round of slashes is for bash.
+assert_bash_exec {var=one\'two\\040three\\}
+assert_bash_exec {__linux_fstab_unescape var}
+set cmd {echo $var}
+send "$cmd\r"
+expect {
+    -ex "$cmd\r\none'two three\\" { pass $test }
+#    default { fail $test }
+}
+assert_bash_exec {unset var}
+
+
+sync_after_int
+
+
+# Begin testing through mnt (see setup_dummy_mnt).
 assert_complete {/mnt/nice-test-path} {mnt /mnt/nice-test-p}
 sync_after_int
 
