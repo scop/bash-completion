@@ -1084,9 +1084,13 @@ _chown()
 
     if [[ "$cur" == -* ]]; then
         # Complete -options
+        local w opts
+        for w in "${COMP_WORDS[@]}" ; do
+            [[ "$w" == -@(R|-recursive) ]] && opts="-H -L -P" && break
+        done
         COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes --dereference \
             --no-dereference --from --silent --quiet --reference --recursive \
-            --verbose --help --version' -- "$cur" ) )
+            --verbose --help --version $opts' -- "$cur" ) )
     else
         local args
 
@@ -1125,9 +1129,13 @@ _chgrp()
 
     # options completion
     if [[ "$cur" == -* ]]; then
+        local w opts
+        for w in "${COMP_WORDS[@]}" ; do
+            [[ "$w" == -@(R|-recursive) ]] && opts="-H -L -P" && break
+        done
         COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes --dereference \
             --no-dereference --silent --quiet --reference --recursive \
-            --verbose --help --version' -- "$cur" ) )
+            --verbose --help --version $opts' -- "$cur" ) )
         return 0
     fi
 
