@@ -51,15 +51,25 @@ _linux_fstab()
 
     # Read and unescape values into COMPREPLY
     local fs_spec fs_file fs_other
+    local oldifs="$IFS"
     while read -r fs_spec fs_file fs_other; do
-        __linux_fstab_unescape fs_spec
-        __linux_fstab_unescape fs_file
         if [[ $fs_spec = [#]* ]]; then continue; fi
-        local oldifs="$IFS"
-        IFS=$'\0'
-        [[ $fs_spec = */* ]] && COMPREPLY+=("$fs_spec");
-        [[ $fs_file = */* ]] && COMPREPLY+=("$fs_file");
-        IFS="$oldifs"
+        if [[ $1 == -L ]]; then
+            local fs_label=${fs_spec/#LABEL=}
+            if [[ $fs_label != "$fs_spec" ]]; then
+                __linux_fstab_unescape fs_label
+                IFS=$'\0'
+                COMPREPLY+=("$fs_label")
+                IFS=$oldifs
+            fi
+        else
+            __linux_fstab_unescape fs_spec
+            __linux_fstab_unescape fs_file
+            IFS=$'\0'
+            [[ $fs_spec = */* ]] && COMPREPLY+=("$fs_spec")
+            [[ $fs_file = */* ]] && COMPREPLY+=("$fs_file")
+            IFS=$oldifs
+        fi
     done
 
     _reply_compgen_array
@@ -102,7 +112,7 @@ _mount()
     else
         # probably Linux
         if [ $prev = -L ]; then
-            COMPREPLY=( $( compgen -W '$(sed -ne "s/^[[:space:]]*LABEL=\([^[:space:]]*\).*/\1/p" /etc/fstab )' -- "$cur" ) )
+            _linux_fstab -L < /etc/fstab
         elif [ $prev = -U ]; then
             COMPREPLY=( $( compgen -W '$(sed -ne "s/^[[:space:]]*UUID=\([^[:space:]]*\).*/\1/p" /etc/fstab )' -- "$cur" ) )
         else

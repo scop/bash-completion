@@ -9,7 +9,7 @@ proc setup_dummy_mnt {} {
     assert_bash_exec { \
         _mnt() { \
             local cur=$(_get_cword); \
-            _linux_fstab < "$TESTDIR/fixtures/mount/test-fstab"; \
+            _linux_fstab $(_get_pword) < "$TESTDIR/fixtures/mount/test-fstab"; \
         }; \
         complete -F _mnt mnt \
     }
@@ -97,6 +97,12 @@ assert_complete {/mnt/nice\'test-path} {mnt /mnt/nice\'}
 sync_after_int
 
 assert_complete {/mnt/other\'test\ path} {mnt /mnt/other}
+sync_after_int
+
+assert_complete {Ubuntu\ Karmic} {mnt -L Ubu}
+sync_after_int
+
+assert_complete {Debian-it\'s\ awesome} {mnt -L Deb}
 sync_after_int
 
 # This does not work. Proper support for this requires smarter parsing of
