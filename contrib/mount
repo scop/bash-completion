@@ -120,12 +120,18 @@ complete -F _mount -o default -o dirnames mount
 have umount &&
 _umount()
 {
-    local cur IFS=$'\n'
-
     COMPREPLY=()
-    cur=`_get_cword`
 
-    COMPREPLY=( $( compgen -W '$( mount | cut -d" " -f 3 )' -- "$cur" ) )
+    local cur=`_get_cword`
+
+    if [[ $(uname -s) = Linux && -r /proc/mounts ]]; then
+        # Linux /proc/mounts is properly quoted. This is important when
+        # unmounting usb devices with pretty names.
+        _linux_fstab < /proc/mounts
+    else
+        local IFS=$'\n'
+        COMPREPLY=( $( compgen -W '$( mount | cut -d" " -f 3 )' -- "$cur" ) )
+    fi
 
     return 0
 } &&
