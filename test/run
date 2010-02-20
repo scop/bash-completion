@@ -11,6 +11,7 @@ usage() {
     echo "Interesting options:"
     echo "  --tool_exec=    Test against a different bash executable."
     echo "  --debug         Create a dbg.log in the test directory with detailed expect match information."
+    echo "  --timeout       Change expect timeout from the default of 10 seconds."
     echo "  --debug-xtrace  Create an xtrace.log in the test directory with set -x output. Requires bash 4.1."
     echo
     echo "Example run: ./run unit/_get_cword.exp unit/compgen.exp"
@@ -39,6 +40,8 @@ while [[ $# > 0 ]]; do
     case "$1" in
         --help|--usage) usage; exit 1;;
         --debug-xtrace) args+=(OPT_BASH_XTRACE=1);;
+        --timeout) shift; timeout=$1;;
+        --timeout=*) timeout=${1/--timeout=};;
         --tool=*) set_tool "${1#/--tool=}";;
         --tool) shift; set_tool "$1";;
         */completion/*.exp|*/unit/*.exp)
@@ -51,6 +54,7 @@ while [[ $# > 0 ]]; do
     shift
 done
 
+[[ -n $timeout ]] && args+=("OPT_TIMEOUT=$timeout")
 [[ -z $tool ]] && { echo "Must specify tool somehow"; exit 1; }
 
 runtest --outdir log --tool $tool "${args[@]}" 
