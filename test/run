@@ -1,31 +1,56 @@
 #!/bin/bash
-# Run test of specified tool.
-# The first directory of the first file (first argument ending with .exp) is
-# used as the `tool' specification.
-# Usage: ./run [FILE]...
-# Example run: ./run unit/_get_cword.exp unit/compgen.exp
 
 
-# Process arguments
-# @param $1  Name of variable to return `tool' name
-# @param $2  Name of variable to return processed arguments
-# @param $@  Arguments to process
-process_args() {
-    local arg
-    for arg in "${@:3}"; do
-        case "$arg" in
-            completion/*.exp|unit/*.exp)
-                [[ ${!1} ]] || printf -v $1 "${arg%%/*}"
-                eval $2[\${#$2[@]}]=\""${arg#*/}"\"
-                ;;
-            *)
-                eval $2[\${#$2[@]}]=\""$arg"\"
-        esac
-    done
+# Print some helpful messages.
+usage() {
+    echo "Run bash-completion tests"
+    echo
+    echo "The 'tool' is determined automatically from filenames."
+    echo "Unrecognized options are passed through to dejagnu by default."
+    echo
+    echo "Interesting options:"
+    echo "  --tool_exec=    Test against a different bash executable."
+    echo "  --debug         Create a dbg.log in the test directory with detailed expect match information."
+    echo "  --debug-xtrace  Create an xtrace.log in the test directory with set -x output. Requires bash 4.1."
+    echo
+    echo "Example run: ./run unit/_get_cword.exp unit/compgen.exp"
 }
 
-args=()
-process_args tool args "$@"
-runtest --outdir log --tool $tool "${args[@]}" 
 
-unset -v args tool
+# Try to set the tool variable; or fail if trying to set different values.
+set_tool() {
+    if [[ $tool ]]; then
+        if [[ $tool != $1 ]]; then
+            echo "Tool spec mismatch ('$tool' and '$1'). See --usage."
+            exit 1
+        fi
+    else
+        tool=$1
+    fi
+}
+
+
+cd "${BASH_SOURCE[0]%/*}"
+
+
+# Loop over the arguments.
+args=()
+while [[ $# > 0 ]]; do
+    case "$1" in
+        --help|--usage) usage; exit 1;;
+        --debug-xtrace) args+=(OPT_BASH_XTRACE=1);;
+        --tool=*) set_tool "${1#/--tool=}";;
+        --tool) shift; set_tool "$1";;
+        */completion/*.exp|*/unit/*.exp)
+            arg=${1%/*}
+            set_tool "${arg##*/}"
+            args+=("${1##*/}")
+            ;;
+        *) args+=("$1")
+    esac
+    shift
+done
+
+[[ -z $tool ]] && { echo "Must specify tool somehow"; exit 1; }
+
+runtest --outdir log --tool $tool "${args[@]}" 

@@ -829,6 +829,42 @@ proc start_bash {} {
 }; # start_bash()
 
 
+# Redirect xtrace output to a file.
+#
+# 'set -x' can be very useful for debugging but by default it writes to
+# stderr. Bash 4.1 has a feature to redirect this output to a random FD.
+#
+# This function uses file descriptor 6. This will break if any completion
+# tries to use the same descriptor.
+proc init_bash_xtrace {{fname xtrace.log}} {
+    global BASH_VERSINFO
+    if {([lindex $BASH_VERSINFO 0] == 4 && [lindex $BASH_VERSINFO 1] < 1) ||
+        [lindex $BASH_VERSINFO 0] < 4} {
+        note "BASH_XTRACEFD not available in this version; no xtrace.log"
+        return
+    }
+    verbose "Enabling bash xtrace output to '$fname'"
+    assert_bash_exec "exec 6>'$fname'"
+    assert_bash_exec "BASH_XTRACEFD=6"
+    assert_bash_exec "set -o xtrace"
+}
+
+
+# Setup test environment
+# 
+# Common initialization for unit and completion tests.
+proc start_interactive_test {} {
+    start_bash
+    source_bash_completion
+    init_tcl_bash_globals
+
+    global OPT_BASH_XTRACE
+    if {[info exists OPT_BASH_XTRACE]} {
+        init_bash_xtrace
+    }
+}
+
+
 # Interrupt completion and sync with prompt.
 # Send signals QUIT & INT.
 # @param string $prompt  (optional) Bash prompt.  Default is "/@"
