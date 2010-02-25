@@ -831,24 +831,40 @@ proc start_bash {} {
 
 # Interrupt completion and sync with prompt.
 # Send signals QUIT & INT.
+#
+# This will match everything up to an including the new prompt.
+#
 # @param string $prompt  (optional) Bash prompt.  Default is "/@"
 proc sync_after_int {{prompt /@}} {
 
-    # expect_after will uses this.
+    # expect_after will access the $test variable.
     set test "Sync after INT"
 
-    # Send QUIT/INT
+    # We synchronise in two steps.
+
+    # First we send a text we hope is unique and swallow everything before it.
+    set synctext "sync[expr int(rand() * 1000)]"
+
+    # \005 is ^E; move to end of the line in emacs mode. This is required
+    # because some tests use cmdline features and leave the 'cursor' in the
+    # middle of a line
+    send "\005$synctext"
+
+    # Regexp `.*' causes `expect' to discard previous unknown output.
+    # This is necessary if a completion doesn't match expectations.
+    # For instance with `filetype_xspec' completion (e.g. `kdvi') if
+    # one expects `.txt' as a completion (wrong, because it isn't
+    # there), the unmatched completions need to be cleaned up.
+    expect -re ".*$synctext$"
+
+    # Then we send QUIT/INT and match the new prompt that shows up.
     send \031\003;
 
-    # NOTE: Regexp `.*' causes `expect' to discard previous unknown output.
-    #       This is necessary if a completion doesn't match expectations.
-    #       For instance with `filetype_xspec' completion (e.g. `kdvi') if
-    #       one expects `.txt' as a completion (wrong, because it isn't
-    #       there), the unmatched completions need to be cleaned up.
-
-    # NOTE: Match ^C\r\n explicitly so that we don't match a previous
-    #       unmatched prompt by accident.
-    expect -re ".*\\^C\\r\\n$prompt$"
+    # Bash versions >4 will echo a ^C by default. This can be disabled in
+    # inputrc starting from bash 4.1. This is not enough; we need to run tests
+    # against bash-4.0 as well.
+    # See http://www.mail-archive.com/bug-bash@gnu.org/msg07038.html
+    expect -re "^(\\^C)?\\r\\n$prompt$"
 }
 
 
