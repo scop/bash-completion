@@ -102,7 +102,7 @@ proc assert_bash_list_dir {expected cmd dir {test ""} {prompt /@} {size 20}} {
     assert_bash_exec "cd $dir" "" $prompt
     assert_bash_list $expected $cmd $test $prompt $size
     sync_after_int $prompt
-    assert_bash_exec "cd \$TESTDIR"
+    assert_bash_exec {cd "$TESTDIR"}
 }; # assert_bash_list_dir()
 
 
@@ -272,7 +272,7 @@ proc assert_complete_dir {expected cmd dir {test ""} {size 20} {cword ""}} {
     assert_bash_exec "cd $dir" "" $prompt
     assert_complete $expected $cmd $test $prompt $size $cword
     sync_after_int $prompt
-    assert_bash_exec "cd \$TESTDIR"
+    assert_bash_exec {cd "$TESTDIR"}
 }; # assert_complete_dir
     
 
@@ -692,16 +692,16 @@ proc save_env {{file ""}} {
 # @param string  File to save the environment to.  Default is "$TESTDIR/tmp/env1~".
 # @see assert_env_unmodified()
 proc _save_env {{file ""}} {
-    assert_bash_exec "{ set; declare -F; shopt -p; } > $file"
+    assert_bash_exec "{ set; declare -F; shopt -p; } > \"$file\""
 }; # _save_env()
 
 
 # Source bash_completion package
 proc source_bash_completion {} {
-    assert_bash_exec {BASH_COMPLETION_DIR=$(cd $TESTDIR/..; pwd)/contrib}
+    assert_bash_exec {BASH_COMPLETION_DIR=$(cd "$TESTDIR/.."; pwd)/contrib}
     assert_bash_exec {BASH_COMPLETION_COMPAT_DIR=$BASH_COMPLETION_DIR}
-    assert_bash_exec {BASH_COMPLETION=$(cd $TESTDIR/..; pwd)/bash_completion}
-    assert_bash_exec {source $BASH_COMPLETION}
+    assert_bash_exec {BASH_COMPLETION=$(cd "$TESTDIR/.."; pwd)/bash_completion}
+    assert_bash_exec {source "$BASH_COMPLETION"}
 }; # source_bash_completion()
 
 
@@ -829,6 +829,48 @@ proc start_bash {} {
 }; # start_bash()
 
 
+# Redirect xtrace output to a file.
+#
+# 'set -x' can be very useful for debugging but by default it writes to
+# stderr. Bash 4.1 has a feature to redirect this output to a random FD.
+#
+# This function uses file descriptor 6. This will break if any completion
+# tries to use the same descriptor.
+proc init_bash_xtrace {{fname xtrace.log}} {
+    global BASH_VERSINFO
+    if {([lindex $BASH_VERSINFO 0] == 4 && [lindex $BASH_VERSINFO 1] < 1) ||
+        [lindex $BASH_VERSINFO 0] < 4} {
+        note "BASH_XTRACEFD not available in this version; no xtrace.log"
+        return
+    }
+    verbose "Enabling bash xtrace output to '$fname'"
+    assert_bash_exec "exec 6>'$fname'"
+    assert_bash_exec "BASH_XTRACEFD=6"
+    assert_bash_exec "set -o xtrace"
+}
+
+
+# Setup test environment
+# 
+# Common initialization for unit and completion tests.
+proc start_interactive_test {} {
+    start_bash
+    source_bash_completion
+    init_tcl_bash_globals
+
+    global OPT_BASH_XTRACE
+    if {[info exists OPT_BASH_XTRACE]} {
+        init_bash_xtrace
+    }
+    global OPT_TIMEOUT
+    if {[info exists OPT_TIMEOUT]} {
+        global timeout
+        verbose "Changing default expect timeout from $timeout to $OPT_TIMEOUT"
+        set timeout $OPT_TIMEOUT
+    }
+}
+
+
 # Interrupt completion and sync with prompt.
 # Send signals QUIT & INT.
 # @param string $prompt  (optional) Bash prompt.  Default is "/@"
@@ -836,13 +878,17 @@ proc sync_after_int {{prompt /@}} {
     set test "Sync after INT"
     sleep .1
     send \031\003;  # QUIT/INT
-        # NOTE: Regexp `.*' causes `expect' to discard previous unknown output.
-        #       This is necessary if a completion doesn't match expectations.
-        #       For instance with `filetype_xspec' completion (e.g. `kdvi') if
-        #       one expects `.txt' as a completion (wrong, because it isn't
-        #       there), the unmatched completions need to be cleaned up.
+    # Wait to allow bash to become ready
+    # See also: http://lists.alioth.debian.org/pipermail/bash-completion-devel/
+    #           2010-February/002566.html
+    sleep .1
+    # NOTE: Regexp `.*' causes `expect' to discard previous unknown output.
+    #       This is necessary if a completion doesn't match expectations.
+    #       For instance with `filetype_xspec' completion (e.g. `kdvi') if
+    #       one expects `.txt' as a completion (wrong, because it isn't
+    #       there), the unmatched completions need to be cleaned up.
     expect -re ".*$prompt$"
-}; # sync_after_int()
+}
 
 
 proc sync_after_tab {} {

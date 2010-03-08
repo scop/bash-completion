@@ -1,5 +1,5 @@
 #
-#   bash_completion - programmable completion functions for bash 3.x
+#   bash_completion - programmable completion functions for bash 3.2+
 #
 #   Copyright © 2006-2008, Ian Macdonald <ian@caliban.org>
 #             © 2009-2010, Bash Completion Maintainers
@@ -121,6 +121,7 @@ complete -f -X '!*.po' poedit gtranslator kbabel lokalize
 complete -f -X '!*.@([Pp][Rr][Gg]|[Cc][Ll][Pp])' harbour gharbour hbpp
 complete -f -X '!*.[Hh][Rr][Bb]' hbrun
 complete -f -X '!*.ly' lilypond ly2dvi
+complete -f -X '!*.@(dif?(f)|?(d)patch)' cdiff kompare
 # FINISH exclude -- do not remove this line
 
 # start of section containing compspecs that can be handled within bash
@@ -1084,9 +1085,13 @@ _chown()
 
     if [[ "$cur" == -* ]]; then
         # Complete -options
+        local w opts
+        for w in "${COMP_WORDS[@]}" ; do
+            [[ "$w" == -@(R|-recursive) ]] && opts="-H -L -P" && break
+        done
         COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes --dereference \
             --no-dereference --from --silent --quiet --reference --recursive \
-            --verbose --help --version' -- "$cur" ) )
+            --verbose --help --version $opts' -- "$cur" ) )
     else
         local args
 
@@ -1125,9 +1130,13 @@ _chgrp()
 
     # options completion
     if [[ "$cur" == -* ]]; then
+        local w opts
+        for w in "${COMP_WORDS[@]}" ; do
+            [[ "$w" == -@(R|-recursive) ]] && opts="-H -L -P" && break
+        done
         COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes --dereference \
             --no-dereference --silent --quiet --reference --recursive \
-            --verbose --help --version' -- "$cur" ) )
+            --verbose --help --version $opts' -- "$cur" ) )
         return 0
     fi
 
@@ -1810,7 +1819,7 @@ _filedir_xspec()
 
     # get first exclusion compspec that matches this command
     xspec=$( awk "/^complete[ \t]+.*[ \t]${1##*/}([ \t]|\$)/ { print \$0; exit }" \
-        $BASH_COMPLETION )
+        "$BASH_COMPLETION" )
     # prune to leave nothing but the -X spec
     xspec=${xspec#*-X }
     xspec=${xspec%% *}
@@ -1837,7 +1846,7 @@ _filedir_xspec()
 
     COMPREPLY=( "${toks[@]}" )
 }
-list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' $BASH_COMPLETION | \
+list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' "$BASH_COMPLETION" | \
     # read exclusion compspecs
     (
     while read line
@@ -1863,19 +1872,19 @@ unset list
 # source completion directory definitions
 if [[ -d $BASH_COMPLETION_COMPAT_DIR && -r $BASH_COMPLETION_COMPAT_DIR && \
     -x $BASH_COMPLETION_COMPAT_DIR ]]; then
-    for i in $(LC_ALL=C command ls $BASH_COMPLETION_COMPAT_DIR); do
+    for i in $(LC_ALL=C command ls "$BASH_COMPLETION_COMPAT_DIR"); do
         i=$BASH_COMPLETION_COMPAT_DIR/$i
         [[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|*.rpm@(orig|new|save)) \
-            && ( -f $i || -h $i ) && -r $i ]] && . $i
+            && ( -f $i || -h $i ) && -r $i ]] && . "$i"
     done
 fi
 if [[ $BASH_COMPLETION_DIR != $BASH_COMPLETION_COMPAT_DIR && \
     -d $BASH_COMPLETION_DIR && -r $BASH_COMPLETION_DIR && \
     -x $BASH_COMPLETION_DIR ]]; then
-    for i in $(LC_ALL=C command ls $BASH_COMPLETION_DIR); do
+    for i in $(LC_ALL=C command ls "$BASH_COMPLETION_DIR"); do
         i=$BASH_COMPLETION_DIR/$i
         [[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|*.rpm@(orig|new|save)) \
-            && ( -f $i || -h $i ) && -r $i ]] && . $i
+            && ( -f $i || -h $i ) && -r $i ]] && . "$i"
     done
 fi
 unset i
