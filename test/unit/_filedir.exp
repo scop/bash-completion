@@ -11,6 +11,11 @@ proc setup {} {
     assert_bash_exec { \
         complete -F _f -o filenames f2 \
     }
+    # Declare bash completion function `_g' to complete on `.e1' files
+    assert_bash_exec { \
+        _g() { local cur=$(_get_cword); unset COMPREPLY; _filedir e1; }; \
+        complete -F _g g \
+    }
     # Create directories `a*b' and `a\b' only when not running on Cygwin/Windows;
     # directories containing `*' or `\' aren't allowed on Cygwin/Windows
     if {! [is_cygwin]} {
@@ -18,20 +23,20 @@ proc setup {} {
         assert_bash_exec {(cd fixtures/_filedir && [ ! -d a\*b ] && mkdir a\*b && touch a\*b/j || true)}
         # Create directory `a\b'
         assert_bash_exec {(cd fixtures/_filedir && [ ! -d a\\b ] && mkdir a\\b && touch a\\b/g || true)}
-    }; # if
-}; # setup()
+    }
+}
 
 
 proc teardown {} {
     if {! [is_cygwin]} {
         assert_bash_exec {(cd fixtures/_filedir && rm -- a\\b/g && rmdir a\\b/ || true)}
         assert_bash_exec {(cd fixtures/_filedir && rm -- a\*b/j && rmdir a\*b/ || true)}
-    }; # if
+    }
     assert_bash_exec {unset COMPREPLY cur}
-    assert_bash_exec {unset -f _f}
-    assert_bash_exec {complete -r f}
+    assert_bash_exec {unset -f _f _g}
+    assert_bash_exec {complete -r f g}
     assert_env_unmodified { /OLDPWD/d }
-}; # teardown()
+}
 
 
 setup
@@ -48,7 +53,7 @@ foreach name {f f2} {
 
     set test "completing $name ab/ should return e"
     set cmd "$name ab/"
-    assert_complete_dir e $cmd "fixtures/_filedir"
+    assert_complete_dir e $cmd "fixtures/_filedir" $test
 
 
     sync_after_int
@@ -56,23 +61,23 @@ foreach name {f f2} {
 
     set test "completing $name a\\ b/ should return i"
     set cmd "$name a\\ b/"
-    assert_complete_dir i $cmd "fixtures/_filedir"
+    assert_complete_dir i $cmd "fixtures/_filedir" $test
 
 
     sync_after_int
 
 
-    set test "completing $name a\\\'b/ should return i"
+    set test "completing $name a\\\'b/ should return c"
     set cmd "$name a\\\'b/"
-    assert_complete_dir c $cmd "fixtures/_filedir"
+    assert_complete_dir c $cmd "fixtures/_filedir" $test
 
 
     sync_after_int
 
 
-    set test "completing $name a\\\"b/ should return i"; #"
+    set test "completing $name a\\\"b/ should return d"; #"
     set cmd "$name a\\\"b/"; #"
-    assert_complete_dir d $cmd "fixtures/_filedir"
+    assert_complete_dir d $cmd "fixtures/_filedir" $test
 
 
     sync_after_int
@@ -80,7 +85,8 @@ foreach name {f f2} {
 
     set test "completing $name a\\\$b/ should return h"
     set cmd "$name a\\\$b/"
-    assert_complete_dir "\b\b\b\b\b$::TESTDIR/fixtures/_filedir/a\\\\\$b/h" $cmd "fixtures/_filedir"
+    assert_complete_dir "\b\b\b\b\b$::TESTDIR/fixtures/_filedir/a\\\\\$b/h" \
+        $cmd "fixtures/_filedir" $test
 
 
     sync_after_int
@@ -92,16 +98,16 @@ foreach name {f f2} {
     if {! [is_cygwin]} {
         set test "completing $name a\\\\b/ should return g"
         set cmd "$name a\\\\b/"
-        assert_complete_dir g $cmd "fixtures/_filedir"
+        assert_complete_dir g $cmd "fixtures/_filedir" $test
 
 
         sync_after_int
-    }; # if
+    }
 
 
     set test "completing $name a\\&b/ should return f"
     set cmd "$name a\\&b/"
-    assert_complete_dir f $cmd "fixtures/_filedir"
+    assert_complete_dir f $cmd "fixtures/_filedir" $test
 
 
     sync_after_int
@@ -109,20 +115,19 @@ foreach name {f f2} {
 
     set test "completing $name a\$ should return a\\\$b/"
     set cmd "$name a\$"
-    assert_complete_dir "\b\\\\\$b/" $cmd "fixtures/_filedir"
+    assert_complete_dir "\b\\\\\$b/" $cmd "fixtures/_filedir" $test
 
 
     sync_after_int
 
 
     # NOTE: Bash versions 4.0.0 up to 4.0.34 contain a bug when completing quoted
-    #       words, so tests within this if aren't executed for these bash versions.
+    #       words, so tests below aren't executed for these bash versions.
     if {! (
         [lindex $::BASH_VERSINFO 0] == 4 && 
         [lindex $::BASH_VERSINFO 1] == 0 &&
         [lindex $::BASH_VERSINFO 2] < 35
     )} {
-        set test "completing $name 'ab/ should return e"
         set cmd "$name 'ab/"
         assert_complete_dir {e'} $cmd "fixtures/_filedir"
 
@@ -130,7 +135,6 @@ foreach name {f f2} {
         sync_after_int
 
 
-        set test "completing $name 'a b/ should return i"
         set cmd "$name 'a b/"
         assert_complete_dir {i'} $cmd "fixtures/_filedir"
 
@@ -138,7 +142,6 @@ foreach name {f f2} {
         sync_after_int
 
 
-        set test "completing $name 'a\"b/ should return d"; #"
         set cmd "$name 'a\"b/"; #"
         assert_complete_dir {d'} $cmd "fixtures/_filedir"
 
@@ -146,14 +149,12 @@ foreach name {f f2} {
         sync_after_int
 
 
-        set test "completing $name 'a\$b/ should return h"
         set cmd "$name 'a\$b/"
         if {[lindex $::BASH_VERSINFO 0] == 4} {
             assert_complete_dir {h'} $cmd "fixtures/_filedir"
         } else {
             assert_complete_dir "\b\b\b\b$::TESTDIR/fixtures/_filedir/a\$b/h'" $cmd "fixtures/_filedir"
-        }; # if
-            
+        }
 
 
         sync_after_int
@@ -162,16 +163,14 @@ foreach name {f f2} {
         # Execute these tests only when not running on Cygwin/Windows, because
         # directories containing `*' or `\' aren't allowed on Cygwin/Windows
         if {! [is_cygwin]} {
-            set test "completing $name 'a\\b/ should return g"
             set cmd "$name 'a\\b/"
             assert_complete_dir {g'} $cmd "fixtures/_filedir"
 
 
             sync_after_int
-        }; # if
+        }
 
 
-        set test "completing $name 'a&b/ should return f"
         set cmd "$name 'a&b/"
         assert_complete_dir {f'} $cmd "fixtures/_filedir"
 
@@ -179,7 +178,6 @@ foreach name {f f2} {
         sync_after_int
 
 
-        set test "completing $name \"ab/ should return e"; #"
         set cmd "$name \"ab/"; #"
         assert_complete_dir {e"} $cmd "fixtures/_filedir"; #"
 
@@ -187,7 +185,6 @@ foreach name {f f2} {
         sync_after_int
 
 
-        set test "completing $name \"a b/ should return i"; #"
         set cmd "$name \"a b/"; #"
         assert_complete_dir {i"} $cmd "fixtures/_filedir"; #"
 
@@ -195,7 +192,6 @@ foreach name {f f2} {
         sync_after_int
 
 
-        set test "completing $name \"a'b/ should return c"; #"
         set cmd "$name \"a'b/"; #"
         assert_complete_dir {c"} $cmd "fixtures/_filedir"; #"
 
@@ -203,7 +199,6 @@ foreach name {f f2} {
         sync_after_int
 
 
-        set test "completing $name \"a\\\"b/ should return d"; #"
         set cmd "$name \"a\\\"b/"; #"
         assert_complete_dir {d"} $cmd "fixtures/_filedir"; #"
 
@@ -211,7 +206,6 @@ foreach name {f f2} {
         sync_after_int
 
 
-        set test "completing $name \"a\\\$b/ should return h"; #"
         set cmd "$name \"a\\\$b/"; #"
         assert_complete_dir "\b\b\b\b\b$::TESTDIR/fixtures/_filedir/a\\\\\$b/h\\\"" $cmd "fixtures/_filedir"
 
@@ -219,7 +213,6 @@ foreach name {f f2} {
         sync_after_int
 
 
-        set test "completing $name \"a\\b/ should return e"; #"
         set cmd "$name \"a\\b/"; #"
         assert_complete_dir "\b\b\bb/e\\\"" $cmd "fixtures/_filedir"
 
@@ -227,7 +220,6 @@ foreach name {f f2} {
         sync_after_int
 
 
-        set test "completing $name \"a\\\\b/ should return g"; #"
         set cmd "$name \"a\\\\b/"; #"
         assert_complete_dir {g"} $cmd "fixtures/_filedir"; #"
 
@@ -235,7 +227,6 @@ foreach name {f f2} {
         sync_after_int
 
 
-        set test "completing $name \"a&b/ should return f"; #"
         set cmd "$name \"a&b/"; #"
         assert_complete_dir {f"} $cmd "fixtures/_filedir"; #"
 
@@ -243,8 +234,15 @@ foreach name {f f2} {
         sync_after_int
 
 
-    }; # if
-}; # for
+    }; # if 4.0.0 < bash-version > 4.0.34
+}; # foreach
+
+
+set test "completing with filter '.e1' should show completions"
+assert_complete_dir {ee.e1 foo/ gg.e1} "g " "fixtures/_filedir/ext" $test
+
+
+sync_after_int
 
 
 teardown

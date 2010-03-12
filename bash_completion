@@ -546,8 +546,8 @@ _quote_readline_by_ref()
 
 # This function performs file and directory completion. It's better than
 # simply using 'compgen -f', because it honours spaces in filenames.
-# If passed -d, it completes only on directories. If passed anything else,
-# it's assumed to be a file glob to complete on.
+# @param $1  If `-d', complete only on directories.  Otherwise filter/pick only
+#            completions with `.$1' as file extension.
 #
 _filedir()
 {
@@ -589,7 +589,7 @@ _filedir()
     #
     if [[ "$1" != -d ]]; then
         xspec=${1:+"!*.$1"}
-        if [[ ${BASH_VERSINFO[0]} -ge 4 ]]; then
+        if [[ ${cur:0:1} == "'" && ${BASH_VERSINFO[0]} -ge 4 ]]; then
             toks=( ${toks[@]-} $(
                 eval compgen -f -X \"\$xspec\" -- $quoted
             ) )
@@ -603,17 +603,22 @@ _filedir()
             compopt &>/dev/null && compopt -o filenames ||
             # No, `compopt' isn't available;
             # Is `-o filenames' set?
-            [[ "$(complete -p ${COMP_WORDS[0]})" == *"-o filenames"* ]] || {
+            [[ (
+                ${COMP_WORDS[0]} && 
+                "$(complete -p ${COMP_WORDS[0]})" == *"-o filenames"*
+            ) ]] || {
                 # No, `-o filenames' isn't set;
                 # Emulate `-o filenames'
-                # NOTE: A side-effect of emulating `-o filenames' is that backslash escape
-                #       characters are visible within the list of presented completions, e.g.
-                #       the completions look like:
+                # NOTE: A side-effect of emulating `-o filenames' is that
+                #       backslash escape characters are visible within the list
+                #       of presented completions, e.g.  the completions look
+                #       like:
                 #
                 #           $ foo a<TAB>
                 #           a\ b/  a\$b/
                 #
-                #       whereas with `-o filenames' active the completions look like:
+                #       whereas with `-o filenames' active the completions look
+                #       like:
                 #
                 #           $ ls a<TAB>
                 #           a b/  a$b/
