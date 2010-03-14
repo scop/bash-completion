@@ -28,19 +28,6 @@ _bluetooth_packet_types()
         -- "$cur" ) )
 }
 
-_get_command()
-{
-    local i
-
-    command=
-    for (( i=1; i < COMP_CWORD; i++ )); do
-        if [[ "${COMP_WORDS[i]}" != -* ]]; then
-            command=${COMP_WORDS[i]}
-            break
-        fi
-    done
-}
-
 _hcitool()
 {
     local cur prev split=false
@@ -68,8 +55,8 @@ _hcitool()
 
     $split && return 0
 
-    _get_command
-    if [ -z $command ]; then
+    _get_first_arg
+    if [ -z $arg ]; then
         if [[ "$cur" == -* ]]; then
             COMPREPLY=( $( compgen -W '--help -i' -- "$cur" ) )
         else
@@ -78,7 +65,7 @@ _hcitool()
                 afh lst auth enc key clkoff clock' -- "$cur" ) )
         fi
     else
-        case $command in
+        case $arg in
             name|info|dc|rssi|lq|afh|auth|key|clkoff|lst)
                 _count_args
                 if [ $args -eq 2 ]; then
@@ -143,8 +130,8 @@ _sdptool()
 
     $split && return 0
 
-    _get_command
-    if [ -z $command ]; then
+    _get_first_arg
+    if [ -z $arg ]; then
         if [[ "$cur" == -* ]]; then
             COMPREPLY=( $( compgen -W '--help' -- "$cur" ) )
         else
@@ -152,7 +139,7 @@ _sdptool()
                 del get setattr setseq' -- "$cur" ) )
         fi
     else
-        case $command in
+        case $arg in
             search)
                 if [[ "$cur" == -* ]]; then
                     COMPREPLY=( $( compgen -W '--bdaddr \
@@ -230,8 +217,8 @@ _rfcomm()
             ;;
     esac
 
-    _get_command
-    if [ -z $command ]; then
+    _get_first_arg
+    if [ -z $arg ]; then
         if [[ "$cur" == -* ]]; then
             COMPREPLY=( $( compgen -W '--help -a --raw \
                 --config -i --auth --encrypt --secure --master' -- "$cur" ) )
@@ -244,7 +231,7 @@ _rfcomm()
         if [ $args -eq 2 ]; then
             _bluetooth_devices
         else
-            case $command in
+            case $arg in
                 connect|bind)
                     if [ $args -eq 3 ]; then
                         _bluetooth_adresses
@@ -272,8 +259,8 @@ _ciptool()
             ;;
     esac
 
-    _get_command
-    if [ -z $command ]; then
+    _get_first_arg
+    if [ -z $arg ]; then
         if [[ "$cur" == -* ]]; then
             COMPREPLY=( $( compgen -W '--help -i' -- "$cur" ) )
         else
@@ -281,7 +268,7 @@ _ciptool()
                 loopback' -- "$cur" ) )
         fi
     else
-        case $command in
+        case $arg in
             connect|release|loopback)
                 _count_args
                 if [ $args -eq 2 ]; then
@@ -332,8 +319,8 @@ _hciconfig()
     COMPREPLY=()
     cur=`_get_cword`
 
-    _get_command
-    if [ -z $command ]; then
+    _get_first_arg
+    if [ -z $arg ]; then
         if [[ "$cur" == -* ]]; then
             COMPREPLY=( $( compgen -W '--help --all' -- "$cur" ) )
         else
@@ -346,7 +333,7 @@ _hciconfig()
                 -- "$cur" ) )
         fi
     else
-        case $command in
+        case $arg in
             putkey|delkey)
                 _count_args
                 if [ $args -eq 2 ]; then
