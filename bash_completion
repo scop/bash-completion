@@ -330,53 +330,83 @@ ___get_cword_at_cursor_by_ref() {
 # (For example, if the line is "ls foobar",
 # and the cursor is here -------->   ^
 # Also one is able to cross over possible wordbreak characters.
-# Usage: _get_comp_words_by_ref [OPTIONS] VAR1 [VAR2 [VAR3]]
+# Usage: _get_comp_words_by_ref [OPTIONS] [VARNAMES]
+# Available VARNAMES:
+#     cur         Return cur within varname "cur"
+#     prev        Return prev within varname "prev"
+#     words       Return words within varname "words"
+#     cword       Return cword within varname "cword"
+#
+# Available OPTIONS:
+#     -n EXCLUDE  Characters out of $COMP_WORDBREAKS which should NOT be 
+#                 considered word breaks. This is useful for things like scp
+#                 where we want to return host:path and not only path, so we
+#                 would pass the colon (:) as -n option in this case.  Bash-3
+#                 doesn't do word splitting, so this ensures we get the same
+#                 word on both bash-3 and bash-4.
+#     -c VARNAME  Return cur within specified VARNAME
+#     -p VARNAME  Return prev within specified VARNAME
+#     -w VARNAME  Return words within specified VARNAME
+#     -i VARNAME  Return words within specified VARNAME
+#
 # Example usage:
 #
 #    $ _get_comp_words_by_ref -n : cur prev
 #
-# Options:  -n EXCLUDE  Characters out of $COMP_WORDBREAKS which should NOT
-#     be considered word breaks. This is useful for things like scp where
-#     we want to return host:path and not only path, so we would pass the
-#     colon (:) as -n option in this case.  Bash-3 doesn't do word splitting,
-#     so this ensures we get the same word on both bash-3 and bash-4.
 # @see __get_comp_words_by_ref
 _get_comp_words_by_ref() {
     # NOTE: The call to the main function __get_comp_words_by_ref() is wrapped
-    #       to make collisions with local variable name less likely.
-    local __words __cword __cur __var __vars 
-    __get_comp_words_by_ref __words __cword __cur __vars "$@"
-    set -- "${__vars[@]}"
-    eval $1=\$__cur
-    shift
-    for __var; do
-        ((__cword--))
-        [[ ${__words[__cword]} ]] && eval $__var=\${__words[__cword]}
-    done
+    #       to make collisions with local variable names less likely.
+    local __words __cword __cur
+    local __var_cur __var_prev __var_words __var_cword
+
+    __get_comp_words_by_ref \
+        __words __cword __cur \
+        __var_cur __var_prev __var_words __var_cword "$@"
+
+    [[ $__var_cur ]] && eval $__var_cur=\$__cur
+    [[ $__var_prev ]] && ((__cword)) && eval $__var_prev=\${__words[__cword - 1]}
+    [[ $__var_words ]] && eval $__var_words=\${__words[@]}
+    [[ $__var_cword ]] && eval $__var_cword=\$__cword
+    return 0
 }
 
 
-# @param $1 words  Name of variable to return words to
-# @param $2 cword  Name of variable to return cword to
-# @param $3 cur  Name of variable to return current word to complete to
-# @param $4 varnames  Name of variable to return array of variable names to
+# @param $1 words      Name of variable to return words to
+# @param $2 cword      Name of variable to return cword to
+# @param $3 cur        Name of variable to return current word to complete to
+# @param $4 var_cur    Name of variable to return current word to complete to
+# @param $5 var_prev   Name of variable to return previous word to complete to
+# @param $6 var_words  Name of variable to return words to complete to
+# @param $7 var_cword  Name of variable to return index of words to complete to
 # @param $@  Arguments to _get_comp_words_by_ref()
 # @note  Do not call this function directly but call `_get_comp_words_by_ref()'
 #     instead to make variable name collisions less likely
+#
 # @see _get_comp_words_by_ref()
 __get_comp_words_by_ref()
 {
-    local exclude flag i OPTIND=5  # Skip first four arguments
-    local cword words cur varnames=()
-    while getopts "n:" flag "$@"; do
+    local exclude flag i OPTIND=8  # Skip first seven arguments
+    local cword words cur
+    local var_cur var_cword var_prev var_words
+
+    while getopts "c:i:n:p:w:" flag "$@"; do
         case $flag in
+            c) var_cur=$OPTARG ;;
+            i) var_cword=$OPTARG ;;
             n) exclude=$OPTARG ;;
+            p) var_prev=$OPTARG ;;
+            w) var_words=$OPTARG ;;
         esac
     done
-    varnames=( ${!OPTIND} )
-    let "OPTIND += 1"
     while [[ $# -ge $OPTIND ]]; do 
-        varnames+=( ${!OPTIND} )
+        case ${!OPTIND} in
+            cur)   var_cur=cur ;;
+            prev)  var_prev=prev ;;
+            cword) var_cword=cword ;;
+            words) var_words=words ;;
+            *) echo "error: $FUNCNAME(): unknown argument: ${!OPTIND}"
+        esac
         let "OPTIND += 1"
     done
 
@@ -385,7 +415,10 @@ __get_comp_words_by_ref()
     eval $1=\( \"\${words[@]}\" \)
     eval $2=\$cword
     eval $3=\$cur
-    eval $4=\( \"\${varnames[@]}\" \)
+    eval $4=\$var_cur
+    eval $5=\$var_prev
+    eval $6=\${var_words[@]}
+    eval $7=\$var_cword
 }
 
 
