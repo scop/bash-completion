@@ -8,11 +8,14 @@ usage() {
     echo "The 'tool' is determined automatically from filenames."
     echo "Unrecognized options are passed through to dejagnu by default."
     echo
+    echo "If you're impatient you can try --timeout 1 --fast-sync, but beware of strange failures from race conditions"
+    echo
     echo "Interesting options:"
     echo "  --tool_exec=    Test against a different bash executable."
     echo "  --debug         Create a dbg.log in the test directory with detailed expect match information."
     echo "  --timeout       Change expect timeout from the default of 10 seconds."
     echo "  --debug-xtrace  Create an xtrace.log in the test directory with set -x output. Requires bash 4.1."
+    echo "  --fast-sync     Remove sleep statements from the sync_after_int function"
     echo
     echo "Example run: ./run unit/_get_cword.exp unit/compgen.exp"
 }
@@ -40,6 +43,7 @@ while [[ $# > 0 ]]; do
     case "$1" in
         --help|--usage) usage; exit 1;;
         --debug-xtrace) args+=(OPT_BASH_XTRACE=1);;
+        --fast-sync) args+=(OPT_FAST_SYNC=1);;
         --timeout) shift; timeout=$1;;
         --timeout=*) timeout=${1/--timeout=};;
         --tool=*) set_tool "${1#/--tool=}";;
