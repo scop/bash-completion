@@ -80,7 +80,6 @@ bashcomp_DATA = contrib/abook \
 		contrib/mdadm \
 		contrib/minicom \
 		contrib/mkinitrd \
-		contrib/mock \
 		contrib/monodevelop \
 		contrib/mount \
 		contrib/mplayer \
@@ -165,4 +164,5 @@ bash_completion.sh: bash_completion.sh.in Makefile
 CLEANFILES = bash_completion.sh
 
 EXTRA_DIST = CHANGES $(sysconf_DATA) $(bashcomp_DATA) bash_completion.sh.in \
-	contrib/_modules contrib/_subversion contrib/_yum contrib/_yum-utils
+	contrib/_mock contrib/_modules contrib/_subversion contrib/_yum \
+	contrib/_yum-utils
