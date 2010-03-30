@@ -829,8 +829,8 @@ _pgids()
 [[ $UNAME == SunOS || $UNAME == AIX ]] &&
 _pnames()
 {
-    COMPREPLY=( $( compgen -W '$( command ps -efo comm | \
-        sed -e 1d -e "s:.*/::" -e "s/^-//" -e "s/^<defunct>$//")' -- "$cur" ) )
+    COMPREPLY=( $( compgen -X '<defunct>' -W '$( command ps -efo comm | \
+        sed -e 1d -e "s:.*/::" -e "s/^-//" | sort -u )' -- "$cur" ) )
 } ||
 _pnames()
 {
@@ -842,9 +842,9 @@ _pnames()
     # for now.
     # Not using "ps axo comm" because under some Linux kernels, it
     # truncates command names (see e.g. http://bugs.debian.org/497540#19)
-    COMPREPLY=( $( compgen -W '$( command ps axo command= | \
+    COMPREPLY=( $( compgen -X '<defunct>' -W '$( command ps axo command= | \
         sed -e "s/ .*//" -e "s:.*/::" -e "s/:$//" -e "s/^[[(-]//" \
-            -e "s/[])]$//" -e "s/^<defunct>$//")' -- "$cur" ) )
+            -e "s/[])]$//" | sort -u )' -- "$cur" ) )
 }
 
 # This function completes on user IDs
