@@ -590,7 +590,10 @@ _filedir()
     #
     if [[ "$1" != -d ]]; then
         xspec=${1:+"!*.$1"}
-        if [[ ${cur:0:1} == "'" && ${BASH_VERSINFO[0]} -ge 4 ]]; then
+        # in some situation, _quote_readline_by_ref actually overquote,
+        # hence the need to eval the result
+        if [[ ${cur:0:1} == "'" && ${BASH_VERSINFO[0]} -ge 4 ]] || \
+           [[ ${quoted:0:1} == '$' ]]; then
             toks=( ${toks[@]-} $(
                 eval compgen -f -X \"\$xspec\" -- $quoted
             ) )
