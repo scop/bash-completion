@@ -570,13 +570,23 @@ _filedir()
     #       bash-3.1.  See also:
     #       http://www.mail-archive.com/bug-bash@gnu.org/msg01667.html
     _quote_readline_by_ref "$cur" quoted
-    toks=( ${toks[@]-} $(
-        compgen -d -- "$quoted" | {
-            while read -r tmp; do
-                printf '%s\n' $tmp
-            done
-        }
-    ))
+    if [[ ${quoted:0:1} == '$' ]]; then
+        toks=( ${toks[@]-} $(
+            eval compgen -d -- "$quoted" | {
+                while read -r tmp; do
+                    printf '%s\n' $tmp
+                done
+            }
+        ))
+    else
+        toks=( ${toks[@]-} $(
+            compgen -d -- "$quoted" | {
+                while read -r tmp; do
+                    printf '%s\n' $tmp
+                done
+            }
+        ))
+    fi
 
     # On bash-3, special characters need to be escaped extra.  This is
     # unless the first character is a single quote (').  If the single
