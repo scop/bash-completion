@@ -522,14 +522,6 @@ __ltrim_colon_completions() {
 # @param $2  Name of variable to return result to
 _quote_readline_by_ref()
 {
-   # If bash <= 3 and argument starts with single quote ('), double-escape
-#   if [[ ${BASH_VERSINFO[0]} -le 3 && ${1:0:1} == "'" ]]; then
-#        local t
-#        printf -v t %q "${1:1}"
-#        printf -v $2 %q "$t"
-#   else
-#        printf -v $2 %q "$1"
-#   fi
     if [[ ${1:0:1} == "'" ]]; then
         # Quote word, leaving out first character
         printf -v $2 %q "${1:1}"
@@ -564,20 +556,15 @@ _filedir()
     local -a toks
     local quoted tmp
 
-    # TODO: I've removed a "[ -n $tmp ] &&" before `printf '%s\n' $tmp',
-    #       and everything works again. If this bug
-    #       suddenly appears again (i.e. "cd /b<TAB>"
-    #       becomes "cd /"), remember to check for
-    #       other similar conditionals (here and
-    #       _filedir_xspec()). --David
-    # NOTE: The comment above has been moved outside of the subshell below,
-    #       because quotes-in-comments-in-a-subshell cause errors on
-    #       bash-3.1.  See also:
-    #       http://www.mail-archive.com/bug-bash@gnu.org/msg01667.html
     _quote_readline_by_ref "$cur" quoted
     toks=( ${toks[@]-} $(
         compgen -d -- "$quoted" | {
             while read -r tmp; do
+                # TODO: I have removed a "[ -n $tmp ] &&" before 'printf ..',
+                #       and everything works again. If this bug suddenly
+                #       appears again (i.e. "cd /b<TAB>" becomes "cd /"),
+                #       remember to check for other similar conditionals (here
+                #       and _filedir_xspec()). --David
                 printf '%s\n' $tmp
             done
         }
