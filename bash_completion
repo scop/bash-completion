@@ -542,6 +542,11 @@ _quote_readline_by_ref()
     else
         printf -v $2 %q "$1"
     fi
+
+    # If result becomes quoted like this: $'string', re-evaluate in order to
+    # drop the additional quoting.  See also: http://www.mail-archive.com/
+    # bash-completion-devel@lists.alioth.debian.org/msg01942.html
+    [[ ${!2:0:1} == '$' ]] && eval $2=${!2}
 } # _quote_readline_by_ref()
 
 
@@ -570,23 +575,13 @@ _filedir()
     #       bash-3.1.  See also:
     #       http://www.mail-archive.com/bug-bash@gnu.org/msg01667.html
     _quote_readline_by_ref "$cur" quoted
-    if [[ ${quoted:0:1} == '$' ]]; then
-        toks=( ${toks[@]-} $(
-            eval compgen -d -- "$quoted" | {
-                while read -r tmp; do
-                    printf '%s\n' $tmp
-                done
-            }
-        ))
-    else
-        toks=( ${toks[@]-} $(
-            compgen -d -- "$quoted" | {
-                while read -r tmp; do
-                    printf '%s\n' $tmp
-                done
-            }
-        ))
-    fi
+    toks=( ${toks[@]-} $(
+        compgen -d -- "$quoted" | {
+            while read -r tmp; do
+                printf '%s\n' $tmp
+            done
+        }
+    ))
 
     # On bash-3, special characters need to be escaped extra.  This is
     # unless the first character is a single quote (').  If the single
@@ -600,10 +595,7 @@ _filedir()
     #
     if [[ "$1" != -d ]]; then
         xspec=${1:+"!*.$1"}
-        # in some situation, _quote_readline_by_ref actually overquote,
-        # hence the need to eval the result
-        if [[ ${cur:0:1} == "'" && ${BASH_VERSINFO[0]} -ge 4 ]] || \
-           [[ ${quoted:0:1} == '$' ]]; then
+        if [[ ${cur:0:1} == "'" && ${BASH_VERSINFO[0]} -ge 4 ]]; then
             toks=( ${toks[@]-} $(
                 eval compgen -f -X \"\$xspec\" -- $quoted
             ) )
