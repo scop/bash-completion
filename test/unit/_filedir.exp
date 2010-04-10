@@ -35,7 +35,10 @@ proc teardown {} {
     assert_bash_exec {unset COMPREPLY cur}
     assert_bash_exec {unset -f _f _g}
     assert_bash_exec {complete -r f g}
-    assert_env_unmodified { /OLDPWD/d }
+    assert_env_unmodified {
+        /OLDPWD/d
+        /OLD_CTYPE/d
+    }
 }
 
 
@@ -240,6 +243,22 @@ foreach name {f f2} {
 
 set test "completing with filter '.e1' should show completions"
 assert_complete_dir {ee.e1 foo/ gg.e1} "g " "fixtures/_filedir/ext" $test
+
+
+sync_after_int
+
+
+set test "completing f aé should return g when LC_CTYPE=C"
+# Backup/set LC_CTYPE
+assert_bash_exec {OLD_CTYPE=$LC_CTYPE; LC_CTYPE=C}
+if {[lindex $::BASH_VERSINFO 0] > 3} {
+    assert_complete_dir g "f aé/" "fixtures/_filedir"
+} else {
+    assert_complete_dir "\b\b\b\b$'a\\\\303\\\\251/g'" "f aé/" \
+        "fixtures/_filedir"
+}
+# Restore LC_CTYPE
+assert_bash_exec {[[ $OLD_CTYPE ]] && LC_CTYPE=$OLD_CTYPE || unset LC_CTYPE}
 
 
 sync_after_int
