@@ -17,8 +17,8 @@ _iconv()
             return 0
             ;;
         -f|--from-code|-t|--to-code)
-            COMPREPLY=( $( compgen -W \
-                '$( iconv --list | sed -e "s@//@@;" )' -- "$cur" ) )
+            COMPREPLY=( $( compgen -W '$( iconv -l | \
+                sed -e "s@/*\$@@" -e "s/[,()]//g" )' -- "$cur" ) )
             return 0
             ;;
         -o|--output)
@@ -37,6 +37,8 @@ _iconv()
     fi
 } &&
 complete -F _iconv -o default iconv
+# Intentionally not -o filenames here, -f/-t completions may contain slashes
+# and -o filenames would break them.
 
 # Local variables:
 # mode: shell-script
