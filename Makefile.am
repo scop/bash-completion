@@ -91,6 +91,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/mysqladmin \
 		contrib/ncftp \
 		contrib/net-tools \
+		contrib/nmap \
 		contrib/ntpdate \
 		contrib/openldap \
 		contrib/openssl \
