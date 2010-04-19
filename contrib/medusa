@@ -1,0 +1,41 @@
+# bash completion for medusa
+
+have medusa &&
+_medusa()
+{
+    local cur prev
+
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=`_get_pword`
+
+    case $prev in
+        -h)
+            _known_hosts_real "$cur"
+            return 0
+            ;;
+        -H|-U|-P|-C|-O)
+            _filedir
+            return 0
+            ;;
+        -M)
+            COMPREPLY=( $( compgen -W "$(medusa -d | awk '/^ +\+/ {print $2}' \
+                | sed -e 's/\.mod$//')" ) )
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-h -H -u -U -p -P -C -O -e -M -m -d -n -s \
+            -g -r -R -t -T -L -f -F -b -q -v -w -V -Z' -- "$cur" ) )
+    fi
+} &&
+complete -F _medusa medusa
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

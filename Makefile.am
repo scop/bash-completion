@@ -79,6 +79,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/mc \
 		contrib/mcrypt \
 		contrib/mdadm \
+		contrib/medusa \
 		contrib/minicom \
 		contrib/mkinitrd \
 		contrib/monodevelop \
