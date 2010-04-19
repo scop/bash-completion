@@ -52,6 +52,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/gpg2 \
 		contrib/gzip \
 		contrib/heimdal \
+		contrib/hping2 \
 		contrib/iconv \
 		contrib/imagemagick \
 		contrib/info \
