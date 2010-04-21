@@ -22,10 +22,11 @@ _find()
             return 0
             ;;
         -fstype)
-            # this is highly non-portable
-            [ -e /proc/filesystems ] &&
-            COMPREPLY=( $( compgen -W "$( cut -d$'\t' -f2 /proc/filesystems )" \
-                -- "$cur" ) )
+            _fstypes
+            if [[ "$( uname -s )" == *BSD ]] ; then
+                COMPREPLY=( "${COMPREPLY[@]}" \
+                    $( compgen -W 'local rdonly' -- "$cur" ) )
+            fi
             return 0
             ;;
         -gid)

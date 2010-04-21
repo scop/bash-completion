@@ -950,6 +950,29 @@ _shells()
         -- "$cur" ) )
 }
 
+# This function completes on valid filesystem types
+#
+_fstypes()
+{
+    local fss
+
+    if [ -e /proc/filesystems ] ; then
+        # Linux
+        fss="$( cut -d$'\t' -f2 /proc/filesystems )
+             $( awk '! /\*/ { print $NF }' /etc/filesystems 2>/dev/null )"
+    else
+        # Generic
+        fss="$( awk '/^[ \t]*[^#]/ { print $3 }' /etc/fstab 2>/dev/null )
+             $( awk '/^[ \t]*[^#]/ { print $3 }' /etc/mnttab 2>/dev/null )
+             $( awk '/^[ \t]*[^#]/ { print $4 }' /etc/vfstab 2>/dev/null )
+             $( awk '{ print $1 }' /etc/dfs/fstypes 2>/dev/null )
+             $( [ -d /etc/fs ] && command ls /etc/fs )"
+    fi
+
+    [ -n "$fss" ] && \
+        COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "$fss" -- "$cur" ) )
+}
+
 # Get real command.
 # - arg: $1  Command
 # - stdout:  Filename of command in PATH with possible symbolic links resolved.
