@@ -980,7 +980,8 @@ _fstypes()
 # - stdout:  Filename of command in PATH with possible symbolic links resolved.
 #            Empty string if command not found.
 # - return:  True (0) if command found, False (> 0) if not.
-_realcommand() {
+_realcommand()
+{
     type -P "$1" > /dev/null && {
         if type -p realpath > /dev/null; then
             realpath "$(type -P "$1")"
@@ -1190,61 +1191,6 @@ _chgrp()
     return 0
 } # _chgrp()
 complete -F _chgrp -o filenames chgrp
-
-
-# Linux rmmod(8) completion. This completes on a list of all currently
-# installed kernel modules.
-#
-have rmmod && {
-_rmmod()
-{
-    local cur
-
-    COMPREPLY=()
-    cur=`_get_cword`
-
-    _installed_modules "$cur"
-    return 0
-} # _rmmod()
-complete -F _rmmod rmmod
-
-
-# Linux insmod(8), modprobe(8) and modinfo(8) completion. This completes on a
-# list of all available modules for the version of the kernel currently
-# running.
-#
-_insmod()
-{
-    local cur prev modpath
-
-    COMPREPLY=()
-    cur=`_get_cword`
-    prev=${COMP_WORDS[COMP_CWORD-1]}
-
-    # behave like lsmod for modprobe -r
-    if [[ ${1##*/} == modprobe && "${COMP_WORDS[1]}" == -r ]]; then
-        _installed_modules "$cur"
-        return 0
-    fi
-
-    # do filename completion if we're giving a path to a module
-    if [[ "$cur" == */* ]]; then
-        _filedir '@(?(k)o?(.gz))'
-        return 0
-    fi
-
-    if [[ $COMP_CWORD -gt 1 && "${COMP_WORDS[COMP_CWORD-1]}" != -* ]]; then
-        # do module parameter completion
-        COMPREPLY=( $( compgen -W "$( /sbin/modinfo -p ${COMP_WORDS[1]} | \
-            cut -d: -f1 )" -- "$cur" ) )
-    else
-        _modules $(uname -r)
-    fi
-
-    return 0
-} # _insmod
-complete -F _insmod -o filenames insmod modprobe modinfo
-} # have rmmod
 
 
 # renice(8) completion

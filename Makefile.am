@@ -82,6 +82,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/medusa \
 		contrib/minicom \
 		contrib/mkinitrd \
+		contrib/module-init-tools \
 		contrib/monodevelop \
 		contrib/mount \
 		contrib/mplayer \
