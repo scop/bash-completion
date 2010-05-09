@@ -682,6 +682,25 @@ _signals()
     done
 }
 
+# This function completes on known mac addresses
+#
+_mac_addresses()
+{
+    local re='\([A-Fa-f0-9]\{2\}:\)\{5\}[A-Fa-f0-9]\{2\}'
+    local PATH="$PATH:/sbin:/usr/sbin"
+
+    # Local interfaces (Linux only?)
+    COMPREPLY=( "${COMPREPLY[@]}" $( ifconfig -a 2>/dev/null | sed -ne \
+        "s/.*[[:space:]]HWaddr[[:space:]]\{1,\}\($re\)[[:space:]]*$/\1/p" ) )
+
+    # ARP cache
+    COMPREPLY=( "${COMPREPLY[@]}" $( arp -an 2>/dev/null | sed -ne \
+        "s/.*[[:space:]]\($re\)[[:space:]].*/\1/p" -ne \
+        "s/.*[[:space:]]\($re\)[[:space:]]*$/\1/p" ) )
+
+    COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
+}
+
 # This function completes on configured network interfaces
 #
 _configured_interfaces()
