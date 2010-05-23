@@ -34,8 +34,6 @@ _pkgtool()
     
     $split && return 0
     
-    _expand || return 0
-    
     local IFS=$'\t\n'
     COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \
         $( compgen -d -- "$cur" ) )
@@ -47,11 +45,17 @@ _removepkg()
 {
     COMPREPLY=()
     local cur=`_get_cword`
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-copy -keep -preserve -warn' \
+            -- "$cur" ) )
+        return 0
+    fi
 
     COMPREPLY=( $( (cd /var/log/packages; compgen -f -- "$cur") ) )
 } &&
-complete -F _removepkg -o filenames removepkg &&
-    complete -o plusdirs -f -X '!*.t[bglx]z' installpkg upgradepkg explodepkg
+complete -F _removepkg -o filenames removepkg
+
+complete -o plusdirs -f -X '!*.t[bglx]z' installpkg upgradepkg explodepkg
 
 # Local variables:
 # mode: shell-script
