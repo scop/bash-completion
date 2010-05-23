@@ -1,5 +1,47 @@
 # bash completion for Slackware Linux pkgtools
 
+have pkgtool && [ -f /etc/slackware-version ] &&
+_pkgtool()
+{
+    COMPREPLY=()
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--sets --ignore_tagfiles --tagfile \
+            --source_mounted --source_dir --target_dir --source_device' \
+            -- "$cur" ) )
+        return 0
+    fi
+
+    local prev=${COMP_WORDS[COMP_CWORD-1]}
+
+    local split=false
+    _split_longopt && split=true
+        
+    case $prev in
+        --source_dir|--target_dir)
+            _filedir -d
+            return 0
+            ;;
+        --sets)
+            # argument required but no completions available
+            return 0
+            ;;
+        --source_device)
+            COMPREPLY=( $( compgen -f -d -- "${cur:-/dev/}" ) )
+            return 0
+            ;;
+    esac
+    
+    $split && return 0
+    
+    _expand || return 0
+    
+    local IFS=$'\t\n'
+    COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \
+        $( compgen -d -- "$cur" ) )
+} &&
+complete -F _pkgtool -o filenames pkgtool
+
 have removepkg && [ -f /etc/slackware-version ] &&
 _removepkg()
 {
