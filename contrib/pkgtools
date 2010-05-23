@@ -16,7 +16,7 @@ _pkgtool()
 
     local split=false
     _split_longopt && split=true
-        
+
     case $prev in
         --source_dir|--target_dir)
             _filedir -d
@@ -31,9 +31,9 @@ _pkgtool()
             return 0
             ;;
     esac
-    
+
     $split && return 0
-    
+
     local IFS=$'\t\n'
     COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \
         $( compgen -d -- "$cur" ) )
@@ -55,7 +55,21 @@ _removepkg()
 } &&
 complete -F _removepkg -o filenames removepkg
 
-complete -o plusdirs -f -X '!*.t[bglx]z' installpkg upgradepkg explodepkg
+have upgradepkg && [ -f /etc/slackware-version ] &&
+_upgradepkg()
+{
+    COMPREPLY=()
+    local cur=`_get_cword`
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--dry-run --install-new --reinstall \
+            --verbose' -- "$cur") )
+        return 0
+    fi
+
+    COMPREPLY=( $(compgen -f -X "!*.t[bglx]z" -- "$cur") )
+} && complete -F _upgradepkg -o plusdirs upgradepkg
+
+complete -o plusdirs -f -X '!*.t[bglx]z' installpkg explodepkg
 
 # Local variables:
 # mode: shell-script
