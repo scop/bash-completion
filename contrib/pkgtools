@@ -69,7 +69,39 @@ _upgradepkg()
     COMPREPLY=( $(compgen -f -X "!*.t[bglx]z" -- "$cur") )
 } && complete -F _upgradepkg -o plusdirs upgradepkg
 
-complete -o plusdirs -f -X '!*.t[bglx]z' installpkg explodepkg
+have installpkg && [ -f /etc/slackware-version ] &&
+_installpkg()
+{
+    COMPREPLY=()
+    local cur=`_get_cword`
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--warn --md5sum --root --infobox \
+            --menu --ask --priority --tagfile' -- "$cur") )
+        return 0
+    fi
+
+    local prev=`_get_pword`
+
+    case $prev in
+        --root)
+            _filedir -d
+            return 0
+            ;;
+        --priority)
+            COMPREPLY=( $( compgen -W 'ADD REC OPT SKP' -- "$cur" ) )
+            return 0
+            ;;
+        --tagfile)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    COMPREPLY=( $(compgen -f -X "!*.t[bglx]z" -- "$cur") \
+                $(compgen -d -- "$cur") )
+} && complete -F _installpkg -o filenames installpkg
+
+complete -o plusdirs -f -X '!*.t[bglx]z' explodepkg
 
 # Local variables:
 # mode: shell-script
