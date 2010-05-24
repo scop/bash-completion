@@ -69,6 +69,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/lftp \
 		contrib/lilo \
 		contrib/links \
+		contrib/lintian \
 		contrib/lisp \
 		contrib/lvm \
 		contrib/lzma \
