@@ -98,6 +98,29 @@ _installpkg()
                 $(compgen -d -- "$cur") )
 } && complete -F _installpkg -o filenames installpkg
 
+have makepkg && [ -f /etc/slackware-version ] &&
+_makepkg()
+{
+    COMPREPLY=()
+    local cur=`_get_cword`
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-l --linkadd -p --prepend \
+            -c --chown' -- "$cur") )
+        return 0
+    fi
+
+    local prev=`_get_pword`
+
+    case $prev in
+        -l|-l|-c|--chown)
+            COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
+            return 0
+            ;;
+    esac
+    return 0
+} && complete -F _makepkg makepkg
+
+have explodepkg && [ -f /etc/slackware-version ] &&
 complete -o plusdirs -f -X '!*.t[bglx]z' explodepkg
 
 # Local variables:
