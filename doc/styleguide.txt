@@ -3,26 +3,60 @@ Coding Style Guide
 
 Introduction
 ------------
-This document attempts to explain the basic styles and patterns that are used in the bash completion.  New code should try to conform to these standards so that it is as easy to maintain as existing code.  Of course every rule has an exception, but it's important to know the rules nonetheless!
+This document attempts to explain the basic styles and patterns that
+are used in the bash completion.  New code should try to conform to
+these standards so that it is as easy to maintain as existing code.
+Of course every rule has an exception, but it's important to know
+the rules nonetheless!
 
-This is particularly directed at people new to the bash completion codebase, who are in the process of getting their code reviewed.  Before getting a review, please read over this document and make sure your code conforms to the recommendations here.
+This is particularly directed at people new to the bash completion
+codebase, who are in the process of getting their code reviewed.
+Before getting a review, please read over this document and make
+sure your code conforms to the recommendations here.
+
+Indentation
+-----------
+Indent step should be 4 spaces, no tabs.
+
+Globbing in case labels
+-----------------------
+
+Avoid "fancy" globbing in case labels, just use traditional style when
+possible.  For example, do "--foo|--bar)" instead of "--@(foo|bar))".
+Rationale: the former is easier to read, often easier to grep, and
+doesn't confuse editors as bad as the latter, and is concise enough.
+
+&#91;[ ]] vs [ ]
+----------------
+
+Use [[ ]] instead of [ ] when testing multiple conditions. [ ] is fine
+for single conditions where the syntax works.  Rationale: [[ ]] has
+short circuit behavior within one test containing multiple conditions
+separated by && or ||, while [ ] with -a or -o does not.  Thus it can
+be more efficient in some cases and may reduce need for nesting
+conditions, and it's cleaner to write for example [[ ... && ... ]]
+than [ ... ] && [ ... ], and in general [[ ]] has more features.
+
+Line wrapping
+-------------
+
+Try to wrap lines at 79 characters. Never go past this limit, unless
+you absolutely need to (example: a long sed regular expression, or the
+like). This also holds true for the documentation and the testsuite.
+Other files, like ChangeLog, or COPYING, are exempt from this rule.
+
+$(...) vs `...`
+---------------
+
+When you need to do some code substitution in your completion script,
+you *MUST* use the $(...) construct, rather than the `...`. The former
+is preferable because anyone, with any keyboard layout, is able to
+type it. Backticks aren't always available, without doing strange
+key combinations.
 
 /////////////////////////////////////////
 case/esac vs if
 ---------------
-
-simple matching vs extended globbing
-------------------------------------
-in case statements: -@(a|b)) vs -a|-b)
-
-testing with [[ ]] vs [ ]
--------------------------
-
-indentation
------------
-
-line wrapping
--------------
 
 quoting
 -------
@@ -30,9 +64,7 @@ quoting
 awk vs cut for simple cases
 ---------------------------
 
-$(...) vs `...`
----------------
-
 variable and function naming
 ----------------------------
+
 /////////////////////////////////////////

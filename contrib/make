@@ -12,7 +12,7 @@ _make()
     _split_longopt && split=true
 
     case $prev in
-        -@(f|o|W|-@(?(make|old-|new-)file|assume-@(old|new)|what-if)))
+        -f|-o|-W|--file|--makefile|--old-file|--new-file|--assume-old|--assume-new|--what-if)
             _filedir
             return 0
             ;;
@@ -39,9 +39,9 @@ _make()
             --warn-undefined-variables' -- "$cur" ) )
     else
         # before we check for makefiles, see if a path was specified
-        # with -C
+        # with -C/--directory
         for (( i=0; i < ${#COMP_WORDS[@]}; i++ )); do
-            if [[ ${COMP_WORDS[i]} == -C ]]; then
+            if [[ ${COMP_WORDS[i]} == -@(C|-directory) ]]; then
                 # eval for tilde expansion
                 eval makef_dir=${COMP_WORDS[i+1]}
                 break
@@ -49,9 +49,9 @@ _make()
         done
 
         # before we scan for targets, see if a Makefile name was
-        # specified with -f
+        # specified with -f/--file/--makefile
         for (( i=0; i < ${#COMP_WORDS[@]}; i++ )); do
-            if [[ ${COMP_WORDS[i]} == -f ]]; then
+            if [[ ${COMP_WORDS[i]} == -@(f|-?(make)file) ]]; then
                 # eval for tilde expansion
                 eval makef=${COMP_WORDS[i+1]}
                 break
@@ -68,7 +68,7 @@ _make()
 
     fi
 } &&
-complete -F _make $filenames make gmake gnumake pmake
+complete -F _make -o filenames make gmake gnumake pmake
 
 # Local variables:
 # mode: shell-script

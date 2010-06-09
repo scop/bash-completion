@@ -3,19 +3,44 @@
 have lftp &&
 _lftp()
 {
-    local cur
+    local cur prev
 
     COMPREPLY=()
     cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-    if [ $COMP_CWORD -eq 1 ] && [ -f ~/.lftp/bookmarks ]; then
-        COMPREPLY=( $( compgen -W '$( sed -ne "s/^\(.*\)'$'\t''.*$/\1/p" \
-            ~/.lftp/bookmarks )' -- "$cur" ) )
+    case $prev in
+        -f)
+            _filedir
+            return 0
+            ;;
+        -c|-h|--help|-v|--version|-e|-u|-p)
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]] ; then
+        COMPREPLY=( $( compgen -W '-f -c --help --version -e -u -p' \
+            -- "$cur" ) )
+        return 0
     fi
 
-    return 0
+    COMPREPLY=( $( compgen -W \
+        '$( cut -f 1 -s ~/.lftp/bookmarks 2>/dev/null )' -- "$cur" ) )
+    _known_hosts_real "$cur"
 } &&
-complete -F _lftp $default lftp
+complete -F _lftp -o filenames lftp
+have lftpget &&
+_lftpget()
+{
+    COMPREPLY=()
+    local cur=`_get_cword`
+
+    if [[ "$cur" == -* ]] ; then
+        COMPREPLY=( $( compgen -W '-c -d -v' -- "$cur" ) )
+    fi
+} &&
+complete -F _lftpget lftpget
 
 # Local variables:
 # mode: shell-script

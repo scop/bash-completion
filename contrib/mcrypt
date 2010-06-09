@@ -9,55 +9,55 @@ _mcrypt()
     cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
-    case "$prev" in
-        -@(g|-openpgp-z))
+    case $prev in
+        -g|--openpgp-z)
             COMPREPLY=( $( compgen -W '0 1 2 3 4 5 6 7 8 9' -- "$cur" ) )
             return 0
             ;;
-        -@(o|-keymode))
+        -o|--keymode)
             COMPREPLY=( $( compgen -W '$( mcrypt --list-keymodes \
                 2>/dev/null )' -- "$cur" ) )
             return 0
             ;;
-        -@(m|-mode))
+        -m|--mode)
             COMPREPLY=( $( compgen -W "$( mcrypt --list \
                 2>/dev/null | sed -e 's/.*: //' -e 's/ $//' | \
-                sort | uniq )" -- "$cur" ) )
+                sort -u )" -- "$cur" ) )
             return 0
             ;;
-        -@(a|-algorithm))
+        -a|--algorithm)
             COMPREPLY=( $( compgen -W "$( mcrypt --list 2>/dev/null | \
                 awk '{print $1}' )" -- "$cur" ) )
             return 0
             ;;
-        -@(h|-hash))
+        -h|--hash)
             COMPREPLY=( $( compgen -W '$( mcrypt --list-hash 2>/dev/null | \
                 sed -e 1d )' -- "$cur" ) )
             return 0
             ;;
-        -@(k|s|-@(key?(size))))
+        -k|-s|--key|--keysize)
             return 0
             ;;
-        -@(f|c|-@(keyfile|config)))
+        -f|-c|--keyfile|--config)
             _filedir
             return 0
             ;;
-        --@(algorithm|mode)s-directory)
+        --algorithms-directory|--modes-directory)
             _filedir -d
             return 0
             ;;
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-g --openpgp --openpgp-z -d \
-            --decrypt -s --keysize -o --keymode -f --keyfile \
-            -c --config -a --algorithm --algorithms-directory \
-            -m --mode --modes-directory -h --hash -k --key \
-            --noiv -b --bare -z --gzip -p --bzip2 --flush -l \
-            --doublecheck -u --unlink --nodelete -t --time -F \
-            --force --echo -r --random --list --list-keymodes \
-            --list-hash -V --verbose -q --quiet --help -v \
-            --version -L --license' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--openpgp --openpgp-z \
+            --decrypt --keysize --keymode --keyfile \
+            --config --algorithm --algorithms-directory \
+            --mode --modes-directory --hash --key \
+            --noiv --bare --gzip --bzip2 --flush \
+            --doublecheck --unlink --nodelete --time \
+            --force --echo --random --list --list-keymodes \
+            --list-hash --verbose --quiet --help \
+            --version --license' -- "$cur" ) )
     elif [[ ${COMP_WORDS[0]} == mdecrypt ]]; then
         _filedir '@(nc)'
     else
@@ -74,7 +74,7 @@ _mcrypt()
         fi
     fi
 } &&
-complete $filenames -F _mcrypt mcrypt mdecrypt
+complete -o filenames -F _mcrypt mcrypt mdecrypt
 
 # Local variables:
 # mode: shell-script

@@ -59,7 +59,7 @@ foreach host [get_hosts] {
 }; # foreach
 lappend expected doo: gee: hus: ike:
     # Append local filenames
-lappend expected config known_hosts "spaced\\\\ \\\\ conf"
+lappend expected config known_hosts "spaced\\ \\ conf"
 set dir fixtures/scp
 assert_complete_dir $expected "scp -F config " $dir
 
@@ -93,7 +93,7 @@ foreach host [get_hosts] {
     # Hosts `doo' and `ike' are defined in ./fixtures/scp/known_hosts
 lappend expected doo: gee: hus: ike: jar:
     # Append local filenames
-lappend expected config known_hosts "spaced\\\\ \\\\ conf"
+lappend expected config known_hosts "spaced\\ \\ conf"
 set dir fixtures/scp
 #assert_complete_dir $expected "scp -F 'spaced  conf' " $dir
 set prompt "/$dir/@"
@@ -101,7 +101,7 @@ assert_bash_exec "cd $dir" "" $prompt
 set cmd "scp -F 'spaced  conf' "
 send "$cmd\t"
 expect -ex "$cmd\r\n"
-if {[match_items $expected $test]} {
+if {[match_items [lsort -unique $expected] $test]} {
     expect {
         -re $prompt { pass "$test" }
         -re eof { unresolved "eof" }
@@ -109,10 +109,10 @@ if {[match_items $expected $test]} {
 } else {
     # Expected failure (known bug) because of bash-4 bug in quoted words:
     # http://www.mail-archive.com/bug-bash@gnu.org/msg06095.html
-    if {$bash_versinfo_0 >= 4} {xfail "$test"} {fail "$test"}
+    if {[lindex $::BASH_VERSINFO 0] >= 4} {xfail "$test"} {fail "$test"}
 }; # if
 sync_after_int $prompt
-assert_bash_exec "cd \$TESTDIR"
+assert_bash_exec {cd "$TESTDIR"}
 
 
 sync_after_int

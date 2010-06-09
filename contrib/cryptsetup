@@ -1,0 +1,113 @@
+# bash completion for cryptsetup
+
+_cryptsetup_name()
+{
+    COMPREPLY=( $( compgen -X control -W '$( command ls /dev/mapper )' \
+        -- "$cur" ) )
+}
+
+_cryptsetup_device()
+{
+    cur=${cur:=/dev/}
+    _filedir
+}
+
+have cryptsetup &&
+_cryptsetup()
+{
+    local cur prev arg
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=`_get_pword`
+
+    case $prev in
+        --key-file|--master-key-file|--header-backup-file|-d)
+            _filedir
+            return 0;
+            ;;
+    esac
+
+    _get_first_arg
+    if [ -z $arg ]; then
+        if [[ "$cur" == -* ]]; then
+            COMPREPLY=( $( compgen -W '--hash --cipher --verify-passphrase \
+                --key-file --master-key-file --key-slot --key-size --size \
+                --offset --skip --readonly --iter-time --batch-mode --timeout \
+                --tries --align-payload --version' -- "$cur" ) )
+        else
+            COMPREPLY=( $( compgen -W 'create remove status resize luksFormat \
+                luksOpen luksClose luksSuspend luksResume luksAddKey \
+                luksRemoveKey luksKillSlot luksDelKey luksUUID isLuks \
+                luksDump luksHeaderBackup luksHeaderRestore' -- "$cur" ) )
+        fi
+    else
+        _count_args
+        case $arg in
+            create)
+                case $args in
+                    2)
+                        _cryptsetup_name
+                        ;;
+                    3)
+                        _cryptsetup_device
+                        ;;
+                esac
+                ;;
+            remove|status|resize|luksClose|luksSuspend|luksResume)
+                case $args in
+                    2)
+                        _cryptsetup_name
+                        ;;
+                esac
+                ;;
+            luksFormat|luksAddKey|luksRemoveKey)
+                case $args in
+                    2)
+                        _cryptsetup_device
+                        ;;
+                    3)
+                        _filedir
+                        ;;
+                esac
+                ;;
+            luksOpen)
+                case $args in
+                    2)
+                        _cryptsetup_device
+                        ;;
+                    3)
+                        _cryptsetup_name
+                        ;;
+                esac
+                ;;
+            luksKillSlot|luksDelKey|luksUUID|isLuks|luksDump)
+                case $args in
+                    2)
+                        _cryptsetup_device
+                        ;;
+                esac
+                ;;
+            luksHeaderBackup|luksHeaderRestore)
+                case $args in
+                    2)
+                        _cryptsetup_device
+                        ;;
+                    3)
+                        COMPREPLY=( '--header-backup-file' )
+                        ;;
+                    esac
+                ;;
+        esac
+    fi
+
+    return 0
+} &&
+complete -F _cryptsetup cryptsetup
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

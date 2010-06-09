@@ -1,26 +1,40 @@
 # Bash library for bash-completion DejaGnu testsuite
 
 
+# @param $1  Char to add to $COMP_WORDBREAKS
+# @see remove_comp_wordbreak_char()
+add_comp_wordbreak_char() {
+    if [ ${BASH_VERSINFO[0]} -ge 4 ]; then
+        [[ "${COMP_WORDBREAKS//[^$1]}" ]] || COMP_WORDBREAKS=$COMP_WORDBREAKS$1
+    fi
+} # add_comp_wordbreak_char()
+
+
 # Diff environment files to detect if environment is unmodified
 # @param $1  File 1
 # @param $2  File 2
-# @param $1  Additional sed script
+# @param $3  Additional sed script
 diff_env() {
-	diff "$1" "$2" | sed -e "
-	/^[0-9,]\+[acd]/d  # Remove diff line indicators
-	/---/d            # Remove diff block separators
-	/[<>] _=/d        # Remove underscore variable
-	/[<>] PPID=/d     # Remove PPID bash variable
-	$3"
+    diff "$1" "$2" | sed -e "
+# Remove diff line indicators
+        /^[0-9,]\{1,\}[acd]/d
+# Remove diff block separators
+        /---/d
+# Remove underscore variable
+        /[<>] _=/d
+# Remove PPID bash variable
+        /[<>] PPID=/d
+        $3"
 } # diff_env()
 
 
 # Output array elements, sorted and separated by newline
+# Unset variable after outputting.
 # @param $1  Name of array variable to process
 echo_array() {
-	local IFS=$'\n'
-	eval echo \"\${$1[*]}\" | sort
-}
+    local name=$1[@]
+    printf "%s\n" "${!name}" | sort
+} # echo_array()
 
 
 # Check if current bash version meets specified minimum
@@ -29,18 +43,28 @@ echo_array() {
 # @param $3  (integer) Patch level
 # @return  0 if success, > 0 if not
 is_bash_version_minimal() {
-	[[      (
-			${BASH_VERSINFO[0]} -gt $1
-		) || (
-			${BASH_VERSINFO[0]} -eq $1 && 
-			${BASH_VERSINFO[1]} -gt $2
-		) || (
-			${BASH_VERSINFO[0]} -eq $1 && 
-			${BASH_VERSINFO[1]} -eq $2 && 
-			${BASH_VERSINFO[2]} -ge $3
-		)
-	]]
+    [[      (
+                ${BASH_VERSINFO[0]} -gt $1
+            ) || (
+                ${BASH_VERSINFO[0]} -eq $1 &&
+                ${BASH_VERSINFO[1]} -gt $2
+            ) || (
+                ${BASH_VERSINFO[0]} -eq $1 &&
+                ${BASH_VERSINFO[1]} -eq $2 &&
+                ${BASH_VERSINFO[2]} -ge $3
+            )
+    ]]
 } # is_bash_version_minimal()
+
+
+# @param $1  Char to remove from $COMP_WORDBREAKS
+# @see add_comp_wordbreak_char()
+remove_comp_wordbreak_char() {
+    if [ ${BASH_VERSINFO[0]} -ge 4 ]; then
+        COMP_WORDBREAKS=${COMP_WORDBREAKS//$1}
+    fi
+} # remove_comp_wordbreak_char()
+
 
 # Local variables:
 # mode: shell-script

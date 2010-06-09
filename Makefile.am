@@ -1,8 +1,10 @@
+SUBDIRS = test
 
 sysconf_DATA = bash_completion
 
 bashcompdir = $(sysconfdir)/bash_completion.d
-bashcomp_DATA = contrib/ant \
+bashcomp_DATA = contrib/abook \
+		contrib/ant \
 		contrib/apache2ctl \
 		contrib/apt \
 		contrib/apt-build \
@@ -13,7 +15,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/bind-utils \
 		contrib/bitkeeper \
 		contrib/bittorrent \
-		contrib/bluez-utils \
+		contrib/bluez \
 		contrib/brctl \
 		contrib/bzip2 \
 		contrib/cardctl \
@@ -27,8 +29,9 @@ bashcomp_DATA = contrib/ant \
 		contrib/cpan2dist \
 		contrib/cpio \
 		contrib/cups \
+		contrib/cryptsetup \
 		contrib/cvs \
-		contrib/dcop \
+		contrib/cvsps \
 		contrib/dd \
 		contrib/dhclient \
 		contrib/dict \
@@ -37,6 +40,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/dsniff \
 		contrib/findutils \
 		contrib/freeciv \
+		contrib/fuse \
 		contrib/gcc \
 		contrib/gcl \
 		contrib/gdb \
@@ -48,20 +52,24 @@ bashcomp_DATA = contrib/ant \
 		contrib/gpg2 \
 		contrib/gzip \
 		contrib/heimdal \
+		contrib/hping2 \
 		contrib/iconv \
 		contrib/imagemagick \
 		contrib/info \
 		contrib/iptables \
 		contrib/ipmitool \
+		contrib/ipv6calc \
 		contrib/isql \
 		contrib/jar \
 		contrib/java \
+		contrib/k3b \
 		contrib/kldload \
 		contrib/larch \
 		contrib/ldapvi \
 		contrib/lftp \
 		contrib/lilo \
 		contrib/links \
+		contrib/lintian \
 		contrib/lisp \
 		contrib/lvm \
 		contrib/lzma \
@@ -72,11 +80,12 @@ bashcomp_DATA = contrib/ant \
 		contrib/mc \
 		contrib/mcrypt \
 		contrib/mdadm \
+		contrib/medusa \
 		contrib/minicom \
 		contrib/mkinitrd \
-		contrib/mock \
-		contrib/modules \
+		contrib/module-init-tools \
 		contrib/monodevelop \
+		contrib/mount \
 		contrib/mplayer \
 		contrib/msynctool \
 		contrib/mtx \
@@ -85,6 +94,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/mysqladmin \
 		contrib/ncftp \
 		contrib/net-tools \
+		contrib/nmap \
 		contrib/ntpdate \
 		contrib/openldap \
 		contrib/openssl \
@@ -94,6 +104,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/pkg-config \
 		contrib/pkg_install \
 		contrib/pkgtools \
+		contrib/pm-utils \
 		contrib/portupgrade \
 		contrib/postfix \
 		contrib/postgresql \
@@ -104,7 +115,6 @@ bashcomp_DATA = contrib/ant \
 		contrib/quota-tools \
 		contrib/rcs \
 		contrib/rdesktop \
-		contrib/repomanage \
 		contrib/reportbug \
 		contrib/resolvconf \
 		contrib/rfkill \
@@ -114,6 +124,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/rpmcheck \
 		contrib/rrdtool \
 		contrib/rsync \
+		contrib/rtcwake \
 		contrib/samba \
 		contrib/sbcl \
 		contrib/screen \
@@ -122,6 +133,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/smartctl \
 		contrib/snownews \
 		contrib/ssh \
+		contrib/sshfs \
 		contrib/strace \
 		contrib/svk \
 		contrib/sysctl \
@@ -135,6 +147,7 @@ bashcomp_DATA = contrib/ant \
 		contrib/vpnc \
 		contrib/wireless-tools \
 		contrib/wodim \
+		contrib/wtf \
 		contrib/wvdial \
 		contrib/xhost \
 		contrib/xm \
@@ -142,8 +155,19 @@ bashcomp_DATA = contrib/ant \
 		contrib/xmlwf \
 		contrib/xmms \
 		contrib/xrandr \
+		contrib/xsltproc \
 		contrib/xz \
 		contrib/yp-tools \
 		contrib/yum-arch
 
-EXTRA_DIST = $(sysconf_DATA) $(bashcomp_DATA) contrib/_subversion contrib/_yum
+profiledir = $(sysconfdir)/profile.d
+profile_DATA = bash_completion.sh
+
+bash_completion.sh: bash_completion.sh.in Makefile
+	sed -e 's|@sysconfdir[@]|$(sysconfdir)|' <$(srcdir)/$@.in >$@
+
+CLEANFILES = bash_completion.sh
+
+EXTRA_DIST = CHANGES $(sysconf_DATA) $(bashcomp_DATA) bash_completion.sh.in \
+	contrib/_mock contrib/_modules contrib/_subversion contrib/_yum \
+	contrib/_yum-utils

@@ -1,6 +1,6 @@
 # bash completion for gzip
 
-have gzip &&
+have gzip || have pigz &&
 _gzip()
 {
     local cur prev xspec helpopts
@@ -8,16 +8,23 @@ _gzip()
     COMPREPLY=()
     cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
-    helpopts=`_parse_help gzip`
+    helpopts=`_parse_help ${COMP_WORDS[0]}`
+
+    case $prev in
+        -b|--blocksize|-p|--processes|-S|--suffix|-h|--help|-V|--version)
+            return 0
+            ;;
+    esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W "$helpopts -2 -3 -4 -5 -6 -7 -8" -- "$cur" ) )
+        COMPREPLY=( $( compgen -W "$helpopts -1 -2 -3 -4 -5 -6 -7 -8 -9" \
+            -- "$cur" ) )
         return 0
     fi
 
     local IFS=$'\t\n'
 
-    xspec="*.?(t)gz"
+    xspec="*.@(gz|t[ag]z)"
     if [[ "$prev" == --* ]]; then
         [[ "$prev" == --decompress || \
             "$prev" == --list || \
@@ -26,7 +33,7 @@ _gzip()
     elif [[ "$prev" == -* ]]; then
         [[ "$prev" == -*[dlt]* ]] && xspec="!"$xspec
         [[ "$prev" == -*f* ]] && xspec=
-    elif [ "$prev" = '>' -o "$prev" = '>>' ]; then
+    elif [[ "$prev" == '>' || "$prev" == '>>' ]]; then
         xspec=
     elif [ "$prev" = '<' ]; then
         xspec=
@@ -37,7 +44,7 @@ _gzip()
     COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \
         $( compgen -d -- "$cur" ) )
 } &&
-complete -F _gzip $filenames gzip
+complete -F _gzip -o filenames gzip pigz
 
 # Local variables:
 # mode: shell-script

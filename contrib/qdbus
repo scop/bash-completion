@@ -1,21 +1,17 @@
-# Qt qdbus completion
+# Qt qdbus, dcop completion
 
-have qdbus &&
+have qdbus || have dcop &&
 _qdbus()
 {
-    local cur compstr
+    local cur
 
     COMPREPLY=()
     cur=`_get_cword`
-    if [ -z "$cur" ]; then
-        compstr=${COMP_WORDS[*]}
-    else
-        compstr=$( command echo ${COMP_WORDS[*]} | sed "s/ ${cur/\//\\/}$//" )
-    fi
-        COMPREPLY=( $( compgen -W '$( command $compstr | sed s/\(.*\)// )' \
-            -- "$cur" ) )
+    [ -n "$cur" ] && unset COMP_WORDS[${#COMP_WORDS[@]}-1]
+    COMPREPLY=( $( compgen -W '$( command ${COMP_WORDS[@]} 2>/dev/null | \
+        sed s/\(.*\)// )' -- "$cur" ) )
 } &&
-complete -F _qdbus qdbus
+complete -F _qdbus qdbus dcop
 
 # Local variables:
 # mode: shell-script

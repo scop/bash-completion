@@ -11,7 +11,11 @@ proc teardown {} {
 setup
 
 
-assert_complete_any "kldunload "
+if {[catch {eval exec {kldstat | grep "\.ko$"}}] == 0} {
+    assert_complete_any "kldunload "
+} else {
+    assert_no_complete "kldunload "
+}
 
 
 sync_after_int

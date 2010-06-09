@@ -9,18 +9,19 @@ _gpg()
     cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
-    case "$prev" in
-        -@(s|-sign|-clearsign|-decrypt-files|-load-extension))
+    case $prev in
+        -s|--sign|--clearsign|--decrypt-files|--load-extension)
             _filedir
             return 0
             ;;
-        --@(export|@(?(l|nr|nrl)sign|edit)-key))
+        --export|--sign-key|--lsignkey|--nrsignkey|--nrlsignkey|--editkey)
             # return list of public keys
             COMPREPLY=( $( compgen -W "$( gpg --list-keys 2>/dev/null | \
-                sed -ne 's@^pub.*/\([^ ]*\).*$@\1@p;s@^.*\(<\([^>]*\)>\).*$@\2@p')" -- "$cur" ))
+                sed -ne 's@^pub.*/\([^ ]*\).*$@\1@p' \
+                    -ne 's@^.*\(<\([^>]*\)>\).*$@\2@p' )" -- "$cur" ) )
             return 0
             ;;
-        -@(r|-recipient))
+        -r|--recipient)
             COMPREPLY=( $( compgen -W "$( gpg --list-keys 2>/dev/null | \
                 sed -ne 's@^.*<\([^>]*\)>.*$@\1@p')" -- "$cur" ))
             if [ -e ~/.gnupg/gpg.conf ]; then
@@ -33,12 +34,11 @@ _gpg()
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-s -b -e -f -c -d -a -r -u -Z -o -v\
-            -q -n -N $(gpg --dump-options)' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '$(gpg --dump-options)' -- "$cur" ) )
      fi
 
 } &&
-complete -F _gpg $default gpg
+complete -F _gpg -o default gpg
 
 # Local variables:
 # mode: shell-script

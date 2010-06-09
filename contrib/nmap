@@ -1,0 +1,60 @@
+# bash completion for nmap
+
+have nmap &&
+_nmap()
+{
+    local cur prev
+
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=`_get_pword`
+
+    case $prev in
+        -iL|-oN|-oX|-oS|-oG|---excludefile|--resume|--stylesheet)
+            _filedir
+            return 0
+            ;;
+        -oA|--datadir)
+            _filedir -d
+            return 0
+            ;;
+        -e)
+            _available_interfaces
+            return 0
+            ;;
+        -b|--dns-servers)
+            _known_hosts_real "$cur"
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-iL -iR --exclude --excludefile -sL -sP \
+            -PN -PS -PA -PU -PY -PE -PP -PM -PO -n -R --dns-servers \
+            --system-dns --traceroute -sS -sT -sA -sW -sM -sU -sN -sF -sX \
+            --scanflags -sI -sY -sZ -sO -b -p -F -r --top-ports --port-ratio \
+            -sV --version-intensity --version-light --version-all \
+            --version-trace -sC --script= --script-args= --script-trace \
+            --script-updatedb -O --osscan-limit --osscan-guess -T0 -T1 -T2 -T3 \
+            -T4 -T5 --min-hostgroup --max-hostgroup --min-parallelism \
+            --max-parallelism --min-rtt-timeout --max-rtt-timeout \
+            --initial-rtt-timeout --max-retries --host-timeout --scan-delay \
+            --max-scan-delay --min-rate --max-rate -f --mtu -D -S -e \
+            --source-port --data-length --ip-options --ttl --spoof-mac \
+            --badsum --adler32 -oN -oX -oS -oG -oA -v -d --reason --open \
+            --packet-trace --iflist --log-errors --append-output --resume \
+            --stylesheet --webxml --no-stylesheet -6 -A --datadir --send-eth \
+            --send-ip --privilege--unprivileged -V -h' -- "$cur" ) )
+    else
+        _known_hosts_real "$cur"
+    fi
+} &&
+complete -F _nmap nmap
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

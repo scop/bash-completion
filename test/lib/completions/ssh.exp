@@ -29,7 +29,7 @@ expect {
     default { unresolved "$test" }
 }; # expect
 sync_after_int $prompt
-assert_bash_exec "cd \$TESTDIR"
+assert_bash_exec {cd "$TESTDIR"}
 
 
 sync_after_int
@@ -52,30 +52,17 @@ sync_after_int
 
 
 set test "First argument shouldn't complete with commands"
-# NOTE: This test assumes the machine running this test has a command "bash"
-#       but no host named "bash" ...
+# NOTE: This test assumes there's a command "bash" and no host named "bash"
 set cmd "ssh bas"
-send "$cmd\t"
-expect -ex "$cmd"
-expect {
-    -timeout 1
-        # In case multiple commands `bas*' - besides `bash' - are completed
-    -re "^\r\n.*bash.*\r\n/@$cmd$" { fail "$test" }
-        # In case the single command `bash' is completed
-    -re "h $" { fail "$test" }
-        # In case the hostname `bash_completion' is completed.
-        # See `scp' tests in `lib/completions/scp.exp'
-    -re "h_completion $" { pass "$test" }
-    -re ".+" { unresolved "$test" }
-    timeout { pass "$test" }
-}; # expect
+assert_complete [get_known_hosts "bas"] $cmd $test
 
 
 sync_after_int
 
 
 set test "First argument should complete partial hostname"
-assert_complete_partial [get_hosts] ssh
+assert_complete_partial [get_hosts] ssh "" $test /@ 20 \
+    [list "ltrim_colon_completions"]
 
 
 sync_after_int
@@ -97,7 +84,7 @@ expect {
     default { unresolved "$test" }
 }; # expect
 sync_after_int $prompt
-assert_bash_exec "cd \$TESTDIR"
+assert_bash_exec {cd "$TESTDIR"}
 
 
 sync_after_int

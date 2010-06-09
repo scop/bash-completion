@@ -8,11 +8,11 @@ _comp_dpkg_installed_packages()
 } || {
 _comp_dpkg_installed_packages()
 {
-    grep -A 1 "Package: $1" /var/lib/dpkg/status | \
-        grep -B 1 -Ee "ok installed|half-installed|unpacked| \
+    command grep -A 1 "Package: $1" /var/lib/dpkg/status | \
+        command grep -B 1 -Ee "ok installed|half-installed|unpacked| \
             half-configured|config-files" \
             -Ee "^Essential: yes" | \
-        grep "Package: $1" | cut -d\  -f2
+        command grep "Package: $1" | cut -d\  -f2
 }
 }
 
@@ -23,8 +23,7 @@ _dpkg()
     local cur prev i
 
     COMPREPLY=()
-    cur=`_get_cword`
-    prev=${COMP_WORDS[COMP_CWORD-1]}
+    _get_comp_words_by_ref cur prev
     i=$COMP_CWORD
 
     _expand || return 0
@@ -39,24 +38,26 @@ _dpkg()
         done
     fi
 
-    case "$prev" in
-        -@(c|i|A|I|f|e|x|X|-@(install|unpack|record-avail|contents|info|fsys-tarfile|field|control|extract)))
+    case $prev in
+        -c|-i|-A|-I|-f|-e|-x|-X|-W|--install|--unpack|--record-avail| \
+        --contents|--info|--fsys-tarfile|--field|--control|--extract| \
+        --show)
             _filedir '?(u)deb'
             return 0
             ;;
-        -@(b|-build))
+        -b|--build)
             _filedir -d
             return 0
             ;;
-        -@(s|p|l|-@(status|print-avail|list)))
+        -s|-p|-l|--status|--print-avail|--list)
             COMPREPLY=( $( apt-cache pkgnames "$cur" 2>/dev/null ) )
             return 0
             ;;
-        -@(S|-search))
+        -S|--search)
             _filedir
             return 0
             ;;
-        -@(r|L|P|-@(remove|purge|listfiles)))
+        -r|-L|-P|--remove|--purge|--listfiles)
             COMPREPLY=( $( _comp_dpkg_installed_packages "$cur" ) )
             return 0
             ;;
@@ -91,7 +92,7 @@ _dpkg()
 
 
 }
-complete -F _dpkg $filenames dpkg dpkg-deb
+complete -F _dpkg -o filenames dpkg dpkg-deb
 }
 
 # Debian GNU dpkg-reconfigure(8) completion
@@ -102,50 +103,48 @@ _dpkg_reconfigure()
     local cur prev opt
 
     COMPREPLY=()
-    cur=`_get_cword`
-    prev=${COMP_WORDS[COMP_CWORD-1]}
+    _get_comp_words_by_ref cur prev
 
-
-    case "$prev" in
-        -@(f|-frontend))
-        opt=( $( echo /usr/share/perl5/Debconf/FrontEnd/* ) )
+    case $prev in
+        -f|--frontend)
+        opt=( $( printf '%s\n' /usr/share/perl5/Debconf/FrontEnd/* ) )
         opt=( ${opt[@]##*/} )
         opt=( ${opt[@]%.pm} )
         COMPREPLY=( $( compgen -W '${opt[@]}' -- "$cur" ) )
         return 0
         ;;
-        -@(p|-priority))
+        -p|--priority)
         COMPREPLY=( $( compgen -W 'low medium high critical' -- "$cur" ) )
         return 0
         ;;
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-f --frontend -p --priority -a --all -u \
-            --unseen-only -h --help -s --showold --force --terse' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '--frontend --priority --all --unseen-only \
+                      --help --showold --force --terse' -- "$cur" ) )
     else
         COMPREPLY=( $( _comp_dpkg_installed_packages "$cur" ) )
     fi
 } &&
-complete -F _dpkg_reconfigure $default dpkg-reconfigure
+complete -F _dpkg_reconfigure -o default dpkg-reconfigure
 
 # Debian dpkg-source completion
 #
 have dpkg-source &&
 _dpkg_source()
 {
-    local cur prev options work i action packopts unpackopts
+    local cur prev options work i action packopts unpackopts fields
 
-    packopts="-c -l -F -V -T -D -U -W -E -sa -i -I -sk -sp -su -sr -ss -sn -sA -sK -sP -sU -sR"
+    packopts="-c -l -F -V -T -D -U -W -E -sa -i -I -sk -sr -ss -sA -sK -sP \
+              -sU -sR"
     unpackopts="-sp -sn -su"
-    options=`echo "-x -b $packopts $unpackopts" | xargs echo | sort -u | xargs echo`
+    options="-x -b $packopts $unpackopts"
+    fields="Format Source Version Binary Maintainer Uploader Architecture \
+            Standards-Version Build-Depends Files"
 
     COMPREPLY=()
-    if [ "$1" != "dpkg-source" ]; then
-        return 1
-    fi
-    cur=`_get_cword`
-    prev=${COMP_WORDS[COMP_CWORD-1]}
+    _get_comp_words_by_ref cur prev
+
     action="options"
     for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
         if [[ ${COMP_WORDS[$i]} == "-x" ]]; then
@@ -156,103 +155,80 @@ _dpkg_source()
             action=help
         fi
     done
-    # if currently seeing a complete option, return just itself.
-    for i in $options; do
-        if [ "$cur" = "$i" ]; then
-            COMPREPLY=( "$cur" )
-            return 0
-        fi
-    done
-    case "$action" in
-        "unpack")
-            if [ "$cur" = "-" -o "$cur" = "-s" ]; then
-                COMPREPLY=( $unpackopts )
-                return 0
-            fi
-            case "$prev" in
-                "-x")
-                    COMPREPLY=( $( compgen -d -- "$cur" ) \
-                            $( compgen -f -X '!*.dsc' -- "$cur" ) )
+
+    case $action in
+        unpack)
+            case $prev in
+                -x)
+                    _filedir -d
+                    _filedir 'dsc'
                     return 0
                     ;;
                 *)
-                    COMPREPLY=( $unpackopts $(compgen -d -f -- "$cur" ) )
+                    COMPREPLY=( $( compgen -W "$unpackopts" -- "$cur" ) )
+                    _filedir -d
+                    _filedir
                     return 0
                     ;;
             esac
             return 0
             ;;
-        "pack")
-            if [ "$cur" = "-" ]; then
-                COMPREPLY=( $packopts )
-                return 0
-            fi
-            if [ "$cur" = "-s" ]; then
-                COMPREPLY=( "-sa" "-sk" "-sp" "-su" "-sr" "-ss" "-sn" \
-                    "-sA" "-sK" "-sP" "-sU" "-sR" )
-                return 0
-            fi
-            case "$prev" in
-                "-b")
-                    COMPREPLY=( $( compgen -d -- "$cur" ) )
+        pack)
+            case $prev in
+                -b)
+                    _filedir -d
                     return 0
                     ;;
-                "-c"|"-l"|"-T"|"-i"|"-I")
+                -c|-l|-T|-i|-I)
                     # -c: get controlfile
                     # -l: get per-version info from this file
                     # -T: read variables here, not debian/substvars
                     # -i: <regexp> filter out files to ignore diffs of.
                     # -I: filter out files when building tarballs.
                     # return directory names and file names
-                    COMPREPLY=( $( compgen -d -f ) )
+                    _filedir -d
+                    _filedir
                     return 0
                     ;;
-                "-F")
+                -F)
                     # -F: force change log format
-                    COMPREPLY=( $( ( cd /usr/lib/dpkg/parsechangelog; compgen -f "$cur" ) ) )
+                    COMPREPLY=( $( command ls /usr/lib/dpkg/parsechangelog ) )
                     return 0
                     ;;
-                "-V"|"-D")
+                -V|-D)
                     # -V: set a substitution variable
                     # we don't know anything about possible variables or values
                     # so we don't try to suggest any completion.
                     COMPREPLY=()
                     return 0
                     ;;
-                "-D")
+                -D)
                     # -D: override or add a .dsc field and value
                     # if $cur doesn't contain a = yet, suggest variable names
-                    if echo -- "$cur" | grep -q "="; then
+                    if [[ "$cur" == *=* ]]; then
                         # $cur contains a "="
                         COMPREPLY=()
                         return 0
                     else
-                        COMPREPLY=( Format Source Version Binary Maintainer Uploader Architecture Standards-Version Build-Depends Files )
+                        COMPREPLY=( $( compgen -W "$fields" -- "$cur" ) )
                         return 0
                     fi
                     ;;
-                "-U")
+                -U)
                     # -U: remove a field
                     # Suggest possible fieldnames
-                    COMPREPLY=( Format Source Version Binary Maintainer Uploader Architecture Standards-Version Build-Depends Files )
+                    COMPREPLY=( $( compgen -W "$fields" -- "$cur" ) )
                     return 0
                     ;;
                 *)
-                    COMPREPLY=( $packopts )
+                    COMPREPLY=( $( compgen -W "$packopts $unpackopts" -- "$cur" ) )
                     return 0
                     ;;
             esac
             return 0
             ;;
         *)
-            # if seeing a partial option, return possible completions.
-            if [ "$cur" = "-s" ]; then
-                COMPREPLY=( "-sa" "-sk" "-sp" "-su" "-sr" "-ss" "-sn" \
-                        "-sA" "-sK" "-sP" "-sU" "-sR" )
-                return 0
-            fi
-            # else return all possible options.
-            COMPREPLY=( $options )
+            COMPREPLY=( $( compgen -W "$options" -- "$cur" ) )
             return 0
             ;;
     esac

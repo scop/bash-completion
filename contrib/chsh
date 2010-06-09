@@ -8,8 +8,19 @@ _chsh()
     cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
-    if [ "$prev" = "-s" ]; then
-        _shells
+    case $prev in
+        --list-shells|--help|-v|--version)
+            return 0
+            ;;
+        -s|--shell)
+            _shells
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* && "$( uname -s )" == @(Linux|GNU|GNU/*) ]]; then
+        COMPREPLY=( $( compgen -W '--shell --list-shells --help --version' \
+            -- "$cur" ) )
     else
         COMPREPLY=( $( compgen -u -- "$cur" ) )
     fi

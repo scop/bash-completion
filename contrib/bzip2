@@ -1,20 +1,24 @@
 # bash completion for bzip2
 
-have bzip2 &&
+have bzip2 || have pbzip2 &&
 _bzip2()
 {
-    local cur prev xspec
+    local cur prev xspec helpopts
 
     COMPREPLY=()
     cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
+    helpopts=`_parse_help ${COMP_WORDS[0]}`
+
+    case $prev in
+        -b|-h|--help|-p)
+            return 0
+            ;;
+    esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-c -d -f -h -k -L -q -s \
-            -t -v -V -z -1 -2 -3 -4 -5 -6 -7 -8 -9 \
-            --help --decompress --compress --keep --force \
-            --test --stdout --quiet --verbose --license \
-            --version --small --fast --best' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W "${helpopts//#/} -2 -3 -4 -5 -6 -7 -8 -9" \
+            -- "$cur" ) )
         return 0
     fi
 
@@ -36,7 +40,7 @@ _bzip2()
     COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \
         $( compgen -d -- "$cur" ) )
 } &&
-complete -F _bzip2 $filenames bzip2
+complete -F _bzip2 -o filenames bzip2 pbzip2
 
 # Local variables:
 # mode: shell-script

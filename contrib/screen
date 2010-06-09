@@ -8,11 +8,11 @@ _screen_sessions()
     if [ -n "$1" ]; then
         pattern=".*$1.*"
     else
-    pattern=".*"
+        pattern=".*"
     fi
 
     COMPREPLY=( $( command screen -ls | sed -ne \
-        's|^['$'\t'']\+\('"$cur"'[0-9]\+\.[^'$'\t'']\+\)'"$pattern"'$|\1|p' ) )
+        's|^['$'\t'']\{1,\}\('"$cur"'[0-9]\{1,\}\.[^'$'\t'']\{1,\}\)'"$pattern"'$|\1|p' ) )
 } &&
 _screen()
 {
@@ -24,14 +24,14 @@ _screen()
 
     [ "$COMP_CWORD" -ge 2 ] && preprev=${COMP_WORDS[COMP_CWORD-2]}
 
-    case "$preprev" in
+    case $preprev in
         -[dD])
             _screen_sessions
             return 0
-        ;;
+            ;;
     esac
 
-    case "$prev" in
+    case $prev in
         -[rR])
             # list detached
             _screen_sessions 'Detached'
@@ -43,8 +43,8 @@ _screen()
             return 0
             ;;
         -s)
-            # shells
-            COMPREPLY=( $( grep ^${cur:-[^#]} /etc/shells ) )
+            _shells
+            return 0
             ;;
         -c)
             _filedir
@@ -53,12 +53,12 @@ _screen()
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-a -A -c -d -D -e -f -fn -fa -h -i \
-            -l -ln -ls -list -L -m -O -p -q -r -R -s -S -t -U -v \
-            -wipe -x -X' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '-a -A -c -d -D -e -f -fn -fa -h -i -ln \
+            -list -L -m -O -p -q -r -R -s -S -t -U -v -wipe -x -X --help \
+            --version' -- "$cur" ) )
     fi
 } &&
-complete -F _screen $default screen
+complete -F _screen -o default screen
 
 # Local variables:
 # mode: shell-script

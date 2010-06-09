@@ -1,10 +1,14 @@
 proc setup {} {
     save_env
+    assert_bash_exec {OLDHOME=$HOME ; HOME=$TESTDIR/fixtures/cvs}
 }; # setup()
 
 
 proc teardown {} {
-    assert_env_unmodified
+    assert_bash_exec {HOME=$OLDHOME}
+    assert_env_unmodified {
+        /OLDHOME=/d
+    }
 }; # teardown()
 
 
@@ -12,6 +16,18 @@ setup
 
 
 assert_complete_any "cvs "
+
+
+sync_after_int
+
+
+set test "-d should complete CVS roots"
+set cmd "cvs -d "
+send "$cmd\t"
+expect {
+    -re "^$cmd\r\n.*:pserver:.*\r\n/@$cmd:pserver:.*$" { pass "$test" }
+    default { fail "$test" }
+}; # expect
 
 
 sync_after_int

@@ -1,4 +1,4 @@
-# Mailman completion by Guillaume Rousse <rousse@ccr.jussieu.fr>
+# mailman completion
 
 have list_lists && {
 _mailman_lists()
@@ -14,8 +14,8 @@ _list_lists()
     cur=`_get_cword`
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-a --advertised --virtual-host-overview -V \
-            -b --bare -h --help' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--advertised --virtual-host-overview \
+            --bare --help' -- "$cur" ) )
     fi
 
 } &&
@@ -33,12 +33,12 @@ _add_members()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(r|d|-regular-members-file|-digest-members-file))
+    case $prev in
+        -r|-d|--regular-members-file|--digest-members-file)
             _filedir
             return 0
             ;;
-        -@(w|a|-welcome-msg|-admin-notify))
+        -w|-a|--welcome-msg|--admin-notify)
             COMPREPLY=( $( compgen -W 'y n' -- "$cur") )
             return 0
             ;;
@@ -47,9 +47,9 @@ _add_members()
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--regular-members-file -r \
-            --digest-members-file -d --welcome-msg -w \
-            --admin-notify -a --help -h' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--regular-members-file \
+            --digest-members-file --welcome-msg \
+            --admin-notify --help' -- "$cur" ) )
     else
         _mailman_lists
     fi
@@ -68,8 +68,8 @@ _remove_members()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(f|-file))
+    case $prev in
+        -f|--file)
             _filedir
             return 0
             ;;
@@ -78,8 +78,8 @@ _remove_members()
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--file -f --all -a --fromall --nouserack -n \
-            --noadminack -N --help -h' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--file --all --fromall --nouserack \
+            --noadminack --help' -- "$cur" ) )
     else
         _mailman_lists
     fi
@@ -98,8 +98,8 @@ _find_member()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(l|x|-listname|-exclude))
+    case $prev in
+        -l|-x|--listname|--exclude)
             _mailman_lists
             return 0
             ;;
@@ -108,8 +108,8 @@ _find_member()
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-l --listname -x --exclude --owners -w \
-            --help -h' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--listname --exclude --owners \
+            --help' -- "$cur" ) )
     fi
 
 } &&
@@ -126,8 +126,8 @@ _clone_member()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(l|-listname))
+    case $prev in
+        -l|--listname)
             _mailman_lists
             return 0
             ;;
@@ -136,8 +136,8 @@ _clone_member()
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-l --listname --remove -r --admin -a \
-            --quiet -q --nomodify -n --help -h' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--listname --remove --admin \
+            --quiet --nomodify --help' -- "$cur" ) )
     fi
 
 } &&
@@ -154,12 +154,12 @@ _sync_members()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(w|g|d|--welcome-msg|-goodbye-msg|-digest))
+    case $prev in
+        -w|-g|-d|--welcome-msg|--goodbye-msg|--digest)
             COMPREPLY=( $( compgen -W 'y n' -- "$cur") )
             return 0
             ;;
-        -@(d|-file))
+        -d|--file)
             _filedir
             return 0
             ;;
@@ -168,9 +168,8 @@ _sync_members()
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--no-change -n --welcome-msg -w \
-            --goodbye-msg -g --digest -d --notifyadmin -a -f --file -h --help' \
-            -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--no-change --welcome-msg \
+            --goodbye-msg --digest --notifyadmin --file --help' -- "$cur" ) )
     else
         _mailman_lists
     fi
@@ -187,7 +186,7 @@ _unshunt()
     cur=`_get_cword`
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-h --help' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--help' -- "$cur" ) )
     else
         _filedir -d
     fi
@@ -204,8 +203,7 @@ _list_admins()
     cur=`_get_cword`
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--all-vhost -v --all -a -h --help' \
-            -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--all-vhost --all --help' -- "$cur" ) )
     else
         _mailman_lists
     fi
@@ -222,7 +220,7 @@ _list_owners()
     cur=`_get_cword`
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-w --with-listnames -m --moderators -h \
+        COMPREPLY=( $( compgen -W '--with-listnames --moderators \
             --help' -- "$cur" ) )
     else
         _mailman_lists
@@ -242,16 +240,16 @@ _list_members()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(o|-output))
+    case $prev in
+        -o|--output)
             _filedir
             return 0
             ;;
-        -@(d|-digest))
+        -d|--digest)
             COMPREPLY=( $( compgen -W 'mime plain' -- "$cur") )
             return 0
             ;;
-        -@(n|-nomail))
+        -n|--nomail)
             COMPREPLY=( $( compgen -W 'byadmin byuser bybounce unknown' \
                 -- "$cur") )
             return 0
@@ -261,8 +259,8 @@ _list_members()
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--output -o --regular -r --digest -d \
-            --nomail -n --fullnames -f --preserve -p -h --help' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--output --regular --digest \
+            --nomail --fullnames --preserve --help' -- "$cur" ) )
     else
         _mailman_lists
     fi
@@ -281,8 +279,8 @@ _change_pw()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(l|-listname))
+    case $prev in
+        -l|--listname)
             _mailman_lists
             return 0
             ;;
@@ -291,8 +289,8 @@ _change_pw()
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-a --all --domain -d --listname -l \
-            --password -p --quiet -q -h --help' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--all --domain --listname \
+            --password --quiet --help' -- "$cur" ) )
     fi
 
 } &&
@@ -307,8 +305,8 @@ _withlist()
     cur=`_get_cword`
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-l --lock -i --interactive \
-            -r --run -a --all -q --quiet -h --help' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--lock --interactive \
+            --run --all --quiet --help' -- "$cur" ) )
     else
         _mailman_lists
     fi
@@ -325,8 +323,7 @@ _newlist()
     cur=`_get_cword`
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-l --language -q --quiet -h --help' \
-            -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--language --quiet --help' -- "$cur" ) )
     else
         _mailman_lists
     fi
@@ -343,7 +340,7 @@ _rmlist()
     cur=`_get_cword`
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--archives -a -h --help' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--archives --help' -- "$cur" ) )
     else
         _mailman_lists
     fi
@@ -362,8 +359,8 @@ _config_list()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(i|o|-inputfile|-outputfile))
+    case $prev in
+        -i|-o|--inputfile|--outputfile)
             _filedir
             return 0
             ;;
@@ -372,16 +369,18 @@ _config_list()
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--inputfile -i --outputfile -o \
-            --checkonly -c --verbose -v -h --help' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--inputfile --outputfile \
+            --checkonly --verbose --help' -- "$cur" ) )
     else
         _mailman_lists
     fi
 
 } &&
-complete -F _config_list $filenames config_list
+complete -F _config_list -o filenames config_list
 
-have arch &&
+# Try to detect whether this is the mailman "arch" to avoid installing
+# it for the coreutils/util-linux-ng one.
+have arch && have mailmanctl &&
 _arch()
 {
     local cur prev split=false
@@ -392,12 +391,12 @@ _arch()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(w|g|d|--welcome-msg|-goodbye-msg|-digest))
+    case $prev in
+        -w|-g|-d|--welcome-msg|--goodbye-msg|--digest)
             COMPREPLY=( $( compgen -W 'y n' -- "$cur") )
             return 0
             ;;
-        -@(d|-file))
+        -d|--file)
             _filedir
             return 0
             ;;
@@ -406,7 +405,7 @@ _arch()
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--wipe -s --start -e --end -q --quiet -h \
+        COMPREPLY=( $( compgen -W '--wipe --start --end --quiet \
             --help' -- "$cur" ) )
     else
         args=$COMP_CWORD
@@ -426,7 +425,7 @@ _arch()
     fi
 
 } &&
-complete -F _arch $filenames arch
+complete -F _arch -o filenames arch
 
 have cleanarch &&
 _cleanarch()
@@ -437,7 +436,7 @@ _cleanarch()
     cur=`_get_cword`
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-s --status -n --dry-run -q --quiet -h \
+        COMPREPLY=( $( compgen -W '--status --dry-run --quiet \
             --help' -- "$cur" ) )
     fi
 
@@ -455,8 +454,8 @@ _inject()
 
     _split_longopt && split=true
 
-    case "$prev" in
-        -@(l|-listname))
+    case $prev in
+        -l|--listname)
             _mailman_lists
             return 0
             ;;
@@ -465,14 +464,13 @@ _inject()
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-l --listname -q --queue -h --help' \
-            -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--listname --queue --help' -- "$cur" ) )
     else
         _filedir
     fi
 
 } &&
-complete -F _inject $filenames inject
+complete -F _inject -o filenames inject
 
 have dumpdb &&
 _dumpdb()
@@ -483,14 +481,14 @@ _dumpdb()
     cur=`_get_cword`
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--marshal -m --pickle -p --noprint -n -h \
+        COMPREPLY=( $( compgen -W '--marshal --pickle --noprint \
             --help' -- "$cur" ) )
     else
         _filedir
     fi
 
 } &&
-complete -F _dumpdb $filenames dumpdb
+complete -F _dumpdb -o filenames dumpdb
 
 have check_db &&
 _check_db()
@@ -501,8 +499,7 @@ _check_db()
     cur=`_get_cword`
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--all -a --verbose -v -h --help' \
-            -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--all --verbose --help' -- "$cur" ) )
     else
         _mailman_lists
     fi
@@ -534,7 +531,7 @@ _genaliases()
     cur=`_get_cword`
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-q --quiet -h --help' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--quiet --help' -- "$cur" ) )
     fi
 
 } &&
@@ -549,7 +546,7 @@ _mmsitepass()
     cur=`_get_cword`
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-c --listcreator -h --help' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--listcreator --help' -- "$cur" ) )
     fi
 
 } &&
@@ -567,8 +564,8 @@ _qrunner()
     _split_longopt && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-r --runner --once -o \
-            -l --list -v --verbose -s --subproc -h --help' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--runner --once \
+            --list --verbose --subproc --help' -- "$cur" ) )
     fi
 
 } &&
@@ -583,8 +580,8 @@ _mailmanctl()
     cur=`_get_cword`
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-n --no-restart -u --run-as-user \
-            -s --stale-lock-cleanup --quiet -q -h --help' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--no-restart --run-as-user \
+            --stale-lock-cleanup --quiet --help' -- "$cur" ) )
     else
         COMPREPLY=( $( compgen -W 'start stop restart reopen' -- "$cur" ) )
     fi

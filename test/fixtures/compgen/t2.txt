@@ -1,0 +1,121 @@
+BASH=/bin/bash
+BASH_ARGC=()
+BASH_ARGV=()
+BASH_LINENO=()
+BASH_SOURCE=()
+BASH_VERSINFO=([0]="3" [1]="2" [2]="39" [3]="1" [4]="release" [5]="i486-pc-linux-gnu")
+BASH_VERSION='3.2.39(1)-release'
+CDPL_DIRS=([0]="/home/freddy/proj")
+CDPM_DIRS=
+CDP_DIRS=([0]="/home/freddy/proj" [1]="")
+COLUMNS=130
+COMP_CACHE=/home/freddy/.bash_completion_lib.d/cache~
+COMP_DIR=/etc/bash_completion_lib
+COMP_PATH=/home/freddy/.bash_completion_lib.d:/etc/bash_completion_lib
+COMP_RESTRICT_BY_EXTENSION=0
+COMP_VERSION=bash_completion_lib-1.3.1
+DIRSTACK=()
+EDITOR=/usr/bin/vim
+EUID=1000
+GPGKEY=10A575C3
+GPG_AGENT_INFO=/tmp/gpg-Pg6JXR/S.gpg-agent:4129:1
+GPG_TTY=/dev/pts/0
+GREP_OPTIONS='--exclude '\''distrib/*'\'' --exclude tags'
+GROUPS=()
+HISTCONTROL=ignoreboth
+HISTFILE=/home/freddy/.bash_history
+HISTFILESIZE=500
+HISTIGNORE=exit
+HISTSIZE=500
+HOME=/home/freddy
+HOSTNAME=blondy
+HOSTTYPE=i486
+IFS=$' \t\n'
+LANG=en_US
+LANGUAGE=en_NL:en_US:en_GB:en
+LINES=49
+LOGNAME=freddy
+MACHTYPE=i486-pc-linux-gnu
+MAIL=/var/mail/freddy
+MAILCHECK=60
+OLDPWD=/home/freddy/.bash_completion_lib.d
+OPTERR=1
+OPTIND=1
+OSTYPE=linux-gnu
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/bin/X11:/usr/games:/home/freddy/proj/rc/bin
+PIPESTATUS=([0]="0")
+PPID=29352
+PS1=$'\\[\E[0;34m\\]\\!\\[\E[0m\\]\\[\E[1;32m\\]$(stoppedjobs)\\[\E[0m\\]:\\u@\\h:\\w> \\[\E[m\\]'
+PS2='> '
+PS4='+ '
+PWD=/home/freddy/proj/bashCompletion/bash-completion.git/test/fixtures/compgen
+SHELL=/bin/bash
+SHELLOPTS=braceexpand:hashall:histexpand:interactive-comments:monitor:vi
+SHLVL=1
+SSH_AUTH_SOCK=/tmp/ssh-xhQbo29352/agent.29352
+SSH_CLIENT='192.168.123.143 37670 4822'
+SSH_CONNECTION='192.168.123.143 37670 192.168.123.8 4822'
+SSH_TTY=/dev/pts/0
+TERM=xterm
+UID=1000
+USER=freddy
+VIM=/home/freddy/.vim
+VIMRUNTIME=/usr/share/vim/vimcurrent
+_='a\\\'\''b/'
+bash205='3.2.39(1)-release'
+bash205b='3.2.39(1)-release'
+bash3='3.2.39(1)-release'
+cdots () 
+{ 
+    [ -d "$1$2" ] && cd "$1$2" || eval cd "$1$2"
+}
+comp_load () 
+{ 
+    local cmd=${COMP_WORDS[0]} dir globs OLDIFS=$IFS;
+    IFS=:;
+    local -a aPaths=($COMP_PATH);
+    IFS='
+';
+    globs=($(
+	for dir in "${aPaths[@]}"; do 
+	    echo \"$dir\"/complete\*/\*.$cmd
+	    echo \"$dir\"/complete\*/$cmd\!
+	    echo \"$dir\"/complete\*/$cmd
+	done
+    ));
+    IFS=$OLDIFS;
+    if ! declare -F comp_include >&/dev/null; then
+        for dir in "${aPaths[@]}";
+        do
+            [ -r "$dir/include/comp_include" ] && . "$dir/include/comp_include" && break;
+        done;
+    fi;
+    comp_include comp_load_init;
+    comp_load_init;
+    local script="$(eval find "${globs[@]}" 2> /dev/null | head -1)";
+    local link comp=${script##*/};
+    [[ ${comp: -1:1} == ! ]] || { 
+        link=${comp#*.};
+        comp=${comp%.$link}
+    };
+    local path=${script%/*};
+    [ "$script" -a -r "$path/$comp" ] && . "$path/$comp" && declare -F _$comp >&/dev/null && { 
+        [ ${COMP_INSTALL:-1} -eq 0 ] || _comp_install $comp "$path"
+    } && _$comp $link;
+    comp_load_deinit
+}
+nameTerminal () 
+{ 
+    [ "${TERM:0:5}" = "xterm" ] && local ansiNrTab=0;
+    [ "$TERM" = "rxvt" ] && local ansiNrTab=61;
+    [ "$TERM" = "konsole" ] && local ansiNrTab=30 ansiNrWindow=0;
+    [ $ansiNrTab ] && echo -n ''"]$ansiNrTab;$1"'';
+    [ $ansiNrWindow -a "$2" ] && echo -n ''"]$ansiNrWindow;$2"''
+}
+stoppedjobs () 
+{ 
+    if [ "$(jobs -s)" ]; then
+        echo -n "%";
+        jobs -s | wc -l;
+    fi
+}

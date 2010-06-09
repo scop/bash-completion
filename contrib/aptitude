@@ -9,7 +9,8 @@ _comp_dpkg_hold_packages()
 } || {
 _comp_dpkg_hold_packages()
 {
-    grep -B 2 'hold' /var/lib/dpkg/status | grep "Package: $1" | cut -d\  -f2
+    command grep -B 2 'hold' /var/lib/dpkg/status | \
+        command grep "Package: $1" | cut -d\  -f2
 }
 }
 
@@ -30,7 +31,7 @@ _aptitude()
         -Z -v --verbose --purge-unused --schedule-only'
 
     for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-        if [[ ${COMP_WORDS[i]} == @(install|reinstall|hold|unhold|markauto|unmarkauto|dist-upgrade|full-upgrade|download|show|forbid-version|purge|remove|changelog|why|why-not|keep|keep-all|build-dep) ]]; then
+        if [[ ${COMP_WORDS[i]} == @(@(|re)install|@(|un)hold|@(|un)markauto|@(dist|full)-upgrade|download|show|forbid-version|purge|remove|changelog|why@(|-not)|keep@(|-all)|build-dep|@(add|remove)-user-tag) ]]; then
         special=${COMP_WORDS[i]}
         fi
         #exclude some mutually exclusive options
@@ -40,11 +41,13 @@ _aptitude()
 
     if [[ -n "$special" ]]; then
        case $special in
-           @(install|hold|markauto|unmarkauto|dist-upgrade|full-upgrade|download|show|changelog|why|why-not|build-dep))
+           install|hold|markauto|unmarkauto|dist-upgrade|full-upgrade| \
+           download|show|changelog|why|why-not|build-dep|add-user-tag| \
+           remove-user-tag)
                COMPREPLY=( $( apt-cache pkgnames $cur 2> /dev/null ) )
                return 0
                ;;
-           @(purge|remove|reinstall|forbid-version))
+           purge|remove|reinstall|forbid-version)
                COMPREPLY=( $( _comp_dpkg_installed_packages "$cur" ) )
                return 0
                ;;
@@ -57,16 +60,16 @@ _aptitude()
 
     case $prev in
         # don't complete anything if these options are found
-        @(autoclean|clean|forget-new|search|upgrade|safe-upgrade|update|keep-all))
+        autoclean|clean|forget-new|search|safe-upgrade|upgrade|update|keep-all)
             return 0
             ;;
         -S)
             _filedir
             return 0
             ;;
-        -@(t|-target-release|-default-release))
+        -t|--target-release|--default-release)
             COMPREPLY=( $( apt-cache policy | \
-                grep "release.o=Debian,a=$cur" | \
+                command grep "release.o=Debian,a=$cur" | \
                 sed -e "s/.*a=\(\w*\).*/\1/" | uniq 2> /dev/null ) )
             return 0
             ;;
@@ -79,12 +82,13 @@ _aptitude()
             clean autoclean install reinstall remove \
             hold unhold purge markauto unmarkauto why why-not \
             dist-upgrade full-upgrade download search show \
-            forbid-version changelog keep-all build-dep' -- "$cur" ) )
+            forbid-version changelog keep-all build-dep \
+            add-user-tag remove-user-tag' -- "$cur" ) )
     fi
 
     return 0
 }
-complete -F _aptitude $default aptitude
+complete -F _aptitude -o default aptitude
 }
 
 # Local variables:

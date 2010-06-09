@@ -11,15 +11,15 @@ _chkconfig()
 
     _split_longopt && split=true
 
-    case "$prev" in
-    @(?(--level=)[1-6]|--@(list|add|del|override)))
-        _services
-        return 0
-        ;;
-    --level)
-        COMPREPLY=( $( compgen -W '1 2 3 4 5 6' -- "$cur" ) )
-        return 0
-        ;;
+    case $prev in
+        --level=[1-6]|[1-6]|--list|--add|--del|--override)
+            _services
+            return 0
+            ;;
+        --level)
+            COMPREPLY=( $( compgen -W '1 2 3 4 5 6' -- "$cur" ) )
+            return 0
+            ;;
     esac
 
     $split && return 0
@@ -27,7 +27,7 @@ _chkconfig()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--list --add --del --override --level' -- "$cur" ) )
     else
-        if [ $COMP_CWORD -eq 2 -o $COMP_CWORD -eq 4 ]; then
+        if [[ $COMP_CWORD -eq 2 || $COMP_CWORD -eq 4 ]]; then
             COMPREPLY=( $( compgen -W 'on off reset resetpriorities' -- "$cur" ) )
         else
             _services

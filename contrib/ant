@@ -1,68 +1,66 @@
 # bash completion for ant
 
-have ant && {
+have ant &&
+{
 _ant()
 {
-	local cur prev buildfile i
+    local cur prev buildfile i
 
-	COMPREPLY=()
-	cur=`_get_cword`
-	prev=${COMP_WORDS[COMP_CWORD-1]}
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=${COMP_WORDS[COMP_CWORD-1]}
 
-	case "$prev" in
-		-buildfile|-file|-f)
-			_filedir 'xml'
-			return 0
-			;;
-		-logfile|-l)
-			_filedir
-			return 0
-			;;
-		-propertyfile)
-			_filedir properties
-			return 0
-			;;
-		-nice)
-			COMPREPLY=( $( compgen -W '1 2 3 4 5 6 7 8 9 10' \
-				-- "$cur" ) )
-			return 0
-			;;
-		-lib|-logger|-listener|-D|-inputhandler|-main)
-			return 0
-			;;
-	esac
+    case $prev in
+        -buildfile|-file|-f)
+            _filedir 'xml'
+            return 0
+            ;;
+        -logfile|-l)
+            _filedir
+            return 0
+            ;;
+        -propertyfile)
+            _filedir properties
+            return 0
+            ;;
+        -nice)
+            COMPREPLY=( $( compgen -W '1 2 3 4 5 6 7 8 9 10' -- "$cur" ) )
+            return 0
+            ;;
+        -lib|-logger|-listener|-D|-inputhandler|-main)
+            return 0
+            ;;
+    esac
 
-	if [[ "$cur" == -* ]]; then
-		COMPREPLY=( $( compgen -W '-help -h -projecthelp -p -version \
-			-diagnostics -quiet -q -verbose -v -debug -d -emacs -e \
-			-lib -logfile -l -logger -listener -noinput -buildfile \
-			-file -f -D -keep-going -k -propertyfile -inputhandler \
-			-find -s -nice -nouserlib -noclasspath -autoproxy \
-			-main' -- "$cur" ) )
-	else
-		# available targets completion
-		# find which buildfile to use
-		buildfile=build.xml
-		for (( i=1; i < COMP_CWORD; i++ )); do
-			if [[ "${COMP_WORDS[i]}" == -@(?(build)file|f) ]]; then
-				buildfile=${COMP_WORDS[i+1]}
-				break
-			fi
-		done
-		[ ! -f $buildfile ] && return 0
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-help -projecthelp -version -diagnostics \
+            -quiet -verbose -debug -emacs -lib -logfile -logger -listener \
+            -noinput -buildfile -D -keep-going -propertyfile -inputhandler \
+            -find -s -nice -nouserlib -noclasspath -autoproxy -main' \
+            -- "$cur" ) )
+    else
+        # available targets completion
+        # find which buildfile to use
+        buildfile=build.xml
+        for (( i=1; i < COMP_CWORD; i++ )); do
+            if [[ "${COMP_WORDS[i]}" == -@(?(build)file|f) ]]; then
+                buildfile=${COMP_WORDS[i+1]}
+                break
+            fi
+        done
+        [ ! -f $buildfile ] && return 0
 
-		# parse buildfile for targets
-		# some versions of sed complain if there's no trailing linefeed,
-		# hence the 2>/dev/null
-		COMPREPLY=( $( compgen -W "$( cat $buildfile | \
-			tr "'\t\n>" "\"  \n" | \
-			sed -ne 's/.*<target .*name="\([^"]*\).*/\1/p' \
-			2>/dev/null )" -- "$cur" ) )
-	fi
+        # parse buildfile for targets
+        # some versions of sed complain if there's no trailing linefeed,
+        # hence the 2>/dev/null
+        COMPREPLY=( $( compgen -W "$( cat $buildfile | tr "'\t\n>" "\"  \n" | \
+            sed -ne 's/.*<target .*name="\([^"]*\).*/\1/p' 2>/dev/null )" \
+            -- "$cur" ) )
+        fi
 }
 have complete-ant-cmd.pl && \
-     complete -C complete-ant-cmd.pl -F _ant $filenames ant || \
-     complete -F _ant $filenames ant
+     complete -C complete-ant-cmd.pl -F _ant -o filenames ant || \
+     complete -F _ant -o filenames ant
 }
 
 # Local variables:

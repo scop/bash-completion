@@ -2,36 +2,16 @@ source lib/library.exp
 
 
 proc unit_exit {} {
-        # Exit bash
+    # Exit bash
     send "\rexit\r"
-}; # unit_exit()
+}
 
 
 proc unit_start {} {
-    global bash_versinfo_0 TESTDIR TOOL_EXECUTABLE spawn_id
-    set test "unit_start"
-    set TESTDIR [pwd]
-
-        # Start bash and load bash-completion
-
-    # If `--tool_exec' option not specified, use "bash"
-    if {! [info exists TOOL_EXECUTABLE]} {set TOOL_EXECUTABLE bash}
-    exp_spawn $TOOL_EXECUTABLE --rcfile config/bashrc
-    assert_bash_exec {} "$TOOL_EXECUTABLE --rcfile config/bashrc"
-    assert_bash_exec {BASH_COMPLETION_DIR=$(cd ..; pwd)/contrib}
-    assert_bash_exec {BASH_COMPLETION=$(cd ..; pwd)/bash_completion}
-    # Bash < 3.2.41 has a bug where 'history' disappears from SHELLOPTS
-    # whenever a shopt setting is sourced or eval'ed.  Disabling 'history'
-    # makes it not show in tests "Environment should not be modified"
-    # for bash < 3.2.41.
-    # -- FVu, Tue Sep 15 22:52:00 CEST 2009
-    assert_bash_exec {is_bash_version_minimal 3 2 41 || set +o history}
-    assert_bash_exec {source $BASH_COMPLETION}
-    # Fill global var `bash_versinfo_0' with bash major version number
-    assert_bash_exec {printf "%s" "${BASH_VERSINFO[0]}"} "" /@ bash_versinfo_0
-}; # unit_start()
+    start_interactive_test
+}
 
 
 proc unit_version {} {
-    puts "bash-completion-git"
+    puts "$::TESTDIR, bash-$::BASH_VERSION"
 }

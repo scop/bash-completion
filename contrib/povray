@@ -22,14 +22,14 @@ _povray()
             ;;
         [-+]O*)
             # guess what output file type user may want
-            case $( ( IFS=$'\n'; echo "${COMP_WORDS[*]}" | grep '^[-+]F' ) ) in
+            case $( ( IFS=$'\n'; command grep '^[-+]F' <<<"${COMP_WORDS[*]}" ) ) in
                 [-+]FN) oext=png ;;
                 [-+]FP) oext=ppm ;;
                 [-+]F[CT]) oext=tga ;;
                 *) oext=$defoext ;;
             esac
             # complete filename corresponding to previously specified +I
-            COMPREPLY=( $( ( IFS=$'\n'; echo "${COMP_WORDS[*]}" | grep '^[-+]I' ) ) )
+            COMPREPLY=( $( ( IFS=$'\n'; command grep '^[-+]I' <<<"${COMP_WORDS[*]}" ) ) )
             COMPREPLY=( ${COMPREPLY[@]#[-+]I} )
             COMPREPLY=( ${COMPREPLY[@]/%.pov/.$oext} )
             cur="${povcur#[-+]O}" # to confuse _filedir
@@ -55,7 +55,7 @@ _povray()
             ;;
     esac
 } &&
-complete -F _povray $filenames povray xpovray spovray
+complete -F _povray -o filenames povray xpovray spovray
 
 # Local variables:
 # mode: shell-script

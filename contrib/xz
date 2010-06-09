@@ -8,23 +8,22 @@ _xz()
     local prev=${COMP_WORDS[COMP_CWORD-1]}
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-z --compress -d --decompress \
-            -t --test -l --list -k --keep -f --force -c --stdout \
-            -S --suffix --files --files0 -F --format -C --check \
-            -0 -1 -2 -3 -4 -5 -6 -7 -8 -9 -M --memory --lzma1 \
-            --lzma2 --x86 --powerpc --ia64 --arm --armthumb \
-            --sparc --delta -q --quiet -v --verbose -h --help \
-            -H --long-help -V --version' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--compress --decompress --test --list \
+            --keep --force --stdout --suffix --files --files0 --format --check \
+            -0 -1 -2 -3 -4 -5 -6 -7 -8 -9 --fast --best --extreme --memory \
+            --lzma1 --lzma2 --x86 --powerpc --ia64 --arm --armthumb --sparc \
+            --delta --quiet --verbose --no-warn --help --long-help --version' \
+            -- "$cur" ) )
         return 0
     fi
 
     local split=false
     _split_longopt && split=true
 
-    local xspec="*.@(xz|lzma)"
+    local xspec="*.@(xz|lzma|txz|tlz)"
 
-    case "$prev" in
-        -@(!(-*)[dlt]*|-decompress|-list|-test))
+    case $prev in
+        --decompress|--list|--test|-!(-*)[dlt]*)
             xspec="!"$xspec
             ;;
         --files|--files0)
@@ -57,7 +56,7 @@ _xz()
     COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \
         $( compgen -d -- "$cur" ) )
 } &&
-complete -F _xz $filenames xz
+complete -F _xz -o filenames xz
 
 # xzdec(1) completion
 #
@@ -69,15 +68,14 @@ _xzdec()
     local prev=${COMP_WORDS[COMP_CWORD-1]}
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-M --memory -h --help -V --version' \
-            -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--memory --help --version' -- "$cur" ) )
         return 0
     fi
 
     local split=false
     _split_longopt && split=true
 
-    case "$prev" in
+    case $prev in
         -M|--memory)
             # argument required but no completions available
             return 0
@@ -92,7 +90,7 @@ _xzdec()
 
     _filedir xz # no lzma support here as of xz 4.999.8beta
 } &&
-complete -F _xzdec $filenames xzdec
+complete -F _xzdec -o filenames xzdec
 
 # Local variables:
 # mode: shell-script

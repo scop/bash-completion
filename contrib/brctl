@@ -21,13 +21,13 @@ _brctl()
                 show)
                     ;;
                 *)
-                    COMPREPLY=( $( compgen -W "$(brctl show | sed '1d' | \
-                        awk '{print $1}' )" -- "$cur" ) )
+                    COMPREPLY=( $( compgen -W "$(brctl show | \
+                        awk 'NR>1 {print $1}' )" -- "$cur" ) )
             esac
             ;;
         3)
             case $command in
-                @(add|del)if)
+                addif|delif)
                     _configured_interfaces
                     ;;
                 stp)
@@ -37,7 +37,7 @@ _brctl()
             ;;
     esac
 } &&
-complete -F _brctl $default brctl
+complete -F _brctl -o default brctl
 
 # Local variables:
 # mode: shell-script

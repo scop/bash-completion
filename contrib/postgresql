@@ -13,7 +13,7 @@ _pg_users()
 {
     # See https://launchpad.net/bugs/164772
     #COMPREPLY=( $( psql -qtc 'select usename from pg_user' template1 2>/dev/null | \
-    #       grep "^ $cur" ) )
+    #       command grep "^ $cur" ) )
     #[ ${#COMPREPLY[@]} -eq 0 ] && COMPREPLY=( $( compgen -u -- $cur ) )
     COMPREPLY=( $( compgen -u -- "$cur" ) )
 }
@@ -30,7 +30,7 @@ _createdb()
 
     _split_longopt && split=true
 
-    case "$prev" in
+    case $prev in
         -h|--host)
             _known_hosts_real "$cur"
             return 0
@@ -52,14 +52,14 @@ _createdb()
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-D -T -E -h -p -U -W -e -q \
-            --tablespace --template --encoding --host --port \
-            --username --password --echo --quiet --help --version' -- "$cur" ))
+        COMPREPLY=( $( compgen -W '--tablespace --template --encoding --host \
+            --port --username --password --echo --quiet --help --version' \
+            -- "$cur" ) )
     else
         _pg_databases
     fi
 }
-complete -F _createdb $default createdb
+complete -F _createdb -o default createdb
 
 # dropdb(1) completion
 #
@@ -73,7 +73,7 @@ _dropdb()
 
     _split_longopt && split=true
 
-    case "$prev" in
+    case $prev in
         -h|--host)
             _known_hosts_real "$cur"
             return 0
@@ -91,14 +91,13 @@ _dropdb()
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-h -p -U -W -i -e -q \
-            --host --port --username --password --interactive \
-            --echo --quiet --help --version' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--host --port --username --password \
+            --interactive --echo --quiet --help --version' -- "$cur" ) )
     else
         _pg_databases
     fi
 }
-complete -F _dropdb $default dropdb
+complete -F _dropdb -o default dropdb
 
 # psql(1) completion
 #
@@ -112,7 +111,7 @@ _psql()
 
     _split_longopt && split=true
 
-    case "$prev" in
+    case $prev in
         -h|--host)
             _known_hosts_real "$cur"
             return 0
@@ -144,22 +143,18 @@ _psql()
 
     if [[ "$cur" == -* ]]; then
         # return list of available options
-        COMPREPLY=( $( compgen -W '-a --echo-all -A --no-align \
-            -c --command -d --dbname -e --echo-queries \
-            -E --echo-hidden -f --file -F --field-separator \
-            -h --host -H --html -l --list -L --log-file -n \
-            -o --output -p --port -P --pset -q --quiet \
-            -R --record-separator -s --single-step \
-            -S --single-line -t --tuples-only -T --table-attr \
-            -U --username -v --set --variable -V --version \
-            -W --password -x --expanded -X --no-psqlrc \
-            -1 --single-transaction -? --help' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--echo-all --no-align --command --dbname \
+            --echo-queries --echo-hidden --file --field-separator --host \
+            --html --list --log-file --output --port --pset --quiet \
+            --record-separator --single-step --single-line --tuples-only \
+            --table-attr --username --set --version --password --expanded \
+            --no-psqlrc --single-transaction --help' -- "$cur" ) )
     else
         # return list of available databases
         _pg_databases
     fi
 }
-complete -F _psql $filenames psql
+complete -F _psql -o filenames psql
 }
 
 # Local variables:

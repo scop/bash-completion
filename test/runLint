@@ -1,0 +1,42 @@
+#!/bin/bash
+
+gitgrep()
+{
+    local out=$(git grep -I -E -n "$1" | \
+        grep -E '^(bash_completion|contrib/|test/)' | \
+        grep -Fv 'test/runLint')
+    if [ -n "$out" ] ; then
+        printf '***** %s\n' "$2"
+        printf '%s\n\n' "$out"
+    fi
+}
+
+unset CDPATH
+cd $(dirname "$0") ; cd ..
+
+cmdstart='(^|[[:space:]]|\()'
+
+gitgrep $cmdstart"awk\b.*-F([[:space:]]|[[:space:]]*[\"'][^\"']{2,})" \
+    'awk with -F char or -F ERE, use -Fchar instead (Solaris)'
+
+gitgrep $cmdstart"awk\b.*\[:[a-z]*:\]" \
+    'awk with POSIX character class not supported in mawk (Debian/Ubuntu)'
+
+gitgrep $cmdstart'sed\b.*\\[?+]' \
+    'sed with ? or +, use POSIX BRE instead (\{m,n\})'
+
+gitgrep $cmdstart'sed\b.*\\\|' \
+    "sed with \|, use POSIX BRE (possibly multiple sed invocations) or another tool instead"
+
+# TODO: really nonportable? appears to work fine in Linux, FreeBSD, Solaris
+#gitgrep $cmdstart'sed\b.*;' \
+#    'sed with ;, use multiple -e options instead (POSIX?) (false positives?)'
+
+gitgrep $cmdstart'sed\b.*-[^[:space:]]*[rE]' \
+    'sed with -r or -E, drop and use POSIX BRE instead'
+
+gitgrep $cmdstart'[ef]grep\b' \
+    '[ef]grep, use grep -[EF] instead (historical/deprecated)'
+
+# TODO: $ in sed subexpression used as an anchor (POSIX BRE optional, not in
+#       Solaris/FreeBSD)

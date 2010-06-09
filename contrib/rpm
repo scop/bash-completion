@@ -7,12 +7,15 @@ _rpm_installed_packages()
 {
     local nodig="$1" nosig="$2"
 
-    if [ -r /var/log/rpmpkgs -a \
-        /var/log/rpmpkgs -nt /var/lib/rpm/Packages ]; then
+    if [[ -r /var/log/rpmpkgs && \
+        /var/log/rpmpkgs -nt /var/lib/rpm/Packages ]]; then
         # using RHL 7.2 or later - this is quicker than querying the DB
-        COMPREPLY=( $( sed -ne \
-            's|^\('$cur'[^[:space:]]*\)-[^[:space:]-]\+-[^[:space:]-]\+\.rpm$|\1|p' \
-            /var/log/rpmpkgs ) )
+        COMPREPLY=( $( compgen -W "$( sed -ne \
+            's|^\([^[:space:]]\{1,\}\)-[^[:space:]-]\{1,\}-[^[:space:]-]\{1,\}\.rpm$|\1|p' \
+            /var/log/rpmpkgs )" -- "$cur" ) )
+    elif type rpmqpack &>/dev/null ; then
+        # SUSE's rpmqpack is faster than rpm -qa
+        COMPREPLY=( $( compgen -W '$( rpmqpack )' -- "$cur" ) )
     else
         _rpm_nodigsig
         COMPREPLY=( $( rpm -qa $nodig $nosig --qf='%{NAME} ' "$cur*" ) )
@@ -30,7 +33,7 @@ _rpm_groups()
 
 _rpm_nodigsig()
 {
-    if [ -z "$nodig" -a -z "$nosig" ]; then
+    if [[ -z "$nodig" && -z "$nosig" ]]; then
         local rpmver
 
         rpmver=$(rpm --version)
@@ -60,7 +63,7 @@ _rpm()
 
     if [ $COMP_CWORD -eq 1 ]; then
         # first parameter on line
-        case "$cur" in
+        case $cur in
             -b*)
                 COMPREPLY=( $( compgen -W '-ba -bb -bc -bi -bl -bp -bs' \
                     -- "$cur" ) )
@@ -86,16 +89,16 @@ _rpm()
     return 0
     fi
 
-    case "$prev" in
-        --@(@(db|exclude)path|prefix|relocate|root))
+    case $prev in
+        --dbpath|--excludepath|--prefix|--relocate|--root)
             _filedir -d
             return 0
             ;;
         --eval|-E)
             # get a list of macros
-            COMPREPLY=( $( rpm --showrc | sed -ne \
-                's/^-\?[0-9]\+[:=][[:space:]]\+\('${cur#%}'[^[:space:](]*\).*/\1/p' ) )
-            COMPREPLY=( "${COMPREPLY[@]/#/%}" )
+            COMPREPLY=( $( compgen -W "$( rpm --showrc | sed -ne \
+                's/^-\{0,1\}[0-9]\{1,\}[:=][[:space:]]\{1,\}\([^[:space:](]\{3,\}\).*/%\1/p' )" \
+                -- "$cur" ) )
             return 0
             ;;
         --pipe)
@@ -136,7 +139,7 @@ _rpm()
             ;;
         --target)
             COMPREPLY=( $( compgen -W "$( command rpm --showrc | sed -ne \
-                's/^\s*compatible\s\+build\s\+archs\s*:\s*\(.*\)/\1/ p' )" \
+                's/^\s*compatible\s\s*build\s\s*archs\s*:\s*\(.*\)/\1/ p' )" \
                 -- "$cur" ) )
             return 0
             ;;
@@ -150,8 +153,8 @@ _rpm()
     opts="--define --eval --macros --nodigest --nosignature --rcfile \
         --quiet --pipe --verbose"
 
-    case "${COMP_WORDS[1]}" in
-        -@([iFU]*|-install|-freshen|-upgrade))
+    case ${COMP_WORDS[1]} in
+        -[iFU]*|--install|--freshen|--upgrade)
             if [[ "$cur" == -* ]]; then
                 COMPREPLY=( $( compgen -W "$opts --percent --force \
                 --test --replacepkgs --replacefiles --root \
@@ -165,7 +168,7 @@ _rpm()
                 _filedir 'rpm'
             fi
             ;;
-        -@(e|-erase))
+        -e|--erase)
             if [[ "$cur" == -* ]]; then
                 COMPREPLY=( $( compgen -W "$opts --allmatches \
                 --noscripts --notriggers --nodeps --test --repackage" \
@@ -174,7 +177,7 @@ _rpm()
                 _rpm_installed_packages "$nodig" "$nosig"
             fi
             ;;
-        -@(q*|-query))
+        -q*|--query)
             # options common to all query types
             opts="$opts --changelog --configfiles --conflicts --docfiles
                 --dump --enhances --filesbypkg --filecaps --fileclass
@@ -212,7 +215,7 @@ _rpm()
                 fi
             fi
             ;;
-        -@(K*|-checksig))
+        -K*|--checksig)
             if [[ "$cur" == -* ]]; then
                 COMPREPLY=( $( compgen -W "$opts --nopgp --nogpg --nomd5" \
                     -- "$cur" ) )
@@ -220,7 +223,7 @@ _rpm()
                 _filedir 'rpm'
             fi
             ;;
-        -@([Vy]*|-verify))
+        -[Vy]*|--verify)
             if [[ "$cur" == -* ]]; then
                 COMPREPLY=( $( compgen -W "$opts --root --dbpath --nodeps \
                     --nogroup --nolinkto --nomode --nomtime --nordev --nouser \
@@ -248,7 +251,7 @@ _rpm()
                 _filedir '@(t?(ar.)@([gx]z|bz?(2))|tar.@(lzma|Z))'
             fi
             ;;
-        --re@(build|compile))
+        --rebuild|--recompile)
             if [[ "$cur" == -* ]]; then
                 COMPREPLY=( $( compgen -W "$opts --nodeps --rmsource \
                   --rmspec --sign --nodirtokens --target" -- "$cur" ) )
@@ -259,13 +262,13 @@ _rpm()
         --tarbuild)
             _filedir '@(t?(ar.)@([gx]z|bz?(2))|tar.@(lzma|Z))'
             ;;
-        --@(re|add)sign)
+        --resign|--addsign)
             _filedir 'rpm'
             ;;
-        --set@(perms|gids))
+        --setperms|--setgids)
             _rpm_installed_packages "$nodig" "$nosig"
             ;;
-        --@(clean|rms@(ource|pec)))
+        --clean|--rmsource|--rmspec)
             if [[ "$cur" == -* ]]; then
                 COMPREPLY=( $( compgen -W '--clean --rmsource --rmspec' \
                     -- "$cur" ) )
@@ -273,7 +276,7 @@ _rpm()
                 _filedir 'spec'
             fi
             ;;
-        --@(import|dbpath|root))
+        --import|--dbpath|--root)
             if [[ "$cur" == -* ]]; then
             COMPREPLY=( $( compgen -W '--import --dbpath --root' \
                     -- "$cur" ) )
@@ -285,7 +288,7 @@ _rpm()
 
     return 0
 }
-complete -F _rpm $filenames rpm rpmbuild
+complete -F _rpm -o filenames rpm rpmbuild
 }
 
 # Local variables:

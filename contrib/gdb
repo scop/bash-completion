@@ -20,7 +20,8 @@ _gdb()
             # functions and aliases. Thus we need to retrieve the program
             # names manually.
             IFS=":"
-            local path_array=( $(echo "$PATH" | sed 's/::\+/:/g;s/^:\|:$//g') )
+            local path_array=( $( \
+                sed -e 's/:\{2,\}/:/g' -e 's/^://' -e 's/:$//' <<<"$PATH" ) )
             IFS=$'\n'
             COMPREPLY=( $( compgen -d -W '$(find "${path_array[@]}" . \
                 -mindepth 1 -maxdepth 1 -not -type d -executable \
@@ -32,7 +33,7 @@ _gdb()
             awk '{if ($1 ~ /^'"$prev"'/) print $2}' )" -- "$cur" ) )
     fi
 } &&
-complete -F _gdb $default gdb
+complete -F _gdb -o default gdb
 
 # Local variables:
 # mode: shell-script

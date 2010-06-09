@@ -13,13 +13,13 @@ _tar()
         return 0
     fi
 
-    case "${COMP_WORDS[1]}" in
+    case ${COMP_WORDS[1]} in
     ?(-)[cr]*f)
         _filedir
         return 0
         ;;
     +([^IZzJjy])f)
-        ext='t@(ar?(.@(Z|gz|bz?(2)|lz?(ma)))|gz|bz?(2)|lz?(ma))'
+        ext='t@(ar?(.@(Z|gz|bz?(2)|lz?(ma)|xz))|gz|bz?(2)|lz?(ma)|xz)'
         regex='t\(ar\(\.\(Z\|gz\|bz2\?\|lzma\|xz\)\)\?\|gz\|bz2\?\|lzma\|xz\)'
         ;;
     *[Zz]*f)
@@ -45,11 +45,11 @@ _tar()
         # complete on files in tar file
         #
         # get name of tar file from command line
-        tar=$( echo "$COMP_LINE" | sed -e 's/^.* \([^ ]*'$regex'\) .*$/\1/' )
+        tar=$( sed -e 's/^.* \([^ ]*'$regex'\) .*$/\1/' <<<"$COMP_LINE" )
         # devise how to untar and list it
         untar=t${COMP_WORDS[1]//[^Izjyf]/}
 
-        COMPREPLY=( $( compgen -W "$( echo $( tar $untar $tar \
+        COMPREPLY=( $( compgen -W "$( printf '%s ' $( tar $untar $tar \
             2>/dev/null ) )" -- "$cur" ) )
         return 0
     fi
@@ -59,8 +59,8 @@ _tar()
 
     return 0
 }
-[ -n "${COMP_TAR_INTERNAL_PATHS:-}" ] && complete -F _tar $dirnames tar ||
-    complete -F _tar $filenames tar
+[ -n "${COMP_TAR_INTERNAL_PATHS:-}" ] && complete -F _tar -o dirnames tar ||
+    complete -F _tar -o filenames tar
 }
 
 # Local variables:

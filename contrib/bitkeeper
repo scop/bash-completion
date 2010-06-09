@@ -2,17 +2,18 @@
 
 have bk &&
 _bk() {
-	local BKCMDS
+    local BKCMDS
 
-	COMPREPLY=()
-	cur=`_get_cword`
+    COMPREPLY=()
+    cur=`_get_cword`
 
-	BKCMDS="$( bk help topics | grep '^  bk' | cut -d ' ' -f 4 | xargs echo )"
+    BKCMDS="$( bk help topics | awk '/^  bk/ { print $4 }' | \
+        xargs printf '%s ' )"
 
-	COMPREPLY=( $( compgen -W "$BKCMDS" -- "$cur" ) )
-	_filedir
+    COMPREPLY=( $( compgen -W "$BKCMDS" -- "$cur" ) )
+    _filedir
 
-	return 0
+    return 0
 } &&
 complete -F _bk bk
 

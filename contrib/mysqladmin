@@ -3,31 +3,65 @@
 have mysqladmin &&
 _mysqladmin()
 {
-    local cur prev
+    local cur prev split=false
 
     COMPREPLY=()
     cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
-    case "$prev" in
-    -u)
-        COMPREPLY=( $( compgen -u -- "$cur" ) )
-        return 0
-        ;;
-    *)
-        ;;
+    _split_longopt && split=true
+
+    case $prev in
+        -u|--user)
+            COMPREPLY=( $( compgen -u -- "$cur" ) )
+            return 0
+            ;;
+        -h|--host)
+            _known_hosts_real "$cur"
+            return 0
+            ;;
+        --character-sets-dir|--ssl-capath)
+            _filedir -d
+            return 0
+            ;;
+        -S|--socket)
+            _filedir sock
+            return 0
+            ;;
+        --defaults-file|--defaults-extra-file)
+            _filedir
+            return 0
+            ;;
+        -c|--count|--default-character-set|-P|--port|-O|--set-variable|\
+        -i|--sleep|--ssl-ca|--ssl-cert|--ssl-cipher|--ssl-key|-w|--wait|\
+        --connect_timeout|--shutdown_timeout)
+            # Argument required but no completions available
+            return 0
+            ;;
+        '-?'|--help|-V|--version)
+            # All other options are noop with these
+            return 0
+            ;;
     esac
 
-    COMPREPLY=( $( compgen -W '-# -f -? -C -h -p -P -i -r -E -s -S -t -u \
-        -v -V -w' -- "$cur" ) )
+    $split && return 0
+
+    COMPREPLY=( $( compgen -W '--count --debug-check --debug-info --force \
+        --compress --character-sets-dir --default-character-set --help --host \
+        --no-beep --password --port --protocol --relative --set-variable \
+        --silent --socket --sleep --ssl --ssl-ca --ssl-capath --ssl-cert \
+        --ssl-cipher --ssl-key --ssl-verify-server-cert --user --verbose \
+        --version --vertical --wait --connect_timeout --shutdown_timeout \
+        --print-defaults --no-defaults --defaults-file --defaults-extra-file' \
+        -- "$cur" ) )
 
     COMPREPLY=( "${COMPREPLY[@]}" \
-        $( compgen -W 'create drop extended-status flush-hosts flush-logs \
-        flush-status flush-tables flush-threads flush-privileges kill \
-        password ping processlist reload refresh shutdown status variables \
-        version' -- "$cur" ) )
+        $( compgen -W 'create debug drop extended-status flush-hosts \
+        flush-logs flush-status flush-tables flush-threads flush-privileges \
+        kill password old-password ping processlist reload refresh shutdown \
+        status start-slave stop-slave variables version' -- "$cur" ) )
 } &&
-complete -F _mysqladmin mysqladmin
+complete -F _mysqladmin -o filenames mysqladmin
 
 # Local variables:
 # mode: shell-script

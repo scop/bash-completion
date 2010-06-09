@@ -1,20 +1,20 @@
 # bash completion for munin node
 
 have munin-run &&
-_munin-run()
+_munin_run()
 {
     local cur prev
 
     COMPREPLY=()
     cur=`_get_cword`
-    prev=${COMP_WORDS[COMP_CWORD-1]}
+    prev=`_get_pword`
 
     case $prev in
-        --@(config|sconffile))
+        --config|--sconffile)
             _filedir
             return 0
             ;;
-        --@(service|sconf)dir)
+        --servicedir|--sconfdir)
             _filedir -d
             return 0
             ;;
@@ -28,16 +28,30 @@ _munin-run()
             -- "$cur" ) )
     fi
 } &&
-complete -F _munin-run munin-run
+complete -F _munin_run munin-run
 
-have munin-update &&
-_munin-update()
+have munindoc &&
+_munindoc()
 {
     local cur prev
 
     COMPREPLY=()
     cur=`_get_cword`
-    prev=${COMP_WORDS[COMP_CWORD-1]}
+    prev=`_get_pword`
+
+    COMPREPLY=( $( compgen -W '$( command ls /usr/share/munin/plugins )' \
+        -- "$cur" ) )
+} &&
+complete -F _munindoc munindoc
+
+have munin-update &&
+_munin_update()
+{
+    local cur prev
+
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=`_get_pword`
 
     case $prev in
         --config)
@@ -56,23 +70,23 @@ _munin-update()
             --fork --nofork --stdout --nostdout --timeout' -- "$cur" ) )
     fi
 } &&
-complete -F _munin-update munin-update
+complete -F _munin_update munin-update
 
 have munin-node-configure &&
-_munin-node-configure()
+_munin_node_configure()
 {
     local cur prev
 
     COMPREPLY=()
     cur=`_get_cword`
-    prev=${COMP_WORDS[COMP_CWORD-1]}
+    prev=`_get_pword`
 
     case $prev in
         --config)
             _filedir
             return 0
             ;;
-        --@(service|lib)dir)
+        --servicedir|--libdir)
             _filedir -d
             return 0
             ;;
@@ -92,7 +106,7 @@ _munin-node-configure()
             --remove-also --snmp --snmpversion --snmpcommunity' -- "$cur" ) )
     fi
 } &&
-complete -F _munin-node-configure munin-node-configure
+complete -F _munin_node_configure munin-node-configure
 
 # Local variables:
 # mode: shell-script

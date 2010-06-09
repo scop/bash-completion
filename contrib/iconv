@@ -3,28 +3,42 @@
 have iconv &&
 _iconv()
 {
-    local cur prev
+    local cur prev split=false
 
     COMPREPLY=()
     cur=`_get_cword`
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
-    case "$prev" in
-        -@(f|t|-@(from|to)-code))
-            COMPREPLY=( $( compgen -W \
-                '$( iconv --list | sed -e "s@//@@;" )' -- "$cur" ) )
+    _split_longopt && split=true
+
+    case $prev in
+        -'?'|--help|--usage|-V|--version|--unicode-subst|--byte-subst|\
+        --widechar-subst)
+            return 0
+            ;;
+        -f|--from-code|-t|--to-code)
+            COMPREPLY=( $( compgen -W '$( iconv -l | \
+                sed -e "s@/*\$@@" -e "s/[,()]//g" )' -- "$cur" ) )
+            return 0
+            ;;
+        -o|--output)
+            _filedir
             return 0
             ;;
     esac
 
+    $split && return 0
 
     if [[ "$cur" = -* ]]; then
-        COMPREPLY=( $( compgen -W '--from-code -f --to-code -t --list
-            --output -o --verbose' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--from-code --to-code --list -c
+            --unicode-subst --byte-subst --widechar-subst --output --silent
+            --verbose --help --usage --version' -- "$cur" ) )
         return 0
     fi
 } &&
-complete -F _iconv $default iconv
+complete -F _iconv -o default iconv
+# Intentionally not -o filenames here, -f/-t completions may contain slashes
+# and -o filenames would break them.
 
 # Local variables:
 # mode: shell-script
