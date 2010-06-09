@@ -25,6 +25,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/cksfv \
 		contrib/clisp \
 		contrib/configure \
+		contrib/coreutils \
 		contrib/cowsay \
 		contrib/cpan2dist \
 		contrib/cpio \
