@@ -128,6 +128,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/samba \
 		contrib/sbcl \
 		contrib/screen \
+		contrib/service \
 		contrib/shadow \
 		contrib/sitecopy \
 		contrib/smartctl \

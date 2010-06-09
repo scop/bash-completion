@@ -1082,42 +1082,6 @@ _dvd_devices()
     patch configure build install reinstall deinstall clean clean-depends \
     kernel buildworld' make
 
-# This completes on a list of all available service scripts for the
-# 'service' command and/or the SysV init.d directory, followed by
-# that script's available commands
-#
-{ have service || [ -d /etc/init.d/ ]; } &&
-_service()
-{
-    local cur prev sysvdir
-
-    COMPREPLY=()
-    prev=${COMP_WORDS[COMP_CWORD-1]}
-    cur=`_get_cword`
-
-    # don't complete for things like killall, ssh and mysql if it's
-    # the standalone command, rather than the init script
-    [[ ${COMP_WORDS[0]} != @(*init.d/!(functions|~)|service) ]] && return 0
-
-    # don't complete past 2nd token
-    [ $COMP_CWORD -gt 2 ] && return 0
-
-    [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
-
-    if [[ $COMP_CWORD -eq 1 ]] && [[ $prev == "service" ]]; then
-        _services
-    else
-        COMPREPLY=( $( compgen -W '`sed -e "y/|/ /" \
-            -ne "s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p" \
-            $sysvdir/${prev##*/} 2>/dev/null`' -- "$cur" ) )
-    fi
-
-    return 0
-} &&
-complete -F _service service
-[ -d /etc/init.d/ ] && complete -F _service -o default \
-    $(for i in /etc/init.d/*; do printf '%s\n' ${i##*/}; done)
-
 
 # chown(1) completion
 #
