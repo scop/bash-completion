@@ -110,6 +110,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/postfix \
 		contrib/postgresql \
 		contrib/povray \
+		contrib/procps \
 		contrib/python \
 		contrib/qdbus \
 		contrib/qemu \
