@@ -55,6 +55,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/heimdal \
 		contrib/hping2 \
 		contrib/iconv \
+		contrib/ifupdown \
 		contrib/imagemagick \
 		contrib/info \
 		contrib/iptables \
