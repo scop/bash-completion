@@ -145,6 +145,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/unace \
 		contrib/unrar \
 		contrib/update-alternatives \
+		contrib/util-linux \
 		contrib/vncviewer \
 		contrib/vpnc \
 		contrib/wireless-tools \

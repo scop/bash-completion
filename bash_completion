@@ -1081,58 +1081,6 @@ _dvd_devices()
 [ $UNAME = FreeBSD ] && complete -W 'index search fetch fetch-list extract \
     patch configure build install reinstall deinstall clean clean-depends \
     kernel buildworld' make
-
-
-# renice(8) completion
-#
-_renice()
-{
-    local command cur curopt i
-
-    COMPREPLY=()
-    cur=`_get_cword`
-    command=$1
-
-    i=0
-    # walk back through command line and find last option
-    while [[ $i -le $COMP_CWORD && ${#COMPREPLY[@]} -eq 0 ]]; do
-        curopt=${COMP_WORDS[COMP_CWORD-$i]}
-        case "$curopt" in
-            -u)
-                COMPREPLY=( $( compgen -u -- "$cur" ) )
-                ;;
-            -g)
-                _pgids
-                ;;
-            -p|$command)
-                _pids
-                ;;
-        esac
-        i=$(( ++i ))
-    done
-}
-complete -F _renice renice
-
-
-# kill(1) completion
-#
-_kill()
-{
-    local cur
-
-    COMPREPLY=()
-    cur=`_get_cword`
-
-    if [[ $COMP_CWORD -eq 1 && "$cur" == -* ]]; then
-        # return list of available signals
-        _signals
-    else
-        # return list of available PIDs
-        _pids
-    fi
-}
-complete -F _kill kill
-
 # killall(1) (Linux and FreeBSD) and pkill(1) completion.
 #
 [[ $UNAME == Linux || $UNAME == FreeBSD ]] || have pkill &&
@@ -1647,22 +1595,6 @@ for i in env netstat seq uname units; do
     have $i && complete -F _longopt -o default $i
 done
 unset i
-
-# look(1) completion
-#
-have look &&
-_look()
-{
-    local cur
-
-    COMPREPLY=()
-    cur=`_get_cword`
-
-    if [ $COMP_CWORD = 1 ]; then
-        COMPREPLY=( $( compgen -W '$(look "$cur" 2>/dev/null)' -- "$cur" ) )
-    fi
-} &&
-complete -F _look -o default look
 
 _filedir_xspec()
 {
