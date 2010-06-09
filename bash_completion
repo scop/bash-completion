@@ -200,6 +200,83 @@ dequote()
 }
 
 
+# Assign variable one scope above the caller
+# Usage: local "$1" && _upvar $1 "value(s)"
+# Param: $1  Variable name to assign value to
+# Param: $*  Value(s) to assign.  If multiple values, an array is
+#            assigned, otherwise a single value is assigned.
+# NOTE: For assigning multiple variables, use '_upvars'.  Do NOT
+#       use multiple '_upvar' calls, since one '_upvar' call might
+#       reassign a variable to be used by another '_upvar' call.
+# See: http://fvue.nl/wiki/Bash:_Passing_variables_by_reference
+_upvar() {
+    if unset -v "$1"; then           # Unset & validate varname
+        if (( $# == 2 )); then
+            eval $1=\"\$2\"          # Return single value
+        else
+            eval $1=\(\"\${@:2}\"\)  # Return array
+        fi
+    fi
+}
+
+
+# Assign variables one scope above the caller
+# Usage: local varname [varname ...] && 
+#        _upvars [-v varname value] | [-aN varname [value ...]] ...
+# Available OPTIONS:
+#     -aN  Assign next N values to varname as array
+#     -v   Assign single value to varname
+# Return: 1 if error occurs
+_upvars() {
+    if ! (( $# )); then
+        echo "${FUNCNAME[0]}: usage: ${FUNCNAME[0]} [-v varname"\
+            "value] | [-aN varname [value ...]] ..." 1>&2
+        return 2
+    fi
+    while (( $# )); do
+        case $1 in
+            -a*)
+                # Error checking
+                [[ ${1#-a} ]] || { echo "bash: ${FUNCNAME[0]}: \`$1': missing"\
+                    "number specifier" 1>&2; return 1; }
+                printf %d "${1#-a}" &> /dev/null || { echo "bash:"\
+                    "${FUNCNAME[0]}: \`$1': invalid number specifier" 1>&2
+                    return 1; }
+                # Assign array of -aN elements
+                [[ "$2" ]] && unset -v "$2" && eval $2=\(\"\${@:3:${1#-a}}\"\) && 
+                shift $((${1#-a} + 2)) || { echo "bash: ${FUNCNAME[0]}:"\
+                    "\`$1${2+ }$2': missing argument(s)" 1>&2; return 1; }
+                ;;
+            -v)
+                # Assign single value
+                [[ "$2" ]] && unset -v "$2" && eval $2=\"\$3\" &&
+                shift 3 || { echo "bash: ${FUNCNAME[0]}: $1: missing"\
+                "argument(s)" 1>&2; return 1; }
+                ;;
+            --help) echo "\
+Usage: local varname [varname ...] &&
+   ${FUNCNAME[0]} [-v varname value] | [-aN varname [value ...]] ...
+Available OPTIONS:
+-aN VARNAME [value ...]   assign next N values to varname as array
+-v VARNAME value          assign single value to varname
+--help                    display this help and exit
+--version                 output version information and exit"
+                return 0 ;;
+            --version) echo "\
+${FUNCNAME[0]}-0.9.dev
+Copyright (C) 2010 Freddy Vulto
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law."
+                return 0 ;;
+            *)
+                echo "bash: ${FUNCNAME[0]}: $1: invalid option" 1>&2
+                return 1 ;;
+        esac
+    done
+}
+
+
 # Reassemble command line words, excluding specified characters from the
 # list of word completion separators (COMP_WORDBREAKS).
 # @param $1 chars  Characters out of $COMP_WORDBREAKS which should
@@ -263,30 +340,10 @@ __reassemble_comp_words_by_ref() {
 # @param $4 cur  Name of variable to return current word to complete to
 # @see ___get_cword_at_cursor_by_ref()
 __get_cword_at_cursor_by_ref() {
-    # NOTE: The call to the main function ___get_cword_at_cursor_by_ref() is
-    #       wrapped to make collisions with local variable names less likely.
-    local __words __cword __cur
-    ___get_cword_at_cursor_by_ref "$1" __words __cword __cur
-
-    eval $2=\( \"\${__words[@]}\" \)
-    eval $3=\$__cword
-    eval $4=\$__cur
-}
-
-
-# @param $1 exclude
-# @param $2 words  Name of variable to return words to
-# @param $3 cword  Name of variable to return cword to
-# @param $4 cur  Name of variable to return current word to complete to
-# @note  Do not call this function directly but call 
-#     `__get_cword_at_cursor_by_ref()' instead to make variable name collisions
-#     less likely
-# @see __get_cword_at_cursor_by_ref()
-___get_cword_at_cursor_by_ref() {
-    local cword words
+    local cword words=()
     __reassemble_comp_words_by_ref "$1" words cword
 
-    local i
+    local i cur2
     local cur="$COMP_LINE"
     local index="$COMP_POINT"
     for (( i = 0; i <= cword; ++i )); do
@@ -314,13 +371,13 @@ ___get_cword_at_cursor_by_ref() {
 
     if [[ "${words[cword]:0:${#cur}}" != "$cur" ]]; then
         # We messed up. At least return the whole word so things keep working
-        eval $4=\"\${words[cword]}\"
+        cur2=${words[cword]}
     else
-        eval $4=\"\${cur:0:\$index}\"
+        cur2=${cur:0:$index}
     fi
 
-    eval $2=\( \"\${words[@]}\" \)
-    eval $3=\$cword
+    local "$2" "$3" "$4" && 
+        _upvars -a${#words[@]} $2 "${words[@]}" -v $3 "$cword" -v $4 "$cur2"
 }
 
 
@@ -332,10 +389,10 @@ ___get_cword_at_cursor_by_ref() {
 # Also one is able to cross over possible wordbreak characters.
 # Usage: _get_comp_words_by_ref [OPTIONS] [VARNAMES]
 # Available VARNAMES:
-#     cur         Return cur within varname "cur"
-#     prev        Return prev within varname "prev"
-#     words       Return words within varname "words"
-#     cword       Return cword within varname "cword"
+#     cur         Return cur via $cur
+#     prev        Return prev via $prev
+#     words       Return words via $words
+#     cword       Return cword via $cword
 #
 # Available OPTIONS:
 #     -n EXCLUDE  Characters out of $COMP_WORDBREAKS which should NOT be 
@@ -344,81 +401,52 @@ ___get_cword_at_cursor_by_ref() {
 #                 would pass the colon (:) as -n option in this case.  Bash-3
 #                 doesn't do word splitting, so this ensures we get the same
 #                 word on both bash-3 and bash-4.
-#     -c VARNAME  Return cur within specified VARNAME
-#     -p VARNAME  Return prev within specified VARNAME
-#     -w VARNAME  Return words within specified VARNAME
-#     -i VARNAME  Return cword within specified VARNAME
+#     -c VARNAME  Return cur via $VARNAME
+#     -p VARNAME  Return prev via $VARNAME
+#     -w VARNAME  Return words via $VARNAME
+#     -i VARNAME  Return cword via $VARNAME
 #
 # Example usage:
 #
 #    $ _get_comp_words_by_ref -n : cur prev
 #
-# @see __get_comp_words_by_ref
-_get_comp_words_by_ref() {
-    # NOTE: The call to the main function __get_comp_words_by_ref() is wrapped
-    #       to make collisions with local variable names less likely.
-    local __words __cword __cur
-    local __var_cur __var_prev __var_words __var_cword
-
-    __get_comp_words_by_ref \
-        __words __cword __cur \
-        __var_cur __var_prev __var_words __var_cword "$@"
-
-    [[ $__var_cur ]] && eval $__var_cur=\$__cur
-    [[ $__var_prev ]] && ((__cword)) && eval $__var_prev=\${__words[__cword - 1]}
-    [[ $__var_words ]] && eval $__var_words=\${__words[@]}
-    [[ $__var_cword ]] && eval $__var_cword=\$__cword
-    return 0
-}
-
-
-# @param $1 words      Name of variable to return words to
-# @param $2 cword      Name of variable to return cword to
-# @param $3 cur        Name of variable to return current word to complete to
-# @param $4 var_cur    Name of variable to return current word to complete to
-# @param $5 var_prev   Name of variable to return previous word to complete to
-# @param $6 var_words  Name of variable to return words to complete to
-# @param $7 var_cword  Name of variable to return index of words to complete to
-# @param $@  Arguments to _get_comp_words_by_ref()
-# @note  Do not call this function directly but call `_get_comp_words_by_ref()'
-#     instead to make variable name collisions less likely
-#
-# @see _get_comp_words_by_ref()
-__get_comp_words_by_ref()
+_get_comp_words_by_ref()
 {
-    local exclude flag i OPTIND=8  # Skip first seven arguments
-    local cword words cur
-    local var_cur var_cword var_prev var_words
+    local exclude flag i OPTIND=1
+    local cur cword words=()
+    local upargs=() upvars=() vcur vcword vprev vwords
 
     while getopts "c:i:n:p:w:" flag "$@"; do
         case $flag in
-            c) var_cur=$OPTARG ;;
-            i) var_cword=$OPTARG ;;
+            c) vcur=$OPTARG ;;
+            i) vcword=$OPTARG ;;
             n) exclude=$OPTARG ;;
-            p) var_prev=$OPTARG ;;
-            w) var_words=$OPTARG ;;
+            p) vprev=$OPTARG ;;
+            w) vwords=$OPTARG ;;
         esac
     done
     while [[ $# -ge $OPTIND ]]; do 
         case ${!OPTIND} in
-            cur)   var_cur=cur ;;
-            prev)  var_prev=prev ;;
-            cword) var_cword=cword ;;
-            words) var_words=words ;;
-            *) echo "error: $FUNCNAME(): unknown argument: ${!OPTIND}"
+            cur)   vcur=cur ;;
+            prev)  vprev=prev ;;
+            cword) vcword=cword ;;
+            words) vwords=words ;;
+            *) echo "bash: $FUNCNAME(): \`${!OPTIND}': unknown argument" \
+                1>&2; return 1
         esac
         let "OPTIND += 1"
     done
 
     __get_cword_at_cursor_by_ref "$exclude" words cword cur
 
-    eval $1=\( \"\${words[@]}\" \)
-    eval $2=\$cword
-    eval $3=\$cur
-    eval $4=\$var_cur
-    eval $5=\$var_prev
-    eval $6=\${var_words[@]}
-    eval $7=\$var_cword
+    [[ $vcur   ]] && { upvars+=("$vcur"  ); upargs+=(-v $vcur   "$cur"  ); }
+    [[ $vcword ]] && { upvars+=("$vcword"); upargs+=(-v $vcword "$cword"); }
+    [[ $vprev  ]] && { upvars+=("$vprev" ); upargs+=(-v $vprev 
+        "${words[cword - 1]}"); }
+    [[ $vwords ]] && { upvars+=("$vwords"); upargs+=(-a${#words[@]} $vwords
+        "${words[@]}"); }
+
+    (( ${#upvars[@]} )) && local "${upvars[@]}" && _upvars "${upargs[@]}"
 }
 
 
@@ -436,7 +464,8 @@ __get_comp_words_by_ref()
 #     current word (default is 0, previous is 1), respecting the exclusions
 #     given at $1.  For example, `_get_cword "=:" 1' returns the word left of
 #     the current word, respecting the exclusions "=:".
-#
+# @deprecated  Use `_get_comp_words_by_ref cur' instead
+# @see _get_comp_words_by_ref()
 _get_cword()
 {
     local cword words
@@ -489,7 +518,8 @@ _get_cword()
 # This is a good alternative to `prev=${COMP_WORDS[COMP_CWORD-1]}' because bash4
 # will properly return the previous word with respect to any given exclusions to
 # COMP_WORDBREAKS.
-# @see _get_cword()
+# @deprecated  Use `_get_comp_words_by_ref cur prev' instead
+# @see _get_comp_words_by_ref()
 #
 _get_pword() 
 {
@@ -797,7 +827,7 @@ __expand_tilde_by_ref() {
             #    becomes "~a".  Double quotes allow eval.
             # 2: Remove * before the first slash (/), i.e. "~a/b"
             #    becomes "b".  Single quotes prevent eval.
-            #       +-----1----+ +---2----+
+            #                          +-----1----+ +---2----+
             eval $1="${!1/%\/*}"/'${!1#*/}'
         else 
             # No, $1 doesn't contain slash
@@ -1593,7 +1623,7 @@ complete -F _known_hosts traceroute traceroute6 tracepath tracepath6 ping \
 #
 _cd()
 {
-    local IFS=$'\t\n' i j k
+    local cur IFS=$'\t\n' i j k
     _get_comp_words_by_ref cur
 
     # try to allow variable completion
