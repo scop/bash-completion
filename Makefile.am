@@ -153,6 +153,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/vpnc \
 		contrib/wireless-tools \
 		contrib/wodim \
+		contrib/wol \
 		contrib/wtf \
 		contrib/wvdial \
 		contrib/xhost \
