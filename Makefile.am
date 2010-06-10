@@ -25,6 +25,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/cksfv \
 		contrib/clisp \
 		contrib/configure \
+		contrib/coreutils \
 		contrib/cowsay \
 		contrib/cpan2dist \
 		contrib/cpio \
@@ -54,10 +55,12 @@ bashcomp_DATA = contrib/abook \
 		contrib/heimdal \
 		contrib/hping2 \
 		contrib/iconv \
+		contrib/ifupdown \
 		contrib/imagemagick \
 		contrib/info \
 		contrib/iptables \
 		contrib/ipmitool \
+		contrib/ipsec \
 		contrib/ipv6calc \
 		contrib/isql \
 		contrib/jar \
@@ -109,6 +112,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/postfix \
 		contrib/postgresql \
 		contrib/povray \
+		contrib/procps \
 		contrib/python \
 		contrib/qdbus \
 		contrib/qemu \
@@ -128,6 +132,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/samba \
 		contrib/sbcl \
 		contrib/screen \
+		contrib/service \
 		contrib/shadow \
 		contrib/sitecopy \
 		contrib/smartctl \
@@ -143,10 +148,12 @@ bashcomp_DATA = contrib/abook \
 		contrib/unace \
 		contrib/unrar \
 		contrib/update-alternatives \
+		contrib/util-linux \
 		contrib/vncviewer \
 		contrib/vpnc \
 		contrib/wireless-tools \
 		contrib/wodim \
+		contrib/wol \
 		contrib/wtf \
 		contrib/wvdial \
 		contrib/xhost \
