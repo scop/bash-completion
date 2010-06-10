@@ -8,8 +8,7 @@ _chown()
     local cur prev split=false
 
     # Get cur and prev words; but don't treat user:group as separate words.
-    cur=`_get_cword :`
-    prev=`_get_pword :`
+    _get_comp_words_by_ref -n : cur prev
 
     _split_longopt && split=true
 
@@ -59,9 +58,8 @@ _chgrp()
     local cur prev split=false
 
     COMPREPLY=()
-    cur=`_get_cword`
+    _get_comp_words_by_ref cur prev
     cur=${cur//\\\\/}
-    prev=${COMP_WORDS[COMP_CWORD-1]}
 
     _split_longopt && split=true
 
@@ -104,7 +102,7 @@ _id()
     local cur
 
     COMPREPLY=()
-    cur=`_get_cword`
+    _get_comp_words_by_ref cur
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '-a -g --group -G --groups -n --name\
