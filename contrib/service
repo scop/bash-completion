@@ -32,9 +32,10 @@ _service()
     return 0
 } &&
 complete -F _service service
-[ -d /etc/init.d/ ] && complete -F _service -o default \
-    $(for i in /etc/init.d/*; do
-    complete -p ${i##*/} &>/dev/null || printf '%s\n' ${i##*/}; done)
+[ -d /etc/init.d/ ] && (
+    services=$(for i in /etc/init.d/*; do
+        complete -p ${i##*/} &>/dev/null || printf '%s\n' ${i##*/}; done)
+    [ -n "$services" ] && complete -F _service -o default $services;)
 
 # Local variables:
 # mode: shell-script
