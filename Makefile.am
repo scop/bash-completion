@@ -29,6 +29,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/cowsay \
 		contrib/cpan2dist \
 		contrib/cpio \
+		contrib/crontab \
 		contrib/cups \
 		contrib/cryptsetup \
 		contrib/cvs \
