@@ -568,16 +568,32 @@ __ltrim_colon_completions() {
 #     $ compgen -f "a\\\\\'b/"  # Good (bash-3)
 #     a\'b/c
 #
-# See also: http://lists.gnu.org/archive/html/bug-bash/2009-03/msg00155.html
+# On bash-3, special characters need to be escaped extra.  This is
+# unless the first character is a single quote (').  If the single
+# quote appears further down the string, bash default completion also
+# fails, e.g.:
+#
+#     $ ls 'a&b/'
+#     f
+#     $ foo 'a&b/<TAB>  # Becomes: foo 'a&b/f'
+#     $ foo a'&b/<TAB>  # Nothing happens
+#
+# See also:
+# - http://lists.gnu.org/archive/html/bug-bash/2009-03/msg00155.html
+# - http://www.mail-archive.com/bash-completion-devel@lists.alioth.\
+#   debian.org/msg01944.html
 # @param $1  Argument to quote
 # @param $2  Name of variable to return result to
 _quote_readline_by_ref()
 {
     if [[ ${1:0:1} == "'" ]]; then
-        # Quote word, leaving out first character
-        printf -v $2 %q "${1:1}"
-        if [[ ${BASH_VERSINFO[0]} -le 3 ]]; then
-            # Double-quote word on bash-3
+        if [[ ${BASH_VERSINFO[0]} -ge 4 ]]; then
+            # Leave out first character
+            printf -v $2 %s "${1:1}"
+        else
+            # Quote word, leaving out first character
+            printf -v $2 %q "${1:1}"
+            # Double-quote word (bash-3)
             printf -v $2 %q ${!2}
         fi
     elif [[ ${BASH_VERSINFO[0]} -le 3 && ${1:0:1} == '"' ]]; then
@@ -621,27 +637,9 @@ _filedir()
         }
     ))
 
-    # On bash-3, special characters need to be escaped extra.  This is
-    # unless the first character is a single quote (').  If the single
-    # quote appears further down the string, bash default completion also
-    # fails, e.g.:
-    #
-    #     $ ls 'a&b/'
-    #     f
-    #     $ foo 'a&b/<TAB>  # Becomes: foo 'a&b/f'
-    #     $ foo a'&b/<TAB>  # Nothing happens
-    #
     if [[ "$1" != -d ]]; then
         xspec=${1:+"!*.$1"}
-        if [[ ${cur:0:1} == "'" && ${BASH_VERSINFO[0]} -ge 4 ]]; then
-            toks=( ${toks[@]-} $(
-                eval compgen -f -X \"\$xspec\" -- $quoted
-            ) )
-        else
-            toks=( ${toks[@]-} $(
-                compgen -f -X "$xspec" -- $quoted
-            ) )
-        fi
+        toks=( ${toks[@]-} $( compgen -f -X "$xspec" -- $quoted) )
         if [ ${#toks[@]} -ne 0 ]; then
             # If `compopt' is available, set `-o filenames'
             compopt &>/dev/null && compopt -o filenames ||
