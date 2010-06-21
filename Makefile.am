@@ -75,6 +75,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/links \
 		contrib/lintian \
 		contrib/lisp \
+		contrib/lrzip \
 		contrib/lvm \
 		contrib/lzma \
 		contrib/lzop \
