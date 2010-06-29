@@ -139,6 +139,7 @@ bashcomp_DATA = contrib/abook \
 		contrib/sitecopy \
 		contrib/smartctl \
 		contrib/snownews \
+		contrib/sqlite3 \
 		contrib/ssh \
 		contrib/sshfs \
 		contrib/strace \
