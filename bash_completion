@@ -618,7 +618,7 @@ _filedir()
 {
     local i IFS=$'\t\n' xspec
 
-    __expand_tilde_by_ref cur
+    _tilde "$cur" || return 0
 
     local -a toks
     local quoted tmp
@@ -803,7 +803,26 @@ _available_interfaces()
 }
 
 
+# Perform tilde (~) completion
+# @return  True (0) if completion needs further processing, 
+#          False (> 0) if tilde is followed by a valid username, completions
+#          are put in COMPREPLY and no further processing is necessary.
+_tilde() {
+    local result=0
+    # Does $1 start with tilde (~) and doesn't contain slash (/)?
+    if [[ ${1:0:1} == "~" && $1 == ${1//\/} ]]; then
+        # Try generate username completions
+        COMPREPLY=( $( compgen -P '~' -u "${1#\~}" ) )
+        result=${#COMPREPLY[@]}
+    fi
+    return $result
+}
+
+
 # Expand variable starting with tilde (~)
+# We want to expand ~foo/... to /home/foo/... to avoid problems when
+# word-to-complete starting with a tilde is fed to commands and ending up
+# quoted instead of expanded.
 # Only the first portion of the variable from the tilde up to the first slash
 # (~../) is expanded.  The remainder of the variable, containing for example
 # a dollar sign variable ($) or asterisk (*) is not expanded.
@@ -832,7 +851,7 @@ __expand_tilde_by_ref() {
             #    becomes "~a".  Double quotes allow eval.
             # 2: Remove * before the first slash (/), i.e. "~a/b"
             #    becomes "b".  Single quotes prevent eval.
-            #                          +-----1----+ +---2----+
+            #       +-----1----+ +---2----+
             eval $1="${!1/%\/*}"/'${!1#*/}'
         else 
             # No, $1 doesn't contain slash
