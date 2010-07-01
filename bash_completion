@@ -310,7 +310,7 @@ __reassemble_comp_words_by_ref() {
             ref="$2[$j]"
             eval $2[$j]=\${!ref}\${COMP_WORDS[i]}
             # Indicate new cword
-            [ $i = $COMP_CWORD ] && [[ ${COMP_WORDS[i]} ]] && eval $3=$j
+            [[ $i == $COMP_CWORD && ${COMP_WORDS[i]} ]] && eval $3=$j
         done
     else
         # No, list of word completions separators hasn't changed;
@@ -464,7 +464,7 @@ _get_cword()
     # return previous word offset by $2
     if [[ ${2//[^0-9]/} ]]; then
         printf "%s" "${words[cword-$2]}"
-    elif [[ "${#words[cword]}" -eq 0 ]] || [[ "$COMP_POINT" == "${#COMP_LINE}" ]]; then
+    elif [[ "${#words[cword]}" -eq 0 || "$COMP_POINT" == "${#COMP_LINE}" ]]; then
         printf "%s" "${words[cword]}"
     else
         local i
