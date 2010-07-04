@@ -1,11 +1,11 @@
 proc setup {} {
     save_env
-}; # setup()
+}
 
 
 proc teardown {} {
     assert_env_unmodified
-}; # teardown()
+}
 
 
 setup
@@ -13,7 +13,18 @@ setup
 
 if {[assert_exec {ls --help} "" "" "unsupported"]} {
     assert_complete_any "ls --"
-}; # if
+}
+
+
+sync_after_int
+
+
+set test "~part should complete to ~full"
+assert_bash_exec {compgen -u} {} /@ users
+find_unique_completion_pair $users part full
+# If home directory exists, append slash "/", else space " "
+set trail [expr {[llength [glob -nocomplain ~$full]] ? "/" : " "}]
+assert_complete "~$full$trail" "ls ~$part" $test
 
 
 sync_after_int

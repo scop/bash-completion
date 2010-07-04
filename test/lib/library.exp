@@ -22,7 +22,7 @@ proc assert_bash_exec {{aCmd ""} {title ""} {prompt /@} {out -1}} {
     if {[string length $aCmd] != 0} {
         send "$aCmd\r"
         expect -ex "$aCmd\r\n"
-    }; # if
+    }
     if {[string length $title] == 0} {set title $aCmd}
     expect -ex $prompt
     set results $expect_out(buffer);  # Catch output
@@ -35,9 +35,9 @@ proc assert_bash_exec {{aCmd ""} {title ""} {prompt /@} {out -1}} {
     if {$out == -1 && [string length $results] > 0} {
         if {[info exists multipass_name]} {
             fail "ERROR Unexpected output from bash command \"$title\""
-        }; # if
+        }
         send_user "ERROR Unexpected output from bash command \"$title\":\n$results"
-    }; # if
+    }
 
     set cmd "echo $?"
     send "$cmd\r"
@@ -46,11 +46,11 @@ proc assert_bash_exec {{aCmd ""} {title ""} {prompt /@} {out -1}} {
         $prompt {
             if {[info exists multipass_name]} {
                 fail "ERROR executing bash command \"$title\""
-            }; # if
+            }
             send_user "ERROR executing bash command \"$title\""
         }
-    }; # expect
-}; # assert_bash_exec()
+    }
+}
 
 
 # Test `type ...' in bash
@@ -64,10 +64,10 @@ proc assert_bash_type {command} {
     expect {
         -ex 0 { set result true }
         -ex 1 { set result false; unsupported "$test" }
-    }; # expect
+    }
     expect "/@"
     return $result
-}; # assert_bash_type()
+}
 
 
 # Make sure the expected list is returned by executing the specified command.
@@ -103,7 +103,7 @@ proc assert_bash_list_dir {expected cmd dir {test ""} {prompt /@} {size 20}} {
     assert_bash_list $expected $cmd $test $prompt $size
     sync_after_int $prompt
     assert_bash_exec {cd "$TESTDIR"}
-}; # assert_bash_list_dir()
+}
 
 
 # Make sure the expected items are returned by TAB-completing the specified
@@ -140,23 +140,23 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20} {cword ""} {f
                         # Assume last word of `$cmd' is word to complete on.
                     set index [expr [llength $words] - 1]
                     set cur [lindex $words $index]
-                }; # if
+                }
                     # Remove second word from beginning of single item $expected
                 if {[string first $cur $expected] == 0} {
                     set expected [list [string range $expected [string length $cur] end]]
-                }; # if
-            }; # if
+                }
+            }
         } else {
             expect -ex "$cmd\r\n"
             # Make sure expected items are unique
             set expected [lsort -unique $expected]
-        }; # if
+        }
 
         if {[lsearch -exact $filters "ltrim_colon_completions"] != -1} {
                 # If partial contains colon (:), remove partial from begin of items
                 # See also: bash_completion.__ltrim_colon_completions()
             _ltrim_colon_completions cword expected
-        }; # if
+        }
 
         if {[match_items $expected $test $prompt $size]} {
             if {[llength $expected] == 1} {
@@ -169,7 +169,7 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20} {cword ""} {f
                     set cmd2 $cmd
                 } else {
                     set cmd2 [_remove_cword_from_cmd $cmd $cword]
-                }; # if
+                }
 
                 # Determine common prefix of completions
                 set common [::textutil::string::longestCommonPrefixList $expected]
@@ -178,13 +178,13 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20} {cword ""} {f
                     -ex "$prompt$cmd2$common" { pass "$test" }
                     -re $prompt { unresolved "$test at prompt" }
                     -re eof { unresolved "eof" }
-                }; # expect
-            }; # if
+                }
+            }
         } else {
             fail "$test"
-        }; # if
-    }; # if
-}; # assert_complete()
+        }
+    }
+}
 
 
 # @param string $cmd  Command to remove cword from
@@ -203,7 +203,7 @@ proc _remove_cword_from_cmd {cmd {cword ""}} {
         # Remove $cword from end of $cmd
         if {[string last $cword $cmd] == [string length $cmd] - [string length $cword]} {
             set cmd2 [string range $cmd 0 [expr [string last $cword $cmd] - 1]]
-        }; # if
+        }
     } else {
         # No, $cword not specified;
         # Check if last argument is really an-argument-to-complete, i.e.
@@ -217,10 +217,10 @@ proc _remove_cword_from_cmd {cmd {cword ""}} {
             # Remove argument-to-complete from end of $cmd
             set cmd2 [lrange [split $cmd] 0 end-1]
             append cmd2 " "
-        }; # if
-    }; # if
+        }
+    }
     return $cmd2
-}; # _remove_cword_from_cmd()
+}
 
 
 # Escape regexp special characters
@@ -253,8 +253,8 @@ proc assert_complete_any {cmd {test ""} {prompt /@}} {
         }
         -re $prompt { unresolved "$test at prompt" }
         eof { unresolved "eof" }
-    }; # expect
-}; # assert_complete_any()
+    }
+}
 
 
 # Make sure the expected files are returned by TAB-completing the
@@ -273,7 +273,7 @@ proc assert_complete_dir {expected cmd dir {test ""} {size 20} {cword ""}} {
     assert_complete $expected $cmd $test $prompt $size $cword
     sync_after_int $prompt
     assert_bash_exec {cd "$TESTDIR"}
-}; # assert_complete_dir
+}
     
 
 
@@ -304,11 +304,11 @@ proc assert_complete_partial {expected cmd {partial ""} {test ""} {prompt /@} {s
                 # Only append item if starting with $partial
             if {[string range $item 0 [expr [string length $partial] - 1]] == "$partial"} {
                 lappend pick $item
-            }; # if
-        }; # foreach
+            }
+        }
         assert_complete $pick "$cmd $partial" $test $prompt $size $partial $filters
-    }; # if
-}; # assert_complete_partial()
+    }
+}
 
 
 # See also: bash_completion._ltrim_colon_completions
@@ -329,11 +329,11 @@ proc _ltrim_colon_completions {cword items} {
             if {[string first $cword_out $item] == 0} {
                 # Strip colon-prefix
                 lset items_out $i [string range $item [string length $cword_out] end]
-            }; # if
-        }; # for
+            }
+        }
         #set cword_out ""
-    }; # if
-}; # _ltrim_colon_completions()
+    }
+}
 
 
 # Make sure the bash environment hasn't changed between now and the last call
@@ -370,7 +370,7 @@ proc assert_env_unmodified {{sed ""} {file ""} {diff ""}} {
         append diff "\r\n"
     } else {
         set diff ""
-    }; # if
+    }
 
         # Execute diff
 
@@ -392,11 +392,11 @@ proc assert_env_unmodified {{sed ""} {file ""} {diff ""}} {
             # Remove possible `\r\n[wd]@' from end of diff
             if {[string last "\r\n[wd]@" $diff] == [string length $diff] - [string length "\r\n[wd]@"]} {
                 set diff [string range $diff 0 [expr [string last "\r\n[wd]@" $diff] - 1]]
-            }; # if
+            }
             send_user $diff;
         }
-    }; # expect
-}; # assert_env_unmodified()
+    }
+}
 
 
 # Make sure the specified command executed from within Tcl/Expect.
@@ -426,10 +426,10 @@ proc assert_exec {cmd {stdout ''} {test ''} {failcmd "unresolved"}} {
             unsupported "$test"
         } else {
             $failcmd "$test"
-        }; # if
-    }; # if
+        }
+    }
     return $result
-}; # assert_exec()
+}
 
 
 # Check that no completion is attempted on a certain command.
@@ -439,7 +439,7 @@ proc assert_exec {cmd {stdout ''} {test ''} {failcmd "unresolved"}} {
 proc assert_no_complete {{cmd} {test ""}} {
     if {[string length $test] == 0} {
         set test "$cmd shouldn't complete"
-    }; # if
+    }
 
     send "$cmd\t"
     expect -ex "$cmd"
@@ -451,8 +451,8 @@ proc assert_no_complete {{cmd} {test ""}} {
         -re "^$endguard$" { pass "$test" }
         default { fail "$test" }
         timeout { fail "$test" }
-    }; # expect
-}; # assert_no_complete()
+    }
+}
 
 
 # Check that no output is generated on a certain command.
@@ -510,7 +510,7 @@ proc get_known_hosts {{cword ''}} {
     assert_bash_exec "_known_hosts_real '$cword'; echo_array COMPREPLY" \
         {} /@ result
     return $result
-}; # get_known_hosts()
+}
 
 
 # Get hostnames
@@ -524,9 +524,9 @@ proc get_hosts {} {
     set avahi_hosts [get_hosts_avahi]
     if {[llength $avahi_hosts] > 0} {
         lappend hosts $avahi_hosts
-    }; # if
+    }
     return $hosts
-}; # get_hosts()
+}
 
 
 # Get hostnames according to avahi
@@ -540,9 +540,9 @@ proc get_hosts_avahi {} {
         # No, retrieving hosts yields error;
             # Reset hosts
         set hosts {}
-    }; # if
+    }
     return $hosts
-}; # get_hosts_avahi()
+}
 
 
 # Get signals
@@ -558,10 +558,10 @@ proc get_signals {} {
             set signal [string range $signal 3 end]
                 # Add signal (with dash (-) prefix) to list
             lappend signals -$signal
-        }; # if
-    }; # foreach
+        }
+    }
     return $signals
-}; # get_signals()
+}
 
 
 # Initialize tcl globals with bash variables
@@ -572,7 +572,7 @@ proc init_tcl_bash_globals {} {
     set BASH_VERSINFO [eval list $BASH_VERSINFO]
     assert_bash_exec {printf "%s" "$BASH_VERSION"} "" /@ BASH_VERSION
     assert_bash_exec {printf "%s" "$TESTDIR"} "" /@ TESTDIR
-}; # init_tcl_bash_globals()
+}
 
 
 # Check whether completion is installed for the specified command by executing
@@ -590,13 +590,13 @@ proc is_bash_completion_installed_for {command} {
     }
     expect "/@"
     return $result
-}; # is_bash_completion_installed_for()
+}
 
 
 # Detect if test suite is running under Cygwin/Windows
 proc is_cygwin {} {
     expr {[string first [string tolower [exec uname -s]] cygwin] >= 0}
-}; # is_cygwin()
+}
 
 
 # Expect items.
@@ -615,7 +615,7 @@ proc match_items {items test {prompt /@} {size 20}} {
             _escape_regexp_chars item
             append expected $item
             if {[llength $items] > 1} {append expected {\s+}};
-        }; # for
+        }
         if {[llength $items] == 1} {
             expect {
                 -re "^$expected\r\n$" { set result true }
@@ -625,17 +625,17 @@ proc match_items {items test {prompt /@} {size 20}} {
                 "\r\n" { set result false; break }
                 default { set result false; break }
                 timeout { set result false; break }
-            }; # expect
+            }
         } else {
             expect {
                 -re "^$expected" { set result true }
                 default { set result false; break }
                 timeout { set result false; break }
-            }; # expect
-        }; # if
-    }; # for
+            }
+        }
+    }
     return $result
-}; # match_items()
+}
 
 
 
@@ -651,10 +651,10 @@ proc realcommand {cmd} {
             set result [exec readlink -f $path]
         } else {
             set result $path
-        }; # if
-    }; # if
+        }
+    }
     return $result
-}; # realcommand()
+}
 
 
 # Generate filename to save environment to.
@@ -674,10 +674,10 @@ proc gen_env_filename {{file ""} {seq 1}} {
             # Remove possible '.exp' suffix from filename
         if {[string last ".exp" $file] == [string length $file] - [string length ".exp"]} {
             set file [string range $file 0 [expr [string last ".exp" $file] - 1]]
-        }; # if
-    }; # if
+        }
+    }
     return "\$TESTDIR/tmp/$file.env$seq~"
-}; # gen_env_filename()
+}
 
 
 # Save the environment for later comparison
@@ -685,7 +685,7 @@ proc gen_env_filename {{file ""} {seq 1}} {
 #                      `gen_env_filename()'.
 proc save_env {{file ""}} {
     _save_env [gen_env_filename $file 1]
-}; # save_env()
+}
 
 
 # Save the environment for later comparison
@@ -693,7 +693,7 @@ proc save_env {{file ""}} {
 # @see assert_env_unmodified()
 proc _save_env {{file ""}} {
     assert_bash_exec "{ set; declare -F; shopt -p; } > \"$file\""
-}; # _save_env()
+}
 
 
 # Source bash_completion package
@@ -702,7 +702,7 @@ proc source_bash_completion {} {
     assert_bash_exec {BASH_COMPLETION_COMPAT_DIR=$BASH_COMPLETION_DIR}
     assert_bash_exec {BASH_COMPLETION=$(cd "$TESTDIR/.."; pwd)/bash_completion}
     assert_bash_exec {source "$BASH_COMPLETION"}
-}; # source_bash_completion()
+}
 
 
 # Split line into words, disregarding backslash escapes (e.g. \b (backspace),
@@ -727,7 +727,7 @@ proc split_words_bash {line} {
             set part [string range $part 0 [expr [string length $part] - [string length "\\"] - 1]]
             # Indicate glue on next run
             set glue_next true
-        }; # if
+        }
         # Must `part' be appended to latest word (= glue)?
         if {[llength $words] > 0 && [string is true $glue]} {
             # Yes, join `part' to latest word;
@@ -738,11 +738,11 @@ proc split_words_bash {line} {
             # No, don't append word to latest word;
             # Append `part' as separate word
             lappend words $part
-        }; # if
+        }
         set glue $glue_next
-    }; # foreach
+    }
     return $words
-}; # split_words_bash()
+}
 
 
 # Given a list of items this proc finds a (part, full) pair so that when
@@ -826,7 +826,7 @@ proc start_bash {} {
     # for bash < 3.2.41.
     # -- FVu, Tue Sep 15 22:52:00 CEST 2009
     assert_bash_exec {is_bash_version_minimal 3 2 41 || set +o history}
-}; # start_bash()
+}
 
 
 # Redirect xtrace output to a file.
@@ -896,7 +896,7 @@ proc sync_after_tab {} {
         #       installed, so that "^$cdm.*$" doesn't match too early - before
         #       comp_install has finished
     sleep .4
-}; # sync_after_tab()
+}
 
 
 # Return current working directory with `TESTDIR' stripped
@@ -905,4 +905,4 @@ proc wd {} {
     global TESTDIR
         # Remove `$TESTDIR' prefix from current working directory
     set wd [string replace [pwd] 0 [expr [string length $TESTDIR] - 1]]/
-}; # wd()
+}

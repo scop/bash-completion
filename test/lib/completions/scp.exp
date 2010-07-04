@@ -1,6 +1,6 @@
 proc setup {} {
     save_env
-}; # setup()
+}
 
 
 proc teardown {} {
@@ -9,7 +9,7 @@ proc teardown {} {
         /BASH_SOURCE=/d
         /OLDPWD=/d
     }
-}; # teardown()
+}
 
 
 setup
@@ -31,7 +31,7 @@ if {
         #       in `$HOME/.ssh/config' or `/etc/ssh_config'
     set host_pwd ""
     unsupported $test
-}; # if
+}
 
 
     # Try completion
@@ -41,7 +41,7 @@ sync_after_tab
 expect {
     -re "^$cmd$host_pwd.*$" { pass "$test" }
     -re /@ { unresolved "$test at prompt" }
-}; # expect
+}
 
 
 sync_after_int
@@ -56,7 +56,7 @@ set test "Tab should complete known-hosts"
 set expected {}
 foreach host [get_hosts] {
     lappend expected "$host:"
-}; # foreach
+}
 lappend expected doo: gee: hus: ike:
     # Append local filenames
 lappend expected config known_hosts "spaced\\ \\ conf"
@@ -76,7 +76,7 @@ expect {
     -re "^$cmd\r\n.*\r\n/@" { pass "$test" }
     -re /@ { unresolved "$test at prompt" }
     default { unresolved "$test" }
-}; # expect
+}
 
 
 sync_after_int
@@ -88,7 +88,7 @@ set test "Config file containing space should work"
 set expected {}
 foreach host [get_hosts] {
     lappend expected "$host:"
-}; # foreach
+}
     # Hosts `gee', `hus' and `jar' are defined in "./fixtures/scp/spaced  conf"
     # Hosts `doo' and `ike' are defined in ./fixtures/scp/known_hosts
 lappend expected doo: gee: hus: ike: jar:
@@ -105,12 +105,12 @@ if {[match_items [lsort -unique $expected] $test]} {
     expect {
         -re $prompt { pass "$test" }
         -re eof { unresolved "eof" }
-    }; # expect
+    }
 } else {
     # Expected failure (known bug) because of bash-4 bug in quoted words:
     # http://www.mail-archive.com/bug-bash@gnu.org/msg06095.html
     if {[lindex $::BASH_VERSINFO 0] >= 4} {xfail "$test"} {fail "$test"}
-}; # if
+}
 sync_after_int $prompt
 assert_bash_exec {cd "$TESTDIR"}
 

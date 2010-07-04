@@ -1,0 +1,27 @@
+# Red Hat & Debian GNU/Linux if{up,down} completion
+#
+[ $USERLAND = GNU ] && { have ifup || have ifdown; } &&
+_ifupdown()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [ $COMP_CWORD -eq 1 ]; then
+        _configured_interfaces
+        COMPREPLY=( $(compgen -W '${COMPREPLY[@]}' -- "$cur") )
+    fi
+
+    return 0
+} &&
+complete -F _ifupdown ifup ifdown
+[ $USERLAND = GNU ] && have ifstatus && complete -F _ifupdown ifstatus
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

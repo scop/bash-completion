@@ -1,0 +1,122 @@
+# Completions for various core utilities
+
+# chown(1) completion
+#
+have chown &&
+_chown()
+{
+    local cur prev split=false
+
+    # Get cur and prev words; but don't treat user:group as separate words.
+    _get_comp_words_by_ref -n : cur prev
+
+    _split_longopt && split=true
+
+    case "$prev" in
+        --from)
+            _usergroup
+            return 0
+            ;;
+        --reference)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        # Complete -options
+        local w opts
+        for w in "${COMP_WORDS[@]}" ; do
+            [[ "$w" == -@(R|-recursive) ]] && opts="-H -L -P" && break
+        done
+        COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes --dereference \
+            --no-dereference --from --silent --quiet --reference --recursive \
+            --verbose --help --version $opts' -- "$cur" ) )
+    else
+        local args
+
+        # The first argument is an usergroup; the rest are filedir.
+        _count_args :
+
+        if [[ $args == 1 ]]; then
+            _usergroup
+        else
+            _filedir
+        fi
+    fi
+} &&
+complete -F _chown -o filenames chown
+
+
+# chgrp(1) completion
+#
+have chgrp &&
+_chgrp()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+    cur=${cur//\\\\/}
+
+    _split_longopt && split=true
+
+    if [[ "$prev" == --reference ]]; then
+        _filedir
+        return 0
+    fi
+
+    $split && return 0
+
+    # options completion
+    if [[ "$cur" == -* ]]; then
+        local w opts
+        for w in "${COMP_WORDS[@]}" ; do
+            [[ "$w" == -@(R|-recursive) ]] && opts="-H -L -P" && break
+        done
+        COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes --dereference \
+            --no-dereference --silent --quiet --reference --recursive \
+            --verbose --help --version $opts' -- "$cur" ) )
+        return 0
+    fi
+
+    # first parameter on line or first since an option?
+    if [[ $COMP_CWORD -eq 1 && "$cur" != -* || "$prev" == -* ]]; then
+        local IFS=$'\n'
+        COMPREPLY=( $( compgen -g "$cur" 2>/dev/null ) )
+    else
+        _filedir || return 0
+    fi
+
+    return 0
+} &&
+complete -F _chgrp -o filenames chgrp
+
+# id(1) completion
+#
+have id &&
+_id()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-a -g --group -G --groups -n --name\
+            -r --real -u --user --help --version' -- "$cur" ) )
+    else
+        COMPREPLY=( $( compgen -u "$cur" ) )
+    fi
+} &&
+complete -F _id id
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

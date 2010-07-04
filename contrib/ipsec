@@ -1,0 +1,51 @@
+# Linux ipsec(8) completion (for FreeS/WAN)
+#
+[ $UNAME = Linux ] && have ipsec &&
+_ipsec()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+
+    if [ $COMP_CWORD -eq 1 ]; then
+        COMPREPLY=( $( compgen -W 'auto barf eroute klipsdebug look manual \
+            pluto ranbits rsasigkey setup showdefaults showhostkey spi spigrp \
+            tncfg whack' -- "$cur" ) )
+        return 0
+    fi
+
+    case ${COMP_WORDS[1]} in
+        auto)
+            COMPREPLY=( $( compgen -W '--asynchronous --up --add --delete \
+                --replace --down --route --unroute \
+                --ready --status --rereadsecrets' \
+                -- "$cur" ) )
+            ;;
+        manual)
+            COMPREPLY=( $( compgen -W '--up --down --route --unroute \
+                --union' -- "$cur" ) )
+            ;;
+        ranbits)
+            COMPREPLY=( $( compgen -W '--quick --continuous --bytes' \
+                -- "$cur" ) )
+            ;;
+        setup)
+            COMPREPLY=( $( compgen -W '--start --stop --restart' -- "$cur" ) )
+            ;;
+        *)
+            ;;
+    esac
+
+    return 0
+} &&
+complete -F _ipsec ipsec
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

@@ -1,0 +1,49 @@
+# Completions for tools included in procps and related
+
+# killall(1) (Linux and FreeBSD) and pkill(1) completion.
+#
+[[ $UNAME == Linux || $UNAME == FreeBSD ]] || have pkill &&
+_killall()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [[ $COMP_CWORD -eq 1 && "$cur" == -* ]]; then
+        _signals
+    else
+        _pnames
+    fi
+
+    return 0
+}
+[[ $UNAME == Linux || $UNAME == FreeBSD ]] && complete -F _killall killall
+have pkill && complete -F _killall pkill
+
+# pgrep(1) completion.
+#
+[ $UNAME = Linux ] || have pgrep &&
+_pgrep()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    _pnames
+
+    return 0
+}
+have pgrep && complete -F _pgrep pgrep
+
+# Linux pidof(8) completion.
+[ $UNAME = Linux ] && complete -F _pgrep pidof
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
