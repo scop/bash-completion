@@ -62,8 +62,11 @@ _slapt-get()
 
     case $t in
         all) # --install|-i|--show|--filelist
-            COMPREPLY=( $( slapt-get --search "^$cur" 2> /dev/null | \
-                awk '{print $1}' ) )
+            # slapt-get will fail to search for "^orc-0.4.4" for example
+            # it can only search for names, so we should anything else
+            local name=$( echo $cur | cut -f1 -d- )
+            COMPREPLY=( $( slapt-get --search "^$name" 2> /dev/null | \
+                awk '{print $1}' | grep "^$cur" ) )
             return 0
             ;;
         ins) # --remove
