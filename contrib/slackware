@@ -41,22 +41,39 @@ _slapt-get()
             # argument required but no completions available
             return 0
             ;;
-        --install|-i|--show|--filelist)
+    esac
+
+    local words t
+    _get_comp_words_by_ref words
+
+    # search for last action (--install|--install-set|--remove|--show|--filelist)
+    for (( i=${#words[@]}-1; i>0; i-- )); do
+        if [[ ${words[i]} == -@(i|-install|-show|-filelist) ]]; then
+            t="all"
+            break
+        elif [[ ${words[i]} == --install-set ]]; then
+            t="set"
+            break
+        elif [[ ${words[i]} == --remove ]]; then
+            t="ins"
+            break
+        fi
+    done
+
+    case $t in
+        all) # --install|-i|--show|--filelist
             COMPREPLY=( $( slapt-get --search "^$cur" 2> /dev/null | \
                 awk '{print $1}' ) )
             return 0
             ;;
-        --install-set)
+        ins) # --remove
+            COMPREPLY=( $( (cd /var/log/packages; compgen -f -- "$cur") ) )
+            return 0
+            ;;
+        set)
             COMPREPLY=( $( compgen -W 'a ap d e f k kde kdei l n t tcl x \
                 xap y' -- "$cur" ) )
             return 0
             ;;
-        --remove)
-            COMPREPLY=( $( (cd /var/log/packages; compgen -f -- "$cur") ) )
-            return 0
-            ;;
     esac
-
-    COMPREPLY=( $( slapt-get --search "^$cur" 2> /dev/null | \
-        awk '{print $1}' ) )
 } && complete -F _slapt-get slapt-get
