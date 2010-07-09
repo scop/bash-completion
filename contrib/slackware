@@ -48,20 +48,20 @@ _slapt-get()
 
     # search for last action (--install|--install-set|--remove|--show|--filelist)
     for (( i=${#words[@]}-1; i>0; i-- )); do
-        if [[ ${words[i]} == -@(i|-install|-show|-filelist) ]]; then
+        if [[ ${words[i]} == -@(i|-install|-show) ]]; then
             t="all"
             break
         elif [[ ${words[i]} == --install-set ]]; then
             t="set"
             break
-        elif [[ ${words[i]} == --remove ]]; then
+        elif [[ ${words[i]} == --@(remove|filelist) ]]; then
             t="ins"
             break
         fi
     done
 
     case $t in
-        all) # --install|-i|--show|--filelist
+        all) # --install|-i|--show
             # slapt-get will fail to search for "^orc-0.4.4" for example
             # it can only search for names, so we should anything else
             local name=$( echo $cur | cut -f1 -d- )
@@ -69,7 +69,7 @@ _slapt-get()
                 awk '{print $1}' | grep "^$cur" ) )
             return 0
             ;;
-        ins) # --remove
+        ins) # --remove|--filelist
             COMPREPLY=( $( (cd /var/log/packages; compgen -f -- "$cur") ) )
             return 0
             ;;
