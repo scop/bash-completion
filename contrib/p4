@@ -3,10 +3,10 @@
 have p4 &&
 _p4()
 {
-    local cur prev preprev p4commands p4filetypes
+    local cur prev words cword p4commands p4filetypes
 
     COMPREPLY=()
-    _get_comp_words_by_ref cur prev preprev
+    _get_comp_words_by_ref cur prev words cword
 
     # rename isn't really a command
     p4commands="$( p4 help commands | awk 'NF>3 {print $1}' )"
@@ -14,9 +14,9 @@ _p4()
         uresource uxbinary xbinary xltext xtempobj xtext \
         text binary resource"
 
-    if [ $COMP_CWORD -eq 1 ]; then
+    if [ $cword -eq 1 ]; then
         COMPREPLY=( $( compgen -W "$p4commands" -- "$cur" ) )
-    elif [ $COMP_CWORD -eq 2 ]; then
+    elif [ $cword -eq 2 ]; then
         case $prev in
             help)
                 COMPREPLY=( $( compgen -W "simple commands \
@@ -29,10 +29,10 @@ _p4()
             *)
                 ;;
         esac
-    elif [ $COMP_CWORD -gt 2 ]; then
+    elif [ $cword -gt 2 ]; then
         case $prev in
             -t)
-                case $preprev in
+                case ${words[$cword-2]} in
                     add|edit|reopen)
                         COMPREPLY=( $( compgen -W "$p4filetypes" -- "$cur") )
                         ;;
