@@ -1,0 +1,61 @@
+# bash completion for perl
+
+have perl &&
+{
+_perlmodules()
+{
+    COMPREPLY=( $( compgen -P "$prefix" -W "$( perl -e 'sub mods { my ($base,$dir)=@_; return if  $base !~ /^\Q$ENV{cur}/; chdir($dir) or return; for (glob(q[*.pm])) {s/\.pm$//; print qq[$base$_\n]}; mods(/^(?:[.\d]+|$Config{archname}-$Config{osname}|auto)$/ ? undef : qq[${base}${_}::],qq[$dir/$_]) for grep {-d} glob(q[*]); } mods(undef,$_) for @INC;' )" -- "$cur" ) )
+    __ltrim_colon_completions "$1"
+}
+
+_perl()
+{
+    local cur prev prefix temp
+    local optPrefix optSuffix
+
+    COMPREPLY=()
+    _get_comp_words_by_ref -n : cur prev
+    prefix=""
+
+    # If option not followed by whitespace, reassign prev and cur
+    if [[ "$cur" == -?* ]]; then
+        temp=$cur
+        prev=${temp:0:2}
+        cur=${temp:2}
+        optPrefix=-P$prev
+        optSuffix=-S/
+        prefix=$prev
+    fi
+
+    # only handle module completion for now
+    case $prev in
+        -I|-x)
+            local IFS=$'\t\n'
+            COMPREPLY=( $( compgen -d $optPrefix $optSuffix -- "$cur" ) )
+            return 0
+            ;;
+        -m|-M)
+            _perlmodules "$cur"
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-C -s -T -u -U -W -X -h -v -V -c -w -d \
+            -D -p -n -a -F -l -0 -I -m -M -P -S -x -i -e ' -- "$cur" ) )
+    else
+        _filedir
+    fi
+}
+complete -F _perl -o nospace -o filenames perl
+
+complete -C @helpersdir@/perldoc -o nospace -o default perldoc
+}
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
