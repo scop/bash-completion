@@ -1,4 +1,4 @@
-bashcomp_DATA = abook \
+static_bashcomp = abook \
 		ant \
 		apache2ctl \
 		apt \
@@ -99,7 +99,6 @@ bashcomp_DATA = abook \
 		openldap \
 		openssl \
 		p4 \
-		perl \
 		pine \
 		pkg-config \
 		pkg_install \
@@ -165,7 +164,14 @@ bashcomp_DATA = abook \
 		yp-tools \
 		yum-arch
 
-EXTRA_DIST = $(bashcomp_DATA) \
+generated_bashcomp = perl
+
+bashcomp_DATA = $(static_bashcomp) $(generated_bashcomp)
+
+perl: perl.in Makefile
+	sed -e 's|@helpersdir[@]|$(helpersdir)|' <$(srcdir)/$@.in >$@
+
+EXTRA_DIST = $(bashcomp_DATA) perl.in \
 	     _mock _modules _subversion _yum _yum-utils
 
 CLEANFILES = perl
