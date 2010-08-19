@@ -42,15 +42,14 @@ static_bashcomp = abook \
 		gcl \
 		gdb \
 		genisoimage \
-		getent \
 		gkrellm \
+		glibc \
 		gnatmake \
 		gpg \
 		gpg2 \
 		gzip \
 		heimdal \
 		hping2 \
-		iconv \
 		ifupdown \
 		imagemagick \
 		info \
