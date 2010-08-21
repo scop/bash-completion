@@ -1,18 +1,14 @@
-#TODO
-#	"nice -n xx" completion
-
 %def_disable tests
 
 Name: bash-completion
 Epoch: 1
 Version: 1.99
-Release: alt2
+Release: alt3
 
 Summary: bash-completion offers programmable completion for bash
 License: GPL2
 Group: Shells
 Url: http://%name.alioth.debian.org/
-# Old http://www.caliban.org/bash/
 
 Packager: Ildar Mulyukov <ildar@altlinux.ru>
 
@@ -20,7 +16,7 @@ Source: %name-%version.tar
 # git://git.debian.org/git/bash-completion/bash-completion.git
 Source1: rpm-cache.filetrigger
 Patch1: %name-20060301-alt-iptables.patch
-Patch2: %name-bug15250.patch
+Patch9: %name-alt-specific.patch
 Source2: mutt
 
 %if_enabled tests
@@ -35,13 +31,16 @@ bash-completion is a collection of shell functions that take advantage
 of the programmable completion feature of bash 2.04 and later.
 
 %prep
-%setup -q
+%setup
 %patch1 -p1
-%patch2 -p1
+%patch9 -p1
 
 %build
 ./autogen.sh
 %configure && make
+
+%check
+#FIXME
 %if_enabled tests
 	pushd test
 	./runCompletion
@@ -51,15 +50,15 @@ of the programmable completion feature of bash 2.04 and later.
 %endif
 
 %install
-%makeinstall
-install -p -m644 %SOURCE2 %buildroot%_sysconfdir/bash_completion.d/
-
+%makeinstall_std
 mv %buildroot%_sysconfdir/{profile.d,bashrc.d}
 mkdir -p %buildroot%_rpmlibdir
 install -p -m755 %SOURCE1 %buildroot%_rpmlibdir/
 
-#small regression fix
-echo "complete -F _known_hosts showmount" >> %buildroot%_sysconfdir/bash_completion.d/_alt.fixes
+#fixes
+install -p -m644 %SOURCE2 %buildroot%_sysconfdir/bash_completion.d/
+#one line fixes
+>> %buildroot%_sysconfdir/bash_completion.d/_alt.fixes
 
 %files
 %doc AUTHORS CHANGES README TODO doc/*.txt
@@ -67,8 +66,13 @@ echo "complete -F _known_hosts showmount" >> %buildroot%_sysconfdir/bash_complet
 %_sysconfdir/bash_completion.d
 %_sysconfdir/bashrc.d/bash_completion.sh
 %_rpmlibdir/*
+%_datadir/%name
 
 %changelog
+* Sun Aug 22 2010 Ildar Mulyukov <ildar@altlinux.ru> 1:1.99-alt3
+- new GIT version
+- bug fixes (closes: #22386, #22443, #23861)
+
 * Tue Dec 29 2009 Ildar Mulyukov <ildar@altlinux.ru> 1:1.99-alt2
 - new git version
 - %name-20050103-alt-rsync.patch pushed to upstream
