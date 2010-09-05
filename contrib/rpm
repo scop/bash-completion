@@ -142,7 +142,7 @@ _rpm()
                 -- "$cur" ) )
             return 0
             ;;
-        --define|-D)
+        --define|-D|--fileid|--hdrid|--pkgid)
             # argument required but no completions available
             return 0
             ;;
@@ -180,10 +180,9 @@ _rpm()
             # options common to all query types
             opts="$opts --changelog --configfiles --conflicts --docfiles
                 --dump --enhances --filesbypkg --filecaps --fileclass
-                --filecolor --fileprovide --filerequire --filesbypkg
-                --info --list --obsoletes --pipe --provides
-                --queryformat --rcfile --requires --scripts --suggests
-                --triggeredby --triggers --whatprovides --whatrequires --xml"
+                --filecolor --fileprovide --filerequire --filesbypkg --info
+                --list --obsoletes --pipe --provides --queryformat --rcfile
+                --requires --scripts --suggests --triggers --xml"
 
             if [[ $COMP_LINE == *\ -@(*([^ -])f|-file )* ]]; then
                 # -qf completion
@@ -200,15 +199,18 @@ _rpm()
                 # -qp; uninstalled package completion
                 if [[ "$cur" == -* ]]; then
                     COMPREPLY=( $( compgen -W "$opts --ftpport --ftpproxy \
-                        --httpport --httpproxy" -- "$cur" ) )
+                        --httpport --httpproxy --nomanifest" -- "$cur" ) )
                 else
                     _filedir 'rpm'
                 fi
             else
                 # -q; installed package completion
                 if [[ "$cur" == -* ]]; then
-                    COMPREPLY=( $( compgen -W "$opts --dbpath --fscontext \
-                        --last --root --state" -- "$cur" ) )
+                    COMPREPLY=( $( compgen -W "$opts --all --file --fileid
+                        --dbpath --fscontext --ftswalk --group --hdrid --last
+                        --package --pkgid --root --specfile --state 
+                        --triggeredby --whatprovides --whatrequires" \
+                            -- "$cur" ) )
                 elif [[ $COMP_LINE != *\ -@(*([^ -])a|-all )* ]]; then
                     _rpm_installed_packages "$nodig" "$nosig"
                 fi
