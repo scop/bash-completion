@@ -129,6 +129,7 @@ static_bashcomp = abook \
 		sbcl \
 		screen \
 		service \
+		sh \
 		shadow \
 		sitecopy \
 		smartctl \
