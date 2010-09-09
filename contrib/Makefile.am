@@ -51,6 +51,7 @@ static_bashcomp = abook \
 		heimdal \
 		hping2 \
 		iconv \
+		iftop \
 		ifupdown \
 		imagemagick \
 		info \
