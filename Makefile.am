@@ -1,4 +1,4 @@
-SUBDIRS = contrib helpers test
+SUBDIRS = completions helpers test
 
 sysconf_DATA = bash_completion
 
