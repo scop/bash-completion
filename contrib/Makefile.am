@@ -37,6 +37,7 @@ static_bashcomp = abook \
 		dsniff \
 		findutils \
 		freeciv \
+		freerdp \
 		fuse \
 		gcc \
 		gcl \
