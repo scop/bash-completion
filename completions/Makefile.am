@@ -162,7 +162,9 @@ bashcomp_DATA = abook \
 		xmllint \
 		xmlwf \
 		xmms \
+		xmodmap \
 		xrandr \
+		xrdb \
 		xsltproc \
 		xz \
 		yp-tools \
