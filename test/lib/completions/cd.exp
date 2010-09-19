@@ -37,11 +37,12 @@ sync_after_int
 
 set test "Tab should complete CDPATH"
     # Set CDPATH
+assert_bash_exec "declare -p CDPATH &>/dev/null && OLDCDPATH=\$CDPATH || :"
 assert_bash_exec "CDPATH=\$PWD";
 assert_complete "fixtures/shared/default/foo.d/" "cd fixtures/shared/default/fo" $test
 sync_after_int
     # Reset CDPATH
-assert_bash_exec "unset CDPATH"
+assert_bash_exec "declare -p OLDCDPATH &>/dev/null && CDPATH=\$OLDCDPATH || unset CDPATH && unset OLDCDPATH"
 
 
 teardown
