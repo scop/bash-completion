@@ -35,6 +35,7 @@ bashcomp_DATA = abook \
 		dpkg \
 		dselect \
 		dsniff \
+		e2fsprogs \
 		findutils \
 		freeciv \
 		freerdp \
