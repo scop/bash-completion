@@ -610,7 +610,8 @@ _quote_readline_by_ref()
 # This function performs file and directory completion. It's better than
 # simply using 'compgen -f', because it honours spaces in filenames.
 # @param $1  If `-d', complete only on directories.  Otherwise filter/pick only
-#            completions with `.$1' as file extension.
+#            completions with `.$1' and the uppercase version of it as file
+#            extension.
 #
 _filedir()
 {
@@ -636,7 +637,10 @@ _filedir()
     ))
 
     if [[ "$1" != -d ]]; then
-        xspec=${1:+"!*.$1"}
+        # Munge xspec to contain uppercase version too
+        [[ ${BASH_VERSINFO[0]} -ge 4 ]] && \
+            xspec=${1:+"!*.@($1|${1^^})"} || \
+            xspec=${1:+"!*.@($1|$(printf %s $1 | tr '[:lower:]' '[:upper:]'))"}
         toks=( ${toks[@]-} $( compgen -f -X "$xspec" -- $quoted) )
         if [ ${#toks[@]} -ne 0 ]; then
             # If `compopt' is available, set `-o filenames'
@@ -1586,8 +1590,19 @@ _filedir_xspec()
         }
         ))
 
+    # Munge xspec to contain uppercase version too
+    eval xspec="${xspec}"
+    local matchop=!
+    if [[ $xspec == !* ]]; then
+        xspec=${xspec#!}
+        matchop=@
+    fi
+    [[ ${BASH_VERSINFO[0]} -ge 4 ]] && \
+        xspec="$matchop($xspec|${xspec^^})" || \
+        xspec="$matchop($xspec|$(printf %s $xspec | tr '[:lower:]' '[:upper:]'))"
+
     toks=( ${toks[@]-} $(
-        eval compgen -f -X "$xspec" -- "\$(quote_readline "\$cur")" | {
+        eval compgen -f -X "!$xspec" -- "\$(quote_readline "\$cur")" | {
         while read -r tmp; do
             [ -n $tmp ] && printf '%s\n' $tmp
         done
