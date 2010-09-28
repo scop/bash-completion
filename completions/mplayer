@@ -11,7 +11,7 @@ _mplayer_options_list()
 
 _mplayer()
 {
-    local cmd cur prev skinsdir IFS=$' \t\n' i j k=0
+    local cmd cur prev skinsdir i j k=0
 
     COMPREPLY=()
     cmd=${COMP_WORDS[0]}
@@ -37,7 +37,7 @@ _mplayer()
             else
                 _filedir ttf
             fi
-            IFS=$'\n'
+            local IFS=$'\n'
             COMPREPLY=( "${COMPREPLY[@]}"
                 $( compgen -W '$( fc-list 2>/dev/null )' -- "$cur" ) )
             return 0
@@ -48,7 +48,7 @@ _mplayer()
             ;;
         -vobsub)
             _filedir '@(idx|ifo|sub)'
-            IFS=$'\t\n'
+            local IFS=$'\t\n'
             COMPREPLY=( $( for i in "${COMPREPLY[@]}"; do
                         if [[ -f $i && -r $i ]]; then
                             printf '%s\n' ${i%.*}
@@ -56,7 +56,6 @@ _mplayer()
                             printf '%s\n' $i
                         fi
                        done ) )
-            IFS=$' \t\n'
             return 0
             ;;
         -ifo)
@@ -76,7 +75,7 @@ _mplayer()
                 skinsdir=/usr/share/mplayer/Skin
             fi
 
-            IFS=$'\t\n'
+            local IFS=$'\t\n'
             for i in ~/.mplayer/Skin $skinsdir; do
                 if [[ -d $i && -r $i ]]; then
                     for j in $( compgen -d $i/$cur ); do
@@ -85,7 +84,6 @@ _mplayer()
                     done
                 fi
             done
-            IFS=$' \t\n'
             return 0
             ;;
         -cdrom-device)
