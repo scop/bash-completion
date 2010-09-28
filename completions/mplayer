@@ -11,7 +11,7 @@ _mplayer_options_list()
 
 _mplayer()
 {
-    local cmd cur prev skinsdir i j k=0
+    local cmd cur prev i j k=0
 
     COMPREPLY=()
     cmd=${COMP_WORDS[0]}
@@ -69,14 +69,15 @@ _mplayer()
         -skin)
             # if you don't have installed mplayer in /usr you
             # may want to set the MPLAYER_SKINS_DIR global variable
+            local -a dirs
             if [ -n "$MPLAYER_SKINS_DIR" ]; then
-                skinsdir=$MPLAYER_SKINS_DIR
+                dirs=($MPLAYER_SKINS_DIR)
             else
-                skinsdir=/usr/share/mplayer/Skin
+                dirs=(/usr/share/mplayer/skins /usr/local/share/mplayer/skins)
             fi
 
             local IFS=$'\t\n'
-            for i in ~/.mplayer/Skin $skinsdir; do
+            for i in ~/.mplayer/skins ${dirs[@]}; do
                 if [[ -d $i && -r $i ]]; then
                     for j in $( compgen -d $i/$cur ); do
                         COMPREPLY[$k]=${j#$i/}
