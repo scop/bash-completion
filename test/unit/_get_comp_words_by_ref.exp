@@ -202,6 +202,21 @@ assert_bash_list {"c: b"} $cmd $test
 sync_after_int
 
 
+set test {a b:c | with WORDBREAKS -= :};  # | = cursor position
+if {[lindex $::BASH_VERSINFO 0] <= 3} {
+    set cmd {COMP_WORDS=(a b:c ''); COMP_CWORD=2}
+} else {
+    set cmd {COMP_WORDS=(a b : c ''); COMP_CWORD=4}
+}
+append cmd {; COMP_LINE='a b:c '; COMP_POINT=6}
+assert_bash_exec $cmd $test
+set cmd {_get_comp_words_by_ref -n : cur prev; echo "$cur $prev"}
+assert_bash_list {" b:c"} $cmd $test
+
+
+sync_after_int
+
+
 set test {a :| with WORDBREAKS -= : should return :};  # | = cursor position
 set cmd {COMP_WORDS=(a :); COMP_CWORD=1; COMP_LINE='a :'; COMP_POINT=3}
 assert_bash_exec $cmd
