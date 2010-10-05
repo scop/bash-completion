@@ -143,6 +143,7 @@ bashcomp_DATA = abook \
 		sshfs \
 		strace \
 		svk \
+		sysbench \
 		sysctl \
 		sysv-rc \
 		tar \
