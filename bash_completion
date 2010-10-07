@@ -643,45 +643,10 @@ _filedir()
             xspec=${1:+"!*.@($1|$(printf %s $1 | tr '[:lower:]' '[:upper:]'))"}
         toks=( ${toks[@]-} $( compgen -f -X "$xspec" -- $quoted) )
         if [ ${#toks[@]} -ne 0 ]; then
-            # If `compopt' is available, set `-o filenames'
-            type compopt &>/dev/null && compopt -o filenames 2>/dev/null ||
-            # No, `compopt' isn't available;
-            # Is `-o filenames' set?
-            [[ (
-                ${COMP_WORDS[0]} && 
-                "$(complete -p ${COMP_WORDS[0]} 2>/dev/null)" == \
-                    *"-o filenames"*
-            ) ]] || {
-                # No, `-o filenames' isn't set;
-                # Emulate `-o filenames'
-                # NOTE: A side-effect of emulating `-o filenames' is that
-                #       backslash escape characters are visible within the list
-                #       of presented completions, e.g.  the completions look
-                #       like:
-                #
-                #           $ foo a<TAB>
-                #           a\ b/  a\$b/
-                #
-                #       whereas with `-o filenames' active the completions look
-                #       like:
-                #
-                #           $ ls a<TAB>
-                #           a b/  a$b/
-                #
-                for ((i=0; i < ${#toks[@]}; i++)); do
-                    # If directory exists, append slash (/)
-                    if [[ ${cur:0:1} != "'" ]]; then
-                        [[ -d ${toks[i]} ]] && toks[i]="${toks[i]}"/
-                        if [[ ${cur:0:1} == '"' ]]; then
-                            toks[i]=${toks[i]//\\/\\\\}
-                            toks[i]=${toks[i]//\"/\\\"}
-                            toks[i]=${toks[i]//\$/\\\$}
-                        else
-                            toks[i]=$(printf %q ${toks[i]})
-                        fi
-                    fi
-                done
-            }
+            # Turn on -o filenames; see http://bugs.debian.org/272660#64 for
+            # info about the compgen hack (bash < 4)
+            compopt -o filenames 2>/dev/null || \
+                compgen -f /non-existing-dir/ >/dev/null
         fi
     fi
 
