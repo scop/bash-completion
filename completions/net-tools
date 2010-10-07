@@ -96,6 +96,32 @@ _route()
 } &&
 complete -F _route route
 
+have ether-wake &&
+_ether_wake()
+{
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref -n : cur prev
+
+    case $prev in
+        -i)
+            _available_interfaces
+            return 0
+            ;;
+        -p)
+            return 0
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '-b -D -i -p -V' -- "$cur" ) )
+        return 0
+    fi
+
+    _mac_addresses
+} &&
+complete -F _ether_wake ether-wake
+
 # Local variables:
 # mode: shell-script
 # sh-basic-offset: 4
