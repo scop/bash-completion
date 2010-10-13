@@ -1,0 +1,128 @@
+# bash alias completion
+#
+_alias()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    case $COMP_LINE in
+        *[^=])
+            COMPREPLY=( $( compgen -A alias -- "$cur" ) )
+            ;;
+        *=)
+            COMPREPLY=( "$( alias ${cur%=} 2>/dev/null | sed \
+                -e 's|^alias '"$cur"'\(.*\)$|\1|' )" )
+            ;;
+    esac
+}
+complete -F _alias -o nospace alias
+
+# bash export completion
+#
+_export()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    case $COMP_LINE in
+        *=\$*)
+            COMPREPLY=( $( compgen -v -P '$' -- "${cur#*=\$}" ) )
+            ;;
+        *[^=])
+            COMPREPLY=( $( compgen -v -S '=' -- "$cur" ) )
+            ;;
+        *=)
+            COMPREPLY=( "$( eval echo -n \"$`echo ${cur%=}`\" |
+                ( echo -n \'
+                  sed -e 's/'\''/'\''\\\'\'''\''/g'
+                  echo -n \' ) )" )
+            ;;
+    esac
+}
+complete -F _export -o default -o nospace export
+
+# bash shell function completion
+#
+_function()
+{
+    local cur prev
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    if [[ $1 == @(declare|typeset) ]]; then
+        if [ "$prev" = -f ]; then
+            COMPREPLY=( $( compgen -A function -- "$cur" ) )
+        elif [[ "$cur" == -* ]]; then
+            COMPREPLY=( $( compgen -W '-a -f -F -i -r -x -p' -- "$cur" ) )
+        fi
+    elif [ $COMP_CWORD -eq 1 ]; then
+        COMPREPLY=( $( compgen -A function -- "$cur" ) )
+    else
+        COMPREPLY=( "() $( type -- ${COMP_WORDS[1]} | sed -e 1,2d )" )
+    fi
+}
+complete -F _function function declare typeset
+
+# bash complete completion
+#
+_complete()
+{
+    local cur prev
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -o)
+            COMPREPLY=( $( compgen -W 'bashdefault default dirnames filenames \
+                nospace plusdirs' -- "$cur" ) )
+            return 0
+            ;;
+
+        -A)
+            COMPREPLY=( $( compgen -W 'alias arrayvar binding builtin command \
+                directory disabled enabled export file function group \
+                helptopic hostname job keyword running service setopt shopt \
+                signal stopped user variable' -- "$cur" ) )
+            return 0
+            ;;
+
+        -C)
+            COMPREPLY=( $( compgen -A command -- "$cur" ) )
+            return 0
+            ;;
+        -F)
+            COMPREPLY=( $( compgen -A function -- "$cur" ) )
+            return 0
+            ;;
+        -p|-r)
+            COMPREPLY=( $( complete -p | sed -e 's|.* ||' ) )
+            COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
+            return 0
+            ;;
+
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        # relevant options completion
+        local opts="-a -b -c -d -e -f -g -j -k -o -s -u -v -A -G -W -P -S -X"
+        [[ $1 != compgen ]] && opts="$opts -F -C"
+        COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
+    else
+        COMPREPLY=( $( compgen -A command -- "$cur" ) )
+    fi
+}
+complete -F _complete compgen complete
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

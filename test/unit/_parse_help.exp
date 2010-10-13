@@ -1,0 +1,73 @@
+# By Stephen Gildea, October 2010. 
+
+proc setup {} {
+    save_env
+}
+
+proc teardown {} {
+    assert_env_unmodified {
+        /declare -f fn/d
+    }
+}
+
+setup
+
+
+set cmd {fn() { printf '%s\n' ""; }; _parse_help fn}
+assert_bash_list "" $cmd "empty"
+sync_after_int
+
+set cmd {fn() { printf '%s\n' "no dashes here"; }; _parse_help fn}
+assert_bash_list "" $cmd "no dashes"
+sync_after_int
+
+set cmd {fn() { printf '%s\n' "internal-dash"; }; _parse_help fn}
+assert_bash_list "" $cmd "internal dash 1"
+sync_after_int
+
+set cmd {fn() { printf '%s\n' "no -leading-dashes"; }; _parse_help fn}
+assert_bash_list "" $cmd "no leading dash"
+sync_after_int
+
+set cmd {fn() { printf '%s\n' "-one dash"; }; _parse_help fn}
+assert_bash_list "-one" $cmd "one dash"
+sync_after_int
+
+set cmd {fn() { printf '%s\n' " -space dash"; }; _parse_help fn}
+assert_bash_list "-space" $cmd "one dash after space"
+sync_after_int
+
+set cmd {fn() { printf '%s\n' "-one -two dashes"; }; _parse_help fn}
+assert_bash_list "-one\n-two" $cmd "two dashes, space-separated"
+sync_after_int
+
+set cmd {fn() { printf '%s\n' "-one,-t dashes"; }; _parse_help fn}
+assert_bash_list "-one\n-t" $cmd "two dashes, comma-separated"
+sync_after_int
+
+set cmd {fn() { printf '%s\n' "-one dash-inside"; }; _parse_help fn}
+assert_bash_list "-one" $cmd "internal dash 2"
+sync_after_int
+
+set cmd {fn() { printf '%s\n' "--long-arg=value"; }; _parse_help fn}
+assert_bash_list "--long-arg" $cmd "value stripped"
+sync_after_int
+
+set cmd {fn() { printf '%s\n' "--long-arg=-value"; }; _parse_help fn}
+assert_bash_list "--long-arg" $cmd "value not seen as option"
+sync_after_int
+
+set cmd {fn() { printf '%s\n' "--long-arg=-value,--opt2=val"; }; _parse_help fn}
+assert_bash_list "--long-arg\n--opt2" $cmd "two options with values"
+sync_after_int
+
+set cmd {fn() { printf '%s\n' "-m,--mirror"; }; _parse_help fn}
+assert_bash_list "-m\n--mirror" $cmd "short + long"
+sync_after_int
+
+set cmd {fn() { printf '%s\n' "-T/--upload-file"; }; _parse_help fn}
+assert_bash_list "-T\n--upload-file" $cmd "short + long, slash separated"
+sync_after_int
+
+
+teardown

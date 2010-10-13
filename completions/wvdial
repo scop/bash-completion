@@ -1,0 +1,52 @@
+# bash completion for wvdial
+
+have wvdial &&
+_wvdial()
+{
+    local cur prev config i IFS=$'\n'
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        --config)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    case $cur in
+        -*)
+            COMPREPLY=( $( compgen -W '--config --chat \
+                --remotename --help --version --no-syslog' \
+                -- "$cur" ) )
+            ;;
+        *)
+            # start with global and personal config files
+            config="/etc/wvdial.conf"$'\n'"$HOME/.wvdialrc"
+            # replace with command line config file if present
+            for (( i=1; i < COMP_CWORD; i++ )); do
+                if [[ "${COMP_WORDS[i]}" == "--config" ]]; then
+                    config=${COMP_WORDS[i+1]}
+                    break
+                fi
+            done
+            # parse config files for sections and
+            # remove default section
+            COMPREPLY=( $( sed -ne "s|^\[Dialer \($cur.*\)\]$|\1|p" $config \
+                2>/dev/null | command grep -v '^Defaults$'))
+            # escape spaces
+            COMPREPLY=${COMPREPLY// /\\ }
+            ;;
+    esac
+
+} &&
+complete -F _wvdial wvdial
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
