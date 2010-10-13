@@ -136,6 +136,7 @@ bashcomp_DATA = abook \
 		sh \
 		shadow \
 		sitecopy \
+		slackware \
 		smartctl \
 		snownews \
 		sqlite3 \
