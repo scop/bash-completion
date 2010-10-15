@@ -84,4 +84,70 @@ _slapt-get()
     esac
 } && complete -F _slapt-get slapt-get
 
+have slapt-src &&
+_slapt-src()
+{
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref cur prev
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--update -u --list -l \
+            --search -s --show -w --install -i --build -b \
+            --fetch -f --yes -y --config -c --no-dep -n \
+            --version -v --help -h' -- "$cur" ) )
+        return 0
+    fi
+
+    case $prev in
+        --config|-c)
+            _filedir
+            return 0
+            ;;
+        --search)
+            # argument required but no completions available
+            return 0
+            ;;
+    esac
+
+    local words
+    _get_comp_words_by_ref words
+
+    local t
+    # search for last action (-i|-w|-b|-f)
+    for (( i=${#words[@]}-1; i>0; i-- )); do
+        if [[ ${words[i]} == -@(i|w|f|b|-install|-show|-build|-fetch) ]]; then
+            t="all"
+            break
+        fi
+    done
+    if [ "$t" != "all" ]; then
+        return 0
+    fi
+
+    local config="/etc/slapt-get/slapt-srcrc" # default config location
+    # search for config
+    for (( i=${#words[@]}-1; i>0; i-- )); do
+        if [[ ${words[i]} == -@(c|-config) ]]; then
+            config="${words[i+1]}"
+            break
+        fi
+    done
+    if [ ! -r "$config" ]; then
+        return 0
+    fi
+
+    local builddir=$( grep '^BUILDDIR=' "$config" | cut -f2 -d\= )
+    if [ ! -d "$builddir" ]; then
+        return 0
+    fi
+
+    local slck_data="${builddir}/slackbuilds_data"
+    if [ ! -r "$slck_data" ]; then
+        return 0
+    fi
+
+    COMPREPLY=( $( grep "^SLACKBUILD NAME: $cur" "$slck_data" | cut -f3- -d\  ) )
+} && complete -F _slapt-src slapt-src
+
 }
