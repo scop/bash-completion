@@ -248,12 +248,11 @@ assert_complete_dir {ee.e1 foo/ gg.e1 ii.E1} "g " "fixtures/_filedir/ext" $test
 sync_after_int
 
 
-set test "completing f aé should return g when LC_CTYPE=C"
-# Backup/set LC_CTYPE
-assert_bash_exec {OLD_CTYPE=$LC_CTYPE; LC_CTYPE=C}
-assert_complete_dir g "f aé/" "fixtures/_filedir"
-# Restore LC_CTYPE
-assert_bash_exec {[[ $OLD_CTYPE ]] && LC_CTYPE=$OLD_CTYPE || unset LC_CTYPE}
+# Execute this test only when LC_CTYPE matches *UTF-8*
+if {[string first "UTF-8" $::LC_CTYPE] != -1} {
+    set test "completing f aé should return g"
+    assert_complete_dir g "f aé/" "fixtures/_filedir"
+}
 
 
 sync_after_int
