@@ -1485,21 +1485,23 @@ complete -F _root_command -o filenames sudo fakeroot really gksudo gksu kdesudo
 
 _longopt()
 {
-    local cur prev
+    local cur prev split=false
+    _get_comp_words_by_ref -n = cur prev
 
-    _get_comp_words_by_ref cur prev
+    _split_longopt && split=true
 
-    if _split_longopt; then
-        case "$prev" in
-            --*[Dd][Ii][Rr]*)
-                _filedir -d
-                ;;
-            --*[Ff][Ii][Ll][Ee]*|--*[Pp][Aa][Tt][Hh]*)
-                _filedir
-                ;;
-        esac
-        return 0
-    fi
+    case "$prev" in
+        --*[Dd][Ii][Rr]*)
+            _filedir -d
+            return 0
+            ;;
+        --*[Ff][Ii][Ll][Ee]*|--*[Pp][Aa][Tt][Hh]*)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    $split && return 0
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W "$( $1 --help 2>&1 | \
