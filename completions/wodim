@@ -27,11 +27,33 @@ _cdrecord()
                     unclose session' -- "$cur" ) )
                 ;;
             driveropts)
-                compopt +o nospace &>/dev/null
-                COMPREPLY=( $( compgen -W 'burnfree noburnfree varirec=
-                    gigarec= audiomaster forcespeed noforcespeed speedread
-                    nospeedread singlesession nosinglesession hidecdr nohidecdr
-                    tattooinfo tattoofile=' -- "$cur" ) )
+                if [[ $cur == *=* ]]; then
+                    prev=${cur%%=*}
+                    cur=${cur#*=}
+                    case $prev in
+                        varirec)
+                            compopt +o nospace &>/dev/null
+                            COMPREPLY=( $( compgen -W "-2 -1 0 1 2" \
+                                -- "$cur" ) )
+                            ;;
+                        gigarec)
+                            compopt +o nospace &>/dev/null
+                            COMPREPLY=( $( compgen -W "0.6 0.7 0.8 1.0 1.2 1.3
+                                1.4" -- "$cur" ) )
+                            ;;
+                        tattoofile)
+                            compopt +o nospace &>/dev/null
+                            _filedir
+                            ;;
+                    esac
+                else
+                    COMPREPLY=( $( compgen -W 'burnfree noburnfree varirec=
+                        gigarec= audiomaster forcespeed noforcespeed speedread
+                        nospeedread singlesession nosinglesession hidecdr
+                        nohidecdr tattooinfo tattoofile=' -- "$cur" ) )
+                    [[ ${#COMPREPLY[@]} == 1 && ${COMPREPLY[0]} != *= ]] && \
+                        compopt +o nospace &>/dev/null
+                fi
                 ;;
             driver)
                 compopt +o nospace &>/dev/null
