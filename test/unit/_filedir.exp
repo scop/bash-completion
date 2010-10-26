@@ -248,10 +248,17 @@ assert_complete_dir {ee.e1 foo/ gg.e1 ii.E1} "g " "fixtures/_filedir/ext" $test
 sync_after_int
 
 
-# Execute this test only when LC_CTYPE matches *UTF-8*
-if {[string first "UTF-8" $::LC_CTYPE] != -1} {
-    set test "completing f aé should return g"
+set test "completing f aé should return g when LC_CTYPE=C"
+# Execute this test only on bash >= 4 with LC_CTYPE matching *UTF-8*
+# See also: http://www.mail-archive.com/bash-completion-devel\
+#           @lists.alioth.debian.org/msg02265.html
+if {
+    [lindex $::BASH_VERSINFO 0] >= 4 && 
+    [string first "UTF-8" $::LC_CTYPE] != -1
+} {
     assert_complete_dir g "f aé/" "fixtures/_filedir"
+} else {
+    unsupported "$test"
 }
 
 
