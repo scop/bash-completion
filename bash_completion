@@ -126,7 +126,7 @@ complete -f -X '!*.lyx' lyx
 # start of section containing compspecs that can be handled within bash
 
 # user commands see only users
-complete -u su passwd write chfn groups slay w sux
+complete -u su write chfn groups slay w sux
 
 # bg completes with stopped jobs
 complete -A stopped -P '"%' -S '"' bg
@@ -712,6 +712,10 @@ _mac_addresses()
         "s/.*[[:space:]]\($re\)[[:space:]].*/\1/p" -ne \
         "s/.*[[:space:]]\($re\)[[:space:]]*$/\1/p" ) )
 
+    # /etc/ethers
+    COMPREPLY=( "${COMPREPLY[@]}" $( sed -ne \
+        "s/^[[:space:]]*\($re\)[[:space:]].*/\1/p" /etc/ethers 2>/dev/null ) )
+
     COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
     __ltrim_colon_completions "$cur"
 }
@@ -1149,7 +1153,8 @@ _known_hosts()
 
 # Helper function for completing _known_hosts.
 # This function performs host completion based on ssh's config and known_hosts
-# files, as well as hostnames reported by avahi-browse.  Also hosts from
+# files, as well as hostnames reported by avahi-browse if
+# COMP_KNOWN_HOSTS_WITH_AVAHI is set to a non-empty value.  Also hosts from
 # HOSTFILE (compgen -A hostname) are added, unless
 # COMP_KNOWN_HOSTS_WITH_HOSTFILE is set to an empty value.
 # Usage: _known_hosts_real [OPTIONS] CWORD
@@ -1294,12 +1299,14 @@ _known_hosts_real()
             -S "$suffix" -W "$hosts" -- "$cur" ) )
     fi
 
-    # Add hosts reported by avahi-browse, if it's available.
-    # The original call to avahi-browse also had "-k", to avoid lookups into
-    # avahi's services DB. We don't need the name of the service, and if it
-    # contains ";", it may mistify the result. But on Gentoo (at least),
-    # -k isn't available (even if mentioned in the manpage), so...
-    if type avahi-browse >&/dev/null; then
+    # Add hosts reported by avahi-browse, if desired and it's available.
+    if [[ ${COMP_KNOWN_HOSTS_WITH_AVAHI:-} ]] && \
+        type avahi-browse &>/dev/null; then
+        # The original call to avahi-browse also had "-k", to avoid lookups
+        # into avahi's services DB. We don't need the name of the service, and
+        # if it contains ";", it may mistify the result. But on Gentoo (at
+        # least), -k wasn't available (even if mentioned in the manpage) some
+        # time ago, so...
         COMPREPLY=( "${COMPREPLY[@]}" $( \
             compgen -P "$prefix$user" -S "$suffix" -W \
             "$( avahi-browse -cpr _workstation._tcp 2>/dev/null | \
@@ -1473,15 +1480,15 @@ _command_offset()
 
     [ ${#COMPREPLY[@]} -eq 0 ] && _filedir
 }
-complete -F _command -o filenames nohup exec nice eval time ltrace then \
-    else do vsound command xargs tsocks aoss padsp
+complete -F _command -o filenames aoss command do else eval exec ltrace nice \
+    nohup padsp then time tsocks vsound xargs
 
 _root_command()
 {
     local PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
     _command $1 $2 $3
 }
-complete -F _root_command -o filenames sudo fakeroot really gksudo gksu kdesudo
+complete -F _root_command -o filenames fakeroot gksu gksudo kdesudo really sudo
 
 _longopt()
 {
@@ -1514,12 +1521,12 @@ _longopt()
     fi
 }
 # makeinfo and texi2dvi are defined elsewhere.
-for i in a2ps autoconf automake bc gprof ld nm objcopy objdump readelf strip \
-    bison colordiff diff patch enscript cp df dir du ln ls mkfifo mknod mv rm \
-    touch vdir awk gperf grep grub indent less m4 sed shar date \
-    tee who texindex cat csplit cut expand fmt fold head \
-    md5sum nl od paste pr ptx sha1sum sort split tac tail tr unexpand \
-    uniq wc ldd bash id irb mkdir rmdir wget curl; do
+for i in a2ps autoconf automake awk bash bc bison cat colordiff cp csplit \
+    curl cut date df diff dir du enscript expand fmt fold gperf gprof grep \
+    grub head indent irb ld ldd less ln ls m4 md5sum mkdir mkfifo mknod mv nl \
+    nm objcopy objdump od paste patch pr ptx readelf rm rmdir sed \
+    sha{,1,224,256,384,512}sum shar sort split strip tac tail tee texindex \
+    touch tr unexpand uniq vdir wc wget who; do
     have $i && complete -F _longopt -o filenames $i
 done
 
