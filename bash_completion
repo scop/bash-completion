@@ -1489,9 +1489,16 @@ complete -F _command -o filenames aoss command do else eval exec ltrace nice \
 _root_command()
 {
     local PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
+    local root_command=$1
     _command $1 $2 $3
 }
 complete -F _root_command -o filenames fakeroot gksu gksudo kdesudo really sudo
+
+# Return true if the completion should be treated as running as root
+_complete_as_root()
+{
+    [[ $EUID -eq 0 || ${root_command:-} ]]
+}
 
 _longopt()
 {
