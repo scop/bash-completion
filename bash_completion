@@ -977,10 +977,10 @@ _installed_modules()
 # The : must be added manually; it will only complete usernames initially.
 # The legacy user.group format is not supported.
 #
-# It assumes compopt -o filenames; but doesn't touch it.
+# @param $1  If -u, only return users/groups the user has access to in
+#            context of current completion.
 _usergroup()
 {
-    local IFS=$'\n'
     if [[ $cur = *\\\\* || $cur = *:*:* ]]; then
         # Give up early on if something seems horribly wrong.
         return
@@ -991,19 +991,61 @@ _usergroup()
         local prefix
         prefix=${cur%%*([^:])}
         prefix=${prefix//\\}
-        COMPREPLY=( $( compgen -P "$prefix" -g -- "${cur#*[:]}" ) )
+        local mycur="${cur#*[:]}"
+        if [[ $1 == -u ]]; then
+            _allowed_groups "$mycur"
+        else
+            local IFS=$'\n'
+            COMPREPLY=( $( compgen -g -- "$mycur" ) )
+        fi
+        COMPREPLY=( $( compgen -P "$prefix" -W "${COMPREPLY[@]}" ) )
     elif [[ $cur = *:* ]]; then
         # Completing group after 'user:gr<TAB>'.
         # Reply with a list of unprefixed groups since readline with split on :
         # and only replace the 'gr' part
-        COMPREPLY=( $( compgen -g -- "${cur#*:}" ) )
+        local mycur="${cur#*:}"
+        if [[ $1 == -u ]]; then
+            _allowed_groups "$mycur"
+        else
+            local IFS=$'\n'
+            COMPREPLY=( $( compgen -g -- "$mycur" ) )
+        fi
     else
         # Completing a partial 'usernam<TAB>'.
         #
         # Don't suffix with a : because readline will escape it and add a
         # slash. It's better to complete into 'chown username ' than 'chown
         # username\:'.
-        COMPREPLY=( $( compgen -u -- "$cur" ) )
+        if [[ $1 == -u ]]; then
+            _allowed_users "$cur"
+        else
+            local IFS=$'\n'
+            COMPREPLY=( $( compgen -u -- "$cur" ) )
+        fi
+    fi
+}
+
+_allowed_users()
+{
+    if _complete_as_root; then
+        local IFS=$'\n'
+        COMPREPLY=( $( compgen -u -- "${1:-$cur}" ) )
+    else
+        local IFS=$'\n '
+        COMPREPLY=( $( compgen -W \
+            "$( id -un 2>/dev/null || whoami 2>/dev/null )" -- "${1:-$cur}" ) )
+    fi
+}
+
+_allowed_groups()
+{
+    if _complete_as_root; then
+        local IFS=$'\n'
+        COMPREPLY=( $( compgen -g -- "$1" ) )
+    else
+        local IFS=$'\n '
+        COMPREPLY=( $( compgen -W \
+            "$( id -Gn 2>/dev/null || groups 2>/dev/null )" -- "$1" ) )
     fi
 }
 
