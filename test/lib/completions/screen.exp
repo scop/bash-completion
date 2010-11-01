@@ -17,33 +17,8 @@ assert_complete_any "screen -"
 sync_after_int
 
 
-set test "-c should complete files/dirs"
-set dir fixtures/shared/default
-set prompt "/$dir/@"
-assert_bash_exec "cd $dir" "" $prompt
-set cmd "screen -c "
-set expected {bar {bar bar.d} foo {foo.d}}
-send "$cmd\t"
-expect -ex "$cmd"
-expect {
-    -re "\r\nbar\\s+bar bar.d/\\s+foo\\s+foo.d/"  { pass "$test" }
-        # Directories might not be suffixed with a slash (/).  This is because
-        # _filedir only works if `-o filenames' is in effect, which isn't the
-        # case for `screen' on bash-3, so an expected failure (xfail)
-    -re "\r\nbar\\s+bar bar.d\\s+foo\\s+foo.d" { 
-        if {[lindex $::BASH_VERSINFO 0] < 4} {xfail "$test"} {fail "$test"}
-    }
-    -re "\r\nbar\\s+bar\\\\ bar.d/\\s+foo\\s+foo.d/" {
-        # On bash-3, the space in `bar bar.d' is escaped with a backslash
-        # as a side-effect of emulating `-o filenames'.
-        if {[lindex $::BASH_VERSINFO 0] <= 3} {pass "$test"} {fail "$test"}
-    }
-    -re $prompt { unresolved "$test at prompt" }
-    default { unresolved "$test" }
-}
-sync_after_int $prompt
-assert_bash_exec {cd "$TESTDIR"}
-
+assert_complete {bar "bar bar.d/" foo foo.d/} \
+    "screen -c fixtures/shared/default/" "-c should complete files/dirs"
 
 
 sync_after_int

@@ -1487,6 +1487,7 @@ _command_offset()
     _get_comp_words_by_ref cur
 
     if [[ $COMP_CWORD -eq 0 ]]; then
+        _compopt_o_filenames
         COMPREPLY=( $( compgen -c -- "$cur" ) )
     else
         cmd=${COMP_WORDS[0]}
@@ -1525,8 +1526,8 @@ _command_offset()
 
     [ ${#COMPREPLY[@]} -eq 0 ] && _filedir
 }
-complete -F _command -o filenames aoss command do else eval exec ltrace nice \
-    nohup padsp then time tsocks vsound xargs
+complete -F _command aoss command do else eval exec ltrace nice nohup padsp \
+    then time tsocks vsound xargs
 
 _root_command()
 {
@@ -1534,7 +1535,7 @@ _root_command()
     local root_command=$1
     _command $1 $2 $3
 }
-complete -F _root_command -o filenames fakeroot gksu gksudo kdesudo really sudo
+complete -F _root_command fakeroot gksu gksudo kdesudo really sudo
 
 # Return true if the completion should be treated as running as root
 _complete_as_root()
@@ -1574,16 +1575,11 @@ _longopt()
 }
 # makeinfo and texi2dvi are defined elsewhere.
 for i in a2ps autoconf automake awk bash bc bison cat colordiff cp csplit \
-    curl cut date df diff dir du enscript expand fmt fold gperf gprof grep \
-    grub head indent irb ld ldd less ln ls m4 md5sum mkdir mkfifo mknod mv nl \
-    nm objcopy objdump od paste patch pr ptx readelf rm rmdir sed \
-    sha{,1,224,256,384,512}sum shar sort split strip tac tail tee texindex \
-    touch tr unexpand uniq vdir wc wget who; do
-    have $i && complete -F _longopt -o filenames $i
-done
-
-# These commands do not use filenames, so '-o filenames' is not needed.
-for i in env netstat seq uname units; do
+    curl cut date df diff dir du enscript env expand fmt fold gperf gprof \
+    grep grub head indent irb ld ldd less ln ls m4 md5sum mkdir mkfifo mknod \
+    mv netstat nl nm objcopy objdump od paste patch pr ptx readelf rm rmdir \
+    sed seq sha{,1,224,256,384,512}sum shar sort split strip tac tail tee \
+    texindex touch tr uname unexpand uniq units vdir wc wget who; do
     have $i && complete -F _longopt -o default $i
 done
 unset i
@@ -1636,6 +1632,7 @@ _filedir_xspec()
         }
         ))
 
+    [ ${#toks[@]} -ne 0 ] && _compopt_o_filenames
     COMPREPLY=( "${toks[@]}" )
 }
 list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' "$BASH_COMPLETION" | \
@@ -1657,7 +1654,7 @@ list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' "$BASH_COMPLETION" |
 if [ ${#list[@]} -gt 0 ]; then
     eval complete -r ${list[@]}
     # install new compspecs
-    eval complete -F _filedir_xspec -o filenames "${list[@]}"
+    eval complete -F _filedir_xspec "${list[@]}"
 fi
 unset list
 
