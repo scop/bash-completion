@@ -59,6 +59,7 @@ bashcomp_DATA = abook \
 		info \
 		iptables \
 		ipmitool \
+		iproute2 \
 		ipsec \
 		ipv6calc \
 		isql \

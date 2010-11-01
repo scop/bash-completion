@@ -1,0 +1,285 @@
+# iproute2 tools completion
+
+have ip &&
+_ip()
+{
+    COMPREPLY=()
+    local cur prev words cword
+    _get_comp_words_by_ref cur prev words cword
+
+    case $prev in
+        -V|-Version|-rc|-rcvbuf)
+            return 0
+            ;;
+        -f|-family)
+            COMPREPLY=( $( compgen -W 'inet inet6 ipx dnet link' -- "$cur" ) )
+            return 0
+            ;;
+        -b|-batch)
+            _filedir
+            return 0
+            ;;
+        -force)
+            COMPREPLY=( $( compgen -W '-batch' -- "$cur" ) )
+            return 0
+            ;;
+    esac
+
+    local subcword cmd subcmd
+    for (( subcword=1; subcword < ${#words[@]}-1; subcword++ )); do
+        [[ ${words[subcword]} == -b?(atch) ]] && return 0
+        [[ -n $cmd ]] && subcmd=${words[subcword]} && break
+        [[ ${words[subcword]} != -* && \
+                ${words[subcword-1]} != -@(f?(amily)|rc?(vbuf)) ]] && \
+            cmd=${words[subcword]}
+    done
+
+    if [[ -z $cmd ]]; then
+        case $cur in
+            -*)
+                local c="-Version -statistics -details -resolve -family
+                    -oneline -timestamp -batch -rcvbuf"
+                [[ $cword -eq 1 ]] && c="$c -force"
+                COMPREPLY=( $( compgen -W "$c" -- "$cur" ) )
+                return 0
+                ;;
+            *)
+                COMPREPLY=( $( compgen -W "help $( ip help 2>&1 | \
+                    sed -e '/OBJECT := /,/}/!d' \
+                        -e 's/.*{//' -e 's/}.*//' -e 's/|//g' )" -- "$cur" ) )
+                return 0
+                ;;
+        esac
+    fi
+
+    [[ $subcmd == help ]] && return 0
+
+    case $cmd in
+        link)
+            case $subcmd in
+                add)
+                    # TODO
+                    ;;
+                delete)
+                    case $(($cword-$subcword)) in
+                        1)
+                            _available_interfaces
+                            ;;
+                        2)
+                            COMPREPLY=( $( compgen -W 'type' -- "$cur" ) )
+                            ;;
+                        3)
+                            [[ $prev == type ]] && \
+                                COMPREPLY=( $( compgen -W 'vlan veth vcan dummy
+                                    ifb macvlan can' -- "$cur" ) )
+                            ;;
+                    esac
+                    ;;
+                set)
+                    if [[ $cword-$subcword -eq 1 ]]; then
+                        _available_interfaces
+                    else
+                        case $prev in
+                            arp|dynamic|multicast|allmulticast|promisc|\
+                            trailers)
+                                COMPREPLY=( $( compgen -W 'on off' \
+                                    -- "$cur" ) )
+                                ;;
+                            txqueuelen|name|address|broadcast|mtu|netns|alias)
+                                ;;
+                            *)
+                                local c="arp dynamic multicast allmulticast
+                                    promisc trailers txqueuelen name address
+                                    broadcast mtu netns alias"
+                                [[ $prev != @(up|down) ]] && c="$c up down"
+                                COMPREPLY=( $( compgen -W "$c" -- "$cur" ) )
+                                ;;
+                        esac
+                    fi
+                    ;;
+                show)
+                    [[ $cword -eq $subcword+1 ]] && _available_interfaces
+                    ;;
+                *)
+                    [[ $cword -eq $subcword ]] && \
+                        COMPREPLY=( $( compgen -W 'help add delete set show' \
+                        -- "$cur" ) )
+                    ;;
+            esac
+            ;;
+
+        addr)
+            case $subcmd in
+                add|change|replace)
+                    # TODO
+                    ;;
+                del)
+                    # TODO
+                    ;;
+                show|flush)
+                    # TODO
+                    ;;
+                *)
+                    [[ $cword -eq $subcword ]] && \
+                        COMPREPLY=( $( compgen -W 'help add change replace del
+                            show flush' -- "$cur" ) )
+                    ;;
+            esac
+            ;;
+
+        addrlabel)
+            case $subcmd in
+                list|add|del|flush)
+                    # TODO
+                    ;;
+                *)
+                    [[ $cword -eq $subcword ]] && \
+                        COMPREPLY=( $( compgen -W 'help list add del flush' \
+                        -- "$cur" ) )
+                    ;;
+            esac
+            ;;
+
+        route)
+            case $subcmd in
+                list|flush)
+                    # TODO
+                    ;;
+                get)
+                    # TODO
+                    ;;
+                add|del|change|append|replace|monitor)
+                    # TODO
+                    ;;
+                *)
+                    [[ $cword -eq $subcword ]] && \
+                        COMPREPLY=( $( compgen -W 'help list flush get add del
+                            change append replace monitor' -- "$cur" ) )
+                    ;;
+            esac
+            ;;
+
+        rule)
+            case $subcmd in
+                list|add|del|flush)
+                    # TODO
+                    ;;
+                *)
+                    [[ $cword -eq $subcword ]] && \
+                        COMPREPLY=( $( compgen -W 'help list add del flush' \
+                        -- "$cur" ) )
+                    ;;
+            esac
+            ;;
+
+        neigh)
+            case $subcmd in
+                add|del|change|replace)
+                    # TODO
+                    ;;
+                show|flush)
+                    # TODO
+                    ;;
+                *)
+                    [[ $cword -eq $subcword ]] && \
+                        COMPREPLY=( $( compgen -W 'help add del change replace
+                            show flush' -- "$cur" ) )
+                    ;;
+            esac
+            ;;
+
+        ntable)
+            case $subcmd in
+                change)
+                    # TODO
+                    ;;
+                show)
+                    # TODO
+                    ;;
+                *)
+                    [[ $cword -eq $subcword ]] && \
+                        COMPREPLY=( $( compgen -W 'help change show' \
+                        -- "$cur" ) )
+                    ;;
+            esac
+            ;;
+
+        tunnel)
+            case $subcmd in
+                add|change|del|show|prl|6rd)
+                    # TODO
+                    ;;
+                *)
+                    [[ $cword -eq $subcword ]] && \
+                        COMPREPLY=( $( compgen -W 'help add change del show prl
+                            6rd' -- "$cur" ) )
+                    ;;
+            esac
+            ;;
+
+        maddr)
+            case $subcmd in
+                add|del)
+                    # TODO
+                    ;;
+                show)
+                    if [[ $cword -eq $subcword+1 || $prev == dev ]]; then
+                        _available_interfaces
+                        [[ $prev != dev ]] && \
+                            COMPREPLY=( $( compgen -W '${COMPREPLY[@]} dev' \
+                            -- "$cur" ) )
+                    fi
+                    ;;
+                *)
+                    [[ $cword -eq $subcword ]] && \
+                        COMPREPLY=( $( compgen -W 'help add del show' \
+                        -- "$cur" ) )
+                    ;;
+            esac
+            ;;
+
+        mroute)
+            case $subcmd in
+                show)
+                    # TODO
+                    ;;
+                *)
+                    [[ $cword -eq $subcword ]] && \
+                        COMPREPLY=( $( compgen -W 'help show' -- "$cur" ) )
+                    ;;
+            esac
+            ;;
+
+         monitor)
+            case $subcmd in
+                all) ;;
+                *)
+                    [[ $cword -eq $subcword ]] && \
+                        COMPREPLY=( $( compgen -W 'help all' -- "$cur" ) )
+                    ;;
+            esac
+            ;;
+
+         xfrm)
+            case $subcmd in
+                state|policy|monitor)
+                    # TODO
+                    ;;
+                *)
+                    [[ $cword -eq $subcword ]] && \
+                        COMPREPLY=( $( compgen -W 'state policy monitor' \
+                        -- "$cur" ) )
+                    ;;
+            esac
+            ;;
+    esac
+} &&
+complete -F _ip ip
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
