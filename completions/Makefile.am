@@ -35,6 +35,7 @@ bashcomp_DATA = abook \
 		dpkg \
 		dselect \
 		dsniff \
+		dvd+rw-tools \
 		e2fsprogs \
 		findutils \
 		freeciv \
