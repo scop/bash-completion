@@ -6,3 +6,9 @@ EXTRA_DIST = completion \
 	     fixtures \
 	     lib \
 	     unit
+
+all:
+	$(mkdir_p) log tmp
+
+distclean-local:
+	rm -rf log tmp
