@@ -57,8 +57,7 @@ sub get_package_suggestions {
     return @suggestion;
 }
 
-sub get_function_suggestions {
-    my ( $func ) = @_;
+sub get_functions {
 
     my $perlfunc;
     for ( @INC, undef ) {
@@ -69,24 +68,51 @@ sub get_function_suggestions {
 
     open my $fh, '<', $perlfunc or return;
 
-    my @suggestion;
+    my @functions;
     my $nest_level = -1;
     while ( <$fh> ) {
         next if 1 .. /^=head2 Alphabetical Listing of Perl Functions$/;
         ++$nest_level if /^=over/;
         --$nest_level if /^=back/;
         next if $nest_level;
-        push @suggestion, /^=item (-?\w+)/;
+        push @functions, /^=item (-?\w+)/;
     }
 
-    my $func_rx = qr/\A${\quotemeta $func}/;
-
-    return grep { /$func_rx/ } @suggestion;
+    return @functions;
 }
 
-my ( $cmd, @arg ) = get_command_line();
-my $word = pop @arg;
+sub filter {
+    my ($word, @list) = @_;
 
-print "$_\n" for ( @arg and @arg[-1] eq '-f' )
-    ? get_function_suggestions( $word )
-    : get_package_suggestions( $word );
+    my $pattern = qr/\A${\quotemeta $word}/;
+
+    return grep { /$pattern/ } @list;
+}
+
+sub get_suggestions {
+    my (@args) = @_;
+    my $word = pop @args;
+
+    if (@args) {
+        if ($args[-1] eq '-f') {
+            return filter(
+                $word,
+                get_functions
+            );
+        }
+    }
+
+    if ($word =~ /^-/) {
+        return filter(
+            $word,
+            qw/-h -D -t -u -m -l -F -i -v -V -T -r -d -o -M -w -n -X -L/
+        );
+
+    } else {
+        return get_package_suggestions($word);
+    }
+}
+
+my ($cmd, @args) = get_command_line();
+
+print "$_\n" for get_suggestions(@args);
