@@ -29,7 +29,7 @@ _postfix()
     COMPREPLY=( $( compgen -W 'check start stop abort flush reload status \
         set-permissions upgrade-configuration' -- "$cur" ) )
 }
-complete -F _postfix -o filenames postfix
+complete -F _postfix postfix
 
 # postalias(1) and postmap(1)
 #
@@ -51,13 +51,14 @@ _postmap()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $( compgen -W '-N -f -i -n -o -p -r -v -w -c -d -q'\
+        COMPREPLY=( $( compgen -W '-N -f -i -n -o -p -r -v -w -c -d -q' \
             -- "$cur" ) )
         return 0
     fi
 
     if [[ "$cur" == *:* ]]; then
-            COMPREPLY=( $( compgen -f -- "${cur#*:}" ) )
+        _compopt_o_filenames
+        COMPREPLY=( $( compgen -f -- "${cur#*:}" ) )
     else
         len=${#cur}
         idx=0
@@ -68,12 +69,13 @@ _postmap()
             fi
         done
         if [[ $idx -eq 0 ]]; then
+            _compopt_o_filenames
             COMPREPLY=( $( compgen -f -- "$cur" ) )
         fi
     fi
     return 0
 }
-complete -F _postmap -o filenames postmap postalias
+complete -F _postmap postmap postalias
 
 # postcat(1)
 #
@@ -116,7 +118,7 @@ _postcat()
         return 0
     fi
 }
-complete -F _postcat -o filenames postcat
+complete -F _postcat postcat
 
 # postconf(1)
 #
@@ -143,7 +145,7 @@ _postconf()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $( compgen -W '-A -a -b -c -d -e -h -m -l -n -t -v'\
+        COMPREPLY=( $( compgen -W '-A -a -b -c -d -e -h -m -l -n -t -v' \
             -- "$cur" ) )
         return 0
     fi
@@ -158,7 +160,7 @@ _postconf()
     done
     return 0
 }
-complete -F _postconf -o filenames postconf
+complete -F _postconf postconf
 
 # postsuper(1)
 #
@@ -219,7 +221,7 @@ _postsuper()
 
     COMPREPLY=( $( compgen -W 'hold incoming active deferred' -- "$cur" ) )
 }
-complete -F _postsuper -o filenames postsuper
+complete -F _postsuper postsuper
 }
 
 # Local variables:

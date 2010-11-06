@@ -72,22 +72,9 @@ set test "-F should complete filename"
 set dir fixtures/ssh
 set prompt "/$dir/@"
 assert_bash_exec "cd $dir" "" $prompt
-set cmd "ssh -Fsp"
-send "$cmd\t"
-expect -ex "$cmd"
-expect {
-    -ex "aced\\ \\ conf"  { pass "$test" }
-        # _filedir works only if `-o filenames' is in effect, which isn't the
-        # case for `ssh'
-    -re "aced  conf" { xfail "$test" }
-    -re $prompt { unresolved "$test at prompt" }
-    default { unresolved "$test" }
-}
+assert_complete "-Fspaced\\ \\ conf" "ssh -Fsp" "-F should complete filename"
 sync_after_int $prompt
 assert_bash_exec {cd "$TESTDIR"}
-
-
-sync_after_int
 
 
 teardown

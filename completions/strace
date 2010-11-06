@@ -30,56 +30,57 @@ _strace()
         _get_comp_words_by_ref cur prev
 
         case $prev in
-        -e)
-            if [[ "$cur" == *=* ]]; then
-                prev=${cur/=*/}
-                cur=${cur/*=/}
+            -e)
+                if [[ "$cur" == *=* ]]; then
+                    prev=${cur/=*/}
+                    cur=${cur/*=/}
 
-                # Import arch-specific syscalls -- not foolproof IMHO
-                #+                                     --David Paleino
-                arch=$(command uname -m)
-                syscalls=$(awk '/^#define __NR/ {print $2}' \
-                    /usr/include/asm/unistd.h | sed -e \
-                    's/__NR_//')
-                if [ -z "$syscalls" ]; then
-                    if [[ "$arch" == *86 ]]; then
-                        unistd=/usr/include/asm/unistd_32.h
-                    else
-                        unistd=/usr/include/asm/unistd_64.h
-                    fi
+                    # Import arch-specific syscalls -- not foolproof IMHO
+                    #+                                     --David Paleino
+                    arch=$(command uname -m)
                     syscalls=$(awk '/^#define __NR/ {print $2}' \
-                        $unistd | sed -e 's/__NR_//')
-                fi
+                        /usr/include/asm/unistd.h | sed -e \
+                        's/__NR_//')
+                    if [ -z "$syscalls" ]; then
+                        if [[ "$arch" == *86 ]]; then
+                            unistd=/usr/include/asm/unistd_32.h
+                        else
+                            unistd=/usr/include/asm/unistd_64.h
+                        fi
+                        syscalls=$(awk '/^#define __NR/ {print $2}' \
+                            $unistd | sed -e 's/__NR_//')
+                    fi
 
-                case $prev in
-                    trace)
-                        COMPREPLY=( $( compgen -W "$syscalls file process \
-                            network signal ipc desc all none" -- "$cur") )
-                        return 0
-                        ;;
-                esac
-            else
-                COMPREPLY=( $( compgen -S"=" -W 'trace abbrev \
-                    verbose raw signal read write' -- "$cur" ) )
-            fi
-            return 0
-            ;;
-        -o)
-            _filedir
-            return 0
-            ;;
-        -p)
-            _pids
-            return 0
-            ;;
-        -S)
-            COMPREPLY=( $( compgen -W 'time calls name nothing' -- "$cur" ) )
-            return 0
-            ;;
-        -u)
-            COMPREPLY=( $( compgen -u -- "$cur" ) )
-            return 0
-            ;;
+                    case $prev in
+                        trace)
+                            COMPREPLY=( $( compgen -W "$syscalls file process
+                                network signal ipc desc all none" -- "$cur") )
+                            return 0
+                            ;;
+                    esac
+                else
+                    COMPREPLY=( $( compgen -S"=" -W 'trace abbrev verbose raw
+                        signal read write' -- "$cur" ) )
+                fi
+                return 0
+                ;;
+            -o)
+                _filedir
+                return 0
+                ;;
+            -p)
+                _pids
+                return 0
+                ;;
+            -S)
+                COMPREPLY=( $( compgen -W 'time calls name nothing' \
+                    -- "$cur" ) )
+                return 0
+                ;;
+            -u)
+                _allowed_users
+                return 0
+                ;;
         esac
 
         if [[ "$cur" == -* ]]; then

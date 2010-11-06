@@ -2,6 +2,7 @@
     # NOTE: DejaGnu has an old `unknown' procedure which unfortunately disables
     #       tcl auto-loading.
 source [file join [info library] init.tcl]
+package require cmdline
 package require textutil::string
 
 
@@ -33,24 +34,14 @@ proc assert_bash_exec {{aCmd ""} {title ""} {prompt /@} {out -1}} {
         ]
     ]
     if {$out == -1 && [string length $results] > 0} {
-        # Is DejaGnu fully initialized, i.e. is "fail" method available?
-        if {[info exists multipass_name]} {
-            fail "ERROR Unexpected output from bash command \"$title\""
-        }
-        send_user "ERROR Unexpected output from bash command \"$title\":\n$results"
+        fail "ERROR Unexpected output from bash command \"$title\""
     }
 
     set cmd "echo $?"
     send "$cmd\r"
     expect {
         -ex "$cmd\r\n0\r\n$prompt" {}
-        $prompt {
-            # Is DejaGnu fully initialized, i.e. is "fail" method available?
-            if {[info exists multipass_name]} {
-                fail "ERROR executing bash command \"$title\""
-            }
-            send_user "ERROR executing bash command \"$title\""
-        }
+        $prompt {fail "ERROR executing bash command \"$title\""}
     }
 }
 
@@ -72,22 +63,37 @@ proc assert_bash_type {command} {
 }
 
 
-# Make sure the expected list is returned by executing the specified command.
-# @param list $expected
-# @param string $cmd  Command given to generate items
-# @param string $test  (optional) Test title.  Default is "$cmd<TAB> should show completions"
-# @param string $prompt  (optional) Bash prompt.  Default is "/@"
-# @param integer $size  (optional) Chunk size.  Default is 20.
-# @result boolean  True if successful, False if not
-proc assert_bash_list {expected cmd {test ""} {prompt /@} {size 20}} {
+# Make sure the expected list matches the real list, as returned by executing
+# the specified bash command.
+# Specify `-sort' if the real list is sorted.
+# @param list $expected  Expected list items
+# @param string $cmd  Bash command to execute in order to generate real list
+#                     items
+# @param string $test  Test title.  Becomes "$cmd should show expected output"
+#                      if empty string.
+# @param list $args  Options:
+#                    -sort           Compare list sorted.  Default is unsorted
+#                    -prompt         Bash prompt.  Default is `/@'
+#                    -chunk-size N   Compare list N items at a time.  Default 
+#                                    is 20.
+proc assert_bash_list {expected cmd test {args {}}} {
+    array set arg [::cmdline::getoptions args {
+        {sort                "compare list sorted"}
+        {prompt.arg     /@   "bash prompt"}
+        {chunk-size.arg 20   "compare N list items at a time"}
+    }]
+    set prompt $arg(prompt)
     if {$test == ""} {set test "$cmd should show expected output"}
     if {[llength $expected] == 0} {
         assert_no_output $cmd $test $prompt
     } else {
         send "$cmd\r"
         expect -ex "$cmd\r\n"
-
-        if {[match_items $expected $test $prompt $size]} {
+        if {$arg(sort)} {set bash_sort "-bash-sort"} else {set bash_sort ""}
+        if {[
+            match_items $expected $bash_sort -chunk-size $arg(chunk-size) \
+                -prompt $prompt
+        ]} {
             expect {
                 -re $prompt { pass "$test" }
                 -re eof { unresolved "eof" }
@@ -99,10 +105,29 @@ proc assert_bash_list {expected cmd {test ""} {prompt /@} {size 20}} {
 }
 
 
-proc assert_bash_list_dir {expected cmd dir {test ""} {prompt /@} {size 20}} {
-    set prompt "/$dir/@"
+# Make sure the expected list matches the real list, as returned by executing
+# the specified bash command within the specified directory.
+# Specify `-sort' if the real list is sorted.
+# @param list $expected  Expected list items
+# @param string $cmd  Bash command to generate real list items
+# @param string $dir  Directory to execute $cmd within
+# @param string $test  Test title.  Becomes "$cmd should show expected output"
+#                      if empty string.
+# @param list $args  Options:
+#                    -sort           Compare list sorted.  Default is unsorted
+#                    -prompt         Bash prompt.  Default is `/$dir/@'
+#                    -chunk-size N   Compare list N items at a time.  Default 
+#                                    is 20.
+proc assert_bash_list_dir {expected cmd dir test {args {}}} {
+    array set arg [::cmdline::getoptions args {
+        {sort                      "compare list sorted"}
+        {prompt.arg     "/$dir/@"  "bash prompt"}
+        {chunk-size.arg 20         "compare N list items at a time"}
+    }]
+    if {$arg(sort)} {set arg_sort "-sort"} else {set arg_sort ""}
     assert_bash_exec "cd $dir" "" $prompt
-    assert_bash_list $expected $cmd $test $prompt $size
+    assert_bash_list $expected $cmd $test $arg_sort \
+        -chunk-size $arg(chunk-size) -prompt $prompt 
     sync_after_int $prompt
     assert_bash_exec {cd "$TESTDIR"}
 }
@@ -160,7 +185,7 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20} {cword ""} {f
             _ltrim_colon_completions cword expected
         }
 
-        if {[match_items $expected $test $prompt $size]} {
+        if {[match_items $expected -bash-sort -chunk-size $size -prompt $prompt]} {
             if {[llength $expected] == 1} {
                 pass "$test"
             } else {
@@ -568,12 +593,13 @@ proc get_signals {} {
 
 # Initialize tcl globals with bash variables
 proc init_tcl_bash_globals {} {
-    global BASH_VERSINFO BASH_VERSION COMP_WORDBREAKS
+    global BASH_VERSINFO BASH_VERSION COMP_WORDBREAKS LC_CTYPE
     assert_bash_exec {printf "%s" "$COMP_WORDBREAKS"} {} /@ COMP_WORDBREAKS
     assert_bash_exec {printf "%s " "${BASH_VERSINFO[@]}"} "" /@ BASH_VERSINFO
     set BASH_VERSINFO [eval list $BASH_VERSINFO]
     assert_bash_exec {printf "%s" "$BASH_VERSION"} "" /@ BASH_VERSION
     assert_bash_exec {printf "%s" "$TESTDIR"} "" /@ TESTDIR
+    assert_bash_exec {eval $(locale); printf "%s" "$LC_CTYPE"} "" /@ LC_CTYPE
 }
 
 
@@ -601,13 +627,25 @@ proc is_cygwin {} {
 }
 
 
-# Expect items.
+# Expect items, a limited number (20) at a time.
 # Break items into chunks because `expect' seems to have a limited buffer size
-# @param list $items
-# @param integer $size  Chunk size
+# @param list $items  Expected list items 
+# @param list $args  Options:
+#                    -bash-sort      Compare list bash-sorted.  Default is
+#                                    unsorted
+#                    -prompt PROMPT  Bash prompt.  Default is `/@'
+#                    -chunk-size CHUNK-SIZE   Compare list CHUNK-SIZE items at
+#                                             a time.  Default is 20.
 # @result boolean  True if successful, False if not
-proc match_items {items test {prompt /@} {size 20}} {
-    set items [bash_sort $items]
+proc match_items {items {args {}}} {
+    array set arg [::cmdline::getoptions args {
+        {bash-sort      "compare list sorted"}
+        {prompt.arg     "/@" "bash prompt"}
+        {chunk-size.arg 20   "compare N list items at a time"}
+    }]
+    set prompt $arg(prompt)
+    set size $arg(chunk-size)
+    if {$arg(bash-sort)} {set items [bash_sort $items]}
     set result false
     for {set i 0} {$i < [llength $items]} {set i [expr {$i + $size}]} {
             # For chunks > 1, allow leading whitespace
@@ -820,8 +858,8 @@ proc start_bash {} {
     set TESTDIR [pwd]
     # If `--tool_exec' option not specified, use "bash"
     if {! [info exists TOOL_EXECUTABLE]} {set TOOL_EXECUTABLE bash}
-    exp_spawn $TOOL_EXECUTABLE --rcfile config/bashrc
-    assert_bash_exec {} "$TOOL_EXECUTABLE --rcfile config/bashrc"
+    exp_spawn $TOOL_EXECUTABLE --rcfile $::srcdir/config/bashrc
+    assert_bash_exec {} "$TOOL_EXECUTABLE --rcfile $::srcdir/config/bashrc"
     # Bash < 3.2.41 has a bug where 'history' disappears from SHELLOPTS
     # whenever a shopt setting is sourced or eval'ed.  Disabling 'history'
     # makes it not show in tests "Environment should not be modified"

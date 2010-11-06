@@ -19,12 +19,23 @@ if {[assert_exec {ls --help} "" "" "unsupported"]} {
 sync_after_int
 
 
-set test "~part should complete to ~full"
-assert_bash_exec {compgen -u} {} /@ users
+set test "~part should complete to ~full/ if existing dir"
+# Create list of users, having existing home dir
+assert_bash_exec {for u in $(compgen -u); do \
+    eval test -d ~$u && echo $u; unset u; done} {} /@ users
 find_unique_completion_pair $users part full
-# If home directory exists, append slash "/", else space " "
-set trail [expr {[llength [glob -nocomplain ~$full]] ? "/" : " "}]
-assert_complete "~$full$trail" "ls ~$part" $test
+assert_complete "~$full/" "ls ~$part" $test
+
+
+sync_after_int
+
+
+set test "~part should complete to ~full<space> if non-existing dir"
+# Create list of users, having non-existing home dir
+assert_bash_exec {for u in $(compgen -u); do \
+    eval test -d ~$u || echo $u; unset u; done} {} /@ users
+find_unique_completion_pair $users part full
+assert_complete "~$full " "ls ~$part" $test
 
 
 sync_after_int
