@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 use strict;
-use File::Spec::Functions qw( rel2abs catdir catfile no_upwards );
+use File::Spec::Functions qw( rel2abs catdir catfile no_upwards splitpath );
 
 sub uniq { my %seen; grep { not $seen{$_}++ } @_ }
 
@@ -27,7 +27,7 @@ sub suggestions_from_path {
 }
 
 sub get_package_suggestions {
-    my ( $pkg ) = @_;
+    my ( $pkg, $prefix ) = @_;
 
     my @segment = split /::|:\z/, $pkg, -1;
     my $file_rx = qr/\A(${\quotemeta pop @segment}\w*)(?:\.pm|\.pod)?\z/;
@@ -54,7 +54,47 @@ sub get_package_suggestions {
         @suggestion = map { ":$_" } @suggestion;
     }
 
+    # only add eventual prefix on first segment
+    if ($prefix && !@segment) {
+       @suggestion = map { $prefix . $_ } @suggestion;
+    }
+
     return @suggestion;
+}
+
+sub get_file_suggestions {
+    my ($path) = @_;
+
+    my $dir;
+    if ($path) {
+        (undef, $dir, undef) = splitpath($path);
+        $dir = '.' if !$dir;
+    } else {
+        $dir = '.';
+    }
+
+    my $dh;
+    return unless opendir ($dh, $dir);
+    my @files = readdir($dh);
+    closedir $dh;
+
+    @files = map { catfile $dir, $_ } @files if $dir ne '.';
+
+    return filter($path, @files);
+}
+
+sub get_directory_suggestions {
+    my ($path, $prefix) = @_;
+
+    my @suggestions = 
+        grep { -d $_} 
+        get_file_suggestions($path);
+
+    if ($prefix) {
+       @suggestions = map { $prefix . $_ } @suggestions;
+    }
+
+    return @suggestions;
 }
 
 sub get_functions {
@@ -89,30 +129,69 @@ sub filter {
     return grep { /$pattern/ } @list;
 }
 
-sub get_suggestions {
+sub get_perldoc_suggestions {
     my (@args) = @_;
-    my $word = pop @args;
+    my $cur = pop @args;
+    my $prev = pop @args;
 
-    if (@args) {
-        if ($args[-1] eq '-f') {
+    if ($prev) {
+        if ($prev eq '-f') {
             return filter(
-                $word,
+                $cur,
                 get_functions
             );
         }
     }
 
-    if ($word =~ /^-/) {
+    if ($cur =~ /^-/) {
         return filter(
-            $word,
+            $cur,
             qw/-h -D -t -u -m -l -F -i -v -V -T -r -d -o -M -w -n -X -L/
         );
 
     } else {
-        return get_package_suggestions($word);
+        return get_package_suggestions($cur);
+    }
+}
+
+sub get_perl_suggestions {
+    my (@args) = @_;
+    my $cur = pop @args;
+    my $prev = pop @args;
+    my $prefix;
+
+    if ($cur =~ /^(-\S)(\S*)/) {
+        $prev = $1;
+        $cur = $2;
+        $prefix = $prev;
+    }
+
+    if ($prev) {
+        if ($prev eq '-I' || $prev eq '-x') {
+            return get_directory_suggestions($cur, $prefix);
+        }
+        if ($prev eq '-m' || $prev eq '-M') {
+            return get_package_suggestions($cur, $prefix);
+        }
+    }
+
+    if ($cur =~ /^-/) {
+        return filter(
+            $cur,
+            qw/
+                -C -s -T -u -U -W -X -h -v -V -c -w -d -D
+                -p -n -a -F -l -0 -I -m -M -P -S -x -i -e
+            /
+        );
+    } else {
+        return get_file_suggestions($cur);
     }
 }
 
 my ($cmd, @args) = get_command_line();
 
-print "$_\n" for get_suggestions(@args);
+print "$_\n" for
+    $cmd eq 'perl'    ? get_perl_suggestions(@args)    :
+    $cmd eq 'perldoc' ? get_perldoc_suggestions(@args) :
+                        ()                             ;
+
