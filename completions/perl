@@ -2,9 +2,98 @@
 
 have perl &&
 {
-complete -C ${BASH_SOURCE[0]%/*}/helpers/perl -o nospace -o default perl
+_perlmodules()
+{
+    COMPREPLY=( $( compgen -P "$prefix" -W "$( ${BASH_SOURCE[0]%/*}/helpers/perl modules $cur )" -- "$cur" ) )
+    __ltrim_colon_completions "$1"
+}
 
-complete -C ${BASH_SOURCE[0]%/*}/helpers/perl -o nospace -o default perldoc
+_perlfunctions()
+{
+    COMPREPLY=( $( compgen -P "$prefix" -W "$( ${BASH_SOURCE[0]%/*}/helpers/perl functions $cur )" -- "$cur" ) )
+}
+
+_perl()
+{
+    local cur prev prefix temp
+    local optPrefix optSuffix
+
+    COMPREPLY=()
+    _get_comp_words_by_ref -n : cur prev
+    prefix=""
+
+    # If option not followed by whitespace, reassign prev and cur
+    if [[ "$cur" == -?* ]]; then
+        temp=$cur
+        prev=${temp:0:2}
+        cur=${temp:2}
+        optPrefix=-P$prev
+        optSuffix=-S/
+        prefix=$prev
+    fi
+
+    # only handle module completion for now
+    case $prev in
+        -I|-x)
+            local IFS=$'\n'
+            _compopt_o_filenames
+            COMPREPLY=( $( compgen -d $optPrefix $optSuffix -- "$cur" ) )
+            return 0
+            ;;
+        -m|-M)
+            _perlmodules "$cur"
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-C -s -T -u -U -W -X -h -v -V -c -w -d \
+            -D -p -n -a -F -l -0 -I -m -M -P -S -x -i -e ' -- "$cur" ) )
+    else
+        _filedir
+    fi
+}
+complete -F _perl -o nospace perl
+
+_perldoc()
+{
+    local cur prev prefix temp
+
+    COMPREPLY=()
+    _get_comp_words_by_ref -n : cur prev
+    prefix=""
+
+    # completing an option (may or may not be separated by a space)
+    if [[ "$cur" == -?* ]]; then
+        temp=$cur
+        prev=${temp:0:2}
+        cur=${temp:2}
+        prefix=$prev
+    fi
+
+    # complete builtin perl functions
+    case $prev in
+        -f)
+            _perlfunctions "$cur"
+             return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-h -v -t -u -m -l -F -X -f -q' -- "$cur" ))
+    else
+        # return available modules (unless it is clearly a file)
+        if [[ "$cur" != */* ]]; then
+            _perlmodules "$cur"
+            COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W \
+                '$( PAGER=/bin/cat man perl |  \
+                sed -ne "/perl.*Perl overview/,/perlwin32/p" | \
+                awk "\$NF=2 { print \$1}" | command grep perl )' -- "$cur" ) )
+        fi
+        _filedir '@(pl|PL|pm|PM|pod|POD)'
+    fi
+}
+complete -F _perldoc -o bashdefault perldoc
 }
 
 # Local variables:

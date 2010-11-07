@@ -1,103 +1,50 @@
 #!/usr/bin/env perl
 use strict;
-use File::Spec::Functions qw( rel2abs catdir catfile no_upwards splitpath );
+use Config;
+use File::Spec::Functions;
 
-sub uniq { my %seen; grep { not $seen{$_}++ } @_ }
+my %seen;
 
-sub get_command_line {
-    my $comp = substr $ENV{'COMP_LINE'}, 0, $ENV{'COMP_POINT'};
-    return split /[ \t]+/, $comp, -1; # if not good enough, use Text::ParseWords
-}
+sub print_modules_real {
+    my ($base, $dir, $word) = @_;
 
-sub slurp_dir {
-    opendir my $dir, shift or return;
-    no_upwards readdir $dir;
-}
+    # returns immediatly if the base doesn't match
+    return if $base && $base !~ /^\Q$word/;
 
-sub suggestion_from_name {
-    my ( $file_rx, $path, $name ) = @_;
-    return if not $name =~ /$file_rx/;
-    return $name.'::' if -d catdir $path, $name;
-    return $1;
-}
+    chdir($dir) or return;
 
-sub suggestions_from_path {
-    my ( $file_rx, $path ) = @_;
-    map { suggestion_from_name $file_rx, $path, $_ } slurp_dir $path;
-}
-
-sub get_package_suggestions {
-    my ( $pkg, $prefix ) = @_;
-
-    my @segment = split /::|:\z/, $pkg, -1;
-    my $file_rx = qr/\A(${\quotemeta pop @segment}\w*)(?:\.pm|\.pod)?\z/;
-
-    my $home = rel2abs $ENV{'HOME'};
-    my $cwd = rel2abs do { require Cwd; Cwd::cwd() };
-
-    my @suggestion =
-        map { suggestions_from_path $file_rx, $_ }
-        uniq map { catdir $_, @segment }
-        grep { $home ne $_ and $cwd ne $_ }
-        map { $_, ( catdir $_, 'pod' ) }
-        map { rel2abs $_ }
-        @INC;
-
-    # fixups
-    if ( $pkg eq '' ) {
-        my $total = @suggestion;
-        @suggestion = grep { not /^perl/ } @suggestion;
-        my $num_hidden = $total - @suggestion;
-        push @suggestion, "perl* ($num_hidden hidden)" if $num_hidden;
-    }
-    elsif ( $pkg =~ /(?<!:):\z/ ) {
-        @suggestion = map { ":$_" } @suggestion;
+    # print each file
+    foreach my $file (glob('*.pm')) {
+        $file =~ s/\.pm$//;
+        my $module = $base . $file;
+        next if $module !~ /^\Q$word/;
+        next if $seen{$module}++;
+        print $module . "\n";
     }
 
-    # only add eventual prefix on first segment
-    if ($prefix && !@segment) {
-       @suggestion = map { $prefix . $_ } @suggestion;
+    # recurse in each subdirectory
+    foreach my $directory (grep { -d } glob('*')) {
+        my $subdir = $dir . '/' . $directory;
+        if ($directory =~ /^(?:[.\d]+|$Config{archname}|auto)$/) {
+            # exclude subdirectory name from base
+            print_modules_real(undef, $subdir, $word);
+        } else {
+            # add subdirectory name to base
+            print_modules_real($base . $directory . '::', $subdir, $word);
+        }
     }
-
-    return @suggestion;
 }
 
-sub get_file_suggestions {
-    my ($path) = @_;
+sub print_modules {
+    my ($word) = @_;
 
-    my $dir;
-    if ($path) {
-        (undef, $dir, undef) = splitpath($path);
-        $dir = '.' if !$dir;
-    } else {
-        $dir = '.';
+    foreach my $directory (@INC) {
+        print_modules_real(undef, $directory, $word);
     }
-
-    my $dh;
-    return unless opendir ($dh, $dir);
-    my @files = readdir($dh);
-    closedir $dh;
-
-    @files = map { catfile $dir, $_ } @files if $dir ne '.';
-
-    return filter($path, @files);
 }
 
-sub get_directory_suggestions {
-    my ($path, $prefix) = @_;
-
-    my @suggestions = 
-        grep { -d $_} 
-        get_file_suggestions($path);
-
-    if ($prefix) {
-       @suggestions = map { $prefix . $_ } @suggestions;
-    }
-
-    return @suggestions;
-}
-
-sub get_functions {
+sub print_functions {
+    my ($word) = @_;
 
     my $perlfunc;
     for ( @INC, undef ) {
@@ -108,90 +55,26 @@ sub get_functions {
 
     open my $fh, '<', $perlfunc or return;
 
-    my @functions;
     my $nest_level = -1;
     while ( <$fh> ) {
         next if 1 .. /^=head2 Alphabetical Listing of Perl Functions$/;
         ++$nest_level if /^=over/;
         --$nest_level if /^=back/;
         next if $nest_level;
-        push @functions, /^=item (-?\w+)/;
+        next unless /^=item (-?\w+)/;
+        my $function = $1;
+        next if $function !~ /^\Q$word/;
+        next if $seen{$function}++;
+        print $function . "\n";
     }
 
-    return @functions;
 }
 
-sub filter {
-    my ($word, @list) = @_;
+my $type = shift;
+my $word = shift;
 
-    my $pattern = qr/\A${\quotemeta $word}/;
-
-    return grep { /$pattern/ } @list;
+if ($type eq 'functions') {
+    print_functions($word);
+} elsif ($type eq 'modules') {
+    print_modules($word);
 }
-
-sub get_perldoc_suggestions {
-    my (@args) = @_;
-    my $cur = pop @args;
-    my $prev = pop @args;
-
-    if ($prev) {
-        if ($prev eq '-f') {
-            return filter(
-                $cur,
-                get_functions
-            );
-        }
-    }
-
-    if ($cur =~ /^-/) {
-        return filter(
-            $cur,
-            qw/-h -D -t -u -m -l -F -i -v -V -T -r -d -o -M -w -n -X -L/
-        );
-
-    } else {
-        return get_package_suggestions($cur);
-    }
-}
-
-sub get_perl_suggestions {
-    my (@args) = @_;
-    my $cur = pop @args;
-    my $prev = pop @args;
-    my $prefix;
-
-    if ($cur =~ /^(-\S)(\S*)/) {
-        $prev = $1;
-        $cur = $2;
-        $prefix = $prev;
-    }
-
-    if ($prev) {
-        if ($prev eq '-I' || $prev eq '-x') {
-            return get_directory_suggestions($cur, $prefix);
-        }
-        if ($prev eq '-m' || $prev eq '-M') {
-            return get_package_suggestions($cur, $prefix);
-        }
-    }
-
-    if ($cur =~ /^-/) {
-        return filter(
-            $cur,
-            qw/
-                -C -s -T -u -U -W -X -h -v -V -c -w -d -D
-                -p -n -a -F -l -0 -I -m -M -P -S -x -i -e
-            /
-        );
-    } else {
-        return get_file_suggestions($cur);
-    }
-}
-
-my ($cmd, @args) = get_command_line();
-
-print "$_\n" for
-    $cmd eq 'perl'    ? get_perl_suggestions(@args)    :
-    $cmd eq 'perldoc' ? get_perldoc_suggestions(@args) :
-                        ()                             ;
-
