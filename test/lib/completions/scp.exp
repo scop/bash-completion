@@ -1,9 +1,13 @@
 proc setup {} {
     save_env
+    # NOTE: Changing dir to $SRCDIR is necessary because file locations in the
+    #       ssh config files (e.g. UserKnownHostsFile) are relative to $SRCDIR.
+    assert_bash_exec {cd $SRCDIR/fixtures/scp}
 }
 
 
 proc teardown {} {
+    assert_bash_exec {cd $TESTDIR}
     assert_env_unmodified {
         /BASH_LINENO=/d
         /BASH_SOURCE=/d
@@ -60,8 +64,7 @@ foreach host [get_hosts] {
 lappend expected blah: doo: gee: hus: ike:
     # Append local filenames
 lappend expected config known_hosts "spaced\\ \\ conf"
-set dir fixtures/scp
-assert_complete_dir $expected "scp -F config " $dir
+assert_complete $expected "scp -F config "
 
 
 sync_after_int
@@ -94,16 +97,12 @@ foreach host [get_hosts] {
 lappend expected blah: doo: gee: hus: ike: jar:
     # Append local filenames
 lappend expected config known_hosts "spaced\\ \\ conf"
-set dir fixtures/scp
-#assert_complete_dir $expected "scp -F 'spaced  conf' " $dir
-set prompt "/$dir/@"
-assert_bash_exec "cd $dir" "" $prompt
 set cmd "scp -F 'spaced  conf' "
 send "$cmd\t"
 expect -ex "$cmd\r\n"
 if {[match_items [lsort -unique $expected] -bash-sort]} {
     expect {
-        -re $prompt { pass "$test" }
+        -re /@ { pass "$test" }
         -re eof { unresolved "eof" }
     }
 } else {
@@ -111,7 +110,7 @@ if {[match_items [lsort -unique $expected] -bash-sort]} {
     # http://www.mail-archive.com/bug-bash@gnu.org/msg06095.html
     if {[lindex $::BASH_VERSINFO 0] >= 4} {xfail "$test"} {fail "$test"}
 }
-sync_after_int $prompt
+sync_after_int
 assert_bash_exec {cd "$TESTDIR"}
 
 

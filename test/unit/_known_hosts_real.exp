@@ -1,4 +1,7 @@
 proc setup {} {
+    # NOTE: Changing dir to $SRCDIR is necessary because file locations in the
+    #       ssh config files (e.g. UserKnownHostsFile) are relative to $SRCDIR.
+    assert_bash_exec {cd $SRCDIR}
     save_env
 }
 
@@ -8,6 +11,7 @@ proc teardown {} {
         /COMPREPLY=/d
         /OLDHOME=/d
     }
+    assert_bash_exec {cd $TESTDIR}
 }
 
 
@@ -79,7 +83,7 @@ set hosts [get_hosts]
 lappend hosts two three
 set hosts [join [bash_sort $hosts] "\\s+"]
     # Setup environment
-set cmd {OLDHOME=$HOME; HOME=$TESTDIR}
+set cmd {OLDHOME=$HOME; HOME=$SRCDIRABS}
 send "$cmd\r"
 expect -ex "$cmd\r\n/@"
     # Call _known_hosts
