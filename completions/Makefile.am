@@ -6,6 +6,8 @@ bashcomp_DATA = abook \
 		apt-build \
 		aptitude \
 		aspell \
+		autoconf \
+		automake \
 		autorpm \
 		bash-builtins \
 		bind-utils \
