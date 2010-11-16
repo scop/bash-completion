@@ -115,15 +115,16 @@ proc assert_bash_list {expected cmd test {args {}}} {
 #                      if empty string.
 # @param list $args  Options:
 #                    -sort           Compare list sorted.  Default is unsorted
-#                    -prompt         Bash prompt.  Default is `/$dir/@'
+#                    -prompt         Bash prompt.  Default is `/@'
 #                    -chunk-size N   Compare list N items at a time.  Default 
 #                                    is 20.
 proc assert_bash_list_dir {expected cmd dir test {args {}}} {
     array set arg [::cmdline::getoptions args {
-        {sort                      "compare list sorted"}
-        {prompt.arg     "/$dir/@"  "bash prompt"}
-        {chunk-size.arg 20         "compare N list items at a time"}
+        {sort                 "compare list sorted"}
+        {prompt.arg     "/@"  "bash prompt"}
+        {chunk-size.arg 20    "compare N list items at a time"}
     }]
+    set prompt $arg(prompt)
     if {$arg(sort)} {set arg_sort "-sort"} else {set arg_sort ""}
     assert_bash_exec "cd $dir" "" $prompt
     assert_bash_list $expected $cmd $test $arg_sort \
@@ -654,7 +655,7 @@ proc match_items {items {args {}}} {
             set item "[lindex $items [expr {$i + $j}]]"
             _escape_regexp_chars item
             append expected $item
-            if {[llength $items] > 1} {append expected {\s+}};
+            if {[llength $items] > 1} {append expected {\s+}}
         }
         if {[llength $items] == 1} {
             expect {
