@@ -1,0 +1,124 @@
+# Completions for autoconf tools
+
+have autoconf &&
+_autoconf()
+{
+    COMPREPLY=()
+    local cur prev split=false
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case "$prev" in
+        --help|-h|--version|-V|--trace|-t)
+            return 0
+            ;;
+        --output|-o)
+            _filedir
+            return 0
+            ;;
+        --warnings|-W)
+            local cats=( cross obsolete syntax )
+            COMPREPLY=( $( compgen -W \
+                '${cats[@]} ${cats[@]/#/no-} all none error' -- "$cur" ) )
+            return 0
+            ;;
+        --prepend-include|-B|--include|-I)
+            _filedir -d
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        _longopt $1
+        return
+    fi
+
+    _filedir '@(ac|in)'
+} &&
+complete -F _autoconf autoconf
+
+have autoreconf || have autoheader &&
+_autoreconf()
+{
+    COMPREPLY=()
+    local cur prev split=false
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case "$prev" in
+        --help|-h|--version|-V)
+            return 0
+            ;;
+        --warnings|-W)
+            local cats=( cross gnu obsolete override portability syntax \
+                unsupported )
+            COMPREPLY=( $( compgen -W \
+                '${cats[@]} ${cats[@]/#/no-} all none error' -- "$cur" ) )
+            return 0
+            ;;
+        --prepend-include|-B|--include|-I)
+            _filedir -d
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        _longopt $1
+        return 0
+    fi
+
+    if [[ $1 == autoheader ]] ; then
+        _filedir '@(ac|in)'
+    else
+        _filedir -d
+    fi
+} &&
+complete -F _autoreconf autoreconf autoheader
+
+have autoscan || have autoupdate &&
+_autoscan()
+{
+    COMPREPLY=()
+    local cur prev split=false
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case "$prev" in
+        --help|-h|--version|-V)
+            return 0
+            ;;
+        --prepend-include|-B|--include|-I)
+            _filedir -d
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        _longopt $1
+        return 0
+    fi
+
+    if [[ $1 == autoupdate ]] ; then
+        _filedir '@(ac|in)'
+    else
+        _filedir -d
+    fi
+} &&
+complete -F _autoscan autoscan autoupdate
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

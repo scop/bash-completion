@@ -1,9 +1,13 @@
 proc setup {} {
     save_env
+    # NOTE: Changing dir to $SRCDIR is necessary because file locations in the
+    #       ssh config files (e.g. UserKnownHostsFile) are relative to $SRCDIR.
+    assert_bash_exec {cd $SRCDIR/fixtures/ssh}
 }
 
 
 proc teardown {} {
+    assert_bash_exec {cd $TESTDIR}
     assert_env_unmodified {
         /BASH_LINENO=/d
         /BASH_SOURCE=/d
@@ -17,19 +21,15 @@ setup
 
 set test "Tab should complete both commands and hostname"
     # Try completion
-set dir fixtures/ssh
-set prompt "/$dir/@"
-assert_bash_exec "cd $dir" "" $prompt
 set cmd "ssh -F config ls"
 send "$cmd\t"
-set expected "^$cmd\r\n.*ls.*ls_known_host.*\r\n$prompt$cmd$"
+set expected "^$cmd\r\n.*ls.*ls_known_host.*\r\n/@$cmd$"
 expect {
     -re $expected  { pass "$test" }
-    -re $prompt { unresolved "$test at prompt" }
+    -re /@ { unresolved "$test at prompt" }
     default { unresolved "$test" }
 }
-sync_after_int $prompt
-assert_bash_exec {cd "$TESTDIR"}
+sync_after_int
 
 
 sync_after_int
@@ -69,12 +69,8 @@ sync_after_int
 
 
 set test "-F should complete filename"
-set dir fixtures/ssh
-set prompt "/$dir/@"
-assert_bash_exec "cd $dir" "" $prompt
 assert_complete "-Fspaced\\ \\ conf" "ssh -Fsp" "-F should complete filename"
-sync_after_int $prompt
-assert_bash_exec {cd "$TESTDIR"}
+sync_after_int
 
 
 teardown

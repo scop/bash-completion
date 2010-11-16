@@ -11,25 +11,6 @@ proc teardown {} {
 setup
 
 
-set test "perldoc should complete options"
-set cmd "perldoc -"
-send "$cmd\t"
-expect -ex "$cmd"
-# We can't anchor on $, simulate typing a magical string instead.
-set endguard "Magic End Guard"
-send "$endguard"
-expect {
-    # NOTE: Expected failure: After switching to pure perl perldoc completion,
-    #       the completion of options has disappeared.  See commit 07b7ddd1d
-    #       and Alioth #312800
-    -re "^$endguard$" { xfail "$test" }
-    -re "-h.*$endguard$" { pass "$test" }
-}
-
-
-sync_after_int
-
-
 set test "perldoc should complete word containing colons"
 set cmd "perldoc File::"
 send "$cmd\t"
@@ -43,6 +24,15 @@ expect {
     -re /@ { unresolved "$test" }
     default { unresolved "$test" }
 }
+
+
+sync_after_int
+
+set test "- should complete options"
+set options {
+    -h -v -t -u -m -l -F -X -f -q
+}
+assert_complete $options "perldoc -"
 
 
 sync_after_int

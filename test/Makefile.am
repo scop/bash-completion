@@ -12,3 +12,5 @@ all:
 
 distclean-local:
 	rm -rf log tmp
+
+AUTOMAKE_OPTIONS = dejagnu

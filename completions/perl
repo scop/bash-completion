@@ -4,8 +4,13 @@ have perl &&
 {
 _perlmodules()
 {
-    COMPREPLY=( $( compgen -P "$prefix" -W "$( perl -e 'sub mods { my ($base,$dir)=@_; return if  $base !~ /^\Q$ENV{cur}/; chdir($dir) or return; for (glob(q[*.pm])) {s/\.pm$//; print qq[$base$_\n]}; mods(/^(?:[.\d]+|$Config{archname}-$Config{osname}|auto)$/ ? undef : qq[${base}${_}::],qq[$dir/$_]) for grep {-d} glob(q[*]); } mods(undef,$_) for @INC;' )" -- "$cur" ) )
+    COMPREPLY=( $( compgen -P "$prefix" -W "$( ${BASH_SOURCE[0]%/*}/helpers/perl modules $cur )" -- "$cur" ) )
     __ltrim_colon_completions "$1"
+}
+
+_perlfunctions()
+{
+    COMPREPLY=( $( compgen -P "$prefix" -W "$( ${BASH_SOURCE[0]%/*}/helpers/perl functions $cur )" -- "$cur" ) )
 }
 
 _perl()
@@ -50,7 +55,45 @@ _perl()
 }
 complete -F _perl -o nospace perl
 
-complete -C ${BASH_SOURCE[0]%/*}/helpers/perldoc -o nospace -o default perldoc
+_perldoc()
+{
+    local cur prev prefix temp
+
+    COMPREPLY=()
+    _get_comp_words_by_ref -n : cur prev
+    prefix=""
+
+    # completing an option (may or may not be separated by a space)
+    if [[ "$cur" == -?* ]]; then
+        temp=$cur
+        prev=${temp:0:2}
+        cur=${temp:2}
+        prefix=$prev
+    fi
+
+    # complete builtin perl functions
+    case $prev in
+        -f)
+            _perlfunctions "$cur"
+             return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-h -v -t -u -m -l -F -X -f -q' -- "$cur" ))
+    else
+        # return available modules (unless it is clearly a file)
+        if [[ "$cur" != */* ]]; then
+            _perlmodules "$cur"
+            COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W \
+                '$( PAGER=/bin/cat man perl |  \
+                sed -ne "/perl.*Perl overview/,/perlwin32/p" | \
+                awk "\$NF=2 { print \$1}" | command grep perl )' -- "$cur" ) )
+        fi
+        _filedir '@(pl|PL|pm|PM|pod|POD)'
+    fi
+}
+complete -F _perldoc -o bashdefault perldoc
 }
 
 # Local variables:

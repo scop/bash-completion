@@ -295,7 +295,7 @@ proc assert_complete_any {cmd {test ""} {prompt /@}} {
 # @param string $cword  (optional) Last word of $cmd to complete.  See: assert_complete()
 # @result boolean  True if successful, False if not
 proc assert_complete_dir {expected cmd dir {test ""} {size 20} {cword ""}} {
-    set prompt "/$dir/@"
+    set prompt "/@"
     assert_bash_exec "cd $dir" "" $prompt
     assert_complete $expected $cmd $test $prompt $size $cword
     sync_after_int $prompt
@@ -510,7 +510,7 @@ proc assert_no_output {{cmd} {test ""} {prompt /@}} {
 proc assert_source_completions {command {file ""}} {
     if {[is_bash_completion_installed_for $command]} {
         if {[string length $file] == 0} {
-            set file "lib/completions/$command.exp"
+            set file "$::srcdir/lib/completions/$command.exp"
         }
         source $file
     } else {
@@ -738,9 +738,9 @@ proc _save_env {{file ""}} {
 
 # Source bash_completion package
 proc source_bash_completion {} {
-    assert_bash_exec {BASH_COMPLETION_DIR=$(cd "$TESTDIR/.."; pwd)/completions}
+    assert_bash_exec {BASH_COMPLETION_DIR=$(cd "$SRCDIR/.."; pwd)/completions}
     assert_bash_exec {BASH_COMPLETION_COMPAT_DIR=$BASH_COMPLETION_DIR}
-    assert_bash_exec {BASH_COMPLETION=$(cd "$TESTDIR/.."; pwd)/bash_completion}
+    assert_bash_exec {BASH_COMPLETION=$(cd "$SRCDIR/.."; pwd)/bash_completion}
     assert_bash_exec {source "$BASH_COMPLETION"}
 }
 
@@ -854,10 +854,13 @@ proc find_unique_completion_pair {{list} {partName} {fullName}} {
 
 # Start bash running as test environment.
 proc start_bash {} {
-    global TESTDIR TOOL_EXECUTABLE spawn_id
+    global TESTDIR TOOL_EXECUTABLE spawn_id env srcdirabs
     set TESTDIR [pwd]
+    set srcdirabs [file normalize $::srcdir];  # Absolute srcdir
     # If `--tool_exec' option not specified, use "bash"
     if {! [info exists TOOL_EXECUTABLE]} {set TOOL_EXECUTABLE bash}
+    set env(SRCDIR) $::srcdir
+    set env(SRCDIRABS) $::srcdirabs
     exp_spawn $TOOL_EXECUTABLE --rcfile $::srcdir/config/bashrc
     assert_bash_exec {} "$TOOL_EXECUTABLE --rcfile $::srcdir/config/bashrc"
     # Bash < 3.2.41 has a bug where 'history' disappears from SHELLOPTS
