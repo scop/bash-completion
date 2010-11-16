@@ -5,7 +5,7 @@ have perl &&
 _perlmodules()
 {
     COMPREPLY=( $( compgen -P "$prefix" -W "$( ${BASH_SOURCE[0]%/*}/helpers/perl modules $cur )" -- "$cur" ) )
-    __ltrim_colon_completions "$1"
+    __ltrim_colon_completions "$prefix$cur"
 }
 
 _perlfunctions()
@@ -41,7 +41,7 @@ _perl()
             return 0
             ;;
         -m|-M)
-            _perlmodules "$cur"
+            _perlmodules
             return 0
             ;;
     esac
@@ -53,7 +53,7 @@ _perl()
         _filedir
     fi
 }
-complete -F _perl -o nospace perl
+complete -F _perl perl
 
 _perldoc()
 {
@@ -84,7 +84,7 @@ _perldoc()
     else
         # return available modules (unless it is clearly a file)
         if [[ "$cur" != */* ]]; then
-            _perlmodules "$cur"
+            _perlmodules
             COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W \
                 '$( PAGER=/bin/cat man perl |  \
                 sed -ne "/perl.*Perl overview/,/perlwin32/p" | \

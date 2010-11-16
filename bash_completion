@@ -613,7 +613,10 @@ _quote_readline_by_ref()
 # the bash < 4 compgen hack.
 _compopt_o_filenames()
 {
-    compopt -o filenames 2>/dev/null || \
+    # We test for compopt availability first because directly invoking it on
+    # bash < 4 at this point may cause terminal echo to be turned off for some
+    # reason, see https://bugzilla.redhat.com/653669 for more info.
+    type compopt &>/dev/null && compopt -o filenames 2>/dev/null || \
         compgen -f /non-existing-dir/ >/dev/null
 }
 
