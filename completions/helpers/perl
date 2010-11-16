@@ -8,8 +8,16 @@ my %seen;
 sub print_modules_real {
     my ($base, $dir, $word) = @_;
 
-    # return immediately if the base doesn't match
-    return if $base && $base !~ /^\Q$word/;
+    # return immediatly if potential completion doesn't match current word
+    # a double comparaison is used to avoid dealing with string lengths
+    # (the shorter being the pattern to be used as the regexp)
+    # word 'Fi', base 'File' -> match 'File' against 'Fi'
+    # word 'File::Sp', base 'File' -> match 'File::Sp' againt 'File'
+    return if
+        $base               &&
+        $word               &&
+        $base !~ /^\Q$word/ &&
+        $word !~ /^\Q$base/;
 
     chdir($dir) or return;
 
