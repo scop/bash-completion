@@ -89,15 +89,13 @@ proc assert_bash_list {expected cmd test {args {}}} {
     } else {
         send "$cmd\r"
         expect -ex "$cmd\r\n"
-        if {$arg(sort)} {set bash_sort "-bash-sort"} else {set bash_sort ""}
+        if {$arg(sort)} {set bash_sort "-bash-sort"} {set bash_sort ""}
         if {[
-            match_items $expected $bash_sort -chunk-size $arg(chunk-size) \
-                -prompt $prompt
+            eval match_items \$expected $bash_sort -chunk-size \
+                \$arg(chunk-size) -end-newline -end-prompt \
+                -prompt \$prompt
         ]} {
-            expect {
-                -re $prompt { pass "$test" }
-                -re eof { unresolved "eof" }
-            }
+            pass "$test"
         } else {
             fail "$test"
         }
@@ -138,21 +136,34 @@ proc assert_bash_list_dir {expected cmd dir test {args {}}} {
 # command.
 # @param list $expected  Expected completions.
 # @param string $cmd  Command given to generate items
-# @param string $test  (optional) Test title.  Default is "$cmd<TAB> should show completions"
-# @param string $prompt  (optional) Bash prompt.  Default is "/@"
-# @param integer $size  (optional) Chunk size.  Default is 20.
-# @param string $cword  (optional) Last argument of $cmd which is an
-#     argument-to-complete and to be replaced with the longest common prefix
-#     of $expected.  If empty string (default), `assert_complete' autodetects
-#     if the last argument is an argument-to-complete by checking if $cmd
-#     doesn't end with whitespace.  Specifying `cword' should only be necessary
-#     if this autodetection fails, e.g.  when the last whitespace is escaped or
-#     quoted, e.g. "finger foo\ " or "finger 'foo "
-# @param list $filters  (optional) List of filters to apply to this function to tweak
-#     the expected completions and argument-to-complete.  Possible values:
-#     - "ltrim_colon_completions"
+# @param string $test  Test title
+# @param list $args  Options:
+#     -prompt PROMPT  Bash prompt.  Default is `/@'
+#     -chunk-size CHUNK-SIZE   Compare list CHUNK-SIZE items at
+#         a time.  Default is 20.
+#     -cword CWORD  Last argument of $cmd which is an argument-to-complete and
+#         to be replaced with the longest common prefix of $expected.  If empty
+#         string (default), `assert_complete' autodetects if the last argument
+#         is an argument-to-complete by checking if $cmd doesn't end with
+#         whitespace.  Specifying `cword' should only be necessary if this
+#         autodetection fails, e.g.  when the last whitespace is escaped or
+#         quoted, e.g. "finger foo\ " or "finger 'foo "
+#     -nospace  Don't expect space character to be output after completion match.
+#     -filters  List of filters to apply to this function to tweak the expected
+#         completions and argument-to-complete.  Possible values:
+#         - "ltrim_colon_completions"
+#proc assert_complete {expected cmd {test ""} {prompt /@} {size 20} {cword ""} {filters ""}} {
 # @result boolean  True if successful, False if not
-proc assert_complete {expected cmd {test ""} {prompt /@} {size 20} {cword ""} {filters ""}} {
+proc assert_complete {expected cmd {test ""} {args {}}} {
+    array set arg [::cmdline::getoptions args {
+        {prompt.arg     "/@" "bash prompt"}
+        {chunk-size.arg 20   "compare N list items at a time"}
+        {cword.arg      ""   "word to complete"}
+        {nospace             "don't expect space after completion"}
+        {filters.arg    ""   "filters to preprocess expected completions"}
+    }]
+    set cword $arg(cword)
+    set prompt $arg(prompt)
     if {[llength $expected] == 0} {
         assert_no_complete $cmd $test
     } else {
@@ -161,7 +172,7 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20} {cword ""} {f
         if {[llength $expected] == 1} {
             expect -ex "$cmd"
 
-            if {[lsearch -exact $filters "ltrim_colon_completions"] == -1} {
+            if {[lsearch -exact $arg(filters) "ltrim_colon_completions"] == -1} {
                 set cur "";  # Default to empty word to complete on
                 set words [split_words_bash $cmd]
                 if {[llength $words] > 1} {
@@ -180,20 +191,24 @@ proc assert_complete {expected cmd {test ""} {prompt /@} {size 20} {cword ""} {f
             set expected [lsort -unique $expected]
         }
 
-        if {[lsearch -exact $filters "ltrim_colon_completions"] != -1} {
+        if {[lsearch -exact $arg(filters) "ltrim_colon_completions"] != -1} {
                 # If partial contains colon (:), remove partial from begin of items
                 # See also: bash_completion.__ltrim_colon_completions()
             _ltrim_colon_completions cword expected
         }
 
-        if {[match_items $expected -bash-sort -chunk-size $size -prompt $prompt]} {
+        if {$arg(nospace)} {set endspace ""} else {set endspace "-end-space"}
+        if {[
+            eval match_items \$expected -bash-sort -chunk-size \
+                \$arg(chunk-size) $endspace -prompt \$prompt
+        ]} {
             if {[llength $expected] == 1} {
                 pass "$test"
             } else {
                 # Remove optional (partial) last argument-to-complete from `cmd',
                 # E.g. "finger test@" becomes "finger"
 
-                if {[lsearch -exact $filters "ltrim_colon_completions"] != -1} {
+                if {[lsearch -exact $arg(filters) "ltrim_colon_completions"] != -1} {
                     set cmd2 $cmd
                 } else {
                     set cmd2 [_remove_cword_from_cmd $cmd $cword]
@@ -290,15 +305,13 @@ proc assert_complete_any {cmd {test ""} {prompt /@}} {
 # @param list $expected
 # @param string $cmd  Command given to generate items
 # @param string $dir  Subdirectory to attempt completion in.  The directory must be relative from the $TESTDIR and without a trailing slash.  E.g. `fixtures/evince'
-# @param string $test  (optional) Test title.  Default is "$cmd<TAB> should show completions"
-# @param string $prompt  (optional) Bash prompt.  Default is "/@"
-# @param integer $size  (optional) Chunk size.  Default is 20.
-# @param string $cword  (optional) Last word of $cmd to complete.  See: assert_complete()
+# @param string $test  Test title
+# @param list $args  See: assert_complete()
 # @result boolean  True if successful, False if not
-proc assert_complete_dir {expected cmd dir {test ""} {size 20} {cword ""}} {
+proc assert_complete_dir {expected cmd dir {test ""} {args {}}} {
     set prompt "/@"
     assert_bash_exec "cd $dir" "" $prompt
-    assert_complete $expected $cmd $test $prompt $size $cword
+    assert_complete $expected $cmd $test $args
     sync_after_int $prompt
     assert_bash_exec {cd "$TESTDIR"}
 }
@@ -312,14 +325,9 @@ proc assert_complete_dir {expected cmd dir {test ""} {size 20} {cword ""}} {
 # @param list $expected  List of all completions.
 # @param string $cmd  Command given to generate items
 # @param string $partial  Word to complete
-# @param string $test  (optional) Test title.  Default is "$cmd<TAB> should show completions"
-# @param string $prompt  (optional) Bash prompt.  Default is "/@"
-# @param integer $size  (optional) Chunk size.  Default is 20.
-# @param list $filters  (optional) List of filters to apply to this function to tweak
-#     the expected completions and argument-to-complete.
-#     @see assert_complete()
-# @result boolean  True if successful, False if not
-proc assert_complete_partial {expected cmd {partial ""} {test ""} {prompt /@} {size 20} {filters ""}} {
+# @param string $test  Test title
+# @param list $args  See: assert_complete()
+proc assert_complete_partial {expected cmd {partial ""} {test ""} {args {}}} {
     if {$test == ""} {set test "$cmd should complete partial argument"}
     if {[llength $expected] == 0} {
         unresolved "$test"
@@ -334,7 +342,7 @@ proc assert_complete_partial {expected cmd {partial ""} {test ""} {prompt /@} {s
                 lappend pick $item
             }
         }
-        assert_complete $pick "$cmd $partial" $test $prompt $size $partial $filters
+        assert_complete $pick "$cmd $partial" $test $args
     }
 }
 
@@ -637,12 +645,22 @@ proc is_cygwin {} {
 #                    -prompt PROMPT  Bash prompt.  Default is `/@'
 #                    -chunk-size CHUNK-SIZE   Compare list CHUNK-SIZE items at
 #                                             a time.  Default is 20.
+#                    -end-newline  Expect newline after last item.
+#                                  Default is not.
+#                    -end-prompt   Expect prompt after last item.
+#                                  Default is not.
+#                    -end-space    Expect single space after last item.
+#                                  Default is not.  Valid only if
+#                                  `end-newline' not set.
 # @result boolean  True if successful, False if not
 proc match_items {items {args {}}} {
     array set arg [::cmdline::getoptions args {
         {bash-sort      "compare list sorted"}
         {prompt.arg     "/@" "bash prompt"}
         {chunk-size.arg 20   "compare N list items at a time"}
+        {end-newline   "expect newline after last item"}
+        {end-prompt    "expect prompt after last item"}
+        {end-space     "expect space ater last item"}
     }]
     set prompt $arg(prompt)
     set size $arg(chunk-size)
@@ -658,12 +676,20 @@ proc match_items {items {args {}}} {
             if {[llength $items] > 1} {append expected {\s+}}
         }
         if {[llength $items] == 1} {
+            if {$arg(end-prompt)} {set end $prompt} {set end ""}
+            # Both trailing space and newline are specified?
+            if {$arg(end-newline) && $arg(end-space)} {
+                # Indicate both trailing space or newline are ok
+                set expected2 "|^$expected $end$";  # Include space
+                append expected "\r\n$end";      # Include newline
+            } else {
+                if {$arg(end-newline)} {append expected "\r\n$end"}
+                if {$arg(end-space)}   {append expected " $end"}
+                set expected2 ""
+            }
             expect {
-                -re "^$expected\r\n$" { set result true }
-                # NOTE: The optional space ( ?) depends on whether -o nospace is active
-                -re "^$expected ?$" { set result true }
+                -re "^$expected$$expected2" { set result true }
                 -re "^$prompt$" {set result false; break }
-                "\r\n" { set result false; break }
                 default { set result false; break }
                 timeout { set result false; break }
             }

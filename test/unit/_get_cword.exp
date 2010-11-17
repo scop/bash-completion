@@ -30,7 +30,7 @@ sync_after_int
 
 
 set test "a b| should return b";  # | = cursor position
-set cmd {COMP_WORDS=(a b); COMP_CWORD=1; COMP_LINE='a b'; COMP_POINT=3; _get_cword}
+set cmd {COMP_WORDS=(a b); COMP_CWORD=1; COMP_LINE='a b'; COMP_POINT=3; _get_cword; echo}
 assert_bash_list b $cmd $test
 
 
@@ -65,7 +65,7 @@ sync_after_int
 
 
 set test "a b|c should return b";  # | = cursor position
-set cmd {COMP_WORDS=(a bc); COMP_CWORD=1; COMP_LINE='a bc'; COMP_POINT=3; _get_cword}
+set cmd {COMP_WORDS=(a bc); COMP_CWORD=1; COMP_LINE='a bc'; COMP_POINT=3; _get_cword; echo}
 assert_bash_list b $cmd $test
 
 
@@ -73,7 +73,7 @@ sync_after_int
 
 
 set test {a b\ c| should return b\ c};  # | = cursor position
-set cmd {COMP_WORDS=(a 'b\ c'); COMP_CWORD=1; COMP_LINE='a b\ c'; COMP_POINT=6; _get_cword}
+set cmd {COMP_WORDS=(a 'b\ c'); COMP_CWORD=1; COMP_LINE='a b\ c'; COMP_POINT=6; _get_cword; echo}
 assert_bash_list {"b\\ c"} $cmd $test
 
 
@@ -81,7 +81,7 @@ sync_after_int
 
 
 set test {a b\| c should return b\ };  # | = cursor position
-set cmd {COMP_WORDS=(a 'b\ c'); COMP_CWORD=1; COMP_LINE='a b\ c'; COMP_POINT=4; _get_cword}
+set cmd {COMP_WORDS=(a 'b\ c'); COMP_CWORD=1; COMP_LINE='a b\ c'; COMP_POINT=4; _get_cword; echo}
 assert_bash_list {"b\\"} $cmd $test
 
 
@@ -89,7 +89,7 @@ sync_after_int
 
 
 set test {a "b\| should return "b\ };  # | = cursor position
-set cmd {COMP_WORDS=(a '"b\'); COMP_CWORD=1; COMP_LINE='a "b\'; COMP_POINT=5; _get_cword}
+set cmd {COMP_WORDS=(a '"b\'); COMP_CWORD=1; COMP_LINE='a "b\'; COMP_POINT=5; _get_cword; echo}
 assert_bash_list {"\"b\\"} $cmd $test
 
 
@@ -160,7 +160,7 @@ if {[lindex $::BASH_VERSINFO 0] <= 3} {
     set cmd {add_comp_wordbreak_char :; COMP_WORDS=(a b : c); COMP_CWORD=3}
     set expected c
 }
-append cmd {; COMP_LINE='a b:c'; COMP_POINT=5; _get_cword}
+append cmd {; COMP_LINE='a b:c'; COMP_POINT=5; _get_cword; echo}
 assert_bash_list $expected $cmd $test
 
 
@@ -173,7 +173,7 @@ if {[lindex $::BASH_VERSINFO 0] <= 3} {
 } else {
     set cmd {COMP_WORDS=(a b : c); COMP_CWORD=3}
 }
-append cmd {; COMP_LINE='a b:c'; COMP_POINT=5; _get_cword :}
+append cmd {; COMP_LINE='a b:c'; COMP_POINT=5; _get_cword :; echo}
 assert_bash_list b:c $cmd $test
 
 
@@ -186,7 +186,7 @@ if {[lindex $::BASH_VERSINFO 0] <= 3} {
 } else {
     set cmd {COMP_WORDS=(a b c :); COMP_CWORD=3}
 }
-append cmd {; COMP_LINE='a b c:'; COMP_POINT=6; _get_cword :}
+append cmd {; COMP_LINE='a b c:'; COMP_POINT=6; _get_cword :; echo}
 assert_bash_list c: $cmd $test
 
 
@@ -194,7 +194,7 @@ sync_after_int
 
 
 set test {a :| with WORDBREAKS -= : should return :};  # | = cursor position
-set cmd {COMP_WORDS=(a :); COMP_CWORD=1; COMP_LINE='a :'; COMP_POINT=3; _get_cword :}
+set cmd {COMP_WORDS=(a :); COMP_CWORD=1; COMP_LINE='a :'; COMP_POINT=3; _get_cword :; echo}
 assert_bash_list : $cmd $test
 
 
@@ -207,7 +207,7 @@ if {[lindex $::BASH_VERSINFO 0] <= 3} {
 } else {
     set cmd {COMP_WORDS=(a b ::); COMP_CWORD=2}
 }
-append cmd {; COMP_LINE='a b::'; COMP_POINT=5; _get_cword :}
+append cmd {; COMP_LINE='a b::'; COMP_POINT=5; _get_cword :; echo}
 assert_bash_list b:: $cmd $test
 
 
@@ -217,7 +217,7 @@ sync_after_int
 # This test makes sure `_get_cword' doesn't use `echo' to return it's value,
 # because -n might be interpreted by `echo' and thus will not be returned.
 set test "a -n| should return -n";  # | = cursor position
-set cmd {COMP_WORDS=(a -n); COMP_CWORD=1; COMP_LINE='a -n'; COMP_POINT=4; _get_cword}
+set cmd {COMP_WORDS=(a -n); COMP_CWORD=1; COMP_LINE='a -n'; COMP_POINT=4; _get_cword; echo}
 assert_bash_list -n $cmd $test
 
 
@@ -225,7 +225,7 @@ sync_after_int
 
 
 set test {a b>c| should return c};  # | = cursor position
-set cmd {COMP_WORDS=(a b \> c); COMP_CWORD=3; COMP_LINE='a b>c'; COMP_POINT=5; _get_cword}
+set cmd {COMP_WORDS=(a b \> c); COMP_CWORD=3; COMP_LINE='a b>c'; COMP_POINT=5; _get_cword; echo}
 assert_bash_list c $cmd $test
 
 
@@ -240,7 +240,7 @@ if {[lindex $::BASH_VERSINFO] <= 3} {
     set cmd {COMP_WORDS=(a b = c); COMP_CWORD=3}
     set expected c
 }
-append cmd {; COMP_LINE='a b=c'; COMP_POINT=5; _get_cword}
+append cmd {; COMP_LINE='a b=c'; COMP_POINT=5; _get_cword; echo}
 assert_bash_list $expected $cmd $test
 
 
@@ -248,7 +248,7 @@ sync_after_int
 
 
 set test {a *| should return *};  # | = cursor position
-set cmd {COMP_WORDS=(a \*); COMP_CWORD=1; COMP_LINE='a *'; COMP_POINT=4; _get_cword}
+set cmd {COMP_WORDS=(a \*); COMP_CWORD=1; COMP_LINE='a *'; COMP_POINT=4; _get_cword; echo}
 assert_bash_list * $cmd $test
 
 
