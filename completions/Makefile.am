@@ -79,6 +79,7 @@ bashcomp_DATA = abook \
 		lintian \
 		lisp \
 		lrzip \
+		lsof \
 		lvm \
 		lzma \
 		lzop \
