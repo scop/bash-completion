@@ -1,6 +1,6 @@
-    # Source `init.tcl' again to restore the `unknown' procedure
-    # NOTE: DejaGnu has an old `unknown' procedure which unfortunately disables
-    #       tcl auto-loading.
+# Source `init.tcl' again to restore the `unknown' procedure
+# NOTE: DejaGnu has an old `unknown' procedure which unfortunately disables
+#       tcl auto-loading.
 source [file join [info library] init.tcl]
 package require cmdline
 package require textutil::string
@@ -133,133 +133,201 @@ proc assert_bash_list_dir {expected cmd dir test {args {}}} {
 
 
 # Make sure the expected items are returned by TAB-completing the specified
-# command.
+# command.  If the number of expected items is one, expected is:
+#
+#     $cmd<TAB>$expected[<SPACE>]
+#
+# SPACE is not expected if -nospace is specified.
+#
+# If the number of expected items is greater than one, expected is:
+#
+#     $cmd<TAB>\n
+#     $expected\n
+#     $prompt + ($cmd - AUTO) + longest-common-prefix-of-$expected
+#
+# AUTO is calculated like this: If $cmd ends with non-whitespace, and
+# the last argument of $cmd equals the longest-common-prefix of
+# $expected, $cmd minus this argument will be expected.
+#
+# If the algorithm above fails, you can manually specify the CWORD to be
+# subtracted from $cmd specifying `-expect-cmd-minus CWORD'.  Known cases where
+# this is useful are when:
+# - the last whitespace is escaped, e.g. "finger foo\ " or "finger
+#   'foo "
+#
+# If the entire $cmd is expected, specify `-expect-cmd-full'.
+#
 # @param list $expected  Expected completions.
 # @param string $cmd  Command given to generate items
 # @param string $test  Test title
 # @param list $args  Options:
-#     -prompt PROMPT  Bash prompt.  Default is `/@'
+#     -prompt PROMPT   Bash prompt.  Default is `/@'
 #     -chunk-size CHUNK-SIZE   Compare list CHUNK-SIZE items at
 #         a time.  Default is 20.
-#     -cword CWORD  Last argument of $cmd which is an argument-to-complete and
-#         to be replaced with the longest common prefix of $expected.  If empty
-#         string (default), `assert_complete' autodetects if the last argument
-#         is an argument-to-complete by checking if $cmd doesn't end with
-#         whitespace.  Specifying `cword' should only be necessary if this
-#         autodetection fails, e.g.  when the last whitespace is escaped or
-#         quoted, e.g. "finger foo\ " or "finger 'foo "
-#     -nospace  Don't expect space character to be output after completion match.
-#     -filters  List of filters to apply to this function to tweak the expected
-#         completions and argument-to-complete.  Possible values:
-#         - "ltrim_colon_completions"
-#proc assert_complete {expected cmd {test ""} {prompt /@} {size 20} {cword ""} {filters ""}} {
-# @result boolean  True if successful, False if not
+#     -nospace   Don't expect space character to be output after completion match.
+#         Valid only if a single completion is expected.
+#     -ltrim-colon-completions   Left-trim completions with cword containing
+#         colon (:)
+#     -expect-cmd-full   Expect the full $cmd to be echoed.  Expected is:
+#
+#             $cmd<TAB>\n
+#             $expected\n
+#             $prompt + $cmd + longest-common-prefix-of-$expected
+#
+#     -expect-cmd-minus DWORD   Expect $cmd minus DWORD to be echoed.
+#         Expected is:
+#
+#             $cmd<TAB>\n
+#             $expected\n
+#             $prompt + ($cmd - DWORD) + longest-common-prefix-of-$expected
+#
 proc assert_complete {expected cmd {test ""} {args {}}} {
+    set args_orig $args
     array set arg [::cmdline::getoptions args {
         {prompt.arg     "/@" "bash prompt"}
         {chunk-size.arg 20   "compare N list items at a time"}
-        {cword.arg      ""   "word to complete"}
         {nospace             "don't expect space after completion"}
-        {filters.arg    ""   "filters to preprocess expected completions"}
+        {ltrim-colon-completions  "left-trim completions with cword containing :"}
+        {expect-cmd-full          "Expect full cmd after prompt"}
+        {expect-cmd-minus.arg ""  "Expect cmd minus DWORD after prompt"}
     }]
-    set cword $arg(cword)
-    set prompt $arg(prompt)
     if {[llength $expected] == 0} {
         assert_no_complete $cmd $test
+    } elseif {[llength $expected] == 1} {
+        eval assert_complete_one \$expected \$cmd \$test $args_orig
     } else {
-        if {$test == ""} {set test "$cmd should show completions"}
-        send "$cmd\t"
-        if {[llength $expected] == 1} {
-            expect -ex "$cmd"
-
-            if {[lsearch -exact $arg(filters) "ltrim_colon_completions"] == -1} {
-                set cur "";  # Default to empty word to complete on
-                set words [split_words_bash $cmd]
-                if {[llength $words] > 1} {
-                        # Assume last word of `$cmd' is word to complete on.
-                    set index [expr [llength $words] - 1]
-                    set cur [lindex $words $index]
-                }
-                    # Remove second word from beginning of single item $expected
-                if {[string first $cur $expected] == 0} {
-                    set expected [list [string range $expected [string length $cur] end]]
-                }
-            }
-        } else {
-            expect -ex "$cmd\r\n"
-            # Make sure expected items are unique
-            set expected [lsort -unique $expected]
-        }
-
-        if {[lsearch -exact $arg(filters) "ltrim_colon_completions"] != -1} {
-                # If partial contains colon (:), remove partial from begin of items
-                # See also: bash_completion.__ltrim_colon_completions()
-            _ltrim_colon_completions cword expected
-        }
-
-        if {$arg(nospace)} {set endspace ""} else {set endspace "-end-space"}
-        if {[
-            eval match_items \$expected -bash-sort -chunk-size \
-                \$arg(chunk-size) $endspace -prompt \$prompt
-        ]} {
-            if {[llength $expected] == 1} {
-                pass "$test"
-            } else {
-                # Remove optional (partial) last argument-to-complete from `cmd',
-                # E.g. "finger test@" becomes "finger"
-
-                if {[lsearch -exact $arg(filters) "ltrim_colon_completions"] != -1} {
-                    set cmd2 $cmd
-                } else {
-                    set cmd2 [_remove_cword_from_cmd $cmd $cword]
-                }
-
-                # Determine common prefix of completions
-                set common [::textutil::string::longestCommonPrefixList $expected]
-                #if {[string length $common] > 0} {set common " $common"}
-                expect {
-                    -ex "$prompt$cmd2$common" { pass "$test" }
-                    -re $prompt { unresolved "$test at prompt" }
-                    -re eof { unresolved "eof" }
-                }
-            }
-        } else {
-            fail "$test"
-        }
+        eval assert_complete_many \$expected \$cmd \$test $args_orig
     }
 }
 
 
-# @param string $cmd  Command to remove cword from
-# @param string $cword  (optional) Last argument of $cmd which is an
-#     argument-to-complete and to be deleted.  If empty string (default),
-#     `_remove_cword_from_cmd' autodetects if the last argument is an
-#     argument-to-complete by checking if $cmd doesn't end with whitespace.
-#     Specifying `cword' is only necessary if this autodetection fails, e.g.
+# Make sure the expected multiple items are returned by TAB-completing the
+# specified command.
+# @see assert_complete()
+proc assert_complete_many {expected cmd {test ""} {args {}}} {
+    array set arg [::cmdline::getoptions args {
+        {prompt.arg     "/@" "bash prompt"}
+        {chunk-size.arg 20   "compare N list items at a time"}
+        {nospace             "don't expect space after completion"}
+        {ltrim-colon-completions  "left-trim completions with cword containing :"}
+        {expect-cmd-full          "Expect full cmd after prompt"}
+        {expect-cmd-minus.arg ""  "Expect cmd minus CWORD after prompt"}
+    }]
+    if {$test == ""} {set test "$cmd should show completions"}
+    set prompt $arg(prompt)
+    set dword ""
+    if {$arg(expect-cmd-minus) != ""} {set dword $arg(expect-cmd-minus)}
+
+    send "$cmd\t"
+    expect -ex "$cmd\r\n"
+
+    # Make sure expected items are unique
+    set expected [lsort -unique $expected]
+
+    # Determine common prefix of completions
+    set common [::textutil::string::longestCommonPrefixList $expected]
+
+    if {$arg(ltrim-colon-completions)} {
+        # If partial contains colon (:), remove partial from begin of items
+        _ltrim_colon_completions $cmd expected dword
+    }
+    set cmd2 [_remove_cword_from_cmd $cmd $dword $common]
+
+    set prompt "$prompt$cmd2$common"
+    if {$arg(nospace)} {set endspace ""} else {set endspace "-end-space"}
+    set endprompt "-end-prompt"
+    if {[
+        eval match_items \$expected -bash-sort -chunk-size \
+            \$arg(chunk-size) $endprompt $endspace -prompt \$prompt
+    ]} {
+        pass "$test"
+    } else {
+        fail "$test"
+    }
+}
+
+
+# Make sure the expected single item is returned by TAB-completing the
+# specified command.
+# @see assert_complete()
+proc assert_complete_one {expected cmd {test ""} {args {}}} {
+    array set arg [::cmdline::getoptions args {
+        {prompt.arg     "/@" "bash prompt"}
+        {chunk-size.arg 20   "compare N list items at a time"}
+        {nospace             "don't expect space after completion"}
+        {ltrim_colon_completions  "left-trim completions with cword containing :"}
+        {expect-cmd-full          "Expect full cmd after prompt"}
+        {expect-cmd-minus.arg ""  "Expect cmd minus CWORD after prompt"}
+    }]
+    set prompt $arg(prompt)
+
+    if {$test == ""} {set test "$cmd should show completion"}
+    send "$cmd\t"
+    expect -ex "$cmd"
+    if {$arg(ltrim_colon_completions)} {
+        # If partial contains colon (:), remove partial from begin of items
+        _ltrim_colon_completions cword expected
+    } else {
+        set cur "";  # Default to empty word to complete on
+        set words [split_words_bash $cmd]
+        if {[llength $words] > 1} {
+            # Assume last word of `$cmd' is word to complete on.
+            set index [expr [llength $words] - 1]
+            set cur [lindex $words $index]
+        }
+        # Remove second word from beginning of $expected
+        if {[string first $cur $expected] == 0} {
+            set expected [list [string range $expected [string length $cur] end]]
+        }
+    }
+
+    if {$arg(nospace)} {set endspace ""} else {set endspace "-end-space"}
+    if {[
+        eval match_items \$expected -bash-sort -chunk-size \
+            \$arg(chunk-size) $endspace -prompt \$prompt
+    ]} {
+        pass "$test"
+    } else {
+        fail "$test"
+    }
+}
+
+
+# @param string $cmd  Command to remove current-word-to-complete from.
+# @param string $dword  (optional) Manually specify current-word-to-complete,
+#     i.e. word to remove from $cmd.  If empty string (default),
+#     `_remove_cword_from_cmd' autodetects if the last argument is the
+#     current-word-to-complete by checking if $cmd doesn't end with whitespace.
+#     Specifying `dword' is only necessary if this autodetection fails, e.g.
 #     when the last whitespace is escaped or quoted, e.g. "finger foo\ " or
 #     "finger 'foo "
-# @return string  Command with cword removed
-proc _remove_cword_from_cmd {cmd {cword ""}} {
+# @param string $common  (optional) Common prefix of expected completions.
+# @return string  Command with current-word-to-complete removed
+proc _remove_cword_from_cmd {cmd {dword ""} {common ""}} {
     set cmd2 $cmd
-    # Is $cword specified?
-    if {[string length $cword] > 0} {
-        # Remove $cword from end of $cmd
-        if {[string last $cword $cmd] == [string length $cmd] - [string length $cword]} {
-            set cmd2 [string range $cmd 0 [expr [string last $cword $cmd] - 1]]
+    # Is $dword specified?
+    if {[string length $dword] > 0} {
+        # Remove $dword from end of $cmd
+        if {[string last $dword $cmd] == [string length $cmd] - [string length $dword]} {
+            set cmd2 [string range $cmd 0 [expr [string last $dword $cmd] - 1]]
         }
     } else {
-        # No, $cword not specified;
-        # Check if last argument is really an-argument-to-complete, i.e.
+        # No, $dword not specified;
+        # Check if last argument is really a word-to-complete, i.e.
         # doesn't end with whitespace.
         # NOTE: This check fails if trailing whitespace is escaped or quoted,
         #       e.g. "finger foo\ " or "finger 'foo ".  Specify parameter
-        #       $cword in those cases.
+        #       $dword in those cases.
         # Is last char whitespace?
         if {! [string is space [string range $cmd end end]]} {
             # No, last char isn't whitespace;
-            # Remove argument-to-complete from end of $cmd
-            set cmd2 [lrange [split $cmd] 0 end-1]
-            append cmd2 " "
+            set cmds [split $cmd]
+            # Does word-to-complete start with $common?
+            if {[string first $common [lrange $cmds end end]] == 0} {
+                # Remove word-to-complete from end of $cmd
+                set cmd2 [lrange $cmds 0 end-1]
+                append cmd2 " "
+            }
         }
     }
     return $cmd2
@@ -337,37 +405,52 @@ proc assert_complete_partial {expected cmd {partial ""} {test ""} {args {}}} {
         set expected [lsort -unique $expected]
         foreach item $expected {
             if {$partial == ""} {set partial [string range $item 0 0]}
-                # Only append item if starting with $partial
+            # Only append item if starting with $partial
             if {[string range $item 0 [expr [string length $partial] - 1]] == "$partial"} {
                 lappend pick $item
             }
         }
-        assert_complete $pick "$cmd $partial" $test $args
+        # NOTE: The `eval' is necessary to flatten the $args list
+        #       See also: http://wiki.tcl.tk/11787 - {expand}
+        eval assert_complete \$pick \"\$cmd \$partial\" \$test $args; #"
     }
 }
 
 
+# If cword contains colon (:), left-trim completions with cword
+# @param string $cmd  Command to complete 
+# @param list $items  Reference to list of completions to trim
+# @param string $dword   Reference to variable to contain word to remove from
+#                        expected cmd.
 # See also: bash_completion._ltrim_colon_completions
-proc _ltrim_colon_completions {cword items} {
-    upvar 1 $cword cword_out
+proc _ltrim_colon_completions {cmd items dword} {
     upvar 1 $items items_out
+    upvar 1 $dword dword_out
+
+    set cur "";  # Default to empty word to complete on
+    set words [split_words_bash $cmd]
+    if {[llength $words] > 1} {
+        # Assume last word of `$cmd' is word to complete on.
+        set index [expr [llength $words] - 1]
+        set cur [lindex $words $index]
+    }
     # If word-to-complete contains a colon,
     # and bash-version < 4,
     # or bash-version >= 4 and COMP_WORDBREAKS contains a colon
     if {
-        [string first : $cword_out] > -1 && (
+        [string first : $cur] > -1 && (
             [lindex $::BASH_VERSINFO 0] < 4 ||
             ([lindex $::BASH_VERSINFO 0] >= 4 && [string first ":" $::COMP_WORDBREAKS] > -1)
         )
     } {
+        set dword_out $cur
         for {set i 0} {$i < [llength $items_out]} {incr i} {
             set item [lindex $items_out $i]
-            if {[string first $cword_out $item] == 0} {
+            if {[string first $cur $item] == 0} {
                 # Strip colon-prefix
-                lset items_out $i [string range $item [string length $cword_out] end]
+                lset items_out $i [string range $item [string length $cur] end]
             }
         }
-        #set cword_out ""
     }
 }
 
@@ -694,8 +777,15 @@ proc match_items {items {args {}}} {
                 timeout { set result false; break }
             }
         } else {
+            set end ""
+            if {$arg(end-prompt) && $i + $j == [llength $items]} {
+                set end "$prompt"
+                _escape_regexp_chars end
+                # \$ matches real end of expect_out buffer
+                set end "$end\$"
+            }
             expect {
-                -re "^$expected" { set result true }
+                -re "^$expected$end" { set result true }
                 default { set result false; break }
                 timeout { set result false; break }
             }

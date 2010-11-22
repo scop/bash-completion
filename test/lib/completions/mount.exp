@@ -54,7 +54,7 @@ set expected [list /test/path /test/path2 /second/path]
 set cmd "mount mocksrv:/"
 assert_bash_exec {OLDPATH="$PATH"; PATH="$SRCDIRABS/fixtures/mount/bin:$PATH";}
 # This needs an explicit cword param or will output "unresolved".
-assert_complete $expected $cmd $test "/@" 20 "/"
+assert_complete $expected $cmd $test -expect-cmd-minus /
 sync_after_int
 assert_bash_exec {PATH="$OLDPATH"; unset -v OLDPATH}
 
@@ -93,7 +93,7 @@ assert_complete {/mnt/nice\ test\\path} {mnt /mnt/nice\ test\\p}
 sync_after_int
 
 assert_complete {{/mnt/nice\ test\\path} {/mnt/nice\ test-path}} \
-    {mnt /mnt/nice\ } "" /@ 20 {/mnt/nice\ }
+    {mnt /mnt/nice\ } "" -expect-cmd-minus {/mnt/nice\ }
 sync_after_int
 
 assert_complete {/mnt/nice\$test-path} {mnt /mnt/nice\$}
