@@ -1495,8 +1495,8 @@ _command_offset()
         COMPREPLY=( $( compgen -c -- "$cur" ) )
     else
         cmd=${COMP_WORDS[0]}
-        if complete -p $cmd &>/dev/null; then
-            cspec=$( complete -p $cmd )
+        if complete -p ${cmd##*/} &>/dev/null; then
+            cspec=$( complete -p ${cmd##*/} )
             if [ "${cspec#* -F }" != "$cspec" ]; then
                 # complete -F <function>
 
@@ -1522,7 +1522,7 @@ _command_offset()
                 fi
             elif [ -n "$cspec" ]; then
                 cspec=${cspec#complete};
-                cspec=${cspec%%$cmd};
+                cspec=${cspec%%${cmd##*/}};
                 COMPREPLY=( $( eval compgen "$cspec" -- "$cur" ) );
             fi
         fi
