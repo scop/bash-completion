@@ -184,6 +184,7 @@ _ssh()
         done
         _known_hosts_real -a -F "$configfile" "$cur"
         if [ $COMP_CWORD -ne 1 ]; then
+            _compopt_o_filenames
             COMPREPLY=( "${COMPREPLY[@]}" $( compgen -c -- "$cur" ) )
         fi
     fi
@@ -245,8 +246,8 @@ _sftp()
 }
 shopt -u hostcomplete && complete -F _sftp sftp
 
-# things we want to escape in remote scp paths
-_scp_path_esc="[][(){}<>\",:;^&\!$=?\`|\\ \t']"
+# things we want to backslash escape in scp paths
+_scp_path_esc='[][(){}<>",:;^&!$=?`|\\'"'"'[:space:]]'
 
 # Complete remote files with ssh.  If the first arg is -d, complete on dirs
 # only.  Returns paths escaped with three backslashes.
@@ -415,7 +416,7 @@ _ssh_copy_id()
 
     return 0
 }
-complete -F _ssh_copy_id -o filenames ssh-copy-id
+complete -F _ssh_copy_id ssh-copy-id
 }
 
 # Local variables:

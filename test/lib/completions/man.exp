@@ -1,17 +1,30 @@
 proc setup {} {
+    assert_bash_exec "export MANPATH=$::srcdirabs/fixtures/man"
     save_env
 }
 
 
 proc teardown {} {
-    assert_env_unmodified
+    assert_env_unmodified {/OLDPWD/d}
 }
 
 
 setup
 
 
-assert_complete_any "man man"
+assert_complete "bar" "man b"
+
+
+sync_after_int
+
+
+assert_complete_dir oo.1 "man man1/f" $::srcdir/fixtures/man
+
+
+sync_after_int
+
+
+assert_complete "Bash::Completion" "man Bash::C"
 
 
 sync_after_int

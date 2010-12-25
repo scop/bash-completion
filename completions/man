@@ -11,7 +11,7 @@ _man()
     mansect="@([0-9lnp]|[0-9][px]|3pm)"
 
     COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    _get_comp_words_by_ref -n : cur prev
 
     if [[ "$prev" == -l ]]; then
         _filedir $manext
@@ -66,12 +66,10 @@ _man()
         done
     fi
 
+    __ltrim_colon_completions "$cur"
     return 0
-}
-[ $USERLAND = GNU -o $UNAME = Darwin \
-  -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin \
-  -o $UNAME = OpenBSD ] && \
-complete -F _man -o filenames man apropos whatis
+} &&
+complete -F _man man apropos whatis
 
 # Local variables:
 # mode: shell-script

@@ -1,3 +1,4 @@
+SUBDIRS = helpers
 bashcomp_DATA = abook \
 		ant \
 		apache2ctl \
@@ -5,6 +6,8 @@ bashcomp_DATA = abook \
 		apt-build \
 		aptitude \
 		aspell \
+		autoconf \
+		automake \
 		autorpm \
 		bash-builtins \
 		bind-utils \
@@ -35,6 +38,7 @@ bashcomp_DATA = abook \
 		dpkg \
 		dselect \
 		dsniff \
+		dvd+rw-tools \
 		e2fsprogs \
 		findutils \
 		freeciv \
@@ -59,6 +63,7 @@ bashcomp_DATA = abook \
 		info \
 		iptables \
 		ipmitool \
+		iproute2 \
 		ipsec \
 		ipv6calc \
 		isql \
@@ -74,6 +79,7 @@ bashcomp_DATA = abook \
 		lintian \
 		lisp \
 		lrzip \
+		lsof \
 		lvm \
 		lzma \
 		lzop \

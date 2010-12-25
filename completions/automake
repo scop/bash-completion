@@ -1,0 +1,80 @@
+# Completions for automake tools
+
+have automake &&
+_automake()
+{
+    COMPREPLY=()
+    local cur prev split=false
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case "$prev" in
+        --help|--version)
+            return 0
+            ;;
+        --warnings|-W)
+            local cats=( gnu obsolete override portability syntax unsupported )
+            COMPREPLY=( $( compgen -W \
+                '${cats[@]} ${cats[@]/#/no-} all none error' -- "$cur" ) )
+            return 0
+            ;;
+        --libdir)
+            _filedir -d
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        _longopt $1
+        return
+    fi
+
+    _filedir
+} &&
+complete -F _automake automake automake-1.11
+
+have aclocal &&
+_aclocal()
+{
+    COMPREPLY=()
+    local cur prev split=false
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case "$prev" in
+        --help|--print-ac-dir|--version)
+            return 0
+            ;;
+        --acdir|-I)
+            _filedir -d
+            return 0
+            ;;
+        --output)
+            _filedir
+            return 0
+            ;;
+        --warnings|-W)
+            local cats=( syntax unsupported )
+            COMPREPLY=( $( compgen -W \
+                '${cats[@]} ${cats[@]/#/no-} all none error' -- "$cur" ) )
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    _longopt $1
+} &&
+complete -F _aclocal aclocal aclocal-1.11
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

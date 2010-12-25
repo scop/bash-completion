@@ -24,8 +24,6 @@ _rpm_installed_packages()
 
 _rpm_groups()
 {
-    # TODO: shown completions are wrong but real ones work nevertheless
-    # http://lists.alioth.debian.org/pipermail/bash-completion-devel/2009-May/001486.html
     local IFS=$'\n'
     COMPREPLY=( $( compgen -W "$( rpm -qa $nodig $nosig --queryformat \
         '%{group}\n' )" -- "$cur" ) )
@@ -101,6 +99,7 @@ _rpm()
             return 0
             ;;
         --pipe)
+            _compopt_o_filenames
             COMPREPLY=( $( compgen -c -- "$cur" ) )
             return 0
             ;;
@@ -118,9 +117,9 @@ _rpm()
                 _filedir
             else
                 # complete on capabilities
-            local IFS=$'\n'
-            COMPREPLY=( $( compgen -W "$( rpm -qa $nodig $nosig \
-                --queryformat='%{providename}\n' )" -- "$cur" ) )
+                local IFS=$'\n'
+                COMPREPLY=( $( compgen -W "$( rpm -qa $nodig $nosig \
+                    --queryformat='%{providename}\n' )" -- "$cur" ) )
             fi
             return 0
             ;;
@@ -131,8 +130,7 @@ _rpm()
                 # complete on capabilities
                 local IFS=$'\n'
                 COMPREPLY=( $( compgen -W "$( rpm -qa $nodig $nosig \
-                        --queryformat='%{requirename}\n' )" \
-                        -- "$cur" ) )
+                        --queryformat='%{requirename}\n' )" -- "$cur" ) )
             fi
             return 0
             ;;
@@ -249,7 +247,7 @@ _rpm()
             elif [[ ${COMP_WORDS[1]} == -b* ]]; then
                 _filedir spec
             else
-                _filedir '@(t?(ar.)@([gx]z|bz?(2))|tar.@(lzma|Z))'
+                _filedir '@(t?(ar.)@([gx]z|bz?(2))|tar?(.@(lzma|Z)))'
             fi
             ;;
         --rebuild|--recompile)
@@ -261,7 +259,7 @@ _rpm()
             fi
             ;;
         --tarbuild)
-            _filedir '@(t?(ar.)@([gx]z|bz?(2))|tar.@(lzma|Z))'
+            _filedir '@(t?(ar.)@([gx]z|bz?(2))|tar?(.@(lzma|Z)))'
             ;;
         --resign|--addsign)
             _filedir '[rs]pm'
@@ -279,7 +277,8 @@ _rpm()
             ;;
         --import|--dbpath|--root)
             if [[ "$cur" == -* ]]; then
-            COMPREPLY=( $( compgen -W '--import --dbpath --root' -- "$cur" ) )
+                COMPREPLY=( $( compgen -W '--import --dbpath --root' \
+                    -- "$cur" ) )
             else
                 _filedir
             fi
@@ -288,7 +287,7 @@ _rpm()
 
     return 0
 }
-complete -F _rpm -o filenames rpm rpmbuild
+complete -F _rpm rpm rpmbuild
 }
 
 # Local variables:

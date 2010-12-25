@@ -18,7 +18,7 @@ sync_after_int
 
 
 set test "Second argument should file complete"
-set cmd "perl foo fixtures/shared/default/f"
+set cmd "perl foo $::srcdir/fixtures/shared/default/f"
 send "$cmd\t"
 expect {
     -re "^$cmd\r\nfoo +foo.d/ *\r\n/@${cmd}oo$" { pass "$test" }
@@ -31,7 +31,7 @@ sync_after_int
 
 
 set test "-I without space should complete directories"
-set cmd "perl -Ifixtures/shared/default/"
+set cmd "perl -I$::srcdir/fixtures/shared/default/"
 send "$cmd\t"
 expect {
     -re "^$cmd\r\nbar bar.d/ +foo.d/ *\r\n/@$cmd$" { pass "$test" }
@@ -44,7 +44,7 @@ sync_after_int
 
 
 set test "-I with space should complete directories"
-set cmd "perl -I fixtures/shared/default/"
+set cmd "perl -I $::srcdir/fixtures/shared/default/"
 send "$cmd\t"
 expect {
     -re "^$cmd\r\nbar bar.d/ +foo.d/ *\r\n/@$cmd$" { pass "$test" }
@@ -57,7 +57,7 @@ sync_after_int
 
 
 set test "-x without space should complete directories"
-set cmd "perl -xfixtures/shared/default/b"
+set cmd "perl -x$::srcdir/fixtures/shared/default/b"
 send "$cmd\t"
 expect {
     -re "^${cmd}ar\\\\ bar.d/ *$" { pass "$test" }
@@ -70,7 +70,7 @@ sync_after_int
 
 
 set test "-x with space should complete directories"
-set cmd "perl -x fixtures/shared/default/b"
+set cmd "perl -x $::srcdir/fixtures/shared/default/b"
 send "$cmd\t"
 expect {
     -re "^${cmd}ar\\\\ bar.d/ *$" { pass "$test" }
@@ -91,5 +91,30 @@ assert_complete $options "perl -"
 
 sync_after_int
 
+assert_no_complete "perl -e "
+sync_after_int
+
+assert_complete_any "perl -V:install"
+sync_after_int
+
+assert_complete_any "perl -V::install"
+sync_after_int
+
+# Assuming that File::Spec and friends are always installed...
+
+assert_complete_any "perl -MFile"
+sync_after_int
+
+assert_complete_any "perl -MFile::Sp"
+sync_after_int
+
+assert_complete_any "perl -MFile::Spec::Func"
+sync_after_int
+
+assert_complete_any "perl -M-File"
+sync_after_int
+
+assert_complete_any "perl -m-File::"
+sync_after_int
 
 teardown

@@ -164,7 +164,7 @@ _java()
         fi
     fi
 }
-complete -F _java -o filenames java
+complete -F _java java
 }
 
 have javadoc &&
@@ -176,11 +176,16 @@ _javadoc()
     _get_comp_words_by_ref cur prev
 
     case $prev in
-        -overview|-helpfile|-stylesheetfile)
-            _filedir
+        -overview|-helpfile)
+            _filedir '?(x)htm?(l)'
             return 0
             ;;
-        -d)
+        -stylesheetfile)
+            _filedir css
+            return 0
+            ;;
+        -d|-link|-linkoffline)
+            # TODO: -linkoffline takes two arguments
             _filedir -d
             return 0
             ;;
@@ -212,7 +217,7 @@ _javadoc()
         _java_packages
     fi
 } &&
-complete -F _javadoc -o filenames javadoc
+complete -F _javadoc javadoc
 
 have javac &&
 _javac()
@@ -244,7 +249,7 @@ _javac()
         _filedir java
     fi
 } &&
-complete -F _javac -o filenames javac
+complete -F _javac javac
 
 have pack200 &&
 _pack200()
@@ -413,7 +418,7 @@ _jarsigner()
         _filedir jar
     fi
 } &&
-complete -F _jarsigner -o filenames jarsigner
+complete -F _jarsigner jarsigner
 
 # Local variables:
 # mode: shell-script

@@ -3,16 +3,9 @@
 have screen &&
 _screen_sessions()
 {
-    local pattern
-
-    if [ -n "$1" ]; then
-        pattern=".*$1.*"
-    else
-        pattern=".*"
-    fi
-
-    COMPREPLY=( $( command screen -ls | sed -ne \
-        's|^['$'\t'']\{1,\}\('"$cur"'[0-9]\{1,\}\.[^'$'\t'']\{1,\}\)'"$pattern"'$|\1|p' ) )
+    COMPREPLY=( $( compgen -W "$( command screen -ls | sed -ne \
+        's|^\t\{1,\}\([0-9]\{1,\}\.[^\t]\{1,\}\).*'"$1"'.*$|\1|p' )" \
+        -- "$cur" ) )
 } &&
 _screen()
 {
@@ -36,9 +29,14 @@ _screen()
             _screen_sessions 'Detached'
             return 0
             ;;
-        -[dDx])
+        -[dD])
             # list attached
             _screen_sessions 'Attached'
+            return 0
+            ;;
+        -x)
+            # list both
+            _screen_sessions
             return 0
             ;;
         -s)

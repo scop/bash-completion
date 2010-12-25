@@ -9,22 +9,21 @@ _python()
     _get_comp_words_by_ref cur prev
 
     case $prev in
-    -Q)
-        COMPREPLY=( $( compgen -W "old new warn warnall" -- "$cur" ) )
-        return 0
-        ;;
-    -W)
-        COMPREPLY=( $( compgen -W "ignore default all module once error" \
-            -- "$cur" ) )
-        return 0
-        ;;
-    -c)
-        _filedir '@(py|pyc|pyo)'
-        return 0
-        ;;
-    !(python|-?))
-        [[ ${COMP_WORDS[COMP_CWORD-2]} != -@(Q|W) ]] && _filedir
-        ;;
+        -'?'|-h|--help|-V|--version|-c|-m)
+            return 0
+            ;;
+        -Q)
+            COMPREPLY=( $( compgen -W "old new warn warnall" -- "$cur" ) )
+            return 0
+            ;;
+        -W)
+            COMPREPLY=( $( compgen -W "ignore default all module once error" \
+                -- "$cur" ) )
+            return 0
+            ;;
+        !(python?([23])|-?))
+            [[ ${COMP_WORDS[COMP_CWORD-2]} != -@(Q|W) ]] && _filedir
+            ;;
     esac
 
 
@@ -37,17 +36,14 @@ _python()
 
 
     if [[ "$cur" != -* ]]; then
-        _filedir '@(py|pyc|pyo)'
+        _filedir 'py?([co])'
     else
-        COMPREPLY=( $( compgen -W "- -d -E -h -i -O -Q -S -t -u \
-            -U -v -V -W -x -c" -- "$cur" ) )
+        COMPREPLY=( $( compgen -W "$( _parse_help $1 -h )" -- "$cur" ) )
     fi
-
-
 
     return 0
 } &&
-complete -F _python -o filenames python
+complete -F _python python python2 python3
 
 # Local variables:
 # mode: shell-script

@@ -58,7 +58,7 @@ _muttconffiles()
     while [[ "$1" ]]; do
         newconffiles=( $(sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' $(eval echo $1) ) )
         for file in "${newconffiles[@]}"; do
-            [[ ! "$file" || "${sofar/ ${file} / }" != "$sofar" ]] &&
+            [[ ! -f "$file" || "${sofar/ ${file} / }" != "$sofar" ]] &&
                 continue
             sofar="$sofar $file"
             sofar=" $(eval _muttconffiles \"$sofar\" $file) "
@@ -120,6 +120,7 @@ _muttfiledir()
 
         # Match any file in $folder beginning with $cur
         # (minus the leading '=' sign).
+        _compopt_o_filenames
         COMPREPLY=( $( compgen -f -- "$folder/${cur:1}" ) )
         COMPREPLY=( ${COMPREPLY[@]#$folder/} )
         return 0
@@ -170,7 +171,7 @@ _mutt()
         ;;
     esac
 } # _mutt()
-complete -F _mutt -o default -o filenames mutt muttng
+complete -F _mutt -o default mutt muttng
 } # have mutt
 
 # Local variables:

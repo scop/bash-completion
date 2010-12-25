@@ -1,0 +1,64 @@
+# lsof(8) completion
+
+have lsof &&
+_lsof()
+{
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -'?'|-h|+c|-c|-d|-F|-i|+r|-r|-s|-S|-T)
+            return 0
+            ;;
+        -A|-k|-m|+m|-o)
+            _filedir
+            return 0
+            ;;
+        +d|+D)
+            _filedir -d
+            return 0
+            ;;
+        -D)
+            COMPREPLY=( $( compgen -W '? b i r u' -- "$cur" ) )
+            return 0
+            ;;
+        -f)
+            COMPREPLY=( $( compgen -W 'c f g G n' -- "$cur" ) )
+            return 0
+            ;;
+        -g)
+            # TODO: handle ^foo exclusions, comma separated lists
+            _pgids
+            return 0
+            ;;
+        -p)
+            # TODO: handle ^foo exclusions, comma separated lists
+            _pids
+            return 0
+            ;;
+        -u)
+            # TODO: handle ^foo exclusions, comma separated lists
+            COMPREPLY=( $( compgen -u -- "$cur" ) )
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == [-+]* ]]; then
+        COMPREPLY=( $( compgen -W '-h -a -A -b -c +c -C +d -d +D -D +f -f -F -g
+            -i -k -l +L -L +m -m +M -M -n -N -o -O -p -P +r -r -R -s -S -T -t
+            -u -U -v -V +w -w -x -X -z -Z' -- "$cur" ) )
+        return 0
+    fi
+
+    _filedir
+} &&
+complete -F _lsof lsof
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

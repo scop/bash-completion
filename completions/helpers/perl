@@ -1,0 +1,88 @@
+#!/usr/bin/env perl
+use strict;
+use Config;
+use File::Spec::Functions;
+
+my %seen;
+
+sub print_modules_real {
+    my ($base, $dir, $word) = @_;
+
+    # return immediatly if potential completion doesn't match current word
+    # a double comparaison is used to avoid dealing with string lengths
+    # (the shorter being the pattern to be used as the regexp)
+    # word 'Fi', base 'File' -> match 'File' against 'Fi'
+    # word 'File::Sp', base 'File' -> match 'File::Sp' againt 'File'
+    return if
+        $base               &&
+        $word               &&
+        $base !~ /^\Q$word/ &&
+        $word !~ /^\Q$base/;
+
+    chdir($dir) or return;
+
+    # print each file
+    foreach my $file (glob('*.pm')) {
+        $file =~ s/\.pm$//;
+        my $module = $base . $file;
+        next if $module !~ /^\Q$word/;
+        next if $seen{$module}++;
+        print $module . "\n";
+    }
+
+    # recurse in each subdirectory
+    foreach my $directory (grep { -d } glob('*')) {
+        my $subdir = $dir . '/' . $directory;
+        if ($directory =~ /^(?:[.\d]+|$Config{archname}|auto)$/) {
+            # exclude subdirectory name from base
+            print_modules_real(undef, $subdir, $word);
+        } else {
+            # add subdirectory name to base
+            print_modules_real($base . $directory . '::', $subdir, $word);
+        }
+    }
+}
+
+sub print_modules {
+    my ($word) = @_;
+
+    foreach my $directory (@INC) {
+        print_modules_real(undef, $directory, $word);
+    }
+}
+
+sub print_functions {
+    my ($word) = @_;
+
+    my $perlfunc;
+    for ( @INC, undef ) {
+        return if not defined;
+        $perlfunc = catfile $_, qw( pod perlfunc.pod );
+        last if -r $perlfunc;
+    }
+
+    open my $fh, '<', $perlfunc or return;
+
+    my $nest_level = -1;
+    while ( <$fh> ) {
+        next if 1 .. /^=head2 Alphabetical Listing of Perl Functions$/;
+        ++$nest_level if /^=over/;
+        --$nest_level if /^=back/;
+        next if $nest_level;
+        next unless /^=item (-?\w+)/;
+        my $function = $1;
+        next if $function !~ /^\Q$word/;
+        next if $seen{$function}++;
+        print $function . "\n";
+    }
+
+}
+
+my $type = shift;
+my $word = shift;
+
+if ($type eq 'functions') {
+    print_functions($word);
+} elsif ($type eq 'modules') {
+    print_modules($word);
+}

@@ -70,7 +70,7 @@ complete -d pushd
 # START exclude -- do NOT remove this line
 # bzcmp, bzdiff, bz*grep, bzless, bzmore intentionally not here, see Debian: #455510
 complete -f -X '!*.?(t)bz?(2)' bunzip2 bzcat pbunzip2 pbzcat
-complete -f -X '!*.@(zip|[ejw]ar|exe|pk3|wsz|zargo|xpi|sxw|o[tx]t|od[fgpst]|epub)' unzip zipinfo
+complete -f -X '!*.@(zip|[ejw]ar|exe|pk3|wsz|zargo|xpi|sxw|o[tx]t|od[fgpst]|epub|apk)' unzip zipinfo
 complete -f -X '*.Z' compress znew
 # zcmp, zdiff, z*grep, zless, zmore intentionally not here, see Debian: #455510
 complete -f -X '!*.@(Z|[gGd]z|t[ag]z)' gunzip zcat unpigz
@@ -92,7 +92,8 @@ complete -f -X '!*.@(?(e)ps|pdf)' ps2pdf ps2pdf12 ps2pdf13 ps2pdf14 ps2pdfwr
 complete -f -X '!*.texi*' makeinfo texi2html
 complete -f -X '!*.@(?(la)tex|texi|dtx|ins|ltx)' tex latex slitex jadetex pdfjadetex pdftex pdflatex texi2dvi
 complete -f -X '!*.mp3' mpg123 mpg321 madplay
-complete -f -X '!*@(.@(mp?(e)g|MP?(E)G|wma|avi|AVI|asf|vob|VOB|bin|dat|divx|DIVX|vcd|ps|pes|fli|flv|FLV|fxm|FXM|viv|rm|ram|yuv|mov|MOV|qt|QT|wmv|mp[234]|MP[234]|m4[pv]|M4[PV]|mkv|MKV|og[gmv]|OG[GMV]|t[ps]|T[PS]|wav|WAV|flac|FLAC|asx|ASX|mng|MNG|srt|m[eo]d|M[EO]D|s[3t]m|S[3T]M|it|IT|xm|XM)|+([0-9]).@(vdr|VDR))?(.part)' xine aaxine fbxine kaffeine dragon
+complete -f -X '!*@(.@(mp?(e)g|MP?(E)G|wma|avi|AVI|asf|vob|VOB|bin|dat|divx|DIVX|vcd|ps|pes|fli|flv|FLV|fxm|FXM|viv|rm|ram|yuv|mov|MOV|qt|QT|wmv|mp[234]|MP[234]|m4[pv]|M4[PV]|mkv|MKV|og[gmv]|OG[GMV]|t[ps]|T[PS]|m2t?(s)|M2T?(S)|wav|WAV|flac|FLAC|asx|ASX|mng|MNG|srt|m[eo]d|M[EO]D|s[3t]m|S[3T]M|it|IT|xm|XM)|+([0-9]).@(vdr|VDR))?(.part)' xine aaxine fbxine
+complete -f -X '!*@(.@(mp?(e)g|MP?(E)G|wma|avi|AVI|asf|vob|VOB|bin|dat|divx|DIVX|vcd|ps|pes|fli|flv|FLV|fxm|FXM|viv|rm|ram|yuv|mov|MOV|qt|QT|wmv|mp[234]|MP[234]|m4[pv]|M4[PV]|mkv|MKV|og[gmv]|OG[GMV]|t[ps]|T[PS]|m2t?(s)|M2T?(S)|wav|WAV|flac|FLAC|asx|ASX|mng|MNG|srt|m[eo]d|M[EO]D|s[3t]m|S[3T]M|it|IT|xm|XM|iso|ISO)|+([0-9]).@(vdr|VDR))?(.part)' kaffeine dragon
 complete -f -X '!*.@(avi|asf|wmv)' aviplay
 complete -f -X '!*.@(rm?(j)|ra?(m)|smi?(l))' realplay
 complete -f -X '!*.@(mpg|mpeg|avi|mov|qt)' xanim
@@ -126,7 +127,7 @@ complete -f -X '!*.lyx' lyx
 # start of section containing compspecs that can be handled within bash
 
 # user commands see only users
-complete -u su passwd write chfn groups slay w sux
+complete -u su write chfn groups slay w sux
 
 # bg completes with stopped jobs
 complete -A stopped -P '"%' -S '"' bg
@@ -607,6 +608,19 @@ _quote_readline_by_ref()
 } # _quote_readline_by_ref()
 
 
+# This function turns on "-o filenames" behavior dynamically. It is present
+# for bash < 4 reasons. See http://bugs.debian.org/272660#64 for info about
+# the bash < 4 compgen hack.
+_compopt_o_filenames()
+{
+    # We test for compopt availability first because directly invoking it on
+    # bash < 4 at this point may cause terminal echo to be turned off for some
+    # reason, see https://bugzilla.redhat.com/653669 for more info.
+    type compopt &>/dev/null && compopt -o filenames 2>/dev/null || \
+        compgen -f /non-existing-dir/ >/dev/null
+}
+
+
 # This function performs file and directory completion. It's better than
 # simply using 'compgen -f', because it honours spaces in filenames.
 # @param $1  If `-d', complete only on directories.  Otherwise filter/pick only
@@ -642,13 +656,8 @@ _filedir()
             xspec=${1:+"!*.@($1|${1^^})"} || \
             xspec=${1:+"!*.@($1|$(printf %s $1 | tr '[:lower:]' '[:upper:]'))"}
         toks=( ${toks[@]-} $( compgen -f -X "$xspec" -- $quoted) )
-        if [ ${#toks[@]} -ne 0 ]; then
-            # Turn on -o filenames; see http://bugs.debian.org/272660#64 for
-            # info about the compgen hack (bash < 4)
-            compopt -o filenames 2>/dev/null || \
-                compgen -f /non-existing-dir/ >/dev/null
-        fi
     fi
+    [ ${#toks[@]} -ne 0 ] && _compopt_o_filenames
 
     COMPREPLY=( "${COMPREPLY[@]}" "${toks[@]}" )
 } # _filedir()
@@ -711,6 +720,10 @@ _mac_addresses()
     COMPREPLY=( "${COMPREPLY[@]}" $( arp -an 2>/dev/null | sed -ne \
         "s/.*[[:space:]]\($re\)[[:space:]].*/\1/p" -ne \
         "s/.*[[:space:]]\($re\)[[:space:]]*$/\1/p" ) )
+
+    # /etc/ethers
+    COMPREPLY=( "${COMPREPLY[@]}" $( sed -ne \
+        "s/^[[:space:]]*\($re\)[[:space:]].*/\1/p" /etc/ethers 2>/dev/null ) )
 
     COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
     __ltrim_colon_completions "$cur"
@@ -779,6 +792,7 @@ _tilde() {
     local result=0
     # Does $1 start with tilde (~) and doesn't contain slash (/)?
     if [[ ${1:0:1} == "~" && $1 == ${1//\/} ]]; then
+        _compopt_o_filenames
         # Try generate username completions
         COMPREPLY=( $( compgen -P '~' -u "${1#\~}" ) )
         result=${#COMPREPLY[@]}
@@ -967,10 +981,10 @@ _installed_modules()
 # The : must be added manually; it will only complete usernames initially.
 # The legacy user.group format is not supported.
 #
-# It assumes compopt -o filenames; but doesn't touch it.
+# @param $1  If -u, only return users/groups the user has access to in
+#            context of current completion.
 _usergroup()
 {
-    local IFS=$'\n'
     if [[ $cur = *\\\\* || $cur = *:*:* ]]; then
         # Give up early on if something seems horribly wrong.
         return
@@ -981,19 +995,61 @@ _usergroup()
         local prefix
         prefix=${cur%%*([^:])}
         prefix=${prefix//\\}
-        COMPREPLY=( $( compgen -P "$prefix" -g -- "${cur#*[:]}" ) )
+        local mycur="${cur#*[:]}"
+        if [[ $1 == -u ]]; then
+            _allowed_groups "$mycur"
+        else
+            local IFS=$'\n'
+            COMPREPLY=( $( compgen -g -- "$mycur" ) )
+        fi
+        COMPREPLY=( $( compgen -P "$prefix" -W "${COMPREPLY[@]}" ) )
     elif [[ $cur = *:* ]]; then
         # Completing group after 'user:gr<TAB>'.
         # Reply with a list of unprefixed groups since readline with split on :
         # and only replace the 'gr' part
-        COMPREPLY=( $( compgen -g -- "${cur#*:}" ) )
+        local mycur="${cur#*:}"
+        if [[ $1 == -u ]]; then
+            _allowed_groups "$mycur"
+        else
+            local IFS=$'\n'
+            COMPREPLY=( $( compgen -g -- "$mycur" ) )
+        fi
     else
         # Completing a partial 'usernam<TAB>'.
         #
         # Don't suffix with a : because readline will escape it and add a
         # slash. It's better to complete into 'chown username ' than 'chown
         # username\:'.
-        COMPREPLY=( $( compgen -u -- "$cur" ) )
+        if [[ $1 == -u ]]; then
+            _allowed_users "$cur"
+        else
+            local IFS=$'\n'
+            COMPREPLY=( $( compgen -u -- "$cur" ) )
+        fi
+    fi
+}
+
+_allowed_users()
+{
+    if _complete_as_root; then
+        local IFS=$'\n'
+        COMPREPLY=( $( compgen -u -- "${1:-$cur}" ) )
+    else
+        local IFS=$'\n '
+        COMPREPLY=( $( compgen -W \
+            "$( id -un 2>/dev/null || whoami 2>/dev/null )" -- "${1:-$cur}" ) )
+    fi
+}
+
+_allowed_groups()
+{
+    if _complete_as_root; then
+        local IFS=$'\n'
+        COMPREPLY=( $( compgen -g -- "$1" ) )
+    else
+        local IFS=$'\n '
+        COMPREPLY=( $( compgen -W \
+            "$( id -Gn 2>/dev/null || groups 2>/dev/null )" -- "$1" ) )
     fi
 }
 
@@ -1149,7 +1205,8 @@ _known_hosts()
 
 # Helper function for completing _known_hosts.
 # This function performs host completion based on ssh's config and known_hosts
-# files, as well as hostnames reported by avahi-browse.  Also hosts from
+# files, as well as hostnames reported by avahi-browse if
+# COMP_KNOWN_HOSTS_WITH_AVAHI is set to a non-empty value.  Also hosts from
 # HOSTFILE (compgen -A hostname) are added, unless
 # COMP_KNOWN_HOSTS_WITH_HOSTFILE is set to an empty value.
 # Usage: _known_hosts_real [OPTIONS] CWORD
@@ -1294,12 +1351,14 @@ _known_hosts_real()
             -S "$suffix" -W "$hosts" -- "$cur" ) )
     fi
 
-    # Add hosts reported by avahi-browse, if it's available.
-    # The original call to avahi-browse also had "-k", to avoid lookups into
-    # avahi's services DB. We don't need the name of the service, and if it
-    # contains ";", it may mistify the result. But on Gentoo (at least),
-    # -k isn't available (even if mentioned in the manpage), so...
-    if type avahi-browse >&/dev/null; then
+    # Add hosts reported by avahi-browse, if desired and it's available.
+    if [[ ${COMP_KNOWN_HOSTS_WITH_AVAHI:-} ]] && \
+        type avahi-browse &>/dev/null; then
+        # The original call to avahi-browse also had "-k", to avoid lookups
+        # into avahi's services DB. We don't need the name of the service, and
+        # if it contains ";", it may mistify the result. But on Gentoo (at
+        # least), -k wasn't available (even if mentioned in the manpage) some
+        # time ago, so...
         COMPREPLY=( "${COMPREPLY[@]}" $( \
             compgen -P "$prefix$user" -S "$suffix" -W \
             "$( avahi-browse -cpr _workstation._tcp 2>/dev/null | \
@@ -1335,10 +1394,7 @@ _cd()
         return 0
     fi
 
-    # Turn on -o filenames; see http://bugs.debian.org/272660#64 for
-    # info about the compgen hack (bash < 4)
-    compopt -o filenames 2>/dev/null || \
-        compgen -f /non-existing-dir/ >/dev/null
+    _compopt_o_filenames
 
     # Use standard dir completion if no CDPATH or parameter starts with /,
     # ./ or ../
@@ -1435,11 +1491,12 @@ _command_offset()
     _get_comp_words_by_ref cur
 
     if [[ $COMP_CWORD -eq 0 ]]; then
+        _compopt_o_filenames
         COMPREPLY=( $( compgen -c -- "$cur" ) )
     else
         cmd=${COMP_WORDS[0]}
-        if complete -p $cmd &>/dev/null; then
-            cspec=$( complete -p $cmd )
+        if complete -p ${cmd##*/} &>/dev/null; then
+            cspec=$( complete -p ${cmd##*/} )
             if [ "${cspec#* -F }" != "$cspec" ]; then
                 # complete -F <function>
 
@@ -1461,11 +1518,13 @@ _command_offset()
                     cspec=${cspec%% *}
                     if [[ "$cspec" != @(dir|file)names ]]; then
                         COMPREPLY=("${COMPREPLY[@]//\\\\:/:}")
+                    else
+                        _compopt_o_filenames
                     fi
                 fi
             elif [ -n "$cspec" ]; then
                 cspec=${cspec#complete};
-                cspec=${cspec%%$cmd};
+                cspec=${cspec%%${cmd##*/}};
                 COMPREPLY=( $( eval compgen "$cspec" -- "$cur" ) );
             fi
         fi
@@ -1473,56 +1532,60 @@ _command_offset()
 
     [ ${#COMPREPLY[@]} -eq 0 ] && _filedir
 }
-complete -F _command -o filenames nohup exec nice eval time ltrace then \
-    else do vsound command xargs tsocks aoss padsp
+complete -F _command aoss command do else eval exec ltrace nice nohup padsp \
+    then time tsocks vsound xargs
 
 _root_command()
 {
     local PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
+    local root_command=$1
     _command $1 $2 $3
 }
-complete -F _root_command -o filenames sudo fakeroot really gksudo gksu kdesudo
+complete -F _root_command fakeroot gksu gksudo kdesudo really sudo
+
+# Return true if the completion should be treated as running as root
+_complete_as_root()
+{
+    [[ $EUID -eq 0 || ${root_command:-} ]]
+}
 
 _longopt()
 {
-    local cur prev
+    local cur prev split=false
+    _get_comp_words_by_ref -n = cur prev
 
-    _get_comp_words_by_ref cur prev
+    _split_longopt && split=true
 
-    if _split_longopt; then
-        case "$prev" in
-            *[Dd][Ii][Rr]*)
-                _filedir -d
-                ;;
-            *[Ff][Ii][Ll][Ee]*)
-                _filedir
-                ;;
-        esac
-        return 0
-    fi
+    case "$prev" in
+        --*[Dd][Ii][Rr]*)
+            _filedir -d
+            return 0
+            ;;
+        --*[Ff][Ii][Ll][Ee]*|--*[Pp][Aa][Tt][Hh]*)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    $split && return 0
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W "$( $1 --help 2>&1 | \
             sed -ne 's/.*\(--[-A-Za-z0-9]\{1,\}\).*/\1/p' | sort -u )" \
             -- "$cur" ) )
-    elif [[ "$1" == rmdir ]]; then
+    elif [[ "$1" == @(mk|rm)dir ]]; then
         _filedir -d
     else
         _filedir
     fi
 }
 # makeinfo and texi2dvi are defined elsewhere.
-for i in a2ps autoconf automake bc gprof ld nm objcopy objdump readelf strip \
-    bison colordiff diff patch enscript cp df dir du ln ls mkfifo mknod mv rm \
-    touch vdir awk gperf grep grub indent less m4 sed shar date \
-    tee who texindex cat csplit cut expand fmt fold head \
-    md5sum nl od paste pr ptx sha1sum sort split tac tail tr unexpand \
-    uniq wc ldd bash id irb mkdir rmdir wget curl; do
-    have $i && complete -F _longopt -o filenames $i
-done
-
-# These commands do not use filenames, so '-o filenames' is not needed.
-for i in env netstat seq uname units; do
+for i in a2ps awk bash bc bison cat colordiff cp csplit \
+    curl cut date df diff dir du enscript env expand fmt fold gperf gprof \
+    grep grub head indent irb ld ldd less ln ls m4 md5sum mkdir mkfifo mknod \
+    mv netstat nl nm objcopy objdump od paste patch pr ptx readelf rm rmdir \
+    sed seq sha{,1,224,256,384,512}sum shar sort split strip tac tail tee \
+    texindex touch tr uname unexpand uniq units vdir wc wget who; do
     have $i && complete -F _longopt -o default $i
 done
 unset i
@@ -1575,6 +1638,7 @@ _filedir_xspec()
         }
         ))
 
+    [ ${#toks[@]} -ne 0 ] && _compopt_o_filenames
     COMPREPLY=( "${toks[@]}" )
 }
 list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' "$BASH_COMPLETION" | \
@@ -1596,7 +1660,7 @@ list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' "$BASH_COMPLETION" |
 if [ ${#list[@]} -gt 0 ]; then
     eval complete -r ${list[@]}
     # install new compspecs
-    eval complete -F _filedir_xspec -o filenames "${list[@]}"
+    eval complete -F _filedir_xspec "${list[@]}"
 fi
 unset list
 
