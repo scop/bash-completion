@@ -170,13 +170,11 @@ _sbopkg()
         fi
     done
 
-    if [ -e "$config" ]; then
-        . $config
-    fi
-
     if [ ! -r "$config" ]; then
         return 0
     fi
+
+    . $config
 
     for (( i=${#words[@]}-1; i>0; i-- )); do
         if [[ ${words[i]} == '-V' ]]; then
@@ -186,8 +184,16 @@ _sbopkg()
     done
 
     case $prev in
+        -e)
+            COMPREPLY=( $( compgen -W 'ask continue stop' -- "$cur" ) )
+            return 0
+            ;;
         -f)
             _filedir
+            return 0
+            ;;
+        -d)
+            _filedir -d
             return 0
             ;;
         -s|-g|-V)
