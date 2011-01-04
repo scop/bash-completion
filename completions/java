@@ -118,13 +118,13 @@ _java_packages()
 #
 _java()
 {
-    local cur prev i
+    local cur prev words cword i
 
     COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    _get_comp_words_by_ref -n : cur prev words cword
 
-    for ((i=1; i < $COMP_CWORD; i++)); do
-        case ${COMP_WORDS[$i]} in
+    for ((i=1; i < $cword; i++)); do
+        case ${words[$i]} in
             -cp|-classpath)
                 ((i++)) # skip the classpath string.
                 ;;
@@ -139,6 +139,70 @@ _java()
         esac
     done
 
+    case $cur in
+        # standard option completions
+        -verbose:*)
+            COMPREPLY=( $( compgen -W 'class gc jni' -- "${cur#*:}" ) )
+            return 0
+            ;;
+        -javaagent:*)
+            cur=${cur#*:}
+            _filedir '@(jar|zip)'
+            return 0
+            ;;
+        -agentpath:*)
+            cur=${cur#*:}
+            _filedir so
+            return 0
+            ;;
+        # various non-standard option completions
+        -splash:*)
+            cur=${cur#*:}
+            _filedir '@(gif|jp?(e)g|png)'
+            return 0
+            ;;
+        -Xbootclasspath*:*)
+            _java_path
+            return 0
+            ;;
+        -Xcheck:*)
+            COMPREPLY=( $( compgen -W 'jni' -- "${cur#*:}" ) )
+            return 0
+            ;;
+        -Xgc:*)
+            COMPREPLY=( $( compgen -W 'singlecon gencon singlepar genpar' \
+                -- "${cur#*:}" ) )
+            return 0
+            ;;
+        -Xgcprio:*)
+            COMPREPLY=( $( compgen -W 'throughput pausetime deterministic' \
+                -- "${cur#*:}" ) )
+            return 0
+            ;;
+        -Xloggc:*|-Xverboselog:*)
+            cur=${cur#*:}
+            _filedir
+            return 0
+            ;;
+        -Xshare:*)
+            COMPREPLY=( $( compgen -W 'auto off on' -- "${cur#*:}" ) )
+            return 0
+            ;;
+        -Xverbose:*)
+            COMPREPLY=( $( compgen -W 'memory load jni cpuinfo codegen opt
+                gcpause gcreport' -- "${cur#*:}" ) )
+            return 0
+            ;;
+        -Xverify:*)
+            COMPREPLY=( $( compgen -W 'all none remote' -- "${cur#*:}" ) )
+            return 0
+            ;;
+        # the rest that we have no completions for
+        -D*|-*:*)
+            return 0
+            ;;
+    esac
+
     case $prev in
         -cp|-classpath)
             _java_path
@@ -147,13 +211,11 @@ _java()
     esac
 
     if [[ "$cur" == -* ]]; then
-        # relevant options completion
-        COMPREPLY=( $( compgen -W '-client -hotspot -server -classic \
-            -classpath -D -verbose -verbose:class \
-            -verbose:gc -version:jni -version \
-            -showversion -help -X -jar \
-            -enableassertions -disableassertions \
-            -enablesystemassertions -disablesystemassertions ' -- "$cur" ) )
+        # standard options
+        COMPREPLY=( $( compgen -W '-client -server -agentlib: -agentpath:
+            -classpath -D -d32 -d64 -enableassertions -disableassertions
+            -enablesystemassertions -disablesystemassertions -jar -javaagent:
+            -verbose -verbose -version -showversion -help -X' -- "$cur" ) )
     else
         if [[ "$prev" == -jar ]]; then
             # jar file completion
@@ -163,6 +225,11 @@ _java()
             _java_classes
         fi
     fi
+
+    [[ ${#COMPREPLY[@]} -eq 1 && ${COMPREPLY[0]} == -*[:=] ]] && \
+        type compopt &>/dev/null && compopt -o nospace
+
+    __ltrim_colon_completions "$cur"
 }
 complete -F _java java
 }
