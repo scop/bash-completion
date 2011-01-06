@@ -1,0 +1,83 @@
+# bash completion for sbopkg tool
+#
+# (c) Igor Murzov <igor@gplsoft.org>
+# (c) Sergey V. <sftp.mtuci@gmail.com>
+
+have sbopkg &&
+_sbopkg()
+{
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref cur prev
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-b -c -d -e -f -g -h -i -k -l \
+                      -o -P -p -q -R -r -s -u -V -v' -- "$cur" ) )
+        return 0
+    fi
+
+    case $prev in
+        -e)
+            COMPREPLY=( $( compgen -W 'ask continue stop' -- "$cur" ) )
+            return 0
+            ;;
+        -f)
+            _filedir
+            return 0
+            ;;
+        -d)
+            _filedir -d
+            return 0
+            ;;
+        -s|-g)
+            # argument required but no completions available
+            return 0
+            ;;
+    esac
+
+    local config="/etc/sbopkg/sbopkg.conf"
+    local words
+    _get_comp_words_by_ref words
+
+    for (( i=${#words[@]}-1; i>0; i-- )); do
+        if [[ ${words[i]} == '-f' ]]; then
+            config="${words[i+1]}"
+            break
+        fi
+    done
+
+    if [ ! -r "$config" ]; then
+        return 0
+    fi
+
+    . $config
+
+    for (( i=1; i<${#words[@]}; i++ )); do
+        case "${words[i]}" in
+            '-V')
+                REPO_NAME="${words[i+1]%%/*}"
+                REPO_BRANCH="${words[i+1]#*/}"
+                ;;
+            '-d')
+                REPO_ROOT="${words[i+1]}"
+                ;;
+        esac
+    done
+
+    case $prev in
+        -V)
+            COMPREPLY=( $( compgen -W "? \
+                `sbopkg -V ? 2>&1 | cut -s -f1`" -- "$cur" ) )
+            return 0
+            ;;
+        -i|-b)
+            if [ ! -r "$REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT" ]; then
+                return 0
+            fi
+            COMPREPLY=( $( grep "^SLACKBUILD NAME: $cur" \
+                $REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT | cut -f3- -d\  ) )
+            return 0
+            ;;
+    esac
+
+} && complete -F _sbopkg sbopkg -o plusdirs
