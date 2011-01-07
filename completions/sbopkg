@@ -1,3 +1,4 @@
+# -*- sh -*-
 # bash completion for sbopkg tool
 #
 # (c) Igor Murzov <igor@gplsoft.org>
@@ -29,9 +30,14 @@ _sbopkg()
             _filedir -d
             return 0
             ;;
-        -c|-g|-h|-k|-l|-o|-P|-p|-q|-R|-r|-s|-u|-v)
-            # argument required but no completions available
-            # or argument not required
+        -V)
+            COMPREPLY=( $( compgen -W "? \
+                `sbopkg -V ? 2>&1 | cut -s -f1`" -- "$cur" ) )
+            return 0
+            ;;
+        -i|-b)
+            ;;
+        *)
             return 0
             ;;
     esac
@@ -65,21 +71,12 @@ _sbopkg()
         esac
     done
 
-    case $prev in
-        -V)
-            COMPREPLY=( $( compgen -W "? \
-                `sbopkg -V ? 2>&1 | cut -s -f1`" -- "$cur" ) )
-            return 0
-            ;;
-        -i|-b)
-            if [ ! -r "$REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT" ]; then
-                return 0
-            fi
-            COMPREPLY=( $( grep "^SLACKBUILD NAME: $cur" \
-                    $REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT | cut -f3- -d\  ) 
-                $( (cd $QUEUEDIR; ls $cur*.sqf 2> /dev/null) ) )
-            return 0
-            ;;
-    esac
+    if [ ! -r "$REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT" ]; then
+        return 0
+    fi
+    COMPREPLY=( $( grep "^SLACKBUILD NAME: $cur" \
+        $REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT | cut -f3- -d\  )
+        $( (cd $QUEUEDIR; ls $cur*.sqf 2> /dev/null) ) )
+    return 0
 
 } && complete -F _sbopkg sbopkg -o plusdirs
