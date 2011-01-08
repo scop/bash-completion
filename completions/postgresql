@@ -3,19 +3,18 @@
 have psql && {
 _pg_databases()
 {
-    return # See https://launchpad.net/bugs/164772
-    COMPREPLY=( $( compgen -W "$( psql -l 2>/dev/null | \
-        sed -e '1,/^-/d' -e '/^(/,$d' | \
-        awk '{print $1}' )" -- "$cur" ) )
+    # -w was introduced in 8.4, https://launchpad.net/bugs/164772
+    # "Access privileges" in output may contain linefeeds, hence the NF > 1
+    COMPREPLY=( $( compgen -W "$( psql -AtqwlF $'\t' 2>/dev/null | \
+        awk 'NF > 1 { print $1 }' )" -- "$cur" ) )
 }
 
 _pg_users()
 {
-    # See https://launchpad.net/bugs/164772
-    #COMPREPLY=( $( psql -qtc 'select usename from pg_user' template1 2>/dev/null | \
-    #       command grep "^ $cur" ) )
-    #[ ${#COMPREPLY[@]} -eq 0 ] && COMPREPLY=( $( compgen -u -- $cur ) )
-    COMPREPLY=( $( compgen -u -- "$cur" ) )
+    # -w was introduced in 8.4, https://launchpad.net/bugs/164772
+    COMPREPLY=( $( compgen -W "$( psql -Atqwc 'select usename from pg_user' \
+        template1 2>/dev/null )" -- "$cur" ) )
+    [ ${#COMPREPLY[@]} -eq 0 ] && COMPREPLY=( $( compgen -u -- "$cur" ) )
 }
 
 # createdb(1) completion
