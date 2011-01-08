@@ -1,8 +1,4 @@
-# -*- sh -*-
 # bash completion for sbopkg tool
-#
-# (c) Igor Murzov <igor@gplsoft.org>
-# (c) Sergey V. <sftp.mtuci@gmail.com>
 
 have sbopkg &&
 _sbopkg()
@@ -32,7 +28,7 @@ _sbopkg()
             ;;
         -V)
             COMPREPLY=( $( compgen -W "? \
-                `sbopkg -V ? 2>&1 | cut -s -f1`" -- "$cur" ) )
+                $(sbopkg -V ? 2>&1 | cut -s -f1)" -- "$cur" ) )
             return 0
             ;;
         -i|-b)
@@ -47,7 +43,7 @@ _sbopkg()
     _get_comp_words_by_ref words
 
     for (( i=${#words[@]}-1; i>0; i-- )); do
-        if [[ ${words[i]} == '-f' ]]; then
+        if [[ "${words[i]}" == -f ]]; then
             config="${words[i+1]}"
             break
         fi
@@ -61,11 +57,11 @@ _sbopkg()
 
     for (( i=1; i<${#words[@]}; i++ )); do
         case "${words[i]}" in
-            '-V')
+            -V)
                 REPO_NAME="${words[i+1]%%/*}"
                 REPO_BRANCH="${words[i+1]#*/}"
                 ;;
-            '-d')
+            -d)
                 REPO_ROOT="${words[i+1]}"
                 ;;
         esac
@@ -77,6 +73,4 @@ _sbopkg()
     COMPREPLY=( $( grep "^SLACKBUILD NAME: $cur" \
         $REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT | cut -f3- -d\  )
         $( (cd $QUEUEDIR; ls $cur*.sqf 2> /dev/null) ) )
-    return 0
-
-} && complete -F _sbopkg sbopkg -o plusdirs
+} && complete -F _sbopkg -o plusdirs sbopkg
