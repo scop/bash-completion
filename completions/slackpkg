@@ -1,0 +1,74 @@
+# bash completion for slackpkg tool
+
+have slackpkg &&
+_slackpkg()
+{
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref cur prev
+
+    # based on `grep '\-.*\=.*)' /usr/sbin/slackpkg | cut -f1 -d\)`
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-delall=on -delall=off \
+            -checkmd5=on -checkmd5=off \
+            -checkgpg=on -checkgpg=off \
+            -checksize=on -checksize=off \
+            -postinst=on -postinst=off \
+            -onoff=on -onoff=off \
+            -download_all=on -download_all=off \
+            -dialog=on -dialog=off \
+            -dialog_maxargs= \
+            -batch=on -batch=off \
+            -only_new_dotnew=on -only_new_dotnew=off \
+            -use_includes=on -use_includes=off \
+            -spinning=on -spinning=off \
+            -default_answer=y -default_answer=yes \
+            -default_answer=n -default_answer=no \
+            -mirror=' -- "$cur" ) )
+        return 0
+    fi
+
+    local confdir="/etc/slackpkg"
+    local config="$confdir/slackpkg.conf"
+
+    if [ ! -r "$config" ]; then
+        return 0
+    fi
+    . "$config"
+
+    case $prev in
+        generate-template|search|file-search)
+            # argument required but no completions available
+            return 0
+            ;;
+        install|reinstall|upgrade|remove|blacklist|download)
+            # FINISHME
+            return 0
+            ;;
+        install-template|remove-template)
+            if [ -e "$confdir/templates" ]; then
+                COMPREPLY=( $( (cd "$confdir/templates"; \
+                    ls *.template 2>/dev/null | sed 's/.template$//g' ) ) )
+            fi
+            return 0
+            ;;
+        info)
+            COMPREPLY=( $( grep "^PACKAGE NAME: *$cur" \
+                ${WORKDIR}/PACKAGES.TXT 2>/dev/null | sed 's/^PACKAGE NAME: *//g' ) )
+            return 0
+            ;;
+        update)
+            # we should complete the same as the next `list` + "gpg"
+            COMPREPLY=( $( compgen -W 'gpg' -- "$cur" ) )
+            ;&
+        *)
+            COMPREPLY+=( $( compgen -W 'install reinstall upgrade remove \
+                blacklist download update install-new upgrade-all \
+                clean-system new-config check-updates help generate-template \
+                install-template remove-template search file-search info' -- \
+                "$cur" ) )
+            return 0
+            ;;
+    esac
+
+} && complete -F _slackpkg slackpkg
