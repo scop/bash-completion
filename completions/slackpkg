@@ -41,10 +41,6 @@ _slackpkg()
             # argument required but no completions available
             return 0
             ;;
-        install|reinstall|upgrade|remove|blacklist|download)
-            # FINISHME
-            return 0
-            ;;
         install-template|remove-template)
             if [ -e "$confdir/templates" ]; then
                 COMPREPLY=( $( (cd "$confdir/templates"; \
@@ -52,9 +48,21 @@ _slackpkg()
             fi
             return 0
             ;;
+        remove)
+            COMPREPLY=( $( (cd /var/log/packages; compgen -f -- "$cur") ) )
+            return 0
+            ;;
+        reinstall|upgrade)
+            # FIXME: ideally we should intersect list of installed packages
+            # with list of available packages
+            ;&
+        install|blacklist|download)
+            # FIXME: may be something better than just package names is possible
+            ;&
         info)
             COMPREPLY=( $( grep "^PACKAGE NAME: *$cur" \
-                ${WORKDIR}/PACKAGES.TXT 2>/dev/null | sed 's/^PACKAGE NAME: *//g' ) )
+                "${WORKDIR}/PACKAGES.TXT" 2>/dev/null | \
+                sed 's/^PACKAGE NAME: *//g' ) )
             return 0
             ;;
         update)
