@@ -1,0 +1,96 @@
+# bash completion for aspell
+
+have aspell && {
+_aspell_dictionary()
+{
+    local datadir
+    datadir=$( aspell config data-dir 2>/dev/null || echo /usr/lib/aspell )
+    # First, get aliases (dicts dump does not list them)
+    COMPREPLY=( $( command ls $datadir/*.alias 2>/dev/null ) )
+    COMPREPLY=( ${COMPREPLY[@]%.alias} )
+    COMPREPLY=( ${COMPREPLY[@]#$datadir/} )
+    # Then, add the canonical dicts
+    COMPREPLY=( "${COMPREPLY[@]}" $( aspell dicts 2>/dev/null ) )
+    COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
+}
+
+_aspell()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -c|-p|check|--conf|--personal|--repl|--per-conf)
+            _filedir
+            return 0
+            ;;
+        --conf-dir|--data-dir|--dict-dir|--home-dir|--local-data-dir|--prefix)
+            _filedir -d
+            return 0
+            ;;
+        dump|create|merge)
+            COMPREPLY=( $( compgen -W 'master personal repl' -- "$cur" ) )
+            return 0
+            ;;
+        --mode)
+            COMPREPLY=( $( compgen -W 'none url email sgml tex' -- "$cur" ) )
+            return 0
+            ;;
+        --sug-mode)
+            COMPREPLY=( $( compgen -W 'ultra fast normal bad-speller' -- "$cur" ) )
+            return 0
+            ;;
+        --keymapping)
+            COMPREPLY=( $( compgen -W 'aspell ispell' -- "$cur" ) )
+            return 0
+            ;;
+        -d|--master)
+            _aspell_dictionary
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--conf --conf-dir --data-dir --dict-dir \
+            --encoding --add-filter --rem-filter --mode \
+            --add-extra-dicts --rem-extra-dicts \
+            --home-dir --ignore --ignore-accents \
+            --dont-ignore-accents --ignore-case --dont-ignore-case \
+            --ignore-repl --dont-ignore-repl --jargon --keyboard \
+            --lang --language-tag --local-data-dir --master \
+            --module --add-module-search-order \
+            --rem-module-search-order --per-conf --personal \
+            --prefix --repl --run-together --dont-run-together \
+            --run-together-limit --run-together-min --save-repl \
+            --dont-save-repl --set-prefix --dont-set-prefix --size \
+            --spelling --strip-accents --dont-strip-accents \
+            --sug-mode --add-word-list-path --rem-word-list-path \
+            --backup --dont-backup --reverse --dont-reverse \
+            --time --dont-time --keymapping --add-email-quote \
+            --rem-email-quote --email-margin --add-tex-command \
+            --rem-tex-command --tex-check-comments \
+            --dont-tex-check-comments --add-tex-extension \
+            --rem-tex-extension --add-sgml-check --rem-sgml-check \
+            --add-sgml-extension --rem-sgml-extension' -- "$cur" ) )
+    else
+        COMPREPLY=( $( compgen -W 'usage help check pipe list \
+            config soundslike filter version dump create merge' -- "$cur" ) )
+    fi
+
+}
+complete -F _aspell aspell
+}
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

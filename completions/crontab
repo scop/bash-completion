@@ -1,0 +1,60 @@
+# crontab(1) completion
+
+have crontab &&
+_crontab()
+{
+    local cur prev
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -u)
+            _allowed_users
+            return 0
+            ;;
+    esac
+
+    local i opts=" -u -l -r -e" # leading space at start is significant...
+    [ "$(uname -s)" = Linux ] && opts="$opts -i"
+    [ -e /etc/selinux ] && opts="$opts -s"
+    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
+        case "${COMP_WORDS[i]}" in
+            -l)
+                opts=${opts// -l -r -e/}
+                opts=${opts// -i/}
+                opts=${opts// -s/}
+                ;;
+            -e)
+                opts=${opts// -l -r -e/}
+                opts=${opts// -i/}
+                ;;
+            -r)
+                opts=${opts// -l -r -e/}
+                ;;
+            -u)
+                opts=${opts// -u/}
+                opts=${opts// -i/}
+                ;;
+            -i|-s)
+                opts=${opts// ${COMP_WORDS[i]}/}
+                ;;
+        esac
+    done
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$opts' -- "$cur" ) )
+        return 0
+    fi
+
+    # do filenames only if we did not have -l, -r, or -e
+    [[ "${COMP_LINE}" == *\ -@(l|r|e)* ]] || _filedir
+} &&
+complete -F _crontab crontab
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

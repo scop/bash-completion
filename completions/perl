@@ -1,0 +1,131 @@
+# bash completion for perl
+
+have perl &&
+{
+_perlmodules()
+{
+    COMPREPLY=( $( compgen -P "$prefix" -W "$( $1 ${BASH_SOURCE[0]%/*}/helpers/perl modules $cur )" -- "$cur" ) )
+    __ltrim_colon_completions "$prefix$cur"
+}
+
+_perlfunctions()
+{
+    COMPREPLY=( $( compgen -P "$prefix" -W "$( ${BASH_SOURCE[0]%/*}/helpers/perl functions $cur )" -- "$cur" ) )
+}
+
+_perl()
+{
+    local cur prev prefix temp
+    local optPrefix optSuffix
+
+    COMPREPLY=()
+    _get_comp_words_by_ref -n : cur prev
+    prefix=""
+
+    # If option not followed by whitespace, reassign prev and cur
+    if [[ "$cur" == -?* ]]; then
+        temp=$cur
+        prev=${temp:0:2}
+        cur=${temp:2}
+        optPrefix=-P$prev
+        optSuffix=-S/
+        prefix=$prev
+    fi
+
+    case $prev in
+        -D|-e|-E|-i|-F|-l)
+            return 0
+            ;;
+        -I|-x)
+            local IFS=$'\n'
+            _compopt_o_filenames
+            COMPREPLY=( $( compgen -d $optPrefix $optSuffix -- "$cur" ) )
+            return 0
+            ;;
+        -m|-M)
+            temp="${cur#-}"
+            prefix="$prefix${cur%$temp}"
+            cur="$temp"
+            _perlmodules $1
+            return 0
+            ;;
+        -V)
+            if [[ $cur == :* ]]; then
+                temp="${cur##+(:)}"
+                prefix="$prefix${cur%$temp}"
+                local IFS=$'\n'
+                COMPREPLY=( $( compgen -P "$prefix" -W \
+                    '$( $1 -MConfig -e "print join \"\\n\",
+                        keys %Config::Config" 2>/dev/null )' -- "$temp" ) )
+                __ltrim_colon_completions "$prefix$temp"
+            fi
+            return 0
+            ;;
+        -d|-dt)
+            if [[ $cur == :* ]]; then
+                temp="${cur#:}"
+                prefix="$prefix${cur%$temp}"
+                cur="Devel::$temp"
+                _perlmodules $1
+            fi
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-C -s -T -u -U -W -X -h -v -V -c -w -d \
+            -D -p -n -a -F -l -0 -I -m -M -P -S -x -i -e ' -- "$cur" ) )
+    else
+        _filedir
+    fi
+}
+complete -F _perl perl
+
+_perldoc()
+{
+    local cur prev prefix temp
+
+    COMPREPLY=()
+    _get_comp_words_by_ref -n : cur prev
+    prefix=""
+
+    # completing an option (may or may not be separated by a space)
+    if [[ "$cur" == -?* ]]; then
+        temp=$cur
+        prev=${temp:0:2}
+        cur=${temp:2}
+        prefix=$prev
+    fi
+
+    # complete builtin perl functions
+    case $prev in
+        -f)
+            _perlfunctions "$cur"
+             return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-h -v -t -u -m -l -F -X -f -q' -- "$cur" ))
+    else
+        # return available modules (unless it is clearly a file)
+        if [[ "$cur" != */* ]]; then
+            _perlmodules
+            COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W \
+                '$( PAGER=/bin/cat man perl |  \
+                sed -ne "/perl.*Perl overview/,/perlwin32/p" | \
+                awk "\$NF=2 { print \$1}" | command grep perl )' -- "$cur" ) )
+        fi
+        _filedir 'p@(l|m|od)'
+    fi
+}
+complete -F _perldoc -o bashdefault perldoc
+}
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

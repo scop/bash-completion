@@ -1,0 +1,103 @@
+# bash completion for strace
+
+have strace &&
+_strace()
+{
+    local cur prev offset i syscalls arch unistd
+
+    # check if we're still completing strace
+    offset=0
+    for (( i=1; i <= COMP_CWORD; i++ )); do
+        case ${COMP_WORDS[$i]} in
+            -o|-e|-p)
+                i=$((i+1))
+                continue
+                ;;
+            -*)
+                continue
+                ;;
+        esac
+        offset=$i
+        break
+    done
+
+    if [ $offset -gt 0 ]; then
+        # FAIL: _command_offset is not defined anywhere. Guillame?
+        _command_offset $offset
+    else
+
+        COMPREPLY=()
+        _get_comp_words_by_ref cur prev
+
+        case $prev in
+            -e)
+                if [[ "$cur" == *=* ]]; then
+                    prev=${cur/=*/}
+                    cur=${cur/*=/}
+
+                    # Import arch-specific syscalls -- not foolproof IMHO
+                    #+                                     --David Paleino
+                    arch=$(command uname -m)
+                    syscalls=$(awk '/^#define __NR/ {print $2}' \
+                        /usr/include/asm/unistd.h | sed -e \
+                        's/__NR_//')
+                    if [ -z "$syscalls" ]; then
+                        if [[ "$arch" == *86 ]]; then
+                            unistd=/usr/include/asm/unistd_32.h
+                        else
+                            unistd=/usr/include/asm/unistd_64.h
+                        fi
+                        syscalls=$(awk '/^#define __NR/ {print $2}' \
+                            $unistd | sed -e 's/__NR_//')
+                    fi
+
+                    case $prev in
+                        trace)
+                            COMPREPLY=( $( compgen -W "$syscalls file process
+                                network signal ipc desc all none" -- "$cur") )
+                            return 0
+                            ;;
+                    esac
+                else
+                    COMPREPLY=( $( compgen -S"=" -W 'trace abbrev verbose raw
+                        signal read write' -- "$cur" ) )
+                fi
+                return 0
+                ;;
+            -o)
+                _filedir
+                return 0
+                ;;
+            -p)
+                _pids
+                return 0
+                ;;
+            -S)
+                COMPREPLY=( $( compgen -W 'time calls name nothing' \
+                    -- "$cur" ) )
+                return 0
+                ;;
+            -u)
+                _allowed_users
+                return 0
+                ;;
+        esac
+
+        if [[ "$cur" == -* ]]; then
+            COMPREPLY=( $( compgen -W '-c -d -f -ff -F --help -i -q \
+                -r -t -tt -ttt -T -v -V -x -xx -a -e -o -O -p \
+                -s -S -u -E' -- "$cur" ) )
+        else
+            COMPREPLY=( $( compgen -c -- "$cur" ) )
+        fi
+    fi
+} &&
+complete -F _strace -o default strace
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

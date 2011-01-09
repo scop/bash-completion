@@ -1,0 +1,39 @@
+# sqlite3(1) completion
+
+have sqlite3 &&
+_sqlite3()
+{
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref cur prev
+
+    local dbexts='@(sqlite?(3)|?(s?(3))db)'
+
+    case $prev in
+        -help|-version|-separator|-nullvalue|*.$dbexts)
+            return 0
+            ;;
+        -init)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-help -init -echo -header -noheader -bail
+            -interactive -batch -column -csv -html -line -list -separator
+            -nullvalue -version' -- "$cur" ) )
+        return 0
+    fi
+
+    _filedir $dbexts
+} &&
+complete -F _sqlite3 sqlite3
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

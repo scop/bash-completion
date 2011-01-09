@@ -1,0 +1,360 @@
+# Use of this file is deprecated.  Upstream completion is available in
+# subversion >= 0.12.0, use that instead.
+
+# svn completion
+
+have svn &&
+{
+_svn()
+{
+    local cur prev commands options command
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    commands='add blame praise annotate ann cat checkout co cleanup commit \
+                ci copy cp delete del remove rm diff di export help ? h import \
+                info list ls lock log merge mkdir move mv rename ren \
+                propdel pdel pd propedit pedit pe propget pget pg \
+                proplist plist pl propset pset ps resolved revert \
+                status stat st switch sw unlock update up'
+
+    if [[ $COMP_CWORD -eq 1 ]] ; then
+        if [[ "$cur" == -* ]]; then
+            COMPREPLY=( $( compgen -W '--version' -- $cur ) )
+        else
+            COMPREPLY=( $( compgen -W "$commands" -- $cur ) )
+        fi
+    else
+
+        case $prev in
+            --config-dir)
+                _filedir -d
+                return 0
+                ;;
+            -F|--file|--targets)
+                _filedir
+                return 0
+                ;;
+            --encoding)
+                COMPREPLY=( $( compgen -W '$( iconv --list | \
+                    sed -e "s@//@@;" )' -- "$cur" ) )
+                return 0
+                ;;
+            --editor-cmd|--diff-cmd|--diff3-cmd)
+                COMP_WORDS=(COMP_WORDS[0] $cur)
+                COMP_CWORD=1
+                _command
+                return 0
+                ;;
+        esac
+
+        command=${COMP_WORDS[1]}
+
+        if [[ "$cur" == -* ]]; then
+            # possible options for the command
+            case $command in
+                add)
+                    options='--auto-props --no-auto-props --force --targets
+                             --no-ignore --non-recursive -N -q --quiet'
+                    ;;
+                blame|annotate|ann|praise)
+                    options='-r --revisions --username --password
+                             --no-auth-cache --non-interactive -v --verbose
+                             --incremental --xml'
+                    ;;
+                cat)
+                    options='-r --revision --username --password
+                             --no-auth-cache --non-interactive'
+                    ;;
+                checkout|co)
+                    options='-r --revision -q --quiet -N --non-recursive
+                             --username --password --no-auth-cache
+                             --non-interactive --ignore-externals'
+                    ;;
+                cleanup)
+                    options='--diff3-cmd'
+                    ;;
+                commit|ci)
+                    options='-m --message -F --file --encoding --force-log -q
+                             --quiet --non-recursive -N --targets --editor-cmd
+                             --username --password --no-auth-cache
+                             --non-interactive --no-unlock'
+                    ;;
+                copy|cp)
+                    options='-m --message -F --file --encoding --force-log -r
+                             --revision -q --quiet --editor-cmd -username
+                             --password --no-auth-cache --non-interactive'
+                    ;;
+                delete|del|remove|rm)
+                    options='--force -m --message -F --file --encoding
+                             --force-log -q --quiet --targets --editor-cmd
+                             --username --password --no-auth-cache
+                             --non-interactive'
+                    ;;
+                diff|di)
+                    options='-r --revision -x --extensions --diff-cmd
+                             --no-diff-deleted -N --non-recursive --username
+                             --password --no-auth-cache --non-interactive
+                             --force --old --new --notice-ancestry'
+                    ;;
+                export)
+                    options='-r --revision -q --quiet --username --password
+                             --no-auth-cache --non-interactive -N
+                             --non-recursive --force --native-eol
+                             --ignore-externals'
+                    ;;
+                import)
+                    options='--auto-props --no-auto-props -m --message -F
+                             --file --encoding --force-log -q --quiet
+                             --non-recursive --no-ignore --editor-cmd
+                             --username --password --no-auth-cache
+                             --non-interactive'
+                    ;;
+                info)
+                    options='--username --password --no-auth-cache
+                             --non-interactive -r --revision --xml --targets
+                             -R --recursive --incremental'
+                    ;;
+                list|ls)
+                    options='-r --revision -v --verbose -R --recursive
+                             --username --password --no-auth-cache
+                             --non-interactive --incremental --xml'
+                    ;;
+                lock)
+                    options='-m --message -F --file --encoding --force-log
+                             --targets --force --username --password
+                             --no-auth-cache --non-interactive'
+                    ;;
+                log)
+                    options='-r --revision -v --verbose --targets --username
+                             --password --no-auth-cache --non-interactive
+                             --stop-on-copy --incremental --xml -q --quiet
+                             --limit'
+                    ;;
+                merge)
+                    options='-r --revision -N --non-recursive -q --quiet
+                             --force --dry-run --diff3-cmd --username
+                             --password --no-auth-cache --non-interactive
+                             --ignore-ancestry'
+                    ;;
+                mkdir)
+                    options='-m --message -F --file --encoding --force-log -q
+                             --quiet --editor-cmd --username --password
+                             --no-auth-cache --non-interactive'
+                    ;;
+                move|mv|rename|ren)
+                    options='-m --message -F --file --encoding --force-log -r
+                             --revision -q --quiet --force --editor-cmd
+                             --username --password --no-auth-cache
+                             --non-interactive'
+                    ;;
+                propdel|pdel|pd)
+                    options='-q --quiet -R --recursive -r --revision --revprop
+                             --username --password --no-auth-cache
+                             --non-interactive'
+                    ;;
+                propedit|pedit|pe)
+                    options='-r --revision --revprop --encoding --editor-cmd
+                             --username --password --no-auth-cache
+                             --non-interactive --force'
+                    ;;
+                propget|pget|pg)
+                    options='-R --recursive -r --revision --revprop --strict
+                             --username --password --no-auth-cache
+                             --non-interactive'
+                    ;;
+                proplist|plist|pl)
+                    options='-v --verbose -R --recursive -r --revision
+                             --revprop -q --quiet --username --password
+                             --no-auth-cache --non-interactive'
+                    ;;
+                propset|pset|ps)
+                    options='-F --file -q --quiet --targets -R --recursive
+                             --revprop --encoding --username --password
+                             --no-auth-cache --non-interactive -r --revision
+                             --force'
+                    ;;
+                resolved)
+                    options='--targets -R --recursive -q --quiet'
+                    ;;
+                revert)
+                    options='--targets -R --recursive -q --quiet'
+                    ;;
+                status|stat|st)
+                    options='-u --show-updates -v --verbose -N --non-recursive
+                             -q --quiet --username --password --no-auth-cache
+                             --non-interactive --no-ignore --ignore-externals
+                             --incremental --xml'
+                    ;;
+                switch|sw)
+                    options='--relocate -r --revision -N --non-recursive -q
+                             --quiet --username --password --no-auth-cache
+                             --non-interactive --diff3-cmd'
+                    ;;
+                unlock)
+                    options='--targets --force --username --password
+                             --no-auth-cache --non-interactive'
+                    ;;
+                update|up)
+                    options='-r --revision -N --non-recursive -q --quiet
+                             --username --password --no-auth-cache
+                             --non-interactive --diff3-cmd --ignore-externals'
+                    ;;
+            esac
+            options="$options --help -h --config-dir"
+
+            COMPREPLY=( $( compgen -W "$options" -- $cur ) )
+        else
+            if [[ "$command" == @(help|h|\?) ]]; then
+                COMPREPLY=( $( compgen -W "$commands" -- $cur ) )
+            else
+                _filedir
+            fi
+        fi
+    fi
+
+    return 0
+}
+complete -F _svn svn
+
+_svnadmin()
+{
+    local cur prev commands options mode
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    commands='create deltify dump help ? hotcopy list-dblogs list-unused-dblogs
+              load lslocks lstxns recover rmlocks rmtxns setlog verify'
+
+    if [[ $COMP_CWORD -eq 1 ]] ; then
+        if [[ "$cur" == -* ]]; then
+            COMPREPLY=( $( compgen -W '--version' -- $cur ) )
+        else
+            COMPREPLY=( $( compgen -W "$commands" -- $cur ) )
+        fi
+    else
+        case $prev in
+            --config-dir)
+                _filedir -d
+                return 0
+                ;;
+            --fs-type)
+                COMPREPLY=( $( compgen -W 'fsfs bdb' -- $cur ) )
+                return 0
+                ;;
+        esac
+
+        command=${COMP_WORDS[1]}
+
+        if [[ "$cur" == -* ]]; then
+            # possible options for the command
+            case $command in
+                create)
+                    options='--bdb-txn-nosync --bdb-log-keep --config-dir
+                             --fs-type'
+                    ;;
+                deltify)
+                    options='-r --revision -q --quiet'
+                    ;;
+                dump)
+                    options='-r --revision --incremental -q --quiet --deltas'
+                    ;;
+                hotcopy)
+                    options='--clean-logs'
+                    ;;
+                load)
+                    options='--ignore-uuid --force-uuid --parent-dir -q --quiet
+                             --use-pre-commit-hook --use-post-commit-hook'
+                    ;;
+                rmtxns)
+                    options='-q --quiet'
+                    ;;
+                setlog)
+                    options='-r --revision --bypass-hooks'
+                    ;;
+            esac
+
+            options="$options --help -h"
+            COMPREPLY=( $( compgen -W "$options" -- $cur ) )
+        else
+            if [[ "$command" == @(help|h|\?) ]]; then
+                COMPREPLY=( $( compgen -W "$commands" -- $cur ) )
+            else
+                _filedir
+            fi
+        fi
+    fi
+
+    return 0
+}
+complete -F _svnadmin -o default svnadmin
+
+_svnlook()
+{
+    local cur prev commands options mode
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    commands='author cat changed date diff dirs-changed help ? h history info
+              lock log propget pget pg proplist plist pl tree uuid youngest'
+
+    if [[ $COMP_CWORD -eq 1 ]] ; then
+        if [[ "$cur" == -* ]]; then
+            COMPREPLY=( $( compgen -W '--version' -- $cur ) )
+        else
+            COMPREPLY=( $( compgen -W "$commands" -- $cur ) )
+        fi
+    else
+        command=${COMP_WORDS[1]}
+
+        if [[ "$cur" == -* ]]; then
+            # possible options for the command
+            case $command in
+                author|cat|date|dirs-changed|info|log)
+                    options='-r --revision -t --transaction'
+                    ;;
+                changed)
+                    options='-r --revision -t --transaction --copy-info'
+                    ;;
+                diff)
+                    options='-r --revision -t --transaction --no-diff-deleted
+                             --no-diff-added --diff-copy-from'
+                    ;;
+                history)
+                    options='-r --revision --show-ids'
+                    ;;
+                propget|proplist)
+                    options='-r --revision -t --transaction --revprop'
+                    ;;
+                tree)
+                    options='-r --revision -t --transaction --show-ids
+                             --full-paths'
+                    ;;
+            esac
+
+            options="$options --help -h"
+            COMPREPLY=( $( compgen -W "$options" -- $cur ) )
+        else
+            if [[ "$command" == @(help|h|\?) ]]; then
+                COMPREPLY=( $( compgen -W "$commands" -- $cur ) )
+            else
+                _filedir
+            fi
+        fi
+    fi
+
+    return 0
+}
+complete -F _svnlook -o default svnlook
+}
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

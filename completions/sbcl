@@ -1,0 +1,31 @@
+# bash programmable completion for various Common Lisp implementations by
+# Nikodemus Siivola <nikodemus@random-state.net>
+
+have sbcl || have sbcl-mt &&
+_sbcl()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    # completing an option (may or may not be separated by a space)
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--core --noinform --help --version
+            --sysinit --userinit --eval --noprint --disable-debugger
+            --end-runtime-options --end-toplevel-options ' -- "$cur" ) )
+    else
+        _filedir
+    fi
+
+    return 0
+} &&
+complete -F _sbcl sbcl sbcl-mt
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

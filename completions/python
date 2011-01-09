@@ -1,0 +1,54 @@
+# bash completion for python
+
+have python &&
+_python()
+{
+    local prev cur i
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -'?'|-h|--help|-V|--version|-c|-m)
+            return 0
+            ;;
+        -Q)
+            COMPREPLY=( $( compgen -W "old new warn warnall" -- "$cur" ) )
+            return 0
+            ;;
+        -W)
+            COMPREPLY=( $( compgen -W "ignore default all module once error" \
+                -- "$cur" ) )
+            return 0
+            ;;
+        !(python?([23])|-?))
+            [[ ${COMP_WORDS[COMP_CWORD-2]} != -@(Q|W) ]] && _filedir
+            ;;
+    esac
+
+
+    # if '-c' is already given, complete all kind of files.
+    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
+        if [[ ${COMP_WORDS[i]} == -c ]]; then
+            _filedir
+        fi
+    done
+
+
+    if [[ "$cur" != -* ]]; then
+        _filedir 'py?([co])'
+    else
+        COMPREPLY=( $( compgen -W "$( _parse_help $1 -h )" -- "$cur" ) )
+    fi
+
+    return 0
+} &&
+complete -F _python python python2 python3
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

@@ -1,0 +1,44 @@
+# bash completion for configure
+
+_configure()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        --*prefix|--*dir)
+            _filedir -d
+            ;;
+    esac
+
+    $split && return 0
+
+    # if $COMP_CONFIGURE_HINTS is not null, then completions of the form
+    # --option=SETTING will include 'SETTING' as a contextual hint
+    [[ "$cur" != -* ]] && return 0
+
+    if [ -n "$COMP_CONFIGURE_HINTS" ]; then
+        COMPREPLY=( $( compgen -W "$( $1 --help 2>&1 | \
+            awk '/^  --[A-Za-z]/ { print $1; \
+            if ($2 ~ /--[A-Za-z]/) print $2 }' | sed -e 's/[[,].*//g' )" \
+            -- "$cur" ) )
+    else
+        COMPREPLY=( $( compgen -W "$( $1 --help 2>&1 | \
+            awk '/^  --[A-Za-z]/ { print $1; \
+            if ($2 ~ /--[A-Za-z]/) print $2 }' | sed -e 's/[[,=].*//g' )" \
+            -- "$cur" ) )
+    fi
+}
+complete -F _configure configure
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

@@ -1,0 +1,51 @@
+# bash completion for bzip2
+
+have bzip2 || have pbzip2 &&
+_bzip2()
+{
+    local cur prev xspec helpopts
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+    helpopts=`_parse_help ${COMP_WORDS[0]}`
+
+    case $prev in
+        -b|-h|--help|-p)
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W "${helpopts//#/} -2 -3 -4 -5 -6 -7 -8 -9" \
+            -- "$cur" ) )
+        return 0
+    fi
+
+    local IFS=$'\n'
+
+    xspec="*.bz2"
+    if [[ "$prev" == --* ]]; then
+        [[ "$prev" == --decompress || \
+            "$prev" == --list || \
+            "$prev" == --test ]] && xspec="!"$xspec
+        [[ "$prev" == --compress ]] && xspec=
+    elif [[ "$prev" == -* ]]; then
+        [[ "$prev" == -*[dt]* ]] && xspec="!"$xspec
+        [[ "$prev" == -*z* ]] && xspec=
+    fi
+
+    _expand || return 0
+
+    _compopt_o_filenames
+    COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \
+        $( compgen -d -- "$cur" ) )
+} &&
+complete -F _bzip2 bzip2 pbzip2
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

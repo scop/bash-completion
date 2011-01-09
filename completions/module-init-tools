@@ -1,0 +1,61 @@
+# bash completion for Linux module-init-tools
+
+# Linux rmmod(8) completion. This completes on a list of all currently
+# installed kernel modules.
+#
+have rmmod &&
+_rmmod()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    _installed_modules "$cur"
+    return 0
+} &&
+complete -F _rmmod rmmod
+
+# Linux insmod(8), modprobe(8) and modinfo(8) completion. This completes on a
+# list of all available modules for the version of the kernel currently
+# running.
+#
+have insmod || have modprobe || have modinfo &&
+_insmod()
+{
+    local cur prev modpath
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    # behave like lsmod for modprobe -r
+    if [[ ${1##*/} == modprobe && "${COMP_WORDS[1]}" == -r ]]; then
+        _installed_modules "$cur"
+        return 0
+    fi
+
+    # do filename completion if we're giving a path to a module
+    if [[ "$cur" == */* ]]; then
+        _filedir '@(?(k)o?(.gz))'
+        return 0
+    fi
+
+    if [[ $COMP_CWORD -gt 1 && "${COMP_WORDS[COMP_CWORD-1]}" != -* ]]; then
+        # do module parameter completion
+        COMPREPLY=( $( compgen -W "$( /sbin/modinfo -p ${COMP_WORDS[1]} | \
+            cut -d: -f1 )" -- "$cur" ) )
+    else
+        _modules $(uname -r)
+    fi
+
+    return 0
+} &&
+complete -F _insmod insmod modprobe modinfo
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

@@ -1,0 +1,80 @@
+# man(1) completion
+
+[ $USERLAND = GNU -o $UNAME = Darwin \
+  -o $UNAME = FreeBSD -o $UNAME = SunOS -o $UNAME = Cygwin \
+  -o $UNAME = OpenBSD ] &&
+_man()
+{
+    local cur i prev sect manpath manext mansect uname
+
+    manext="@([0-9lnp]|[0-9][px]|man|3pm)?(.@([gx]z|bz2|lzma|Z))"
+    mansect="@([0-9lnp]|[0-9][px]|3pm)"
+
+    COMPREPLY=()
+    _get_comp_words_by_ref -n : cur prev
+
+    if [[ "$prev" == -l ]]; then
+        _filedir $manext
+        return 0
+    fi
+
+    _expand || return 0
+
+    # file based completion if parameter contains /
+    if [[ "$cur" == */* ]]; then
+        _filedir $manext
+        return 0
+    fi
+
+    uname=$( uname -s )
+    if [[ $uname == @(Linux|GNU|GNU/*|FreeBSD|Cygwin|CYGWIN_*) ]]; then
+        manpath=$( manpath 2>/dev/null || command man --path )
+    else
+        manpath=$MANPATH
+    fi
+
+    if [ -z "$manpath" ]; then
+        COMPREPLY=( $( compgen -c -- "$cur" ) )
+        return 0
+    fi
+
+    # determine manual section to search
+    [[ "$prev" == $mansect ]] && sect=$prev || sect='*'
+
+    manpath=$manpath:
+    if [ -n "$cur" ]; then
+        manpath="${manpath//://*man$sect/$cur* } ${manpath//://*cat$sect/$cur* }"
+    else
+        manpath="${manpath//://*man$sect/ } ${manpath//://*cat$sect/ }"
+    fi
+
+    # redirect stderr for when path doesn't exist
+    COMPREPLY=( $( eval command ls "$manpath" 2>/dev/null ) )
+    # weed out directory path names and paths to man pages
+    COMPREPLY=( ${COMPREPLY[@]##*/?(:)} )
+    # strip suffix from man pages
+    COMPREPLY=( ${COMPREPLY[@]%.@([gx]z|bz2|lzma|Z)} )
+    COMPREPLY=( $( compgen -W '${COMPREPLY[@]%.*}' -- "${cur//\\\\/}" ) )
+
+    if [[ "$prev" != $mansect ]]; then
+        # File based completion for the rest, prepending ./ if needed
+        # (man 1.6f needs that for man pages in current dir)
+        local start=${#COMPREPLY[@]}
+        _filedir $manext
+        for (( i=$start; i < ${#COMPREPLY[@]}; i++ )); do
+            [[ ${COMPREPLY[i]} == */* ]] || COMPREPLY[i]=./${COMPREPLY[i]}
+        done
+    fi
+
+    __ltrim_colon_completions "$cur"
+    return 0
+} &&
+complete -F _man man apropos whatis
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

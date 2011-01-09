@@ -1,0 +1,157 @@
+# Use of this file is deprecated.  Upstream completion is available in
+# yum > 3.2.25, use that instead.
+
+# yum(8) completion
+
+have yum && {
+_yum_list()
+{
+    if [[ "$1" == all ]] ; then
+        # Try to strip in between headings like "Available Packages"
+        # This will obviously only work for English :P
+        COMPREPLY=( $( yum -d 0 -C list $1 "$cur*" 2>/dev/null | \
+            sed -ne '/^Available /d' -e '/^Installed /d' -e '/^Updated /d' \
+            -e 's/[[:space:]].*//p' ) )
+    else
+        # Drop first line (e.g. "Updated Packages")
+        COMPREPLY=( $( yum -d 0 -C list $1 "$cur*" 2>/dev/null | \
+            sed -ne 1d -e 's/[[:space:]].*//p' ) )
+    fi
+}
+
+_yum_repolist()
+{
+    # -d 0 causes repolist to output nothing as of yum 3.2.22:
+    # http://yum.baseurl.org/ticket/83
+    # Drop first ("repo id      repo name") and last ("repolist: ...") rows
+    yum --noplugins -C repolist $1 2>/dev/null | \
+        sed -ne '/^repo\s\s*id/d' -e '/^repolist:/d' -e 's/[[:space:]].*//p'
+}
+
+_yum_plugins()
+{
+    command ls /usr/lib/yum-plugins/*.py{,c,o} 2>/dev/null \
+        | sed -ne 's|.*/\([^./]*\)\.py[co]\{0,1\}$|\1|p' | sort -u
+}
+
+_yum()
+{
+    local cur prev special i split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
+        if [[ ${COMP_WORDS[i]} == @(install|update|upgrade|remove|erase|deplist|info) ]]; then
+            special=${COMP_WORDS[i]}
+        fi
+    done
+
+    if [ -n "$special" ]; then
+        # TODO: install|update|upgrade should not match *src.rpm
+        if [[ "$cur" == */* && "$special" == @(deplist|install|update|upgrade) ]]; then
+            _filedir rpm
+            return 0
+        fi
+        case $special in
+            install)
+                _yum_list available
+                return 0
+                ;;
+            deplist|info)
+                _yum_list all
+                return 0
+                ;;
+            upgrade|update)
+                _yum_list updates
+                return 0
+                ;;
+            remove|erase)
+                # _rpm_installed_packages is not arch-qualified
+                _yum_list installed
+                return 0
+                ;;
+        esac
+    fi
+
+    _split_longopt && split=true
+
+    case $prev in
+        list)
+            COMPREPLY=( $( compgen -W 'all available updates \
+                                installed extras obsoletes recent' -- $cur ) )
+            ;;
+        clean)
+            COMPREPLY=( $( compgen -W 'packages headers metadata \
+                                cache dbcache all' -- $cur ) )
+            ;;
+        repolist)
+            COMPREPLY=( $( compgen -W 'all enabled disabled' -- $cur ) )
+            ;;
+        localinstall|localupdate)
+            # TODO: should not match *src.rpm
+            _filedir rpm
+            ;;
+        -d|-e)
+            COMPREPLY=( $( compgen -W '0 1 2 3 4 5 6 7 8 9 10' -- $cur ) )
+            ;;
+        -c)
+            _filedir
+            ;;
+        --installroot)
+            _filedir -d
+            ;;
+        --enablerepo)
+            COMPREPLY=( $( compgen -W '$( _yum_repolist disabled )' -- $cur ) )
+            ;;
+        --disablerepo)
+            COMPREPLY=( $( compgen -W '$( _yum_repolist enabled )' -- $cur ) )
+            ;;
+        --disableexcludes)
+            COMPREPLY=( $( compgen -W '$( _yum_repolist all ) all main' \
+                -- $cur ) )
+            ;;
+        --enableplugin|--disableplugin)
+            COMPREPLY=( $( compgen -W '$( _yum_plugins )' -- $cur ))
+            ;;
+        --color)
+            COMPREPLY=( $( compgen -W 'always auto never' -- $cur ))
+            ;;
+        -R|-x|--exclude)
+            # argument required but no completions available
+            return 0
+            ;;
+        -h|--help|--version)
+            # no other options useful with these
+            return 0
+            ;;
+        *)
+            COMPREPLY=( $( compgen -W 'install update check-update upgrade \
+                remove erase list info provides whatprovides clean makecache \
+                groupinstall groupupdate grouplist groupremove groupinfo \
+                search shell resolvedep localinstall localupdate deplist \
+                repolist help' -- $cur ) )
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--help --tolerant -C -c -R -d \
+            --showduplicates -e --quiet --verbose -y --version --installroot \
+            --enablerepo --disablerepo --exclude --disableexcludes --obsoletes \
+            --noplugins --nogpgcheck --disableplugin --enableplugin \
+            --skip-broken --color' -- $cur ) )
+        return 0
+    fi
+}
+} &&
+complete -F _yum yum
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

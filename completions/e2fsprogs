@@ -1,0 +1,180 @@
+# bash completion for e2fsprogs
+
+have badblocks &&
+_badblocks()
+{
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -b|-c|-e|-d|-p|-t)
+            return 0
+            ;;
+        -i|-o)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        # -w (dangerous) and -X (internal use) not here on purpose
+        COMPREPLY=( $( compgen -W '-b -c -e -d -f -i -n -o -p -s -t -v' \
+            -- "$cur" ) )
+        return 0
+    fi
+
+    cur=${cur:=/dev/}
+    _filedir
+} &&
+complete -F _badblocks badblocks
+
+
+have dumpe2fs &&
+_dumpe2fs()
+{
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -o|-V)
+            return 0
+            ;;
+        -i)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-b -o -f -h -i -x -V' -- "$cur" ) )
+        return 0
+    fi
+
+    cur=${cur:=/dev/}
+    _filedir
+} &&
+complete -F _dumpe2fs dumpe2fs
+
+
+have e2freefrag &&
+_e2freefrag()
+{
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -c|-h)
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-c -h' -- "$cur" ) )
+        return 0
+    fi
+
+    cur=${cur:=/dev/}
+    _filedir
+} &&
+complete -F _e2freefrag e2freefrag
+
+
+have e2label &&
+_e2label()
+{
+    COMPREPLY=()
+    local cur cword
+    _get_comp_words_by_ref cur cword
+
+    if [ $cword -eq 1 ]; then
+        cur=${cur:=/dev/}
+        _filedir
+    fi
+} &&
+complete -F _e2label e2label
+
+
+have filefrag &&
+_filefrag()
+{
+    COMPREPLY=()
+    local cur
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-B -b -s -v -x' -- "$cur" ) )
+        return 0
+    fi
+
+    _filedir
+} &&
+complete -F _filefrag filefrag
+
+
+have tune2fs &&
+_tune2fs()
+{
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -c|-C|-E|-i|-J|-L|-m|-r|-T)
+            return 0
+            ;;
+        -e)
+            COMPREPLY=( $( compgen -W 'continue remount-ro panic' -- "$cur" ) )
+            return 0
+            ;;
+        -g)
+            _gids
+            COMPREPLY=( $( compgen -g -W '${COMPREPLY[@]}' -- "$cur" ) )
+            return 0
+            ;;
+        -M)
+            _filedir -d
+            ;;
+        -o)
+            local -a opts=(^debug ^bsdgroups ^user_xattr ^acl ^uid16
+                ^journal_data ^journal_data_ordered ^journal_data_writeback)
+            COMPREPLY=( $( compgen -W '${opts[@]} ${opts[@]#^}' -- "$cur" ) )
+            return 0
+            ;;
+        -O)
+            local -a opts=(^dir_index ^dir_nlink ^extent ^extra_isize ^filetype
+                ^flex_bg ^has_journal ^huge_file ^large_file ^resize_inode
+                ^sparse_super ^uninit_bg)
+            COMPREPLY=( $( compgen -W '${opts[@]} ${opts[@]#^}' -- "$cur" ) )
+            return 0
+            ;;
+        -u)
+            _uids
+            COMPREPLY=( $( compgen -u -W '${COMPREPLY[@]}' -- "$cur" ) )
+            return 0
+            ;;
+        -U)
+            COMPREPLY=( $( compgen -W 'clear random time' -- "$cur" ) )
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-c -C -e -E -f -g -i -j -J -l -L -m -M -o
+            -O -r -T -u -U' -- "$cur" ) )
+    fi
+
+    cur=${cur:=/dev/}
+    _filedir
+} &&
+complete -F _tune2fs tune2fs
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

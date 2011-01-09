@@ -1,0 +1,186 @@
+# -*- mode: shell-script; sh-basic-offset: 8; indent-tabs-mode: t -*-
+# ex: ts=8 sw=8 noet filetype=sh
+#
+# bash completion for lintian(1) and lintian-info(1)
+
+have lintian && {
+_lintian_tags() {
+    local match search tags
+
+    tags=$( grep -e ^Tag /usr/share/lintian/checks/*.desc | cut -d\  -f2 )
+    if [[ "$cur" == *, ]]; then
+        search=${cur//,/ }
+        for item in $search; do
+            match=$(grep -nE "^Tag: $item$" /usr/share/lintian/checks/*.desc \
+                    | cut -d: -f1 )
+            tags=$( echo $tags | sed -e "s/\<$item\>//g" )
+        done
+        COMPREPLY=( ${COMPREPLY[@]} $(compgen -W "$tags") )
+    elif [[ "$cur" == *,* ]]; then
+        COMPREPLY=( ${COMPREPLY[@]} $(compgen -P "${cur%,*}," -W "$tags" -- \
+                                      "${cur##*,}") )
+    else
+        COMPREPLY=( ${COMPREPLY[@]} $(compgen -W "$tags" -- "$cur") )
+    fi
+    return 0
+}
+
+_lintian_checks() {
+    local match search todisable checks
+
+    checks=$(grep -e ^Check-Script -e ^Abbrev \
+             /usr/share/lintian/checks/*.desc | cut -d\  -f2 )
+    if [[ "$cur" == *, ]]; then
+        search=${cur//,/ }
+        for item in $search; do
+            match=$(grep -nE "^(Check-Script|Abbrev): $item$" \
+                    /usr/share/lintian/checks/*.desc | cut -d: -f1 )
+            todisable=$(grep -e ^Check-Script -e ^Abbrev $match | \
+                        cut -d\  -f2 )
+            for name in $todisable; do
+                checks=$( echo $checks | sed -e "s/\<$name\>//g" )
+            done
+        done
+        COMPREPLY=( ${COMPREPLY[@]} $(compgen -W "$checks") )
+    elif [[ "$cur" == *,* ]]; then
+        COMPREPLY=( ${COMPREPLY[@]} $(compgen -P "${cur%,*}," -W "$checks" \
+                                      -- "${cur##*,}") )
+    else
+        COMPREPLY=( ${COMPREPLY[@]} $(compgen -W "$checks" -- "$cur") )
+    fi
+    return 0
+}
+
+_lintian_infos() {
+    local match search infos
+
+    infos=$(grep -e ^Collector /usr/share/lintian/collection/*.desc \
+            | cut -d\  -f2 )
+    if [[ "$cur" == *, ]]; then
+        search=${cur//,/ }
+        for item in $search; do
+            match=$( grep -nE "^Collector: $item$" \
+                    /usr/share/lintian/collection/*.desc | cut -d: -f1 )
+            infos=$( echo $infos | sed -e "s/\<$item\>//g" )
+        done
+        COMPREPLY=( ${COMPREPLY[@]} $(compgen -W "$infos") )
+    elif [[ "$cur" == *,* ]]; then
+        COMPREPLY=( ${COMPREPLY[@]} $(compgen -P "${cur%,*}," -W "$infos" \
+                                      -- "${cur##*,}") )
+    else
+        COMPREPLY=( ${COMPREPLY[@]} $(compgen -W "$infos" -- "$cur") )
+    fi
+    return 0
+}
+
+_lintian_arches() {
+    return 0
+}
+
+_lintian() {
+    local cur prev action lint_actions general_opts behaviour_opts \
+          configuration_opts selection_opts
+
+    _get_comp_words_by_ref cur prev
+
+    lint_actions="--setup-lab --remove-lab --check --check-part --tags \
+                  --tags-from-file --ftp-master-rejects --dont-check-part \
+                  --unpack --remove"
+    general_opts="--help --version --print-version --verbose --debug --quiet"
+    behaviour_opts="--info --display-info --display-experimental --pedantic \
+                    --display-level --suppress-tags --unpack-level \
+                    --suppress-tags-from-file --no-override --show-overrides \
+                    --color --unpack-info --md5sums --checksums --allow-root \
+                    --fail-on-warnings --keep-lab"
+    configuration_opts="--cfg --lab --archivedir --dist --area --section \
+                        --arch --root"
+    selection_opts="--all --binary --source --udeb --packages-file"
+
+    if [[ "$prev" = -* ]]; then
+        case $prev in
+            -C|--check-part|-X|--dont-check-part)
+                _lintian_checks
+                ;;
+            -T|--tags|--suppress-tags)
+                _lintian_tags
+                ;;
+            --tags-from-file|--suppress-tags-from-file|--cfg|-p|\
+            --packages-file)
+                _filedir
+                ;;
+            --lab|--archivedir|--dist|--root)
+                _filedir -d
+                ;;
+            -l|--unpack-level)
+                COMPREPLY=($(compgen -W "0 none 1 basic 2 contents" -- \
+                             "$cur"))
+                ;;
+            --color)
+                COMPREPLY=($(compgen -W "never always auto html" -- "$cur"))
+                ;;
+            -U|--unpack-info)
+                _lintian_infos
+                ;;
+            --area|--section)
+                COMPREPLY=($(compgen -W "main contrib non-free" -- "$cur"))
+                ;;
+            --arch)
+                ;;
+        esac
+    fi
+
+    case "$cur" in
+        --*)
+            COMPREPLY=($(compgen -W "$lint_actions $general_opts \
+                         $behaviour_opts $configuration_opts" -- "$cur"))
+            ;;
+        *,)
+            # If we're here, the user is trying to complete on
+            # --action tag,tag,<TAB>
+            # Only few actions permit that, re-complete them now.
+            echo $prev
+            case "$prev" in
+                -C|--check-part|-X|--dont-check-part)
+                    _lintian_checks
+                    ;;
+                -T|--tags|--suppress-tags)
+                    _lintian_tags
+                    ;;
+                -U|--unpack-info)
+                    _lintian_infos
+                    ;;
+            esac
+            ;;
+        *)
+            _filedir '@(?(u)deb|changes|dsc)'
+            ;;
+    esac
+    return 0
+}
+
+_lintian_info() {
+    local cur prev
+
+    _get_comp_words_by_ref cur prev
+
+    case "$prev" in
+        -t|--tags)
+            _lintian_tags
+            return 0
+            ;;
+    esac
+
+    case "$cur" in
+        --*)
+            COMPREPLY=($(compgen -W "--annotate --help --tags" -- "$cur"))
+            ;;
+        *)
+            _filedir
+            ;;
+    esac
+    return 0
+}
+
+complete -F _lintian lintian
+complete -F _lintian_info lintian-info
+}

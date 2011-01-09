@@ -1,0 +1,51 @@
+# @param string $part  Reference to variable to hold partial unique username
+# @param string $full  Reference to variable to hold full unique username
+proc setup {part full} {
+    upvar $part _part
+    upvar $full _full
+
+    assert_bash_exec {compgen -u} {} /@ users
+    find_unique_completion_pair $users _part _full
+    save_env
+}
+
+
+proc teardown {} {
+    assert_env_unmodified {
+        /COMPREPLY=/d
+    }
+}
+
+
+setup part full
+
+
+set test "function should run without errors"
+assert_bash_exec {_tilde > /dev/null} $test
+
+
+sync_after_int
+
+
+set test "function should not pollute environment"
+# NOTE: A possible environment pollution is detected by assert_env_modified() in teardown()
+assert_bash_exec {foo() { local aa="~"; _tilde "$aa"; }; foo; unset foo} $test
+
+
+sync_after_int
+
+
+set test "~full should complete to ~full unmodified"
+set cmd [format {_tilde "~%s"; printf "%%s\n" "${COMPREPLY[@]}"} $full]
+assert_bash_list "~$full" $cmd $test
+
+
+sync_after_int
+
+
+set test "~part should complete to ~full"
+set cmd [format {_tilde "~%s"; printf "%%s\n" "${COMPREPLY[@]}"} $part]
+assert_bash_list "~$full" $cmd $test
+
+
+teardown

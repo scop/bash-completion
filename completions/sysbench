@@ -1,0 +1,175 @@
+# bash completion for sysbench
+
+# We set -o nospace and turn it off in quite a few places for bash < 4
+# reasons; assuming bash >= 4 we could instead not turn it on
+# initially but only in the few cases where it's actually needed.
+
+have sysbench &&
+_sysbench()
+{
+    COMPREPLY=()
+    local cur prev words split=false
+    _get_comp_words_by_ref -n = cur prev words
+
+    # long options need the "=" (whitespace split doesn't work), but we split
+    # internally to make processing easier
+    _split_longopt && split=true
+
+    case $prev in
+        --num-threads|--max-requests|--max-time|--thread-stack-size| \
+        --help|--version|help|version)
+            return 0
+            ;;
+        --init-rng|--debug|--validate)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'on off' -- "$cur" ) )
+            return 0
+            ;;
+        --test)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'fileio cpu memory threads mutex oltp' \
+                -- "$cur" ) )
+            return 0
+            ;;
+        --cpu-max-prime)
+            return 0
+            ;;
+        --file-test-mode)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'seqwr seqrewr seqrd rndrd rndwr rndrw' \
+                -- "$cur" ) )
+            return 0
+            ;;
+        --file-io-mode)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'sync async fastmmap slowmmap' \
+                -- "$cur" ) )
+            return 0
+            ;;
+        --file-extra-flags)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'sync dsync direct' -- "$cur" ) )
+            return 0
+            ;;
+        --file-fsync-all|--file-fsync-end)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'on off' -- "$cur" ) )
+            return 0
+            ;;
+        --file-fsync-mode)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'fsync fdatasync' -- "$cur" ) )
+            return 0
+            ;;
+        --memory-scope)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'global local' -- "$cur" ) )
+            return 0
+            ;;
+        --memory-hugetlb)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'on off' -- "$cur" ) )
+            return 0
+            ;;
+        --memory-oper)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'read write none' -- "$cur" ) )
+            return 0
+            ;;
+        --memory-access-mode)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'seq rnd' -- "$cur" ) )
+            return 0
+            ;;
+        --oltp-test-mode)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'simple complex nontrx sp' -- "$cur" ) )
+            return 0
+            ;;
+        --oltp-read-only|--oltp-skip-trx|--oltp-quto-inc|--mysql-ssl)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'on off' -- "$cur" ) )
+            return 0
+            ;;
+        --oltp-nontrx-mode)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'select update_key update_nokey insert
+                delete' -- "$cur" ) )
+            return 0
+            ;;
+        --oltp-dist-type)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'uniform gaussian special' -- "$cur" ) )
+            return 0
+            ;;
+        --db-driver)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W "$( $1 --test=oltp help 2>/dev/null |
+                sed -e '/^.*database drivers:/,/^$/!d' \
+                   -ne 's/^  *\([^ ]*\) .*/\1/p' )" -- "$cur" ) )
+            return 0
+            ;;
+        --db-ps-mode)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'auto disable' -- "$cur" ) )
+            return 0
+            ;;
+        --mysql-socket)
+            compopt +o nospace &>/dev/null
+            _filedir sock
+            return 0
+            ;;
+        --mysql-table-engine)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'myisam innodb bdb heap ndbcluster
+                federated' -- "$cur" ) )
+            return 0
+            ;;
+        --mysql-engine-trx)
+            compopt +o nospace &>/dev/null
+            COMPREPLY=( $( compgen -W 'yes no auto' -- "$cur" ) )
+            return 0
+            ;;
+        --*)
+            $split && return 0
+            ;;
+    esac
+
+    # find out which test we're running
+    local i test
+    for (( i=1 ; $i < ${#words[@]}-1 ; i++ )); do
+        if [[ ${words[i]} == --test* ]]; then
+            test=${words[i]#*=}
+            break
+        fi
+    done
+
+    local opts="--num-threads= --max-requests= --max-time= --thread-stack-size=
+        --init-rng= --debug= --validate= --help --version"
+
+    if [[ $test ]]; then
+        local help=( $( _parse_help $1 "--test=$test help" ) )
+        opts="$opts ${help[@]/%/=} prepare run cleanup help version"
+    else
+        opts="$opts --test="
+    fi
+
+    if [[ "$cur" == -* || ! $test ]]; then
+        COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
+        [[ ${#COMPREPLY[@]} == 1 && ${COMPREPLY[0]} != *= ]] && \
+            compopt +o nospace &>/dev/null
+    else
+        compopt +o nospace &>/dev/null
+        COMPREPLY=( $( compgen -W "prepare run cleanup help version" \
+            -- "$cur" ) )
+    fi
+} &&
+complete -F _sysbench -o nospace sysbench
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

@@ -1,0 +1,40 @@
+# Debian Linux dselect(8) completion.
+
+have dselect &&
+_dselect()
+{
+    local cur prev
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        --admindir)
+            _filedir -d
+            return 0
+            ;;
+        -D|-debug)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--admindir --help --version --licence \
+            --license --expert --debug' -- "$cur" ) )
+    else
+        COMPREPLY=( $( compgen -W 'access update select install config \
+            remove quit' -- "$cur" ) )
+    fi
+
+    return 0
+} &&
+complete -F _dselect dselect
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

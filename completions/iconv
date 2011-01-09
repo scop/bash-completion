@@ -1,0 +1,46 @@
+# iconv(1) completion
+
+have iconv &&
+_iconv()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -'?'|--help|--usage|-V|--version|--unicode-subst|--byte-subst|\
+        --widechar-subst)
+            return 0
+            ;;
+        -f|--from-code|-t|--to-code)
+            COMPREPLY=( $( compgen -W '$( iconv -l | \
+                sed -e "s@/*\$@@" -e "s/[,()]//g" )' -- "$cur" ) )
+            return 0
+            ;;
+        -o|--output)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" = -* ]]; then
+        COMPREPLY=( $( compgen -W '--from-code --to-code --list -c
+            --unicode-subst --byte-subst --widechar-subst --output --silent
+            --verbose --help --usage --version' -- "$cur" ) )
+        return 0
+    fi
+} &&
+complete -F _iconv -o default iconv
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

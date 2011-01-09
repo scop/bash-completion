@@ -1,0 +1,66 @@
+# Debian apt-build(1) completion.
+
+have apt-build &&
+_apt_build()
+{
+    local cur prev special i
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
+        if [[ ${COMP_WORDS[i]} == @(install|remove|source|info|clean) ]]; then
+            special=${COMP_WORDS[i]}
+        fi
+    done
+
+    if [ -n "$special" ]; then
+        case $special in
+            install|source|info)
+                COMPREPLY=( $( apt-cache pkgnames "$cur" 2> /dev/null ) )
+                return 0
+                ;;
+            remove)
+                COMPREPLY=( $( _comp_dpkg_installed_packages "$cur" ) )
+                return 0
+                ;;
+            *)
+                return 0
+                ;;
+        esac
+    fi
+
+    case $prev in
+         --patch|--build-dir|--repository-dir)
+               _filedir
+               return 0
+               ;;
+         -h|--help)
+               return 0
+               ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--help --show-upgraded -u --build-dir \
+            --repository-dir --build-only --build-command --reinstall \
+            --rebuild --remove-builddep --no-wrapper --purge --patch \
+            --patch-strip -p --yes -y --version -v --no-source' -- "$cur" ) )
+
+    else
+        COMPREPLY=( $( compgen -W 'update upgrade install remove source \
+            dist-upgrade world clean info clean-build update-repository' \
+            -- "$cur" ) )
+    fi
+
+
+    return 0
+} &&
+complete -F _apt_build apt-build
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

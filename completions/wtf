@@ -1,0 +1,36 @@
+# wtf completion
+# Raphael Droz, 25/09/2009
+
+have wtf &&
+_wtf()
+{
+    local cur prev db
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    [ "$prev" = -f ] && _filedir && return 0
+    [[ "$cur" == -* ]] && COMPREPLY=( -f ) && return 0
+
+    set -- "${COMP_WORDS[@]}"
+    while [ $# -gt 0 ]; do
+        if [ "$1" = -f ]; then
+            shift ; db=$1 ; break
+        fi
+        shift
+    done
+    [ -z $db ] && db=${ACRONYMDB:-/usr/share/misc/acronyms*}
+
+    [ ${BASH_VERSINFO[0]} -ge 4 ] && cur="${cur^^}"
+
+    COMPREPLY=( $( compgen -W "$( cut -f 1 -s $db ) -f" -- "${cur}" ) )
+} &&
+complete -F _wtf wtf
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

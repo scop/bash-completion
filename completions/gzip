@@ -1,0 +1,55 @@
+# bash completion for gzip
+
+have gzip || have pigz &&
+_gzip()
+{
+    local cur prev xspec helpopts
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+    helpopts=`_parse_help ${COMP_WORDS[0]}`
+
+    case $prev in
+        -b|--blocksize|-p|--processes|-S|--suffix|-h|--help|-V|--version)
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W "$helpopts -1 -2 -3 -4 -5 -6 -7 -8 -9" \
+            -- "$cur" ) )
+        return 0
+    fi
+
+    local IFS=$'\n'
+
+    xspec="*.@(gz|t[ag]z)"
+    if [[ "$prev" == --* ]]; then
+        [[ "$prev" == --decompress || \
+            "$prev" == --list || \
+            "$prev" == --test ]] && xspec="!"$xspec
+        [[ "$prev" == --force ]] && xspec=
+    elif [[ "$prev" == -* ]]; then
+        [[ "$prev" == -*[dlt]* ]] && xspec="!"$xspec
+        [[ "$prev" == -*f* ]] && xspec=
+    elif [[ "$prev" == '>' || "$prev" == '>>' ]]; then
+        xspec=
+    elif [ "$prev" = '<' ]; then
+        xspec=
+    fi
+
+    _expand || return 0
+
+    _compopt_o_filenames
+    COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \
+        $( compgen -d -- "$cur" ) )
+} &&
+complete -F _gzip gzip pigz
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

@@ -1,6 +1,9 @@
 proc setup {} {
+    # NOTE: Changing dir to $SRCDIR is necessary because file locations in the
+    #       ssh config files (e.g. UserKnownHostsFile) are relative to $SRCDIR.
+    assert_bash_exec {cd $SRCDIR}
     save_env
-}; # setup()
+}
 
 
 proc teardown {} {
@@ -8,7 +11,8 @@ proc teardown {} {
         /COMPREPLY=/d
         /OLDHOME=/d
     }
-}; # teardown()
+    assert_bash_exec {cd $TESTDIR}
+}
 
 
 setup
@@ -17,10 +21,10 @@ setup
 set test "Hosts should be put in COMPREPLY"
 set hosts [get_hosts]
     # Hosts `gee', `hus' and `jar' are defined in ./fixtures/_known_hosts_real/config
-    # doo, ike, jub, 10.0.0.1, kyl and 100.0.0.2 in ./fixtures/_known_hosts_real/known_hosts
-lappend hosts doo gee hus ike jar jub kyl 10.0.0.1 100.0.0.2
+    # doo, ike, jub, 10.0.0.1, kyl, 100.0.0.2, 10.10.0.3, blah, and bunch of IPv6 test cases in ./fixtures/_known_hosts_real/known_hosts
+lappend hosts blah doo gee hus ike jar jub kyl 10.0.0.1 100.0.0.2 10.10.0.3 fd00:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:5555 fe80::123:0xff:dead:beef%eth0 1111:2222:3333:4444:5555:6666:xxxx:abab 11xx:2222:3333:4444:5555:6666:xxxx:abab ::42
 set cmd {unset COMPREPLY; _known_hosts_real -aF fixtures/_known_hosts_real/config ''; echo_array COMPREPLY}
-assert_bash_list $hosts $cmd $test
+assert_bash_list $hosts $cmd $test -sort
 
 
 sync_after_int
@@ -29,16 +33,16 @@ sync_after_int
 set test "Hosts should have username prefix and colon suffix"
 set hosts [get_hosts]
     # Hosts `gee', `hus' and `jar' are defined in ./fixtures/_known_hosts_real/config
-    # doo, ike jub, 10.0.0.1, kyl and 100.0.0.2 in ./fixtures/_known_hosts_real/known_hosts
-lappend hosts doo gee hus ike jar jub kyl 10.0.0.1 100.0.0.2
+    # doo, ike, jub, 10.0.0.1, kyl, 100.0.0.2, 10.10.0.3, blah, and bunch of IPv6 test cases in ./fixtures/_known_hosts_real/known_hosts
+lappend hosts blah doo gee hus ike jar jub kyl 10.0.0.1 100.0.0.2 10.10.0.3 fd00:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:5555 fe80::123:0xff:dead:beef%eth0 1111:2222:3333:4444:5555:6666:xxxx:abab 11xx:2222:3333:4444:5555:6666:xxxx:abab ::42
 set hosts [lsort -ascii $hosts]
 set expected {}
 foreach host $hosts {
     lappend expected "user@$host:"
-}; # foreach
+}
     # Call _known_hosts
 set cmd {unset COMPREPLY; _known_hosts_real -acF fixtures/_known_hosts_real/config 'user@'; echo_array COMPREPLY}
-assert_bash_list $expected $cmd $test
+assert_bash_list $expected $cmd $test -sort
 
 
 sync_after_int
@@ -66,7 +70,7 @@ expect {
     -re "^$hosts_config\r\n/@$"  { fail "$test (known hosts file)" }
     -re /@ { unresolved "$test at prompt" }
     default { unresolved "$test" }
-}; # expect
+}
 
 
 sync_after_int
@@ -79,7 +83,7 @@ set hosts [get_hosts]
 lappend hosts two three
 set hosts [join [bash_sort $hosts] "\\s+"]
     # Setup environment
-set cmd {OLDHOME=$HOME; HOME=$TESTDIR}
+set cmd {OLDHOME=$HOME; HOME=$SRCDIRABS}
 send "$cmd\r"
 expect -ex "$cmd\r\n/@"
     # Call _known_hosts
@@ -89,7 +93,7 @@ expect -ex "$cmd\r\n"
 expect {
     -re "^$hosts\r\n/@$"  { pass "$test" }
     default { unresolved "$test" }
-}; # expect
+}
     # Teardown environment
 set cmd {HOME=$OLDHOME}
 send "$cmd\r"
@@ -103,11 +107,11 @@ set test "Empty COMP_KNOWN_HOSTS_WITH_HOSTFILE should omit HOSTFILE"
 assert_bash_exec "COMP_KNOWN_HOSTS_WITH_HOSTFILE="
 set hosts [get_hosts_avahi]
     # Hosts `gee', `hus' and `jar' are defined in ./fixtures/_known_hosts_real/config
-    # doo, ike, jub, 10.0.0.1, kyl and 100.0.0.2 in ./fixtures/_known_hosts_real/known_hosts
-lappend hosts doo gee hus ike jar jub kyl 10.0.0.1 100.0.0.2
+    # doo, ike, jub, 10.0.0.1, kyl, 100.0.0.2, 10.10.0.3, blah, and bunch of IPv6 test cases in ./fixtures/_known_hosts_real/known_hosts
+lappend hosts blah doo gee hus ike jar jub kyl 10.0.0.1 100.0.0.2 10.10.0.3 fd00:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:5555 fe80::123:0xff:dead:beef%eth0 1111:2222:3333:4444:5555:6666:xxxx:abab 11xx:2222:3333:4444:5555:6666:xxxx:abab ::42
     # Call _known_hosts
 set cmd {unset COMPREPLY; _known_hosts_real -aF fixtures/_known_hosts_real/config ''; echo_array COMPREPLY}
-assert_bash_list $hosts $cmd $test
+assert_bash_list $hosts $cmd $test -sort
 sync_after_int
 assert_bash_exec "unset -v COMP_KNOWN_HOSTS_WITH_HOSTFILE"
 

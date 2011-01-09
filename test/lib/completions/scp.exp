@@ -1,15 +1,19 @@
 proc setup {} {
     save_env
-}; # setup()
+    # NOTE: Changing dir to $SRCDIR is necessary because file locations in the
+    #       ssh config files (e.g. UserKnownHostsFile) are relative to $SRCDIR.
+    assert_bash_exec {cd $SRCDIR/fixtures/scp}
+}
 
 
 proc teardown {} {
+    assert_bash_exec {cd $TESTDIR}
     assert_env_unmodified {
         /BASH_LINENO=/d
         /BASH_SOURCE=/d
         /OLDPWD=/d
     }
-}; # teardown()
+}
 
 
 setup
@@ -31,7 +35,7 @@ if {
         #       in `$HOME/.ssh/config' or `/etc/ssh_config'
     set host_pwd ""
     unsupported $test
-}; # if
+}
 
 
     # Try completion
@@ -41,7 +45,7 @@ sync_after_tab
 expect {
     -re "^$cmd$host_pwd.*$" { pass "$test" }
     -re /@ { unresolved "$test at prompt" }
-}; # expect
+}
 
 
 sync_after_int
@@ -52,16 +56,15 @@ set test "Tab should complete known-hosts"
     # Build string list of expected completions
     # Get hostnames and give them a colon (:) suffix
     # Hosts `gee' and `hus' are defined in ./fixtures/scp/config
-    # Hosts `doo' and `ike' are defined in ./fixtures/scp/known_hosts
+    # Hosts `blah', `doo' and `ike' are defined in ./fixtures/scp/known_hosts
 set expected {}
 foreach host [get_hosts] {
     lappend expected "$host:"
-}; # foreach
-lappend expected doo: gee: hus: ike:
+}
+lappend expected blah: doo: gee: hus: ike:
     # Append local filenames
 lappend expected config known_hosts "spaced\\ \\ conf"
-set dir fixtures/scp
-assert_complete_dir $expected "scp -F config " $dir
+assert_complete $expected "scp -F config "
 
 
 sync_after_int
@@ -76,7 +79,7 @@ expect {
     -re "^$cmd\r\n.*\r\n/@" { pass "$test" }
     -re /@ { unresolved "$test at prompt" }
     default { unresolved "$test" }
-}; # expect
+}
 
 
 sync_after_int
@@ -88,30 +91,26 @@ set test "Config file containing space should work"
 set expected {}
 foreach host [get_hosts] {
     lappend expected "$host:"
-}; # foreach
+}
     # Hosts `gee', `hus' and `jar' are defined in "./fixtures/scp/spaced  conf"
-    # Hosts `doo' and `ike' are defined in ./fixtures/scp/known_hosts
-lappend expected doo: gee: hus: ike: jar:
+    # Hosts `blah', `doo' and `ike' are defined in ./fixtures/scp/known_hosts
+lappend expected blah: doo: gee: hus: ike: jar:
     # Append local filenames
 lappend expected config known_hosts "spaced\\ \\ conf"
-set dir fixtures/scp
-#assert_complete_dir $expected "scp -F 'spaced  conf' " $dir
-set prompt "/$dir/@"
-assert_bash_exec "cd $dir" "" $prompt
 set cmd "scp -F 'spaced  conf' "
 send "$cmd\t"
 expect -ex "$cmd\r\n"
-if {[match_items [lsort -unique $expected] $test]} {
+if {[match_items [lsort -unique $expected] -bash-sort]} {
     expect {
-        -re $prompt { pass "$test" }
+        -re /@ { pass "$test" }
         -re eof { unresolved "eof" }
-    }; # expect
+    }
 } else {
     # Expected failure (known bug) because of bash-4 bug in quoted words:
     # http://www.mail-archive.com/bug-bash@gnu.org/msg06095.html
     if {[lindex $::BASH_VERSINFO 0] >= 4} {xfail "$test"} {fail "$test"}
-}; # if
-sync_after_int $prompt
+}
+sync_after_int
 assert_bash_exec {cd "$TESTDIR"}
 
 

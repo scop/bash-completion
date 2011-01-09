@@ -1,0 +1,85 @@
+# Use of this file is deprecated.  Upstream completion is available in
+# mock > 1.1.0, use that instead.
+
+# bash completion for mock
+
+have mock &&
+_mock()
+{
+    local cur prev plugins cfgdir split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+    plugins='tmpfs root_cache yum_cache bind_mount ccache'
+    cfgdir=/etc/mock
+
+    count=0
+    for i in "${COMP_WORDS[@]}" ; do
+        [ $count -eq $COMP_CWORD ] && break
+        if [[ "$i" == --configdir ]] ; then
+            cfgdir="${COMP_WORDS[((count+1))]}"
+        elif [[ "$i" == --configdir=* ]] ; then
+            cfgdir=${i/*=/}
+        fi
+        count=$((++count))
+    done
+
+    _split_longopt && split=true
+
+    case $prev in
+        -h|--help|--copyin|--copyout|--arch|-D|--define|--with|--without|\
+        --uniqueext|--rpmbuild_timeout|--sources|--cwd)
+            return 0
+            ;;
+        -r|--root)
+            COMPREPLY=( $( compgen -W "$( command ls $cfgdir )" -- $cur ) )
+            COMPREPLY=( ${COMPREPLY[@]/%.cfg/} )
+            return 0
+            ;;
+        --configdir|--resultdir)
+            _filedir -d
+            return 0
+            ;;
+        --spec)
+            _filedir spec
+            return 0
+            ;;
+        --target)
+            # Yep, compatible archs, not compatible build archs
+            # (e.g. ix86 chroot builds in x86_64 mock host)
+            # This would actually depend on what the target root
+            # can be used to build for...
+            COMPREPLY=( $( compgen -W "$( command rpm --showrc | \
+                sed -ne 's/^\s*compatible\s\s*archs\s*:\s*\(.*\)/\1/i p' )" \
+                -- "$cur" ) )
+            return 0
+            ;;
+        --enable-plugin|--disable-plugin)
+            COMPREPLY=( $( compgen -W "$plugins" -- "$cur" ) )
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]] ; then
+        COMPREPLY=( $( compgen -W '--version --help --rebuild --buildsrpm
+            --shell --chroot --clean --init --installdeps --install --update
+            --orphanskill --copyin --copyout --root --offline --no-clean
+            --cleanup-after --no-cleanup-after --arch --target --define --with
+            --without --resultdir --uniqueext --configdir --rpmbuild_timeout
+            --unpriv --cwd --spec --sources --verbose --quiet --trace
+            --enable-plugin --disable-plugin --print-root-path' -- "$cur" ) )
+    else
+        _filedir '@(?(no)src.r|s)pm'
+    fi
+} &&
+complete -F _mock mock
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

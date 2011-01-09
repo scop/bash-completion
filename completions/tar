@@ -1,0 +1,72 @@
+# bash completion for GNU tar
+
+have tar && {
+_tar()
+{
+    local cur ext regex tar untar
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [ $COMP_CWORD -eq 1 ]; then
+        COMPREPLY=( $( compgen -W 'c t x u r d A' -- "$cur" ) )
+        return 0
+    fi
+
+    case ${COMP_WORDS[1]} in
+        ?(-)[cr]*f)
+            _filedir
+            return 0
+            ;;
+        +([^IZzJjy])f)
+            ext='@(@(tar|gem|spkg)?(.@(Z|[gx]z|bz?(2)|lzma))|t@([glx]z|bz?(2)))'
+            regex='\(\(tar\|gem\|spkg\)\(\.\(Z\|[gx]z\|bz?(2)\|lzma\)\)\?\|t\([glx]z\|bz2\?\)\)'
+            ;;
+        *[Zz]*f)
+            ext='@(t?(ar.)|gem.|spkg.)@(gz|Z)'
+            regex='\(t\(ar\.\)\?\|gem\.\|spkg\.\)\(gz\|Z\)'
+            ;;
+        *[Ijy]*f)
+            ext='@(@(t?(ar.)|gem.)bz?(2)|spkg)'
+            regex='\(\(t\(ar\.\)\?\|gem\.\)bz2\?\|spkg\)'
+            ;;
+        *[J]*f)
+            ext='@(t?(ar.)|gem.|spkg.)@(lz?(ma)|xz)'
+            regex='\(t\(ar\.\)\?\|gem\.\|spkg\.\)\(lzma\|xz\)\?'
+            ;;
+        *)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    if [[ "$COMP_LINE" == *$ext' ' ]]; then
+        # complete on files in tar file
+        #
+        # get name of tar file from command line
+        tar=$( sed -e 's/^.* \([^ ]*'$regex'\) .*$/\1/' <<<"$COMP_LINE" )
+        # devise how to untar and list it
+        untar=t${COMP_WORDS[1]//[^Izjyf]/}
+
+        local IFS=$'\n'
+        COMPREPLY=( $( compgen -W "$( printf '%s\n' $( tar $untar $tar \
+            2>/dev/null ) )" -- "$cur" ) )
+        return 0
+    fi
+
+    # file completion on relevant files
+    _filedir "$ext"
+
+    return 0
+}
+[ -n "${COMP_TAR_INTERNAL_PATHS:-}" ] && complete -F _tar -o dirnames tar ||
+    complete -F _tar tar
+}
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

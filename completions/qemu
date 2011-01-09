@@ -1,0 +1,132 @@
+# bash completion for qemu
+
+have qemu &&
+_qemu()
+{
+    local cur prev
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -fd[ab]|-hd[abcd]|-cdrom|-option-rom|-kernel|-initrd|-bootp|-pidfile| \
+        -loadvm|-mtdblock|-sd|-pflash|-bios)
+            _filedir
+            return 0
+            ;;
+        -tftp|-smb|-L|-chroot)
+            _filedir -d
+            return 0
+            ;;
+        -boot)
+            COMPREPLY=( $( compgen -W 'a c d n' -- "$cur" ) )
+            return 0
+            ;;
+        -k)
+            COMPREPLY=( $( compgen -W 'ar de-ch es fo fr-ca hu ja \
+                mk no pt-br sv da en-gb et fr fr-ch is lt nl pl\
+                ru th de en-us fi fr-be hr it lv nl-be pt sl tr' -- "$cur" ) )
+            return 0
+            ;;
+        -soundhw)
+            COMPREPLY=( $( compgen -W "$( qemu -soundhw ? | awk \
+                '/^[[:lower:]]/ {print $1}' ) all" -- "$cur" ) )
+            return 0
+            ;;
+        -M)
+            COMPREPLY=( $( compgen -W "$( qemu -M ? | awk \
+                '/^[[:lower:]]/ {print $1}' )" -- "$cur" ) )
+            return 0
+            ;;
+        -cpu)
+            COMPREPLY=( $( compgen -W "$( qemu -cpu ? | awk \
+                '{print $2}' )" -- "$cur" ) )
+            return 0
+            ;;
+        -usbdevice)
+            COMPREPLY=( $( compgen -W 'mouse tablet disk: host: \
+                serial: braille net' -- "$cur" ) )
+            return 0
+            ;;
+        -net)
+            COMPREPLY=( $( compgen -W 'nic user tap socket vde none dump' \
+                -- "$cur" ) )
+            return 0
+            ;;
+        -serial|-parallel|-monitor)
+            COMPREPLY=( $( compgen -W 'vc pty none null /dev/ \
+                file: stdio pipe: COM udp: tcp: telnet: unix: \
+                mon: braille' -- "$cur" ) )
+            return 0
+            ;;
+        -redir)
+            COMPREPLY=( $( compgen -S":" -W 'tcp udp' -- "$cur" ) )
+            return 0
+            ;;
+        -bt)
+            COMPREPLY=( $( compgen -W 'hci vhci device' -- "$cur" ) )
+            return 0
+            ;;
+        -vga)
+            COMPREPLY=( $( compgen -W 'cirrus std vmware xenfb none' \
+                -- "$cur" ) )
+            return 0
+            ;;
+        -drive)
+            COMPREPLY=( $( compgen -S"=" -W 'file if bus unit index media \
+                cyls snapshot cache format serial addr' -- "$cur" ) )
+            return 0
+            ;;
+        -ballon)
+            COMPREPLY=( $( compgen -W 'none virtio' -- "$cur" ) )
+            return 0
+            ;;
+        -smbios)
+            COMPREPLY=( $( compgen -W 'file type' -- "$cur" ) )
+            return 0
+            ;;
+        -watchdog)
+            COMPREPLY=( $( compgen -W "$( qemu -watchdog ? 2>&1 | \
+                awk '{print $1}' )" -- "$cur" ) )
+            return 0
+            ;;
+        -watchdog-action)
+            COMPREPLY=( $( compgen -W 'reset shutdown poweroff pause debug \
+                none' -- "$cur" ) )
+            return 0
+            ;;
+        -runas)
+            _allowed_users
+            return 0
+            ;;
+    esac
+
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-M -fda -fdb -hda -hdb -hdc -hdd \
+            -cdrom -boot -snapshot -no-fd-bootchk -m -smp -nographic -vnc \
+            -k -audio-help -soundhw -localtime -full-screen -pidfile \
+            -daemonize -win2k-hack -option-rom -usb -usbdevice -net -tftp \
+            -smb -redir -kernel -append -initrd -serial -parallel -monitor \
+            -s -p -S -d -hdachs -L -std-vga -no-acpi -no-reboot -loadvm \
+            -semihosting -cpu -bt -vga -drive -startdate -name -curses \
+            -no-frame -no-quit -bootp -echr -no-shutdown -icount -g \
+            -prom-env -help -version -numa -mtdblock -sd -pflash \
+            -device -uuid -alt-grab -sdl -portrait -rtc-td-hack -no-hpet \
+            -balloon -acpitable -smbios -singlestep -gdb -hdachs -bios \
+            -kernel-kqemu -enable-kqemu -enable-kvm -clock -watchdog \
+            -watchdog-action -virtioconsole -show-cursor -tb-size -incoming \
+            -chroot -runas' -- "$cur" ) )
+    else
+        _filedir
+    fi
+} &&
+complete -F _qemu qemu
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

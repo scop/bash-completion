@@ -1,0 +1,65 @@
+# povray completion by "David Necas (Yeti)" <yeti@physics.muni.cz>
+
+have povray || have xpovray || have spovray &&
+_povray()
+{
+    local cur prev povcur pfx oext defoext
+    defoext=png # default output extension, if cannot be determined FIXME
+
+    COMPREPLY=()
+    _get_comp_words_by_ref -c povcur prev
+
+    _expand || return 0
+
+    case $povcur in
+        [-+]I*)
+            cur="${povcur#[-+]I}" # to confuse _filedir
+            pfx="${povcur%"$cur"}"
+            _filedir pov
+            COMPREPLY=( ${COMPREPLY[@]/#/$pfx} )
+            return 0
+            ;;
+        [-+]O*)
+            # guess what output file type user may want
+            case $( ( IFS=$'\n'; command grep '^[-+]F' <<<"${COMP_WORDS[*]}" ) ) in
+                [-+]FN) oext=png ;;
+                [-+]FP) oext=ppm ;;
+                [-+]F[CT]) oext=tga ;;
+                *) oext=$defoext ;;
+            esac
+            # complete filename corresponding to previously specified +I
+            COMPREPLY=( $( ( IFS=$'\n'; command grep '^[-+]I' <<<"${COMP_WORDS[*]}" ) ) )
+            COMPREPLY=( ${COMPREPLY[@]#[-+]I} )
+            COMPREPLY=( ${COMPREPLY[@]/%.pov/.$oext} )
+            cur="${povcur#[-+]O}" # to confuse _filedir
+            pfx="${povcur%"$cur"}"
+            _filedir $oext
+            COMPREPLY=( ${COMPREPLY[@]/#/$pfx} )
+            return 0
+            ;;
+        *.ini\[|*.ini\[*[^]]) # sections in .ini files
+            cur="${povcur#*\[}"
+            pfx="${povcur%\["$cur"}" # prefix == filename
+            [ -r "$pfx" ] || return 0
+            COMPREPLY=( $(sed -e 's/^[[:space:]]*\[\('"$cur"'[^]]*\]\).*$/\1/' \
+                -e 't' -e 'd' -- "$pfx") )
+            # to prevent [bar] expand to nothing.  can be done more easily?
+            COMPREPLY=( "${COMPREPLY[@]/#/$pfx[}" )
+            return 0
+            ;;
+        *)
+            cur="$povcur"
+            _filedir '@(ini|pov)'
+            return 0
+            ;;
+    esac
+} &&
+complete -F _povray povray xpovray spovray
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

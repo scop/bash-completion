@@ -1,0 +1,70 @@
+# bash completion for ant
+
+have ant &&
+{
+_ant()
+{
+    local cur prev buildfile i
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -buildfile|-file|-f)
+            _filedir 'xml'
+            return 0
+            ;;
+        -logfile|-l)
+            _filedir
+            return 0
+            ;;
+        -propertyfile)
+            _filedir properties
+            return 0
+            ;;
+        -nice)
+            COMPREPLY=( $( compgen -W '1 2 3 4 5 6 7 8 9 10' -- "$cur" ) )
+            return 0
+            ;;
+        -lib|-logger|-listener|-D|-inputhandler|-main)
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-help -projecthelp -version -diagnostics \
+            -quiet -verbose -debug -emacs -lib -logfile -logger -listener \
+            -noinput -buildfile -D -keep-going -propertyfile -inputhandler \
+            -find -s -nice -nouserlib -noclasspath -autoproxy -main' \
+            -- "$cur" ) )
+    else
+        # available targets completion
+        # find which buildfile to use
+        buildfile=build.xml
+        for (( i=1; i < COMP_CWORD; i++ )); do
+            if [[ "${COMP_WORDS[i]}" == -@(?(build)file|f) ]]; then
+                buildfile=${COMP_WORDS[i+1]}
+                break
+            fi
+        done
+        [ ! -f $buildfile ] && return 0
+
+        # parse buildfile for targets
+        # some versions of sed complain if there's no trailing linefeed,
+        # hence the 2>/dev/null
+        COMPREPLY=( $( compgen -W "$( cat $buildfile | tr "'\t\n>" "\"  \n" | \
+            sed -ne 's/.*<target .*name="\([^"]*\).*/\1/p' 2>/dev/null )" \
+            -- "$cur" ) )
+        fi
+}
+have complete-ant-cmd.pl && \
+     complete -C complete-ant-cmd.pl -F _ant ant || complete -F _ant ant
+}
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

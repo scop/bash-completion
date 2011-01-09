@@ -5,11 +5,10 @@ proc setup_dummy_mnt {} {
     assert_bash_exec {unset COMPREPLY cur}
     assert_bash_exec {unset -f _mnt}
 
-    global TESTDIR
     assert_bash_exec { \
         _mnt() { \
             local cur=$(_get_cword); \
-            _linux_fstab $(_get_pword) < "$TESTDIR/fixtures/mount/test-fstab"; \
+            _linux_fstab $(_get_pword) < "$SRCDIRABS/fixtures/mount/test-fstab"; \
         }; \
         complete -F _mnt mnt \
     }
@@ -53,9 +52,9 @@ sync_after_int
 set test "Check completing nfs mounts"
 set expected [list /test/path /test/path2 /second/path]
 set cmd "mount mocksrv:/"
-assert_bash_exec {OLDPATH="$PATH"; PATH="$TESTDIR/fixtures/mount/bin:$PATH";}
+assert_bash_exec {OLDPATH="$PATH"; PATH="$SRCDIRABS/fixtures/mount/bin:$PATH";}
 # This needs an explicit cword param or will output "unresolved".
-assert_complete $expected $cmd $test "/@" 20 "/"
+assert_complete $expected $cmd $test -expect-cmd-minus /
 sync_after_int
 assert_bash_exec {PATH="$OLDPATH"; unset -v OLDPATH}
 
@@ -94,7 +93,7 @@ assert_complete {/mnt/nice\ test\\path} {mnt /mnt/nice\ test\\p}
 sync_after_int
 
 assert_complete {{/mnt/nice\ test\\path} {/mnt/nice\ test-path}} \
-    {mnt /mnt/nice\ } "" /@ 20 {/mnt/nice\ }
+    {mnt /mnt/nice\ } "" -expect-cmd-minus {/mnt/nice\ }
 sync_after_int
 
 assert_complete {/mnt/nice\$test-path} {mnt /mnt/nice\$}

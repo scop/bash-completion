@@ -1,0 +1,102 @@
+# xz(1) completion
+
+have xz &&
+_xz()
+{
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref cur prev
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--compress --decompress --test --list \
+            --keep --force --stdout --suffix --files --files0 --format --check \
+            -0 -1 -2 -3 -4 -5 -6 -7 -8 -9 --fast --best --extreme --memory \
+            --lzma1 --lzma2 --x86 --powerpc --ia64 --arm --armthumb --sparc \
+            --delta --quiet --verbose --no-warn --help --long-help --version' \
+            -- "$cur" ) )
+        return 0
+    fi
+
+    local split=false
+    _split_longopt && split=true
+
+    local xspec="*.@(xz|lzma|txz|tlz)"
+
+    case $prev in
+        --decompress|--list|--test|-!(-*)[dlt]*)
+            xspec="!"$xspec
+            ;;
+        --files|--files0)
+            _filedir
+            return 0
+            ;;
+        -C|--check)
+            COMPREPLY=( $( compgen -W 'crc32 crc64 sha256' -- "$cur" ) )
+            return 0
+            ;;
+        -F|--format)
+            COMPREPLY=( $( compgen -W 'auto xz lzma raw' -- "$cur" ) )
+            return 0
+            ;;
+        -M|--memory|-S|--suffix|--delta|--lzma1|--lzma2)
+            # argument required but no completions available
+            return 0
+            ;;
+        -h|--help|-H|--long-help|-V|--version)
+            # all other arguments are noop with these
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    _expand || return 0
+
+    local IFS=$'\n'
+    _compopt_o_filenames
+    COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \
+        $( compgen -d -- "$cur" ) )
+} &&
+complete -F _xz xz
+
+# xzdec(1) completion
+#
+have xzdec &&
+_xzdec()
+{
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref cur prev
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--memory --help --version' -- "$cur" ) )
+        return 0
+    fi
+
+    local split=false
+    _split_longopt && split=true
+
+    case $prev in
+        -M|--memory)
+            # argument required but no completions available
+            return 0
+            ;;
+        -h|--help|-V|--version)
+            # all other arguments are noop with these
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    _filedir xz # no lzma support here as of xz 4.999.9beta
+} &&
+complete -F _xzdec xzdec
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

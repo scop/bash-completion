@@ -1,0 +1,55 @@
+# bash completion for k3b
+
+have k3b &&
+_k3b()
+{
+    local cur prev
+    _get_comp_words_by_ref cur prev
+    COMPREPLY=()
+
+    case $prev in
+        --help*|--author|-v|--version|--license|--lang)
+            return 0
+            ;;
+        --datacd|--audiocd|--videocd|--mixedcd|--emovixcd|--videodvd)
+            _filedir
+            return 0
+            ;;
+        --copydvd|--formatdvd|--videodvdrip)
+            _dvd_devices
+            return 0
+            ;;
+        --copycd|--erasecd|--cddarip|--videocdrip)
+            _cd_devices
+            _dvd_devices
+            return 0
+            ;;
+        --cdimage|--image)
+            _filedir @(cue|iso|toc)
+            return 0
+            ;;
+        --dvdimage)
+            _filedir iso
+            return 0
+            ;;
+        --ao)
+            COMPREPLY=( $( compgen -W 'alsa arts' -- "$cur" ) )
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]] ; then
+        COMPREPLY=( $( compgen -W "$( _parse_help "$1" )" -- "$cur" ) )
+    else
+        _filedir
+    fi
+} &&
+complete -F _k3b k3b
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

@@ -1,0 +1,47 @@
+# bash completion for mc
+
+have mc &&
+_mc()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -e|--edit|-v|--view|-l|--ftplog|-P|--printwd)
+            _filedir
+            return 0
+            ;;
+        -C|--colors|-D|--debuglevel)
+            # argument required but no completions available
+            return 0
+            ;;
+        -h|--help|-V|--version)
+            # all other arguments are noop with these
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--stickchars --nocolor --color --colors \
+            --nomouse --edit --datadir --resetsoft --ftplog --printwd --slow \
+            --termcap --nosubshell --subshell --view --version --xterm \
+            --debuglevel --help' -- "$cur" ) )
+    else
+        _filedir -d
+    fi
+} &&
+complete -F _mc mc
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

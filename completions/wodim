@@ -1,0 +1,118 @@
+# bash completion for cdrecord/wodim
+
+# We set -o nospace and turn it off in several places for bash < 4
+# reasons; assuming bash >= 4 we could instead not turn it on
+# initially but only in the few cases where it's actually needed.
+
+have cdrecord || have wodim &&
+_cdrecord()
+{
+    local cur prev i generic_options track_options track_mode
+
+    COMPREPLY=()
+    _get_comp_words_by_ref -n = cur prev
+
+    # foo=bar style option
+    if [[ "$cur" == *=* ]]; then
+        prev=${cur%%=*}
+        cur=${cur#*=}
+        case $prev in
+            textfile|cuefile|msifile)
+                compopt +o nospace &>/dev/null
+                _filedir
+                ;;
+            blank)
+                compopt +o nospace &>/dev/null
+                COMPREPLY=( $( compgen -W 'help all fast track unreserve trtail
+                    unclose session' -- "$cur" ) )
+                ;;
+            driveropts)
+                if [[ $cur == *=* ]]; then
+                    prev=${cur%%=*}
+                    cur=${cur#*=}
+                    case $prev in
+                        varirec)
+                            compopt +o nospace &>/dev/null
+                            COMPREPLY=( $( compgen -W "-2 -1 0 1 2" \
+                                -- "$cur" ) )
+                            ;;
+                        gigarec)
+                            compopt +o nospace &>/dev/null
+                            COMPREPLY=( $( compgen -W "0.6 0.7 0.8 1.0 1.2 1.3
+                                1.4" -- "$cur" ) )
+                            ;;
+                        tattoofile)
+                            compopt +o nospace &>/dev/null
+                            _filedir
+                            ;;
+                    esac
+                else
+                    COMPREPLY=( $( compgen -W 'burnfree noburnfree varirec=
+                        gigarec= audiomaster forcespeed noforcespeed speedread
+                        nospeedread singlesession nosinglesession hidecdr
+                        nohidecdr tattooinfo tattoofile=' -- "$cur" ) )
+                    [[ ${#COMPREPLY[@]} == 1 && ${COMPREPLY[0]} != *= ]] && \
+                        compopt +o nospace &>/dev/null
+                fi
+                ;;
+            driver)
+                compopt +o nospace &>/dev/null
+                COMPREPLY=( $( compgen -W "$( $1 driver=help 2>&1 | \
+                    awk 'NR > 1 { print $1 }' ) help" -- "$cur" ) )
+                ;;
+            minbuf)
+                compopt +o nospace &>/dev/null
+                COMPREPLY=( $( compgen -W "$( seq 25 95 2>/dev/null )" \
+                    -- "$cur" ) )
+                ;;
+        esac
+        return 0
+    fi
+
+    generic_options=( -version -v -V -d -silent -force -immed -dummy -clone \
+        -dao -sao -tao -raw -raw96r -raw96p -raw16 -multi -msinfo -toc -atip \
+        -fix -nofix -waiti -load -lock -eject -format -setdropts -checkdrive \
+        -prcap -inq -scanbus --devices -reset -abort -overburn -ignsize \
+        -useinfo -packet -noclose -text debug= kdebug= minbuf= msifile= \
+        speed= blank= fs= ts= dev= gracetime= timeout= driver= driveropts= \
+        defpregap= pktsize= mcn= textfile= cuefile= )
+    track_options=( -audio -swab -data -mode2 -xa -xa1 -xa2 -xamix -cdi \
+        -isosize -pad -nopad -shorttrack -noshorttrack -preemp -nopreemp \
+        -copy -nocopy -scms isrc= index= padsize= pregap= tsize= )
+    # look if previous was either a file or a track option
+    track_mode=0
+    if [ $COMP_CWORD -gt 1 ]; then
+        if [ -f "$prev" ]; then
+            track_mode=1
+        else
+            for (( i=0; i < ${#track_options[@]}; i++ )); do
+                if [[ "${track_options[i]}" == "$prev" ]]; then
+                    track_mode=1
+                    break
+                fi
+            done
+        fi
+    fi
+
+    # files are always eligible completion
+    _filedir
+    # track options are always available
+    COMPREPLY=( "${COMPREPLY[@]}" \
+        $( compgen -W '${track_options[@]}' -- "$cur" ) )
+    # general options are no more available after file or track option
+    if [ $track_mode -eq 0 ]; then
+        COMPREPLY=( "${COMPREPLY[@]}" \
+            $( compgen -W '${generic_options[@]}' -- "$cur" ) )
+    fi
+    [[ ${#COMPREPLY[@]} == 1 && ${COMPREPLY[0]} != *= ]] && \
+        compopt +o nospace &>/dev/null
+} &&
+complete -F _cdrecord -o nospace cdrecord wodim
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

@@ -1,0 +1,162 @@
+# bash completion for Postgresql
+
+have psql && {
+_pg_databases()
+{
+    # -w was introduced in 8.4, https://launchpad.net/bugs/164772
+    # "Access privileges" in output may contain linefeeds, hence the NF > 1
+    COMPREPLY=( $( compgen -W "$( psql -AtqwlF $'\t' 2>/dev/null | \
+        awk 'NF > 1 { print $1 }' )" -- "$cur" ) )
+}
+
+_pg_users()
+{
+    # -w was introduced in 8.4, https://launchpad.net/bugs/164772
+    COMPREPLY=( $( compgen -W "$( psql -Atqwc 'select usename from pg_user' \
+        template1 2>/dev/null )" -- "$cur" ) )
+    [ ${#COMPREPLY[@]} -eq 0 ] && COMPREPLY=( $( compgen -u -- "$cur" ) )
+}
+
+# createdb(1) completion
+#
+_createdb()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -h|--host)
+            _known_hosts_real "$cur"
+            return 0
+            ;;
+        -U|--username|-O|--owner)
+            _pg_users
+            return 0
+            ;;
+        -p|--port|-D|--tablespace|-E|--encoding|-T|--template)
+            # argument required but no completions available
+            return 0
+            ;;
+        --help|--version)
+            # all other arguments are noop with these
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--tablespace --template --encoding --host \
+            --port --username --password --echo --quiet --help --version' \
+            -- "$cur" ) )
+    else
+        _pg_databases
+    fi
+}
+complete -F _createdb -o default createdb
+
+# dropdb(1) completion
+#
+_dropdb()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -h|--host)
+            _known_hosts_real "$cur"
+            return 0
+            ;;
+        -U|--username)
+            _pg_users
+            return 0
+            ;;
+        --help|--version)
+            # all other arguments are noop with these
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--host --port --username --password \
+            --interactive --echo --quiet --help --version' -- "$cur" ) )
+    else
+        _pg_databases
+    fi
+}
+complete -F _dropdb -o default dropdb
+
+# psql(1) completion
+#
+_psql()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -h|--host)
+            _known_hosts_real "$cur"
+            return 0
+            ;;
+        -U|--username)
+            _pg_users
+            return 0
+            ;;
+        -d|--dbname)
+            _pg_databases
+            return 0
+            ;;
+        -o|--output|-f|--file|-L|--log-file)
+            _filedir
+            return 0
+            ;;
+        -c|--command|-F|--field-separator|-p|--port|-P|--pset|\
+        -R|--record-separator|-T|--table-attr|-v|--set|--variable)
+            # argument required but no completions available
+            return 0
+            ;;
+        -\?|--help|-V|--version)
+            # all other arguments are noop with these
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        # return list of available options
+        COMPREPLY=( $( compgen -W '--echo-all --no-align --command --dbname \
+            --echo-queries --echo-hidden --file --field-separator --host \
+            --html --list --log-file --output --port --pset --quiet \
+            --record-separator --single-step --single-line --tuples-only \
+            --table-attr --username --set --version --password --expanded \
+            --no-psqlrc --single-transaction --help' -- "$cur" ) )
+    else
+        # return list of available databases
+        _pg_databases
+    fi
+}
+complete -F _psql psql
+}
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

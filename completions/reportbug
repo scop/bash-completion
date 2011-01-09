@@ -1,0 +1,132 @@
+# bash completion for (Debian) reportbug package
+
+have reportbug &&
+_reportbug()
+{
+    local cur prev
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -f|--filename|-i|--include|--mta|-o|--output)
+            _filedir
+            return 0
+            ;;
+        -B|--bts)
+            COMPREPLY=( $( compgen -W "debian guug kde mandrake help" -- \
+                "$cur" ))
+            return 0
+            ;;
+        -e|--editor|--mua)
+            COMP_WORDS=(COMP_WORDS[0] "$cur")
+            COMP_CWORD=1
+            _command
+            return 0
+            ;;
+        --mode)
+            COMPREPLY=( $( compgen -W "novice standard expert" -- "$cur" ) )
+            return 0
+            ;;
+        -S|--severity)
+            COMPREPLY=( $( compgen -W "grave serious important normal \
+                minor wishlist" -- "$cur" ) )
+            return 0
+            ;;
+        -u|--ui|--interface)
+            COMPREPLY=( $( compgen -W "newt text gnome" -- "$cur" ) )
+            return 0
+            ;;
+        -t|--type)
+            COMPREPLY=( $( compgen -W "gnats debbugs" -- "$cur" ) )
+            return 0
+            ;;
+        -T|--tag)
+            COMPREPLY=( $( compgen -W "none \
+                woody potato sarge sarge-ignore etch etch-ignore \
+                lenny lenny-ignore sid experimental confirmed \
+                d-i fixed fixed-in-experimental fixed-upstream \
+                help l10n moreinfo patch pending security \
+                unreproducible upstream wontfix ipv6 lfs" -- "$cur" ))
+            return 0
+            ;;
+        --from-buildd)
+            COMPREPLY=( $( compgen -S "_" -W '$( apt-cache dumpavail | \
+                command grep "^Source: $cur" | sort -u | cut -f2 -d" " )' ))
+            return 0
+            ;;
+        *)
+            ;;
+    esac
+
+    COMPREPLY=($( compgen -W '--help --version --attach \
+        --no-query-bts --query-bts --bts --body --body-file --bodyfile \
+        --no-config-files --class --configure --check-available --debug \
+        --no-check-available --debconf --test --draftpath --editor --email \
+        --exit-prompt --filename --from-buildd --gnupg --gpg --path --gnus \
+        --header --include --no-check-installed --check-installed \
+        --justification --kudos --keyid --license --list-cc \
+        --maintonly --mirror --mode --mua --mta --mutt --mh --nmh \
+        --bugnumber --no-bug-script --no-cc-menu --output --offline \
+        --print --paranoid --no-paranoid --pgp --proxy --http_proxy \
+        --pseudo-header --quiet --query-only --query-source --no-query-source \
+        --realname --report-quiet --reply-to --replyto --subject --severity \
+        --smtphost --timeout --tls --smtpuser --smtppasswd --src --source --type \
+        --tag --template --verify --no-verify --no-cc --package-version \
+        --no-compress --ui --interface \
+        wnpp boot-floppies kernel bugs.debian.org \
+        cdimage.debian.org general installation-reports \
+        listarchives lists.debian.org mirrors nm.debian.org \
+        press project qa.debian.org release-notes \
+        security.debian.org tech-ctte upgrade-reports \
+        www.debian.org' -- "$cur" ) \
+        $( apt-cache pkgnames -- "$cur" 2> /dev/null) )
+    _filedir
+    return 0
+} &&
+complete -F _reportbug reportbug
+
+have querybts &&
+_querybts()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -B|--bts)
+            COMPREPLY=( $( compgen -W "debian guug kde mandrake help" \
+                -- "$cur" ))
+            return 0
+            ;;
+        -u|--ui|--interface)
+            COMPREPLY=($( compgen -W "newt text gnome" -- "$cur" ))
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    COMPREPLY=($( compgen -W '-h --help -v --version -A --archive \
+        -B --bts -l --ldap --no-ldap --proxy --http_proxy \
+        -s --source -w --web -u --ui --interface \
+        wnpp boot-floppies kernel bugs.debian.org \
+        cdimage.debian.org general installation-reports \
+        listarchives lists.debian.org mirrors nm.debian.org \
+        press project qa.debian.org release-notes \
+        security.debian.org tech-ctte upgrade-reports \
+        www.debian.org' -- "$cur" ) \
+        $( apt-cache pkgnames -- "$cur" 2> /dev/null) )
+} &&
+complete -F _querybts querybts
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

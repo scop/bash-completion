@@ -1,0 +1,587 @@
+# mailman completion
+
+have list_lists && {
+_mailman_lists()
+{
+    COMPREPLY=( $( compgen -W '$( list_lists -b )' -- "$cur" ) )
+}
+
+_list_lists()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--advertised --virtual-host-overview \
+            --bare --help' -- "$cur" ) )
+    fi
+
+} &&
+complete -F _list_lists list_lists
+}
+
+have add_members &&
+_add_members()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -r|-d|--regular-members-file|--digest-members-file)
+            _filedir
+            return 0
+            ;;
+        -w|-a|--welcome-msg|--admin-notify)
+            COMPREPLY=( $( compgen -W 'y n' -- "$cur") )
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--regular-members-file \
+            --digest-members-file --welcome-msg \
+            --admin-notify --help' -- "$cur" ) )
+    else
+        _mailman_lists
+    fi
+
+} &&
+complete -F _add_members add_members
+
+have remove_members &&
+_remove_members()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -f|--file)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--file --all --fromall --nouserack \
+            --noadminack --help' -- "$cur" ) )
+    else
+        _mailman_lists
+    fi
+
+} &&
+complete -F _remove_members remove_members
+
+have find_member &&
+_find_member()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -l|-x|--listname|--exclude)
+            _mailman_lists
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--listname --exclude --owners \
+            --help' -- "$cur" ) )
+    fi
+
+} &&
+complete -F _find_member find_member
+
+have clone_member &&
+_clone_member()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -l|--listname)
+            _mailman_lists
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--listname --remove --admin \
+            --quiet --nomodify --help' -- "$cur" ) )
+    fi
+
+} &&
+complete -F _clone_member clone_member
+
+have sync_members &&
+_sync_members()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -w|-g|-d|--welcome-msg|--goodbye-msg|--digest)
+            COMPREPLY=( $( compgen -W 'y n' -- "$cur") )
+            return 0
+            ;;
+        -d|--file)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--no-change --welcome-msg \
+            --goodbye-msg --digest --notifyadmin --file --help' -- "$cur" ) )
+    else
+        _mailman_lists
+    fi
+
+} &&
+complete -F _sync_members sync_members
+
+have unshunt &&
+_unshunt()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--help' -- "$cur" ) )
+    else
+        _filedir -d
+    fi
+
+} &&
+complete -F _unshunt unshunt
+
+have list_admins &&
+_list_admins()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--all-vhost --all --help' -- "$cur" ) )
+    else
+        _mailman_lists
+    fi
+
+} &&
+complete -F _list_admins list_admins
+
+have list_owners &&
+_list_owners()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--with-listnames --moderators \
+            --help' -- "$cur" ) )
+    else
+        _mailman_lists
+    fi
+
+} &&
+complete -F _list_owners list_owners
+
+have list_members &&
+_list_members()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -o|--output)
+            _filedir
+            return 0
+            ;;
+        -d|--digest)
+            COMPREPLY=( $( compgen -W 'mime plain' -- "$cur") )
+            return 0
+            ;;
+        -n|--nomail)
+            COMPREPLY=( $( compgen -W 'byadmin byuser bybounce unknown' \
+                -- "$cur") )
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--output --regular --digest \
+            --nomail --fullnames --preserve --help' -- "$cur" ) )
+    else
+        _mailman_lists
+    fi
+
+} &&
+complete -F _list_members list_members
+
+have change_pw &&
+_change_pw()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -l|--listname)
+            _mailman_lists
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--all --domain --listname \
+            --password --quiet --help' -- "$cur" ) )
+    fi
+
+} &&
+complete -F _change_pw change_pw
+
+have withlist &&
+_withlist()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--lock --interactive \
+            --run --all --quiet --help' -- "$cur" ) )
+    else
+        _mailman_lists
+    fi
+
+} &&
+complete -F _withlist withlist
+
+have newlist &&
+_newlist()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--language --quiet --help' -- "$cur" ) )
+    else
+        _mailman_lists
+    fi
+
+} &&
+complete -F _newlist newlist
+
+have rmlist &&
+_rmlist()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--archives --help' -- "$cur" ) )
+    else
+        _mailman_lists
+    fi
+
+} &&
+complete -F _rmlist rmlist
+
+have config_list &&
+_config_list()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -i|-o|--inputfile|--outputfile)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--inputfile --outputfile \
+            --checkonly --verbose --help' -- "$cur" ) )
+    else
+        _mailman_lists
+    fi
+
+} &&
+complete -F _config_list config_list
+
+# Try to detect whether this is the mailman "arch" to avoid installing
+# it for the coreutils/util-linux-ng one.
+have arch && have mailmanctl &&
+_arch()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -w|-g|-d|--welcome-msg|--goodbye-msg|--digest)
+            COMPREPLY=( $( compgen -W 'y n' -- "$cur") )
+            return 0
+            ;;
+        -d|--file)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--wipe --start --end --quiet \
+            --help' -- "$cur" ) )
+    else
+        args=$COMP_CWORD
+        for (( i=1; i < COMP_CWORD; i++ )); do
+            if [[ "${COMP_WORDS[i]}" == -* ]]; then
+                args=$(($args-1))
+            fi
+        done
+        case $args in
+            1)
+                _mailman_lists
+                ;;
+            2)
+                _filedir
+                ;;
+        esac
+    fi
+
+} &&
+complete -F _arch arch
+
+have cleanarch &&
+_cleanarch()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--status --dry-run --quiet \
+            --help' -- "$cur" ) )
+    fi
+
+} &&
+complete -F _cleanarch cleanarch
+
+have inject &&
+_inject()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -l|--listname)
+            _mailman_lists
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--listname --queue --help' -- "$cur" ) )
+    else
+        _filedir
+    fi
+
+} &&
+complete -F _inject inject
+
+have dumpdb &&
+_dumpdb()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--marshal --pickle --noprint \
+            --help' -- "$cur" ) )
+    else
+        _filedir
+    fi
+
+} &&
+complete -F _dumpdb dumpdb
+
+have check_db &&
+_check_db()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--all --verbose --help' -- "$cur" ) )
+    else
+        _mailman_lists
+    fi
+
+} &&
+complete -F _check_db check_db
+
+have check_perms &&
+_check_perms()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-f -v -h' -- "$cur" ) )
+    fi
+
+} &&
+complete -F _check_perms check_perms
+
+have genaliases &&
+_genaliases()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--quiet --help' -- "$cur" ) )
+    fi
+
+} &&
+complete -F _genaliases genaliases
+
+have mmsitepass &&
+_mmsitepass()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--listcreator --help' -- "$cur" ) )
+    fi
+
+} &&
+complete -F _mmsitepass mmsitepass
+
+have qrunner &&
+_qrunner()
+{
+    local cur prev
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--runner --once \
+            --list --verbose --subproc --help' -- "$cur" ) )
+    fi
+
+} &&
+complete -F _qrunner qrunner
+
+have mailmanctl &&
+_mailmanctl()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--no-restart --run-as-user \
+            --stale-lock-cleanup --quiet --help' -- "$cur" ) )
+    else
+        COMPREPLY=( $( compgen -W 'start stop restart reopen' -- "$cur" ) )
+    fi
+
+} &&
+complete -F _mailmanctl mailmanctl
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

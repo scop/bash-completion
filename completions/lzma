@@ -1,0 +1,46 @@
+# lzma(1) completion by Per Øyvind Karlsen <peroyvind@mandriva.org>
+
+have lzma &&
+_lzma()
+{
+    local cur prev xspec
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-1 -2 -3 -4 -5 -6 -7 -8 -9 \
+            --help --decompress --compress --keep --force --suffix \
+            --test --stdout --quiet --verbose --license --list \
+            --version --small --fast --best --text' -- "$cur" ) )
+        return 0
+    fi
+
+    local IFS=$'\n'
+
+    xspec="*.@(lzma|tlz)"
+    if [[ "$prev" == --* ]]; then
+        [[ "$prev" == --decompress || \
+            "$prev" == --list || \
+            "$prev" == --test ]] && xspec="!"$xspec
+        [[ "$prev" == --compress ]] && xspec=
+    elif [[ "$prev" == -* ]]; then
+        [[ "$prev" == -*[dt]* ]] && xspec="!"$xspec
+        [[ "$prev" == -*z* ]] && xspec=
+    fi
+
+    _expand || return 0
+
+    _compopt_o_filenames
+    COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \
+        $( compgen -d -- "$cur" ) )
+} &&
+complete -F _lzma lzma
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

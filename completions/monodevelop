@@ -1,0 +1,86 @@
+# Monodevelop completion
+
+have monodevelop &&
+_monodevelop()
+{
+    local cur
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-? -help -help2 -ipc-tcp -newwindow -nologo \
+            -usage -V -version' -- "$cur" ) )
+    else
+        _filedir
+    fi
+    return 0
+} &&
+complete -F _monodevelop monodevelop
+
+have mdtool &&
+_mdtool()
+{
+    local cur prev command i
+
+    COMPREPLY=()
+
+    _get_comp_words_by_ref cur prev
+
+    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
+        if [[ ${COMP_WORDS[i]} == @(build|generate-makefiles|setup) ]]; then
+            command=${COMP_WORDS[i]}
+        fi
+    done
+
+    if [[ -n "$command" ]]; then
+        case $command in
+            "build")
+                COMPREPLY=( $( compgen -W '--f --buildfile --p --project' \
+                    -S":" -- "$cur" ) )
+                # TODO: This does not work :(
+                #if [[ "$prev" == *: ]]; then
+                #   case $prev in
+                #       @(--p:|--project:))
+                #           COMPREPLY=( $( compgen -f -G "*.mdp" -- "$cur" ) )
+                #           ;;
+                #       @(--f:|--buildfile:))
+                #           COMPREPLY=( $( compgen -f -G "*.mdp" -G "*.mds" -- "$cur" ) )
+                #           ;;
+                #   esac
+                #fi
+                return 0
+                ;;
+            "generate-makefiles")
+                _compopt_o_filenames
+                COMPREPLY=( $( compgen -o filenames -G"*.mds" -- "$cur" ) )
+                if [[ "$prev" == *mds ]]; then
+                    COMPREPLY=( $( compgen -W '--simple-makefiles --s --d:' \
+                        -- "$cur" ) )
+                fi
+                return 0
+                ;;
+            "setup")
+                # TODO: at least return filenames after these options.
+                COMPREPLY=( $( compgen -W 'install i uninstall u check-install \
+                    ci update up list l list-av la list-update lu rep-add ra \
+                    rep-remove rr rep-update ru rep-list rl reg-update \
+                    reg-build rgu info rep-build rb pack p help h dump-file' \
+                    -- "$cur" ) )
+                return 0
+                ;;
+        esac
+    fi
+
+    COMPREPLY=( $( compgen -W 'gsetup build dbgen project-export \
+        generate-makefiles gettext-update setup -q' -- "$cur" ) )
+
+    return 0
+} &&
+complete -F _mdtool mdtool
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

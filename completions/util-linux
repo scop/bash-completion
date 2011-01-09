@@ -1,0 +1,76 @@
+# Completions for tools included in util-linux (not necessarily Linux specific)
+
+# renice(8) completion
+#
+have renice &&
+_renice()
+{
+    local command cur curopt i
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+    command=$1
+
+    i=0
+    # walk back through command line and find last option
+    while [[ $i -le $COMP_CWORD && ${#COMPREPLY[@]} -eq 0 ]]; do
+        curopt=${COMP_WORDS[COMP_CWORD-$i]}
+        case "$curopt" in
+            -u)
+                _allowed_users
+                ;;
+            -g)
+                _pgids
+                ;;
+            -p|$command)
+                _pids
+                ;;
+        esac
+        i=$(( ++i ))
+    done
+} &&
+complete -F _renice renice
+
+# kill(1) completion
+#
+have kill &&
+_kill()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [[ $COMP_CWORD -eq 1 && "$cur" == -* ]]; then
+        # return list of available signals
+        _signals
+    else
+        # return list of available PIDs
+        _pids
+    fi
+} &&
+complete -F _kill kill
+
+# look(1) completion
+#
+have look &&
+_look()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    if [ $COMP_CWORD = 1 ]; then
+        COMPREPLY=( $( compgen -W '$(look "$cur" 2>/dev/null)' -- "$cur" ) )
+    fi
+} &&
+complete -F _look -o default look
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

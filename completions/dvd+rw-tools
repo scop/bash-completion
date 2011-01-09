@@ -1,0 +1,47 @@
+# dvd+rw-tools completions
+
+have growisofs &&
+_growisofs()
+{
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -version|-speed)
+            return 0
+            ;;
+        -Z|-M)
+            compopt -o nospace &>/dev/null
+            _dvd_devices
+            return 0
+            ;;
+        /?(r)dev/*)
+            if [[ $cur == =* ]] ; then
+                # e.g. /dev/dvd=foo.iso, /dev/dvdrw=/dev/zero
+                cur="${cur#=}"
+                _filedir
+                return 0
+            fi
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        # TODO: mkisofs options
+        COMPREPLY=( $( compgen -W '-dvd-compat -overburn -speed= -Z -M' \
+            -- "$cur" ) )
+        [[ ${COMPREPLY[@]} == *= ]] && compopt -o nospace &>/dev/null
+        return 0
+    fi
+
+    _filedir
+} &&
+complete -F _growisofs growisofs
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

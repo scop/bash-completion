@@ -1,0 +1,532 @@
+# bash completion for ImageMagick
+
+have convert && {
+_ImageMagick()
+{
+    local cur prev
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -channel)
+            COMPREPLY=( $( compgen -W 'Red Green Blue Opacity \
+                Matte Cyan Magenta Yellow Black' -- "$cur" ) )
+            return 0
+            ;;
+        -colormap)
+            COMPREPLY=( $( compgen -W 'shared private' -- "$cur" ) )
+            return 0
+            ;;
+        -colorspace)
+            COMPREPLY=( $( compgen -W 'GRAY OHTA RGB Transparent \
+                XYZ YCbCr YIQ YPbPr YUV CMYK' -- "$cur" ) )
+            return 0
+            ;;
+        -compose)
+            COMPREPLY=( $( compgen -W 'Over In Out Atop Xor Plus \
+                Minus Add Subtract Difference Multiply Bumpmap\
+                Copy CopyRed CopyGreen CopyBlue CopyOpacity' -- "$cur" ) )
+            return 0
+            ;;
+        -compress)
+            COMPREPLY=( $( compgen -W 'None BZip Fax Group4 JPEG \
+                Lossless LZW RLE Zip' -- "$cur" ) )
+            return 0
+            ;;
+        -dispose)
+            COMPREPLY=( $( compgen -W 'Undefined None Background Previous' \
+                -- "$cur" ) )
+            return 0
+            ;;
+        -encoding)
+            COMPREPLY=( $( compgen -W 'AdobeCustom AdobeExpert \
+                AdobeStandard AppleRoman BIG5 GB2312 Latin2 \
+                None SJIScode Symbol Unicode Wansung' -- "$cur"))
+            return 0
+            ;;
+        -endian)
+            COMPREPLY=( $( compgen -W 'MSB LSB' -- "$cur" ) )
+            return 0
+            ;;
+        -filter)
+            COMPREPLY=( $( compgen -W 'Point Box Triangle Hermite \
+                Hanning Hamming Blackman Gaussian Quadratic \
+                Cubic Catrom Mitchell Lanczos Bessel Sinc' -- "$cur" ) )
+            return 0
+            ;;
+        -format)
+            COMPREPLY=( $( compgen -W "$( convert -list format | \
+                awk '/ [r-][w-][+-] / {print $1}' | \
+                tr -d '*' | tr [:upper:] [:lower:] )" -- "$cur" ) )
+            return 0
+            ;;
+        -gravity)
+            COMPREPLY=( $( compgen -W 'Northwest North NorthEast \
+                West Center East SouthWest South SouthEast' -- "$cur" ) )
+            return 0
+            ;;
+        -intent)
+            COMPREPLY=( $( compgen -W 'Absolute Perceptual \
+                Relative Saturation' -- "$cur" ) )
+            return 0
+            ;;
+        -interlace)
+            COMPREPLY=( $( compgen -W 'None Line Plane Partition' -- "$cur" ) )
+            return 0
+            ;;
+        -limit)
+            COMPREPLY=( $( compgen -W 'Disk File Map Memory' -- "$cur" ) )
+            return 0
+            ;;
+        -list)
+            COMPREPLY=( $( compgen -W 'Delegate Format Magic Module Resource \
+                Type' -- "$cur" ) )
+            return 0
+            ;;
+        -map)
+            COMPREPLY=( $( compgen -W 'best default gray red green blue' \
+                -- "$cur" ) )
+            _filedir
+            return 0
+            ;;
+        -noise)
+            COMPREPLY=( $( compgen -W 'Uniform Gaussian Multiplicative \
+                Impulse Laplacian Poisson' -- "$cur" ) )
+            return 0
+            ;;
+        -preview)
+            COMPREPLY=( $( compgen -W 'Rotate Shear Roll Hue \
+                Saturation Brightness Gamma Spiff \
+                Dull Grayscale Quantize Despeckle \
+                ReduceNoise AddNoise Sharpen Blur \
+                Treshold EdgeDetect Spread Shade \
+                Raise Segment Solarize Swirl Implode \
+                Wave OilPaint CharcoalDrawing JPEG' -- "$cur" ) )
+            return 0
+            ;;
+        -mask|-profile|-texture|-tile|-write)
+            _filedir
+            return 0
+            ;;
+        -type)
+            COMPREPLY=( $( compgen -W 'Bilevel Grayscale Palette PaletteMatte \
+                TrueColor TrueColorMatte ColorSeparation ColorSeparationlMatte \
+                Optimize' -- "$cur" ) )
+            return 0
+            ;;
+        -units)
+            COMPREPLY=( $( compgen -W 'Undefined PixelsPerInch \
+                PixelsPerCentimeter' -- "$cur" ) )
+            return 0
+            ;;
+        -virtual-pixel)
+            COMPREPLY=( $( compgen -W 'Constant Edge mirror tile' -- "$cur" ) )
+            return 0
+            ;;
+        -visual)
+            COMPREPLY=( $( compgen -W 'StaticGray GrayScale StaticColor \
+                PseudoColor TrueColor DirectColor defaut visualid' -- "$cur" ))
+            return 0
+            ;;
+    esac
+}
+
+_convert()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    _ImageMagick
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-adaptive-blur -adaptive-resize \
+            -adaptive-sharpen -adjoin -affine -alpha -annotate \
+            -antialias -append -attenuate -authenticate \
+            -auto-orient -average -background -bench -bias \
+            -black-point-compensation -black-threshold \
+            -blue-primary -blur -border -bordercolor -caption \
+            -channel -charcoal -chop -clip -clip-mask -clip-path \
+            -clone -clut -coalesce -colorize -colors -colorspace \
+            -combine -comment -compose -composite -compress \
+            -contrast -contrast-stretch -convolve -crop -cycle \
+            -debug -decipher -deconstruct -define -delay -delete \
+            -density -depth -despeckle -display -dispose -distort \
+            -dither -draw -edge -emboss -encipher -encoding \
+            -endian -enhance -equalize -evaluate -extent -extract \
+            -family -fill -filter -flatten -flip -floodfill -flop \
+            -font -format -frame -fuzz -fx -gamma -gaussian-blur \
+            -geometry -gravity -green-primary -help -identify \
+            -implode -insert -intent -interlace -interpolate \
+            -label -lat -layers -level -limit -linear-stretch \
+            -liquid-rescale -list -log -loop -map -mask \
+            -mattecolor -median -modulate -monitor -monochrome \
+            -morph -mosaic -motion-blur -negate -noise -normalize \
+            -opaque -ordered-dither -orient -page -paint -ping \
+            -pointsize -polaroid -posterize -preview -print \
+            -process -profile -quality -quantize -quiet \
+            -radial-blur -raise -random-threshold -recolor \
+            -red-primary -regard-warnings -region -render -repage \
+            -resample -resize -respect-parenthesis -reverse -roll \
+            -rotate -sample -sampling-factor -scale -scene -seed \
+            -segment -separate -sepia-tone -set -shade -shadow \
+            -sharpen -shave -shear -sigmoidal-contrast -size \
+            -sketch -solarize -splice -spread -stretch -strip \
+            -stroke -strokewidth -style -swap -swirl -taint \
+            -texture -threshold -thumbnail -tile -tile-offset \
+            -tint -transform -transparent -transparent-color \
+            -transpose -transverse -treedepth -trim -type \
+            -undercolor -unique-colors -units -unsharp -verbose \
+            -version -view -vignette -virtual-pixel -wave \
+            -weight -white-point -white-threshold \
+            -write' -- "$cur" ) )
+    elif [[ "$cur" == +* ]]; then
+        COMPREPLY=( $( compgen -W '+adjoin +append +compress \
+            +contrast +debug +dither +endian +gamma +label +map \
+            +mask +matte +negate +noise +page +raise +render \
+            +write' -- "$cur" ) )
+    else
+        _filedir
+    fi
+}
+complete -F _convert convert
+
+_mogrify()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    _ImageMagick
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-adaptive-blur -adaptive-resize \
+            -adaptive-sharpen -adjoin -affine -alpha -annotate \
+            -antialias -attenuate -authenticate -auto-orient \
+            -background -bias -black-point-compensation \
+            -black-threshold -blue-primary -blur -border \
+            -bordercolor -caption -channel -charcoal -chop -clip \
+            -clip-mask -clip-path -clut -colorize -colors \
+            -colorspace -comment -compose -compress -contrast \
+            -contrast-stretch -convolve -cycle -debug -decipher \
+            -define -delay -density -depth -despeckle -display \
+            -dispose -distort -dither -draw -edge -emboss \
+            -encipher -encoding -endian -enhance -equalize \
+            -evaluate -extent -extract -family -fill -filter \
+            -flip -floodfill -flop -font -format -frame -fuzz \
+            -gamma -gaussian-blur -geometry -gravity \
+            -green-primary -help -identify -implode -intent \
+            -interlace -interpolate -label -lat -layers -level \
+            -limit -linear-stretch -liquid-rescale -list -log \
+            -loop -mask -mattecolor -median -modulate -monitor \
+            -monochrome -motion-blur -negate -noise -normalize \
+            -opaque -ordered-dither -orient -page -paint -path \
+            -ping -pointsize -polaroid -posterize -preview -print \
+            -profile -quality -quantize -quiet -radial-blur \
+            -raise -random-threshold -recolor -red-primary \
+            -regard-warnings -region -render -repage -resample \
+            -resize -roll -rotate -sample -sampling-factor -scale \
+            -scene -seed -segment -sepia-tone -set -shade -shadow \
+            -sharpen -shave -shear -sigmoidal-contrast -size \
+            -sketch -solarize -splice -spread -stretch -strip \
+            -stroke -strokewidth -style -swirl -taint -texture \
+            -threshold -thumbnail -tile -tile-offset -tint \
+            -transform -transparent -transparent-color -transpose \
+            -transverse -treedepth -trim -type -undercolor \
+            -unique-colors -units -unsharp -verbose -version \
+            -view -vignette -virtual-pixel -wave -weight \
+            -white-point -white-threshold' -- "$cur" ) )
+    elif [[ "$cur" == +* ]]; then
+        COMPREPLY=( $( compgen -W '+compress +contrast +debug +dither \
+            +endian +gamma +label +map +mask +matte +negate +page \
+            +raise' -- "$cur" ) )
+    else
+        _filedir
+    fi
+}
+complete -F _mogrify mogrify
+
+_display()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    _ImageMagick
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-alpha -antialias -authenticate \
+            -auto-orient -backdrop -background -border \
+            -bordercolor -borderwidth -channel -clip \
+            -clip-path -coalesce -colormap -colors -colorspace \
+            -comment -compress -contrast -crop -debug -decipher \
+            -define -delay -density -depth -despeckle -display \
+            -dispose -dither -edge -endian -enhance -extract \
+            -filter -flatten -flip -flop -font -foreground \
+            -format -frame -gamma -geometry -help -iconGeometry \
+            -iconic -identify -immutable -interlace -interpolate \
+            -label -limit -list -log -loop -map -mattecolor \
+            -monitor -monochrome -name -negate -page -profile \
+            -quality -quantize -quiet -raise -regard-warnings \
+            -remote -repage -resample -resize \
+            -respect-parenthesis -roll -rotate -sample \
+            -sampling-factor -scenes -seed -segment -set \
+            -shared-memory -sharpen -size -strip -texture -title \
+            -transparent-color -treedepth -trim -update \
+            -usePixmap -verbose -version -virtual-pixel -visual \
+            -window -window-group -write' -- "$cur" ) )
+    elif [[ "$cur" == +* ]]; then
+        COMPREPLY=( $( compgen -W '+compress +contrast +debug +dither \
+            +endian +gamma +label +map +matte +negate +page \
+            +raise +write' -- "$cur" ) )
+    else
+        _filedir
+    fi
+}
+complete -F _display display
+
+_animate()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    _ImageMagick
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-alpha -authenticate -backdrop \
+            -background -bordercolor -borderwidth -channel \
+            -coalesce -colormap -colors -colorspace -crop -debug \
+            -decipher -define -delay -density -depth -display \
+            -dispose -dither -extract -filter -flatten -font \
+            -foreground -format -gamma -geometry -help \
+            -iconGeometry -iconic -identify -immutable -interlace \
+            -interpolate -limit -list -log -loop -map -mattecolor \
+            -mattecolor -monitor -monochrome -name -page -pause \
+            -quantize -quiet -regard-warnings -remote -repage \
+            -resample -resize -respect-parenthesis -rotate \
+            -sampling-factor -scenes -seed -set -shared-memory \
+            -size -strip -title -transparent-color -treedepth \
+            -trim -verbose -version -virtual-pixel -visual \
+            -window' -- "$cur" ) )
+    elif [[ "$cur" == +* ]]; then
+        COMPREPLY=( $( compgen -W '+debug +dither +gamma +map +matte' \
+            -- "$cur" ) )
+    else
+        _filedir
+    fi
+}
+complete -F _animate animate
+
+_identify()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    _ImageMagick
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-alpha -antialias -authenticate \
+            -channel -colorspace -crop -debug -define -density \
+            -depth -extract -format -fuzz -gamma -help -interlace \
+            -interpolate -limit -list -log -monitor -ping -quiet \
+            -regard-warnings -respect-parenthesis \
+            -sampling-factor -seed -set -size -strip -units \
+            -verbose -version -virtual-pixel' -- "$cur" ) )
+    elif [[ "$cur" == +* ]]; then
+        COMPREPLY=( $( compgen -W '+debug' -- "$cur" ) )
+    else
+        _filedir
+    fi
+}
+complete -F _identify identify
+
+_montage()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    _ImageMagick
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-adjoin -affine -alpha \
+            -authenticate -background -blue-primary -blur -border \
+            -bordercolor -borderwidth -caption -channel -clone \
+            -coalesce -colors -colorspace -comment -compose \
+            -compress -crop -debug -define -density -depth \
+            -display -dispose -dither -draw -encoding -endian \
+            -extract -fill -filter -flatten -flip -flop -font \
+            -format -frame -gamma -geometry -gravity \
+            -green-primary -help -identify -interlace \
+            -interpolate -label -limit -list -log -mattecolor \
+            -mode -monitor -monochrome -origin -page -pointsize \
+            -polaroid -profile -quality -quantize -quiet \
+            -red-primary -regard-warnings -repage -resize \
+            -respect-parenthesis -rotate -sampling-factor -scenes \
+            -seed -set -shadow -size -strip -stroke -texture \
+            -thumbnail -tile -title -transform -transparent \
+            -transparent-color -treedepth -trim -type -units \
+            -verbose -version -virtual-pixel \
+            -white-point' -- "$cur" ) )
+    elif [[ "$cur" == +* ]]; then
+        COMPREPLY=( $( compgen -W '+adjoin +compress +debug +dither \
+            +endian +gamma +label +matte +page' -- "$cur" ) )
+    else
+        _filedir
+    fi
+}
+complete -F _montage montage
+
+_composite()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    _ImageMagick
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-affine -alpha -authenticate \
+            -blend -blue-primary -border -bordercolor -channel \
+            -colors -colorspace -comment -compose -compress \
+            -debug -decipher -define -density -depth -displace \
+            -display -dispose -dissolve -dither -encipher \
+            -encoding -endian -extract -filter -font -format \
+            -geometry -gravity -green-primary -help -identify \
+            -interlace -interpolate -label -limit -list -log \
+            -monitor -monochrome -negate -page -profile -quality \
+            -quantize -quiet -red-primary -regard-warnings \
+            -repage -resize -respect-parenthesis -rotate \
+            -sampling-factor -scene -seed -sharpen -shave -size \
+            -stegano -stereo -strip -swap -thumbnail -tile \
+            -transform -transparent-color -treedepth -type -units \
+            -unsharp -verbose -version -virtual-pixel -watermark \
+            -white-point -write' -- "$cur" ) )
+    elif [[ "$cur" == +* ]]; then
+        COMPREPLY=( $( compgen -W '+compress +debug +dither +endian +label \
+            +matte +negate +page +write' -- "$cur" ) )
+    else
+        _filedir
+    fi
+}
+complete -F _composite composite
+
+_compare()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    _ImageMagick
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-alpha -authenticate -channel \
+            -colorspace -compress -debug -decipher -define \
+            -density -depth -encipher -extract -format -fuzz \
+            -help -highlight-color -identify -interlace -limit \
+            -list -log -metric -monitor -passphrase -profile \
+            -quality -quantize -quiet -regard-warnings \
+            -respect-parenthesis -sampling-factor -seed -set \
+            -size -transparent-color -type -verbose -version \
+            -virtual-pixel' -- "$cur" ) )
+    elif [[ "$cur" == +* ]]; then
+        COMPREPLY=( $( compgen -W '+debug' -- "$cur" ) )
+    else
+        _filedir
+    fi
+}
+complete -F _compare compare
+
+_conjure()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    _ImageMagick
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-debug -help -list -log -monitor -quiet \
+            -regard-warnings -seed -verbose -version' -- "$cur" ) )
+    elif [[ "$cur" == +* ]]; then
+        COMPREPLY=( $( compgen -W '+debug' -- "$cur" ) )
+    else
+        _filedir
+    fi
+}
+complete -F _conjure conjure
+
+_import()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    _ImageMagick
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-adjoin -annotate -border -channel \
+            -colors -colorspace -comment -compress -crop -debug \
+            -define -delay -density -depth -descend -display \
+            -dispose -dither -encipher -encoding -endian -filter \
+            -format -frame -geometry -gravity -help -identify \
+            -interlace -interpolate -label -limit -list -log \
+            -monitor -monochrome -negate -page -pause -pointsize \
+            -quality -quantize -quiet -regard-warnings -repage \
+            -resize -respect-parenthesis -rotate -sampling-factor \
+            -scene -screen -seed -set -silent -snaps -strip \
+            -thumbnail -transparent -transparent-color -treedepth \
+            -trim -type -verbose -version -virtual-pixel \
+            -window' -- "$cur" ) )
+    elif [[ "$cur" == +* ]]; then
+        COMPREPLY=( $( compgen -W '+debug' -- "$cur" ) )
+    else
+        _filedir
+    fi
+}
+complete -F _import import
+
+_stream()
+{
+    local cur
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur
+
+    _ImageMagick
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-authenticate -channel -colorspace \
+            -compress -debug -define -density -depth -extract \
+            -help -identify -interlace -interpolate -limit -list \
+            -log -map -monitor -quantize -quiet -regard-warnings \
+            -respect-parenthesis -sampling-factor -seed -set \
+            -size -storage-type -transparent-color -verbose \
+            -version -virtual-pixel' -- "$cur" ) )
+    elif [[ "$cur" == +* ]]; then
+        COMPREPLY=( $( compgen -W '+debug' -- "$cur" ) )
+    else
+        _filedir
+    fi
+}
+complete -F _stream stream
+}
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

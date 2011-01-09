@@ -1,0 +1,52 @@
+# bash completion for lftp
+
+have lftp &&
+_lftp()
+{
+    local cur prev
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -f)
+            _filedir
+            return 0
+            ;;
+        -c|-h|--help|-v|--version|-e|-u|-p)
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]] ; then
+        COMPREPLY=( $( compgen -W '-f -c --help --version -e -u -p' \
+            -- "$cur" ) )
+        return 0
+    fi
+
+    COMPREPLY=( $( compgen -W \
+        '$( cut -f 1 -s ~/.lftp/bookmarks 2>/dev/null )' -- "$cur" ) )
+    _known_hosts_real "$cur"
+} &&
+complete -F _lftp lftp
+
+have lftpget &&
+_lftpget()
+{
+    COMPREPLY=()
+    local cur
+    _get_comp_words_by_ref cur
+
+    if [[ "$cur" == -* ]] ; then
+        COMPREPLY=( $( compgen -W '-c -d -v' -- "$cur" ) )
+    fi
+} &&
+complete -F _lftpget lftpget
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

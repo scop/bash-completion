@@ -1,0 +1,57 @@
+have ipv6calc &&
+_ipv6calc()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref -n = cur prev
+    #cur=`_get_cword =`
+    #prev=`_get_pword`
+
+    _split_longopt && split=true
+
+    case "$prev" in
+        -d|--debug)
+            return 0
+            ;;
+        -I|--in|-O|--out|-A|--action)
+            # With ipv6calc < 0.73.0, -m does nothing here, so use sed instead.
+            COMPREPLY=( $( compgen -W "$( ipv6calc "$prev" -h 2>&1 | \
+                sed -ne 's/^[[:space:]]\{1,\}\([^[:space:]:]\{1,\}\)[[:space:]]*:.*/\1/p' )" \
+                -- "$cur" ) )
+            return 0
+            ;;
+        --db-geoip|--db-ip2location-ipv4|--db-ip2location-ipv6)
+            _filedir
+            return 0
+            ;;
+        --printstart|--printend)
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--help --debug --quiet --in \
+            --out --action --examples --showinfo --show_types \
+            --machine_readable --db-geoip --db-geoip-default \
+            --db-ip2location-ipv4 --db-ip2location-ipv6 \
+            --lowercase --uppercase --printprefix --printsuffix \
+            --maskprefix --masksuffix --printstart --printend \
+            --printcompressed --printuncompressed \
+            --printfulluncompressed --printmirrored' -- "$cur" ) )
+        return 0
+    fi
+
+    return 0
+} &&
+complete -F _ipv6calc ipv6calc
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

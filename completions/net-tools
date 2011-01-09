@@ -1,0 +1,131 @@
+# bash completion for net tools
+
+have mii-tool &&
+_mii_tool()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -F|--force)
+            COMPREPLY=( $( compgen -W '100baseTx-FD 100baseTx-HD \
+                10baseT-FD 10baseT-HD' -- "$cur" ) )
+            return 0
+            ;;
+        -A|--advertise)
+            COMPREPLY=( $( compgen -W '100baseT4 100baseTx-FD 100baseTx-HD \
+                10baseT-FD 10baseT-HD' -- "$cur" ) )
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--verbose --version --reset --restart \
+            --watch --log --advertise --force' -- "$cur" ) )
+    else
+        _available_interfaces -a
+    fi
+} &&
+complete -F _mii_tool -o default mii-tool
+
+have mii-diag &&
+_mii_diag()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -F|-A|--advertise|--fixed-speed)
+            COMPREPLY=( $( compgen -W '100baseT4 100baseTx \
+                100baseTx-FD 100baseTx-HD 10baseT 10baseT-FD \
+                10baseT-HD' -- "$cur" ) )
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--advertise --fixed-speed --all-interfaces \
+            --status --debug --read-parameters --set-parameters --msg-level \
+            --phy --restart --reset --verbose --version --watch --help' \
+            -- "$cur" ) )
+    else
+        _available_interfaces -a
+    fi
+} &&
+complete -F _mii_diag -o default mii-diag
+
+# Linux route(8) completion
+#
+[ $UNAME = Linux ] && have route &&
+_route()
+{
+    local cur prev
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    if [ "$prev" = dev ]; then
+        _available_interfaces
+        return 0
+    fi
+
+    # Remove already given options from completions
+    local i found
+    for opt in add del -host -net netmask metric mss window irtt reject mod \
+        dyn reinstate dev default gw; do
+        found=false
+        for (( i=1; i < ${#COMP_WORDS[@]}-1; i++ )); do
+            [ "${COMP_WORDS[i]}" = "$opt" ] && found=true && break
+        done
+        $found || COMPREPLY[${#COMPREPLY[@]}]="$opt"
+    done
+
+    COMPREPLY=( $( compgen -W '"${COMPREPLY[@]}"' -- "$cur" ) )
+} &&
+complete -F _route route
+
+have ether-wake &&
+_ether_wake()
+{
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref -n : cur prev
+
+    case $prev in
+        -i)
+            _available_interfaces
+            return 0
+            ;;
+        -p)
+            return 0
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '-b -D -i -p -V' -- "$cur" ) )
+        return 0
+    fi
+
+    _mac_addresses
+} &&
+complete -F _ether_wake ether-wake
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

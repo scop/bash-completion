@@ -1,0 +1,37 @@
+# xrdb(1) completion
+
+have xrdb &&
+_xrdb()
+{
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -backup|-display|-help)
+            return 0
+            ;;
+        -cpp|-edit)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-help -display -all -global -screen -screens
+            -n -quiet -cpp -nocpp -symbols -query -load -override -merge
+            -remove -retain -edit -backup' -- "$cur" ) )
+        return 0
+    fi
+
+    _filedir
+} &&
+complete -F _xrdb xrdb
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

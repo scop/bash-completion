@@ -1,0 +1,128 @@
+# bash completion for GNU find. This makes heavy use of ksh style extended
+# globs and contains Linux specific code for completing the parameter
+# to the -fstype option.
+
+have find &&
+_find()
+{
+    local cur prev i exprfound onlyonce
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -maxdepth|-mindepth)
+            COMPREPLY=( $( compgen -W '0 1 2 3 4 5 6 7 8 9' -- "$cur" ) )
+            return 0
+            ;;
+        -newer|-anewer|-cnewer|-fls|-fprint|-fprint0|-fprintf|-name|-iname|\
+        -lname|-ilname|-wholename|-iwholename|-samefile)
+            _filedir
+            return 0
+            ;;
+        -fstype)
+            _fstypes
+            if [[ "$( uname -s )" == *BSD ]] ; then
+                COMPREPLY=( "${COMPREPLY[@]}" \
+                    $( compgen -W 'local rdonly' -- "$cur" ) )
+            fi
+            return 0
+            ;;
+        -gid)
+            _gids
+            return 0
+            ;;
+        -group)
+            COMPREPLY=( $( compgen -g -- "$cur" 2>/dev/null) )
+            return 0
+            ;;
+        -xtype|-type)
+            COMPREPLY=( $( compgen -W 'b c d p f l s' -- "$cur" ) )
+            return 0
+            ;;
+        -uid)
+            _uids
+            return 0
+            ;;
+        -user)
+            COMPREPLY=( $( compgen -u -- "$cur" ) )
+            return 0
+            ;;
+        -exec|-execdir|-ok|-okdir)
+            COMP_WORDS=(COMP_WORDS[0] "$cur")
+            COMP_CWORD=1
+            _command
+            return 0
+            ;;
+        -[acm]min|-[acm]time|-iname|-lname|-wholename|-iwholename|-lwholename|\
+        -ilwholename|-inum|-path|-ipath|-regex|-iregex|-links|-perm|-size|\
+        -used|-printf|-context)
+            # do nothing, just wait for a parameter to be given
+            return 0
+            ;;
+        -regextype)
+            COMPREPLY=( $( compgen -W 'emacs posix-awk posix-basic \
+                posix-egrep posix-extended' -- "$cur" ) )
+            return 0
+            ;;
+    esac
+
+    _expand || return 0
+    # set exprfound to 1 if there is already an expression present
+    for i in ${COMP_WORDS[@]}; do
+        [[ "$i" = [-\(\),\!]* ]] && exprfound=1 && break
+    done
+
+    # handle case where first parameter is not a dash option
+    if [[ "$exprfound" != 1 && "$cur" != [-\(\),\!]* ]]; then
+        _filedir -d
+        return 0
+    fi
+
+    # complete using basic options
+    COMPREPLY=( $( compgen -W '-daystart -depth -follow -help \
+        -ignore_readdir_race -maxdepth -mindepth -mindepth -mount \
+        -noignore_readdir_race -noleaf -regextype -version -warn -nowarn \
+        -xdev \
+        -amin -anewer -atime -cmin -cnewer -ctime -empty -executable -false \
+        -fstype -gid -group -ilname -iname -inum -ipath -iregex -iwholename \
+        -links -lname -mmin -mtime -name -newer -nogroup -nouser -path -perm \
+        -readable -regex -samefile -size -true -type -uid -used -user \
+        -wholename -writable -xtype -context \
+        -delete -exec -execdir -fls -fprint -fprint0 -fprintf -ls -ok -okdir \
+        -print -print0 -printf -prune -quit' -- "$cur" ) )
+
+    # this removes any options from the list of completions that have
+    # already been specified somewhere on the command line, as long as
+    # these options can only be used once (in a word, "options", in
+    # opposition to "tests" and "actions", as in the find(1) manpage).
+    onlyonce=' -daystart -depth -follow -help -ignore_readdir_race -maxdepth \
+       -mindepth -mount -noignore_readdir_race -noleaf -nowarn -regextype \
+       -version -warn -xdev '
+    COMPREPLY=( $( \
+           (while read -d ' ' i; do
+            [[ -z "$i" || "${onlyonce/ ${i%% *} / }" == "$onlyonce" ]] &&
+            continue
+            # flatten array with spaces on either side,
+            # otherwise we cannot grep on word boundaries of
+            # first and last word
+            COMPREPLY=" ${COMPREPLY[@]} "
+            # remove word from list of completions
+            COMPREPLY=( ${COMPREPLY/ ${i%% *} / } )
+            done
+            printf '%s ' "${COMPREPLY[@]}") <<<"${COMP_WORDS[@]}"
+          ) )
+
+    _filedir
+
+    return 0
+} &&
+complete -F _find find
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

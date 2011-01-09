@@ -1,0 +1,77 @@
+# bash completion for mkisofs/genisoimage
+
+(have mkisofs || have genisoimage) &&
+_mkisofs()
+{
+    local cur prev
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -o|-abstract|-biblio|-check-session|-copyright|-log-file| \
+        -root-info|-prep-boot|-*-list)
+            _filedir
+            return 0
+            ;;
+        -*-charset)
+            COMPREPLY=( $( compgen -W '$( mkisofs -input-charset \
+                    help 2>&1 | tail -n +3 )' -- "$cur" ) )
+            return 0
+            ;;
+        -uid)
+            _uids
+            return 0
+            ;;
+        -gid)
+            _gids
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-abstract -appid -allow-lowercase \
+            -allow-multidot -biblio -cache-inodes -no-cache-inodes \
+            -eltorito-boot -eltorito-alt-boot -sparc-boot -generic-boot \
+            -hard-disk-boot -no-emul-boot -no-boot -boot-load-seg \
+            -boot-load-size -boot-info-table -cdrecord-params \
+            -eltorito-catalog -check-oldname -check-session -copyright \
+            -omit-period -disable-deep-relocation -dir-mode -dvd-video \
+            -follow-links -file-mode -gid -gui -graft-points -hide -hide-list \
+            -hidden -hidden-list -hide-joliet -hide-joliet-list \
+            -hide-joliet-trans-tbl -hide-rr-moved -input-charset \
+            -output-charset -iso-level -joliet -joliet-long -jcharset \
+            -full-iso9660-filenames -allow-leading-dots -log-file -exclude \
+            -exclude-list -max-iso9660-filenames -prev-session \
+            -omit-version-number -new-dir-mode -nobak -no-bak -force-rr -no-rr \
+            -no-split-symlink-components -no-split-symlink-fields -output -pad \
+            -no-pad -path-list -publisher -preparer -print-size -quiet -rock
+            -rational-rock -relaxed-filenames -sort -split-output \
+            -stream-media-size -stream-file-name -sysid -translation-table \
+            -table-name -ucs-level -udf -uid -use-fileversion \
+            -untranslated-filenames -no-iso-translate -volid -volset \
+            -volset-size -volset-seqno -verbose -old-exclude \
+            -transparent-compression -hfs -apple -map -magic -hfs-creator \
+            -hfs-type -probe -no-desktop -mac-name \
+            -boot-hfs-file -part -auto -cluster-size \
+            -hide-hfs -hide-hfs-list -hfs-volid \
+            -icon-position -root-info -prep-boot \
+            -input-hfs-charset -output-hfs-charset \
+            -hfs-unlock -hfs-bless -hfs-parms --cap \
+            --netatalk --double --ethershare --ushare \
+            --exchange --sgi --xinet --macbin --single \
+            --dave --sfm --osx-double --osx-hfs' -- "$cur" ))
+    else
+        _filedir
+    fi
+
+} &&
+complete -F _mkisofs mkisofs genisoimage
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

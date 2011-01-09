@@ -1,0 +1,43 @@
+# bash completion for rcs
+
+have rcs &&
+_rcs()
+{
+    local cur prev file dir i
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    file=${cur##*/}
+    dir=${cur%/*}
+
+    # deal with relative directory
+    [ "$file" = "$dir" ] && dir=.
+
+    COMPREPLY=( $( compgen -f "$dir/RCS/$file" ) )
+
+    for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
+        file=${COMPREPLY[$i]##*/}
+        dir=${COMPREPLY[$i]%RCS/*}
+        COMPREPLY[$i]=$dir$file
+    done
+
+    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -G "$dir/$file*,v" ) )
+
+    for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
+        COMPREPLY[$i]=${COMPREPLY[$i]%,v}
+    done
+
+    # default to files if nothing returned and we're checking in.
+    # otherwise, default to directories
+    [[ ${#COMPREPLY[@]} -eq 0 && $1 == ci ]] && _filedir || _filedir -d
+} &&
+complete -F _rcs ci co rlog rcs rcsdiff
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

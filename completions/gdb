@@ -1,0 +1,44 @@
+# bash completion for gdb
+
+have gdb &&
+_gdb()
+{
+    local cur prev
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    if [ $COMP_CWORD -eq 1 ]; then
+        local IFS
+        _compopt_o_filenames
+        if [[ "$cur" == */* ]]; then
+            # compgen -c works as expected if $cur contains any slashes.
+            IFS=$'\n'
+            COMPREPLY=( $( PATH="$PATH:." compgen -d -c -- "$cur" ) )
+        else
+            # otherwise compgen -c contains Bash's built-in commands,
+            # functions and aliases. Thus we need to retrieve the program
+            # names manually.
+            IFS=":"
+            local path_array=( $( \
+                sed -e 's/:\{2,\}/:/g' -e 's/^://' -e 's/:$//' <<<"$PATH" ) )
+            IFS=$'\n'
+            COMPREPLY=( $( compgen -d -W '$(find "${path_array[@]}" . \
+                -mindepth 1 -maxdepth 1 -not -type d -executable \
+                -printf "%f\\n" 2>/dev/null)' -- "$cur" ) )
+        fi
+    elif [ $COMP_CWORD -eq 2 ]; then
+        prev=${prev##*/}
+        COMPREPLY=( $( compgen -fW "$( command ps axo comm,pid | \
+            awk '{if ($1 ~ /^'"$prev"'/) print $2}' )" -- "$cur" ) )
+    fi
+} &&
+complete -F _gdb -o default gdb
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

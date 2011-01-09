@@ -1,0 +1,55 @@
+# bash completion for hping2
+
+have hping || have hping2 || have hping3 &&
+_hping2()
+{
+    local cur prev
+
+    COMPREPLY=()
+    cur=`_get_cword`
+    prev=`_get_pword`
+
+    case $prev in
+        -I|--interface)
+            _available_interfaces
+            return 0
+            ;;
+        -a|--spoof)
+            _known_hosts_real "$cur"
+            return 0
+            ;;
+        -o|--tos)
+            COMPREPLY=( $( compgen -W '02 04 08 10' ) )
+            return 0
+            ;;
+        -E|--file)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--help --version --count --interval --fast \
+            --faster --numeric --quiet --interface --verbose --debug --bind \
+            --unbind --rawip --icmp --upd --scan --listen --spoof \
+            --rand-source --rand-dest --ttl --id --ipproto --winid -rel --frag \
+            --morefrag --dontfrag --fragoff --mtu --tos --rroute --icmptype \
+            --icmpcode --icmp-ipver --icmp-iphlen --icmp-iplen --icmp-ipid \
+            --icmp-ipproto --icmp-cksum --icmp-ts --icmp-addr --baseport \
+            --destport --keep --win --tcpoff --tcpseq --tcpack --seqnum \
+            --badcksum --tcp-timestamp --fin --syn --rst --push --ack --urg \
+            --xmas --ymas --data --file --sign --dump --print --safe --end \
+            --traceroute --tr-keep-ttl --tr-stop --tr-no-rtt' -- "$cur" ) )
+    else
+        _known_hosts_real "$cur"
+    fi
+} &&
+complete -F _hping2 hping hping2 hping3
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

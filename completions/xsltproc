@@ -1,0 +1,56 @@
+# xsltproc(1) completion
+
+have xsltproc &&
+_xsltproc()
+{
+    local cur prev
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+	--output|-o)
+            _filedir
+            return 0
+            ;;
+        # TODO : number only
+        --maxdepth)
+            return 0
+            ;;
+        --encoding)
+            # some aliases removed
+            COMPREPLY=( $( compgen -W "$( iconv -l | sed -e '/^UTF[1378]/d' \
+                -e '/^ISO[0-9_]/d' -e '/^8859/d' -e 's/\/.*//')" -- "$cur" ) )
+            return 0
+            ;;
+        --param|--stringparam)
+            return 0
+            ;;
+        # not really like --writesubtree
+        --path)
+            _filedir -d
+            return 0
+            ;;
+        --writesubtree)
+            _filedir -d
+            return 0
+            ;;
+    esac
+
+    [[ $COMP_CWORD -gt 2 && `_get_cword '' 2` == --?(string)param ]] && \
+        return 0
+
+    if [[ "$cur" == -* ]]; then
+        _longopt xsltproc
+    else
+	_filedir '@(xsl|xslt|xml)'
+    fi
+} &&
+complete -F _xsltproc xsltproc
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

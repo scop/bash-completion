@@ -1,0 +1,47 @@
+# bash completion for xfreerdp
+
+have xfreerdp &&
+_xfreerdp()
+{
+    local cur prev
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -k)
+            COMPREPLY=( $( compgen -W "$(xfreerdp --kbd-list | \
+		    awk '/^0x/ {print $1}')" -- "$cur" ) )
+            return 0
+            ;;
+        -a)
+            COMPREPLY=( $( compgen -W '8 15 16 24 32' -- "$cur" ) )
+            return 0
+            ;;
+        -x)
+            COMPREPLY=( $( compgen -W 'b broadband m modem l lan' -- $cur ) )
+            return 0
+            ;;
+        --plugin)
+            COMPREPLY=( $( compgen -W 'cliprdr rdpsnd rdpdr' -- "$cur" ) )
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-u -d -s -c -p -n -t -g -a -z -f -x -O -o \
+            -k --kbd-list -h --plugin --data' -- "$cur" ) )
+    else
+        _known_hosts_real "$cur"
+    fi
+
+} &&
+complete -F _xfreerdp xfreerdp
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
