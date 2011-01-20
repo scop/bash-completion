@@ -107,6 +107,7 @@ bashcomp_DATA = abook \
 		ntpdate \
 		openldap \
 		openssl \
+		open-iscsi \
 		p4 \
 		perl \
 		pine \

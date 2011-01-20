@@ -1,0 +1,78 @@
+# iscsiadm(1) completion
+
+have iscsiadm &&
+_iscsiadm()
+{
+    local cur prev mode split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -m|--mode)
+            COMPREPLY=( $( compgen -W 'discovery node session iface fw host' \
+                -- "$cur" ) )
+            return 0;
+            ;;
+        -o|--op)
+            COMPREPLY=( $( compgen -W 'new delete update show' -- "$cur" ) )
+            return 0;
+            ;;
+        -t|--type)
+            COMPREPLY=( $( compgen -W 'sendtargets st slp isns fw' -- "$cur" ) )
+            return 0;
+            ;;
+        -L|-U|--loginall|--logoutall)
+            COMPREPLY=( $( compgen -W 'all manual automatic' -- "$cur" ) )
+            return 0;
+            ;;
+    esac
+
+    $split && return 0
+
+    local options
+    if [[ $COMP_CWORD -gt 1 ]] ; then
+        mode=${COMP_WORDS[2]}
+
+        case $mode in
+            discovery)
+                options='--help --version --debug --print --interface --type \
+                    --portal --login --op --name --value'
+                ;;
+            node)
+                options='--help --version --debug --print --loginall \
+                    --logoutall--show  -T --portal --interface --login \
+                    --logout --rescan --stats --op --name --value'
+                ;;
+            session)
+                options='--help --version --debug --print --sid --logout \
+                    --rescan --stats'
+                ;;
+            iface)
+                options='--help --version --debug --print --interface --op \
+                    --name --value'
+                ;;
+            fw)
+                options='--login'
+                ;;
+            host)
+                options='--print -H'
+                ;;
+        esac
+    else
+        options='--mode'
+    fi
+
+    COMPREPLY=( $( compgen -W "$options" -- "$cur" ) )
+} &&
+complete -F _iscsiadm iscsiadm
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
