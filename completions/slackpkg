@@ -49,16 +49,21 @@ _slackpkg()
             return 0
             ;;
         remove)
-            COMPREPLY=( $( (cd /var/log/packages; compgen -f -- "$cur") ) )
+            _filedir
+            COMPREPLY+=( $( compgen -W 'a ap d e f k kde kdei l n t tcl x \
+                xap y' -- "$cur" ) )
+            COMPREPLY+=( $( (cd /var/log/packages; compgen -f -- "$cur") ) )
             return 0
             ;;
-        reinstall|upgrade)
-            # FIXME: ideally we should intersect list of installed packages
-            # with list of available packages
-            ;&
-        install|blacklist|download)
-            # FIXME: may be something better than just package names is possible
-            ;&
+        install|reinstall|upgrade|blacklist|download)
+            _filedir
+            COMPREPLY+=( $( compgen -W 'a ap d e f k kde kdei l n t tcl x \
+                xap y' -- "$cur" ) )
+            COMPREPLY+=( $( grep "^PACKAGE NAME: *$cur" \
+                "${WORKDIR}/PACKAGES.TXT" 2>/dev/null | \
+                sed 's/^PACKAGE NAME: *//g' ) )
+            return 0
+            ;;
         info)
             COMPREPLY=( $( grep "^PACKAGE NAME: *$cur" \
                 "${WORKDIR}/PACKAGES.TXT" 2>/dev/null | \
