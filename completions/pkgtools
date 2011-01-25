@@ -49,9 +49,9 @@ _removepkg()
         return 0
     fi
 
-    COMPREPLY=( $( (cd /var/log/packages; compgen -f -- "$cur") ) )
+    COMPREPLY=( $( cd /var/log/packages; compgen -f -- "$cur" ) )
 } &&
-complete -F _removepkg -o filenames removepkg
+complete -F _removepkg removepkg
 
 have upgradepkg &&
 _upgradepkg()
@@ -64,8 +64,8 @@ _upgradepkg()
         return 0
     fi
 
-    COMPREPLY=( $(compgen -f -X "!*.t[bglx]z" -- "$cur") )
-} && complete -F _upgradepkg -o plusdirs upgradepkg
+    _filedir "t[bglx]z"
+} && complete -F _upgradepkg upgradepkg
 
 have installpkg &&
 _installpkg()
@@ -95,9 +95,8 @@ _installpkg()
             ;;
     esac
 
-    COMPREPLY=( $(compgen -f -X "!*.t[bglx]z" -- "$cur") \
-                $(compgen -d -- "$cur") )
-} && complete -F _installpkg -o filenames installpkg
+    _filedir "t[bglx]z"
+} && complete -F _installpkg installpkg
 
 have makepkg &&
 _makepkg()
@@ -113,24 +112,16 @@ _makepkg()
     local prev=`_get_pword`
 
     case $prev in
-        -l|-l|-c|--chown)
+        -l|--linkadd|-c|--chown)
             COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
             return 0
             ;;
     esac
 
     _filedir
-} && complete -F _makepkg -o filenames makepkg
+} && complete -F _makepkg makepkg
 
 have explodepkg &&
 complete -o plusdirs -f -X '!*.t[bglx]z' explodepkg
 
 }
-
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh

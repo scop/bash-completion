@@ -70,7 +70,7 @@ _sbopkg()
     if [ ! -r "$REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT" ]; then
         return 0
     fi
-    COMPREPLY=( $( grep "^SLACKBUILD NAME: $cur" \
-        $REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT | cut -f3- -d\  )
-        $( (cd $QUEUEDIR; ls $cur*.sqf 2> /dev/null) ) )
-} && complete -F _sbopkg -o plusdirs sbopkg
+    COMPREPLY=( $( sed -ne "/^SLACKBUILD NAME: $cur/{s/^SLACKBUILD NAME: //;p}"\
+        $REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT )
+        $( cd $QUEUEDIR; compgen -f -X "!*.sqf"  -- "$cur" ) )
+} && complete -F _sbopkg sbopkg

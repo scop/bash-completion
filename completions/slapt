@@ -49,15 +49,15 @@ _slapt-get()
 
     case $t in
         all) # --install|-i|--show
-            # slapt-get will fail to search for "^orc-0.4.4" for example
-            # it can only search for names, so we should anything else
+            # slapt-get will fail to search for "^name-version"
+            # it can search for names only
             local name=$( echo $cur | cut -f1 -d- )
             COMPREPLY=( $( slapt-get --search "^$name" 2> /dev/null | \
-                awk '{print $1}' | grep "^$cur" ) )
+                sed -ne "/^$cur/{s/ .*$//;p}" ) )
             return 0
             ;;
         ins) # --remove|--filelist
-            COMPREPLY=( $( (cd /var/log/packages; compgen -f -- "$cur") ) )
+            COMPREPLY=( $( cd /var/log/packages; compgen -f -- "$cur" ) )
             return 0
             ;;
         set) # --install-set
@@ -121,7 +121,7 @@ _slapt-src()
         return 0
     fi
 
-    local builddir=$( grep '^BUILDDIR=' "$config" | cut -f2 -d\= )
+    local builddir=$( sed -ne "/^BUILDDIR=/{s/^BUILDDIR=//;p}" "$config" )
     if [ ! -d "$builddir" ]; then
         return 0
     fi
@@ -131,5 +131,6 @@ _slapt-src()
         return 0
     fi
 
-    COMPREPLY=( $( grep "^SLACKBUILD NAME: $cur" "$slck_data" | cut -f3- -d\  ) )
+    COMPREPLY=( $( sed -ne \
+        "/^SLACKBUILD NAME: $cur/{s/^SLACKBUILD NAME: //;p}" "$slck_data" ) )
 } && complete -F _slapt-src slapt-src

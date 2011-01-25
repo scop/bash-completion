@@ -22,8 +22,7 @@ _slackpkg()
             -only_new_dotnew=on -only_new_dotnew=off \
             -use_includes=on -use_includes=off \
             -spinning=on -spinning=off \
-            -default_answer=y -default_answer=yes \
-            -default_answer=n -default_answer=no \
+            -default_answer=yes -default_answer=no \
             -mirror=' -- "$cur" ) )
         return 0
     fi
@@ -43,8 +42,9 @@ _slackpkg()
             ;;
         install-template|remove-template)
             if [ -e "$confdir/templates" ]; then
-                COMPREPLY=( $( (cd "$confdir/templates"; \
-                    ls *.template 2>/dev/null | sed 's/.template$//g' ) ) )
+                COMPREPLY=( $( cd "$confdir/templates"; \
+                    compgen -f -X "!*.template" -- "$cur" ) )
+                COMPREPLY=( ${COMPREPLY[@]%.template} )
             fi
             return 0
             ;;
@@ -52,22 +52,22 @@ _slackpkg()
             _filedir
             COMPREPLY+=( $( compgen -W 'a ap d e f k kde kdei l n t tcl x \
                 xap y' -- "$cur" ) )
-            COMPREPLY+=( $( (cd /var/log/packages; compgen -f -- "$cur") ) )
+            COMPREPLY+=( $( cd /var/log/packages; compgen -f -- "$cur" ) )
             return 0
             ;;
         install|reinstall|upgrade|blacklist|download)
             _filedir
             COMPREPLY+=( $( compgen -W 'a ap d e f k kde kdei l n t tcl x \
                 xap y' -- "$cur" ) )
-            COMPREPLY+=( $( grep "^PACKAGE NAME: *$cur" \
-                "${WORKDIR}/PACKAGES.TXT" 2>/dev/null | \
-                sed 's/^PACKAGE NAME: *//g' ) )
+            COMPREPLY+=( $( sed -ne \
+                "/^PACKAGE NAME: *$cur/{s/^PACKAGE NAME: *//;p}" \
+                "${WORKDIR}/PACKAGES.TXT" 2>/dev/null ) )
             return 0
             ;;
         info)
-            COMPREPLY=( $( grep "^PACKAGE NAME: *$cur" \
-                "${WORKDIR}/PACKAGES.TXT" 2>/dev/null | \
-                sed 's/^PACKAGE NAME: *//g' ) )
+            COMPREPLY=( $( sed -ne \
+                "/^PACKAGE NAME: *$cur/{s/^PACKAGE NAME: *//;p}" \
+                "${WORKDIR}/PACKAGES.TXT" 2>/dev/null ) )
             return 0
             ;;
         update)
