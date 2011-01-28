@@ -4,8 +4,8 @@ have slackpkg &&
 _slackpkg()
 {
     COMPREPLY=()
-    local cur prev
-    _get_comp_words_by_ref cur prev
+    local cur
+    _get_comp_words_by_ref cur
 
     # based on `grep '\-.*\=.*)' /usr/sbin/slackpkg | cut -f1 -d\)`
     if [[ "$cur" == -* ]]; then
@@ -35,7 +35,17 @@ _slackpkg()
     fi
     . "$config"
 
-    case $prev in
+    local action words
+    _get_comp_words_by_ref -n "=" words
+
+    for (( i=1; i<${#words[@]}; i++ )); do
+        if [[ "${words[i]}" != -* ]]; then
+            action="${words[i]}"
+            break
+        fi
+    done
+
+    case $action in
         generate-template|search|file-search)
             # argument required but no completions available
             return 0
