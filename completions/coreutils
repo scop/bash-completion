@@ -112,6 +112,34 @@ _id()
 } &&
 complete -F _id id
 
+# mktemp(1) completion
+#
+have mktemp &&
+_mktemp()
+{
+    COMPREPLY=()
+    local cur prev split=false
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case "$prev" in
+        --help|--version|--suffix)
+            return 0
+            ;;
+        --tmpdir|-p)
+            _filedir -d
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    [[ "$cur" == -* ]] && \
+        COMPREPLY=( $( compgen -W '-d -u -q -p -t' -- "$cur" ) )
+} &&
+complete -F _mktemp mktemp
+
 # Local variables:
 # mode: shell-script
 # sh-basic-offset: 4
