@@ -19,11 +19,11 @@ _service()
     # don't complete past 2nd token
     [ $COMP_CWORD -gt 2 ] && return 0
 
-    [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
-
     if [[ $COMP_CWORD -eq 1 && $prev == "service" ]]; then
         _services
     else
+        [ -d /etc/rc.d/init.d ] && \
+            sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
         COMPREPLY=( $( compgen -W '`sed -e "y/|/ /" \
             -ne "s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p" \
             $sysvdir/${prev##*/} 2>/dev/null`' -- "$cur" ) )
