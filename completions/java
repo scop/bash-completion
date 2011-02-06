@@ -1,13 +1,14 @@
 # bash completion for java, javac and javadoc
 
 # available path elements completion
-have java && {
+have java || have javac || have javadoc &&
 _java_path()
 {
     cur=${cur##*:}
     _filedir '@(jar|zip)'
 }
 
+have java || have javadoc && {
 # exact classpath determination
 _java_find_classpath()
 {
@@ -113,9 +114,11 @@ _java_packages()
     # convert path syntax to package syntax
     cur=${COMPREPLY[@]//\//.}
 }
+}
 
 # java completion
 #
+have java &&
 _java()
 {
     local cur prev words cword i
@@ -230,9 +233,8 @@ _java()
         type compopt &>/dev/null && compopt -o nospace
 
     __ltrim_colon_completions "$cur"
-}
+} &&
 complete -F _java java
-}
 
 have javadoc &&
 _javadoc()
