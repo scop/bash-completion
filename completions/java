@@ -1,13 +1,14 @@
 # bash completion for java, javac and javadoc
 
 # available path elements completion
-have java && {
+have java || have javac || have javadoc &&
 _java_path()
 {
     cur=${cur##*:}
     _filedir '@(jar|zip)'
 }
 
+have java || have javadoc && {
 # exact classpath determination
 _java_find_classpath()
 {
@@ -60,7 +61,7 @@ _java_classes()
     cur=${cur//.//}
     # parse each classpath element for classes
     for i in ${classpath//:/ }; do
-        if [[ -r $i && "$i" == *.@(jar|zip) ]]; then
+        if [[ "$i" == *.@(jar|zip) && -r $i ]]; then
             if type zipinfo &>/dev/null; then
                 COMPREPLY=( "${COMPREPLY[@]}" $( zipinfo -1 \
                     "$i" "$cur*" 2>/dev/null | \
@@ -113,9 +114,11 @@ _java_packages()
     # convert path syntax to package syntax
     cur=${COMPREPLY[@]//\//.}
 }
+}
 
 # java completion
 #
+have java &&
 _java()
 {
     local cur prev words cword i
@@ -230,9 +233,8 @@ _java()
         type compopt &>/dev/null && compopt -o nospace
 
     __ltrim_colon_completions "$cur"
-}
+} &&
 complete -F _java java
-}
 
 have javadoc &&
 _javadoc()
@@ -491,6 +493,36 @@ _jarsigner()
     fi
 } &&
 complete -F _jarsigner jarsigner
+
+have javaws &&
+_javaws()
+{
+    COMPREPLY=()
+    local cur prev
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        -help|-license|-about|-viewer|-arg|-param|-property|-update|-umask)
+            return 0
+            ;;
+        -basedir|-codebase)
+            _filedir -d
+            return 0
+            ;;
+        -uninstall|-import)
+            _filedir jnlp
+            return 0
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W "$( _parse_help "$1" -help ) " -- "$cur" ) )
+        return 0
+    fi
+
+    _filedir jnlp
+} &&
+complete -F _javaws javaws
 
 # Local variables:
 # mode: shell-script

@@ -13,12 +13,7 @@ setup
 
 
 set test "Tab should complete hostnames"
-    # Build string list of hostnames
-set hosts {}
-foreach h [exec bash -c "compgen -A hostname"] {
-    lappend hosts $h
-}
-assert_complete $hosts "xhost " $test
+assert_complete [get_hosts] "xhost " $test
 
 
 sync_after_int
@@ -28,7 +23,7 @@ set test "Tab should complete partial hostname"
 # Build string list of hostnames, starting with the character of the first hostname
 set hosts {}
 set char ""
-foreach h [exec bash -c "compgen -A hostname"] {
+foreach h [get_hosts] {
     if {$char == ""} {set char [string range $h 0 0]}
         # Only append hostname if starting with $char
     if {[string range $h 0 0] == "$char"} {
@@ -44,7 +39,7 @@ sync_after_int
 set test "Tab should complete hostnames prefixed with +"
 # Build string list of hostnames, prefixed with plus (+)
 set hosts {}
-foreach h [exec bash -c "compgen -A hostname"] {
+foreach h [get_hosts] {
     lappend hosts "+$h"
 }
 assert_complete $hosts "xhost \+" $test
@@ -56,7 +51,7 @@ sync_after_int
 set test "Tab should complete partial hostname prefixed with +"
     # Build string list of hostnames, starting with character of first host.
 set hosts {}
-foreach h [exec bash -c "compgen -A hostname"] {
+foreach h [get_hosts] {
     if {$char == ""} {set char [string range $h 0 0]}
         # Only append hostname if starting with $char
     if {[string range $h 0 0] == "$char"} {
@@ -72,7 +67,7 @@ sync_after_int
 set test "Tab should complete hostnames prefixed with -"
     # Build string list of hostnames, prefix with minus (-)
 set hosts {}
-foreach h [exec bash -c "compgen -A hostname"] {
+foreach h [get_hosts] {
     lappend hosts "-$h"
 }
 assert_complete $hosts "xhost -" $test
@@ -84,7 +79,7 @@ sync_after_int
 set test "Tab should complete partial hostname prefixed with -"
     # Build list of hostnames, starting with character of first host
 set hosts {}
-foreach h [exec bash -c "compgen -A hostname"] {
+foreach h [get_hosts] {
     if {$char == ""} {set char [string range $h 0 0]}
         # Only append hostname if starting with $char
     if {[string range $h 0 0] == "$char"} {

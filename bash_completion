@@ -123,6 +123,7 @@ complete -f -X '!*.ly' lilypond ly2dvi
 complete -f -X '!*.@(dif?(f)|?(d)patch)?(.@([gx]z|bz2|lzma))' cdiff
 complete -f -X '!*.lyx' lyx
 complete -f -X '!@(*.@(ks|jks|jceks|p12|pfx|bks|ubr|gkr|cer|crt|cert|p7b|pkipath|pem|p10|csr|crl)|cacerts)' portecle
+complete -f -X '!*.@(mp[234c]|og[ag]|@(fl|a)ac|m4[abp]|spx|tta|w?(a)v|wma|aif?(f)|asf|ape)' kid3 kid3-qt
 # FINISH exclude -- do not remove this line
 
 # start of section containing compspecs that can be handled within bash
@@ -687,7 +688,7 @@ _split_longopt()
 #
 _parse_help() {
     $1 ${2:---help} 2>&1 | sed -e '/^[[:space:]]*-/!d' -e 's|[,/]| |g' | \
-        awk '{ print $1; if ($2 ~ /^-/) { print $2 } }' | sed -e 's|=.*||'
+        awk '{ print $1; if ($2 ~ /^-/) { print $2 } }' | sed -e 's|[<=].*||'
 }
 
 # This function completes on signal names
@@ -1244,12 +1245,10 @@ _known_hosts_real()
         [ -r "$configfile" ] &&
         config=( "${config[@]}" "$configfile" )
     else
-        [ -r /etc/ssh/ssh_config ] &&
-        config=( "${config[@]}" "/etc/ssh/ssh_config" )
-        [ -r "${HOME}/.ssh/config" ] &&
-        config=( "${config[@]}" "${HOME}/.ssh/config" )
-        [ -r "${HOME}/.ssh2/config" ] &&
-        config=( "${config[@]}" "${HOME}/.ssh2/config" )
+        for i in /etc/ssh/ssh_config "${HOME}/.ssh/config" \
+            "${HOME}/.ssh2/config"; do
+            [ -r $i ] && config=( "${config[@]}" "$i" )
+        done
     fi
 
     # Known hosts files from configs
@@ -1271,28 +1270,16 @@ _known_hosts_real()
         IFS=$OIFS
     fi
 
-    # Global known_hosts files
     if [ -z "$configfile" ]; then
-        [ -r /etc/ssh/ssh_known_hosts ] &&
-        kh=( "${kh[@]}" /etc/ssh/ssh_known_hosts )
-        [ -r /etc/ssh/ssh_known_hosts2 ] &&
-        kh=( "${kh[@]}" /etc/ssh/ssh_known_hosts2 )
-        [ -r /etc/known_hosts ] &&
-        kh=( "${kh[@]}" /etc/known_hosts )
-        [ -r /etc/known_hosts2 ] &&
-        kh=( "${kh[@]}" /etc/known_hosts2 )
-        [ -d /etc/ssh2/knownhosts ] &&
-        khd=( "${khd[@]}" /etc/ssh2/knownhosts/*pub )
-    fi
-
-    # User known_hosts files
-    if [ -z "$configfile" ]; then
-        [ -r ~/.ssh/known_hosts ] &&
-        kh=( "${kh[@]}" ~/.ssh/known_hosts )
-        [ -r ~/.ssh/known_hosts2 ] &&
-        kh=( "${kh[@]}" ~/.ssh/known_hosts2 )
-        [ -d ~/.ssh2/hostkeys ] &&
-        khd=( "${khd[@]}" ~/.ssh2/hostkeys/*pub )
+        # Global and user known_hosts files
+        for i in /etc/ssh/ssh_known_hosts /etc/ssh/ssh_known_hosts2 \
+            /etc/known_hosts /etc/known_hosts2 ~/.ssh/known_hosts \
+            ~/.ssh/known_hosts2; do
+            [ -r $i ] && kh=( "${kh[@]}" $i )
+        done
+        for i in /etc/ssh2/knownhosts ~/.ssh2/hostkeys; do
+            [ -d $i ] && khd=( "${khd[@]}" $i/*pub )
+        done
     fi
 
     # If we have known_hosts files to use
