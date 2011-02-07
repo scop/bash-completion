@@ -294,9 +294,13 @@ have gendiff &&
 _gendiff()
 {
     COMPREPLY=()
-    local cur cword
-    _get_comp_words_by_ref cur cword
-    [[ $cword != 1 ]] || _filedir -d
+    local cur prev cword
+    _get_comp_words_by_ref cur prev cword
+    if [[ $cword -eq 1 ]]; then
+        _filedir -d
+    elif [[ $prev == *\> ]]; then
+        _filedir
+    fi
 } &&
 complete -F _gendiff gendiff
 
