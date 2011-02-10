@@ -259,7 +259,14 @@ _rpmbuild()
             _filedir
             return 0
             ;;
-        --define|-D|--with|--without|--buildpolicy)
+        --buildpolicy)
+            local cfgdir=$( $rpm --eval '%{_rpmconfigdir}' 2>/dev/null )
+            if [[ $cfgdir ]]; then
+                COMPREPLY=( $( compgen -W "$( command ls $cfgdir/brp-* \
+                    2>/dev/null | sed -ne "s|^$cfgdir/brp-||p" )" -- "$cur" ) )
+            fi
+            ;;
+        --define|-D|--with|--without)
             return 0
             ;;
     esac
