@@ -5,8 +5,6 @@ have rpm && {
 
 _rpm_installed_packages()
 {
-    local nodig="$1" nosig="$2"
-
     if [[ -r /var/log/rpmpkgs && \
         /var/log/rpmpkgs -nt /var/lib/rpm/Packages ]]; then
         # using RHL 7.2 or later - this is quicker than querying the DB
@@ -17,47 +15,26 @@ _rpm_installed_packages()
         # SUSE's rpmqpack is faster than rpm -qa
         COMPREPLY=( $( compgen -W '$( rpmqpack )' -- "$cur" ) )
     else
-        _rpm_nodigsig
-        COMPREPLY=( $( rpm -qa $nodig $nosig --queryformat='%{NAME} ' \
-            "$cur*" ) )
+        COMPREPLY=( $( rpm -qa --nodigest --nosignature \
+            --queryformat='%{NAME} ' "$cur*" 2>/dev/null ) )
     fi
 }
 
 _rpm_groups()
 {
     local IFS=$'\n'
-    COMPREPLY=( $( compgen -W "$( rpm -qa $nodig $nosig \
-        --queryformat='%{GROUP}\n' )" -- "$cur" ) )
-}
-
-_rpm_nodigsig()
-{
-    if [[ -z "$nodig" && -z "$nosig" ]]; then
-        local rpmver
-
-        rpmver=$(rpm --version)
-        rpmver=${rpmver##* }
-
-        if [[ "$rpmver" > "4.0.4" ]]; then
-            nodig="--nodigest"
-        fi
-        if [[ "$rpmver" > "4.0.99" ]]; then
-            nosig="--nosignature"
-        fi
-    fi
+    COMPREPLY=( $( compgen -W "$( rpm -qa --nodigest --nosignature \
+        --queryformat='%{GROUP}\n' 2>/dev/null )" -- "$cur" ) )
 }
 
 # rpm(8) completion
 #
 _rpm()
 {
-    local cur prev opts nodig nosig
+    local cur prev opts
 
     COMPREPLY=()
     _get_comp_words_by_ref cur prev
-    nodig=""
-    nosig=""
-    _rpm_nodigsig
 
     if [ $COMP_CWORD -eq 1 ]; then
         # first parameter on line
@@ -119,8 +96,9 @@ _rpm()
             else
                 # complete on capabilities
                 local IFS=$'\n'
-                COMPREPLY=( $( compgen -W "$( rpm -qa $nodig $nosig \
-                    --queryformat='%{PROVIDENAME}\n' )" -- "$cur" ) )
+                COMPREPLY=( $( compgen -W "$( rpm -qa --nodigest \
+                    --nosignature --queryformat='%{PROVIDENAME}\n' \
+                    2>/dev/null )" -- "$cur" ) )
             fi
             return 0
             ;;
@@ -130,8 +108,9 @@ _rpm()
             else
                 # complete on capabilities
                 local IFS=$'\n'
-                COMPREPLY=( $( compgen -W "$( rpm -qa $nodig $nosig \
-                        --queryformat='%{REQUIRENAME}\n' )" -- "$cur" ) )
+                COMPREPLY=( $( compgen -W "$( rpm -qa --nodigest \
+                    --nosignature --queryformat='%{REQUIRENAME}\n' \
+                    2>/dev/null )" -- "$cur" ) )
             fi
             return 0
             ;;
@@ -172,7 +151,7 @@ _rpm()
                 --noscripts --notriggers --nodeps --test --repackage" \
                 -- "$cur" ) )
             else
-                _rpm_installed_packages "$nodig" "$nosig"
+                _rpm_installed_packages
             fi
             ;;
         -q*|--query)
@@ -211,7 +190,7 @@ _rpm()
                         --triggeredby --whatprovides --whatrequires" \
                             -- "$cur" ) )
                 elif [[ $COMP_LINE != *\ -@(*([^ -])a|-all )* ]]; then
-                    _rpm_installed_packages "$nodig" "$nosig"
+                    _rpm_installed_packages
                 fi
             fi
             ;;
@@ -237,7 +216,7 @@ _rpm()
             elif [[ $COMP_LINE == *\ -@(*([^ -])p|-package )* ]]; then
                 _filedir '[rs]pm'
             else
-                _rpm_installed_packages "$nodig" "$nosig"
+                _rpm_installed_packages
             fi
             ;;
         -[bt]*)
@@ -266,7 +245,7 @@ _rpm()
             _filedir '[rs]pm'
             ;;
         --setperms|--setgids)
-            _rpm_installed_packages "$nodig" "$nosig"
+            _rpm_installed_packages
             ;;
         --clean|--rmsource|--rmspec)
             if [[ "$cur" == -* ]]; then
