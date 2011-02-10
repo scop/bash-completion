@@ -4,13 +4,17 @@ have perl &&
 {
 _perlmodules()
 {
-    COMPREPLY=( $( compgen -P "$prefix" -W "$( $1 ${BASH_SOURCE[0]%/*}/helpers/perl modules $cur )" -- "$cur" ) )
+    COMPREPLY=( $( compgen -P "$prefix" -W \
+        "$( ${1:-perl} ${BASH_SOURCE[0]%/*}/helpers/perl modules $cur )" \
+        -- "$cur" ) )
     __ltrim_colon_completions "$prefix$cur"
 }
 
 _perlfunctions()
 {
-    COMPREPLY=( $( compgen -P "$prefix" -W "$( ${BASH_SOURCE[0]%/*}/helpers/perl functions $cur )" -- "$cur" ) )
+    COMPREPLY=( $( compgen -P "$prefix" -W \
+        "$( ${1:-perl} ${BASH_SOURCE[0]%/*}/helpers/perl functions $cur )" \
+        -- "$cur" ) )
 }
 
 _perl()
@@ -97,10 +101,13 @@ _perldoc()
         prefix=$prev
     fi
 
+    local perl="${1%doc}"
+    [[ $perl == $1 ]] || ! type $perl &>/dev/null && perl=
+
     # complete builtin perl functions
     case $prev in
         -f)
-            _perlfunctions "$cur"
+            _perlfunctions $perl
              return 0
             ;;
     esac
@@ -110,7 +117,7 @@ _perldoc()
     else
         # return available modules (unless it is clearly a file)
         if [[ "$cur" != */* ]]; then
-            _perlmodules
+            _perlmodules $perl
             COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W \
                 '$( PAGER=/bin/cat man perl |  \
                 sed -ne "/perl.*Perl overview/,/perlwin32/p" | \
