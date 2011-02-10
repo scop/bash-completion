@@ -5,7 +5,7 @@
 have find &&
 _find()
 {
-    local cur prev i exprfound onlyonce
+    local cur prev i onlyonce
 
     COMPREPLY=()
     _get_comp_words_by_ref cur prev
@@ -68,13 +68,15 @@ _find()
     esac
 
     _expand || return 0
-    # set exprfound to 1 if there is already an expression present
+
+    local exprfound=false
+    # set exprfound to true if there is already an expression present
     for i in ${COMP_WORDS[@]}; do
-        [[ "$i" = [-\(\),\!]* ]] && exprfound=1 && break
+        [[ "$i" = [-\(\),\!]* ]] && exprfound=true && break
     done
 
     # handle case where first parameter is not a dash option
-    if [[ "$exprfound" != 1 && "$cur" != [-\(\),\!]* ]]; then
+    if ! $exprfound && [[ "$cur" != [-\(\),\!]* ]]; then
         _filedir -d
         return 0
     fi
