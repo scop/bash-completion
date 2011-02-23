@@ -18,7 +18,8 @@ _puppet_digest()
 _puppet_certs()
 {
     local puppetca="puppet cert"
-    PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin type puppetca  &>/dev/null && puppetca=puppetca
+    PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin type puppetca  &>/dev/null \
+        && puppetca=puppetca
     
     if [[ "$1" = "--all" ]]; then
         cert_list=$( $puppetca --list --all | sed -e 's/^[+-]\?\s*\(\S\+\)\s\+.*$/\1/' )
@@ -37,7 +38,8 @@ _puppet_types()
 _puppet_references()
 {
     local puppetdoc="puppet doc"
-    PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin type puppetdoc  &>/dev/null && puppetdoc=puppetdoc
+    PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin type puppetdoc  &>/dev/null \
+        && puppetdoc=puppetdoc
 
     puppet_doc_list=$( $puppetdoc --list | sed -e 's/^\(\S\+\).*$/\1/' )
     COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "$puppet_doc_list" -- "$cur" ) )
@@ -58,7 +60,8 @@ _puppet()
             ;;
     esac
 
-    puppet_commands='agent apply cert describe doc filebucket kick master queue resource'
+    puppet_commands='agent apply cert describe doc filebucket kick master \
+        queue resource'
 
     case ${COMP_WORDS[0]} in
         puppetmasterd)
@@ -115,7 +118,8 @@ _puppet()
                 ;;
                 --serve)
                     # From /usr/lib/ruby/1.8/puppet/network/handler/
-                    COMPREPLY=( $( compgen -W "ca filebucket fileserver master report runner status" -- "$cur" ) )
+                    COMPREPLY=( $( compgen -W "ca filebucket fileserver master \
+                        report runner status" -- "$cur" ) )
                     return 0
                 ;;
                 --digest)
@@ -127,7 +131,11 @@ _puppet()
                     return 0
                 ;;
                 *)
-                    COMPREPLY=( $( compgen -W "--daemonize --no-daemonize --debug --detailed-exitcodes --disable --enable --help --fqdn --logdest --onetime --serve --test --noop --digest --fingerprint --version --verbose --waitforcert --no-client" -- "$cur" ) )
+                    COMPREPLY=( $( compgen -W "--daemonize --no-daemonize \
+                        --debug --detailed-exitcodes --disable --enable \
+                        --help --fqdn --logdest --onetime --serve --test \
+                        --noop --digest --fingerprint --version --verbose \
+                        --waitforcert --no-client" -- "$cur" ) )
                     return 0
             esac
             ;;
@@ -139,7 +147,9 @@ _puppet()
                     ;;
                 *)
                     if [[ "$cur" == -* ]]; then
-                        COMPREPLY=( $( compgen -W "--help --version --debug --verbose --execute --detailed-exitcodes --logdest" -- "$cur" ) )
+                        COMPREPLY=( $( compgen -W "--help --version --debug \
+                            --verbose --execute --detailed-exitcodes \
+                            --logdest" -- "$cur" ) )
                     else
                         _filedir
                     fi
@@ -154,35 +164,42 @@ _puppet()
                     ;;
                 *)
                     subspecial=$prev
-                    COMPREPLY=( $( compgen -W "--digest --debug --verbose" -- "$cur" ) )
+                    COMPREPLY=( $( compgen -W "--digest --debug --verbose" \
+                        -- "$cur" ) )
                     case $subspecial in
                         --generate)
                             _known_hosts_real "$cur"
                             return 0
                             ;;
                         --clean|--fingerprint|--revoke|--verify)
-                            COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "--all" -- "$cur" ) )
+                            COMPREPLY=( "${COMPREPLY[@]}" $( compgen \
+                                -W "--all" -- "$cur" ) )
                             _puppet_certs --all
                             return 0
                             ;;
                         --sign)
-                            COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "--all" -- "$cur" ) )
+                            COMPREPLY=( "${COMPREPLY[@]}" $( compgen \
+                                -W "--all" -- "$cur" ) )
                             _puppet_certs
                             return 0
                             ;;
                         --list|--print)
-                            COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "--all" -- "$cur" ) )
+                            COMPREPLY=( "${COMPREPLY[@]}" $( compgen \
+                                -W "--all" -- "$cur" ) )
                             return 0
                             ;;
                         *)
-                            COMPREPLY=( $( compgen -W "--clean --generate --help --list --print --fingerprint --revoke --sign --version --verify" -- "$cur" ) )
+                            COMPREPLY=( $( compgen -W "--clean --generate \
+                                --help --list --print --fingerprint --revoke \
+                                --sign --version --verify" -- "$cur" ) )
                             return 0
                     esac
             esac
             ;; 
         describe)
             if [[ "$cur" == -* ]]; then
-                COMPREPLY=( $( compgen -W "--help --short --providers --list --meta" -- "$cur" ) )
+                COMPREPLY=( $( compgen -W "--help --short --providers --list \
+                    --meta" -- "$cur" ) )
             else
                 _puppet_types
             fi
@@ -204,7 +221,8 @@ _puppet()
                     ;;
                 *)
                     if [[ "$cur" == -* ]]; then
-                        COMPREPLY=( $( compgen -W "--all --help --outputdir --mode --reference --charset --list" -- "$cur" ) )
+                        COMPREPLY=( $( compgen -W "--all --help --outputdir \
+                            --mode --reference --charset --list" -- "$cur" ) )
                     else
                         _filedir
                     fi
@@ -222,9 +240,12 @@ _puppet()
                     ;;
                 *)
                     if [[ "$cur" == -* ]]; then
-                        COMPREPLY=( $( compgen -W "--help --version --debug --verbose --local --remote --server --bucket" -- "$cur" ) )
+                        COMPREPLY=( $( compgen -W "--help --version --debug \
+                            --verbose --local --remote --server --bucket" \
+                            -- "$cur" ) )
                     else
-                        COMPREPLY=( $( compgen -W "backup get restore" -- "$cur" ) )
+                        COMPREPLY=( $( compgen -W "backup get restore" \
+                            -- "$cur" ) )
                         _filedir
                     fi
                     return 0
@@ -244,7 +265,9 @@ _puppet()
                     ;;
                 *)
                     if [[ "$cur" == -* ]]; then
-                        COMPREPLY=( $( compgen -W "--all --class --debug --foreground --help --host --no-fqdn --ignoreschedules --tag --test --ping" -- "$cur" ) )
+                        COMPREPLY=( $( compgen -W "--all --class --debug \
+                            --foreground --help --host --no-fqdn \
+                            --ignoreschedules --tag --test --ping" -- "$cur" ) )
                     else
                         _known_hosts_real "$cur"
                     fi
@@ -258,7 +281,9 @@ _puppet()
                     return 0
                     ;;
                 *)
-                    COMPREPLY=( $( compgen -W "--daemonize --no-daemonize --debug --help --logdest --verbose --version" -- "$cur" ) )
+                    COMPREPLY=( $( compgen -W "--daemonize --no-daemonize \
+                        --debug --help --logdest --verbose --version" \
+                        -- "$cur" ) )
                     return 0
             esac
             ;; 
@@ -270,7 +295,9 @@ _puppet()
                     ;;
                 *)
                     if [[ "$cur" == -* ]]; then
-                        COMPREPLY=( $( compgen -W "--help --version --debug --verbose --execute --detailed-exitcodes --logdest" -- "$cur" ) )
+                        COMPREPLY=( $( compgen -W "--help --version --debug \
+                            --verbose --execute --detailed-exitcodes \
+                            --logdest" -- "$cur" ) )
                     else
                         _filedir
                     fi
@@ -278,7 +305,8 @@ _puppet()
             esac
             ;; 
         resource|*)
-            COMPREPLY=( $( compgen -W "--help --version --debug --verbose" -- "$cur" ) )
+            COMPREPLY=( $( compgen -W "--help --version --debug --verbose" \
+                -- "$cur" ) )
             return 0
             ;; 
     esac
