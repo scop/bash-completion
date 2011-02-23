@@ -8,11 +8,37 @@ _smartctl_quietmode()
 }
 _smartctl_device()
 {
-    local i opts='ata scsi sat marvell hpt cciss'
-    for (( i=0; i <= 31; i++ )) ; do
-        opts="$opts 3ware,$i"
-    done
-    COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
+    case $cur in
+        areca*|3ware*|megaraid*|cciss*)
+            local i mycur="${cur%%,*}"
+            for (( i=0; i <= 31; i++ )) ; do
+                COMPREPLY=( "${COMPREPLY[@]}" "$mycur,$i" )
+            done
+            COMPREPLY=( $( compgen -W '"${COMPREPLY[@]}"' -- "$cur" ) )
+            ;;
+        hpt*)
+            local l m n
+            for (( l=1; l <= 4; l++ )) ; do
+                for (( m=1; m <= 8; m++ )) ; do
+                    COMPREPLY=( "${COMPREPLY[@]}" hpt,$l/$m )
+                    for (( n=1; n <= 5; n++ )) ; do
+                        COMPREPLY=( "${COMPREPLY[@]}" hpt,$l/$m/$n )
+                    done
+                done
+            done
+            COMPREPLY=( $( compgen -W '"${COMPREPLY[@]}"' -- "$cur" ) )
+            ;;
+        *)
+            COMPREPLY=( $( compgen -W "ata scsi sat usbcypress usbjmicron
+                usbsunplus marvell areca 3ware hpt megaraid cciss auto test" \
+                    -- "$cur" ) )
+            case "${COMPREPLY[@]}" in
+                areca|3ware|hpt|megaraid|cciss)
+                    type compopt &>/dev/null && compopt -o nospace
+                    ;;
+            esac
+            ;;
+    esac
 }
 _smartctl_tolerance()
 {
@@ -37,7 +63,9 @@ _smartctl_feature()
 }
 _smartctl_log()
 {
-    COMPREPLY=( $( compgen -W 'error selftest selective directory' -- "$cur" ) )
+    COMPREPLY=( $( compgen -W 'error selftest selective directory background
+        sasphy sasphy,reset sataphy sataphy,reset scttemp scttempsts
+        scttemphist scterc gplog smartlog xerror xselftest' -- "$cur" ) )
 }
 _smartctl_vendorattribute()
 {
@@ -57,10 +85,23 @@ _smartctl_presets()
 }
 _smartctl_test()
 {
-    COMPREPLY=( $( compgen -W 'offline short long conveyance select \
-                afterselect,on afterselect,off pending scttempint' -- "$cur" ) )
+    [[ $cur == @(pending|scttempint|vendor), ]] && return 0
+    COMPREPLY=( $( compgen -W 'offline short long conveyance select,
+        select,redo select,next afterselect,on afterselect,off pending,
+        scttempint, vendor,' -- "$cur" ) )
+    [[ ${#COMPREPLY[@]} -eq 1 && "${COMPREPLY[@]}" == *, ]] && \
+        type compopt &>/dev/null && compopt -o nospace
 }
-
+_smartctl_drivedb()
+{
+    local prefix=
+    if [[ $cur == +* ]] ; then
+        prefix=+
+        cur="${cur#+}"
+    fi
+    _filedir h
+    [[ -n $prefix ]] && COMPREPLY=( "${COMPREPLY[@]/#/$prefix}" )
+}
 
 _smartctl()
 {
@@ -115,6 +156,10 @@ _smartctl()
             _smartctl_presets
             return 0
             ;;
+        -B|--drivedb)
+            _smartctl_drivedb
+            return 0
+            ;;
         -t|--test)
             _smartctl_test
             return 0
@@ -124,11 +169,11 @@ _smartctl()
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--help --version --info --all --quietmode \
-            --device --tolerance --badsum --report --nocheck --smart \
-            --offlineauto --saveauto --health --capabilities --attributes \
-            --log --vendorattribute --firmwarebug --presets --test --captive \
-            --abort' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--help --version --info --all --xall
+            --scan --scan-open --quietmode --device --tolerance --badsum
+            --report --nocheck --smart --offlineauto --saveauto --health
+            --capabilities --attributes --log --vendorattribute --firmwarebug
+            --presets --drivedb --test --captive --abort' -- "$cur" ) )
     else
         cur=${cur:=/dev/}
         _filedir
