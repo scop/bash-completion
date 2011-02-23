@@ -49,7 +49,7 @@ have puppetmasterd || have puppetd || have puppetca || have ralsh || \
 have puppetrun || have puppetqd || have filebucket || have puppetdoc && \
 _puppet()
 {
-    local cur prev xspec helpopts
+    local cur prev xspec helpopts command subcommand
 
     COMPREPLY=()
     _get_comp_words_by_ref cur prev
@@ -62,39 +62,39 @@ _puppet()
 
     case ${COMP_WORDS[0]} in
         puppetmasterd)
-            special=master
+            command=master
             ;;
         puppetd)
-            special=agent
+            command=agent
             ;;
         puppetca)
-            special=cert
+            command=cert
             ;;
         ralsh)
-            special=resource
+            command=resource
             ;;
         puppetrun)
-            special=kick
+            command=kick
             ;;
         puppetqd)
-            special=queue
+            command=queue
             ;;
         filebucket)
-            special=filebucket
+            command=filebucket
             ;;
         puppetdoc)
-            special=doc
+            command=doc
             ;;
         pi)
-            special=describe
+            command=describe
             ;;
         puppet)
             case ${COMP_WORDS[1]} in
                agent|apply|cert|describe|doc|filebucket|kick|master|queue|resource)
-                   special=${COMP_WORDS[1]}
+                   command=${COMP_WORDS[1]}
                    ;;
                *.pp|*.rb|-*)
-                   special=apply
+                   command=apply
                    ;;
                *)
                   COMPREPLY=( $( compgen -W "agent apply cert describe doc \
@@ -104,7 +104,7 @@ _puppet()
             esac
     esac
 
-    case $special in
+    case $command in
         agent)
             case $prev in
                 --fqdn)
@@ -161,10 +161,10 @@ _puppet()
                     return 0
                     ;;
                 *)
-                    subspecial=$prev
+                    subcommand=$prev
                     COMPREPLY=( $( compgen -W "--digest --debug --verbose" \
                         -- "$cur" ) )
-                    case $subspecial in
+                    case $subcommand in
                         --generate)
                             _known_hosts_real "$cur"
                             return 0
