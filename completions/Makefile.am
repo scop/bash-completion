@@ -120,6 +120,7 @@ bashcomp_DATA = abook \
 		postgresql \
 		povray \
 		procps \
+		puppet \
 		python \
 		qdbus \
 		qemu \

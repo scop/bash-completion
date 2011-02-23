@@ -1,0 +1,294 @@
+# bash completion for puppet
+
+_puppet_logdest()
+{
+    if [ -z "$cur" ]; then
+        COMPREPLY=( $( compgen -W "syslog console /" -- "$cur" ) )
+    else
+        COMPREPLY=( $( compgen -W "syslog console" -- "$cur" ) )
+        _filedir
+    fi
+}
+
+_puppet_digest()
+{
+    COMPREPLY=( $( compgen -W "MD5 MD2 SHA1 SHA256" -- "$cur" ) )
+}
+
+_puppet_certs()
+{
+    local puppetca="puppet cert"
+    PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin type puppetca  &>/dev/null && puppetca=puppetca
+    
+    if [[ "$1" = "--all" ]]; then
+        cert_list=`$puppetca --list --all | sed -e 's/^[+-]\?\s*\(\S\+\)\s\+.*$/\1/'`
+    else
+        cert_list=`$puppetca --list`
+    fi
+    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "$cert_list" -- "$cur" ) )
+}
+
+_puppet_types()
+{
+    puppet_types=`puppet describe --list | sed -e 's/^\(\S\+\).*$/\1/'`
+    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "$puppet_types" -- "$cur" ) )
+}
+
+_puppet_references()
+{
+    local puppetdoc="puppet doc"
+    PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin type puppetdoc  &>/dev/null && puppetdoc=puppetdoc
+
+    puppet_doc_list=`$puppetdoc --list | sed -e 's/^\(\S\+\).*$/\1/'`
+    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "$puppet_doc_list" -- "$cur" ) )
+}
+
+have puppetmasterd || have puppetd || have puppetca || have ralsh || \
+have puppetrun || have puppetqd || have filebucket || have puppetdoc && \
+_puppet()
+{
+    local cur prev xspec helpopts
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    case $prev in
+        --help)
+            return 0
+            ;;
+    esac
+
+    puppet_commands='agent apply cert describe doc filebucket kick master queue resource'
+
+    case ${COMP_WORDS[0]} in
+        puppetmasterd)
+            special=master
+            ;;
+        puppetd)
+            special=agent
+            ;;
+        puppetca)
+            special=cert
+            ;;
+        ralsh)
+            special=resource
+            ;;
+        puppetrun)
+            special=kick
+            ;;
+        puppetqd)
+            special=queue
+            ;;
+        filebucket)
+            special=filebucket
+            ;;
+        puppetdoc)
+            special=doc
+            ;;
+        pi)
+            special=describe
+            ;;
+        puppet)
+            case ${COMP_WORDS[1]} in
+               agent|apply|cert|describe|doc|filebucket|kick|master|queue|resource)
+                   special=${COMP_WORDS[1]}
+                   ;;
+               *.pp|*.rb|-*)
+                   special=apply
+                   ;;
+               *)
+                  COMPREPLY=( $( compgen -W "$puppet_commands" -- "$cur" ) )
+                  return 0
+                  ;;
+            esac
+    esac
+
+    case $special in
+        agent)
+            case $prev in
+                --fqdn)
+                    return 0
+                ;;
+                --logdest)
+                    _puppet_logdest
+                    return 0
+                ;;
+                --serve)
+                    # From /usr/lib/ruby/1.8/puppet/network/handler/
+                    COMPREPLY=( $( compgen -W "ca filebucket fileserver master report runner status" -- "$cur" ) )
+                    return 0
+                ;;
+                --digest)
+                    _puppet_digest
+                    return 0
+                ;;
+                --waitforcert)
+                    COMPREPLY=( $( compgen -W "0 15 30 60 120" -- "$cur" ) )
+                    return 0
+                ;;
+                *)
+                    COMPREPLY=( $( compgen -W "--daemonize --no-daemonize --debug --detailed-exitcodes --disable --enable --help --fqdn --logdest --onetime --serve --test --noop --digest --fingerprint --version --verbose --waitforcert --no-client" -- "$cur" ) )
+                    return 0
+            esac
+            ;;
+        apply)
+            case $prev in
+                --logdest)
+                    _puppet_logdest
+                    return 0
+                    ;;
+                *)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "--help --version --debug --verbose --execute --detailed-exitcodes --logdest" -- "$cur" ) )
+                    else
+                        _filedir
+                    fi
+                    return 0
+            esac
+            ;; 
+        cert)
+            case $prev in
+                --digest)
+                    _puppet_digest
+                    return 0
+                    ;;
+                *)
+                    subspecial=$prev
+                    COMPREPLY=( $( compgen -W "--digest --debug --verbose" -- "$cur" ) )
+                    case $subspecial in
+                        --generate)
+                            _known_hosts_real "$cur"
+                            return 0
+                            ;;
+                        --clean|--fingerprint|--revoke|--verify)
+                            COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "--all" -- "$cur" ) )
+                            _puppet_certs --all
+                            return 0
+                            ;;
+                        --sign)
+                            COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "--all" -- "$cur" ) )
+                            _puppet_certs
+                            return 0
+                            ;;
+                        --list|--print)
+                            COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "--all" -- "$cur" ) )
+                            return 0
+                            ;;
+                        *)
+                            COMPREPLY=( $( compgen -W "--clean --generate --help --list --print --fingerprint --revoke --sign --version --verify" -- "$cur" ) )
+                            return 0
+                    esac
+            esac
+            ;; 
+        describe)
+            if [[ "$cur" == -* ]]; then
+                COMPREPLY=( $( compgen -W "--help --short --providers --list --meta" -- "$cur" ) )
+            else
+                _puppet_types
+            fi
+            return 0
+            ;; 
+        doc)
+            case $prev in
+                --outputdir)
+                    _filedir -d
+                    return 0
+                    ;;
+                --mode)
+                    COMPREPLY=( $( compgen -W "text trac pdf rdoc" -- "$cur" ) )
+                    return 0
+                    ;;
+                --reference)
+                    _puppet_references
+                    return 0
+                    ;;
+                *)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "--all --help --outputdir --mode --reference --charset --list" -- "$cur" ) )
+                    else
+                        _filedir
+                    fi
+                    return 0
+            esac
+            ;; 
+        filebucket)
+            case $prev in
+                --server)
+                    return 0
+                    ;;
+                --bucket)
+                    _filedir -d
+                    return 0
+                    ;;
+                *)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "--help --version --debug --verbose --local --remote --server --bucket" -- "$cur" ) )
+                    else
+                        COMPREPLY=( $( compgen -W "backup get restore" -- "$cur" ) )
+                        _filedir
+                    fi
+                    return 0
+            esac
+            ;; 
+        kick)
+            case $prev in
+                --class)
+                    return 0
+                    ;;
+                --host)
+                    _known_hosts_real "$cur" 
+                    return 0
+                    ;;
+                --tag)
+                    return 0
+                    ;;
+                *)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "--all --class --debug --foreground --help --host --no-fqdn --ignoreschedules --tag --test --ping" -- "$cur" ) )
+                    else
+                        _known_hosts_real "$cur"
+                    fi
+                    return 0
+            esac
+            ;; 
+        master)
+            case $prev in
+                --logdest)
+                    _puppet_logdest
+                    return 0
+                    ;;
+                *)
+                    COMPREPLY=( $( compgen -W "--daemonize --no-daemonize --debug --help --logdest --verbose --version" -- "$cur" ) )
+                    return 0
+            esac
+            ;; 
+        queue)
+            case $prev in
+                --logdest)
+                    _puppet_logdest
+                    return 0
+                    ;;
+                *)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "--help --version --debug --verbose --execute --detailed-exitcodes --logdest" -- "$cur" ) )
+                    else
+                        _filedir
+                    fi
+                    return 0
+            esac
+            ;; 
+        resource|*)
+            COMPREPLY=( $( compgen -W "--help --version --debug --verbose" -- "$cur" ) )
+            return 0
+            ;; 
+    esac
+} &&
+complete -F _puppet -o filenames puppetmasterd puppetd puppetca ralsh puppetrun puppetqd filebucket puppetdoc puppet 
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
