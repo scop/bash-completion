@@ -127,6 +127,7 @@ bashcomp_DATA = abook \
 		quota-tools \
 		rcs \
 		rdesktop \
+		reptyr \
 		reportbug \
 		resolvconf \
 		rfkill \
