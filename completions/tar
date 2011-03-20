@@ -3,17 +3,17 @@
 have tar && {
 _tar()
 {
-    local cur ext regex tar untar
+    local cur prev words ext regex tar untar
 
     COMPREPLY=()
-    _get_comp_words_by_ref cur
+    _get_comp_words_by_ref cur prev words
 
     if [ $COMP_CWORD -eq 1 ]; then
         COMPREPLY=( $( compgen -W 'c t x u r d A' -- "$cur" ) )
         return 0
     fi
 
-    case ${COMP_WORDS[1]} in
+    case ${words[1]} in
         ?(-)[cr]*f)
             _filedir
             return 0
@@ -40,19 +40,74 @@ _tar()
             ;;
     esac
 
-    if [[ "$COMP_LINE" == *$ext' ' ]]; then
-        # complete on files in tar file
-        #
-        # get name of tar file from command line
-        tar=$( sed -e 's/^.* \([^ ]*'$regex'\) .*$/\1/' <<<"$COMP_LINE" )
-        # devise how to untar and list it
-        untar=t${COMP_WORDS[1]//[^IJzjyf]/}
+    local split=false
+    _split_longopt && split=true
 
-        local IFS=$'\n'
-        COMPREPLY=( $( compgen -W "$( printf '%s\n' $( tar $untar $tar \
-            2>/dev/null ) )" -- "$cur" ) )
-        return 0
-    fi
+    case $prev in
+        *$ext)
+            # complete on files in tar file
+            #
+            # get name of tar file from command line
+            tar=$( sed -e 's/^.* \([^ ]*'$regex'\) .*$/\1/' <<<"$COMP_LINE" )
+            # devise how to untar and list it
+            untar=t${words[1]//[^IJzjyf]/}
+
+            local IFS=$'\n'
+            COMPREPLY=( $( compgen -W "$( printf '%s\n' $( tar $untar $tar \
+                2>/dev/null ) )" -- "$cur" ) )
+            return 0
+            ;;
+        -C|--directory)
+            _filedir -d
+            return 0
+            ;;
+        --atime-preserve)
+            COMPREPLY=( $( compgen -W 'replace system' -- "$cur" ) )
+            return 0
+            ;;
+        --group)
+            COMPREPLY=( $( compgen -g -- "$cur" ) )
+            return 0
+            ;;
+        --owner)
+            COMPREPLY=( $( compgen -u -- "$cur" ) )
+            return 0
+            ;;
+        -F|--info-script|--new-volume-script|--rmt-command|--rsh-command|\
+        -I|--use-compress-program)
+            _compopt_o_filenames
+            COMPREPLY=( $( compgen -c -- "$cur" ) )
+            return 0
+            ;;
+        --volno-file|--add-file|-T|--files-from|-X|--exclude-from|--index-file)
+            _filedir
+            return 0
+            ;;
+        -H|--format)
+            COMPREPLY=( $( compgen -W 'gnu oldgnu pax posix ustar v7' \
+                -- "$cur" ) )
+            return 0
+            ;;
+        --quoting-style)
+            COMPREPLY=( $( compgen -W 'literal shell shell-always c c-maybe
+                escape locale clocale' -- "$cur" ) )
+            return 0
+            ;;
+        --totals)
+            COMPREPLY=( $( compgen -W 'SIGHUP SIGQUIT SIGINT SIGUSR1 SIGUSR2' \
+                -- "$cur" ) )
+            return 0
+            ;;
+        --occurrence|--sparse-version|--to-command|--mode|--mtime|\
+        --tape-length|-b|--blocking-factor|--record-size|-V|--text|--backup|\
+        --exclude|--exclude-tag*|-K|--starting-file|-N|--newer|--after-date|\
+        --suffix|--strip-components|--transform|--xform|--checkpoint|\
+        --checkpoint-action|--no-quote-chars|--quote-chars|--warnings)
+            return 0
+            ;;
+    esac
+
+    $split && return 0
 
     # file completion on relevant files
     _filedir "$ext"
