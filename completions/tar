@@ -13,13 +13,25 @@ _tar()
         return 0
     fi
 
+    local tars='@(@(tar|gem|spkg)?(.@(Z|[gx]z|bz?(2)|lzma))|t@([glx]z|bz?(2)))'
+
     case ${words[1]} in
-        ?(-)[cr]*f)
-            _filedir
+        --*)
+            ;;
+        ?(-)*[cr]*f)
+            ext='@(tar|gem|spkg)'
+            case ${words[1]} in
+                *a*)    ext="$tars"         ;;
+                *z*)    ext='t?(ar.)gz'     ;;
+                *Z*)    ext='tar.Z'         ;;
+                *[jy]*) ext='t?(ar.)bz?(2)' ;;
+                *J*)    ext='t?(ar.)xz'     ;;
+            esac
+            _filedir $ext
             return 0
             ;;
         +([^IZzJjy])f)
-            ext='@(@(tar|gem|spkg)?(.@(Z|[gx]z|bz?(2)|lzma))|t@([glx]z|bz?(2)))'
+            ext="$tars"
             regex='\(\(tar\|gem\|spkg\)\(\.\(Z\|[gx]z\|bz2\?\|lzma\)\)\?\|t\([glx]z\|bz2\?\)\)'
             ;;
         *[Zz]*f)
