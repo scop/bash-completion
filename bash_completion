@@ -659,6 +659,12 @@ _filedir()
             xspec=${1:+"!*.@($1|$(printf %s $1 | tr '[:lower:]' '[:upper:]'))"}
         toks=( ${toks[@]-} $( compgen -f -X "$xspec" -- $quoted) )
     fi
+
+    # If the filter failed to produce anything, try without it
+    if [[ -n "$1" ]] && [[ "$1" != -d ]] && [[ ${#toks[@]} -lt 1 ]] ; then
+        toks=( ${toks[@]-} $( compgen -f -- $quoted) )
+    fi
+
     [ ${#toks[@]} -ne 0 ] && _compopt_o_filenames
 
     COMPREPLY=( "${COMPREPLY[@]}" "${toks[@]}" )
