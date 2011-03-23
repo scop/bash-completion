@@ -277,7 +277,7 @@ _upvars() {
 # @param $3 cword  Name of variable to return cword to
 #
 __reassemble_comp_words_by_ref() {
-    local exclude i j ref
+    local exclude i j line ref
     # Exclude word separator characters?
     if [[ $1 ]]; then
         # Yes, exclude word separator characters;
@@ -290,26 +290,40 @@ __reassemble_comp_words_by_ref() {
     # Are characters excluded which were former included?
     if [[ $exclude ]]; then
         # Yes, list of word completion separators has shrunk;
+        line=$COMP_LINE
         # Re-assemble words to complete
         for (( i=0, j=0; i < ${#COMP_WORDS[@]}; i++, j++)); do
             # Is current word not word 0 (the command itself) and is word not
-            # empty and is word made up of just word separator characters to be
-            # excluded?
+            # empty and is word made up of just word separator characters to
+            # be excluded and is current word not preceded by whitespace in
+            # original line?
             while [[ $i -gt 0 && ${COMP_WORDS[$i]} && 
-                ${COMP_WORDS[$i]//[^$exclude]} == ${COMP_WORDS[$i]} 
+                ${COMP_WORDS[$i]//[^$exclude]} == ${COMP_WORDS[$i]}
             ]]; do
-                [ $j -ge 2 ] && ((j--))
-                # Append word separator to current word
+                # Is word separator not preceded by whitespace in original line
+                # and are we not going to append to word 0 (the command
+                # itself), then append to current word.
+                [[ ${line:0:1} != ' ' && ${line:0:1} != $'\t' ]] &&
+                    (( j >= 2 )) && ((j--))
+                # Append word separator to current or new word
                 ref="$2[$j]"
                 eval $2[$j]=\${!ref}\${COMP_WORDS[i]}
                 # Indicate new cword
                 [ $i = $COMP_CWORD ] && eval $3=$j
-                # Indicate next word if available, else end *both* while and for loop
+                # Remove whitespace (optional) + word separator from line copy
+                line=${line#*${COMP_WORDS[$i]}}
+                # Start new word if word separator in original line is
+                # followed by whitespace.
+                [[ ${line:0:1} == ' ' || ${line:0:1} == $'\t' ]] && ((j++))
+                # Indicate next word if available, else end *both* while and
+                # for loop
                 (( $i < ${#COMP_WORDS[@]} - 1)) && ((i++)) || break 2
             done
             # Append word to current word
             ref="$2[$j]"
             eval $2[$j]=\${!ref}\${COMP_WORDS[i]}
+            # Remove whitespace (optional) + word from line copy
+            line=${line#*${COMP_WORDS[i]}}
             # Indicate new cword
             [[ $i == $COMP_CWORD ]] && eval $3=$j
         done
