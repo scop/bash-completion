@@ -633,10 +633,17 @@ proc get_known_hosts {{cword ''}} {
 
 
 # Get hostnames
+# @param list $args  Options:
+#                    --unsorted  Do not sort unique.  Default is sort unique.
 # @return list  Hostnames
 # @see get_known_hosts()
-proc get_hosts {} {
-    set hosts [exec bash -c "compgen -A hostname | sort -u"]
+proc get_hosts {{args {}}} {
+    array set arg [::cmdline::getoptions args {
+        {unsorted   "do not sort unique"}
+    }]
+    set sort "| sort -u"
+    if {$arg(unsorted)} {set sort ""}
+    set hosts [exec bash -c "compgen -A hostname $sort"]
     # NOTE: Circumventing var `avahi_hosts' and appending directly to `hosts'
     #       causes an empty element to be inserted in `hosts'.
     #       -- FVu, Fri Jul 17 23:11:46 CEST 2009
