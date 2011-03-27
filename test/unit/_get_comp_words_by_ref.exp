@@ -438,4 +438,19 @@ assert_bash_list {"a b :c"} $cmd $test
 sync_after_int
 
 
+set test {a b\ :c| with WORDBREAKS -= :};  # | = cursor position
+if {[lindex $::BASH_VERSINFO 0] <= 3} {
+    set cmd {COMP_WORDS=(a "b\\ :c"); COMP_CWORD=1}
+} else {
+    set cmd {COMP_WORDS=(a "b\\ " : c); COMP_CWORD=3}
+}
+append cmd {; COMP_LINE='a b\ :c'; COMP_POINT=7}
+assert_bash_exec $cmd $test
+set cmd {_get_comp_words_by_ref -n : words; echo "${words[@]}"}
+assert_bash_list {a "b\\ :c"} $cmd $test
+
+
+sync_after_int
+
+
 teardown
