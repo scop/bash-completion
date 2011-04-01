@@ -961,6 +961,10 @@ _gids()
     fi
 }
 
+# Glob for matching various backup files.
+#
+_backup_glob='@(#*#|*@(~|.@(bak|orig|rej|swp|dpkg*|rpm@(orig|new|save))))'
+
 # This function completes on services
 #
 _services()
@@ -968,12 +972,11 @@ _services()
     local sysvdir famdir
     [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
     famdir=/etc/xinetd.d
-    COMPREPLY=( $( printf '%s\n' \
-        $sysvdir/!(*.rpm@(orig|new|save)|*~|functions) ) )
+    COMPREPLY=( $( printf '%s\n' $sysvdir/!($_backup_glob|functions) ) )
 
     if [ -d $famdir ]; then
         COMPREPLY=( "${COMPREPLY[@]}" $( printf '%s\n' \
-            $famdir/!(*.rpm@(orig|new|save)|*~) ) )
+            $famdir/!($_backup_glob) ) )
     fi
 
     COMPREPLY=( $( compgen -W '${COMPREPLY[@]#@($sysvdir|$famdir)/}' -- "$cur" ) )
@@ -1676,7 +1679,7 @@ if [[ -d $BASH_COMPLETION_COMPAT_DIR && -r $BASH_COMPLETION_COMPAT_DIR && \
     -x $BASH_COMPLETION_COMPAT_DIR ]]; then
     for i in $(LC_ALL=C command ls "$BASH_COMPLETION_COMPAT_DIR"); do
         i=$BASH_COMPLETION_COMPAT_DIR/$i
-        [[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|*.rpm@(orig|new|save)|Makefile*) \
+        [[ ${i##*/} != @($_backup_glob|Makefile*) \
             && -f $i && -r $i ]] && . "$i"
     done
 fi
@@ -1685,7 +1688,7 @@ if [[ $BASH_COMPLETION_DIR != $BASH_COMPLETION_COMPAT_DIR && \
     -x $BASH_COMPLETION_DIR ]]; then
     for i in $(LC_ALL=C command ls "$BASH_COMPLETION_DIR"); do
         i=$BASH_COMPLETION_DIR/$i
-        [[ ${i##*/} != @(*~|*.bak|*.swp|\#*\#|*.dpkg*|*.rpm@(orig|new|save)|Makefile*) \
+        [[ ${i##*/} != @($_backup_glob|Makefile*) \
             && -f $i && -r $i ]] && . "$i"
     done
 fi
