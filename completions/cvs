@@ -49,8 +49,8 @@ _cvs_roots()
     local -a cvsroots
     cvsroots=( $CVSROOT )
     [ -r ~/.cvspass ] && \
-        cvsroots=( "${cvsroots[@]}" $( awk '{ print $2 }' ~/.cvspass ) )
-    [ -r CVS/Root ] && cvsroots=( "${cvsroots[@]}" $(cat CVS/Root) )
+        cvsroots+=( $( awk '{ print $2 }' ~/.cvspass ) )
+    [ -r CVS/Root ] && cvsroots+=( $( cat CVS/Root ) )
     COMPREPLY=( $( compgen -W '${cvsroots[@]}' -- "$cur" ) )
     __ltrim_colon_completions "$cur"
 }
@@ -136,7 +136,7 @@ _cvs()
                     ;;
             esac
         elif [[ "$i" = -* ]]; then
-            flags=( "${flags[@]}" $i )
+            flags+=( $i )
         fi
         count=$((++count))
     done
@@ -306,7 +306,7 @@ _cvs()
                     get_entries
                     # find out what files are missing
                     for i in "${entries[@]}"; do
-                        [ ! -r "$i" ] && miss=( "${miss[@]}" $i )
+                        [ ! -r "$i" ] && miss+=( $i )
                     done
                     COMPREPLY=( $(compgen -W '${miss[@]:-}' -- "$cur") )
                 fi

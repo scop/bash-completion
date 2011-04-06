@@ -653,7 +653,7 @@ _filedir()
     local quoted tmp
 
     _quote_readline_by_ref "$cur" quoted
-    toks=( ${toks[@]-} $(
+    toks=( $(
         compgen -d -- "$quoted" | {
             while read -r tmp; do
                 # TODO: I have removed a "[ -n $tmp ] &&" before 'printf ..',
@@ -671,16 +671,16 @@ _filedir()
         [[ ${BASH_VERSINFO[0]} -ge 4 ]] && \
             xspec=${1:+"!*.@($1|${1^^})"} || \
             xspec=${1:+"!*.@($1|$(printf %s $1 | tr '[:lower:]' '[:upper:]'))"}
-        toks=( ${toks[@]-} $( compgen -f -X "$xspec" -- $quoted) )
+        toks+=( $( compgen -f -X "$xspec" -- $quoted ) )
     fi
 
     # If the filter failed to produce anything, try without it
     [[ -n "$1" && "$1" != -d && ${#toks[@]} -lt 1 ]] && \
-        toks=( ${toks[@]-} $( compgen -f -- $quoted ) )
+        toks+=( $( compgen -f -- $quoted ) )
 
     [ ${#toks[@]} -ne 0 ] && _compopt_o_filenames
 
-    COMPREPLY=( "${COMPREPLY[@]}" "${toks[@]}" )
+    COMPREPLY+=( "${toks[@]}" )
 } # _filedir()
 
 
@@ -734,16 +734,16 @@ _mac_addresses()
     local PATH="$PATH:/sbin:/usr/sbin"
 
     # Local interfaces (Linux only?)
-    COMPREPLY=( "${COMPREPLY[@]}" $( ifconfig -a 2>/dev/null | sed -ne \
+    COMPREPLY+=( $( ifconfig -a 2>/dev/null | sed -ne \
         "s/.*[[:space:]]HWaddr[[:space:]]\{1,\}\($re\)[[:space:]]*$/\1/p" ) )
 
     # ARP cache
-    COMPREPLY=( "${COMPREPLY[@]}" $( arp -an 2>/dev/null | sed -ne \
+    COMPREPLY+=( $( arp -an 2>/dev/null | sed -ne \
         "s/.*[[:space:]]\($re\)[[:space:]].*/\1/p" -ne \
         "s/.*[[:space:]]\($re\)[[:space:]]*$/\1/p" ) )
 
     # /etc/ethers
-    COMPREPLY=( "${COMPREPLY[@]}" $( sed -ne \
+    COMPREPLY+=( $( sed -ne \
         "s/^[[:space:]]*\($re\)[[:space:]].*/\1/p" /etc/ethers 2>/dev/null ) )
 
     COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
@@ -869,7 +869,7 @@ __expand_tilde_by_ref() {
 _expand()
 {
     # FIXME: Why was this here?
-    #[ "$cur" != "${cur%\\}" ] && cur="$cur\\"
+    #[ "$cur" != "${cur%\\}" ] && cur+="\\"
 
     # Expand ~username type directory specifications.  We want to expand
     # ~foo/... to /home/foo/... to avoid problems when $cur starting with
@@ -975,8 +975,7 @@ _services()
     COMPREPLY=( $( printf '%s\n' $sysvdir/!($_backup_glob|functions) ) )
 
     if [ -d $famdir ]; then
-        COMPREPLY=( "${COMPREPLY[@]}" $( printf '%s\n' \
-            $famdir/!($_backup_glob) ) )
+        COMPREPLY+=( $( printf '%s\n' $famdir/!($_backup_glob) ) )
     fi
 
     COMPREPLY=( $( compgen -W '${COMPREPLY[@]#@($sysvdir|$famdir)/}' -- "$cur" ) )
@@ -1081,7 +1080,7 @@ _allowed_groups()
 #
 _shells()
 {
-    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W \
+    COMPREPLY+=( $( compgen -W \
         '$( command grep "^[[:space:]]*/" /etc/shells 2>/dev/null )' \
         -- "$cur" ) )
 }
@@ -1106,7 +1105,7 @@ _fstypes()
     fi
 
     [ -n "$fss" ] && \
-        COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "$fss" -- "$cur" ) )
+        COMPREPLY+=( $( compgen -W "$fss" -- "$cur" ) )
 }
 
 # Get real command.
@@ -1162,7 +1161,7 @@ _count_args()
 #
 _pci_ids()
 {
-    COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -W \
+    COMPREPLY+=( $( compgen -W \
         "$( PATH="$PATH:/sbin" lspci -n | awk '{print $3}')" -- "$cur" ) )
 }
 
@@ -1170,22 +1169,20 @@ _pci_ids()
 #
 _usb_ids()
 {
-    COMPREPLY=( ${COMPREPLY[@]:-} $( compgen -W \
+    COMPREPLY+=( $( compgen -W \
         "$( PATH="$PATH:/sbin" lsusb | awk '{print $6}' )" -- "$cur" ) )
 }
 
 # CD device names
 _cd_devices()
 {
-    COMPREPLY=( "${COMPREPLY[@]}"
-        $( compgen -f -d -X "!*/?([amrs])cd*" -- "${cur:-/dev/}" ) )
+    COMPREPLY+=( $( compgen -f -d -X "!*/?([amrs])cd*" -- "${cur:-/dev/}" ) )
 }
 
 # DVD device names
 _dvd_devices()
 {
-    COMPREPLY=( "${COMPREPLY[@]}"
-        $( compgen -f -d -X "!*/?(r)dvd*" -- "${cur:-/dev/}" ) )
+    COMPREPLY+=( $( compgen -f -d -X "!*/?(r)dvd*" -- "${cur:-/dev/}" ) )
 }
 
 # start of section containing completion functions for external programs
@@ -1223,7 +1220,7 @@ _known_hosts()
     # NOTE: Using `_known_hosts' as a helper function and passing options
     #       to `_known_hosts' is deprecated: Use `_known_hosts_real' instead.
     [[ "$1" == -a || "$2" == -a ]] && options=-a
-    [[ "$1" == -c || "$2" == -c ]] && options="$options -c"
+    [[ "$1" == -c || "$2" == -c ]] && options+=" -c"
     _known_hosts_real $options "$(_get_cword :)"
 } # _known_hosts()
 
@@ -1265,11 +1262,11 @@ _known_hosts_real()
     # ssh config files
     if [ -n "$configfile" ]; then
         [ -r "$configfile" ] &&
-        config=( "${config[@]}" "$configfile" )
+        config+=( "$configfile" )
     else
         for i in /etc/ssh/ssh_config "${HOME}/.ssh/config" \
             "${HOME}/.ssh2/config"; do
-            [ -r $i ] && config=( "${config[@]}" "$i" )
+            [ -r $i ] && config+=( "$i" )
         done
     fi
 
@@ -1287,7 +1284,7 @@ _known_hosts_real()
             i=${i//\"}
             # Eval/expand possible `~' or `~user'
             __expand_tilde_by_ref i
-            [ -r "$i" ] && kh=( "${kh[@]}" "$i" )
+            [ -r "$i" ] && kh+=( "$i" )
         done
         IFS=$OIFS
     fi
@@ -1297,10 +1294,10 @@ _known_hosts_real()
         for i in /etc/ssh/ssh_known_hosts /etc/ssh/ssh_known_hosts2 \
             /etc/known_hosts /etc/known_hosts2 ~/.ssh/known_hosts \
             ~/.ssh/known_hosts2; do
-            [ -r $i ] && kh=( "${kh[@]}" $i )
+            [ -r $i ] && kh+=( $i )
         done
         for i in /etc/ssh2/knownhosts ~/.ssh2/hostkeys; do
-            [ -d $i ] && khd=( "${khd[@]}" $i/*pub )
+            [ -d $i ] && khd+=( $i/*pub )
         done
     fi
 
@@ -1327,7 +1324,7 @@ _known_hosts_real()
 
         if [ ${#kh[@]} -gt 0 ]; then
             # FS needs to look for a comma separated list
-            COMPREPLY=( "${COMPREPLY[@]}" $( awk 'BEGIN {FS=","}
+            COMPREPLY+=( $( awk 'BEGIN {FS=","}
             /^\s*[^|\#]/ {for (i=1; i<=2; ++i) { \
             sub(" .*$", "", $i); \
             sub("^\\[", "", $i); sub("\\](:[0-9]+)?$", "", $i); \
@@ -1343,7 +1340,7 @@ _known_hosts_real()
                 if [[ "$i" == *key_22_$curd*.pub && -r "$i" ]]; then
                     host=${i/#*key_22_/}
                     host=${host/%.pub/}
-                    COMPREPLY=( "${COMPREPLY[@]}" $host )
+                    COMPREPLY+=( $host )
                 fi
             done
         fi
@@ -1357,7 +1354,7 @@ _known_hosts_real()
     # append any available aliases from config files
     if [[ ${#config[@]} -gt 0 && -n "$aliases" ]]; then
         local hosts=$( sed -ne 's/^[ \t]*[Hh][Oo][Ss][Tt]\([Nn][Aa][Mm][Ee]\)\{0,1\}['"$'\t '"']\{1,\}\([^#*?]*\)\(#.*\)\{0,1\}$/\2/p' "${config[@]}" )
-        COMPREPLY=( "${COMPREPLY[@]}" $( compgen  -P "$prefix$user" \
+        COMPREPLY+=( $( compgen -P "$prefix$user" \
             -S "$suffix" -W "$hosts" -- "$cur" ) )
     fi
 
@@ -1369,8 +1366,7 @@ _known_hosts_real()
         # if it contains ";", it may mistify the result. But on Gentoo (at
         # least), -k wasn't available (even if mentioned in the manpage) some
         # time ago, so...
-        COMPREPLY=( "${COMPREPLY[@]}" $( \
-            compgen -P "$prefix$user" -S "$suffix" -W \
+        COMPREPLY+=( $( compgen -P "$prefix$user" -S "$suffix" -W \
             "$( avahi-browse -cpr _workstation._tcp 2>/dev/null | \
                  awk -F';' '/^=/ { print $7 }' | sort -u )" -- "$cur" ) )
     fi
@@ -1378,7 +1374,7 @@ _known_hosts_real()
     # Add results of normal hostname completion, unless
     # `COMP_KNOWN_HOSTS_WITH_HOSTFILE' is set to an empty value.
     if [ -n "${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1}" ]; then
-        COMPREPLY=( "${COMPREPLY[@]}"
+        COMPREPLY+=(
             $( compgen -A hostname -P "$prefix$user" -S "$suffix" -- "$cur" ) )
     fi
 
@@ -1422,7 +1418,7 @@ _cd()
         k="${#COMPREPLY[@]}"
         for j in $( compgen -d $i/$cur ); do
             if [[ ( $mark_symdirs && -h $j || $mark_dirs && ! -h $j ) && ! -d ${j#$i/} ]]; then
-                j="${j}/"
+                j+="/"
             fi
             COMPREPLY[k++]=${j#$i/}
         done
@@ -1620,7 +1616,7 @@ _filedir_xspec()
     local -a toks
     local tmp
 
-    toks=( ${toks[@]-} $(
+    toks=( $(
         compgen -d -- "$(quote_readline "$cur")" | {
         while read -r tmp; do
             # see long TODO comment in _filedir() --David
@@ -1640,7 +1636,7 @@ _filedir_xspec()
         xspec="$matchop($xspec|${xspec^^})" || \
         xspec="$matchop($xspec|$(printf %s $xspec | tr '[:lower:]' '[:upper:]'))"
 
-    toks=( ${toks[@]-} $(
+    toks+=( $(
         eval compgen -f -X "!$xspec" -- "\$(quote_readline "\$cur")" | {
         while read -r tmp; do
             [ -n $tmp ] && printf '%s\n' $tmp
@@ -1661,7 +1657,7 @@ list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' "$BASH_COMPLETION" |
         line=${line%# START exclude*}
         line=${line%# FINISH exclude*}
         line=${line##*\'}
-        list=( "${list[@]}" $line )
+        list+=( $line )
     done
     printf '%s ' "${list[@]}"
     )

@@ -11,7 +11,7 @@ _muttaddr()
     _muttaliases "$1"
     _muttquery "$1"
 
-    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -u -- "$1" ) )
+    COMPREPLY+=( $( compgen -u -- "$1" ) )
 
     return 0
 }
@@ -63,7 +63,7 @@ _muttconffiles()
         for file in "${newconffiles[@]}"; do
             [[ ! -f "$file" || "${sofar/ ${file} / }" != "$sofar" ]] &&
                 continue
-            sofar="$sofar $file"
+            sofar+=" $file"
             sofar=" $(eval _muttconffiles \"$sofar\" $file) "
         done
         shift
@@ -84,7 +84,7 @@ _muttaliases()
     conffiles=( $(eval _muttconffiles $muttrc $muttrc) )
     aliases=( $( sed -n 's|^alias[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' \
         $(eval echo "${conffiles[@]}") ) )
-    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "${aliases[*]}" -- "$cur" ) )
+    COMPREPLY+=( $( compgen -W "${aliases[*]}" -- "$cur" ) )
 
     return 0
 }
@@ -104,8 +104,7 @@ _muttquery()
             sed -n '2,$s|^\([^[:space:]]\{1,\}\).*|\1|p' ) )
     fi
 
-    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "${queryresults[*]}" \
-        -- "$cur" ) )
+    COMPREPLY+=( $( compgen -W "${queryresults[*]}" -- "$cur" ) )
 
     return 0
 }

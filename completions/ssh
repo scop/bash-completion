@@ -4,7 +4,7 @@ have ssh || return
 
 _ssh_bindaddress()
 {
-    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W \
+    COMPREPLY+=( $( compgen -W \
         "$( PATH="$PATH:/sbin" ifconfig -a | \
         sed -ne 's/.*addr:\([^[:space:]]*\).*/\1/p' \
             -ne 's/.*inet[[:space:]]\{1,\}\([^[:space:]]*\).*/\1/p' )" \
@@ -13,14 +13,14 @@ _ssh_bindaddress()
 
 _ssh_ciphers()
 {
-    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W '3des-cbc aes128-cbc \
+    COMPREPLY+=( $( compgen -W '3des-cbc aes128-cbc \
         aes192-cbc aes256-cbc aes128-ctr aes192-ctr aes256-ctr arcfour128 \
         arcfour256 arcfour blowfish-cbc cast128-cbc' -- "$cur" ) )
 }
 
 _ssh_macs()
 {
-    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W 'hmac-md5 hmac-sha1 \
+    COMPREPLY+=( $( compgen -W 'hmac-md5 hmac-sha1 \
         umac-64@openssh.com hmac-ripemd160 hmac-sha1-96 hmac-md5-96' \
         -- "$cur" ) )
 }
@@ -184,7 +184,7 @@ _ssh()
         _known_hosts_real -a -F "$configfile" "$cur"
         if [ $COMP_CWORD -ne 1 ]; then
             _compopt_o_filenames
-            COMPREPLY=( "${COMPREPLY[@]}" $( compgen -c -- "$cur" ) )
+            COMPREPLY+=( $( compgen -c -- "$cur" ) )
         fi
     fi
 
@@ -282,7 +282,7 @@ _scp_remote_files()
             sed -e 's/'$_scp_path_esc'/\\\\\\&/g' -e 's/[*@|=]$//g' \
             -e 's/[^\/]$/& /g' )
     fi
-    COMPREPLY=( "${COMPREPLY[@]}" $files )
+    COMPREPLY+=( $files )
 }
 
 # This approach is used instead of _filedir to get a space appended
@@ -300,10 +300,10 @@ _scp_local_files()
     fi
 
     if $dirsonly ; then
-        COMPREPLY=( "${COMPREPLY[@]}" $( command ls -aF1d $cur* 2>/dev/null | \
+        COMPREPLY+=( $( command ls -aF1d $cur* 2>/dev/null | \
             sed -e "s/$_scp_path_esc/\\\\&/g" -e '/[^\/]$/d' -e "s/^/$1/") )
     else
-        COMPREPLY=( "${COMPREPLY[@]}" $( command ls -aF1d $cur* 2>/dev/null | \
+        COMPREPLY+=( $( command ls -aF1d $cur* 2>/dev/null | \
             sed -e "s/$_scp_path_esc/\\\\&/g" -e 's/[*@|=]$//g' \
             -e 's/[^\/]$/& /g' -e "s/^/$1/") )
     fi

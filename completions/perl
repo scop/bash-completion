@@ -48,7 +48,7 @@ _perl()
             ;;
         -m|-M)
             temp="${cur#-}"
-            prefix="$prefix${cur%$temp}"
+            prefix+="${cur%$temp}"
             cur="$temp"
             _perlmodules $1
             return 0
@@ -56,7 +56,7 @@ _perl()
         -V)
             if [[ $cur == :* ]]; then
                 temp="${cur##+(:)}"
-                prefix="$prefix${cur%$temp}"
+                prefix+="${cur%$temp}"
                 local IFS=$'\n'
                 COMPREPLY=( $( compgen -P "$prefix" -W \
                     '$( $1 -MConfig -e "print join \"\\n\",
@@ -118,7 +118,7 @@ _perldoc()
         # return available modules (unless it is clearly a file)
         if [[ "$cur" != */* ]]; then
             _perlmodules $perl
-            COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W \
+            COMPREPLY+=( $( compgen -W \
                 '$( PAGER=/bin/cat man perl |  \
                 sed -ne "/perl.*Perl overview/,/perlwin32/p" | \
                 awk "\$NF=2 && \$1 ~ /^perl/ { print \$1 }" )' -- "$cur" ) )

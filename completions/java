@@ -63,17 +63,16 @@ _java_classes()
     for i in ${classpath//:/ }; do
         if [[ "$i" == *.@(jar|zip) && -r $i ]]; then
             if type zipinfo &>/dev/null; then
-                COMPREPLY=( "${COMPREPLY[@]}" $( zipinfo -1 \
-                    "$i" "$cur*" 2>/dev/null | \
+                COMPREPLY+=( $( zipinfo -1 "$i" "$cur*" 2>/dev/null | \
                     command grep '^[^$]*\.class$' ) )
             else
-                COMPREPLY=( "${COMPREPLY[@]}" $( jar tf "$i" \
-                    "$cur" | command grep '^[^$]*\.class$' ) )
+                COMPREPLY+=( $( jar tf "$i" "$cur" | \
+                    command grep '^[^$]*\.class$' ) )
             fi
 
         elif [ -d $i ]; then
             compopt -o nospace &>/dev/null
-            COMPREPLY=( "${COMPREPLY[@]}"
+            COMPREPLY+=(
                 $( compgen -d -- "$i/$cur" | sed -e "s|^$i/\(.*\)|\1.|" )
                 $( compgen -f -X '!*.class' -- "$i/$cur" | \
                     sed -e '/\$/d' -e "s|^$i/||" )
@@ -106,8 +105,8 @@ _java_packages()
     # parse each sourcepath element for packages
     for i in ${sourcepath//:/ }; do
         if [ -d $i ]; then
-            COMPREPLY=( "${COMPREPLY[@]}" $( command ls -F -d \
-                $i/$cur* 2>/dev/null | sed -e 's|^'$i'/||' ) )
+            COMPREPLY+=( $( command ls -F -d $i/$cur* 2>/dev/null | \
+                sed -e 's|^'$i'/||' ) )
         fi
     done
     # keep only packages
