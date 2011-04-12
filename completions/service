@@ -13,10 +13,6 @@ _service()
     COMPREPLY=()
     _get_comp_words_by_ref cur prev
 
-    # don't complete for things like killall, ssh and mysql if it's
-    # the standalone command, rather than the init script
-    [[ ${COMP_WORDS[0]} != @(*init.d/!(functions|~)|service) ]] && return 0
-
     # don't complete past 2nd token
     [ $COMP_CWORD -gt 2 ] && return 0
 
@@ -34,8 +30,7 @@ _service()
 } &&
 complete -F _service service
 for svc in /etc/init.d/*; do
-    [ ! -x "$svc" ] || complete -p "${svc##*/}" &>/dev/null || \
-        complete -F _service -o default "${svc##*/}"
+    [ -x "$svc" ] && complete -F _service $svc
 done
 unset svc
 
