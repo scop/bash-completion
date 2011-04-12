@@ -1464,7 +1464,7 @@ _command()
 #
 _command_offset()
 {
-    local cur func cline cspec noglob cmd i char_offset word_offset \
+    local cur func cline cspec noglob cmd compcmd i char_offset word_offset \
         _COMMAND_FUNC _COMMAND_FUNC_ARGS
 
     word_offset=$1
@@ -1500,9 +1500,14 @@ _command_offset()
         _compopt_o_filenames
         COMPREPLY=( $( compgen -c -- "$cur" ) )
     else
-        cmd=${COMP_WORDS[0]}
-        if complete -p ${cmd##*/} &>/dev/null; then
-            cspec=$( complete -p ${cmd##*/} )
+        cmd=${COMP_WORDS[0]} compcmd=${COMP_WORDS[0]}
+        # Do we have full path completion for $cmd?
+        if ! cspec=$( complete -p $cmd 2>/dev/null ) && [[ $cmd == */* ]]; then
+            # Nope, what about the basename?
+            compcmd=${cmd##*/}
+            cspec=$( complete -p $compcmd 2>/dev/null )
+        fi
+        if [[ -n $cspec ]]; then
             if [ "${cspec#* -F }" != "$cspec" ]; then
                 # complete -F <function>
 
@@ -1528,9 +1533,9 @@ _command_offset()
                         _compopt_o_filenames
                     fi
                 fi
-            elif [ -n "$cspec" ]; then
+            else
                 cspec=${cspec#complete};
-                cspec=${cspec%%${cmd##*/}};
+                cspec=${cspec%%$compcmd};
                 COMPREPLY=( $( eval compgen "$cspec" -- "$cur" ) );
             fi
         elif [ ${#COMPREPLY[@]} -eq 0 ]; then
