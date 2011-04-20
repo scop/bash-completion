@@ -4,11 +4,10 @@ have iscsiadm || return
 
 _iscsiadm()
 {
-    local cur prev mode split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local split=false
     _split_longopt && split=true
 
     case $prev in
@@ -34,10 +33,9 @@ _iscsiadm()
     $split && return 0
 
     local options
-    if [[ $COMP_CWORD -gt 1 ]] ; then
-        mode=${COMP_WORDS[2]}
+    if [[ $cword -gt 1 ]] ; then
 
-        case $mode in
+        case ${words[2]} in
             discovery)
                 options='--help --version --debug --print --interface --type \
                     --portal --login --op --name --value'
