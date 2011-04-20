@@ -10,10 +10,8 @@ _ipmitool_singleline_help()
 
 _ipmitool()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -h|-V|-p|-U|-e|-k|-y|-P|-m|-b|-t|-B|-T|-l)
@@ -74,10 +72,10 @@ _ipmitool()
         sel pef sol tsol isol user channel session sunoem kontronoem picmg fwum
         firewall shell exec set hpm ekanalyzer)
     local i c cmd subcmd
-    for (( i=1; i < ${#COMP_WORDS[@]}-1; i++ )); do
-        [[ -n $cmd ]] && subcmd=${COMP_WORDS[i]} && break
+    for (( i=1; i < ${#words[@]}-1; i++ )); do
+        [[ -n $cmd ]] && subcmd=${words[i]} && break
         for c in ${cmds[@]}; do
-            [ ${COMP_WORDS[i]} = $c ] && cmd=$c && break
+            [ ${words[i]} = $c ] && cmd=$c && break
         done
     done
 
