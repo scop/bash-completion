@@ -23,10 +23,10 @@ _heimdal_encodings()
 
 _ktutil()
 {
-    local cur prev command options split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local command options split=false
 
     _split_longopt && split=true
 
@@ -58,15 +58,15 @@ _ktutil()
     commands='add change copy get list remove rename purge srvconvert \
         srv2keytab srvcreate key2srvtab'
 
-    for (( i=1; i < COMP_CWORD; i++ )); do
-        case ${COMP_WORDS[i]} in
+    for (( i=1; i < cword; i++ )); do
+        case ${words[i]} in
             -k|--keytab)
                 i=$(($i+1))
                 ;;
             -*)
                 ;;
             *)
-                command=${COMP_WORDS[i]}
+                command=${words[i]}
                 break
                 ;;
         esac
