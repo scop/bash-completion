@@ -1275,11 +1275,10 @@ _dvd_devices()
 
 # This function provides simple user@host completion
 #
-_user_at_host() {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref -n : cur
+_user_at_host()
+{
+    local cur prev words cword
+    _init_completion -n : || return
 
     if [[ $cur == *@* ]]; then
         _known_hosts_real "$cur"
@@ -1295,14 +1294,15 @@ shopt -u hostcomplete && complete -F _user_at_host -o nospace talk ytalk finger
 #       `_known_hosts_real' instead.
 _known_hosts()
 {
-    local options
-    COMPREPLY=()
+    local cur prev words cword
+    _init_completion -n : || return
 
     # NOTE: Using `_known_hosts' as a helper function and passing options
     #       to `_known_hosts' is deprecated: Use `_known_hosts_real' instead.
+    local options
     [[ "$1" == -a || "$2" == -a ]] && options=-a
     [[ "$1" == -c || "$2" == -c ]] && options+=" -c"
-    _known_hosts_real $options "$(_get_cword :)"
+    _known_hosts_real $options "$cur"
 } # _known_hosts()
 
 # Helper function for completing _known_hosts.
@@ -1472,9 +1472,10 @@ complete -F _known_hosts traceroute traceroute6 tracepath tracepath6 ping \
 #
 _cd()
 {
-    local cur IFS=$'\n' i j k
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
+    local IFS=$'\n' i j k
     # try to allow variable completion
     if [[ "$cur" == ?(\\)\$* ]]; then
         COMPREPLY=( $( compgen -v -P '$' -- "${cur#?(\\)$}" ) )
@@ -1643,9 +1644,10 @@ _complete_as_root()
 
 _longopt()
 {
-    local cur prev split=false
-    _get_comp_words_by_ref -n = cur prev
+    local cur prev words cword
+    _init_completion -n = || return
 
+    local split=false
     _split_longopt && split=true
 
     case "$prev" in
@@ -1684,14 +1686,12 @@ unset i
 
 _filedir_xspec()
 {
-    local IFS cur xspec
-
-    IFS=$'\n'
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     _expand || return 0
 
+    local IFS=$'\n' xspec
     # get first exclusion compspec that matches this command
     xspec=$( awk "/^complete[ \t]+.*[ \t]${1##*/}([ \t]|\$)/ { print \$0; exit }" \
         "$BASH_COMPLETION" )
