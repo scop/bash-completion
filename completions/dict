@@ -10,26 +10,25 @@ _dictdata()
 
 _dict()
 {
-    local cur prev host port db dictfile
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-    dictfile=/usr/share/dict/words
+    local host port db i
 
-    for (( i=1; i < COMP_CWORD; i++ )); do
-        case ${COMP_WORDS[i]} in
+    for (( i=1; i < cword; i++ )); do
+        case ${words[i]} in
             -h|--host)
-                host=${COMP_WORDS[i+1]}
+                host=${words[i+1]}
                 [ -n "$host" ] && host="-h $host"
                 i=$((++i))
                 ;;
             -p|--port)
-                port=${COMP_WORDS[i+1]}
+                port=${words[i+1]}
                 [ -n "$port" ] && port="-p $port"
                 i=$((++i))
                 ;;
             -d|--database)
-                db=${COMP_WORDS[i+1]}
+                db=${words[i+1]}
                 [ -n "$db" ] && host="-d $db"
                 i=$((++i))
                 ;;
@@ -63,6 +62,7 @@ _dict()
             ;;
     esac
 
+    local dictfile=/usr/share/dict/words
     [ -r $dictfile ] && \
         COMPREPLY=( $( compgen -W '$( cat $dictfile )' -- "$cur" ) )
 } &&

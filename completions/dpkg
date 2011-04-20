@@ -20,21 +20,20 @@ _comp_dpkg_installed_packages()
 #
 _dpkg()
 {
-    local cur prev i
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-    i=$COMP_CWORD
+    local cur prev words cword
+    _init_completion || return
 
     _expand || return 0
 
     _split_longopt
 
+    local i=$cword
+
     # find the last option flag
     if [[ $cur != -* ]]; then
         while [[ $prev != -* && $i -ne 1 ]]; do
             i=$((i-1))
-            prev=${COMP_WORDS[i-1]}
+            prev=${words[i-1]}
         done
     fi
 
@@ -100,10 +99,10 @@ complete -F _dpkg dpkg dpkg-deb
 have dpkg-reconfigure &&
 _dpkg_reconfigure()
 {
-    local cur prev opt
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local opt
 
     case $prev in
         -f|--frontend)
@@ -133,7 +132,10 @@ complete -F _dpkg_reconfigure -o default dpkg-reconfigure
 have dpkg-source &&
 _dpkg_source()
 {
-    local cur prev options work i action packopts unpackopts fields
+    local cur prev words cword
+    _init_completion || return
+
+    local options work i action packopts unpackopts fields
 
     packopts="-c -l -F -V -T -D -U -W -E -sa -i -I -sk -sr -ss -sA -sK -sP \
               -sU -sR"
@@ -142,16 +144,13 @@ _dpkg_source()
     fields="Format Source Version Binary Maintainer Uploader Architecture \
             Standards-Version Build-Depends Files"
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
     action="options"
-    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-        if [[ ${COMP_WORDS[$i]} == "-x" ]]; then
+    for (( i=0; i < ${#words[@]}-1; i++ )); do
+        if [[ ${words[$i]} == "-x" ]]; then
             action=unpack
-        elif [[ ${COMP_WORDS[$i]} == "-b" ]]; then
+        elif [[ ${words[$i]} == "-b" ]]; then
             action=pack
-        elif [[ ${COMP_WORDS[$i]} == "-h" ]]; then
+        elif [[ ${words[$i]} == "-h" ]]; then
             action=help
         fi
     done
