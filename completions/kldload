@@ -4,11 +4,11 @@
 
 _kldload()
 {
-    local cur moddir
+    local cur prev words cword
+    _init_completion || return
 
-    moddir=/modules/
+    local moddir=/modules/
     [ -d $moddir ] || moddir=/boot/kernel/
-    _get_comp_words_by_ref cur
 
     _compopt_o_filenames
     COMPREPLY=( $( compgen -f "$moddir$cur" ) )
@@ -21,8 +21,9 @@ complete -F _kldload kldload
 
 _kldunload()
 {
-    local cur
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
+
     COMPREPLY=( $( kldstat | \
         sed -ne "s/^.*[ \t]\{1,\}\($cur[a-z_]\{1,\}\).ko$/\1/p" ) )
 } &&
