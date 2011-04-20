@@ -25,11 +25,10 @@ complete -F _list_lists list_lists
 have add_members &&
 _add_members()
 {
-    local cur prev split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local split=false
     _split_longopt && split=true
 
     case $prev in
@@ -59,11 +58,10 @@ complete -F _add_members add_members
 have remove_members &&
 _remove_members()
 {
-    local cur prev split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local split=false
     _split_longopt && split=true
 
     case $prev in
@@ -88,11 +86,10 @@ complete -F _remove_members remove_members
 have find_member &&
 _find_member()
 {
-    local cur prev split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local split=false
     _split_longopt && split=true
 
     case $prev in
@@ -115,11 +112,10 @@ complete -F _find_member find_member
 have clone_member &&
 _clone_member()
 {
-    local cur prev split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local split=false
     _split_longopt && split=true
 
     case $prev in
@@ -142,11 +138,10 @@ complete -F _clone_member clone_member
 have sync_members &&
 _sync_members()
 {
-    local cur prev split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local split=false
     _split_longopt && split=true
 
     case $prev in
@@ -175,10 +170,8 @@ complete -F _sync_members sync_members
 have unshunt &&
 _unshunt()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--help' -- "$cur" ) )
@@ -192,10 +185,8 @@ complete -F _unshunt unshunt
 have list_admins &&
 _list_admins()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--all-vhost --all --help' -- "$cur" ) )
@@ -209,10 +200,8 @@ complete -F _list_admins list_admins
 have list_owners &&
 _list_owners()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--with-listnames --moderators \
@@ -227,11 +216,10 @@ complete -F _list_owners list_owners
 have list_members &&
 _list_members()
 {
-    local cur prev split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local split=false
     _split_longopt && split=true
 
     case $prev in
@@ -265,11 +253,10 @@ complete -F _list_members list_members
 have change_pw &&
 _change_pw()
 {
-    local cur prev split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local split=false
     _split_longopt && split=true
 
     case $prev in
@@ -292,10 +279,8 @@ complete -F _change_pw change_pw
 have withlist &&
 _withlist()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--lock --interactive \
@@ -310,10 +295,8 @@ complete -F _withlist withlist
 have newlist &&
 _newlist()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--language --quiet --help' -- "$cur" ) )
@@ -327,10 +310,8 @@ complete -F _newlist newlist
 have rmlist &&
 _rmlist()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--archives --help' -- "$cur" ) )
@@ -344,11 +325,10 @@ complete -F _rmlist rmlist
 have config_list &&
 _config_list()
 {
-    local cur prev split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local split=false
     _split_longopt && split=true
 
     case $prev in
@@ -375,9 +355,10 @@ complete -F _config_list config_list
 have arch && have mailmanctl &&
 _arch()
 {
-    local cur prev split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
+    local split=false
     _get_comp_words_by_ref cur prev
 
     _split_longopt && split=true
@@ -399,9 +380,9 @@ _arch()
         COMPREPLY=( $( compgen -W '--wipe --start --end --quiet \
             --help' -- "$cur" ) )
     else
-        args=$COMP_CWORD
-        for (( i=1; i < COMP_CWORD; i++ )); do
-            if [[ "${COMP_WORDS[i]}" == -* ]]; then
+        local args=$cword
+        for (( i=1; i < cword; i++ )); do
+            if [[ "${words[i]}" == -* ]]; then
                 args=$(($args-1))
             fi
         done
@@ -421,10 +402,8 @@ complete -F _arch arch
 have cleanarch &&
 _cleanarch()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--status --dry-run --quiet \
@@ -437,11 +416,10 @@ complete -F _cleanarch cleanarch
 have inject &&
 _inject()
 {
-    local cur prev split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local split=false
     _split_longopt && split=true
 
     case $prev in
@@ -465,10 +443,8 @@ complete -F _inject inject
 have dumpdb &&
 _dumpdb()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--marshal --pickle --noprint \
@@ -483,10 +459,8 @@ complete -F _dumpdb dumpdb
 have check_db &&
 _check_db()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--all --verbose --help' -- "$cur" ) )
@@ -500,10 +474,8 @@ complete -F _check_db check_db
 have check_perms &&
 _check_perms()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '-f -v -h' -- "$cur" ) )
@@ -515,10 +487,8 @@ complete -F _check_perms check_perms
 have genaliases &&
 _genaliases()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--quiet --help' -- "$cur" ) )
@@ -530,10 +500,8 @@ complete -F _genaliases genaliases
 have mmsitepass &&
 _mmsitepass()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--listcreator --help' -- "$cur" ) )
@@ -545,10 +513,8 @@ complete -F _mmsitepass mmsitepass
 have qrunner &&
 _qrunner()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     _split_longopt && return 0
 
@@ -563,10 +529,8 @@ complete -F _qrunner qrunner
 have mailmanctl &&
 _mailmanctl()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--no-restart --run-as-user \

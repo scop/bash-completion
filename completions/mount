@@ -76,10 +76,10 @@ _linux_fstab()
 
 _mount()
 {
-    local cur sm host prev
+    local cur prev words cword
+    _init_completion -n : || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref -n : cur prev
+    local sm host
 
     case $prev in
         -t|--types)
@@ -136,9 +136,8 @@ complete -F _mount -o default -o dirnames mount
 have umount &&
 _umount()
 {
-    local cur
-    _get_comp_words_by_ref cur
-    COMPREPLY=()
+    local cur prev words cword
+    _init_completion || return
 
     if [[ $OSTYPE == *linux* && -r /proc/mounts ]]; then
         # Linux /proc/mounts is properly quoted. This is important when

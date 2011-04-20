@@ -6,10 +6,8 @@
 have rmmod &&
 _rmmod()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     _installed_modules "$cur"
     return 0
@@ -23,13 +21,11 @@ complete -F _rmmod rmmod
 have insmod || have modprobe || have modinfo &&
 _insmod()
 {
-    local cur prev modpath
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     # behave like lsmod for modprobe -r
-    if [[ ${1##*/} == modprobe && "${COMP_WORDS[1]}" == -r ]]; then
+    if [[ ${1##*/} == modprobe && "${words[1]}" == -r ]]; then
         _installed_modules "$cur"
         return 0
     fi
@@ -40,9 +36,9 @@ _insmod()
         return 0
     fi
 
-    if [[ $COMP_CWORD -gt 1 && "${COMP_WORDS[COMP_CWORD-1]}" != -* ]]; then
+    if [[ $cword -gt 1 && "${words[cword-1]}" != -* ]]; then
         # do module parameter completion
-        COMPREPLY=( $( compgen -W "$( /sbin/modinfo -p ${COMP_WORDS[1]} | \
+        COMPREPLY=( $( compgen -W "$( /sbin/modinfo -p ${words[1]} | \
             cut -d: -f1 )" -- "$cur" ) )
     else
         _modules $(uname -r)

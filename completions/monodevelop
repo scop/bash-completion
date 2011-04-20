@@ -3,8 +3,8 @@
 have monodevelop &&
 _monodevelop()
 {
-    local cur
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '-? -help -help2 -ipc-tcp -newwindow -nologo \
@@ -19,15 +19,14 @@ complete -F _monodevelop monodevelop
 have mdtool &&
 _mdtool()
 {
-    local cur prev command i
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
+    local command i
 
-    _get_comp_words_by_ref cur prev
-
-    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-        if [[ ${COMP_WORDS[i]} == @(build|generate-makefiles|setup) ]]; then
-            command=${COMP_WORDS[i]}
+    for (( i=0; i < ${#words[@]}-1; i++ )); do
+        if [[ ${words[i]} == @(build|generate-makefiles|setup) ]]; then
+            command=${words[i]}
         fi
     done
 

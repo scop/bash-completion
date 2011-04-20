@@ -22,7 +22,7 @@ _muttaddr()
 _muttrc()
 {
     # Search COMP_WORDS for '-F muttrc' or '-Fmuttrc' argument
-    set -- "${COMP_WORDS[@]}"
+    set -- "${words[@]}"
     while [ $# -gt 0 ]; do
         if [ "${1:0:2}" = -F ]; then
             if [ ${#1} -gt 2 ]; then
@@ -76,7 +76,7 @@ _muttconffiles()
 # @param $1 (cur) Current word to complete
 _muttaliases()
 {
-    local cur=$1 muttrc muttcmd=${COMP_WORDS[0]}
+    local cur=$1 muttrc muttcmd=${words[0]}
     local -a conffiles aliases
 
     muttrc=$(_muttrc)
@@ -94,7 +94,7 @@ _muttaliases()
 # @param $1 (cur) Current word to complete
 _muttquery()
 {
-    local cur=$1 querycmd muttcmd=${COMP_WORDS[0]}
+    local cur=$1 querycmd muttcmd=${words[0]}
     local -a queryresults
 
     querycmd="$( $muttcmd -Q query_command | sed -e 's|^query_command=\"\(.*\)\"$|\1|' -e 's|%s|'$cur'|' )"
@@ -114,7 +114,7 @@ _muttquery()
 # @param $1 (cur) Current word to complete
 _muttfiledir()
 {
-    local cur=$1 folder muttrc spoolfile muttcmd=${COMP_WORDS[0]}
+    local cur=$1 folder muttrc spoolfile muttcmd=${words[0]}
 
     muttrc=$(_muttrc)
     if [[ $cur == [=+]* ]]; then
@@ -140,12 +140,8 @@ _muttfiledir()
 
 _mutt()
 {
-    local cur prev
-    _get_comp_words_by_ref -n =+! cur prev
-    #cur=`_get_cword =+!`
-    #prev=`_get_pword =+!`
-
-    COMPREPLY=()
+    local cur prev words cword
+    _init_completion -n =+! || return
 
     case $cur in
     -*)
