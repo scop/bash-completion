@@ -7,24 +7,23 @@ have mock || return
 
 _mock()
 {
-    local cur prev plugins cfgdir split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-    plugins='tmpfs root_cache yum_cache bind_mount ccache'
-    cfgdir=/etc/mock
+    local plugins='tmpfs root_cache yum_cache bind_mount ccache'
+    local cfgdir=/etc/mock count=0 i
 
-    count=0
-    for i in "${COMP_WORDS[@]}" ; do
-        [ $count -eq $COMP_CWORD ] && break
+    for i in "${words[@]}" ; do
+        [ $count -eq $cword ] && break
         if [[ "$i" == --configdir ]] ; then
-            cfgdir="${COMP_WORDS[((count+1))]}"
+            cfgdir="${words[((count+1))]}"
         elif [[ "$i" == --configdir=* ]] ; then
             cfgdir=${i/*=/}
         fi
         count=$((++count))
     done
 
+    local split=false
     _split_longopt && split=true
 
     case $prev in

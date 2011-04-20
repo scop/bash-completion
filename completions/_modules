@@ -46,20 +46,19 @@ _module_avail ()
 # A completion function for the module alias
 _module ()
 {
-    local cur prev options
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
-    if [ $COMP_CWORD -eq 1 ] ; then
+    if [ $cword -eq 1 ] ; then
         # First parameter on line -- we expect it to be a mode selection
 
+        local options
         options="$( module help 2>&1 | command grep -E '^[[:space:]]*\+' | \
                     awk '{print $2}' | sed -e 's/|/ /g' | sort )"
 
         COMPREPLY=( $(compgen -W "$options" -- "$cur") )
 
-    elif [ $COMP_CWORD -eq 2 ] ; then
+    elif [ $cword -eq 2 ] ; then
         case $prev in
             add|display|help|load|show|whatis)
                 COMPREPLY=( $(_module_avail "$cur") )
@@ -71,8 +70,8 @@ _module ()
                 COMPREPLY=( $(_module_path "$cur") )
                 ;;
         esac
-    elif [ $COMP_CWORD -eq 3 ] ; then
-        case ${COMP_WORDS[1]} in
+    elif [ $cword -eq 3 ] ; then
+        case ${words[1]} in
             swap|switch)
                 COMPREPLY=( $(_module_avail "$cur") )
                 ;;
