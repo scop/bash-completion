@@ -6,10 +6,8 @@ have postfix || return
 #
 _postfix()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -c)
@@ -36,10 +34,8 @@ complete -F _postfix postfix
 #
 _postmap()
 {
-    local cur prev len idx
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -c)
@@ -61,8 +57,7 @@ _postmap()
         _compopt_o_filenames
         COMPREPLY=( $( compgen -f -- "${cur#*:}" ) )
     else
-        len=${#cur}
-        idx=0
+        local len=${#cur} idx=0 pval
         for pval in $( /usr/sbin/postconf -m ); do
             if [[ "$cur" == "${pval:0:$len}" ]]; then
                 COMPREPLY[$idx]="$pval:"
@@ -82,10 +77,8 @@ complete -F _postmap postmap postalias
 #
 _postcat()
 {
-    local cur prev pval len idx qfile
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -c)
@@ -99,12 +92,12 @@ _postcat()
         return 0
     fi
 
-    qfile=0
-    for idx in "${COMP_WORDS[@]}"; do
+    local idx qfile=0
+    for idx in "${words[@]}"; do
         [[ "$idx" = -q ]] && qfile=1 && break
     done
     if [[ $qfile -eq 1 ]]; then
-        len=${#cur}
+        local len=${#cur} pval
         idx=0
         for pval in $( mailq 2>/dev/null | \
             sed -e '1d; $d; /^[^0-9A-Z]/d; /^$/d; s/[* !].*$//' ); do
@@ -125,10 +118,10 @@ complete -F _postcat postcat
 #
 _postconf()
 {
-    local cur prev pval len idx eqext
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local eqext
 
     case $prev in
         -b|-t)
@@ -151,8 +144,7 @@ _postconf()
         return 0
     fi
 
-    len=${#cur}
-    idx=0
+    local len=${#cur} idx=0 pval
     for pval in $( /usr/sbin/postconf 2>/dev/null | cut -d ' ' -f 1 ); do
         if [[ "$cur" == "${pval:0:$len}" ]]; then
             COMPREPLY[$idx]="$pval$eqext"
@@ -167,10 +159,10 @@ complete -F _postconf postconf
 #
 _postsuper()
 {
-    local cur prev pval len idx
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local pval len idx
 
     case $prev in
         -c)

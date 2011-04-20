@@ -4,11 +4,11 @@ have povray || have xpovray || have spovray || return
 
 _povray()
 {
-    local cur prev povcur pfx oext defoext
-    defoext=png # default output extension, if cannot be determined FIXME
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref -c povcur prev
+    local povcur=$cur pfx oext defoext
+    defoext=png # default output extension, if cannot be determined FIXME
 
     _expand || return 0
 
@@ -22,14 +22,14 @@ _povray()
             ;;
         [-+]O*)
             # guess what output file type user may want
-            case $( ( IFS=$'\n'; command grep '^[-+]F' <<<"${COMP_WORDS[*]}" ) ) in
+            case $( ( IFS=$'\n'; command grep '^[-+]F' <<<"${words[*]}" ) ) in
                 [-+]FN) oext=png ;;
                 [-+]FP) oext=ppm ;;
                 [-+]F[CT]) oext=tga ;;
                 *) oext=$defoext ;;
             esac
             # complete filename corresponding to previously specified +I
-            COMPREPLY=( $( ( IFS=$'\n'; command grep '^[-+]I' <<<"${COMP_WORDS[*]}" ) ) )
+            COMPREPLY=( $( ( IFS=$'\n'; command grep '^[-+]I' <<<"${words[*]}" ) ) )
             COMPREPLY=( ${COMPREPLY[@]#[-+]I} )
             COMPREPLY=( ${COMPREPLY[@]/%.pov/.$oext} )
             cur="${povcur#[-+]O}" # to confuse _filedir
@@ -49,7 +49,6 @@ _povray()
             return 0
             ;;
         *)
-            cur="$povcur"
             _filedir '@(ini|pov)'
             return 0
             ;;
