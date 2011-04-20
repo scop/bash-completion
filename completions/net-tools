@@ -3,11 +3,10 @@
 have mii-tool &&
 _mii_tool()
 {
-    local cur prev split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local split=false
     _split_longopt && split=true
 
     case $prev in
@@ -37,11 +36,10 @@ complete -F _mii_tool -o default mii-tool
 have mii-diag &&
 _mii_diag()
 {
-    local cur prev split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local split=false
     _split_longopt && split=true
 
     case $prev in
@@ -71,10 +69,8 @@ complete -F _mii_diag -o default mii-diag
 [ $UNAME = Linux ] && have route &&
 _route()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     if [ "$prev" = dev ]; then
         _available_interfaces
@@ -86,8 +82,8 @@ _route()
     for opt in add del -host -net netmask metric mss window irtt reject mod \
         dyn reinstate dev default gw; do
         found=false
-        for (( i=1; i < ${#COMP_WORDS[@]}-1; i++ )); do
-            [ "${COMP_WORDS[i]}" = "$opt" ] && found=true && break
+        for (( i=1; i < ${#words[@]}-1; i++ )); do
+            [ "${words[i]}" = "$opt" ] && found=true && break
         done
         $found || COMPREPLY[${#COMPREPLY[@]}]="$opt"
     done
@@ -99,9 +95,8 @@ complete -F _route route
 have ether-wake &&
 _ether_wake()
 {
-    COMPREPLY=()
-    local cur prev
-    _get_comp_words_by_ref -n : cur prev
+    local cur prev words cword
+    _init_completion -n : || return
 
     case $prev in
         -i)
