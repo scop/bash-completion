@@ -2,12 +2,10 @@
 #
 _alias()
 {
-    local cur
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    case $COMP_LINE in
+    case ${words[@]} in
         *[^=])
             COMPREPLY=( $( compgen -A alias -- "$cur" ) )
             ;;
@@ -23,12 +21,10 @@ complete -F _alias -o nospace alias
 #
 _export()
 {
-    local cur
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    case $COMP_LINE in
+    case ${words[@]} in
         *=\$*)
             COMPREPLY=( $( compgen -v -P '$' -- "${cur#*=\$}" ) )
             ;;
@@ -49,10 +45,8 @@ complete -F _export -o default -o nospace export
 #
 _function()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     if [[ $1 == @(declare|typeset) ]]; then
         if [ "$prev" = -f ]; then
@@ -60,10 +54,10 @@ _function()
         elif [[ "$cur" == -* ]]; then
             COMPREPLY=( $( compgen -W '-a -f -F -i -r -x -p' -- "$cur" ) )
         fi
-    elif [ $COMP_CWORD -eq 1 ]; then
+    elif [ $cword -eq 1 ]; then
         COMPREPLY=( $( compgen -A function -- "$cur" ) )
     else
-        COMPREPLY=( "() $( type -- ${COMP_WORDS[1]} | sed -e 1,2d )" )
+        COMPREPLY=( "() $( type -- ${words[1]} | sed -e 1,2d )" )
     fi
 } &&
 complete -F _function function declare typeset
@@ -72,10 +66,8 @@ complete -F _function function declare typeset
 #
 _complete()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -o)
