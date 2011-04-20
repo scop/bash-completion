@@ -707,6 +707,81 @@ _split_longopt()
     return 1
 }
 
+# Initialize completion and deal with redirections: do file completion where
+# appropriate, and adjust prev, words, and cword as if no redirections exist
+# so that completions do not need to deal with them.  Before calling this
+# function, make sure cur, prev, words, and cword are local.
+#
+# Options:
+#     -n EXCLUDE  Passed to _get_comp_words_by_ref -n with redirection chars
+#     -e XSPEC    Passed to _filedir as first arg for stderr redirections
+#     -o XSPEC    Passed to _filedir as first arg for other output redirections
+#     -i XSPEC    Passed to _filedir as first arg for stdin redirections
+# @return  True (0) if completion needs further processing, 
+#          False (> 0) if tilde is followed by a valid username, completions
+#          are put in COMPREPLY and no further processing is necessary.
+#
+_init_completion()
+{
+    local exclude flag outx errx inx OPTIND=1
+
+    while getopts "n:e:o:i:" flag "$@"; do
+        case $flag in
+            n) exclude=$OPTARG ;;
+            e) errx=$OPTARG ;;
+            o) outx=$OPTARG ;;
+            i) inx=$OPTARG ;;
+        esac
+    done
+
+    # For some reason completion functions are not invoked at all by
+    # bash (at least as of 4.1.7) after the command line contains an
+    # ampersand so we don't get a chance to deal with redirections
+    # containing them, but if we did, hopefully the below would also
+    # do the right thing with them...
+
+    COMPREPLY=()
+    local redir="@(?([0-9])<|?([0-9&])>?(>)|>&)"
+    _get_comp_words_by_ref -n "$exclude<>&" cur prev words cword
+
+    # Complete on files if current is a redirect possibly followed by a
+    # filename, e.g. ">foo", or previous is a "bare" redirect, e.g. ">".
+    if [[ $cur == $redir* || $prev == $redir ]]; then
+        local xspec
+        case $cur in
+            2'>'*) xspec=$errx ;;
+            *'>'*) xspec=$outx ;;
+            *'<'*) xspec=$inx ;;
+            *)
+                case $prev in
+                    2'>'*) xspec=$errx ;;
+                    *'>'*) xspec=$outx ;;
+                    *'<'*) xspec=$inx ;;
+                esac
+                ;;
+        esac
+        cur="${cur##$redir}"
+        _filedir $xspec
+        return 1
+    fi
+
+    # Remove all redirections so completions don't have to deal with them.
+    local i skip
+    for (( i=1; i < ${#words[@]}; )); do
+        if [[ ${words[i]} == $redir* ]]; then
+            # If "bare" redirect, remove also the next word (skip=2).
+            [[ ${words[i]} == $redir ]] && skip=2 || skip=1
+            words=( "${words[@]:0:i}" "${words[@]:i+skip}" )
+            [[ $i -le $cword ]] && cword=$(( cword - skip ))
+        else
+            i=$(( ++i ))
+        fi
+    done
+    prev=${words[cword-1]}
+
+    return 0
+}
+
 # This function tries to parse the help output of the given command.
 # @param $1  command
 # @param $2  command options (default: --help)
