@@ -4,10 +4,8 @@ have ant || return
 
 _ant()
 {
-    local cur prev buildfile i
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -buildfile|-file|-f)
@@ -40,10 +38,10 @@ _ant()
     else
         # available targets completion
         # find which buildfile to use
-        buildfile=build.xml
-        for (( i=1; i < COMP_CWORD; i++ )); do
-            if [[ "${COMP_WORDS[i]}" == -@(?(build)file|f) ]]; then
-                buildfile=${COMP_WORDS[i+1]}
+        local buildfile=build.xml i
+        for (( i=1; i < cword; i++ )); do
+            if [[ "${words[i]}" == -@(?(build)file|f) ]]; then
+                buildfile=${words[i+1]}
                 break
             fi
         done
