@@ -124,10 +124,10 @@ _java_packages()
 have java &&
 _java()
 {
-    local cur prev words cword i
+    local cur prev words cword
+    _init_completion -n : || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref -n : cur prev words cword
+    local i
 
     for ((i=1; i < $cword; i++)); do
         case ${words[$i]} in
@@ -242,10 +242,8 @@ complete -F _java java
 have javadoc &&
 _javadoc()
 {
-    COMPREPLY=()
-    local cur prev
-
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -overview|-helpfile)
@@ -294,10 +292,8 @@ complete -F _javadoc javadoc
 have javac &&
 _javac()
 {
-    COMPREPLY=()
-    local cur prev
-
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -d)
@@ -326,9 +322,8 @@ complete -F _javac javac
 have pack200 &&
 _pack200()
 {
-    COMPREPLY=()
-    local cur prev
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -S|--segment-limit|-P|--pass-file|-C|--class-attribute|\
@@ -369,8 +364,8 @@ _pack200()
 
     # Check if a pack or a jar was already given.
     local i pack=false jar=false
-    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )) ; do
-        case ${COMP_WORDS[i]} in
+    for (( i=0; i < ${#words[@]}-1; i++ )) ; do
+        case ${words[i]} in
             *.pack|*.pack.gz) pack=true ;;
             *.jar) jar=true ;;
         esac
@@ -399,9 +394,8 @@ complete -F _pack200 pack200
 have unpack200 &&
 _unpack200()
 {
-    COMPREPLY=()
-    local cur prev
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         '-?'|-h|--help|-V|--version|-J)
@@ -420,8 +414,8 @@ _unpack200()
 
     # Check if a pack or a jar was already given.
     local i pack=false jar=false
-    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )) ; do
-        case ${COMP_WORDS[i]} in
+    for (( i=0; i < ${#words[@]}-1; i++ )) ; do
+        case ${words[i]} in
             *.pack|*.pack.gz) pack=true ;;
             *.jar) jar=true ;;
         esac
@@ -445,9 +439,8 @@ complete -F _unpack200 unpack200
 have jarsigner &&
 _jarsigner()
 {
-    COMPREPLY=()
-    local cur prev
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -keystore)
@@ -475,9 +468,9 @@ _jarsigner()
 
     # Check if a jar was already given.
     local i jar=false
-    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )) ; do
-        if [[ "${COMP_WORDS[i]}" == *.jar && \
-            "${COMP_WORDS[i-1]}" != -signedjar ]] ; then
+    for (( i=0; i < ${#words[@]}-1; i++ )) ; do
+        if [[ "${words[i]}" == *.jar && \
+            "${words[i-1]}" != -signedjar ]] ; then
             jar=true
             break
         fi
@@ -500,9 +493,8 @@ complete -F _jarsigner jarsigner
 have javaws &&
 _javaws()
 {
-    COMPREPLY=()
-    local cur prev
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -help|-license|-about|-viewer|-arg|-param|-property|-update|-umask)
