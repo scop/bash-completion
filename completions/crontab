@@ -4,9 +4,8 @@ have crontab || return
 
 _crontab()
 {
-    local cur prev
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -u)
@@ -18,8 +17,8 @@ _crontab()
     local i opts=" -u -l -r -e" # leading space at start is significant...
     [[ $OSTYPE == *linux* ]] && opts+=" -i"
     [ -e /etc/selinux ] && opts+=" -s"
-    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-        case "${COMP_WORDS[i]}" in
+    for (( i=0; i < ${#words[@]}-1; i++ )); do
+        case "${words[i]}" in
             -l)
                 opts=${opts// -l -r -e/}
                 opts=${opts// -i/}
@@ -37,7 +36,7 @@ _crontab()
                 opts=${opts// -i/}
                 ;;
             -i|-s)
-                opts=${opts// ${COMP_WORDS[i]}/}
+                opts=${opts// ${words[i]}/}
                 ;;
         esac
     done
@@ -48,7 +47,7 @@ _crontab()
     fi
 
     # do filenames only if we did not have -l, -r, or -e
-    [[ "${COMP_LINE}" == *\ -@(l|r|e)* ]] || _filedir
+    [[ "${words[@]}" == *\ -@(l|r|e)* ]] || _filedir
 } &&
 complete -F _crontab crontab
 

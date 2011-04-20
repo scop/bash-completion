@@ -5,11 +5,11 @@
 have chown &&
 _chown()
 {
-    local cur prev split=false
+    local cur prev words cword
+    # Don't treat user:group as separate words.
+    _init_completion -n : || return
 
-    # Get cur and prev words; but don't treat user:group as separate words.
-    _get_comp_words_by_ref -n : cur prev
-
+    local split=false
     _split_longopt && split=true
 
     case "$prev" in
@@ -28,7 +28,7 @@ _chown()
     if [[ "$cur" == -* ]]; then
         # Complete -options
         local w opts
-        for w in "${COMP_WORDS[@]}" ; do
+        for w in "${words[@]}" ; do
             [[ "$w" == -@(R|-recursive) ]] && opts="-H -L -P" && break
         done
         COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes --dereference \
@@ -55,12 +55,12 @@ complete -F _chown chown
 have chgrp &&
 _chgrp()
 {
-    local cur prev split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
     cur=${cur//\\\\/}
 
+    local split=false
     _split_longopt && split=true
 
     if [[ "$prev" == --reference ]]; then
@@ -73,7 +73,7 @@ _chgrp()
     # options completion
     if [[ "$cur" == -* ]]; then
         local w opts
-        for w in "${COMP_WORDS[@]}" ; do
+        for w in "${words[@]}" ; do
             [[ "$w" == -@(R|-recursive) ]] && opts="-H -L -P" && break
         done
         COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes --dereference \
@@ -83,7 +83,7 @@ _chgrp()
     fi
 
     # first parameter on line or first since an option?
-    if [[ $COMP_CWORD -eq 1 && "$cur" != -* || "$prev" == -* ]]; then
+    if [[ $cword -eq 1 && "$cur" != -* || "$prev" == -* ]]; then
         _allowed_groups "$cur"
     else
         _filedir || return 0
@@ -98,10 +98,8 @@ complete -F _chgrp chgrp
 have id &&
 _id()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '-a -g --group -G --groups -n --name\
@@ -117,10 +115,10 @@ complete -F _id id
 have mktemp &&
 _mktemp()
 {
-    COMPREPLY=()
-    local cur prev split=false
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
+    local split=false
     _split_longopt && split=true
 
     case "$prev" in

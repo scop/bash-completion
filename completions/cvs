@@ -57,17 +57,17 @@ _cvs_roots()
 
 _cvs()
 {
-    local cur prev count mode i cvsroot cvsroots pwd
+    local cur prev words cword
+    _init_completion -n : || return
+
+    local count mode i cvsroot cvsroots pwd
     local -a flags miss files entries changed newremoved
 
-    COMPREPLY=()
-    _get_comp_words_by_ref -n : cur prev
-
     count=0
-    for i in "${COMP_WORDS[@]}"; do
-        [ $count -eq $COMP_CWORD ] && break
+    for i in "${words[@]}"; do
+        [ $count -eq $cword ] && break
         # Last parameter was the CVSROOT, now go back to mode selection
-        if [[ "${COMP_WORDS[((count))]}" == "$cvsroot" && "$mode" == cvsroot ]]; then
+        if [[ "${words[((count))]}" == "$cvsroot" && "$mode" == cvsroot ]]; then
             mode=""
         fi
         if [ -z "$mode" ]; then
@@ -78,7 +78,7 @@ _cvs()
                     ;;
                 -d)
                     mode=cvsroot
-                    cvsroot=${COMP_WORDS[((count+1))]}
+                    cvsroot=${words[((count+1))]}
                     ;;
                 ad|add|new)
                     mode=add
@@ -155,7 +155,7 @@ _cvs()
 
             if [[ "$cur" != -* ]]; then
                 set_prefix
-                if [[ $COMP_CWORD -gt 1 && -r ${prefix:-}CVS/Entries ]]; then
+                if [[ $cword -gt 1 && -r ${prefix:-}CVS/Entries ]]; then
                     get_entries
                     [ -z "$cur" ] && \
                     files=$( command ls -Ad !(CVS) ) || \
@@ -302,7 +302,7 @@ _cvs()
         remove)
             if [[ "$cur" != -* ]]; then
                 set_prefix
-                if [[ $COMP_CWORD -gt 1 && -r ${prefix:-}CVS/Entries ]]; then
+                if [[ $cword -gt 1 && -r ${prefix:-}CVS/Entries ]]; then
                     get_entries
                     # find out what files are missing
                     for i in "${entries[@]}"; do
