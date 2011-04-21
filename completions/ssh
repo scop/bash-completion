@@ -115,13 +115,11 @@ _ssh_suboption_check()
 
 _ssh()
 {
-    local cur prev configfile
-    local -a config
+    local cur prev words cword
+    _init_completion -n : || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref -n : cur prev
-    #cur=`_get_cword :`
-    #prev=`_get_pword`
+    local configfile
+    local -a config
 
     _ssh_suboption_check && return 0
 
@@ -168,7 +166,7 @@ _ssh()
             -i -L -l -m -O -o -p -R -S -w' -- "$cur" ) )
     else
         # Search COMP_WORDS for '-F configfile' or '-Fconfigfile' argument
-        set -- "${COMP_WORDS[@]}"
+        set -- "${words[@]}"
         while [ $# -gt 0 ]; do
             if [ "${1:0:2}" = -F ]; then
                 if [ ${#1} -gt 2 ]; then
@@ -182,7 +180,7 @@ _ssh()
             shift
         done
         _known_hosts_real -a -F "$configfile" "$cur"
-        if [ $COMP_CWORD -ne 1 ]; then
+        if [ $cword -ne 1 ]; then
             _compopt_o_filenames
             COMPREPLY+=( $( compgen -c -- "$cur" ) )
         fi
@@ -196,10 +194,10 @@ shopt -u hostcomplete && complete -F _ssh ssh slogin autossh
 #
 _sftp()
 {
-    local cur prev configfile
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local configfile
 
     _ssh_suboption_check && return 0
 
@@ -225,7 +223,7 @@ _sftp()
             -- "$cur" ) )
     else
         # Search COMP_WORDS for '-F configfile' argument
-        set -- "${COMP_WORDS[@]}"
+        set -- "${words[@]}"
         while [ $# -gt 0 ]; do
             if [ "${1:0:2}" = -F ]; then
                 if [ ${#1} -gt 2 ]; then
@@ -313,10 +311,10 @@ _scp_local_files()
 #
 _scp()
 {
-    local configfile cur prev prefix
+    local cur prev words cword
+    _init_completion -n : || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref -n : cur prev
+    local configfile prefix
 
     _ssh_suboption_check && {
         COMPREPLY=( "${COMPREPLY[@]/%/ }" )
@@ -355,7 +353,7 @@ _scp()
         prefix=-F
     else
         # Search COMP_WORDS for '-F configfile' or '-Fconfigfile' argument
-        set -- "${COMP_WORDS[@]}"
+        set -- "${words[@]}"
         while [ $# -gt 0 ]; do
             if [ "${1:0:2}" = -F ]; then
                 if [ ${#1} -gt 2 ]; then
@@ -395,10 +393,8 @@ complete -F _scp -o nospace scp
 #
 _ssh_copy_id()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -i)

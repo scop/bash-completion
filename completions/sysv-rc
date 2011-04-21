@@ -5,9 +5,10 @@
 have update-rc.d &&
 _update_rc_d()
 {
-    local cur prev sysvdir services options valid_options
+    local cur prev words cword
+    _init_completion || return
 
-    _get_comp_words_by_ref cur prev
+    local sysvdir services options valid_options
 
     [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
     || sysvdir=/etc/init.d
@@ -16,14 +17,14 @@ _update_rc_d()
     services=( ${services[@]#$sysvdir/} )
     options=( -f -n )
 
-    if [[ $COMP_CWORD -eq 1 || "$prev" == -* ]]; then
+    if [[ $cword -eq 1 || "$prev" == -* ]]; then
     valid_options=( $( \
-        tr " " "\n" <<<"${COMP_WORDS[@]} ${options[@]}" \
+        tr " " "\n" <<<"${words[@]} ${options[@]}" \
         | sed -ne "/$( sed "s/ /\\|/g" <<<"${options[@]}" )/p" \
         | sort | uniq -u \
         ) )
     COMPREPLY=( $( compgen -W '${options[@]} ${services[@]}' \
-        -X '$( tr " " "|" <<<${COMP_WORDS[@]} )' -- "$cur" ) )
+        -X '$( tr " " "|" <<<${words[@]} )' -- "$cur" ) )
     elif [[ "$prev" == ?($( tr " " "|" <<<${services[@]} )) ]]; then
         COMPREPLY=( $( compgen -W 'remove defaults start stop' -- "$cur" ) )
     elif [[ "$prev" == defaults && "$cur" == [0-9] ]]; then
@@ -69,9 +70,10 @@ complete -F _update_rc_d update-rc.d
 have invoke-rc.d &&
 _invoke_rc_d()
 {
-    local cur prev sysvdir services options valid_options
+    local cur prev words cword
+    _init_completion || return
 
-    _get_comp_words_by_ref cur prev
+    local sysvdir services options valid_options
 
     [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
     || sysvdir=/etc/init.d
@@ -81,9 +83,9 @@ _invoke_rc_d()
     options=( --help --quiet --force --try-anyway --disclose-deny --query \
         --no-fallback )
 
-    if [[ ($COMP_CWORD -eq 1) || ("$prev" == --* ) ]]; then
+    if [[ ($cword -eq 1) || ("$prev" == --* ) ]]; then
     valid_options=( $( \
-        tr " " "\n" <<<"${COMP_WORDS[@]} ${options[@]}" \
+        tr " " "\n" <<<"${words[@]} ${options[@]}" \
         | sed -ne "/$( sed "s/ /\\\\|/g" <<<"${options[@]}" )/p" \
         | sort | uniq -u \
         ) )

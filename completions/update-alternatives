@@ -9,9 +9,9 @@ _installed_alternatives()
     for i in alternatives dpkg/alternatives rpm/alternatives; do
         [ -d /var/lib/$i ] && admindir=/var/lib/$i && break
     done
-    for (( i=1; i < COMP_CWORD; i++ )); do
-        if [[ "${COMP_WORDS[i]}" == --admindir ]]; then
-            admindir=${COMP_WORDS[i+1]}
+    for (( i=1; i < cword; i++ )); do
+        if [[ "${words[i]}" == --admindir ]]; then
+            admindir=${words[i+1]}
             break
         fi
     done
@@ -20,10 +20,8 @@ _installed_alternatives()
 
 _update_alternatives()
 {
-    local cur prev mode args i
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         --altdir|--admindir)
@@ -35,11 +33,13 @@ _update_alternatives()
             ;;
     esac
 
+    local mode args i
+
     # find which mode to use and how many real args used so far
-    for (( i=1; i < COMP_CWORD; i++ )); do
-        if [[ "${COMP_WORDS[i]}" == --@(install|remove|auto|display|config|remove-all|set) ]]; then
-            mode=${COMP_WORDS[i]}
-            args=$(($COMP_CWORD - i))
+    for (( i=1; i < cword; i++ )); do
+        if [[ "${words[i]}" == --@(install|remove|auto|display|config|remove-all|set) ]]; then
+            mode=${words[i]}
+            args=$(($cword - i))
             break
         fi
     done

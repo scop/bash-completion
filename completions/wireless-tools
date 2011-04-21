@@ -5,10 +5,8 @@
 have iwconfig &&
 _iwconfig()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         mode)
@@ -20,7 +18,7 @@ _iwconfig()
             COMPREPLY=( $( compgen -W 'on off any' -- "$cur" ) )
             if [ -n "${COMP_IWLIST_SCAN:-}" ]; then
                 COMPREPLY+=( $( compgen -W \
-                    "$( iwlist ${COMP_WORDS[1]} scan | \
+                    "$( iwlist ${words[1]} scan | \
                     awk -F'\"' '/ESSID/ {print $2}' )" -- "$cur" ) )
             fi
             return 0
@@ -30,13 +28,13 @@ _iwconfig()
             return 0
             ;;
         channel)
-            COMPREPLY=( $( compgen -W "$( iwlist ${COMP_WORDS[1]} channel | \
+            COMPREPLY=( $( compgen -W "$( iwlist ${words[1]} channel | \
                 awk '/^[ \t]*Channel/ {print $2}' )" -- "$cur" ) )
             return 0
             ;;
 
         freq)
-            COMPREPLY=( $( compgen -W "$( iwlist ${COMP_WORDS[1]} channel | \
+            COMPREPLY=( $( compgen -W "$( iwlist ${words[1]} channel | \
                 awk '/^[ \t]*Channel/ {print $4"G"}')" -- "$cur" ) )
             return 0
             ;;
@@ -44,7 +42,7 @@ _iwconfig()
             COMPREPLY=( $( compgen -W 'on off any' -- "$cur" ) )
             if [ -n "${COMP_IWLIST_SCAN:-}" ]; then
                 COMPREPLY+=( $( compgen -W \
-                    "$( iwlist ${COMP_WORDS[1]} scan | \
+                    "$( iwlist ${words[1]} scan | \
                     awk -F ': ' '/Address/ {print $2}' )" -- "$cur" ) )
             fi
             return 0
@@ -52,7 +50,7 @@ _iwconfig()
         rate)
             COMPREPLY=( $( compgen -W 'auto fixed' -- "$cur" ) )
             COMPREPLY+=( $( compgen -W \
-                "$( iwlist ${COMP_WORDS[1]} rate | \
+                "$( iwlist ${words[1]} rate | \
                 awk '/^[ \t]*[0-9]/ {print $1"M"}' )" -- "$cur" ) )
             return 0
             ;;
@@ -78,7 +76,7 @@ _iwconfig()
             ;;
     esac
 
-    if [ $COMP_CWORD -eq 1 ]; then
+    if [ $cword -eq 1 ]; then
         if [[ "$cur" == -* ]]; then
             COMPREPLY=( $( compgen -W '--help --version' -- "$cur" ) )
         else
@@ -96,12 +94,10 @@ complete -F _iwconfig iwconfig
 have iwlist &&
 _iwlist()
 {
-    local cur prev
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
-    if [ $COMP_CWORD -eq 1 ]; then
+    if [ $cword -eq 1 ]; then
         if [[ "$cur" == -* ]]; then
             COMPREPLY=( $( compgen -W '--help --version' -- "$cur" ) )
         else
@@ -119,12 +115,10 @@ complete -F _iwlist iwlist
 have iwspy &&
 _iwspy()
 {
-    local cur
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    if [ $COMP_CWORD -eq 1 ]; then
+    if [ $cword -eq 1 ]; then
         if [[ "$cur" == -* ]]; then
             COMPREPLY=( $( compgen -W '--help --version' -- "$cur" ) )
         else
@@ -140,10 +134,8 @@ complete -F _iwspy iwspy
 have iwpriv &&
 _iwpriv()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         roam)
@@ -156,7 +148,7 @@ _iwpriv()
             ;;
     esac
 
-    if [ $COMP_CWORD -eq 1 ]; then
+    if [ $cword -eq 1 ]; then
         if [[ "$cur" == -* ]]; then
             COMPREPLY=( $( compgen -W '--help --version' -- "$cur" ) )
         else

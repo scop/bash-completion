@@ -8,10 +8,10 @@ have cdrecord || have wodim || return
 
 _cdrecord()
 {
-    local cur prev i generic_options track_options track_mode
+    local cur prev words cword
+    _init_completion -n = || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref -n = cur prev
+    local i generic_options track_options track_mode
 
     # foo=bar style option
     if [[ "$cur" == *=* ]]; then
@@ -82,7 +82,7 @@ _cdrecord()
         -copy -nocopy -scms isrc= index= padsize= pregap= tsize= )
     # look if previous was either a file or a track option
     track_mode=0
-    if [ $COMP_CWORD -gt 1 ]; then
+    if [ $cword -gt 1 ]; then
         if [ -f "$prev" ]; then
             track_mode=1
         else

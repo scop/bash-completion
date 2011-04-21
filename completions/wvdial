@@ -4,10 +4,8 @@ have wvdial || return
 
 _wvdial()
 {
-    local cur prev config i IFS=$'\n'
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         --config)
@@ -15,6 +13,8 @@ _wvdial()
             return 0
             ;;
     esac
+
+    local config i IFS=$'\n'
 
     case $cur in
         -*)
@@ -26,9 +26,9 @@ _wvdial()
             # start with global and personal config files
             config="/etc/wvdial.conf"$'\n'"$HOME/.wvdialrc"
             # replace with command line config file if present
-            for (( i=1; i < COMP_CWORD; i++ )); do
-                if [[ "${COMP_WORDS[i]}" == "--config" ]]; then
-                    config=${COMP_WORDS[i+1]}
+            for (( i=1; i < cword; i++ )); do
+                if [[ "${words[i]}" == "--config" ]]; then
+                    config=${words[i+1]}
                     break
                 fi
             done

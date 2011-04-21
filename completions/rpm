@@ -39,12 +39,10 @@ _rpm_macros()
 #
 _rpm()
 {
-    local cur prev opts
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
-    if [ $COMP_CWORD -eq 1 ]; then
+    if [ $cword -eq 1 ]; then
         # first parameter on line
         case $cur in
             --*)
@@ -117,10 +115,10 @@ _rpm()
     esac
 
     # options common to all modes
-    opts="--define --eval --macros --nodigest --nosignature --rcfile \
+    local opts="--define --eval --macros --nodigest --nosignature --rcfile \
         --quiet --pipe --verbose"
 
-    case ${COMP_WORDS[1]} in
+    case ${words[1]} in
         -[iFU]*|--install|--freshen|--upgrade)
             if [[ "$cur" == -* ]]; then
                 COMPREPLY=( $( compgen -W "$opts --percent --force \
@@ -152,7 +150,7 @@ _rpm()
                 --list --obsoletes --pipe --provides --queryformat --rcfile
                 --requires --scripts --suggests --triggers --xml"
 
-            if [[ $COMP_LINE == *\ -@(*([^ -])f|-file )* ]]; then
+            if [[ ${words[@]} == *\ -@(*([^ -])f|-file )* ]]; then
                 # -qf completion
                 if [[ "$cur" == -* ]]; then
                     COMPREPLY=( $( compgen -W "$opts --dbpath --fscontext \
@@ -160,10 +158,10 @@ _rpm()
                 else
                     _filedir
                 fi
-            elif [[ $COMP_LINE == *\ -@(*([^ -])g|-group )* ]]; then
+            elif [[ ${words[@]} == *\ -@(*([^ -])g|-group )* ]]; then
                 # -qg completion
                 _rpm_groups $1
-            elif [[ $COMP_LINE == *\ -@(*([^ -])p|-package )* ]]; then
+            elif [[ ${words[@]} == *\ -@(*([^ -])p|-package )* ]]; then
                 # -qp; uninstalled package completion
                 if [[ "$cur" == -* ]]; then
                     COMPREPLY=( $( compgen -W "$opts --ftpport --ftpproxy \
@@ -179,7 +177,7 @@ _rpm()
                         --package --pkgid --root --specfile --state 
                         --triggeredby --whatprovides --whatrequires" \
                             -- "$cur" ) )
-                elif [[ $COMP_LINE != *\ -@(*([^ -])a|-all )* ]]; then
+                elif [[ ${words[@]} != *\ -@(*([^ -])a|-all )* ]]; then
                     _rpm_installed_packages $1
                 fi
             fi
@@ -199,11 +197,11 @@ _rpm()
                     --nofiles --noscripts --nomd5 --querytags --specfile \
                     --whatrequires --whatprovides" -- "$cur" ) )
             # check whether we're doing file completion
-            elif [[ $COMP_LINE == *\ -@(*([^ -])f|-file )* ]]; then
+            elif [[ ${words[@]} == *\ -@(*([^ -])f|-file )* ]]; then
                 _filedir
-            elif [[ $COMP_LINE == *\ -@(*([^ -])g|-group )* ]]; then
+            elif [[ ${words[@]} == *\ -@(*([^ -])g|-group )* ]]; then
                 _rpm_groups $1
-            elif [[ $COMP_LINE == *\ -@(*([^ -])p|-package )* ]]; then
+            elif [[ ${words[@]} == *\ -@(*([^ -])p|-package )* ]]; then
                 _filedir '[rs]pm'
             else
                 _rpm_installed_packages $1
@@ -231,10 +229,10 @@ complete -F _rpm rpm
 
 _rpmbuild()
 {
-    COMPREPLY=()
-    local cur prev words split=false
-    _get_comp_words_by_ref cur prev words
+    local cur prev words cword
+    _init_completion || return
 
+    local split=false
     _split_longopt && split=true
 
     local rpm="${1%build*}"
@@ -304,14 +302,10 @@ complete -F _rpmbuild rpmbuild rpmbuild-md5
 have gendiff &&
 _gendiff()
 {
-    COMPREPLY=()
-    local cur prev cword
-    _get_comp_words_by_ref cur prev cword
-    if [[ $cword -eq 1 ]]; then
-        _filedir -d
-    elif [[ $prev == *\> ]]; then
-        _filedir
-    fi
+    local cur prev words cword
+    _init_completion -o @(diff|patch) || return
+
+    [[ $cword -eq 1 ]] && _filedir -d
 } &&
 complete -F _gendiff gendiff
 

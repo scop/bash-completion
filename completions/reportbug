@@ -3,10 +3,8 @@
 have reportbug &&
 _reportbug()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -f|--filename|-i|--include|--mta|-o|--output)
@@ -19,8 +17,8 @@ _reportbug()
             return 0
             ;;
         -e|--editor|--mua)
-            COMP_WORDS=(COMP_WORDS[0] "$cur")
-            COMP_CWORD=1
+            words=(words[0] "$cur")
+            cword=1
             _command
             return 0
             ;;
@@ -89,11 +87,10 @@ complete -F _reportbug reportbug
 have querybts &&
 _querybts()
 {
-    local cur prev split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local split=false
     _split_longopt && split=true
 
     case $prev in

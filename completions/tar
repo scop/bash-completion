@@ -4,10 +4,10 @@ have tar || return
 
 _tar()
 {
-    local cur prev words cword ext regex tar untar
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev words cword
+    local ext regex tar untar
 
     if [ $cword -eq 1 ]; then
         COMPREPLY=( $( compgen -W 'c t x u r d A' -- "$cur" ) )
@@ -65,7 +65,7 @@ _tar()
             # complete on files in tar file
             #
             # get name of tar file from command line
-            tar=$( sed -e 's/^.* \([^ ]*'$regex'\) .*$/\1/' <<<"$COMP_LINE" )
+            tar=$( sed -e 's/^.* \([^ ]*'$regex'\) .*$/\1/' <<<"${words[@]}" )
             # devise how to untar and list it
             untar=t${words[1]//[^IJzjyf]/}
 

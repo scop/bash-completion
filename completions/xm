@@ -16,12 +16,12 @@ _xen_domain_ids()
 
 _xm()
 {
+    local cur prev words cword
+    _init_completion || return
+
     # TODO: _split_longopt
 
-    local cur prev command options
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local command options
 
     commands='console vncviewer create new delete destroy domid domname \
         dump-core list mem-max mem-set migrate pause reboot rename reset \
@@ -34,7 +34,7 @@ _xm()
         labels addlabel rmlabel getlabel dry-run resources dumppolicy \
         setpolicy resetpolicy getpolicy shell help'
 
-    if [[ $COMP_CWORD -eq 1 ]] ; then
+    if [[ $cword -eq 1 ]] ; then
         COMPREPLY=( $( compgen -W "$commands" -- "$cur" ) )
     else
         if [[ "$cur" == *=* ]]; then
@@ -42,7 +42,7 @@ _xm()
             cur=${cur/*=/}
         fi
 
-        command=${COMP_WORDS[1]}
+        command=${words[1]}
         if [[ "$cur" == -* ]]; then
             # possible options for the command
             case $command in

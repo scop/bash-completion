@@ -8,17 +8,16 @@
 
 _service()
 {
-    local cur prev sysvdir
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     # don't complete past 2nd token
-    [ $COMP_CWORD -gt 2 ] && return 0
+    [ $cword -gt 2 ] && return 0
 
-    if [[ $COMP_CWORD -eq 1 && $prev == "service" ]]; then
+    if [[ $cword -eq 1 && $prev == service ]]; then
         _services
     else
+        local sysvdir
         [ -d /etc/rc.d/init.d ] && \
             sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
         COMPREPLY=( $( compgen -W '`sed -e "y/|/ /" \
