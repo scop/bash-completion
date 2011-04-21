@@ -3,15 +3,14 @@
 
 # svn completion
 
-have svn &&
-{
+have svn || return
+
 _svn()
 {
-    local cur prev commands options command
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local commands
     commands='add blame praise annotate ann cat checkout co cleanup commit \
                 ci copy cp delete del remove rm diff di export help ? h import \
                 info list ls lock log merge mkdir move mv rename ren \
@@ -19,7 +18,7 @@ _svn()
                 proplist plist pl propset pset ps resolved revert \
                 status stat st switch sw unlock update up'
 
-    if [[ $COMP_CWORD -eq 1 ]] ; then
+    if [[ $cword -eq 1 ]] ; then
         if [[ "$cur" == -* ]]; then
             COMPREPLY=( $( compgen -W '--version' -- $cur ) )
         else
@@ -42,17 +41,18 @@ _svn()
                 return 0
                 ;;
             --editor-cmd|--diff-cmd|--diff3-cmd)
-                COMP_WORDS=(COMP_WORDS[0] $cur)
-                COMP_CWORD=1
+                words=(words[0] $cur)
+                cword=1
                 _command
                 return 0
                 ;;
         esac
 
-        command=${COMP_WORDS[1]}
+        local command=${words[1]}
 
         if [[ "$cur" == -* ]]; then
             # possible options for the command
+            local options
             case $command in
                 add)
                     options='--auto-props --no-auto-props --force --targets
@@ -202,7 +202,7 @@ _svn()
                              --non-interactive --diff3-cmd --ignore-externals'
                     ;;
             esac
-            options="$options --help -h --config-dir"
+            options+=" --help -h --config-dir"
 
             COMPREPLY=( $( compgen -W "$options" -- $cur ) )
         else
@@ -215,20 +215,19 @@ _svn()
     fi
 
     return 0
-}
+} &&
 complete -F _svn svn
 
 _svnadmin()
 {
-    local cur prev commands options mode
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local commands
     commands='create deltify dump help ? hotcopy list-dblogs list-unused-dblogs
               load lslocks lstxns recover rmlocks rmtxns setlog verify'
 
-    if [[ $COMP_CWORD -eq 1 ]] ; then
+    if [[ $cword -eq 1 ]] ; then
         if [[ "$cur" == -* ]]; then
             COMPREPLY=( $( compgen -W '--version' -- $cur ) )
         else
@@ -246,10 +245,11 @@ _svnadmin()
                 ;;
         esac
 
-        command=${COMP_WORDS[1]}
+        local command=${words[1]}
 
         if [[ "$cur" == -* ]]; then
             # possible options for the command
+            local options
             case $command in
                 create)
                     options='--bdb-txn-nosync --bdb-log-keep --config-dir
@@ -276,7 +276,7 @@ _svnadmin()
                     ;;
             esac
 
-            options="$options --help -h"
+            options+=" --help -h"
             COMPREPLY=( $( compgen -W "$options" -- $cur ) )
         else
             if [[ "$command" == @(help|h|\?) ]]; then
@@ -288,30 +288,30 @@ _svnadmin()
     fi
 
     return 0
-}
+} &&
 complete -F _svnadmin -o default svnadmin
 
 _svnlook()
 {
-    local cur prev commands options mode
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
+    local commands
     commands='author cat changed date diff dirs-changed help ? h history info
               lock log propget pget pg proplist plist pl tree uuid youngest'
 
-    if [[ $COMP_CWORD -eq 1 ]] ; then
+    if [[ $cword -eq 1 ]] ; then
         if [[ "$cur" == -* ]]; then
             COMPREPLY=( $( compgen -W '--version' -- $cur ) )
         else
             COMPREPLY=( $( compgen -W "$commands" -- $cur ) )
         fi
     else
-        command=${COMP_WORDS[1]}
+        local command=${words[1]}
 
         if [[ "$cur" == -* ]]; then
             # possible options for the command
+            local options
             case $command in
                 author|cat|date|dirs-changed|info|log)
                     options='-r --revision -t --transaction'
@@ -335,7 +335,7 @@ _svnlook()
                     ;;
             esac
 
-            options="$options --help -h"
+            options+=" --help -h"
             COMPREPLY=( $( compgen -W "$options" -- $cur ) )
         else
             if [[ "$command" == @(help|h|\?) ]]; then
@@ -347,9 +347,8 @@ _svnlook()
     fi
 
     return 0
-}
+} &&
 complete -F _svnlook -o default svnlook
-}
 
 # Local variables:
 # mode: shell-script

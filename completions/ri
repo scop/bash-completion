@@ -1,6 +1,7 @@
 # ri completion for Ruby documentation by Ian Macdonald <ian@caliban.org>
 
-have ri && {
+have ri || return
+
 ri_get_methods()
 {
     local regex
@@ -14,7 +15,7 @@ ri_get_methods()
             regex=Class
         fi
 
-        COMPREPLY=( ${COMPREPLY[@]} \
+        COMPREPLY+=( \
             "$( ri ${classes[@]} 2>/dev/null | ruby -ane \
             'if /^'"$regex"' methods:/.../^------------------|^$/ and \
             /^ / then print $_.split(/, |,$/).grep(/^[^\[]*$/).join("\n"); \
@@ -22,7 +23,7 @@ ri_get_methods()
     else
         # older versions of ri didn't distinguish between class/module and
         # instance methods
-        COMPREPLY=( ${COMPREPLY[@]} \
+        COMPREPLY+=( \
             "$( ruby -W0 $ri_path ${classes[@]} | ruby -ane \
             'if /^-/.../^-/ and ! /^-/ and ! /^ +(class|module): / then \
             print $_.split(/, |,$| +/).grep(/^[^\[]*$/).join("\n"); \
@@ -34,11 +35,11 @@ ri_get_methods()
 # needs at least Ruby 1.8.0 in order to use -W0
 _ri()
 {
-    local cur class method prefix ri_path ri_version separator IFS
-    local -a classes
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local class method prefix ri_path ri_version separator IFS
+    local -a classes
 
     ri_path=$(type -p ri)
     # which version of ri are we using?
@@ -83,9 +84,8 @@ _ri()
     # we're completing on methods
     method=$cur
     ri_get_methods
-}
+} &&
 complete -F _ri ri
-}
 
 # Local variables:
 # mode: shell-script

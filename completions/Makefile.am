@@ -107,6 +107,7 @@ bashcomp_DATA = abook \
 		ntpdate \
 		openldap \
 		openssl \
+		open-iscsi \
 		p4 \
 		perl \
 		pine \
@@ -119,12 +120,14 @@ bashcomp_DATA = abook \
 		postgresql \
 		povray \
 		procps \
+		puppet \
 		python \
 		qdbus \
 		qemu \
 		quota-tools \
 		rcs \
 		rdesktop \
+		reptyr \
 		reportbug \
 		resolvconf \
 		rfkill \

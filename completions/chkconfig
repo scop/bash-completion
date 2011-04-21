@@ -1,13 +1,13 @@
 # chkconfig(8) completion
 
-have chkconfig &&
+have chkconfig || return
+
 _chkconfig()
 {
-    local cur prev split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local split=false
     _split_longopt && split=true
 
     case $prev in
@@ -26,7 +26,7 @@ _chkconfig()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--list --add --del --override --level' -- "$cur" ) )
     else
-        if [[ $COMP_CWORD -eq 2 || $COMP_CWORD -eq 4 ]]; then
+        if [[ $cword -eq 2 || $cword -eq 4 ]]; then
             COMPREPLY=( $( compgen -W 'on off reset resetpriorities' -- "$cur" ) )
         else
             _services

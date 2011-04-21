@@ -1,14 +1,13 @@
 # Red Hat & Debian GNU/Linux if{up,down} completion
 #
-[ $USERLAND = GNU ] && { have ifup || have ifdown; } &&
+[ $USERLAND = GNU ] && have ifup || have ifdown || return
+
 _ifupdown()
 {
-    local cur
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    if [ $COMP_CWORD -eq 1 ]; then
+    if [ $cword -eq 1 ]; then
         _configured_interfaces
         COMPREPLY=( $(compgen -W '${COMPREPLY[@]}' -- "$cur") )
     fi
@@ -16,7 +15,8 @@ _ifupdown()
     return 0
 } &&
 complete -F _ifupdown ifup ifdown
-[ $USERLAND = GNU ] && have ifstatus && complete -F _ifupdown ifstatus
+
+have ifstatus && complete -F _ifupdown ifstatus
 
 # Local variables:
 # mode: shell-script

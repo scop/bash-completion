@@ -3,7 +3,8 @@
 
 # yum(8) completion
 
-have yum && {
+have yum || return
+
 _yum_list()
 {
     if [[ "$1" == all ]] ; then
@@ -36,14 +37,13 @@ _yum_plugins()
 
 _yum()
 {
-    local cur prev special i split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
-    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-        if [[ ${COMP_WORDS[i]} == @(install|update|upgrade|remove|erase|deplist|info) ]]; then
-            special=${COMP_WORDS[i]}
+    local special i
+    for (( i=0; i < ${#words[@]}-1; i++ )); do
+        if [[ ${words[i]} == @(install|update|upgrade|remove|erase|deplist|info) ]]; then
+            special=${words[i]}
         fi
     done
 
@@ -74,6 +74,7 @@ _yum()
         esac
     fi
 
+    local split=false
     _split_longopt && split=true
 
     case $prev in
@@ -144,7 +145,6 @@ _yum()
             --skip-broken --color' -- $cur ) )
         return 0
     fi
-}
 } &&
 complete -F _yum yum
 

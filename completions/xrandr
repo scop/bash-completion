@@ -1,11 +1,13 @@
 # bash completion for xrandr
 
-have xrandr &&
+have xrandr || return
+
 _xrandr()
 {
-    local cur prev output modes
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
+
+    local output modes
 
     case $prev in
         --output)
@@ -14,9 +16,9 @@ _xrandr()
             return 0
             ;;
         --mode)
-            for(( i = 1; i < COMP_CWORD; i++ )); do
-                if [[ "${COMP_WORDS[i]}" == "--output" ]]; then
-                    output=${COMP_WORDS[i+1]}
+            for(( i = 1; i < cword; i++ )); do
+                if [[ "${words[i]}" == "--output" ]]; then
+                    output=${words[i+1]}
                     break
                 fi
             done

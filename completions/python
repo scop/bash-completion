@@ -1,12 +1,11 @@
 # bash completion for python
 
-have python &&
+have python || return
+
 _python()
 {
-    local prev cur i
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -'?'|-h|--help|-V|--version|-c|-m)
@@ -21,15 +20,17 @@ _python()
                 -- "$cur" ) )
             return 0
             ;;
-        !(python?([23])|-?))
-            [[ ${COMP_WORDS[COMP_CWORD-2]} != -@(Q|W) ]] && _filedir
+        !(?(*/)python*([0-9.])|-?))
+            [[ $cword -lt 2 || ${words[cword-2]} != -@(Q|W) ]] \
+                && _filedir
             ;;
     esac
 
 
     # if '-c' is already given, complete all kind of files.
-    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-        if [[ ${COMP_WORDS[i]} == -c ]]; then
+    local i
+    for (( i=0; i < ${#words[@]}-1; i++ )); do
+        if [[ ${words[i]} == -c ]]; then
             _filedir
         fi
     done

@@ -435,13 +435,9 @@ proc _ltrim_colon_completions {cmd items dword} {
         set cur [lindex $words $index]
     }
     # If word-to-complete contains a colon,
-    # and bash-version < 4,
-    # or bash-version >= 4 and COMP_WORDBREAKS contains a colon
+    # and COMP_WORDBREAKS contains a colon
     if {
-        [string first : $cur] > -1 && (
-            [lindex $::BASH_VERSINFO 0] < 4 ||
-            ([lindex $::BASH_VERSINFO 0] >= 4 && [string first ":" $::COMP_WORDBREAKS] > -1)
-        )
+        [string first : $cur] > -1 && [string first ":" $::COMP_WORDBREAKS] > -1
     } {
         set dword_out $cur
         for {set i 0} {$i < [llength $items_out]} {incr i} {
@@ -633,10 +629,17 @@ proc get_known_hosts {{cword ''}} {
 
 
 # Get hostnames
+# @param list $args  Options:
+#                    -unsorted  Do not sort unique.  Default is sort unique.
 # @return list  Hostnames
 # @see get_known_hosts()
-proc get_hosts {} {
-    set hosts [exec bash -c "compgen -A hostname"]
+proc get_hosts {{args {}}} {
+    array set arg [::cmdline::getoptions args {
+        {unsorted   "do not sort unique"}
+    }]
+    set sort "| sort -u"
+    if {$arg(unsorted)} {set sort ""}
+    set hosts [exec bash -c "compgen -A hostname $sort"]
     # NOTE: Circumventing var `avahi_hosts' and appending directly to `hosts'
     #       causes an empty element to be inserted in `hosts'.
     #       -- FVu, Fri Jul 17 23:11:46 CEST 2009
@@ -980,29 +983,17 @@ proc start_bash {} {
     set env(SRCDIRABS) $::srcdirabs
     exp_spawn $TOOL_EXECUTABLE --rcfile $::srcdir/config/bashrc
     assert_bash_exec {} "$TOOL_EXECUTABLE --rcfile $::srcdir/config/bashrc"
-    # Bash < 3.2.41 has a bug where 'history' disappears from SHELLOPTS
-    # whenever a shopt setting is sourced or eval'ed.  Disabling 'history'
-    # makes it not show in tests "Environment should not be modified"
-    # for bash < 3.2.41.
-    # -- FVu, Tue Sep 15 22:52:00 CEST 2009
-    assert_bash_exec {is_bash_version_minimal 3 2 41 || set +o history}
 }
 
 
 # Redirect xtrace output to a file.
 #
 # 'set -x' can be very useful for debugging but by default it writes to
-# stderr. Bash 4.1 has a feature to redirect this output to a random FD.
+# stderr.
 #
 # This function uses file descriptor 6. This will break if any completion
 # tries to use the same descriptor.
 proc init_bash_xtrace {{fname xtrace.log}} {
-    global BASH_VERSINFO
-    if {([lindex $BASH_VERSINFO 0] == 4 && [lindex $BASH_VERSINFO 1] < 1) ||
-        [lindex $BASH_VERSINFO 0] < 4} {
-        note "BASH_XTRACEFD not available in this version; no xtrace.log"
-        return
-    }
     verbose "Enabling bash xtrace output to '$fname'"
     assert_bash_exec "exec 6>'$fname'"
     assert_bash_exec "BASH_XTRACEFD=6"

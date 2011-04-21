@@ -1,22 +1,19 @@
 # bash completion for rdesktop
 
-have rdesktop &&
+have rdesktop || return
+
 _rdesktop()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -k)
             COMPREPLY=( $( command ls \
                 /usr/share/rdesktop/keymaps 2>/dev/null | \
                 command grep -E -v '(common|modifiers)' ) )
-            COMPREPLY=( ${COMPREPLY[@]:-} $( command ls \
-                $HOME/.rdesktop/keymaps 2>/dev/null ) )
-            COMPREPLY=( ${COMPREPLY[@]:-} $( command ls \
-                ./keymaps 2>/dev/null ) )
+            COMPREPLY+=( $( command ls $HOME/.rdesktop/keymaps 2>/dev/null ) )
+            COMPREPLY+=( $( command ls ./keymaps 2>/dev/null ) )
             COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
             return 0
             ;;

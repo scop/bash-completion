@@ -1,6 +1,7 @@
 # bash completion for cfengine
 
-have cfagent && {
+have cfagent || return
+
 _cfagent_options()
 {
     COMPREPLY=( $( compgen -W '--sysadm --force-net-copy --no-check-files \
@@ -14,10 +15,8 @@ _cfagent_options()
 
 _cfagent()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -f|--file)
@@ -29,19 +28,17 @@ _cfagent()
     if [[ "$cur" == -* ]]; then
         _cfagent_options
     fi
-}
+} &&
 complete -F _cfagent cfagent
 
 _cfrun()
 {
-    local i section cfinputs cur prev
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
-    section=1
-    for (( i=1; i < COMP_CWORD; i++ )); do
-        if [[ "${COMP_WORDS[i]}" == -- ]]; then
+    local i section=1
+    for (( i=1; i < cword; i++ )); do
+        if [[ "${words[i]}" == -- ]]; then
             section=$((section + 1))
         fi
     done
@@ -59,9 +56,9 @@ _cfrun()
                 COMPREPLY=( $( compgen -W '-f -h -d -S -T -v' -- $cur ) )
             else
                 hostfile=${CFINPUTS:-/var/lib/cfengine/inputs}/cfrun.hosts
-                for (( i=1; i < COMP_CWORD; i++ )); do
-                    if [[ "${COMP_WORDS[i]}" == -f ]]; then
-                        hostfile=${COMP_WORDS[i+1]}
+                for (( i=1; i < cword; i++ )); do
+                    if [[ "${words[i]}" == -f ]]; then
+                        hostfile=${words[i+1]}
                         break
                     fi
                 done
@@ -75,9 +72,8 @@ _cfrun()
             _cfagent_options
             ;;
     esac
-}
+} &&
 complete -F _cfrun cfrun
-}
 
 # Local variables:
 # mode: shell-script

@@ -1,14 +1,16 @@
 # bash completion for strace
 
-have strace &&
+have strace || return
+
 _strace()
 {
-    local cur prev offset i syscalls arch unistd
+    local cur prev words cword
+    _init_completion || return
 
     # check if we're still completing strace
-    offset=0
-    for (( i=1; i <= COMP_CWORD; i++ )); do
-        case ${COMP_WORDS[$i]} in
+    local offset=0 i
+    for (( i=1; i <= cword; i++ )); do
+        case ${words[$i]} in
             -o|-e|-p)
                 i=$((i+1))
                 continue
@@ -22,12 +24,8 @@ _strace()
     done
 
     if [ $offset -gt 0 ]; then
-        # FAIL: _command_offset is not defined anywhere. Guillame?
         _command_offset $offset
     else
-
-        COMPREPLY=()
-        _get_comp_words_by_ref cur prev
 
         case $prev in
             -e)
@@ -37,11 +35,12 @@ _strace()
 
                     # Import arch-specific syscalls -- not foolproof IMHO
                     #+                                     --David Paleino
-                    arch=$(command uname -m)
-                    syscalls=$(awk '/^#define __NR/ {print $2}' \
+                    local arch=$(command uname -m)
+                    local syscalls=$(awk '/^#define __NR/ {print $2}' \
                         /usr/include/asm/unistd.h | sed -e \
                         's/__NR_//')
                     if [ -z "$syscalls" ]; then
+                        local unistd
                         if [[ "$arch" == *86 ]]; then
                             unistd=/usr/include/asm/unistd_32.h
                         else

@@ -1,12 +1,13 @@
 # bash completion for rcs
 
-have rcs &&
+have rcs || return
+
 _rcs()
 {
-    local cur prev file dir i
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local file dir i
 
     file=${cur##*/}
     dir=${cur%/*}
@@ -22,7 +23,7 @@ _rcs()
         COMPREPLY[$i]=$dir$file
     done
 
-    COMPREPLY=( "${COMPREPLY[@]}" $( compgen -G "$dir/$file*,v" ) )
+    COMPREPLY+=( $( compgen -G "$dir/$file*,v" ) )
 
     for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
         COMPREPLY[$i]=${COMPREPLY[$i]%,v}

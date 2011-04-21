@@ -1,11 +1,11 @@
 # iproute2 tools completion
 
-have ip &&
+have ip || return
+
 _ip()
 {
-    COMPREPLY=()
     local cur prev words cword
-    _get_comp_words_by_ref cur prev words cword
+    _init_completion || return
 
     case $prev in
         -V|-Version|-rc|-rcvbuf)
@@ -39,7 +39,7 @@ _ip()
             -*)
                 local c="-Version -statistics -details -resolve -family
                     -oneline -timestamp -batch -rcvbuf"
-                [[ $cword -eq 1 ]] && c="$c -force"
+                [[ $cword -eq 1 ]] && c+=" -force"
                 COMPREPLY=( $( compgen -W "$c" -- "$cur" ) )
                 return 0
                 ;;
@@ -91,7 +91,7 @@ _ip()
                                 local c="arp dynamic multicast allmulticast
                                     promisc trailers txqueuelen name address
                                     broadcast mtu netns alias"
-                                [[ $prev != @(up|down) ]] && c="$c up down"
+                                [[ $prev != @(up|down) ]] && c+=" up down"
                                 COMPREPLY=( $( compgen -W "$c" -- "$cur" ) )
                                 ;;
                         esac

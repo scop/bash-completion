@@ -1,14 +1,15 @@
 # bash completion for openssl
 
-have openssl && {
+have openssl || return
+
 _openssl_sections()
 {
     local config f
 
     # check if a specific configuration file is used
-    for (( i=2; i < COMP_CWORD; i++ )); do
-        if [[ "${COMP_WORDS[i]}" == -config ]]; then
-            config=${COMP_WORDS[i+1]}
+    for (( i=2; i < cword; i++ )); do
+        if [[ "${words[i]}" == -config ]]; then
+            config=${words[i+1]}
             break
         fi
     done
@@ -29,10 +30,10 @@ _openssl_sections()
 
 _openssl()
 {
-    local cur prev commands command options formats
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local commands command options formats
 
     commands='asn1parse ca ciphers crl crl2pkcs7 dgst dh dhparam dsa \
         dsaparam ec ecparam enc engine errstr gendh gendsa genrsa \
@@ -49,10 +50,10 @@ _openssl()
         rc2-40-cbc rc2-64-cbc rc2-cbc rc2-cfb rc2-ecb rc2-ofb rc4 \
         rc4-40'
 
-    if [ $COMP_CWORD -eq 1 ]; then
+    if [ $cword -eq 1 ]; then
         COMPREPLY=( $( compgen -W "$commands" -- "$cur" ) )
     else
-        command=${COMP_WORDS[1]}
+        command=${words[1]}
         case $prev in
             -CA|-CAfile|-CAkey|-CAserial|-cert|-certfile|-config|-content| \
             -dcert|-dkey|-dhparam|-extfile|-in|-inkey|-kfile|-key|-keyout| \
@@ -74,10 +75,10 @@ _openssl()
                 formats='DER PEM'
                 case $command in
                     x509)
-                        formats="$formats NET"
+                        formats+=" NET"
                         ;;
                     smime)
-                        formats="$formats SMIME"
+                        formats+=" SMIME"
                         ;;
                 esac
                 COMPREPLY=( $( compgen -W "$formats" -- "$cur" ) )
@@ -217,7 +218,7 @@ _openssl()
                     ;;
                 x509)
                     options='-inform -outform -keyform -CAform -CAkeyform -in \
-                        -out -serial -hash -subject-hash -issuer_hash -subject \
+                        -out -serial -hash -subject_hash -issuer_hash -subject \
                         -issuer -nameopt -email -startdate -enddate -purpose \
                         -dates -modulus -fingerprint -alias -noout -trustout \
                         -clrtrust -clrreject -addtrust -addreject -setalias \
@@ -241,9 +242,8 @@ _openssl()
             fi
         fi
     fi
-}
+} &&
 complete -F _openssl -o default openssl
-}
 
 # Local variables:
 # mode: shell-script

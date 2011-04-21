@@ -1,12 +1,11 @@
 # gpg2(1) completion
 
-have gpg2 && {
-_gpg2 ()
-{
-    local cur prev
+have gpg2 || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+_gpg2()
+{
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         --homedir)
@@ -28,7 +27,7 @@ _gpg2 ()
             COMPREPLY=( $( compgen -W "$( gpg2 --list-keys 2>/dev/null | \
                 sed -ne 's@^.*<\([^>]*\)>.*$@\1@p')" -- "$cur" ))
             if [ -e ~/.gnupg/gpg.conf ]; then
-                COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "$( sed -ne \
+                COMPREPLY+=( $( compgen -W "$( sed -ne \
                     's@^[ \t]*group[ \t][ \t]*\([^=]*\).*$@\1@p' \
                     ~/.gnupg/gpg.conf)" -- "$cur"))
             fi
@@ -41,7 +40,6 @@ _gpg2 ()
     fi
 } &&
 complete -F _gpg2 -o default gpg2
-}
 
 # Local variables:
 # mode: shell-script

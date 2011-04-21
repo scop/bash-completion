@@ -1,16 +1,14 @@
 # abook(1) completion
 
-have abook &&
+have abook || return
+
 _abook()
 {
-    local cur prev
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
-    # abook only takes options, tabbing after command name adds a single
-    # dash (bash4)
-    [[ ${BASH_VERSINFO[0]} -ge 4 && $COMP_CWORD -eq 1 && -z "$cur" ]] &&
+    # abook only takes options, tabbing after command name adds a single dash
+    [[ $cword -eq 1 && -z "$cur" ]] &&
     {
         compopt -o nospace
         COMPREPLY=( "-" )

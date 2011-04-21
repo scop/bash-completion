@@ -1,12 +1,13 @@
 # svk(1) completion
 
-have svk &&
+have svk || return
+
 _svk()
 {
-    local cur prev commands options command
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local commands options command
 
     commands='add admin annotate ann blame praise cat checkout co cleanup \
         cmerge cm commit ci copy cp delete del remove rm depotmap \
@@ -16,7 +17,7 @@ _svk()
         pset pull push resolved revert smerge sm status st stat switch \
         sw sync sy update up verify'
 
-    if [[ $COMP_CWORD -eq 1 ]] ; then
+    if [[ $cword -eq 1 ]] ; then
         if [[ "$cur" == -* ]]; then
             COMPREPLY=( $( compgen -W '--version' -- "$cur" ) )
         else
@@ -35,7 +36,7 @@ _svk()
                 ;;
         esac
 
-        command=${COMP_WORDS[1]}
+        command=${words[1]}
 
         if [[ "$cur" == -* ]]; then
             # possible options for the command
@@ -173,7 +174,7 @@ _svk()
                         -s --sync -m --merge -q --quiet'
                     ;;
             esac
-            options="$options --help -h"
+            options+=" --help -h"
 
             COMPREPLY=( $( compgen -W "$options" -- "$cur" ) )
         else

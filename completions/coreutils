@@ -5,11 +5,11 @@
 have chown &&
 _chown()
 {
-    local cur prev split=false
+    local cur prev words cword
+    # Don't treat user:group as separate words.
+    _init_completion -n : || return
 
-    # Get cur and prev words; but don't treat user:group as separate words.
-    _get_comp_words_by_ref -n : cur prev
-
+    local split=false
     _split_longopt && split=true
 
     case "$prev" in
@@ -28,7 +28,7 @@ _chown()
     if [[ "$cur" == -* ]]; then
         # Complete -options
         local w opts
-        for w in "${COMP_WORDS[@]}" ; do
+        for w in "${words[@]}" ; do
             [[ "$w" == -@(R|-recursive) ]] && opts="-H -L -P" && break
         done
         COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes --dereference \
@@ -40,7 +40,7 @@ _chown()
         # The first argument is an usergroup; the rest are filedir.
         _count_args :
 
-        if [[ $args == 1 ]]; then
+        if [[ $args -eq 1 ]]; then
             _usergroup -u
         else
             _filedir
@@ -55,12 +55,12 @@ complete -F _chown chown
 have chgrp &&
 _chgrp()
 {
-    local cur prev split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
     cur=${cur//\\\\/}
 
+    local split=false
     _split_longopt && split=true
 
     if [[ "$prev" == --reference ]]; then
@@ -73,7 +73,7 @@ _chgrp()
     # options completion
     if [[ "$cur" == -* ]]; then
         local w opts
-        for w in "${COMP_WORDS[@]}" ; do
+        for w in "${words[@]}" ; do
             [[ "$w" == -@(R|-recursive) ]] && opts="-H -L -P" && break
         done
         COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes --dereference \
@@ -83,8 +83,8 @@ _chgrp()
     fi
 
     # first parameter on line or first since an option?
-    if [[ $COMP_CWORD -eq 1 && "$cur" != -* || "$prev" == -* ]]; then
-        _allowed_groups
+    if [[ $cword -eq 1 && "$cur" != -* || "$prev" == -* ]]; then
+        _allowed_groups "$cur"
     else
         _filedir || return 0
     fi
@@ -98,10 +98,8 @@ complete -F _chgrp chgrp
 have id &&
 _id()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '-a -g --group -G --groups -n --name\
@@ -111,6 +109,34 @@ _id()
     fi
 } &&
 complete -F _id id
+
+# mktemp(1) completion
+#
+have mktemp &&
+_mktemp()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    local split=false
+    _split_longopt && split=true
+
+    case "$prev" in
+        --help|--version|--suffix)
+            return 0
+            ;;
+        --tmpdir|-p)
+            _filedir -d
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    [[ "$cur" == -* ]] && \
+        COMPREPLY=( $( compgen -W '-d -u -q -p -t' -- "$cur" ) )
+} &&
+complete -F _mktemp mktemp
 
 # Local variables:
 # mode: shell-script

@@ -2,13 +2,12 @@
 # globs and contains Linux specific code for completing the parameter
 # to the -fstype option.
 
-have find &&
+have find || return
+
 _find()
 {
-    local cur prev i exprfound onlyonce
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -maxdepth|-mindepth)
@@ -22,10 +21,8 @@ _find()
             ;;
         -fstype)
             _fstypes
-            if [[ "$( uname -s )" == *BSD ]] ; then
-                COMPREPLY=( "${COMPREPLY[@]}" \
-                    $( compgen -W 'local rdonly' -- "$cur" ) )
-            fi
+            [[ $OSTYPE == *bsd* ]] && \
+                COMPREPLY+=( $( compgen -W 'local rdonly' -- "$cur" ) )
             return 0
             ;;
         -gid)
@@ -49,8 +46,8 @@ _find()
             return 0
             ;;
         -exec|-execdir|-ok|-okdir)
-            COMP_WORDS=(COMP_WORDS[0] "$cur")
-            COMP_CWORD=1
+            words=(words[0] "$cur")
+            cword=1
             _command
             return 0
             ;;
@@ -68,13 +65,15 @@ _find()
     esac
 
     _expand || return 0
-    # set exprfound to 1 if there is already an expression present
-    for i in ${COMP_WORDS[@]}; do
-        [[ "$i" = [-\(\),\!]* ]] && exprfound=1 && break
+
+    local i exprfound=false
+    # set exprfound to true if there is already an expression present
+    for i in ${words[@]}; do
+        [[ "$i" = [-\(\),\!]* ]] && exprfound=true && break
     done
 
     # handle case where first parameter is not a dash option
-    if [[ "$exprfound" != 1 && "$cur" != [-\(\),\!]* ]]; then
+    if ! $exprfound && [[ "$cur" != [-\(\),\!]* ]]; then
         _filedir -d
         return 0
     fi
@@ -96,6 +95,7 @@ _find()
     # already been specified somewhere on the command line, as long as
     # these options can only be used once (in a word, "options", in
     # opposition to "tests" and "actions", as in the find(1) manpage).
+    local onlyonce
     onlyonce=' -daystart -depth -follow -help -ignore_readdir_race -maxdepth \
        -mindepth -mount -noignore_readdir_race -noleaf -nowarn -regextype \
        -version -warn -xdev '
@@ -110,7 +110,7 @@ _find()
             # remove word from list of completions
             COMPREPLY=( ${COMPREPLY/ ${i%% *} / } )
             done
-            printf '%s ' "${COMPREPLY[@]}") <<<"${COMP_WORDS[@]}"
+            printf '%s ' "${COMPREPLY[@]}") <<<"${words[@]}"
           ) )
 
     _filedir

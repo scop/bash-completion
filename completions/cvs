@@ -1,6 +1,7 @@
 # cvs(1) completion
 
-have cvs && {
+have cvs || return
+
 set_prefix()
 {
     [ -z ${prefix:-} ] || prefix=${cur%/*}/
@@ -48,25 +49,25 @@ _cvs_roots()
     local -a cvsroots
     cvsroots=( $CVSROOT )
     [ -r ~/.cvspass ] && \
-        cvsroots=( "${cvsroots[@]}" $( awk '{ print $2 }' ~/.cvspass ) )
-    [ -r CVS/Root ] && cvsroots=( "${cvsroots[@]}" $(cat CVS/Root) )
+        cvsroots+=( $( awk '{ print $2 }' ~/.cvspass ) )
+    [ -r CVS/Root ] && cvsroots+=( $( cat CVS/Root ) )
     COMPREPLY=( $( compgen -W '${cvsroots[@]}' -- "$cur" ) )
     __ltrim_colon_completions "$cur"
 }
 
 _cvs()
 {
-    local cur prev count mode i cvsroot cvsroots pwd
+    local cur prev words cword
+    _init_completion -n : || return
+
+    local count mode i cvsroot cvsroots pwd
     local -a flags miss files entries changed newremoved
 
-    COMPREPLY=()
-    _get_comp_words_by_ref -n : cur prev
-
     count=0
-    for i in "${COMP_WORDS[@]}"; do
-        [ $count -eq $COMP_CWORD ] && break
+    for i in "${words[@]}"; do
+        [ $count -eq $cword ] && break
         # Last parameter was the CVSROOT, now go back to mode selection
-        if [[ "${COMP_WORDS[((count))]}" == "$cvsroot" && "$mode" == cvsroot ]]; then
+        if [[ "${words[((count))]}" == "$cvsroot" && "$mode" == cvsroot ]]; then
             mode=""
         fi
         if [ -z "$mode" ]; then
@@ -77,7 +78,7 @@ _cvs()
                     ;;
                 -d)
                     mode=cvsroot
-                    cvsroot=${COMP_WORDS[((count+1))]}
+                    cvsroot=${words[((count+1))]}
                     ;;
                 ad|add|new)
                     mode=add
@@ -135,7 +136,7 @@ _cvs()
                     ;;
             esac
         elif [[ "$i" = -* ]]; then
-            flags=( "${flags[@]}" $i )
+            flags+=( $i )
         fi
         count=$((++count))
     done
@@ -154,7 +155,7 @@ _cvs()
 
             if [[ "$cur" != -* ]]; then
                 set_prefix
-                if [[ $COMP_CWORD -gt 1 && -r ${prefix:-}CVS/Entries ]]; then
+                if [[ $cword -gt 1 && -r ${prefix:-}CVS/Entries ]]; then
                     get_entries
                     [ -z "$cur" ] && \
                     files=$( command ls -Ad !(CVS) ) || \
@@ -301,11 +302,11 @@ _cvs()
         remove)
             if [[ "$cur" != -* ]]; then
                 set_prefix
-                if [[ $COMP_CWORD -gt 1 && -r ${prefix:-}CVS/Entries ]]; then
+                if [[ $cword -gt 1 && -r ${prefix:-}CVS/Entries ]]; then
                     get_entries
                     # find out what files are missing
                     for i in "${entries[@]}"; do
-                        [ ! -r "$i" ] && miss=( "${miss[@]}" $i )
+                        [ ! -r "$i" ] && miss+=( $i )
                     done
                     COMPREPLY=( $(compgen -W '${miss[@]:-}' -- "$cur") )
                 fi
@@ -379,9 +380,8 @@ _cvs()
     esac
 
     return 0
-}
+} &&
 complete -F _cvs -o default cvs
-}
 
 # Local variables:
 # mode: shell-script

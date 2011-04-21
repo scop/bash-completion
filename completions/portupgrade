@@ -3,12 +3,12 @@
 have portupgrade &&
 _portupgrade()
 {
-    local cur pkgdir prev
-
-    pkgdir=${PKG_DBDIR:-/var/db/pkg}/
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     [[ "$prev" == -l || "$prev" == -L || "$prev" == -o ]] && return 0
+
+    local pkgdir=${PKG_DBDIR:-/var/db/pkg}/
 
     COMPREPLY=( $( compgen -d "$pkgdir$cur" ) )
     COMPREPLY=( ${COMPREPLY[@]#$pkgdir} )
@@ -21,11 +21,14 @@ complete -F _portupgrade -o dirnames portupgrade
 have portinstall &&
 _portinstall()
 {
-    local cur portsdir prev indexfile
+    local cur prev words cword
+    _init_completion || return
+
+    local portsdir indexfile
     local -a COMPREPLY2
 
     portsdir=${PORTSDIR:-/usr/ports}/
-    _get_comp_words_by_ref cur prev
+
     # First try INDEX-5
     indexfile=$portsdir/INDEX-5
     # Then INDEX if INDEX-5 does not exist or system is not FreeBSD 5.x
@@ -38,7 +41,7 @@ _portinstall()
     COMPREPLY2=( $( command grep -E "^[^\|]+\|$portsdir$cur" < $indexfile | \
         cut -d'|' -f2 ) )
     COMPREPLY2=( ${COMPREPLY2[@]#$portsdir} )
-    COMPREPLY=( "${COMPREPLY[@]}" "${COMPREPLY2[@]}" )
+    COMPREPLY+=( "${COMPREPLY2[@]}" )
 
     return 0
 } &&

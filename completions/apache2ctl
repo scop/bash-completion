@@ -1,19 +1,19 @@
 # apache2ctl(1) completion
 
-have apache2ctl && {
-_apache2ctl() {
-    local APWORDS cur
+have apache2ctl || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+_apache2ctl()
+{
+    local cur prev words cword
+    _init_completion || return
 
+    local APWORDS
     APWORDS=$(apache2ctl 2>&1 >/dev/null | awk 'NR<2 { print $3; exit }' | \
         tr "|" " ")
 
     COMPREPLY=( $( compgen -W "$APWORDS" -- "$cur" ) )
-}
+} &&
 complete -F _apache2ctl apache2ctl
-}
 
 # Local variables:
 # mode: shell-script

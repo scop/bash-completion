@@ -1,6 +1,7 @@
 # bash completion for openldap
 
-have ldapsearch && {
+have ldapsearch || return
+
 _ldap_uris()
 {
     COMPREPLY=( $( compgen -W 'ldap:// ldaps://' -- "$cur" ) )
@@ -13,10 +14,8 @@ _ldap_protocols()
 
 _ldapsearch()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -h)
@@ -55,15 +54,13 @@ _ldapsearch()
             -LLL -M -MM -S -d -f -x -D -W -w -y -H -h -p -b -s -a \
             -P -e -E -l -z -O -I -Q -U -R -X -Y -Z -ZZ' -- "$cur" ) )
     fi
-}
+} &&
 complete -F _ldapsearch ldapsearch
 
 _ldapaddmodify()
 {
-    local cur prev options
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -h)
@@ -85,22 +82,21 @@ _ldapaddmodify()
     esac
 
     if [[ "$cur" == -* ]]; then
+        local options
         options='-c -S -n -v -M -MM -d -D -W -w -y -h -H -p -P -O -I \
             -Q -U -R -x -X -Y -Z -ZZ -f'
-        if [[ ${COMP_WORDS[0]} == ldapmodify ]]; then
-            options="$options -a"
+        if [[ ${words[0]} == ldapmodify ]]; then
+            options+=" -a"
         fi
         COMPREPLY=( $( compgen -W "$options" -- "$cur" ) )
     fi
-}
+} &&
 complete -F _ldapaddmodify ldapadd ldapmodify
 
 _ldapdelete()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -h)
@@ -125,15 +121,13 @@ _ldapdelete()
         COMPREPLY=( $( compgen -W '-n -v -c -M -MM -d -f -D -W -w -y \
             -H -h -P -p -O -U -R -r -x -I -Q -X -Y -Z -ZZ' -- "$cur" ) )
     fi
-}
+} &&
 complete -F _ldapdelete ldapdelete
 
 _ldapcompare()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -h)
@@ -158,15 +152,13 @@ _ldapcompare()
         COMPREPLY=( $( compgen -W '-n -v -z -M -MM -d -D -W -w -y \
             -H -h -P -p -O -I -Q -U -R -x -X -Y -Z -ZZ' -- "$cur" ) )
     fi
-}
+} &&
 complete -F _ldapcompare ldapcompare
 
 _ldapmodrdn()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -h)
@@ -191,15 +183,13 @@ _ldapmodrdn()
         COMPREPLY=( $( compgen -W '-r -s -n -v -c -M -MM -d -D -W -w \
             -y -H -h -P -p -O -I -Q -U -R -x -X -Y -Z -ZZ -f' -- "$cur" ) )
     fi
-}
+} &&
 complete -F _ldapmodrdn ldapmodrdn
 
 _ldapwhoami()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -h)
@@ -224,15 +214,13 @@ _ldapwhoami()
         COMPREPLY=( $( compgen -W '-n -v -z -d -D -W -w -y -H -h -p -P \
             -O -I -Q -U -R -x -X -Y -Z -ZZ' -- "$cur" ) )
     fi
-}
+} &&
 complete -F _ldapwhoami ldapwhoami
 
 _ldappasswd()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -h)
@@ -253,9 +241,8 @@ _ldappasswd()
         COMPREPLY=( $( compgen -W '-A -a -t -d -D -H -h -n -p -S -s -T \
             -v -W -w -y -O -I -Q -U -R -x -X -Y -Z -ZZ' -- "$cur" ) )
     fi
-}
+} &&
 complete -F _ldappasswd ldappasswd
-}
 
 # Local variables:
 # mode: shell-script

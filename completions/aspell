@@ -1,6 +1,7 @@
 # bash completion for aspell
 
-have aspell && {
+have aspell || return
+
 _aspell_dictionary()
 {
     local datadir
@@ -10,17 +11,16 @@ _aspell_dictionary()
     COMPREPLY=( ${COMPREPLY[@]%.alias} )
     COMPREPLY=( ${COMPREPLY[@]#$datadir/} )
     # Then, add the canonical dicts
-    COMPREPLY=( "${COMPREPLY[@]}" $( aspell dicts 2>/dev/null ) )
+    COMPREPLY+=( $( aspell dicts 2>/dev/null ) )
     COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
 }
 
 _aspell()
 {
-    local cur prev split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local split=false
     _split_longopt && split=true
 
     case $prev in
@@ -37,7 +37,8 @@ _aspell()
             return 0
             ;;
         --mode)
-            COMPREPLY=( $( compgen -W 'none url email sgml tex' -- "$cur" ) )
+            COMPREPLY=( $( compgen -W "$( $1 modes 2>/dev/null | \
+                awk '{ print $1 }' )" -- "$cur" ) )
             return 0
             ;;
         --sug-mode)
@@ -50,6 +51,11 @@ _aspell()
             ;;
         -d|--master)
             _aspell_dictionary
+            return 0
+            ;;
+        --add-filter|--rem-filter)
+            COMPREPLY=( $( compgen -W "$( $1 filters 2>/dev/null | \
+                awk '{ print $1 }' )" -- "$cur" ) )
             return 0
             ;;
     esac
@@ -82,10 +88,8 @@ _aspell()
         COMPREPLY=( $( compgen -W 'usage help check pipe list \
             config soundslike filter version dump create merge' -- "$cur" ) )
     fi
-
-}
+} &&
 complete -F _aspell aspell
-}
 
 # Local variables:
 # mode: shell-script

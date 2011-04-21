@@ -1,12 +1,11 @@
 # lzma(1) completion by Per Øyvind Karlsen <peroyvind@mandriva.org>
 
-have lzma &&
+have lzma || return
+
 _lzma()
 {
-    local cur prev xspec
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '-1 -2 -3 -4 -5 -6 -7 -8 -9 \
@@ -16,9 +15,8 @@ _lzma()
         return 0
     fi
 
-    local IFS=$'\n'
+    local IFS=$'\n' xspec="*.@(lzma|tlz)"
 
-    xspec="*.@(lzma|tlz)"
     if [[ "$prev" == --* ]]; then
         [[ "$prev" == --decompress || \
             "$prev" == --list || \
@@ -31,7 +29,7 @@ _lzma()
 
     _expand || return 0
 
-    _compopt_o_filenames
+    compopt -o filenames
     COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \
         $( compgen -d -- "$cur" ) )
 } &&

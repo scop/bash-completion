@@ -1,6 +1,7 @@
 # bash completion for xm
 
-have xm && {
+have xm || return
+
 _xen_domain_names()
 {
     COMPREPLY=( $(compgen -W "$( xm list 2>/dev/null | \
@@ -15,24 +16,25 @@ _xen_domain_ids()
 
 _xm()
 {
+    local cur prev words cword
+    _init_completion || return
+
     # TODO: _split_longopt
 
-    local cur prev command options
+    local command options
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    commands='console vncviewer create new delete destroy domid domname \
+        dump-core list mem-max mem-set migrate pause reboot rename reset \
+        restore resume save shutdown start suspend sysrq trigger top unpause \
+        uptime usb-add usb-del vcpu-list vcpu-pin vcpu-set debug-keys dmesg \
+        info log serve sched-credit sched-sedf block-attach block-detach \
+        block-list block-configure network-attach network-detach network-list \
+        vtpm-list pci-attach pci-detach pci-list pci-list-assignable-devices \
+        scsi-attach scsi-detach scsi-list vnet-list vnet-create vnet-delete \
+        labels addlabel rmlabel getlabel dry-run resources dumppolicy \
+        setpolicy resetpolicy getpolicy shell help'
 
-    commands='console create new delete destroy domid domname dump-core \
-        list mem-max mem-set migrate pause reboot rename restore \
-        resume save shutdown start suspend sysrq trigger top unpause \
-        uptime vcpu-list vcpu-pin vcpu-set debug-keys dmesg info log \
-        serve sched-credit sched-sedf block-attach block-detach \
-        block-list network-attach network-detach network-list \
-        vtpm-list vnet-list vnet-create vnet-delete labels addlabel \
-        rmlabel getlabel dry-run resources makepolicy loadpolicy \
-        cfgbootpolicy dumppolicy help'
-
-    if [[ $COMP_CWORD -eq 1 ]] ; then
+    if [[ $cword -eq 1 ]] ; then
         COMPREPLY=( $( compgen -W "$commands" -- "$cur" ) )
     else
         if [[ "$cur" == *=* ]]; then
@@ -40,7 +42,7 @@ _xm()
             cur=${cur/*=/}
         fi
 
-        command=${COMP_WORDS[1]}
+        command=${words[1]}
         if [[ "$cur" == -* ]]; then
             # possible options for the command
             case $command in
@@ -191,7 +193,7 @@ _xm()
                     ;;
                 create)
                     _filedir
-                    COMPREPLY=( ${COMPREPLY[@]:-} \
+                    COMPREPLY+=( \
                         $( compgen -W '$( command ls /etc/xen 2>/dev/null )' \
                         -- "$cur" ) )
                     ;;
@@ -219,9 +221,8 @@ _xm()
     fi
 
     return 0
-}
+} &&
 complete -F _xm xm
-}
 
 # Local variables:
 # mode: shell-script

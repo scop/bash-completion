@@ -1,5 +1,7 @@
 # bash completion for cryptsetup
 
+have cryptsetup || return
+
 _cryptsetup_name()
 {
     COMPREPLY=( $( compgen -X control -W '$( command ls /dev/mapper )' \
@@ -12,13 +14,10 @@ _cryptsetup_device()
     _filedir
 }
 
-have cryptsetup &&
 _cryptsetup()
 {
-    local cur prev arg
-    COMPREPLY=()
-    cur=`_get_cword`
-    prev=`_get_pword`
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         --key-file|--master-key-file|--header-backup-file|-d)
@@ -27,6 +26,7 @@ _cryptsetup()
             ;;
     esac
 
+    local arg
     _get_first_arg
     if [ -z $arg ]; then
         if [[ "$cur" == -* ]]; then
@@ -41,6 +41,7 @@ _cryptsetup()
                 luksDump luksHeaderBackup luksHeaderRestore' -- "$cur" ) )
         fi
     else
+        local args
         _count_args
         case $arg in
             create)

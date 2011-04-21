@@ -1,16 +1,13 @@
 # bash completion for cdrecord/wodim
 
-# We set -o nospace and turn it off in several places for bash < 4
-# reasons; assuming bash >= 4 we could instead not turn it on
-# initially but only in the few cases where it's actually needed.
+have cdrecord || have wodim || return
 
-have cdrecord || have wodim &&
 _cdrecord()
 {
-    local cur prev i generic_options track_options track_mode
+    local cur prev words cword
+    _init_completion -n = || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref -n = cur prev
+    local i generic_options track_options track_mode
 
     # foo=bar style option
     if [[ "$cur" == *=* ]]; then
@@ -18,11 +15,9 @@ _cdrecord()
         cur=${cur#*=}
         case $prev in
             textfile|cuefile|msifile)
-                compopt +o nospace &>/dev/null
                 _filedir
                 ;;
             blank)
-                compopt +o nospace &>/dev/null
                 COMPREPLY=( $( compgen -W 'help all fast track unreserve trtail
                     unclose session' -- "$cur" ) )
                 ;;
@@ -32,17 +27,14 @@ _cdrecord()
                     cur=${cur#*=}
                     case $prev in
                         varirec)
-                            compopt +o nospace &>/dev/null
                             COMPREPLY=( $( compgen -W "-2 -1 0 1 2" \
                                 -- "$cur" ) )
                             ;;
                         gigarec)
-                            compopt +o nospace &>/dev/null
                             COMPREPLY=( $( compgen -W "0.6 0.7 0.8 1.0 1.2 1.3
                                 1.4" -- "$cur" ) )
                             ;;
                         tattoofile)
-                            compopt +o nospace &>/dev/null
                             _filedir
                             ;;
                     esac
@@ -51,17 +43,15 @@ _cdrecord()
                         gigarec= audiomaster forcespeed noforcespeed speedread
                         nospeedread singlesession nosinglesession hidecdr
                         nohidecdr tattooinfo tattoofile=' -- "$cur" ) )
-                    [[ ${#COMPREPLY[@]} == 1 && ${COMPREPLY[0]} != *= ]] && \
-                        compopt +o nospace &>/dev/null
+                    [[ ${#COMPREPLY[@]} -eq 1 && ${COMPREPLY[0]} != *= ]] || \
+                        compopt -o nospace
                 fi
                 ;;
             driver)
-                compopt +o nospace &>/dev/null
                 COMPREPLY=( $( compgen -W "$( $1 driver=help 2>&1 | \
                     awk 'NR > 1 { print $1 }' ) help" -- "$cur" ) )
                 ;;
             minbuf)
-                compopt +o nospace &>/dev/null
                 COMPREPLY=( $( compgen -W "$( seq 25 95 2>/dev/null )" \
                     -- "$cur" ) )
                 ;;
@@ -81,7 +71,7 @@ _cdrecord()
         -copy -nocopy -scms isrc= index= padsize= pregap= tsize= )
     # look if previous was either a file or a track option
     track_mode=0
-    if [ $COMP_CWORD -gt 1 ]; then
+    if [ $cword -gt 1 ]; then
         if [ -f "$prev" ]; then
             track_mode=1
         else
@@ -97,17 +87,14 @@ _cdrecord()
     # files are always eligible completion
     _filedir
     # track options are always available
-    COMPREPLY=( "${COMPREPLY[@]}" \
-        $( compgen -W '${track_options[@]}' -- "$cur" ) )
+    COMPREPLY+=( $( compgen -W '${track_options[@]}' -- "$cur" ) )
     # general options are no more available after file or track option
     if [ $track_mode -eq 0 ]; then
-        COMPREPLY=( "${COMPREPLY[@]}" \
-            $( compgen -W '${generic_options[@]}' -- "$cur" ) )
+        COMPREPLY+=( $( compgen -W '${generic_options[@]}' -- "$cur" ) )
     fi
-    [[ ${#COMPREPLY[@]} == 1 && ${COMPREPLY[0]} != *= ]] && \
-        compopt +o nospace &>/dev/null
+    [[ ${#COMPREPLY[@]} -eq 1 && ${COMPREPLY[0]} != *= ]] || compopt -o nospace
 } &&
-complete -F _cdrecord -o nospace cdrecord wodim
+complete -F _cdrecord cdrecord wodim
 
 # Local variables:
 # mode: shell-script

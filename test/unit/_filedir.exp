@@ -124,120 +124,108 @@ foreach name {f f2} {
     sync_after_int
 
 
-    # NOTE: Bash versions 4.0.0 up to 4.0.34 contain a bug when completing quoted
-    #       words, so tests below aren't executed for these bash versions.
-    if {! (
-        [lindex $::BASH_VERSINFO 0] == 4 && 
-        [lindex $::BASH_VERSINFO 1] == 0 &&
-        [lindex $::BASH_VERSINFO 2] < 35
-    )} {
-        set cmd "$name 'ab/"
-        assert_complete_dir {e'} $cmd "$::srcdir/fixtures/_filedir"
+    set cmd "$name 'ab/"
+    assert_complete_dir {e'} $cmd "$::srcdir/fixtures/_filedir"
+
+
+    sync_after_int
+
+
+    set cmd "$name 'a b/"
+    assert_complete_dir {i'} $cmd "$::srcdir/fixtures/_filedir"
+
+
+    sync_after_int
+
+
+    set cmd "$name 'a\"b/"; #"
+    assert_complete_dir {d'} $cmd "$::srcdir/fixtures/_filedir"
+
+
+    sync_after_int
+
+
+    set cmd "$name 'a\$b/"
+    assert_complete_dir {h'} $cmd "$::srcdir/fixtures/_filedir"
+
+
+    sync_after_int
+
+
+    # Execute these tests only when not running on Cygwin/Windows, because
+    # directories containing `*' or `\' aren't allowed on Cygwin/Windows
+    if {! [is_cygwin]} {
+        set cmd "$name '$TESTDIR/tmp/a\\b/"
+        assert_complete_dir {g'} $cmd "$TESTDIR/tmp"
 
 
         sync_after_int
+    }
 
 
-        set cmd "$name 'a b/"
-        assert_complete_dir {i'} $cmd "$::srcdir/fixtures/_filedir"
+    set cmd "$name 'a&b/"
+    assert_complete_dir {f'} $cmd "$::srcdir/fixtures/_filedir"
 
 
-        sync_after_int
+    sync_after_int
 
 
-        set cmd "$name 'a\"b/"; #"
-        assert_complete_dir {d'} $cmd "$::srcdir/fixtures/_filedir"
+    set cmd "$name \"ab/"; #"
+    assert_complete_dir {e"} $cmd "$::srcdir/fixtures/_filedir"; #"
 
 
-        sync_after_int
+    sync_after_int
 
 
-        set cmd "$name 'a\$b/"
-        if {[lindex $::BASH_VERSINFO 0] == 4} {
-            assert_complete_dir {h'} $cmd "$::srcdir/fixtures/_filedir"
-        } else {
-            assert_complete_dir "\b\b\b\b$::srcdirabs/fixtures/_filedir/a\$b/h'" $cmd "$::srcdir/fixtures/_filedir"
-        }
+    set cmd "$name \"a b/"; #"
+    assert_complete_dir {i"} $cmd "$::srcdir/fixtures/_filedir"; #"
 
 
-        sync_after_int
+    sync_after_int
 
 
-        # Execute these tests only when not running on Cygwin/Windows, because
-        # directories containing `*' or `\' aren't allowed on Cygwin/Windows
-        if {! [is_cygwin]} {
-            set cmd "$name '$TESTDIR/tmp/a\\b/"
-            assert_complete_dir {g'} $cmd "$TESTDIR/tmp"
+    set cmd "$name \"a'b/"; #"
+    assert_complete_dir {c"} $cmd "$::srcdir/fixtures/_filedir"; #"
 
 
-            sync_after_int
-        }
+    sync_after_int
 
 
-        set cmd "$name 'a&b/"
-        assert_complete_dir {f'} $cmd "$::srcdir/fixtures/_filedir"
+    set cmd "$name \"a\\\"b/"; #"
+    assert_complete_dir {d"} $cmd "$::srcdir/fixtures/_filedir"; #"
 
 
-        sync_after_int
+    sync_after_int
 
 
-        set cmd "$name \"ab/"; #"
-        assert_complete_dir {e"} $cmd "$::srcdir/fixtures/_filedir"; #"
+    set cmd "$name \"a\\\$b/"; #"
+    assert_complete_dir "\b\b\b\b\b$::srcdirabs/fixtures/_filedir/a\\\\\$b/h\\\"" $cmd "$::srcdir/fixtures/_filedir"
 
 
-        sync_after_int
+    sync_after_int
 
 
-        set cmd "$name \"a b/"; #"
-        assert_complete_dir {i"} $cmd "$::srcdir/fixtures/_filedir"; #"
+    set cmd "$name \"a\\b/"; #"
+    assert_complete_dir "\b\b\bb/e\\\"" $cmd "$::srcdir/fixtures/_filedir"
 
 
-        sync_after_int
+    sync_after_int
 
 
-        set cmd "$name \"a'b/"; #"
-        assert_complete_dir {c"} $cmd "$::srcdir/fixtures/_filedir"; #"
+    set cmd "$name \"a\\\\b/"; #"
+    assert_complete_dir {g"} $cmd "$TESTDIR/tmp"; #"
 
 
-        sync_after_int
+    sync_after_int
 
 
-        set cmd "$name \"a\\\"b/"; #"
-        assert_complete_dir {d"} $cmd "$::srcdir/fixtures/_filedir"; #"
+    set cmd "$name \"a&b/"; #"
+    assert_complete_dir {f"} $cmd "$::srcdir/fixtures/_filedir"; #"
 
 
-        sync_after_int
+    sync_after_int
 
 
-        set cmd "$name \"a\\\$b/"; #"
-        assert_complete_dir "\b\b\b\b\b$::srcdirabs/fixtures/_filedir/a\\\\\$b/h\\\"" $cmd "$::srcdir/fixtures/_filedir"
-
-
-        sync_after_int
-
-
-        set cmd "$name \"a\\b/"; #"
-        assert_complete_dir "\b\b\bb/e\\\"" $cmd "$::srcdir/fixtures/_filedir"
-
-
-        sync_after_int
-
-
-        set cmd "$name \"a\\\\b/"; #"
-        assert_complete_dir {g"} $cmd "$TESTDIR/tmp"; #"
-
-
-        sync_after_int
-
-
-        set cmd "$name \"a&b/"; #"
-        assert_complete_dir {f"} $cmd "$::srcdir/fixtures/_filedir"; #"
-
-
-        sync_after_int
-
-
-    }; # if 4.0.0 < bash-version > 4.0.34
 }; # foreach
 
 
@@ -249,13 +237,12 @@ sync_after_int
 
 
 set test "completing f aé should return g"
-# Execute this test only on bash >= 4 with LC_CTYPE matching *UTF-8*
+# Execute this test only with LC_CTYPE matching *UTF-8*
 # See also: http://www.mail-archive.com/bash-completion-devel\
 #           @lists.alioth.debian.org/msg02265.html
 # Don't execute this test on expect-5.44 cause it will segfault
 # See also: Alioth #312792
 if {
-    [lindex $::BASH_VERSINFO 0] >= 4 &&
     [string first "UTF-8" $::LC_CTYPE] != -1 &&
     [string first 5.44 [exp_version]] != 0
 } {

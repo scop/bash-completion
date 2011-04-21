@@ -1,12 +1,11 @@
 # lzop(1) completion
 
-have lzop &&
+have lzop || return
+
 _lzop()
 {
-    local cur prev xspec
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '-1 -2 -3 -4 -5 -6 -7 -8 -9 -P \
@@ -33,7 +32,7 @@ _lzop()
             ;;
     esac
 
-    xspec="*.?(t)lzo"
+    local xspec="*.?(t)lzo"
     case $prev in
         --decompress|--uncompress|--extract|--list|--ls|--info|--test)
             xspec="!"$xspec
@@ -43,7 +42,7 @@ _lzop()
             ;;
         --*)
             ;;
-        -*f*|'<'|'>')
+        -*f*)
             xspec=
             ;;
         -*[dltx]*)
@@ -54,7 +53,7 @@ _lzop()
     _expand || return 0
 
     local IFS=$'\n'
-    _compopt_o_filenames
+    compopt -o filenames
     COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \
             $( compgen -d -- "$cur" ) )
 } &&

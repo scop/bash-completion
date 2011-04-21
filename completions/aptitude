@@ -1,6 +1,7 @@
 # Debian aptitude(1) completion
 
-have aptitude && {
+have aptitude || return
+
 have grep-status && {
 _comp_dpkg_hold_packages()
 {
@@ -16,11 +17,10 @@ _comp_dpkg_hold_packages()
 
 _aptitude()
 {
-    local cur dashoptions prev special i
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
-
+    local dashoptions
     dashoptions='-S -u -i -h --help --version -s --simulate -d \
         --download-only -P --prompt -y --assume-yes -F \
         --display-format -O --sort -w --width -f -r -g \
@@ -28,13 +28,14 @@ _aptitude()
         --target-release -V --show-versions -D --show-deps\
         -Z -v --verbose --purge-unused --schedule-only'
 
-    for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-        if [[ ${COMP_WORDS[i]} == @(@(|re)install|@(|un)hold|@(|un)markauto|@(dist|full)-upgrade|download|show|forbid-version|purge|remove|changelog|why@(|-not)|keep@(|-all)|build-dep|@(add|remove)-user-tag) ]]; then
-        special=${COMP_WORDS[i]}
+    local special i
+    for (( i=0; i < ${#words[@]}-1; i++ )); do
+        if [[ ${words[i]} == @(@(|re)install|@(|un)hold|@(|un)markauto|@(dist|full)-upgrade|download|show|forbid-version|purge|remove|changelog|why@(|-not)|keep@(|-all)|build-dep|@(add|remove)-user-tag) ]]; then
+            special=${words[i]}
         fi
         #exclude some mutually exclusive options
-        [[ ${COMP_WORDS[i]} == '-u' ]] && dashoptions=${dashoptions/-i}
-        [[ ${COMP_WORDS[i]} == '-i' ]] && dashoptions=${dashoptions/-u}
+        [[ ${words[i]} == '-u' ]] && dashoptions=${dashoptions/-i}
+        [[ ${words[i]} == '-i' ]] && dashoptions=${dashoptions/-u}
     done
 
     if [[ -n "$special" ]]; then
@@ -85,9 +86,8 @@ _aptitude()
     fi
 
     return 0
-}
+} &&
 complete -F _aptitude -o default aptitude
-}
 
 # Local variables:
 # mode: shell-script

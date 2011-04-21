@@ -1,6 +1,7 @@
 # bash completion for lvm
 
-have lvm && {
+have lvm || return
+
 _volumegroups()
 {
     COMPREPLY=( $(compgen -W "$( vgscan 2>/dev/null | \
@@ -32,13 +33,13 @@ _sizes()
 _args()
 {
     args=0
-    if [[ "${COMP_WORDS[0]}" == lvm ]]; then
+    if [[ "${words[0]}" == lvm ]]; then
         offset=2
     else
         offset=1
     fi
-    for (( i=$offset; i < COMP_CWORD; i++ )); do
-        if [[ "${COMP_WORDS[i]}" != -* ]]; then
+    for (( i=$offset; i < cword; i++ )); do
+        if [[ "${words[i]}" != -* ]]; then
             args=$(($args + 1))
         fi
     done
@@ -46,39 +47,33 @@ _args()
 
 _lvmdiskscan()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--debug --help \
             --lvmpartition --verbose --version' -- "$cur" ) )
     fi
-}
+} &&
 complete -F _lvmdiskscan lvmdiskscan
 
 _pvscan()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--debug --exported --novolumegroup \
             --help --ignorelockingfailure --partial --short --uuid \
             --verbose --version' -- "$cur" ) )
     fi
-}
+} &&
 complete -F _pvscan pvscan
 
 _pvs()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -o|-O|--options|--sort)
@@ -102,15 +97,13 @@ _pvs()
     else
         _physicalvolumes
     fi
-}
+} &&
 complete -F _pvs pvs
 
 _pvdisplay()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         --units)
@@ -125,15 +118,13 @@ _pvdisplay()
     else
         _physicalvolumes
     fi
-}
+} &&
 complete -F _pvdisplay pvdisplay
 
 _pvchange()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -A|-x|--autobackup|--allocatable)
@@ -150,15 +141,13 @@ _pvchange()
     else
         _physicalvolumes
     fi
-}
+} &&
 complete -F _pvchange pvchange
 
 _pvcreate()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         --restorefile)
@@ -188,15 +177,13 @@ _pvcreate()
     else
         _physicalvolumes
     fi
-}
+} &&
 complete -F _pvcreate pvcreate
 
 _pvmove()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -A|--autobackup)
@@ -215,15 +202,13 @@ _pvmove()
     else
         _physicalvolumes
     fi
-}
+} &&
 complete -F _pvmove pvmove
 
 _pvremove()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--debug --force \
@@ -231,30 +216,26 @@ _pvremove()
     else
         _physicalvolumes
     fi
-}
+} &&
 complete -F _pvremove pvremove
 
 _vgscan()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--debug --help \
             --ignorelockingfailure --mknodes \
             --partial --verbose --version' -- "$cur" ) )
     fi
-}
+} &&
 complete -F _vgscan vgscan
 
 _vgs()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -o|-O|--options|--sort)
@@ -280,15 +261,13 @@ _vgs()
     else
         _volumegroups
     fi
-}
+} &&
 complete -F _vgs vgs
 
 _vgdisplay()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         --units)
@@ -304,15 +283,13 @@ _vgdisplay()
     else
         _volumegroups
     fi
-}
+} &&
 complete -F _vgdisplay vgdisplay
 
 _vgchange()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -a|-A|-x|--available|--autobackup|--resizeable)
@@ -330,15 +307,13 @@ _vgchange()
     else
         _volumegroups
     fi
-}
+} &&
 complete -F _vgchange vgchange
 
 _vgcreate()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -A|--autobackup)
@@ -368,15 +343,13 @@ _vgcreate()
             _physicalvolumes
         fi
     fi
-}
+} &&
 complete -F _vgcreate vgcreate
 
 _vgremove()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--debug --help --test \
@@ -384,15 +357,13 @@ _vgremove()
     else
         _volumegroups
     fi
-}
+} &&
 complete -F _vgremove vgremove
 
 _vgrename()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -A|--autobackup)
@@ -407,15 +378,13 @@ _vgrename()
     else
         _volumegroups
     fi
-}
+} &&
 complete -F _vgrename vgrename
 
 _vgreduce()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -A|--autobackup)
@@ -437,15 +406,13 @@ _vgreduce()
             _physicalvolumes
         fi
     fi
-}
+} &&
 complete -F _vgreduce vgreduce
 
 _vgextend()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -A|--autobackup)
@@ -469,15 +436,13 @@ _vgextend()
             _physicalvolumes
         fi
     fi
-}
+} &&
 complete -F _vgextend vgextend
 
 _vgport()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--all --debug \
@@ -485,15 +450,13 @@ _vgport()
     else
         _volumegroups
     fi
-}
+} &&
 complete -F _vgport vgimport vgexport
 
 _vgck()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--debug \
@@ -501,15 +464,13 @@ _vgck()
     else
         _volumegroups
     fi
-}
+} &&
 complete -F _vgck vgck
 
 _vgconvert()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -M|--metadatatype)
@@ -533,15 +494,13 @@ _vgconvert()
     else
         _volumegroups
     fi
-}
+} &&
 complete -F _vgconvert vgconvert
 
 _vgcfgbackup()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -f|--file)
@@ -557,15 +516,13 @@ _vgcfgbackup()
     else
         _volumegroups
     fi
-}
+} &&
 complete -F _vgcfgbackup vgcfgbackup
 
 _vgcfgrestore()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -f|--file)
@@ -589,15 +546,13 @@ _vgcfgrestore()
     else
         _volumegroups
     fi
-}
+} &&
 complete -F _vgcfgrestore vgcfgrestore
 
 _vgmerge()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -A|--autobackup)
@@ -612,15 +567,13 @@ _vgmerge()
     else
         _volumegroups
     fi
-}
+} &&
 complete -F _vgmerge vgmerge
 
 _vgsplit()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -A|--autobackup)
@@ -645,15 +598,13 @@ _vgsplit()
             _physicalvolumes
         fi
     fi
-}
+} &&
 complete -F _vgsplit vgsplit
 
 _vgmknodes()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--debug --help --verbose \
@@ -661,30 +612,26 @@ _vgmknodes()
     else
         _volumegroups
     fi
-}
+} &&
 complete -F _vgmknodes vgmknodes
 
 _lvscan()
 {
-    local cur
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--blockdevice --debug \
             --help --ignorelockingfailure \
             --partial --verbose --version' -- "$cur" ) )
     fi
-}
+} &&
 complete -F _lvscan lvscan
 
 _lvs()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -o|-O|--options|--sort)
@@ -707,15 +654,13 @@ _lvs()
     else
         _logicalvolumes
     fi
-}
+} &&
 complete -F _lvs lvs
 
 _lvdisplay()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         --units)
@@ -730,15 +675,13 @@ _lvdisplay()
     else
         _logicalvolumes
     fi
-}
+} &&
 complete -F _lvdisplay lvdisplay
 
 _lvchange()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -a|-A|-C|-M|--available|--autobackup|--continguous|--persistent)
@@ -761,15 +704,13 @@ _lvchange()
     else
         _logicalvolumes
     fi
-}
+} &&
 complete -F _lvchange lvchange
 
 _lvcreate()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -A|-C|-M|-Z|--autobackup|--continguous|--persistent|--zero)
@@ -805,15 +746,13 @@ _lvcreate()
             _physicalvolumes
         fi
     fi
-}
+} &&
 complete -F _lvcreate lvcreate
 
 _lvremove()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -A|--autobackup)
@@ -828,15 +767,13 @@ _lvremove()
     else
         _logicalvolumes
     fi
-}
+} &&
 complete -F _lvremove lvremove
 
 _lvrename()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -A|--autobackup)
@@ -851,15 +788,13 @@ _lvrename()
     else
         _logicalvolumes
     fi
-}
+} &&
 complete -F _lvrename lvrename
 
 _lvreduce()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -A|--autobackup)
@@ -879,15 +814,13 @@ _lvreduce()
     else
         _logicalvolumes
     fi
-}
+} &&
 complete -F _lvreduce lvreduce
 
 _lvresize()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -A|--autobackup)
@@ -913,15 +846,13 @@ _lvresize()
             _physicalvolumes
         fi
     fi
-}
+} &&
 complete -F _lvresize lvresize
 
 _lvextend()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -A|--autobackup)
@@ -947,17 +878,15 @@ _lvextend()
             _physicalvolumes
         fi
     fi
-}
+} &&
 complete -F _lvextend lvextend
 
 _lvm()
 {
-    local cur
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    if [ $COMP_CWORD -eq 1 ]; then
+    if [ $cword -eq 1 ]; then
         COMPREPLY=( $( compgen -W 'dumpconfig help lvchange \
             lvcreate lvdisplay lvextend lvmchange \
             lvmdiskscan lvmsadc lvmsar lvreduce \
@@ -970,7 +899,7 @@ _lvm()
             vgremove vgrename vgs vgscan vgsplit \
             version' -- "$cur" ) )
     else
-        case ${COMP_WORDS[1]} in
+        case ${words[1]} in
             pvchange)
                 _pvchange
                 ;;
@@ -1081,9 +1010,8 @@ _lvm()
                 ;;
         esac
     fi
-}
+} &&
 complete -F _lvm lvm
-}
 
 # Local variables:
 # mode: shell-script

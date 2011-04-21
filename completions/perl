@@ -1,26 +1,28 @@
 # bash completion for perl
 
-have perl &&
-{
+have perl || return
+
 _perlmodules()
 {
-    COMPREPLY=( $( compgen -P "$prefix" -W "$( $1 ${BASH_SOURCE[0]%/*}/helpers/perl modules $cur )" -- "$cur" ) )
+    COMPREPLY=( $( compgen -P "$prefix" -W \
+        "$( ${1:-perl} ${BASH_SOURCE[0]%/*}/helpers/perl modules $cur )" \
+        -- "$cur" ) )
     __ltrim_colon_completions "$prefix$cur"
 }
 
 _perlfunctions()
 {
-    COMPREPLY=( $( compgen -P "$prefix" -W "$( ${BASH_SOURCE[0]%/*}/helpers/perl functions $cur )" -- "$cur" ) )
+    COMPREPLY=( $( compgen -P "$prefix" -W \
+        "$( ${1:-perl} ${BASH_SOURCE[0]%/*}/helpers/perl functions $cur )" \
+        -- "$cur" ) )
 }
 
 _perl()
 {
-    local cur prev prefix temp
-    local optPrefix optSuffix
+    local cur prev words cword
+    _init_completion -n : || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref -n : cur prev
-    prefix=""
+    local prefix="" temp optPrefix optSuffix
 
     # If option not followed by whitespace, reassign prev and cur
     if [[ "$cur" == -?* ]]; then
@@ -38,13 +40,13 @@ _perl()
             ;;
         -I|-x)
             local IFS=$'\n'
-            _compopt_o_filenames
+            compopt -o filenames
             COMPREPLY=( $( compgen -d $optPrefix $optSuffix -- "$cur" ) )
             return 0
             ;;
         -m|-M)
             temp="${cur#-}"
-            prefix="$prefix${cur%$temp}"
+            prefix+="${cur%$temp}"
             cur="$temp"
             _perlmodules $1
             return 0
@@ -52,7 +54,7 @@ _perl()
         -V)
             if [[ $cur == :* ]]; then
                 temp="${cur##+(:)}"
-                prefix="$prefix${cur%$temp}"
+                prefix+="${cur%$temp}"
                 local IFS=$'\n'
                 COMPREPLY=( $( compgen -P "$prefix" -W \
                     '$( $1 -MConfig -e "print join \"\\n\",
@@ -78,16 +80,15 @@ _perl()
     else
         _filedir
     fi
-}
+} &&
 complete -F _perl perl
 
 _perldoc()
 {
-    local cur prev prefix temp
+    local cur prev words cword
+    _init_completion -n : || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref -n : cur prev
-    prefix=""
+    local prefix="" temp
 
     # completing an option (may or may not be separated by a space)
     if [[ "$cur" == -?* ]]; then
@@ -97,10 +98,13 @@ _perldoc()
         prefix=$prev
     fi
 
+    local perl="${1%doc}"
+    [[ $perl == $1 ]] || ! type $perl &>/dev/null && perl=
+
     # complete builtin perl functions
     case $prev in
         -f)
-            _perlfunctions "$cur"
+            _perlfunctions $perl
              return 0
             ;;
     esac
@@ -110,17 +114,16 @@ _perldoc()
     else
         # return available modules (unless it is clearly a file)
         if [[ "$cur" != */* ]]; then
-            _perlmodules
-            COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W \
-                '$( PAGER=/bin/cat man perl |  \
+            _perlmodules $perl
+            COMPREPLY+=( $( compgen -W \
+                '$( MANPAGER=/bin/cat PAGER=/bin/cat man perl |  \
                 sed -ne "/perl.*Perl overview/,/perlwin32/p" | \
-                awk "\$NF=2 { print \$1}" | command grep perl )' -- "$cur" ) )
+                awk "\$NF=2 && \$1 ~ /^perl/ { print \$1 }" )' -- "$cur" ) )
         fi
         _filedir 'p@(l|m|od)'
     fi
-}
+} &&
 complete -F _perldoc -o bashdefault perldoc
-}
 
 # Local variables:
 # mode: shell-script

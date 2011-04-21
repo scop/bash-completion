@@ -1,23 +1,21 @@
 # bash completion for heimdal
 
-have ktutil && {
+have ktutil || return
+
 _heimdal_principals()
 {
-
     COMPREPLY=( $( compgen -W "$( kadmin -l dump 2>/dev/null | \
         awk '{print $1}' )" -- "$cur" ) )
 }
 
 _heimdal_realms()
 {
-
     COMPREPLY=( $( compgen -W "( kadmin -l dump 2>/dev/null | \
         awk '{print $1}' | awk -F@ '{print $2}' )" -- "$cur" ) )
 }
 
 _heimdal_encodings()
 {
-
     COMPREPLY=( $( compgen -W 'des-cbc-mcrc des-cbc-md4 des-cbc-md5 \
         des3-cbc-sha1 arcfour-hmac-md5 aes128-cts-hmac-sha1-96 \
         aes256-cts-hmac-sha1-96' -- "$cur" ) )
@@ -25,10 +23,10 @@ _heimdal_encodings()
 
 _ktutil()
 {
-    local cur prev command options split=false
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local command options split=false
 
     _split_longopt && split=true
 
@@ -60,15 +58,15 @@ _ktutil()
     commands='add change copy get list remove rename purge srvconvert \
         srv2keytab srvcreate key2srvtab'
 
-    for (( i=1; i < COMP_CWORD; i++ )); do
-        case ${COMP_WORDS[i]} in
+    for (( i=1; i < cword; i++ )); do
+        case ${words[i]} in
             -k|--keytab)
                 i=$(($i+1))
                 ;;
             -*)
                 ;;
             *)
-                command=${COMP_WORDS[i]}
+                command=${words[i]}
                 break
                 ;;
         esac
@@ -120,9 +118,8 @@ _ktutil()
                 ;;
         esac
     fi
-}
+} &&
 complete -F _ktutil ktutil
-}
 
 # Local variables:
 # mode: shell-script

@@ -2,12 +2,10 @@
 #
 _alias()
 {
-    local cur
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    case $COMP_LINE in
+    case ${words[@]} in
         *[^=])
             COMPREPLY=( $( compgen -A alias -- "$cur" ) )
             ;;
@@ -16,19 +14,17 @@ _alias()
                 -e 's|^alias '"$cur"'\(.*\)$|\1|' )" )
             ;;
     esac
-}
+} &&
 complete -F _alias -o nospace alias
 
 # bash export completion
 #
 _export()
 {
-    local cur
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    case $COMP_LINE in
+    case ${words[@]} in
         *=\$*)
             COMPREPLY=( $( compgen -v -P '$' -- "${cur#*=\$}" ) )
             ;;
@@ -42,17 +38,15 @@ _export()
                   echo -n \' ) )" )
             ;;
     esac
-}
+} &&
 complete -F _export -o default -o nospace export
 
 # bash shell function completion
 #
 _function()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     if [[ $1 == @(declare|typeset) ]]; then
         if [ "$prev" = -f ]; then
@@ -60,22 +54,20 @@ _function()
         elif [[ "$cur" == -* ]]; then
             COMPREPLY=( $( compgen -W '-a -f -F -i -r -x -p' -- "$cur" ) )
         fi
-    elif [ $COMP_CWORD -eq 1 ]; then
+    elif [ $cword -eq 1 ]; then
         COMPREPLY=( $( compgen -A function -- "$cur" ) )
     else
-        COMPREPLY=( "() $( type -- ${COMP_WORDS[1]} | sed -e 1,2d )" )
+        COMPREPLY=( "() $( type -- ${words[1]} | sed -e 1,2d )" )
     fi
-}
+} &&
 complete -F _function function declare typeset
 
 # bash complete completion
 #
 _complete()
 {
-    local cur prev
-
-    COMPREPLY=()
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     case $prev in
         -o)
@@ -111,12 +103,12 @@ _complete()
     if [[ "$cur" == -* ]]; then
         # relevant options completion
         local opts="-a -b -c -d -e -f -g -j -k -o -s -u -v -A -G -W -P -S -X"
-        [[ $1 != compgen ]] && opts="$opts -F -C"
+        [[ $1 != compgen ]] && opts+=" -F -C"
         COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
     else
         COMPREPLY=( $( compgen -A command -- "$cur" ) )
     fi
-}
+} &&
 complete -F _complete compgen complete
 
 # Local variables:

@@ -12,20 +12,23 @@ if [ -f /etc/bash_completion ]; then
   . /etc/bash_completion
 fi
 
-(if you happen to have *only* bash >= 3.2 installed, see further if not)
+(if you happen to have *only* bash >= 4.1 installed, see further if not)
 
 If you don't have the package readily available for your distribution, or
-you simply don't want to do this, put the bash_completion file somewhere
-on your system and source it from either /etc/bashrc or ~/.bashrc, as
-explained above.
+you simply don't want to use one, you can install bash completion using the
+standard commands for GNU autotools packages:
 
-A more elaborate way that takes care of not loading on old, unsupported
-bash versions as well as some other conditions is included in the bash
-completion package as bash_completion.sh.  If your system has the
-/etc/profile.d directory and loads all files from it automatically,
-you may place the file in it.  If not, place the file somewhere on your
-system and source it from /etc/bashrc or ~/.bashrc, or copy its contents
-to one of those files.
+./configure
+make
+make check # optional, requires dejagnu and tcllib
+make install # as root
+
+These commands installs the completions and helpers, as well as a
+profile.d script that loads bash_completion where appropriate.  If
+your system does not use the profile.d directory (usually below /etc)
+mechanism, i.e. does not automatically source shell scripts in it, you
+can source the $sysconfdir/profile.d/bash_completion.sh script in
+/etc/bashrc or ~/.bashrc.
 
 If you're using MacOS X, /etc/bashrc is apparently not sourced at all.
 In that case, you should put the bash_completion file in /sw/etc and add
@@ -288,12 +291,10 @@ guidelines in mind:
   start interpreters. Use lightweight programs such as grep(1), awk(1)
   and sed(1).
 
-- Use the full power of bash >= 3.2. We no longer support earlier bash
+- Use the full power of bash >= 4.1. We no longer support earlier bash
   versions, so you may as well use all the features of that version of
   bash to optimise your code. However, be careful when using features
-  added since bash 3.2, since not everyone will be able to use them. Be
-  ESPECIALLY careful of using features exclusive to 4.x, as many people
-  are still using 3.x.
+  added since bash 4.1, since not everyone will be able to use them.
 
   For example, extended globs often enable you to avoid the use of
   external programs, which are expensive to fork and execute, so do

@@ -11,31 +11,15 @@ proc teardown {} {
 setup
 
 
-if {[lindex $::BASH_VERSINFO 0] <= 3} {
-    set test {compgen -f a\\\\\\\'b/ on bash-3 should return a\'b/c};
-    set cmd {compgen -f a\\\\\\\'b/}
-} else {
-    set test {compgen -f a\\\'b/ on bash-4 should return a\'b/c};
-    set cmd {compgen -f a\\\'b/}
-}
+set test {compgen -f a\\\'b/ should return a\'b/c}
+set cmd {compgen -f a\\\'b/}
 set dir $::srcdir/fixtures/compgen
 assert_bash_exec "cd $dir"
 send "$cmd\r"
 expect -ex "$cmd\r\n"
 expect {
-    -re {a\\\'b/c} {
-        # On bash-3.2, compgen returns inconsequent output
-        if {
-            [lindex $::BASH_VERSINFO 0] >= 4 || (
-                [lindex $::BASH_VERSINFO 0] == 3 &&
-                [lindex $::BASH_VERSINFO 1] == 2
-            )
-        } {pass $test} else {fail $test}
-    }
-    -re {a'b/c} {
-        if {[lindex $::BASH_VERSINFO 0] <= 3 } \
-            {pass $test} else {fail $test}
-    }
+    -re {a\\\'b/c} { pass $test }
+    -re {a'b/c} { fail $test }
     -re /@ { pass "$test" }
     -re eof { unresolved "eof" }
 }

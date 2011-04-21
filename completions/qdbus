@@ -1,15 +1,14 @@
 # Qt qdbus, dcop completion
 
-have qdbus || have dcop &&
+have qdbus || have dcop || return
+
 _qdbus()
 {
-    local cur
+    local cur prev words cword
+    _init_completion || return
 
-    COMPREPLY=()
-    _get_comp_words_by_ref cur
-
-    [ -n "$cur" ] && unset COMP_WORDS[${#COMP_WORDS[@]}-1]
-    COMPREPLY=( $( compgen -W '$( command ${COMP_WORDS[@]} 2>/dev/null | \
+    [ -n "$cur" ] && unset words[${#words[@]}-1]
+    COMPREPLY=( $( compgen -W '$( command ${words[@]} 2>/dev/null | \
         sed s/\(.*\)// )' -- "$cur" ) )
 } &&
 complete -F _qdbus qdbus dcop

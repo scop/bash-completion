@@ -1,11 +1,11 @@
 # lrzip(1) completion
 
-have lrzip &&
+have lrzip || return
+
 _lrzip()
 {
-    COMPREPLY=()
-    local cur prev
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* && $prev != -N ]]; then
         COMPREPLY=( $( compgen -W '-w -d -o -O -S -f -D -q -L -n -l -b -g -M \
@@ -49,7 +49,7 @@ _lrzip()
     _expand || return 0
 
     local IFS=$'\n'
-    _compopt_o_filenames
+    compopt -o filenames
     COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \
         $( compgen -d -- "$cur" ) )
 } &&
