@@ -597,19 +597,6 @@ _quote_readline_by_ref()
 } # _quote_readline_by_ref()
 
 
-# This function turns on "-o filenames" behavior dynamically. It is present
-# for bash < 4 reasons. See http://bugs.debian.org/272660#64 for info about
-# the bash < 4 compgen hack.
-_compopt_o_filenames()
-{
-    # We test for compopt availability first because directly invoking it on
-    # bash < 4 at this point may cause terminal echo to be turned off for some
-    # reason, see https://bugzilla.redhat.com/653669 for more info.
-    type compopt &>/dev/null && compopt -o filenames 2>/dev/null || \
-        compgen -f /non-existing-dir/ >/dev/null
-}
-
-
 # This function performs file and directory completion. It's better than
 # simply using 'compgen -f', because it honours spaces in filenames.
 # @param $1  If `-d', complete only on directories.  Otherwise filter/pick only
@@ -649,7 +636,7 @@ _filedir()
     [[ -n "$1" && "$1" != -d && ${#toks[@]} -lt 1 ]] && \
         toks+=( $( compgen -f -- $quoted ) )
 
-    [ ${#toks[@]} -ne 0 ] && _compopt_o_filenames
+    [ ${#toks[@]} -ne 0 ] && compopt -o filenames 2>/dev/null
 
     COMPREPLY+=( "${toks[@]}" )
 } # _filedir()
@@ -859,7 +846,7 @@ _tilde() {
     local result=0
     # Does $1 start with tilde (~) and doesn't contain slash (/)?
     if [[ ${1:0:1} == "~" && $1 == ${1//\/} ]]; then
-        _compopt_o_filenames
+        compopt -o filenames 2>/dev/null
         # Try generate username completions
         COMPREPLY=( $( compgen -P '~' -u "${1#\~}" ) )
         result=${#COMPREPLY[@]}
@@ -1447,7 +1434,7 @@ _cd()
         return 0
     fi
 
-    _compopt_o_filenames
+    compopt -o filenames
 
     # Use standard dir completion if no CDPATH or parameter starts with /,
     # ./ or ../
@@ -1544,7 +1531,7 @@ _command_offset()
     _get_comp_words_by_ref cur
 
     if [[ $COMP_CWORD -eq 0 ]]; then
-        _compopt_o_filenames
+        compopt -o filenames
         COMPREPLY=( $( compgen -c -- "$cur" ) )
     else
         cmd=${COMP_WORDS[0]} compcmd=${COMP_WORDS[0]}
@@ -1577,7 +1564,7 @@ _command_offset()
                     if [[ "$cspec" != @(dir|file)names ]]; then
                         COMPREPLY=("${COMPREPLY[@]//\\\\:/:}")
                     else
-                        _compopt_o_filenames
+                        compopt -o filenames
                     fi
                 fi
             else
@@ -1693,7 +1680,7 @@ _filedir_xspec()
         }
         ))
 
-    [ ${#toks[@]} -ne 0 ] && _compopt_o_filenames
+    [ ${#toks[@]} -ne 0 ] && compopt -o filenames
     COMPREPLY=( "${toks[@]}" )
 }
 list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' "$BASH_COMPLETION" | \
