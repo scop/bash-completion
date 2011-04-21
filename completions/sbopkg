@@ -4,9 +4,8 @@ have sbopkg || return
 
 _sbopkg()
 {
-    COMPREPLY=()
-    local cur prev
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '-b -c -d -e -f -g -h -i -k -l \
@@ -14,7 +13,7 @@ _sbopkg()
         return 0
     fi
 
-    case $prev in
+    case "$prev" in
         -e)
             COMPREPLY=( $( compgen -W 'ask continue stop' -- "$cur" ) )
             return 0
@@ -40,8 +39,6 @@ _sbopkg()
     esac
 
     local config="/etc/sbopkg/sbopkg.conf"
-    local words
-    _get_comp_words_by_ref words
 
     for (( i=${#words[@]}-1; i>0; i-- )); do
         if [[ "${words[i]}" == -f ]]; then

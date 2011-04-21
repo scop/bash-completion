@@ -6,8 +6,8 @@
 have pkgtool &&
 _pkgtool()
 {
-    COMPREPLY=()
-    local cur="${COMP_WORDS[COMP_CWORD]}"
+    local cur prev words cword
+    _init_completion || return
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--sets --ignore-tagfiles --tagfile \
             --source-mounted --source_dir --target_dir --source_device' \
@@ -15,9 +15,7 @@ _pkgtool()
         return 0
     fi
 
-    local prev=${COMP_WORDS[COMP_CWORD-1]}
-
-    case $prev in
+    case "$prev" in
         --source_dir|--target_dir)
             _filedir -d
             return 0
@@ -41,8 +39,8 @@ complete -F _pkgtool pkgtool
 have removepkg &&
 _removepkg()
 {
-    COMPREPLY=()
-    local cur=`_get_cword`
+    local cur prev words cword
+    _init_completion || return
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '-copy -keep -preserve -warn' \
             -- "$cur" ) )
@@ -56,8 +54,8 @@ complete -F _removepkg removepkg
 have upgradepkg &&
 _upgradepkg()
 {
-    COMPREPLY=()
-    local cur=`_get_cword`
+    local cur prev words cword
+    _init_completion || return
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--dry-run --install-new --reinstall \
             --verbose' -- "$cur") )
@@ -70,17 +68,15 @@ _upgradepkg()
 have installpkg &&
 _installpkg()
 {
-    COMPREPLY=()
-    local cur=`_get_cword`
+    local cur prev words cword
+    _init_completion || return
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--warn --md5sum --root --infobox --terse \
             --menu --ask --priority --tagfile' -- "$cur") )
         return 0
     fi
 
-    local prev=`_get_pword`
-
-    case $prev in
+    case "$prev" in
         --root)
             _filedir -d
             return 0
@@ -101,17 +97,15 @@ _installpkg()
 have makepkg &&
 _makepkg()
 {
-    COMPREPLY=()
-    local cur=`_get_cword`
+    local cur prev words cword
+    _init_completion || return
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '-l --linkadd -p --prepend \
             -c --chown' -- "$cur") )
         return 0
     fi
 
-    local prev=`_get_pword`
-
-    case $prev in
+    case "$prev" in
         -l|--linkadd|-c|--chown)
             COMPREPLY=( $( compgen -W 'y n' -- "$cur" ) )
             return 0

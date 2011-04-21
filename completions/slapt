@@ -3,9 +3,8 @@
 have slapt-get &&
 _slapt_get()
 {
-    COMPREPLY=()
-    local cur prev
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--download-only -d --simulate -s \
@@ -19,7 +18,7 @@ _slapt_get()
         return 0
     fi
 
-    case $prev in
+    case "$prev" in
         --config|-c)
             _filedir
             return 0
@@ -30,9 +29,7 @@ _slapt_get()
             ;;
     esac
 
-    local words t
-    _get_comp_words_by_ref words
-
+    local t
     # search for last action (--install|--install-set|--remove|--show|--filelist)
     for (( i=${#words[@]}-1; i>0; i-- )); do
         if [[ ${words[i]} == -@(i|-install|-show) ]]; then
@@ -71,9 +68,8 @@ _slapt_get()
 have slapt-src &&
 _slapt_src()
 {
-    COMPREPLY=()
-    local cur prev
-    _get_comp_words_by_ref cur prev
+    local cur prev words cword
+    _init_completion || return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--update -u --list -l --clean -e \
@@ -83,7 +79,7 @@ _slapt_src()
         return 0
     fi
 
-    case $prev in
+    case "$prev" in
         --config|-c)
             _filedir
             return 0
@@ -93,9 +89,6 @@ _slapt_src()
             return 0
             ;;
     esac
-
-    local words
-    _get_comp_words_by_ref words
 
     local t
     # search for last action (-i|-w|-b|-f)
