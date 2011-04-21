@@ -1,5 +1,5 @@
 #
-#   bash_completion - programmable completion functions for bash 3.2+
+#   bash_completion - programmable completion functions for bash 4.1+
 #
 #   Copyright © 2006-2008, Ian Macdonald <ian@caliban.org>
 #             © 2009-2011, Bash Completion Maintainers
@@ -337,8 +337,7 @@ __reassemble_comp_words_by_ref() {
 # @param $1 exclude  Characters out of $COMP_WORDBREAKS which should NOT be
 #     considered word breaks. This is useful for things like scp where
 #     we want to return host:path and not only path, so we would pass the
-#     colon (:) as $1 in this case.  Bash-3 doesn't do word splitting, so this
-#     ensures we get the same word on both bash-3 and bash-4.
+#     colon (:) as $1 in this case.
 # @param $2 words  Name of variable to return words to
 # @param $3 cword  Name of variable to return cword to
 # @param $4 cur  Name of variable to return current word to complete to
@@ -408,9 +407,7 @@ __get_cword_at_cursor_by_ref() {
 #     -n EXCLUDE  Characters out of $COMP_WORDBREAKS which should NOT be 
 #                 considered word breaks. This is useful for things like scp
 #                 where we want to return host:path and not only path, so we
-#                 would pass the colon (:) as -n option in this case.  Bash-3
-#                 doesn't do word splitting, so this ensures we get the same
-#                 word on both bash-3 and bash-4.
+#                 would pass the colon (:) as -n option in this case.
 #     -c VARNAME  Return cur via $VARNAME
 #     -p VARNAME  Return prev via $VARNAME
 #     -w VARNAME  Return words via $VARNAME
@@ -468,8 +465,7 @@ _get_comp_words_by_ref()
 # @param $1 string  Characters out of $COMP_WORDBREAKS which should NOT be
 #     considered word breaks. This is useful for things like scp where
 #     we want to return host:path and not only path, so we would pass the
-#     colon (:) as $1 in this case.  Bash-3 doesn't do word splitting, so this
-#     ensures we get the same word on both bash-3 and bash-4.
+#     colon (:) as $1 in this case.
 # @param $2 integer  Index number of word to return, negatively offset to the
 #     current word (default is 0, previous is 1), respecting the exclusions
 #     given at $1.  For example, `_get_cword "=:" 1' returns the word left of
@@ -542,7 +538,7 @@ _get_pword()
 
 # If the word-to-complete contains a colon (:), left-trim COMPREPLY items with
 # word-to-complete.
-# On bash-3, and bash-4 with a colon in COMP_WORDBREAKS, words containing
+# With a colon in COMP_WORDBREAKS, words containing
 # colons are always completed as entire words if the word to complete contains
 # a colon.  This function fixes this, by removing the colon-containing-prefix
 # from COMPREPLY items.
@@ -558,15 +554,7 @@ _get_pword()
 # @modifies global array $COMPREPLY
 #
 __ltrim_colon_completions() {
-    # If word-to-complete contains a colon,
-    # and bash-version < 4,
-    # or bash-version >= 4 and COMP_WORDBREAKS contains a colon
-    if [[
-        "$1" == *:* && (
-            ${BASH_VERSINFO[0]} -lt 4 || 
-            (${BASH_VERSINFO[0]} -ge 4 && "$COMP_WORDBREAKS" == *:*) 
-        )
-    ]]; then
+    if [[ "$1" == *:* && "$COMP_WORDBREAKS" == *:* ]]; then
         # Remove colon-word prefix from COMPREPLY items
         local colon_word=${1%${1##*:}}
         local i=${#COMPREPLY[*]}
@@ -584,20 +572,8 @@ __ltrim_colon_completions() {
 #     $ ls "a'b/"
 #     c
 #     $ compgen -f "a'b/"       # Wrong, doesn't return output
-#     $ compgen -f "a\'b/"      # Good (bash-4)
+#     $ compgen -f "a\'b/"      # Good
 #     a\'b/c
-#     $ compgen -f "a\\\\\'b/"  # Good (bash-3)
-#     a\'b/c
-#
-# On bash-3, special characters need to be escaped extra.  This is
-# unless the first character is a single quote (').  If the single
-# quote appears further down the string, bash default completion also
-# fails, e.g.:
-#
-#     $ ls 'a&b/'
-#     f
-#     $ foo 'a&b/<TAB>  # Becomes: foo 'a&b/f'
-#     $ foo a'&b/<TAB>  # Nothing happens
 #
 # See also:
 # - http://lists.gnu.org/archive/html/bug-bash/2009-03/msg00155.html
@@ -608,17 +584,8 @@ __ltrim_colon_completions() {
 _quote_readline_by_ref()
 {
     if [[ ${1:0:1} == "'" ]]; then
-        if [[ ${BASH_VERSINFO[0]} -ge 4 ]]; then
-            # Leave out first character
-            printf -v $2 %s "${1:1}"
-        else
-            # Quote word, leaving out first character
-            printf -v $2 %q "${1:1}"
-            # Double-quote word (bash-3)
-            printf -v $2 %q ${!2}
-        fi
-    elif [[ ${BASH_VERSINFO[0]} -le 3 && ${1:0:1} == '"' ]]; then
-        printf -v $2 %q "${1:1}"
+        # Leave out first character
+        printf -v $2 %s "${1:1}"
     else
         printf -v $2 %q "$1"
     fi
@@ -674,9 +641,7 @@ _filedir()
 
     if [[ "$1" != -d ]]; then
         # Munge xspec to contain uppercase version too
-        [[ ${BASH_VERSINFO[0]} -ge 4 ]] && \
-            xspec=${1:+"!*.@($1|${1^^})"} || \
-            xspec=${1:+"!*.@($1|$(printf %s $1 | tr '[:lower:]' '[:upper:]'))"}
+        xspec=${1:+"!*.@($1|${1^^})"}
         toks+=( $( compgen -f -X "$xspec" -- $quoted ) )
     fi
 
@@ -1718,9 +1683,7 @@ _filedir_xspec()
         xspec=${xspec#!}
         matchop=@
     fi
-    [[ ${BASH_VERSINFO[0]} -ge 4 ]] && \
-        xspec="$matchop($xspec|${xspec^^})" || \
-        xspec="$matchop($xspec|$(printf %s $xspec | tr '[:lower:]' '[:upper:]'))"
+    xspec="$matchop($xspec|${xspec^^})"
 
     toks+=( $(
         eval compgen -f -X "!$xspec" -- "\$(quote_readline "\$cur")" | {

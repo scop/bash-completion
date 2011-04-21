@@ -4,9 +4,7 @@
 # @param $1  Char to add to $COMP_WORDBREAKS
 # @see remove_comp_wordbreak_char()
 add_comp_wordbreak_char() {
-    if [ ${BASH_VERSINFO[0]} -ge 4 ]; then
-        [[ "${COMP_WORDBREAKS//[^$1]}" ]] || COMP_WORDBREAKS=$COMP_WORDBREAKS$1
-    fi
+    [[ "${COMP_WORDBREAKS//[^$1]}" ]] || COMP_WORDBREAKS+=$1
 } # add_comp_wordbreak_char()
 
 
@@ -60,9 +58,7 @@ is_bash_version_minimal() {
 # @param $1  Char to remove from $COMP_WORDBREAKS
 # @see add_comp_wordbreak_char()
 remove_comp_wordbreak_char() {
-    if [ ${BASH_VERSINFO[0]} -ge 4 ]; then
-        COMP_WORDBREAKS=${COMP_WORDBREAKS//$1}
-    fi
+    COMP_WORDBREAKS=${COMP_WORDBREAKS//$1}
 } # remove_comp_wordbreak_char()
 
 

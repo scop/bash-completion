@@ -97,27 +97,13 @@ sync_after_int
 
 
 set test {a 'b c|};  # | = cursor position
-if {
-    [lindex $::BASH_VERSINFO 0] == 4 && 
-    [lindex $::BASH_VERSINFO 1] == 0 &&
-    [lindex $::BASH_VERSINFO 2] < 35
-} {
-    set cmd {COMP_WORDS=(a "'" b c); COMP_CWORD=3}
-} else {
-    set cmd {COMP_WORDS=(a "'b c"); COMP_CWORD=1}
-}
+set cmd {COMP_WORDS=(a "'b c"); COMP_CWORD=1}
 append cmd {; COMP_LINE="a 'b c"; COMP_POINT=6; _get_comp_words_by_ref cur prev; echo "$cur $prev"}
 send "$cmd\r"
 expect -ex "$cmd\r\n"
 expect {
     -ex "'b c a\r\n/@" { pass "$test" }
-    -ex "c b\r\n/@" { 
-        if {
-            [lindex $::BASH_VERSINFO 0] == 4 &&
-            [lindex $::BASH_VERSINFO 1] == 0 &&
-            [lindex $::BASH_VERSINFO 2] < 35
-        } {xfail "$test"} {fail "$test"}
-    }
+    -ex "c b\r\n/@" { fail "$test" }
 }
 
 
@@ -125,15 +111,7 @@ sync_after_int
 
 
 set test {a "b c|};  #"# | = cursor position
-if {
-    [lindex $::BASH_VERSINFO 0] == 4 && 
-    [lindex $::BASH_VERSINFO 1] == 0 &&
-    [lindex $::BASH_VERSINFO 2] < 35
-} {
-    set cmd {COMP_WORDS=(a "\"" b c); COMP_CWORD=3}
-} else {
-    set cmd {COMP_WORDS=(a "\"b c"); COMP_CWORD=1}
-}
+set cmd {COMP_WORDS=(a "\"b c"); COMP_CWORD=1}
 append cmd {; COMP_LINE="a \"b c"; COMP_POINT=6}
 assert_bash_exec $cmd
 set cmd {_get_comp_words_by_ref cur prev; echo "$cur $prev"};
@@ -141,13 +119,7 @@ send "$cmd\r"
 expect -ex "$cmd\r\n"
 expect {
     -ex "\"b c a\r\n/@" { pass "$test" }
-    -ex "c b\r\n/@" {
-        if {
-            [lindex $::BASH_VERSINFO 0] == 4 &&
-            [lindex $::BASH_VERSINFO 1] == 0 &&
-            [lindex $::BASH_VERSINFO 2] < 35
-        } {xfail "$test"} {fail "$test"}
-    }
+    -ex "c b\r\n/@" { fail "$test" }
 }
 
 
@@ -155,13 +127,8 @@ sync_after_int
 
 
 set test {a b:c| with WORDBREAKS += :};  # | = cursor position
-if {[lindex $::BASH_VERSINFO 0] <= 3} {
-    set cmd {COMP_WORDS=(a "b:c"); COMP_CWORD=1}
-    set expected {"b:c a"}
-} else {
-    set cmd {add_comp_wordbreak_char :; COMP_WORDS=(a b : c); COMP_CWORD=3}
-    set expected {"c :"}
-}
+set cmd {add_comp_wordbreak_char :; COMP_WORDS=(a b : c); COMP_CWORD=3}
+set expected {"c :"}
 append cmd {; COMP_LINE='a b:c'; COMP_POINT=5}
 # NOTE: Split-send cmd to prevent backspaces (\008) in output
 assert_bash_exec $cmd $test
@@ -173,11 +140,7 @@ sync_after_int
 
 
 set test {a b:c| with WORDBREAKS -= :};  # | = cursor position
-if {[lindex $::BASH_VERSINFO 0] <= 3} {
-    set cmd {COMP_WORDS=(a "b:c"); COMP_CWORD=1}
-} else {
-    set cmd {COMP_WORDS=(a b : c); COMP_CWORD=3}
-}
+set cmd {COMP_WORDS=(a b : c); COMP_CWORD=3}
 append cmd {; COMP_LINE='a b:c'; COMP_POINT=5}
 assert_bash_exec $cmd $test
 set cmd {_get_comp_words_by_ref -n : cur prev; echo "$cur $prev"}
@@ -188,11 +151,7 @@ sync_after_int
 
 
 set test {a b c:| with WORDBREAKS -= :};  # | = cursor position
-if {[lindex $::BASH_VERSINFO 0] <= 3} {
-    set cmd {COMP_WORDS=(a b c:); COMP_CWORD=2}
-} else {
-    set cmd {COMP_WORDS=(a b c :); COMP_CWORD=3}
-}
+set cmd {COMP_WORDS=(a b c :); COMP_CWORD=3}
 append cmd {; COMP_LINE='a b c:'; COMP_POINT=6}
 assert_bash_exec $cmd $test
 set cmd {_get_comp_words_by_ref -n : cur prev; echo "$cur $prev"}
@@ -203,11 +162,7 @@ sync_after_int
 
 
 set test {a b:c | with WORDBREAKS -= :};  # | = cursor position
-if {[lindex $::BASH_VERSINFO 0] <= 3} {
-    set cmd {COMP_WORDS=(a b:c ''); COMP_CWORD=2}
-} else {
-    set cmd {COMP_WORDS=(a b : c ''); COMP_CWORD=4}
-}
+set cmd {COMP_WORDS=(a b : c ''); COMP_CWORD=4}
 append cmd {; COMP_LINE='a b:c '; COMP_POINT=6}
 assert_bash_exec $cmd $test
 set cmd {_get_comp_words_by_ref -n : cur prev; echo "$cur $prev"}
@@ -228,11 +183,7 @@ sync_after_int
 
 
 set test {a b::| with WORDBREAKS -= : should return b::};  # | = cursor position
-if {[lindex $::BASH_VERSINFO 0] <= 3} {
-    set cmd {COMP_WORDS=(a "b::"); COMP_CWORD=1}
-} else {
-    set cmd {COMP_WORDS=(a b ::); COMP_CWORD=2}
-}
+set cmd {COMP_WORDS=(a b ::); COMP_CWORD=2}
 append cmd {; COMP_LINE='a b::'; COMP_POINT=5}
 assert_bash_exec $cmd
 set cmd {_get_comp_words_by_ref -n : cur prev; echo "$cur $prev"}
@@ -264,14 +215,9 @@ assert_bash_list c $cmd $test
 sync_after_int
 
 
-set test {a b=c| should return b=c (bash-3) or c (bash-4)};  # | = cursor position
-if {[lindex $::BASH_VERSINFO] <= 3} {
-    set cmd {COMP_WORDS=(a "b=c"); COMP_CWORD=1}
-    set expected b=c
-} else {
-    set cmd {COMP_WORDS=(a b = c); COMP_CWORD=3}
-    set expected c
-}
+set test {a b=c| should return c};  # | = cursor position
+set cmd {COMP_WORDS=(a b = c); COMP_CWORD=3}
+set expected c
 append cmd {; COMP_LINE='a b=c'; COMP_POINT=5}
 assert_bash_exec $cmd
 set cmd {_get_comp_words_by_ref cur prev; echo "$cur"}
@@ -325,15 +271,7 @@ sync_after_int
 
 
 set test {a 'b&c| should return 'b&c};  # | = cursor position
-if {
-    [lindex $::BASH_VERSINFO 0] == 4 && 
-    [lindex $::BASH_VERSINFO 1] == 0 &&
-    [lindex $::BASH_VERSINFO 2] < 35
-} {
-    set cmd {COMP_WORDS=(a "'" b "&" c); COMP_CWORD=4}
-} else {
-    set cmd {COMP_WORDS=(a "'b&c"); COMP_CWORD=1}
-}
+set cmd {COMP_WORDS=(a "'b&c"); COMP_CWORD=1}
 append cmd {; COMP_LINE="a 'b&c"; COMP_POINT=6}
 assert_bash_exec $cmd
 set cmd {_get_comp_words_by_ref cur prev; printf %s "$cur"}
@@ -341,13 +279,7 @@ send "$cmd\r"
 expect -ex "$cmd\r\n"
 expect {
     -ex "'b&c/@" { pass "$test" }
-    -ex "c/@" { 
-        if {
-            [lindex $::BASH_VERSINFO 0] == 4 &&
-            [lindex $::BASH_VERSINFO 1] == 0 &&
-            [lindex $::BASH_VERSINFO 2] < 35
-        } {xfail "$test"} {fail "$test"}
-    }
+    -ex "c/@" { fail "$test" }
 }
 
 
@@ -409,11 +341,7 @@ sync_after_int
 
 
 set test {a b: c| with WORDBREAKS -= :};  # | = cursor position
-if {[lindex $::BASH_VERSINFO 0] <= 3} {
-    set cmd {COMP_WORDS=(a b: c); COMP_CWORD=2}
-} else {
-    set cmd {COMP_WORDS=(a b : c); COMP_CWORD=3}
-}
+set cmd {COMP_WORDS=(a b : c); COMP_CWORD=3}
 append cmd {; COMP_LINE='a b: c'; COMP_POINT=6}
 assert_bash_exec $cmd $test
 set cmd {_get_comp_words_by_ref -n : words; echo "${words[@]}"}
@@ -424,11 +352,7 @@ sync_after_int
 
 
 set test {a b :c| with WORDBREAKS -= :};  # | = cursor position
-if {[lindex $::BASH_VERSINFO 0] <= 3} {
-    set cmd {COMP_WORDS=(a b :c); COMP_CWORD=2}
-} else {
-    set cmd {COMP_WORDS=(a b : c); COMP_CWORD=3}
-}
+set cmd {COMP_WORDS=(a b : c); COMP_CWORD=3}
 append cmd {; COMP_LINE='a b :c'; COMP_POINT=6}
 assert_bash_exec $cmd $test
 set cmd {_get_comp_words_by_ref -n : words; echo "${words[@]}"}
@@ -439,11 +363,7 @@ sync_after_int
 
 
 set test {a b\ :c| with WORDBREAKS -= :};  # | = cursor position
-if {[lindex $::BASH_VERSINFO 0] <= 3} {
-    set cmd {COMP_WORDS=(a "b\\ :c"); COMP_CWORD=1}
-} else {
-    set cmd {COMP_WORDS=(a "b\\ " : c); COMP_CWORD=3}
-}
+set cmd {COMP_WORDS=(a "b\\ " : c); COMP_CWORD=3}
 append cmd {; COMP_LINE='a b\ :c'; COMP_POINT=7}
 assert_bash_exec $cmd $test
 set cmd {_get_comp_words_by_ref -n : words; echo "${words[@]}"}
