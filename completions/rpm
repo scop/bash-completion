@@ -40,7 +40,7 @@ _rpm_macros()
 _rpm()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n = || return
 
     if [ $cword -eq 1 ]; then
         # first parameter on line
@@ -57,9 +57,11 @@ _rpm()
                     -- "$cur" ) )
                 ;;
         esac
-
-    return 0
+        return 0
     fi
+
+    local split=false
+    _split_longopt && split=true
 
     case $prev in
         --dbpath|--excludepath|--prefix|--relocate|--root)
@@ -113,6 +115,8 @@ _rpm()
             return 0
             ;;
     esac
+
+    $split && return 0
 
     # options common to all modes
     local opts="--define --eval --macros --nodigest --nosignature --rcfile \
@@ -230,7 +234,7 @@ complete -F _rpm rpm
 _rpmbuild()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n = || return
 
     local split=false
     _split_longopt && split=true
