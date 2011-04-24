@@ -5,11 +5,12 @@ have rsync || return
 _rsync()
 {
     local cur prev words cword
-    _init_completion -n : || return
-
-    # TODO: _split_longopt
+    _init_completion -n := || return
 
     _expand || return 0
+
+    local split=false
+    _split_longopt && split=true
 
     case $prev in
         --config|--password-file|--include-from|--exclude-from|--files-from|\
@@ -35,6 +36,8 @@ _rsync()
             return 0
             ;;
     esac
+
+    $split && return 0
 
     case $cur in
         -*)
