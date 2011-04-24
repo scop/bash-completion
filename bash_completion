@@ -1619,6 +1619,21 @@ _longopt()
             _filedir
             return 0
             ;;
+        --+([-a-z0-9_]))
+            local argtype=$( $1 --help 2>&1 | \
+                sed -ne "s|.*$prev\[\?=[<[]\?\([-A-Za-z0-9_]\{1,\}\).*|\1|p" )
+            case ${argtype,,} in
+                *dir*)
+                    compopt +o default
+                    _filedir -d
+                    return 0
+                    ;;
+                *file*|*path*)
+                    _filedir
+                    return 0
+                    ;;
+            esac
+            ;;
     esac
 
     $split && return 0
