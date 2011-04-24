@@ -214,7 +214,8 @@ dequote()
 #       use multiple '_upvar' calls, since one '_upvar' call might
 #       reassign a variable to be used by another '_upvar' call.
 # See: http://fvue.nl/wiki/Bash:_Passing_variables_by_reference
-_upvar() {
+_upvar()
+{
     if unset -v "$1"; then           # Unset & validate varname
         if (( $# == 2 )); then
             eval $1=\"\$2\"          # Return single value
@@ -233,7 +234,8 @@ _upvar() {
 #     -v   Assign single value to varname
 # Return: 1 if error occurs
 # See: http://fvue.nl/wiki/Bash:_Passing_variables_by_reference
-_upvars() {
+_upvars()
+{
     if ! (( $# )); then
         echo "${FUNCNAME[0]}: usage: ${FUNCNAME[0]} [-v varname"\
             "value] | [-aN varname [value ...]] ..." 1>&2
@@ -276,7 +278,8 @@ _upvars() {
 # @param $2 words  Name of variable to return words to
 # @param $3 cword  Name of variable to return cword to
 #
-__reassemble_comp_words_by_ref() {
+__reassemble_comp_words_by_ref()
+{
     local exclude i j line ref
     # Exclude word separator characters?
     if [[ $1 ]]; then
@@ -342,7 +345,8 @@ __reassemble_comp_words_by_ref() {
 # @param $3 cword  Name of variable to return cword to
 # @param $4 cur  Name of variable to return current word to complete to
 # @see ___get_cword_at_cursor_by_ref()
-__get_cword_at_cursor_by_ref() {
+__get_cword_at_cursor_by_ref()
+{
     local cword words=()
     __reassemble_comp_words_by_ref "$1" words cword
 
@@ -553,7 +557,8 @@ _get_pword()
 # @param $1 current word to complete (cur)
 # @modifies global array $COMPREPLY
 #
-__ltrim_colon_completions() {
+__ltrim_colon_completions()
+{
     if [[ "$1" == *:* && "$COMP_WORDBREAKS" == *:* ]]; then
         # Remove colon-word prefix from COMPREPLY items
         local colon_word=${1%${1##*:}}
@@ -738,7 +743,8 @@ _init_completion()
 # @param $1  command
 # @param $2  command options (default: --help)
 #
-_parse_help() {
+_parse_help()
+{
     $1 ${2:---help} 2>&1 | sed -e '/^[[:space:]]*-/!d' -e 's|[,/]| |g' | \
         awk '{ print $1; if ($2 ~ /^-/) { print $2 } }' | sed -e 's|[<=].*||'
 }
@@ -842,12 +848,12 @@ _available_interfaces()
 # @return  True (0) if completion needs further processing, 
 #          False (> 0) if tilde is followed by a valid username, completions
 #          are put in COMPREPLY and no further processing is necessary.
-_tilde() {
+_tilde()
+{
     local result=0
-    # Does $1 start with tilde (~) and doesn't contain slash (/)?
-    if [[ ${1:0:1} == "~" && $1 == ${1//\/} ]]; then
+    if [[ $1 == ~* && $1 != */* ]]; then
         compopt -o filenames 2>/dev/null
-        # Try generate username completions
+        # Try generate ~username completions
         COMPREPLY=( $( compgen -P '~' -u "${1#\~}" ) )
         result=${#COMPREPLY[@]}
     fi
@@ -877,7 +883,8 @@ _tilde() {
 #    ~foo/*           /home/foo/*
 #  
 # @param $1  Name of variable (not the value of the variable) to expand
-__expand_tilde_by_ref() {
+__expand_tilde_by_ref()
+{
     # Does $1 start with tilde (~)?
     if [ "${!1:0:1}" = "~" ]; then
         # Does $1 contain slash (/)?
@@ -1602,13 +1609,13 @@ _longopt()
     local split=false
     _split_longopt && split=true
 
-    case "$prev" in
-        --*[Dd][Ii][Rr]*)
+    case "${prev,,}" in
+        --*dir*)
             compopt +o default
             _filedir -d
             return 0
             ;;
-        --*[Ff][Ii][Ll][Ee]*|--*[Pp][Aa][Tt][Hh]*)
+        --*file*|--*path*)
             _filedir
             return 0
             ;;
