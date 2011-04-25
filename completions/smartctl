@@ -10,22 +10,11 @@ _smartctl_device()
 {
     case $cur in
         areca*|3ware*|megaraid*|cciss*)
-            local i mycur="${cur%%,*}"
-            for (( i=0; i <= 31; i++ )) ; do
-                COMPREPLY+=( "$mycur,$i" )
-            done
+            COMPREPLY+=( ${cur%%,*},{0..31} )
             COMPREPLY=( $( compgen -W '"${COMPREPLY[@]}"' -- "$cur" ) )
             ;;
         hpt*)
-            local l m n
-            for (( l=1; l <= 4; l++ )) ; do
-                for (( m=1; m <= 8; m++ )) ; do
-                    COMPREPLY+=( hpt,$l/$m )
-                    for (( n=1; n <= 5; n++ )) ; do
-                        COMPREPLY+=( hpt,$l/$m/$n )
-                    done
-                done
-            done
+            COMPREPLY+=( hpt,{1..4}/{1..8} hpt,{1..4}/{1..8}/{1..5} )
             COMPREPLY=( $( compgen -W '"${COMPREPLY[@]}"' -- "$cur" ) )
             ;;
         *)
