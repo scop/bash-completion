@@ -38,7 +38,7 @@ _yum_plugins()
 _yum()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n = || return
 
     local special i
     for (( i=0; i < ${#words[@]}-1; i++ )); do
@@ -49,7 +49,8 @@ _yum()
 
     if [ -n "$special" ]; then
         # TODO: install|update|upgrade should not match *src.rpm
-        if [[ "$cur" == */* && "$special" == @(deplist|install|update|upgrade) ]]; then
+        if [[ "$cur" == @(*/|[.~])* && \
+            "$special" == @(deplist|install|update|upgrade) ]]; then
             _filedir rpm
             return 0
         fi
