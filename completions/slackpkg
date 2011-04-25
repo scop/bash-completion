@@ -1,4 +1,5 @@
 # bash completion for slackpkg tool
+# options list is based on `grep '\-.*\=.*)' /usr/sbin/slackpkg | cut -f1 -d\)`
 
 have slackpkg || return
 
@@ -7,23 +8,37 @@ _slackpkg()
     local cur prev words cword
     _init_completion -n = || return
 
-    # based on `grep '\-.*\=.*)' /usr/sbin/slackpkg | cut -f1 -d\)`
+    local split=false
+    if [[ "$cur" == -?*=* ]]; then
+        prev="${cur%%?(\\)=*}"
+        cur="${cur#*=}"
+        split=true
+    fi
+
+    case "$prev" in
+        -delall|-checkmd5|-checkgpg|-checksize|-postinst|-onoff|-download_all|\
+        -dialog|-batch|-only_new_dotnew|-use_includes|-spinning)
+            COMPREPLY=( $( compgen -W 'on off' -- "$cur" ) )
+            return 0
+            ;;
+        -default_answer)
+            COMPREPLY=( $( compgen -W 'yes no' -- "$cur" ) )
+            return 0
+            ;;
+        -dialog_maxargs|-mirror)
+            # argument required but no completions available
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-delall=on -delall=off \
-            -checkmd5=on -checkmd5=off \
-            -checkgpg=on -checkgpg=off \
-            -checksize=on -checksize=off \
-            -postinst=on -postinst=off \
-            -onoff=on -onoff=off \
-            -download_all=on -download_all=off \
-            -dialog=on -dialog=off \
-            -dialog_maxargs= \
-            -batch=on -batch=off \
-            -only_new_dotnew=on -only_new_dotnew=off \
-            -use_includes=on -use_includes=off \
-            -spinning=on -spinning=off \
-            -default_answer=yes -default_answer=no \
-            -mirror=' -- "$cur" ) )
+        compopt -o nospace
+        COMPREPLY=( $( compgen -W '-delall= -checkmd5= -checkgpg= \
+            -checksize= -postinst= -onoff= -download_all= -dialog= \
+            -dialog_maxargs= -batch= -only_new_dotnew= -use_includes= \
+            -spinning= -default_answer= -mirror=' -- "$cur" ) )
         return 0
     fi
 
