@@ -1227,6 +1227,16 @@ _dvd_devices()
     COMPREPLY+=( $( compgen -f -d -X "!*/?(r)dvd*" -- "${cur:-/dev/}" ) )
 }
 
+# TERM environment variable values
+_terms()
+{
+    COMPREPLY+=( $( compgen -W \
+        "$( sed -ne 's/^\([^[:space:]#|]\{2,\}\)|.*/\1/p' /etc/termcap \
+            2>/dev/null )" -- "$cur" ) )
+    COMPREPLY+=( $( compgen -W "$( { toe -a 2>/dev/null || toe 2>/dev/null; } \
+        | awk '{ print $1 }' | sort -u )" -- "$cur" ) )
+}
+
 # a little help for FreeBSD ports users
 [ $UNAME = FreeBSD ] && complete -W 'index search fetch fetch-list extract \
     patch configure build install reinstall deinstall clean clean-depends \
