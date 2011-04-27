@@ -14,35 +14,31 @@ _crontab()
             ;;
     esac
 
-    local i opts=" -u -l -r -e" # leading space at start is significant...
-    [[ $OSTYPE == *linux* ]] && opts+=" -i"
-    [ -e /etc/selinux ] && opts+=" -s"
+    local -A opts=( [-u]= [-l]= [-r]= [-e]= )
+    [[ $OSTYPE == *linux* ]] && opts[-i]=
+    [ -e /etc/selinux ] && opts[-s]=
+
+    local i
     for (( i=0; i < ${#words[@]}-1; i++ )); do
+        [[ ${words[i]} ]] && unset opts[${words[i]}]
         case "${words[i]}" in
             -l)
-                opts=${opts// -l -r -e/}
-                opts=${opts// -i/}
-                opts=${opts// -s/}
+                unset opts[-r] opts[-e] opts[-i] opts[-s]
                 ;;
             -e)
-                opts=${opts// -l -r -e/}
-                opts=${opts// -i/}
+                unset opts[-l] opts[-r] opts[-i]
                 ;;
             -r)
-                opts=${opts// -l -r -e/}
+                unset opts[-l] opts[-e]
                 ;;
             -u)
-                opts=${opts// -u/}
-                opts=${opts// -i/}
-                ;;
-            -i|-s)
-                opts=${opts// ${words[i]}/}
+                unset opts[-i]
                 ;;
         esac
     done
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$opts' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '${!opts[@]}' -- "$cur" ) )
         return 0
     fi
 
