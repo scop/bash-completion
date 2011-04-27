@@ -320,7 +320,10 @@ have pack200 &&
 _pack200()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n = || return
+
+    local split=false
+    _split_longopt && split=true
 
     case $prev in
         -S|--segment-limit|-P|--pass-file|-C|--class-attribute|\
@@ -359,6 +362,8 @@ _pack200()
             ;;
     esac
 
+    $split && return
+
     # Check if a pack or a jar was already given.
     local i pack=false jar=false
     for (( i=0; i < ${#words[@]}-1; i++ )) ; do
@@ -391,7 +396,10 @@ have unpack200 &&
 _unpack200()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n = || return
+
+    local split=false
+    _split_longopt && split=true
 
     case $prev in
         '-?'|-h|--help|-V|--version|-J)
@@ -407,6 +415,8 @@ _unpack200()
             return 0
             ;;
     esac
+
+    $split && return
 
     # Check if a pack or a jar was already given.
     local i pack=false jar=false
