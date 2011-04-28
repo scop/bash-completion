@@ -275,7 +275,7 @@ have javac &&
 _javac()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n : || return
 
     case $prev in
         -d)
@@ -288,6 +288,19 @@ _javac()
             ;;
     esac
 
+    if [[ $cur == -+([a-zA-z0-9-_]):* ]]; then
+        # Parse required options from -foo:{bar,quux,baz}
+        local helpopt=-help
+        [[ $cur == -X* ]] && helpopt=-X
+        # For some reason there may be -g:none AND -g:{lines,source,vars};
+        # convert the none case to the curly brace format so it parses like
+        # the others.
+        local opts=$( "$1" $helpopt 2>&1 | sed -e 's/-g:none/-g:{none}/' -ne \
+            "s/^[[:space:]]*${cur%%:*}:{\([^}]\{1,\}\)}.*/\1/p" )
+        COMPREPLY=( $( compgen -W "${opts//,/ }" -- "${cur#*:}" ) )
+        return
+    fi
+
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_help "$1" -help )' -- "$cur" ) )
         [[ $cur == -X* ]] && \
@@ -296,6 +309,10 @@ _javac()
         # source files completion
         _filedir java
     fi
+
+    [[ $COMPREPLY == -*[:=] ]] && compopt -o nospace
+
+    __ltrim_colon_completions "$cur"
 } &&
 complete -F _javac javac
 
