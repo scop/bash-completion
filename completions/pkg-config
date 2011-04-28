@@ -25,16 +25,7 @@ _pkg_config()
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        # return list of available options
-        COMPREPLY=( $( compgen -W '--version --modversion \
-            --atleast-pkgconfig-version --libs --static \
-            --short-errors --libs-only-l --libs-only-other \
-            --libs-only-L --cflags --cflags-only-I \
-            --cflags-only-other --variable --define-variable \
-            --exists --uninstalled --atleast-version \
-            --exact-version --max-version --list-all --debug \
-            --print-errors --silence-errors --errors-to-stdout \
-            --print-provides --print-requires --help --usage' -- "$cur") )
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
     else
         COMPREPLY=( $( compgen -W "$( pkg-config --list-all \
             2>/dev/null | awk '{print $1}' )" -- "$cur" ) )
