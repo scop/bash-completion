@@ -102,8 +102,9 @@ _id()
     _init_completion || return
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-a -g --group -G --groups -n --name\
-            -r --real -u --user --help --version' -- "$cur" ) )
+        local opts=$( _parse_help "$1" )
+        [[ $opts ]] || opts="-G -g -u" # POSIX fallback
+        COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
     else
         COMPREPLY=( $( compgen -u "$cur" ) )
     fi
@@ -133,8 +134,11 @@ _mktemp()
 
     $split && return 0
 
-    [[ "$cur" == -* ]] && \
-        COMPREPLY=( $( compgen -W '-d -u -q -p -t' -- "$cur" ) )
+    if [[ "$cur" == -* ]]; then
+        local opts=$( _parse_help "$1" )
+        [[ $opts ]] || opts="-d -u -q -p -t" # non-GNU fallback
+        COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
+    fi
 } &&
 complete -F _mktemp mktemp
 

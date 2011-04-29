@@ -5,7 +5,10 @@ have wvdial || return
 _wvdial()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n = || return
+
+    local split=false
+    _split_longopt && split=true
 
     case $prev in
         --config)
@@ -14,13 +17,13 @@ _wvdial()
             ;;
     esac
 
+    $split && return
+
     local config i IFS=$'\n'
 
     case $cur in
         -*)
-            COMPREPLY=( $( compgen -W '--config --chat \
-                --remotename --help --version --no-syslog' \
-                -- "$cur" ) )
+            COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
             ;;
         *)
             # start with global and personal config files

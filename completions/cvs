@@ -29,14 +29,9 @@ _cvs_commands()
     cvs --help-commands 2>&1 | awk '/^(     *|\t)/ { print $1 }'
 }
 
-_cvs_options()
-{
-    cvs --help-options 2>&1 | awk '/^(     *|\t)-/ { print $1 }'
-}
-
 _cvs_command_options()
 {
-    cvs --help $1 2>&1 | sed -ne 's/^[[:space:]]*\(-[^[:space:]=[]*\).*/\1/p'
+    COMPREPLY=( $( compgen -W '$( _parse_help "$1" "--help $2" )' -- "$cur" ) )
 }
 
 _cvs_kflags()
@@ -50,7 +45,7 @@ _cvs_roots()
     cvsroots=( $CVSROOT )
     [ -r ~/.cvspass ] && \
         cvsroots+=( $( awk '{ print $2 }' ~/.cvspass ) )
-    [ -r CVS/Root ] && cvsroots+=( $( cat CVS/Root ) )
+    [ -r CVS/Root ] && mapfile -tO ${#cvsroots[@]} cvsroots < CVS/Root
     COMPREPLY=( $( compgen -W '${cvsroots[@]}' -- "$cur" ) )
     __ltrim_colon_completions "$cur"
 }
@@ -166,8 +161,7 @@ _cvs()
                     COMPREPLY=( $( compgen -X '*~' -W '${files[@]}' -- $cur ) )
                 fi
             else
-                COMPREPLY=( $( compgen -W "$( _cvs_command_options $mode )" \
-                    -- "$cur" ) )
+                _cvs_command_options "$1" $mode
             fi
             ;;
         admin)
@@ -186,16 +180,14 @@ _cvs()
             esac
 
             if [[ "$cur" = -* ]]; then
-                COMPREPLY=( $( compgen -W "$( _cvs_command_options $mode )" \
-                    -- "$cur" ) )
+                _cvs_command_options "$1" $mode
             fi
             ;;
         annotate)
             [[ "$prev" == -@(r|D) ]] && return 0
 
             if [[ "$cur" = -* ]]; then
-                COMPREPLY=( $( compgen -W "$( _cvs_command_options $mode )" \
-                    -- "$cur" ) )
+                _cvs_command_options "$1" $mode
             else
                 get_entries
                 COMPREPLY=( $( compgen -W '${entries[@]}' -- "$cur" ) )
@@ -222,8 +214,7 @@ _cvs()
                     awk '{print $1}' ) )
                 COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
             else
-                COMPREPLY=( $( compgen -W "$( _cvs_command_options $mode )" \
-                    -- "$cur" ) )
+                _cvs_command_options "$1" $mode
             fi
             ;;
         commit)
@@ -258,8 +249,7 @@ _cvs()
                     COMPREPLY=( $(compgen -o default -- "$cur") )
                 fi
             else
-                COMPREPLY=( $( compgen -W "$( _cvs_command_options $mode )" \
-                    -- "$cur" ) )
+                _cvs_command_options "$1" $mode
             fi
             ;;
         cvsroot)
@@ -287,13 +277,12 @@ _cvs()
                 COMPREPLY=( $( cvs -d "$cvsroot" co -c | awk '{print $1}' ) )
                 COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
             else
-                COMPREPLY=( $( compgen -W "$( _cvs_command_options $mode )" \
-                    -- "$cur" ) )
+                _cvs_command_options "$1" $mode
             fi
             ;;
         diff)
             if [[ "$cur" == -* ]]; then
-                _longopt diff
+                _cvs_command_options "$1" $mode
             else
                 get_entries
                 COMPREPLY=( $( compgen -W '${entries[@]:-}' -- "$cur" ) )
@@ -311,8 +300,7 @@ _cvs()
                     COMPREPLY=( $(compgen -W '${miss[@]:-}' -- "$cur") )
                 fi
             else
-                COMPREPLY=( $( compgen -W "$( _cvs_command_options $mode )" \
-                    -- "$cur" ) )
+                _cvs_command_options "$1" $mode
             fi
             ;;
         import)
@@ -339,8 +327,7 @@ _cvs()
                 pwd=${pwd##*/}
                 COMPREPLY=( $( compgen -W '${COMPREPLY[@]} $pwd' -- $cur ) )
             else
-                COMPREPLY=( $( compgen -W "$( _cvs_command_options $mode )" \
-                    -- "$cur" ) )
+                _cvs_command_options "$1" $mode
             fi
             ;;
         update)
@@ -355,8 +342,7 @@ _cvs()
             esac
 
             if [[ "$cur" = -* ]]; then
-                COMPREPLY=( $( compgen -W "$( _cvs_command_options $mode )" \
-                    -- "$cur" ) )
+                _cvs_command_options "$1" $mode
             fi
             ;;
         "")
@@ -369,12 +355,13 @@ _cvs()
                     return 0
                     ;;
                 -z)
-                    COMPREPLY=( $( compgen -W '1 2 3 4 5 6 7 8 9' -- "$cur" ) )
+                    COMPREPLY=( $( compgen -W '{1..9}' -- "$cur" ) )
                     return 0
                     ;;
             esac
 
-            COMPREPLY=( $( compgen -W '$( _cvs_commands ) $( _cvs_options ) \
+            COMPREPLY=( $( compgen -W '$( _cvs_commands ) \
+                $( _parse_help "$1" --help-options ) \
                 --help --help-commands --help-options --version' -- "$cur" ) )
             ;;
     esac

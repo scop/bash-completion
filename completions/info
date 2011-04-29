@@ -5,14 +5,38 @@ have info || return
 _info()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n = || return
 
     _expand || return 0
+
+    local split=false
+    _split_longopt && split=true
 
     # default completion if parameter looks like a path
     if [[ "$cur" == @(*/|[.~])* ]]; then
         _filedir
         return 0
+    fi
+
+    case $prev in
+        -k|--apropos|--index-search|-n|--node)
+            return
+            ;;
+        -d|--directory)
+            _filedir -d
+            return
+            ;;
+        --dribble|-f|--file|-o|--output|--restore)
+            _filedir
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return
     fi
 
     local i infopath=/usr/share/info

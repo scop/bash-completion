@@ -11,7 +11,7 @@ _find()
 
     case $prev in
         -maxdepth|-mindepth)
-            COMPREPLY=( $( compgen -W '0 1 2 3 4 5 6 7 8 9' -- "$cur" ) )
+            COMPREPLY=( $( compgen -W '{0..9}' -- "$cur" ) )
             return 0
             ;;
         -newer|-anewer|-cnewer|-fls|-fprint|-fprint0|-fprintf|-name|-iname|\
@@ -91,27 +91,23 @@ _find()
         -delete -exec -execdir -fls -fprint -fprint0 -fprintf -ls -ok -okdir \
         -print -print0 -printf -prune -quit' -- "$cur" ) )
 
-    # this removes any options from the list of completions that have
-    # already been specified somewhere on the command line, as long as
-    # these options can only be used once (in a word, "options", in
-    # opposition to "tests" and "actions", as in the find(1) manpage).
-    local onlyonce
-    onlyonce=' -daystart -depth -follow -help -ignore_readdir_race -maxdepth \
-       -mindepth -mount -noignore_readdir_race -noleaf -nowarn -regextype \
-       -version -warn -xdev '
-    COMPREPLY=( $( \
-           (while read -d ' ' i; do
-            [[ -z "$i" || "${onlyonce/ ${i%% *} / }" == "$onlyonce" ]] &&
-            continue
-            # flatten array with spaces on either side,
-            # otherwise we cannot grep on word boundaries of
-            # first and last word
-            COMPREPLY=" ${COMPREPLY[@]} "
-            # remove word from list of completions
-            COMPREPLY=( ${COMPREPLY/ ${i%% *} / } )
+    if [[ ${#COMPREPLY[@]} -ne 0 ]]; then
+        # this removes any options from the list of completions that have
+        # already been specified somewhere on the command line, as long as
+        # these options can only be used once (in a word, "options", in
+        # opposition to "tests" and "actions", as in the find(1) manpage).
+        local -A onlyonce=( [-daystart]=1 [-depth]=1 [-follow]=1 [-help]=1
+            [-ignore_readdir_race]=1 [-maxdepth]=1 [-mindepth]=1 [-mount]=1
+            [-noignore_readdir_race]=1 [-noleaf]=1 [-nowarn]=1 [-regextype]=1
+            [-version]=1 [-warn]=1 [-xdev]=1 )
+        local j
+        for i in "${words[@]}"; do
+            [[ $i && ${onlyonce[$i]} ]] || continue
+            for j in ${!COMPREPLY[@]}; do
+                [[ ${COMPREPLY[j]} == $i ]] && unset COMPREPLY[j]
             done
-            printf '%s ' "${COMPREPLY[@]}") <<<"${words[@]}"
-          ) )
+        done
+    fi
 
     _filedir
 

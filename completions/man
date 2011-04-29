@@ -1,20 +1,51 @@
 # man(1) completion
 
-[[ $USERLAND == GNU || $UNAME == Darwin || $UNAME == FreeBSD || \
-    $UNAME == SunOS || $UNAME == Cygwin || $UNAME == OpenBSD ]] &&
+[[ $USERLAND == GNU || $UNAME == @(Darwin|FreeBSD|SunOS|Cygwin|OpenBSD) ]] &&
 _man()
 {
     local cur prev words cword
-    _init_completion -n : || return
+    _init_completion -n := || return
+
+    local split=false
+    _split_longopt && split=true
 
     local i sect manpath manext mansect uname
 
     manext="@([0-9lnp]|[0-9][px]|man|3pm)?(.@([gx]z|bz2|lzma|Z))"
     mansect="@([0-9lnp]|[0-9][px]|3pm)"
 
-    if [[ "$prev" == -l ]]; then
-        _filedir $manext
-        return 0
+    case $prev in
+        -C|--config-file)
+            _filedir conf
+            return
+            ;;
+        -l|--local-file)
+            _filedir $manext
+            return
+            ;;
+        -M|--manpath)
+            _filedir -d
+            return
+            ;;
+        -P|--pager)
+            COMPREPLY=( $( compgen -c -- "$cur" ) )
+            return
+            ;;
+        -p|--preprocessor)
+            COMPREPLY=( $( compgen -W 'e p t g r v' -- "$cur" ) )
+            return
+            ;;
+        -L|--locale|-m|--systems|-e|--extension|-r|--prompt|-R|--recode|\
+        -E|--encoding)
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -h )' -- "$cur" ) )
+        return
     fi
 
     _expand || return 0

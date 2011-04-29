@@ -126,7 +126,7 @@ _sysbench()
         --init-rng= --debug= --validate= --help --version"
 
     if [[ $test ]]; then
-        local help=( $( _parse_help $1 "--test=$test help" ) )
+        local help=( $( _parse_help "$1" "--test=$test help" ) )
         opts+=" ${help[@]/%/=} prepare run cleanup help version"
     else
         opts+=" --test="
@@ -134,8 +134,7 @@ _sysbench()
 
     if [[ "$cur" == -* || ! $test ]]; then
         COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
-        [[ ${#COMPREPLY[@]} -eq 1 && ${COMPREPLY[0]} != *= ]] || \
-            compopt -o nospace
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
     else
         COMPREPLY=( $( compgen -W "prepare run cleanup help version" \
             -- "$cur" ) )

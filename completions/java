@@ -72,14 +72,12 @@ _java_classes()
             fi
 
         elif [ -d $i ]; then
-            compopt -o nospace &>/dev/null
             COMPREPLY+=(
                 $( compgen -d -- "$i/$cur" | sed -e "s|^$i/\(.*\)|\1.|" )
                 $( compgen -f -X '!*.class' -- "$i/$cur" | \
                     sed -e '/\$/d' -e "s|^$i/||" )
             )
-            [[ ${#COMPREPLY[@]} == 1 && ${COMPREPLY[0]} == *.class ]] && \
-                compopt +o nospace &>/dev/null
+            [[ $COMPREPLY == *.class ]] || compopt -o nospace
 
             # FIXME: if we have foo.class and foo/, the completion
             # returns "foo/"... how to give precedence to files
@@ -217,11 +215,9 @@ _java()
     esac
 
     if [[ "$cur" == -* ]]; then
-        # standard options
-        COMPREPLY=( $( compgen -W '-client -server -agentlib: -agentpath:
-            -classpath -D -d32 -d64 -enableassertions -disableassertions
-            -enablesystemassertions -disablesystemassertions -jar -javaagent:
-            -verbose -verbose -version -showversion -help -X' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -help )' -- "$cur" ) )
+        [[ $cur == -X* ]] && \
+            COMPREPLY+=( $( compgen -W '$( _parse_help "$1" -X )' -- "$cur" ) )
     else
         if [[ "$prev" == -jar ]]; then
             # jar file completion
@@ -232,8 +228,7 @@ _java()
         fi
     fi
 
-    [[ ${#COMPREPLY[@]} -eq 1 && ${COMPREPLY[0]} == -*[:=] ]] && \
-        compopt -o nospace
+    [[ $COMPREPLY == -*[:=] ]] && compopt -o nospace
 
     __ltrim_colon_completions "$cur"
 } &&
@@ -266,20 +261,7 @@ _javadoc()
     esac
 
     if [[ "$cur" == -* ]]; then
-        # relevant options completion
-        COMPREPLY=( $( compgen -W '-overview -public -protected \
-            -package -private -help -doclet -docletpath \
-            -sourcepath -classpath -exclude -subpackages \
-            -breakiterator -bootclasspath -source -extdirs \
-            -verbose -locale -encoding -J -d -use -version \
-            -author -docfilessubdirs -splitindex \
-            -windowtitle -doctitle -header -footer -bottom \
-            -link -linkoffline -excludedocfilessubdir \
-            -group -nocomment -nodeprecated -noqualifier \
-            -nosince -nodeprecatedlist -notree -noindex \
-            -nohelp -nonavbar -quiet -serialwarn -tag \
-            -taglet -tagletpath -charset -helpfile \
-            -linksource -stylesheetfile -docencoding' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -help )' -- "$cur" ) )
     else
         # source files completion
         _filedir java
@@ -293,7 +275,7 @@ have javac &&
 _javac()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n : || return
 
     case $prev in
         -d)
@@ -306,16 +288,31 @@ _javac()
             ;;
     esac
 
+    if [[ $cur == -+([a-zA-z0-9-_]):* ]]; then
+        # Parse required options from -foo:{bar,quux,baz}
+        local helpopt=-help
+        [[ $cur == -X* ]] && helpopt=-X
+        # For some reason there may be -g:none AND -g:{lines,source,vars};
+        # convert the none case to the curly brace format so it parses like
+        # the others.
+        local opts=$( "$1" $helpopt 2>&1 | sed -e 's/-g:none/-g:{none}/' -ne \
+            "s/^[[:space:]]*${cur%%:*}:{\([^}]\{1,\}\)}.*/\1/p" )
+        COMPREPLY=( $( compgen -W "${opts//,/ }" -- "${cur#*:}" ) )
+        return
+    fi
+
     if [[ "$cur" == -* ]]; then
-        # relevant options completion
-        COMPREPLY=( $( compgen -W '-g -g:none -g:lines -g:vars \
-            -g:source -O -nowarn -verbose -deprecation -classpath \
-            -sourcepath -bootclasspath -extdirs -d -encoding -source \
-            -target -help' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -help )' -- "$cur" ) )
+        [[ $cur == -X* ]] && \
+            COMPREPLY+=( $( compgen -W '$( _parse_help "$1" -X )' -- "$cur" ) )
     else
         # source files completion
         _filedir java
     fi
+
+    [[ $COMPREPLY == -*[:=] ]] && compopt -o nospace
+
+    __ltrim_colon_completions "$cur"
 } &&
 complete -F _javac javac
 
@@ -323,7 +320,10 @@ have pack200 &&
 _pack200()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n = || return
+
+    local split=false
+    _split_longopt && split=true
 
     case $prev in
         -S|--segment-limit|-P|--pass-file|-C|--class-attribute|\
@@ -332,7 +332,7 @@ _pack200()
             return 0
             ;;
         -E|--effort)
-            COMPREPLY=( $( compgen -W '0 1 2 3 4 5 6 7 8 9' -- "$cur" ) )
+            COMPREPLY=( $( compgen -W '{0..9}' -- "$cur" ) )
             return 0
             ;;
         -H|--deflate-hint)
@@ -362,6 +362,8 @@ _pack200()
             ;;
     esac
 
+    $split && return
+
     # Check if a pack or a jar was already given.
     local i pack=false jar=false
     for (( i=0; i < ${#words[@]}-1; i++ )) ; do
@@ -380,8 +382,7 @@ _pack200()
                 --method-attribute= --code-attribute= --config-file= \
                 --verbose --quiet --log-file= --help --version -J \
                 --repack' -- "$cur" ) )
-            [[ ${#COMPREPLY[@]} -eq 1 && ${COMPREPLY[0]} == *= ]] && \
-                compopt -o nospace
+            [[ $COMPREPLY == *= ]] && compopt -o nospace
         else
             _filedir 'pack?(.gz)'
         fi
@@ -395,7 +396,10 @@ have unpack200 &&
 _unpack200()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n = || return
+
+    local split=false
+    _split_longopt && split=true
 
     case $prev in
         '-?'|-h|--help|-V|--version|-J)
@@ -412,6 +416,8 @@ _unpack200()
             ;;
     esac
 
+    $split && return
+
     # Check if a pack or a jar was already given.
     local i pack=false jar=false
     for (( i=0; i < ${#words[@]}-1; i++ )) ; do
@@ -425,8 +431,7 @@ _unpack200()
         if [[ "$cur" == -* ]] ; then
             COMPREPLY=( $( compgen -W '--deflate-hint= --remove-pack-file \
                 --verbose --quiet --log-file= --help --version' -- "$cur" ) )
-            [[ ${#COMPREPLY[@]} -eq 1 && ${COMPREPLY[0]} == *= ]] && \
-                compopt -o nospace
+            [[ $COMPREPLY == *= ]] && compopt -o nospace
         else
             _filedir 'pack?(.gz)'
         fi

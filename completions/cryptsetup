@@ -17,23 +17,25 @@ _cryptsetup_device()
 _cryptsetup()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n = || return
+
+    local split=false
+    _split_longopt && split=true
 
     case $prev in
         --key-file|--master-key-file|--header-backup-file|-d)
             _filedir
-            return 0;
+            return 0
             ;;
     esac
+
+    $split && return
 
     local arg
     _get_first_arg
     if [ -z $arg ]; then
         if [[ "$cur" == -* ]]; then
-            COMPREPLY=( $( compgen -W '--hash --cipher --verify-passphrase \
-                --key-file --master-key-file --key-slot --key-size --size \
-                --offset --skip --readonly --iter-time --batch-mode --timeout \
-                --tries --align-payload --version' -- "$cur" ) )
+            COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
         else
             COMPREPLY=( $( compgen -W 'create remove status resize luksFormat \
                 luksOpen luksClose luksSuspend luksResume luksAddKey \

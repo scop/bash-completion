@@ -69,7 +69,7 @@ complete -d pushd
 #
 # START exclude -- do NOT remove this line
 # bzcmp, bzdiff, bz*grep, bzless, bzmore intentionally not here, see Debian: #455510
-complete -f -X '!*.?(t)bz?(2)' bunzip2 bzcat pbunzip2 pbzcat
+complete -f -X '!*.?(t)bz?(2)' bunzip2 bzcat pbunzip2 pbzcat lbunzip2 lbzcat
 complete -f -X '!*.@(zip|[ejw]ar|exe|pk3|wsz|zargo|xpi|sxw|o[tx]t|od[fgpst]|epub|apk)' unzip zipinfo
 complete -f -X '*.Z' compress znew
 # zcmp, zdiff, z*grep, zless, zmore intentionally not here, see Debian: #455510
@@ -747,8 +747,32 @@ _init_completion()
 #
 _parse_help()
 {
-    $1 ${2:---help} 2>&1 | sed -e '/^[[:space:]]*-/!d' -e 's|[,/]| |g' | \
-        awk '{ print $1; if ($2 ~ /^-/) { print $2 } }' | sed -e 's|[<=].*||'
+    # Print first found long option, or first short if not found.
+    eval local cmd=$1
+    "$cmd" ${2:---help} 2>&1 | awk \
+        '{
+             if ($0 !~ /^[ \t]*-/) { next }
+             gsub("[,/|]", " ");
+             x = -1;
+             for (i = 1; i <= NF; i++) {
+                 if ($i ~ /^--[^-]/) { x = i ; break }
+                 if ($i !~ /^-/) { break }
+             }
+             if (x == -1) { x = 1 }
+             if ($x ~ /^---/) { next }
+             if ($x ~ /^--?[[]no[]]./) {
+                 y = $x ; sub("[[]no[]]", "", y)
+                 z = $x ; sub("[[]no[]]", "no", z)
+                 sub("[=<{[].*", "", y)
+                 sub("[=<{[].*", "", z)
+                 print y
+                 print z
+             }
+             else {
+                 sub("[=<{[].*", "", $x)
+                 print $x
+             }
+         }'
 }
 
 # This function completes on signal names
@@ -929,7 +953,7 @@ _expand()
 
 # This function completes on process IDs.
 # AIX and Solaris ps prefers X/Open syntax.
-[[ $UNAME == SunOS || $UNAME == AIX ]] &&
+[[ $UNAME == @(SunOS|AIX) ]] &&
 _pids()
 {
     COMPREPLY=( $( compgen -W '$( command ps -efo pid | sed 1d )' -- "$cur" ))
@@ -941,7 +965,7 @@ _pids()
 
 # This function completes on process group IDs.
 # AIX and SunOS prefer X/Open, all else should be BSD.
-[[ $UNAME == SunOS || $UNAME == AIX ]] &&
+[[ $UNAME == @(SunOS|AIX) ]] &&
 _pgids()
 {
     COMPREPLY=( $( compgen -W '$( command ps -efo pgid | sed 1d )' -- "$cur" ))
@@ -953,7 +977,7 @@ _pgids()
 
 # This function completes on process names.
 # AIX and SunOS prefer X/Open, all else should be BSD.
-[[ $UNAME == SunOS || $UNAME == AIX ]] &&
+[[ $UNAME == @(SunOS|AIX) ]] &&
 _pnames()
 {
     COMPREPLY=( $( compgen -X '<defunct>' -W '$( command ps -efo comm | \
@@ -1227,7 +1251,15 @@ _dvd_devices()
     COMPREPLY+=( $( compgen -f -d -X "!*/?(r)dvd*" -- "${cur:-/dev/}" ) )
 }
 
-# start of section containing completion functions for external programs
+# TERM environment variable values
+_terms()
+{
+    COMPREPLY+=( $( compgen -W \
+        "$( sed -ne 's/^\([^[:space:]#|]\{2,\}\)|.*/\1/p' /etc/termcap \
+            2>/dev/null )" -- "$cur" ) )
+    COMPREPLY+=( $( compgen -W "$( { toe -a 2>/dev/null || toe 2>/dev/null; } \
+        | awk '{ print $1 }' | sort -u )" -- "$cur" ) )
+}
 
 # a little help for FreeBSD ports users
 [ $UNAME = FreeBSD ] && complete -W 'index search fetch fetch-list extract \

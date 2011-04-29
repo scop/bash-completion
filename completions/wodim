@@ -43,8 +43,7 @@ _cdrecord()
                         gigarec= audiomaster forcespeed noforcespeed speedread
                         nospeedread singlesession nosinglesession hidecdr
                         nohidecdr tattooinfo tattoofile=' -- "$cur" ) )
-                    [[ ${#COMPREPLY[@]} -eq 1 && ${COMPREPLY[0]} != *= ]] || \
-                        compopt -o nospace
+                    [[ $COMPREPLY == *= ]] && compopt -o nospace
                 fi
                 ;;
             driver)
@@ -52,8 +51,7 @@ _cdrecord()
                     awk 'NR > 1 { print $1 }' ) help" -- "$cur" ) )
                 ;;
             minbuf)
-                COMPREPLY=( $( compgen -W "$( seq 25 95 2>/dev/null )" \
-                    -- "$cur" ) )
+                COMPREPLY=( $( compgen -W '{25..95}' -- "$cur" ) )
                 ;;
         esac
         return 0
@@ -92,7 +90,7 @@ _cdrecord()
     if [ $track_mode -eq 0 ]; then
         COMPREPLY+=( $( compgen -W '${generic_options[@]}' -- "$cur" ) )
     fi
-    [[ ${#COMPREPLY[@]} -eq 1 && ${COMPREPLY[0]} != *= ]] || compopt -o nospace
+    [[ $COMPREPLY == *= ]] && compopt -o nospace
 } &&
 complete -F _cdrecord cdrecord wodim
 

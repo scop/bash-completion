@@ -21,7 +21,7 @@ _ant()
             return 0
             ;;
         -nice)
-            COMPREPLY=( $( compgen -W '1 2 3 4 5 6 7 8 9 10' -- "$cur" ) )
+            COMPREPLY=( $( compgen -W '{1..10}' -- "$cur" ) )
             return 0
             ;;
         -lib|-logger|-listener|-D|-inputhandler|-main)
@@ -30,11 +30,7 @@ _ant()
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-help -projecthelp -version -diagnostics \
-            -quiet -verbose -debug -emacs -lib -logfile -logger -listener \
-            -noinput -buildfile -D -keep-going -propertyfile -inputhandler \
-            -find -s -nice -nouserlib -noclasspath -autoproxy -main' \
-            -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
     else
         # available targets completion
         # find which buildfile to use
@@ -50,10 +46,10 @@ _ant()
         # parse buildfile for targets
         # some versions of sed complain if there's no trailing linefeed,
         # hence the 2>/dev/null
-        COMPREPLY=( $( compgen -W "$( cat $buildfile | tr "'\t\n>" "\"  \n" | \
+        COMPREPLY=( $( compgen -W "$( tr "'\t\n>" "\"  \n" < $buildfile | \
             sed -ne 's/.*<target .*name="\([^"]*\).*/\1/p' 2>/dev/null )" \
             -- "$cur" ) )
-        fi
+    fi
 } &&
 have complete-ant-cmd.pl && \
      complete -C complete-ant-cmd.pl -F _ant ant || complete -F _ant ant
