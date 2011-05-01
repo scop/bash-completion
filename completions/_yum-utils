@@ -7,13 +7,16 @@ have repomanage || return
 
 _repomanage()
 {
-    local cur prev words cword
-    _init_completion || return
+    local cur prev words cword split
+    _init_completion -s || return
 
     [[ "$prev" == -@(h|-help|k|-keep) ]] && return 0
 
+    $split && return
+
     if [[ "$cur" == -* ]] ; then
         COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
     else
         _filedir -d
     fi

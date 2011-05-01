@@ -670,13 +670,15 @@ _split_longopt()
 # Initialize completion and deal with redirections: do file completion where
 # appropriate, and adjust prev, words, and cword as if no redirections exist
 # so that completions do not need to deal with them.  Before calling this
-# function, make sure cur, prev, words, and cword are local.
+# function, make sure cur, prev, words, and cword are local, ditto split if
+# you use -s.
 #
 # Options:
 #     -n EXCLUDE  Passed to _get_comp_words_by_ref -n with redirection chars
 #     -e XSPEC    Passed to _filedir as first arg for stderr redirections
 #     -o XSPEC    Passed to _filedir as first arg for other output redirections
 #     -i XSPEC    Passed to _filedir as first arg for stdin redirections
+#     -s          Split long options with _split_longopt, implies -n =
 # @return  True (0) if completion needs further processing, 
 #          False (> 0) if tilde is followed by a valid username, completions
 #          are put in COMPREPLY and no further processing is necessary.
@@ -685,12 +687,13 @@ _init_completion()
 {
     local exclude flag outx errx inx OPTIND=1
 
-    while getopts "n:e:o:i:" flag "$@"; do
+    while getopts "n:e:o:i:s" flag "$@"; do
         case $flag in
-            n) exclude=$OPTARG ;;
+            n) exclude+=$OPTARG ;;
             e) errx=$OPTARG ;;
             o) outx=$OPTARG ;;
             i) inx=$OPTARG ;;
+            s) split=false ; exclude+== ;;
         esac
     done
 
@@ -738,6 +741,8 @@ _init_completion()
         fi
     done
     [[ $cword -ge 1 ]] && prev=${words[cword-1]} || prev=
+
+    [[ $split ]] && _split_longopt && split=true
 
     return 0
 }
@@ -1639,11 +1644,8 @@ _complete_as_root()
 
 _longopt()
 {
-    local cur prev words cword
-    _init_completion -n = || return
-
-    local split=false
-    _split_longopt && split=true
+    local cur prev words cword split
+    _init_completion -s || return
 
     case "${prev,,}" in
         --*dir*)

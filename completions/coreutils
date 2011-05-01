@@ -5,12 +5,9 @@
 have chown &&
 _chown()
 {
-    local cur prev words cword
+    local cur prev words cword split
     # Don't treat user:group as separate words.
-    _init_completion -n := || return
-
-    local split=false
-    _split_longopt && split=true
+    _init_completion -s -n : || return
 
     case "$prev" in
         --from)
@@ -55,13 +52,10 @@ complete -F _chown chown
 have chgrp &&
 _chgrp()
 {
-    local cur prev words cword
-    _init_completion -n = || return
+    local cur prev words cword split
+    _init_completion -s || return
 
     cur=${cur//\\\\/}
-
-    local split=false
-    _split_longopt && split=true
 
     if [[ "$prev" == --reference ]]; then
         _filedir
@@ -116,11 +110,8 @@ complete -F _id id
 have mktemp &&
 _mktemp()
 {
-    local cur prev words cword
-    _init_completion -n = || return
-
-    local split=false
-    _split_longopt && split=true
+    local cur prev words cword split
+    _init_completion -s || return
 
     case "$prev" in
         --help|--version|--suffix)

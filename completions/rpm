@@ -39,8 +39,8 @@ _rpm_macros()
 #
 _rpm()
 {
-    local cur prev words cword
-    _init_completion -n = || return
+    local cur prev words cword split
+    _init_completion -s || return
 
     if [ $cword -eq 1 ]; then
         # first parameter on line
@@ -59,9 +59,6 @@ _rpm()
         esac
         return 0
     fi
-
-    local split=false
-    _split_longopt && split=true
 
     case $prev in
         --dbpath|--excludepath|--prefix|--relocate|--root)
@@ -233,11 +230,8 @@ complete -F _rpm rpm
 
 _rpmbuild()
 {
-    local cur prev words cword
-    _init_completion -n = || return
-
-    local split=false
-    _split_longopt && split=true
+    local cur prev words cword split
+    _init_completion -s || return
 
     local rpm="${1%build*}"
     [[ $rpm == $1 ]] || ! type $rpm &>/dev/null && rpm=
