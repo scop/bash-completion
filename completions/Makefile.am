@@ -27,6 +27,7 @@ bashcomp_DATA = abook \
 		cowsay \
 		cpan2dist \
 		cpio \
+		cppcheck \
 		crontab \
 		cups \
 		cryptsetup \

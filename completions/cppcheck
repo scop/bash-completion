@@ -1,0 +1,62 @@
+# bash completion for cppcheck(1)
+
+have cppcheck || return
+
+_cppcheck()
+{
+    local cur prev words cword
+    _init_completion -n = || return
+
+    local split=false
+    _split_longopt && split=true
+
+    case $prev in
+        --append|--exitcode-suppressions|--file-list|--rule-file|\
+        --suppressions-list)
+            _filedir
+            return
+            ;;
+        -D*|--rule|--suppress|--template)
+            return
+            ;;
+        --enable)
+            COMPREPLY=( $( compgen -W 'all style information unusedFunction
+                missingInclude' -- "$cur" ) )
+            return
+            ;;
+        --exitcode)
+            COMPREPLY=( $( compgen -W '{0..255}' -- "$cur" ) )
+            return
+            ;;
+        -I|-i)
+            _filedir -d
+            return
+            ;;
+        -j)
+            COMPREPLY=( $( compgen -W '{2..16}' -- "$cur" ) )
+            return
+            ;;
+        --xml-version)
+            COMPREPLY=( $( compgen -W '1 2' -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == @(-D|*=) ]] && compopt -o nospace
+    else
+        _filedir @(cpp|cxx|cc|c++|c|tpp|txx)
+    fi
+} &&
+complete -F _cppcheck cppcheck
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
