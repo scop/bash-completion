@@ -344,7 +344,7 @@ __reassemble_comp_words_by_ref()
 # @param $2 words  Name of variable to return words to
 # @param $3 cword  Name of variable to return cword to
 # @param $4 cur  Name of variable to return current word to complete to
-# @see ___get_cword_at_cursor_by_ref()
+# @see __reassemble_comp_words_by_ref()
 __get_cword_at_cursor_by_ref()
 {
     local cword words=()
@@ -366,7 +366,7 @@ __get_cword_at_cursor_by_ref()
             ((index--))
         done
 
-        # Does found word matches cword?
+        # Does found word match cword?
         if [[ "$i" -lt "$cword" ]]; then
             # No, cword lies further;
             local old_size="${#cur}"
@@ -633,6 +633,7 @@ _filedir()
 
     if [[ "$1" != -d ]]; then
         # Munge xspec to contain uppercase version too
+        # http://thread.gmane.org/gmane.comp.shells.bash.bugs/15294/focus=15306
         xspec=${1:+"!*.@($1|${1^^})"}
         toks+=( $( compgen -f -X "$xspec" -- $quoted ) )
     fi
@@ -736,7 +737,7 @@ _init_completion()
             i=$(( ++i ))
         fi
     done
-    prev=${words[cword-1]}
+    [[ $cword -ge 1 ]] && prev=${words[cword-1]} || prev=
 
     return 0
 }
@@ -747,32 +748,33 @@ _init_completion()
 #
 _parse_help()
 {
-    # Print first found long option, or first short if not found.
+    local line i option option2 IFS=$' \t\n,/|'
     eval local cmd=$1
-    "$cmd" ${2:---help} 2>&1 | awk \
-        '{
-             if ($0 !~ /^[ \t]*-/) { next }
-             gsub("[,/|]", " ");
-             x = -1;
-             for (i = 1; i <= NF; i++) {
-                 if ($i ~ /^--[^-]/) { x = i ; break }
-                 if ($i !~ /^-/) { break }
-             }
-             if (x == -1) { x = 1 }
-             if ($x ~ /^---/) { next }
-             if ($x ~ /^--?[[]no[]]./) {
-                 y = $x ; sub("[[]no[]]", "", y)
-                 z = $x ; sub("[[]no[]]", "no", z)
-                 sub("[=<{[].*", "", y)
-                 sub("[=<{[].*", "", z)
-                 print y
-                 print z
-             }
-             else {
-                 sub("[=<{[].*", "", $x)
-                 print $x
-             }
-         }'
+    "$cmd" ${2:---help} 2>&1 | while read line; do
+
+        [[ $line == *([ $'\t'])-* ]] || continue
+
+        # Take first found long option, or first one (short) if not found.
+        option=
+        for i in $line; do
+            case $i in
+                ---*) break ;;
+                --?*) option=$i ; break ;;
+                -?*)  [[ $option ]] || option=$i ;;
+                *)    break ;;
+            esac
+        done
+        [[ $option ]] || continue
+
+        # Expand --[no]foo to --foo and --nofoo
+        if [[ $option == *\[no\]?* ]]; then
+            option2=${option/\[no\]/}
+            printf '%s\n' "${option2%%[=<{[]*}"
+            option=${option/\[no\]/no}
+        fi
+
+        printf '%s\n' "${option%%[=<{[]*}"
+    done
 }
 
 # This function completes on signal names
@@ -1722,6 +1724,7 @@ _filedir_xspec()
         ))
 
     # Munge xspec to contain uppercase version too
+    # http://thread.gmane.org/gmane.comp.shells.bash.bugs/15294/focus=15306
     eval xspec="${xspec}"
     local matchop=!
     if [[ $xspec == !* ]]; then
