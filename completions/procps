@@ -27,9 +27,30 @@ _pgrep()
     local cur prev words cword
     _init_completion || return
 
-    _pnames
+    case $prev in
+        -d|-g|-s|-t)
+            return
+            ;;
+        -G)
+            _gids
+            return
+            ;;
+        -P)
+            _pids
+            return
+            ;;
+        -u|-U)
+            _uids
+            return
+            ;;
+    esac
 
-    return 0
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+        return
+    fi
+
+    _pnames
 }
 have pgrep && complete -F _pgrep pgrep
 
