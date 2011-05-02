@@ -1,6 +1,6 @@
 SUBDIRS = completions test
 
-data_DATA = bash_completion
+pkgdata_DATA = bash_completion
 
 profiledir = $(sysconfdir)/profile.d
 profile_DATA = bash_completion.sh
