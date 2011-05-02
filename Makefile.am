@@ -10,7 +10,7 @@ bash_completion.sh: bash_completion.sh.in Makefile
 
 CLEANFILES = bash_completion.sh
 
-EXTRA_DIST = CHANGES $(sysconf_DATA) bash_completion.sh.in
+EXTRA_DIST = CHANGES $(sysconf_DATA) $(pkgdata_DATA) bash_completion.sh.in
 
 install-data-hook:
 	tmpfile=`mktemp $${TMPDIR:-/tmp}/bash_completion.XXXXXX` && \
