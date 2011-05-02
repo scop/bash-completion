@@ -17,9 +17,11 @@ _badblocks()
     esac
 
     if [[ "$cur" == -* ]]; then
-        # -w (dangerous) and -X (internal use) not here on purpose
-        COMPREPLY=( $( compgen -W '-b -c -e -d -f -i -n -o -p -s -t -v' \
-            -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+        # Filter out -w (dangerous) and -X (internal use)
+        for i in ${!COMPREPLY[@]}; do
+            [[ ${COMPREPLY[i]} == -[wX] ]] && unset COMPREPLY[i]
+        done
         return 0
     fi
 
@@ -46,7 +48,7 @@ _dumpe2fs()
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-b -o -f -h -i -x -V' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
         return 0
     fi
 
@@ -69,7 +71,7 @@ _e2freefrag()
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-c -h' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" -h )' -- "$cur" ) )
         return 0
     fi
 
@@ -100,7 +102,7 @@ _filefrag()
     _init_completion || return
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-B -b -s -v -x' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
         return 0
     fi
 
@@ -156,8 +158,8 @@ _tune2fs()
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-c -C -e -E -f -g -i -j -J -l -L -m -M -o
-            -O -r -T -u -U' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+        return
     fi
 
     cur=${cur:=/dev/}
