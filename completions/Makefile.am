@@ -135,17 +135,21 @@ bashcomp_DATA = abook \
 		ri \
 		rpcdebug \
 		rpm \
+		rpm2tgz \
 		rpmcheck \
 		rrdtool \
 		rsync \
 		rtcwake \
 		samba \
 		sbcl \
+		sbopkg \
 		screen \
 		service \
 		sh \
 		shadow \
 		sitecopy \
+		slackpkg \
+		slapt \
 		smartctl \
 		snownews \
 		sqlite3 \

@@ -1,0 +1,108 @@
+# bash completion for slackpkg tool
+# options list is based on `grep '\-.*\=.*)' /usr/sbin/slackpkg | cut -f1 -d\)`
+
+have slackpkg || return
+
+_slackpkg()
+{
+    local cur prev words cword
+    _init_completion -n = || return
+
+    local split=false
+    if [[ "$cur" == -?*=* ]]; then
+        prev="${cur%%?(\\)=*}"
+        cur="${cur#*=}"
+        split=true
+    fi
+
+    case "$prev" in
+        -delall|-checkmd5|-checkgpg|-checksize|-postinst|-onoff|-download_all|\
+        -dialog|-batch|-only_new_dotnew|-use_includes|-spinning)
+            COMPREPLY=( $( compgen -W 'on off' -- "$cur" ) )
+            return 0
+            ;;
+        -default_answer)
+            COMPREPLY=( $( compgen -W 'yes no' -- "$cur" ) )
+            return 0
+            ;;
+        -dialog_maxargs|-mirror)
+            # argument required but no completions available
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        compopt -o nospace
+        COMPREPLY=( $( compgen -W '-delall= -checkmd5= -checkgpg= \
+            -checksize= -postinst= -onoff= -download_all= -dialog= \
+            -dialog_maxargs= -batch= -only_new_dotnew= -use_includes= \
+            -spinning= -default_answer= -mirror=' -- "$cur" ) )
+        return 0
+    fi
+
+    local confdir="/etc/slackpkg"
+    local config="$confdir/slackpkg.conf"
+
+    if [ ! -r "$config" ]; then
+        return 0
+    fi
+    . "$config"
+
+    local action
+    for (( i=1; i<${#words[@]}; i++ )); do
+        if [[ "${words[i]}" != -* ]]; then
+            action="${words[i]}"
+            break
+        fi
+    done
+
+    case "$action" in
+        generate-template|search|file-search)
+            # argument required but no completions available
+            return 0
+            ;;
+        install-template|remove-template)
+            if [ -e "$confdir/templates" ]; then
+                COMPREPLY=( $( cd "$confdir/templates"; \
+                    compgen -f -X "!*.template" -- "$cur" ) )
+                COMPREPLY=( ${COMPREPLY[@]%.template} )
+            fi
+            return 0
+            ;;
+        remove)
+            _filedir
+            COMPREPLY+=( $( compgen -W 'a ap d e f k kde kdei l n t tcl x \
+                xap y' -- "$cur" ) )
+            COMPREPLY+=( $( cd /var/log/packages; compgen -f -- "$cur" ) )
+            return 0
+            ;;
+        install|reinstall|upgrade|blacklist|download)
+            _filedir
+            COMPREPLY+=( $( compgen -W 'a ap d e f k kde kdei l n t tcl x \
+                xap y' -- "$cur" ) )
+            COMPREPLY+=( $( cut -f 6 -d\  ${WORKDIR}/pkglist 2> /dev/null | \
+                grep "^$cur" ) )
+            return 0
+            ;;
+        info)
+            COMPREPLY+=( $( cut -f 6 -d\  ${WORKDIR}/pkglist 2> /dev/null | \
+                grep "^$cur" ) )
+            return 0
+            ;;
+        update)
+            # we should complete the same as the next `list` + "gpg"
+            COMPREPLY=( $( compgen -W 'gpg' -- "$cur" ) )
+            ;&
+        *)
+            COMPREPLY+=( $( compgen -W 'install reinstall upgrade remove \
+                blacklist download update install-new upgrade-all \
+                clean-system new-config check-updates help generate-template \
+                install-template remove-template search file-search info' -- \
+                "$cur" ) )
+            return 0
+            ;;
+    esac
+
+} && complete -F _slackpkg slackpkg
