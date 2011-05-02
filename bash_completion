@@ -747,40 +747,81 @@ _init_completion()
     return 0
 }
 
-# This function tries to parse the help output of the given command.
+# Helper function for _parse_help and _parse_usage.
+__parse_options()
+{
+    local option option2 i IFS=$' \t\n,/|'
+
+    # Take first found long option, or first one (short) if not found.
+    option=
+    for i in $1; do
+        case $i in
+            ---*) break ;;
+            --?*) option=$i ; break ;;
+            -?*)  [[ $option ]] || option=$i ;;
+            *)    break ;;
+        esac
+    done
+    [[ $option ]] || return
+
+    IFS=$' \t\n' # affects parsing of the regexps below...
+
+    # Expand --[no]foo to --foo and --nofoo etc
+    if [[ $option =~ (\[((no|dont)-?)\]). ]]; then
+        option2=${option/"${BASH_REMATCH[1]}"/}
+        option2=${option2%%[<{[]*}
+        printf '%s\n' "${option2/=*/=}"
+        option=${option/"${BASH_REMATCH[1]}"/"${BASH_REMATCH[2]}"}
+    fi
+
+    option=${option%%[<{[]*}
+    printf '%s\n' "${option/=*/=}"
+}
+
+# Parse GNU style help output of the given command.
 # @param $1  command
 # @param $2  command options (default: --help)
 #
 _parse_help()
 {
     eval local cmd=$1
-    local line i option option2 IFS=$' \t\n,/|'
+    local line
     "$cmd" ${2:---help} 2>&1 | while read line; do
 
         [[ $line == *([ $'\t'])-* ]] || continue
+        __parse_options "$line"
 
-        # Take first found long option, or first one (short) if not found.
-        option=
-        for i in $line; do
-            case $i in
-                ---*) break ;;
-                --?*) option=$i ; break ;;
-                -?*)  [[ $option ]] || option=$i ;;
-                *)    break ;;
+    done
+}
+
+# Parse BSD style usage output (options in brackets) of the given command.
+# @param $1  command
+# @param $2  command options (default: --usage)
+#
+_parse_usage()
+{
+    eval local cmd=$1
+    local line match option i char
+    "$cmd" ${2:---usage} 2>&1 | while read -r line; do
+
+        while [[ $line =~ \[(-[^]]+)\] ]]; do
+            match=${BASH_REMATCH[0]}
+            option=${BASH_REMATCH[1]}
+            case $option in
+                -?(\[)+([a-zA-Z0-9?]))
+                    # Treat as bundled short options
+                    for (( i=1; i < ${#option}; i++ )); do
+                        char=${option:i:1}
+                        [[ $char != '[' ]] && printf '%s\n' -$char
+                    done
+                    ;;
+                *)
+                    __parse_options "$option"
+                    ;;
             esac
+            line=${line#*"$match"}
         done
-        [[ $option ]] || continue
 
-        # Expand --[no]foo to --foo and --nofoo
-        if [[ $option == *\[no\]?* ]]; then
-            option2=${option/\[no\]/}
-            option2=${option2%%[<{[]*}
-            printf '%s\n' "${option2/=*/=}"
-            option=${option/\[no\]/no}
-        fi
-
-        option=${option%%[<{[]*}
-        printf '%s\n' "${option/=*/=}"
     done
 }
 
