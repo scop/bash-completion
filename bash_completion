@@ -40,10 +40,8 @@ fi
 # Alter the following to reflect the location of this file.
 #
 [ -n "$BASH_COMPLETION" ] || BASH_COMPLETION=/usr/share/bash-completion/bash_completion
-[ -n "$BASH_COMPLETION_DIR" ] || BASH_COMPLETION_DIR=/usr/share/bash-completion/completions
-[ -n "$BASH_COMPLETION_HELPERS_DIR" ] || BASH_COMPLETION_HELPERS_DIR=/usr/share/bash-completion/helpers
 [ -n "$BASH_COMPLETION_COMPAT_DIR" ] || BASH_COMPLETION_COMPAT_DIR=/etc/bash_completion.d
-readonly BASH_COMPLETION BASH_COMPLETION_DIR BASH_COMPLETION_HELPERS_DIR BASH_COMPLETION_COMPAT_DIR
+readonly BASH_COMPLETION BASH_COMPLETION_COMPAT_DIR
 
 # Set a couple of useful vars
 #
@@ -1824,11 +1822,11 @@ if [[ -d $BASH_COMPLETION_COMPAT_DIR && -r $BASH_COMPLETION_COMPAT_DIR && \
             && -f $i && -r $i ]] && . "$i"
     done
 fi
-if [[ $BASH_COMPLETION_DIR != $BASH_COMPLETION_COMPAT_DIR && \
-    -d $BASH_COMPLETION_DIR && -r $BASH_COMPLETION_DIR && \
-    -x $BASH_COMPLETION_DIR ]]; then
-    for i in $(LC_ALL=C command ls "$BASH_COMPLETION_DIR"); do
-        i=$BASH_COMPLETION_DIR/$i
+if [[ "${BASH_COMPLETION%/*}/completions" != $BASH_COMPLETION_COMPAT_DIR && \
+    -d "${BASH_COMPLETION%/*}/completions" && -r "${BASH_COMPLETION%/*}/completions" && \
+    -x "${BASH_COMPLETION%/*}/completions" ]]; then
+    for i in $(LC_ALL=C command ls "${BASH_COMPLETION%/*}/completions"); do
+        i="${BASH_COMPLETION%/*}/completions/$i"
         [[ ${i##*/} != @($_backup_glob|Makefile*) \
             && -f $i && -r $i ]] && . "$i"
     done
