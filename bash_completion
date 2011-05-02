@@ -39,9 +39,8 @@ fi
 
 # Alter the following to reflect the location of this file.
 #
-[ -n "$BASH_COMPLETION" ] || BASH_COMPLETION=/usr/share/bash-completion/bash_completion
 [ -n "$BASH_COMPLETION_COMPAT_DIR" ] || BASH_COMPLETION_COMPAT_DIR=/etc/bash_completion.d
-readonly BASH_COMPLETION BASH_COMPLETION_COMPAT_DIR
+readonly BASH_COMPLETION_COMPAT_DIR
 
 # Set a couple of useful vars
 #
@@ -1752,7 +1751,7 @@ _filedir_xspec()
     local IFS=$'\n' xspec
     # get first exclusion compspec that matches this command
     xspec=$( awk "/^complete[ \t]+.*[ \t]${1##*/}([ \t]|\$)/ { print \$0; exit }" \
-        "$BASH_COMPLETION" )
+        "${BASH_SOURCE[0]}" )
     # prune to leave nothing but the -X spec
     xspec=${xspec#*-X }
     xspec=${xspec%% *}
@@ -1790,7 +1789,7 @@ _filedir_xspec()
     [ ${#toks[@]} -ne 0 ] && compopt -o filenames
     COMPREPLY=( "${toks[@]}" )
 }
-list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' "$BASH_COMPLETION" | \
+list=( $( sed -ne '/^# START exclude/,/^# FINISH exclude/p' "${BASH_SOURCE[0]}" | \
     # read exclusion compspecs
     (
     while read line
@@ -1822,11 +1821,11 @@ if [[ -d $BASH_COMPLETION_COMPAT_DIR && -r $BASH_COMPLETION_COMPAT_DIR && \
             && -f $i && -r $i ]] && . "$i"
     done
 fi
-if [[ "${BASH_COMPLETION%/*}/completions" != $BASH_COMPLETION_COMPAT_DIR && \
-    -d "${BASH_COMPLETION%/*}/completions" && -r "${BASH_COMPLETION%/*}/completions" && \
-    -x "${BASH_COMPLETION%/*}/completions" ]]; then
-    for i in $(LC_ALL=C command ls "${BASH_COMPLETION%/*}/completions"); do
-        i="${BASH_COMPLETION%/*}/completions/$i"
+if [[ "${BASH_SOURCE[0]%/*}/completions" != $BASH_COMPLETION_COMPAT_DIR && \
+    -d "${BASH_SOURCE[0]%/*}/completions" && -r "${BASH_SOURCE[0]%/*}/completions" && \
+    -x "${BASH_SOURCE[0]%/*}/completions" ]]; then
+    for i in $(LC_ALL=C command ls "${BASH_SOURCE[0]%/*}/completions"); do
+        i="${BASH_SOURCE[0]%/*}/completions/$i"
         [[ ${i##*/} != @($_backup_glob|Makefile*) \
             && -f $i && -r $i ]] && . "$i"
     done
@@ -1834,7 +1833,7 @@ fi
 unset i
 
 # source user completion file
-[[ $BASH_COMPLETION != ~/.bash_completion && -r ~/.bash_completion ]] \
+[[ ${BASH_SOURCE[0]} != ~/.bash_completion && -r ~/.bash_completion ]] \
     && . ~/.bash_completion
 unset -f have
 unset UNAME USERLAND have

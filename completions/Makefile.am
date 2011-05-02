@@ -1,4 +1,3 @@
-SUBDIRS = helpers
 bashcomp_DATA = abook \
 		ant \
 		apache2ctl \

@@ -1,4 +1,4 @@
-SUBDIRS = completions test
+SUBDIRS = completions helpers test
 
 pkgdata_DATA = bash_completion
 
