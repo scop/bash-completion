@@ -116,8 +116,8 @@ _rpm()
     $split && return 0
 
     # options common to all modes
-    local opts="--define --eval --macros --nodigest --nosignature --rcfile \
-        --quiet --pipe --verbose"
+    local opts="--define= --eval= --macros= --nodigest --nosignature \
+        --rcfile= --quiet --pipe --verbose"
 
     case ${words[1]} in
         -[iFU]*|--install|--freshen|--upgrade)
@@ -125,10 +125,10 @@ _rpm()
                 COMPREPLY=( $( compgen -W "$opts --percent --force \
                 --test --replacepkgs --replacefiles --root \
                 --excludedocs --includedocs --noscripts --ignorearch \
-                --dbpath --prefix --ignoreos --nodeps --allfiles \
+                --dbpath --prefix= --ignoreos --nodeps --allfiles \
                 --ftpproxy --ftpport --justdb --httpproxy --httpport \
-                --noorder --relocate --badreloc --notriggers \
-                --excludepath --ignoresize --oldpackage \
+                --noorder --relocate= --badreloc --notriggers \
+                --excludepath= --ignoresize --oldpackage \
                 --queryformat --repackage --nosuggests" -- "$cur" ) )
             else
                 _filedir '[rs]pm'
@@ -148,7 +148,7 @@ _rpm()
             opts+=" --changelog --configfiles --conflicts --docfiles
                 --dump --enhances --filesbypkg --filecaps --fileclass
                 --filecolor --fileprovide --filerequire --filesbypkg --info
-                --list --obsoletes --pipe --provides --queryformat --rcfile
+                --list --obsoletes --pipe --provides --queryformat=
                 --requires --scripts --suggests --triggers --xml"
 
             if [[ ${words[@]} == *\ -@(*([^ -])f|-file )* ]]; then
@@ -175,7 +175,7 @@ _rpm()
                 if [[ "$cur" == -* ]]; then
                     COMPREPLY=( $( compgen -W "$opts --all --file --fileid
                         --dbpath --fscontext --ftswalk --group --hdrid --last
-                        --package --pkgid --root --specfile --state 
+                        --package --pkgid --root= --specfile --state
                         --triggeredby --whatprovides --whatrequires" \
                             -- "$cur" ) )
                 elif [[ ${words[@]} != *\ -@(*([^ -])a|-all )* ]]; then
@@ -193,7 +193,7 @@ _rpm()
             ;;
         -[Vy]*|--verify)
             if [[ "$cur" == -* ]]; then
-                COMPREPLY=( $( compgen -W "$opts --root --dbpath --nodeps \
+                COMPREPLY=( $( compgen -W "$opts --root= --dbpath --nodeps \
                     --nogroup --nolinkto --nomode --nomtime --nordev --nouser \
                     --nofiles --noscripts --nomd5 --querytags --specfile \
                     --whatrequires --whatprovides" -- "$cur" ) )
@@ -216,13 +216,14 @@ _rpm()
             ;;
         --import|--dbpath|--root)
             if [[ "$cur" == -* ]]; then
-                COMPREPLY=( $( compgen -W '--import --dbpath --root' \
+                COMPREPLY=( $( compgen -W '--import --dbpath --root=' \
                     -- "$cur" ) )
             else
                 _filedir
             fi
             ;;
     esac
+    [[ $COMPREPLY == *= ]] && compopt -o nospace
 
     return 0
 } &&
@@ -271,6 +272,7 @@ _rpmbuild()
 
     if [[ $cur == -* ]]; then
         COMPREPLY=( $( compgen -W "$( _parse_help "$1" )" -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
         return 0
     fi
 

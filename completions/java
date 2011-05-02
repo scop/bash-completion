@@ -493,7 +493,7 @@ have javaws &&
 _javaws()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n = || return
 
     case $prev in
         -help|-license|-about|-viewer|-arg|-param|-property|-update|-umask)
@@ -509,8 +509,11 @@ _javaws()
             ;;
     esac
 
-    if [[ $cur == -* ]]; then
+    if [[ $cur == *= ]]; then
+        return 0
+    elif [[ $cur == -* ]]; then
         COMPREPLY=( $( compgen -W "$( _parse_help "$1" -help ) " -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
         return 0
     fi
 
