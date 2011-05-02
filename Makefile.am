@@ -5,6 +5,9 @@ pkgdata_DATA = bash_completion
 profiledir = $(sysconfdir)/profile.d
 profile_DATA = bash_completion.sh
 
+pkgconfigdir = $(datadir)/pkgconfig
+pkgconfig_DATA = bash-completion.pc
+
 bash_completion.sh: bash_completion.sh.in Makefile
 	sed -e 's|@pkgdatadir[@]|$(pkgdatadir)|' <$(srcdir)/$@.in >$@
 
