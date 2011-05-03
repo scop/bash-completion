@@ -1,6 +1,6 @@
-# bash completion for ant
+# bash completion for ant and phing
 
-have ant || return
+have ant || have phing || return
 
 _ant()
 {
@@ -36,7 +36,7 @@ _ant()
     if [[ $cur == -D* ]]; then
         return 0
     elif [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -h )' -- "$cur" ) )
     else
         # available targets completion
         # find which buildfile to use
@@ -57,8 +57,9 @@ _ant()
             -- "$cur" ) )
     fi
 } &&
-have complete-ant-cmd.pl && \
-     complete -C complete-ant-cmd.pl -F _ant ant || complete -F _ant ant
+have ant && { have complete-ant-cmd.pl && \
+    complete -C complete-ant-cmd.pl -F _ant ant || complete -F _ant ant; }
+have phing && complete -F _ant phing
 
 # Local variables:
 # mode: shell-script
