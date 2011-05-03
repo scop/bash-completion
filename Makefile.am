@@ -11,7 +11,7 @@ pkgconfig_DATA = bash-completion.pc
 bash_completion.sh: bash_completion.sh.in Makefile
 	sed -e 's|@pkgdatadir[@]|$(pkgdatadir)|' <$(srcdir)/$@.in >$@
 
-CLEANFILES = bash_completion.sh
+CLEANFILES = bash_completion.sh bash-completion.pc
 
 EXTRA_DIST = CHANGES $(sysconf_DATA) $(pkgdata_DATA) bash_completion.sh.in
 
