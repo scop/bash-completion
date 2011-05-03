@@ -61,12 +61,6 @@ _xzdec()
     local cur prev words cword split
     _init_completion -s || return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
-        [[ $COMPREPLY == *= ]] && compopt -o nospace
-        return 0
-    fi
-
     case $prev in
         -M|--memory)
             # argument required but no completions available
@@ -79,6 +73,12 @@ _xzdec()
     esac
 
     $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return 0
+    fi
 
     _filedir xz # no lzma support here as of xz 4.999.9beta
 } &&
