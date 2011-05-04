@@ -8,7 +8,7 @@ _user_or_group()
 
     # complete on groups if -g was given
     for (( i=1; i < cword; i++ )); do
-        if [[ "${words[i]}" == -g ]]; then
+        if [[ "${words[i]}" == -@(g|-group) ]]; then
             COMPREPLY=( $( compgen -g -- "$cur" ) )
             return 0
         fi
@@ -16,6 +16,14 @@ _user_or_group()
 
     # otherwise complete on users
     COMPREPLY=( $( compgen -u -- "$cur" ) )
+}
+
+_quota_parse_help()
+{
+    local opts=$( _parse_help "$1" )
+    [[ $opts ]] || opts=$( _parse_usage "$1" ) # non-GNU?
+    COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
+    [[ $COMPREPLY == *= ]] && compopt -o nospace
 }
 
 _quota_formats()
@@ -41,15 +49,15 @@ _quota()
             _quota_formats
             return 0
             ;;
+        -h|--help|-V|--version)
+            return 0
+            ;;
     esac
 
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-F --format -g --group -u --user -v \
-            --verbose -s --human-readable -p --raw-grace -i --no-autofs -l \
-            --local-only -A --all-nfs -m --no-mixed-pathnames -q --quiet -Q \
-            --quiet-refuse -w --no-wrap' -- "$cur" ) )
+        _quota_parse_help "$1"
     else
         _user_or_group
     fi
@@ -66,16 +74,21 @@ _setquota()
             _quota_formats
             return 0
             ;;
+        -p|--prototype)
+            _user_or_group
+            return 0
+            ;;
+        -h|--help|-V|--version)
+            return 0
+            ;;
     esac
 
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-r --remote -m --no-mixed-pathnames \
-            -F --format -g --group -u --user -p --prototype -b --batch \
-            -c --continue-batch -t --edit-period -T --edit-times -a --all' \
-            -- "$cur" ) )
+        _quota_parse_help "$1"
     else
+        local args
         _count_args
 
         case $args in
@@ -105,14 +118,19 @@ _edquota()
             _filesystems
             return 0
             ;;
+        -p|--prototype)
+            _user_or_group
+            return 0
+            ;;
+        -h|--help|-V|--version)
+            return 0
+            ;;
     esac
 
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-r --remote -m --no-mixed-pathnames \
-            -g --group -u --user -p --prototype -F --format -f --filesystem \
-            -t --edit-period -T --edit-times' -- "$cur" ) )
+        _quota_parse_help "$1"
     else
         _user_or_group
     fi
@@ -129,29 +147,7 @@ _quotacheck()
             _quota_formats
             return 0
             ;;
-    esac
-
-    $split && return 0
-
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-b --backup -v --verbose -d --debug \
-            -g --group -u --user -c --create-files -f --force -i \
-            --interactive -n --use-first-dquot -M --try-remount -m \
-            --no-remount -R --exclude-root -F --format -a --all' -- "$cur" ) )
-    else
-        _filesystems
-    fi
-} &&
-complete -F _quotacheck -o default quotacheck
-
-_repquota()
-{
-    local cur prev words cword split
-    _init_completion -s || return
-
-    case $prev in
-        -F|--format)
-            _quota_formats
+        -h|--help|-V|--version)
             return 0
             ;;
     esac
@@ -159,40 +155,14 @@ _repquota()
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-a --all -v --verbose -s --human-readable \
-            -c --batch-translation -C --no-batch-translation -t \
-            --truncate-names -n --no-names -p --raw-grace -i --no-autofs \
-            -u --user -g --group -F --format' -- "$cur" ) )
+        _quota_parse_help "$1"
     else
         _filesystems
     fi
 } &&
-complete -F _repquota -o default repquota
+complete -F _quotacheck -o default quotacheck repquota
 
 _quotaon()
-{
-    local cur prev words cword split
-    _init_completion -s || return
-
-    case $prev in
-        -F|--format)
-            _quota_formats
-            return 0
-            ;;
-    esac
-
-    $split && return 0
-
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-a --all -v --verbose -u --user \
-            -g --group -f --off -p --print-state -F --format' -- "$cur" ) )
-    else
-        _filesystems
-    fi
-} &&
-complete -F _quotaon -o default quotaon
-
-_quotaoff()
 {
     local cur prev words cword split
     _init_completion -s || return
@@ -206,19 +176,20 @@ _quotaoff()
             COMPREPLY=( $( compgen -W 'delete enforce' -- "$cur" ) )
             return 0
             ;;
+        -h|--help|-V|--version)
+            return 0
+            ;;
     esac
 
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-a --all -v --verbose -u --user \
-            -g --group -p --print-state -x --xfs-command -F --format' \
-            -- "$cur" ) )
+        _quota_parse_help "$1"
     else
         _filesystems
     fi
 } &&
-complete -F _quotaoff -o default quotaoff
+complete -F _quotaon -o default quotaon quotaoff
 
 # Local variables:
 # mode: shell-script
