@@ -16,12 +16,30 @@ _tcpdump()
             _available_interfaces -a
             return 0
             ;;
+        -m)
+            _filedir mib
+            return 0
+            ;;
+        -T)
+            COMPREPLY=( $( compgen -W 'aodv cnfp rpc rtp rtcp snmp tftp vat
+                wb' -- "$cur" ) )
+            return 0
+            ;;
+        -z)
+            COMPREPLY=( $( compgen -c -- "$cur" ) )
+            return 0
+            ;;
+        -Z)
+            _allowed_users
+            return 0
+            ;;
+        -B|-c|-C|-D|-E|-G|-M|-s|-W|-y)
+            return 0
+            ;;
     esac
 
-
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-a -d -e -f -l -n -N -O -p \
-            -q -R -S -t -u -v -x -C -F -i -m -r -s -T -w -E' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
     fi
 
 } &&
