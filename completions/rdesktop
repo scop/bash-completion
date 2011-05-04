@@ -5,7 +5,7 @@ have rdesktop || return
 _rdesktop()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n : || return
 
     case $prev in
         -k)
@@ -22,22 +22,33 @@ _rdesktop()
             return 0
             ;;
         -x)
-            COMPREPLY=( $( compgen -W 'b broadband m modem l lan' \
-                -- $cur ) )
+            COMPREPLY=( $( compgen -W 'broadband modem lan' -- "$cur" ) )
             return 0
             ;;
         -r)
-            # FIXME: should do -o nospace for the colon options
-            COMPREPLY=( $( compgen -W 'comport: disk: lptport: \
-                printer: sound: lspci scard' -- "$cur" ) )
+            case $cur in
+                sound:*)
+                    COMPREPLY=( $( compgen -W 'local off remote' \
+                        -- "${cur#sound:}" ) )
+                    ;;
+                *:*)
+                    ;;
+                *)
+                    COMPREPLY=( $( compgen -W 'comport: disk: lptport: \
+                        printer: sound: lspci scard' -- "$cur" ) )
+                    [[ $COMPREPLY == *: ]] && compopt -o nospace
+                    ;;
+            esac
+            return 0
+            ;;
+        -u|-d|-s|-c|-p|-n|-g|-S|-T|-X)
             return 0
             ;;
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-u -d -s -c -p -n -k -g -f -b -L \
-            -A -B -e -E -m -C -D -K -S -T -N -X -a -z -x -P -r \
-            -0 -4 -5' -- "$cur" ) )
+        local opts=( $( _parse_help "$1" ) )
+        COMPREPLY=( $( compgen -W '${opts[@]%:}' -- "$cur" ) )
     else
         _known_hosts_real "$cur"
     fi
