@@ -116,14 +116,10 @@ _sysbench()
         fi
     done
 
-    local opts="--num-threads= --max-requests= --max-time= --thread-stack-size=
-        --init-rng= --debug= --validate= --help --version"
-
+    local opts=$( _parse_help "$1" )
     if [[ $test ]]; then
         local help=( $( _parse_help "$1" "--test=$test help" ) )
-        opts+=" ${help[@]} prepare run cleanup help version"
-    else
-        opts+=" --test="
+        opts="${opts[@]/--test=/} ${help[@]} prepare run cleanup help version"
     fi
 
     if [[ "$cur" == -* || ! $test ]]; then
