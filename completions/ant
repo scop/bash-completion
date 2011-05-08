@@ -50,11 +50,13 @@ _ant()
         [ ! -f $buildfile ] && return 0
 
         # parse buildfile for targets
-        # some versions of sed complain if there's no trailing linefeed,
-        # hence the 2>/dev/null
-        COMPREPLY=( $( compgen -W "$( tr "'\t\n>" "\"  \n" < $buildfile | \
-            sed -ne 's/.*<\(target\|extension-point\) .*name="\([^"]*\).*/\2/p' 2>/dev/null )" \
-            -- "$cur" ) )
+        local line targets
+        while read -rd '>' line; do
+            [[ $line =~ \
+               \<(targe|extension-poin)t[[:space:]].*name=[\"\']([^\"\']+) ]] \
+                && targets+=" ${BASH_REMATCH[2]}"
+        done < $buildfile
+        COMPREPLY=( $( compgen -W '$targets' -- "$cur" ) )
     fi
 } &&
 have ant && { have complete-ant-cmd.pl && \
