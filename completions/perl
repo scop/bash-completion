@@ -115,10 +115,13 @@ _perldoc()
         # return available modules (unless it is clearly a file)
         if [[ "$cur" != @(*/|[.~])* ]]; then
             _perlmodules $perl
-            COMPREPLY+=( $( compgen -W \
-                '$( MANPAGER=/bin/cat PAGER=/bin/cat man perl |  \
-                sed -ne "/perl.*Perl overview/,/perlwin32/p" | \
-                awk "\$NF=2 && \$1 ~ /^perl/ { print \$1 }" )' -- "$cur" ) )
+            if [[ $cur == p* ]]; then
+                COMPREPLY+=( $( compgen -W \
+                    '$( MANPAGER=/bin/cat PAGER=/bin/cat man perl |  \
+                     sed -ne "/perl.*Perl overview/,/perlwin32/p" | \
+                     awk "\$NF=2 && \$1 ~ /^perl/ { print \$1 }" )' \
+                    -- "$cur" ) )
+            fi
         fi
         _filedir 'p@(l|m|od)'
     fi
