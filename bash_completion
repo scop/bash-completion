@@ -1700,8 +1700,8 @@ _longopt()
             return 0
             ;;
         --+([-a-z0-9_]))
-            local argtype=$( $1 --help 2>&1 | \
-                sed -ne "s|.*$prev\[\?=[<[]\?\([-A-Za-z0-9_]\{1,\}\).*|\1|p" )
+            local argtype=$( $1 --help 2>&1 | sed -ne \
+                "s|.*$prev\[\{0,1\}=[<[]\{0,1\}\([-A-Za-z0-9_]\{1,\}\).*|\1|p" )
             case ${argtype,,} in
                 *dir*)
                     compopt +o default
@@ -1720,7 +1720,7 @@ _longopt()
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W "$( $1 --help 2>&1 | \
-            sed -ne 's/.*\(--[-A-Za-z0-9]\{1,\}=\?\).*/\1/p' | sort -u )" \
+            sed -ne 's/.*\(--[-A-Za-z0-9]\{1,\}=\{0,1\}\).*/\1/p' | sort -u )" \
             -- "$cur" ) )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     elif [[ "$1" == @(mk|rm)dir ]]; then
