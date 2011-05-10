@@ -27,12 +27,14 @@ _gdb()
                 -printf "%f\\n" 2>/dev/null)' -- "$cur" ) )
         fi
     elif [ $cword -eq 2 ]; then
-        prev=${prev##*/}
-        COMPREPLY=( $( compgen -fW "$( command ps axo comm,pid | \
-            awk '{if ($1 ~ /^'"$prev"'/) print $2}' )" -- "$cur" ) )
+        COMPREPLY=( $( compgen -W "$( command ps axo comm,pid | \
+            awk '{if ($1 ~ /^'"${prev##*/}"'/) print $2}' )" -- "$cur" ) )
+        compopt -o filenames
+        COMPREPLY+=( $( compgen -f -X '!?(*/)core?(.+([0-9]))' -o plusdirs \
+            -- "$cur" ) )
     fi
 } &&
-complete -F _gdb -o default gdb
+complete -F _gdb gdb
 
 # Local variables:
 # mode: shell-script
