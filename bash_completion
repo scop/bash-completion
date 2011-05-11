@@ -788,6 +788,11 @@ _parse_help()
     "$cmd" ${2:---help} 2>&1 | while read -r line; do
 
         [[ $line == *([ $'\t'])-* ]] || continue
+        # transform "-f FOO, --foo=FOO" to "-f , --foo=FOO" etc
+        while [[ $line =~ \
+            ((^|[^-])-[A-Za-z0-9?][[:space:]]+)\[?[A-Z0-9]+\]? ]]; do
+            line=${line/"${BASH_REMATCH[0]}"/"${BASH_REMATCH[1]}"}
+        done
         __parse_options "$line"
 
     done
