@@ -23,18 +23,10 @@ _make()
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-b -m -B -C -d -e -f -h -i -I\
-            -j -l -k -n -o -p -q -r -R - s -S -t -v -w -W \
-            --always-make --directory --debug \
-            --environment-overrides --file --makefile --help \
-            --ignore-errors --include-dir --jobs --load-average \
-            --max-load --keep-going --just-print --dry-run \
-            --recon --old-file --assume-old --print-data-base \
-            --question --no-builtin-rules --no-builtin-variables \
-            --silent --quiet --no-keep-goind --stop --touch \
-            --version --print-directory --no-print-directory \
-            --what-if --new-file --assume-new \
-            --warn-undefined-variables' -- "$cur" ) )
+        local opts="$( _parse_help "$1" )"
+        [[ $opts ]] || opts="$( _parse_usage "$1" )"
+        COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
     else
         # before we check for makefiles, see if a path was specified
         # with -C/--directory
