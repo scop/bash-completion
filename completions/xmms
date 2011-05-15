@@ -4,17 +4,23 @@ have xmms || return
 
 _xmms()
 {
-    local cur prev words cword
-    _init_completion || return
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -h|--help|-v|--version)
+            return
+            ;;
+        -S|--toggle-shuffle|-R|--toggle-repeat|-A|--toggle-advance)
+            COMPREPLY=( $( compgen -W 'on off' -- "$cur" ) )
+            return
+            ;;
+    esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-h --help -r --rew -p --play \
-            -u --pause -s --stop -t --play-pause -f --fwd -e \
-            --enqueue -m --show-main-window -i --sm-client-id \
-            -v --version' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
     else
         _filedir '@(mp[23]|ogg|wav|pls|m3u|xm|mod|s[3t]m|it|mtm|ult|flac)'
-
     fi
 
 } &&
