@@ -48,16 +48,27 @@ assert_bash_list {" a"} $cmd $test
 sync_after_int
 
 
-set test "|a ";  # | = cursor position
-set cmd {COMP_WORDS=(a); COMP_CWORD=0; COMP_LINE='a '; COMP_POINT=0; _get_comp_words_by_ref cur prev; echo "$cur $prev"}
+set test "|a";  # | = cursor position
+set cmd {COMP_WORDS=(a); COMP_CWORD=0; COMP_LINE='a'; COMP_POINT=0; \
+    unset cur prev; _get_comp_words_by_ref cur prev; echo "$cur $prev"}
 assert_bash_list {" "} $cmd $test
 
 
 sync_after_int
 
 
-set test " | a ";  # | = cursor position
-set cmd {COMP_WORDS=(a); COMP_CWORD=0; COMP_LINE='  a '; COMP_POINT=1; _get_comp_words_by_ref cur prev; echo "$cur $prev"}
+set test "|a \$";  # | = cursor position
+set cmd {COMP_WORDS=(a); COMP_CWORD=0; COMP_LINE='a '; COMP_POINT=0; \
+    unset cur prev; _get_comp_words_by_ref cur prev; echo "$cur $prev"}
+assert_bash_list {" "} $cmd $test
+
+
+sync_after_int
+
+
+set test " | a \$";  # | = cursor position
+set cmd {COMP_WORDS=(a); COMP_CWORD=0; COMP_LINE='  a '; COMP_POINT=1; \
+    unset cur prev; _get_comp_words_by_ref cur prev; echo "$cur $prev"}
 assert_bash_list {" "} $cmd $test
 
 

@@ -1,0 +1,35 @@
+proc setup {} {
+    save_env
+}
+
+
+proc teardown {} {
+    assert_bash_exec { \
+        unset COMP_CWORD COMP_LINE COMP_POINT COMP_WORDS cur prev words cword\
+    }
+    assert_env_unmodified {
+        /COMPREPLY=/d
+    }
+}
+
+
+setup
+
+
+set test "function should not pollute environment"
+# NOTE: A possible environment pollution is detected by assert_env_modified() in teardown()
+assert_bash_exec {foo() { local cur prev words cword; _init_completion; }; foo; unset foo} $test
+
+
+sync_after_int
+
+
+set test "|a";  # | = cursor position
+set cmd {COMP_WORDS=(a); COMP_CWORD=0; COMP_LINE='a'; COMP_POINT=0; _init_completion; echo "$cur $prev"}
+assert_bash_list {" "} $cmd $test
+
+
+sync_after_int
+
+
+teardown
