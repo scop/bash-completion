@@ -348,31 +348,33 @@ __get_cword_at_cursor_by_ref()
     local cword words=()
     __reassemble_comp_words_by_ref "$1" words cword
 
-    local i cur2
-    local cur="$COMP_LINE"
-    local index="$COMP_POINT"
-    for (( i = 0; i <= cword; ++i )); do
-        while [[
-            # Current word fits in $cur?
-            "${#cur}" -ge ${#words[i]} &&
-            # $cur doesn't match cword?
-            "${cur:0:${#words[i]}}" != "${words[i]}"
-        ]]; do
-            # Strip first character
-            cur="${cur:1}"
-            # Decrease cursor position
-            ((index--))
-        done
+    local i cur cur2
+    local index=$COMP_POINT
+    if (( index )); then
+        cur=$COMP_LINE
+        for (( i = 0; i <= cword; ++i )); do
+            while [[
+                # Current word fits in $cur?
+                "${#cur}" -ge ${#words[i]} &&
+                # $cur doesn't match cword?
+                "${cur:0:${#words[i]}}" != "${words[i]}"
+            ]]; do
+                # Strip first character
+                cur="${cur:1}"
+                # Decrease cursor position
+                ((index--))
+            done
 
-        # Does found word match cword?
-        if [[ "$i" -lt "$cword" ]]; then
-            # No, cword lies further;
-            local old_size="${#cur}"
-            cur="${cur#${words[i]}}"
-            local new_size="${#cur}"
-            index=$(( index - old_size + new_size ))
-        fi
-    done
+            # Does found word match cword?
+            if [[ "$i" -lt "$cword" ]]; then
+                # No, cword lies further;
+                local old_size="${#cur}"
+                cur="${cur#${words[i]}}"
+                local new_size="${#cur}"
+                index=$(( index - old_size + new_size ))
+            fi
+        done
+    fi
 
     if [[ $index -lt 0 ]]; then
         # This happens when completing: "command | arg" (| is where
