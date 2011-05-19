@@ -348,9 +348,9 @@ __get_cword_at_cursor_by_ref()
     local cword words=()
     __reassemble_comp_words_by_ref "$1" words cword
 
-    local i cur cur2
-    local index=$COMP_POINT
-    if (( index )); then
+    local i cur cur2 index=$COMP_POINT lead=${COMP_LINE:0:$COMP_POINT}
+    # Cursor not at position 0 and not leaded by just space(s)?
+    if [[ $index -gt 0 && ( $lead && ${lead//[[:space:]]} ) ]]; then
         cur=$COMP_LINE
         for (( i = 0; i <= cword; ++i )); do
             while [[
@@ -374,23 +374,14 @@ __get_cword_at_cursor_by_ref()
                 index=$(( index - old_size + new_size ))
             fi
         done
+        # Clear $cur if just space(s)
+        [[ $cur && ! ${cur//[[:space:]]} ]] && cur=
+        # Zero $index if negative
+        [[ $index -lt 0 ]] && index=0
     fi
 
-    if [[ $index -lt 0 ]]; then
-        # This happens when completing: "command | arg" (| is where
-        # TAB is hit)
-        index=0
-    fi
-
-    if [[ "${words[cword]:0:${#cur}}" != "$cur" ]]; then
-        # We messed up. At least return the whole word so things keep working
-        cur2=${words[cword]}
-    else
-        cur2=${cur:0:$index}
-    fi
-
-    local "$2" "$3" "$4" && 
-        _upvars -a${#words[@]} $2 "${words[@]}" -v $3 "$cword" -v $4 "$cur2"
+    local "$2" "$3" "$4" && _upvars -a${#words[@]} $2 "${words[@]}" \
+        -v $3 "$cword" -v $4 "${cur:0:$index}"
 }
 
 
