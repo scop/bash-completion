@@ -2,7 +2,7 @@
 
 have cvs || return
 
-get_entries()
+_cvs_entries()
 {
     local prefix=${cur%/*}/ IFS=$'\n'
     [[ -e ${prefix:-}CVS/Entries ]] || prefix=""
@@ -13,7 +13,7 @@ get_entries()
     fi
 }
 
-get_modules()
+_cvs_modules()
 {
     if [ -n "$prefix" ]; then
         COMPREPLY=( $( command ls -d ${cvsroot}/${prefix}/!(CVSROOT) ) )
@@ -147,7 +147,7 @@ _cvs()
             esac
 
             if [[ "$cur" != -* ]]; then
-                get_entries
+                _cvs_entries
                 [ -z "$cur" ] && files=( !(CVS) ) || \
                     files=( $( command ls -d ${cur}* 2>/dev/null ) )
                 local f
@@ -187,7 +187,7 @@ _cvs()
             if [[ "$cur" = -* ]]; then
                 _cvs_command_options "$1" $mode
             else
-                get_entries
+                _cvs_entries
                 COMPREPLY=( $( compgen -W '${entries[@]}' -- "$cur" ) )
             fi
             ;;
@@ -197,7 +197,7 @@ _cvs()
             if [[ "$cur" = -* ]]; then
                 _cvs_command_options "$1" $mode
             else
-                get_entries
+                _cvs_entries
                 COMPREPLY=( $( compgen -W '${entries[@]}' -- "$cur" ) )
             fi
             ;;
@@ -251,7 +251,7 @@ _cvs()
                     COMPREPLY=( $( compgen -W '${changed[@]:-} \
                         ${newremoved[@]:-}' -- "$cur" ) )
                 else
-                    get_entries
+                    _cvs_entries
                     COMPREPLY=( $( compgen -W '${entries[@]}' -- "$cur" ) )
                 fi
             else
@@ -289,13 +289,13 @@ _cvs()
                 _cvs_command_options "$1" $mode
                 [[ $COMPREPLY == *= ]] && compopt -o nospace
             else
-                get_entries
+                _cvs_entries
                 COMPREPLY=( $( compgen -W '${entries[@]:-}' -- "$cur" ) )
             fi
             ;;
         remove)
             if [[ "$cur" != -* ]]; then
-                get_entries
+                _cvs_entries
                 # find out what files are missing
                 for i in "${entries[@]}"; do
                     [ ! -r "$i" ] && miss+=( $i )
@@ -321,7 +321,7 @@ _cvs()
                 [ -z "$cvsroot" ] && cvsroot=$CVSROOT
                 local prefix=${cur%/*}
                 if [ -r ${cvsroot}/${prefix} ]; then
-                    get_modules
+                    _cvs_modules
                     COMPREPLY=( ${COMPREPLY[@]#$cvsroot} )
                     COMPREPLY=( ${COMPREPLY[@]#\/} )
                 fi
@@ -346,7 +346,7 @@ _cvs()
             if [[ "$cur" = -* ]]; then
                 _cvs_command_options "$1" $mode
             else
-                get_entries
+                _cvs_entries
                 COMPREPLY=( $( compgen -W '${entries[@]}' -- "$cur" ) )
             fi
             ;;
