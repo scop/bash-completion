@@ -2,17 +2,15 @@
 
 have cvs || return
 
-set_prefix()
-{
-    [ -z ${prefix:-} ] && prefix=${cur%/*}/
-    [ -r ${prefix:-}CVS/Entries ] || prefix=""
-}
-
 get_entries()
 {
-    local IFS=$'\n'
-    [ -r ${prefix:-}CVS/Entries ] && \
-    entries=$(cut -d/ -f2 -s ${prefix:-}CVS/Entries)
+    local prefix=${cur%/*}/ IFS=$'\n'
+    [[ -e ${prefix:-}CVS/Entries ]] || prefix=""
+    entries=( $( cut -d/ -f2 -s ${prefix:-}CVS/Entries 2>/dev/null ) )
+    if [[ $entries ]]; then
+        entries=( "${entries[@]/#/${prefix:-}}" )
+        compopt -o filenames
+    fi
 }
 
 get_modules()
@@ -55,7 +53,7 @@ _cvs()
     local cur prev words cword
     _init_completion -n : || return
 
-    local count mode i cvsroot cvsroots pwd prefix
+    local count mode i cvsroot cvsroots pwd
     local -a flags miss files entries changed newremoved
 
     count=0
@@ -149,17 +147,24 @@ _cvs()
             esac
 
             if [[ "$cur" != -* ]]; then
-                set_prefix
-                if [[ $cword -gt 1 && -r ${prefix:-}CVS/Entries ]]; then
-                    get_entries
-                    [ -z "$cur" ] && \
-                        files=$( command ls -Ad !(CVS) ) || \
-                        files=$( command ls -d ${cur}* 2>/dev/null )
-                    for i in "${entries[@]}"; do
-                        files=( ${files[@]/#$i//} )
-                    done
-                    COMPREPLY=( $( compgen -X '*~' -W '${files[@]}' -- $cur ) )
-                fi
+                get_entries
+                [ -z "$cur" ] && files=( !(CVS) ) || \
+                    files=( $( command ls -d ${cur}* 2>/dev/null ) )
+                local f
+                for i in ${!files[@]}; do
+                    if [[ ${files[i]} == ?(*/)CVS ]]; then
+                        unset files[i]
+                    else
+                        for f in "${entries[@]}"; do
+                            if [[ ${files[i]} == $f && ! -d $f ]]; then
+                                unset files[i]
+                                break
+                            fi
+                        done
+                    fi
+                done
+                COMPREPLY=( $( compgen -X "$_backup_glob" -W '${files[@]}' \
+                    -- "$cur" ) )
             else
                 _cvs_command_options "$1" $mode
             fi
@@ -228,9 +233,7 @@ _cvs()
                     ;;
             esac
 
-            set_prefix
-
-            if [[ "$cur" != -* && -r ${prefix:-}CVS/Entries ]]; then
+            if [[ "$cur" != -* ]]; then
                 # if $COMP_CVS_REMOTE is not null, 'cvs commit' will
                 # complete on remotely checked-out files (requires
                 # passwordless access to the remote repository
@@ -289,15 +292,12 @@ _cvs()
             ;;
         remove)
             if [[ "$cur" != -* ]]; then
-                set_prefix
-                if [[ $cword -gt 1 && -r ${prefix:-}CVS/Entries ]]; then
-                    get_entries
-                    # find out what files are missing
-                    for i in "${entries[@]}"; do
-                        [ ! -r "$i" ] && miss+=( $i )
-                    done
-                    COMPREPLY=( $(compgen -W '${miss[@]:-}' -- "$cur") )
-                fi
+                get_entries
+                # find out what files are missing
+                for i in "${entries[@]}"; do
+                    [ ! -r "$i" ] && miss+=( $i )
+                done
+                COMPREPLY=( $( compgen -W '${miss[@]:-}' -- "$cur" ) )
             else
                 _cvs_command_options "$1" $mode
             fi
@@ -316,7 +316,7 @@ _cvs()
             if [[ "$cur" != -* ]]; then
                 # starts with same algorithm as checkout
                 [ -z "$cvsroot" ] && cvsroot=$CVSROOT
-                prefix=${cur%/*}
+                local prefix=${cur%/*}
                 if [ -r ${cvsroot}/${prefix} ]; then
                     get_modules
                     COMPREPLY=( ${COMPREPLY[@]#$cvsroot} )
