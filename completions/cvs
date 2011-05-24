@@ -267,6 +267,15 @@ _cvs()
         cvsroot)
             _cvs_roots
             ;;
+        diff)
+            if [[ "$cur" == -* ]]; then
+                _cvs_command_options "$1" $mode
+                [[ $COMPREPLY == *= ]] && compopt -o nospace
+            else
+                _cvs_entries
+                COMPREPLY=( $( compgen -W '${entries[@]:-}' -- "$cur" ) )
+            fi
+            ;;
         editors|watchers)
             if [[ "$cur" = -* ]]; then
                 _cvs_command_options "$1" $mode
@@ -298,27 +307,6 @@ _cvs()
                 _cvs_command_options "$1" $mode
             fi
             ;;
-        diff)
-            if [[ "$cur" == -* ]]; then
-                _cvs_command_options "$1" $mode
-                [[ $COMPREPLY == *= ]] && compopt -o nospace
-            else
-                _cvs_entries
-                COMPREPLY=( $( compgen -W '${entries[@]:-}' -- "$cur" ) )
-            fi
-            ;;
-        remove)
-            if [[ "$cur" != -* ]]; then
-                _cvs_entries
-                # find out what files are missing
-                for i in "${entries[@]}"; do
-                    [ ! -r "$i" ] && miss+=( $i )
-                done
-                COMPREPLY=( $( compgen -W '${miss[@]:-}' -- "$cur" ) )
-            else
-                _cvs_command_options "$1" $mode
-            fi
-            ;;
         import)
             case $prev in
                 -I|-b|-m|-W)
@@ -342,6 +330,18 @@ _cvs()
                 pwd=$( pwd )
                 pwd=${pwd##*/}
                 COMPREPLY=( $( compgen -W '${COMPREPLY[@]} $pwd' -- $cur ) )
+            else
+                _cvs_command_options "$1" $mode
+            fi
+            ;;
+        remove)
+            if [[ "$cur" != -* ]]; then
+                _cvs_entries
+                # find out what files are missing
+                for i in "${entries[@]}"; do
+                    [ ! -r "$i" ] && miss+=( $i )
+                done
+                COMPREPLY=( $( compgen -W '${miss[@]:-}' -- "$cur" ) )
             else
                 _cvs_command_options "$1" $mode
             fi
