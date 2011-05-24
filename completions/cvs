@@ -153,8 +153,8 @@ _cvs()
                 if [[ $cword -gt 1 && -r ${prefix:-}CVS/Entries ]]; then
                     get_entries
                     [ -z "$cur" ] && \
-                    files=$( command ls -Ad !(CVS) ) || \
-                    files=$( command ls -d ${cur}* 2>/dev/null )
+                        files=$( command ls -Ad !(CVS) ) || \
+                        files=$( command ls -d ${cur}* 2>/dev/null )
                     for i in "${entries[@]}"; do
                         files=( ${files[@]/#$i//} )
                     done
@@ -235,16 +235,15 @@ _cvs()
                 # complete on remotely checked-out files (requires
                 # passwordless access to the remote repository
                 if [ -n "${COMP_CVS_REMOTE:-}" ]; then
-                    # this is the least computationally intensive
-                # way found so far, but other changes
-                # (something other than changed/removed/new)
-                # may be missing
-                changed=( $( cvs -q diff --brief 2>&1 | \
-                sed -ne 's/^Files [^ ]* and \([^ ]*\) differ$/\1/p' ) )
-                newremoved=( $( cvs -q diff --brief 2>&1 | \
-                sed -ne 's/^cvs diff: \([^ ]*\) .*, no comparison available$/\1/p' ) )
-                COMPREPLY=( $( compgen -W '${changed[@]:-} \
-                           ${newremoved[@]:-}' -- "$cur" ) )
+                    # this is the least computationally intensive way found so
+                    # far, but other changes (something other than
+                    # changed/removed/new) may be missing
+                    changed=( $( cvs -q diff --brief 2>&1 | \
+                        sed -ne 's/^Files [^ ]* and \([^ ]*\) differ$/\1/p' ) )
+                    newremoved=( $( cvs -q diff --brief 2>&1 | \
+                        sed -ne 's/^cvs diff: \([^ ]*\) .*, no comparison available$/\1/p' ) )
+                    COMPREPLY=( $( compgen -W '${changed[@]:-} \
+                        ${newremoved[@]:-}' -- "$cur" ) )
                 else
                     COMPREPLY=( $(compgen -o default -- "$cur") )
                 fi
