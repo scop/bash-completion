@@ -33,25 +33,25 @@ _strace()
                     prev=${cur/=*/}
                     cur=${cur/*=/}
 
-                    # Import arch-specific syscalls -- not foolproof IMHO
-                    #+                                     --David Paleino
-                    local arch=$(command uname -m)
-                    local syscalls=$(awk '/^#define __NR/ {print $2}' \
-                        /usr/include/asm/unistd.h | sed -e \
-                        's/__NR_//')
-                    if [ -z "$syscalls" ]; then
-                        local unistd
-                        if [[ "$arch" == *86 ]]; then
-                            unistd=/usr/include/asm/unistd_32.h
-                        else
-                            unistd=/usr/include/asm/unistd_64.h
-                        fi
-                        syscalls=$(awk '/^#define __NR/ {print $2}' \
-                            $unistd | sed -e 's/__NR_//')
-                    fi
-
                     case $prev in
                         trace)
+                            # Import arch-specific syscalls
+                            #+ -- not foolproof IMHO --David Paleino
+                            local arch=$(command uname -m)
+                            local syscalls=$(awk '/^#define __NR/ {print $2}' \
+                                /usr/include/asm/unistd.h | sed -e \
+                                's/__NR_//')
+                            if [ -z "$syscalls" ]; then
+                                local unistd
+                                if [[ "$arch" == *86 ]]; then
+                                    unistd=/usr/include/asm/unistd_32.h
+                                else
+                                    unistd=/usr/include/asm/unistd_64.h
+                                fi
+                                syscalls=$(awk '/^#define __NR/ {print $2}' \
+                                    $unistd | sed -e 's/__NR_//')
+                            fi
+
                             COMPREPLY=( $( compgen -W "$syscalls file process
                                 network signal ipc desc all none" -- "$cur") )
                             return 0
