@@ -57,6 +57,7 @@ bashcomp_DATA = abook \
 		gzip \
 		heimdal \
 		hping2 \
+		htpasswd \
 		iconv \
 		iftop \
 		ifupdown \
