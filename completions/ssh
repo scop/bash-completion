@@ -2,15 +2,6 @@
 
 have ssh || return
 
-_ssh_bindaddress()
-{
-    COMPREPLY+=( $( compgen -W \
-        "$( PATH="$PATH:/sbin" ifconfig -a | \
-        sed -ne 's/.*addr:\([^[:space:]]*\).*/\1/p' \
-            -ne 's/.*inet[[:space:]]\{1,\}\([^[:space:]]*\).*/\1/p' )" \
-        -- "$cur" ) )
-}
-
 _ssh_ciphers()
 {
     COMPREPLY+=( $( compgen -W '3des-cbc aes128-cbc \
@@ -73,7 +64,7 @@ _ssh_suboption()
             COMPREPLY=( $( compgen -W 'any inet inet6' -- "$cur" ) )
             ;;
         BindAddress)
-            _ssh_bindaddress
+            _ip_addresses
             ;;
         Cipher)
             COMPREPLY=( $( compgen -W 'blowfish des 3des' -- "$cur" ) )
@@ -149,7 +140,7 @@ _ssh()
             return 0
             ;;
         -b)
-            _ssh_bindaddress
+            _ip_addresses
             return 0
             ;;
         -D|-e|-I|-L|-O|-p|-R|-W)
