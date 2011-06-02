@@ -55,6 +55,7 @@ bashcomp_DATA = abook \
 		gpg \
 		gpg2 \
 		gzip \
+		hddtemp \
 		heimdal \
 		hping2 \
 		htpasswd \
