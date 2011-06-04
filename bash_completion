@@ -1142,9 +1142,10 @@ _allowed_groups()
 #
 _shells()
 {
-    COMPREPLY+=( $( compgen -W \
-        '$( command grep "^[[:space:]]*/" /etc/shells 2>/dev/null )' \
-        -- "$cur" ) )
+    local shell rest
+    while read -r shell rest; do
+        [[ $shell == /* && $shell == "$cur"* ]] && COMPREPLY+=( $shell )
+    done 2>/dev/null < /etc/shells
 }
 
 # This function completes on valid filesystem types
