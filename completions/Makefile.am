@@ -73,6 +73,7 @@ bashcomp_DATA = abook \
 		jar \
 		java \
 		k3b \
+		kcov \
 		kldload \
 		larch \
 		ldapvi \

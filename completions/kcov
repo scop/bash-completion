@@ -1,0 +1,44 @@
+have kcov || return
+
+_kcov()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" --help )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return 0
+    fi
+
+    case "$prev" in
+        --pid|-p)
+            _pids
+            return 0
+            ;;
+        --sort-type|-s)
+            COMPREPLY=( $( compgen -W 'f p' -- "$cur" ) )
+            return 0
+            ;;
+        --include-path|--exclude-path)
+            _filedir
+            return 0
+            ;;
+        --limits|-l|--title|-t|--include-pattern|--exclude-pattern)
+            # argument required but no completions available
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    _filedir
+} && complete -F _kcov kcov
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
