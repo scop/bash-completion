@@ -5,12 +5,6 @@ _kcov()
     local cur prev words cword split
     _init_completion -s || return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" --help )' -- "$cur" ) )
-        [[ $COMPREPLY == *= ]] && compopt -o nospace
-        return 0
-    fi
-
     case "$prev" in
         --pid|-p)
             _pids
@@ -31,6 +25,12 @@ _kcov()
     esac
 
     $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" --help )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return 0
+    fi
 
     _filedir
 } && complete -F _kcov kcov

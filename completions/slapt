@@ -6,6 +6,17 @@ _slapt_get()
     local cur prev words cword
     _init_completion || return
 
+    case "$prev" in
+        --config|-c)
+            _filedir
+            return 0
+            ;;
+        --retry|--search)
+            # argument required but no completions available
+            return 0
+            ;;
+    esac
+
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--download-only -d --simulate -s \
             --no-prompt -y --prompt -p --reinstall --ignore-excludes \
@@ -17,17 +28,6 @@ _slapt_get()
             --version --help -h' -- "$cur" ) )
         return 0
     fi
-
-    case "$prev" in
-        --config|-c)
-            _filedir
-            return 0
-            ;;
-        --retry|--search)
-            # argument required but no completions available
-            return 0
-            ;;
-    esac
 
     local t
     # search for last action (--install|--install-set|--remove|--show|--filelist)
@@ -71,14 +71,6 @@ _slapt_src()
     local cur prev words cword
     _init_completion || return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--update -u --list -l --clean -e \
-            --search -s --show -w --install -i --build -b --fetch -f \
-            --yes -y --config -c --no-dep -n --postprocess -p \
-            --version -v --help -h' -- "$cur" ) )
-        return 0
-    fi
-
     case "$prev" in
         --config|-c)
             _filedir
@@ -89,6 +81,14 @@ _slapt_src()
             return 0
             ;;
     esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--update -u --list -l --clean -e \
+            --search -s --show -w --install -i --build -b --fetch -f \
+            --yes -y --config -c --no-dep -n --postprocess -p \
+            --version -v --help -h' -- "$cur" ) )
+        return 0
+    fi
 
     local t
     # search for last action (-i|-w|-b|-f)
