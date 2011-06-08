@@ -7,11 +7,6 @@ _lrzip()
     local cur prev words cword
     _init_completion || return
 
-    if [[ "$cur" == -* && $prev != -N ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
-        return 0
-    fi
-
     local xspec="*.lrz"
 
     case $prev in
@@ -44,6 +39,11 @@ _lrzip()
     esac
 
     _expand || return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return 0
+    fi
 
     local IFS=$'\n'
     compopt -o filenames

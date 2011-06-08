@@ -6,13 +6,6 @@ _xz()
     local cur prev words cword split
     _init_completion -s || return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" --long-help ) {-1..-9}' \
-            -- "$cur" ) )
-        [[ $COMPREPLY == *= ]] && compopt -o nospace
-        return 0
-    fi
-
     local xspec="*.@(xz|lzma|txz|tlz)"
 
     case $prev in
@@ -45,6 +38,13 @@ _xz()
     $split && return 0
 
     _expand || return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" --long-help ) {-1..-9}' \
+            -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return 0
+    fi
 
     local IFS=$'\n'
     compopt -o filenames
