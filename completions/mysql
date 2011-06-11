@@ -1,0 +1,76 @@
+# mysql(1) completion
+
+have mysql || return
+
+_mysql()
+{
+    local cur prev split=false
+
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev
+
+    _split_longopt && split=true
+
+    case $prev in
+        -u|--user)
+            COMPREPLY=( $( compgen -u -- "$cur" ) )
+            return 0
+            ;;
+        -D|--database)
+            COMPREPLY=( $( compgen -W "$(mysqlshow|sed -ne '2d' -e 's/^|.\([^|]\+\)|.*/\1/p')" -- "$cur" ) )
+            return 0
+            ;;
+
+        -h|--host)
+            _known_hosts_real "$cur"
+            return 0
+            ;;
+        --default-character-set)
+            [ -d /usr/share/mysql/charsets ] && \
+                COMPREPLY=( $( compgen -W "$(command ls /usr/share/mysql/charsets|sed -e '/^\(README\|Index\.xml\)$/d' -e 's/.xml$//') utf8" -- "$cur" ) )
+            return 0
+            ;;
+
+        --character-sets-dir|--ssl-capath)
+            _filedir -d
+            return 0
+            ;;
+        -S|--socket)
+            _filedir sock
+            return 0
+            ;;
+        --protocol)
+            COMPREPLY=( $( compgen -W 'tcp socket pipe memory' -- "$cur" ) )
+            return 0
+            ;;
+        --defaults-file|--defaults-extra-file|--tee)
+            _filedir
+            return 0
+            ;;
+        --default-character-set|-P|--port|--set-variable|\
+        --ssl-ca|--ssl-cert|--ssl-cipher|--ssl-key|\
+        --connect_timeout|max_allowed_packet|--prompt|\
+        --net_buffer_length|--select_limit|--max_join_size|\
+        --server-arg|--debug|--delimiter|--execute|-e|--pager)
+            # Argument required but no completions available
+            return 0
+            ;;
+        '-?'|-I|--help|-V|--version)
+            # All other options are noop with these
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+} &&
+complete -F _mysql mysql
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
