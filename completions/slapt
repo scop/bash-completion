@@ -32,8 +32,11 @@ _slapt_get()
     local i t
     # search for last action (--install|--install-set|--remove|--show|--filelist)
     for (( i=${#words[@]}-1; i>0; i-- )); do
-        if [[ ${words[i]} == -@(i|-install|-show) ]]; then
+        if [[ ${words[i]} == --show ]]; then
             t="all"
+            break
+        elif [[ ${words[i]} == -@(i|-install) ]]; then
+            t="avl"
             break
         elif [[ ${words[i]} == --install-set ]]; then
             t="set"
@@ -44,13 +47,30 @@ _slapt_get()
         fi
     done
 
+    local config="/etc/slapt-get/slapt-getrc" # default config location
+    # search for config
+    for (( i=${#words[@]}-1; i>0; i-- )); do
+        if [[ ${words[i]} == -@(c|-config) ]]; then
+            config="${words[i+1]}"
+            break
+        fi
+    done
+    if [ ! -r "$config" ]; then
+        return
+    fi
+
     case $t in
-        all) # --install|-i|--show
+        all) # --show
             # slapt-get will fail to search for "^name-version"
             # it can search for names only
-            local name=$( echo $cur | cut -f1 -d- )
-            COMPREPLY=( $( slapt-get --search "^$name" 2> /dev/null | \
+            local name=${cur%%-*}
+            COMPREPLY=( $( slapt-get -c $config --search "^$name" 2>/dev/null |\
                 sed -ne "/^$cur/{s/ .*$//;p}" ) )
+            return 0
+            ;;
+        avl) # --install|-i|
+            COMPREPLY=( $( slapt-get -c $config --available 2>/dev/null | \
+                sed -ne "/^$cur/{s/ .*$//;p}") )
             return 0
             ;;
         ins) # --remove|--filelist
