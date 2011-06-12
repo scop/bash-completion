@@ -89,7 +89,7 @@ have slapt-src &&
 _slapt_src()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n : || return
 
     case "$prev" in
         --config|-c)
@@ -134,18 +134,15 @@ _slapt_src()
         return 0
     fi
 
-    local builddir=$( sed -ne "/^BUILDDIR=/{s/^BUILDDIR=//;p}" "$config" )
-    if [ ! -d "$builddir" ]; then
-        return 0
+    if [[ "$cur" == *:* ]]; then
+        local name=${cur%:*}
+        local version=${cur##*:}
+        COMPREPLY=( $( slapt-src --config $config --search "^$name" 2> \
+            /dev/null | sed -ne "/^$cur/{s/^$name:\([^ ]*\) .*$/\1/;p}" ) )
+    else
+        COMPREPLY=( $( slapt-src --config $config --search "^$cur" 2>/dev/null \
+            | sed -ne "/^$cur/{s/ .*$//;p}" ) )
     fi
-
-    local slck_data="${builddir}/slackbuilds_data"
-    if [ ! -r "$slck_data" ]; then
-        return 0
-    fi
-
-    COMPREPLY=( $( sed -ne \
-        "/^SLACKBUILD NAME: $cur/{s/^SLACKBUILD NAME: //;p}" "$slck_data" ) )
 } && complete -F _slapt_src slapt-src
 
 # Local variables:
