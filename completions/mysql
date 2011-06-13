@@ -4,8 +4,8 @@ have mysql || return
 
 _mysql()
 {
-    local cur prev words cword split=false
-    _init_completion -n = || return
+    local cur prev words cword split
+    _init_completion -s || return
 
     case $prev in
         -u|--user)
@@ -45,7 +45,7 @@ _mysql()
             ;;
         --default-character-set|-P|--port|--set-variable|\
         --ssl-ca|--ssl-cert|--ssl-cipher|--ssl-key|\
-        --connect_timeout|max_allowed_packet|--prompt|\
+        --connect_timeout|--max_allowed_packet|--prompt|\
         --net_buffer_length|--select_limit|--max_join_size|\
         --server-arg|--debug|--delimiter|--execute|-e|--pager|\
 	--password|-p)
@@ -58,11 +58,27 @@ _mysql()
             ;;
     esac
 
-    local help=$(_parse_help "$1"|sed -e '/--password/s/$/=/')
-    help+=" --skip-comment --skip-ssl"
+    case $cur in
+        --*)
+            # TODO: fix _parse_help
+            local help=$(_parse_help "$1"|sed -e '/--password/s/$/=/' -e 's/[.)]*$//')
+            help+=" --skip-comment --skip-ssl"
 
-    COMPREPLY=( $( compgen -W "$help" -- "$cur" ) )
-    [[ $COMPREPLY == *= ]] && compopt -o nospace
+            COMPREPLY=( $( compgen -W "$help" -- "$cur" ) )
+            [[ $COMPREPLY == *= ]] && compopt -o nospace
+            return 0
+            ;;
+
+        # only complete long options
+        -)
+            compopt -o nospace
+            COMPREPLY=( -- )
+            return 0
+            ;;
+    esac
+
+    COMPREPLY=( $( compgen -W "$(mysqlshow 2>/dev/null|sed -ne '2d' -e 's/^|.\([^|]*\)|.*/\1/p')"	\
+        -- "$cur" ) )
 } &&
 complete -F _mysql mysql
 
