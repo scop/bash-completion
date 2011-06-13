@@ -1,5 +1,6 @@
 # sitecopy(1) completion
 # Copyright 2003 Eelco Lempsink <eelcolempsink@gmx.net>
+#	    2011 Raphaël Droz <raphael.droz+floss@gmail.com>
 # License: GNU GPL v2 or later
 
 have sitecopy || return
@@ -9,18 +10,38 @@ _sitecopy()
     local cur prev words cword
     _init_completion || return
 
+    case $prev in
+        --debug|-d)
+            COMPREPLY=( $( compgen -W "socket files rcfile ftp http httpbody rsh sftp xml xmlparse cleartext" \
+                -- "$cur" ) )
+            compopt -o nospace
+            return 0
+            ;;
+        --logfile|-g|--rcfile|-r)
+            _filedir
+            return 0
+            ;;
+        --storepath|-p)
+            _filedir -d
+            return 0
+            ;;
+    esac
+
     case $cur in
         --*)
-            COMPREPLY=( $( compgen -W "$(sitecopy -h | command grep -e '--\w' |\
-                awk '{sub (/=(FILE|PATH)/, "", $2); print $2}')" -- "$cur" ) )
+            COMPREPLY=( $( compgen -W "$(_parse_help $1)" -- "$cur" ) )
+            [[ $COMPREPLY == *= ]] && compopt -o nospace
             ;;
-        -*)
-            COMPREPLY=( $( compgen -W "$(sitecopy -h | command grep -e '-\w' | \
-                awk '{sub (",", "", $1); print $1}')" -- "$cur" ) )
+
+        # only complete long options
+        -)
+            compopt -o nospace
+            COMPREPLY=( -- )
             ;;
+
         *)
             if [ -r ~/.sitecopyrc ]; then
-                COMPREPLY=( $( compgen -W "$(sitecopy -v | \
+                COMPREPLY=( $( compgen -W "$($1 -v | \
 			command sed -n '/^Site:/s/Site: //p')" -- "$cur" ) )
             fi
             ;;
