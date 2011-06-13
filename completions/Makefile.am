@@ -105,6 +105,7 @@ bashcomp_DATA = abook \
 		mtx \
 		munin-node \
 		mutt \
+		mysql \
 		mysqladmin \
 		ncftp \
 		net-tools \
