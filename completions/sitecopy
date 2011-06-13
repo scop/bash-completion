@@ -7,8 +7,8 @@ have sitecopy || return
 
 _sitecopy()
 {
-    local cur prev words cword
-    _init_completion || return
+    local cur prev words cword split
+    _init_completion -s || return
 
     case $prev in
         --debug|-d)
@@ -31,22 +31,21 @@ _sitecopy()
         --*)
             COMPREPLY=( $( compgen -W "$(_parse_help $1)" -- "$cur" ) )
             [[ $COMPREPLY == *= ]] && compopt -o nospace
+            return 0
             ;;
 
         # only complete long options
         -)
             compopt -o nospace
             COMPREPLY=( -- )
-            ;;
-
-        *)
-            if [ -r ~/.sitecopyrc ]; then
-                COMPREPLY=( $( compgen -W "$($1 -v | \
-			command sed -n '/^Site:/s/Site: //p')" -- "$cur" ) )
-            fi
+            return 0
             ;;
     esac
 
+    if [ -r ~/.sitecopyrc ]; then
+        COMPREPLY=( $( compgen -W "$($1 -v | \
+			command sed -n '/^Site:/s/Site: //p')" -- "$cur" ) )
+    fi
     return 0
 } &&
 complete -F _sitecopy -o default sitecopy
