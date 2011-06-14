@@ -42,6 +42,10 @@ fi
 [ -n "$BASH_COMPLETION_COMPAT_DIR" ] || BASH_COMPLETION_COMPAT_DIR=/etc/bash_completion.d
 readonly BASH_COMPLETION_COMPAT_DIR
 
+# Blacklisted completions, causing problems with our code.
+#
+_blacklist_glob='@(acroread.sh)'
+
 # Set a couple of useful vars
 #
 UNAME=$( uname -s )
@@ -1803,7 +1807,7 @@ if [[ -d $BASH_COMPLETION_COMPAT_DIR && -r $BASH_COMPLETION_COMPAT_DIR && \
     -x $BASH_COMPLETION_COMPAT_DIR ]]; then
     for i in $(LC_ALL=C command ls "$BASH_COMPLETION_COMPAT_DIR"); do
         i=$BASH_COMPLETION_COMPAT_DIR/$i
-        [[ ${i##*/} != @($_backup_glob|Makefile*) \
+        [[ ${i##*/} != @($_backup_glob|Makefile*|$_blacklist_glob) \
             && -f $i && -r $i ]] && . "$i"
     done
 fi
@@ -1812,7 +1816,7 @@ if [[ "${BASH_SOURCE[0]%/*}/completions" != $BASH_COMPLETION_COMPAT_DIR && \
     -x "${BASH_SOURCE[0]%/*}/completions" ]]; then
     for i in $(LC_ALL=C command ls "${BASH_SOURCE[0]%/*}/completions"); do
         i="${BASH_SOURCE[0]%/*}/completions/$i"
-        [[ ${i##*/} != @($_backup_glob|Makefile*) \
+        [[ ${i##*/} != @($_backup_glob|Makefile*|$_blacklist_glob) \
             && -f $i && -r $i ]] && . "$i"
     done
 fi
