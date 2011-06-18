@@ -36,6 +36,7 @@ bashcomp_DATA = abook \
 		dd \
 		dhclient \
 		dict \
+		dot \
 		dpkg \
 		dselect \
 		dsniff \
