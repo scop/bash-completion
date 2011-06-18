@@ -1038,11 +1038,16 @@ _services()
     local sysvdir famdir
     [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
     famdir=/etc/xinetd.d
+
+    local restore_nullglob=$(shopt -p nullglob); shopt -s nullglob
+
     COMPREPLY=( $( printf '%s\n' $sysvdir/!($_backup_glob|functions) ) )
 
     if [ -d $famdir ]; then
         COMPREPLY+=( $( printf '%s\n' $famdir/!($_backup_glob) ) )
     fi
+
+    $restore_nullglob
 
     COMPREPLY=( $( compgen -W '${COMPREPLY[@]#@($sysvdir|$famdir)/}' -- "$cur" ) )
 }
