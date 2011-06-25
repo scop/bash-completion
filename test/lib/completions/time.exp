@@ -4,7 +4,7 @@ proc setup {} {
 
 
 proc teardown {} {
-    assert_env_unmodified
+    assert_env_unmodified {/OLDPWD=/d}
 }
 
 
@@ -12,6 +12,22 @@ setup
 
 
 assert_complete_any "time set"
+
+
+sync_after_int
+
+
+set test "-p find -typ should complete find's options"
+assert_complete "-type" "time -p find -typ" $test
+
+
+sync_after_int
+
+
+set test "it should be possible to complete file paths"
+set dir $::srcdir/fixtures/shared
+set files [split [exec bash -c "cd $dir/bin && ls -p"] "\n"]
+assert_complete_dir $files "time ./bin/" $dir $test
 
 
 sync_after_int
