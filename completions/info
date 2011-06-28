@@ -1,6 +1,6 @@
 # bash completion for info
 
-have info || return
+have info || have pinfo || return
 
 _info()
 {
@@ -16,14 +16,20 @@ _info()
     fi
 
     case $prev in
-        -k|--apropos|--index-search|-n|--node)
+        -k|--apropos|--index-search|-n|--node|-h|--help|-v|--version)
             return
             ;;
-        -d|--directory)
+        -d)
+            if [[ ${1##*/} == info ]]; then
+                _filedir -d
+                return
+            fi
+            ;;
+        --directory)
             _filedir -d
             return
             ;;
-        --dribble|-f|--file|-o|--output|--restore)
+        --dribble|-f|--file|-o|--output|--restore|-r|--raw-filename|--rcfile)
             _filedir
             return
             ;;
@@ -68,7 +74,7 @@ _info()
 
     return 0
 } &&
-complete -F _info info
+complete -F _info info pinfo
 
 # Local variables:
 # mode: shell-script
