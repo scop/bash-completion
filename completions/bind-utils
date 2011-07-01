@@ -1,6 +1,6 @@
 # bash completion for nslookup
 
-have nslookup || return
+have nslookup || have host || return
 
 _bind_queryclass()
 {
@@ -44,6 +44,35 @@ _nslookup()
     fi
 } &&
 complete -F _nslookup nslookup
+
+_host()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -c)
+            _bind_queryclass
+            return
+            ;;
+        -t)
+            _bind_querytype
+            return
+            ;;
+        -m)
+            COMPREPLY=( $( compgen -W 'trace record usage' -- "$cur" ) )
+            return
+            ;;
+        -N|-R|-W)
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+    fi
+} &&
+complete -F _host host
 
 # Local variables:
 # mode: shell-script
