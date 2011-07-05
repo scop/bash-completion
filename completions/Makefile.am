@@ -127,6 +127,7 @@ bashcomp_DATA = abook \
 		postgresql \
 		povray \
 		procps \
+		protoc \
 		puppet \
 		python \
 		qdbus \
