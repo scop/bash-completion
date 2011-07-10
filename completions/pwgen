@@ -1,0 +1,34 @@
+have pwgen || return
+
+_pwgen()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -N|--num-passwords|-h|--help)
+            return
+            ;;
+        -H|--sha1)
+            _filedir
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+} &&
+complete -F _pwgen pwgen
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

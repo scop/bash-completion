@@ -129,6 +129,7 @@ bashcomp_DATA = abook \
 		procps \
 		protoc \
 		puppet \
+		pwgen \
 		python \
 		qdbus \
 		qemu \
