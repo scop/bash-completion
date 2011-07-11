@@ -30,6 +30,7 @@ bashcomp_DATA = abook \
 		cppcheck \
 		crontab \
 		cups \
+		curl \
 		cryptsetup \
 		cvs \
 		cvsps \
