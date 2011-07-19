@@ -7,8 +7,22 @@ _sysctl()
     local cur prev words cword
     _init_completion || return
 
-    COMPREPLY=( $( compgen -W \
-        "$( PATH="$PATH:/sbin" sysctl -N -a 2>/dev/null )" -- "$cur" ) )
+    case $prev in
+        -p)
+            _filedir conf
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+    else
+        local suffix=
+        [[ $prev == -w ]] && suffix==
+        COMPREPLY=( $( compgen -S "$suffix" -W \
+            "$( PATH="$PATH:/sbin" sysctl -N -a 2>/dev/null )" -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+    fi
 
     return 0
 } &&
