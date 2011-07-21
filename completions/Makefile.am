@@ -55,6 +55,7 @@ bashcomp_DATA = abook \
 		getent \
 		gkrellm \
 		gnatmake \
+		gnome-mplayer \
 		gpg \
 		gpg2 \
 		gzip \
