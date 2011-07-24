@@ -1,0 +1,40 @@
+have cal || have ncal || return
+
+_cal()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -m)
+            if [[ $OSTYPE == *bsd* ]]; then
+                COMPREPLY=( $( compgen -W '{1..12}' -- "$cur" ) )
+                return
+            fi
+            ;;
+        -s)
+            [[ $OSTYPE == *bsd* ]] && return
+            ;;
+        -A|-B|-d|-H)
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+        return
+    fi
+
+    local args
+    _count_args
+    [[ $args -eq 1 ]] && COMPREPLY=( $( compgen -W '{1..12}' -- "$cur" ) )
+} &&
+complete -F _cal cal ncal
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

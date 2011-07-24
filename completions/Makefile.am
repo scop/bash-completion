@@ -16,6 +16,7 @@ bashcomp_DATA = abook \
 		bluez \
 		brctl \
 		bzip2 \
+		cal \
 		cardctl \
 		cfengine \
 		chkconfig \
