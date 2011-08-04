@@ -1,8 +1,8 @@
-# Linux ipsec(8) completion (for FreeS/WAN)
+# Linux ipsec(8) completion (for FreeS/WAN and strongSwan)
 #
 have ipsec || return
 
-_ipsec()
+_ipsec_freeswan()
 {
     local cur prev words cword
     _init_completion || return
@@ -37,8 +37,58 @@ _ipsec()
     esac
 
     return 0
-} &&
-complete -F _ipsec ipsec
+}
+
+_ipsec_strongswan()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    if [ $cword -eq 1 ]; then
+        COMPREPLY=( $( compgen -W 'down irdumm leases listaacerts listacerts \
+            listalgs listall listcacerts listcainfos listcards listcerts \
+            listcrls listgroups listocsp listocspcerts listpubkeys openac pki
+            pluto pool purgecerts purgecrls purgeike purgeocsp ready reload \
+            rereadaacerts rereadacerts rereadall rereadcacerts rereadcrls \
+            rereadgroups rereadocspcerts rereadsecrets restart route scdecrypt \
+            scencrypt scepclient secrets start starter status statusall stop \
+            stroke unroute uci up update version whack --confdir --copyright \
+            --directory --help --version --versioncode' -- "$cur" ) )
+        return 0
+    fi
+
+    case ${words[1]} in
+        list*)
+            COMPREPLY=( $( compgen -W '--utc' -- "$cur" ) )
+            ;;
+        restart|start)
+            COMPREPLY=( $( compgen -W '--attach-gdb --auto-update --debug \
+                --debug-all --debug-more --nofork' -- "$cur" ) )
+            ;;
+        pki)
+            COMPREPLY=( $( compgen -W '--gen --issue --keyid --print --pub \
+                --req --self --signcrl --verify' -- "$cur" ) )
+            ;;
+        pool)
+            ;;
+        irdumm)
+            _filedir 'rb'
+            ;;
+        *)
+            ;;
+    esac
+
+    return 0
+}
+
+case "$( ipsec --version )" in
+    *strongSwan*)
+        complete -F _ipsec_strongswan ipsec
+        ;;
+    *)
+        complete -F _ipsec_freeswan ipsec
+        ;;
+esac
 
 # Local variables:
 # mode: shell-script
