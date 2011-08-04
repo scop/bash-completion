@@ -2,6 +2,20 @@
 #
 have ipsec || return
 
+# Complete ipsec.conf conn entries.
+#
+# Reads a file from stdin in the ipsec.conf(5) format.
+_ipsec_connections()
+{
+    COMPREPLY=()
+    local keyword name
+    while read -r keyword name; do
+        if [[ $keyword = [#]* ]]; then continue; fi
+        [[ $keyword = 'conn' && $name != '%default' ]] && COMPREPLY+=("$name")
+    done
+    COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
+}
+
 _ipsec_freeswan()
 {
     local cur prev words cword
@@ -58,6 +72,10 @@ _ipsec_strongswan()
     fi
 
     case ${words[1]} in
+        down|route|status|statusall|unroute|up)
+            local confdir=$( ipsec --confdir )
+            _ipsec_connections < "$confdir/ipsec.conf"
+            ;;
         list*)
             COMPREPLY=( $( compgen -W '--utc' -- "$cur" ) )
             ;;
