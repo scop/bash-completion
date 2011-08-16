@@ -5,6 +5,7 @@ bashcomp_DATA = abook \
 		apt \
 		apt-build \
 		aptitude \
+		asciidoc \
 		aspell \
 		autoconf \
 		automake \
