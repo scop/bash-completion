@@ -60,6 +60,7 @@ bashcomp_DATA = abook \
 		gnome-mplayer \
 		gpg \
 		gpg2 \
+		gprof \
 		gzip \
 		hddtemp \
 		heimdal \
