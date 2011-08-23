@@ -67,6 +67,7 @@ bashcomp_DATA = abook \
 		hping2 \
 		htpasswd \
 		iconv \
+		idn \
 		iftop \
 		ifupdown \
 		imagemagick \

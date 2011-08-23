@@ -1,0 +1,32 @@
+have idn || return
+
+_idn()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -h|--help|-V|--version)
+            return
+            ;;
+        -p|--profile)
+            COMPREPLY=( $( compgen -W 'Nameprep iSCSI Nodeprep Resourceprep
+                trace SASLprep' -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    if ! $split && [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+    fi
+} &&
+complete -F _idn idn
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
