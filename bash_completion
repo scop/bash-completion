@@ -571,8 +571,9 @@ _filedir()
         toks+=( $( compgen -f -X "$xspec" -- $quoted ) )
     fi
 
-    # If the filter failed to produce anything, try without it
-    [[ -n "$1" && "$1" != -d && ${#toks[@]} -lt 1 ]] && \
+    # If the filter failed to produce anything, try without it if configured to
+    [[ -n ${COMP_FILEDIR_FALLBACK:-} && \
+        -n "$1" && "$1" != -d && ${#toks[@]} -lt 1 ]] && \
         toks+=( $( compgen -f -- $quoted ) )
 
     [ ${#toks[@]} -ne 0 ] && compopt -o filenames 2>/dev/null
