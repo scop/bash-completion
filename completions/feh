@@ -1,0 +1,127 @@
+# bash completion for feh(1)
+
+have feh || return
+
+_feh()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case "$prev" in
+        -B|--image-bg)
+            COMPREPLY=( $( compgen -W 'default white black' -- "$cur" ) )
+            return
+            ;;
+        --index-dim|--index-name|--index-size)
+            COMPREPLY=( $( compgen -W '0 1' -- "$cur" ) )
+            return
+            ;;
+        -f|--filelist|-o|--output|-O|--output-only|-\||--start-at)
+            _filedir
+            return
+            ;;
+        -K|--caption-path|-C|--fontpath|-j|--output-dir)
+            _filedir -d
+            return
+            ;;
+        -e|--font|-M|--menu-font|-@|--title-font)
+            # expect string like "dejavu.ttf/12"
+            if [[ "$cur" == */* ]]; then # expect integer value
+                COMPREPLY=( $(compgen -P "$cur" -W '{0..9}') )
+                compopt -o nospace
+                return
+            fi
+            local font_path
+            # font_path="$(imlib2-config --prefix 2> /dev/null)/share/imlib2/data/fonts"
+            # COMPREPLY=( $( cd "$font_path" 2> /dev/null; compgen -f \
+            #     -X "!*.@([tT][tT][fF])" -S / -- "$cur" ) )
+            for (( i=${#words[@]}-1; i>0; i-- )); do
+                if [[ ${words[i]} == -@(C|-fontpath) ]]; then
+                    font_path="${words[i+1]}"
+                    COMPREPLY+=( $( cd "$font_path" 2> /dev/null; compgen -f \
+                        -X "!*.@([tT][tT][fF])" -S / -- "$cur" ) )
+                fi
+            done
+            compopt -o nospace
+            return
+            ;;
+        -T|--theme)
+            local conf_path=~/.config/feh/themes
+            local theme_name theme_opts
+            [ -r "$conf_path" ] || return
+            while read theme_name theme_opts; do
+                if [[ "$theme_name" == '#'* || "$theme_name" == "" ]]; then
+                    continue
+                fi
+                COMPREPLY+=( $( compgen -W "$theme_name" -- "$cur" ) )
+            done < "$conf_path"
+            return
+            ;;
+        -S|--sort)
+            COMPREPLY=( $( compgen -W 'name filename width height pixels size
+                format' -- "$cur" ) )
+            return
+            ;;
+        -R|--reload|-H|--limit-height|-W|--limit-width|-E|--thumb-height|\
+        -y|--thumb-width|-J|--thumb-redraw)
+            # expect integer value
+            COMPREPLY+=( $(compgen -W '{0..9}') )
+            compopt -o nospace
+            return
+            ;;
+        --zoom)
+            # expect integer value or "max", "fill"
+            COMPREPLY=( $(compgen -W 'max fill' -- "$cur") )
+            if [[ ! $cur || ! $COMPREPLY ]]; then
+                COMPREPLY+=( $(compgen -W '{0..9}') )
+                compopt -o nospace
+            fi
+            return
+            ;;
+        -0|--reload-button|-1|--pan-button|-2|--zoom-button|-3|--menu-button|\
+        -4|--prev-button|-5|--next-button|-8|--rotate-button|-9|--blur-button)
+            COMPREPLY=( $( compgen -W '{0..9}' -- "$cur" ) )
+            return
+            ;;
+        -a|--alpha)
+            COMPREPLY=( $( compgen -W '{0..255}' -- "$cur" ) )
+            return
+            ;;
+        -b|--bg)
+            _filedir
+            COMPREPLY+=( $( compgen -W 'trans' -- "$cur" ) )
+            return
+            ;;
+        -g|--geometry)
+            # expect string like 640x480
+            if [[ $cur && "$cur" != *x* ]]; then
+                COMPREPLY=( x )
+            fi
+            COMPREPLY+=( $(compgen -W "{0..9}") )
+            compopt -o nospace
+            return
+            ;;
+        -L|--customlist|--info|-D|--slideshow-delay|-~|--thumb-title|-^|--title)
+            # argument required but no completions available
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" --help )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        [[ $COMPREPLY ]] && return
+    fi
+
+    _filedir 'xpm|tif?(f)|png|p[npgba]m|iff|?(i)lbm|jp?(e)g|jfi?(f)|gif|bmp|arg?(b)|tga|xcf|ani|ico'
+} && complete -F _feh feh
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

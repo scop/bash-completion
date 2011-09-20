@@ -46,6 +46,7 @@ bashcomp_DATA = abook \
 		dvd+rw-tools \
 		e2fsprogs \
 		evince \
+		feh \
 		findutils \
 		freeciv \
 		freerdp \
