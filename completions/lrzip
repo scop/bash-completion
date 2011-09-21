@@ -10,7 +10,7 @@ _lrzip()
     local xspec="*.lrz"
 
     case $prev in
-        -w|-S|-V|-h)
+        -w|-S|-V|-h|-'?')
             return 0
             ;;
         -d)
@@ -34,6 +34,13 @@ _lrzip()
             ;;
         -N)
             COMPREPLY=( $( compgen -W '{-20..19}' -- "$cur" ) )
+            return 0
+            ;;
+        -p)
+            local var=NPROCESSORS_ONLN
+            [[ $OSTYPE == *linux* ]] && var=_$var
+            local n=$( getconf $var 2>/dev/null )
+            COMPREPLY=( $( compgen -W "{1..${n:-1}}" -- "$cur" ) )
             return 0
             ;;
     esac
