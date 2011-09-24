@@ -188,6 +188,7 @@ bashcomp_DATA = abook \
 		wol \
 		wtf \
 		wvdial \
+		xgamma \
 		xhost \
 		xm \
 		xmllint \
