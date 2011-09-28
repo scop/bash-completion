@@ -77,6 +77,7 @@ bashcomp_DATA = abook \
 		ipmitool \
 		iproute2 \
 		ipsec \
+		iputils \
 		ipv6calc \
 		isql \
 		jar \
