@@ -134,6 +134,7 @@ bashcomp_DATA = abook \
 		postfix \
 		postgresql \
 		povray \
+		prelink \
 		procps \
 		protoc \
 		puppet \

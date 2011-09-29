@@ -1,0 +1,48 @@
+have prelink || return
+
+_prelink()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -'?'|--help|--usage|-V|--version|-r|--reloc-only)
+            return
+            ;;
+        -b|--black-list|--dynamic-linker|--undo-output)
+            _filedir
+            return
+            ;;
+        -c|--config-file)
+            _filedir conf
+            return
+            ;;
+        -C|--cache)
+            _filedir cache
+            return
+            ;;
+        --ld-library-path)
+            _filedir -d
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir
+} &&
+complete -F _prelink prelink
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
