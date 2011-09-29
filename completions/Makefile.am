@@ -21,6 +21,7 @@ bashcomp_DATA = abook \
 		cardctl \
 		cfengine \
 		chkconfig \
+		chrpath \
 		chsh \
 		cksfv \
 		clisp \
