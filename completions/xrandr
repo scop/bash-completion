@@ -10,7 +10,7 @@ _xrandr()
     local output modes
 
     case $prev in
-        --output)
+        --output|--left-of|--right-of|--above|--below|--same-as)
             local outputs=$(xrandr|awk '/connected/ {print $1}')
             COMPREPLY=( $(compgen -W "$outputs" -- "$cur"))
             return 0
@@ -27,21 +27,36 @@ _xrandr()
             COMPREPLY=( $( compgen -W "$modes" -- "$cur"))
             return 0
             ;;
+        -o|--orientation)
+            COMPREPLY=( $( compgen -W 'normal inverted left right 0 1 2 3' -- \
+                "$cur" ) )
+            return 0
+            ;;
+        --reflect)
+            COMPREPLY=( $( compgen -W 'normal x y xy' -- \
+                "$cur" ) )
+            return 0
+            ;;
+        --rotate)
+            COMPREPLY=( $( compgen -W 'normal inverted left right' -- \
+                "$cur" ) )
+            return 0
+            ;;
     esac
 
     case $cur in
         *)
             COMPREPLY=( $(compgen -W '-display -help --orientation --query \
                 --size --rate --version -x -y --screen --verbose --dryrun \
-                --prop --fb --fbmm --dpi --output --auto --mode --preferred \
-                --pos --reflect --rotate --left-of --right-of --above --below \
-                --same-as --set --off --crtc --newmode --rmmode --addmode \
-                --delmode' -- "$cur") )
+                --q1 --q12 --nograb --prop --properties --fb --fbmm --dpi \
+                --output --auto --mode --preferred --pos --rate --refresh \
+                --reflect --rotate --left-of --right-of --above --below \
+                --same-as --set --scale --transform --off --crtc --panning \
+                --gamma --brightness --primary --noprimary --newmode --rmmode \
+                --addmode --delmode' -- "$cur") )
             return 0
             ;;
     esac
-
-    return 0
 } &&
 complete -F _xrandr xrandr
 
