@@ -1,0 +1,38 @@
+have file || return
+
+_file()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --help|-v|--version|-F|--separator)
+            return
+            ;;
+        -m|--magic-file|-f|--files-from)
+            _filedir
+            return
+            ;;
+        -e|--exclude)
+            COMPREPLY=( $( compgen -W 'ascii apptype compress elf soft tar
+                tokens troff' -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return
+    fi
+
+    _filedir
+} &&
+complete -F _file file
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
