@@ -1,7 +1,5 @@
 # ssh(1) completion
 
-have ssh || return
-
 _ssh_ciphers()
 {
     COMPREPLY+=( $( compgen -W '3des-cbc aes128-cbc \

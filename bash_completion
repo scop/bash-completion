@@ -104,15 +104,21 @@ complete -b builtin
 # start of section containing completion functions called by other functions
 
 # This function checks whether we have a given program on the system.
-# No need for bulky functions in memory if we don't.
 #
+_have()
+{
+    # Completions for system administrator commands are installed as well in
+    # case completion is attempted via `sudo command ...'.
+    PATH=$PATH:/usr/sbin:/sbin:/usr/local/sbin type $1 &>/dev/null
+}
+
+# Backwards compatibility for compat completions that use have().
+# @deprecated should no longer be used; generally not needed with dynamically
+#             loaded completions, and _have is suitable for runtime use.
 have()
 {
     unset -v have
-    # Completions for system administrator commands are installed as well in
-    # case completion is attempted via `sudo command ...'.
-    PATH=$PATH:/usr/sbin:/sbin:/usr/local/sbin type $1 &>/dev/null &&
-    have="yes"
+    _have $1 && have=yes
 }
 
 # This function checks whether a given readline variable
@@ -1691,15 +1697,12 @@ _longopt()
     fi
 }
 # makeinfo and texi2dvi are defined elsewhere.
-for i in a2ps awk base64 bash bc bison cat colordiff cp csplit \
+complete -F _longopt a2ps awk base64 bash bc bison cat colordiff cp csplit \
     cut date df diff dir du enscript env expand fmt fold gperf \
     grep grub head indent irb ld ldd less ln ls m4 md5sum mkdir mkfifo mknod \
     mv netstat nl nm objcopy objdump od paste patch pr ptx readelf rm rmdir \
     sed seq sha{,1,224,256,384,512}sum shar sort split strip sum tac tail tee \
-    texindex touch tr uname unexpand uniq units vdir wc wget who; do
-    have $i && complete -F _longopt $i
-done
-unset i
+    texindex touch tr uname unexpand uniq units vdir wc wget who
 
 declare -A _xspecs
 _filedir_xspec()
@@ -1810,20 +1813,31 @@ _install_xspec '!@(*.@(ks|jks|jceks|p12|pfx|bks|ubr|gkr|cer|crt|cert|p7b|pkipath
 _install_xspec '!*.@(mp[234c]|og[ag]|@(fl|a)ac|m4[abp]|spx|tta|w?(a)v|wma|aif?(f)|asf|ape)' kid3 kid3-qt
 unset -f _install_xspec
 
-# source completion directory definitions
+# set up dynamic completion loading
+_completion_loader()
+{
+    local compdir="${BASH_SOURCE[0]%/*}/completions"
+
+    # If full path below completions dir exists, use it.
+    if [[ $1 == */* && -f "$compdir/$1" ]]; then
+        . "$compdir/$1" &>/dev/null && return 124 || return 1
+    fi
+
+    # Special case for init.d scripts.
+    if [[ $1 == /etc?(/rc.d)/init.d/* ]]; then
+        . "$compdir/service" &>/dev/null && return 124 || return 1
+    fi
+
+    # Finally, use basename.
+    . "$compdir/${1##*/}" &>/dev/null && return 124
+} &&
+complete -D -F _completion_loader
+
+# source compat completion directory definitions
 if [[ -d $BASH_COMPLETION_COMPAT_DIR && -r $BASH_COMPLETION_COMPAT_DIR && \
     -x $BASH_COMPLETION_COMPAT_DIR ]]; then
     for i in $(LC_ALL=C command ls "$BASH_COMPLETION_COMPAT_DIR"); do
         i=$BASH_COMPLETION_COMPAT_DIR/$i
-        [[ ${i##*/} != @($_backup_glob|Makefile*|$_blacklist_glob) \
-            && -f $i && -r $i ]] && . "$i"
-    done
-fi
-if [[ "${BASH_SOURCE[0]%/*}/completions" != $BASH_COMPLETION_COMPAT_DIR && \
-    -d "${BASH_SOURCE[0]%/*}/completions" && -r "${BASH_SOURCE[0]%/*}/completions" && \
-    -x "${BASH_SOURCE[0]%/*}/completions" ]]; then
-    for i in $(LC_ALL=C command ls "${BASH_SOURCE[0]%/*}/completions"); do
-        i="${BASH_SOURCE[0]%/*}/completions/$i"
         [[ ${i##*/} != @($_backup_glob|Makefile*|$_blacklist_glob) \
             && -f $i && -r $i ]] && . "$i"
     done
