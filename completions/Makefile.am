@@ -47,6 +47,7 @@ bashcomp_DATA = abook \
 		dvd+rw-tools \
 		e2fsprogs \
 		evince \
+		fbi \
 		feh \
 		file \
 		findutils \

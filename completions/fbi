@@ -1,0 +1,99 @@
+# bash completion for fbi(1) and fbgs(1)
+
+have fbi || return
+
+_fbi()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case "$prev" in
+        -l|--list)
+            _filedir
+            return
+            ;;
+        -r|--resolution)
+            COMPREPLY+=( $(compgen -W '{1..5}') )
+            return
+            ;;
+        -f|--font)
+            local IFS=$'\n'
+            COMPREPLY=( $( compgen -W '$( fc-list 2>/dev/null )' -- "$cur" ) )
+            return
+            ;;
+        -m|--mode)
+            COMPREPLY=( $( compgen -W '$( sed \
+                -n "/^mode/{s/^mode \{1,\}\"\([^\"]\{1,\}\)\"/\1/g;p}" \
+                /etc/fb.modes 2> /dev/null )' -- "$cur" ) )
+            return
+            ;;
+        -d|--device)
+            COMPREPLY=( $( compgen -f -d -- "${cur:-/dev/}" ) )
+            return
+            ;;
+        --cachemem|--blend|-T|--vt|-s|--scroll|-t|--timeout|-g|--gamma)
+            # argument required but no completions available
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $(compgen -W '--help --version --store --list --text \
+            --autozoom --autoup --noautoup --autodown --noautodown --fitwidth \
+            --nofitwidth --verbose --noverbose --random --norandom --comments \
+            --nocomments --edit --noedit --backup --nobackup --preserve \
+            --nopreserve --readahead --noreadahead --cachemem --blend --vt \
+            --scroll --timeout --once --noonce --resolution --gamma --font \
+            --device --mode' -- "$cur") )
+        [[ $COMPREPLY ]] && return
+    fi
+
+    # FIXME: It is hard to determine correct supported extensions.
+    # fbi can handle any format that imagemagick can plus some others
+    _filedir 'bmp|gif|jp?(e)g|pcd|png|p[pgb]m|tif?(f)|webp|xpm|xwd|?(e)ps|pdf|dvi|txt|svg?(z)'
+} && complete -F _fbi fbi
+
+have fbgs &&
+_fbgs()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case "$prev" in
+        -f)
+            local IFS=$'\n'
+            COMPREPLY=( $( compgen -W '$( fc-list 2>/dev/null )' -- "$cur" ) )
+            return
+            ;;
+        -m)
+            COMPREPLY=( $( compgen -W '$( sed \
+                -n "/^mode/{s/^mode \{1,\}\"\([^\"]\{1,\}\)\"/\1/g;p}" \
+                /etc/fb.modes 2> /dev/null )' -- "$cur" ) )
+            return
+            ;;
+        -d)
+            COMPREPLY=( $( compgen -f -d -- "${cur:-/dev/}" ) )
+            return
+            ;;
+        -t|-g|-p)
+            # argument required but no completions available
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $(compgen -W '-l -xl -xxl -a --fitwidth -d -m -t -g -f -p \
+            -h -c' -- "$cur") )
+        [[ $COMPREPLY ]] && return
+    fi
+
+    _filedir '?(e)ps|pdf'
+} && complete -F _fbgs fbgs
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
