@@ -1,0 +1,56 @@
+# bash complete completion
+
+_complete()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -o)
+            COMPREPLY=( $( compgen -W 'bashdefault default dirnames filenames \
+                nospace plusdirs' -- "$cur" ) )
+            return 0
+            ;;
+
+        -A)
+            COMPREPLY=( $( compgen -W 'alias arrayvar binding builtin command \
+                directory disabled enabled export file function group \
+                helptopic hostname job keyword running service setopt shopt \
+                signal stopped user variable' -- "$cur" ) )
+            return 0
+            ;;
+
+        -C)
+            COMPREPLY=( $( compgen -A command -- "$cur" ) )
+            return 0
+            ;;
+        -F)
+            COMPREPLY=( $( compgen -A function -- "$cur" ) )
+            return 0
+            ;;
+        -p|-r)
+            COMPREPLY=( $( complete -p | sed -e 's|.* ||' ) )
+            COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
+            return 0
+            ;;
+
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        # relevant options completion
+        local opts="-a -b -c -d -e -f -g -j -k -o -s -u -v -A -G -W -P -S -X"
+        [[ $1 != compgen ]] && opts+=" -F -C"
+        COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
+    else
+        COMPREPLY=( $( compgen -A command -- "$cur" ) )
+    fi
+} &&
+complete -F _complete compgen complete
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

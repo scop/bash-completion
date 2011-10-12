@@ -1,0 +1,35 @@
+# Linux route(8) completion
+
+[ $UNAME = Linux ] &&
+_route()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    if [ "$prev" = dev ]; then
+        _available_interfaces
+        return 0
+    fi
+
+    # Remove already given options from completions
+    local opt found i
+    for opt in add del -host -net netmask metric mss window irtt reject mod \
+        dyn reinstate dev default gw; do
+        found=false
+        for (( i=1; i < ${#words[@]}-1; i++ )); do
+            [ "${words[i]}" = "$opt" ] && found=true && break
+        done
+        $found || COMPREPLY[${#COMPREPLY[@]}]="$opt"
+    done
+
+    COMPREPLY=( $( compgen -W '"${COMPREPLY[@]}"' -- "$cur" ) )
+} &&
+complete -F _route route
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

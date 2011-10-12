@@ -1,4 +1,4 @@
-# Completions for autoconf tools
+# autoconf(1) completion
 
 _autoconf()
 {
@@ -36,75 +36,6 @@ _autoconf()
     _filedir '@(ac|in)'
 } &&
 complete -F _autoconf autoconf
-
-_autoreconf()
-{
-    local cur prev words cword split
-    _init_completion -s || return
-
-    case "$prev" in
-        --help|-h|--version|-V)
-            return 0
-            ;;
-        --warnings|-W)
-            local cats=( cross gnu obsolete override portability syntax \
-                unsupported )
-            COMPREPLY=( $( compgen -W \
-                '${cats[@]} ${cats[@]/#/no-} all none error' -- "$cur" ) )
-            return 0
-            ;;
-        --prepend-include|-B|--include|-I)
-            _filedir -d
-            return 0
-            ;;
-    esac
-
-    $split && return 0
-
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
-        [[ $COMPREPLY == *= ]] && compopt -o nospace
-        return 0
-    fi
-
-    if [[ $1 == autoheader ]] ; then
-        _filedir '@(ac|in)'
-    else
-        _filedir -d
-    fi
-} &&
-complete -F _autoreconf autoreconf autoheader
-
-_autoscan()
-{
-    local cur prev words cword split
-    _init_completion -s || return
-
-    case "$prev" in
-        --help|-h|--version|-V)
-            return 0
-            ;;
-        --prepend-include|-B|--include|-I)
-            _filedir -d
-            return 0
-            ;;
-    esac
-
-    $split && return 0
-
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
-        [[ $COMPREPLY == *= ]] && compopt -o nospace
-        return 0
-    fi
-
-    if [[ $1 == autoupdate ]] ; then
-        _filedir '@(ac|in)'
-    else
-        _filedir -d
-    fi
-} &&
-complete -F _autoscan autoscan autoupdate
 
 # Local variables:
 # mode: shell-script

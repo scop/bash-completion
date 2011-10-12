@@ -1,0 +1,33 @@
+# groupadd(8) completion
+
+_groupadd()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    # TODO: if -o/--non-unique is given, could complete on existing gids
+    #       with -g/--gid
+
+    case $prev in
+        -g|--gid|-K|--key|-p|--password)
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return 0
+    fi
+} &&
+complete -F _groupadd groupadd
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

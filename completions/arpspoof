@@ -1,0 +1,34 @@
+# arpspoof completion
+
+_arpspoof()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -i)
+            _available_interfaces
+            return 0
+            ;;
+        -t)
+            _known_hosts_real "$cur"
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+    else
+        _known_hosts_real "$cur"
+    fi
+
+} &&
+complete -F _arpspoof arpspoof
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

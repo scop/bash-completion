@@ -1,0 +1,63 @@
+# ionice(1) completion
+
+_ionice()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    local offset=0 i
+    for (( i=1; i <= cword; i++ )); do
+        case ${words[i]} in
+            -h)
+                return
+                ;;
+            -p)
+                offset=0
+                break
+                ;;
+            -c|-n)
+                (( i++ ))
+                continue
+                ;;
+            -*)
+                continue
+                ;;
+        esac
+        offset=$i
+        break
+    done
+
+    if [[ $offset -gt 0 ]]; then
+        _command_offset $offset
+        return
+    fi
+
+    case $prev in
+        -c)
+            COMPREPLY=( $( compgen -W '{0..3}' -- "$cur" ) )
+            return
+            ;;
+        -n)
+            COMPREPLY=( $( compgen -W '{0..7}' -- "$cur" ) )
+            return
+            ;;
+        -p)
+            _pids
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -h )' -- "$cur" ) )
+        return
+    fi
+} &&
+complete -F _ionice ionice
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

@@ -1,0 +1,48 @@
+# postcat(1) completion
+
+_postcat()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -c)
+            _filedir -d
+            return 0
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+        return 0
+    fi
+
+    local idx qfile=0
+    for idx in "${words[@]}"; do
+        [[ "$idx" = -q ]] && qfile=1 && break
+    done
+    if [[ $qfile -eq 1 ]]; then
+        local len=${#cur} pval
+        idx=0
+        for pval in $( mailq 2>/dev/null | \
+            sed -e '1d; $d; /^[^0-9A-Z]/d; /^$/d; s/[* !].*$//' ); do
+            if [[ "$cur" == "${pval:0:$len}" ]]; then
+                COMPREPLY[$idx]=$pval
+                idx=$(($idx+1))
+            fi
+        done
+        return 0
+    else
+        _filedir
+        return 0
+    fi
+} &&
+complete -F _postcat postcat
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

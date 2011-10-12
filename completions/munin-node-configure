@@ -1,0 +1,39 @@
+# munin-node-configure completion
+
+_munin_node_configure()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --config)
+            _filedir
+            return 0
+            ;;
+        --servicedir|--libdir)
+            _filedir -d
+            return 0
+            ;;
+        --snmp)
+            _known_hosts_real "$cur"
+            return 0
+            ;;
+        --snmpversion)
+            COMPREPLY=( $( compgen -W '1 2c 3' -- "$cur" ) )
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+    fi
+} &&
+complete -F _munin_node_configure munin-node-configure
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

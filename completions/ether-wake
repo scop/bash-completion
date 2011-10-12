@@ -1,0 +1,33 @@
+# ether-wake(8) completion
+
+_ether_wake()
+{
+    local cur prev words cword
+    _init_completion -n : || return
+
+    case $prev in
+        -i)
+            _available_interfaces
+            return 0
+            ;;
+        -p)
+            return 0
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -u ) -V' -- "$cur" ) )
+        return 0
+    fi
+
+    _mac_addresses
+} &&
+complete -F _ether_wake ether-wake
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

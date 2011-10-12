@@ -1,4 +1,4 @@
-# bash completion for FreeBSD portupgrade package
+# bash completion for FreeBSD portupgrade
 
 _portupgrade()
 {
@@ -16,34 +16,6 @@ _portupgrade()
     return 0
 } &&
 complete -F _portupgrade -o dirnames portupgrade
-
-_portinstall()
-{
-    local cur prev words cword
-    _init_completion || return
-
-    local portsdir indexfile
-    local -a COMPREPLY2
-
-    portsdir=${PORTSDIR:-/usr/ports}/
-
-    # First try INDEX-5
-    indexfile=$portsdir/INDEX-5
-    # Then INDEX if INDEX-5 does not exist or system is not FreeBSD 5.x
-    [[ "${OSTYPE%.*}" == freebsd5 && -f $indexfile ]] ||
-        indexfile=$portsdir/INDEX
-
-    [[ "$prev" == -l || "$prev" == -L || "$prev" == -o ]] && return 0
-
-    COMPREPLY=( $( command grep -E "^$cur" < $indexfile | cut -d'|' -f1 ) )
-    COMPREPLY2=( $( command grep -E "^[^\|]+\|$portsdir$cur" < $indexfile | \
-        cut -d'|' -f2 ) )
-    COMPREPLY2=( ${COMPREPLY2[@]#$portsdir} )
-    COMPREPLY+=( "${COMPREPLY2[@]}" )
-
-    return 0
-} &&
-complete -F _portinstall -o dirnames portinstall
 
 # Local variables:
 # mode: shell-script

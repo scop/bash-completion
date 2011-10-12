@@ -1,38 +1,52 @@
 bashcompdir = $(pkgdatadir)/completions
 bashcomp_DATA = abook \
+		aclocal \
+		alias \
 		ant \
 		apache2ctl \
-		apt \
 		apt-build \
+		apt-cache \
+		apt-get \
 		aptitude \
+		arping \
+		arpspoof \
 		asciidoc \
 		aspell \
 		autoconf \
 		automake \
+		autoreconf \
 		autorpm \
-		bash-builtins \
+		autoscan \
+		badblocks \
 		bind-utils \
-		bitkeeper \
-		bittorrent \
+		bk \
 		bluez \
 		brctl \
+		btdownloadheadless.py \
 		bzip2 \
 		cal \
+		cancel \
 		cardctl \
-		cfengine \
+		cfagent \
+		cfrun \
+		chage \
+		check_perms \
+		chgrp \
 		chkconfig \
+		chown \
+		chpasswd \
 		chrpath \
 		chsh \
 		cksfv \
+		cleanarch \
 		clisp \
+		complete \
 		configure \
-		coreutils \
 		cowsay \
 		cpan2dist \
 		cpio \
 		cppcheck \
 		crontab \
-		cups \
 		curl \
 		cryptsetup \
 		cvs \
@@ -40,119 +54,181 @@ bashcomp_DATA = abook \
 		dd \
 		dhclient \
 		dict \
+		dmesg \
 		dot \
 		dpkg \
+		dpkg-source \
 		dselect \
 		dsniff \
-		dvd+rw-tools \
-		e2fsprogs \
+		dumpdb \
+		dumpe2fs \
+		e2freefrag \
+		e2label \
+		ether-wake \
 		evince \
+		export \
+		faillog \
+		fbgs \
 		fbi \
 		feh \
 		file \
-		findutils \
-		freeciv \
-		freerdp \
-		fuse \
+		filefrag \
+		filesnarf \
+		find \
+		freeciv-gtk2 \
+		freeciv-server \
+		function \
+		fusermount \
 		gcc \
 		gcl \
 		gdb \
+		genaliases \
+		gendiff \
 		genisoimage \
 		getent \
 		gkrellm \
 		gnatmake \
 		gnome-mplayer \
+		gpasswd \
 		gpg \
 		gpg2 \
 		gprof \
+		groupadd \
+		groupdel \
+		groupmems \
+		groupmod \
+		growisofs \
+		grpck \
 		gzip \
 		hddtemp \
-		heimdal \
+		hid2hci \
 		hping2 \
 		htpasswd \
 		iconv \
 		idn \
 		iftop \
-		ifupdown \
+		ifup \
 		imagemagick \
 		info \
+		insmod \
+		invoke-rc.d \
+		ionice \
+		ip \
 		iptables \
 		ipmitool \
-		iproute2 \
 		ipsec \
-		iputils \
 		ipv6calc \
+		iscsiadm \
 		isql \
 		jar \
+		jarsigner \
 		java \
+		javaws \
+		jps \
 		k3b \
 		kcov \
+		kill \
+		killall \
 		kldload \
+		kldunload \
+		ktutil \
 		larch \
+		lastlog \
 		ldapvi \
 		lftp \
+		lftpget \
 		lilo \
 		links \
 		lintian \
 		lisp \
+		list_lists \
+		look \
+		lpq \
+		lpr \
 		lrzip \
 		lsof \
 		lvm \
 		lzma \
 		lzop \
+		macof \
 		mailman \
+		mailmanctl \
 		make \
 		man \
 		mc \
 		mcrypt \
 		mdadm \
+		mdtool \
 		medusa \
+		mii-diag \
+		mii-tool \
 		minicom \
 		mkinitrd \
-		module-init-tools \
+		mktemp \
+		mmsitepass \
 		monodevelop \
 		mount \
 		mplayer \
 		msynctool \
 		mtx \
-		munin-node \
+		munindoc \
+		munin-node-configure \
+		munin-run \
+		munin-update \
 		mutt \
 		mysql \
 		mysqladmin \
 		ncftp \
-		net-tools \
+		newgrp \
+		newusers \
 		nmap \
 		ntpdate \
 		openldap \
 		openssl \
-		open-iscsi \
 		p4 \
+		pack200 \
+		passwd \
 		perl \
+		pgrep \
 		pine \
+		ping \
 		pkg-config \
-		pkg_install \
+		pkg_delete \
 		pkgtools \
-		pm-utils \
+		pm-hibernate \
+		pm-is-supported \
+		pm-powersave \
+		portinstall \
 		portupgrade \
+		postcat \
+		postconf \
 		postfix \
 		postgresql \
+		postmap \
+		postsuper \
 		povray \
 		prelink \
-		procps \
 		protoc \
 		puppet \
+		pwck \
+		pwdx \
 		pwgen \
 		python \
 		qdbus \
 		qemu \
+		qrunner \
+		querybts \
 		quota-tools \
 		rcs \
 		rdesktop \
+		renice \
 		reptyr \
 		reportbug \
 		resolvconf \
 		rfkill \
 		ri \
+		rmmod \
+		route \
 		rpcdebug \
 		rpm \
 		rpm2tgz \
@@ -166,33 +242,49 @@ bashcomp_DATA = abook \
 		screen \
 		service \
 		sh \
-		shadow \
 		sitecopy \
 		slackpkg \
-		slapt \
+		slapt-get \
+		slapt-src \
 		smartctl \
 		snownews \
 		sqlite3 \
 		ssh \
+		ssh-copy-id \
 		sshfs \
+		sshmitm \
+		sshow \
 		strace \
 		svk \
 		sysbench \
 		sysctl \
-		sysv-rc \
 		tar \
 		tcpdump \
+		tcpkill \
+		tcpnice \
+		tracepath \
+		tune2fs \
 		unace \
+		unpack200 \
 		unrar \
+		unshunt \
 		update-alternatives \
-		util-linux \
+		update-rc.d \
+		urlsnarf \
+		useradd \
+		userdel \
+		usermod \
+		vipw \
 		vncviewer \
 		vpnc \
+		watch \
+		webmitm \
 		wireless-tools \
 		wodim \
 		wol \
 		wtf \
 		wvdial \
+		xfreerdp \
 		xgamma \
 		xhost \
 		xm \
@@ -204,6 +296,7 @@ bashcomp_DATA = abook \
 		xrdb \
 		xsltproc \
 		xz \
+		xzdec \
 		yp-tools \
 		yum-arch
 

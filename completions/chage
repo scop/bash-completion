@@ -1,0 +1,32 @@
+# chage(1) completion
+
+_chage()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -d|--lastday|-E|--expiredate|-h|--help|-I|--inactive|-m|--mindays|\
+        -M|--maxdays|-W|--warndays)
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return 0
+    fi
+
+    COMPREPLY=( $( compgen -u -- "$cur" ) )
+} &&
+complete -F _chage chage
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

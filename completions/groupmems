@@ -1,0 +1,32 @@
+# groupmems(8) completion
+
+_groupmems()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -a|--add|-d|--delete)
+            COMPREPLY=( $( compgen -u -- "$cur" ) )
+            return 0
+            ;;
+        -g|--group)
+            COMPREPLY=( $( compgen -g -- "$cur" ) )
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return 0
+    fi
+} &&
+complete -F _groupmems groupmems
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
