@@ -66,22 +66,19 @@ _rsync()
             [[ $COMPREPLY == *= ]] || compopt +o nospace
             ;;
         *:*)
-            if declare -F _scp_remote_files &>/dev/null; then
-                # find which remote shell is used
-                local i shell=ssh
-                for (( i=1; i < cword; i++ )); do
-                    if [[ "${words[i]}" == -@(e|-rsh) ]]; then
-                        shell=${words[i+1]}
-                        break
-                    fi
-                done
-                [ "$shell" = ssh ] && _scp_remote_files
-            fi
+            # find which remote shell is used
+            local i shell=ssh
+            for (( i=1; i < cword; i++ )); do
+                if [[ "${words[i]}" == -@(e|-rsh) ]]; then
+                    shell=${words[i+1]}
+                    break
+                fi
+            done
+            [ "$shell" = ssh ] && _xfunc ssh _scp_remote_files
             ;;
         *)
             _known_hosts_real -c -a "$cur"
-            declare -F _scp_local_files &>/dev/null && \
-                _scp_local_files || _filedir
+            _xfunc ssh _scp_local_files
             ;;
     esac
 

@@ -1834,6 +1834,23 @@ _completion_loader()
 } &&
 complete -D -F _completion_loader
 
+# Function for loading and calling functions from dynamically loaded
+# completion files that may not have been sourced yet.
+# @param $1 completion file to load function from in case it is missing
+# @param $2... function and its arguments
+_xfunc()
+{
+    set -- "$@"
+    local srcfile=$1
+    shift
+    declare -F $1 &>/dev/null || {
+        local compdir=./completions
+        [[ $BASH_SOURCE == */* ]] && compdir="${BASH_SOURCE%/*}/completions"
+        . "$compdir/$srcfile"
+    }
+    "$@"
+}
+
 # source compat completion directory definitions
 if [[ -d $BASH_COMPLETION_COMPAT_DIR && -r $BASH_COMPLETION_COMPAT_DIR && \
     -x $BASH_COMPLETION_COMPAT_DIR ]]; then
