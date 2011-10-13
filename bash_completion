@@ -46,17 +46,6 @@ readonly BASH_COMPLETION_COMPAT_DIR
 #
 _blacklist_glob='@(acroread.sh)'
 
-# Set a couple of useful vars
-#
-UNAME=$( uname -s )
-# strip OS type and version under Cygwin (e.g. CYGWIN_NT-5.1 => Cygwin)
-UNAME=${UNAME/CYGWIN_*/Cygwin}
-
-case ${UNAME} in
-    Linux|GNU|GNU/*) USERLAND=GNU ;;
-    *) USERLAND=${UNAME} ;;
-esac
-
 # Turn on extended globbing and programmable completion
 shopt -s extglob progcomp
 
@@ -102,6 +91,16 @@ complete -c command type which
 complete -b builtin
 
 # start of section containing completion functions called by other functions
+
+# Output what userland we're running on
+_userland()
+{
+    local uname=$( uname -s )
+    case $uname in
+        Linux|GNU|GNU/*) echo GNU ;;
+        *) echo "$uname" ;;
+    esac
+}
 
 # This function checks whether we have a given program on the system.
 #
@@ -960,7 +959,7 @@ _expand()
 
 # This function completes on process IDs.
 # AIX and Solaris ps prefers X/Open syntax.
-[[ $UNAME == @(SunOS|AIX) ]] &&
+[[ $OSTYPE == *@(solaris|aix)* ]] &&
 _pids()
 {
     COMPREPLY=( $( compgen -W '$( command ps -efo pid | sed 1d )' -- "$cur" ))
@@ -972,7 +971,7 @@ _pids()
 
 # This function completes on process group IDs.
 # AIX and SunOS prefer X/Open, all else should be BSD.
-[[ $UNAME == @(SunOS|AIX) ]] &&
+[[ $OSTYPE == *@(solaris|aix)* ]] &&
 _pgids()
 {
     COMPREPLY=( $( compgen -W '$( command ps -efo pgid | sed 1d )' -- "$cur" ))
@@ -984,7 +983,7 @@ _pgids()
 
 # This function completes on process names.
 # AIX and SunOS prefer X/Open, all else should be BSD.
-[[ $UNAME == @(SunOS|AIX) ]] &&
+[[ $OSTYPE == *@(solaris|aix)* ]] &&
 _pnames()
 {
     COMPREPLY=( $( compgen -X '<defunct>' -W '$( command ps -efo comm | \
@@ -1866,7 +1865,7 @@ unset i
 [[ ${BASH_SOURCE[0]} != ~/.bash_completion && -r ~/.bash_completion ]] \
     && . ~/.bash_completion
 unset -f have
-unset UNAME USERLAND have
+unset have
 
 set $BASH_COMPLETION_ORIGINAL_V_VALUE
 unset BASH_COMPLETION_ORIGINAL_V_VALUE
