@@ -1,6 +1,4 @@
-# bash completion for Linux wireless-tools
-
-[[ $OSTYPE == *linux* ]] || return 1
+# iwconfig completion
 
 _iwconfig()
 {
@@ -88,73 +86,6 @@ _iwconfig()
 
 } &&
 complete -F _iwconfig iwconfig
-
-
-_iwlist()
-{
-    local cur prev words cword
-    _init_completion || return
-
-    if [ $cword -eq 1 ]; then
-        if [[ "$cur" == -* ]]; then
-            COMPREPLY=( $( compgen -W '--help --version' -- "$cur" ) )
-        else
-            _available_interfaces -w
-        fi
-    else
-        COMPREPLY=( $( compgen -W 'scan scanning freq frequency \
-            channel rate bit bitrate key enc encryption power \
-            txpower retry ap accesspoint peers event' -- "$cur" ) )
-    fi
-} &&
-complete -F _iwlist iwlist
-
-
-_iwspy()
-{
-    local cur prev words cword
-    _init_completion || return
-
-    if [ $cword -eq 1 ]; then
-        if [[ "$cur" == -* ]]; then
-            COMPREPLY=( $( compgen -W '--help --version' -- "$cur" ) )
-        else
-            _available_interfaces -w
-        fi
-    else
-        COMPREPLY=( $( compgen -W 'setthr getthr off' -- "$cur" ) )
-    fi
-} &&
-complete -F _iwspy iwspy
-
-
-_iwpriv()
-{
-    local cur prev words cword
-    _init_completion || return
-
-    case $prev in
-        roam)
-            COMPREPLY=( $( compgen -W 'on off' -- "$cur" ) )
-            return 0
-            ;;
-        port)
-            COMPREPLY=( $( compgen -W 'ad-hoc managed' -- "$cur" ) )
-            return 0
-            ;;
-    esac
-
-    if [ $cword -eq 1 ]; then
-        if [[ "$cur" == -* ]]; then
-            COMPREPLY=( $( compgen -W '--help --version' -- "$cur" ) )
-        else
-            _available_interfaces -w
-        fi
-    else
-        COMPREPLY=( $( compgen -W '--all roam port' -- "$cur" ) )
-    fi
-} &&
-complete -F _iwpriv iwpriv
 
 # Local variables:
 # mode: shell-script
