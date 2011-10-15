@@ -1828,8 +1828,11 @@ _completion_loader()
         . "$compdir/service" &>/dev/null && return 124 || return 1
     fi
 
-    # Finally, use basename.
+    # Finally, try basename.
     . "$compdir/${1##*/}" &>/dev/null && return 124
+
+    # Fall back to something generic if we don't have anything else.
+    complete -o bashdefault -f "$1" && return 124
 } &&
 complete -D -F _completion_loader
 
