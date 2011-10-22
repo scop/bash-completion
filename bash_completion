@@ -1832,17 +1832,12 @@ _completion_loader()
     local compdir=./completions
     [[ $BASH_SOURCE == */* ]] && compdir="${BASH_SOURCE%/*}/completions"
 
-    # If full path below completions dir exists, use it.
-    if [[ $1 == */* && -f "$compdir/$1" ]]; then
-        . "$compdir/$1" &>/dev/null && return 124 || return 1
-    fi
-
     # Special case for init.d scripts.
     if [[ $1 == /etc?(/rc.d)/init.d/* ]]; then
         . "$compdir/service" &>/dev/null && return 124 || return 1
     fi
 
-    # Finally, try basename.
+    # Try basename.
     . "$compdir/${1##*/}" &>/dev/null && return 124
 
     # Need to define *something*, otherwise there will be no completion at all.
