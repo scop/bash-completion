@@ -1,17 +1,17 @@
-# mailman add_members completion
+# mailman sync_members completion
 
-_add_members()
+_sync_members()
 {
     local cur prev words cword split
     _init_completion -s || return
 
     case $prev in
-        -r|-d|--regular-members-file|--digest-members-file)
-            _filedir
+        -w|-g|-d|--welcome-msg|--goodbye-msg|--digest)
+            COMPREPLY=( $( compgen -W 'y n' -- "$cur") )
             return 0
             ;;
-        -w|-a|--welcome-msg|--admin-notify)
-            COMPREPLY=( $( compgen -W 'y n' -- "$cur") )
+        -d|--file)
+            _filedir
             return 0
             ;;
     esac
@@ -19,15 +19,14 @@ _add_members()
     $split && return 0
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--regular-members-file \
-            --digest-members-file --welcome-msg \
-            --admin-notify --help' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--no-change --welcome-msg \
+            --goodbye-msg --digest --notifyadmin --file --help' -- "$cur" ) )
     else
         _xfunc list_lists _mailman_lists
     fi
 
 } &&
-complete -F _add_members add_members
+complete -F _sync_members sync_members
 
 # Local variables:
 # mode: shell-script

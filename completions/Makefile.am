@@ -9,6 +9,7 @@ bashcomp_DATA = abook \
 		apt-cache \
 		apt-get \
 		aptitude \
+		arch \
 		arping \
 		arpspoof \
 		asciidoc \
@@ -29,6 +30,8 @@ bashcomp_DATA = abook \
 		cfagent \
 		cfrun \
 		chage \
+		change_pw \
+		check_db \
 		check_perms \
 		chgrp \
 		chkconfig \
@@ -39,7 +42,9 @@ bashcomp_DATA = abook \
 		cksfv \
 		cleanarch \
 		clisp \
+		clone_member \
 		complete \
+		config_list \
 		configure \
 		convert \
 		cowsay \
@@ -76,6 +81,7 @@ bashcomp_DATA = abook \
 		filefrag \
 		filesnarf \
 		find \
+		find_member \
 		freeciv-gtk2 \
 		freeciv-server \
 		function \
@@ -111,6 +117,7 @@ bashcomp_DATA = abook \
 		iftop \
 		ifup \
 		info \
+		inject \
 		insmod \
 		installpkg \
 		invoke-rc.d \
@@ -148,7 +155,10 @@ bashcomp_DATA = abook \
 		links \
 		lintian \
 		lisp \
+		list_admins \
 		list_lists \
+		list_members \
+		list_owners \
 		look \
 		lpq \
 		lpr \
@@ -187,6 +197,7 @@ bashcomp_DATA = abook \
 		mysqladmin \
 		ncftp \
 		newgrp \
+		newlist \
 		newusers \
 		nmap \
 		nslookup \
@@ -228,6 +239,7 @@ bashcomp_DATA = abook \
 		quota \
 		rcs \
 		rdesktop \
+		remove_members \
 		removepkg \
 		renice \
 		reptyr \
@@ -235,6 +247,7 @@ bashcomp_DATA = abook \
 		resolvconf \
 		rfkill \
 		ri \
+		rmlist \
 		rmmod \
 		route \
 		rpcdebug \
@@ -264,6 +277,7 @@ bashcomp_DATA = abook \
 		sshow \
 		strace \
 		svk \
+		sync_members \
 		sysbench \
 		sysctl \
 		tar \
@@ -288,6 +302,7 @@ bashcomp_DATA = abook \
 		vpnc \
 		watch \
 		webmitm \
+		withlist \
 		wodim \
 		wol \
 		wtf \
@@ -318,7 +333,6 @@ CLEANFILES = \
 	alternatives \
 	animate \
 	apropos \
-	arch \
 	asciidoc.py \
 	autoheader \
 	automake-1.11 \
@@ -329,18 +343,14 @@ CLEANFILES = \
 	c++ \
 	cc \
 	cdrecord \
-	change_pw \
-	check_db \
 	ci \
 	ciptool \
 	civclient \
 	civserver \
-	clone_member \
 	co \
 	compare \
 	compgen \
 	composite \
-	config_list \
 	conjure \
 	cowthink \
 	createdb \
@@ -353,7 +363,6 @@ CLEANFILES = \
 	dropdb \
 	edquota \
 	filebucket \
-	find_member \
 	freeciv-sdl \
 	freeciv-xaw \
 	g++ \
@@ -374,7 +383,6 @@ CLEANFILES = \
 	ifdown \
 	ifstatus \
 	import \
-	inject \
 	javac \
 	javadoc \
 	kplayer \
@@ -388,9 +396,6 @@ CLEANFILES = \
 	ldappasswd \
 	ldapwhoami \
 	lintian-info \
-	list_admins \
-	list_members \
-	list_owners \
 	lvchange \
 	lvcreate \
 	lvdisplay \
@@ -414,7 +419,6 @@ CLEANFILES = \
 	msgsnarf \
 	muttng \
 	ncal \
-	newlist \
 	pbzip2 \
 	pccardctl \
 	perldoc \
@@ -452,11 +456,9 @@ CLEANFILES = \
 	ralsh \
 	rcsdiff \
 	rdict \
-	remove_members \
 	repquota \
 	rfcomm \
 	rlog \
-	rmlist \
 	rpm2targz \
 	rpm2txz \
 	rpmbuild \
@@ -475,7 +477,6 @@ CLEANFILES = \
 	smbtree \
 	spovray \
 	stream \
-	sync_members \
 	tightvncviewer \
 	tracepath6 \
 	typeset \
@@ -499,7 +500,6 @@ CLEANFILES = \
 	vgsplit \
 	vigr \
 	whatis \
-	withlist \
 	xpovray \
 	xvnc4viewer \
 	ypcat
@@ -508,12 +508,6 @@ symlinks:
 	for file in aclocal-1.11 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) aclocal $(targetdir)/$$file ; \
-	done
-	for file in remove_members find_member clone_member sync_members \
-		list_admins list_owners list_members change_pw withlist \
-		newlist rmlist config_list arch inject check_db ; do \
-		rm -f $(targetdir)/$$file && \
-			$(LN_S) add_members $(targetdir)/$$file ; \
 	done
 	for file in phing ; do \
 		rm -f $(targetdir)/$$file && \
