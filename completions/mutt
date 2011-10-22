@@ -95,7 +95,7 @@ _muttquery()
     local cur=$1 querycmd muttcmd=${words[0]}
     local -a queryresults
 
-    querycmd="$( $muttcmd -Q query_command | sed -e 's|^query_command=\"\(.*\)\"$|\1|' -e 's|%s|'$cur'|' )"
+    querycmd="$( $muttcmd -Q query_command 2>/dev/null | sed -e 's|^query_command=\"\(.*\)\"$|\1|' -e 's|%s|'$cur'|' )"
     if [[ -z "$cur" || -z "$querycmd" ]]; then
         queryresults=()
     else
@@ -117,7 +117,7 @@ _muttfiledir()
 
     muttrc=$(_muttrc)
     if [[ $cur == [=+]* ]]; then
-        folder="$( $muttcmd -F "$muttrc" -Q folder | sed -e 's|^folder=\"\(.*\)\"$|\1|' )"
+        folder="$( $muttcmd -F "$muttrc" -Q folder 2>/dev/null | sed -e 's|^folder=\"\(.*\)\"$|\1|' )"
         : folder:=~/Mail
 
         # Match any file in $folder beginning with $cur
@@ -127,7 +127,7 @@ _muttfiledir()
         COMPREPLY=( ${COMPREPLY[@]#$folder/} )
         return 0
     elif [ "$cur" == !* ]; then
-        spoolfile="$( $muttcmd -F "$muttrc" -Q spoolfile | \
+        spoolfile="$( $muttcmd -F "$muttrc" -Q spoolfile 2>/dev/null | \
             sed -e 's|^spoolfile=\"\(.*\)\"$|\1|' )"
         [ ! -z "$spoolfile" ] && eval cur="${cur/^!/$spoolfile}"
     fi
