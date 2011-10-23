@@ -1817,6 +1817,15 @@ _install_xspec '!@(*.@(ks|jks|jceks|p12|pfx|bks|ubr|gkr|cer|crt|cert|p7b|pkipath
 _install_xspec '!*.@(mp[234c]|og[ag]|@(fl|a)ac|m4[abp]|spx|tta|w?(a)v|wma|aif?(f)|asf|ape)' kid3 kid3-qt
 unset -f _install_xspec
 
+# Minimal completion to use as fallback in _completion_loader.
+_minimal()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+    $split && return
+    _filedir
+}
+
 # set up dynamic completion loading
 _completion_loader()
 {
@@ -1837,7 +1846,7 @@ _completion_loader()
     . "$compdir/${1##*/}" &>/dev/null && return 124
 
     # Need to define *something*, otherwise there will be no completion at all.
-    complete -F _longopt "$1" && return 124
+    complete -F _minimal "$1" && return 124
 } &&
 complete -D -F _completion_loader
 
