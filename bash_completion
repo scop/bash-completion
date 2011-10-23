@@ -605,11 +605,11 @@ _split_longopt()
     return 1
 }
 
-# Initialize completion and deal with redirections: do file completion where
-# appropriate, and adjust prev, words, and cword as if no redirections exist
-# so that completions do not need to deal with them.  Before calling this
-# function, make sure cur, prev, words, and cword are local, ditto split if
-# you use -s.
+# Initialize completion and deal with various general things: do file
+# and variable completion where appropriate, and adjust prev, words,
+# and cword as if no redirections exist so that completions do not
+# need to deal with them.  Before calling this function, make sure
+# cur, prev, words, and cword are local, ditto split if you use -s.
 #
 # Options:
 #     -n EXCLUDE  Passed to _get_comp_words_by_ref -n with redirection chars
@@ -643,6 +643,12 @@ _init_completion()
     COMPREPLY=()
     local redir="@(?([0-9])<|?([0-9&])>?(>)|>&)"
     _get_comp_words_by_ref -n "$exclude<>&" cur prev words cword
+
+    # Complete variable names.
+    if [[ $cur == \$* ]]; then
+        COMPREPLY=( $( compgen -P '$' -v -- "${cur#\$}" ) )
+        return 1
+    fi
 
     # Complete on files if current is a redirect possibly followed by a
     # filename, e.g. ">foo", or previous is a "bare" redirect, e.g. ">".
