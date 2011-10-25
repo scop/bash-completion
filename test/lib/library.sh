@@ -22,6 +22,8 @@ diff_env() {
         /[<>] _=/d
 # Remove PPID bash variable
         /[<>] PPID=/d
+# Remove BASH_REMATCH bash variable
+        /[<>] BASH_REMATCH=/d
         $3"
 } # diff_env()
 
