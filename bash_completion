@@ -645,8 +645,10 @@ _init_completion()
     _get_comp_words_by_ref -n "$exclude<>&" cur prev words cword
 
     # Complete variable names.
-    if [[ $cur == \$* ]]; then
-        COMPREPLY=( $( compgen -P '$' -v -- "${cur#\$}" ) )
+    if [[ $cur =~ ^(\$\{?)([A-Za-z0-9_]*)$ ]]; then
+        [[ $cur == *{* ]] && local suffix=} || local suffix=
+        COMPREPLY=( $( compgen -P ${BASH_REMATCH[1]} -S "$suffix" -v -- \
+            "${BASH_REMATCH[2]}" ) )
         return 1
     fi
 
