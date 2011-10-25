@@ -1,0 +1,38 @@
+# Slackware Linux installpkg completion
+
+_installpkg()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case "$prev" in
+        --root)
+            _filedir -d
+            return 0
+            ;;
+        --priority)
+            COMPREPLY=( $( compgen -W 'ADD REC OPT SKP' -- "$cur" ) )
+            return 0
+            ;;
+        --tagfile)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--warn --md5sum --root --infobox --terse \
+            --menu --ask --priority --tagfile' -- "$cur") )
+        return 0
+    fi
+
+    _filedir "t[bglx]z"
+} && complete -F _installpkg installpkg
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

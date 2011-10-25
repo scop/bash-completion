@@ -70,24 +70,11 @@ believed to be a bug in bash.
 
 II.
 
-The have() function is used to conserve memory by only installing
-completion functions for those programs that are actually present on
-your system. The current method of determining whether or not a given
-binary is present is whether or not it can be found along a certain
-path of directories. The path that is currently searched is:
-
-	$PATH:/sbin:/usr/sbin:/usr/local/sbin
-
-where $PATH is your user path at the time the bash completion file is
-sourced.
-
-III.
-
 Many of the completion functions assume GNU versions of the various
 text utilities that they call (e.g. grep, sed and awk). Your mileage
 may vary.
 
-IV.
+III.
 
 If you are seeing 'unbound variable' warnings from bash when hitting
 <Tab>, this is because you have either 'set -u' or 'set -o nounset'
@@ -127,10 +114,17 @@ Q. I author/maintain package X and would like to maintain my own
    completion code for this package. Where should I put it to be sure
    that interactive bash shells will find it and source it?
 
-   Put it in the directory pointed to by $BASH_COMPLETION_COMPAT_DIR, which
-   is defined at the beginning of the main completion script. Any
-   scripts placed in this directory will be sourced by interactive
-   bash shells. Usually, this is /etc/bash_completion.d.
+   Install it in one of the directories pointed to by
+   bash-completion's pkgconfig file variables.  There are two
+   alternatives: the recommended one is 'completionsdir' (get it with
+   "pkg-config --variable=completionsdir bash-completion") from which
+   completions are loaded on demand based on invoked commands' names,
+   so be sure to name your completion file accordingly, and to include
+   for example symbolic links in case the file provides completions
+   for more than one command.  The other one which is present for
+   backwards compatibility reasons is 'compatdir' (get it with
+   "pkg-config --variable=compatdir bash-completion") from which files
+   are loaded when bash_completion is loaded.
 
 Q. I use CVS in combination with passwordless ssh access to my remote
    repository. How can I have the cvs command complete on remotely

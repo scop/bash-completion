@@ -1,0 +1,34 @@
+# lastlog(8) completion
+
+_lastlog()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -b|--before|-h|--help|-t|--time)
+            return 0
+            ;;
+        -u|--user)
+            COMPREPLY=( $( compgen -u -- "$cur" ) )
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return 0
+    fi
+} &&
+complete -F _lastlog lastlog
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

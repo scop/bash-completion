@@ -1,0 +1,25 @@
+# Slackware Linux removepkg completion
+
+_removepkg()
+{
+    local cur prev words cword
+    _init_completion || return
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-copy -keep -preserve -warn' \
+            -- "$cur" ) )
+        return 0
+    fi
+
+    local root=${ROOT:-/}
+    COMPREPLY=( $( cd "$root/var/log/packages" 2> /dev/null || return 1 ; \
+        compgen -f -- "$cur" ) )
+} &&
+complete -F _removepkg removepkg
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

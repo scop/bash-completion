@@ -1,0 +1,38 @@
+# badblocks(8) completion
+
+_badblocks()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -b|-c|-e|-d|-p|-t)
+            return 0
+            ;;
+        -i|-o)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+        # Filter out -w (dangerous) and -X (internal use)
+        for i in ${!COMPREPLY[@]}; do
+            [[ ${COMPREPLY[i]} == -[wX] ]] && unset COMPREPLY[i]
+        done
+        return 0
+    fi
+
+    cur=${cur:=/dev/}
+    _filedir
+} &&
+complete -F _badblocks badblocks
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

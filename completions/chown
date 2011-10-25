@@ -1,0 +1,52 @@
+# chown(1) completion
+
+_chown()
+{
+    local cur prev words cword split
+    # Don't treat user:group as separate words.
+    _init_completion -s -n : || return
+
+    case "$prev" in
+        --from)
+            _usergroup
+            return 0
+            ;;
+        --reference)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        # Complete -options
+        local w opts
+        for w in "${words[@]}" ; do
+            [[ "$w" == -@(R|-recursive) ]] && opts="-H -L -P" && break
+        done
+        COMPREPLY=( $( compgen -W '-c -h -f -R -v --changes --dereference \
+            --no-dereference --from --silent --quiet --reference --recursive \
+            --verbose --help --version $opts' -- "$cur" ) )
+    else
+        local args
+
+        # The first argument is an usergroup; the rest are filedir.
+        _count_args :
+
+        if [[ $args -eq 1 ]]; then
+            _usergroup -u
+        else
+            _filedir
+        fi
+    fi
+} &&
+complete -F _chown chown
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

@@ -1,6 +1,5 @@
 # xz(1) completion
 
-have xz || have pxz &&
 _xz()
 {
     local cur prev words cword split
@@ -52,37 +51,6 @@ _xz()
         $( compgen -d -- "$cur" ) )
 } &&
 complete -F _xz xz pxz
-
-# xzdec(1) completion
-#
-have xzdec &&
-_xzdec()
-{
-    local cur prev words cword split
-    _init_completion -s || return
-
-    case $prev in
-        -M|--memory)
-            # argument required but no completions available
-            return 0
-            ;;
-        -h|--help|-V|--version)
-            # all other arguments are noop with these
-            return 0
-            ;;
-    esac
-
-    $split && return 0
-
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
-        [[ $COMPREPLY == *= ]] && compopt -o nospace
-        return 0
-    fi
-
-    _filedir xz # no lzma support here as of xz 4.999.9beta
-} &&
-complete -F _xzdec xzdec
 
 # Local variables:
 # mode: shell-script

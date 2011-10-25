@@ -46,17 +46,6 @@ readonly BASH_COMPLETION_COMPAT_DIR
 #
 _blacklist_glob='@(acroread.sh)'
 
-# Set a couple of useful vars
-#
-UNAME=$( uname -s )
-# strip OS type and version under Cygwin (e.g. CYGWIN_NT-5.1 => Cygwin)
-UNAME=${UNAME/CYGWIN_*/Cygwin}
-
-case ${UNAME} in
-    Linux|GNU|GNU/*) USERLAND=GNU ;;
-    *) USERLAND=${UNAME} ;;
-esac
-
 # Turn on extended globbing and programmable completion
 shopt -s extglob progcomp
 
@@ -103,16 +92,31 @@ complete -b builtin
 
 # start of section containing completion functions called by other functions
 
+# Check if we're running on the given userland
+# @param $1 userland to check for
+_userland()
+{
+    local userland=$( uname -s )
+    [[ $userland == @(Linux|GNU/*) ]] && userland=GNU
+    [[ $userland == $1 ]]
+}
+
 # This function checks whether we have a given program on the system.
-# No need for bulky functions in memory if we don't.
 #
+_have()
+{
+    # Completions for system administrator commands are installed as well in
+    # case completion is attempted via `sudo command ...'.
+    PATH=$PATH:/usr/sbin:/sbin:/usr/local/sbin type $1 &>/dev/null
+}
+
+# Backwards compatibility for compat completions that use have().
+# @deprecated should no longer be used; generally not needed with dynamically
+#             loaded completions, and _have is suitable for runtime use.
 have()
 {
     unset -v have
-    # Completions for system administrator commands are installed as well in
-    # case completion is attempted via `sudo command ...'.
-    PATH=$PATH:/usr/sbin:/sbin:/usr/local/sbin type $1 &>/dev/null &&
-    have="yes"
+    _have $1 && have=yes
 }
 
 # This function checks whether a given readline variable
@@ -601,11 +605,11 @@ _split_longopt()
     return 1
 }
 
-# Initialize completion and deal with redirections: do file completion where
-# appropriate, and adjust prev, words, and cword as if no redirections exist
-# so that completions do not need to deal with them.  Before calling this
-# function, make sure cur, prev, words, and cword are local, ditto split if
-# you use -s.
+# Initialize completion and deal with various general things: do file
+# and variable completion where appropriate, and adjust prev, words,
+# and cword as if no redirections exist so that completions do not
+# need to deal with them.  Before calling this function, make sure
+# cur, prev, words, and cword are local, ditto split if you use -s.
 #
 # Options:
 #     -n EXCLUDE  Passed to _get_comp_words_by_ref -n with redirection chars
@@ -639,6 +643,14 @@ _init_completion()
     COMPREPLY=()
     local redir="@(?([0-9])<|?([0-9&])>?(>)|>&)"
     _get_comp_words_by_ref -n "$exclude<>&" cur prev words cword
+
+    # Complete variable names.
+    if [[ $cur =~ ^(\$\{?)([A-Za-z0-9_]*)$ ]]; then
+        [[ $cur == *{* ]] && local suffix=} || local suffix=
+        COMPREPLY=( $( compgen -P ${BASH_REMATCH[1]} -S "$suffix" -v -- \
+            "${BASH_REMATCH[2]}" ) )
+        return 1
+    fi
 
     # Complete on files if current is a redirect possibly followed by a
     # filename, e.g. ">foo", or previous is a "bare" redirect, e.g. ">".
@@ -954,7 +966,7 @@ _expand()
 
 # This function completes on process IDs.
 # AIX and Solaris ps prefers X/Open syntax.
-[[ $UNAME == @(SunOS|AIX) ]] &&
+[[ $OSTYPE == *@(solaris|aix)* ]] &&
 _pids()
 {
     COMPREPLY=( $( compgen -W '$( command ps -efo pid | sed 1d )' -- "$cur" ))
@@ -966,7 +978,7 @@ _pids()
 
 # This function completes on process group IDs.
 # AIX and SunOS prefer X/Open, all else should be BSD.
-[[ $UNAME == @(SunOS|AIX) ]] &&
+[[ $OSTYPE == *@(solaris|aix)* ]] &&
 _pgids()
 {
     COMPREPLY=( $( compgen -W '$( command ps -efo pgid | sed 1d )' -- "$cur" ))
@@ -978,7 +990,7 @@ _pgids()
 
 # This function completes on process names.
 # AIX and SunOS prefer X/Open, all else should be BSD.
-[[ $UNAME == @(SunOS|AIX) ]] &&
+[[ $OSTYPE == *@(solaris|aix)* ]] &&
 _pnames()
 {
     COMPREPLY=( $( compgen -X '<defunct>' -W '$( command ps -efo comm | \
@@ -1272,9 +1284,9 @@ _terms()
 }
 
 # a little help for FreeBSD ports users
-[ $UNAME = FreeBSD ] && complete -W 'index search fetch fetch-list extract \
-    patch configure build install reinstall deinstall clean clean-depends \
-    kernel buildworld' make
+[[ $OSTYPE == *freebsd* ]] && complete -W 'index search fetch fetch-list
+    extract patch configure build install reinstall deinstall clean
+    clean-depends kernel buildworld' make
 
 # This function provides simple user@host completion
 #
@@ -1691,15 +1703,12 @@ _longopt()
     fi
 }
 # makeinfo and texi2dvi are defined elsewhere.
-for i in a2ps awk base64 bash bc bison cat colordiff cp csplit \
+complete -F _longopt a2ps awk base64 bash bc bison cat colordiff cp csplit \
     cut date df diff dir du enscript env expand fmt fold gperf \
     grep grub head indent irb ld ldd less ln ls m4 md5sum mkdir mkfifo mknod \
     mv netstat nl nm objcopy objdump od paste patch pr ptx readelf rm rmdir \
     sed seq sha{,1,224,256,384,512}sum shar sort split strip sum tac tail tee \
-    texindex touch tr uname unexpand uniq units vdir wc wget who; do
-    have $i && complete -F _longopt $i
-done
-unset i
+    texindex touch tr uname unexpand uniq units vdir wc wget who
 
 declare -A _xspecs
 _filedir_xspec()
@@ -1810,20 +1819,56 @@ _install_xspec '!@(*.@(ks|jks|jceks|p12|pfx|bks|ubr|gkr|cer|crt|cert|p7b|pkipath
 _install_xspec '!*.@(mp[234c]|og[ag]|@(fl|a)ac|m4[abp]|spx|tta|w?(a)v|wma|aif?(f)|asf|ape)' kid3 kid3-qt
 unset -f _install_xspec
 
-# source completion directory definitions
+# Minimal completion to use as fallback in _completion_loader.
+_minimal()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+    $split && return
+    _filedir
+}
+
+# set up dynamic completion loading
+_completion_loader()
+{
+    local compdir=./completions
+    [[ $BASH_SOURCE == */* ]] && compdir="${BASH_SOURCE%/*}/completions"
+
+    # Special case for init.d scripts.
+    if [[ $1 == /etc?(/rc.d)/init.d/* ]]; then
+        . "$compdir/service" &>/dev/null && return 124 || return 1
+    fi
+
+    # Try basename.
+    . "$compdir/${1##*/}" &>/dev/null && return 124
+
+    # Need to define *something*, otherwise there will be no completion at all.
+    complete -F _minimal "$1" && return 124
+} &&
+complete -D -F _completion_loader
+
+# Function for loading and calling functions from dynamically loaded
+# completion files that may not have been sourced yet.
+# @param $1 completion file to load function from in case it is missing
+# @param $2... function and its arguments
+_xfunc()
+{
+    set -- "$@"
+    local srcfile=$1
+    shift
+    declare -F $1 &>/dev/null || {
+        local compdir=./completions
+        [[ $BASH_SOURCE == */* ]] && compdir="${BASH_SOURCE%/*}/completions"
+        . "$compdir/$srcfile"
+    }
+    "$@"
+}
+
+# source compat completion directory definitions
 if [[ -d $BASH_COMPLETION_COMPAT_DIR && -r $BASH_COMPLETION_COMPAT_DIR && \
     -x $BASH_COMPLETION_COMPAT_DIR ]]; then
     for i in $(LC_ALL=C command ls "$BASH_COMPLETION_COMPAT_DIR"); do
         i=$BASH_COMPLETION_COMPAT_DIR/$i
-        [[ ${i##*/} != @($_backup_glob|Makefile*|$_blacklist_glob) \
-            && -f $i && -r $i ]] && . "$i"
-    done
-fi
-if [[ "${BASH_SOURCE[0]%/*}/completions" != $BASH_COMPLETION_COMPAT_DIR && \
-    -d "${BASH_SOURCE[0]%/*}/completions" && -r "${BASH_SOURCE[0]%/*}/completions" && \
-    -x "${BASH_SOURCE[0]%/*}/completions" ]]; then
-    for i in $(LC_ALL=C command ls "${BASH_SOURCE[0]%/*}/completions"); do
-        i="${BASH_SOURCE[0]%/*}/completions/$i"
         [[ ${i##*/} != @($_backup_glob|Makefile*|$_blacklist_glob) \
             && -f $i && -r $i ]] && . "$i"
     done
@@ -1834,7 +1879,7 @@ unset i
 [[ ${BASH_SOURCE[0]} != ~/.bash_completion && -r ~/.bash_completion ]] \
     && . ~/.bash_completion
 unset -f have
-unset UNAME USERLAND have
+unset have
 
 set $BASH_COMPLETION_ORIGINAL_V_VALUE
 unset BASH_COMPLETION_ORIGINAL_V_VALUE

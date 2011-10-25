@@ -1,0 +1,37 @@
+# mailman sync_members completion
+
+_sync_members()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -w|-g|-d|--welcome-msg|--goodbye-msg|--digest)
+            COMPREPLY=( $( compgen -W 'y n' -- "$cur") )
+            return 0
+            ;;
+        -d|--file)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--no-change --welcome-msg \
+            --goodbye-msg --digest --notifyadmin --file --help' -- "$cur" ) )
+    else
+        _xfunc list_lists _mailman_lists
+    fi
+
+} &&
+complete -F _sync_members sync_members
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

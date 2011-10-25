@@ -8,8 +8,6 @@
 # ask the driver ("g++") for the name of the compiler ("cc1"), and parse the
 # --help output of the compiler.
 
-have gcc || return
-
 _gcc()
 {
     local cur prev words cword
@@ -35,7 +33,8 @@ _gcc()
     esac
 
     if [[ "$cur" == -* ]]; then
-        cc=$( $1 -print-prog-name=$backend )
+        cc=$( $1 -print-prog-name=$backend 2>/dev/null )
+        [[ $cc ]] || return
         # sink stderr:
         # for C/C++/ObjectiveC it's useless
         # for FORTRAN/Java it's an error
@@ -49,8 +48,8 @@ _gcc()
 } &&
 complete -F _gcc gcc g++ c++ g77 gcj gpc
 
-[[ $USERLAND == GNU || $UNAME == Cygwin ]] && \
-[ -n "${have:-}" ] && complete -F _gcc cc
+[[ $OSTYPE == *cygwin* ]] || _userland GNU && _have gcc && \
+    complete -F _gcc cc || :
 
 # Local variables:
 # mode: shell-script

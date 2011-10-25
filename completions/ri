@@ -1,7 +1,5 @@
 # ri completion for Ruby documentation by Ian Macdonald <ian@caliban.org>
 
-have ri || return
-
 ri_get_methods()
 {
     local regex
@@ -19,7 +17,7 @@ ri_get_methods()
             "$( ri ${classes[@]} 2>/dev/null | ruby -ane \
             'if /^'"$regex"' methods:/.../^------------------|^$/ and \
             /^ / then print $_.split(/, |,$/).grep(/^[^\[]*$/).join("\n"); \
-            end' | sort -u )" )
+            end' 2>/dev/null | sort -u )" )
     else
         # older versions of ri didn't distinguish between class/module and
         # instance methods
@@ -63,8 +61,8 @@ _ri()
 
     if [ "$ri_version" = integrated ]; then
         # integrated ri from Ruby 1.9
-        classes=( $( ri -c | ruby -ne 'if /^\s*$/..$stdin.eof then \
-        if /, [A-Z]+/ then print; end; end' ) )
+        classes=( $( ri -c 2>/dev/null | ruby -ne 'if /^\s*$/..$stdin.eof then \
+        if /, [A-Z]+/ then print; end; end' 2>/dev/null ) )
     elif [ "$ri_version" = "ri 1.8a" ]; then
         classes=( $( ruby -W0 $ri_path | \
             ruby -ne 'if /^'"'"'ri'"'"' has/..$stdin.eof then \

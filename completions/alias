@@ -1,0 +1,26 @@
+# bash alias completion
+
+_alias()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case ${words[@]} in
+        *[^=])
+            COMPREPLY=( $( compgen -A alias -- "$cur" ) )
+            ;;
+        *=)
+            COMPREPLY=( "$( alias ${cur%=} 2>/dev/null | sed \
+                -e 's|^alias '"$cur"'\(.*\)$|\1|' )" )
+            ;;
+    esac
+} &&
+complete -F _alias -o nospace alias
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

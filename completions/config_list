@@ -1,0 +1,33 @@
+# mailman config_list completion
+
+_config_list()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -i|-o|--inputfile|--outputfile)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--inputfile --outputfile \
+            --checkonly --verbose --help' -- "$cur" ) )
+    else
+        _xfunc list_lists _mailman_lists
+    fi
+
+} &&
+complete -F _config_list config_list
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

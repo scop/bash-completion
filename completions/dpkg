@@ -1,6 +1,6 @@
 # This function is required by _dpkg() and _dpkg-reconfigure()
-have dpkg && {
-have grep-status && {
+
+_have grep-status && {
 _comp_dpkg_installed_packages()
 {
     grep-status -P -e "^$1" -a -FStatus 'install ok installed' -n -s Package
@@ -66,11 +66,9 @@ _dpkg()
     [[ $COMPREPLY == *= ]] && compopt -o nospace
 } &&
 complete -F _dpkg dpkg dpkg-deb
-}
 
 # Debian GNU dpkg-reconfigure(8) completion
 #
-have dpkg-reconfigure &&
 _dpkg_reconfigure()
 {
     local cur prev words cword
@@ -100,113 +98,6 @@ _dpkg_reconfigure()
     fi
 } &&
 complete -F _dpkg_reconfigure -o default dpkg-reconfigure
-
-# Debian dpkg-source completion
-#
-have dpkg-source &&
-_dpkg_source()
-{
-    local cur prev words cword
-    _init_completion || return
-
-    local options work i action packopts unpackopts fields
-
-    packopts="-c -l -F -V -T -D -U -W -E -sa -i -I -sk -sr -ss -sA -sK -sP \
-              -sU -sR"
-    unpackopts="-sp -sn -su"
-    options="-x -b $packopts $unpackopts"
-    fields="Format Source Version Binary Maintainer Uploader Architecture \
-            Standards-Version Build-Depends Files"
-
-    action="options"
-    for (( i=0; i < ${#words[@]}-1; i++ )); do
-        if [[ ${words[$i]} == "-x" ]]; then
-            action=unpack
-        elif [[ ${words[$i]} == "-b" ]]; then
-            action=pack
-        elif [[ ${words[$i]} == "-h" ]]; then
-            action=help
-        fi
-    done
-
-    case $action in
-        unpack)
-            case $prev in
-                -x)
-                    _filedir -d
-                    _filedir 'dsc'
-                    return 0
-                    ;;
-                *)
-                    COMPREPLY=( $( compgen -W "$unpackopts" -- "$cur" ) )
-                    _filedir -d
-                    _filedir
-                    return 0
-                    ;;
-            esac
-            return 0
-            ;;
-        pack)
-            case $prev in
-                -b)
-                    _filedir -d
-                    return 0
-                    ;;
-                -c|-l|-T|-i|-I)
-                    # -c: get controlfile
-                    # -l: get per-version info from this file
-                    # -T: read variables here, not debian/substvars
-                    # -i: <regexp> filter out files to ignore diffs of.
-                    # -I: filter out files when building tarballs.
-                    # return directory names and file names
-                    _filedir -d
-                    _filedir
-                    return 0
-                    ;;
-                -F)
-                    # -F: force change log format
-                    COMPREPLY=( $( command ls /usr/lib/dpkg/parsechangelog ) )
-                    return 0
-                    ;;
-                -V|-D)
-                    # -V: set a substitution variable
-                    # we don't know anything about possible variables or values
-                    # so we don't try to suggest any completion.
-                    COMPREPLY=()
-                    return 0
-                    ;;
-                -D)
-                    # -D: override or add a .dsc field and value
-                    # if $cur doesn't contain a = yet, suggest variable names
-                    if [[ "$cur" == *=* ]]; then
-                        # $cur contains a "="
-                        COMPREPLY=()
-                        return 0
-                    else
-                        COMPREPLY=( $( compgen -W "$fields" -- "$cur" ) )
-                        return 0
-                    fi
-                    ;;
-                -U)
-                    # -U: remove a field
-                    # Suggest possible fieldnames
-                    COMPREPLY=( $( compgen -W "$fields" -- "$cur" ) )
-                    return 0
-                    ;;
-                *)
-                    COMPREPLY=( $( compgen -W "$packopts $unpackopts" -- "$cur" ) )
-                    return 0
-                    ;;
-            esac
-            return 0
-            ;;
-        *)
-            COMPREPLY=( $( compgen -W "$options" -- "$cur" ) )
-            return 0
-            ;;
-    esac
-} &&
-complete -F _dpkg_source dpkg-source
 
 # Local variables:
 # mode: shell-script

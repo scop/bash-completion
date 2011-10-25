@@ -1,0 +1,42 @@
+# mailman list_members completion
+
+_list_members()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -o|--output)
+            _filedir
+            return 0
+            ;;
+        -d|--digest)
+            COMPREPLY=( $( compgen -W 'mime plain' -- "$cur") )
+            return 0
+            ;;
+        -n|--nomail)
+            COMPREPLY=( $( compgen -W 'byadmin byuser bybounce unknown' \
+                -- "$cur") )
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--output --regular --digest \
+            --nomail --fullnames --preserve --help' -- "$cur" ) )
+    else
+        _xfunc list_lists _mailman_lists
+    fi
+
+} &&
+complete -F _list_members list_members
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

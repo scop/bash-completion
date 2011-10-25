@@ -1,0 +1,35 @@
+# mktemp(1) completion
+
+_mktemp()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case "$prev" in
+        --help|--version|--suffix)
+            return 0
+            ;;
+        --tmpdir|-p)
+            _filedir -d
+            return 0
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* ]]; then
+        local opts=$( _parse_help "$1" )
+        [[ $opts ]] || opts="-d -u -q -p -t" # non-GNU fallback
+        COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+    fi
+} &&
+complete -F _mktemp mktemp
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

@@ -1,0 +1,34 @@
+# dumpe2fs(8) completion
+
+_dumpe2fs()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -o|-V)
+            return 0
+            ;;
+        -i)
+            _filedir
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+        return 0
+    fi
+
+    cur=${cur:=/dev/}
+    _filedir
+} &&
+complete -F _dumpe2fs dumpe2fs
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh

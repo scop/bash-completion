@@ -1,0 +1,38 @@
+# bash completion for FreeBSD portinstall
+
+_portinstall()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    local portsdir indexfile
+    local -a COMPREPLY2
+
+    portsdir=${PORTSDIR:-/usr/ports}/
+
+    # First try INDEX-5
+    indexfile=$portsdir/INDEX-5
+    # Then INDEX if INDEX-5 does not exist or system is not FreeBSD 5.x
+    [[ "${OSTYPE%.*}" == freebsd5 && -f $indexfile ]] ||
+        indexfile=$portsdir/INDEX
+
+    [[ "$prev" == -l || "$prev" == -L || "$prev" == -o ]] && return 0
+
+    COMPREPLY=( $( command grep -E "^$cur" 2>/dev/null < $indexfile | \
+        cut -d'|' -f1 ) )
+    COMPREPLY2=( $( command grep -E "^[^\|]+\|$portsdir$cur" 2>/dev/null \
+        < $indexfile | cut -d'|' -f2 ) )
+    COMPREPLY2=( ${COMPREPLY2[@]#$portsdir} )
+    COMPREPLY+=( "${COMPREPLY2[@]}" )
+
+    return 0
+} &&
+complete -F _portinstall -o dirnames portinstall
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
