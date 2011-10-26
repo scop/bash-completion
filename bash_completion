@@ -1593,13 +1593,28 @@ _command_offset()
         compopt -o filenames
         COMPREPLY=( $( compgen -d -c -- "$cur" ) )
     else
-        local cspec cmd=${COMP_WORDS[0]} compcmd=${COMP_WORDS[0]}
-        # Do we have full path completion for $cmd?
-        if ! cspec=$( complete -p $cmd 2>/dev/null ) && [[ $cmd == */* ]]; then
-            # Nope, what about the basename?
-            compcmd=${cmd##*/}
-            cspec=$( complete -p $compcmd 2>/dev/null )
+        local cmd=${COMP_WORDS[0]} compcmd=${COMP_WORDS[0]}
+        local cspec=$( complete -p $cmd 2>/dev/null )
+        if [[ ! $cspec ]]; then
+            if [[ $cmd == */* ]]; then
+                # Load completion for full path
+                _completion_loader $cmd
+                if [[ $? -eq 124 ]]; then
+                    # Success, but we may now have the full path completion...
+                    cspec=$( complete -p $cmd 2>/dev/null )
+                    if [[ ! $cspec ]]; then
+                        # ...or just the basename one.
+                        compcmd=${cmd##*/}
+                        cspec=$( complete -p $compcmd 2>/dev/null )
+                    fi
+                fi
+            else
+                # Simple, non-full path case.
+                _completion_loader $cmd
+                [[ $? -eq 124 ]] && cspec=$( complete -p $cmd 2>/dev/null )
+            fi
         fi
+
         if [[ -n $cspec ]]; then
             if [ "${cspec#* -F }" != "$cspec" ]; then
                 # complete -F <function>
