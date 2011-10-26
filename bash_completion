@@ -1559,17 +1559,13 @@ _command()
 #
 _command_offset()
 {
-    local cur func cline cspec noglob cmd compcmd i char_offset word_offset \
-        _COMMAND_FUNC _COMMAND_FUNC_ARGS
-
-    word_offset=$1
-
     # rewrite current completion context before invoking
     # actual command completion
 
     # find new first word position, then
     # rewrite COMP_LINE and adjust COMP_POINT
-    local first_word=${COMP_WORDS[$word_offset]}
+    local word_offset=$1
+    local first_word=${COMP_WORDS[$word_offset]} char_offset i
     for (( i=0; i <= ${#COMP_LINE}; i++ )); do
         if [[ "${COMP_LINE:$i:${#first_word}}" == "$first_word" ]]; then
             char_offset=$i
@@ -1589,6 +1585,7 @@ _command_offset()
     COMP_CWORD=$(( $COMP_CWORD - $word_offset ))
 
     COMPREPLY=()
+    local cur
     _get_comp_words_by_ref cur
 
     if [[ $COMP_CWORD -eq 0 ]]; then
@@ -1596,7 +1593,7 @@ _command_offset()
         compopt -o filenames
         COMPREPLY=( $( compgen -d -c -- "$cur" ) )
     else
-        cmd=${COMP_WORDS[0]} compcmd=${COMP_WORDS[0]}
+        local cspec cmd=${COMP_WORDS[0]} compcmd=${COMP_WORDS[0]}
         # Do we have full path completion for $cmd?
         if ! cspec=$( complete -p $cmd 2>/dev/null ) && [[ $cmd == */* ]]; then
             # Nope, what about the basename?
@@ -1608,7 +1605,7 @@ _command_offset()
                 # complete -F <function>
 
                 # get function name
-                func=${cspec#*-F }
+                local func=${cspec#*-F }
                 func=${func%% *}
 
                 if [[ ${#COMP_WORDS[@]} -ge 2 ]]; then
