@@ -777,20 +777,12 @@ _parse_usage()
     done
 }
 
-# This function completes on signal names
-#
+# This function completes on signal names (minus the SIG prefix)
+# @param $1 prefix
 _signals()
 {
-    local i
-
-    # standard signal completion is rather braindead, so we need
-    # to hack around to get what we want here, which is to
-    # complete on a dash, followed by the signal name minus
-    # the SIG prefix
-    COMPREPLY=( $( compgen -A signal SIG${cur#-} ))
-    for (( i=0; i < ${#COMPREPLY[@]}; i++ )); do
-        COMPREPLY[i]=-${COMPREPLY[i]#SIG}
-    done
+    local -a sigs=( $( compgen -P "$1" -A signal "SIG${cur#$1}" ) )
+    COMPREPLY+=( "${sigs[@]/#${1}SIG/${1}}" )
 }
 
 # This function completes on known mac addresses

@@ -2,11 +2,27 @@
 
 _killall()
 {
-    local cur prev words cword
-    _init_completion || return
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -Z|--context|-o|--older-than|-y|--younger-than|-V|--version)
+            return
+            ;;
+        -s|--signal)
+            [[ $1 == *killall ]] && _signals
+            return
+            ;;
+        -u|--user)
+            _allowed_users
+            return
+            ;;
+    esac
+
+    $split && return
 
     if [[ $cword -eq 1 && "$cur" == -* ]]; then
-        _signals
+        _signals -
     else
         _pnames
     fi
