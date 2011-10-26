@@ -580,12 +580,13 @@ proc assert_no_output {{cmd} {test ""} {prompt /@}} {
 
 
 # Source/run file with additional tests if completion for the specified command
-# is installed in bash.
+# is installed in bash, and the command is available.
 # @param string $command  Command to check completion availability for.
 # @param string $file  (optional) File to source/run.  Default is
 #                      "lib/completions/$cmd.exp".
 proc assert_source_completions {command {file ""}} {
-    if {[is_bash_completion_installed_for $command]} {
+    if {[assert_bash_type $command]
+        && [is_bash_completion_installed_for $command]} {
         if {[string length $file] == 0} {
             set file "$::srcdir/lib/completions/$command.exp"
         }
