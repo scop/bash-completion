@@ -785,7 +785,7 @@ symlinks:
 	done
 .PHONY: symlinks
 
-all-local: targetdir = $(srcdir)
+all-local: targetdir = .
 all-local: symlinks
 
 install-data-local: targetdir = $(DESTDIR)$(bashcompdir)
