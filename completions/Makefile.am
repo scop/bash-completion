@@ -1,5 +1,6 @@
 bashcompdir = $(pkgdatadir)/completions
-bashcomp_DATA = abook \
+bashcomp_DATA = a2x \
+		abook \
 		aclocal \
 		add_members \
 		alias \
@@ -327,7 +328,6 @@ EXTRA_DIST = $(bashcomp_DATA) \
 	     _mock _modules _subversion _yum _yum-utils
 
 CLEANFILES = \
-	a2x \
 	aclocal-1.11 \
 	alpine \
 	alternatives \
@@ -514,7 +514,7 @@ symlinks:
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) ant $(targetdir)/$$file ; \
 	done
-	for file in a2x asciidoc.py ; do \
+	for file in asciidoc.py ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) asciidoc $(targetdir)/$$file ; \
 	done
