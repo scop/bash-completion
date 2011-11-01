@@ -1,4 +1,4 @@
-# invoke-rc.d(8) completion
+# invoke-rc.d(8) completion                                -*- shell-script -*-
 #
 # Copyright (C) 2004 Servilio Afre Puentes <servilio@gmail.com>
 
@@ -36,10 +36,4 @@ _invoke_rc_d()
 } &&
 complete -F _invoke_rc_d invoke-rc.d
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
 # ex: ts=4 sw=4 et filetype=sh

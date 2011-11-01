@@ -1,4 +1,4 @@
-# btdownloadheadless(1) completion
+# btdownloadheadless(1) completion                         -*- shell-script -*-
 
 _btdownload()
 {
@@ -29,10 +29,4 @@ _btdownload()
 complete -F _btdownload btdownloadheadless.py btdownloadcurses.py \
     btdownloadgui.py
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
 # ex: ts=4 sw=4 et filetype=sh

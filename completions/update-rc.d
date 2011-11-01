@@ -1,4 +1,4 @@
-# update-rc.d(8) completion
+# update-rc.d(8) completion                                -*- shell-script -*-
 #
 # Copyright (C) 2004 Servilio Afre Puentes <servilio@gmail.com>
 
@@ -62,10 +62,4 @@ _update_rc_d()
 } &&
 complete -F _update_rc_d update-rc.d
 
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
 # ex: ts=4 sw=4 et filetype=sh
