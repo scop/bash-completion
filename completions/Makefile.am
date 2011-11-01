@@ -359,6 +359,7 @@ CLEANFILES = \
 	dfutool \
 	display \
 	dpkg-deb \
+	dpkg-query \
 	dpkg-reconfigure \
 	dropdb \
 	edquota \
@@ -562,7 +563,7 @@ symlinks:
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) dict $(targetdir)/$$file ; \
 	done
-	for file in dpkg-deb dpkg-reconfigure ; do \
+	for file in dpkg-deb dpkg-query dpkg-reconfigure ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) dpkg $(targetdir)/$$file ; \
 	done
