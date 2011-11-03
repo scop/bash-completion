@@ -1,65 +1,174 @@
-bash-completion (2.x)
+bash-completion (1.90)
 
-  [ Ville Skyttä ]
-  * Add pxz and reptyr completions.
-  * Improve aspell, chsh, gendiff, pack200, rsync, screen, smartctl, tar,
-    unpack200, xz, xzdec, and generic parsed and long option completions.
-  * Try harder to find the correct perl executable to run the perl helper with.
-  * Drop rpm query support for rpm < 4.1.
-  * Split rpm and rpmbuild completions and improve them both.
-  * Add $_backup_glob for matching various backup files.
-  * Load and general speedups.
-  * Install only full path (no basename) completions for /etc/init.d/*.
-  * Install full path /etc/rc.d/init.d/* completions.
-  * Try both full path and basename completions for sudo etc (Alioth: #313065).
-  * Don't install completions for init.d backup files.
-  * Support tildes when recursively sourcing muttrc files (Debian: #615134).
-  * Fix local variable leaks from various completions.
-  * Add _init_completion() for common completion initialization and generic
-    redirection handling, use it in many completions.
-  * Replace actual sysconfdir in bash_completion on install (Alioth: #313081).
-  * Activate killall completion on Darwin (Alioth: #312350).
-  * Expand tilde in mutt query command (Alioth: #312759).
-
-  [ Guillaume Rousse ]
-  * added puppet completion, using work from Mathieu Parent (sathieudebian.org)
+  * bash-completion 2 preview: dynamic loading of completions.
 
   [ David Paleino ]
+  * If _filedir 'ext' returns nothing, just fallback to generic file
+    completion. It is optional, and off by default. Patch by Clint Byrum
+    (Debian: #619014, LP: #533985)
+  * Fix __get_cword_at_cursor_by_ref: check for $index when completing with a
+    cword+1 argument already present (Debian: #622383)
   * Layout change: everything is now in /usr/share/bash-completion/, rather
     than in /etc/.
-  * If _filedir 'ext' returns nothing, just fallback to generic
-    file completion. Patch by Clint Byrum (Debian: #619014, LP: #533985)
-  * Fix broken _allowed_groups usage (shadow and coreutils)
-  * Fix __get_cword_at_cursor_by_ref: check for $index when completing
-    with a cword+1 argument already present (Debian: #622383)
-  * Remove --unpack-level from lintian options (Debian: #623680)
-  * Complete filenames after commands in rrdtool (Debian: #577933)
-  * ant: handle "extension-point" the same as "target" tag (Petr Kozelka
-    Alioth: #313105)
+  * Get rid of BASH_COMPLETION_DIR, BASH_COMPLETION_HELPERS_DIR, BASH_COMPLETION
+  * Fix autotools to use pkgdatadir instead of redefining datadir, get rid of
+    helpersdir.
+  * Implemented a blacklist for unwanted third-parties completions
+  * New completions:
+    - epdfview, lpr and lpq (Raphaël Droz), mysql (Raphaël Droz)
+  * Improved completions:
+    - ant: handle "extension-point" the same as "target" tag (Petr Kozelka,
+      Alioth: #313105)
+    - apt: add 'download' to subcommands (Debian: #625234, Ubuntu: #720541)
+    - aptitude: add 'versions' command (Debian: #604393)
+    - dpkg-query: use the 'dpkg' completion (Debian: #642526)
+    - lintian: remove --unpack-level (Debian: #623680)
+    - {shadow,coreutils}: fix broken _allowed_groups usage
+    - rrdtool: complete filenames after commands (Debian: #577933)
+    - sitecopy: fixed a bug with grep and brackets: use sitecopy -v to fetch
+      sites (Raphaël Droz).
 
   [ Freddy Vulto ]
-  * Improve __reassemble_comp_words_by_ref() to not create words of
-    characters-to-exclude (Alioth: #313057)
-  * Fix _get_comp_words_by_ref() with cursor at position 0. Patch by Igor
-    Murzov (Debian: #559953).
-  * Fix _get_comp_words_by_ref() with spaces before cursor (Alioth #313102).
+  * Improve __reassemble_comp_words_by_ref() (Alioth #313057)
+  * Testsuite:
+    - add -unsorted option to _get_hosts()
 
-  [ Mattias Ulbrich ]
-  * Make java class completion suggest packages.
-  * Fix completion when classpath contains multiple entries.
+  [ Guillaume Rousse ]
+  * Use $() for subshell, instead of backquotes
+  * Use simple quotes for constant strings
+  * Drop -o filenames, as suggested by Ville
+  * New completions: puppet
 
-  [ Matej Cepl ]
-  * Complete oo{writer,impress,calc,draw} on LibreOffice FlatXML extensions
-    (RedHat: #692548).
+  [ Igor Murzov ]
+  * Abort completion file loading earlier if required commands are not
+    available.
+  * docs: Improve tester's manual
+  * Make completions that use _command also work with file names
+  * _command_offset: Restore compopts used by called command.
+  * New completions:
+    - pkgtool, makepkg, rmp2tgz, slapt-get, slapt-src, slackpkg, kcov, feh,
+      xgamma, fbi, fbgs
+  * Improved completions:
+    - file: ddd few missing --exclude arguments completions
+    - host, nslookup: Remove completions for bind utils from bash_completion.
+    - {install,upgrade,explode}pkg: use -o plusdirs instead of -o dirnames
+    - makepkg: should complete filenames
+    - removepkg, upgradepkg, installpkg: add option completion
+    - xrandr: Add more option completions.
+    - overall clean up of different slackware-specific completions
+  * Testsuite:
+    - add basic tests for pkgtools, rpm2tgz, slapt, sbopkg, slackpkg
+    - fix broken tests for finger and xhost
+    - remove unused -expect-cmd-full option from assert_complete*
 
-  [ Scott Bronson ]
-  * Override MANPAGER when generating perldoc completions (RedHat: #689180,
-    LP: #738408).
+  [ Sergey V ]
+  * New completions: sbopkg
 
-  [ Ted Pavlic ]
-  * Add *.dbj to (la)tex filename completions (RedHat: #678122).
+  [ Ville Skyttä ]
+  * Load completions in separate files dynamically, get rid of have()
+  * Drop unnecessary $USERLAND checks
+  * Try /usr/sbin before /sbin in have()
+  * Try both full path and basename completions for sudo etc (Alioth: #313065)
+  * Add _init_completion() for common completion initialization and generic
+    redirection handling
+  * Replace actual sysconfdir in bash_completion on install (Alioth: #313081)
+  * Drop support for bash < 4.1
+  * Drop no longer needed _compopt_o_filenames()
+  * Drop no longer needed "type compopt" checks
+  * docs: Update "simply sourcing" instructions to match new layout, check
+    $PS1.
+  * Get rid of bash_completion self-parsing from _filedir_xspec
+    (RedHat: #479936).
+  * Provide profile.d hook for per user disabling of bash_completion
+    (Debian: #593835)
+  * New completions:
+    - a2x, arping, asciidoc, base64, cal, chrpath, cppcheck, curl, dmesg,
+      dot, file, gnome-mplayer, gprof, hddtemp, host, htpasswd, idn, ionice,
+      jps, lbunzip2, lbzip2, lbzcat, prelink, protoc, pwdx, pwgen, reptyr,
+      sum (RedHat: #717341), watch
+    - phing: reuse ant completion (Elan Ruusamäe, Alioth: #312910)
+    - pinfo: reuse info completion
+  * Improved completions:
+    - bluez, e2fsprogs, grpck, java (Mattias Ulbrich), passwd, pwck, route,
+      rsync, smartctl
+    - ant: improve -lib, -find/-s, and -D argument completions; rewrite build
+      target parsing in plain bash, add build file test case
+    - aspell: add --add-filter|--rem-filter completions; get --mode completions
+      from 'aspell modes' output
+    - bzip2, gzip, python, sysbench: quote command argument to _parse_help()
+    - chsh: use _allowed_users instead of plain compgen -u
+    - cksfv: add -g argument completion
+    - cpan2dist: don't hang if no package list files exist
+    - crontab: use /sys/fs/selinux and /selinux instead of /etc/selinux to
+      find out if SELinux is around
+    - cvs: (diff) parse options from cvs diff instead of plain diff; drop -o
+      default to fix CVS root completions; (commit) complete on entries
+      instead of default if COMP_CVS_REMOTE is not set; improve CVS
+      controlled file completions; add CVS controlled file completions for
+      admin and update; list "primary" command names first in mode switch;
+      recognize some additional commands and synonyms; add editors/watchers
+      completion; sort mode completions alphabetically
+    - freeciv: complete freeciv-* in addition to civclient/civserver
+    - gdb: improve filename completion
+    - gendiff: do file completion after output redirection
+    - getent: add gshadow to known databases; allow multiple completions from
+      same db, add option completion
+    - info: add option completion support
+    - ipsec (Tobias Brunner): drop uname check, add strongSwan specific
+      completion with fallback, complete connection names for 'up', 'down' and
+      other commands
+    - jar: complete on *.sar (JBoss service archive)
+    - java, javac: add -X* completions
+    - javadoc: implement -linkoffline two argument completion
+    - killall: activate completion on Darwin (Alioth: #312350)
+    - (la)tex (Ted Pavlic): add *.dbj to filename completions (RedHat: #678122)
+    - man: add option parsing and completion
+    - modplug*: add more extensions for files supported by libmodplug
+    - mutt: support tildes when recursively sourcing muttrc files
+      (Debian: #615134); expand tilde in mutt query command (Alioth: #312759)
+    - ntpdate: add some option argument (non)completions
+    - oo{writer,impress,calc,draw} (Matej Cepl): complete  on LibreOffice
+      FlatXML extensions (RedHat: #692548)
+    - perldoc (Scott Bronson): override MANPAGER when generating perldoc
+      completions (RedHat: #689180); don't parse man page when we know it'll
+      produce no completions; use perldoc itself instead of man
+    - pgrep: add option and option argument completions
+    - rpm: make rpm --queryformat use more consistent; drop rpm query support
+      for rpm < 4.1
+    - rpmbuild: add --buildpolicy completion
+    - rpmcheck: drop reference to undefined $files variable (Alioth: #313270)
+    - screen: add _terms() and -T completion; add commands completion
+      (Alioth: #312164, RedHat: #547852)
+    - _services: avoid bogus completions when init or xinetd dirs exist but are
+      empty; include systemd services
+    - smartctl: fix short alternative for --tolerance
+    - ssh, scp, sftp, ssh-copy-id: add some option argument (non)completions
+    - strace: don't append space for -e *= completions; don't try to extract
+      syscall names if they're not going to be used; rewrite arch specific
+      syscall extraction in plain bash
+    - svn*: don't suggest short options
+    - tar: fix completion of files inside *.tar.bz2 archives when [Ijy] is not
+      given; added option completions; improve tar *[cr]*f completions
+      (Debian: #618734)
+    - unzip: complete on *.sar (JBoss service archive)
+    - xmllint, xmlwf: complete on *.tld (tag library descriptor)
+    - xmlwf: add -v non-completion
+    - xmms: add some option argument completions
+    - xz: apply xz completion to pxz too; non-complete
+      --memlimit{,-compress,-decompress}
+  * Testsuite:
+    - add basic tests for gendiff, mdadm, puppet, xzdec, mii-diag, mii-tool,
+      grpck, passwd, pwck, samba, rdesktop, fusermount, tcpdump, l2ping,
+      ssh-copy-id, postfix, qemu, ldap*, medusa, mdtool, monodevelop,
+      msynctool, cfagent, lpr, lpq, mysql, nslookup, compare, conjure,
+      import, stream
+    - fix tests for ri
+    - fix get_hosts option docs.
+    - add test case for Debian: #622383.
+    - add chown foo: and :foo test cases, should complete files
+      (RedHat: #710714)
 
- -- David Paleino <d.paleino@gmail.com>  Sun, 06 Feb 2011 21:46:37 +0100
+ -- David Paleino <d.paleino@gmail.com>  Thu, 03 Nov 2011 09:53:55 +0000
 
 bash-completion (1.3)
 
