@@ -1414,8 +1414,10 @@ _known_hosts_real()
         if [ ${#kh[@]} -gt 0 ]; then
             # FS needs to look for a comma separated list
             COMPREPLY+=( $( awk 'BEGIN {FS=","}
-            /^\s*[^|\#]/ {for (i=1; i<=2; ++i) { \
-            sub(" .*$", "", $i); \
+            /^\s*[^|\#]/ {
+            sub("^@[^ ]+ +", ""); \
+            sub(" .*$", ""); \
+            for (i=1; i<=2; ++i) { \
             sub("^\\[", "", $i); sub("\\](:[0-9]+)?$", "", $i); \
             if ($i ~ /'"$awkcur"'/) {print $i} \
             }}' "${kh[@]}" 2>/dev/null ) )
