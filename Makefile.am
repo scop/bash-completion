@@ -20,4 +20,5 @@ install-data-hook:
 	tmpfile=`mktemp $${TMPDIR:-/tmp}/bash_completion.XXXXXX` && \
 	sed -e 's|=/etc/bash_completion\.d|=$(sysconfdir)/bash_completion.d|' \
 		$(DESTDIR)$(pkgdatadir)/bash_completion > $$tmpfile && \
-	mv $$tmpfile $(DESTDIR)$(pkgdatadir)/bash_completion
+	cat $$tmpfile > $(DESTDIR)$(pkgdatadir)/bash_completion && \
+	rm $$tmpfile
