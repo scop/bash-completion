@@ -2,6 +2,9 @@ SUBDIRS = completions helpers test
 
 pkgdata_DATA = bash_completion
 
+# Empty, but here just to get the compat dir created with install
+compat_DATA =
+
 profiledir = $(sysconfdir)/profile.d
 profile_DATA = bash_completion.sh
 
