@@ -18,7 +18,7 @@ EXTRA_DIST = CHANGES $(sysconf_DATA) $(pkgdata_DATA) bash_completion.sh.in \
 
 install-data-hook:
 	tmpfile=`mktemp $${TMPDIR:-/tmp}/bash_completion.XXXXXX` && \
-	sed -e 's|=/etc/bash_completion\.d|=$(sysconfdir)/bash_completion.d|' \
+	sed -e 's|=/etc/bash_completion\.d|=$(compatdir)|' \
 		$(DESTDIR)$(pkgdatadir)/bash_completion > $$tmpfile && \
 	cat $$tmpfile > $(DESTDIR)$(pkgdatadir)/bash_completion && \
 	rm $$tmpfile
