@@ -214,6 +214,7 @@ bashcomp_DATA = a2x \
 		pkg-config \
 		pkg_delete \
 		pkgtool \
+		plague-client \
 		pm-hibernate \
 		pm-is-supported \
 		pm-powersave \
