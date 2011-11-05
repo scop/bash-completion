@@ -58,6 +58,7 @@ bashcomp_DATA = a2x \
 		cvs \
 		cvsps \
 		dd \
+		desktop-file-validate \
 		dhclient \
 		dict \
 		dmesg \
