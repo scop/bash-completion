@@ -1043,9 +1043,12 @@ _backup_glob='@(#*#|*@(~|.@(bak|orig|rej|swp|dpkg*|rpm@(orig|new|save))))'
 #
 _services()
 {
-    local sysvdir famdir
-    [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
-    famdir=/etc/xinetd.d
+    local sysvdir=/etc/init.d famdir=/etc/xinetd.d
+    if [[ -d /etc/rc.d/init.d ]]; then
+        sysvdir=/etc/rc.d/init.d
+    elif [[ -f /etc/slackware-version ]]; then
+        sysvdir=/etc/rc.d
+    fi
 
     local restore_nullglob=$(shopt -p nullglob); shopt -s nullglob
 
@@ -1843,7 +1846,8 @@ _completion_loader()
     [[ $BASH_SOURCE == */* ]] && compdir="${BASH_SOURCE%/*}/completions"
 
     # Special case for init.d scripts.
-    if [[ $1 == /etc?(/rc.d)/init.d/* ]]; then
+    if [[ $1 == /etc?(/rc.d)/init.d/* || \
+        ( $1 == /etc/rc.d/* && -f /etc/slackware-version ) ]]; then
         . "$compdir/service" &>/dev/null && return 124 || return 1
     fi
 

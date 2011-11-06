@@ -15,9 +15,12 @@ _service()
     if [[ $cword -eq 1 && $prev == ?(*/)service ]]; then
         _services
     else
-        local sysvdir
-        [ -d /etc/rc.d/init.d ] && \
-            sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
+        local sysvdir=/etc/init.d
+        if [[ -d /etc/rc.d/init.d ]]; then
+            sysvdir=/etc/rc.d/init.d
+        elif [[ -f /etc/slackware-version ]]; then
+            sysvdir=/etc/rc.d
+        fi
         COMPREPLY=( $( compgen -W '`sed -e "y/|/ /" \
             -ne "s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p" \
             $sysvdir/${prev##*/} 2>/dev/null` start stop' -- "$cur" ) )
@@ -26,9 +29,14 @@ _service()
     return 0
 } &&
 complete -F _service service
-for svc in /etc/init.d/!($_backup_glob) /etc/rc.d/init.d/!($_backup_glob); do
-    [ -x "$svc" ] && complete -F _service $svc
+
+svcdirs=( /etc/init.d /etc/rc.d/init.d )
+[[ -f /etc/slackware-version ]] && svcdirs=( /etc/rc.d )
+for svcdir in ${svcdirs[@]}; do
+    for svc in $svcdir/!($_backup_glob); do
+        [ -x "$svc" ] && complete -F _service $svc
+    done
 done
-unset svc
+unset svc svcdir svcdirs
 
 # ex: ts=4 sw=4 et filetype=sh
