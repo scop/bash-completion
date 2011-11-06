@@ -1039,26 +1039,12 @@ _gids()
 #
 _backup_glob='@(#*#|*@(~|.@(bak|orig|rej|swp|dpkg*|rpm@(orig|new|save))))'
 
-# This function sets correct SysV init directory
-#
-_sysvdir()
-{
-    if [ -f /etc/slackware-version ]; then
-        # Slackware uses /etc/rc.d
-        echo /etc/rc.d
-    elif [ -d /etc/rc.d/init.d ]; then
-        echo /etc/rc.d/init.d
-    else
-        echo /etc/init.d
-    fi
-}
-
 # This function completes on services
 #
 _services()
 {
     local sysvdir famdir
-    sysvdir=$( _sysvdir )
+    [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
     famdir=/etc/xinetd.d
 
     local restore_nullglob=$(shopt -p nullglob); shopt -s nullglob
@@ -1857,7 +1843,7 @@ _completion_loader()
     [[ $BASH_SOURCE == */* ]] && compdir="${BASH_SOURCE%/*}/completions"
 
     # Special case for init.d scripts.
-    if [[ "$1" == $( _sysvdir )/* ]]; then
+    if [[ $1 == /etc?(/rc.d)/init.d/* ]]; then
         . "$compdir/service" &>/dev/null && return 124 || return 1
     fi
 
