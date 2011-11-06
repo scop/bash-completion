@@ -1,9 +1,33 @@
 # service(8) and /etc/init.d/* completion                  -*- shell-script -*-
 
+# This function completes on services
+#
+_services()
+{
+    local sysvdir famdir
+    [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
+    famdir=/etc/xinetd.d
+
+    local restore_nullglob=$(shopt -p nullglob); shopt -s nullglob
+
+    COMPREPLY=( $( printf '%s\n' $sysvdir/!($_backup_glob|functions) ) )
+
+    if [ -d $famdir ]; then
+        COMPREPLY+=( $( printf '%s\n' $famdir/!($_backup_glob) ) )
+    fi
+
+    $restore_nullglob
+
+    COMPREPLY+=( $( systemctl list-units --full --all 2>/dev/null | \
+        awk '$1 ~ /\.service$/ { sub("\\.service$", "", $1); print $1 }' ) )
+
+    COMPREPLY=( $( compgen -W '${COMPREPLY[@]#@($sysvdir|$famdir)/}' -- "$cur" ) )
+}
+
 # This completes on a list of all available service scripts for the
 # 'service' command and/or the SysV init.d directory, followed by
 # that script's available commands
-
+#
 _service()
 {
     local cur prev words cword

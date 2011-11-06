@@ -47,6 +47,10 @@ readonly BASH_COMPLETION_COMPAT_DIR
 #
 _blacklist_glob='@(acroread.sh)'
 
+# Glob for matching various backup files.
+#
+_backup_glob='@(#*#|*@(~|.@(bak|orig|rej|swp|dpkg*|rpm@(orig|new|save))))'
+
 # Turn on extended globbing and programmable completion
 shopt -s extglob progcomp
 
@@ -1033,34 +1037,6 @@ _gids()
         # make do with /etc/group
         COMPREPLY=( $( compgen -W '$( cut -d: -f3 /etc/group )' -- "$cur" ) )
     fi
-}
-
-# Glob for matching various backup files.
-#
-_backup_glob='@(#*#|*@(~|.@(bak|orig|rej|swp|dpkg*|rpm@(orig|new|save))))'
-
-# This function completes on services
-#
-_services()
-{
-    local sysvdir famdir
-    [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
-    famdir=/etc/xinetd.d
-
-    local restore_nullglob=$(shopt -p nullglob); shopt -s nullglob
-
-    COMPREPLY=( $( printf '%s\n' $sysvdir/!($_backup_glob|functions) ) )
-
-    if [ -d $famdir ]; then
-        COMPREPLY+=( $( printf '%s\n' $famdir/!($_backup_glob) ) )
-    fi
-
-    $restore_nullglob
-
-    COMPREPLY+=( $( systemctl list-units --full --all 2>/dev/null | \
-        awk '$1 ~ /\.service$/ { sub("\\.service$", "", $1); print $1 }' ) )
-
-    COMPREPLY=( $( compgen -W '${COMPREPLY[@]#@($sysvdir|$famdir)/}' -- "$cur" ) )
 }
 
 # This function completes on modules
