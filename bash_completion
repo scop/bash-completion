@@ -1050,28 +1050,34 @@ _gids()
 #
 _backup_glob='@(#*#|*@(~|.@(bak|orig|rej|swp|dpkg*|rpm@(orig|new|save))))'
 
+# Complete on xinetd services
+#
+_xinetd_services()
+{
+    local xinetddir=/etc/xinetd.d
+    if [[ -d $xinetddir ]]; then
+        local restore_nullglob=$(shopt -p nullglob); shopt -s nullglob
+        local -a svcs=( $( printf '%s\n' $xinetddir/!($_backup_glob) ) )
+        $restore_nullglob
+        COMPREPLY+=( $( compgen -W '${svcs[@]#$xinetddir/}' -- "$cur" ) )
+    fi
+}
+
 # This function completes on services
 #
 _services()
 {
-    local sysvdirs famdir=/etc/xinetd.d
+    local sysvdirs
     _sysvdirs
 
     local restore_nullglob=$(shopt -p nullglob); shopt -s nullglob
-
     COMPREPLY=( $( printf '%s\n' ${sysvdirs[0]}/!($_backup_glob|functions) ) )
-
-    if [ -d $famdir ]; then
-        COMPREPLY+=( $( printf '%s\n' $famdir/!($_backup_glob) ) )
-    fi
-
     $restore_nullglob
 
     COMPREPLY+=( $( systemctl list-units --full --all 2>/dev/null | \
         awk '$1 ~ /\.service$/ { sub("\\.service$", "", $1); print $1 }' ) )
 
-    COMPREPLY=( $( compgen -W '${COMPREPLY[@]#@(${sysvdirs[0]}|$famdir)/}' \
-        -- "$cur" ) )
+    COMPREPLY=( $( compgen -W '${COMPREPLY[@]#${sysvdirs[0]}/}' -- "$cur" ) )
 }
 
 # This completes on a list of all available service scripts for the
@@ -1088,6 +1094,7 @@ _service()
 
     if [[ $cword -eq 1 && $prev == ?(*/)service ]]; then
         _services
+        [[ -e /etc/mandrake-release ]] && _xinetd_services
     else
         local sysvdirs
         _sysvdirs
