@@ -256,14 +256,11 @@ __reassemble_comp_words_by_ref()
             # empty and is word made up of just word separator characters to
             # be excluded and is current word not preceded by whitespace in
             # original line?
-            while [[ $i -gt 0 && ${COMP_WORDS[$i]} && 
-                ${COMP_WORDS[$i]//[^$exclude]} == ${COMP_WORDS[$i]}
-            ]]; do
+            while [[ $i -gt 0 && ${COMP_WORDS[$i]} == +([$exclude]) ]]; do
                 # Is word separator not preceded by whitespace in original line
                 # and are we not going to append to word 0 (the command
                 # itself), then append to current word.
-                [[ ${line:0:1} != ' ' && ${line:0:1} != $'\t' ]] &&
-                    (( j >= 2 )) && ((j--))
+                [[ $line != [$' \t']* ]] && (( j >= 2 )) && ((j--))
                 # Append word separator to current or new word
                 ref="$2[$j]"
                 eval $2[$j]=\${!ref}\${COMP_WORDS[i]}
@@ -273,7 +270,7 @@ __reassemble_comp_words_by_ref()
                 line=${line#*"${COMP_WORDS[$i]}"}
                 # Start new word if word separator in original line is
                 # followed by whitespace.
-                [[ ${line:0:1} == ' ' || ${line:0:1} == $'\t' ]] && ((j++))
+                [[ $line == [$' \t']* ]] && ((j++))
                 # Indicate next word if available, else end *both* while and
                 # for loop
                 (( $i < ${#COMP_WORDS[@]} - 1)) && ((i++)) || break 2
@@ -537,7 +534,7 @@ __ltrim_colon_completions()
 # @param $2  Name of variable to return result to
 _quote_readline_by_ref()
 {
-    if [[ ${1:0:1} == "'" ]]; then
+    if [[ $1 == \'* ]]; then
         # Leave out first character
         printf -v $2 %s "${1:1}"
     else
@@ -547,7 +544,7 @@ _quote_readline_by_ref()
     # If result becomes quoted like this: $'string', re-evaluate in order to
     # drop the additional quoting.  See also: http://www.mail-archive.com/
     # bash-completion-devel@lists.alioth.debian.org/msg01942.html
-    [[ ${!2:0:1} == '$' ]] && eval $2=${!2}
+    [[ ${!2} == \$* ]] && eval $2=${!2}
 } # _quote_readline_by_ref()
 
 
@@ -939,9 +936,9 @@ _tilde()
 __expand_tilde_by_ref()
 {
     # Does $1 start with tilde (~)?
-    if [ "${!1:0:1}" = "~" ]; then
+    if [[ ${!1} == ~* ]]; then
         # Does $1 contain slash (/)?
-        if [ "${!1}" != "${!1//\/}" ]; then
+        if [[ ${!1} == */* ]]; then
             # Yes, $1 contains slash;
             # 1: Remove * including and after first slash (/), i.e. "~a/b"
             #    becomes "~a".  Double quotes allow eval.

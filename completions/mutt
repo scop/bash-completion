@@ -22,7 +22,7 @@ _muttrc()
     # Search COMP_WORDS for '-F muttrc' or '-Fmuttrc' argument
     set -- "${words[@]}"
     while [ $# -gt 0 ]; do
-        if [ "${1:0:2}" = -F ]; then
+        if [[ $1 == -F* ]]; then
             if [ ${#1} -gt 2 ]; then
                 muttrc="$(dequote "${1:2}")"
             else
@@ -60,8 +60,7 @@ _muttconffiles()
         newconffiles=( $(sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' $(eval echo $1) ) )
         for file in "${newconffiles[@]}"; do
             __expand_tilde_by_ref file
-            [[ ! -f "$file" || "${sofar/ ${file} / }" != "$sofar" ]] &&
-                continue
+            [[ ! -f "$file" || $sofar == *\ $file\ * ]] && continue
             sofar+=" $file"
             sofar=" $(eval _muttconffiles \"$sofar\" $file) "
         done
