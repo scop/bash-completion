@@ -15,20 +15,22 @@ _service()
     if [[ $cword -eq 1 && $prev == ?(*/)service ]]; then
         _services
     else
-        local sysvdir
-        [ -d /etc/rc.d/init.d ] && \
-            sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
+        local sysvdirs
+        _sysvdirs
         COMPREPLY=( $( compgen -W '`sed -e "y/|/ /" \
             -ne "s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p" \
-            $sysvdir/${prev##*/} 2>/dev/null` start stop' -- "$cur" ) )
+            ${sysvdirs[0]}/${prev##*/} 2>/dev/null` start stop' -- "$cur" ) )
     fi
 
     return 0
 } &&
 complete -F _service service
-for svc in /etc/init.d/!($_backup_glob) /etc/rc.d/init.d/!($_backup_glob); do
-    [ -x "$svc" ] && complete -F _service $svc
+_sysvdirs
+for svcdir in ${sysvdirs[@]}; do
+    for svc in $svcdir/!($_backup_glob); do
+        [ -x "$svc" ] && complete -F _service $svc
+    done
 done
-unset svc
+unset svc svcdir sysvdirs
 
 # ex: ts=4 sw=4 et filetype=sh

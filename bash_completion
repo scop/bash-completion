@@ -102,6 +102,17 @@ _userland()
     [[ $userland == $1 ]]
 }
 
+# This function sets correct SysV init directories
+#
+_sysvdirs()
+{
+    sysvdirs=( )
+    [[ -d /etc/rc.d/init.d ]] && sysvdirs+=( /etc/rc.d/init.d )
+    [[ -d /etc/init.d ]] && sysvdirs+=( /etc/init.d )
+    # Slackware uses /etc/rc.d
+    [[ -f /etc/slackware-version ]] && sysvdirs=( /etc/rc.d )
+}
+
 # This function checks whether we have a given program on the system.
 #
 _have()
@@ -1043,13 +1054,12 @@ _backup_glob='@(#*#|*@(~|.@(bak|orig|rej|swp|dpkg*|rpm@(orig|new|save))))'
 #
 _services()
 {
-    local sysvdir famdir
-    [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d || sysvdir=/etc/init.d
-    famdir=/etc/xinetd.d
+    local sysvdirs famdir=/etc/xinetd.d
+    _sysvdirs
 
     local restore_nullglob=$(shopt -p nullglob); shopt -s nullglob
 
-    COMPREPLY=( $( printf '%s\n' $sysvdir/!($_backup_glob|functions) ) )
+    COMPREPLY=( $( printf '%s\n' ${sysvdirs[0]}/!($_backup_glob|functions) ) )
 
     if [ -d $famdir ]; then
         COMPREPLY+=( $( printf '%s\n' $famdir/!($_backup_glob) ) )
@@ -1060,7 +1070,8 @@ _services()
     COMPREPLY+=( $( systemctl list-units --full --all 2>/dev/null | \
         awk '$1 ~ /\.service$/ { sub("\\.service$", "", $1); print $1 }' ) )
 
-    COMPREPLY=( $( compgen -W '${COMPREPLY[@]#@($sysvdir|$famdir)/}' -- "$cur" ) )
+    COMPREPLY=( $( compgen -W '${COMPREPLY[@]#@(${sysvdirs[0]}|$famdir)/}' \
+        -- "$cur" ) )
 }
 
 # This function completes on modules
@@ -1838,7 +1849,7 @@ _completion_loader()
     [[ $BASH_SOURCE == */* ]] && compdir="${BASH_SOURCE%/*}/completions"
 
     # Special case for init.d scripts.
-    if [[ $1 == /etc?(/rc.d)/init.d/* ]]; then
+    if [[ $1 == /etc/@(rc.d|init.d)/* ]]; then
         . "$compdir/service" &>/dev/null && return 124 || return 1
     fi
 
