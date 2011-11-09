@@ -263,7 +263,6 @@ bashcomp_DATA = a2x \
 		sbcl \
 		sbopkg \
 		screen \
-		service \
 		sh \
 		sitecopy \
 		slackpkg \
