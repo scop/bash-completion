@@ -888,6 +888,14 @@ _available_interfaces()
     COMPREPLY=( $( compgen -W '${COMPREPLY[@]/%[[:punct:]]/}' -- "$cur" ) )
 }
 
+# Echo number of CPUs, falling back to 1 on failure.
+_ncpus()
+{
+    local var=NPROCESSORS_ONLN
+    [[ $OSTYPE == *linux* ]] && var=_$var
+    local n=$( getconf $var 2>/dev/null )
+    printf %s ${n:-1}
+}
 
 # Perform tilde (~) completion
 # @return  True (0) if completion needs further processing, 
