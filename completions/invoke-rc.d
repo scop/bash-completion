@@ -9,8 +9,8 @@ _invoke_rc_d()
 
     local sysvdir services options valid_options
 
-    [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
-    || sysvdir=/etc/init.d
+    [[ -d /etc/rc.d/init.d ]] && sysvdir=/etc/rc.d/init.d \
+        || sysvdir=/etc/init.d
 
     services=( $( printf '%s ' $sysvdir/!(README*|*.sh|$_backup_glob) ) )
     services=( ${services[@]#$sysvdir/} )
@@ -24,7 +24,7 @@ _invoke_rc_d()
         | sort | uniq -u \
         ) )
     COMPREPLY=( $( compgen -W '${valid_options[@]} ${services[@]}' -- "$cur" ) )
-    elif [ -x $sysvdir/$prev ]; then
+    elif [[ -x $sysvdir/$prev ]]; then
         COMPREPLY=( $( compgen -W '`sed -e "y/|/ /" \
             -ne "s/^.*Usage:[ ]*[^ ]*[ ]*{*\([^}\"]*\).*$/\1/p" \
             $sysvdir/$prev`' -- "$cur" ) )

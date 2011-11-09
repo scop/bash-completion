@@ -5,10 +5,10 @@ ri_get_methods()
 {
     local regex
 
-    if [ "$ri_version" = integrated ]; then
-        if [ -z "$separator" ]; then
+    if [[ $ri_version == integrated ]]; then
+        if [[ -z $separator ]]; then
             regex="(Instance|Class)"
-        elif [ "$separator" = "#" ]; then
+        elif [[ $separator == "#" ]]; then
             regex=Instance
         else
             regex=Class
@@ -45,7 +45,7 @@ _ri()
     # -W0 is required here to stop warnings from older versions of ri
     # from being captured when used with Ruby 1.8.1 and later
     ri_version="$(ruby -W0 $ri_path -v 2>&1)" || ri_version=integrated
-    [ "$ri_version" != "${ri_version%200*}" ] && ri_version=integrated
+    [[ $ri_version != ${ri_version%200*} ]] && ri_version=integrated
 
     # need to also split on commas
     IFS=$', \n\t'
@@ -60,11 +60,11 @@ _ri()
         return 0
     fi
 
-    if [ "$ri_version" = integrated ]; then
+    if [[ $ri_version == integrated ]]; then
         # integrated ri from Ruby 1.9
         classes=( $( ri -c 2>/dev/null | ruby -ne 'if /^\s*$/..$stdin.eof then \
         if /, [A-Z]+/ then print; end; end' 2>/dev/null ) )
-    elif [ "$ri_version" = "ri 1.8a" ]; then
+    elif [[ $ri_version == "ri 1.8a" ]]; then
         classes=( $( ruby -W0 $ri_path | \
             ruby -ne 'if /^'"'"'ri'"'"' has/..$stdin.eof then \
             if /^ .*[A-Z]/ then print; end; end' ))

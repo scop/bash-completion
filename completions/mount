@@ -92,7 +92,7 @@ _mount()
 
     if [[ "$cur" == *:* ]]; then
         for sm in "$(type -P showmount)" {,/usr}/{,s}bin/showmount; do
-            [ -x "$sm" ] || continue
+            [[ -x $sm ]] || continue
             COMPREPLY=( $( compgen -W "$( "$sm" -e ${cur%%:*} | \
                 awk 'NR>1 {print $1}' )" -- "${cur#*:}" ) )
             return 0
@@ -102,24 +102,24 @@ _mount()
     if [[ "$cur" == //* ]]; then
         host=${cur#//}
         host=${host%%/*}
-        if [ -n "$host" ]; then
+        if [[ -n $host ]]; then
             COMPREPLY=( $( compgen -P "//$host" -W \
                 "$( smbclient -d 0 -NL $host 2>/dev/null |
                 sed -ne '/^['"$'\t '"']*Sharename/,/^$/p' |
                 sed -ne '3,$s|^[^A-Za-z]*\([^'"$'\t '"']*\).*$|/\1|p' )" \
                     -- "${cur#//$host}" ) )
         fi
-    elif [ -r /etc/vfstab ]; then
+    elif [[ -r /etc/vfstab ]]; then
         # Solaris
         COMPREPLY=( $( compgen -W "$( awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' /etc/vfstab )" -- "$cur" ) )
-    elif [ ! -e /etc/fstab ]; then
+    elif [[ ! -e /etc/fstab ]]; then
         # probably Cygwin
         COMPREPLY=( $( compgen -W "$( mount | awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' )" -- "$cur" ) )
     else
         # probably Linux
-        if [ "$prev" = -L ]; then
+        if [[ $prev == -L ]]; then
             _linux_fstab -L < /etc/fstab
-        elif [ "$prev" = -U ]; then
+        elif [[ $prev == -U ]]; then
             COMPREPLY=( $( compgen -W '$(sed -ne "s/^[[:space:]]*UUID=\([^[:space:]]*\).*/\1/p" /etc/fstab )' -- "$cur" ) )
         else
             _linux_fstab < /etc/fstab

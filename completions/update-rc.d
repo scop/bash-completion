@@ -9,8 +9,8 @@ _update_rc_d()
 
     local sysvdir services options valid_options
 
-    [ -d /etc/rc.d/init.d ] && sysvdir=/etc/rc.d/init.d \
-    || sysvdir=/etc/init.d
+    [[ -d /etc/rc.d/init.d ]] && sysvdir=/etc/rc.d/init.d \
+        || sysvdir=/etc/init.d
 
     services=( $(printf '%s ' $sysvdir/!(README*|*.sh|$_backup_glob)) )
     services=( ${services[@]#$sysvdir/} )

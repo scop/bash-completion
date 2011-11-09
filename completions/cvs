@@ -13,7 +13,7 @@ _cvs_entries()
 
 _cvs_modules()
 {
-    if [ -n "$prefix" ]; then
+    if [[ -n $prefix ]]; then
         COMPREPLY=( $( command ls -d ${cvsroot}/${prefix}/!(CVSROOT) ) )
     else
         COMPREPLY=( $( command ls -d ${cvsroot}/!(CVSROOT) ) )
@@ -39,9 +39,8 @@ _cvs_roots()
 {
     local -a cvsroots
     cvsroots=( $CVSROOT )
-    [ -r ~/.cvspass ] && \
-        cvsroots+=( $( awk '{ print $2 }' ~/.cvspass ) )
-    [ -r CVS/Root ] && mapfile -tO ${#cvsroots[@]} cvsroots < CVS/Root
+    [[ -r ~/.cvspass ]] && cvsroots+=( $( awk '{ print $2 }' ~/.cvspass ) )
+    [[ -r CVS/Root ]] && mapfile -tO ${#cvsroots[@]} cvsroots < CVS/Root
     COMPREPLY=( $( compgen -W '${cvsroots[@]}' -- "$cur" ) )
     __ltrim_colon_completions "$cur"
 }
@@ -56,12 +55,12 @@ _cvs()
 
     count=0
     for i in "${words[@]}"; do
-        [ $count -eq $cword ] && break
+        [[ $count -eq $cword ]] && break
         # Last parameter was the CVSROOT, now go back to mode selection
         if [[ "${words[((count))]}" == "$cvsroot" && "$mode" == cvsroot ]]; then
             mode=""
         fi
-        if [ -z "$mode" ]; then
+        if [[ -z $mode ]]; then
             case $i in
                 -H|--help)
                     COMPREPLY=( $( compgen -W "$( _cvs_commands )" -- "$cur" ) )
@@ -152,7 +151,7 @@ _cvs()
 
             if [[ "$cur" != -* ]]; then
                 _cvs_entries
-                [ -z "$cur" ] && files=( !(CVS) ) || \
+                [[ -z $cur ]] && files=( !(CVS) ) || \
                     files=( $( command ls -d ${cur}* 2>/dev/null ) )
                 local f
                 for i in ${!files[@]}; do
@@ -221,7 +220,7 @@ _cvs()
             esac
 
             if [[ "$cur" != -* ]]; then
-                [ -z "$cvsroot" ] && cvsroot=$CVSROOT
+                [[ -z $cvsroot ]] && cvsroot=$CVSROOT
                 COMPREPLY=( $( cvs -d "$cvsroot" co -c 2> /dev/null | \
                     awk '{print $1}' ) )
                 COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
@@ -244,7 +243,7 @@ _cvs()
                 # if $COMP_CVS_REMOTE is not null, 'cvs commit' will
                 # complete on remotely checked-out files (requires
                 # passwordless access to the remote repository
-                if [ -n "${COMP_CVS_REMOTE:-}" ]; then
+                if [[ -n ${COMP_CVS_REMOTE:-} ]]; then
                     # this is the least computationally intensive way found so
                     # far, but other changes (something other than
                     # changed/removed/new) may be missing
@@ -298,7 +297,7 @@ _cvs()
             esac
 
             if [[ "$cur" != -* ]]; then
-                [ -z "$cvsroot" ] && cvsroot=$CVSROOT
+                [[ -z $cvsroot ]] && cvsroot=$CVSROOT
                 COMPREPLY=( $( cvs -d "$cvsroot" co -c | awk '{print $1}' ) )
                 COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
             else
@@ -318,9 +317,9 @@ _cvs()
 
             if [[ "$cur" != -* ]]; then
                 # starts with same algorithm as checkout
-                [ -z "$cvsroot" ] && cvsroot=$CVSROOT
+                [[ -z $cvsroot ]] && cvsroot=$CVSROOT
                 local prefix=${cur%/*}
-                if [ -r ${cvsroot}/${prefix} ]; then
+                if [[ -r ${cvsroot}/${prefix} ]]; then
                     _cvs_modules
                     COMPREPLY=( ${COMPREPLY[@]#$cvsroot} )
                     COMPREPLY=( ${COMPREPLY[@]#\/} )
@@ -337,7 +336,7 @@ _cvs()
                 _cvs_entries
                 # find out what files are missing
                 for i in "${entries[@]}"; do
-                    [ ! -r "$i" ] && miss+=( $i )
+                    [[ ! -r $i ]] && miss+=( $i )
                 done
                 COMPREPLY=( $( compgen -W '${miss[@]:-}' -- "$cur" ) )
             else
