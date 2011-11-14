@@ -1638,24 +1638,17 @@ _command_offset()
     else
         local cmd=${COMP_WORDS[0]} compcmd=${COMP_WORDS[0]}
         local cspec=$( complete -p $cmd 2>/dev/null )
+
+        # If we have no completion for $cmd yet, see if we have for basename
+        if [[ ! $cspec && $cmd == */* ]]; then
+            cspec=$( complete -p ${cmd##*/} 2>/dev/null )
+            [[ $cspec ]] && compcmd=${cmd##*/}
+        fi
+        # If still nothing, just load it for the basename
         if [[ ! $cspec ]]; then
-            if [[ $cmd == */* ]]; then
-                # Load completion for full path
-                _completion_loader $cmd
-                if [[ $? -eq 124 ]]; then
-                    # Success, but we may now have the full path completion...
-                    cspec=$( complete -p $cmd 2>/dev/null )
-                    if [[ ! $cspec ]]; then
-                        # ...or just the basename one.
-                        compcmd=${cmd##*/}
-                        cspec=$( complete -p $compcmd 2>/dev/null )
-                    fi
-                fi
-            else
-                # Simple, non-full path case.
-                _completion_loader $cmd
-                [[ $? -eq 124 ]] && cspec=$( complete -p $cmd 2>/dev/null )
-            fi
+            compcmd=${cmd##*/}
+            _completion_loader $compcmd
+            cspec=$( complete -p $compcmd 2>/dev/null )
         fi
 
         if [[ -n $cspec ]]; then
@@ -1690,6 +1683,8 @@ _command_offset()
                 COMPREPLY=( $( eval compgen "$cspec" -- "$cur" ) )
             fi
         elif [[ ${#COMPREPLY[@]} -eq 0 ]]; then
+            # XXX will probably never happen as long as completion loader loads
+            #     *something* for every command thrown at it ($cspec != empty)
             _minimal
         fi
     fi
