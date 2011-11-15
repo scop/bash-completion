@@ -210,6 +210,7 @@ bashcomp_DATA = a2x \
 		passwd \
 		perl \
 		pgrep \
+		pidof \
 		pine \
 		ping \
 		pkg-config \
@@ -425,7 +426,6 @@ CLEANFILES = \
 	pccardctl \
 	perldoc \
 	phing \
-	pidof \
 	pigz \
 	pinfo \
 	ping6 \
@@ -682,10 +682,6 @@ symlinks:
 	for file in perldoc ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) perl $(targetdir)/$$file ; \
-	done
-	for file in pidof ; do \
-		rm -f $(targetdir)/$$file && \
-			$(LN_S) pgrep $(targetdir)/$$file ; \
 	done
 	for file in alpine ; do \
 		rm -f $(targetdir)/$$file && \
