@@ -1607,16 +1607,16 @@ _command_offset()
 
     # find new first word position, then
     # rewrite COMP_LINE and adjust COMP_POINT
-    local word_offset=$1
-    local first_word=${COMP_WORDS[$word_offset]} char_offset i
-    for (( i=0; i <= ${#COMP_LINE}; i++ )); do
-        if [[ "${COMP_LINE:$i:${#first_word}}" == "$first_word" ]]; then
-            char_offset=$i
-            break
-        fi
+    local word_offset=$1 i j
+    for (( i=0; i < $word_offset; i++ )); do
+        for (( j=0; j <= ${#COMP_LINE}; j++ )); do
+            [[ $COMP_LINE == ${COMP_WORDS[i]}* ]] && break
+            COMP_LINE=${COMP_LINE:1}
+            ((COMP_POINT--))
+        done
+        COMP_LINE=${COMP_LINE#"${COMP_WORDS[i]}"}
+        ((COMP_POINT-=${#COMP_WORDS[i]}))
     done
-    COMP_LINE=${COMP_LINE:$char_offset}
-    COMP_POINT=$(( COMP_POINT - $char_offset ))
 
     # shift COMP_WORDS elements and adjust COMP_CWORD
     for (( i=0; i <= COMP_CWORD - $word_offset; i++ )); do
