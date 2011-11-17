@@ -36,4 +36,16 @@ assert_complete_dir $files "upgradepkg " $dir $test
 sync_after_int
 
 
+set test "should complete *.t\[gbxl\]z files and dirs after % sign"
+set oldpkg "xx-2.0-i486-2"
+set dir $::srcdir/fixtures/slackware/home
+set files [split [exec bash -c "cd $dir && find . -mindepth 1 -maxdepth 1 \
+           \\( -type d -printf '$oldpkg%%%P/\\n' \\) -o \
+           \\( -type f -name '*.t\[bglx\]z' -printf '$oldpkg%%%P\\n' \\)"] "\n"]
+assert_complete_dir $files "upgradepkg $oldpkg%" $dir $test
+
+
+sync_after_int
+
+
 teardown
