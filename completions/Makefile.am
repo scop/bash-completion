@@ -305,6 +305,7 @@ bashcomp_DATA = a2x \
 		vpnc \
 		watch \
 		webmitm \
+		wine \
 		withlist \
 		wodim \
 		wol \
