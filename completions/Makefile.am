@@ -300,6 +300,7 @@ bashcomp_DATA = a2x \
 		useradd \
 		userdel \
 		usermod \
+		valgrind \
 		vipw \
 		vncviewer \
 		vpnc \
