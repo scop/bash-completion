@@ -16,11 +16,16 @@ _valgrind()
         fi
     done
 
+    local tool
+    for (( i=1; i < ${#words[@]}; i++ )); do
+        if [[ ${words[i]} == --tool=?* ]]; then
+            tool=${words[i]}
+            break
+        fi
+    done
+
     case $prev in
-        -h|--help|--help-debug|--version|--log-fd|--log-socket|--xml-fd|\
-        --xml-socket|--xml-user-comment|--num-callers|--error-exitcode|\
-        --db-command|--input-fd|--max-strackframe|--main-stacksize|\
-        --alignment)
+        -h|--help|--help-debug|--version)
             return
             ;;
         --tool)
@@ -34,24 +39,6 @@ _valgrind()
                 -- "$cur" ) )
             return
             ;;
-        --trace-children|--child-silent-after-fork|--track-fds|--time-stamp|\
-        --xml|--demangle|--error-limit|--show-below-main|--dsymutil|\
-        --read-var-info|--run-libc-freeres|--show-emwarns)
-            COMPREPLY=( $( compgen -W 'yes no' -- "$cur" ) )
-            return
-            ;;
-        --log-file|--xml-file|--suppressions|--db-attach)
-            _filedir
-            return
-            ;;
-        --gen-suppressions)
-            COMPREPLY=( $( compgen -W 'yes no all' -- "$cur" ) )
-            return
-            ;;
-        --smc-check)
-            COMPREPLY=( $( compgen -W 'none stack all' -- "$cur" ) )
-            return
-            ;;
         --sim-hints)
             COMPREPLY=( $( compgen -W 'lax-ioctls enable-outer' -- "$cur" ) )
             return
@@ -60,117 +47,53 @@ _valgrind()
             COMPREPLY=( $( compgen -W 'bproc' -- "$cur" ) )
             return
             ;;
-        # memcheck:
-        --leak-check)
-            COMPREPLY=( $( compgen -W 'no summary full' -- "$cur" ) )
-            return
-            ;;
-        --leak-resolution)
-            COMPREPLY=( $( compgen -W 'low med high' -- "$cur" ) )
-            return
-            ;;
-        --show-reachable|--undef-value-errors|--track-origins|\
-        --partial-loads-ok|--workaround-gcc296-bugs)
-            COMPREPLY=( $( compgen -W 'yes no' -- "$cur" ) )
-            return
-            ;;
-        --freelist-vol|--ignore-ranges|--malloc-fill|--free-fill)
-            return
-            ;;
-        # cachegrind:
-        --I1|--D1|--L2)
-            return
-            ;;
-        --cache-sim|--branch-sim)
-            COMPREPLY=( $( compgen -W 'yes no' -- "$cur" ) )
-            return
-            ;;
-        --cachegrind-out-file)
+        # callgrind:
+        --callgrind-out-file)
             _filedir
             return
             ;;
-        # callgrind (also --I1, --D1, and --L2 which are above in cachegrind):
-        --simulate-cache|--simulate-wb|--simulate-hwpref|--cacheuse)
-            COMPREPLY=( $( compgen -W 'yes no' -- "$cur" ) )
-            return
-            ;;
-        # drd:
-        --trace-addr)
-            return
-            ;;
-        --trace-barrier|--trace-cond|--trace-fork-join|--trace-mutex|\
-        --trace-rwlock|--trace-semaphore)
-            COMPREPLY=( $( compgen -W 'yes no' -- "$cur" ) )
-            return
-            ;;
-        # exp-bbv:
-        --bb-out-file|--pc-out-file)
-            _filedir
-            return
-            ;;
-        --interval-size)
-            return
-            ;;
-        --instr-count-only)
-            COMPREPLY=( $( compgen -W 'yes no' -- "$cur" ) )
-            return
-            ;;
-        # exp-ptrcheck (also --partial-loads-ok which is above in memcheck):
-        --enable-sg-checks)
-            COMPREPLY=( $( compgen -W 'yes no' -- "$cur" ) )
-            return
-            ;;
-        # helgrind:
-        --track-lockorders)
-            COMPREPLY=( $( compgen -W 'yes no' -- "$cur" ) )
-            return
-            ;;
-        --history-level)
-            COMPREPLY=( $( compgen -W 'none approx full' -- "$cur" ) )
-            return
-            ;;
-        --conflict-cache-size)
-            return
-            ;;
-        # lackey:
-        --basic-counts|--detailed-counts|--trace-mem|--trace-superblock)
-            COMPREPLY=( $( compgen -W 'yes no' -- "$cur" ) )
-            return
-            ;;
-        --fnname)
+        # exp-dhat:
+        --sort-by)
+            COMPREPLY=( $( compgen -W 'max-bytes-live tot-bytes-allocd
+                max-blocks-live' -- "$cur" ) )
             return
             ;;
         # massif:
-        --heap|--stacks)
-            COMPREPLY=( $( compgen -W 'yes no' -- "$cur" ) )
-            return
-            ;;
-        --heap-admin|--depth|--alloc-fn|--ignore-fn|--threshold|\
-        --peak-inaccuracy|--detailed-freq|--max-snapshots)
-            return
-            ;;
         --time-unit)
             COMPREPLY=( $( compgen -W 'i ms B' -- "$cur" ) )
             return
             ;;
-        --massif-out-file)
-            _filedir
-            return
+        # generic cases parsed from --help output
+        --+([-A-Za-z0-9_]))
+            local value=$( $1 --help-debug $tool 2>/dev/null | \
+                sed -ne "s|^[$' \t']*$prev=\([^$' \t']\{1,\}\).*|\1|p" )
+            case $value in
+                \<file*\>)
+                    _filedir
+                    return
+                    ;;
+                \<command\>)
+                    COMPREPLY=( $( compgen -c -- "$cur" ) )
+                    return
+                    ;;
+                \<+([0-9])..+([0-9])\>)
+                    COMPREPLY=( $( compgen -W "{${value:1:((${#value}-2))}}" \
+                        -- "$cur" ) )
+                    return
+                    ;;
+                # "yes", "yes|no", etc (but not "string", "STR",
+                # "hint1,hint2,...")
+                yes|+([a-z0-9])\|+([a-z0-9\|]))
+                    COMPREPLY=( $( IFS='|' compgen -W '$value' -- "$cur" ) )
+                    return
+                    ;;
+            esac
             ;;
     esac
 
     $split && return
 
     if [[ $cur == -* ]]; then
-
-        local tool
-        for (( i=1; i < ${#words[@]}; i++ )); do
-            if [[ ${words[i]} == --tool=?* ]]; then
-                tool=${words[i]}
-                break
-            fi
-        done
-
         COMPREPLY=( $( compgen -W '$( _parse_help "$1" "--help $tool" )' \
             -- "$cur" ) )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
