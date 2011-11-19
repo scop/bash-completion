@@ -1,0 +1,21 @@
+# umount(8) completion                                     -*- shell-script -*-
+
+if [[ $OSTYPE == *linux* ]]; then
+    . "$BASH_SOURCE.linux"
+    return
+fi
+
+# umount(8) completion. This relies on the mount point being the third
+# space-delimited field in the output of mount(8)
+#
+_umount()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    local IFS=$'\n'
+    COMPREPLY=( $( compgen -W '$( mount | cut -d" " -f 3 )' -- "$cur" ) )
+} &&
+complete -F _umount -o dirnames umount
+
+# ex: ts=4 sw=4 et filetype=sh
