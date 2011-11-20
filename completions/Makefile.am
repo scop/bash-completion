@@ -28,6 +28,7 @@ bashcomp_DATA = a2x \
 		cal \
 		cancel \
 		cardctl \
+		ccache \
 		cfagent \
 		cfrun \
 		chage \
