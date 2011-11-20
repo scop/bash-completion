@@ -31,10 +31,11 @@ _valgrind()
         --tool)
             # Tools seem to be named e.g. like memcheck-amd64-linux from which
             # we want to grab memcheck.
-            COMPREPLY=( $( for f in /usr{,/local}/lib{,64}/valgrind/*; do
-                [[ $f != *.so && -x $f ]] &&
-                    sed -ne "s/^.*\/\($cur.*\)-\([^-]*\)-\([^-]*\)/\1/p" <<<$f
-                done) )
+            COMPREPLY=( $( compgen -W '$(
+                for f in /usr{,/local}/lib{,64}/valgrind/*; do
+                    [[ $f != *.so && -x $f ]] &&
+                        sed -ne "s/^.*\/\(.*\)-\([^-]*\)-\([^-]*\)/\1/p" <<<$f
+                done )' -- "$cur" ) )
             return
             ;;
         --sim-hints)
