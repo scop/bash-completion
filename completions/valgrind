@@ -30,13 +30,11 @@ _valgrind()
             ;;
         --tool)
             # Tools seem to be named e.g. like memcheck-amd64-linux from which
-            # we want to grab memcheck; the same dir may contain things like
-            # default.supp, vgpreload_*.so etc which we want to skip.
-            # TODO: probably needs adjustment to be more generic
-            COMPREPLY=( $( compgen -W "$( \
-                command ls -1 /usr{,/local}/lib{,64}/valgrind 2>/dev/null | \
-                sed -e '/\.so$/d' -ne 's/^\(.*\)-\([^-]*\)-\([^-]*\)/\1/p' )" \
-                -- "$cur" ) )
+            # we want to grab memcheck.
+            COMPREPLY=( $( for f in /usr{,/local}/lib{,64}/valgrind/*; do
+                [[ $f != *.so && -x $f ]] &&
+                    sed -ne "s/^.*\/\($cur.*\)-\([^-]*\)-\([^-]*\)/\1/p" <<<$f
+                done) )
             return
             ;;
         --sim-hints)
