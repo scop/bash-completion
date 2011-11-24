@@ -735,14 +735,15 @@ __parse_options()
 }
 
 # Parse GNU style help output of the given command.
-# @param $1  command
+# @param $1  command; if "-", read from stdin and ignore rest of args
 # @param $2  command options (default: --help)
 #
 _parse_help()
 {
     eval local cmd=$1
     local line
-    "$cmd" ${2:---help} 2>&1 | while read -r line; do
+    { case $cmd in -) cat ;; *) "$cmd" ${2:---help} 2>&1 ;; esac } \
+    | while read -r line; do
 
         [[ $line == *([ $'\t'])-* ]] || continue
         # transform "-f FOO, --foo=FOO" to "-f , --foo=FOO" etc
@@ -756,14 +757,15 @@ _parse_help()
 }
 
 # Parse BSD style usage output (options in brackets) of the given command.
-# @param $1  command
+# @param $1  command; if "-", read from stdin and ignore rest of args
 # @param $2  command options (default: --usage)
 #
 _parse_usage()
 {
     eval local cmd=$1
     local line match option i char
-    "$cmd" ${2:---usage} 2>&1 | while read -r line; do
+    { case $cmd in -) cat ;; *) "$cmd" ${2:---usage} 2>&1 ;; esac } \
+    | while read -r line; do
 
         while [[ $line =~ \[[[:space:]]*(-[^]]+)[[:space:]]*\] ]]; do
             match=${BASH_REMATCH[0]}
