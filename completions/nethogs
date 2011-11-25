@@ -1,0 +1,25 @@
+# bash completion for nethogs(8)                           -*- shell-script -*-
+
+_nethogs()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case "$prev" in
+        -d)
+            # expect integer value
+            COMPREPLY+=( $( compgen -W '{0..9}' ) )
+            compopt -o nospace
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" -h )' -- "$cur" ) )
+        return
+    fi
+
+    _available_interfaces -a
+} && complete -F _nethogs nethogs
+
+# ex: ts=4 sw=4 et filetype=sh

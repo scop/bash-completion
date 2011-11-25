@@ -199,6 +199,7 @@ bashcomp_DATA = a2x \
 		mysql \
 		mysqladmin \
 		ncftp \
+		nethogs \
 		newgrp \
 		newlist \
 		newusers \
