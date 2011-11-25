@@ -99,16 +99,22 @@ _perldoc()
     local perl="${1%doc}"
     [[ $perl == $1 ]] || ! type $perl &>/dev/null && perl=
 
-    # complete builtin perl functions
     case $prev in
+        -h|-V|-n|-o|-M|-w|-L)
+            return 0
+            ;;
+        -d)
+            _filedir
+            return 0
+            ;;
         -f)
             _perlfunctions $perl
-             return 0
+            return 0
             ;;
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-h -v -t -u -m -l -F -X -f -q' -- "$cur" ))
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -h )' -- "$cur" ) )
     else
         # return available modules (unless it is clearly a file)
         if [[ "$cur" != @(*/|[.~])* ]]; then
