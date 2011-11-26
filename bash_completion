@@ -614,6 +614,20 @@ _split_longopt()
     return 1
 }
 
+# Complete variables.
+# @return  True (0) if variables were completed, 
+#          False (> 0) if not.
+_variables()
+{
+    if [[ $cur =~ ^(\$\{?)([A-Za-z0-9_]*)$ ]]; then
+        [[ $cur == *{* ]] && local suffix=} || local suffix=
+        COMPREPLY+=( $( compgen -P ${BASH_REMATCH[1]} -S "$suffix" -v -- \
+            "${BASH_REMATCH[2]}" ) )
+        return 0
+    fi
+    return 1
+}
+
 # Initialize completion and deal with various general things: do file
 # and variable completion where appropriate, and adjust prev, words,
 # and cword as if no redirections exist so that completions do not
@@ -654,12 +668,7 @@ _init_completion()
     _get_comp_words_by_ref -n "$exclude<>&" cur prev words cword
 
     # Complete variable names.
-    if [[ $cur =~ ^(\$\{?)([A-Za-z0-9_]*)$ ]]; then
-        [[ $cur == *{* ]] && local suffix=} || local suffix=
-        COMPREPLY=( $( compgen -P ${BASH_REMATCH[1]} -S "$suffix" -v -- \
-            "${BASH_REMATCH[2]}" ) )
-        return 1
-    fi
+    _variables && return 1
 
     # Complete on files if current is a redirect possibly followed by a
     # filename, e.g. ">foo", or previous is a "bare" redirect, e.g. ">".
