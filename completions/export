@@ -3,23 +3,59 @@
 _export()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n = || return
 
-    case ${words[@]} in
-        *=\$*)
-            COMPREPLY=( $( compgen -v -P '$' -- "${cur#*=\$}" ) )
-            ;;
-        *[^=])
-            COMPREPLY=( $( compgen -v -S '=' -- "$cur" ) )
-            ;;
+    local i action=variable remove=false
+    for (( i=1; i < cword; i++ )); do
+        case ${words[i]} in
+            -p)
+                return
+                ;;
+            -*f*)
+                action=function
+                ;;&
+            -*n*)
+                remove=true
+                ;;
+            -*)
+                continue
+                ;;
+        esac
+        break
+    done
+
+    [[ $cur == *=\$* ]] && { cur=${cur#*=}; _variables; } && return
+
+    case $cur in
         *=)
-            COMPREPLY=( "$( eval echo -n \"$`echo ${cur%=}`\" |
-                ( echo -n \'
-                  sed -e 's/'\''/'\''\\\'\'''\''/g'
-                  echo -n \' ) )" )
+            local pval=$( quote "$( eval printf %s \"\$${cur%=}\" )" )
+            # Complete previous value if it's not empty.
+            if [[ $pval != \'\' ]]; then
+                COMPREPLY=( "$pval" )
+            else
+                cur=${cur#*=}
+                _filedir
+            fi
+            ;;
+        *=*)
+            cur=${cur#*=}
+            _filedir
+            ;;
+        *)
+            if [[ $cword -eq 1 && $cur == -* ]]; then
+                COMPREPLY=( $( compgen -W \
+                    '-p $( _parse_usage "$1" )' -- "$cur" ) )
+                return
+            fi
+            local suffix
+            if ! $remove; then
+                suffix+==
+                compopt -o nospace
+            fi
+            COMPREPLY=( $( compgen -A $action -S "$suffix" -- "$cur" ) )
             ;;
     esac
 } &&
-complete -F _export -o default -o nospace export
+complete -F _export export
 
 # ex: ts=4 sw=4 et filetype=sh
