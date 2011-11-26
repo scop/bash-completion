@@ -148,6 +148,7 @@ bashcomp_DATA = a2x \
 		killall \
 		kldload \
 		kldunload \
+		koji \
 		ktutil \
 		larch \
 		lastlog \
@@ -340,6 +341,7 @@ CLEANFILES = \
 	alternatives \
 	animate \
 	apropos \
+	arm-koji \
 	asciidoc.py \
 	autoheader \
 	automake-1.11 \
@@ -441,6 +443,7 @@ CLEANFILES = \
 	pm-suspend-hybrid \
 	pmake \
 	postalias \
+	ppc-koji \
 	puppetca \
 	puppetd \
 	puppetdoc \
@@ -470,6 +473,7 @@ CLEANFILES = \
 	rpm2txz \
 	rpmbuild \
 	rpmbuild-md5 \
+	s390-koji \
 	sbcl-mt \
 	scp \
 	sdptool \
@@ -482,6 +486,7 @@ CLEANFILES = \
 	smbpasswd \
 	smbtar \
 	smbtree \
+	sparc-koji \
 	spovray \
 	stream \
 	tightvncviewer \
@@ -633,6 +638,10 @@ symlinks:
 	for file in pkill ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) killall $(targetdir)/$$file ; \
+	done
+	for file in arm-koji ppc-koji s390-koji sparc-koji ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) koji $(targetdir)/$$file ; \
 	done
 	for file in ldapadd ldapmodify ldapdelete ldapcompare ldapmodrdn \
 		ldapwhoami ldappasswd ; do \

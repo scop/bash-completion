@@ -1,0 +1,234 @@
+# koji completion                                          -*- shell-script -*-
+
+_koji_search()
+{
+    COMPREPLY+=( $( compgen -W \
+        '$( "$1" -q search $2 "$cur*" 2>/dev/null )' -- "$cur" ) )
+}
+
+_koji_build()
+{
+    _koji_search "$1" build
+}
+
+_koji_package()
+{
+    _koji_search "$1" package
+}
+
+_koji_user()
+{
+    _koji_search "$1" user
+}
+
+_koji_tag()
+{
+    COMPREPLY+=( $( compgen -W '$( "$1" -q list-tags 2>/dev/null )' \
+        -- "$cur" ) )
+}
+
+_koji_target()
+{
+    COMPREPLY+=( $( compgen -W '$( "$1" -q list-targets 2>/dev/null |
+        awk "{ print \$1 }" )' -- "$cur" ) )
+}
+
+_koji()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    local commandix command
+    for (( commandix=1; commandix < cword; commandix++ )); do
+        if [[ ${words[commandix]} != -* ]]; then
+            command=${words[commandix]}
+            break
+        fi
+    done
+
+    case $prev in
+        -h|--help|--help-commands)
+            return
+            ;;
+        -c|--config|--keytab|-o)
+            _filedir
+            return
+            ;;
+        --runas|--user|--editor|--by)
+            _koji_user "$1"
+            return
+            ;;
+        --authtype)
+            COMPREPLY=( $( compgen -W 'noauth ssl password kerberos' \
+                -- "$cur" ) )
+            return
+            ;;
+        --topdir)
+            _filedir -d
+            return
+            ;;
+        --type)
+            case $command in
+                latest-pkg|list-tagged)
+                    COMPREPLY=( $( compgen -W 'maven' -- "$cur" ) )
+                    ;;
+            esac
+            return
+            ;;
+        --name)
+            case $command in
+                list-targets)
+                    _koji_target "$1"
+                    ;;
+            esac
+            return
+            ;;
+        --owner)
+            _koji_user "$1"
+            return
+            ;;
+        --tag|--latestfrom)
+            _koji_tag "$1"
+            return
+            ;;
+        --package)
+            _koji_package "$1"
+            return
+            ;;
+        --build)
+            _koji_build "$1"
+            return
+            ;;
+        --build-target)
+            _koji_target "$1"
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $command ]]; then
+        if [[ $cur == -* ]]; then
+            COMPREPLY=( $( compgen -W \
+                '$( _parse_help "$1" "$command --help" )' -- "$cur" ) )
+            [[ $COMPREPLY == *= ]] && compopt -o nospace
+            return
+        fi
+
+        # How many'th non-option arg (1-based) for $command are we completing?
+        local i nth=1
+        for (( i=commandix+1; i < cword; i++ )); do
+            [[ ${words[i]} == -* ]] || (( nth++ ))
+        done
+
+        case $command in
+            build|maven-build|win-build)
+                case $nth in
+                    1)
+                        _koji_target "$1"
+                        ;;
+                    2)
+                        _filedir src.rpm
+                        ;;
+                esac
+                ;;
+            cancel)
+                _koji_build "$1"
+                ;;
+            chain-build)
+                case $nth in
+                    1)
+                        _koji_target "$1"
+                        ;;
+                esac
+                ;;
+            download-build)
+                case $nth in
+                    1)
+                        _koji_build "$1"
+                        ;;
+                esac
+                ;;
+            import-comps)
+                case $nth in
+                    1)
+                        _filedir xml
+                        ;;
+                    2)
+                        _koji_tag "$1"
+                        ;;
+                esac
+                ;;
+            latest-by-tag)
+                _koji_package "$1"
+                ;;
+            latest-pkg|list-groups|list-tag-inheritance|show-groups|wait-repo)
+                case $nth in
+                    1)
+                        _koji_tag "$1"
+                        ;;
+                esac
+                ;;
+            list-tagged)
+                case $nth in
+                    1)
+                        _koji_tag "$1"
+                        ;;
+                    2)
+                        _koji_package "$1"
+                        ;;
+                esac
+                ;;
+            list-untagged)
+                case $nth in
+                    1)
+                        _koji_package "$1"
+                        ;;
+                esac
+                ;;
+            move-pkg)
+                case $nth in
+                    1|2)
+                        _koji_tag "$1"
+                        ;;
+                    *)
+                        _koji_package "$1"
+                        ;;
+                esac
+                ;;
+            search)
+                case $nth in
+                    1)
+                        COMPREPLY=( $( compgen -W 'package build tag target
+                            user host rpm' -- "$cur" ) )
+                        ;;
+                esac
+                ;;
+            tag-pkg|untag-pkg)
+                case $nth in
+                    1)
+                        _koji_tag "$1"
+                        ;;
+                    *)
+                        _koji_package "$1"
+                        ;;
+                esac
+                ;;
+            taginfo)
+                _koji_tag "$1"
+                ;;
+        esac
+        return
+    fi
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+    elif [[ ! $command ]]; then
+        COMPREPLY=( $( compgen -W '$( "$1" --help-commands 2>/dev/null | \
+            awk "/^(  +|\t)/ { print \$1 }" )' -- "$cur" ) )
+    fi
+} &&
+complete -F _koji koji arm-koji ppc-koji s390-koji sparc-koji
+
+# ex: ts=4 sw=4 et filetype=sh
