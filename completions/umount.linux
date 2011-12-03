@@ -65,6 +65,18 @@ _linux_fstab()
         fi
     done
 
+    # Add some relative paths to COMPREPLY
+    if [[ $cur && $cur != /* ]]; then
+        local i n=${#COMPREPLY[@]}
+        for (( i=0; i < $n; i++ )); do
+            if [[ "${COMPREPLY[i]}" == "$PWD"* ]]; then
+                [[ $cur == ./* ]] &&
+                    COMPREPLY+=( "./${COMPREPLY[i]##$PWD*(/)}" ) ||
+                    COMPREPLY+=( "${COMPREPLY[i]##$PWD*(/)}" )
+            fi
+        done
+    fi
+
     _reply_compgen_array
 }
 
