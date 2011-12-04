@@ -61,6 +61,20 @@ need that kind of processing (e.g. file and command names). The
 _filedir and _filedir_xspec helpers do this automatically whenever
 they return some completions.
 
+&#91;[ $COMPREPLY == *= ]] && compopt -o nospace
+------------------------------------------------
+
+The above is functionally a shorthand for:
+----
+if [[ ${#COMPREPLY[@]} -eq 1 && ${COMPREPLY[0]} == *= ]]; then
+    compopt -o nospace
+fi
+----
+It is used to ensure that long options' name won't get a space
+appended after the equal sign.  Calling compopt -o nospace makes sense
+in case completion actually occurs: when only one completion is
+available in COMPREPLY.
+
 /////////////////////////////////////////
 case/esac vs if
 ---------------
