@@ -65,16 +65,27 @@ _linux_fstab()
         fi
     done
 
-    # Add some relative paths to COMPREPLY
+    # Add relative paths to COMPREPLY
     if [[ $cur && $cur != /* ]]; then
-        local i n=${#COMPREPLY[@]}
-        for (( i=0; i < $n; i++ )); do
-            if [[ "${COMPREPLY[i]}" == "$PWD"* ]]; then
-                [[ $cur == ./* ]] &&
-                    COMPREPLY+=( "./${COMPREPLY[i]##$PWD*(/)}" ) ||
-                    COMPREPLY+=( "${COMPREPLY[i]##$PWD*(/)}" )
+        local realcur
+        [[ $cur == */ ]] && # don't let readlink drop last / from path
+            realcur="$( readlink -f "$cur." 2> /dev/null )/" ||
+            realcur=$( readlink -f "$cur" 2> /dev/null )
+        if [[ $realcur ]]; then
+            local dirrealcur= dircur= basecur
+            if [[ $cur == */* ]]; then
+               dirrealcur="${realcur%/*}/"
+               dircur="${cur%/*}/"
             fi
-        done
+            basecur=${cur#"$dircur"}
+            local i n=${#COMPREPLY[@]}
+            for (( i=0; i < $n; i++ )); do
+                [[ "${COMPREPLY[i]}" == "$realcur"* ]] &&
+                    COMPREPLY+=( $( cd "$dircur" 2> /dev/null &&
+                        compgen -f -d -P "$dircur" \
+                        -X "!${COMPREPLY[i]##"$dirrealcur"}" -- "$basecur" ) )
+            done
+        fi
     fi
 
     _reply_compgen_array
