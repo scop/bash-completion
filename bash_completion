@@ -1425,21 +1425,28 @@ _known_hosts_real()
 
     # Known hosts files from configs
     if [[ ${#config[@]} -gt 0 ]]; then
-        local OIFS=$IFS IFS=$'\n'
+        local OIFS=$IFS IFS=$'\n' j
         local -a tmpkh
         # expand paths (if present) to global and user known hosts files
         # TODO(?): try to make known hosts files with more than one consecutive
         #          spaces in their name work (watch out for ~ expansion
         #          breakage! Alioth#311595)
         tmpkh=( $( awk 'sub("^[ \t]*([Gg][Ll][Oo][Bb][Aa][Ll]|[Uu][Ss][Ee][Rr])[Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee][ \t]+", "") { print $0 }' "${config[@]}" | sort -u ) )
-        for i in "${tmpkh[@]}"; do
-            # Remove possible quotes
-            i=${i//\"}
-            # Eval/expand possible `~' or `~user'
-            __expand_tilde_by_ref i
-            [[ -r $i ]] && kh+=( "$i" )
-        done
         IFS=$OIFS
+        for i in "${tmpkh[@]}"; do
+            # First deal with quoted entries...
+            while [[ $i =~ ^([^\"]*)\"([^\"]*)\"(.*)$ ]]; do
+                i=${BASH_REMATCH[1]}${BASH_REMATCH[3]}
+                j=${BASH_REMATCH[2]}
+                __expand_tilde_by_ref j # Eval/expand possible `~' or `~user'
+                [[ -r $j ]] && kh+=( "$j" )
+            done
+            # ...and then the rest.
+            for j in $i; do
+                __expand_tilde_by_ref j # Eval/expand possible `~' or `~user'
+                [[ -r $j ]] && kh+=( "$j" )
+            done
+        done
     fi
 
     if [[ -z $configfile ]]; then
