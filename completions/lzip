@@ -1,0 +1,44 @@
+# lzip(1) completion                                       -*- shell-script -*-
+
+_lzip()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    local decompress=false
+
+    case $prev in
+        -h|--help|-V|--version|-b|--member-size|-m|--match-length|\
+        -s|--dictionary-size|-S|--volume-size)
+            return
+            ;;
+        -d|--decompress)
+            decompress=true
+            ;;
+        -o|--output)
+            _filedir
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" ) {-1..-9}' \
+            -- "$cur" ) )
+        return
+    fi
+
+    if $decompress; then
+        _filedir lz
+        return
+    fi
+
+    local IFS=$'\n'
+    compopt -o filenames
+    COMPREPLY=( $( compgen -f -X "*.lz" -- "$cur" ) \
+        $( compgen -d -- "$cur" ) )
+} &&
+complete -F _lzip lzip
+
+# ex: ts=4 sw=4 et filetype=sh

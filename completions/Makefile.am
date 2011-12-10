@@ -170,6 +170,7 @@ bashcomp_DATA = a2x \
 		lrzip \
 		lsof \
 		lvm \
+		lzip \
 		lzma \
 		lzop \
 		macof \
