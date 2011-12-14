@@ -750,9 +750,12 @@ __parse_options()
 #
 _parse_help()
 {
-    eval local cmd=$1
+    eval local cmd=$( quote "$1" )
     local line
-    { case $cmd in -) cat ;; *) "$cmd" ${2:---help} 2>&1 ;; esac } \
+    { case $cmd in
+        -) cat ;;
+        *) "$( dequote "$cmd" )" ${2:---help} 2>&1 ;;
+      esac } \
     | while read -r line; do
 
         [[ $line == *([ $'\t'])-* ]] || continue
@@ -772,9 +775,12 @@ _parse_help()
 #
 _parse_usage()
 {
-    eval local cmd=$1
+    eval local cmd=$( quote "$1" )
     local line match option i char
-    { case $cmd in -) cat ;; *) "$cmd" ${2:---usage} 2>&1 ;; esac } \
+    { case $cmd in
+        -) cat ;;
+        *) "$( dequote "$cmd" )" ${2:---usage} 2>&1 ;;
+      esac } \
     | while read -r line; do
 
         while [[ $line =~ \[[[:space:]]*(-[^]]+)[[:space:]]*\] ]]; do
