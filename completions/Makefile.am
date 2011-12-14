@@ -116,6 +116,7 @@ bashcomp_DATA = a2x \
 		hping2 \
 		htpasswd \
 		iconv \
+		id \
 		idn \
 		iftop \
 		ifup \
