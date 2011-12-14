@@ -15,8 +15,16 @@ _cppcheck()
             return
             ;;
         --enable)
+            # split comma-separated list
+            split=false
+            if [[ "$cur" == ?*,* ]]; then
+                prev="${cur%,*}"
+                cur="${cur##*,}"
+                split=true
+            fi
             COMPREPLY=( $( compgen -W 'all style performance portability
                 information unusedFunction missingInclude' -- "$cur" ) )
+            $split && COMPREPLY=( ${COMPREPLY[@]/#/"$prev,"} )
             return
             ;;
         --error-exitcode)
