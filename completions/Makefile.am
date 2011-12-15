@@ -192,6 +192,7 @@ bashcomp_DATA = a2x \
 		mmsitepass \
 		monodevelop \
 		mount \
+		mount.linux \
 		mplayer \
 		msynctool \
 		mtx \
@@ -295,6 +296,8 @@ bashcomp_DATA = a2x \
 		tcpnice \
 		tracepath \
 		tune2fs \
+		umount \
+		umount.linux \
 		unace \
 		unpack200 \
 		unrar \
@@ -494,7 +497,6 @@ CLEANFILES = \
 	tightvncviewer \
 	tracepath6 \
 	typeset \
-	umount \
 	vgcfgbackup \
 	vgcfgrestore \
 	vgchange \
@@ -674,10 +676,6 @@ symlinks:
 	for file in mdecrypt ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) mcrypt $(targetdir)/$$file ; \
-	done
-	for file in umount ; do \
-		rm -f $(targetdir)/$$file && \
-			$(LN_S) mount $(targetdir)/$$file ; \
 	done
 	for file in mplayer2 mencoder gmplayer kplayer ; do \
 		rm -f $(targetdir)/$$file && \

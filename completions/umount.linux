@@ -1,0 +1,140 @@
+# umount(8) completion                                     -*- shell-script -*-
+
+# Just like COMPREPLY=(`compgen -W "${COMPREPLY[*]}" -- "$cur"`), only better!
+#
+# This will correctly escape special characters in COMPREPLY.
+_reply_compgen_array()
+{
+    # Create the argument for compgen -W by escaping twice.
+    #
+    # One round of escape is because we want to reply with escaped arguments. A
+    # second round is required because compgen -W will helpfully expand it's
+    # argument.
+    local i wlist
+    for i in ${!COMPREPLY[*]}; do
+        local q=$(quote "$(printf %q "${COMPREPLY[$i]}")")
+        wlist+=$q$'\n'
+    done
+
+    # We also have to add another round of escaping to $cur.
+    local ecur="$cur"
+    ecur="${ecur//\\/\\\\}"
+    ecur="${ecur//\'/\'}"
+
+    # Actually generate completions.
+    local oldifs=$IFS
+    IFS=$'\n' eval 'COMPREPLY=(`compgen -W "$wlist" -- "${ecur}"`)'
+    IFS=$oldifs
+}
+
+# Unescape strings in the linux fstab(5) format (with octal escapes).
+__linux_fstab_unescape() {
+    eval $1="'${!1//\'/\047}'"
+    eval $1="'${!1/%\\/\\\\}'"
+    eval "$1=$'${!1}'"
+}
+
+# Complete linux fstab entries.
+#
+# Reads a file from stdin in the linux fstab(5) format; as used by /etc/fstab
+# and /proc/mounts.
+_linux_fstab()
+{
+    COMPREPLY=()
+
+    # Read and unescape values into COMPREPLY
+    local fs_spec fs_file fs_other
+    local oldifs="$IFS"
+    while read -r fs_spec fs_file fs_other; do
+        if [[ $fs_spec = [#]* ]]; then continue; fi
+        if [[ $1 == -L ]]; then
+            local fs_label=${fs_spec/#LABEL=}
+            if [[ $fs_label != "$fs_spec" ]]; then
+                __linux_fstab_unescape fs_label
+                IFS=$'\0'
+                COMPREPLY+=("$fs_label")
+                IFS=$oldifs
+            fi
+        else
+            __linux_fstab_unescape fs_spec
+            __linux_fstab_unescape fs_file
+            IFS=$'\0'
+            [[ $fs_spec = */* ]] && COMPREPLY+=("$fs_spec")
+            [[ $fs_file = */* ]] && COMPREPLY+=("$fs_file")
+            IFS=$oldifs
+        fi
+    done
+
+    # Add relative paths to COMPREPLY
+    if [[ $cur && $cur != /* ]]; then
+        local realcur
+        [[ $cur == */ ]] && # don't let readlink drop last / from path
+            realcur="$( readlink -f "$cur." 2> /dev/null )/" ||
+            realcur=$( readlink -f "$cur" 2> /dev/null )
+        if [[ $realcur ]]; then
+            local dirrealcur= dircur= basecur
+            if [[ $cur == */* ]]; then
+               dirrealcur="${realcur%/*}/"
+               dircur="${cur%/*}/"
+            fi
+            basecur=${cur#"$dircur"}
+            local i n=${#COMPREPLY[@]}
+            for (( i=0; i < $n; i++ )); do
+                [[ "${COMPREPLY[i]}" == "$realcur"* ]] &&
+                    COMPREPLY+=( $( cd "$dircur" 2> /dev/null &&
+                        compgen -f -d -P "$dircur" \
+                        -X "!${COMPREPLY[i]##"$dirrealcur"}" -- "$basecur" ) )
+            done
+        fi
+    fi
+
+    _reply_compgen_array
+}
+
+_umount()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case "$prev" in
+        -t)
+            # FIXME: no<fstype>
+            local split=false
+            if [[ "$cur" == ?*,* ]]; then
+                prev="${cur%,*}"
+                cur="${cur##*,}"
+                split=true
+            fi
+            COMPREPLY=( $(compgen -W 'adfs affs autofs btrfs cifs coda
+                cramfs debugfs devpts efs ext2 ext3 ext4 fuse hfs hfsplus hpfs
+                iso9660 jfs minix msdos ncpfs nfs nfs4 ntfs ntfs-3g proc qnx4
+                ramfs reiserfs romfs squashfs smbfs sysv tmpfs ubifs udf ufs
+                umsdos usbfs vfat xfs' -- "$cur") )
+            _fstypes
+            $split && COMPREPLY=( ${COMPREPLY[@]/#/$prev,} )
+            return
+            ;;
+        -O)
+            # argument required but no completions available
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-V -h -v -n -r -d -i -a -t -O -f -l
+            --no-canonicalize --fake' -- "$cur" ) )
+        [[ $COMPREPLY ]] && return
+    fi
+
+    if [[ -r /proc/mounts ]]; then
+        # Linux /proc/mounts is properly quoted. This is important when
+        # unmounting usb devices with pretty names.
+        _linux_fstab < /proc/mounts
+    else
+        local IFS=$'\n'
+        COMPREPLY=( $( compgen -W '$( mount | cut -d" " -f 3 )' -- "$cur" ) )
+    fi
+} &&
+complete -F _umount -o dirnames umount
+
+# ex: ts=4 sw=4 et filetype=sh
