@@ -114,6 +114,7 @@ bashcomp_DATA = a2x \
 		hddtemp \
 		hid2hci \
 		hping2 \
+		htop \
 		htpasswd \
 		iconv \
 		id \
