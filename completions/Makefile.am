@@ -289,6 +289,7 @@ bashcomp_DATA = a2x \
 		sshmitm \
 		sshow \
 		strace \
+		sudo \
 		svk \
 		sync_members \
 		sysbench \
