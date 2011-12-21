@@ -1,0 +1,76 @@
+# udevadm(8) completion                                    -*- shell-script -*-
+
+_udevadm()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    local i udevcmd
+    for (( i=1; i < cword; i++ )); do
+        if [[ ${words[i]} != -* ]]; then
+            udevcmd=${words[i]}
+            break
+        fi
+    done
+
+    case $prev in
+        --help|--version|--property|--children-max|--timeout|--seq-start|\
+        --seq-end|--attr-match|--attr-nomatch|--parent-match|--property-match|\
+        --tag-match|--subsystem-match|--subsystem-nomatch|--sysname-match|\
+        --path)
+            return
+            ;;
+        --log-priority)
+            COMPREPLY=( $( compgen -W 'err info debug' -- "$cur" ) )
+            return
+            ;;
+        --query)
+            COMPREPLY=( $( compgen -W 'name symlink path property all' \
+                -- "$cur" ) )
+            return
+            ;;
+        --name)
+            cur=${cur:=/dev/}
+            _filedir
+            return
+            ;;
+        --device-id-of-file|--exit-if-exists)
+            _filedir
+            return
+            ;;
+        --action)
+            COMPREPLY=( $( compgen -W 'add change remove' -- "$cur" ) )
+            return
+            ;;
+        --type)
+            COMPREPLY=( $( compgen -W 'devices subsystems failed' -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ -z $udevcmd ]]; then
+        case $cur in
+            -*)
+                COMPREPLY=( $( compgen -W '--help --version --debug' -- \
+                    "$cur" ) )
+                ;;
+            *)
+                COMPREPLY=( $( compgen -W "$( "$1" --help 2>/dev/null |
+                    awk '/^[[:space:]]+/ { print $1 }' )" -- "$cur" ) )
+                ;;
+        esac
+        return
+    fi
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W \
+            '$( "$1" $udevcmd --help 2>/dev/null | _parse_help - )' \
+            -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+    fi
+} &&
+complete -F _udevadm udevadm
+
+# ex: ts=4 sw=4 et filetype=sh

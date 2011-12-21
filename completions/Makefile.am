@@ -299,6 +299,7 @@ bashcomp_DATA = a2x \
 		tcpnice \
 		tracepath \
 		tune2fs \
+		udevadm \
 		umount \
 		umount.linux \
 		unace \
