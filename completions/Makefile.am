@@ -643,10 +643,6 @@ symlinks:
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) java $(targetdir)/$$file ; \
 	done
-	for file in pkill ; do \
-		rm -f $(targetdir)/$$file && \
-			$(LN_S) killall $(targetdir)/$$file ; \
-	done
 	for file in arm-koji ppc-koji s390-koji sparc-koji ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) koji $(targetdir)/$$file ; \
@@ -712,6 +708,10 @@ symlinks:
 	for file in pkg_info pkg_deinstall ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) pkg_delete $(targetdir)/$$file ; \
+	done
+	for file in pkill ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) pgrep $(targetdir)/$$file ; \
 	done
 	for file in pm-suspend pm-suspend-hybrid ; do \
 		rm -f $(targetdir)/$$file && \

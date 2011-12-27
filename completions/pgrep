@@ -1,4 +1,4 @@
-# pgrep(1) completion                                      -*- shell-script -*-
+# pgrep(1) and pkill(1) completion                         -*- shell-script -*-
 
 _pgrep()
 {
@@ -6,11 +6,19 @@ _pgrep()
     _init_completion || return
 
     case $prev in
-        -d|-g|-s|-t)
+        -c|-d|-g|-J|-M|-N|-s|-t|-T|-z)
+            return
+            ;;
+        -F)
+            _filedir
             return
             ;;
         -G)
             _gids
+            return
+            ;;
+        -j)
+            COMPREPLY=( $( compgen -W 'any none' -- "$cur" ) )
             return
             ;;
         -P)
@@ -24,12 +32,15 @@ _pgrep()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '$( "$1" --usage 2>&1 |
+            sed -e "s/\[-signal\]//" -e "s/\[-SIGNAL\]//" |
+            _parse_usage - )' -- "$cur" ) )
+        [[ $cword -eq 1 && $1 == *pkill ]] && _signals -
         return
     fi
 
     _pnames
 } &&
-complete -F _pgrep pgrep
+complete -F _pgrep pgrep pkill
 
 # ex: ts=4 sw=4 et filetype=sh
