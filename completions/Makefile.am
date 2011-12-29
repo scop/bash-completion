@@ -498,6 +498,7 @@ CLEANFILES = \
 	sparc-koji \
 	spovray \
 	stream \
+	sudoedit \
 	tightvncviewer \
 	tracepath6 \
 	typeset \
@@ -769,6 +770,10 @@ symlinks:
 	for file in slogin autossh sftp scp ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) ssh $(targetdir)/$$file ; \
+	done
+	for file in sudoedit ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) sudo $(targetdir)/$$file ; \
 	done
 	for file in tracepath6 ; do \
 		rm -f $(targetdir)/$$file && \
