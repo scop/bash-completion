@@ -590,7 +590,8 @@ _filedir()
         -n "$1" && "$1" != -d && ${#toks[@]} -lt 1 ]] && \
         toks+=( $( compgen -f -- $quoted ) )
 
-    [[ ${#toks[@]} -ne 0 ]] && compopt -o filenames
+    # 2>/dev/null for direct invocation, e.g. in the _filedir unit test
+    [[ ${#toks[@]} -ne 0 ]] && compopt -o filenames 2>/dev/null
 
     COMPREPLY+=( "${toks[@]}" )
 } # _filedir()
@@ -923,7 +924,8 @@ _tilde()
         # Try generate ~username completions
         COMPREPLY=( $( compgen -P '~' -u "${1#\~}" ) )
         result=${#COMPREPLY[@]}
-        [[ $result -gt 0 ]] && compopt -o filenames
+        # 2>/dev/null for direct invocation, e.g. in the _tilde unit test
+        [[ $result -gt 0 ]] && compopt -o filenames 2>/dev/null
     fi
     return $result
 }
