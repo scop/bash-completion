@@ -32,7 +32,7 @@ else
     BASH_COMPLETION_ORIGINAL_V_VALUE="+v"
 fi
 
-if [[ -n $BASH_COMPLETION_DEBUG ]]; then
+if [[ ${BASH_COMPLETION_DEBUG-} ]]; then
     set -v
 else
     set +v
@@ -40,7 +40,7 @@ fi
 
 # Set the following to the location of the backwards compat completion dir.
 #
-[ -n "$BASH_COMPLETION_COMPAT_DIR" ] || BASH_COMPLETION_COMPAT_DIR=/etc/bash_completion.d
+: ${BASH_COMPLETION_COMPAT_DIR:=/etc/bash_completion.d}
 readonly BASH_COMPLETION_COMPAT_DIR
 
 # Blacklisted completions, causing problems with our code.
@@ -590,10 +590,11 @@ _filedir()
         -n "$1" && "$1" != -d && ${#toks[@]} -lt 1 ]] && \
         toks+=( $( compgen -f -- $quoted ) )
 
-    # 2>/dev/null for direct invocation, e.g. in the _filedir unit test
-    [[ ${#toks[@]} -ne 0 ]] && compopt -o filenames 2>/dev/null
-
-    COMPREPLY+=( "${toks[@]}" )
+    if [[ ${#toks[@]} -ne 0 ]]; then
+        # 2>/dev/null for direct invocation, e.g. in the _filedir unit test
+        compopt -o filenames 2>/dev/null
+        COMPREPLY+=( "${toks[@]}" )
+    fi
 } # _filedir()
 
 
@@ -647,7 +648,7 @@ _variables()
 #
 _init_completion()
 {
-    local exclude flag outx errx inx OPTIND=1
+    local exclude= flag outx errx inx OPTIND=1
 
     while getopts "n:e:o:i:s" flag "$@"; do
         case $flag in
@@ -709,7 +710,7 @@ _init_completion()
     [[ $cword -eq 0 ]] && return 1
     prev=${words[cword-1]}
 
-    [[ $split ]] && _split_longopt && split=true
+    [[ ${split-} ]] && _split_longopt && split=true
 
     return 0
 }
@@ -1829,8 +1830,10 @@ _filedir_xspec()
         }
         ))
 
-    [[ ${#toks[@]} -ne 0 ]] && compopt -o filenames
-    COMPREPLY=( "${toks[@]}" )
+    if [[ ${#toks[@]} -ne 0 ]]; then
+        compopt -o filenames
+        COMPREPLY=( "${toks[@]}" )
+    fi
 }
 
 _install_xspec()
