@@ -6,18 +6,20 @@ _curl()
     _init_completion || return
 
     case $prev in
-        --ciphers|--connect-timeout|-C|--continue-at|--form|--form-string|\
+        --ciphers|--connect-timeout|-C|--continue-at|-F|--form|--form-string|\
         --ftp-account|--ftp-alternative-to-user|-P|--ftp-port|-H|--header|-h|\
         --help|--hostpubmd5|--keepalive-time|--krb|--limit-rate|--local-port|\
         --mail-from|--mail-rcpt|--max-filesize|--max-redirs|-m|--max-time|\
         --pass|--proto|--proto-redir|--proxy-user|--proxy1.0|-Q|--quote|-r|\
         --range|-X|--request|--retry|--retry-delay|--retry-max-time|\
         --socks5-gssapi-service|-t|--telnet-option|--tftp-blksize|-z|\
-        --time-cond|--url|-u|--user|-A|--user-agent|-V|--version|-w|--write-out)
+        --time-cond|--url|-u|--user|-A|--user-agent|-V|--version|-w|\
+        --write-out|--resolve|--tlsuser|--tlspassword)
             return
             ;;
         -K|--config|-b|--cookie|-c|--cookie-jar|-D|--dump-header|--egd-file|\
-        --key|--libcurl|-o|--output|--random-file|-T|--upload-file)
+        --key|--libcurl|-o|--output|--random-file|-T|--upload-file|--trace|\
+        --trace-ascii|--netrc-file)
             _filedir
             return
             ;;
@@ -43,6 +45,10 @@ _curl()
                 _filedir
                 COMPREPLY=( "${COMPREPLY[@]/#/@}" )
             fi
+            return
+            ;;
+        --delegation)
+            COMPREPLY=( $( compgen -W 'none policy always' -- "$cur" ) )
             return
             ;;
         --engine)
@@ -72,6 +78,10 @@ _curl()
         --stderr)
             COMPREPLY=( $( compgen -W '-' -- "$cur" ) )
             _filedir
+            return
+            ;;
+        --tlsauthtype)
+            COMPREPLY=( $( compgen -W 'SRP' -- "$cur" ) )
             return
             ;;
     esac

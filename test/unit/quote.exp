@@ -1,0 +1,69 @@
+proc setup {} {
+    save_env
+}
+
+
+proc teardown {} {
+    assert_env_unmodified
+}
+
+
+setup
+
+
+set cmd {quote "a b"}
+set test {quote "a b" should output 'a b'}
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    -re {'a b'} { pass $test }
+    default { fail $test }
+}
+sync_after_int
+
+
+set cmd {quote "a  b"}
+set test {quote "a  b" should output 'a  b'}
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    -re {'a  b'} { pass $test }
+    default { fail $test }
+}
+sync_after_int
+
+
+set cmd {quote "  a "}
+set test {quote "  a " should output '  a '}
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    -re {'  a '} { pass $test }
+    default { fail $test }
+}
+sync_after_int
+
+
+set cmd {quote "a'b'c"}
+set test {quote "a'b'c" should output 'a'\''b'\''c'}
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    -re {'a'\\''b'\\''c'} { pass $test }
+    default { fail $test }
+}
+sync_after_int
+
+
+set cmd {quote "a'"}
+set test {quote "a'" should output 'a'\'''}
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    -re {'a'\\'''} { pass $test }
+    default { fail $test }
+}
+sync_after_int
+
+
+teardown

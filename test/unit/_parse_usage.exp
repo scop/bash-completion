@@ -5,6 +5,7 @@ proc setup {} {
 proc teardown {} {
     assert_env_unmodified {
         /declare -f fn/d
+        /PIPESTATUS=/d
     }
 }
 
@@ -53,6 +54,10 @@ sync_after_int
 
 set cmd {fn() { printf '%s\n' "----\n---foo\n----- bar"; }; _parse_usage fn}
 assert_bash_list "" $cmd "many dashes"
+sync_after_int
+
+set cmd { printf '%s\n' "[-duh]" | _parse_usage - }
+assert_bash_list "-d -u -h" $cmd "from stdin"
 sync_after_int
 
 

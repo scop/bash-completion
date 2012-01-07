@@ -8,17 +8,24 @@ _dmesg()
     _init_completion || return
 
     case $prev in
-        -s|-M|-N)
+        -h|--help|-V|--version|-s|--buffer-size|-M|-N)
             return
             ;;
-        -n)
+        -f|--facility)
+            COMPREPLY=( $( compgen -W 'kern user mail daemon auth syslog lpr
+                news' -- "$cur" ) )
+            return
+            ;;
+        -l|--level|-n|--console-level)
             COMPREPLY=( $( compgen -W '{1..8}' -- "$cur" ) )
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+        local opts=$( _parse_help "$1" )
+        [[ $opts ]] || opts=$( _parse_usage "$1" )
+        COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
         return
     fi
 } &&

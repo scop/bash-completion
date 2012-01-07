@@ -8,18 +8,18 @@ _slapt_get()
     case "$prev" in
         --config|-c)
             _filedir
-            return 0
+            return
             ;;
         --retry|--search)
             # argument required but no completions available
-            return 0
+            return
             ;;
     esac
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_help "$1" --help )' -- "$cur" ) )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
-        [[ $COMPREPLY ]] && return 0
+        [[ $COMPREPLY ]] && return
     fi
 
     local i t
@@ -48,7 +48,7 @@ _slapt_get()
             break
         fi
     done
-    if [ ! -r "$config" ]; then
+    if [[ ! -r "$config" ]]; then
         return
     fi
 
@@ -59,21 +59,21 @@ _slapt_get()
             local name=${cur%%-*}
             COMPREPLY=( $( slapt-get -c $config --search "^$name" 2>/dev/null |\
                 sed -ne "/^$cur/{s/ .*$//;p}" ) )
-            return 0
+            return
             ;;
         avl) # --install|-i|
             COMPREPLY=( $( slapt-get -c $config --available 2>/dev/null | \
-                sed -ne "/^$cur/{s/ .*$//;p}") )
-            return 0
+                sed -ne "/^$cur/{s/ .*$//;p}" ) )
+            return
             ;;
         ins) # --remove|--filelist
             COMPREPLY=( $( cd /var/log/packages; compgen -f -- "$cur" ) )
-            return 0
+            return
             ;;
         set) # --install-set
-            COMPREPLY=( $( compgen -W 'a ap d e f k kde kdei l n t tcl x \
+            COMPREPLY=( $( compgen -W 'a ap d e f k kde kdei l n t tcl x
                 xap y' -- "$cur" ) )
-            return 0
+            return
             ;;
     esac
 } && complete -F _slapt_get slapt-get

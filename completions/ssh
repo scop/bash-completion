@@ -157,20 +157,20 @@ _ssh()
     else
         # Search COMP_WORDS for '-F configfile' or '-Fconfigfile' argument
         set -- "${words[@]}"
-        while [ $# -gt 0 ]; do
-            if [ "${1:0:2}" = -F ]; then
-                if [ ${#1} -gt 2 ]; then
+        while [[ $# -gt 0 ]]; do
+            if [[ $1 == -F* ]]; then
+                if [[ ${#1} -gt 2 ]]; then
                     configfile="$(dequote "${1:2}")"
                 else
                     shift
-                    [ "$1" ] && configfile="$(dequote "$1")"
+                    [[ $1 ]] && configfile="$(dequote "$1")"
                 fi
                 break
             fi
             shift
         done
         _known_hosts_real -a -F "$configfile" "$cur"
-        if [ $cword -ne 1 ]; then
+        if [[ $cword -ne 1 ]]; then
             compopt -o filenames
             COMPREPLY+=( $( compgen -c -- "$cur" ) )
         fi
@@ -220,13 +220,13 @@ _sftp()
     else
         # Search COMP_WORDS for '-F configfile' argument
         set -- "${words[@]}"
-        while [ $# -gt 0 ]; do
-            if [ "${1:0:2}" = -F ]; then
-                if [ ${#1} -gt 2 ]; then
+        while [[ $# -gt 0 ]]; do
+            if [[ $1 == -F* ]]; then
+                if [[ ${#1} -gt 2 ]]; then
                     configfile="$(dequote "${1:2}")"
                 else
                     shift
-                    [ "$1" ] && configfile="$(dequote "$1")"
+                    [[ $1 ]] && configfile="$(dequote "$1")"
                 fi
                 break
             fi
@@ -258,12 +258,12 @@ _scp_remote_files()
     path=$( sed -e 's/\\\\\\\('$_scp_path_esc'\)/\\\1/g' <<<"$path" )
 
     # default to home dir of specified user on remote host
-    if [ -z "$path" ]; then
+    if [[ -z $path ]]; then
         path=$(ssh -o 'Batchmode yes' $userhost pwd 2>/dev/null)
     fi
 
     local files
-    if [ "$1" = -d ] ; then
+    if [[ $1 == -d ]]; then
         # escape problematic characters; remove non-dirs
         files=$( ssh -o 'Batchmode yes' $userhost \
             command ls -aF1d "$path*" 2>/dev/null | \
@@ -288,7 +288,7 @@ _scp_local_files()
     local IFS=$'\n'
 
     local dirsonly=false
-    if [ "$1" = -d ]; then
+    if [[ $1 == -d ]]; then
         dirsonly=true
         shift
     fi
@@ -350,13 +350,13 @@ _scp()
     else
         # Search COMP_WORDS for '-F configfile' or '-Fconfigfile' argument
         set -- "${words[@]}"
-        while [ $# -gt 0 ]; do
-            if [ "${1:0:2}" = -F ]; then
-                if [ ${#1} -gt 2 ]; then
+        while [[ $# -gt 0 ]]; do
+            if [[ $1 == -F* ]]; then
+                if [[ ${#1} -gt 2 ]]; then
                     configfile="$(dequote "${1:2}")"
                 else
                     shift
-                    [ "$1" ] && configfile="$(dequote "$1")"
+                    [[ $1 ]] && configfile="$(dequote "$1")"
                 fi
                 break
             fi

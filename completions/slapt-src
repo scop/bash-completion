@@ -8,18 +8,18 @@ _slapt_src()
     case "$prev" in
         --config|-c)
             _filedir
-            return 0
+            return
             ;;
         --search|-s|--postprocess|-p)
             # argument required but no completions available
-            return 0
+            return
             ;;
     esac
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_help "$1" --help )' -- "$cur" ) )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
-        [[ $COMPREPLY ]] && return 0
+        [[ $COMPREPLY ]] && return
     fi
 
     local i t
@@ -30,8 +30,8 @@ _slapt_src()
             break
         fi
     done
-    if [ "$t" != "all" ]; then
-        return 0
+    if [[ $t != all ]]; then
+        return
     fi
 
     local config="/etc/slapt-get/slapt-srcrc" # default config location
@@ -42,18 +42,18 @@ _slapt_src()
             break
         fi
     done
-    if [ ! -r "$config" ]; then
-        return 0
+    if [[ ! -r "$config" ]]; then
+        return
     fi
 
     if [[ "$cur" == *:* ]]; then
         local name=${cur%:*}
         local version=${cur##*:}
-        COMPREPLY=( $( slapt-src --config $config --search "^$name" 2> \
+        COMPREPLY=( $( slapt-src --config "$config" --search "^$name" 2> \
             /dev/null | sed -ne "/^$cur/{s/^$name:\([^ ]*\) .*$/\1/;p}" ) )
     else
-        COMPREPLY=( $( slapt-src --config $config --search "^$cur" 2>/dev/null \
-            | sed -ne "/^$cur/{s/ .*$//;p}" ) )
+        COMPREPLY=( $( slapt-src --config "$config" --search "^$cur" 2> \
+            /dev/null | sed -ne "/^$cur/{s/ .*$//;p}" ) )
     fi
 } && complete -F _slapt_src slapt-src
 

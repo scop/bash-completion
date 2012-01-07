@@ -1,0 +1,63 @@
+# iperf(1) completion                                      -*- shell-script -*-
+
+_iperf()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -h|--help|-v|--version|-i|--interval|-l|--len|-p|--port|-w|--window|\
+        -M|--mss|-b|--bandwidth|-n|--num|-t|--time|-L|--listenport|-P|\
+        --parallel|-T|--ttl|-Z|--linux-congestion)
+            return
+            ;;
+        -f|--format)
+            COMPREPLY=( $( compgen -W 'k m K M' -- "$cur" ) )
+            return
+            ;;
+        -o|--output|-F|--fileinput)
+            _filedir
+            return
+            ;;
+        -B|--bind)
+            _available_interfaces -a
+            _ip_addresses
+            return
+            ;;
+        -c|--client)
+            _known_hosts_real "$cur"
+            return
+            ;;
+        -x|--reportexclude)
+            COMPREPLY=( $( compgen -W 'C D M S V' -- "$cur" ) )
+            return
+            ;;
+        -y|--reportstyle)
+            COMPREPLY=( $( compgen -W 'C' -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    $split && return
+
+    # Filter mode specific options
+    local i filter=cat
+    for i in ${words[@]}; do
+        case $i in
+            -s|--server)
+                filter='sed -e /^Client.specific/,/^$/d'
+                ;;
+            -c|--client)
+                filter='sed -e /^Server.specific/,/^$/d'
+                ;;
+        esac
+    done
+    [[ $filter != cat ]] && filter+=' -e /--client/d -e /--server/d'
+
+    COMPREPLY=( $( compgen -W \
+        '$( "$1" --help 2>&1 | $filter | _parse_help - )' -- "$cur" ) )
+    [[ $COMPREPLY == *= ]] && compopt -o nospace
+} &&
+complete -F _iperf iperf
+
+# ex: ts=4 sw=4 et filetype=sh

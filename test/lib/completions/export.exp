@@ -1,0 +1,55 @@
+proc setup {} {
+    save_env
+}
+
+
+proc teardown {} {
+    assert_env_unmodified {
+        /OLDPWD=/d
+    }
+}
+
+
+setup
+
+
+assert_complete_any "export BASH"
+sync_after_int
+
+
+assert_complete_any "export -n BASH"
+sync_after_int
+
+
+assert_no_complete "export -p "
+sync_after_int
+
+
+assert_complete_dir {bar "bar bar.d/" foo foo.d/} "export FOO=" \
+    fixtures/shared/default
+sync_after_int
+
+
+assert_complete_dir {foo foo.d/} "export FOO=f" fixtures/shared/default "" \
+    -expect-cmd-minus f
+sync_after_int
+
+
+# Functions: _export, _expand, ...
+assert_complete_any "export -fn _ex"
+sync_after_int
+
+
+assert_complete_any "export -f -n _ex"
+sync_after_int
+
+
+assert_complete_any "export FOO=\$BASH"
+sync_after_int
+
+
+assert_complete_any "export -"
+sync_after_int
+
+
+teardown

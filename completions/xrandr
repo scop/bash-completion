@@ -7,52 +7,50 @@ _xrandr()
 
     local output modes
 
-    case $prev in
+    case "$prev" in
         --output|--left-of|--right-of|--above|--below|--same-as)
-            local outputs=$(xrandr|awk '/connected/ {print $1}')
-            COMPREPLY=( $(compgen -W "$outputs" -- "$cur"))
-            return 0
+            local outputs=$( xrandr | awk '/connected/ {print $1}' )
+            COMPREPLY=( $( compgen -W "$outputs" -- "$cur" ) )
+            return
             ;;
         --mode)
             for(( i = 1; i < cword; i++ )); do
-                if [[ "${words[i]}" == "--output" ]]; then
+                if [[ "${words[i]}" == --output ]]; then
                     output=${words[i+1]}
                     break
                 fi
             done
-            modes=$(xrandr|sed -e "1,/$output/ d" \
-                -e "/connected/,$ d"|awk '{print $1}')
-            COMPREPLY=( $( compgen -W "$modes" -- "$cur"))
-            return 0
+            modes=$( xrandr | sed -e "1,/$output/ d" \
+                -e "/connected/,$ d" | awk '{print $1}' )
+            COMPREPLY=( $( compgen -W "$modes" -- "$cur" ) )
+            return
             ;;
         -o|--orientation)
             COMPREPLY=( $( compgen -W 'normal inverted left right 0 1 2 3' -- \
                 "$cur" ) )
-            return 0
+            return
             ;;
         --reflect)
-            COMPREPLY=( $( compgen -W 'normal x y xy' -- \
-                "$cur" ) )
-            return 0
+            COMPREPLY=( $( compgen -W 'normal x y xy' -- "$cur" ) )
+            return
             ;;
         --rotate)
-            COMPREPLY=( $( compgen -W 'normal inverted left right' -- \
-                "$cur" ) )
-            return 0
+            COMPREPLY=( $( compgen -W 'normal inverted left right' -- "$cur" ) )
+            return
             ;;
     esac
 
     case $cur in
         *)
-            COMPREPLY=( $(compgen -W '-display -help --orientation --query \
-                --size --rate --version -x -y --screen --verbose --dryrun \
-                --q1 --q12 --nograb --prop --properties --fb --fbmm --dpi \
-                --output --auto --mode --preferred --pos --rate --refresh \
-                --reflect --rotate --left-of --right-of --above --below \
-                --same-as --set --scale --transform --off --crtc --panning \
-                --gamma --brightness --primary --noprimary --newmode --rmmode \
-                --addmode --delmode' -- "$cur") )
-            return 0
+            COMPREPLY=( $( compgen -W '-display -help --orientation --query
+                --size --rate --version -x -y --screen --verbose --dryrun
+                --q1 --q12 --nograb --prop --properties --fb --fbmm --dpi
+                --output --auto --mode --preferred --pos --rate --refresh
+                --reflect --rotate --left-of --right-of --above --below
+                --same-as --set --scale --transform --off --crtc --panning
+                --gamma --brightness --primary --noprimary --newmode --rmmode
+                --addmode --delmode' -- "$cur" ) )
+            return
             ;;
     esac
 } &&

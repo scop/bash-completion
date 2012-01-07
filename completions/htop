@@ -1,0 +1,32 @@
+# htop(1) completion                                       -*- shell-script -*-
+
+_htop()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case "$prev" in
+        -s|--sort-key)
+            COMPREPLY=( $( compgen -W '$( "$1" -s help )' -- "$cur" ) )
+            return
+            ;;
+        -u|--user)
+            COMPREPLY=( $( compgen -u -- "$cur" ) )
+            return
+            ;;
+        -d|--delay)
+            # argument required but no completions available
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" --help )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+} && complete -F _htop htop
+
+# ex: ts=4 sw=4 et filetype=sh

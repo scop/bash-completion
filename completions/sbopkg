@@ -6,33 +6,33 @@ _sbopkg()
     _init_completion || return
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-b -c -d -e -f -g -h -i -k -l \
-                      -o -P -p -q -R -r -s -u -V -v' -- "$cur" ) )
-        return 0
+        COMPREPLY=( $( compgen -W '-b -c -d -e -f -g -h -i -k -l -o
+            -P -p -q -R -r -s -u -V -v' -- "$cur" ) )
+        return
     fi
 
     case "$prev" in
         -e)
             COMPREPLY=( $( compgen -W 'ask continue stop' -- "$cur" ) )
-            return 0
+            return
             ;;
         -f)
             _filedir
-            return 0
+            return
             ;;
         -d)
             _filedir -d
-            return 0
+            return
             ;;
         -V)
             COMPREPLY=( $( compgen -W "? \
-                $(sbopkg -V ? 2>&1 | cut -s -f1)" -- "$cur" ) )
-            return 0
+                $( sbopkg -V ? 2>&1 | cut -s -f1 )" -- "$cur" ) )
+            return
             ;;
         -i|-b)
             ;;
         *)
-            return 0
+            return
             ;;
     esac
 
@@ -45,8 +45,8 @@ _sbopkg()
         fi
     done
 
-    if [ ! -r "$config" ]; then
-        return 0
+    if [[ ! -r "$config" ]]; then
+        return
     fi
 
     . $config
@@ -63,8 +63,8 @@ _sbopkg()
         esac
     done
 
-    if [ ! -r "$REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT" ]; then
-        return 0
+    if [[ ! -r $REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT ]]; then
+        return
     fi
     COMPREPLY=( $( sed -ne "/^SLACKBUILD NAME: $cur/{s/^SLACKBUILD NAME: //;p}"\
         $REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT )

@@ -21,23 +21,23 @@ _muttrc()
 {
     # Search COMP_WORDS for '-F muttrc' or '-Fmuttrc' argument
     set -- "${words[@]}"
-    while [ $# -gt 0 ]; do
-        if [ "${1:0:2}" = -F ]; then
-            if [ ${#1} -gt 2 ]; then
+    while [[ $# -gt 0 ]]; do
+        if [[ $1 == -F* ]]; then
+            if [[ ${#1} -gt 2 ]]; then
                 muttrc="$(dequote "${1:2}")"
             else
                 shift
-                [ "$1" ] && muttrc="$(dequote "$1")"
+                [[ $1 ]] && muttrc="$(dequote "$1")"
             fi
             break
         fi
         shift
     done
 
-    if [ -z "$muttrc" ]; then
-        if [ -f ~/.${muttcmd}rc ]; then
+    if [[ -z $muttrc ]]; then
+        if [[ -f ~/.${muttcmd}rc ]]; then
             muttrc="~/.${muttcmd}rc"
-        elif [ -f ~/.${muttcmd}/${muttcmd}rc ]; then
+        elif [[ -f ~/.${muttcmd}/${muttcmd}rc ]]; then
             muttrc="~/.${muttcmd}/${muttcmd}rc"
         fi
     fi
@@ -57,11 +57,10 @@ _muttconffiles()
     sofar=" $1 "
     shift
     while [[ "$1" ]]; do
-        newconffiles=( $(sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' $(eval echo $1) ) )
+        newconffiles=( $(sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' $(eval printf %s $1) ) )
         for file in "${newconffiles[@]}"; do
             __expand_tilde_by_ref file
-            [[ ! -f "$file" || "${sofar/ ${file} / }" != "$sofar" ]] &&
-                continue
+            [[ ! -f "$file" || $sofar == *\ $file\ * ]] && continue
             sofar+=" $file"
             sofar=" $(eval _muttconffiles \"$sofar\" $file) "
         done
@@ -78,7 +77,7 @@ _muttaliases()
     local -a conffiles aliases
 
     muttrc=$(_muttrc)
-    [ -z "$muttrc" ] && return 0
+    [[ -z $muttrc ]] && return 0
 
     conffiles=( $(eval _muttconffiles $muttrc $muttrc) )
     aliases=( $( sed -n 's|^alias[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' \
@@ -126,10 +125,10 @@ _muttfiledir()
         COMPREPLY=( $( compgen -f -- "$folder/${cur:1}" ) )
         COMPREPLY=( ${COMPREPLY[@]#$folder/} )
         return 0
-    elif [ "$cur" == !* ]; then
+    elif [[ $cur == !* ]]; then
         spoolfile="$( $muttcmd -F "$muttrc" -Q spoolfile 2>/dev/null | \
             sed -e 's|^spoolfile=\"\(.*\)\"$|\1|' )"
-        [ ! -z "$spoolfile" ] && eval cur="${cur/^!/$spoolfile}"
+        [[ ! -z $spoolfile ]] && eval cur="${cur/^!/$spoolfile}"
     fi
     _filedir
 

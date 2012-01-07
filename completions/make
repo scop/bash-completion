@@ -24,6 +24,10 @@ _make()
         --eval|-D|-V|-x)
             return 0
             ;;
+        --jobs|-j)
+            COMPREPLY=( $( compgen -W "{1..$(( $(_ncpus)*2 ))}" -- "$cur" ) )
+            return 0
+            ;;
     esac
 
     $split && return 0
@@ -54,8 +58,8 @@ _make()
             fi
         done
 
-        [ -n "$makef" ] && makef="-f ${makef}"
-        [ -n "$makef_dir" ] && makef_dir="-C ${makef_dir}"
+        [[ -n $makef ]] && makef="-f ${makef}"
+        [[ -n $makef_dir ]] && makef_dir="-C ${makef_dir}"
 
         COMPREPLY=( $( compgen -W "$( make -qp $makef $makef_dir 2>/dev/null | \
             awk -F':' '/^[a-zA-Z0-9][^$#\/\t=]*:([^=]|$)/ \

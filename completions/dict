@@ -17,17 +17,17 @@ _dict()
         case ${words[i]} in
             -h|--host)
                 host=${words[i+1]}
-                [ -n "$host" ] && host="-h $host"
+                [[ -n $host ]] && host="-h $host"
                 i=$((++i))
                 ;;
             -p|--port)
                 port=${words[i+1]}
-                [ -n "$port" ] && port="-p $port"
+                [[ -n $port ]] && port="-p $port"
                 i=$((++i))
                 ;;
             -d|--database)
                 db=${words[i+1]}
-                [ -n "$db" ] && host="-d $db"
+                [[ -n $db ]] && host="-d $db"
                 i=$((++i))
                 ;;
             *)
@@ -54,8 +54,17 @@ _dict()
     esac
 
     local dictfile=/usr/share/dict/words
-    [ -r $dictfile ] && \
-        COMPREPLY=( $( compgen -W '$( cat $dictfile )' -- "$cur" ) )
+    if [[ -r $dictfile ]]; then
+        # Dictfile may be too large for practical compgen -W usage, so narrow
+        # it down with grep if $cur looks like something that's safe to embed
+        # in a pattern instead.
+        if [[ $cur == +([-A-Za-z0-9/.]) ]]; then
+            COMPREPLY=( $( compgen -W \
+                '$( command grep "^${cur//./\\.}" $dictfile )' -- "$cur" ) )
+        else
+            COMPREPLY=( $( compgen -W '$( cat $dictfile )' -- "$cur" ) )
+        fi
+    fi
 } &&
 complete -F _dict -o default dict rdict
 

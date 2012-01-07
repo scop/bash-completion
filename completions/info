@@ -43,14 +43,14 @@ _info()
 
     local i infopath=/usr/share/info
 
-    if [ "${INFOPATH: -1:1}" == ':' ]; then
+    if [[ $INFOPATH == *: ]]; then
         infopath=${INFOPATH}${infopath}
-    elif [ ${INFOPATH:+set} ]; then
+    elif [[ ${INFOPATH:+set} ]]; then
         infopath=$INFOPATH
     fi
 
     infopath=$infopath:
-    if [ -n "$cur" ]; then
+    if [[ -n $cur ]]; then
         infopath="${infopath//://$cur* }"
     else
         infopath="${infopath//:// }"
@@ -62,9 +62,7 @@ _info()
     COMPREPLY=( ${COMPREPLY[@]##*/?(:)} )
     # weed out info dir file
     for (( i=0 ; i < ${#COMPREPLY[@]} ; ++i )); do
-        if [ "${COMPREPLY[$i]}" == 'dir' ]; then
-            unset COMPREPLY[$i]
-        fi
+        [[ ${COMPREPLY[$i]} == dir ]] && unset COMPREPLY[$i]
     done
     # strip suffix from info pages
     COMPREPLY=( ${COMPREPLY[@]%.@(gz|bz2|xz|lzma)} )

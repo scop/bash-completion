@@ -6,19 +6,19 @@ _wtf()
     local cur prev words cword
     _init_completion || return
 
-    [ "$prev" = -f ] && _filedir && return 0
-    [[ "$cur" == -* ]] && COMPREPLY=( -f ) && return 0
+    [[ $prev == -f ]] && _filedir && return 0
+    [[ $cur == -* ]] && COMPREPLY=( -f ) && return 0
 
     local db
 
     set -- "${words[@]}"
-    while [ $# -gt 0 ]; do
-        if [ "$1" = -f ]; then
+    while [[ $# -gt 0 ]]; do
+        if [[ $1 == -f ]]; then
             shift ; db=$1 ; break
         fi
         shift
     done
-    [ -z $db ] && db=${ACRONYMDB:-/usr/share/misc/acronyms*}
+    [[ -z $db ]] && db=${ACRONYMDB:-/usr/share/misc/acronyms*}
 
     COMPREPLY=( $( compgen -W "$( cut -f 1 -s $db ) -f" -- "${cur^^}" ) )
 } &&

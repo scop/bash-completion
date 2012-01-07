@@ -357,8 +357,9 @@ proc assert_complete_any {cmd {test ""} {prompt /@}} {
 }
 
 
-# Make sure the expected files are returned by TAB-completing the
-# specified command in the specified subdirectory.
+# Make sure the expected files are returned by TAB-completing the specified
+# command in the specified subdirectory.  Be prepared to filter out OLDPWD
+# changes when calling assert_env_unmodified() after using this procedure.
 # @param list $expected
 # @param string $cmd  Command given to generate items
 # @param string $dir  Subdirectory to attempt completion in.  The directory must be relative from the $TESTDIR and without a trailing slash.  E.g. `fixtures/evince'
@@ -368,7 +369,7 @@ proc assert_complete_any {cmd {test ""} {prompt /@}} {
 proc assert_complete_dir {expected cmd dir {test ""} {args {}}} {
     set prompt "/@"
     assert_bash_exec "cd $dir" "" $prompt
-    assert_complete $expected $cmd $test $args
+    eval assert_complete \$expected \$cmd \$test $args
     sync_after_int $prompt
     assert_bash_exec {cd "$TESTDIR"}
 }

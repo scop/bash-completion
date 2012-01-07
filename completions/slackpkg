@@ -17,34 +17,34 @@ _slackpkg()
         -delall|-checkmd5|-checkgpg|-checksize|-postinst|-onoff|-download_all|\
         -dialog|-batch|-only_new_dotnew|-use_includes|-spinning)
             COMPREPLY=( $( compgen -W 'on off' -- "$cur" ) )
-            return 0
+            return
             ;;
         -default_answer)
             COMPREPLY=( $( compgen -W 'yes no' -- "$cur" ) )
-            return 0
+            return
             ;;
         -dialog_maxargs|-mirror)
             # argument required but no completions available
-            return 0
+            return
             ;;
     esac
 
-    $split && return 0
+    $split && return
 
     if [[ "$cur" == -* ]]; then
         compopt -o nospace
-        COMPREPLY=( $( compgen -W '-delall= -checkmd5= -checkgpg= \
-            -checksize= -postinst= -onoff= -download_all= -dialog= \
-            -dialog_maxargs= -batch= -only_new_dotnew= -use_includes= \
+        COMPREPLY=( $( compgen -W '-delall= -checkmd5= -checkgpg=
+            -checksize= -postinst= -onoff= -download_all= -dialog=
+            -dialog_maxargs= -batch= -only_new_dotnew= -use_includes=
             -spinning= -default_answer= -mirror=' -- "$cur" ) )
-        return 0
+        return
     fi
 
     local confdir="/etc/slackpkg"
     local config="$confdir/slackpkg.conf"
 
-    if [ ! -r "$config" ]; then
-        return 0
+    if [[ ! -r "$config" ]]; then
+        return
     fi
     . "$config"
 
@@ -59,47 +59,47 @@ _slackpkg()
     case "$action" in
         generate-template|search|file-search)
             # argument required but no completions available
-            return 0
+            return
             ;;
         install-template|remove-template)
-            if [ -e "$confdir/templates" ]; then
+            if [[ -e $confdir/templates ]]; then
                 COMPREPLY=( $( cd "$confdir/templates"; \
                     compgen -f -X "!*.template" -- "$cur" ) )
                 COMPREPLY=( ${COMPREPLY[@]%.template} )
             fi
-            return 0
+            return
             ;;
         remove)
             _filedir
-            COMPREPLY+=( $( compgen -W 'a ap d e f k kde kdei l n t tcl x \
+            COMPREPLY+=( $( compgen -W 'a ap d e f k kde kdei l n t tcl x
                 xap y' -- "$cur" ) )
             COMPREPLY+=( $( cd /var/log/packages; compgen -f -- "$cur" ) )
-            return 0
+            return
             ;;
         install|reinstall|upgrade|blacklist|download)
             _filedir
-            COMPREPLY+=( $( compgen -W 'a ap d e f k kde kdei l n t tcl x \
+            COMPREPLY+=( $( compgen -W 'a ap d e f k kde kdei l n t tcl x
                 xap y' -- "$cur" ) )
-            COMPREPLY+=( $( cut -f 6 -d\  ${WORKDIR}/pkglist 2> /dev/null | \
+            COMPREPLY+=( $( cut -f 6 -d\  "${WORKDIR}/pkglist" 2> /dev/null | \
                 grep "^$cur" ) )
-            return 0
+            return
             ;;
         info)
-            COMPREPLY+=( $( cut -f 6 -d\  ${WORKDIR}/pkglist 2> /dev/null | \
+            COMPREPLY=( $( cut -f 6 -d\  "${WORKDIR}/pkglist" 2> /dev/null | \
                 grep "^$cur" ) )
-            return 0
+            return
             ;;
         update)
             # we should complete the same as the next `list` + "gpg"
             COMPREPLY=( $( compgen -W 'gpg' -- "$cur" ) )
             ;&
         *)
-            COMPREPLY+=( $( compgen -W 'install reinstall upgrade remove \
-                blacklist download update install-new upgrade-all \
-                clean-system new-config check-updates help generate-template \
+            COMPREPLY+=( $( compgen -W 'install reinstall upgrade remove
+                blacklist download update install-new upgrade-all
+                clean-system new-config check-updates help generate-template
                 install-template remove-template search file-search info' -- \
                 "$cur" ) )
-            return 0
+            return
             ;;
     esac
 

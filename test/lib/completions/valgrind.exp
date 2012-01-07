@@ -1,0 +1,50 @@
+proc setup {} {
+    save_env
+}
+
+
+proc teardown {} {
+    assert_env_unmodified {/OLDPWD=/d}
+}
+
+
+setup
+
+
+# b: assuming we have at least bash that starts with b in $PATH
+assert_complete_any "valgrind b"
+
+
+sync_after_int
+
+
+assert_complete_any "valgrind -"
+
+
+sync_after_int
+
+
+set test "--tool=memche<TAB> should complete \"memcheck\""
+assert_complete "--tool=memcheck" "valgrind --tool=memche" $test
+
+
+sync_after_int
+
+
+set test "--tool=helgrind --history-l<TAB> should complete \"--history-level=\""
+assert_complete "--history-level=" "valgrind --tool=helgrind --history-l" $test -nospace
+
+
+sync_after_int
+
+
+set test "it should be possible to complete file paths"
+set dir $::srcdir/fixtures/shared
+set files [split [exec bash -c "cd $dir/bin && ls -p"] "\n"]
+assert_complete_dir $files "valgrind --log-file=v\\ 0.log ./bin/" $dir $test
+
+
+sync_after_int
+
+
+teardown

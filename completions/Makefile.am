@@ -20,6 +20,7 @@ bashcomp_DATA = a2x \
 		autoreconf \
 		autorpm \
 		autoscan \
+		avctrl \
 		badblocks \
 		bk \
 		brctl \
@@ -28,6 +29,7 @@ bashcomp_DATA = a2x \
 		cal \
 		cancel \
 		cardctl \
+		ccache \
 		cfagent \
 		cfrun \
 		chage \
@@ -53,14 +55,16 @@ bashcomp_DATA = a2x \
 		cpio \
 		cppcheck \
 		crontab \
-		curl \
 		cryptsetup \
+		curl \
 		cvs \
 		cvsps \
 		dd \
+		desktop-file-validate \
 		dhclient \
 		dict \
 		dmesg \
+		dnsspoof \
 		dot \
 		dpkg \
 		dpkg-source \
@@ -112,8 +116,10 @@ bashcomp_DATA = a2x \
 		hddtemp \
 		hid2hci \
 		hping2 \
+		htop \
 		htpasswd \
 		iconv \
+		id \
 		idn \
 		iftop \
 		ifup \
@@ -124,9 +130,10 @@ bashcomp_DATA = a2x \
 		invoke-rc.d \
 		ionice \
 		ip \
-		iptables \
+		iperf \
 		ipmitool \
 		ipsec \
+		iptables \
 		ipv6calc \
 		iscsiadm \
 		isql \
@@ -145,6 +152,7 @@ bashcomp_DATA = a2x \
 		killall \
 		kldload \
 		kldunload \
+		koji \
 		ktutil \
 		larch \
 		lastlog \
@@ -166,6 +174,7 @@ bashcomp_DATA = a2x \
 		lrzip \
 		lsof \
 		lvm \
+		lzip \
 		lzma \
 		lzop \
 		macof \
@@ -186,6 +195,7 @@ bashcomp_DATA = a2x \
 		mmsitepass \
 		monodevelop \
 		mount \
+		mount.linux \
 		mplayer \
 		msynctool \
 		mtx \
@@ -197,6 +207,7 @@ bashcomp_DATA = a2x \
 		mysql \
 		mysqladmin \
 		ncftp \
+		nethogs \
 		newgrp \
 		newlist \
 		newusers \
@@ -209,11 +220,13 @@ bashcomp_DATA = a2x \
 		passwd \
 		perl \
 		pgrep \
+		pidof \
 		pine \
 		ping \
 		pkg-config \
 		pkg_delete \
 		pkgtool \
+		plague-client \
 		pm-hibernate \
 		pm-is-supported \
 		pm-powersave \
@@ -243,8 +256,8 @@ bashcomp_DATA = a2x \
 		remove_members \
 		removepkg \
 		renice \
-		reptyr \
 		reportbug \
+		reptyr \
 		resolvconf \
 		rfkill \
 		ri \
@@ -261,7 +274,6 @@ bashcomp_DATA = a2x \
 		sbcl \
 		sbopkg \
 		screen \
-		service \
 		sh \
 		sitecopy \
 		slackpkg \
@@ -287,6 +299,9 @@ bashcomp_DATA = a2x \
 		tcpnice \
 		tracepath \
 		tune2fs \
+		udevadm \
+		umount \
+		umount.linux \
 		unace \
 		unpack200 \
 		unrar \
@@ -298,11 +313,13 @@ bashcomp_DATA = a2x \
 		useradd \
 		userdel \
 		usermod \
+		valgrind \
 		vipw \
 		vncviewer \
 		vpnc \
 		watch \
 		webmitm \
+		wine \
 		withlist \
 		wodim \
 		wol \
@@ -333,6 +350,7 @@ CLEANFILES = \
 	alternatives \
 	animate \
 	apropos \
+	arm-koji \
 	asciidoc.py \
 	autoheader \
 	automake-1.11 \
@@ -424,7 +442,6 @@ CLEANFILES = \
 	pccardctl \
 	perldoc \
 	phing \
-	pidof \
 	pigz \
 	pinfo \
 	ping6 \
@@ -435,6 +452,7 @@ CLEANFILES = \
 	pm-suspend-hybrid \
 	pmake \
 	postalias \
+	ppc-koji \
 	puppetca \
 	puppetd \
 	puppetdoc \
@@ -464,6 +482,7 @@ CLEANFILES = \
 	rpm2txz \
 	rpmbuild \
 	rpmbuild-md5 \
+	s390-koji \
 	sbcl-mt \
 	scp \
 	sdptool \
@@ -476,12 +495,12 @@ CLEANFILES = \
 	smbpasswd \
 	smbtar \
 	smbtree \
+	sparc-koji \
 	spovray \
 	stream \
 	tightvncviewer \
 	tracepath6 \
 	typeset \
-	umount \
 	vgcfgbackup \
 	vgcfgrestore \
 	vgchange \
@@ -624,9 +643,9 @@ symlinks:
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) java $(targetdir)/$$file ; \
 	done
-	for file in pkill ; do \
+	for file in arm-koji ppc-koji s390-koji sparc-koji ; do \
 		rm -f $(targetdir)/$$file && \
-			$(LN_S) killall $(targetdir)/$$file ; \
+			$(LN_S) koji $(targetdir)/$$file ; \
 	done
 	for file in ldapadd ldapmodify ldapdelete ldapcompare ldapmodrdn \
 		ldapwhoami ldappasswd ; do \
@@ -658,10 +677,6 @@ symlinks:
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) mcrypt $(targetdir)/$$file ; \
 	done
-	for file in umount ; do \
-		rm -f $(targetdir)/$$file && \
-			$(LN_S) mount $(targetdir)/$$file ; \
-	done
 	for file in mplayer2 mencoder gmplayer kplayer ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) mplayer $(targetdir)/$$file ; \
@@ -682,10 +697,6 @@ symlinks:
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) perl $(targetdir)/$$file ; \
 	done
-	for file in pidof ; do \
-		rm -f $(targetdir)/$$file && \
-			$(LN_S) pgrep $(targetdir)/$$file ; \
-	done
 	for file in alpine ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) pine $(targetdir)/$$file ; \
@@ -697,6 +708,10 @@ symlinks:
 	for file in pkg_info pkg_deinstall ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) pkg_delete $(targetdir)/$$file ; \
+	done
+	for file in pkill ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) pgrep $(targetdir)/$$file ; \
 	done
 	for file in pm-suspend pm-suspend-hybrid ; do \
 		rm -f $(targetdir)/$$file && \

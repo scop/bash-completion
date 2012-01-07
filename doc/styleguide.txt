@@ -29,13 +29,8 @@ doesn't confuse editors as bad as the latter, and is concise enough.
 &#91;[ ]] vs [ ]
 ----------------
 
-Use [[ ]] instead of [ ] when testing multiple conditions. [ ] is fine
-for single conditions where the syntax works.  Rationale: [[ ]] has
-short circuit behavior within one test containing multiple conditions
-separated by && or ||, while [ ] with -a or -o does not.  Thus it can
-be more efficient in some cases and may reduce need for nesting
-conditions, and it's cleaner to write for example [[ ... && ... ]]
-than [ ... ] && [ ... ], and in general [[ ]] has more features.
+Always use [[ ]] instead of [ ].  Rationale: the former is less error
+prone, more featureful, and slightly faster.
 
 Line wrapping
 -------------
@@ -65,6 +60,40 @@ escaped as filenames. Instead, use "compopt -o filenames" to turn on
 need that kind of processing (e.g. file and command names). The
 _filedir and _filedir_xspec helpers do this automatically whenever
 they return some completions.
+
+&#91;[ $COMPREPLY == *= ]] && compopt -o nospace
+------------------------------------------------
+
+The above is functionally a shorthand for:
+----
+if [[ ${#COMPREPLY[@]} -eq 1 && ${COMPREPLY[0]} == *= ]]; then
+    compopt -o nospace
+fi
+----
+It is used to ensure that long options' name won't get a space
+appended after the equal sign.  Calling compopt -o nospace makes sense
+in case completion actually occurs: when only one completion is
+available in COMPREPLY.
+
+$split && return
+----------------
+
+Should be used in completions using the -s flag of _init_completion,
+or other similar cases where _split_longopt has been invoked, after
+$prev has been managed but before $cur is considered.  If $cur of the
+form --foo=bar was split into $prev=--foo and $cur=bar and the $prev
+block did not process the option argument completion, it makes sense
+to return immediately after the $prev block because --foo obviously
+takes an argument and the remainder of the completion function is
+unlikely to provide meaningful results for the required argument.
+Think of this as a catch-all for unknown options requiring an
+argument.
+
+Note that even when using this, options that are known to require an
+argument but for which we don't have argument completion should be
+explicitly handled (non-completed) in the $prev handling block because
+--foo=bar options can often be written without the equals sign, and in
+that case the long option splitting does not occur.
 
 /////////////////////////////////////////
 case/esac vs if

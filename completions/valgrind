@@ -1,0 +1,104 @@
+# valgrind(1) completion                                   -*- shell-script -*-
+
+_valgrind()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    local i
+    # Note: intentionally using COMP_WORDS and COMP_CWORD instead of
+    # words and cword here due to splitting on = causing index differences
+    # (_command_offset assumes the former).
+    for (( i=1; i <= COMP_CWORD; i++ )); do
+        if [[ ${COMP_WORDS[i]} != @([-=])* && ${COMP_WORDS[i-1]} != = ]]; then
+            _command_offset $i
+            return
+        fi
+    done
+
+    local tool
+    for (( i=1; i < ${#words[@]}; i++ )); do
+        if [[ ${words[i]} == --tool=?* ]]; then
+            tool=${words[i]}
+            break
+        fi
+    done
+
+    case $prev in
+        -h|--help|--help-debug|--version)
+            return
+            ;;
+        --tool)
+            # Tools seem to be named e.g. like memcheck-amd64-linux from which
+            # we want to grab memcheck.
+            COMPREPLY=( $( compgen -W '$(
+                for f in /usr{,/local}/lib{,64}/valgrind/*; do
+                    [[ $f != *.so && -x $f ]] &&
+                        sed -ne "s/^.*\/\(.*\)-\([^-]*\)-\([^-]*\)/\1/p" <<<$f
+                done )' -- "$cur" ) )
+            return
+            ;;
+        --sim-hints)
+            COMPREPLY=( $( compgen -W 'lax-ioctls enable-outer' -- "$cur" ) )
+            return
+            ;;
+        --kernel-variant)
+            COMPREPLY=( $( compgen -W 'bproc' -- "$cur" ) )
+            return
+            ;;
+        # callgrind:
+        --callgrind-out-file)
+            _filedir
+            return
+            ;;
+        # exp-dhat:
+        --sort-by)
+            COMPREPLY=( $( compgen -W 'max-bytes-live tot-bytes-allocd
+                max-blocks-live' -- "$cur" ) )
+            return
+            ;;
+        # massif:
+        --time-unit)
+            COMPREPLY=( $( compgen -W 'i ms B' -- "$cur" ) )
+            return
+            ;;
+        # generic cases parsed from --help output
+        --+([-A-Za-z0-9_]))
+            local value=$( $1 --help-debug $tool 2>/dev/null | \
+                sed -ne "s|^[$' \t']*$prev=\([^$' \t']\{1,\}\).*|\1|p" )
+            case $value in
+                \<file*\>)
+                    _filedir
+                    return
+                    ;;
+                \<command\>)
+                    COMPREPLY=( $( compgen -c -- "$cur" ) )
+                    return
+                    ;;
+                \<+([0-9])..+([0-9])\>)
+                    COMPREPLY=( $( compgen -W "{${value:1:((${#value}-2))}}" \
+                        -- "$cur" ) )
+                    return
+                    ;;
+                # "yes", "yes|no", etc (but not "string", "STR",
+                # "hint1,hint2,...")
+                yes|+([-a-z0-9])\|+([-a-z0-9\|]))
+                    COMPREPLY=( $( IFS='|' compgen -W '$value' -- "$cur" ) )
+                    return
+                    ;;
+            esac
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" "--help $tool" )' \
+            -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+} &&
+complete -F _valgrind valgrind
+
+# ex: ts=4 sw=4 et filetype=sh

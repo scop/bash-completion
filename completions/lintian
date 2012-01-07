@@ -10,7 +10,7 @@ _lintian_tags()
         for item in $search; do
             match=$(grep -nE "^Tag: $item$" /usr/share/lintian/checks/*.desc \
                     | cut -d: -f1 )
-            tags=$( echo $tags | sed -e "s/\<$item\>//g" )
+            tags=$( sed -e "s/\<$item\>//g" <<<$tags )
         done
         COMPREPLY+=( $(compgen -W "$tags") )
     elif [[ "$cur" == *,* ]]; then
@@ -35,7 +35,7 @@ _lintian_checks()
             todisable=$(grep -e ^Check-Script -e ^Abbrev $match | \
                         cut -d\  -f2 )
             for name in $todisable; do
-                checks=$( echo $checks | sed -e "s/\<$name\>//g" )
+                checks=$( sed -e "s/\<$name\>//g" <<<$checks )
             done
         done
         COMPREPLY+=( $(compgen -W "$checks") )
@@ -58,7 +58,7 @@ _lintian_infos()
         for item in $search; do
             match=$( grep -nE "^Collector: $item$" \
                     /usr/share/lintian/collection/*.desc | cut -d: -f1 )
-            infos=$( echo $infos | sed -e "s/\<$item\>//g" )
+            infos=$( sed -e "s/\<$item\>//g" <<<$infos )
         done
         COMPREPLY+=( $(compgen -W "$infos") )
     elif [[ "$cur" == *,* ]]; then
@@ -133,7 +133,6 @@ _lintian()
             # If we're here, the user is trying to complete on
             # --action tag,tag,<TAB>
             # Only few actions permit that, re-complete them now.
-            echo $prev
             case "$prev" in
                 -C|--check-part|-X|--dont-check-part)
                     _lintian_checks

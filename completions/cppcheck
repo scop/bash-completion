@@ -7,16 +7,24 @@ _cppcheck()
 
     case $prev in
         --append|--exitcode-suppressions|--file-list|--rule-file|\
-        --suppressions-list|-i)
+        --suppressions-list|--includes-file|-i)
             _filedir
             return
             ;;
-        -D|--rule|--suppress|--template)
+        -D|-U|--rule|--suppress|--template|--max-configs)
             return
             ;;
         --enable)
+            # split comma-separated list
+            split=false
+            if [[ "$cur" == ?*,* ]]; then
+                prev="${cur%,*}"
+                cur="${cur##*,}"
+                split=true
+            fi
             COMPREPLY=( $( compgen -W 'all style performance portability
                 information unusedFunction missingInclude' -- "$cur" ) )
+            $split && COMPREPLY=( ${COMPREPLY[@]/#/"$prev,"} )
             return
             ;;
         --error-exitcode)
@@ -28,11 +36,11 @@ _cppcheck()
             return
             ;;
         -j)
-            COMPREPLY=( $( compgen -W '{2..16}' -- "$cur" ) )
+            COMPREPLY=( $( compgen -W "{2..$(_ncpus)}" -- "$cur" ) )
             return
             ;;
         --std)
-            COMPREPLY=( $( compgen -W 'c99 posix' -- "$cur" ) )
+            COMPREPLY=( $( compgen -W 'c99 c++11 posix' -- "$cur" ) )
             return
             ;;
         --platform)
@@ -52,7 +60,7 @@ _cppcheck()
         COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     else
-        _filedir @(cpp|cxx|cc|c++|c|tpp|txx)
+        _filedir @(cpp|cxx|cc|c++|c|h|hpp|hxx|h++|tpp|txx)
     fi
 } &&
 complete -F _cppcheck cppcheck

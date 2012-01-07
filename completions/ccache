@@ -1,0 +1,26 @@
+# ccache(1) completion                                     -*- shell-script -*-
+
+_ccache()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    if [[ $COMP_CWORD -eq 1 && ${COMP_WORDS[COMP_CWORD]} != -* ]]; then
+        _command_offset 1
+        return
+    fi
+
+    case $prev in
+        -h|--help|-V|--version|-F|--max-files|-M|--max-size)
+            return
+            ;;
+    esac
+
+    $split && return
+
+    COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+    [[ $COMPREPLY == *= ]] && compopt -o nospace
+} &&
+complete -F _ccache ccache
+
+# ex: ts=4 sw=4 et filetype=sh

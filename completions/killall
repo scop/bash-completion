@@ -1,4 +1,6 @@
-# killall(1) and pkill(1) completion                       -*- shell-script -*-
+# killall(1) completion                                    -*- shell-script -*-
+
+[[ $OSTYPE == *@(linux|freebsd|darwin)* ]] || return 1
 
 _killall()
 {
@@ -10,7 +12,7 @@ _killall()
             return
             ;;
         -s|--signal)
-            [[ $1 == *killall ]] && _signals
+            _signals
             return
             ;;
         -u|--user)
@@ -21,15 +23,14 @@ _killall()
 
     $split && return
 
-    if [[ $cword -eq 1 && "$cur" == -* ]]; then
-        _signals -
-    else
-        _pnames
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $cword -eq 1 ]] && _signals -
+        return
     fi
 
-    return 0
+    _pnames
 } &&
-complete -F _killall pkill
-[[ $OSTYPE == *@(linux|freebsd|darwin)* ]] && complete -F _killall killall || :
+complete -F _killall killall
 
 # ex: ts=4 sw=4 et filetype=sh

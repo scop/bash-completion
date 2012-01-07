@@ -4,14 +4,39 @@ proc setup {} {
 
 
 proc teardown {} {
-    assert_env_unmodified
+    assert_env_unmodified {/OLDPWD=/d}
 }
 
 
 setup
 
 
-assert_complete_any "make "
+set test "-f Ma<TAB> should complete \"Makefile\""
+set dir $::srcdir/fixtures/make
+assert_complete_dir "Makefile" "make -f Ma" $dir $test
+
+
+sync_after_int
+
+
+set test "\"make <TAB>\" should complete targets"
+set dir $::srcdir/fixtures/make
+set targets "all sample install clean"
+assert_complete_dir $targets "make " $dir $test
+
+
+sync_after_int
+
+
+set test "\"make <TAB>\" should not show anything in directory without makefile"
+set dir $::srcdir/fixtures/make/empty_dir
+assert_complete_dir "" "make " $dir $test
+
+
+sync_after_int
+
+
+assert_complete_any "make -j "
 
 
 sync_after_int

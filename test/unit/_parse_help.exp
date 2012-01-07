@@ -7,6 +7,7 @@ proc setup {} {
 proc teardown {} {
     assert_env_unmodified {
         /declare -f fn/d
+        /PIPESTATUS=/d
     }
 }
 
@@ -127,6 +128,10 @@ sync_after_int
 
 set cmd {fn() { printf '%s\n' "-f or --foo"; }; _parse_help fn}
 assert_bash_list "--foo" $cmd "-f or --foo"
+sync_after_int
+
+set cmd { printf '%s\n' "-f or --foo" | _parse_help - }
+assert_bash_list "--foo" $cmd "from stdin"
 sync_after_int
 
 
