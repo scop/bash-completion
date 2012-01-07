@@ -284,6 +284,7 @@ bashcomp_DATA = a2x \
 		snownews \
 		sqlite3 \
 		ssh \
+		ssh-add \
 		ssh-copy-id \
 		sshfs \
 		sshmitm \
