@@ -243,6 +243,7 @@ bashcomp_DATA = a2x \
 		psql \
 		puppet \
 		pwck \
+		pwd \
 		pwdx \
 		pwgen \
 		python \

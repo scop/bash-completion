@@ -1,0 +1,22 @@
+# pwd(1) completion                                        -*- shell-script -*-
+
+_pwd()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --help|--version)
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY ]] || \
+            COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+    fi
+} &&
+complete -F _pwd pwd
+
+# ex: ts=4 sw=4 et filetype=sh
