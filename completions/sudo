@@ -1,0 +1,51 @@
+# bash completion for sudo(8)                              -*- shell-script -*-
+
+_sudo()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    local i mode=normal
+    [[ $1 == *sudoedit ]] && mode=edit
+
+    [[ $mode == normal ]] &&
+    for (( i=1; i <= COMP_CWORD; i++ )); do
+        if [[ ${COMP_WORDS[i]} != -* ]]; then
+            local PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
+            local root_command=${COMP_WORDS[i]}
+            _command_offset $i
+            return
+        fi
+        if [[ ${COMP_WORDS[i]} == -e ]]; then
+            mode=edit
+            break
+        fi
+        [[ ${COMP_WORDS[i]} == -@(u|U|g|C|p) ]] && ((i++))
+    done
+
+    case "$prev" in
+        -u|-U)
+            COMPREPLY=( $( compgen -u -- "$cur" ) )
+            return
+            ;;
+        -g)
+            COMPREPLY=( $( compgen -g -- "$cur" ) )
+            return
+            ;;
+        -C|-p)
+            # argument required but no completions available
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-A -b -C -E -e -g -H -h -i -K -k -L -l -ll
+            -n -P -p -S -s -U -u -V -v' -- "$cur" ) )
+        return
+    fi
+    if [[ $mode == edit ]]; then
+        _filedir
+    fi
+} && complete -F _sudo sudo sudoedit
+
+# ex: ts=4 sw=4 et filetype=sh
