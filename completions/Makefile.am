@@ -193,6 +193,8 @@ bashcomp_DATA = a2x \
 		mkinitrd \
 		mktemp \
 		mmsitepass \
+		modinfo \
+		modprobe \
 		monodevelop \
 		mount \
 		mount.linux \
@@ -433,8 +435,6 @@ CLEANFILES = \
 	mdecrypt \
 	mencoder \
 	mkisofs \
-	modinfo \
-	modprobe \
 	mogrify \
 	montage \
 	mplayer2 \
@@ -638,10 +638,6 @@ symlinks:
 	for file in pinfo ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) info $(targetdir)/$$file ; \
-	done
-	for file in modprobe modinfo ; do \
-		rm -f $(targetdir)/$$file && \
-			$(LN_S) insmod $(targetdir)/$$file ; \
 	done
 	for file in javac javadoc ; do \
 		rm -f $(targetdir)/$$file && \

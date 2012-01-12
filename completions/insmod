@@ -1,34 +1,18 @@
-# Linux insmod(8), modprobe(8) and modinfo(8) completion   -*- shell-script -*-
-# This completes on the list of all available modules for the version of the
-# kernel currently running.
-#
+# Linux insmod(8) completion                               -*- shell-script -*-
+
 _insmod()
 {
     local cur prev words cword
     _init_completion || return
 
-    # behave like lsmod for modprobe -r
-    if [[ ${1##*/} == modprobe && "${words[1]}" == -r ]]; then
-        _installed_modules "$cur"
-        return 0
-    fi
-
-    # do filename completion if we're giving a path to a module
-    if [[ "$cur" == @(*/|[.~])* ]]; then
+    # do filename completion for first argument
+    if [[ $cword -eq 1 ]]; then
         _filedir '@(?(k)o?(.gz))'
-        return 0
+    else # do module parameter completion
+        COMPREPLY=( $( compgen -W "$( /sbin/modinfo -p ${words[1]} \
+            2>/dev/null | cut -d: -f1 )" -- "$cur" ) )
     fi
-
-    if [[ $cword -gt 1 && "${words[cword-1]}" != -* ]]; then
-        # do module parameter completion
-        COMPREPLY=( $( compgen -W "$( /sbin/modinfo -p ${words[1]} | \
-            cut -d: -f1 )" -- "$cur" ) )
-    else
-        _modules $(uname -r)
-    fi
-
-    return 0
 } &&
-complete -F _insmod insmod modprobe modinfo
+complete -F _insmod insmod
 
 # ex: ts=4 sw=4 et filetype=sh
