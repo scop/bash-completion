@@ -407,6 +407,7 @@ CLEANFILES = \
 	ifdown \
 	ifstatus \
 	import \
+	insmod.static \
 	javac \
 	javadoc \
 	kplayer \
@@ -638,6 +639,10 @@ symlinks:
 	for file in pinfo ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) info $(targetdir)/$$file ; \
+	done
+	for file in insmod.static ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) insmod $(targetdir)/$$file ; \
 	done
 	for file in javac javadoc ; do \
 		rm -f $(targetdir)/$$file && \
