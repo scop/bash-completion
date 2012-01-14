@@ -6,6 +6,17 @@ _rmmod()
     local cur prev words cword
     _init_completion || return
 
+    case $prev in
+        -h|--help|-V|--version)
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return
+    fi
+
     _installed_modules "$cur"
     return 0
 } &&
