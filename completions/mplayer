@@ -243,6 +243,17 @@ _mplayer()
             COMPREPLY=( $( compgen -W 'all gui system user' -- "$cur" ) )
             return 0
             ;;
+        -*)
+            # Assume arg is required for everything else except options
+            # for which -list-options says Type is Flag or Print.
+            $cmd -nomsgcolor -nomsgmodule -list-options 2>/dev/null \
+            | while read -r i j k; do
+                if [[ $i == ${prev#-} ]]; then
+                    [[ ${j,,} != @(flag|print) ]] && return 1
+                    break
+                fi
+            done || return 0
+            ;;
     esac
 
     case $cur in
