@@ -562,33 +562,32 @@ _filedir()
     _tilde "$cur" || return 0
 
     local -a toks
-    local quoted tmp
+    local quoted x tmp
 
     _quote_readline_by_ref "$cur" quoted
-    toks=( $(
-        compgen -d -- "$quoted" | {
-            while read -r tmp; do
-                # TODO: I have removed a "[ -n $tmp ] &&" before 'printf ..',
-                #       and everything works again. If this bug suddenly
-                #       appears again (i.e. "cd /b<TAB>" becomes "cd /"),
-                #       remember to check for other similar conditionals (here
-                #       and _filedir_xspec()). --David
-                printf '%s\n' $tmp
-            done
-        }
-    ))
+    x=$( compgen -d -- "$quoted" ) &&
+    while read -r tmp; do
+        toks+=( "$tmp" )
+    done <<< "$x"
 
     if [[ "$1" != -d ]]; then
         # Munge xspec to contain uppercase version too
         # http://thread.gmane.org/gmane.comp.shells.bash.bugs/15294/focus=15306
         xspec=${1:+"!*.@($1|${1^^})"}
-        toks+=( $( compgen -f -X "$xspec" -- $quoted ) )
+        x=$( compgen -f -X "$xspec" -- $quoted ) &&
+        while read -r tmp; do
+            toks+=( "$tmp" )
+        done <<< "$x"
     fi
 
     # If the filter failed to produce anything, try without it if configured to
     [[ -n ${COMP_FILEDIR_FALLBACK:-} && \
         -n "$1" && "$1" != -d && ${#toks[@]} -lt 1 ]] && \
-        toks+=( $( compgen -f -- $quoted ) )
+        x=$( compgen -f -- $quoted ) &&
+        while read -r tmp; do
+            toks+=( "$tmp" )
+        done <<< "$x"
+
 
     if [[ ${#toks[@]} -ne 0 ]]; then
         # 2>/dev/null for direct invocation, e.g. in the _filedir unit test
@@ -1806,7 +1805,6 @@ _filedir_xspec()
     toks=( $(
         compgen -d -- "$(quote_readline "$cur")" | {
         while read -r tmp; do
-            # see long TODO comment in _filedir() --David
             printf '%s\n' $tmp
         done
         }
