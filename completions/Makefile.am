@@ -293,6 +293,7 @@ bashcomp_DATA = a2x \
 		sshmitm \
 		sshow \
 		strace \
+		su \
 		sudo \
 		svk \
 		sync_members \

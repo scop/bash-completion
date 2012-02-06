@@ -1,0 +1,35 @@
+# bash completion for su(1)                                -*- shell-script -*-
+
+if [[ $OSTYPE != *linux* ]]; then
+    complete -u su # default completion
+    return
+fi
+
+_su() # linux-specific completion
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case "$prev" in
+        -s|--shell)
+            _filedir
+            return
+            ;;
+        -c|--command)
+            local IFS=$'\n'
+            compopt -o filenames
+            COMPREPLY=( $( compgen -d -c -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" --help )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    COMPREPLY=( $( compgen -u -- "$cur" ) )
+} && complete -F _su su
+
+# ex: ts=4 sw=4 et filetype=sh
