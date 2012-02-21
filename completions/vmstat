@@ -1,0 +1,27 @@
+# vmstat(8) completion                                     -*- shell-script -*-
+
+_vmstat()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -V|-c|-M|-N|-n|-w|-p)
+            return
+            ;;
+        -S)
+            [[ $OSTYPE == *linux* ]] && \
+                COMPREPLY=( $( compgen -W 'k K m M' -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY ]] || \
+            COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+    fi
+} &&
+complete -F _vmstat vmstat
+
+# ex: ts=4 sw=4 et filetype=sh

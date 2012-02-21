@@ -321,6 +321,7 @@ bashcomp_DATA = a2x \
 		usermod \
 		valgrind \
 		vipw \
+		vmstat \
 		vncviewer \
 		vpnc \
 		watch \
