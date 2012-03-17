@@ -58,6 +58,7 @@ bashcomp_DATA = a2x \
 		cppcheck \
 		crontab \
 		cryptsetup \
+		ctest \
 		curl \
 		cvs \
 		cvsps \
