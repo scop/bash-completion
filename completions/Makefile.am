@@ -46,6 +46,7 @@ bashcomp_DATA = a2x \
 		cleanarch \
 		clisp \
 		clone_member \
+		cmake \
 		complete \
 		config_list \
 		configure \
