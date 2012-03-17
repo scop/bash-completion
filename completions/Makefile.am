@@ -52,6 +52,7 @@ bashcomp_DATA = a2x \
 		configure \
 		convert \
 		cowsay \
+		cpack \
 		cpan2dist \
 		cpio \
 		cppcheck \
