@@ -2,6 +2,7 @@ bashcompdir = $(pkgdatadir)/completions
 bashcomp_DATA = a2x \
 		abook \
 		aclocal \
+		acpi \
 		add_members \
 		alias \
 		ant \
