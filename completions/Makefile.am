@@ -119,6 +119,7 @@ bashcomp_DATA = a2x \
 		hping2 \
 		htop \
 		htpasswd \
+		hwclock \
 		iconv \
 		id \
 		idn \
