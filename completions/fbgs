@@ -6,30 +6,40 @@ _fbgs()
     _init_completion || return
 
     case "$prev" in
-        -f)
+        -f|--font)
             local IFS=$'\n'
             COMPREPLY=( $( compgen -W '$( fc-list 2>/dev/null )' -- "$cur" ) )
             return
             ;;
-        -m)
+        -m|--mode)
             COMPREPLY=( $( compgen -W '$( sed \
                 -n "/^mode/{s/^mode \{1,\}\"\([^\"]\{1,\}\)\"/\1/g;p}" \
                 /etc/fb.modes 2> /dev/null )' -- "$cur" ) )
             return
             ;;
-        -d)
+        -d|--device)
             COMPREPLY=( $( compgen -f -d -- "${cur:-/dev/}" ) )
             return
             ;;
-        -t|-g|-p)
+        -fp|--firstpage|-lp|--lastpage|-r|--resolution|-s|--scroll|-t|\
+        --timeout)
+            # expect integer value
+            COMPREPLY+=( $( compgen -W '{0..9}' ) )
+            compopt -o nospace
+            return
+            ;;
+        -T|--vt|-p|--password|-g|--gamma)
             # argument required but no completions available
             return
             ;;
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-l -xl -xxl -a --fitwidth -d -m -t -g -f -p
-            -h -c' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--bell --help --password -fp --firstpage
+            -lp --lastpage --color -l -xl -xxl --resolution --autozoom
+            --{,no}autoup --{,no}autodown --{,no}fitwidth --{,no}verbose
+            --{,no}random --vt --scroll --timeout --{,no}once --gamma --font
+            --device --mode' -- "$cur" ) )
         [[ $COMPREPLY ]] && return
     fi
 
