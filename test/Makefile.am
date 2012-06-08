@@ -8,7 +8,7 @@ EXTRA_DIST = completion \
 	     unit
 
 all:
-	$(mkdir_p) log tmp
+	$(MKDIR_P) log tmp
 
 distclean-local:
 	rm -rf log tmp
