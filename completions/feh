@@ -10,10 +10,6 @@ _feh()
             COMPREPLY=( $( compgen -W 'default white black' -- "$cur" ) )
             return
             ;;
-        --index-dim|--index-name|--index-size)
-            COMPREPLY=( $( compgen -W '0 1' -- "$cur" ) )
-            return
-            ;;
         -f|--filelist|-o|--output|-O|--output-only|-\||--start-at)
             _filedir
             return
@@ -61,7 +57,7 @@ _feh()
             return
             ;;
         -R|--reload|-H|--limit-height|-W|--limit-width|-E|--thumb-height|\
-        -y|--thumb-width|-J|--thumb-redraw)
+        -y|--thumb-width|-J|--thumb-redraw|--magick-timeout)
             # expect integer value
             COMPREPLY+=( $( compgen -W '{0..9}' ) )
             compopt -o nospace
@@ -74,11 +70,6 @@ _feh()
                 COMPREPLY+=( $( compgen -W '{0..9}' ) )
                 compopt -o nospace
             fi
-            return
-            ;;
-        -0|--reload-button|-1|--pan-button|-2|--zoom-button|-3|--menu-button|\
-        -4|--prev-button|-5|--next-button|-8|--rotate-button|-9|--blur-button)
-            COMPREPLY=( $( compgen -W '{0..9}' -- "$cur" ) )
             return
             ;;
         -a|--alpha)
@@ -99,7 +90,8 @@ _feh()
             compopt -o nospace
             return
             ;;
-        -L|--customlist|--info|-D|--slideshow-delay|-~|--thumb-title|-^|--title)
+        -L|--customlist|--index-info|--info|-D|--slideshow-delay|-~|\
+        --thumb-title|-^|--title)
             # argument required but no completions available
             return
             ;;
@@ -113,7 +105,9 @@ _feh()
         [[ $COMPREPLY ]] && return
     fi
 
-    _filedir 'xpm|tif?(f)|png|p[npgba]m|iff|?(i)lbm|jp?(e)g|jfi?(f)|gif|bmp|arg?(b)|tga|xcf|ani|ico'
+    # FIXME: It is hard to determine correct supported extensions.
+    # feh can handle any format that imagemagick can plus some others
+    _filedir 'xpm|tif?(f)|png|p[npgba]m|iff|?(i)lbm|jp?(e)g|jfi?(f)|gif|bmp|arg?(b)|tga|xcf|ani|ico|?(e)ps|pdf|dvi|txt|svg?(z)|cdr|[ot]tf'
 } && complete -F _feh feh
 
 # ex: ts=4 sw=4 et filetype=sh

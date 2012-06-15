@@ -1,0 +1,44 @@
+# Linux modinfo(8) completion                              -*- shell-script -*-
+
+_modinfo()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case "$prev" in
+        -F|--field)
+            COMPREPLY=( $( compgen -W 'alias author depends description
+                filename firmware license parm srcversion staging vermagic
+                version' -- "$(echo "$cur" | tr '[:upper:]' '[:lower:]')" ) )
+            return
+            ;;
+        -k)
+            _kernel_versions
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-V --version -F --field -k -0 --null -a -d
+            -l -p -n' -- "$cur" ) )
+        return
+    fi
+
+    local i version=$(uname -r)
+    for (( i=${#words[@]}-1; i>0; i-- )); do
+        if [[ ${words[i]} == -k ]]; then
+            version=${words[i+1]}
+            break
+        fi
+    done
+
+    # do filename completion if we're giving a path to a module
+    if [[ "$cur" == @(*/|[.~])* ]]; then
+        _filedir '@(?(k)o?(.gz))'
+    else
+        _modules $version
+    fi
+} &&
+complete -F _modinfo modinfo
+
+# ex: ts=4 sw=4 et filetype=sh

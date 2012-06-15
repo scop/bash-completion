@@ -1,0 +1,49 @@
+proc setup {} {
+    save_env
+}
+
+
+proc teardown {} {
+    assert_env_unmodified
+}
+
+
+setup
+
+
+set test "--remov<TAB> should complete \"--remove\""
+assert_complete "--remove" "modprobe --remov" $test
+
+
+sync_after_int
+
+
+set test "in<TAB> should complete modulename"
+assert_complete_any "modprobe in" $test
+
+
+sync_after_int
+
+
+set test "should not complete anything for non-existent kernel"
+assert_no_complete "modprobe -S you-dont-have-such-kernel in" $test
+
+
+sync_after_int
+
+
+set test "should not complete anything for non-existent module"
+assert_no_complete "modprobe you-dont-have-such-module " $test
+
+
+sync_after_int
+
+
+set test "should complete filepaths"
+assert_complete "/tmp/" "modprobe /tm" $test -nospace
+
+
+sync_after_int
+
+
+teardown

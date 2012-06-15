@@ -1,0 +1,35 @@
+proc setup {} {
+    save_env
+}
+
+
+proc teardown {} {
+    assert_env_unmodified
+}
+
+
+setup
+
+
+set test "in<TAB> should complete modulename"
+assert_complete_any "modinfo in" $test
+
+
+sync_after_int
+
+
+set test "should not complete anything for non-existent kernel"
+assert_no_complete "modinfo -k you-dont-have-such-kernel in" $test
+
+
+sync_after_int
+
+
+set test "should complete filepaths"
+assert_complete "/tmp/" "modinfo /tm" $test -nospace
+
+
+sync_after_int
+
+
+teardown

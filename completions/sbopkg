@@ -1,4 +1,4 @@
-# bash completion for sbopkg tool                          -*- shell-script -*-
+# bash completion for sbopkg(8)                            -*- shell-script -*-
 
 _sbopkg()
 {
@@ -6,9 +6,8 @@ _sbopkg()
     _init_completion || return
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-b -c -d -e -f -g -h -i -k -l -o
-            -P -p -q -R -r -s -u -V -v' -- "$cur" ) )
-        return
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -h )' -- "$cur" ) )
+        [[ $COMPREPLY ]] && return
     fi
 
     case "$prev" in
@@ -45,10 +44,7 @@ _sbopkg()
         fi
     done
 
-    if [[ ! -r "$config" ]]; then
-        return
-    fi
-
+    [[ -r "$config" ]] || return
     . $config
 
     for (( i=1; i<${#words[@]}; i++ )); do
@@ -62,10 +58,8 @@ _sbopkg()
                 ;;
         esac
     done
+    [[ -r $REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT ]] || return
 
-    if [[ ! -r $REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT ]]; then
-        return
-    fi
     COMPREPLY=( $( sed -ne "/^SLACKBUILD NAME: $cur/{s/^SLACKBUILD NAME: //;p}"\
         $REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT )
         $( cd $QUEUEDIR; compgen -f -X "!*.sqf"  -- "$cur" ) )

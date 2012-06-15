@@ -17,9 +17,9 @@ _mount()
             fi
             COMPREPLY=( $(compgen -W 'auto adfs affs autofs btrfs cifs coda
                 cramfs debugfs devpts efs ext2 ext3 ext4 fuse hfs hfsplus hpfs
-                iso9660 jfs minix msdos ncpfs nfs nfs4 ntfs ntfs-3g proc qnx4
-                ramfs reiserfs romfs squashfs smbfs sysv tmpfs ubifs udf ufs
-                umsdos usbfs vfat xfs' -- "$cur") )
+                iso9660 jffs2 jfs minix msdos ncpfs nfs nfs4 ntfs ntfs-3g proc
+                qnx4 ramfs reiserfs romfs squashfs smbfs sysv tmpfs ubifs udf
+                ufs umsdos usbfs vfat xfs' -- "$cur") )
             _fstypes
             $split && COMPREPLY=( ${COMPREPLY[@]/#/$prev,} )
             return
@@ -91,7 +91,7 @@ _mount()
                 COMPREPLY+=( $(compgen -W 'degraded subvol= subvolid= device=
                     nodatasum nodatacow nobarrier max_inline= alloc_start=
                     thread_pool= compress= compress-force= ssd noacl notreelog
-                    flushoncommit metadata_ratio= space_cache clear_cache
+                    flushoncommit metadata_ratio= {,no}space_cache clear_cache
                     user_subvol_rm_allowed autodefrag inode_cache' -- "$cur") )
                 ;;&
             cifs|auto)
@@ -99,8 +99,8 @@ _mount()
                     force{u,g}id port= servern= netbiosname= {file,dir}_mode=
                     ip= domain= guest iocharset ro rw {,no}setuids {,no,dyn}perm
                     directio {,no}mapchars {,no}intr hard soft noacl nocase sec=
-                    nobrl sfu {,no}serverino nounix nouser_xattr {r,w}size=' \
-                    -- "$cur") )
+                    nobrl sfu {,no}serverino nounix nouser_xattr {r,w}size=
+                    rwpidforward backup{u,g}id' -- "$cur") )
                 ;;&
             ext[2-4]|auto)
                 COMPREPLY+=( $(compgen -W '{,no}acl bsddf minixdf check= debug
@@ -133,6 +133,9 @@ _mount()
                 COMPREPLY+=( $(compgen -W 'norock nojoliet check= {u,g}id= map=
                     mode= unhide block= conv= cruft session= sbsector=
                     iocharset= utf8' -- "$cur") )
+                ;;&
+            jffs2|auto)
+                COMPREPLY+=( $(compgen -W 'compr=' -- "$cur") )
                 ;;&
             jfs|auto)
                 COMPREPLY+=( $(compgen -W 'iocharset= resize= {,no}integrity

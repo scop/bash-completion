@@ -59,7 +59,7 @@ complete -d pushd
 # start of section containing compspecs that can be handled within bash
 
 # user commands see only users
-complete -u su write chfn groups slay w sux runuser
+complete -u write chfn groups slay w sux runuser
 
 # bg completes with stopped jobs
 complete -A stopped -P '"%' -S '"' bg
@@ -562,33 +562,32 @@ _filedir()
     _tilde "$cur" || return 0
 
     local -a toks
-    local quoted tmp
+    local quoted x tmp
 
     _quote_readline_by_ref "$cur" quoted
-    toks=( $(
-        compgen -d -- "$quoted" | {
-            while read -r tmp; do
-                # TODO: I have removed a "[ -n $tmp ] &&" before 'printf ..',
-                #       and everything works again. If this bug suddenly
-                #       appears again (i.e. "cd /b<TAB>" becomes "cd /"),
-                #       remember to check for other similar conditionals (here
-                #       and _filedir_xspec()). --David
-                printf '%s\n' $tmp
-            done
-        }
-    ))
+    x=$( compgen -d -- "$quoted" ) &&
+    while read -r tmp; do
+        toks+=( "$tmp" )
+    done <<< "$x"
 
     if [[ "$1" != -d ]]; then
         # Munge xspec to contain uppercase version too
         # http://thread.gmane.org/gmane.comp.shells.bash.bugs/15294/focus=15306
         xspec=${1:+"!*.@($1|${1^^})"}
-        toks+=( $( compgen -f -X "$xspec" -- $quoted ) )
+        x=$( compgen -f -X "$xspec" -- $quoted ) &&
+        while read -r tmp; do
+            toks+=( "$tmp" )
+        done <<< "$x"
     fi
 
     # If the filter failed to produce anything, try without it if configured to
     [[ -n ${COMP_FILEDIR_FALLBACK:-} && \
         -n "$1" && "$1" != -d && ${#toks[@]} -lt 1 ]] && \
-        toks+=( $( compgen -f -- $quoted ) )
+        x=$( compgen -f -- $quoted ) &&
+        while read -r tmp; do
+            toks+=( "$tmp" )
+        done <<< "$x"
+
 
     if [[ ${#toks[@]} -ne 0 ]]; then
         # 2>/dev/null for direct invocation, e.g. in the _filedir unit test
@@ -921,7 +920,7 @@ _ncpus()
 _tilde()
 {
     local result=0
-    if [[ $1 == ~* && $1 != */* ]]; then
+    if [[ $1 == \~* && $1 != */* ]]; then
         # Try generate ~username completions
         COMPREPLY=( $( compgen -P '~' -u "${1#\~}" ) )
         result=${#COMPREPLY[@]}
@@ -957,7 +956,7 @@ _tilde()
 __expand_tilde_by_ref()
 {
     # Does $1 start with tilde (~)?
-    if [[ ${!1} == ~* ]]; then
+    if [[ ${!1} == \~* ]]; then
         # Does $1 contain slash (/)?
         if [[ ${!1} == */* ]]; then
             # Yes, $1 contains slash;
@@ -987,7 +986,7 @@ _expand()
     # a tilde is fed to commands and ending up quoted instead of expanded.
 
     if [[ "$cur" == \~*/* ]]; then
-        eval cur=$cur
+        eval cur=$cur 2>/dev/null
     elif [[ "$cur" == \~* ]]; then
         cur=${cur#\~}
         COMPREPLY=( $( compgen -P '~' -u "$cur" ) )
@@ -1144,8 +1143,8 @@ _modules()
 {
     local modpath
     modpath=/lib/modules/$1
-    COMPREPLY=( $( compgen -W "$( command ls -RL $modpath | \
-        sed -ne 's/^\(.*\)\.k\{0,1\}o\(\.gz\)\{0,1\}$/\1/p' )" -- "$cur" ) )
+    COMPREPLY=( $( compgen -W "$( command ls -RL $modpath 2>/dev/null | \
+        sed -ne 's/^\(.*\)\.k\{0,1\}o\(\.[gx]z\)\{0,1\}$/\1/p' )" -- "$cur" ) )
 }
 
 # This function completes on installed modules
@@ -1275,6 +1274,8 @@ _realcommand()
     type -P "$1" > /dev/null && {
         if type -p realpath > /dev/null; then
             realpath "$(type -P "$1")"
+        elif type -p greadlink > /dev/null; then
+            greadlink -f "$(type -P "$1")"
         elif type -p readlink > /dev/null; then
             readlink -f "$(type -P "$1")"
         else
@@ -1283,7 +1284,7 @@ _realcommand()
     }
 }
 
-# This function returns the first arugment, excluding options
+# This function returns the first argument, excluding options
 # @param $1 chars  Characters out of $COMP_WORDBREAKS which should
 #     NOT be considered word breaks. See __reassemble_comp_words_by_ref.
 _get_first_arg()
@@ -1712,7 +1713,7 @@ _command_offset()
             else
                 cspec=${cspec#complete}
                 cspec=${cspec%%$compcmd}
-                COMPREPLY=( $( eval compgen "$cspec" -- "$cur" ) )
+                COMPREPLY=( $( eval compgen "$cspec" -- '$cur' ) )
             fi
         elif [[ ${#COMPREPLY[@]} -eq 0 ]]; then
             # XXX will probably never happen as long as completion loader loads
@@ -1730,7 +1731,7 @@ _root_command()
     local root_command=$1
     _command
 }
-complete -F _root_command fakeroot gksu gksudo kdesudo really sudo
+complete -F _root_command fakeroot gksu gksudo kdesudo really
 
 # Return true if the completion should be treated as running as root
 _complete_as_root()
@@ -1806,7 +1807,6 @@ _filedir_xspec()
     toks=( $(
         compgen -d -- "$(quote_readline "$cur")" | {
         while read -r tmp; do
-            # see long TODO comment in _filedir() --David
             printf '%s\n' $tmp
         done
         }
@@ -1857,7 +1857,7 @@ _install_xspec '!*.@(tlz|lzma)' lzcat lzegrep lzfgrep lzgrep lzless lzmore unlzm
 _install_xspec '!*.@(?(t)xz|tlz|lzma)' unxz xzcat
 _install_xspec '!*.lrz' lrunzip
 _install_xspec '!*.@(gif|jp?(e)g|miff|tif?(f)|pn[gm]|p[bgp]m|bmp|xpm|ico|xwd|tga|pcx)' ee
-_install_xspec '!*.@(gif|jp?(e)g|tif?(f)|png|p[bgp]m|bmp|x[bp]m|rle|rgb|pcx|fits|pm)' qiv
+_install_xspec '!*.@(gif|jp?(e)g|tif?(f)|png|p[bgp]m|bmp|x[bp]m|rle|rgb|pcx|fits|pm|svg)' qiv
 _install_xspec '!*.@(gif|jp?(e)g|tif?(f)|png|p[bgp]m|bmp|x[bp]m|rle|rgb|pcx|fits|pm|?(e)ps)' xv
 _install_xspec '!*.@(@(?(e)ps|?(E)PS|pdf|PDF)?(.gz|.GZ|.bz2|.BZ2|.Z))' gv ggv kghostview
 _install_xspec '!*.@(dvi|DVI)?(.@(gz|Z|bz2))' xdvi kdvi
@@ -1898,7 +1898,6 @@ _install_xspec '!*.@([Pp][Rr][Gg]|[Cc][Ll][Pp])' harbour gharbour hbpp
 _install_xspec '!*.[Hh][Rr][Bb]' hbrun
 _install_xspec '!*.ly' lilypond ly2dvi
 _install_xspec '!*.@(dif?(f)|?(d)patch)?(.@([gx]z|bz2|lzma))' cdiff
-_install_xspec '!*.lyx' lyx
 _install_xspec '!@(*.@(ks|jks|jceks|p12|pfx|bks|ubr|gkr|cer|crt|cert|p7b|pkipath|pem|p10|csr|crl)|cacerts)' portecle
 _install_xspec '!*.@(mp[234c]|og[ag]|@(fl|a)ac|m4[abp]|spx|tta|w?(a)v|wma|aif?(f)|asf|ape)' kid3 kid3-qt
 unset -f _install_xspec
@@ -1911,6 +1910,10 @@ _minimal()
     $split && return
     _filedir
 }
+# Complete the empty string to allow completion of '>', '>>', and '<'
+# http://lists.gnu.org/archive/html/bug-bash/2012-01/msg00045.html
+complete -F _minimal ''
+
 
 # set up dynamic completion loading
 _completion_loader()

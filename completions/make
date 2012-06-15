@@ -37,6 +37,12 @@ _make()
         [[ $opts ]] || opts="$( _parse_usage "$1" )"
         COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
+    elif [[ $cur == *=* ]]; then
+        prev=${cur%%=*}
+        cur=${cur#*=}
+        local diropt
+        [[ ${prev,,} == *dir?(ectory) ]] && diropt=-d
+        _filedir $diropt
     else
         # before we check for makefiles, see if a path was specified
         # with -C/--directory

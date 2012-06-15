@@ -2,6 +2,7 @@ bashcompdir = $(pkgdatadir)/completions
 bashcomp_DATA = a2x \
 		abook \
 		aclocal \
+		acpi \
 		add_members \
 		alias \
 		ant \
@@ -118,6 +119,7 @@ bashcomp_DATA = a2x \
 		hping2 \
 		htop \
 		htpasswd \
+		hwclock \
 		iconv \
 		id \
 		idn \
@@ -193,6 +195,8 @@ bashcomp_DATA = a2x \
 		mkinitrd \
 		mktemp \
 		mmsitepass \
+		modinfo \
+		modprobe \
 		monodevelop \
 		mount \
 		mount.linux \
@@ -243,6 +247,7 @@ bashcomp_DATA = a2x \
 		psql \
 		puppet \
 		pwck \
+		pwd \
 		pwdx \
 		pwgen \
 		python \
@@ -284,11 +289,14 @@ bashcomp_DATA = a2x \
 		snownews \
 		sqlite3 \
 		ssh \
+		ssh-add \
 		ssh-copy-id \
 		sshfs \
 		sshmitm \
 		sshow \
 		strace \
+		su \
+		sudo \
 		svk \
 		sync_members \
 		sysbench \
@@ -315,6 +323,7 @@ bashcomp_DATA = a2x \
 		usermod \
 		valgrind \
 		vipw \
+		vmstat \
 		vncviewer \
 		vpnc \
 		watch \
@@ -402,6 +411,7 @@ CLEANFILES = \
 	ifdown \
 	ifstatus \
 	import \
+	insmod.static \
 	javac \
 	javadoc \
 	kplayer \
@@ -430,8 +440,6 @@ CLEANFILES = \
 	mdecrypt \
 	mencoder \
 	mkisofs \
-	modinfo \
-	modprobe \
 	mogrify \
 	montage \
 	mplayer2 \
@@ -498,6 +506,7 @@ CLEANFILES = \
 	sparc-koji \
 	spovray \
 	stream \
+	sudoedit \
 	tightvncviewer \
 	tracepath6 \
 	typeset \
@@ -524,7 +533,7 @@ CLEANFILES = \
 	xvnc4viewer \
 	ypcat
 
-symlinks:
+symlinks: $(targetdir)
 	for file in aclocal-1.11 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) aclocal $(targetdir)/$$file ; \
@@ -635,7 +644,7 @@ symlinks:
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) info $(targetdir)/$$file ; \
 	done
-	for file in modprobe modinfo ; do \
+	for file in insmod.static ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) insmod $(targetdir)/$$file ; \
 	done
@@ -769,6 +778,10 @@ symlinks:
 	for file in slogin autossh sftp scp ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) ssh $(targetdir)/$$file ; \
+	done
+	for file in sudoedit ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) sudo $(targetdir)/$$file ; \
 	done
 	for file in tracepath6 ; do \
 		rm -f $(targetdir)/$$file && \

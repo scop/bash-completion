@@ -11,7 +11,7 @@ _mplayer_options_list()
 _mplayer()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n : || return
 
     local cmd=${words[0]} i j k=0
 
@@ -110,7 +110,7 @@ _mplayer()
         -vi|-vid|-vivo|-ffactor|-sid|-slang|-spualign|-spuaa|-spugauss| \
         -vobsubid|-delay|-bpp|-brightness|-contrast|-dfbopts|-display| \
         -fbmode|-geometry|-guiwid|-hue|-icelayer|-screen[wh]|-wid| \
-        -monitoraspect|-monitor-dotclock|-monitor-[hv]freq|-panscan| \
+        -monitor-dotclock|-monitor-[hv]freq|-panscan| \
         -saturation|-xineramascreen|-zrcrop|-zrnorm|-zrquality| \
         -zr[xy]doff|-zr[vh]dec|-aspect|-pp|-x|-y|-xy|-z|-stereo| \
         -audio-density|-audio-delay|-audio-preload|-endpos|-osdlevel| \
@@ -120,6 +120,11 @@ _mplayer()
         -sub-align|-sub-width|-subfont-blur|-subfont-outline| \
         -subfont-autoscale|-subfont-encoding|-subfont-osd-scale| \
         -subfont-osd-text)
+            return 0
+            ;;
+        -monitoraspect)
+            COMPREPLY=( $( compgen -W '4:3 16:9 16:10' -- "$cur" ) )
+            __ltrim_colon_completions "$cur"
             return 0
             ;;
         -lavdopts)
@@ -237,6 +242,17 @@ _mplayer()
         -noconfig)
             COMPREPLY=( $( compgen -W 'all gui system user' -- "$cur" ) )
             return 0
+            ;;
+        -*)
+            # Assume arg is required for everything else except options
+            # for which -list-options says Type is Flag or Print.
+            $cmd -nomsgcolor -nomsgmodule -list-options 2>/dev/null \
+            | while read -r i j k; do
+                if [[ $i == ${prev#-} ]]; then
+                    [[ ${j,,} != @(flag|print) ]] && return 1
+                    break
+                fi
+            done || return 0
             ;;
     esac
 

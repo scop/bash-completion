@@ -1,0 +1,86 @@
+# Linux modprobe(8) completion                             -*- shell-script -*-
+
+_modprobe()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case "$prev" in
+        -C|--config)
+            _filedir
+            return
+            ;;
+        -d|--dirname|-t|--type)
+            _filedir -d
+            return
+            ;;
+        -S|--set-version)
+            _kernel_versions
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-a --all -b --use-blacklist -C --config -c
+            --showconfig --dump-modversions -d --dirname --first-time
+            --force-vermagic --force-modversion -f --force -i --ignore-install
+            --ignore-remove -l --list -n --dry-run -q --quiet -R
+            --resolve-alias -r --remove -S --set-version --show-depends -s
+            --syslog -t --type -V --version -v --verbose' -- "$cur" ) )
+        return
+    fi
+
+    local i mode=insert module= version=$(uname -r)
+    for (( i=1; i < $cword; i++ )); do
+        case "${words[i]}" in
+            -r|--remove)
+                mode=remove
+                ;;
+            -l|--list)
+                mode=list
+                ;;
+            --dump-modversions)
+                mode=file
+                ;;
+            -S|--set-version)
+                version=${words[i+1]} # -S is not $prev and not $cur
+                ;;
+            -C|--config|-d|--dirname|-t|--type)
+                ((i++)) # skip option and its argument
+                ;;
+            -*)
+                # skip all other options
+                ;;
+            *)
+                [ -z "$module" ] && module=${words[i]}
+                ;;
+        esac
+    done
+
+    case $mode in
+        remove)
+            _installed_modules "$cur"
+            ;;
+        list)
+            # no completion available
+            ;;
+        file)
+            _filedir
+            ;;
+        insert)
+            # do filename completion if we're giving a path to a module
+            if [[ "$cur" == @(*/|[.~])* ]]; then
+                _filedir '@(?(k)o?(.gz))'
+            elif [[ -n "$module" ]]; then
+                # do module parameter completion
+                COMPREPLY=( $( compgen -W "$( PATH="$PATH:/sbin" modinfo \
+                    -p "$module" 2>/dev/null | cut -d: -f1 )" -- "$cur" ) )
+            else
+                _modules $version
+            fi
+            ;;
+    esac
+} &&
+complete -F _modprobe modprobe
+
+# ex: ts=4 sw=4 et filetype=sh

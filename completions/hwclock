@@ -1,0 +1,23 @@
+# hwclock(8) completion                                    -*- shell-script -*-
+
+_hwclock()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -h|--help|-V|--version|--date|--epoch)
+            return
+            ;;
+        -f|--rtc|--adjfile)
+            _filedir
+            ;;
+    esac
+
+    [[ $cur == -* ]] && \
+        COMPREPLY=( $( PATH="$PATH:/sbin"
+            compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+} &&
+complete -F _hwclock hwclock
+
+# ex: ts=4 sw=4 et filetype=sh
