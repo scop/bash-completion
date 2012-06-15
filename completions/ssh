@@ -266,13 +266,13 @@ _scp_remote_files()
     if [[ $1 == -d ]]; then
         # escape problematic characters; remove non-dirs
         files=$( ssh -o 'Batchmode yes' $userhost \
-            command ls -aF1d "$path*" 2>/dev/null | \
+            command ls -aF1dL "$path*" 2>/dev/null | \
             sed -e 's/'$_scp_path_esc'/\\\\\\&/g' -e '/[^\/]$/d' )
     else
         # escape problematic characters; remove executables, aliases, pipes
         # and sockets; add space at end of file names
         files=$( ssh -o 'Batchmode yes' $userhost \
-            command ls -aF1d "$path*" 2>/dev/null | \
+            command ls -aF1dL "$path*" 2>/dev/null | \
             sed -e 's/'$_scp_path_esc'/\\\\\\&/g' -e 's/[*@|=]$//g' \
             -e 's/[^\/]$/& /g' )
     fi
@@ -294,10 +294,10 @@ _scp_local_files()
     fi
 
     if $dirsonly ; then
-        COMPREPLY+=( $( command ls -aF1d $cur* 2>/dev/null | \
+        COMPREPLY+=( $( command ls -aF1dL $cur* 2>/dev/null | \
             sed -e "s/$_scp_path_esc/\\\\&/g" -e '/[^\/]$/d' -e "s/^/$1/") )
     else
-        COMPREPLY+=( $( command ls -aF1d $cur* 2>/dev/null | \
+        COMPREPLY+=( $( command ls -aF1dL $cur* 2>/dev/null | \
             sed -e "s/$_scp_path_esc/\\\\&/g" -e 's/[*@|=]$//g' \
             -e 's/[^\/]$/& /g' -e "s/^/$1/") )
     fi
