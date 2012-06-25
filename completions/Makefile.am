@@ -333,6 +333,7 @@ bashcomp_DATA = a2x \
 		withlist \
 		wodim \
 		wol \
+		wsimport \
 		wtf \
 		wvdial \
 		xfreerdp \
