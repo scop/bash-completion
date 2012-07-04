@@ -19,8 +19,22 @@ _kcov()
             _filedir
             return
             ;;
-        --limits|-l|--title|-t|--include-pattern|--exclude-pattern|\
-        --path-strip-level)
+        --limits|-l)
+            split=false
+            if [[ "$cur" == ?*,* ]]; then
+                prev="${cur%,*}"
+                cur="${cur##*,}"
+                split=true
+            fi
+            COMPREPLY=( $( compgen -W "{0..100}" -- "$cur" ) )
+            if $split; then
+                COMPREPLY=( ${COMPREPLY[@]/#/"$prev,"} )
+            else
+                compopt -o nospace
+            fi
+            return
+            ;;
+        --title|-t|--include-pattern|--exclude-pattern|--path-strip-level)
             # argument required but no completions available
             return
             ;;
