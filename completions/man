@@ -8,9 +8,10 @@ _man()
     local cur prev words cword split
     _init_completion -s -n : || return
 
-    local sect manpath manext mansect
+    local sect manpath manext mansect comprsuffix
 
-    manext="@([0-9lnp]|[0-9][px]|man|3?(gl|pm))?(.@([gx]z|bz2|lzma|Z))"
+    comprsuffix=".@([glx]z|bz2|lzma|Z)"
+    manext="@([0-9lnp]|[0-9][px]|man|3?(gl|pm))?($comprsuffix)"
     mansect="@([0-9lnp]|[0-9][px]|3?(gl|pm))"
 
     case $prev in
@@ -82,7 +83,7 @@ _man()
     # weed out directory path names and paths to man pages
     COMPREPLY=( ${COMPREPLY[@]##*/?(:)} )
     # strip suffix from man pages
-    COMPREPLY=( ${COMPREPLY[@]%.@([gx]z|bz2|lzma|Z)} )
+    COMPREPLY=( ${COMPREPLY[@]%$comprsuffix} )
     COMPREPLY=( $( compgen -W '${COMPREPLY[@]%.*}' -- "${cur//\\\\/}" ) )
 
     if [[ "$prev" != $mansect ]]; then
