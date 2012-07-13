@@ -376,6 +376,7 @@ CLEANFILES = \
 	ciptool \
 	civclient \
 	civserver \
+	clzip \
 	co \
 	compare \
 	compgen \
@@ -450,6 +451,7 @@ CLEANFILES = \
 	ncal \
 	pbzip2 \
 	pccardctl \
+	pdlzip \
 	perldoc \
 	phing \
 	pigz \
@@ -458,6 +460,7 @@ CLEANFILES = \
 	pkg_deinstall \
 	pkg_info \
 	pkill \
+	plzip \
 	pm-suspend \
 	pm-suspend-hybrid \
 	pmake \
@@ -675,6 +678,10 @@ symlinks: $(targetdir)
 		lvresize lvextend ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) lvm $(targetdir)/$$file ; \
+	done
+	for file in clzip pdlzip plzip ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) lzip $(targetdir)/$$file ; \
 	done
 	for file in gmake gnumake pmake ; do \
 		rm -f $(targetdir)/$$file && \
