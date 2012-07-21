@@ -208,6 +208,7 @@ bashcomp_DATA = a2x \
 		munin-node-configure \
 		munin-run \
 		munin-update \
+		mussh \
 		mutt \
 		mysql \
 		mysqladmin \

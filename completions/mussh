@@ -1,0 +1,52 @@
+# mussh(1) completion                                      -*- shell-script -*-
+
+_mussh()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --help|-V|-m|-t)
+            return
+            ;;
+        -d)
+            COMPREPLY=( $( compgen -W '{0..2}' -- "$cur" ) )
+            return
+            ;;
+        -v)
+            COMPREPLY=( $( compgen -W '{0..3}' -- "$cur" ) )
+            return
+            ;;
+        -i|-H|-C)
+            _filedir
+            return
+            ;;
+        -o|-po)
+            _xfunc ssh _ssh_options
+            return
+            ;;
+        -l|-L)
+            COMPREPLY=( $( compgen -u -- "$cur" ) )
+            return
+            ;;
+        -s)
+            _shells
+            return
+            ;;
+        -p|-h)
+            [[ $cur == *@* ]] && _user_at_host || _known_hosts_real -a "$cur"
+            return
+            ;;
+        -c)
+            compopt -o filenames
+            COMPREPLY+=( $( compgen -c -- "$cur" ) )
+            return
+            ;;
+   esac
+
+   [[ $cur != -* ]] || \
+       COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+} &&
+complete -F _mussh mussh
+
+# ex: ts=4 sw=4 et filetype=sh
