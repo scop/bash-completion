@@ -379,6 +379,7 @@ CLEANFILES = \
 	civserver \
 	clzip \
 	co \
+	colormake \
 	compare \
 	compgen \
 	composite \
@@ -684,7 +685,7 @@ symlinks: $(targetdir)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) lzip $(targetdir)/$$file ; \
 	done
-	for file in gmake gnumake pmake ; do \
+	for file in colormake gmake gnumake pmake ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) make $(targetdir)/$$file ; \
 	done
