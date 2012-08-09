@@ -221,6 +221,7 @@ bashcomp_DATA = a2x \
 		nslookup \
 		ntpdate \
 		openssl \
+		opera \
 		p4 \
 		pack200 \
 		passwd \
