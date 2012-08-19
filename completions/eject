@@ -1,0 +1,30 @@
+# bash completion for eject(1)                             -*- shell-script -*-
+
+_eject()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -h|--help|-V|--version|-c|--changerslot|-x|--cdspeed)
+            return
+            ;;
+        -a|--auto|-i|--manualeject)
+            COMPREPLY=( $( compgen -W 'on off' -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return
+    elif [[ $prev == @(-d|--default) ]]; then
+        return
+    fi
+
+    _cd_devices
+    _dvd_devices
+} &&
+complete -F _eject eject
+
+# ex: ts=4 sw=4 et filetype=sh

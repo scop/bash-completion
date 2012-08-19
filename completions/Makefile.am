@@ -75,6 +75,7 @@ bashcomp_DATA = a2x \
 		dumpe2fs \
 		e2freefrag \
 		e2label \
+		eject \
 		eog \
 		ether-wake \
 		evince \
