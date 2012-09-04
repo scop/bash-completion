@@ -107,6 +107,7 @@ bashcomp_DATA = a2x \
 		gpasswd \
 		gpg \
 		gpg2 \
+		gphoto2 \
 		gprof \
 		groupadd \
 		groupdel \
@@ -219,6 +220,7 @@ bashcomp_DATA = a2x \
 		newlist \
 		newusers \
 		nmap \
+		nmcli \
 		nslookup \
 		ntpdate \
 		openssl \
