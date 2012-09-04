@@ -1,0 +1,51 @@
+# bash completion for gphoto2(1)                           -*- shell-script -*-
+
+_gphoto2()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        --debug-logfile)
+            _filedir
+            return 0
+            ;;
+        --hook-script)
+            _filedir
+            return 0
+            ;;
+        --filename)
+            _filedir
+            return 0
+            ;;
+        -u|--upload-file)
+            _filedir
+            return 0
+            ;;
+        --port)
+            COMPREPLY=( $(compgen -W "$( gphoto2 --list-ports 2>/dev/null | \
+                tail -n +4 | awk '{ print $1 }'  )" -- "$cur") )
+            return 0
+            ;;
+        --camera)
+            local IFS=$'\n'
+            COMPREPLY=( $(compgen -W "$( gphoto2 --list-cameras 2>/dev/null | \
+                tail -n +3 | awk -F'"' '{ print $2 }'  )" -- "$cur") )
+            return 0
+            ;;
+        --get-config|--set-config|--set-config-index|--set-config-value)
+            COMPREPLY=( $(compgen -W "$( gphoto2 --list-config 2>/dev/null \
+                )" -- "$cur") )
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return 0
+    fi
+
+} &&
+complete -F _gphoto2 gphoto2
+
+# ex: ts=4 sw=4 et filetype=sh
