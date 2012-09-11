@@ -2,12 +2,27 @@
 
 function _make_target_extract_script()
 {
-    local prefix=$(printf "%s\n" "$1" | sed 's/[][\.*^$(){}?+|/]/\\&/g')
+    local mode="$1"
+    shift
+
+    local PREFIX="$1"
+    local PREFIX_PAT=$( printf "%s\n" "$PREFIX" | \
+                        sed 's/[][\,.*^$(){}?+|/]/\\&/g' )
+    local BASENAME=${PREFIX##*/}
+    local DIRNAME_LEN=$(( ${#PREFIX} - ${#BASENAME} ))
+
+    if [[ $mode == -d ]]; then
+        # display mode, only output current path component to the next slash
+        local OUTPUT="\2"
+    else
+        # completion mode, output full path to the next slash
+    local OUTPUT="\1\2"
+    fi
 
     cat <<EOF
     /^# Make data base/,/^# Files/d             # skip until files section
     /^# Not a target/,/^$/        d             # skip not target blocks
-    /^${prefix}/,/^$/!            d             # skip anything user dont want
+    /^${PREFIX_PAT}/,/^$/!        d             # skip anything user dont want
 
     # The stuff above here describes lines that are not
     #  explicit targets or not targets other than special ones
@@ -21,8 +36,8 @@ function _make_target_extract_script()
 
     /^$/ {                                      # end of target block
       x                                         # unhold target
-      s/^(${prefix}[^:/]*\/).*:.*$/\1/p         # write targets for subdirs
-      s/:.*$/ /p                                # write complete targets
+      /^$/d                                     # dont print blanks
+      s,^(.{${DIRNAME_LEN}})(.{${#BASENAME}}[^:/]*/?)[^:]*:.*$,${OUTPUT},p
       d                                         # hide any bugs
     }
 
@@ -119,10 +134,22 @@ _make()
             fi
         done
 
-        COMPREPLY=( $( compgen -W "$( LC_ALL=C \
+        # recognise that possible completions are only going to be displayed
+        # so only the base name is shown
+        mode=--
+        if (( COMP_TYPE != 9 )); then
+            mode=-d # display-only mode
+        fi
+
+        COMPREPLY=( $( LC_ALL=C \
             make -npq "${makef[@]}" "${makef_dir[@]}" .DEFAULT 2>/dev/null | \
-            sed -n -r -f <(_make_target_extract_script "$cur") )" -- "$cur" ) )
-        [[ $COMPREPLY == */ ]] && compopt -o nospace
+            sed -nrf <(_make_target_extract_script $mode "$cur") ) )
+
+        if [[ $mode != -d ]]; then
+            # Completion will occur if there is only one suggestion
+            # so set options for completion based on the first one
+            [[ $COMPREPLY == */ ]] && compopt -o nospace
+        fi
 
     fi
 } &&
