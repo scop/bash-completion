@@ -5,24 +5,24 @@ function _make_target_extract_script()
     local mode="$1"
     shift
 
-    local PREFIX="$1"
-    local PREFIX_PAT=$( printf "%s\n" "$PREFIX" | \
+    local prefix="$1"
+    local prefix_pat=$( printf "%s\n" "$prefix" | \
                         sed 's/[][\,.*^$(){}?+|/]/\\&/g' )
-    local BASENAME=${PREFIX##*/}
-    local DIRNAME_LEN=$(( ${#PREFIX} - ${#BASENAME} ))
+    local basename=${prefix##*/}
+    local dirname_len=$(( ${#prefix} - ${#basename} ))
 
     if [[ $mode == -d ]]; then
         # display mode, only output current path component to the next slash
-        local OUTPUT="\2"
+        local output="\2"
     else
         # completion mode, output full path to the next slash
-    local OUTPUT="\1\2"
+        local output="\1\2"
     fi
 
     cat <<EOF
     /^# Make data base/,/^# Files/d             # skip until files section
     /^# Not a target/,/^$/        d             # skip not target blocks
-    /^${PREFIX_PAT}/,/^$/!        d             # skip anything user dont want
+    /^${prefix_pat}/,/^$/!        d             # skip anything user dont want
 
     # The stuff above here describes lines that are not
     #  explicit targets or not targets other than special ones
@@ -37,7 +37,7 @@ function _make_target_extract_script()
     /^$/ {                                      # end of target block
       x                                         # unhold target
       /^$/d                                     # dont print blanks
-      s,^(.{${DIRNAME_LEN}})(.{${#BASENAME}}[^:/]*/?)[^:]*:.*$,${OUTPUT},p
+      s,^(.{${dirname_len}})(.{${#basename}}[^:/]*/?)[^:]*:.*$,${output},p
       d                                         # hide any bugs
     }
 
