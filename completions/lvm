@@ -16,6 +16,13 @@ _logicalvolumes()
 {
     COMPREPLY=( $(compgen -W "$( lvscan 2>/dev/null | \
         sed -n -e "s|^.*'\(.*\)'.*$|\1|p" )" -- "$cur" ) )
+    if [[ $cur == /dev/mapper/* ]]; then
+        _filedir
+        local i
+        for i in ${!COMPREPLY[@]}; do
+            [[ ${COMPREPLY[i]} == */control ]] && unset COMPREPLY[i]
+        done
+    fi
 }
 
 _units()
