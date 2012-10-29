@@ -1,0 +1,96 @@
+# pkgutil completion                                        -*- shell-script -*-
+# Copyright 2006 Yann Rouillard <yann@opencsw.org>
+
+_pkgutil_url2catalog()
+{
+    local filename="$1"
+
+    filename="${filename##*://}"
+    filename="${filename//\//_}"
+    filename="/var/opt/csw/pkgutil/catalog.${filename}_$(uname -p)_$(uname -r)"
+
+    echo "$filename"
+}
+
+_pkgutil()
+{
+    local cur prev words cword 
+    _init_completion -n : || return
+
+    local command catalog_files configuration_files
+    declare -a configuration_files=("/opt/csw/etc/pkgutil.conf" "/etc/opt/csw/pkgutil.conf")
+    declare -a catalog_files=()
+
+    i=$cword
+    while [[ $((i--)) -gt 1 ]]; do
+        if [[ "${words[$i]}" = @(-t|--temp) ]]; then
+            local url="${words[$((i+1))]}"
+            local catalog=$(_pkgutil_url2catalog "$url")
+            catalog_files=("$catalog")
+        elif [[ "${words[$i]}" = @(--config) ]]; then
+            configuration_files=( "$(dequote ${words[$((i+1))]})" )
+        elif [[ "${words[$i]}" == @(-i|--install|-u|--upgrade|-r|--remove|-d|--download|-a|--available|-c|--compare|-U|--catalog|-S|--stream) ]]; then
+            command="${words[$i]}"  
+        fi
+    done
+
+    if [[ "$prev" = @(-W|--workdir|-P|--pkgdir|-R|--rootpath) ]]; then
+        _filedir -d
+        return 0
+    fi
+
+    if [[ "$prev" = @(-o|--output|--config) ]]; then
+        _filedir
+        return 0
+    fi
+
+    if [[ "$prev" = @(-p|--param) ]]; then
+        compopt -o nospace
+        COMPREPLY=( $(compgen -W "mirror: pkgaddopts: pkgrmopts: wgetopts: use_gpg: use_md5: pkgliststyle: maxpkglist: noncsw: stop_on_hook_soft_error: exclude_pattern: gpg_homedir: root_path: deptree_filter_common: show_current: catalog_not_cached: catalog_update:" -- $cur) )
+        return 0
+    fi
+
+    if [[ "$prev" = @(-T|--target) ]]; then
+        # Work-around bash_completion issue where bash interprets a colon
+        # as a separator, borrowed from maven completion code which borrowed
+        # it from darcs completion code :)
+        local colonprefixes=${cur%"${cur##*:}"}
+        COMPREPLY=( $(compgen -W "sparc:5.9 sparc:5.10 sparc:5.11 i386:5.9 i386:5.10 i386:5.11" -- $cur) )
+        local i=${#COMPREPLY[*]}
+        while [ $((--i)) -ge 0 ]; do
+            COMPREPLY[$i]=${COMPREPLY[$i]#"$colonprefixes"}
+        done
+        return 0
+    fi
+
+    if [[ -n "$command" ]] && [[ ! "$cur" == -* ]]; then
+
+        local mirrors mirror_url
+        mirrors=$(awk -F= ' $1 ~ /^ *mirror *$/ { print $2 }' ${configuration_files[@]})
+        mirrors=${mirrors:-http://mirror.opencsw.org/opencsw/testing}
+        for mirror_url in $mirrors; do
+            local catalog=$(_pkgutil_url2catalog "$mirror_url")
+            catalog_files=( "${catalog_files[@]}" "$catalog" )
+        done
+
+        if [[ "$command" == @(--download|-d|--install|-i|--upgrade|-u|s|--stream) ]]; then
+            local packages_list=$(awk ' $0 ~ /BEGIN PGP SIGNATURE/ { exit } $1 ~ /^Hash:/ || $1 ~ /^ *(-|#|$)/ { next } { print $1 }' "${catalog_files[@]}")
+            COMPREPLY=( $(compgen -W "${packages_list}" -- $cur) )
+
+        elif [[ "$command" == @(-r|--remove) ]]; then
+                local packages_list=$(pkginfo | awk ' $2 ~ /^CSW/ { printf ("%s|",$2) }')
+            packages_list=${packages_list%|}
+            packages_list=$(nawk " \$3 ~ /^$packages_list\$/ { print \$1 }" "${catalog_files[@]}")
+            COMPREPLY=( $(compgen -W "${packages_list}" -- $cur) )
+        fi
+        return 0
+    fi
+
+    local commands="-i --install -u --upgrade -r --remove -d --download -U --catalog -a --available --describe -c --compare -C --compare-diff -A --compare-avail -e --email -t --temp -x --exclude -W --workdir -P --pkgdir -R --rootpath --config -y --yes -f --force -n --nomod -N --nodeps -D --debug --trace -h --help -v --version -V --syscheck -l --list -L --listfile -F --findfile --deptree --extract -s --stream -o --output -T --target --single -p --param --parse --cleanup --catinfo"
+    COMPREPLY=( $(compgen -W "${commands}" -- $cur) )
+    return 0
+}
+
+complete -F _pkgutil pkgutil
+
+# ex: ts=4 sw=4 et filetype=sh

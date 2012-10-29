@@ -239,6 +239,7 @@ bashcomp_DATA = a2x \
 		pkgadd \
 		pkgrm \
 		pkgtool \
+		pkgutil \
 		plague-client \
 		pm-hibernate \
 		pm-is-supported \
