@@ -234,6 +234,7 @@ bashcomp_DATA = a2x \
 		pine \
 		ping \
 		pkg-config \
+		pkg-get \
 		pkg_delete \
 		pkgtool \
 		plague-client \
@@ -303,6 +304,7 @@ bashcomp_DATA = a2x \
 		strace \
 		su \
 		sudo \
+		svcadm \
 		svk \
 		sync_members \
 		sysbench \

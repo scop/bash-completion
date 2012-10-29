@@ -1,0 +1,75 @@
+# pkg-get.completion completion                            -*- shell-script -*-
+#
+# Copyright 2006 Yann Rouillard <yann@opencsw.org>
+
+_have pkg-get && 
+_pkg-get_get_catalog_file()
+{
+    local url="$1"
+    local catalog_file i conffile
+
+    for file in /etc/opt/csw/pkg-get.conf /opt/csw/etc/pkg-get.conf /etc/pkg-get.conf; do
+        if [[ -f $file ]]; then
+            conffile="$file"
+            break
+        fi
+    done
+    conffile="${conffile:-/opt/csw/etc/pkg-get.conf}"
+
+    if [[ -z "$url" ]]; then
+        url=$(awk -F= ' $1=="url" { print $2 }' $conffile)
+    fi
+
+    catalog_file="${url##*//}"
+    catalog_file="${catalog_file%%/*}"
+    catalog_file="/var/pkg-get/catalog-$catalog_file"
+
+    echo "$catalog_file"
+} &&
+_pkg-get()
+{
+    local cur prev file catalog_file url command
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    if [[ "${prev}" = "-s" ]]; then
+        return 1
+    fi
+
+    i=${#COMP_WORDS[*]} 
+    while [[ $i -gt 0 ]]; do
+        i=$((i-1))
+        if [[ "${COMP_WORDS[$i]}" = "-s" ]]; then
+            url="${COMP_WORDS[$((i+1))]}"
+        fi
+        if [[ "${COMP_WORDS[$i]}" == @(available|-a|describe|-D|download|-d|install|-i|list|updatecatalog|-U|upgrade|-u) ]]; then
+            command="${COMP_WORDS[$i]}"
+        fi
+    done
+
+    if [[ -n "$command" ]]; then
+        if [[ "$command" == @(describe|-D|download|-d|install|-i) ]]; then
+            catalog_file=$(_pkg-get_get_catalog_file "$url")
+            if [[ -f $catalog_file ]]; then
+                local packages_list=$(awk ' $0 ~ /BEGIN PGP SIGNATURE/ { exit } $1 ~ /^Hash:/ || $1 ~ /^ *(-|#|$)/ { next } { print $1 }' $catalog_file)
+                COMPREPLY=( $(compgen -W "${packages_list}" -- ${cur}) )
+            fi
+        fi
+        return 0
+    fi
+
+    if [[ ${cur} == -* ]] ; then
+        local opts="-c -d -D -f -i -l -s -S -u -U -v"
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+        return 0
+    else
+        local commands="available describe download install list \
+            updatecatalog upgrade"
+        COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
+        return 0
+    fi
+} &&
+complete -F _pkg-get pkg-get
+
+# ex: ts=4 sw=4 et filetype=sh
