@@ -237,6 +237,7 @@ bashcomp_DATA = a2x \
 		pkg-get \
 		pkg_delete \
 		pkgadd \
+		pkgrm \
 		pkgtool \
 		plague-client \
 		pm-hibernate \
