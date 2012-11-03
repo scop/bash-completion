@@ -55,6 +55,16 @@ _mplayer()
                        done ) )
             return 0
             ;;
+        -subcp|-msgcharset)
+            local cp
+            cp=( $( iconv --list 2>/dev/null | sed -e "s@//@@;" 2>/dev/null ) )
+            if [[ "$cur" == "${cur,,}" ]]; then
+                COMPREPLY=( $( compgen -W '${cp[@],,}' -- "$cur" ) )
+            else
+                COMPREPLY=( $( compgen -W '${cp[@]^^}' -- "$cur" ) )
+            fi
+            return 0
+            ;;
         -ifo)
             _filedir ifo
             return 0
@@ -116,7 +126,7 @@ _mplayer()
         -audio-density|-audio-delay|-audio-preload|-endpos|-osdlevel| \
         -ffourcc|-sws|-channels|-skiplimit|-format|-ofps|-aadriver| \
         -aaosdcolor|-aasubcolor|-vobsubout|-vobsuboutid|-vobsuboutindex| \
-        -sub-bg-alpha|-sub-bg-color|-subcp|-subdelay|-subfps|-subpos| \
+        -sub-bg-alpha|-sub-bg-color|-subdelay|-subfps|-subpos| \
         -subalign|-subwidth|-subfont-blur|-subfont-outline| \
         -subfont-autoscale|-subfont-encoding|-subfont-osd-scale| \
         -subfont-text-scale)
