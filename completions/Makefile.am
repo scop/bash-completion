@@ -550,7 +550,7 @@ CLEANFILES = \
 	xvnc4viewer \
 	ypcat
 
-symlinks: $(targetdir)
+symlinks: $(targetdir) $(DATA)
 	for file in aclocal-1.11 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) aclocal $(targetdir)/$$file ; \
