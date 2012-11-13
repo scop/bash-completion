@@ -532,6 +532,7 @@ CLEANFILES = \
 	vgchange \
 	vgck \
 	vgconvert \
+	vgcreate \
 	vgdisplay \
 	vgexport \
 	vgextend \
@@ -684,7 +685,7 @@ symlinks: $(targetdir) $(DATA)
 	done
 	for file in lvmdiskscan pvscan pvs pvdisplay pvchange pvcreate pvmove \
 		pvremove vgscan vgs vgdisplay vgchange vgremove vgrename \
-		vgreduce vgextend vgimport vgexport vgck vgconvert \
+		vgreduce vgextend vgimport vgexport vgck vgconvert vgcreate \
 		vgcfgbackup vgcfgrestore vgmerge vgsplit vgmknodes lvscan lvs \
 		lvdisplay lvchange lvcreate lvremove lvrename lvreduce \
 		lvresize lvextend ; do \
