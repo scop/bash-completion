@@ -35,17 +35,20 @@ _sizes()
     COMPREPLY=( $( compgen -W 'k K m M g G t T' -- "$cur" ) )
 }
 
+# @param $1 glob matching args known to take an argument
 _args()
 {
     args=0
-    local offset=1 i
+    local offset=1
     if [[ "${words[0]}" == lvm ]]; then
         offset=2
     fi
+    local i prev=${words[$offset-1]}
     for (( i=$offset; i < cword; i++ )); do
-        if [[ "${words[i]}" != -* ]]; then
+        if [[ "${words[i]}" != -* && $prev != $1 ]]; then
             args=$(($args + 1))
         fi
+        prev=${words[i]}
     done
 }
 
@@ -320,7 +323,7 @@ _vgcreate()
             --verbose --version' -- "$cur" ) )
     else
         local args
-        _args
+        _args @(-A|--autobackup|-M|--metadatatype|-s|--physicalextentsize)
         if [[ $args -eq 0 ]]; then
             _volumegroups
         else
@@ -380,7 +383,7 @@ _vgreduce()
 
     else
         local args
-        _args
+        _args @(-A|--autobackup)
         if [[ $args -eq 0 ]]; then
             _volumegroups
         else
@@ -410,7 +413,7 @@ _vgextend()
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
         local args
-        _args
+        _args @(-A|--autobackup|-L|--size)
         if [[ $args -eq 0 ]]; then
             _volumegroups
         else
@@ -564,7 +567,7 @@ _vgsplit()
             --verbose --version' -- "$cur" ) )
     else
         local args
-        _args
+        _args @(-A|--autobackup|-M|--metadatatype)
         if [[ $args -eq 0 || $args -eq 1 ]]; then
             _volumegroups
         else
@@ -696,7 +699,7 @@ _lvcreate()
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
         local args
-        _args
+        _args @(-A|-C|-M|-Z|--autobackup|--contiguous|--persistent|--zero|-L|--size|-p|--permission|-n|--name)
         if [[ $args -eq 0 ]]; then
             _volumegroups
         else
@@ -790,7 +793,7 @@ _lvresize()
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
         local args
-        _args
+        _args @(-A|--autobackup|-L|--size)
         if [[ $args -eq 0 ]]; then
             _logicalvolumes
         else
@@ -820,7 +823,7 @@ _lvextend()
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
         local args
-        _args
+        _args @(-A|--autobackup|-L|--size)
         if [[ $args -eq 0 ]]; then
             _logicalvolumes
         else
