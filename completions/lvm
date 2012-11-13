@@ -1,18 +1,18 @@
 # bash completion for lvm                                  -*- shell-script -*-
 
-_volumegroups()
+_lvm_volumegroups()
 {
     COMPREPLY=( $(compgen -W "$( vgscan 2>/dev/null | \
         sed -n -e 's|.*Found.*"\(.*\)".*$|\1|p' )" -- "$cur" ) )
 }
 
-_physicalvolumes()
+_lvm_physicalvolumes()
 {
     COMPREPLY=( $(compgen -W "$( pvscan 2>/dev/null | \
         sed -n -e 's|^.*PV \(.*\) VG.*$|\1|p' )" -- "$cur" ) )
 }
 
-_logicalvolumes()
+_lvm_logicalvolumes()
 {
     COMPREPLY=( $(compgen -W "$( lvscan 2>/dev/null | \
         sed -n -e "s|^.*'\(.*\)'.*$|\1|p" )" -- "$cur" ) )
@@ -25,18 +25,18 @@ _logicalvolumes()
     fi
 }
 
-_units()
+_lvm_units()
 {
     COMPREPLY=( $( compgen -W 'h s b k m g t H K M G T' -- "$cur" ) )
 }
 
-_sizes()
+_lvm_sizes()
 {
     COMPREPLY=( $( compgen -W 'k K m M g G t T' -- "$cur" ) )
 }
 
 # @param $1 glob matching args known to take an argument
-_args()
+_lvm_count_args()
 {
     args=0
     local offset=1
@@ -90,7 +90,7 @@ _pvs()
             return 0
             ;;
         --units)
-            _units
+            _lvm_units
             return 0
             ;;
     esac
@@ -98,7 +98,7 @@ _pvs()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _physicalvolumes
+        _lvm_physicalvolumes
     fi
 } &&
 complete -F _pvs pvs
@@ -110,7 +110,7 @@ _pvdisplay()
 
     case $prev in
         --units)
-            _units
+            _lvm_units
             return 0
             ;;
     esac
@@ -118,7 +118,7 @@ _pvdisplay()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _physicalvolumes
+        _lvm_physicalvolumes
     fi
 } &&
 complete -F _pvdisplay pvdisplay
@@ -138,7 +138,7 @@ _pvchange()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _physicalvolumes
+        _lvm_physicalvolumes
     fi
 } &&
 complete -F _pvchange pvchange
@@ -162,7 +162,7 @@ _pvcreate()
             return 0
             ;;
         --metadatasize|--setphysicalvolumesize)
-            _sizes
+            _lvm_sizes
             return 0
             ;;
     esac
@@ -170,7 +170,7 @@ _pvcreate()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _physicalvolumes
+        _lvm_physicalvolumes
     fi
 } &&
 complete -F _pvcreate pvcreate
@@ -186,7 +186,7 @@ _pvmove()
             return 0
             ;;
         -n|--name)
-            _logicalvolumes
+            _lvm_logicalvolumes
             return 0
     esac
 
@@ -195,7 +195,7 @@ _pvmove()
             --background --debug --force --help --interval --test --verbose \
             --version --name' -- "$cur" ) )
     else
-        _physicalvolumes
+        _lvm_physicalvolumes
     fi
 } &&
 complete -F _pvmove pvmove
@@ -208,7 +208,7 @@ _pvremove()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _physicalvolumes
+        _lvm_physicalvolumes
     fi
 } &&
 complete -F _pvremove pvremove
@@ -239,7 +239,7 @@ _vgs()
             return 0
             ;;
         --units)
-            _units
+            _lvm_units
             return 0
             ;;
     esac
@@ -247,7 +247,7 @@ _vgs()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _volumegroups
+        _lvm_volumegroups
     fi
 } &&
 complete -F _vgs vgs
@@ -259,7 +259,7 @@ _vgdisplay()
 
     case $prev in
         --units)
-            _units
+            _lvm_units
             return 0
             ;;
     esac
@@ -267,7 +267,7 @@ _vgdisplay()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _volumegroups
+        _lvm_volumegroups
     fi
 } &&
 complete -F _vgdisplay vgdisplay
@@ -291,7 +291,7 @@ _vgchange()
             --available --resizeable --logicalvolume \
             --addtag --deltag' -- "$cur" ) )
     else
-        _volumegroups
+        _lvm_volumegroups
     fi
 } &&
 complete -F _vgchange vgchange
@@ -311,7 +311,7 @@ _vgcreate()
             return 0
             ;;
         -s|--physicalextentsize)
-            _sizes
+            _lvm_sizes
             return 0
             ;;
     esac
@@ -323,11 +323,11 @@ _vgcreate()
             --verbose --version' -- "$cur" ) )
     else
         local args
-        _args @(-A|--autobackup|-M|--metadatatype|-s|--physicalextentsize)
+        _lvm_count_args @(-A|--autobackup|-M|--metadatatype|-s|--physicalextentsize)
         if [[ $args -eq 0 ]]; then
-            _volumegroups
+            _lvm_volumegroups
         else
-            _physicalvolumes
+            _lvm_physicalvolumes
         fi
     fi
 } &&
@@ -341,7 +341,7 @@ _vgremove()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _volumegroups
+        _lvm_volumegroups
     fi
 } &&
 complete -F _vgremove vgremove
@@ -361,7 +361,7 @@ _vgrename()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _volumegroups
+        _lvm_volumegroups
     fi
 } &&
 complete -F _vgrename vgrename
@@ -383,11 +383,11 @@ _vgreduce()
 
     else
         local args
-        _args @(-A|--autobackup)
+        _lvm_count_args @(-A|--autobackup)
         if [[ $args -eq 0 ]]; then
-            _volumegroups
+            _lvm_volumegroups
         else
-            _physicalvolumes
+            _lvm_physicalvolumes
         fi
     fi
 } &&
@@ -404,7 +404,7 @@ _vgextend()
             return 0
             ;;
         -L|--size)
-            _sizes
+            _lvm_sizes
             return 0
             ;;
     esac
@@ -413,11 +413,11 @@ _vgextend()
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
         local args
-        _args @(-A|--autobackup|-L|--size)
+        _lvm_count_args @(-A|--autobackup|-L|--size)
         if [[ $args -eq 0 ]]; then
-            _volumegroups
+            _lvm_volumegroups
         else
-            _physicalvolumes
+            _lvm_physicalvolumes
         fi
     fi
 } &&
@@ -431,7 +431,7 @@ _vgport()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _volumegroups
+        _lvm_volumegroups
     fi
 } &&
 complete -F _vgport vgimport vgexport
@@ -444,7 +444,7 @@ _vgck()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _volumegroups
+        _lvm_volumegroups
     fi
 } &&
 complete -F _vgck vgck
@@ -464,7 +464,7 @@ _vgconvert()
             return 0
             ;;
         --metadatasize)
-            _sizes
+            _lvm_sizes
             return 0
             ;;
     esac
@@ -472,7 +472,7 @@ _vgconvert()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _volumegroups
+        _lvm_volumegroups
     fi
 } &&
 complete -F _vgconvert vgconvert
@@ -492,7 +492,7 @@ _vgcfgbackup()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _volumegroups
+        _lvm_volumegroups
     fi
 } &&
 complete -F _vgcfgbackup vgcfgbackup
@@ -512,7 +512,7 @@ _vgcfgrestore()
             return 0
             ;;
         -n|--name)
-            _volumegroups
+            _lvm_volumegroups
             return 0
             ;;
     esac
@@ -520,7 +520,7 @@ _vgcfgrestore()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _volumegroups
+        _lvm_volumegroups
     fi
 } &&
 complete -F _vgcfgrestore vgcfgrestore
@@ -540,7 +540,7 @@ _vgmerge()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _volumegroups
+        _lvm_volumegroups
     fi
 } &&
 complete -F _vgmerge vgmerge
@@ -567,11 +567,11 @@ _vgsplit()
             --verbose --version' -- "$cur" ) )
     else
         local args
-        _args @(-A|--autobackup|-M|--metadatatype)
+        _lvm_count_args @(-A|--autobackup|-M|--metadatatype)
         if [[ $args -eq 0 || $args -eq 1 ]]; then
-            _volumegroups
+            _lvm_volumegroups
         else
-            _physicalvolumes
+            _lvm_physicalvolumes
         fi
     fi
 } &&
@@ -585,7 +585,7 @@ _vgmknodes()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _volumegroups
+        _lvm_volumegroups
     fi
 } &&
 complete -F _vgmknodes vgmknodes
@@ -614,7 +614,7 @@ _lvs()
             return 0
             ;;
         --units)
-            _units
+            _lvm_units
             return 0
             ;;
     esac
@@ -622,7 +622,7 @@ _lvs()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _logicalvolumes
+        _lvm_logicalvolumes
     fi
 } &&
 complete -F _lvs lvs
@@ -634,7 +634,7 @@ _lvdisplay()
 
     case $prev in
         --units)
-            _units
+            _lvm_units
             return 0
             ;;
     esac
@@ -642,7 +642,7 @@ _lvdisplay()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _logicalvolumes
+        _lvm_logicalvolumes
     fi
 } &&
 complete -F _lvdisplay lvdisplay
@@ -666,7 +666,7 @@ _lvchange()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _logicalvolumes
+        _lvm_logicalvolumes
     fi
 } &&
 complete -F _lvchange lvchange
@@ -682,7 +682,7 @@ _lvcreate()
             return 0
             ;;
         -L|--size)
-            _sizes
+            _lvm_sizes
             return 0
             ;;
         -p|--permission)
@@ -690,7 +690,7 @@ _lvcreate()
             return 0
             ;;
         -n|--name)
-            _logicalvolumes
+            _lvm_logicalvolumes
             return 0
             ;;
     esac
@@ -699,11 +699,11 @@ _lvcreate()
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
         local args
-        _args @(-A|-C|-M|-Z|--autobackup|--contiguous|--persistent|--zero|-L|--size|-p|--permission|-n|--name)
+        _lvm_count_args @(-A|-C|-M|-Z|--autobackup|--contiguous|--persistent|--zero|-L|--size|-p|--permission|-n|--name)
         if [[ $args -eq 0 ]]; then
-            _volumegroups
+            _lvm_volumegroups
         else
-            _physicalvolumes
+            _lvm_physicalvolumes
         fi
     fi
 } &&
@@ -724,7 +724,7 @@ _lvremove()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _logicalvolumes
+        _lvm_logicalvolumes
     fi
 } &&
 complete -F _lvremove lvremove
@@ -744,7 +744,7 @@ _lvrename()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _logicalvolumes
+        _lvm_logicalvolumes
     fi
 } &&
 complete -F _lvrename lvrename
@@ -760,7 +760,7 @@ _lvreduce()
             return 0
             ;;
         -L|--size)
-            _sizes
+            _lvm_sizes
             return 0
             ;;
     esac
@@ -768,7 +768,7 @@ _lvreduce()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _logicalvolumes
+        _lvm_logicalvolumes
     fi
 } &&
 complete -F _lvreduce lvreduce
@@ -784,7 +784,7 @@ _lvresize()
             return 0
             ;;
         -L|--size)
-            _sizes
+            _lvm_sizes
             return 0
             ;;
     esac
@@ -793,11 +793,11 @@ _lvresize()
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
         local args
-        _args @(-A|--autobackup|-L|--size)
+        _lvm_count_args @(-A|--autobackup|-L|--size)
         if [[ $args -eq 0 ]]; then
-            _logicalvolumes
+            _lvm_logicalvolumes
         else
-            _physicalvolumes
+            _lvm_physicalvolumes
         fi
     fi
 } &&
@@ -814,7 +814,7 @@ _lvextend()
             return 0
             ;;
         -L|--size)
-            _sizes
+            _lvm_sizes
             return 0
             ;;
     esac
@@ -823,11 +823,11 @@ _lvextend()
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
         local args
-        _args @(-A|--autobackup|-L|--size)
+        _lvm_count_args @(-A|--autobackup|-L|--size)
         if [[ $args -eq 0 ]]; then
-            _logicalvolumes
+            _lvm_logicalvolumes
         else
-            _physicalvolumes
+            _lvm_physicalvolumes
         fi
     fi
 } &&
