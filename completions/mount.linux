@@ -15,11 +15,11 @@ _mount()
                 cur="${cur##*,}"
                 split=true
             fi
-            COMPREPLY=( $(compgen -W 'auto adfs affs autofs btrfs cifs coda
+            COMPREPLY=( $( compgen -W 'auto adfs affs autofs btrfs cifs coda
                 cramfs davfs debugfs devpts efs ext2 ext3 ext4 fuse hfs hfsplus
                 hpfs iso9660 jffs2 jfs minix msdos ncpfs nfs nfs4 ntfs ntfs-3g
                 proc qnx4 ramfs reiserfs romfs squashfs smbfs sysv tmpfs ubifs
-                udf ufs umsdos usbfs vfat xfs' -- "$cur") )
+                udf ufs umsdos usbfs vfat xfs' -- "$cur" ) )
             _fstypes
             $split && COMPREPLY=( ${COMPREPLY[@]/#/$prev,} )
             return
@@ -120,7 +120,7 @@ _mount()
                     nobarrier inode_readahead= stripe= {,no}delalloc abort
                     {max,min}_batch_time= journal_ioprio= {,no}auto_da_alloc
                     {,no}discard nouid32 resize {,no}block_validity
-                    dioread_{,no}lock i_version' -- "$cur") )
+                    dioread_{,no}lock max_dir_size_kb= i_version' -- "$cur") )
                 ;;&
             msdos|umsdos|vfat|auto)
                 COMPREPLY+=( $(compgen -W 'blocksize= {u,g}id= {u,d,f}mask=
@@ -156,7 +156,8 @@ _mount()
                     {,no}fsc' -- "$cur") )
                 ;;&
             nfs4|auto)
-                COMPREPLY+=( $(compgen -W 'clientaddr=' -- "$cur") )
+                COMPREPLY+=( $(compgen -W 'clientaddr= {,no}migration' \
+                    -- "$cur") )
                 ;;&
             ntfs-3g)
                 COMPREPLY+=( $(compgen -W '{u,g}id= {u,f,d}mask= usermapping=
@@ -189,11 +190,11 @@ _mount()
                 ;;&
             xfs|auto)
                 COMPREPLY+=( $(compgen -W 'allocsize= {,no}attr2 barrier dmapi
-                    {,no}grpid {bsd,sysv}groups ihashsize= {,no}ikeep inode64
-                    {,no}largeio logbufs= logbsize= logdev= rtdev= mtpt= noalign
-                    norecovery nouuid osyncisosync {u,g,p}qnoenforce
-                    {,u,usr,g,grp,p,prj}quota sunit= swidth= swalloc' \
-                    -- "$cur") )
+                    {,no}grpid {bsd,sysv}groups ihashsize= {,no}ikeep
+                    inode{32,64} {,no}largeio logbufs= logbsize= logdev=
+                    rtdev= mtpt= noalign norecovery nouuid osyncisosync
+                    {u,g,p}qnoenforce {,u,usr,g,grp,p,prj}quota sunit= swidth=
+                    swalloc' -- "$cur") )
                 ;;&
             esac
             # COMP_WORDBREAKS is a real pain in the ass
