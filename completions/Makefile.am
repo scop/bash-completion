@@ -41,6 +41,7 @@ bashcomp_DATA = a2x \
 		chkconfig \
 		chown \
 		chpasswd \
+		chronyc \
 		chrpath \
 		chsh \
 		cksfv \
