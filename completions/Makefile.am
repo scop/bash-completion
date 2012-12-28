@@ -179,6 +179,8 @@ bashcomp_DATA = a2x \
 		lpr \
 		lrzip \
 		lsof \
+		luseradd \
+		luserdel \
 		lvm \
 		lzip \
 		lzma \
@@ -441,6 +443,7 @@ CLEANFILES = \
 	ldappasswd \
 	ldapwhoami \
 	lintian-info \
+	lusermod \
 	lvchange \
 	lvcreate \
 	lvdisplay \
@@ -683,6 +686,10 @@ symlinks: $(targetdir) $(DATA)
 	for file in lintian-info ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) lintian $(targetdir)/$$file ; \
+	done
+	for file in lusermod ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) luseradd $(targetdir)/$$file ; \
 	done
 	for file in lvmdiskscan pvscan pvs pvdisplay pvchange pvcreate pvmove \
 		pvremove vgscan vgs vgdisplay vgchange vgremove vgrename \
