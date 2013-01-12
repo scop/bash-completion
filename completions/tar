@@ -12,7 +12,7 @@ _tar()
         return 0
     fi
 
-    local tars='@(@(tar|gem|spkg)?(.@(Z|[bgx]z|bz2|lzma))|t@([bglx]z|bz2))'
+    local tars='@(@(tar|gem|spkg)?(.@(Z|[bgx]z|bz2|lzma))|t@([abglx]z|b?(z)2))'
 
     case ${words[1]} in
         --*)
@@ -21,11 +21,11 @@ _tar()
             if [[ $cword -eq 2 ]]; then
                 ext='@(tar|gem|spkg)'
                 case ${words[1]} in
-                    *a*)    ext="$tars"         ;;
-                    *z*)    ext='t?(ar.)gz'     ;;
-                    *Z*)    ext='tar.Z'         ;;
-                    *[jy]*) ext='t?(ar.)bz?(2)' ;;
-                    *J*)    ext='t?(ar.)xz'     ;;
+                    *a*)    ext="$tars"               ;;
+                    *z*)    ext='t?(ar.)gz'           ;;
+                    *Z*)    ext='ta@(r.Z|z)'          ;;
+                    *[jy]*) ext='t@(?(ar.)bz?(2)|b2)' ;;
+                    *J*)    ext='t?(ar.)xz'           ;;
                 esac
                 _filedir $ext
             else
@@ -35,15 +35,15 @@ _tar()
             ;;
         +([^ZzJjy])f)
             ext="$tars"
-            regex='\(\(tar\|gem\|spkg\)\(\.\(Z\|[bgx]z\|bz2\|lzma\)\)\?\|t\([bglx]z\|bz2\)\)'
+            regex='\(\(tar\|gem\|spkg\)\(\.\(Z\|[bgx]z\|bz2\|lzma\)\)\?\|t\([abglx]z\|bz\?2\)\)'
             ;;
         *[Zz]*f)
-            ext='@(t?(ar.)|gem.|spkg.)@(gz|Z)'
-            regex='\(t\(ar\.\)\?\|gem\.\|spkg\.\)\(gz\|Z\)'
+            ext='@(@(t?(ar.)|gem.|spkg.)@(gz|Z)|taz)'
+            regex='\(\(t\(ar\.\)\?\|gem\.\|spkg\.\)\(gz\|Z\)\|taz\)'
             ;;
         *[jy]*f)
-            ext='@(@(t?(ar.)|gem.)bz?(2)|spkg)'
-            regex='\(\(t\(ar\.\)\?\|gem\.\)bz2\?\|spkg\)'
+            ext='@(@(t?(ar.)|gem.)bz?(2)|spkg|tb2)'
+            regex='\(\(t\(ar\.\)\?\|gem\.\)bz2\?\|spkg\|tb2\)'
             ;;
         *[J]*f)
             ext='@(t?(ar.)|gem.|spkg.)@(lz?(ma)|xz)'
