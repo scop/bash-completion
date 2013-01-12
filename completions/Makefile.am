@@ -217,6 +217,7 @@ bashcomp_DATA = a2x \
 		mutt \
 		mysql \
 		mysqladmin \
+		nc \
 		ncftp \
 		nethogs \
 		newgrp \
