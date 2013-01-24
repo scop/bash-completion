@@ -1918,11 +1918,12 @@ complete -F _minimal ''
 # set up dynamic completion loading
 _completion_loader()
 {
-    local compdir=./completions
-    [[ $BASH_SOURCE == */* ]] && compdir="${BASH_SOURCE%/*}/completions"
+    local compfile=./completions
+    [[ $BASH_SOURCE == */* ]] && compfile="${BASH_SOURCE%/*}/completions"
+    compfile+="${1##*/}"
 
-    # Try basename.
-    . "$compdir/${1##*/}" &>/dev/null && return 124
+    # Avoid trying to source dirs; https://bugzilla.redhat.com/903540
+    [[ -f "$compfile" ]] && . "$compfile" &>/dev/null && return 124
 
     # Need to define *something*, otherwise there will be no completion at all.
     complete -F _minimal "$1" && return 124
