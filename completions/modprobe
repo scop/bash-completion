@@ -77,6 +77,20 @@ _modprobe()
                     -p "$module" 2>/dev/null | cut -d: -f1 )" -- "$cur" ) )
             else
                 _modules $version
+                if [[ $COMPREPLY ]]; then
+                    # filter out already installed modules
+                    local -a mods=( "${COMPREPLY[@]}" )
+                    _installed_modules "$cur"
+                    for i in ${!mods[@]}; do
+                        for module in ${COMPREPLY[@]}; do
+                            if [[ ${mods[i]} == $module ]]; then
+                                unset mods[i]
+                                break
+                            fi
+                        done
+                    done
+                    COMPREPLY=( "${mods[@]}" )
+                fi
             fi
             ;;
     esac
