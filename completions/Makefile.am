@@ -223,6 +223,7 @@ bashcomp_DATA = a2x \
 		newgrp \
 		newlist \
 		newusers \
+		ngrep \
 		nmap \
 		nmcli \
 		nslookup \
