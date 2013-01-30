@@ -322,6 +322,7 @@ bashcomp_DATA = a2x \
 		tcpkill \
 		tcpnice \
 		tracepath \
+		tshark \
 		tune2fs \
 		udevadm \
 		umount \
