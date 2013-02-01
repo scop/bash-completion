@@ -821,10 +821,12 @@ _mac_addresses()
     local re='\([A-Fa-f0-9]\{2\}:\)\{5\}[A-Fa-f0-9]\{2\}'
     local PATH="$PATH:/sbin:/usr/sbin"
 
-    # Local interfaces (Linux: HWAddr, FreeBSD: ether)
+    # Local interfaces (Linux: HWaddr or ether, FreeBSD: ether)
     COMPREPLY+=( $( ifconfig -a 2>/dev/null | sed -ne \
+        "s/.*[[:space:]]HWaddr[[:space:]]\{1,\}\($re\)[[:space:]].*/\1/p" -ne \
         "s/.*[[:space:]]HWaddr[[:space:]]\{1,\}\($re\)[[:space:]]*$/\1/p" -ne \
-        "s/^[[:space:]]\{1,\}ether[[:space:]]\{1,\}\($re\)[[:space:]]*$/\1/p" \
+        "s/.*[[:space:]]ether[[:space:]]\{1,\}\($re\)[[:space:]].*/\1/p" -ne \
+        "s/.*[[:space:]]ether[[:space:]]\{1,\}\($re\)[[:space:]]*$/\1/p"
         ) )
 
     # ARP cache
