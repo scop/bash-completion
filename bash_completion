@@ -875,10 +875,11 @@ _configured_interfaces()
 #
 _ip_addresses()
 {
+    local PATH=$PATH:/sbin
     COMPREPLY+=( $( compgen -W \
-        "$( PATH="$PATH:/sbin" LC_ALL=C ifconfig -a |
+        "$( { LC_ALL=C ifconfig -a || ip addr show; } 2>/dev/null |
             sed -ne 's/.*addr:\([^[:space:]]*\).*/\1/p' \
-                -ne 's/.*inet[[:space:]]\{1,\}\([^[:space:]]*\).*/\1/p' )" \
+                -ne 's|.*inet[[:space:]]\{1,\}\([^[:space:]/]*\).*|\1|p' )" \
         -- "$cur" ) )
 }
 
