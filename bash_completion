@@ -896,18 +896,19 @@ _kernel_versions()
 #
 _available_interfaces()
 {
-    local cmd
+    local cmd PATH=$PATH:/sbin
 
     if [[ ${1:-} == -w ]]; then
         cmd="iwconfig"
     elif [[ ${1:-} == -a ]]; then
+        # TODO: the corresponding ip link one
         cmd="ifconfig"
     else
-        cmd="ifconfig -a"
+        cmd="{ ifconfig -a || ip link show; }"
     fi
 
-    COMPREPLY=( $( eval PATH="$PATH:/sbin" $cmd 2>/dev/null | \
-        awk '/^[^ \t]/ { print $1 }' ) )
+    COMPREPLY=( $( eval $cmd 2>/dev/null | awk \
+        '/^[^ \t]/ { if ($1 ~ /^[0-9]+:/) { print $2 } else { print $1 } }' ) )
     COMPREPLY=( $( compgen -W '${COMPREPLY[@]/%[[:punct:]]/}' -- "$cur" ) )
 }
 
