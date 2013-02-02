@@ -266,6 +266,7 @@ bashcomp_DATA = a2x \
 		pwdx \
 		pwgen \
 		pydoc \
+		pylint \
 		python \
 		qdbus \
 		qemu \
