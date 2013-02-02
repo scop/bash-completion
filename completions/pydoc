@@ -23,8 +23,15 @@ _pydoc()
     fi
 
     COMPREPLY=( $( compgen -W 'keywords topics modules' -- "$cur" ) )
+
     local python=python; [[ $1 == *3* ]] && python=python3
     _xfunc python _python_modules $python
+
+    # Note that we don't do "pydoc modules" as it is known to hang on
+    # some systems; _python_modules tends to work better and faster.
+    COMPREPLY+=( $( compgen -W \
+        '$( $1 keywords topics | sed -e /^Here/d )' -- "$cur" ) )
+
     _filedir py
 } &&
 complete -F _pydoc pydoc pydoc3
