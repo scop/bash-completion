@@ -265,6 +265,7 @@ bashcomp_DATA = a2x \
 		pwd \
 		pwdx \
 		pwgen \
+		pydoc \
 		python \
 		qdbus \
 		qemu \
@@ -499,6 +500,7 @@ CLEANFILES = \
 	pvs \
 	pvscan \
 	pxz \
+	pydoc3 \
 	python2 \
 	python3 \
 	quotacheck \
@@ -775,6 +777,10 @@ symlinks: $(targetdir) $(DATA)
 		filebucket puppetdoc ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) puppet $(targetdir)/$$file ; \
+	done
+	for file in pydoc3 ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) pydoc $(targetdir)/$$file ; \
 	done
 	for file in python2 python3 ; do \
 		rm -f $(targetdir)/$$file && \

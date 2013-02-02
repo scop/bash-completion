@@ -1,0 +1,31 @@
+# pydoc completion                                         -*- shell-script -*-
+
+_pydoc()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -k|-p)
+            return
+            ;;
+        -w)
+            _filedir
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W \
+            '$( "$1" | sed -e "s/^pydoc3\{0,1\} //" | _parse_help - )' \
+            -- "$cur" ) )
+        return
+    fi
+
+    COMPREPLY=( $( compgen -W 'keywords topics modules' -- "$cur" ) )
+    _filedir py
+    # TODO: more completions: modules, ...
+} &&
+complete -F _pydoc pydoc pydoc3
+
+# ex: ts=4 sw=4 et filetype=sh
