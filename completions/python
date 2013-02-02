@@ -1,12 +1,22 @@
 # bash completion for python                               -*- shell-script -*-
 
+_python_modules()
+{
+    COMPREPLY+=( $( compgen -W "$( ${1:-python} -c 'import pkgutil
+for mod in pkgutil.iter_modules(): print(mod[1])' )" 2>/dev/null -- "$cur" ) )
+}
+
 _python()
 {
     local cur prev words cword
     _init_completion || return
 
     case $prev in
-        -'?'|-h|--help|-V|--version|-c|-m)
+        -'?'|-h|--help|-V|--version|-c)
+            return 0
+            ;;
+        -m)
+            _python_modules "$1"
             return 0
             ;;
         -Q)
