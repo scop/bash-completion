@@ -42,19 +42,8 @@ _xrandr()
             ;;
     esac
 
-    case $cur in
-        *)
-            COMPREPLY=( $( compgen -W '-display -help --orientation --query
-                --size --rate --version -x -y --screen --verbose --dryrun
-                --q1 --q12 --nograb --prop --properties --fb --fbmm --dpi
-                --output --auto --mode --preferred --pos --rate --refresh
-                --reflect --rotate --left-of --right-of --above --below
-                --same-as --set --scale --transform --off --crtc --panning
-                --gamma --brightness --primary --noprimary --newmode --rmmode
-                --addmode --delmode' -- "$cur" ) )
-            return
-            ;;
-    esac
+    COMPREPLY=( $( compgen -W '$( "$1" -help 2>&1 |
+        sed -e "s/ or / /g" -e "s/<[^>]*>]//g" | _parse_help - )' -- "$cur" ) )
 } &&
 complete -F _xrandr xrandr
 
