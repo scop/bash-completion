@@ -141,9 +141,11 @@ _make()
             mode=-d # display-only mode
         fi
 
+        local reset=$( set +o | grep -F posix ); set +o posix # for <(...)
         COMPREPLY=( $( LC_ALL=C \
             make -npq "${makef[@]}" "${makef_dir[@]}" .DEFAULT 2>/dev/null | \
             sed -nrf <(_make_target_extract_script $mode "$cur") ) )
+        $reset
 
         if [[ $mode != -d ]]; then
             # Completion will occur if there is only one suggestion
