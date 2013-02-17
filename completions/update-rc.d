@@ -53,7 +53,7 @@ _update_rc_d()
             COMPREPLY=()
         fi
     elif [[ "$prev" == "." ]]; then
-        COMPREPLY=( $(compgen -W "start stop" -- "$cur") )
+        COMPREPLY=( $( compgen -W "start stop" -- "$cur" ) )
     else
         COMPREPLY=()
     fi
