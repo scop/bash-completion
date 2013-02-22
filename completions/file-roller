@@ -1,0 +1,41 @@
+# file-roller(1) completion                                -*- shell-script -*-
+
+_file_roller()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    local exts='@(7z|ace|alz|ar|arj|[bglx]z|bz2|tb?(z)2|cab|cb[rz]|iso?(9660)|Z|t[abglx]z|cpio|deb|[ejrw]ar|exe|?(g)tar|gem|lh[az]|lzh|?(t)lrz|lzma|lzo|wim|swm|rpm|sit|zip|zoo)'
+
+    case $prev in
+        -'?'|--help|--help-all|--help-gtk|--help-sm-client)
+            return
+            ;;
+        --sm-client-state-file)
+            _filedir
+            return
+            ;;
+        -a|--add-to)
+            _filedir "$exts"
+            return
+            ;;
+        -e|--extract-to|--default-dir)
+            _filedir -d
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" --help-all )' \
+            -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir "$exts"
+} &&
+complete -F _file_roller file-roller
+
+# ex: ts=4 sw=4 et filetype=sh

@@ -87,6 +87,7 @@ bashcomp_DATA = a2x \
 		fbi \
 		feh \
 		file \
+		file-roller \
 		filefrag \
 		filesnarf \
 		find \
