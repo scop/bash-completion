@@ -313,6 +313,7 @@ bashcomp_DATA = a2x \
 		sshmitm \
 		sshow \
 		strace \
+		strings \
 		su \
 		sudo \
 		svcadm \
