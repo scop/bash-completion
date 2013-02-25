@@ -1,0 +1,39 @@
+# ss(8) completion                                         -*- shell-script -*-
+
+_ss()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -h|--help|-V|--version)
+            return
+            ;;
+        -f|--family)
+            COMPREPLY=( $( compgen -W 'unix inet inet6 link netlink' \
+                -- "$cur" ) )
+            return
+            ;;
+        -A|--query)
+            local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
+            COMPREPLY=( $( compgen -P "$prefix" -W '$( "$1" --help | \
+                sed -e "s/|/ /g" -ne "s/.*QUERY := {\([^}]*\)}.*/\1/p"  )' \
+                -- "${cur##*,}" ) )
+            return
+            ;;
+        -D|--diag|-F|--filter)
+            _filedir
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+    fi
+} &&
+complete -F _ss ss
+
+# ex: ts=4 sw=4 et filetype=sh

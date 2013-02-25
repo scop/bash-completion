@@ -306,6 +306,7 @@ bashcomp_DATA = a2x \
 		smbclient \
 		snownews \
 		sqlite3 \
+		ss \
 		ssh \
 		ssh-add \
 		ssh-copy-id \
