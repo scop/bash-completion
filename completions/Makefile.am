@@ -370,6 +370,7 @@ bashcomp_DATA = a2x \
 		xrandr \
 		xrdb \
 		xsltproc \
+		xxd \
 		xz \
 		xzdec \
 		ypmatch \
