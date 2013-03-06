@@ -120,6 +120,7 @@ bashcomp_DATA = a2x \
 		gzip \
 		hcitool \
 		hddtemp \
+		hexdump \
 		hid2hci \
 		hping2 \
 		htop \
@@ -430,6 +431,7 @@ CLEANFILES = \
 	gpc \
 	hciattach \
 	hciconfig \
+	hd \
 	host \
 	hping \
 	hping3 \
@@ -662,6 +664,10 @@ symlinks: $(targetdir) $(DATA)
 		hciattach ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) hcitool $(targetdir)/$$file ; \
+	done
+	for file in hd ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) hexdump $(targetdir)/$$file ; \
 	done
 	for file in hping hping3 ; do \
 		rm -f $(targetdir)/$$file && \
