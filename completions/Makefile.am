@@ -330,7 +330,6 @@ bashcomp_DATA = a2x \
 		tracepath \
 		tshark \
 		tune2fs \
-		udevadm \
 		umount \
 		umount.linux \
 		unace \
@@ -377,7 +376,7 @@ bashcomp_DATA = a2x \
 		yum-arch
 
 EXTRA_DIST = $(bashcomp_DATA) \
-	     _mock _modules _subversion _yum _yum-utils
+	     _mock _modules _subversion _udevadm _yum _yum-utils
 
 CLEANFILES = \
 	aclocal-1.11 \
