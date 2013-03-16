@@ -182,6 +182,7 @@ bashcomp_DATA = a2x \
 		lpr \
 		lrzip \
 		lsof \
+		lua \
 		luseradd \
 		luserdel \
 		lvm \
