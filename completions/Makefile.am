@@ -135,6 +135,7 @@ bashcomp_DATA = a2x \
 		inject \
 		insmod \
 		installpkg \
+		interdiff \
 		invoke-rc.d \
 		ionice \
 		ip \

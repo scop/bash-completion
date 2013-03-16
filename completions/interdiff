@@ -1,0 +1,33 @@
+# interdiff(1) completion                                  -*- shell-script -*-
+
+_interdiff()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -U|--unified|-p|--strip-match|-d|--drop-context)
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    local exts='@(?(d)patch|dif?(f))' word
+    for word in ${words[@]}; do
+        if [[ $word == -@(z|-decompress) ]]; then
+            exts+='?(.@(gz|bz2))'
+            break
+        fi
+    done
+    _filedir "$exts"
+} &&
+complete -F _interdiff interdiff
+
+# ex: ts=4 sw=4 et filetype=sh
