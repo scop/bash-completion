@@ -162,7 +162,7 @@ _koji()
             latest-by-tag)
                 _koji_package "$1"
                 ;;
-            latest-pkg|list-groups|list-tag-inheritance|show-groups|wait-repo)
+            latest-pkg|list-groups|list-tag-inheritance|show-groups)
                 case $nth in
                     1)
                         _koji_tag "$1"
@@ -216,6 +216,19 @@ _koji()
                 ;;
             taginfo)
                 _koji_tag "$1"
+                ;;
+            wait-repo)
+                case $nth in
+                    1)
+                        for (( i=commandix+1; i < cword; i++ )); do
+                            if [[ ${words[i]} == --target ]]; then
+                                _koji_target "$1"
+                                return
+                            fi
+                        done
+                        _koji_tag "$1"
+                        ;;
+                esac
                 ;;
         esac
         return
