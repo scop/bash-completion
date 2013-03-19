@@ -6,9 +6,21 @@ _pkg_config()
     _init_completion -s || return
 
     case $prev in
-        --variable|--define-variable|--atleast-version|--atleast-pkgconfig-version| \
+        --define-variable|--atleast-version|--atleast-pkgconfig-version| \
         --exact-version|--max-version)
             # argument required but no completions available
+            return 0
+            ;;
+        --variable)
+            local i
+            for (( i=1; i < ${#words[@]}; i++ )); do
+                if [[ ${words[i]} != -* ]]; then
+                    COMPREPLY=( $( compgen -W \
+                        '$( "$1" ${words[i]} --print-variables 2>/dev/null )' \
+                        -- "$cur" ) )
+                    break
+                fi
+            done
             return 0
             ;;
         -\?|--help|--version|--usage)
