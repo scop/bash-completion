@@ -238,6 +238,7 @@ bashcomp_DATA = a2x \
 		p4 \
 		pack200 \
 		passwd \
+		patch \
 		perl \
 		pgrep \
 		pidof \

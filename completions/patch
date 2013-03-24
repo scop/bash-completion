@@ -1,0 +1,70 @@
+# patch(1) completion                                      -*- shell-script -*-
+
+_patch()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -p|--strip|-D|--ifdef|-B|--prefix|-Y|--basename-prefix|-z|--suffix|\
+        -g|--get)
+            return
+            ;;
+        -F|--fuzz)
+            COMPREPLY=( $( compgen -W '{0..3}' -- "$cur" ) )
+            return
+            ;;
+        -i|--input)
+            _filedir '@(?(d)patch|dif?(f))'
+            return
+            ;;
+        -o|--output|-r|--reject-file)
+            [[ ! $cur || $cur == - ]] && COMPREPLY=( - )
+            _filedir
+            return
+            ;;
+        --quoting-style)
+            COMPREPLY=( $( compgen -W 'literal shell shell-always c escape' \
+                -- "$cur" ) )
+            return
+            ;;
+        -V|--version-control)
+            COMPREPLY=( $( compgen -W 'simple numbered existing' -- "$cur" ) )
+            return
+            ;;
+        -d|--directory)
+            _filedir -d
+            return
+            ;;
+        --reject-format)
+            COMPREPLY=( $( compgen -W 'context unified' -- "$cur" ) )
+            return
+            ;;
+        --read-only)
+            COMPREPLY=( $( compgen -W 'ignore warn fail' -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    local args
+    _count_args
+    case $args in
+        1)
+            _filedir
+            ;;
+        2)
+            _filedir '@(?(d)patch|dif?(f))'
+            ;;
+    esac
+} &&
+complete -F _patch patch
+
+# ex: ts=4 sw=4 et filetype=sh
