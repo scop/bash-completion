@@ -3,7 +3,7 @@
 _kcov()
 {
     local cur prev words cword split
-    _init_completion -s || return
+    _init_completion -s -n : || return
 
     case "$prev" in
         --pid|-p)
@@ -11,25 +11,31 @@ _kcov()
             return
             ;;
         --sort-type|-s)
-            COMPREPLY=( $( compgen -W 'filename percentage lines uncovered' \
-                -- "$cur" ) )
+            COMPREPLY=( $( compgen -W 'filename percent reverse lines
+                uncovered' -- "$cur" ) )
             return
             ;;
         --include-path|--exclude-path)
             _filedir
             return
             ;;
+        --replace-src-path)
+            if [[ "$cur" == ?*:* ]]; then
+                cur="${cur##*:}"
+                _filedir
+            else
+                _filedir
+                compopt -o nospace
+            fi
+            return
+            ;;
         --limits|-l)
-            split=false
             if [[ "$cur" == ?*,* ]]; then
                 prev="${cur%,*}"
                 cur="${cur##*,}"
-                split=true
-            fi
-            COMPREPLY=( $( compgen -W "{0..100}" -- "$cur" ) )
-            if $split; then
-                COMPREPLY=( ${COMPREPLY[@]/#/"$prev,"} )
+                COMPREPLY=( $( compgen -P "$prev," -W "{0..100}" -- "$cur" ) )
             else
+                COMPREPLY=( $( compgen -W "{0..100}" -- "$cur" ) )
                 compopt -o nospace
             fi
             return
