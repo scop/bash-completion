@@ -8,17 +8,10 @@ from textwrap import wrap
 from email.Utils import formatdate
 
 repo = git.Repo('.')
-start = git.Commit(repo, sys.argv[1])
-end = git.Commit(repo, 'HEAD')
-
-
-curlog = repo.log(end)
-oldlog = repo.log(start)
-
 changelog = defaultdict(list)
 
-for id in repo.commits_between(start, end):
-    commit = git.Commit(repo, id)
+for id in repo.iter_commits('%s..HEAD' % sys.argv[1]):
+    commit = repo.commit(id)
     changelog[commit.author.name].append(commit.summary)
 
 print 'bash-completion (X.Y)'
