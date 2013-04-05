@@ -11,9 +11,11 @@ _wol()
             ;;
         -h|--host|-i|--ipaddr)
             # Broadcast addresses
-            COMPREPLY=( $( PATH=$PATH:/sbin ifconfig -a 2>/dev/null | \
-                sed -ne 's/.*[[:space:]]\{1,\}Bcast:\([^[:space:]]*\).*/\1/p' \
-                    -e 's/.*[[:space:]]\{1,\}broadcast[[:space:]]\{1,\}\([^[:space:]]*\).*/\1/p' ) )
+            local PATH=$PATH:/sbin
+            COMPREPLY=( $( { ip addr show || ifconfig -a; } 2>/dev/null | \
+                sed -ne 's/.*[[:space:]]Bcast:\([^[:space:]]*\).*/\1/p' -ne \
+                's/.*inet.*[[:space:]]brd[[:space:]]\([^[:space:]]*\).*/\1/p' -ne \
+                's/.*[[:space:]]broadcast[[:space:]]\{1,\}\([^[:space:]]*\).*/\1/p' ) )
             _known_hosts_real "$cur"
             return 0
             ;;

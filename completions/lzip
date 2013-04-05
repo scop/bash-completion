@@ -9,11 +9,15 @@ _lzip()
 
     case $prev in
         -h|--help|-V|--version|-b|--member-size|-m|--match-length|\
-        -s|--dictionary-size|-S|--volume-size)
+        -s|--dictionary-size|-S|--volume-size|-B|--data-size)
             return
             ;;
         -d|--decompress)
             decompress=true
+            ;;
+        -n|--threads)
+            COMPREPLY=( $( compgen -W "{1..$(_ncpus)}" -- "$cur" ) )
+            return
             ;;
         -o|--output)
             _filedir
@@ -26,6 +30,7 @@ _lzip()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_help "$1" ) {-1..-9}' \
             -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
 
@@ -39,6 +44,6 @@ _lzip()
     COMPREPLY=( $( compgen -f -X "*.lz" -- "$cur" ) \
         $( compgen -d -- "$cur" ) )
 } &&
-complete -F _lzip lzip
+complete -F _lzip clzip lzip pdlzip plzip
 
 # ex: ts=4 sw=4 et filetype=sh

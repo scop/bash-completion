@@ -1,0 +1,50 @@
+# pkgrm completion                                        -*- shell-script -*-
+#
+# Copyright 2006 Yann Rouillard <yann@opencsw.org>
+
+_have pkgrm &&
+_pkgrm ()
+{
+    local cur prev words cword 
+    _init_completion || return
+
+    # if a spool directory was given
+    # we must complete with the package
+    # available in this directory
+    local spool=/var/sadm/pkg;
+    local i=$cword
+    while [[ $((i--)) -gt 0 ]]; do
+        i=$((i-1));
+        case "${words[$i]}" in
+            -s)
+                spool="${words[$((i+1))]}";
+                break
+            ;;
+        esac;
+    done;
+
+    case $prev in
+        -a | -V)
+            _filedir
+            ;;
+        -s | -R)
+            _filedir -d
+            ;;
+        -Y)
+            ;;
+        *)
+            if [[ ${cur} == -* ]]; then
+                local opts="-a -A -n -M -R -s -v -V -Y";
+                COMPREPLY=($(compgen -W "${opts}" -- ${cur}));
+                return 0;
+            else
+                COMPREPLY=($(compgen -W "$(/bin/ls -1 $spool)" -- ${cur}));
+                return 0;
+            fi
+        ;;
+    esac
+} &&
+complete -F _pkgrm pkgrm
+
+# ex: ts=4 sw=4 et filetype=sh
+

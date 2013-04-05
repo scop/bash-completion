@@ -1,0 +1,105 @@
+# tshark(1) completion                                     -*- shell-script -*-
+
+_tshark()
+{
+    local cur prev words cword
+    _init_completion -n : || return
+
+    case $prev in
+        -f|-s|-B|-D|-L|-c|-R|-N|-d|-C|-e|-E|-z|-h|-v|-o|-K)
+            return
+            ;;
+        -i)
+            _available_interfaces -a
+            return
+            ;;
+        -y)
+            local opts i
+            for (( i=${#words[@]}-1; i > 0; i-- )); do
+                if [[ ${words[i]} == -i ]]; then
+                    opts+="-i ${words[i+1]}"
+                    break
+                fi
+            done
+            COMPREPLY=( $( compgen -W "$( "$1" $opts -L 2>&1 | \
+                awk '/^  / { print $1 }' )" -- "$cur" ) )
+            return
+            ;;
+        -a|-b)
+            COMPREPLY=( $( compgen -W 'duration: filesize: files:' \
+                -- "$cur" ) )
+            [[ $COMPREPLY == *: ]] && compopt -o nospace
+            return
+            ;;
+        -r)
+            _filedir pcap
+            return
+            ;;
+        -H)
+            _filedir
+            return
+            ;;
+        -w)
+            _filedir
+            [[ $cur == @(|-) ]] && COMPREPLY+=( - )
+            return
+            ;;
+        -F)
+            COMPREPLY=( $( compgen -W "$( "$1" -F 2>&1 | \
+                awk '/^  / { print $1 }' )" -- "$cur" ) )
+            return
+            ;;
+        -O)
+            local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
+            COMPREPLY=( $( compgen -P "$prefix" -W \
+                "$( "$1" -G protocols 2>&1 | cut -d$'\t' -f 3 )" \
+                -- "${cur##*,}" ) )
+            return
+            ;;
+        -T)
+            # TODO: could be parsed from "-T ." output
+            COMPREPLY=( $( compgen -W 'ps text pdml psml fields' -- "$cur" ) )
+            return
+            ;;
+        -t)
+            # TODO: could be parsed from "-t ." output
+            COMPREPLY=( $( compgen -W 'ad a r d dd e' -- "$cur" ) )
+            return
+            ;;
+        -u)
+            # TODO: could be parsed from "-u ." output
+            COMPREPLY=( $( compgen -W 's hms' -- "$cur" ) )
+            return
+            ;;
+        -W)
+            COMPREPLY=( $( compgen -W 'n' -- "$cur" ) )
+            return
+            ;;
+        -X)
+            if [[ $cur == lua_script:* ]]; then
+                cur=${cur#*:}
+                _filedir lua
+            else
+                COMPREPLY=( $( compgen -W 'lua_script:' -- "$cur" ) )
+                [[ $COMPREPLY == *: ]] && compopt -o nospace
+            fi
+            return
+            ;;
+        -G)
+            COMPREPLY=( $( compgen -W "$( "$1" -G ? | \
+                awk '/^[ \t]*-G / \
+                     { sub("^[[]","",$2); sub("[]]$","",$2); print $2 }' )" \
+                -- "$cur" ) )
+            return
+            ;;
+            
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -h )' -- "$cur" ) )
+        return
+    fi
+} &&
+complete -F _tshark tshark
+
+# ex: ts=4 sw=4 et filetype=sh

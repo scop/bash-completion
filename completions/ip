@@ -1,5 +1,12 @@
 # ip(8) completion                                         -*- shell-script -*-
 
+_iproute2_etc()
+{
+    COMPREPLY+=( $( compgen -W \
+        "$( awk '!/#/ { print $2 }' /etc/iproute2/$1 2>/dev/null )" \
+        -- "$cur" ) )
+}
+
 _ip()
 {
     local cur prev words cword
@@ -96,7 +103,14 @@ _ip()
                     fi
                     ;;
                 show)
-                    [[ $cword -eq $subcword+1 ]] && _available_interfaces
+                    if [[ $cword -eq $subcword+1 ]]; then
+                        _available_interfaces
+                        COMPREPLY+=( $( compgen -W 'dev group up' -- "$cur" ) )
+                    elif [[ $prev == dev ]]; then
+                        _available_interfaces
+                    elif [[ $prev == group ]]; then
+                        _iproute2_etc group
+                    fi
                     ;;
                 *)
                     [[ $cword -eq $subcword ]] && \
@@ -115,7 +129,16 @@ _ip()
                     # TODO
                     ;;
                 show|flush)
-                    # TODO
+                    if [[ $cword -eq $subcword+1 ]]; then
+                        _available_interfaces
+                        COMPREPLY+=( $( compgen -W 'dev scope to label dynamic
+                            permanent tentative deprecated dadfailed temporary
+                            primary secondary up' -- "$cur" ) )
+                    elif [[ $prev == dev ]]; then
+                        _available_interfaces
+                    elif [[ $prev == scope ]]; then
+                        _iproute2_etc rt_scopes
+                    fi
                     ;;
                 *)
                     [[ $cword -eq $subcword ]] && \
@@ -159,8 +182,10 @@ _ip()
 
         rule)
             case $subcmd in
-                list|add|del|flush)
+                add|del)
                     # TODO
+                    ;;
+                flush|show|list|lst)
                     ;;
                 *)
                     [[ $cword -eq $subcword ]] && \
@@ -204,7 +229,9 @@ _ip()
 
         tunnel)
             case $subcmd in
-                add|change|del|show|prl|6rd)
+                show)
+                    ;;
+                add|change|del|prl|6rd)
                     # TODO
                     ;;
                 *)

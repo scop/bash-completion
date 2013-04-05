@@ -1,0 +1,44 @@
+# strings(1) completion                                    -*- shell-script -*-
+
+_strings()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -h|--help|-v|-V|--version|-n|--bytes)
+            return
+            ;;
+        -t|--radix)
+            COMPREPLY=( $( compgen -W 'o d x' -- "$cur" ) )
+            return
+            ;;
+        -T|--target)
+            COMPREPLY=( $( compgen -W '$( "$1" --help 2>/dev/null | \
+                sed -ne "s/: supported targets: \(.*\)/\1/p" )' -- "$cur" ) )
+            return
+            ;;
+        -e|--encoding)
+            COMPREPLY=( $( compgen -W 's S b l B L' -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    elif [[ $cur == @* ]]; then
+        cur=${cur:1}
+        _filedir
+        COMPREPLY=( "${COMPREPLY[@]/#/@}" )
+        return
+    fi
+
+    _filedir
+} &&
+complete -F _strings strings
+
+# ex: ts=4 sw=4 et filetype=sh

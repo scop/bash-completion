@@ -1,0 +1,66 @@
+# pylint(1) completion                                     -*- shell-script -*-
+
+_pylint()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        --version|-h|--help|--long-help|--help-msg|--init-hook|--ignore|-e|\
+        --enable|-d|--disable|--evaluation|--max-line-length|\
+        --max-module-lines|--indent-string|--min-similarity-lines|--max-args|\
+        --ignored-argument-names|--max-locals|--max-returns|--max-branchs|\
+        --max-statements|--max-parents|--max-attributes|--min-public-methods|\
+        --max-public-methods|--required-attributes|--bad-functions|\
+        --module-rgx|--const-rgx|--class-rgx|--function-rgx|--method-rgx|\
+        --attr-rgx|--argument-rgx|--variable-rgx|--inlinevar-rgx|--good-names|\
+        --bad-names|--no-docstring-rgx|--dummy-variables-rgx|\
+        --additional-builtins|--notes|--ignored-classes|--generated-members|\
+        --overgeneral-exceptions|--ignore-iface-methods|\
+        --defining-attr-methods|--valid-classmethod-first-arg|\
+        --valid-metaclass-classmethod-first-arg)
+            return
+            ;;
+        --rcfile)
+            _filedir
+            return
+            ;;
+        --persistent|-i|--include-ids|-s|--symbols|--files-output|-r|\
+        --reports|--comment|--ignore-comments|--ignore-docstrings|\
+        --ignore-imports|--init-import|--ignore-mixin-members|--zope)
+            COMPREPLY=( $( compgen -W 'yes no' -- "$cur" ) )
+            return
+            ;;
+        --load-plugins|--deprecated-modules)
+            local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
+            cur="${cur##*,}"
+            _xfunc python _python_modules
+            COMPREPLY=( ${COMPREPLY[@]/#/$prefix} )
+            return
+            ;;
+        -f|--format)
+            COMPREPLY=( $( compgen -W 'text parseable colorized msvs html' \
+                -- "$cur" ) )
+            return
+            ;;
+        --import-graph|--ext-import-graph|--int-import-graph)
+            _filedir dot
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W \
+            '$( _parse_help "$1" --long-help )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _xfunc python _python_modules
+    _filedir py
+} &&
+complete -F _pylint pylint
+
+# ex: ts=4 sw=4 et filetype=sh

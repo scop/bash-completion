@@ -1,0 +1,37 @@
+# ngrep(8) completion                                      -*- shell-script -*-
+
+_ngrep()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -h|-V|-n|-A|-s|-S|-c|-P)
+            return
+            ;;
+        -I|-O)
+            _filedir pcap
+            return
+            ;;
+        -d)
+            _available_interfaces -a
+            return
+            ;;
+        -W)
+            COMPREPLY=( $( compgen -W 'normal byline single none' -- "$cur" ) )
+            return
+            ;;
+        -F)
+            _filedir
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -h )' -- "$cur" ) )
+        return
+    fi
+} &&
+complete -F _ngrep ngrep
+
+# ex: ts=4 sw=4 et filetype=sh

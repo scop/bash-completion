@@ -2,37 +2,39 @@
 
 _ssh_ciphers()
 {
-    COMPREPLY+=( $( compgen -W '3des-cbc aes128-cbc \
-        aes192-cbc aes256-cbc aes128-ctr aes192-ctr aes256-ctr arcfour128 \
-        arcfour256 arcfour blowfish-cbc cast128-cbc' -- "$cur" ) )
+    COMPREPLY+=( $( compgen -W '3des-cbc aes128-cbc aes192-cbc aes256-cbc
+        aes128-ctr aes192-ctr aes256-ctr arcfour128 arcfour256 arcfour
+        blowfish-cbc cast128-cbc' -- "$cur" ) )
 }
 
 _ssh_macs()
 {
-    COMPREPLY+=( $( compgen -W 'hmac-md5 hmac-sha1 \
-        umac-64@openssh.com hmac-ripemd160 hmac-sha1-96 hmac-md5-96' \
-        -- "$cur" ) )
+    COMPREPLY+=( $( compgen -W 'hmac-md5 hmac-sha1 umac-64@openssh.com
+        hmac-ripemd160 hmac-sha1-96 hmac-md5-96' -- "$cur" ) )
 }
 
 _ssh_options()
 {
     compopt -o nospace
-    COMPREPLY=( $( compgen -S = -W 'AddressFamily BatchMode BindAddress \
-        ChallengeResponseAuthentication CheckHostIP Cipher Ciphers \
-        ClearAllForwardings Compression CompressionLevel ConnectionAttempts \
-        ConnectTimeout ControlMaster ControlPath DynamicForward EscapeChar \
-        ExitOnForwardFailure ForwardAgent ForwardX11 ForwardX11Trusted \
-        GatewayPorts GlobalKnownHostsFile GSSAPIAuthentication \
-        GSSAPIDelegateCredentials HashKnownHosts Host HostbasedAuthentication \
-        HostKeyAlgorithms HostKeyAlias HostName IdentityFile IdentitiesOnly \
-        KbdInteractiveDevices LocalCommand LocalForward LogLevel MACs \
-        NoHostAuthenticationForLocalhost NumberOfPasswordPrompts \
-        PasswordAuthentication PermitLocalCommand Port \
-        PreferredAuthentications Protocol ProxyCommand PubkeyAuthentication \
-        RekeyLimit RemoteForward RhostsRSAAuthentication RSAAuthentication \
-        SendEnv ServerAliveInterval ServerAliveCountMax SmartcardDevice \
-        StrictHostKeyChecking TCPKeepAlive Tunnel TunnelDevice \
-        UsePrivilegedPort User UserKnownHostsFile VerifyHostKeyDNS \
+    COMPREPLY=( $( compgen -S = -W 'AddressFamily BatchMode BindAddress
+        ChallengeResponseAuthentication CheckHostIP Cipher Ciphers
+        ClearAllForwardings Compression CompressionLevel ConnectionAttempts
+        ConnectTimeout ControlMaster ControlPath ControlPersist DynamicForward
+        EnableSSHKeysign EscapeChar ExitOnForwardFailure ForwardAgent
+        ForwardX11 ForwardX11Timeout ForwardX11Trusted GatewayPorts
+        GlobalKnownHostsFile GSSAPIAuthentication GSSAPIClientIdentity
+        GSSAPIDelegateCredentials GSSAPIKeyExchange GSSAPIRenewalForcesRekey
+        GSSAPIServerIdentity GSSAPITrustDns HashKnownHosts Host
+        HostbasedAuthentication HostKeyAlgorithms HostKeyAlias HostName
+        IdentityFile IdentitiesOnly IPQoS KbdInteractiveDevices KexAlgorithms
+        LocalCommand LocalForward LogLevel MACs
+        NoHostAuthenticationForLocalhost NumberOfPasswordPrompts
+        PasswordAuthentication PermitLocalCommand PKCS11Provider Port
+        PreferredAuthentications Protocol ProxyCommand PubkeyAuthentication
+        RekeyLimit RemoteForward RequestTTY RhostsRSAAuthentication
+        RSAAuthentication SendEnv ServerAliveCountMax ServerAliveInterval
+        SmartcardDevice StrictHostKeyChecking TCPKeepAlive Tunnel TunnelDevice
+        UsePrivilegedPort User UserKnownHostsFile VerifyHostKeyDNS
         VisualHostKey XAuthLocation' -- "$cur" ) )
 }
 
@@ -47,16 +49,17 @@ _ssh_suboption()
 
     case $prev in
         BatchMode|ChallengeResponseAuthentication|CheckHostIP|\
-        ClearAllForwardings|Compression|ExitOnForwardFailure|ForwardAgent|\
-        ForwardX11|ForwardX11Trusted|GatewayPorts|GSSAPIAuthentication|\
-        GSSAPIKeyExchange|GSSAPIDelegateCredentials|GSSAPITrustDns|\
+        ClearAllForwardings|ControlPersist|Compression|EnableSSHKeysign|\
+        ExitOnForwardFailure|ForwardAgent|ForwardX11|ForwardX11Trusted|\
+        GatewayPorts|GSSAPIAuthentication|GSSAPIKeyExchange|\
+        GSSAPIDelegateCredentials|GSSAPIRenewalForcesRekey|GSSAPITrustDns|\
         HashKnownHosts|HostbasedAuthentication|IdentitiesOnly|\
         KbdInteractiveAuthentication|KbdInteractiveDevices|\
         NoHostAuthenticationForLocalhost|PasswordAuthentication|\
         PubkeyAuthentication|RhostsRSAAuthentication|RSAAuthentication|\
         StrictHostKeyChecking|TCPKeepAlive|UsePrivilegedPort|\
         VerifyHostKeyDNS|VisualHostKey)
-            COMPREPLY=( $( compgen -W 'yes no' -- "$cur") )
+            COMPREPLY=( $( compgen -W 'yes no' -- "$cur" ) )
             ;;
         AddressFamily)
             COMPREPLY=( $( compgen -W 'any inet inet6' -- "$cur" ) )
@@ -67,16 +70,23 @@ _ssh_suboption()
         Cipher)
             COMPREPLY=( $( compgen -W 'blowfish des 3des' -- "$cur" ) )
             ;;
+        IPQoS)
+            COMPREPLY=( $( compgen -W 'af1{1..4} af2{2..3} af3{1..3} af4{1..3}
+                cs{0..7} ef lowdelay throughput reliability' -- "$cur" ) )
+            ;;
         Protocol)
             COMPREPLY=( $( compgen -W '1 2 1,2 2,1' -- "$cur" ) )
+            ;;
+        RequestTTY)
+            COMPREPLY=( $( compgen -W 'no yes force auto' -- "$cur" ) )
             ;;
         Tunnel)
             COMPREPLY=( $( compgen -W 'yes no point-to-point ethernet' \
                     -- "$cur" ) )
             ;;
         PreferredAuthentications)
-            COMPREPLY=( $( compgen -W 'gssapi-with-mic host-based \
-                    publickey keyboard-interactive password' -- "$cur" ) )
+            COMPREPLY=( $( compgen -W 'gssapi-with-mic host-based publickey
+                keyboard-interactive password' -- "$cur" ) )
             ;;
         MACs)
             _ssh_macs
@@ -129,6 +139,10 @@ _ssh()
             COMPREPLY=( $( compgen -u -- "$cur" ) )
             return 0
             ;;
+        -O)
+            COMPREPLY=( $( compgen -W 'check forward exit stop' -- "$cur" ) )
+            return 0
+            ;;
         -o)
             _ssh_options
             return 0
@@ -141,7 +155,7 @@ _ssh()
             _ip_addresses
             return 0
             ;;
-        -D|-e|-I|-L|-O|-p|-R|-W)
+        -D|-e|-I|-L|-p|-R|-W)
             return 0
             ;;
     esac
@@ -339,10 +353,10 @@ _scp()
 
     _expand || return 0
 
-    if [[ "$cur" == *:* ]]; then
-        _scp_remote_files
-        return 0
-    fi
+    case $cur in
+        !(*:*)/*|[.~]*) ;; # looks like a path
+        *:*) _scp_remote_files ; return 0 ;;
+    esac
 
     if [[ "$cur" == -F* ]]; then
         cur=${cur#-F}

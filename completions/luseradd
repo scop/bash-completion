@@ -1,0 +1,40 @@
+# luseradd(1) and lusermod(1) completion                   -*- shell-script -*-
+
+_luseradd()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -\?|--help|--usage|-c|--gecos|-u|--uid|-l|--login|-P|--plainpassword|\
+        -p|--password|--commonname|--givenname|--surname|--roomnumber|\
+        --telephonenumber|--homephone)
+            return
+            ;;
+        -d|--directory|-k|--skeleton)
+            _filedir -d
+            return
+            ;;
+        -s|--shell)
+            _shells
+            return
+            ;;
+        -g|--gid)
+            _gids
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    [[ ${1##*/} == luseradd ]] || COMPREPLY=( $( compgen -u -- "$cur" ) )
+} &&
+complete -F _luseradd luseradd lusermod
+
+# ex: ts=4 sw=4 et filetype=sh

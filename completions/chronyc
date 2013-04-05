@@ -1,0 +1,69 @@
+# chronyc(1) completion                                    -*- shell-script -*-
+
+_chronyc()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --help|-p)
+            return
+            ;;
+        -h)
+            _known_hosts_real "$cur"
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+        return
+    fi
+
+    local i args=0
+    for (( i=1; i < cword; i++ )); do
+        [[ ${words[i]} != -* && ${words[i-1]} != @(-p|-h) ]] && (( args++ ))
+    done
+    
+    case $args in
+        0)
+            COMPREPLY=( $( compgen -W "$( $1 help 2>/dev/null | \
+                awk 'NR > 1 { sub("\\|", " ", $1); print $1 }' )" -- "$cur" ) )
+            ;;
+        1)
+            case $prev in
+                accheck|cmdaccheck|delete|maxdelay|maxdelayratio|\
+                maxdelaydevratio|maxpoll|minpoll|minstratum|polltarget)
+                    _known_hosts_real "$cur"
+                    ;;
+                add)
+                    COMPREPLY=( $( compgen -W 'peer server' -- "$cur" ) )
+                    ;;
+                allow|cmdallow|cmddeny|deny)
+                    COMPREPLY=( $( compgen -W 'all' -- "$cur" ) )
+                    ;;
+                authhash)
+                    COMPREPLY=( $( compgen -W 'MD5 SHA1' -- "$cur" ) )
+                    ;;
+                dns)
+                    COMPREPLY=( $( compgen -W '-n +n -4 -6 -46' -- "$cur" ) )
+                    ;;
+                local)
+                    COMPREPLY=( $( compgen -W 'off stratum' -- "$cur" ) )
+                    ;;
+                manual)
+                    COMPREPLY=( $( compgen -W 'list on off reset' -- "$cur" ) )
+                    ;;
+                sources|sourcestats)
+                    COMPREPLY=( $( compgen -W '-v' -- "$cur" ) )
+                    ;;
+            esac
+            ;;
+        2)
+            [[ $prev == @(peer|server) ]] && _known_hosts_real "$cur"
+            ;;
+    esac
+} &&
+complete -F _chronyc chronyc
+
+# ex: ts=4 sw=4 et filetype=sh

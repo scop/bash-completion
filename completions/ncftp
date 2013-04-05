@@ -5,6 +5,17 @@ _ncftp()
     local cur prev words cword
     _init_completion || return
 
+    case $prev in
+        -u|-p|-P|-j|-F)
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -h )' -- "$cur" ) )
+        return
+    fi
+
     if [[ $cword -eq 1 && -f ~/.ncftp/bookmarks ]]; then
         COMPREPLY=( $( compgen -W '$( sed -ne "s/^\([^,]\{1,\}\),.*$/\1/p" \
             ~/.ncftp/bookmarks )' -- "$cur" ) )

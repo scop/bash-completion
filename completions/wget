@@ -1,0 +1,164 @@
+# wget(1) completion                                       -*- shell-script -*-
+
+_wget()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        --progress)
+            COMPREPLY=( $( compgen -W 'bar dot' -- "$cur" ) )
+            return
+            ;;
+        --bind-address)
+            _ip_addresses "$cur"
+            return
+            ;;
+        -D|--domains|--exclude-domains)
+            _known_hosts_real "$cur"
+            return
+            ;;
+        --restrict-file-names)
+            local excludes=()
+            case $cur in
+                *unix*|*windows*)
+                    excludes=( windows unix )
+                    ;;&
+                *lowercase*|*uppercase*)
+                    excludes+=( lowercase uppercase )
+                    ;;&
+                *nocontrol*)
+                    excludes+=( nocontrol )
+                    ;;&
+                *ascii*)
+                    excludes+=( ascii )
+                    ;;
+            esac
+            local excludes_str=$( export IFS='|'; echo "${excludes[*]}"; )
+
+            # prevopt is the previous options string used as a prefix
+            # to avoid COMPREPLY replacing them with the $lastopt completion
+            local lastopt=${cur/*,} prevopt=
+            [[ $cur == *,* ]] && prevopt=${cur%,*},
+
+            COMPREPLY=( $( compgen -P "$prevopt" -X "@($excludes_str)" \
+                -W 'unix windows nocontrol ascii lowercase uppercase' \
+                -- "$lastopt" ) )
+
+            # +o nospace when no more valid option is possible (= append a space)
+            local opt_as_arr=( $( echo ${COMPREPLY[0]//,/ } ) )
+            [[ ${#opt_as_arr[@]} -lt 4 ]] && compopt -o nospace
+            return
+            ;;
+        --prefer-family)
+            COMPREPLY=( $( compgen -W 'IPv4 IPv6 none' -- "$cur" ) )
+            return
+            ;;
+        -P|--directory-prefix|--ca-directory|--warc-tempdir)
+            _filedir -d
+            return
+            ;;
+        -o|--output-file|-a|--append-output|--config|--load-cookies|\
+        --save-cookies|--post-file|--certificate|--ca-certificate|\
+        --private-key|--random-file|--egd-file|--warc-file|--warc-dedup)
+            _filedir
+            return
+            ;;
+        -O|--output-document|-i|--input-file)
+            _filedir && [[ $cur == - || -z $cur ]] && COMPREPLY+=( - )
+            return
+            ;;
+        --secure-protocol)
+            COMPREPLY=( $( compgen -W 'auto SSLv2 SSLv3 TLSv1' -- "$cur" ) )
+            return
+            ;;
+        --certificate-type|--private-key-type)
+            COMPREPLY=( $( compgen -W 'PEM DER' -- "$cur" ) )
+            return
+            ;;
+        --follow-tags|--ignore-tags)
+            local lastopt=${cur/*,} prevopt=
+            [[ $cur == *,* ]] && prevopt=${cur%,*},
+
+            COMPREPLY=( $( compgen -P "$prevopt" -W 'a abbr acronym address
+                applet area b base basefont bdo big blockquote body br button
+                caption center cite code col colgroup dd del dir div dfn dl dt
+                em fieldset font form frame frameset h6 head hr html i iframe
+                img input ins isindex kbd label legend li link map menu meta
+                noframes noscript object ol optgroup option p param pre q s
+                samp script select small span strike strong style sub sup table
+                tbody td textarea tfoot th thead title tr tt u ul var xmp' \
+                -- "$lastopt" ) )
+            return
+            ;;
+        -t|--tries|-T|--timeout|--dns-timeout|--connect-timeout|--read-timeout|\
+        -w|--wait|--waitretry|--cut-dirs|--max-redirect|-l|--level)
+            # expect integer number
+            COMPREPLY+=( $( compgen -P "$cur" -W "{0..9}" ) )
+            compopt -o nospace
+            return
+            ;;
+        -Q|--quota|--limit-rate|--warc-max-size)
+            # expect size
+            if [[ $cur == *@(k|m) ]]; then
+                COMPREPLY=( $( compgen -W "$cur" ) )
+            elif [[ $cur ]]; then
+                COMPREPLY=( $( compgen -P "$cur" -W "{0..9} k m" ) )
+                compopt -o nospace
+            else
+                COMPREPLY=( $( compgen -W "{0..9}" ) )
+                compopt -o nospace
+            fi
+            return
+            ;;
+        --user|--http-user|--proxy-user|--ftp-user)
+            COMPREPLY=( $( compgen -W "$( sed -n \
+                '/^login/s/^[[:blank:]]*login[[:blank:]]//p' ~/.netrc \
+                2>/dev/null )" -- "$cur" ) )
+            return
+            ;;
+        --header)
+            COMPREPLY=( $( compgen -W 'Accept Accept-Charset Accept-Encoding
+                Accept-Language Accept-Ranges Age Allow Authorization
+                Cache-Control Connection Content-Encoding Content-Language
+                Content-Length Content-Location Content-MD5 Content-Range
+                Content-Type Date ETag Expect Expires From Host If-Match
+                If-Modified-Since If-None-Match If-Range If-Unmodified-Since
+                Last-Modified Location Max-Forwards Pragma Proxy-Authenticate
+                Proxy-Authorization Range Referer Retry-After Server TE Trailer
+                Transfer-Encoding Upgrade User-Agent Vary Via Warning
+                WWW-Authenticate' -- "$cur" ) )
+            compopt -o nospace
+            return
+            ;;
+        --local-encoding|--remote-encoding)
+            type -P xauth &>/dev/null && \
+            COMPREPLY=( $( compgen -W '$( iconv -l 2>/dev/null | \
+                sed -e "s@/*\$@@" -e "s/[,()]//g" 2>/dev/null )' -- "$cur" ) )
+            return
+            ;;
+        -e|--execute)
+            return # TODO base=STR
+            ;;
+        -nv|--report-speed)
+            COMPREPLY=( $( compgen -W 'bits' -- "$cur" ) )
+            return
+            ;;
+        -B|--base|--password|--ftp-password|--http-password|--proxy-password|\
+        --default-page|--referer|-U|--user-agent|--post-data|--warc-header|-A|\
+        --accept|-R|--reject|-I|--include-directories|-X|--exclude-directories)
+            # argument required but no completions available
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+    fi
+
+} && complete -F _wget wget
+
+# ex: ts=4 sw=4 et filetype=sh

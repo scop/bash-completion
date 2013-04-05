@@ -1,0 +1,29 @@
+# hexdump(1) completion                                    -*- shell-script -*-
+
+_hexdump()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -V|-e|-n|-s)
+            return
+            ;;
+        -f)
+            _filedir
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        local opts="$( _parse_help "$1" )"
+        [[ $opts ]] || opts="$( _parse_usage "$1" )"
+        COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
+        return
+    fi
+
+    _filedir
+} &&
+complete -F _hexdump hexdump hd
+
+# ex: ts=4 sw=4 et filetype=sh

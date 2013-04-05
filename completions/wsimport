@@ -1,0 +1,49 @@
+# wsimport(1) completion                                   -*- shell-script -*-
+
+_wsimport()
+{
+    local cur prev words cword
+    _init_completion -n : || return
+
+    case $prev in
+        -help|-version|-B|-p|-wsdllocation)
+            return
+            ;;
+        -b)
+            _filedir '@(xml|xjb)'
+            return
+            ;;
+        -catalog)
+            _filedir '@(xml|soc|catalog)'
+            return
+            ;;
+        -d|–s)
+            _filedir -d
+            return
+            ;;
+        -target)
+            COMPREPLY=( $( compgen -W '2.0 2.1 2.2' -- "$cur" ) )
+            return
+            ;;
+        -clientjar)
+            _filedir jar
+            return
+            ;;
+    esac
+
+    if [[ $cur == -httpproxy:* ]]; then
+        _known_hosts_real "${cur#-httpproxy:}"
+        return
+    elif [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -help )' \
+            -- "$cur" ) )
+        [[ $COMPREPLY == *: ]] && compopt -o nospace
+        __ltrim_colon_completions "$cur"
+        return
+    fi
+
+    _filedir wsdl
+} &&
+complete -F _wsimport wsimport
+
+# ex: ts=4 sw=4 et filetype=sh

@@ -41,6 +41,7 @@ bashcomp_DATA = a2x \
 		chkconfig \
 		chown \
 		chpasswd \
+		chronyc \
 		chrpath \
 		chsh \
 		cksfv \
@@ -75,6 +76,8 @@ bashcomp_DATA = a2x \
 		dumpe2fs \
 		e2freefrag \
 		e2label \
+		eject \
+		eog \
 		ether-wake \
 		evince \
 		explodepkg \
@@ -84,6 +87,7 @@ bashcomp_DATA = a2x \
 		fbi \
 		feh \
 		file \
+		file-roller \
 		filefrag \
 		filesnarf \
 		find \
@@ -105,6 +109,7 @@ bashcomp_DATA = a2x \
 		gpasswd \
 		gpg \
 		gpg2 \
+		gphoto2 \
 		gprof \
 		groupadd \
 		groupdel \
@@ -115,6 +120,7 @@ bashcomp_DATA = a2x \
 		gzip \
 		hcitool \
 		hddtemp \
+		hexdump \
 		hid2hci \
 		hping2 \
 		htop \
@@ -129,6 +135,7 @@ bashcomp_DATA = a2x \
 		inject \
 		insmod \
 		installpkg \
+		interdiff \
 		invoke-rc.d \
 		ionice \
 		ip \
@@ -175,6 +182,10 @@ bashcomp_DATA = a2x \
 		lpr \
 		lrzip \
 		lsof \
+		lua \
+		luac \
+		luseradd \
+		luserdel \
 		lvm \
 		lzip \
 		lzma \
@@ -207,29 +218,39 @@ bashcomp_DATA = a2x \
 		munin-node-configure \
 		munin-run \
 		munin-update \
+		mussh \
 		mutt \
 		mysql \
 		mysqladmin \
+		nc \
 		ncftp \
 		nethogs \
 		newgrp \
 		newlist \
 		newusers \
+		ngrep \
 		nmap \
+		nmcli \
 		nslookup \
 		ntpdate \
 		openssl \
+		opera \
 		p4 \
 		pack200 \
 		passwd \
+		patch \
 		perl \
 		pgrep \
 		pidof \
 		pine \
 		ping \
 		pkg-config \
+		pkg-get \
 		pkg_delete \
+		pkgadd \
+		pkgrm \
 		pkgtool \
+		pkgutil \
 		plague-client \
 		pm-hibernate \
 		pm-is-supported \
@@ -250,6 +271,8 @@ bashcomp_DATA = a2x \
 		pwd \
 		pwdx \
 		pwgen \
+		pydoc \
+		pylint \
 		python \
 		qdbus \
 		qemu \
@@ -288,6 +311,7 @@ bashcomp_DATA = a2x \
 		smbclient \
 		snownews \
 		sqlite3 \
+		ss \
 		ssh \
 		ssh-add \
 		ssh-copy-id \
@@ -295,8 +319,10 @@ bashcomp_DATA = a2x \
 		sshmitm \
 		sshow \
 		strace \
+		strings \
 		su \
 		sudo \
+		svcadm \
 		svk \
 		sync_members \
 		sysbench \
@@ -306,8 +332,8 @@ bashcomp_DATA = a2x \
 		tcpkill \
 		tcpnice \
 		tracepath \
+		tshark \
 		tune2fs \
-		udevadm \
 		umount \
 		umount.linux \
 		unace \
@@ -328,10 +354,12 @@ bashcomp_DATA = a2x \
 		vpnc \
 		watch \
 		webmitm \
+		wget \
 		wine \
 		withlist \
 		wodim \
 		wol \
+		wsimport \
 		wtf \
 		wvdial \
 		xfreerdp \
@@ -345,13 +373,14 @@ bashcomp_DATA = a2x \
 		xrandr \
 		xrdb \
 		xsltproc \
+		xxd \
 		xz \
 		xzdec \
 		ypmatch \
 		yum-arch
 
 EXTRA_DIST = $(bashcomp_DATA) \
-	     _mock _modules _subversion _yum _yum-utils
+	     _mock _modules _subversion _udevadm _yum _yum-utils
 
 CLEANFILES = \
 	aclocal-1.11 \
@@ -374,7 +403,9 @@ CLEANFILES = \
 	ciptool \
 	civclient \
 	civserver \
+	clzip \
 	co \
+	colormake \
 	compare \
 	compgen \
 	composite \
@@ -404,6 +435,7 @@ CLEANFILES = \
 	gpc \
 	hciattach \
 	hciconfig \
+	hd \
 	host \
 	hping \
 	hping3 \
@@ -425,6 +457,7 @@ CLEANFILES = \
 	ldappasswd \
 	ldapwhoami \
 	lintian-info \
+	lusermod \
 	lvchange \
 	lvcreate \
 	lvdisplay \
@@ -448,6 +481,7 @@ CLEANFILES = \
 	ncal \
 	pbzip2 \
 	pccardctl \
+	pdlzip \
 	perldoc \
 	phing \
 	pigz \
@@ -456,6 +490,7 @@ CLEANFILES = \
 	pkg_deinstall \
 	pkg_info \
 	pkill \
+	plzip \
 	pm-suspend \
 	pm-suspend-hybrid \
 	pmake \
@@ -475,6 +510,7 @@ CLEANFILES = \
 	pvs \
 	pvscan \
 	pxz \
+	pydoc3 \
 	python2 \
 	python3 \
 	quotacheck \
@@ -515,6 +551,7 @@ CLEANFILES = \
 	vgchange \
 	vgck \
 	vgconvert \
+	vgcreate \
 	vgdisplay \
 	vgexport \
 	vgextend \
@@ -533,7 +570,7 @@ CLEANFILES = \
 	xvnc4viewer \
 	ypcat
 
-symlinks: $(targetdir)
+symlinks: $(targetdir) $(DATA)
 	for file in aclocal-1.11 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) aclocal $(targetdir)/$$file ; \
@@ -632,6 +669,10 @@ symlinks: $(targetdir)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) hcitool $(targetdir)/$$file ; \
 	done
+	for file in hd ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) hexdump $(targetdir)/$$file ; \
+	done
 	for file in hping hping3 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) hping2 $(targetdir)/$$file ; \
@@ -665,16 +706,24 @@ symlinks: $(targetdir)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) lintian $(targetdir)/$$file ; \
 	done
+	for file in lusermod ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) luseradd $(targetdir)/$$file ; \
+	done
 	for file in lvmdiskscan pvscan pvs pvdisplay pvchange pvcreate pvmove \
 		pvremove vgscan vgs vgdisplay vgchange vgremove vgrename \
-		vgreduce vgextend vgimport vgexport vgck vgconvert \
+		vgreduce vgextend vgimport vgexport vgck vgconvert vgcreate \
 		vgcfgbackup vgcfgrestore vgmerge vgsplit vgmknodes lvscan lvs \
 		lvdisplay lvchange lvcreate lvremove lvrename lvreduce \
 		lvresize lvextend ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) lvm $(targetdir)/$$file ; \
 	done
-	for file in gmake gnumake pmake ; do \
+	for file in clzip pdlzip plzip ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) lzip $(targetdir)/$$file ; \
+	done
+	for file in colormake gmake gnumake pmake ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) make $(targetdir)/$$file ; \
 	done
@@ -742,6 +791,10 @@ symlinks: $(targetdir)
 		filebucket puppetdoc ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) puppet $(targetdir)/$$file ; \
+	done
+	for file in pydoc3 ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) pydoc $(targetdir)/$$file ; \
 	done
 	for file in python2 python3 ; do \
 		rm -f $(targetdir)/$$file && \

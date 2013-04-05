@@ -3,7 +3,7 @@
 #   bash_completion - programmable completion functions for bash 4.1+
 #
 #   Copyright © 2006-2008, Ian Macdonald <ian@caliban.org>
-#             © 2009-2011, Bash Completion Maintainers
+#             © 2009-2013, Bash Completion Maintainers
 #                     <bash-completion-devel@lists.alioth.debian.org>
 #
 #   This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 #
 #   http://bash-completion.alioth.debian.org/
 #
-#   RELEASE: 1.99
+#   RELEASE: 2.1
 
 if [[ $- == *v* ]]; then
     BASH_COMPLETION_ORIGINAL_V_VALUE="-v"
@@ -184,7 +184,7 @@ _upvar()
 
 
 # Assign variables one scope above the caller
-# Usage: local varname [varname ...] && 
+# Usage: local varname [varname ...] &&
 #        _upvars [-v varname value] | [-aN varname [value ...]] ...
 # Available OPTIONS:
 #     -aN  Assign next N values to varname as array
@@ -208,7 +208,7 @@ _upvars()
                     "${FUNCNAME[0]}: \`$1': invalid number specifier" 1>&2
                     return 1; }
                 # Assign array of -aN elements
-                [[ "$2" ]] && unset -v "$2" && eval $2=\(\"\${@:3:${1#-a}}\"\) && 
+                [[ "$2" ]] && unset -v "$2" && eval $2=\(\"\${@:3:${1#-a}}\"\) &&
                 shift $((${1#-a} + 2)) || { echo "bash: ${FUNCNAME[0]}:"\
                     "\`$1${2+ }$2': missing argument(s)" 1>&2; return 1; }
                 ;;
@@ -244,7 +244,7 @@ __reassemble_comp_words_by_ref()
         # Exclude only those characters, which were really included
         exclude="${1//[^$COMP_WORDBREAKS]}"
     fi
-        
+
     # Default to cword unchanged
     eval $3=$COMP_CWORD
     # Are characters excluded which were former included?
@@ -284,6 +284,7 @@ __reassemble_comp_words_by_ref()
             # Indicate new cword
             [[ $i == $COMP_CWORD ]] && eval $3=$j
         done
+        [[ $i == $COMP_CWORD ]] && eval $3=$j
     else
         # No, list of word completions separators hasn't changed;
         eval $2=\( \"\${COMP_WORDS[@]}\" \)
@@ -355,7 +356,7 @@ __get_cword_at_cursor_by_ref()
 #     cword       Return cword via $cword
 #
 # Available OPTIONS:
-#     -n EXCLUDE  Characters out of $COMP_WORDBREAKS which should NOT be 
+#     -n EXCLUDE  Characters out of $COMP_WORDBREAKS which should NOT be
 #                 considered word breaks. This is useful for things like scp
 #                 where we want to return host:path and not only path, so we
 #                 would pass the colon (:) as -n option in this case.
@@ -383,7 +384,7 @@ _get_comp_words_by_ref()
             w) vwords=$OPTARG ;;
         esac
     done
-    while [[ $# -ge $OPTIND ]]; do 
+    while [[ $# -ge $OPTIND ]]; do
         case ${!OPTIND} in
             cur)   vcur=cur ;;
             prev)  vprev=prev ;;
@@ -399,7 +400,7 @@ _get_comp_words_by_ref()
 
     [[ $vcur   ]] && { upvars+=("$vcur"  ); upargs+=(-v $vcur   "$cur"  ); }
     [[ $vcword ]] && { upvars+=("$vcword"); upargs+=(-v $vcword "$cword"); }
-    [[ $vprev && $cword -ge 1 ]] && { upvars+=("$vprev" ); upargs+=(-v $vprev 
+    [[ $vprev && $cword -ge 1 ]] && { upvars+=("$vprev" ); upargs+=(-v $vprev
         "${words[cword - 1]}"); }
     [[ $vwords ]] && { upvars+=("$vwords"); upargs+=(-a${#words[@]} $vwords
         "${words[@]}"); }
@@ -479,7 +480,7 @@ _get_cword()
 # @deprecated  Use `_get_comp_words_by_ref cur prev' instead
 # @see _get_comp_words_by_ref()
 #
-_get_pword() 
+_get_pword()
 {
     if [[ $COMP_CWORD -ge 1 ]]; then
         _get_cword "${@:-}" 1
@@ -508,7 +509,7 @@ __ltrim_colon_completions()
 {
     if [[ "$1" == *:* && "$COMP_WORDBREAKS" == *:* ]]; then
         # Remove colon-word prefix from COMPREPLY items
-        local colon_word=${1%${1##*:}}
+        local colon_word=${1%"${1##*:}"}
         local i=${#COMPREPLY[*]}
         while [[ $((--i)) -ge 0 ]]; do
             COMPREPLY[$i]=${COMPREPLY[$i]#"$colon_word"}
@@ -617,7 +618,7 @@ _split_longopt()
 }
 
 # Complete variables.
-# @return  True (0) if variables were completed, 
+# @return  True (0) if variables were completed,
 #          False (> 0) if not.
 _variables()
 {
@@ -642,7 +643,7 @@ _variables()
 #     -o XSPEC    Passed to _filedir as first arg for other output redirections
 #     -i XSPEC    Passed to _filedir as first arg for stdin redirections
 #     -s          Split long options with _split_longopt, implies -n =
-# @return  True (0) if completion needs further processing, 
+# @return  True (0) if completion needs further processing,
 #          False (> 0) no further processing is necessary.
 #
 _init_completion()
@@ -755,7 +756,7 @@ _parse_help()
     local line
     { case $cmd in
         -) cat ;;
-        *) "$( dequote "$cmd" )" ${2:---help} 2>&1 ;;
+        *) LC_ALL=C "$( dequote "$cmd" )" ${2:---help} 2>&1 ;;
       esac } \
     | while read -r line; do
 
@@ -780,7 +781,7 @@ _parse_usage()
     local line match option i char
     { case $cmd in
         -) cat ;;
-        *) "$( dequote "$cmd" )" ${2:---usage} 2>&1 ;;
+        *) LC_ALL=C "$( dequote "$cmd" )" ${2:---usage} 2>&1 ;;
       esac } \
     | while read -r line; do
 
@@ -820,14 +821,19 @@ _mac_addresses()
     local re='\([A-Fa-f0-9]\{2\}:\)\{5\}[A-Fa-f0-9]\{2\}'
     local PATH="$PATH:/sbin:/usr/sbin"
 
-    # Local interfaces (Linux: HWAddr, FreeBSD: ether)
-    COMPREPLY+=( $( ifconfig -a 2>/dev/null | sed -ne \
+    # Local interfaces
+    # - ifconfig on Linux: HWaddr or ether
+    # - ifconfig on FreeBSD: ether
+    # - ip link: link/ether
+    COMPREPLY+=( $( { ifconfig -a || ip link show; } 2>/dev/null | sed -ne \
+        "s/.*[[:space:]]HWaddr[[:space:]]\{1,\}\($re\)[[:space:]].*/\1/p" -ne \
         "s/.*[[:space:]]HWaddr[[:space:]]\{1,\}\($re\)[[:space:]]*$/\1/p" -ne \
-        "s/^[[:space:]]\{1,\}ether[[:space:]]\{1,\}\($re\)[[:space:]]*$/\1/p" \
+        "s|.*[[:space:]]\(link/\)\{0,1\}ether[[:space:]]\{1,\}\($re\)[[:space:]].*|\2|p" -ne \
+        "s|.*[[:space:]]\(link/\)\{0,1\}ether[[:space:]]\{1,\}\($re\)[[:space:]]*$|\2|p"
         ) )
 
     # ARP cache
-    COMPREPLY+=( $( arp -an 2>/dev/null | sed -ne \
+    COMPREPLY+=( $( { arp -an || ip neigh show; } 2>/dev/null | sed -ne \
         "s/.*[[:space:]]\($re\)[[:space:]].*/\1/p" -ne \
         "s/.*[[:space:]]\($re\)[[:space:]]*$/\1/p" ) )
 
@@ -869,10 +875,11 @@ _configured_interfaces()
 #
 _ip_addresses()
 {
+    local PATH=$PATH:/sbin
     COMPREPLY+=( $( compgen -W \
-        "$( PATH="$PATH:/sbin" LC_ALL=C ifconfig -a |
+        "$( { LC_ALL=C ifconfig -a || ip addr show; } 2>/dev/null |
             sed -ne 's/.*addr:\([^[:space:]]*\).*/\1/p' \
-                -ne 's/.*inet[[:space:]]\{1,\}\([^[:space:]]*\).*/\1/p' )" \
+                -ne 's|.*inet[[:space:]]\{1,\}\([^[:space:]/]*\).*|\1|p' )" \
         -- "$cur" ) )
 }
 
@@ -889,18 +896,18 @@ _kernel_versions()
 #
 _available_interfaces()
 {
-    local cmd
+    local cmd PATH=$PATH:/sbin
 
     if [[ ${1:-} == -w ]]; then
         cmd="iwconfig"
     elif [[ ${1:-} == -a ]]; then
-        cmd="ifconfig"
+        cmd="{ ifconfig || ip link show up; }"
     else
-        cmd="ifconfig -a"
+        cmd="{ ifconfig -a || ip link show; }"
     fi
 
-    COMPREPLY=( $( eval PATH="$PATH:/sbin" $cmd 2>/dev/null | \
-        awk '/^[^ \t]/ { print $1 }' ) )
+    COMPREPLY=( $( eval $cmd 2>/dev/null | awk \
+        '/^[^ \t]/ { if ($1 ~ /^[0-9]+:/) { print $2 } else { print $1 } }' ) )
     COMPREPLY=( $( compgen -W '${COMPREPLY[@]/%[[:punct:]]/}' -- "$cur" ) )
 }
 
@@ -914,7 +921,7 @@ _ncpus()
 }
 
 # Perform tilde (~) completion
-# @return  True (0) if completion needs further processing, 
+# @return  True (0) if completion needs further processing,
 #          False (> 0) if tilde is followed by a valid username, completions
 #          are put in COMPREPLY and no further processing is necessary.
 _tilde()
@@ -951,7 +958,7 @@ _tilde()
 #    ~foo/$HOME       /home/foo/$HOME
 #    ~foo/a  b        /home/foo/a  b
 #    ~foo/*           /home/foo/*
-#  
+#
 # @param $1  Name of variable (not the value of the variable) to expand
 __expand_tilde_by_ref()
 {
@@ -966,7 +973,7 @@ __expand_tilde_by_ref()
             #    becomes "b".  Single quotes prevent eval.
             #       +-----1----+ +---2----+
             eval $1="${!1/%\/*}"/'${!1#*/}'
-        else 
+        else
             # No, $1 doesn't contain slash
             eval $1="${!1}"
         fi
@@ -1546,7 +1553,8 @@ _known_hosts_real()
 
     # Add hosts reported by ruptime.
     COMPREPLY+=( $( compgen -W \
-        "$( ruptime 2>/dev/null | awk '{ print $1 }' )" -- "$cur" ) )
+        "$( ruptime 2>/dev/null | awk '!/^ruptime:/ { print $1 }' )" \
+        -- "$cur" ) )
 
     # Add results of normal hostname completion, unless
     # `COMP_KNOWN_HOSTS_WITH_HOSTFILE' is set to an empty value.
@@ -1699,16 +1707,13 @@ _command_offset()
                 fi
 
                 # restore initial compopts
-                local opt t
-                while true; do
+                local opt
+                while [[ $cspec == *" -o "* ]]; do
                     # FIXME: should we take "+o opt" into account?
-                    t=${cspec#*-o }
-                    if [[ $t == $cspec ]]; then
-                        break
-                    fi
-                    opt=${t%% *}
+                    cspec=${cspec#*-o }
+                    opt=${cspec%% *}
                     compopt -o $opt
-                    cspec=${t#$opt}
+                    cspec=${cspec#$opt}
                 done
             else
                 cspec=${cspec#complete}
@@ -1789,9 +1794,9 @@ _longopt()
 complete -F _longopt a2ps awk base64 bash bc bison cat colordiff cp csplit \
     cut date df diff dir du enscript env expand fmt fold gperf \
     grep grub head indent irb ld ldd less ln ls m4 md5sum mkdir mkfifo mknod \
-    mv netstat nl nm objcopy objdump od paste patch pr ptx readelf rm rmdir \
+    mv netstat nl nm objcopy objdump od paste pr ptx readelf rm rmdir \
     sed seq sha{,1,224,256,384,512}sum shar sort split strip sum tac tail tee \
-    texindex touch tr uname unexpand uniq units vdir wc wget who
+    texindex touch tr uname unexpand uniq units vdir wc who
 
 declare -A _xspecs
 _filedir_xspec()
@@ -1799,7 +1804,7 @@ _filedir_xspec()
     local cur prev words cword
     _init_completion || return
 
-    _expand || return 0
+    _tilde "$cur" || return 0
 
     local IFS=$'\n' xspec=${_xspecs[${1##*/}]} tmp
     local -a toks
@@ -1847,7 +1852,7 @@ _install_xspec()
 }
 # bzcmp, bzdiff, bz*grep, bzless, bzmore intentionally not here, see Debian: #455510
 _install_xspec '!*.?(t)bz?(2)' bunzip2 bzcat pbunzip2 pbzcat lbunzip2 lbzcat
-_install_xspec '!*.@(zip|[ejsw]ar|exe|pk3|wsz|zargo|xpi|sxw|o[tx]t|od[fgpst]|epub|apk)' unzip zipinfo
+_install_xspec '!*.@(zip|[ejsw]ar|exe|pk3|wsz|zargo|xpi|s[tx][cdiw]|sx[gm]|o[dt][tspgfc]|od[bm]|oxt|epub|apk|do[ct][xm]|p[op]t[mx]|xl[st][xm])' unzip zipinfo
 _install_xspec '*.Z' compress znew
 # zcmp, zdiff, z*grep, zless, zmore intentionally not here, see Debian: #455510
 _install_xspec '!*.@(Z|[gGd]z|t[ag]z)' gunzip zcat unpigz
@@ -1866,6 +1871,7 @@ _install_xspec '!*.[pf]df' acroread gpdf xpdf
 _install_xspec '!*.@(?(e)ps|pdf)' kpdf
 _install_xspec '!*.@(okular|@(?(e|x)ps|?(E|X)PS|[pf]df|[PF]DF|dvi|DVI|cb[rz]|CB[RZ]|djv?(u)|DJV?(U)|dvi|DVI|gif|jp?(e)g|miff|tif?(f)|pn[gm]|p[bgp]m|bmp|xpm|ico|xwd|tga|pcx|GIF|JP?(E)G|MIFF|TIF?(F)|PN[GM]|P[BGP]M|BMP|XPM|ICO|XWD|TGA|PCX|epub|EPUB|odt|ODT|fb?(2)|FB?(2)|mobi|MOBI|g3|G3|chm|CHM)?(.?(gz|GZ|bz2|BZ2)))' okular
 _install_xspec '!*.pdf' epdfview
+_install_xspec '!*.@(cb[rz7t]|djv?(u)|?(e)ps|pdf)' zathura
 _install_xspec '!*.@(?(e)ps|pdf)' ps2pdf ps2pdf12 ps2pdf13 ps2pdf14 ps2pdfwr
 _install_xspec '!*.texi*' makeinfo texi2html
 _install_xspec '!*.@(?(la)tex|texi|dtx|ins|ltx|dbj)' tex latex slitex jadetex pdfjadetex pdftex pdflatex texi2dvi
@@ -1884,7 +1890,7 @@ _install_xspec '!*.@(669|abc|am[fs]|d[bs]m|dmf|far|it|mdl|m[eo]d|mid?(i)|mt[2m]|
 _install_xspec '*.@(o|so|so.!(conf|*/*)|a|[rs]pm|gif|jp?(e)g|mp3|mp?(e)g|avi|asf|ogg|class)' vi vim gvim rvim view rview rgvim rgview gview emacs xemacs sxemacs kate kwrite
 _install_xspec '!*.@(zip|z|gz|tgz)' bzme
 # konqueror not here on purpose, it's more than a web/html browser
-_install_xspec '!*.@(?([xX]|[sS])[hH][tT][mM]?([lL]))' netscape mozilla lynx opera galeon dillo elinks amaya firefox mozilla-firefox iceweasel google-chrome chromium-browser epiphany
+_install_xspec '!*.@(?([xX]|[sS])[hH][tT][mM]?([lL]))' netscape mozilla lynx galeon dillo elinks amaya firefox mozilla-firefox iceweasel google-chrome chromium-browser epiphany
 _install_xspec '!*.@(sxw|stw|sxg|sgl|doc?([mx])|dot?([mx])|rtf|txt|htm|html|?(f)odt|ott|odm)' oowriter
 _install_xspec '!*.@(sxi|sti|pps?(x)|ppt?([mx])|pot?([mx])|?(f)odp|otp)' ooimpress
 _install_xspec '!*.@(sxc|stc|xls?([bmx])|xlw|xlt?([mx])|[ct]sv|?(f)ods|ots)' oocalc
@@ -1900,6 +1906,7 @@ _install_xspec '!*.ly' lilypond ly2dvi
 _install_xspec '!*.@(dif?(f)|?(d)patch)?(.@([gx]z|bz2|lzma))' cdiff
 _install_xspec '!@(*.@(ks|jks|jceks|p12|pfx|bks|ubr|gkr|cer|crt|cert|p7b|pkipath|pem|p10|csr|crl)|cacerts)' portecle
 _install_xspec '!*.@(mp[234c]|og[ag]|@(fl|a)ac|m4[abp]|spx|tta|w?(a)v|wma|aif?(f)|asf|ape)' kid3 kid3-qt
+_install_xspec '!*.py' pyflakes
 unset -f _install_xspec
 
 # Minimal completion to use as fallback in _completion_loader.
@@ -1918,11 +1925,12 @@ complete -F _minimal ''
 # set up dynamic completion loading
 _completion_loader()
 {
-    local compdir=./completions
-    [[ $BASH_SOURCE == */* ]] && compdir="${BASH_SOURCE%/*}/completions"
+    local compfile=./completions
+    [[ $BASH_SOURCE == */* ]] && compfile="${BASH_SOURCE%/*}/completions"
+    compfile+="/${1##*/}"
 
-    # Try basename.
-    . "$compdir/${1##*/}" &>/dev/null && return 124
+    # Avoid trying to source dirs; https://bugzilla.redhat.com/903540
+    [[ -f "$compfile" ]] && . "$compfile" &>/dev/null && return 124
 
     # Need to define *something*, otherwise there will be no completion at all.
     complete -F _minimal "$1" && return 124

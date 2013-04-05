@@ -5,24 +5,31 @@ _xrandr()
     local cur prev words cword
     _init_completion || return
 
-    local output modes
-
     case "$prev" in
+        -display|-d|-help|-s|--size|-r|--rate|--refresh|--screen|--fb|--fbmm|\
+        --dpi|--pos|--set|--scale|--transform|--crtc|--panning|--gamma|\
+        --newmode|--rmmode|--addmode|--delmode)
+            return
+            ;;
         --output|--left-of|--right-of|--above|--below|--same-as)
             local outputs=$( xrandr | awk '/connected/ {print $1}' )
             COMPREPLY=( $( compgen -W "$outputs" -- "$cur" ) )
             return
             ;;
         --mode)
-            for(( i = 1; i < cword; i++ )); do
+            local i output
+            for (( i=1; i < cword; i++ )); do
                 if [[ "${words[i]}" == --output ]]; then
                     output=${words[i+1]}
                     break
                 fi
             done
-            modes=$( xrandr | sed -e "1,/$output/ d" \
-                -e "/connected/,$ d" | awk '{print $1}' )
-            COMPREPLY=( $( compgen -W "$modes" -- "$cur" ) )
+            if [[ $output ]]; then
+                local modes=$( xrandr | sed -e "1,/$output/ d" \
+                    -e "/connected/,$ d" \
+                    -e "s/\([^[:space:]]\)[[:space:]].*/\1/" )
+                COMPREPLY=( $( compgen -W "$modes" -- "$cur" ) )
+            fi
             return
             ;;
         -o|--orientation)
@@ -40,19 +47,8 @@ _xrandr()
             ;;
     esac
 
-    case $cur in
-        *)
-            COMPREPLY=( $( compgen -W '-display -help --orientation --query
-                --size --rate --version -x -y --screen --verbose --dryrun
-                --q1 --q12 --nograb --prop --properties --fb --fbmm --dpi
-                --output --auto --mode --preferred --pos --rate --refresh
-                --reflect --rotate --left-of --right-of --above --below
-                --same-as --set --scale --transform --off --crtc --panning
-                --gamma --brightness --primary --noprimary --newmode --rmmode
-                --addmode --delmode' -- "$cur" ) )
-            return
-            ;;
-    esac
+    COMPREPLY=( $( compgen -W '$( "$1" -help 2>&1 |
+        sed -e "s/ or / /g" -e "s/<[^>]*>]//g" | _parse_help - )' -- "$cur" ) )
 } &&
 complete -F _xrandr xrandr
 

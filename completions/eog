@@ -1,0 +1,27 @@
+# eog(1) completion                                        -*- shell-script -*-
+
+_eog()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -'?'|--help|--help-all|--help-gtk)
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" --help-all )' \
+            -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir '@(ani|?(w)bmp|gif|ico|j2k|jp[cefgx2]|jpeg|pcx|pn[gm]|ras|svg?(z)|tga|tif?(f)|x[bp]m)'
+} &&
+complete -F _eog eog
+
+# ex: ts=4 sw=4 et filetype=sh

@@ -9,11 +9,11 @@ _useradd()
     #       with -u/--uid
 
     case $prev in
-        -c|--comment|-h|--help|-e|--expiredate|-f|--inactive|-k|--key|\
+        -c|--comment|-h|--help|-e|--expiredate|-f|--inactive|-K|--key|\
         -p|--password|-u|--uid|-Z|--selinux-user)
             return 0
             ;;
-        -b|--base-dir|-d|--home|-k|--skel)
+        -b|--base-dir|-d|--home-dir|-k|--skel|-R|--root)
             _filedir -d
             return 0
             ;;
@@ -24,7 +24,8 @@ _useradd()
             return 0
             ;;
         -G|--groups)
-            COMPREPLY=( $( compgen -g -- "$cur" ) )
+            local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
+            COMPREPLY=( $( compgen -P "$prefix" -g -- "${cur##*,}" ) )
             return 0
             ;;
         -s|--shell)

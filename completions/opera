@@ -1,0 +1,46 @@
+# opera(1) completion                                      -*- shell-script -*-
+
+_opera()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case "$prev" in
+        ?(-)-widget|?(-)-urllist|?(-)-uiparserlog|?(-)-uiwidgetsparserlog|\
+        ?(-)-profilinglog)
+            _filedir
+            return
+            ;;
+        ?(-)-[psb]d)
+            _filedir -d
+            return
+            ;;
+        ?(-)-remote)
+            COMPREPLY=( $( compgen -W 'openURL\\( openFile\\( openM2\\(
+                openComposer\\( addBookmark\\( raise\\(\\) lower\\(\\)' \
+                -- "$cur" ) )
+            [[ $COMPREPLY == *\( ]] && compopt -o nospace
+            return
+            ;;
+        ?(-)-windowname)
+            COMPREPLY=( $( compgen -W 'first last opera{1..9}' -- "$cur" ) )
+            return
+            ;;
+        ?(-)-geometry|?(-)-window|?(-)-display|?(-)-urllistloadtimeout|\
+        ?(-)-delaycustomizations|?(-)-dialogtest|?(-)-inidialogtest|\
+        ?(-)-gputest)
+            # argument required but no completions available
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -help )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir '@(?([xX]|[sS])[hH][tT][mM]?([lL]))'
+} && complete -F _opera opera
+
+# ex: ts=4 sw=4 et filetype=sh
