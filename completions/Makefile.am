@@ -383,7 +383,10 @@ EXTRA_DIST = $(bashcomp_DATA) \
 	     _mock _modules _subversion _udevadm _yum _yum-utils
 
 CLEANFILES = \
+	aclocal-1.10 \
 	aclocal-1.11 \
+	aclocal-1.12 \
+	aclocal-1.13 \
 	alpine \
 	alternatives \
 	animate \
@@ -391,7 +394,10 @@ CLEANFILES = \
 	arm-koji \
 	asciidoc.py \
 	autoheader \
+	automake-1.10 \
 	automake-1.11 \
+	automake-1.12 \
+	automake-1.13 \
 	autossh \
 	autoupdate \
 	btdownloadcurses.py \
@@ -571,7 +577,7 @@ CLEANFILES = \
 	ypcat
 
 symlinks: $(targetdir) $(DATA)
-	for file in aclocal-1.11 ; do \
+	for file in aclocal-1.10 aclocal-1.11 aclocal-1.12 aclocal-1.13 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) aclocal $(targetdir)/$$file ; \
 	done
@@ -583,7 +589,8 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) asciidoc $(targetdir)/$$file ; \
 	done
-	for file in automake-1.11 ; do \
+	for file in automake-1.10 automake-1.11 automake-1.12 automake-1.13 \
+		; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) automake $(targetdir)/$$file ; \
 	done
