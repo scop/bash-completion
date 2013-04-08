@@ -23,34 +23,34 @@ _pkgutil()
 
     i=$cword
     while [[ $((i--)) -gt 1 ]]; do
-        if [[ "${words[$i]}" = @(-t|--temp) ]]; then
+        if [[ "${words[$i]}" == @(-t|--temp) ]]; then
             local url="${words[$((i+1))]}"
             local catalog=$(_pkgutil_url2catalog "$url")
             catalog_files=("$catalog")
-        elif [[ "${words[$i]}" = @(--config) ]]; then
+        elif [[ "${words[$i]}" == --config ]]; then
             configuration_files=( "$(dequote ${words[$((i+1))]})" )
         elif [[ "${words[$i]}" == @(-i|--install|-u|--upgrade|-r|--remove|-d|--download|-a|--available|-c|--compare|-U|--catalog|-S|--stream) ]]; then
             command="${words[$i]}"  
         fi
     done
 
-    if [[ "$prev" = @(-W|--workdir|-P|--pkgdir|-R|--rootpath) ]]; then
+    if [[ "$prev" == @(-W|--workdir|-P|--pkgdir|-R|--rootpath) ]]; then
         _filedir -d
         return 0
     fi
 
-    if [[ "$prev" = @(-o|--output|--config) ]]; then
+    if [[ "$prev" == @(-o|--output|--config) ]]; then
         _filedir
         return 0
     fi
 
-    if [[ "$prev" = @(-p|--param) ]]; then
+    if [[ "$prev" == @(-p|--param) ]]; then
         compopt -o nospace
         COMPREPLY=( $(compgen -W "mirror: pkgaddopts: pkgrmopts: wgetopts: use_gpg: use_md5: pkgliststyle: maxpkglist: noncsw: stop_on_hook_soft_error: exclude_pattern: gpg_homedir: root_path: deptree_filter_common: show_current: catalog_not_cached: catalog_update:" -- $cur) )
         return 0
     fi
 
-    if [[ "$prev" = @(-T|--target) ]]; then
+    if [[ "$prev" == @(-T|--target) ]]; then
         # Work-around bash_completion issue where bash interprets a colon
         # as a separator, borrowed from maven completion code which borrowed
         # it from darcs completion code :)
