@@ -51,7 +51,7 @@ _cvs()
     _init_completion -n : || return
 
     local count mode i cvsroot cvsroots pwd
-    local -a flags miss files entries changed newremoved
+    local -a flags files entries changed newremoved
 
     count=0
     for i in "${words[@]}"; do
@@ -334,11 +334,13 @@ _cvs()
         remove)
             if [[ "$cur" != -* ]]; then
                 _cvs_entries
-                # find out what files are missing
-                for i in "${entries[@]}"; do
-                    [[ ! -r $i ]] && miss+=( $i )
-                done
-                COMPREPLY=( $( compgen -W '${miss[@]:-}' -- "$cur" ) )
+                if [[ "$prev" != -f ]]; then
+                    # find out what files are missing
+                    for i in ${!entries[@]}; do
+                        [[ -r "${entries[i]}" ]] && unset entries[i]
+                    done
+                fi
+                COMPREPLY=( $( compgen -W '${entries[@]:-}' -- "$cur" ) )
             else
                 _cvs_command_options "$1" $mode
             fi
