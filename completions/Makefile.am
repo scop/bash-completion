@@ -230,7 +230,6 @@ bashcomp_DATA = a2x \
 		newusers \
 		ngrep \
 		nmap \
-		nmcli \
 		nslookup \
 		ntpdate \
 		openssl \
@@ -380,7 +379,7 @@ bashcomp_DATA = a2x \
 		yum-arch
 
 EXTRA_DIST = $(bashcomp_DATA) \
-	     _mock _modules _subversion _udevadm _yum _yum-utils
+	     _mock _modules _nmcli _subversion _udevadm _yum _yum-utils
 
 CLEANFILES = \
 	aclocal-1.10 \
