@@ -27,8 +27,13 @@ _postconf()
         return 0
     fi
 
-    COMPREPLY=( $( compgen -W "$( /usr/sbin/postconf | awk '{print $1}' )" -- "$cur" ) )
-
+    local len=${#cur} idx=0 pval
+    for pval in $( /usr/sbin/postconf 2>/dev/null | cut -d ' ' -f 1 ); do
+        if [[ "$cur" == "${pval:0:$len}" ]]; then
+            COMPREPLY[$idx]="$pval$eqext"
+            idx=$(($idx+1))
+        fi
+    done
     return 0
 } &&
 complete -F _postconf postconf

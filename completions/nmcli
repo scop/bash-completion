@@ -1,0 +1,199 @@
+# nmcli completion                                           -*- shell-script -*-
+
+_nmcli_list()
+{
+    COMPREPLY=( $( compgen -W '$1' -- "$cur" ) )
+}
+
+_nmcli_con_id()
+{
+    local IFS=$'\n'
+    COMPREPLY=( $( compgen -W "$(nmcli con list 2>/dev/null | \
+        tail -n +2 | awk -F ' {2,}' '{print $1 }')" -- "$cur" ) )
+}
+
+_nmcli_con_uuid()
+{
+    COMPREPLY=( $( compgen -W "$(nmcli con list 2>/dev/null | \
+        tail -n +2 | awk -F ' {2,}' '{print $2}')" -- "$cur" ) )
+}
+
+_nmcli_ap_ssid()
+{
+    local IFS=$'\n'
+    COMPREPLY=( $( compgen -W "$(nmcli dev wifi list 2>/dev/null | \
+        tail -n +2 | awk -F ' {2,}' '{print $1}')" -- "$cur" ) )
+}
+
+_nmcli_ab_bssid()
+{
+    COMPREPLY=( $( compgen -W "$(nmcli dev wifi list 2>/dev/null | \
+        tail -n +2 | awk -F ' {2,}' '{print $2}')" -- "$cur" ) )
+}
+
+_nmcli()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -m|--mode)
+            COMPREPLY=( $( compgen -W 'tabular multiline' -- "$cur" ) )
+            return 0
+            ;;
+        -f|--fields)
+            COMPREPLY=( $( compgen -W 'all common' -- "$cur" ) )
+            return 0
+            ;;
+        -e|--escape)
+            _nmcli_list "yes no"
+            return 0
+            ;;
+        id)
+            _nmcli_con_id
+            return 0
+            ;;
+        uuid)
+            _nmcli_con_uuid
+            return 0
+            ;;
+        iface)
+            _available_interfaces
+            return 0
+            ;;
+        bssid)
+            _nmcli_ab_bssid
+            return 0
+            ;;
+        wep-key-type)
+            _nmcli_list "key phrase"
+            return 0
+            ;;
+    esac
+
+    if [[ $cword -eq 1 ]] ; then
+        if [[ "$cur" == -* ]]; then
+            COMPREPLY=( $( compgen -W '--terse --pretty --mode --fields
+                --escape --version --help' -- "$cur" ) )
+        else
+            COMPREPLY=( $( compgen -W "nm con dev" -- "$cur" ) )
+        fi
+    else
+        local object=${words[1]}
+        local command=${words[2]}
+
+        case $object in
+            nm)
+                case $command in
+                    enable)
+                        _nmcli_list "true false"
+                        return 0
+                        ;;
+                    sleep)
+                        _nmcli_list "true false"
+                        return 0
+                        ;;
+                    wifi)
+                        _nmcli_list "on off"
+                        return 0
+                        ;;
+                    wwan)
+                        _nmcli_list "on off"
+                        return 0
+                        ;;
+                    wimax)
+                        _nmcli_list "on off"
+                        return 0
+                        ;;
+                esac
+
+                COMPREPLY=( $( compgen -W 'status permissions enable sleep
+                    wifi wwan wimax' -- "$cur" ) )
+                ;;
+            con)
+                case $command in
+                    list)
+                        COMPREPLY=( $( compgen -W 'id uuid' -- "$cur" ) )
+                        return 0
+                        ;;
+                    up)
+                        if [[ "$cur" == -* ]]; then
+                            COMPREPLY=( $( compgen -W '--nowait --timeout' \
+                                -- "$cur" ) )
+                        else
+                            COMPREPLY=( $( compgen -W 'id uuid iface ap nsp' \
+                                -- "$cur" ) )
+                        fi
+                        return 0
+                        ;;
+                    down)
+                        COMPREPLY=( $( compgen -W 'id uuid' -- "$cur" ) )
+                        return 0
+                        ;;
+                    delete)
+                        COMPREPLY=( $( compgen -W 'id uuid' -- "$cur" ) )
+                        return 0
+                        ;;
+                esac
+
+                COMPREPLY=( $( compgen -W 'list status up down delete' \
+                        -- "$cur" ) )
+                ;;
+            dev)
+                case $command in
+                    list)
+                        COMPREPLY=( $( compgen -W 'iface' -- "$cur" ) )
+                        return 0
+                        ;;
+                    disconnect)
+                        if [[ "$cur" == -* ]]; then
+                            COMPREPLY=( $( compgen -W '--nowait --timeout' \
+                                -- "$cur" ) )
+                        else
+                            COMPREPLY=( $( compgen -W 'iface' -- "$cur" ) )
+                        fi
+                        return 0
+                        ;;
+                    wifi)
+                        local subcommand=${words[3]}
+
+                        case $subcommand in
+                            list)
+                                COMPREPLY=( $( compgen -W 'iface bssid' \
+                                    -- "$cur" ) )
+                                return 0
+                                ;;
+                            connect)
+                                if [[ "$cur" == -* ]]; then
+                                    COMPREPLY=( $( compgen -W '--private
+                                        --nowait --timeout' -- "$cur" ) )
+                                else
+                                    if [[ "$prev" == "connect" ]]; then
+                                        _nmcli_ap_ssid
+                                    else
+                                        COMPREPLY=( $( compgen -W 'password
+                                            wep-key-type iface bssid name' \
+                                            -- "$cur" ) )
+                                    fi
+                                fi
+                                return 0
+                                ;;
+                        esac
+
+                        COMPREPLY=( $( compgen -W 'list connect' -- "$cur" ) )
+                        return 0
+                        ;;
+                esac
+
+                COMPREPLY=( $( compgen -W 'status list disconnect wifi' \
+                    -- "$cur" ) )
+                ;;
+        esac
+
+    fi
+
+    return 0
+} &&
+complete -F _nmcli nmcli
+
+# ex: ts=4 sw=4 et filetype=sh

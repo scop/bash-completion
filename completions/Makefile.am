@@ -230,6 +230,7 @@ bashcomp_DATA = a2x \
 		newusers \
 		ngrep \
 		nmap \
+		nmcli \
 		nslookup \
 		ntpdate \
 		openssl \
