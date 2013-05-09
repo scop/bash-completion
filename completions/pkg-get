@@ -43,13 +43,13 @@ _pkg-get()
         if [[ "${COMP_WORDS[$i]}" == -s ]]; then
             url="${COMP_WORDS[$((i+1))]}"
         fi
-        if [[ "${COMP_WORDS[$i]}" == @(available|-a|describe|-D|download|-d|install|-i|list|updatecatalog|-U|upgrade|-u) ]]; then
+        if [[ "${COMP_WORDS[$i]}" == @(-[aDdiUu]|available|describe|download|install|list|updatecatalog|upgrade) ]]; then
             command="${COMP_WORDS[$i]}"
         fi
     done
 
     if [[ -n "$command" ]]; then
-        if [[ "$command" == @(describe|-D|download|-d|install|-i) ]]; then
+        if [[ "$command" == @(-[Ddi]|describe|download|install) ]]; then
             catalog_file=$(_pkg-get_get_catalog_file "$url")
             if [[ -f $catalog_file ]]; then
                 local packages_list=$(awk ' $0 ~ /BEGIN PGP SIGNATURE/ { exit } $1 ~ /^Hash:/ || $1 ~ /^ *(-|#|$)/ { next } { print $1 }' $catalog_file)
