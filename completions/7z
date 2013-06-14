@@ -1,0 +1,64 @@
+# 7z(1) completion                                         -*- shell-script -*-
+
+_7z()
+{
+    local cur prev words cword
+    _init_completion -n = || return
+
+    if [[ $cword -eq 1 ]]; then
+        COMPREPLY=( $( compgen -W 'a b d e l t u x' -- "$cur" ) )
+        return
+    fi
+
+    case $cur in
+        -mhe=*)
+            COMPREPLY=( $( compgen -W 'on off' -- "${cur#*=}" ) )
+            return
+            ;;
+        -o*|-w?*)
+            compopt -o nospace -o filenames
+            COMPREPLY=( $( compgen -P${cur:0:2} -S/ -d -- "${cur:2}" ) )
+            return
+            ;;
+        -r?*)
+            COMPREPLY=( $( compgen -P${cur:0:2} -W '- 0' -- "${cur:2}" ) )
+            return
+            ;;
+        -scs*)
+            COMPREPLY=( $( compgen -P${cur:0:4} -W 'UTF-8 WIN DOS' \
+                -- "${cur:4}" ) )
+            return
+            ;;
+        -ssc?*)
+            COMPREPLY=( $( compgen -P${cur:0:4} -W '-' -- "${cur:4}" ) )
+            return
+            ;;
+        -t*)
+            COMPREPLY=( $( compgen -P${cur:0:2} -W '7z zip gzip bzip2 tar' \
+                -- "${cur:2}" ) )
+            return
+            ;;
+        -a*|-i*|-m*|-p*|-u*|-v*|-x*)
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '-ai -ax -bd -i -m -o -p -r -scs -sfx -si
+            -slt -so -ssc -t -u -v -w -x -y' -- "$cur" ) )
+        [[ $COMPREPLY == -@(bd|sfx|si|slt|so|ssc|[rwy]) ]] || compopt -o nospace
+        return
+    fi
+
+    local args
+    _count_args =
+    if [[ $args -eq 2 ]]; then
+        _filedir_xspec unzip
+        _filedir '@(7z|arj|bz2|cab|cpio|deb|gem|?(g)tar|?(t)[bg]z|tb?(z)2|rpm)'
+    else
+        _filedir
+    fi
+} &&
+complete -F _7z 7z 7za
+
+# ex: ts=4 sw=4 et filetype=sh

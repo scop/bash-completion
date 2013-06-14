@@ -1,5 +1,6 @@
 bashcompdir = $(pkgdatadir)/completions
-bashcomp_DATA = a2x \
+bashcomp_DATA = 7z \
+		a2x \
 		abook \
 		aclocal \
 		acpi \
@@ -382,6 +383,7 @@ EXTRA_DIST = $(bashcomp_DATA) \
 	     _mock _modules _nmcli _subversion _udevadm _yum _yum-utils
 
 CLEANFILES = \
+	7za \
 	aclocal-1.10 \
 	aclocal-1.11 \
 	aclocal-1.12 \
@@ -576,6 +578,10 @@ CLEANFILES = \
 	ypcat
 
 symlinks: $(targetdir) $(DATA)
+	for file in 7za ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) 7z $(targetdir)/$$file ; \
+	done
 	for file in aclocal-1.10 aclocal-1.11 aclocal-1.12 aclocal-1.13 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) aclocal $(targetdir)/$$file ; \
