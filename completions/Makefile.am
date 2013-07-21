@@ -1,5 +1,6 @@
 bashcompdir = $(pkgdatadir)/completions
-bashcomp_DATA = 7z \
+bashcomp_DATA = 2to3 \
+		7z \
 		a2x \
 		abook \
 		aclocal \
