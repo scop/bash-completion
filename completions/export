@@ -24,7 +24,13 @@ _export()
         break
     done
 
-    [[ $cur == *=\$* ]] && { cur=${cur#*=}; _variables; } && return
+    if [[ $cur == *=* ]]; then
+        local ocur=$cur oprev=$prev
+        prev=${cur%%=*}
+        cur=${cur#*=}
+        _variables && return
+        cur=$ocur prev=$oprev
+    fi
 
     case $cur in
         *=)

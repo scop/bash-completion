@@ -627,6 +627,24 @@ _variables()
         COMPREPLY+=( $( compgen -P ${BASH_REMATCH[1]} -S "$suffix" -v -- \
             "${BASH_REMATCH[2]}" ) )
         return 0
+    else
+        case $prev in
+            TZ)
+                cur=/usr/share/zoneinfo/$cur
+                _filedir
+                for i in ${!COMPREPLY[@]}; do
+                    if [[ ${COMPREPLY[i]} == *.tab ]]; then
+                        unset COMPREPLY[i]
+                        continue
+                    elif [[ -d ${COMPREPLY[i]} ]]; then
+                        COMPREPLY[i]+=/
+                        compopt -o nospace
+                    fi
+                    COMPREPLY[i]=${COMPREPLY[i]#/usr/share/zoneinfo/}
+                done
+                return 0
+                ;;
+        esac
     fi
     return 1
 }
