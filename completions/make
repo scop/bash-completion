@@ -37,11 +37,11 @@ function _make_target_extract_script()
     /^$/ {                                      # end of target block
       x                                         # unhold target
       /^$/d                                     # dont print blanks
-      s,^(.{${dirname_len}})(.{${#basename}}[^:/]*/?)[^:]*:.*$,${output},p
+      s|^\(.\{${dirname_len}\}\)\(.\{${#basename}\}[^:/]*/\{0,1\}\)[^:]*:.*$|${output}|p
       d                                         # hide any bugs
     }
 
-    /^[^#\t:%]+:/ {         # found target block
+    /^[^#\t:%]\{1,\}:/ {         # found target block
 
       /^\.PHONY:/                 d             # special target
       /^\.SUFFIXES:/              d             # special target
@@ -144,7 +144,7 @@ _make()
         local reset=$( set +o | grep -F posix ); set +o posix # for <(...)
         COMPREPLY=( $( LC_ALL=C \
             make -npq "${makef[@]}" "${makef_dir[@]}" .DEFAULT 2>/dev/null | \
-            sed -nrf <(_make_target_extract_script $mode "$cur") ) )
+            sed -nf <(_make_target_extract_script $mode "$cur") ) )
         $reset
 
         if [[ $mode != -d ]]; then
