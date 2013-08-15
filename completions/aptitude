@@ -26,7 +26,7 @@ _aptitude()
 
     local special i
     for (( i=0; i < ${#words[@]}-1; i++ )); do
-        if [[ ${words[i]} == @(@(|re)install|@(|un)hold|@(|un)markauto|@(dist|full)-upgrade|download|show|forbid-version|purge|remove|changelog|why@(|-not)|keep@(|-all)|build-dep|@(add|remove)-user-tag|versions) ]]; then
+        if [[ ${words[i]} == @(@(|re)install|@(|un)hold|@(|un)markauto|@(dist|full|safe)-upgrade|download|show|forbid-version|purge|remove|changelog|why@(|-not)|keep@(|-all)|build-dep|@(add|remove)-user-tag|versions) ]]; then
             special=${words[i]}
         fi
         #exclude some mutually exclusive options
@@ -37,8 +37,8 @@ _aptitude()
     if [[ -n "$special" ]]; then
        case $special in
            install|hold|markauto|unmarkauto|dist-upgrade|full-upgrade| \
-           download|show|changelog|why|why-not|build-dep|add-user-tag| \
-           remove-user-tag|versions)
+           safe-upgrade|download|show|changelog|why|why-not|build-dep| \
+           add-user-tag|remove-user-tag|versions)
                COMPREPLY=( $( apt-cache pkgnames $cur 2> /dev/null ) )
                return 0
                ;;
@@ -56,7 +56,7 @@ _aptitude()
 
     case $prev in
         # don't complete anything if these options are found
-        autoclean|clean|forget-new|search|safe-upgrade|upgrade|update|keep-all)
+        autoclean|clean|forget-new|search|upgrade|update|keep-all)
             return 0
             ;;
         -S)
