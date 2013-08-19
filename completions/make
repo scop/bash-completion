@@ -20,9 +20,9 @@ function _make_target_extract_script()
     fi
 
     cat <<EOF
-    /^# Make data base/,/^# Files/d             # skip until files section
-    /^# Not a target/,/^$/        d             # skip not target blocks
-    /^${prefix_pat}/,/^$/!        d             # skip anything user dont want
+    /^# Make data base/,/^# Files/d;            # skip until files section
+    /^# Not a target/,/^$/        d;            # skip not target blocks
+    /^${prefix_pat}/,/^$/!        d;            # skip anything user dont want
 
     # The stuff above here describes lines that are not
     #  explicit targets or not targets other than special ones
@@ -30,41 +30,42 @@ function _make_target_extract_script()
     #  should be output.
 
     /^# File is an intermediate prerequisite/ {
-      s/^.*$//;x                                # unhold target
-      d                                         # delete line
+      s/^.*$//;x;                               # unhold target
+      d;                                        # delete line
     }
 
     /^$/ {                                      # end of target block
-      x                                         # unhold target
-      /^$/d                                     # dont print blanks
-      s|^\(.\{${dirname_len}\}\)\(.\{${#basename}\}[^:/]*/\{0,1\}\)[^:]*:.*$|${output}|p
-      d                                         # hide any bugs
+      x;                                        # unhold target
+      /^$/d;                                    # dont print blanks
+      s|^\(.\{${dirname_len}\}\)\(.\{${#basename}\}[^:/]*/\{0,1\}\)[^:]*:.*$|${output}|p;
+      d;                                        # hide any bugs
     }
 
-    /^[^#\t:%]\{1,\}:/ {         # found target block
+    # This pattern includes a literal tab character as \t is not a portable
+    # representation and fails with BSD sed
+    /^[^#	:%]\{1,\}:/ {         # found target block
+      /^\.PHONY:/                 d;            # special target
+      /^\.SUFFIXES:/              d;            # special target
+      /^\.DEFAULT:/               d;            # special target
+      /^\.PRECIOUS:/              d;            # special target
+      /^\.INTERMEDIATE:/          d;            # special target
+      /^\.SECONDARY:/             d;            # special target
+      /^\.SECONDEXPANSION:/       d;            # special target
+      /^\.DELETE_ON_ERROR:/       d;            # special target
+      /^\.IGNORE:/                d;            # special target
+      /^\.LOW_RESOLUTION_TIME:/   d;            # special target
+      /^\.SILENT:/                d;            # special target
+      /^\.EXPORT_ALL_VARIABLES:/  d;            # special target
+      /^\.NOTPARALLEL:/           d;            # special target
+      /^\.ONESHELL:/              d;            # special target
+      /^\.POSIX:/                 d;            # special target
+      /^\.NOEXPORT:/              d;            # special target
+      /^\.MAKE:/                  d;            # special target
 
-      /^\.PHONY:/                 d             # special target
-      /^\.SUFFIXES:/              d             # special target
-      /^\.DEFAULT:/               d             # special target
-      /^\.PRECIOUS:/              d             # special target
-      /^\.INTERMEDIATE:/          d             # special target
-      /^\.SECONDARY:/             d             # special target
-      /^\.SECONDEXPANSION:/       d             # special target
-      /^\.DELETE_ON_ERROR:/       d             # special target
-      /^\.IGNORE:/                d             # special target
-      /^\.LOW_RESOLUTION_TIME:/   d             # special target
-      /^\.SILENT:/                d             # special target
-      /^\.EXPORT_ALL_VARIABLES:/  d             # special target
-      /^\.NOTPARALLEL:/           d             # special target
-      /^\.ONESHELL:/              d             # special target
-      /^\.POSIX:/                 d             # special target
-      /^\.NOEXPORT:/              d             # special target
-      /^\.MAKE:/                  d             # special target
+      /^[^a-zA-Z0-9]/             d;            # convention for hidden tgt
 
-      /^[^a-zA-Z0-9]/             d             # convention for hidden tgt
-
-      h                                         # hold target
-      d                                         # delete line
+      h;                                        # hold target
+      d;                                        # delete line
     }
 
 EOF
