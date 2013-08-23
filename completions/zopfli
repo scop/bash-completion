@@ -1,0 +1,31 @@
+# bash completion for zopfli                               -*- shell-script -*-
+
+_zopfli()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -h)
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W \
+            '$( _parse_help "$1" -h | sed -e "s/#$//" )' -- "$cur" ) )
+        [[ $COMPREPLY == --i ]] && compopt -o nospace
+        return
+    fi
+
+    local IFS=$'\n' xspec="*.@(gz|t[ag]z)"
+
+    _expand || return 0
+
+    compopt -o filenames
+    COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \
+        $( compgen -d -- "$cur" ) )
+} &&
+complete -F _zopfli zopfli
+
+# ex: ts=4 sw=4 et filetype=sh

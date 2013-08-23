@@ -378,7 +378,8 @@ bashcomp_DATA = 2to3 \
 		xz \
 		xzdec \
 		ypmatch \
-		yum-arch
+		yum-arch \
+		zopfli
 
 EXTRA_DIST = $(bashcomp_DATA) \
 	     _mock _modules _nmcli _subversion _udevadm _yum _yum-utils
