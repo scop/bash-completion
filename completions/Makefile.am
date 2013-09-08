@@ -430,13 +430,17 @@ CLEANFILES = \
 	dpkg-reconfigure \
 	dropdb \
 	edquota \
+	f77 \
+	f95 \
 	filebucket \
 	freeciv-sdl \
 	freeciv-xaw \
 	g++ \
 	g4 \
 	g77 \
+	g95 \
 	gcj \
+	gfortran \
 	gkrellm2 \
 	gmake \
 	gmplayer \
@@ -662,7 +666,7 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) function $(targetdir)/$$file ; \
 	done
-	for file in g++ c++ g77 gcj gpc cc ; do \
+	for file in cc c++ g++ gfortran f77 g77 f95 g95 gcj gpc ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) gcc $(targetdir)/$$file ; \
 	done
