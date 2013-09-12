@@ -10,14 +10,49 @@ _7z()
         return
     fi
 
+    local mode
+    [[ ${words[1]} == @(a|d|u) ]] && mode=w || mode=r
+
     case $cur in
-        -mhe=*)
+        -ao*)
+            COMPREPLY=( $( compgen -P${cur:0:3} -W 'a s t u' -- "${cur:3}" ) )
+            return
+            ;;
+        -?(a)[ix]*)
+            local opt
+            if [[ $cur == -a[ix]* ]]; then
+               opt=${cur:0:3} cur=${cur:3}
+            else
+               opt=${cur:0:2} cur=${cur:2}
+            fi
+            if [[ $cur != *[@\!]* ]]; then
+                COMPREPLY=( $( compgen -P$opt -W '@ ! r@ r-@ r0@ r! r-! r0!' \
+                    -- "$cur" ) )
+            elif [[ $cur == ?(r@(-|0|))@* ]]; then
+                local x tmp
+                x=$( compgen -P"${opt}${cur%%@*}@" -f -- "${cur#*@}" ) &&
+                while read -r tmp; do
+                    COMPREPLY+=( "$tmp" )
+                done <<< "$x"
+                compopt -o filenames
+            fi
+            return
+            ;;
+        -mhe=*|-mhc=*|-ms=*|-mt=*)
             COMPREPLY=( $( compgen -W 'on off' -- "${cur#*=}" ) )
             return
             ;;
+        -mx=*)
+            COMPREPLY=( $( compgen -W '0 1 3 5 7 9' -- "${cur#*=}" ) )
+            return
+            ;;
         -o*|-w?*)
+            local x tmp
+            x=$( compgen -P${cur:0:2} -S/ -d -- "${cur:2}" ) &&
+            while read -r tmp; do
+                COMPREPLY+=( "$tmp" )
+            done <<< "$x"
             compopt -o nospace -o filenames
-            COMPREPLY=( $( compgen -P${cur:0:2} -S/ -d -- "${cur:2}" ) )
             return
             ;;
         -r?*)
@@ -34,19 +69,29 @@ _7z()
             return
             ;;
         -t*)
-            COMPREPLY=( $( compgen -P${cur:0:2} -W '7z zip gzip bzip2 tar' \
-                -- "${cur:2}" ) )
+            if [[ $mode == w ]]; then
+                COMPREPLY=( $( compgen -P${cur:0:2} -W '7z bzip2 gzip swfc
+                    tar wim xz zip' -- "${cur:2}" ) )
+            else
+                COMPREPLY=( $( compgen -P${cur:0:2} -W '7z apm arj bzip2 cab
+                    chm cpio cramfs deb dmg elf fat flv gzip hfs iso lzh lzma
+                    lzma86 macho mbr mslz mub nsis ntfs pe ppmd rar rpm
+                    squashfs swf swfc tar udf vhd wim xar xz z zip' \
+                    -- "${cur:2}" ) )
+            fi
             return
             ;;
-        -a*|-i*|-m*|-p*|-u*|-v*|-x*)
+        -m*=*|-p*|-u*|-v*)
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $( compgen -W '-ai -ax -bd -i -m -o -p -r -scs -sfx -si
-            -slt -so -ssc -t -u -v -w -x -y' -- "$cur" ) )
-        [[ $COMPREPLY == -@(bd|sfx|si|slt|so|ssc|[rwy]) ]] || compopt -o nospace
+        COMPREPLY=( $( compgen -W '-ai -an -ao -ax -bd -i -m{x,s,f,he,hc,mt}=
+            -o -p -r -scs -sfx -si -slp -slt -so -ssc -t -u -v -w -x -y' \
+            -- "$cur" ) )
+        [[ $COMPREPLY == -@(an|bd|sfx|si|slt|so|ssc|[rwy]) ]] ||
+            compopt -o nospace
         return
     fi
 
@@ -54,9 +99,19 @@ _7z()
     _count_args =
     if [[ $args -eq 2 ]]; then
         _filedir_xspec unzip
-        _filedir '@(7z|arj|bz2|cab|cpio|deb|gem|?(g)tar|?(t)[bg]z|tb?(z)2|rpm)'
+        [[ $mode == w ]] &&
+            _filedir '@(7z|bz2|swf|?(g)tar|?(t)[bglx]z|tb?(z)2|wim)' ||
+            _filedir '@(7z|arj|bz2|cab|chm|cpio|deb|dmg|flv|gem|img|iso|lz[ah]|lzma?(86)|pmd|[rx]ar|rpm|sw[fm]|?(g)tar|taz|?(t)[bglx]z|tb?(z)2|vhd|wim|Z)'
     else
-        _filedir
+        if [[ ${words[1]} == d ]]; then
+            local IFS=$'\n'
+            COMPREPLY=( $( compgen -W "$( printf '%s\n' $( 7z l ${words[2]} \
+                -slt 2>/dev/null | sed -n '/^Path =/s/^Path = \(.*\)$/\1/p' \
+                2>/dev/null | tail -n+2 ) )" -- "$cur" ) )
+            compopt -o filenames
+        else
+            _filedir
+        fi
     fi
 } &&
 complete -F _7z 7z 7za
