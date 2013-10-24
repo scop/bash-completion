@@ -548,6 +548,7 @@ CLEANFILES = \
 	pvscan \
 	pxz \
 	pydoc3 \
+	pypy \
 	python2 \
 	python3 \
 	qemu-kvm \
@@ -845,7 +846,7 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) pydoc $(targetdir)/$$file ; \
 	done
-	for file in python2 python3 ; do \
+	for file in pypy python2 python3 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) python $(targetdir)/$$file ; \
 	done
