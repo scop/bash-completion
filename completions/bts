@@ -1,0 +1,123 @@
+# bts completion                                      -*- shell-script -*-
+
+# List bug numbers from bugs cache in ~/.devscripts_cache/bts
+_cached_bugs() {
+    [[ -d $HOME/.devscripts_cache/bts ]] && \
+    find $HOME/.devscripts_cache/bts -maxdepth 1 -name "$cur[0-9]*.html" -printf "%f\n" | cut -d'.' -f1
+}
+
+# List APT binary packages
+_packages() {
+    apt-cache --no-generate pkgnames "$cur" 2> /dev/null
+}
+
+# List APT source packages
+_apt_cache_sources() {
+    apt-cache dumpavail | command grep "^Source: $1" | cut -f2 -d" " | sort -u
+}
+
+# List APT source packages
+_src_packages() {
+    compgen -W '$( _apt_cache_sources "$cur" )' -- "$cur"
+}
+
+# List APT source packages prefixed with "src:"
+_src_packages_with_prefix() {
+    ppn=${cur:4} # partial package name, after stripping "src:"
+    compgen -P "src:" -W '$( _apt_cache_sources "$ppn" )' -- "$ppn"
+}
+
+
+_bts()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+    
+    case $prev in
+        show|bugs)
+            COMPREPLY=( $( compgen -W 'release-critical RC from: tag:
+            usertag:' -- "$cur" ) $( _cached_bugs ) $( _src_packages_with_prefix ) )
+            return 0
+            ;;
+        select)
+            COMPREPLY=( $( compgen -W 'package: source: maintainer: submitter: severity: status: tag:
+            owner: correspondent: affects: bugs: users:  archive:' -- "$cur" ) )
+            return 0
+            ;;
+        status)
+            COMPREPLY=( $( compgen -W 'file: fields: verbose' -- "$cur" ) $( _cached_bugs ) )
+            return 0
+            ;;
+        block|unblock)
+            COMPREPLY=( $( compgen -W 'by with' -- "$cur" ) )
+            return 0
+            ;;
+        severity)
+            COMPREPLY=( $( compgen -W 'wishlist minor normal important serious grave critical' -- "$cur" ) )
+            return 0
+            ;;
+        limit)
+            COMPREPLY=( $( compgen -W 'submitter date subject msgid package source tag severity owner
+            affects archive' -- "$cur" ) )
+            return 0
+            ;;
+        clone|done|reopen|archive|unarchive|retitle|summary|submitter|found\
+            |notfound|fixed|notfixed|merge|forcemerge|unmerge|claim|unclaim\
+            |forwarded|notforwarded|owner|noowner|subscribe|unsubscribe\
+            |reportspam|spamreport|affects|usertag|usertags|reassign|tag\
+            |tags)
+            COMPREPLY=( $( _cached_bugs ) )
+            return 0
+            ;;
+        package)
+            COMPREPLY=( $( _packages ) )
+            return 0
+            ;;
+        cache)
+            COMPREPLY=( $( _packages ) $( _src_packages_with_prefix )
+                $( compgen -W 'from: release-critical RC' -- "$cur" ))
+            return 0
+            ;;
+        cleancache)
+            COMPREPLY=( $( _packages ) $( _src_packages_with_prefix )
+                $( compgen -W 'from: tag: usertag: ALL' -- "$cur" ))
+            return 0
+            ;;
+        user)
+            # non-predicible arguments
+            COMPREPLY=( )
+            return 0
+            ;;
+        :)
+            # Chances are that "src:<src_package>" is being completed
+            # COMP_WORDS would be: "bts cleancache src : <partial_pkg_name>"
+            pos=$((COMP_CWORD - 2))
+            if [[ $pos -gt 0 && "${COMP_WORDS[$pos]}" == "src" ]]; then
+                COMPREPLY=( $( _src_packages ) )
+                return 0
+            fi
+            ;;
+    esac
+
+
+    $split && return 0
+
+    COMPREPLY=( $( compgen -W '--offline --online --no-offline
+        --no-action --cache --no-cache --cache-mode --cache-delay --mbox
+        --mailreader --cc-addr --use-default-cc --no-use-default-cc
+        --sendmail --mutt --no-mutt --smtp-host --smtp-username
+        --smtp-helo --bts-server --force-refresh --no-force-refresh
+        --only-new --include-resolved --no-include-resolved --no-ack --ack
+        --interactive --force-interactive --no-interactive --quiet
+        --no-conf --noconf
+        show bugs select status clone done reopen archive unarchive retitle
+        summary submitter reassign found notfound fixed notfixed block unblock
+        merge forcemerge unmerge tag tags affects user usertag usertags claim
+        unclaim severity forwarded notforwarded package limit owner noowner
+        subscribe unsubscribe reportspam spamreport cache cleancache version
+        help' -- "$cur" ) )
+    return 0
+} &&
+complete -F _bts bts
+
+# ex: ts=4 sw=4 et filetype=sh

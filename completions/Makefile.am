@@ -28,6 +28,7 @@ bashcomp_DATA = 2to3 \
 		bk \
 		brctl \
 		btdownloadheadless.py \
+		bts \
 		bzip2 \
 		cal \
 		cancel \
