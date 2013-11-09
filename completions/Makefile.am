@@ -9,6 +9,7 @@ bashcomp_DATA = 2to3 \
 		alias \
 		ant \
 		apache2ctl \
+		appdata-validate \
 		apt-build \
 		apt-cache \
 		apt-get \

@@ -1,0 +1,32 @@
+# appdata-validate(1) completion                           -*- shell-script -*-
+
+_appdata_validate()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+    
+    case $prev in
+        -h|--help|--version)
+            return
+            ;;
+        --output-format)
+            COMPREPLY=( $( compgen -W "$( $1 --help |
+                sed -ne 's/--output-format.*\[\(.*\)\]/\1/' -e 's/|/ /gp' )" \
+                    -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    $split && return 0
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir appdata.xml
+} &&
+complete -F _appdata_validate appdata-validate
+
+# ex: ts=4 sw=4 et filetype=sh
