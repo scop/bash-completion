@@ -6,25 +6,10 @@ _cached_bugs() {
     find $HOME/.devscripts_cache/bts -maxdepth 1 -name "$cur[0-9]*.html" -printf "%f\n" | cut -d'.' -f1
 }
 
-# List APT binary packages
-_packages() {
-    apt-cache --no-generate pkgnames "$cur" 2> /dev/null
-}
-
-# List APT source packages
-_apt_cache_sources() {
-    apt-cache dumpavail | command grep "^Source: $1" | cut -f2 -d" " | sort -u
-}
-
-# List APT source packages
-_src_packages() {
-    compgen -W '$( _apt_cache_sources "$cur" )' -- "$cur"
-}
-
 # List APT source packages prefixed with "src:"
 _src_packages_with_prefix() {
     ppn=${cur:4} # partial package name, after stripping "src:"
-    compgen -P "src:" -W '$( _apt_cache_sources "$ppn" )' -- "$ppn"
+    compgen -P "src:" -W '$( _xfunc apt-cache _apt_cache_sources "$ppn" )' -- "$ppn"
 }
 
 
@@ -70,16 +55,16 @@ _bts()
             return 0
             ;;
         package)
-            COMPREPLY=( $( _packages ) )
+            COMPREPLY=( $( _xfunc apt-cache _apt_cache_packages ) )
             return 0
             ;;
         cache)
-            COMPREPLY=( $( _packages ) $( _src_packages_with_prefix )
+            COMPREPLY=( $( _xfunc apt-cache _apt_cache_packages ) $( _src_packages_with_prefix )
                 $( compgen -W 'from: release-critical RC' -- "$cur" ))
             return 0
             ;;
         cleancache)
-            COMPREPLY=( $( _packages ) $( _src_packages_with_prefix )
+            COMPREPLY=( $( _xfunc apt-cache _apt_cache_packages ) $( _src_packages_with_prefix )
                 $( compgen -W 'from: tag: usertag: ALL' -- "$cur" ))
             return 0
             ;;
@@ -93,7 +78,7 @@ _bts()
             # COMP_WORDS would be: "bts cleancache src : <partial_pkg_name>"
             pos=$((COMP_CWORD - 2))
             if [[ $pos -gt 0 && "${COMP_WORDS[$pos]}" == "src" ]]; then
-                COMPREPLY=( $( _src_packages ) )
+                COMPREPLY=( $( _xfunc apt-cache _apt_cache_src_packages ) )
                 return 0
             fi
             ;;

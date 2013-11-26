@@ -1,5 +1,20 @@
 # Debian apt-cache(8) completion                           -*- shell-script -*-
 
+# List APT binary packages
+_apt_cache_packages() {
+    apt-cache --no-generate pkgnames "$cur" 2> /dev/null
+}
+
+# List APT source packages
+_apt_cache_sources() {
+    apt-cache dumpavail | command grep "^Source: $1" | cut -f2 -d" " | sort -u
+}
+
+# List APT source packages
+_apt_cache_src_packages() {
+    compgen -W '$( _apt_cache_sources "$cur" )' -- "$cur"
+}
+
 _apt_cache()
 {
     local cur prev words cword
@@ -23,13 +38,12 @@ _apt_cache()
             ;;
 
         showsrc)
-            COMPREPLY=( $( apt-cache dumpavail | \
-                command grep "^Source: $cur" | sort -u | cut -f2 -d" " ) )
+            COMPREPLY=( $( _apt_cache_sources "$cur" ) )
             return 0
             ;;
 
         *)
-            COMPREPLY=( $( apt-cache --no-generate pkgnames "$cur" 2> /dev/null ) )
+            COMPREPLY=( $( _apt_cache_packages ) )
             return 0
             ;;
 

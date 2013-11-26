@@ -1,15 +1,5 @@
 # uscan completion                                      -*- shell-script -*-
 
-# List APT source packages
-_apt_cache_sources() {
-    apt-cache dumpavail | command grep "^Source: $1" | cut -f2 -d" "
-}
-
-# List APT source packages
-_src_packages() {
-    compgen -W '$( _apt_cache_sources "$cur" )' -- "$cur"
-}
-
 _uscan()
 {
     local cur prev split
@@ -17,7 +7,7 @@ _uscan()
 
     case $prev in
         --package)
-            COMPREPLY=( $( _src_packages ))
+            COMPREPLY=( $( _xfunc apt-cache _apt_cache_src_packages ))
             return 0
             ;;
         --watchfile)
