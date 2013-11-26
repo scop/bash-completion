@@ -22,9 +22,17 @@ _wtf()
         fi
         shift
     done
-    [[ -z $db ]] && db=${ACRONYMDB:-/usr/share/misc/acronyms*}
 
-    COMPREPLY=( $( compgen -W "$( cut -f 1 -s $db 2>/dev/null ) $addf" \
+    if [[ -z "$db" ]]; then
+        local f
+        for f in "$ACRONYMDB" /usr/share/misc/acronyms \
+            /usr/share/games/bsdgames/acronyms; do
+            [[ -f "$f" ]] && db="$f" && break
+        done
+        [[ -z "$db" ]] && return 0
+    fi
+
+    COMPREPLY=( $( compgen -W "$( cut -f 1 -s $db* 2>/dev/null ) $addf" \
         -- "${cur^^}" ) )
 } &&
 complete -F _wtf wtf
