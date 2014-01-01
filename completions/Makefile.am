@@ -261,6 +261,7 @@ bashcomp_DATA = 2to3 \
 		pm-is-supported \
 		pm-powersave \
 		portinstall \
+		portsnap \
 		portupgrade \
 		postcat \
 		postconf \
