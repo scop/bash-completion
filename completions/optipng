@@ -1,0 +1,52 @@
+# optipng(1) completion                                    -*- shell-script -*-
+
+_optipng()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -'?'|-h|--help|-f)
+            return
+            ;;
+        -o)
+            COMPREPLY=( $( compgen -W '{0..7}' -- "$cur" ) )
+            return
+            ;;
+        -out|-log)
+            _filedir
+            return
+            ;;
+        -dir)
+            _filedir -d
+            return
+            ;;
+        -i)
+            COMPREPLY=( $( compgen -W '0 1' -- "$cur" ) )
+            return
+            ;;
+        -zc|-zm)
+            COMPREPLY=( $( compgen -W '{1..9}' -- "$cur" ) )
+            return
+            ;;
+        -zw)
+            COMPREPLY=( $( compgen -W '256 512 1k 2k 4k 8k 16k 32k' \
+                -- "$cur" ) )
+            return
+            ;;
+        -strip)
+            COMPREPLY=( $( compgen -W 'all' -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return
+    fi
+
+    _filedir '@(png|bmp|gif|pnm|tif?(f))'
+} &&
+complete -F _optipng optipng
+
+# ex: ts=4 sw=4 et filetype=sh

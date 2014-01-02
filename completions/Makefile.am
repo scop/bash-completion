@@ -238,6 +238,7 @@ bashcomp_DATA = 2to3 \
 		ntpdate \
 		openssl \
 		opera \
+		optipng \
 		p4 \
 		pack200 \
 		passwd \
