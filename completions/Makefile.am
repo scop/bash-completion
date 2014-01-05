@@ -486,6 +486,7 @@ CLEANFILES = \
 	lvresize \
 	lvs \
 	lvscan \
+	lz4c \
 	mailsnarf \
 	mdecrypt \
 	mencoder \
@@ -740,6 +741,10 @@ symlinks: $(targetdir) $(DATA)
 		lvresize lvextend ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) lvm $(targetdir)/$$file ; \
+	done
+	for file in lz4c ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) lz4 $(targetdir)/$$file ; \
 	done
 	for file in clzip pdlzip plzip ; do \
 		rm -f $(targetdir)/$$file && \

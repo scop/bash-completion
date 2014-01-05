@@ -1,0 +1,53 @@
+# lz4 completion                                           -*- shell-script -*-
+
+_lz4()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -b)
+            _filedir
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W \
+            '$( _parse_help "$1" -h | sed -e "/#/d" ) -B{4..7} -i{1..9}' \
+            -- "$cur" ) )
+        return
+    fi
+
+    local args word xspec="*.?(t)lz4"
+    _count_args
+    [[ $args -gt 2 ]] && return
+
+    for word in ${words[@]}; do
+        case $word in
+            -*[dt]*)
+                case $args in
+                    1) xspec="!"$xspec ;;
+                    2) [[ $word == *t* ]] && return
+                esac
+                break
+                ;;
+            -z)
+                case $args in
+                    1) xspec= ;;
+                    2) xspec="!"$xspec ;;
+                esac
+                break
+                ;;
+        esac
+    done
+
+    _expand || return 0
+    local IFS=$'\n'
+    compopt -o filenames
+    COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \
+        $( compgen -d -- "$cur" ) )
+} &&
+complete -F _lz4 lz4 lz4c
+
+# ex: ts=4 sw=4 et filetype=sh
