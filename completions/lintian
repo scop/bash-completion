@@ -4,7 +4,7 @@ _lintian_tags()
 {
     local match search tags
 
-    tags=$( grep -e ^Tag /usr/share/lintian/checks/*.desc | cut -d\  -f2 )
+    tags=$( awk '/^Tag/ { print $2 }' /usr/share/lintian/checks/*.desc )
     if [[ "$cur" == *, ]]; then
         search=${cur//,/ }
         for item in $search; do
@@ -25,15 +25,14 @@ _lintian_checks()
 {
     local match search todisable checks
 
-    checks=$(grep -e ^Check-Script -e ^Abbrev \
-             /usr/share/lintian/checks/*.desc | cut -d\  -f2 )
+    checks=$( awk '/^(Check-Script|Abbrev)/ { print $2 }' \
+        /usr/share/lintian/checks/*.desc )
     if [[ "$cur" == *, ]]; then
         search=${cur//,/ }
         for item in $search; do
             match=$(grep -nE "^(Check-Script|Abbrev): $item$" \
                     /usr/share/lintian/checks/*.desc | cut -d: -f1 )
-            todisable=$(grep -e ^Check-Script -e ^Abbrev $match | \
-                        cut -d\  -f2 )
+            todisable=$( awk '/^(Check-Script|Abbrev)/ { print $2 }' $match )
             for name in $todisable; do
                 checks=$( sed -e "s/\<$name\>//g" <<<$checks )
             done
@@ -51,8 +50,8 @@ _lintian_infos()
 {
     local match search infos
 
-    infos=$(grep -e ^Collector /usr/share/lintian/collection/*.desc \
-            | cut -d\  -f2 )
+    infos=$( awk '/^Collector/ { print $2 }' \
+        /usr/share/lintian/collection/*.desc )
     if [[ "$cur" == *, ]]; then
         search=${cur//,/ }
         for item in $search; do
