@@ -8,8 +8,8 @@ _lintian_tags()
     if [[ "$cur" == *, ]]; then
         search=${cur//,/ }
         for item in $search; do
-            match=$(grep -nE "^Tag: $item$" /usr/share/lintian/checks/*.desc \
-                    | cut -d: -f1 )
+            match=$( command grep -nE "^Tag: $item$" \
+                /usr/share/lintian/checks/*.desc | cut -d: -f1 )
             tags=$( sed -e "s/\<$item\>//g" <<<$tags )
         done
         COMPREPLY+=( $(compgen -W "$tags") )
@@ -30,8 +30,8 @@ _lintian_checks()
     if [[ "$cur" == *, ]]; then
         search=${cur//,/ }
         for item in $search; do
-            match=$(grep -nE "^(Check-Script|Abbrev): $item$" \
-                    /usr/share/lintian/checks/*.desc | cut -d: -f1 )
+            match=$( command grep -nE "^(Check-Script|Abbrev): $item$" \
+                /usr/share/lintian/checks/*.desc | cut -d: -f1 )
             todisable=$( awk '/^(Check-Script|Abbrev)/ { print $2 }' $match )
             for name in $todisable; do
                 checks=$( sed -e "s/\<$name\>//g" <<<$checks )
@@ -55,8 +55,8 @@ _lintian_infos()
     if [[ "$cur" == *, ]]; then
         search=${cur//,/ }
         for item in $search; do
-            match=$( grep -nE "^Collector: $item$" \
-                    /usr/share/lintian/collection/*.desc | cut -d: -f1 )
+            match=$( command grep -nE "^Collector: $item$" \
+                /usr/share/lintian/collection/*.desc | cut -d: -f1 )
             infos=$( sed -e "s/\<$item\>//g" <<<$infos )
         done
         COMPREPLY+=( $(compgen -W "$infos") )
