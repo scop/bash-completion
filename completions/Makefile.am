@@ -96,6 +96,7 @@ bashcomp_DATA = 2to3 \
 		filesnarf \
 		find \
 		find_member \
+		freebsd-update \
 		freeciv-gtk2 \
 		freeciv-server \
 		function \
