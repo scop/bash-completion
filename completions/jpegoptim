@@ -1,0 +1,38 @@
+# jpegoptim(1) completion                                  -*- shell-script -*-
+
+_jpegoptim()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+    
+    case $prev in
+        -h|--help|-V|--version)
+            return
+            ;;
+        -d|--dest)
+            _filedir -d
+            return
+            ;;
+        -m|--max|-T|--threshold)
+            COMPREPLY=( $( compgen -W '{0..100}' -- "$cur" ) )
+            return
+            ;;
+        -S|--size)
+            COMPREPLY=( $( compgen -W '{1..99}%' -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir 'jp?(e)g'
+} &&
+complete -F _jpegoptim jpegoptim
+
+# ex: ts=4 sw=4 et filetype=sh

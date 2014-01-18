@@ -158,6 +158,7 @@ bashcomp_DATA = 2to3 \
 		jarsigner \
 		java \
 		javaws \
+		jpegoptim \
 		jps \
 		k3b \
 		kcov \
