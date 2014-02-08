@@ -283,6 +283,7 @@ bashcomp_DATA = 2to3 \
 		pwdx \
 		pwgen \
 		pydoc \
+		pyflakes \
 		pylint \
 		python \
 		qdbus \
