@@ -97,6 +97,7 @@ bashcomp_DATA = 2to3 \
 		filesnarf \
 		find \
 		find_member \
+		flake8 \
 		freebsd-update \
 		freeciv-gtk2 \
 		freeciv-server \

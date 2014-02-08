@@ -1,0 +1,35 @@
+# flake8 completion                                        -*- shell-script -*-
+
+_flake8()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -h|--help|--version|--exclude|--filename|--select|--ignore|\
+        --max-line-length|--max-complexity|--builtins)
+            return
+            ;;
+        --format)
+            COMPREPLY=( $( compgen -W 'default pylint' -- "$cur" ) )
+            return
+            ;;
+        --config)
+            _filedir
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir py
+} &&
+complete -F _flake8 flake8
+
+# ex: ts=4 sw=4 et filetype=sh
