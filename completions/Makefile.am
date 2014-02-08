@@ -31,7 +31,7 @@ bashcomp_DATA = 2to3 \
 		btdownloadheadless.py \
 		bts \
 		bzip2 \
-		cal \
+		_cal \
 		cancel \
 		cardctl \
 		ccache \
@@ -41,13 +41,14 @@ bashcomp_DATA = 2to3 \
 		change_pw \
 		check_db \
 		check_perms \
+		_chfn \
 		chgrp \
 		chkconfig \
 		chown \
 		chpasswd \
 		chronyc \
 		chrpath \
-		chsh \
+		_chsh \
 		cksfv \
 		cleanarch \
 		clisp \
@@ -69,7 +70,7 @@ bashcomp_DATA = 2to3 \
 		desktop-file-validate \
 		dhclient \
 		dict \
-		dmesg \
+		_dmesg \
 		dnsspoof \
 		dot \
 		dpkg \
@@ -80,7 +81,7 @@ bashcomp_DATA = 2to3 \
 		dumpe2fs \
 		e2freefrag \
 		e2label \
-		eject \
+		_eject \
 		eog \
 		ether-wake \
 		evince \
@@ -125,7 +126,7 @@ bashcomp_DATA = 2to3 \
 		gzip \
 		hcitool \
 		hddtemp \
-		hexdump \
+		_hexdump \
 		hid2hci \
 		hping2 \
 		htop \
@@ -183,7 +184,7 @@ bashcomp_DATA = 2to3 \
 		list_lists \
 		list_members \
 		list_owners \
-		look \
+		_look \
 		lpq \
 		lpr \
 		lrzip \
@@ -233,7 +234,7 @@ bashcomp_DATA = 2to3 \
 		nc \
 		ncftp \
 		nethogs \
-		newgrp \
+		_newgrp \
 		newlist \
 		newusers \
 		ngrep \
@@ -293,7 +294,7 @@ bashcomp_DATA = 2to3 \
 		rdesktop \
 		remove_members \
 		removepkg \
-		renice \
+		_renice \
 		_repomanage \
 		reportbug \
 		reptyr \
@@ -310,6 +311,7 @@ bashcomp_DATA = 2to3 \
 		rrdtool \
 		rsync \
 		_rtcwake \
+		_runuser \
 		sbcl \
 		sbopkg \
 		screen \
@@ -332,7 +334,7 @@ bashcomp_DATA = 2to3 \
 		sshow \
 		strace \
 		strings \
-		su \
+		_su \
 		sudo \
 		svcadm \
 		svk \
@@ -376,6 +378,7 @@ bashcomp_DATA = 2to3 \
 		withlist \
 		wodim \
 		wol \
+		_write \
 		wsimport \
 		wtf \
 		wvdial \
@@ -640,7 +643,7 @@ symlinks: $(targetdir) $(DATA)
 	done
 	for file in ncal ; do \
 		rm -f $(targetdir)/$$file && \
-			$(LN_S) cal $(targetdir)/$$file ; \
+			$(LN_S) _cal $(targetdir)/$$file ; \
 	done
 	for file in pccardctl ; do \
 		rm -f $(targetdir)/$$file && \
@@ -706,7 +709,7 @@ symlinks: $(targetdir) $(DATA)
 	done
 	for file in hd ; do \
 		rm -f $(targetdir)/$$file && \
-			$(LN_S) hexdump $(targetdir)/$$file ; \
+			$(LN_S) _hexdump $(targetdir)/$$file ; \
 	done
 	for file in hping hping3 ; do \
 		rm -f $(targetdir)/$$file && \
