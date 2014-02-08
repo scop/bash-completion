@@ -130,7 +130,6 @@ bashcomp_DATA = 2to3 \
 		hping2 \
 		htop \
 		htpasswd \
-		hwclock \
 		iconv \
 		id \
 		idn \
@@ -142,7 +141,6 @@ bashcomp_DATA = 2to3 \
 		installpkg \
 		interdiff \
 		invoke-rc.d \
-		ionice \
 		ip \
 		iperf \
 		ipmitool \
@@ -305,7 +303,6 @@ bashcomp_DATA = 2to3 \
 		rpmcheck \
 		rrdtool \
 		rsync \
-		rtcwake \
 		sbcl \
 		sbopkg \
 		screen \
@@ -390,7 +387,16 @@ bashcomp_DATA = 2to3 \
 		zopfli
 
 EXTRA_DIST = $(bashcomp_DATA) \
-	     _mock _modules _nmcli _subversion _udevadm _yum _yum-utils
+		_hwclock \
+		_ionice \
+		_mock \
+		_modules \
+		_nmcli \
+		_rtcwake \
+		_subversion \
+		_udevadm \
+		_yum \
+		_yum-utils
 
 CLEANFILES = \
 	7za \
