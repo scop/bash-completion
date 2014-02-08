@@ -1,0 +1,64 @@
+# svnlook completion                                       -*- shell-script -*-
+
+# Use of this file is deprecated.  Upstream completion is available in
+# subversion >= 0.12.0, use that instead.
+
+_svnlook()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    local commands
+    commands='author cat changed date diff dirs-changed help ? h history info
+              lock log propget pget pg proplist plist pl tree uuid youngest'
+
+    if [[ $cword -eq 1 ]] ; then
+        if [[ "$cur" == -* ]]; then
+            COMPREPLY=( $( compgen -W '--version' -- "$cur" ) )
+        else
+            COMPREPLY=( $( compgen -W "$commands" -- "$cur" ) )
+        fi
+    else
+        local command=${words[1]}
+
+        if [[ "$cur" == -* ]]; then
+            # possible options for the command
+            local options
+            case $command in
+                author|cat|date|dirs-changed|info|log)
+                    options='--revision --transaction'
+                    ;;
+                changed)
+                    options='--revision --transaction --copy-info'
+                    ;;
+                diff)
+                    options='--revision --transaction --no-diff-deleted
+                             --no-diff-added --diff-copy-from'
+                    ;;
+                history)
+                    options='--revision --show-ids'
+                    ;;
+                propget|proplist)
+                    options='--revision --transaction --revprop'
+                    ;;
+                tree)
+                    options='--revision --transaction --show-ids --full-paths'
+                    ;;
+            esac
+
+            options+=" --help"
+            COMPREPLY=( $( compgen -W "$options" -- "$cur" ) )
+        else
+            if [[ "$command" == @(help|[h?]) ]]; then
+                COMPREPLY=( $( compgen -W "$commands" -- "$cur" ) )
+            else
+                _filedir
+            fi
+        fi
+    fi
+
+    return 0
+} &&
+complete -F _svnlook -o default svnlook
+
+# ex: ts=4 sw=4 et filetype=sh

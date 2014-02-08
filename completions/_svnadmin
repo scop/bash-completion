@@ -1,0 +1,79 @@
+# svnadmin completion                                      -*- shell-script -*-
+
+# Use of this file is deprecated.  Upstream completion is available in
+# subversion >= 0.12.0, use that instead.
+
+_svnadmin()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    local commands
+    commands='create deltify dump help ? hotcopy list-dblogs list-unused-dblogs
+              load lslocks lstxns recover rmlocks rmtxns setlog verify'
+
+    if [[ $cword -eq 1 ]] ; then
+        if [[ "$cur" == -* ]]; then
+            COMPREPLY=( $( compgen -W '--version' -- "$cur" ) )
+        else
+            COMPREPLY=( $( compgen -W "$commands" -- "$cur" ) )
+        fi
+    else
+        case $prev in
+            --config-dir)
+                _filedir -d
+                return 0
+                ;;
+            --fs-type)
+                COMPREPLY=( $( compgen -W 'fsfs bdb' -- "$cur" ) )
+                return 0
+                ;;
+        esac
+
+        local command=${words[1]}
+
+        if [[ "$cur" == -* ]]; then
+            # possible options for the command
+            local options
+            case $command in
+                create)
+                    options='--bdb-txn-nosync --bdb-log-keep --config-dir
+                             --fs-type'
+                    ;;
+                deltify)
+                    options='--revision --quiet'
+                    ;;
+                dump)
+                    options='--revision --incremental --quiet --deltas'
+                    ;;
+                hotcopy)
+                    options='--clean-logs'
+                    ;;
+                load)
+                    options='--ignore-uuid --force-uuid --parent-dir --quiet
+                             --use-pre-commit-hook --use-post-commit-hook'
+                    ;;
+                rmtxns)
+                    options='--quiet'
+                    ;;
+                setlog)
+                    options='--revision --bypass-hooks'
+                    ;;
+            esac
+
+            options+=" --help"
+            COMPREPLY=( $( compgen -W "$options" -- "$cur" ) )
+        else
+            if [[ "$command" == @(help|[h?]) ]]; then
+                COMPREPLY=( $( compgen -W "$commands" -- "$cur" ) )
+            else
+                _filedir
+            fi
+        fi
+    fi
+
+    return 0
+} &&
+complete -F _svnadmin -o default svnadmin
+
+# ex: ts=4 sw=4 et filetype=sh

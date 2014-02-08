@@ -130,6 +130,7 @@ bashcomp_DATA = 2to3 \
 		hping2 \
 		htop \
 		htpasswd \
+		_hwclock \
 		iconv \
 		id \
 		idn \
@@ -141,6 +142,7 @@ bashcomp_DATA = 2to3 \
 		installpkg \
 		interdiff \
 		invoke-rc.d \
+		_ionice \
 		ip \
 		iperf \
 		ipmitool \
@@ -210,8 +212,10 @@ bashcomp_DATA = 2to3 \
 		mkinitrd \
 		mktemp \
 		mmsitepass \
+		_mock \
 		modinfo \
 		modprobe \
+		_modules \
 		monodevelop \
 		mount \
 		mount.linux \
@@ -234,6 +238,7 @@ bashcomp_DATA = 2to3 \
 		newusers \
 		ngrep \
 		nmap \
+		_nmcli \
 		nslookup \
 		ntpdate \
 		openssl \
@@ -289,6 +294,7 @@ bashcomp_DATA = 2to3 \
 		remove_members \
 		removepkg \
 		renice \
+		_repomanage \
 		reportbug \
 		reptyr \
 		resolvconf \
@@ -303,6 +309,7 @@ bashcomp_DATA = 2to3 \
 		rpmcheck \
 		rrdtool \
 		rsync \
+		_rtcwake \
 		sbcl \
 		sbopkg \
 		screen \
@@ -329,6 +336,9 @@ bashcomp_DATA = 2to3 \
 		sudo \
 		svcadm \
 		svk \
+		_svn \
+		_svnadmin \
+		_svnlook \
 		sync_members \
 		sysbench \
 		sysctl \
@@ -340,6 +350,7 @@ bashcomp_DATA = 2to3 \
 		tracepath \
 		tshark \
 		tune2fs \
+		_udevadm \
 		umount \
 		umount.linux \
 		unace \
@@ -383,20 +394,11 @@ bashcomp_DATA = 2to3 \
 		xz \
 		xzdec \
 		ypmatch \
+		_yum \
 		yum-arch \
 		zopfli
 
-EXTRA_DIST = $(bashcomp_DATA) \
-		_hwclock \
-		_ionice \
-		_mock \
-		_modules \
-		_nmcli \
-		_rtcwake \
-		_subversion \
-		_udevadm \
-		_yum \
-		_yum-utils
+EXTRA_DIST = $(bashcomp_DATA)
 
 CLEANFILES = \
 	7za \
