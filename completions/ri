@@ -37,7 +37,7 @@ _ri()
     local cur prev words cword
     _init_completion -n : || return
 
-    local class method prefix ri_path ri_version separator IFS
+    local class method prefix ri_path ri_version ri_major separator IFS
     local -a classes
 
     ri_path=$(type -p ri)
@@ -46,6 +46,7 @@ _ri()
     # from being captured when used with Ruby 1.8.1 and later
     ri_version="$(ruby -W0 $ri_path -v 2>&1)" || ri_version=integrated
     [[ $ri_version != ${ri_version%200*} ]] && ri_version=integrated
+    [[ $ri_version =~ ri[[:space:]]v?([0-9]+) ]] && ri_major=${BASH_REMATCH[1]}
 
     # need to also split on commas
     IFS=$', \n\t'
@@ -64,6 +65,8 @@ _ri()
         # integrated ri from Ruby 1.9
         classes=( $( ri -c 2>/dev/null | ruby -ne 'if /^\s*$/..$stdin.eof then \
         if /, [A-Z]+/ then print; end; end' 2>/dev/null ) )
+    elif [[ $ri_major && $ri_major -ge 3 ]]; then
+        classes=( $( ri -l 2>/dev/null ) )
     elif [[ $ri_version == "ri 1.8a" ]]; then
         classes=( $( ruby -W0 $ri_path | \
             ruby -ne 'if /^'"'"'ri'"'"' has/..$stdin.eof then \
