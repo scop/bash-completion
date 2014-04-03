@@ -12,7 +12,7 @@ _xrandr()
             return
             ;;
         --output|--left-of|--right-of|--above|--below|--same-as)
-            local outputs=$( xrandr | awk '/connected/ {print $1}' )
+            local outputs=$( "$1" | awk '/connected/ {print $1}' )
             COMPREPLY=( $( compgen -W "$outputs" -- "$cur" ) )
             return
             ;;
@@ -25,7 +25,7 @@ _xrandr()
                 fi
             done
             if [[ $output ]]; then
-                local modes=$( xrandr | sed -e "1,/$output/ d" \
+                local modes=$( "$1" | sed -e "1,/$output/ d" \
                     -e "/connected/,$ d" \
                     -e "s/\([^[:space:]]\)[[:space:]].*/\1/" )
                 COMPREPLY=( $( compgen -W "$modes" -- "$cur" ) )
