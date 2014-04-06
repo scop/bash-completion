@@ -1,0 +1,35 @@
+# pngfix completion                                        -*- shell-script -*-
+
+_pngfix()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        --suffix|--prefix)
+            return
+            ;;
+        --output)
+            _filedir
+            return
+            ;;
+        --strip)
+            COMPREPLY=( $( IFS='|' compgen -W '$( "$1" --help 2>&1 |
+                sed -ne "s/.*--strip=\[\([^]]*\)\].*/\1/p" )' -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir png
+} &&
+complete -F _pngfix pngfix
+
+# ex: ts=4 sw=4 et filetype=sh

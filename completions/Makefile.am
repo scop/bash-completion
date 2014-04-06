@@ -266,6 +266,7 @@ bashcomp_DATA = 2to3 \
 		pm-hibernate \
 		pm-is-supported \
 		pm-powersave \
+		pngfix \
 		portinstall \
 		portsnap \
 		portupgrade \
