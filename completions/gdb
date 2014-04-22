@@ -2,9 +2,18 @@
 
 _gdb()
 {
-    local cur prev words cword
+    local cur prev words cword i
     _init_completion || return
 
+    # gdb [options] --args executable-file [inferior-arguments ...]
+    for (( i=1; i < cword; i++ )); do
+        if [[ "${words[i]}" == --args ]]; then
+            _command_offset $((i+1))
+            return $?
+        fi
+    done
+
+    # gdb [options] [executable-file [core-file or process-id]]
     if [[ $cword -eq 1 ]]; then
         local IFS
         compopt -o filenames
