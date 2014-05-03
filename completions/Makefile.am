@@ -129,6 +129,7 @@ bashcomp_DATA = 2to3 \
 		hddtemp \
 		_hexdump \
 		hid2hci \
+		hostname \
 		hping2 \
 		htop \
 		htpasswd \
