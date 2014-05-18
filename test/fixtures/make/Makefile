@@ -1,3 +1,5 @@
+$(info confuse: make)
+
 NAME := sample
 
 .PHONY: all
