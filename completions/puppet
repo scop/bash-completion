@@ -88,7 +88,7 @@ _puppet()
             ;;
         puppet)
             case ${words[1]} in
-               agent|apply|cert|describe|doc|filebucket|kick|master|queue|resource)
+               agent|apply|cert|describe|doc|filebucket|kick|master|parser|queue|resource)
                    subcommand=${words[1]}
                    ;;
                *.pp|*.rb)
@@ -96,7 +96,7 @@ _puppet()
                    ;;
                *)
                   COMPREPLY=( $( compgen -W 'agent apply cert describe doc
-                      filebucket kick master queue resource' -- "$cur" ) )
+                      filebucket kick master parser queue resource' -- "$cur" ) )
                   return 0
                   ;;
             esac
@@ -278,6 +278,18 @@ _puppet()
                     COMPREPLY=( $( compgen -W '--daemonize --no-daemonize
                         --debug --help --logdest --verbose --version' \
                             -- "$cur" ) )
+                    return 0
+            esac
+            ;;
+        parser)
+            action=$prev
+            case $action in
+                validate)
+                    _filedir pp
+                    return 0
+                    ;;
+                *)
+                    COMPREPLY=( $( compgen -W 'validate' -- "$cur" ) )
                     return 0
             esac
             ;;
