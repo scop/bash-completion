@@ -50,7 +50,7 @@ _puppet()
     local cur prev words cword
     _init_completion || return
 
-    local xspec helpopts command subcommand
+    local xspec helpopts subcommand action
 
     case $prev in
         --help)
@@ -60,39 +60,39 @@ _puppet()
 
     case ${words[0]} in
         puppetmasterd)
-            command=master
+            subcommand=master
             ;;
         puppetd)
-            command=agent
+            subcommand=agent
             ;;
         puppetca)
-            command=cert
+            subcommand=cert
             ;;
         ralsh)
-            command=resource
+            subcommand=resource
             ;;
         puppetrun)
-            command=kick
+            subcommand=kick
             ;;
         puppetqd)
-            command=queue
+            subcommand=queue
             ;;
         filebucket)
-            command=filebucket
+            subcommand=filebucket
             ;;
         puppetdoc)
-            command=doc
+            subcommand=doc
             ;;
         pi)
-            command=describe
+            subcommand=describe
             ;;
         puppet)
             case ${words[1]} in
                agent|apply|cert|describe|doc|filebucket|kick|master|queue|resource)
-                   command=${words[1]}
+                   subcommand=${words[1]}
                    ;;
                *.pp|*.rb|-*)
-                   command=apply
+                   subcommand=apply
                    ;;
                *)
                   COMPREPLY=( $( compgen -W 'agent apply cert describe doc
@@ -102,7 +102,7 @@ _puppet()
             esac
     esac
 
-    case $command in
+    case $subcommand in
         agent)
             case $prev in
                 --fqdn)
@@ -159,10 +159,10 @@ _puppet()
                     return 0
                     ;;
                 *)
-                    subcommand=$prev
+                    action=$prev
                     COMPREPLY=( $( compgen -W '--digest --debug --verbose' \
                         -- "$cur" ) )
-                    case $subcommand in
+                    case $action in
                         --generate)
                             _known_hosts_real "$cur"
                             return 0
