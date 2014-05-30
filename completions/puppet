@@ -170,31 +170,30 @@ _puppet()
                     ;;
                 *)
                     action=$prev
-                    COMPREPLY=( $( compgen -W '--digest --debug --verbose' \
+                    COMPREPLY=( $( compgen -W '--digest --debug --help --verbose --version' \
                         -- "$cur" ) )
                     case $action in
-                        --generate)
-                            _known_hosts_real "$cur"
-                            return 0
-                            ;;
-                        --clean|--fingerprint|--revoke|--verify)
+                        fingerprint|list|verify|--fingerprint|--list|--verify)
                             COMPREPLY+=( $( compgen -W '--all' -- "$cur" ) )
                             _puppet_certs --all
                             return 0
                             ;;
-                        --sign)
+                        generate|--generate)
+                            _known_hosts_real "$cur"
+                            return 0
+                            ;;
+                        clean|print|revoke|--clean|--print|--revoke)
+                            _puppet_certs --all
+                            return 0
+                            ;;
+                        sign|--sign)
                             COMPREPLY+=( $( compgen -W '--all' -- "$cur" ) )
                             _puppet_certs
                             return 0
                             ;;
-                        --list|--print)
-                            COMPREPLY+=( $( compgen -W '--all' -- "$cur" ) )
-                            return 0
-                            ;;
                         *)
-                            COMPREPLY=( $( compgen -W '--clean --generate
-                                --help --list --print --fingerprint --revoke
-                                --sign --version --verify' -- "$cur" ) )
+                            COMPREPLY+=( $( compgen -W 'clean fingerprint generate
+                                list print revoke sign verify reinventory' -- "$cur" ) )
                             return 0
                     esac
             esac
