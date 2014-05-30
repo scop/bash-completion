@@ -105,21 +105,24 @@ _puppet()
     case $subcommand in
         agent)
             case $prev in
+                --certname)
+                    _known_hosts_real "$cur"
+                    return 0
+                    ;;
+                --digest)
+                    _puppet_digest
+                    return 0
+                    ;;
                 --fqdn)
+                    _known_hosts_real "$cur"
                     return 0
                     ;;
                 --logdest)
                     _puppet_logdest
                     return 0
                     ;;
-                --serve)
-                    # From /usr/lib/ruby/1.8/puppet/network/handler/
-                    COMPREPLY=( $( compgen -W 'ca filebucket fileserver master
-                        report runner status' -- "$cur" ) )
-                    return 0
-                    ;;
-                --digest)
-                    _puppet_digest
+                --masterport)
+                    COMPREPLY=( $( compgen -W '8140' -- "$cur" ) )
                     return 0
                     ;;
                 --waitforcert)
@@ -127,11 +130,10 @@ _puppet()
                     return 0
                     ;;
                 *)
-                    COMPREPLY=( $( compgen -W '--daemonize --no-daemonize
-                        --debug --detailed-exitcodes --disable --enable --help
-                        --fqdn --logdest --onetime --serve --test --noop
-                        --digest --fingerprint --version --verbose
-                        --waitforcert --no-client' -- "$cur" ) )
+                    COMPREPLY=( $( compgen -W '--certname --daemonize --no-daemonize
+                        --debug --detailed-exitcodes --digest --disable --enable --fingerprint
+                        --help --logdest --masterport --no-client --noop --onetime --test
+                        --verbose --version --waitforcert' -- "$cur" ) )
                     return 0
             esac
             ;;
