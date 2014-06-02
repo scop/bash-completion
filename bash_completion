@@ -246,7 +246,7 @@ __reassemble_comp_words_by_ref()
     fi
 
     # Default to cword unchanged
-    eval $3=$COMP_CWORD
+    printf -v "$3" %s "$COMP_CWORD"
     # Are characters excluded which were former included?
     if [[ $exclude ]]; then
         # Yes, list of word completion separators has shrunk;
@@ -264,9 +264,9 @@ __reassemble_comp_words_by_ref()
                 [[ $line != [$' \t']* ]] && (( j >= 2 )) && ((j--))
                 # Append word separator to current or new word
                 ref="$2[$j]"
-                eval $2[$j]=\${!ref}\${COMP_WORDS[i]}
+                printf -v "$ref" %s "${!ref}${COMP_WORDS[i]}"
                 # Indicate new cword
-                [[ $i == $COMP_CWORD ]] && eval $3=$j
+                [[ $i == $COMP_CWORD ]] && printf -v "$3" %s "$j"
                 # Remove optional whitespace + word separator from line copy
                 line=${line#*"${COMP_WORDS[$i]}"}
                 # Start new word if word separator in original line is
@@ -278,16 +278,18 @@ __reassemble_comp_words_by_ref()
             done
             # Append word to current word
             ref="$2[$j]"
-            eval $2[$j]=\${!ref}\${COMP_WORDS[i]}
+            printf -v "$ref" %s "${!ref}${COMP_WORDS[i]}"
             # Remove optional whitespace + word from line copy
             line=${line#*"${COMP_WORDS[i]}"}
             # Indicate new cword
-            [[ $i == $COMP_CWORD ]] && eval $3=$j
+            [[ $i == $COMP_CWORD ]] && printf -v "$3" %s "$j"
         done
-        [[ $i == $COMP_CWORD ]] && eval $3=$j
+        [[ $i == $COMP_CWORD ]] && printf -v "$3" %s "$j"
     else
         # No, list of word completions separators hasn't changed;
-        eval $2=\( \"\${COMP_WORDS[@]}\" \)
+        for i in ${!COMP_WORDS[@]}; do
+            printf -v "$2[i]" %s "${COMP_WORDS[i]}"
+        done
     fi
 } # __reassemble_comp_words_by_ref()
 
