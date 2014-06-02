@@ -45,6 +45,14 @@ _puppet_references()
     COMPREPLY+=( $( compgen -W "$puppet_doc_list" -- "$cur" ) )
 }
 
+_puppet_subcmd_opts()
+{
+    # puppet cmd help is somewhat slow, avoid if possible
+    [[ -z $cur || $cur == -* ]] && \
+        COMPREPLY+=( $( compgen -W \
+        '$( _parse_usage "$1" "help $2" )' -- "$cur" ) )
+}
+
 _puppet()
 {
     local cur prev words cword
@@ -130,10 +138,9 @@ _puppet()
                     return 0
                     ;;
                 *)
-                    COMPREPLY=( $( compgen -W '--certname --daemonize --no-daemonize
-                        --debug --detailed-exitcodes --digest --disable --enable --fingerprint
-                        --help --logdest --masterport --no-client --noop --onetime --test
-                        --verbose --version --waitforcert' -- "$cur" ) )
+                    _puppet_subcmd_opts "$1" $subcommand
+                    # _parse_usage doesn't grok [-D|--daemonize|--no-daemonize]
+                    COMPREPLY+=( $( compgen -W '--no-daemonize' -- "$cur" ) )
                     return 0
             esac
             ;;
@@ -153,9 +160,7 @@ _puppet()
                     ;;
                 *)
                     if [[ "$cur" == -* ]]; then
-                        COMPREPLY=( $( compgen -W '--debug --detailed-exitcodes --help
-                            --loadclasses --logdest --noop --execute --test --verbose
-                            --catalog --write-catalog-summary' -- "$cur" ) )
+                        _puppet_subcmd_opts "$1" $subcommand
                     else
                         _filedir
                     fi
@@ -199,7 +204,7 @@ _puppet()
             esac
             ;;
         describe)
-            COMPREPLY=( $( compgen -W '--help --providers --list --meta --short' -- "$cur" ) )
+            _puppet_subcmd_opts "$1" $subcommand
             if [[ "$cur" != -* ]]; then
                 _puppet_types
             fi
@@ -221,8 +226,7 @@ _puppet()
                     ;;
                 *)
                     if [[ "$cur" == -* ]]; then
-                        COMPREPLY=( $( compgen -W '--all --help --outputdir
-                            --mode --reference --charset --list' -- "$cur" ) )
+                        _puppet_subcmd_opts "$1" $subcommand
                     else
                         _filedir
                     fi
@@ -241,9 +245,7 @@ _puppet()
                     ;;
                 *)
                     if [[ "$cur" == -* ]]; then
-                        COMPREPLY=( $( compgen -W '--help --version --debug
-                            --verbose --local --remote --server --bucket' \
-                                -- "$cur" ) )
+                        _puppet_subcmd_opts "$1" $subcommand
                     else
                         COMPREPLY=( $( compgen -W 'backup get restore' \
                             -- "$cur" ) )
@@ -266,9 +268,7 @@ _puppet()
                     ;;
                 *)
                     if [[ "$cur" == -* ]]; then
-                        COMPREPLY=( $( compgen -W '--all --class --debug
-                            --foreground --help --host --no-fqdn
-                            --ignoreschedules --tag --test --ping' -- "$cur" ) )
+                        _puppet_subcmd_opts "$1" $subcommand
                     else
                         _known_hosts_real "$cur"
                     fi
@@ -282,9 +282,9 @@ _puppet()
                     return 0
                     ;;
                 *)
-                    COMPREPLY=( $( compgen -W '--daemonize --no-daemonize
-                        --debug --help --logdest --verbose --version' \
-                            -- "$cur" ) )
+                    _puppet_subcmd_opts "$1" $subcommand
+                    # _parse_usage doesn't grok [-D|--daemonize|--no-daemonize]
+                    COMPREPLY+=( $( compgen -W '--no-daemonize' -- "$cur" ) )
                     return 0
             esac
             ;;
@@ -308,9 +308,7 @@ _puppet()
                     ;;
                 *)
                     if [[ "$cur" == -* ]]; then
-                        COMPREPLY=( $( compgen -W '--help --version --debug
-                            --verbose --execute --detailed-exitcodes
-                            --logdest' -- "$cur" ) )
+                        _puppet_subcmd_opts "$1" $subcommand
                     else
                         _filedir
                     fi
@@ -318,8 +316,7 @@ _puppet()
             esac
             ;;
         resource|*)
-            COMPREPLY=( $( compgen -W '--help --version --debug --verbose' \
-                -- "$cur" ) )
+            _puppet_subcmd_opts "$1" $subcommand
             return 0
             ;;
     esac
