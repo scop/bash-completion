@@ -49,11 +49,12 @@ _slapt_src()
     if [[ "$cur" == *:* ]]; then
         local name=${cur%:*}
         local version=${cur##*:}
-        COMPREPLY=( $( slapt-src --config "$config" --search "^$name" 2> \
-            /dev/null | sed -ne "/^$cur/{s/^$name:\([^ ]*\) .*$/\1/;p}" ) )
+        COMPREPLY=( $( LC_ALL=C "$1" --config "$config" --search "^$name" 2> \
+            /dev/null | LC_ALL=C sed -ne \
+            "/^$cur/{s/^$name:\([^ ]*\) .*$/\1/;p}" ) )
     else
-        COMPREPLY=( $( slapt-src --config "$config" --search "^$cur" 2> \
-            /dev/null | sed -ne "/^$cur/{s/ .*$//;p}" ) )
+        COMPREPLY=( $( LC_ALL=C "$1" --config "$config" --search "^$cur" 2> \
+            /dev/null | LC_ALL=C sed -ne "/^$cur/{s/ .*$//;p}" ) )
     fi
 } && complete -F _slapt_src slapt-src
 
