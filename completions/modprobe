@@ -74,7 +74,8 @@ _modprobe()
             elif [[ -n "$module" ]]; then
                 # do module parameter completion
                 COMPREPLY=( $( compgen -W "$( PATH="$PATH:/sbin" modinfo \
-                    -p "$module" 2>/dev/null | cut -d: -f1 )" -- "$cur" ) )
+                    -p "$module" 2>/dev/null | \
+                    awk -F: '!/^[ \t]/ { print $1 }' )" -- "$cur" ) )
             else
                 _modules $version
                 if [[ $COMPREPLY ]]; then
