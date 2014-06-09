@@ -2,10 +2,13 @@
 
 _modprobe()
 {
-    local cur prev words cword
-    _init_completion || return
+    local cur prev words cword split
+    _init_completion -s || return
 
     case "$prev" in
+        -h|--help|-V|--version)
+            return
+            ;;
         -C|--config)
             _filedir
             return
@@ -20,13 +23,20 @@ _modprobe()
             ;;
     esac
 
+    $split && return
+
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-a --all -b --use-blacklist -C --config -c
-            --showconfig --dump-modversions -d --dirname --first-time
-            --force-vermagic --force-modversion -f --force -i --ignore-install
-            --ignore-remove -l --list -n --dry-run -q --quiet -R
-            --resolve-alias -r --remove -S --set-version --show-depends -s
-            --syslog -t --type -V --version -v --verbose' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        if [[ ! $COMPREPLY ]]; then
+            COMPREPLY=( $( compgen -W '-a --all -b --use-blacklist -C --config
+                -c --showconfig --dump-modversions -d --dirname --first-time
+                --force-vermagic --force-modversion -f --force -i
+                --ignore-install --ignore-remove -l --list -n --dry-run -q
+                --quiet -R --resolve-alias -r --remove -S --set-version
+                --show-depends -s --syslog -t --type -V --version -v
+                --verbose' -- "$cur" ) )
+        fi
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
 
