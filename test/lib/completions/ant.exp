@@ -6,6 +6,7 @@ proc setup {} {
 proc teardown {} {
     assert_env_unmodified {
         /OLDPWD=/d
+        /ANT_ARGS=/d
     }
 }
 
@@ -23,6 +24,12 @@ sync_after_int
 
 assert_complete_dir "named-build" "ant -f named-build.xml " $::srcdir/fixtures/ant
 sync_after_int
+
+
+assert_bash_exec {OLD_ANT_ARGS=$ANT_ARGS; ANT_ARGS="-f named-build.xml"}
+assert_complete_dir "named-build" "ant " $::srcdir/fixtures/ant "ant with buildfile from ANT_ARGS"
+sync_after_int
+assert_bash_exec {ANT_ARGS=$OLD_ANT_ARGS; unset -v OLD_ANT_ARGS}
 
 
 teardown
