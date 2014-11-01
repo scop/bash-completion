@@ -952,7 +952,7 @@ _tilde()
     local result=0
     if [[ $1 == \~* && $1 != */* ]]; then
         # Try generate ~username completions
-        COMPREPLY=( $( compgen -P '~' -u "${1#\~}" ) )
+        COMPREPLY=( $( compgen -P '~' -u -- "${1#\~}" ) )
         result=${#COMPREPLY[@]}
         # 2>/dev/null for direct invocation, e.g. in the _tilde unit test
         [[ $result -gt 0 ]] && compopt -o filenames 2>/dev/null
@@ -1019,7 +1019,7 @@ _expand()
         eval cur=$cur 2>/dev/null
     elif [[ "$cur" == \~* ]]; then
         cur=${cur#\~}
-        COMPREPLY=( $( compgen -P '~' -u "$cur" ) )
+        COMPREPLY=( $( compgen -P '~' -u -- "$cur" ) )
         [[ ${#COMPREPLY[@]} -eq 1 ]] && eval COMPREPLY[0]=${COMPREPLY[0]}
         return ${#COMPREPLY[@]}
     fi
@@ -1620,7 +1620,7 @@ _cd()
     for i in ${CDPATH//:/$'\n'}; do
         # create an array of matched subdirs
         k="${#COMPREPLY[@]}"
-        for j in $( compgen -d $i/$cur ); do
+        for j in $( compgen -d -- $i/$cur ); do
             if [[ ( $mark_symdirs && -h $j || $mark_dirs && ! -h $j ) && ! -d ${j#$i/} ]]; then
                 j+="/"
             fi
