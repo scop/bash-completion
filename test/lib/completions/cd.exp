@@ -4,7 +4,7 @@ proc setup {} {
 
 
 proc teardown {} {
-    assert_env_unmodified
+    assert_env_unmodified {/OLDPWD=/d}
 }
 
 
@@ -42,7 +42,15 @@ assert_bash_exec "CDPATH=\$PWD";
 assert_complete "$::srcdir/fixtures/shared/default/foo.d/" \
     "cd $::srcdir/fixtures/shared/default/fo" $test -nospace -expect-cmd-minus fo
 sync_after_int
-    # Reset CDPATH
+
+assert_bash_exec "unset CDPATH"
+# Assuming no subdirs here
+assert_bash_exec "cd $::srcdir/fixtures/shared/default/foo.d"
+assert_no_complete "cd " "cd shouldn't complete when there are no subdirs or CDPATH"
+sync_after_int
+
+    # Reset PWD and CDPATH
+assert_bash_exec "cd \"\$OLDPWD\""
 assert_bash_exec "declare -p OLDCDPATH &>/dev/null && CDPATH=\$OLDCDPATH || unset CDPATH && unset OLDCDPATH"
 
 
