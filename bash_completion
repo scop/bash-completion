@@ -1051,6 +1051,7 @@ _pgids()
 
 # This function completes on process names.
 # AIX and SunOS prefer X/Open, all else should be BSD.
+# @param $1 if -s, don't try to avoid truncated command names
 [[ $OSTYPE == *@(solaris|aix)* ]] &&
 _pnames()
 {
@@ -1059,17 +1060,20 @@ _pnames()
 } ||
 _pnames()
 {
-    # FIXME: completes "[kblockd/0]" to "0". Previously it was completed
-    # to "kblockd" which isn't correct either. "kblockd/0" would be
-    # arguably most correct, but killall from psmisc 22 treats arguments
-    # containing "/" specially unless -r is given so that wouldn't quite
-    # work either. Perhaps it'd be best to not complete these to anything
-    # for now.
-    # Not using "ps axo comm" because under some Linux kernels, it
-    # truncates command names (see e.g. http://bugs.debian.org/497540#19)
-    COMPREPLY=( $( compgen -X '<defunct>' -W '$( command ps axo command= | \
-        sed -e "s/ .*//" -e "s:.*/::" -e "s/:$//" -e "s/^[[(-]//" \
-            -e "s/[])]$//" | sort -u )' -- "$cur" ) )
+    if [[ "$1" == -s ]]; then
+        COMPREPLY=( $( compgen -X '<defunct>' \
+            -W '$( command ps axo comm | sed -e 1d )' -- "$cur" ) )
+    else
+        # FIXME: completes "[kblockd/0]" to "0". Previously it was completed
+        # to "kblockd" which isn't correct either. "kblockd/0" would be
+        # arguably most correct, but killall from psmisc 22 treats arguments
+        # containing "/" specially unless -r is given so that wouldn't quite
+        # work either. Perhaps it'd be best to not complete these to anything
+        # for now.
+        COMPREPLY=( $( compgen -X '<defunct>' -W '$( command ps axo command= | \
+            sed -e "s/ .*//" -e "s:.*/::" -e "s/:$//" -e "s/^[[(-]//" \
+                -e "s/[])]$//" | sort -u )' -- "$cur" ) )
+    fi
 }
 
 # This function completes on user IDs
