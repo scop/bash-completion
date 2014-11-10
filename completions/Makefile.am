@@ -197,6 +197,7 @@ bashcomp_DATA = 2to3 \
 		luseradd \
 		luserdel \
 		lvm \
+		lz4 \
 		lzip \
 		lzma \
 		lzop \
