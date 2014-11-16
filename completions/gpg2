@@ -16,13 +16,13 @@ _gpg2()
             ;;
         --export|--sign-key|--lsign-key|--nrsign-key|--nrlsign-key|--edit-key)
             # return list of public keys
-            COMPREPLY=( $( compgen -W "$( gpg2 --list-keys 2>/dev/null | \
+            COMPREPLY=( $( compgen -W "$( $1 --list-keys 2>/dev/null | \
                 sed -ne 's@^pub.*/\([^ ]*\).*$@\1@p' \
                     -ne 's@^.*\(<\([^>]*\)>\).*$@\2@p' )" -- "$cur" ) )
             return 0
             ;;
         -r|--recipient)
-            COMPREPLY=( $( compgen -W "$( gpg2 --list-keys 2>/dev/null | \
+            COMPREPLY=( $( compgen -W "$( $1 --list-keys 2>/dev/null | \
                 sed -ne 's@^.*<\([^>]*\)>.*$@\1@p')" -- "$cur" ) )
             if [[ -e ~/.gnupg/gpg.conf ]]; then
                 COMPREPLY+=( $( compgen -W "$( sed -ne \
@@ -34,7 +34,7 @@ _gpg2()
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$(gpg2 --dump-options)' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '$($1 --dump-options)' -- "$cur" ) )
     fi
 } &&
 complete -F _gpg2 -o default gpg2
