@@ -3,7 +3,7 @@
 _gphoto2()
 {
     local cur prev words cword split
-    _init_completion -s || return
+    _init_completion -s -n : || return
 
     case $prev in
         --debug-logfile)
@@ -25,6 +25,7 @@ _gphoto2()
         --port)
             COMPREPLY=( $(compgen -W "$( gphoto2 --list-ports 2>/dev/null | \
                 tail -n +4 | awk '{ print $1 }'  )" -- "$cur") )
+            __ltrim_colon_completions "$cur"
             return 0
             ;;
         --camera)
@@ -40,8 +41,11 @@ _gphoto2()
             ;;
     esac
 
+    $split && return
+
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
         return 0
     fi
 
