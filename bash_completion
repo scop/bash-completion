@@ -1137,6 +1137,10 @@ _services()
     COMPREPLY+=( $( systemctl list-units --full --all 2>/dev/null | \
         awk '$1 ~ /\.service$/ { sub("\\.service$", "", $1); print $1 }' ) )
 
+    if [[ -x /sbin/upstart-udev-bridge ]]; then
+        COMPREPLY+=( $( initctl list 2>/dev/null | cut -d' ' -f1 ) )
+    fi
+
     COMPREPLY=( $( compgen -W '${COMPREPLY[@]#${sysvdirs[0]}/}' -- "$cur" ) )
 }
 
