@@ -53,6 +53,36 @@ _createdb()
 } &&
 complete -F _createdb createdb
 
+# createuser(1) completion
+#
+_createuser()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        --help|--version|-p|--port|-c|--connection-limit)
+            return
+            ;;
+        -h|--host)
+            _known_hosts_real "$cur"
+            return
+            ;;
+        -U|--username)
+            _pg_users
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+    fi
+} &&
+complete -F _createuser createuser
+
 # dropdb(1) completion
 #
 _dropdb()

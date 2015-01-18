@@ -446,6 +446,7 @@ CLEANFILES = \
 	conjure \
 	cowthink \
 	createdb \
+	createuser \
 	dcop \
 	declare \
 	dfutool \
@@ -828,7 +829,7 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) pm-hibernate $(targetdir)/$$file ; \
 	done
-	for file in createdb dropdb ; do \
+	for file in createdb createuser dropdb ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) psql $(targetdir)/$$file ; \
 	done
