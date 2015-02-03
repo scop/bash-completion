@@ -303,7 +303,7 @@ bashcomp_DATA = 2to3 \
 		_renice \
 		_repomanage \
 		reportbug \
-		reptyr \
+		_reptyr \
 		resolvconf \
 		rfkill \
 		ri \
