@@ -1,0 +1,24 @@
+# bash completion for synclient(1)                         -*- shell-script -*-
+
+_synclient()
+{
+    local cur prev words cword split
+    _init_completion -n = || return
+
+    case $prev in
+        -\?|-h|-V)
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+    elif [[ $cur != *=?* ]]; then
+        COMPREPLY=( $( compgen -S = -W '$( $1 -l 2>/dev/null | \
+            awk "/^[[:space:]]/ { print \$1 }" )' -- "$cur" ) )
+        compopt -o nospace
+    fi
+} &&
+complete -F _synclient synclient
+
+# ex: ts=4 sw=4 et filetype=sh

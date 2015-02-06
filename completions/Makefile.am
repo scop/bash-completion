@@ -348,6 +348,7 @@ bashcomp_DATA = 2to3 \
 		_svnadmin \
 		_svnlook \
 		sync_members \
+		synclient \
 		sysbench \
 		sysctl \
 		tar \
