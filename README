@@ -126,6 +126,21 @@ Q. I author/maintain package X and would like to maintain my own
    "pkg-config --variable=compatdir bash-completion") from which files
    are loaded when bash_completion is loaded.
 
+   For packages using GNU autotools the installation can be handled
+   for example like this in configure.ac:
+
+     PKG_CHECK_VAR(bashcompdir, [bash-completion], [completionsdir], ,
+       bashcompdir="${sysconfdir}/bash_completion.d")
+     AC_SUBST(bashcompdir)
+
+   ...accompanied by this in Makefile.am:
+
+     bashcompdir = @bashcompdir@
+     dist_bashcomp_DATA = # completion files go here
+
+   For cmake we ship the bash-completion-config.cmake and
+   bash-completion-config-version.cmake files.
+
 Q. I use CVS in combination with passwordless ssh access to my remote
    repository. How can I have the cvs command complete on remotely
    checked-out files where relevant?
