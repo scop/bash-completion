@@ -1,6 +1,6 @@
 proc setup {} {
     assert_bash_exec {unset COMPREPLY cur}
-    assert_bash_exec {unset -f _f}
+    assert_bash_exec {unset -f _f _fd}
     save_env
     # Declare bash completion function `_f'
     assert_bash_exec { \
@@ -15,6 +15,11 @@ proc setup {} {
     assert_bash_exec { \
         _g() { local cur=$(_get_cword); unset COMPREPLY; _filedir e1; }; \
         complete -F _g g \
+    }
+    # Declare bash completion function `_fd' to complete on dirs
+    assert_bash_exec { \
+        _fd() { local cur=$(_get_cword); unset COMPREPLY; _filedir -d; }; \
+        complete -F _fd fd \
     }
     # Create directories `a*b' and `a\b' only when not running on Cygwin/Windows;
     # directories containing `*' or `\' aren't allowed on Cygwin/Windows
@@ -33,8 +38,8 @@ proc teardown {} {
         assert_bash_exec {(cd $TESTDIR/tmp && rm -- a\*b/j && rmdir a\*b/ || true)}
     }
     assert_bash_exec {unset COMPREPLY cur}
-    assert_bash_exec {unset -f _f _g}
-    assert_bash_exec {complete -r f g}
+    assert_bash_exec {unset -f _f _g _fd}
+    assert_bash_exec {complete -r f g fd}
     assert_env_unmodified {
         /OLDPWD/d
         /OLD_CTYPE/d
@@ -255,6 +260,14 @@ if {
 } else {
     unsupported "$test"
 }
+
+
+sync_after_int
+
+
+set test "completing fd a\\  should return a\\ b/"
+set cmd "fd a\\ "
+assert_complete_dir "a\\ b/" $cmd "$::srcdir/fixtures/_filedir" $test -nospace
 
 
 sync_after_int
