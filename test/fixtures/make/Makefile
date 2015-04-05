@@ -1,5 +1,6 @@
 $(info confuse: make)
 
+CFLAGS=-MMD -MP
 NAME := sample
 
 .PHONY: all
@@ -16,3 +17,7 @@ install: all
 .PHONY: clean
 clean:
 	-rm -f $(NAME)
+
+ifndef __BASH_MAKE_COMPLETION__
+-include sample.d
+endif
