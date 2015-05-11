@@ -113,6 +113,7 @@ bashcomp_DATA = 2to3 \
 		getent \
 		gkrellm \
 		gnatmake \
+		gnokii \
 		gnome-mplayer \
 		gpasswd \
 		gpg \
