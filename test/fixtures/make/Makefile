@@ -6,8 +6,10 @@ NAME := sample
 .PHONY: all
 all: $(NAME)
 
-$(NAME): sample.c
-	cc -o $@ $^
+$(NAME): sample.o
+
+.INTERMEDIATE: sample.o
+sample.o: sample.c
 
 .PHONY: install
 install: all
