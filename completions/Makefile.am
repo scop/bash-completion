@@ -166,6 +166,7 @@ bashcomp_DATA = 2to3 \
 		javaws \
 		jpegoptim \
 		jps \
+		jshint \
 		k3b \
 		kcov \
 		kill \
