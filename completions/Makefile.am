@@ -431,6 +431,7 @@ CLEANFILES = \
 	automake-1.13 \
 	autossh \
 	autoupdate \
+	bsdtar \
 	btdownloadcurses.py \
 	btdownloadgui.py \
 	c++ \
@@ -590,6 +591,7 @@ CLEANFILES = \
 	smbtree \
 	sparc-koji \
 	spovray \
+	star \
 	stream \
 	sudoedit \
 	tightvncviewer \
