@@ -116,7 +116,7 @@ __gnu_tar_parse_help()
             # variable may contain e.g. '-X, --XXX[=NAME], -XXX2[=NAME]'.
             arg=none
             if [[ "$line" =~ --[A-Za-z0-9-]+(\[?)= ]]; then
-                test -n "${BASH_REMATCH[1]}" && arg=opt || arg=req
+                [[ -n "${BASH_REMATCH[1]}" ]] && arg=opt || arg=req
             fi
 
             __gtar_parse_help_line "$str" "$arg"
@@ -155,19 +155,19 @@ __tar_parse_old_opt()
     local first_word char
 
     # current word is the first word
-    test "$cword" -eq 1 -a -n "$cur" -a "${cur:0:1}" != '-' \
+    [[ "$cword" -eq 1 && -n "$cur" && "${cur:0:1}" != '-' ]] \
         && old_opt_progress=1
 
     # check that first argument does not begin with "-"
     first_word=${words[1]}
-    test -n "$first_word" -a "${first_word:0:1}" != "-" \
+    [[ -n "$first_word" && "${first_word:0:1}" != "-" ]] \
         && old_opt_used=1
 
     # parse the old option (if present) contents to allow later code expect
     # corresponding arguments
-    if test $old_opt_used -eq 1; then
+    if [[ $old_opt_used -eq 1 ]]; then
         char=${first_word:0:1}
-        while test -n "$char"; do
+        while [[ -n "$char" ]]; do
             if __tar_is_argreq "$char"; then
                 old_opt_parsed+=("$char")
             fi
@@ -206,7 +206,7 @@ __tar_preparse_cmdline()
                 ;;
             *[$modes]*)
                 # Only the first arg may be "MODE" without leading dash
-                if test $first_arg -eq 1; then
+                if [[ $first_arg -eq 1 ]]; then
                     tar_mode=${i//[^$modes]/}
                     tar_mode=${tar_mode:0:1}
                     tar_mode_arg=$i
@@ -265,7 +265,7 @@ __tar_complete_mode()
           filler i
 
     short_modes="ctx"
-    test x"$basic_tar" = x && short_modes="ctxurdA"
+    [[ -z "$basic_tar" ]] && short_modes="ctxurdA"
 
     # Remove prefix when needed
     rawopt=${cur#-}
@@ -274,18 +274,18 @@ __tar_complete_mode()
     allshort_raw=${short_opts//[- ]/}
 
     # init the 'mode' option if no option is in ${cur}
-    if test "$tar_mode" = none; then
+    if [[ "$tar_mode" == none ]]; then
 
         # when user passed something like 'tar cf' do not put the '-' before
         filler=
-        if test -z "$cur" && test x"$basic_tar" = x; then
+        if [[ -z "$cur" && -z "$basic_tar" ]]; then
             filler=-
         fi
 
         generated=""
         for (( i=0 ; 1; i++ )); do
             local c="${short_modes:$i:1}"
-            test -z "$c" && break
+            [[ -z "$c" ]] && break
             generated+=" $filler$cur$c"
         done
 
@@ -295,20 +295,20 @@ __tar_complete_mode()
 
     # The last short option requires argument, like '-cf<TAB>'.  Cut the
     # completion here to enforce argument processing.
-    if test "$old_opt_progress" -eq 0 \
+    if [[ "$old_opt_progress" -eq 0 ]] \
         && __tar_is_argreq "$(__tar_last_char "$cur")"; then
         COMPREPLY=( "$cur" ) && return 0
     fi
 
     allshort_raw_unused=${allshort_raw//[$rawopt]/}
-    if test "$tar_mode" != none; then
+    if [[ "$tar_mode" != none ]]; then
         allshort_raw_unused=${allshort_raw_unused//[$short_modes]}
     fi
 
     generated=
     for (( i=0 ; 1; i++ )); do
         local c="${allshort_raw_unused:$i:1}"
-        test -z "$c" && break
+        [[ -z "$c" ]] && break
         generated+=" $cur$c"
     done
 
@@ -336,7 +336,7 @@ __gtar_complete_sopts()
 
     for (( i=0 ; 1; i++ )); do
         c="${allshort_raw_unused:$i:1}"
-        test -z "$c" && break
+        [[ -z "$c" ]] && break
         generated+=" $cur$c"
     done
 
@@ -349,20 +349,20 @@ __tar_try_mode()
     case "$cur" in
         --*)
             # posix tar does not support long opts
-            test -n "$basic_tar" && return 0
+            [[ -n "$basic_tar" ]] && return 0
             __gtar_complete_lopts
             return $?
             ;;
 
         -*)
             # posix tar does not support short optios
-            test -n "$basic_tar" && return 0
+            [[ -n "$basic_tar" ]] && return 0
 
             __tar_complete_mode && return 0
             ;;
 
         *)
-            if test "$cword" -eq 1 || test "$tar_mode" = none; then
+            if [[ "$cword" -eq 1 || "$tar_mode" == none ]]; then
                 __tar_complete_mode && return 0
             fi
             ;;
@@ -376,9 +376,8 @@ __tar_adjust_PREV_from_old_option()
     # deal with old style arguments here
     # $ tar cfTC # expects this sequence of arguments:
     # $ tar cfTC ARCHIVE_FILE PATTERNS_FILE CHANGE_DIR
-    if test "$old_opt_used" -eq 1 \
-         -a "$cword" -gt 1 \
-         -a "$cword" -lt $(( ${#old_opt_parsed[@]} + 2 ));
+    if [[ "$old_opt_used" -eq 1 && "$cword" -gt 1 \
+         && "$cword" -lt $(( ${#old_opt_parsed[@]} + 2 )) ]];
     then
         # make e.g. 'C' option from 'cffCT'
         prev="-${old_opt_parsed[ $cword - 2 ]}"
@@ -390,7 +389,7 @@ __tar_extract_like_mode()
 {
     local i
     for i in x d t delete; do
-        test "$tar_mode" = "$i" && return 0
+        [[ "$tar_mode" == "$i" ]] && return 0
     done
     return 1
 }
@@ -412,7 +411,7 @@ __tar_try_list_archive()
 
     read tarball <<<"$(printf -- '%s\n' "$@" \
         | sed -n "/^.\{1,\}$regex\$/p" | tee /tmp/jetel)"
-    if test -n "$tarball"; then
+    if [[ -n "$tarball" ]]; then
         local IFS=$'\n'
         COMPREPLY=($(compgen -o filenames -W "$(
             while read line; do
@@ -486,7 +485,7 @@ _gtar()
     # FIXME: handle long options
     local tar_mode_arg=
 
-    if test "$_TAR_OPT_DEBUG" = 1; then
+    if [[ "$_TAR_OPT_DEBUG" == 1 ]]; then
         set -x
         PS4="\$BASH_SOURCE:\$LINENO: "
     fi
@@ -612,19 +611,19 @@ _gtar()
 
         # the first argument must be "mode" argument or --param, if any of those
         # was truth - the 'break' statement would have been already called
-        test "$cword" -eq 1 && break
+        [[ "$cword" -eq 1 ]] && break
 
         __tar_try_list_archive && break
 
         # file completion on relevant files
-        if test $tar_mode != none; then
+        if [[ $tar_mode != none ]]; then
             _filedir
         fi
 
         break
     done # just-for-easy-break while
 
-    if test "$_TAR_OPT_DEBUG" = 1; then
+    if [[ "$_TAR_OPT_DEBUG" == 1 ]]; then
         set +x
         unset PS4
     fi
