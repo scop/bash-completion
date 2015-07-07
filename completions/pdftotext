@@ -1,0 +1,36 @@
+# bash completion for pdftotext(1)                         -*- shell-script -*-
+
+_pdftotext()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -h|-help|--help|-'?'|-f|-l|-r|-x|-y|-W|-H|-fixed|-opw|-upw)
+            return
+            ;;
+        -enc)
+            COMPREPLY=( $( compgen -W '$( "$1" -listenc 2>/dev/null |
+                sed -e 1d )' -- "$cur" ) )
+            return
+            ;;
+        -eol)
+            COMPREPLY=( $( compgen -W "unix dos mac" -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* && ${prev,,} != *.pdf ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return
+    fi
+
+    case ${prev,,} in
+        -|*.txt) ;;
+        *.pdf) COMPREPLY=( $( compgen -W '-' -- "$cur" ) ) ; _filedir txt ;;
+        *) _filedir pdf ;;
+    esac
+} &&
+complete -F _pdftotext pdftotext
+
+# ex: ts=4 sw=4 et filetype=sh

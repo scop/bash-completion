@@ -256,6 +256,7 @@ bashcomp_DATA = 2to3 \
 		pack200 \
 		passwd \
 		patch \
+		pdftotext \
 		perl \
 		pgrep \
 		pidof \
