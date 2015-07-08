@@ -5,10 +5,16 @@ _pwdx()
     local cur prev words cword
     _init_completion || return
 
-    [[ $prev == -V ]] && return
+    case $prev in
+        -h|--help|-V|--version)
+            return
+            ;;
+    esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $( compgen -W '-V' -- "$cur" ) )
+        local help='$( _parse_help "$1" )'
+        [[ $help ]] || help=-V
+        COMPREPLY=( $( compgen -W "$help" -- "$cur" ) )
     else
         _pids
     fi

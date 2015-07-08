@@ -6,11 +6,19 @@ _pidof()
     _init_completion || return
 
     case $prev in
-        -o)
+        -h|--help|-V|--version)
+            return
+            ;;
+        -o|--omit-pid)
             _pids
             return
             ;;
     esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return
+    fi
 
     _pnames
 } &&

@@ -6,14 +6,18 @@ _pgrep()
     _init_completion || return
 
     case $prev in
-        -c|-d|-g|-J|-M|-N|-s|-t|-T|-z)
+        -c|-d|--delimiter|-g|--pgroup|-J|-M|-N|-s|--session|-t|--terminal|-T|-z)
             return
             ;;
-        -F)
+        --signal)
+            _signals
+            return
+            ;;
+        -F|--pidfile)
             _filedir
             return
             ;;
-        -G)
+        -G|--group)
             _gids
             return
             ;;
@@ -21,20 +25,22 @@ _pgrep()
             COMPREPLY=( $( compgen -W 'any none' -- "$cur" ) )
             return
             ;;
-        -P)
+        -P|--parent)
             _pids
             return
             ;;
-        -u|-U)
+        -u|--euid|-U|--uid)
             _uids
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( "$1" --usage 2>&1 |
+        local help='$( _parse_help "$1" )'
+        [[ $help ]] || help='$( "$1" --usage 2>&1 |
             sed -e "s/\[-signal\]//" -e "s/\[-SIGNAL\]//" |
-            _parse_usage - )' -- "$cur" ) )
+            _parse_usage - )'
+        COMPREPLY=( $( compgen -W "$help" -- "$cur" ) )
         [[ $cword -eq 1 && $1 == *pkill ]] && _signals -
         return
     fi
