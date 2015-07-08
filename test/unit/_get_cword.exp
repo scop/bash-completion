@@ -249,4 +249,18 @@ expect {
 sync_after_int
 
 
+set test "index shouldn't drop below 0"
+set dir $::srcdir/fixtures/_get_cword
+set cmd "scp"
+send "$cmd ääää§ se\t\r\n"
+expect {
+    -re "index: substring expression < 0" { fail "$test" }
+    -re /@ { pass "$test" }
+    default { unresolved "$test" }
+}
+
+
+sync_after_int
+
+
 teardown
