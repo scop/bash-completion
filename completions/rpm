@@ -89,27 +89,24 @@ _rpm()
             _filedir spec
             return 0
             ;;
-        --whatprovides)
+        --whatenchances|--whatprovides|--whatrecommends|--whatrequires|\
+        --whatsuggests|--whatsupplements)
             if [[ "$cur" == */* ]]; then
                 _filedir
             else
                 # complete on capabilities
-                local IFS=$'\n'
+                local IFS=$'\n' fmt
+                case $prev in
+                    *enhances) fmt=ENHANCENAME ;;
+                    *provides) fmt=PROVIDENAME ;;
+                    *recommends) fmt=RECOMMENDNAME ;;
+                    *requires) fmt=REQUIRENAME ;;
+                    *suggests) fmt=SUGGESTNAME ;;
+                    *supplements) fmt=SUPPLEMENTNAME ;;
+                esac
                 COMPREPLY=( $( compgen -W "$( $1 -qa --nodigest --nosignature \
-                    --queryformat='%{PROVIDENAME}\n' 2>/dev/null )" \
-                    -- "$cur" ) )
-            fi
-            return 0
-            ;;
-        --whatrequires)
-            if [[ "$cur" == */* ]]; then
-                _filedir
-            else
-                # complete on capabilities
-                local IFS=$'\n'
-                COMPREPLY=( $( compgen -W "$( $1 -qa --nodigest --nosignature \
-                    --queryformat='%{REQUIRENAME}\n' 2>/dev/null )" \
-                    -- "$cur" ) )
+                    --queryformat=\"%{$fmt}\\n\" 2>/dev/null |
+                    command grep -vF '(none)' )" -- "$cur" ) )
             fi
             return 0
             ;;
@@ -153,7 +150,8 @@ _rpm()
                 --enhances --filesbypkg --filecaps --fileclass --filecolor
                 --fileprovide --filerequire --filesbypkg --info --list
                 --obsoletes --pipe --provides --queryformat= --requires
-                --scripts --suggests --triggers --xml"
+                --scripts --suggests --triggers --xml --recommends
+                --supplements"
 
             if [[ ${words[@]} == *\ -@(*([^ -])f|-file )* ]]; then
                 # -qf completion
@@ -180,7 +178,9 @@ _rpm()
                     COMPREPLY=( $( compgen -W "$opts --all --file --fileid
                         --dbpath --fscontext --ftswalk --group --hdrid --last
                         --package --pkgid --root= --specfile --state
-                        --triggeredby --whatprovides --whatrequires" \
+                        --triggeredby --whatenhances --whatprovides
+                        --whatrecommends --whatrequires --whatsuggests
+                        --whatsupplements" \
                             -- "$cur" ) )
                 elif [[ ${words[@]} != *\ -@(*([^ -])a|-all )* ]]; then
                     _rpm_installed_packages $1
@@ -200,7 +200,9 @@ _rpm()
                 COMPREPLY=( $( compgen -W "$opts --root= --dbpath --nodeps
                     --nogroup --nolinkto --nomode --nomtime --nordev --nouser
                     --nofiles --noscripts --nomd5 --querytags --specfile
-                    --whatrequires --whatprovides" -- "$cur" ) )
+                    --whatenhances --whatprovides --whatrecommends
+                    --whatrequires --whatsuggests --whatsupplements" \
+                        -- "$cur" ) )
             # check whether we're doing file completion
             elif [[ ${words[@]} == *\ -@(*([^ -])f|-file )* ]]; then
                 _filedir
