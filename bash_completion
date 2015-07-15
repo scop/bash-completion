@@ -1956,20 +1956,29 @@ _minimal()
 complete -F _minimal ''
 
 
-# set up dynamic completion loading
-_completion_loader()
+__load_completion()
 {
-    # $1=_EmptycmD_ already for empty cmds in bash 4.3, set to it for earlier
-    local cmd="${1:-_EmptycmD_}" compdir=./completions compfile dir
+    local cmd="$1" compdir=./completions compfile dir
     [[ $BASH_SOURCE == */* ]] && compdir="${BASH_SOURCE%/*}/completions"
 
     for dir in ${BASH_COMPLETION_USER_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion}/completions $compdir; do
         for compfile in "${cmd##*/}" "${cmd##*/}".bash _"${cmd##*/}"; do
             compfile="$dir/$compfile"
             # Avoid trying to source dirs; https://bugzilla.redhat.com/903540
-            [[ -f "$compfile" ]] && . "$compfile" &>/dev/null && return 124
+            [[ -f "$compfile" ]] && . "$compfile" &>/dev/null && return 0
         done
     done
+
+    return 1
+}
+
+# set up dynamic completion loading
+_completion_loader()
+{
+    # $1=_EmptycmD_ already for empty cmds in bash 4.3, set to it for earlier
+    local cmd="${1:-_EmptycmD_}"
+
+    __load_completion "$cmd" && return 124
 
     # Need to define *something*, otherwise there will be no completion at all.
     complete -F _minimal -- "$cmd" && return 124
@@ -1986,9 +1995,7 @@ _xfunc()
     local srcfile=$1
     shift
     declare -F $1 &>/dev/null || {
-        local compdir=./completions
-        [[ $BASH_SOURCE == */* ]] && compdir="${BASH_SOURCE%/*}/completions"
-        . "$compdir/$srcfile"
+        __load_completion "$srcfile"
     }
     "$@"
 }
