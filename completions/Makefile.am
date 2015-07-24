@@ -523,7 +523,6 @@ CLEANFILES = \
 	mogrify \
 	montage \
 	mplayer2 \
-	mpv \
 	msgsnarf \
 	muttng \
 	ncal \
