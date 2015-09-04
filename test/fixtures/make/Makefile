@@ -20,6 +20,22 @@ install: all
 clean:
 	-rm -f $(NAME)
 
+.test_passes:
+	./sample >/dev/null
+	touch ^@
+
+.cache/.1:
+	touch $@
+
+.cache/.2:
+	touch $@
+
+.cache/1:
+	touch $@
+
+.cache/2:
+	touch $@
+
 ifndef __BASH_MAKE_COMPLETION__
 -include sample.d
 endif

@@ -28,6 +28,34 @@ assert_complete_dir $targets "make " $dir $test
 sync_after_int
 
 
+set test "\"make .<TAB>\" should complete hidden targets"
+set dir $::srcdir/fixtures/make
+set targets ".test_passes .cache/"
+assert_complete_dir $targets "make ." $dir $test
+
+
+sync_after_int
+
+
+set test "\"make .cache/<TAB>\" should complete targets"
+set dir $::srcdir/fixtures/make
+set targets "1 2"
+assert_complete_dir $targets "make .cache/" $dir $test
+
+
+sync_after_int
+
+
+set test "\"make .cache/.<TAB>\" should complete hidden targets"
+set dir $::srcdir/fixtures/make
+set targets ".1 .2"
+assert_complete_dir $targets "make .cache/." $dir $test \
+ -expect-cmd-minus "."
+
+
+sync_after_int
+
+
 set test "\"make <TAB>\" should not show anything in directory without makefile"
 set dir $::srcdir/fixtures/make/empty_dir
 assert_complete_dir "" "make " $dir $test

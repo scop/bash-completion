@@ -61,9 +61,16 @@ function _make_target_extract_script()
       /^\.POSIX:/                 d;            # special target
       /^\.NOEXPORT:/              d;            # special target
       /^\.MAKE:/                  d;            # special target
+EOF
 
-      /^[^a-zA-Z0-9]/             d;            # convention for hidden tgt
+    # don't complete with hidden targets unless we are doing a partial completion
+    if [[ -z "${prefix_pat}" || "${prefix_pat}" = */ ]]; then
+      cat <<EOF
+      /^${prefix_pat}[^a-zA-Z0-9]/d             # convention for hidden tgt
+EOF
+    fi
 
+    cat <<EOF
       h;                                        # hold target
       d;                                        # delete line
     }
