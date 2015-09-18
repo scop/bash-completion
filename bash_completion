@@ -1958,10 +1958,20 @@ complete -F _minimal ''
 
 __load_completion()
 {
-    local cmd="$1" compdir=./completions compfile dir
-    [[ $BASH_SOURCE == */* ]] && compdir="${BASH_SOURCE%/*}/completions"
+    local -a dirs=( ${BASH_COMPLETION_USER_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion}/completions )
+    local OIFS=$IFS IFS=: dir cmd="$1" compfile
+    for dir in ${XDG_DATA_DIRS:-/usr/local/share:/usr/share}; do
+        dirs+=( $dir/bash-completion/completions )
+    done
+    IFS=$OIFS
 
-    for dir in ${BASH_COMPLETION_USER_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion}/completions $compdir; do
+    if [[ $BASH_SOURCE == */* ]]; then
+        dirs+=( "${BASH_SOURCE%/*}/completions" )
+    else
+        dirs+=( ./completions )
+    fi
+
+    for dir in "${dirs[@]}"; do
         for compfile in "${cmd##*/}" "${cmd##*/}".bash _"${cmd##*/}"; do
             compfile="$dir/$compfile"
             # Avoid trying to source dirs; https://bugzilla.redhat.com/903540
