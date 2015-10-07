@@ -1,5 +1,16 @@
 # chronyc(1) completion                                    -*- shell-script -*-
 
+_chronyc_command_args()
+{
+    local -a args=( $( compgen -W "$( $1 help 2>/dev/null | \
+        awk '/^'$prev'\s[^ []/ { gsub("\\|", " ", $2); print $2 }' )" ) )
+    case $args in
+        \<address\>) _known_hosts_real "$cur" ;;
+        \<*) ;;
+        *) COMPREPLY+=( $( compgen -W '${args[@]}' -- "$cur" ) ) ;;
+    esac
+}
+
 _chronyc()
 {
     local cur prev words cword
@@ -32,37 +43,11 @@ _chronyc()
                     -- "$cur" ) )
             ;;
         1)
-            case $prev in
-                accheck|cmdaccheck|delete|maxdelay|maxdelayratio|\
-                maxdelaydevratio|maxpoll|minpoll|minstratum|polltarget)
-                    _known_hosts_real "$cur"
-                    ;;
-                add)
-                    COMPREPLY=( $( compgen -W 'peer server' -- "$cur" ) )
-                    ;;
-                allow|cmdallow|cmddeny|deny)
-                    COMPREPLY=( $( compgen -W 'all' -- "$cur" ) )
-                    ;;
-                authhash)
-                    COMPREPLY=( $( compgen -W 'MD5 SHA1' -- "$cur" ) )
-                    ;;
-                dns)
-                    COMPREPLY=( $( compgen -W '-n +n -4 -6 -46' -- "$cur" ) )
-                    ;;
-                local)
-                    COMPREPLY=( $( compgen -W 'off stratum' -- "$cur" ) )
-                    ;;
-                manual)
-                    COMPREPLY=( $( compgen -W 'list on off reset delete' \
-                        -- "$cur" ) )
-                    ;;
-                sources|sourcestats)
-                    COMPREPLY=( $( compgen -W '-v' -- "$cur" ) )
-                    ;;
-                smoothtime)
-                    COMPREPLY=( $( compgen -W 'reset activate' -- "$cur" ) )
-                    ;;
-            esac
+            _chronyc_command_args "$1"
+            if [[ ! $COMPREPLY && $prev == sources?(tats) ]]; then
+                # [-v] not handled by _chronyc_command_args yet
+                COMPREPLY=( $( compgen -W '-v' -- "$cur" ) )
+            fi
             ;;
         2)
             [[ $prev == @(peer|server) ]] && _known_hosts_real "$cur"
