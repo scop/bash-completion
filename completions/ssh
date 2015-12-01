@@ -152,6 +152,29 @@ _ssh_configfile()
     done
 }
 
+_ec2_hosts()
+{
+    # Cache ec2 host names for 1 minute for speed
+    local cache_file="${HOME}/.ec2_node_names"
+
+    # Refresh the cache if:
+    # - There is no cache
+    # - It doesn't contain the search string
+    # - It's more than 5 minutes old
+    if [ ! -f "${cache_file}" ] || \
+        ! grep -q ${1} "${cache_file}" || \
+        test `find "${cache_file}" -mmin +5`; then
+        aws ec2 describe-instances | \
+            grep 'TAGS\tName' | \
+            awk '{print $3}' > "${cache_file}"
+    fi
+
+    COMPREPLY+=( $( compgen -W \
+        "$(cat "${cache_file}")" -- "${1}" ) )
+
+    return 0
+}
+
 _ssh()
 {
     local cur prev words cword
@@ -215,6 +238,7 @@ _ssh()
         local configfile
         _ssh_configfile
         _known_hosts_real -a -F "$configfile" "$cur"
+        _ec2_hosts "$cur"
 
         local args
         _count_args
