@@ -172,6 +172,11 @@ _ec2_hosts()
     COMPREPLY+=( $( compgen -W \
         "$(cat "${cache_file}")" -- "${1}" ) )
 
+    # Refresh the cache in the background every time
+    aws ec2 describe-instances | \
+        grep 'TAGS\tName' | \
+        awk '{print $3}' > "${cache_file}" &
+
     return 0
 }
 
