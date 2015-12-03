@@ -152,6 +152,18 @@ _ssh_configfile()
     done
 }
 
+_refresh_ec2_hosts_cache()
+{
+    local hosts
+    local cache_file="${1}"
+
+    hosts=`aws ec2 describe-instances | grep 'TAGS\tName' | awk '{print $3}'`
+
+    if [ -n "${hosts}" ]; then
+        echo ${hosts} > "${cache_file}"
+    fi
+}
+
 _ec2_hosts()
 {
     # Cache ec2 host names for 1 minute for speed
@@ -174,9 +186,7 @@ _ec2_hosts()
 
     # Refresh the cache in the background every time (Run in a subshell to
     # suppress PID output)
-    (aws ec2 describe-instances | \
-        grep 'TAGS\tName' | \
-        awk '{print $3}' > "${cache_file}" &)
+    (_refresh_ec2_hosts_cache "${cache_file}" &)
 
     return 0
 }
