@@ -28,15 +28,11 @@ _minicom()
             -T -7 -8' -- "$cur" ) )
         return 0
     else
-        local confdir
-        [[ -n $( command ls /etc/minirc.* 2>/dev/null ) ]] && confdir=/etc
-        [[ -n $( command ls /etc/minicom/minirc.* 2>/dev/null ) ]] \
-            && confdir=/etc/minicom
-        if [[ -n $confdir ]]; then
-            COMPREPLY=( $( compgen -W '$( printf "%s\n" $confdir/minirc.* | \
-                sed -e "s|$confdir/minirc.||")' -- "$cur" ) )
-            return 0
-        fi
+        COMPREPLY=(
+            $( command ls /etc/minirc.* /etc/minicom/minirc.* ~/.minirc.* \
+                       2>/dev/null | sed 's|^.*minirc\.||' | \
+                   grep "^${cur}" ) )
+        [[ $COMPREPLY ]] && return
     fi
 } &&
 complete -F _minicom -o default minicom
