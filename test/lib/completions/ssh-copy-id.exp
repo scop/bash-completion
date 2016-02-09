@@ -1,10 +1,16 @@
 proc setup {} {
     save_env
+    # Some old versions of ssh-copy-id won't output even usage if no
+    # identities are found. Try to make sure there is at least one (for CI).
+    assert_bash_exec {OLDHOME=$HOME ; HOME=$SRCDIR/fixtures/ssh-copy-id}
 }
 
 
 proc teardown {} {
-    assert_env_unmodified
+    assert_bash_exec {HOME=$OLDHOME}
+    assert_env_unmodified {
+        /OLDHOME=/d
+    }
 }
 
 
