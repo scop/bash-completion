@@ -57,4 +57,7 @@ done
 [[ -n $timeout ]] && args+=("OPT_TIMEOUT=$timeout")
 [[ -z $tool ]] && { echo "Must specify tool somehow"; exit 1; }
 
-exec runtest --outdir log --tool $tool "${args[@]}" 
+runtest --outdir log --tool $tool "${args[@]}"
+rc=$?
+[[ $rc -ne 0 && -n "$CI" ]] && cat log/$tool.log
+exit $rc
