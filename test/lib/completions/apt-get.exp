@@ -11,11 +11,14 @@ proc teardown {} {
 setup
 
 
-set commands {autoclean autoremove build-dep check clean dist-upgrade 
-    dselect-upgrade install purge remove source update upgrade}
-assert_complete $commands "apt-get "
-
-
+set test "Tab should complete commands"
+set cmd "apt-get "
+send "$cmd\t"
+set expected "^$cmd\r\n.* install .* update .*\r\n/@$cmd$"
+expect {
+    -re $expected { pass "$test" }
+    default { fail "$test" }
+}
 sync_after_int
 
 
