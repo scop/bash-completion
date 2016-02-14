@@ -420,6 +420,8 @@ CLEANFILES = \
 	aclocal-1.11 \
 	aclocal-1.12 \
 	aclocal-1.13 \
+	aclocal-1.14 \
+	aclocal-1.15 \
 	alpine \
 	alternatives \
 	animate \
@@ -431,6 +433,8 @@ CLEANFILES = \
 	automake-1.11 \
 	automake-1.12 \
 	automake-1.13 \
+	automake-1.14 \
+	automake-1.15 \
 	autossh \
 	autoupdate \
 	bsdtar \
@@ -627,7 +631,8 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) 7z $(targetdir)/$$file ; \
 	done
-	for file in aclocal-1.10 aclocal-1.11 aclocal-1.12 aclocal-1.13 ; do \
+	for file in aclocal-1.10 aclocal-1.11 aclocal-1.12 aclocal-1.13 \
+		aclocal-1.14 aclocal-1.15 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) aclocal $(targetdir)/$$file ; \
 	done
@@ -640,7 +645,7 @@ symlinks: $(targetdir) $(DATA)
 			$(LN_S) asciidoc $(targetdir)/$$file ; \
 	done
 	for file in automake-1.10 automake-1.11 automake-1.12 automake-1.13 \
-		; do \
+		automake-1.14 automake-1.15 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) automake $(targetdir)/$$file ; \
 	done
