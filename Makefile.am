@@ -21,7 +21,7 @@ bash_completion.sh: bash_completion.sh.in Makefile
 CLEANFILES = bash_completion.sh bash-completion.pc
 
 EXTRA_DIST = CHANGES $(pkgdata_DATA) bash_completion.sh.in .dir-locals.el \
-	README.md
+	README.md CONTRIBUTING.md
 
 install-data-hook:
 	tmpfile=`mktemp $${TMPDIR:-/tmp}/bash_completion.XXXXXX` && \
