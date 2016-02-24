@@ -71,9 +71,9 @@ _java_classes()
 
         elif [[ -d $i ]]; then
             COMPREPLY+=(
-                $( compgen -d -- "$i/$cur" | sed -e "s|^$i/\(.*\)|\1.|" )
+                $( compgen -d -- "$i/$cur" | command sed -e "s|^$i/\(.*\)|\1.|" )
                 $( compgen -f -X '!*.class' -- "$i/$cur" | \
-                    sed -e '/\$/d' -e "s|^$i/||" )
+                    command sed -e '/\$/d' -e "s|^$i/||" )
             )
             [[ $COMPREPLY == *.class ]] || compopt -o nospace
 
@@ -103,7 +103,7 @@ _java_packages()
     for i in ${sourcepath//:/ }; do
         if [[ -d $i ]]; then
             COMPREPLY+=( $( command ls -F -d $i/$cur* 2>/dev/null | \
-                sed -e 's|^'$i'/||' ) )
+                command sed -e 's|^'$i'/||' ) )
         fi
     done
     # keep only packages
@@ -294,7 +294,7 @@ _javac()
         # For some reason there may be -g:none AND -g:{lines,source,vars};
         # convert the none case to the curly brace format so it parses like
         # the others.
-        local opts=$( "$1" $helpopt 2>&1 | sed -e 's/-g:none/-g:{none}/' -ne \
+        local opts=$( "$1" $helpopt 2>&1 | command sed -e 's/-g:none/-g:{none}/' -ne \
             "s/^[[:space:]]*${cur%%:*}:{\([^}]\{1,\}\)}.*/\1/p" )
         COMPREPLY=( $( compgen -W "${opts//,/ }" -- "${cur#*:}" ) )
         return

@@ -57,7 +57,7 @@ _muttconffiles()
     sofar=" $1 "
     shift
     while [[ "$1" ]]; do
-        newconffiles=( $(sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' $(eval printf %s $1) ) )
+        newconffiles=( $(command sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' $(eval printf %s $1) ) )
         for file in "${newconffiles[@]}"; do
             __expand_tilde_by_ref file
             [[ ! -f "$file" || $sofar == *\ $file\ * ]] && continue
@@ -80,7 +80,7 @@ _muttaliases()
     [[ -z $muttrc ]] && return 0
 
     conffiles=( $(eval _muttconffiles $muttrc $muttrc) )
-    aliases=( $( sed -n 's|^alias[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' \
+    aliases=( $( command sed -n 's|^alias[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' \
         $(eval echo "${conffiles[@]}") ) )
     COMPREPLY+=( $( compgen -W "${aliases[*]}" -- "$cur" ) )
 
@@ -94,13 +94,13 @@ _muttquery()
     local cur=$1 querycmd muttcmd=${words[0]}
     local -a queryresults
 
-    querycmd="$( $muttcmd -Q query_command 2>/dev/null | sed -e 's|^query_command=\"\(.*\)\"$|\1|' -e 's|%s|'$cur'|' )"
+    querycmd="$( $muttcmd -Q query_command 2>/dev/null | command sed -e 's|^query_command=\"\(.*\)\"$|\1|' -e 's|%s|'$cur'|' )"
     if [[ -z "$cur" || -z "$querycmd" ]]; then
         queryresults=()
     else
         __expand_tilde_by_ref querycmd
         queryresults=( $( $querycmd | \
-            sed -n '2,$s|^\([^[:space:]]\{1,\}\).*|\1|p' ) )
+            command sed -n '2,$s|^\([^[:space:]]\{1,\}\).*|\1|p' ) )
     fi
 
     COMPREPLY+=( $( compgen -W "${queryresults[*]}" -- "$cur" ) )
@@ -116,7 +116,7 @@ _muttfiledir()
 
     muttrc=$(_muttrc)
     if [[ $cur == [=+]* ]]; then
-        folder="$( $muttcmd -F "$muttrc" -Q folder 2>/dev/null | sed -e 's|^folder=\"\(.*\)\"$|\1|' )"
+        folder="$( $muttcmd -F "$muttrc" -Q folder 2>/dev/null | command sed -e 's|^folder=\"\(.*\)\"$|\1|' )"
         : folder:=~/Mail
 
         # Match any file in $folder beginning with $cur
@@ -127,7 +127,7 @@ _muttfiledir()
         return 0
     elif [[ $cur == !* ]]; then
         spoolfile="$( $muttcmd -F "$muttrc" -Q spoolfile 2>/dev/null | \
-            sed -e 's|^spoolfile=\"\(.*\)\"$|\1|' )"
+            command sed -e 's|^spoolfile=\"\(.*\)\"$|\1|' )"
         [[ ! -z $spoolfile ]] && eval cur="${cur/^!/$spoolfile}"
     fi
     _filedir

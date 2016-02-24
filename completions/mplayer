@@ -4,8 +4,8 @@ _mplayer_options_list()
 {
     cur=${cur%\\}
     COMPREPLY=( $( compgen -W "$( $1 -nomsgcolor -nomsgmodule $2 help 2>/dev/null | \
-        sed -e '/^Available/,/^$/!d' -e '/^Available/d' | awk '{print $1}' | \
-        sed -e 's/:$//' -e 's/^'${2#-}'$//' -e 's/<.*//' )" -- "$cur" ) )
+        command sed -e '/^Available/,/^$/!d' -e '/^Available/d' | awk '{print $1}' | \
+        command sed -e 's/:$//' -e 's/^'${2#-}'$//' -e 's/<.*//' )" -- "$cur" ) )
 }
 
 _mplayer()
@@ -57,7 +57,7 @@ _mplayer()
             ;;
         -subcp|-msgcharset)
             local cp
-            cp=( $( iconv --list 2>/dev/null | sed -e "s@//@@;" 2>/dev/null ) )
+            cp=( $( iconv --list 2>/dev/null | command sed -e "s@//@@;" 2>/dev/null ) )
             if [[ "$cur" == "${cur,,}" ]]; then
                 COMPREPLY=( $( compgen -W '${cp[@],,}' -- "$cur" ) )
             else
@@ -275,7 +275,7 @@ _mplayer()
     case $cur in
         -*)
             COMPREPLY=( $( compgen -W '$( $cmd -nomsgcolor -nomsgmodule -list-options 2>/dev/null | \
-                sed -ne '1,/^[[:space:]]*Name/d' \
+                command sed -ne '1,/^[[:space:]]*Name/d' \
                     -e "s/^[[:space:]]*/-/" -e "s/[[:space:]:].*//" \
                     -e "/^-\(Total\|.*\*\)\{0,1\}$/!p" )' -- "$cur" ) )
             ;;

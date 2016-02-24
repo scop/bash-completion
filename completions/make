@@ -7,7 +7,7 @@ function _make_target_extract_script()
 
     local prefix="$1"
     local prefix_pat=$( printf "%s\n" "$prefix" | \
-                        sed 's/[][\,.*^$(){}?+|/]/\\&/g' )
+                        command sed 's/[][\,.*^$(){}?+|/]/\\&/g' )
     local basename=${prefix##*/}
     local dirname_len=$(( ${#prefix} - ${#basename} ))
 
@@ -157,7 +157,7 @@ _make()
         COMPREPLY=( $( LC_ALL=C \
             make -npq __BASH_MAKE_COMPLETION__=1 \
                 "${makef[@]}" "${makef_dir[@]}" .DEFAULT 2>/dev/null | \
-            sed -nf <(_make_target_extract_script $mode "$cur") ) )
+            command sed -nf <(_make_target_extract_script $mode "$cur") ) )
         $reset
 
         if [[ $mode != -d ]]; then

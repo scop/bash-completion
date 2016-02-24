@@ -25,7 +25,7 @@ _xrandr()
                 fi
             done
             if [[ $output ]]; then
-                local modes=$( "$1" | sed -e "1,/$output/ d" \
+                local modes=$( "$1" | command sed -e "1,/$output/ d" \
                     -e "/connected/,$ d" \
                     -e "s/\([^[:space:]]\)[[:space:]].*/\1/" )
                 COMPREPLY=( $( compgen -W "$modes" -- "$cur" ) )
@@ -47,7 +47,7 @@ _xrandr()
             ;;
         --setprovideroutputsource|--setprovideroffloadsink)
             local providers=$( "$1" --listproviders 2>/dev/null |
-                sed -ne 's/.* name:\([^ ]*\).*/\1/p' )
+                command sed -ne 's/.* name:\([^ ]*\).*/\1/p' )
             COMPREPLY=( $( compgen -W "$providers" -- "$cur" ) )
             # TODO 2nd arg needed, is that a provider as well?
             return
@@ -55,7 +55,7 @@ _xrandr()
     esac
 
     COMPREPLY=( $( compgen -W '$( "$1" -help 2>&1 |
-        sed -e "s/ or / /g" -e "s/<[^>]*>]//g" | _parse_help - )' -- "$cur" ) )
+        command sed -e "s/ or / /g" -e "s/<[^>]*>]//g" | _parse_help - )' -- "$cur" ) )
 } &&
 complete -F _xrandr xrandr
 

@@ -847,7 +847,7 @@ _mac_addresses()
     # - ifconfig on FreeBSD: ether
     # - ip link: link/ether
     COMPREPLY+=( $( \
-        { LC_ALL=C ifconfig -a || ip link show; } 2>/dev/null | sed -ne \
+        { LC_ALL=C ifconfig -a || ip link show; } 2>/dev/null | command sed -ne \
         "s/.*[[:space:]]HWaddr[[:space:]]\{1,\}\($re\)[[:space:]].*/\1/p" -ne \
         "s/.*[[:space:]]HWaddr[[:space:]]\{1,\}\($re\)[[:space:]]*$/\1/p" -ne \
         "s|.*[[:space:]]\(link/\)\{0,1\}ether[[:space:]]\{1,\}\($re\)[[:space:]].*|\2|p" -ne \
@@ -855,12 +855,12 @@ _mac_addresses()
         ) )
 
     # ARP cache
-    COMPREPLY+=( $( { arp -an || ip neigh show; } 2>/dev/null | sed -ne \
+    COMPREPLY+=( $( { arp -an || ip neigh show; } 2>/dev/null | command sed -ne \
         "s/.*[[:space:]]\($re\)[[:space:]].*/\1/p" -ne \
         "s/.*[[:space:]]\($re\)[[:space:]]*$/\1/p" ) )
 
     # /etc/ethers
-    COMPREPLY+=( $( sed -ne \
+    COMPREPLY+=( $( command sed -ne \
         "s/^[[:space:]]*\($re\)[[:space:]].*/\1/p" /etc/ethers 2>/dev/null ) )
 
     COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
@@ -873,23 +873,23 @@ _configured_interfaces()
 {
     if [[ -f /etc/debian_version ]]; then
         # Debian system
-        COMPREPLY=( $( compgen -W "$( sed -ne 's|^iface \([^ ]\{1,\}\).*$|\1|p'\
+        COMPREPLY=( $( compgen -W "$( command sed -ne 's|^iface \([^ ]\{1,\}\).*$|\1|p'\
             /etc/network/interfaces )" -- "$cur" ) )
     elif [[ -f /etc/SuSE-release ]]; then
         # SuSE system
         COMPREPLY=( $( compgen -W "$( printf '%s\n' \
             /etc/sysconfig/network/ifcfg-* | \
-            sed -ne 's|.*ifcfg-\(.*\)|\1|p' )" -- "$cur" ) )
+            command sed -ne 's|.*ifcfg-\(.*\)|\1|p' )" -- "$cur" ) )
     elif [[ -f /etc/pld-release ]]; then
         # PLD Linux
         COMPREPLY=( $( compgen -W "$( command ls -B \
             /etc/sysconfig/interfaces | \
-            sed -ne 's|.*ifcfg-\(.*\)|\1|p' )" -- "$cur" ) )
+            command sed -ne 's|.*ifcfg-\(.*\)|\1|p' )" -- "$cur" ) )
     else
         # Assume Red Hat
         COMPREPLY=( $( compgen -W "$( printf '%s\n' \
             /etc/sysconfig/network-scripts/ifcfg-* | \
-            sed -ne 's|.*ifcfg-\(.*\)|\1|p' )" -- "$cur" ) )
+            command sed -ne 's|.*ifcfg-\(.*\)|\1|p' )" -- "$cur" ) )
     fi
 }
 
@@ -899,9 +899,9 @@ _ip_addresses()
 {
     local PATH=$PATH:/sbin
     COMPREPLY+=( $( compgen -W \
-        "$( { LC_ALL=C ifconfig -a || ip addr show; } 2>/dev/null |
-            sed -ne 's/.*addr:\([^[:space:]]*\).*/\1/p' \
-                -ne 's|.*inet[[:space:]]\{1,\}\([^[:space:]/]*\).*|\1|p' )" \
+        "$( { LC_ALL=C ifconfig -a || ip addr show; } 2>/dev/null | command sed -ne \
+            's/.*addr:\([^[:space:]]*\).*/\1/p' -ne \
+            's|.*inet[[:space:]]\{1,\}\([^[:space:]/]*\).*|\1|p' )" \
         -- "$cur" ) )
 }
 
@@ -1029,7 +1029,7 @@ _expand()
 [[ $OSTYPE == *@(solaris|aix)* ]] &&
 _pids()
 {
-    COMPREPLY=( $( compgen -W '$( command ps -efo pid | sed 1d )' -- "$cur" ))
+    COMPREPLY=( $( compgen -W '$( command ps -efo pid | command sed 1d )' -- "$cur" ))
 } ||
 _pids()
 {
@@ -1041,7 +1041,7 @@ _pids()
 [[ $OSTYPE == *@(solaris|aix)* ]] &&
 _pgids()
 {
-    COMPREPLY=( $( compgen -W '$( command ps -efo pgid | sed 1d )' -- "$cur" ))
+    COMPREPLY=( $( compgen -W '$( command ps -efo pgid | command sed 1d )' -- "$cur" ))
 } ||
 _pgids()
 {
@@ -1055,13 +1055,13 @@ _pgids()
 _pnames()
 {
     COMPREPLY=( $( compgen -X '<defunct>' -W '$( command ps -efo comm | \
-        sed -e 1d -e "s:.*/::" -e "s/^-//" | sort -u )' -- "$cur" ) )
+        command sed -e 1d -e "s:.*/::" -e "s/^-//" | sort -u )' -- "$cur" ) )
 } ||
 _pnames()
 {
     if [[ "$1" == -s ]]; then
         COMPREPLY=( $( compgen -X '<defunct>' \
-            -W '$( command ps axo comm | sed -e 1d )' -- "$cur" ) )
+            -W '$( command ps axo comm | command sed -e 1d )' -- "$cur" ) )
     else
         # FIXME: completes "[kblockd/0]" to "0". Previously it was completed
         # to "kblockd" which isn't correct either. "kblockd/0" would be
@@ -1069,9 +1069,12 @@ _pnames()
         # containing "/" specially unless -r is given so that wouldn't quite
         # work either. Perhaps it'd be best to not complete these to anything
         # for now.
-        COMPREPLY=( $( compgen -X '<defunct>' -W '$( command ps axo command= | \
-            sed -e "s/ .*//" -e "s:.*/::" -e "s/:$//" -e "s/^[[(-]//" \
-                -e "s/[])]$//" | sort -u )' -- "$cur" ) )
+        COMPREPLY=( $( compgen -X '<defunct>' -W '$( command ps axo command= | command sed -e \
+            "s/ .*//" -e \
+            "s:.*/::" -e \
+            "s/:$//" -e \
+            "s/^[[(-]//" -e \
+            "s/[])]$//" | sort -u )' -- "$cur" ) )
     fi
 }
 
@@ -1161,7 +1164,7 @@ _service()
     else
         local sysvdirs
         _sysvdirs
-        COMPREPLY=( $( compgen -W '`sed -e "y/|/ /" \
+        COMPREPLY=( $( compgen -W '`command sed -e "y/|/ /" \
             -ne "s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p" \
             ${sysvdirs[0]}/${prev##*/} 2>/dev/null` start stop' -- "$cur" ) )
     fi
@@ -1182,7 +1185,7 @@ _modules()
     local modpath
     modpath=/lib/modules/$1
     COMPREPLY=( $( compgen -W "$( command ls -RL $modpath 2>/dev/null | \
-        sed -ne 's/^\(.*\)\.k\{0,1\}o\(\.[gx]z\)\{0,1\}$/\1/p' )" -- "$cur" ) )
+        command sed -ne 's/^\(.*\)\.k\{0,1\}o\(\.[gx]z\)\{0,1\}$/\1/p' )" -- "$cur" ) )
 }
 
 # This function completes on installed modules
@@ -1385,7 +1388,7 @@ _dvd_devices()
 _terms()
 {
     COMPREPLY+=( $( compgen -W \
-        "$( sed -ne 's/^\([^[:space:]#|]\{2,\}\)|.*/\1/p' /etc/termcap \
+        "$( command sed -ne 's/^\([^[:space:]#|]\{2,\}\)|.*/\1/p' /etc/termcap \
             2>/dev/null )" -- "$cur" ) )
     COMPREPLY+=( $( compgen -W "$( { toe -a 2>/dev/null || toe 2>/dev/null; } \
         | awk '{ print $1 }' | sort -u )" -- "$cur" ) )
@@ -1793,7 +1796,7 @@ _longopt()
             return 0
             ;;
         --+([-a-z0-9_]))
-            local argtype=$( LC_ALL=C $1 --help 2>&1 | sed -ne \
+            local argtype=$( LC_ALL=C $1 --help 2>&1 | command sed -ne \
                 "s|.*$prev\[\{0,1\}=[<[]\{0,1\}\([-A-Za-z0-9_]\{1,\}\).*|\1|p" )
             case ${argtype,,} in
                 *dir*)
@@ -1812,7 +1815,7 @@ _longopt()
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W "$( LC_ALL=C $1 --help 2>&1 | \
-            sed -ne 's/.*\(--[-A-Za-z0-9]\{1,\}=\{0,1\}\).*/\1/p' | sort -u )" \
+            command sed -ne 's/.*\(--[-A-Za-z0-9]\{1,\}=\{0,1\}\).*/\1/p' | sort -u )" \
             -- "$cur" ) )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     elif [[ "$1" == @(mk|rm)dir ]]; then

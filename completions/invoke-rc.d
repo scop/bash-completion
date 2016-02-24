@@ -20,12 +20,12 @@ _invoke_rc_d()
     if [[ ($cword -eq 1) || ("$prev" == --* ) ]]; then
     valid_options=( $( \
         tr " " "\n" <<<"${words[@]} ${options[@]}" \
-        | sed -ne "/$( sed "s/ /\\\\|/g" <<<"${options[@]}" )/p" \
+        | command sed -ne "/$( command sed "s/ /\\\\|/g" <<<"${options[@]}" )/p" \
         | sort | uniq -u \
         ) )
     COMPREPLY=( $( compgen -W '${valid_options[@]} ${services[@]}' -- "$cur" ) )
     elif [[ -x $sysvdir/$prev ]]; then
-        COMPREPLY=( $( compgen -W '`sed -e "y/|/ /" \
+        COMPREPLY=( $( compgen -W '`command sed -e "y/|/ /" \
             -ne "s/^.*Usage:[ ]*[^ ]*[ ]*{*\([^}\"]*\).*$/\1/p" \
             $sysvdir/$prev`' -- "$cur" ) )
     else
