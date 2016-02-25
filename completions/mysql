@@ -20,8 +20,10 @@ _mysql()
             return 0
             ;;
         --default-character-set)
-            [[ -d /usr/share/mysql/charsets ]] && \
-                COMPREPLY=( $( compgen -W "$(command ls /usr/share/mysql/charsets | command sed -e '/^README$/d' -e '/^Index\.xml$/d' -e 's/.xml$//') utf8" -- "$cur" ) )
+            local charsets=( $( command ls /usr/share/m{ariadb,ysql}/charsets/*.xml 2>/dev/null ) )
+            charsets=( ${charsets[@]##*/} )
+            charsets=( ${charsets[@]%%?(Index).xml} utf8 )
+            COMPREPLY=( $( compgen -W '${charsets[@]}' -- "$cur" ) )
             return 0
             ;;
 
