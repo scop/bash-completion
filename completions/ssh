@@ -134,12 +134,29 @@ _ssh_suboption_check()
     return 1
 }
 
+# Search COMP_WORDS for '-F configfile' or '-Fconfigfile' argument
+_ssh_configfile()
+{
+    set -- "${words[@]}"
+    while [[ $# -gt 0 ]]; do
+        if [[ $1 == -F* ]]; then
+            if [[ ${#1} -gt 2 ]]; then
+                configfile="$(dequote "${1:2}")"
+            else
+                shift
+                [[ $1 ]] && configfile="$(dequote "$1")"
+            fi
+            break
+        fi
+        shift
+    done
+}
+
 _ssh()
 {
     local cur prev words cword
     _init_completion -n : || return
 
-    local configfile
     local -a config
 
     _ssh_suboption_check "$1" && return 0
@@ -195,20 +212,8 @@ _ssh()
     elif [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
     else
-        # Search COMP_WORDS for '-F configfile' or '-Fconfigfile' argument
-        set -- "${words[@]}"
-        while [[ $# -gt 0 ]]; do
-            if [[ $1 == -F* ]]; then
-                if [[ ${#1} -gt 2 ]]; then
-                    configfile="$(dequote "${1:2}")"
-                else
-                    shift
-                    [[ $1 ]] && configfile="$(dequote "$1")"
-                fi
-                break
-            fi
-            shift
-        done
+        local configfile
+        _ssh_configfile
         _known_hosts_real -a -F "$configfile" "$cur"
 
         local args
@@ -229,8 +234,6 @@ _sftp()
 {
     local cur prev words cword
     _init_completion || return
-
-    local configfile
 
     _ssh_suboption_check && return 0
 
@@ -265,20 +268,8 @@ _sftp()
     elif [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
     else
-        # Search COMP_WORDS for '-F configfile' argument
-        set -- "${words[@]}"
-        while [[ $# -gt 0 ]]; do
-            if [[ $1 == -F* ]]; then
-                if [[ ${#1} -gt 2 ]]; then
-                    configfile="$(dequote "${1:2}")"
-                else
-                    shift
-                    [[ $1 ]] && configfile="$(dequote "$1")"
-                fi
-                break
-            fi
-            shift
-        done
+        local configfile
+        _ssh_configfile
         _known_hosts_real -a -F "$configfile" "$cur"
     fi
 
@@ -357,7 +348,7 @@ _scp()
     local cur prev words cword
     _init_completion -n : || return
 
-    local configfile prefix
+    local prefix
 
     _ssh_suboption_check && {
         COMPREPLY=( "${COMPREPLY[@]/%/ }" )
@@ -400,21 +391,6 @@ _scp()
         cur=${cur#-F}
         prefix=-F
     else
-        # Search COMP_WORDS for '-F configfile' or '-Fconfigfile' argument
-        set -- "${words[@]}"
-        while [[ $# -gt 0 ]]; do
-            if [[ $1 == -F* ]]; then
-                if [[ ${#1} -gt 2 ]]; then
-                    configfile="$(dequote "${1:2}")"
-                else
-                    shift
-                    [[ $1 ]] && configfile="$(dequote "$1")"
-                fi
-                break
-            fi
-            shift
-        done
-
         case $cur in
             -*)
                 COMPREPLY=( $( compgen -W '$( _parse_usage "${words[0]}" )' \
@@ -426,6 +402,8 @@ _scp()
                 # not a known host, pass through
                 ;;
             *)
+                local configfile
+                _ssh_configfile
                 _known_hosts_real -c -a -F "$configfile" "$cur"
                 ;;
         esac
