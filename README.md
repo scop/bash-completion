@@ -23,6 +23,7 @@ you simply don't want to use one, you can install bash completion using the
 standard commands for GNU autotools packages:
 
 ```shell
+autoreconf -i
 ./configure
 make
 make check # optional, requires dejagnu and tcllib
