@@ -57,12 +57,17 @@ fi
 
 ## Troubleshooting
 
-If you find that a given function is producing errors under certain
-circumstances when you attempt completion, try running `set -v` or
-`set -x` prior to attempting the completion again. This will produce
-useful debugging output that will aid us in fixing the problem if you
-are unable to do so yourself. Turn off the trace output by running
-either `set +v` or `set +x`.
+If you find that a given function is producing errors or does not work
+as it should under certain circumstances when you attempt completion,
+try running `set -v` or `set -x` prior to attempting the completion
+again. This will produce useful debugging output that will aid us in
+fixing the problem if you are unable to do so yourself. Turn off the
+trace output by running either `set +v` or `set +x`.
+
+To debug dynamic loading of a completion, tracing needs to be turned
+on before the debugged completion is attempted the first time. The
+easiest way to do this is to start a new shell session, and to turn
+tracing on in it before doing anything else there.
 
 
 ## Known problems
