@@ -410,7 +410,8 @@ bashcomp_DATA = 2to3 \
 		ypmatch \
 		_yum \
 		yum-arch \
-		zopfli
+		zopfli \
+		zopflipng
 
 EXTRA_DIST = $(bashcomp_DATA)
 

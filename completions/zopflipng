@@ -1,0 +1,39 @@
+# bash completion for zopflipng                            -*- shell-script -*-
+
+_zopflipng()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -h|--help)
+            return
+            ;;
+        --splitting)
+            COMPREPLY=( $( compgen -W '{0..3}' -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    $split && return
+    
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( _parse_help "$1" -h ) )
+        COMPREPLY=( $( compgen -W '${COMPREPLY[@]%:}' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    if [[ ${words[@]} != *\ --prefix=* ]]; then
+        # 2 png args only if --prefix not given
+        local args
+        _count_args
+        [[ $args -lt 3 ]] && _filedir png
+    else
+        # otherwise arbitrary number of png args
+        _filedir png
+    fi
+} &&
+complete -F _zopflipng zopflipng
+
+# ex: ts=4 sw=4 et filetype=sh
