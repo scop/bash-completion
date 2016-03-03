@@ -31,14 +31,14 @@ make install # as root
 ```
 
 These commands installs the completions and helpers, as well as a
-profile.d script that loads bash_completion where appropriate. If
+profile.d script that loads `bash_completion` where appropriate. If
 your system does not use the profile.d directory (usually below
 `/etc`) mechanism, i.e. does not automatically source shell scripts in
 it, you can source the `$sysconfdir/profile.d/bash_completion.sh`
 script in `/etc/bashrc` or `~/.bashrc`.
 
 The profile.d script provides a configuration file hook that can be
-used to prevent loading bash_completion on per user basis when it's
+used to prevent loading `bash_completion` on per user basis when it's
 installed system wide. To do this, turn off programmable completion
 with `shopt -u progcomp` in `$XDG_CONFIG_HOME/bash_completion`
 (`~/.config/bash_completion` if `$XDG_CONFIG_HOME` is not set), and
@@ -46,7 +46,7 @@ turn it back on for example in `~/.bashrc` if you want to use
 programmable completion for other purposes.
 
 If you're using MacOS X, `/etc/bashrc` is apparently not sourced at
-all. In that case, you can put the bash_completion file in `/sw/etc`
+all. In that case, you can put the `bash_completion` file in `/sw/etc`
 and add the following code to `~/.bash_profile`:
 
 ```shell
@@ -130,7 +130,7 @@ A. Install it in one of the directories pointed to by
    for more than one command. The other one which is present for
    backwards compatibility reasons is `compatdir` (get it with
    `pkg-config --variable=compatdir bash-completion`) from which files
-   are loaded when bash_completion is loaded.
+   are loaded when `bash_completion` is loaded.
 
    For packages using GNU autotools the installation can be handled
    for example like this in `configure.ac`:
