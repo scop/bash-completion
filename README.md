@@ -84,7 +84,7 @@ tracing on in it before doing anything else there.
    mileage may vary.
 
 3. If you are seeing 'unbound variable' warnings from bash when
-   hitting <Tab>, this is because you have either `set -u` or `set -o
+   hitting \<Tab>, this is because you have either `set -u` or `set -o
    nounset` somewhere in your start-up files. This causes bash to flag
    the use of any uninitialised shell variables as an error.
 
@@ -219,7 +219,7 @@ A. It's a choice we had to make. bash's programmable completion is
    `bash_completion`.
 
 Q. When completing on a symlink to a directory, bash does not append
-   the trailing `/` and I have to hit <Tab> again. I don't like this.
+   the trailing `/` and I have to hit \<Tab> again. I don't like this.
 
 A. This has nothing to do with `bash_completion`. It's the default for
    completing symlinks to directories since bash 2.05a, and was added
