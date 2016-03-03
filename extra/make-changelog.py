@@ -25,5 +25,5 @@ for author in sorted(changelog.keys()):
             wrap(log, initial_indent='  * ', subsequent_indent='    ')))
     print('')
 
-print(' -- David Paleino <d.paleino@gmail.com>  %s' %
+print(' -- Ville Skyttä <ville.skytta@iki.fi>  %s' %
       formatdate(localtime=True))
