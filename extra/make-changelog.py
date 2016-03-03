@@ -1,11 +1,12 @@
 #!/usr/bin/python
 # -*- encoding: utf-8 -*-
 
-import git
-import sys
 from collections import defaultdict
-from textwrap import wrap
 from email.utils import formatdate
+import sys
+from textwrap import wrap
+
+import git
 
 repo = git.Repo('.')
 changelog = defaultdict(list)
@@ -20,7 +21,8 @@ print('')
 for author in sorted(changelog.keys()):
     print('  [ %s ]' % author)
     for log in changelog[author]:
-        print('\n'.join(wrap(log, initial_indent='  * ', subsequent_indent='    ')))
+        print('\n'.join(
+            wrap(log, initial_indent='  * ', subsequent_indent='    ')))
     print('')
 
 print(' -- David Paleino <d.paleino@gmail.com> ', formatdate(localtime=True))
