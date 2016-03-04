@@ -2,19 +2,27 @@
 
 _unrar()
 {
-    local cur prev words cword
+    local cur prev words cword cmp_opts=1 i
     _init_completion || return
 
-    if [[ $cur == -* ]]; then
+    # Check if all of the middle part are options.
+    # If not, we break at the last-option idx, and won't complete opts.
+    for ((i=1; i<${#words[@]}-1; i++)); do
+        # not using the whole list for checking -- too verbose
+        if [[ ${words[i]} != -* || ${words[i]} == '--' ]]; then
+            cmp_opts=0
+            break
+        fi
+    done
+
+    if [[ $cur == -* ]] && ((cmp_opts)); then   # options
         COMPREPLY=( $( compgen -W '-ad -ap -av- -c- -cfg- -cl -cu -dh -ep -f
             -idp -ierr -inul -kb -o+ -o- -ow -p -p- -r -ta -tb -tn -to -u -v
             -ver -vp -x -x@ -y' -- "$cur" ) )
-    else
-        if [[ $cword -eq 1 ]]; then
-            COMPREPLY=( $( compgen -W 'e l lb lt p t v vb vt x' -- "$cur" ) )
-        else
-            _filedir rar
-        fi
+    elif ((cword == 1)); then                   # command
+        COMPREPLY=( $( compgen -W 'e l lb lt p t v vb vt x' -- "$cur" ) )
+    else                                        # archive
+        _filedir 'rar'
     fi
 
 } &&
