@@ -23,6 +23,14 @@ _unrar()
         COMPREPLY=( $( compgen -W 'e l lb lt p t v vb vt x' -- "$cur" ) )
     elif ((cword == i+1)); then                 # archive
         _filedir 'rar'
+        # If there is a second, third, ... ninth part
+        for i in "${COMPREPLY[@]}"; do
+            if [[ i == *.part*(0)[2-9].[rR][aA][rR] ]]; then
+                # Only look for the first, since it's the only useful one
+                _filedir 'part*(0)1.rar'
+                break
+            fi
+        done
     else                                        # files.../path...
         _filedir
     fi
