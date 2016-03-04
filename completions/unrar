@@ -2,7 +2,7 @@
 
 _unrar()
 {
-    local cur prev words cword cmp_opts=1 i
+    local cur prev words cword cmp_opts=1 cmp_parts=0 i 
     _init_completion || return
 
     # Check if all of the middle part are options.
@@ -25,12 +25,24 @@ _unrar()
         _filedir 'rar'
         # If there is a second, third, ... ninth part
         for i in "${COMPREPLY[@]}"; do
-            if [[ i == *.part*(0)[2-9].[rR][aA][rR] ]]; then
-                # Only look for the first, since it's the only useful one
-                _filedir 'part*(0)1.rar'
+            if [[ $i == *.part*(0)[2-9].@(rar|RAR) ]]; then
+                cmp_parts=1
                 break
             fi
         done
+        if ((cmp_parts)); then
+            local IFS=$'\n' set_f=0 quoted
+            _quote_readline_by_ref "$cur" quoted
+            [[ $- == *f* ]] && set_f=1
+            set -f
+            COMPREPLY=(
+                $(compgen -d -- "$quoted")
+                $(compgen -f \
+                    -X "!(!(.part+([0-9]))@(.part+(0)1|).@(rar|RAR))" -- \
+                    "$quoted")
+            )
+            ((set_f)) || set +f
+        fi
     else                                        # files.../path...
         _filedir
     fi
