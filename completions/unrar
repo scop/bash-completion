@@ -31,17 +31,14 @@ _unrar()
             fi
         done
         if ((cmp_parts)); then
-            local IFS=$'\n' set_f=0 quoted
+            local quoted
             _quote_readline_by_ref "$cur" quoted
-            [[ $- == *f* ]] && set_f=1
-            set -f
-            COMPREPLY=(
-                $(compgen -d -- "$quoted")
-                $(compgen -f \
+            IFS=$'\n' read -d '' -a COMPREPLY < <( 
+                compgen -d -- "$quoted"
+                compgen -f \
                     -X "!(!(.part+([0-9]))@(.part+(0)1|).@(rar|RAR))" -- \
-                    "$quoted")
+                    "$quoted"
             )
-            ((set_f)) || set +f
         fi
     else                                        # files.../path...
         _filedir
