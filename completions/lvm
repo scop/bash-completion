@@ -6,6 +6,12 @@ _lvm_volumegroups()
         command sed -n -e 's|.*Found.*"\(.*\)".*$|\1|p' )" -- "$cur" ) )
 }
 
+_lvm_physicalvolumes_all()
+{
+    COMPREPLY=( $(compgen -W "$( pvscan 2>/dev/null | \ 
+       command sed -n -e 's|^.*PV \([^ ]*\) .*|\1|p' )" -- "$cur" ) ) 
+}
+
 _lvm_physicalvolumes()
 {
     COMPREPLY=( $(compgen -W "$( pvscan 2>/dev/null | \
@@ -96,7 +102,7 @@ _pvs()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _lvm_physicalvolumes
+        _lvm_physicalvolumes_all
     fi
 } &&
 complete -F _pvs pvs
@@ -116,7 +122,7 @@ _pvdisplay()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _lvm_physicalvolumes
+        _lvm_physicalvolumes_all
     fi
 } &&
 complete -F _pvdisplay pvdisplay
@@ -136,7 +142,7 @@ _pvchange()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _lvm_physicalvolumes
+        _lvm_physicalvolumes_all
     fi
 } &&
 complete -F _pvchange pvchange
@@ -206,7 +212,7 @@ _pvremove()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
     else
-        _lvm_physicalvolumes
+        _lvm_physicalvolumes_all
     fi
 } &&
 complete -F _pvremove pvremove
@@ -322,7 +328,7 @@ _vgcreate()
         if [[ $args -eq 0 ]]; then
             _lvm_volumegroups
         else
-            _lvm_physicalvolumes
+            _lvm_physicalvolumes_all
         fi
     fi
 } &&
@@ -412,7 +418,7 @@ _vgextend()
         if [[ $args -eq 0 ]]; then
             _lvm_volumegroups
         else
-            _lvm_physicalvolumes
+            _lvm_physicalvolumes_all
         fi
     fi
 } &&
