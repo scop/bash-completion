@@ -126,7 +126,9 @@ guidelines in mind:
   functions, so we are unable to test them all personally. If your code
   is accepted into the distribution, a lot of people will try it out,
   so try to do a thorough job of eradicating all the bugs before you
-  send it to us.
+  send it to us. If at all practical, add test cases to our test suite
+  (in the test/ dir) that verify that the code does what it is intended
+  to do, fixes issues it intends to fix, etc.
 
 - File bugs, enhancement, and pull requests at GitHub,
   https://github.com/scop/bash-completion
