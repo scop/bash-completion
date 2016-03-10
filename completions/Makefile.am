@@ -942,3 +942,10 @@ all-local: symlinks
 
 install-data-local: targetdir = $(DESTDIR)$(bashcompdir)
 install-data-local: symlinks
+
+check-local:
+	ret=0
+	for file in $(bashcomp_DATA) ; do \
+		$${BASH:-bash} -O extglob -n $$file || ret=$$? ; \
+	done ; \
+	exit $$ret
