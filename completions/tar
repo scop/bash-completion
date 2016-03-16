@@ -696,16 +696,25 @@ _posix_tar()
 
 _tar()
 {
-    local cmd=${COMP_WORDS[0]} line
+    local cmd=${COMP_WORDS[0]} func line
     read line <<<"$($cmd --version)"
     case "$line" in
     *GNU*)
-        _gtar "$@"
+        func=_gtar
         ;;
     *)
-        _posix_tar "$@"
+        func=_posix_tar
         ;;
     esac
+    $func "$@"
+
+    # Install real completion for subsequent completions
+    if [ -n "${COMP_TAR_INTERNAL_PATHS:-}" ]; then
+        complete -F $func -o dirnames tar
+    else
+        complete -F $func tar
+    fi
+    unset -f _tar
 }
 
 
