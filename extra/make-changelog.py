@@ -13,7 +13,8 @@ changelog = defaultdict(list)
 
 for id in repo.iter_commits('%s..HEAD' % sys.argv[1]):
     commit = repo.commit(id)
-    changelog[commit.author.name].append(commit.summary)
+    if not commit.summary.startswith("Merge pull request "):
+        changelog[commit.author.name].append(commit.summary)
 
 print('bash-completion (X.Y)')
 print('')
