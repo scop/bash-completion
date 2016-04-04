@@ -7,6 +7,13 @@ _iproute2_etc()
         -- "$cur" ) )
 }
 
+# This function completes on available netns
+#
+_available_netns()
+{
+   COMPREPLY=( $( compgen -W "$( ls /var/run/netns 2>/dev/null )" -- "$cur" ) )
+}
+
 _ip()
 {
     local cur prev words cword
@@ -322,16 +329,16 @@ _ip()
 
         netns)
             case $subcmd in
-                list|add|identify|pids|monitor)
+                list|list-id|add|identify|monitor)
                     # TODO
                     ;;
-                add|delete|exec|pids)
+                delete|exec|pids|set)
                      _available_netns
                     ;;
                 *)
                     [[ $cword -eq $subcword ]] && \
-                        COMPREPLY=( $( compgen -W 'help list add delete identify 
-				pids exec monitor' -- "$cur" ) )
+                        COMPREPLY=( $( compgen -W 'help list add delete \
+                        identify pids exec monitor' -- "$cur" ) )
                     ;;
             esac
             ;;
