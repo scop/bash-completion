@@ -1,0 +1,39 @@
+proc setup {} {
+    assert_bash_exec { unset assoc1 && declare -A assoc1=([idx]=1)}
+    assert_bash_exec { unset assoc2 && declare -A assoc2=([idx1]=1 [idx2]=2)}
+    assert_bash_exec { unset ${!___v*} && declare ___var='' }
+    save_env
+}
+
+
+proc teardown {} {
+    assert_bash_exec {unset assoc1 assoc2}
+}
+
+
+setup
+
+set test "Complete simple variable names"
+assert_complete "\$___var" ": \$___v" $test
+
+set test "Complete single array index"
+assert_complete "\$\{assoc1\[idx\]\}" ": \$\{assoc1\[" $test
+sync_after_int
+
+set test "Complete closing curly bracket after square bracket"
+assert_complete "\$\{assoc1\[bogus\]\}" ": \$\{assoc1\[bogus\]" $test
+sync_after_int
+
+set test "Complete closing brackets after @ index"
+assert_complete "\$\{assoc1\[@\]\}" ": \$\{assoc1\[@" $test
+sync_after_int
+
+# For some reason -expect-cmd-minus is necessary here
+set test "Complete multiple array indexes"
+assert_complete_partial { \$\{assoc2\[idx1\]\} \$\{assoc2\[idx2\]\} } ":" "\$\{assoc2\[" $test -expect-cmd-minus "\${assoc2\["
+sync_after_int
+
+set test "Complete variables prefixed with #"
+assert_complete "\$\{#___var\}" ": \$\{#___v" $test
+
+teardown
