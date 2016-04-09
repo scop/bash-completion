@@ -802,7 +802,7 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) mcrypt $(targetdir)/$$file ; \
 	done
-	for file in mplayer2 mencoder gmplayer kplayer mpv ; do \
+	for file in mplayer2 mencoder gmplayer kplayer ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) mplayer $(targetdir)/$$file ; \
 	done
