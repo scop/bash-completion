@@ -1,7 +1,7 @@
 # tipc(8) completion                                       -*- shell-script -*-
 
 # based on key in $1, get the value from $words[]
-__get_val() {
+_tipc_get_val() {
     kval=""
     for ((i = 0; i < $cword; i++)); do
         if [ ${words[$i]} == $1 ]; then
@@ -12,107 +12,7 @@ __get_val() {
     return 0
 }
 
-__compgen_media_types() {
-    local types=$(tipc media list)
-    COMPREPLY=( $( compgen -W '$types' -- $cur ) )
-}
-
-__compgen_interfaces() {
-    local interfaces=$(ls /sys/class/net/)
-    COMPREPLY=( $( compgen -W '$interfaces' -- $cur ) )
-}
-
-__compgen_link_names() {
-    local filter=$1
-
-    # awk drops link state and last trailing :
-    local links=$(tipc link list | awk '{print substr($1, 0, length($1)-1)}')
-    if [[ $filter == "peers" ]]; then
-        links=$(echo "$links" | sed '/broadcast-link/d')
-    fi
-    COMPREPLY=( $( compgen -W '$links' -- $cur ) )
-}
-
-__compgen_udpname() {
-    local names=$(tipc bearer list | awk -F: '/^udp:/ {print $2}')
-    COMPREPLY=( $( compgen -W '$names' -- $cur) )
-}
-
-__compgen_ipaddr() {
-    local ips=$(ip -o addr show | awk -F '[ /]+' '{print $4}' 2>/dev/null)
-    COMPREPLY=( $( compgen -W '$ips' -- $cur) )
-}
-
-__compgen_link_opts() {
-    COMPREPLY=( $( compgen -W 'priority tolerance window' -- $cur) )
-}
-
-__compgen_bearer_params() {
-    local kval params
-
-    __get_val 'media'
-    case "$kval" in
-    "udp")
-        declare -a  params=("localip" "localport" "remoteip" "remoteport"
-                            "domain" "priority")
-        ;;
-    "eth" | "ib")
-        declare -a params=("domain" "priority")
-        ;;
-    *)
-        return 0
-        ;;
-    esac
-
-    # If the previous word was a known paramater we assume a value for that key
-    # Note that this would break if the user attempts to use a kown key as value
-    for i in ${params[@]}; do
-        if [[ $prev == $i ]]; then
-            return 0
-        fi
-    done
-
-    # In order not to print already used options we remove them
-    for p in ${words[@]}; do
-        for i in ${params[@]}; do
-            if [[ $p == $i ]]; then
-                params=( "${params[@]/$i}" )
-            fi
-        done
-    done
-
-    COMPREPLY=( $( compgen -W '${params[@]}' -- $cur) )
-}
-
-__compgen_bearer_dev() {
-    local optind=$1
-    local kval media
-
-    __get_val 'media'
-    media="$kval"
-
-    if [[ $cword -eq $optind ]]; then
-        case "$media" in
-        "udp")
-            COMPREPLY=( $( compgen -W 'name' -- $cur) )
-            ;;
-        "eth" | "ib")
-            COMPREPLY=( $( compgen -W 'device' -- $cur) )
-            ;;
-        esac
-    elif [[ $cword -eq $optind+1 ]]; then
-        case "$media" in
-        "udp")
-            __compgen_udpname
-            ;;
-        "eth")
-            __compgen_interfaces
-            ;;
-        esac
-    fi
-}
-
-__compgen_media() {
+_tipc_media() {
     local optind=$1
 
     if [[ $cword -eq $optind ]]; then
@@ -126,245 +26,58 @@ __compgen_media() {
     return 1
 }
 
-__compgen_bearer_identity() {
+_tipc_bearer() {
     local optind=$1
+    local kval media
 
-    if __compgen_media $optind; then
+    if _tipc_media $optind; then
         return 1
     fi
-    __compgen_bearer_dev $(($optind + 2))
-}
 
-__bearer_enable() {
-    local optind=$1
+    _tipc_get_val 'media'
+    media="$kval"
 
-    if [[ $cword -lt $optind+4 ]]; then
-        __compgen_bearer_identity $optind
-        return 0
-    fi
-    __compgen_bearer_params $(($optind + 4))
-}
-
-__bearer_disable() {
-    local optind=$1
-
-    __compgen_bearer_identity $optind
-}
-
-__bearer_get() {
-    local optind=$1
-
-    if [[ $cword -eq $optind ]]; then
-        __compgen_link_opts
-    elif [[ $cword -ge $optind+1 ]]; then
-        __compgen_bearer_identity $(($optind + 1))
+    if [[ $cword -eq $optind+2 ]]; then
+        case "$media" in
+        "udp")
+            COMPREPLY=( $( compgen -W 'name' -- $cur) )
+            ;;
+        "eth" | "ib")
+            COMPREPLY=( $( compgen -W 'device' -- $cur) )
+            ;;
+        esac
+    elif [[ $cword -eq $optind+3 ]]; then
+        case "$media" in
+        "udp")
+            local names=$(tipc bearer list | awk -F: '/^udp:/ {print $2}')
+            COMPREPLY=( $( compgen -W '$names' -- $cur) )
+            ;;
+        "eth")
+            local interfaces=$(ls /sys/class/net/)
+            COMPREPLY=( $( compgen -W '$interfaces' -- $cur ) )
+            ;;
+        esac
     fi
 }
 
-__bearer_set() {
-    local optind=$1
-
-    if [[ $cword -eq $optind ]]; then
-        __compgen_link_opts
-    elif [[ $cword -ge $optind+2 ]]; then
-        __compgen_bearer_identity $(($optind + 2))
-    fi
+_tipc_link_opts() {
+    COMPREPLY=( $( compgen -W 'priority tolerance window' -- $cur) )
 }
 
-__bearer() {
-    local optind=$1
-
-    case "${words[$optind]}" in
-    enable)
-        __bearer_enable $(($optind + 1))
-        return 0
-        ;;
-    disable)
-        __bearer_disable $(($optind + 1))
-        return 0
-        ;;
-    get)
-        __bearer_get $(($optind + 1))
-        return 0
-        ;;
-    set)
-        __bearer_set $(($optind + 1))
-        return 0
-        ;;
-    list)
-        return 0
-        ;;
-    esac
-
-    COMPREPLY=( $( compgen -W 'enable disable set get list' -- $cur ) )
-}
-
-__compgen_link() {
+_tipc_link() {
     local optind=$1
     local filter=$2
 
     if [[ $cword -eq $optind ]]; then
         COMPREPLY=( $( compgen -W 'link' -- $cur) )
     elif [[ $cword -eq $optind+1 ]]; then
-        __compgen_link_names "$filter"
+        # awk drops link state and last trailing :
+        local links=$(tipc link list | awk '{print substr($1, 0, length($1)-1)}')
+        if [[ $filter == "peers" ]]; then
+            links=$(echo "$links" | sed '/broadcast-link/d')
+        fi
+        COMPREPLY=( $( compgen -W '$links' -- $cur ) )
     fi
-}
-
-__link_get() {
-    local optind=$1
-
-    if [[ $cword -eq $optind ]]; then
-        __compgen_link_opts
-    elif [[ $cword -ge $optind+1 ]]; then
-        __compgen_link $(($optind + 1)) "peers"
-    fi
-}
-
-__link_set() {
-    local optind=$1
-
-    if [[ $cword -eq $optind ]]; then
-        __compgen_link_opts
-    elif [[ $cword -ge $optind+2 ]]; then
-        __compgen_link $(($optind + 2)) "peers"
-    fi
-}
-
-__link_statistics() {
-    local optind=$1
-
-    case "${words[$optind]}" in
-    show)
-        __compgen_link $(($optind + 1))
-        return 0
-        ;;
-    reset)
-        __compgen_link $(($optind + 1))
-        return 0
-        ;;
-    esac
-
-    COMPREPLY=( $( compgen -W 'show reset' -- $cur) )
-}
-
-__link() {
-    local optind=$1
-
-    case "${words[$optind]}" in
-    get)
-        __link_get $(($optind + 1))
-        return 0
-        ;;
-    set)
-        __link_set $(($optind + 1))
-        return 0
-        ;;
-    list)
-        return 0
-        ;;
-    statistics)
-        __link_statistics $(($optind + 1))
-        return 0
-        ;;
-    esac
-
-    COMPREPLY=( $( compgen -W 'get set list statistics'  -- $cur ) )
-}
-
-__media_get() {
-    local optind=$1
-
-    if [[ $cword -eq $optind ]]; then
-        __compgen_link_opts
-    elif [[ $cword -ge $optind+1 ]]; then
-        __compgen_media $(($optind + 1))
-    fi
-}
-
-__media_set() {
-    local optind=$1
-
-    if [[ $cword -eq $optind ]]; then
-        __compgen_link_opts
-    elif [[ $cword -ge $optind+2 ]]; then
-        __compgen_media $(($optind + 2))
-    fi
-}
-
-__media() {
-    local optind=$1
-
-    case "${words[$optind]}" in
-    get)
-        __media_get $(($optind + 1))
-        return 0
-        ;;
-    set)
-        __media_set $(($optind + 1))
-        return 0
-        ;;
-    list)
-        return 0
-        ;;
-    esac
-
-    COMPREPLY=( $( compgen -W 'get set list'  -- $cur ) )
-}
-
-__nametable() {
-    local optind=$1
-
-    case "${words[$optind]}" in
-    show)
-        return 0
-        ;;
-    esac
-
-    COMPREPLY=( $( compgen -W 'show'  -- $cur ) )
-}
-
-__node_getset() {
-    local optind=$1
-
-    if [[ $cword -eq $optind ]]; then
-        COMPREPLY=( $( compgen -W 'address netid'  -- $cur ) )
-    fi
-}
-
-__node() {
-    local optind=$1
-
-    case "${words[$optind]}" in
-    get)
-        __node_getset $(($optind + 1))
-        return 0
-        ;;
-    set)
-        __node_getset $(($optind + 1))
-        return 0
-        ;;
-    list)
-        return 0
-        ;;
-    esac
-
-    COMPREPLY=( $( compgen -W 'list get set'  -- $cur ) )
-}
-
-__socket() {
-    local optind=$1
-
-    case "${words[$optind]}" in
-    list)
-        return 0
-        ;;
-    esac
-
-    COMPREPLY=( $( compgen -W 'list'  -- $cur ) )
-}
-
-__compgen_flags() {
-    COMPREPLY=( $( compgen -W '-h --help' -- $cur ) )
 }
 
 _tipc()
@@ -378,38 +91,221 @@ _tipc()
     # Flags can be placed anywhere in the commandline
     case "${words[$cword]}" in
     -*)
-        __compgen_flags
+        COMPREPLY=( $( compgen -W '-h --help' -- $cur ) )
         return 0
         ;;
     esac
 
     case "${words[$optind]}" in
     bearer)
-        __bearer $(($optind + 1))
+        let optind++
+
+        case "${words[$optind]}" in
+        enable)
+            local kval params
+            let optind++
+
+            if [[ $cword -lt $optind+4 ]]; then
+                _tipc_bearer $optind
+                return 0
+            fi
+
+            _tipc_get_val 'media'
+            case "$kval" in
+                "udp")
+                    declare -a  params=("localip" "localport" "remoteip"
+                    "remoteport" "domain" "priority")
+                    ;;
+                "eth" | "ib")
+                    declare -a params=("domain" "priority")
+                    ;;
+                *)
+                    return 0
+                    ;;
+            esac
+
+            # If the previous word was a known paramater we assume a value for
+            # that key Note that this would break if the user attempts to use a
+            # kown key as value
+            for i in ${params[@]}; do
+                if [[ $prev == $i ]]; then
+                    return 0
+                fi
+            done
+
+            # In order not to print already used options we remove them
+            for p in ${words[@]}; do
+                for i in ${params[@]}; do
+                    if [[ $p == $i ]]; then
+                        params=( "${params[@]/$i}" )
+                    fi
+                done
+            done
+
+            COMPREPLY=( $( compgen -W '${params[@]}' -- $cur) )
+            return 0
+            ;;
+        disable)
+            let optind++
+
+            _tipc_bearer $optind
+            return 0
+            ;;
+        get)
+            let optind++
+
+            if [[ $cword -eq $optind ]]; then
+                _tipc_link_opts
+            elif [[ $cword -ge $optind+1 ]]; then
+                _tipc_bearer $(($optind + 1))
+            fi
+            return 0
+            ;;
+        set)
+            let optind++
+
+            if [[ $cword -eq $optind ]]; then
+                _tipc_link_opts
+            elif [[ $cword -ge $optind+2 ]]; then
+                _tipc_bearer $(($optind + 2))
+            fi
+            return 0
+            ;;
+        list)
+            return 0
+            ;;
+        esac
+
+        COMPREPLY=( $( compgen -W 'enable disable set get list' -- $cur ) )
         return 0
         ;;
     link)
-        __link $(($optind + 1))
+        let optind++
+
+        case "${words[$optind]}" in
+        get)
+            let optind++
+
+            if [[ $cword -eq $optind ]]; then
+                _tipc_link_opts
+            elif [[ $cword -ge $optind+1 ]]; then
+                _tipc_link $(($optind + 1)) "peers"
+            fi
+            return 0
+            ;;
+        set)
+            let optind++
+
+            if [[ $cword -eq $optind ]]; then
+                _tipc_link_opts
+            elif [[ $cword -ge $optind+2 ]]; then
+                _tipc_link $(($optind + 2)) "peers"
+            fi
+            return 0
+            ;;
+        list)
+            return 0
+            ;;
+        statistics)
+            let optind++
+
+            case "${words[$optind]}" in
+            show|reset)
+                _tipc_link $(($optind + 1))
+                return 0
+                ;;
+            esac
+
+            COMPREPLY=( $( compgen -W 'show reset' -- $cur) )
+            return 0
+            ;;
+        esac
+
+        COMPREPLY=( $( compgen -W 'get set list statistics'  -- $cur ) )
         return 0
         ;;
     media)
-        __media $(($optind + 1))
+        let optind++
+
+        case "${words[$optind]}" in
+        get)
+            let optind++
+
+            if [[ $cword -eq $optind ]]; then
+                _tipc_link_opts
+            elif [[ $cword -ge $optind+1 ]]; then
+                _tipc_media $(($optind + 1))
+            fi
+            return 0
+            ;;
+        set)
+            let optind++
+
+            if [[ $cword -eq $optind ]]; then
+                _tipc_link_opts
+            elif [[ $cword -ge $optind+2 ]]; then
+                _tipc_media $(($optind + 2))
+            fi
+            return 0
+            ;;
+        list)
+            return 0
+            ;;
+        esac
+
+        COMPREPLY=( $( compgen -W 'get set list'  -- $cur ) )
         return 0
         ;;
     nametable)
-        __nametable $(($optind + 1))
+        let optind++
+
+        case "${words[$optind]}" in
+        show)
+            return 0
+            ;;
+        esac
+
+        COMPREPLY=( $( compgen -W 'show'  -- $cur ) )
         return 0
         ;;
     node)
-        __node $(($optind + 1))
+        let optind++
+
+        case "${words[$optind]}" in
+        get|set)
+            let optind++
+
+            case "${words[$optind]}" in
+            address|netid)
+                return 0
+                ;;
+            esac
+            COMPREPLY=( $( compgen -W 'address netid'  -- $cur ) )
+            return 0
+            ;;
+        list)
+            return 0
+            ;;
+        esac
+
+        COMPREPLY=( $( compgen -W 'list get set'  -- $cur ) )
         return 0
         ;;
     socket)
-        __socket $(($optind + 1))
+        let optind++
+
+        case "${words[$optind]}" in
+        list)
+            return 0
+            ;;
+        esac
+
+        COMPREPLY=( $( compgen -W 'list'  -- $cur ) )
         return 0
         ;;
     esac
 
     COMPREPLY=( $( compgen -W 'bearer link media nametable node socket' -- $cur ) )
 }
-[ "${have:-}" ] && complete -F _tipc tipc
+
+# ex: ts=4 sw=4 et filetype=sh
