@@ -623,10 +623,40 @@ _split_longopt()
 #          False (> 0) if not.
 _variables()
 {
-    if [[ $cur =~ ^(\$\{?)([A-Za-z0-9_]*)$ ]]; then
-        [[ $cur == *{* ]] && local suffix=} || local suffix=
-        COMPREPLY+=( $( compgen -P ${BASH_REMATCH[1]} -S "$suffix" -v -- \
-            "${BASH_REMATCH[2]}" ) )
+    if [[ $cur =~ ^(\$(\{[!#]?)?)([A-Za-z0-9_]*)$ ]]; then
+        # Completing $var / ${var / ${!var / ${#var
+        if [[ $cur == \${* ]]; then
+            local arrs vars
+            vars=( $( compgen -A variable -P ${BASH_REMATCH[1]} -S '}' -- ${BASH_REMATCH[3]} ) ) && \
+            arrs=( $( compgen -A arrayvar -P ${BASH_REMATCH[1]} -S '[' -- ${BASH_REMATCH[3]} ) )
+            if [[ ${#vars[@]} -eq 1 && $arrs ]]; then
+                # Complete ${arr with ${array[ if there is only one match, and that match is an array variable
+                compopt -o nospace
+                COMPREPLY+=( ${arrs[*]} )
+            else
+                # Complete ${var with ${variable}
+                COMPREPLY+=( ${vars[*]} )
+            fi
+        else
+            # Complete $var with $variable
+            COMPREPLY+=( $( compgen -A variable -P '$' -- "${BASH_REMATCH[3]}" ) )
+        fi
+        return 0
+    elif [[ $cur =~ ^(\$\{[#!]?)([A-Za-z0-9_]*)\[([^]]*)$ ]]; then
+        # Complete ${array[i with ${array[idx]}
+        local IFS=$'\n'
+        COMPREPLY+=( $( compgen -W '$(printf %s\\n "${!'${BASH_REMATCH[2]}'[@]}")' \
+            -P "${BASH_REMATCH[1]}${BASH_REMATCH[2]}[" -S ']}' -- "${BASH_REMATCH[3]}" ) )
+        # Complete ${arr[@ and ${arr[*
+        if [[ ${BASH_REMATCH[3]} == [@*] ]]; then
+            COMPREPLY+=( "${BASH_REMATCH[1]}${BASH_REMATCH[2]}[${BASH_REMATCH[3]}]}" )
+        fi
+        __ltrim_colon_completions "$cur"    # array indexes may have colons
+        return 0
+    elif [[ $cur =~ ^\$\{[#!]?[A-Za-z0-9_]*\[.*\]$ ]]; then
+        # Complete ${array[idx] with ${array[idx]}
+        COMPREPLY+=( "$cur}" )
+        __ltrim_colon_completions "$cur"
         return 0
     else
         case $prev in
