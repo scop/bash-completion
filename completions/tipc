@@ -1,17 +1,5 @@
 # tipc(8) completion                                       -*- shell-script -*-
 
-# based on key in $1, get the value from $words[]
-_tipc_get_val() {
-    kval=""
-    for ((i = 0; i < $cword; i++)); do
-        if [ ${words[$i]} == $1 ]; then
-            kval=${words[$(($i + 1))]}
-            return 1
-        fi
-    done
-    return 0
-}
-
 _tipc_media() {
     local optind=$1
 
@@ -28,14 +16,17 @@ _tipc_media() {
 
 _tipc_bearer() {
     local optind=$1
-    local kval media
+    local media
 
     if _tipc_media $optind; then
         return 1
     fi
 
-    _tipc_get_val 'media'
-    media="$kval"
+    for ((i = 0; i < $cword; i++)); do
+        if [ ${words[$i]} == 'media' ]; then
+            media=${words[$(($i + 1))]}
+        fi
+    done
 
     if [[ $cword -eq $optind+2 ]]; then
         case "$media" in
@@ -102,7 +93,7 @@ _tipc()
 
         case "${words[$optind]}" in
         enable)
-            local kval params
+            local media params
             let optind++
 
             if [[ $cword -lt $optind+4 ]]; then
@@ -110,8 +101,12 @@ _tipc()
                 return 0
             fi
 
-            _tipc_get_val 'media'
-            case "$kval" in
+            for ((i = 0; i < $cword; i++)); do
+                if [ ${words[$i]} == 'media' ]; then
+                    media=${words[$(($i + 1))]}
+                fi
+            done
+            case "$media" in
                 "udp")
                     declare -a  params=("localip" "localport" "remoteip"
                     "remoteport" "domain" "priority")
