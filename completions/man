@@ -56,17 +56,10 @@ _man()
         return 0
     fi
 
-    local manpath
-    if [[ $OSTYPE == *@(darwin|linux|freebsd|cygwin)* ]] || _userland GNU; then
-        manpath=$( manpath 2>/dev/null || command man -w )
-    else
-        manpath=$MANPATH
-    fi
-
-    if [[ -z $manpath ]]; then
-        COMPREPLY=( $( compgen -c -- "$cur" ) )
-        return 0
-    fi
+    local manpath="$MANPATH"
+    [[ -z $manpath ]] && \
+        manpath=$( manpath 2>/dev/null || command man -w 2>/dev/null )
+    [[ -z $manpath ]] && manpath="/usr/share/man:/usr/local/share/man"
 
     # determine manual section to search
     local sect
