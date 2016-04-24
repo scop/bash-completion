@@ -160,7 +160,7 @@ _refresh_ec2_hosts_cache()
     hosts=$(aws --output text ec2 describe-instances | grep 'TAGS\tName' | awk '{print $3}')
 
     if [ -n "${hosts}" ]; then
-        echo ${hosts} > "${cache_file}"
+        printf '%s' "${hosts}" > "${cache_file}"
     fi
 }
 
@@ -174,7 +174,7 @@ _ec2_hosts()
     # - It doesn't contain the search string
     # - It's more than 1 day old
     if [ ! -f "${cache_file}" ] || \
-        ! grep -q ${1} "${cache_file}" || \
+        ! command grep -q ${1} "${cache_file}" || \
         test $(find "${cache_file}" -mmin +1440); then
         aws --output text ec2 describe-instances | \
             grep 'TAGS\tName' | \
@@ -254,7 +254,7 @@ _ssh()
         local configfile
         _ssh_configfile
         _known_hosts_real -a -F "$configfile" "$cur"
-        if [ $(which aws) ]; then
+        if type aws >/dev/null 2>&1; then
             _ec2_hosts "$cur"
         fi
 
