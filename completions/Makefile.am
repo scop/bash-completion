@@ -295,6 +295,7 @@ bashcomp_DATA = 2to3 \
 		pyflakes \
 		pylint \
 		python \
+		pyvenv \
 		qdbus \
 		qemu \
 		qrunner \
@@ -566,6 +567,8 @@ CLEANFILES = \
 	pypy \
 	python2 \
 	python3 \
+	pyvenv-3.4 \
+	pyvenv-3.5 \
 	qemu-kvm \
 	qemu-system-i386 \
 	qemu-system-x86_64 \
@@ -866,6 +869,10 @@ symlinks: $(targetdir) $(DATA)
 	for file in pypy python2 python3 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) python $(targetdir)/$$file ; \
+	done
+	for file in pyvenv-3.4 pyvenv-3.5 ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) pyvenv $(targetdir)/$$file ; \
 	done
 	for file in dcop ; do \
 		rm -f $(targetdir)/$$file && \
