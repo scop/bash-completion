@@ -15,6 +15,14 @@ _perlfunctions()
         -- "$cur" ) )
 }
 
+_perldocs()
+{
+    COMPREPLY=( $( compgen -P "$prefix" -W \
+        "$( ${1:-perl} ${BASH_SOURCE[0]%/*}/../helpers/perl perldocs $cur )" \
+        -- "$cur" ) )
+    __ltrim_colon_completions "$prefix$cur"
+}
+
 _perl()
 {
     local cur prev words cword
@@ -121,7 +129,7 @@ _perldoc()
     else
         # return available modules (unless it is clearly a file)
         if [[ "$cur" != @(*/|[.~])* ]]; then
-            _perlmodules $perl
+            _perldocs $perl
             if [[ $cur == p* ]]; then
                 COMPREPLY+=( $( compgen -W \
                     '$( PERLDOC_PAGER=/bin/cat "$1" -u perl |  \
