@@ -52,9 +52,6 @@ shopt -s extglob progcomp
 # A lot of the following one-liners were taken directly from the
 # completion examples provided with the bash 2.04 source distribution
 
-# Make directory commands see only directories
-complete -d pushd
-
 # start of section containing compspecs that can be handled within bash
 
 # user commands see only users
@@ -1848,7 +1845,14 @@ _longopt()
             command sed -ne 's/.*\(--[-A-Za-z0-9]\{1,\}=\{0,1\}\).*/\1/p' | sort -u )" \
             -- "$cur" ) )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
-    elif [[ "$1" == @(@(mk|rm)dir|chroot) ]]; then
+    elif [[ "$1" == pushd ]]; then
+        if shopt -q cdable_vars; then
+            compopt -o variable -o nospace
+        else
+            compopt -o nospace
+        fi
+        _cd
+    elif [[ "$1" == @(@(rmdir|mkdir)|chroot) ]]; then
         _filedir -d
     else
         _filedir
@@ -1858,7 +1862,7 @@ _longopt()
 complete -F _longopt a2ps awk base64 bash bc bison cat chroot colordiff cp \
     csplit cut date df diff dir du enscript env expand fmt fold gperf \
     grep grub head irb ld ldd less ln ls m4 md5sum mkdir mkfifo mknod \
-    mv netstat nl nm objcopy objdump od paste pr ptx readelf rm rmdir \
+    mv netstat nl nm objcopy objdump od paste pushd pr ptx readelf rm rmdir \
     sed seq sha{,1,224,256,384,512}sum shar sort split strip sum tac tail tee \
     texindex touch tr uname unexpand uniq units vdir wc who
 
