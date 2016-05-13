@@ -1,26 +1,11 @@
 # bash completion for perl                                 -*- shell-script -*-
 
-_perlmodules()
+_perl_helper()
 {
     COMPREPLY=( $( compgen -P "$prefix" -W \
-        "$( ${1:-perl} ${BASH_SOURCE[0]%/*}/../helpers/perl modules $cur )" \
+        "$( ${2:-perl} ${BASH_SOURCE[0]%/*}/../helpers/perl $1 $cur )" \
         -- "$cur" ) )
-    __ltrim_colon_completions "$prefix$cur"
-}
-
-_perlfunctions()
-{
-    COMPREPLY=( $( compgen -P "$prefix" -W \
-        "$( ${1:-perl} ${BASH_SOURCE[0]%/*}/../helpers/perl functions $cur )" \
-        -- "$cur" ) )
-}
-
-_perldocs()
-{
-    COMPREPLY=( $( compgen -P "$prefix" -W \
-        "$( ${1:-perl} ${BASH_SOURCE[0]%/*}/../helpers/perl perldocs $cur )" \
-        -- "$cur" ) )
-    __ltrim_colon_completions "$prefix$cur"
+    [[ $1 == functions ]] || __ltrim_colon_completions "$prefix$cur"
 }
 
 _perl()
@@ -58,7 +43,7 @@ _perl()
             temp="${cur#-}"
             prefix+="${cur%$temp}"
             cur="$temp"
-            _perlmodules $1
+            _perl_helper modules $1
             return 0
             ;;
         -V)
@@ -78,7 +63,7 @@ _perl()
                 temp="${cur#:}"
                 prefix="$prefix${cur%$temp}"
                 cur="Devel::$temp"
-                _perlmodules $1
+                _perl_helper modules $1
             fi
             ;;
     esac
@@ -119,7 +104,7 @@ _perldoc()
             return 0
             ;;
         -f)
-            _perlfunctions $perl
+            _perl_helper functions $perl
             return 0
             ;;
     esac
@@ -129,7 +114,7 @@ _perldoc()
     else
         # return available modules (unless it is clearly a file)
         if [[ "$cur" != @(*/|[.~])* ]]; then
-            _perldocs $perl
+            _perl_helper perldocs $perl
             if [[ $cur == p* ]]; then
                 COMPREPLY+=( $( compgen -W \
                     '$( PERLDOC_PAGER=/bin/cat "$1" -u perl |  \
