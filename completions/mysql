@@ -20,7 +20,11 @@ _mysql()
             return 0
             ;;
         --default-character-set)
-            local charsets=( $( printf '%s\n' /usr/share/m{ariadb,ysql}/charsets/*.xml ) )
+            local opt_save=$(shopt -p failglob nullglob )
+            shopt -u failglob
+            shopt -s nullglob
+            local -a charsets=( /usr/share/m{ariadb,ysql}/charsets/*.xml )
+            eval "$opt_save"
             charsets=( "${charsets[@]##*/}" )
             charsets=( "${charsets[@]%%?(Index|\*).xml}" utf8 )
             COMPREPLY=( $( compgen -W '${charsets[@]}' -- "$cur" ) )
