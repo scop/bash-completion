@@ -2,14 +2,14 @@
 
 _aspell_dictionary()
 {
-    local datadir
-    datadir=$( aspell config data-dir 2>/dev/null || echo /usr/lib/aspell )
+    local datadir aspell=${1:-aspell}
+    datadir=$( $aspell config data-dir 2>/dev/null || echo /usr/lib/aspell )
     # First, get aliases (dicts dump does not list them)
     COMPREPLY=( $( printf '%s\n' $datadir/*.alias ) )
     COMPREPLY=( "${COMPREPLY[@]%.alias}" )
     COMPREPLY=( "${COMPREPLY[@]#$datadir/}" )
     # Then, add the canonical dicts
-    COMPREPLY+=( $( aspell dicts 2>/dev/null ) )
+    COMPREPLY+=( $( $aspell dicts 2>/dev/null ) )
     COMPREPLY=( $( compgen -X '\*' -W '${COMPREPLY[@]}' -- "$cur" ) )
 }
 
@@ -46,7 +46,7 @@ _aspell()
             return 0
             ;;
         -d|--master)
-            _aspell_dictionary
+            _aspell_dictionary "$1"
             return 0
             ;;
         --add-filter|--rem-filter)
