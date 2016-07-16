@@ -8,8 +8,16 @@ for mod in pkgutil.iter_modules(): print(mod[1])' )" 2>/dev/null -- "$cur" ) )
 
 _python()
 {
-    local cur prev words cword
+    local cur prev words cword prefix
     _init_completion || return
+
+    case $cur in
+        -[QWX]?*)
+            prefix=${cur:0:2}
+            prev=$prefix
+            cur=${cur:2}
+        ;;
+    esac
 
     case $prev in
         -'?'|-h|--help|-V|--version|-c|-X)
@@ -20,12 +28,13 @@ _python()
             return 0
             ;;
         -Q)
-            COMPREPLY=( $( compgen -W "old new warn warnall" -- "$cur" ) )
+            COMPREPLY=( $( compgen -W "old new warn warnall" -P "$prefix" \
+                -- "$cur" ) )
             return 0
             ;;
         -W)
             COMPREPLY=( $( compgen -W "ignore default all module once error" \
-                -- "$cur" ) )
+                -P "$prefix" -- "$cur" ) )
             return 0
             ;;
         !(?(*/)python*([0-9.])|?(*/)pypy*([0-9.])|-?))
