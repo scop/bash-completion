@@ -101,8 +101,7 @@ guidelines in mind:
   least surprise and lacks robustness.
 
 - Make small, incremental commits that do one thing. Don't cram
-  unrelated changes into a single commit. Submit your changes as
-  GitHub pull requests.
+  unrelated changes into a single commit.
 
 - If your code was written for a particular platform, try to make it
   portable to other platforms, so that everyone may enjoy it. If your
@@ -134,7 +133,10 @@ guidelines in mind:
   https://github.com/scop/bash-completion
   Sending them to the developers might work too, but is really
   discouraged as bits are more likely to fall through the cracks that
-  way compared to the tracker. Just use GitHub.
+  way compared to the tracker. Just use GitHub. If that's not an
+  option for some reason and you want to use email to send patches,
+  send them as attachments formatted by `git format-patch` or directly
+  with `git send-email`.
 
 - Use printf(1) instead of echo(1) for portability reasons, and be
   sure to invoke commands that are often found aliased (such as `ls`
