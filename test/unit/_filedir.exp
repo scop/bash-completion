@@ -21,9 +21,11 @@ proc setup {} {
         _fd() { local cur=$(_get_cword); unset COMPREPLY; _filedir -d; }; \
         complete -F _fd fd \
     }
-    # Create directories `a*b' and `a\b' only when not running on Cygwin/Windows;
-    # directories containing `*' or `\' aren't allowed on Cygwin/Windows
+    # Create directories `a"b', `a*b', and `a\b' only when not running on
+    # Cygwin/Windows (`"', `*', or `\' aren't allowed in filenames there)
     if {! [is_cygwin]} {
+        # Create directory `a"b'
+        assert_bash_exec {(cd $TESTDIR/tmp && [ ! -d a\"b ] && mkdir a\"b && touch a\"b/d || true)}
         # Create directory `a*b'
         assert_bash_exec {(cd $TESTDIR/tmp && [ ! -d a\*b ] && mkdir a\*b && touch a\*b/j || true)}
         # Create directory `a\b'
@@ -34,6 +36,7 @@ proc setup {} {
 
 proc teardown {} {
     if {! [is_cygwin]} {
+        assert_bash_exec {(cd $TESTDIR/tmp && rm -- a\"b/d && rmdir a\"b/ || true)}
         assert_bash_exec {(cd $TESTDIR/tmp && rm -- a\\b/g && rmdir a\\b/ || true)}
         assert_bash_exec {(cd $TESTDIR/tmp && rm -- a\*b/j && rmdir a\*b/ || true)}
     }
@@ -83,14 +86,6 @@ foreach name {f f2} {
     sync_after_int
 
 
-    set test "completing $name a\\\"b/ should return d"; #"
-    set cmd "$name a\\\"b/"; #"
-    assert_complete_dir d $cmd "$::srcdir/fixtures/_filedir" $test
-
-
-    sync_after_int
-
-
     set test "completing $name a\\\$b/ should return h"
     set cmd "$name a\\\$b/"
     assert_complete_dir h $cmd "$::srcdir/fixtures/_filedir" $test
@@ -99,15 +94,15 @@ foreach name {f f2} {
     sync_after_int
 
 
-    # Execute these tests only when not running on Cygwin/Windows, because
-    # directories containing asterisk (*) or backslash (\) aren't allowed on
-    # Cygwin/Windows
-    if {! [is_cygwin]} {
+    if {! [is_cygwin]} {  # Illegal characters in file/dir names
+        set test "completing $name a\\\"b/ should return d"; #"
+        set cmd "$name a\\\"b/"; #"
+        assert_complete_dir d $cmd "$TESTDIR/tmp" $test
+        sync_after_int
+
         set test "completing $name a\\\\b/ should return g"
         set cmd "$name a\\\\b/"
         assert_complete_dir g $cmd "$TESTDIR/tmp" $test
-
-
         sync_after_int
     }
 
@@ -142,13 +137,6 @@ foreach name {f f2} {
     sync_after_int
 
 
-    set cmd "$name 'a\"b/"; #"
-    assert_complete_dir {d'} $cmd "$::srcdir/fixtures/_filedir"
-
-
-    sync_after_int
-
-
     set cmd "$name 'a\$b/"
     assert_complete_dir {h'} $cmd "$::srcdir/fixtures/_filedir"
 
@@ -156,13 +144,13 @@ foreach name {f f2} {
     sync_after_int
 
 
-    # Execute these tests only when not running on Cygwin/Windows, because
-    # directories containing `*' or `\' aren't allowed on Cygwin/Windows
-    if {! [is_cygwin]} {
+    if {! [is_cygwin]} {  # Illegal characters in file/dir names
+        set cmd "$name 'a\"b/"; #"
+        assert_complete_dir {d'} $cmd "$TESTDIR/tmp"
+        sync_after_int
+
         set cmd "$name '$TESTDIR/tmp/a\\b/"
         assert_complete_dir {g'} $cmd "$TESTDIR/tmp"
-
-
         sync_after_int
     }
 
