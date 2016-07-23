@@ -1,11 +1,19 @@
 proc setup {} {
-    assert_bash_exec "export MANPATH=$::srcdirabs/fixtures/man"
+    assert_bash_exec "export MANPATH=$::srcdirabs/fixtures/man:$::srcdirabs/tmp/man"
     save_env
+
+    if {! [is_cygwin]} {  # Colon not allowed in filenames
+        assert_bash_exec {(cd $TESTDIR/tmp && mkdir -p man/man3 && touch man/man3/Bash::Completion.3pm.gz || true)}
+    }
 }
 
 
 proc teardown {} {
     assert_env_unmodified {/OLDPWD/d}
+
+    if {! [is_cygwin]} {
+        assert_bash_exec {(cd $TESTDIR/tmp && rm -r man || true)}
+    }
 }
 
 
@@ -24,10 +32,10 @@ assert_complete_dir oo.1 "man man1/f" $::srcdir/fixtures/man
 sync_after_int
 
 
-assert_complete "Bash::Completion" "man Bash::C"
-
-
-sync_after_int
+if {! [is_cygwin]} {
+    assert_complete "Bash::Completion" "man Bash::C"
+    sync_after_int
+}
 
 
 assert_complete_dir "man/quux.8" "man man/" $::srcdir/fixtures/man
