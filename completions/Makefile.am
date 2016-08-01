@@ -361,6 +361,7 @@ bashcomp_DATA = 2to3 \
 		tcpkill \
 		tcpnice \
 		timeout \
+		tipc \
 		tracepath \
 		tshark \
 		tune2fs \
