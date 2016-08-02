@@ -40,7 +40,7 @@ _tipc_bearer() {
     elif [[ $cword -eq $optind+3 ]]; then
         case "$media" in
         "udp")
-            local names=$(tipc bearer list | awk -F: '/^udp:/ {print $2}')
+            local names=$(tipc bearer list 2>/dev/null | awk -F: '/^udp:/ {print $2}')
             COMPREPLY=( $( compgen -W '$names' -- $cur) )
             ;;
         "eth")
@@ -63,7 +63,8 @@ _tipc_link() {
         COMPREPLY=( $( compgen -W 'link' -- $cur) )
     elif [[ $cword -eq $optind+1 ]]; then
         # awk drops link state and last trailing :
-        local links=$(tipc link list | awk '{print substr($1, 0, length($1)-1)}')
+        local links=$(tipc link list 2>/dev/null | \
+                      awk '{print substr($1, 0, length($1)-1)}')
         if [[ $filter == "peers" ]]; then
             links=$(command sed '/broadcast-link/d' <<<"$links")
         fi
