@@ -88,9 +88,19 @@ _tipc()
         ;;
     esac
 
+	if [[ $cword -eq 1 ]]; then
+		COMPREPLY=( $( compgen -W 'bearer link media nametable node socket' -- $cur ) )
+		return
+	fi
+
     case "${words[$optind]}" in
     bearer)
         let optind++
+
+        if [[ $cword -eq $optind ]]; then
+            COMPREPLY=( $( compgen -W 'enable disable set get list' -- $cur ) )
+            return
+        fi
 
         case "${words[$optind]}" in
         enable)
@@ -139,13 +149,11 @@ _tipc()
             done
 
             COMPREPLY=( $( compgen -W '${params[@]}' -- $cur) )
-            return
             ;;
         disable)
             let optind++
 
             _tipc_bearer $optind
-            return
             ;;
         get)
             let optind++
@@ -155,7 +163,6 @@ _tipc()
             elif [[ $cword -ge $optind+1 ]]; then
                 _tipc_bearer $(($optind + 1))
             fi
-            return
             ;;
         set)
             let optind++
@@ -165,18 +172,16 @@ _tipc()
             elif [[ $cword -ge $optind+2 ]]; then
                 _tipc_bearer $(($optind + 2))
             fi
-            return
-            ;;
-        list)
-            return
             ;;
         esac
-
-        COMPREPLY=( $( compgen -W 'enable disable set get list' -- $cur ) )
-        return
         ;;
     link)
         let optind++
+
+        if [[ $cword -eq $optind ]]; then
+            COMPREPLY=( $( compgen -W 'get set list statistics'  -- $cur ) )
+            return
+        fi
 
         case "${words[$optind]}" in
         get)
@@ -187,7 +192,6 @@ _tipc()
             elif [[ $cword -ge $optind+1 ]]; then
                 _tipc_link $(($optind + 1)) "peers"
             fi
-            return
             ;;
         set)
             let optind++
@@ -197,31 +201,30 @@ _tipc()
             elif [[ $cword -ge $optind+2 ]]; then
                 _tipc_link $(($optind + 2)) "peers"
             fi
-            return
-            ;;
-        list)
-            return
             ;;
         statistics)
             let optind++
 
+            if [[ $cword -eq $optind ]]; then
+                COMPREPLY=( $( compgen -W 'show reset' -- $cur) )
+                return
+            fi
+
             case "${words[$optind]}" in
             show|reset)
                 _tipc_link $(($optind + 1))
-                return
                 ;;
             esac
-
-            COMPREPLY=( $( compgen -W 'show reset' -- $cur) )
-            return
             ;;
         esac
-
-        COMPREPLY=( $( compgen -W 'get set list statistics'  -- $cur ) )
-        return
         ;;
     media)
         let optind++
+
+        if [[ $cword -eq $optind ]]; then
+            COMPREPLY=( $( compgen -W 'get set list'  -- $cur ) )
+            return
+        fi
 
         case "${words[$optind]}" in
         get)
@@ -232,7 +235,6 @@ _tipc()
             elif [[ $cword -ge $optind+1 ]]; then
                 _tipc_media $(($optind + 1))
             fi
-            return
             ;;
         set)
             let optind++
@@ -242,66 +244,41 @@ _tipc()
             elif [[ $cword -ge $optind+2 ]]; then
                 _tipc_media $(($optind + 2))
             fi
-            return
-            ;;
-        list)
-            return
             ;;
         esac
-
-        COMPREPLY=( $( compgen -W 'get set list'  -- $cur ) )
-        return
         ;;
     nametable)
         let optind++
 
-        case "${words[$optind]}" in
-        show)
-            return
-            ;;
-        esac
-
-        COMPREPLY=( $( compgen -W 'show'  -- $cur ) )
-        return
+        if [[ $cword -eq $optind ]]; then
+            COMPREPLY=( $( compgen -W 'show'  -- $cur ) )
+        fi
         ;;
     node)
         let optind++
+
+        if [[ $cword -eq $optind ]]; then
+            COMPREPLY=( $( compgen -W 'list get set'  -- $cur ) )
+            return
+        fi
 
         case "${words[$optind]}" in
         get|set)
             let optind++
 
-            case "${words[$optind]}" in
-            address|netid)
-                return
-                ;;
-            esac
-            COMPREPLY=( $( compgen -W 'address netid'  -- $cur ) )
-            return
-            ;;
-        list)
-            return
-            ;;
+            if [[ $cword -eq $optind ]]; then
+                COMPREPLY=( $( compgen -W 'address netid'  -- $cur ) )
+            fi
         esac
-
-        COMPREPLY=( $( compgen -W 'list get set'  -- $cur ) )
-        return
         ;;
     socket)
         let optind++
 
-        case "${words[$optind]}" in
-        list)
-            return
-            ;;
-        esac
-
-        COMPREPLY=( $( compgen -W 'list'  -- $cur ) )
-        return
+        if [[ $cword -eq $optind ]]; then
+            COMPREPLY=( $( compgen -W 'list'  -- $cur ) )
+        fi
         ;;
     esac
-
-    COMPREPLY=( $( compgen -W 'bearer link media nametable node socket' -- $cur ) )
 }
 complete -F _tipc tipc
 
