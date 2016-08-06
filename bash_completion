@@ -559,6 +559,7 @@ _filedir()
     local IFS=$'\n'
 
     _tilde "$cur" || return 0
+    _dollar "$cur" || return 0
 
     local -a toks
     local x tmp
@@ -975,17 +976,74 @@ _ncpus()
 #          are put in COMPREPLY and no further processing is necessary.
 _tilde()
 {
-    local result=0
+    local -i result=0
     if [[ $1 == \~* && $1 != */* ]]; then
         # Try generate ~username completions
         COMPREPLY=( $( compgen -P '~' -u -- "${1#\~}" ) )
         result=${#COMPREPLY[@]}
         # 2>/dev/null for direct invocation, e.g. in the _tilde unit test
-        [[ $result -gt 0 ]] && compopt -o filenames 2>/dev/null
+        if (( result > 0 )) ; then
+            compopt -o filenames 2>/dev/null
+            if (( result == 1 )) && [[ ! -d "${COMPREPLY[0]}/" ]] ; then
+                [[ "${COMP_LINE%% *}" == l@(s|l|a|s-l|f|)* ]] && compopt +o nospace
+            fi
+        fi
     fi
     return $result
 }
 
+# Perform dollar ($) completion
+# @return  True (0) if completion needs further processing,
+#          False (> 0) if dollar is followed by a valid username, completions
+#          are put in COMPREPLY and no further processing is necessary.
+_dollar()
+{
+    local s=""
+    local -i cmd=0
+
+    if [[ "${COMP_LINE%% *}" == @(@(mk|rm)dir|chroot|cd)* ]]; then
+        compopt -o nospace
+        s="/"
+    fi
+
+    case "$1" in
+    \$\(*\))
+        return 0
+        ;;
+    \$\(*)
+        COMPREPLY=($(compgen -c -P '$(' -S ")$s" -- ${1:2}))
+        ((${#COMPREPLY[@]} <= 0)) && let cmd++
+        ;;
+    \`*\`)
+        return 0
+        ;;
+    \`*)
+        COMPREPLY=($(compgen -c -P '\`' -S "\`$s" -- ${1:1}))
+        ((${#COMPREPLY[@]} <= 0)) && let cmd++
+        ;;
+    \$\{*)
+        COMPREPLY=($(compgen -v -P '${' -S "}$s" -- ${1#??})) ;;
+    \$*)
+        COMPREPLY=($(compgen -v -P '$' ${s:+-S $s} -- ${1#?})) ;;
+    *)
+        return 0
+    esac
+
+    if ((${#COMPREPLY[@]} > 0)) ; then
+        ((${#COMPREPLY[@]} == 1)) && eval COMPREPLY=\(${COMPREPLY[@]}\)
+        if [[ -d "${COMPREPLY[0]}/" ]] ; then
+            [[ "${COMP_LINE%% *}" == l@(s|l|a|s-l|f|)* ]] && compopt -o nospace
+        else
+            COMPREPLY[0]="${i%%/}"
+            [[ "${COMP_LINE%% *}" == l@(s|l|a|s-l|f|)* ]] && compopt +o nospace
+        fi
+    elif ((cmd > 0)); then
+        # Let this job do the bash builtin completion
+        compopt -o default -o bashdefault -o nospace
+    fi
+
+    return ${#COMPREPLY[@]}
+}
 
 # Expand variable starting with tilde (~)
 # We want to expand ~foo/... to /home/foo/... to avoid problems when
@@ -1637,7 +1695,16 @@ complete -F _known_hosts traceroute traceroute6 tracepath tracepath6 \
 _cd()
 {
     local cur prev words cword
-    _init_completion || return
+
+    _init_completion || {
+        if [[ ${#COMPREPLY[@]} -eq 1 ]]; then
+            local i=${COMPREPLY[0]}
+            if [[ "$i" =~ "$cur" && "${cur:0:1}" == '$' ]]; then
+                _dollar "$i" || return
+            fi
+        fi
+        return
+    }
 
     local IFS=$'\n' i j k
 
@@ -1808,7 +1875,22 @@ _complete_as_root()
 _longopt()
 {
     local cur prev words cword split
-    _init_completion -s || return
+
+    _init_completion -s || {
+        # Do not escape the leading $ of variables
+        [[ "${cur:0:1}" == '$' ]] && compopt -o dirnames +o filenames
+
+        if [[ ${#COMPREPLY[@]} -eq 1 ]]; then
+            local i=${COMPREPLY[0]}
+            if [[ "$i" =~ "$cur" && "${cur:0:1}" == '$' ]]; then
+                _dollar "$i" || return
+            fi
+        fi
+        return
+    }
+
+    # Do not escape the leading $ of variables
+    [[ "${cur:0:1}" == '$' ]] && compopt -o dirnames +o filenames
 
     case "${prev,,}" in
         --help|--usage|--version)
@@ -1848,16 +1930,22 @@ _longopt()
     elif [[ "$1" == @(@(mk|rm)dir|chroot) ]]; then
         _filedir -d
     else
+        # Restore options for ls command and its various aliases
+        [[ "$1" == l@(s|l|a|s-l|f|) ]] && compopt +o dirnames -o filenames
         _filedir
     fi
 }
 # makeinfo and texi2dvi are defined elsewhere.
 complete -F _longopt a2ps awk base64 bash bc bison cat chroot colordiff cp \
     csplit cut date df diff dir du enscript env expand fmt fold gperf \
-    grep grub head irb ld ldd less ln ls m4 md5sum mkdir mkfifo mknod \
+    grep grub head irb ld ldd less ln m4 md5sum mkdir mkfifo mknod \
     mv netstat nl nm objcopy objdump od paste pr ptx readelf rm rmdir \
     sed seq sha{,1,224,256,384,512}sum shar sort split strip sum tac tail tee \
     texindex touch tr uname unexpand uniq units vdir wc who
+
+# For the ls command and its various aliases it is better to be able to handle
+# files as well as directories. If nothing is found fall back to bash defaults.
+complete -o bashdefault -o default -o filenames -o nospace -F _longopt ls ll la l ls-l lf
 
 declare -A _xspecs
 _filedir_xspec()
