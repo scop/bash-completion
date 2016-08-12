@@ -2,7 +2,7 @@
 #
 # Copyright 2006 Yann Rouillard <yann@opencsw.org>
 
-_pkg-get_get_catalog_file()
+_pkg_get_get_catalog_file()
 {
     local url="$1"
     local catalog_file i conffile
@@ -25,7 +25,7 @@ _pkg-get_get_catalog_file()
 
     echo "$catalog_file"
 } &&
-_pkg-get()
+_pkg_get()
 {
     local cur prev file catalog_file url command
     COMPREPLY=()
@@ -49,7 +49,7 @@ _pkg-get()
 
     if [[ -n "$command" ]]; then
         if [[ "$command" == @(-[Ddi]|describe|download|install) ]]; then
-            catalog_file=$(_pkg-get_get_catalog_file "$url")
+            catalog_file=$(_pkg_get_get_catalog_file "$url")
             if [[ -f $catalog_file ]]; then
                 local packages_list=$(awk ' $0 ~ /BEGIN PGP SIGNATURE/ { exit } $1 ~ /^Hash:/ || $1 ~ /^ *(-|#|$)/ { next } { print $1 }' $catalog_file)
                 COMPREPLY=( $(compgen -W "${packages_list}" -- ${cur}) )
@@ -68,6 +68,6 @@ _pkg-get()
         updatecatalog upgrade"
     COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
 } &&
-complete -F _pkg-get pkg-get
+complete -F _pkg_get pkg-get
 
 # ex: ts=4 sw=4 et filetype=sh
