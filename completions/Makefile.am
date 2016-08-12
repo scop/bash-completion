@@ -566,6 +566,7 @@ CLEANFILES = \
 	pxz \
 	pydoc3 \
 	pypy \
+	pypy3 \
 	python2 \
 	python3 \
 	pyvenv-3.4 \
@@ -867,7 +868,7 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) pydoc $(targetdir)/$$file ; \
 	done
-	for file in pypy python2 python3 ; do \
+	for file in pypy pypy3 python2 python3 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) python $(targetdir)/$$file ; \
 	done
