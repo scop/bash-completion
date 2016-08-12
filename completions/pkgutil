@@ -36,18 +36,18 @@ _pkgutil()
 
     if [[ "$prev" == -@([WPR]|-workdir|-pkgdir|-rootpath) ]]; then
         _filedir -d
-        return 0
+        return
     fi
 
     if [[ "$prev" == -@(o|-output|-config) ]]; then
         _filedir
-        return 0
+        return
     fi
 
     if [[ "$prev" == -@(p|-param) ]]; then
         compopt -o nospace
         COMPREPLY=( $(compgen -W "mirror: pkgaddopts: pkgrmopts: wgetopts: use_gpg: use_md5: pkgliststyle: maxpkglist: noncsw: stop_on_hook_soft_error: exclude_pattern: gpg_homedir: root_path: deptree_filter_common: show_current: catalog_not_cached: catalog_update:" -- $cur) )
-        return 0
+        return
     fi
 
     if [[ "$prev" == @(-T|--target) ]]; then
@@ -60,7 +60,7 @@ _pkgutil()
         while [ $((--i)) -ge 0 ]; do
             COMPREPLY[$i]=${COMPREPLY[$i]#"$colonprefixes"}
         done
-        return 0
+        return
     fi
 
     if [[ -n "$command" ]] && [[ ! "$cur" == -* ]]; then
@@ -83,12 +83,11 @@ _pkgutil()
             packages_list=$(nawk " \$3 ~ /^$packages_list\$/ { print \$1 }" "${catalog_files[@]}")
             COMPREPLY=( $(compgen -W "${packages_list}" -- $cur) )
         fi
-        return 0
+        return
     fi
 
     local commands="-i --install -u --upgrade -r --remove -d --download -U --catalog -a --available --describe -c --compare -C --compare-diff -A --compare-avail -e --email -t --temp -x --exclude -W --workdir -P --pkgdir -R --rootpath --config -y --yes -f --force -n --nomod -N --nodeps -D --debug --trace -h --help -v --version -V --syscheck -l --list -L --listfile -F --findfile --deptree --extract -s --stream -o --output -T --target --single -p --param --parse --cleanup --catinfo"
     COMPREPLY=( $(compgen -W "${commands}" -- $cur) )
-    return 0
 }
 
 complete -F _pkgutil pkgutil

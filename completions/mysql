@@ -8,16 +8,16 @@ _mysql()
     case $prev in
         -u|--user)
             COMPREPLY=( $( compgen -u -- "$cur" ) )
-            return 0
+            return
             ;;
         -D|--database)
             COMPREPLY=( $( compgen -W "$(mysqlshow 2>/dev/null | command sed -ne '2d' -e 's/^|.\([^|]*\)|.*/\1/p')" -- "$cur" ) )
-            return 0
+            return
             ;;
 
         -h|--host)
             _known_hosts_real "$cur"
-            return 0
+            return
             ;;
         --default-character-set)
             local reset=$( shopt -p failglob ); shopt -u failglob
@@ -26,24 +26,24 @@ _mysql()
             charsets=( "${charsets[@]##*/}" )
             charsets=( "${charsets[@]%%?(Index|\*).xml}" utf8 )
             COMPREPLY=( $( compgen -W '${charsets[@]}' -- "$cur" ) )
-            return 0
+            return
             ;;
 
         --character-sets-dir|--ssl-capath)
             _filedir -d
-            return 0
+            return
             ;;
         -S|--socket)
             _filedir sock
-            return 0
+            return
             ;;
         --protocol)
             COMPREPLY=( $( compgen -W 'tcp socket pipe memory' -- "$cur" ) )
-            return 0
+            return
             ;;
         --defaults-file|--defaults-extra-file|--tee)
             _filedir
-            return 0
+            return
             ;;
         --default-character-set|-P|--port|--set-variable|\
         --ssl-ca|--ssl-cert|--ssl-cipher|--ssl-key|\
@@ -51,11 +51,11 @@ _mysql()
         --net_buffer_length|--select_limit|--max_join_size|\
         --server-arg|--debug|--delimiter|--execute|-e|--pager)
             # Argument required but no completions available
-            return 0
+            return
             ;;
         '-?'|-I|--help|-V|--version)
             # All other options are noop with these
-            return 0
+            return
             ;;
     esac
 
@@ -66,14 +66,14 @@ _mysql()
 
             COMPREPLY=( $( compgen -W "$help" -- "$cur" ) )
             [[ $COMPREPLY == *= ]] && compopt -o nospace
-            return 0
+            return
             ;;
 
         # only complete long options
         -)
             compopt -o nospace
             COMPREPLY=( -- )
-            return 0
+            return
             ;;
     esac
 

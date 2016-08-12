@@ -159,47 +159,47 @@ _ssh()
 
     local -a config
 
-    _ssh_suboption_check "$1" && return 0
+    _ssh_suboption_check "$1" && return
 
     case $prev in
         -F|-i|-S)
             _filedir
-            return 0
+            return
             ;;
         -c)
             _ssh_ciphers "$1"
-            return 0
+            return
             ;;
         -m)
             _ssh_macs "$1"
-            return 0
+            return
             ;;
         -l)
             COMPREPLY=( $( compgen -u -- "$cur" ) )
-            return 0
+            return
             ;;
         -O)
             COMPREPLY=( $( compgen -W 'check forward exit stop' -- "$cur" ) )
-            return 0
+            return
             ;;
         -o)
             _ssh_options
-            return 0
+            return
             ;;
         -Q)
             _ssh_queries "$1"
-            return 0
+            return
             ;;
         -w)
             _available_interfaces
-            return 0
+            return
             ;;
         -b)
             _ip_addresses
-            return 0
+            return
             ;;
         -D|-e|-I|-L|-p|-R|-W)
-            return 0
+            return
             ;;
     esac
 
@@ -223,8 +223,6 @@ _ssh()
             COMPREPLY+=( $( compgen -c -- "$cur" ) )
         fi
     fi
-
-    return 0
 } &&
 shopt -u hostcomplete && complete -F _ssh ssh slogin autossh
 
@@ -235,27 +233,27 @@ _sftp()
     local cur prev words cword
     _init_completion || return
 
-    _ssh_suboption_check && return 0
+    _ssh_suboption_check && return
 
     case $prev in
         -b|-F|-i)
             _filedir
-            return 0
+            return
             ;;
         -o)
             _ssh_options
-            return 0
+            return
             ;;
         -c)
             _ssh_ciphers
-            return 0
+            return
             ;;
         -S)
             _command
-            return 0
+            return
             ;;
         -B|-D|-l|-P|-R|-s)
-            return 0
+            return
             ;;
     esac
 
@@ -272,8 +270,6 @@ _sftp()
         _ssh_configfile
         _known_hosts_real -a -F "$configfile" "$cur"
     fi
-
-    return 0
 } &&
 shopt -u hostcomplete && complete -F _sftp sftp
 
@@ -352,39 +348,39 @@ _scp()
 
     _ssh_suboption_check && {
         COMPREPLY=( "${COMPREPLY[@]/%/ }" )
-        return 0
+        return
     }
 
     case $prev in
         -l|-P)
-            return 0
+            return
             ;;
         -F|-i)
             _filedir
             compopt +o nospace
-            return 0
+            return
             ;;
         -c)
             _ssh_ciphers
             COMPREPLY=( "${COMPREPLY[@]/%/ }" )
-            return 0
+            return
             ;;
         -o)
             _ssh_options
-            return 0
+            return
             ;;
         -S)
             _command
             compopt +o nospace
-            return 0
+            return
             ;;
     esac
 
-    _expand || return 0
+    _expand || return
 
     case $cur in
         !(*:*)/*|[.~]*) ;; # looks like a path
-        *:*) _scp_remote_files ; return 0 ;;
+        *:*) _scp_remote_files ; return ;;
     esac
 
     if [[ "$cur" == -F* ]]; then
@@ -396,7 +392,7 @@ _scp()
                 COMPREPLY=( $( compgen -W '$( _parse_usage "${words[0]}" )' \
                     -- "$cur" ) )
                 COMPREPLY=( "${COMPREPLY[@]/%/ }" )
-                return 0
+                return
                 ;;
             */*|[.~]*)
                 # not a known host, pass through
@@ -410,8 +406,6 @@ _scp()
     fi
 
     _scp_local_files "$prefix"
-
-    return 0
 } &&
 complete -F _scp -o nospace scp
 

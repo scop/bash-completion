@@ -7,21 +7,19 @@ _ypmatch()
 
     local map cmd=${1##*/}
 
-    [[ $cmd == ypcat && $cword -gt 1 ]] && return 0
-    [[ $cmd == ypmatch && $cword -gt 2 ]] && return 0
+    [[ $cmd == ypcat && $cword -gt 1 ]] && return
+    [[ $cmd == ypmatch && $cword -gt 2 ]] && return
 
     if [[ $cmd == ypmatch && $cword -eq 1 && ${#words[@]} -eq 3 ]]; then
         map=${words[2]}
         COMPREPLY=( $( compgen -W '$( ypcat $map 2>/dev/null | \
             cut -d':' -f 1 )' -- "$cur" ) )
     else
-        [[ $cmd == ypmatch && $cword -ne 2 ]] && return 0
+        [[ $cmd == ypmatch && $cword -ne 2 ]] && return
         COMPREPLY=( $( compgen -W \
             '$( printf "%s\n" $(ypcat -x 2>/dev/null | \
                 cut -d"\"" -f 2) )' -- "$cur" ) )
     fi
-
-    return 0
 } &&
 complete -F _ypmatch ypmatch ypcat
 

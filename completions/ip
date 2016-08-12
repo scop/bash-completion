@@ -14,25 +14,25 @@ _ip()
 
     case $prev in
         -V|-Version|-rc|-rcvbuf)
-            return 0
+            return
             ;;
         -f|-family)
             COMPREPLY=( $( compgen -W 'inet inet6 ipx dnet link' -- "$cur" ) )
-            return 0
+            return
             ;;
         -b|-batch)
             _filedir
-            return 0
+            return
             ;;
         -force)
             COMPREPLY=( $( compgen -W '-batch' -- "$cur" ) )
-            return 0
+            return
             ;;
     esac
 
     local subcword cmd subcmd
     for (( subcword=1; subcword < ${#words[@]}-1; subcword++ )); do
-        [[ ${words[subcword]} == -b?(atch) ]] && return 0
+        [[ ${words[subcword]} == -b?(atch) ]] && return
         [[ -n $cmd ]] && subcmd=${words[subcword]} && break
         [[ ${words[subcword]} != -* && \
                 ${words[subcword-1]} != -@(f?(amily)|rc?(vbuf)) ]] && \
@@ -46,7 +46,7 @@ _ip()
                     -oneline -timestamp -batch -rcvbuf"
                 [[ $cword -eq 1 ]] && c+=" -force"
                 COMPREPLY=( $( compgen -W "$c" -- "$cur" ) )
-                return 0
+                return
                 ;;
             *)
                 COMPREPLY=( $( compgen -W "help $( ip help 2>&1 | command sed -e \
@@ -54,12 +54,12 @@ _ip()
                     's/.*{//' -e \
                     's/}.*//' -e \
                     's/|//g' )" -- "$cur" ) )
-                return 0
+                return
                 ;;
         esac
     fi
 
-    [[ $subcmd == help ]] && return 0
+    [[ $subcmd == help ]] && return
 
     case $cmd in
         link)

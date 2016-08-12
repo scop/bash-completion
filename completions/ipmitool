@@ -13,53 +13,53 @@ _ipmitool()
 
     case $prev in
         -h|-V|-p|-U|-e|-k|-y|-P|-m|-b|-t|-B|-T|-l)
-            return 0
+            return
             ;;
         -d)
             COMPREPLY=( $( compgen -W "$( \
                 command ls -d /dev/ipmi* /dev/ipmi/* /dev/ipmidev/* \
                 2>/dev/null | command sed -ne 's/^[^0-9]*\([0-9]\{1,\}\)/\1/p' )" \
                 -- "$cur" ) )
-            return 0
+            return
             ;;
         -I)
             COMPREPLY=( $( compgen -W "$( $1 -h 2>&1 | \
                 command sed -e '/^Interfaces:/,/^[[:space:]]*$/!d' \
                 -ne 's/^[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*/\1/p' )" \
                 -- "$cur" ) )
-            return 0
+            return
             ;;
         -H)
             _known_hosts_real "$cur"
-            return 0
+            return
             ;;
         -f|-S|-O)
             _filedir
-            return 0
+            return
             ;;
         -C)
             COMPREPLY=( $( compgen -W '{0..14}' -- "$cur" ) )
-            return 0
+            return
             ;;
         -L)
             COMPREPLY=( $( compgen -W 'CALLBACK USER OPERATOR ADMINISTRATOR' \
                 -- "$cur" ) )
-            return 0
+            return
             ;;
         -A)
             COMPREPLY=( $( compgen -W 'NONE PASSWORD MD2 MD5 OEM' -- "$cur" ) )
-            return 0
+            return
             ;;
         -o)
             COMPREPLY=( $( compgen -W "$( $1 -o list 2>&1 | \
                 awk '/^[ \t]+/ { print $1 }' ) list" -- "$cur" ) )
-            return 0
+            return
             ;;
     esac
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_help "$1" -h)' -- "$cur" ) )
-        return 0
+        return
     fi
 
     # Find out command and subcommand
@@ -77,7 +77,7 @@ _ipmitool()
 
     if [[ -z $cmd ]]; then
         COMPREPLY=( $( compgen -W '${cmds[@]}' -- "$cur" ) )
-        return 0
+        return
     fi
 
     # Command/subcommand completions

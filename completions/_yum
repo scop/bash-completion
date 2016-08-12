@@ -50,25 +50,25 @@ _yum()
         if [[ "$cur" == @(*/|[.~])* && \
             "$special" == @(deplist|install|update|upgrade) ]]; then
             _filedir rpm
-            return 0
+            return
         fi
         case $special in
             install)
                 _yum_list available
-                return 0
+                return
                 ;;
             deplist|info)
                 _yum_list all
-                return 0
+                return
                 ;;
             upgrade|update)
                 _yum_list updates
-                return 0
+                return
                 ;;
             remove|erase)
                 # _rpm_installed_packages is not arch-qualified
                 _yum_list installed
-                return 0
+                return
                 ;;
         esac
     fi
@@ -117,11 +117,11 @@ _yum()
             ;;
         -R|-x|--exclude)
             # argument required but no completions available
-            return 0
+            return
             ;;
         -h|--help|--version)
             # no other options useful with these
-            return 0
+            return
             ;;
         *)
             COMPREPLY=( $( compgen -W 'install update check-update upgrade
@@ -132,12 +132,11 @@ _yum()
             ;;
     esac
 
-    $split && return 0
+    $split && return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
-        return 0
     fi
 } &&
 complete -F _yum yum

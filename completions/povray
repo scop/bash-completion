@@ -9,7 +9,7 @@ _povray()
     local povcur=$cur pfx oext defoext
     defoext=png # default output extension, if cannot be determined FIXME
 
-    _expand || return 0
+    _expand || return
 
     case $povcur in
         [-+]I*)
@@ -17,7 +17,7 @@ _povray()
             pfx="${povcur%"$cur"}"
             _filedir pov
             COMPREPLY=( ${COMPREPLY[@]/#/$pfx} )
-            return 0
+            return
             ;;
         [-+]O*)
             # guess what output file type user may want
@@ -35,21 +35,21 @@ _povray()
             pfx="${povcur%"$cur"}"
             _filedir $oext
             COMPREPLY=( ${COMPREPLY[@]/#/$pfx} )
-            return 0
+            return
             ;;
         *.ini\[|*.ini\[*[^]]) # sections in .ini files
             cur="${povcur#*\[}"
             pfx="${povcur%\["$cur"}" # prefix == filename
-            [[ -r $pfx ]] || return 0
+            [[ -r $pfx ]] || return
             COMPREPLY=( $(command sed -e 's/^[[:space:]]*\[\('"$cur"'[^]]*\]\).*$/\1/' \
                 -e 't' -e 'd' -- "$pfx") )
             # to prevent [bar] expand to nothing.  can be done more easily?
             COMPREPLY=( "${COMPREPLY[@]/#/$pfx[}" )
-            return 0
+            return
             ;;
         *)
             _filedir '@(ini|pov)'
-            return 0
+            return
             ;;
     esac
 } &&

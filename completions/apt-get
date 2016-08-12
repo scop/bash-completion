@@ -23,32 +23,30 @@ _apt_get()
                     # assume RPM based
                     _xfunc rpm _rpm_installed_packages
                 fi
-                return 0
                 ;;
             source)
                 COMPREPLY=( $( apt-cache --no-generate pkgnames "$cur" \
                     2> /dev/null ) $( apt-cache dumpavail | \
                     command grep "^Source: $cur" | sort -u | cut -f2 -d" " ) )
-                return 0
                 ;;
             *)
                 COMPREPLY=( $( apt-cache --no-generate pkgnames "$cur" \
                     2> /dev/null ) )
-                return 0
                 ;;
         esac
+        return
     fi
 
     case $prev in
         -c|--config-file)
              _filedir
-             return 0
+             return
              ;;
         -t|--target-release|--default-release)
              COMPREPLY=( $( apt-cache policy | \
                  command grep "release.o=Debian,a=$cur" | \
                  command sed -e "s/.*a=\(\w*\).*/\1/" | uniq 2> /dev/null) )
-             return 0
+             return
              ;;
     esac
 
@@ -68,7 +66,6 @@ _apt_get()
             changelog check clean autoclean autoremove' -- "$cur" ) )
     fi
 
-    return 0
 } &&
 complete -F _apt_get apt-get
 

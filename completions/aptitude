@@ -40,16 +40,16 @@ _aptitude()
            safe-upgrade|download|show|changelog|why|why-not|build-dep| \
            add-user-tag|remove-user-tag|versions)
                COMPREPLY=( $( _xfunc apt-cache _apt_cache_packages ) )
-               return 0
+               return
                ;;
            purge|remove|reinstall|forbid-version)
                COMPREPLY=( \
                    $( _xfunc dpkg _comp_dpkg_installed_packages "$cur" ) )
-               return 0
+               return
                ;;
            unhold)
                COMPREPLY=( $( _comp_dpkg_hold_packages "$cur" ) )
-               return 0
+               return
                ;;
        esac
     fi
@@ -57,17 +57,17 @@ _aptitude()
     case $prev in
         # don't complete anything if these options are found
         autoclean|clean|forget-new|search|upgrade|update|keep-all)
-            return 0
+            return
             ;;
         -S)
             _filedir
-            return 0
+            return
             ;;
         -t|--target-release|--default-release)
             COMPREPLY=( $( apt-cache policy | \
                 command grep "release.o=Debian,a=$cur" | \
                 command sed -e "s/.*a=\(\w*\).*/\1/" | uniq 2> /dev/null ) )
-            return 0
+            return
             ;;
     esac
 
@@ -81,7 +81,6 @@ _aptitude()
             remove-user-tag versions' -- "$cur" ) )
     fi
 
-    return 0
 } &&
 complete -F _aptitude -o default aptitude
 

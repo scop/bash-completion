@@ -63,31 +63,31 @@ _rpm()
                     -- "$cur" ) )
                 ;;
         esac
-        return 0
+        return
     fi
 
     case $prev in
         --dbpath|--excludepath|--prefix|--relocate|--root|-r)
             _filedir -d
-            return 0
+            return
             ;;
         --eval|-E)
             _rpm_macros $1
-            return 0
+            return
             ;;
         --pipe)
             compopt -o filenames
             COMPREPLY=( $( compgen -c -- "$cur" ) )
-            return 0
+            return
             ;;
         --rcfile)
             _filedir
-            return 0
+            return
             ;;
         --specfile)
             # complete on .spec files
             _filedir spec
-            return 0
+            return
             ;;
         --whatenhances|--whatprovides|--whatrecommends|--whatrequires|\
         --whatsuggests|--whatsupplements)
@@ -108,15 +108,15 @@ _rpm()
                     --queryformat=\"%{$fmt}\\n\" 2>/dev/null |
                     command grep -vF '(none)' )" -- "$cur" ) )
             fi
-            return 0
+            return
             ;;
         --define|-D|--fileid|--hdrid|--pkgid)
             # argument required but no completions available
-            return 0
+            return
             ;;
     esac
 
-    $split && return 0
+    $split && return
 
     # options common to all modes
     local opts="--define= --eval= --macros= --nodigest --nosignature --rcfile=
@@ -230,8 +230,6 @@ _rpm()
             ;;
     esac
     [[ $COMPREPLY == *= ]] && compopt -o nospace
-
-    return 0
 } &&
 complete -F _rpm rpm
 
@@ -246,19 +244,19 @@ _rpmbuild()
     case $prev in
         --buildroot|--root|-r|--dbpath)
             _filedir -d
-            return 0
+            return
             ;;
         --target)
             _rpm_buildarchs
-            return 0
+            return
             ;;
         --eval|-E)
             _rpm_macros $rpm
-            return 0
+            return
             ;;
         --macros|--rcfile)
             _filedir
-            return 0
+            return
             ;;
         --buildpolicy)
             local cfgdir=$( $rpm --eval '%{_rpmconfigdir}' 2>/dev/null )
@@ -268,16 +266,16 @@ _rpmbuild()
             fi
             ;;
         --define|-D|--with|--without)
-            return 0
+            return
             ;;
     esac
 
-    $split && return 0
+    $split && return
 
     if [[ $cur == -* ]]; then
         COMPREPLY=( $( compgen -W "$( _parse_help "$1" )" -- "$cur" ) )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
-        return 0
+        return
     fi
 
     # Figure out file extensions to complete

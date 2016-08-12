@@ -558,7 +558,7 @@ _filedir()
 {
     local IFS=$'\n'
 
-    _tilde "$cur" || return 0
+    _tilde "$cur" || return
 
     local -a toks
     local x tmp
@@ -778,7 +778,7 @@ __parse_options()
             *)    break ;;
         esac
     done
-    [[ $option ]] || return 0
+    [[ $option ]] || return
 
     IFS=$' \t\n' # affects parsing of the regexps below...
 
@@ -1183,7 +1183,7 @@ _service()
     _init_completion || return
 
     # don't complete past 2nd token
-    [[ $cword -gt 2 ]] && return 0
+    [[ $cword -gt 2 ]] && return
 
     if [[ $cword -eq 1 && $prev == ?(*/)service ]]; then
         _services
@@ -1438,8 +1438,6 @@ _user_at_host()
     else
         COMPREPLY=( $( compgen -u -- "$cur" ) )
     fi
-
-    return 0
 }
 shopt -u hostcomplete && complete -F _user_at_host -o nospace talk ytalk finger
 
@@ -1626,7 +1624,6 @@ _known_hosts_real()
 
     __ltrim_colon_completions "$prefix$user$cur"
 
-    return 0
 } # _known_hosts_real()
 complete -F _known_hosts traceroute traceroute6 tracepath tracepath6 \
     fping fping6 telnet rsh rlogin ftp dig mtr ssh-installkeys showmount
@@ -1647,7 +1644,7 @@ _cd()
     # ./ or ../
     if [[ -z "${CDPATH:-}" || "$cur" == ?(.)?(.)/* ]]; then
         _filedir -d
-        return 0
+        return
     fi
 
     local -r mark_dirs=$(_rl_enabled mark-directories && echo y)
@@ -1674,7 +1671,7 @@ _cd()
         fi
     fi
 
-    return 0
+    return
 }
 if shopt -q cdable_vars; then
     complete -v -F _cd -o nospace cd pushd
@@ -1812,15 +1809,15 @@ _longopt()
 
     case "${prev,,}" in
         --help|--usage|--version)
-            return 0
+            return
             ;;
         --*dir*)
             _filedir -d
-            return 0
+            return
             ;;
         --*file*|--*path*)
             _filedir
-            return 0
+            return
             ;;
         --+([-a-z0-9_]))
             local argtype=$( LC_ALL=C $1 --help 2>&1 | command sed -ne \
@@ -1828,17 +1825,17 @@ _longopt()
             case ${argtype,,} in
                 *dir*)
                     _filedir -d
-                    return 0
+                    return
                     ;;
                 *file*|*path*)
                     _filedir
-                    return 0
+                    return
                     ;;
             esac
             ;;
     esac
 
-    $split && return 0
+    $split && return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W "$( LC_ALL=C $1 --help 2>&1 | \
@@ -1865,7 +1862,7 @@ _filedir_xspec()
     local cur prev words cword
     _init_completion || return
 
-    _tilde "$cur" || return 0
+    _tilde "$cur" || return
 
     local IFS=$'\n' xspec=${_xspecs[${1##*/}]} tmp
     local -a toks

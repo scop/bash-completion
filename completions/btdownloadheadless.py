@@ -8,7 +8,7 @@ _btdownload()
     case $prev in
         --responsefile|--saveas)
             _filedir
-            return 0
+            return
             ;;
     esac
 

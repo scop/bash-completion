@@ -11,35 +11,33 @@ _useradd()
     case $prev in
         -c|--comment|-h|--help|-e|--expiredate|-f|--inactive|-K|--key|\
         -p|--password|-u|--uid|-Z|--selinux-user)
-            return 0
+            return
             ;;
         -b|--base-dir|-d|--home-dir|-k|--skel|-R|--root)
             _filedir -d
-            return 0
+            return
             ;;
         -g|--gid)
             _gids
             COMPREPLY=( $( compgen -W '${COMPREPLY[@]} $( compgen -g )' \
                 -- "$cur" ) )
-            return 0
+            return
             ;;
         -G|--groups)
             local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
             COMPREPLY=( $( compgen -P "$prefix" -g -- "${cur##*,}" ) )
-            return 0
+            return
             ;;
         -s|--shell)
             _shells
-            return 0
+            return
             ;;
     esac
 
-    $split && return 0
+    $split && return
 
-    if [[ "$cur" == -* ]]; then
+    [[ "$cur" == -* ]] && \
         COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
-        return 0
-    fi
 } &&
 complete -F _useradd useradd
 

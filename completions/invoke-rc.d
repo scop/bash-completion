@@ -32,7 +32,6 @@ _invoke_rc_d()
         COMPREPLY=()
     fi
 
-    return 0
 } &&
 complete -F _invoke_rc_d invoke-rc.d
 

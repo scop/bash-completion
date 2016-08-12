@@ -10,59 +10,59 @@ _find()
     case $prev in
         -maxdepth|-mindepth)
             COMPREPLY=( $( compgen -W '{0..9}' -- "$cur" ) )
-            return 0
+            return
             ;;
         -newer|-anewer|-cnewer|-fls|-fprint|-fprint0|-fprintf|-name|-iname|\
         -lname|-ilname|-wholename|-iwholename|-samefile)
             _filedir
-            return 0
+            return
             ;;
         -fstype)
             _fstypes
             [[ $OSTYPE == *bsd* ]] && \
                 COMPREPLY+=( $( compgen -W 'local rdonly' -- "$cur" ) )
-            return 0
+            return
             ;;
         -gid)
             _gids
-            return 0
+            return
             ;;
         -group)
             COMPREPLY=( $( compgen -g -- "$cur" 2>/dev/null) )
-            return 0
+            return
             ;;
         -xtype|-type)
             COMPREPLY=( $( compgen -W 'b c d p f l s' -- "$cur" ) )
-            return 0
+            return
             ;;
         -uid)
             _uids
-            return 0
+            return
             ;;
         -user)
             COMPREPLY=( $( compgen -u -- "$cur" ) )
-            return 0
+            return
             ;;
         -exec|-execdir|-ok|-okdir)
             words=(words[0] "$cur")
             cword=1
             _command
-            return 0
+            return
             ;;
         -[acm]min|-[acm]time|-iname|-lname|-wholename|-iwholename|-lwholename|\
         -ilwholename|-inum|-path|-ipath|-regex|-iregex|-links|-perm|-size|\
         -used|-printf|-context)
             # do nothing, just wait for a parameter to be given
-            return 0
+            return
             ;;
         -regextype)
             COMPREPLY=( $( compgen -W 'emacs posix-awk posix-basic posix-egrep
                 posix-extended' -- "$cur" ) )
-            return 0
+            return
             ;;
     esac
 
-    _expand || return 0
+    _expand || return
 
     local i exprfound=false
     # set exprfound to true if there is already an expression present
@@ -73,7 +73,7 @@ _find()
     # handle case where first parameter is not a dash option
     if ! $exprfound && [[ "$cur" != [-\(\),\!]* ]]; then
         _filedir -d
-        return 0
+        return
     fi
 
     # complete using basic options
@@ -108,7 +108,6 @@ _find()
 
     _filedir
 
-    return 0
 } &&
 complete -F _find find
 
