@@ -12,7 +12,7 @@ _btdownload()
             ;;
     esac
 
-     if [[ "$cur" == -* ]]; then
+    if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '--max_uploads --keepalive_interval
             --download_slice_size --request_backlog --max_message_length
             --ip --minport --maxport --responsefile --url --saveas --timeout
