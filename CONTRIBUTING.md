@@ -116,6 +116,9 @@ guidelines in mind:
   starting reference for portable use of various utilities, see
   http://pubs.opengroup.org/onlinepubs/9699919799/
 
+- Use an editor that supports EditorConfig, see http://editorconfig.org/,
+  and format source code according to our settings.
+
 - Read the existing source code for examples of how to solve
   particular problems. Read the bash man page for details of all the
   programming tools available to you within the shell.

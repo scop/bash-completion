@@ -29,4 +29,4 @@ _btdownload()
 complete -F _btdownload btdownloadheadless.py btdownloadcurses.py \
     btdownloadgui.py
 
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

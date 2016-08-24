@@ -49,4 +49,4 @@ _asciidoc()
 } &&
 complete -F _asciidoc asciidoc asciidoc.py
 
-# ex: ts=4 sw=4 et filetype=sh
+# ex: filetype=sh

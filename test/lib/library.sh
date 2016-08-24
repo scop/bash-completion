@@ -62,12 +62,3 @@ is_bash_version_minimal() {
 remove_comp_wordbreak_char() {
     COMP_WORDBREAKS=${COMP_WORDBREAKS//$1}
 } # remove_comp_wordbreak_char()
-
-
-# Local variables:
-# mode: shell-script
-# sh-basic-offset: 4
-# sh-indent-comment: t
-# indent-tabs-mode: nil
-# End:
-# ex: ts=4 sw=4 et filetype=sh
