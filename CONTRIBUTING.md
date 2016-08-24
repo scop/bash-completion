@@ -100,6 +100,11 @@ guidelines in mind:
   create race conditions, is inefficient, violates the principle of
   least surprise and lacks robustness.
 
+- Use printf(1) instead of echo(1) for portability reasons, and be
+  sure to invoke commands that are often found aliased (such as `ls`
+  or `grep` etc) using the `command` (or `builtin`) command as
+  appropriate.
+
 - Make small, incremental commits that do one thing. Don't cram
   unrelated changes into a single commit.
 
@@ -140,8 +145,3 @@ guidelines in mind:
   option for some reason and you want to use email to send patches,
   send them as attachments formatted by `git format-patch` or directly
   with `git send-email`.
-
-- Use printf(1) instead of echo(1) for portability reasons, and be
-  sure to invoke commands that are often found aliased (such as `ls`
-  or `grep` etc) using the `command` (or `builtin`) command as
-  appropriate.
