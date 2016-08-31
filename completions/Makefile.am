@@ -69,6 +69,7 @@ bashcomp_DATA = 2to3 \
 		cvs \
 		cvsps \
 		dd \
+		deja-dup \
 		desktop-file-validate \
 		dhclient \
 		dict \

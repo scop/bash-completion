@@ -1,0 +1,33 @@
+# bash completion for deja-dup(1)                          -*- shell-script -*-
+
+_deja_dup()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -'?'|--help|--help-*)
+            return
+            ;;
+        --restore)
+            _filedir
+            return
+            ;;
+        --restore-missing)
+            _filedir -d
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" --help-all )' \
+            -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+} &&
+complete -F _deja_dup deja-dup
+
+# ex: filetype=sh
