@@ -1,0 +1,46 @@
+proc setup {} {
+    save_env
+}
+
+
+proc teardown {} {
+    assert_env_unmodified
+}
+
+set commands "bootstrap checkout ci clean co commit config diff fetch grep help list log ls offline online push record register remember run status update"
+set options "-c --config -d --directory -f --force --force-env -i --interactive -j --jobs -k --insecure -m --minimal -n --no-recurse -q --quiet -s --stats -t --trust-all -v --verbose"
+set long_options "--config --directory --force --force-env --interactive --jobs --insecure --minimal --no-recurse --quiet --stats --trust-all --verbose"
+
+setup
+
+assert_complete_any "mr "
+sync_after_int
+
+assert_complete $commands "mr "
+sync_after_int
+
+assert_complete $options "mr -"
+sync_after_int
+
+assert_complete $long_options "mr --"
+sync_after_int
+
+assert_complete {"foo"} "mr -c $::srcdir/fixtures/shared/default/foo.d/"
+sync_after_int
+
+assert_complete {"bar bar.d/" "foo.d/"} "mr -d $::srcdir/fixtures/shared/default/"
+sync_after_int
+
+assert_complete {"bar" "bar bar.d/" "foo" "foo.d/"} "mr bootstrap $::srcdir/fixtures/shared/default/"
+sync_after_int
+
+assert_complete "-f" "mr clean -"
+sync_after_int
+
+assert_complete "-m" "mr commit -"
+sync_after_int
+
+assert_no_complete "mr status "
+sync_after_int
+
+teardown

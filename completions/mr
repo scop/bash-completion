@@ -1,0 +1,80 @@
+# mr completion                                            -*- shell-script -*-
+
+_mr() {
+    local cur prev words cword
+    _init_completion || return
+
+    local options='-c --config -d --directory -f --force --force-env -i
+    --interactive -j --jobs -k --insecure -m --minimal -n --no-recurse -q
+    --quiet -s --stats -t --trust-all -v --verbose'
+
+    local commands='bootstrap checkout ci clean co commit config diff fetch
+    grep help list log ls offline online push record register remember run
+    status update'
+
+    # Determine if user has entered an `mr` command. Used to block top-level
+    # (option and command) completions.
+    local cmd i
+    for (( i=0; i < ${#words[@]}-1; i++ )); do
+        if [[ $commands == *"${words[i]}"* ]]; then
+            cmd="${words[i]}"
+            break
+        fi
+    done
+
+    # Complete optiions for specific commands.
+    if [[ -n $cmd ]]; then
+        case $cmd in
+            bootstrap)
+                _filedir
+                # Also complete stdin (-).
+                if [[ -z "${cur}" ]]; then
+                    COMPREPLY+=( - )
+                    return
+                fi
+                return
+                ;;
+            clean)
+                if [[ "${cur}" == -* ]]; then
+                    COMPREPLY=( $( compgen -W '-f' -- "${cur}" ) )
+                fi
+                return
+                ;;
+            commit|ci|record)
+                if [[ "${cur}" == -* ]]; then
+                    COMPREPLY=( $( compgen -W '-m' -- "${cur}" ) )
+                fi
+                return
+                ;;
+            run)
+                COMPREPLY=( $( compgen -c -- "${cur}" ) )
+                return
+                ;;
+            *)
+                # Do not complete any other command.
+                return
+                ;;
+        esac
+    fi
+
+    # Complete top-level options and commands.
+    case $prev in
+        -c|--config)
+            _filedir
+            return
+            ;;
+        -d|--directory)
+            _filedir -d
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W "${options}" -- "${cur}" ) )
+    else
+        COMPREPLY=( $( compgen -W  "${commands}" -- "${cur}" ) )
+    fi
+} &&
+complete -F _mr mr
+
+# ex: filetype=sh
