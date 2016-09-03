@@ -229,6 +229,7 @@ bashcomp_DATA = 2to3 \
 		mount \
 		mount.linux \
 		mplayer \
+		mr \
 		msynctool \
 		mtx \
 		munindoc \
