@@ -10,9 +10,12 @@ _mr() {
     # Remove deprecated options.
     options="${options//--path/}"
 
-    local commands='bootstrap checkout ci clean co commit config diff fetch
-    grep help list log ls offline online push record register remember run
-    status update'
+    local commands="$(PERLDOC_PAGER=/bin/cat PERLDOC=-otext mr help | \
+                      awk '/\[options\]/ { print $3 }')"
+    # Split [online|offline] and remove `action` placeholder.
+    commands="${commands//@(action|[\[\|\]])/$'\n'}"
+    # Add standard aliases.
+    commands="${commands} ci co ls"
 
     # Determine if user has entered an `mr` command. Used to block top-level
     # (option and command) completions.
