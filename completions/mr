@@ -4,9 +4,11 @@ _mr() {
     local cur prev words cword
     _init_completion || return
 
-    local options='--config --directory --force --force-env --interactive
-    --jobs --insecure --minimal --no-recurse --quiet --stats --trust-all
-    --verbose'
+    local options="$(PERLDOC=-otext _parse_help "${1}" help)"
+    # Remove short options (all have compatible long options).
+    options="${options//-[a-z]$'\n'/}"
+    # Remove deprecated options.
+    options="${options//--path/}"
 
     local commands='bootstrap checkout ci clean co commit config diff fetch
     grep help list log ls offline online push record register remember run
