@@ -4,14 +4,11 @@ _mr() {
     local cur prev words cword
     _init_completion || return
 
-    local options="$(PERLDOC=-otext _parse_help "${1}" help)"
-    # Remove short options (all have compatible long options).
-    options="${options//-[a-z]$'\n'/}"
-    # Remove deprecated options.
-    options="${options//--path/}"
+    local help commands options
 
-    local commands="$(PERLDOC_PAGER=/bin/cat PERLDOC=-otext mr help | \
-                      awk '/\[options\]/ { print $3 }')"
+    help="$(PERLDOC_PAGER=cat PERLDOC=-otext "${1}" help)"
+
+    commands="$(awk '/\[options\]/ { print $3 }' <<<"${help}")"
     # Split [online|offline] and remove `action` placeholder.
     commands="${commands//@(action|[\[\|\]])/$'\n'}"
     # Add standard aliases.
@@ -74,6 +71,11 @@ _mr() {
     esac
 
     if [[ $cur == -* ]]; then
+        options="$(_parse_help - <<<"${help}")"
+        # Remove short options (all have compatible long options).
+        options="${options//-[a-z]$'\n'/}"
+        # Remove deprecated options.
+        options="${options//--path/}"
         COMPREPLY=( $( compgen -W "${options}" -- "${cur}" ) )
     else
         COMPREPLY=( $( compgen -W  "${commands}" -- "${cur}" ) )
