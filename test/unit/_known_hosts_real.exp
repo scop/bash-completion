@@ -120,4 +120,32 @@ assert_bash_exec "unset -v COMP_KNOWN_HOSTS_WITH_HOSTFILE"
 sync_after_int
 
 
+set test "Included config files should work"
+set hosts [get_hosts -unsorted]
+    # Host 'recursion' is defined in ./fixtures/_known_hosts_real/config_include_recursion
+    # Host 'relative_path' is defined in ./fixtures/_known_hosts_real/.ssh/config_relative_path
+lappend hosts recursion relative_path
+set hosts [join [bash_sort $hosts] "\\s+"]
+    # Setup environment
+    # Redefined HOME to handle relative path inclusions on $HOME/.ssh
+set cmd {OLDHOME=$HOME; HOME="$SRCDIRABS/fixtures/_known_hosts_real"}
+send "$cmd\r"
+expect -ex "$cmd\r\n/@"
+    # Call _known_hosts
+set cmd {unset COMPREPLY; _known_hosts_real -aF fixtures/_known_hosts_real/config_include ''; echo_array COMPREPLY}
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    -re "^$hosts\r\n/@$"  { pass "$test" }
+    default { unresolved "$test" }
+}
+    # Teardown environment
+set cmd {HOME=$OLDHOME}
+send "$cmd\r"
+expect -ex "$cmd\r\n/@"
+
+
+sync_after_int
+
+
 teardown

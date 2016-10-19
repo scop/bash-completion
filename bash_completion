@@ -1456,6 +1456,39 @@ _known_hosts()
     _known_hosts_real $options -- "$cur"
 } # _known_hosts()
 
+# Helper function to locate ssh included files in configs
+# This function look for the "Include" keyword in ssh config files and include
+# them recursively adding each result to the config variable
+_included_ssh_config_files()
+{
+    [[ $# -lt 1 ]] && echo "error: $FUNCNAME: missing mandatory argument CONFIG"
+    local configfile i f
+    configfile=$1
+    local included=$( command sed -ne 's/^[[:blank:]]*[Ii][Nn][Cc][Ll][Uu][Dd][Ee][[:blank:]]\{1,\}\([^#%]*\)\(#.*\)\{0,1\}$/\1/p' "${configfile}" )
+    for i in ${included[@]}; do
+        # Check the origin of $configfile to complete relative included paths on included
+        # files according to ssh_config(5):
+        #  "[...] Files without absolute paths are assumed to be in ~/.ssh if included in a user
+        #   configuration file or /etc/ssh if included from the system configuration file.[...]"
+        if ! [[ "$i" =~ ^\~.*|^\/.* ]]; then
+            if [[ "$configfile" =~ ^\/etc\/ssh.* ]]; then
+                i="/etc/ssh/$i"
+            else
+                i="$HOME/.ssh/$i"
+            fi
+        fi
+        __expand_tilde_by_ref i
+        # In case the expanded variable contains multiple paths
+        for f in ${i}; do
+            if [ -r $f ]; then
+                config+=( "$f" )
+                # The Included file is processed to look for Included files in itself
+                _included_ssh_config_files $f
+            fi
+        done
+    done
+} # _included_ssh_config_files()
+
 # Helper function for completing _known_hosts.
 # This function performs host completion based on ssh's config and known_hosts
 # files, as well as hostnames reported by avahi-browse if
@@ -1499,6 +1532,11 @@ _known_hosts_real()
             [[ -r $i ]] && config+=( "$i" )
         done
     fi
+
+    # "Include" keyword in ssh config files
+    for i in "${config[@]}"; do
+        _included_ssh_config_files "$i"
+    done
 
     # Known hosts files from configs
     if [[ ${#config[@]} -gt 0 ]]; then
