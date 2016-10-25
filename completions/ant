@@ -1,5 +1,30 @@
 # bash completion for ant and phing                        -*- shell-script -*-
 
+_ant_parse_targets()
+{
+    local line basedir
+
+    basedir=$(dirname "$1")
+
+    # parse buildfile for targets
+    while read -rd '>' line; do
+        if [[ $line =~ \<(target|extension-point)[[:space:]].*name=[\"\']([^\"\']+) ]]; then
+            targets+=" ${BASH_REMATCH[2]}"
+        fi
+    done < $1
+
+    # parse imports
+    while read -rd '>' line; do
+        if [[ $line =~ \<import[[:space:]].*file=[\"\']([^\"\']+) ]]; then
+            local imported_buildfile
+            imported_buildfile="${basedir}/${BASH_REMATCH[1]}"
+            if [[ -f $imported_buildfile ]]; then
+                _ant_parse_targets $imported_buildfile
+            fi
+        fi
+    done < $1
+}
+
 _ant()
 {
     local cur prev words cword
@@ -59,13 +84,11 @@ _ant()
         fi
         [[ ! -f $buildfile ]] && return
 
-        # parse buildfile for targets
-        local line targets
-        while read -rd '>' line; do
-            [[ $line =~ \
-               \<(targe|extension-poin)t[[:space:]].*name=[\"\']([^\"\']+) ]] \
-                && targets+=" ${BASH_REMATCH[2]}"
-        done < $buildfile
+        local targets
+
+        # fill targets
+        _ant_parse_targets $buildfile
+
         COMPREPLY=( $( compgen -W '$targets' -- "$cur" ) )
     fi
 } &&
