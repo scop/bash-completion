@@ -5,10 +5,14 @@ _ccache()
     local cur prev words cword split
     _init_completion -s || return
 
-    if [[ $COMP_CWORD -eq 1 && ${COMP_WORDS[COMP_CWORD]} != -* ]]; then
-        _command_offset 1
-        return
-    fi
+    local i
+    for (( i=1; i <= COMP_CWORD; i++ )); do
+        if [[ ${COMP_WORDS[i]} != -* ]]; then
+            _command_offset $i
+            return
+        fi
+        [[ ${COMP_WORDS[i]} == -[oFM] ]] && ((i++))
+    done
 
     case $prev in
         -h|--help|-V|--version|-F|--max-files|-M|--max-size)
