@@ -1,0 +1,49 @@
+# Debian apt-mark(8) completion                             -*- shell-script -*-
+
+_apt_mark()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    local special i
+    for (( i=0; i < ${#words[@]}-1; i++ )); do
+        if [[ ${words[i]} == @(auto|manual|hold|showauto|showmanual|showhold) ]]; then
+            special=${words[i]}
+        fi
+    done
+
+    if [[ -n $special ]]; then
+        case $special in
+           auto|manual|hold) 
+                if [[ -f /etc/debian_version ]]; then
+                    # Debian system
+                    COMPREPLY=( $( \
+                        _xfunc dpkg _comp_dpkg_installed_packages $cur ) )
+                else
+                    # assume RPM based
+                    _xfunc rpm _rpm_installed_packages
+                fi
+                return 0
+                ;;
+        esac
+    fi
+
+    case $prev in
+        -c|--config-file)
+             _filedir
+             return 0
+             ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '-h -v -c -o
+            --help --version --config-file --option' -- "$cur" ) )
+    else
+        COMPREPLY=( $( compgen -W 'auto manual hold showauto showmanual showhold' -- "$cur" ) )
+    fi
+
+    return 0
+} &&
+complete -F _apt_mark apt-mark
+
+# ex: ts=4 sw=4 et filetype=sh
