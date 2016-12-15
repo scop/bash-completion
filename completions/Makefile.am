@@ -14,6 +14,7 @@ bashcomp_DATA = 2to3 \
 		apt-build \
 		apt-cache \
 		apt-get \
+		apt-mark \
 		aptitude \
 		arch \
 		arping \
