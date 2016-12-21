@@ -761,37 +761,109 @@ _init_completion()
     return 0
 }
 
-# Helper function for _parse_help and _parse_usage.
-__parse_options()
+# Helper function for _parse_help, _parse_help_exclude and _parse_usage.
+__parse_expand_option()
 {
-    local option option2 i IFS=$' \t\n,/|'
+    local option="${1}" option2
+    local IFS=$' \t\n' # affects parsing of the regexps below...
+    # Expand --[no]foo to --foo and --nofoo etc
+    if [[ $option =~ (\[((no|dont)-?)\]). ]]; then
+        option2="${option/"${BASH_REMATCH[1]}"/}"
+        option2="${option2%%[<{().[]*}"
+        printf '%s\n' "${option2/=*/=}"
+        option="${option/"${BASH_REMATCH[1]}"/"${BASH_REMATCH[2]}"}"
+    fi
 
-    # Take first found long option, or first one (short) if not found.
-    option=
-    local -a array
-    read -a array <<<"$1"
-    for i in "${array[@]}"; do
-        case "$i" in
+    option="${option%%[<{().[]*}"
+    printf '%s\n' "${option/=*/=}"
+}
+
+# Helper function for _parse_help_exclude.
+__parse_all_options()
+{
+    local options=() i IFS=$' \t\n,/|'
+    for i in $1; do
+        case $i in
             ---*) break ;;
-            --?*) option=$i ; break ;;
-            -?*)  [[ $option ]] || option=$i ;;
+            --?*) options+=( $(__parse_expand_option "${i}") ) ;;
+            -?*)  options+=( $(__parse_expand_option "${i}") ) ;;
             *)    break ;;
         esac
     done
-    [[ $option ]] || return
+    IFS='|'; printf '%s\n' "${options[*]}"
+}
 
-    IFS=$' \t\n' # affects parsing of the regexps below...
+# Helper function for _parse_help, _parse_help_exclude and _parse_usage.
+__parse_options()
+{
+    local option="" i IFS=$' \t\n,/|'
+    for i in $1; do
+        case $i in
+            ---*) break ;;
+            --?*) option="${i}" ; break ;;
+            -?*)  [[ $option ]] || option="${i}" ;;
+            *)    break ;;
+        esac
+    done
+    [ -z "${option}" ] || \
+        __parse_expand_option "${option}"
+}
 
-    # Expand --[no]foo to --foo and --nofoo etc
-    if [[ $option =~ (\[((no|dont)-?)\]). ]]; then
-        option2=${option/"${BASH_REMATCH[1]}"/}
-        option2=${option2%%[<{().[]*}
-        printf '%s\n' "${option2/=*/=}"
-        option=${option/"${BASH_REMATCH[1]}"/"${BASH_REMATCH[2]}"}
-    fi
+# Helper function for _parse_help and _parse_help_exclude.
+__parse_help_lines()
+{
+    local line
+    while read -r line; do
+        [ -z "${1:-}" ] && \
+            __parse_options "${line}" || \
+            __parse_all_options "${line}"
+    done
+}
 
-    option=${option%%[<{().[]*}
-    printf '%s\n' "${option/=*/=}"
+# Helper function for _parse_help and _parse_help_exclude.
+__parse_help_text()
+{
+    local line
+    eval local cmd=$( quote "${1}" )
+    case $cmd in
+        -) cat ;;
+        *) LC_ALL=C "$( dequote "$cmd" )" ${2:-"--help"} 2>&1 ;;
+    esac | \
+    while read -r line; do
+        [[ $line == *([ $'\t'])-* ]] || continue
+        # transform "-f FOO, --foo=FOO" to "-f , --foo=FOO" etc
+        while [[ $line =~ \
+            ((^|[^-])-[A-Za-z0-9?][[:space:]]+)\[?[A-Z0-9]+\]? ]]; do
+            line="${line/"${BASH_REMATCH[0]}"/"${BASH_REMATCH[1]}"}"
+        done
+        printf '%s\n' "${line// or /, }"
+    done
+}
+
+# Parse GNU style help output of the given command
+# excluding already used options.
+# @param $1  command; if "-", read from stdin and ignore second arg
+# @param $2  command options (default: --help)
+# @param $3  The options up to this line number are positional
+#            and are already in use, may be omitted
+# @param $4  This regexp lists the options that can be specified
+#            multiple times, i.e.: "--opt1|--opt2|--opt3", may be omitted
+_parse_help_exclude()
+{
+    local helptext="$(__parse_help_text "${1}" "${2:-}")"
+    local options="$(__parse_help_lines "all" <<< "${helptext}")"
+    local opt w wordlist=()
+    for opt in $(sed -ne '1d' -e '$d' -e '\|^-|p' \
+    < <(printf '%s\n' "${COMP_WORDS[@]}") ); do
+        if w="$(grep -m 1 -swe "${opt}" <<< "${options}")" && \
+        ( [ -z "${4:-}" ] || \
+        ! grep -qswEe "${4}" <<< "${w}" ); then
+            wordlist+=( "$(tr -d '=' <<< "${w}")" )
+        fi
+    done
+    tail --lines=+$((${3:-}+1)) <<< "${helptext}" | \
+        __parse_help_lines | \
+        grep -vsE -e "^($(IFS='|'; printf '%s' "${wordlist[*]}"))\b"
 }
 
 # Parse GNU style help output of the given command.
@@ -800,23 +872,8 @@ __parse_options()
 #
 _parse_help()
 {
-    eval local cmd=$( quote "$1" )
-    local line
-    { case $cmd in
-        -) cat ;;
-        *) LC_ALL=C "$( dequote "$cmd" )" ${2:---help} 2>&1 ;;
-      esac } \
-    | while read -r line; do
-
-        [[ $line == *([[:blank:]])-* ]] || continue
-        # transform "-f FOO, --foo=FOO" to "-f , --foo=FOO" etc
-        while [[ $line =~ \
-            ((^|[^-])-[A-Za-z0-9?][[:space:]]+)\[?[A-Z0-9]+\]? ]]; do
-            line=${line/"${BASH_REMATCH[0]}"/"${BASH_REMATCH[1]}"}
-        done
-        __parse_options "${line// or /, }"
-
-    done
+    __parse_help_text "${1}" "${2:-}" | \
+        __parse_help_lines
 }
 
 # Parse BSD style usage output (options in brackets) of the given command.
