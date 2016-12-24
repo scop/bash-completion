@@ -1894,6 +1894,35 @@ complete -F _longopt a2ps awk base64 bash bc bison cat chroot colordiff cp \
     sed seq sha{,1,224,256,384,512}sum shar sort split strip sum tac tail tee \
     texindex touch tr uname unexpand uniq units vdir wc who
 
+# Complete an alias with leading redirections stripped.
+_complete_alias () {
+    local alias_name="${COMP_WORDS[0]}"
+    local alias_namelen="${#alias_name}"
+    local alias_array=( $(alias "$alias_name" | sed -r 's/[^=]*=//' | xargs) )
+    local alias_arraylen="${#alias_array[@]}"
+    local alias_str="${alias_array[*]}"
+    local alias_strlen="${#alias_str}"
+
+    # Rewrite current completion context by expanding alias.
+    COMP_WORDS=(${alias_array[@]} ${COMP_WORDS[@]:1})
+    (( COMP_CWORD+=($alias_arraylen-1) ))
+    COMP_LINE="$alias_str""${COMP_LINE:$alias_namelen}"
+    (( COMP_POINT+=($alias_strlen-$alias_namelen) ))
+
+    # Strip leading redirections in alias-expanded command line.
+    local redir="@(?([0-9])<|?([0-9&])>?(>)|>&)"
+    while [[ "${#COMP_WORDS[@]}" -gt 0 && "${COMP_WORDS[0]}" == $redir* ]]; do
+        local word="${COMP_WORDS[0]}"
+        COMP_WORDS=(${COMP_WORDS[@]:1})
+        (( COMP_CWORD-- ))
+        local linelen="${#COMP_LINE}"
+        COMP_LINE="${COMP_LINE#$word+( )}"
+        (( COMP_POINT-=($linelen-${#COMP_LINE}) ))
+    done
+
+    _command_offset 0
+}
+
 declare -A _xspecs
 _filedir_xspec()
 {
