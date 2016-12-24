@@ -856,14 +856,14 @@ _parse_help_exclude()
     local helptext="$(__parse_help_text "${1}" "${2:-}")"
     local options="$(__parse_help_lines "all" <<< "${helptext}")"
     local opt w wordlist=()
-    for opt in $(sed -ne '1d' -e '$d' -e '\|^-|p' \
-    < <(printf '%s\n' "${COMP_WORDS[@]}") ); do
-        if w="$(grep -m 1 -swe "${opt}" <<< "${options}")" && \
-        ( [ -z "${4:-}" ] || \
-        ! grep -qswEe "${4}" <<< "${w}" ); then
-            wordlist+=( "$(tr -d '=' <<< "${w}")" )
-        fi
-    done
+    [ "${#COMP_WORDS[@]}" -le 2 ] || \
+        for opt in "${COMP_WORDS[@]:1:$((${#COMP_WORDS[@]}-2))}"; do
+            if w="$(grep -m 1 -swe "${opt}" <<< "${options}")" && \
+            ( [ -z "${4:-}" ] || \
+            ! grep -qswEe "${4}" <<< "${w}" ); then
+                wordlist+=( "${w//=/}" )
+            fi
+        done
     tail --lines=+$((${3:-}+1)) <<< "${helptext}" | \
         __parse_help_lines | \
         grep -vsE -e "^($(IFS='|'; printf '%s' "${wordlist[*]}"))\b"
