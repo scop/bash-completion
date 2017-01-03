@@ -769,13 +769,13 @@ __parse_expand_option()
 
     # Expand --[no]foo to --foo and --nofoo etc
     if [[ $option =~ (\[((no|dont)-?)\]). ]]; then
-        option2=${option/"${BASH_REMATCH[1]}"/}
-        option2=${option2%%[<{().[]*}
+        option2="${option/"${BASH_REMATCH[1]}"/}"
+        option2="${option2%%[<{().[]*}"
         printf '%s\n' "${option2/=*/=}"
-        option=${option/"${BASH_REMATCH[1]}"/"${BASH_REMATCH[2]}"}
+        option="${option/"${BASH_REMATCH[1]}"/"${BASH_REMATCH[2]}"}"
     fi
 
-    option=${option%%[<{().[]*}
+    option="${option%%[<{().[]*}"
     printf '%s\n' "${option/=*/=}"
 }
 
@@ -810,8 +810,12 @@ __parse_options()
         __parse_expand_option "${option}"
 }
 
-# Helper function for _parse_help and _parse_help_exclude.
-__parse_help_lines()
+# This function lists options.
+# @stdin     helptext, option lines only
+# @param $1  1- null to list only the most significant option in each line
+#            2- not-null to list all the option names in each help line,
+#               separated by '|' vertical bar.
+_parse_help_lines()
 {
     local line
     while read -r line; do
@@ -821,8 +825,11 @@ __parse_help_lines()
     done
 }
 
-# Helper function for _parse_help and _parse_help_exclude.
-__parse_help_text()
+# Parse GNU style help output of the given command,
+# This function writes a formatted listing of all options.
+# @param $1  command; if "-", read from stdin and ignore second arg
+# @param $2  command options (default: --help)
+_parse_help_text()
 {
     eval local cmd=$( quote "$1" )
     local line
@@ -844,36 +851,52 @@ __parse_help_text()
 }
 
 # Parse GNU style help output of the given command
+# This function lists already used options.
+# stdin      helptext, option lines only
+# @param $1  The options up to this line number are positional
+#            and are already in use,
+#            this parameter may be omitted
+# @param $2  This regexp lists the options that can be specified
+#            multiple times, i.e.: "--opt1|--opt2|--opt3",
+#            this parameter may be omitted
+_parse_options_exclude()
+{
+    local options=( $(_parse_help_lines "all") )
+    local opt w wordlist=()
+    if [ ${1:-0} -gt 0 ]; then
+        wordlist=("${options[@]:0:${1}}")
+        options=("${options[@]:${1}}")
+    fi
+    [ "${#COMP_WORDS[@]}" -le 2 ] || \
+        for opt in "${COMP_WORDS[@]:1:$((${COMP_CWORD}-1))}" \
+        "${COMP_WORDS[@]:$((${COMP_CWORD}+1))}"; do
+            if w="$(grep -m 1 -swe "${opt}" < <(printf '%s\n' "${options[@]}") )" && \
+            ( [ -z "${2:-}" ] || \
+            ! grep -qswEe "${2}" <<< "${w}" ); then
+                wordlist+=( "${w}" )
+            fi
+        done
+    local IFS='|'; printf '%s\n' "${wordlist[*]}"
+}
+
+# Parse GNU style help output of the given command
 # excluding already used options.
 # @param $1  command; if "-", read from stdin and ignore second arg
 # @param $2  command options (default: --help)
 # @param $3  The options up to this line number are positional
-#            and are already in use, may be omitted
+#            and are already in use,
+#            this parameter may be omitted
 # @param $4  This regexp lists the options that can be specified
-#            multiple times, i.e.: "--opt1|--opt2|--opt3", may be omitted
+#            multiple times, i.e.: "--opt1|--opt2|--opt3",
+#            this parameter may be omitted
 _parse_help_exclude()
 {
-    local helptext="$(__parse_help_text "${1}" "${2:-}")"
-    local options="$(__parse_help_lines "all" <<< "${helptext}")"
-    local opt w wordlist=()
-    if [ "${#COMP_WORDS[@]}" -gt 2 ]; then
-        for opt in "${COMP_WORDS[@]:1:$((${COMP_CWORD}-1))}" \
-        "${COMP_WORDS[@]:$((${COMP_CWORD}+1))}"; do
-            if w="$(grep -m 1 -swe "${opt}" <<< "${options}")" && \
-            ( [ -z "${4:-}" ] || \
-            ! grep -qswEe "${4}" <<< "${w}" ); then
-                wordlist+=( "${w//=/}" )
-            fi
-        done
-        if [ "${#wordlist[@]}" -gt 0 ]; then
-            tail --lines=+$((${3:-}+1)) <<< "${helptext}" | \
-                __parse_help_lines | \
-                grep -vsE -e "^($(IFS='|'; printf '%s' "${wordlist[*]}"))\b"
-            return 0
-        fi
-    fi
-    tail --lines=+$((${3:-}+1)) <<< "${helptext}" | \
-        __parse_help_lines
+    local helptext="$(_parse_help_text "${1}" "${2:-}")"
+    local exclude="$(_parse_options_exclude "${3:-}" "${4:-}" <<< "${helptext}")"
+    [ -n "${exclude}" ] && \
+        _parse_help_lines <<< "${helptext}" | \
+            grep -vsE -e "^(${exclude//=/})\b" || \
+        _parse_help_lines <<< "${helptext}"
 }
 
 # Parse GNU style help output of the given command.
@@ -882,8 +905,8 @@ _parse_help_exclude()
 #
 _parse_help()
 {
-    __parse_help_text "${1}" "${2:-}" | \
-        __parse_help_lines
+    _parse_help_text "${1}" "${2:-}" | \
+        _parse_help_lines
 }
 
 # Parse BSD style usage output (options in brackets) of the given command.
