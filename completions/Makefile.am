@@ -595,6 +595,7 @@ CLEANFILES = \
 	sdptool \
 	setquota \
 	sftp \
+	sidedoor \
 	slogin \
 	smbcacls \
 	smbcquotas \
@@ -910,7 +911,7 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) sbcl $(targetdir)/$$file ; \
 	done
-	for file in slogin autossh sftp scp ; do \
+	for file in slogin autossh sftp scp sidedoor ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) ssh $(targetdir)/$$file ; \
 	done
