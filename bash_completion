@@ -900,8 +900,10 @@ _configured_interfaces()
 {
     if [[ -f /etc/debian_version ]]; then
         # Debian system
-        COMPREPLY=( $( compgen -W "$( command sed -ne 's|^iface \([^ ]\{1,\}\).*$|\1|p'\
-            /etc/network/interfaces )" -- "$cur" ) )
+        COMPREPLY=( $( compgen -W "$( sed -nre '\;^(iface|mapping) ([^ ]{1,}).*$; s//\2/p' \
+            /etc/network/interfaces | \
+            grep -sxE "$(ls -1 /sys/class/net/ | \
+            sed -re ':a; $!N; s/\n/|/; ta')" )" -- "$cur" ) )
     elif [[ -f /etc/SuSE-release ]]; then
         # SuSE system
         COMPREPLY=( $( compgen -W "$( printf '%s\n' \
