@@ -867,15 +867,17 @@ _parse_options_exclude()
         wordlist=("${options[@]:0:${1}}")
         options=("${options[@]:${1}}")
     fi
-    [ "${#COMP_WORDS[@]}" -le 2 ] || \
+    if [ "${#COMP_WORDS[@]}" -gt 2 ]; then
+        local opts="$(printf '%s\n' "${options[@]}")"
         for opt in "${COMP_WORDS[@]:1:$((${COMP_CWORD}-1))}" \
         "${COMP_WORDS[@]:$((${COMP_CWORD}+1))}"; do
-            if w="$(grep -m 1 -swe "${opt}" < <(printf '%s\n' "${options[@]}") )" && \
+            if w="$(grep -m 1 -sEe "(^|[|])${opt}[=]?([|]|$)" <<< "${opts}")" && \
             ( [ -z "${2:-}" ] || \
-            ! grep -qswEe "${2}" <<< "${w}" ); then
+            ! grep -qsxEe "${2//=/}" <<< "${w//=/}" ); then
                 wordlist+=( "${w}" )
             fi
         done
+    fi
     local IFS='|'; printf '%s\n' "${wordlist[*]}"
 }
 
@@ -889,14 +891,15 @@ _parse_options_exclude()
 # @param $4  This regexp lists the options that can be specified
 #            multiple times, i.e.: "--opt1|--opt2|--opt3",
 #            this parameter may be omitted
+# @param $5  current word for completion,
+#            this parameter may be omitted
 _parse_help_exclude()
 {
     local helptext="$(_parse_help_text "${1}" "${2:-}")"
-    local exclude="$(_parse_options_exclude "${3:-}" "${4:-}" <<< "${helptext}")"
-    [ -n "${exclude}" ] && \
-        _parse_help_lines <<< "${helptext}" | \
-            grep -vsE -e "^(${exclude//=/})\b" || \
-        _parse_help_lines <<< "${helptext}"
+    compgen \
+        -X "@($(_parse_options_exclude "${3:-}" "${4:-}" <<< "${helptext}"))" \
+        -W "$(_parse_help_lines <<< "${helptext}")" \
+        -- "${5:-}"
 }
 
 # Parse GNU style help output of the given command.
