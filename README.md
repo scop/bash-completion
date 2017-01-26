@@ -294,9 +294,9 @@ A. Probably because the database is being queried every time and this uses a
 
 A. If your `command_not_found_handler` function is not intended to
    address (possibly missing) commands invoked during bash
-   programmable completion functions. You can account for this
-   in your function, for example, by testing if the `$COMP_`\* variables
-   are set and taking appropriate bypass or other action.
+   programmable completion functions, you can account for this
+   by, for example, testing if the `$COMP_`\* variables are set and 
+   taking appropriate bypass or other action.
 
 **Q. Can tab completion be made even easier?**
 
@@ -332,4 +332,4 @@ A. The `readline(3)` library offers a few settings that can make tab
 A. Absolutely not. zsh has an extremely sophisticated completion system
    that offers many features absent from the bash implementation. Its
    users often cannot resist pointing this out. More information can
-   be found at: http://www.zsh.org
+   be found at: http://www.zsh.org/
