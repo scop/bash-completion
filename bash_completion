@@ -433,9 +433,6 @@ __reassemble_comp_words_by_ref()
                 ((i == COMP_CWORD)) && printf -v "$3" %s "$j"
                 # Remove optional whitespace + word separator from line copy
                 line=${line#*"${COMP_WORDS[i]}"}
-                # Start new word if word separator in original line is
-                # followed by whitespace.
-                [[ $line == [[:blank:]]* ]] && ((j++))
                 # Indicate next word if available, else end *both* while and
                 # for loop
                 if ((i < ${#COMP_WORDS[@]} - 1)); then
@@ -443,6 +440,9 @@ __reassemble_comp_words_by_ref()
                 else
                     break 2
                 fi
+                # Start new word if word separator in original line is
+                # followed by whitespace.
+                [[ $line == [[:blank:]]* ]] && ((j++))
             done
             # Append word to current word
             ref="$2[$j]"
