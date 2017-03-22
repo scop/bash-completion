@@ -153,3 +153,12 @@ class TestUnitGetCword(TestUnitBase):
             ]
         )
         assert got == 1
+
+    def test_25(self, bash):
+        """
+        a b c:| with trailing whitespace after the caret (no more words) and
+        with WORDBREAKS -= : should return c:
+        """
+        assert_bash_exec(bash, "add_comp_wordbreak_char :")
+        output = self._test(bash, "(a b c :)", 3, "a b c: ", 6, arg=":")
+        assert output == "c:"
