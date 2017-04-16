@@ -1,3 +1,12 @@
+proc update_man_database {{dir ""}} {
+
+    # for man-db
+    assert_bash_exec "mandb -cqu '$dir' 2> /dev/null || true"
+
+    # for mdocml
+    assert_bash_exec "makewhatis '$dir' 2> /dev/null || true"
+}
+
 proc setup {} {
     # do everything in tmp
     assert_bash_exec { cp -dR $SRCDIR/fixtures/man $TESTDIR/tmp }
@@ -8,6 +17,8 @@ proc setup {} {
         assert_bash_exec { mkdir -p man3 && \
             mv bash_completion_3pm.gz man3/Bash::Completion.3pm.gz || true }
     }
+
+    update_man_database "$::srcdirabs/tmp/man"
 
     # cd to an empty directory to avoid spurious directory completion
     assert_bash_exec { mkdir -p empty }
@@ -52,6 +63,7 @@ sync_after_int
 assert_complete "so" "man s"
 sync_after_int
 
+# this is still broken with man-db, it seems a bug in man-db
 setup_xfail "*-*-*"
 assert_complete "alias" "man a"
 sync_after_int
@@ -79,7 +91,6 @@ assert_complete_any "man man" "man man should complete when MANPATH not set"
 sync_after_int
 
 # Test man pages from system directories when $MANPATH set (see #73)
-setup_kfail "*-*-*" "#73"
 assert_bash_exec "export MANPATH=:"
 assert_complete_any "man man" "man man should complete when MANPATH=:"
 sync_after_int
