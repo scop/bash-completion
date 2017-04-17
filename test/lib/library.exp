@@ -991,8 +991,13 @@ proc start_bash {} {
     if {! [info exists TOOL_EXECUTABLE]} {set TOOL_EXECUTABLE bash}
     set env(SRCDIR) $::srcdir
     set env(SRCDIRABS) $::srcdirabs
-    exp_spawn $TOOL_EXECUTABLE --rcfile $::srcdir/config/bashrc
-    assert_bash_exec {} "$TOOL_EXECUTABLE --rcfile $::srcdir/config/bashrc"
+    set env(PS1) "/@"
+    set env(INPUTRC) "$::srcdir/config/inputrc"
+    set env(TERM) "dumb"
+    set stty_init "columns 150"
+    exp_spawn $TOOL_EXECUTABLE --norc
+    assert_bash_exec {} "$TOOL_EXECUTABLE --norc"
+    assert_bash_exec "source $::srcdir/config/bashrc"
 }
 
 
