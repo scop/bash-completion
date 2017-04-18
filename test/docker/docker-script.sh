@@ -10,7 +10,7 @@ make
 make -C completions check
 
 cd test
-./runCompletion --all
+xvfb-run ./runCompletion --all
 ./runInstall --all
 ./runUnit --all
 
