@@ -12,31 +12,35 @@ setup
 assert_complete_any "mr "
 sync_after_int
 
-assert_complete_any "mr --"
-sync_after_int
+# Some versions require man to be around for useful output.
+if {[assert_exec {man -h} "" "" "unsupported"]} {
 
-assert_complete {"foo"} "mr -c $::srcdir/fixtures/shared/default/foo.d/"
-sync_after_int
+    assert_complete_any "mr --"
+    sync_after_int
 
-assert_complete {"bar bar.d/" "foo.d/"} "mr -d $::srcdir/fixtures/shared/default/"
-sync_after_int
+    assert_complete {"foo"} "mr -c $::srcdir/fixtures/shared/default/foo.d/"
+    sync_after_int
 
-assert_complete {"bar" "bar bar.d/" "foo" "foo.d/"} "mr bootstrap $::srcdir/fixtures/shared/default/"
-sync_after_int
+    assert_complete {"bar bar.d/" "foo.d/"} "mr -d $::srcdir/fixtures/shared/default/"
+    sync_after_int
 
-# Disabled for now; "clean" doesn't exist before mr 1.20141023
-#assert_complete "-f" "mr clean -"
-#sync_after_int
+    assert_complete {"bar" "bar bar.d/" "foo" "foo.d/"} "mr bootstrap $::srcdir/fixtures/shared/default/"
+    sync_after_int
 
-assert_complete "-m" "mr commit -"
-sync_after_int
+    # Disabled for now; "clean" doesn't exist before mr 1.20141023
+    #assert_complete "-f" "mr clean -"
+    #sync_after_int
 
-assert_no_complete "mr status "
-sync_after_int
+    assert_complete "-m" "mr commit -"
+    sync_after_int
 
-# Disabled temporarily: suggesting all commands produces too much output for
-# test suite.
-#assert_complete_any "mr run "
-#sync_after_int
+    assert_no_complete "mr status "
+    sync_after_int
+
+    # Disabled temporarily: suggesting all commands produces too much output for
+    # test suite.
+    #assert_complete_any "mr run "
+    #sync_after_int
+}
 
 teardown
