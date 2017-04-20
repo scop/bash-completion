@@ -1,19 +1,23 @@
 proc setup {} {
+    # Make sure our own ./configure is in PATH
+    assert_bash_exec {OLDPATH="$PATH"; PATH="$SRCDIR/..:$PATH"}
     save_env
 }
 
 
 proc teardown {} {
     assert_env_unmodified
+    assert_bash_exec {PATH="$OLDPATH"; unset -v OLDPATH}
 }
 
 
 setup
 
 
+assert_complete_any "configure --"
+sync_after_int
+
 assert_complete_any "configure --prefix "
-
-
 sync_after_int
 
 
