@@ -587,7 +587,7 @@ proc assert_no_output {{cmd} {test ""} {prompt /@}} {
 #                      "lib/completions/$cmd.exp".
 proc assert_source_completions {command {file ""}} {
     if {[assert_bash_type $command]
-        && [is_bash_completion_installed_for $command]} {
+        && [assert_install_completion_for $command]} {
         if {[string length $file] == 0} {
             set file "$::srcdir/lib/completions/$command.exp"
         }
@@ -690,13 +690,12 @@ proc init_tcl_bash_globals {} {
 }
 
 
-# Check whether completion is installed for the specified command by executing
-# `complete -p ...' in bash.
-# @param string $command  Command to check completion availability for.
+# Try installing completion for the specified command.
+# @param string $command  Command to install completion for.
 # @return boolean  True (1) if completion is installed, False (0) if not.
-proc is_bash_completion_installed_for {command} {
+proc assert_install_completion_for {command} {
     set test "$command should have completion installed in bash"
-    set cmd "complete -p $command &> /dev/null && echo -n 0 || echo -n 1"
+    set cmd "__load_completion $command && complete -p $command &> /dev/null && echo -n 0 || echo -n 1"
     send "$cmd\r"
     expect "$cmd\r\n"
     expect {
@@ -852,7 +851,7 @@ proc _save_env {{file ""}} {
 
 # Source bash_completion package
 proc source_bash_completion {} {
-    assert_bash_exec {BASH_COMPLETION_COMPAT_DIR=$(cd "$SRCDIR/.."; pwd)/completions}
+    assert_bash_exec {BASH_COMPLETION_COMPAT_DIR="$SRCDIR/fixtures/shared/empty_dir"}
     assert_bash_exec {source $(cd "$SRCDIR/.."; pwd)/bash_completion}
 }
 
