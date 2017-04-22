@@ -24,6 +24,8 @@ diff_env() {
         /[<>] PPID=/d
 # Remove BASH_REMATCH bash variable
         /[<>] BASH_REMATCH=/d
+# Remove functions starting with underscore
+        /[<>] declare -f _/d
         $3"
 } # diff_env()
 
