@@ -37,11 +37,6 @@ else
     set +v
 fi
 
-# Set the following to the location of the backwards compat completion dir.
-#
-: ${BASH_COMPLETION_COMPAT_DIR:=/etc/bash_completion.d}
-readonly BASH_COMPLETION_COMPAT_DIR
-
 # Blacklisted completions, causing problems with our code.
 #
 _blacklist_glob='@(acroread.sh)'
@@ -2075,14 +2070,14 @@ _xfunc()
 }
 
 # source compat completion directory definitions
-if [[ -d $BASH_COMPLETION_COMPAT_DIR && -r $BASH_COMPLETION_COMPAT_DIR && \
-    -x $BASH_COMPLETION_COMPAT_DIR ]]; then
-    for i in "$BASH_COMPLETION_COMPAT_DIR"/*; do
+compat_dir=${BASH_COMPLETION_COMPAT_DIR:-/etc/bash_completion.d}
+if [[ -d $compat_dir && -r $compat_dir && -x $compat_dir ]]; then
+    for i in "$compat_dir"/*; do
         [[ ${i##*/} != @($_backup_glob|Makefile*|$_blacklist_glob) \
             && -f $i && -r $i ]] && . "$i"
     done
 fi
-unset i _blacklist_glob
+unset compat_dir i _blacklist_glob
 
 # source user completion file
 [[ ${BASH_SOURCE[0]} != ~/.bash_completion && -r ~/.bash_completion ]] \
