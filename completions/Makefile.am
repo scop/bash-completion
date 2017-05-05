@@ -293,6 +293,7 @@ bashcomp_DATA = 2to3 \
 		pwd \
 		pwdx \
 		pwgen \
+		py.test \
 		pydoc \
 		pyflakes \
 		pylint \
@@ -566,6 +567,8 @@ CLEANFILES = \
 	pvs \
 	pvscan \
 	pxz \
+	py.test-2 \
+	py.test-3 \
 	pydoc3 \
 	pypy \
 	pypy3 \
@@ -866,6 +869,10 @@ symlinks: $(targetdir) $(DATA)
 		filebucket puppetdoc ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) puppet $(targetdir)/$$file ; \
+	done
+	for file in py.test-2 py.test-3 ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) py.test $(targetdir)/$$file ; \
 	done
 	for file in pydoc3 ; do \
 		rm -f $(targetdir)/$$file && \

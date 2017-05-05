@@ -1,0 +1,71 @@
+# bash completion for py.test(1)                           -*- shell-script -*-
+
+_py_test()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -h|--help|-k|-m|--maxfail|-r|--report|--junit-prefix|--doctest-glob|-p)
+            return
+            ;;
+        --import-mode)
+            COMPREPLY=( $( compgen -W "prepend append" -- "$cur" ) )
+            return
+            ;;
+        --capture)
+            COMPREPLY=( $( compgen -W "fd sys no" -- "$cur" ) )
+            return
+            ;;
+        --tb)
+            COMPREPLY=( $( compgen -W "auto long short line native no" \
+                                   -- "$cur" ) )
+            return
+            ;;
+        --color)
+            COMPREPLY=( $( compgen -W "yes no auto" -- "$cur" ) )
+            return
+            ;;
+        --pastebin)
+            COMPREPLY=( $( compgen -W "failed all" -- "$cur" ) )
+            return
+            ;;
+        --junit-xml)
+            _filedir xml
+            return
+            ;;
+        --result-log)
+            _filedir log
+            return
+            ;;
+        --ignore)
+            _filedir
+            return
+            ;;
+        --confcutdir|--basetemp)
+            _filedir -d
+            return
+            ;;
+        --assert)
+            COMPREPLY=( $( compgen -W "plain reinterp rewrite" -- "$cur" ) )
+            return
+            ;;
+        --genscript)
+            _filedir py
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir py
+} &&
+complete -F _py_test py.test py.test-2 py.test-3
+
+# ex: filetype=sh
