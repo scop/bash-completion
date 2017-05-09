@@ -27,6 +27,7 @@ bashcomp_DATA = 2to3 \
 		autoscan \
 		avctrl \
 		badblocks \
+		bind \
 		bk \
 		brctl \
 		btdownloadheadless.py \
