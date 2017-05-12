@@ -1,0 +1,40 @@
+# bash completion for gm(1)                                -*- shell-script -*-
+
+_gm_commands()
+{
+    COMPREPLY+=( $( compgen -W '$( "$1" help |
+        awk "/^ +[^ ]+ +- / { print \$1 }" )' -- "$cur" ) )
+}
+
+_gm()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    if [[ $cword -eq 1 ]]; then
+        _gm_commands "$1"
+        return
+    elif [[ $cword -eq 2 && ${words[1]} == time ]]; then
+        _gm_commands "$1"
+        return
+    fi
+
+    local gmcmd=${words[1]}
+    [[ $gmcmd == time ]] && gmcmd=${words[2]}
+
+    case $gmcmd in
+        help)
+            [[ $prev == help ]] && _gm_commands "$1"
+            return
+            ;;
+        version)
+            return
+            ;;
+    esac
+
+    # TODO... defer some commnds to the imagemagick "gm"less completions etc?
+    compopt -o default
+} &&
+complete -F _gm gm
+
+# ex: filetype=sh

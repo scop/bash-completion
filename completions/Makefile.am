@@ -115,6 +115,7 @@ bashcomp_DATA = 2to3 \
 		genisoimage \
 		getent \
 		gkrellm \
+		gm \
 		gnatmake \
 		gnokii \
 		gnome-mplayer \
