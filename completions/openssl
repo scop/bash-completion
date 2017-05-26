@@ -26,6 +26,12 @@ _openssl_sections()
         -- "$cur" ) )
 }
 
+_openssl_digests()
+{
+    "$1" dgst -h 2>&1 | \
+        awk '/^-.*[ \t]to use the .* message digest algorithm/ { print $1 }'
+}
+
 _openssl()
 {
     local cur prev words cword
@@ -123,9 +129,8 @@ _openssl()
                     options='-inform -outform -in -out -print_certs'
                     ;;
                 dgst)
-                    options='-md5 -md4 -md2 -sha1 -sha -mdc2 -ripemd160 -dss1
-                        -c -d -hex -binary -out -sign -verify -prverify
-                        -signature'
+                    options="-c -d -hex -binary -out -sign -verify -prverify
+                        -signature $( _openssl_digests $1 )"
                     ;;
                 dsa)
                     options='-inform -outform -in -passin -out -passout -des
@@ -157,11 +162,11 @@ _openssl()
                     options='-out -rand -base64'
                     ;;
                 req)
-                    options='-inform -outform -in -passin -out -passout -text
+                    options="-inform -outform -in -passin -out -passout -text
                         -noout -verify -modulus -new -rand -newkey -newkey
-                        -nodes -key -keyform -keyout -md5 -sha1 -md2 -mdc2
+                        -nodes -key -keyform -keyout $( _openssl_digests $1 )
                         -config -x509 -days -asn1-kludge -newhdr -extensions
-                        -reqexts section'
+                        -reqexts section"
                     ;;
                 rsa)
                     options='-inform -outform -in -passin -out -passout
@@ -211,14 +216,14 @@ _openssl()
                         -issuer_checks -verbose -certificates'
                     ;;
                 x509)
-                    options='-inform -outform -keyform -CAform -CAkeyform -in
+                    options="-inform -outform -keyform -CAform -CAkeyform -in
                         -out -serial -hash -subject_hash -issuer_hash -subject
                         -issuer -nameopt -email -startdate -enddate -purpose
                         -dates -modulus -fingerprint -alias -noout -trustout
                         -clrtrust -clrreject -addtrust -addreject -setalias
                         -days -set_serial -signkey -x509toreq -req -CA -CAkey
-                        -CAcreateserial -CAserial -text -C -md2 -md5 -sha1
-                        -mdc2 -clrext -extfile -extensions -engine'
+                        -CAcreateserial -CAserial -text -C -clrext
+                        -extfile -extensions -engine $( _openssl_digests $1 )"
                     ;;
                 md*|sha*|ripemd160)
                     options='-c -d'
