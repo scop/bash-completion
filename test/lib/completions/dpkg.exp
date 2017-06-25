@@ -21,8 +21,16 @@ sync_after_int
 if {[assert_exec {dpkg --get-selections | command grep \[\[:space:\]\]install$ | cut -f1} packages]} {
     assert_complete $packages "dpkg -L "
 }
+sync_after_int
 
 
+set test "dpkg -i ~part should complete to ~full/ if home dir exists"
+# https://bugs.debian.org/864691
+# Create list of users, having existing home dir
+assert_bash_exec {for u in $(compgen -u); do \
+    eval test -d ~$u && echo $u; unset u; done} {} /@ users
+find_unique_completion_pair $users part full
+assert_complete "~$full/" "dpkg -i ~$part" $test -nospace
 sync_after_int
 
 
