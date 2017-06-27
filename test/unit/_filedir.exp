@@ -87,11 +87,13 @@ foreach name {f f2} {
 
 
     set test "completing $name a\\\$b/ should return h"
-    set cmd "$name a\\\$b/"
-    assert_complete_dir h $cmd "$::srcdir/fixtures/_filedir" $test
-
-
-    sync_after_int
+    if {[info exists ::env(CI)] && [info exists ::env(DIST)] && $::env(DIST) == "centos6"} {
+        xfail $test
+    } else {
+        set cmd "$name a\\\$b/"
+        assert_complete_dir h $cmd "$::srcdir/fixtures/_filedir" $test
+        sync_after_int
+    }
 
 
     if {! [is_cygwin]} {  # Illegal characters in file/dir names
@@ -190,11 +192,13 @@ foreach name {f f2} {
     }
 
 
-    set cmd "$name \"a\\\$b/"; #"
-    assert_complete_dir {h"} $cmd "$::srcdir/fixtures/_filedir"; #"
-
-
-    sync_after_int
+    if {[info exists ::env(CI)] && [info exists ::env(DIST)] && $::env(DIST) == "centos6"} {
+        xfail "$name \"a\\\$b/ should show completions"
+    } else {
+        set cmd "$name \"a\\\$b/"; #"
+        assert_complete_dir {h"} $cmd "$::srcdir/fixtures/_filedir"; #"
+        sync_after_int
+    }
 
 
     set cmd "$name \"a\\b/"; #"
