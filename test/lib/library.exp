@@ -253,10 +253,12 @@ proc assert_complete_one {expected cmd {test ""} {args {}}} {
     if {$test == ""} {set test "$cmd should show completion"}
     send "$cmd\t"
     expect -ex "$cmd"
+    set trimmed false
     if {$arg(ltrim-colon-completions)} {
         # If partial contains colon (:), remove partial from begin of items
-        _ltrim_colon_completions $cmd expected cword
-    } else {
+        set trimmed [_ltrim_colon_completions $cmd expected cword]
+    }
+    if {! $trimmed} {
         set cur "";  # Default to empty word to complete on
         set words [split_words_bash $cmd]
         if {[llength $words] > 1} {
@@ -437,7 +439,9 @@ proc _ltrim_colon_completions {cmd items dword} {
                 lset items_out $i [string range $item [string length $cur] end]
             }
         }
+        return true
     }
+    return false
 }
 
 
