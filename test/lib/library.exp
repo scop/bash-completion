@@ -602,6 +602,21 @@ proc assert_source_completions {command {file ""}} {
 }
 
 
+# Assert that a _filedir_xspec completion is installed for specified command
+# @param string $command  Command to check completion installation for.
+proc assert_xspec_completion_installed {command} {
+    set test "Completion via _filedir_xspec() should be installed"
+    set cmd "complete -p $command"
+    send "$cmd\r"
+
+    set expected "^$cmd\r\ncomplete -F _filedir_xspec $command\r\n/@$"
+    expect {
+        -re $expected { pass "$test" }
+        -re /@ { fail "$test at prompt" }
+    }
+}
+
+
 # Sort list.
 # `exec sort' is used instead of `lsort' to achieve exactly the
 #  same sort order as in bash.
