@@ -1,5 +1,5 @@
 AC_PREREQ([2.60])
-AC_INIT([bash-completion], [2.6])
+AC_INIT([bash-completion], [2.7])
 AM_INIT_AUTOMAKE([foreign dist-xz no-dist-gzip -Wall -Werror])
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
