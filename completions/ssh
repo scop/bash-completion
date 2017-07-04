@@ -152,6 +152,43 @@ _ssh_configfile()
     done
 }
 
+_refresh_ec2_hosts_cache()
+{
+    local hosts
+    local cache_file="${1}"
+
+    hosts=$(aws --output text ec2 describe-instances --query 'Reservations[].Instances[].Tags[?Key==`Name`].Value')
+
+    if [ -n "${hosts}" ]; then
+        printf '%s' "${hosts}" > "${cache_file}"
+    fi
+}
+
+_ec2_hosts()
+{
+    # Cache ec2 host names for 1 minute for speed
+    local cache_file="${HOME}/.ec2_node_names"
+
+    # Refresh the cache if:
+    # - There is no cache
+    # - It doesn't contain the search string
+    # - It's more than 1 day old
+    if [ ! -f "${cache_file}" ] || \
+        ! command grep -q ${1} "${cache_file}" || \
+        test $(find "${cache_file}" -mtime +1); then
+        aws ec2 --output text describe-instances \
+            --query 'Reservations[].Instances[].Tags[?Key==`Name`].Value' > "${cache_file}"
+    fi
+
+    COMPREPLY+=( $( compgen -W "$(cat "${cache_file}")" -- "${1}" ) )
+
+    # Refresh the cache in the background every time (Run in a subshell to
+    # suppress PID output)
+    (_refresh_ec2_hosts_cache "${cache_file}" &)
+
+    return 0
+}
+
 _ssh()
 {
     local cur prev words cword
@@ -215,6 +252,9 @@ _ssh()
         local configfile
         _ssh_configfile
         _known_hosts_real -a -F "$configfile" "$cur"
+        if type aws >/dev/null 2>&1; then
+            _ec2_hosts "$cur"
+        fi
 
         local args
         _count_args
