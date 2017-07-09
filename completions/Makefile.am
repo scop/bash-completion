@@ -434,6 +434,7 @@ CLEANFILES = \
 	alternatives \
 	animate \
 	apropos \
+	aptitude-curses \
 	arm-koji \
 	asciidoc.py \
 	autoheader \
@@ -654,6 +655,10 @@ symlinks: $(targetdir) $(DATA)
 	for file in phing ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) ant $(targetdir)/$$file ; \
+	done
+	for file in aptitude-curses ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) aptitude $(targetdir)/$$file ; \
 	done
 	for file in asciidoc.py ; do \
 		rm -f $(targetdir)/$$file && \
