@@ -1137,9 +1137,9 @@ _xinetd_services()
 {
     local xinetddir=/etc/xinetd.d
     if [[ -d $xinetddir ]]; then
-        local restore_nullglob=$(shopt -p nullglob); shopt -s nullglob
+        local IFS=$' \t\n' reset=$(shopt -p nullglob); shopt -s nullglob
         local -a svcs=( $( printf '%s\n' $xinetddir/!($_backup_glob) ) )
-        $restore_nullglob
+        $reset
         COMPREPLY+=( $( compgen -W '${svcs[@]#$xinetddir/}' -- "$cur" ) )
     fi
 }
@@ -1151,10 +1151,10 @@ _services()
     local sysvdirs
     _sysvdirs
 
-    local restore_nullglob=$(shopt -p nullglob); shopt -s nullglob
+    local IFS=$' \t\n' reset=$(shopt -p nullglob); shopt -s nullglob
     COMPREPLY=( \
         $( printf '%s\n' ${sysvdirs[0]}/!($_backup_glob|functions|README) ) )
-    $restore_nullglob
+    $reset
 
     COMPREPLY+=( $( systemctl list-units --full --all 2>/dev/null | \
         awk '$1 ~ /\.service$/ { sub("\\.service$", "", $1); print $1 }' ) )
