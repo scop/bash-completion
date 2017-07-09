@@ -5,7 +5,7 @@ _chronyc_command_args()
     local -a args=( $( compgen -W "$( $1 help 2>/dev/null | \
         awk '/^'$prev'\s[^ []/ { gsub("\\|", " ", $2); print $2 }' )" ) )
     case $args in
-        \<address\>) _known_hosts_real "$cur" ;;
+        \<address\>) _known_hosts_real -- "$cur" ;;
         \<*) ;;
         *) COMPREPLY+=( $( compgen -W '${args[@]}' -- "$cur" ) ) ;;
     esac
@@ -21,7 +21,7 @@ _chronyc()
             return
             ;;
         -h)
-            _known_hosts_real "$cur"
+            _known_hosts_real -- "$cur"
             return
             ;;
     esac
@@ -50,7 +50,7 @@ _chronyc()
             fi
             ;;
         2)
-            [[ $prev == @(peer|server) ]] && _known_hosts_real "$cur"
+            [[ $prev == @(peer|server) ]] && _known_hosts_real -- "$cur"
             ;;
     esac
 } &&
