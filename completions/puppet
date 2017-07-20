@@ -101,16 +101,16 @@ _puppet()
             ;;
         puppet)
             case ${words[1]} in
-                agent|apply|cert|describe|doc|filebucket|kick|lookup|master|parser|queue|resource)
+                agent|apply|catalog|cert|describe|doc|epp|filebucket|help|kick|lookup|man|master|module|node|parser|report|resource)
                     subcommand=${words[1]}
                     ;;
                 *.pp|*.rb)
                     subcommand=apply
                     ;;
                 *)
-                    COMPREPLY=( $( compgen -W 'agent apply cert describe doc
-                        filebucket kick lookup master parser queue resource' \
-                        -- "$cur" ) )
+                    COMPREPLY=( $( compgen -W 'agent apply catalog cert describe doc epp
+                        filebucket help kick lookup master module node parser report resource' \
+                        -- "$cur" ) ) #did not add man since adding could influence the quickness of "master"
                     return
                     ;;
             esac
@@ -173,7 +173,26 @@ _puppet()
                     return
             esac
             ;;
-        cert)
+        catalog)
+	    case $prev in
+		*)
+		    COMPREPLY=( $( compgen -W 'apply download find info save select' \
+			-- "$cur" ) )
+		    action=$prev
+		    case $action in
+			apply|download|find|info|save|select)
+			    COMPREPLY=( $( compgen -W '--render-as --verbose --debug --extra --terminus' -- "$cur" ) )
+			    return
+			    ;;
+			--terminus)
+			    COMPREPLY=( $( compgen -W 'compiler json msgpack rest store_configs yaml' -- "$cur" ) )
+			    return
+			    ;;
+		    esac
+		    ;;
+	    esac
+	    ;;
+	cert)
             case $prev in
                 --digest)
                     _puppet_digest
@@ -239,6 +258,12 @@ _puppet()
                     return
             esac
             ;;
+	epp)
+	    case $prev in
+		*)
+		    COMPREPLY=( $( compgen -W 'dump render validate' -- "$cur" ) )
+	    esac
+	    ;;
         filebucket)
             case $prev in
                 -s|--server)
@@ -300,8 +325,6 @@ _puppet()
 		    return		   
 	    esac
 	    ;;
-		
-		
         master)
             case $prev in
                 -l|--logdest)
@@ -327,22 +350,16 @@ _puppet()
                     return
             esac
             ;;
-        queue)
-            case $prev in
-                -l|--logdest)
-                    _puppet_logdest
-                    return
-                    ;;
-                *)
-                    if [[ "$cur" == -* ]]; then
-                        _puppet_subcmd_opts "$1" $subcommand
-                    else
-                        _filedir
-                    fi
-                    return
-            esac
-            ;;
-        resource|*)
+	report)
+	    COMPREPLY=( $( compgen -W 'info save submit' -- "$cur" ) )
+	    action=$prev
+	    case $action in
+		info|save|submit)
+		    _puppet_subcmd_opts "$1" $subcommand
+		    return
+	    esac
+	;;
+	resource|*)
             _puppet_subcmd_opts "$1" $subcommand
             return
             ;;
