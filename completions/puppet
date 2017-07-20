@@ -53,6 +53,11 @@ _puppet_subcmd_opts()
         '$( _parse_usage "$1" "help $2" )' -- "$cur" ) )
 }
 
+_puppet_hash_opts()
+{
+    COMPREPLY=( $( compgen -W 'unique hash deep' -- "$cur" ) )
+}
+
 _puppet()
 {
     local cur prev words cword
@@ -96,7 +101,7 @@ _puppet()
             ;;
         puppet)
             case ${words[1]} in
-                agent|apply|cert|describe|doc|filebucket|kick|master|parser|queue|resource)
+                agent|apply|cert|describe|doc|filebucket|kick|lookup|master|parser|queue|resource)
                     subcommand=${words[1]}
                     ;;
                 *.pp|*.rb)
@@ -104,7 +109,7 @@ _puppet()
                     ;;
                 *)
                     COMPREPLY=( $( compgen -W 'agent apply cert describe doc
-                        filebucket kick master parser queue resource' \
+                        filebucket kick lookup master parser queue resource' \
                         -- "$cur" ) )
                     return
                     ;;
@@ -276,6 +281,27 @@ _puppet()
                     return
             esac
             ;;
+	lookup)
+	    case $prev in
+		--facts)
+		    _filedir json
+		    return
+		    ;;
+		--node)
+		    _known_hosts_real -- "$cur"
+		    return
+		    ;;
+		--merge)
+		    _puppet_hash_opts
+		    return
+		    ;;
+		*)
+		    _puppet_subcmd_opts "$1" $subcommand
+		    return		   
+	    esac
+	    ;;
+		
+		
         master)
             case $prev in
                 -l|--logdest)
