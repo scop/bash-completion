@@ -85,6 +85,7 @@ bashcomp_DATA = 2to3 \
 		dumpe2fs \
 		e2freefrag \
 		e2label \
+		ebtables \
 		_eject \
 		eog \
 		ether-wake \
