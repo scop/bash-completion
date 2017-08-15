@@ -1,0 +1,38 @@
+# bash completion for oggdec(1)                            -*- shell-script -*-
+
+_oggdec()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        --help|-h|--version|-V)
+            return
+            ;;
+        --bits|-b)
+            COMPREPLY=( $( compgen -W "8 16" -- "$cur" ) )
+            return
+            ;;
+        --endianness|-e|--sign|-s)
+            COMPREPLY=( $( compgen -W "0 1" -- "$cur" ) )
+            return
+            ;;
+        --output|-o)
+            _filedir wav
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir ogg
+} &&
+complete -F _oggdec oggdec
+
+# ex: filetype=sh

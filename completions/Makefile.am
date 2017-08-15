@@ -253,6 +253,7 @@ bashcomp_DATA = 2to3 \
 		_nmcli \
 		nslookup \
 		ntpdate \
+		oggdec \
 		openssl \
 		opera \
 		optipng \
