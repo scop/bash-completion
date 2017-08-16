@@ -53,6 +53,7 @@ bashcomp_DATA = 2to3 \
 		chrpath \
 		_chsh \
 		cksfv \
+		clang \
 		cleanarch \
 		clisp \
 		clone_member \
