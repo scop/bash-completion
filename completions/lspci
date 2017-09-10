@@ -1,0 +1,41 @@
+# lspci(8) completion                                      -*- shell-script -*-
+
+_lspci()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -s|-D|-O)
+            return
+            ;;
+        -i)
+            _filedir ids
+            return
+            ;;
+        -p)
+            _filedir pcimap
+            return
+            ;;
+        -A)
+            COMPREPLY+=( $( compgen -W '$( $1 -A help | command grep -vF : )' \
+                -- "$cur") )
+            return
+            ;;
+        -H)
+            COMPREPLY+=( $( compgen -W "1 2" -- "$cur" ) )
+            return
+            ;;
+        -F)
+            _filedir
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+    fi
+} &&
+complete -F _lspci lspci
+
+# ex: filetype=sh
