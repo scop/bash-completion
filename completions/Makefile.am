@@ -198,6 +198,7 @@ bashcomp_DATA = 2to3 \
 		lpr \
 		lrzip \
 		lsof \
+		lsusb \
 		lua \
 		luac \
 		luseradd \
