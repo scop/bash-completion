@@ -31,7 +31,7 @@ make install # as root
 ```
 
 These commands install the completions and helpers, as well as a
-`profile.d` script that loads `bash_completion` where appropriate. 
+`profile.d` script that loads `bash_completion` where appropriate.
 
 If your system does not use the `profile.d` directory (usually below
 `/etc`) mechanism—i.e. does not automatically source shell scripts in
@@ -40,12 +40,12 @@ script in `/etc/bashrc` or `~/.bashrc`.
 
 The `profile.d` script provides a configuration file hook that can be
 used to prevent loading `bash_completion` on per user basis when it's
-installed system wide. To do this: 
+installed system wide. To do this:
 
-1. Turn off programmable completion with `shopt -u progcomp` in 
-   `$XDG_CONFIG_HOME/bash_completion` (or `~/.config/bash_completion` 
+1. Turn off programmable completion with `shopt -u progcomp` in
+   `$XDG_CONFIG_HOME/bash_completion` (or `~/.config/bash_completion`
    if `$XDG_CONFIG_HOME` is not set)
-2. Turn it back on (for example in `~/.bashrc`) if you want to use 
+2. Turn it back on (for example in `~/.bashrc`) if you want to use
    programmable completion for other purposes.
 
 ### macOS (OS X)
@@ -89,8 +89,8 @@ tracing on in it before doing anything else there.
    mileage may vary.
 
 3. If you are seeing 'unbound variable' warnings from bash when
-   hitting <kbd>&lt;Tab></kbd>, this is because you have either `set -u` 
-   or `set -o nounset` somewhere in your start-up files. This causes bash 
+   hitting <kbd>&lt;Tab></kbd>, this is because you have either `set -u`
+   or `set -o nounset` somewhere in your start-up files. This causes bash
    to flag the use of any uninitialised shell variables as an error.
 
    Whilst we try to avoid references to uninitialised variables in the
@@ -127,15 +127,15 @@ A. Put them in `~/.bash_completion`, which is parsed at the end of the
 
 A. Install it in one of the directories pointed to by
    bash-completion's `pkgconfig` file variables. There are two
-   alternatives: 
-   
+   alternatives:
+
    - The recommended directory is `completionsdir`, which you can get with
    `pkg-config --variable=completionsdir bash-completion`. From this
    directory, completions are loaded on-demand based on invoked commands' names,
    so be sure to name your completion file accordingly, and to include
    (for example) symbolic links in case the file provides completions
-   for more than one command. 
-   - The other directory (which only present for backwards compatibility) 
+   for more than one command.
+   - The other directory (which only present for backwards compatibility)
      is `compatdir` (get it with
    `pkg-config --variable=compatdir bash-completion`) from which files
    are loaded when `bash_completion` is loaded.
@@ -227,7 +227,7 @@ A. It's a choice we had to make. bash's programmable completion is
    `bash_completion`.
 
 **Q. When completing on a symlink to a directory, bash does not append
-   the trailing `/` and I have to hit <kbd>&lt;Tab></kbd> again. 
+   the trailing `/` and I have to hit <kbd>&lt;Tab></kbd> again.
    I don't like this.**
 
 A. This has nothing to do with `bash_completion`. It's the default for
@@ -295,7 +295,7 @@ A. Probably because the database is being queried every time and this uses a
 A. If your `command_not_found_handler` function is not intended to
    address (possibly missing) commands invoked during bash
    programmable completion functions, you can account for this
-   by, for example, testing if the `$COMP_`\* variables are set and 
+   by, for example, testing if the `$COMP_`\* variables are set and
    taking appropriate bypass or other action.
 
 **Q. Can tab completion be made even easier?**
