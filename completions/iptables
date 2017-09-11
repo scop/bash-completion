@@ -17,7 +17,7 @@ _iptables()
 
     case $prev in
     -*[AIDRPFXLZ])
-        COMPREPLY=( $( compgen -W '`iptables $table -nL 2>/dev/null | \
+        COMPREPLY=( $( compgen -W '`"$1" $table -nL 2>/dev/null | \
                 command sed -ne "s/^Chain \([^ ]\{1,\}\).*$/\1/p"`' -- "$cur" ) )
         ;;
     -*t)
@@ -26,17 +26,17 @@ _iptables()
     -j)
         if [[ "$table" == "-t filter" || -z "$table" ]]; then
             COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT
-                `iptables $table -nL 2>/dev/null | command sed -ne "$chain" \
+                `"$1" $table -nL 2>/dev/null | command sed -ne "$chain" \
                 -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' -- \
                 "$cur" ) )
         elif [[ $table == "-t nat" ]]; then
             COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT MIRROR SNAT
-                DNAT MASQUERADE `iptables $table -nL 2>/dev/null | \
+                DNAT MASQUERADE `"$1" $table -nL 2>/dev/null | \
                 command sed -ne "$chain" -e "s/OUTPUT|PREROUTING|POSTROUTING//"`' \
                 -- "$cur" ) )
         elif [[ $table == "-t mangle" ]]; then
             COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT MARK TOS
-                `iptables $table -nL 2>/dev/null | command sed -ne "$chain" \
+                `"$1" $table -nL 2>/dev/null | command sed -ne "$chain" \
                 -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' -- \
                 "$cur" ) )
         fi
