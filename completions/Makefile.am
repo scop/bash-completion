@@ -318,7 +318,7 @@ bashcomp_DATA = 2to3 \
 		reportbug \
 		_reptyr \
 		resolvconf \
-		rfkill \
+		_rfkill \
 		ri \
 		rmlist \
 		rmmod \
