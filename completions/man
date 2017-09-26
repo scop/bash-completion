@@ -53,29 +53,29 @@ _man()
         return
     fi
 
-    local manpath="$MANPATH"
-    [[ -z $manpath ]] && \
-        manpath=$( manpath 2>/dev/null || command man -w 2>/dev/null )
-    [[ -z $manpath ]] && manpath="/usr/share/man:/usr/local/share/man"
-
     # determine manual section to search
     local sect
-    [[ "$prev" == $mansect ]] && sect=$prev || sect='*'
+    [[ "$prev" == $mansect ]] && sect="$prev"
 
-    manpath=$manpath:
-    if [[ -n $cur ]]; then
-        manpath="${manpath//://*man$sect/$cur* } ${manpath//://*cat$sect/$cur* }"
-    else
-        manpath="${manpath//://*man$sect/ } ${manpath//://*cat$sect/ }"
-    fi
-
-    # redirect stderr for when path doesn't exist
-    COMPREPLY=( $( eval command ls "$manpath" 2>/dev/null ) )
-    # weed out directory path names and paths to man pages
-    COMPREPLY=( ${COMPREPLY[@]##*/?(:)} )
-    # strip suffix from man pages
-    COMPREPLY=( ${COMPREPLY[@]%$comprsuffix} )
-    COMPREPLY=( $( compgen -W '${COMPREPLY[@]%.*}' -- "${cur//\\\\/}" ) )
+    # Use "man -k" to find potential completions. This method seems
+    # portable and correct -- as long as the database is up to date.
+    #
+    # The delicate detail is parsing the output of "man -k".
+    #
+    # A typical line in man-db:
+    #
+    #    "creat (2)            - open and possibly create a file"
+    #
+    # A typical line in mdocml:
+    #
+    #    "open, creat, openat(2) - open and possibly create a file"
+    #
+    # Using sed seems faster and simpler than a while read loop.
+    #
+    COMPREPLY=( $( compgen -W '$(
+        man ${sect:+-s "$sect"} -k "$cur" 2> /dev/null |
+        command sed -e "s/(.*//;s/, / /g"
+    )' -- "$cur" ) )
 
     if [[ "$prev" != $mansect ]]; then
         # File based completion for the rest, prepending ./ if needed

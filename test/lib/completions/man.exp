@@ -1,45 +1,101 @@
+proc update_man_database {{dir ""}} {
+
+    # for man-db
+    assert_bash_exec "mandb -cqu '$dir' 2> /dev/null || true"
+
+    # for mdocml
+    assert_bash_exec "makewhatis '$dir' 2> /dev/null || true"
+}
+
 proc setup {} {
-    assert_bash_exec "export MANPATH=$::srcdirabs/fixtures/man:$::srcdirabs/tmp/man"
-    save_env
+    # do everything in tmp
+    assert_bash_exec { cp -dR $SRCDIR/fixtures/man $TESTDIR/tmp }
+    assert_bash_exec "export MANPATH=$::srcdirabs/tmp/man"
+    assert_bash_exec { cd $TESTDIR/tmp/man }
 
     if {! [is_cygwin]} {  # Colon not allowed in filenames
-        assert_bash_exec {(cd $TESTDIR/tmp && mkdir -p man/man3 && touch man/man3/Bash::Completion.3pm.gz || true)}
+        assert_bash_exec { mkdir -p man3 && \
+            mv bash_completion_3pm.gz man3/Bash::Completion.3pm.gz || true }
     }
+
+    update_man_database "$::srcdirabs/tmp/man"
+
+    # cd to an empty directory to avoid spurious directory completion
+    assert_bash_exec { mkdir -p empty }
+    assert_bash_exec { cd empty }
+    save_env
 }
 
 
 proc teardown {} {
-    assert_env_unmodified {/OLDPWD/d}
+    assert_env_unmodified
 
-    if {! [is_cygwin]} {
-        assert_bash_exec {(cd $TESTDIR/tmp && rm -r man || true)}
-    }
+    # cd back to the test directory to avoid failures in other tests
+    assert_bash_exec { cd $TESTDIR }
+    assert_bash_exec { unset MANPATH }
+    assert_bash_exec { rm -r $TESTDIR/tmp/man }
 }
 
 
 setup
 
-
 assert_complete "bar" "man b"
-
-
 sync_after_int
 
-
-assert_complete_dir oo.1 "man man1/f" $::srcdir/fixtures/man
-
-
+assert_complete {"fizz" "foo"}  "man f"
 sync_after_int
 
+assert_complete "foo"  "man 1 f"
+sync_after_int
+
+assert_complete "fizz"  "man 2 f"
+sync_after_int
+
+assert_complete "fizz"  "man 2 "
+sync_after_int
+
+assert_no_complete "man 2"
+sync_after_int
+
+assert_complete "link" "man l"
+sync_after_int
+
+assert_complete "so" "man s"
+sync_after_int
+
+# this is still broken with man-db, it seems a bug in man-db
+setup_xfail "*-*-*"
+assert_complete "alias" "man a"
+sync_after_int
 
 if {! [is_cygwin]} {
     assert_complete "Bash::Completion" "man Bash::C"
     sync_after_int
 }
 
-
-assert_complete_dir "man/quux.8" "man man/" $::srcdir/fixtures/man
+assert_complete "../man1/foo.1" "man ../man1/f"
 sync_after_int
 
+assert_complete "../man/quux.8" "man ../man/"
+sync_after_int
+
+# Make sure there's no "man man" in our directory
+assert_no_complete "man man" "man man should not complete from local fixture"
+sync_after_int
+
+assert_env_unmodified
+
+# Test man pages from system directories when $MANPATH not set
+assert_bash_exec "export MANPATH="
+assert_complete_any "man man" "man man should complete when MANPATH not set"
+sync_after_int
+
+# Test man pages from system directories when $MANPATH set (see #73)
+assert_bash_exec "export MANPATH=:"
+assert_complete_any "man man" "man man should complete when MANPATH=:"
+sync_after_int
+
+# revert MANPATH to avoid "Environment should not be modified"
+assert_bash_exec "export MANPATH=$::srcdirabs/tmp/man"
 
 teardown
