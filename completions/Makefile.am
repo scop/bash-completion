@@ -577,6 +577,8 @@ CLEANFILES = \
 	py.test-2 \
 	py.test-3 \
 	pydoc3 \
+	pylint-2 \
+	pylint-3 \
 	pypy \
 	pypy3 \
 	python2 \
@@ -888,6 +890,10 @@ symlinks: $(targetdir) $(DATA)
 	for file in pydoc3 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) pydoc $(targetdir)/$$file ; \
+	done
+	for file in pylint-2 pylint-3 ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) pylint $(targetdir)/$$file ; \
 	done
 	for file in pypy pypy3 python2 python3 micropython ; do \
 		rm -f $(targetdir)/$$file && \
