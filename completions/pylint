@@ -5,6 +5,8 @@ _pylint()
     local cur prev words cword split
     _init_completion -s || return
 
+    local python=python; [[ $1 == *3* ]] && python=python3
+
     case $prev in
         --version|-h|--help|--long-help|--help-msg|--init-hook|--ignore|-e|\
         --enable|-d|--disable|--evaluation|--max-line-length|\
@@ -34,7 +36,7 @@ _pylint()
         --load-plugins|--deprecated-modules)
             local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
             cur="${cur##*,}"
-            _xfunc python _python_modules
+            _xfunc python _python_modules $python
             COMPREPLY=( ${COMPREPLY[@]/#/$prefix} )
             return
             ;;
@@ -58,7 +60,7 @@ _pylint()
         return
     fi
 
-    _xfunc python _python_modules
+    _xfunc python _python_modules $python
     _filedir py
 } &&
 complete -F _pylint pylint pylint-2 pylint-3
