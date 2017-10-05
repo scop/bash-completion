@@ -370,6 +370,7 @@ bashcomp_DATA = 2to3 \
 		tcpnice \
 		timeout \
 		tipc \
+		tox \
 		tracepath \
 		tshark \
 		tune2fs \
