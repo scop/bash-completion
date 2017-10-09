@@ -991,10 +991,20 @@ proc start_bash {} {
     if {! [info exists TOOL_EXECUTABLE]} {set TOOL_EXECUTABLE bash}
     set env(SRCDIR) $::srcdir
     set env(SRCDIRABS) $::srcdirabs
+
+    # PS1, INPUTRC, TERM and stty columns must be initialized
+    # *before* starting bash to take proper effect.
+
+    # Set fixed prompt `/@'
     set env(PS1) "/@"
+    # Configure readline
     set env(INPUTRC) "$::srcdir/config/inputrc"
+    # Avoid escape junk at beginning of line from readline,
+    # see e.g.  http://bugs.gentoo.org/246091
     set env(TERM) "dumb"
+    # Ensure enough columns so expect doesn't have to care about line breaks
     set stty_init "columns 150"
+
     exp_spawn $TOOL_EXECUTABLE --norc
     assert_bash_exec {} "$TOOL_EXECUTABLE --norc"
     assert_bash_exec "source $::srcdir/config/bashrc"
