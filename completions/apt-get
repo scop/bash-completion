@@ -30,8 +30,12 @@ _apt_get()
                     command grep "^Source: $cur" | sort -u | cut -f2 -d" " ) )
                 ;;
             *)
-                COMPREPLY=( $( apt-cache --no-generate pkgnames "$cur" \
-                    2> /dev/null ) )
+                if [[ $special == install && $cur == */* ]]; then
+                    _filedir deb
+                else
+                    COMPREPLY=( $( apt-cache --no-generate pkgnames "$cur" \
+                        2>/dev/null ) )
+                fi
                 ;;
         esac
         return
