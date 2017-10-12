@@ -2,8 +2,8 @@
 
 _reportbug()
 {
-    local cur prev words cword
-    _init_completion || return
+    local cur prev words cword split
+    _init_completion -s || return
 
     case $prev in
         -f|--filename|-i|--include|--mta|-o|--output|-A|--attach)
@@ -55,26 +55,21 @@ _reportbug()
             ;;
     esac
 
-    COMPREPLY=($( compgen -W '--help --version --attach --no-query-bts
-        --query-bts --bts --body --body-file --bodyfile --no-config-files
-        --class --configure --check-available --debug --no-check-available
-        --debconf --test --draftpath --editor --email --exit-prompt --filename
-        --from-buildd --gnupg --gpg --path --gnus --header --include
-        --no-check-installed --check-installed --justification --kudos --keyid
-        --license --list-cc --maintonly --mirror --mode --mua --mta --mutt --mh
-        --nmh --bugnumber --no-bug-script --no-cc-menu --output --offline
-        --print --paranoid --no-paranoid --pgp --proxy --http_proxy
-        --pseudo-header --quiet --query-only --query-source --no-query-source
-        --realname --report-quiet --reply-to --replyto --subject --severity
-        --smtphost --timeout --tls --smtpuser --smtppasswd --src --source
-        --type --tag --template --verify --no-verify --no-cc --package-version
-        --no-compress --ui --interface
-        wnpp boot-floppies kernel bugs.debian.org cdimage.debian.org general
-        installation-reports listarchives lists.debian.org mirrors
-        nm.debian.org press project qa.debian.org release-notes
-        security.debian.org tech-ctte upgrade-reports www.debian.org' \
-            -- "$cur" ) $( apt-cache pkgnames -- "$cur" 2> /dev/null ) )
-    _filedir
+    $split && return
+
+    COMPREPLY=( $( compgen -W '$( _parse_help "$1" )
+                       wnpp boot-floppies kernel bugs.debian.org
+                       cdimage.debian.org general installation-reports
+                       listarchives lists.debian.org mirrors nm.debian.org
+                       press project qa.debian.org release-notes
+                       security.debian.org tech-ctte upgrade-reports
+                       www.debian.org' -- "$cur" )
+                $( apt-cache pkgnames -- "$cur" 2>/dev/null ) )
+    if [[ $COMPREPLY == -*= ]]; then
+        compopt -o nospace
+    else
+        _filedir
+    fi
 } &&
 complete -F _reportbug reportbug
 
