@@ -644,6 +644,7 @@ CLEANFILES = \
 	vgsplit \
 	vigr \
 	whatis \
+	xdg-mime \
 	xdg-settings \
 	xpovray \
 	xvnc4viewer \
