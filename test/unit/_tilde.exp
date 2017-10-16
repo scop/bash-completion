@@ -1,14 +1,6 @@
-# @param string $part  Reference to variable to hold partial unique username
-# @param string $full  Reference to variable to hold full unique username
-proc setup {part full} {
-    upvar $part _part
-    upvar $full _full
-
-    assert_bash_exec {compgen -u} {} /@ users
-    find_unique_completion_pair $users _part _full
+proc setup {} {
     save_env
 }
-
 
 proc teardown {} {
     assert_env_unmodified {
@@ -17,7 +9,7 @@ proc teardown {} {
 }
 
 
-setup part full
+setup
 
 
 set test "function should run without errors"
@@ -35,18 +27,29 @@ assert_bash_exec {foo() { local aa="~"; _tilde "$aa"; }; foo; unset foo} $test
 sync_after_int
 
 
+set failed_find_unique_completion 0
+assert_bash_exec {compgen -u} {} /@ users
+if {![find_unique_completion_pair $users part full]} {
+    set failed_find_unique_completion 1
+}
+
 set test "~full should complete to ~full unmodified"
-set cmd [format {_tilde "~%s"; printf "%%s\n" "${COMPREPLY[@]}"} $full]
-assert_bash_list "~$full" $cmd $test
-
-
-sync_after_int
-
+if {$failed_find_unique_completion} {
+    untested "Not running, no suitable test user found: $test"
+} else {
+    set cmd [format {_tilde "~%s"; printf "%%s\n" "${COMPREPLY[@]}"} $full]
+    assert_bash_list "~$full" $cmd $test
+    sync_after_int
+}
 
 set test "~part should complete to ~full"
-set cmd [format {_tilde "~%s"; printf "%%s\n" "${COMPREPLY[@]}"} $part]
-assert_bash_list "~$full" $cmd $test
-sync_after_int
+if {$failed_find_unique_completion} {
+    untested "Not running, no suitable test user found: $test"
+} else {
+    set cmd [format {_tilde "~%s"; printf "%%s\n" "${COMPREPLY[@]}"} $part]
+    assert_bash_list "~$full" $cmd $test
+    sync_after_int
+}
 
 
 # Debian #766163
