@@ -44,8 +44,8 @@ _ssh_options()
         IdentityFile IdentitiesOnly IPQoS KbdInteractiveDevices KexAlgorithms
         LocalCommand LocalForward LogLevel MACs
         NoHostAuthenticationForLocalhost NumberOfPasswordPrompts
-        PasswordAuthentication PermitLocalCommand PKCS11Provider Port
-        PreferredAuthentications Protocol ProxyCommand PubkeyAuthentication
+        PasswordAuthentication PermitLocalCommand PKCS11Provider ProxyJump Port
+        PreferredAuthentications Protocol ProxyCommand ProxyJump PubkeyAuthentication
         RekeyLimit RemoteForward RequestTTY RhostsRSAAuthentication
         RSAAuthentication SendEnv ServerAliveCountMax ServerAliveInterval
         SmartcardDevice StrictHostKeyChecking TCPKeepAlive Tunnel TunnelDevice
@@ -115,6 +115,10 @@ _ssh_suboption()
             ;;
         Ciphers)
             _ssh_ciphers "$2"
+            ;;
+        ProxyJump)
+            _known_hosts_real -- "$cur"
+            return
             ;;
     esac
     return 0
@@ -215,7 +219,6 @@ _ssh()
         local configfile
         _ssh_configfile
         _known_hosts_real -a -F "$configfile" -- "$cur"
-
         local args
         _count_args
         if [[ $args -gt 1 ]]; then
