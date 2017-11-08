@@ -253,6 +253,7 @@ bashcomp_DATA = 2to3 \
 		ngrep \
 		nmap \
 		_nmcli \
+		nproc \
 		nslookup \
 		ntpdate \
 		oggdec \
