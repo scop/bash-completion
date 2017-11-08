@@ -1,0 +1,30 @@
+# getconf(1) completion                                    -*- shell-script -*-
+
+_getconf()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -a)
+            _filedir
+            return
+            ;;
+        -v)
+            COMPREPLY=( $( compgen -W \
+                '$( "$1" -a 2>/dev/null | awk "{ print \$1 }" )' -- \
+                "${cur:-POSIX_V}" ) )
+            return
+            ;;
+    esac
+
+    if [[ $prev == PATH_MAX ]]; then  # TODO more path vars, better handling
+        _filedir
+    elif [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '-a -v' -- "$cur" ) )
+    else
+        COMPREPLY=( $( compgen -W \
+            '$( "$1" -a 2>/dev/null | awk "{ print \$1 }" )' -- "$cur" ) )
+    fi
+} &&
+complete -F _getconf getconf
