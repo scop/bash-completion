@@ -296,6 +296,7 @@ bashcomp_DATA = 2to3 \
 		protoc \
 		psql \
 		puppet \
+		pv \
 		pwck \
 		pwd \
 		pwdx \
