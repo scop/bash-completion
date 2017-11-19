@@ -33,26 +33,27 @@ _cryptsetup()
             COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
             [[ $COMPREPLY == *= ]] && compopt -o nospace
         else
-            COMPREPLY=( $( compgen -W 'create remove status resize luksFormat
-                luksOpen luksClose luksSuspend luksResume luksAddKey
-                luksRemoveKey luksKillSlot luksDelKey luksUUID isLuks
-                luksDump luksHeaderBackup luksHeaderRestore' -- "$cur" ) )
+            COMPREPLY=( $( compgen -W 'open close resize status benchmark
+                repair erase luksFormat luksAddKey luksRemoveKey luksChangeKey
+                luksKillSlot luksUUID isLuks luksDump tcryptDump luksSuspend
+                luksResume luksHeaderBackup luksHeaderRestore' -- "$cur" ) )
         fi
     else
         local args
         _count_args
         case $arg in
-            create)
+            open|create|luksOpen|loopaesOpen|tcryptOpen)
                 case $args in
                     2)
-                        _cryptsetup_name
+                        _cryptsetup_device
                         ;;
                     3)
-                        _cryptsetup_device
+                        _cryptsetup_name
                         ;;
                 esac
                 ;;
-            remove|status|resize|luksClose|luksSuspend|luksResume)
+            close|remove|luksClose|loopaesClose|tcryptClose|status|resize|\
+            luksSuspend|luksResume)
                 case $args in
                     2)
                         _cryptsetup_name
@@ -66,16 +67,6 @@ _cryptsetup()
                         ;;
                     3)
                         _filedir
-                        ;;
-                esac
-                ;;
-            luksOpen)
-                case $args in
-                    2)
-                        _cryptsetup_device
-                        ;;
-                    3)
-                        _cryptsetup_name
                         ;;
                 esac
                 ;;
