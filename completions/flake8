@@ -6,16 +6,23 @@ _flake8()
     _init_completion -s || return
 
     case $prev in
-        -h|--help|--version|--exclude|--filename|--select|--ignore|\
-        --max-line-length|--max-complexity|--builtins)
+        -h|--help|--version)
             return
             ;;
         --format)
             COMPREPLY=( $( compgen -W 'default pylint' -- "$cur" ) )
             return
             ;;
-        --config)
+        -j|--jobs)
+            COMPREPLY=( $( compgen -W "auto {1..$(_ncpus)}" -- "$cur" ) )
+            return
+            ;;
+        --output-file|--append-config|--config)
             _filedir
+            return
+            ;;
+        --include-in-doctest|--exclude-from-doctest)
+            _filedir py
             return
             ;;
     esac
