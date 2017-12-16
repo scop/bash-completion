@@ -1,0 +1,53 @@
+# perltidy(1) completion                                   -*- shell-script -*-
+
+_perltidy()
+{
+    local cur prev words cword
+    _init_completion -n = || return
+
+    case $prev in
+        -h|--help)
+            return
+            ;;
+        -o)
+            _filedir
+            return
+            ;;
+    esac
+
+    case $cur in
+        -pro=*)
+            cur="${cur#*=}"
+            _filedir
+            return
+            ;;
+        -ole=*)
+            COMPREPLY=( $( compgen -W 'dos win mac unix' -- "${cur#*=}" ) )
+            return
+            ;;
+        -bt=*|-pt=*|-sbt=*|-bvt=*|-pvt=*|-sbvt=*|-bvtc=*|-pvtc=*|-sbvtc=*|\
+        -cti=*|-kbl=*|-vt=*)
+            COMPREPLY=( $( compgen -W '0 1 2' -- "${cur#*=}" ) )
+            return
+            ;;
+        -vtc=*)
+            COMPREPLY=( $( compgen -W '0 1' -- "${cur#*=}" ) )
+            return
+            ;;
+        -cab=*)
+            COMPREPLY=( $( compgen -W '0 1 2 3' -- "${cur#*=}" ) )
+            return
+            ;;
+        -*=)
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+    else
+        _filedir 'p[lm]'
+    fi
+} &&
+complete -F _perltidy perltidy

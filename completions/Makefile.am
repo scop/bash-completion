@@ -267,6 +267,7 @@ bashcomp_DATA = 2to3 \
 		patch \
 		pdftotext \
 		perl \
+		perltidy \
 		pgrep \
 		pidof \
 		pine \
