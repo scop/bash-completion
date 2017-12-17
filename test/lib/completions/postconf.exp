@@ -15,7 +15,11 @@ setup
 # this. For example, inet_protocols=all but no IPv6 configured:
 # postconf: fatal: parameter inet_interfaces: no local interface found for ::1
 # ...and output can be cut off somewhere near lmtp_tls_secur*.
-assert_complete_any "postconf al"
+# ...or be completely missing, so all we can do is to skip.
+set test "\"postconf al\" should complete al* variables"
+if {[assert_exec {postconf} "" "" "untested"]} {
+    assert_complete_any "postconf al"
+}
 sync_after_int
 
 assert_complete_any "postconf -"
