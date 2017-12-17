@@ -11,7 +11,11 @@ env:
   - DIST=ubuntu14
 
 before_install:
-  - docker build -t bash-completion:$DIST -f test/docker/Dockerfile-$DIST .
+  - docker pull vskytta/bash-completion:$DIST
 
 script:
-  - docker run -e CI=true -e DIST=$DIST -t bash-completion:$DIST test/docker/docker-script.sh
+  - docker run -t
+    -e CI=true -e DIST=$DIST
+    -v $PWD:/work
+    -w /work
+    vskytta/bash-completion:$DIST test/docker/docker-script.sh
