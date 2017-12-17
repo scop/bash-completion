@@ -10,10 +10,12 @@ proc teardown {} {
 
 setup
 
-
-assert_complete_any "postconf p"
-
-
+# Broken configs may abort output of postconf halfway through, so use
+# something from early output to not trigger false positives because of
+# this. For example, inet_protocols=all but no IPv6 configured:
+# postconf: fatal: parameter inet_interfaces: no local interface found for ::1
+# ...and output can be cut off somewhere near lmtp_tls_secur*.
+assert_complete_any "postconf al"
 sync_after_int
 
 
