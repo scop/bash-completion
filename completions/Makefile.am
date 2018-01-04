@@ -200,6 +200,7 @@ bashcomp_DATA = 2to3 \
 		lpr \
 		lrzip \
 		lsof \
+		lsscsi \
 		lsusb \
 		lua \
 		luac \

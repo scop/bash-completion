@@ -1,0 +1,27 @@
+# lsscsi(8) completion                                     -*- shell-script -*-
+
+_lsscsi()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -h|--help|-V|--version)
+            return
+            ;;
+        -y|--sysfsroot)
+            _filedir -d
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+    fi
+} &&
+complete -F _lsscsi lsscsi
+
+# ex: filetype=sh
