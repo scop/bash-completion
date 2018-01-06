@@ -315,6 +315,7 @@ bashcomp_DATA = 2to3 \
 		qrunner \
 		querybts \
 		quota \
+		radvdump \
 		rcs \
 		rdesktop \
 		remove_members \
