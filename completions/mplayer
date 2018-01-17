@@ -3,7 +3,7 @@
 _mplayer_options_list()
 {
     cur=${cur%\\}
-    COMPREPLY=( $( compgen -W "$( $1 -nomsgcolor -nomsgmodule $2 help 2>/dev/null | \
+    COMPREPLY=( $( compgen -W "$( $1 -noconfig all $2 help 2>/dev/null | \
         command sed -e '/^Available/,/^$/!d' -e '/^Available/d' | awk '{print $1}' | \
         command sed -e 's/:$//' -e 's/^'${2#-}'$//' -e 's/<.*//' )" -- "$cur" ) )
 }
@@ -262,7 +262,7 @@ _mplayer()
         -*)
             # Assume arg is required for everything else except options
             # for which -list-options says Type is Flag or Print.
-            $cmd -nomsgcolor -nomsgmodule -list-options 2>/dev/null \
+            $cmd -noconfig all -list-options 2>/dev/null \
             | while read -r i j k; do
                 if [[ $i == ${prev#-} ]]; then
                     [[ ${j,,} != @(flag|print) ]] && return 1
@@ -274,7 +274,7 @@ _mplayer()
 
     case $cur in
         -*)
-            COMPREPLY=( $( compgen -W '$( $cmd -nomsgcolor -nomsgmodule -list-options 2>/dev/null | \
+            COMPREPLY=( $( compgen -W '$( $cmd -noconfig all -list-options 2>/dev/null | \
                 command sed -ne '1,/^[[:space:]]*Name/d' \
                     -e "s/^[[:space:]]*/-/" -e "s/[[:space:]:].*//" \
                     -e "/^-\(Total\|.*\*\)\{0,1\}$/!p" )' -- "$cur" ) )
