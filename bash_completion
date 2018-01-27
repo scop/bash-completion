@@ -1494,20 +1494,26 @@ _included_ssh_config_files()
 #           -c             Use `:' suffix
 #           -F configfile  Use `configfile' for configuration settings
 #           -p PREFIX      Use PREFIX
+#           -4             Filter IPv6 addresses from results
+#           -6             Filter IPv4 addresses from results
 # Return: Completions, starting with CWORD, are added to COMPREPLY[]
 _known_hosts_real()
 {
     local configfile flag prefix
-    local cur curd awkcur user suffix aliases i host
+    local cur curd awkcur user suffix aliases i host ipv4 ipv6
     local -a kh khd config
 
+    # TODO remove trailing %foo from entries
+
     local OPTIND=1
-    while getopts "acF:p:" flag "$@"; do
+    while getopts "ac46F:p:" flag "$@"; do
         case $flag in
             a) aliases='yes' ;;
             c) suffix=':' ;;
             F) configfile=$OPTARG ;;
             p) prefix=$OPTARG ;;
+            4) ipv4=1 ;;
+            6) ipv6=1 ;;
         esac
     done
     [[ $# -lt $OPTIND ]] && echo "error: $FUNCNAME: missing mandatory argument CWORD"
@@ -1652,6 +1658,18 @@ _known_hosts_real()
     if [[ -n ${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1} ]]; then
         COMPREPLY+=(
             $( compgen -A hostname -P "$prefix$user" -S "$suffix" -- "$cur" ) )
+    fi
+
+    if [[ $ipv4 ]]; then
+        COMPREPLY=( "${COMPREPLY[@]/*:*$suffix/}" )
+    fi
+    if [[ $ipv6 ]]; then
+        COMPREPLY=( "${COMPREPLY[@]/+([0-9]).+([0-9]).+([0-9]).+([0-9])$suffix/}" )
+    fi
+    if [[ $ipv4 || $ipv6 ]]; then
+        for i in ${!COMPREPLY[@]}; do
+            [[ ${COMPREPLY[i]} ]] || unset -v COMPREPLY[i]
+        done
     fi
 
     __ltrim_colon_completions "$prefix$user$cur"

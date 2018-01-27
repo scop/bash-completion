@@ -148,4 +148,40 @@ expect -ex "$cmd\r\n/@"
 sync_after_int
 
 
+set test "IPv6 filtering should work"
+set hosts "127.0.0.1 localhost"
+assert_bash_exec "COMP_KNOWN_HOSTS_WITH_HOSTFILE="
+set cmd {unset COMPREPLY; _known_hosts_real -4F fixtures/_known_hosts_real/localhost_config ''; echo_array COMPREPLY}
+assert_bash_list $hosts $cmd $test -sort
+sync_after_int
+assert_bash_exec "unset -v COMP_KNOWN_HOSTS_WITH_HOSTFILE"
+
+
+sync_after_int
+
+
+set test "IPv4 filtering should work"
+set hosts "::1 localhost"
+assert_bash_exec "COMP_KNOWN_HOSTS_WITH_HOSTFILE="
+set cmd {unset COMPREPLY; _known_hosts_real -6F fixtures/_known_hosts_real/localhost_config ''; echo_array COMPREPLY}
+assert_bash_list $hosts $cmd $test -sort
+sync_after_int
+assert_bash_exec "unset -v COMP_KNOWN_HOSTS_WITH_HOSTFILE"
+
+
+sync_after_int
+
+
+set test "IPv4+IPv6 filtering should work"
+set hosts "localhost"
+assert_bash_exec "COMP_KNOWN_HOSTS_WITH_HOSTFILE="
+set cmd {unset COMPREPLY; _known_hosts_real -46F fixtures/_known_hosts_real/localhost_config ''; echo_array COMPREPLY}
+assert_bash_list $hosts $cmd $test -sort
+sync_after_int
+assert_bash_exec "unset -v COMP_KNOWN_HOSTS_WITH_HOSTFILE"
+
+
+sync_after_int
+
+
 teardown
