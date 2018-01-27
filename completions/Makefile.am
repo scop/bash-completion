@@ -114,6 +114,7 @@ bashcomp_DATA = 2to3 \
 		genaliases \
 		gendiff \
 		genisoimage \
+		geoiplookup \
 		getconf \
 		getent \
 		gkrellm \
@@ -497,6 +498,7 @@ CLEANFILES = \
 	g77 \
 	g95 \
 	gcj \
+	geoiplookup6 \
 	gfortran \
 	gkrellm2 \
 	gmake \
@@ -752,6 +754,10 @@ symlinks: $(targetdir) $(DATA)
 	for file in mkisofs ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) genisoimage $(targetdir)/$$file ; \
+	done
+	for file in geoiplookup6 ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) geoiplookup $(targetdir)/$$file ; \
 	done
 	for file in gkrellm2 ; do \
 		rm -f $(targetdir)/$$file && \
