@@ -412,6 +412,8 @@ bashcomp_DATA = 2to3 \
 		wsimport \
 		wtf \
 		wvdial \
+		xdg-mime \
+		xdg-settings \
 		xfreerdp \
 		xgamma \
 		xhost \
@@ -653,8 +655,6 @@ CLEANFILES = \
 	vgsplit \
 	vigr \
 	whatis \
-	xdg-mime \
-	xdg-settings \
 	xpovray \
 	xvnc4viewer \
 	ypcat
