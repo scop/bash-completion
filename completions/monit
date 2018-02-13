@@ -1,0 +1,114 @@
+# install this file to /etc/bash_completion.d/ directory
+
+
+# get the path to the configuration file if specified on the command-line
+_monit_config()
+{
+    local haveconfig opt
+    for opt in "${COMP_WORDS[@]}"
+    do
+        if [[ $haveconfig == 1 ]]
+        then
+            local _configuration=`eval echo ${opt//>}`
+            if [ -f "${_configuration}" ]
+            then
+                configuration="-c ${_configuration}"
+            fi
+            return
+        elif [[ $opt == "-c" ]]
+        then
+            haveconfig=1
+        fi
+    done
+}
+
+
+# check if we need to use sudo
+_monit_sudo()
+{
+    if [[ $($monit $configuration -t 2>&1 | grep "Permission denied") ]]
+    then
+        sudo="sudo"
+    fi
+}
+
+
+# get monit service list
+_monit_services()
+{
+    _monit_config
+    _monit_sudo
+    services=$($sudo $monit $configuration -vIt | grep "Name" | sed -e "s/.* = //")
+}
+
+
+# get monit servicegroup list
+_monit_servicegroups()
+{
+    _monit_config
+    _monit_sudo
+    servicegroups=$($sudo $monit $configuration -vIt | grep "Group" | sed -e "s/.* = //" | sed -e "s/, /\n/g")
+}
+
+
+_monit()
+{
+    local cur prev
+    local options="--batch --conf --daemon --group --hash --help --id --interactive --logfile --pidfile --resetid --statefile --test --verbose --version"
+    local commands="start stop restart monitor unmonitor reload status summary report quit validate procmatch"
+    local report="up down initialising unmonitored total"
+
+    monit=${COMP_WORDS[0]}
+    
+    COMPREPLY=()
+
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    case "${prev}" in
+        -c|--conf|-l|--logfile|-p|--pidfile|-s|--statefile|-H|--hash)
+            _filedir
+            return 0
+            ;;
+        -g|--group)
+            _monit_servicegroups
+            COMPREPLY=( $(compgen -W "${servicegroups}" -- ${cur}) )
+            return 0
+            ;;
+        start|stop|restart|monitor|unmonitor)
+            _monit_services
+            services+=" all"
+            COMPREPLY=( $(compgen -W "${services}" -- ${cur}) )
+            return 0
+            ;;
+        status|summary)
+            _monit_services
+            COMPREPLY=( $(compgen -W "${services}" -- ${cur}) )
+            return 0
+            ;;
+        report)
+            COMPREPLY=( $(compgen -W "${report}" -- ${cur}) )
+            return 0
+            ;;
+        procmatch)
+            _pnames
+            return 0
+            ;;
+        *)
+        ;;
+    esac
+
+    case "${cur}" in
+        -*)
+            COMPREPLY=( $(compgen -W "${options}" -- ${cur}) )
+            return 0
+            ;;
+        *)
+            COMPREPLY=($(compgen -W "${commands}" -- ${cur}))  
+            ;;
+    esac
+
+    return 0
+}
+complete -F _monit monit
+
