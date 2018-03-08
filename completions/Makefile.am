@@ -37,6 +37,7 @@ bashcomp_DATA = 2to3 \
 		cancel \
 		cardctl \
 		ccache \
+		ccze \
 		cfagent \
 		cfrun \
 		chage \

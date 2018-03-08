@@ -1,0 +1,43 @@
+# ccze(1) completion                                       -*- shell-script -*-
+
+_ccze()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -'?'|--help|--usage|-V|--version)
+            return
+            ;;
+        -a|--argument|-c|--color)
+            # TODO?
+            return
+            ;;
+        -F|--rcfile)
+            _filedir
+            return
+            ;;
+        -m|--mode)
+            COMPREPLY=( $( compgen -W "curses ansi html" -- "$cur" ) )
+            return
+            ;;
+        -o|--option)
+            local -a opts=(scroll wordcolor lookups transparent cssfile)
+            COMPREPLY=( $( compgen -W '${opts[@]} ${opts[@]/#/no}' -- "$cur" ) )
+            return
+            ;;
+        -p|--plugin)
+            COMPREPLY=( $( compgen -W '$( "$1" --list-plugins |
+                sed -ne "s/^\([a-z0-9]\{1,\}\)[[:space:]]\{1,\}|.*/\1/p" )' \
+                -- "$cur" ) )
+            return
+    esac
+
+    $split && return
+
+    COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+    [[ $COMPREPLY == *= ]] && compopt -o nospace
+} &&
+complete -F _ccze ccze
+
+# ex: filetype=sh
