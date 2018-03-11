@@ -152,12 +152,11 @@ _make()
             mode=-d # display-only mode
         fi
 
-        local IFS=$' \t\n' reset=$( shopt -po posix ); set +o posix # <(...)
+        local IFS=$' \t\n' script=$( _make_target_extract_script $mode "$cur" )
         COMPREPLY=( $( LC_ALL=C \
             $1 -npq __BASH_MAKE_COMPLETION__=1 \
                 "${makef[@]}" "${makef_dir[@]}" .DEFAULT 2>/dev/null | \
-            command sed -nf <(_make_target_extract_script $mode "$cur") ) )
-        $reset
+            command sed -ne "$script" ) )
 
         if [[ $mode != -d ]]; then
             # Completion will occur if there is only one suggestion
