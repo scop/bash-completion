@@ -1957,7 +1957,6 @@ _install_xspec()
     for cmd in $@; do
         _xspecs[$cmd]=$xspec
     done
-    complete -F _filedir_xspec $@
 }
 # bzcmp, bzdiff, bz*grep, bzless, bzmore intentionally not here, see Debian: #455510
 _install_xspec '!*.?(t)bz?(2)' bunzip2 bzcat pbunzip2 pbzcat lbunzip2 lbzcat
@@ -2054,6 +2053,9 @@ __load_completion()
             [[ -f "$compfile" ]] && . "$compfile" &>/dev/null && return 0
         done
     done
+
+    # Look up simple "xspec" completions
+    [[ "${_xspecs[$cmd]}" ]] && complete -F _filedir_xspec "$cmd" && return 0
 
     return 1
 }
