@@ -938,18 +938,19 @@ _kernel_versions()
 #
 _available_interfaces()
 {
-    local cmd PATH=$PATH:/sbin
+    local PATH=$PATH:/sbin
 
-    if [[ ${1:-} == -w ]]; then
-        cmd="iwconfig"
-    elif [[ ${1:-} == -a ]]; then
-        cmd="{ ifconfig || ip link show up; }"
-    else
-        cmd="{ ifconfig -a || ip link show; }"
-    fi
-
-    COMPREPLY=( $( eval $cmd 2>/dev/null | awk \
+    COMPREPLY=( $( {
+        if [[ ${1:-} == -w ]]; then
+            iwconfig
+        elif [[ ${1:-} == -a ]]; then
+            ifconfig || ip link show up
+        else
+            ifconfig -a || ip link show
+        fi
+    } 2>/dev/null | awk \
         '/^[^ \t]/ { if ($1 ~ /^[0-9]+:/) { print $2 } else { print $1 } }' ) )
+
     COMPREPLY=( $( compgen -W '${COMPREPLY[@]/%[[:punct:]]/}' -- "$cur" ) )
 }
 
