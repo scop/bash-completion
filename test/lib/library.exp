@@ -584,6 +584,24 @@ proc assert_no_output {{cmd} {test ""} {prompt /@}} {
 }
 
 
+# Check that ~part completes to ~full/ if home dir exists.
+# @param string $cmd  The command to attempt home dir completion for.
+# @param string $test  Optional parameter with test name.
+# @param string $prompt  (optional) Bash prompt.  Default is "/@"
+proc assert_complete_homedir {{cmd} {test ""} {prompt /@}} {
+    if {[string length $test] == 0} {
+        set test "$cmd should complete ~part to ~full/ if home dir exists"
+    }
+    assert_bash_exec {for u in $(compgen -u); do \
+        eval test -d ~$u && echo $u; unset u; done} {} /@ users
+    if {![find_unique_completion_pair $users part full]} {
+        untested "Not running, no suitable test user found: $test"
+    } else {
+        assert_complete "~$full/" "$cmd ~$part" $test -nospace
+    }
+}
+
+
 # Source/run file with additional tests if completion for the specified command
 # is installed in bash, and the command is available.
 # @param string $command  Command to check completion availability for.
