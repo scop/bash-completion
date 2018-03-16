@@ -1005,21 +1005,8 @@ _tilde()
 # @param $1  Name of variable (not the value of the variable) to expand
 __expand_tilde_by_ref()
 {
-    # Does $1 start with tilde (~)?
     if [[ ${!1} == \~* ]]; then
-        # Does $1 contain slash (/)?
-        if [[ ${!1} == */* ]]; then
-            # Yes, $1 contains slash;
-            # 1: Remove * including and after first slash (/), i.e. "~a/b"
-            #    becomes "~a".  Double quotes allow eval.
-            # 2: Remove * before the first slash (/), i.e. "~a/b"
-            #    becomes "b".  Single quotes prevent eval.
-            #       +-----1----+ +---2----+
-            eval $1="${!1/%\/*}"/'${!1#*/}'
-        else
-            # No, $1 doesn't contain slash
-            eval $1="${!1}"
-        fi
+        eval $1=$(printf ~%q "${!1#\~}")
     fi
 } # __expand_tilde_by_ref()
 
