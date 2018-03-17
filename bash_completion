@@ -1015,19 +1015,14 @@ __expand_tilde_by_ref()
 #
 _expand()
 {
-    # FIXME: Why was this here?
-    #[ "$cur" != "${cur%\\}" ] && cur+="\\"
-
     # Expand ~username type directory specifications.  We want to expand
     # ~foo/... to /home/foo/... to avoid problems when $cur starting with
     # a tilde is fed to commands and ending up quoted instead of expanded.
 
     if [[ "$cur" == \~*/* ]]; then
-        eval cur=$cur 2>/dev/null
+        __expand_tilde_by_ref cur
     elif [[ "$cur" == \~* ]]; then
-        cur=${cur#\~}
-        COMPREPLY=( $( compgen -P '~' -u -- "$cur" ) )
-        [[ ${#COMPREPLY[@]} -eq 1 ]] && eval COMPREPLY[0]=${COMPREPLY[0]}
+        _tilde "$cur" || eval COMPREPLY[0]=$(printf ~%q "${COMPREPLY[0]#\~}")
         return ${#COMPREPLY[@]}
     fi
 }
