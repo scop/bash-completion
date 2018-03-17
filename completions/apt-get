@@ -3,7 +3,7 @@
 _apt_get()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n = || return
 
     local special i
     for (( i=0; i < ${#words[@]}-1; i++ )); do
@@ -29,13 +29,22 @@ _apt_get()
                     2> /dev/null ) $( apt-cache dumpavail | \
                     command grep "^Source: $cur" | sort -u | cut -f2 -d" " ) )
                 ;;
-            *)
-                if [[ $special == install && $cur == */* ]]; then
+            install)
+                if [[ $cur == */* ]]; then
                     _filedir deb
-                else
-                    COMPREPLY=( $( apt-cache --no-generate pkgnames "$cur" \
-                        2>/dev/null ) )
+                    return
+                elif [[ $cur == *=* ]]; then
+                    COMPREPLY=( $( compgen -W "$( \
+                        apt-cache --no-generate show "${cur%%=*}" 2>/dev/null |
+                        command sed -ne \
+                            's/^Version:[[:space:]]*\([^[:space:]]\)/\1/p' )" \
+                        -- "${cur#*=}" ) )
+                    return
                 fi
+                ;;&
+            *)
+                COMPREPLY=( $( apt-cache --no-generate pkgnames "$cur" \
+                    2>/dev/null ) )
                 ;;
         esac
         return
