@@ -56,9 +56,9 @@ _apt_get()
             return
             ;;
         -t|--target-release|--default-release)
-            COMPREPLY=( $( apt-cache policy | \
-                command grep "release.o=Debian,a=$cur" | \
-                command sed -e "s/.*a=\(\w*\).*/\1/" | uniq 2> /dev/null) )
+            COMPREPLY=( $( compgen -W "$( apt-cache policy | command sed -ne \
+                's/^ *release.*[ ,]o=\(Debian\|Ubuntu\),a=\(\w*\).*/\2/p' )" \
+                -- "$cur" ) )
             return
             ;;
     esac
