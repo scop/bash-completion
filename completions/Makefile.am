@@ -1000,6 +1000,6 @@ check-local:
 	ret=0
 	for file in $(bashcomp_DATA) ; do \
 		$${bashcomp_bash:-$${BASH:-bash}} \
-			-O extglob -n $$file || ret=$$? ; \
+			-O extglob -n $(srcdir)/$$file || ret=$$? ; \
 	done ; \
 	exit $$ret
