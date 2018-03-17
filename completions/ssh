@@ -86,8 +86,8 @@ _ssh_suboption()
         Cipher)
             COMPREPLY=( $( compgen -W 'blowfish des 3des' -- "$cur" ) )
             ;;
-        ProxyJump)
-            _known_hosts_real -a -F "$configfile" -- "$cur"
+        Ciphers)
+            _ssh_ciphers "$2"
             ;;
         IPQoS)
             COMPREPLY=( $( compgen -W 'af1{1..4} af2{2..3} af3{1..3} af4{1..3}
@@ -99,8 +99,18 @@ _ssh_suboption()
         KexAlgorithms)
             COMPREPLY=( $( compgen -W '$( _ssh_query "$2" kex )' -- "$cur" ) )
             ;;
+        MACs)
+            _ssh_macs "$2"
+            ;;
+        PreferredAuthentications)
+            COMPREPLY=( $( compgen -W 'gssapi-with-mic host-based publickey
+                keyboard-interactive password' -- "$cur" ) )
+            ;;
         Protocol)
             COMPREPLY=( $( compgen -W '1 2 1,2 2,1' -- "$cur" ) )
+            ;;
+        ProxyJump)
+            _known_hosts_real -a -F "$configfile" -- "$cur"
             ;;
         RequestTTY)
             COMPREPLY=( $( compgen -W 'no yes force auto' -- "$cur" ) )
@@ -108,16 +118,6 @@ _ssh_suboption()
         Tunnel)
             COMPREPLY=( $( compgen -W 'yes no point-to-point ethernet' \
                     -- "$cur" ) )
-            ;;
-        PreferredAuthentications)
-            COMPREPLY=( $( compgen -W 'gssapi-with-mic host-based publickey
-                keyboard-interactive password' -- "$cur" ) )
-            ;;
-        MACs)
-            _ssh_macs "$2"
-            ;;
-        Ciphers)
-            _ssh_ciphers "$2"
             ;;
     esac
     return 0
@@ -170,7 +170,21 @@ _ssh()
     local ipvx
 
     case $prev in
-        -F|-i|-S)
+        -4|-6)
+            ipvx=$prev
+            ;;
+        -b)
+            _ip_addresses
+            return
+            ;;
+        -c)
+            _ssh_ciphers "$1"
+            return
+            ;;
+        -D|-e|-L|-p|-R|-W)
+            return
+            ;;
+        -E|-F|-i|-S)
             _filedir
             return
             ;;
@@ -178,20 +192,16 @@ _ssh()
             _filedir so
             return
             ;;
-        -c)
-            _ssh_ciphers "$1"
-            return
-            ;;
         -J)
             _known_hosts_real -a -F "$configfile" -- "$cur"
             return
             ;;
-        -m)
-            _ssh_macs "$1"
-            return
-            ;;
         -l)
             COMPREPLY=( $( compgen -u -- "$cur" ) )
+            return
+            ;;
+        -m)
+            _ssh_macs "$1"
             return
             ;;
         -O)
@@ -209,16 +219,6 @@ _ssh()
         -w)
             _available_interfaces
             return
-            ;;
-        -b)
-            _ip_addresses
-            return
-            ;;
-        -D|-e|-L|-p|-R|-W)
-            return
-            ;;
-        -4|-6)
-            ipvx=$prev
             ;;
     esac
 
@@ -258,27 +258,27 @@ _sftp()
     local ipvx
 
     case $prev in
-        -b|-F|-i)
-            _filedir
+        -4|-6)
+            ipvx=$prev
+            ;;
+        -B|-D|-l|-P|-R|-s)
             return
             ;;
-        -o)
-            _ssh_options
+        -b|-F|-i)
+            _filedir
             return
             ;;
         -c)
             _ssh_ciphers
             return
             ;;
+        -o)
+            _ssh_options
+            return
+            ;;
         -S)
             _command
             return
-            ;;
-        -B|-D|-l|-P|-R|-s)
-            return
-            ;;
-        -4|-6)
-            ipvx=$prev
             ;;
     esac
 
@@ -378,7 +378,12 @@ _scp()
     local ipvx
 
     case $prev in
-        -l|-P)
+        -4|-6)
+            ipvx=$prev
+            ;;
+        -c)
+            _ssh_ciphers
+            COMPREPLY=( "${COMPREPLY[@]/%/ }" )
             return
             ;;
         -F|-i)
@@ -386,9 +391,7 @@ _scp()
             compopt +o nospace
             return
             ;;
-        -c)
-            _ssh_ciphers
-            COMPREPLY=( "${COMPREPLY[@]/%/ }" )
+        -l|-P)
             return
             ;;
         -o)
@@ -399,9 +402,6 @@ _scp()
             _command
             compopt +o nospace
             return
-            ;;
-        -4|-6)
-            ipvx=$prev
             ;;
     esac
 
