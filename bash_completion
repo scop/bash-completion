@@ -1482,9 +1482,9 @@ _included_ssh_config_files()
 # Return: Completions, starting with CWORD, are added to COMPREPLY[]
 _known_hosts_real()
 {
-    local configfile flag prefix
-    local cur curd awkcur user suffix aliases i host ipv4 ipv6
-    local -a kh khd config
+    local configfile flag prefix OIFS=$IFS
+    local cur user suffix aliases i host ipv4 ipv6
+    local -a kh tmpkh khd config
 
     # TODO remove trailing %foo from entries
 
@@ -1523,8 +1523,7 @@ _known_hosts_real()
 
     # Known hosts files from configs
     if [[ ${#config[@]} -gt 0 ]]; then
-        local OIFS=$IFS IFS=$'\n' j
-        local -a tmpkh
+        local IFS=$'\n' j
         # expand paths (if present) to global and user known hosts files
         # TODO(?): try to make known hosts files with more than one consecutive
         #          spaces in their name work (watch out for ~ expansion
@@ -1561,35 +1560,31 @@ _known_hosts_real()
 
     # If we have known_hosts files to use
     if [[ ${#kh[@]} -gt 0 || ${#khd[@]} -gt 0 ]]; then
-        # Escape slashes and dots in paths for awk
-        awkcur=${cur//\//\\\/}
-        awkcur=${awkcur//\./\\\.}
-        curd=$awkcur
-
-        if [[ "$awkcur" == [0-9]*[.:]* ]]; then
-            # Digits followed by a dot or a colon - just search for that
-            awkcur="^$awkcur[.:]*"
-        elif [[ "$awkcur" == [0-9]* ]]; then
-            # Digits followed by no dot or colon - search for digits followed
-            # by a dot or a colon
-            awkcur="^$awkcur.*[.:]"
-        elif [[ -z $awkcur ]]; then
-            # A blank - search for a dot, a colon, or an alpha character
-            awkcur="[a-z.:]"
-        else
-            awkcur="^$awkcur"
-        fi
-
         if [[ ${#kh[@]} -gt 0 ]]; then
-            # FS needs to look for a comma separated list
-            COMPREPLY+=( $( awk 'BEGIN {FS=","}
-            /^\s*[^|\#]/ {
-            sub("^@[^ ]+ +", ""); \
-            sub(" .*$", ""); \
-            for (i=1; i<=NF; ++i) { \
-            sub("^\\[", "", $i); sub("\\](:[0-9]+)?$", "", $i); \
-            if ($i !~ /[*?]/ && $i ~ /'"$awkcur"'/) {print $i} \
-            }}' "${kh[@]}" 2>/dev/null ) )
+            # https://man.openbsd.org/sshd.8#SSH_KNOWN_HOSTS_FILE_FORMAT
+            for i in "${kh[@]}"; do
+                while read -ra tmpkh; do
+                    set -- "${tmpkh[@]}"
+                    # Skip entries starting with | (hashed) and # (comment)
+                    [[ $1 == [\|\#]* ]] && continue
+                    # Ignore leading @foo (markers)
+                    [[ $1 == @* ]] && shift
+                    # Split entry on commas
+                    local IFS=,
+                    for host in $1; do
+                        # Skip hosts containing wildcards
+                        [[ $host == *[*?]* ]] && continue
+                        # Remove leading [
+                        host="${host#[}"
+                        # Remove trailing ] + optional :port
+                        host="${host%]?(:+([0-9]))}"
+                        # Add host to candidates
+                        COMPREPLY+=( $host )
+                    done
+                    IFS=$OIFS
+                done < "$i"
+            done
+            COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
         fi
         if [[ ${#khd[@]} -gt 0 ]]; then
             # Needs to look for files called
@@ -1597,7 +1592,7 @@ _known_hosts_real()
             # dont fork any processes, because in a cluster environment,
             # there can be hundreds of hostkeys
             for i in "${khd[@]}" ; do
-                if [[ "$i" == *key_22_$curd*.pub && -r "$i" ]]; then
+                if [[ "$i" == *key_22_$cur*.pub && -r "$i" ]]; then
                     host=${i/#*key_22_/}
                     host=${host/%.pub/}
                     COMPREPLY+=( $host )
