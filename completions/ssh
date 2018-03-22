@@ -345,19 +345,19 @@ _scp_remote_files()
 
     # default to home dir of specified user on remote host
     if [[ -z $path ]]; then
-        path=$(ssh -o 'Batchmode yes' $userhost pwd 2>/dev/null)
+        path=$(command ssh -o 'Batchmode yes' $userhost pwd 2>/dev/null )
     fi
 
     local files
     if [[ $1 == -d ]]; then
         # escape problematic characters; remove non-dirs
-        files=$( ssh -o 'Batchmode yes' $userhost \
+        files=$(command ssh -o 'Batchmode yes' $userhost \
             command ls -aF1dL "$path*" 2>/dev/null | \
             command sed -e 's/'$_scp_path_esc'/\\\\\\&/g' -e '/[^\/]$/d' )
     else
         # escape problematic characters; remove executables, aliases, pipes
         # and sockets; add space at end of file names
-        files=$( ssh -o 'Batchmode yes' $userhost \
+        files=$(command ssh -o 'Batchmode yes' $userhost \
             command ls -aF1dL "$path*" 2>/dev/null | \
             command sed -e 's/'$_scp_path_esc'/\\\\\\&/g' -e 's/[*@|=]$//g' \
             -e 's/[^\/]$/& /g' )
