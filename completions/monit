@@ -23,22 +23,11 @@ _monit_config()
 }
 
 
-# check if we need to use sudo
-_monit_sudo()
-{
-    if [[ $($monit $configuration -t 2>&1 | grep "Permission denied") ]]
-    then
-        sudo="sudo"
-    fi
-}
-
-
 # get monit service list
 _monit_services()
 {
     _monit_config
-    _monit_sudo
-    services=$($sudo $monit $configuration -vIt | grep "Name" | sed -e "s/.* = //")
+    services=$($monit $configuration -vIt | grep "Name" | sed -e "s/.* = //")
 }
 
 
@@ -46,8 +35,7 @@ _monit_services()
 _monit_servicegroups()
 {
     _monit_config
-    _monit_sudo
-    servicegroups=$($sudo $monit $configuration -vIt | grep "Group" | sed -e "s/.* = //" | sed -e "s/, /\n/g")
+    servicegroups=$($monit $configuration -vIt | grep "Group" | sed -e "s/.* = //" | sed -e "s/, /\n/g")
 }
 
 
