@@ -6,8 +6,24 @@ _reportbug()
     _init_completion -s || return
 
     case $prev in
+        -C|--class|-H|--header|-P|--pseudo-header|--mirror|--list-cc|\
+        -s|--subject|--http_proxy|--proxy|--email|--realname|--smtpuser|\
+        --smtppasswd|--replyto|--reply-to|-j|--justification|-V|\
+        --package-version|--body|--body-file|--timeout|--max-attachment-size|\
+        --envelope-from)
+            return
+            ;;
         -f|--filename|-i|--include|--mta|-o|--output|-A|--attach)
             _filedir
+            return
+            ;;
+        -K|--keyid)
+            COMPREPLY=( $( compgen -W '$( IFS=: ; \
+                gpg --list-keys --with-colons 2>/dev/null \
+                | while read -ra row ; do
+                    [[ "${row[0]}" == [ps]ub && ${row[11]} == *s* ]] && \
+                        printf "%s\n" "${row[4]}"
+                done )' -- "$cur" ) )
             return
             ;;
         -B|--bts)
@@ -15,7 +31,7 @@ _reportbug()
                 "$cur" ) )
             return
             ;;
-        -e|--editor|--mua)
+        -e|--editor|--mua|--mbox-reader-cmd)
             words=( words[0] "$cur" )
             cword=1
             _command
@@ -51,7 +67,13 @@ _reportbug()
                 command grep "^Source: $cur" | sort -u | cut -f2 -d" " )' ))
             return
             ;;
-        *)
+        --smtphost)
+            _known_hosts_real -- "$cur"
+            return
+            ;;
+        --draftpath)
+            _filedir -d
+            return
             ;;
     esac
 
