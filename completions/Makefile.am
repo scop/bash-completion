@@ -234,8 +234,8 @@ bashcomp_DATA = 2to3 \
 		modprobe \
 		_modules \
 		monodevelop \
-		mount \
-		mount.linux \
+		_mount \
+		_mount.linux \
 		mplayer \
 		mr \
 		msynctool \
@@ -384,8 +384,8 @@ bashcomp_DATA = 2to3 \
 		tshark \
 		tune2fs \
 		_udevadm \
-		umount \
-		umount.linux \
+		_umount \
+		_umount.linux \
 		unace \
 		unpack200 \
 		unrar \
