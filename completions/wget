@@ -17,7 +17,7 @@ _wget()
             _ip_addresses "$cur"
             return
             ;;
-        -D|--domains|--exclude-domains)
+        --domains|--exclude-domains|-!(-*)D)
             _known_hosts_real -- "$cur"
             return
             ;;
@@ -57,17 +57,17 @@ _wget()
             COMPREPLY=( $( compgen -W 'IPv4 IPv6 none' -- "$cur" ) )
             return
             ;;
-        -P|--directory-prefix|--ca-directory|--warc-tempdir)
+        --directory-prefix|--ca-directory|--warc-tempdir|-!(-*)P)
             _filedir -d
             return
             ;;
-        -o|--output-file|-a|--append-output|--config|--load-cookies|\
-        --save-cookies|--post-file|--certificate|--ca-certificate|\
-        --private-key|--random-file|--egd-file|--warc-file|--warc-dedup)
+        --output-file|--append-output|--config|--load-cookies|--save-cookies|\
+        --post-file|--certificate|--ca-certificate|--private-key|\
+        --random-file|--egd-file|--warc-file|--warc-dedup|-!(-*)[oa])
             _filedir
             return
             ;;
-        -O|--output-document|-i|--input-file)
+        --output-document|--input-file|-!(-*)[Oi])
             _filedir && [[ $cur == - || -z $cur ]] && COMPREPLY+=( - )
             return
             ;;
@@ -94,14 +94,14 @@ _wget()
                 -- "$lastopt" ) )
             return
             ;;
-        -t|--tries|-T|--timeout|--dns-timeout|--connect-timeout|--read-timeout|\
-        -w|--wait|--waitretry|--cut-dirs|--max-redirect|-l|--level)
+        --tries|--timeout|--dns-timeout|--connect-timeout|--read-timeout|\
+        --wait|--waitretry|--cut-dirs|--max-redirect|--level|-!(-*)[tTwl])
             # expect integer number
             COMPREPLY+=( $( compgen -P "$cur" -W "{0..9}" ) )
             compopt -o nospace
             return
             ;;
-        -Q|--quota|--limit-rate|--warc-max-size)
+        --quota|--limit-rate|--warc-max-size|-!(-*)Q)
             # expect size
             if [[ $cur == *[km] ]]; then
                 COMPREPLY=( $( compgen -W "$cur" ) )
@@ -140,7 +140,7 @@ _wget()
                 command sed -e "s@/*\$@@" -e "s/[,()]//g" 2>/dev/null )' -- "$cur" ) )
             return
             ;;
-        -e|--execute)
+        --execute|-!(-*)e)
             return # TODO base=STR
             ;;
         --report-speed)
@@ -151,10 +151,10 @@ _wget()
             COMPREPLY=( $( compgen -W 'posix' -- "$cur" ) )
             return
             ;;
-        -B|--base|--password|--ftp-password|--http-password|--proxy-password|\
-        --default-page|--referer|-U|--user-agent|--post-data|--warc-header|-A|\
-        --accept|-R|--reject|--accept-regex|--reject-regex|-I|\
-        --include-directories|-X|--exclude-directories)
+        --base|--password|--ftp-password|--http-password|--proxy-password|\
+        --default-page|--referer|--user-agent|--post-data|--warc-header|\
+        --accept|--reject|--accept-regex|--reject-regex|--include-directories|\
+        --exclude-directories|-!(-*)[BUARIX])
             # argument required but no completions available
             return
             ;;
