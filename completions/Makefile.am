@@ -491,6 +491,7 @@ CLEANFILES = \
 	dropdb \
 	dropuser \
 	edquota \
+	etherwake \
 	f77 \
 	f95 \
 	filebucket \
@@ -731,6 +732,10 @@ symlinks: $(targetdir) $(DATA)
 	for file in dpkg-deb dpkg-query dpkg-reconfigure ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) dpkg $(targetdir)/$$file ; \
+	done
+	for file in etherwake ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) ether-wake $(targetdir)/$$file ; \
 	done
 	for file in mailsnarf msgsnarf ; do \
 		rm -f $(targetdir)/$$file && \
