@@ -11,14 +11,14 @@ _ccache()
             _command_offset $i
             return
         fi
-        [[ ${COMP_WORDS[i]} == -[oFM] ]] && ((i++))
+        [[ ${COMP_WORDS[i]} == -*[oFM] ]] && ((i++))
     done
 
     case $prev in
-        -h|--help|-V|--version|-F|--max-files|-M|--max-size)
+        --help|--version|--max-files|--max-size|-!(-*)[hVFM])
             return
             ;;
-        -o|--set-config)
+        --set-config|-!(-*)o)
             if [[ $cur != *=* ]]; then
                 COMPREPLY=( $( compgen -S = -W "$( $1 -p 2>/dev/null | \
                     awk '$3 = "=" { print $2 }' )" -- "$cur" ) )

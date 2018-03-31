@@ -50,29 +50,28 @@ _dpkg()
     fi
 
     case $prev in
-        -c|-i|-A|-I|-f|-e|-x|-W|--install|--unpack|--record-avail| \
-        --contents|--info|--fsys-tarfile|--field|--control|--extract| \
-        --vextract)
+        --install|--unpack|--record-avail|--contents|--info|--fsys-tarfile|\
+        --field|--control|--extract|--vextract|-!(-*)[ciAIfexW])
             _filedir '?(u|d)deb'
             return
             ;;
-        -b|--build)
+        --build|-!(-*)b)
             _filedir -d
             return
             ;;
-        -s|-p|-l|-W|--status|--print-avail|--list|--show)
+        --status|--print-avail|--list|--show|-!(-*)[splW])
             COMPREPLY=( $( apt-cache pkgnames "$cur" 2>/dev/null ) )
             return
             ;;
-        -S|--search)
+        --search|-!(-*)S)
             _filedir
             return
             ;;
-        -r|-V|--remove|--verify)
+        --remove|--verify|-!(-*)[rV])
             COMPREPLY=( $( _comp_dpkg_installed_packages "$cur" ) )
             return
             ;;
-        -L|-P|--listfiles|--purge)
+        --listfiles|--purge|-!(-*)[LP])
             COMPREPLY=( $( _comp_dpkg_purgeable_packages "$cur" ) )
             return
             ;;
@@ -95,14 +94,14 @@ _dpkg_reconfigure()
     local opt
 
     case $prev in
-        -f|--frontend)
+        --frontend|-!(-*)f)
             opt=( $( printf '%s\n' /usr/share/perl5/Debconf/FrontEnd/* ) )
             opt=( ${opt[@]##*/} )
             opt=( ${opt[@]%.pm} )
             COMPREPLY=( $( compgen -W '${opt[@]}' -- "$cur" ) )
             return
             ;;
-        -p|--priority)
+        --priority|-!(-*)p)
             COMPREPLY=( $( compgen -W 'low medium high critical' -- "$cur" ) )
             return
             ;;
