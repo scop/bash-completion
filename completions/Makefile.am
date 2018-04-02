@@ -343,6 +343,7 @@ bashcomp_DATA = 2to3 \
 		sbcl \
 		sbopkg \
 		screen \
+		scrub \
 		sh \
 		sitecopy \
 		slackpkg \
