@@ -87,6 +87,7 @@ bashcomp_DATA = 2to3 \
 		e2freefrag \
 		e2label \
 		ebtables \
+		ecryptfs-migrate-home \
 		_eject \
 		eog \
 		ether-wake \
