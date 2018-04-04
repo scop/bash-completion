@@ -12,45 +12,45 @@ _ipmitool()
     _init_completion || return
 
     case $prev in
-        -h|-V|-p|-U|-e|-k|-y|-P|-m|-b|-t|-B|-T|-l)
+        -*[hVpUekyPmbtBTl])
             return
             ;;
-        -d)
+        -*d)
             COMPREPLY=( $( compgen -W "$( \
                 command ls -d /dev/ipmi* /dev/ipmi/* /dev/ipmidev/* \
                 2>/dev/null | command sed -ne 's/^[^0-9]*\([0-9]\{1,\}\)/\1/p' )" \
                 -- "$cur" ) )
             return
             ;;
-        -I)
+        -*I)
             COMPREPLY=( $( compgen -W "$( $1 -h 2>&1 | \
                 command sed -e '/^Interfaces:/,/^[[:space:]]*$/!d' \
                 -ne 's/^[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*/\1/p' )" \
                 -- "$cur" ) )
             return
             ;;
-        -H)
+        -*H)
             _known_hosts_real -- "$cur"
             return
             ;;
-        -f|-S|-O)
+        -*[fSO])
             _filedir
             return
             ;;
-        -C)
+        -*C)
             COMPREPLY=( $( compgen -W '{0..14}' -- "$cur" ) )
             return
             ;;
-        -L)
+        -*L)
             COMPREPLY=( $( compgen -W 'CALLBACK USER OPERATOR ADMINISTRATOR' \
                 -- "$cur" ) )
             return
             ;;
-        -A)
+        -*A)
             COMPREPLY=( $( compgen -W 'NONE PASSWORD MD2 MD5 OEM' -- "$cur" ) )
             return
             ;;
-        -o)
+        -*o)
             COMPREPLY=( $( compgen -W "$( $1 -o list 2>&1 | \
                 awk '/^[ \t]+/ { print $1 }' ) list" -- "$cur" ) )
             return
