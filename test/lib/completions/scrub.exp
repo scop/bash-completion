@@ -17,7 +17,10 @@ sync_after_int
 assert_complete_any "scrub -"
 sync_after_int
 
-assert_complete_any "scrub -p "
+if {[assert_exec {sh -c "(scrub 2>&1 --help || :) | command grep ^Available"} "" "" "unsupported"]} {
+    # Not all scrub versions list available patterns in --help output
+    assert_complete_any "scrub -p "
+}
 sync_after_int
 
 
