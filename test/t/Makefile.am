@@ -258,6 +258,7 @@ EXTRA_DIST = \
 	test_iscsiadm.py \
 	test_isort.py \
 	test_isql.py \
+	test_iw.py \
 	test_iwconfig.py \
 	test_iwlist.py \
 	test_iwpriv.py \
