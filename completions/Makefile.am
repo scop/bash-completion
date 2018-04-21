@@ -534,6 +534,7 @@ CLEANFILES = \
 	ldapmodrdn \
 	ldappasswd \
 	ldapwhoami \
+	links2 \
 	lintian-info \
 	lusermod \
 	lvchange \
@@ -812,6 +813,10 @@ symlinks: $(targetdir) $(DATA)
 		ldapwhoami ldappasswd ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) ldapsearch $(targetdir)/$$file ; \
+	done
+	for file in links2 ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) links $(targetdir)/$$file ; \
 	done
 	for file in lintian-info ; do \
 		rm -f $(targetdir)/$$file && \
