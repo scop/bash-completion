@@ -553,12 +553,11 @@ _filedir()
     _tilde "$cur" || return
 
     local -a toks
-    local x tmp
+    local x reset
 
-    x=$( compgen -d -- "$cur" ) &&
-    while read -r tmp; do
-        toks+=( "$tmp" )
-    done <<< "$x"
+    reset=$(shopt -po noglob); set -o noglob
+    toks=( $( compgen -d -- "$cur" ) )
+    eval $reset
 
     if [[ "$1" != -d ]]; then
         local quoted
@@ -567,17 +566,16 @@ _filedir()
         # Munge xspec to contain uppercase version too
         # http://thread.gmane.org/gmane.comp.shells.bash.bugs/15294/focus=15306
         local xspec=${1:+"!*.@($1|${1^^})"}
-        x=$( compgen -f -X "$xspec" -- $quoted ) &&
-        while read -r tmp; do
-            toks+=( "$tmp" )
-        done <<< "$x"
+        reset=$(shopt -po noglob); set -o noglob
+        toks+=( $( compgen -f -X "$xspec" -- $quoted ) )
+        eval $reset
 
         # Try without filter if it failed to produce anything and configured to
-        [[ -n ${COMP_FILEDIR_FALLBACK:-} && -n "$1" && ${#toks[@]} -lt 1 ]] && \
-            x=$( compgen -f -- $quoted ) &&
-            while read -r tmp; do
-                toks+=( "$tmp" )
-            done <<< "$x"
+        [[ -n ${COMP_FILEDIR_FALLBACK:-} && -n "$1" && ${#toks[@]} -lt 1 ]] && {
+            reset=$(shopt -po noglob); set -o noglob
+            toks+=( $( compgen -f -- $quoted ) )
+            eval $reset
+        }
     fi
 
     if [[ ${#toks[@]} -ne 0 ]]; then
