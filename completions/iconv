@@ -1,5 +1,11 @@
 # iconv(1) completion                                      -*- shell-script -*-
 
+_iconv_charsets()
+{
+    COMPREPLY+=( $( compgen -W '$( ${1:-iconv} -l | \
+        command sed -e "s@/*\$@@" -e "s/[,()]//g" )' -- "$cur" ) )
+}
+
 _iconv()
 {
     local cur prev words cword split
@@ -11,8 +17,7 @@ _iconv()
             return
             ;;
         --from-code|--to-code|-!(-*)[ft])
-            COMPREPLY=( $( compgen -W '$( iconv -l | \
-                command sed -e "s@/*\$@@" -e "s/[,()]//g" )' -- "$cur" ) )
+            _iconv_charsets $1
             return
             ;;
         --output|-!(-*)o)
