@@ -3,14 +3,19 @@
 _nc()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n : || return
 
     case $prev in
         -h|-I|-i|-O|-P|-p|-V|-w)
             return
             ;;
         -s)
-            _ip_addresses
+            if [[ "${words[@]}" == *-6* ]]; then
+                _ip_addresses -6
+                __ltrim_colon_completions "$cur"
+            else
+                _ip_addresses
+            fi
             return
             ;;
         -T)
