@@ -557,7 +557,7 @@ _filedir()
 
     reset=$(shopt -po noglob); set -o noglob
     toks=( $( compgen -d -- "$cur" ) )
-    eval $reset
+    IFS=' '; $reset; IFS=$'\n'
 
     if [[ "$1" != -d ]]; then
         local quoted
@@ -568,13 +568,13 @@ _filedir()
         local xspec=${1:+"!*.@($1|${1^^})"}
         reset=$(shopt -po noglob); set -o noglob
         toks+=( $( compgen -f -X "$xspec" -- $quoted ) )
-        eval $reset
+        IFS=' '; $reset; IFS=$'\n'
 
         # Try without filter if it failed to produce anything and configured to
         [[ -n ${COMP_FILEDIR_FALLBACK:-} && -n "$1" && ${#toks[@]} -lt 1 ]] && {
             reset=$(shopt -po noglob); set -o noglob
             toks+=( $( compgen -f -- $quoted ) )
-            eval $reset
+            IFS=' '; $reset; IFS=$'\n'
         }
     fi
 
