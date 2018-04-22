@@ -912,15 +912,23 @@ _configured_interfaces()
 }
 
 # Local IP addresses.
+# -4: IPv4 addresses only (default)
+# -6: IPv6 addresses only
+# -a: All addresses
 #
 _ip_addresses()
 {
+    local n
+    case $1 in
+        -a) n='6\?' ;;
+        -6) n='6' ;;
+    esac
     local PATH=$PATH:/sbin
-    COMPREPLY+=( $( compgen -W \
-        "$( { LC_ALL=C ifconfig -a || ip addr show; } 2>/dev/null | command sed -ne \
+    local addrs=$( { LC_ALL=C ifconfig -a || ip addr show; } 2>/dev/null |
+        command sed -ne \
             's/.*addr:\([^[:space:]]*\).*/\1/p' -ne \
-            's|.*inet[[:space:]]\{1,\}\([^[:space:]/]*\).*|\1|p' )" \
-        -- "$cur" ) )
+            "s|.*inet$n[[:space:]]\{1,\}\([^[:space:]/]*\).*|\1|p" )
+    COMPREPLY+=( $( compgen -W "$addrs" -- "$cur" ) )
 }
 
 # This function completes on available kernels
