@@ -48,6 +48,7 @@ bashcomp_DATA = 2to3 \
 		_chfn \
 		chgrp \
 		chkconfig \
+		chmod \
 		chown \
 		chpasswd \
 		chronyc \
