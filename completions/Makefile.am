@@ -177,6 +177,7 @@ bashcomp_DATA = 2to3 \
 		jpegoptim \
 		jps \
 		jshint \
+		json_xs \
 		k3b \
 		kcov \
 		kill \
