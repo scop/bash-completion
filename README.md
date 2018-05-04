@@ -129,11 +129,21 @@ A. No. Use `M-/` to (in the words of the bash man page) attempt file
    circumvent any file type restrictions put in place by the bash
    completion code.
 
-**Q. How can I insert my own local completions without having to
-   reinsert them every time you issue a new release?**
+**Q. How can I override a completion shipped by bash-completion?**
 
-A. Put them in `~/.bash_completion`, which is parsed at the end of the
-   main completion script. See also the next question.
+A. Install a local completion of your own appropriately for the desired
+   command, and it will be loaded before the one shipped by us. See the
+   next answer for details where to install it.
+
+**Q. Where should I install my own local completions?**
+
+A. Put them in `$XDG_DATA_HOME/bash-completion/completions`
+   (or `~/.local/share/bash-completion/completions`
+   if `$XDG_DATA_HOME` is not set) to have them loaded on demand.
+   See also the next question's answer for considerations for these
+   files' names, they apply here as well. Alternatively, you can write
+   them directly in `~/.bash_completion` which is loaded eagerly by
+   our main script.
 
 **Q. I author/maintain package X and would like to maintain my own
    completion code for this package. Where should I put it to be sure
