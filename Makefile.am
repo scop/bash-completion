@@ -16,7 +16,7 @@ cmakeconfig_DATA = bash-completion-config.cmake \
                    bash-completion-config-version.cmake
 
 %: %.in Makefile
-	sed \
+	$(SED) \
 		-e 's|@prefix[@]|$(prefix)|' \
 		-e 's|@compatdir[@]|$(compatdir)|' \
 		-e 's|@pkgdatadir[@]|$(pkgdatadir)|' \
@@ -31,7 +31,7 @@ EXTRA_DIST = CHANGES $(pkgdata_DATA) bash_completion.sh.in .dir-locals.el \
 
 install-data-hook:
 	tmpfile=`mktemp $${TMPDIR:-/tmp}/bash_completion.XXXXXX` && \
-	sed -e 's|-/etc/bash_completion\.d|-$(compatdir)|' \
+	$(SED) -e 's|-/etc/bash_completion\.d|-$(compatdir)|' \
 	    $(DESTDIR)$(pkgdatadir)/bash_completion > $$tmpfile && \
 	cat $$tmpfile > $(DESTDIR)$(pkgdatadir)/bash_completion && \
 	rm $$tmpfile

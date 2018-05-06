@@ -3,6 +3,7 @@ AC_INIT([bash-completion], [2.8])
 AM_INIT_AUTOMAKE([foreign dist-xz no-dist-gzip -Wall -Wno-portability -Werror])
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
+AC_PROG_SED
 AC_SUBST(compatdir, $sysconfdir/bash_completion.d)
 AC_CONFIG_FILES([
 Makefile
