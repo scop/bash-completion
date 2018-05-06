@@ -1,6 +1,6 @@
 AC_PREREQ([2.60])
 AC_INIT([bash-completion], [2.8])
-AM_INIT_AUTOMAKE([foreign dist-xz no-dist-gzip -Wall -Werror])
+AM_INIT_AUTOMAKE([foreign dist-xz no-dist-gzip -Wall -Wno-portability -Werror])
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
 AC_SUBST(compatdir, $sysconfdir/bash_completion.d)
@@ -10,8 +10,5 @@ completions/Makefile
 doc/Makefile
 helpers/Makefile
 test/Makefile
-bash-completion.pc
-bash-completion-config.cmake
-bash-completion-config-version.cmake
 ])
 AC_OUTPUT
