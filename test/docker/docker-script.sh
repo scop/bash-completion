@@ -1,5 +1,11 @@
 #!/bin/sh -ex
 
+if [ $DIST = tools ]; then
+    perlcritic helpers/perl
+    flake8 helpers/python
+    exit 0
+fi
+
 export bashcomp_bash=bash
 env
 
