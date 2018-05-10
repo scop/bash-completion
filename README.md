@@ -137,8 +137,9 @@ A. Install a local completion of your own appropriately for the desired
 
 **Q. Where should I install my own local completions?**
 
-A. Put them in `$XDG_DATA_HOME/bash-completion/completions`
-   (or `~/.local/share/bash-completion/completions`
+A. Put them in the `completions` subdir of `$BASH_COMPLETION_USER_DIR`
+   (defaults to `$XDG_DATA_HOME/bash-completion` or
+    `~/.local/share/bash-completion`
    if `$XDG_DATA_HOME` is not set) to have them loaded on demand.
    See also the next question's answer for considerations for these
    files' names, they apply here as well. Alternatively, you can write
