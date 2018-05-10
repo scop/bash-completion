@@ -132,8 +132,16 @@ A. No. Use `M-/` to (in the words of the bash man page) attempt file
 **Q. How can I override a completion shipped by bash-completion?**
 
 A. Install a local completion of your own appropriately for the desired
-   command, and it will be loaded before the one shipped by us. See the
-   next answer for details where to install it.
+   command, and it will take precedence over the one shipped by us. See the
+   next answer for details where to install it, if you are doing it on per
+   user basis. If you want to do it system wide, you can install eagerly
+   loaded files in `compatdir` (see a couple of questions further down for
+   more info) and install a completion for the commands to override our
+   completion for in them.
+
+   If you want to use bash's default completion instead of one of ours,
+   something like this should work (where `$cmd` is the command to override
+   completion for): `complete -o default -o bashdefault $cmd`
 
 **Q. Where should I install my own local completions?**
 
