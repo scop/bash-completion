@@ -308,11 +308,11 @@ bashcomp_DATA = 2to3 \
 		pwd \
 		pwdx \
 		pwgen \
-		py.test \
 		pycodestyle \
 		pydoc \
 		pyflakes \
 		pylint \
+		pytest \
 		python \
 		pyvenv \
 		qdbus \
@@ -595,6 +595,7 @@ CLEANFILES = \
 	pvs \
 	pvscan \
 	pxz \
+	py.test \
 	py.test-2 \
 	py.test-3 \
 	pydoc3 \
@@ -602,6 +603,8 @@ CLEANFILES = \
 	pylint-3 \
 	pypy \
 	pypy3 \
+	pytest-2 \
+	pytest-3 \
 	python2 \
 	python3 \
 	pyvenv-3.4 \
@@ -916,9 +919,9 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) puppet $(targetdir)/$$file ; \
 	done
-	for file in py.test-2 py.test-3 ; do \
+	for file in pytest-2 pytest-3 py.test py.test-2 py.test-3 ; do \
 		rm -f $(targetdir)/$$file && \
-			$(LN_S) py.test $(targetdir)/$$file ; \
+			$(LN_S) pytest $(targetdir)/$$file ; \
 	done
 	for file in pydoc3 ; do \
 		rm -f $(targetdir)/$$file && \
