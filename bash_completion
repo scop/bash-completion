@@ -1354,14 +1354,17 @@ _get_first_arg()
 # This function counts the number of args, excluding options
 # @param $1 chars  Characters out of $COMP_WORDBREAKS which should
 #     NOT be considered word breaks. See __reassemble_comp_words_by_ref.
+# @param $2 glob   Options whose following argument should not be counted
 _count_args()
 {
     local i cword words
     __reassemble_comp_words_by_ref "$1" words cword
 
     args=1
-    for i in "${words[@]:1:cword-1}"; do
-        [[ "$i" != -* ]] && args=$(($args+1))
+    for (( i=1; i < cword; i++ )); do
+        if [[ ${words[i]} != -* && ${words[i-1]} != $2 ]]; then
+           args=$(($args+1))
+        fi
     done
 }
 
