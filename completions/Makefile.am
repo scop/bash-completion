@@ -747,7 +747,7 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) hping2 $(targetdir)/$$file ; \
 	done
-	for file in ifdown ifstatus ; do \
+	for file in ifdown ifstatus ifquery ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) ifup $(targetdir)/$$file ; \
 	done
