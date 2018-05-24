@@ -900,10 +900,13 @@ _configured_interfaces()
 {
     if [[ -f /etc/debian_version ]]; then
         # Debian system
-        COMPREPLY=( $( compgen -W "$( command sed -nre '\;^(iface|mapping) ([^ ]{1,}).*$; s//\2/p' \
-            /etc/network/interfaces | \
-            command grep -sxE "$(ls -1 /sys/class/net/ | \
-            command sed -re ':a; $!N; s/\n/|/; ta')" )" -- "$cur" ) )
+        COMPREPLY=( $( compgen -W "$(command awk \
+            -v ifaces="$(command ls -1 /sys/class/net/)" \
+            'BEGIN{ split(ifaces,a)
+            for (v in a) if (a[v] != "lo") ifcs[a[v]] }
+            $0 ~ "[^[:blank:]]" && $1 ~ "^(iface|mapping)$" {
+            if ( $2 in ifcs ) cifaces ? cifaces=cifaces"|"$2 : cifaces=$2 }
+            END{ print cifaces }' < "/etc/network/interfaces")" -- "$cur" ) )
     elif [[ -f /etc/SuSE-release ]]; then
         # SuSE system
         COMPREPLY=( $( compgen -W "$( printf '%s\n' \
