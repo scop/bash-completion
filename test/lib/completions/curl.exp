@@ -4,16 +4,23 @@ proc setup {} {
 
 
 proc teardown {} {
-    assert_env_unmodified
+    assert_env_unmodified {/OLDPWD=/d}
 }
 
 
 setup
 
 
-assert_complete_any "curl -"
+assert_complete_any "curl --h"
+sync_after_int
 
+assert_complete_dir "foo" "curl -o f" "$::srcdir/fixtures/shared/default/foo.d"
+sync_after_int
 
+assert_complete_dir "foo" "curl -LRo f" "$::srcdir/fixtures/shared/default/foo.d"
+sync_after_int
+
+assert_no_complete "curl --o f"
 sync_after_int
 
 

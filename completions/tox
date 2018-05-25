@@ -1,0 +1,34 @@
+# tox completion                                           -*- shell-script -*-
+
+_tox()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -h|--help|--version|-n|--num|-i|--index-url|--hashseed|--force-dep)
+            return
+            ;;
+        -c)
+            _filedir ini
+            return
+            ;;
+        --installpkg|--result-json|--workdir)
+            _filedir
+            return
+            ;;
+        -e)
+            local envs=$( "$1" --listenvs-all 2>/dev/null )
+            local prefix=""; [[ $cur == *,* ]] && prefix="${cur%,*},"
+            COMPREPLY=( $( compgen -W "$envs ALL" -- "${cur##*,}" ) )
+            [[ ${#COMPREPLY[@]} -eq 1 ]] && COMPREPLY=( ${COMPREPLY/#/$prefix} )
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return
+    fi
+} &&
+complete -F _tox tox

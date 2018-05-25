@@ -6,10 +6,10 @@ _bzip2()
     _init_completion || return
 
     case $prev in
-        -b|-h|--help|-p)
+        --help|-!(-*)[bhp])
             return
             ;;
-        -n)
+        -!(-*)n)
             COMPREPLY=( $( compgen -W "{1..$(_ncpus)}" -- "$cur" ) )
             return
             ;;
@@ -32,7 +32,7 @@ _bzip2()
         [[ "$prev" == -*z* ]] && xspec=
     fi
 
-    _expand || return
+    _tilde "$cur" || return
 
     compopt -o filenames
     COMPREPLY=( $( compgen -f -X "$xspec" -- "$cur" ) \

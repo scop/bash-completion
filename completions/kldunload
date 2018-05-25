@@ -7,8 +7,8 @@ _kldunload()
     local cur prev words cword
     _init_completion || return
 
-    COMPREPLY=( $( kldstat | command sed -ne \
-        "s/^.*[[:blank:]]\{1,\}\($cur[a-z_]\{1,\}\).ko$/\1/p" ) )
+    COMPREPLY=( $( compgen -W '$(kldstat)' -X 'kernel' -X '!*.ko' -- "$cur" ) )
+    COMPREPLY=( ${COMPREPLY[@]%.ko} )
 } &&
 complete -F _kldunload kldunload
 

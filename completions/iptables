@@ -17,7 +17,7 @@ _iptables()
 
     case $prev in
     -*[AIDRPFXLZ])
-        COMPREPLY=( $( compgen -W '`iptables $table -nL | \
+        COMPREPLY=( $( compgen -W '`"$1" $table -nL 2>/dev/null | \
                 command sed -ne "s/^Chain \([^ ]\{1,\}\).*$/\1/p"`' -- "$cur" ) )
         ;;
     -*t)
@@ -26,30 +26,26 @@ _iptables()
     -j)
         if [[ "$table" == "-t filter" || -z "$table" ]]; then
             COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT
-                `iptables $table -nL | command sed -ne "$chain" \
+                `"$1" $table -nL 2>/dev/null | command sed -ne "$chain" \
                 -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' -- \
                 "$cur" ) )
         elif [[ $table == "-t nat" ]]; then
             COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT MIRROR SNAT
-                DNAT MASQUERADE `iptables $table -nL | \
+                DNAT MASQUERADE `"$1" $table -nL 2>/dev/null | \
                 command sed -ne "$chain" -e "s/OUTPUT|PREROUTING|POSTROUTING//"`' \
                 -- "$cur" ) )
         elif [[ $table == "-t mangle" ]]; then
             COMPREPLY=( $( compgen -W 'ACCEPT DROP LOG ULOG REJECT MARK TOS
-                `iptables $table -nL | command sed -ne "$chain" \
+                `"$1" $table -nL 2>/dev/null | command sed -ne "$chain" \
                 -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' -- \
                 "$cur" ) )
         fi
         ;;
     *)
         if [[ "$cur" == -* ]]; then
-            COMPREPLY=( $( compgen -W '--in-interface --out-interface --source
-                --destination --protocol --fragment --match --append --delete
-                --insert --replace --list --flush --zero --new --delete-chain
-                --policy --rename-chain --proto --source --destination
-                --in-interface --jump --match --numeric --out-interface --table
-                --verbose --line-numbers --exact --fragment --modprobe
-                --set-counters --version' -- "$cur" ) )
+            COMPREPLY=( $( compgen -W '$( "$1" --help 2>&1 |
+                command sed -e "s/^\[\!\]//" | _parse_help - )' -- "$cur" ) )
+            [[ $COMPREPLY == *= ]] && compopt -o nospace
         fi
         ;;
     esac

@@ -6,7 +6,7 @@ proc setup {home user} {
     save_env
     assert_bash_exec {echo "$HOME"} {} /@ _home
     set _home [string trim $_home]
-    assert_bash_exec {echo "$USER"} {} /@ _user
+    assert_bash_exec {id -un 2>/dev/null || echo "$USER"} {} /@ _user
     set _user [string trim $_user]
 }
 
@@ -23,64 +23,51 @@ setup home user
 
 set test "function should run without errors"
 assert_bash_exec {__expand_tilde_by_ref > /dev/null} $test
-
-
 sync_after_int
-
 
 set test "function should not pollute environment"
 # NOTE: A possible environment pollution is detected by assert_env_modified() in teardown()
 assert_bash_exec {foo() { local aa="~"; __expand_tilde_by_ref aa; }; foo; unset foo} $test
-
-
 sync_after_int
 
-
-set test "~user should return /home/user"
+set test "~user should return $home"
 set cmd [format {var="~%s"; __expand_tilde_by_ref var; printf "%%s\n" "$var"} $user]
 assert_bash_list "$home" $cmd $test
-
-
 sync_after_int
 
-
-set test "~/foo should return /home/user/foo"
+set test "~/foo should return $home/foo"
 set cmd {var='~/foo'; __expand_tilde_by_ref var; printf "%s\n" "$var"}
 assert_bash_list "$home/foo" $cmd $test
-
-
 sync_after_int
 
-
-set test "~user/bar should return /home/user/bar"
+set test "~user/bar should return $home/bar"
 set cmd [format {var="~%s/bar"; __expand_tilde_by_ref var; printf "%%s\n" "$var"} $user]
 assert_bash_list "$home/bar" $cmd $test
-
-
 sync_after_int
 
-
-set test "~user/\$HOME should return /home/user/\$HOME"
+set test "~user/\$HOME should return $home/\$HOME"
 set cmd [format {var="~%s/\$HOME"; __expand_tilde_by_ref var; printf "%%s\n" "$var"} $user]
 assert_bash_list "$home/\$HOME" $cmd $test
-
-
 sync_after_int
 
-
-set test "'~user/a  b' should return '/home/user/a  b'"
+set test "'~user/a  b' should return '$home/a  b'"
 set cmd [format {var="~%s/a  b"; __expand_tilde_by_ref var; printf "%%s\n" "$var"} $user]
 assert_bash_list [list [format {%s/a  b} $home]] $cmd $test
-
-
 sync_after_int
 
-
-set test "~user/* should return /home/user/*"
+set test "~user/* should return $home/*"
 set cmd [format {var="~%s/*"; __expand_tilde_by_ref var; printf "%%s\n" "$var"} $user]
 assert_bash_list "$home/\*" $cmd $test
+sync_after_int
 
+set test "'~user;echo hello' should return '~user;echo hello' (not expanded)"
+set cmd [format {var="~%s;echo hello"; __expand_tilde_by_ref var; printf "%%s\n" "$var"} $user]
+assert_bash_list [format "~%s;echo hello" $user] $cmd $test
+sync_after_int
 
+set test "'~user/a;echo hello' should return '$home/a;echo hello'"
+set cmd [format {var="~%s/a;echo hello"; __expand_tilde_by_ref var; printf "%%s\n" "$var"} $user]
+assert_bash_list "$home/a;echo hello" $cmd $test
 sync_after_int
 
 

@@ -1,0 +1,21 @@
+# nproc(1) completion                                      -*- shell-script -*-
+
+_nproc()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        --help|--version|--ignore)
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+    fi
+} &&
+complete -F _nproc nproc

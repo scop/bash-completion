@@ -9,7 +9,10 @@ proc setup {} {
 
 
 proc teardown {} {
-    assert_env_unmodified {/OLDPWD/d}
+    assert_env_unmodified {
+        /OLDPWD/d
+        /OLDMANPATH/d
+    }
 
     if {! [is_cygwin]} {
         assert_bash_exec {(cd $TESTDIR/tmp && rm -r man || true)}
@@ -20,26 +23,54 @@ proc teardown {} {
 setup
 
 
-assert_complete "bar" "man b"
+# Something we assume a system installed man page present for
+set assumed_present "man"
 
-
+assert_complete "bash-completion-testcase" "man bash-completion-testcas"
 sync_after_int
-
 
 assert_complete_dir oo.1 "man man1/f" $::srcdir/fixtures/man
-
-
 sync_after_int
-
 
 if {! [is_cygwin]} {
     assert_complete "Bash::Completion" "man Bash::C"
     sync_after_int
 }
 
-
 assert_complete_dir "man/quux.8" "man man/" $::srcdir/fixtures/man
 sync_after_int
+
+set desc "man $assumed_present with MANPATH having no leading/trailing colon"
+assert_no_complete "man $assumed_present" "$desc should not complete"
+sync_after_int
+
+# Trailing colon in MANPATH: append system default search path
+assert_bash_exec "OLDMANPATH=\$MANPATH; MANPATH=\$MANPATH:"
+set desc "with trailing colon in MANPATH"
+
+set cmd "man $assumed_present"
+assert_complete_any "$cmd" "$cmd $desc should complete"
+sync_after_int
+
+set cmd "man bash-completion-testcas"
+assert_complete "bash-completion-testcase" "$cmd" "$cmd $desc should complete"
+sync_after_int
+
+assert_bash_exec "MANPATH=\$OLDMANPATH"
+
+# Leading colon in MANPATH: prepend system default search path
+assert_bash_exec "OLDMANPATH=\$MANPATH; MANPATH=:\$MANPATH"
+set desc "with leading colon in MANPATH"
+
+set cmd "man $assumed_present"
+assert_complete_any "$cmd" "$cmd $desc should complete"
+sync_after_int
+
+set cmd "man bash-completion-testcas"
+assert_complete "bash-completion-testcase" "$cmd" "$cmd $desc should complete"
+sync_after_int
+
+assert_bash_exec "MANPATH=\$OLDMANPATH"
 
 
 teardown

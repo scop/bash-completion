@@ -16,9 +16,10 @@ _ss()
             ;;
         -A|--query)
             local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
-            COMPREPLY=( $( compgen -P "$prefix" -W '$( "$1" --help | \
+            COMPREPLY=( $( compgen -W '$( "$1" --help | \
                 command sed -e "s/|/ /g" -ne "s/.*QUERY := {\([^}]*\)}.*/\1/p"  )' \
                 -- "${cur##*,}" ) )
+            [[ ${#COMPREPLY[@]} -eq 1 ]] && COMPREPLY=( ${COMPREPLY/#/$prefix} )
             return
             ;;
         -D|--diag|-F|--filter)

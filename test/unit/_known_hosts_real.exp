@@ -20,47 +20,47 @@ setup
 
 set test "Hosts should be put in COMPREPLY"
 set hosts [get_hosts -unsorted]
-    # Hosts `gee', `hus' and `jar' are defined in ./fixtures/_known_hosts_real/config
-    # doo, ike, jub, 10.0.0.1, kyl, 100.0.0.2, 10.10.0.3, blah, and bunch of IPv6 test cases in ./fixtures/_known_hosts_real/known_hosts
+# Hosts `gee', `hus' and `jar' are defined in
+# ./fixtures/_known_hosts_real/config
+# doo, ike, jub, 10.0.0.1, kyl, 100.0.0.2, 10.10.0.3, blah, and bunch of IPv6
+# test cases in ./fixtures/_known_hosts_real/known_hosts
 lappend hosts blah doo gee hus ike jar jub kyl 10.0.0.1 100.0.0.2 10.10.0.3 fd00:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:5555 fe80::123:0xff:dead:beef%eth0 1111:2222:3333:4444:5555:6666:xxxx:abab 11xx:2222:3333:4444:5555:6666:xxxx:abab ::42
 set cmd {unset COMPREPLY; _known_hosts_real -aF fixtures/_known_hosts_real/config ''; echo_array COMPREPLY}
 assert_bash_list $hosts $cmd $test -sort
-
-
 sync_after_int
-
 
 set test "Hosts should have username prefix and colon suffix"
 set hosts [get_hosts -unsorted]
-    # Hosts `gee', `hus' and `jar' are defined in ./fixtures/_known_hosts_real/config
-    # doo, ike, jub, 10.0.0.1, kyl, 100.0.0.2, 10.10.0.3, blah, and bunch of IPv6 test cases in ./fixtures/_known_hosts_real/known_hosts
+# Hosts `gee', `hus' and `jar' are defined in
+# ./fixtures/_known_hosts_real/config
+# doo, ike, jub, 10.0.0.1, kyl, 100.0.0.2, 10.10.0.3, blah, and bunch of IPv6
+# test cases in ./fixtures/_known_hosts_real/known_hosts
 lappend hosts blah doo gee hus ike jar jub kyl 10.0.0.1 100.0.0.2 10.10.0.3 fd00:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:5555 fe80::123:0xff:dead:beef%eth0 1111:2222:3333:4444:5555:6666:xxxx:abab 11xx:2222:3333:4444:5555:6666:xxxx:abab ::42
 set hosts [lsort -ascii $hosts]
 set expected {}
 foreach host $hosts {
     lappend expected "user@$host:"
 }
-    # Call _known_hosts
+# Call _known_hosts
 set cmd {unset COMPREPLY; _known_hosts_real -acF fixtures/_known_hosts_real/config 'user@'; echo_array COMPREPLY}
 assert_bash_list $expected $cmd $test -sort
-
-
 sync_after_int
-
 
 set test "Files containing consecutive spaces should work"
 set hosts [get_hosts -unsorted]
 set hosts_orig $hosts
-    # Hosts `gee' and `hus' are defined in `./fixtures/_known_hosts_real/spaced  conf'
-    # Hosts `two*' are defined in ./fixtures/_known_hosts_real/known_hosts2
+# Hosts `gee' and `hus' are defined in
+#`./fixtures/_known_hosts_real/spaced  conf'
+# Hosts `two*' are defined in ./fixtures/_known_hosts_real/known_hosts2
 lappend hosts gee hus two two2 two3 two4
 set hosts_config $hosts
-    # Hosts `doo' and `ike' are defined in `./fixtures/_known_hosts_/spaced  known_hosts'
+# Hosts `doo' and `ike' are defined in
+# `./fixtures/_known_hosts_/spaced  known_hosts'
 lappend hosts doo ike
 set hosts        [join [bash_sort $hosts       ] "\\s+"]
 set hosts_orig   [join [bash_sort $hosts_orig  ] "\\s+"]
 set hosts_config [join [bash_sort $hosts_config] "\\s+"]
-    # Call _known_hosts
+# Call _known_hosts
 set cmd {unset COMPREPLY; _known_hosts_real -aF 'fixtures/_known_hosts_real/spaced  conf' ''; echo_array COMPREPLY}
 send "$cmd\r"
 expect -ex "$cmd\r\n"
@@ -71,23 +71,20 @@ expect {
     -re /@ { unresolved "$test at prompt" }
     default { unresolved "$test" }
 }
-
-
 sync_after_int
-
 
 set test "Files starting with tilde (~) should work"
 set hosts [get_hosts -unsorted]
-    # Hosts `two*' are defined in ./fixtures/_known_hosts_real/known_hosts2
-    # Host `three' is defined in ./fixtures/_known_hosts_real/known_hosts3
-    # Host `four' is defined in ./fixtures/_known_hosts_real/known_hosts4
+# Hosts `two*' are defined in ./fixtures/_known_hosts_real/known_hosts2
+# Host `three' is defined in ./fixtures/_known_hosts_real/known_hosts3
+# Host `four' is defined in ./fixtures/_known_hosts_real/known_hosts4
 lappend hosts two two2 two3 two4 three four
 set hosts [join [bash_sort $hosts] "\\s+"]
-    # Setup environment
+# Setup environment
 set cmd {OLDHOME=$HOME; HOME=$SRCDIRABS}
 send "$cmd\r"
 expect -ex "$cmd\r\n/@"
-    # Call _known_hosts
+# Call _known_hosts
 set cmd {unset COMPREPLY; _known_hosts_real -aF fixtures/_known_hosts_real/config_tilde ''; echo_array COMPREPLY}
 send "$cmd\r"
 expect -ex "$cmd\r\n"
@@ -95,43 +92,41 @@ expect {
     -re "^$hosts\r\n/@$"  { pass "$test" }
     default { unresolved "$test" }
 }
-    # Teardown environment
+# Teardown environment
 set cmd {HOME=$OLDHOME}
 send "$cmd\r"
 expect -ex "$cmd\r\n/@"
-
-
 sync_after_int
-
 
 set test "Empty COMP_KNOWN_HOSTS_WITH_HOSTFILE should omit HOSTFILE"
 assert_bash_exec "COMP_KNOWN_HOSTS_WITH_HOSTFILE="
 set hosts [get_hosts_avahi]
-    # Hosts `gee', `hus' and `jar' are defined in ./fixtures/_known_hosts_real/config
-    # doo, ike, jub, 10.0.0.1, kyl, 100.0.0.2, 10.10.0.3, blah, and bunch of IPv6 test cases in ./fixtures/_known_hosts_real/known_hosts
+# Hosts `gee', `hus' and `jar' are defined in
+# ./fixtures/_known_hosts_real/config
+# doo, ike, jub, 10.0.0.1, kyl, 100.0.0.2, 10.10.0.3, blah, and bunch of IPv6
+# test cases in ./fixtures/_known_hosts_real/known_hosts
 lappend hosts blah doo gee hus ike jar jub kyl 10.0.0.1 100.0.0.2 10.10.0.3 fd00:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:5555 fe80::123:0xff:dead:beef%eth0 1111:2222:3333:4444:5555:6666:xxxx:abab 11xx:2222:3333:4444:5555:6666:xxxx:abab ::42
-    # Call _known_hosts
+# Call _known_hosts
 set cmd {unset COMPREPLY; _known_hosts_real -aF fixtures/_known_hosts_real/config ''; echo_array COMPREPLY}
 assert_bash_list $hosts $cmd $test -sort
 sync_after_int
 assert_bash_exec "unset -v COMP_KNOWN_HOSTS_WITH_HOSTFILE"
-
-
 sync_after_int
-
 
 set test "Included config files should work"
 set hosts [get_hosts -unsorted]
-    # Host 'recursion' is defined in ./fixtures/_known_hosts_real/config_include_recursion
-    # Host 'relative_path' is defined in ./fixtures/_known_hosts_real/.ssh/config_relative_path
+# Host 'recursion' is defined in
+# ./fixtures/_known_hosts_real/config_include_recursion
+# Host 'relative_path' is defined in
+# ./fixtures/_known_hosts_real/.ssh/config_relative_path
 lappend hosts recursion relative_path
 set hosts [join [bash_sort $hosts] "\\s+"]
-    # Setup environment
-    # Redefined HOME to handle relative path inclusions on $HOME/.ssh
+# Setup environment
+# Redefined HOME to handle relative path inclusions on $HOME/.ssh
 set cmd {OLDHOME=$HOME; HOME="$SRCDIRABS/fixtures/_known_hosts_real"}
 send "$cmd\r"
 expect -ex "$cmd\r\n/@"
-    # Call _known_hosts
+# Call _known_hosts
 set cmd {unset COMPREPLY; _known_hosts_real -aF fixtures/_known_hosts_real/config_include ''; echo_array COMPREPLY}
 send "$cmd\r"
 expect -ex "$cmd\r\n"
@@ -139,12 +134,37 @@ expect {
     -re "^$hosts\r\n/@$"  { pass "$test" }
     default { unresolved "$test" }
 }
-    # Teardown environment
+# Teardown environment
 set cmd {HOME=$OLDHOME}
 send "$cmd\r"
 expect -ex "$cmd\r\n/@"
+sync_after_int
 
+set test "IPv6 filtering should work"
+set hosts "127.0.0.1 localhost"
+assert_bash_exec "COMP_KNOWN_HOSTS_WITH_HOSTFILE="
+set cmd {unset COMPREPLY; _known_hosts_real -4F fixtures/_known_hosts_real/localhost_config ''; echo_array COMPREPLY}
+assert_bash_list $hosts $cmd $test -sort
+sync_after_int
+assert_bash_exec "unset -v COMP_KNOWN_HOSTS_WITH_HOSTFILE"
+sync_after_int
 
+set test "IPv4 filtering should work"
+set hosts "::1 localhost"
+assert_bash_exec "COMP_KNOWN_HOSTS_WITH_HOSTFILE="
+set cmd {unset COMPREPLY; _known_hosts_real -6F fixtures/_known_hosts_real/localhost_config ''; echo_array COMPREPLY}
+assert_bash_list $hosts $cmd $test -sort
+sync_after_int
+assert_bash_exec "unset -v COMP_KNOWN_HOSTS_WITH_HOSTFILE"
+sync_after_int
+
+set test "IPv4+IPv6 filtering should work"
+set hosts "localhost"
+assert_bash_exec "COMP_KNOWN_HOSTS_WITH_HOSTFILE="
+set cmd {unset COMPREPLY; _known_hosts_real -46F fixtures/_known_hosts_real/localhost_config ''; echo_array COMPREPLY}
+assert_bash_list $hosts $cmd $test -sort
+sync_after_int
+assert_bash_exec "unset -v COMP_KNOWN_HOSTS_WITH_HOSTFILE"
 sync_after_int
 
 

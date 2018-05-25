@@ -1,0 +1,42 @@
+proc setup {home user} {
+    upvar $home _home
+    upvar $user _user
+    save_env
+    assert_bash_exec {echo "$HOME"} {} /@ _home
+    set _home [string trim $_home]
+    assert_bash_exec {id -un 2>/dev/null || echo "$USER"} {} /@ _user
+    set _user [string trim $_user]
+}
+
+proc teardown {} {
+    assert_env_unmodified {
+        /COMPREPLY=/d
+        /cur=/d
+    }
+}
+
+
+setup home user
+
+
+set test "function should run without errors"
+assert_bash_exec {_expand > /dev/null} $test
+sync_after_int
+
+set test "function should not pollute environment"
+# NOTE: A possible environment pollution is detected by assert_env_modified() in teardown()
+assert_bash_exec {foo() { _expand; }; foo; unset foo} $test
+sync_after_int
+
+set test "~$user should set $home to COMPREPLY"
+set cmd [format {cur="~%s" ; _expand ; printf "%%s\n" "$COMPREPLY"} $user]
+assert_bash_list "$home" $cmd $test
+sync_after_int
+
+set test "~$user/a should set $home/a to cur"
+set cmd [format {cur="~%s/a" ; _expand ; printf "%%s\n" "$cur"} $user]
+assert_bash_list "$home/a" $cmd $test
+sync_after_int
+
+
+teardown

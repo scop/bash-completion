@@ -1,0 +1,29 @@
+# xdg-settings completion                                  -*- shell-script -*-
+
+_xdg_settings()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --help|--list|--manual|--version)
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( "$1" --help |
+            command sed -e "s/[{|]/\n/g" | _parse_help - )' -- "$cur" ) )
+        return
+    fi
+
+    local args
+    _count_args
+    if [[ $args -eq 1 ]]; then
+        COMPREPLY=( $( compgen -W "get check set" -- "$cur" ) )
+    elif [[ $args -eq 2 ]]; then
+        COMPREPLY=( $( compgen -W \
+            '$( "$1" --list | awk "!/^Known/ { print \$1 }" )' -- "$cur" ) )
+    fi
+} &&
+complete -F _xdg_settings xdg-settings

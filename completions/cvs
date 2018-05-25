@@ -62,11 +62,11 @@ _cvs()
         fi
         if [[ -z $mode ]]; then
             case $i in
-                -H|--help)
+                --help|-!(-*)H)
                     COMPREPLY=( $( compgen -W "$( _cvs_commands )" -- "$cur" ) )
                     return
                     ;;
-                -d)
+                -!(-*)d)
                     mode=cvsroot
                     cvsroot=${words[((count+1))]}
                     ;;
@@ -140,10 +140,11 @@ _cvs()
     case $mode in
         add)
             case $prev in
-                -m)
+                --*) ;;
+                -*m)
                     return
                     ;;
-                -k)
+                -*k)
                     _cvs_kflags
                     return
                     ;;
@@ -174,14 +175,15 @@ _cvs()
             ;;
         admin)
             case $prev in
-                -a|-A|-b|-c|-e|-l|-m|-n|-N|-o|-s|-t-|-u)
+                --*) ;;
+                -*@([aAbcelmnNosu]|t-))
                     return
                     ;;
-                -t)
+                -*t)
                     _filedir
                     return
                     ;;
-                -k)
+                -*k)
                     _cvs_kflags
                     return
                     ;;
@@ -206,14 +208,15 @@ _cvs()
             ;;
         checkout)
             case $prev in
-                -r|-D|-j)
+                --*) ;;
+                -*[rDj])
                     return
                     ;;
-                -d)
+                -*d)
                     _filedir -d
                     return
                     ;;
-                -k)
+                -*k)
                     _cvs_kflags
                     return
                     ;;
@@ -230,10 +233,11 @@ _cvs()
             ;;
         commit)
             case $prev in
-                -m|-r)
+                --*) ;;
+                -*[mr])
                     return
                     ;;
-                -F)
+                -*F)
                     _filedir
                     return
                     ;;
@@ -264,7 +268,7 @@ _cvs()
         cvsroot)
             _cvs_roots
             ;;
-        diff)
+        diff|log)
             if [[ "$cur" == -* ]]; then
                 _cvs_command_options "$1" $mode
                 [[ $COMPREPLY == *= ]] && compopt -o nospace
@@ -283,14 +287,15 @@ _cvs()
             ;;
         export)
             case $prev in
-                -r|-D)
+                --*) ;;
+                -*[rD])
                     return
                     ;;
-                -d)
+                -*d)
                     _filedir -d
                     return
                     ;;
-                -k)
+                -*k)
                     _cvs_kflags
                     return
                     ;;
@@ -306,10 +311,11 @@ _cvs()
             ;;
         import)
             case $prev in
-                -I|-b|-m|-W)
+                --*) ;;
+                -*[IbmW])
                     return
                     ;;
-                -k)
+                -*k)
                     _cvs_kflags
                     return
                     ;;
@@ -347,10 +353,11 @@ _cvs()
             ;;
         update)
             case $prev in
-                -r|-D|-j|-I|-W)
+                --*) ;;
+                -*[rDjIW])
                     return
                     ;;
-                -k)
+                -*k)
                     _cvs_kflags
                     return
                     ;;
@@ -365,14 +372,15 @@ _cvs()
             ;;
         "")
             case $prev in
-                -T)
+                --*) ;;
+                -*T)
                     _filedir -d
                     return
                     ;;
-                -e|-s)
+                -*[es])
                     return
                     ;;
-                -z)
+                -*z)
                     COMPREPLY=( $( compgen -W '{1..9}' -- "$cur" ) )
                     return
                     ;;

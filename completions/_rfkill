@@ -1,0 +1,31 @@
+# bash completion for rfkill                               -*- shell-script -*-
+
+# Use of this file is deprecated on systems with util-linux >= 2.31, which
+# ships completion for the rfkill included with it.
+
+_rfkill()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '--version' -- "$cur" ) )
+    else
+        case $cword in
+            1)
+                COMPREPLY=( $( compgen -W "help event list block unblock" \
+                    -- "$cur" ) )
+                ;;
+            2)
+                if [[ $prev == block || $prev == unblock ]]; then
+                    COMPREPLY=( $( compgen -W "$($1 list | awk -F: \
+                        '/^[0-9]/ {print $1}') all wifi bluetooth uwb wimax \
+                        wwan gps" -- "$cur" ) )
+                fi
+                ;;
+        esac
+    fi
+} &&
+complete -F _rfkill rfkill
+
+# ex: filetype=sh

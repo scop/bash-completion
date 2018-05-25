@@ -1,0 +1,38 @@
+# chmod(1) completion                                      -*- shell-script -*-
+
+_chmod()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        --help|--version)
+            return
+            ;;
+        --reference)
+            _filedir
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        local opts=$( _parse_help "$1" )
+        [[ $opts ]] || opts=$( _parse_usage "$1" )
+        COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    local args
+    _count_args
+
+    case $args in
+        1) ;;  # mode
+        *) _filedir ;;
+    esac
+} &&
+complete -F _chmod chmod
+
+# ex: filetype=sh

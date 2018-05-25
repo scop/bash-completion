@@ -6,12 +6,20 @@ _ssh_keygen()
     _init_completion -n = || return
 
     case $prev in
-        -a|-b|-C|-D|-I|-J|-j|-M|-N|-n|-r|-P|-S|-V|-W|-z)
+        -a|-b|-C|-I|-J|-j|-M|-N|-n|-r|-P|-S|-V|-W|-z)
+            return
+            ;;
+        -E)
+            COMPREPLY=( $( compgen -W 'md5 sha256' -- "$cur" ) )
             return
             ;;
         -F|-R)
             # TODO: trim this down to actual entries in known hosts files
-            _known_hosts_real "$cur"
+            _known_hosts_real -- "$cur"
+            return
+            ;;
+        -D)
+            _filedir so
             return
             ;;
         -f|-G|-K|-s|-T)
@@ -40,7 +48,9 @@ _ssh_keygen()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" "-?" )' -- "$cur" ) )
+        local opts=$( _parse_usage "$1" "-?" )
+        [[ -z "$opts" ]] && opts=$( _parse_help "$1" "-?" )  # OpenSSH < 7
+        COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
     fi
 } &&
 complete -F _ssh_keygen ssh-keygen

@@ -3,31 +3,98 @@
 _links()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n : || return
 
-    case $cur in
-        --*)
-            COMPREPLY=( $( compgen -W '--help' -- "$cur" ) )
+    case $prev in
+        -html-t-text-color|-html-t-link-color)
+            COMPREPLY=( $( compgen -W '{0..15}' -- "$cur" ) )
+            return
             ;;
-        -*)
-            COMPREPLY=( $( compgen -W '-async-dns -max-connections
-                -max-connections-to-host -retries -receive-timeout
-                -unrestartable-receive-timeout -format-cache-size
-                -memory-cache-size -http-proxy -ftp-proxy -download-dir
-                -assume-codepage -anonymous -dump -no-connect -source -version
-                -help' -- "$cur" ) )
-                ;;
-        *)
-            if [[ -r ~/.links/links.his ]]; then
-                COMPREPLY=( $( compgen -W '$( < ~/.links/links.his )' \
-                    -- "$cur" ) )
-            fi
-            _filedir '@(htm|html)'
+        -http.fake-firefox|-html-[gt]-ignore-document-color)
+            COMPREPLY=( $( compgen -W '0 1' -- "$cur" ) )
+            return
+            ;;
+        --help|-help|-mode|-display|-source|-dump|-width|-max-connections|\
+        -max-connections-to-host|-retries|-receive-timeout|\
+        -unrestartable-receive-timeout|-*-size|-*-proxy|\
+        -append-text-to-dns-lookups|-ssl.client-cert-passwd|-http.fake-*|\
+        -http.extra-header|-ftp.anonymous-passwd|-*-color|-*-gamma|\
+        -bfu-aspect|-html-image-scale|-html-margin)
+            return
+            ;;
+        -lookup)
+            _known_hosts_real -- "$cur"
+            return
+            ;;
+        -driver)
+            local drivers=$( "$1" -driver foo 2>&1 |
+                command sed -ne '$!d' -e '/^[a-z0-9, ]\{1,\}$/s/,/ /gp' )
+            [[ $drivers ]] || drivers='x svgalib fb directfb pmshell atheos'
+            COMPREPLY=( $( compgen -W "$drivers" -- "$cur" ) )
+            return
+            ;;
+        -codepage|-bookmarks-codepage|-http-assume-codepage)
+            _xfunc iconv _iconv_charsets
+            return
+            ;;
+        -download-dir)
+            _filedir -d
+            return
+            ;;
+        -bind-address)
+            _ip_addresses
+            return
+            ;;
+        -bind-address-ipv6)
+            _ip_addresses -6
+            __ltrim_colon_completions "$cur"
+            return
+            ;;
+        -async-dns|-download-utime|-aggressive-cache|-only-proxies|\
+        -http-bugs.*|-http.do-not-track|-ftp.use-*|-ftp.fast|-ftp.set-iptos|\
+        -smb.allow-hyperlinks-to-smb|-save-url-history|-dither-letters|\
+        -dither-images|-overwrite-instead-of-scroll|-html-*)
+            COMPREPLY=( $( compgen -W '0 1' -- "$cur" ) )
+            return
+            ;;
+        -address-preference|-http.referer)
+            COMPREPLY=( $( compgen -W '{0..4}' -- "$cur" ) )
+            return
+            ;;
+        -ssl-certificates|-display-optimize|-gamma-correction)
+            COMPREPLY=( $( compgen -W '{0..2}' -- "$cur" ) )
+            return
+            ;;
+        -ssl.client-cert-key)
+            _filedir '@(key|pem)'
+            return
+            ;;
+        -ssl.client-cert-crt)
+            _filedir '@(c?(e)rt|cer|pem|der)'
+            return
+            ;;
+        -bookmarks-file)
+            _filedir html
             return
             ;;
     esac
 
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" |
+            command grep -vF -- "->" )' -- "$cur" ) )
+        return
+    fi
+
+    local dir
+    for dir in .links .links2; do
+        if [[ -r ~/$dir/links.his ]]; then
+            COMPREPLY+=( $( compgen -W '$( cat ~/$dir/links.his )' -- "$cur" ) )
+            __ltrim_colon_completions "$cur"
+        fi
+    done
+    _filedir '@(htm|html)'
+
 } &&
-complete -F _links links
+complete -F _links links links2
 
 # ex: filetype=sh

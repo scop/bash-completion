@@ -11,9 +11,10 @@ proc teardown {} {
 setup
 
 
-assert_complete_any "psql -"
-
-
+# --help can fail due to missing package dependencies, e.g. on Ubuntu 14
+if {[assert_exec {psql --help} "" "" "untested"]} {
+    assert_complete_any "psql -"
+}
 sync_after_int
 
 

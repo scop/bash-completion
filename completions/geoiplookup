@@ -1,0 +1,33 @@
+# geoiplookup(1) completion                                -*- shell-script -*-
+
+_geoiplookup()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -h|-'?'|-v)
+            return
+            ;;
+        -d)
+            _filedir -d
+            return
+            ;;
+        -f)
+            _filedir dat
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" -h )' -- "$cur" ) )
+        return
+    fi
+
+    local ipvx
+    [[ $1 == *6 ]] && ipvx=-6 || ipvx=-4
+    _known_hosts_real $ipvx -- "$cur"
+} &&
+complete -F _geoiplookup geoiplookup geoiplookup6
+
+# ex: filetype=sh

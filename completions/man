@@ -1,8 +1,5 @@
 # man(1) completion                                        -*- shell-script -*-
 
-[[ $OSTYPE == *@(darwin|freebsd|solaris|cygwin|openbsd)* ]] || _userland GNU \
-    || return 1
-
 _man()
 {
     local cur prev words cword split
@@ -48,22 +45,20 @@ _man()
         return
     fi
 
-    _expand || return
-
     # file based completion if parameter looks like a path
     if [[ "$cur" == @(*/|[.~])* ]]; then
         _filedir "$manext"
         return
     fi
 
-    local manpath="$MANPATH"
-    [[ -z $manpath ]] && \
-        manpath=$( manpath 2>/dev/null || command man -w 2>/dev/null )
+    local manpath=$( manpath 2>/dev/null || command man -w 2>/dev/null )
     [[ -z $manpath ]] && manpath="/usr/share/man:/usr/local/share/man"
 
     # determine manual section to search
     local sect
     [[ "$prev" == $mansect ]] && sect=$prev || sect='*'
+
+    _expand || return
 
     manpath=$manpath:
     if [[ -n $cur ]]; then

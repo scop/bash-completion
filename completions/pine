@@ -1,13 +1,32 @@
-# PINE address-book completion                             -*- shell-script -*-
+# pine/alpine completion                                   -*- shell-script -*-
 
-_pineaddr()
+_pine()
 {
     local cur prev words cword
     _init_completion || return
 
-    COMPREPLY=( $( compgen -W '$( awk "{print \$1}" ~/.addressbook \
-        2>/dev/null)' -- "$cur" ) )
+    case $prev in
+        -help|-d|-f|-c|-I|-n|-url|-copy_pinerc|-copy_abook)
+            return
+            ;;
+        -attach|-attachlist|-attach_and_delete|-p|-P|-pinerc|-passfile|-x)
+            _filedir
+            return
+            ;;
+        -sort)
+            COMPREPLY=( $( compgen -W 'arrival subject threaded orderedsubject
+                date from size score to cc' -- "$cur") )
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -h )' -- "$cur" ) )
+    else
+        COMPREPLY=( $( compgen -W '$( awk "{print \$1}" ~/.addressbook \
+            2>/dev/null)' -- "$cur" ) )
+    fi
 } &&
-complete -F _pineaddr -o default pine alpine
+complete -F _pine pine alpine
 
 # ex: filetype=sh

@@ -26,6 +26,12 @@ _openssl_sections()
         -- "$cur" ) )
 }
 
+_openssl_digests()
+{
+    "$1" dgst -h 2>&1 | \
+        awk '/^-.*[ \t]to use the .* message digest algorithm/ { print $1 }'
+}
+
 _openssl()
 {
     local cur prev words cword
@@ -43,7 +49,8 @@ _openssl()
         camellia-256-ecb cast cast-cbc cast5-cbc cast5-cfb cast5-ecb cast5-ofb
         des des-cbc des-cfb des-ecb des-ede des-ede-cbc des-ede-cfb des-ede-ofb
         des-ede3 des-ede3-cbc des-ede3-cfb des-ede3-ofb des-ofb des3 desx rc2
-        rc2-40-cbc rc2-64-cbc rc2-cbc rc2-cfb rc2-ecb rc2-ofb rc4 rc4-40'
+        rc2-40-cbc rc2-64-cbc rc2-cbc rc2-cfb rc2-ecb rc2-ofb rc4 rc4-40
+        sha224 sha256 sha384 sha512 genpkey pkey pkeyparam pkeyutl'
 
     if [[ $cword -eq 1 ]]; then
         COMPREPLY=( $( compgen -W "$commands" -- "$cur" ) )
@@ -52,9 +59,9 @@ _openssl()
         case $prev in
             -CA|-CAfile|-CAkey|-CAserial|-cert|-certfile|-config|-content| \
             -dcert|-dkey|-dhparam|-extfile|-in|-inkey|-kfile|-key|-keyout| \
-            -out|-oid|-prvrify|-rand|-recip|-revoke|-sess_in|-sess_out| \
-            -spkac|-sign|-signkey|-signer|-signature|-ss_cert|-untrusted| \
-            -verify)
+            -out|-oid|-paramfile|-peerkey|-prvrify|-rand|-recip|-revoke| \
+            -sess_in|-sess_out|-spkac|-sigfile|-sign|-signkey|-signer| \
+            -signature|-ss_cert|-untrusted|-verify)
                 _filedir
                 return
                 ;;
@@ -67,7 +74,7 @@ _openssl()
                 return
                 ;;
             -inform|-outform|-keyform|-certform|-CAform|-CAkeyform|-dkeyform|\
-            -dcertform)
+            -dcertform|-peerform)
                 formats='DER PEM'
                 case $command in
                     x509)
@@ -76,12 +83,15 @@ _openssl()
                     smime)
                         formats+=" SMIME"
                         ;;
+                    pkeyutl)
+                        formats+=" ENGINE"
+                        ;;
                 esac
                 COMPREPLY=( $( compgen -W "$formats" -- "$cur" ) )
                 return
                 ;;
             -connect)
-                _known_hosts_real "$cur"
+                _known_hosts_real -- "$cur"
                 return
                 ;;
             -starttls)
@@ -91,6 +101,10 @@ _openssl()
             -cipher)
                 COMPREPLY=( $( IFS=: compgen -W "$( $1 ciphers )" \
                     -- "$cur" ) )
+                return
+                ;;
+            -kdf)
+                COMPREPLY=( $( compgen -W 'TLS1-PRF HKDF' -- "$cur" ) )
                 return
                 ;;
         esac
@@ -122,9 +136,8 @@ _openssl()
                     options='-inform -outform -in -out -print_certs'
                     ;;
                 dgst)
-                    options='-md5 -md4 -md2 -sha1 -sha -mdc2 -ripemd160 -dss1
-                        -c -d -hex -binary -out -sign -verify -prverify
-                        -signature'
+                    options="-c -d -hex -binary -out -sign -verify -prverify
+                        -signature $( _openssl_digests $1 )"
                     ;;
                 dsa)
                     options='-inform -outform -in -passin -out -passout -des
@@ -145,6 +158,10 @@ _openssl()
                 gendsa)
                     options='-out -des -des3 -idea -rand'
                     ;;
+                genpkey)
+                    options='-out -outform -pass -cipher -engine -paramfile
+                        -algorithm -pkeyopt -genparam -text'
+                    ;;
                 genrsa)
                     options='-out -passout -des -des3 -idea -f4 -3 -rand'
                     ;;
@@ -152,15 +169,29 @@ _openssl()
                     options='-inform -outform -in -out -print_certs -text
                         -noout'
                     ;;
+                pkey)
+                    options='-inform -outform -in -passin -out -passout
+                        -traditional -cipher -text -text_pub -noout -pubin
+                        -pubout -engine'
+                    ;;
+                pkeyparam)
+                    options='-in -out -text -noout -engine'
+                    ;;
+                pkeyutl)
+                    options='-in -out -sigfile -inkey -keyform -passin -peerkey
+                        -peerform -pubin -certin -rev -sign -verify
+                        -verifyrecover -encrypt -decrypt -derive -kdf -kdflen
+                        -pkeyopt -hexdump -asn1parse -engine -engine_impl'
+                    ;;
                 rand)
                     options='-out -rand -base64'
                     ;;
                 req)
-                    options='-inform -outform -in -passin -out -passout -text
+                    options="-inform -outform -in -passin -out -passout -text
                         -noout -verify -modulus -new -rand -newkey -newkey
-                        -nodes -key -keyform -keyout -md5 -sha1 -md2 -mdc2
+                        -nodes -key -keyform -keyout $( _openssl_digests $1 )
                         -config -x509 -days -asn1-kludge -newhdr -extensions
-                        -reqexts section'
+                        -reqexts section"
                     ;;
                 rsa)
                     options='-inform -outform -in -passin -out -passout
@@ -210,16 +241,16 @@ _openssl()
                         -issuer_checks -verbose -certificates'
                     ;;
                 x509)
-                    options='-inform -outform -keyform -CAform -CAkeyform -in
+                    options="-inform -outform -keyform -CAform -CAkeyform -in
                         -out -serial -hash -subject_hash -issuer_hash -subject
                         -issuer -nameopt -email -startdate -enddate -purpose
                         -dates -modulus -fingerprint -alias -noout -trustout
                         -clrtrust -clrreject -addtrust -addreject -setalias
                         -days -set_serial -signkey -x509toreq -req -CA -CAkey
-                        -CAcreateserial -CAserial -text -C -md2 -md5 -sha1
-                        -mdc2 -clrext -extfile -extensions -engine'
+                        -CAcreateserial -CAserial -text -C -clrext
+                        -extfile -extensions -engine $( _openssl_digests $1 )"
                     ;;
-                md5|md4|md2|sha1|sha|mdc2|ripemd160)
+                md*|sha*|ripemd160)
                     options='-c -d'
                     ;;
             esac

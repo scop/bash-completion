@@ -5,8 +5,6 @@ _rsync()
     local cur prev words cword split
     _init_completion -s -n : || return
 
-    _expand || return
-
     case $prev in
         --config|--password-file|--include-from|--exclude-from|--files-from|\
         --log-file|--write-batch|--only-write-batch|--read-batch)
@@ -33,6 +31,8 @@ _rsync()
     esac
 
     $split && return
+
+    _expand || return
 
     case $cur in
         -*)
@@ -76,7 +76,7 @@ _rsync()
             [[ $shell == ssh ]] && _xfunc ssh _scp_remote_files
             ;;
         *)
-            _known_hosts_real -c -a "$cur"
+            _known_hosts_real -c -a -- "$cur"
             _xfunc ssh _scp_local_files
             ;;
     esac

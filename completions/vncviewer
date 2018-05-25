@@ -32,7 +32,7 @@ _tightvncviewer()
             return
             ;;
         -via)
-            _known_hosts_real "$cur"
+            _known_hosts_real -- "$cur"
             return
             ;;
     esac
@@ -44,7 +44,7 @@ _tightvncviewer()
             -owncmap -truecolour -truecolor -depth -compresslevel -quality
             -nojpeg -nocursorshape -x11cursor' -- "$cur" ) )
     else
-        _known_hosts_real "$cur"
+        _known_hosts_real -- "$cur"
     fi
 } &&
 complete -F _tightvncviewer tightvncviewer
@@ -72,7 +72,7 @@ _xvnc4viewer()
             ;;
         # -via
         -[vV][iI][aA])
-            _known_hosts_real "$cur"
+            _known_hosts_real -- "$cur"
             return
             ;;
     esac
@@ -87,13 +87,14 @@ _xvnc4viewer()
             WMDecorationWidth ZlibLevel )
         [[ "$cur" == --* ]] && dash=-- || dash=-
 
-        local option reset=$( shopt -p nocasematch ); shopt -s nocasematch
+        local IFS=$' \t\n' reset=$( shopt -p nocasematch ); shopt -s nocasematch
+        local option
         COMPREPLY=( $( for option in "${options[@]}"; do
                 [[ $dash$option == "$cur"* ]] && printf '%s\n' $dash$option
             done ) )
         $reset
     else
-        _known_hosts_real "$cur"
+        _known_hosts_real -- "$cur"
     fi
 } &&
 complete -F _xvnc4viewer xvnc4viewer

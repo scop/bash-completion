@@ -33,9 +33,12 @@ _kcov()
             if [[ "$cur" == ?*,* ]]; then
                 prev="${cur%,*}"
                 cur="${cur##*,}"
-                COMPREPLY=( $( compgen -P "$prev," -W "{0..100}" -- "$cur" ) )
+                COMPREPLY=( $( compgen -W "{0..100}" -- "$cur" ) )
+                [[ ${#COMPREPLY[@]} -eq 1 ]] && \
+                    COMPREPLY=( ${COMPREPLY/#/$prev,} )
             else
                 COMPREPLY=( $( compgen -W "{0..100}" -- "$cur" ) )
+                [[ ${#COMPREPLY[@]} -eq 1 ]] && COMPREPLY=( ${COMPREPLY/%/,} )
                 compopt -o nospace
             fi
             return

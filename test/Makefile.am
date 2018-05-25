@@ -10,7 +10,7 @@ EXTRA_DIST = completion \
 all:
 	$(MKDIR_P) log tmp
 
-distclean-local:
+clean-local:
 	rm -rf log tmp
 
 AUTOMAKE_OPTIONS = dejagnu

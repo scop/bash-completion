@@ -8,11 +8,11 @@ _vpnc()
     case $prev in
         --help|--long-help|--version|--id|--username|--domain|--ifname|\
         --application-version|--local-addr|--local-port|--udp-port|--dpd-idle|\
-        --target-network)
+        --target-network|--ifmtu)
             return
             ;;
         --gateway)
-            _known_hosts_real "$cur"
+            _known_hosts_real -- "$cur"
             return
             ;;
         --vendor)
@@ -36,6 +36,10 @@ _vpnc()
             COMPREPLY=( $( compgen -W 'nopfs dh1 dh2 dh5 server' -- "$cur" ) )
             return
             ;;
+        --ifmode)
+            COMPREPLY=( $( compgen -W 'tun tap' -- "$cur" ) )
+            return
+            ;;
         --debug)
             COMPREPLY=( $( compgen -W '0 1 2 3 99' -- "$cur" ) )
             return
@@ -48,13 +52,29 @@ _vpnc()
             _filedir -d
             return
             ;;
+        --password-helper)
+            compopt -o filenames
+            COMPREPLY=( $( compgen -c -- "$cur" ) )
+            return
+            ;;
     esac
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_help "$1" --long-help )' \
             -- "$cur" ) )
+    elif [[ "$cur" == */* ]]; then
+        # explicit filename
+        _filedir conf
     else
-        COMPREPLY=( $( compgen -W '$( command ls /etc/vpnc )' -- "$cur" ) )
+        # config name, /etc/vpnc/<name>.conf
+        local IFS=$' \t\n' reset=$(shopt -p nullglob); shopt -s nullglob
+        local -a configs=( /etc/vpnc/*.conf )
+        configs=( "${configs[@]##*/}" )
+        configs=( "${configs[@]%.conf}" )
+        $reset
+        IFS=$'\n'
+        compopt -o filenames
+        COMPREPLY=( $( compgen -W '${configs[@]}' -- "$cur" ) )
     fi
 } &&
 complete -F _vpnc vpnc

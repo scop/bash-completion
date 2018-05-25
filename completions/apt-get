@@ -3,7 +3,7 @@
 _apt_get()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n = || return
 
     local special i
     for (( i=0; i < ${#words[@]}-1; i++ )); do
@@ -29,41 +29,63 @@ _apt_get()
                     2> /dev/null ) $( apt-cache dumpavail | \
                     command grep "^Source: $cur" | sort -u | cut -f2 -d" " ) )
                 ;;
+            install)
+                if [[ $cur == */* ]]; then
+                    _filedir deb
+                    return
+                elif [[ $cur == *=* ]]; then
+                    COMPREPLY=( $( compgen -W "$( \
+                        apt-cache --no-generate show "${cur%%=*}" 2>/dev/null |
+                        command sed -ne \
+                            's/^Version:[[:space:]]*\([^[:space:]]\)/\1/p' )" \
+                        -- "${cur#*=}" ) )
+                    return
+                fi
+                ;;&
             *)
                 COMPREPLY=( $( apt-cache --no-generate pkgnames "$cur" \
-                    2> /dev/null ) )
+                    2>/dev/null ) )
                 ;;
         esac
         return
     fi
 
     case $prev in
-        -c|--config-file)
+        --help|--version|--option|-!(-*)[hvo])
+            return
+            ;;
+        --config-file|-!(-*)c)
             _filedir
             return
             ;;
-        -t|--target-release|--default-release)
-            COMPREPLY=( $( apt-cache policy | \
-                command grep "release.o=Debian,a=$cur" | \
-                command sed -e "s/.*a=\(\w*\).*/\1/" | uniq 2> /dev/null) )
+        --target-release|--default-release|-!(-*)t)
+            COMPREPLY=( $( compgen -W "$( apt-cache policy | command sed -ne \
+                's/^ *release.*[ ,]o=\(Debian\|Ubuntu\),a=\(\w*\).*/\2/p' )" \
+                -- "$cur" ) )
             return
             ;;
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-d -f -h -v -m -q -s -y -u -t -b -c -o
-            --download-only --fix-broken --help --version --ignore-missing
-            --fix-missing --no-download --quiet --simulate --just-print
-            --dry-run --recon --no-act --yes --assume-yes --show-upgraded
-            --only-source --compile --build --ignore-hold --target-release
-            --no-upgrade --force-yes --print-uris --purge --reinstall
-            --list-cleanup --default-release --trivial-only --no-remove
-            --diff-only --no-install-recommends --tar-only --config-file
-            --option --auto-remove' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '--no-install-recommends --install-suggests
+            --download-only --fix-broken --ignore-missing --fix-missing
+            --no-download --quiet --simulate --just-print --dry-run --recon
+            --no-act --yes --assume-yes --assume-no --no-show-upgraded
+            --verbose-versions --host-architecture --build-profiles --compile
+            --build --ignore-hold --with-new-pkgs --no-upgrade --only-upgrade
+            --allow-downgrades --allow-remove-essential
+            --allow-change-held-packages --force-yes --print-uris --purge
+            --reinstall --list-cleanup --target-release --default-release
+            --trivial-only --no-remove --auto-remove --autoremove --only-source
+            --diff-only --dsc-only --tar-only --arch-only --indep-only
+            --allow-unauthenticated --no-allow-insecure-repositories
+            --allow-releaseinfo-change --show-progress --with-source --help
+            --version --config-file --option' -- "$cur" ) )
     else
-        COMPREPLY=( $( compgen -W 'update upgrade dselect-upgrade
-            dist-upgrade install remove purge source build-dep download
-            changelog check clean autoclean autoremove' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W 'update upgrade dist-upgrade
+            dselect-upgrade install remove purge source build-dep check
+            download clean autoclean autoremove changelog indextargets' \
+            -- "$cur" ) )
     fi
 
 } &&

@@ -1,19 +1,25 @@
 proc setup {} {
+    assert_bash_exec {OLDRI="$RI"; export RI="-d $SRCDIR/fixtures/ri"}
     save_env
 }
 
 
 proc teardown {} {
     assert_env_unmodified
+    assert_bash_exec {RI="$OLDRI"; unset -v OLDRI}
 }
 
 
 setup
 
 
-assert_complete_any "ri RI"
+assert_complete_any "ri -"
+sync_after_int
 
+assert_complete "BashCompletion/ cache.ri" "ri --dump=$::srcdir/fixtures/ri/"
+sync_after_int
 
+assert_complete "BashCompletion" "ri BashCompletio"
 sync_after_int
 
 

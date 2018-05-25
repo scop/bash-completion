@@ -1,0 +1,27 @@
+proc setup {} {
+    save_env
+}
+
+
+proc teardown {} {
+    assert_env_unmodified
+}
+
+
+setup
+
+
+assert_complete_any "scrub "
+sync_after_int
+
+assert_complete_any "scrub -"
+sync_after_int
+
+if {[assert_exec {sh -c "(scrub 2>&1 --help || :) | command grep ^Available"} "" "" "unsupported"]} {
+    # Not all scrub versions list available patterns in --help output
+    assert_complete_any "scrub -p "
+}
+sync_after_int
+
+
+teardown

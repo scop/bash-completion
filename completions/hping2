@@ -6,19 +6,19 @@ _hping2()
     _init_completion || return
 
     case $prev in
-        -I|--interface)
+        --interface|-!(-*)I)
             _available_interfaces
             return
             ;;
-        -a|--spoof)
-            _known_hosts_real "$cur"
+        --spoof|-!(-*)a)
+            _known_hosts_real -- "$cur"
             return
             ;;
-        -o|--tos)
+        --tos|-!(-*)o)
             COMPREPLY=( $( compgen -W '02 04 08 10' ) )
             return
             ;;
-        -E|--file)
+        --file|-!(-*)E)
             _filedir
             return
             ;;
@@ -27,7 +27,7 @@ _hping2()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
     else
-        _known_hosts_real "$cur"
+        _known_hosts_real -- "$cur"
     fi
 } &&
 complete -F _hping2 hping hping2 hping3

@@ -1,10 +1,14 @@
 proc setup {} {
     save_env
+    assert_bash_exec {OLDHOME=$HOME ; HOME=$SRCDIR/fixtures/mplayer}
 }
 
 
 proc teardown {} {
-    assert_env_unmodified
+    assert_bash_exec {HOME=$OLDHOME}
+    assert_env_unmodified {
+        /OLDHOME=/d
+    }
 }
 
 
@@ -12,8 +16,9 @@ setup
 
 
 assert_complete_any "mencoder "
+sync_after_int
 
-
+assert_complete_any "mencoder -v"
 sync_after_int
 
 

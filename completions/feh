@@ -6,19 +6,19 @@ _feh()
     _init_completion -s || return
 
     case "$prev" in
-        -B|--image-bg)
+        --image-bg|-B)
             COMPREPLY=( $( compgen -W 'checks white black' -- "$cur" ) )
             return
             ;;
-        -f|--filelist|-o|--output|-O|--output-only|-\||--start-at)
+        --filelist|--output|--output-only|--start-at|-!(-*)[foO\|])
             _filedir
             return
             ;;
-        -K|--caption-path|-C|--fontpath|-j|--output-dir)
+        --caption-path|--fontpath|--output-dir|-!(-*)[KCj])
             _filedir -d
             return
             ;;
-        -e|--font|-M|--menu-font|-@|--title-font)
+        --font|--menu-font|--title-font|-!(-*)[eM@])
             # expect string like "dejavu.ttf/12"
             if [[ "$cur" == */* ]]; then # expect integer value
                 COMPREPLY=( $( compgen -P "$cur" -W '{0..9}' ) )
@@ -39,7 +39,7 @@ _feh()
             compopt -o nospace
             return
             ;;
-        -T|--theme)
+        --theme|-!(-*)T)
             local conf_path=~/.config/feh/themes
             local theme_name theme_opts
             [[ -r $conf_path ]] || return
@@ -51,13 +51,13 @@ _feh()
             done < "$conf_path"
             return
             ;;
-        -S|--sort)
+        --sort|-!(-*)S)
             COMPREPLY=( $( compgen -W 'name filename mtime width height
                 pixels size format' -- "$cur" ) )
             return
             ;;
-        -R|--reload|-H|--limit-height|-W|--limit-width|-E|--thumb-height|\
-        -y|--thumb-width|-J|--thumb-redraw|--magick-timeout)
+        --reload|--limit-height|--limit-width|--thumb-height|--thumb-width|\
+        --thumb-redraw|--magick-timeout|-!(-*)[RHWEyJ])
             # expect integer value
             COMPREPLY+=( $( compgen -W '{0..9}' ) )
             compopt -o nospace
@@ -72,16 +72,16 @@ _feh()
             fi
             return
             ;;
-        -a|--alpha)
+        --alpha|-!(-*)a)
             COMPREPLY=( $( compgen -W '{0..255}' -- "$cur" ) )
             return
             ;;
-        -b|--bg)
+        --bg|-!(-*)b)
             _filedir
             COMPREPLY+=( $( compgen -W 'trans' -- "$cur" ) )
             return
             ;;
-        -g|--geometry|--max-dimension|--min-dimension)
+        --geometry|--max-dimension|--min-dimension|-!(-*)g)
             # expect string like 640x480
             if [[ $cur && "$cur" != *x* ]]; then
                 COMPREPLY=( x )
@@ -90,8 +90,8 @@ _feh()
             compopt -o nospace
             return
             ;;
-        -L|--customlist|--index-info|--info|-D|--slideshow-delay|-~|\
-        --thumb-title|-^|--title)
+        --customlist|--index-info|--info|--slideshow-delay|--thumb-title|\
+        --title|-!(-*)[LD~^])
             # argument required but no completions available
             return
             ;;

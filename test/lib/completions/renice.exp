@@ -11,32 +11,15 @@ proc teardown {} {
 setup
 
 
-set test "Tab should show complete process ids"
-    # Try completion
-set cmd "renice 1"
-send "$cmd\t"
-expect {
-    -re "$cmd\r\n\\d+.*/@$cmd$" { pass "$test" }
-    -re /@ { unresolved "$test at prompt" }
-    -re eof { unresolved "eof" }
+if {[assert_bash_type ps]} {
+
+    assert_complete_any "renice 1"
+    sync_after_int
+
+    assert_complete_any "renice -g "
+    sync_after_int
+
 }
-
-
-sync_after_int
-
-
-set test "Tab should show complete process group ids"
-    # Try completion
-set cmd "renice -g "
-send "$cmd\t"
-expect {
-    -re "$cmd\r\n\\d+.*/@$cmd$" { pass "$test" }
-    -re /@ { unresolved "$test at prompt" }
-    -re eof { unresolved "eof" }
-}
-
-
-sync_after_int
 
 
 teardown

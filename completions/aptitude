@@ -59,11 +59,11 @@ _aptitude()
         autoclean|clean|forget-new|search|upgrade|update|keep-all)
             return
             ;;
-        -S)
+        -!(-*)S)
             _filedir
             return
             ;;
-        -t|--target-release|--default-release)
+        --target-release|--default-release|-!(-*)t)
             COMPREPLY=( $( apt-cache policy | \
                 command grep "release.o=Debian,a=$cur" | \
                 command sed -e "s/.*a=\(\w*\).*/\1/" | uniq 2> /dev/null ) )
@@ -77,11 +77,11 @@ _aptitude()
         COMPREPLY=( $( compgen -W 'update upgrade safe-upgrade forget-new
             clean autoclean install reinstall remove hold unhold purge markauto
             unmarkauto why why-not dist-upgrade full-upgrade download search
-            show forbid-version changelog keep-all build-dep add-user-tag
+            show forbid-version changelog keep keep-all build-dep add-user-tag
             remove-user-tag versions' -- "$cur" ) )
     fi
 
 } &&
-complete -F _aptitude -o default aptitude
+complete -F _aptitude -o default aptitude aptitude-curses
 
 # ex: filetype=sh

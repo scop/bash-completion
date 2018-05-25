@@ -1,21 +1,26 @@
 # iconv(1) completion                                      -*- shell-script -*-
 
+_iconv_charsets()
+{
+    COMPREPLY+=( $( compgen -W '$( ${1:-iconv} -l | \
+        command sed -e "s@/*\$@@" -e "s/[,()]//g" )' -- "$cur" ) )
+}
+
 _iconv()
 {
     local cur prev words cword split
     _init_completion -s || return
 
     case $prev in
-        -'?'|--help|--usage|-V|--version|--unicode-subst|--byte-subst|\
-        --widechar-subst)
+        --help|--usage|--version|--unicode-subst|--byte-subst|\
+        --widechar-subst|-!(-*)[?V])
             return
             ;;
-        -f|--from-code|-t|--to-code)
-            COMPREPLY=( $( compgen -W '$( iconv -l | \
-                command sed -e "s@/*\$@@" -e "s/[,()]//g" )' -- "$cur" ) )
+        --from-code|--to-code|-!(-*)[ft])
+            _iconv_charsets $1
             return
             ;;
-        -o|--output)
+        --output|-!(-*)o)
             _filedir
             return
             ;;

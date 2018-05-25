@@ -2,12 +2,28 @@
 
 _reportbug()
 {
-    local cur prev words cword
-    _init_completion || return
+    local cur prev words cword split
+    _init_completion -s || return
 
     case $prev in
-        -f|--filename|-i|--include|--mta|-o|--output)
+        -C|--class|-H|--header|-P|--pseudo-header|--mirror|--list-cc|\
+        -s|--subject|--http_proxy|--proxy|--email|--realname|--smtpuser|\
+        --smtppasswd|--replyto|--reply-to|-j|--justification|-V|\
+        --package-version|--body|--body-file|--timeout|--max-attachment-size|\
+        --envelope-from)
+            return
+            ;;
+        -f|--filename|-i|--include|--mta|-o|--output|-A|--attach)
             _filedir
+            return
+            ;;
+        -K|--keyid)
+            COMPREPLY=( $( compgen -W '$( IFS=: ; \
+                gpg --list-keys --with-colons 2>/dev/null \
+                | while read -ra row ; do
+                    [[ "${row[0]}" == [ps]ub && ${row[11]} == *s* ]] && \
+                        printf "%s\n" "${row[4]}"
+                done )' -- "$cur" ) )
             return
             ;;
         -B|--bts)
@@ -15,7 +31,7 @@ _reportbug()
                 "$cur" ) )
             return
             ;;
-        -e|--editor|--mua)
+        -e|--editor|--mua|--mbox-reader-cmd)
             words=( words[0] "$cur" )
             cword=1
             _command
@@ -51,30 +67,31 @@ _reportbug()
                 command grep "^Source: $cur" | sort -u | cut -f2 -d" " )' ))
             return
             ;;
-        *)
+        --smtphost)
+            _known_hosts_real -- "$cur"
+            return
+            ;;
+        --draftpath)
+            _filedir -d
+            return
             ;;
     esac
 
-    COMPREPLY=($( compgen -W '--help --version --attach --no-query-bts
-        --query-bts --bts --body --body-file --bodyfile --no-config-files
-        --class --configure --check-available --debug --no-check-available
-        --debconf --test --draftpath --editor --email --exit-prompt --filename
-        --from-buildd --gnupg --gpg --path --gnus --header --include
-        --no-check-installed --check-installed --justification --kudos --keyid
-        --license --list-cc --maintonly --mirror --mode --mua --mta --mutt --mh
-        --nmh --bugnumber --no-bug-script --no-cc-menu --output --offline
-        --print --paranoid --no-paranoid --pgp --proxy --http_proxy
-        --pseudo-header --quiet --query-only --query-source --no-query-source
-        --realname --report-quiet --reply-to --replyto --subject --severity
-        --smtphost --timeout --tls --smtpuser --smtppasswd --src --source
-        --type --tag --template --verify --no-verify --no-cc --package-version
-        --no-compress --ui --interface
-        wnpp boot-floppies kernel bugs.debian.org cdimage.debian.org general
-        installation-reports listarchives lists.debian.org mirrors
-        nm.debian.org press project qa.debian.org release-notes
-        security.debian.org tech-ctte upgrade-reports www.debian.org' \
-            -- "$cur" ) $( apt-cache pkgnames -- "$cur" 2> /dev/null ) )
-    _filedir
+    $split && return
+
+    COMPREPLY=( $( compgen -W '$( _parse_help "$1" )
+                       wnpp boot-floppies kernel bugs.debian.org
+                       cdimage.debian.org general installation-reports
+                       listarchives lists.debian.org mirrors nm.debian.org
+                       press project qa.debian.org release-notes
+                       security.debian.org tech-ctte upgrade-reports
+                       www.debian.org' -- "$cur" )
+                $( apt-cache pkgnames -- "$cur" 2>/dev/null ) )
+    if [[ $COMPREPLY == -*= ]]; then
+        compopt -o nospace
+    else
+        _filedir
+    fi
 } &&
 complete -F _reportbug reportbug
 

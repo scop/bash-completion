@@ -27,6 +27,7 @@ bashcomp_DATA = 2to3 \
 		autoscan \
 		avctrl \
 		badblocks \
+		bind \
 		bk \
 		brctl \
 		btdownloadheadless.py \
@@ -36,6 +37,7 @@ bashcomp_DATA = 2to3 \
 		cancel \
 		cardctl \
 		ccache \
+		ccze \
 		cfagent \
 		cfrun \
 		chage \
@@ -46,6 +48,7 @@ bashcomp_DATA = 2to3 \
 		_chfn \
 		chgrp \
 		chkconfig \
+		chmod \
 		chown \
 		chpasswd \
 		chronyc \
@@ -84,6 +87,8 @@ bashcomp_DATA = 2to3 \
 		dumpe2fs \
 		e2freefrag \
 		e2label \
+		ebtables \
+		ecryptfs-migrate-home \
 		_eject \
 		eog \
 		ether-wake \
@@ -112,8 +117,11 @@ bashcomp_DATA = 2to3 \
 		genaliases \
 		gendiff \
 		genisoimage \
+		geoiplookup \
+		getconf \
 		getent \
 		gkrellm \
+		gm \
 		gnatmake \
 		gnokii \
 		gnome-mplayer \
@@ -169,6 +177,7 @@ bashcomp_DATA = 2to3 \
 		jpegoptim \
 		jps \
 		jshint \
+		json_xs \
 		k3b \
 		kcov \
 		kill \
@@ -196,6 +205,8 @@ bashcomp_DATA = 2to3 \
 		lpr \
 		lrzip \
 		lsof \
+		lsscsi \
+		lsusb \
 		lua \
 		luac \
 		luseradd \
@@ -226,8 +237,8 @@ bashcomp_DATA = 2to3 \
 		modprobe \
 		_modules \
 		monodevelop \
-		mount \
-		mount.linux \
+		_mount \
+		_mount.linux \
 		mplayer \
 		mr \
 		msynctool \
@@ -249,8 +260,10 @@ bashcomp_DATA = 2to3 \
 		ngrep \
 		nmap \
 		_nmcli \
+		nproc \
 		nslookup \
 		ntpdate \
+		oggdec \
 		openssl \
 		opera \
 		optipng \
@@ -260,6 +273,7 @@ bashcomp_DATA = 2to3 \
 		patch \
 		pdftotext \
 		perl \
+		perltidy \
 		pgrep \
 		pidof \
 		pine \
@@ -289,13 +303,16 @@ bashcomp_DATA = 2to3 \
 		protoc \
 		psql \
 		puppet \
+		pv \
 		pwck \
 		pwd \
 		pwdx \
 		pwgen \
+		pycodestyle \
 		pydoc \
 		pyflakes \
 		pylint \
+		pytest \
 		python \
 		pyvenv \
 		qdbus \
@@ -303,6 +320,7 @@ bashcomp_DATA = 2to3 \
 		qrunner \
 		querybts \
 		quota \
+		radvdump \
 		rcs \
 		rdesktop \
 		remove_members \
@@ -312,7 +330,7 @@ bashcomp_DATA = 2to3 \
 		reportbug \
 		_reptyr \
 		resolvconf \
-		rfkill \
+		_rfkill \
 		ri \
 		rmlist \
 		rmmod \
@@ -328,6 +346,7 @@ bashcomp_DATA = 2to3 \
 		sbcl \
 		sbopkg \
 		screen \
+		scrub \
 		sh \
 		sitecopy \
 		slackpkg \
@@ -364,12 +383,13 @@ bashcomp_DATA = 2to3 \
 		tcpnice \
 		timeout \
 		tipc \
+		tox \
 		tracepath \
 		tshark \
 		tune2fs \
 		_udevadm \
-		umount \
-		umount.linux \
+		_umount \
+		_umount.linux \
 		unace \
 		unpack200 \
 		unrar \
@@ -397,6 +417,8 @@ bashcomp_DATA = 2to3 \
 		wsimport \
 		wtf \
 		wvdial \
+		xdg-mime \
+		xdg-settings \
 		xfreerdp \
 		xgamma \
 		xhost \
@@ -427,10 +449,12 @@ CLEANFILES = \
 	aclocal-1.13 \
 	aclocal-1.14 \
 	aclocal-1.15 \
+	aclocal-1.16 \
 	alpine \
 	alternatives \
 	animate \
 	apropos \
+	aptitude-curses \
 	arm-koji \
 	asciidoc.py \
 	autoheader \
@@ -440,6 +464,7 @@ CLEANFILES = \
 	automake-1.13 \
 	automake-1.14 \
 	automake-1.15 \
+	automake-1.16 \
 	autossh \
 	autoupdate \
 	bsdtar \
@@ -472,6 +497,7 @@ CLEANFILES = \
 	dropdb \
 	dropuser \
 	edquota \
+	etherwake \
 	f77 \
 	f95 \
 	filebucket \
@@ -482,6 +508,7 @@ CLEANFILES = \
 	g77 \
 	g95 \
 	gcj \
+	geoiplookup6 \
 	gfortran \
 	gkrellm2 \
 	gmake \
@@ -496,6 +523,7 @@ CLEANFILES = \
 	hping3 \
 	identify \
 	ifdown \
+	ifquery \
 	ifstatus \
 	import \
 	insmod.static \
@@ -511,6 +539,7 @@ CLEANFILES = \
 	ldapmodrdn \
 	ldappasswd \
 	ldapwhoami \
+	links2 \
 	lintian-info \
 	lusermod \
 	lvchange \
@@ -528,6 +557,7 @@ CLEANFILES = \
 	mailsnarf \
 	mdecrypt \
 	mencoder \
+	micropython \
 	mkisofs \
 	mogrify \
 	montage \
@@ -566,9 +596,16 @@ CLEANFILES = \
 	pvs \
 	pvscan \
 	pxz \
+	py.test \
+	py.test-2 \
+	py.test-3 \
 	pydoc3 \
+	pylint-2 \
+	pylint-3 \
 	pypy \
 	pypy3 \
+	pytest-2 \
+	pytest-3 \
 	python2 \
 	python3 \
 	pyvenv-3.4 \
@@ -595,6 +632,7 @@ CLEANFILES = \
 	sdptool \
 	setquota \
 	sftp \
+	sidedoor \
 	slogin \
 	smbcacls \
 	smbcquotas \
@@ -640,7 +678,7 @@ symlinks: $(targetdir) $(DATA)
 			$(LN_S) 7z $(targetdir)/$$file ; \
 	done
 	for file in aclocal-1.10 aclocal-1.11 aclocal-1.12 aclocal-1.13 \
-		aclocal-1.14 aclocal-1.15 ; do \
+		aclocal-1.14 aclocal-1.15 aclocal-1.16 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) aclocal $(targetdir)/$$file ; \
 	done
@@ -648,12 +686,16 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) ant $(targetdir)/$$file ; \
 	done
+	for file in aptitude-curses ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) aptitude $(targetdir)/$$file ; \
+	done
 	for file in asciidoc.py ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) asciidoc $(targetdir)/$$file ; \
 	done
 	for file in automake-1.10 automake-1.11 automake-1.12 automake-1.13 \
-		automake-1.14 automake-1.15 ; do \
+		automake-1.14 automake-1.15 automake-1.16 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) automake $(targetdir)/$$file ; \
 	done
@@ -702,6 +744,10 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) dpkg $(targetdir)/$$file ; \
 	done
+	for file in etherwake ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) ether-wake $(targetdir)/$$file ; \
+	done
 	for file in mailsnarf msgsnarf ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) filesnarf $(targetdir)/$$file ; \
@@ -726,6 +772,10 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) genisoimage $(targetdir)/$$file ; \
 	done
+	for file in geoiplookup6 ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) geoiplookup $(targetdir)/$$file ; \
+	done
 	for file in gkrellm2 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) gkrellm $(targetdir)/$$file ; \
@@ -747,7 +797,7 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) hping2 $(targetdir)/$$file ; \
 	done
-	for file in ifdown ifstatus ifquery ; do \
+	for file in ifdown ifquery ifstatus ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) ifup $(targetdir)/$$file ; \
 	done
@@ -771,6 +821,10 @@ symlinks: $(targetdir) $(DATA)
 		ldapwhoami ldappasswd ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) ldapsearch $(targetdir)/$$file ; \
+	done
+	for file in links2 ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) links $(targetdir)/$$file ; \
 	done
 	for file in lintian-info ; do \
 		rm -f $(targetdir)/$$file && \
@@ -866,11 +920,19 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) puppet $(targetdir)/$$file ; \
 	done
+	for file in pytest-2 pytest-3 py.test py.test-2 py.test-3 ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) pytest $(targetdir)/$$file ; \
+	done
 	for file in pydoc3 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) pydoc $(targetdir)/$$file ; \
 	done
-	for file in pypy pypy3 python2 python3 ; do \
+	for file in pylint-2 pylint-3 ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) pylint $(targetdir)/$$file ; \
+	done
+	for file in pypy pypy3 python2 python3 micropython ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) python $(targetdir)/$$file ; \
 	done
@@ -910,7 +972,7 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) sbcl $(targetdir)/$$file ; \
 	done
-	for file in slogin autossh sftp scp ; do \
+	for file in slogin autossh sftp scp sidedoor ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) ssh $(targetdir)/$$file ; \
 	done
@@ -958,6 +1020,6 @@ check-local:
 	ret=0
 	for file in $(bashcomp_DATA) ; do \
 		$${bashcomp_bash:-$${BASH:-bash}} \
-			-O extglob -n $$file || ret=$$? ; \
+			-O extglob -n $(srcdir)/$$file || ret=$$? ; \
 	done ; \
 	exit $$ret

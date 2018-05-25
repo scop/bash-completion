@@ -3,7 +3,7 @@
 _mplayer_options_list()
 {
     cur=${cur%\\}
-    COMPREPLY=( $( compgen -W "$( $1 -nomsgcolor -nomsgmodule $2 help 2>/dev/null | \
+    COMPREPLY=( $( compgen -W "$( $1 -noconfig all $2 help 2>/dev/null | \
         command sed -e '/^Available/,/^$/!d' -e '/^Available/d' | awk '{print $1}' | \
         command sed -e 's/:$//' -e 's/^'${2#-}'$//' -e 's/<.*//' )" -- "$cur" ) )
 }
@@ -26,7 +26,7 @@ _mplayer()
             return
             ;;
         -audiofile|-audio-file)
-            _filedir '@(mp3|mpg|ogg|w?(a)v|mid|flac|mka|ac3|ape)'
+            _filedir '@(mp3|mpg|og[ag]|w?(a)v|mid|flac|mka|ac3|ape)'
             return
             ;;
         -font|-subfont)
@@ -262,7 +262,7 @@ _mplayer()
         -*)
             # Assume arg is required for everything else except options
             # for which -list-options says Type is Flag or Print.
-            $cmd -nomsgcolor -nomsgmodule -list-options 2>/dev/null \
+            $cmd -noconfig all -list-options 2>/dev/null \
             | while read -r i j k; do
                 if [[ $i == ${prev#-} ]]; then
                     [[ ${j,,} != @(flag|print) ]] && return 1
@@ -274,13 +274,13 @@ _mplayer()
 
     case $cur in
         -*)
-            COMPREPLY=( $( compgen -W '$( $cmd -nomsgcolor -nomsgmodule -list-options 2>/dev/null | \
+            COMPREPLY=( $( compgen -W '$( $cmd -noconfig all -list-options 2>/dev/null | \
                 command sed -ne '1,/^[[:space:]]*Name/d' \
                     -e "s/^[[:space:]]*/-/" -e "s/[[:space:]:].*//" \
                     -e "/^-\(Total\|.*\*\)\{0,1\}$/!p" )' -- "$cur" ) )
             ;;
         *)
-            _filedir '@(m?(j)p?(e)g|M?(J)P?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fl[iv]|FL[IV]|fxm|FXM|viv|VIV|rm?(j)|RM?(J)|ra?(m)|RA?(M)|yuv|YUV|mov|MOV|qt|QT|mp[234]|MP[234]|m4[av]|M4[AV]|og[gmavx]|OG[GMAVX]|w?(a)v|W?(A)V|dump|DUMP|mk[av]|MK[AV]|m4a|M4A|aac|AAC|m[24]v|M[24]V|dv|DV|rmvb|RMVB|mid|MID|t[ps]|T[PS]|3g[p2]|3gpp?(2)|mpc|MPC|flac|FLAC|vro|VRO|divx|DIVX|aif?(f)|AIF?(F)|m2t?(s)|M2T?(S)|mts|MTS|vdr|VDR|xvid|XVID|ape|APE|gif|GIF|nut|NUT|bik|BIK|webm|WEBM|amr|AMR|awb|AWB|iso|ISO|opus|OPUS)?(.part)'
+            _filedir '@(m?(j)p?(e)g|M?(J)P?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fl[iv]|FL[IV]|fxm|FXM|viv|VIV|rm?(j)|RM?(J)|ra?(m)|RA?(M)|yuv|YUV|mov|MOV|qt|QT|mp[234]|MP[234]|m?(p)4[av]|M?(P)4[AV]|og[gmavx]|OG[GMAVX]|w?(a)v|W?(A)V|dump|DUMP|mk[av]|MK[AV]|aac|AAC|m2v|M2V|dv|DV|rmvb|RMVB|mid|MID|t[ps]|T[PS]|3g[p2]|3gpp?(2)|mpc|MPC|flac|FLAC|vro|VRO|divx|DIVX|aif?(f)|AIF?(F)|m2t?(s)|M2T?(S)|mts|MTS|vdr|VDR|xvid|XVID|ape|APE|gif|GIF|nut|NUT|bik|BIK|web[am]|WEB[AM]|amr|AMR|awb|AWB|iso|ISO|opus|OPUS)?(.part)'
             ;;
     esac
 

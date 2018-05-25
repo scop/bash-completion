@@ -5,6 +5,8 @@ _ping()
     local cur prev words cword
     _init_completion -n = || return
 
+    local ipvx
+
     case $prev in
         -c|-F|-G|-g|-h|-i|-l|-m|-P|-p|-s|-t|-V|-W|-w|-z)
             return
@@ -47,6 +49,9 @@ _ping()
                 COMPREPLY=( $( compgen -W 'tsonly tsandaddr' -- "$cur" ) )
             return
             ;;
+        -4|-6)
+            ipvx=$prev
+            ;;
     esac
 
     if [[ $cur == -* ]]; then
@@ -54,7 +59,8 @@ _ping()
         return
     fi
 
-    _known_hosts_real "$cur"
+    [[ $1 == *6 ]] && ipvx=-6
+    _known_hosts_real $ipvx -- "$cur"
 } &&
 complete -F _ping ping ping6
 
