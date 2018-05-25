@@ -2,19 +2,46 @@
 
 _unrar()
 {
-    local cur prev words cword
+    local cur prev words cword cmp_opts=1 cmp_parts=0 i 
     _init_completion || return
 
-    if [[ $cur == -* ]]; then
+    # Check if all of the middle part are options.
+    # If not, we break at the last-option idx, and won't complete opts.
+    for ((i=1; i<${#words[@]}-1; i++)); do
+        # not using the whole list for checking -- too verbose
+        if [[ ${words[i]} != -* || ${words[i]} == '--' ]]; then
+            cmp_opts=0
+            break
+        fi
+    done
+
+    if [[ $cur == -* ]] && ((cmp_opts)); then   # options
         COMPREPLY=( $( compgen -W '-ad -ap -av- -c- -cfg- -cl -cu -dh -ep -f
             -idp -ierr -inul -kb -o+ -o- -ow -p -p- -r -ta -tb -tn -to -u -v
             -ver -vp -x -x@ -y' -- "$cur" ) )
-    else
-        if [[ $cword -eq 1 ]]; then
-            COMPREPLY=( $( compgen -W 'e l lb lt p t v vb vt x' -- "$cur" ) )
-        else
-            _filedir rar
+    elif ((cword == 1)); then                   # command
+        COMPREPLY=( $( compgen -W 'e l lb lt p t v vb vt x' -- "$cur" ) )
+    elif ((cword == i+1)); then                 # archive
+        _filedir 'rar'
+        # If there is a second, third, ... ninth part
+        for i in "${COMPREPLY[@]}"; do
+            if [[ $i == *.part*(0)[2-9].@(rar|RAR) ]]; then
+                cmp_parts=1
+                break
+            fi
+        done
+        if ((cmp_parts)); then
+            local quoted
+            _quote_readline_by_ref "$cur" quoted
+            IFS=$'\n' read -d '' -a COMPREPLY < <( 
+                compgen -d -- "$quoted"
+                compgen -f \
+                    -X "!(!(.part+([0-9]))@(.part+(0)1|).@(rar|RAR))" -- \
+                    "$quoted"
+            )
         fi
+    else                                        # files.../path...
+        _filedir
     fi
 
 } &&
