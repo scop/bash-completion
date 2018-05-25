@@ -1013,8 +1013,8 @@ symlinks: $(targetdir) $(DATA)
 all-local: targetdir = .
 all-local: symlinks
 
-install-data-local: targetdir = $(DESTDIR)$(bashcompdir)
-install-data-local: symlinks
+install-data-hook: targetdir = $(DESTDIR)$(bashcompdir)
+install-data-hook: symlinks
 
 check-local:
 	ret=0
