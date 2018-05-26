@@ -2,19 +2,19 @@
 
 _minicom()
 {
-    local cur prev words cword
-    _init_completion || return
+    local cur prev words cword split
+    _init_completion -s || return
 
     case $prev in
-        -a|-c)
+        --attrib|--color|-a|-c)
             COMPREPLY=( $( compgen -W 'on off' -- "$cur" ) )
             return
             ;;
-        -S|-C)
+        --script|--capturefile|-S|-C)
             _filedir
             return
             ;;
-        -P)
+        --ptty|-p)
             COMPREPLY=( $( printf '%s\n' /dev/tty* ) )
             COMPREPLY=( $( compgen -W '${COMPREPLY[@]} ${COMPREPLY[@]#/dev/}' \
                 -- "$cur" ) )
@@ -22,10 +22,11 @@ _minicom()
             ;;
     esac
 
+    $split && return
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-s -o -m -M -z -l -L -w -a -t -c -S -d -p -C
-            -T -7 -8' -- "$cur" ) )
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
 
