@@ -6,10 +6,10 @@ _nc()
     _init_completion -n : || return
 
     case $prev in
-        -h|-I|-i|-O|-P|-p|-V|-w)
+        -*[hIiOPpVw])
             return
             ;;
-        -s)
+        -*s)
             if [[ "${words[@]}" == *-6* ]]; then
                 _ip_addresses -6
                 __ltrim_colon_completions "$cur"
@@ -18,16 +18,16 @@ _nc()
             fi
             return
             ;;
-        -T)
+        -*T)
             COMPREPLY=( $( compgen -W 'critical inetcontrol lowdelay netcontrol
                 throughput reliability ef af{11..43} cs{0..7}' -- "$cur" ) )
             return
             ;;
-        -X)
+        -*X)
             COMPREPLY=( $( compgen -W '4 5 connect' -- "$cur" ) )
             return
             ;;
-        -x)
+        -*x)
             _known_hosts_real -- "$cur"
             return
             ;;
@@ -39,7 +39,7 @@ _nc()
     fi
 
     # Complete 1st non-option arg only
-    local args; _count_args "" "-[IiOPpsTVwXx]"
+    local args; _count_args "" "-*[IiOPpsTVwXx]"
     [[ $args -eq 1 ]] || return
 
     _known_hosts_real -- "$cur"
