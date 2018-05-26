@@ -1,5 +1,15 @@
 # mysql(1) completion                                      -*- shell-script -*-
 
+_mysql_character_sets()
+{
+    local IFS=$' \t\n' reset=$( shopt -p failglob ); shopt -u failglob
+    local -a charsets=( /usr/share/m{ariadb,ysql}/charsets/*.xml )
+    $reset
+    charsets=( "${charsets[@]##*/}" )
+    charsets=( "${charsets[@]%%?(Index|\*).xml}" utf8 )
+    COMPREPLY+=( $( compgen -W '${charsets[@]}' -- "$cur" ) )
+}
+
 _mysql()
 {
     local cur prev words cword split
@@ -20,12 +30,7 @@ _mysql()
             return
             ;;
         --default-character-set)
-            local IFS=$' \t\n' reset=$( shopt -p failglob ); shopt -u failglob
-            local -a charsets=( /usr/share/m{ariadb,ysql}/charsets/*.xml )
-            $reset
-            charsets=( "${charsets[@]##*/}" )
-            charsets=( "${charsets[@]%%?(Index|\*).xml}" utf8 )
-            COMPREPLY=( $( compgen -W '${charsets[@]}' -- "$cur" ) )
+            _mysql_character_sets
             return
             ;;
 
@@ -45,7 +50,7 @@ _mysql()
             _filedir
             return
             ;;
-        --default-character-set|--port|--set-variable|--ssl-ca|--ssl-cert|\
+        --port|--set-variable|--ssl-ca|--ssl-cert|\
         --ssl-cipher|--ssl-key|--connect_timeout|--max_allowed_packet|\
         --prompt|--net_buffer_length|--select_limit|--max_join_size|\
         --server-arg|--debug|--delimiter|--execute|--pager|-!(-*)[Pe])
