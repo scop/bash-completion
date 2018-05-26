@@ -6,13 +6,13 @@ _modinfo()
     _init_completion -s || return
 
     case "$prev" in
-        --field|-F)
+        --field|-!(-*)F)
             COMPREPLY=( $( compgen -W 'alias author depends description
                 filename firmware license parm srcversion staging vermagic
                 version' -- "${cur,,}" ) )
             return
             ;;
-        --set-version|-k)
+        --set-version|-!(-*)k)
             _kernel_versions
             return
             ;;
@@ -28,7 +28,7 @@ _modinfo()
 
     local i version=$(uname -r)
     for (( i=${#words[@]}-1; i>0; i-- )); do
-        if [[ ${words[i]} == -@(k|-set-version) ]]; then
+        if [[ ${words[i]} == -@(!(-*)k*|-set-version) ]]; then
             version=${words[i+1]}
             break
         fi

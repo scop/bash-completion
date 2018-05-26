@@ -6,18 +6,18 @@ _modprobe()
     _init_completion -s || return
 
     case "$prev" in
-        -h|--help|-V|--version)
+        --help|--version|-!(-*)[hV])
             return
             ;;
-        -C|--config)
+        --config|-!(-*)C)
             _filedir
             return
             ;;
-        -d|--dirname|-t|--type)
+        --dirname|--type|-!(-*)[dt])
             _filedir -d
             return
             ;;
-        -S|--set-version)
+        --set-version|-!(-*)S)
             _kernel_versions
             return
             ;;
@@ -43,19 +43,19 @@ _modprobe()
     local i mode=insert module= version=$(uname -r)
     for (( i=1; i < $cword; i++ )); do
         case "${words[i]}" in
-            -r|--remove)
+            --remove|-!(-*)r*)
                 mode=remove
                 ;;
-            -l|--list)
+            --list|-!(-*)l*)
                 mode=list
                 ;;
             --dump-modversions)
                 mode=file
                 ;;
-            -S|--set-version)
+            --set-version|-!(-*)S)
                 version=${words[i+1]} # -S is not $prev and not $cur
                 ;;
-            -C|--config|-d|--dirname|-t|--type)
+            --config|--dirname|--type|-!(-*)[Cdt])
                 ((i++)) # skip option and its argument
                 ;;
             -*)

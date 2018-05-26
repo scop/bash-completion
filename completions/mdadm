@@ -6,11 +6,11 @@ _mdadm_raid_level()
 
     for (( i=1; i < cword; i++ )); do
         case ${words[i]} in
-            -C|--create)
+            -!(-*)C*|--create)
                 mode=create
                 break
                 ;;
-            -B|--build)
+            -!(-*)B*|--build)
                 mode=build
                 break
                 ;;
@@ -74,23 +74,23 @@ _mdadm()
     _init_completion -s || return
 
     case $prev in
-        -c|--config|-b|--bitmap|--backup-file)
+        --config|--bitmap|--backup-file|-!(-*)[cb])
             _filedir
             return
             ;;
-        -l|--level)
+        --level|-!(-*)l)
             _mdadm_raid_level
             return
             ;;
-        -p|--layout|--parity)
+        --layout|--parity|-!(-*)p)
             _mdadm_raid_layout
             return
             ;;
-        -a|--auto)
+        --auto|-!(-*)a)
             _mdadm_auto_flag
             return
             ;;
-        -U|--update)
+        --update|-!(-*)U)
             _mdadm_update_flag
             return
             ;;
@@ -107,13 +107,13 @@ _mdadm()
                 --monitor --grow" -- "$cur" ) )
         else
             case ${words[cword-1]} in
-                -A|--assemble)
+                --assemble|-!(-*)A*)
                     COMPREPLY=( $( compgen -W "$options --uuid= --super-minor=
                         --name= --force --run --no-degraded --auto= --bitmap=
                         --backup-file= --update= --auto-update-homehost" \
                             -- "$cur" ) )
                     ;;
-                -B|-C|-G|--build|--create|--grow)
+                --build|--create|--grow|-!(-*)[BCG]*)
                     COMPREPLY=( $( compgen -W "$options --raid-devices=
                         --spare-devices= --size= --chunk= --rounding= --level=
                         --layout= --parity= --bitmap= --bitmap-chunk=
@@ -121,7 +121,7 @@ _mdadm()
                         --backup-file= --name= --run --force --auto=" \
                             -- "$cur" ) )
                     ;;
-                -F|--follow|--monitor)
+                --follow|--monitor|-!(-*)F)
                     COMPREPLY=( $( compgen -W "$options --mail --program
                         --alert --syslog --delay --daemonise --pid-file
                         --oneshot --test" -- "$cur" ) )

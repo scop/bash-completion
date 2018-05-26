@@ -6,16 +6,16 @@ _mysql()
     _init_completion -s || return
 
     case $prev in
-        -u|--user)
+        --user|-!(-*)u)
             COMPREPLY=( $( compgen -u -- "$cur" ) )
             return
             ;;
-        -D|--database)
+        --database|-!(-*)D)
             COMPREPLY=( $( compgen -W "$(mysqlshow 2>/dev/null | command sed -ne '2d' -e 's/^|.\([^|]*\)|.*/\1/p')" -- "$cur" ) )
             return
             ;;
 
-        -h|--host)
+        --host|-!(-*)h)
             _known_hosts_real -- "$cur"
             return
             ;;
@@ -33,7 +33,7 @@ _mysql()
             _filedir -d
             return
             ;;
-        -S|--socket)
+        --socket|-!(-*)S)
             _filedir sock
             return
             ;;
@@ -45,16 +45,13 @@ _mysql()
             _filedir
             return
             ;;
-        --default-character-set|-P|--port|--set-variable|\
-        --ssl-ca|--ssl-cert|--ssl-cipher|--ssl-key|\
-        --connect_timeout|--max_allowed_packet|--prompt|\
-        --net_buffer_length|--select_limit|--max_join_size|\
-        --server-arg|--debug|--delimiter|--execute|-e|--pager)
-            # Argument required but no completions available
+        --default-character-set|--port|--set-variable|--ssl-ca|--ssl-cert|\
+        --ssl-cipher|--ssl-key|--connect_timeout|--max_allowed_packet|\
+        --prompt|--net_buffer_length|--select_limit|--max_join_size|\
+        --server-arg|--debug|--delimiter|--execute|--pager|-!(-*)[Pe])
             return
             ;;
-        '-?'|-I|--help|-V|--version)
-            # All other options are noop with these
+        --help|--version|-!(-*)[?IV])
             return
             ;;
     esac
