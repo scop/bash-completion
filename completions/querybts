@@ -15,18 +15,25 @@ _querybts()
             COMPREPLY=( $( compgen -W "newt text gnome" -- "$cur" ) )
             return
             ;;
+        --mbox-reader-cmd)
+            compopt -o filenames
+            COMPREPLY=( $( compgen -c -- "$cur" ) )
+            return
+            ;;
     esac
 
     $split && return
 
-    COMPREPLY=( $( compgen -W '-h --help -v --version -A --archive -B --bts -l
-        --ldap --no-ldap --proxy --http_proxy -s --source -w --web -u --ui
-        --interface \
-        wnpp boot-floppies kernel bugs.debian.org cdimage.debian.org general
-        installation-reports listarchives lists.debian.org mirrors
-        nm.debian.org press project qa.debian.org release-notes
-        security.debian.org tech-ctte upgrade-reports www.debian.org' \
-            -- "$cur" ) $( apt-cache pkgnames -- "$cur" 2> /dev/null ) )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+    else
+        COMPREPLY=( $( compgen -W 'wnpp boot-floppies kernel bugs.debian.org
+            cdimage.debian.org general installation-reports listarchives
+            lists.debian.org mirrors nm.debian.org press project qa.debian.org
+            release-notes security.debian.org tech-ctte upgrade-reports
+            www.debian.org $( apt-cache pkgnames 2>/dev/null )' -- "$cur" ) )
+    fi
 } &&
 complete -F _querybts querybts
 
