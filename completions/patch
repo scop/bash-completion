@@ -6,19 +6,19 @@ _patch()
     _init_completion -s || return
 
     case $prev in
-        -p|--strip|-D|--ifdef|-B|--prefix|-Y|--basename-prefix|-z|--suffix|\
-        -g|--get)
+        --strip|--ifdef|--prefix|--basename-prefix|--suffix|--get|\
+        -!(-*)[pDBYzg])
             return
             ;;
-        -F|--fuzz)
+        --fuzz|-!(-*)F)
             COMPREPLY=( $( compgen -W '{0..3}' -- "$cur" ) )
             return
             ;;
-        -i|--input)
+        --input|-!(-*)i)
             _filedir '@(?(d)patch|dif?(f))'
             return
             ;;
-        -o|--output|-r|--reject-file)
+        --output|--reject-file|-!(-*)[or])
             [[ ! $cur || $cur == - ]] && COMPREPLY=( - )
             _filedir
             return
@@ -28,11 +28,11 @@ _patch()
                 -- "$cur" ) )
             return
             ;;
-        -V|--version-control)
+        --version-control|-!(-*)V)
             COMPREPLY=( $( compgen -W 'simple numbered existing' -- "$cur" ) )
             return
             ;;
-        -d|--directory)
+        --directory|-!(-*)d)
             _filedir -d
             return
             ;;

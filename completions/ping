@@ -8,21 +8,21 @@ _ping()
     local ipvx
 
     case $prev in
-        -c|-F|-G|-g|-h|-i|-l|-m|-P|-p|-s|-t|-V|-W|-w|-z)
+        -*[cFGghilmPpstVWwz])
             return
             ;;
-        -I)
+        -*I)
             _available_interfaces -a
             return
             ;;
-        -M)
+        -*M)
             # Path MTU strategy in Linux, mask|time in FreeBSD
             local opts="do want dont"
             [[ $OSTYPE == *bsd* ]] && opts="mask time"
             COMPREPLY=( $( compgen -W '$opts' -- "$cur" ) )
             return
             ;;
-        -N)
+        -*N)
             if [[ $cur != *= ]]; then
                 COMPREPLY=( $( compgen -W 'name ipv6 ipv6-global ipv6-sitelocal
                     ipv6-linklocal ipv6-all ipv4 ipv4-all subject-ipv6=
@@ -31,26 +31,29 @@ _ping()
             fi
             return
             ;;
-        -Q)
+        -*Q)
             # TOS in Linux, "somewhat quiet" (no args) in FreeBSD
             if [[ $OSTYPE != *bsd* ]]; then
                 COMPREPLY=( $( compgen -W '{0..7}' -- "$cur" ) )
                 return
             fi
             ;;
-        -S)
+        -*S)
             # Socket sndbuf in Linux, source IP in FreeBSD
             [[ $OSTYPE == *bsd* ]] && _ip_addresses
             return
             ;;
-        -T)
+        -*T)
             # Timestamp option in Linux, TTL in FreeBSD
             [[ $OSTYPE == *bsd* ]] || \
                 COMPREPLY=( $( compgen -W 'tsonly tsandaddr' -- "$cur" ) )
             return
             ;;
-        -4|-6)
-            ipvx=$prev
+        -*4*)
+            ipvx=-4
+            ;;
+        -*6*)
+            ipvx=-6
             ;;
     esac
 

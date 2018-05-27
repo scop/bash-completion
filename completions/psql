@@ -24,20 +24,15 @@ _createdb()
     _init_completion -s || return
 
     case $prev in
-        -h|--host)
+        --host|-!(-*)h)
             _known_hosts_real -- "$cur"
             return
             ;;
-        -U|--username|-O|--owner)
+        --username|--owner|-!(-*)[UO])
             _pg_users
             return
             ;;
-        -p|--port|-D|--tablespace|-E|--encoding|-T|--template)
-            # argument required but no completions available
-            return
-            ;;
-        --help|--version)
-            # all other arguments are noop with these
+        --help|--version|--port|--tablespace|--encoding|--template|-!(-*)[pDET])
             return
             ;;
     esac
@@ -61,14 +56,14 @@ _createuser()
     _init_completion -s || return
 
     case $prev in
-        --help|--version|-p|--port|-c|--connection-limit)
+        --help|--version|--port|--connection-limit|-!(-*)[pc])
             return
             ;;
-        -h|--host)
+        --host|-!(-*)h)
             _known_hosts_real -- "$cur"
             return
             ;;
-        -U|--username)
+        --username|-!(-*)U)
             _pg_users
             return
             ;;
@@ -91,16 +86,15 @@ _dropdb()
     _init_completion -s || return
 
     case $prev in
-        -h|--host)
+        --host|-!(-*)h)
             _known_hosts_real -- "$cur"
             return
             ;;
-        -U|--username)
+        --username|-!(-*)U)
             _pg_users
             return
             ;;
         --help|--version)
-            # all other arguments are noop with these
             return
             ;;
     esac
@@ -124,14 +118,14 @@ _dropuser()
     _init_completion -s || return
 
     case $prev in
-        --help|--version|-p|--port)
+        --help|--version|--port|-!(-*)p)
             return
             ;;
-        -h|--host)
+        --host|-!(-*)h)
             _known_hosts_real -- "$cur"
             return
             ;;
-        -U|--username)
+        --username|-!(-*)U)
             _pg_users
             return
             ;;
@@ -156,29 +150,24 @@ _psql()
     _init_completion -s || return
 
     case $prev in
-        -h|--host)
+        --host|-!(-*)h)
             _known_hosts_real -- "$cur"
             return
             ;;
-        -U|--username)
+        --username|-!(-*)U)
             _pg_users
             return
             ;;
-        -d|--dbname)
+        --dbname|-!(-*)d)
             _pg_databases
             return
             ;;
-        -o|--output|-f|--file|-L|--log-file)
+        --output|--file|--log-file|-!(-*)[ofL])
             _filedir
             return
             ;;
-        -c|--command|-F|--field-separator|-p|--port|-P|--pset|\
-        -R|--record-separator|-T|--table-attr|-v|--set|--variable)
-            # argument required but no completions available
-            return
-            ;;
-        -\?|--help|-V|--version)
-            # all other arguments are noop with these
+        --help|--version|--command|--field-separator|--port|--pset|\
+        --record-separator|--table-attr|--set|--variable|-!(-*)[?VcFpPRTv])
             return
             ;;
     esac

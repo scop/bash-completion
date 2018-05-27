@@ -30,23 +30,23 @@ _perl()
     fi
 
     case $prev in
-        -D|-e|-E|-i|-F|-l)
+        -*[DeEiFl])
             return
             ;;
-        -I|-x)
+        -*[Ix])
             local IFS=$'\n'
             compopt -o filenames
             COMPREPLY=( $( compgen -d $optPrefix $optSuffix -- "$cur" ) )
             return
             ;;
-        -m|-M)
+        -*[mM])
             temp="${cur#-}"
             prefix+="${cur%$temp}"
             cur="$temp"
             _perl_helper modules $1
             return
             ;;
-        -V)
+        -*V)
             if [[ $cur == :* ]]; then
                 temp="${cur##+(:)}"
                 prefix+="${cur%$temp}"
@@ -58,7 +58,7 @@ _perl()
             fi
             return
             ;;
-        -d|-dt)
+        -*d|-*dt)
             if [[ $cur == :* ]]; then
                 temp="${cur#:}"
                 prefix="$prefix${cur%$temp}"
@@ -96,14 +96,14 @@ _perldoc()
     [[ $perl == $1 ]] || ! type $perl &>/dev/null && perl=
 
     case $prev in
-        -h|-V|-n|-o|-M|-w|-L)
+        -*[hVnoMwL])
             return
             ;;
-        -d)
+        -*d)
             _filedir
             return
             ;;
-        -f)
+        -*f)
             _perl_helper functions $perl
             return
             ;;
