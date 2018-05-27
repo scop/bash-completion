@@ -79,19 +79,18 @@ _reportbug()
 
     $split && return
 
-    COMPREPLY=( $( compgen -W '$( _parse_help "$1" )
-                       wnpp boot-floppies kernel bugs.debian.org
-                       cdimage.debian.org general installation-reports
-                       listarchives lists.debian.org mirrors nm.debian.org
-                       press project qa.debian.org release-notes
-                       security.debian.org tech-ctte upgrade-reports
-                       www.debian.org' -- "$cur" )
-                $( apt-cache pkgnames -- "$cur" 2>/dev/null ) )
-    if [[ $COMPREPLY == -*= ]]; then
-        compopt -o nospace
-    else
-        _filedir
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == -*= ]] && compopt -o nospace
+        return
     fi
+
+    COMPREPLY=( $( compgen -W 'wnpp boot-floppies kernel bugs.debian.org
+        cdimage.debian.org general installation-reports listarchives
+        lists.debian.org mirrors nm.debian.org press project qa.debian.org
+        release-notes security.debian.org tech-ctte upgrade-reports
+        www.debian.org $( apt-cache pkgnames 2>/dev/null )' -- "$cur" ) )
+    _filedir
 } &&
 complete -F _reportbug reportbug
 
