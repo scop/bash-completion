@@ -1,5 +1,5 @@
 # Check for interactive bash and that we haven't already been sourced.
-if [ -n "${BASH_VERSION-}" -a -n "${PS1-}" -a -z "${BASH_COMPLETION_VERSINFO-}" ]; then
+if [ "x${BASH_VERSION-}" != x -a "x${PS1-}" != x -a "x${BASH_COMPLETION_VERSINFO-}" = x ]; then
 
     # Check for recent enough version of bash.
     if [ ${BASH_VERSINFO[0]} -gt 4 ] || \
