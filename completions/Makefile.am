@@ -610,6 +610,9 @@ CLEANFILES = \
 	python3 \
 	pyvenv-3.4 \
 	pyvenv-3.5 \
+	pyvenv-3.6 \
+	pyvenv-3.7 \
+	pyvenv-3.8 \
 	qemu-kvm \
 	qemu-system-i386 \
 	qemu-system-x86_64 \
@@ -936,7 +939,8 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) python $(targetdir)/$$file ; \
 	done
-	for file in pyvenv-3.4 pyvenv-3.5 ; do \
+	for file in pyvenv-3.4 pyvenv-3.5 pyvenv-3.6 pyvenv-3.7 \
+		pyvenv-3.8 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) pyvenv $(targetdir)/$$file ; \
 	done
