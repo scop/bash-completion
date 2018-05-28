@@ -892,11 +892,20 @@ _configured_interfaces()
         # Debian system
         COMPREPLY=( $( compgen -W "$(command awk \
             -v ifaces="$(command ls -1 /sys/class/net/)" \
-            'BEGIN{ split(ifaces,a)
-            for (v in a) if (a[v] != "lo") ifcs[a[v]] }
-            $0 ~ "[^[:blank:]]" && $1 ~ "^(iface|mapping)$" {
-            if ( $2 in ifcs ) cifaces ? cifaces=cifaces"|"$2 : cifaces=$2 }
-            END{ print cifaces }' < "/etc/network/interfaces")" -- "$cur" ) )
+            'BEGIN{split(ifaces,a)
+            for (v in a) ifcs[a[v]] }
+            $0 ~ "^[[:blank:]]" {next }
+            $1 == "iface" {
+                if (i = index($2, ":"))
+                    iface = substr($2, 1, i-1)
+                else
+                    iface = $2
+                if (iface in ifcs && !($2 in arr)) arr[$2] }
+            $1 == "mapping" {
+                for (iface in ifcs)
+                    if (iface ~ $2  && !(iface in arr)) arr[iface] }
+            END{for (iface in arr) print iface}' \
+            < "/etc/network/interfaces")" -- "$cur" ) )
     elif [[ -f /etc/SuSE-release ]]; then
         # SuSE system
         COMPREPLY=( $( compgen -W "$( printf '%s\n' \
