@@ -1,0 +1,53 @@
+# jq(1) completion                                         -*- shell-script -*-
+
+_jq()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --help|--version|--arg|--argjson|--slurpfile|--argfile)
+            return
+            ;;
+        --indent)
+            COMPREPLY=( $( compgen -W '{1..8}' -- "$cur" ) )
+            return
+            ;;
+        --from-file|--run-tests|-!(-*)f)
+            _filedir
+            return
+            ;;
+        -!(-*)L)
+            _filedir -d
+            return
+            ;;
+    esac
+
+    case ${words[cword-2]} in
+        --arg|--argjson)
+            return
+            ;;
+        --slurpfile|--argfile)
+            _filedir json
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return
+    fi
+
+    local args
+    # TODO: DTRT with args taking 2 options
+    _count_args "" "@(--arg|--arg?(json|file)|--?(slurp|from-)file|--indent|--run-tests|-!(-*)[fL])"
+
+    # 1st arg is filter
+    [[ $args -eq 1 ]] && return
+    # 2... are input files
+    _filedir json
+
+} &&
+complete -F _jq jq
+
+# ex: filetype=sh
