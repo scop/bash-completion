@@ -8,14 +8,22 @@ _sqlite3()
     local dbexts='@(sqlite?(3)|?(s?(3))db)'
 
     case $prev in
-        -help|-version|-separator|-nullvalue|*.$dbexts)
+        -help|-version|-lookaside|-mmap|-newline|-nullvalue|-pagecache|\
+        -scratch|-separator|*.$dbexts)
             return
             ;;
         -init)
             _filedir
             return
             ;;
+        -cmd)
+            compopt -o filenames
+            COMPREPLY=( $( compgen -c -- "$cur" ) )
+            return
+            ;;
     esac
+
+    [[ ${words[cword-2]} == -@(lookaside|pagecache|scratch) ]] && return
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W '$( _parse_help "$1" -help )' -- "$cur" ) )
