@@ -6,15 +6,15 @@ _ss()
     _init_completion -s || return
 
     case $prev in
-        -h|--help|-V|--version)
+        --help|--version|-!(-*)[hV])
             return
             ;;
-        -f|--family)
+        --family|-!(-*)f)
             COMPREPLY=( $( compgen -W 'unix inet inet6 link netlink' \
                 -- "$cur" ) )
             return
             ;;
-        -A|--query)
+        --query|-!(-*)A)
             local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
             COMPREPLY=( $( compgen -W '$( "$1" --help | \
                 command sed -e "s/|/ /g" -ne "s/.*QUERY := {\([^}]*\)}.*/\1/p"  )' \
@@ -22,7 +22,7 @@ _ss()
             [[ ${#COMPREPLY[@]} -eq 1 ]] && COMPREPLY=( ${COMPREPLY/#/$prefix} )
             return
             ;;
-        -D|--diag|-F|--filter)
+        --diag|--filter|-!(-*)[DF])
             _filedir
             return
             ;;
