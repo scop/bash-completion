@@ -9,19 +9,20 @@ _sudo()
     [[ $1 == *sudoedit ]] && mode=edit
 
     [[ $mode == normal ]] &&
-    for (( i=1; i <= COMP_CWORD; i++ )); do
-        if [[ ${COMP_WORDS[i]} != -* ]]; then
+    for (( i=1; i <= cword; i++ )); do
+        if [[ ${words[i]} != -* ]]; then
             local PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
-            local root_command=${COMP_WORDS[i]}
+            local root_command=${words[i]}
             _command_offset $i
             return
         fi
-        if [[ ${COMP_WORDS[i]} == -@(e|-edit) ]]; then
+        if [[ ${words[i]} == -@(e|-edit) ]]; then
             mode=edit
             break
         fi
-        [[ ${COMP_WORDS[i]} == \
-           -@(user|other-user|group|close-from|prompt|[uUgCp]) ]] && ((i++))
+        [[ ${words[i]} == \
+            -@(user|other-user|group|close-from|prompt|[uUgCp]) ]] \
+            && ((i++))
     done
 
     case "$prev" in
@@ -44,6 +45,7 @@ _sudo()
         local opts=$( _parse_help "$1" )
         [[ $opts ]] || opts=$( _parse_usage "$1" )
         COMPREPLY=( $( compgen -W '$opts' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
     if [[ $mode == edit ]]; then
