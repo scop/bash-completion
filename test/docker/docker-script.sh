@@ -6,6 +6,11 @@ if [ $DIST = tools ]; then
     exit 0
 fi
 
+if [ "$BSD" ]; then
+    PATH=/usr/local/lib/bsd-bin:$PATH
+    export PATH
+fi
+
 export bashcomp_bash=bash
 env
 
