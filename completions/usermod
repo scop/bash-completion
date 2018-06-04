@@ -9,27 +9,27 @@ _usermod()
     #       with -u/--uid
 
     case $prev in
-        -c|--comment|-d|--home|-e|--expiredate|-f|--inactive|-h|--help|\
-        -l|--login|-p|--password|-u|--uid|-Z|--selinux-user)
+        --comment|--home|--expiredate|--inactive|--help|--login|--password|\
+        --uid|--selinux-user|-!(-*)[cdefhlpuZ])
             return
             ;;
-        -g|--gid)
+        --gid|-!(-*)g)
             _gids
             COMPREPLY=( $( compgen -W '${COMPREPLY[@]} $( compgen -g )' \
                 -- "$cur" ) )
             return
             ;;
-        -G|--groups)
+        --groups|-!(-*)G)
             local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
             COMPREPLY=( $( compgen -g -- "${cur##*,}" ) )
             [[ ${#COMPREPLY[@]} -eq 1 ]] && COMPREPLY=( ${COMPREPLY/#/$prefix} )
             return
             ;;
-        -R|--root)
+        --root|-!(-*)R)
             _filedir -d
             return
             ;;
-        -s|--shell)
+        --shell|-!(-*)s)
             _shells
             return
             ;;

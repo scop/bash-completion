@@ -513,7 +513,7 @@ _gtar()
         # user (TODO: is there any sane way to deal with this?).  This case
         # statement successes only if there already is PREV.
         case $prev in
-            -C|--directory)
+            --directory|-!(-*)C)
                 _filedir -d
                 break
                 ;;
@@ -529,18 +529,18 @@ _gtar()
                 COMPREPLY=( $( compgen -u -- "$cur" ) )
                 break
                 ;;
-            -F|--info-script|--new-volume-script|--rmt-command|--rsh-command|\
-            -I|--use-compress-program)
+            --info-script|--new-volume-script|--rmt-command|--rsh-command|\
+            --use-compress-program|-!(-*)[FI])
                 compopt -o filenames
                 COMPREPLY=( $( compgen -c -- "$cur" ) )
                 break
                 ;;
-            --volno-file|--add-file|-T|--files-from|-X|--exclude-from|\
-            --index-file|--listed-incremental|-g)
+            --volno-file|--add-file|--files-from|--exclude-from|\
+            --index-file|--listed-incremental|-!(-*)[TXg])
                 _filedir
                 break
                 ;;
-            -H|--format)
+            --format|-!(-*)H)
                 COMPREPLY=( $( compgen -W 'gnu oldgnu pax posix ustar v7' \
                     -- "$cur" ) )
                 break
@@ -559,7 +559,7 @@ _gtar()
                 COMPREPLY=( $( compgen -W "$(__gtar_parse_warnings)" -- "$cur" ) )
                 break
                 ;;
-            --file|-f|-!(-*)f)
+            --file|-!(-*)f)
                 __tar_file_option "$ext"
                 break
                 ;;
@@ -579,7 +579,7 @@ _gtar()
                 # Most probably, when code goes here, the PREV variable contains
                 # some string from "$long_arg_none" and we want continue.
                 ;;
-            -[a-zA-Z0-9?])
+            -!(-*)[a-zA-Z0-9?])
                 # argument required but no completion yet
                 [[ "$short_arg_req" =~ ${prev##-} ]] && break
                 ;;

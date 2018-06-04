@@ -9,27 +9,27 @@ _useradd()
     #       with -u/--uid
 
     case $prev in
-        -c|--comment|-h|--help|-e|--expiredate|-f|--inactive|-K|--key|\
-        -p|--password|-u|--uid|-Z|--selinux-user)
+        --comment|--help|--expiredate|--inactive|--key|--password|--uid|\
+        --selinux-user|-!(-*)[chefKpuZ])
             return
             ;;
-        -b|--base-dir|-d|--home-dir|-k|--skel|-R|--root)
+        --base-dir|--home-dir|--skel|--root|-!(-*)[bdkR])
             _filedir -d
             return
             ;;
-        -g|--gid)
+        --gid|-!(-*)g)
             _gids
             COMPREPLY=( $( compgen -W '${COMPREPLY[@]} $( compgen -g )' \
                 -- "$cur" ) )
             return
             ;;
-        -G|--groups)
+        --groups|-!(-*)G)
             local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
             COMPREPLY=( $( compgen -g -- "${cur##*,}" ) )
             [[ ${#COMPREPLY[@]} -eq 1 ]] && COMPREPLY=( ${COMPREPLY/#/$prefix} )
             return
             ;;
-        -s|--shell)
+        --shell|-!(-*)s)
             _shells
             return
             ;;
