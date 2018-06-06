@@ -1,0 +1,89 @@
+# fio(1) completion                                        -*- shell-script -*-
+
+_fio()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        --help|--version)
+            return
+            ;;
+        --debug)
+            local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
+            COMPREPLY=( $( compgen -W "process file io mem blktrace verify
+                random parse diskutil job mutex profile time net rate compress
+                steadystate helperthread" -- "${cur##*,}" ) )
+            [[ ${#COMPREPLY[@]} -eq 1 ]] && COMPREPLY=( ${COMPREPLY/#/$prefix} )
+            return
+            ;;
+        --output-format)
+            COMPREPLY=( $( compgen -W "terse json json+ normal" -- "$cur" ) )
+            return
+            ;;
+        --terse-version)
+            COMPREPLY=( $( compgen -W "2 3" -- "$cur" ) )
+            return
+            ;;
+        --cmdhelp)
+            # TODO more commands?
+            COMPREPLY=( $( compgen -W "all" -- "$cur" ) )
+            return
+            ;;
+        --enghelp)
+            # TODO print ioengine help, or list available ioengines
+            # TODO engine,help arg
+            return
+            ;;
+        --eta)
+            COMPREPLY=( $( compgen -W "always never auto" -- "$cur" ) )
+            return
+            ;;
+        --daemonize)
+            _filedir pid
+            return
+            ;;
+        --client)
+            _known_hosts_real -- "$cur"
+            return
+            ;;
+        --remote-config)
+            _filedir job
+            return
+            ;;
+        --idle-prof)
+            COMPREPLY=( $( compgen -W "system percpu calibrate" -- "$cur" ) )
+            return
+            ;;
+        --inflate-log)
+            _filedir log
+            return
+            ;;
+        --trigger-file)
+            _filedir
+            return
+            ;;
+        --trigger|--trigger-remote)
+            compopt -o filenames
+            COMPREPLY=( $( compgen -c -- "$cur" ) )
+            return
+            ;;
+        --aux-path)
+            _filedir -d
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir job
+} &&
+complete -F _fio fio
+
+# ex: filetype=sh
