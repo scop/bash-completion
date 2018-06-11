@@ -9,7 +9,7 @@ _pylint()
 
     case $prev in
         --version|--help|--long-help|--help-msg|--init-hook|--ignore|--enable|\
-        --disable|--evaluation|--max-line-length|--max-module-lines|\
+        --evaluation|--max-line-length|--max-module-lines|\
         --indent-string|--min-similarity-lines|--max-args|\
         --ignored-argument-names|--max-locals|--max-returns|--max-branchs|\
         --max-statements|--max-parents|--max-attributes|--min-public-methods|\
@@ -20,7 +20,11 @@ _pylint()
         --additional-builtins|--notes|--ignored-classes|--generated-members|\
         --overgeneral-exceptions|--ignore-iface-methods|\
         --defining-attr-methods|--valid-classmethod-first-arg|\
-        --valid-metaclass-classmethod-first-arg|-!(-*)[hed])
+        --valid-metaclass-classmethod-first-arg|-!(-*)[he])
+            return
+            ;;
+        --disable|-!(-*)d)
+            COMPREPLY=( $( compgen -W 'all' -- "$cur" ) )
             return
             ;;
         --rcfile)
@@ -29,7 +33,8 @@ _pylint()
             ;;
         --persistent|--include-ids|--symbols|--files-output|--reports|\
         --comment|--ignore-comments|--ignore-docstrings|--ignore-imports|\
-        --init-import|--ignore-mixin-members|--zope|-!(-*)[isr])
+        --init-import|--ignore-mixin-members|--zope|--suggestion-mode|\
+        -!(-*)[isr])
             COMPREPLY=( $( compgen -W 'yes no' -- "$cur" ) )
             return
             ;;
@@ -38,6 +43,16 @@ _pylint()
             cur="${cur##*,}"
             _xfunc python _python_modules $python
             [[ ${#COMPREPLY[@]} -eq 1 ]] && COMPREPLY=( ${COMPREPLY/#/$prefix} )
+            return
+            ;;
+        --jobs|-!(-*)j)
+            COMPREPLY=( $( compgen -W "{1..$(_ncpus)}" -- "$cur" ) )
+            return
+            ;;
+        --confidence)
+            # TODO comma separated?
+            COMPREPLY=( $( compgen -W "HIGH INFERENCE INFERENCE_FAILURE
+                UNDEFINED" -- "$cur" ) )
             return
             ;;
         --format|-!(-*)f)
