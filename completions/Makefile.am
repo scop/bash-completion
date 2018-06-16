@@ -129,6 +129,7 @@ bashcomp_DATA = 2to3 \
 		gpasswd \
 		gpg \
 		gpg2 \
+		gpgv \
 		gphoto2 \
 		gprof \
 		groupadd \
@@ -517,6 +518,7 @@ CLEANFILES = \
 	gmplayer \
 	gnumake \
 	gpc \
+	gpgv2 \
 	hciattach \
 	hciconfig \
 	hd \
@@ -784,6 +786,10 @@ symlinks: $(targetdir) $(DATA)
 	for file in gkrellm2 ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) gkrellm $(targetdir)/$$file ; \
+	done
+	for file in gpgv2 ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) gpgv $(targetdir)/$$file ; \
 	done
 	for file in pigz ; do \
 		rm -f $(targetdir)/$$file && \

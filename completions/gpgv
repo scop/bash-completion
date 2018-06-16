@@ -1,0 +1,46 @@
+# gpgv(1) completion                                       -*- shell-script -*-
+
+_gpgv()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --help|--version|--weak-digest|--*-fd|-!(-*)[?h]*)
+            return
+            ;;
+        --keyring)
+            _filedir "@(gpg|kbx)"
+            return
+            ;;
+        --homedir)
+            _filedir -d
+            return
+            ;;
+    esac
+
+    local args
+    _count_args "" "--@(weak-digest|*-fd|keyring|homedir)"
+
+    if [[ $cur == -* && $args -eq 1 ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return
+    fi
+
+    if [[ $args -gt 1 ]]; then
+        if [[ ${COMP_LINE,,} == *.@(asc|sig|sign)\ * ]]; then
+            # Detached signature, only complete one arbitrary file arg and -
+            if [[ $args -eq 2 ]]; then
+                COMPREPLY=( $( compgen -W '-' -- "$cur" ) )
+                _filedir
+            fi
+        else
+            _filedir gpg
+        fi
+    else
+        _filedir "@(asc|gpg|sig|sign)"
+    fi
+} &&
+complete -F _gpgv gpgv gpgv2
+
+# ex: filetype=sh
