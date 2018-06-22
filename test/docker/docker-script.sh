@@ -21,9 +21,9 @@ make
 make -C completions check
 
 cd test
-xvfb-run ./runCompletion --all
-./runInstall --all
-./runUnit --all
+xvfb-run ./runCompletion --all --verbose
+./runInstall --verbose --all --verbose
+./runUnit --all --verbose
 
 cd ..
 mkdir install-test
