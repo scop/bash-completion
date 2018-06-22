@@ -1145,7 +1145,8 @@ _services()
         $( printf '%s\n' ${sysvdirs[0]}/!($_backup_glob|functions|README) ) )
     $reset
 
-    COMPREPLY+=( $( systemctl list-units --full --all 2>/dev/null | \
+    COMPREPLY+=( $( { systemctl list-units --full --all || \
+                      systemctl list-unit-files; } 2>/dev/null | \
         awk '$1 ~ /\.service$/ { sub("\\.service$", "", $1); print $1 }' ) )
 
     if [[ -x /sbin/upstart-udev-bridge ]]; then
