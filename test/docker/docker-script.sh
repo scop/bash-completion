@@ -2,7 +2,7 @@
 
 if [ $DIST = tools ]; then
     perlcritic helpers/perl
-    flake8 helpers/python
+    flake8 helpers/python test
     exit 0
 fi
 
@@ -21,6 +21,7 @@ make
 make -C completions check
 
 cd test
+xvfb-run pytest t
 xvfb-run ./runCompletion --all --verbose
 ./runInstall --verbose --all --verbose
 ./runUnit --all --verbose
