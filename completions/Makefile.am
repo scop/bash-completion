@@ -85,6 +85,7 @@ bashcomp_DATA = 2to3 \
 		dsniff \
 		dumpdb \
 		dumpe2fs \
+		duply \
 		e2freefrag \
 		e2label \
 		ebtables \
