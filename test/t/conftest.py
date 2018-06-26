@@ -181,14 +181,20 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
         pexpect.TIMEOUT,
     ])
     if got == 0:
+        line = bash.before
+        if line.endswith(MAGIC_MARK):
+            line = bash.before[:-len(MAGIC_MARK)]
         result = CompletionResult(
-            bash.before,
-            [x for x in re.split(r" {2,}|\r\n", bash.before) if x],
+            line,
+            [x for x in re.split(r" {2,}|\r\n", line) if x],
         )
     elif got == 2:
+        line = bash.after
+        if line.endswith(MAGIC_MARK):
+            line = bash.after[:-len(MAGIC_MARK)]
         result = CompletionResult(
-            bash.after,
-            shlex.split(cmd + bash.after)[-1],
+            line,
+            shlex.split(cmd + line)[-1],
         )
     else:
         # TODO: warn about EOF/TIMEOUT?
