@@ -194,7 +194,7 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
             line = bash.after[:-len(MAGIC_MARK)]
         result = CompletionResult(
             line,
-            shlex.split(cmd + line)[-1],
+            [shlex.split(cmd + line)[-1]],
         )
     else:
         # TODO: warn about EOF/TIMEOUT?
