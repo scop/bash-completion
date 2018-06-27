@@ -2,18 +2,33 @@
 
 # Generate skeleton files for completion of specified command.
 
-if [[ $# -ne 1 ]]; then
-    echo "Usage: $0 command" >&2
+shopt -s extglob
+
+if [[ $# -lt 1 ]]; then
+    echo "Usage: $0 command [args...]" >&2
     exit 1
 fi
 
-cat <<EOF >t/test_$1.py
+cmd=$1
+file=$1
+arg=${2-}
+name=
+marker=
+
+[[ $arg == +(-) ]] && name=dash
+
+if [[ $cmd == *.* ]]; then
+    file=${cmd//./-}
+    marker=$'\n'"@pytest.mark.command(\"$cmd\")"
+fi
+
+cat <<EOF >t/test_$file.py
 import pytest
 
-
+$marker
 class Test(object):
 
-    @pytest.mark.complete("$1 ")
-    def test_(self, completion):
+    @pytest.mark.complete("$1 $arg")
+    def test_$name(self, completion):
         assert completion.list
 EOF
