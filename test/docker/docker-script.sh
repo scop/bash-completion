@@ -21,7 +21,7 @@ make
 make -C completions check
 
 cd test
-xvfb-run pytest t
+xvfb-run ${PYTEST:-pytest-3} t
 xvfb-run ./runCompletion --all --verbose
 ./runInstall --verbose --all --verbose
 ./runUnit --all --verbose
