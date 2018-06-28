@@ -20,8 +20,14 @@ make
 
 make -C completions check
 
+if [ $DIST = centos6 ]; then
+    : ${PYTEST:=/root/.local/bin/pytest}
+else
+    : ${PYTEST:=pytest-3}
+fi
+
 cd test
-xvfb-run ${PYTEST:-pytest-3} t
+xvfb-run $PYTEST t
 xvfb-run ./runCompletion --all --verbose
 ./runInstall --verbose --all --verbose
 ./runUnit --all --verbose
