@@ -2,6 +2,7 @@ FROM ubuntu:14.04
 
 RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get update \
+    && apt-get -y upgrade \
     && apt-get -y --no-install-recommends install \
         autoconf \
         automake \
