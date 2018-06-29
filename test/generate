@@ -32,3 +32,29 @@ class Test(object):
     def test_$name(self, completion):
         assert completion.list
 EOF
+
+tmpfile=$(mktemp)
+trap "{ rm -f $tmpfile; }" EXIT
+in_extra_dist=
+added=
+IFS=$'\n'
+while read -r line; do
+    if [[ $in_extra_dist ]]; then
+        if [[ $line != $'\t'* ]]; then
+            if [[ ! $added ]]; then
+                echo -e "\ttest_$file.py \\"
+                added=true
+            fi
+            in_extra_dist=
+        elif [[ ! $added && $line > $'\t'test_$file.py ]]; then
+            echo -e "\ttest_$file.py \\"
+            added=true
+        fi
+        echo "$line"
+    else
+        if [[ $line == EXTRA_DIST\ * ]]; then
+            in_extra_dist=true
+        fi
+        echo "$line"
+    fi
+done < t/Makefile.am > $tmpfile && mv -f $tmpfile t/Makefile.am

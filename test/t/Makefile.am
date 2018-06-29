@@ -98,3 +98,5 @@ EXTRA_DIST = \
 	test_yum-arch.py \
 	test_yum.py \
 	test_zopflipng.py \
+
+all:
