@@ -20,11 +20,14 @@ make
 
 make -C completions check
 
-if [ $DIST = centos6 ]; then
-    : ${PYTEST:=/root/.local/bin/pytest}
-else
-    : ${PYTEST:=pytest-3}
-fi
+case $DIST in
+    centos6|ubuntu14)
+        : ${PYTEST:=/root/.local/bin/pytest}
+        ;;
+    *)
+        : ${PYTEST:=pytest-3}
+        ;;
+esac
 
 cd test
 xvfb-run $PYTEST t
