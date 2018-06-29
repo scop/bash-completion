@@ -1,6 +1,35 @@
 EXTRA_DIST = \
 	conftest.py \
 	test_pkgadd.py \
+	test_qemu.py \
+	test_qrunner.py \
+	test_querybts.py \
+	test_quotacheck.py \
+	test_quotaon.py \
+	test_quota.py \
+	test_radvdump.py \
+	test_rcsdiff.py \
+	test_rcs.py \
+	test_rdesktop.py \
+	test_rdict.py \
+	test_readelf.py \
+	test_readonly.py \
+	test_repomanage.py \
+	test_reportbug.py \
+	test_reptyr.py \
+	test_resolvconf.py \
+	test_rfcomm.py \
+	test_rfkill.py \
+	test_rlog.py \
+	test_rmlist.py \
+	test_rmmod.py \
+	test_rm.py \
+	test_route.py \
+	test_rpcdebug.py \
+	test_rpmbuild.py \
+	test_rrdtool.py \
+	test_rtcwake.py \
+	test_runuser.py \
 	test_sbopkg.py \
 	test_sdptool.py \
 	test_seq.py \
