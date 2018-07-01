@@ -1,5 +1,11 @@
 EXTRA_DIST = \
 	conftest.py \
+	test_objcopy.py \
+	test_objdump.py \
+	test_od.py \
+	test_oggdec.py \
+	test_opera.py \
+	test_optipng.py \
 	test_pkgadd.py \
 	test_qemu.py \
 	test_qrunner.py \
