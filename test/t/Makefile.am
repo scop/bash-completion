@@ -41,6 +41,7 @@ EXTRA_DIST = \
 	test_cardctl.py \
 	test_cat.py \
 	test_cc.py \
+	test_cdrecord.py \
 	test_cfagent.py \
 	test_cfrun.py \
 	test_chage.py \
@@ -83,6 +84,7 @@ EXTRA_DIST = \
 	test_dmesg.py \
 	test_dnsspoof.py \
 	test_dot.py \
+	test_dpkg-deb.py \
 	test_dpkg-reconfigure.py \
 	test_dpkg-source.py \
 	test_dropuser.py \
@@ -126,6 +128,7 @@ EXTRA_DIST = \
 	test_gpasswd.py \
 	test_gpc.py \
 	test_gperf.py \
+	test_gpg2.py \
 	test_gpg.py \
 	test_gphoto2.py \
 	test_g++.py \
@@ -238,6 +241,7 @@ EXTRA_DIST = \
 	test_newlist.py \
 	test_newusers.py \
 	test_nl.py \
+	test_nmap.py \
 	test_nmcli.py \
 	test_nm.py \
 	test_nslookup.py \
