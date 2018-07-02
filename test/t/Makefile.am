@@ -1,12 +1,290 @@
 EXTRA_DIST = \
 	conftest.py \
+	test_2to3.py \
+	test_a2ps.py \
+	test_a2x.py \
+	test_abook.py \
+	test_aclocal.py \
+	test_acpi.py \
+	test_adb.py \
+	test_add_members.py \
+	test_alpine.py \
+	test_animate.py \
+	test_apache2ctl.py \
+	test_appdata-validate.py \
+	test_apt-build.py \
+	test_apt-cache.py \
+	test_aptitude.py \
+	test_arpspoof.py \
+	test_asciidoc.py \
+	test_aspell.py \
+	test_autoconf.py \
+	test_autoheader.py \
+	test_automake.py \
+	test_autoreconf.py \
+	test_autorpm.py \
+	test_autoscan.py \
+	test_autoupdate.py \
+	test_avctrl.py \
+	test_awk.py \
+	test_badblocks.py \
+	test_base64.py \
+	test_bash.py \
+	test_bc.py \
+	test_bison.py \
+	test_bk.py \
+	test_brctl.py \
+	test_btdownloadcurses-py.py \
+	test_btdownloadgui-py.py \
+	test_btdownloadheadless-py.py \
+	test_cal.py \
+	test_cardctl.py \
+	test_cat.py \
+	test_cc.py \
+	test_cfagent.py \
+	test_cfrun.py \
+	test_chage.py \
+	test_check_db.py \
+	test_check_perms.py \
+	test_checksec.py \
+	test_chfn.py \
+	test_chgrp.py \
+	test_chpasswd.py \
+	test_chroot.py \
+	test_ciptool.py \
+	test_ci.py \
+	test_civclient.py \
+	test_civserver.py \
+	test_cksfv.py \
+	test_clisp.py \
+	test_clone_member.py \
+	test_compare.py \
+	test_complete.py \
+	test_composite.py \
+	test_config_list.py \
+	test_conjure.py \
+	test_co.py \
+	test_cowsay.py \
+	test_cpan2dist.py \
+	test_cp.py \
+	test_c++.py \
+	test_crontab.py \
+	test_cryptsetup.py \
+	test_csplit.py \
+	test_cut.py \
+	test_date.py \
+	test_desktop-file-validate.py \
+	test_df.py \
+	test_dfutool.py \
+	test_dhclient.py \
+	test_dict.py \
+	test_diff.py \
+	test_dir.py \
+	test_dmesg.py \
+	test_dnsspoof.py \
+	test_dot.py \
+	test_dpkg-reconfigure.py \
+	test_dpkg-source.py \
+	test_dropuser.py \
+	test_dsniff.py \
+	test_dumpe2fs.py \
+	test_du.py \
+	test_e2freefrag.py \
+	test_e2label.py \
+	test_ebtables.py \
+	test_ecryptfs-migrate-home.py \
+	test_eject.py \
+	test_enscript.py \
+	test_eog.py \
+	test_ether-wake.py \
+	test_etherwake.py \
+	test_faillog.py \
+	test_fbgs.py \
+	test_fbi.py \
+	test_filefrag.py \
+	test_file-roller.py \
+	test_filesnarf.py \
+	test_find_member.py \
+	test_freebsd-update.py \
+	test_freeciv-gtk2.py \
+	test_freeciv-server.py \
+	test_fusermount.py \
+	test_g4.py \
+	test_g77.py \
+	test_gcc.py \
+	test_gcj.py \
+	test_gcl.py \
+	test_gendiff.py \
+	test_genisoimage.py \
+	test_geoiplookup.py \
+	test_getent.py \
+	test_gkrellm.py \
+	test_gmplayer.py \
+	test_gnatmake.py \
+	test_gnokii.py \
+	test_gnome-mplayer.py \
+	test_gpasswd.py \
+	test_gpc.py \
+	test_gperf.py \
+	test_gpg.py \
+	test_gphoto2.py \
+	test_g++.py \
+	test_grep.py \
+	test_groupdel.py \
+	test_groupmems.py \
+	test_growisofs.py \
+	test_grpck.py \
+	test_grub.py \
+	test_hciattach.py \
+	test_hciconfig.py \
+	test_hcitool.py \
+	test_hddtemp.py \
+	test_hexdump.py \
+	test_hostname.py \
+	test_host.py \
+	test_hping2.py \
+	test_hping3.py \
+	test_htop.py \
+	test_hwclock.py \
+	test_identify.py \
+	test_idn.py \
+	test_id.py \
+	test_iftop.py \
+	test_import.py \
+	test_insmod.py \
+	test_interdiff.py \
+	test_invoke-rc-d.py \
+	test_ionice.py \
+	test_ipmitool.py \
+	test_ipsec.py \
+	test_iptables.py \
+	test_irb.py \
+	test_iwconfig.py \
+	test_iwlist.py \
+	test_iwpriv.py \
+	test_iwspy.py \
+	test_jar.py \
+	test_jarsigner.py \
+	test_javaws.py \
+	test_jpegoptim.py \
+	test_jps.py \
+	test_jshint.py \
+	test_k3b.py \
+	test_kldload.py \
+	test_kplayer.py \
+	test_l2ping.py \
+	test_lastlog.py \
+	test_ldapadd.py \
+	test_ldapcompare.py \
+	test_ldapdelete.py \
+	test_ldapmodrdn.py \
+	test_ldappasswd.py \
+	test_ldapsearch.py \
+	test_ldapvi.py \
+	test_ldapwhoami.py \
+	test_ldd.py \
+	test_ld.py \
+	test_less.py \
+	test_lftpget.py \
+	test_lilo.py \
+	test_lintian.py \
+	test_lisp.py \
+	test_list_admins.py \
+	test_list_lists.py \
+	test_list_members.py \
+	test_ln.py \
+	test_lpq.py \
+	test_lpr.py \
+	test_lsusb.py \
+	test_luac.py \
+	test_lua.py \
+	test_luseradd.py \
+	test_luserdel.py \
+	test_lusermod.py \
+	test_lzip.py \
+	test_macof.py \
+	test_mailsnarf.py \
+	test_mc.py \
+	test_md5sum.py \
+	test_mdadm.py \
+	test_mdecrypt.py \
+	test_mdtool.py \
+	test_medusa.py \
+	test_mii-diag.py \
+	test_mii-tool.py \
+	test_minicom.py \
+	test_mkfifo.py \
+	test_mkinitrd.py \
+	test_mknod.py \
+	test_mktemp.py \
+	test_mmsitepass.py \
+	test_mock.py \
+	test_module.py \
+	test_mogrify.py \
+	test_monodevelop.py \
+	test_montage.py \
+	test_msgsnarf.py \
+	test_msynctool.py \
+	test_mtx.py \
+	test_munin-run.py \
+	test_mussh.py \
+	test_muttng.py \
+	test_mv.py \
+	test_mysqladmin.py \
+	test_nc.py \
+	test_nethogs.py \
+	test_netstat.py \
+	test_newgrp.py \
+	test_newlist.py \
+	test_newusers.py \
+	test_nl.py \
+	test_nmcli.py \
+	test_nm.py \
+	test_nslookup.py \
+	test_ntpdate.py \
 	test_objcopy.py \
 	test_objdump.py \
 	test_od.py \
 	test_oggdec.py \
 	test_opera.py \
 	test_optipng.py \
+	test_p4.py \
+	test_pack200.py \
+	test_paste.py \
+	test_patch.py \
+	test_pdftotext.py \
+	test_phing.py \
+	test_pine.py \
 	test_pkgadd.py \
+	test_pkg_delete.py \
+	test_pkg-get.py \
+	test_pkg_info.py \
+	test_pkgrm.py \
+	test_pkgtool.py \
+	test_pkgutil.py \
+	test_pkill.py \
+	test_plague-client.py \
+	test_pm-hibernate.py \
+	test_pm-is-supported.py \
+	test_pm-powersave.py \
+	test_portsnap.py \
+	test_postcat.py \
+	test_postfix.py \
+	test_postmap.py \
+	test_postsuper.py \
+	test_povray.py \
+	test_protoc.py \
+	test_pr.py \
+	test_ptx.py \
+	test_pushd.py \
+	test_pvmove.py \
+	test_pvscan.py \
+	test_pwck.py \
+	test_pwd.py \
+	test_pwdx.py \
+	test_pwgen.py \
+	test_pyflakes.py \
+	test_pyvenv.py \
 	test_qemu.py \
 	test_qrunner.py \
 	test_querybts.py \
@@ -20,6 +298,7 @@ EXTRA_DIST = \
 	test_rdict.py \
 	test_readelf.py \
 	test_readonly.py \
+	test_remove_members.py \
 	test_repomanage.py \
 	test_reportbug.py \
 	test_reptyr.py \
@@ -74,6 +353,7 @@ EXTRA_DIST = \
 	test_svnadmin.py \
 	test_svnlook.py \
 	test_svn.py \
+	test_sync_members.py \
 	test_sysbench.py \
 	test_tac.py \
 	test_tcpdump.py \
@@ -103,12 +383,14 @@ EXTRA_DIST = \
 	test_vdir.py \
 	test_vgchange.py \
 	test_vgcreate.py \
+	test_vgsplit.py \
 	test_vipw.py \
 	test_vmstat.py \
 	test_vpnc.py \
 	test_watch.py \
 	test_webmitm.py \
 	test_wget.py \
+	test_withlist.py \
 	test_wodim.py \
 	test_write.py \
 	test_wsimport.py \
