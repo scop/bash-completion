@@ -37,6 +37,7 @@ EXTRA_DIST = \
 	test_btdownloadcurses-py.py \
 	test_btdownloadgui-py.py \
 	test_btdownloadheadless-py.py \
+	test_bts.py \
 	test_cal.py \
 	test_cardctl.py \
 	test_cat.py \
@@ -287,7 +288,10 @@ EXTRA_DIST = \
 	test_pwd.py \
 	test_pwdx.py \
 	test_pwgen.py \
+	test_pydoc.py \
 	test_pyflakes.py \
+	test_pylint-3.py \
+	test_pylint.py \
 	test_pyvenv.py \
 	test_qemu.py \
 	test_qrunner.py \
@@ -303,6 +307,7 @@ EXTRA_DIST = \
 	test_readelf.py \
 	test_readonly.py \
 	test_remove_members.py \
+	test_renice.py \
 	test_repomanage.py \
 	test_reportbug.py \
 	test_reptyr.py \
