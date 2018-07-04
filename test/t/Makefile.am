@@ -15,6 +15,7 @@ EXTRA_DIST = \
 	test_apt-build.py \
 	test_apt-cache.py \
 	test_aptitude.py \
+	test_arping.py \
 	test_arpspoof.py \
 	test_asciidoc.py \
 	test_aspell.py \
@@ -31,6 +32,7 @@ EXTRA_DIST = \
 	test_base64.py \
 	test_bash.py \
 	test_bc.py \
+	test_bind.py \
 	test_bison.py \
 	test_bk.py \
 	test_brctl.py \
@@ -65,6 +67,7 @@ EXTRA_DIST = \
 	test_composite.py \
 	test_config_list.py \
 	test_conjure.py \
+	test_convert.py \
 	test_co.py \
 	test_cowsay.py \
 	test_cpan2dist.py \
@@ -111,12 +114,14 @@ EXTRA_DIST = \
 	test_freebsd-update.py \
 	test_freeciv-gtk2.py \
 	test_freeciv-server.py \
+	test_function.py \
 	test_fusermount.py \
 	test_g4.py \
 	test_g77.py \
 	test_gcc.py \
 	test_gcj.py \
 	test_gcl.py \
+	test_gdb.py \
 	test_gendiff.py \
 	test_genisoimage.py \
 	test_geoiplookup.py \
@@ -163,6 +168,7 @@ EXTRA_DIST = \
 	test_ipsec.py \
 	test_iptables.py \
 	test_irb.py \
+	test_iscsiadm.py \
 	test_iwconfig.py \
 	test_iwlist.py \
 	test_iwpriv.py \
@@ -177,6 +183,7 @@ EXTRA_DIST = \
 	test_kldload.py \
 	test_kplayer.py \
 	test_l2ping.py \
+	test_larch.py \
 	test_lastlog.py \
 	test_ldapadd.py \
 	test_ldapcompare.py \
@@ -205,6 +212,7 @@ EXTRA_DIST = \
 	test_luseradd.py \
 	test_luserdel.py \
 	test_lusermod.py \
+	test_lvm.py \
 	test_lzip.py \
 	test_macof.py \
 	test_mailsnarf.py \
@@ -230,6 +238,7 @@ EXTRA_DIST = \
 	test_msgsnarf.py \
 	test_msynctool.py \
 	test_mtx.py \
+	test_munin-node-configure.py \
 	test_munin-run.py \
 	test_mussh.py \
 	test_muttng.py \
