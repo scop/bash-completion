@@ -55,6 +55,7 @@ EXTRA_DIST = \
 	test_chgrp.py \
 	test_chpasswd.py \
 	test_chroot.py \
+	test_chsh.py \
 	test_ciptool.py \
 	test_ci.py \
 	test_civclient.py \
@@ -108,6 +109,7 @@ EXTRA_DIST = \
 	test_fbgs.py \
 	test_fbi.py \
 	test_filefrag.py \
+	test_file.py \
 	test_file-roller.py \
 	test_filesnarf.py \
 	test_find_member.py \
@@ -139,6 +141,7 @@ EXTRA_DIST = \
 	test_gphoto2.py \
 	test_g++.py \
 	test_grep.py \
+	test_groupadd.py \
 	test_groupdel.py \
 	test_groupmems.py \
 	test_growisofs.py \
@@ -165,6 +168,7 @@ EXTRA_DIST = \
 	test_invoke-rc-d.py \
 	test_ionice.py \
 	test_ipmitool.py \
+	test_ip.py \
 	test_ipsec.py \
 	test_iptables.py \
 	test_irb.py \
@@ -181,6 +185,7 @@ EXTRA_DIST = \
 	test_jshint.py \
 	test_k3b.py \
 	test_kldload.py \
+	test_koji.py \
 	test_kplayer.py \
 	test_l2ping.py \
 	test_larch.py \
@@ -198,6 +203,7 @@ EXTRA_DIST = \
 	test_less.py \
 	test_lftpget.py \
 	test_lilo.py \
+	test_links.py \
 	test_lintian.py \
 	test_lisp.py \
 	test_list_admins.py \
@@ -206,6 +212,8 @@ EXTRA_DIST = \
 	test_ln.py \
 	test_lpq.py \
 	test_lpr.py \
+	test_lsof.py \
+	test_lsscsi.py \
 	test_lsusb.py \
 	test_luac.py \
 	test_lua.py \
@@ -244,6 +252,7 @@ EXTRA_DIST = \
 	test_muttng.py \
 	test_mv.py \
 	test_mysqladmin.py \
+	test_ncftp.py \
 	test_nc.py \
 	test_nethogs.py \
 	test_netstat.py \
@@ -254,6 +263,7 @@ EXTRA_DIST = \
 	test_nmap.py \
 	test_nmcli.py \
 	test_nm.py \
+	test_nproc.py \
 	test_nslookup.py \
 	test_ntpdate.py \
 	test_objcopy.py \
@@ -267,8 +277,10 @@ EXTRA_DIST = \
 	test_paste.py \
 	test_patch.py \
 	test_pdftotext.py \
+	test_pgrep.py \
 	test_phing.py \
 	test_pine.py \
+	test_ping.py \
 	test_pkgadd.py \
 	test_pkg_delete.py \
 	test_pkg-get.py \
@@ -416,6 +428,7 @@ EXTRA_DIST = \
 	test_wvdial.py \
 	test_xdg-mime.py \
 	test_xdg-settings.py \
+	test_xfreerdp.py \
 	test_xgamma.py \
 	test_xmllint.py \
 	test_xmlwf.py \
