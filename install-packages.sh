@@ -55,6 +55,7 @@ netscript-2.4
 openresolv
 percona-xtradb-cluster-client-5.5
 postgres-xc-client
+python3.5-venv
 strongswan-starter
 sudo-ldap
 xserver-xorg-input-synaptics-lts-utopic
