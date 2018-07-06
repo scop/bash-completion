@@ -45,6 +45,7 @@ EXTRA_DIST = \
 	test_cardctl.py \
 	test_cat.py \
 	test_cc.py \
+	test_ccze.py \
 	test_cdrecord.py \
 	test_cfagent.py \
 	test_cfrun.py \
@@ -56,6 +57,7 @@ EXTRA_DIST = \
 	test_chfn.py \
 	test_chgrp.py \
 	test_chpasswd.py \
+	test_chronyc.py \
 	test_chroot.py \
 	test_chrpath.py \
 	test_chsh.py \
@@ -155,6 +157,7 @@ EXTRA_DIST = \
 	test_gperf.py \
 	test_gpg2.py \
 	test_gpg.py \
+	test_gpgv.py \
 	test_gphoto2.py \
 	test_gprof.py \
 	test_g++.py \
@@ -213,6 +216,7 @@ EXTRA_DIST = \
 	test_kldload.py \
 	test_koji.py \
 	test_kplayer.py \
+	test_ktutil.py \
 	test_l2ping.py \
 	test_larch.py \
 	test_lastlog.py \
@@ -266,6 +270,7 @@ EXTRA_DIST = \
 	test_mailmanctl.py \
 	test_mailsnarf.py \
 	test_mc.py \
+	test_mcrypt.py \
 	test_md5sum.py \
 	test_mdadm.py \
 	test_mdecrypt.py \
@@ -358,6 +363,7 @@ EXTRA_DIST = \
 	test_pvcreate.py \
 	test_pvdisplay.py \
 	test_pvmove.py \
+	test_pv.py \
 	test_pvremove.py \
 	test_pvscan.py \
 	test_pvs.py \
