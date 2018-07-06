@@ -8,13 +8,13 @@ RUN sed -i -e /tsflags=nodocs/d /etc/yum.conf \
         /usr/bin/autoconf \
         /usr/bin/automake \
         /usr/bin/make \
-        /usr/bin/python3 \
+        /usr/bin/easy_install-3.4 \
         # /usr/bin/which: https://bugzilla.redhat.com/show_bug.cgi?id=1443357 \
         /usr/bin/which \
         /usr/bin/xvfb-run \
         dejagnu \
         tcllib \
-    && $(ls /usr/bin/easy_install-3* | head -n 1) pip \
+    && easy_install-3.4 pip \
     && pip3 install --ignore-installed --user pytest pexpect typing
 
 ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Makefile.am /tmp/cache-buster
