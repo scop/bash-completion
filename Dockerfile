@@ -15,7 +15,7 @@ RUN sed -i -e /tsflags=nodocs/d /etc/yum.conf \
         dejagnu \
         tcllib \
     && easy_install-3.4 pip \
-    && pip3 install --ignore-installed --user pytest pexpect typing
+    && pip3 install --ignore-installed --user pytest-xdist pexpect typing
 
 ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Makefile.am /tmp/cache-buster
 COPY install-packages.sh /tmp
