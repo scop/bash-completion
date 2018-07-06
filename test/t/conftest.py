@@ -185,6 +185,9 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
         else:
             pytest.skip(skipif)
             return CompletionResult("", [])
+    cwd = marker.kwargs.get("cwd")
+    if cwd:
+        assert_bash_exec(bash, "cd '%s'" % cwd)
     cmd = marker.args[0]
     bash.send(cmd + "\t")
     bash.expect_exact(cmd)
@@ -217,4 +220,6 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
         result = CompletionResult("", [])
     bash.sendintr()
     bash.expect_exact(PS1)
+    if cwd:
+        assert_bash_exec(bash, "cd - >/dev/null; unset OLDPWD")
     return result
