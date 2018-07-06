@@ -52,6 +52,12 @@ def bash(request) -> pexpect.spawn:
         if match:
             cmd = match.group(1)
 
+    # Run pre-test commands
+    marker = request.node.get_marker("pre_commands")
+    if marker:
+        for pre_cmd in marker.args:
+            assert_bash_exec(bash, pre_cmd)
+
     if is_testable(bash, cmd):
         before_env = get_env(bash)
         yield bash
