@@ -5,7 +5,7 @@ class Test(object):
 
     @pytest.mark.complete("lsscsi ")
     def test_(self, completion):
-        assert completion.list
+        assert not completion.list
 
     @pytest.mark.complete("lsscsi -")
     def test_dash(self, completion):
