@@ -6,6 +6,7 @@ EXTRA_DIST = \
 	test_abook.py \
 	test_aclocal.py \
 	test_acpi.py \
+	test_acroread.py \
 	test_adb.py \
 	test_add_members.py \
 	test_alpine.py \
@@ -14,6 +15,7 @@ EXTRA_DIST = \
 	test_appdata-validate.py \
 	test_apt-build.py \
 	test_apt-cache.py \
+	test_apt-get.py \
 	test_aptitude.py \
 	test_arch.py \
 	test_arping.py \
@@ -85,6 +87,7 @@ EXTRA_DIST = \
 	test_crontab.py \
 	test_cryptsetup.py \
 	test_csplit.py \
+	test_curl.py \
 	test_cut.py \
 	test_date.py \
 	test_deja-dup.py \
@@ -207,6 +210,7 @@ EXTRA_DIST = \
 	test_iwspy.py \
 	test_jar.py \
 	test_jarsigner.py \
+	test_javac.py \
 	test_javaws.py \
 	test_jpegoptim.py \
 	test_jps.py \
@@ -245,6 +249,7 @@ EXTRA_DIST = \
 	test_lpq.py \
 	test_lpr.py \
 	test_lsof.py \
+	test_lspci.py \
 	test_lsscsi.py \
 	test_lsusb.py \
 	test_luac.py \
@@ -327,6 +332,7 @@ EXTRA_DIST = \
 	test_paste.py \
 	test_patch.py \
 	test_pdftotext.py \
+	test_perltidy.py \
 	test_pgrep.py \
 	test_phing.py \
 	test_pidof.py \
@@ -502,6 +508,7 @@ EXTRA_DIST = \
 	test_vgsplit.py \
 	test_vgs.py \
 	test_vipw.py \
+	test_vi.py \
 	test_vmstat.py \
 	test_vpnc.py \
 	test_watch.py \
