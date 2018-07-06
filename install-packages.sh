@@ -12,6 +12,7 @@ apt-get -y upgrade
 
 apt-get -y --no-install-recommends install \
         apt-file \
+        curl \
         git \
         software-properties-common
 
