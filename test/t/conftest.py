@@ -47,7 +47,8 @@ def bash(request) -> pexpect.spawn:
     if marker:
         cmd = marker.args[0]
     else:
-        match = re.search(r"^test_(.+)\.py$", os.path.basename(request.fspath))
+        match = re.search(
+            r"^test_(.+)\.py$", os.path.basename(str(request.fspath)))
         if match:
             cmd = match.group(1)
 
@@ -162,9 +163,8 @@ def diff_env(before: List[str], after: List[str]):
     assert not diff, "Environment should not be modified"
 
 
-class CompletionResult(NamedTuple):
-    line: str
-    list: List[str]
+CompletionResult = NamedTuple(
+    "CompletionResult", [("line", str), ("list", List[str])])
 
 
 @pytest.fixture(autouse=True)
