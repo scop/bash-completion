@@ -531,6 +531,7 @@ CLEANFILES = \
 	ifstatus \
 	import \
 	insmod.static \
+	iperf3 \
 	javac \
 	javadoc \
 	kplayer \
@@ -819,6 +820,10 @@ symlinks: $(targetdir) $(DATA)
 	for file in insmod.static ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) insmod $(targetdir)/$$file ; \
+	done
+	for file in iperf3 ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) iperf $(targetdir)/$$file ; \
 	done
 	for file in javac javadoc ; do \
 		rm -f $(targetdir)/$$file && \
