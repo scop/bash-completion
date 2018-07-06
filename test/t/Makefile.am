@@ -55,6 +55,7 @@ EXTRA_DIST = \
 	test_chgrp.py \
 	test_chpasswd.py \
 	test_chroot.py \
+	test_chrpath.py \
 	test_chsh.py \
 	test_ciptool.py \
 	test_ci.py \
@@ -79,6 +80,7 @@ EXTRA_DIST = \
 	test_csplit.py \
 	test_cut.py \
 	test_date.py \
+	test_deja-dup.py \
 	test_desktop-file-validate.py \
 	test_df.py \
 	test_dfutool.py \
@@ -86,6 +88,7 @@ EXTRA_DIST = \
 	test_dict.py \
 	test_diff.py \
 	test_dir.py \
+	test_display.py \
 	test_dmesg.py \
 	test_dnsspoof.py \
 	test_dot.py \
@@ -93,6 +96,7 @@ EXTRA_DIST = \
 	test_dpkg-reconfigure.py \
 	test_dpkg-source.py \
 	test_dropuser.py \
+	test_dselect.py \
 	test_dsniff.py \
 	test_dumpe2fs.py \
 	test_du.py \
@@ -144,6 +148,7 @@ EXTRA_DIST = \
 	test_groupadd.py \
 	test_groupdel.py \
 	test_groupmems.py \
+	test_groupmod.py \
 	test_growisofs.py \
 	test_grpck.py \
 	test_grub.py \
@@ -158,6 +163,7 @@ EXTRA_DIST = \
 	test_hping3.py \
 	test_htop.py \
 	test_hwclock.py \
+	test_iconv.py \
 	test_identify.py \
 	test_idn.py \
 	test_id.py \
@@ -167,10 +173,12 @@ EXTRA_DIST = \
 	test_interdiff.py \
 	test_invoke-rc-d.py \
 	test_ionice.py \
+	test_iperf.py \
 	test_ipmitool.py \
 	test_ip.py \
 	test_ipsec.py \
 	test_iptables.py \
+	test_ipv6calc.py \
 	test_irb.py \
 	test_iscsiadm.py \
 	test_iwconfig.py \
@@ -183,6 +191,7 @@ EXTRA_DIST = \
 	test_jpegoptim.py \
 	test_jps.py \
 	test_jshint.py \
+	test_json_xs.py \
 	test_k3b.py \
 	test_kldload.py \
 	test_koji.py \
@@ -204,6 +213,7 @@ EXTRA_DIST = \
 	test_lftpget.py \
 	test_lilo.py \
 	test_links.py \
+	test_lintian-info.py \
 	test_lintian.py \
 	test_lisp.py \
 	test_list_admins.py \
@@ -246,12 +256,14 @@ EXTRA_DIST = \
 	test_msgsnarf.py \
 	test_msynctool.py \
 	test_mtx.py \
+	test_munindoc.py \
 	test_munin-node-configure.py \
 	test_munin-run.py \
 	test_mussh.py \
 	test_muttng.py \
 	test_mv.py \
 	test_mysqladmin.py \
+	test_mysql.py \
 	test_ncftp.py \
 	test_nc.py \
 	test_nethogs.py \
@@ -259,6 +271,7 @@ EXTRA_DIST = \
 	test_newgrp.py \
 	test_newlist.py \
 	test_newusers.py \
+	test_ngrep.py \
 	test_nl.py \
 	test_nmap.py \
 	test_nmcli.py \
@@ -274,14 +287,17 @@ EXTRA_DIST = \
 	test_optipng.py \
 	test_p4.py \
 	test_pack200.py \
+	test_passwd.py \
 	test_paste.py \
 	test_patch.py \
 	test_pdftotext.py \
 	test_pgrep.py \
 	test_phing.py \
+	test_pidof.py \
 	test_pine.py \
 	test_ping.py \
 	test_pkgadd.py \
+	test_pkg-config.py \
 	test_pkg_delete.py \
 	test_pkg-get.py \
 	test_pkg_info.py \
@@ -293,15 +309,18 @@ EXTRA_DIST = \
 	test_pm-hibernate.py \
 	test_pm-is-supported.py \
 	test_pm-powersave.py \
+	test_pngfix.py \
 	test_portsnap.py \
 	test_postcat.py \
 	test_postfix.py \
 	test_postmap.py \
 	test_postsuper.py \
 	test_povray.py \
+	test_prelink.py \
 	test_protoc.py \
 	test_pr.py \
 	test_ptx.py \
+	test_puppet.py \
 	test_pushd.py \
 	test_pvmove.py \
 	test_pvscan.py \
@@ -313,6 +332,7 @@ EXTRA_DIST = \
 	test_pyflakes.py \
 	test_pylint-3.py \
 	test_pylint.py \
+	test_pytest.py \
 	test_pyvenv.py \
 	test_qemu.py \
 	test_qrunner.py \
