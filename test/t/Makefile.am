@@ -78,6 +78,8 @@ EXTRA_DIST = \
 	test_cpan2dist.py \
 	test_cp.py \
 	test_c++.py \
+	test_createdb.py \
+	test_createuser.py \
 	test_crontab.py \
 	test_cryptsetup.py \
 	test_csplit.py \
@@ -98,6 +100,7 @@ EXTRA_DIST = \
 	test_dpkg-deb.py \
 	test_dpkg-reconfigure.py \
 	test_dpkg-source.py \
+	test_dropdb.py \
 	test_dropuser.py \
 	test_dselect.py \
 	test_dsniff.py \
@@ -110,9 +113,11 @@ EXTRA_DIST = \
 	test_ecryptfs-migrate-home.py \
 	test_eject.py \
 	test_enscript.py \
+	test_env.py \
 	test_eog.py \
 	test_ether-wake.py \
 	test_etherwake.py \
+	test_expand.py \
 	test_faillog.py \
 	test_fbgs.py \
 	test_fbi.py \
@@ -121,6 +126,8 @@ EXTRA_DIST = \
 	test_file-roller.py \
 	test_filesnarf.py \
 	test_find_member.py \
+	test_fmt.py \
+	test_fold.py \
 	test_freebsd-update.py \
 	test_freeciv-gtk2.py \
 	test_freeciv-server.py \
@@ -139,6 +146,7 @@ EXTRA_DIST = \
 	test_getent.py \
 	test_gkrellm.py \
 	test_gmplayer.py \
+	test_gm.py \
 	test_gnatmake.py \
 	test_gnokii.py \
 	test_gnome-mplayer.py \
@@ -148,6 +156,7 @@ EXTRA_DIST = \
 	test_gpg2.py \
 	test_gpg.py \
 	test_gphoto2.py \
+	test_gprof.py \
 	test_g++.py \
 	test_grep.py \
 	test_groupadd.py \
@@ -161,6 +170,7 @@ EXTRA_DIST = \
 	test_hciconfig.py \
 	test_hcitool.py \
 	test_hddtemp.py \
+	test_head.py \
 	test_hexdump.py \
 	test_hid2hci.py \
 	test_hostname.py \
@@ -238,8 +248,20 @@ EXTRA_DIST = \
 	test_luseradd.py \
 	test_luserdel.py \
 	test_lusermod.py \
+	test_lvchange.py \
+	test_lvcreate.py \
+	test_lvdisplay.py \
+	test_lvextend.py \
+	test_lvmdiskscan.py \
 	test_lvm.py \
+	test_lvreduce.py \
+	test_lvremove.py \
+	test_lvrename.py \
+	test_lvresize.py \
+	test_lvscan.py \
+	test_lvs.py \
 	test_lzip.py \
+	test_m4.py \
 	test_macof.py \
 	test_mailmanctl.py \
 	test_mailsnarf.py \
@@ -328,11 +350,17 @@ EXTRA_DIST = \
 	test_prelink.py \
 	test_protoc.py \
 	test_pr.py \
+	test_psql.py \
 	test_ptx.py \
 	test_puppet.py \
 	test_pushd.py \
+	test_pvchange.py \
+	test_pvcreate.py \
+	test_pvdisplay.py \
 	test_pvmove.py \
+	test_pvremove.py \
 	test_pvscan.py \
+	test_pvs.py \
 	test_pwck.py \
 	test_pwd.py \
 	test_pwdx.py \
@@ -376,6 +404,7 @@ EXTRA_DIST = \
 	test_runuser.py \
 	test_sbopkg.py \
 	test_sdptool.py \
+	test_sed.py \
 	test_seq.py \
 	test_service.py \
 	test_set.py \
@@ -395,6 +424,7 @@ EXTRA_DIST = \
 	test_smbtree.py \
 	test_snownews.py \
 	test_sort.py \
+	test_split.py \
 	test_spovray.py \
 	test_sqlite3.py \
 	test_ssh-add.py \
@@ -415,6 +445,7 @@ EXTRA_DIST = \
 	test_sync_members.py \
 	test_sysbench.py \
 	test_tac.py \
+	test_tail.py \
 	test_tcpdump.py \
 	test_tcpkill.py \
 	test_tcpnice.py \
@@ -423,11 +454,17 @@ EXTRA_DIST = \
 	test_tightvncviewer.py \
 	test_timeout.py \
 	test_tipc.py \
+	test_touch.py \
 	test_tracepath.py \
+	test_tr.py \
 	test_tshark.py \
 	test_tune2fs.py \
 	test_udevadm.py \
 	test_unace.py \
+	test_uname.py \
+	test_unexpand.py \
+	test_uniq.py \
+	test_units.py \
 	test_unpack200.py \
 	test_unrar.py \
 	test_unset.py \
@@ -440,15 +477,32 @@ EXTRA_DIST = \
 	test_userdel.py \
 	test_usermod.py \
 	test_vdir.py \
+	test_vgcfgbackup.py \
+	test_vgcfgrestore.py \
 	test_vgchange.py \
+	test_vgck.py \
+	test_vgconvert.py \
 	test_vgcreate.py \
+	test_vgdisplay.py \
+	test_vgexport.py \
+	test_vgextend.py \
+	test_vgimport.py \
+	test_vgmerge.py \
+	test_vgmknodes.py \
+	test_vgreduce.py \
+	test_vgremove.py \
+	test_vgrename.py \
+	test_vgscan.py \
 	test_vgsplit.py \
+	test_vgs.py \
 	test_vipw.py \
 	test_vmstat.py \
 	test_vpnc.py \
 	test_watch.py \
+	test_wc.py \
 	test_webmitm.py \
 	test_wget.py \
+	test_who.py \
 	test_withlist.py \
 	test_wodim.py \
 	test_write.py \
