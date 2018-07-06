@@ -10,6 +10,7 @@ RUN echo install_weak_deps=False >> /etc/dnf/dnf.conf \
         /usr/bin/xvfb-run \
         /usr/bin/pytest-3 \
         python3-pexpect \
+        python3-pytest-xdist \
         dejagnu \
         tcllib
 
