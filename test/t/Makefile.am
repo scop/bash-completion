@@ -15,6 +15,7 @@ EXTRA_DIST = \
 	test_apt-build.py \
 	test_apt-cache.py \
 	test_aptitude.py \
+	test_arch.py \
 	test_arping.py \
 	test_arpspoof.py \
 	test_asciidoc.py \
@@ -48,6 +49,7 @@ EXTRA_DIST = \
 	test_cfagent.py \
 	test_cfrun.py \
 	test_chage.py \
+	test_change_pw.py \
 	test_check_db.py \
 	test_check_perms.py \
 	test_checksec.py \
@@ -62,6 +64,7 @@ EXTRA_DIST = \
 	test_civclient.py \
 	test_civserver.py \
 	test_cksfv.py \
+	test_cleanarch.py \
 	test_clisp.py \
 	test_clone_member.py \
 	test_compare.py \
@@ -98,6 +101,7 @@ EXTRA_DIST = \
 	test_dropuser.py \
 	test_dselect.py \
 	test_dsniff.py \
+	test_dumpdb.py \
 	test_dumpe2fs.py \
 	test_du.py \
 	test_e2freefrag.py \
@@ -128,6 +132,7 @@ EXTRA_DIST = \
 	test_gcj.py \
 	test_gcl.py \
 	test_gdb.py \
+	test_genaliases.py \
 	test_gendiff.py \
 	test_genisoimage.py \
 	test_geoiplookup.py \
@@ -157,6 +162,7 @@ EXTRA_DIST = \
 	test_hcitool.py \
 	test_hddtemp.py \
 	test_hexdump.py \
+	test_hid2hci.py \
 	test_hostname.py \
 	test_host.py \
 	test_hping2.py \
@@ -169,6 +175,7 @@ EXTRA_DIST = \
 	test_id.py \
 	test_iftop.py \
 	test_import.py \
+	test_inject.py \
 	test_insmod.py \
 	test_interdiff.py \
 	test_invoke-rc-d.py \
@@ -219,6 +226,7 @@ EXTRA_DIST = \
 	test_list_admins.py \
 	test_list_lists.py \
 	test_list_members.py \
+	test_list_owners.py \
 	test_ln.py \
 	test_lpq.py \
 	test_lpr.py \
@@ -233,6 +241,7 @@ EXTRA_DIST = \
 	test_lvm.py \
 	test_lzip.py \
 	test_macof.py \
+	test_mailmanctl.py \
 	test_mailsnarf.py \
 	test_mc.py \
 	test_md5sum.py \
