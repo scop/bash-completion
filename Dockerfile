@@ -11,7 +11,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
         python3-pip \
         tcllib \
         xvfb \
-    && pip3 install --ignore-installed --user pytest pexpect typing
+    && pip3 install --ignore-installed --user pytest-xdist pexpect typing
 
 ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Makefile.am /tmp/cache-buster
 COPY install-packages.sh /tmp/
