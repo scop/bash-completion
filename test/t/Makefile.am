@@ -46,6 +46,7 @@ EXTRA_DIST = \
 	test_cal.py \
 	test_cardctl.py \
 	test_cat.py \
+	test_ccache.py \
 	test_cc.py \
 	test_ccze.py \
 	test_cdrecord.py \
@@ -58,6 +59,8 @@ EXTRA_DIST = \
 	test_checksec.py \
 	test_chfn.py \
 	test_chgrp.py \
+	test_chkconfig.py \
+	test_chmod.py \
 	test_chpasswd.py \
 	test_chronyc.py \
 	test_chroot.py \
@@ -80,6 +83,7 @@ EXTRA_DIST = \
 	test_co.py \
 	test_cowsay.py \
 	test_cpan2dist.py \
+	test_cppcheck.py \
 	test_cp.py \
 	test_c++.py \
 	test_createdb.py \
@@ -90,6 +94,7 @@ EXTRA_DIST = \
 	test_curl.py \
 	test_cut.py \
 	test_date.py \
+	test_declare.py \
 	test_deja-dup.py \
 	test_desktop-file-validate.py \
 	test_df.py \
@@ -148,6 +153,7 @@ EXTRA_DIST = \
 	test_gendiff.py \
 	test_genisoimage.py \
 	test_geoiplookup.py \
+	test_getconf.py \
 	test_getent.py \
 	test_gkrellm.py \
 	test_gmplayer.py \
@@ -189,6 +195,7 @@ EXTRA_DIST = \
 	test_identify.py \
 	test_idn.py \
 	test_id.py \
+	test_ifdown.py \
 	test_iftop.py \
 	test_import.py \
 	test_inject.py \
