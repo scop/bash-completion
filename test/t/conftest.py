@@ -175,7 +175,17 @@ CompletionResult = NamedTuple(
 
 @pytest.fixture(autouse=True)
 def completion(request, bash: pexpect.spawn) -> CompletionResult:
-    cmd = request.node.get_marker("complete").args[0]
+    marker = request.node.get_marker("complete")
+    skipif = marker.kwargs.get("skipif")
+    if skipif:
+        try:
+            assert_bash_exec(bash, skipif)
+        except AssertionError:
+            pass
+        else:
+            pytest.skip(skipif)
+            return CompletionResult("", [])
+    cmd = marker.args[0]
     bash.send(cmd + "\t")
     bash.expect_exact(cmd)
     bash.send(MAGIC_MARK)
