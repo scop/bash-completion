@@ -94,6 +94,7 @@ EXTRA_DIST = \
 	test_curl.py \
 	test_cut.py \
 	test_date.py \
+	test_dd.py \
 	test_declare.py \
 	test_deja-dup.py \
 	test_desktop-file-validate.py \
@@ -294,6 +295,7 @@ EXTRA_DIST = \
 	test_minicom.py \
 	test_mkfifo.py \
 	test_mkinitrd.py \
+	test_mkisofs.py \
 	test_mknod.py \
 	test_mktemp.py \
 	test_mmsitepass.py \
@@ -346,9 +348,11 @@ EXTRA_DIST = \
 	test_phing.py \
 	test_pidof.py \
 	test_pine.py \
+	test_pinfo.py \
 	test_ping.py \
 	test_pkgadd.py \
 	test_pkg-config.py \
+	test_pkg_deinstall.py \
 	test_pkg_delete.py \
 	test_pkg-get.py \
 	test_pkg_info.py \
@@ -414,6 +418,7 @@ EXTRA_DIST = \
 	test_resolvconf.py \
 	test_rfcomm.py \
 	test_rfkill.py \
+	test_ri.py \
 	test_rlog.py \
 	test_rmlist.py \
 	test_rmmod.py \
@@ -530,6 +535,7 @@ EXTRA_DIST = \
 	test_who.py \
 	test_withlist.py \
 	test_wodim.py \
+	test_wol.py \
 	test_write.py \
 	test_wsimport.py \
 	test_wtf.py \
