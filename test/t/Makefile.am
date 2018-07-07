@@ -281,6 +281,7 @@ EXTRA_DIST = \
 	test_macof.py \
 	test_mailmanctl.py \
 	test_mailsnarf.py \
+	test_makepkg.py \
 	test_mc.py \
 	test_mcrypt.py \
 	test_md5sum.py \
@@ -331,6 +332,7 @@ EXTRA_DIST = \
 	test_objdump.py \
 	test_od.py \
 	test_oggdec.py \
+	test_openssl.py \
 	test_opera.py \
 	test_optipng.py \
 	test_p4.py \
@@ -384,6 +386,7 @@ EXTRA_DIST = \
 	test_pwd.py \
 	test_pwdx.py \
 	test_pwgen.py \
+	test_pycodestyle.py \
 	test_pydoc.py \
 	test_pyflakes.py \
 	test_pylint-3.py \
@@ -422,6 +425,7 @@ EXTRA_DIST = \
 	test_rtcwake.py \
 	test_runuser.py \
 	test_sbopkg.py \
+	test_scrub.py \
 	test_sdptool.py \
 	test_sed.py \
 	test_seq.py \
@@ -461,6 +465,7 @@ EXTRA_DIST = \
 	test_svnadmin.py \
 	test_svnlook.py \
 	test_svn.py \
+	test_synclient.py \
 	test_sync_members.py \
 	test_sysbench.py \
 	test_tac.py \
