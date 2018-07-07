@@ -78,6 +78,7 @@ EXTRA_DIST = \
 	test_complete.py \
 	test_composite.py \
 	test_config_list.py \
+	test_configure.py \
 	test_conjure.py \
 	test_convert.py \
 	test_co.py \
@@ -93,6 +94,8 @@ EXTRA_DIST = \
 	test_csplit.py \
 	test_curl.py \
 	test_cut.py \
+	test_cvsps.py \
+	test_cvs.py \
 	test_date.py \
 	test_dd.py \
 	test_declare.py \
@@ -132,11 +135,13 @@ EXTRA_DIST = \
 	test_faillog.py \
 	test_fbgs.py \
 	test_fbi.py \
+	test_feh.py \
 	test_filefrag.py \
 	test_file.py \
 	test_file-roller.py \
 	test_filesnarf.py \
 	test_find_member.py \
+	test_fio.py \
 	test_fmt.py \
 	test_fold.py \
 	test_freebsd-update.py \
@@ -290,6 +295,7 @@ EXTRA_DIST = \
 	test_mdecrypt.py \
 	test_mdtool.py \
 	test_medusa.py \
+	test_mencoder.py \
 	test_mii-diag.py \
 	test_mii-tool.py \
 	test_minicom.py \
@@ -304,6 +310,7 @@ EXTRA_DIST = \
 	test_mogrify.py \
 	test_monodevelop.py \
 	test_montage.py \
+	test_mplayer.py \
 	test_msgsnarf.py \
 	test_msynctool.py \
 	test_mtx.py \
@@ -456,6 +463,7 @@ EXTRA_DIST = \
 	test_spovray.py \
 	test_sqlite3.py \
 	test_ssh-add.py \
+	test_ssh-copy-id.py \
 	test_ssh-keygen.py \
 	test_sshmitm.py \
 	test_sshow.py \
