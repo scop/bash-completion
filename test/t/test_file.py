@@ -1,12 +1,12 @@
 import pytest
 
 
-class Test(object):
+class TestFile(object):
 
     @pytest.mark.complete("file ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("file -")
-    def test_dash(self, completion):
+    def test_2(self, completion):
         assert completion.list

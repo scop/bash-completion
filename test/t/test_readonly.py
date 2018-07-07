@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestReadonly(object):
 
     @pytest.mark.complete("readonly BASH_ARG")
-    def test_BASH_ARG(self, completion):
+    def test_1(self, completion):
         assert completion.list

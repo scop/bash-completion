@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestVgchange(object):
 
     @pytest.mark.complete("vgchange -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

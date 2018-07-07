@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestChecksec(object):
 
     @pytest.mark.complete("checksec -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

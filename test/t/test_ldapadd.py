@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestLdapadd(object):
 
     @pytest.mark.complete("ldapadd -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

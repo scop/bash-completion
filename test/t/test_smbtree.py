@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestSmbtree(object):
 
     @pytest.mark.complete("smbtree -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

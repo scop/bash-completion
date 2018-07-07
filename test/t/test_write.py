@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestWrite(object):
 
     @pytest.mark.complete("write root")
-    def test_root(self, completion):
+    def test_1(self, completion):
         assert "root" in completion.list

@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestPwd(object):
 
     @pytest.mark.complete("pwd -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

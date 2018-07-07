@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestE2freefrag(object):
 
     @pytest.mark.complete("e2freefrag ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

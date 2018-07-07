@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestUnshunt(object):
 
     @pytest.mark.complete("unshunt --")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

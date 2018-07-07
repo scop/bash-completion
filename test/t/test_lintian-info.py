@@ -1,12 +1,12 @@
 import pytest
 
 
-class Test(object):
+class TestLintianInfo(object):
 
     @pytest.mark.complete("lintian-info ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("lintian-info --")
-    def test_dash(self, completion):
+    def test_2(self, completion):
         assert completion.list

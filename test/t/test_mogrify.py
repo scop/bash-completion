@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestMogrify(object):
 
     @pytest.mark.complete("mogrify ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

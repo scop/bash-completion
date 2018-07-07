@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestDu(object):
 
     @pytest.mark.complete("du ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

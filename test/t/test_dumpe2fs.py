@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestDumpe2fs(object):
 
     @pytest.mark.complete("dumpe2fs ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

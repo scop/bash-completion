@@ -1,12 +1,12 @@
 import pytest
 
 
-class Test(object):
+class TestNcftp(object):
 
     @pytest.mark.complete("ncftp ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("ncftp -")
-    def test_dash(self, completion):
+    def test_2(self, completion):
         assert completion.list

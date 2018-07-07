@@ -1,12 +1,12 @@
 import pytest
 
 
-class Test(object):
+class TestXrandr(object):
 
     @pytest.mark.complete("xrandr ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("xrandr --mode ")
-    def test_mode(self, completion):
+    def test_2(self, completion):
         assert not completion.list

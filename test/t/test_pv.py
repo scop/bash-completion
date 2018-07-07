@@ -1,16 +1,16 @@
 import pytest
 
 
-class Test(object):
+class TestPv(object):
 
     @pytest.mark.complete("pv ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("pv -")
-    def test_dash(self, completion):
+    def test_2(self, completion):
         assert completion.list
 
     @pytest.mark.complete("pv --pidfile ")
-    def test_pidfile(self, completion):
+    def test_3(self, completion):
         assert completion.list

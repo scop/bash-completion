@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestFileRoller(object):
 
     @pytest.mark.complete("file-roller ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

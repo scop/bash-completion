@@ -2,8 +2,8 @@ import pytest
 
 
 @pytest.mark.command("btdownloadheadless.py")
-class Test(object):
+class TestBtdownloadheadlessPy(object):
 
     @pytest.mark.complete("btdownloadheadless.py ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

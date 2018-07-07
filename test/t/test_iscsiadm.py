@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestIscsiadm(object):
 
     @pytest.mark.complete("iscsiadm --mode")
-    def test_mode(self, completion):
+    def test_1(self, completion):
         assert completion.list

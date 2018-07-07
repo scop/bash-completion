@@ -1,20 +1,20 @@
 import pytest
 
 
-class Test(object):
+class TestGm(object):
 
     @pytest.mark.complete("gm ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("gm help ")
-    def test_help(self, completion):
+    def test_2(self, completion):
         assert completion.list
 
     @pytest.mark.complete("gm time ")
-    def test_time(self, completion):
+    def test_3(self, completion):
         assert completion.list
 
     @pytest.mark.complete("gm version ")
-    def test_version(self, completion):
+    def test_4(self, completion):
         assert not completion.list

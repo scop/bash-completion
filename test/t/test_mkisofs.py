@@ -1,16 +1,16 @@
 import pytest
 
 
-class Test(object):
+class TestMkisofs(object):
 
     @pytest.mark.complete("mkisofs ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("mkisofs -uid ")
-    def test_uid(self, completion):
+    def test_2(self, completion):
         assert not [x for x in completion.list if not x.isdigit()]
 
     @pytest.mark.complete("mkisofs -gid ")
-    def test_gid(self, completion):
+    def test_3(self, completion):
         assert not [x for x in completion.list if not x.isdigit()]

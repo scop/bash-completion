@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestCpan2dist(object):
 
     @pytest.mark.complete("cpan2dist -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

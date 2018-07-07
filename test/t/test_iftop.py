@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestIftop(object):
 
     @pytest.mark.complete("iftop ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

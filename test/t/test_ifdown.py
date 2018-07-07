@@ -3,14 +3,14 @@ import os
 import pytest
 
 
-class Test(object):
+class TestIfdown(object):
 
     @pytest.mark.skipif(bool(os.environ.get("CI")),
                         reason="Probably fails in CI")
     @pytest.mark.complete("ifdown ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("ifdown bash-completion ")
-    def test_nonexistent(self, completion):
+    def test_2(self, completion):
         assert not completion.list

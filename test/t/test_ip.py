@@ -1,12 +1,12 @@
 import pytest
 
 
-class Test(object):
+class TestIp(object):
 
     @pytest.mark.complete("ip ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("ip a ")
-    def test_a(self, completion):
+    def test_2(self, completion):
         assert completion.list

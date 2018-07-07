@@ -1,24 +1,24 @@
 import pytest
 
 
-class Test(object):
+class TestGetconf(object):
 
     @pytest.mark.complete("getconf P")
-    def test_p(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("getconf -")
-    def test_dash(self, completion):
+    def test_2(self, completion):
         assert completion.list
 
     @pytest.mark.complete("getconf -a ")
-    def test_a(self, completion):
+    def test_3(self, completion):
         assert completion.list
 
     @pytest.mark.complete("getconf -v ")
-    def test_v(self, completion):
+    def test_4(self, completion):
         assert completion.list
 
     @pytest.mark.complete("getconf PATH_MAX ")
-    def test_path_max(self, completion):
+    def test_5(self, completion):
         assert completion.list

@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestHping3(object):
 
     @pytest.mark.complete("hping3 ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

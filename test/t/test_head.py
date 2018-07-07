@@ -1,9 +1,9 @@
 import pytest
 
 
-class Test(object):
+class TestHead(object):
 
     @pytest.mark.complete("head --",
                           skipif="! head --help &>/dev/null")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

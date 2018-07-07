@@ -1,9 +1,9 @@
 import pytest
 
 
-class Test(object):
+class TestLvresize(object):
 
     @pytest.mark.complete("lvresize --",
                           skipif="! lvresize --help &>/dev/null")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

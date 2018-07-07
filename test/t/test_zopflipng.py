@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestZopflipng(object):
 
     @pytest.mark.complete("zopflipng ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

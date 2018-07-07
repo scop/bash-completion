@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestPkgGet(object):
 
     @pytest.mark.complete("pkg-get ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

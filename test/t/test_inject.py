@@ -4,8 +4,8 @@ import pytest
 @pytest.mark.pre_commands(
     'PATH=$PATH:/usr/lib/mailman/bin',
 )
-class Test(object):
+class TestInject(object):
 
     @pytest.mark.complete("inject ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

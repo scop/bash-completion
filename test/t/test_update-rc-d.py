@@ -2,8 +2,8 @@ import pytest
 
 
 @pytest.mark.command("update-rc.d")
-class Test(object):
+class TestUpdateRcD(object):
 
     @pytest.mark.complete("update-rc.d -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

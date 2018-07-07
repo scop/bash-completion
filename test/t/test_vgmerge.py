@@ -1,9 +1,9 @@
 import pytest
 
 
-class Test(object):
+class TestVgmerge(object):
 
     @pytest.mark.complete("vgmerge -",
                           skipif="! vgmerge --help &>/dev/null")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

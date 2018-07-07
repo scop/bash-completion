@@ -1,12 +1,12 @@
 import pytest
 
 
-class Test(object):
+class TestRfkill(object):
 
     @pytest.mark.complete("rfkill ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("rfkill -")
-    def test_dash(self, completion):
+    def test_2(self, completion):
         assert completion.list

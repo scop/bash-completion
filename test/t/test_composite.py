@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestComposite(object):
 
     @pytest.mark.complete("composite ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

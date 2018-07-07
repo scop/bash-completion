@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestLdapvi(object):
 
     @pytest.mark.complete("ldapvi -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

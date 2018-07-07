@@ -1,28 +1,28 @@
 import pytest
 
 
-class Test(object):
+class TestXdgMime(object):
 
     @pytest.mark.complete("xdg-mime ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("xdg-mime -")
-    def test_dash(self, completion):
+    def test_2(self, completion):
         assert completion.list
 
     @pytest.mark.complete("xdg-mime query ")
-    def test_query(self, completion):
+    def test_3(self, completion):
         assert completion.list
 
     @pytest.mark.complete("xdg-mime query filetype ")
-    def test_query_filetype(self, completion):
+    def test_4(self, completion):
         assert completion.list
 
     @pytest.mark.complete("xdg-mime default foo.desktop ")
-    def test_default(self, completion):
+    def test_5(self, completion):
         assert completion.list
 
     @pytest.mark.complete("xdg-mime install --mode ")
-    def test_install_mode(self, completion):
+    def test_6(self, completion):
         assert completion.list

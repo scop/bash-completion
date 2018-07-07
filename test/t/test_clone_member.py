@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestCloneMember(object):
 
     @pytest.mark.complete("clone_member -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

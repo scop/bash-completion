@@ -1,12 +1,12 @@
 import pytest
 
 
-class Test(object):
+class TestNgrep(object):
 
     @pytest.mark.complete("ngrep -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("ngrep -d ")
-    def test_d(self, completion):
+    def test_2(self, completion):
         assert completion.list

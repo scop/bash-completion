@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestEbtables(object):
 
     @pytest.mark.complete("ebtables -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

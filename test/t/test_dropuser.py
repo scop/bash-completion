@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestDropuser(object):
 
     @pytest.mark.complete("dropuser ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

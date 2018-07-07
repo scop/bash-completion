@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestQrunner(object):
 
     @pytest.mark.complete("qrunner -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

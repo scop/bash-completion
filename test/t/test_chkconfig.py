@@ -1,15 +1,15 @@
 import pytest
 
 
-class Test(object):
+class TestChkconfig(object):
 
     @pytest.mark.complete("chkconfig -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     # systemd may not be running e.g. in a docker container, and listing
     # services will then fail.
     @pytest.mark.complete("chkconfig ",
                           skipif="! systemctl list-units &>/dev/null")
-    def test_services(self, completion):
+    def test_2(self, completion):
         assert completion.list

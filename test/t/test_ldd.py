@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestLdd(object):
 
     @pytest.mark.complete("ldd ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

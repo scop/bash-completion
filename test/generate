@@ -12,25 +12,23 @@ fi
 cmd=$1
 file=$1
 arg=${2-}
-name=
 marker=
-
-[[ $arg == +(-) ]] && name=dash
-[[ $arg == *(-)+([a-zA-Z0-9]) ]] && name=${arg##+(-)}
 
 if [[ $cmd == *.* ]]; then
     file=${cmd//./-}
     marker=$'\n'"@pytest.mark.command(\"$cmd\")"
 fi
 
+name=$(python -c "import re,sys;print(re.sub('(^|[_-]+)(.)',lambda m:m.group(2).upper(),sys.argv[1]))" $file)
+
 cat <<EOF >t/test_$file.py
 import pytest
 
 $marker
-class Test(object):
+class Test$name(object):
 
     @pytest.mark.complete("$1 $arg")
-    def test_$name(self, completion):
+    def test_1(self, completion):
         assert completion.list
 EOF
 

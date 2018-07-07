@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestMuninNodeConfigure(object):
 
     @pytest.mark.complete("munin-node-configure --libdir ")
-    def test_libdir(self, completion):
+    def test_1(self, completion):
         assert completion.list

@@ -2,8 +2,8 @@ import pytest
 
 
 @pytest.mark.command("btdownloadgui.py")
-class Test(object):
+class TestBtdownloadguiPy(object):
 
     @pytest.mark.complete("btdownloadgui.py ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

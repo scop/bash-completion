@@ -1,12 +1,12 @@
 import pytest
 
 
-class Test(object):
+class TestTracepath(object):
 
     @pytest.mark.complete("tracepath ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("tracepath -")
-    def test_dash(self, completion):
+    def test_2(self, completion):
         assert completion.list

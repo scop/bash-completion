@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestPack200(object):
 
     @pytest.mark.complete("pack200 ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

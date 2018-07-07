@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestNmap(object):
 
     @pytest.mark.complete("nmap --v")
-    def test_v(self, completion):
+    def test_1(self, completion):
         assert completion.list

@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestIonice(object):
 
     @pytest.mark.complete("ionice -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

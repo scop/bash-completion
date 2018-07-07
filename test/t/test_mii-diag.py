@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestMiiDiag(object):
 
     @pytest.mark.complete("mii-diag ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

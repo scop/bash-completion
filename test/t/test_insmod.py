@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestInsmod(object):
 
     @pytest.mark.complete("insmod ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

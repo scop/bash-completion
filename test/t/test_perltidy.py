@@ -1,20 +1,20 @@
 import pytest
 
 
-class Test(object):
+class TestPerltidy(object):
 
     @pytest.mark.complete("perltidy ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("perltidy -h")
-    def test_h(self, completion):
+    def test_2(self, completion):
         assert completion.list
 
     @pytest.mark.complete("perltidy -ole=")
-    def test_ole(self, completion):
+    def test_3(self, completion):
         assert completion.list
 
     @pytest.mark.complete("perltidy -doesntexist=")
-    def test_doesntexist(self, completion):
+    def test_4(self, completion):
         assert not completion.list

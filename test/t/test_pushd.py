@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestPushd(object):
 
     @pytest.mark.complete("pushd ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

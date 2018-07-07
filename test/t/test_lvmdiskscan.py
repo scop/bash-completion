@@ -1,9 +1,9 @@
 import pytest
 
 
-class Test(object):
+class TestLvmdiskscan(object):
 
     @pytest.mark.complete("lvmdiskscan --",
                           skipif="! lvmdiskscan --help &>/dev/null")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

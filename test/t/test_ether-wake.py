@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestEtherWake(object):
 
     @pytest.mark.complete("ether-wake ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

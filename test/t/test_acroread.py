@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestAcroread(object):
 
     @pytest.mark.complete("acroread ", cwd="fixtures/acroread")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list == "foo.d/ t.pdf".split()

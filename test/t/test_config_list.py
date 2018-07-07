@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestConfigList(object):
 
     @pytest.mark.complete("config_list -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

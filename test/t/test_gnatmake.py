@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestGnatmake(object):
 
     @pytest.mark.complete("gnatmake ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

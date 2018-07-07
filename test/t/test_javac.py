@@ -1,12 +1,12 @@
 import pytest
 
 
-class Test(object):
+class TestJavac(object):
 
     @pytest.mark.complete("javac ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("javac -cp java/")
-    def test_cp_fixture_dir(self, completion):
+    def test_2(self, completion):
         assert completion.list == "a/ bashcomp.jar".split()

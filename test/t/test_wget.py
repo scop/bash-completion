@@ -1,12 +1,12 @@
 import pytest
 
 
-class Test(object):
+class TestWget(object):
 
     @pytest.mark.complete("wget ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert not completion.list
 
     @pytest.mark.complete("wget --h")
-    def test_h(self, completion):
+    def test_2(self, completion):
         assert completion.list

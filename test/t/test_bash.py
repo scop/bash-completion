@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestBash(object):
 
     @pytest.mark.complete("bash --")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

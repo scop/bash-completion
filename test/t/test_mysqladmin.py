@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestMysqladmin(object):
 
     @pytest.mark.complete("mysqladmin -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

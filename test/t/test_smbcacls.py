@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestSmbcacls(object):
 
     @pytest.mark.complete("smbcacls -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

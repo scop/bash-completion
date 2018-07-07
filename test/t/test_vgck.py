@@ -1,9 +1,9 @@
 import pytest
 
 
-class Test(object):
+class TestVgck(object):
 
     @pytest.mark.complete("vgck -",
                           skipif="! vgck --help &>/dev/null")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

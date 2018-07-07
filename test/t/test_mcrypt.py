@@ -1,16 +1,16 @@
 import pytest
 
 
-class Test(object):
+class TestMcrypt(object):
 
     @pytest.mark.complete("mcrypt ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("mcrypt -a ")
-    def test_a(self, completion):
+    def test_2(self, completion):
         assert completion.list
 
     @pytest.mark.complete("mcrypt -m ")
-    def test_m(self, completion):
+    def test_3(self, completion):
         assert completion.list

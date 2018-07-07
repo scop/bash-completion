@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestAptCache(object):
 
     @pytest.mark.complete("apt-cache ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

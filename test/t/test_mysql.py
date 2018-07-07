@@ -1,12 +1,12 @@
 import pytest
 
 
-class Test(object):
+class TestMysql(object):
 
     @pytest.mark.complete("mysql --")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("mysql --default-character-set=")
-    def test_default_character_set(self, completion):
+    def test_2(self, completion):
         assert completion.list

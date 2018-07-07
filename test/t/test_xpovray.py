@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestXpovray(object):
 
     @pytest.mark.complete("xpovray ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

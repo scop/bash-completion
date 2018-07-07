@@ -1,12 +1,12 @@
 import pytest
 
 
-class Test(object):
+class TestXsltproc(object):
 
     @pytest.mark.complete("xsltproc ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("xsltproc -")
-    def test_dash(self, completion):
+    def test_2(self, completion):
         assert completion.list

@@ -1,12 +1,12 @@
 import pytest
 
 
-class Test(object):
+class TestUserdel(object):
 
     @pytest.mark.complete("userdel -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("userdel root")
-    def test_root(self, completion):
+    def test_2(self, completion):
         assert "root" in completion.list

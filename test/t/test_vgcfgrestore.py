@@ -1,9 +1,9 @@
 import pytest
 
 
-class Test(object):
+class TestVgcfgrestore(object):
 
     @pytest.mark.complete("vgcfgrestore -",
                           skipif="! vgcfgrestore --help &>/dev/null")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

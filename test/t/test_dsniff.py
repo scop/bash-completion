@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestDsniff(object):
 
     @pytest.mark.complete("dsniff -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

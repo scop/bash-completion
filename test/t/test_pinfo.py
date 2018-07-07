@@ -4,12 +4,12 @@ import pytest
 @pytest.mark.pre_commands(
     "INFOPATH+=:info:",
 )
-class Test(object):
+class TestPinfo(object):
 
     @pytest.mark.complete("pinfo -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("pinfo bash")
-    def test_bash(self, completion):
+    def test_2(self, completion):
         assert completion.list

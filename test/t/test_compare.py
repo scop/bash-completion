@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestCompare(object):
 
     @pytest.mark.complete("compare ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

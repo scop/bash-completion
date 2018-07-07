@@ -2,8 +2,8 @@ import pytest
 
 
 @pytest.mark.command("invoke-rc.d")
-class Test(object):
+class TestInvokeRcD(object):
 
     @pytest.mark.complete("invoke-rc.d ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

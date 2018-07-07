@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestYpmatch(object):
 
     @pytest.mark.complete("ypmatch foo ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

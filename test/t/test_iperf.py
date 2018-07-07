@@ -1,20 +1,20 @@
 import pytest
 
 
-class Test(object):
+class TestIperf(object):
 
     @pytest.mark.complete("iperf ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("iperf --bind ")
-    def test_bind(self, completion):
+    def test_2(self, completion):
         assert completion.list
 
     @pytest.mark.complete("iperf --client foo --")
-    def test_client(self, completion):
+    def test_3(self, completion):
         assert completion.list and "--daemon" not in completion.list
 
     @pytest.mark.complete("iperf --server --")
-    def test_server(self, completion):
+    def test_4(self, completion):
         assert "--daemon" in completion.list

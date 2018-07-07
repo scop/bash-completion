@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestHtop(object):
 
     @pytest.mark.complete("htop -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

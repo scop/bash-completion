@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestJavaws(object):
 
     @pytest.mark.complete("javaws ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

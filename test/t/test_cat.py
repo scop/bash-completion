@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestCat(object):
 
     @pytest.mark.complete("cat ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

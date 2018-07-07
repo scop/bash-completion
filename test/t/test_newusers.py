@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestNewusers(object):
 
     @pytest.mark.complete("newusers ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

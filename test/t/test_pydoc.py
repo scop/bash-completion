@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestPydoc(object):
 
     @pytest.mark.complete("pydoc r")
-    def test_r(self, completion):
+    def test_1(self, completion):
         assert completion.list

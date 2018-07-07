@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestDpkgDeb(object):
 
     @pytest.mark.complete("dpkg-deb --c")
-    def test_c(self, completion):
+    def test_1(self, completion):
         assert completion.list

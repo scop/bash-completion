@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestUpdateAlternatives(object):
 
     @pytest.mark.complete("update-alternatives --")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestRepomanage(object):
 
     @pytest.mark.complete("repomanage ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

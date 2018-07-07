@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestGpg2(object):
 
     @pytest.mark.complete("gpg2 --h")
-    def test_h(self, completion):
+    def test_1(self, completion):
         assert completion.list

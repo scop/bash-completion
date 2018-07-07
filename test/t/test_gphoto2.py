@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestGphoto2(object):
 
     @pytest.mark.complete("gphoto2 --")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

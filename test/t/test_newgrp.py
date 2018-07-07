@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestNewgrp(object):
 
     @pytest.mark.complete("newgrp ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

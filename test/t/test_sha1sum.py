@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestSha1sum(object):
 
     @pytest.mark.complete("sha1sum --")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

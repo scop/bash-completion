@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestBase64(object):
 
     @pytest.mark.complete("base64 ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

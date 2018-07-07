@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestCdrecord(object):
 
     @pytest.mark.complete("cdrecord -d")
-    def test_d(self, completion):
+    def test_1(self, completion):
         assert completion.list

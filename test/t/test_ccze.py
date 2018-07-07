@@ -1,20 +1,20 @@
 import pytest
 
 
-class Test(object):
+class TestCcze(object):
 
     @pytest.mark.complete("ccze ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("ccze -? ")
-    def test_questionmark(self, completion):
+    def test_2(self, completion):
         assert not completion.list
 
     @pytest.mark.complete("ccze -o ")
-    def test_o(self, completion):
+    def test_3(self, completion):
         assert completion.list
 
     @pytest.mark.complete("ccze --plugin=")
-    def test_plugin(self, completion):
+    def test_4(self, completion):
         assert completion.list

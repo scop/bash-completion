@@ -1,9 +1,9 @@
 import pytest
 
 
-class Test(object):
+class TestUniq(object):
 
     @pytest.mark.complete("uniq --",
                           skipif="! uniq --help &>/dev/null")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

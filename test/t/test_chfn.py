@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestChfn(object):
 
     @pytest.mark.complete("chfn ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

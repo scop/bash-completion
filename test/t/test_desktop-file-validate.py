@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestDesktopFileValidate(object):
 
     @pytest.mark.complete("desktop-file-validate ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

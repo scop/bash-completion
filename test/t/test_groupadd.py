@@ -1,12 +1,12 @@
 import pytest
 
 
-class Test(object):
+class TestGroupadd(object):
 
     @pytest.mark.complete("groupadd ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert not completion.list
 
     @pytest.mark.complete("groupadd -")
-    def test_dash(self, completion):
+    def test_2(self, completion):
         assert completion.list

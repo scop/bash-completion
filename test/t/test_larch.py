@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestLarch(object):
 
     @pytest.mark.complete("larch library-")
-    def test_library(self, completion):
+    def test_1(self, completion):
         assert completion.list

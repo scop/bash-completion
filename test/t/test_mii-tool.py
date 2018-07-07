@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestMiiTool(object):
 
     @pytest.mark.complete("mii-tool ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

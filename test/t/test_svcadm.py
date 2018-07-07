@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestSvcadm(object):
 
     @pytest.mark.complete("svcadm ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

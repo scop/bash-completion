@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestConjure(object):
 
     @pytest.mark.complete("conjure ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

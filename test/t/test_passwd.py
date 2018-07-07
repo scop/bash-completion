@@ -1,12 +1,12 @@
 import pytest
 
 
-class Test(object):
+class TestPasswd(object):
 
     @pytest.mark.complete("passwd ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("passwd -")
-    def test_(self, completion):
+    def test_2(self, completion):
         assert completion.list

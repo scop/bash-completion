@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestNm(object):
 
     @pytest.mark.complete("nm ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

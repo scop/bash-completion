@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestOptipng(object):
 
     @pytest.mark.complete("optipng ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

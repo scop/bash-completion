@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestPmPowersave(object):
 
     @pytest.mark.complete("pm-powersave ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

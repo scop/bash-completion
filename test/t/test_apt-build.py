@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestAptBuild(object):
 
     @pytest.mark.complete("apt-build ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

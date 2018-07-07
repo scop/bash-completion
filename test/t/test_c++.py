@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestC++(object):
 
     @pytest.mark.complete("c++ ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestApache2ctl(object):
 
     @pytest.mark.complete("apache2ctl ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

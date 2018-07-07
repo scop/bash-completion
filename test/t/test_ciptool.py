@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestCiptool(object):
 
     @pytest.mark.complete("ciptool ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

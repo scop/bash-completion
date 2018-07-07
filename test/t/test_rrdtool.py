@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestRrdtool(object):
 
     @pytest.mark.complete("rrdtool ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

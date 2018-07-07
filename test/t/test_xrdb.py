@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestXrdb(object):
 
     @pytest.mark.complete("xrdb ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

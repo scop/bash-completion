@@ -1,9 +1,9 @@
 import pytest
 
 
-class Test(object):
+class TestPvcreate(object):
 
     @pytest.mark.complete("pvcreate --",
                           skipif="! pvcreate --help &>/dev/null")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list

@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestMd5sum(object):
 
     @pytest.mark.complete("md5sum ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

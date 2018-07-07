@@ -1,20 +1,20 @@
 import pytest
 
 
-class Test(object):
+class TestSh(object):
 
     @pytest.mark.complete("sh -")
-    def test_dash(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("sh +")
-    def test_plus(self, completion):
+    def test_2(self, completion):
         assert completion.list
 
     @pytest.mark.complete("sh -o ")
-    def test_o(self, completion):
+    def test_3(self, completion):
         assert completion.list
 
     @pytest.mark.complete("sh -c ")
-    def test_c(self, completion):
+    def test_4(self, completion):
         assert not completion.list

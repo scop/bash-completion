@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestRcs(object):
 
     @pytest.mark.complete("rcs ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

@@ -1,12 +1,12 @@
 import pytest
 
 
-class Test(object):
+class TestTimeout(object):
 
     @pytest.mark.complete("timeout ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert not completion.list
 
     @pytest.mark.complete("timeout -")
-    def test_dash(self, completion):
+    def test_2(self, completion):
         assert completion.list

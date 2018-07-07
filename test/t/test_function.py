@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestFunction(object):
 
     @pytest.mark.complete("function _parse_")
-    def test_parse(self, completion):
+    def test_1(self, completion):
         assert completion.list

@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestMonodevelop(object):
 
     @pytest.mark.complete("monodevelop ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list

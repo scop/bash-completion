@@ -1,12 +1,12 @@
 import pytest
 
 
-class Test(object):
+class TestVi(object):
 
     @pytest.mark.complete("vi ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
 
     @pytest.mark.complete("vi shared/ld.so.conf.d/")
-    def test_ld_so_conf_d(self, completion):
+    def test_2(self, completion):
         assert completion.list == "foo.txt libfoo.conf".split()

@@ -1,8 +1,8 @@
 import pytest
 
 
-class Test(object):
+class TestE2label(object):
 
     @pytest.mark.complete("e2label ")
-    def test_(self, completion):
+    def test_1(self, completion):
         assert completion.list
