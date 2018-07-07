@@ -142,6 +142,7 @@ EXTRA_DIST = \
 	test_filesnarf.py \
 	test_find_member.py \
 	test_fio.py \
+	test_flake8.py \
 	test_fmt.py \
 	test_fold.py \
 	test_freebsd-update.py \
@@ -196,6 +197,7 @@ EXTRA_DIST = \
 	test_hping2.py \
 	test_hping3.py \
 	test_htop.py \
+	test_htpasswd.py \
 	test_hwclock.py \
 	test_iconv.py \
 	test_identify.py \
@@ -203,7 +205,9 @@ EXTRA_DIST = \
 	test_id.py \
 	test_ifdown.py \
 	test_iftop.py \
+	test_ifup.py \
 	test_import.py \
+	test_info.py \
 	test_inject.py \
 	test_insmod.py \
 	test_interdiff.py \
@@ -217,6 +221,7 @@ EXTRA_DIST = \
 	test_ipv6calc.py \
 	test_irb.py \
 	test_iscsiadm.py \
+	test_isql.py \
 	test_iwconfig.py \
 	test_iwlist.py \
 	test_iwpriv.py \
@@ -224,14 +229,20 @@ EXTRA_DIST = \
 	test_jar.py \
 	test_jarsigner.py \
 	test_javac.py \
+	test_javadoc.py \
+	test_java.py \
 	test_javaws.py \
 	test_jpegoptim.py \
 	test_jps.py \
+	test_jq.py \
 	test_jshint.py \
 	test_json_xs.py \
 	test_k3b.py \
+	test_kcov.py \
+	test_kdvi.py \
 	test_kldload.py \
 	test_koji.py \
+	test_kpdf.py \
 	test_kplayer.py \
 	test_ktutil.py \
 	test_l2ping.py \
@@ -299,6 +310,7 @@ EXTRA_DIST = \
 	test_mii-diag.py \
 	test_mii-tool.py \
 	test_minicom.py \
+	test_mkdir.py \
 	test_mkfifo.py \
 	test_mkinitrd.py \
 	test_mkisofs.py \
@@ -311,6 +323,7 @@ EXTRA_DIST = \
 	test_monodevelop.py \
 	test_montage.py \
 	test_mplayer.py \
+	test_mr.py \
 	test_msgsnarf.py \
 	test_msynctool.py \
 	test_mtx.py \
@@ -350,6 +363,7 @@ EXTRA_DIST = \
 	test_paste.py \
 	test_patch.py \
 	test_pdftotext.py \
+	test_perldoc.py \
 	test_perltidy.py \
 	test_pgrep.py \
 	test_phing.py \
@@ -373,7 +387,9 @@ EXTRA_DIST = \
 	test_pm-powersave.py \
 	test_pngfix.py \
 	test_portsnap.py \
+	test_portupgrade.py \
 	test_postcat.py \
+	test_postconf.py \
 	test_postfix.py \
 	test_postmap.py \
 	test_postsuper.py \
@@ -403,6 +419,7 @@ EXTRA_DIST = \
 	test_pylint-3.py \
 	test_pylint.py \
 	test_pytest.py \
+	test_python.py \
 	test_python3.py \
 	test_pyvenv.py \
 	test_qemu.py \
@@ -428,6 +445,7 @@ EXTRA_DIST = \
 	test_rfkill.py \
 	test_ri.py \
 	test_rlog.py \
+	test_rmdir.py \
 	test_rmlist.py \
 	test_rmmod.py \
 	test_rm.py \
@@ -437,7 +455,10 @@ EXTRA_DIST = \
 	test_rrdtool.py \
 	test_rtcwake.py \
 	test_runuser.py \
+	test_sbcl.py \
+	test_sbcl-mt.py \
 	test_sbopkg.py \
+	test_screen.py \
 	test_scrub.py \
 	test_sdptool.py \
 	test_sed.py \
@@ -493,6 +514,7 @@ EXTRA_DIST = \
 	test_timeout.py \
 	test_tipc.py \
 	test_touch.py \
+	test_tox.py \
 	test_tracepath.py \
 	test_tr.py \
 	test_tshark.py \
@@ -542,6 +564,7 @@ EXTRA_DIST = \
 	test_webmitm.py \
 	test_wget.py \
 	test_who.py \
+	test_wine.py \
 	test_withlist.py \
 	test_wodim.py \
 	test_wol.py \
@@ -562,6 +585,7 @@ EXTRA_DIST = \
 	test_xrandr.py \
 	test_xrdb.py \
 	test_xsltproc.py \
+	test_xvnc4viewer.py \
 	test_xxd.py \
 	test_xzdec.py \
 	test_ypcat.py \
