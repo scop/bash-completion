@@ -403,6 +403,7 @@ EXTRA_DIST = \
 	test_pylint-3.py \
 	test_pylint.py \
 	test_pytest.py \
+	test_python3.py \
 	test_pyvenv.py \
 	test_qemu.py \
 	test_qrunner.py \
