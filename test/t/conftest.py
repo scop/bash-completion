@@ -45,8 +45,19 @@ def bash(request) -> pexpect.spawn:
     cmd = None
     marker = request.node.get_marker("command")
     if marker:
-        cmd = marker.args[0]
-    else:
+        if marker.args:
+            cmd = marker.args[0]
+        skipif = marker.kwargs.get("skipif")
+        if skipif:
+            try:
+                assert_bash_exec(bash, skipif)
+            except AssertionError:
+                pass
+            else:
+                bash.close()
+                pytest.skip(skipif)
+                return
+    if not cmd:
         match = re.search(
             r"^test_(.+)\.py$", os.path.basename(str(request.fspath)))
         if match:
