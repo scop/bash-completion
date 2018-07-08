@@ -28,6 +28,8 @@ def bash(request) -> pexpect.spawn:
         TERM="dumb",
         BASH_COMPLETION_COMPAT_DIR="%s/fixtures/shared/empty_dir" % testdir,
     )
+    for k in "HOME", "DISPLAY":
+        env[k] = os.environ.get(k)
     # TODO set stty_init "columns 150" --> dimensions? needed in first place?
 
     # Start bash
