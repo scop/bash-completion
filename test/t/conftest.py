@@ -107,15 +107,12 @@ def is_bash_type(bash: pexpect.spawn, cmd: str) -> bool:
 
 
 def load_completion_for(bash: pexpect.spawn, cmd: str) -> bool:
-    loadcmd = "__load_completion %s; " \
-              "complete -p %s &>/dev/null && echo -n 0 || echo -n 1" % \
-              (cmd, cmd)
-    bash.sendline(loadcmd)
-    # TODO: why doesn't expect_exact(loadcmd + "\r\n") work here?
-    bash.expect(".*?\r\n")
-    result = bash.expect_exact(["0", "1"]) == 0
-    bash.expect_exact(PS1)
-    return result
+    try:
+        assert_bash_exec(bash, "__load_completion %s" % cmd)
+        assert_bash_exec(bash, "complete -p %s &>/dev/null" % cmd)
+    except AssertionError:
+        return False
+    return True
 
 
 def assert_bash_exec(
