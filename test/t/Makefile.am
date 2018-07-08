@@ -1,6 +1,7 @@
 EXTRA_DIST = \
 	conftest.py \
 	test_2to3.py \
+	test_7z.py \
 	test_a2ps.py \
 	test_a2x.py \
 	test_abook.py \
@@ -85,6 +86,7 @@ EXTRA_DIST = \
 	test_co.py \
 	test_cowsay.py \
 	test_cpan2dist.py \
+	test_cpio.py \
 	test_cppcheck.py \
 	test_cp.py \
 	test_c++.py \
@@ -98,6 +100,7 @@ EXTRA_DIST = \
 	test_cvsps.py \
 	test_cvs.py \
 	test_date.py \
+	test_dcop.py \
 	test_dd.py \
 	test_declare.py \
 	test_deja-dup.py \
@@ -113,6 +116,7 @@ EXTRA_DIST = \
 	test_dnsspoof.py \
 	test_dot.py \
 	test_dpkg-deb.py \
+	test_dpkg.py \
 	test_dpkg-reconfigure.py \
 	test_dpkg-source.py \
 	test_dropdb.py \
@@ -133,6 +137,7 @@ EXTRA_DIST = \
 	test_ether-wake.py \
 	test_etherwake.py \
 	test_expand.py \
+	test_explodepkg.py \
 	test_faillog.py \
 	test_fbgs.py \
 	test_fbi.py \
@@ -212,6 +217,7 @@ EXTRA_DIST = \
 	test_info.py \
 	test_inject.py \
 	test_insmod.py \
+	test_installpkg.py \
 	test_interdiff.py \
 	test_invoke-rc-d.py \
 	test_ionice.py \
@@ -243,6 +249,7 @@ EXTRA_DIST = \
 	test_kcov.py \
 	test_kdvi.py \
 	test_kldload.py \
+	test_kldunload.py \
 	test_koji.py \
 	test_kpdf.py \
 	test_kplayer.py \
@@ -262,6 +269,7 @@ EXTRA_DIST = \
 	test_ld.py \
 	test_less.py \
 	test_lftpget.py \
+	test_lftp.py \
 	test_lilo.py \
 	test_links.py \
 	test_lintian-info.py \
@@ -272,6 +280,7 @@ EXTRA_DIST = \
 	test_list_members.py \
 	test_list_owners.py \
 	test_ln.py \
+	test_look.py \
 	test_lpq.py \
 	test_lpr.py \
 	test_lrzip.py \
@@ -520,6 +529,7 @@ EXTRA_DIST = \
 	test_texindex.py \
 	test_tightvncviewer.py \
 	test_timeout.py \
+	test_time.py \
 	test_tipc.py \
 	test_touch.py \
 	test_tox.py \
@@ -544,6 +554,7 @@ EXTRA_DIST = \
 	test_useradd.py \
 	test_userdel.py \
 	test_usermod.py \
+	test_valgrind.py \
 	test_vdir.py \
 	test_vgcfgbackup.py \
 	test_vgcfgrestore.py \
