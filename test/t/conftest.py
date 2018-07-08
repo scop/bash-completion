@@ -32,12 +32,15 @@ def bash(request) -> pexpect.spawn:
         env[k] = os.environ.get(k)
     # TODO set stty_init "columns 150" --> dimensions? needed in first place?
 
+    fixturesdir = os.path.join(testdir, "fixtures")
+    os.chdir(fixturesdir)
+
     # Start bash
     bash = pexpect.spawn(
         "%s --norc" % os.environ.get("BASHCOMP_TEST_BASH", "bash"),
         maxread=os.environ.get("BASHCOMP_TEST_PEXPECT_MAXREAD", 20000),
         logfile=logfile,
-        cwd=os.path.join(testdir, "fixtures"),
+        cwd=fixturesdir,
         env=env,
         encoding="utf-8",  # TODO? or native or...?
         # TODO? codec_errors="replace",
