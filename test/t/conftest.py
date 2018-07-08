@@ -29,8 +29,8 @@ def bash(request) -> pexpect.spawn:
 
     # Start bash
     bash = pexpect.spawn(
-        "%s --norc" % os.environ.get("BASHCOMP_BASH", "bash"),
-        maxread=os.environ.get("BASHCOMP_PEXPECT_MAXREAD", 20000),
+        "%s --norc" % os.environ.get("BASHCOMP_TEST_BASH", "bash"),
+        maxread=os.environ.get("BASHCOMP_TEST_PEXPECT_MAXREAD", 20000),
         cwd=os.path.join(testdir, "fixtures"),
         env=env,
         encoding="utf-8",  # TODO? or native or...?
