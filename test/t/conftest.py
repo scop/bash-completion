@@ -15,6 +15,9 @@ MAGIC_MARK = "__MaGiC-maRKz!__"
 @pytest.fixture(autouse=True, scope="class")
 def bash(request) -> pexpect.spawn:
 
+    logfile = None
+    if os.environ.get("BASHCOMP_TEST_LOGFILE"):
+        logfile = open(os.environ.get("BASHCOMP_TEST_LOGFILE"), "w")
     testdir = os.path.abspath(
         os.path.join(os.path.dirname(__file__), os.pardir))
     env = dict(
@@ -31,6 +34,7 @@ def bash(request) -> pexpect.spawn:
     bash = pexpect.spawn(
         "%s --norc" % os.environ.get("BASHCOMP_TEST_BASH", "bash"),
         maxread=os.environ.get("BASHCOMP_TEST_PEXPECT_MAXREAD", 20000),
+        logfile=logfile,
         cwd=os.path.join(testdir, "fixtures"),
         env=env,
         encoding="utf-8",  # TODO? or native or...?
@@ -76,6 +80,8 @@ def bash(request) -> pexpect.spawn:
 
     # Clean up
     bash.close()
+    if logfile:
+        logfile.close()
 
 
 def is_testable(bash: pexpect.spawn, cmd: str) -> bool:
