@@ -1,7 +1,9 @@
 import pytest
 
 
-@pytest.mark.command("btdownloadgui.py")
+@pytest.mark.bashcomp(
+    cmd="btdownloadgui.py",
+)
 class TestBtdownloadguiPy(object):
 
     @pytest.mark.complete("btdownloadgui.py ")

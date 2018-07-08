@@ -1,7 +1,9 @@
 import pytest
 
 
-@pytest.mark.command("btdownloadheadless.py")
+@pytest.mark.bashcomp(
+    cmd="btdownloadheadless.py",
+)
 class TestBtdownloadheadlessPy(object):
 
     @pytest.mark.complete("btdownloadheadless.py ")

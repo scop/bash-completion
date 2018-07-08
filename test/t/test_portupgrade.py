@@ -1,8 +1,10 @@
 import pytest
 
 
-@pytest.mark.pre_commands(
-    "PKG_DBDIR=$PWD/dbtools/db",
+@pytest.mark.bashcomp(
+    pre_cmds=(
+        "PKG_DBDIR=$PWD/dbtools/db",
+    ),
 )
 class TestPortupgrade(object):
 

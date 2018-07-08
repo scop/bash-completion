@@ -1,7 +1,9 @@
 import pytest
 
 
-@pytest.mark.command(skipif="! flake8 --help &>/dev/null")
+@pytest.mark.bashcomp(
+    skipif="! flake8 --help &>/dev/null",
+)
 class TestFlake8(object):
 
     @pytest.mark.complete("flake8 ")

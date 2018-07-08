@@ -1,8 +1,10 @@
 import pytest
 
 
-@pytest.mark.pre_commands(
-    "HOME=$PWD/cvs",
+@pytest.mark.bashcomp(
+    pre_cmds=(
+        "HOME=$PWD/cvs",
+    ),
 )
 class TestCvsps(object):
 

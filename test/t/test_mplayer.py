@@ -1,8 +1,10 @@
 import pytest
 
 
-@pytest.mark.pre_commands(
-    "HOME=$PWD/mplayer",
+@pytest.mark.bashcomp(
+    pre_cmds=(
+        "HOME=$PWD/mplayer",
+    ),
 )
 class TestMplayer(object):
 

@@ -1,10 +1,12 @@
 import pytest
 
 
-# Some old versions of ssh-copy-id won't output even usage if no
-# identities are found. Try to make sure there is at least one.
-@pytest.mark.pre_commands(
-    "HOME=$PWD/ssh-copy-id",
+@pytest.mark.bashcomp(
+    pre_cmds=(
+        # Some old versions of ssh-copy-id won't output even usage if no
+        # identities are found. Try to make sure there is at least one.
+        "HOME=$PWD/ssh-copy-id",
+    ),
 )
 class TestSshCopyId(object):
 

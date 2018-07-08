@@ -1,8 +1,10 @@
 import pytest
 
 
-@pytest.mark.pre_commands(
-    'PATH=$PATH:/lib/udev',
+@pytest.mark.bashcomp(
+    pre_cmds=(
+        "PATH=/lib/udev:$PATH",
+    ),
 )
 class TestHid2hci(object):
 

@@ -1,9 +1,11 @@
 import pytest
 
 
-@pytest.mark.pre_commands(
-    # Make sure our own ./configure is in PATH
-    "PATH+=:$PWD/../..",
+@pytest.mark.bashcomp(
+    pre_cmds=(
+        # Make sure our own ./configure is in PATH
+        "PATH=$PWD/../..:$PATH",
+    ),
 )
 class TestConfigure(object):
 

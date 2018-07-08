@@ -1,8 +1,10 @@
 import pytest
 
 
-@pytest.mark.pre_commands(
-    "ODBCINI=isql/odbc.ini",
+@pytest.mark.bashcomp(
+    pre_cmds=(
+        "ODBCINI=isql/odbc.ini",
+    ),
 )
 class TestIsql(object):
 

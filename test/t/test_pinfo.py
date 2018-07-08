@@ -1,8 +1,10 @@
 import pytest
 
 
-@pytest.mark.pre_commands(
-    "INFOPATH+=:info:",
+@pytest.mark.bashcomp(
+    pre_cmds=(
+        "INFOPATH+=:$PWD/info:",
+    ),
 )
 class TestPinfo(object):
 

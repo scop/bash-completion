@@ -3,8 +3,10 @@ import os
 import pytest
 
 
-@pytest.mark.pre_commands(
-    "PKG_DBDIR=pkgtools/db",
+@pytest.mark.bashcomp(
+    pre_cmds=(
+        "PKG_DBDIR=$PWD/pkgtools/db",
+    ),
 )
 class TestPkgDeinstall(object):
 

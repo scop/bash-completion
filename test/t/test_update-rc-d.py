@@ -1,7 +1,9 @@
 import pytest
 
 
-@pytest.mark.command("update-rc.d")
+@pytest.mark.bashcomp(
+    cmd="update-rc.d",
+)
 class TestUpdateRcD(object):
 
     @pytest.mark.complete("update-rc.d -")

@@ -1,8 +1,10 @@
 import pytest
 
 
-@pytest.mark.pre_commands(
-    "export PERL5LIB=$PWD/perldoc",
+@pytest.mark.bashcomp(
+    pre_cmds=(
+        "export PERL5LIB=$PWD/perldoc",
+    ),
 )
 class TestPerldoc(object):
 

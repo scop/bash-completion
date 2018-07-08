@@ -1,8 +1,10 @@
 import pytest
 
 
-@pytest.mark.pre_commands(
-    'CLASSPATH=$PWD/java/a:$PWD/java/bashcomp.jar',
+@pytest.mark.bashcomp(
+    pre_cmds=(
+        "CLASSPATH=$PWD/java/a:$PWD/java/bashcomp.jar",
+    ),
 )
 class TestJava(object):
 

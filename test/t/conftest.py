@@ -49,10 +49,13 @@ def bash(request) -> pexpect.spawn:
 
     # Use command name from marker if set, or grab from test filename
     cmd = None
-    marker = request.node.get_marker("command")
+    marker = request.node.get_marker("bashcomp")
     if marker:
-        if marker.args:
-            cmd = marker.args[0]
+        cmd = marker.kwargs.get("cmd")
+        # Run pre-test commands, early so they're usable in skipif
+        for pre_cmd in marker.kwargs.get("pre_cmds", []):
+            assert_bash_exec(bash, pre_cmd)
+        # Process skip conditions
         skipif = marker.kwargs.get("skipif")
         if skipif:
             try:
@@ -68,12 +71,6 @@ def bash(request) -> pexpect.spawn:
             r"^test_(.+)\.py$", os.path.basename(str(request.fspath)))
         if match:
             cmd = match.group(1)
-
-    # Run pre-test commands
-    marker = request.node.get_marker("pre_commands")
-    if marker:
-        for pre_cmd in marker.args:
-            assert_bash_exec(bash, pre_cmd)
 
     if is_testable(bash, cmd):
         before_env = get_env(bash)

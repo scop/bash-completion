@@ -1,8 +1,10 @@
 import pytest
 
 
-@pytest.mark.pre_commands(
-    'PATH=$PATH:/usr/lib/mailman/bin',
+@pytest.mark.bashcomp(
+    pre_cmds=(
+        "PATH=/usr/lib/mailman/bin:$PATH",
+    ),
 )
 class TestMailmanctl(object):
 

@@ -1,8 +1,10 @@
 import pytest
 
 
-@pytest.mark.pre_commands(
-    "PATH=shared/bin:$PATH",
+@pytest.mark.bashcomp(
+    pre_cmds=(
+        "PATH=$PWD/shared/bin:$PATH",
+    ),
 )
 class TestWol(object):
 

@@ -1,8 +1,10 @@
 import pytest
 
 
-@pytest.mark.pre_commands(
-    'export RI="-d ri"',
+@pytest.mark.bashcomp(
+    pre_cmds=(
+        "export RI='-d ri'",
+    ),
 )
 class TestRi(object):
 
