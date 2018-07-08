@@ -453,6 +453,7 @@ EXTRA_DIST = \
 	test_rpcdebug.py \
 	test_rpmbuild.py \
 	test_rrdtool.py \
+	test_rsync.py \
 	test_rtcwake.py \
 	test_runuser.py \
 	test_sbcl.py \
@@ -486,6 +487,7 @@ EXTRA_DIST = \
 	test_sqlite3.py \
 	test_ssh-add.py \
 	test_ssh-copy-id.py \
+	test_sshfs.py \
 	test_ssh-keygen.py \
 	test_sshmitm.py \
 	test_sshow.py \
