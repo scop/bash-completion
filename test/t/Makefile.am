@@ -43,6 +43,7 @@ EXTRA_DIST = \
 	test_btdownloadgui-py.py \
 	test_btdownloadheadless-py.py \
 	test_bts.py \
+	test_bzip2.py \
 	test_cal.py \
 	test_cardctl.py \
 	test_cat.py \
@@ -185,6 +186,7 @@ EXTRA_DIST = \
 	test_growisofs.py \
 	test_grpck.py \
 	test_grub.py \
+	test_gzip.py \
 	test_hciattach.py \
 	test_hciconfig.py \
 	test_hcitool.py \
@@ -272,6 +274,7 @@ EXTRA_DIST = \
 	test_ln.py \
 	test_lpq.py \
 	test_lpr.py \
+	test_lrzip.py \
 	test_lsof.py \
 	test_lspci.py \
 	test_lsscsi.py \
@@ -293,7 +296,10 @@ EXTRA_DIST = \
 	test_lvresize.py \
 	test_lvscan.py \
 	test_lvs.py \
+	test_lz4.py \
 	test_lzip.py \
+	test_lzma.py \
+	test_lzop.py \
 	test_m4.py \
 	test_macof.py \
 	test_mailmanctl.py \
@@ -590,10 +596,12 @@ EXTRA_DIST = \
 	test_xvnc4viewer.py \
 	test_xxd.py \
 	test_xzdec.py \
+	test_xz.py \
 	test_ypcat.py \
 	test_ypmatch.py \
 	test_yum-arch.py \
 	test_yum.py \
 	test_zopflipng.py \
+	test_zopfli.py \
 
 all:
