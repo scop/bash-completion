@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestG++(object):
+class TestGPlusPlus(object):
 
     @pytest.mark.complete("g++ ")
     def test_1(self, completion):
