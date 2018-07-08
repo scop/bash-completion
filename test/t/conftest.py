@@ -111,7 +111,9 @@ def is_bash_type(bash: pexpect.spawn, cmd: str) -> bool:
 
 def load_completion_for(bash: pexpect.spawn, cmd: str) -> bool:
     try:
-        assert_bash_exec(bash, "__load_completion %s" % cmd)
+        # Allow __load_completion to fail so we can test completions
+        # that are directly loaded in bash_completion without a separate file.
+        assert_bash_exec(bash, "__load_completion %s || :" % cmd)
         assert_bash_exec(bash, "complete -p %s &>/dev/null" % cmd)
     except AssertionError:
         return False
