@@ -13,10 +13,10 @@ EXTRA_DIST = \
 	test_alpine.py \
 	test_animate.py \
 	test_apache2ctl.py \
-	test_appdata-validate.py \
-	test_apt-build.py \
-	test_apt-cache.py \
-	test_apt-get.py \
+	test_appdata_validate.py \
+	test_apt_build.py \
+	test_apt_cache.py \
+	test_apt_get.py \
 	test_aptitude.py \
 	test_arch.py \
 	test_arping.py \
@@ -40,9 +40,9 @@ EXTRA_DIST = \
 	test_bison.py \
 	test_bk.py \
 	test_brctl.py \
-	test_btdownloadcurses-py.py \
-	test_btdownloadgui-py.py \
-	test_btdownloadheadless-py.py \
+	test_btdownloadcurses_py.py \
+	test_btdownloadgui_py.py \
+	test_btdownloadheadless_py.py \
 	test_bts.py \
 	test_bzip2.py \
 	test_cal.py \
@@ -89,7 +89,7 @@ EXTRA_DIST = \
 	test_cpio.py \
 	test_cppcheck.py \
 	test_cp.py \
-	test_c++.py \
+	test_cplusplus.py \
 	test_createdb.py \
 	test_createuser.py \
 	test_crontab.py \
@@ -103,8 +103,8 @@ EXTRA_DIST = \
 	test_dcop.py \
 	test_dd.py \
 	test_declare.py \
-	test_deja-dup.py \
-	test_desktop-file-validate.py \
+	test_deja_dup.py \
+	test_desktop_file_validate.py \
 	test_df.py \
 	test_dfutool.py \
 	test_dhclient.py \
@@ -115,10 +115,10 @@ EXTRA_DIST = \
 	test_dmesg.py \
 	test_dnsspoof.py \
 	test_dot.py \
-	test_dpkg-deb.py \
+	test_dpkg_deb.py \
 	test_dpkg.py \
-	test_dpkg-reconfigure.py \
-	test_dpkg-source.py \
+	test_dpkg_reconfigure.py \
+	test_dpkg_source.py \
 	test_dropdb.py \
 	test_dropuser.py \
 	test_dselect.py \
@@ -129,12 +129,12 @@ EXTRA_DIST = \
 	test_e2freefrag.py \
 	test_e2label.py \
 	test_ebtables.py \
-	test_ecryptfs-migrate-home.py \
+	test_ecryptfs_migrate_home.py \
 	test_eject.py \
 	test_enscript.py \
 	test_env.py \
 	test_eog.py \
-	test_ether-wake.py \
+	test_ether_wake.py \
 	test_etherwake.py \
 	test_expand.py \
 	test_explodepkg.py \
@@ -144,16 +144,16 @@ EXTRA_DIST = \
 	test_feh.py \
 	test_filefrag.py \
 	test_file.py \
-	test_file-roller.py \
+	test_file_roller.py \
 	test_filesnarf.py \
 	test_find_member.py \
 	test_fio.py \
 	test_flake8.py \
 	test_fmt.py \
 	test_fold.py \
-	test_freebsd-update.py \
-	test_freeciv-gtk2.py \
-	test_freeciv-server.py \
+	test_freebsd_update.py \
+	test_freeciv_gtk2.py \
+	test_freeciv_server.py \
 	test_function.py \
 	test_fusermount.py \
 	test_g4.py \
@@ -173,7 +173,7 @@ EXTRA_DIST = \
 	test_gm.py \
 	test_gnatmake.py \
 	test_gnokii.py \
-	test_gnome-mplayer.py \
+	test_gnome_mplayer.py \
 	test_gpasswd.py \
 	test_gpc.py \
 	test_gperf.py \
@@ -182,7 +182,7 @@ EXTRA_DIST = \
 	test_gpgv.py \
 	test_gphoto2.py \
 	test_gprof.py \
-	test_g++.py \
+	test_gplusplus.py \
 	test_grep.py \
 	test_groupadd.py \
 	test_groupdel.py \
@@ -219,7 +219,7 @@ EXTRA_DIST = \
 	test_insmod.py \
 	test_installpkg.py \
 	test_interdiff.py \
-	test_invoke-rc-d.py \
+	test_invoke_rc_d.py \
 	test_ionice.py \
 	test_iperf.py \
 	test_ipmitool.py \
@@ -272,7 +272,7 @@ EXTRA_DIST = \
 	test_lftp.py \
 	test_lilo.py \
 	test_links.py \
-	test_lintian-info.py \
+	test_lintian_info.py \
 	test_lintian.py \
 	test_lisp.py \
 	test_list_admins.py \
@@ -322,8 +322,8 @@ EXTRA_DIST = \
 	test_mdtool.py \
 	test_medusa.py \
 	test_mencoder.py \
-	test_mii-diag.py \
-	test_mii-tool.py \
+	test_mii_diag.py \
+	test_mii_tool.py \
 	test_minicom.py \
 	test_mkdir.py \
 	test_mkfifo.py \
@@ -343,8 +343,8 @@ EXTRA_DIST = \
 	test_msynctool.py \
 	test_mtx.py \
 	test_munindoc.py \
-	test_munin-node-configure.py \
-	test_munin-run.py \
+	test_munin_node_configure.py \
+	test_munin_run.py \
 	test_mussh.py \
 	test_muttng.py \
 	test_mv.py \
@@ -387,19 +387,19 @@ EXTRA_DIST = \
 	test_pinfo.py \
 	test_ping.py \
 	test_pkgadd.py \
-	test_pkg-config.py \
+	test_pkg_config.py \
 	test_pkg_deinstall.py \
 	test_pkg_delete.py \
-	test_pkg-get.py \
+	test_pkg_get.py \
 	test_pkg_info.py \
 	test_pkgrm.py \
 	test_pkgtool.py \
 	test_pkgutil.py \
 	test_pkill.py \
-	test_plague-client.py \
-	test_pm-hibernate.py \
-	test_pm-is-supported.py \
-	test_pm-powersave.py \
+	test_plague_client.py \
+	test_pm_hibernate.py \
+	test_pm_is_supported.py \
+	test_pm_powersave.py \
 	test_pngfix.py \
 	test_portsnap.py \
 	test_portupgrade.py \
@@ -431,7 +431,7 @@ EXTRA_DIST = \
 	test_pycodestyle.py \
 	test_pydoc.py \
 	test_pyflakes.py \
-	test_pylint-3.py \
+	test_pylint_3.py \
 	test_pylint.py \
 	test_pytest.py \
 	test_python.py \
@@ -472,7 +472,7 @@ EXTRA_DIST = \
 	test_rtcwake.py \
 	test_runuser.py \
 	test_sbcl.py \
-	test_sbcl-mt.py \
+	test_sbcl_mt.py \
 	test_sbopkg.py \
 	test_screen.py \
 	test_scrub.py \
@@ -500,10 +500,10 @@ EXTRA_DIST = \
 	test_split.py \
 	test_spovray.py \
 	test_sqlite3.py \
-	test_ssh-add.py \
-	test_ssh-copy-id.py \
+	test_ssh_add.py \
+	test_ssh_copy_id.py \
 	test_sshfs.py \
-	test_ssh-keygen.py \
+	test_ssh_keygen.py \
 	test_sshmitm.py \
 	test_sshow.py \
 	test_ss.py \
@@ -547,8 +547,8 @@ EXTRA_DIST = \
 	test_unrar.py \
 	test_unset.py \
 	test_unshunt.py \
-	test_update-alternatives.py \
-	test_update-rc-d.py \
+	test_update_alternatives.py \
+	test_update_rc_d.py \
 	test_urlsnarf.py \
 	test_uscan.py \
 	test_useradd.py \
@@ -591,8 +591,8 @@ EXTRA_DIST = \
 	test_wsimport.py \
 	test_wtf.py \
 	test_wvdial.py \
-	test_xdg-mime.py \
-	test_xdg-settings.py \
+	test_xdg_mime.py \
+	test_xdg_settings.py \
 	test_xfreerdp.py \
 	test_xgamma.py \
 	test_xmllint.py \
@@ -610,7 +610,7 @@ EXTRA_DIST = \
 	test_xz.py \
 	test_ypcat.py \
 	test_ypmatch.py \
-	test_yum-arch.py \
+	test_yum_arch.py \
 	test_yum.py \
 	test_zopflipng.py \
 	test_zopfli.py \
