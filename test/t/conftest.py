@@ -225,7 +225,7 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
             line = bash.before[:-len(MAGIC_MARK)]
         result = CompletionResult(
             line,
-            [x for x in re.split(r" {2,}|\r\n", line) if x],
+            sorted(x for x in re.split(r" {2,}|\r\n", line) if x),
         )
     elif got == 2:
         line = bash.after
