@@ -75,7 +75,8 @@ def bash(request) -> pexpect.spawn:
     if is_testable(bash, cmd):
         before_env = get_env(bash)
         yield bash
-        diff_env(before_env, get_env(bash))
+        diff_env(before_env, get_env(bash),
+                 marker.kwargs.get("ignore_env") if marker else "")
 
     # Clean up
     bash.close()
@@ -162,7 +163,7 @@ def get_env(bash: pexpect.spawn) -> List[str]:
     ).strip().splitlines()
 
 
-def diff_env(before: List[str], after: List[str]):
+def diff_env(before: List[str], after: List[str], ignore: str):
     diff = [
         x for x in
         difflib.unified_diff(before, after, n=0, lineterm="")
@@ -172,7 +173,8 @@ def diff_env(before: List[str], after: List[str]):
         and not re.search("^[-+](_|PPID|BASH_REMATCH)=", x)
         # Ignore likely completion functions added by us:
         and not re.search(r"^\+declare -f _.+", x)
-
+        # ...and additional specified things:
+        and not re.search(ignore or "^$", x)
     ]
     # For some reason, COMP_WORDBREAKS gets added to the list after
     # saving. Remove its changes, and note that it may take two lines.
