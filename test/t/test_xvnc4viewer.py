@@ -9,8 +9,8 @@ class TestXvnc4viewer(object):
 
     @pytest.mark.complete("xvnc4viewer -PreferredEncoding ")
     def test_2(self, completion):
-        assert completion.list == ["hextile raw zrle"]
+        assert completion.list == ["hextile raw zrle"].split()
 
     @pytest.mark.complete("xvnc4viewer --preferredencoding ")
     def test_3(self, completion):
-        assert completion.list == ["hextile raw zrle"]
+        assert completion.list == ["hextile raw zrle"].split()
