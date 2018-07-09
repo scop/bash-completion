@@ -588,6 +588,7 @@ EXTRA_DIST = \
 	test_vipw.py \
 	test_vi.py \
 	test_vmstat.py \
+	test_vncviewer.py \
 	test_vpnc.py \
 	test_watch.py \
 	test_wc.py \
