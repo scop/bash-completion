@@ -12,6 +12,7 @@ EXTRA_DIST = \
 	test_add_members.py \
 	test_alpine.py \
 	test_animate.py \
+	test_ant.py \
 	test_apache2ctl.py \
 	test_appdata_validate.py \
 	test_apt_build.py \
@@ -136,8 +137,10 @@ EXTRA_DIST = \
 	test_eog.py \
 	test_ether_wake.py \
 	test_etherwake.py \
+	test_evince.py \
 	test_expand.py \
 	test_explodepkg.py \
+	test_export.py \
 	test_faillog.py \
 	test_fbgs.py \
 	test_fbi.py \
@@ -147,6 +150,7 @@ EXTRA_DIST = \
 	test_file_roller.py \
 	test_filesnarf.py \
 	test_find_member.py \
+	test_find.py \
 	test_fio.py \
 	test_flake8.py \
 	test_fmt.py \
@@ -333,6 +337,8 @@ EXTRA_DIST = \
 	test_mktemp.py \
 	test_mmsitepass.py \
 	test_mock.py \
+	test_modinfo.py \
+	test_modprobe.py \
 	test_module.py \
 	test_mogrify.py \
 	test_monodevelop.py \
@@ -347,6 +353,7 @@ EXTRA_DIST = \
 	test_munin_run.py \
 	test_mussh.py \
 	test_muttng.py \
+	test_mutt.py \
 	test_mv.py \
 	test_mysqladmin.py \
 	test_mysql.py \
@@ -451,6 +458,7 @@ EXTRA_DIST = \
 	test_readelf.py \
 	test_readonly.py \
 	test_remove_members.py \
+	test_removepkg.py \
 	test_renice.py \
 	test_repomanage.py \
 	test_reportbug.py \
@@ -466,7 +474,9 @@ EXTRA_DIST = \
 	test_rm.py \
 	test_route.py \
 	test_rpcdebug.py \
+	test_rpm2tgz.py \
 	test_rpmbuild.py \
+	test_rpm.py \
 	test_rrdtool.py \
 	test_rsync.py \
 	test_rtcwake.py \
@@ -520,6 +530,7 @@ EXTRA_DIST = \
 	test_synclient.py \
 	test_sync_members.py \
 	test_sysbench.py \
+	test_sysctl.py \
 	test_tac.py \
 	test_tail.py \
 	test_tcpdump.py \
