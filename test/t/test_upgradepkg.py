@@ -18,7 +18,7 @@ class TestUpgradepkg(object):
     @pytest.mark.complete("upgradepkg ", cwd="slackware/home")
     def test_4(self, completion):
         expected = sorted([
-            x for x in os.listdir("slackware/home")
+            "%s/" % x for x in os.listdir("slackware/home")
             if os.path.isdir("./%s" % x)
         ] + [
             x for x in os.listdir("slackware/home")
