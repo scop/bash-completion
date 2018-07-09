@@ -208,6 +208,16 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
     cwd = marker.kwargs.get("cwd")
     if cwd:
         assert_bash_exec(bash, "cd '%s'" % cwd)
+    env_prefix = "_BASHCOMP_TEST_"
+    env = marker.kwargs.get("env", {})
+    if env:
+        # Back up environment and apply new one
+        assert_bash_exec(bash, " ".join(
+            '%s%s="$%s"' % (env_prefix, k, k) for k in env.keys()
+        ))
+        assert_bash_exec(bash, "export %s" % " ".join(
+            "%s=%s" % (k, shlex.quote(v)) for k, v in env.items()
+        ))
     cmd = marker.args[0]
     bash.send(cmd + "\t")
     bash.expect_exact(cmd)
@@ -240,6 +250,14 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
         result = CompletionResult("", [])
     bash.sendintr()
     bash.expect_exact(PS1)
+    if env:
+        # Restore environment, and clean up backup
+        assert_bash_exec(bash, "export %s" % " ".join(
+            '%s="$%s%s"' % (k, env_prefix, k) for k in env.keys()
+        ))
+        assert_bash_exec(bash, "unset -v %s" % " ".join(
+            "%s%s" % (env_prefix, k) for k in env.keys()
+        ))
     if cwd:
         assert_bash_exec(bash, "cd - >/dev/null; unset OLDPWD")
     return result
