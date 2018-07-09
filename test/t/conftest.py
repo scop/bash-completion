@@ -196,6 +196,8 @@ CompletionResult = NamedTuple(
 @pytest.fixture(autouse=True)
 def completion(request, bash: pexpect.spawn) -> CompletionResult:
     marker = request.node.get_marker("complete")
+    if not marker:
+        return CompletionResult("", [])
     skipif = marker.kwargs.get("skipif")
     if skipif:
         try:
