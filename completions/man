@@ -67,8 +67,11 @@ _man()
         manpath="${manpath//://*man$sect/ } ${manpath//://*cat$sect/ }"
     fi
 
+    local IFS=$' \t\n' reset=$( shopt -p failglob ); shopt -u failglob
     # redirect stderr for when path doesn't exist
     COMPREPLY=( $( eval command ls "$manpath" 2>/dev/null ) )
+    $reset
+
     # weed out directory path names and paths to man pages
     COMPREPLY=( ${COMPREPLY[@]##*/?(:)} )
     # strip suffix from man pages
