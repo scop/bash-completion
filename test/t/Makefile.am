@@ -52,6 +52,7 @@ EXTRA_DIST = \
 	test_ccache.py \
 	test_cc.py \
 	test_ccze.py \
+	test_cd.py \
 	test_cdrecord.py \
 	test_cfagent.py \
 	test_cfrun.py \
@@ -64,6 +65,7 @@ EXTRA_DIST = \
 	test_chgrp.py \
 	test_chkconfig.py \
 	test_chmod.py \
+	test_chown.py \
 	test_chpasswd.py \
 	test_chronyc.py \
 	test_chroot.py \
@@ -386,6 +388,7 @@ EXTRA_DIST = \
 	test_patch.py \
 	test_pdftotext.py \
 	test_perldoc.py \
+	test_perl.py \
 	test_perltidy.py \
 	test_pgrep.py \
 	test_phing.py \
@@ -497,6 +500,8 @@ EXTRA_DIST = \
 	test_sh.py \
 	test_sitecopy.py \
 	test_slackpkg.py \
+	test_slapt_get.py \
+	test_slapt_src.py \
 	test_smartctl.py \
 	test_smbcacls.py \
 	test_smbclient.py \
@@ -521,6 +526,7 @@ EXTRA_DIST = \
 	test_stream.py \
 	test_strings.py \
 	test_strip.py \
+	test_sudo.py \
 	test_su.py \
 	test_svcadm.py \
 	test_svk.py \
@@ -549,6 +555,7 @@ EXTRA_DIST = \
 	test_tshark.py \
 	test_tune2fs.py \
 	test_udevadm.py \
+	test_umount.py \
 	test_unace.py \
 	test_uname.py \
 	test_unexpand.py \
@@ -560,6 +567,7 @@ EXTRA_DIST = \
 	test_unshunt.py \
 	test_update_alternatives.py \
 	test_update_rc_d.py \
+	test_upgradepkg.py \
 	test_urlsnarf.py \
 	test_uscan.py \
 	test_useradd.py \
