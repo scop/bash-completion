@@ -153,6 +153,7 @@ EXTRA_DIST = \
 	test_filesnarf.py \
 	test_find_member.py \
 	test_find.py \
+	test_finger.py \
 	test_fio.py \
 	test_flake8.py \
 	test_fmt.py \
@@ -254,6 +255,8 @@ EXTRA_DIST = \
 	test_k3b.py \
 	test_kcov.py \
 	test_kdvi.py \
+	test_killall.py \
+	test_kill.py \
 	test_kldload.py \
 	test_kldunload.py \
 	test_koji.py \
@@ -292,6 +295,7 @@ EXTRA_DIST = \
 	test_lrzip.py \
 	test_lsof.py \
 	test_lspci.py \
+	test_ls.py \
 	test_lsscsi.py \
 	test_lsusb.py \
 	test_luac.py \
@@ -320,6 +324,8 @@ EXTRA_DIST = \
 	test_mailmanctl.py \
 	test_mailsnarf.py \
 	test_makepkg.py \
+	test_make.py \
+	test_man.py \
 	test_mc.py \
 	test_mcrypt.py \
 	test_md5sum.py \
@@ -345,6 +351,7 @@ EXTRA_DIST = \
 	test_mogrify.py \
 	test_monodevelop.py \
 	test_montage.py \
+	test_mount.py \
 	test_mplayer.py \
 	test_mr.py \
 	test_msgsnarf.py \
@@ -495,6 +502,7 @@ EXTRA_DIST = \
 	test_service.py \
 	test_set.py \
 	test_setquota.py \
+	test_sftp.py \
 	test_sha1sum.py \
 	test_shar.py \
 	test_sh.py \
@@ -521,6 +529,7 @@ EXTRA_DIST = \
 	test_ssh_keygen.py \
 	test_sshmitm.py \
 	test_sshow.py \
+	test_ssh.py \
 	test_ss.py \
 	test_strace.py \
 	test_stream.py \
@@ -539,6 +548,7 @@ EXTRA_DIST = \
 	test_sysctl.py \
 	test_tac.py \
 	test_tail.py \
+	test_tar.py \
 	test_tcpdump.py \
 	test_tcpkill.py \
 	test_tcpnice.py \
