@@ -21,15 +21,6 @@ proc teardown {} {
 setup home user
 
 
-set test "function should run without errors"
-assert_bash_exec {__expand_tilde_by_ref > /dev/null} $test
-sync_after_int
-
-set test "function should not pollute environment"
-# NOTE: A possible environment pollution is detected by assert_env_modified() in teardown()
-assert_bash_exec {foo() { local aa="~"; __expand_tilde_by_ref aa; }; foo; unset foo} $test
-sync_after_int
-
 set test "~user should return $home"
 set cmd [format {var="~%s"; __expand_tilde_by_ref var; printf "%%s\n" "$var"} $user]
 assert_bash_list "$home" $cmd $test

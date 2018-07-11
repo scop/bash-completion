@@ -19,15 +19,6 @@ proc teardown {} {
 setup home user
 
 
-set test "function should run without errors"
-assert_bash_exec {_expand > /dev/null} $test
-sync_after_int
-
-set test "function should not pollute environment"
-# NOTE: A possible environment pollution is detected by assert_env_modified() in teardown()
-assert_bash_exec {foo() { _expand; }; foo; unset foo} $test
-sync_after_int
-
 set test "~$user should set $home to COMPREPLY"
 set cmd [format {cur="~%s" ; _expand ; printf "%%s\n" "$COMPREPLY"} $user]
 assert_bash_list "$home" $cmd $test
