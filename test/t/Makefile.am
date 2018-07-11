@@ -1,3 +1,5 @@
+SUBDIRS = unit
+
 EXTRA_DIST = \
 	conftest.py \
 	test_2to3.py \
