@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="gnome-mplayer",
+)
 class TestGnomeMplayer(object):
 
     @pytest.mark.complete("gnome-mplayer ")

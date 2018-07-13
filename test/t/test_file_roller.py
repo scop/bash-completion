@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="file-roller",
+)
 class TestFileRoller(object):
 
     @pytest.mark.complete("file-roller ")

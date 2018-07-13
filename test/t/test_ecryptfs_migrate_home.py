@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="ecryptfs-migrate-home",
+)
 class TestEcryptfsMigrateHome(object):
 
     @pytest.mark.complete("ecryptfs-migrate-home ")

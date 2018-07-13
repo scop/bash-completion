@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="xdg-settings",
+)
 class TestXdgSettings(object):
 
     @pytest.mark.complete("xdg-settings ")

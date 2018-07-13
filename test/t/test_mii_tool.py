@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="mii-tool",
+)
 class TestMiiTool(object):
 
     @pytest.mark.complete("mii-tool ")

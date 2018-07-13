@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="yum-arch",
+)
 class TestYumArch(object):
 
     @pytest.mark.complete("yum-arch -")

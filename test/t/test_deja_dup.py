@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="deja-dup",
+)
 class TestDejaDup(object):
 
     @pytest.mark.complete("deja-dup -")

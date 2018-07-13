@@ -20,16 +20,15 @@ def bash(request) -> pexpect.spawn:
         logfile = open(os.environ.get("BASHCOMP_TEST_LOGFILE"), "w")
     testdir = os.path.abspath(
         os.path.join(os.path.dirname(__file__), os.pardir))
-    env = dict(
+    env = os.environ.copy()
+    env.update(dict(
         SRCDIR=testdir,  # TODO needed at least by bashrc
         SRCDIRABS=testdir,  # TODO needed?
         PS1=PS1,
         INPUTRC="%s/config/inputrc" % testdir,
         TERM="dumb",
         BASH_COMPLETION_COMPAT_DIR="%s/fixtures/shared/empty_dir" % testdir,
-    )
-    for k in "HOME", "DISPLAY":
-        env[k] = os.environ.get(k)
+    ))
     # TODO set stty_init "columns 150" --> dimensions? needed in first place?
 
     fixturesdir = os.path.join(testdir, "fixtures")
@@ -77,7 +76,7 @@ def bash(request) -> pexpect.spawn:
         if match:
             cmd = match.group(1)
 
-    if cmd_found or is_testable(bash, cmd):
+    if (cmd_found and cmd is None) or is_testable(bash, cmd):
         before_env = get_env(bash)
         yield bash
         diff_env(before_env, get_env(bash),
@@ -174,7 +173,7 @@ def diff_env(before: List[str], after: List[str], ignore: str):
         # Remove unified diff markers:
         if not re.search(r"^(---|\+\+\+|@@ )", x)
         # Ignore variables expected to change:
-        and not re.search("^[-+](_|PPID|BASH_REMATCH)=", x)
+        and not re.search("^[-+](_|PPID|BASH_REMATCH|OLDPWD)=", x)
         # Ignore likely completion functions added by us:
         and not re.search(r"^\+declare -f _.+", x)
         # ...and additional specified things:
@@ -256,6 +255,9 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
     bash.expect_exact(PS1)
     if env:
         # Restore environment, and clean up backup
+        # TODO: Test with declare -p if a var was set, backup only if yes, and
+        #       similarly restore only backed up vars. Should remove some need
+        #       for ignore_env.
         assert_bash_exec(bash, "export %s" % " ".join(
             '%s="$%s%s"' % (k, env_prefix, k) for k in env.keys()
         ))
@@ -263,5 +265,5 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
             "%s%s" % (env_prefix, k) for k in env.keys()
         ))
     if cwd:
-        assert_bash_exec(bash, "cd - >/dev/null; unset OLDPWD")
+        assert_bash_exec(bash, "cd - >/dev/null")
     return result

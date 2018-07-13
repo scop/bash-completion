@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="freeciv-server",
+)
 class TestFreecivServer(object):
 
     @pytest.mark.complete("freeciv-server -")

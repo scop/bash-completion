@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="apt-build",
+)
 class TestAptBuild(object):
 
     @pytest.mark.complete("apt-build ")

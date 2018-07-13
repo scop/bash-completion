@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="ssh-add",
+)
 class TestSshAdd(object):
 
     @pytest.mark.complete("ssh-add ")

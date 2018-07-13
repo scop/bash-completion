@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="sbcl-mt",
+)
 class TestSbclMt(object):
 
     @pytest.mark.xfail  # TODO: whitespace split issue

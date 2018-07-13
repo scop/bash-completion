@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="update-alternatives",
+)
 class TestUpdateAlternatives(object):
 
     @pytest.mark.complete("update-alternatives --")

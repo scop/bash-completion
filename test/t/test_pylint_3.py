@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="pylint-3",
+)
 class TestPylint3(object):
 
     @pytest.mark.complete("pylint-3 --v")

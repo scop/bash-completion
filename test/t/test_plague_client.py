@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="plague-client",
+)
 class TestPlagueClient(object):
 
     @pytest.mark.complete("plague-client ")

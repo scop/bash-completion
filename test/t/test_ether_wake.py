@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="ether-wake",
+)
 class TestEtherWake(object):
 
     @pytest.mark.complete("ether-wake ")

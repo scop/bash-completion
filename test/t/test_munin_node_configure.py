@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="munin-node-configure",
+)
 class TestMuninNodeConfigure(object):
 
     @pytest.mark.complete("munin-node-configure --libdir ")

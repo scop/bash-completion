@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="freeciv-gtk2",
+)
 class TestFreecivGtk2(object):
 
     @pytest.mark.complete("freeciv-gtk2 -")

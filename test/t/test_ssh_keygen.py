@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="ssh-keygen",
+)
 class TestSshKeygen(object):
 
     @pytest.mark.complete("ssh-keygen -")

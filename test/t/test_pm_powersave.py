@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="pm-powersave",
+)
 class TestPmPowersave(object):
 
     @pytest.mark.complete("pm-powersave ")

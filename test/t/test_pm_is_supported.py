@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="pm-is-supported",
+)
 class TestPmIsSupported(object):
 
     @pytest.mark.complete("pm-is-supported -")

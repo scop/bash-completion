@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="pkg-get",
+)
 class TestPkgGet(object):
 
     @pytest.mark.complete("pkg-get ")

@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="apt-get",
+)
 class TestAptGet(object):
 
     @pytest.mark.complete("apt-get ")

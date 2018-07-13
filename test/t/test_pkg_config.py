@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="pkg-config",
+)
 class TestPkgConfig(object):
 
     @pytest.mark.complete("pkg-config ")

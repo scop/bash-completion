@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="dpkg-deb",
+)
 class TestDpkgDeb(object):
 
     @pytest.mark.complete("dpkg-deb --c")

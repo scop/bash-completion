@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="freebsd-update",
+)
 class TestFreebsdUpdate(object):
 
     @pytest.mark.complete("freebsd-update ")

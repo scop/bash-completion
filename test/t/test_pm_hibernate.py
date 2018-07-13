@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    cmd="pm-hibernate",
+)
 class TestPmHibernate(object):
 
     @pytest.mark.complete("pm-hibernate -")
