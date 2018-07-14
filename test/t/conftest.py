@@ -44,6 +44,7 @@ def bash(request) -> pexpect.spawn:
         encoding="utf-8",  # TODO? or native or...?
         # TODO? codec_errors="replace",
     )
+    bash.expect_exact(PS1)
 
     # Load bashrc and bash_completion
     assert_bash_exec(bash, "source '%s/config/bashrc'" % testdir)
@@ -81,6 +82,10 @@ def bash(request) -> pexpect.spawn:
         yield bash
         diff_env(before_env, get_env(bash),
                  marker.kwargs.get("ignore_env") if marker else "")
+
+    if marker:
+        for post_cmd in marker.kwargs.get("post_cmds", []):
+            assert_bash_exec(bash, post_cmd)
 
     # Clean up
     bash.close()

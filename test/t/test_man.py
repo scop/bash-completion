@@ -1,21 +1,54 @@
 import pytest
 
 
-@pytest.mark.bashcomp(
-    pre_cmds=(
-        "export MANPATH=$PWD/man",
-    ),
-)
+@pytest.mark.bashcomp(ignore_env=r"^[+-]MANPATH=")
 class TestMan(object):
 
-    @pytest.mark.complete("man bash-completion-testcas")
+    manpath = "$PWD/man"
+    assumed_present = "man"
+
+    @pytest.mark.complete("man bash-completion-testcas",
+                          env=dict(MANPATH=manpath))
     def test_1(self, completion):
         assert completion.list == ["bash-completion-testcase"]
 
-    @pytest.mark.complete("man man1/f", cwd="man")
+    @pytest.mark.complete("man man1/f", cwd="man", env=dict(MANPATH=manpath))
     def test_2(self, completion):
         assert completion.list == ["man1/foo.1"]
 
-    @pytest.mark.complete("man man/", cwd="man")
+    @pytest.mark.complete("man man/", cwd="man", env=dict(MANPATH=manpath))
     def test_3(self, completion):
         assert completion.list == ["man/quux.8"]
+
+    @pytest.mark.complete("man %s" % assumed_present, cwd="shared/empty_dir",
+                          env=dict(MANPATH=manpath))
+    def test_4(self, completion):
+        """
+        Assumed present should not be completed complete when there's no
+        leading/trailing colon in $MANPATH.
+        """
+        assert not completion.list
+
+    @pytest.mark.complete("man %s" % assumed_present,
+                          cwd="shared/empty_dir",
+                          env=dict(MANPATH="%s:" % manpath))
+    def test_5(self, completion):
+        """Trailing colon appends system man path."""
+        assert completion.list
+
+    @pytest.mark.complete(
+        "man bash-completion-testcas", env=dict(MANPATH="%s:" % manpath))
+    def test_6(self, completion):
+        assert completion.list == ["bash-completion-testcase"]
+
+    @pytest.mark.complete("man %s" % assumed_present,
+                          cwd="shared/empty_dir",
+                          env=dict(MANPATH=":%s" % manpath))
+    def test_7(self, completion):
+        """Leading colon prepends system man path."""
+        assert completion.list
+
+    @pytest.mark.complete(
+        "man bash-completion-testcas", env=dict(MANPATH=":%s" % manpath))
+    def test_8(self, completion):
+        assert completion.list == ["bash-completion-testcase"]

@@ -12,6 +12,7 @@ EXTRA_DIST = \
 	test_acroread.py \
 	test_adb.py \
 	test_add_members.py \
+	test_alias.py \
 	test_alpine.py \
 	test_animate.py \
 	test_ant.py \

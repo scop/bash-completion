@@ -23,45 +23,10 @@ proc teardown {} {
 setup
 
 
-# Something we assume a system installed man page present for
-set assumed_present "man"
-
 if {! [is_cygwin]} {
     assert_complete "Bash::Completion" "man Bash::C"
     sync_after_int
 }
-
-set desc "man $assumed_present with MANPATH having no leading/trailing colon"
-assert_no_complete "man $assumed_present" "$desc should not complete"
-sync_after_int
-
-# Trailing colon in MANPATH: append system default search path
-assert_bash_exec "OLDMANPATH=\$MANPATH; MANPATH=\$MANPATH:"
-set desc "with trailing colon in MANPATH"
-
-set cmd "man $assumed_present"
-assert_complete_any "$cmd" "$cmd $desc should complete"
-sync_after_int
-
-set cmd "man bash-completion-testcas"
-assert_complete "bash-completion-testcase" "$cmd" "$cmd $desc should complete"
-sync_after_int
-
-assert_bash_exec "MANPATH=\$OLDMANPATH"
-
-# Leading colon in MANPATH: prepend system default search path
-assert_bash_exec "OLDMANPATH=\$MANPATH; MANPATH=:\$MANPATH"
-set desc "with leading colon in MANPATH"
-
-set cmd "man $assumed_present"
-assert_complete_any "$cmd" "$cmd $desc should complete"
-sync_after_int
-
-set cmd "man bash-completion-testcas"
-assert_complete "bash-completion-testcase" "$cmd" "$cmd $desc should complete"
-sync_after_int
-
-assert_bash_exec "MANPATH=\$OLDMANPATH"
 
 
 teardown
