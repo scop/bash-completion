@@ -80,6 +80,11 @@ def bash(request) -> pexpect.spawn:
     if (cmd_found and cmd is None) or is_testable(bash, cmd):
         before_env = get_env(bash)
         yield bash
+        # Not exactly sure why, but some errors leave bash in state where
+        # getting the env here would fail and trash our test output. So
+        # reset to a good state first (Ctrl+C, expect prompt).
+        bash.sendintr()
+        bash.expect_exact(PS1)
         diff_env(before_env, get_env(bash),
                  marker.kwargs.get("ignore_env") if marker else "")
 
