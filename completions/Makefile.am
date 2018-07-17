@@ -510,6 +510,7 @@ CLEANFILES = \
 	g4 \
 	g77 \
 	g95 \
+	gccgo \
 	gcj \
 	geoiplookup6 \
 	gfortran \
@@ -772,7 +773,7 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) function $(targetdir)/$$file ; \
 	done
-	for file in cc c++ g++ gfortran f77 g77 f95 g95 gcj gpc ; do \
+	for file in cc c++ g++ gfortran f77 g77 f95 g95 gcj gpc gccgo ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) gcc $(targetdir)/$$file ; \
 	done
