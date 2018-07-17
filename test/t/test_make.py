@@ -27,3 +27,14 @@ class TestMake(object):
     @pytest.mark.complete("make -j ")
     def test_5(self, completion):
         assert completion.list
+
+    @pytest.mark.complete("make ", cwd="make")
+    def test_6(self, bash, completion):
+        assert completion.list == \
+            "all clean extra_makefile install sample".split()
+        os.remove("%s/make/%s" % (bash.cwd, "extra_makefile"))
+
+    @pytest.mark.complete("make .cache/.", cwd="make")
+    def test_7(self, bash, completion):
+        assert completion.list == ".1 .2".split()
+        os.remove("%s/make/%s" % (bash.cwd, "extra_makefile"))
