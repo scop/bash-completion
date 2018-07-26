@@ -17,6 +17,6 @@ class TestAnt(object):
         assert completion.list == "build-with-import imported-build".split()
 
     @pytest.mark.complete("ant ", cwd="ant",
-                          env=dict(ANT_ARGS="-f named-build.xml"))
+                          env=dict(ANT_ARGS="'-f named-build.xml'"))
     def test_4(self, completion):
         assert completion.list == ["named-build"]

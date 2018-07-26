@@ -229,7 +229,7 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
             '%s%s="$%s"' % (env_prefix, k, k) for k in env.keys()
         ))
         assert_bash_exec(bash, "export %s" % " ".join(
-            "%s=%s" % (k, shlex.quote(v)) for k, v in env.items()
+            "%s=%s" % (k, v) for k, v in env.items()
         ))
     cmd = marker.args[0]
     bash.send(cmd + "\t")
