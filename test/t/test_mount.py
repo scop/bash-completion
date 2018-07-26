@@ -15,3 +15,8 @@ class TestMount(object):
     def test_3(self, completion):
         assert completion.list == ["default/"]
         assert not completion.line.endswith(" ")
+
+    @pytest.mark.complete("mount mocksrv:/",
+                          env=dict(PATH="$PWD/mount/bin:$PATH"))
+    def test_4(self, completion):
+        assert completion.list == "/second/path /test/path /test/path2".split()
