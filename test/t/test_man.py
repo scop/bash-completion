@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.mark.bashcomp(ignore_env=r"^[+-]MANPATH=")
-class TestMan(object):
+class TestMan:
 
     manpath = "$PWD/man"
     assumed_present = "man"

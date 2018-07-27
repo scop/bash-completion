@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestTr(object):
+class TestTr:
 
     @pytest.mark.complete("tr --",
                           skipif="! tr --help &>/dev/null")

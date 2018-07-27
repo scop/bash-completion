@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestEog(object):
+class TestEog:
 
     @pytest.mark.complete("eog ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestZopfli(object):
+class TestZopfli:
 
     @pytest.mark.complete("zopfli ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPkgrm(object):
+class TestPkgrm:
 
     @pytest.mark.complete("pkgrm ")
     def test_1(self, completion):

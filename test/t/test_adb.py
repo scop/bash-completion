@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestAdb(object):
+class TestAdb:
 
     @pytest.mark.complete("adb ")
     def test_1(self, completion):

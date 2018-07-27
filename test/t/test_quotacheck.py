@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestQuotacheck(object):
+class TestQuotacheck:
 
     @pytest.mark.complete("quotacheck -")
     def test_1(self, completion):

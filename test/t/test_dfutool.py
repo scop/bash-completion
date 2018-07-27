@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestDfutool(object):
+class TestDfutool:
 
     @pytest.mark.complete("dfutool ")
     def test_1(self, completion):

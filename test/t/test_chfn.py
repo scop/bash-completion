@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestChfn(object):
+class TestChfn:
 
     @pytest.mark.complete("chfn ")
     def test_1(self, completion):

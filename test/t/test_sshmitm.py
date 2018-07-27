@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSshmitm(object):
+class TestSshmitm:
 
     @pytest.mark.complete("sshmitm -")
     def test_1(self, completion):

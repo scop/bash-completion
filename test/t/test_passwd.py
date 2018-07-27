@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPasswd(object):
+class TestPasswd:
 
     @pytest.mark.complete("passwd ")
     def test_1(self, completion):

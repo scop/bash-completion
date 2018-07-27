@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestKillall(object):
+class TestKillall:
 
     # "p": Assume our process name completion runs ps and at least it is shown
     @pytest.mark.complete("killall p")

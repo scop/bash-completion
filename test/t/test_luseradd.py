@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLuseradd(object):
+class TestLuseradd:
 
     @pytest.mark.complete("luseradd -")
     def test_1(self, completion):

@@ -6,7 +6,7 @@ import pytest
         "PATH=$PWD/shared/bin:$PATH",
     ),
 )
-class TestWol(object):
+class TestWol:
 
     @pytest.mark.complete("wol ")
     def test_1(self, completion):

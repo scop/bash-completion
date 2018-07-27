@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestAspell(object):
+class TestAspell:
 
     @pytest.mark.complete("aspell ")
     def test_1(self, completion):

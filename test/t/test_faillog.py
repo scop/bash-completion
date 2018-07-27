@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestFaillog(object):
+class TestFaillog:
 
     @pytest.mark.complete("faillog -")
     def test_1(self, completion):

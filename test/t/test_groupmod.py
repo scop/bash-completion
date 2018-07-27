@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGroupmod(object):
+class TestGroupmod:
 
     @pytest.mark.complete("groupmod ")
     def test_1(self, completion):

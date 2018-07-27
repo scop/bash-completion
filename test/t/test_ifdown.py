@@ -3,7 +3,7 @@ import os
 import pytest
 
 
-class TestIfdown(object):
+class TestIfdown:
 
     @pytest.mark.skipif(bool(os.environ.get("CI")),
                         reason="Probably fails in CI")

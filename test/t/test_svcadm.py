@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSvcadm(object):
+class TestSvcadm:
 
     @pytest.mark.complete("svcadm ")
     def test_1(self, completion):

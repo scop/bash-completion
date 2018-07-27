@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestDhclient(object):
+class TestDhclient:
 
     @pytest.mark.complete("dhclient -")
     def test_1(self, completion):

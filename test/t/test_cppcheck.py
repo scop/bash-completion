@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestCppcheck(object):
+class TestCppcheck:
 
     @pytest.mark.complete("cppcheck ")
     def test_1(self, completion):

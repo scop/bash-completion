@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestUseradd(object):
+class TestUseradd:
 
     @pytest.mark.complete("useradd ")
     def test_1(self, completion):

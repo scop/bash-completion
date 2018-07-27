@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPvdisplay(object):
+class TestPvdisplay:
 
     @pytest.mark.complete("pvdisplay --",
                           skipif="! pvdisplay --help &>/dev/null")

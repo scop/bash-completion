@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestXsltproc(object):
+class TestXsltproc:
 
     @pytest.mark.complete("xsltproc ")
     def test_1(self, completion):

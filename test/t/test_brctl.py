@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestBrctl(object):
+class TestBrctl:
 
     @pytest.mark.complete("brctl ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSha1sum(object):
+class TestSha1sum:
 
     @pytest.mark.complete("sha1sum --")
     def test_1(self, completion):

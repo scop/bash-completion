@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestKplayer(object):
+class TestKplayer:
 
     @pytest.mark.complete("kplayer ")
     def test_1(self, completion):

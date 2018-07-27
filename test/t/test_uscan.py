@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestUscan(object):
+class TestUscan:
 
     @pytest.mark.complete("uscan -")
     def test_1(self, completion):

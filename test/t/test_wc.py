@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestWc(object):
+class TestWc:
 
     @pytest.mark.complete("wc --",
                           skipif="! wc --help &>/dev/null")

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestCcache(object):
+class TestCcache:
 
     @pytest.mark.complete("ccache -")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestChroot(object):
+class TestChroot:
 
     @pytest.mark.complete("chroot ")
     def test_1(self, completion):

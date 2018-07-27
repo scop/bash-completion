@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestCfagent(object):
+class TestCfagent:
 
     @pytest.mark.complete("cfagent -")
     def test_1(self, completion):

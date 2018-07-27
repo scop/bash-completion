@@ -6,7 +6,7 @@ import pytest
         "PATH=/usr/lib/mailman/bin:$PATH",
     ),
 )
-class TestCleanarch(object):
+class TestCleanarch:
 
     @pytest.mark.complete("cleanarch -")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMailsnarf(object):
+class TestMailsnarf:
 
     @pytest.mark.complete("mailsnarf -")
     def test_1(self, completion):

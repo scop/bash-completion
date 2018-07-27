@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestObjcopy(object):
+class TestObjcopy:
 
     @pytest.mark.complete("objcopy ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSpovray(object):
+class TestSpovray:
 
     @pytest.mark.complete("spovray ")
     def test_1(self, completion):

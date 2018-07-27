@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestRfcomm(object):
+class TestRfcomm:
 
     @pytest.mark.complete("rfcomm ")
     def test_1(self, completion):

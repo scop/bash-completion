@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestRlog(object):
+class TestRlog:
 
     @pytest.mark.complete("rlog ")
     def test_1(self, completion):

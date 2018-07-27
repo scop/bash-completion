@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestResolvconf(object):
+class TestResolvconf:
 
     @pytest.mark.complete("resolvconf -")
     def test_1(self, completion):

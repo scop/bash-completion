@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestHwclock(object):
+class TestHwclock:
 
     @pytest.mark.complete("hwclock -")
     def test_1(self, completion):

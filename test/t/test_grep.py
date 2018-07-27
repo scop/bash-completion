@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGrep(object):
+class TestGrep:
 
     @pytest.mark.complete("grep --")
     def test_1(self, completion):

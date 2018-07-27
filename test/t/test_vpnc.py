@@ -9,7 +9,7 @@ import pytest
         "PATH=/usr/sbin:$PATH",
     ),
 )
-class TestVpnc(object):
+class TestVpnc:
 
     @pytest.mark.complete("vpnc -")
     def test_1(self, completion):

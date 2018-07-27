@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestHostname(object):
+class TestHostname:
 
     @pytest.mark.complete("hostname -")
     def test_1(self, completion):

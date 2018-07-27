@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestDropuser(object):
+class TestDropuser:
 
     @pytest.mark.complete("dropuser ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVgck(object):
+class TestVgck:
 
     @pytest.mark.complete("vgck -",
                           skipif="! vgck --help &>/dev/null")

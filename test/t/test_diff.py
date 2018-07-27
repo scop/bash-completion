@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestDiff(object):
+class TestDiff:
 
     @pytest.mark.complete("diff --")
     def test_1(self, completion):

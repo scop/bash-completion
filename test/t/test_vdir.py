@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVdir(object):
+class TestVdir:
 
     @pytest.mark.complete("vdir ")
     def test_1(self, completion):

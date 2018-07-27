@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestEtherwake(object):
+class TestEtherwake:
 
     @pytest.mark.complete("etherwake -")
     def test_1(self, completion):

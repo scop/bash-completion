@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSbcl(object):
+class TestSbcl:
 
     @pytest.mark.xfail  # TODO: whitespace split issue
     @pytest.mark.complete("sbcl shared/default/")

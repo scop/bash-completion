@@ -8,7 +8,7 @@ from conftest import assert_bash_exec
         "HOME=$PWD/mutt",
     ),
 )
-class TestMutt(object):
+class TestMutt:
 
     @pytest.mark.complete("mutt -")
     def test_1(self, completion):

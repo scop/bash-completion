@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestDict(object):
+class TestDict:
 
     @pytest.mark.complete("dict -")
     def test_1(self, completion):

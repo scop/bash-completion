@@ -4,7 +4,7 @@ import pytest
 @pytest.mark.bashcomp(
     cmd="lintian-info",
 )
-class TestLintianInfo(object):
+class TestLintianInfo:
 
     @pytest.mark.complete("lintian-info ")
     def test_1(self, completion):

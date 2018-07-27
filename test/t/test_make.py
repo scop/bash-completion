@@ -3,7 +3,7 @@ import os
 import pytest
 
 
-class TestMake(object):
+class TestMake:
 
     @pytest.mark.complete("make -f Ma", cwd="make")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestDselect(object):
+class TestDselect:
 
     @pytest.mark.complete("dselect ")
     def test_1(self, completion):

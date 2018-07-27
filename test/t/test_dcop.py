@@ -3,7 +3,7 @@ import subprocess
 import pytest
 
 
-class TestDcop(object):
+class TestDcop:
 
     @pytest.mark.complete("dcop ")
     def test_1(self, completion):

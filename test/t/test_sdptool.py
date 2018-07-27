@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSdptool(object):
+class TestSdptool:
 
     @pytest.mark.complete("sdptool ")
     def test_1(self, completion):

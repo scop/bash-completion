@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestFilefrag(object):
+class TestFilefrag:
 
     @pytest.mark.complete("filefrag ")
     def test_1(self, completion):

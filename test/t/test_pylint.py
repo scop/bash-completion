@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPylint(object):
+class TestPylint:
 
     @pytest.mark.complete("pylint --v")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestJq(object):
+class TestJq:
 
     @pytest.mark.complete("jq ")
     def test_1(self, completion):

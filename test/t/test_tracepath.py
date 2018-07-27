@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestTracepath(object):
+class TestTracepath:
 
     @pytest.mark.complete("tracepath ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestConvert(object):
+class TestConvert:
 
     @pytest.mark.complete("convert ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestCksfv(object):
+class TestCksfv:
 
     @pytest.mark.complete("cksfv -")
     def test_1(self, completion):

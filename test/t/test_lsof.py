@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLsof(object):
+class TestLsof:
 
     @pytest.mark.complete("lsof ")
     def test_1(self, completion):

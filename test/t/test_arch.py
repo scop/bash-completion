@@ -6,7 +6,7 @@ import pytest
         "PATH=/usr/lib/mailman/bin:$PATH",
     ),
 )
-class TestArch(object):
+class TestArch:
 
     @pytest.mark.complete("arch -")
     def test_1(self, completion):

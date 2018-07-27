@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestAvctrl(object):
+class TestAvctrl:
 
     @pytest.mark.complete("avctrl ")
     def test_1(self, completion):

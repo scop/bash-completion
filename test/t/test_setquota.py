@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSetquota(object):
+class TestSetquota:
 
     @pytest.mark.complete("setquota ")
     def test_1(self, completion):

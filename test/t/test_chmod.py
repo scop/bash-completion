@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestChmod(object):
+class TestChmod:
 
     # No completion here until mode completion is implemented
     @pytest.mark.complete("chmod ")

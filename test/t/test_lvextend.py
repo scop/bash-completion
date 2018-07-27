@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLvextend(object):
+class TestLvextend:
 
     @pytest.mark.complete("lvextend --",
                           skipif="! lvextend --help &>/dev/null")

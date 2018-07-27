@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLvcreate(object):
+class TestLvcreate:
 
     @pytest.mark.complete("lvcreate --",
                           skipif="! lvcreate --help &>/dev/null")

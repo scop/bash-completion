@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestWine(object):
+class TestWine:
 
     @pytest.mark.xfail  # TODO: whitespace split issue
     @pytest.mark.complete("wine ", cwd="shared/default")

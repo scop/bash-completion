@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPvcreate(object):
+class TestPvcreate:
 
     @pytest.mark.complete("pvcreate --",
                           skipif="! pvcreate --help &>/dev/null")

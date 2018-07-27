@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestOggdec(object):
+class TestOggdec:
 
     @pytest.mark.complete("oggdec ")
     def test_1(self, completion):

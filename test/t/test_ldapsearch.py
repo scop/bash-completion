@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLdapsearch(object):
+class TestLdapsearch:
 
     @pytest.mark.complete("ldapsearch -")
     def test_1(self, completion):

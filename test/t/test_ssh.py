@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSsh(object):
+class TestSsh:
 
     @pytest.mark.complete("ssh -Fsp", cwd="ssh")
     def test_1(self, completion):

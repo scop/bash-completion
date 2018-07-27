@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestAlpine(object):
+class TestAlpine:
 
     @pytest.mark.complete("alpine -")
     def test_1(self, completion):

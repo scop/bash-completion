@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestFmt(object):
+class TestFmt:
 
     @pytest.mark.complete("fmt -",
                           skipif="! fmt --help &>/dev/null")

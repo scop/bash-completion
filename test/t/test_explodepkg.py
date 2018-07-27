@@ -4,7 +4,7 @@ import os
 import pytest
 
 
-class TestExplodepkg(object):
+class TestExplodepkg:
 
     @pytest.mark.complete("explodepkg ", cwd="slackware/home")
     def test_1(self, completion):

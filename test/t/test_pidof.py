@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPidof(object):
+class TestPidof:
 
     # "p": Assume that our process name completion runs ps
     @pytest.mark.complete("pidof p")

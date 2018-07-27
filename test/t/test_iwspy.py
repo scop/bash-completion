@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestIwspy(object):
+class TestIwspy:
 
     @pytest.mark.complete("iwspy --")
     def test_1(self, completion):

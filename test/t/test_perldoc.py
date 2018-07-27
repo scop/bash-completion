@@ -6,7 +6,7 @@ import pytest
         "export PERL5LIB=$PWD/perldoc",
     ),
 )
-class TestPerldoc(object):
+class TestPerldoc:
 
     @pytest.mark.complete("perldoc File::")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMonodevelop(object):
+class TestMonodevelop:
 
     @pytest.mark.complete("monodevelop ")
     def test_1(self, completion):

@@ -11,7 +11,7 @@ import pytest
         "unalias -a",
     ),
 )
-class TestAlias(object):
+class TestAlias:
 
     @pytest.mark.complete("alias ")
     def test_1(self, completion):

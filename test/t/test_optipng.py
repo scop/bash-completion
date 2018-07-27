@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestOptipng(object):
+class TestOptipng:
 
     @pytest.mark.complete("optipng ")
     def test_1(self, completion):

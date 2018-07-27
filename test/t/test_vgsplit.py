@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVgsplit(object):
+class TestVgsplit:
 
     @pytest.mark.complete("vgsplit -")
     def test_1(self, completion):

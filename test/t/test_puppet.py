@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPuppet(object):
+class TestPuppet:
 
     @pytest.mark.complete("puppet ")
     def test_1(self, completion):

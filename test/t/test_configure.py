@@ -7,7 +7,7 @@ import pytest
         "PATH=$PWD/../..:$PATH",
     ),
 )
-class TestConfigure(object):
+class TestConfigure:
 
     @pytest.mark.complete("configure --")
     def test_1(self, completion):

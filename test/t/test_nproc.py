@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestNproc(object):
+class TestNproc:
 
     @pytest.mark.complete("nproc ")
     def test_1(self, completion):

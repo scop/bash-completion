@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSlackpkg(object):
+class TestSlackpkg:
 
     @pytest.mark.complete("slackpkg -")
     def test_1(self, completion):

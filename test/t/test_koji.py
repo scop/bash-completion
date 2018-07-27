@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestKoji(object):
+class TestKoji:
 
     @pytest.mark.complete("koji ")
     def test_1(self, completion):

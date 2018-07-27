@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestIp(object):
+class TestIp:
 
     @pytest.mark.complete("ip ")
     def test_1(self, completion):

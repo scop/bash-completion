@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestUniq(object):
+class TestUniq:
 
     @pytest.mark.complete("uniq --",
                           skipif="! uniq --help &>/dev/null")

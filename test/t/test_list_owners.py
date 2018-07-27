@@ -6,7 +6,7 @@ import pytest
         "PATH=/usr/lib/mailman/bin:$PATH",
     ),
 )
-class TestListOwners(object):
+class TestListOwners:
 
     @pytest.mark.complete("list_owners -")
     def test_1(self, completion):

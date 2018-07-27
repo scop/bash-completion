@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestWho(object):
+class TestWho:
 
     @pytest.mark.complete("who --",
                           skipif="! who --help &>/dev/null")

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestKcov(object):
+class TestKcov:
 
     @pytest.mark.complete("kcov ")
     def test_1(self, completion):

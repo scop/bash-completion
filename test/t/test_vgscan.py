@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVgscan(object):
+class TestVgscan:
 
     @pytest.mark.complete("vgscan -",
                           skipif="! vgscan --help &>/dev/null")

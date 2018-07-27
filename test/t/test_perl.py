@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPerl(object):
+class TestPerl:
 
     @pytest.mark.complete("perl ")
     def test_1(self, completion):

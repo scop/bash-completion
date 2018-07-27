@@ -3,7 +3,7 @@ import os
 import pytest
 
 
-class TestTime(object):
+class TestTime:
 
     @pytest.mark.complete("time set")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGrowisofs(object):
+class TestGrowisofs:
 
     @pytest.mark.complete("growisofs ")
     def test_1(self, completion):

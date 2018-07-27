@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSbopkg(object):
+class TestSbopkg:
 
     @pytest.mark.complete("sbopkg -")
     def test_1(self, completion):

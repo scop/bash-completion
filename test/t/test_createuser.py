@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestCreateuser(object):
+class TestCreateuser:
 
     # --help can fail due to missing package dependencies, e.g. on Ubuntu 14
     @pytest.mark.complete("createuser -",

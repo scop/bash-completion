@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSed(object):
+class TestSed:
 
     @pytest.mark.complete("sed --",
                           skipif="! sed --help &>/dev/null")

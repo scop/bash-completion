@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMysql(object):
+class TestMysql:
 
     @pytest.mark.complete("mysql --")
     def test_1(self, completion):

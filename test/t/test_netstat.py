@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestNetstat(object):
+class TestNetstat:
 
     @pytest.mark.complete("netstat ")
     def test_1(self, completion):

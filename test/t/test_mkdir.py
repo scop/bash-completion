@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMkdir(object):
+class TestMkdir:
 
     @pytest.mark.complete("mkdir ")
     def test_1(self, completion):

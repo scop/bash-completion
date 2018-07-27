@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestAutoscan(object):
+class TestAutoscan:
 
     @pytest.mark.complete("autoscan ")
     def test_1(self, completion):

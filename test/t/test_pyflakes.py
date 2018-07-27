@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPyflakes(object):
+class TestPyflakes:
 
     @pytest.mark.complete("pyflakes ")
     def test_1(self, completion):

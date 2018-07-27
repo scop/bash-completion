@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPycodestyle(object):
+class TestPycodestyle:
 
     @pytest.mark.complete("pycodestyle ")
     def test_1(self, completion):

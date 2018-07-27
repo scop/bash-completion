@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestDpkg(object):
+class TestDpkg:
 
     @pytest.mark.complete("dpkg --c")
     def test_1(self, completion):
@@ -9,7 +9,7 @@ class TestDpkg(object):
 
     @pytest.mark.complete("dpkg -L ",
                           skipif='test -z "$(dpkg -l 2>/dev/null)"')
-    def test_2(self, bash, completion):
+    def test_2(self, completion):
         assert completion.list
 
     @pytest.mark.complete("dpkg -i ~")

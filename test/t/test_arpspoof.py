@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestArpspoof(object):
+class TestArpspoof:
 
     @pytest.mark.complete("arpspoof -")
     def test_1(self, completion):

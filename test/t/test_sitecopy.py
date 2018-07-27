@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSitecopy(object):
+class TestSitecopy:
 
     @pytest.mark.complete("sitecopy --")
     def test_1(self, completion):

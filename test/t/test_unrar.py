@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestUnrar(object):
+class TestUnrar:
 
     @pytest.mark.complete("unrar -")
     def test_1(self, completion):

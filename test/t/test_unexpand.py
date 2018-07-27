@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestUnexpand(object):
+class TestUnexpand:
 
     @pytest.mark.complete("unexpand --",
                           skipif="! unexpand --help &>/dev/null")

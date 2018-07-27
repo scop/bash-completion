@@ -4,7 +4,7 @@ import pytest
 @pytest.mark.bashcomp(
     cmd="xdg-settings",
 )
-class TestXdgSettings(object):
+class TestXdgSettings:
 
     @pytest.mark.complete("xdg-settings ")
     def test_1(self, completion):

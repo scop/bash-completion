@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestFold(object):
+class TestFold:
 
     @pytest.mark.complete("fold --",
                           skipif="! fold --help &>/dev/null")

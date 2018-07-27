@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGenisoimage(object):
+class TestGenisoimage:
 
     @pytest.mark.complete("genisoimage ")
     def test_1(self, completion):

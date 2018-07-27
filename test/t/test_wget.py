@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestWget(object):
+class TestWget:
 
     @pytest.mark.complete("wget ")
     def test_1(self, completion):

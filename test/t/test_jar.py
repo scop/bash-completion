@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestJar(object):
+class TestJar:
 
     @pytest.mark.complete("jar ")
     def test_1(self, completion):

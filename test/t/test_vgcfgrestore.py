@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVgcfgrestore(object):
+class TestVgcfgrestore:
 
     @pytest.mark.complete("vgcfgrestore -",
                           skipif="! vgcfgrestore --help &>/dev/null")

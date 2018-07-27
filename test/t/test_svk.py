@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSvk(object):
+class TestSvk:
 
     @pytest.mark.complete("svk ")
     def test_1(self, completion):

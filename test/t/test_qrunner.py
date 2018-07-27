@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestQrunner(object):
+class TestQrunner:
 
     @pytest.mark.complete("qrunner -")
     def test_1(self, completion):

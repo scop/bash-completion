@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestTimeout(object):
+class TestTimeout:
 
     @pytest.mark.complete("timeout ")
     def test_1(self, completion):

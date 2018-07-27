@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestBison(object):
+class TestBison:
 
     @pytest.mark.complete("bison --")
     def test_1(self, completion):

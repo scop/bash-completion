@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestUnshunt(object):
+class TestUnshunt:
 
     @pytest.mark.complete("unshunt --")
     def test_1(self, completion):

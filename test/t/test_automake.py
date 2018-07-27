@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestAutomake(object):
+class TestAutomake:
 
     @pytest.mark.complete("automake ")
     def test_1(self, completion):

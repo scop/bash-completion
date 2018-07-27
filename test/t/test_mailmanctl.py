@@ -6,7 +6,7 @@ import pytest
         "PATH=/usr/lib/mailman/bin:$PATH",
     ),
 )
-class TestMailmanctl(object):
+class TestMailmanctl:
 
     @pytest.mark.complete("mailmanctl ")
     def test_1(self, completion):

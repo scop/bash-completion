@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestCheckPerms(object):
+class TestCheckPerms:
 
     @pytest.mark.complete("check_perms -")
     def test_1(self, completion):

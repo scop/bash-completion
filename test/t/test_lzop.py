@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLzop(object):
+class TestLzop:
 
     @pytest.mark.complete("lzop ")
     def test_1(self, completion):

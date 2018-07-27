@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestFunction(object):
+class TestFunction:
 
     @pytest.mark.complete("function _parse_")
     def test_1(self, completion):

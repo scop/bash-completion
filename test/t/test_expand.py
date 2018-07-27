@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestExpand(object):
+class TestExpand:
 
     @pytest.mark.complete("expand --",
                           skipif="! expand --help &>/dev/null")

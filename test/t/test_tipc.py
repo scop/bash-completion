@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestTipc(object):
+class TestTipc:
 
     @pytest.mark.complete("tipc ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestUmount(object):
+class TestUmount:
 
     @pytest.mark.complete("umount ")
     def test_1(self, completion):

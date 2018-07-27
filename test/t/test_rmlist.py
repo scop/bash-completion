@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestRmlist(object):
+class TestRmlist:
 
     @pytest.mark.complete("rmlist -")
     def test_1(self, completion):

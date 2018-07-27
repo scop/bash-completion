@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestNgrep(object):
+class TestNgrep:
 
     @pytest.mark.complete("ngrep -")
     def test_1(self, completion):

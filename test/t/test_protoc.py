@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestProtoc(object):
+class TestProtoc:
 
     @pytest.mark.complete("protoc ")
     def test_1(self, completion):

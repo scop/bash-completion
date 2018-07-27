@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMktemp(object):
+class TestMktemp:
 
     @pytest.mark.complete("mktemp -")
     def test_1(self, completion):

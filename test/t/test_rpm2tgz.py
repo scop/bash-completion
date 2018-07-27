@@ -3,7 +3,7 @@ import os
 import pytest
 
 
-class TestRpm2tgz(object):
+class TestRpm2tgz:
 
     @pytest.mark.complete("rpm2tgz -")
     def test_1(self, completion):

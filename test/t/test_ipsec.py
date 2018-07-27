@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestIpsec(object):
+class TestIpsec:
 
     @pytest.mark.complete("ipsec ")
     def test_1(self, completion):

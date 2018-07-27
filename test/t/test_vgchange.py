@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVgchange(object):
+class TestVgchange:
 
     @pytest.mark.complete("vgchange -")
     def test_1(self, completion):

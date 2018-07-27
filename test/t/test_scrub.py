@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestScrub(object):
+class TestScrub:
 
     @pytest.mark.complete("scrub ")
     def test_1(self, completion):

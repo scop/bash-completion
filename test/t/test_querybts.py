@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestQuerybts(object):
+class TestQuerybts:
 
     @pytest.mark.complete("querybts --")
     def test_1(self, completion):

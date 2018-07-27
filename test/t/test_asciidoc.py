@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestAsciidoc(object):
+class TestAsciidoc:
 
     @pytest.mark.complete("asciidoc ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGetconf(object):
+class TestGetconf:
 
     @pytest.mark.complete("getconf P")
     def test_1(self, completion):

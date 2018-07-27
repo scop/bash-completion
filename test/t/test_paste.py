@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPaste(object):
+class TestPaste:
 
     @pytest.mark.complete("paste ")
     def test_1(self, completion):

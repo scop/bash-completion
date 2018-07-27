@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestRcs(object):
+class TestRcs:
 
     @pytest.mark.complete("rcs ")
     def test_1(self, completion):

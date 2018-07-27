@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSh(object):
+class TestSh:
 
     @pytest.mark.complete("sh -")
     def test_1(self, completion):

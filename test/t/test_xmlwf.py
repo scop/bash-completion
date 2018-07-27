@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestXmlwf(object):
+class TestXmlwf:
 
     @pytest.mark.complete("xmlwf ")
     def test_1(self, completion):

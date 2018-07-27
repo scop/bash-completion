@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestCryptsetup(object):
+class TestCryptsetup:
 
     @pytest.mark.complete("cryptsetup ")
     def test_1(self, completion):

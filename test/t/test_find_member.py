@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestFindMember(object):
+class TestFindMember:
 
     @pytest.mark.complete("find_member -")
     def test_1(self, completion):

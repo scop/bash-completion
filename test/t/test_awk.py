@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestAwk(object):
+class TestAwk:
 
     @pytest.mark.complete("awk ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestStrace(object):
+class TestStrace:
 
     @pytest.mark.complete("strace -")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestCrontab(object):
+class TestCrontab:
 
     @pytest.mark.complete("crontab ")
     def test_1(self, completion):

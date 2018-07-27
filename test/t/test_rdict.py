@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestRdict(object):
+class TestRdict:
 
     @pytest.mark.complete("rdict --")
     def test_1(self, completion):

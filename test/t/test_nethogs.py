@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestNethogs(object):
+class TestNethogs:
 
     @pytest.mark.complete("nethogs ")
     def test_1(self, completion):

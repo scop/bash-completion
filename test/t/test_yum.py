@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestYum(object):
+class TestYum:
 
     @pytest.mark.complete("yum -")
     def test_1(self, completion):

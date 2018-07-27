@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPgrep(object):
+class TestPgrep:
 
     # "p": Assume that our process name completion runs ps
     @pytest.mark.complete("pgrep p")

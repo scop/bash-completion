@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSysctl(object):
+class TestSysctl:
 
     @pytest.mark.complete("sysctl -")
     def test_1(self, completion):

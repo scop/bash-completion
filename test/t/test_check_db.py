@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestCheckDb(object):
+class TestCheckDb:
 
     @pytest.mark.complete("check_db -")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestHexdump(object):
+class TestHexdump:
 
     @pytest.mark.complete("hexdump -")
     def test_1(self, completion):

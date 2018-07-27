@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestDf(object):
+class TestDf:
 
     @pytest.mark.complete("df ")
     def test_1(self, completion):

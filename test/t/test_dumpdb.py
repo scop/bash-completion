@@ -6,7 +6,7 @@ import pytest
         "PATH=/usr/lib/mailman/bin:$PATH",
     ),
 )
-class TestDumpdb(object):
+class TestDumpdb:
 
     @pytest.mark.complete("dumpdb ")
     def test_1(self, completion):

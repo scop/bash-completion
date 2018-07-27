@@ -6,7 +6,7 @@ import pytest
         "PKG_DBDIR=$PWD/dbtools/db",
     ),
 )
-class TestPortupgrade(object):
+class TestPortupgrade:
 
     @pytest.mark.complete("portupgrade ")
     def test_1(self, completion):

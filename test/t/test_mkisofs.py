@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMkisofs(object):
+class TestMkisofs:
 
     @pytest.mark.complete("mkisofs ")
     def test_1(self, completion):

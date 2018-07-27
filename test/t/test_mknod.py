@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMknod(object):
+class TestMknod:
 
     @pytest.mark.complete("mknod ")
     def test_1(self, completion):

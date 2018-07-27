@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLua(object):
+class TestLua:
 
     @pytest.mark.complete("lua ")
     def test_1(self, completion):

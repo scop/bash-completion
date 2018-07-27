@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestUserdel(object):
+class TestUserdel:
 
     @pytest.mark.complete("userdel -")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestDropdb(object):
+class TestDropdb:
 
     # --help can fail due to missing package dependencies, e.g. on Ubuntu 14
     @pytest.mark.complete("dropdb -",

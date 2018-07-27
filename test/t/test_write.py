@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestWrite(object):
+class TestWrite:
 
     @pytest.mark.complete("write root")
     def test_1(self, completion):

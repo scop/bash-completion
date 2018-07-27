@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestFile(object):
+class TestFile:
 
     @pytest.mark.complete("file ")
     def test_1(self, completion):

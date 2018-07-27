@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestKpdf(object):
+class TestKpdf:
 
     @pytest.mark.complete("kpdf ", cwd="kpdf")
     def test_1(self, completion):

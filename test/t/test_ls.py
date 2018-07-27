@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLs(object):
+class TestLs:
 
     @pytest.mark.complete("ls --", skipif="! ls --help &>/dev/null")
     def test_1(self, completion):

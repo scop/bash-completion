@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestChkconfig(object):
+class TestChkconfig:
 
     @pytest.mark.complete("chkconfig -")
     def test_1(self, completion):

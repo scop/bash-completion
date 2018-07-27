@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVgreduce(object):
+class TestVgreduce:
 
     @pytest.mark.complete("vgreduce -",
                           skipif="! vgreduce --help &>/dev/null")

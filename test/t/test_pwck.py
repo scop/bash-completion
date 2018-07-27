@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPwck(object):
+class TestPwck:
 
     @pytest.mark.complete("pwck ")
     def test_1(self, completion):

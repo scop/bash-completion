@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPngfix(object):
+class TestPngfix:
 
     @pytest.mark.complete("pngfix ")
     def test_1(self, completion):

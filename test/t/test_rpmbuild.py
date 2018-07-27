@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestRpmbuild(object):
+class TestRpmbuild:
 
     @pytest.mark.complete("rpmbuild -")
     def test_1(self, completion):

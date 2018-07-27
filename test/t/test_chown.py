@@ -5,7 +5,7 @@ import pytest
 from conftest import assert_bash_exec
 
 
-class TestChown(object):
+class TestChown:
 
     @pytest.mark.complete("chown ")
     def test_1(self, bash, completion):

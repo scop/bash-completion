@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestChronyc(object):
+class TestChronyc:
 
     @pytest.mark.complete("chronyc ")
     def test_1(self, completion):

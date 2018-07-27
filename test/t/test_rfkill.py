@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestRfkill(object):
+class TestRfkill:
 
     @pytest.mark.complete("rfkill ")
     def test_1(self, completion):

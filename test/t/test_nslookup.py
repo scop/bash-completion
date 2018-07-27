@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestNslookup(object):
+class TestNslookup:
 
     @pytest.mark.complete("nslookup -")
     def test_1(self, completion):

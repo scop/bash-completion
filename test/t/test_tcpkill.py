@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestTcpkill(object):
+class TestTcpkill:
 
     @pytest.mark.complete("tcpkill -")
     def test_1(self, completion):

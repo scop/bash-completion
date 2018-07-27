@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMount(object):
+class TestMount:
 
     @pytest.mark.complete("mount ")
     def test_1(self, completion):

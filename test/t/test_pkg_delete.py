@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPkgDelete(object):
+class TestPkgDelete:
 
     @pytest.mark.complete("pkg_delete ")
     def test_1(self, completion):

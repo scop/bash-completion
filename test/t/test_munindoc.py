@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMunindoc(object):
+class TestMunindoc:
 
     # Assume at least munin* available
     @pytest.mark.complete("munindoc m")

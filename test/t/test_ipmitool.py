@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestIpmitool(object):
+class TestIpmitool:
 
     @pytest.mark.complete("ipmitool ")
     def test_1(self, completion):

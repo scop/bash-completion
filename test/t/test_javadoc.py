@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestJavadoc(object):
+class TestJavadoc:
 
     @pytest.mark.complete("javadoc ")
     def test_1(self, completion):

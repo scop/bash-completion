@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestFusermount(object):
+class TestFusermount:
 
     @pytest.mark.complete("fusermount ")
     def test_1(self, completion):

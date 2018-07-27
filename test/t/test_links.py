@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLinks(object):
+class TestLinks:
 
     @pytest.mark.complete("links ")
     def test_1(self, completion):

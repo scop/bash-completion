@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestCardctl(object):
+class TestCardctl:
 
     @pytest.mark.complete("cardctl ")
     def test_1(self, completion):

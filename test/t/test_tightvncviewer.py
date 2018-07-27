@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestTightvncviewer(object):
+class TestTightvncviewer:
 
     @pytest.mark.complete("tightvncviewer ")
     def test_1(self, completion):

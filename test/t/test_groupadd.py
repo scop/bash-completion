@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGroupadd(object):
+class TestGroupadd:
 
     @pytest.mark.complete("groupadd ")
     def test_1(self, completion):

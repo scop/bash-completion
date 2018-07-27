@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGpgv(object):
+class TestGpgv:
 
     @pytest.mark.complete("gpgv ")
     def test_1(self, completion):

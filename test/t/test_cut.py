@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestCut(object):
+class TestCut:
 
     @pytest.mark.complete("cut ")
     def test_1(self, completion):

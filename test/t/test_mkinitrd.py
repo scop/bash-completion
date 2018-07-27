@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMkinitrd(object):
+class TestMkinitrd:
 
     @pytest.mark.complete("mkinitrd ")
     def test_1(self, completion):

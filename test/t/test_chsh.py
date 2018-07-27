@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestChsh(object):
+class TestChsh:
 
     @pytest.mark.complete("chsh ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMock(object):
+class TestMock:
 
     @pytest.mark.complete("mock ")
     def test_1(self, completion):

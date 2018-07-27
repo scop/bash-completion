@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestCsplit(object):
+class TestCsplit:
 
     @pytest.mark.complete("csplit ")
     def test_1(self, completion):

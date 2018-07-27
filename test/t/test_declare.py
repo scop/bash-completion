@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestDeclare(object):
+class TestDeclare:
 
     @pytest.mark.complete("declare -")
     def test_1(self, completion):

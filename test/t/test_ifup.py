@@ -3,7 +3,7 @@ import os
 import pytest
 
 
-class TestIfup(object):
+class TestIfup:
 
     @pytest.mark.xfail("CI" in os.environ, reason="Expected to fail in CI")
     @pytest.mark.complete("ifup ")

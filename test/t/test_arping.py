@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestArping(object):
+class TestArping:
 
     @pytest.mark.complete("arping ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestIwconfig(object):
+class TestIwconfig:
 
     @pytest.mark.complete("iwconfig --")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestFbgs(object):
+class TestFbgs:
 
     @pytest.mark.complete("fbgs ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestJshint(object):
+class TestJshint:
 
     @pytest.mark.complete("jshint ")
     def test_1(self, completion):

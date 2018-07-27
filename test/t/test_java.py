@@ -6,7 +6,7 @@ import pytest
         "CLASSPATH=$PWD/java/a:$PWD/java/bashcomp.jar",
     ),
 )
-class TestJava(object):
+class TestJava:
 
     @pytest.mark.complete("java -")
     def test_1(self, completion):

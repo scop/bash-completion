@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVmstat(object):
+class TestVmstat:
 
     @pytest.mark.complete("vmstat -")
     def test_1(self, completion):

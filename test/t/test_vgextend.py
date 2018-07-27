@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVgextend(object):
+class TestVgextend:
 
     @pytest.mark.complete("vgextend -",
                           skipif="! vgextend --help &>/dev/null")

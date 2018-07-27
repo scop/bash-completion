@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLvs(object):
+class TestLvs:
 
     @pytest.mark.complete("lvs --",
                           skipif="! lvs --help &>/dev/null")

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestCompare(object):
+class TestCompare:
 
     @pytest.mark.complete("compare ")
     def test_1(self, completion):

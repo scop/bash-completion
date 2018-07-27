@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestClisp(object):
+class TestClisp:
 
     @pytest.mark.complete("clisp ")
     def test_1(self, completion):

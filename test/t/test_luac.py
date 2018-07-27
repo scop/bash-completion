@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLuac(object):
+class TestLuac:
 
     @pytest.mark.complete("luac ")
     def test_1(self, completion):

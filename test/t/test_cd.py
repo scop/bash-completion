@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.mark.bashcomp(ignore_env=r"^\+CDPATH=$")
-class TestCd(object):
+class TestCd:
 
     @pytest.mark.xfail  # TODO: whitespace split issue
     @pytest.mark.complete("cd shared/default/")

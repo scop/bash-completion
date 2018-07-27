@@ -4,7 +4,7 @@ import pytest
 @pytest.mark.bashcomp(
     cmd="slapt-get",
 )
-class TestSlaptGet(object):
+class TestSlaptGet:
 
     @pytest.mark.complete("slapt-get -")
     def test_1(self, completion):

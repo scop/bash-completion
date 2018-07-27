@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestUnits(object):
+class TestUnits:
 
     @pytest.mark.complete("units --",
                           skipif="! units --help &>/dev/null")

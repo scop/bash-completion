@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSqlite3(object):
+class TestSqlite3:
 
     @pytest.mark.complete("sqlite3 ")
     def test_1(self, completion):

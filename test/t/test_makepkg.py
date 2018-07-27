@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMakepkg(object):
+class TestMakepkg:
 
     @pytest.mark.complete("makepkg ")
     def test_1(self, completion):

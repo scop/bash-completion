@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestRpm(object):
+class TestRpm:
 
     @pytest.mark.complete("rpm ")
     def test_1(self, completion):

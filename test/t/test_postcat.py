@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPostcat(object):
+class TestPostcat:
 
     @pytest.mark.complete("postcat ")
     def test_1(self, completion):

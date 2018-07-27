@@ -6,7 +6,7 @@ import pytest
         "PATH=/lib/udev:$PATH",
     ),
 )
-class TestHid2hci(object):
+class TestHid2hci:
 
     @pytest.mark.complete("hid2hci -")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLzma(object):
+class TestLzma:
 
     @pytest.mark.complete("lzma ")
     def test_1(self, completion):

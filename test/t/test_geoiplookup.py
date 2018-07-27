@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGeoiplookup(object):
+class TestGeoiplookup:
 
     @pytest.mark.complete("geoiplookup -")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestTox(object):
+class TestTox:
 
     @pytest.mark.complete("tox -")
     def test_1(self, completion):

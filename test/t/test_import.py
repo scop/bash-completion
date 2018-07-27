@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestImport(object):
+class TestImport:
 
     @pytest.mark.complete("import ")
     def test_1(self, completion):

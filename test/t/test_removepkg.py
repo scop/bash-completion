@@ -4,7 +4,7 @@ import pytest
 
 
 @pytest.mark.bashcomp(ignore_env=r"^\+ROOT=")
-class TestRemovepkg(object):
+class TestRemovepkg:
 
     @pytest.mark.complete("removepkg -")
     def test_1(self, completion):

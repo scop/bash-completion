@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestUrlsnarf(object):
+class TestUrlsnarf:
 
     @pytest.mark.complete("urlsnarf -")
     def test_1(self, completion):

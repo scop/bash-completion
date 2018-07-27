@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVgcfgbackup(object):
+class TestVgcfgbackup:
 
     @pytest.mark.complete("vgcfgbackup -",
                           skipif="! vgcfgbackup --help &>/dev/null")

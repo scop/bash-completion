@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestOpenssl(object):
+class TestOpenssl:
 
     @pytest.mark.complete("openssl ")
     def test_1(self, completion):

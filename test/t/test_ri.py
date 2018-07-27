@@ -6,7 +6,7 @@ import pytest
         "export RI='-d ri'",
     ),
 )
-class TestRi(object):
+class TestRi:
 
     @pytest.mark.complete("ri -")
     def test_1(self, completion):

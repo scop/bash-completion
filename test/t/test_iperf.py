@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestIperf(object):
+class TestIperf:
 
     @pytest.mark.complete("iperf ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMcrypt(object):
+class TestMcrypt:
 
     @pytest.mark.complete("mcrypt ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPydoc(object):
+class TestPydoc:
 
     @pytest.mark.complete("pydoc r")
     def test_1(self, completion):

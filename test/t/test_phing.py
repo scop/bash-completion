@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPhing(object):
+class TestPhing:
 
     @pytest.mark.complete("phing -")
     def test_1(self, completion):

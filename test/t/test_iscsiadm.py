@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestIscsiadm(object):
+class TestIscsiadm:
 
     @pytest.mark.complete("iscsiadm --mode")
     def test_1(self, completion):

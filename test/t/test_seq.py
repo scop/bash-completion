@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSeq(object):
+class TestSeq:
 
     @pytest.mark.complete("seq --")
     def test_1(self, completion):

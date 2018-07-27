@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestJavac(object):
+class TestJavac:
 
     @pytest.mark.complete("javac ")
     def test_1(self, completion):

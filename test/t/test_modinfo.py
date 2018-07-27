@@ -3,7 +3,7 @@ import subprocess
 import pytest
 
 
-class TestModinfo(object):
+class TestModinfo:
 
     @pytest.mark.complete("modinfo -")
     def test_1(self, completion):

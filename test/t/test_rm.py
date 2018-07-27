@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestRm(object):
+class TestRm:
 
     @pytest.mark.complete("rm ")
     def test_1(self, completion):

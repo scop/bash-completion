@@ -8,7 +8,7 @@ import pytest
         "PKG_DBDIR=$PWD/pkgtools/db",
     ),
 )
-class TestPkgDeinstall(object):
+class TestPkgDeinstall:
 
     @pytest.mark.complete("pkg_deinstall ")
     def test_1(self, completion):

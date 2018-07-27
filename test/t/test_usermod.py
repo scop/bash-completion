@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestUsermod(object):
+class TestUsermod:
 
     @pytest.mark.complete("usermod ")
     def test_1(self, completion):

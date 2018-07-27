@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestListLists(object):
+class TestListLists:
 
     @pytest.mark.complete("list_lists -")
     def test_1(self, completion):

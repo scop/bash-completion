@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSvn(object):
+class TestSvn:
 
     @pytest.mark.complete("svn ")
     def test_1(self, completion):

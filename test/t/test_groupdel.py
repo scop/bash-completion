@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGroupdel(object):
+class TestGroupdel:
 
     @pytest.mark.complete("groupdel ")
     def test_1(self, completion):

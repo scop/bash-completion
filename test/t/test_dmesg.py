@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestDmesg(object):
+class TestDmesg:
 
     @pytest.mark.complete("dmesg -")
     def test_1(self, completion):

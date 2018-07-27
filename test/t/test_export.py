@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestExport(object):
+class TestExport:
 
     @pytest.mark.complete("export BASH")
     def test_1(self, completion):

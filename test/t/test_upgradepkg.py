@@ -4,7 +4,7 @@ import os
 import pytest
 
 
-class TestUpgradepkg(object):
+class TestUpgradepkg:
 
     @pytest.mark.complete("upgradepkg -")
     def test_1(self, completion):

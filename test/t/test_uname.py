@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestUname(object):
+class TestUname:
 
     @pytest.mark.complete("uname --",
                           skipif="! uname --help &>/dev/null")

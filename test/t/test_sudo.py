@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSudo(object):
+class TestSudo:
 
     @pytest.mark.complete("sudo -")
     def test_1(self, completion):

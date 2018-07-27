@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMmsitepass(object):
+class TestMmsitepass:
 
     @pytest.mark.complete("mmsitepass -")
     def test_1(self, completion):

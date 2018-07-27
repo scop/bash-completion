@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestIwpriv(object):
+class TestIwpriv:
 
     @pytest.mark.complete("iwpriv --")
     def test_1(self, completion):

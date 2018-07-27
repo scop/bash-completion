@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestTouch(object):
+class TestTouch:
 
     @pytest.mark.complete("touch --",
                           skipif="! touch --help &>/dev/null")

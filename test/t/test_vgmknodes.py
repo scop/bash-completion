@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVgmknodes(object):
+class TestVgmknodes:
 
     @pytest.mark.complete("vgmknodes -",
                           skipif="! vgmknodes --help &>/dev/null")

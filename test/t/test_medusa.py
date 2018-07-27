@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMedusa(object):
+class TestMedusa:
 
     @pytest.mark.complete("medusa -")
     def test_1(self, completion):

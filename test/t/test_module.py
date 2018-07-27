@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestModule(object):
+class TestModule:
 
     @pytest.mark.complete("module ")
     def test_1(self, completion):

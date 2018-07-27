@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestJarsigner(object):
+class TestJarsigner:
 
     @pytest.mark.complete("jarsigner ")
     def test_1(self, completion):

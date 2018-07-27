@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLdapmodrdn(object):
+class TestLdapmodrdn:
 
     @pytest.mark.complete("ldapmodrdn -")
     def test_1(self, completion):

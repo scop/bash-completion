@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLvresize(object):
+class TestLvresize:
 
     @pytest.mark.complete("lvresize --",
                           skipif="! lvresize --help &>/dev/null")

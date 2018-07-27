@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestXmllint(object):
+class TestXmllint:
 
     @pytest.mark.complete("xmllint ")
     def test_1(self, completion):

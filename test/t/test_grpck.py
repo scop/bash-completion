@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGrpck(object):
+class TestGrpck:
 
     @pytest.mark.complete("grpck ")
     def test_1(self, completion):

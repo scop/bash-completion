@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestOpera(object):
+class TestOpera:
 
     @pytest.mark.complete("opera ")
     def test_1(self, completion):

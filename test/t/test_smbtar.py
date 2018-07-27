@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSmbtar(object):
+class TestSmbtar:
 
     @pytest.mark.complete("smbtar -")
     def test_1(self, completion):

@@ -3,7 +3,7 @@ import subprocess
 import pytest
 
 
-class TestKldunload(object):
+class TestKldunload:
 
     @pytest.mark.complete("kldunload ")
     def test_1(self, completion):

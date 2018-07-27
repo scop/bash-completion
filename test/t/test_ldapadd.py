@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLdapadd(object):
+class TestLdapadd:
 
     @pytest.mark.complete("ldapadd -")
     def test_1(self, completion):

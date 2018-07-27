@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLvreduce(object):
+class TestLvreduce:
 
     @pytest.mark.complete("lvreduce --",
                           skipif="! lvreduce --help &>/dev/null")

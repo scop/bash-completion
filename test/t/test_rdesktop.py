@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestRdesktop(object):
+class TestRdesktop:
 
     @pytest.mark.complete("rdesktop -")
     def test_1(self, completion):

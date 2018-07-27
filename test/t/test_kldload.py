@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestKldload(object):
+class TestKldload:
 
     @pytest.mark.complete("kldload ")
     def test_1(self, completion):

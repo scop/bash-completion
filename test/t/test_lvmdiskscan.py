@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLvmdiskscan(object):
+class TestLvmdiskscan:
 
     @pytest.mark.complete("lvmdiskscan --",
                           skipif="! lvmdiskscan --help &>/dev/null")

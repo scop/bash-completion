@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGrub(object):
+class TestGrub:
 
     @pytest.mark.complete("grub --")
     def test_1(self, completion):

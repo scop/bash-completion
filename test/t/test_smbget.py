@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSmbget(object):
+class TestSmbget:
 
     @pytest.mark.complete("smbget -")
     def test_1(self, completion):

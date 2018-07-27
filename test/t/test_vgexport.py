@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVgexport(object):
+class TestVgexport:
 
     @pytest.mark.complete("vgexport -",
                           skipif="! vgexport --help &>/dev/null")

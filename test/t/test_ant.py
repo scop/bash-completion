@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.mark.bashcomp(ignore_env=r"^\+ANT_ARGS=")
-class TestAnt(object):
+class TestAnt:
 
     @pytest.mark.complete("ant -")
     def test_1(self, completion):

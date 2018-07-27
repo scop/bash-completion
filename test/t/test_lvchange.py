@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLvchange(object):
+class TestLvchange:
 
     @pytest.mark.complete("lvchange --",
                           skipif="! lvchange --help &>/dev/null")

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPkgtool(object):
+class TestPkgtool:
 
     @pytest.mark.complete("pkgtool -")
     def test_1(self, completion):

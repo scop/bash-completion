@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMysqladmin(object):
+class TestMysqladmin:
 
     @pytest.mark.complete("mysqladmin -")
     def test_1(self, completion):

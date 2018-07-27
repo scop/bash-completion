@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestJps(object):
+class TestJps:
 
     @pytest.mark.complete("jps -")
     def test_1(self, completion):

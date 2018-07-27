@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestCloneMember(object):
+class TestCloneMember:
 
     @pytest.mark.complete("clone_member -")
     def test_1(self, completion):

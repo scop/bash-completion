@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestAutoreconf(object):
+class TestAutoreconf:
 
     @pytest.mark.complete("autoreconf ")
     def test_1(self, completion):

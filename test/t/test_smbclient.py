@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSmbclient(object):
+class TestSmbclient:
 
     @pytest.mark.complete("smbclient -")
     def test_1(self, completion):

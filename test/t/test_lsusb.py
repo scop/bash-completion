@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLsusb(object):
+class TestLsusb:
 
     @pytest.mark.complete("lsusb -")
     def test_1(self, completion):

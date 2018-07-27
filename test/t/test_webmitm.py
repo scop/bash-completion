@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestWebmitm(object):
+class TestWebmitm:
 
     @pytest.mark.complete("webmitm -")
     def test_1(self, completion):

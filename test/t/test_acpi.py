@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestAcpi(object):
+class TestAcpi:
 
     @pytest.mark.complete("acpi -")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestIrb(object):
+class TestIrb:
 
     @pytest.mark.complete("irb ")
     def test_1(self, completion):

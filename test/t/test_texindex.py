@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestTexindex(object):
+class TestTexindex:
 
     @pytest.mark.complete("texindex --")
     def test_1(self, completion):

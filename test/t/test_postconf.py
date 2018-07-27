@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPostconf(object):
+class TestPostconf:
 
     @pytest.mark.complete("postconf -")
     def test_1(self, completion):

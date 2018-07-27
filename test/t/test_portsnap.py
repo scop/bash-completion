@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPortsnap(object):
+class TestPortsnap:
 
     @pytest.mark.complete("portsnap ")
     def test_1(self, completion):

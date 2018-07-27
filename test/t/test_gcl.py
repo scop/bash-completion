@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGcl(object):
+class TestGcl:
 
     @pytest.mark.complete("gcl ")
     def test_1(self, completion):

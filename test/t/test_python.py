@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPython(object):
+class TestPython:
 
     @pytest.mark.complete("python ")
     def test_1(self, completion):

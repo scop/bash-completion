@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVgimport(object):
+class TestVgimport:
 
     @pytest.mark.complete("vgimport -",
                           skipif="! vgimport --help &>/dev/null")

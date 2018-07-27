@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestKdvi(object):
+class TestKdvi:
 
     @pytest.mark.complete("kdvi ", cwd="kdvi")
     def test_1(self, completion):

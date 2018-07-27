@@ -6,7 +6,7 @@ import pytest
         "HOME=$PWD/cvs",
     ),
 )
-class TestCvs(object):
+class TestCvs:
 
     @pytest.mark.complete("cvs ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestCat(object):
+class TestCat:
 
     @pytest.mark.complete("cat ")
     def test_1(self, completion):

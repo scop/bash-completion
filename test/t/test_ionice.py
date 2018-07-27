@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestIonice(object):
+class TestIonice:
 
     @pytest.mark.complete("ionice -")
     def test_1(self, completion):

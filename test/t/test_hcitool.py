@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestHcitool(object):
+class TestHcitool:
 
     @pytest.mark.complete("hcitool ")
     def test_1(self, completion):

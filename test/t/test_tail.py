@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestTail(object):
+class TestTail:
 
     @pytest.mark.complete("tail --",
                           skipif="! tail --help &>/dev/null")

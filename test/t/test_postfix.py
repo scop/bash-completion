@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPostfix(object):
+class TestPostfix:
 
     @pytest.mark.complete("postfix ")
     def test_1(self, completion):

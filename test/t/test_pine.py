@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPine(object):
+class TestPine:
 
     @pytest.mark.complete("pine -")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLisp(object):
+class TestLisp:
 
     @pytest.mark.complete("lisp ")
     def test_1(self, completion):

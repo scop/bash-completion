@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPostmap(object):
+class TestPostmap:
 
     @pytest.mark.complete("postmap ")
     def test_1(self, completion):

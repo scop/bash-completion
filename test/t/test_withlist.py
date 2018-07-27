@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestWithlist(object):
+class TestWithlist:
 
     @pytest.mark.complete("withlist --")
     def test_1(self, completion):

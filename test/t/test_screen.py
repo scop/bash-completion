@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestScreen(object):
+class TestScreen:
 
     @pytest.mark.complete("screen -")
     def test_1(self, completion):

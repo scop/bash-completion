@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGperf(object):
+class TestGperf:
 
     @pytest.mark.complete("gperf --")
     def test_1(self, completion):

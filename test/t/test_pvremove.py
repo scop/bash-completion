@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPvremove(object):
+class TestPvremove:
 
     @pytest.mark.complete("pvremove --",
                           skipif="! pvremove --help &>/dev/null")

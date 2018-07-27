@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestHciconfig(object):
+class TestHciconfig:
 
     @pytest.mark.complete("hciconfig ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestIconv(object):
+class TestIconv:
 
     @pytest.mark.complete("iconv -")
     def test_1(self, completion):

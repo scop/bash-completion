@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMinicom(object):
+class TestMinicom:
 
     @pytest.mark.complete("minicom -")
     def test_1(self, completion):

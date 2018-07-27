@@ -6,7 +6,7 @@ import pytest
         "HOME=$PWD/mplayer",
     ),
 )
-class TestMencoder(object):
+class TestMencoder:
 
     @pytest.mark.complete("mencoder ")
     def test_1(self, completion):

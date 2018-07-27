@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestXrandr(object):
+class TestXrandr:
 
     @pytest.mark.complete("xrandr ")
     def test_1(self, completion):

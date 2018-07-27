@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGprof(object):
+class TestGprof:
 
     @pytest.mark.complete("gprof --",
                           skipif="! gprof --help &>/dev/null")

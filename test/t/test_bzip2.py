@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestBzip2(object):
+class TestBzip2:
 
     @pytest.mark.complete("bzip2 ")
     def test_1(self, completion):

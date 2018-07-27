@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestBadblocks(object):
+class TestBadblocks:
 
     @pytest.mark.complete("badblocks ")
     def test_1(self, completion):

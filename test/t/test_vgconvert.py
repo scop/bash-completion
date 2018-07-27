@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVgconvert(object):
+class TestVgconvert:
 
     @pytest.mark.complete("vgconvert -",
                           skipif="! vgconvert --help &>/dev/null")

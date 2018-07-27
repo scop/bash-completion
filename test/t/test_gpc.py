@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGpc(object):
+class TestGpc:
 
     @pytest.mark.complete("gpc ")
     def test_1(self, completion):

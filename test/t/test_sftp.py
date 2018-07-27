@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSftp(object):
+class TestSftp:
 
     @pytest.mark.complete("sftp -Fsp", cwd="sftp")
     def test_1(self, completion):

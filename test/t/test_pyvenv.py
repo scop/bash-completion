@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPyvenv(object):
+class TestPyvenv:
 
     @pytest.mark.complete("pyvenv ")
     def test_1(self, completion):

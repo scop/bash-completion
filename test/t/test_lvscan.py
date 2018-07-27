@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLvscan(object):
+class TestLvscan:
 
     @pytest.mark.complete("lvscan --",
                           skipif="! lvscan --help &>/dev/null")

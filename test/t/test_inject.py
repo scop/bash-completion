@@ -6,7 +6,7 @@ import pytest
         "PATH=/usr/lib/mailman/bin:$PATH",
     ),
 )
-class TestInject(object):
+class TestInject:
 
     @pytest.mark.complete("inject ")
     def test_1(self, completion):

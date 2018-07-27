@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestHead(object):
+class TestHead:
 
     @pytest.mark.complete("head --",
                           skipif="! head --help &>/dev/null")

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestHtpasswd(object):
+class TestHtpasswd:
 
     @pytest.mark.complete("htpasswd ")
     def test_1(self, completion):

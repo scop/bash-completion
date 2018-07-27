@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestJpegoptim(object):
+class TestJpegoptim:
 
     @pytest.mark.complete("jpegoptim ")
     def test_1(self, completion):

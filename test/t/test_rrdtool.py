@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestRrdtool(object):
+class TestRrdtool:
 
     @pytest.mark.complete("rrdtool ")
     def test_1(self, completion):

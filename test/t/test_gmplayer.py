@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGmplayer(object):
+class TestGmplayer:
 
     @pytest.mark.complete("gmplayer ")
     def test_1(self, completion):

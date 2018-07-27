@@ -3,7 +3,7 @@ import pytest
 from conftest import assert_bash_exec
 
 
-class TestCpio(object):
+class TestCpio:
 
     @pytest.mark.complete("cpio --")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestAnimate(object):
+class TestAnimate:
 
     @pytest.mark.complete("animate ")
     def test_1(self, completion):

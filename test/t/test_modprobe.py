@@ -3,7 +3,7 @@ import subprocess
 import pytest
 
 
-class TestModprobe(object):
+class TestModprobe:
 
     @pytest.mark.complete("modprobe --al")
     def test_1(self, completion):

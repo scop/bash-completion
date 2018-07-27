@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestXmms(object):
+class TestXmms:
 
     @pytest.mark.complete("xmms --")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestTshark(object):
+class TestTshark:
 
     @pytest.mark.complete("tshark -")
     def test_1(self, completion):

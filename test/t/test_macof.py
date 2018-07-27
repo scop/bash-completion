@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMacof(object):
+class TestMacof:
 
     @pytest.mark.complete("macof -")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestFbi(object):
+class TestFbi:
 
     @pytest.mark.complete("fbi ")
     def test_1(self, completion):

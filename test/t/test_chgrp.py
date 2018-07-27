@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestChgrp(object):
+class TestChgrp:
 
     @pytest.mark.complete("chgrp ")
     def test_1(self, completion):

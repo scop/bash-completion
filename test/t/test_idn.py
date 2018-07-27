@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestIdn(object):
+class TestIdn:
 
     @pytest.mark.complete("idn -")
     def test_1(self, completion):

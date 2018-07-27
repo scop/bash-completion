@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestXgamma(object):
+class TestXgamma:
 
     @pytest.mark.complete("xgamma -")
     def test_1(self, completion):

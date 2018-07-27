@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSmbcacls(object):
+class TestSmbcacls:
 
     @pytest.mark.complete("smbcacls -")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGdb(object):
+class TestGdb:
 
     @pytest.mark.complete("gdb - ")
     def test_1(self, completion):

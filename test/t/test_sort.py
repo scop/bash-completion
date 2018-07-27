@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSort(object):
+class TestSort:
 
     @pytest.mark.complete("sort --")
     def test_1(self, completion):

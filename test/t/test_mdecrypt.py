@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMdecrypt(object):
+class TestMdecrypt:
 
     @pytest.mark.complete("mdecrypt ")
     def test_1(self, completion):

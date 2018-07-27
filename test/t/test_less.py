@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLess(object):
+class TestLess:
 
     @pytest.mark.complete("less --")
     def test_1(self, completion):

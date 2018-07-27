@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVgmerge(object):
+class TestVgmerge:
 
     @pytest.mark.complete("vgmerge -",
                           skipif="! vgmerge --help &>/dev/null")

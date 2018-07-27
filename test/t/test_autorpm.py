@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestAutorpm(object):
+class TestAutorpm:
 
     @pytest.mark.complete("autorpm ")
     def test_1(self, completion):

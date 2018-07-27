@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPsql(object):
+class TestPsql:
 
     # --help can fail due to missing package dependencies, e.g. on Ubuntu 14
     @pytest.mark.complete("psql -",

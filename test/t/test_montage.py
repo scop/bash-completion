@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMontage(object):
+class TestMontage:
 
     @pytest.mark.complete("montage ")
     def test_1(self, completion):

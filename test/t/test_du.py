@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestDu(object):
+class TestDu:
 
     @pytest.mark.complete("du ")
     def test_1(self, completion):

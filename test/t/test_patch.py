@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPatch(object):
+class TestPatch:
 
     @pytest.mark.complete("patch ")
     def test_1(self, completion):

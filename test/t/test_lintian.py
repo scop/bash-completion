@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLintian(object):
+class TestLintian:
 
     @pytest.mark.complete("lintian --")
     def test_1(self, completion):

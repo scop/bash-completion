@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLsscsi(object):
+class TestLsscsi:
 
     @pytest.mark.complete("lsscsi ")
     def test_1(self, completion):

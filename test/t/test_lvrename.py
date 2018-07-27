@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLvrename(object):
+class TestLvrename:
 
     @pytest.mark.complete("lvrename --",
                           skipif="! lvrename --help &>/dev/null")

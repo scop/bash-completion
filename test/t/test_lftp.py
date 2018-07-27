@@ -8,7 +8,7 @@ from conftest import assert_bash_exec
         "HOME=$PWD/lftp",
     ),
 )
-class TestLftp(object):
+class TestLftp:
 
     @pytest.mark.complete("lftp ")
     def test_1(self, bash, completion):

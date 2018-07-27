@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestNmcli(object):
+class TestNmcli:
 
     @pytest.mark.complete("nmcli ")
     def test_1(self, completion):

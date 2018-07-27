@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestGnokii(object):
+class TestGnokii:
 
     @pytest.mark.complete("gnokii ")
     def test_1(self, completion):

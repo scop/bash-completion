@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestEnv(object):
+class TestEnv:
 
     @pytest.mark.complete("env --",
                           skipif="! env --help &>/dev/null")

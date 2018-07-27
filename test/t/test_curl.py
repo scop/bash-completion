@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestCurl(object):
+class TestCurl:
 
     @pytest.mark.complete("curl --h")
     def test_1(self, completion):

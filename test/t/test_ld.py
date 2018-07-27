@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestLd(object):
+class TestLd:
 
     @pytest.mark.complete("ld ")
     def test_1(self, completion):

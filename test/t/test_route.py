@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestRoute(object):
+class TestRoute:
 
     @pytest.mark.complete("route ")
     def test_1(self, completion):

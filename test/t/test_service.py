@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestService(object):
+class TestService:
 
     @pytest.mark.complete("service ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSmbtree(object):
+class TestSmbtree:
 
     @pytest.mark.complete("smbtree -")
     def test_1(self, completion):

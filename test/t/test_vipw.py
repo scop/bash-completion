@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVipw(object):
+class TestVipw:
 
     @pytest.mark.complete("vipw -")
     def test_1(self, completion):

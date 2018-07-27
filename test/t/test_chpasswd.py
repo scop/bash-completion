@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestChpasswd(object):
+class TestChpasswd:
 
     @pytest.mark.complete("chpasswd -")
     def test_1(self, completion):

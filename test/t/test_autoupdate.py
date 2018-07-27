@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestAutoupdate(object):
+class TestAutoupdate:
 
     @pytest.mark.complete("autoupdate ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestJavaws(object):
+class TestJavaws:
 
     @pytest.mark.complete("javaws ")
     def test_1(self, completion):

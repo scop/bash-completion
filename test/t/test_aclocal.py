@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestAclocal(object):
+class TestAclocal:
 
     @pytest.mark.complete("aclocal ")
     def test_1(self, completion):

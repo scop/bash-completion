@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestJsonXs(object):
+class TestJsonXs:
 
     @pytest.mark.complete("json_xs ")
     def test_1(self, completion):

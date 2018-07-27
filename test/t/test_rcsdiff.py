@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestRcsdiff(object):
+class TestRcsdiff:
 
     @pytest.mark.complete("rcsdiff ")
     def test_1(self, completion):

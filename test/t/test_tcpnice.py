@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestTcpnice(object):
+class TestTcpnice:
 
     @pytest.mark.complete("tcpnice -")
     def test_1(self, completion):

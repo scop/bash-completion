@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVgcreate(object):
+class TestVgcreate:
 
     @pytest.mark.complete("vgcreate -")
     def test_1(self, completion):

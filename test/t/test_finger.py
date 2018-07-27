@@ -3,7 +3,7 @@ import pytest
 from conftest import assert_bash_exec
 
 
-class TestFinger(object):
+class TestFinger:
 
     @pytest.mark.complete("finger ")
     def test_1(self, bash, completion):

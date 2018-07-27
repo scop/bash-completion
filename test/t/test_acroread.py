@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestAcroread(object):
+class TestAcroread:
 
     @pytest.mark.complete("acroread ", cwd="fixtures/acroread")
     def test_1(self, completion):

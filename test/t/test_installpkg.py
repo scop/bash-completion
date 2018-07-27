@@ -4,7 +4,7 @@ import os
 import pytest
 
 
-class TestInstallpkg(object):
+class TestInstallpkg:
 
     @pytest.mark.complete("installpkg -")
     def test_1(self, completion):

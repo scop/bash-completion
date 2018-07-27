@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestRmmod(object):
+class TestRmmod:
 
     @pytest.mark.complete("rmmod -")
     def test_1(self, completion):

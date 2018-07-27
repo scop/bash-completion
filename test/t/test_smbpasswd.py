@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSmbpasswd(object):
+class TestSmbpasswd:
 
     @pytest.mark.complete("smbpasswd -")
     def test_1(self, completion):

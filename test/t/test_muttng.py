@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMuttng(object):
+class TestMuttng:
 
     @pytest.mark.complete("muttng -")
     def test_1(self, completion):

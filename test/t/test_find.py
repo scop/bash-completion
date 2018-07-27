@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestFind(object):
+class TestFind:
 
     @pytest.mark.complete("find ")
     def test_1(self, completion):

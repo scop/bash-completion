@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestMussh(object):
+class TestMussh:
 
     @pytest.mark.complete("mussh -")
     def test_1(self, completion):

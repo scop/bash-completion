@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestWatch(object):
+class TestWatch:
 
     @pytest.mark.complete("watch -")
     def test_1(self, completion):

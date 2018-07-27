@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestCiptool(object):
+class TestCiptool:
 
     @pytest.mark.complete("ciptool ")
     def test_1(self, completion):

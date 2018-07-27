@@ -9,7 +9,7 @@ import pytest
         "HOME=$PWD/ssh-copy-id",
     ),
 )
-class TestSshCopyId(object):
+class TestSshCopyId:
 
     @pytest.mark.complete("ssh-copy-id -")
     def test_1(self, completion):

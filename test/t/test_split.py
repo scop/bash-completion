@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSplit(object):
+class TestSplit:
 
     @pytest.mark.complete("split --",
                           skipif="! split --help &>/dev/null")

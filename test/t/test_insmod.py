@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestInsmod(object):
+class TestInsmod:
 
     @pytest.mark.complete("insmod ")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestDir(object):
+class TestDir:
 
     @pytest.mark.complete("dir ")
     def test_1(self, completion):

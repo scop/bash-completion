@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestBash(object):
+class TestBash:
 
     @pytest.mark.complete("bash --")
     def test_1(self, completion):

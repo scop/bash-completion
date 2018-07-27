@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestWsimport(object):
+class TestWsimport:
 
     @pytest.mark.complete("wsimport ")
     def test_1(self, completion):

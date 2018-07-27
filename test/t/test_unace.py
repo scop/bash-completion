@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestUnace(object):
+class TestUnace:
 
     @pytest.mark.complete("unace -")
     def test_1(self, completion):

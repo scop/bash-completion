@@ -6,7 +6,7 @@ import pytest
         "INFOPATH+=:$PWD/info:",
     ),
 )
-class TestInfo(object):
+class TestInfo:
 
     @pytest.mark.complete("info bash")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSet(object):
+class TestSet:
 
     @pytest.mark.complete("set no")
     def test_1(self, completion):

@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestKtutil(object):
+class TestKtutil:
 
     @pytest.mark.complete("ktutil ")
     def test_1(self, completion):

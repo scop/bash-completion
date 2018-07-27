@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestVgdisplay(object):
+class TestVgdisplay:
 
     @pytest.mark.complete("vgdisplay -",
                           skipif="! vgdisplay --help &>/dev/null")

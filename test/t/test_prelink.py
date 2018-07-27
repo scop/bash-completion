@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPrelink(object):
+class TestPrelink:
 
     @pytest.mark.complete("prelink ")
     def test_1(self, completion):

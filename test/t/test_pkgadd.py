@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestPkgadd(object):
+class TestPkgadd:
 
     @pytest.mark.complete("pkgadd ")
     def test_1(self, completion):

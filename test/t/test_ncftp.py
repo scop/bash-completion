@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestNcftp(object):
+class TestNcftp:
 
     @pytest.mark.complete("ncftp ")
     def test_1(self, completion):

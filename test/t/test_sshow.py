@@ -1,7 +1,7 @@
 import pytest
 
 
-class TestSshow(object):
+class TestSshow:
 
     @pytest.mark.complete("sshow -")
     def test_1(self, completion):

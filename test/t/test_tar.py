@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.mark.bashcomp(ignore_env=r"^-declare -f _tar$")
-class TestTar(object):
+class TestTar:
 
     @pytest.mark.complete("tar ")
     def test_1(self, completion):
