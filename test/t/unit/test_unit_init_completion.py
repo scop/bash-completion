@@ -4,7 +4,7 @@ from conftest import assert_bash_exec
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+COMPREPLY=")
-class TestUnitInitCompletion(object):
+class TestUnitInitCompletion:
 
     def test_1(self, bash):
         """Test environment non-pollution, detected at teardown."""

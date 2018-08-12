@@ -4,7 +4,7 @@ from conftest import assert_bash_exec
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+declare -f fn$")
-class TestUnitParseUsage(object):
+class TestUnitParseUsage:
 
     def test_1(self, bash):
         assert_bash_exec(bash, "fn() { echo; }")

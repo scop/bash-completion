@@ -15,7 +15,7 @@ class TestLs:
     def test_2(self, completion):
         assert completion.list
 
-    def test_3(self, request, bash):
+    def test_3(self, bash):
         """~part should complete to ~full<SPACE> if home dir does not exist."""
         res = assert_bash_exec(
             bash, "for u in $(compgen -u); do "
@@ -26,6 +26,6 @@ class TestLs:
             pytest.skip("No suitable test user found")
             return
         part, full = part_full
-        completion = assert_complete(request, bash, "ls ~%s" % part)
-        assert len(completion.list) == 1
+        completion = assert_complete(bash, "ls ~%s" % part)
+        assert completion.list == ["~%s" % full]
         assert completion.line.endswith(" ")

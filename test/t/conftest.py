@@ -246,7 +246,7 @@ CompletionResult = NamedTuple(
 
 
 def assert_complete(
-        request, bash: pexpect.spawn, cmd: str, **kwargs) -> CompletionResult:
+        bash: pexpect.spawn, cmd: str, **kwargs) -> CompletionResult:
     skipif = kwargs.get("skipif")
     if skipif:
         try:
@@ -321,4 +321,4 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
     marker = request.node.get_marker("complete")
     if not marker:
         return CompletionResult("", [])
-    return assert_complete(request, bash, marker.args[0], **marker.kwargs)
+    return assert_complete(bash, marker.args[0], **marker.kwargs)

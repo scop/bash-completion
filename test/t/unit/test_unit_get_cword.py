@@ -7,7 +7,7 @@ from conftest import assert_bash_exec
 
 @pytest.mark.bashcomp(cmd=None,
                       ignore_env=r"^[+-]COMP_(WORDS|CWORD|LINE|POINT)=")
-class TestUnitGetCword(object):
+class TestUnitGetCword:
 
     def _test(self, bash,
               comp_words, comp_cword, comp_line, comp_point, arg=""):

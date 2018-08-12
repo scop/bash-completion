@@ -4,7 +4,7 @@ from conftest import assert_bash_exec
 
 
 @pytest.mark.bashcomp(cmd=None)
-class TestUnitExpand(object):
+class TestUnitExpand:
 
     def test_1(self, bash):
         assert_bash_exec(bash, "_expand >/dev/null")

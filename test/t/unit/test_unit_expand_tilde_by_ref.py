@@ -4,7 +4,7 @@ from conftest import assert_bash_exec
 
 
 @pytest.mark.bashcomp(cmd=None)
-class TestUnitExpandTildeByRef(object):
+class TestUnitExpandTildeByRef:
 
     def test_1(self, bash):
         assert_bash_exec(bash, "__expand_tilde_by_ref >/dev/null")

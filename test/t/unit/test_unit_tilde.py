@@ -4,7 +4,7 @@ from conftest import assert_bash_exec, find_unique_completion_pair
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+COMPREPLY=")
-class TestUnitTilde(object):
+class TestUnitTilde:
 
     @pytest.fixture
     def part_full(self, bash):
@@ -40,7 +40,7 @@ class TestUnitTilde(object):
 
     def test_4(self, bash, part_full):
         """~full should complete to ~full unmodified."""
-        part, full = part_full
+        _, full = part_full
         self._test_part_full(bash, full, full)
 
     def test_5(self, bash, part_full):

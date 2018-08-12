@@ -4,7 +4,7 @@ from conftest import find_unique_completion_pair
 
 
 @pytest.mark.bashcomp(cmd=None)
-class TestUnitFindUniqueCompletionPair(object):
+class TestUnitFindUniqueCompletionPair:
 
     def _test(self, inp: str, exp: str) -> None:
         res = find_unique_completion_pair(inp.split())
