@@ -2,7 +2,7 @@ import difflib
 import os
 import re
 import shlex
-from typing import List, NamedTuple
+from typing import Iterable, List, NamedTuple, Optional, Tuple
 
 import pexpect
 import pytest
@@ -10,6 +10,47 @@ import pytest
 
 PS1 = "/@"
 MAGIC_MARK = "__MaGiC-maRKz!__"
+
+
+def find_unique_completion_pair(
+        items: Iterable[str]) -> Optional[Tuple[str, str]]:
+    result = None
+    bestscore = 0
+    sitems = sorted(set(items))
+    for i in range(len(sitems)):
+        cur = sitems[i]
+        curlen = len(cur)
+        prv = sitems[i-1] if i != 0 else ""
+        prvlen = len(prv)
+        nxt = sitems[i+1] if i < len(sitems)-1 else ""
+        nxtlen = len(nxt)
+        diffprv = prv == ""
+        diffnxt = nxt == ""
+        # Analyse each item of the list and look for the minimum length of the
+        # partial prefix which is distinct from both nxt and prv. The list
+        # is sorted so the prefix will be unique in the entire list.
+        for j in range(curlen):
+            curchar = cur[j]
+            if not diffprv and (j >= prvlen or prv[j] != curchar):
+                diffprv = True
+            if not diffnxt and (j >= nxtlen or nxt[j] != curchar):
+                diffnxt = True
+            if diffprv and diffnxt:
+                break
+        # At the end of the loop, j is the index of last character of
+        # the unique partial prefix. The length is one plus that.
+        parlen = j + 1
+        if parlen >= curlen:
+            continue
+        # Try to find the most "readable pair"; look for a long pair where
+        # part is about half of full.
+        if parlen < curlen / 2:
+            parlen = int(curlen / 2)
+        score = curlen - parlen
+        if score > bestscore:
+            bestscore = score
+            result = (cur[:parlen], cur)
+    return result
 
 
 @pytest.fixture(autouse=True, scope="class")
@@ -204,12 +245,9 @@ CompletionResult = NamedTuple(
     "CompletionResult", [("line", str), ("list", List[str])])
 
 
-@pytest.fixture(autouse=True)
-def completion(request, bash: pexpect.spawn) -> CompletionResult:
-    marker = request.node.get_marker("complete")
-    if not marker:
-        return CompletionResult("", [])
-    skipif = marker.kwargs.get("skipif")
+def assert_complete(
+        request, bash: pexpect.spawn, cmd: str, **kwargs) -> CompletionResult:
+    skipif = kwargs.get("skipif")
     if skipif:
         try:
             assert_bash_exec(bash, skipif)
@@ -218,11 +256,11 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
         else:
             pytest.skip(skipif)
             return CompletionResult("", [])
-    cwd = marker.kwargs.get("cwd")
+    cwd = kwargs.get("cwd")
     if cwd:
         assert_bash_exec(bash, "cd '%s'" % cwd)
     env_prefix = "_BASHCOMP_TEST_"
-    env = marker.kwargs.get("env", {})
+    env = kwargs.get("env", {})
     if env:
         # Back up environment and apply new one
         assert_bash_exec(bash, " ".join(
@@ -231,7 +269,6 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
         assert_bash_exec(bash, "export %s" % " ".join(
             "%s=%s" % (k, v) for k, v in env.items()
         ))
-    cmd = marker.args[0]
     bash.send(cmd + "\t")
     bash.expect_exact(cmd)
     bash.send(MAGIC_MARK)
@@ -277,3 +314,11 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
     if cwd:
         assert_bash_exec(bash, "cd - >/dev/null")
     return result
+
+
+@pytest.fixture(autouse=True)
+def completion(request, bash: pexpect.spawn) -> CompletionResult:
+    marker = request.node.get_marker("complete")
+    if not marker:
+        return CompletionResult("", [])
+    return assert_complete(request, bash, marker.args[0], **marker.kwargs)

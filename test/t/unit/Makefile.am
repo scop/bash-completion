@@ -3,6 +3,7 @@ EXTRA_DIST = \
 	test_unit_expand.py \
 	test_unit_expand_tilde_by_ref.py \
 	test_unit_filedir.py \
+	test_unit_find_unique_completion_pair.py \
 	test_unit_get_comp_words_by_ref.py \
 	test_unit_get_cword.py \
 	test_unit_init_completion.py \
