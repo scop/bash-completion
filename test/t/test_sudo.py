@@ -1,7 +1,31 @@
 import pytest
 
+from conftest import (
+    assert_bash_exec, assert_complete, find_unique_completion_pair,
+)
+
 
 class TestSudo:
+
+    @pytest.fixture
+    def part_full_user(self, bash):
+        res = assert_bash_exec(
+            bash, "compgen -u", want_output=True,
+        ).strip().split()
+        pair = find_unique_completion_pair(res)
+        if not pair:
+            pytest.skip("No suitable test user found")
+        return pair
+
+    @pytest.fixture
+    def part_full_group(self, bash):
+        res = assert_bash_exec(
+            bash, "compgen -g", want_output=True,
+        ).strip().split()
+        pair = find_unique_completion_pair(res)
+        if not pair:
+            pytest.skip("No suitable test user found")
+        return pair
 
     @pytest.mark.complete("sudo -")
     def test_1(self, completion):
@@ -25,3 +49,49 @@ class TestSudo:
     @pytest.mark.complete("sudo -e -u root bar foo", cwd="shared/default")
     def test_5(self, completion):
         assert completion.list == ["foo", "foo.d/"]
+
+    def test_6(self, bash, part_full_user):
+        part, full = part_full_user
+        completion = assert_complete(bash, "sudo chown %s" % part)
+        assert completion.list == [full]
+        assert completion.line.endswith(" ")
+
+    def test_7(self, bash, part_full_user, part_full_group):
+        _, user = part_full_user
+        partgroup, fullgroup = part_full_group
+        completion = assert_complete(
+            bash, "sudo chown %s:%s" % (user, partgroup))
+        assert completion.list == ["%s:%s" % (user, fullgroup)]
+        assert completion.line.endswith(" ")
+
+    def test_8(self, bash, part_full_group):
+        part, full = part_full_group
+        completion = assert_complete(bash, "sudo chown dot.user:%s" % part)
+        assert completion.list == ["dot.user:%s" % full]
+        assert completion.line.endswith(" ")
+
+    @pytest.mark.xfail  # TODO check escaping, whitespace
+    def test_9(self, bash, part_full_group):
+        """Test preserving special chars in $prefix$partgroup<TAB>."""
+        part, full = part_full_group
+        for prefix in (r"funky\ user:", "funky.user:", r"funky\.user:",
+                       r"fu\ nky.user:"):
+            completion = assert_complete(
+                bash, "sudo chown %s%s" % (prefix, part))
+            assert completion.list == ["%s%s" % (prefix, full)]
+            assert completion.line.endswith(" ")
+
+    def test_10(self, bash, part_full_user, part_full_group):
+        """Test giving up on degenerate cases instead of spewing junk."""
+        _, user = part_full_user
+        partgroup, _ = part_full_group
+        for x in range(2, 5):
+            completion = assert_complete(
+                bash, "sudo chown %s%s:%s" % (user, x * "\\", partgroup))
+            assert not completion.list
+
+    def test_11(self, bash, part_full_group):
+        """Test graful fail on colon in user/group name."""
+        part, _ = part_full_group
+        completion = assert_complete(bash, "sudo chown foo:bar:%s" % part)
+        assert not completion.list

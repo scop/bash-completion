@@ -26,14 +26,6 @@ foreach ug {user group} {
 
 # These tests require an unique completion.
 if {!$failed_find_unique_completion} {
-    assert_complete $fulluser "sudo chown $partuser"
-    sync_after_int
-
-    assert_complete $fulluser:$fullgroup "sudo chown $fulluser:$partgroup"
-    sync_after_int
-
-    assert_complete "dot.user:$fullgroup" "sudo chown dot.user:$partgroup"
-    sync_after_int
 
     foreach prefix {
         "funky\\ user:" "funky.user:" "funky\\.user:" "fu\\ nky.user:"
@@ -44,21 +36,6 @@ if {!$failed_find_unique_completion} {
         assert_complete $prefix$fullgroup "sudo chown $prefix$partgroup" $test
         sync_after_int
     }
-
-    # Check that we give up in degenerate cases instead of spewing various junk.
-
-    assert_no_complete "sudo chown $fulluser\\\\:$partgroup"
-    sync_after_int
-
-    assert_no_complete "sudo chown $fulluser\\\\\\:$partgroup"
-    sync_after_int
-
-    assert_no_complete "sudo chown $fulluser\\\\\\\\:$partgroup"
-    sync_after_int
-
-    # Colons in user/groupnames are not usually allowed.
-    assert_no_complete "sudo chown foo:bar:$partgroup"
-    sync_after_int
 }
 
 
