@@ -405,6 +405,7 @@ bashcomp_DATA = 2to3 \
 		userdel \
 		usermod \
 		valgrind \
+		VBoxManage \
 		vipw \
 		vmstat \
 		vncviewer \

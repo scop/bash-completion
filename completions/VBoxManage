@@ -1,0 +1,1486 @@
+# VBoxManage completion                                     -*- shell-script -*-
+
+_vboxmanage_get_vmname()
+{
+    COMPREPLY=($(compgen -W "$(VBoxManage list vms | cut -d' ' -f1 \
+        | tr -d '"')" -- ${cur}))
+}
+
+_vboxmanage_get_uuid()
+{
+    COMPREPLY=($(compgen -W "$(VBoxManage list vms | cut -d' ' -f2 \
+        | tr -d '{}')" -- ${cur}))
+}
+
+_vboxmanage_get_uuid_vmname()
+{
+    COMPREPLY=($(compgen -W "$(VBoxManage list vms | tr ' ' '\n' \
+        | tr -d '"{}')" -- ${cur}))
+}
+
+_vboxmanage_get_uuid_filename()
+{
+    _vboxmanage_get_uuid
+    _filedir
+}
+
+_vboxmanage_get_ostype()
+{
+    COMPREPLY=($(compgen -W "$(VBoxManage list ostypes \
+        | awk '/^ID/ {print $2}')" -- ${cur}))
+}
+
+_vboxmanage_get_group()
+{
+    COMPREPLY=($(compgen -W "$(VBoxManage list groups)" -- ${cur}))
+}
+
+_vboxmanage_get_hostonlyif()
+{
+    COMPREPLY=($(compgen -W "$(VBoxManage list hostonlyifs \
+        | awk '/^Name/ {print $2}')" -- ${cur}))
+}
+
+_vboxmanage_get_bridgedif()
+{
+    COMPREPLY=($(compgen -W "$(VBoxManage list bridgedifs \
+        | awk '/^Name/ {print $2}')" -- ${cur}))
+}
+
+_vboxmanage_get_natnet()
+{
+    COMPREPLY=($(compgen -W "$(VBoxManage list natnets \
+        | awk '/^NetworkName/ {print $2}')" -- ${cur}))
+}
+
+_vboxmanage_get_intnet()
+{
+    COMPREPLY=($(compgen -W "$(VBoxManage list intnets \
+        | awk '/^Name/ {print $2}')" -- ${cur}))
+}
+
+_vboxmanage()
+{
+    local cur prev opts  words cword
+    _init_completion || return
+
+    local commands
+    commands='list showvminfo registervm unregistervm createvm modifyvm \
+              clonevm import export startvm controlvm discardstate adoptstate \
+              snapshot closemedium storageattach storagectl bandwidthctl \
+              showmediuminfo createmedium modifymedium clonemedium \
+              mediumproperty encryptmedium checkmediumpwd convertfromraw \
+              getextradata setextradata setproperty usbfilter sharedfolder \
+              guestproperty guestcontrol metrics natnetwork hostonlyif \
+              dhcpserver usbdevsource debugvm extpack unattended'
+
+    if [[ $cword -eq 1 ]] ; then
+        COMPREPLY=( $( compgen -W "$commands" -- "$cur" ) )
+    else
+
+        local command=${words[1]}
+
+        case $command in
+            list)
+                _vboxmanage_list
+                ;;
+            showvminfo)
+                _vboxmanage_showvminfo
+                ;;
+            registervm)
+                _filedir
+                ;;
+            unregistervm)
+                _vboxmanage_unregistervm
+                ;;
+            createvm)
+                _vboxmanage_createvm
+                ;;
+            modifyvm)
+                _vboxmanage_modifyvm
+                ;;
+            clonevm)
+                _vboxmanage_clonevm
+                ;;
+            import)
+                _vboxmanage_import
+                ;;
+            export)
+                _vboxmanage_export
+                ;;
+            startvm)
+                _vboxmanage_startvm
+                ;;
+            controlvm)
+                _vboxmanage_controlvm
+                ;;
+            discardstate)
+                _vboxmanage_discardstate
+                ;;
+            adoptstate)
+                _vboxmanage_adoptstate
+                ;;
+            snapshot)
+                _vboxmanage_snapshot
+                ;;
+            closemedium)
+                _vboxmanage_closemedium
+                ;;
+            storageattach)
+                _vboxmanage_storageattach
+                ;;
+            storagectl)
+                _vboxmanage_storagectl
+                ;;
+            bandwidthctl)
+                _vboxmanage_bandwidthctl
+                ;;
+            showmediuminfo)
+                _vboxmanage_showmediuminfo
+                ;;
+            createmedium)
+                _vboxmanage_createmedium
+                ;;
+            modifymedium)
+                _vboxmanage_modifymedium
+                ;;
+            clonemedium)
+                _vboxmanage_clonemedium
+                ;;
+            mediumproperty)
+                _vboxmanage_mediumproperty
+                ;;
+            encryptmedium)
+                _vboxmanage_encryptmedium
+                ;;
+            checkmediumpwd)
+                _vboxmanage_checkmediumpwd
+                ;;
+            convertfromraw)
+                _vboxmanage_convertfromraw
+                ;;
+            getextradata)
+                _vboxmanage_getextradata
+                ;;
+            setextradata)
+                _vboxmanage_setextradata
+                ;;
+            setproperty)
+                _vboxmanage_setproperty
+                ;;
+            usbfilter)
+                _vboxmanage_usbfilter
+                ;;
+            sharedfolder)
+                _vboxmanage_sharedfolder
+                ;;
+            guestproperty)
+                _vboxmanage_guestproperty
+                ;;
+            guestcontrol)
+                _vboxmanage_guestcontrol
+                ;;
+            metrics)
+                _vboxmanage_metrics
+                ;;
+            natnetwork)
+                _vboxmanage_natnetwork
+                ;;
+            hostonlyif)
+                _vboxmanage_hostonlyif
+                ;;
+            dhcpserver)
+                _vboxmanage_dhcpserver
+                ;;
+            usbdevsource)
+                _vboxmanage_usbdevsource
+                ;;
+            debugvm)
+                _vboxmanage_debugvm
+                ;;
+            extpack)
+                _vboxmanage_extpack
+                ;;
+            unattended)
+                _vboxmanage_unattended
+                ;;
+        esac
+    fi
+
+} &&
+complete -F _vboxmanage VBoxManage
+
+_vboxmanage_list()
+{
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W "--long --sorted" "$cur" ) )
+    else
+        COMPREPLY=( $( compgen -W "vms runningvms ostypes hostdvds \
+            hostfloppies intnets bridgedifs hostonlyifs natnets \
+            dhcpservers hostinfo hostcpuids hddbackends hdds dvds \
+            floppies usbhost usbfilters systemproperties extpacks \
+            groups webcams screenshotformats" -- "$cur" ) )
+    fi
+}
+
+_vboxmanage_showvminfo()
+{
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W "--details --machinereadable --log" -- \
+            "$cur" ) )
+    else
+        _vboxmanage_get_uuid_vmname
+    fi
+}
+
+_vboxmanage_unregistervm()
+{
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W "--delete" -- "$cur" ) )
+    else
+        _vboxmanage_get_uuid_vmname
+    fi
+}
+
+_vboxmanage_createvm()
+{
+    case $prev in
+        --name)
+            _vboxmanage_get_vmname
+            return
+            ;;
+        --basefolder)
+            _filedir -d
+            return
+            ;;
+        --groups)
+            _vboxmanage_get_group
+            return
+            ;;
+        --ostype)
+            _vboxmanage_get_ostype
+            return
+            ;;
+        --uuid)
+            _vboxmanage_get_uuid
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W "--name --groups --ostype \
+            --register --basefolder --uuid" -- "$cur" ) )
+    fi
+}
+
+_vboxmanage_modifyvm()
+{
+    # simple option list completions
+    local opts
+    case $prev in
+        --pagefusion|--acpi|--ioapic|--hpet|--triplefaultreset|--apic|--x2apic)
+            opts='on off'
+            ;;
+        --hwvirtex|--nestedpaging|--largepages|--vtxvpid|--vtxux|--pae)
+            opts='on off'
+            ;;
+        --longmode|--cpuhotplug|--rtcuseutc|--accelerate3d|--accelerate2dvideo)
+            opts='on off'
+            ;;
+        --bioslogofadein|--bioslogofadeout|--biospxedebug)
+            opts='on off'
+            ;;
+        --cableconnected*|nictrace*)
+            opts='on off'
+            ;;
+        --natdnspassdomain*|--natdnsproxy*|--natdnsresolver*)
+            opts='on off'
+            ;;
+        --audioin|--audioout)
+            opts='on off'
+            ;;
+        --vrde|--vrdemulticon|--vrdereusecon|--vrdevideochannel)
+            opts='on off'
+            ;;
+        --usb|--usbehci|--usbxhci)
+            opts='on off'
+            ;;
+        --teleporter|--tracing-enabled|--tracing-allow-vm-access)
+            opts='on off'
+            ;;
+        --usbcardreader|--autostart-enabled|--videocap)
+            opts='on off'
+            ;;
+        --paravirtprovider)
+            opts='none default legacy minimal hyperv kvm'
+            ;;
+        --cpu-profile)
+            opts='host 8086 80286 80386'
+            ;;
+        --graphicscontroller)
+            opts='none vboxvga vmsvga'
+            ;;
+        --firmware)
+            opts='bios efi efi32 efi64'
+            ;;
+        --chipset)
+            opts='ich9 piix3'
+            ;;
+        --biosbootmenu)
+            opts='disabled menuonly messageandmenu'
+            ;;
+        --biosapic)
+            opts='disabled apic x2apic'
+            ;;
+        --boot*)
+            opts='none floppy dvd disk net'
+            ;;
+        --nic*)
+            opts='none null nat bridged intnet hostonly generic natnetwork'
+            ;;
+        --nictype*)
+            opts='Am79C970A Am79C973 82540EM 82543GC 82545EM virtio'
+            ;;
+        --nicpromisc*)
+            opts='deny allow-vms allow-all'
+            ;;
+        --mouse)
+            opts='ps2 usb usbtablet usbmultitouch'
+            ;;
+        --keyboard)
+            opts='ps2 usb'
+            ;;
+        --uartmode)
+            opts='disconnected server client tcpserver tcpclient file'
+            ;;
+        --audio)
+            opts='none null oss alsa pulse'
+            ;;
+        --audiocontroller)
+            opts='ac97 hda sb16'
+            ;;
+        --audiocodec)
+            opts='stac9700 ad1980 stac9221 sb16'
+            ;;
+        --clipboard)
+            opts='disabled hosttoguest guesttohost bidirectional'
+            ;;
+        --draganddrop)
+            opts='disabled hosttoguest'
+            ;;
+        --vrdeauthtype)
+            opts='null external guest'
+            ;;
+    esac
+
+    if [ -n "$opts" ]; then
+        COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
+        return
+    fi
+
+    # other kind of completions
+    case $prev in
+        --name)
+            _vboxmanage_get_vmname
+            return
+            ;;
+        --groups)
+            _vboxmanage_get_group
+            return
+            ;;
+        --ostype)
+            _vboxmanage_get_ostype
+            return
+            ;;
+        --iconfile|--nictracefile*|--nattftpfile*|--videocapfile)
+            _filedir
+            return
+            ;;
+        --bioslogoimagepath|--teleporterpasswordfile)
+            _filedir
+            return
+            ;;
+        --intnet*)
+            _vboxmanage_get_intnet
+            return
+            ;;
+        --nat-network*)
+            _vboxmanage_get_natnet
+            return
+            ;;
+        --bridgeadapter*)
+            _vboxmanage_get_bridgeif
+            return
+            ;;
+        --hostonlyadapter*)
+            _vboxmanage_get_hostonlyif
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+	COMPREPLY=( $( compgen -W '$( _parse_usage "VBoxManage" \
+	    "modifyvm --help" )' -- "$cur" ) )
+    else
+        _vboxmanage_get_uuid_vmname
+    fi
+}
+
+_vboxmanage_clonevm()
+{
+    case $prev in
+        --snapshot)
+            _vboxmanage_get_uuid_vmname
+            return
+            ;;
+        --mode)
+            COMPREPLY=( $( compgen -W "machine machineandchildren all" -- \
+                "$cur" ) )
+            return
+            ;;
+        --options)
+            COMPREPLY=( $( compgen -W "link keepallmacs keepnatmacs \
+                keepdisknames" -- "$cur" ) )
+            ;;
+        --basefolder)
+            _filedir -d
+            return
+            ;;
+        --name)
+            _vboxmanage_get_vmname
+            return
+            ;;
+        --groups)
+            _vboxmanage_get_group
+            return
+            ;;
+        --uuid)
+            _vboxmanage_get_uuid
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W "--snapshot --mode --options --name \
+            --groups --basefolder --uuid --register" -- "$cur" ) )
+    else
+        _vboxmanage_get_uuid_vmname
+    fi
+}
+
+_vboxmanage_import()
+{
+    case $prev in
+        --options)
+            COMPREPLY=( $( compgen -W "keepallmacs keepnatmacs importtovdi" -- \
+                "$cur" ) )
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W "--dry-run --options" -- "$cur" ) )
+    else
+        _filedir '@(ovf|ova)'
+    fi
+}
+
+_vboxmanage_export()
+{
+    case $prev in
+        --options)
+            COMPREPLY=( $( compgen -W "manifest iso nomacs nomacsbutnat" -- \
+                "$cur" ) )
+            return
+            ;;
+        --eulafile)
+            _filedir
+            return
+            ;;
+        --output)
+            _filedir '@(ovf|ova|tar.gz)'
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+	COMPREPLY=( $( compgen -W '$( _parse_usage "VBoxManage" \
+	    "export --help" )' -- "$cur" ) )
+    fi
+}
+
+_vboxmanage_startvm()
+{
+    case $prev in
+        --type)
+            COMPREPLY=( $( compgen -W "gui sdl headless separate" -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W "--type --putenv" -- "$cur" ) )
+    else
+        _vboxmanage_get_uuid_vmname
+    fi
+}
+
+_vboxmanage_controlvm()
+{
+    case $prev in
+        --capturefile|--passwordfile)
+            _filedir
+            return
+            ;;
+        --allowlocallogon|--removeonsuspend)
+            COMPREPLY=( $( compgen -W "yes no" -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    if [[ $cword -eq 2 ]] ; then
+        _vboxmanage_get_uuid_vmname
+    else
+        if [[ $cword -eq 3 ]] ; then
+            COMPREPLY=( $( compgen -W "pause resume reset poweroff savestate \
+                acpipowerbutton acpisleepbutton keyboardputscancode \
+                keyboardputstring keyboardputfile setlinkstate1 setlinkstate2 \
+                disconnected2 nic1 nic2 nictrace1 nictrace2 nictracefile1 \
+                nictracefile2 nicproperty1 nicproperty2 nicpromisc1 \
+                nicpromisc2 natpf1 natpf2 guestmemoryballoon usbattach \
+                usbdetach audioin audioout clipboard draganddrop vrde vrdeport \
+                vrdeproperty vrdevideochannel setvideomodehint screenshotpng \
+                videocap videocapscreens videocapfile videocapres videocaprate \
+                videocapfps videocapmaxtime videocapmaxsize setcredentials \
+                teleport plugcpu unplugcpu cpuexecutioncap webcam \
+                addencpassword removeencpassword removeallencpasswords" -- \
+                "$cur" ) )
+        else
+            local subcommand=${words[3]}
+            case $subcommand in
+                setlinkstate*|nictrace*|vrde|videocap)
+                    COMPREPLY=( $( compgen -W "on off" -- "$cur" ) )
+                    ;;
+                nic*)
+                    COMPREPLY=( $( compgen -W "null nat bridged intnet \
+                        hostonly generic natnetwork" -- "$cur" ) )
+                    ;;
+                nictracefile*|videocapfile)
+                    _filedir
+                    ;;
+                nictrace*)
+                    COMPREPLY=( $( compgen -W "deny allow-vms allow-all" -- \
+                        "$cur" ) )
+                    ;;
+                clipboard)
+                    COMPREPLY=( $( compgen -W "disabled hosttoguest 
+                        guesttohost bidirectional" -- "$cur" ) )
+                    ;;
+                draganddrop)
+                    COMPREPLY=( $( compgen -W "disabled hosttoguest" -- \
+                        "$cur" ) )
+                    ;;
+                setcredentials)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "--passwordfile 
+                            --allowlocallogon" -- "$cur" ) )
+                    fi
+                    ;;
+                teleport)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "--host --port --maxdowntime \
+                            --passwordfile --password" -- "$cur" ) )
+                    fi
+                    ;;
+            esac
+        fi
+    fi
+}
+
+_vboxmanage_discardstate()
+{
+    _vboxmanage_get_uuid_vmname
+}
+
+_vboxmanage_adoptstate()
+{
+    if [[ $cword -eq 2 ]] ; then
+        _vboxmanage_get_uuid_vmname
+    else
+        _filedir
+    fi
+}
+
+_vboxmanage_snapshot()
+{
+    if [[ $cword -eq 2 ]] ; then
+        _vboxmanage_get_uuid_vmname
+    else
+        if [[ $cword -eq 3 ]] ; then
+            COMPREPLY=( $( compgen -W "take delete restore \
+                restorecurrent edit list showvminfo" -- "$cur" ) )
+        else
+            local subcommand=${words[3]}
+            case $subcommand in
+                take)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "--description --live \
+                            --uniquename" -- "$cur" ) )
+                    fi
+                    return
+                    ;;
+                edit)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "--current --name \
+                            --description" -- "$cur" ) )
+                    fi
+                    return
+                    ;;
+                list)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "--details \
+                            --machinereadable"  -- "$cur" ) )
+                    fi
+                    return
+                    ;;
+            esac
+        fi
+    fi
+    return
+}
+
+_vboxmanage_closemedium()
+{
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W "--delete" -- "$cur" ) )
+    else
+        if [[ $cword -eq 2 ]] ; then
+            COMPREPLY=( $( compgen -W "disk dvd floppy" -- "$cur" ) )
+        else
+            _vboxmanage_get_uuid_filename
+        fi
+    fi
+}
+
+_vboxmanage_storageattach()
+{
+    case $prev in
+        --type)
+            COMPREPLY=( $( compgen -W "dvddrive hdd fdd" -- "$cur" ) )
+            return
+            ;;
+        --medium)
+            COMPREPLY=( $( compgen -W "none emptydrive additions \
+                host: iscsi" -- "$cur" ) )
+            return
+            ;;
+        --mtype)
+            COMPREPLY=( $( compgen -W "normal writethrough \
+                immutable shareable readonly multiattach" -- "$cur" ) )
+            return
+            ;;
+        --passthrough|--tempeject|--nonrotational|--discard|--hotpluggable)
+            COMPREPLY=( $( compgen -W "on off" -- "$cur" ) )
+            return
+            ;;
+        ----passwordfile)
+            _filedir
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+	COMPREPLY=( $( compgen -W '$( _parse_usage "VBoxManage" \
+	    "storageattach --help" )' -- "$cur" ) )
+    else
+        _vboxmanage_get_uuid_vmname
+    fi
+}
+
+_vboxmanage_storagectl()
+{
+    case $prev in
+        --add)
+            COMPREPLY=( $( compgen -W "ide sata scsi floppy sas usb pcie" \
+                -- "$cur" ) )
+            return
+            ;;
+        --controller)
+            COMPREPLY=( $( compgen -W "LSILogic LSILogicSAS BusLogic \
+                IntelAHCI PIIX3 PIIX4 ICH6 I82078 USB NVMe" -- "$cur" ) )
+            return
+            ;;
+        --hostiocache|--bootable)
+            COMPREPLY=( $( compgen -W "on off" -- "$cur" ) )
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+	COMPREPLY=( $( compgen -W '$( _parse_usage "VBoxManage" \
+	    "storagectl --help" )' -- "$cur" ) )
+    else
+        _vboxmanage_get_uuid_vmname
+    fi
+}
+
+_vboxmanage_bandwidthctl()
+{
+    if [[ $cword -eq 2 ]] ; then
+        _vboxmanage_get_uuid_vmname
+    else
+        if [[ $cword -eq 3 ]] ; then
+            COMPREPLY=( $( compgen -W "add set remove list" -- "$cur" ) )
+        else
+            local subcommand=${words[3]}
+            case $subcommand in
+                add)
+                    case $prev in
+                        --type)
+                            COMPREPLY=( $( compgen -W "disk network" \
+                                -- "$cur" ) )
+                            return
+                            ;;
+                    esac
+
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "--type --limit" -- "$cur" ) )
+                    fi
+                    return
+                    ;;
+                edit)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "--limit" -- "$cur" ) )
+                    fi
+                    return
+                    ;;
+                list)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "--machinereadable"  \
+                            -- "$cur" ) )
+                    fi
+                    return
+                    ;;
+            esac
+        fi
+    fi
+    return
+}
+
+_vboxmanage_showmediuminfo()
+{
+    if [[ $cword -eq 2 ]] ; then
+        COMPREPLY=( $( compgen -W "disk dvd floppy" -- "$cur" ) )
+    else
+        _vboxmanage_get_uuid_filename
+    fi
+}
+
+_vboxmanage_createmedium()
+{
+    if [[ $cword -eq 2 ]] ; then
+        COMPREPLY=( $( compgen -W "disk dvd floppy" -- "$cur" ) )
+    else
+        case $prev in
+            --filename)
+                _filedir
+                return
+                ;;
+            --diffparent)
+                _vboxmanage_get_uuid_filename
+                return
+                ;;
+            --format)
+                COMPREPLY=( $( compgen -W "VDI VMDK VHD" -- "$cur" ) )
+                return
+                ;;
+            --variant)
+                COMPREPLY=( $( compgen -W "Standard Fixed Split2G Stream ESX" \
+                    -- "$cur" ) )
+                return
+                ;;
+        esac
+
+        if [[ "$cur" == -* ]]; then
+	    COMPREPLY=( $( compgen -W '$( _parse_usage "VBoxManage" \
+		"createmedium --help" )' -- "$cur" ) )
+        fi
+    fi
+}
+
+_vboxmanage_modifymedium()
+{
+    if [[ $cword -eq 2 ]] ; then
+        COMPREPLY=( $( compgen -W "disk dvd floppy" -- "$cur" ) )
+    else
+        case $prev in
+            --type)
+                COMPREPLY=( $( compgen -W "normal writethrough immutable \
+                    shareable readonly multiattach" -- "$cur" ) )
+                return
+                ;;
+            --autoreset)
+                COMPREPLY=( $( compgen -W "on off" -- "$cur" ) )
+                return
+                ;;
+            --move)
+                _filedir
+                return
+                ;;
+        esac
+
+        if [[ "$cur" == -* ]]; then
+	    COMPREPLY=( $( compgen -W '$( _parse_usage "$VBoxManage" \
+		"modifymedium --help" )' -- "$cur" ) )
+        else
+            _vboxmanage_get_uuid_filename
+        fi
+    fi
+}
+
+_vboxmanage_clonemedium()
+{
+    if [[ $cword -eq 2 ]] ; then
+        COMPREPLY=( $( compgen -W "disk dvd floppy" -- "$cur" ) )
+    else
+        case $prev in
+            --format)
+                COMPREPLY=( $( compgen -W "VDI VMDK VHD" -- "$cur" ) )
+                return
+                ;;
+            --variant)
+                COMPREPLY=( $( compgen -W "Standard Fixed Split2G Stream ESX" \
+                    -- "$cur" ) )
+                return
+                ;;
+        esac
+
+        if [[ "$cur" == -* ]]; then
+            COMPREPLY=( $( compgen -W "--format --variant --existing" \
+                -- "$cur" ) )
+        else
+            _vboxmanage_get_uuid_filename
+        fi
+    fi
+}
+
+_vboxmanage_mediumproperty()
+{
+    case $cword in
+        2)
+            COMPREPLY=( $( compgen -W "disk dvd floppy" -- "$cur" ) )
+            ;;
+        3)
+            COMPREPLY=( $( compgen -W "set get delete" -- "$cur" ) )
+            ;;
+        4)
+            _vboxmanage_get_uuid_filename
+            ;;
+    esac
+
+    return
+}
+
+_vboxmanage_encryptmedium()
+{
+    case $prev in
+        --newpassword|--oldpassword)
+            _filedir
+            return
+            ;;
+        --cipher)
+            COMPREPLY=( $( compgen -W "AES-XTS128-PLAIN64 AES-AXTS256-PLAIN64" \
+                -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W "--newpassword --oldpassword --cipher \
+            --newpasswordid" -- "$cur" ) )
+    else
+            _vboxmanage_get_uuid_filename
+    fi
+}
+
+_vboxmanage_checkmediumpwd()
+{
+    case $cword in
+        2)
+            _vboxmanage_get_uuid_filename
+            ;;
+        3)
+            _filedir
+            ;;
+    esac
+
+    return
+}
+
+_vboxmanage_convertfromraw()
+{
+    case $prev in
+        --format)
+            COMPREPLY=( $( compgen -W "VDI VMDK VHD" -- "$cur" ) )
+            return
+            ;;
+        --variant)
+            COMPREPLY=( $( compgen -W "Standard Fixed Split2G Stream ESX" \
+                -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W "--format --variant --uuid" -- "$cur" ) )
+    else
+        _filedir
+    fi
+}
+
+_vboxmanage_getextradata()
+{
+    _vboxmanage_get_uuid_filename
+}
+
+_vboxmanage_setextradata()
+{
+    _vboxmanage_get_uuid_filename
+}
+
+_vboxmanage_setproperty()
+{
+    case $prev in
+        machinefolder|autostartdbpath)
+            _filedir -d
+            return
+            ;;
+        hwvirtexclusive)
+            COMPREPLY=( $( compgen -W "on off" -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    COMPREPLY=( $( compgen -W "machinefolder hwvirtexclusive vrdeauthlibrary \
+        websrvauthlibrary vrdeextpack autostartdbpath loghistorycount \
+        defaultfrontend logginglevel" -- "$cur" ) )
+}
+
+_vboxmanage_usbfilter()
+{
+    case $prev in
+        --target)
+            _vboxmanage_get_uuid_filename
+            return
+            ;;
+        --action)
+            COMPREPLY=( $( compgen -W "ignore hold" -- "$cur" ) )
+            return
+            ;;
+        --active|remote)
+            COMPREPLY=( $( compgen -W "yes no" -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    if [[ $cword -eq 2 ]] ; then
+        COMPREPLY=( $( compgen -W "add modify remove" -- "$cur" ) )
+    else
+        local subcommand=${words[2]}
+        case $subcommand in
+            add)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--target --name --action \
+                        --active --vendorid --productid --revision \
+                        --manufacturer --product --remote --serialnumber \
+                        --maskedinterfaces" -- "$cur" ) )
+                fi
+                ;;
+            modify)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--target --name --action \
+                        --active --vendorid --productid --revision \
+                        --manufacturer --product --remote --serialnumber \
+                        --maskedinterfaces" -- "$cur" ) )
+                fi
+                ;;
+            remove)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--target" -- "$cur" ) )
+                fi
+                ;;
+        esac
+    fi
+}
+
+_vboxmanage_sharedfolder()
+{
+    if [[ $cword -eq 2 ]] ; then
+        COMPREPLY=( $( compgen -W "add remove" -- "$cur" ) )
+    else
+        local subcommand=${words[2]}
+        case $subcommand in
+            add)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--name --hostpath --transient \
+                        --readonly --automount" -- "$cur" ) )
+                else
+                    _vboxmanage_get_uuid_vmname
+                fi
+                ;;
+            remove)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--name --transient" -- "$cur" ) )
+                else
+                    _vboxmanage_get_uuid_vmname
+                fi
+                ;;
+        esac
+    fi
+}
+
+_vboxmanage_guestproperty()
+{
+    if [[ $cword -eq 2 ]] ; then
+        COMPREPLY=( $( compgen -W "get set delete unset enumerate wait" \
+            -- "$cur" ) )
+    else
+        local subcommand=${words[2]}
+        case $subcommand in
+            get)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--verbose" -- "$cur" ) )
+                else
+                    _vboxmanage_get_uuid_vmname
+                fi
+                ;;
+            set)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--flags" -- "$cur" ) )
+                else
+                    _vboxmanage_get_uuid_vmname
+                fi
+                ;;
+            delete|unset)
+                _vboxmanage_get_uuid_vmname
+                ;;
+            enumerate)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--patterns" -- "$cur" ) )
+                else
+                    _vboxmanage_get_uuid_vmname
+                fi
+                ;;
+            wait)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--timeout --fail-on-timeout" \
+                        -- "$cur" ) )
+                else
+                    _vboxmanage_get_uuid_vmname
+                fi
+                ;;
+        esac
+    fi
+}
+
+_vboxmanage_guestcontrol()
+{
+    case $prev in
+        --passwordfile)
+            _filedir
+            return
+            ;;
+    esac
+
+    if [[ $cword -eq 2 ]] ; then
+        _vboxmanage_get_uuid_vmname
+    else
+        if [[ $cword -eq 3 ]] ; then
+            COMPREPLY=( $( compgen -W "run start copyfrom copyto mkdir \
+                createdir createdirectory rmdir removedir removefile rm mv \
+                move ren rename mktemp createtemp createtemporary stat list \
+                closeprocess closession updatega updateguestadditions \
+                updateadditions watch" -- "$cur" ) )
+        else
+            local subcommand=${words[3]}
+            local common_options1="--verbose --quiet --username --domain \
+                --passwordfile --password"
+            local common_options2="--verbose --quiet"
+            case $subcommand in
+                run)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "$common_options1 \
+                            --exe --timeout --putenv --unquoted-args \
+                            --ignore-operhaned-processes --profile \
+                            --no-wait-stdout --wait-stdout --no-wait-stderr \
+                            --wait-stderr --dos2unix --unix2dos" -- "$cur" ) )
+                    fi
+                    ;;
+                start)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "$common_options1 \
+                            --exe --timeout --putenv --unquoted-args \
+                            --ignore-operhaned-processes --profile" \
+                            -- "$cur" ) )
+                    fi
+                    ;;
+                copyfrom)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "$common_options1 \
+                            --dryrun --follow --recursive --target-directory" \
+                            -- "$cur" ) )
+                    fi
+                    ;;
+                copyto)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "$common_options1 \
+                            --dryrun --follow --recursive --target-directory" \
+                            -- "$cur" ) )
+                    fi
+                    ;;
+                mkdir|createdir|createdirectory)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "$common_options1 \
+                            --parents --mode" -- "$cur" ) )
+                    fi
+                    ;;
+                rmdir|removedir|removedirectory)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "$common_options1 \
+                            --recursive" -- "$cur" ) )
+                    fi
+                    ;;
+                removefile|rm)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "$common_options1 \
+                            --force" -- "$cur" ) )
+                    fi
+                    ;;
+                mv|move|ren|rename)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "$common_options1" \
+                            -- "$cur" ) )
+                    fi
+                    ;;
+                mktemp|createtemp|createtemporary)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "$common_options1 \
+                            --secure --mode --tmpdir" -- "$cur" ) )
+                    fi
+                    ;;
+                stat)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "$common_options1" \
+                            -- "$cur" ) )
+                    fi
+                    ;;
+                list)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "$common_options2" \
+                            -- "$cur" ) )
+                    else
+                        COMPREPLY=( $( compgen -W "all sessions processes \
+                            files" -- "$cur" ) )
+                    fi
+                    ;;
+                closeprocess)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "$common_options2 \
+                            --session-id --session-name" -- "$cur" ) )
+                    fi
+                    ;;
+                closesession)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "$common_options2 \
+                            --all --session-id --session-name" -- "$cur" ) )
+                    fi
+                    ;;
+                updatega|updateguestadditions|updateadditions)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "$common_options2 \
+                            --source --wait-start" -- "$cur" ) )
+                    fi
+                    ;;
+                watch)
+                    if [[ "$cur" == -* ]]; then
+                        COMPREPLY=( $( compgen -W "$common_options2" \
+                            -- "$cur" ) )
+                    fi
+                    ;;
+            esac
+        fi
+    fi
+}
+
+_vboxmanage_metrics()
+{
+    if [[ $cword -eq 2 ]] ; then
+        COMPREPLY=( $( compgen -W "list setup query enable disable collect" \
+            -- "$cur" ) )
+    else
+        local subcommand=${words[2]}
+        case $subcommand in
+            list)
+                    _vboxmanage_get_vmname
+                ;;
+            setup)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--period --samples --list" \
+                        -- "$cur" ) )
+                else
+                    _vboxmanage_get_vmname
+                fi
+                ;;
+            query)
+                _vboxmanage_get_vmname
+                ;;
+            enable|disable)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--list" -- "$cur" ) )
+                else
+                    _vboxmanage_get_vmname
+                fi
+                ;;
+            collect)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--period --samples --list \
+                        --detach" -- "$cur" ) )
+                else
+                    _vboxmanage_get_vmname
+                fi
+                ;;
+        esac
+    fi
+}
+
+_vboxmanage_get_natnetwork()
+{
+    case $prev in
+        --netname)
+            _vboxmanage_get_natnet
+            return
+            ;;
+    esac
+
+    if [[ $cword -eq 2 ]] ; then
+        COMPREPLY=( $( compgen -W "add remove modify start stop list" \
+            -- "$cur" ) )
+    else
+        local subcommand=${words[2]}
+        case $subcommand in
+            add|modify)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--netname --network --enable \
+                        --disable --dhcp --port-forward-4 --loopback-4 --ipv6 \
+                        --port-forward-6 --loopback-6" -- "$cur" ) )
+                fi
+                ;;
+            remove|start|stop)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--netname" -- "$cur" ) )
+                fi
+                ;;
+        esac
+    fi
+}
+
+_vboxmanage_hostonlyif()
+{
+    if [[ $cword -eq 2 ]] ; then
+        COMPREPLY=( $( compgen -W "ipconfig create remove" -- "$cur" ) )
+    else
+        local subcommand=${words[2]}
+        case $subcommand in
+            ipconfig)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--dhcp --ip --netmask --ipv6 \
+                        --netmasklengthv6" -- "$cur" ) )
+                else
+                    _vboxmanage_get_hostonlyif
+                fi
+                ;;
+            remove)
+                _vboxmanage_get_hostonlyif
+                ;;
+        esac
+    fi
+}
+
+_vboxmanage_dhcpserver()
+{
+    case $prev in
+        --netname)
+            _vboxmanage_get_intnet
+            return
+            ;;
+        --ifname)
+            _vboxmanage_get_hostonlyif
+            return
+            ;;
+    esac
+
+    if [[ $cword -eq 2 ]] ; then
+        COMPREPLY=( $( compgen -W "add modify remove" -- "$cur" ) )
+    else
+        local subcommand=${words[2]}
+        case $subcommand in
+            add|modify)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--netname --ifname --ip \
+                        --netmask --lowerip --upperip --enable --disable" \
+                        -- "$cur" ) )
+                fi
+                ;;
+            remove)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--netname --ifname" -- "$cur" ) )
+                fi
+                ;;
+        esac
+    fi
+}
+
+_vboxmanage_usbdevsource()
+{
+    if [[ $cword -eq 2 ]] ; then
+        COMPREPLY=( $( compgen -W "add remove" -- "$cur" ) )
+    else
+        local subcommand=${words[2]}
+        case $subcommand in
+	    add)
+                if [[ "$cur" == -* ]]; then
+                    COMPREPLY=( $( compgen -W "--backend --address" \
+			-- "$cur" ) )
+                fi
+                ;;
+        esac
+    fi
+}
+
+_vboxmanage_debugvm()
+{
+    case $prev in
+        --filename)
+            _filedir
+            return
+            ;;
+    esac
+
+    if [[ $cword -eq 2 ]] ; then
+        _vboxmanage_get_uuid_vmname
+    else
+        if [[ $cword -eq 3 ]] ; then
+            COMPREPLY=( $( compgen -W " dumpvmcore info injectnmi log logdest \
+		logflags osdetect osinfo osdmesg getregisters setregisters \
+		show stack statistics" -- "$cur" ) )
+        else
+            local subcommand=${words[3]}
+            case $subcommand in
+		dumpvmcore)
+		    if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W "--filename" -- "$cur" ) )
+		    fi
+		    ;;
+		log|logdest|logflags)
+		    if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W "--release --debug" \
+			    -- "$cur" ) )
+		    fi
+		    ;;
+		osdmesg)
+		    if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W "--lines" -- "$cur" ) )
+		    fi
+		    ;;
+		getregisters|setregisters|stack)
+		    if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W "--cpu" -- "$cur" ) )
+		    fi
+		    ;;
+		show)
+		    if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W "--human-readable \
+			    --sh-export --sh-eval --cmd-set" -- "$cur" ) )
+		    fi
+		    ;;
+		statistics)
+		    if [[ "$cur" == -* ]]; then
+			COMPREPLY=( $( compgen -W "--reset --description" \
+			    -- "$cur" ) )
+		    fi
+		    ;;
+	    esac
+	fi
+    fi
+}
+
+_vboxmanage_extpack()
+{
+    if [[ $cword -eq 2 ]] ; then
+	COMPREPLY=( $( compgen -W "install uninstall cleanup" -- "$cur" ) )
+    else
+	local subcommand=${words[2]}
+	case $subcommand in
+	    install)
+		if [[ "$cur" == -* ]]; then
+		    COMPREPLY=( $( compgen -W "--replace" -- "$cur" ) )
+		else
+		    _filename
+		fi
+		;;
+	    uninstall)
+		if [[ "$cur" == -* ]]; then
+		    COMPREPLY=( $( compgen -W "--force" -- "$cur" ) )
+		else
+		    COMPREPLY=($(compgen -W "$(VBoxManage list extpacks \
+			| awk -F': +' '/Pack no/ {print $2}')" -- ${cur}))
+		fi
+		;;
+	esac
+    fi
+}
+
+_vboxmanage_unattended()
+{
+    case $prev in
+	--iso|--password-file|--additions-iso|--validation-kit-iso)
+            _filedir
+            return
+            ;;
+	--script-template|--post-install-template)
+            _filedir
+            return
+            ;;
+    esac
+
+    if [[ $cword -eq 2 ]] ; then
+	COMPREPLY=( $( compgen -W "detect install" -- "$cur" ) )
+    else
+	local subcommand=${words[2]}
+	case $subcommand in
+	    detect)
+		if [[ "$cur" == -* ]]; then
+		    COMPREPLY=( $( compgen -W "--iso --machine-readable" \
+			-- "$cur" ) )
+		fi
+		;;
+	    install)
+		if [[ "$cur" == -* ]]; then
+		    COMPREPLY=( $( compgen -W "--iso --user --password \
+			--password-file --full-user-name --key \
+			--install-additions --additions-iso --install-txs \
+			--no-install-txs --validation-kit-iso --locale \
+			--country --time-zone --hostname \
+			--package-selection-adjustment --dry-run --start-vm \
+			--auxiliary-base-path --image-index --script-template \
+			--post-install-template --post-install-command \
+			--extra-install-kernel-parameters --language" \
+			-- "$cur" ) )
+		else
+		    _vboxmanage_get_uuid_vmname
+		fi
+		;;
+	esac
+    fi
+}
+
+# ex: filetype=sh
