@@ -7,26 +7,6 @@ from conftest import (
 
 class TestSudo:
 
-    @pytest.fixture
-    def part_full_user(self, bash):
-        res = assert_bash_exec(
-            bash, "compgen -u", want_output=True,
-        ).strip().split()
-        pair = find_unique_completion_pair(res)
-        if not pair:
-            pytest.skip("No suitable test user found")
-        return pair
-
-    @pytest.fixture
-    def part_full_group(self, bash):
-        res = assert_bash_exec(
-            bash, "compgen -g", want_output=True,
-        ).strip().split()
-        pair = find_unique_completion_pair(res)
-        if not pair:
-            pytest.skip("No suitable test user found")
-        return pair
-
     @pytest.mark.complete("sudo -")
     def test_1(self, completion):
         assert completion.list
@@ -75,7 +55,8 @@ class TestSudo:
         """Test preserving special chars in $prefix$partgroup<TAB>."""
         part, full = part_full_group
         for prefix in (r"funky\ user:", "funky.user:", r"funky\.user:",
-                       r"fu\ nky.user:"):
+                       r"fu\ nky.user:", r"f\ o\ o\.\bar:",
+                       r"foo\_b\ a\.r\ :"):
             completion = assert_complete(
                 bash, "sudo chown %s%s" % (prefix, part))
             assert completion.list == ["%s%s" % (prefix, full)]
@@ -91,7 +72,7 @@ class TestSudo:
             assert not completion.list
 
     def test_11(self, bash, part_full_group):
-        """Test graful fail on colon in user/group name."""
+        """Test graceful fail on colon in user/group name."""
         part, _ = part_full_group
         completion = assert_complete(bash, "sudo chown foo:bar:%s" % part)
         assert not completion.list

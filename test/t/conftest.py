@@ -54,6 +54,28 @@ def find_unique_completion_pair(
 
 
 @pytest.fixture(autouse=True, scope="class")
+def part_full_user(bash: pexpect.spawn) -> Optional[Tuple[str, str]]:
+    res = assert_bash_exec(
+        bash, "compgen -u", want_output=True,
+    ).strip().split()
+    pair = find_unique_completion_pair(res)
+    if not pair:
+        pytest.skip("No suitable test user found")
+    return pair
+
+
+@pytest.fixture(autouse=True, scope="class")
+def part_full_group(bash: pexpect.spawn) -> Optional[Tuple[str, str]]:
+    res = assert_bash_exec(
+        bash, "compgen -g", want_output=True,
+    ).strip().split()
+    pair = find_unique_completion_pair(res)
+    if not pair:
+        pytest.skip("No suitable test user found")
+    return pair
+
+
+@pytest.fixture(autouse=True, scope="class")
 def bash(request) -> pexpect.spawn:
 
     logfile = None

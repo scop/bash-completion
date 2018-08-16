@@ -6,16 +6,6 @@ from conftest import assert_bash_exec, find_unique_completion_pair
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+COMPREPLY=")
 class TestUnitTilde:
 
-    @pytest.fixture
-    def part_full(self, bash):
-        res = assert_bash_exec(
-            bash, "compgen -u", want_output=True,
-        ).strip().split()
-        pair = find_unique_completion_pair(res)
-        if not pair:
-            pytest.skip("No suitable test user found")
-        return pair
-
     def test_1(self, bash):
         assert_bash_exec(bash, "_tilde >/dev/null")
 
@@ -38,12 +28,12 @@ class TestUnitTilde:
         assert res
         assert res[0] == "~%s" % full
 
-    def test_4(self, bash, part_full):
+    def test_4(self, bash, part_full_user):
         """~full should complete to ~full unmodified."""
-        _, full = part_full
+        _, full = part_full_user
         self._test_part_full(bash, full, full)
 
-    def test_5(self, bash, part_full):
+    def test_5(self, bash, part_full_user):
         """~part should complete to ~full."""
-        part, full = part_full
+        part, full = part_full_user
         self._test_part_full(bash, part, full)
