@@ -51,6 +51,7 @@ bashcomp_DATA = 2to3 \
 		chmod \
 		chown \
 		chpasswd \
+		chromium-browser \
 		chronyc \
 		chrpath \
 		_chsh \
@@ -523,6 +524,8 @@ CLEANFILES = \
 	gmake \
 	gmplayer \
 	gnumake \
+	google-chrome \
+	google-chrome-stable \
 	gpc \
 	gpgv2 \
 	hciattach \
@@ -738,6 +741,10 @@ symlinks: $(targetdir) $(DATA)
 	for file in pccardctl ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) cardctl $(targetdir)/$$file ; \
+	done
+	for file in google-chrome google-chrome-stable ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) chromium-browser $(targetdir)/$$file ; \
 	done
 	for file in compgen ; do \
 		rm -f $(targetdir)/$$file && \

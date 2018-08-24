@@ -70,6 +70,7 @@ EXTRA_DIST = \
 	test_chmod.py \
 	test_chown.py \
 	test_chpasswd.py \
+	test_chromium_browser.py \
 	test_chronyc.py \
 	test_chroot.py \
 	test_chrpath.py \

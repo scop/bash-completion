@@ -1,0 +1,35 @@
+# chromium-browser completion                              -*- shell-script -*-
+
+_chromium_browser()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        --help|--app|--proxy-server|--proxy-pac-url|-h)
+            return
+            ;;
+        --user-data-dir)
+            _filedir -d
+            return
+            ;;
+        --password-store)
+            COMPREPLY=( $( compgen -W 'basic gnome kwallet' -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir "@(?([xs])htm?(l)|pdf)"
+} &&
+complete -F _chromium_browser chromium-browser google-chrome \
+    google-chrome-stable
+
+# ex: filetype=sh
