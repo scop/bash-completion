@@ -106,6 +106,7 @@ bashcomp_DATA = 2to3 \
 		find \
 		find_member \
 		fio \
+		firefox \
 		flake8 \
 		freebsd-update \
 		freeciv-gtk2 \
@@ -530,6 +531,7 @@ CLEANFILES = \
 	host \
 	hping \
 	hping3 \
+	iceweasel \
 	identify \
 	ifdown \
 	ifquery \
@@ -571,6 +573,7 @@ CLEANFILES = \
 	mkisofs \
 	mogrify \
 	montage \
+	mozilla-firefox \
 	mplayer2 \
 	msgsnarf \
 	muttng \
@@ -764,6 +767,10 @@ symlinks: $(targetdir) $(DATA)
 	for file in mailsnarf msgsnarf ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) filesnarf $(targetdir)/$$file ; \
+	done
+	for file in iceweasel mozilla-firefox ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) firefox $(targetdir)/$$file ; \
 	done
 	for file in civclient freeciv-sdl freeciv-xaw ; do \
 		rm -f $(targetdir)/$$file && \

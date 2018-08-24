@@ -1,0 +1,46 @@
+# firefox completion                                       -*- shell-script -*-
+
+_firefox()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    [[ $cur == -MOZ_LOG*=* ]] && prev=${cur%%=*} cur=${cur#*=}
+
+    case $prev in
+        --help|--version|--display|--UILocale|-MOZ_LOG|--new-window|--new-tab|\
+        --private-window|--window-size|--search|--start-debugger-server|\
+        --recording|--debugger-args|-[hvPa])
+            return
+            ;;
+        --profile|--screenshot)
+            _filedir -d
+            return
+            ;;
+        -MOZ_LOG_FILE)
+            _filedir log
+            return
+            ;;
+        --recording-file)
+            _filedir
+            return
+            ;;
+        --debugger|-d)
+            COMPREPLY=( $( compgen -c -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir "@(?([xs])htm?(l)|pdf)"
+} &&
+complete -F _firefox firefox mozilla-firefox iceweasel
+
+# ex: filetype=sh

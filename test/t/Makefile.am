@@ -158,6 +158,7 @@ EXTRA_DIST = \
 	test_find.py \
 	test_finger.py \
 	test_fio.py \
+	test_firefox.py \
 	test_flake8.py \
 	test_fmt.py \
 	test_fold.py \
