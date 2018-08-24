@@ -2,22 +2,15 @@ import shlex
 
 import pytest
 
-from conftest import assert_bash_exec
+from conftest import assert_bash_exec, TestUnitBase
 
 
 @pytest.mark.bashcomp(cmd=None,
                       ignore_env=r"^[+-]COMP_(WORDS|CWORD|LINE|POINT)=")
-class TestUnitGetCword:
+class TestUnitGetCword(TestUnitBase):
 
-    def _test(self, bash,
-              comp_words, comp_cword, comp_line, comp_point, arg=""):
-        assert_bash_exec(
-            bash,
-            "COMP_WORDS=%s COMP_CWORD=%d COMP_LINE=%s COMP_POINT=%d" %
-            (comp_words, comp_cword, shlex.quote(comp_line), comp_point))
-        output = assert_bash_exec(
-            bash, "_get_cword %s; echo" % arg, want_output=True)
-        return output.strip()
+    def _test(self, *args, **kwargs):
+        return self._test_unit("_get_cword %s; echo", *args, **kwargs)
 
     def test_1(self, bash):
         assert_bash_exec(bash, "_get_cword >/dev/null")

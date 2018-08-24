@@ -2,22 +2,15 @@ import shlex
 
 import pytest
 
-from conftest import assert_bash_exec
+from conftest import assert_bash_exec, TestUnitBase
 
 
 @pytest.mark.bashcomp(cmd=None,
                       ignore_env=r"^[+-](args|COMP_(WORDS|CWORD|LINE|POINT))=")
-class TestUnitCountArgs:
+class TestUnitCountArgs(TestUnitBase):
 
-    def _test(self, bash,
-              comp_words, comp_cword, comp_line, comp_point, arg=""):
-        assert_bash_exec(
-            bash,
-            "COMP_WORDS=%s COMP_CWORD=%d COMP_LINE=%s COMP_POINT=%d" %
-            (comp_words, comp_cword, shlex.quote(comp_line), comp_point))
-        output = assert_bash_exec(
-            bash, "_count_args %s; echo $args" % arg, want_output=True)
-        return output.strip()
+    def _test(self, *args, **kwargs):
+        return self._test_unit("_count_args %s; echo $args", *args, **kwargs)
 
     def test_1(self, bash):
         assert_bash_exec(bash, "_count_args >/dev/null")
@@ -50,5 +43,5 @@ class TestUnitCountArgs:
     def test_7(self, bash):
         """a b -c| d e should set args to 2"""
         output = self._test(bash, "(a b -c d e)", 4, "a b -c d e", 6,
-                            '"" "@(-c|--foo)"')
+                            arg='"" "@(-c|--foo)"')
         assert output == "2"

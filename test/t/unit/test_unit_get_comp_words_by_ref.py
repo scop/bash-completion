@@ -2,23 +2,18 @@ import shlex
 
 import pytest
 
-from conftest import assert_bash_exec
+from conftest import assert_bash_exec, TestUnitBase
 
 
 @pytest.mark.bashcomp(
     cmd=None, ignore_env=r"^(\+(cur|prev)|[+-]COMP_(WORDS|CWORD|LINE|POINT))=")
-class TestUnitGetCompWordsByRef:
+class TestUnitGetCompWordsByRef(TestUnitBase):
 
-    def _test(self, bash,
-              comp_words, comp_cword, comp_line, comp_point, args=""):
+    def _test(self, bash, *args, **kwargs):
         assert_bash_exec(bash, "unset cur prev")
-        assert_bash_exec(
-            bash,
-            "COMP_WORDS=%s COMP_CWORD=%d COMP_LINE=%s COMP_POINT=%d" %
-            (comp_words, comp_cword, shlex.quote(comp_line), comp_point))
-        output = assert_bash_exec(
-            bash, "_get_comp_words_by_ref %s cur prev; echo $cur,$prev" % args,
-            want_output=True)
+        output = self._test_unit(
+            "_get_comp_words_by_ref %s cur prev; echo $cur,$prev",
+            bash, *args, **kwargs)
         return output.strip()
 
     def test_1(self, bash):
@@ -56,7 +51,7 @@ class TestUnitGetCompWordsByRef:
 
     def test_8(self, bash):
         """a b | with WORDBREAKS -= :"""
-        output = self._test(bash, "(a b '')", 2, "a b ", 4, args="-n :")
+        output = self._test(bash, "(a b '')", 2, "a b ", 4, arg="-n :")
         assert output == ",b"
 
     def test_9(self, bash):
@@ -107,27 +102,27 @@ class TestUnitGetCompWordsByRef:
 
     def test_18(self, bash):
         """a b:c| with WORDBREAKS -= :"""
-        output = self._test(bash, "(a b : c)", 3, "a b:c", 5, args="-n :")
+        output = self._test(bash, "(a b : c)", 3, "a b:c", 5, arg="-n :")
         assert output == "b:c,a"
 
     def test_19(self, bash):
         """a b c:| with WORDBREAKS -= :"""
-        output = self._test(bash, "(a b c :)", 3, "a b c:", 6, args="-n :")
+        output = self._test(bash, "(a b c :)", 3, "a b c:", 6, arg="-n :")
         assert output == "c:,b"
 
     def test_20(self, bash):
         r"""a b:c | with WORDBREAKS -= :"""
-        output = self._test(bash, "(a b : c '')", 4, "a b:c ", 6, args="-n :")
+        output = self._test(bash, "(a b : c '')", 4, "a b:c ", 6, arg="-n :")
         assert output == ",b:c"
 
     def test_21(self, bash):
         """a :| with WORDBREAKS -= :"""
-        output = self._test(bash, "(a :)", 1, "a :", 3, args="-n :")
+        output = self._test(bash, "(a :)", 1, "a :", 3, arg="-n :")
         assert output == ":,a"
 
     def test_22(self, bash):
         """a b::| with WORDBREAKS -= :"""
-        output = self._test(bash, "(a b ::)", 2, "a b::", 5, args="-n :")
+        output = self._test(bash, "(a b ::)", 2, "a b::", 5, arg="-n :")
         assert output == "b::,a"
 
     def test_23(self, bash):

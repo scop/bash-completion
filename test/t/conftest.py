@@ -344,3 +344,15 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
     if not marker:
         return CompletionResult("", [])
     return assert_complete(bash, marker.args[0], **marker.kwargs)
+
+
+class TestUnitBase:
+
+    def _test_unit(self, func, bash,
+                   comp_words, comp_cword, comp_line, comp_point, arg=""):
+        assert_bash_exec(
+            bash,
+            "COMP_WORDS=%s COMP_CWORD=%d COMP_LINE=%s COMP_POINT=%d" %
+            (comp_words, comp_cword, shlex.quote(comp_line), comp_point))
+        output = assert_bash_exec(bash, func % arg, want_output=True)
+        return output.strip()
