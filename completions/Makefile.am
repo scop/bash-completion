@@ -110,7 +110,7 @@ bashcomp_DATA = 2to3 \
 		firefox \
 		flake8 \
 		freebsd-update \
-		freeciv-gtk2 \
+		freeciv \
 		freeciv-server \
 		function \
 		fusermount \
@@ -506,6 +506,8 @@ CLEANFILES = \
 	f77 \
 	f95 \
 	filebucket \
+	freeciv-gtk2 \
+	freeciv-gtk3 \
 	freeciv-sdl \
 	freeciv-xaw \
 	g++ \
@@ -779,9 +781,10 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) firefox $(targetdir)/$$file ; \
 	done
-	for file in civclient freeciv-sdl freeciv-xaw ; do \
+	for file in civclient freeciv-gtk2 freeciv-gtk3 freeciv-sdl \
+		freeciv-xaw ; do \
 		rm -f $(targetdir)/$$file && \
-			$(LN_S) freeciv-gtk2 $(targetdir)/$$file ; \
+			$(LN_S) freeciv $(targetdir)/$$file ; \
 	done
 	for file in civserver ; do \
 		rm -f $(targetdir)/$$file && \

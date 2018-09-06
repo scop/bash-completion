@@ -164,7 +164,7 @@ EXTRA_DIST = \
 	test_fmt.py \
 	test_fold.py \
 	test_freebsd_update.py \
-	test_freeciv_gtk2.py \
+	test_freeciv.py \
 	test_freeciv_server.py \
 	test_function.py \
 	test_fusermount.py \
