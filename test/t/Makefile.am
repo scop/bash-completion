@@ -241,6 +241,7 @@ EXTRA_DIST = \
 	test_ipv6calc.py \
 	test_irb.py \
 	test_iscsiadm.py \
+	test_isort.py \
 	test_isql.py \
 	test_iwconfig.py \
 	test_iwlist.py \

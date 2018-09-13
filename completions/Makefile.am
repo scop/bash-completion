@@ -169,6 +169,7 @@ bashcomp_DATA = 2to3 \
 		iptables \
 		ipv6calc \
 		iscsiadm \
+		isort \
 		isql \
 		iwconfig \
 		iwlist \
