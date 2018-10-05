@@ -186,6 +186,7 @@ EXTRA_DIST = \
 	test_gnatmake.py \
 	test_gnokii.py \
 	test_gnome_mplayer.py \
+	test_gnome_screenshot.py \
 	test_gpasswd.py \
 	test_gpc.py \
 	test_gperf.py \
