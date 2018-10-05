@@ -128,6 +128,7 @@ bashcomp_DATA = 2to3 \
 		gnatmake \
 		gnokii \
 		gnome-mplayer \
+		gnome-screenshot \
 		gpasswd \
 		gpg \
 		gpg2 \
