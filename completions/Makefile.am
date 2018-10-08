@@ -280,6 +280,7 @@ bashcomp_DATA = 2to3 \
 		patch \
 		pdftotext \
 		perl \
+		perlcritic \
 		perltidy \
 		pgrep \
 		pidof \

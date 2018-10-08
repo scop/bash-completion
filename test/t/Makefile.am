@@ -401,6 +401,7 @@ EXTRA_DIST = \
 	test_paste.py \
 	test_patch.py \
 	test_pdftotext.py \
+	test_perlcritic.py \
 	test_perldoc.py \
 	test_perl.py \
 	test_perltidy.py \
