@@ -9,8 +9,12 @@ _chromium_browser()
         --help|--app|--proxy-server|--proxy-pac-url|-h)
             return
             ;;
-        --user-data-dir)
+        --user-data-dir|--pack-extension)
             _filedir -d
+            return
+            ;;
+        --load-extension|--pack-extension-key|--use-file-for-fake-audio-capture|--use-file-for-fake-video-capture)
+            _filedir
             return
             ;;
         --password-store)
@@ -22,7 +26,37 @@ _chromium_browser()
     $split && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        # For a full list, see
+        # https://peter.sh/experiments/chromium-command-line-switches/
+        COMPREPLY=( $( compgen -W '
+        --app=
+        --disable-background-networking
+        --disable-component-extensions-with-background-pages
+        --disable-web-security
+        --enable-devtools-experiments
+        --enable-experimental-extension-apis
+        --ignore-certificate-errors
+        --incognito
+        --load-extension=
+        --new-window
+        --no-first-run
+        --no-proxy-server
+        --no-sandbox
+        --pack-extension-key=
+        --pack-extension=
+        --password-store=
+        --proxy-auto-detect
+        --proxy-pac-url=
+        --proxy-server=
+        --remote-debugging-port=
+        --single-process
+        --use-fake-device-for-media-stream
+        --use-fake-ui-for-media-stream
+        --use-file-for-fake-audio-capture=
+        --use-file-for-fake-video-capture=
+        --user-data-dir=
+        --version
+        ' -- "$cur" ) )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
