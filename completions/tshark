@@ -78,9 +78,10 @@ _tshark()
             ;;
         -*O)
             local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
-            COMPREPLY=( $(compgen -W \
-                "$("$1" -G protocols 2>/dev/null | cut -f 3)" \
-                -- "${cur##*,}") )
+            [ -n "$_tshark_protocols" ] ||
+                _tshark_protocols="$("$1" -G protocols 2>/dev/null |
+                    cut -f 3 | tr '\n' ' ')"
+            COMPREPLY=( $(compgen -W "$_tshark_protocols" -- "${cur##*,}") )
             [[ ${#COMPREPLY[@]} -eq 1 ]] && COMPREPLY=( ${COMPREPLY/#/$prefix} )
             return
             ;;

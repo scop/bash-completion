@@ -1,7 +1,7 @@
 import pytest
 
 
-@pytest.mark.bashcomp(ignore_env=r"^\+_tshark_prefs=")
+@pytest.mark.bashcomp(ignore_env=r"^\+_tshark_pr(ef|otocol)s=")
 class TestTshark:
     @pytest.mark.complete("tshark -")
     def test_1(self, completion):
