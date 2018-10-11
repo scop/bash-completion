@@ -116,7 +116,7 @@ def bash(request) -> pexpect.spawn:
     # Use command name from marker if set, or grab from test filename
     cmd = None
     cmd_found = False
-    marker = request.node.get_marker("bashcomp")
+    marker = request.node.get_closest_marker("bashcomp")
     if marker:
         cmd = marker.kwargs.get("cmd")
         cmd_found = "cmd" in marker.kwargs
@@ -340,7 +340,7 @@ def assert_complete(
 
 @pytest.fixture(autouse=True)
 def completion(request, bash: pexpect.spawn) -> CompletionResult:
-    marker = request.node.get_marker("complete")
+    marker = request.node.get_closest_marker("complete")
     if not marker:
         return CompletionResult("", [])
     return assert_complete(bash, marker.args[0], **marker.kwargs)
