@@ -481,6 +481,8 @@ CLEANFILES = \
 	c++ \
 	cc \
 	cdrecord \
+	chrome \
+	chromium \
 	ci \
 	ciptool \
 	civclient \
@@ -759,7 +761,7 @@ symlinks: $(targetdir) $(DATA)
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) cardctl $(targetdir)/$$file ; \
 	done
-	for file in google-chrome google-chrome-stable ; do \
+	for file in google-chrome google-chrome-stable chromium chrome; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) chromium-browser $(targetdir)/$$file ; \
 	done
