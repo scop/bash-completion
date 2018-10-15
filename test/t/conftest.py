@@ -297,7 +297,7 @@ def assert_complete(
     got = bash.expect([
         r"\r\n" + re.escape(PS1 + cmd),  # 0: multiple lines, result in .before
         r"^" + MAGIC_MARK,               # 1: no completion
-        r"^[^\r]+",                      # 2: on same line, result in .after
+        r"^([^\r]+)%s$" % MAGIC_MARK,    # 2: on same line, result in .match
         pexpect.EOF,
         pexpect.TIMEOUT,
     ])
@@ -310,9 +310,7 @@ def assert_complete(
             sorted(x for x in re.split(r" {2,}|\r\n", line) if x),
         )
     elif got == 2:
-        line = bash.after
-        if line.endswith(MAGIC_MARK):
-            line = bash.after[:-len(MAGIC_MARK)]
+        line = bash.match.group(1)
         result = CompletionResult(
             line,
             [shlex.split(cmd + line)[-1]],
