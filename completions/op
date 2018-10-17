@@ -1,0 +1,58 @@
+# op (1Password CLI) completion                            -*- shell-script -*-
+
+_op_commands()
+{
+    "$@" --help |
+        awk "/^(Available |Sub)commands/{flag=1;next}/^ /&&flag{print \$1}"
+}
+
+_op_command_options()
+{
+    case $cur in
+        -*)
+            for i in "${!words[@]}"; do
+                [[ ${words[i]} == -* || $i -eq 0 ]] && unset words[i]
+            done
+            COMPREPLY=( $( compgen -W \
+                '$( _parse_usage "$1" "${words[*]} --help" ) --help' \
+                -- "$cur" ) )
+            [[ $COMPREPLY == *= ]] && compopt -o nospace
+            return 0
+            ;;
+    esac
+    return 1
+}
+
+_op()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    local command i
+    for (( i=1; i < cword; i++ )); do
+        case ${words[i]} in
+            --help|--version) return ;;
+            -*) ;;
+            *) command=${words[i]}; break ;;
+        esac
+    done
+
+    if [[ -z $command && $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    [[ $command ]] && _op_command_options "$1" && return
+
+    if [[ -z $command || $command == $prev ]]; then
+        COMPREPLY=( $( compgen -W '$( _op_commands "$1" $command )' \
+                               -- "$cur" ) )
+        [[ $COMPREPLY ]] && return
+    fi
+
+    # TODO specific command and subcommand completions
+} &&
+complete -F _op op
+
+# ex: filetype=sh
