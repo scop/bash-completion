@@ -150,6 +150,7 @@ bashcomp_DATA = 2to3 \
 		hping2 \
 		htop \
 		htpasswd \
+		hunspell \
 		_hwclock \
 		iconv \
 		id \

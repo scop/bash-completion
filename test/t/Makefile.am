@@ -218,6 +218,7 @@ EXTRA_DIST = \
 	test_hping3.py \
 	test_htop.py \
 	test_htpasswd.py \
+	test_hunspell.py \
 	test_hwclock.py \
 	test_iconv.py \
 	test_identify.py \
