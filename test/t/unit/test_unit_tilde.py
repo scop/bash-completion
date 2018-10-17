@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import assert_bash_exec, find_unique_completion_pair
+from conftest import assert_bash_exec
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+COMPREPLY=")

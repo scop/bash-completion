@@ -1,8 +1,6 @@
 import pytest
 
-from conftest import (
-    assert_bash_exec, assert_complete, find_unique_completion_pair,
-)
+from conftest import assert_complete
 
 
 class TestSudo:
