@@ -372,6 +372,7 @@ EXTRA_DIST = \
 	test_muttng.py \
 	test_mutt.py \
 	test_mv.py \
+	test_mypy.py \
 	test_mysqladmin.py \
 	test_mysql.py \
 	test_ncftp.py \

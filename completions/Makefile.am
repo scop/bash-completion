@@ -257,6 +257,7 @@ bashcomp_DATA = 2to3 \
 		munin-update \
 		mussh \
 		mutt \
+		mypy \
 		mysql \
 		mysqladmin \
 		nc \
