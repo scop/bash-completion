@@ -1,6 +1,7 @@
 import pytest
 
 
+@pytest.mark.bashcomp(ignore_env=r"^\+PERL5LIB=")
 class TestPerl:
 
     @pytest.mark.complete("perl ")
@@ -70,3 +71,11 @@ class TestPerl:
     def test_15(self, completion):
         """-x with space should complete dirs."""
         assert completion.list == ["shared/default/bar bar.d/"]
+
+    @pytest.mark.complete("perl -d:", env=dict(PERL5LIB="$PWD/perl"))
+    def test_16(self, completion):
+        assert "BashCompletion" in completion.list
+
+    @pytest.mark.complete("perl -dt:", env=dict(PERL5LIB="$PWD/perl"))
+    def test_17(self, completion):
+        assert "BashCompletion" in completion.list
