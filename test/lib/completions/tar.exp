@@ -11,21 +11,6 @@ proc teardown {} {
 
 setup
 
-# Detect whether system's tar is GNU tar
-set cmd "tar --version"
-send "$cmd\r"
-expect "^$cmd\r\n"
-expect {
-    -re "GNU\[^\n\]*\n" {
-        set tar_version gnu
-    }
-    -re ".*\n" {
-        set tar_version unknown
-    }
-}
-sync_after_int
-
-
 set test "old option: list escaped chars"
 assert_complete_dir "a/b\\'c/" "tar tf escape.tar a/b\\\'" $::srcdir/fixtures/tar $test
 sync_after_int
@@ -41,68 +26,5 @@ sync_after_int
 set test "old option: check _second_ option in \"old\" argument"
 assert_complete_dir "dir/ dir2/" "bsdtar cbfvv NOT_EXISTS " $::srcdir/fixtures/tar
 sync_after_int
-
-if { "$tar_version" == "gnu" } {
-    set test "check short options"
-    assert_complete_any "tar -c"
-    sync_after_int
-
-    set test "mode not as a first option"
-    assert_complete_dir "dir/ dir2/" "tar -zcf " $::srcdir/fixtures/tar
-    sync_after_int
-
-    # Only directories should be completed.
-    set test "check that we do not suggest re-writing existing archive"
-    assert_complete_dir "dir/ dir2/" "tar -cf " $::srcdir/fixtures/tar
-    sync_after_int
-
-    set test "check --file option"
-    assert_complete_dir "dir/ dir2/" "tar -c --file " $::srcdir/fixtures/tar
-    sync_after_int
-
-    set test "check --file option #2"
-    assert_complete_dir "dir/ dir2/" "tar -cvv --file " $::srcdir/fixtures/tar
-    sync_after_int
-
-    set test "archive listing"
-    assert_complete_dir "dir/fileA dir/fileB dir/fileC" "tar -tf archive.tar.xz dir/file" $::srcdir/fixtures/tar
-    sync_after_int
-
-    set test "archive listing with --file"
-    assert_complete_dir "dir/fileA dir/fileB dir/fileC" "tar -t --file archive.tar.xz dir/file" $::srcdir/fixtures/tar
-    sync_after_int
-
-    # Some random options should work:
-    set test "test random tar's long option #1"
-    assert_complete "--blocking-factor= --block-number" "tar --block" $test
-    sync_after_int
-
-    set test "test random tar's long option #2"
-    assert_complete "--add-file=" "tar --add-fil" $test -nospace
-    sync_after_int
-
-    set test "test random tar's long option #3"
-    assert_complete "--posix" "tar -cf /dev/null --posi" $test
-    sync_after_int
-
-    # --owner
-    set users [exec bash -c "compgen -A user"]
-    set test "test --owner option"
-    assert_complete $users "tar --owner=" $test
-    sync_after_int
-
-    # --group
-    set groups [exec bash -c "compgen -A group"]
-    set test "test --group option"
-    assert_complete $groups "tar --group=" $test
-    sync_after_int
-
-    # use -b for this as -b is still not handled by tar's completion
-    set test "short opt -XXXb <TAB> (arg required)"
-    assert_no_complete "tar -cvvfb " $test
-    sync_after_int
-
-    # TODO: how to test that 'tar -cf<TAB>' completes to 'tar -cf '
-}
 
 teardown
