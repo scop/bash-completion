@@ -2,10 +2,34 @@
 
 _tshark()
 {
-    local cur prev words cword
+    local cur prev words cword prefix
     _init_completion -n : || return
 
-    case $prev in
+    case $cur in
+        -o*)
+            prefix=-o
+            ;;
+    esac
+
+    case ${prefix:-$prev} in
+        --*)
+            # Fallback to completion of long options below.
+            ;;
+        -o*)
+            if [[ $cur == *:* ]]; then
+                cur=${cur#*:}
+                _filedir
+            else
+                [ -n "$_tshark_prefs" ] ||
+                    _tshark_prefs="$( "$1" -G defaultprefs | command \
+                        sed -ne 's/^#\{0,1\}\([a-z0-9_.-]\{1,\}:\).*/\1/p' |
+                        tr '\n' ' ' )"
+                COMPREPLY=( $( compgen -P "$prefix" -W "$_tshark_prefs" \
+                    -- "${cur:${#prefix}}" ) )
+                [[ $COMPREPLY == *: ]] && compopt -o nospace
+            fi
+            return
+            ;;
         -*[fsBDLcRNdCeEzhvoK])
             return
             ;;
