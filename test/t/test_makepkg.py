@@ -9,4 +9,5 @@ class TestMakepkg:
 
     @pytest.mark.complete("makepkg --")
     def test_2(self, completion):
-        assert completion.list == "--chown --linkadd --prepend".split()
+        assert all(x in completion.list
+                   for x in "--chown --linkadd --prepend".split())
