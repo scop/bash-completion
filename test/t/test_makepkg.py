@@ -1,6 +1,9 @@
 import pytest
 
 
+@pytest.mark.bashcomp(
+    skipif="! makepkg --help 2>&1 | grep -qiF slackware",
+)
 class TestMakepkg:
 
     @pytest.mark.complete("makepkg ")

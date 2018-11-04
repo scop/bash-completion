@@ -1,6 +1,7 @@
-# Slackware Linux makepkg completion                       -*- shell-script -*-
+# makepkg completion                                       -*- shell-script -*-
 
-_makepkg()
+# Slackware Linux variant
+_makepkg_slackware()
 {
     local cur prev words cword
     _init_completion || return
@@ -19,7 +20,28 @@ _makepkg()
     fi
 
     _filedir
+}
+
+_makepkg_bootstrap()
+{
+    local fname help
+
+    # Use --help to detect variant; the Slackware one starts making
+    # a package for unknown args, including --version :P
+    help=$("$1" --help 2>&1)
+    case ${help,,} in
+        *slackware*)
+            fname=_makepkg_slackware
+            ;;
+        *)
+            fname=_minimal
+            ;;
+    esac
+
+    unset -f _makepkg_bootstrap
+    complete -F $fname makepkg
+    $fname
 } &&
-complete -F _makepkg makepkg
+complete -F _makepkg_bootstrap makepkg
 
 # ex: filetype=sh
