@@ -1,0 +1,56 @@
+# rc-service(8) completion                                 -*- shell-script -*-
+#
+# Adapted from update-rc.d
+#
+# Copyright (C) 2004 Servilio Afre Puentes <servilio@gmail.com>
+#               2018 Mathieu Roy <yeupou@gnu.org>
+#               2018 Gabriel F. T. Gomes <gabriel@inconstante.eti.br>
+
+_rc_service()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    local sysvdir services options valid_options
+
+    sysvdir=/etc/init.d
+
+    services=( $( printf '%s ' $sysvdir/!(README*|*.sh|$_backup_glob) ) )
+    services=( ${services[@]#$sysvdir/} )
+    options=( -d --debug \
+              -D --nodeps \
+              -e --exists \
+              -c --ifcrashed \
+              -i --ifexists \
+              -I --ifinactive \
+              -N --ifnotstarted \
+              -s --ifstarted \
+              -S --ifstopped \
+              -l --list \
+              -r --resolve \
+              -Z --dry-run \
+              -h --help \
+              -C --nocolor \
+              -V --version \
+              -v --verbose \
+              -q --quiet \
+    )
+
+
+    if [[ ($cword -eq 1) || ("$prev" == -* ) ]]; then
+        COMPREPLY=( $( compgen -W '${options[@]} ${services[@]}' \
+                               -- "$cur" ) )
+    elif [[ -x $sysvdir/$prev ]]; then
+        COMPREPLY=( $( compgen -W '`sed -e "y/|/ /" \
+                                        -ne "s/^.*Usage:[ ]*[^ ]*[ ]*{*\([^}\"]*\).*$/\1/p" \
+                                        $sysvdir/$prev`' \
+                               -- "$cur" ) )
+    else
+        COMPREPLY=()
+    fi
+
+    return 0
+} &&
+complete -F _rc_service rc-service
+
+# ex: filetype=sh
