@@ -5,6 +5,20 @@ _cancel()
     local cur prev words cword
     _init_completion || return
 
+    case $prev in
+        -h)
+            _known_hosts_real -- "$cur"
+            return
+            ;;
+        -U)
+            return
+            ;;
+        -u)
+            COMPREPLY=( $( compgen -u -- "$cur" ) )
+            return
+            ;;
+    esac
+
     COMPREPLY=( $( compgen -W "$( lpstat 2>/dev/null | cut -d' ' -f1 )" -- "$cur" ) )
 } &&
 complete -F _cancel cancel
