@@ -50,6 +50,7 @@ EXTRA_DIST = \
 	test_bts.py \
 	test_bzip2.py \
 	test_cal.py \
+	test_cancel.py \
 	test_cardctl.py \
 	test_cat.py \
 	test_ccache.py \
