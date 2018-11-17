@@ -209,6 +209,7 @@ bashcomp_DATA = 2to3 \
 		list_members \
 		list_owners \
 		_look \
+		locale-gen \
 		lpq \
 		lpr \
 		lrzip \

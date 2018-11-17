@@ -297,6 +297,7 @@ EXTRA_DIST = \
 	test_list_members.py \
 	test_list_owners.py \
 	test_ln.py \
+	test_locale_gen.py \
 	test_look.py \
 	test_lpq.py \
 	test_lpr.py \
