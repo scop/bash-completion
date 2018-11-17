@@ -431,6 +431,7 @@ EXTRA_DIST = \
 	test_pm_is_supported.py \
 	test_pm_powersave.py \
 	test_pngfix.py \
+	test_portinstall.py \
 	test_portsnap.py \
 	test_portupgrade.py \
 	test_postcat.py \
