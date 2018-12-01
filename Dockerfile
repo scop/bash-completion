@@ -21,6 +21,5 @@ ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Ma
 COPY install-packages.sh /tmp
 
 RUN /tmp/install-packages.sh \
-    && rm /tmp/install-packages.sh /tmp/cache-buster \
     && yum -Cy clean all \
-    && rm -r /root/.cache/pip
+    && rm -r /tmp/* /root/.cache/pip
