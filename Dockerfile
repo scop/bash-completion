@@ -13,17 +13,19 @@ RUN sed -i -e /tsflags=nodocs/d /etc/yum.conf \
         /usr/bin/which \
         /usr/bin/xvfb-run \
         dejagnu \
-        tcllib \
-    && easy_install-3.4 pip \
-    && pip3 install --ignore-installed --user pytest-xdist pexpect typing
+        tcllib
 
 # Use completions/Makefile.am as cache buster, triggering a fresh
 # install of packages whenever it (i.e. the set of possibly tested
 # executables) changes.
 
 ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Makefile.am \
+    https://raw.githubusercontent.com/scop/bash-completion/master/test/requirements.txt \
     install-packages.sh \
     /tmp/
+
+RUN easy_install-3.4 --user pip \
+    && /root/.local/bin/pip install --user -Ir /tmp/requirements.txt
 
 RUN /tmp/install-packages.sh \
     && yum -Cy clean all \
