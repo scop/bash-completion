@@ -21,11 +21,12 @@ RUN export DEBIAN_FRONTEND=noninteractive \
 # executables) changes.
 
 ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Makefile.am \
+    https://raw.githubusercontent.com/scop/bash-completion/master/test/requirements.txt \
     install-packages.sh \
     /tmp/
 
 RUN easy_install3 --user pip \
-    && /root/.local/bin/pip install --user pytest pexpect typing
+    && /root/.local/bin/pip install --user -Ir /tmp/requirements.txt
 
 RUN /tmp/install-packages.sh \
     && rm -r /tmp/* /root/.cache/pip /var/lib/apt/lists/*
