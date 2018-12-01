@@ -18,5 +18,5 @@ ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Ma
 COPY install-packages.sh /tmp
 
 RUN /tmp/install-packages.sh \
-    && rm /tmp/install-packages.sh /tmp/cache-buster \
-    && dnf -Cy clean all
+    && dnf -Cy clean all \
+    && rm -r /tmp/*
