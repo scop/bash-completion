@@ -17,4 +17,4 @@ ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Ma
 COPY install-packages.sh /tmp/
 
 RUN /tmp/install-packages.sh \
-    && rm -rf /tmp/install-packages.sh /tmp/cache-buster /var/cache/apt/lists/*
+    && rm -rf /tmp/* /var/cache/apt/lists/*
