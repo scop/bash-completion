@@ -13,8 +13,13 @@ RUN export DEBIAN_FRONTEND=noninteractive \
         xvfb \
     && pip3 install --ignore-installed --user pytest-xdist pexpect typing
 
-ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Makefile.am /tmp/cache-buster
-COPY install-packages.sh /tmp/
+# Use completions/Makefile.am as cache buster, triggering a fresh
+# install of packages whenever it (i.e. the set of possibly tested
+# executables) changes.
+
+ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Makefile.am \
+    install-packages.sh \
+    /tmp/
 
 RUN /tmp/install-packages.sh \
     && rm -r /tmp/* /root/.cache/pip /var/lib/apt/lists/*
