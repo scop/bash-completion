@@ -17,8 +17,13 @@ RUN sed -i -e /tsflags=nodocs/d /etc/yum.conf \
     && easy_install-3.4 pip \
     && pip3 install --ignore-installed --user pytest-xdist pexpect typing
 
-ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Makefile.am /tmp/cache-buster
-COPY install-packages.sh /tmp
+# Use completions/Makefile.am as cache buster, triggering a fresh
+# install of packages whenever it (i.e. the set of possibly tested
+# executables) changes.
+
+ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Makefile.am \
+    install-packages.sh \
+    /tmp/
 
 RUN /tmp/install-packages.sh \
     && yum -Cy clean all \
