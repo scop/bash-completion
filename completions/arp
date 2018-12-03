@@ -1,0 +1,59 @@
+# arp(8) completion                                 -*- shell-script -*-
+
+_arp()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --device|-!(-*)i)
+            _available_interfaces -a
+            return
+            ;;
+        --protocol|-!(-*)[Ap])
+            # TODO protocol/address family
+            return
+            ;;
+        --file|-!(-*)f)
+            _filedir
+            return
+            ;;
+        --hw-type|-!(-*)[Ht])
+            # TODO: parse from --help output?
+            COMPREPLY=( $( compgen -W 'ash ether ax25 netrom rose arcnet \
+                dlci fddi hippi irda x25 eui64' -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return
+    fi
+
+    local args
+    _count_args "" "@(--device|--protocol|--file|--hw-type|-!(-*)[iApfHt])"
+    case $args in
+        1)
+            local ips=$( "$1" -an | sed -ne \
+                's/.*(\([0-9]\{1,3\}\(\.[0-9]\{1,3\}\)\{3\}\)).*/\1/p' )
+            COMPREPLY=( $( compgen -W '$ips' -- "$cur" ) )
+            ;;
+        2)
+            # TODO if -d mode: "pub"; if not -f mode: hw_addr
+            # TODO hw_addr is a configured interface with --use-device/-*D*
+            ;;
+        3)
+            # TODO netmask|pub|temp if -s mode
+            ;;
+        4)
+            # TODO netmask value if previous was "netmask"
+            ;;
+        5)
+            # TODO "pub" if 3rd was "netmask"
+            ;;
+    esac
+} &&
+complete -F _arp arp
+
+# ex: filetype=sh

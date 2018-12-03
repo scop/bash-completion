@@ -24,6 +24,7 @@ EXTRA_DIST = \
 	test_aptitude.py \
 	test_arch.py \
 	test_arping.py \
+	test_arp.py \
 	test_arpspoof.py \
 	test_asciidoc.py \
 	test_aspell.py \

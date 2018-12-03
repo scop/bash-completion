@@ -16,6 +16,7 @@ bashcomp_DATA = 2to3 \
 		apt-get \
 		aptitude \
 		arch \
+		arp \
 		arping \
 		arpspoof \
 		asciidoc \
