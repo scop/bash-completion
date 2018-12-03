@@ -22,7 +22,7 @@ class TestMan:
     def test_3(self, completion):
         assert completion.list == ["man/quux.8"]
 
-    @pytest.mark.xfail(os.environ.get("CI") and
+    @pytest.mark.xfail(bool(os.environ.get("CI")) and
                        os.environ.get("DIST") == "centos6",
                        reason="TODO: Fails in CentOS for some reason, unknown "
                        "how to trigger same behavior as tests show (is "

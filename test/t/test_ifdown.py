@@ -5,8 +5,8 @@ import pytest
 
 class TestIfdown:
 
-    @pytest.mark.skipif(bool(os.environ.get("CI")),
-                        reason="Probably fails in CI")
+    @pytest.mark.xfail(bool(os.environ.get("CI")),
+                       reason="Probably fails in CI")
     @pytest.mark.complete("ifdown ")
     def test_1(self, completion):
         assert completion.list

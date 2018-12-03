@@ -35,7 +35,7 @@ class TestMake:
         os.remove("%s/make/%s" % (bash.cwd, "extra_makefile"))
 
     @pytest.mark.xfail(
-        "CI" in os.environ and os.environ.get("DIST") == "centos6",
+        bool(os.environ.get("CI")) and os.environ.get("DIST") == "centos6",
         reason="Fails for some unknown reason on CentOS 6, even though "
         "the behavior appears to be correct")
     @pytest.mark.complete("make .cache/.", cwd="make")
