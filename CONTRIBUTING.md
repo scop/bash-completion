@@ -138,8 +138,10 @@ guidelines in mind:
   is intended to do, fixes issues it intends to fix, etc.
 
 - File bugs, enhancement, and pull requests at GitHub,
-  https://github.com/scop/bash-completion
-  Sending them to the developers might work too, but is really
+  https://github.com/scop/bash-completion or send them to the email
+  gateway address bash-completion@fire.fundersclub.com which will pipe
+  them to GitHub issues (with your email address visible).
+  Sending them to the developers might work too, but is really strongly
   discouraged as bits are more likely to fall through the cracks that
   way compared to the tracker. Just use GitHub. If that's not an
   option for some reason and you want to use email to send patches,
