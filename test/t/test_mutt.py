@@ -16,11 +16,11 @@ class TestMutt:
 
     @pytest.mark.complete("mutt -F muttrc -f =", cwd="mutt")
     def test_2(self, completion):
-        assert completion == "bar/ foo/ muttrc".split()
+        assert completion == "bar/ baz/ foo/ muttrc".split()
 
     @pytest.mark.complete("mutt -F muttrc -A ", cwd="mutt")
     def test_3(self, completion):
-        assert completion == "a1 a2".split()
+        assert completion == "a1 a2 quoted unquoted".split()
 
     def test_4(self, bash):
         got = assert_bash_exec(
@@ -28,4 +28,5 @@ class TestMutt:
             '_muttconffiles "$HOME/muttrc" "$HOME/muttrc"',
             want_output=True).strip().split()
         assert got == ["%s/mutt/%s" % (bash.cwd, x) for x in
-                       ("muttrc", "bar/muttrc_b", "foo/muttrc_f")]
+                       ("muttrc", "bar/muttrc_b", "foo/muttrc_f",
+                        "baz/aliases1", "baz/aliases2")]
