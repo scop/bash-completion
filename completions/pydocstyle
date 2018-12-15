@@ -1,0 +1,35 @@
+# bash completion for pydocstyle                           -*- shell-script -*-
+
+_pydocstyle()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        --help|--version|--match|--ignore-decorators|--select|--ignore|\
+        --add-select|--add-ignore|-!(-*)h)
+            return
+            ;;
+        --config)
+            _filedir xml
+            return
+            ;;
+        --convention)
+            COMPREPLY=( $( compgen -W "pep257 numpy" -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir py
+} &&
+complete -F _pydocstyle pydocstyle
+
+# ex: filetype=sh

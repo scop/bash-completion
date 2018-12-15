@@ -323,6 +323,7 @@ bashcomp_DATA = 2to3 \
 		pwgen \
 		pycodestyle \
 		pydoc \
+		pydocstyle \
 		pyflakes \
 		pylint \
 		pytest \

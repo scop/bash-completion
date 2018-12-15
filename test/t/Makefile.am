@@ -462,6 +462,7 @@ EXTRA_DIST = \
 	test_pwgen.py \
 	test_pycodestyle.py \
 	test_pydoc.py \
+	test_pydocstyle.py \
 	test_pyflakes.py \
 	test_pylint_3.py \
 	test_pylint.py \
