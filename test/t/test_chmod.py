@@ -15,3 +15,11 @@ class TestChmod:
     @pytest.mark.complete("chmod -")
     def test_3(self, completion):
         assert completion.list
+
+    @pytest.mark.complete("chmod -x ")
+    def test_4(self, completion):
+        assert completion.list
+
+    @pytest.mark.complete("chmod -77 ")
+    def test_5(self, completion):
+        assert completion.list
