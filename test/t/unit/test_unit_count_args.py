@@ -39,7 +39,7 @@ class TestUnitCountArgs(TestUnitBase):
         assert output == "2"
 
     def test_7(self, bash):
-        """a b -c| d e should set args to 2"""
-        output = self._test(bash, "(a b -c d e)", 4, "a b -c d e", 6,
+        """a b -c d e| with -c arg excluded should set args to 2"""
+        output = self._test(bash, "(a b -c d e)", 4, "a b -c d e", 10,
                             arg='"" "@(-c|--foo)"')
         assert output == "2"
