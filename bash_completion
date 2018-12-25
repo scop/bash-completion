@@ -1356,6 +1356,7 @@ _get_first_arg()
 # @param $1 chars  Characters out of $COMP_WORDBREAKS which should
 #     NOT be considered word breaks. See __reassemble_comp_words_by_ref.
 # @param $2 glob   Options whose following argument should not be counted
+# @param $3 glob   Options that should be counted as args
 _count_args()
 {
     local i cword words
@@ -1363,8 +1364,9 @@ _count_args()
 
     args=1
     for (( i=1; i < cword; i++ )); do
-        if [[ ${words[i]} != -* && ${words[i-1]} != $2 ]]; then
-           args=$(($args+1))
+        if [[ ${words[i]} != -* && ${words[i-1]} != $2 ||
+              ${words[i]} == $3 ]]; then
+            args=$(($args+1))
         fi
     done
 }

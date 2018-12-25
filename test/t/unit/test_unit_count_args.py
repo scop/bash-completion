@@ -43,3 +43,16 @@ class TestUnitCountArgs(TestUnitBase):
         output = self._test(bash, "(a b -c d e)", 4, "a b -c d e", 10,
                             arg='"" "@(-c|--foo)"')
         assert output == "2"
+
+    def test_8(self, bash):
+        """a -b -c d e| with -c arg excluded
+           and -b included should set args to 1"""
+        output = self._test(bash, "(a -b -c d e)", 4, "a -b -c d e", 11,
+                            arg='"" "@(-c|--foo)" "-[b]"')
+        assert output == "2"
+
+    def test_9(self, bash):
+        """a -b -c d e| with -b included should set args to 3"""
+        output = self._test(bash, "(a -b -c d e)", 4, "a -b -c d e", 11,
+                            arg='"" "" "-b"')
+        assert output == "3"
