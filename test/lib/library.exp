@@ -508,39 +508,6 @@ proc assert_env_unmodified {{sed ""} {file ""} {diff ""}} {
 }
 
 
-# Make sure the specified command executed from within Tcl/Expect.
-# Fail the test with status UNSUPPORTED if Tcl fails with error "POSIX/ENOENT
-# (No such file or directory)", or with the given Tcl failure status command
-# (default "unresolved") if other error occurs.
-# NOTE: Further tests are assumed if executing the command is successful.  The
-#       test isn't immediately declared to have PASSED if the command is
-#       executed successful.
-# @param string $command
-# @param string $stdout  (optional) Reference to variable to hold stdout.
-# @param string $test (optional)  Test title
-# @param string $failcmd (optional, default "unresolved")  Failure command
-# @see assert_bash_exec()
-proc assert_exec {cmd {stdout ''} {test ''} {failcmd "unresolved"}} {
-    if {$test == ""} {set test "$cmd should execute successfully"}
-    upvar $stdout results
-    set status [catch {eval exec $cmd} results]
-    if {$status == 0} {
-        set result true
-    } else {
-        set result false
-            # Command not found (POSIX/ENOENT = no such file or directory)?
-        if {[lindex $::errorCode 0] == "POSIX" && [lindex $::errorCode 1] == "ENOENT"} {
-            # Yes, command not found;
-                # Indicate test is unsupported
-            unsupported "$test"
-        } else {
-            $failcmd "$test"
-        }
-    }
-    return $result
-}
-
-
 # Check that no completion is attempted on a certain command.
 # Params:
 # @cmd The command to attempt to complete.
@@ -580,24 +547,6 @@ proc assert_no_output {{cmd} {test ""} {prompt /@}} {
         -re "^\r\n$prompt$" { pass "$test" }
         default { fail "$test" }
         timeout { fail "$test" }
-    }
-}
-
-
-# Check that ~part completes to ~full/ if home dir exists.
-# @param string $cmd  The command to attempt home dir completion for.
-# @param string $test  Optional parameter with test name.
-# @param string $prompt  (optional) Bash prompt.  Default is "/@"
-proc assert_complete_homedir {{cmd} {test ""} {prompt /@}} {
-    if {[string length $test] == 0} {
-        set test "$cmd should complete ~part to ~full/ if home dir exists"
-    }
-    assert_bash_exec {for u in $(compgen -u); do \
-        eval test -d ~$u && echo $u; unset u; done} {} /@ users
-    if {![find_unique_completion_pair $users part full]} {
-        untested "Not running, no suitable test user found: $test"
-    } else {
-        assert_complete "~$full/" "$cmd ~$part" $test -nospace
     }
 }
 
@@ -785,27 +734,6 @@ proc match_items {items {args {}}} {
                 default { set result false; break }
                 timeout { set result false; break }
             }
-        }
-    }
-    return $result
-}
-
-
-
-# Get real command.
-# - arg: $1  Command
-# - return:  Command found, empty string if not found
-proc realcommand {cmd} {
-    set result ""
-    if [string length [set path [auto_execok $cmd]]] {
-        if {[string length [auto_execok realpath]]} {
-            set result [exec realpath $path]
-        } elseif {[string length [auto_execok greadlink]]} {
-            set result [exec greadlink -f $path]
-        } elseif {[string length [auto_execok readlink]]} {
-            set result [exec readlink -f $path]
-        } else {
-            set result $path
         }
     }
     return $result
