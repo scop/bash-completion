@@ -9,6 +9,9 @@ _tshark()
         -o*)
             prefix=-o
             ;;
+        -X*)
+            prefix=-X
+            ;;
     esac
 
     case ${prefix:-$prev} in
@@ -103,11 +106,12 @@ _tshark()
             return
             ;;
         -*X)
-            if [[ $cur == lua_script:* ]]; then
+            if [[ ${cur:${#prefix}} == lua_script:* ]]; then
                 cur=${cur#*:}
                 _filedir lua
             else
-                COMPREPLY=( $( compgen -W 'lua_script:' -- "$cur" ) )
+                COMPREPLY=( $( compgen -P "$prefix" -W 'lua_script:' -- \
+                    "${cur:${#prefix}}" ) )
                 [[ $COMPREPLY == *: ]] && compopt -o nospace
             fi
             return
