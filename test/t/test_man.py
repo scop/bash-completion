@@ -2,6 +2,8 @@ import os
 
 import pytest
 
+from conftest import in_docker
+
 
 @pytest.mark.bashcomp(ignore_env=r"^[+-]MANPATH=")
 class TestMan:
@@ -22,8 +24,7 @@ class TestMan:
     def test_3(self, completion):
         assert completion.list == ["man/quux.8"]
 
-    @pytest.mark.xfail(bool(os.environ.get("CI")) and
-                       os.environ.get("DIST") == "centos6",
+    @pytest.mark.xfail(in_docker() and os.environ.get("DIST") == "centos6",
                        reason="TODO: Fails in CentOS for some reason, unknown "
                        "how to trigger same behavior as tests show (is "
                        "different and correct when tried manually, but here "

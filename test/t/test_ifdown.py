@@ -1,12 +1,11 @@
-import os
-
 import pytest
+
+from conftest import in_docker
 
 
 class TestIfdown:
 
-    @pytest.mark.xfail(bool(os.environ.get("CI")),
-                       reason="Probably fails in CI")
+    @pytest.mark.xfail(in_docker(), reason="Probably fails in docker")
     @pytest.mark.complete("ifdown ")
     def test_1(self, completion):
         assert completion.list

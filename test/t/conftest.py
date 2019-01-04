@@ -344,6 +344,10 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
     return assert_complete(bash, marker.args[0], **marker.kwargs)
 
 
+def in_docker() -> bool:
+    return os.path.exists("/.dockerenv")
+
+
 class TestUnitBase:
 
     def _test_unit(self, func, bash,
