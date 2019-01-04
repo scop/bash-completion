@@ -5,6 +5,7 @@ EXTRA_DIST = completion \
 	     config \
 	     fixtures \
 	     lib \
+	     t \
 	     unit
 
 all:
