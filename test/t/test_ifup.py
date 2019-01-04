@@ -11,9 +11,7 @@ class TestIfup:
     def test_1(self, completion):
         assert completion.list
 
-    @pytest.mark.xfail(bool(os.environ.get("CI")),
-                       reason="Probably fails in CI")
-    @pytest.mark.complete("ifup --")
+    @pytest.mark.complete("ifup --", skipif="! ifup --help &>/dev/null")
     def test_2(self, completion):
         assert completion.list
 
