@@ -13,3 +13,6 @@ EXTRA_DIST = \
 	test_unit_tilde.py
 
 all:
+
+clean-local:
+	$(RM) -R __pycache__

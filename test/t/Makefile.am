@@ -662,3 +662,6 @@ EXTRA_DIST = \
 	test_zopfli.py
 
 all:
+
+clean-local:
+	$(RM) -R __pycache__
