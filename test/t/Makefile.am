@@ -659,6 +659,6 @@ EXTRA_DIST = \
 	test_yum_arch.py \
 	test_yum.py \
 	test_zopflipng.py \
-	test_zopfli.py \
+	test_zopfli.py
 
 all:

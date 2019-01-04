@@ -42,13 +42,16 @@ while read -r line; do
     if [[ $in_extra_dist ]]; then
         if [[ $line != $'\t'* ]]; then
             if [[ ! $added ]]; then
-                echo -e "\ttest_$file.py \\"
+                echo -e "\ttest_$file.py"
                 added=true
             fi
             in_extra_dist=
-        elif [[ ! $added && $line > $'\t'test_$file.py ]]; then
-            echo -e "\ttest_$file.py \\"
-            added=true
+        else
+            [[ $line == *\\ ]] || line="$line \\"
+            if [[ ! $added && $line > $'\t'test_$file.py ]]; then
+                echo -e "\ttest_$file.py \\"
+                added=true
+            fi
         fi
         echo "$line"
     else

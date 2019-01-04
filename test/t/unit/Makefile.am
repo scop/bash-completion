@@ -10,6 +10,6 @@ EXTRA_DIST = \
 	test_unit_ip_addresses.py \
 	test_unit_parse_help.py \
 	test_unit_parse_usage.py \
-	test_unit_tilde.py \
+	test_unit_tilde.py
 
 all:
