@@ -160,6 +160,7 @@ bashcomp_DATA = 2to3 \
 		ifup \
 		info \
 		inject \
+		inotifywait \
 		insmod \
 		installpkg \
 		interdiff \

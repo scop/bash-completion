@@ -1,0 +1,34 @@
+# bash completion for inotifywait(1)                       -*- shell-script -*-
+
+_inotifywait()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --help|--exclude|--excludei|--format|--timefmt|--timeout|-!(-*)[ht])
+            return
+            ;;
+        --fromfile|--outfile|-!(-*)o)
+            _filedir
+            return
+            ;;
+        --event|-!(-*)e)
+            COMPREPLY=( $( compgen -W "$( $1 --help 2>/dev/null | \
+                sed -e '/^Events:/,/^[^ \t]/!d' \
+                   -ne 's/^[ \t]\{1,\}\([^ \t]\{1,\}\)[ \t].*/\1/p' )" \
+                -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return
+    fi
+
+    _filedir
+} &&
+complete -F _inotifywait inotifywait
+
+# ex: filetype=sh
