@@ -1,10 +1,44 @@
 import pytest
 
-from conftest import assert_bash_exec
+from conftest import assert_bash_exec, in_docker
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+COMPREPLY=")
 class TestUnitIpAddresses:
 
+    @pytest.fixture(scope="class")
+    def functions(self, request, bash):
+        assert_bash_exec(bash,
+                         "_ia() { local cur=$(_get_cword);unset COMPREPLY;"
+                         "_ip_addresses; }")
+        assert_bash_exec(bash, "complete -F _ia ia")
+        assert_bash_exec(bash,
+                         "_iaa() { local cur=$(_get_cword);unset COMPREPLY;"
+                         "_ip_addresses -a; }")
+        assert_bash_exec(bash, "complete -F _iaa iaa")
+        assert_bash_exec(bash,
+                         " _ia6() { local cur=$(_get_cword);unset COMPREPLY;"
+                         "_ip_addresses -6; }")
+        assert_bash_exec(bash, "complete -F _ia6 ia6")
+
     def test_1(self, bash):
         assert_bash_exec(bash, "_ip_addresses")
+
+    @pytest.mark.complete("iaa ")
+    def test_2(self, functions, completion):
+        """_ip_addresses -a should complete ip addresses."""
+        assert completion.list
+        assert all("." in x or ":" in x for x in completion.list)
+
+    @pytest.mark.complete("ia ")
+    def test_3(self, functions, completion):
+        """_ip_addresses should complete ipv4 addresses."""
+        assert completion.list
+        assert all("." in x for x in completion.list)
+
+    @pytest.mark.xfail(in_docker(), reason="Probably fails in docker")
+    @pytest.mark.complete("ia6 ")
+    def test_4(self, functions, completion):
+        """_ip_addresses -6 should complete ipv6 addresses."""
+        assert completion.list
+        assert all(":" in x for x in completion.list)
