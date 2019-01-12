@@ -341,6 +341,8 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
     marker = request.node.get_closest_marker("complete")
     if not marker:
         return CompletionResult("", [])
+    for pre_cmd in marker.kwargs.get("pre_cmds", []):
+        assert_bash_exec(bash, pre_cmd)
     return assert_complete(bash, marker.args[0], **marker.kwargs)
 
 
