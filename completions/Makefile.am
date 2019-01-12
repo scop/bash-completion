@@ -566,6 +566,7 @@ CLEANFILES = \
 	ifquery \
 	ifstatus \
 	import \
+	inotifywatch \
 	insmod.static \
 	iperf3 \
 	javac \
@@ -865,6 +866,10 @@ symlinks: $(targetdir) $(DATA)
 	for file in pinfo ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) info $(targetdir)/$$file ; \
+	done
+	for file in inotifywatch ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) inotifywait $(targetdir)/$$file ; \
 	done
 	for file in insmod.static ; do \
 		rm -f $(targetdir)/$$file && \

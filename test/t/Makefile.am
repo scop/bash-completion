@@ -233,6 +233,7 @@ EXTRA_DIST = \
 	test_info.py \
 	test_inject.py \
 	test_inotifywait.py \
+	test_inotifywatch.py \
 	test_insmod.py \
 	test_installpkg.py \
 	test_interdiff.py \
