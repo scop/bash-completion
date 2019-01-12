@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from conftest import in_docker
+from conftest import assert_bash_exec, in_docker
 
 
 @pytest.mark.bashcomp(ignore_env=r"^[+-]MANPATH=")
@@ -62,3 +62,10 @@ class TestMan:
         "man bash-completion-testcas", env=dict(MANPATH=":%s" % manpath))
     def test_8(self, completion):
         assert completion.list == ["bash-completion-testcase"]
+
+    @pytest.mark.complete("man %s" % assumed_present,
+                          cwd="shared/empty_dir",
+                          pre_cmds=("shopt -s failglob",))
+    def test_9(self, bash, completion):
+        assert self.assumed_present in completion.list
+        assert_bash_exec(bash, "shopt -u failglob")
