@@ -8,12 +8,12 @@ class TestRsync:
 
     @pytest.mark.complete("rsync ")
     def test_1(self, completion):
-        assert completion.list
+        assert completion
 
     @pytest.mark.complete("rsync --rsh ")
     def test_2(self, completion):
-        assert completion.list == "rsh ssh".split()
+        assert completion == "rsh ssh".split()
 
     @pytest.mark.complete("rsync --rsh=")
     def test_3(self, completion):
-        assert completion.list == "rsh ssh".split()
+        assert completion == "rsh ssh".split()

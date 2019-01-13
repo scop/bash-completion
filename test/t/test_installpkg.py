@@ -8,17 +8,17 @@ class TestInstallpkg:
 
     @pytest.mark.complete("installpkg -")
     def test_1(self, completion):
-        assert completion.list
+        assert completion
 
     @pytest.mark.complete("installpkg --")
     def test_2(self, completion):
-        assert completion.list == "--ask --infobox --md5sum --menu " \
+        assert completion == "--ask --infobox --md5sum --menu " \
             "--priority --root --tagfile --terse --warn".split()
 
     @pytest.mark.complete("installpkg --root ")
     def test_3(self, completion):
         dirs = sorted(x for x in os.listdir(".") if os.path.isdir("./%s" % x))
-        assert completion.list == ["%s/" % x for x in dirs]
+        assert completion == ["%s/" % x for x in dirs]
 
     @pytest.mark.complete("installpkg --root ")
     def test_4(self, completion):
@@ -29,4 +29,4 @@ class TestInstallpkg:
             x for x in os.listdir("slackware/home")
             if os.path.isfile("./%s" % x) and fnmatch.fnmatch(x, "*.t[bglx]z")
         ])
-        assert completion.list == expected
+        assert completion == expected

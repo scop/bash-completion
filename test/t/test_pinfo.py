@@ -10,8 +10,8 @@ class TestPinfo:
 
     @pytest.mark.complete("pinfo -")
     def test_1(self, completion):
-        assert completion.list
+        assert completion
 
     @pytest.mark.complete("pinfo bash")
     def test_2(self, completion):
-        assert completion.list
+        assert completion

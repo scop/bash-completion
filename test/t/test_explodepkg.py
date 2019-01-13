@@ -14,4 +14,4 @@ class TestExplodepkg:
             or (os.path.isfile("./%s" % x)
                 and fnmatch.fnmatch(x, "*.t[bglx]z"))
         )
-        assert completion.list == expected
+        assert completion == expected

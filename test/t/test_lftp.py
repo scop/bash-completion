@@ -14,6 +14,5 @@ class TestLftp:
     def test_1(self, bash, completion):
         hosts = assert_bash_exec(
             bash, "compgen -A hostname", want_output=True).split()
-        for host in hosts:
-            assert host in completion.list
-        assert "lftptest" in completion.list  # defined in lftp/.lftp/bookmarks
+        assert all(x in completion for x in hosts)
+        assert "lftptest" in completion  # defined in lftp/.lftp/bookmarks

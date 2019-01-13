@@ -5,9 +5,9 @@ class TestXgamma:
 
     @pytest.mark.complete("xgamma -")
     def test_1(self, completion):
-        assert completion.list
+        assert completion
 
     @pytest.mark.complete("xgamma -gam")
     def test_2(self, completion):
-        assert completion.list == ["-gamma"]
-        assert completion.output.endswith(" ")
+        assert completion == "-gamma"
+        assert completion.endswith(" ")

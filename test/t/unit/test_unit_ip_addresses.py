@@ -27,18 +27,18 @@ class TestUnitIpAddresses:
     @pytest.mark.complete("iaa ")
     def test_2(self, functions, completion):
         """_ip_addresses -a should complete ip addresses."""
-        assert completion.list
-        assert all("." in x or ":" in x for x in completion.list)
+        assert completion
+        assert all("." in x or ":" in x for x in completion)
 
     @pytest.mark.complete("ia ")
     def test_3(self, functions, completion):
         """_ip_addresses should complete ipv4 addresses."""
-        assert completion.list
-        assert all("." in x for x in completion.list)
+        assert completion
+        assert all("." in x for x in completion)
 
     @pytest.mark.xfail(in_docker(), reason="Probably fails in docker")
     @pytest.mark.complete("ia6 ")
     def test_4(self, functions, completion):
         """_ip_addresses -6 should complete ipv6 addresses."""
-        assert completion.list
-        assert all(":" in x for x in completion.list)
+        assert completion
+        assert all(":" in x for x in completion)

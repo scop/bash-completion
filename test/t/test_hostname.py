@@ -5,4 +5,4 @@ class TestHostname:
 
     @pytest.mark.complete("hostname -")
     def test_1(self, completion):
-        assert completion.list
+        assert completion

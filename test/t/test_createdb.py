@@ -7,4 +7,4 @@ class TestCreatedb:
     @pytest.mark.complete("createdb -",
                           skipif="! createdb --help &>/dev/null")
     def test_1(self, completion):
-        assert completion.list
+        assert completion

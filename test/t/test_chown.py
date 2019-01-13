@@ -15,36 +15,34 @@ class TestChown:
     def test_1(self, bash, completion):
         users = sorted(assert_bash_exec(
             bash, "compgen -A user", want_output=True).split())
-        assert completion.list == users
+        assert completion == users
 
-    @pytest.mark.xfail  # TODO: whitespace split issue
     @pytest.mark.complete("chown foo: shared/default/")
     def test_2(self, completion):
-        assert completion.list == ["bar", "bar bar.d/", "foo", "foo.d/"]
+        assert completion == ["bar", "bar bar.d/", "foo", "foo.d/"]
 
-    @pytest.mark.xfail  # TODO: whitespace split issue
     @pytest.mark.complete("chown :foo shared/default/")
     def test_3(self, completion):
-        assert completion.list == ["bar", "bar bar.d/", "foo", "foo.d/"]
+        assert completion == ["bar", "bar bar.d/", "foo", "foo.d/"]
 
     def test_4(self, bash, part_full_user):
         part, full = part_full_user
         completion = assert_complete(bash, "chown %s" % part)
-        assert completion.list == [full]
-        assert completion.output.endswith(" ")
+        assert completion == full
+        assert completion.endswith(" ")
 
     def test_5(self, bash, part_full_user, part_full_group):
         _, user = part_full_user
         partgroup, fullgroup = part_full_group
         completion = assert_complete(
             bash, "chown %s:%s" % (user, partgroup))
-        assert completion.list == ["%s:%s" % (user, fullgroup)]
+        assert completion == "%s:%s" % (user, fullgroup)
         assert completion.output.endswith(" ")
 
     def test_6(self, bash, part_full_group):
         part, full = part_full_group
         completion = assert_complete(bash, "chown dot.user:%s" % part)
-        assert completion.list == ["dot.user:%s" % full]
+        assert completion == "dot.user:%s" % full
         assert completion.output.endswith(" ")
 
     @pytest.mark.xfail  # TODO check escaping, whitespace
@@ -56,7 +54,7 @@ class TestChown:
                        r"foo\_b\ a\.r\ :"):
             completion = assert_complete(
                 bash, "chown %s%s" % (prefix, part))
-            assert completion.list == ["%s%s" % (prefix, full)]
+            assert completion == "%s%s" % (prefix, full)
             assert completion.output.endswith(" ")
 
     def test_8(self, bash, part_full_user, part_full_group):
@@ -66,10 +64,10 @@ class TestChown:
         for x in range(2, 5):
             completion = assert_complete(
                 bash, "chown %s%s:%s" % (user, x * "\\", partgroup))
-            assert not completion.list
+            assert not completion
 
     def test_9(self, bash, part_full_group):
         """Test graceful fail on colon in user/group name."""
         part, _ = part_full_group
         completion = assert_complete(bash, "chown foo:bar:%s" % part)
-        assert not completion.list
+        assert not completion

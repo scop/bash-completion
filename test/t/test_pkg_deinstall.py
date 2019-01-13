@@ -14,4 +14,4 @@ class TestPkgDeinstall:
     def test_1(self, completion):
         dirs = sorted(x for x in os.listdir("pkgtools/db")
                       if os.path.isdir("pkgtools/db/%s" % x))
-        assert completion.list == dirs
+        assert completion == dirs

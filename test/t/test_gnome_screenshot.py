@@ -8,4 +8,4 @@ class TestGnomeScreenshot:
 
     @pytest.mark.complete("gnome-screenshot --help")
     def test_1(self, completion):
-        assert completion.list
+        assert completion

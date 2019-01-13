@@ -5,7 +5,7 @@ class TestPostconf:
 
     @pytest.mark.complete("postconf -")
     def test_1(self, completion):
-        assert len(completion.list) > 1
+        assert len(completion) > 1
 
     # Broken configs may abort output of postconf halfway through, so use
     # something from early output to not trigger false positives because of
@@ -16,4 +16,4 @@ class TestPostconf:
     # ...or be completely missing, so all we can do is to skip.
     @pytest.mark.complete("postconf al", skipif="! postconf &>/dev/null")
     def test_2(self, completion):
-        assert completion.list
+        assert completion

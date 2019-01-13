@@ -10,8 +10,8 @@ class TestMplayer:
 
     @pytest.mark.complete("mplayer ")
     def test_1(self, completion):
-        assert completion.list
+        assert completion
 
     @pytest.mark.complete("mplayer -h")
     def test_2(self, completion):
-        assert completion.list
+        assert completion

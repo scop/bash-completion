@@ -5,15 +5,13 @@ class TestJavadoc:
 
     @pytest.mark.complete("javadoc ")
     def test_1(self, completion):
-        assert completion.list
+        assert completion
 
-    @pytest.mark.xfail  # TODO: whitespace split issue
     @pytest.mark.complete("javadoc -linkoffline shared/default/")
     def test_2(self, completion):
-        assert completion.list == ["bar bar.d/", "foo.d/"]
+        assert completion == ["bar bar.d/", "foo.d/"]
 
-    @pytest.mark.xfail  # TODO: whitespace split issue
     @pytest.mark.complete(
         "javadoc -nodeprecated -linkoffline foo shared/default/")
     def test_3(self, completion):
-        assert completion.list == ["bar bar.d/", "foo.d/"]
+        assert completion == ["bar bar.d/", "foo.d/"]

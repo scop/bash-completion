@@ -5,8 +5,8 @@ class TestIpv6calc:
 
     @pytest.mark.complete("ipv6calc -")
     def test_1(self, completion):
-        assert completion.list
+        assert completion
 
     @pytest.mark.complete("ipv6calc --in ")
     def test_2(self, completion):
-        assert completion.list
+        assert completion

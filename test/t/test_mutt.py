@@ -12,15 +12,15 @@ class TestMutt:
 
     @pytest.mark.complete("mutt -")
     def test_1(self, completion):
-        assert completion.list
+        assert completion
 
     @pytest.mark.complete("mutt -F muttrc -f =", cwd="mutt")
     def test_2(self, completion):
-        assert completion.list == "bar/ foo/ muttrc".split()
+        assert completion == "bar/ foo/ muttrc".split()
 
     @pytest.mark.complete("mutt -F muttrc -A ", cwd="mutt")
     def test_3(self, completion):
-        assert completion.list == "a1 a2".split()
+        assert completion == "a1 a2".split()
 
     def test_4(self, bash):
         got = assert_bash_exec(

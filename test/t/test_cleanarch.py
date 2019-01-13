@@ -10,4 +10,4 @@ class TestCleanarch:
 
     @pytest.mark.complete("cleanarch -")
     def test_1(self, completion):
-        assert completion.list
+        assert completion

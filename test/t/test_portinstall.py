@@ -16,6 +16,6 @@ class TestPortinstall:
 
     @pytest.mark.complete("portinstall ", env=dict(PORTSDIR="$TESTDIR/tmp"))
     def test_1(self, completion, portsdir):
-        assert completion.list == \
+        assert completion == \
             "bash-2.05b.007_6 bash-3.1.17 bash-completion-20060301_2 " \
             "shells/bash shells/bash-completion shells/bash2".split()

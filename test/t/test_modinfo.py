@@ -7,7 +7,7 @@ class TestModinfo:
 
     @pytest.mark.complete("modinfo -")
     def test_1(self, completion):
-        assert completion.list
+        assert completion
 
     # "in": intel*, ...
     @pytest.mark.complete("modinfo in",
@@ -17,14 +17,14 @@ class TestModinfo:
                               "echo non-existent-kernel",
                               shell=True).decode().strip())
     def test_2(self, completion):
-        assert completion.list
+        assert completion
 
     # "in": intel*, ...
     @pytest.mark.complete("modinfo -k non-existent-kernel in")
     def test_3(self, completion):
-        assert not completion.list
+        assert not completion
 
     @pytest.mark.complete("modinfo /tm")
     def test_4(self, completion):
-        assert completion.list
-        assert not completion.output.endswith(" ")
+        assert completion
+        assert not completion.endswith(" ")

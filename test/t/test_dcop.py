@@ -10,6 +10,6 @@ class TestDcop:
         try:
             subprocess.check_call("dcop &>/dev/null", shell=True)
         except BaseException:
-            assert not completion.list
+            assert not completion
         else:
-            assert completion.list
+            assert completion

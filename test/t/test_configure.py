@@ -11,8 +11,8 @@ class TestConfigure:
 
     @pytest.mark.complete("configure --")
     def test_1(self, completion):
-        assert completion.list
+        assert completion
 
     @pytest.mark.complete("configure --prefix ")
     def test_2(self, completion):
-        assert completion.list
+        assert completion

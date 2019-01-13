@@ -5,8 +5,8 @@ class TestUsermod:
 
     @pytest.mark.complete("usermod ")
     def test_1(self, completion):
-        assert completion.list
+        assert completion
 
     @pytest.mark.complete("usermod -")
     def test_2(self, completion):
-        assert completion.list
+        assert completion

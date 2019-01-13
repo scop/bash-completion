@@ -8,9 +8,9 @@ class TestChromiumBrowser:
 
     @pytest.mark.complete("chromium-browser ")
     def test_1(self, completion):
-        assert completion.list
+        assert completion
 
     @pytest.mark.complete("chromium-browser -")
     def test_2(self, completion):
-        assert completion.list
-        assert not completion.output.endswith(" ")
+        assert completion
+        assert not completion.endswith(" ")

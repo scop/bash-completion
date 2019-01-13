@@ -10,4 +10,4 @@ class TestInject:
 
     @pytest.mark.complete("inject ")
     def test_1(self, completion):
-        assert completion.list
+        assert completion

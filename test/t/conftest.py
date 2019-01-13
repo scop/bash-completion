@@ -2,7 +2,7 @@ import difflib
 import os
 import re
 import shlex
-from typing import Iterable, List, NamedTuple, Optional, Tuple
+from typing import Iterable, List, Optional, Tuple, Union
 
 import pexpect
 import pytest
@@ -264,8 +264,69 @@ def diff_env(before: List[str], after: List[str], ignore: str):
     assert not diff, "Environment should not be modified"
 
 
-CompletionResult = NamedTuple(
-    "CompletionResult", [("output", str), ("list", List[str])])
+class CompletionResult:
+    """
+    Class to hold completion results.
+    """
+
+    def __init__(self, output: str, items: Optional[Iterable[str]] = None):
+        """
+        When items are specified, they are used as the base for comparisions
+        provided by this class. When not, regular expressions are used instead.
+        This is because it is not always possible to unambiguously split a
+        completion output string into individual items, for example when the
+        items contain whitespace.
+
+        :param output: All completion output as-is.
+        :param items: Completions as individual items. Should be specified
+            only in cases where the completions are robustly known to be
+            exactly the specified ones.
+        """
+        self.output = output
+        self._items = None if items is None else sorted(items)
+
+    def endswith(self, suffix: str) -> bool:
+        return self.output.endswith(suffix)
+
+    def __eq__(self, expected: Union[str, Iterable[str]]) -> bool:
+        """
+        Returns True if completion contains expected items, and no others.
+
+        Defining __eq__ this way is quite ugly, but facilitates concise
+        testing code.
+        """
+        expiter = [expected] if isinstance(expected, str) else sorted(expected)
+        if self._items is not None:
+            return self._items == expiter
+        return bool(re.match(r"^\s*" +
+                             r"\s+".join(re.escape(x) for x in expiter) +
+                             r"\s*$", self.output))
+
+    def __contains__(self, item: str) -> bool:
+        if self._items is not None:
+            return item in self._items
+        return bool(
+            re.search(r"(^|\s)%s(\s|$)" % re.escape(item), self.output))
+
+    def __iter__(self) -> Iterable[str]:
+        """
+        Note that iteration over items may not be accurate when items were not
+        specified to the constructor, if individual items in the output contain
+        whitespace. In those cases, it errs on the side of possibly returning
+        more items than there actually are, and intends to never return fewer.
+        """
+        return iter(self._items if self._items is not None
+                    else re.split(r" {2,}|\r\n", self.output.strip()))
+
+    def __len__(self) -> int:
+        """
+        Uses __iter__, see caveat in it. While possibly inaccurate, this is
+        good enough for truthiness checks.
+        """
+        return len(list(iter(self)))
+
+    def __repr__(self) -> str:
+        return "<CompletionResult %s>" % list(self)
 
 
 def assert_complete(
@@ -306,16 +367,10 @@ def assert_complete(
         output = bash.before
         if output.endswith(MAGIC_MARK):
             output = bash.before[:-len(MAGIC_MARK)]
-        result = CompletionResult(
-            output,
-            sorted(x for x in re.split(r" {2,}|\r\n", output) if x),
-        )
+        result = CompletionResult(output)
     elif got == 2:
         output = bash.match.group(1)
-        result = CompletionResult(
-            output,
-            [shlex.split(cmd + output)[-1]],
-        )
+        result = CompletionResult(output, [shlex.split(cmd + output)[-1]])
     else:
         # TODO: warn about EOF/TIMEOUT?
         result = CompletionResult("", [])

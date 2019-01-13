@@ -6,7 +6,7 @@ class TestEvince:
     @pytest.mark.complete("evince ", cwd="evince")
     def test_1(self, completion):
         # .txt should not be here
-        assert completion.list == sorted(
+        assert completion == sorted(
             "foo/ .bmp .BMP .cbr .CBR .cbz .CBZ .djv .DJV .djvu .DJVU .dvi "
             ".DVI .dvi.bz2 .dvi.BZ2 .DVI.bz2 .DVI.BZ2 .dvi.gz .dvi.GZ "
             ".DVI.gz .DVI.GZ .eps .EPS .eps.bz2 .eps.BZ2 .EPS.bz2 .EPS.BZ2 "

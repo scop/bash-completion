@@ -5,9 +5,8 @@ class TestRmdir:
 
     @pytest.mark.complete("rmdir ")
     def test_1(self, completion):
-        assert completion.list
+        assert completion
 
-    @pytest.mark.xfail  # TODO: whitespace split issue
     @pytest.mark.complete("rmdir shared/default/")
     def test_2(self, completion):
-        assert completion.list == ["bar bar.d/", "foo.d/"]
+        assert completion == ["bar bar.d/", "foo.d/"]

@@ -11,6 +11,6 @@ class TestLook:
             subprocess.check_call(
                 "look foo 2>/dev/null | command grep -q ^foo", shell=True)
         except BaseException:
-            assert not completion.list
+            assert not completion
         else:
-            assert completion.list
+            assert completion

@@ -5,8 +5,8 @@ class TestBzip2:
 
     @pytest.mark.complete("bzip2 ")
     def test_1(self, completion):
-        assert completion.list
+        assert completion
 
     @pytest.mark.complete("bzip2 ~")
     def test_2(self, completion):
-        assert completion.list
+        assert completion

@@ -5,4 +5,4 @@ class TestDsniff:
 
     @pytest.mark.complete("dsniff -")
     def test_1(self, completion):
-        assert completion.list
+        assert completion

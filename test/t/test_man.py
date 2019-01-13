@@ -14,15 +14,15 @@ class TestMan:
     @pytest.mark.complete("man bash-completion-testcas",
                           env=dict(MANPATH=manpath))
     def test_1(self, completion):
-        assert completion.list == ["bash-completion-testcase"]
+        assert completion == "bash-completion-testcase"
 
     @pytest.mark.complete("man man1/f", cwd="man", env=dict(MANPATH=manpath))
     def test_2(self, completion):
-        assert completion.list == ["man1/foo.1"]
+        assert completion == "man1/foo.1"
 
     @pytest.mark.complete("man man/", cwd="man", env=dict(MANPATH=manpath))
     def test_3(self, completion):
-        assert completion.list == ["man/quux.8"]
+        assert completion == "man/quux.8"
 
     @pytest.mark.xfail(in_docker() and os.environ.get("DIST") == "centos6",
                        reason="TODO: Fails in CentOS for some reason, unknown "
@@ -37,35 +37,35 @@ class TestMan:
         Assumed present should not be completed complete when there's no
         leading/trailing colon in $MANPATH.
         """
-        assert not completion.list
+        assert not completion
 
     @pytest.mark.complete("man %s" % assumed_present,
                           cwd="shared/empty_dir",
                           env=dict(MANPATH="%s:" % manpath))
     def test_5(self, completion):
         """Trailing colon appends system man path."""
-        assert completion.list
+        assert completion
 
     @pytest.mark.complete(
         "man bash-completion-testcas", env=dict(MANPATH="%s:" % manpath))
     def test_6(self, completion):
-        assert completion.list == ["bash-completion-testcase"]
+        assert completion == "bash-completion-testcase"
 
     @pytest.mark.complete("man %s" % assumed_present,
                           cwd="shared/empty_dir",
                           env=dict(MANPATH=":%s" % manpath))
     def test_7(self, completion):
         """Leading colon prepends system man path."""
-        assert completion.list
+        assert completion
 
     @pytest.mark.complete(
         "man bash-completion-testcas", env=dict(MANPATH=":%s" % manpath))
     def test_8(self, completion):
-        assert completion.list == ["bash-completion-testcase"]
+        assert completion == "bash-completion-testcase"
 
     @pytest.mark.complete("man %s" % assumed_present,
                           cwd="shared/empty_dir",
                           pre_cmds=("shopt -s failglob",))
     def test_9(self, bash, completion):
-        assert self.assumed_present in completion.list
+        assert self.assumed_present in completion
         assert_bash_exec(bash, "shopt -u failglob")

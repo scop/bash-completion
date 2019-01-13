@@ -11,6 +11,6 @@ class TestKldunload:
             subprocess.check_call(
                 r"kldstat 2>/dev/null | command grep -q '\.ko$'", shell=True)
         except BaseException:
-            assert not completion.list
+            assert not completion
         else:
-            assert completion.list
+            assert completion

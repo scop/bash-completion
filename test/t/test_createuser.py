@@ -7,4 +7,4 @@ class TestCreateuser:
     @pytest.mark.complete("createuser -",
                           skipif="! createuser --help &>/dev/null")
     def test_1(self, completion):
-        assert completion.list
+        assert completion

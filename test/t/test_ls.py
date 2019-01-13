@@ -9,11 +9,11 @@ class TestLs:
 
     @pytest.mark.complete("ls --", skipif="! ls --help &>/dev/null")
     def test_1(self, completion):
-        assert completion.list
+        assert completion
 
     @pytest.mark.complete("ls ~")
     def test_2(self, completion):
-        assert completion.list
+        assert completion
 
     def test_3(self, bash):
         """~part should complete to ~full<SPACE> if home dir does not exist."""
@@ -27,5 +27,5 @@ class TestLs:
             return
         part, full = part_full
         completion = assert_complete(bash, "ls ~%s" % part)
-        assert completion.list == ["~%s" % full]
-        assert completion.output.endswith(" ")
+        assert completion == "~%s" % full
+        assert completion.endswith(" ")

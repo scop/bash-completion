@@ -10,13 +10,13 @@ class TestRi:
 
     @pytest.mark.complete("ri -")
     def test_1(self, completion):
-        assert completion.list
+        assert completion
 
     @pytest.mark.xfail  # TODO: completion split issues (single space)
     @pytest.mark.complete("ri --dump=ri/")
     def test_2(self, completion):
-        assert completion.list == "BashCompletion/ cache.ri".split()
+        assert completion == "BashCompletion/ cache.ri".split()
 
     @pytest.mark.complete("ri BashCompletio")
     def test_3(self, completion):
-        assert completion.list == ["BashCompletion"]
+        assert completion == "BashCompletion"

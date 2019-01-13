@@ -7,7 +7,7 @@ class TestModprobe:
 
     @pytest.mark.complete("modprobe --al")
     def test_1(self, completion):
-        assert completion.list == ["--all"]
+        assert completion == "--all"
 
     # "in": intel*, ...
     @pytest.mark.complete("modprobe in",
@@ -17,18 +17,18 @@ class TestModprobe:
                               "echo non-existent-kernel",
                               shell=True).decode().strip())
     def test_2(self, completion):
-        assert completion.list
+        assert completion
 
     # "in": intel*, ...
     @pytest.mark.complete("modprobe -S non-existent-kernel in")
     def test_3(self, completion):
-        assert not completion.list
+        assert not completion
 
     @pytest.mark.complete("modprobe non-existent-module ")
     def test_4(self, completion):
-        assert not completion.list
+        assert not completion
 
     @pytest.mark.complete("modprobe /tm")
     def test_5(self, completion):
-        assert completion.list
-        assert not completion.output.endswith(" ")
+        assert completion
+        assert not completion.endswith(" ")

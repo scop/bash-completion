@@ -10,4 +10,4 @@ class TestDumpdb:
 
     @pytest.mark.complete("dumpdb ")
     def test_1(self, completion):
-        assert completion.list
+        assert completion

@@ -21,4 +21,4 @@ class TestCancel:
     def test_1(self, bash, completion, added_job):
         got = assert_bash_exec(bash, "lpstat | awk '{print $1}'",
                                want_output=True).strip().split()
-        assert completion.list == sorted(got)
+        assert completion == sorted(got)
