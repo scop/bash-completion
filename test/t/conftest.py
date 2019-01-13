@@ -91,6 +91,7 @@ def bash(request) -> pexpect.spawn:
         INPUTRC="%s/config/inputrc" % testdir,
         TERM="dumb",
         BASH_COMPLETION_COMPAT_DIR="%s/fixtures/shared/empty_dir" % testdir,
+        LC_COLLATE="C",  # to match Python's default locale unaware sort
     ))
     # TODO set stty_init "columns 150" --> dimensions? needed in first place?
 
