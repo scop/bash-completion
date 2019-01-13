@@ -10,4 +10,4 @@ class TestXgamma:
     @pytest.mark.complete("xgamma -gam")
     def test_2(self, completion):
         assert completion.list == ["-gamma"]
-        assert completion.line.endswith(" ")
+        assert completion.output.endswith(" ")

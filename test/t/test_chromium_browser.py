@@ -13,4 +13,4 @@ class TestChromiumBrowser:
     @pytest.mark.complete("chromium-browser -")
     def test_2(self, completion):
         assert completion.list
-        assert not completion.line.endswith(" ")
+        assert not completion.output.endswith(" ")

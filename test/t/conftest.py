@@ -264,7 +264,7 @@ def diff_env(before: List[str], after: List[str], ignore: str):
 
 
 CompletionResult = NamedTuple(
-    "CompletionResult", [("line", str), ("list", List[str])])
+    "CompletionResult", [("output", str), ("list", List[str])])
 
 
 def assert_complete(
@@ -302,18 +302,18 @@ def assert_complete(
         pexpect.TIMEOUT,
     ])
     if got == 0:
-        line = bash.before
-        if line.endswith(MAGIC_MARK):
-            line = bash.before[:-len(MAGIC_MARK)]
+        output = bash.before
+        if output.endswith(MAGIC_MARK):
+            output = bash.before[:-len(MAGIC_MARK)]
         result = CompletionResult(
-            line,
-            sorted(x for x in re.split(r" {2,}|\r\n", line) if x),
+            output,
+            sorted(x for x in re.split(r" {2,}|\r\n", output) if x),
         )
     elif got == 2:
-        line = bash.match.group(1)
+        output = bash.match.group(1)
         result = CompletionResult(
-            line,
-            [shlex.split(cmd + line)[-1]],
+            output,
+            [shlex.split(cmd + output)[-1]],
         )
     else:
         # TODO: warn about EOF/TIMEOUT?

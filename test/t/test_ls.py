@@ -28,4 +28,4 @@ class TestLs:
         part, full = part_full
         completion = assert_complete(bash, "ls ~%s" % part)
         assert completion.list == ["~%s" % full]
-        assert completion.line.endswith(" ")
+        assert completion.output.endswith(" ")

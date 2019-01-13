@@ -15,7 +15,7 @@ class Test7z:
     @pytest.mark.complete(r"7z x -wa\ ", cwd="_filedir")
     def test_3(self, completion):
         assert completion.list == [r"-wa\ b/"]
-        assert not completion.line.endswith(" ")
+        assert not completion.output.endswith(" ")
 
     @pytest.mark.complete("7z x ", cwd="7z")
     def test_4(self, completion):

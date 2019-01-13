@@ -27,4 +27,4 @@ class TestModinfo:
     @pytest.mark.complete("modinfo /tm")
     def test_4(self, completion):
         assert completion.list
-        assert not completion.line.endswith(" ")
+        assert not completion.output.endswith(" ")

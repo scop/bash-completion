@@ -12,8 +12,9 @@ class TestMkdir:
     def test_2(self, completion):
         assert completion.list == ["bar bar.d/", "foo", "foo.d/"]
 
-    @pytest.mark.xfail  # TODO: why path in completion.list, basename in .line?
+    # TODO: why path in completion.list, basename in .output?
+    @pytest.mark.xfail
     @pytest.mark.complete("mkdir shared/default/foo.d/")
     def test_3(self, completion):
-        assert completion.line == "foo"
-        assert completion.list == [completion.line]
+        assert completion.output == "foo"
+        assert completion.list == [completion.output]

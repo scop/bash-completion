@@ -31,7 +31,7 @@ class TestChown:
         part, full = part_full_user
         completion = assert_complete(bash, "chown %s" % part)
         assert completion.list == [full]
-        assert completion.line.endswith(" ")
+        assert completion.output.endswith(" ")
 
     def test_5(self, bash, part_full_user, part_full_group):
         _, user = part_full_user
@@ -39,13 +39,13 @@ class TestChown:
         completion = assert_complete(
             bash, "chown %s:%s" % (user, partgroup))
         assert completion.list == ["%s:%s" % (user, fullgroup)]
-        assert completion.line.endswith(" ")
+        assert completion.output.endswith(" ")
 
     def test_6(self, bash, part_full_group):
         part, full = part_full_group
         completion = assert_complete(bash, "chown dot.user:%s" % part)
         assert completion.list == ["dot.user:%s" % full]
-        assert completion.line.endswith(" ")
+        assert completion.output.endswith(" ")
 
     @pytest.mark.xfail  # TODO check escaping, whitespace
     def test_7(self, bash, part_full_group):
@@ -57,7 +57,7 @@ class TestChown:
             completion = assert_complete(
                 bash, "chown %s%s" % (prefix, part))
             assert completion.list == ["%s%s" % (prefix, full)]
-            assert completion.line.endswith(" ")
+            assert completion.output.endswith(" ")
 
     def test_8(self, bash, part_full_user, part_full_group):
         """Test giving up on degenerate cases instead of spewing junk."""

@@ -21,4 +21,4 @@ class TestAlias:
     @pytest.mark.complete("alias foo=")
     def test_2(self, completion):
         assert completion.list == ["foo='bar'"]
-        assert not completion.line.endswith(" ")
+        assert not completion.output.endswith(" ")

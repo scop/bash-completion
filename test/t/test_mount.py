@@ -14,7 +14,7 @@ class TestMount:
     @pytest.mark.complete("mount /dev/sda1 def", cwd="shared")
     def test_3(self, completion):
         assert completion.list == ["default/"]
-        assert not completion.line.endswith(" ")
+        assert not completion.output.endswith(" ")
 
     @pytest.mark.complete("mount mocksrv:/",
                           env=dict(PATH="$PWD/mount/bin:$PATH"))

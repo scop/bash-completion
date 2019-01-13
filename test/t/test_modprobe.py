@@ -31,4 +31,4 @@ class TestModprobe:
     @pytest.mark.complete("modprobe /tm")
     def test_5(self, completion):
         assert completion.list
-        assert not completion.line.endswith(" ")
+        assert not completion.output.endswith(" ")

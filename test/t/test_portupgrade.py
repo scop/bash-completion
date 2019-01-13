@@ -11,4 +11,4 @@ class TestPortupgrade:
     @pytest.mark.complete("portupgrade ")
     def test_1(self, completion):
         assert completion.list == "a b-c-d".split()
-        assert completion.line.endswith(" ")
+        assert completion.output.endswith(" ")

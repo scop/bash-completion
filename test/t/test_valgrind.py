@@ -21,7 +21,7 @@ class TestValgrind:
     @pytest.mark.complete("valgrind --tool=helgrind --history-l")
     def test_4(self, completion):
         assert "--history-level=" in completion.list
-        assert not completion.line.endswith(" ")
+        assert not completion.output.endswith(" ")
 
     @pytest.mark.complete(r"valgrind --log-file=v\ 0.log ./bin/", cwd="shared")
     def test_5(self, completion):

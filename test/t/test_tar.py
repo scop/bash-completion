@@ -81,12 +81,12 @@ class TestTar:
     @pytest.mark.complete("tar --add-fil")
     def test_15(self, completion, gnu_tar):
         assert completion.list == ["--add-file="]
-        assert not completion.line.endswith(" ")
+        assert not completion.output.endswith(" ")
 
     @pytest.mark.complete("tar -cf /dev/null --posi")
     def test_16(self, completion, gnu_tar):
         assert completion.list == ["--posix"]
-        assert completion.line.endswith(" ")
+        assert completion.output.endswith(" ")
 
     @pytest.mark.complete("tar --owner=")
     def test_17(self, bash, completion, gnu_tar):
