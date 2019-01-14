@@ -155,3 +155,10 @@ class TestUnitParseHelp:
         output = assert_bash_exec(
             bash, "echo '-f or --foo' | _parse_help -", want_output=True)
         assert output.split() == "--foo".split()
+
+    def test_30(self, bash):
+        """More than two dashes should not be treated as options."""
+        assert_bash_exec(bash,
+                         r"fn() { printf '%s\n' $'----\n---foo\n----- bar'; }")
+        output = assert_bash_exec(bash, "_parse_help fn")
+        assert not output
