@@ -1718,6 +1718,66 @@ else
     complete -F _cd -o nospace cd pushd
 fi
 
+# only completes on directories under specified path(like CDPATH).
+__cd_baseon()
+{
+    local cur prev words cword
+
+    _init_completion || return
+
+    local base_path=$1
+
+    [ ! -z "${base_path}" ] || return
+
+    local IFS=$'\n'
+    local i j
+
+    compopt -o filenames
+
+    local -r mark_dirs=$(_rl_enabled mark-directories && echo y)
+    local -r mark_symdirs=$(_rl_enabled mark-symlinked-directories && echo y)
+
+    j="${#COMPREPLY[@]}"
+    for i in $(compgen -d -- ${base_path}/${cur}); do
+        if [[ (${mark_symdirs} && -h ${i} || ${mark_dirs} && ! -h ${i}) && ! -d ${i#${base_path}/} ]]; then
+            i+="/"
+        fi
+        COMPREPLY[j++]=${i#${base_path}/}
+    done
+
+    if [[ ${#COMPREPLY[@]} -eq 1 ]]; then
+        i=${COMPREPLY[0]}
+        if [[ "${i}" == "${cur}" && "${i}" != "*/" ]]; then
+            COMPREPLY[0]="${i}/"
+        fi
+    fi
+
+    return
+}
+
+# define shortcuts used for a quick cd
+# e.g.:
+#   __cd_baseon_complete wksp ${home}/workspace
+__cd_baseon_complete()
+{
+    local cmd="${1}"
+    local _cmd_comp="_${1}"
+    local base_path="${2}"
+
+    # define function cmd
+    eval "${cmd} () { cd ${base_path}/\${1}; }"
+
+    # define completion funtion _cmd_comp
+    eval "${_cmd_comp} () { __cd_baseon ${base_path}; }"
+
+    local var_opt=""
+    if shopt -q cdable_vars; then
+        var_opt="-v"
+    fi
+
+    complete ${var_opt} -F ${_cmd_comp} -o nospace ${cmd} pushd
+}
+
 # a wrapper method for the next one, when the offset is unknown
 _command()
 {
