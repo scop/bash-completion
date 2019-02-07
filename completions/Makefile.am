@@ -156,6 +156,7 @@ bashcomp_DATA = 2to3 \
 		iconv \
 		id \
 		idn \
+		ifstat \
 		iftop \
 		ifup \
 		info \

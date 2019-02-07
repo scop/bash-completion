@@ -1,0 +1,35 @@
+# bash completion for ifstat(1)                            -*- shell-script -*-
+
+_ifstat()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -*[hv])
+            return
+            ;;
+        -*i)
+            # TODO comma separated
+            _available_interfaces -a
+            return
+            ;;
+        -*d)
+            COMPREPLY=( $( compgen -W '$( "$1" -v |
+                sed -e "s/[,.]//g" -ne "s/^.*drivers://p" )' -- "$cur" ) )
+            return
+            ;;
+        -*s)
+            _known_hosts_real -- "$cur"
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+        return
+    fi
+} &&
+complete -F _ifstat ifstat
+
+# ex: filetype=sh

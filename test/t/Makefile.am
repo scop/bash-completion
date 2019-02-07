@@ -227,6 +227,7 @@ EXTRA_DIST = \
 	test_idn.py \
 	test_id.py \
 	test_ifdown.py \
+	test_ifstat.py \
 	test_iftop.py \
 	test_ifup.py \
 	test_import.py \
