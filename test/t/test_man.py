@@ -11,6 +11,19 @@ class TestMan:
     manpath = "$PWD/man"
     assumed_present = "man"
 
+    @pytest.fixture
+    def colonpath(self, request, bash):
+        try:
+            assert_bash_exec(bash, "uname -s 2>&1 | grep -qiF cygwin")
+        except AssertionError:
+            pass
+        else:
+            pytest.skip("Cygwin doesn't like paths with colons")
+            return
+        assert_bash_exec(bash, "mkdir -p $TESTDIR/../tmp/man/man3")
+        assert_bash_exec(
+            bash, "touch $TESTDIR/../tmp/man/man3/Bash::Completion.3pm.gz")
+
     @pytest.mark.complete("man bash-completion-testcas",
                           env=dict(MANPATH=manpath))
     def test_1(self, completion):
@@ -69,3 +82,8 @@ class TestMan:
     def test_9(self, bash, completion):
         assert self.assumed_present in completion
         assert_bash_exec(bash, "shopt -u failglob")
+
+    @pytest.mark.complete("man Bash::C",
+                          env=dict(MANPATH="%s:../tmp/man" % manpath))
+    def test_10(self, bash, colonpath, completion):
+        assert completion == "Bash::Completion"
