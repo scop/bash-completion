@@ -53,7 +53,7 @@ def find_unique_completion_pair(
     return result
 
 
-@pytest.fixture(autouse=True, scope="class")
+@pytest.fixture(scope="class")
 def part_full_user(bash: pexpect.spawn) -> Optional[Tuple[str, str]]:
     res = assert_bash_exec(
         bash, "compgen -u", want_output=True,
@@ -64,7 +64,7 @@ def part_full_user(bash: pexpect.spawn) -> Optional[Tuple[str, str]]:
     return pair
 
 
-@pytest.fixture(autouse=True, scope="class")
+@pytest.fixture(scope="class")
 def part_full_group(bash: pexpect.spawn) -> Optional[Tuple[str, str]]:
     res = assert_bash_exec(
         bash, "compgen -g", want_output=True,
@@ -75,7 +75,7 @@ def part_full_group(bash: pexpect.spawn) -> Optional[Tuple[str, str]]:
     return pair
 
 
-@pytest.fixture(autouse=True, scope="class")
+@pytest.fixture(scope="class")
 def bash(request) -> pexpect.spawn:
 
     logfile = None
@@ -392,7 +392,7 @@ def assert_complete(
     return result
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def completion(request, bash: pexpect.spawn) -> CompletionResult:
     marker = request.node.get_closest_marker("complete")
     if not marker:
