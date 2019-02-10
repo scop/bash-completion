@@ -2,31 +2,59 @@
 
 _ifstat()
 {
-    local cur prev words cword
-    _init_completion || return
+    local cur prev words cword split
+    _init_completion -s || return
 
     case $prev in
-        -*[hv])
+        --help|--version|--scan|--interval|-!(-*)[hvV])
             return
             ;;
-        -*i)
+        -!(-*)i)
             # TODO comma separated
             _available_interfaces -a
             return
             ;;
-        -*d)
-            COMPREPLY=( $( compgen -W '$( "$1" -v |
-                sed -e "s/[,.]//g" -ne "s/^.*drivers://p" )' -- "$cur" ) )
+        -!(-*)d)
+            # iproute2: no completion (scan delay)
+            # traditional: parse driver
+            if ! { "$1" --help 2>&1 || :; } | \
+                    command grep -q -- '-d.*--scan'; then
+                COMPREPLY=( $( compgen -W '$( "$1" -v |
+                    sed -e "s/[,.]//g" -ne "s/^.*drivers://p" )' -- "$cur" ) )
+            fi
             return
             ;;
-        -*s)
-            _known_hosts_real -- "$cur"
+        --noupdate|-!(-*)s)
+            # iproute2: pass through (skip history update)
+            # traditional: hostnames (snmp)
+            if ! { "$1" --help 2>&1 || :; } | \
+                    command grep -q -- '-s.*--noupdate'; then
+                _known_hosts_real -- "$cur"
+                return
+            fi
+            ;;
+        -!(-*)t)
+            # iproute2: no completion (interval)
+            # traditional: pass through (add timestamp)
+            ! { "$1" --help 2>&1 || :; } | \
+                command grep -q -- '-t.*--interval' || return
+            ;;
+        --extended|-!(-*)x)
+            # iproute2: parse xstat types
+            COMPREPLY=( $( compgen -W '$( "$1" -x nonexistent-xstat 2>&1 |
+                awk "found { print \$1 } /supported xstats:/ { found=1 }" )' \
+                -- "$cur" ) )
             return
             ;;
     esac
 
+    $split && return
+
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+        local opts=$( _parse_help "$1" )
+        [[ $opts ]] || opts=$( _parse_usage "$1" )
+        COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
 } &&
