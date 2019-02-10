@@ -12,7 +12,6 @@ class TestRi:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.xfail  # TODO: completion split issues (single space)
     @pytest.mark.complete("ri --dump=ri/")
     def test_2(self, completion):
         assert completion == "BashCompletion/ cache.ri".split()
