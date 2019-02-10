@@ -23,6 +23,8 @@ class TestMan:
         assert_bash_exec(bash, "mkdir -p $TESTDIR/../tmp/man/man3")
         assert_bash_exec(
             bash, "touch $TESTDIR/../tmp/man/man3/Bash::Completion.3pm.gz")
+        request.addfinalizer(
+            lambda: assert_bash_exec(bash, "rm -r $TESTDIR/../tmp/man"))
 
     @pytest.mark.complete("man bash-completion-testcas",
                           env=dict(MANPATH=manpath))
