@@ -264,6 +264,7 @@ EXTRA_DIST = \
 	test_jps.py \
 	test_jq.py \
 	test_jshint.py \
+	test_jsonschema.py \
 	test_json_xs.py \
 	test_k3b.py \
 	test_kcov.py \

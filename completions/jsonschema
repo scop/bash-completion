@@ -1,0 +1,29 @@
+# bash completion for jsonschema                           -*- shell-script -*-
+
+_jsonschema()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --help|--error-format|--validator|-[hFV])
+            return
+            ;;
+        --instance|-i)
+            _filedir json
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return
+    fi
+
+    local args; _count_args "" "-*"
+    [[ $args -eq 1 ]] || return
+    _filedir '@(json|schema)'
+} &&
+complete -F _jsonschema jsonschema
+
+# ex: filetype=sh

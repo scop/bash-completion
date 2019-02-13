@@ -189,6 +189,7 @@ bashcomp_DATA = 2to3 \
 		jps \
 		jshint \
 		json_xs \
+		jsonschema \
 		k3b \
 		kcov \
 		kill \
