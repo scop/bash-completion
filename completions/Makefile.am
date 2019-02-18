@@ -365,6 +365,7 @@ bashcomp_DATA = 2to3 \
 		screen \
 		scrub \
 		sh \
+		shovel \
 		sitecopy \
 		slackpkg \
 		slapt-get \
