@@ -5,7 +5,7 @@ bashcomp_DATA = 2to3 \
 		abook \
 		aclocal \
 		acpi \
-		adb \
+		_adb \
 		add_members \
 		alias \
 		ant \
