@@ -94,6 +94,7 @@ bashcomp_DATA = 2to3 \
 		_eject \
 		eog \
 		ether-wake \
+		ethtool \
 		evince \
 		explodepkg \
 		export \

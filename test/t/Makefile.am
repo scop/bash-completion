@@ -145,6 +145,7 @@ EXTRA_DIST = \
 	test_eog.py \
 	test_ether_wake.py \
 	test_etherwake.py \
+	test_ethtool.py \
 	test_evince.py \
 	test_expand.py \
 	test_explodepkg.py \

@@ -1,0 +1,184 @@
+#!/bin/sh
+
+set -eu
+
+if [ -n "${MOCK_ETHTOOL_FAIL-}" ] ; then
+    echo "$MOCK_ETHTOOL_FAIL" >&2
+    exit 1
+fi
+
+# All mocked invocations currently require exactly 2 arguments
+if [ "$#" -ne 2 ] ; then
+    echo 'ethtool: bad command line argument(s)
+For more information run ethtool -h' >&2
+    exit 1
+fi
+
+case "$1" in
+    -k|--show-features|--show-offload)
+        # Mock for eth0 only
+        if [ "$2" != eth0 ] ; then
+            echo 'Cannot get device feature names: No such device' >&2
+            exit 1
+        fi
+
+        echo "Features for $2:
+rx-checksumming: on
+tx-checksumming: on
+	tx-checksum-ipv4: off [fixed]
+	tx-checksum-ip-generic: on
+	tx-checksum-ipv6: off [fixed]
+	tx-checksum-fcoe-crc: off [fixed]
+	tx-checksum-sctp: off [fixed]
+scatter-gather: on
+	tx-scatter-gather: on
+	tx-scatter-gather-fraglist: off [fixed]
+tcp-segmentation-offload: on
+	tx-tcp-segmentation: on
+	tx-tcp-ecn-segmentation: off [fixed]
+	tx-tcp-mangleid-segmentation: off
+	tx-tcp6-segmentation: on
+udp-fragmentation-offload: off
+generic-segmentation-offload: on
+generic-receive-offload: on
+large-receive-offload: off [fixed]
+rx-vlan-offload: on
+tx-vlan-offload: on
+ntuple-filters: off [fixed]
+receive-hashing: on
+highdma: on [fixed]
+rx-vlan-filter: off [fixed]
+vlan-challenged: off [fixed]
+tx-lockless: off [fixed]
+netns-local: off [fixed]
+tx-gso-robust: off [fixed]
+tx-fcoe-segmentation: off [fixed]
+tx-gre-segmentation: off [fixed]
+tx-gre-csum-segmentation: off [fixed]
+tx-ipxip4-segmentation: off [fixed]
+tx-ipxip6-segmentation: off [fixed]
+tx-udp_tnl-segmentation: off [fixed]
+tx-udp_tnl-csum-segmentation: off [fixed]
+tx-gso-partial: off [fixed]
+tx-sctp-segmentation: off [fixed]
+tx-esp-segmentation: off [fixed]
+tx-udp-segmentation: off [fixed]
+fcoe-mtu: off [fixed]
+tx-nocache-copy: off
+loopback: off [fixed]
+rx-fcs: off
+rx-all: off
+tx-vlan-stag-hw-insert: off [fixed]
+rx-vlan-stag-hw-parse: off [fixed]
+rx-vlan-stag-filter: off [fixed]
+l2-fwd-offload: off [fixed]
+hw-tc-offload: off [fixed]
+esp-hw-offload: off [fixed]
+esp-tx-csum-hw-offload: off [fixed]
+rx-udp_tunnel-port-offload: off [fixed]
+tls-hw-tx-offload: off [fixed]
+tls-hw-rx-offload: off [fixed]
+rx-gro-hw: off [fixed]
+tls-hw-record: off [fixed]"
+        ;;
+
+    -n|-u|--show-nfc|--show-ntuple)
+        # Mock for eth0 only
+        if [ "$2" != eth0 ] ; then
+            echo 'Cannot get RX rings: No such device
+rxclass: Cannot get RX class rule count: No such device
+RX classification rule retrieval failed' >&2
+            exit 1
+        fi
+
+        echo '16 RX rings available
+Total 4 rules
+
+Filter: 2044
+	Rule Type: TCP over IPv4
+	Src IP addr: 10.0.0.1 mask: 0.0.0.0
+	Dest IP addr: 10.0.0.2 mask: 0.0.0.0
+	TOS: 0x0 mask: 0xff
+	Src port: 10000 mask: 0x0
+	Dest port: 10001 mask: 0x0
+	VLAN EtherType: 0x0 mask: 0xffff
+	VLAN: 0x0 mask: 0xffff
+	User-defined: 0x0 mask: 0xffffffffffffffff
+	Action: Direct to queue 6
+
+Filter: 2045
+	Rule Type: TCP over IPv4
+	Src IP addr: 10.0.0.1 mask: 0.0.0.0
+	Dest IP addr: 10.0.0.2 mask: 0.0.0.0
+	TOS: 0x0 mask: 0xff
+	Src port: 10000 mask: 0x0
+	Dest port: 10002 mask: 0x0
+	VLAN EtherType: 0x0 mask: 0xffff
+	VLAN: 0x0 mask: 0xffff
+	User-defined: 0x0 mask: 0xffffffffffffffff
+	RSS Context ID: 1
+	Action: Direct to queue 6
+
+Filter: 2046
+	Rule Type: TCP over IPv4
+	Src IP addr: 10.0.0.1 mask: 0.0.0.0
+	Dest IP addr: 10.0.0.2 mask: 0.0.0.0
+	TOS: 0x0 mask: 0xff
+	Src port: 10000 mask: 0x0
+	Dest port: 10003 mask: 0x0
+	VLAN EtherType: 0x0 mask: 0xffff
+	VLAN: 0x0 mask: 0xffff
+	User-defined: 0x0 mask: 0xffffffffffffffff
+	RSS Context ID: 2
+	Action: Direct to queue 6
+
+Filter: 2047
+	Rule Type: TCP over IPv4
+	Src IP addr: 10.0.0.1 mask: 0.0.0.0
+	Dest IP addr: 10.0.0.2 mask: 0.0.0.0
+	TOS: 0x0 mask: 0xff
+	Src port: 10000 mask: 0x0
+	Dest port: 10004 mask: 0x0
+	VLAN EtherType: 0x0 mask: 0xffff
+	VLAN: 0x0 mask: 0xffff
+	User-defined: 0x0 mask: 0xffffffffffffffff
+	RSS Context ID: 1
+	Action: Direct to queue 6'
+        ;;
+
+    -x|--show-rxfh|--show-rxfh-indir)
+        # Mock for eth0 only
+        if [ "$2" != eth0 ] ; then
+            echo 'Cannot get RX ring count: No such device' >&2
+            exit 1
+        fi
+
+        # FIXME: Constructed based on ethtool.c.  Want real hfunc example.
+        echo "RX flow hash indirection table for $2 with 2 RX ring(s):
+0: 0 0 0 0 0 0 0 0
+8: 0 0 0 0 0 0 0 0
+16: 0 0 0 0 0 0 0 0
+24: 1 1 1 1 1 1 1 1
+RSS hash key:
+de:ad:be:ef
+RSS hash function:
+    toeplitz: on
+    xor: off
+    crc32: off"
+        ;;
+
+    --show-priv-flags)
+        # Mock for eth0 only
+        if [ "$2" != eth0 ] ; then
+            echo 'Cannot get private flag names: No such device' >&2
+            exit 1
+        fi
+
+        # Example from https://github.com/serhepopovych/ixgbe
+        echo "Private flags for $2:
+flow-director-atr          : on
+vlan-stag-rx               : on
+vlan-stag-filter           : on
+vlan-stag-ethertype-802.1ad: on"
+        ;;
+esac
