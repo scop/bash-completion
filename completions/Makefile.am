@@ -439,7 +439,7 @@ bashcomp_DATA = 2to3 \
 		xfreerdp \
 		xgamma \
 		xhost \
-		xm \
+		_xm \
 		xmllint \
 		xmlwf \
 		xmms \
