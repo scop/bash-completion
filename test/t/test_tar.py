@@ -105,3 +105,21 @@ class TestTar:
     def test_19(self, bash, completion, gnu_tar):
         """Test short option -XXXb <TAB> (arg required)."""
         assert not completion
+
+    # Use bsdtar here as it completes to only 'zc zt zx'
+    # -- 'tar' can be GNU tar and have more options
+    @pytest.mark.complete("bsdtar z")
+    def test_20(self, bash, completion):
+        assert completion == "zc zt zx".split()
+
+    @pytest.mark.complete("bsdtar cbfvv NON_EXISTENT ", cwd="tar")
+    def test_21(self, bash, completion):
+        """Test _second_ option in "old" argument."""
+        assert completion == "dir/ dir2/".split()
+
+    @pytest.mark.complete(r"tar tf escape.tar a/b\'", cwd="tar")
+    def test_22(self, bash, completion):
+        """Test listing escaped chars in old option."""
+        assert completion == "a/b'c/"
+
+    # TODO: "tar tf escape.tar a/b"
