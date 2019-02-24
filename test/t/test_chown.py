@@ -1,3 +1,5 @@
+import getpass
+
 import pytest
 
 from conftest import assert_bash_exec, assert_complete
@@ -11,6 +13,8 @@ from conftest import assert_bash_exec, assert_complete
 )
 class TestChown:
 
+    @pytest.mark.xfail(getpass.getuser() != "root",
+                       reason="Only root can chown to all users")
     @pytest.mark.complete("chown ")
     def test_1(self, bash, completion):
         users = sorted(assert_bash_exec(
