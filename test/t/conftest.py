@@ -93,7 +93,6 @@ def bash(request) -> pexpect.spawn:
         BASH_COMPLETION_COMPAT_DIR="%s/fixtures/shared/empty_dir" % testdir,
         LC_COLLATE="C",  # to match Python's default locale unaware sort
     ))
-    # TODO set stty_init "columns 150" --> dimensions? needed in first place?
 
     fixturesdir = os.path.join(testdir, "fixtures")
     os.chdir(fixturesdir)
@@ -106,6 +105,10 @@ def bash(request) -> pexpect.spawn:
         cwd=fixturesdir,
         env=env,
         encoding="utf-8",  # TODO? or native or...?
+        # FIXME: Tests shouldn't depend on dimensions, but it's difficult to
+        # expect robustly enough for Bash to wrap lines anywhere (e.g. inside
+        # MAGIC_MARK).  Increase window width to reduce wrapping.
+        dimensions=(24, 160),
         # TODO? codec_errors="replace",
     )
     bash.expect_exact(PS1)
