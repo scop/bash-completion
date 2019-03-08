@@ -2,7 +2,7 @@
 
 if [ $DIST = tools ]; then
     perlcritic helpers/perl
-    flake8 helpers/python test
+    flake8 helpers/python test test/generate
     exit 0
 fi
 

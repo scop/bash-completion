@@ -1,63 +1,61 @@
-#!/bin/bash -eu
+#!/usr/bin/env python3
 
-# Generate skeleton files for completion of specified command.
+# Generate skeleton files for completion of specified command
 
-shopt -s extglob
+import fileinput
+import re
+import sys
 
-if [[ $# -lt 1 ]]; then
-    echo "Usage: $0 command [args...]" >&2
-    exit 1
-fi
 
-cmd=$1
-file=$1
-arg=${2-}
-marker=
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: %s command [args...]" % sys.argv[0], file=sys.stderr)
+        sys.exit(1)
 
-if [[ $cmd == *[.+-]* ]]; then
-    file=${cmd//[.-]/_}
-    file=${file//+/plus}
-    marker=$'\n'"@pytest.mark.bashcomp("$'\n'"    cmd=\"$cmd\","$'\n'")"
-fi
+    cmd = testfile = sys.argv[1]
+    args = " ".join(sys.argv[2:]) if len(sys.argv) > 2 else ""
+    marker = ""
+    if re.search("[.+-]", cmd):
+        testfile = re.sub("[.-]", "_", cmd).replace("+", "plus")
+        marker = '\n@pytest.mark.bashcomp(\n    cmd="%s",\n)' % cmd
+    testfile = "test_%s.py" % testfile
+    name = re.sub("(^|[_-]+)(.)", lambda m: m.group(2).upper(), cmd)
+    name = name.replace("+", "Plus")
 
-name=$(python -c "import re,sys;print(re.sub('(^|[_-]+)(.)',lambda m:m.group(2).upper(),sys.argv[1]).replace('+','Plus'))" $file)
-
-cat <<EOF >t/test_$file.py
+    with open("t/%s" % testfile, "w") as f:
+        print(
+            """\
 import pytest
 
-$marker
-class Test$name:
+%s
+class Test%s:
 
-    @pytest.mark.complete("$1 $arg")
+    @pytest.mark.complete("%s %s")
     def test_1(self, completion):
-        assert completion
-EOF
+        assert completion"""
+            % (marker, name, cmd, args),
+            file=f,
+        )
 
-tmpfile=$(mktemp)
-trap "{ rm -f $tmpfile; }" EXIT
-in_extra_dist=
-added=
-IFS=$'\n'
-while read -r line; do
-    if [[ $in_extra_dist ]]; then
-        if [[ $line != $'\t'* ]]; then
-            if [[ ! $added ]]; then
-                echo -e "\ttest_$file.py"
-                added=true
-            fi
-            in_extra_dist=
-        else
-            [[ $line == *\\ ]] || line="$line \\"
-            if [[ ! $added && $line > $'\t'test_$file.py ]]; then
-                echo -e "\ttest_$file.py \\"
-                added=true
-            fi
-        fi
-        echo "$line"
-    else
-        if [[ $line == EXTRA_DIST\ * ]]; then
-            in_extra_dist=true
-        fi
-        echo "$line"
-    fi
-done < t/Makefile.am > $tmpfile && mv -f $tmpfile t/Makefile.am
+    in_extra_dist = False
+    extra_dist_lines = set()
+    with fileinput.input(files=("t/Makefile.am"), inplace=True) as f:
+        for line in f:
+            if line.startswith("EXTRA_DIST "):
+                in_extra_dist = True
+            elif in_extra_dist:
+                if line.startswith("\t"):
+                    line = line.strip()
+                    if not line.endswith("\\"):
+                        line += " \\"
+                    extra_dist_lines.add(line)
+                    continue
+                extra_dist_lines.add("%s \\" % testfile)
+                sys.stdout.write("\t")
+                print("\n\t".join(sorted(extra_dist_lines))[:-2])
+                in_extra_dist = False
+            sys.stdout.write(line)
+
+
+if __name__ == "__main__":
+    main()
