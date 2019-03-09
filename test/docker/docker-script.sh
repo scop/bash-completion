@@ -30,7 +30,7 @@ case $DIST in
 esac
 
 cd test
-xvfb-run $PYTEST t
+xvfb-run $PYTEST --numprocesses=${PYTEST_NUMPROCESSES:-auto} --dist=loadfile t
 xvfb-run ./runCompletion --all --verbose
 ./runInstall --verbose --all --verbose
 ./runUnit --all --verbose
