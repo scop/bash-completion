@@ -42,7 +42,7 @@ _pytest()
             _filedir
             return
             ;;
-        --confcutdir|--basetemp)
+        --confcutdir|--basetemp|--rsyncdir)
             _filedir -d
             return
             ;;
@@ -52,6 +52,17 @@ _pytest()
             ;;
         --genscript)
             _filedir py
+            return
+            ;;
+        --numprocesses|-!(-*)n)
+            COMPREPLY=( $( compgen -W "{1..$(_ncpus)} auto" -- "$cur" ) )
+            return
+            ;;
+        --dist)
+            local modes=$( "$1" --dist=nonexistent-distmode 2>&1 | \
+                command sed -e 's/[^[:space:][:alnum:]-]\{1,\}//g' \
+                           -ne 's/.*choose from //p' )
+            COMPREPLY=( $( compgen -W '$modes' -- "$cur" ) )
             return
             ;;
     esac
