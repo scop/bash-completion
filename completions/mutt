@@ -57,6 +57,9 @@ _muttconffiles()
     while [[ "$1" ]]; do
         newconffiles=( $(command sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' $(eval printf %s $1) ) )
         for file in "${newconffiles[@]}"; do
+            # First eval `$file', because it might contain quotes, then
+            # expand tilde (see Debian bug #615134)
+            eval file=$file
             __expand_tilde_by_ref file
             [[ ! -f "$file" || $sofar == *\ $file\ * ]] && continue
             sofar+=" $file"
