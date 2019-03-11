@@ -1878,8 +1878,7 @@ _longopt()
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W "$( LC_ALL=C $1 --help 2>&1 | \
-            command grep --basic-regexp --line-number --only-matching -- '--[-A-Za-z0-9]\{1,\}=\{0,1\}' | \
-            mawk -F: '{ if (!options[$1]) options[$1] = $2 } END { for (line in options) printf("%s\n", options[line]);  }' | \
+            while read -r line; do [[ "$line" =~ --[-A-Za-z0-9]{1,}={0,1} ]] && echo "${BASH_REMATCH[0]}"; done | \
             sort -u )" \
             -- "$cur" ) )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
