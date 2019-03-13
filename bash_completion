@@ -1523,7 +1523,10 @@ _known_hosts_real()
         [[ -r $configfile ]] && config+=( "$configfile" )
     else
         for i in /etc/ssh/ssh_config ~/.ssh/config ~/.ssh2/config; do
-            [[ -r $i ]] && config+=( "$i" )
+            [[ -r $i ]] && config+=( "$i" ) &&
+              for inc in $(awk '/^Include/{print $2}' $i); do
+                [[ -r $inc ]] && config+=( "$inc" )
+              done
         done
     fi
 
