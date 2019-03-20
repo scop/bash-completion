@@ -276,6 +276,7 @@ bashcomp_DATA = 2to3 \
 		_nmcli \
 		nproc \
 		nslookup \
+		nsupdate \
 		ntpdate \
 		oggdec \
 		op \

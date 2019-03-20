@@ -1,0 +1,40 @@
+# bash completion for nsupdate(1)                          -*- shell-script -*-
+
+_nsupdate()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -*[VLprtu])
+            return
+            ;;
+        -*k)
+            _filedir key
+            return
+            ;;
+        -*R)
+            cur=${cur:=/dev/}
+            _filedir
+            return
+            ;;
+        -*y)
+            if [[ $cur == h* ]]; then
+                COMPREPLY=( $( compgen -W "hmac-{md5,sha{1,224,256,384,512}}" \
+                                       -S : -- "$cur" ) )
+                [[ $COMPREPLY == *: ]] && compopt -o nospace
+            fi
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+        return
+    fi
+
+    _filedir
+} &&
+complete -F _nsupdate nsupdate
+
+# ex: filetype=sh

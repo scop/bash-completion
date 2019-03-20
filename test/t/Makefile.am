@@ -396,6 +396,7 @@ EXTRA_DIST = \
 	test_nmcli.py \
 	test_nproc.py \
 	test_nslookup.py \
+	test_nsupdate.py \
 	test_ntpdate.py \
 	test_objcopy.py \
 	test_objdump.py \
