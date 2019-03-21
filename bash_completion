@@ -1878,9 +1878,10 @@ _longopt()
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $( compgen -W "$( LC_ALL=C $1 --help 2>&1 | \
-            while read -r line; do [[ "$line" =~ --[-A-Za-z0-9]{1,}={0,1} ]] && echo "${BASH_REMATCH[0]}"; done | \
-            sort -u )" \
-            -- "$cur" ) )
+            while read -r line; do \
+                [[ $line =~ --[-A-Za-z0-9]+=? ]] && \
+                    printf '%s\n' ${BASH_REMATCH[0]}
+            done )" -- "$cur" ) )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     elif [[ "$1" == @(rmdir|chroot) ]]; then
         _filedir -d
