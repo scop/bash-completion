@@ -83,9 +83,10 @@ _modprobe()
                 _filedir '@(?(k)o?(.gz))'
             elif [[ -n "$module" ]]; then
                 # do module parameter completion
-                COMPREPLY=( $( compgen -W "$( PATH="$PATH:/sbin" modinfo \
+                COMPREPLY=( $( compgen -S = -W "$( PATH="$PATH:/sbin" modinfo \
                     -p "$module" 2>/dev/null | \
                     awk -F: '!/^[ \t]/ { print $1 }' )" -- "$cur" ) )
+                [[ $COMPREPLY == *= ]] && compopt -o nospace
             else
                 _modules $version
                 if [[ $COMPREPLY ]]; then
