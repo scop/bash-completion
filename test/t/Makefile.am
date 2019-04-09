@@ -122,6 +122,7 @@ EXTRA_DIST = \
 	test_dir.py \
 	test_display.py \
 	test_dmesg.py \
+	test_dnssec_keygen.py \
 	test_dnsspoof.py \
 	test_dot.py \
 	test_dpkg.py \

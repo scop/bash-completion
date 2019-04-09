@@ -1,0 +1,48 @@
+# bash completion for dnssec-keygen(8)                     -*- shell-script -*-
+
+_dnssec_keygen_optarg()
+{
+    local args=$( "$1" -h 2>&1 | \
+        command sed -e 's/|/ /g' -e 's/(.*//' \
+                   -ne '/^[[:space:]]*'$2'/,/^[[:space:]]*[(-]/p' | \
+        command sed -e 's/^[[:space:]]*'$2'.*://' -e '/^[[:space:]]*-/d' )
+    COMPREPLY+=( $( compgen -W '$args' -- "$cur" ) )
+}
+
+_dnssec_keygen()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -[hbEgLpsPARIDSi])
+            return
+            ;;
+        -K)
+            _filedir -d
+            return
+            ;;
+        -[ancdfTtm])
+            _dnssec_keygen_optarg "$1" $prev
+            return
+            ;;
+        -r)
+            cur=${cur:=/dev/}
+            _filedir
+            return
+            ;;
+        -v)
+            COMPREPLY=( $( compgen -W '{0..10}' -- "$cur" ) )
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" | \
+            command sed -e "s/:\$//" )' -- "$cur" ) )
+        return
+    fi
+} &&
+complete -F _dnssec_keygen dnssec-keygen
+
+# ex: filetype=sh
