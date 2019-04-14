@@ -588,6 +588,7 @@ EXTRA_DIST = \
 	test_tshark.py \
 	test_tune2fs.py \
 	test_udevadm.py \
+	test_ulimit.py \
 	test_umount.py \
 	test_unace.py \
 	test_uname.py \

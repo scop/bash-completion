@@ -1,0 +1,32 @@
+# bash completion for ulimit                               -*- shell-script -*-
+
+_ulimit()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    local mode
+    case $prev in
+        -a)
+            return
+            ;;
+        -[SH])
+            ;;
+        -*)
+            mode=$prev
+            ;;
+    esac
+
+    if [[ -z "$mode" && "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" )' -- "$cur" ) )
+        return
+    fi
+
+    local args
+    _count_args
+    [[ $args -eq 1 ]] && \
+        COMPREPLY=( $( compgen -W "soft hard unlimited" -- "$cur" ) )
+} &&
+complete -F _ulimit ulimit
+
+# ex: filetype=sh

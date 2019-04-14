@@ -408,6 +408,7 @@ bashcomp_DATA = 2to3 \
 		tshark \
 		tune2fs \
 		_udevadm \
+		ulimit \
 		_umount \
 		_umount.linux \
 		unace \
