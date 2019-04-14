@@ -528,6 +528,7 @@ EXTRA_DIST = \
 	test_sh.py \
 	test_sha1sum.py \
 	test_shar.py \
+	test_shellcheck.py \
 	test_sitecopy.py \
 	test_slackpkg.py \
 	test_slapt_get.py \

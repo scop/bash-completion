@@ -1,0 +1,51 @@
+# bash completion for shellcheck(1)                        -*- shell-script -*-
+
+_shellcheck_optarg()
+{
+    local args=$( "$1" --help 2>&1 | \
+        command sed -e 's/,/ /g' -ne 's/^.*'$2'\>.*(\([^)]*\)).*/\1/p' )
+    COMPREPLY+=( $( compgen -W '$args' -- "$cur" ) )
+}
+
+_shellcheck()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        --version|-!(-*)V*)
+            return
+            ;;
+        --exclude|-!(-*)e)
+            return
+            ;;
+        --format|-!(-*)f)
+            local args=$( "$1" --format=nonexistent-format /dev/null 2>&1 | \
+                command sed -ne '/^Supported formats/,//p' | \
+                command sed -ne '/^[[:space:]]/p' )
+            COMPREPLY=( $( compgen -W '$args' -- "$cur" ) )
+            return
+            ;;
+        --color|-!(-*)C)
+            _shellcheck_optarg "$1" --color
+            return
+            ;;
+        --shell|-!(-*)s)
+            _shellcheck_optarg "$1" --shell
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir
+} &&
+complete -F _shellcheck shellcheck
+
+# ex: filetype=sh
