@@ -146,7 +146,7 @@ quote_readline()
 # This function shell-dequotes the argument
 dequote()
 {
-    eval printf %s "$1" 2> /dev/null
+    eval printf %s "$1" 2>/dev/null
 }
 
 
@@ -192,7 +192,7 @@ _upvars()
                 # Error checking
                 [[ ${1#-a} ]] || { echo "bash: ${FUNCNAME[0]}: \`$1': missing"\
                     "number specifier" 1>&2; return 1; }
-                printf %d "${1#-a}" &> /dev/null || { echo "bash:"\
+                printf %d "${1#-a}" &>/dev/null || { echo "bash:"\
                     "${FUNCNAME[0]}: \`$1': invalid number specifier" 1>&2
                     return 1; }
                 # Assign array of -aN elements
@@ -1288,7 +1288,7 @@ _shells()
     local shell rest
     while read -r shell rest; do
         [[ $shell == /* && $shell == "$cur"* ]] && COMPREPLY+=( $shell )
-    done 2>/dev/null < /etc/shells
+    done 2>/dev/null </etc/shells
 }
 
 # This function completes on valid filesystem types
@@ -1320,12 +1320,12 @@ _fstypes()
 # - return:  True (0) if command found, False (> 0) if not.
 _realcommand()
 {
-    type -P "$1" > /dev/null && {
-        if type -p realpath > /dev/null; then
+    type -P "$1" >/dev/null && {
+        if type -p realpath >/dev/null; then
             realpath "$(type -P "$1")"
-        elif type -p greadlink > /dev/null; then
+        elif type -p greadlink >/dev/null; then
             greadlink -f "$(type -P "$1")"
-        elif type -p readlink > /dev/null; then
+        elif type -p readlink >/dev/null; then
             readlink -f "$(type -P "$1")"
         else
             type -P "$1"
@@ -1592,7 +1592,7 @@ _known_hosts_real()
                         COMPREPLY+=( $host )
                     done
                     IFS=$OIFS
-                done < "$i"
+                done <"$i"
             done
             COMPREPLY=( $(compgen -W '${COMPREPLY[@]}' -- "$cur") )
         fi

@@ -32,6 +32,6 @@ EXTRA_DIST = CHANGES $(pkgdata_DATA) bash_completion.sh.in .dir-locals.el \
 install-data-hook:
 	tmpfile=`mktemp $${TMPDIR:-/tmp}/bash_completion.XXXXXX` && \
 	$(SED) -e 's|-/etc/bash_completion\.d|-$(compatdir)|' \
-	    $(DESTDIR)$(pkgdatadir)/bash_completion > $$tmpfile && \
-	cat $$tmpfile > $(DESTDIR)$(pkgdatadir)/bash_completion && \
+	    $(DESTDIR)$(pkgdatadir)/bash_completion >$$tmpfile && \
+	cat $$tmpfile >$(DESTDIR)$(pkgdatadir)/bash_completion && \
 	rm $$tmpfile

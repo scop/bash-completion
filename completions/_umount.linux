@@ -72,8 +72,8 @@ _linux_fstab()
     if [[ $cur && $cur != /* ]]; then
         local realcur
         [[ $cur == */ ]] && # don't let readlink drop last / from path
-            realcur="$(readlink -f "$cur." 2> /dev/null)/" ||
-            realcur=$(readlink -f "$cur" 2> /dev/null)
+            realcur="$(readlink -f "$cur." 2>/dev/null)/" ||
+            realcur=$(readlink -f "$cur" 2>/dev/null)
         if [[ $realcur ]]; then
             local dirrealcur= dircur= basecur
             if [[ $cur == */* ]]; then
@@ -84,7 +84,7 @@ _linux_fstab()
             local i n=${#COMPREPLY[@]}
             for (( i=0; i < $n; i++ )); do
                 [[ "${COMPREPLY[i]}" == "$realcur"* ]] &&
-                    COMPREPLY+=( $(cd "$dircur" 2> /dev/null &&
+                    COMPREPLY+=( $(cd "$dircur" 2>/dev/null &&
                         compgen -f -d -P "$dircur" \
                         -X "!${COMPREPLY[i]##"$dirrealcur"}" -- "$basecur") )
             done
@@ -132,7 +132,7 @@ _umount()
     if [[ -r /proc/mounts ]]; then
         # Linux /proc/mounts is properly quoted. This is important when
         # unmounting usb devices with pretty names.
-        _linux_fstab < /proc/mounts
+        _linux_fstab </proc/mounts
     else
         local IFS=$'\n'
         COMPREPLY=( $(compgen -W '$(mount | cut -d" " -f 3)' -- "$cur") )

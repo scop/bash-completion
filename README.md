@@ -316,7 +316,7 @@ A. Probably because the database is being queried every time and this uses a
    #!/bin/sh
 
    rpm -qa --qf '%{name}-%{version}-%{release}.%{arch}.rpm\n' 2>&1 \
-           | sort > /var/log/rpmpkgs
+           | sort >/var/log/rpmpkgs
    ```
 
    rpm completion will use this flat text file instead of the RPM database,
