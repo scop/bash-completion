@@ -43,6 +43,7 @@ gnat-4.6
 gnuspool
 heimdal
 inetutils-ping
+knot-dnsutils
 knot-host
 lpr
 lprng
