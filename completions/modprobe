@@ -26,15 +26,15 @@ _modprobe()
     $split && return
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
         if [[ ! $COMPREPLY ]]; then
-            COMPREPLY=( $( compgen -W '-a --all -b --use-blacklist -C --config
+            COMPREPLY=( $(compgen -W '-a --all -b --use-blacklist -C --config
                 -c --showconfig --dump-modversions -d --dirname --first-time
                 --force-vermagic --force-modversion -f --force -i
                 --ignore-install --ignore-remove -l --list -n --dry-run -q
                 --quiet -R --resolve-alias -r --remove -S --set-version
                 --show-depends -s --syslog -t --type -V --version -v
-                --verbose' -- "$cur" ) )
+                --verbose' -- "$cur") )
         fi
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
@@ -90,12 +90,12 @@ _modprobe()
                             | command grep -q "^$prev:.*(bool)"; then
                         local choices="on off"
                         [[ $cur ]] && choices="1 0 y Y n N on off"
-                        COMPREPLY=( $( compgen -W "$choices" -- "$cur" ) )
+                        COMPREPLY=( $(compgen -W "$choices" -- "$cur") )
                     fi
                 else
-                    COMPREPLY=( $( compgen -S = -W "$( PATH="$PATH:/sbin" \
+                    COMPREPLY=( $(compgen -S = -W "$(PATH="$PATH:/sbin" \
                         modinfo -p "$module" 2>/dev/null | \
-                        awk -F: '!/^[ \t]/ { print $1 }' )" -- "$cur" ) )
+                        awk -F: '!/^[ \t]/ { print $1 }')" -- "$cur") )
                     [[ $COMPREPLY == *= ]] && compopt -o nospace
                 fi
             else

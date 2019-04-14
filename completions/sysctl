@@ -16,14 +16,14 @@ _sysctl()
     esac
 
     if [[ $cur == -* ]]; then
-        local opts="$( _parse_help "$1" )"
-        [[ $opts ]] || opts="$( _parse_usage "$1" )"
-        COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
+        local opts="$(_parse_help "$1")"
+        [[ $opts ]] || opts="$(_parse_usage "$1")"
+        COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
     else
         local suffix=
         [[ $prev == -w ]] && suffix==
-        COMPREPLY=( $( compgen -S "$suffix" -W \
-            "$( PATH="$PATH:/sbin" sysctl -N -a 2>/dev/null )" -- "$cur" ) )
+        COMPREPLY=( $(compgen -S "$suffix" -W \
+            "$(PATH="$PATH:/sbin" sysctl -N -a 2>/dev/null)" -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     fi
 } &&

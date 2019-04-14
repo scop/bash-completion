@@ -2,8 +2,8 @@
 
 _koji_search()
 {
-    COMPREPLY+=( $( compgen -W \
-        '$( "$1" -q search $2 "$cur*" 2>/dev/null )' -- "$cur" ) )
+    COMPREPLY+=( $(compgen -W \
+        '$("$1" -q search $2 "$cur*" 2>/dev/null)' -- "$cur") )
 }
 
 _koji_build()
@@ -23,14 +23,13 @@ _koji_user()
 
 _koji_tag()
 {
-    COMPREPLY+=( $( compgen -W '$( "$1" -q list-tags 2>/dev/null )' \
-        -- "$cur" ) )
+    COMPREPLY+=( $(compgen -W '$("$1" -q list-tags 2>/dev/null)' -- "$cur") )
 }
 
 _koji_target()
 {
-    COMPREPLY+=( $( compgen -W '$( "$1" -q list-targets 2>/dev/null |
-        awk "{ print \$1 }" )' -- "$cur" ) )
+    COMPREPLY+=( $(compgen -W '$("$1" -q list-targets 2>/dev/null |
+        awk "{ print \$1 }")' -- "$cur") )
 }
 
 _koji()
@@ -59,8 +58,7 @@ _koji()
             return
             ;;
         --authtype)
-            COMPREPLY=( $( compgen -W 'noauth ssl password kerberos' \
-                -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'noauth ssl password kerberos' -- "$cur") )
             return
             ;;
         --topdir)
@@ -70,7 +68,7 @@ _koji()
         --type)
             case $command in
                 latest-pkg|list-tagged)
-                    COMPREPLY=( $( compgen -W 'maven' -- "$cur" ) )
+                    COMPREPLY=( $(compgen -W 'maven' -- "$cur") )
                     ;;
             esac
             return
@@ -109,8 +107,8 @@ _koji()
 
     if [[ $command ]]; then
         if [[ $cur == -* ]]; then
-            COMPREPLY=( $( compgen -W \
-                '$( _parse_help "$1" "$command --help" )' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W \
+                '$(_parse_help "$1" "$command --help")' -- "$cur") )
             [[ $COMPREPLY == *= ]] && compopt -o nospace
             return
         fi
@@ -199,8 +197,8 @@ _koji()
             search)
                 case $nth in
                     1)
-                        COMPREPLY=( $( compgen -W 'package build tag target
-                            user host rpm' -- "$cur" ) )
+                        COMPREPLY=( $(compgen -W 'package build tag target
+                            user host rpm' -- "$cur") )
                         ;;
                 esac
                 ;;
@@ -235,11 +233,11 @@ _koji()
     fi
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     elif [[ ! $command ]]; then
-        COMPREPLY=( $( compgen -W '$( "$1" --help-commands 2>/dev/null | \
-            awk "/^(  +|\t)/ { print \$1 }" )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$("$1" --help-commands 2>/dev/null | \
+            awk "/^(  +|\t)/ { print \$1 }")' -- "$cur") )
     fi
 } &&
 complete -F _koji koji arm-koji ppc-koji s390-koji sparc-koji

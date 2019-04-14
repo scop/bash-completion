@@ -13,9 +13,8 @@ _op_command_options()
             for i in "${!words[@]}"; do
                 [[ ${words[i]} == -* || $i -eq 0 ]] && unset words[i]
             done
-            COMPREPLY=( $( compgen -W \
-                '$( _parse_usage "$1" "${words[*]} --help" ) --help' \
-                -- "$cur" ) )
+            COMPREPLY=( $(compgen -W \
+                '$(_parse_usage "$1" "${words[*]} --help") --help' -- "$cur") )
             [[ $COMPREPLY == *= ]] && compopt -o nospace
             return 0
             ;;
@@ -38,7 +37,7 @@ _op()
     done
 
     if [[ -z $command && $cur == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_usage "$1" --help )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_usage "$1" --help)' -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
@@ -46,8 +45,7 @@ _op()
     [[ $command ]] && _op_command_options "$1" && return
 
     if [[ -z $command || $command == $prev ]]; then
-        COMPREPLY=( $( compgen -W '$( _op_commands "$1" $command )' \
-                               -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_op_commands "$1" $command)' -- "$cur") )
         [[ $COMPREPLY ]] && return
     fi
 

@@ -7,32 +7,32 @@ _xfreerdp()
 
     case $prev in  # old/dash syntax
         -k)
-            COMPREPLY=( $( compgen -W '$( "$1" --kbd-list |
-                awk "/^0x/ { print \$1 }" )' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W '$("$1" --kbd-list |
+                awk "/^0x/ { print \$1 }")' -- "$cur") )
             return
             ;;
         -a)
-            COMPREPLY=( $( compgen -W '8 15 16 24 32' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W '8 15 16 24 32' -- "$cur") )
             return
             ;;
         -x)
-            COMPREPLY=( $( compgen -W 'broadband modem lan' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'broadband modem lan' -- "$cur") )
             return
             ;;
         --plugin)
-            COMPREPLY=( $( compgen -W 'cliprdr rdpsnd rdpdr' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'cliprdr rdpsnd rdpdr' -- "$cur") )
             return
             ;;
     esac
 
     case $cur in  # new/slash syntax
         /kbd:*)
-            COMPREPLY=( $( compgen -W '$( "$1" /kbd-list |
-                awk "/^0x/ { print \$1 }" )' -- "${cur#/kbd:}" ) )
+            COMPREPLY=( $(compgen -W '$("$1" /kbd-list |
+                awk "/^0x/ { print \$1 }")' -- "${cur#/kbd:}") )
             return
             ;;
         /bpp:*)
-            COMPREPLY=( $( compgen -W '8 15 16 24 32' -- "${cur#/bpp:}" ) )
+            COMPREPLY=( $(compgen -W '8 15 16 24 32' -- "${cur#/bpp:}") )
             return
             ;;
         /*:*|/help|/version|-h|--help|--version)
@@ -41,24 +41,24 @@ _xfreerdp()
     esac
 
     if [[ "$cur" == /* ]]; then
-        COMPREPLY=( $( compgen -W '$( "$1" --help |
-            awk "\$1 ~ /^\\// && \$1 !~ /^.(flag\$|option:)/ { sub(\":.*\",\":\",\$1); print \$1 }" )' \
-            -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$("$1" --help |
+            awk "\$1 ~ /^\\// && \$1 !~ /^.(flag\$|option:)/ { sub(\":.*\",\":\",\$1); print \$1 }")' \
+            -- "$cur") )
         [[ $COMPREPLY == *: ]] && compopt -o nospace
     elif [[ "$cur" == [+-]* ]]; then
         local char=${cur:0:1}
-        local help="$( $1 --help )"
+        local help="$($1 --help)"
         if [[ "$help" == */help* ]]; then  # new/slash syntax
-            COMPREPLY=( $( compgen -W '$( awk "
+            COMPREPLY=( $(compgen -W '$(awk "
                 \$1 ~ /^[+-]/ && \$1 !~ /^.toggle\$/ { sub(\"^.\",\"$char\",\$1); print \$1 }
-            " <<<"$help" )' -- "$cur" ) )
+            " <<<"$help")' -- "$cur") )
         else  # old/dash syntax
-            COMPREPLY=( $( _parse_help - <<<"$help" ) )
-            COMPREPLY=( $( compgen -W '${COMPREPLY[@]%:}' -- "$cur" ) )
+            COMPREPLY=( $(_parse_help - <<<"$help") )
+            COMPREPLY=( $(compgen -W '${COMPREPLY[@]%:}' -- "$cur") )
         fi
     else
-        COMPREPLY=( $( compgen -W "$(awk '{print $1}' ~/.freerdp/known_hosts \
-            2>/dev/null)" -- "$cur" ) )
+        COMPREPLY=( $(compgen -W "$(awk '{print $1}' ~/.freerdp/known_hosts \
+            2>/dev/null)" -- "$cur") )
     fi
 
 } &&

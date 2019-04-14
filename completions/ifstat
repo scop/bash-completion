@@ -19,8 +19,8 @@ _ifstat()
             # traditional: parse driver
             if ! { "$1" --help 2>&1 || :; } | \
                     command grep -q -- '-d.*--scan'; then
-                COMPREPLY=( $( compgen -W '$( "$1" -v |
-                    sed -e "s/[,.]//g" -ne "s/^.*drivers://p" )' -- "$cur" ) )
+                COMPREPLY=( $(compgen -W '$("$1" -v |
+                    sed -e "s/[,.]//g" -ne "s/^.*drivers://p")' -- "$cur") )
             fi
             return
             ;;
@@ -41,9 +41,9 @@ _ifstat()
             ;;
         --extended|-!(-*)x)
             # iproute2: parse xstat types
-            COMPREPLY=( $( compgen -W '$( "$1" -x nonexistent-xstat 2>&1 |
-                awk "found { print \$1 } /supported xstats:/ { found=1 }" )' \
-                -- "$cur" ) )
+            COMPREPLY=( $(compgen -W '$("$1" -x nonexistent-xstat 2>&1 |
+                awk "found { print \$1 } /supported xstats:/ { found=1 }")' \
+                -- "$cur") )
             return
             ;;
     esac
@@ -51,9 +51,9 @@ _ifstat()
     $split && return
 
     if [[ "$cur" == -* ]]; then
-        local opts=$( _parse_help "$1" )
-        [[ $opts ]] || opts=$( _parse_usage "$1" )
-        COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
+        local opts=$(_parse_help "$1")
+        [[ $opts ]] || opts=$(_parse_usage "$1")
+        COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi

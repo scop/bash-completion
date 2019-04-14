@@ -24,11 +24,11 @@ _man()
             ;;
         --pager|-!(-*)P)
             compopt -o filenames
-            COMPREPLY=( $( compgen -c -- "$cur" ) )
+            COMPREPLY=( $(compgen -c -- "$cur") )
             return
             ;;
         --preprocessor|-!(-*)p)
-            COMPREPLY=( $( compgen -W 'e p t g r v' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'e p t g r v' -- "$cur") )
             return
             ;;
         --locale|--systems|--extension|--prompt|--recode|--encoding|\
@@ -40,7 +40,7 @@ _man()
     $split && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -h )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1" -h)' -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
@@ -51,7 +51,7 @@ _man()
         return
     fi
 
-    local manpath=$( manpath 2>/dev/null || command man -w 2>/dev/null )
+    local manpath=$(manpath 2>/dev/null || command man -w 2>/dev/null)
     [[ -z $manpath ]] && manpath="/usr/share/man:/usr/local/share/man"
 
     # determine manual section to search
@@ -67,16 +67,16 @@ _man()
         manpath="${manpath//://*man$sect/ } ${manpath//://*cat$sect/ }"
     fi
 
-    local IFS=$' \t\n' reset=$( shopt -p failglob ); shopt -u failglob
+    local IFS=$' \t\n' reset=$(shopt -p failglob); shopt -u failglob
     # redirect stderr for when path doesn't exist
-    COMPREPLY=( $( eval command ls "$manpath" 2>/dev/null ) )
+    COMPREPLY=( $(eval command ls "$manpath" 2>/dev/null) )
     $reset
 
     # weed out directory path names and paths to man pages
     COMPREPLY=( ${COMPREPLY[@]##*/?(:)} )
     # strip suffix from man pages
     COMPREPLY=( ${COMPREPLY[@]%$comprsuffix} )
-    COMPREPLY=( $( compgen -W '${COMPREPLY[@]%.*}' -- "${cur//\\\\/}" ) )
+    COMPREPLY=( $(compgen -W '${COMPREPLY[@]%.*}' -- "${cur//\\\\/}") )
 
     if [[ "$prev" != $mansect ]]; then
         # File based completion for the rest, prepending ./ if needed

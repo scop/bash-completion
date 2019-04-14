@@ -7,9 +7,9 @@ _xgamma()
 
     case "$prev" in
         -screen)
-            local screens=$( xrandr --query 2>/dev/null | command sed -n \
-                '/^Screen /s|^Screen \{1,\}\(.*\):.*$|\1|p' 2>/dev/null )
-            COMPREPLY=( $( compgen -W "$screens" -- "$cur" ) )
+            local screens=$(xrandr --query 2>/dev/null | command sed -n \
+                '/^Screen /s|^Screen \{1,\}\(.*\):.*$|\1|p' 2>/dev/null)
+            COMPREPLY=( $(compgen -W "$screens" -- "$cur") )
             return
             ;;
         -gamma|-rgamma|-ggamma|-bgamma)
@@ -17,7 +17,7 @@ _xgamma()
             if [[ $cur && "$cur" != *.* ]]; then
                 COMPREPLY=( . )
             fi
-            COMPREPLY+=( $( compgen -W "{0..9}" ) )
+            COMPREPLY+=( $(compgen -W "{0..9}") )
             compopt -o nospace
             return
             ;;
@@ -26,15 +26,15 @@ _xgamma()
             if [[ "$cur" == :* && "$cur" != :*.* ]]; then
                 # FIXME: where to get local display numbers?
                 local display=${cur#:}
-                COMPREPLY=( $( compgen -W "${display:-0}." ) )
+                COMPREPLY=( $(compgen -W "${display:-0}.") )
                 compopt -o nospace
             elif [[ "$cur" == :*.* ]]; then
                 # local screen numbers
-                local t screens=$( xrandr --query 2>/dev/null | command sed -ne \
-                    '/^Screen /s|^Screen \{1,\}\(.*\):.*$|\1|p' 2>/dev/null )
+                local t screens=$(xrandr --query 2>/dev/null | command sed -ne \
+                    '/^Screen /s|^Screen \{1,\}\(.*\):.*$|\1|p' 2>/dev/null)
                 t="${cur#:}"
-                COMPREPLY=( $( compgen -P "${t%.*}." -W "$screens" -- \
-                    "${cur##*.}" ) )
+                COMPREPLY=( $(compgen -P "${t%.*}." -W "$screens" -- \
+                    "${cur##*.}") )
             elif [[ "$cur" != *:* ]]; then
                 # complete hostnames
                 _known_hosts_real -c -- "$cur"
@@ -49,7 +49,7 @@ _xgamma()
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -help )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1" -help)' -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         [[ $COMPREPLY ]] && return
     fi

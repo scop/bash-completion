@@ -3,16 +3,16 @@
 _puppet_logdest()
 {
     if [[ -z $cur ]]; then
-        COMPREPLY=( $( compgen -W 'syslog console /' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W 'syslog console /' -- "$cur") )
     else
-        COMPREPLY=( $( compgen -W 'syslog console' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W 'syslog console' -- "$cur") )
         _filedir
     fi
 }
 
 _puppet_digest()
 {
-    COMPREPLY=( $( compgen -W 'MD5 MD2 SHA1 SHA256' -- "$cur" ) )
+    COMPREPLY=( $(compgen -W 'MD5 MD2 SHA1 SHA256' -- "$cur") )
 }
 
 _puppet_certs()
@@ -22,17 +22,17 @@ _puppet_certs()
         && puppetca=puppetca
 
     if [[ "$1" == --all ]]; then
-        cert_list=$( $puppetca --list --all | command sed -e 's/^[+-]\{0,1\}\s*\(\S\+\)\s\+.*$/\1/' )
+        cert_list=$($puppetca --list --all | command sed -e 's/^[+-]\{0,1\}\s*\(\S\+\)\s\+.*$/\1/')
     else
-        cert_list=$( $puppetca --list )
+        cert_list=$($puppetca --list)
     fi
-    COMPREPLY+=( $( compgen -W "$cert_list" -- "$cur" ) )
+    COMPREPLY+=( $(compgen -W "$cert_list" -- "$cur") )
 }
 
 _puppet_types()
 {
-    puppet_types=$( puppet describe --list | command sed -e 's/^\(\S\{1,\}\).*$/\1/' )
-    COMPREPLY+=( $( compgen -W "$puppet_types" -- "$cur" ) )
+    puppet_types=$(puppet describe --list | command sed -e 's/^\(\S\{1,\}\).*$/\1/')
+    COMPREPLY+=( $(compgen -W "$puppet_types" -- "$cur") )
 }
 
 _puppet_references()
@@ -41,16 +41,16 @@ _puppet_references()
     PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin type puppetdoc  &>/dev/null \
         && puppetdoc=puppetdoc
 
-    puppet_doc_list=$( $puppetdoc --list | command sed -e 's/^\(\S\{1,\}\).*$/\1/' )
-    COMPREPLY+=( $( compgen -W "$puppet_doc_list" -- "$cur" ) )
+    puppet_doc_list=$($puppetdoc --list | command sed -e 's/^\(\S\{1,\}\).*$/\1/')
+    COMPREPLY+=( $(compgen -W "$puppet_doc_list" -- "$cur") )
 }
 
 _puppet_subcmd_opts()
 {
     # puppet cmd help is somewhat slow, avoid if possible
     [[ -z $cur || $cur == -* ]] && \
-        COMPREPLY+=( $( compgen -W \
-        '$( _parse_usage "$1" "help $2" )' -- "$cur" ) )
+        COMPREPLY+=( $(compgen -W \
+        '$(_parse_usage "$1" "help $2")' -- "$cur") )
 }
 
 _puppet()
@@ -103,9 +103,9 @@ _puppet()
                     subcommand=apply
                     ;;
                 *)
-                    COMPREPLY=( $( compgen -W 'agent apply cert describe doc
+                    COMPREPLY=( $(compgen -W 'agent apply cert describe doc
                         filebucket kick master parser queue resource' \
-                        -- "$cur" ) )
+                        -- "$cur") )
                     return
                     ;;
             esac
@@ -131,24 +131,24 @@ _puppet()
                     return
                     ;;
                 --masterport)
-                    COMPREPLY=( $( compgen -W '8140' -- "$cur" ) )
+                    COMPREPLY=( $(compgen -W '8140' -- "$cur") )
                     return
                     ;;
                 -w|--waitforcert)
-                    COMPREPLY=( $( compgen -W '0 15 30 60 120' -- "$cur" ) )
+                    COMPREPLY=( $(compgen -W '0 15 30 60 120' -- "$cur") )
                     return
                     ;;
                 *)
                     _puppet_subcmd_opts "$1" $subcommand
                     # _parse_usage doesn't grok [-D|--daemonize|--no-daemonize]
-                    COMPREPLY+=( $( compgen -W '--no-daemonize' -- "$cur" ) )
+                    COMPREPLY+=( $(compgen -W '--no-daemonize' -- "$cur") )
                     return
             esac
             ;;
         apply)
             case $prev in
                 --catalog)
-                    COMPREPLY=( $( compgen -W '-' -- "$cur" ) )
+                    COMPREPLY=( $(compgen -W '-' -- "$cur") )
                     _filedir json
                     return
                     ;;
@@ -176,11 +176,11 @@ _puppet()
                     ;;
                 *)
                     action=$prev
-                    COMPREPLY=( $( compgen -W '--digest --debug --help --verbose --version' \
-                        -- "$cur" ) )
+                    COMPREPLY=( $(compgen -W '--digest --debug --help --verbose --version' \
+                        -- "$cur") )
                     case $action in
                         fingerprint|list|verify|--fingerprint|--list|--verify)
-                            COMPREPLY+=( $( compgen -W '--all' -- "$cur" ) )
+                            COMPREPLY+=( $(compgen -W '--all' -- "$cur") )
                             _puppet_certs --all
                             return
                             ;;
@@ -193,13 +193,13 @@ _puppet()
                             return
                             ;;
                         sign|--sign)
-                            COMPREPLY+=( $( compgen -W '--all' -- "$cur" ) )
+                            COMPREPLY+=( $(compgen -W '--all' -- "$cur") )
                             _puppet_certs
                             return
                             ;;
                         *)
-                            COMPREPLY+=( $( compgen -W 'clean fingerprint generate
-                                list print revoke sign verify reinventory' -- "$cur" ) )
+                            COMPREPLY+=( $(compgen -W 'clean fingerprint generate
+                                list print revoke sign verify reinventory' -- "$cur") )
                             return
                     esac
             esac
@@ -218,7 +218,7 @@ _puppet()
                     return
                     ;;
                 -m|--mode)
-                    COMPREPLY=( $( compgen -W 'text trac pdf rdoc' -- "$cur" ) )
+                    COMPREPLY=( $(compgen -W 'text trac pdf rdoc' -- "$cur") )
                     return
                     ;;
                 -r|--reference)
@@ -248,8 +248,8 @@ _puppet()
                     if [[ "$cur" == -* ]]; then
                         _puppet_subcmd_opts "$1" $subcommand
                     else
-                        COMPREPLY=( $( compgen -W 'backup get restore' \
-                            -- "$cur" ) )
+                        COMPREPLY=( $(compgen -W 'backup get restore' \
+                            -- "$cur") )
                         _filedir
                     fi
                     return
@@ -285,7 +285,7 @@ _puppet()
                 *)
                     _puppet_subcmd_opts "$1" $subcommand
                     # _parse_usage doesn't grok [-D|--daemonize|--no-daemonize]
-                    COMPREPLY+=( $( compgen -W '--no-daemonize' -- "$cur" ) )
+                    COMPREPLY+=( $(compgen -W '--no-daemonize' -- "$cur") )
                     return
             esac
             ;;
@@ -297,7 +297,7 @@ _puppet()
                     return
                     ;;
                 *)
-                    COMPREPLY=( $( compgen -W 'validate' -- "$cur" ) )
+                    COMPREPLY=( $(compgen -W 'validate' -- "$cur") )
                     return
             esac
             ;;

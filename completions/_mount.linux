@@ -18,11 +18,11 @@ _mount()
                 cur="${cur##*,}"
                 split=true
             fi
-            COMPREPLY=( $( compgen -W 'auto adfs affs autofs btrfs cifs coda
+            COMPREPLY=( $(compgen -W 'auto adfs affs autofs btrfs cifs coda
                 cramfs davfs debugfs devpts efs ext2 ext3 ext4 fuse hfs hfsplus
                 hpfs iso9660 jffs2 jfs minix msdos ncpfs nfs nfs4 ntfs ntfs-3g
                 proc qnx4 ramfs reiserfs romfs squashfs smbfs sysv tmpfs ubifs
-                udf ufs umsdos usbfs vfat xfs' -- "$cur" ) )
+                udf ufs umsdos usbfs vfat xfs' -- "$cur") )
             _fstypes
             $split && COMPREPLY=( ${COMPREPLY[@]/#/$prev,} )
             return
@@ -37,13 +37,13 @@ _mount()
             return
             ;;
         -L)
-            COMPREPLY=( $( cd "/dev/disk/by-label/" 2>/dev/null || return; \
-                compgen -f -- "$cur" ) )
+            COMPREPLY=( $(cd "/dev/disk/by-label/" 2>/dev/null || return; \
+                compgen -f -- "$cur") )
             return
             ;;
         -U)
-            COMPREPLY=( $( cd "/dev/disk/by-uuid/" 2>/dev/null || return; \
-                compgen -f -- "$cur" ) )
+            COMPREPLY=( $(cd "/dev/disk/by-uuid/" 2>/dev/null || return; \
+                compgen -f -- "$cur") )
             return
             ;;
         -O|--test-opts)
@@ -209,10 +209,10 @@ _mount()
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--version --help --verbose --all --fork
+        COMPREPLY=( $(compgen -W '--version --help --verbose --all --fork
             --fake --internal-only -l --no-mtab --no-canonicalize --pass-fd -s
             --read-only --rw -L -U --types --test-opts --options --bind --rbind
-            --move' -- "$cur" ) )
+            --move' -- "$cur") )
         [[ $COMPREPLY ]] && return
     fi
 
@@ -223,8 +223,8 @@ _mount()
     if [[ "$cur" == *:* ]]; then
         for sm in "$(type -P showmount)" {,/usr}/{,s}bin/showmount; do
             [[ -x $sm ]] || continue
-            COMPREPLY=( $( compgen -W "$( "$sm" -e ${cur%%:*} | \
-                awk 'NR>1 {print $1}' )" -- "${cur#*:}" ) )
+            COMPREPLY=( $(compgen -W "$("$sm" -e ${cur%%:*} | \
+                awk 'NR>1 {print $1}')" -- "${cur#*:}") )
             return
         done
     fi
@@ -233,11 +233,11 @@ _mount()
         host=${cur#//}
         host=${host%%/*}
         if [[ -n $host ]]; then
-            COMPREPLY=( $( compgen -P "//$host" -W \
-                "$( smbclient -d 0 -NL $host 2>/dev/null |
+            COMPREPLY=( $(compgen -P "//$host" -W \
+                "$(smbclient -d 0 -NL $host 2>/dev/null |
                 command sed -ne '/^[[:blank:]]*Sharename/,/^$/p' |
                 command sed -ne '3,$s|^[^A-Za-z]*\([^[:blank:]]*\).*$|/\1|p' )" \
-                    -- "${cur#//$host}" ) )
+                    -- "${cur#//$host}") )
         fi
     fi
 

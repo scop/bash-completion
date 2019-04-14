@@ -72,8 +72,8 @@ _linux_fstab()
     if [[ $cur && $cur != /* ]]; then
         local realcur
         [[ $cur == */ ]] && # don't let readlink drop last / from path
-            realcur="$( readlink -f "$cur." 2> /dev/null )/" ||
-            realcur=$( readlink -f "$cur" 2> /dev/null )
+            realcur="$(readlink -f "$cur." 2> /dev/null)/" ||
+            realcur=$(readlink -f "$cur" 2> /dev/null)
         if [[ $realcur ]]; then
             local dirrealcur= dircur= basecur
             if [[ $cur == */* ]]; then
@@ -84,9 +84,9 @@ _linux_fstab()
             local i n=${#COMPREPLY[@]}
             for (( i=0; i < $n; i++ )); do
                 [[ "${COMPREPLY[i]}" == "$realcur"* ]] &&
-                    COMPREPLY+=( $( cd "$dircur" 2> /dev/null &&
+                    COMPREPLY+=( $(cd "$dircur" 2> /dev/null &&
                         compgen -f -d -P "$dircur" \
-                        -X "!${COMPREPLY[i]##"$dirrealcur"}" -- "$basecur" ) )
+                        -X "!${COMPREPLY[i]##"$dirrealcur"}" -- "$basecur") )
             done
         fi
     fi
@@ -108,11 +108,11 @@ _umount()
                 cur="${cur##*,}"
                 split=true
             fi
-            COMPREPLY=( $( compgen -W 'adfs affs autofs btrfs cifs coda
+            COMPREPLY=( $(compgen -W 'adfs affs autofs btrfs cifs coda
                 cramfs debugfs devpts efs ext2 ext3 ext4 fuse hfs hfsplus hpfs
                 iso9660 jfs minix msdos ncpfs nfs nfs4 ntfs ntfs-3g proc qnx4
                 ramfs reiserfs romfs squashfs smbfs sysv tmpfs ubifs udf ufs
-                umsdos usbfs vfat xfs' -- "$cur" ) )
+                umsdos usbfs vfat xfs' -- "$cur") )
             _fstypes
             $split && COMPREPLY=( ${COMPREPLY[@]/#/$prev,} )
             return
@@ -124,8 +124,8 @@ _umount()
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '-V -h -v -n -r -d -i -a -t -O -f -l
-            --no-canonicalize --fake' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '-V -h -v -n -r -d -i -a -t -O -f -l
+            --no-canonicalize --fake' -- "$cur") )
         [[ $COMPREPLY ]] && return
     fi
 
@@ -135,7 +135,7 @@ _umount()
         _linux_fstab < /proc/mounts
     else
         local IFS=$'\n'
-        COMPREPLY=( $( compgen -W '$( mount | cut -d" " -f 3 )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(mount | cut -d" " -f 3)' -- "$cur") )
     fi
 } &&
 complete -F _umount -o dirnames umount

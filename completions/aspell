@@ -3,14 +3,14 @@
 _aspell_dictionary()
 {
     local datadir aspell=${1:-aspell}
-    datadir=$( $aspell config data-dir 2>/dev/null || echo /usr/lib/aspell )
+    datadir=$($aspell config data-dir 2>/dev/null || echo /usr/lib/aspell)
     # First, get aliases (dicts dump does not list them)
-    COMPREPLY=( $( printf '%s\n' $datadir/*.alias ) )
+    COMPREPLY=( $(printf '%s\n' $datadir/*.alias) )
     COMPREPLY=( "${COMPREPLY[@]%.alias}" )
     COMPREPLY=( "${COMPREPLY[@]#$datadir/}" )
     # Then, add the canonical dicts
-    COMPREPLY+=( $( $aspell dicts 2>/dev/null ) )
-    COMPREPLY=( $( compgen -X '\*' -W '${COMPREPLY[@]}' -- "$cur" ) )
+    COMPREPLY+=( $($aspell dicts 2>/dev/null) )
+    COMPREPLY=( $(compgen -X '\*' -W '${COMPREPLY[@]}' -- "$cur") )
 }
 
 _aspell()
@@ -28,21 +28,21 @@ _aspell()
             return
             ;;
         dump|create|merge)
-            COMPREPLY=( $( compgen -W 'master personal repl' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'master personal repl' -- "$cur") )
             return
             ;;
         --mode)
-            COMPREPLY=( $( compgen -W "$( $1 modes 2>/dev/null | \
-                awk '{ print $1 }' )" -- "$cur" ) )
+            COMPREPLY=( $(compgen -W "$($1 modes 2>/dev/null | \
+                awk '{ print $1 }')" -- "$cur") )
             return
             ;;
         --sug-mode)
-            COMPREPLY=( $( compgen -W 'ultra fast normal bad-speller' \
-                -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'ultra fast normal bad-speller' \
+                -- "$cur") )
             return
             ;;
         --keymapping)
-            COMPREPLY=( $( compgen -W 'aspell ispell' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'aspell ispell' -- "$cur") )
             return
             ;;
         -d|--master)
@@ -50,8 +50,8 @@ _aspell()
             return
             ;;
         --add-filter|--rem-filter)
-            COMPREPLY=( $( compgen -W "$( $1 filters 2>/dev/null | \
-                awk '{ print $1 }' )" -- "$cur" ) )
+            COMPREPLY=( $(compgen -W "$($1 filters 2>/dev/null | \
+                awk '{ print $1 }')" -- "$cur") )
             return
             ;;
     esac
@@ -59,7 +59,7 @@ _aspell()
     $split && return
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--conf= --conf-dir= --data-dir= --dict-dir=
+        COMPREPLY=( $(compgen -W '--conf= --conf-dir= --data-dir= --dict-dir=
             --encoding= --add-filter= --rem-filter= --mode= --add-extra-dicts=
             --rem-extra-dicts= --home-dir= --ignore= --ignore-accents
             --dont-ignore-accents --ignore-case --dont-ignore-case
@@ -76,11 +76,11 @@ _aspell()
             --add-tex-command= --rem-tex-command= --tex-check-comments
             --dont-tex-check-comments --add-tex-extension --rem-tex-extension
             --add-sgml-check= --rem-sgml-check= --add-sgml-extension
-            --rem-sgml-extension' -- "$cur" ) )
+            --rem-sgml-extension' -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     else
-        COMPREPLY=( $( compgen -W 'usage help check pipe list config soundslike
-            filter version dump create merge' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W 'usage help check pipe list config soundslike
+            filter version dump create merge' -- "$cur") )
     fi
 } &&
 complete -F _aspell aspell

@@ -6,7 +6,7 @@ _make_target_extract_script()
     shift
 
     local prefix="$1"
-    local prefix_pat=$( command sed 's/[][\,.*^$(){}?+|/]/\\&/g' <<<"$prefix" )
+    local prefix_pat=$(command sed 's/[][\,.*^$(){}?+|/]/\\&/g' <<<"$prefix")
     local basename=${prefix##*/}
     local dirname_len=$(( ${#prefix} - ${#basename} ))
 
@@ -99,14 +99,14 @@ _make()
             return
             ;;
         -!(-*)E)
-            COMPREPLY=( $( compgen -v -- "$cur" ) )
+            COMPREPLY=( $(compgen -v -- "$cur") )
             return
             ;;
         --eval|-!(-*)[DVx])
             return
             ;;
         --jobs|-!(-*)j)
-            COMPREPLY=( $( compgen -W "{1..$(( $(_ncpus)*2 ))}" -- "$cur" ) )
+            COMPREPLY=( $(compgen -W "{1..$(( $(_ncpus)*2 ))}" -- "$cur") )
             return
             ;;
     esac
@@ -114,9 +114,9 @@ _make()
     $split && return
 
     if [[ "$cur" == -* ]]; then
-        local opts="$( _parse_help "$1" )"
-        [[ $opts ]] || opts="$( _parse_usage "$1" )"
-        COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
+        local opts="$(_parse_help "$1")"
+        [[ $opts ]] || opts="$(_parse_usage "$1")"
+        COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     elif [[ $cur == *=* ]]; then
         prev=${cur%%=*}
@@ -152,11 +152,11 @@ _make()
             mode=-d # display-only mode
         fi
 
-        local IFS=$' \t\n' script=$( _make_target_extract_script $mode "$cur" )
-        COMPREPLY=( $( LC_ALL=C \
+        local IFS=$' \t\n' script=$(_make_target_extract_script $mode "$cur")
+        COMPREPLY=( $(LC_ALL=C \
             $1 -npq __BASH_MAKE_COMPLETION__=1 \
                 "${makef[@]}" "${makef_dir[@]}" .DEFAULT 2>/dev/null | \
-            command sed -ne "$script" ) )
+            command sed -ne "$script") )
 
         if [[ $mode != -d ]]; then
             # Completion will occur if there is only one suggestion

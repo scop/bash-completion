@@ -17,34 +17,34 @@ _apt_get()
             remove|autoremove|purge)
                 if [[ -f /etc/debian_version ]]; then
                     # Debian system
-                    COMPREPLY=( $( \
-                        _xfunc dpkg _comp_dpkg_installed_packages $cur ) )
+                    COMPREPLY=( $(\
+                        _xfunc dpkg _comp_dpkg_installed_packages $cur) )
                 else
                     # assume RPM based
                     _xfunc rpm _rpm_installed_packages
                 fi
                 ;;
             source)
-                COMPREPLY=( $( apt-cache --no-generate pkgnames "$cur" \
-                    2> /dev/null ) $( apt-cache dumpavail | \
-                    command grep "^Source: $cur" | sort -u | cut -f2 -d" " ) )
+                COMPREPLY=( $(apt-cache --no-generate pkgnames "$cur" \
+                    2> /dev/null) $(apt-cache dumpavail | \
+                    command grep "^Source: $cur" | sort -u | cut -f2 -d" ") )
                 ;;
             install)
                 if [[ $cur == */* ]]; then
                     _filedir deb
                     return
                 elif [[ $cur == *=* ]]; then
-                    COMPREPLY=( $( compgen -W "$( \
+                    COMPREPLY=( $(compgen -W "$(\
                         apt-cache --no-generate show "${cur%%=*}" 2>/dev/null |
                         command sed -ne \
-                            's/^Version:[[:space:]]*\([^[:space:]]\)/\1/p' )" \
-                        -- "${cur#*=}" ) )
+                            's/^Version:[[:space:]]*\([^[:space:]]\)/\1/p')" \
+                        -- "${cur#*=}") )
                     return
                 fi
                 ;;&
             *)
-                COMPREPLY=( $( apt-cache --no-generate pkgnames "$cur" \
-                    2>/dev/null ) )
+                COMPREPLY=( $(apt-cache --no-generate pkgnames "$cur" \
+                    2>/dev/null) )
                 ;;
         esac
         return
@@ -59,15 +59,15 @@ _apt_get()
             return
             ;;
         --target-release|--default-release|-!(-*)t)
-            COMPREPLY=( $( compgen -W "$( apt-cache policy | command sed -ne \
-                's/^ *release.*[ ,]o=\(Debian\|Ubuntu\),a=\(\w*\).*/\2/p' )" \
-                -- "$cur" ) )
+            COMPREPLY=( $(compgen -W "$(apt-cache policy | command sed -ne \
+                's/^ *release.*[ ,]o=\(Debian\|Ubuntu\),a=\(\w*\).*/\2/p')" \
+                -- "$cur") )
             return
             ;;
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '--no-install-recommends --install-suggests
+        COMPREPLY=( $(compgen -W '--no-install-recommends --install-suggests
             --download-only --fix-broken --ignore-missing --fix-missing
             --no-download --quiet --simulate --just-print --dry-run --recon
             --no-act --yes --assume-yes --assume-no --no-show-upgraded
@@ -80,12 +80,12 @@ _apt_get()
             --diff-only --dsc-only --tar-only --arch-only --indep-only
             --allow-unauthenticated --no-allow-insecure-repositories
             --allow-releaseinfo-change --show-progress --with-source --help
-            --version --config-file --option' -- "$cur" ) )
+            --version --config-file --option' -- "$cur") )
     else
-        COMPREPLY=( $( compgen -W 'update upgrade dist-upgrade
+        COMPREPLY=( $(compgen -W 'update upgrade dist-upgrade
             dselect-upgrade install remove purge source build-dep check
             download clean autoclean autoremove changelog indextargets' \
-            -- "$cur" ) )
+            -- "$cur") )
     fi
 
 } &&

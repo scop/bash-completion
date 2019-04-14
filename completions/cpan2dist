@@ -8,9 +8,9 @@ _cpan2dist()
     case $prev in
         --format)
             # should remove ":" from COMP_WORDBREAKS, but doesn't work (?)
-            COMPREPLY=( $( compgen -W '$(perl -MCPANPLUS::Dist -e \
+            COMPREPLY=( $(compgen -W '$(perl -MCPANPLUS::Dist -e \
                 "print map { \"\$_\n\" } CPANPLUS::Dist->dist_types")' \
-                -- "$cur" ) )
+                -- "$cur") )
             return
             ;;
         --banlist|--ignorelist|--modulelist|--logfile)
@@ -20,7 +20,7 @@ _cpan2dist()
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
     else
         local cpandirs=( "$HOME/.cpanplus/" "$HOME/.cpan/source/modules/" )
         local packagelist
@@ -28,8 +28,8 @@ _cpan2dist()
             [[ -d "$dir" && -r "$dir/02packages.details.txt.gz" ]] && \
                 packagelist="$dir/02packages.details.txt.gz"
         done
-        [[ $packagelist ]] && COMPREPLY=( $( zgrep "^${cur//-/::}" \
-            $packagelist 2>/dev/null | awk '{print $1}' | command sed -e 's/::/-/g' ) )
+        [[ $packagelist ]] && COMPREPLY=( $(zgrep "^${cur//-/::}" \
+            $packagelist 2>/dev/null | awk '{print $1}' | command sed -e 's/::/-/g') )
     fi
 } &&
 complete -F _cpan2dist -o default cpan2dist

@@ -7,7 +7,7 @@ _feh()
 
     case "$prev" in
         --image-bg|-B)
-            COMPREPLY=( $( compgen -W 'checks white black' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'checks white black' -- "$cur") )
             return
             ;;
         --filelist|--output|--output-only|--start-at|-!(-*)[foO\|])
@@ -21,19 +21,19 @@ _feh()
         --font|--menu-font|--title-font|-!(-*)[eM@])
             # expect string like "dejavu.ttf/12"
             if [[ "$cur" == */* ]]; then # expect integer value
-                COMPREPLY=( $( compgen -P "$cur" -W '{0..9}' ) )
+                COMPREPLY=( $(compgen -P "$cur" -W '{0..9}') )
                 compopt -o nospace
                 return
             fi
             local font_path
-            # font_path="$( imlib2-config --prefix 2> /dev/null )/share/imlib2/data/fonts"
-            # COMPREPLY=( $( cd "$font_path" 2> /dev/null; compgen -f \
-            #     -X "!*.@([tT][tT][fF])" -S / -- "$cur" ) )
+            # font_path="$(imlib2-config --prefix 2> /dev/null)/share/imlib2/data/fonts"
+            # COMPREPLY=( $(cd "$font_path" 2> /dev/null; compgen -f \
+            #     -X "!*.@([tT][tT][fF])" -S / -- "$cur") )
             for (( i=${#words[@]}-1; i>0; i-- )); do
                 if [[ ${words[i]} == -@(C|-fontpath) ]]; then
                     font_path="${words[i+1]}"
-                    COMPREPLY+=( $( cd "$font_path" 2> /dev/null; compgen -f \
-                        -X "!*.@([tT][tT][fF])" -S / -- "$cur" ) )
+                    COMPREPLY+=( $(cd "$font_path" 2> /dev/null; compgen -f \
+                        -X "!*.@([tT][tT][fF])" -S / -- "$cur") )
                 fi
             done
             compopt -o nospace
@@ -47,38 +47,38 @@ _feh()
                 if [[ "$theme_name" == '#'* || "$theme_name" == "" ]]; then
                     continue
                 fi
-                COMPREPLY+=( $( compgen -W "$theme_name" -- "$cur" ) )
+                COMPREPLY+=( $(compgen -W "$theme_name" -- "$cur") )
             done < "$conf_path"
             return
             ;;
         --sort|-!(-*)S)
-            COMPREPLY=( $( compgen -W 'name filename mtime width height
-                pixels size format' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'name filename mtime width height
+                pixels size format' -- "$cur") )
             return
             ;;
         --reload|--limit-height|--limit-width|--thumb-height|--thumb-width|\
         --thumb-redraw|--magick-timeout|-!(-*)[RHWEyJ])
             # expect integer value
-            COMPREPLY+=( $( compgen -W '{0..9}' ) )
+            COMPREPLY+=( $(compgen -W '{0..9}') )
             compopt -o nospace
             return
             ;;
         --zoom)
             # expect integer value or "max", "fill"
-            COMPREPLY=( $( compgen -W 'max fill' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'max fill' -- "$cur") )
             if [[ ! $cur || ! $COMPREPLY ]]; then
-                COMPREPLY+=( $( compgen -W '{0..9}' ) )
+                COMPREPLY+=( $(compgen -W '{0..9}') )
                 compopt -o nospace
             fi
             return
             ;;
         --alpha|-!(-*)a)
-            COMPREPLY=( $( compgen -W '{0..255}' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W '{0..255}' -- "$cur") )
             return
             ;;
         --bg|-!(-*)b)
             _filedir
-            COMPREPLY+=( $( compgen -W 'trans' -- "$cur" ) )
+            COMPREPLY+=( $(compgen -W 'trans' -- "$cur") )
             return
             ;;
         --geometry|--max-dimension|--min-dimension|-!(-*)g)
@@ -86,7 +86,7 @@ _feh()
             if [[ $cur && "$cur" != *x* ]]; then
                 COMPREPLY=( x )
             fi
-            COMPREPLY+=( $( compgen -W "{0..9}" ) )
+            COMPREPLY+=( $(compgen -W "{0..9}") )
             compopt -o nospace
             return
             ;;
@@ -101,7 +101,7 @@ _feh()
 
     if [[ "$cur" == -* ]]; then
         # Some versions of feh just output "See 'man feh'" for --help :(
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" --help )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1" --help)' -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         [[ $COMPREPLY ]] && return
     fi

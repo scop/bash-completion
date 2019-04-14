@@ -2,9 +2,9 @@
 
 _shellcheck_optarg()
 {
-    local args=$( "$1" --help 2>&1 | \
-        command sed -e 's/,/ /g' -ne 's/^.*'$2'\>.*(\([^)]*\)).*/\1/p' )
-    COMPREPLY+=( $( compgen -W '$args' -- "$cur" ) )
+    local args=$("$1" --help 2>&1 | \
+        command sed -e 's/,/ /g' -ne 's/^.*'$2'\>.*(\([^)]*\)).*/\1/p')
+    COMPREPLY+=( $(compgen -W '$args' -- "$cur") )
 }
 
 _shellcheck()
@@ -20,10 +20,10 @@ _shellcheck()
             return
             ;;
         --format|-!(-*)f)
-            local args=$( "$1" --format=nonexistent-format /dev/null 2>&1 | \
+            local args=$("$1" --format=nonexistent-format /dev/null 2>&1 | \
                 command sed -ne '/^Supported formats/,//p' | \
-                command sed -ne '/^[[:space:]]/p' )
-            COMPREPLY=( $( compgen -W '$args' -- "$cur" ) )
+                command sed -ne '/^[[:space:]]/p')
+            COMPREPLY=( $(compgen -W '$args' -- "$cur") )
             return
             ;;
         --color|-!(-*)C)
@@ -39,7 +39,7 @@ _shellcheck()
     $split && return
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi

@@ -12,22 +12,22 @@ _invoke_rc_d()
     [[ -d /etc/rc.d/init.d ]] && sysvdir=/etc/rc.d/init.d \
         || sysvdir=/etc/init.d
 
-    services=( $( printf '%s ' $sysvdir/!(README*|*.sh|$_backup_glob) ) )
+    services=( $(printf '%s ' $sysvdir/!(README*|*.sh|$_backup_glob)) )
     services=( ${services[@]#$sysvdir/} )
     options=( --help --quiet --force --try-anyway --disclose-deny --query \
         --no-fallback )
 
     if [[ ($cword -eq 1) || ("$prev" == --* ) ]]; then
-    valid_options=( $( \
+    valid_options=( $(\
         tr " " "\n" <<<"${words[@]} ${options[@]}" \
-        | command sed -ne "/$( command sed "s/ /\\\\|/g" <<<"${options[@]}" )/p" \
+        | command sed -ne "/$(command sed "s/ /\\\\|/g" <<<"${options[@]}")/p" \
         | sort | uniq -u \
         ) )
-    COMPREPLY=( $( compgen -W '${valid_options[@]} ${services[@]}' -- "$cur" ) )
+    COMPREPLY=( $(compgen -W '${valid_options[@]} ${services[@]}' -- "$cur") )
     elif [[ -x $sysvdir/$prev ]]; then
-        COMPREPLY=( $( compgen -W '`command sed -e "y/|/ /" \
+        COMPREPLY=( $(compgen -W '`command sed -e "y/|/ /" \
             -ne "s/^.*Usage:[ ]*[^ ]*[ ]*{*\([^}\"]*\).*$/\1/p" \
-            $sysvdir/$prev`' -- "$cur" ) )
+            $sysvdir/$prev`' -- "$cur") )
     else
         COMPREPLY=()
     fi

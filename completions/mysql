@@ -2,12 +2,12 @@
 
 _mysql_character_sets()
 {
-    local IFS=$' \t\n' reset=$( shopt -p failglob ); shopt -u failglob
+    local IFS=$' \t\n' reset=$(shopt -p failglob); shopt -u failglob
     local -a charsets=( /usr/share/m{ariadb,ysql}/charsets/*.xml )
     $reset
     charsets=( "${charsets[@]##*/}" )
     charsets=( "${charsets[@]%%?(Index|\*).xml}" utf8 )
-    COMPREPLY+=( $( compgen -W '${charsets[@]}' -- "$cur" ) )
+    COMPREPLY+=( $(compgen -W '${charsets[@]}' -- "$cur") )
 }
 
 _mysql()
@@ -17,11 +17,11 @@ _mysql()
 
     case $prev in
         --user|-!(-*)u)
-            COMPREPLY=( $( compgen -u -- "$cur" ) )
+            COMPREPLY=( $(compgen -u -- "$cur") )
             return
             ;;
         --database|-!(-*)D)
-            COMPREPLY=( $( compgen -W "$(mysqlshow 2>/dev/null | command sed -ne '2d' -e 's/^|.\([^|]*\)|.*/\1/p')" -- "$cur" ) )
+            COMPREPLY=( $(compgen -W "$(mysqlshow 2>/dev/null | command sed -ne '2d' -e 's/^|.\([^|]*\)|.*/\1/p')" -- "$cur") )
             return
             ;;
 
@@ -43,7 +43,7 @@ _mysql()
             return
             ;;
         --protocol)
-            COMPREPLY=( $( compgen -W 'tcp socket pipe memory' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'tcp socket pipe memory' -- "$cur") )
             return
             ;;
         --defaults-file|--defaults-extra-file|--tee)
@@ -74,7 +74,7 @@ _mysql()
             local help=$(_parse_help "$1")
             help+=" --skip-comments --skip-ssl"
 
-            COMPREPLY=( $( compgen -W "$help" -- "$cur" ) )
+            COMPREPLY=( $(compgen -W "$help" -- "$cur") )
             [[ $COMPREPLY == *= ]] && compopt -o nospace
             return
             ;;
@@ -87,9 +87,9 @@ _mysql()
             ;;
     esac
 
-    COMPREPLY=( $( compgen -W \
+    COMPREPLY=( $(compgen -W \
         "$(mysqlshow 2>/dev/null | command sed -ne '2d' -e 's/^|.\([^|]*\)|.*/\1/p')" \
-        -- "$cur" ) )
+        -- "$cur") )
 } &&
 complete -F _mysql mysql
 

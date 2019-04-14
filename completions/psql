@@ -4,16 +4,16 @@ _pg_databases()
 {
     # -w was introduced in 8.4, https://launchpad.net/bugs/164772
     # "Access privileges" in output may contain linefeeds, hence the NF > 1
-    COMPREPLY=( $( compgen -W "$( psql -XAtqwlF $'\t' 2>/dev/null | \
-        awk 'NF > 1 { print $1 }' )" -- "$cur" ) )
+    COMPREPLY=( $(compgen -W "$(psql -XAtqwlF $'\t' 2>/dev/null | \
+        awk 'NF > 1 { print $1 }')" -- "$cur") )
 }
 
 _pg_users()
 {
     # -w was introduced in 8.4, https://launchpad.net/bugs/164772
-    COMPREPLY=( $( compgen -W "$( psql -XAtqwc 'select usename from pg_user' \
-        template1 2>/dev/null )" -- "$cur" ) )
-    [[ ${#COMPREPLY[@]} -eq 0 ]] && COMPREPLY=( $( compgen -u -- "$cur" ) )
+    COMPREPLY=( $(compgen -W "$(psql -XAtqwc 'select usename from pg_user' \
+        template1 2>/dev/null)" -- "$cur") )
+    [[ ${#COMPREPLY[@]} -eq 0 ]] && COMPREPLY=( $(compgen -u -- "$cur") )
 }
 
 # createdb(1) completion
@@ -40,7 +40,7 @@ _createdb()
     $split && return
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     else
         _pg_databases
@@ -72,7 +72,7 @@ _createuser()
     $split && return
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     fi
 } &&
@@ -102,7 +102,7 @@ _dropdb()
     $split && return
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     else
         _pg_databases
@@ -134,7 +134,7 @@ _dropuser()
     $split && return
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     else
         _pg_users
@@ -176,7 +176,7 @@ _psql()
 
     if [[ "$cur" == -* ]]; then
         # return list of available options
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     else
         # return list of available databases

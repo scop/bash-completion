@@ -85,7 +85,7 @@ complete -b builtin
 # @param $1 userland to check for
 _userland()
 {
-    local userland=$( uname -s )
+    local userland=$(uname -s)
     [[ $userland == @(Linux|GNU/*) ]] && userland=GNU
     [[ $userland == $1 ]]
 }
@@ -124,7 +124,7 @@ have()
 #
 _rl_enabled()
 {
-    [[ "$( bind -v )" == *$1+([[:space:]])on* ]]
+    [[ "$(bind -v)" == *$1+([[:space:]])on* ]]
 }
 
 # This function shell-quotes the argument
@@ -556,7 +556,7 @@ _filedir()
     local x reset
 
     reset=$(shopt -po noglob); set -o noglob
-    toks=( $( compgen -d -- "$cur" ) )
+    toks=( $(compgen -d -- "$cur") )
     IFS=' '; $reset; IFS=$'\n'
 
     if [[ "$1" != -d ]]; then
@@ -567,13 +567,13 @@ _filedir()
         # http://thread.gmane.org/gmane.comp.shells.bash.bugs/15294/focus=15306
         local xspec=${1:+"!*.@($1|${1^^})"}
         reset=$(shopt -po noglob); set -o noglob
-        toks+=( $( compgen -f -X "$xspec" -- $quoted ) )
+        toks+=( $(compgen -f -X "$xspec" -- $quoted) )
         IFS=' '; $reset; IFS=$'\n'
 
         # Try without filter if it failed to produce anything and configured to
         [[ -n ${COMP_FILEDIR_FALLBACK:-} && -n "$1" && ${#toks[@]} -lt 1 ]] && {
             reset=$(shopt -po noglob); set -o noglob
-            toks+=( $( compgen -f -- $quoted ) )
+            toks+=( $(compgen -f -- $quoted) )
             IFS=' '; $reset; IFS=$'\n'
         }
     fi
@@ -614,8 +614,8 @@ _variables()
         # Completing $var / ${var / ${!var / ${#var
         if [[ $cur == \${* ]]; then
             local arrs vars
-            vars=( $( compgen -A variable -P ${BASH_REMATCH[1]} -S '}' -- ${BASH_REMATCH[3]} ) ) && \
-            arrs=( $( compgen -A arrayvar -P ${BASH_REMATCH[1]} -S '[' -- ${BASH_REMATCH[3]} ) )
+            vars=( $(compgen -A variable -P ${BASH_REMATCH[1]} -S '}' -- ${BASH_REMATCH[3]}) ) && \
+            arrs=( $(compgen -A arrayvar -P ${BASH_REMATCH[1]} -S '[' -- ${BASH_REMATCH[3]}) )
             if [[ ${#vars[@]} -eq 1 && $arrs ]]; then
                 # Complete ${arr with ${array[ if there is only one match, and that match is an array variable
                 compopt -o nospace
@@ -626,14 +626,14 @@ _variables()
             fi
         else
             # Complete $var with $variable
-            COMPREPLY+=( $( compgen -A variable -P '$' -- "${BASH_REMATCH[3]}" ) )
+            COMPREPLY+=( $(compgen -A variable -P '$' -- "${BASH_REMATCH[3]}") )
         fi
         return 0
     elif [[ $cur =~ ^(\$\{[#!]?)([A-Za-z0-9_]*)\[([^]]*)$ ]]; then
         # Complete ${array[i with ${array[idx]}
         local IFS=$'\n'
-        COMPREPLY+=( $( compgen -W '$(printf %s\\n "${!'${BASH_REMATCH[2]}'[@]}")' \
-            -P "${BASH_REMATCH[1]}${BASH_REMATCH[2]}[" -S ']}' -- "${BASH_REMATCH[3]}" ) )
+        COMPREPLY+=( $(compgen -W '$(printf %s\\n "${!'${BASH_REMATCH[2]}'[@]}")' \
+            -P "${BASH_REMATCH[1]}${BASH_REMATCH[2]}[" -S ']}' -- "${BASH_REMATCH[3]}") )
         # Complete ${arr[@ and ${arr[*
         if [[ ${BASH_REMATCH[3]} == [@*] ]]; then
             COMPREPLY+=( "${BASH_REMATCH[1]}${BASH_REMATCH[2]}[${BASH_REMATCH[3]}]}" )
@@ -790,11 +790,11 @@ __parse_options()
 #
 _parse_help()
 {
-    eval local cmd=$( quote "$1" )
+    eval local cmd=$(quote "$1")
     local line
     { case $cmd in
         -) cat ;;
-        *) LC_ALL=C "$( dequote "$cmd" )" ${2:---help} 2>&1 ;;
+        *) LC_ALL=C "$(dequote "$cmd")" ${2:---help} 2>&1 ;;
       esac } \
     | while read -r line; do
 
@@ -815,11 +815,11 @@ _parse_help()
 #
 _parse_usage()
 {
-    eval local cmd=$( quote "$1" )
+    eval local cmd=$(quote "$1")
     local line match option i char
     { case $cmd in
         -) cat ;;
-        *) LC_ALL=C "$( dequote "$cmd" )" ${2:---usage} 2>&1 ;;
+        *) LC_ALL=C "$(dequote "$cmd")" ${2:---usage} 2>&1 ;;
       esac } \
     | while read -r line; do
 
@@ -848,7 +848,7 @@ _parse_usage()
 # @param $1 prefix
 _signals()
 {
-    local -a sigs=( $( compgen -P "$1" -A signal "SIG${cur#$1}" ) )
+    local -a sigs=( $(compgen -P "$1" -A signal "SIG${cur#$1}") )
     COMPREPLY+=( "${sigs[@]/#${1}SIG/${1}}" )
 }
 
@@ -863,7 +863,7 @@ _mac_addresses()
     # - ifconfig on Linux: HWaddr or ether
     # - ifconfig on FreeBSD: ether
     # - ip link: link/ether
-    COMPREPLY+=( $( \
+    COMPREPLY+=( $(\
         { LC_ALL=C ifconfig -a || ip link show; } 2>/dev/null | command sed -ne \
         "s/.*[[:space:]]HWaddr[[:space:]]\{1,\}\($re\)[[:space:]].*/\1/p" -ne \
         "s/.*[[:space:]]HWaddr[[:space:]]\{1,\}\($re\)[[:space:]]*$/\1/p" -ne \
@@ -872,15 +872,15 @@ _mac_addresses()
         ) )
 
     # ARP cache
-    COMPREPLY+=( $( { arp -an || ip neigh show; } 2>/dev/null | command sed -ne \
+    COMPREPLY+=( $({ arp -an || ip neigh show; } 2>/dev/null | command sed -ne \
         "s/.*[[:space:]]\($re\)[[:space:]].*/\1/p" -ne \
-        "s/.*[[:space:]]\($re\)[[:space:]]*$/\1/p" ) )
+        "s/.*[[:space:]]\($re\)[[:space:]]*$/\1/p") )
 
     # /etc/ethers
-    COMPREPLY+=( $( command sed -ne \
-        "s/^[[:space:]]*\($re\)[[:space:]].*/\1/p" /etc/ethers 2>/dev/null ) )
+    COMPREPLY+=( $(command sed -ne \
+        "s/^[[:space:]]*\($re\)[[:space:]].*/\1/p" /etc/ethers 2>/dev/null) )
 
-    COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
+    COMPREPLY=( $(compgen -W '${COMPREPLY[@]}' -- "$cur") )
     __ltrim_colon_completions "$cur"
 }
 
@@ -890,24 +890,24 @@ _configured_interfaces()
 {
     if [[ -f /etc/debian_version ]]; then
         # Debian system
-        COMPREPLY=( $( compgen -W "$( command sed -ne 's|^iface \([^ ]\{1,\}\).*$|\1|p'\
-            /etc/network/interfaces /etc/network/interfaces.d/* 2>/dev/null )" \
-            -- "$cur" ) )
+        COMPREPLY=( $(compgen -W "$(command sed -ne 's|^iface \([^ ]\{1,\}\).*$|\1|p'\
+            /etc/network/interfaces /etc/network/interfaces.d/* 2>/dev/null)" \
+            -- "$cur") )
     elif [[ -f /etc/SuSE-release ]]; then
         # SuSE system
-        COMPREPLY=( $( compgen -W "$( printf '%s\n' \
+        COMPREPLY=( $(compgen -W "$(printf '%s\n' \
             /etc/sysconfig/network/ifcfg-* | \
-            command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p' )" -- "$cur" ) )
+            command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')" -- "$cur") )
     elif [[ -f /etc/pld-release ]]; then
         # PLD Linux
-        COMPREPLY=( $( compgen -W "$( command ls -B \
+        COMPREPLY=( $(compgen -W "$(command ls -B \
             /etc/sysconfig/interfaces | \
-            command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p' )" -- "$cur" ) )
+            command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')" -- "$cur") )
     else
         # Assume Red Hat
-        COMPREPLY=( $( compgen -W "$( printf '%s\n' \
+        COMPREPLY=( $(compgen -W "$(printf '%s\n' \
             /etc/sysconfig/network-scripts/ifcfg-* | \
-            command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p' )" -- "$cur" ) )
+            command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')" -- "$cur") )
     fi
 }
 
@@ -924,17 +924,17 @@ _ip_addresses()
         -6) n='6' ;;
     esac
     local PATH=$PATH:/sbin
-    local addrs=$( { LC_ALL=C ifconfig -a || ip addr show; } 2>/dev/null |
+    local addrs=$({ LC_ALL=C ifconfig -a || ip addr show; } 2>/dev/null |
         command sed -e 's/[[:space:]]addr:/ /' -ne \
-            "s|.*inet$n[[:space:]]\{1,\}\([^[:space:]/]*\).*|\1|p" )
-    COMPREPLY+=( $( compgen -W "$addrs" -- "$cur" ) )
+            "s|.*inet$n[[:space:]]\{1,\}\([^[:space:]/]*\).*|\1|p")
+    COMPREPLY+=( $(compgen -W "$addrs" -- "$cur") )
 }
 
 # This function completes on available kernels
 #
 _kernel_versions()
 {
-    COMPREPLY=( $( compgen -W '$( command ls /lib/modules )' -- "$cur" ) )
+    COMPREPLY=( $(compgen -W '$(command ls /lib/modules)' -- "$cur") )
 }
 
 # This function completes on all available network interfaces
@@ -945,7 +945,7 @@ _available_interfaces()
 {
     local PATH=$PATH:/sbin
 
-    COMPREPLY=( $( {
+    COMPREPLY=( $({
         if [[ ${1:-} == -w ]]; then
             iwconfig
         elif [[ ${1:-} == -a ]]; then
@@ -954,9 +954,9 @@ _available_interfaces()
             ifconfig -a || ip link show
         fi
     } 2>/dev/null | awk \
-        '/^[^ \t]/ { if ($1 ~ /^[0-9]+:/) { print $2 } else { print $1 } }' ) )
+        '/^[^ \t]/ { if ($1 ~ /^[0-9]+:/) { print $2 } else { print $1 } }') )
 
-    COMPREPLY=( $( compgen -W '${COMPREPLY[@]/%[[:punct:]]/}' -- "$cur" ) )
+    COMPREPLY=( $(compgen -W '${COMPREPLY[@]/%[[:punct:]]/}' -- "$cur") )
 }
 
 # Echo number of CPUs, falling back to 1 on failure.
@@ -964,7 +964,7 @@ _ncpus()
 {
     local var=NPROCESSORS_ONLN
     [[ $OSTYPE == *linux* ]] && var=_$var
-    local n=$( getconf $var 2>/dev/null )
+    local n=$(getconf $var 2>/dev/null)
     printf %s ${n:-1}
 }
 
@@ -977,7 +977,7 @@ _tilde()
     local result=0
     if [[ $1 == \~* && $1 != */* ]]; then
         # Try generate ~username completions
-        COMPREPLY=( $( compgen -P '~' -u -- "${1#\~}" ) )
+        COMPREPLY=( $(compgen -P '~' -u -- "${1#\~}") )
         result=${#COMPREPLY[@]}
         # 2>/dev/null for direct invocation, e.g. in the _tilde unit test
         [[ $result -gt 0 ]] && compopt -o filenames 2>/dev/null
@@ -1037,11 +1037,11 @@ _expand()
 [[ $OSTYPE == *@(solaris|aix)* ]] &&
 _pids()
 {
-    COMPREPLY=( $( compgen -W '$( command ps -efo pid | command sed 1d )' -- "$cur" ))
+    COMPREPLY=( $(compgen -W '$(command ps -efo pid | command sed 1d)' -- "$cur") )
 } ||
 _pids()
 {
-    COMPREPLY=( $( compgen -W '$( command ps axo pid= )' -- "$cur" ) )
+    COMPREPLY=( $(compgen -W '$(command ps axo pid=)' -- "$cur") )
 }
 
 # This function completes on process group IDs.
@@ -1049,11 +1049,11 @@ _pids()
 [[ $OSTYPE == *@(solaris|aix)* ]] &&
 _pgids()
 {
-    COMPREPLY=( $( compgen -W '$( command ps -efo pgid | command sed 1d )' -- "$cur" ))
+    COMPREPLY=( $(compgen -W '$(command ps -efo pgid | command sed 1d)' -- "$cur") )
 } ||
 _pgids()
 {
-    COMPREPLY=( $( compgen -W '$( command ps axo pgid= )' -- "$cur" ))
+    COMPREPLY=( $(compgen -W '$(command ps axo pgid=)' -- "$cur") )
 }
 
 # This function completes on process names.
@@ -1062,14 +1062,14 @@ _pgids()
 [[ $OSTYPE == *@(solaris|aix)* ]] &&
 _pnames()
 {
-    COMPREPLY=( $( compgen -X '<defunct>' -W '$( command ps -efo comm | \
-        command sed -e 1d -e "s:.*/::" -e "s/^-//" | sort -u )' -- "$cur" ) )
+    COMPREPLY=( $(compgen -X '<defunct>' -W '$(command ps -efo comm | \
+        command sed -e 1d -e "s:.*/::" -e "s/^-//" | sort -u)' -- "$cur") )
 } ||
 _pnames()
 {
     if [[ "$1" == -s ]]; then
-        COMPREPLY=( $( compgen -X '<defunct>' \
-            -W '$( command ps axo comm | command sed -e 1d )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -X '<defunct>' \
+            -W '$(command ps axo comm | command sed -e 1d)' -- "$cur") )
     else
         # FIXME: completes "[kblockd/0]" to "0". Previously it was completed
         # to "kblockd" which isn't correct either. "kblockd/0" would be
@@ -1077,12 +1077,12 @@ _pnames()
         # containing "/" specially unless -r is given so that wouldn't quite
         # work either. Perhaps it'd be best to not complete these to anything
         # for now.
-        COMPREPLY=( $( compgen -X '<defunct>' -W '$( command ps axo command= | command sed -e \
+        COMPREPLY=( $(compgen -X '<defunct>' -W '$(command ps axo command= | command sed -e \
             "s/ .*//" -e \
             "s:.*/::" -e \
             "s/:$//" -e \
             "s/^[[(-]//" -e \
-            "s/[])]$//" | sort -u )' -- "$cur" ) )
+            "s/[])]$//" | sort -u)' -- "$cur") )
     fi
 }
 
@@ -1091,12 +1091,12 @@ _pnames()
 _uids()
 {
     if type getent &>/dev/null; then
-        COMPREPLY=( $( compgen -W '$( getent passwd | cut -d: -f3 )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(getent passwd | cut -d: -f3)' -- "$cur") )
     elif type perl &>/dev/null; then
-        COMPREPLY=( $( compgen -W '$( perl -e '"'"'while (($uid) = (getpwent)[2]) { print $uid . "\n" }'"'"' )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(perl -e '"'"'while (($uid) = (getpwent)[2]) { print $uid . "\n" }'"'"')' -- "$cur") )
     else
         # make do with /etc/passwd
-        COMPREPLY=( $( compgen -W '$( cut -d: -f3 /etc/passwd )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(cut -d: -f3 /etc/passwd)' -- "$cur") )
     fi
 }
 
@@ -1105,13 +1105,12 @@ _uids()
 _gids()
 {
     if type getent &>/dev/null; then
-        COMPREPLY=( $( compgen -W '$( getent group | cut -d: -f3 )' \
-            -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(getent group | cut -d: -f3)' -- "$cur") )
     elif type perl &>/dev/null; then
-        COMPREPLY=( $( compgen -W '$( perl -e '"'"'while (($gid) = (getgrent)[2]) { print $gid . "\n" }'"'"' )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(perl -e '"'"'while (($gid) = (getgrent)[2]) { print $gid . "\n" }'"'"')' -- "$cur") )
     else
         # make do with /etc/group
-        COMPREPLY=( $( compgen -W '$( cut -d: -f3 /etc/group )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(cut -d: -f3 /etc/group)' -- "$cur") )
     fi
 }
 
@@ -1126,9 +1125,9 @@ _xinetd_services()
     local xinetddir=/etc/xinetd.d
     if [[ -d $xinetddir ]]; then
         local IFS=$' \t\n' reset=$(shopt -p nullglob); shopt -s nullglob
-        local -a svcs=( $( printf '%s\n' $xinetddir/!($_backup_glob) ) )
+        local -a svcs=( $(printf '%s\n' $xinetddir/!($_backup_glob)) )
         $reset
-        COMPREPLY+=( $( compgen -W '${svcs[@]#$xinetddir/}' -- "$cur" ) )
+        COMPREPLY+=( $(compgen -W '${svcs[@]#$xinetddir/}' -- "$cur") )
     fi
 }
 
@@ -1141,18 +1140,18 @@ _services()
 
     local IFS=$' \t\n' reset=$(shopt -p nullglob); shopt -s nullglob
     COMPREPLY=( \
-        $( printf '%s\n' ${sysvdirs[0]}/!($_backup_glob|functions|README) ) )
+        $(printf '%s\n' ${sysvdirs[0]}/!($_backup_glob|functions|README)) )
     $reset
 
-    COMPREPLY+=( $( { systemctl list-units --full --all || \
-                      systemctl list-unit-files; } 2>/dev/null | \
-        awk '$1 ~ /\.service$/ { sub("\\.service$", "", $1); print $1 }' ) )
+    COMPREPLY+=( $({ systemctl list-units --full --all || \
+                     systemctl list-unit-files; } 2>/dev/null | \
+        awk '$1 ~ /\.service$/ { sub("\\.service$", "", $1); print $1 }') )
 
     if [[ -x /sbin/upstart-udev-bridge ]]; then
-        COMPREPLY+=( $( initctl list 2>/dev/null | cut -d' ' -f1 ) )
+        COMPREPLY+=( $(initctl list 2>/dev/null | cut -d' ' -f1) )
     fi
 
-    COMPREPLY=( $( compgen -W '${COMPREPLY[@]#${sysvdirs[0]}/}' -- "$cur" ) )
+    COMPREPLY=( $(compgen -W '${COMPREPLY[@]#${sysvdirs[0]}/}' -- "$cur") )
 }
 
 # This completes on a list of all available service scripts for the
@@ -1173,9 +1172,9 @@ _service()
     else
         local sysvdirs
         _sysvdirs
-        COMPREPLY=( $( compgen -W '`command sed -e "y/|/ /" \
+        COMPREPLY=( $(compgen -W '`command sed -e "y/|/ /" \
             -ne "s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p" \
-            ${sysvdirs[0]}/${prev##*/} 2>/dev/null` start stop' -- "$cur" ) )
+            ${sysvdirs[0]}/${prev##*/} 2>/dev/null` start stop' -- "$cur") )
     fi
 } &&
 complete -F _service service
@@ -1193,16 +1192,16 @@ _modules()
 {
     local modpath
     modpath=/lib/modules/$1
-    COMPREPLY=( $( compgen -W "$( command ls -RL $modpath 2>/dev/null | \
-        command sed -ne 's/^\(.*\)\.k\{0,1\}o\(\.[gx]z\)\{0,1\}$/\1/p' )" -- "$cur" ) )
+    COMPREPLY=( $(compgen -W "$(command ls -RL $modpath 2>/dev/null | \
+        command sed -ne 's/^\(.*\)\.k\{0,1\}o\(\.[gx]z\)\{0,1\}$/\1/p')" -- "$cur") )
 }
 
 # This function completes on installed modules
 #
 _installed_modules()
 {
-    COMPREPLY=( $( compgen -W "$( PATH="$PATH:/sbin" lsmod | \
-        awk '{if (NR != 1) print $1}' )" -- "$1" ) )
+    COMPREPLY=( $(compgen -W "$(PATH="$PATH:/sbin" lsmod | \
+        awk '{if (NR != 1) print $1}')" -- "$1") )
 }
 
 # This function completes on user or user:group format; as for chown and cpio.
@@ -1229,9 +1228,9 @@ _usergroup()
             _allowed_groups "$mycur"
         else
             local IFS=$'\n'
-            COMPREPLY=( $( compgen -g -- "$mycur" ) )
+            COMPREPLY=( $(compgen -g -- "$mycur") )
         fi
-        COMPREPLY=( $( compgen -P "$prefix" -W "${COMPREPLY[@]}" ) )
+        COMPREPLY=( $(compgen -P "$prefix" -W "${COMPREPLY[@]}") )
     elif [[ $cur == *:* ]]; then
         # Completing group after 'user:gr<TAB>'.
         # Reply with a list of unprefixed groups since readline with split on :
@@ -1241,7 +1240,7 @@ _usergroup()
             _allowed_groups "$mycur"
         else
             local IFS=$'\n'
-            COMPREPLY=( $( compgen -g -- "$mycur" ) )
+            COMPREPLY=( $(compgen -g -- "$mycur") )
         fi
     else
         # Completing a partial 'usernam<TAB>'.
@@ -1253,7 +1252,7 @@ _usergroup()
             _allowed_users "$cur"
         else
             local IFS=$'\n'
-            COMPREPLY=( $( compgen -u -- "$cur" ) )
+            COMPREPLY=( $(compgen -u -- "$cur") )
         fi
     fi
 }
@@ -1262,11 +1261,11 @@ _allowed_users()
 {
     if _complete_as_root; then
         local IFS=$'\n'
-        COMPREPLY=( $( compgen -u -- "${1:-$cur}" ) )
+        COMPREPLY=( $(compgen -u -- "${1:-$cur}") )
     else
         local IFS=$'\n '
-        COMPREPLY=( $( compgen -W \
-            "$( id -un 2>/dev/null || whoami 2>/dev/null )" -- "${1:-$cur}" ) )
+        COMPREPLY=( $(compgen -W \
+            "$(id -un 2>/dev/null || whoami 2>/dev/null)" -- "${1:-$cur}") )
     fi
 }
 
@@ -1274,11 +1273,11 @@ _allowed_groups()
 {
     if _complete_as_root; then
         local IFS=$'\n'
-        COMPREPLY=( $( compgen -g -- "$1" ) )
+        COMPREPLY=( $(compgen -g -- "$1") )
     else
         local IFS=$'\n '
-        COMPREPLY=( $( compgen -W \
-            "$( id -Gn 2>/dev/null || groups 2>/dev/null )" -- "$1" ) )
+        COMPREPLY=( $(compgen -W \
+            "$(id -Gn 2>/dev/null || groups 2>/dev/null)" -- "$1") )
     fi
 }
 
@@ -1300,18 +1299,18 @@ _fstypes()
 
     if [[ -e /proc/filesystems ]]; then
         # Linux
-        fss="$( cut -d$'\t' -f2 /proc/filesystems )
-            $( awk '! /\*/ { print $NF }' /etc/filesystems 2>/dev/null )"
+        fss="$(cut -d$'\t' -f2 /proc/filesystems)
+             $(awk '! /\*/ { print $NF }' /etc/filesystems 2>/dev/null)"
     else
         # Generic
-        fss="$( awk '/^[ \t]*[^#]/ { print $3 }' /etc/fstab 2>/dev/null )
-            $( awk '/^[ \t]*[^#]/ { print $3 }' /etc/mnttab 2>/dev/null )
-            $( awk '/^[ \t]*[^#]/ { print $4 }' /etc/vfstab 2>/dev/null )
-            $( awk '{ print $1 }' /etc/dfs/fstypes 2>/dev/null )
-            $( [[ -d /etc/fs ]] && command ls /etc/fs )"
+        fss="$(awk '/^[ \t]*[^#]/ { print $3 }' /etc/fstab 2>/dev/null)
+             $(awk '/^[ \t]*[^#]/ { print $3 }' /etc/mnttab 2>/dev/null)
+             $(awk '/^[ \t]*[^#]/ { print $4 }' /etc/vfstab 2>/dev/null)
+             $(awk '{ print $1 }' /etc/dfs/fstypes 2>/dev/null)
+             $([[ -d /etc/fs ]] && command ls /etc/fs)"
     fi
 
-    [[ -n $fss ]] && COMPREPLY+=( $( compgen -W "$fss" -- "$cur" ) )
+    [[ -n $fss ]] && COMPREPLY+=( $(compgen -W "$fss" -- "$cur") )
 }
 
 # Get real command.
@@ -1374,38 +1373,38 @@ _count_args()
 #
 _pci_ids()
 {
-    COMPREPLY+=( $( compgen -W \
-        "$( PATH="$PATH:/sbin" lspci -n | awk '{print $3}')" -- "$cur" ) )
+    COMPREPLY+=( $(compgen -W \
+        "$(PATH="$PATH:/sbin" lspci -n | awk '{print $3}')" -- "$cur") )
 }
 
 # This function completes on USB IDs
 #
 _usb_ids()
 {
-    COMPREPLY+=( $( compgen -W \
-        "$( PATH="$PATH:/sbin" lsusb | awk '{print $6}' )" -- "$cur" ) )
+    COMPREPLY+=( $(compgen -W \
+        "$(PATH="$PATH:/sbin" lsusb | awk '{print $6}')" -- "$cur") )
 }
 
 # CD device names
 _cd_devices()
 {
-    COMPREPLY+=( $( compgen -f -d -X "!*/?([amrs])cd*" -- "${cur:-/dev/}" ) )
+    COMPREPLY+=( $(compgen -f -d -X "!*/?([amrs])cd*" -- "${cur:-/dev/}") )
 }
 
 # DVD device names
 _dvd_devices()
 {
-    COMPREPLY+=( $( compgen -f -d -X "!*/?(r)dvd*" -- "${cur:-/dev/}" ) )
+    COMPREPLY+=( $(compgen -f -d -X "!*/?(r)dvd*" -- "${cur:-/dev/}") )
 }
 
 # TERM environment variable values
 _terms()
 {
-    COMPREPLY+=( $( compgen -W \
-        "$( command sed -ne 's/^\([^[:space:]#|]\{2,\}\)|.*/\1/p' /etc/termcap \
-            2>/dev/null )" -- "$cur" ) )
-    COMPREPLY+=( $( compgen -W "$( { toe -a 2>/dev/null || toe 2>/dev/null; } \
-        | awk '{ print $1 }' | sort -u )" -- "$cur" ) )
+    COMPREPLY+=( $(compgen -W \
+        "$(command sed -ne 's/^\([^[:space:]#|]\{2,\}\)|.*/\1/p' /etc/termcap \
+           2>/dev/null)" -- "$cur") )
+    COMPREPLY+=( $(compgen -W "$({ toe -a 2>/dev/null || toe 2>/dev/null; } \
+        | awk '{ print $1 }' | sort -u)" -- "$cur") )
 }
 
 # a little help for FreeBSD ports users
@@ -1423,7 +1422,7 @@ _user_at_host()
     if [[ $cur == *@* ]]; then
         _known_hosts_real "$cur"
     else
-        COMPREPLY=( $( compgen -u -S @ -- "$cur" ) )
+        COMPREPLY=( $(compgen -u -S @ -- "$cur") )
         compopt -o nospace
     fi
 }
@@ -1452,7 +1451,7 @@ _included_ssh_config_files()
     [[ $# -lt 1 ]] && echo "error: $FUNCNAME: missing mandatory argument CONFIG"
     local configfile i f
     configfile=$1
-    local included=$( command sed -ne 's/^[[:blank:]]*[Ii][Nn][Cc][Ll][Uu][Dd][Ee][[:blank:]]\{1,\}\([^#%]*\)\(#.*\)\{0,1\}$/\1/p' "${configfile}" )
+    local included=$(command sed -ne 's/^[[:blank:]]*[Ii][Nn][Cc][Ll][Uu][Dd][Ee][[:blank:]]\{1,\}\([^#%]*\)\(#.*\)\{0,1\}$/\1/p' "${configfile}")
     for i in ${included[@]}; do
         # Check the origin of $configfile to complete relative included paths on included
         # files according to ssh_config(5):
@@ -1539,7 +1538,7 @@ _known_hosts_real()
         # TODO(?): try to make known hosts files with more than one consecutive
         #          spaces in their name work (watch out for ~ expansion
         #          breakage! Alioth#311595)
-        tmpkh=( $( awk 'sub("^[ \t]*([Gg][Ll][Oo][Bb][Aa][Ll]|[Uu][Ss][Ee][Rr])[Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee][ \t]+", "") { print $0 }' "${config[@]}" | sort -u ) )
+        tmpkh=( $(awk 'sub("^[ \t]*([Gg][Ll][Oo][Bb][Aa][Ll]|[Uu][Ss][Ee][Rr])[Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee][ \t]+", "") { print $0 }' "${config[@]}" | sort -u) )
         IFS=$OIFS
         for i in "${tmpkh[@]}"; do
             # First deal with quoted entries...
@@ -1595,7 +1594,7 @@ _known_hosts_real()
                     IFS=$OIFS
                 done < "$i"
             done
-            COMPREPLY=( $( compgen -W '${COMPREPLY[@]}' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W '${COMPREPLY[@]}' -- "$cur") )
         fi
         if [[ ${#khd[@]} -gt 0 ]]; then
             # Needs to look for files called
@@ -1619,9 +1618,9 @@ _known_hosts_real()
 
     # append any available aliases from ssh config files
     if [[ ${#config[@]} -gt 0 && -n "$aliases" ]]; then
-        local hosts=$( command sed -ne 's/^[[:blank:]]*[Hh][Oo][Ss][Tt][[:blank:]]\{1,\}\([^#*?%]*\)\(#.*\)\{0,1\}$/\1/p' "${config[@]}" )
-        COMPREPLY+=( $( compgen -P "$prefix$user" \
-            -S "$suffix" -W "$hosts" -- "$cur" ) )
+        local hosts=$(command sed -ne 's/^[[:blank:]]*[Hh][Oo][Ss][Tt][[:blank:]]\{1,\}\([^#*?%]*\)\(#.*\)\{0,1\}$/\1/p' "${config[@]}")
+        COMPREPLY+=( $(compgen -P "$prefix$user" \
+            -S "$suffix" -W "$hosts" -- "$cur") )
     fi
 
     # Add hosts reported by avahi-browse, if desired and it's available.
@@ -1632,21 +1631,21 @@ _known_hosts_real()
         # if it contains ";", it may mistify the result. But on Gentoo (at
         # least), -k wasn't available (even if mentioned in the manpage) some
         # time ago, so...
-        COMPREPLY+=( $( compgen -P "$prefix$user" -S "$suffix" -W \
-            "$( avahi-browse -cpr _workstation._tcp 2>/dev/null | \
-                awk -F';' '/^=/ { print $7 }' | sort -u )" -- "$cur" ) )
+        COMPREPLY+=( $(compgen -P "$prefix$user" -S "$suffix" -W \
+            "$(avahi-browse -cpr _workstation._tcp 2>/dev/null | \
+               awk -F';' '/^=/ { print $7 }' | sort -u)" -- "$cur") )
     fi
 
     # Add hosts reported by ruptime.
-    COMPREPLY+=( $( compgen -W \
-        "$( ruptime 2>/dev/null | awk '!/^ruptime:/ { print $1 }' )" \
-        -- "$cur" ) )
+    COMPREPLY+=( $(compgen -W \
+        "$(ruptime 2>/dev/null | awk '!/^ruptime:/ { print $1 }')" \
+        -- "$cur") )
 
     # Add results of normal hostname completion, unless
     # `COMP_KNOWN_HOSTS_WITH_HOSTFILE' is set to an empty value.
     if [[ -n ${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1} ]]; then
         COMPREPLY+=(
-            $( compgen -A hostname -P "$prefix$user" -S "$suffix" -- "$cur" ) )
+            $(compgen -A hostname -P "$prefix$user" -S "$suffix" -- "$cur") )
     fi
 
     if [[ $ipv4 ]]; then
@@ -1693,7 +1692,7 @@ _cd()
     for i in ${CDPATH//:/$'\n'}; do
         # create an array of matched subdirs
         k="${#COMPREPLY[@]}"
-        for j in $( compgen -d -- $i/$cur ); do
+        for j in $(compgen -d -- $i/$cur); do
             if [[ ( $mark_symdirs && -h $j || $mark_dirs && ! -h $j ) && ! -d ${j#$i/} ]]; then
                 j+="/"
             fi
@@ -1772,21 +1771,21 @@ _command_offset()
     if [[ $COMP_CWORD -eq 0 ]]; then
         local IFS=$'\n'
         compopt -o filenames
-        COMPREPLY=( $( compgen -d -c -- "$cur" ) )
+        COMPREPLY=( $(compgen -d -c -- "$cur") )
     else
         local cmd=${COMP_WORDS[0]} compcmd=${COMP_WORDS[0]}
-        local cspec=$( complete -p $cmd 2>/dev/null )
+        local cspec=$(complete -p $cmd 2>/dev/null)
 
         # If we have no completion for $cmd yet, see if we have for basename
         if [[ ! $cspec && $cmd == */* ]]; then
-            cspec=$( complete -p ${cmd##*/} 2>/dev/null )
+            cspec=$(complete -p ${cmd##*/} 2>/dev/null)
             [[ $cspec ]] && compcmd=${cmd##*/}
         fi
         # If still nothing, just load it for the basename
         if [[ ! $cspec ]]; then
             compcmd=${cmd##*/}
             _completion_loader $compcmd
-            cspec=$( complete -p $compcmd 2>/dev/null )
+            cspec=$(complete -p $compcmd 2>/dev/null)
         fi
 
         if [[ -n $cspec ]]; then
@@ -1815,7 +1814,7 @@ _command_offset()
             else
                 cspec=${cspec#complete}
                 cspec=${cspec%%$compcmd}
-                COMPREPLY=( $( eval compgen "$cspec" -- '$cur' ) )
+                COMPREPLY=( $(eval compgen "$cspec" -- '$cur') )
             fi
         elif [[ ${#COMPREPLY[@]} -eq 0 ]]; then
             # XXX will probably never happen as long as completion loader loads
@@ -1859,8 +1858,8 @@ _longopt()
             return
             ;;
         --+([-a-z0-9_]))
-            local argtype=$( LC_ALL=C $1 --help 2>&1 | command sed -ne \
-                "s|.*$prev\[\{0,1\}=[<[]\{0,1\}\([-A-Za-z0-9_]\{1,\}\).*|\1|p" )
+            local argtype=$(LC_ALL=C $1 --help 2>&1 | command sed -ne \
+                "s|.*$prev\[\{0,1\}=[<[]\{0,1\}\([-A-Za-z0-9_]\{1,\}\).*|\1|p")
             case ${argtype,,} in
                 *dir*)
                     _filedir -d
@@ -1877,11 +1876,11 @@ _longopt()
     $split && return
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W "$( LC_ALL=C $1 --help 2>&1 | \
+        COMPREPLY=( $(compgen -W "$(LC_ALL=C $1 --help 2>&1 | \
             while read -r line; do \
                 [[ $line =~ --[-A-Za-z0-9]+=? ]] && \
                     printf '%s\n' ${BASH_REMATCH[0]}
-            done )" -- "$cur" ) )
+            done)" -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     elif [[ "$1" == @(rmdir|chroot) ]]; then
         _filedir -d
@@ -1943,7 +1942,7 @@ _filedir_xspec()
     # Try without filter if it failed to produce anything and configured to
     [[ -n ${COMP_FILEDIR_FALLBACK:-} && ${#toks[@]} -lt 1 ]] && {
         local reset=$(shopt -po noglob); set -o noglob
-        toks+=( $( compgen -f -- "$(quote_readline "$cur")" ) )
+        toks+=( $(compgen -f -- "$(quote_readline "$cur")") )
         IFS=' '; $reset; IFS=$'\n'
     }
 

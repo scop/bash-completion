@@ -7,7 +7,7 @@ _minicom()
 
     case $prev in
         --attrib|--color|-!(-*)[ac])
-            COMPREPLY=( $( compgen -W 'on off' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'on off' -- "$cur") )
             return
             ;;
         --script|--capturefile|-!(-*)[SC])
@@ -15,9 +15,9 @@ _minicom()
             return
             ;;
         --ptty|-!(-*)p)
-            COMPREPLY=( $( printf '%s\n' /dev/tty* ) )
-            COMPREPLY=( $( compgen -W '${COMPREPLY[@]} ${COMPREPLY[@]#/dev/}' \
-                -- "$cur" ) )
+            COMPREPLY=( $(printf '%s\n' /dev/tty*) )
+            COMPREPLY=( $(compgen -W '${COMPREPLY[@]} ${COMPREPLY[@]#/dev/}' \
+                -- "$cur") )
             return
             ;;
     esac
@@ -25,15 +25,15 @@ _minicom()
     $split && return
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
 
     COMPREPLY=(
-        $( printf '%s\n' /etc/minirc.* /etc/minicom/minirc.* ~/.minirc.* \
+        $(printf '%s\n' /etc/minirc.* /etc/minicom/minirc.* ~/.minirc.* \
             | command sed -e '/\*$/d' -e 's/^.*minirc\.//' \
-            | command grep "^${cur}" ) )
+            | command grep "^${cur}") )
 } &&
 complete -F _minicom -o default minicom
 

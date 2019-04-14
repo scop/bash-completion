@@ -24,11 +24,11 @@ _tshark()
                 _filedir
             else
                 [ -n "$_tshark_prefs" ] ||
-                    _tshark_prefs="$( "$1" -G defaultprefs | command \
+                    _tshark_prefs="$("$1" -G defaultprefs | command \
                         sed -ne 's/^#\{0,1\}\([a-z0-9_.-]\{1,\}:\).*/\1/p' |
-                        tr '\n' ' ' )"
-                COMPREPLY=( $( compgen -P "$prefix" -W "$_tshark_prefs" \
-                    -- "${cur:${#prefix}}" ) )
+                        tr '\n' ' ')"
+                COMPREPLY=( $(compgen -P "$prefix" -W "$_tshark_prefs" \
+                    -- "${cur:${#prefix}}") )
                 [[ $COMPREPLY == *: ]] && compopt -o nospace
             fi
             return
@@ -37,8 +37,8 @@ _tshark()
             return
             ;;
         -*i)
-            COMPREPLY=( $( compgen -W \
-                "$( "$1" -D 2>/dev/null | awk '{print $2}' )" -- "$cur" ) )
+            COMPREPLY=( $(compgen -W \
+                "$("$1" -D 2>/dev/null | awk '{print $2}')" -- "$cur") )
             return
             ;;
         -*y)
@@ -49,13 +49,12 @@ _tshark()
                     break
                 fi
             done
-            COMPREPLY=( $( compgen -W "$( "$1" $opts -L 2>&1 | \
-                awk '/^  / { print $1 }' )" -- "$cur" ) )
+            COMPREPLY=( $(compgen -W "$("$1" $opts -L 2>&1 | \
+                awk '/^  / { print $1 }')" -- "$cur") )
             return
             ;;
         -*[ab])
-            COMPREPLY=( $( compgen -W 'duration: filesize: files:' \
-                -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'duration: filesize: files:' -- "$cur") )
             [[ $COMPREPLY == *: ]] && compopt -o nospace
             return
             ;;
@@ -73,36 +72,36 @@ _tshark()
             return
             ;;
         -*F)
-            COMPREPLY=( $( compgen -W "$( "$1" -F 2>&1 | \
-                awk '/^  / { print $1 }' )" -- "$cur" ) )
+            COMPREPLY=( $(compgen -W "$("$1" -F 2>&1 | \
+                awk '/^  / { print $1 }')" -- "$cur") )
             return
             ;;
         -*O)
             local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
-            COMPREPLY=( $( compgen -W "$( "$1" -G protocols 2>&1 | cut -f 3 )" \
-                -- "${cur##*,}" ) )
+            COMPREPLY=( $(compgen -W "$("$1" -G protocols 2>&1 | cut -f 3)" \
+                -- "${cur##*,}") )
             [[ ${#COMPREPLY[@]} -eq 1 ]] && COMPREPLY=( ${COMPREPLY/#/$prefix} )
             return
             ;;
         -*T)
             # Parse from: tshark -T . 2>&1 | awk -F \" '/^\t*"/ { print $2 }'
-            COMPREPLY=( $( compgen -W \
-                'pdml ps psml json jsonraw ek tabs text fields' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W \
+                'pdml ps psml json jsonraw ek tabs text fields' -- "$cur") )
             return
             ;;
         -*t)
             # Parse from: tshark -t . 2>&1 | awk -F \" '/^\t*"/ { print $2 }'
-            COMPREPLY=( $( compgen -W \
-                'a ad adoy d dd e r u ud udoy' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W \
+                'a ad adoy d dd e r u ud udoy' -- "$cur") )
             return
             ;;
         -*u)
             # TODO: could be parsed from "-u ." output
-            COMPREPLY=( $( compgen -W 's hms' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 's hms' -- "$cur") )
             return
             ;;
         -*W)
-            COMPREPLY=( $( compgen -W 'n' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'n' -- "$cur") )
             return
             ;;
         -*X)
@@ -110,24 +109,24 @@ _tshark()
                 cur=${cur#*:}
                 _filedir lua
             else
-                COMPREPLY=( $( compgen -P "$prefix" -W 'lua_script:' -- \
-                    "${cur:${#prefix}}" ) )
+                COMPREPLY=( $(compgen -P "$prefix" -W 'lua_script:' -- \
+                    "${cur:${#prefix}}") )
                 [[ $COMPREPLY == *: ]] && compopt -o nospace
             fi
             return
             ;;
         -*G)
-            COMPREPLY=( $( compgen -W "$( "$1" -G \? 2>/dev/null | \
+            COMPREPLY=( $(compgen -W "$("$1" -G \? 2>/dev/null | \
                 awk '/^[ \t]*-G / \
-                    { sub("^[[]","",$2); sub("[]]$","",$2); print $2 }' )" \
-                -- "$cur" ) )
+                    { sub("^[[]","",$2); sub("[]]$","",$2); print $2 }')" \
+                -- "$cur") )
             return
             ;;
 
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -h )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1" -h)' -- "$cur") )
         return
     fi
 } &&

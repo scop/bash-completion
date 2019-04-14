@@ -55,7 +55,7 @@ guidelines in mind:
   As another example,
 
   ```shell
-  bar=$( echo $foo | sed -e 's/bar/baz/g' )
+  bar=$(echo $foo | command sed -e 's/bar/baz/g')
   ```
 
   can be replaced by:

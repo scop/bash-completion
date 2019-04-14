@@ -8,28 +8,28 @@ _function()
     if [[ $1 == @(declare|typeset) ]]; then
         if [[ $cur == [-+]* ]]; then
             local opts
-            opts=( $( _parse_usage "$1" ) )
+            opts=( $(_parse_usage "$1") )
             # Most options also have a '+' form.  We'll exclude the ones that don't with compgen.
             opts+=( ${opts[*]/-/+} )
-            COMPREPLY=( $( compgen -W "${opts[*]}" -X '+[Ffgp]' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W "${opts[*]}" -X '+[Ffgp]' -- "$cur") )
         else
             local i=1
             while [[ ${words[i]} == [-+]* ]]; do
                 if [[ ${words[i]} == -*[fF]* ]]; then
-                    COMPREPLY=( $( compgen -A function -- "$cur" ) )
+                    COMPREPLY=( $(compgen -A function -- "$cur") )
                     return
                 fi
                 ((i++))
             done
             if [[ $i -gt 1 ]]; then
                 # There was at least one option and it was not one that limited operations to functions
-                COMPREPLY=( $( compgen -A variable -- "$cur" ) )
+                COMPREPLY=( $(compgen -A variable -- "$cur") )
             fi
         fi
     elif [[ $cword -eq 1 ]]; then
-        COMPREPLY=( $( compgen -A function -- "$cur" ) )
+        COMPREPLY=( $(compgen -A function -- "$cur") )
     else
-        COMPREPLY=( "() $( type -- ${words[1]} | command sed -e 1,2d )" )
+        COMPREPLY=( "() $(type -- ${words[1]} | command sed -e 1,2d)" )
     fi
 } &&
 complete -F _function function declare typeset

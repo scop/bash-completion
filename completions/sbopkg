@@ -6,13 +6,13 @@ _sbopkg()
     _init_completion || return
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -h )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1" -h)' -- "$cur") )
         [[ $COMPREPLY ]] && return
     fi
 
     case "$prev" in
         -e)
-            COMPREPLY=( $( compgen -W 'ask continue stop' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'ask continue stop' -- "$cur") )
             return
             ;;
         -f)
@@ -24,8 +24,8 @@ _sbopkg()
             return
             ;;
         -V)
-            COMPREPLY=( $( compgen -W "?
-                $( sbopkg -V ? 2>&1 | cut -s -f1 )" -- "$cur" ) )
+            COMPREPLY=( $(compgen -W "?
+                $(sbopkg -V ? 2>&1 | cut -s -f1)" -- "$cur") )
             return
             ;;
         -i|-b)
@@ -61,9 +61,9 @@ _sbopkg()
     done
     [[ -r $REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT ]] || return
 
-    COMPREPLY=( $( command sed -ne "/^SLACKBUILD NAME: $cur/{s/^SLACKBUILD NAME: //;p}"\
-        $REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT )
-        $( cd $QUEUEDIR; compgen -f -X "!*.sqf"  -- "$cur" ) )
+    COMPREPLY=( $(command sed -ne "/^SLACKBUILD NAME: $cur/{s/^SLACKBUILD NAME: //;p}"\
+        $REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT)
+        $(cd $QUEUEDIR; compgen -f -X "!*.sqf"  -- "$cur") )
 } &&
 complete -F _sbopkg sbopkg
 

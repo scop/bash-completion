@@ -34,13 +34,14 @@ _gcc()
     esac
 
     if [[ "$cur" == -* ]]; then
-        cc=$( $1 -print-prog-name=$backend 2>/dev/null )
+        cc=$($1 -print-prog-name=$backend 2>/dev/null)
         [[ $cc ]] || return
         # sink stderr:
         # for C/C++/ObjectiveC it's useless
         # for FORTRAN/Java it's an error
-        COMPREPLY=( $( compgen -W "$( $cc --help 2>/dev/null | tr '\t' ' ' |\
-            command sed -e '/^  *-/!d' -e 's/ *-\([^][ <>]*\).*/-\1/' )" -- "$cur" ) )
+        COMPREPLY=( $(compgen -W "$($cc --help 2>/dev/null | tr '\t' ' ' |\
+            command sed -e '/^  *-/!d' -e 's/ *-\([^][ <>]*\).*/-\1/')" \
+            -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     else
         _filedir
@@ -50,16 +51,16 @@ complete -F _gcc gcc{,-5,-6,-7,-8} g++{,-5,-6,-7,-8} g77 g95 \
     gccgo{,-5,-6,-7,-8} gcj gfortran{,-5,-6,-7,-8} gpc &&
 {
     cc  --version 2>/dev/null | command grep -q GCC || \
-        [[ $( _realcommand cc ) == *gcc* ]] && \
+        [[ $(_realcommand cc) == *gcc* ]] && \
         complete -F _gcc cc  || complete -F _minimal cc
     c++ --version 2>/dev/null | command grep -q GCC || \
-        [[ $( _realcommand c++ ) == *g++* ]] && \
+        [[ $(_realcommand c++) == *g++* ]] && \
         complete -F _gcc c++ || complete -F _minimal c++
     f77 --version 2>/dev/null | command grep -q GCC || \
-        [[ $( _realcommand f77 ) == *gfortran* ]] && \
+        [[ $(_realcommand f77) == *gfortran* ]] && \
         complete -F _gcc f77 || complete -F _minimal f77
     f95 --version 2>/dev/null | command grep -q GCC || \
-        [[ $( _realcommand f95 ) == *gfortran* ]] && \
+        [[ $(_realcommand f95) == *gfortran* ]] && \
         complete -F _gcc f95 || complete -F _minimal f95
 }
 

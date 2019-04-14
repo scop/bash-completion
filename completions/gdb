@@ -20,25 +20,25 @@ _gdb()
         if [[ "$cur" == */* ]]; then
             # compgen -c works as expected if $cur contains any slashes.
             IFS=$'\n'
-            COMPREPLY=( $( PATH="$PATH:." compgen -d -c -- "$cur" ) )
+            COMPREPLY=( $(PATH="$PATH:." compgen -d -c -- "$cur") )
         else
             # otherwise compgen -c contains Bash's built-in commands,
             # functions and aliases. Thus we need to retrieve the program
             # names manually.
             IFS=":"
-            local path_array=( $( \
-                command sed -e 's/:\{2,\}/:/g' -e 's/^://' -e 's/:$//' <<<"$PATH" ) )
+            local path_array=( $(\
+                command sed -e 's/:\{2,\}/:/g' -e 's/^://' -e 's/:$//' <<<"$PATH") )
             IFS=$'\n'
-            COMPREPLY=( $( compgen -d -W '$(find "${path_array[@]}" . \
+            COMPREPLY=( $(compgen -d -W '$(find "${path_array[@]}" . \
                 -mindepth 1 -maxdepth 1 -not -type d -executable \
-                -printf "%f\\n" 2>/dev/null)' -- "$cur" ) )
+                -printf "%f\\n" 2>/dev/null)' -- "$cur") )
         fi
     elif [[ $cword -eq 2 ]]; then
-        COMPREPLY=( $( compgen -W "$( command ps axo comm,pid | \
-            awk '{if ($1 ~ /^'"${prev##*/}"'/) print $2}' )" -- "$cur" ) )
+        COMPREPLY=( $(compgen -W "$(command ps axo comm,pid | \
+            awk '{if ($1 ~ /^'"${prev##*/}"'/) print $2}')" -- "$cur") )
         compopt -o filenames
-        COMPREPLY+=( $( compgen -f -X '!?(*/)core?(.+([0-9]))' -o plusdirs \
-            -- "$cur" ) )
+        COMPREPLY+=( $(compgen -f -X '!?(*/)core?(.+([0-9]))' -o plusdirs \
+            -- "$cur") )
     fi
 } &&
 complete -F _gdb gdb

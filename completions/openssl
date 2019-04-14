@@ -22,8 +22,7 @@ _openssl_sections()
 
     [[ ! -f $config ]] && return
 
-    COMPREPLY=( $( compgen -W "$( awk '/\[.*\]/ {print $2}' $config )" \
-        -- "$cur" ) )
+    COMPREPLY=( $(compgen -W "$(awk '/\[.*\]/ {print $2}' $config)" -- "$cur") )
 }
 
 _openssl_digests()
@@ -53,7 +52,7 @@ _openssl()
         sha224 sha256 sha384 sha512 genpkey pkey pkeyparam pkeyutl'
 
     if [[ $cword -eq 1 ]]; then
-        COMPREPLY=( $( compgen -W "$commands" -- "$cur" ) )
+        COMPREPLY=( $(compgen -W "$commands" -- "$cur") )
     else
         command=${words[1]}
         case $prev in
@@ -87,7 +86,7 @@ _openssl()
                         formats+=" ENGINE"
                         ;;
                 esac
-                COMPREPLY=( $( compgen -W "$formats" -- "$cur" ) )
+                COMPREPLY=( $(compgen -W "$formats" -- "$cur") )
                 return
                 ;;
             -connect)
@@ -95,16 +94,15 @@ _openssl()
                 return
                 ;;
             -starttls)
-                COMPREPLY=( $( compgen -W 'smtp pop3 imap ftp' -- "$cur" ) )
+                COMPREPLY=( $(compgen -W 'smtp pop3 imap ftp' -- "$cur") )
                 return
                 ;;
             -cipher)
-                COMPREPLY=( $( IFS=: compgen -W "$( $1 ciphers )" \
-                    -- "$cur" ) )
+                COMPREPLY=( $(IFS=: compgen -W "$($1 ciphers)" -- "$cur") )
                 return
                 ;;
             -kdf)
-                COMPREPLY=( $( compgen -W 'TLS1-PRF HKDF' -- "$cur" ) )
+                COMPREPLY=( $(compgen -W 'TLS1-PRF HKDF' -- "$cur") )
                 return
                 ;;
         esac
@@ -137,7 +135,7 @@ _openssl()
                     ;;
                 dgst)
                     options="-c -d -hex -binary -out -sign -verify -prverify
-                        -signature $( _openssl_digests $1 )"
+                        -signature $(_openssl_digests $1)"
                     ;;
                 dsa)
                     options='-inform -outform -in -passin -out -passout -des
@@ -189,7 +187,7 @@ _openssl()
                 req)
                     options="-inform -outform -in -passin -out -passout -text
                         -noout -verify -modulus -new -rand -newkey -newkey
-                        -nodes -key -keyform -keyout $( _openssl_digests $1 )
+                        -nodes -key -keyform -keyout $(_openssl_digests $1)
                         -config -x509 -days -asn1-kludge -newhdr -extensions
                         -reqexts section"
                     ;;
@@ -248,19 +246,19 @@ _openssl()
                         -clrtrust -clrreject -addtrust -addreject -setalias
                         -days -set_serial -signkey -x509toreq -req -CA -CAkey
                         -CAcreateserial -CAserial -text -C -clrext
-                        -extfile -extensions -engine $( _openssl_digests $1 )"
+                        -extfile -extensions -engine $(_openssl_digests $1)"
                     ;;
                 md*|sha*|ripemd160)
                     options='-c -d'
                     ;;
             esac
-            COMPREPLY=( $( compgen -W "$options" -- "$cur" ) )
+            COMPREPLY=( $(compgen -W "$options" -- "$cur") )
         else
             if [[ "$command" == speed ]]; then
-                COMPREPLY=( $( compgen -W 'md2 mdc2 md5 hmac sha1 rmd160
+                COMPREPLY=( $(compgen -W 'md2 mdc2 md5 hmac sha1 rmd160
                     idea-cbc rc2-cbc rc5-cbc bf-cbc des-cbc des-ede3 rc4
                     rsa512 rsa1024 rsa2048 rsa4096 dsa512 dsa1024 dsa2048 idea
-                    rc2 des rsa blowfish' -- "$cur" ) )
+                    rc2 des rsa blowfish' -- "$cur") )
             else
                 _filedir
             fi

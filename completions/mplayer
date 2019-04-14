@@ -3,9 +3,9 @@
 _mplayer_options_list()
 {
     cur=${cur%\\}
-    COMPREPLY=( $( compgen -W "$( $1 -noconfig all $2 help 2>/dev/null | \
+    COMPREPLY=( $(compgen -W "$($1 -noconfig all $2 help 2>/dev/null | \
         command sed -e '/^Available/,/^$/!d' -e '/^Available/d' | awk '{print $1}' | \
-        command sed -e 's/:$//' -e 's/^'${2#-}'$//' -e 's/<.*//' )" -- "$cur" ) )
+        command sed -e 's/:$//' -e 's/^'${2#-}'$//' -e 's/<.*//')" -- "$cur") )
 }
 
 _mplayer()
@@ -36,7 +36,7 @@ _mplayer()
                 _filedir ttf
             fi
             local IFS=$'\n'
-            COMPREPLY+=( $( compgen -W '$( fc-list 2>/dev/null )' -- "$cur" ) )
+            COMPREPLY+=( $(compgen -W '$(fc-list 2>/dev/null)' -- "$cur") )
             return
             ;;
         -sub|-sub-file)
@@ -46,22 +46,22 @@ _mplayer()
         -vobsub)
             _filedir '@(idx|ifo|sub)'
             local IFS=$'\n'
-            COMPREPLY=( $( for i in "${COMPREPLY[@]}"; do
+            COMPREPLY=( $(for i in "${COMPREPLY[@]}"; do
                         if [[ -f $i && -r $i ]]; then
                             printf '%s\n' ${i%.*}
                         else
                             printf '%s\n' $i
                         fi
-                        done ) )
+                        done) )
             return
             ;;
         -subcp|-msgcharset)
             local cp
-            cp=( $( iconv --list 2>/dev/null | command sed -e "s@//@@;" 2>/dev/null ) )
+            cp=( $(iconv --list 2>/dev/null | command sed -e "s@//@@;" 2>/dev/null) )
             if [[ "$cur" == "${cur,,}" ]]; then
-                COMPREPLY=( $( compgen -W '${cp[@],,}' -- "$cur" ) )
+                COMPREPLY=( $(compgen -W '${cp[@],,}' -- "$cur") )
             else
-                COMPREPLY=( $( compgen -W '${cp[@]^^}' -- "$cur" ) )
+                COMPREPLY=( $(compgen -W '${cp[@]^^}' -- "$cur") )
             fi
             return
             ;;
@@ -86,7 +86,7 @@ _mplayer()
             local IFS=$'\n'
             for i in ~/.mplayer/skins ${dirs[@]}; do
                 if [[ -d $i && -r $i ]]; then
-                    for j in $( compgen -d -- $i/$cur ); do
+                    for j in $(compgen -d -- $i/$cur); do
                         COMPREPLY[$k]=${j#$i/}
                         k=$((++k))
                     done
@@ -138,23 +138,23 @@ _mplayer()
             return
             ;;
         -channels)
-            COMPREPLY=( $( compgen -W '2 4 6 8' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W '2 4 6 8' -- "$cur") )
             return
             ;;
         -aspect|-monitoraspect)
-            COMPREPLY=( $( compgen -W '1:1 3:2 4:3 5:4 14:9 14:10 16:9 16:10
-                2.35:1' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W '1:1 3:2 4:3 5:4 14:9 14:10 16:9 16:10
+                2.35:1' -- "$cur") )
             __ltrim_colon_completions "$cur"
             return
             ;;
         -lavdopts)
-            COMPREPLY=( $( compgen -W 'bitexact bug= debug= ec= er= fast gray
+            COMPREPLY=( $(compgen -W 'bitexact bug= debug= ec= er= fast gray
                 idct= lowres= sb= st= skiploopfilter= skipidct= skipframe=
-                threads= vismv= vstats' -- "$cur" ) )
+                threads= vismv= vstats' -- "$cur") )
             return
             ;;
         -lavcopts)
-            COMPREPLY=( $( compgen -W 'vcodec= vqmin= vqscale= vqmax= mbqmin=
+            COMPREPLY=( $(compgen -W 'vcodec= vqmin= vqscale= vqmax= mbqmin=
                 mbqmax= vqdiff= vmax_b_frames= vme= vhq v4mv keyint=
                 vb_strategy= vpass= aspect= vbitrate= vratetol= vrc_maxrate=
                 vrc_minrate= vrc_buf_size= vb_qfactor= vi_qfactor= vb_qoffset=
@@ -163,100 +163,99 @@ _mplayer()
                 vpsize= gray vfdct= idct= lumi_mask= dark_mask= tcplx_mask=
                 scplx_mask= naq ildct format= pred qpel precmp= cmp= subcmp=
                 predia= dia= trell last_pred= preme= subq= psnr mpeg_quant aic
-                umv' -- "$cur" ) )
+                umv' -- "$cur") )
             return
             ;;
         -ssf)
-            COMPREPLY=( $( compgen -W 'lgb= cgb= ls= cs= chs= cvs=' \
-                -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'lgb= cgb= ls= cs= chs= cvs=' -- "$cur") )
             return
             ;;
         -jpeg)
-            COMPREPLY=( $( compgen -W 'noprogressive progressive nobaseline
-                baseline optimize= smooth= quality= outdir=' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'noprogressive progressive nobaseline
+                baseline optimize= smooth= quality= outdir=' -- "$cur") )
             return
             ;;
         -xvidopts)
-            COMPREPLY=( $( compgen -W 'dr2 nodr2' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'dr2 nodr2' -- "$cur") )
             return
             ;;
         -xvidencopts)
-            COMPREPLY=( $( compgen -W 'pass= bitrate= fixed_quant= me_quality=
+            COMPREPLY=( $(compgen -W 'pass= bitrate= fixed_quant= me_quality=
                 4mv rc_reaction_delay_factor= rc_averaging_period= rc_buffer=
                 quant_range= min_key_interval= max_key_interval= mpeg_quant
                 mod_quant lumi_mask hintedme hintfile debug keyframe_boost=
-                kfthreshold= kfreduction=' -- "$cur" ) )
+                kfthreshold= kfreduction=' -- "$cur") )
             return
             ;;
         -divx4opts)
-            COMPREPLY=( $( compgen -W 'br= key= deinterlace q= min_quant=
+            COMPREPLY=( $(compgen -W 'br= key= deinterlace q= min_quant=
                 max_quant= rc_period= rc_reaction_period= crispness=
-                rc_reaction_ratio= pass= vbrpass= help' -- "$cur" ) )
+                rc_reaction_ratio= pass= vbrpass= help' -- "$cur") )
             return
             ;;
         -info)
-            COMPREPLY=( $( compgen -W 'name= artist= genre= subject=
-                copyright= srcform= comment= help' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'name= artist= genre= subject=
+                copyright= srcform= comment= help' -- "$cur") )
             return
             ;;
         -lameopts)
-            COMPREPLY=( $( compgen -W 'vbr= abr cbr br= q= aq= ratio= vol=
-                mode= padding= fast preset= help' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'vbr= abr cbr br= q= aq= ratio= vol=
+                mode= padding= fast preset= help' -- "$cur") )
             return
             ;;
         -rawaudio)
-            COMPREPLY=( $( compgen -W 'on channels= rate= samplesize= format=' \
-                -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'on channels= rate= samplesize= format=' \
+                -- "$cur") )
             return
             ;;
         -rawvideo)
-            COMPREPLY=( $( compgen -W 'on fps= sqcif qcif cif 4cif pal ntsc w=
-                h= y420 yv12 yuy2 y8 format= size=' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'on fps= sqcif qcif cif 4cif pal ntsc w=
+                h= y420 yv12 yuy2 y8 format= size=' -- "$cur") )
             return
             ;;
         -aop)
-            COMPREPLY=( $( compgen -W 'list= delay= format= fout= volume= mul=
-                softclip' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'list= delay= format= fout= volume= mul=
+                softclip' -- "$cur") )
             return
             ;;
         -dxr2)
-            COMPREPLY=( $( compgen -W 'ar-mode= iec958-encoded iec958-decoded
+            COMPREPLY=( $(compgen -W 'ar-mode= iec958-encoded iec958-decoded
                 mute ucode= 75ire bw color interlaced macrovision= norm=
                 square-pixel ccir601-pixel cr-left= cr-right= cr-top= cr-bot=
                 ck-rmin= ck-gmin= ck-bmin= ck-rmax= ck-gmax= ck-bmax= ck-r=
                 ck-g= ck-b= ignore-cache= ol-osd= olh-cor= olw-cor= olx-cor=
-                oly-cor= overlay overlay-ratio= update-cache' -- "$cur" ) )
+                oly-cor= overlay overlay-ratio= update-cache' -- "$cur") )
             return
             ;;
         -tv)
-            COMPREPLY=( $( compgen -W 'on noaudio driver= device= input= freq=
+            COMPREPLY=( $(compgen -W 'on noaudio driver= device= input= freq=
                 outfmt= width= height= buffersize= norm= channel= chanlist=
                 audiorate= forceaudio alsa amode= forcechan= adevice= audioid=
                 volume= bass= treble= balance= fps= channels= immediatemode=' \
-                -- "$cur" ) )
+                -- "$cur") )
             return
             ;;
         -mf)
-            COMPREPLY=( $( compgen -W 'on w= h= fps= type=' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'on w= h= fps= type=' -- "$cur") )
             return
             ;;
         -cdda)
-            COMPREPLY=( $( compgen -W 'speed= paranoia= generic-dev=
+            COMPREPLY=( $(compgen -W 'speed= paranoia= generic-dev=
                 sector-size= overlap= toc-bias toc-offset= skip noskip' \
-                -- "$cur" ) )
+                -- "$cur") )
             return
             ;;
         -input)
-            COMPREPLY=( $( compgen -W 'conf= ar-delay ar-rate keylist cmdlist
-                js-dev file' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'conf= ar-delay ar-rate keylist cmdlist
+                js-dev file' -- "$cur") )
             return
             ;;
         -af-adv)
-            COMPREPLY=( $( compgen -W 'force= list=' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'force= list=' -- "$cur") )
             return
             ;;
         -noconfig)
-            COMPREPLY=( $( compgen -W 'all gui system user' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'all gui system user' -- "$cur") )
             return
             ;;
         -*)
@@ -274,10 +273,10 @@ _mplayer()
 
     case $cur in
         -*)
-            COMPREPLY=( $( compgen -W '$( $cmd -noconfig all -list-options 2>/dev/null | \
+            COMPREPLY=( $(compgen -W '$($cmd -noconfig all -list-options 2>/dev/null | \
                 command sed -ne '1,/^[[:space:]]*Name/d' \
                     -e "s/^[[:space:]]*/-/" -e "s/[[:space:]:].*//" \
-                    -e "/^-\(Total\|.*\*\)\{0,1\}$/!p" )' -- "$cur" ) )
+                    -e "/^-\(Total\|.*\*\)\{0,1\}$/!p")' -- "$cur") )
             ;;
         *)
             _filedir '@(m?(j)p?(e)g|M?(J)P?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fl[iv]|FL[IV]|fxm|FXM|viv|VIV|rm?(j)|RM?(J)|ra?(m)|RA?(M)|yuv|YUV|mov|MOV|qt|QT|mp[234]|MP[234]|m?(p)4[av]|M?(P)4[AV]|og[gmavx]|OG[GMAVX]|w?(a)v|W?(A)V|dump|DUMP|mk[av]|MK[AV]|aac|AAC|m2v|M2V|dv|DV|rmvb|RMVB|mid|MID|t[ps]|T[PS]|3g[p2]|3gpp?(2)|mpc|MPC|flac|FLAC|vro|VRO|divx|DIVX|aif?(f)|AIF?(F)|m2t?(s)|M2T?(S)|mts|MTS|vdr|VDR|xvid|XVID|ape|APE|gif|GIF|nut|NUT|bik|BIK|web[am]|WEB[AM]|amr|AMR|awb|AWB|iso|ISO|opus|OPUS|m[eo]d|M[EO]D|xm|XM|it|IT|s[t3]m|S[T3]M|mtm|MTM|w64|W64)?(.@(crdownload|part))'

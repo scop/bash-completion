@@ -60,7 +60,7 @@ _dpkg()
             return
             ;;
         --status|--print-avail|--list|--show|-!(-*)[splW])
-            COMPREPLY=( $( apt-cache pkgnames "$cur" 2>/dev/null ) )
+            COMPREPLY=( $(apt-cache pkgnames "$cur" 2>/dev/null) )
             return
             ;;
         --search|-!(-*)S)
@@ -68,18 +68,18 @@ _dpkg()
             return
             ;;
         --remove|--verify|-!(-*)[rV])
-            COMPREPLY=( $( _comp_dpkg_installed_packages "$cur" ) )
+            COMPREPLY=( $(_comp_dpkg_installed_packages "$cur") )
             return
             ;;
         --listfiles|--purge|-!(-*)[LP])
-            COMPREPLY=( $( _comp_dpkg_purgeable_packages "$cur" ) )
+            COMPREPLY=( $(_comp_dpkg_purgeable_packages "$cur") )
             return
             ;;
     esac
 
     $split && return
 
-    COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+    COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
     [[ $COMPREPLY == *= ]] && compopt -o nospace
 } &&
 complete -F _dpkg dpkg dpkg-deb dpkg-query
@@ -95,14 +95,14 @@ _dpkg_reconfigure()
 
     case $prev in
         --frontend|-!(-*)f)
-            opt=( $( printf '%s\n' /usr/share/perl5/Debconf/FrontEnd/* ) )
+            opt=( $(printf '%s\n' /usr/share/perl5/Debconf/FrontEnd/*) )
             opt=( ${opt[@]##*/} )
             opt=( ${opt[@]%.pm} )
-            COMPREPLY=( $( compgen -W '${opt[@]}' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W '${opt[@]}' -- "$cur") )
             return
             ;;
         --priority|-!(-*)p)
-            COMPREPLY=( $( compgen -W 'low medium high critical' -- "$cur" ) )
+            COMPREPLY=( $(compgen -W 'low medium high critical' -- "$cur") )
             return
             ;;
     esac
@@ -111,7 +111,7 @@ _dpkg_reconfigure()
         COMPREPLY=( $(compgen -W '--frontend --priority --all --unseen-only
             --help --showold --force --terse' -- "$cur" ) )
     else
-        COMPREPLY=( $( _comp_dpkg_installed_packages "$cur" ) )
+        COMPREPLY=( $(_comp_dpkg_installed_packages "$cur") )
     fi
 } &&
 complete -F _dpkg_reconfigure -o default dpkg-reconfigure

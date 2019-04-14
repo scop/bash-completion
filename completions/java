@@ -62,18 +62,18 @@ _java_classes()
     for i in ${classpath//:/ }; do
         if [[ "$i" == *.@(jar|zip) && -r $i ]]; then
             if type zipinfo &>/dev/null; then
-                COMPREPLY+=( $( zipinfo -1 "$i" "$cur*" 2>/dev/null | \
-                    command grep '^[^$]*\.class$' ) )
+                COMPREPLY+=( $(zipinfo -1 "$i" "$cur*" 2>/dev/null | \
+                    command grep '^[^$]*\.class$') )
             else
-                COMPREPLY+=( $( jar tf "$i" "$cur" | \
-                    command grep '^[^$]*\.class$' ) )
+                COMPREPLY+=( $(jar tf "$i" "$cur" | \
+                    command grep '^[^$]*\.class$') )
             fi
 
         elif [[ -d $i ]]; then
             COMPREPLY+=(
-                $( compgen -d -- "$i/$cur" | command sed -e "s|^$i/\(.*\)|\1.|" )
-                $( compgen -f -X '!*.class' -- "$i/$cur" | \
-                    command sed -e '/\$/d' -e "s|^$i/||" )
+                $(compgen -d -- "$i/$cur" | command sed -e "s|^$i/\(.*\)|\1.|")
+                $(compgen -f -X '!*.class' -- "$i/$cur" | \
+                  command sed -e '/\$/d' -e "s|^$i/||")
             )
             [[ $COMPREPLY == *.class ]] || compopt -o nospace
 
@@ -102,12 +102,12 @@ _java_packages()
     # parse each sourcepath element for packages
     for i in ${sourcepath//:/ }; do
         if [[ -d $i ]]; then
-            COMPREPLY+=( $( command ls -F -d $i/$cur* 2>/dev/null | \
-                command sed -e 's|^'$i'/||' ) )
+            COMPREPLY+=( $(command ls -F -d $i/$cur* 2>/dev/null | \
+                command sed -e 's|^'$i'/||') )
         fi
     done
     # keep only packages
-    COMPREPLY=( $( tr " " "\n" <<<"${COMPREPLY[@]}" | command grep "/$" ) )
+    COMPREPLY=( $(tr " " "\n" <<<"${COMPREPLY[@]}" | command grep "/$") )
     # remove packages extension
     COMPREPLY=( ${COMPREPLY[@]%/} )
     # convert path syntax to package syntax
@@ -142,7 +142,7 @@ _java()
     case $cur in
         # standard option completions
         -verbose:*)
-            COMPREPLY=( $( compgen -W 'class gc jni' -- "${cur#*:}" ) )
+            COMPREPLY=( $(compgen -W 'class gc jni' -- "${cur#*:}") )
             return
             ;;
         -javaagent:*)
@@ -166,17 +166,17 @@ _java()
             return
             ;;
         -Xcheck:*)
-            COMPREPLY=( $( compgen -W 'jni' -- "${cur#*:}" ) )
+            COMPREPLY=( $(compgen -W 'jni' -- "${cur#*:}") )
             return
             ;;
         -Xgc:*)
-            COMPREPLY=( $( compgen -W 'singlecon gencon singlepar genpar' \
-                -- "${cur#*:}" ) )
+            COMPREPLY=( $(compgen -W 'singlecon gencon singlepar genpar' \
+                -- "${cur#*:}") )
             return
             ;;
         -Xgcprio:*)
-            COMPREPLY=( $( compgen -W 'throughput pausetime deterministic' \
-                -- "${cur#*:}" ) )
+            COMPREPLY=( $(compgen -W 'throughput pausetime deterministic' \
+                -- "${cur#*:}") )
             return
             ;;
         -Xloggc:*|-Xverboselog:*)
@@ -185,16 +185,16 @@ _java()
             return
             ;;
         -Xshare:*)
-            COMPREPLY=( $( compgen -W 'auto off on' -- "${cur#*:}" ) )
+            COMPREPLY=( $(compgen -W 'auto off on' -- "${cur#*:}") )
             return
             ;;
         -Xverbose:*)
-            COMPREPLY=( $( compgen -W 'memory load jni cpuinfo codegen opt
-                gcpause gcreport' -- "${cur#*:}" ) )
+            COMPREPLY=( $(compgen -W 'memory load jni cpuinfo codegen opt
+                gcpause gcreport' -- "${cur#*:}") )
             return
             ;;
         -Xverify:*)
-            COMPREPLY=( $( compgen -W 'all none remote' -- "${cur#*:}" ) )
+            COMPREPLY=( $(compgen -W 'all none remote' -- "${cur#*:}") )
             return
             ;;
         # the rest that we have no completions for
@@ -211,9 +211,9 @@ _java()
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -help )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1" -help)' -- "$cur") )
         [[ $cur == -X* ]] && \
-            COMPREPLY+=( $( compgen -W '$( _parse_help "$1" -X )' -- "$cur" ) )
+            COMPREPLY+=( $(compgen -W '$(_parse_help "$1" -X)' -- "$cur") )
     else
         if [[ "$prev" == -jar ]]; then
             # jar file completion
@@ -271,7 +271,7 @@ _javadoc()
     fi
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -help )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1" -help)' -- "$cur") )
     else
         # source files completion
         _filedir java
@@ -304,16 +304,16 @@ _javac()
         # For some reason there may be -g:none AND -g:{lines,source,vars};
         # convert the none case to the curly brace format so it parses like
         # the others.
-        local opts=$( "$1" $helpopt 2>&1 | command sed -e 's/-g:none/-g:{none}/' -ne \
-            "s/^[[:space:]]*${cur%%:*}:{\([^}]\{1,\}\)}.*/\1/p" )
-        COMPREPLY=( $( compgen -W "${opts//,/ }" -- "${cur#*:}" ) )
+        local opts=$("$1" $helpopt 2>&1 | command sed -e 's/-g:none/-g:{none}/' -ne \
+            "s/^[[:space:]]*${cur%%:*}:{\([^}]\{1,\}\)}.*/\1/p")
+        COMPREPLY=( $(compgen -W "${opts//,/ }" -- "${cur#*:}") )
         return
     fi
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $( compgen -W '$( _parse_help "$1" -help )' -- "$cur" ) )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1" -help)' -- "$cur") )
         [[ $cur == -X* ]] && \
-            COMPREPLY+=( $( compgen -W '$( _parse_help "$1" -X )' -- "$cur" ) )
+            COMPREPLY+=( $(compgen -W '$(_parse_help "$1" -X)' -- "$cur") )
     else
         # source files completion
         _filedir java
