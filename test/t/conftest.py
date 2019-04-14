@@ -274,7 +274,7 @@ class CompletionResult:
 
     def __init__(self, output: str, items: Optional[Iterable[str]] = None):
         """
-        When items are specified, they are used as the base for comparisions
+        When items are specified, they are used as the base for comparisons
         provided by this class. When not, regular expressions are used instead.
         This is because it is not always possible to unambiguously split a
         completion output string into individual items, for example when the
