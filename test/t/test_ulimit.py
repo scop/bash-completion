@@ -28,4 +28,9 @@ class TestUlimit:
 
     @pytest.mark.complete("ulimit -a ")
     def test_6(self, completion):
+        assert completion == sorted("-S -H".split())
+
+    @pytest.mark.complete("ulimit -a -H -")
+    def test_7(self, completion):
+        """Test modes are NOT completed with -a given somewhere."""
         assert not completion
