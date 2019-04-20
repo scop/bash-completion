@@ -19,21 +19,6 @@ proc teardown {} {
 setup
 
 
-set test "Tab should complete both commands and hostname"
-    # Try completion
-set cmd "ssh -F config ls"
-send "$cmd\t"
-set expected "^$cmd\r\n.*ls.*ls_known_host.*\r\n/@$cmd$"
-expect {
-    -re $expected  { pass "$test" }
-    -re /@ { unresolved "$test at prompt" }
-    default { unresolved "$test" }
-}
-
-
-sync_after_int
-
-
 set test "-F without space shouldn't error"
     # Try completion
 set cmd "ssh -F"
@@ -45,15 +30,6 @@ expect {
     -re /@ { unresolved "$test at prompt" }
     default { unresolved "$test" }
 }
-
-
-sync_after_int
-
-
-set test "First argument shouldn't complete with commands"
-# NOTE: This test assumes there's a command "bash" and no host named "bash"
-set cmd "ssh bas"
-assert_complete [get_known_hosts "bas"] $cmd $test
 
 
 sync_after_int
