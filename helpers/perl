@@ -15,16 +15,16 @@ sub print_modules_real {
     # (the shorter being the pattern to be used as the regexp)
     # word 'Fi', base 'File' -> match 'File' against 'Fi'
     # word 'File::Sp', base 'File' -> match 'File::Sp' against 'File'
-    return if
-        $base               &&
-        $word               &&
-        $base !~ /^\Q$word/ &&
-        $word !~ /^\Q$base/;
+    return
+           if $base
+        && $word
+        && $base !~ /^\Q$word/
+        && $word !~ /^\Q$base/;
 
     chdir($dir) or return;
 
     # print each file
-    foreach my $file (sort(glob('*.pm'),glob('*.pod'))) {
+    foreach my $file (sort(glob('*.pm'), glob('*.pod'))) {
         next if ($file =~ /\.pod$/ and not $include_pod);
         $file =~ s/\.(?:pm|pod)$//;
         my $module = $base . $file;
@@ -34,14 +34,17 @@ sub print_modules_real {
     }
 
     # recurse in each subdirectory
-    foreach my $directory (grep { -d } glob('*')) {
+    foreach my $directory (grep {-d} glob('*')) {
         my $subdir = $dir . '/' . $directory;
         if ($directory =~ /^(?:[.\d]+|$Config{archname}|auto)$/) {
+
             # exclude subdirectory name from base
             print_modules_real(undef, $subdir, $word, $include_pod);
         } else {
+
             # add subdirectory name to base
-            print_modules_real($base . $directory . '::', $subdir, $word, $include_pod);
+            print_modules_real($base . $directory . '::',
+                $subdir, $word, $include_pod);
         }
     }
 }
@@ -60,7 +63,7 @@ sub print_functions {
     my ($word) = @_;
 
     my $perlfunc;
-    for ( @INC, undef ) {
+    for (@INC, undef) {
         return if not defined;
         $perlfunc = catfile $_, qw( pod perlfunc.pod );
         last if -r $perlfunc;
@@ -69,11 +72,11 @@ sub print_functions {
     open my $fh, '<', $perlfunc or return;
 
     my $nest_level = -1;
-    while ( <$fh> ) {
+    while (<$fh>) {
         next if 1 .. /^=head2 Alphabetical Listing of Perl Functions$/;
         ++$nest_level if /^=over/;
         --$nest_level if /^=back/;
-        next if $nest_level;
+        next          if $nest_level;
         next unless /^=item (-?\w+)/;
         my $function = $1;
         next if $function !~ /^\Q$word/;
