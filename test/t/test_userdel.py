@@ -2,7 +2,6 @@ import pytest
 
 
 class TestUserdel:
-
     @pytest.mark.complete("userdel -")
     def test_1(self, completion):
         assert completion

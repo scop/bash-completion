@@ -2,7 +2,6 @@ import pytest
 
 
 class TestChsh:
-
     @pytest.mark.complete("chsh ")
     def test_1(self, completion):
         assert completion

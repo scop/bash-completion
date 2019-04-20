@@ -2,7 +2,6 @@ import pytest
 
 
 class TestXmodmap:
-
     @pytest.mark.complete("xmodmap ")
     def test_1(self, completion):
         assert completion

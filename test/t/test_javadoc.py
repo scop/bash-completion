@@ -2,7 +2,6 @@ import pytest
 
 
 class TestJavadoc:
-
     @pytest.mark.complete("javadoc ")
     def test_1(self, completion):
         assert completion
@@ -12,6 +11,7 @@ class TestJavadoc:
         assert completion == ["bar bar.d/", "foo.d/"]
 
     @pytest.mark.complete(
-        "javadoc -nodeprecated -linkoffline foo shared/default/")
+        "javadoc -nodeprecated -linkoffline foo shared/default/"
+    )
     def test_3(self, completion):
         assert completion == ["bar bar.d/", "foo.d/"]

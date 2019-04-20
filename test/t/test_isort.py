@@ -2,7 +2,6 @@ import pytest
 
 
 class TestIsort:
-
     @pytest.mark.complete("isort ")
     def test_1(self, completion):
         assert completion

@@ -3,10 +3,10 @@ import pytest
 from conftest import assert_bash_exec, TestUnitBase
 
 
-@pytest.mark.bashcomp(cmd=None,
-                      ignore_env=r"^[+-](args|COMP_(WORDS|CWORD|LINE|POINT))=")
+@pytest.mark.bashcomp(
+    cmd=None, ignore_env=r"^[+-](args|COMP_(WORDS|CWORD|LINE|POINT))="
+)
 class TestUnitCountArgs(TestUnitBase):
-
     def _test(self, *args, **kwargs):
         return self._test_unit("_count_args %s; echo $args", *args, **kwargs)
 
@@ -40,19 +40,27 @@ class TestUnitCountArgs(TestUnitBase):
 
     def test_7(self, bash):
         """a b -c d e| with -c arg excluded should set args to 2"""
-        output = self._test(bash, "(a b -c d e)", 4, "a b -c d e", 10,
-                            arg='"" "@(-c|--foo)"')
+        output = self._test(
+            bash, "(a b -c d e)", 4, "a b -c d e", 10, arg='"" "@(-c|--foo)"'
+        )
         assert output == "2"
 
     def test_8(self, bash):
         """a -b -c d e| with -c arg excluded
            and -b included should set args to 1"""
-        output = self._test(bash, "(a -b -c d e)", 4, "a -b -c d e", 11,
-                            arg='"" "@(-c|--foo)" "-[b]"')
+        output = self._test(
+            bash,
+            "(a -b -c d e)",
+            4,
+            "a -b -c d e",
+            11,
+            arg='"" "@(-c|--foo)" "-[b]"',
+        )
         assert output == "2"
 
     def test_9(self, bash):
         """a -b -c d e| with -b included should set args to 3"""
-        output = self._test(bash, "(a -b -c d e)", 4, "a -b -c d e", 11,
-                            arg='"" "" "-b"')
+        output = self._test(
+            bash, "(a -b -c d e)", 4, "a -b -c d e", 11, arg='"" "" "-b"'
+        )
         assert output == "3"

@@ -1,11 +1,8 @@
 import pytest
 
 
-@pytest.mark.bashcomp(
-    cmd="pkg-config",
-)
+@pytest.mark.bashcomp(cmd="pkg-config")
 class TestPkgConfig:
-
     @pytest.mark.complete("pkg-config ")
     def test_1(self, completion):
         assert completion

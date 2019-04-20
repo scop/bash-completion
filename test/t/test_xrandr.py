@@ -2,7 +2,6 @@ import pytest
 
 
 class TestXrandr:
-
     @pytest.mark.complete("xrandr ")
     def test_1(self, completion):
         assert completion

@@ -5,20 +5,25 @@ from conftest import assert_bash_exec, in_docker
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+COMPREPLY=")
 class TestUnitIpAddresses:
-
     @pytest.fixture(scope="class")
     def functions(self, request, bash):
-        assert_bash_exec(bash,
-                         "_ia() { local cur=$(_get_cword);unset COMPREPLY;"
-                         "_ip_addresses; }")
+        assert_bash_exec(
+            bash,
+            "_ia() { local cur=$(_get_cword);unset COMPREPLY;"
+            "_ip_addresses; }",
+        )
         assert_bash_exec(bash, "complete -F _ia ia")
-        assert_bash_exec(bash,
-                         "_iaa() { local cur=$(_get_cword);unset COMPREPLY;"
-                         "_ip_addresses -a; }")
+        assert_bash_exec(
+            bash,
+            "_iaa() { local cur=$(_get_cword);unset COMPREPLY;"
+            "_ip_addresses -a; }",
+        )
         assert_bash_exec(bash, "complete -F _iaa iaa")
-        assert_bash_exec(bash,
-                         " _ia6() { local cur=$(_get_cword);unset COMPREPLY;"
-                         "_ip_addresses -6; }")
+        assert_bash_exec(
+            bash,
+            " _ia6() { local cur=$(_get_cword);unset COMPREPLY;"
+            "_ip_addresses -6; }",
+        )
         assert_bash_exec(bash, "complete -F _ia6 ia6")
 
     def test_1(self, bash):

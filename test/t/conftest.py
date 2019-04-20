@@ -13,16 +13,17 @@ MAGIC_MARK = "__MaGiC-maRKz!__"
 
 
 def find_unique_completion_pair(
-        items: Iterable[str]) -> Optional[Tuple[str, str]]:
+    items: Iterable[str]
+) -> Optional[Tuple[str, str]]:
     result = None
     bestscore = 0
     sitems = sorted(set(items))
     for i in range(len(sitems)):
         cur = sitems[i]
         curlen = len(cur)
-        prv = sitems[i-1] if i != 0 else ""
+        prv = sitems[i - 1] if i != 0 else ""
         prvlen = len(prv)
-        nxt = sitems[i+1] if i < len(sitems)-1 else ""
+        nxt = sitems[i + 1] if i < len(sitems) - 1 else ""
         nxtlen = len(nxt)
         diffprv = prv == ""
         diffnxt = nxt == ""
@@ -55,9 +56,9 @@ def find_unique_completion_pair(
 
 @pytest.fixture(scope="class")
 def part_full_user(bash: pexpect.spawn) -> Optional[Tuple[str, str]]:
-    res = assert_bash_exec(
-        bash, "compgen -u", want_output=True,
-    ).strip().split()
+    res = (
+        assert_bash_exec(bash, "compgen -u", want_output=True).strip().split()
+    )
     pair = find_unique_completion_pair(res)
     if not pair:
         pytest.skip("No suitable test user found")
@@ -66,9 +67,9 @@ def part_full_user(bash: pexpect.spawn) -> Optional[Tuple[str, str]]:
 
 @pytest.fixture(scope="class")
 def part_full_group(bash: pexpect.spawn) -> Optional[Tuple[str, str]]:
-    res = assert_bash_exec(
-        bash, "compgen -g", want_output=True,
-    ).strip().split()
+    res = (
+        assert_bash_exec(bash, "compgen -g", want_output=True).strip().split()
+    )
     pair = find_unique_completion_pair(res)
     if not pair:
         pytest.skip("No suitable test user found")
@@ -82,17 +83,21 @@ def bash(request) -> pexpect.spawn:
     if os.environ.get("BASHCOMP_TEST_LOGFILE"):
         logfile = open(os.environ.get("BASHCOMP_TEST_LOGFILE"), "w")
     testdir = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), os.pardir))
+        os.path.join(os.path.dirname(__file__), os.pardir)
+    )
     env = os.environ.copy()
-    env.update(dict(
-        SRCDIR=testdir,  # TODO needed at least by bashrc
-        SRCDIRABS=testdir,  # TODO needed?
-        PS1=PS1,
-        INPUTRC="%s/config/inputrc" % testdir,
-        TERM="dumb",
-        BASH_COMPLETION_COMPAT_DIR="%s/fixtures/shared/empty_dir" % testdir,
-        LC_COLLATE="C",  # to match Python's default locale unaware sort
-    ))
+    env.update(
+        dict(
+            SRCDIR=testdir,  # TODO needed at least by bashrc
+            SRCDIRABS=testdir,  # TODO needed?
+            PS1=PS1,
+            INPUTRC="%s/config/inputrc" % testdir,
+            TERM="dumb",
+            BASH_COMPLETION_COMPAT_DIR="%s/fixtures/shared/empty_dir"
+            % testdir,
+            LC_COLLATE="C",  # to match Python's default locale unaware sort
+        )
+    )
 
     fixturesdir = os.path.join(testdir, "fixtures")
     os.chdir(fixturesdir)
@@ -140,7 +145,8 @@ def bash(request) -> pexpect.spawn:
                 return
     if not cmd_found:
         match = re.search(
-            r"^test_(.+)\.py$", os.path.basename(str(request.fspath)))
+            r"^test_(.+)\.py$", os.path.basename(str(request.fspath))
+        )
         if match:
             cmd = match.group(1)
 
@@ -152,8 +158,11 @@ def bash(request) -> pexpect.spawn:
         # reset to a good state first (Ctrl+C, expect prompt).
         bash.sendintr()
         bash.expect_exact(PS1)
-        diff_env(before_env, get_env(bash),
-                 marker.kwargs.get("ignore_env") if marker else "")
+        diff_env(
+            before_env,
+            get_env(bash),
+            marker.kwargs.get("ignore_env") if marker else "",
+        )
 
     if marker:
         for post_cmd in marker.kwargs.get("post_cmds", []):
@@ -199,7 +208,8 @@ def load_completion_for(bash: pexpect.spawn, cmd: str) -> bool:
 
 
 def assert_bash_exec(
-        bash: pexpect.spawn, cmd: str, want_output: bool = False) -> str:
+    bash: pexpect.spawn, cmd: str, want_output: bool = False
+) -> str:
 
     # Send command
     bash.sendline(cmd)
@@ -212,41 +222,51 @@ def assert_bash_exec(
     # Retrieve exit status
     echo = "echo $?"
     bash.sendline(echo)
-    got = bash.expect([
-        r"^%s\r\n(\d+)\r\n%s" % (re.escape(echo), re.escape(PS1)),
-        PS1,
-        pexpect.EOF,
-        pexpect.TIMEOUT,
-    ])
+    got = bash.expect(
+        [
+            r"^%s\r\n(\d+)\r\n%s" % (re.escape(echo), re.escape(PS1)),
+            PS1,
+            pexpect.EOF,
+            pexpect.TIMEOUT,
+        ]
+    )
     status = bash.match.group(1) if got == 0 else "unknown"
 
-    assert status == "0", \
-        'Error running "%s": exit status=%s, output="%s"' % \
-        (cmd, status, output)
+    assert status == "0", 'Error running "%s": exit status=%s, output="%s"' % (
+        cmd,
+        status,
+        output,
+    )
     if output:
-        assert want_output, \
-            'Unexpected output from "%s": exit status=%s, output="%s"' % \
-            (cmd, status, output)
+        assert want_output, (
+            'Unexpected output from "%s": exit status=%s, output="%s"'
+            % (cmd, status, output)
+        )
     else:
-        assert not want_output, \
-            'Expected output from "%s": exit status=%s, output="%s"' % \
-            (cmd, status, output)
+        assert not want_output, (
+            'Expected output from "%s": exit status=%s, output="%s"'
+            % (cmd, status, output)
+        )
 
     return output
 
 
 def get_env(bash: pexpect.spawn) -> List[str]:
-    return assert_bash_exec(
-        bash,
-        "{ (set -o posix ; set); declare -F; shopt -p; set -o; }",
-        want_output=True
-    ).strip().splitlines()
+    return (
+        assert_bash_exec(
+            bash,
+            "{ (set -o posix ; set); declare -F; shopt -p; set -o; }",
+            want_output=True,
+        )
+        .strip()
+        .splitlines()
+    )
 
 
 def diff_env(before: List[str], after: List[str], ignore: str):
     diff = [
-        x for x in
-        difflib.unified_diff(before, after, n=0, lineterm="")
+        x
+        for x in difflib.unified_diff(before, after, n=0, lineterm="")
         # Remove unified diff markers:
         if not re.search(r"^(---|\+\+\+|@@ )", x)
         # Ignore variables expected to change:
@@ -260,8 +280,8 @@ def diff_env(before: List[str], after: List[str], ignore: str):
     # saving. Remove its changes, and note that it may take two lines.
     for i in range(0, len(diff)):
         if re.match("^[-+]COMP_WORDBREAKS=", diff[i]):
-            if i < len(diff) and not re.match(r"^\+[\w]+=", diff[i+1]):
-                del diff[i+1]
+            if i < len(diff) and not re.match(r"^\+[\w]+=", diff[i + 1]):
+                del diff[i + 1]
             del diff[i]
             break
     assert not diff, "Environment should not be modified"
@@ -301,15 +321,19 @@ class CompletionResult:
         expiter = [expected] if isinstance(expected, str) else sorted(expected)
         if self._items is not None:
             return self._items == expiter
-        return bool(re.match(r"^\s*" +
-                             r"\s+".join(re.escape(x) for x in expiter) +
-                             r"\s*$", self.output))
+        return bool(
+            re.match(
+                r"^\s*" + r"\s+".join(re.escape(x) for x in expiter) + r"\s*$",
+                self.output,
+            )
+        )
 
     def __contains__(self, item: str) -> bool:
         if self._items is not None:
             return item in self._items
         return bool(
-            re.search(r"(^|\s)%s(\s|$)" % re.escape(item), self.output))
+            re.search(r"(^|\s)%s(\s|$)" % re.escape(item), self.output)
+        )
 
     def __iter__(self) -> Iterable[str]:
         """
@@ -318,8 +342,11 @@ class CompletionResult:
         whitespace. In those cases, it errs on the side of possibly returning
         more items than there actually are, and intends to never return fewer.
         """
-        return iter(self._items if self._items is not None
-                    else re.split(r" {2,}|\r\n", self.output.strip()))
+        return iter(
+            self._items
+            if self._items is not None
+            else re.split(r" {2,}|\r\n", self.output.strip())
+        )
 
     def __len__(self) -> int:
         """
@@ -333,7 +360,8 @@ class CompletionResult:
 
 
 def assert_complete(
-        bash: pexpect.spawn, cmd: str, **kwargs) -> CompletionResult:
+    bash: pexpect.spawn, cmd: str, **kwargs
+) -> CompletionResult:
     skipif = kwargs.get("skipif")
     if skipif:
         try:
@@ -350,29 +378,33 @@ def assert_complete(
     env = kwargs.get("env", {})
     if env:
         # Back up environment and apply new one
-        assert_bash_exec(bash, " ".join(
-            '%s%s="$%s"' % (env_prefix, k, k) for k in env.keys()
-        ))
-        assert_bash_exec(bash, "export %s" % " ".join(
-            "%s=%s" % (k, v) for k, v in env.items()
-        ))
+        assert_bash_exec(
+            bash,
+            " ".join('%s%s="$%s"' % (env_prefix, k, k) for k in env.keys()),
+        )
+        assert_bash_exec(
+            bash,
+            "export %s" % " ".join("%s=%s" % (k, v) for k, v in env.items()),
+        )
     bash.send(cmd + "\t")
     bash.expect_exact(cmd)
     bash.send(MAGIC_MARK)
-    got = bash.expect([
-        # 0: multiple lines, result in .before
-        r"\r\n" + re.escape(PS1 + cmd) + ".*" + MAGIC_MARK,
-        # 1: no completion
-        r"^" + MAGIC_MARK,
-        # 2: on same line, result in .match
-        r"^([^\r]+)%s$" % MAGIC_MARK,
-        pexpect.EOF,
-        pexpect.TIMEOUT,
-    ])
+    got = bash.expect(
+        [
+            # 0: multiple lines, result in .before
+            r"\r\n" + re.escape(PS1 + cmd) + ".*" + MAGIC_MARK,
+            # 1: no completion
+            r"^" + MAGIC_MARK,
+            # 2: on same line, result in .match
+            r"^([^\r]+)%s$" % MAGIC_MARK,
+            pexpect.EOF,
+            pexpect.TIMEOUT,
+        ]
+    )
     if got == 0:
         output = bash.before
         if output.endswith(MAGIC_MARK):
-            output = bash.before[:-len(MAGIC_MARK)]
+            output = bash.before[: -len(MAGIC_MARK)]
         result = CompletionResult(output)
     elif got == 2:
         output = bash.match.group(1)
@@ -387,12 +419,16 @@ def assert_complete(
         # TODO: Test with declare -p if a var was set, backup only if yes, and
         #       similarly restore only backed up vars. Should remove some need
         #       for ignore_env.
-        assert_bash_exec(bash, "export %s" % " ".join(
-            '%s="$%s%s"' % (k, env_prefix, k) for k in env.keys()
-        ))
-        assert_bash_exec(bash, "unset -v %s" % " ".join(
-            "%s%s" % (env_prefix, k) for k in env.keys()
-        ))
+        assert_bash_exec(
+            bash,
+            "export %s"
+            % " ".join('%s="$%s%s"' % (k, env_prefix, k) for k in env.keys()),
+        )
+        assert_bash_exec(
+            bash,
+            "unset -v %s"
+            % " ".join("%s%s" % (env_prefix, k) for k in env.keys()),
+        )
     if cwd:
         assert_bash_exec(bash, "cd - >/dev/null")
     return result
@@ -413,12 +449,13 @@ def in_docker() -> bool:
 
 
 class TestUnitBase:
-
-    def _test_unit(self, func, bash,
-                   comp_words, comp_cword, comp_line, comp_point, arg=""):
+    def _test_unit(
+        self, func, bash, comp_words, comp_cword, comp_line, comp_point, arg=""
+    ):
         assert_bash_exec(
             bash,
-            "COMP_WORDS=%s COMP_CWORD=%d COMP_LINE=%s COMP_POINT=%d" %
-            (comp_words, comp_cword, shlex.quote(comp_line), comp_point))
+            "COMP_WORDS=%s COMP_CWORD=%d COMP_LINE=%s COMP_POINT=%d"
+            % (comp_words, comp_cword, shlex.quote(comp_line), comp_point),
+        )
         output = assert_bash_exec(bash, func % arg, want_output=True)
         return output.strip()

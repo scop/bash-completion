@@ -2,7 +2,6 @@ import pytest
 
 
 class TestPostconf:
-
     @pytest.mark.complete("postconf -")
     def test_1(self, completion):
         assert len(completion) > 1

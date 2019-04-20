@@ -2,13 +2,13 @@ import pytest
 
 
 class TestFeh:
-
     @pytest.mark.complete("feh ")
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("feh --lis",
-                          skipif="feh --help 2>&1 | grep -qF 'man feh'")
+    @pytest.mark.complete(
+        "feh --lis", skipif="feh --help 2>&1 | grep -qF 'man feh'"
+    )
     def test_2(self, completion):
         assert completion
 

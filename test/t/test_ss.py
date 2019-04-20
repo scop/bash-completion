@@ -2,7 +2,6 @@ import pytest
 
 
 class TestSs:
-
     @pytest.mark.complete("ss -")
     def test_1(self, completion):
         assert completion

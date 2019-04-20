@@ -2,7 +2,6 @@ import pytest
 
 
 class TestMkdir:
-
     @pytest.mark.complete("mkdir ")
     def test_1(self, completion):
         assert completion

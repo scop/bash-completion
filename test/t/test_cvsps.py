@@ -1,13 +1,8 @@
 import pytest
 
 
-@pytest.mark.bashcomp(
-    pre_cmds=(
-        "HOME=$PWD/cvs",
-    ),
-)
+@pytest.mark.bashcomp(pre_cmds=("HOME=$PWD/cvs",))
 class TestCvsps:
-
     @pytest.mark.complete("cvsps -")
     def test_1(self, completion):
         assert completion

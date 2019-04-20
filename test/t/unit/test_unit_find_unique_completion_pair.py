@@ -5,7 +5,6 @@ from conftest import find_unique_completion_pair
 
 @pytest.mark.bashcomp(cmd=None)
 class TestUnitFindUniqueCompletionPair:
-
     def _test(self, inp: str, exp: str) -> None:
         res = find_unique_completion_pair(inp.split())
         if exp:
@@ -36,13 +35,15 @@ class TestUnitFindUniqueCompletionPair:
         self._test("root username21 username2", "ro ot")
 
     def test_8(self):
-        self._test("long_user_name lang_user_name long_usor_name",
-                   "lang_us er_name")
+        self._test(
+            "long_user_name lang_user_name long_usor_name", "lang_us er_name"
+        )
 
     def test_9(self):
         self._test(
             "lang_user_name1 long_user_name lang_user_name long_usor_name",
-            "long_use r_name")
+            "long_use r_name",
+        )
 
     def test_10(self):
         self._test("root username", "user name")

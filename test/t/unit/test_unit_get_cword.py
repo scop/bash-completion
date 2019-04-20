@@ -3,10 +3,10 @@ import pytest
 from conftest import assert_bash_exec, TestUnitBase
 
 
-@pytest.mark.bashcomp(cmd=None,
-                      ignore_env=r"^[+-]COMP_(WORDS|CWORD|LINE|POINT)=")
+@pytest.mark.bashcomp(
+    cmd=None, ignore_env=r"^[+-]COMP_(WORDS|CWORD|LINE|POINT)="
+)
 class TestUnitGetCword(TestUnitBase):
-
     def _test(self, *args, **kwargs):
         return self._test_unit("_get_cword %s; echo", *args, **kwargs)
 
@@ -55,7 +55,7 @@ class TestUnitGetCword(TestUnitBase):
 
     def test_10(self, bash):
         r"""a 'b c| should return 'b c"""
-        output = self._test(bash, "(a \"'b c\")", 1, "a 'b c", 6)
+        output = self._test(bash, '(a "\'b c")', 1, "a 'b c", 6)
         assert output == "'b c"
 
     def test_11(self, bash):

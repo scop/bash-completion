@@ -2,7 +2,6 @@ import pytest
 
 
 class TestMkisofs:
-
     @pytest.mark.complete("mkisofs ")
     def test_1(self, completion):
         assert completion

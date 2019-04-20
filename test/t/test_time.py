@@ -4,7 +4,6 @@ import pytest
 
 
 class TestTime:
-
     @pytest.mark.complete("time set")
     def test_1(self, completion):
         assert completion
@@ -16,7 +15,9 @@ class TestTime:
     @pytest.mark.complete("time shared/bin/")
     def test_3(self, completion):
         execs = sorted(
-            x for x in os.listdir("shared/bin")
+            x
+            for x in os.listdir("shared/bin")
             if os.path.isfile("shared/bin/%s" % x)
-            and os.access("shared/bin/%s" % x, os.X_OK))
+            and os.access("shared/bin/%s" % x, os.X_OK)
+        )
         assert completion == execs

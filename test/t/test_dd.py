@@ -2,7 +2,6 @@ import pytest
 
 
 class TestDd:
-
     @pytest.mark.complete("dd --")
     def test_1(self, completion):
         assert completion

@@ -7,19 +7,18 @@ from conftest import assert_bash_exec
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+COMPREPLY=")
 class TestUnitLongopt:
-
     @pytest.fixture(scope="class")
     def functions(self, request, bash):
-        assert_bash_exec(bash,
-                         "_grephelp() { cat _longopt/grep--help.txt; }")
+        assert_bash_exec(bash, "_grephelp() { cat _longopt/grep--help.txt; }")
         assert_bash_exec(bash, "complete -F _longopt _grephelp")
 
     @pytest.mark.complete("_grephelp --")
     def test_1(self, functions, completion):
         """First long option should be included"""
         assert completion
-        assert all(x in completion
-                   for x in "--quiet --recursive --text".split())
+        assert all(
+            x in completion for x in "--quiet --recursive --text".split()
+        )
 
     @pytest.mark.complete("_grephelp -")
     def test_2(self, functions, completion):

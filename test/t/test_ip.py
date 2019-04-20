@@ -2,7 +2,6 @@ import pytest
 
 
 class TestIp:
-
     @pytest.mark.complete("ip ")
     def test_1(self, completion):
         assert completion

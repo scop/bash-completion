@@ -2,7 +2,6 @@ import pytest
 
 
 class TestBzip2:
-
     @pytest.mark.complete("bzip2 ")
     def test_1(self, completion):
         assert completion

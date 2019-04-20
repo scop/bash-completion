@@ -4,7 +4,6 @@ from conftest import assert_complete
 
 
 class TestSudo:
-
     @pytest.mark.complete("sudo -")
     def test_1(self, completion):
         assert completion
@@ -38,7 +37,8 @@ class TestSudo:
         _, user = part_full_user
         partgroup, fullgroup = part_full_group
         completion = assert_complete(
-            bash, "sudo chown %s:%s" % (user, partgroup))
+            bash, "sudo chown %s:%s" % (user, partgroup)
+        )
         assert completion == "%s:%s" % (user, fullgroup)
         assert completion.endswith(" ")
 
@@ -52,11 +52,17 @@ class TestSudo:
     def test_9(self, bash, part_full_group):
         """Test preserving special chars in $prefix$partgroup<TAB>."""
         part, full = part_full_group
-        for prefix in (r"funky\ user:", "funky.user:", r"funky\.user:",
-                       r"fu\ nky.user:", r"f\ o\ o\.\bar:",
-                       r"foo\_b\ a\.r\ :"):
+        for prefix in (
+            r"funky\ user:",
+            "funky.user:",
+            r"funky\.user:",
+            r"fu\ nky.user:",
+            r"f\ o\ o\.\bar:",
+            r"foo\_b\ a\.r\ :",
+        ):
             completion = assert_complete(
-                bash, "sudo chown %s%s" % (prefix, part))
+                bash, "sudo chown %s%s" % (prefix, part)
+            )
             assert completion == "%s%s" % (prefix, full)
             assert completion.endswith(" ")
 
@@ -66,7 +72,8 @@ class TestSudo:
         partgroup, _ = part_full_group
         for x in range(2, 5):
             completion = assert_complete(
-                bash, "sudo chown %s%s:%s" % (user, x * "\\", partgroup))
+                bash, "sudo chown %s%s:%s" % (user, x * "\\", partgroup)
+            )
             assert not completion
 
     def test_11(self, bash, part_full_group):

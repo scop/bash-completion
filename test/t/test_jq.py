@@ -2,7 +2,6 @@ import pytest
 
 
 class TestJq:
-
     @pytest.mark.complete("jq ")
     def test_1(self, completion):
         assert not completion
@@ -11,9 +10,11 @@ class TestJq:
     def test_2(self, completion):
         assert completion
 
-    @pytest.mark.complete("jq -",
-                          skipif="! (jq --help 2>&1 || :) | "
-                          "command grep -qF 'options include'")
+    @pytest.mark.complete(
+        "jq -",
+        skipif="! (jq --help 2>&1 || :) | "
+        "command grep -qF 'options include'",
+    )
     def test_3(self, completion):
         assert completion
 

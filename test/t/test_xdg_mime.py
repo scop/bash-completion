@@ -1,11 +1,8 @@
 import pytest
 
 
-@pytest.mark.bashcomp(
-    cmd="xdg-mime",
-)
+@pytest.mark.bashcomp(cmd="xdg-mime")
 class TestXdgMime:
-
     @pytest.mark.complete("xdg-mime ")
     def test_1(self, completion):
         assert completion

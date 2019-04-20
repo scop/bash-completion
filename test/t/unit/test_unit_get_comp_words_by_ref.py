@@ -4,14 +4,17 @@ from conftest import assert_bash_exec, TestUnitBase
 
 
 @pytest.mark.bashcomp(
-    cmd=None, ignore_env=r"^(\+(cur|prev)|[+-]COMP_(WORDS|CWORD|LINE|POINT))=")
+    cmd=None, ignore_env=r"^(\+(cur|prev)|[+-]COMP_(WORDS|CWORD|LINE|POINT))="
+)
 class TestUnitGetCompWordsByRef(TestUnitBase):
-
     def _test(self, bash, *args, **kwargs):
         assert_bash_exec(bash, "unset cur prev")
         output = self._test_unit(
             "_get_comp_words_by_ref %s cur prev; echo $cur,$prev",
-            bash, *args, **kwargs)
+            bash,
+            *args,
+            **kwargs
+        )
         return output.strip()
 
     def test_1(self, bash):
@@ -160,5 +163,5 @@ class TestUnitGetCompWordsByRef(TestUnitBase):
 
     def test_29(self, bash):
         """a 'b&c|"""
-        output = self._test(bash, "(a \"'b&c\")", 1, "a 'b&c", 6)
+        output = self._test(bash, '(a "\'b&c")', 1, "a 'b&c", 6)
         assert output == "'b&c,a"

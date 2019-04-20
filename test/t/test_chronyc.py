@@ -2,7 +2,6 @@ import pytest
 
 
 class TestChronyc:
-
     @pytest.mark.complete("chronyc ")
     def test_1(self, completion):
         assert completion

@@ -2,7 +2,6 @@ import pytest
 
 
 class TestXvnc4viewer:
-
     @pytest.mark.complete("xvnc4viewer -")
     def test_1(self, completion):
         assert completion

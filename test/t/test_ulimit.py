@@ -2,7 +2,6 @@ import pytest
 
 
 class TestUlimit:
-
     @pytest.mark.complete("ulimit ")
     def test_1(self, completion):
         assert completion

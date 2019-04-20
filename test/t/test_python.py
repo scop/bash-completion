@@ -2,7 +2,6 @@ import pytest
 
 
 class TestPython:
-
     @pytest.mark.complete("python ")
     def test_1(self, completion):
         assert completion

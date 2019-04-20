@@ -7,7 +7,6 @@ from conftest import assert_bash_exec
 
 @pytest.mark.bashcomp(ignore_env=r"^-declare -f _tar$")
 class TestTar:
-
     @pytest.fixture(scope="class")
     def gnu_tar(self, bash):
         got = assert_bash_exec(bash, "tar --version || :", want_output=True)
@@ -33,13 +32,11 @@ class TestTar:
 
     @pytest.mark.complete("tar cTfvv NOT_EXISTS DONT_CREATE.tar ", cwd="tar")
     def test_5(self, completion):
-        assert completion == \
-            "archive.tar.xz dir/ dir2/ escape.tar".split()
+        assert completion == "archive.tar.xz dir/ dir2/ escape.tar".split()
 
     @pytest.mark.complete("tar xvf ", cwd="tar")
     def test_6(self, completion):
-        assert completion == \
-            "archive.tar.xz dir/ dir2/ escape.tar".split()
+        assert completion == "archive.tar.xz dir/ dir2/ escape.tar".split()
 
     @pytest.mark.complete("tar -c")
     def test_7(self, completion, gnu_tar):
@@ -90,14 +87,18 @@ class TestTar:
 
     @pytest.mark.complete("tar --owner=")
     def test_17(self, bash, completion, gnu_tar):
-        users = sorted(assert_bash_exec(
-            bash, "compgen -A user", want_output=True).split())
+        users = sorted(
+            assert_bash_exec(bash, "compgen -A user", want_output=True).split()
+        )
         assert completion == users
 
     @pytest.mark.complete("tar --group=")
     def test_18(self, bash, completion, gnu_tar):
-        groups = sorted(assert_bash_exec(
-            bash, "compgen -A group", want_output=True).split())
+        groups = sorted(
+            assert_bash_exec(
+                bash, "compgen -A group", want_output=True
+            ).split()
+        )
         assert completion == groups
 
     # Use -b for this as -b is still not handled by tar's completion

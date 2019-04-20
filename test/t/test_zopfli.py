@@ -2,7 +2,6 @@ import pytest
 
 
 class TestZopfli:
-
     @pytest.mark.complete("zopfli ")
     def test_1(self, completion):
         assert completion

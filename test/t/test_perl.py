@@ -3,7 +3,6 @@ import pytest
 
 @pytest.mark.bashcomp(ignore_env=r"^\+PERL5LIB=")
 class TestPerl:
-
     @pytest.mark.complete("perl ")
     def test_1(self, completion):
         assert completion

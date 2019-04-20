@@ -2,7 +2,6 @@ import pytest
 
 
 class TestInotifywatch:
-
     @pytest.mark.complete("inotifywatch ")
     def test_1(self, completion):
         assert completion

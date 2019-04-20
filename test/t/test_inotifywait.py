@@ -2,7 +2,6 @@ import pytest
 
 
 class TestInotifywait:
-
     @pytest.mark.complete("inotifywait ")
     def test_1(self, completion):
         assert completion

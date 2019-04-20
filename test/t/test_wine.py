@@ -2,7 +2,6 @@ import pytest
 
 
 class TestWine:
-
     @pytest.mark.complete("wine ", cwd="shared/default")
     def test_1(self, completion):
         assert completion == ["bar bar.d/", "foo.d/"]

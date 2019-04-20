@@ -3,7 +3,6 @@ import pytest
 
 @pytest.mark.bashcomp(ignore_env=r"^\+ANT_ARGS=")
 class TestAnt:
-
     @pytest.mark.complete("ant -")
     def test_1(self, completion):
         assert completion
@@ -16,7 +15,8 @@ class TestAnt:
     def test_3(self, completion):
         assert completion == "build-with-import imported-build".split()
 
-    @pytest.mark.complete("ant ", cwd="ant",
-                          env=dict(ANT_ARGS="'-f named-build.xml'"))
+    @pytest.mark.complete(
+        "ant ", cwd="ant", env=dict(ANT_ARGS="'-f named-build.xml'")
+    )
     def test_4(self, completion):
         assert completion == "named-build"

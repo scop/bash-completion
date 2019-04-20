@@ -2,7 +2,6 @@ import pytest
 
 
 class TestNproc:
-
     @pytest.mark.complete("nproc ")
     def test_1(self, completion):
         assert not completion

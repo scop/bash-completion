@@ -4,7 +4,6 @@ from conftest import assert_bash_exec
 
 
 class TestXfreerdp:
-
     def _help(self, bash):
         return assert_bash_exec(bash, "xfreerdp --help || :", want_output=True)
 

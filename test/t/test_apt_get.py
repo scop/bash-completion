@@ -1,11 +1,8 @@
 import pytest
 
 
-@pytest.mark.bashcomp(
-    cmd="apt-get",
-)
+@pytest.mark.bashcomp(cmd="apt-get")
 class TestAptGet:
-
     @pytest.mark.complete("apt-get ")
     def test_1(self, completion):
         assert all(x in completion for x in "install update".split())

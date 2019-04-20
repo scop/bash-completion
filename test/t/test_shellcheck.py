@@ -2,7 +2,6 @@ import pytest
 
 
 class TestShellcheck:
-
     @pytest.mark.complete("shellcheck ")
     def test_1(self, completion):
         assert completion

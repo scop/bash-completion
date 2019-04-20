@@ -2,7 +2,6 @@ import pytest
 
 
 class TestTox:
-
     @pytest.mark.complete("tox -")
     def test_1(self, completion):
         assert completion

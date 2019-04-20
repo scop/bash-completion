@@ -2,7 +2,6 @@ import pytest
 
 
 class TestNsupdate:
-
     @pytest.mark.complete("nsupdate ")
     def test_1(self, completion):
         assert completion

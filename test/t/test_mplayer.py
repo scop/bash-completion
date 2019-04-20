@@ -1,13 +1,8 @@
 import pytest
 
 
-@pytest.mark.bashcomp(
-    pre_cmds=(
-        "HOME=$PWD/mplayer",
-    ),
-)
+@pytest.mark.bashcomp(pre_cmds=("HOME=$PWD/mplayer",))
 class TestMplayer:
-
     @pytest.mark.complete("mplayer ")
     def test_1(self, completion):
         assert completion

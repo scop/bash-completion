@@ -4,7 +4,6 @@ from conftest import in_docker
 
 
 class TestIfdown:
-
     @pytest.mark.xfail(in_docker(), reason="Probably fails in docker")
     @pytest.mark.complete("ifdown ")
     def test_1(self, completion):

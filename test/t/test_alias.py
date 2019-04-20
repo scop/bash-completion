@@ -2,17 +2,10 @@ import pytest
 
 
 @pytest.mark.bashcomp(
-    pre_cmds=(
-        "unalias -a",
-        "alias foo=bar",
-        "alias bar='foo foo'",
-    ),
-    post_cmds=(
-        "unalias -a",
-    ),
+    pre_cmds=("unalias -a", "alias foo=bar", "alias bar='foo foo'"),
+    post_cmds=("unalias -a",),
 )
 class TestAlias:
-
     @pytest.mark.complete("alias ")
     def test_1(self, completion):
         assert completion == "bar foo".split()

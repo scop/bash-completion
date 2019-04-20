@@ -2,7 +2,6 @@ import pytest
 
 
 class TestGetconf:
-
     @pytest.mark.complete("getconf P")
     def test_1(self, completion):
         assert completion

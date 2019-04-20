@@ -6,7 +6,6 @@ from conftest import in_docker
 
 
 class TestMake:
-
     @pytest.mark.complete("make -f Ma", cwd="make")
     def test_1(self, completion):
         assert completion == "Makefile"
@@ -35,9 +34,11 @@ class TestMake:
         assert completion == "all clean extra_makefile install sample".split()
         os.remove("%s/make/%s" % (bash.cwd, "extra_makefile"))
 
-    @pytest.mark.xfail(in_docker() and os.environ.get("DIST") == "centos6",
-                       reason="Fails for some unknown reason on CentOS 6, "
-                       "even though the behavior appears to be correct")
+    @pytest.mark.xfail(
+        in_docker() and os.environ.get("DIST") == "centos6",
+        reason="Fails for some unknown reason on CentOS 6, "
+        "even though the behavior appears to be correct",
+    )
     @pytest.mark.complete("make .cache/.", cwd="make")
     def test_7(self, bash, completion):
         assert completion == ".1 .2".split()

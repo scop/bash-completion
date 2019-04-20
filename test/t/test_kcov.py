@@ -2,7 +2,6 @@ import pytest
 
 
 class TestKcov:
-
     @pytest.mark.complete("kcov ")
     def test_1(self, completion):
         assert completion

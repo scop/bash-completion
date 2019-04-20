@@ -2,7 +2,6 @@ import pytest
 
 
 class TestLzma:
-
     @pytest.mark.complete("lzma ")
     def test_1(self, completion):
         assert completion

@@ -2,7 +2,6 @@ import pytest
 
 
 class TestMount:
-
     @pytest.mark.complete("mount ")
     def test_1(self, completion):
         assert completion
@@ -16,7 +15,8 @@ class TestMount:
         assert completion == "default/"
         assert not completion.endswith(" ")
 
-    @pytest.mark.complete("mount mocksrv:/",
-                          env=dict(PATH="$PWD/mount/bin:$PATH"))
+    @pytest.mark.complete(
+        "mount mocksrv:/", env=dict(PATH="$PWD/mount/bin:$PATH")
+    )
     def test_4(self, completion):
         assert completion == "/second/path /test/path /test/path2".split()

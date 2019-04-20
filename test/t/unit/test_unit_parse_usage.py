@@ -5,7 +5,6 @@ from conftest import assert_bash_exec
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+declare -f fn$")
 class TestUnitParseUsage:
-
     def test_1(self, bash):
         assert_bash_exec(bash, "fn() { echo; }")
         output = assert_bash_exec(bash, "_parse_usage fn")
@@ -57,12 +56,14 @@ class TestUnitParseUsage:
         assert output.split() == "--aa".split()
 
     def test_11(self, bash):
-        assert_bash_exec(bash,
-                         "fn() { echo ----; echo ---foo; echo '----- bar'; }")
+        assert_bash_exec(
+            bash, "fn() { echo ----; echo ---foo; echo '----- bar'; }"
+        )
         output = assert_bash_exec(bash, "_parse_usage fn")
         assert not output
 
     def test_12(self, bash):
         output = assert_bash_exec(
-            bash, "echo '[-duh]' | _parse_usage -", want_output=True)
+            bash, "echo '[-duh]' | _parse_usage -", want_output=True
+        )
         assert output.split() == "-d -u -h".split()

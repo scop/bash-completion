@@ -2,7 +2,6 @@ import pytest
 
 
 class TestXgamma:
-
     @pytest.mark.complete("xgamma -")
     def test_1(self, completion):
         assert completion

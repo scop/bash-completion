@@ -2,7 +2,6 @@ import pytest
 
 
 class TestKtutil:
-
     @pytest.mark.complete("ktutil ")
     def test_1(self, completion):
         assert completion

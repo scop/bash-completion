@@ -2,7 +2,6 @@ import pytest
 
 
 class TestJsonschema:
-
     @pytest.mark.complete("jsonschema ")
     def test_1(self, completion):
         assert completion

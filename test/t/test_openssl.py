@@ -2,7 +2,6 @@ import pytest
 
 
 class TestOpenssl:
-
     @pytest.mark.complete("openssl ")
     def test_1(self, completion):
         assert completion

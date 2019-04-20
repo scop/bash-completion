@@ -2,7 +2,6 @@ import pytest
 
 
 class TestCcache:
-
     @pytest.mark.complete("ccache -")
     def test_1(self, completion):
         assert completion

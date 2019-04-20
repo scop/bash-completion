@@ -2,7 +2,6 @@ import pytest
 
 
 class TestPv:
-
     @pytest.mark.complete("pv ")
     def test_1(self, completion):
         assert completion

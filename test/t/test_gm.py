@@ -2,7 +2,6 @@ import pytest
 
 
 class TestGm:
-
     @pytest.mark.complete("gm ")
     def test_1(self, completion):
         assert completion

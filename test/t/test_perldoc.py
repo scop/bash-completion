@@ -1,13 +1,8 @@
 import pytest
 
 
-@pytest.mark.bashcomp(
-    pre_cmds=(
-        "export PERL5LIB=$PWD/perldoc",
-    ),
-)
+@pytest.mark.bashcomp(pre_cmds=("export PERL5LIB=$PWD/perldoc",))
 class TestPerldoc:
-
     @pytest.mark.complete("perldoc File::")
     def test_1(self, completion):
         assert "Path" in completion  # Assume File::Path always installed

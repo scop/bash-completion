@@ -5,7 +5,6 @@ import pytest
 
 @pytest.mark.bashcomp(ignore_env=r"^\+ROOT=")
 class TestRemovepkg:
-
     @pytest.mark.complete("removepkg -")
     def test_1(self, completion):
         assert completion == "-copy -keep -preserve -warn".split()

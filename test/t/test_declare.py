@@ -2,7 +2,6 @@ import pytest
 
 
 class TestDeclare:
-
     @pytest.mark.complete("declare -")
     def test_1(self, completion):
         assert completion

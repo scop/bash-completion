@@ -25,11 +25,16 @@ class TestValgrind:
 
     @pytest.mark.complete(r"valgrind --log-file=v\ 0.log ./bin/", cwd="shared")
     def test_5(self, completion):
-        expected = sorted([
-            "%s/" for x in os.listdir("shared/bin")
-            if os.path.isdir("shared/bin/%s" % x)
-        ] + [
-            x for x in os.listdir("shared/bin")
-            if os.path.isfile("shared/bin/%s" % x)
-        ])
+        expected = sorted(
+            [
+                "%s/"
+                for x in os.listdir("shared/bin")
+                if os.path.isdir("shared/bin/%s" % x)
+            ]
+            + [
+                x
+                for x in os.listdir("shared/bin")
+                if os.path.isfile("shared/bin/%s" % x)
+            ]
+        )
         assert completion == expected

@@ -2,7 +2,6 @@ import pytest
 
 
 class TestMr:
-
     @pytest.mark.complete("mr ")
     def test_1(self, completion):
         assert completion
@@ -14,13 +13,15 @@ class TestMr:
     def test_2(self, completion):
         assert completion
 
-    @pytest.mark.complete("mr -c shared/default/foo.d/",
-                          skipif="! man -h &>/dev/null")
+    @pytest.mark.complete(
+        "mr -c shared/default/foo.d/", skipif="! man -h &>/dev/null"
+    )
     def test_3(self, completion):
         assert completion == "shared/default/foo.d/foo"
 
-    @pytest.mark.complete("mr bootstrap shared/default/",
-                          skipif="! man -h &>/dev/null")
+    @pytest.mark.complete(
+        "mr bootstrap shared/default/", skipif="! man -h &>/dev/null"
+    )
     def test_4(self, completion):
         assert completion == ["bar", "bar bar.d/", "foo", "foo.d/"]
 

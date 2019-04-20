@@ -2,7 +2,6 @@ import pytest
 
 
 class TestCcze:
-
     @pytest.mark.complete("ccze ")
     def test_1(self, completion):
         assert completion

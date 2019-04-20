@@ -3,13 +3,8 @@ import pytest
 from conftest import assert_bash_exec
 
 
-@pytest.mark.bashcomp(
-    pre_cmds=(
-        "HOME=$PWD/mutt",
-    ),
-)
+@pytest.mark.bashcomp(pre_cmds=("HOME=$PWD/mutt",))
 class TestMutt:
-
     @pytest.mark.complete("mutt -")
     def test_1(self, completion):
         assert completion
@@ -23,9 +18,16 @@ class TestMutt:
         assert completion == "a1 a2".split()
 
     def test_4(self, bash):
-        got = assert_bash_exec(
-            bash,
-            '_muttconffiles "$HOME/muttrc" "$HOME/muttrc"',
-            want_output=True).strip().split()
-        assert got == ["%s/mutt/%s" % (bash.cwd, x) for x in
-                       ("muttrc", "bar/muttrc_b", "foo/muttrc_f")]
+        got = (
+            assert_bash_exec(
+                bash,
+                '_muttconffiles "$HOME/muttrc" "$HOME/muttrc"',
+                want_output=True,
+            )
+            .strip()
+            .split()
+        )
+        assert got == [
+            "%s/mutt/%s" % (bash.cwd, x)
+            for x in ("muttrc", "bar/muttrc_b", "foo/muttrc_f")
+        ]

@@ -2,7 +2,6 @@ import pytest
 
 
 class TestBind:
-
     @pytest.mark.complete("bind -")
     def test_1(self, completion):
         assert completion

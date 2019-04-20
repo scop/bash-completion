@@ -2,7 +2,6 @@ import pytest
 
 
 class TestEvince:
-
     @pytest.mark.complete("evince ", cwd="evince")
     def test_1(self, completion):
         # .txt should not be here
@@ -15,4 +14,5 @@ class TestEvince:
             ".pdf.bz2 .pdf.BZ2 .PDF.bz2 .PDF.BZ2 .pdf.gz .pdf.GZ .PDF.gz "
             ".PDF.GZ .pgm .PGM .png .PNG .pnm .PNM .ppm .PPM .ps .PS "
             ".ps.bz2 .ps.BZ2 .PS.bz2 .PS.BZ2 .ps.gz .ps.GZ .PS.gz .PS.GZ "
-            ".tga .TGA .tif .TIF .tiff .TIFF .xpm .XPM .xwd .XWD".split())
+            ".tga .TGA .tif .TIF .tiff .TIFF .xpm .XPM .xwd .XWD".split()
+        )

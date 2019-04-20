@@ -3,6 +3,9 @@
 if [ $DIST = tools ]; then
     perlcritic helpers/perl
     flake8 helpers/python test test/generate
+    black --check -t py27 -t py33 -t py34 -t py35 -t py36 -t py37 -t py38 \
+        helpers/python
+    black --check test test/generate
     exit 0
 fi
 

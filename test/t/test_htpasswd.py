@@ -2,7 +2,6 @@ import pytest
 
 
 class TestHtpasswd:
-
     @pytest.mark.complete("htpasswd ")
     def test_1(self, completion):
         assert completion

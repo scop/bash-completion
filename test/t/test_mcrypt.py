@@ -2,7 +2,6 @@ import pytest
 
 
 class TestMcrypt:
-
     @pytest.mark.complete("mcrypt ")
     def test_1(self, completion):
         assert completion

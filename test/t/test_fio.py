@@ -2,7 +2,6 @@ import pytest
 
 
 class TestFio:
-
     @pytest.mark.complete("fio ")
     def test_1(self, completion):
         assert completion

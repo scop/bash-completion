@@ -2,7 +2,6 @@ import pytest
 
 
 class TestMysql:
-
     @pytest.mark.complete("mysql --")
     def test_1(self, completion):
         assert completion

@@ -5,10 +5,9 @@ import pytest
     pre_cmds=(
         # Make sure our own ./configure is in PATH
         "PATH=$PWD/../..:$PATH",
-    ),
+    )
 )
 class TestConfigure:
-
     @pytest.mark.complete("configure --")
     def test_1(self, completion):
         assert completion

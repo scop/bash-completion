@@ -2,7 +2,6 @@ import pytest
 
 
 class TestVgcreate:
-
     @pytest.mark.complete("vgcreate -")
     def test_1(self, completion):
         assert completion

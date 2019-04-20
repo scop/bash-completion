@@ -2,12 +2,9 @@ import pytest
 
 
 @pytest.mark.bashcomp(
-    pre_cmds=(
-        "CLASSPATH=$PWD/java/a:$PWD/java/bashcomp.jar",
-    ),
+    pre_cmds=("CLASSPATH=$PWD/java/a:$PWD/java/bashcomp.jar",)
 )
 class TestJava:
-
     @pytest.mark.complete("java -")
     def test_1(self, completion):
         assert completion

@@ -4,18 +4,20 @@ import pytest
 
 
 class TestModinfo:
-
     @pytest.mark.complete("modinfo -")
     def test_1(self, completion):
         assert completion
 
     # "in": intel*, ...
-    @pytest.mark.complete("modinfo in",
-                          skipif="! ls /lib/modules/%s &>/dev/null" %
-                          subprocess.check_output(
-                              "uname -r 2>/dev/null || "
-                              "echo non-existent-kernel",
-                              shell=True).decode().strip())
+    @pytest.mark.complete(
+        "modinfo in",
+        skipif="! ls /lib/modules/%s &>/dev/null"
+        % subprocess.check_output(
+            "uname -r 2>/dev/null || " "echo non-existent-kernel", shell=True
+        )
+        .decode()
+        .strip(),
+    )
     def test_2(self, completion):
         assert completion
 

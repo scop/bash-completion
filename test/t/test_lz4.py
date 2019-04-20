@@ -2,7 +2,6 @@ import pytest
 
 
 class TestLz4:
-
     @pytest.mark.complete("lz4 ")
     def test_1(self, completion):
         assert completion

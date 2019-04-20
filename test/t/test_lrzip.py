@@ -2,7 +2,6 @@ import pytest
 
 
 class TestLrzip:
-
     @pytest.mark.complete("lrzip ")
     def test_1(self, completion):
         assert completion

@@ -2,7 +2,6 @@ import pytest
 
 
 class TestGpgv:
-
     @pytest.mark.complete("gpgv ")
     def test_1(self, completion):
         assert completion
