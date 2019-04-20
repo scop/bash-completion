@@ -318,7 +318,7 @@ __get_cword_at_cursor_by_ref()
                 local old_size=${#cur}
                 cur="${cur#"${words[i]}"}"
                 local new_size=${#cur}
-                index=$(( index - old_size + new_size ))
+                (( index -= old_size - new_size ))
             fi
         done
         # Clear $cur if just space(s)
@@ -448,7 +448,7 @@ _get_cword()
                 local old_size="${#cur}"
                 cur="${cur#${words[i]}}"
                 local new_size="${#cur}"
-                index=$(( index - old_size + new_size ))
+                (( index -= old_size - new_size ))
             fi
         done
 
@@ -737,9 +737,9 @@ _init_completion()
             # If "bare" redirect, remove also the next word (skip=2).
             [[ ${words[i]} == $redir ]] && skip=2 || skip=1
             words=( "${words[@]:0:i}" "${words[@]:i+skip}" )
-            [[ $i -le $cword ]] && cword=$(( cword - skip ))
+            [[ $i -le $cword ]] && (( cword -= skip ))
         else
-            i=$(( ++i ))
+            (( i++ ))
         fi
     done
 
@@ -1364,7 +1364,7 @@ _count_args()
     for (( i=1; i < cword; i++ )); do
         if [[ ${words[i]} != -* && ${words[i-1]} != $2 ||
               ${words[i]} == $3 ]]; then
-            args=$(($args+1))
+            (( args++ ))
         fi
     done
 }

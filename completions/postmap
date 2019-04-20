@@ -24,14 +24,13 @@ _postmap()
         compopt -o filenames
         COMPREPLY=( $(compgen -f -- "${cur#*:}") )
     else
-        local len=${#cur} idx=0 pval
+        local len=${#cur} pval
         for pval in $(/usr/sbin/postconf -m 2>/dev/null); do
             if [[ "$cur" == "${pval:0:$len}" ]]; then
-                COMPREPLY[$idx]="$pval:"
-                idx=$(($idx+1))
+                COMPREPLY+=( "$pval:" )
             fi
         done
-        if [[ $idx -eq 0 ]]; then
+        if [[ ! $COMPREPLY ]]; then
             compopt -o filenames
             COMPREPLY=( $(compgen -f -- "$cur") )
         fi
