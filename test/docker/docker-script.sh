@@ -2,16 +2,16 @@
 
 if [ $DIST = tools ]; then
     rc=0
-    perlcritic helpers/perl; rc=$((rc+1))
-    perltidy -nst -nse helpers/perl; rc=$((rc+1))
+    perlcritic helpers/perl; rc=$((rc+$?))
+    perltidy -nst -nse helpers/perl; rc=$((rc+$?))
     if [ -e helpers/perl.ERR ]; then
         cat helpers/perl.ERR
         rc=$((rc+1))
     fi
-    flake8 helpers/python test test/generate; rc=$((rc+1))
+    flake8 helpers/python test test/generate; rc=$((rc+$?))
     black --check -t py27 -t py33 -t py34 -t py35 -t py36 -t py37 -t py38 \
-        helpers/python; rc=$((rc+1))
-    black --check test test/generate; rc=$((rc+1))
+        helpers/python; rc=$((rc+$?))
+    black --check test test/generate; rc=$((rc+$?))
     exit $rc
 fi
 
