@@ -1,17 +1,18 @@
 #!/bin/sh -ex
 
 if [ $DIST = tools ]; then
-    perlcritic helpers/perl
-    perltidy -nst -nse helpers/perl
+    rc=0
+    perlcritic helpers/perl; rc=$((rc+1))
+    perltidy -nst -nse helpers/perl; rc=$((rc+1))
     if [ -e helpers/perl.ERR ]; then
         cat helpers/perl.ERR
-        exit 1
+        rc=$((rc+1))
     fi
-    flake8 helpers/python test test/generate
+    flake8 helpers/python test test/generate; rc=$((rc+1))
     black --check -t py27 -t py33 -t py34 -t py35 -t py36 -t py37 -t py38 \
-        helpers/python
-    black --check test test/generate
-    exit 0
+        helpers/python; rc=$((rc+1))
+    black --check test test/generate; rc=$((rc+1))
+    exit $rc
 fi
 
 if [ "$BSD" ]; then
