@@ -31,13 +31,12 @@ _ssh_macs()
 
 _ssh_options()
 {
-    compopt -o nospace
-    COMPREPLY=( $(compgen -S = -W 'AddKeysToAgent AddressFamily BatchMode
-        BindAddress CanonicalDomains CanonicalizeFallbackLocal
-        CanonicalizeHostname CanonicalizeMaxDots CanonicalizePermittedCNAMEs
-        CertificateFile ChallengeResponseAuthentication CheckHostIP Cipher
-        Ciphers ClearAllForwardings Compression CompressionLevel
-        ConnectionAttempts ConnectTimeout ControlMaster ControlPath
+    local opts=(
+        AddKeysToAgent AddressFamily BatchMode BindAddress CanonicalDomains
+        CanonicalizeFallbackLocal CanonicalizeHostname CanonicalizeMaxDots
+        CanonicalizePermittedCNAMEs CertificateFile
+        ChallengeResponseAuthentication CheckHostIP Ciphers ClearAllForwardings
+        Compression ConnectionAttempts ConnectTimeout ControlMaster ControlPath
         ControlPersist DynamicForward EnableSSHKeysign EscapeChar
         ExitOnForwardFailure FingerprintHash ForwardAgent ForwardX11
         ForwardX11Timeout ForwardX11Trusted GatewayPorts GlobalKnownHostsFile
@@ -50,15 +49,21 @@ _ssh_options()
         LocalCommand LocalForward LogLevel MACs
         NoHostAuthenticationForLocalhost NumberOfPasswordPrompts
         PasswordAuthentication PermitLocalCommand PKCS11Provider Port
-        PreferredAuthentications Protocol ProxyCommand ProxyJump ProxyUseFdpass
+        PreferredAuthentications ProxyCommand ProxyJump ProxyUseFdpass
         PubkeyAcceptedKeyTypes PubkeyAuthentication RekeyLimit RemoteCommand
-        RemoteForward RequestTTY RevokedHostKeys RhostsRSAAuthentication
-        RSAAuthentication SendEnv ServerAliveCountMax ServerAliveInterval
-        SmartcardDevice StreamLocalBindMask StreamLocalBindUnlink
-        StrictHostKeyChecking SyslogFacility TCPKeepAlive Tunnel TunnelDevice
-        UpdateHostKeys UsePrivilegedPort User UserKnownHostsFile
-        VerifyHostKeyDNS VisualHostKey XAuthLocation' \
-        -- "$cur") )
+        RemoteForward RequestTTY RevokedHostKeys SendEnv ServerAliveCountMax
+        ServerAliveInterval SmartcardDevice StreamLocalBindMask
+        StreamLocalBindUnlink StrictHostKeyChecking SyslogFacility TCPKeepAlive
+        Tunnel TunnelDevice UpdateHostKeys UsePrivilegedPort User
+        UserKnownHostsFile VerifyHostKeyDNS VisualHostKey XAuthLocation )
+    local protocols=$(_ssh_query "$1" protocol-version)
+    if [[ -z $protocols || $protocols == *1* ]]; then
+        opts+=( Cipher CompressionLevel Protocol RhostsRSAAuthentication
+                RSAAuthentication )
+    fi
+
+    compopt -o nospace
+    COMPREPLY=( $(compgen -S = -W '${opts[@]}' -- "$cur" ) )
 }
 
 # Complete a ssh suboption (like ForwardAgent=y<tab>)
@@ -245,7 +250,7 @@ _ssh()
             return
             ;;
         -*o)
-            _ssh_options
+            _ssh_options "$1"
             return
             ;;
         -*Q)
