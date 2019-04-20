@@ -163,3 +163,21 @@ class TestUnitParseHelp:
         )
         output = assert_bash_exec(bash, "_parse_help fn")
         assert not output
+
+    def test_31(self, bash):
+        assert_bash_exec(
+            bash,
+            r"fn() { printf '%s\n' "
+            r"'-F ERROR_FORMAT, --error-format ERROR_FORMAT'; }",
+        )
+        output = assert_bash_exec(bash, "_parse_help fn", want_output=True)
+        assert output.split() == "--error-format".split()
+
+    def test_32(self, bash):
+        assert_bash_exec(
+            bash,
+            r"fn() { printf '%s\n' "
+            r"'-e CODE1,CODE2..  --exclude=CODE1,CODE2..'; }",
+        )
+        output = assert_bash_exec(bash, "_parse_help fn", want_output=True)
+        assert output.split() == "--exclude=".split()
