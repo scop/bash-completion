@@ -2,6 +2,11 @@
 
 if [ $DIST = tools ]; then
     perlcritic helpers/perl
+    perltidy -nst -nse helpers/perl
+    if [ -e helpers/perl.ERR ]; then
+        cat helpers/perl.ERR
+        exit 1
+    fi
     flake8 helpers/python test test/generate
     black --check -t py27 -t py33 -t py34 -t py35 -t py36 -t py37 -t py38 \
         helpers/python
