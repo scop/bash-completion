@@ -20,3 +20,7 @@ class TestAnt:
     )
     def test_4(self, completion):
         assert completion == "named-build"
+
+    @pytest.mark.complete("ant -l ")
+    def test_5(self, completion):
+        assert completion
