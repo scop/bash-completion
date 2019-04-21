@@ -62,7 +62,10 @@ _ant()
     if [[ $cur == -D* ]]; then
         return
     elif [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1" -h)' -- "$cur") )
+        # The </dev/null prevents "phing -" weirdness/getting just a literal
+        # tab displayed on complete on CentOS 6 with phing 2.6.1.
+        COMPREPLY=(
+            $(compgen -W '$(_parse_help "$1" -h </dev/null)' -- "$cur") )
     else
         # available targets completion
         # find which buildfile to use
