@@ -10,6 +10,5 @@ class TestGdb:
     def test_2(self, completion):
         assert completion == sorted(
             "core core.12345 "
-            "core.weston.1000.bc46148827504908898ad152f43bffb2.5308."
-            "1555362132000000".split()
+            "core.weston.1000.deadbeef.5308.1555362132000000".split()
         )
