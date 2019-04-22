@@ -161,7 +161,8 @@ dequote()
 # See: http://fvue.nl/wiki/Bash:_Passing_variables_by_reference
 _upvar()
 {
-    echo "bash: ${FUNCNAME[0]} is deprecated, use _upvars instead" 1>&2
+    echo "bash_completion: $FUNCNAME: deprecated function," \
+        "use _upvars instead" >&2
     if unset -v "$1"; then           # Unset & validate varname
         if (( $# == 2 )); then
             eval $1=\"\$2\"          # Return single value
@@ -183,32 +184,33 @@ _upvar()
 _upvars()
 {
     if ! (( $# )); then
-        echo "${FUNCNAME[0]}: usage: ${FUNCNAME[0]} [-v varname"\
-            "value] | [-aN varname [value ...]] ..." 1>&2
+        echo "bash_completion: $FUNCNAME: usage: $FUNCNAME" \
+            "[-v varname value] | [-aN varname [value ...]] ..." >&2
         return 2
     fi
     while (( $# )); do
         case $1 in
             -a*)
                 # Error checking
-                [[ ${1#-a} ]] || { echo "bash: ${FUNCNAME[0]}: \`$1': missing"\
-                    "number specifier" 1>&2; return 1; }
-                printf %d "${1#-a}" &>/dev/null || { echo "bash:"\
-                    "${FUNCNAME[0]}: \`$1': invalid number specifier" 1>&2
+                [[ ${1#-a} ]] || { echo "bash_completion: $FUNCNAME:" \
+                    "\`$1': missing number specifier" >&2; return 1; }
+                printf %d "${1#-a}" &>/dev/null || { echo bash_completion: \
+                    "$FUNCNAME: \`$1': invalid number specifier" >&2
                     return 1; }
                 # Assign array of -aN elements
                 [[ "$2" ]] && unset -v "$2" && eval $2=\(\"\${@:3:${1#-a}}\"\) &&
-                shift $((${1#-a} + 2)) || { echo "bash: ${FUNCNAME[0]}:"\
-                    "\`$1${2+ }$2': missing argument(s)" 1>&2; return 1; }
+                shift $((${1#-a} + 2)) || { echo bash_completion: \
+                    "$FUNCNAME: \`$1${2+ }$2': missing argument(s)" \
+                    >&2; return 1; }
                 ;;
             -v)
                 # Assign single value
                 [[ "$2" ]] && unset -v "$2" && eval $2=\"\$3\" &&
-                shift 3 || { echo "bash: ${FUNCNAME[0]}: $1: missing"\
-                "argument(s)" 1>&2; return 1; }
+                shift 3 || { echo "bash_completion: $FUNCNAME: $1:" \
+                    "missing argument(s)" >&2; return 1; }
                 ;;
             *)
-                echo "bash: ${FUNCNAME[0]}: $1: invalid option" 1>&2
+                echo "bash_completion: $FUNCNAME: $1: invalid option" >&2
                 return 1 ;;
         esac
     done
@@ -381,8 +383,8 @@ _get_comp_words_by_ref()
             prev)  vprev=prev ;;
             cword) vcword=cword ;;
             words) vwords=words ;;
-            *) echo "bash: $FUNCNAME(): \`${!OPTIND}': unknown argument" \
-                1>&2; return 1
+            *) echo "bash_completion: $FUNCNAME: \`${!OPTIND}':" \
+                "unknown argument" >&2; return 1 ;;
         esac
         let "OPTIND += 1"
     done
@@ -1449,7 +1451,8 @@ _known_hosts()
 # them recursively adding each result to the config variable
 _included_ssh_config_files()
 {
-    [[ $# -lt 1 ]] && echo "error: $FUNCNAME: missing mandatory argument CONFIG"
+    [[ $# -lt 1 ]] && \
+        echo "bash_completion: $FUNCNAME: missing mandatory argument CONFIG" >&2
     local configfile i f
     configfile=$1
     local included=$(command sed -ne 's/^[[:blank:]]*[Ii][Nn][Cc][Ll][Uu][Dd][Ee][[:blank:]]\{1,\}\([^#%]*\)\(#.*\)\{0,1\}$/\1/p' "${configfile}")
@@ -1510,10 +1513,12 @@ _known_hosts_real()
             6) ipv6=1 ;;
         esac
     done
-    [[ $# -lt $OPTIND ]] && echo "error: $FUNCNAME: missing mandatory argument CWORD"
+    [[ $# -lt $OPTIND ]] && \
+        echo "bash_completion: $FUNCNAME: missing mandatory argument CWORD" >&2
     cur=${!OPTIND}; let "OPTIND += 1"
-    [[ $# -ge $OPTIND ]] && echo "error: $FUNCNAME("$@"): unprocessed arguments:"\
-    $(while [[ $# -ge $OPTIND ]]; do printf '%s\n' ${!OPTIND}; shift; done)
+    [[ $# -ge $OPTIND ]] && \
+        echo "bash_completion: $FUNCNAME("$@"): unprocessed arguments:" \
+    $(while [[ $# -ge $OPTIND ]]; do printf '%s\n' ${!OPTIND}; shift; done) >&2
 
     [[ $cur == *@* ]] && user=${cur%@*}@ && cur=${cur#*@}
     kh=()
