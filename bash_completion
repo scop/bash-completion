@@ -150,6 +150,27 @@ dequote()
 }
 
 
+# Assign variable one scope above the caller
+# Usage: local "$1" && _upvar $1 "value(s)"
+# Param: $1  Variable name to assign value to
+# Param: $*  Value(s) to assign.  If multiple values, an array is
+#            assigned, otherwise a single value is assigned.
+# NOTE: For assigning multiple variables, use '_upvars'.  Do NOT
+#       use multiple '_upvar' calls, since one '_upvar' call might
+#       reassign a variable to be used by another '_upvar' call.
+# See: http://fvue.nl/wiki/Bash:_Passing_variables_by_reference
+_upvar()
+{
+    if unset -v "$1"; then           # Unset & validate varname
+        if (( $# == 2 )); then
+            eval $1=\"\$2\"          # Return single value
+        else
+            eval $1=\(\"\${@:2}\"\)  # Return array
+        fi
+    fi
+}
+
+
 # Assign variables one scope above the caller
 # Usage: local varname [varname ...] &&
 #        _upvars [-v varname value] | [-aN varname [value ...]] ...
