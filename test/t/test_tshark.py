@@ -22,3 +22,8 @@ class TestTshark:
     @pytest.mark.complete("tshark -otcp")
     def test_5(self, completion):
         assert "-otcp.desegment_tcp_streams:" in completion
+
+    @pytest.mark.complete("tshark -O http")
+    def test_6(self, completion):
+        """Test there are no URLs in completions."""
+        assert not any("://" in x for x in completion)

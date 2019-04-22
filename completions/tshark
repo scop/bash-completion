@@ -24,7 +24,7 @@ _tshark()
                 _filedir
             else
                 [ -n "$_tshark_prefs" ] ||
-                    _tshark_prefs="$("$1" -G defaultprefs | command \
+                    _tshark_prefs="$("$1" -G defaultprefs 2>/dev/null | command\
                         sed -ne 's/^#\{0,1\}\([a-z0-9_.-]\{1,\}:\).*/\1/p' |
                         tr '\n' ' ')"
                 COMPREPLY=( $(compgen -P "$prefix" -W "$_tshark_prefs" \
@@ -49,7 +49,7 @@ _tshark()
                     break
                 fi
             done
-            COMPREPLY=( $(compgen -W "$("$1" $opts -L 2>&1 | \
+            COMPREPLY=( $(compgen -W "$("$1" $opts -L 2>/dev/null | \
                 awk '/^  / { print $1 }')" -- "$cur") )
             return
             ;;
@@ -78,7 +78,8 @@ _tshark()
             ;;
         -*O)
             local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
-            COMPREPLY=( $(compgen -W "$("$1" -G protocols 2>&1 | cut -f 3)" \
+            COMPREPLY=( $(compgen -W \
+                "$("$1" -G protocols 2>/dev/null | cut -f 3)" \
                 -- "${cur##*,}") )
             [[ ${#COMPREPLY[@]} -eq 1 ]] && COMPREPLY=( ${COMPREPLY/#/$prefix} )
             return
@@ -126,7 +127,8 @@ _tshark()
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1" -h)' -- "$cur") )
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1" -h 2>/dev/null)' \
+                              -- "$cur") )
         return
     fi
 } &&
