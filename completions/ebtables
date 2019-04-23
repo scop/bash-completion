@@ -8,13 +8,8 @@ _ebtables()
     local table chain='s/^Bridge chain: \([^ ,]\{1,\}\).*$/\1/p' \
       targets='ACCEPT DROP CONTINUE RETURN'
 
-    if [[ ${words[@]} == *-t\ *filter* ]]; then
-        table="-t filter"
-    elif [[ ${words[@]} == *-t\ *nat* ]]; then
-        table="-t nat"
-    elif [[ ${words[@]} == *-t\ *mangle* ]]; then
-        table="-t mangle"
-    fi
+    [[ "${words[*]}" =~ [[:space:]]-(t|-table=?)[[:space:]]*([^[:space:]]+) ]] \
+        && table="-t ${BASH_REMATCH[2]}"
 
     case $prev in
     -!(-*)[AIDPFXLZ])
