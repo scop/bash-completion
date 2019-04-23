@@ -18,13 +18,13 @@ _update_rc_d()
 
     if [[ $cword -eq 1 || "$prev" == -* ]]; then
     valid_options=( $(\
-        tr " " "\n" <<<"${words[@]} ${options[@]}" \
-        | command sed -ne "/$(command sed "s/ /\\|/g" <<<"${options[@]}")/p" \
+        tr " " "\n" <<<"${words[*]} ${options[*]}" \
+        | command sed -ne "/$(command sed "s/ /\\|/g" <<<"${options[*]}")/p" \
         | sort | uniq -u \
         ) )
     COMPREPLY=( $(compgen -W '${options[@]} ${services[@]}' \
         -X '$(tr " " "|" <<<${words[@]})' -- "$cur") )
-    elif [[ "$prev" == ?($(tr " " "|" <<<${services[@]})) ]]; then
+    elif [[ "$prev" == ?($(tr " " "|" <<<"${services[*]}")) ]]; then
         COMPREPLY=( $(compgen -W 'remove defaults start stop' -- "$cur") )
     elif [[ "$prev" == defaults && "$cur" == [0-9] ]]; then
         COMPREPLY=( 0 1 2 3 4 5 6 7 8 9 )

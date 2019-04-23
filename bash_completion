@@ -278,7 +278,7 @@ __reassemble_comp_words_by_ref()
         [[ $i == $COMP_CWORD ]] && printf -v "$3" %s "$j"
     else
         # No, list of word completions separators hasn't changed;
-        for i in ${!COMP_WORDS[@]}; do
+        for i in "${!COMP_WORDS[@]}"; do
             printf -v "$2[i]" %s "${COMP_WORDS[i]}"
         done
     fi
@@ -653,7 +653,7 @@ _variables()
             TZ)
                 cur=/usr/share/zoneinfo/$cur
                 _filedir
-                for i in ${!COMPREPLY[@]}; do
+                for i in "${!COMPREPLY[@]}"; do
                     if [[ ${COMPREPLY[i]} == *.tab ]]; then
                         unset 'COMPREPLY[i]'
                         continue
@@ -929,7 +929,7 @@ _ip_addresses()
     local PATH=$PATH:/sbin
     local addrs=$({ LC_ALL=C ifconfig -a || ip addr show; } 2>/dev/null |
         command sed -e 's/[[:space:]]addr:/ /' -ne \
-            "s|.*inet$n[[:space:]]\{1,\}\([^[:space:]/]*\).*|\1|p")
+            "s|.*inet${n}[[:space:]]\{1,\}\([^[:space:]/]*\).*|\1|p")
     COMPREPLY+=( $(compgen -W "$addrs" -- "$cur") )
 }
 
@@ -1182,7 +1182,7 @@ _service()
 } &&
 complete -F _service service
 _sysvdirs
-for svcdir in ${sysvdirs[@]}; do
+for svcdir in "${sysvdirs[@]}"; do
     for svc in $svcdir/!($_backup_glob); do
         [[ -x $svc ]] && complete -F _service $svc
     done
@@ -1456,7 +1456,7 @@ _included_ssh_config_files()
     local configfile i f
     configfile=$1
     local included=( $(command sed -ne 's/^[[:blank:]]*[Ii][Nn][Cc][Ll][Uu][Dd][Ee][[:blank:]]\{1,\}\([^#%]*\)\(#.*\)\{0,1\}$/\1/p' "${configfile}") )
-    for i in ${included[@]}; do
+    for i in "${included[@]}"; do
         # Check the origin of $configfile to complete relative included paths on included
         # files according to ssh_config(5):
         #  "[...] Files without absolute paths are assumed to be in ~/.ssh if included in a user
@@ -1517,7 +1517,7 @@ _known_hosts_real()
         echo "bash_completion: $FUNCNAME: missing mandatory argument CWORD" >&2
     cur=${!OPTIND}; (( OPTIND += 1 ))
     [[ $# -ge $OPTIND ]] && \
-        echo "bash_completion: $FUNCNAME("$@"): unprocessed arguments:" \
+        echo "bash_completion: $FUNCNAME($*): unprocessed arguments:" \
     $(while [[ $# -ge $OPTIND ]]; do printf '%s\n' ${!OPTIND}; shift; done) >&2
 
     [[ $cur == *@* ]] && user=${cur%@*}@ && cur=${cur#*@}
@@ -1661,7 +1661,7 @@ _known_hosts_real()
         COMPREPLY=( "${COMPREPLY[@]/+([0-9]).+([0-9]).+([0-9]).+([0-9])$suffix/}" )
     fi
     if [[ $ipv4 || $ipv6 ]]; then
-        for i in ${!COMPREPLY[@]}; do
+        for i in "${!COMPREPLY[@]}"; do
             [[ ${COMPREPLY[i]} ]] || unset -v COMPREPLY[i]
         done
     fi
@@ -1962,7 +1962,7 @@ _install_xspec()
 {
     local xspec=$1 cmd
     shift
-    for cmd in $@; do
+    for cmd in "$@"; do
         _xspecs[$cmd]=$xspec
     done
 }
