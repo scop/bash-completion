@@ -23,3 +23,12 @@ class Test7z:
     @pytest.mark.complete("7z d a.7z ", cwd="7z")
     def test_5(self, completion):
         assert completion == "abc"
+
+    @pytest.mark.complete("7z a -air@", cwd="7z")
+    def test_6(self, completion):
+        assert completion == sorted("-air@a.7z -air@f.txt".split())
+
+    @pytest.mark.complete("7z a -o")
+    def test_7(self, completion):
+        assert "-o7z/" in completion
+        assert all(x.endswith("/") for x in completion)
