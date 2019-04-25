@@ -20,5 +20,7 @@ script:
     -e CI=true -e DIST=$DIST -e BSD=$BSD
     ${NETWORK:+--network $NETWORK}
     -t bash-completion:$DIST test/docker/docker-script.sh
-  - test $DIST != tools ||
-    test/run-shellcheck -f gcc bash_completion completions/!(Makefile*)
+  - if test $DIST = tools; then
+        test/run-shellcheck -f gcc bash_completion completions/!(Makefile*);
+        test/run-shellcheck -f gcc -s sh bash_completion.sh.in;
+    fi
