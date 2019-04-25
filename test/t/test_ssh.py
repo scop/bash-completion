@@ -19,3 +19,7 @@ class TestSsh:
         Assumes there's no "bash" known host.
         """
         assert "bash" not in completion
+
+    @pytest.mark.complete("ssh -vo AddressFamily=")
+    def test_4(self, completion):
+        assert completion
