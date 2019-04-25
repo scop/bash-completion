@@ -136,11 +136,11 @@ __gnu_tar_parse_help()
 __gtar_parse_warnings()
 {
     local line
-    while IFS= read line; do
+    LC_ALL=C tar --warning= 2>&1 | while IFS= read line; do
         if [[ $line =~ ^[[:blank:]]*-[[:blank:]]*[\`\']([a-zA-Z0-9-]+)\'$ ]]; then
             echo "${BASH_REMATCH[1]} no-${BASH_REMATCH[1]}"
         fi
-    done <<<"$(LC_ALL=C tar --warning= 2>&1)"
+    done
 }
 
 
@@ -694,7 +694,7 @@ _posix_tar()
 _tar()
 {
     local cmd=${COMP_WORDS[0]} func line
-    read line <<<"$($cmd --version 2>/dev/null)"
+    line="$($cmd --version 2>/dev/null)"
     case "$line" in
     *GNU*)
         func=_gtar
