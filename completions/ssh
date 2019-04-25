@@ -63,7 +63,12 @@ _ssh_options()
     fi
 
     compopt -o nospace
-    COMPREPLY=( $(compgen -S = -W '${opts[@]}' -- "$cur" ) )
+    local IFS=$' \t\n' reset=$(shopt -p nocasematch); shopt -s nocasematch
+    local option
+    COMPREPLY=( $(for option in "${opts[@]}"; do
+                      [[ $option == "$cur"* ]] && printf '%s=\n' "$option"
+                  done) )
+    $reset
 }
 
 # Complete a ssh suboption (like ForwardAgent=y<tab>)
@@ -76,85 +81,85 @@ _ssh_suboption()
     # Split into subopt and subval
     local prev=${1%%=*} cur=${1#*=}
 
-    case $prev in
-        BatchMode|CanonicalDomains|CanonicalizeFallbackLocal|\
-        ChallengeResponseAuthentication|CheckHostIP|\
-        ClearAllForwardings|ControlPersist|Compression|EnableSSHKeysign|\
-        ExitOnForwardFailure|ForwardAgent|ForwardX11|ForwardX11Trusted|\
-        GatewayPorts|GSSAPIAuthentication|GSSAPIKeyExchange|\
-        GSSAPIDelegateCredentials|GSSAPIRenewalForcesRekey|GSSAPITrustDns|\
-        HashKnownHosts|HostbasedAuthentication|IdentitiesOnly|\
-        KbdInteractiveAuthentication|KbdInteractiveDevices|\
-        NoHostAuthenticationForLocalhost|PasswordAuthentication|\
-        ProxyUseFdpass|PubkeyAuthentication|RhostsRSAAuthentication|\
-        RSAAuthentication|StrictHostKeyChecking|StreamLocalBindUnlink|\
-        TCPKeepAlive|UsePrivilegedPort|VerifyHostKeyDNS|VisualHostKey)
+    case ${prev,,} in
+        batchmode|canonicaldomains|canonicalizefallbacklocal|\
+        challengeresponseauthentication|checkhostip|\
+        clearallforwardings|controlpersist|compression|enablesshkeysign|\
+        exitonforwardfailure|forwardagent|forwardx11|forwardx11trusted|\
+        gatewayports|gssapiauthentication|gssapikeyexchange|\
+        gssapidelegatecredentials|gssapirenewalforcesrekey|gssapitrustdns|\
+        hashknownhosts|hostbasedauthentication|identitiesonly|\
+        kbdinteractiveauthentication|kbdinteractivedevices|\
+        nohostauthenticationforlocalhost|passwordauthentication|\
+        proxyusefdpass|pubkeyauthentication|rhostsrsaauthentication|\
+        rsaauthentication|stricthostkeychecking|streamlocalbindunlink|\
+        tcpkeepalive|useprivilegedport|verifyhostkeydns|visualhostkey)
             COMPREPLY=( $(compgen -W 'yes no' -- "$cur") )
             ;;
-        AddKeysToAgent)
+        addkeystoagent)
             COMPREPLY=( $(compgen -W 'yes ask confirm no' -- "$cur") )
             ;;
-        AddressFamily)
+        addressfamily)
             COMPREPLY=( $(compgen -W 'any inet inet6' -- "$cur") )
             ;;
-        BindAddress)
+        bindaddress)
             _ip_addresses
             ;;
-        CanonicalizeHostname)
+        canonicalizehostname)
             COMPREPLY=( $(compgen -W 'yes no always' -- "$cur") )
             ;;
-        *File|IdentityAgent|Include)
+        *file|identityagent|include)
             _filedir
             ;;
-        Cipher)
+        cipher)
             COMPREPLY=( $(compgen -W 'blowfish des 3des' -- "$cur") )
             ;;
-        Ciphers)
+        ciphers)
             _ssh_ciphers "$2"
             ;;
-        CompressionLevel)
+        compressionlevel)
             COMPREPLY=( $(compgen -W '{1..9}' -- "$cur") )
             ;;
-        FingerprintHash)
+        fingerprinthash)
             COMPREPLY=( $(compgen -W 'md5 sha256' -- "$cur") )
             ;;
-        IPQoS)
+        ipqos)
             COMPREPLY=( $(compgen -W 'af1{1..4} af2{2..3} af3{1..3} af4{1..3}
                 cs{0..7} ef lowdelay throughput reliability' -- "$cur") )
             ;;
-        HostbasedKeyTypes|HostKeyAlgorithms)
+        hostbasedkeytypes|hostkeyalgorithms)
             COMPREPLY=( $(compgen -W '$(_ssh_query "$2" key)' -- "$cur") )
             ;;
-        KexAlgorithms)
+        kexalgorithms)
             COMPREPLY=( $(compgen -W '$(_ssh_query "$2" kex)' -- "$cur") )
             ;;
-        MACs)
+        macs)
             _ssh_macs "$2"
             ;;
-        PreferredAuthentications)
+        preferredauthentications)
             COMPREPLY=( $(compgen -W 'gssapi-with-mic host-based publickey
                 keyboard-interactive password' -- "$cur") )
             ;;
-        Protocol)
+        protocol)
             COMPREPLY=( $(compgen -W '1 2 1,2 2,1' -- "$cur") )
             ;;
-        ProxyJump)
+        proxyjump)
             _known_hosts_real -a -F "$configfile" -- "$cur"
             ;;
-        PubkeyAcceptedKeyTypes)
+        pubkeyacceptedkeytypes)
             COMPREPLY=( $(compgen -W '$(_ssh_query "$2" key)' -- "$cur") )
             ;;
-        RequestTTY)
+        requesttty)
             COMPREPLY=( $(compgen -W 'no yes force auto' -- "$cur") )
             ;;
-        SyslogFacility)
+        syslogfacility)
             COMPREPLY=( $(compgen -W 'DAEMON USER AUTH LOCAL{0..7}' -- "$cur") )
             ;;
-        Tunnel)
+        tunnel)
             COMPREPLY=( $(compgen -W 'yes no point-to-point ethernet' \
                                   -- "$cur") )
             ;;
-        UpdateHostKeys)
+        updatehostkeys)
             COMPREPLY=( $(compgen -W 'yes no ask' -- "$cur") )
             ;;
     esac
