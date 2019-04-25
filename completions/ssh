@@ -141,7 +141,11 @@ _ssh_suboption()
                 keyboard-interactive password' -- "$cur") )
             ;;
         protocol)
-            COMPREPLY=( $(compgen -W '1 2 1,2 2,1' -- "$cur") )
+            local protocols=( $(_ssh_query "$2" protocol-version) )
+            [[ $protocols ]] || protocols=(1 2)
+            if [[ ${#protocols[@]} -gt 1 ]]; then
+                COMPREPLY=( $(compgen -W '${protocols[@]}' -- "$cur") )
+            fi
             ;;
         proxyjump)
             _known_hosts_real -a -F "$configfile" -- "$cur"
