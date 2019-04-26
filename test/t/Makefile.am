@@ -671,5 +671,10 @@ EXTRA_DIST = \
 
 all:
 
+PYTEST = pytest
+
+check-local:
+	$(PYTEST) $(PYTESTFLAGS) $(srcdir)
+
 clean-local:
 	$(RM) -R __pycache__
