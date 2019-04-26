@@ -25,7 +25,7 @@ env
 
 autoreconf -i
 ./configure
-make
+make -j
 
 make -C completions check
 
