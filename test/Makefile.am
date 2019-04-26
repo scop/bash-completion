@@ -13,6 +13,6 @@ all:
 	$(MKDIR_P) log tmp
 
 clean-local:
-	rm -rf log tmp
+	$(RM) -rf log tmp
 
 AUTOMAKE_OPTIONS = dejagnu
