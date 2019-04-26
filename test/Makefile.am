@@ -1,3 +1,4 @@
+AUTOMAKE_OPTIONS = dejagnu
 DEJATOOL = completion install unit
 AM_RUNTESTFLAGS = --outdir log --ignore $(PACKAGE).log
 
@@ -14,5 +15,3 @@ all:
 
 clean-local:
 	$(RM) -rf log tmp
-
-AUTOMAKE_OPTIONS = dejagnu
