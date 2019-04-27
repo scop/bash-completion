@@ -13,5 +13,8 @@ EXTRA_DIST = completion \
 all:
 	$(MKDIR_P) log tmp
 
+CLEANFILES = \
+	fixtures/make/extra_makefile
+
 clean-local:
 	$(RM) -rf log tmp
