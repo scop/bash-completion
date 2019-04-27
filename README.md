@@ -8,18 +8,18 @@ The easiest way to install this software is to use a package; it is
 available in many operating system distributions, some examples are listed
 below. The package's name is usually bash-completion.
 
-[![Alpine](https://img.shields.io/badge/Alpine-%28see%20website%29-brightgreen.svg)](https://pkgs.alpinelinux.org/packages?name=bash-completion)
+[![Alpine](https://img.shields.io/badge/Alpine-%28see%20website%29-lightgray.svg)](https://pkgs.alpinelinux.org/packages?name=bash-completion)
 [![Arch](https://img.shields.io/badge/dynamic/json.svg?uri=https%3A%2F%2Fwww.archlinux.org%2Fpackages%2Fextra%2Fany%2Fbash-completion%2Fjson%2F&query=%24.pkgver&label=Arch)](https://www.archlinux.org/packages/extra/any/bash-completion/)
-[![Cygwin](https://img.shields.io/badge/Cygwin-%28see%20website%29-brightgreen.svg)](https://cygwin.com/packages/x86/bash-completion/)
+[![Cygwin](https://img.shields.io/badge/Cygwin-%28see%20website%29-lightgray.svg)](https://cygwin.com/packages/x86/bash-completion/)
 [![Debian](https://img.shields.io/badge/dynamic/json.svg?uri=https%3A%2F%2Fapi.ftp-master.debian.org%2Fmadison%3Fpackage%3Dbash-completion%26f%3Djson%26s%3Dunstable&query=%24..source_version&label=Debian)](https://packages.debian.org/search?keywords=bash-completion&searchon=names&exact=1)
 [![Fedora](https://img.shields.io/badge/dynamic/json.svg?uri=https%3A%2F%2Fapps.fedoraproject.org%2Fmdapi%2Frawhide%2Fpkg%2Fbash-completion&query=%24.version&label=Fedora)](https://apps.fedoraproject.org/packages/bash-completion)
-[![FreshPorts](https://img.shields.io/badge/FreshPorts-%28see%20website%29-brightgreen.svg)](https://www.freshports.org/shells/bash-completion)
-[![Gentoo](https://img.shields.io/badge/Gentoo-%28see%20website%29-brightgreen.svg)](https://packages.gentoo.org/packages/app-shells/bash-completion)
+[![FreshPorts](https://img.shields.io/badge/FreshPorts-%28see%20website%29-lightgray.svg)](https://www.freshports.org/shells/bash-completion)
+[![Gentoo](https://img.shields.io/badge/Gentoo-%28see%20website%29-lightgray.svg)](https://packages.gentoo.org/packages/app-shells/bash-completion)
 [![Homebrew](https://img.shields.io/homebrew/v/bash-completion%402.svg)](http://formulae.brew.sh/formula/bash-completion%402)
-[![OpenCSW](https://img.shields.io/badge/OpenCSW-%28see%20website%29-brightgreen.svg)](https://www.opencsw.org/package/bash_completion/)
-[![openSUSE](https://img.shields.io/badge/openSUSE-%28see%20website%29-brightgreen.svg)](https://software.opensuse.org/package/bash-completion?baseproject=openSUSE%3AFactory)
-[![Slackware](https://img.shields.io/badge/Slackware-%28see%20website%29-brightgreen.svg)](https://packages.slackware.com/?search=bash-completion)
-[![Ubuntu](https://img.shields.io/badge/Ubuntu-%28see%20website%29-brightgreen.svg)](https://packages.ubuntu.com/search?keywords=bash-completion&searchon=names&exact=1)
+[![OpenCSW](https://img.shields.io/badge/OpenCSW-%28see%20website%29-lightgray.svg)](https://www.opencsw.org/package/bash_completion/)
+[![openSUSE](https://img.shields.io/badge/openSUSE-%28see%20website%29-lightgray.svg)](https://software.opensuse.org/package/bash-completion?baseproject=openSUSE%3AFactory)
+[![Slackware](https://img.shields.io/badge/Slackware-%28see%20website%29-lightgray.svg)](https://packages.slackware.com/?search=bash-completion)
+[![Ubuntu](https://img.shields.io/badge/Ubuntu-%28see%20website%29-lightgray.svg)](https://packages.ubuntu.com/search?keywords=bash-completion&searchon=names&exact=1)
 
 Depending on the package, you may still
 need to source it from either `/etc/bashrc` or `~/.bashrc` (or any
