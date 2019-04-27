@@ -10,6 +10,7 @@ below. The package's name is usually bash-completion.
 
 [![Alpine](https://img.shields.io/badge/Alpine-%28see%20website%29-brightgreen.svg)](https://pkgs.alpinelinux.org/packages?name=bash-completion)
 [![Arch](https://img.shields.io/badge/dynamic/json.svg?uri=https%3A%2F%2Fwww.archlinux.org%2Fpackages%2Fextra%2Fany%2Fbash-completion%2Fjson%2F&query=%24.pkgver&label=Arch)](https://www.archlinux.org/packages/extra/any/bash-completion/)
+[![Cygwin](https://img.shields.io/badge/Cygwin-%28see%20website%29-brightgreen.svg)](https://cygwin.com/packages/x86/bash-completion/)
 [![Debian](https://img.shields.io/badge/dynamic/json.svg?uri=https%3A%2F%2Fapi.ftp-master.debian.org%2Fmadison%3Fpackage%3Dbash-completion%26f%3Djson%26s%3Dunstable&query=%24..source_version&label=Debian)](https://packages.debian.org/search?keywords=bash-completion&searchon=names&exact=1)
 [![Fedora](https://img.shields.io/badge/dynamic/json.svg?uri=https%3A%2F%2Fapps.fedoraproject.org%2Fmdapi%2Frawhide%2Fpkg%2Fbash-completion&query=%24.version&label=Fedora)](https://apps.fedoraproject.org/packages/bash-completion)
 [![FreshPorts](https://img.shields.io/badge/FreshPorts-%28see%20website%29-brightgreen.svg)](https://www.freshports.org/shells/bash-completion)
