@@ -560,6 +560,7 @@ CLEANFILES = \
 	google-chrome-stable \
 	gpc \
 	gpgv2 \
+	gtar \
 	hciattach \
 	hciconfig \
 	hd \
@@ -1056,6 +1057,10 @@ symlinks: $(targetdir) $(DATA)
 	for file in sudoedit ; do \
 		rm -f $(targetdir)/$$file && \
 			$(LN_S) sudo $(targetdir)/$$file ; \
+	done
+	for file in bsdtar gtar star ; do \
+		rm -f $(targetdir)/$$file && \
+			$(LN_S) tar $(targetdir)/$$file ; \
 	done
 	for file in tracepath6 ; do \
 		rm -f $(targetdir)/$$file && \
