@@ -923,9 +923,9 @@ install-data-hook: ss = $(SETUP_SYMLINKS) $(DESTDIR)$(bashcompdir)
 install-data-hook: symlinks
 
 check-local:
-	ret=0 ; \
-	for file in $(bashcomp_DATA) ; do \
+	ret=0; \
+	for file in $(bashcomp_DATA); do \
 		$${bashcomp_bash:-$${BASH:-bash}} \
-			-O extglob -n $(srcdir)/$$file || ret=$$? ; \
-	done ; \
+			-O extglob -n $(srcdir)/$$file || ret=$$?; \
+	done; \
 	exit $$ret
