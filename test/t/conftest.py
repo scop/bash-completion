@@ -93,8 +93,6 @@ def bash(request) -> pexpect.spawn:
             PS1=PS1,
             INPUTRC="%s/config/inputrc" % testdir,
             TERM="dumb",
-            BASH_COMPLETION_COMPAT_DIR="%s/fixtures/shared/empty_dir"
-            % testdir,
             LC_COLLATE="C",  # to match Python's default locale unaware sort
         )
     )
