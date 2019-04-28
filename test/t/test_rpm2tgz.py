@@ -12,9 +12,9 @@ class TestRpm2tgz:
     def test_2(self, completion):
         expected = sorted(
             [
-                "%s/"
+                "%s/" % x
                 for x in os.listdir("slackware/home")
-                if os.path.isdir("shared/bin/%s" % x)
+                if os.path.isdir("slackware/home/%s" % x)
             ]
             + [
                 x
