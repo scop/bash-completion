@@ -29,7 +29,7 @@ CLEANFILES = bash_completion.sh bash-completion.pc \
 EXTRA_DIST = CHANGES $(pkgdata_DATA) bash_completion.sh.in .dir-locals.el \
 	.editorconfig README.md CONTRIBUTING.md pyproject.toml .perltidyrc \
 	.shellcheckrc bash-completion.pc.in bash-completion-config.cmake.in \
-	bash-completion-config-version.cmake.in
+	bash-completion-config-version.cmake.in setup-symlinks.sh
 
 install-data-hook:
 	tmpfile=`mktemp $${TMPDIR:-/tmp}/bash_completion.XXXXXX` && \
