@@ -2,10 +2,10 @@ proc setup {home user} {
     upvar $home _home
     upvar $user _user
     save_env
-    assert_bash_exec {echo "$HOME"} {} /@ _home
-    set _home [string trim $_home]
     assert_bash_exec {id -un 2>/dev/null || echo "$USER"} {} /@ _user
     set _user [string trim $_user]
+    assert_bash_exec {getent passwd $(id -un 2>/dev/null || echo "$USER") | cut -d: -f6} {} /@ _home
+    set _home [string trim $_home]
 }
 
 proc teardown {} {
