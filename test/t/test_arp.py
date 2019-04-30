@@ -1,11 +1,8 @@
 import pytest
 
-from conftest import in_docker
-
 
 class TestArp:
-    @pytest.mark.xfail(in_docker(), reason="Probably fails in docker")
-    @pytest.mark.complete("arp ")
+    @pytest.mark.complete("arp ", skipif='test -z "$(arp 2>/dev/null)"')
     def test_1(self, completion):
         assert completion
 
