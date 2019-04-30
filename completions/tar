@@ -398,7 +398,7 @@ __tar_extract_like_mode()
 
 __tar_try_list_archive()
 {
-    local tarball tarbin untar
+    local tarball tarbin untar i
 
     __tar_extract_like_mode || return 1
 
@@ -410,14 +410,19 @@ __tar_try_list_archive()
     untar="tf"
     shift
 
-    read tarball <<<"$(printf -- '%s\n' "$@" \
-        | command sed -n "/^.\{1,\}$regex\$/p")"
+    for i in "$@"; do
+        if [[ $i == *.$ext ]]; then
+            tarball=$i
+            break
+        fi
+    done
     if [[ -n "$tarball" ]]; then
         local IFS=$'\n'
         COMPREPLY=($(compgen -o filenames -W "$(
+            $tarbin $untar "$tarball" 2>/dev/null |
             while read line; do
                 printf "%q\n" "$(printf %q"\n" "$line")"
-            done <<<"$($tarbin $untar "$tarball" 2>/dev/null)"
+            done
         )" -- "$(printf "%q\n" "$cur")"))
         return 0
     fi
@@ -435,7 +440,6 @@ __tar_detect_ext()
 {
     local tars='@(@(tar|gem|spkg)?(.@(Z|[bgx]z|bz2|lz?(ma|o)|zst))|t@([abglx]z|b?(z)2|zst))'
     ext="$tars"
-    regex='\(\(tar\|gem\|spkg\)\(\.\(Z\|[bgx]z\|bz2\|lz\(ma\|o\)\?\|zst\)\)\?\|t\([abglx]z\|bz\?2\|zst\)\)'
 
     case "$tar_mode_arg" in
         --*)
@@ -456,15 +460,12 @@ __tar_detect_ext()
             ;;
         *[Zz]*f)
             ext='@(@(t?(ar.)|gem.|spkg.)@(gz|Z)|taz)'
-            regex='\(\(t\(ar\.\)\?\|gem\.\|spkg\.\)\(gz\|Z\)\|taz\)'
             ;;
         *[jy]*f)
             ext='@(@(t?(ar.)|gem.)bz?(2)|spkg|tb2)'
-            regex='\(\(t\(ar\.\)\?\|gem\.\)bz2\?\|spkg\|tb2\)'
             ;;
         *[J]*f)
             ext='@(@(tar|gem|spkg).@(lzma|xz)|t[lx]z)'
-            regex='\(\(tar\|gem\|spkg\)\.\(lzma\|xz\)\|t[lx]z\)'
             ;;
     esac
 }
@@ -499,7 +500,7 @@ _gtar()
 
     __tar_preparse_cmdline "${words[@]}"
 
-    local ext regex tar untar
+    local ext tar untar
 
     __tar_detect_ext
 
@@ -674,7 +675,7 @@ _posix_tar()
 
     __tar_preparse_cmdline "${words[@]}"
 
-    local ext regex tar untar
+    local ext tar untar
 
     __tar_detect_ext
 
