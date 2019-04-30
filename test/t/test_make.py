@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from conftest import in_docker
+from conftest import in_container
 
 
 class TestMake:
@@ -35,7 +35,7 @@ class TestMake:
         os.remove("%s/make/%s" % (bash.cwd, "extra_makefile"))
 
     @pytest.mark.xfail(
-        in_docker() and os.environ.get("DIST") == "centos6",
+        in_container() and os.environ.get("DIST") == "centos6",
         reason="Fails for some unknown reason on CentOS 6, "
         "even though the behavior appears to be correct",
     )

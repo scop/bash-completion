@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import assert_bash_exec, in_docker
+from conftest import assert_bash_exec, in_container
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+COMPREPLY=")
@@ -41,7 +41,7 @@ class TestUnitIpAddresses:
         assert completion
         assert all("." in x for x in completion)
 
-    @pytest.mark.xfail(in_docker(), reason="Probably fails in docker")
+    @pytest.mark.xfail(in_container(), reason="Probably fails in a container")
     @pytest.mark.complete("ia6 ")
     def test_4(self, functions, completion):
         """_ip_addresses -6 should complete ipv6 addresses."""

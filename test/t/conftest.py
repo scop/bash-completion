@@ -2,6 +2,7 @@ import difflib
 import os
 import re
 import shlex
+import subprocess
 from typing import Iterable, List, Optional, Tuple, Union
 
 import pexpect
@@ -442,8 +443,29 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
     return assert_complete(bash, marker.args[0], **marker.kwargs)
 
 
-def in_docker() -> bool:
-    return os.path.exists("/.dockerenv")
+def in_container() -> bool:
+    try:
+        container = subprocess.check_output(
+            "virt-what || systemd-detect-virt --container",
+            stderr=subprocess.DEVNULL,
+            shell=True,
+        ).strip()
+    except subprocess.CalledProcessError:
+        container = None
+    if container and container != b"none":
+        return True
+    if os.path.exists("/.dockerenv"):
+        return True
+    try:
+        with open("/proc/1/environ", "rb") as f:
+            # LXC, others?
+            if any(
+                x.startswith(b"container=") for x in f.readline().split(b"\0")
+            ):
+                return True
+    except OSError:
+        pass
+    return False
 
 
 class TestUnitBase:

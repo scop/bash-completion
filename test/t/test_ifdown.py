@@ -1,10 +1,10 @@
 import pytest
 
-from conftest import in_docker
+from conftest import in_container
 
 
 class TestIfdown:
-    @pytest.mark.xfail(in_docker(), reason="Probably fails in docker")
+    @pytest.mark.xfail(in_container(), reason="Probably fails in a container")
     @pytest.mark.complete("ifdown ")
     def test_1(self, completion):
         assert completion
