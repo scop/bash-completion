@@ -21,7 +21,7 @@ if [ "$BSD" ]; then
 fi
 
 case $DIST in
-    centos6|ubuntu14)
+    alpine|centos6|ubuntu14)
         : ${PYTEST:=/root/.local/bin/pytest}
         ;;
     *)
