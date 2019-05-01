@@ -12,8 +12,7 @@ class TestJq:
 
     @pytest.mark.complete(
         "jq -",
-        skipif="! (jq --help 2>&1 || :) | "
-        "command grep -qF 'options include'",
+        xfail="! (jq --help 2>&1 || :) | command grep -qF 'options include'",
     )
     def test_3(self, completion):
         assert completion

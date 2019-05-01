@@ -8,7 +8,7 @@ class TestChromiumBrowser:
         assert completion
 
     @pytest.mark.complete(
-        "chromium-browser -", skipif="! chromium-browser --help &>/dev/null"
+        "chromium-browser -", xfail="! chromium-browser --help &>/dev/null"
     )
     def test_2(self, completion):
         assert completion

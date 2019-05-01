@@ -11,7 +11,7 @@ class TestModprobe:
     # "in": intel*, ...
     @pytest.mark.complete(
         "modprobe in",
-        skipif="! ls /lib/modules/%s &>/dev/null"
+        xfail="! ls /lib/modules/%s &>/dev/null"
         % subprocess.check_output(
             "uname -r 2>/dev/null || " "echo non-existent-kernel", shell=True
         )

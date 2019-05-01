@@ -13,7 +13,7 @@ class TestScrub:
     # Not all scrub versions list available patterns in --help output
     @pytest.mark.complete(
         "scrub -p ",
-        skipif="! (scrub --help 2>&1 || :) | " "command grep -q ^Available",
+        xfail="! (scrub --help 2>&1 || :) | command grep -q ^Available",
     )
     def test_3(self, completion):
         assert completion

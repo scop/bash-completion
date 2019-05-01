@@ -131,7 +131,7 @@ def bash(request) -> pexpect.spawn:
         # Run pre-test commands, early so they're usable in skipif
         for pre_cmd in marker.kwargs.get("pre_cmds", []):
             assert_bash_exec(bash, pre_cmd)
-        # Process skip conditions
+        # Process skip and xfail conditions
         skipif = marker.kwargs.get("skipif")
         if skipif:
             try:
@@ -142,6 +142,14 @@ def bash(request) -> pexpect.spawn:
                 bash.close()
                 pytest.skip(skipif)
                 return
+        xfail = marker.kwargs.get("xfail")
+        if xfail:
+            try:
+                assert_bash_exec(bash, xfail)
+            except AssertionError:
+                pass
+            else:
+                pytest.xfail(xfail)
     if not cmd_found:
         match = re.search(
             r"^test_(.+)\.py$", os.path.basename(str(request.fspath))
@@ -370,6 +378,14 @@ def assert_complete(
         else:
             pytest.skip(skipif)
             return CompletionResult("", [])
+    xfail = kwargs.get("xfail")
+    if xfail:
+        try:
+            assert_bash_exec(bash, xfail)
+        except AssertionError:
+            pass
+        else:
+            pytest.xfail(xfail)
     cwd = kwargs.get("cwd")
     if cwd:
         assert_bash_exec(bash, "cd '%s'" % cwd)

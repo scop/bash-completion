@@ -2,7 +2,7 @@ import pytest
 
 
 class TestIconv:
-    @pytest.mark.complete("iconv -", skipif="! iconv --help &>/dev/null")
+    @pytest.mark.complete("iconv -", xfail="! iconv --help &>/dev/null")
     def test_1(self, completion):
         assert completion
 
