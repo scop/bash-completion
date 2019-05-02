@@ -3,4 +3,4 @@ FROM vskytta/bash-completion:$DIST
 
 WORKDIR /work
 COPY . .
-CMD ["bash"]
+CMD ["test/docker/docker-script.sh"]
