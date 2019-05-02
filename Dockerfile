@@ -9,6 +9,11 @@ RUN apk add --no-cache \
         python3 \
         xvfb \
         xz \
+    && wget -O - https://core.tcl.tk/tcllib/uv/tcllib-1.19.tar.xz | xz -dc | tar xC /tmp \
+    && cd /tmp/tcllib-* \
+    && ./configure --prefix=/usr \
+    && make install-libraries \
+    && cd - \
     && : no xvfb-run yet, https://bugs.alpinelinux.org/issues/9617 \
     && wget -O /usr/local/bin/xvfb-run https://sources.debian.org/data/main/x/xorg-server/2:1.20.4-1/debian/local/xvfb-run \
     && chmod +x /usr/local/bin/xvfb-run
