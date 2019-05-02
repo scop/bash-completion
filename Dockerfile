@@ -14,6 +14,8 @@ RUN apk add --no-cache \
     && ./configure --prefix=/usr \
     && make install-libraries \
     && cd - \
+    && : old test suite works with context diffs, n/a with busybox diff \
+    && apk add --no-cache diffutils \
     && : no xvfb-run yet, https://bugs.alpinelinux.org/issues/9617 \
     && wget -O /usr/local/bin/xvfb-run https://sources.debian.org/data/main/x/xorg-server/2:1.20.4-1/debian/local/xvfb-run \
     && chmod +x /usr/local/bin/xvfb-run
