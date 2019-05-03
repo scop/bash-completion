@@ -11,6 +11,7 @@ EXTRA_DIST = \
 	test_unit_longopt.py \
 	test_unit_parse_help.py \
 	test_unit_parse_usage.py \
+	test_unit_quote.py \
 	test_unit_tilde.py
 
 all:

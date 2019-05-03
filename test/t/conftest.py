@@ -215,7 +215,7 @@ def load_completion_for(bash: pexpect.spawn, cmd: str) -> bool:
 
 
 def assert_bash_exec(
-    bash: pexpect.spawn, cmd: str, want_output: bool = False
+    bash: pexpect.spawn, cmd: str, want_output: bool = False, want_newline=True
 ) -> str:
 
     # Send command
@@ -223,7 +223,7 @@ def assert_bash_exec(
     bash.expect_exact(cmd)
 
     # Find prompt, output is before it
-    bash.expect_exact("\r\n" + PS1)
+    bash.expect_exact("%s%s" % ("\r\n" if want_newline else "", PS1))
     output = bash.before
 
     # Retrieve exit status

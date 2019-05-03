@@ -87,6 +87,7 @@ EXTRA_DIST = \
 	test_clone_member.py \
 	test_co.py \
 	test_compare.py \
+	test_compgen.py \
 	test_complete.py \
 	test_composite.py \
 	test_config_list.py \
