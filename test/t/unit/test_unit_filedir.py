@@ -115,3 +115,11 @@ class TestUnitFiledir:
             bash, '%s "a&b/' % funcname, cwd="_filedir"
         )
         assert completion == "a&b/f"
+
+    @pytest.mark.complete(r"fd a\ ", cwd="_filedir")
+    def test_15(self, functions, completion):
+        assert completion == "a b/"
+
+    @pytest.mark.complete("g ", cwd="_filedir/ext")
+    def test_16(self, functions, completion):
+        assert completion == sorted("ee.e1 foo/ gg.e1 ii.E1".split())

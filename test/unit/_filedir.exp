@@ -1,6 +1,6 @@
 proc setup {} {
     assert_bash_exec {unset COMPREPLY cur}
-    assert_bash_exec {unset -f _f _fd}
+    assert_bash_exec {unset -f _f}
     save_env
     # Declare bash completion function `_f'
     assert_bash_exec { \
@@ -10,16 +10,6 @@ proc setup {} {
     # Declare bash completion function `_f2' with `-o filenames' active.
     assert_bash_exec { \
         complete -F _f -o filenames f2 \
-    }
-    # Declare bash completion function `_g' to complete on `.e1' files
-    assert_bash_exec { \
-        _g() { local cur=$(_get_cword); unset COMPREPLY; _filedir e1; }; \
-        complete -F _g g \
-    }
-    # Declare bash completion function `_fd' to complete on dirs
-    assert_bash_exec { \
-        _fd() { local cur=$(_get_cword); unset COMPREPLY; _filedir -d; }; \
-        complete -F _fd fd \
     }
     # Create directories `a"b', `a*b', and `a\b' only when not running on
     # Cygwin/Windows (`"', `*', or `\' aren't allowed in filenames there)
@@ -41,8 +31,8 @@ proc teardown {} {
         assert_bash_exec {(cd $TESTDIR/tmp && rm -- a\*b/j && rmdir a\*b/ || true)}
     }
     assert_bash_exec {unset COMPREPLY cur}
-    assert_bash_exec {unset -f _f _g _fd}
-    assert_bash_exec {complete -r f g fd}
+    assert_bash_exec {unset -f _f}
+    assert_bash_exec {complete -r f}
     assert_env_unmodified {
         /OLDPWD/d
         /OLD_CTYPE/d
@@ -114,10 +104,6 @@ foreach name {f f2} {
 
 }; # foreach
 
-set test "completing with filter '.e1' should show completions"
-assert_complete_dir {ee.e1 foo/ gg.e1 ii.E1} "g " "$::srcdir/fixtures/_filedir/ext" $test
-sync_after_int
-
 set test "completing f aé should return g"
 # Execute this test only with LC_CTYPE matching *UTF-8*
 # See also: http://www.mail-archive.com/bash-completion-devel\
@@ -132,11 +118,6 @@ if {
 } else {
     unsupported "$test"
 }
-sync_after_int
-
-set test "completing fd a\\  should return a\\ b/"
-set cmd "fd a\\ "
-assert_complete_dir "a\\ b/" $cmd "$::srcdir/fixtures/_filedir" $test -nospace
 sync_after_int
 
 
