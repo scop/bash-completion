@@ -34,6 +34,7 @@ EXTRA_DIST = \
 	test_autoreconf.py \
 	test_autorpm.py \
 	test_autoscan.py \
+	test_autossh.py \
 	test_autoupdate.py \
 	test_avctrl.py \
 	test_awk.py \
