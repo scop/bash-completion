@@ -20,7 +20,7 @@ class TestUnitFiledir:
         )
         assert_bash_exec(
             bash,
-            "_fd() { local cur=$(_get_cword); unset COMPREPLY; _filedir -d; }; "
+            "_fd() { local cur=$(_get_cword); unset COMPREPLY; _filedir -d; };"
             "complete -F _fd fd",
         )
 
