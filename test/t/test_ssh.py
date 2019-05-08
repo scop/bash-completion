@@ -28,3 +28,7 @@ class TestSsh:
     @pytest.mark.complete("ssh -vo userknownhostsf")
     def test_5(self, completion):
         assert "UserKnownHostsFile=" in completion
+
+    @pytest.mark.complete("ssh -")
+    def test_6(self, completion):
+        assert completion
