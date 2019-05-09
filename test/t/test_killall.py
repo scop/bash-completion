@@ -15,3 +15,7 @@ class TestKillall:
     @pytest.mark.complete("killall ")
     def test_3(self, completion):
         assert "command=" not in completion
+
+    @pytest.mark.complete("killall -")
+    def test_4(self, completion):
+        assert completion

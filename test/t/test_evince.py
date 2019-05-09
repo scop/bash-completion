@@ -16,3 +16,7 @@ class TestEvince:
             ".ps.bz2 .ps.BZ2 .PS.bz2 .PS.BZ2 .ps.gz .ps.GZ .PS.gz .PS.GZ "
             ".tga .TGA .tif .TIF .tiff .TIFF .xpm .XPM .xwd .XWD".split()
         )
+
+    @pytest.mark.complete("evince -")
+    def test_2(self, completion):
+        assert completion

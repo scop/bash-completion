@@ -106,3 +106,7 @@ class TestMan:
     )
     def test_10(self, bash, colonpath, completion):
         assert completion == "Bash::Completion"
+
+    @pytest.mark.complete("man -")
+    def test_11(self, completion):
+        assert completion

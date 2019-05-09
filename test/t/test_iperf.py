@@ -18,3 +18,7 @@ class TestIperf:
     @pytest.mark.complete("iperf --server --")
     def test_4(self, completion):
         assert "--daemon" in completion
+
+    @pytest.mark.complete("iperf -")
+    def test_5(self, completion):
+        assert completion
