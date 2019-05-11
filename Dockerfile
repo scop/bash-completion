@@ -25,7 +25,12 @@ ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Ma
     /tmp/
 
 RUN easy_install-3.4 --user pip \
-    && /root/.local/bin/pip install --user -Ir /tmp/requirements.txt
+    && /root/.local/bin/pip install \
+       --target /opt/bash-completion-test -Ir /tmp/requirements.txt \
+    && echo 'PATH="/opt/bash-completion-test/bin:$PATH"; export PATH' \
+       > /etc/profile.d/bash-completion-test.sh \
+    && echo 'PYTHONPATH=/opt/bash-completion-test; export PYTHONPATH' \
+       >> /etc/profile.d/bash-completion-test.sh
 
 RUN /tmp/install-packages.sh \
     && yum -Cy clean all \
