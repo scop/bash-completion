@@ -6,6 +6,9 @@ class TestPwdx:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("pwdx -")
+    @pytest.mark.complete(
+        "pwdx -",
+        xfail="! (pwdx --help 2>&1 || :) | command grep -q -- '[[:space:]]-'",
+    )
     def test_2(self, completion):
         assert completion

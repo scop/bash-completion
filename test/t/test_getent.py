@@ -6,6 +6,12 @@ class TestGetent:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("getent -")
+    @pytest.mark.complete(
+        "getent -",
+        xfail=(
+            "! (getent --help 2>&1 || :) | "
+            "command grep -q -- '[[:space:]]-'"
+        ),
+    )
     def test_2(self, completion):
         assert completion
