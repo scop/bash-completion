@@ -8,6 +8,7 @@ EXTRA_DIST = completion \
 	     config \
 	     fixtures \
 	     lib \
+	     setup.cfg \
 	     unit
 
 all:
