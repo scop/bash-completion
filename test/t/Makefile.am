@@ -673,7 +673,7 @@ EXTRA_DIST = \
 
 all:
 
-PYTEST = pytest
+PYTEST = @PYTEST@
 
 check-local:
 	$(PYTEST) $(PYTESTFLAGS) $(srcdir)
