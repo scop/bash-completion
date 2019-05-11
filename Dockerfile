@@ -29,7 +29,11 @@ ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Ma
     install-packages.sh \
     /tmp/
 
-RUN pip3 install --user -Ir /tmp/requirements.txt
+RUN pip3 install --target /opt/bash-completion-test -Ir /tmp/requirements.txt \
+    && echo 'PATH="/opt/bash-completion-test/bin:$PATH"; export PATH' \
+       > /etc/profile.d/bash-completion-test.sh \
+    && echo 'PYTHONPATH=/opt/bash-completion-test; export PYTHONPATH' \
+       >> /etc/profile.d/bash-completion-test.sh
 
 RUN /tmp/install-packages.sh \
     && rm -r /tmp/* /root/.cache/pip
