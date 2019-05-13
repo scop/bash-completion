@@ -8,7 +8,11 @@ class TestPwdx:
 
     @pytest.mark.complete(
         "pwdx -",
-        xfail="! (pwdx --help 2>&1 || :) | command grep -q -- '[[:space:]]-'",
+        xfail=(
+            "! (pwdx --help 2>&1 || :) | "
+            "command grep -vF 'invalid process id: --help' | "
+            "command grep -q -- '[[:space:]]-'"
+        ),
     )
     def test_2(self, completion):
         assert completion
