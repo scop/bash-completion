@@ -577,6 +577,7 @@ _filedir()
 
     local -a toks
     local reset arg=${1-}
+    local newest=0
 
     if [[ $arg == -d ]]; then
         reset=$(shopt -po noglob)
@@ -587,6 +588,10 @@ _filedir()
         IFS=$'\n'
     else
         local quoted
+        if [[ "$cur" = "?" ]] || [[ "${cur: -2}" = "/?" ]]; then
+            cur="${cur:0:-1}"
+            newest=1
+        fi
         _quote_readline_by_ref "${cur-}" quoted
 
         # Munge xspec to contain uppercase version too
@@ -624,7 +629,12 @@ _filedir()
     if ((${#toks[@]} != 0)); then
         # 2>/dev/null for direct invocation, e.g. in the _filedir unit test
         compopt -o filenames 2>/dev/null
-        COMPREPLY+=("${toks[@]}")
+        if [[ $newest -eq 1 ]]; then
+            newest=$(bash -c "ls -tr $cur | tail -n 1")
+            COMPREPLY+=("$cur$newest")
+        else
+            COMPREPLY+=("${toks[@]}")
+        fi
     fi
 } # _filedir()
 
