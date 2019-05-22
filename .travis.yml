@@ -6,6 +6,7 @@ services:
   - docker
 
 env:
+  - DIST=alpine
   - DIST=centos6
   - DIST=fedoradev
   - DIST=ubuntu14
@@ -13,12 +14,32 @@ env:
   - DIST=tools
 
 before_install:
-  - docker build -t bash-completion:$DIST -f test/docker/Dockerfile-$DIST .
+  - docker build
+    --build-arg DIST=$DIST -t bash-completion:$DIST -f test/docker/Dockerfile .
 
 script:
-  - docker run
-    -e CI=true -e DIST=$DIST -e BSD=$BSD
-    ${NETWORK:+--network $NETWORK}
-    -t bash-completion:$DIST test/docker/docker-script.sh
-  - test $DIST = tools &&
-    test/run-shellcheck -f gcc bash_completion completions/!(Makefile*) || true
+  - docker run --name bash-completion
+      -e CI=true -e DIST=$DIST -e BSD=$BSD
+      ${NETWORK:+--network $NETWORK}
+      -t bash-completion:$DIST
+  - if test $DIST = tools; then
+      test/run-shellcheck -f gcc bash_completion completions/!(Makefile*);
+      test/run-shellcheck -f gcc -s sh bash_completion.sh.in;
+    fi
+
+before_deploy:
+  - docker start bash-completion
+  - docker exec bash-completion
+      sh -c "tar c bash-completion-$TRAVIS_TAG.tar.*" | tar xv
+  - docker kill bash-completion
+
+deploy:
+  provider: releases
+  api_key:
+    secure: MoK9nzmS6CBzPPIrhC0Ch6hIB3zEzLqZE6k4axoCyz/wmJFLJgX9OCq5K8zS4Jv8NuaA2C1YTcr+m56IO9N0RTmIWrS4q40fLIhKlYv6255u+wXMkGfqXbiFAZG5yndhUo8NE6QXAtixd3nQ/3/MOt2PdsOn+OdxTDmcPSXaW/ltkd/fMHynWzupdyRJ1v46IofPBrjsC1pTzW0iVqVHz64Ix3kPVjjPR9BMHzgKMJ8sPWBGZtF2ovjwsTHYPSpEyytVRecqrmEjM6QBCgfhQDqH87jOw6Y81xh1fWDCoxaZw7HlEcQ+HeHOkDdA24AYaxVoYXrKdIDXUXWt8w674Po7UWB6kIUn3J59Xaw60Sp4VaN88Y2eX9UKRcoDRHLWc8HKt4f9AUDR9YpFF08N+gKRmJFt9mCxqeJ+pyYD/coHGkGb8XvewTKihCSuH/qCWjM8XqM493DLDlJ5aELgMEcJXPXX4TmjsriOeErTY1qxRTRHJPmfUJ/kHtmpE+DxNXpwZOnyG+VoO5aEaIKbzHxX9QzWyyEhTflupdatZ2JFt1pmVDpwH9zcEifBwE0cUwhXk+LJuxHd5ePIIpvepAAnXKaxlYwchj4cFaJp7S9GZoAQughgQQkyfz0qr3J6hBhg360QAq4yjPOWjGgGz4iAG8kWd3MVXLvL+TtfBeY=
+  file: bash-completion-$TRAVIS_TAG.tar.xz
+  skip_cleanup: true
+  on:
+    repo: scop/bash-completion
+    condition: $DIST = fedoradev
+    tags: true

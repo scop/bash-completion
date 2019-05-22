@@ -4,8 +4,39 @@ Contributions to the bash completion project are more than
 welcome. Fixes, clean-ups and improvements of existing code are much
 appreciated, as are completion functions for new commands.
 
-If you wish to contribute code, please bare the following coding
-guidelines in mind:
+However, before submitting a completion to us, first consider submitting it to
+the project that ships the commands your completion is for. Having the
+completion shipped along with the command opens up some liberties we don't have
+if the completion is included with bash-completion. For example, we generally
+do not want to hardcode lists of available command options and their
+completions, because they quite probably vary between versions of the completed
+command, and therefore resort to scraping --help output and the like. While we
+do fairly well there, depending on the command, this can be fragile or
+expensive, or just not possible. If the completion is shipped alongside the
+command, they can be kept in sync and use more hardcoding etc. They are also
+more likely to be maintained and/or watched by people intimately familiar with
+the completed commands. See instructions in README.md how to install completion
+files from other projects so they are automatically enabled and dynamically
+loaded by bash-completion.
+
+On the other hand, we do have a pretty nice test suite and a bunch of helper
+functions that you may find useful. And a whole slew of completions in one
+package. Our functions can be used from "external" completions as well, just
+make sure you test for their existence and/or fail gracefully if you intend
+your completion to be usable without having bash-completion installed.
+
+It's nowhere near clear cut always what is the best place for the completion,
+upstream project or us. Even if it would seem to be upstream, not all upstreams
+are interested in shipping completions, or their install systems might not
+easily support installing completion files properly. But give it some thought,
+and ask if unsure.
+
+If you wish to contribute code to us, volunteering for long term maintainership
+of your code within bash-completion is welcome. When exactly you will be asked
+to do that depends on the case; don't be disappointed if it does or doesn't
+happen instantly.
+
+Also, please bare the following coding guidelines in mind:
 
 - Do not use Perl, Ruby, Python etc. to do text processing unless the
   command for which you are writing the completion code implies the
@@ -136,6 +167,10 @@ guidelines in mind:
   you send it to us. If at all practical, **add test cases** to our
   test suite (in the test/ dir) that verify that the code does what it
   is intended to do, fixes issues it intends to fix, etc.
+
+- In addition to running the test suite, there are a few scripts in the test/
+  dir that catch some common issues, see and use for example runLint and
+  run-shellcheck.
 
 - File bugs, enhancement, and pull requests at GitHub,
   https://github.com/scop/bash-completion or send them to the email

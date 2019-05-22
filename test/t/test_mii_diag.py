@@ -6,3 +6,7 @@ class TestMiiDiag:
     @pytest.mark.complete("mii-diag ")
     def test_1(self, completion):
         assert completion
+
+    @pytest.mark.complete("mii-diag -")
+    def test_2(self, completion):
+        assert completion

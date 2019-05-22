@@ -2,6 +2,7 @@ import difflib
 import os
 import re
 import shlex
+import subprocess
 from typing import Iterable, List, Optional, Tuple, Union
 
 import pexpect
@@ -93,8 +94,6 @@ def bash(request) -> pexpect.spawn:
             PS1=PS1,
             INPUTRC="%s/config/inputrc" % testdir,
             TERM="dumb",
-            BASH_COMPLETION_COMPAT_DIR="%s/fixtures/shared/empty_dir"
-            % testdir,
             LC_COLLATE="C",  # to match Python's default locale unaware sort
         )
     )
@@ -132,7 +131,7 @@ def bash(request) -> pexpect.spawn:
         # Run pre-test commands, early so they're usable in skipif
         for pre_cmd in marker.kwargs.get("pre_cmds", []):
             assert_bash_exec(bash, pre_cmd)
-        # Process skip conditions
+        # Process skip and xfail conditions
         skipif = marker.kwargs.get("skipif")
         if skipif:
             try:
@@ -143,6 +142,14 @@ def bash(request) -> pexpect.spawn:
                 bash.close()
                 pytest.skip(skipif)
                 return
+        xfail = marker.kwargs.get("xfail")
+        if xfail:
+            try:
+                assert_bash_exec(bash, xfail)
+            except AssertionError:
+                pass
+            else:
+                pytest.xfail(xfail)
     if not cmd_found:
         match = re.search(
             r"^test_(.+)\.py$", os.path.basename(str(request.fspath))
@@ -208,7 +215,7 @@ def load_completion_for(bash: pexpect.spawn, cmd: str) -> bool:
 
 
 def assert_bash_exec(
-    bash: pexpect.spawn, cmd: str, want_output: bool = False
+    bash: pexpect.spawn, cmd: str, want_output: bool = False, want_newline=True
 ) -> str:
 
     # Send command
@@ -216,7 +223,7 @@ def assert_bash_exec(
     bash.expect_exact(cmd)
 
     # Find prompt, output is before it
-    bash.expect_exact("\r\n" + PS1)
+    bash.expect_exact("%s%s" % ("\r\n" if want_newline else "", PS1))
     output = bash.before
 
     # Retrieve exit status
@@ -371,6 +378,14 @@ def assert_complete(
         else:
             pytest.skip(skipif)
             return CompletionResult("", [])
+    xfail = kwargs.get("xfail")
+    if xfail:
+        try:
+            assert_bash_exec(bash, xfail)
+        except AssertionError:
+            pass
+        else:
+            pytest.xfail(xfail)
     cwd = kwargs.get("cwd")
     if cwd:
         assert_bash_exec(bash, "cd '%s'" % cwd)
@@ -444,8 +459,29 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
     return assert_complete(bash, marker.args[0], **marker.kwargs)
 
 
-def in_docker() -> bool:
-    return os.path.exists("/.dockerenv")
+def in_container() -> bool:
+    try:
+        container = subprocess.check_output(
+            "virt-what || systemd-detect-virt --container",
+            stderr=subprocess.DEVNULL,
+            shell=True,
+        ).strip()
+    except subprocess.CalledProcessError:
+        container = None
+    if container and container != b"none":
+        return True
+    if os.path.exists("/.dockerenv"):
+        return True
+    try:
+        with open("/proc/1/environ", "rb") as f:
+            # LXC, others?
+            if any(
+                x.startswith(b"container=") for x in f.readline().split(b"\0")
+            ):
+                return True
+    except OSError:
+        pass
+    return False
 
 
 class TestUnitBase:

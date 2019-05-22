@@ -23,7 +23,7 @@
 #
 #   https://github.com/scop/bash-completion
 
-BASH_COMPLETION_VERSINFO=(2 8)
+BASH_COMPLETION_VERSINFO=(2 9)
 
 if [[ $- == *v* ]]; then
     BASH_COMPLETION_ORIGINAL_V_VALUE="-v"
@@ -687,7 +687,7 @@ _variables()
 #
 _init_completion()
 {
-    local exclude= flag outx errx inx OPTIND=1
+    local exclude="" flag outx errx inx OPTIND=1
 
     while getopts "n:e:o:i:s" flag "$@"; do
         case $flag in
@@ -761,8 +761,7 @@ __parse_options()
 
     # Take first found long option, or first one (short) if not found.
     option=
-    local -a array
-    read -a array <<<"$1"
+    local -a array=( $1 )
     for i in "${array[@]}"; do
         case "$i" in
             ---*) break ;;
@@ -1070,23 +1069,46 @@ _pnames()
 } ||
 _pnames()
 {
+    local -a procs
     if [[ "$1" == -s ]]; then
-        COMPREPLY=( $(compgen -X '<defunct>' \
-            -W '$(command ps axo comm | command sed -e 1d)' -- "$cur") )
+        procs=( $(command ps axo comm | command sed -e 1d) )
     else
-        # FIXME: completes "[kblockd/0]" to "0". Previously it was completed
-        # to "kblockd" which isn't correct either. "kblockd/0" would be
-        # arguably most correct, but killall from psmisc 22 treats arguments
-        # containing "/" specially unless -r is given so that wouldn't quite
-        # work either. Perhaps it'd be best to not complete these to anything
-        # for now.
-        COMPREPLY=( $(compgen -X '<defunct>' -W '$(command ps axo command= | command sed -e \
-            "s/ .*//" -e \
-            "s:.*/::" -e \
-            "s/:$//" -e \
-            "s/^[[(-]//" -e \
-            "s/[])]$//" | sort -u)' -- "$cur") )
+        local line i=-1 OIFS=$IFS
+        IFS=$'\n'
+        local -a psout=( $(command ps axo command=) )
+        IFS=$OIFS
+        for line in "${psout[@]}"; do
+            if [[ $i -eq -1 ]]; then
+                # First line, see if it has COMMAND column header. For example
+                # the busybox ps does that, i.e. doesn't respect axo command=
+                if [[ $line =~ ^(.*[[:space:]])COMMAND([[:space:]]|$) ]]; then
+                    # It does; store its index.
+                    i=${#BASH_REMATCH[1]}
+                else
+                    # Nope, fall through to "regular axo command=" parsing.
+                    break
+                fi
+            else
+                #
+                line=${line:$i}   # take command starting from found index
+                line=${line%% *}  # trim arguments
+                procs+=( $line )
+            fi
+        done
+        if [[ $i -eq -1 ]]; then
+            # Regular axo command= parsing
+            for line in "${psout[@]}"; do
+                if [[ $line =~ ^[[(](.+)[])]$ ]]; then
+                    procs+=( ${BASH_REMATCH[1]} )
+                else
+                    line=${line%% *}       # trim arguments
+                    line=${line##@(*/|-)}  # trim leading path and -
+                    procs+=( $line )
+                fi
+            done
+        fi
     fi
+    COMPREPLY=( $(compgen -X "<defunct>" -W '${procs[@]}' -- "$cur" ) )
 }
 
 # This function completes on user IDs
@@ -1829,8 +1851,8 @@ _command_offset()
         fi
     fi
 }
-complete -F _command aoss command do else eval exec ltrace nice nohup padsp \
-    then time tsocks vsound xargs
+complete -F _command aoss command "do" else eval exec ltrace nice nohup padsp \
+    "then" time tsocks vsound xargs
 
 _root_command()
 {

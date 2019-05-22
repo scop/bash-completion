@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from conftest import in_docker
+from conftest import in_container
 
 
 class TestMake:
@@ -35,7 +35,7 @@ class TestMake:
         os.remove("%s/make/%s" % (bash.cwd, "extra_makefile"))
 
     @pytest.mark.xfail(
-        in_docker() and os.environ.get("DIST") == "centos6",
+        in_container() and os.environ.get("DIST") == "centos6",
         reason="Fails for some unknown reason on CentOS 6, "
         "even though the behavior appears to be correct",
     )
@@ -43,3 +43,12 @@ class TestMake:
     def test_7(self, bash, completion):
         assert completion == ".1 .2".split()
         os.remove("%s/make/%s" % (bash.cwd, "extra_makefile"))
+
+    @pytest.mark.complete("make -C make ")
+    def test_8(self, bash, completion):
+        assert completion == "all clean extra_makefile install sample".split()
+        os.remove("%s/make/%s" % (bash.cwd, "extra_makefile"))
+
+    @pytest.mark.complete("make -")
+    def test_9(self, completion):
+        assert completion

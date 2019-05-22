@@ -20,3 +20,7 @@ class TestXz:
     @pytest.mark.complete("xz ~")
     def test_4(self, completion):
         assert completion
+
+    @pytest.mark.complete("xz -")
+    def test_5(self, completion):
+        assert completion

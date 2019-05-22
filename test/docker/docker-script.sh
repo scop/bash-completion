@@ -20,17 +20,8 @@ if [ "$BSD" ]; then
     export PATH
 fi
 
-export bashcomp_bash=bash
-env
-
-autoreconf -i
-./configure
-make
-
-make -C completions check
-
 case $DIST in
-    centos6|ubuntu14)
+    alpine|centos6|ubuntu14)
         : ${PYTEST:=/root/.local/bin/pytest}
         ;;
     *)
@@ -38,12 +29,14 @@ case $DIST in
         ;;
 esac
 
-cd test
-xvfb-run $PYTEST --numprocesses=${PYTEST_NUMPROCESSES:-auto} --dist=loadfile t
-xvfb-run ./runCompletion --all --verbose
-./runInstall --verbose --all --verbose
-./runUnit --all --verbose
+export bashcomp_bash=bash
+env
 
-cd ..
-mkdir install-test
-make install DESTDIR=$(pwd)/install-test
+autoreconf -i
+./configure
+make -j
+
+xvfb-run make distcheck \
+    PYTEST=$PYTEST \
+    PYTESTFLAGS="--numprocesses=auto --dist=loadfile" \
+    RUNTESTFLAGS="--all --verbose"

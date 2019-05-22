@@ -52,26 +52,24 @@ complete -F _tightvncviewer tightvncviewer
 
 # NOTE: - VNC Viewer options are case insensitive.
 #         Preferred case is taken from -help.
-#       - Both single dash (-) and double dash (--) are allowed as option prefix
 _xvnc4viewer()
 {
     local cur prev words cword
     _init_completion || return
 
-    # Convert double dash to single dash
-    case ${prev/#--/-} in
+    # Both single dash (-) and double dash (--) are allowed as option prefix
+    local opt=${prev/#--/-}
+    case ${opt,,} in
         # -passwd, -PasswordFile
-        -[pP][aA][sS][sS][wW][dD]|-[pP][aA][sS][sS][wW][oO][rR][dD][fF][iI][lL][eE])
+        -passwd|-passwordfile)
             _filedir
             return
             ;;
-        # -PreferredEncoding
-        -[pP][rR][eE][fF][eE][rR][rR][eE][dD][eE][nN][cC][oO][dD][iI][nN][gG])
+        -preferredencoding)
             COMPREPLY=( $(compgen -W 'zrle hextile raw' -- "$cur") )
             return
             ;;
-        # -via
-        -[vV][iI][aA])
+        -via)
             _known_hosts_real -- "$cur"
             return
             ;;

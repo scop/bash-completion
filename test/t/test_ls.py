@@ -8,7 +8,7 @@ from conftest import (
 
 
 class TestLs:
-    @pytest.mark.complete("ls --", skipif="! ls --help &>/dev/null")
+    @pytest.mark.complete("ls --", xfail="! ls --help &>/dev/null")
     def test_1(self, completion):
         assert completion
 

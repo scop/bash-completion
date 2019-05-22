@@ -65,10 +65,9 @@ _tipc_link() {
         # awk drops link state and last trailing :
         local links=$(tipc link list 2>/dev/null | \
             awk '{print substr($1, 0, length($1))}')
-        if [[ $filter == "peers" ]]; then
-            links=$(command sed '/broadcast-link/d' <<<"$links")
-        fi
-        COMPREPLY=( $(compgen -W '$links' -- $cur) )
+        local -a exclude
+        [[ $filter == peers ]] && exclude=( -X broadcast-link )
+        COMPREPLY=( $(compgen "${exclude[@]}" -W '$links' -- $cur) )
     fi
 }
 

@@ -14,3 +14,7 @@ class TestCvs:
     @pytest.mark.complete("cvs diff foo/", cwd="cvs")
     def test_3(self, completion):
         assert completion == "foo/bar"
+
+    @pytest.mark.complete("cvs -")
+    def test_4(self, completion):
+        assert completion

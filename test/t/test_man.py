@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from conftest import assert_bash_exec, in_docker
+from conftest import assert_bash_exec, in_container
 
 
 @pytest.mark.bashcomp(ignore_env=r"^[+-]MANPATH=")
@@ -43,7 +43,7 @@ class TestMan:
         assert completion == "man/quux.8"
 
     @pytest.mark.xfail(
-        in_docker() and os.environ.get("DIST") == "centos6",
+        in_container() and os.environ.get("DIST") == "centos6",
         reason="TODO: Fails in CentOS for some reason, unknown "
         "how to trigger same behavior as tests show (is "
         "different and correct when tried manually, but here "
@@ -106,3 +106,7 @@ class TestMan:
     )
     def test_10(self, bash, colonpath, completion):
         assert completion == "Bash::Completion"
+
+    @pytest.mark.complete("man -")
+    def test_11(self, completion):
+        assert completion

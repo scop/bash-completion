@@ -34,6 +34,7 @@ EXTRA_DIST = \
 	test_autoreconf.py \
 	test_autorpm.py \
 	test_autoscan.py \
+	test_autossh.py \
 	test_autoupdate.py \
 	test_avctrl.py \
 	test_awk.py \
@@ -87,6 +88,7 @@ EXTRA_DIST = \
 	test_clone_member.py \
 	test_co.py \
 	test_compare.py \
+	test_compgen.py \
 	test_complete.py \
 	test_composite.py \
 	test_config_list.py \
@@ -670,6 +672,11 @@ EXTRA_DIST = \
 	test_zopflipng.py
 
 all:
+
+PYTEST = @PYTEST@
+
+check-local:
+	$(PYTEST) $(PYTESTFLAGS) $(srcdir)
 
 clean-local:
 	$(RM) -R __pycache__

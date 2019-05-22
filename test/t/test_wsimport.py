@@ -5,3 +5,13 @@ class TestWsimport:
     @pytest.mark.complete("wsimport ")
     def test_1(self, completion):
         assert completion
+
+    @pytest.mark.complete(
+        "wsimport -",
+        xfail=(
+            "! (wsimport -help 2>&1 || :) | "
+            "command grep -q -- '[[:space:]]-'"
+        ),
+    )
+    def test_2(self, completion):
+        assert completion

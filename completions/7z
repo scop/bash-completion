@@ -29,11 +29,9 @@ _7z()
                 COMPREPLY=( $(compgen -P$opt -W '@ ! r@ r-@ r0@ r! r-! r0!' \
                     -- "$cur") )
             elif [[ $cur == ?(r@(-|0|))@* ]]; then
-                local x tmp
-                x=$(compgen -P"${opt}${cur%%@*}@" -f -- "${cur#*@}") &&
-                while read -r tmp; do
-                    COMPREPLY+=( "$tmp" )
-                done <<<"$x"
+                local IFS=$' \t\n' reset=$(shopt -po noglob); set -o noglob
+                COMPREPLY=( $(compgen -P"${opt}${cur%%@*}@" -f -- "${cur#*@}") )
+                $reset
                 compopt -o filenames
             fi
             return
@@ -47,11 +45,9 @@ _7z()
             return
             ;;
         -o*|-w?*)
-            local x tmp
-            x=$(compgen -P${cur:0:2} -S/ -d -- "${cur:2}") &&
-            while read -r tmp; do
-                COMPREPLY+=( "$tmp" )
-            done <<<"$x"
+            local IFS=$' \t\n' reset=$(shopt -po noglob); set -o noglob
+            COMPREPLY=( $(compgen -P${cur:0:2} -S/ -d -- "${cur:2}") )
+            $reset
             compopt -o nospace -o filenames
             return
             ;;
@@ -99,6 +95,14 @@ _7z()
     _count_args =
     if [[ $args -eq 2 ]]; then
         _filedir_xspec unzip
+        # TODO: parsing 7z i output?
+        # - how to figure out if the format is input or output?
+        # - find string Formats:, read until next empty line
+        # - extensions start from column 26
+        #   - ignore everything in parens
+        #   - terminate on two spaces
+        #   - terminate on token containing anything [^a-z0-9]
+        #     (assumption: extensions are all lowercase)
         [[ $mode == w ]] &&
             _filedir '@(7z|bz2|swf|?(g)tar|?(t)[bglx]z|tb?(z)2|wim)' ||
             _filedir '@(7z|arj|bz2|cab|chm|cpio|deb|dmg|flv|gem|img|iso|lz[ah]|lzma?(86)|msi|pmd|[rx]ar|rpm|sw[fm]|?(g)tar|taz|?(t)[bglx]z|tb?(z)2|vhd|wim|Z)'

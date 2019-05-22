@@ -9,7 +9,7 @@ class TestChkconfig:
     # systemd may not be running e.g. in a docker container, and listing
     # services will then fail.
     @pytest.mark.complete(
-        "chkconfig ", skipif="! systemctl list-units &>/dev/null"
+        "chkconfig ", xfail="! systemctl list-units &>/dev/null"
     )
     def test_2(self, completion):
         assert completion

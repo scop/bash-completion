@@ -14,7 +14,9 @@ class TestGetconf:
     def test_3(self, completion):
         assert completion
 
-    @pytest.mark.complete("getconf -v ")
+    @pytest.mark.complete(
+        "getconf -v ", xfail="! getconf -a 2>&1 | command grep -q ^POSIX_V"
+    )
     def test_4(self, completion):
         assert completion
 
