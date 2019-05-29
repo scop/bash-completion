@@ -13,7 +13,8 @@ RUN echo install_weak_deps=False >> /etc/dnf/dnf.conf \
         python3-pytest-xdist \
         dejagnu \
         tcllib \
-    && ln -s $(type -P pytest-3) /usr/local/bin/pytest
+    && ln -s $(type -P pytest-3) /usr/local/bin/pytest \
+    && echo "# nothing here" >/etc/profile.d/bash-completion-test.sh
 
 # Use completions/Makefile.am as cache buster, triggering a fresh
 # install of packages whenever it (i.e. the set of possibly tested
