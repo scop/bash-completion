@@ -160,6 +160,7 @@ bashcomp_DATA = 2to3 \
 		ifstat \
 		iftop \
 		ifup \
+		influx \
 		info \
 		inject \
 		inotifywait \

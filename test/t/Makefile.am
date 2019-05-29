@@ -234,6 +234,7 @@ EXTRA_DIST = \
 	test_iftop.py \
 	test_ifup.py \
 	test_import.py \
+	test_influx.py \
 	test_info.py \
 	test_inject.py \
 	test_inotifywait.py \
