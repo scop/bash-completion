@@ -20,14 +20,7 @@ if [ "$BSD" ]; then
     export PATH
 fi
 
-case $DIST in
-    alpine|centos6|ubuntu14)
-        : ${PYTEST:=/root/.local/bin/pytest}
-        ;;
-    *)
-        : ${PYTEST:=pytest-3}
-        ;;
-esac
+. /etc/profile.d/bash-completion-test.sh
 
 export bashcomp_bash=bash
 env
@@ -37,6 +30,5 @@ autoreconf -i
 make -j
 
 xvfb-run make distcheck \
-    PYTEST=$PYTEST \
     PYTESTFLAGS="--numprocesses=auto --dist=loadfile" \
     RUNTESTFLAGS="--all --verbose"
