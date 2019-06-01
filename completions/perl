@@ -27,7 +27,6 @@ _perl()
         optPrefix=-P$prev
         optSuffix=-S/
         prefix=$prev
-    fi
 
     case $prev in
         -*[DeEiFl])
@@ -68,7 +67,23 @@ _perl()
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
+    # Unlike other perl options, having a space between the `-e' and
+    # `-E' options and their arguments, e.g. `perl -e "exit 2"', is
+    # valid syntax.  However, the argument is neither a filename nor a
+    # directory, but one line of perl program, thus do not suggest
+    # _filedir completion.
+    elif [[ "$prev" == -e ]] || [[ "$prev" == -E ]]; then
+        return
+
+    # Likewise, `-I' also accepts a space between option and argument
+    # and it takes a directory as value.
+    elif [[ "$prev" == -I ]]; then
+        local IFS=$'\n'
+        compopt -o filenames
+        COMPREPLY=( $(compgen -d $optPrefix $optSuffix -- "$cur") )
+        return
+
+    elif [[ "$cur" == -* ]]; then
         COMPREPLY=( $(compgen -W '-C -s -T -u -U -W -X -h -v -V -c -w -d -D -p
             -n -a -F -l -0 -I -m -M -P -S -x -i -e' -- "$cur") )
     else

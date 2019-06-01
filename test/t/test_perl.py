@@ -67,8 +67,8 @@ class TestPerl:
 
     @pytest.mark.complete("perl -x shared/default/b")
     def test_15(self, completion):
-        """-x with space should complete dirs."""
-        assert completion == ["shared/default/bar bar.d/"]
+        """-x with space should complete files+dirs."""
+        assert completion == ["bar", "bar bar.d/"]
 
     @pytest.mark.complete(
         "perl -d:", env=dict(PERL5LIB="$PWD/perl"), require_cmd=True
