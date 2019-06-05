@@ -302,8 +302,19 @@ A. This is actually a 'feature' of bash. bash recognises a colon as
    Here, the colons make bash think that it's completing a new token
    that begins with 'B'.
 
-   Unfortunately, there's no way to turn this off. The only thing you
-   can do is escape the colons with a backslash.
+   This behaviour can be turned off by removing the colon from
+   ```COMP_WORDBREAKS```, e.g. by setting
+   ```COMP_WORDBREAKS=${COMP_WORDBREAKS//:}```.
+   However, this is not recommended, as it will break completions that
+   depend on this behaviour. Instead, this can be worked around by
+   escaping the colons, for example by quoting the parameter:
+
+   ```shell
+   man 'File::B<Tab>
+   ```
+
+   On certain systems, similar behaviour can be observed with ```@``` and
+   other symbols, check ```COMP_WORDBREAKS``` on your system to be sure.
 
 **Q. Why is `rpm` completion so slow with `-q`?**
 
