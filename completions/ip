@@ -178,7 +178,7 @@ _ip()
             esac
             ;;
 
-        route)
+        r|route)
             case $subcmd in
                 list|flush)
                     if [[ $prev == proto ]]; then
@@ -190,8 +190,22 @@ _ip()
                 get)
                     # TODO
                     ;;
-                add|del|change|append|replace|monitor)
-                    # TODO
+                a|add|d|del|change|append|r|replace|monitor)
+                    if [[ $prev == via ]]; then
+                        COMPREPLY=( $(compgen -W "$(ip r|grep -oP \
+                        '(?<=via )[0-9.]*'|sort -u)" -- "$cur") )
+                    elif [[ $prev == $subcmd ]]; then
+                        COMPREPLY=( $(compgen -W "table default \
+                        $(ip r|cut -d ' ' -f 1|sort -u)" -- "$cur") )
+                    elif [[ $prev == dev ]]; then
+                        COMPREPLY=( $(compgen -W "$(ip r|grep -oP \
+                        '(?<=dev )[a-z0-9-]*'|sort -u)" -- "$cur") )
+                    elif [[ $prev == table ]]; then
+                        : # TODO
+                    else
+                        COMPREPLY=( $(compgen -W 'via dev weight' \
+                        -- "$cur") )
+                    fi
                     ;;
                 *)
                     [[ $cword -eq $subcword ]] && \
@@ -323,3 +337,4 @@ _ip()
 complete -F _ip ip
 
 # ex: filetype=sh
+
