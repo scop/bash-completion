@@ -4,26 +4,9 @@
 
 ## Installation
 
-The easiest way to install this software is to use a package; it is
-available in many operating system distributions, some examples are listed
-below. The package's name is usually bash-completion.
-
-[![Alpine](https://img.shields.io/badge/Alpine-%28see%20website%29-lightgray.svg)](https://pkgs.alpinelinux.org/packages?name=bash-completion)
-[![Arch](https://img.shields.io/archlinux/v/extra/any/bash-completion.svg?label=Arch)](https://www.archlinux.org/packages/extra/any/bash-completion/)
-[![Cygwin](https://img.shields.io/badge/Cygwin-%28see%20website%29-lightgray.svg)](https://cygwin.com/packages/x86/bash-completion/)
-[![Debian](https://img.shields.io/debian/v/bash-completion/testing.svg?label=Debian)](https://packages.debian.org/search?keywords=bash-completion&searchon=names&exact=1)
-[![Fedora](https://img.shields.io/fedora/v/bash-completion.svg?label=Fedora)](https://apps.fedoraproject.org/packages/bash-completion)
-[![FreeBSD](https://img.shields.io/badge/FreeBSD-%28see%20website%29-lightgray.svg)](https://www.freshports.org/shells/bash-completion)
-[![Gentoo](https://img.shields.io/badge/Gentoo-%28see%20website%29-lightgray.svg)](https://packages.gentoo.org/packages/app-shells/bash-completion)
-[![macOS/Homebrew](https://img.shields.io/homebrew/v/bash-completion%402.svg?label=macOS%2FHomebrew)](http://formulae.brew.sh/formula/bash-completion%402)
-[![Mageia](https://img.shields.io/badge/Mageia-%28see%20website%29-lightgray.svg)](https://madb.mageia.org/package/show/name/bash-completion/release/cauldron/application/0)
-[![NetBSD](https://img.shields.io/badge/NetBSD-%28see%20website%29-lightgray.svg)](https://ftp.netbsd.org/pub/pkgsrc/current/pkgsrc/shells/bash-completion/README.html)
-[![OpenMandriva](https://img.shields.io/badge/OpenMandriva-%28see%20website%29-lightgray.svg)](https://abf.openmandriva.org/openmandriva/bash-completion/build_lists)
-[![openSUSE](https://img.shields.io/badge/openSUSE-%28see%20website%29-lightgray.svg)](https://software.opensuse.org/package/bash-completion?baseproject=openSUSE%3AFactory)
-[![Sisyphus](https://img.shields.io/badge/Sisyphus-%28see%20website%29-lightgray.svg)](http://sisyphus.ru/en/srpm/bash-completion)
-[![Slackware](https://img.shields.io/badge/Slackware-%28see%20website%29-lightgray.svg)](https://packages.slackware.com/?search=bash-completion)
-[![Solaris/OpenCSW](https://img.shields.io/badge/Solaris%2FOpenCSW-%28see%20website%29-lightgray.svg)](https://www.opencsw.org/package/bash_completion/)
-[![Ubuntu](https://img.shields.io/ubuntu/v/bash-completion.svg?label=Ubuntu)](https://packages.ubuntu.com/search?keywords=bash-completion&searchon=names&exact=1)
+The easiest way to install this software is to use a package; refer to
+[Repology](https://repology.org/project/bash-completion) for a comprehensive
+list of operating system distributions, package names, and available versions.
 
 Depending on the package, you may still
 need to source it from either `/etc/bashrc` or `~/.bashrc` (or any
