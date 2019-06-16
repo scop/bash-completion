@@ -1,0 +1,31 @@
+# bash completion for gssdp-discover                       -*- shell-script -*-
+
+_gssdp_discover()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        --help|--target|--timeout|--rescan-interval|-[htnr])
+            return
+            ;;
+        --interface|-i)
+            _available_interfaces -a
+            return
+            ;;
+        --message-type|-m)
+            local types=$($1 --help 2>&1 | \
+                command sed -ne 's/^.*--message-type=.*(\([^)]*\))$/\1/p')
+            COMPREPLY=( $(IFS+=,; compgen -W "$types" -- "$cur") )
+            return
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+    fi
+} &&
+complete -F _gssdp_discover gssdp-discover
+
+# ex: filetype=sh

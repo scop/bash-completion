@@ -209,6 +209,7 @@ EXTRA_DIST = \
 	test_growisofs.py \
 	test_grpck.py \
 	test_grub.py \
+	test_gssdp_discover.py \
 	test_gzip.py \
 	test_hciattach.py \
 	test_hciconfig.py \

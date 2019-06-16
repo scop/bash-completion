@@ -143,6 +143,7 @@ bashcomp_DATA = 2to3 \
 		groupmod \
 		growisofs \
 		grpck \
+		gssdp-discover \
 		gzip \
 		hcitool \
 		hddtemp \
