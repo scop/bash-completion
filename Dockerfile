@@ -28,10 +28,12 @@ ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Ma
 RUN easy_install3 --user pip \
     && /root/.local/bin/pip install \
        --target /opt/bash-completion-test -Ir /tmp/requirements.txt \
-    && echo 'PATH="/opt/bash-completion-test/bin:$PATH"; export PATH' \
-       > /etc/profile.d/bash-completion-test.sh \
+    && echo '#!/bin/sh -e' >/usr/local/bin/pytest \
     && echo 'PYTHONPATH=/opt/bash-completion-test; export PYTHONPATH' \
-       >> /etc/profile.d/bash-completion-test.sh
+       >>/usr/local/bin/pytest \
+    && echo 'exec /opt/bash-completion-test/bin/pytest "$@"' \
+       >>/usr/local/bin/pytest \
+    && chmod +x /usr/local/bin/pytest
 
 RUN /tmp/install-packages.sh \
     && rm -r /tmp/* /root/.cache/pip /var/lib/apt/lists/*
