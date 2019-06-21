@@ -20,8 +20,6 @@ if [ "$BSD" ]; then
     export PATH
 fi
 
-. /etc/profile.d/bash-completion-test.sh
-
 export bashcomp_bash=bash
 env
 
