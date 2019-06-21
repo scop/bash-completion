@@ -29,12 +29,9 @@ ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Ma
     install-packages.sh \
     /tmp/
 
-RUN pip3 install --target /opt/bash-completion-test -Ir /tmp/requirements.txt \
+RUN pip3 install --user -Ir /tmp/requirements.txt \
     && echo '#!/bin/sh -e' >/usr/local/bin/pytest \
-    && echo 'PYTHONPATH=/opt/bash-completion-test; export PYTHONPATH' \
-       >>/usr/local/bin/pytest \
-    && echo 'exec /opt/bash-completion-test/bin/pytest "$@"' \
-       >>/usr/local/bin/pytest \
+    && echo 'exec $HOME/.local/bin/pytest "$@"' >>/usr/local/bin/pytest \
     && chmod +x /usr/local/bin/pytest
 
 RUN /tmp/install-packages.sh \
