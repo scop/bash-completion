@@ -662,6 +662,7 @@ EXTRA_DIST = \
 	test_xrandr.py \
 	test_xrdb.py \
 	test_xsltproc.py \
+	test_xvfb_run.py \
 	test_xvnc4viewer.py \
 	test_xxd.py \
 	test_xz.py \

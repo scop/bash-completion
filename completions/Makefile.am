@@ -453,6 +453,7 @@ bashcomp_DATA = 2to3 \
 		xrandr \
 		xrdb \
 		xsltproc \
+		xvfb-run \
 		xxd \
 		xz \
 		xzdec \

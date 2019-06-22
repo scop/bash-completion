@@ -1,0 +1,36 @@
+# bash completion for xvfb-run                             -*- shell-script -*-
+
+_xvfb_run()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    local i
+    for (( i=1; i <= COMP_CWORD; i++ )); do
+        if [[ ${COMP_WORDS[i]} != -* ]]; then
+            _command_offset $i
+            return
+        fi
+        [[ ${COMP_WORDS[i]} == -!(-*)[npsef] ]] && ((i++))
+    done
+
+    case $prev in
+        --help|--server-num|--xauth-protocol|--server-args|-!(-*)[hnps])
+            return
+            ;;
+        --error-file|--auth-file|-!(-*)[ef])
+            _filedir
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+    fi
+} &&
+complete -F _xvfb_run xvfb-run
+
+# ex: filetype=sh
