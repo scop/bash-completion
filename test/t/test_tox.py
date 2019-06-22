@@ -16,4 +16,4 @@ class TestTox:
 
     @pytest.mark.complete("tox -e foo -- ", cwd="tox")
     def test_default_after_dashdash(self, completion):
-        assert completion == ".tox/ tox.ini".split()
+        assert "tox.ini" in completion
