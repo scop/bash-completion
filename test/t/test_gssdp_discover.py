@@ -11,6 +11,12 @@ class TestGssdpDiscover:
     def test_options(self, completion):
         assert completion
 
-    @pytest.mark.complete("gssdp-discover --message-type=")
+    @pytest.mark.complete(
+        "gssdp-discover --message-type=",
+        skipif=(
+            "! gssdp-discover --help 2>&1 "
+            "| command grep -qF -- --message-type"
+        ),
+    )
     def test_message_type(self, completion):
         assert completion
