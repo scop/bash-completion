@@ -141,7 +141,6 @@ def bash(request) -> pexpect.spawn:
             else:
                 bash.close()
                 pytest.skip(skipif)
-                return
         xfail = marker.kwargs.get("xfail")
         if xfail:
             try:
@@ -190,7 +189,6 @@ def is_testable(bash: pexpect.spawn, cmd: str) -> bool:
         return False
     if not load_completion_for(bash, cmd):
         pytest.skip("No completion for command %s" % cmd)
-        return False
     return True
 
 
@@ -377,7 +375,6 @@ def assert_complete(
             pass
         else:
             pytest.skip(skipif)
-            return CompletionResult("", [])
     xfail = kwargs.get("xfail")
     if xfail:
         try:
