@@ -21,18 +21,18 @@ class TestInstallpkg:
         dirs = sorted(x for x in os.listdir(".") if os.path.isdir("./%s" % x))
         assert completion == ["%s/" % x for x in dirs]
 
-    @pytest.mark.complete("installpkg --root ")
+    @pytest.mark.complete("installpkg ", cwd="slackware/home")
     def test_4(self, completion):
         expected = sorted(
             [
                 "%s/" % x
                 for x in os.listdir("slackware/home")
-                if os.path.isdir("./%s" % x)
+                if os.path.isdir("./slackware/home/%s" % x)
             ]
             + [
                 x
                 for x in os.listdir("slackware/home")
-                if os.path.isfile("./%s" % x)
+                if os.path.isfile("./slackware/home/%s" % x)
                 and fnmatch.fnmatch(x, "*.t[bglx]z")
             ]
         )
