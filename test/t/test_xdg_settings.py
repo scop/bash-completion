@@ -7,10 +7,10 @@ class TestXdgSettings:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("xdg-settings --")
+    @pytest.mark.complete("xdg-settings --", require_cmd=True)
     def test_2(self, completion):
         assert completion
 
-    @pytest.mark.complete("xdg-settings get ")
+    @pytest.mark.complete("xdg-settings get ", require_cmd=True)
     def test_3(self, completion):
         assert completion

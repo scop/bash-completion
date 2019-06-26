@@ -5,7 +5,9 @@ import pytest
 from conftest import assert_bash_exec, in_container
 
 
-@pytest.mark.bashcomp(ignore_env=r"^[+-]MANPATH=")
+@pytest.mark.bashcomp(
+    ignore_env=r"^[+-]((BASHOPTS|MANPATH)=|shopt -. failglob)"
+)
 class TestMan:
 
     manpath = "$PWD/man"
@@ -29,7 +31,9 @@ class TestMan:
         )
 
     @pytest.mark.complete(
-        "man bash-completion-testcas", env=dict(MANPATH=manpath)
+        "man bash-completion-testcas",
+        env=dict(MANPATH=manpath),
+        require_cmd=True,
     )
     def test_1(self, completion):
         assert completion == "bash-completion-testcase"
@@ -64,6 +68,7 @@ class TestMan:
 
     @pytest.mark.complete(
         "man %s" % assumed_present,
+        require_cmd=True,
         cwd="shared/empty_dir",
         env=dict(MANPATH="%s:" % manpath),
     )
@@ -72,13 +77,16 @@ class TestMan:
         assert completion
 
     @pytest.mark.complete(
-        "man bash-completion-testcas", env=dict(MANPATH="%s:" % manpath)
+        "man bash-completion-testcas",
+        require_cmd=True,
+        env=dict(MANPATH="%s:" % manpath),
     )
     def test_6(self, completion):
         assert completion == "bash-completion-testcase"
 
     @pytest.mark.complete(
         "man %s" % assumed_present,
+        require_cmd=True,
         cwd="shared/empty_dir",
         env=dict(MANPATH=":%s" % manpath),
     )
@@ -87,13 +95,16 @@ class TestMan:
         assert completion
 
     @pytest.mark.complete(
-        "man bash-completion-testcas", env=dict(MANPATH=":%s" % manpath)
+        "man bash-completion-testcas",
+        require_cmd=True,
+        env=dict(MANPATH=":%s" % manpath),
     )
     def test_8(self, completion):
         assert completion == "bash-completion-testcase"
 
     @pytest.mark.complete(
         "man %s" % assumed_present,
+        require_cmd=True,
         cwd="shared/empty_dir",
         pre_cmds=("shopt -s failglob",),
     )
@@ -102,11 +113,13 @@ class TestMan:
         assert_bash_exec(bash, "shopt -u failglob")
 
     @pytest.mark.complete(
-        "man Bash::C", env=dict(MANPATH="%s:../tmp/man" % manpath)
+        "man Bash::C",
+        require_cmd=True,
+        env=dict(MANPATH="%s:../tmp/man" % manpath),
     )
     def test_10(self, bash, colonpath, completion):
         assert completion == "Bash::Completion"
 
-    @pytest.mark.complete("man -")
+    @pytest.mark.complete("man -", require_cmd=True)
     def test_11(self, completion):
         assert completion

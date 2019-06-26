@@ -13,6 +13,6 @@ class TestLftp:
         assert all(x in completion for x in hosts)
         assert "lftptest" in completion  # defined in lftp/.lftp/bookmarks
 
-    @pytest.mark.complete("lftp -")
+    @pytest.mark.complete("lftp -", require_cmd=True)
     def test_2(self, completion):
         assert completion

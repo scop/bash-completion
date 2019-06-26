@@ -7,7 +7,9 @@ class TestFeh:
         assert completion
 
     @pytest.mark.complete(
-        "feh --lis", xfail="feh --help 2>&1 | command grep -qF 'man feh'"
+        "feh --lis",
+        xfail="feh --help 2>&1 | command grep -qF 'man feh'",
+        require_cmd=True,
     )
     def test_2(self, completion):
         assert completion

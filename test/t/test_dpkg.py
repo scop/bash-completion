@@ -2,7 +2,7 @@ import pytest
 
 
 class TestDpkg:
-    @pytest.mark.complete("dpkg --c")
+    @pytest.mark.complete("dpkg --c", require_cmd=True)
     def test_1(self, completion):
         assert completion
 

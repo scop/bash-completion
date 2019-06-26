@@ -2,7 +2,7 @@ import pytest
 
 
 class TestPylint:
-    @pytest.mark.complete("pylint --v")
+    @pytest.mark.complete("pylint --v", require_cmd=True)
     def test_1(self, completion):
         assert completion
 

@@ -7,7 +7,7 @@ class TestGssdpDiscover:
     def test_no_args(self, completion):
         assert not completion
 
-    @pytest.mark.complete("gssdp-discover --")
+    @pytest.mark.complete("gssdp-discover --", require_cmd=True)
     def test_options(self, completion):
         assert completion
 

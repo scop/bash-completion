@@ -10,6 +10,6 @@ class TestChsh:
     def test_2(self, completion):
         assert completion
 
-    @pytest.mark.complete("chsh -")
+    @pytest.mark.complete("chsh -", require_cmd=True)
     def test_3(self, completion):
         assert completion

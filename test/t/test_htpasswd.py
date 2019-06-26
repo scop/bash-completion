@@ -18,6 +18,6 @@ class TestHtpasswd:
     def test_4(self, completion):
         assert completion == "foo quux".split()
 
-    @pytest.mark.complete("htpasswd -")
+    @pytest.mark.complete("htpasswd -", require_cmd=True)
     def test_5(self, completion):
         assert completion

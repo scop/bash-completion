@@ -20,7 +20,7 @@ class Test7z:
     def test_4(self, completion):
         assert completion == "a.7z"
 
-    @pytest.mark.complete("7z d a.7z ", cwd="7z")
+    @pytest.mark.complete("7z d a.7z ", cwd="7z", require_cmd=True)
     def test_5(self, completion):
         assert completion == "abc"
 

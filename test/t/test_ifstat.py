@@ -2,7 +2,7 @@ import pytest
 
 
 class TestIfstat:
-    @pytest.mark.complete("ifstat -")
+    @pytest.mark.complete("ifstat -", require_cmd=True)
     def test_1(self, completion):
         assert completion
 
@@ -13,7 +13,9 @@ class TestIfstat:
         assert completion
 
     @pytest.mark.complete(
-        "ifstat -d ", xfail="ifstat -v | command grep -qF iproute2"
+        "ifstat -d ",
+        require_cmd=True,
+        xfail="ifstat -v | command grep -qF iproute2",
     )
     def test_3(self, completion):
         assert completion

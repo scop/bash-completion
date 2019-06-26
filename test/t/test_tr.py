@@ -4,6 +4,7 @@ import pytest
 class TestTr:
     @pytest.mark.complete(
         "tr --",
+        require_cmd=True,
         xfail=(
             "! tr --help &>/dev/null || "
             "! tr --help 2>&1 | command grep -qF -- --help"

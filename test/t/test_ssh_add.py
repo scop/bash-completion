@@ -9,6 +9,7 @@ class TestSshAdd:
 
     @pytest.mark.complete(
         "ssh-add -",
+        require_cmd=True,
         xfail="ssh-add --help 2>&1 | "
         "command grep -qiF 'Could not open a connection'",
     )

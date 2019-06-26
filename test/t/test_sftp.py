@@ -6,6 +6,6 @@ class TestSftp:
     def test_1(self, completion):
         assert completion == "-Fspaced  conf"
 
-    @pytest.mark.complete("sftp -")
+    @pytest.mark.complete("sftp -", require_cmd=True)
     def test_2(self, completion):
         assert completion

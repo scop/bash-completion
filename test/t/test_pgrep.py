@@ -8,6 +8,6 @@ class TestPgrep:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("pgrep -")
+    @pytest.mark.complete("pgrep -", require_cmd=True)
     def test_2(self, completion):
         assert completion

@@ -4,6 +4,7 @@ import pytest
 class TestTouch:
     @pytest.mark.complete(
         "touch --",
+        require_cmd=True,
         xfail=(
             "! touch --help &>/dev/null || "
             "! touch --help 2>&1 | command grep -qF -- --help"

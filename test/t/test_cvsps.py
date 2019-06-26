@@ -3,7 +3,7 @@ import pytest
 
 @pytest.mark.bashcomp(pre_cmds=("HOME=$PWD/cvs",))
 class TestCvsps:
-    @pytest.mark.complete("cvsps -")
+    @pytest.mark.complete("cvsps -", require_cmd=True)
     def test_1(self, completion):
         assert completion
 

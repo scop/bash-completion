@@ -6,6 +6,6 @@ class TestPostmap:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("postmap -")
+    @pytest.mark.complete("postmap -", require_cmd=True)
     def test_2(self, completion):
         assert completion

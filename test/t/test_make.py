@@ -49,6 +49,6 @@ class TestMake:
         assert completion == "all clean extra_makefile install sample".split()
         os.remove("%s/make/%s" % (bash.cwd, "extra_makefile"))
 
-    @pytest.mark.complete("make -")
+    @pytest.mark.complete("make -", require_cmd=True)
     def test_9(self, completion):
         assert completion

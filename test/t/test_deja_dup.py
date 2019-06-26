@@ -3,7 +3,7 @@ import pytest
 
 @pytest.mark.bashcomp(cmd="deja-dup")
 class TestDejaDup:
-    @pytest.mark.complete("deja-dup -")
+    @pytest.mark.complete("deja-dup -", require_cmd=True)
     def test_1(self, completion):
         assert completion
 

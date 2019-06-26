@@ -3,7 +3,7 @@ import pytest
 
 @pytest.mark.bashcomp(pre_cmds=("INFOPATH+=:$PWD/info:",))
 class TestPinfo:
-    @pytest.mark.complete("pinfo -")
+    @pytest.mark.complete("pinfo -", require_cmd=True)
     def test_1(self, completion):
         assert completion
 

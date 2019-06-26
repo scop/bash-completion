@@ -4,7 +4,7 @@ from conftest import assert_complete
 
 
 class TestSudo:
-    @pytest.mark.complete("sudo -")
+    @pytest.mark.complete("sudo -", require_cmd=True)
     def test_1(self, completion):
         assert completion
 

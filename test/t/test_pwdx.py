@@ -8,6 +8,7 @@ class TestPwdx:
 
     @pytest.mark.complete(
         "pwdx -",
+        require_cmd=True,
         xfail=(
             "! (pwdx --help 2>&1 || :) | "
             "command grep -vF 'invalid process id: --help' | "

@@ -3,25 +3,25 @@ import pytest
 
 @pytest.mark.bashcomp(ignore_env=r"^\+_tshark_pr(ef|otocol)s=")
 class TestTshark:
-    @pytest.mark.complete("tshark -")
+    @pytest.mark.complete("tshark -", require_cmd=True)
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("tshark -G ")
+    @pytest.mark.complete("tshark -G ", require_cmd=True)
     def test_2(self, completion):
         assert completion
 
-    @pytest.mark.complete("tshark -O foo,htt")
+    @pytest.mark.complete("tshark -O foo,htt", require_cmd=True)
     def test_3(self, completion):
         # When there's only one completion, it's be the one with "foo," prefix;
         # when multiple (e.g. http and http2), it's the completion alone.
         assert completion == "foo,http" or "http" in completion
 
-    @pytest.mark.complete("tshark -o tcp")
+    @pytest.mark.complete("tshark -o tcp", require_cmd=True)
     def test_4(self, completion):
         assert "tcp.desegment_tcp_streams:" in completion
 
-    @pytest.mark.complete("tshark -otcp")
+    @pytest.mark.complete("tshark -otcp", require_cmd=True)
     def test_5(self, completion):
         assert "-otcp.desegment_tcp_streams:" in completion
 

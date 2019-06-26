@@ -6,6 +6,6 @@ class TestUseradd:
     def test_1(self, completion):
         assert not completion
 
-    @pytest.mark.complete("useradd -")
+    @pytest.mark.complete("useradd -", require_cmd=True)
     def test_2(self, completion):
         assert completion

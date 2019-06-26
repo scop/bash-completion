@@ -3,11 +3,11 @@ import pytest
 
 @pytest.mark.bashcomp(cmd="slapt-get")
 class TestSlaptGet:
-    @pytest.mark.complete("slapt-get -")
+    @pytest.mark.complete("slapt-get -", require_cmd=True)
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("slapt-get --up")
+    @pytest.mark.complete("slapt-get --up", require_cmd=True)
     def test_2(self, completion):
         assert completion == "--update --upgrade".split()
 

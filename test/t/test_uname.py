@@ -4,6 +4,7 @@ import pytest
 class TestUname:
     @pytest.mark.complete(
         "uname --",
+        require_cmd=True,
         xfail=(
             "! uname --help &>/dev/null || "
             "! uname --help 2>&1 | command grep -qF -- --help"

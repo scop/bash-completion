@@ -7,6 +7,6 @@ class TestDesktopFileValidate:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("desktop-file-validate -")
+    @pytest.mark.complete("desktop-file-validate -", require_cmd=True)
     def test_2(self, completion):
         assert completion

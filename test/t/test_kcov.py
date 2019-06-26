@@ -6,7 +6,7 @@ class TestKcov:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("kcov --exclude-patter")
+    @pytest.mark.complete("kcov --exclude-patter", require_cmd=True)
     def test_2(self, completion):
         assert completion == "--exclude-pattern="
         assert completion.endswith("=")

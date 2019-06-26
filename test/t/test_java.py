@@ -5,7 +5,7 @@ import pytest
     pre_cmds=("CLASSPATH=$PWD/java/a:$PWD/java/bashcomp.jar",)
 )
 class TestJava:
-    @pytest.mark.complete("java -")
+    @pytest.mark.complete("java -", require_cmd=True)
     def test_1(self, completion):
         assert completion
 

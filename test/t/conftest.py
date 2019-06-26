@@ -156,6 +156,8 @@ def bash(request) -> pexpect.spawn:
         if match:
             cmd = match.group(1)
 
+    setattr(request.cls, "cmd", cmd)
+
     if (cmd_found and cmd is None) or is_testable(bash, cmd):
         before_env = get_env(bash)
         yield bash
@@ -184,15 +186,14 @@ def is_testable(bash: pexpect.spawn, cmd: str) -> bool:
     if not cmd:
         pytest.fail("Could not resolve name of command to test")
         return False
-    if not is_bash_type(bash, cmd):
-        pytest.skip("Command %s not found" % cmd)
-        return False
     if not load_completion_for(bash, cmd):
         pytest.skip("No completion for command %s" % cmd)
     return True
 
 
-def is_bash_type(bash: pexpect.spawn, cmd: str) -> bool:
+def is_bash_type(bash: pexpect.spawn, cmd: Optional[str]) -> bool:
+    if not cmd:
+        return False
     typecmd = "type %s &>/dev/null && echo -n 0 || echo -n 1" % cmd
     bash.sendline(typecmd)
     bash.expect_exact(typecmd + "\r\n")
@@ -453,6 +454,10 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
         return CompletionResult("", [])
     for pre_cmd in marker.kwargs.get("pre_cmds", []):
         assert_bash_exec(bash, pre_cmd)
+    if marker.kwargs.get("require_cmd") and not is_bash_type(
+        bash, getattr(request.module, "cmd", None)
+    ):
+        pytest.skip("Command not found")
     return assert_complete(bash, marker.args[0], **marker.kwargs)
 
 

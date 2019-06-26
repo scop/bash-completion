@@ -2,7 +2,7 @@ import pytest
 
 
 class TestPostconf:
-    @pytest.mark.complete("postconf -")
+    @pytest.mark.complete("postconf -", require_cmd=True)
     def test_1(self, completion):
         assert len(completion) > 1
 
@@ -13,6 +13,8 @@ class TestPostconf:
     #                  for ::1
     # ...and output can be cut off somewhere near lmtp_tls_secur*.
     # ...or be completely missing, so all we can do is to skip.
-    @pytest.mark.complete("postconf al", xfail="! postconf &>/dev/null")
+    @pytest.mark.complete(
+        "postconf al", require_cmd=True, xfail="! postconf &>/dev/null"
+    )
     def test_2(self, completion):
         assert completion

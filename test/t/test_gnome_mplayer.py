@@ -10,6 +10,8 @@ class TestGnomeMplayer:
     # XDG_DATA_DIRS set to a dir with no schemas results in
     # "GLib-GIO-ERROR **: No GSettings schemas are installed on the system"
     # and a core dump on --help on Ubuntu 14.
-    @pytest.mark.complete("gnome-mplayer -", pre_cmds=("unset XDG_DATA_DIRS",))
+    @pytest.mark.complete(
+        "gnome-mplayer -", require_cmd=True, pre_cmds=("unset XDG_DATA_DIRS",)
+    )
     def test_2(self, completion):
         assert completion

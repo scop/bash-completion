@@ -7,6 +7,6 @@ class TestMiiTool:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("mii-tool -")
+    @pytest.mark.complete("mii-tool -", require_cmd=True)
     def test_2(self, completion):
         assert completion

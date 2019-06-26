@@ -6,6 +6,6 @@ class TestHcitool:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("hcitool -")
+    @pytest.mark.complete("hcitool -", require_cmd=True)
     def test_2(self, completion):
         assert completion

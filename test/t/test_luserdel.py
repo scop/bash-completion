@@ -6,6 +6,6 @@ class TestLuserdel:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("luserdel -")
+    @pytest.mark.complete("luserdel -", require_cmd=True)
     def test_2(self, completion):
         assert completion

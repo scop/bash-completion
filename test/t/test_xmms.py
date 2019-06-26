@@ -2,7 +2,7 @@ import pytest
 
 
 class TestXmms:
-    @pytest.mark.complete("xmms --")
+    @pytest.mark.complete("xmms --", require_cmd=True)
     def test_1(self, completion):
         assert completion
 

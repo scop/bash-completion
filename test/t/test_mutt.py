@@ -9,7 +9,7 @@ class TestMutt:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("mutt -F muttrc -f =", cwd="mutt")
+    @pytest.mark.complete("mutt -F muttrc -f =", require_cmd=True, cwd="mutt")
     def test_2(self, completion):
         assert completion == "bar/ foo/ muttrc".split()
 

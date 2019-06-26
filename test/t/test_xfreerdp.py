@@ -17,30 +17,30 @@ class TestXfreerdp:
         if "/help" in self._help(bash):
             pytest.skip("Not dash syntax")
 
-    @pytest.mark.complete("xfreerdp /")
+    @pytest.mark.complete("xfreerdp /", require_cmd=True)
     def test_1(self, bash, completion, slash_syntax):
         assert completion
 
-    @pytest.mark.complete("xfreerdp -")
+    @pytest.mark.complete("xfreerdp -", require_cmd=True)
     def test_2(self, completion):
         assert completion
 
-    @pytest.mark.complete("xfreerdp +")
+    @pytest.mark.complete("xfreerdp +", require_cmd=True)
     def test_3(self, bash, completion, slash_syntax):
         assert completion
 
-    @pytest.mark.complete("xfreerdp /kbd:")
+    @pytest.mark.complete("xfreerdp /kbd:", require_cmd=True)
     def test_4(self, bash, completion, slash_syntax):
         assert completion
 
-    @pytest.mark.complete("xfreerdp /help ")
+    @pytest.mark.complete("xfreerdp /help ", require_cmd=True)
     def test_5(self, completion):
         assert not completion
 
-    @pytest.mark.complete("xfreerdp -k ")
+    @pytest.mark.complete("xfreerdp -k ", require_cmd=True)
     def test_6(self, bash, completion, dash_syntax):
         assert completion
 
-    @pytest.mark.complete("xfreerdp --help ")
+    @pytest.mark.complete("xfreerdp --help ", require_cmd=True)
     def test_7(self, completion):
         assert not completion

@@ -8,6 +8,7 @@ class TestWsimport:
 
     @pytest.mark.complete(
         "wsimport -",
+        require_cmd=True,
         xfail=(
             "! (wsimport -help 2>&1 || :) | "
             "command grep -q -- '[[:space:]]-'"

@@ -4,6 +4,7 @@ import pytest
 class TestUnexpand:
     @pytest.mark.complete(
         "unexpand --",
+        require_cmd=True,
         xfail=(
             "! unexpand --help &>/dev/null || "
             "! unexpand --help 2>&1 | command grep -qF -- --help"

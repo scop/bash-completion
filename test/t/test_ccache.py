@@ -2,11 +2,11 @@ import pytest
 
 
 class TestCcache:
-    @pytest.mark.complete("ccache -")
+    @pytest.mark.complete("ccache -", require_cmd=True)
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("ccache --clea")
+    @pytest.mark.complete("ccache --clea", require_cmd=True)
     def test_2(self, completion):
         assert all(x in completion for x in "--cleanup --clear".split())
 
@@ -18,7 +18,7 @@ class TestCcache:
     def test_4(self, completion):
         assert "stty" in completion
 
-    @pytest.mark.complete("ccache --hel")
+    @pytest.mark.complete("ccache --hel", require_cmd=True)
     def test_5(self, completion):
         assert "--help" in completion
 

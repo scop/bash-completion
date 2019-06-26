@@ -14,6 +14,6 @@ class TestWol:
     def test_2(self, completion):
         assert completion == "00:00:00:00:00:00"
 
-    @pytest.mark.complete("wol -")
+    @pytest.mark.complete("wol -", require_cmd=True)
     def test_3(self, completion):
         assert completion

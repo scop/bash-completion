@@ -2,7 +2,7 @@ import pytest
 
 
 class TestNgrep:
-    @pytest.mark.complete("ngrep -")
+    @pytest.mark.complete("ngrep -", require_cmd=True)
     def test_1(self, completion):
         assert completion
 

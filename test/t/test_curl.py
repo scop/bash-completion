@@ -2,7 +2,7 @@ import pytest
 
 
 class TestCurl:
-    @pytest.mark.complete("curl --h")
+    @pytest.mark.complete("curl --h", require_cmd=True)
     def test_1(self, completion):
         assert completion
 

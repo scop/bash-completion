@@ -10,15 +10,17 @@ class TestValgrind:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("valgrind -")
+    @pytest.mark.complete("valgrind -", require_cmd=True)
     def test_2(self, completion):
         assert completion
 
-    @pytest.mark.complete("valgrind --tool=memche")
+    @pytest.mark.complete("valgrind --tool=memche", require_cmd=True)
     def test_3(self, completion):
         assert "--tool=memcheck" in completion
 
-    @pytest.mark.complete("valgrind --tool=helgrind --history-l")
+    @pytest.mark.complete(
+        "valgrind --tool=helgrind --history-l", require_cmd=True
+    )
     def test_4(self, completion):
         assert "--history-level=" in completion
         assert not completion.endswith(" ")

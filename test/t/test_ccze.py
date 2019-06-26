@@ -2,7 +2,7 @@ import pytest
 
 
 class TestCcze:
-    @pytest.mark.complete("ccze ")
+    @pytest.mark.complete("ccze ", require_cmd=True)
     def test_1(self, completion):
         assert completion
 
@@ -14,6 +14,6 @@ class TestCcze:
     def test_3(self, completion):
         assert completion
 
-    @pytest.mark.complete("ccze --plugin=")
+    @pytest.mark.complete("ccze --plugin=", require_cmd=True)
     def test_4(self, completion):
         assert completion

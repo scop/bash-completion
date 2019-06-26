@@ -8,6 +8,8 @@ class TestPidof:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("pidof -", xfail="! pidof --help &>/dev/null")
+    @pytest.mark.complete(
+        "pidof -", require_cmd=True, xfail="! pidof --help &>/dev/null"
+    )
     def test_2(self, completion):
         assert completion

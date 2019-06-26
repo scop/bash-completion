@@ -3,7 +3,7 @@ import pytest
 
 @pytest.mark.bashcomp(ignore_env=r"^\+ANT_ARGS=")
 class TestAnt:
-    @pytest.mark.complete("ant -")
+    @pytest.mark.complete("ant -", require_cmd=True)
     def test_1(self, completion):
         assert completion
 

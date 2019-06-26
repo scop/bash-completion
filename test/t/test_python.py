@@ -6,7 +6,7 @@ class TestPython:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("python -")
+    @pytest.mark.complete("python -", require_cmd=True)
     def test_2(self, completion):
         assert len(completion) > 1
 
@@ -30,6 +30,6 @@ class TestPython:
     def test_7(self, completion):
         assert not completion
 
-    @pytest.mark.complete("python -m sy")
+    @pytest.mark.complete("python -m sy", require_cmd=True)
     def test_8(self, completion):
         assert completion

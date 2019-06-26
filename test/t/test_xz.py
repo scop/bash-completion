@@ -21,6 +21,6 @@ class TestXz:
     def test_4(self, completion):
         assert completion
 
-    @pytest.mark.complete("xz -")
+    @pytest.mark.complete("xz -", require_cmd=True)
     def test_5(self, completion):
         assert completion

@@ -7,6 +7,6 @@ class TestPkgConfig:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("pkg-config -")
+    @pytest.mark.complete("pkg-config -", require_cmd=True)
     def test_2(self, completion):
         assert completion

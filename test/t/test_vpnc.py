@@ -8,6 +8,6 @@ import pytest
     pre_cmds=("PATH=/usr/sbin:$PATH",)
 )
 class TestVpnc:
-    @pytest.mark.complete("vpnc -")
+    @pytest.mark.complete("vpnc -", require_cmd=True)
     def test_1(self, completion):
         assert completion

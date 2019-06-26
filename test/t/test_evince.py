@@ -17,6 +17,6 @@ class TestEvince:
             ".tga .TGA .tif .TIF .tiff .TIFF .xpm .XPM .xwd .XWD".split()
         )
 
-    @pytest.mark.complete("evince -")
+    @pytest.mark.complete("evince -", require_cmd=True)
     def test_2(self, completion):
         assert completion

@@ -15,6 +15,6 @@ class TestCvs:
     def test_3(self, completion):
         assert completion == "foo/bar"
 
-    @pytest.mark.complete("cvs -")
+    @pytest.mark.complete("cvs -", require_cmd=True)
     def test_4(self, completion):
         assert completion
