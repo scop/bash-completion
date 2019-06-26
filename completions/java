@@ -64,6 +64,11 @@ _java_classes()
             if type zipinfo &>/dev/null; then
                 COMPREPLY+=( $(zipinfo -1 "$i" "$cur*" 2>/dev/null | \
                     command grep '^[^$]*\.class$') )
+            elif type unzip &>/dev/null; then
+                # Last column, between entries consisting entirely of dashes
+                COMPREPLY+=( $(unzip -lq "$i" "$cur*" 2>/dev/null | \
+                    awk '$NF ~ /^-+$/ { flag=!flag; next };
+                         flag && $NF ~ /^[^$]*\.class/ { print $NF }') )
             else
                 COMPREPLY+=( $(jar tf "$i" "$cur" | \
                     command grep '^[^$]*\.class$') )
