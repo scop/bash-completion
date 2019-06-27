@@ -22,6 +22,6 @@ class TestCcache:
     def test_5(self, completion):
         assert "--help" in completion
 
-    @pytest.mark.complete("ccache --zero-stats ls --hel")
+    @pytest.mark.complete("ccache --zero-stats sh +")
     def test_6(self, completion):
-        assert "--help" in completion
+        assert "+x" in completion
