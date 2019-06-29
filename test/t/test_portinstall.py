@@ -3,10 +3,11 @@ import pytest
 from conftest import assert_bash_exec
 
 
+@pytest.mark.bashcomp(ignore_env=r"^[+-]PORTSDIR=")
 class TestPortinstall:
     @pytest.fixture(scope="class")
     def portsdir(self, request, bash):
-        assert_bash_exec(bash, "PORTSDIR=$TESTDIR/tmp")
+        assert_bash_exec(bash, "PORTSDIR=$PWD/../tmp")
         assert_bash_exec(
             bash,
             "command sed -e s,PORTSDIR,$PORTSDIR,g "
@@ -17,7 +18,7 @@ class TestPortinstall:
             lambda: assert_bash_exec(bash, "rm $PORTSDIR/INDEX{,-5}")
         )
 
-    @pytest.mark.complete("portinstall ", env=dict(PORTSDIR="$TESTDIR/tmp"))
+    @pytest.mark.complete("portinstall ", env=dict(PORTSDIR="$PWD/../tmp"))
     def test_1(self, completion, portsdir):
         assert (
             completion
