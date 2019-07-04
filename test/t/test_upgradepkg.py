@@ -22,12 +22,12 @@ class TestUpgradepkg:
             [
                 "%s/" % x
                 for x in os.listdir("slackware/home")
-                if os.path.isdir("./%s" % x)
+                if os.path.isdir("./slackware/home/%s" % x)
             ]
             + [
                 x
                 for x in os.listdir("slackware/home")
-                if os.path.isfile("./%s" % x)
+                if os.path.isfile("./slackware/home/%s" % x)
                 and fnmatch.fnmatch(x, "*.t[bglx]z")
             ]
         )
