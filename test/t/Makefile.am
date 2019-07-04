@@ -87,6 +87,7 @@ EXTRA_DIST = \
 	test_clisp.py \
 	test_clone_member.py \
 	test_co.py \
+	test_colordiff.py \
 	test_compare.py \
 	test_compgen.py \
 	test_complete.py \
@@ -564,6 +565,7 @@ EXTRA_DIST = \
 	test_strip.py \
 	test_su.py \
 	test_sudo.py \
+	test_sum.py \
 	test_svcadm.py \
 	test_svk.py \
 	test_svn.py \

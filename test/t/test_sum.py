@@ -1,11 +1,11 @@
 import pytest
 
 
-class TestIrb:
-    @pytest.mark.complete("irb ")
+class TestSum:
+    @pytest.mark.complete("sum ")
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("irb -", require_cmd=True)
+    @pytest.mark.complete("sum -", require_cmd=True)
     def test_options(self, completion):
         assert completion

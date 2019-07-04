@@ -16,3 +16,7 @@ class TestMkdir:
     def test_3(self, completion):
         assert completion.output == "foo"
         assert completion == [completion.output]
+
+    @pytest.mark.complete("mkdir -", require_cmd=True)
+    def test_options(self, completion):
+        assert completion
