@@ -324,7 +324,7 @@ class CompletionResult:
         Defining __eq__ this way is quite ugly, but facilitates concise
         testing code.
         """
-        expiter = [expected] if isinstance(expected, str) else sorted(expected)
+        expiter = [expected] if isinstance(expected, str) else expected
         if self._items is not None:
             return self._items == expiter
         return bool(
