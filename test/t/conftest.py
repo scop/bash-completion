@@ -156,7 +156,7 @@ def bash(request) -> pexpect.spawn:
         if match:
             cmd = match.group(1)
 
-    setattr(request.cls, "cmd", cmd)
+    request.cls.cmd = cmd
 
     if (cmd_found and cmd is None) or is_testable(bash, cmd):
         before_env = get_env(bash)
