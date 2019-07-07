@@ -2,7 +2,8 @@ import pytest
 
 
 @pytest.mark.bashcomp(
-    xfail="! makepkg --help 2>&1 | command grep -qiF slackware"
+    ignore_env=r"^-declare -f _makepkg_bootstrap$",
+    xfail="! makepkg --help 2>&1 | command grep -qiF slackware",
 )
 class TestMakepkg:
     @pytest.mark.complete("makepkg ")
