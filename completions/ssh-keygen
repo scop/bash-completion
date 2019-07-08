@@ -1,5 +1,10 @@
 # ssh-keygen(1) completion                                 -*- shell-script -*-
 
+_ssh_query()
+{
+    ${1:-ssh} -Q $2 2>/dev/null
+}
+
 _ssh_keygen()
 {
     local cur prev words cword
@@ -42,7 +47,12 @@ _ssh_keygen()
             return
             ;;
         -*t)
-            COMPREPLY=( $(compgen -W 'dsa ecdsa ed25519 rsa rsa1' -- "$cur") )
+            local protocols=$(_ssh_query "$1" protocol-version)
+            local types='dsa ecdsa ed25519 rsa'
+            if [[ -z $protocols || $protocols == *1* ]]; then
+                types+=' rsa1'
+            fi
+            COMPREPLY=( $(compgen -W "$types" -- "$cur") )
             return
             ;;
     esac
