@@ -455,7 +455,7 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
     for pre_cmd in marker.kwargs.get("pre_cmds", []):
         assert_bash_exec(bash, pre_cmd)
     if marker.kwargs.get("require_cmd") and not is_bash_type(
-        bash, getattr(request.module, "cmd", None)
+        bash, getattr(request.cls, "cmd", None)
     ):
         pytest.skip("Command not found")
     return assert_complete(bash, marker.args[0], **marker.kwargs)
