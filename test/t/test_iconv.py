@@ -2,11 +2,13 @@ import pytest
 
 
 class TestIconv:
-    @pytest.mark.complete("iconv -", xfail="! iconv --help &>/dev/null")
+    @pytest.mark.complete(
+        "iconv -", require_cmd=True, xfail="! iconv --help &>/dev/null"
+    )
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("iconv -f UTF")
+    @pytest.mark.complete("iconv -f UTF", require_cmd=True)
     def test_2(self, completion):
         assert completion
 

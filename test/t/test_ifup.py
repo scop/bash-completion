@@ -9,7 +9,9 @@ class TestIfup:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("ifup -", skipif="! ifup --help &>/dev/null")
+    @pytest.mark.complete(
+        "ifup -", require_cmd=True, skipif="! ifup --help &>/dev/null"
+    )
     def test_2(self, completion):
         assert completion
 

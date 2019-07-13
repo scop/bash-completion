@@ -31,6 +31,6 @@ class TestExport:
     def test_7(self, completion):
         assert completion
 
-    @pytest.mark.complete("export -")
+    @pytest.mark.complete("export -", require_cmd=True)
     def test_8(self, completion):
         assert completion

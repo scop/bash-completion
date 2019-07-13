@@ -10,7 +10,7 @@ class TestMakepkg:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("makepkg --")
+    @pytest.mark.complete("makepkg --", require_cmd=True)
     def test_2(self, completion):
         assert all(
             x in completion for x in "--chown --linkadd --prepend".split()

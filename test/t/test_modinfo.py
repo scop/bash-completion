@@ -4,7 +4,7 @@ import pytest
 
 
 class TestModinfo:
-    @pytest.mark.complete("modinfo -")
+    @pytest.mark.complete("modinfo -", require_cmd=True)
     def test_1(self, completion):
         assert completion
 

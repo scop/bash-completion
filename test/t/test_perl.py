@@ -11,33 +11,33 @@ class TestPerl:
     def test_2(self, completion):
         assert not completion
 
-    @pytest.mark.complete("perl -V:install")
+    @pytest.mark.complete("perl -V:install", require_cmd=True)
     def test_3(self, completion):
         assert completion
 
-    @pytest.mark.complete("perl -V::install")
+    @pytest.mark.complete("perl -V::install", require_cmd=True)
     def test_4(self, completion):
         assert completion
 
     # Assume File::Spec and friends are always installed
 
-    @pytest.mark.complete("perl -MFile")
+    @pytest.mark.complete("perl -MFile", require_cmd=True)
     def test_5(self, completion):
         assert completion
 
-    @pytest.mark.complete("perl -MFile::Sp")
+    @pytest.mark.complete("perl -MFile::Sp", require_cmd=True)
     def test_6(self, completion):
         assert completion
 
-    @pytest.mark.complete("perl -MFile::Spec::Func")
+    @pytest.mark.complete("perl -MFile::Spec::Func", require_cmd=True)
     def test_7(self, completion):
         assert completion
 
-    @pytest.mark.complete("perl -M-File")
+    @pytest.mark.complete("perl -M-File", require_cmd=True)
     def test_8(self, completion):
         assert completion
 
-    @pytest.mark.complete("perl -m-File::")
+    @pytest.mark.complete("perl -m-File::", require_cmd=True)
     def test_9(self, completion):
         assert completion
 
@@ -70,10 +70,14 @@ class TestPerl:
         """-x with space should complete dirs."""
         assert completion == ["shared/default/bar bar.d/"]
 
-    @pytest.mark.complete("perl -d:", env=dict(PERL5LIB="$PWD/perl"))
+    @pytest.mark.complete(
+        "perl -d:", env=dict(PERL5LIB="$PWD/perl"), require_cmd=True
+    )
     def test_16(self, completion):
         assert "BashCompletion" in completion
 
-    @pytest.mark.complete("perl -dt:", env=dict(PERL5LIB="$PWD/perl"))
+    @pytest.mark.complete(
+        "perl -dt:", env=dict(PERL5LIB="$PWD/perl"), require_cmd=True
+    )
     def test_17(self, completion):
         assert "BashCompletion" in completion

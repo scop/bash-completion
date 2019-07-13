@@ -8,7 +8,7 @@ import pytest
     )
 )
 class TestConfigure:
-    @pytest.mark.complete("configure --")
+    @pytest.mark.complete("configure --", require_cmd=True)
     def test_1(self, completion):
         assert completion
 
