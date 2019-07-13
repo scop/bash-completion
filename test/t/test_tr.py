@@ -2,13 +2,6 @@ import pytest
 
 
 class TestTr:
-    @pytest.mark.complete(
-        "tr --",
-        require_cmd=True,
-        xfail=(
-            "! tr --help &>/dev/null || "
-            "! tr --help 2>&1 | command grep -qF -- --help"
-        ),
-    )
+    @pytest.mark.complete("tr --", require_longopt=True)
     def test_1(self, completion):
         assert completion

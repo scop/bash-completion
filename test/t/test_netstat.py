@@ -6,6 +6,6 @@ class TestNetstat:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("netstat -", require_cmd=True)
+    @pytest.mark.complete("netstat -", require_longopt=True)
     def test_options(self, completion):
         assert completion

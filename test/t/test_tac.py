@@ -2,13 +2,6 @@ import pytest
 
 
 class TestTac:
-    @pytest.mark.complete(
-        "tac --",
-        require_cmd=True,
-        xfail=(
-            "! tac --help &>/dev/null || "
-            "! tac --help 2>&1 | command grep -qF -- --help"
-        ),
-    )
+    @pytest.mark.complete("tac --", require_longopt=True)
     def test_1(self, completion):
         assert completion

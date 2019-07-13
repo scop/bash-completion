@@ -2,13 +2,6 @@ import pytest
 
 
 class TestBc:
-    @pytest.mark.complete(
-        "bc --",
-        require_cmd=True,
-        xfail=(
-            "! bc --help &>/dev/null || "
-            "! bc --help 2>&1 | command grep -qF -- --help"
-        ),
-    )
+    @pytest.mark.complete("bc --", require_longopt=True)
     def test_1(self, completion):
         assert completion

@@ -11,6 +11,6 @@ class TestChroot:
         """Should complete dirs only, also when invoked using full path."""
         assert completion == ["bar bar.d/", "foo.d/"]
 
-    @pytest.mark.complete("chroot -", require_cmd=True)
+    @pytest.mark.complete("chroot -", require_longopt=True)
     def test_options(self, completion):
         assert completion

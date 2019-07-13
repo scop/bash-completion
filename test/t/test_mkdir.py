@@ -17,6 +17,6 @@ class TestMkdir:
         assert completion.output == "foo"
         assert completion == [completion.output]
 
-    @pytest.mark.complete("mkdir -", require_cmd=True)
+    @pytest.mark.complete("mkdir -", require_longopt=True)
     def test_options(self, completion):
         assert completion

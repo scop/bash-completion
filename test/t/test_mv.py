@@ -6,6 +6,6 @@ class TestMv:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("mv -", require_cmd=True)
+    @pytest.mark.complete("mv -", require_longopt=True)
     def test_options(self, completion):
         assert completion

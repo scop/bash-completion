@@ -2,13 +2,6 @@ import pytest
 
 
 class TestSha1sum:
-    @pytest.mark.complete(
-        "sha1sum --",
-        require_cmd=True,
-        xfail=(
-            "! sha1sum --help &>/dev/null || "
-            "! sha1sum --help 2>&1 | command grep -qF -- --help"
-        ),
-    )
+    @pytest.mark.complete("sha1sum --", require_longopt=True)
     def test_1(self, completion):
         assert completion

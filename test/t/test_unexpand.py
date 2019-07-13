@@ -2,13 +2,6 @@ import pytest
 
 
 class TestUnexpand:
-    @pytest.mark.complete(
-        "unexpand --",
-        require_cmd=True,
-        xfail=(
-            "! unexpand --help &>/dev/null || "
-            "! unexpand --help 2>&1 | command grep -qF -- --help"
-        ),
-    )
+    @pytest.mark.complete("unexpand --", require_longopt=True)
     def test_1(self, completion):
         assert completion

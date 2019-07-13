@@ -2,14 +2,7 @@ import pytest
 
 
 class TestGrep:
-    @pytest.mark.complete(
-        "grep --",
-        require_cmd=True,
-        xfail=(
-            "! grep --help &>/dev/null || "
-            "! grep --help 2>&1 | command grep -qF -- --help"
-        ),
-    )
+    @pytest.mark.complete("grep --", require_longopt=True)
     def test_1(self, completion):
         assert completion
 

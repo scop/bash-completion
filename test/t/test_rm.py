@@ -6,6 +6,6 @@ class TestRm:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("rm -", require_cmd=True)
+    @pytest.mark.complete("rm -", require_longopt=True)
     def test_options(self, completion):
         assert completion

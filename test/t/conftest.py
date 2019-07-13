@@ -454,9 +454,18 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
         return CompletionResult("", [])
     for pre_cmd in marker.kwargs.get("pre_cmds", []):
         assert_bash_exec(bash, pre_cmd)
-    if marker.kwargs.get("require_cmd") and not is_bash_type(
-        bash, getattr(request.cls, "cmd", None)
-    ):
+    cmd = getattr(request.cls, "cmd", None)
+    if marker.kwargs.get("require_longopt"):
+        # longopt completions require both command presence and that it
+        # responds something useful to --help
+        if "require_cmd" not in marker.kwargs:
+            marker.kwargs["require_cmd"] = True
+        if "xfail" not in marker.kwargs:
+            marker.kwargs["xfail"] = (
+                "! %s --help &>/dev/null || "
+                "! %s --help 2>&1 | command grep -qF -- --help"
+            ) % ((cmd,) * 2)
+    if marker.kwargs.get("require_cmd") and not is_bash_type(bash, cmd):
         pytest.skip("Command not found")
     return assert_complete(bash, marker.args[0], **marker.kwargs)
 
