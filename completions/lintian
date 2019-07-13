@@ -149,15 +149,22 @@ _lintian_info()
     _init_completion || return
 
     case "$prev" in
+        --help|--profile)
+            return
+            ;;
         -t|--tags)
             _lintian_tags
-            return 0
+            return
+            ;;
+        --include-dir)
+            _filedir -d
+            return
             ;;
     esac
 
     case "$cur" in
         --*)
-            COMPREPLY=($(compgen -W "--annotate --help --tags" -- "$cur"))
+            COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
             ;;
         *)
             _filedir
