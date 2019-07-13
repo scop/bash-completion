@@ -2,7 +2,7 @@ import pytest
 
 
 class TestScreen:
-    @pytest.mark.complete("screen -")
+    @pytest.mark.complete("screen -", require_cmd=True)
     def test_1(self, completion):
         assert completion
 
