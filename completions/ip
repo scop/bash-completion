@@ -192,14 +192,14 @@ _ip()
                     ;;
                 a|add|d|del|change|append|r|replace|monitor)
                     if [[ $prev == via ]]; then
-                        COMPREPLY=( $(compgen -W "$(ip r|grep -oP \
-                        '(?<=via )[0-9.]*'|sort -u)" -- "$cur") )
+                        COMPREPLY=( $(compgen -W "$($1 r|command sed -ne \
+                        's/.*via \([0-9.]*\).*/\1/p')" -- "$cur") )
                     elif [[ $prev == $subcmd ]]; then
                         COMPREPLY=( $(compgen -W "table default \
-                        $(ip r|cut -d ' ' -f 1|sort -u)" -- "$cur") )
+                        $($1 r|command cut -d ' ' -f 1)" -- "$cur") )
                     elif [[ $prev == dev ]]; then
-                        COMPREPLY=( $(compgen -W "$(ip r|grep -oP \
-                        '(?<=dev )[a-z0-9-]*'|sort -u)" -- "$cur") )
+                        COMPREPLY=( $(compgen -W "$($1 r|command sed -ne \
+                        's/.*dev \([a-z0-9-]*\).*/\1/p')" -- "$cur") )
                     elif [[ $prev == table ]]; then
                         : # TODO
                     else
@@ -337,4 +337,3 @@ _ip()
 complete -F _ip ip
 
 # ex: filetype=sh
-
