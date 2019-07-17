@@ -16,6 +16,35 @@ _pg_users()
     [[ ${#COMPREPLY[@]} -eq 0 ]] && COMPREPLY=( $(compgen -u -- "$cur") )
 }
 
+_pg_services()
+{
+    files=()
+
+    personal=${PGSERVICEFILE:-$HOME/.pg_service.conf}
+    if [[ -r "$personal" ]]; then
+        files+=("$personal")
+    fi
+
+    systemdir=${PGSYSCONFDIR:-try-default}
+    if [[ "$systemdir" == "try-default" ]]; then
+    configured_systemdir=$(pg_config --systemconfdir 2>/dev/null)
+        if [[ $? -eq 0 ]]; then
+            systemdir="$configured_systemdir"
+        fi
+    fi
+
+    if [[ -d "$systemdir" ]] && [[ -r "$systemdir/pg_service.conf" ]]; then
+        files+=("$systemdir/pg_service.conf")
+    fi
+
+    all_services=""
+    for f in "${files[@]}"; do
+        all_services="$all_services $(cat $f | grep -e '\[.*\]' | sed -E 's/\[(.*)]/\1/')"
+    done
+
+    COMPREPLY=( $(compgen -W "$all_services" -- "${cur#service=}") )
+}
+
 # createdb(1) completion
 #
 _createdb()
@@ -171,6 +200,11 @@ _psql()
             return
             ;;
     esac
+
+    if [[ "$cur" =~ service=.* ]]; then
+        _pg_services
+        return
+    fi
 
     $split && return
 
