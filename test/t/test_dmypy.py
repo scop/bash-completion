@@ -1,0 +1,12 @@
+import pytest
+
+
+class TestDmypy:
+    @pytest.mark.complete("dmypy ", require_cmd=True)
+    def test_commands(self, completion):
+        assert "help" in completion
+        assert not any("," in x for x in completion)
+
+    @pytest.mark.complete("dmypy -", require_cmd=True)
+    def test_options(self, completion):
+        assert "--help" in completion

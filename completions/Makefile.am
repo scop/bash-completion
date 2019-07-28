@@ -79,6 +79,7 @@ bashcomp_DATA = 2to3 \
 		dhclient \
 		dict \
 		_dmesg \
+		dmypy \
 		dnssec-keygen \
 		dnsspoof \
 		dot \

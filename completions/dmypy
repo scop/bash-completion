@@ -1,0 +1,47 @@
+# dmypy completion                                         -*- shell-script -*-
+
+_dmypy()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --help|--version|-[hV])
+            return
+            ;;
+        --status-file)
+            _filedir
+            return
+            ;;
+    esac
+
+    local cmd i
+    for (( i=1; i < cword; i++ )); do
+        if [[ ${words[i]} != -* && ${words[i-1]} != --status-file ]]; then
+            cmd=${words[i]}
+            break
+        fi
+    done
+
+    case $cmd in
+        check|run)
+            _filedir '@(py|pyi)'
+            return
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+        return
+    fi
+
+    if [[ ! $cmd ]]; then
+        local cmds=$($1 --help 2>&1 \
+                     | command sed -ne '/positional arguments/{p;n;p;q}' \
+                     | command sed -ne 's/{\(.*\)}/\1/p')
+        COMPREPLY=( $(IFS="," compgen -W '$cmds' -- "$cur") )
+        return
+    fi
+} &&
+complete -F _dmypy dmypy
+
+# ex: filetype=sh
