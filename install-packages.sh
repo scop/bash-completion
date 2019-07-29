@@ -12,15 +12,14 @@ apt-get -y upgrade
 
 apt-get -y --no-install-recommends install \
         apt-file \
-        curl \
         git \
         software-properties-common
 
-apt-add-repository multiverse
+apt-add-repository contrib
+apt-add-repository non-free
 
-curl -sL https://deb.nodesource.com/setup_8.x | bash -
 apt-get -y --no-install-recommends install \
-        nodejs
+        npm
 
 npm install -g jshint
 npm cache clean --force
@@ -36,35 +35,28 @@ make -C completions
 
 excluded=$(cat <<\EOF
 arping
-bcron-run
-evince-gtk
+bcron
+fuse
 gdb-minimal
-gnat-4.6
-gnuspool
-heimdal
+gnat-7
+ifupdown
 inetutils-ping
-knot-dnsutils
-knot-host
 lpr
 lprng
-mariadb-client-5.5
-mariadb-client-core-5.5
-mplayer2
-mysql-client-5.5
-mysql-client-core-5.5
+make-guile
 netscript-2.4
+ntpsec-ntpdate
 openresolv
-percona-xtradb-cluster-client-5.5
-postgres-xc-client
-python3.5-venv
+pkg-config
 strongswan-starter
 sudo-ldap
-xserver-xorg-input-synaptics-lts-utopic
-xserver-xorg-input-synaptics-lts-vivid
-xserver-xorg-input-synaptics-lts-wily
-xserver-xorg-input-synaptics-lts-xenial
+systemd-cron
 EOF
 )
+
+# https://github.com/moby/moby/issues/1297
+echo "resolvconf resolvconf/linkify-resolvconf boolean false" \
+    | debconf-set-selections
 
 for file in completions/!(Makefile*); do
     file=${file##*/}
@@ -76,7 +68,6 @@ done \
 
 # Required but not pulled in by dependencies:
 apt-get -y --no-install-recommends install \
-    libwww-perl \
     postgresql-client
 
 cd ..

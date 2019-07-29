@@ -1,8 +1,4 @@
-FROM ubuntu:14.04
-
-# Distro's python3-pip is too old to understand environment markers in
-# requirements.txt, therefore installing pip from PyPI too, using
-# easy_install3 from python3-setuptools.
+FROM debian:10
 
 RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get update \
@@ -12,24 +8,19 @@ RUN export DEBIAN_FRONTEND=noninteractive \
         automake \
         dejagnu \
         make \
-        python3-setuptools \
+        python3-pexpect \
+        python3-pytest-xdist \
         tcllib \
-        xvfb
+        xvfb \
+    && ln -s $(bash -c "type -P pytest-3") /usr/local/bin/pytest
 
 # Use completions/Makefile.am as cache buster, triggering a fresh
 # install of packages whenever it (i.e. the set of possibly tested
 # executables) changes.
 
 ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Makefile.am \
-    https://raw.githubusercontent.com/scop/bash-completion/master/test/requirements.txt \
     install-packages.sh \
     /tmp/
 
-RUN easy_install3 --user pip \
-    && /root/.local/bin/pip install --user -Ir /tmp/requirements.txt \
-    && echo '#!/bin/sh -e' >/usr/local/bin/pytest \
-    && echo 'exec $HOME/.local/bin/pytest "$@"' >>/usr/local/bin/pytest \
-    && chmod +x /usr/local/bin/pytest
-
 RUN /tmp/install-packages.sh \
-    && rm -r /tmp/* /root/.cache/pip /var/lib/apt/lists/*
+    && rm -r /tmp/* /var/lib/apt/lists/*
