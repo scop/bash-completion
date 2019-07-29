@@ -910,6 +910,8 @@ symlinks: $(DATA)
 		vigr
 	$(ss) vncviewer \
 		tightvncviewer xvnc4viewer
+	$(ss) wine \
+		wine-development wine-stable
 	$(ss) wodim \
 		cdrecord
 	$(ss) xz \
