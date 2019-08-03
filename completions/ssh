@@ -3,7 +3,7 @@
 _ssh_queries()
 {
     COMPREPLY+=( $(compgen -W \
-        "cipher cipher-auth mac kex key key-cert key-plain protocol-version" \
+        "cipher cipher-auth mac kex key key-cert key-plain protocol-version sig" \
         -- "$cur") )
 }
 
@@ -34,7 +34,7 @@ _ssh_options()
     local opts=(
         AddKeysToAgent AddressFamily BatchMode BindAddress CanonicalDomains
         CanonicalizeFallbackLocal CanonicalizeHostname CanonicalizeMaxDots
-        CanonicalizePermittedCNAMEs CertificateFile
+        CanonicalizePermittedCNAMEs CASignatureAlgorithms CertificateFile
         ChallengeResponseAuthentication CheckHostIP Ciphers ClearAllForwardings
         Compression ConnectionAttempts ConnectTimeout ControlMaster ControlPath
         ControlPersist DynamicForward EnableSSHKeysign EscapeChar
@@ -90,10 +90,10 @@ _ssh_suboption()
         gssapidelegatecredentials|gssapirenewalforcesrekey|gssapitrustdns|\
         hashknownhosts|hostbasedauthentication|identitiesonly|\
         kbdinteractiveauthentication|kbdinteractivedevices|\
-        nohostauthenticationforlocalhost|passwordauthentication|\
+        nohostauthenticationforlocalhost|passwordauthentication|permitlocalcommand|\
         proxyusefdpass|pubkeyauthentication|rhostsrsaauthentication|\
-        rsaauthentication|stricthostkeychecking|streamlocalbindunlink|\
-        tcpkeepalive|useprivilegedport|verifyhostkeydns|visualhostkey)
+        rsaauthentication|streamlocalbindunlink|\
+        tcpkeepalive|useprivilegedport|visualhostkey)
             COMPREPLY=( $(compgen -W 'yes no' -- "$cur") )
             ;;
         addkeystoagent)
@@ -108,14 +108,20 @@ _ssh_suboption()
         canonicalizehostname)
             COMPREPLY=( $(compgen -W 'yes no always' -- "$cur") )
             ;;
-        *file|identityagent|include)
+        *file|identityagent|include|controlpath|revokedhostkeys|xauthlocation)
             _filedir
+            ;;
+        casignaturealgorithms)
+            COMPREPLY=( $(compgen -W '$(_ssh_query "$2" sig)' -- "$cur") )
             ;;
         cipher)
             COMPREPLY=( $(compgen -W 'blowfish des 3des' -- "$cur") )
             ;;
         ciphers)
             _ssh_ciphers "$2"
+            ;;
+        controlmaster)
+            COMPREPLY=( $(compgen -W 'yes ask auto autoask no' -- "$cur") )
             ;;
         compressionlevel)
             COMPREPLY=( $(compgen -W '{1..9}' -- "$cur") )
@@ -133,8 +139,14 @@ _ssh_suboption()
         kexalgorithms)
             COMPREPLY=( $(compgen -W '$(_ssh_query "$2" kex)' -- "$cur") )
             ;;
+        loglevel)
+            COMPREPLY=( $(compgen -W 'QUIET FATAL ERROR INFO VERBOSE DEBUG{,1,2,3}' -- "$cur") )
+            ;;
         macs)
             _ssh_macs "$2"
+            ;;
+        pkcs11provider)
+            _filedir so
             ;;
         preferredauthentications)
             COMPREPLY=( $(compgen -W 'gssapi-with-mic host-based publickey
@@ -150,11 +162,17 @@ _ssh_suboption()
         proxyjump)
             _known_hosts_real -a -F "$configfile" -- "$cur"
             ;;
+        proxycommand|remotecommand|localcommand)
+            COMPREPLY=( $(compgen -c -- "$cur") )
+            ;;
         pubkeyacceptedkeytypes)
             COMPREPLY=( $(compgen -W '$(_ssh_query "$2" key)' -- "$cur") )
             ;;
         requesttty)
             COMPREPLY=( $(compgen -W 'no yes force auto' -- "$cur") )
+            ;;
+        stricthostkeychecking)
+            COMPREPLY=( $(compgen -W 'accept-new ask no off' -- "$cur") )
             ;;
         syslogfacility)
             COMPREPLY=( $(compgen -W 'DAEMON USER AUTH LOCAL{0..7}' -- "$cur") )
@@ -163,7 +181,7 @@ _ssh_suboption()
             COMPREPLY=( $(compgen -W 'yes no point-to-point ethernet' \
                                   -- "$cur") )
             ;;
-        updatehostkeys)
+        updatehostkeys|verifyhostkeydns)
             COMPREPLY=( $(compgen -W 'yes no ask' -- "$cur") )
             ;;
     esac
@@ -255,7 +273,7 @@ _ssh()
             return
             ;;
         -*O)
-            COMPREPLY=( $(compgen -W 'check forward exit stop' -- "$cur") )
+            COMPREPLY=( $(compgen -W 'check forward cancel exit stop' -- "$cur") )
             return
             ;;
         -*o)
@@ -323,6 +341,10 @@ _sftp()
             ;;
         -*c)
             _ssh_ciphers
+            return
+            ;;
+        -*J)
+            _known_hosts_real -a -F "$configfile" -- "$cur"
             return
             ;;
         -*o)
@@ -445,6 +467,10 @@ _scp()
         -*[Fi])
             _filedir
             compopt +o nospace
+            return
+            ;;
+        -*J)
+            _known_hosts_real -a -F "$configfile" -- "$cur"
             return
             ;;
         -*[lP])

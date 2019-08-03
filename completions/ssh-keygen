@@ -42,7 +42,12 @@ _ssh_keygen()
             return
             ;;
         -*t)
-            COMPREPLY=( $(compgen -W 'dsa ecdsa ed25519 rsa rsa1' -- "$cur") )
+            local protocols=$(_xfunc ssh _ssh_query "$1" protocol-version)
+            local types='dsa ecdsa ed25519 rsa'
+            if [[ $protocols == *1* ]]; then
+                types+=' rsa1'
+            fi
+            COMPREPLY=( $(compgen -W "$types" -- "$cur") )
             return
             ;;
     esac
