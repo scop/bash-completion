@@ -11,7 +11,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
         python3-pexpect \
         python3-pytest-xdist \
         tcllib \
-        xvfb \
+        xvfb xauth \
     && ln -s $(bash -c "type -P pytest-3") /usr/local/bin/pytest
 
 # Use completions/Makefile.am as cache buster, triggering a fresh
