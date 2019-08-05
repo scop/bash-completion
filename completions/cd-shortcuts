@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+#
+#   cd-shortcuts
+#   Copyright (C) 2019  Giovanni Nunes <giovanni.nunes@gmail.com>
+#
+#   Bash completion function to improve "cd" command adding shortcuts:
+#
+#   - "^<number>" to go _number_ directories beyond from current path.
+#
+#   - "@<directory>" to go to the first _directory_ directory from
+#     right to the left starting to current path.
+#
+#
+#   This program is free software: you can redistribute it and/or
+#   modify it under the terms of the GNU General Public License as
+#   published by the Free Software Foundation, either version 3 of the
+#   License, or (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see http://www.gnu.org/licenses/
+#
+_cd_shortcuts(){
+
+    local let valid_words=0
+
+    # discard parameters, count number of arguments and check for shortcut.
+    for word in ${COMP_WORDS[@]}; do
+        i="${word::1}"
+        [[ "$i" != '-' ]] && let valid_words+=1
+        [[ "$i" == '^' ]] && local shortcut='up' && local let level=${word:1}+0
+        [[ "$i" == '@' ]] && local shortcut='at' && local target=${word:1}
+    done
+
+    if (( valid_words == 2 )); then
+
+        # local variables
+        local reply=''
+        local path="$( pwd )"
+
+        # check shortcut...
+        case $shortcut in
+            up)
+                # read current path spliting it with '/'
+                local path_temp
+                IFS='/' read -a path_temp <<< "$1"
+
+                # how many levels it can up?
+                local let max_level=$(( ${#path_temp[@]}-1 ))
+
+                if (( level > 0 )) && (( level < max_level )); then
+                    # create the tedious <dot><dot><slash> string...
+                    for ((i=1; i<=level; i++)); do
+                        reply+='../'
+                    done
+
+                    COMPREPLY="$reply"
+                fi
+                ;;
+
+            at)
+                # go to a specific directory (from the right to the left)...
+                if [[ "${target}" != '' ]] &&\
+                   [[ "$path" == *${target}* ]]; then
+                    new_path="${path%${target}*}$target"
+                    # ...but only if is a valid directory.
+                    [[ -d "$new_path" ]] && COMPREPLY="$new_path"
+                fi
+                ;;
+            *)
+                # there is no shortcuts here, use standard completion
+                _cd
+                ;;
+        esac
+    else
+        # there is no shortcuts here, use standard completion
+        _cd
+    fi
+}
+
+complete -F _cd_shortcuts cd
