@@ -66,7 +66,8 @@ xserver-xorg-input-synaptics-lts-xenial
 EOF
 )
 
-for file in completions/!(Makefile*); do
+source bash_completion
+for file in completions/!(Makefile*) ${!_xspecs[@]}; do
     file=${file##*/}
     printf "%s\n" {/usr,}/{,s}bin/${file#_}
 done \
