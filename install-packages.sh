@@ -58,7 +58,8 @@ EOF
 echo "resolvconf resolvconf/linkify-resolvconf boolean false" \
     | debconf-set-selections
 
-for file in completions/!(Makefile*); do
+source bash_completion
+for file in completions/!(Makefile*) ${!_xspecs[@]}; do
     file=${file##*/}
     printf "%s\n" {/usr,}/{,s}bin/${file#_}
 done \
