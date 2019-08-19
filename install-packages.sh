@@ -17,7 +17,8 @@ autoreconf -i
 ./configure
 make -C completions
 
-for file in completions/!(Makefile*); do
+source bash_completion
+for file in completions/!(Makefile*) ${!_xspecs[@]}; do
     file=${file##*/}
     echo /usr/{,s}bin/${file#_}
 # --skip-broken: avoid failing on not found packages. Also prevents actually
