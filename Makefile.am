@@ -3,6 +3,7 @@ SUBDIRS = completions doc helpers test
 pkgdata_DATA = bash_completion
 
 # Empty, but here just to get the compat dir created with install
+compatdir = $(sysconfdir)/bash_completion.d
 compat_DATA =
 
 profiledir = $(sysconfdir)/profile.d
@@ -18,8 +19,9 @@ cmakeconfig_DATA = bash-completion-config.cmake \
 %: %.in Makefile
 	$(SED) \
 		-e 's|@prefix[@]|$(prefix)|' \
-		-e 's|@compatdir[@]|$(compatdir)|' \
-		-e 's|@pkgdatadir[@]|$(pkgdatadir)|' \
+		-e 's|@datadir[@]|$(datadir)|' \
+		-e 's|@sysconfdir[@]|$(sysconfdir)|' \
+		-e 's|@PACKAGE[@]|$(PACKAGE)|' \
 		-e 's|@VERSION[@]|$(VERSION)|' \
 		<$(srcdir)/$@.in >$@
 
