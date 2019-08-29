@@ -8,7 +8,6 @@ AC_ARG_WITH([pytest],[  --with-pytest=executable],[PYTEST="$withval"])
 if test -z "$PYTEST"; then
     AC_CHECK_PROGS([PYTEST],[pytest pytest-3],[pytest])
 fi
-AC_SUBST(compatdir, $sysconfdir/bash_completion.d)
 AC_CONFIG_FILES([
 Makefile
 completions/Makefile
