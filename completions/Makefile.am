@@ -37,6 +37,7 @@ bashcomp_DATA = 2to3 \
 		_cal \
 		cancel \
 		cardctl \
+		carton \
 		ccache \
 		ccze \
 		cfagent \

@@ -54,6 +54,7 @@ EXTRA_DIST = \
 	test_cal.py \
 	test_cancel.py \
 	test_cardctl.py \
+	test_carton.py \
 	test_cat.py \
 	test_cc.py \
 	test_ccache.py \

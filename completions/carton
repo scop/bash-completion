@@ -1,0 +1,78 @@
+# carton(3pm) completion                                   -*- shell-script -*-
+
+_carton_commands()
+{
+    local cmds=$("${1:-carton}" usage 2>&1 | \
+                     command sed -ne '/.*command.* is one of/{n;p;q}')
+    COMPREPLY+=( $(IFS="$IFS," compgen -W "$cmds" -- "$cur") )
+}
+
+_carton_command_help()
+{
+    local help=$(PERLDOC_PAGER=cat PERLDOC=-otext "${1:-carton}" -h $2 2>&1)
+    COMPREPLY+=( $(compgen -W '$help' -- "$cur") )
+}
+
+_carton()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    local i command
+    for (( i=1; i < cword; i++ )); do
+        case ${words[i]} in
+            -*) ;;
+            *) command=${words[i]}; break ;;
+        esac
+    done
+
+    if [[ -z "$command" ]]; then
+        _carton_commands "$1"
+        return
+    fi
+
+    case $prev in
+        --version|-v)
+            return
+            ;;
+        --help|-h)
+            [[ -n "$command" ]] || _carton_commands "$1"
+            return
+            ;;
+        --cpanfile)
+            if [[ $command == install ]]; then
+                _filedir
+                return
+            fi
+            ;;
+        --path)
+            if [[ $command == install ]]; then
+                _filedir -d
+                return
+            fi
+            ;;
+        --without)
+            if [[ $command == install ]]; then
+                local phases="configure build test runtime develop"
+                COMPREPLY+=( $(compgen -W '$phases' -- "$cur") )
+                return
+            fi
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        [[ $command == @(help|usage) ]] || COMPREPLY=(--help)
+        _carton_command_help "$1" $command
+    fi
+
+    case $command in
+        show|update)
+            :  # TODO modules completion
+            ;;
+    esac
+} &&
+complete -F _carton carton
+
+# ex: filetype=sh
