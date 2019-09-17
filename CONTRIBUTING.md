@@ -173,9 +173,7 @@ Also, please bare the following coding guidelines in mind:
   run-shellcheck.
 
 - File bugs, enhancement, and pull requests at GitHub,
-  https://github.com/scop/bash-completion or send them to the email
-  gateway address bash-completion@fire.fundersclub.com which will pipe
-  them to GitHub issues (with your email address visible).
+  https://github.com/scop/bash-completion.
   Sending them to the developers might work too, but is really strongly
   discouraged as bits are more likely to fall through the cracks that
   way compared to the tracker. Just use GitHub. If that's not an
