@@ -3,7 +3,7 @@
 _apt_get()
 {
     local cur prev words cword
-    _init_completion -n = || return
+    _init_completion -n ':=' || return
 
     local special i
     for (( i=0; i < ${#words[@]}-1; i++ )); do
@@ -34,11 +34,13 @@ _apt_get()
                     _filedir deb
                     return
                 elif [[ $cur == *=* ]]; then
-                    COMPREPLY=( $(compgen -W "$(\
-                        apt-cache --no-generate show "${cur%%=*}" 2>/dev/null |
-                        command sed -ne \
-                            's/^Version:[[:space:]]*\([^[:space:]]\)/\1/p')" \
-                        -- "${cur#*=}") )
+                    IFS='=' read -r package cur <<< "$cur"
+                    mapfile -t COMPREPLY < <(compgen -W "$( \
+                        while IFS=' |' read -r _ version _; do
+                            echo "$version"
+                        done < <(apt-cache madison "$package"))" \
+                        -- "$cur")
+                    __ltrim_colon_completions "$cur"
                     return
                 fi
                 ;;&
