@@ -35,11 +35,12 @@ _apt_get()
                     return
                 elif [[ $cur == *=* ]]; then
                     IFS='=' read -r package cur <<< "$cur"
-                    mapfile -t COMPREPLY < <(compgen -W "$( \
+                    COMPREPLY=($(IFS=$'\n' compgen -W "$( \
+                        apt-cache madison "$package" 2>/dev/null | \
                         while IFS=' |' read -r _ version _; do
                             echo "$version"
-                        done < <(apt-cache madison "$package"))" \
-                        -- "$cur")
+                        done )" \
+                            -- "$cur"))
                     __ltrim_colon_completions "$cur"
                     return
                 fi
