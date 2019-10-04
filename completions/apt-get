@@ -2,7 +2,7 @@
 
 _apt_get()
 {
-    local cur prev words cword
+    local cur prev words cword package
     _init_completion -n ':=' || return
 
     local special i
@@ -34,7 +34,8 @@ _apt_get()
                     _filedir deb
                     return
                 elif [[ $cur == *=* ]]; then
-                    IFS='=' read -r package cur <<< "$cur"
+                    package="${cur%%=*}"
+                    cur="${cur#*=}"
                     COMPREPLY=($(IFS=$'\n' compgen -W "$( \
                         apt-cache --no-generate madison "$package" 2>/dev/null | \
                         while IFS=' |' read -r _ version _; do
