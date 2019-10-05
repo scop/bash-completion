@@ -1,16 +1,73 @@
 # bash bind completion                                     -*- shell-script -*-
 
+_bind_var_vals()
+{
+    local pre=$1 var=$2 val=$3 vals
+    case $var in
+        bind-tty-special-chars|blink-matching-paren|byte-oriented|\
+        colored-completion-prefix|colored-stats|completion-ignore-case|\
+        completion-map-case|convert-meta|disable-completion|\
+        echo-control-characters|enable-bracketed-paste|enable-keypad|\
+        enable-meta-key|expand-tilde|history-preserve-point|\
+        horizontal-scroll-mode|input-meta|mark-directories|\
+        mark-modified-lines|mark-symlinked-directories|match-hidden-files|\
+        menu-complete-display-prefix|meta-flag|output-meta|page-completions|\
+        prefer-visible-bell|print-completions-horizontally|\
+        revert-all-at-newline|show-all-if-ambiguous|show-all-if-unmodified|\
+        show-mode-in-prompt|skip-completed-text|visible-stats)
+            vals=(on off)
+            ;;
+        bell-style)
+            vals=(audible none visible)
+            ;;
+        editing-mode)
+            vals=(emacs vi)
+            ;;
+        keymap)
+            vals=(emacs emacs-standard emacs-meta emacs-ctlx vi vi-command
+                vi-insert)
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+    local v reset=$(shopt -p nocasematch); shopt -s nocasematch
+    for v in "${vals[@]}"; do
+        [[ $v == "$val"* ]] && COMPREPLY+=("${pre}${val}${v/#$val}")
+    done
+    eval $reset
+}
+
+_bind_vars()
+{
+    local pre=$1 var=$2
+    local v reset=$(shopt -p nocasematch); shopt -s nocasematch
+    while IFS=' ' read _ v _; do
+        [[ $v == "$var"* ]] && COMPREPLY+=("${pre}${var}${v/#$var}")
+    done < <(bind -v)
+    eval $reset
+    if [[ ${#COMPREPLY[@]} -eq 1 ]]; then
+        var=${COMPREPLY#* } COMPREPLY=()
+        _bind_var_vals "${pre}${var} " "$var" ""
+        if [[ $? -eq 1 ]]; then
+            # completed a variable name that does not have defined values
+            # avoid the closing quote by adding dummy spaces
+            COMPREPLY=( "${pre}${var} " "${pre}${var}  " )
+        fi
+    fi
+}
+
 _bind()
 {
-    local cur prev words cword
-    _init_completion || return
+    local cur prev words cword IFS=$'\n'
+    _init_completion -n : || return
 
     case $prev in
         -*[lpPsSvVrxX])
             return
             ;;
         -*m)
-            COMPREPLY=( $(compgen -W "emacs emacs-standard emacs-meta
+            COMPREPLY=( $(IFS=' ' compgen -W "emacs emacs-standard emacs-meta
                 emacs-ctlx vi vi-move vi-command vi-insert" -- "$cur") )
             return
             ;;
@@ -26,10 +83,49 @@ _bind()
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $(compgen -W '$(_parse_usage "$1")' -- "$cur") )
+    elif [[ $cword -gt 1 ]]; then
         return
+    elif [[ $2 =~ (set +)([^ ]*)( *)(.*) ]]; then
+        # setting a readline variable
+        if [[ ${BASH_REMATCH[3]} ]]; then
+            # completing variable value
+            local var=${BASH_REMATCH[2]} val=${BASH_REMATCH[4]}
+            local pre=${BASH_REMATCH[1]}${BASH_REMATCH[2]}${BASH_REMATCH[3]}
+            _bind_var_vals "$pre" "$var" "$val"
+        else
+            # completing variable name
+            local pre=${BASH_REMATCH[1]} var=${BASH_REMATCH[2]}
+            _bind_vars "$pre" "$var"
+        fi
+    elif [[ $cur =~ (.*: *)(.*) ]]; then
+        # defining a key binding value
+        local pre=${BASH_REMATCH[1]} fun=${BASH_REMATCH[2]}
+        COMPREPLY=( $(compgen -A binding -P "$pre" -- "$fun") )
+        if [[ ${COMP_WORDS[COMP_CWORD]} != *:* || \
+            ${COMP_WORDS[COMP_CWORD]} == ':' ]]; then
+            # avoid trimming if key binding definition is all quoted
+            __ltrim_colon_completions "$cur"
+        fi
+    else
+        # defining a key binding key/starting to set a variable
+        local pre='' char=$cur extra=''
+        if [[ $cur == *-* ]]; then
+            pre=${cur%-*}- char=${cur##*-}
+        else
+            extra='set'
+        fi
+        COMPREPLY=( $(IFS=' ' compgen -W 'Control Meta Rubout Del Esc Lfd
+            Newline Return Space Tab $extra' -P "$pre" -- "$char") )
+        if [[ ${#COMPREPLY[@]} -eq 1 ]]; then
+            if [[ $COMPREPLY == set ]]; then
+                COMPREPLY=()
+                _bind_vars 'set ' ''
+            else
+                COMPREPLY=("$COMPREPLY-" "$COMPREPLY:")
+                compopt -o nospace
+            fi
+        fi
     fi
-
-    COMPREPLY=( $(compgen -A binding -- "$cur") )
 } &&
 complete -F _bind bind
 
