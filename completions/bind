@@ -35,7 +35,7 @@ _bind_var_vals()
     for v in "${vals[@]}"; do
         [[ $v == "$val"* ]] && COMPREPLY+=("${pre}${val}${v/#$val}")
     done
-    eval $reset
+    eval "$reset"
 }
 
 _bind_vars()
@@ -45,7 +45,7 @@ _bind_vars()
     while IFS=' ' read _ v _; do
         [[ $v == "$var"* ]] && COMPREPLY+=("${pre}${var}${v/#$var}")
     done < <(bind -v)
-    eval $reset
+    eval "$reset"
     if [[ ${#COMPREPLY[@]} -eq 1 ]]; then
         var=${COMPREPLY#* } COMPREPLY=()
         _bind_var_vals "${pre}${var} " "$var" ""
@@ -83,8 +83,6 @@ _bind()
 
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $(compgen -W '$(_parse_usage "$1")' -- "$cur") )
-    elif [[ $cword -gt 1 ]]; then
-        return
     elif [[ $2 =~ (set +)([^ ]*)( *)(.*) ]]; then
         # setting a readline variable
         if [[ ${BASH_REMATCH[3]} ]]; then
