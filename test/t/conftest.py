@@ -82,7 +82,7 @@ def bash(request) -> pexpect.spawn:
 
     logfile = None
     if os.environ.get("BASHCOMP_TEST_LOGFILE"):
-        logfile = open(os.environ.get("BASHCOMP_TEST_LOGFILE"), "w")
+        logfile = open(os.environ["BASHCOMP_TEST_LOGFILE"], "w")
     testdir = os.path.abspath(
         os.path.join(os.path.dirname(__file__), os.pardir)
     )
@@ -122,7 +122,7 @@ def bash(request) -> pexpect.spawn:
     assert_bash_exec(bash, "source '%s/../bash_completion'" % testdir)
 
     # Use command name from marker if set, or grab from test filename
-    cmd = None
+    cmd = None  # type: Optional[str]
     cmd_found = False
     marker = request.node.get_closest_marker("bashcomp")
     if marker:
@@ -478,7 +478,7 @@ def in_container() -> bool:
             shell=True,
         ).strip()
     except subprocess.CalledProcessError:
-        container = None
+        container = b""
     if container and container != b"none":
         return True
     if os.path.exists("/.dockerenv"):
