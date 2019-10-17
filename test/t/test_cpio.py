@@ -11,6 +11,8 @@ class TestCpio:
     @pytest.mark.complete("cpio -R ")
     def test_2(self, bash, completion):
         users = sorted(
-            assert_bash_exec(bash, "compgen -A user", want_output=True).split()
+            assert_bash_exec(bash, "compgen -A user", want_output=True)
+            .strip()
+            .splitlines()
         )
-        assert completion == users
+        assert list(completion) == users
