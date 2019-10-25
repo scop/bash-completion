@@ -41,10 +41,12 @@ _bind_var_vals()
 _bind_vars()
 {
     local pre=$1 var=$2
+    local IFS=$'\n' vars;
+    vars=( $(bind -v) ) vars=("${vars[@]#set }") vars=("${vars[@]% *}")
     local v reset=$(shopt -p nocasematch); shopt -s nocasematch
-    while IFS=' ' read _ v _; do
+    for v in "${vars[@]}"; do
         [[ $v == "$var"* ]] && COMPREPLY+=("${pre}${var}${v/#$var}")
-    done < <(bind -v)
+    done
     eval "$reset"
     if [[ ${#COMPREPLY[@]} -eq 1 ]]; then
         var=${COMPREPLY#* } COMPREPLY=()
