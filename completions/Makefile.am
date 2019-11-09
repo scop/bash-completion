@@ -1,4 +1,4 @@
-bashcompdir = $(pkgdatadir)/completions
+bashcompdir = $(datadir)/$(PACKAGE)/completions
 bashcomp_DATA = 2to3 \
 		7z \
 		a2x \
