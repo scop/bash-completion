@@ -28,44 +28,44 @@ _perl()
         optSuffix=-S/
         prefix=$prev
 
-    case $prev in
-        -*[DeEiFl])
-            return
-            ;;
-        -*[Ix])
-            local IFS=$'\n'
-            compopt -o filenames
-            COMPREPLY=( $(compgen -d $optPrefix $optSuffix -- "$cur") )
-            return
-            ;;
-        -*[mM])
-            temp="${cur#-}"
-            prefix+="${cur%$temp}"
-            cur="$temp"
-            _perl_helper modules $1
-            return
-            ;;
-        -*V)
-            if [[ $cur == :* ]]; then
-                temp="${cur##+(:)}"
-                prefix+="${cur%$temp}"
+        case $prev in
+            -*[DeEiFl])
+                return
+                ;;
+            -*[Ix])
                 local IFS=$'\n'
-                COMPREPLY=( $(compgen -P "$prefix" -W \
-                    '$($1 -MConfig -e "print join \"\\n\",
-                       keys %Config::Config" 2>/dev/null)' -- "$temp") )
-                __ltrim_colon_completions "$prefix$temp"
-            fi
-            return
-            ;;
-        -*d|-*dt)
-            if [[ $cur == :* ]]; then
-                temp="${cur#:}"
-                prefix="$prefix${cur%$temp}"
-                cur="Devel::$temp"
+                compopt -o filenames
+                COMPREPLY=( $(compgen -d $optPrefix $optSuffix -- "$cur") )
+                return
+                ;;
+            -*[mM])
+                temp="${cur#-}"
+                prefix+="${cur%$temp}"
+                cur="$temp"
                 _perl_helper modules $1
-            fi
-            ;;
-    esac
+                return
+                ;;
+            -*V)
+                if [[ $cur == :* ]]; then
+                    temp="${cur##+(:)}"
+                    prefix+="${cur%$temp}"
+                    local IFS=$'\n'
+                    COMPREPLY=( $(compgen -P "$prefix" -W \
+                        '$($1 -MConfig -e "print join \"\\n\",
+                           keys %Config::Config" 2>/dev/null)' -- "$temp") )
+                    __ltrim_colon_completions "$prefix$temp"
+                fi
+                return
+                ;;
+            -*d|-*dt)
+                if [[ $cur == :* ]]; then
+                    temp="${cur#:}"
+                    prefix="$prefix${cur%$temp}"
+                    cur="Devel::$temp"
+                    _perl_helper modules $1
+                fi
+                ;;
+        esac
 
     # Unlike other perl options, having a space between the `-e' and
     # `-E' options and their arguments, e.g. `perl -e "exit 2"', is
