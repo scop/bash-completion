@@ -81,3 +81,11 @@ class TestPerl:
     )
     def test_17(self, completion):
         assert "BashCompletion" in completion
+
+    @pytest.mark.complete("perl -E ")
+    def test_dash_capital_e(self, completion):
+        assert not completion
+
+    @pytest.mark.complete("perl -e")
+    def test_dash_e(self, completion):
+        assert not completion
