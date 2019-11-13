@@ -25,6 +25,13 @@ _screen()
     local cur prev words cword
     _init_completion || return
 
+    if [[ $cword -eq 1 && $cur == /dev* ]]; then
+        COMPREPLY=( $(compgen -W "$(shopt -s nullglob; printf '%s\n' \
+            /dev/serial/by-id/* /dev/ttyUSB* /dev/ttyACM* 2>/dev/null)" \
+            -- "$cur") )
+        return
+    fi
+
     if ((cword > 2)); then
         case ${words[cword-2]} in
             -*[dD])
