@@ -25,12 +25,25 @@ _screen()
     local cur prev words cword
     _init_completion || return
 
-    if [[ $cword -eq 1 && $cur == /dev* ]]; then
-        COMPREPLY=( $(compgen -W "$(shopt -s nullglob; printf '%s\n' \
-            /dev/serial/by-id/* /dev/ttyUSB* /dev/ttyACM* 2>/dev/null)" \
-            -- "$cur") )
-        return
+    if ((cword == 1)); then
+        if [[ $cur == /dev* ]]; then
+            COMPREPLY=( $(compgen -W "$(shopt -s nullglob; printf '%s\n' \
+                /dev/serial/by-id/* /dev/ttyUSB* /dev/ttyACM* 2>/dev/null)" \
+                -- "$cur") )
+            return
+        fi
+        if [[ $cur == //* ]]; then
+            COMPREPLY=( $(compgen -W '//telnet' -- "$cur") )
+            return
+        fi
     fi
+
+    case ${words[1]} in
+        //telnet)
+            ((cword == 2)) && _known_hosts_real -- "$cur"
+            return
+            ;;
+    esac
 
     if ((cword > 2)); then
         case ${words[cword-2]} in

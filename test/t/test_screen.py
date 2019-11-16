@@ -22,3 +22,19 @@ class TestScreen:
     @pytest.mark.complete("screen -T foo cat")
     def test_5(self, completion):
         assert completion
+
+    @pytest.mark.complete("screen //")
+    def test_telnet(self, completion):
+        assert completion == "//telnet"
+
+    @pytest.mark.complete("screen cat //")
+    def test_not_telnet(self, completion):
+        assert completion != "//telnet"
+
+    @pytest.mark.complete("screen //telnet ", env=dict(HOME="$PWD/shared"))
+    def test_telnet_first_arg(self, completion):
+        assert "bash-completion-canary-host.local" in completion
+
+    @pytest.mark.complete("screen //telnet foo ", env=dict(HOME="$PWD/shared"))
+    def test_telnet_other_args(self, completion):
+        assert not completion
