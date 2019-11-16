@@ -38,3 +38,11 @@ class TestScreen:
     @pytest.mark.complete("screen //telnet foo ", env=dict(HOME="$PWD/shared"))
     def test_telnet_other_args(self, completion):
         assert not completion
+
+    @pytest.mark.complete("screen /dev/ttyUSB0 ")
+    def test_serial_2nd_arg(self, completion):
+        assert "19200" in completion
+
+    @pytest.mark.complete("screen /dev/ttyUSB0 9600 ")
+    def test_serial_3rdplus_arg(self, completion):
+        assert not completion
