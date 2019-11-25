@@ -17,8 +17,8 @@ _update_rc_d()
     options=( -f -n )
 
     if [[ $cword -eq 1 || "$prev" == -* ]]; then
-    COMPREPLY=( $(compgen -W '${options[@]} ${services[@]}' \
-        -X '$(tr " " "|" <<<${words[@]})' -- "$cur") )
+        COMPREPLY=( $(compgen -W '${options[@]} ${services[@]}' \
+            -X '$(tr " " "|" <<<${words[@]})' -- "$cur") )
     elif [[ "$prev" == ?($(tr " " "|" <<<"${services[*]}")) ]]; then
         COMPREPLY=( $(compgen -W 'remove defaults start stop' -- "$cur") )
     elif [[ "$prev" == defaults && "$cur" == [0-9] ]]; then
