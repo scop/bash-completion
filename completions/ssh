@@ -108,6 +108,9 @@ _ssh_suboption()
         canonicalizehostname)
             COMPREPLY=( $(compgen -W 'yes no always' -- "$cur") )
             ;;
+        identityfile)
+            _ssh_identityfile
+            ;;
         *file|identityagent|include|controlpath|revokedhostkeys|xauthlocation)
             _filedir
             ;;
@@ -220,6 +223,17 @@ _ssh_configfile()
     done
 }
 
+# With $1 set, look for public key files, else private
+_ssh_identityfile()
+{
+    [[ -z $cur && -d ~/.ssh ]] && cur=~/.ssh/id
+    _filedir
+    if (( ${#COMPREPLY[@]} > 0 )); then
+        COMPREPLY=( $(compgen -W '${COMPREPLY[@]}' \
+                              -X "${1:+!}*.pub" -- "$cur") )
+    fi
+}
+
 _ssh()
 {
     local cur prev words cword
@@ -252,8 +266,12 @@ _ssh()
         -*[DeLpRW])
             return
             ;;
-        -*[EFiS])
+        -*[EFS])
             _filedir
+            return
+            ;;
+        -*i)
+            _ssh_identityfile
             return
             ;;
         -*I)
@@ -335,8 +353,12 @@ _sftp()
         -*[BDlPRs])
             return
             ;;
-        -*[bFi])
+        -*[bF])
             _filedir
+            return
+            ;;
+        -*i)
+            _ssh_identityfile
             return
             ;;
         -*c)
@@ -464,8 +486,13 @@ _scp()
             COMPREPLY=( "${COMPREPLY[@]/%/ }" )
             return
             ;;
-        -*[Fi])
+        -*F)
             _filedir
+            compopt +o nospace
+            return
+            ;;
+        -*i)
+            _ssh_identityfile
             compopt +o nospace
             return
             ;;
