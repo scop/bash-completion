@@ -7,7 +7,7 @@ _update_rc_d()
     local cur prev words cword
     _init_completion || return
 
-    local sysvdir services options valid_options
+    local sysvdir services options
 
     [[ -d /etc/rc.d/init.d ]] && sysvdir=/etc/rc.d/init.d \
         || sysvdir=/etc/init.d
@@ -17,11 +17,6 @@ _update_rc_d()
     options=( -f -n )
 
     if [[ $cword -eq 1 || "$prev" == -* ]]; then
-    valid_options=( $(\
-        tr " " "\n" <<<"${words[*]} ${options[*]}" \
-        | command sed -ne "/$(command sed "s/ /\\|/g" <<<"${options[*]}")/p" \
-        | sort | uniq -u \
-        ) )
     COMPREPLY=( $(compgen -W '${options[@]} ${services[@]}' \
         -X '$(tr " " "|" <<<${words[@]})' -- "$cur") )
     elif [[ "$prev" == ?($(tr " " "|" <<<"${services[*]}")) ]]; then
