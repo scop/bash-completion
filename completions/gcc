@@ -12,13 +12,13 @@ _gcc()
             local cc=$($1 -print-prog-name=cc1 2>/dev/null)
             [[ $cc ]] || return
             COMPREPLY=($( compgen -W "$($cc --help 2>/dev/null | tr '\t' ' ' |\
-                command sed -e '/^  *-/!d' -e 's/ *-\([^][ <>]*\).*/-\1/')" -- "$cur" ))
+                command sed -e '/^  *-/!d' -e 's/ *-\([^][ <>]*\).*/-\1/')" \
+                -- "$cur" ))
             [[ $COMPREPLY == *= ]] && compopt -o nospace
-            return
         else
             _filedir
-            return
         fi
+        return
     fi
 
     # extract also for situations like: -fsanitize=add
@@ -39,12 +39,12 @@ _gcc()
         argument=$prev2$prev$cur
         prefix=$prev2$prev
     # sample: --param lto-
-    elif [[ "$prev" == "--param" ]]; then
+    elif [[ "$prev" == --param ]]; then
         argument="$prev $cur"
         prefix="$prev "
     fi
 
-    if [[ "$argument" == "" ]]; then
+    if [[ -z $argument ]]; then
         _filedir
     else
         # In situation like '-fsanitize=add' $cur is equal to last token.
@@ -52,7 +52,7 @@ _gcc()
         prefix_length=$((${#prefix}+1))
         local flags=$($1 --completion="$argument" | cut -c $prefix_length-)
         [[ "${flags}" == "=*" ]] && compopt -o nospace 2>/dev/null
-        COMPREPLY=($(compgen -W "$flags" -- ""))
+        COMPREPLY=( $(compgen -W "$flags" -- "") )
     fi
 } &&
 complete -F _gcc gcc{,-5,-6,-7,-8} g++{,-5,-6,-7,-8} g77 g95 \
