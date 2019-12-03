@@ -35,7 +35,7 @@ class TestGcc:
         assert "-fno-ipa-icf" in completion
 
     @pytest.mark.complete("gcc -fxyz-abc")
-    def test_no_completion(self, completion, gcc_with_completion):
+    def test_no_completion(self, completion):
         assert not completion
 
     @pytest.mark.complete("gcc --param ")
