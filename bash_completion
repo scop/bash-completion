@@ -2116,16 +2116,27 @@ __load_completion()
     return 1
 }
 
+__load_completion_alias()
+{
+    local cmd="$1"
+    if [[ "$cmd" =~ ^\\ ]];then
+        cmd=$(complete -p "${cmd##*\\}" 2>/dev/null | tr -d $'\n' | sed -e 's/ [^ ]*$//'; printf " '%s'\n" "$cmd")
+        eval "$cmd" 2> /dev/null
+    else
+        return 0
+    fi
+}
+
 # set up dynamic completion loading
 _completion_loader()
 {
     # $1=_EmptycmD_ already for empty cmds in bash 4.3, set to it for earlier
     local cmd="${1:-_EmptycmD_}"
 
-    __load_completion "$cmd" && return 124
+    __load_completion "$cmd" && { __load_completion_alias "$cmd"; return 124; }
 
     # Need to define *something*, otherwise there will be no completion at all.
-    complete -F _minimal -- "$cmd" && return 124
+    complete -F _minimal -- "$cmd" && { __load_completion_alias "$cmd"; return 124; }
 } &&
 complete -D -F _completion_loader
 
