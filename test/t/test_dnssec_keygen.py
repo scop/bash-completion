@@ -13,7 +13,7 @@ class TestDnssecKeygen:
     @pytest.mark.complete("dnssec-keygen -a ")
     def test_2(self, completion):
         assert completion
-        assert "HMAC-MD5" in completion
+        assert any(x in completion for x in ("HMAC-MD5", "RSASHA1", "ED25519"))
         assert "|" not in completion
         assert not any(x.startswith("-") for x in completion)
 
