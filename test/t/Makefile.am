@@ -60,6 +60,7 @@ EXTRA_DIST = \
 	test_ccache.py \
 	test_ccze.py \
 	test_cd.py \
+	test_cd_unalias.py \
 	test_cdrecord.py \
 	test_cfagent.py \
 	test_cfrun.py \
