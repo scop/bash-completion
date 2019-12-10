@@ -2096,17 +2096,29 @@ __load_completion()
         dirs+=( ./completions )
     fi
 
+    local backslash=
+    if [[ $cmd == \\* ]]; then
+        cmd="${cmd:1}"
+        # If we already have a completion for the "real" command, use it
+        $(complete -p "$cmd" 2>/dev/null || echo false) "\\$cmd" && return 0
+        backslash=\\
+    fi
+
     for dir in "${dirs[@]}"; do
         [[ -d "$dir" ]] || continue
         for compfile in "$cmd" "$cmd.bash" "_$cmd"; do
             compfile="$dir/$compfile"
             # Avoid trying to source dirs; https://bugzilla.redhat.com/903540
-            [[ -f "$compfile" ]] && . "$compfile" &>/dev/null && return 0
+            if [[ -f "$compfile" ]] && . "$compfile" &>/dev/null; then
+                [[ $backslash ]] && $(complete -p "$cmd") "\\$cmd"
+                return 0
+            fi
         done
     done
 
     # Look up simple "xspec" completions
-    [[ "${_xspecs[$cmd]}" ]] && complete -F _filedir_xspec "$cmd" && return 0
+    [[ "${_xspecs[$cmd]}" ]] &&
+        complete -F _filedir_xspec "$cmd" "$backslash$cmd" && return 0
 
     return 1
 }
