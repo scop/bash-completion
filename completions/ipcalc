@@ -1,0 +1,25 @@
+# ipcalc(1) completion                                     -*- shell-script -*-
+
+_ipcalc()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --help|--version|--split|-[hs])
+            return
+            ;;
+    esac
+
+    # --split takes 3 args
+    local i
+    for i in {1..3}; do
+        [[ ${words[cword-i]} == -@(-split|s) ]] && return
+    done
+
+    [[ $cur != -* ]] || \
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+} &&
+complete -F _ipcalc ipcalc
+
+# ex: filetype=sh

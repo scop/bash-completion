@@ -173,6 +173,7 @@ bashcomp_DATA = 2to3 \
 		invoke-rc.d \
 		_ionice \
 		ip \
+		ipcalc \
 		iperf \
 		ipmitool \
 		ipsec \

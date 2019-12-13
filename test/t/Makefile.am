@@ -249,6 +249,7 @@ EXTRA_DIST = \
 	test_invoke_rc_d.py \
 	test_ionice.py \
 	test_ip.py \
+	test_ipcalc.py \
 	test_iperf.py \
 	test_ipmitool.py \
 	test_ipsec.py \
