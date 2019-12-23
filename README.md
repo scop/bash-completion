@@ -2,6 +2,15 @@
 
 [![Build Status](https://travis-ci.org/scop/bash-completion.svg?branch=master)](https://travis-ci.org/scop/bash-completion)
 
+## Introduction
+
+bash-completion manages command-line completion using the compgen, complete
+and compopt [bash builtins](https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion-Builtins.html)
+and comes with support for common commands. Two types of files are used:
+completions and helpers. A completion, or a symlink to a completion,
+with the same name as each supported command is required. A helper contains
+functions that can be used by completions.
+
 ## Installation
 
 The easiest way to install this software is to use a package; refer to
