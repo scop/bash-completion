@@ -2,6 +2,13 @@
 
 [![Build Status](https://travis-ci.org/scop/bash-completion.svg?branch=master)](https://travis-ci.org/scop/bash-completion)
 
+## Introduction
+
+bash-completion is a collection of command line command completions for the
+[Bash shell](https://www.gnu.org/software/bash/), collection of helper
+functions to assist in creating new completions, and set of facilities for
+loading completions on demand as well as installing them.
+
 ## Installation
 
 The easiest way to install this software is to use a package; refer to
