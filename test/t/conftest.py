@@ -14,7 +14,7 @@ MAGIC_MARK = "__MaGiC-maRKz!__"
 
 
 def find_unique_completion_pair(
-    items: Iterable[str]
+    items: Iterable[str],
 ) -> Optional[Tuple[str, str]]:
     result = None
     bestscore = 0
@@ -75,6 +75,62 @@ def part_full_group(bash: pexpect.spawn) -> Optional[Tuple[str, str]]:
     if not pair:
         pytest.skip("No suitable test user found")
     return pair
+
+
+@pytest.fixture(scope="class")
+def hosts(bash: pexpect.spawn) -> List[str]:
+    output = assert_bash_exec(
+        bash,
+        "compgen -A hostname; "
+        "type avahi-browse &>/dev/null && "
+        "avahi-browse -cpr _workstation._tcp 2>/dev/null "
+        "| command grep ^= | cut -d\; -f7",
+        want_output=True,
+    )
+    return sorted(set(output.split()))
+
+
+@pytest.fixture(scope="class")
+def known_hosts(bash: pexpect.spawn) -> List[str]:
+    output = assert_bash_exec(
+        bash,
+        # TODO: why does printf instead of echo hang here?
+        '_known_hosts_real; echo "${COMPREPLY[@]}"; unset COMPREPLY',
+        want_output=True,
+    )
+    return sorted(set(output.split()))
+
+
+def partialize(
+    bash: pexpect.spawn, items: Iterable[str]
+) -> Tuple[str, List[str]]:
+    """
+    Get list of items starting with the first char of first of items.
+
+    Disregard items starting with a COMP_WORDBREAKS character
+    (e.g. a colon ~ IPv6 address), they are special cases requiring
+    special tests.
+    """
+    first_char = None
+    comp_wordbreaks = assert_bash_exec(
+        bash,
+        'printf "%s" "$COMP_WORDBREAKS"',
+        want_output=True,
+        want_newline=False,
+    )
+    partial_items = []
+    for item in sorted(items):
+        if first_char is None:
+            if item[0] not in comp_wordbreaks:
+                first_char = item[0]
+                partial_items.append(item)
+        elif item.startswith(first_char):
+            partial_items.append(item)
+        else:
+            break
+    if first_char is None:
+        pytest.skip("Could not generate partial items list from %s" % items)
+    return first_char, partial_items
 
 
 @pytest.fixture(scope="class")

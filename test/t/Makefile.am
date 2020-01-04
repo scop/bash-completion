@@ -658,6 +658,7 @@ EXTRA_DIST = \
 	test_xdg_settings.py \
 	test_xfreerdp.py \
 	test_xgamma.py \
+	test_xhost.py \
 	test_xm.py \
 	test_xmllint.py \
 	test_xmlwf.py \

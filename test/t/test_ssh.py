@@ -1,5 +1,7 @@
 import pytest
 
+from conftest import assert_complete, partialize
+
 
 class TestSsh:
     @pytest.mark.complete("ssh -Fsp", cwd="ssh")
@@ -32,3 +34,15 @@ class TestSsh:
     @pytest.mark.complete("ssh -", require_cmd=True)
     def test_6(self, completion):
         assert completion
+
+    @pytest.mark.complete("ssh -F")
+    def test_capital_f_without_space(self, completion):
+        assert completion
+        assert not any(
+            "option requires an argument -- F" in x for x in completion
+        )
+
+    def test_partial_hostname(self, bash, known_hosts):
+        first_char, partial_hosts = partialize(bash, known_hosts)
+        completion = assert_complete(bash, "ssh %s" % first_char)
+        assert completion == partial_hosts

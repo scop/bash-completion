@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import assert_bash_exec
+from conftest import assert_bash_exec, assert_complete, partialize
 
 
 class TestFinger:
@@ -23,3 +23,9 @@ class TestFinger:
         assert completion
         assert all(x.startswith("r") for x in completion)
         assert not completion.endswith(" ")
+
+    def test_partial_hostname(self, bash, known_hosts):
+        first_char, partial_hosts = partialize(bash, known_hosts)
+        user = "test"
+        completion = assert_complete(bash, "finger %s@%s" % (user, first_char))
+        assert completion == ["%s@%s" % (user, x) for x in partial_hosts]

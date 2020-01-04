@@ -164,8 +164,6 @@ proc assert_bash_list_dir {expected cmd dir test {args {}}} {
 #         a time.  Default is 20.
 #     -nospace   Don't expect space character to be output after completion match.
 #         Valid only if a single completion is expected.
-#     -ltrim-colon-completions   Left-trim completions with cword containing
-#         colon (:)
 #     -expect-cmd-minus DWORD   Expect $cmd minus DWORD to be echoed.
 #         Expected is:
 #
@@ -179,7 +177,6 @@ proc assert_complete {expected cmd {test ""} {args {}}} {
         {prompt.arg     "/@" "bash prompt"}
         {chunk-size.arg 20   "compare N list items at a time"}
         {nospace             "don't expect space after completion"}
-        {ltrim-colon-completions  "left-trim completions with cword containing :"}
         {expect-cmd-minus.arg ""  "Expect cmd minus DWORD after prompt"}
     }]
     if {[llength $expected] == 0} {
@@ -200,7 +197,6 @@ proc assert_complete_many {expected cmd {test ""} {args {}}} {
         {prompt.arg     "/@" "bash prompt"}
         {chunk-size.arg 20   "compare N list items at a time"}
         {nospace             "don't expect space after completion"}
-        {ltrim-colon-completions  "left-trim completions with cword containing :"}
         {expect-cmd-minus.arg ""  "Expect cmd minus CWORD after prompt"}
     }]
     if {$test == ""} {set test "$cmd should show completions"}
@@ -217,10 +213,6 @@ proc assert_complete_many {expected cmd {test ""} {args {}}} {
     # Determine common prefix of completions
     set common [::textutil::string::longestCommonPrefixList $expected]
 
-    if {$arg(ltrim-colon-completions)} {
-        # If partial contains colon (:), remove partial from begin of items
-        _ltrim_colon_completions $cmd expected dword
-    }
     set cmd2 [_remove_cword_from_cmd $cmd $dword $common]
 
     set prompt "$prompt$cmd2$common"
@@ -245,7 +237,6 @@ proc assert_complete_one {expected cmd {test ""} {args {}}} {
         {prompt.arg     "/@" "bash prompt"}
         {chunk-size.arg 20   "compare N list items at a time"}
         {nospace             "don't expect space after completion"}
-        {ltrim-colon-completions  "left-trim completions with cword containing :"}
         {expect-cmd-minus.arg ""  "Expect cmd minus CWORD after prompt"}
     }]
     set prompt $arg(prompt)
@@ -253,23 +244,16 @@ proc assert_complete_one {expected cmd {test ""} {args {}}} {
     if {$test == ""} {set test "$cmd should show completion"}
     send "$cmd\t"
     expect -ex "$cmd"
-    set trimmed false
-    if {$arg(ltrim-colon-completions)} {
-        # If partial contains colon (:), remove partial from begin of items
-        set trimmed [_ltrim_colon_completions $cmd expected cword]
+    set cur "";  # Default to empty word to complete on
+    set words [split_words_bash $cmd]
+    if {[llength $words] > 1} {
+        # Assume last word of `$cmd' is word to complete on.
+        set index [expr [llength $words] - 1]
+        set cur [lindex $words $index]
     }
-    if {! $trimmed} {
-        set cur "";  # Default to empty word to complete on
-        set words [split_words_bash $cmd]
-        if {[llength $words] > 1} {
-            # Assume last word of `$cmd' is word to complete on.
-            set index [expr [llength $words] - 1]
-            set cur [lindex $words $index]
-        }
-        # Remove second word from beginning of $expected
-        if {[string first $cur $expected] == 0} {
-            set expected [list [string range $expected [string length $cur] end]]
-        }
+    # Remove second word from beginning of $expected
+    if {[string first $cur $expected] == 0} {
+        set expected [list [string range $expected [string length $cur] end]]
     }
 
     if {$arg(nospace)} {set endspace ""} else {set endspace "-end-space"}
@@ -376,42 +360,6 @@ proc assert_complete_dir {expected cmd dir {test ""} {args {}}} {
     assert_bash_exec {cd "$TESTDIR"}
 }
 
-
-
-# If cword contains colon (:), left-trim completions with cword
-# @param string $cmd  Command to complete
-# @param list $items  Reference to list of completions to trim
-# @param string $dword   Reference to variable to contain word to remove from
-#                        expected cmd.
-# See also: bash_completion._ltrim_colon_completions
-proc _ltrim_colon_completions {cmd items dword} {
-    upvar 1 $items items_out
-    upvar 1 $dword dword_out
-
-    set cur "";  # Default to empty word to complete on
-    set words [split_words_bash $cmd]
-    if {[llength $words] > 1} {
-        # Assume last word of `$cmd' is word to complete on.
-        set index [expr [llength $words] - 1]
-        set cur [lindex $words $index]
-    }
-    # If word-to-complete contains a colon,
-    # and COMP_WORDBREAKS contains a colon
-    if {
-        [string first : $cur] > -1 && [string first ":" $::COMP_WORDBREAKS] > -1
-    } {
-        set dword_out $cur
-        for {set i 0} {$i < [llength $items_out]} {incr i} {
-            set item [lindex $items_out $i]
-            if {[string first $cur $item] == 0} {
-                # Strip colon-prefix
-                lset items_out $i [string range $item [string length $cur] end]
-            }
-        }
-        return true
-    }
-    return false
-}
 
 
 # Make sure the bash environment hasn't changed between now and the last call
