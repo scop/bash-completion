@@ -4,7 +4,7 @@ import pytest
 class TestIpcalc:
     @pytest.mark.complete("ipcalc -", require_cmd=True)
     def test_options(self, completion):
-        assert "--help" in completion
+        assert any(x in completion for x in "--help -h".split())
 
     @pytest.mark.complete("ipcalc --split -")
     def test_split_3args_1(self, completion):
@@ -20,4 +20,4 @@ class TestIpcalc:
 
     @pytest.mark.complete("ipcalc --split 1 2 3 -", require_cmd=True)
     def test_split_3args_4(self, completion):
-        assert "--help" in completion
+        assert any(x in completion for x in "--help -h".split())
