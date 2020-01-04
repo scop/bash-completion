@@ -51,63 +51,6 @@ expect {
 sync_after_int
 
 
-set test "Tab should complete known-hosts"
-
-    # Build string list of expected completions
-    # Get hostnames and give them a colon (:) suffix
-    # Hosts `gee' and `hut' are defined in ./fixtures/scp/config
-    # Hosts `blah', `doo' and `ike' are defined in ./fixtures/scp/known_hosts
-set expected {}
-foreach host [get_hosts] {
-    lappend expected "$host:"
-}
-lappend expected blah: doo: gee: hut: ike:
-    # Append local filenames
-lappend expected config known_hosts "spaced\\ \\ conf"
-assert_complete $expected "scp -F config " $test
-
-
-sync_after_int
-
-
-set test "-F without space shouldn't error"
-    # Try completion
-set cmd "scp -F"
-send "$cmd\t "
-expect {
-    -re "^${cmd}bash: option requires an argument -- F" { fail "$test" }
-    -re "^$cmd\r\n.*\r\n/@" { pass "$test" }
-    -re /@ { unresolved "$test at prompt" }
-    default { unresolved "$test" }
-}
-
-
-sync_after_int
-
-
-set test "Config file containing space should work"
-    # Build string list of expected completions
-    # Get hostnames and give them a colon (:) suffix
-set expected {}
-foreach host [get_hosts] {
-    lappend expected "$host:"
-}
-    # Hosts `gee', `hus' and `jar' are defined in "./fixtures/scp/spaced  conf"
-    # Hosts `blah', `doo' and `ike' are defined in ./fixtures/scp/known_hosts
-lappend expected blah: doo: gee: hus: ike: jar:
-    # Append local filenames
-lappend expected config known_hosts "spaced\\ \\ conf"
-set cmd "scp -F 'spaced  conf' "
-send "$cmd\t"
-expect -ex "$cmd\r\n"
-if {[match_items [lsort -unique $expected] -bash-sort]} {
-    expect {
-        -re /@ { pass "$test" }
-        -re eof { unresolved "eof" }
-        default { fail "$test" }
-    }
-}
-sync_after_int
 assert_bash_exec {cd "$TESTDIR"}
 
 

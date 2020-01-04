@@ -524,6 +524,7 @@ EXTRA_DIST = \
 	test_sbcl.py \
 	test_sbcl_mt.py \
 	test_sbopkg.py \
+	test_scp.py \
 	test_screen.py \
 	test_scrub.py \
 	test_sdptool.py \
