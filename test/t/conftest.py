@@ -82,7 +82,7 @@ def hosts(bash: pexpect.spawn) -> List[str]:
     output = assert_bash_exec(
         bash,
         "compgen -A hostname; "
-        "type avahi-browse &>/dev/null && "
+        "! type avahi-browse &>/dev/null || "
         "avahi-browse -cpr _workstation._tcp 2>/dev/null "
         "| command grep ^= | cut -d\; -f7",
         want_output=True,
