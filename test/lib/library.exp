@@ -103,35 +103,6 @@ proc assert_bash_list {expected cmd test {args {}}} {
 }
 
 
-# Make sure the expected list matches the real list, as returned by executing
-# the specified bash command within the specified directory.
-# Specify `-sort' if the real list is sorted.
-# @param list $expected  Expected list items
-# @param string $cmd  Bash command to generate real list items
-# @param string $dir  Directory to execute $cmd within
-# @param string $test  Test title.  Becomes "$cmd should show expected output"
-#                      if empty string.
-# @param list $args  Options:
-#                    -sort           Compare list sorted.  Default is unsorted
-#                    -prompt         Bash prompt.  Default is `/@'
-#                    -chunk-size N   Compare list N items at a time.  Default
-#                                    is 20.
-proc assert_bash_list_dir {expected cmd dir test {args {}}} {
-    array set arg [::cmdline::getoptions args {
-        {sort                 "compare list sorted"}
-        {prompt.arg     "/@"  "bash prompt"}
-        {chunk-size.arg 20    "compare N list items at a time"}
-    }]
-    set prompt $arg(prompt)
-    if {$arg(sort)} {set arg_sort "-sort"} else {set arg_sort ""}
-    assert_bash_exec "cd $dir" "" $prompt
-    assert_bash_list $expected $cmd $test $arg_sort \
-        -chunk-size $arg(chunk-size) -prompt $prompt
-    sync_after_int $prompt
-    assert_bash_exec {cd "$TESTDIR"}
-}
-
-
 # Make sure the expected items are returned by TAB-completing the specified
 # command.  If the number of expected items is one, expected is:
 #
@@ -315,33 +286,6 @@ proc _escape_regexp_chars {var} {
     regsub -all {([\^$+*?.|(){}[\]\\])} $str {\\\1} str
 }
 
-# Make sure any completions are returned
-proc assert_complete_any {cmd {test ""} {prompt /@}} {
-    if {$test == ""} {set test "$cmd should show completions"}
-    send "$cmd\t"
-    expect -ex "$cmd"
-    _escape_regexp_chars cmd
-    expect {
-        -timeout 1
-        # Match completions, multiple words
-        # NOTE: The `\S*' (zero or more non-whitespace characters) matches a
-        #       longest common prefix of the completions shown.
-        #       E.g. `fmt -' becomes `fmt --' (two dashes) when completing
-        -re "^\r\n.*$prompt$cmd\\S*$" { pass "$test" }
-        timeout {
-            expect {
-                # Match completion, single word.  This word is shown on the
-                # same line as the command.
-                -re "^\\S* $" { pass "$test" }
-                # Try matching multiple words again, with new timeout
-                -re "^\r\n.*$prompt$cmd\\S*$" { pass "$test" }
-            }
-        }
-        -re $prompt { unresolved "$test at prompt" }
-        eof { unresolved "eof" }
-    }
-}
-
 
 # Make sure the expected files are returned by TAB-completing the specified
 # command in the specified subdirectory.  Be prepared to filter out OLDPWD
@@ -496,22 +440,10 @@ proc bash_sort {items} {
 }
 
 
-# Get 'known' hostnames.  Looks also in ssh's 'known_hosts' files.
-# @param string cword  (optional) Word, hosts should start with.
-# @return list  Hostnames
-# @see get_hosts()
-proc get_known_hosts {{cword ''}} {
-    assert_bash_exec "_known_hosts_real '$cword'; echo_array COMPREPLY" \
-        {} /@ result
-    return $result
-}
-
-
 # Get hostnames
 # @param list $args  Options:
 #                    -unsorted  Do not sort unique.  Default is sort unique.
 # @return list  Hostnames
-# @see get_known_hosts()
 proc get_hosts {{args {}}} {
     array set arg [::cmdline::getoptions args {
         {unsorted   "do not sort unique"}
