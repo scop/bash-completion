@@ -18,34 +18,6 @@ proc teardown {} {
 setup
 
 
-set test "Hosts should be put in COMPREPLY"
-set hosts [get_hosts -unsorted]
-# Hosts `gee', `hus' and `jar' are defined in
-# ./fixtures/_known_hosts_real/config
-# doo, ike, jub, 10.0.0.1, kyl, 100.0.0.2, 10.10.0.3, blah, and bunch of IPv6
-# test cases in ./fixtures/_known_hosts_real/known_hosts
-lappend hosts blah doo gee hus ike jar jub kyl 10.0.0.1 100.0.0.2 10.10.0.3 fd00:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:5555 fe80::123:0xff:dead:beef%eth0 1111:2222:3333:4444:5555:6666:xxxx:abab 11xx:2222:3333:4444:5555:6666:xxxx:abab ::42
-set cmd {unset COMPREPLY; _known_hosts_real -aF fixtures/_known_hosts_real/config ''; echo_array COMPREPLY}
-assert_bash_list $hosts $cmd $test -sort
-sync_after_int
-
-set test "Hosts should have username prefix and colon suffix"
-set hosts [get_hosts -unsorted]
-# Hosts `gee', `hus' and `jar' are defined in
-# ./fixtures/_known_hosts_real/config
-# doo, ike, jub, 10.0.0.1, kyl, 100.0.0.2, 10.10.0.3, blah, and bunch of IPv6
-# test cases in ./fixtures/_known_hosts_real/known_hosts
-lappend hosts blah doo gee hus ike jar jub kyl 10.0.0.1 100.0.0.2 10.10.0.3 fd00:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:5555 fe80::123:0xff:dead:beef%eth0 1111:2222:3333:4444:5555:6666:xxxx:abab 11xx:2222:3333:4444:5555:6666:xxxx:abab ::42
-set hosts [lsort -ascii $hosts]
-set expected {}
-foreach host $hosts {
-    lappend expected "user@$host:"
-}
-# Call _known_hosts
-set cmd {unset COMPREPLY; _known_hosts_real -acF fixtures/_known_hosts_real/config 'user@'; echo_array COMPREPLY}
-assert_bash_list $expected $cmd $test -sort
-sync_after_int
-
 set test "Files containing consecutive spaces should work"
 set hosts [get_hosts -unsorted]
 set hosts_orig $hosts
@@ -96,21 +68,6 @@ expect {
 set cmd {HOME=$OLDHOME}
 send "$cmd\r"
 expect -ex "$cmd\r\n/@"
-sync_after_int
-
-set test "Empty COMP_KNOWN_HOSTS_WITH_HOSTFILE should omit HOSTFILE"
-assert_bash_exec "COMP_KNOWN_HOSTS_WITH_HOSTFILE="
-set hosts [get_hosts_avahi]
-# Hosts `gee', `hus' and `jar' are defined in
-# ./fixtures/_known_hosts_real/config
-# doo, ike, jub, 10.0.0.1, kyl, 100.0.0.2, 10.10.0.3, blah, and bunch of IPv6
-# test cases in ./fixtures/_known_hosts_real/known_hosts
-lappend hosts blah doo gee hus ike jar jub kyl 10.0.0.1 100.0.0.2 10.10.0.3 fd00:xxxx:xxxx:xxxx:xxxx:xxxx:xxxx:5555 fe80::123:0xff:dead:beef%eth0 1111:2222:3333:4444:5555:6666:xxxx:abab 11xx:2222:3333:4444:5555:6666:xxxx:abab ::42
-# Call _known_hosts
-set cmd {unset COMPREPLY; _known_hosts_real -aF fixtures/_known_hosts_real/config ''; echo_array COMPREPLY}
-assert_bash_list $hosts $cmd $test -sort
-sync_after_int
-assert_bash_exec "unset -v COMP_KNOWN_HOSTS_WITH_HOSTFILE"
 sync_after_int
 
 set test "Included config files should work"

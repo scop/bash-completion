@@ -79,13 +79,22 @@ def part_full_group(bash: pexpect.spawn) -> Optional[Tuple[str, str]]:
 
 @pytest.fixture(scope="class")
 def hosts(bash: pexpect.spawn) -> List[str]:
+    output = assert_bash_exec(bash, "compgen -A hostname", want_output=True)
+    return sorted(set(output.split() + _avahi_hosts(bash)))
+
+
+@pytest.fixture(scope="class")
+def avahi_hosts(bash: pexpect.spawn) -> List[str]:
+    return _avahi_hosts(bash)
+
+
+def _avahi_hosts(bash: pexpect.spawn) -> List[str]:
     output = assert_bash_exec(
         bash,
-        "compgen -A hostname; "
         "! type avahi-browse &>/dev/null || "
         "avahi-browse -cpr _workstation._tcp 2>/dev/null "
         "| command grep ^= | cut -d\; -f7",
-        want_output=True,
+        want_output=None,
     )
     return sorted(set(output.split()))
 
@@ -270,7 +279,10 @@ def load_completion_for(bash: pexpect.spawn, cmd: str) -> bool:
 
 
 def assert_bash_exec(
-    bash: pexpect.spawn, cmd: str, want_output: bool = False, want_newline=True
+    bash: pexpect.spawn,
+    cmd: str,
+    want_output: Optional[bool] = False,
+    want_newline=True,
 ) -> str:
 
     # Send command
@@ -304,7 +316,7 @@ def assert_bash_exec(
             'Unexpected output from "%s": exit status=%s, output="%s"'
             % (cmd, status, output)
         )
-    else:
+    elif want_output is not None:
         assert not want_output, (
             'Expected output from "%s": exit status=%s, output="%s"'
             % (cmd, status, output)
