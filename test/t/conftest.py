@@ -93,7 +93,7 @@ def _avahi_hosts(bash: pexpect.spawn) -> List[str]:
         bash,
         "! type avahi-browse &>/dev/null || "
         "avahi-browse -cpr _workstation._tcp 2>/dev/null "
-        "| command grep ^= | cut -d\; -f7",
+        "| command grep ^= | cut -d';' -f7",
         want_output=None,
     )
     return sorted(set(output.split()))
@@ -104,7 +104,7 @@ def known_hosts(bash: pexpect.spawn) -> List[str]:
     output = assert_bash_exec(
         bash,
         # TODO: why does printf instead of echo hang here?
-        '_known_hosts_real; echo "${COMPREPLY[@]}"; unset COMPREPLY',
+        '_known_hosts_real ""; echo "${COMPREPLY[@]}"; unset COMPREPLY',
         want_output=True,
     )
     return sorted(set(output.split()))
