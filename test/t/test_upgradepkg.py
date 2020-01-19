@@ -32,3 +32,20 @@ class TestUpgradepkg:
             ]
         )
         assert completion == expected
+
+    @pytest.mark.complete("upgradepkg foo%", cwd="slackware/home")
+    def test_after_percent(self, completion):
+        expected = sorted(
+            [
+                "%s/" % x
+                for x in os.listdir("slackware/home")
+                if os.path.isdir("./slackware/home/%s" % x)
+            ]
+            + [
+                x
+                for x in os.listdir("slackware/home")
+                if os.path.isfile("./slackware/home/%s" % x)
+                and fnmatch.fnmatch(x, "*.t[bglx]z")
+            ]
+        )
+        assert completion == ["foo%%%s" % x for x in expected]
