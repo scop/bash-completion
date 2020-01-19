@@ -31,13 +31,8 @@ class TestCd:
         bash.send(cmd + "\t")
         bash.expect_exact(cmd.replace("\002", "\b"))
         bash.send(MAGIC_MARK)
-        got = bash.expect(
-            [
-                r"\r\nbar bar\.d/\s+foo\.d/\r\n"
-                + re.escape(PS1 + cmd.replace("\002", "\b") + MAGIC_MARK)
-                + "foo\b\b\b",
-                pexpect.EOF,
-                pexpect.TIMEOUT,
-            ]
+        bash.expect(
+            r"\r\nbar bar\.d/\s+foo\.d/\r\n"
+            + re.escape(PS1 + cmd.replace("\002", "\b") + MAGIC_MARK)
+            + "foo\b\b\b"
         )
-        assert got == 0
