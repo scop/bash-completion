@@ -596,6 +596,7 @@ EXTRA_DIST = \
 	test_tr.py \
 	test_tracepath.py \
 	test_tshark.py \
+	test_tsig_keygen.py \
 	test_tune2fs.py \
 	test_udevadm.py \
 	test_ulimit.py \

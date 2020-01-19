@@ -411,6 +411,7 @@ bashcomp_DATA = 2to3 \
 		tox \
 		tracepath \
 		tshark \
+		tsig-keygen \
 		tune2fs \
 		_udevadm \
 		ulimit \

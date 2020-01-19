@@ -1,0 +1,28 @@
+# tsig-keygen(8) completion                                -*- shell-script -*-
+
+_tsig_keygen()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -h)
+            return
+            ;;
+        -a)
+            COMPREPLY=( $(compgen -W 'hmac-{md5,sha{1,224,256,384,512}}' -- "$cur") )
+            return
+            ;;
+        -r)
+            COMPREPLY=( $(compgen -W keyboard -- "$cur") )
+            _filedir
+            return
+            ;;
+    esac
+
+    [[ $cur != -* ]] || \
+        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+} &&
+complete -F _tsig_keygen tsig-keygen
+
+# ex: filetype=sh
