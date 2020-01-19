@@ -48,23 +48,24 @@ class TestSudo:
         assert completion == "dot.user:%s" % full
         assert completion.endswith(" ")
 
-    @pytest.mark.xfail  # TODO check escaping, whitespace
-    def test_9(self, bash, part_full_group):
+    @pytest.mark.parametrize(
+        "prefix",
+        [
+            # TODO(xfails): check escaping, whitespace
+            pytest.param(r"funky\ user:", marks=pytest.mark.xfail),
+            "funky.user:",
+            pytest.param(r"funky\.user:", marks=pytest.mark.xfail),
+            pytest.param(r"fu\ nky.user:", marks=pytest.mark.xfail),
+            pytest.param(r"f\ o\ o\.\bar:", marks=pytest.mark.xfail),
+            pytest.param(r"foo\_b\ a\.r\ :", marks=pytest.mark.xfail),
+        ],
+    )
+    def test_9(self, bash, part_full_group, prefix):
         """Test preserving special chars in $prefix$partgroup<TAB>."""
         part, full = part_full_group
-        for prefix in (
-            r"funky\ user:",
-            "funky.user:",
-            r"funky\.user:",
-            r"fu\ nky.user:",
-            r"f\ o\ o\.\bar:",
-            r"foo\_b\ a\.r\ :",
-        ):
-            completion = assert_complete(
-                bash, "sudo chown %s%s" % (prefix, part)
-            )
-            assert completion == "%s%s" % (prefix, full)
-            assert completion.endswith(" ")
+        completion = assert_complete(bash, "sudo chown %s%s" % (prefix, part))
+        assert completion == "%s%s" % (prefix, full)
+        assert completion.endswith(" ")
 
     def test_10(self, bash, part_full_user, part_full_group):
         """Test giving up on degenerate cases instead of spewing junk."""
