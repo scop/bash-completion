@@ -7,6 +7,6 @@ class TestTsigKeygen:
     def test_basic(self, completion):
         assert not completion
 
-    @pytest.mark.complete("tsig-keygen -")
+    @pytest.mark.complete("tsig-keygen -", require_cmd=True)
     def test_options(self, completion):
         assert completion
