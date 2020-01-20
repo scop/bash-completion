@@ -25,22 +25,24 @@ _nmap()
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '-iL -iR --exclude --excludefile -sL -sP -PN
-            -PS -PA -PU -PY -PE -PP -PM -PO -n -R --dns-servers --system-dns
-            --traceroute -sS -sT -sA -sW -sM -sU -sN -sF -sX --scanflags -sI
-            -sY -sZ -sO -b -p -F -r --top-ports --port-ratio -sV
-            --version-intensity --version-light --version-all --version-trace
-            -sC --script= --script-args= --script-trace --script-updatedb -O
-            --osscan-limit --osscan-guess -T0 -T1 -T2 -T3 -T4 -T5
-            --min-hostgroup --max-hostgroup --min-parallelism --max-parallelism
-            --min-rtt-timeout --max-rtt-timeout --initial-rtt-timeout
-            --max-retries --host-timeout --scan-delay --max-scan-delay
-            --min-rate --max-rate -f --mtu -D -S -e --source-port --data-length
-            --ip-options --ttl --spoof-mac --badsum --adler32 -oN -oX -oS -oG
-            -oA -v -d --reason --open --packet-trace --iflist --log-errors
-            --append-output --resume --stylesheet --webxml --no-stylesheet -6
-            -A --datadir --send-eth --send-ip --privilege--unprivileged -V
-            -h' -- "$cur") )
+        # strip everything following a :, inclusive
+        # strip everything following a =, exclusive
+        # expand -X; -Y to -X -Y each on own line
+        # expand -X/-Y/-Z to -X -Y -Z each on own line
+        # expand -X/Y/Z to -X -Y -Z each on own line
+        # expand --foo/bar to --foo --bar each on own line
+        # strip everything following a non-option name or = char
+        # TODO: should expand -T<0-5> to -T0 ... -T5 each on own line
+        COMPREPLY=( $(compgen -W '$("$1" --help 2>&1 | command sed \
+            -e "s/:.*$//" \
+            -e "s/=.*$/=/" \
+            -e "s/;[[:space:]]*-/\n-/g" \
+            -e "s/\/-/\n-/g" \
+            -e "/^[[:space:]]*-[^-]/s/\/\([^-]\)/\n -\1/g" \
+            -e "/^[[:space:]]*--/s/\/\([^-]\)/\n --\1/g" \
+            -e "s/[^[:space:]a-zA-Z0-9=-].*$//" \
+            )' \
+            -- "$cur") )
     else
         _known_hosts_real -- "$cur"
     fi
