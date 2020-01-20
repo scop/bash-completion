@@ -40,3 +40,8 @@ class TestNmap:
             "--send-eth --send-ip --privileged --unprivileged -V -h"
             "".strip().split()
         )
+
+    @pytest.mark.complete("_mock_nmap --script-args-f")
+    def test_mock_nospace(self, completion, functions):
+        assert completion == "--script-args-file="
+        assert completion.endswith("=")  # no space appended

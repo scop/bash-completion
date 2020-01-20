@@ -2,8 +2,8 @@
 
 _nmap()
 {
-    local cur prev words cword
-    _init_completion || return
+    local cur prev words cword split
+    _init_completion -s || return
 
     case $prev in
         -iL|-oN|-oX|-oS|-oG|---excludefile|--resume|--stylesheet)
@@ -24,6 +24,8 @@ _nmap()
             ;;
     esac
 
+    $split && return
+
     if [[ "$cur" == -* ]]; then
         # strip everything following a :, inclusive
         # strip everything following a =, exclusive
@@ -43,6 +45,7 @@ _nmap()
             -e "s/[^[:space:]a-zA-Z0-9=-].*$//" \
             )' \
             -- "$cur") )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
     else
         _known_hosts_real -- "$cur"
     fi
