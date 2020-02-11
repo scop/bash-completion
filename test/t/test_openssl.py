@@ -13,3 +13,4 @@ class TestOpenssl:
     @pytest.mark.complete("openssl dgst -s")
     def test_3(self, completion):
         assert completion
+        assert any(x.startswith("-sha") for x in completion)

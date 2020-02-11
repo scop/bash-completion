@@ -29,6 +29,10 @@ _openssl_digests()
 {
     "$1" dgst -h 2>&1 | \
         awk '/^-.*[ \t]to use the .* message digest algorithm/ { print $1 }'
+    local -a digests=( $("$1" help 2>&1 |
+        command sed -ne '/^Message Digest commands/,/^[[:space:]]*$/p' |
+        command sed -e 1d) )
+    printf "%s\n" "${digests[@]/#/-}"
 }
 
 _openssl()
