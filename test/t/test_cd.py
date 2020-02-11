@@ -1,6 +1,5 @@
 import re
 
-import pexpect
 import pytest
 
 from conftest import MAGIC_MARK, PS1
