@@ -3,7 +3,7 @@ import os
 import re
 import shlex
 import subprocess
-from typing import Iterable, List, Optional, Tuple, Union
+from typing import Iterable, Iterator, List, Optional, Tuple
 
 import pexpect
 import pytest
@@ -139,6 +139,8 @@ def partialize(
             break
     if first_char is None:
         pytest.skip("Could not generate partial items list from %s" % items)
+        # superfluous/dead code to assist mypy; pytest.skip always raises
+        assert first_char is not None
     return first_char, partial_items
 
 
@@ -247,7 +249,7 @@ def bash(request) -> pexpect.spawn:
         logfile.close()
 
 
-def is_testable(bash: pexpect.spawn, cmd: str) -> bool:
+def is_testable(bash: pexpect.spawn, cmd: Optional[str]) -> bool:
     if not cmd:
         pytest.fail("Could not resolve name of command to test")
         return False
@@ -361,7 +363,7 @@ def diff_env(before: List[str], after: List[str], ignore: str):
     assert not diff, "Environment should not be modified"
 
 
-class CompletionResult:
+class CompletionResult(Iterable[str]):
     """
     Class to hold completion results.
     """
@@ -385,14 +387,17 @@ class CompletionResult:
     def endswith(self, suffix: str) -> bool:
         return self.output.endswith(suffix)
 
-    def __eq__(self, expected: Union[str, Iterable[str]]) -> bool:
+    def __eq__(self, expected: object) -> bool:
         """
         Returns True if completion contains expected items, and no others.
 
         Defining __eq__ this way is quite ugly, but facilitates concise
         testing code.
         """
-        expiter = [expected] if isinstance(expected, str) else expected
+        if isinstance(expected, str):
+            expiter = [expected]
+        elif not isinstance(expected, Iterable):
+            return False
         if self._items is not None:
             return self._items == expiter
         return bool(
@@ -409,7 +414,7 @@ class CompletionResult:
             re.search(r"(^|\s)%s(\s|$)" % re.escape(item), self.output)
         )
 
-    def __iter__(self) -> Iterable[str]:
+    def __iter__(self) -> Iterator[str]:
         """
         Note that iteration over items may not be accurate when items were not
         specified to the constructor, if individual items in the output contain

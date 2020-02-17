@@ -5,11 +5,12 @@ from collections import defaultdict
 from email.utils import formatdate
 import sys
 from textwrap import wrap
+from typing import Dict, List
 
 import git
 
 repo = git.Repo(".")
-changelog = defaultdict(list)
+changelog = defaultdict(list)  # type: Dict[str, List[str]]
 
 for id in repo.iter_commits("%s..HEAD" % sys.argv[1]):
     commit = repo.commit(id)
