@@ -8,9 +8,7 @@ if [ $DIST = tools ]; then
         cat helpers/perl.ERR
         rc=$((rc+1))
     fi
-    flake8 helpers/python test test/generate; rc=$((rc+$?))
-    black --check helpers/python; rc=$((rc+$?))
-    black --check test test/generate; rc=$((rc+$?))
+    pre-commit run --all-files; rc=$((rc+$?))
     exit $rc
 fi
 
