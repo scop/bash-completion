@@ -9,8 +9,7 @@ if [ $DIST = tools ]; then
         rc=$((rc+1))
     fi
     flake8 helpers/python test test/generate; rc=$((rc+$?))
-    black --check -t py27 -t py33 -t py34 -t py35 -t py36 -t py37 -t py38 \
-        helpers/python; rc=$((rc+$?))
+    black --check helpers/python; rc=$((rc+$?))
     black --check test test/generate; rc=$((rc+$?))
     exit $rc
 fi
