@@ -8,7 +8,6 @@ from typing import Iterable, Iterator, List, Optional, Tuple
 import pexpect
 import pytest
 
-
 PS1 = "/@"
 MAGIC_MARK = "__MaGiC-maRKz!__"
 

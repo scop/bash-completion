@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 # -*- encoding: utf-8 -*-
 
+import sys
 from collections import defaultdict
 from email.utils import formatdate
-import sys
 from textwrap import wrap
 from typing import Dict, List
 
