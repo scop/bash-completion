@@ -178,7 +178,7 @@ _ip()
             esac
             ;;
 
-        route)
+        r|route)
             case $subcmd in
                 list|flush)
                     if [[ $prev == proto ]]; then
@@ -190,8 +190,20 @@ _ip()
                 get)
                     # TODO
                     ;;
-                add|del|change|append|replace|monitor)
-                    # TODO
+                a|add|d|del|change|append|r|replace|monitor)
+                    if [[ $prev == via ]]; then
+                        COMPREPLY=( $(compgen -W "$($1 r | command sed -ne \
+                            's/.*via \([0-9.]*\).*/\1/p')" -- "$cur") )
+                    elif [[ $prev == $subcmd ]]; then
+                        COMPREPLY=( $(compgen -W "table default \
+                            $($1 r | cut -d ' ' -f 1)" -- "$cur") )
+                    elif [[ $prev == dev ]]; then
+                        _available_interfaces -a
+                    elif [[ $prev == table ]]; then
+                        : # TODO
+                    else
+                        COMPREPLY=( $(compgen -W 'via dev weight' -- "$cur") )
+                    fi
                     ;;
                 *)
                     [[ $cword -eq $subcword ]] && \
