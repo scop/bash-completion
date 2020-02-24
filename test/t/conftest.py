@@ -394,9 +394,11 @@ class CompletionResult(Iterable[str]):
         testing code.
         """
         if isinstance(expected, str):
-            expiter = [expected]
+            expiter = [expected]  # type: Iterable
         elif not isinstance(expected, Iterable):
             return False
+        else:
+            expiter = expected
         if self._items is not None:
             return self._items == expiter
         return bool(
