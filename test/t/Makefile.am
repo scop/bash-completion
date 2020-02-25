@@ -457,6 +457,7 @@ EXTRA_DIST = \
 	test_povray.py \
 	test_pr.py \
 	test_prelink.py \
+	test_printenv.py \
 	test_protoc.py \
 	test_psql.py \
 	test_ptx.py \

@@ -323,6 +323,7 @@ bashcomp_DATA = 2to3 \
 		postsuper \
 		povray \
 		prelink \
+		printenv \
 		protoc \
 		psql \
 		puppet \
