@@ -70,6 +70,10 @@ fi
 ```
 
 
+## More documentation
+See the [API documentation!](docs/API.md)
+
+
 ## Troubleshooting
 
 If you find that a given function is producing errors or does not work
