@@ -320,16 +320,18 @@ _ip()
 
         netns)
             case $subcmd in
-                list|list-id|add|identify|monitor)
+                add|identify|list|list-id|monitor)
                     # TODO
                     ;;
                 delete|exec|pids|set)
-                     _available_netns
+                    [[ $prev == $subcmd ]] && \
+                        COMPREPLY=( $( compgen -W '$( command \
+                        ls /var/run/netns 2>/dev/null )' -- "$cur" ) )
                     ;;
                 *)
                     [[ $cword -eq $subcword ]] && \
-                        COMPREPLY=( $( compgen -W 'help list add delete identify
-                               pids exec monitor' -- "$cur" ) )
+                        COMPREPLY=( $( compgen -W 'help add delete exec
+                        identify list list-id monitor pids set' -- "$cur" ) )
                     ;;
             esac
             ;;
@@ -341,8 +343,8 @@ _ip()
                     ;;
                 *)
                     [[ $cword -eq $subcword ]] && \
-                        COMPREPLY=( $( compgen -W 'help list add delete \
-                        identify pids exec monitor' -- "$cur" ) )
+                        COMPREPLY=( $(compgen -W 'state policy monitor' \
+                        -- "$cur") )
                     ;;
             esac
             ;;
