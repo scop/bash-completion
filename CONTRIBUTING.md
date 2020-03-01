@@ -169,8 +169,7 @@ Also, please bare the following coding guidelines in mind:
   is intended to do, fixes issues it intends to fix, etc.
 
 - In addition to running the test suite, there are a few scripts in the test/
-  dir that catch some common issues, see and use for example runLint and
-  run-shellcheck.
+  dir that catch some common issues, see and use for example runLint.
 
 - File bugs, enhancement, and pull requests at GitHub,
   https://github.com/scop/bash-completion.
