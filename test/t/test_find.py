@@ -26,3 +26,7 @@ class TestFind:
     @pytest.mark.complete("find -gid ")
     def test_6(self, completion):
         assert not [x for x in completion if not x.isdigit()]
+
+    @pytest.mark.complete("find -path ba", cwd="shared/default")
+    def test_7(self, completion):
+        assert completion == ["bar bar.d/"]
