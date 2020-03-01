@@ -3,11 +3,6 @@
 if [ $DIST = tools ]; then
     rc=0
     perlcritic helpers/perl; rc=$((rc+$?))
-    perltidy -nst -nse helpers/perl; rc=$((rc+$?))
-    if [ -e helpers/perl.ERR ]; then
-        cat helpers/perl.ERR
-        rc=$((rc+1))
-    fi
     pre-commit run --all-files; rc=$((rc+$?))
     exit $rc
 fi
