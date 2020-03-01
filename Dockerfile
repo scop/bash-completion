@@ -25,7 +25,7 @@ ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Ma
     install-packages.sh \
     /tmp/
 
-RUN easy_install3 --user pip \
+RUN easy_install3 --user pip==19.1.1 \
     && /root/.local/bin/pip install --user -Ir /tmp/requirements.txt \
     && echo '#!/bin/sh -e' >/usr/local/bin/pytest \
     && echo 'exec $HOME/.local/bin/pytest "$@"' >>/usr/local/bin/pytest \
