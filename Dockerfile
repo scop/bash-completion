@@ -5,8 +5,10 @@ RUN apk add --no-cache \
         automake \
         bash \
         dejagnu \
+        gcc \
         make \
-        python3 \
+        musl-dev \
+        python3-dev \
         xvfb \
         xz \
     && wget -O - https://core.tcl.tk/tcllib/uv/tcllib-1.19.tar.xz | xz -dc | tar xC /tmp \
