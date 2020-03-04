@@ -133,3 +133,14 @@ class TestUnitGetCword(TestUnitBase):
         """a 'b&c| should return 'b&c"""
         output = self._test(bash, '(a "\'b&c")', 1, "a 'b&c", 6)
         assert output == "'b&c"
+
+    def test_24(self, bash):
+        """
+        a b c:|
+        with only a space after the caret and
+        with WORDBREAKS -= :
+        should return c:
+        """
+        assert_bash_exec(bash, "add_comp_wordbreak_char :")
+        output = self._test(bash, "(a b c : )", 3, "a b c: ", 6, arg=":")
+        assert output == "c:"
