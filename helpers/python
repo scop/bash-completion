@@ -3,12 +3,20 @@
 import pkgutil
 import sys
 
-# walk_packages() is much slower than iter_modules(), use it only when
-# completing something with a dot in it.
-if len(sys.argv) > 1 and "." in sys.argv[1]:
-    walker = pkgutil.walk_packages
-else:
-    walker = pkgutil.iter_modules
 
-for mod in walker():
+def iter_submodules(pkgname):
+    __import__(pkgname)
+    pkg = sys.modules[pkgname]
+    return pkgutil.walk_packages(
+        pkg.__path__, pkgname + ".", onerror=lambda _: None
+    )
+
+
+if len(sys.argv) > 1 and "." in sys.argv[1]:
+    pkgname = sys.argv[1].rpartition(".")[0]
+    modules = iter_submodules(pkgname)
+else:
+    modules = pkgutil.iter_modules()
+
+for mod in modules:
     print(mod[1])  # noqa: E211
