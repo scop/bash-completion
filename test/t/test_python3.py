@@ -33,3 +33,7 @@ class TestPython3:
     @pytest.mark.complete("python3 -m sy", require_cmd=True)
     def test_8(self, completion):
         assert completion
+
+    @pytest.mark.complete("python3 -m json.", require_cmd=True)
+    def test_9(self, completion):
+        assert "json.tool" in completion
