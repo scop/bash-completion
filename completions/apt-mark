@@ -1,0 +1,52 @@
+# Debian apt-mark(8) completion                             -*- shell-script -*-
+
+_apt_mark()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    local special i
+    for (( i=0; i < ${#words[@]}-1; i++ )); do
+        if [[ ${words[i]} == @(hold|unhold|auto|manual|install|remove|purge|showhold|showauto|showmanual|showinstall|showremove|showpurge|minimize-manual) ]]; then
+            special=${words[i]}
+        fi
+    done
+
+    if [[ -n $special ]]; then
+        case $special in
+            minimize-manual)
+                return
+                ;;
+            *)
+                COMPREPLY=( $(apt-cache --no-generate pkgnames "$cur" \
+                    2>/dev/null) )
+                ;;
+        esac
+        return
+    fi
+
+    case $prev in
+        --help|--version|--option|-!(-*)[hvo])
+            return
+            ;;
+        --config-file|--file|-!(-*)[cf])
+            _filedir
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $(compgen -W '-f --file= --help --version -c --config-file -o --option' -- "$cur") )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+    else
+        COMPREPLY=( $(compgen -W 'hold unhold install remove purge
+            showhold showinstall showremove showpurge showauto showmanual
+            auto manual minimize-manual' -- "$cur") )
+    fi
+
+} &&
+complete -F _apt_mark apt-mark
+
+# ex: filetype=sh
