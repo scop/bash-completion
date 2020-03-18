@@ -3,6 +3,11 @@
 import pkgutil
 import sys
 
+
+class PackageNotFoundError(Exception):
+    pass
+
+
 try:
     from importlib import import_module
 except ImportError:
@@ -12,8 +17,23 @@ except ImportError:
         return sys.modules[name]
 
 
+def import_package(pkgname):
+    parentname = pkgname.rpartition(".")[0]
+    if parentname:
+        parent = import_package(parentname)
+        path = parent.__path__
+        prefix = parentname + "."
+    else:
+        path = sys.path
+        prefix = ""
+    for _, name, ispkg in pkgutil.iter_modules(path, prefix=prefix):
+        if ispkg and name == pkgname:
+            return import_module(pkgname)
+    raise PackageNotFoundError(pkgname)
+
+
 def walk_subpackages(pkgname):
-    pkg = import_module(pkgname)
+    pkg = import_package(pkgname)
     return pkgutil.walk_packages(
         pkg.__path__, pkgname + ".", onerror=lambda _: None
     )
