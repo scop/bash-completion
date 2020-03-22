@@ -18,20 +18,12 @@ _aptitude()
     local cur prev words cword
     _init_completion || return
 
-    local dashoptions='-S -u -i -h --help --version -s --simulate -d
-        --download-only -P --prompt -y --assume-yes -F --display-format -O
-        --sort -w --width -f -r -g --with-recommends -R -G --without-recommends
-        -t --target-release -V --show-versions -D --show-deps -Z -v --verbose
-        --purge-unused --schedule-only'
-
     local special i
     for (( i=1; i < ${#words[@]}-1; i++ )); do
         if [[ ${words[i]} == @(@(|re)install|@(|un)hold|@(|un)markauto|@(dist|full|safe)-upgrade|download|show|forbid-version|purge|remove|changelog|why@(|-not)|keep@(|-all)|build-dep|@(add|remove)-user-tag|versions) ]]; then
             special=${words[i]}
+            break
         fi
-        #exclude some mutually exclusive options
-        [[ ${words[i]} == '-u' ]] && dashoptions=${dashoptions/-i}
-        [[ ${words[i]} == '-i' ]] && dashoptions=${dashoptions/-u}
     done
 
     if [[ -n "$special" ]]; then
@@ -72,7 +64,39 @@ _aptitude()
     esac
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W "$dashoptions" -- "$cur") )
+        local opts=" $($1 --help 2>&1 | command sed -e \
+            's/--with(out)-recommends/--without-recommends\n--with-recommends/'\
+            | _parse_help - | tr '\n' ' ') "
+
+        # Exclude some mutually exclusive options
+        for i in "${words[@]}"; do
+            [[ $i == -u ]] && opts=${opts/ -i / }
+            [[ $i == -i ]] && opts=${opts/ -u / }
+        done
+
+        # Do known short -> long replacements; at least up to 0.8.12, --help
+        # outputs mostly only short ones.
+        COMPREPLY=( $opts )
+        for i in "${!COMPREPLY[@]}"; do
+            case ${COMPREPLY[i]} in
+                -h) COMPREPLY[i]=--help ;;
+                -s) COMPREPLY[i]=--simulate ;;
+                -d) COMPREPLY[i]=--download-only ;;
+                -P) COMPREPLY[i]=--prompt ;;
+                -y) COMPREPLY[i]=--assume-yes ;;
+                -F) COMPREPLY[i]=--display-format ;;
+                -O) COMPREPLY[i]=--sort ;;
+                -W) COMPREPLY[i]=--show-why ;;
+                -w) COMPREPLY[i]=--width ;;
+                -V) COMPREPLY[i]=--show-versions ;;
+                -D) COMPREPLY[i]=--show-deps ;;
+                -v) COMPREPLY[i]=--verbose ;;
+                -t) COMPREPLY[i]=--target-release ;;
+                -q) COMPREPLY[i]=--quiet ;;
+            esac
+        done
+
+        COMPREPLY=( $(compgen -W '${COMPREPLY[@]}' -- "$cur") )
     else
         COMPREPLY=( $(compgen -W 'update upgrade safe-upgrade forget-new
             clean autoclean install reinstall remove hold unhold purge markauto
