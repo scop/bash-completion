@@ -6,8 +6,8 @@ _apt_mark()
     _init_completion -s || return
 
     local special i
-    for (( i=0; i < ${#words[@]}-1; i++ )); do
-        if [[ ${words[i]} == @(hold|unhold|auto|manual|install|remove|purge|showhold|showauto|showmanual|showinstall|showremove|showpurge|minimize-manual) ]]; then
+    for (( i=1; i < ${#words[@]}-1; i++ )); do
+        if [[ ${words[i]} == @(auto|manual|minimize-manual|showauto|showmanual|hold|unhold|showhold|install|remove|purge|showinstall|showremove|showpurge) ]]; then
             special=${words[i]}
         fi
     done
@@ -18,8 +18,7 @@ _apt_mark()
                 return
                 ;;
             *)
-                COMPREPLY=( $(apt-cache --no-generate pkgnames "$cur" \
-                    2>/dev/null) )
+                COMPREPLY=( $(_xfunc apt-cache _apt_cache_packages) )
                 ;;
         esac
         return
@@ -29,7 +28,11 @@ _apt_mark()
         --help|--version|--option|-!(-*)[hvo])
             return
             ;;
-        --config-file|--file|-!(-*)[cf])
+        --config-file|-!(-*)c)
+            _filedir conf
+            return
+            ;;
+        --file|-!(-*)f)
             _filedir
             return
             ;;
@@ -38,12 +41,10 @@ _apt_mark()
     $split && return
 
     if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '-f --file= --help --version -c --config-file -o --option' -- "$cur") )
+        COMPREPLY=( $(compgen -W '--file= --help --version --config-file --option' -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     else
-        COMPREPLY=( $(compgen -W 'hold unhold install remove purge
-            showhold showinstall showremove showpurge showauto showmanual
-            auto manual minimize-manual' -- "$cur") )
+        COMPREPLY=( $(compgen -W 'auto manual minimize-manual showauto showmanual hold unhold showhold install remove purge showinstall showremove showpurge' -- "$cur") )
     fi
 
 } &&
