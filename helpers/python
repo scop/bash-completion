@@ -3,10 +3,17 @@
 import pkgutil
 import sys
 
+try:
+    from importlib import import_module
+except ImportError:
+
+    def import_module(name):
+        __import__(name)
+        return sys.modules[name]
+
 
 def walk_subpackages(pkgname):
-    __import__(pkgname)
-    pkg = sys.modules[pkgname]
+    pkg = import_module(pkgname)
     return pkgutil.walk_packages(
         pkg.__path__, pkgname + ".", onerror=lambda _: None
     )
