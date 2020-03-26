@@ -376,6 +376,7 @@ _get_comp_words_by_ref()
             n) exclude=$OPTARG ;;
             p) vprev=$OPTARG ;;
             w) vwords=$OPTARG ;;
+            *) echo "bash_completion: $FUNCNAME: usage error" >&2; return 1 ;;
         esac
     done
     while [[ $# -ge $OPTIND ]]; do
@@ -715,6 +716,7 @@ _init_completion()
             o) outx=$OPTARG ;;
             i) inx=$OPTARG ;;
             s) split=false ; exclude+== ;;
+            *) echo "bash_completion: $FUNCNAME: usage error" >&2; return 1 ;;
         esac
     done
 
@@ -1553,14 +1555,22 @@ _known_hosts_real()
             p) prefix=$OPTARG ;;
             4) ipv4=1 ;;
             6) ipv6=1 ;;
+            *) echo "bash_completion: $FUNCNAME: usage error" >&2; return 1 ;;
         esac
     done
-    [[ $# -lt $OPTIND ]] && \
+    if [[ $# -lt $OPTIND ]]; then
         echo "bash_completion: $FUNCNAME: missing mandatory argument CWORD" >&2
+        return 1
+    fi
     cur=${!OPTIND}; (( OPTIND += 1 ))
-    [[ $# -ge $OPTIND ]] && \
+    if [[ $# -ge $OPTIND ]]; then
         echo "bash_completion: $FUNCNAME($*): unprocessed arguments:" \
-    $(while [[ $# -ge $OPTIND ]]; do printf '%s\n' ${!OPTIND}; shift; done) >&2
+             $(while [[ $# -ge $OPTIND ]]; do
+                   printf '%s\n' ${!OPTIND}
+                   shift
+               done) >&2
+        return 1
+    fi
 
     [[ $cur == *@* ]] && user=${cur%@*}@ && cur=${cur#*@}
     kh=()
