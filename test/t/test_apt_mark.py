@@ -18,9 +18,9 @@ class TestAptMark:
     def test_3(self, completion):
         assert completion == "--file=bash-completion-test-subject.deb"
 
-    @pytest.mark.complete("apt-mark --config-file ", cwd="dpkg")
+    @pytest.mark.complete("apt-mark --config-file ", cwd="apt-mark")
     def test_4(self, completion):
-        assert completion == "bash-completion-test-subject.deb"
+        assert completion == "example.conf"
 
     @pytest.mark.complete("apt-mark --option ")
     def test_5(self, completion):
