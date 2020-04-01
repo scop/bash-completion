@@ -10,6 +10,10 @@ class TestPrintenv:
     def test_path(self, completion):
         assert "PATH" in completion
 
-    @pytest.mark.complete("printenv -", require_cmd=True)
+    @pytest.mark.complete(
+        "printenv -",
+        require_cmd=True,
+        xfail="! printenv --help 2>&1 | command grep -qF -- ' -'",
+    )
     def test_options(self, completion):
         assert completion
