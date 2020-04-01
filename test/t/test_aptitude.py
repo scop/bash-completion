@@ -6,11 +6,11 @@ class TestAptitude:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("aptitude -")
+    @pytest.mark.complete("aptitude -", require_cmd=True)
     def test_options(self, completion):
         assert completion
 
-    @pytest.mark.complete("aptitude --")
+    @pytest.mark.complete("aptitude --", require_cmd=True)
     def test_long_options(self, completion):
         assert completion
 
