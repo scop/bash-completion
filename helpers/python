@@ -50,16 +50,21 @@ def walk_subpackages(pkgname):
     )
 
 
-if len(sys.argv) > 1 and "." in sys.argv[1]:
-    prefix = sys.argv[1]
-    if prefix.startswith(".") or ".." in prefix:
-        print_error("invalid module name prefix: %s" % prefix)
-        modules = []
+def main():
+    if len(sys.argv) > 1 and "." in sys.argv[1]:
+        prefix = sys.argv[1]
+        if prefix.startswith(".") or ".." in prefix:
+            print_error("invalid module name prefix: %s" % prefix)
+            modules = []
+        else:
+            pkgname = prefix.rpartition(".")[0]
+            modules = walk_subpackages(pkgname)
     else:
-        pkgname = prefix.rpartition(".")[0]
-        modules = walk_subpackages(pkgname)
-else:
-    modules = pkgutil.iter_modules()
+        modules = pkgutil.iter_modules()
 
-for mod in modules:
-    print(mod[1])  # noqa: E211
+    for mod in modules:
+        print(mod[1])  # noqa: E211
+
+
+if __name__ == "__main__":
+    main()
