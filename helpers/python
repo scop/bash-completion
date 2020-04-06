@@ -38,6 +38,15 @@ def import_package(pkgname):
     raise PackageNotFoundError(pkgname)
 
 
+def walkpkg_onerror(pkgname=None):
+    if pkgname is None:
+        pkgname = "<unknown>"
+    print_error("failed to import package %s" % pkgname)
+    exc_info = sys.exc_info()
+    if exc_info[1] is not None:
+        sys.__excepthook__(*exc_info)
+
+
 def walk_subpackages(pkgname):
     try:
         pkg = import_package(pkgname)
@@ -46,7 +55,7 @@ def walk_subpackages(pkgname):
         print_error("package not found: %s" % pkgname)
         return []
     return pkgutil.walk_packages(
-        pkg.__path__, pkgname + ".", onerror=lambda _: None
+        pkg.__path__, pkgname + ".", onerror=walkpkg_onerror
     )
 
 
