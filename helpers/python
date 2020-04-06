@@ -5,7 +5,9 @@ import sys
 
 
 class PackageNotFoundError(Exception):
-    pass
+    def __init__(self, name):
+        Exception.__init__(self, name)
+        self.name = name
 
 
 try:
@@ -15,6 +17,10 @@ except ImportError:
     def import_module(name):
         __import__(name)
         return sys.modules[name]
+
+
+def print_error(message):
+    sys.stderr.write("error: %s\n" % message)
 
 
 def import_package(pkgname):
@@ -33,7 +39,12 @@ def import_package(pkgname):
 
 
 def walk_subpackages(pkgname):
-    pkg = import_package(pkgname)
+    try:
+        pkg = import_package(pkgname)
+    except PackageNotFoundError:
+        pkgname = sys.exc_info()[1].name
+        print_error("package not found: %s" % pkgname)
+        return []
     return pkgutil.walk_packages(
         pkg.__path__, pkgname + ".", onerror=lambda _: None
     )
