@@ -24,6 +24,11 @@ def print_error(message):
 
 
 def import_package(pkgname):
+    pkg = sys.modules.get(pkgname)
+    if pkg is not None:
+        if getattr(pkg, "__path__", None) is not None:
+            return pkg
+        raise PackageNotFoundError(pkgname)
     parts = pkgname.split(".")
     pkgname = None
     path = sys.path
