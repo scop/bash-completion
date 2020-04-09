@@ -50,16 +50,40 @@ def walkpkg_onerror(pkgname=None):
         sys.__excepthook__(*exc_info)
 
 
-def walk_subpackages(pkgname):
+def walk_subpackages(pkgname, tail_prefix="", _recursion=False):
     try:
-        pkg = import_package(pkgname)
+        if not _recursion:
+            pkg = import_package(pkgname)
+        else:
+            pkg = import_module(pkgname)
     except PackageNotFoundError:
-        pkgname = sys.exc_info()[1].name
-        print_error("package not found: %s" % pkgname)
+        name = sys.exc_info()[1].name
+        print_error("package not found: %s" % name)
         return []
-    return pkgutil.walk_packages(
-        pkg.__path__ or [], pkgname + ".", onerror=walkpkg_onerror
-    )
+    except Exception:
+        if not _recursion:
+            raise
+        walkpkg_onerror(name)
+        return []
+
+    pkgpath = getattr(pkg, "__path__", [])
+    prefix = pkgname + "."
+    if not tail_prefix:
+        return pkgutil.walk_packages(pkgpath, prefix, walkpkg_onerror)
+
+    def _walk_filtered():
+        match_prefix = prefix + tail_prefix
+        for modinfo in pkgutil.iter_modules(pkgpath, prefix):
+            _, name, ispkg = modinfo
+            if not name.startswith(match_prefix):
+                continue
+            yield modinfo
+            if not ispkg:
+                continue
+            for info in walk_subpackages(name, _recursion=True):
+                yield info
+
+    return _walk_filtered()
 
 
 def main():
@@ -69,8 +93,8 @@ def main():
             print_error("invalid module name prefix: %s" % prefix)
             modules = []
         else:
-            pkgname = prefix.rpartition(".")[0]
-            modules = walk_subpackages(pkgname)
+            pkgname, _, tail = prefix.rpartition(".")
+            modules = walk_subpackages(pkgname, tail_prefix=tail)
     else:
         modules = pkgutil.iter_modules()
 
