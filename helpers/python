@@ -24,22 +24,18 @@ def print_error(message):
 
 
 def import_package(pkgname):
-    parts = pkgname.split(".")
-    pkgname = None
-    path = sys.path
-    for part in parts:
-        if pkgname is None:
-            pkgname = part
-        else:
-            pkgname = "%s.%s" % (pkgname, part)
-        for _, name, ispkg in pkgutil.iter_modules(path):
-            if ispkg and name == part:
-                pkg = import_module(pkgname)
-                path = pkg.__path__ or []
-                break
-        else:
-            raise PackageNotFoundError(pkgname)
-    return pkg
+    parentname = pkgname.rpartition(".")[0]
+    if parentname:
+        parent = import_package(parentname)
+        path = parent.__path__ or []
+        prefix = parentname + "."
+    else:
+        path = sys.path
+        prefix = ""
+    for _, name, ispkg in pkgutil.iter_modules(path, prefix=prefix):
+        if ispkg and name == pkgname:
+            return import_module(pkgname)
+    raise PackageNotFoundError(pkgname)
 
 
 def walkpkg_onerror(pkgname=None):
