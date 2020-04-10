@@ -24,6 +24,13 @@ def print_error(message):
 
 
 def import_package(pkgname):
+    """Import a module only if it is known to be a package.
+
+    The purpose is to reduce the risk of unwanted side effects caused by
+    importing misbehaving modules (e.g. ones that are designed to be only run
+    as programs but lack `__name__ == "__main__"` guard). Thus, already loaded
+    modules are returned as is even if they are not packages.
+    """
     pkg = sys.modules.get(pkgname)
     if pkg is not None:
         return pkg
@@ -42,6 +49,10 @@ def import_package(pkgname):
 
 
 def walkpkg_onerror(pkgname=None):
+    """Handle errors encountered during walk_[sub]packages().
+
+    Print the exception traceback if available.
+    """
     if pkgname is None:
         pkgname = "<unknown>"
     print_error("failed to import package %s" % pkgname)
@@ -51,6 +62,12 @@ def walkpkg_onerror(pkgname=None):
 
 
 def walk_subpackages(pkgname, tail_prefix="", _recursion=False):
+    """Walk recursively all submodules of package pkgname.
+
+    Return a subset of items returned by pkgutil.walk_packages().
+    If tail_prefix is provided, additionally restrict results to modules whose
+    name starts with `{pkgname}.{tail_prefix}`.
+    """
     try:
         if not _recursion:
             pkg = import_package(pkgname)
@@ -87,6 +104,8 @@ def walk_subpackages(pkgname, tail_prefix="", _recursion=False):
 
 
 def main():
+    # If the name to complete contains a dot, list all submodules recursively.
+    # Otherwise list only toplevel modules to keep speed reasonable.
     if len(sys.argv) > 1 and "." in sys.argv[1]:
         prefix = sys.argv[1]
         if prefix.startswith(".") or ".." in prefix:
