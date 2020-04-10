@@ -19,6 +19,12 @@ except ImportError:
         return sys.modules[name]
 
 
+try:
+    from importlib.util import find_spec
+except ImportError:
+    find_spec = None
+
+
 def print_error(message):
     sys.stderr.write("error: %s\n" % message)
 
@@ -37,6 +43,11 @@ def import_package(pkgname):
     parentname = pkgname.rpartition(".")[0]
     if parentname:
         parent = import_package(parentname)
+    if find_spec is not None:
+        spec = find_spec(pkgname)
+        if spec is not None and spec.submodule_search_locations is not None:
+            return import_module(pkgname)
+    if parentname:
         path = parent.__path__ or []
         prefix = parentname + "."
     else:
