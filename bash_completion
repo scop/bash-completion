@@ -168,7 +168,7 @@ _upvar()
         if (( $# == 2 )); then
             eval $1=\"\$2\"          # Return single value
         else
-            eval $1=\(\"\${@:2}\"\)  # Return array
+            eval $1=\(\"\$"{@:2}"\"\) # Return array
         fi
     fi
 }
@@ -199,7 +199,7 @@ _upvars()
                     "$FUNCNAME: \`$1': invalid number specifier" >&2
                     return 1; }
                 # Assign array of -aN elements
-                [[ "$2" ]] && unset -v "$2" && eval $2=\(\"\${@:3:${1#-a}}\"\) &&
+                [[ "$2" ]] && unset -v "$2" && eval $2=\(\"\$"{@:3:${1#-a}}"\"\) &&
                 shift $((${1#-a} + 2)) || { echo bash_completion: \
                     "$FUNCNAME: \`$1${2+ }$2': missing argument(s)" \
                     >&2; return 1; }
@@ -626,7 +626,7 @@ _variables()
 {
     if [[ $cur =~ ^(\$(\{[!#]?)?)([A-Za-z0-9_]*)$ ]]; then
         # Completing $var / ${var / ${!var / ${#var
-        if [[ $cur == \${* ]]; then
+        if [[ $cur == "\${"* ]]; then
             local arrs vars
             vars=( $(compgen -A variable -P ${BASH_REMATCH[1]} -S '}' -- ${BASH_REMATCH[3]}) ) && \
             arrs=( $(compgen -A arrayvar -P ${BASH_REMATCH[1]} -S '[' -- ${BASH_REMATCH[3]}) )
