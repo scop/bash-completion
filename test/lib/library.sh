@@ -33,6 +33,6 @@ diff_env() {
 # Unset variable after outputting.
 # @param $1  Name of array variable to process
 echo_array() {
-    local name=$1[@]
+    local name="$1[@]"
     printf "%s\n" "${!name}" | sort
 } # echo_array()
