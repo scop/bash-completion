@@ -813,7 +813,7 @@ __parse_options()
 #
 _parse_help()
 {
-    eval local cmd=$(quote "$1")
+    eval local cmd="$(quote "$1")"
     local line
     { case $cmd in
         -) cat ;;
@@ -838,7 +838,7 @@ _parse_help()
 #
 _parse_usage()
 {
-    eval local cmd=$(quote "$1")
+    eval local cmd="$(quote "$1")"
     local line match option i char
     { case $cmd in
         -) cat ;;
@@ -1034,7 +1034,7 @@ _tilde()
 __expand_tilde_by_ref()
 {
     if [[ ${!1} == \~* ]]; then
-        eval $1=$(printf ~%q "${!1#\~}")
+        eval $1="$(printf ~%q "${!1#\~}")"
     fi
 } # __expand_tilde_by_ref()
 
@@ -1050,7 +1050,7 @@ _expand()
     if [[ "$cur" == \~*/* ]]; then
         __expand_tilde_by_ref cur
     elif [[ "$cur" == \~* ]]; then
-        _tilde "$cur" || eval COMPREPLY[0]=$(printf ~%q "${COMPREPLY[0]#\~}")
+        _tilde "$cur" || eval COMPREPLY[0]="$(printf ~%q "${COMPREPLY[0]#\~}")"
         return ${#COMPREPLY[@]}
     fi
 }
@@ -1565,10 +1565,10 @@ _known_hosts_real()
     cur=${!OPTIND}; (( OPTIND += 1 ))
     if [[ $# -ge $OPTIND ]]; then
         echo "bash_completion: $FUNCNAME($*): unprocessed arguments:" \
-             $(while [[ $# -ge $OPTIND ]]; do
-                   printf '%s\n' ${!OPTIND}
+             "$(while [[ $# -ge $OPTIND ]]; do
+                   printf '%s ' ${!OPTIND}
                    shift
-               done) >&2
+               done)" >&2
         return 1
     fi
 

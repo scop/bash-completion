@@ -55,7 +55,7 @@ _muttconffiles()
     sofar=" $1 "
     shift
     while [[ "$1" ]]; do
-        newconffiles=( $(command sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' $(eval printf %s $1) ) )
+        newconffiles=( $(command sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' "$(eval printf %s $1)" ) )
         for file in "${newconffiles[@]}"; do
             __expand_tilde_by_ref file
             [[ ! -f "$file" || $sofar == *\ $file\ * ]] && continue
@@ -78,8 +78,9 @@ _muttaliases()
     [[ -z $muttrc ]] && return
 
     conffiles=( $(eval _muttconffiles $muttrc $muttrc) )
-    aliases=( $(command sed -n 's|^alias[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' \
-        $(eval echo "${conffiles[@]}")) )
+    # shellcheck disable=SC2046
+    aliases=( "$(command sed -n 's|^alias[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' \
+        $(eval echo "${conffiles[@]}"))" )
     COMPREPLY+=( $(compgen -W "${aliases[*]}" -- "$cur") )
 }
 
