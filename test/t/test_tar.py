@@ -86,19 +86,13 @@ class TestTar:
         assert completion.endswith(" ")
 
     @pytest.mark.complete("tar --owner=")
-    def test_17(self, bash, completion, gnu_tar):
-        users = sorted(
-            assert_bash_exec(bash, "compgen -A user", want_output=True).split()
-        )
+    def test_17(self, bash, completion, gnu_tar, output_sort_uniq):
+        users = output_sort_uniq("compgen -u")
         assert completion == users
 
     @pytest.mark.complete("tar --group=")
-    def test_18(self, bash, completion, gnu_tar):
-        groups = sorted(
-            assert_bash_exec(
-                bash, "compgen -A group", want_output=True
-            ).split()
-        )
+    def test_18(self, bash, completion, gnu_tar, output_sort_uniq):
+        groups = output_sort_uniq("compgen -g")
         assert completion == groups
 
     # Use -b for this as -b is still not handled by tar's completion

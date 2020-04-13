@@ -1,16 +1,12 @@
 import pytest
 
-from conftest import assert_bash_exec, assert_complete, partialize
+from conftest import assert_complete, partialize
 
 
 class TestFinger:
     @pytest.fixture(scope="class")
-    def users_at(self, bash):
-        return sorted(
-            assert_bash_exec(
-                bash, "compgen -A user -S @", want_output=True
-            ).split()
-        )
+    def users_at(self, bash, output_sort_uniq):
+        return output_sort_uniq("compgen -u -S @")
 
     @pytest.mark.complete("finger ")
     def test_1(self, bash, completion, users_at):

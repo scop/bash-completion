@@ -3,7 +3,7 @@ import os
 import re
 import shlex
 import subprocess
-from typing import Iterable, Iterator, List, Optional, Tuple
+from typing import Callable, Iterable, Iterator, List, Optional, Tuple
 
 import pexpect
 import pytest
@@ -55,10 +55,22 @@ def find_unique_completion_pair(
 
 
 @pytest.fixture(scope="class")
-def part_full_user(bash: pexpect.spawn) -> Optional[Tuple[str, str]]:
-    res = (
-        assert_bash_exec(bash, "compgen -u", want_output=True).strip().split()
-    )
+def output_sort_uniq(bash: pexpect.spawn) -> Callable[[str], List[str]]:
+    def _output_sort_uniq(command: str) -> List[str]:
+        return sorted(
+            set(  # weed out possible duplicates
+                assert_bash_exec(bash, command, want_output=True).split()
+            )
+        )
+
+    return _output_sort_uniq
+
+
+@pytest.fixture(scope="class")
+def part_full_user(
+    bash: pexpect.spawn, output_sort_uniq: Callable[[str], List[str]]
+) -> Optional[Tuple[str, str]]:
+    res = output_sort_uniq("compgen -u")
     pair = find_unique_completion_pair(res)
     if not pair:
         pytest.skip("No suitable test user found")
@@ -66,10 +78,10 @@ def part_full_user(bash: pexpect.spawn) -> Optional[Tuple[str, str]]:
 
 
 @pytest.fixture(scope="class")
-def part_full_group(bash: pexpect.spawn) -> Optional[Tuple[str, str]]:
-    res = (
-        assert_bash_exec(bash, "compgen -g", want_output=True).strip().split()
-    )
+def part_full_group(
+    bash: pexpect.spawn, output_sort_uniq: Callable[[str], List[str]]
+) -> Optional[Tuple[str, str]]:
+    res = output_sort_uniq("compgen -g")
     pair = find_unique_completion_pair(res)
     if not pair:
         pytest.skip("No suitable test user found")

@@ -2,7 +2,7 @@ import getpass
 
 import pytest
 
-from conftest import assert_bash_exec, assert_complete
+from conftest import assert_complete
 
 
 @pytest.mark.bashcomp(
@@ -16,10 +16,8 @@ class TestChown:
         getpass.getuser() != "root", reason="Only root can chown to all users"
     )
     @pytest.mark.complete("chown ")
-    def test_1(self, bash, completion):
-        users = sorted(
-            assert_bash_exec(bash, "compgen -A user", want_output=True).split()
-        )
+    def test_1(self, bash, completion, output_sort_uniq):
+        users = output_sort_uniq("compgen -u")
         assert completion == users
 
     @pytest.mark.complete("chown foo: shared/default/")
