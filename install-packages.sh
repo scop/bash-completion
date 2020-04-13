@@ -58,6 +58,7 @@ EOF
 echo "resolvconf resolvconf/linkify-resolvconf boolean false" \
     | debconf-set-selections
 
+export BASH_COMPLETION_COMPAT_DIR=/var/empty/bash_completion.d
 source bash_completion
 for file in completions/!(Makefile*) ${!_xspecs[@]}; do
     file=${file##*/}
