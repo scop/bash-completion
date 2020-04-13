@@ -297,6 +297,9 @@ def assert_bash_exec(
     want_output: Optional[bool] = False,
     want_newline=True,
 ) -> str:
+    """
+    :param want_output: if None, don't care if got output or not
+    """
 
     # Send command
     bash.sendline(cmd)
@@ -324,16 +327,17 @@ def assert_bash_exec(
         status,
         output,
     )
-    if output:
-        assert want_output, (
-            'Unexpected output from "%s": exit status=%s, output="%s"'
-            % (cmd, status, output)
-        )
-    elif want_output is not None:
-        assert not want_output, (
-            'Expected output from "%s": exit status=%s, output="%s"'
-            % (cmd, status, output)
-        )
+    if want_output is not None:
+        if output:
+            assert want_output, (
+                'Unexpected output from "%s": exit status=%s, output="%s"'
+                % (cmd, status, output)
+            )
+        else:
+            assert not want_output, (
+                'Expected output from "%s": exit status=%s, output="%s"'
+                % (cmd, status, output)
+            )
 
     return output
 
