@@ -213,7 +213,7 @@ def bash(request) -> pexpect.spawn:
         skipif = marker.kwargs.get("skipif")
         if skipif:
             try:
-                assert_bash_exec(bash, skipif)
+                assert_bash_exec(bash, skipif, want_output=None)
             except AssertionError:
                 pass
             else:
@@ -222,7 +222,7 @@ def bash(request) -> pexpect.spawn:
         xfail = marker.kwargs.get("xfail")
         if xfail:
             try:
-                assert_bash_exec(bash, xfail)
+                assert_bash_exec(bash, xfail, want_output=None)
             except AssertionError:
                 pass
             else:
@@ -461,7 +461,7 @@ def assert_complete(
     skipif = kwargs.get("skipif")
     if skipif:
         try:
-            assert_bash_exec(bash, skipif)
+            assert_bash_exec(bash, skipif, want_output=None)
         except AssertionError:
             pass
         else:
@@ -469,7 +469,7 @@ def assert_complete(
     xfail = kwargs.get("xfail")
     if xfail:
         try:
-            assert_bash_exec(bash, xfail)
+            assert_bash_exec(bash, xfail, want_output=None)
         except AssertionError:
             pass
         else:
