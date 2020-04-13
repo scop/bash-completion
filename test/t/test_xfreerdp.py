@@ -29,7 +29,11 @@ class TestXfreerdp:
     def test_3(self, bash, completion, slash_syntax):
         assert completion
 
-    @pytest.mark.complete("xfreerdp /kbd:", require_cmd=True)
+    @pytest.mark.complete(
+        "xfreerdp /kbd:",
+        require_cmd=True,
+        skipif='test -z "$(xfreerdp /kbd-list 2>/dev/null)"',
+    )
     def test_4(self, bash, completion, slash_syntax):
         assert completion
 
