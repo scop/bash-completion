@@ -66,6 +66,7 @@ xserver-xorg-input-synaptics-lts-xenial
 EOF
 )
 
+export BASH_COMPLETION_COMPAT_DIR=/var/empty/bash_completion.d
 source bash_completion
 for file in completions/!(Makefile*) ${!_xspecs[@]}; do
     file=${file##*/}
