@@ -47,6 +47,7 @@ def import_package(pkgname):
         spec = find_spec(pkgname)
         if spec is not None and spec.submodule_search_locations is not None:
             return import_module(pkgname)
+    # find_spec() unavailable, fall back to searching iter_modules(...).
     if parentname:
         path = parent.__path__ or []
         prefix = parentname + "."
@@ -60,7 +61,7 @@ def import_package(pkgname):
 
 
 def walkpkg_onerror(pkgname=None):
-    """Handle errors encountered during walk_[sub]packages().
+    """Report errors encountered during walk_[sub]packages().
 
     Print the exception traceback if available.
     """
