@@ -25,12 +25,21 @@ _pgrep()
             COMPREPLY=( $(compgen -W 'any none' -- "$cur") )
             return
             ;;
-        --parent|-!(-*)P)
+        --parent|--ns|-!(-*)P)
             _pids
             return
             ;;
         --euid|--uid|-!(-*)[uU])
             _uids
+            return
+            ;;
+        --nslist)
+            local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
+            COMPREPLY=(
+                $(IFS="$IFS," compgen -W '$($1 --help 2>&1 |
+                    command sed -ne "s/^[[:space:]]*Available namespaces://p")' \
+                    -- "${cur##*,}") )
+            [[ ${#COMPREPLY[@]} -eq 1 ]] && COMPREPLY=( ${COMPREPLY/#/$prefix} )
             return
             ;;
     esac
