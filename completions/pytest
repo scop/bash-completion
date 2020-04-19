@@ -3,7 +3,7 @@
 _pytest()
 {
     local cur prev words cword split
-    _init_completion -s || return
+    _init_completion -s -n : || return
 
     case $prev in
         --help|--maxfail|--report|--junit-prefix|--doctest-glob|-!(-*)[hkmrp])
@@ -76,6 +76,16 @@ _pytest()
     if [[ "$cur" == -* ]]; then
         COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
         [[ $COMPREPLY == *= ]] && compopt -o nospace
+        return
+    fi
+
+    if [[ "$cur" == *.py:* ]]; then
+        local file="${cur/.py:*/.py}"
+        local -a classes=(
+            "$(cat "$file" 2>/dev/null |
+               awk '$1 == "class" { sub("[:(].*","",$2); print $2 }')" )
+        COMPREPLY=( $(compgen -P "$file::" -W "${classes[@]}" -- "${cur##*.py:?(:)}") )
+        __ltrim_colon_completions "$cur"
         return
     fi
 
