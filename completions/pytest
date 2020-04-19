@@ -6,7 +6,7 @@ _pytest()
     _init_completion -s -n : || return
 
     case $prev in
-        --help|--maxfail|--report|--junit-prefix|--doctest-glob|-!(-*)[hkmrp])
+        --help|--maxfail|--report|--junit-prefix|--doctest-glob|-!(-*)[hkmorp])
             return
             ;;
         --import-mode)
@@ -14,12 +14,20 @@ _pytest()
             return
             ;;
         --capture)
-            COMPREPLY=( $(compgen -W "fd sys no" -- "$cur") )
+            COMPREPLY=( $(compgen -W "fd sys no tee-sys" -- "$cur") )
+            return
+            ;;
+        --lfnf|--last-failed-no-failures)
+            COMPREPLY=( $(compgen -W "all none" -- "$cur") )
             return
             ;;
         --tb)
             COMPREPLY=( $(compgen -W "auto long short line native no" \
                                   -- "$cur") )
+            return
+            ;;
+        --show-capture)
+            COMPREPLY=( $(compgen -W "no stdout stderr log all" -- "$cur") )
             return
             ;;
         --color)
@@ -34,7 +42,7 @@ _pytest()
             _filedir xml
             return
             ;;
-        --result-log)
+        --result-log|--log-file)
             _filedir log
             return
             ;;
@@ -42,8 +50,12 @@ _pytest()
             _filedir
             return
             ;;
-        --confcutdir|--basetemp|--rsyncdir)
+        --confcutdir|--basetemp|--rsyncdir|--rootdir)
             _filedir -d
+            return
+            ;;
+        --doctest-report)
+            COMPREPLY=( $(compgen -W "none cdiff ndiff udiff only_first_failure" -- "$cur") )
             return
             ;;
         --assert)
