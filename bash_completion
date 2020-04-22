@@ -87,7 +87,7 @@ _userland()
 {
     local userland=$(uname -s)
     [[ $userland == @(Linux|GNU/*) ]] && userland=GNU
-    [[ $userland == $1 ]]
+    [[ $userland == "$1" ]]
 }
 
 # This function sets correct SysV init directories
@@ -736,6 +736,7 @@ _init_completion()
 
     # Complete on files if current is a redirect possibly followed by a
     # filename, e.g. ">foo", or previous is a "bare" redirect, e.g. ">".
+    # shellcheck disable=SC2053
     if [[ $cur == $redir* || $prev == $redir ]]; then
         local xspec
         case $cur in
@@ -760,6 +761,7 @@ _init_completion()
     for (( i=1; i < ${#words[@]}; )); do
         if [[ ${words[i]} == $redir* ]]; then
             # If "bare" redirect, remove also the next word (skip=2).
+            # shellcheck disable=SC2053
             [[ ${words[i]} == $redir ]] && skip=2 || skip=1
             words=( "${words[@]:0:i}" "${words[@]:i+skip}" )
             (( i <= cword )) && (( cword -= skip ))
@@ -1409,6 +1411,7 @@ _count_args()
 
     args=1
     for (( i=1; i < cword; i++ )); do
+        # shellcheck disable=SC2053
         if [[ ${words[i]} != -* && ${words[i-1]} != $2 ||
               ${words[i]} == $3 ]]; then
             (( args++ ))
@@ -1850,7 +1853,7 @@ _command_offset()
         fi
 
         if [[ -n $cspec ]]; then
-            if [[ ${cspec#* -F } != $cspec ]]; then
+            if [[ ${cspec#* -F } != "$cspec" ]]; then
                 # complete -F <function>
 
                 # get function name
@@ -2177,7 +2180,7 @@ unset compat_dir i _blacklist_glob
 
 # source user completion file
 user_completion=${BASH_COMPLETION_USER_FILE:-~/.bash_completion}
-[[ ${BASH_SOURCE[0]} != $user_completion && -r $user_completion ]] \
+[[ ${BASH_SOURCE[0]} != "$user_completion" && -r $user_completion ]] \
     && . $user_completion
 unset user_completion
 
