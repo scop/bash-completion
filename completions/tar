@@ -166,7 +166,7 @@ __tar_parse_old_opt()
 
     # parse the old option (if present) contents to allow later code expect
     # corresponding arguments
-    if [[ $old_opt_used -eq 1 ]]; then
+    if (( old_opt_used == 1 )); then
         char=${first_word:0:1}
         while [[ -n "$char" ]]; do
             if __tar_is_argreq "$char"; then
@@ -207,7 +207,7 @@ __tar_preparse_cmdline()
                 ;;
             *[$modes]*)
                 # Only the first arg may be "MODE" without leading dash
-                if [[ $first_arg -eq 1 ]]; then
+                if (( first_arg == 1 )); then
                     tar_mode=${i//[^$modes]/}
                     tar_mode=${tar_mode:0:1}
                     tar_mode_arg=$i
@@ -296,7 +296,7 @@ __tar_complete_mode()
 
     # The last short option requires argument, like '-cf<TAB>'.  Cut the
     # completion here to enforce argument processing.
-    if [[ "$old_opt_progress" -eq 0 ]] \
+    if (( old_opt_progress == 0 )) \
         && __tar_is_argreq "$(__tar_last_char "$cur")"; then
         COMPREPLY=( "$cur" ) && return 0
     fi
@@ -612,7 +612,7 @@ _gtar()
 
         # the first argument must be "mode" argument or --param, if any of those
         # was truth - the 'break' statement would have been already called
-        [[ "$cword" -eq 1 ]] && break
+        (( cword == 1 )) && break
 
         __tar_try_list_archive && break
 

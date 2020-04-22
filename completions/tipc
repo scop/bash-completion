@@ -3,10 +3,10 @@
 _tipc_media() {
     local optind=$1
 
-    if [[ $cword -eq $optind ]]; then
+    if (( cword == optind )); then
         COMPREPLY=( $(compgen -W 'media' -- $cur) )
         return 0
-    elif [[ $cword -eq $optind+1 ]]; then
+    elif (( cword == optind+1 )); then
         COMPREPLY=( $(compgen -W 'udp eth ib' -- $cur) )
         return 0
     fi
@@ -28,7 +28,7 @@ _tipc_bearer() {
         fi
     done
 
-    if [[ $cword -eq $optind+2 ]]; then
+    if (( cword == optind+2 )); then
         case "$media" in
         "udp")
             COMPREPLY=( $(compgen -W 'name' -- $cur) )
@@ -37,7 +37,7 @@ _tipc_bearer() {
             COMPREPLY=( $(compgen -W 'device' -- $cur) )
             ;;
         esac
-    elif [[ $cword -eq $optind+3 ]]; then
+    elif (( cword == optind+3 )); then
         case "$media" in
         "udp")
             local names=$(tipc bearer list 2>/dev/null | awk -F: '/^udp:/ {print $2}')
@@ -59,9 +59,9 @@ _tipc_link() {
     local optind=$1
     local filter=$2
 
-    if [[ $cword -eq $optind ]]; then
+    if (( cword == optind )); then
         COMPREPLY=( $(compgen -W 'link' -- $cur) )
-    elif [[ $cword -eq $optind+1 ]]; then
+    elif (( cword == optind+1 )); then
         # awk drops link state and last trailing :
         local links=$(tipc link list 2>/dev/null | \
             awk '{print substr($1, 0, length($1))}')
@@ -87,7 +87,7 @@ _tipc()
             ;;
     esac
 
-    if [[ $cword -eq 1 ]]; then
+    if (( cword == 1 )); then
         COMPREPLY=( $(compgen -W 'bearer link media nametable node socket' -- $cur) )
         return
     fi
@@ -96,7 +96,7 @@ _tipc()
     bearer)
         (( optind++ ))
 
-        if [[ $cword -eq $optind ]]; then
+        if (( cword == optind )); then
             COMPREPLY=( $(compgen -W 'enable disable set get list' -- $cur) )
             return
         fi
@@ -106,7 +106,7 @@ _tipc()
             local media params
             (( optind++ ))
 
-            if [[ $cword -lt $optind+4 ]]; then
+            if (( cword < optind+4 )); then
                 _tipc_bearer $optind
                 return
             fi
@@ -157,18 +157,18 @@ _tipc()
         get)
             (( optind++ ))
 
-            if [[ $cword -eq $optind ]]; then
+            if (( cword == optind )); then
                 _tipc_link_opts
-            elif [[ $cword -ge $optind+1 ]]; then
+            elif (( cword >= optind+1 )); then
                 _tipc_bearer $(($optind + 1))
             fi
             ;;
         set)
             (( optind++ ))
 
-            if [[ $cword -eq $optind ]]; then
+            if (( cword == optind )); then
                 _tipc_link_opts
-            elif [[ $cword -ge $optind+2 ]]; then
+            elif (( cword >= optind+2 )); then
                 _tipc_bearer $(($optind + 2))
             fi
             ;;
@@ -177,7 +177,7 @@ _tipc()
     link)
         (( optind++ ))
 
-        if [[ $cword -eq $optind ]]; then
+        if (( cword == optind )); then
             COMPREPLY=( $(compgen -W 'get set list statistics'  -- $cur) )
             return
         fi
@@ -186,25 +186,25 @@ _tipc()
         get)
             (( optind++ ))
 
-            if [[ $cword -eq $optind ]]; then
+            if (( cword == optind )); then
                 _tipc_link_opts
-            elif [[ $cword -ge $optind+1 ]]; then
+            elif (( cword >= optind+1 )); then
                 _tipc_link $(($optind + 1)) "peers"
             fi
             ;;
         set)
             (( optind++ ))
 
-            if [[ $cword -eq $optind ]]; then
+            if (( cword == optind )); then
                 _tipc_link_opts
-            elif [[ $cword -ge $optind+2 ]]; then
+            elif (( cword >= optind+2 )); then
                 _tipc_link $(($optind + 2)) "peers"
             fi
             ;;
         statistics)
             (( optind++ ))
 
-            if [[ $cword -eq $optind ]]; then
+            if (( cword == optind )); then
                 COMPREPLY=( $(compgen -W 'show reset' -- $cur) )
                 return
             fi
@@ -220,7 +220,7 @@ _tipc()
     media)
         (( optind++ ))
 
-        if [[ $cword -eq $optind ]]; then
+        if (( cword == optind )); then
             COMPREPLY=( $(compgen -W 'get set list'  -- $cur) )
             return
         fi
@@ -229,18 +229,18 @@ _tipc()
         get)
             (( optind++ ))
 
-            if [[ $cword -eq $optind ]]; then
+            if (( cword == optind )); then
                 _tipc_link_opts
-            elif [[ $cword -ge $optind+1 ]]; then
+            elif (( cword >= optind+1 )); then
                 _tipc_media $(($optind + 1))
             fi
             ;;
         set)
             (( optind++ ))
 
-            if [[ $cword -eq $optind ]]; then
+            if (( cword == optind )); then
                 _tipc_link_opts
-            elif [[ $cword -ge $optind+2 ]]; then
+            elif (( cword >= optind+2 )); then
                 _tipc_media $(($optind + 2))
             fi
             ;;
@@ -249,14 +249,14 @@ _tipc()
     nametable)
         (( optind++ ))
 
-        if [[ $cword -eq $optind ]]; then
+        if (( cword == optind )); then
             COMPREPLY=( $(compgen -W 'show'  -- $cur) )
         fi
         ;;
     node)
         (( optind++ ))
 
-        if [[ $cword -eq $optind ]]; then
+        if (( cword == optind )); then
             COMPREPLY=( $(compgen -W 'list get set'  -- $cur) )
             return
         fi
@@ -265,7 +265,7 @@ _tipc()
         get|set)
             (( optind++ ))
 
-            if [[ $cword -eq $optind ]]; then
+            if (( cword == optind )); then
                 COMPREPLY=( $(compgen -W 'address netid'  -- $cur) )
             fi
         esac
@@ -273,7 +273,7 @@ _tipc()
     socket)
         (( optind++ ))
 
-        if [[ $cword -eq $optind ]]; then
+        if (( cword == optind )); then
             COMPREPLY=( $(compgen -W 'list'  -- $cur) )
         fi
         ;;

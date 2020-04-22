@@ -258,7 +258,7 @@ __reassemble_comp_words_by_ref()
                 ref="$2[$j]"
                 printf -v "$ref" %s "${!ref}${COMP_WORDS[i]}"
                 # Indicate new cword
-                [[ $i == $COMP_CWORD ]] && printf -v "$3" %s "$j"
+                (( i == COMP_CWORD )) && printf -v "$3" %s "$j"
                 # Remove optional whitespace + word separator from line copy
                 line=${line#*"${COMP_WORDS[$i]}"}
                 # Start new word if word separator in original line is
@@ -266,7 +266,7 @@ __reassemble_comp_words_by_ref()
                 [[ $line == [[:blank:]]* ]] && ((j++))
                 # Indicate next word if available, else end *both* while and
                 # for loop
-                (( $i < ${#COMP_WORDS[@]} - 1)) && ((i++)) || break 2
+                (( i < ${#COMP_WORDS[@]} - 1 )) && ((i++)) || break 2
             done
             # Append word to current word
             ref="$2[$j]"
@@ -274,9 +274,9 @@ __reassemble_comp_words_by_ref()
             # Remove optional whitespace + word from line copy
             line=${line#*"${COMP_WORDS[i]}"}
             # Indicate new cword
-            [[ $i == $COMP_CWORD ]] && printf -v "$3" %s "$j"
+            (( i == COMP_CWORD )) && printf -v "$3" %s "$j"
         done
-        [[ $i == $COMP_CWORD ]] && printf -v "$3" %s "$j"
+        (( i == COMP_CWORD )) && printf -v "$3" %s "$j"
     else
         # No, list of word completions separators hasn't changed;
         for i in "${!COMP_WORDS[@]}"; do
@@ -313,11 +313,11 @@ __get_cword_at_cursor_by_ref()
                 # Strip first character
                 cur="${cur:1}"
                 # Decrease cursor position, staying >= 0
-                [[ $index -gt 0 ]] && ((index--))
+                (( index > 0 )) && ((index--))
             done
 
-            # Does found word match cword?
-            if [[ $i -lt $cword ]]; then
+            # Does found word matches cword?
+            if (( i < cword )); then
                 # No, cword lies further;
                 local old_size=${#cur}
                 cur="${cur#"${words[i]}"}"
@@ -328,7 +328,7 @@ __get_cword_at_cursor_by_ref()
         # Clear $cur if just space(s)
         [[ $cur && ! ${cur//[[:space:]]} ]] && cur=
         # Zero $index if negative
-        [[ $index -lt 0 ]] && index=0
+        (( index < 0 )) && index=0
     fi
 
     local "$2" "$3" "$4" && _upvars -a${#words[@]} $2 "${words[@]}" \
@@ -444,11 +444,11 @@ _get_cword()
                 # Strip first character
                 cur="${cur:1}"
                 # Decrease cursor position, staying >= 0
-                [[ $index -gt 0 ]] && ((index--))
+                (( index > 0 )) && ((index--))
             done
 
-            # Does found word matches cword?
-            if [[ "$i" -lt "$cword" ]]; then
+            # Does found word match cword?
+            if (( i < cword )); then
                 # No, cword lies further;
                 local old_size="${#cur}"
                 cur="${cur#${words[i]}}"
@@ -477,7 +477,7 @@ _get_cword()
 #
 _get_pword()
 {
-    if [[ $COMP_CWORD -ge 1 ]]; then
+    if (( COMP_CWORD >= 1 )); then
         _get_cword "${@:-}" 1
     fi
 }
@@ -506,7 +506,7 @@ __ltrim_colon_completions()
         # Remove colon-word prefix from COMPREPLY items
         local colon_word=${1%"${1##*:}"}
         local i=${#COMPREPLY[*]}
-        while [[ $((--i)) -ge 0 ]]; do
+        while (( i-- > 0 )); do
             COMPREPLY[$i]=${COMPREPLY[$i]#"$colon_word"}
         done
     fi
@@ -593,7 +593,7 @@ _filedir()
         }
     fi
 
-    if [[ ${#toks[@]} -ne 0 ]]; then
+    if (( ${#toks[@]} != 0 )); then
         # 2>/dev/null for direct invocation, e.g. in the _filedir unit test
         compopt -o filenames 2>/dev/null
         COMPREPLY+=( "${toks[@]}" )
@@ -762,13 +762,13 @@ _init_completion()
             # If "bare" redirect, remove also the next word (skip=2).
             [[ ${words[i]} == $redir ]] && skip=2 || skip=1
             words=( "${words[@]:0:i}" "${words[@]:i+skip}" )
-            [[ $i -le $cword ]] && (( cword -= skip ))
+            (( i <= cword )) && (( cword -= skip ))
         else
             (( i++ ))
         fi
     done
 
-    [[ $cword -le 0 ]] && return 1
+    (( cword <= 0 )) && return 1
     prev=${words[cword-1]}
 
     [[ ${split-} ]] && _split_longopt && split=true
@@ -1004,7 +1004,7 @@ _tilde()
         COMPREPLY=( $(compgen -P '~' -u -- "${1#\~}") )
         result=${#COMPREPLY[@]}
         # 2>/dev/null for direct invocation, e.g. in the _tilde unit test
-        [[ $result -gt 0 ]] && compopt -o filenames 2>/dev/null
+        (( result > 0 )) && compopt -o filenames 2>/dev/null
     fi
     return $result
 }
@@ -1100,7 +1100,7 @@ _pnames()
         local -a psout=( $(command ps axo command=) )
         IFS=$OIFS
         for line in "${psout[@]}"; do
-            if [[ $i -eq -1 ]]; then
+            if (( i == -1 )); then
                 # First line, see if it has COMMAND column header. For example
                 # the busybox ps does that, i.e. doesn't respect axo command=
                 if [[ $line =~ ^(.*[[:space:]])COMMAND([[:space:]]|$) ]]; then
@@ -1117,7 +1117,7 @@ _pnames()
                 procs+=( $line )
             fi
         done
-        if [[ $i -eq -1 ]]; then
+        if (( i == -1 )); then
             # Regular axo command= parsing
             for line in "${psout[@]}"; do
                 if [[ $line =~ ^[[(](.+)[])]$ ]]; then
@@ -1211,7 +1211,7 @@ _service()
     _init_completion || return
 
     # don't complete past 2nd token
-    [[ $cword -gt 2 ]] && return
+    (( cword > 2 )) && return
 
     if [[ $cword -eq 1 && $prev == ?(*/)service ]]; then
         _services
@@ -1591,7 +1591,7 @@ _known_hosts_real()
     done
 
     # Known hosts files from configs
-    if [[ ${#config[@]} -gt 0 ]]; then
+    if (( ${#config[@]} > 0 )); then
         local IFS=$'\n' j
         # expand paths (if present) to global and user known hosts files
         # TODO(?): try to make known hosts files with more than one consecutive
@@ -1628,8 +1628,8 @@ _known_hosts_real()
     fi
 
     # If we have known_hosts files to use
-    if [[ ${#kh[@]} -gt 0 || ${#khd[@]} -gt 0 ]]; then
-        if [[ ${#kh[@]} -gt 0 ]]; then
+    if (( ${#kh[@]}+${#khd[@]} > 0 )); then
+        if (( ${#kh[@]} > 0 )); then
             # https://man.openbsd.org/sshd.8#SSH_KNOWN_HOSTS_FILE_FORMAT
             for i in "${kh[@]}"; do
                 while read -ra tmpkh; do
@@ -1655,7 +1655,7 @@ _known_hosts_real()
             done
             COMPREPLY=( $(compgen -W '${COMPREPLY[@]}' -- "$cur") )
         fi
-        if [[ ${#khd[@]} -gt 0 ]]; then
+        if (( ${#khd[@]} > 0 )); then
             # Needs to look for files called
             # .../.ssh2/key_22_<hostname>.pub
             # dont fork any processes, because in a cluster environment,
@@ -1763,7 +1763,7 @@ _cd()
 
     _filedir -d
 
-    if [[ ${#COMPREPLY[@]} -eq 1 ]]; then
+    if (( ${#COMPREPLY[@]} == 1 )); then
         i=${COMPREPLY[0]}
         if [[ "$i" == "$cur" && $i != "*/" ]]; then
             COMPREPLY[0]="${i}/"
@@ -1829,7 +1829,7 @@ _command_offset()
     local cur
     _get_comp_words_by_ref cur
 
-    if [[ $COMP_CWORD -eq 0 ]]; then
+    if (( COMP_CWORD == 0 )); then
         local IFS=$'\n'
         compopt -o filenames
         COMPREPLY=( $(compgen -d -c -- "$cur") )
@@ -1857,7 +1857,7 @@ _command_offset()
                 local func=${cspec#*-F }
                 func=${func%% *}
 
-                if [[ ${#COMP_WORDS[@]} -ge 2 ]]; then
+                if (( ${#COMP_WORDS[@]} >= 2 )); then
                     $func $cmd "${COMP_WORDS[${#COMP_WORDS[@]}-1]}" "${COMP_WORDS[${#COMP_WORDS[@]}-2]}"
                 else
                     $func $cmd "${COMP_WORDS[${#COMP_WORDS[@]}-1]}"
@@ -1877,7 +1877,7 @@ _command_offset()
                 cspec=${cspec%%$compcmd}
                 COMPREPLY=( $(eval compgen "$cspec" -- '$cur') )
             fi
-        elif [[ ${#COMPREPLY[@]} -eq 0 ]]; then
+        elif (( ${#COMPREPLY[@]} == 0 )); then
             # XXX will probably never happen as long as completion loader loads
             #     *something* for every command thrown at it ($cspec != empty)
             _minimal
@@ -2008,7 +2008,7 @@ _filedir_xspec()
         IFS=' '; $reset; IFS=$'\n'
     }
 
-    if [[ ${#toks[@]} -ne 0 ]]; then
+    if (( ${#toks[@]} != 0 )); then
         compopt -o filenames
         COMPREPLY=( "${toks[@]}" )
     fi
