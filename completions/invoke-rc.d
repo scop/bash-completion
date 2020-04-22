@@ -17,7 +17,7 @@ _invoke_rc_d()
     options=( --help --quiet --force --try-anyway --disclose-deny --query \
         --no-fallback )
 
-    if [[ ($cword -eq 1) || ("$prev" == --* ) ]]; then
+    if [[ $cword -eq 1 || "$prev" == --* ]]; then
     valid_options=( $(\
         tr " " "\n" <<<"${words[*]} ${options[*]}" \
         | command sed -ne "/$(command sed "s/ /\\\\|/g" <<<"${options[*]}")/p" \
