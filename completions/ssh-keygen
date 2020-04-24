@@ -6,7 +6,7 @@ _ssh_keygen()
     _init_completion -n = || return
 
     case $prev in
-        -*[abCIJjMNnrPSVWz])
+        -*[abCIJjMNrPSVWz])
             return
             ;;
         -*E)
@@ -28,6 +28,16 @@ _ssh_keygen()
             ;;
         -*m)
             COMPREPLY=( $(compgen -W 'PEM PKCS8 RFC4716' -- "$cur") )
+            return
+            ;;
+        -*n)
+            local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
+            if [[ ${words[*]} == *\ -*h\ * ]]; then
+                _known_hosts_real -- "${cur##*,}"
+            else
+                COMPREPLY=( $(compgen -u -- "${cur##*,}") )
+            fi
+            [[ ${#COMPREPLY[@]} -eq 1 ]] && COMPREPLY=( ${COMPREPLY/#/$prefix} )
             return
             ;;
         -*O)
@@ -56,6 +66,10 @@ _ssh_keygen()
         local opts=$(_parse_usage "$1" "-?")
         [[ -z "$opts" ]] && opts=$(_parse_help "$1" "-?")  # OpenSSH < 7
         COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
+    fi
+
+    if [[ ${words[*]} == *\ -*s\ * ]]; then
+        _filedir pub
     fi
 } &&
 complete -F _ssh_keygen ssh-keygen
