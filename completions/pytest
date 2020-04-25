@@ -94,8 +94,9 @@ _pytest()
     if [[ "$cur" == *.py:* ]]; then
         local file="${cur/.py:*/.py}"
         local -a classes=(
-            "$(cat "$file" 2>/dev/null |
-               awk '$1 == "class" { sub("[:(].*","",$2); print $2 }')" )
+            "$(awk '$1 == "class" {
+                   sub("[:(].*","",$2); print $2
+               }' 2>/dev/null < "$file")" )
         COMPREPLY=( $(compgen -P "$file::" -W "${classes[@]}" -- "${cur##*.py:?(:)}") )
         __ltrim_colon_completions "$cur"
         return
