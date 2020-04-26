@@ -21,18 +21,18 @@ _apt_cache()
     local cur prev words cword
     _init_completion || return
 
-    local special i
+    local special ispecial
     if [[ $cur != show ]]; then
-        for (( i=1; i < ${#words[@]}-1; i++ )); do
-            if [[ ${words[i]} == @(add|depends|dotty|madison|policy|rdepends|show?(pkg|src|)) ]]; then
-                special=${words[i]}
+        for (( ispecial=1; ispecial < ${#words[@]}-1; ispecial++ )); do
+            if [[ ${words[ispecial]} == @(add|depends|dotty|madison|policy|rdepends|show?(pkg|src|)) ]]; then
+                special=${words[ispecial]}
                 break
             fi
         done
     fi
 
 
-    if [[ -n $special ]]; then
+    if [[ -n $special && $ispecial -lt $cword ]]; then
         case $special in
         add)
             _filedir
@@ -70,7 +70,7 @@ _apt_cache()
                 --all-versions --no-all-versions --generate --no-generate
                 --names-only --all-names --recurse --config-file --option
                 --installed' -- "$cur") )
-    else
+    elif [[ -z $special ]]; then
 
         COMPREPLY=( $(compgen -W 'add gencaches show showpkg showsrc stats
                 dump dumpavail unmet search search depends rdepends pkgnames
