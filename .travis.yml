@@ -5,14 +5,26 @@ sudo: required
 services:
   - docker
 
-env:
-  - DIST=alpine
-  - DIST=centos6
-  - DIST=debian10
-  - DIST=fedoradev
-  - DIST=ubuntu14
-  - DIST=ubuntu14 BSD=true NETWORK=none
-  - DIST=tools
+jobs:
+  include:
+    - env: DIST=alpine
+    - env: DIST=centos6
+    - env: DIST=debian10
+    - env: DIST=fedoradev
+    - env: DIST=ubuntu14
+    - env: DIST=ubuntu14 BSD=true NETWORK=none
+    - language: python
+      python: "3.8"
+      dist: bionic
+      sudo: false
+      services: []
+      cache:
+        pip: true
+        directories: [$HOME/.cache/pre-commit]
+      before_install: []
+      script:
+        - pip3 install "$(grep ^pre-commit test/requirements-dev.txt)"
+        - pre-commit run --all-files --color=always
 
 before_install:
   - docker build

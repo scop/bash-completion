@@ -1,12 +1,5 @@
 #!/bin/sh -ex
 
-if [ $DIST = tools ]; then
-    rc=0
-    perlcritic helpers/perl; rc=$((rc+$?))
-    pre-commit run --all-files; rc=$((rc+$?))
-    exit $rc
-fi
-
 if [ "$BSD" ]; then
     PATH=/usr/local/lib/bsd-bin:$PATH
     export PATH
