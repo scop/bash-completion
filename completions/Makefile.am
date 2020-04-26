@@ -496,6 +496,7 @@ CLEANFILES = \
 	automake-1.16 \
 	autossh \
 	autoupdate \
+	bmake \
 	bsdtar \
 	btdownloadcurses.py \
 	btdownloadgui.py \
@@ -847,7 +848,7 @@ symlinks: $(DATA)
 	$(ss) lzip \
 		clzip pdlzip plzip
 	$(ss) make \
-		colormake gmake gnumake pmake
+		bmake colormake gmake gnumake pmake
 	$(ss) man \
 		apropos whatis
 	$(ss) mcrypt \

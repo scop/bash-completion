@@ -45,6 +45,7 @@ EXTRA_DIST = \
 	test_bind.py \
 	test_bison.py \
 	test_bk.py \
+	test_bmake.py \
 	test_brctl.py \
 	test_btdownloadcurses_py.py \
 	test_btdownloadgui_py.py \
