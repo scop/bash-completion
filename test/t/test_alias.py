@@ -1,7 +1,5 @@
 import pytest
 
-from conftest import complete_at_point
-
 
 @pytest.mark.bashcomp(
     pre_cmds=("unalias -a", "alias foo=bar", "alias bar='foo foo'"),
@@ -18,7 +16,6 @@ class TestAlias:
         assert completion == "foo='bar'"
         assert not completion.endswith(" ")
 
-    def test_alias_at_point(self, bash):
-        assert complete_at_point(
-            bash=bash, cmd="alias ", trail="foo", expected=r"bar\s+foo\s*?"
-        )
+    @pytest.mark.complete("alias ", trail="foo")
+    def test_alias_at_point(self, completion):
+        assert completion == "bar foo".split()

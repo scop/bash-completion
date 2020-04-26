@@ -557,34 +557,59 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
             ) % ((cmd,) * 2)
     if marker.kwargs.get("require_cmd") and not is_bash_type(bash, cmd):
         pytest.skip("Command not found")
+
+    if "trail" in marker.kwargs:
+        return assert_complete_at_point(
+            bash, cmd=marker.args[0], trail=marker.kwargs["trail"]
+        )
+
     return assert_complete(bash, marker.args[0], **marker.kwargs)
 
 
-def complete_at_point(
-    bash: pexpect.spawn, cmd: str, trail: str, expected: str
-) -> bool:
+def assert_complete_at_point(
+    bash: pexpect.spawn, cmd: str, trail: str
+) -> CompletionResult:
+    # TODO: merge to assert_complete
     fullcmd = "%s%s%s" % (
         cmd,
         trail,
         "\002" * len(trail),
     )  # \002 = ^B = cursor left
     bash.send(fullcmd + "\t")
-    bash.expect_exact(fullcmd.replace("\002", "\b"))
     bash.send(MAGIC_MARK)
-    bash.expect(r"\r\n%s\r\n" % expected)
-    bash.expect_exact(PS1 + fullcmd.replace("\002", "\b"))
+    bash.expect_exact(fullcmd.replace("\002", "\b"))
 
-    # At this point, something weird happens. For most test setups, as
-    # expected (pun intended!), MAGIC_MARK follows as is. But for some
-    # others (e.g. CentOS 6, Ubuntu 14 test containers), we get MAGIC_MARK
-    # one character a time, followed each time by trail and the corresponding
-    # number of \b's. Don't know why, but accept it until/if someone finds out.
-    # Or just be fine with it indefinitely, the visible and practical end
-    # result on a terminal is the same anyway.
-    repeat = "(%s%s)?" % (re.escape(trail), "\b" * len(trail))
-    fullexpected = "".join("%s%s" % (re.escape(x), repeat) for x in MAGIC_MARK)
-    bash.expect(fullexpected)
-    return True
+    got = bash.expect_exact(
+        [
+            # 0: multiple lines, result in .before
+            PS1 + fullcmd.replace("\002", "\b"),
+            # 1: no completion
+            MAGIC_MARK,
+            pexpect.EOF,
+            pexpect.TIMEOUT,
+        ]
+    )
+    if got == 0:
+        output = bash.before
+        result = CompletionResult(output)
+
+        # At this point, something weird happens. For most test setups, as
+        # expected (pun intended!), MAGIC_MARK follows as is. But for some
+        # others (e.g. CentOS 6, Ubuntu 14 test containers), we get MAGIC_MARK
+        # one character a time, followed each time by trail and the corresponding
+        # number of \b's. Don't know why, but accept it until/if someone finds out.
+        # Or just be fine with it indefinitely, the visible and practical end
+        # result on a terminal is the same anyway.
+        repeat = "(%s%s)?" % (re.escape(trail), "\b" * len(trail))
+        fullexpected = "".join(
+            "%s%s" % (re.escape(x), repeat) for x in MAGIC_MARK
+        )
+        bash.expect(fullexpected)
+    else:
+        # TODO: warn about EOF/TIMEOUT?
+        result = CompletionResult("", [])
+
+    return result
 
 
 def in_container() -> bool:

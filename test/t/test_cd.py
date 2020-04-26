@@ -1,7 +1,5 @@
 import pytest
 
-from conftest import complete_at_point
-
 
 @pytest.mark.bashcomp(ignore_env=r"^\+CDPATH=$")
 class TestCd:
@@ -23,10 +21,6 @@ class TestCd:
     def test_4(self, completion):
         assert not completion  # No subdirs nor CDPATH
 
-    def test_dir_at_point(self, bash):
-        assert complete_at_point(
-            bash=bash,
-            cmd="cd shared/default/",
-            trail="foo",
-            expected=r"bar bar\.d/\s+foo\.d/",
-        )
+    @pytest.mark.complete("cd shared/default/", trail="foo")
+    def test_dir_at_point(self, completion):
+        assert completion == ["bar bar.d/", "foo.d/"]
