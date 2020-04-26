@@ -10,13 +10,13 @@ class TestMake:
     def test_1(self, completion):
         assert completion == "Makefile"
 
-    @pytest.mark.complete("make .", cwd="make")
+    @pytest.mark.complete("make .", cwd="make", require_cmd=True)
     def test_2(self, bash, completion):
         """Hidden targets."""
         assert completion == ".cache/ .test_passes".split()
         os.remove("%s/make/%s" % (bash.cwd, "extra_makefile"))
 
-    @pytest.mark.complete("make .cache/", cwd="make")
+    @pytest.mark.complete("make .cache/", cwd="make", require_cmd=True)
     def test_3(self, bash, completion):
         assert completion == "1 2".split()
         os.remove("%s/make/%s" % (bash.cwd, "extra_makefile"))
@@ -29,7 +29,7 @@ class TestMake:
     def test_5(self, completion):
         assert completion
 
-    @pytest.mark.complete("make ", cwd="make")
+    @pytest.mark.complete("make ", cwd="make", require_cmd=True)
     def test_6(self, bash, completion):
         assert completion == "all clean extra_makefile install sample".split()
         os.remove("%s/make/%s" % (bash.cwd, "extra_makefile"))
@@ -39,12 +39,12 @@ class TestMake:
         reason="Fails for some unknown reason on CentOS 6, "
         "even though the behavior appears to be correct",
     )
-    @pytest.mark.complete("make .cache/.", cwd="make")
+    @pytest.mark.complete("make .cache/.", cwd="make", require_cmd=True)
     def test_7(self, bash, completion):
         assert completion == ".1 .2".split()
         os.remove("%s/make/%s" % (bash.cwd, "extra_makefile"))
 
-    @pytest.mark.complete("make -C make ")
+    @pytest.mark.complete("make -C make ", require_cmd=True)
     def test_8(self, bash, completion):
         assert completion == "all clean extra_makefile install sample".split()
         os.remove("%s/make/%s" % (bash.cwd, "extra_makefile"))
