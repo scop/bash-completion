@@ -11,7 +11,7 @@
 url=$(git config bash-completion.docker-hub-trigger-url) || exit 0
 
 branch=master
-files="completions/Makefile\.am|test/requirements\.txt|\.pre-commit-config\.yaml"
+files="test/test-cmd-list\.txt"
 
 trigger=false
 z40=0000000000000000000000000000000000000000
