@@ -7,13 +7,8 @@ services:
 
 jobs:
   include:
-    - env: DIST=alpine
-    - env: DIST=centos6
-    - env: DIST=debian10
-    - env: DIST=fedoradev
-    - env: DIST=ubuntu14
-    - env: DIST=ubuntu14 BSD=true NETWORK=none
-    - language: python
+    - stage: lint
+      language: python
       python: "3.8"
       dist: bionic
       sudo: false
@@ -25,6 +20,13 @@ jobs:
       script:
         - pip3 install "$(grep ^pre-commit test/requirements-dev.txt)"
         - pre-commit run --all-files --color=always
+    - stage: test
+      env: DIST=alpine
+    - env: DIST=centos6
+    - env: DIST=debian10
+    - env: DIST=fedoradev
+    - env: DIST=ubuntu14
+    - env: DIST=ubuntu14 BSD=true NETWORK=none
 
 before_install:
   - docker build
