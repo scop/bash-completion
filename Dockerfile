@@ -15,11 +15,8 @@ RUN echo install_weak_deps=False >> /etc/dnf/dnf.conf \
         tcllib \
     && ln -s $(type -P pytest-3) /usr/local/bin/pytest
 
-# Use completions/Makefile.am as cache buster, triggering a fresh
-# install of packages whenever it (i.e. the set of possibly tested
-# executables) changes.
-
-ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Makefile.am \
+# test/test-cmd-list.txt is a cache buster
+ADD https://raw.githubusercontent.com/scop/bash-completion/master/test/test-cmd-list.txt \
     install-packages.sh \
     /tmp/
 
