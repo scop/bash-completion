@@ -28,14 +28,10 @@ apt-file update
 
 git clone --depth 1 https://github.com/scop/bash-completion.git
 
-cd bash-completion
-autoreconf -i
-./configure
-make -C completions
-
 excluded=$(cat <<\EOF
 arping
 bcron
+bison++
 fuse
 gdb-minimal
 gnat-7
@@ -56,23 +52,22 @@ EOF
 
 # https://github.com/moby/moby/issues/1297
 echo "resolvconf resolvconf/linkify-resolvconf boolean false" \
-    | debconf-set-selections
+| debconf-set-selections
 
-export BASH_COMPLETION_COMPAT_DIR=/var/empty/bash_completion.d
-source bash_completion
-for file in completions/!(Makefile*) ${!_xspecs[@]}; do
-    file=${file##*/}
-    printf "%s\n" {/usr,}/{,s}bin/${file#_}
-done \
-    | apt-file -lFf search - \
-    | grep -vF "$excluded" \
-    | xargs apt-get -y --no-install-recommends install
+while read -r file; do
+    case $file in
+        /*) printf "%s\n" "$file" ;;
+        *)  printf "%s\n" {/usr,}/{,s}bin/"$file" ;;
+    esac
+done < bash-completion/test/test-cmd-list.txt \
+| apt-file -lFf search - \
+| grep -vF "$excluded" \
+| xargs apt-get -y --no-install-recommends install
 
 # Required but not pulled in by dependencies:
 apt-get -y --no-install-recommends install \
     postgresql-client
 
-cd ..
 rm -r bash-completion
 
 # Build some *BSD tools for testing
