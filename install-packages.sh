@@ -7,17 +7,12 @@ cd ${TMPDIR:-/tmp}
 yum -y install /usr/bin/git
 git clone --depth 1 https://github.com/scop/bash-completion.git
 
-cd bash-completion
-autoreconf -i
-./configure
-make -C completions
+while read -r file; do
+    case $file in
+        /*) printf "%s\n" "$file" ;;
+        *)  printf "%s\n" {/usr,}/{,s}bin/"$file" ;;
+    esac
+done < bash-completion/test/test-cmd-list.txt \
+| xargs yum -y install
 
-export BASH_COMPLETION_COMPAT_DIR=/var/empty/bash_completion.d
-source bash_completion
-for file in completions/!(Makefile*) ${!_xspecs[@]}; do
-    file=${file##*/}
-    echo {/usr,}/{,s}bin/${file#_}
-done | xargs yum -y install
-
-cd ..
 rm -r bash-completion
