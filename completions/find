@@ -7,6 +7,14 @@ _find()
     local cur prev words cword
     _init_completion || return
 
+    local i
+    for i in ${!words[*]}; do
+        if [[ ${words[i]} == -@(exec|ok)?(dir) ]]; then
+            _command_offset $((i+1))
+            return
+        fi
+    done
+
     case $prev in
         -maxdepth|-mindepth)
             COMPREPLY=( $(compgen -W '{0..9}' -- "$cur") )
@@ -41,12 +49,6 @@ _find()
             ;;
         -user)
             COMPREPLY=( $(compgen -u -- "$cur") )
-            return
-            ;;
-        -exec|-execdir|-ok|-okdir)
-            words=(words[0] "$cur")
-            cword=1
-            _command
             return
             ;;
         -[acm]min|-[acm]time|-inum|-path|-ipath|-regex|-iregex|-links|-perm|\
