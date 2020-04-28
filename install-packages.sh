@@ -32,6 +32,7 @@ git clone --depth 1 https://github.com/scop/bash-completion.git
 excluded=$(cat <<\EOF
 arping
 bcron-run
+bison++
 evince-gtk
 gdb-minimal
 gnat-4.6
