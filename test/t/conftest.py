@@ -402,6 +402,9 @@ class CompletionResult(Iterable[str]):
     def endswith(self, suffix: str) -> bool:
         return self.output.endswith(suffix)
 
+    def startswith(self, prefix: str) -> bool:
+        return self.output.startswith(prefix)
+
     def __eq__(self, expected: object) -> bool:
         """
         Returns True if completion contains expected items, and no others.

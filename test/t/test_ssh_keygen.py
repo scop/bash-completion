@@ -43,3 +43,17 @@ class TestSshKeygen:
     @pytest.mark.complete("ssh-keygen -t ecdsa-sk -b ")
     def test_ecdsa_sk_b(self, completion):
         assert not completion
+
+    @pytest.mark.complete("ssh-keygen -O ")
+    def test_O(self, completion):
+        assert completion
+        assert any(x.endswith("=") for x in completion)
+
+    @pytest.mark.complete("ssh-keygen -O force-command=bas")
+    def test_O_force_command(self, completion):
+        assert completion
+        assert not completion.startswith("force-command=")
+
+    @pytest.mark.complete("ssh-keygen -O unknown=")
+    def test_O_unknown(self, completion):
+        assert not completion

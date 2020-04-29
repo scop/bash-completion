@@ -3,7 +3,7 @@
 _ssh_keygen()
 {
     local cur prev words cword
-    _init_completion -n = || return
+    _init_completion -n := || return
 
     case $prev in
         -*[aCIJjMNPSVWz])
@@ -59,12 +59,31 @@ _ssh_keygen()
             ;;
         -*O)
             if [[ $cur != *=* ]]; then
-                COMPREPLY=( $(compgen -W 'clear force-command=
+                COMPREPLY=( $(compgen -W '
+                    clear critical: extension: force-command=
                     no-agent-forwarding no-port-forwarding no-pty no-user-rc
                     no-x11-forwarding permit-agent-forwarding
                     permit-port-forwarding permit-pty permit-user-rc
-                    permit-x11-forwarding source-address=' -- "$cur") )
-                [[ $COMPREPLY == *= ]] && compopt -o nospace
+                    permit-X11-forwarding no-touch-required source-address=
+
+                    lines= start-line= checkpoint= memory= start= generator=
+
+                    application challenge= device resident user
+                    write-attestation-path
+                    ' -- "$cur") )
+                [[ $COMPREPLY == *[:=] ]] && compopt -o nospace
+                __ltrim_colon_completions "$cur"
+            else
+                case $cur in
+                    force-command=*)
+                        compopt -o filenames
+                        COMPREPLY=( $(compgen -c -- "${cur#*=}") )
+                        ;;
+                    checkpoint=*|challenge=*)
+                        cur=${cur#*=}
+                        _filedir
+                        ;;
+                esac
             fi
             return
             ;;
