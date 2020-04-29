@@ -6,7 +6,23 @@ _ssh_keygen()
     _init_completion -n = || return
 
     case $prev in
-        -*[abCIJjMNPSVWz])
+        -*[aCIJjMNPSVWz])
+            return
+            ;;
+        -*b)
+            local -a sizes
+            case "${words[*]}" in
+                *" -t dsa"?( *))
+                    sizes=(1024)
+                    ;;
+                *" -t ecdsa"?( *))
+                    sizes=(256 384 521)
+                    ;;
+                *" -t rsa"?( *))
+                    sizes=(1024 2048 3072 4096)
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W '${sizes[@]}' -- "$cur") )
             return
             ;;
         -*E)

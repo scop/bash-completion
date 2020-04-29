@@ -35,3 +35,11 @@ class TestSshKeygen:
     @pytest.mark.complete("ssh-keygen -Y foo -r ")
     def test_r_with_Y(self, completion):
         assert "ssh/" in completion
+
+    @pytest.mark.complete("ssh-keygen -t ecdsa -b ")
+    def test_ecdsa_b(self, completion):
+        assert completion
+
+    @pytest.mark.complete("ssh-keygen -t ecdsa-sk -b ")
+    def test_ecdsa_sk_b(self, completion):
+        assert not completion
