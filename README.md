@@ -7,7 +7,7 @@
 bash-completion is a collection of command line command completions for the
 [Bash shell](https://www.gnu.org/software/bash/), collection of helper
 functions to assist in creating new completions, and set of facilities for
-loading completions on demand as well as installing them.
+loading completions automatically on demand, as well as installing them.
 
 ## Installation
 
@@ -143,7 +143,8 @@ A. Install a local completion of your own appropriately for the desired
 A. Put them in the `completions` subdir of `$BASH_COMPLETION_USER_DIR`
    (defaults to `$XDG_DATA_HOME/bash-completion` or
     `~/.local/share/bash-completion`
-   if `$XDG_DATA_HOME` is not set) to have them loaded on demand.
+   if `$XDG_DATA_HOME` is not set) to have them loaded automatically
+   on demand when the respective command is being completed.
    See also the next question's answer for considerations for these
    files' names, they apply here as well. Alternatively, you can write
    them directly in `~/.bash_completion` which is loaded eagerly by
@@ -159,7 +160,8 @@ A. Install it in one of the directories pointed to by
 
    - The recommended directory is `completionsdir`, which you can get with
    `pkg-config --variable=completionsdir bash-completion`. From this
-   directory, completions are loaded on-demand based on invoked commands' names,
+   directory, completions are automatically loaded on demand based on invoked
+   commands' names,
    so be sure to name your completion file accordingly, and to include
    (for example) symbolic links in case the file provides completions
    for more than one command.
