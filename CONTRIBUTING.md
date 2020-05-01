@@ -150,9 +150,9 @@ Also, please bare the following coding guidelines in mind:
   use them, do so if there's no other sane way to do what you're doing.
   The "Shell and Utilities" volume of the POSIX specification is a good
   starting reference for portable use of various utilities, see
-  <http://pubs.opengroup.org/onlinepubs/9699919799/>.
+  <https://pubs.opengroup.org/onlinepubs/9699919799/>.
 
-- Use an editor that supports EditorConfig, see <http://editorconfig.org/>,
+- Use an editor that supports EditorConfig, see <https://editorconfig.org/>,
   and format source code according to our settings.
 
 - Read the existing source code for examples of how to solve

@@ -359,4 +359,4 @@ A. The `readline(3)` library offers a few settings that can make tab
 A. Absolutely not. zsh has an extremely sophisticated completion system
    that offers many features absent from the bash implementation. Its
    users often cannot resist pointing this out. More information can
-   be found at <http://www.zsh.org/>.
+   be found at <https://www.zsh.org/>.
