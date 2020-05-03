@@ -514,7 +514,11 @@ def assert_complete(
         result = CompletionResult(output)
     elif got == 2:
         output = bash.match.group(1)
-        result = CompletionResult(output, [shlex.split(cmd + output)[-1]])
+        result = CompletionResult(
+            output,
+            # Note that this causes returning the sole completion *unescaped*
+            [shlex.split(cmd + output)[-1]],
+        )
     else:
         # TODO: warn about EOF/TIMEOUT?
         result = CompletionResult("", [])
