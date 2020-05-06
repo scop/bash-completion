@@ -8,16 +8,18 @@ services:
 jobs:
   include:
     - stage: lint
-      language: python
-      python: "3.8"
+      language: go
+      go: "1.14"
       dist: bionic
       sudo: false
       services: []
       cache:
-        pip: true
-        directories: [$HOME/.cache/pre-commit]
+        directories:
+          - $HOME/.cache/pip
+          - $HOME/.cache/pre-commit
       before_install: []
       script:
+        - pyenv shell 3.8
         - pip3 install "$(grep ^pre-commit test/requirements-dev.txt)"
         - pre-commit run --all-files --color=always
     - stage: test
