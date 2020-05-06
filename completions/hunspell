@@ -6,18 +6,19 @@ _hunspell()
     _init_completion || return
 
     case $prev in
-        --help|--version|-vv|-[hPv])
+        --help | --version | -vv | -[hPv])
             return
             ;;
         -d)
-            local IFS=$' \t\n' reset=$(shopt -p nullglob); shopt -s nullglob
-            local -a dicts=( /usr/share/hunspell/*.dic
-                             /usr/local/share/hunspell/*.dic )
-            dicts=( "${dicts[@]##*/}" )
-            dicts=( "${dicts[@]%.dic}" )
+            local IFS=$' \t\n' reset=$(shopt -p nullglob)
+            shopt -s nullglob
+            local -a dicts=(/usr/share/hunspell/*.dic
+                /usr/local/share/hunspell/*.dic)
+            dicts=("${dicts[@]##*/}")
+            dicts=("${dicts[@]%.dic}")
             $reset
             IFS=$'\n'
-            COMPREPLY=( $(compgen -W '${dicts[@]}' -- "$cur") )
+            COMPREPLY=($(compgen -W '${dicts[@]}' -- "$cur"))
             return
             ;;
         -i)
@@ -31,12 +32,12 @@ _hunspell()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         return
     fi
 
     _filedir
 } &&
-complete -F _hunspell hunspell
+    complete -F _hunspell hunspell
 
 # ex: filetype=sh

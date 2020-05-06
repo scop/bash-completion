@@ -6,40 +6,41 @@ _pgrep()
     _init_completion || return
 
     case $prev in
-        --delimiter|--pgroup|--session|--terminal|-!(-*)[cdgJMNstTz])
+        --delimiter | --pgroup | --session | --terminal | -!(-*)[cdgJMNstTz])
             return
             ;;
         --signal)
             _signals
             return
             ;;
-        --pidfile|-!(-*)F)
+        --pidfile | -!(-*)F)
             _filedir
             return
             ;;
-        --group|-!(-*)G)
+        --group | -!(-*)G)
             _gids
             return
             ;;
         -j)
-            COMPREPLY=( $(compgen -W 'any none' -- "$cur") )
+            COMPREPLY=($(compgen -W 'any none' -- "$cur"))
             return
             ;;
-        --parent|--ns|-!(-*)P)
+        --parent | --ns | -!(-*)P)
             _pids
             return
             ;;
-        --euid|--uid|-!(-*)[uU])
+        --euid | --uid | -!(-*)[uU])
             _uids
             return
             ;;
         --nslist)
-            local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
+            local prefix=
+            [[ $cur == *,* ]] && prefix="${cur%,*},"
             COMPREPLY=(
                 $(IFS="$IFS," compgen -W '$($1 --help 2>&1 |
                     command sed -ne "s/^[[:space:]]*Available namespaces://p")' \
-                    -- "${cur##*,}") )
-            (( ${#COMPREPLY[@]} == 1 )) && COMPREPLY=( ${COMPREPLY/#/$prefix} )
+                    -- "${cur##*,}"))
+            ((${#COMPREPLY[@]} == 1)) && COMPREPLY=(${COMPREPLY/#/$prefix})
             return
             ;;
     esac
@@ -49,13 +50,13 @@ _pgrep()
         [[ $help ]] || help='$("$1" --usage 2>&1 |
             command sed -e "s/\[-signal\]//" -e "s/\[-SIGNAL\]//" |
             _parse_usage -)'
-        COMPREPLY=( $(compgen -W "$help" -- "$cur") )
+        COMPREPLY=($(compgen -W "$help" -- "$cur"))
         [[ $cword -eq 1 && $1 == *pkill ]] && _signals -
         return
     fi
 
     _pnames -s
 } &&
-complete -F _pgrep pgrep pkill
+    complete -F _pgrep pgrep pkill
 
 # ex: filetype=sh

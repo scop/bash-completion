@@ -6,15 +6,15 @@ _mysqladmin()
     _init_completion -s || return
 
     case $prev in
-        --user|-!(-*)u)
-            COMPREPLY=( $(compgen -u -- "$cur") )
+        --user | -!(-*)u)
+            COMPREPLY=($(compgen -u -- "$cur"))
             return
             ;;
-        --host|-!(-*)h)
+        --host | -!(-*)h)
             _known_hosts_real -- "$cur"
             return
             ;;
-        --character-sets-dir|--ssl-capath)
+        --character-sets-dir | --ssl-capath)
             _filedir -d
             return
             ;;
@@ -22,15 +22,15 @@ _mysqladmin()
             _xfunc mysql _mysql_character_sets
             return
             ;;
-        --socket|-!(-*)S)
+        --socket | -!(-*)S)
             _filedir sock
             return
             ;;
-        --defaults-file|--defaults-extra-file)
+        --defaults-file | --defaults-extra-file)
             _filedir
             return
             ;;
-        --ssl-ca|--ssl-cert)
+        --ssl-ca | --ssl-cert)
             _filedir '@(pem|cer|c?(e)rt)'
             return
             ;;
@@ -38,26 +38,26 @@ _mysqladmin()
             _filedir '@(pem|key)'
             return
             ;;
-        --count|--port|--set-variable|--sleep|--ssl-cipher|--wait|\
-        --connect_timeout|--shutdown_timeout|-!(-*)[cPOiw])
+        --count | --port | --set-variable | --sleep | --ssl-cipher | --wait | \
+            --connect_timeout | --shutdown_timeout | -!(-*)[cPOiw])
             return
             ;;
-        --help|--version|-!(-*)[?V])
+        --help | --version | -!(-*)[?V])
             return
             ;;
     esac
 
     $split && return
 
-    COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+    COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
 
-    COMPREPLY+=( $(compgen -W 'create debug drop extended-status flush-hosts
+    COMPREPLY+=($(compgen -W 'create debug drop extended-status flush-hosts
         flush-logs flush-status flush-tables flush-threads flush-privileges
         kill password old-password ping processlist reload refresh shutdown
-        status start-slave stop-slave variables version' -- "$cur") )
+        status start-slave stop-slave variables version' -- "$cur"))
 
     [[ $COMPREPLY == *= ]] && compopt -o nospace
 } &&
-complete -F _mysqladmin mysqladmin
+    complete -F _mysqladmin mysqladmin
 
 # ex: filetype=sh

@@ -6,16 +6,16 @@ _getent()
     _init_completion -s || return
 
     local i db
-    for (( i=1; i < cword; i++ )); do
+    for ((i = 1; i < cword; i++)); do
         case ${words[i]} in
-            --version|--usage|--help|-!(-*)[V?])
+            --version | --usage | --help | -!(-*)[V?])
                 return
                 ;;
-            --service|-!(-*)s)
-                (( i++ ))
+            --service | -!(-*)s)
+                ((i++))
                 ;;
-            -*)
-                ;;
+            -*) ;;
+
             *)
                 # First non-option value is the db
                 db=${words[i]}
@@ -26,37 +26,37 @@ _getent()
 
     case $db in
         passwd)
-            COMPREPLY=( $(compgen -u -- "$cur") )
+            COMPREPLY=($(compgen -u -- "$cur"))
             return
             ;;
         group)
-            COMPREPLY=( $(compgen -g -- "$cur") )
+            COMPREPLY=($(compgen -g -- "$cur"))
             return
             ;;
         services)
-            COMPREPLY=( $(compgen -s -- "$cur") )
+            COMPREPLY=($(compgen -s -- "$cur"))
             return
             ;;
         hosts)
-            COMPREPLY=( $(compgen -A hostname -- "$cur") )
+            COMPREPLY=($(compgen -A hostname -- "$cur"))
             return
             ;;
-        protocols|networks|ahosts|ahostsv4|ahostsv6|rpc)
-            COMPREPLY=( $(compgen -W "$($1 $db | \
-                awk '{ print $1 }')" -- "$cur") )
+        protocols | networks | ahosts | ahostsv4 | ahostsv6 | rpc)
+            COMPREPLY=($(compgen -W "$($1 $db |
+                awk '{ print $1 }')" -- "$cur"))
             return
             ;;
-        aliases|shadow|gshadow)
-            COMPREPLY=( $(compgen -W "$($1 $db | cut -d: -f1)" -- "$cur") )
+        aliases | shadow | gshadow)
+            COMPREPLY=($(compgen -W "$($1 $db | cut -d: -f1)" -- "$cur"))
             return
             ;;
-        ethers|netgroup)
+        ethers | netgroup)
             return
             ;;
     esac
 
     case $prev in
-        -s|--service)
+        -s | --service)
             return
             ;;
     esac
@@ -64,14 +64,14 @@ _getent()
     $split && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     elif [[ -z $db ]]; then
-        COMPREPLY=( $(compgen -W 'passwd group hosts services protocols
+        COMPREPLY=($(compgen -W 'passwd group hosts services protocols
             networks ahosts ahostsv4 ahostsv6 aliases ethers netgroup rpc
-            shadow gshadow' -- "$cur") )
+            shadow gshadow' -- "$cur"))
     fi
 } &&
-complete -F _getent getent
+    complete -F _getent getent
 
 # ex: filetype=sh

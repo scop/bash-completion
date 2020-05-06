@@ -5,9 +5,9 @@ _openssl_sections()
     local config f
 
     # check if a specific configuration file is used
-    for (( i=2; i < cword; i++ )); do
-        if [[ "${words[i]}" == -config ]]; then
-            config=${words[i+1]}
+    for ((i = 2; i < cword; i++)); do
+        if [[ ${words[i]} == -config ]]; then
+            config=${words[i + 1]}
             break
         fi
     done
@@ -22,16 +22,16 @@ _openssl_sections()
 
     [[ ! -f $config ]] && return
 
-    COMPREPLY=( $(compgen -W "$(awk '/\[.*\]/ {print $2}' $config)" -- "$cur") )
+    COMPREPLY=($(compgen -W "$(awk '/\[.*\]/ {print $2}' $config)" -- "$cur"))
 }
 
 _openssl_digests()
 {
-    "$1" dgst -h 2>&1 | \
+    "$1" dgst -h 2>&1 |
         awk '/^-.*[ \t]to use the .* message digest algorithm/ { print $1 }'
-    local -a digests=( $("$1" help 2>&1 |
+    local -a digests=($("$1" help 2>&1 |
         command sed -ne '/^Message Digest commands/,/^[[:space:]]*$/p' |
-        command sed -e 1d) )
+        command sed -e 1d))
     printf "%s\n" "${digests[@]/#/-}"
 }
 
@@ -55,29 +55,29 @@ _openssl()
         rc2-40-cbc rc2-64-cbc rc2-cbc rc2-cfb rc2-ecb rc2-ofb rc4 rc4-40
         sha224 sha256 sha384 sha512 genpkey pkey pkeyparam pkeyutl'
 
-    if (( cword == 1 )); then
-        COMPREPLY=( $(compgen -W "$commands" -- "$cur") )
+    if ((cword == 1)); then
+        COMPREPLY=($(compgen -W "$commands" -- "$cur"))
     else
         command=${words[1]}
         case $prev in
-            -CA|-CAfile|-CAkey|-CAserial|-cert|-certfile|-config|-content| \
-            -dcert|-dkey|-dhparam|-extfile|-in|-inkey|-kfile|-key|-keyout| \
-            -out|-oid|-paramfile|-peerkey|-prvrify|-rand|-recip|-revoke| \
-            -sess_in|-sess_out|-spkac|-sigfile|-sign|-signkey|-signer| \
-            -signature|-ss_cert|-untrusted|-verify|-writerand)
+            -CA | -CAfile | -CAkey | -CAserial | -cert | -certfile | -config | -content | \
+                -dcert | -dkey | -dhparam | -extfile | -in | -inkey | -kfile | -key | -keyout | \
+                -out | -oid | -paramfile | -peerkey | -prvrify | -rand | -recip | -revoke | \
+                -sess_in | -sess_out | -spkac | -sigfile | -sign | -signkey | -signer | \
+                -signature | -ss_cert | -untrusted | -verify | -writerand)
                 _filedir
                 return
                 ;;
-            -outdir|-CApath)
+            -outdir | -CApath)
                 _filedir -d
                 return
                 ;;
-            -name|-crlexts|-extensions)
+            -name | -crlexts | -extensions)
                 _openssl_sections
                 return
                 ;;
-            -inform|-outform|-keyform|-certform|-CAform|-CAkeyform|-dkeyform|\
-            -dcertform|-peerform)
+            -inform | -outform | -keyform | -certform | -CAform | -CAkeyform | -dkeyform | \
+                -dcertform | -peerform)
                 formats='DER PEM'
                 case $command in
                     x509)
@@ -90,7 +90,7 @@ _openssl()
                         formats+=" ENGINE"
                         ;;
                 esac
-                COMPREPLY=( $(compgen -W "$formats" -- "$cur") )
+                COMPREPLY=($(compgen -W "$formats" -- "$cur"))
                 return
                 ;;
             -connect)
@@ -98,41 +98,41 @@ _openssl()
                 return
                 ;;
             -starttls)
-                COMPREPLY=( $(compgen -W '
+                COMPREPLY=($(compgen -W '
                     smtp pop3 imap ftp xmpp xmpp-server telnet irc mysql
                     postgres lmtp nntp sieve ldap
-                    ' -- "$cur") )
+                    ' -- "$cur"))
                 return
                 ;;
             -cipher)
-                COMPREPLY=( $(IFS=: compgen -W "$($1 ciphers)" -- "$cur") )
+                COMPREPLY=($(IFS=: compgen -W "$($1 ciphers)" -- "$cur"))
                 return
                 ;;
             -kdf)
-                COMPREPLY=( $(compgen -W 'TLS1-PRF HKDF' -- "$cur") )
+                COMPREPLY=($(compgen -W 'TLS1-PRF HKDF' -- "$cur"))
                 return
                 ;;
         esac
 
-        if [[ "$cur" == -* ]]; then
+        if [[ $cur == -* ]]; then
             # possible options for the command
             options=$(_parse_help "$1" "$command -help" 2>/dev/null)
             case $command in
-                dgst|req|x509) options+=" $(_openssl_digests $1)" ;;
+                dgst | req | x509) options+=" $(_openssl_digests $1)" ;;
             esac
-            COMPREPLY=( $(compgen -W "$options" -- "$cur") )
+            COMPREPLY=($(compgen -W "$options" -- "$cur"))
         else
-            if [[ "$command" == speed ]]; then
-                COMPREPLY=( $(compgen -W 'md2 mdc2 md5 hmac sha1 rmd160
+            if [[ $command == speed ]]; then
+                COMPREPLY=($(compgen -W 'md2 mdc2 md5 hmac sha1 rmd160
                     idea-cbc rc2-cbc rc5-cbc bf-cbc des-cbc des-ede3 rc4
                     rsa512 rsa1024 rsa2048 rsa4096 dsa512 dsa1024 dsa2048 idea
-                    rc2 des rsa blowfish' -- "$cur") )
+                    rc2 des rsa blowfish' -- "$cur"))
             else
                 _filedir
             fi
         fi
     fi
 } &&
-complete -F _openssl -o default openssl
+    complete -F _openssl -o default openssl
 
 # ex: filetype=sh

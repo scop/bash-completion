@@ -6,42 +6,42 @@ _ebtables()
     _init_completion -s || return
 
     local table chain='s/^Bridge chain: \([^ ,]\{1,\}\).*$/\1/p' \
-      targets='ACCEPT DROP CONTINUE RETURN'
+        targets='ACCEPT DROP CONTINUE RETURN'
 
-    [[ "${words[*]}" =~ [[:space:]]-(t|-table=?)[[:space:]]*([^[:space:]]+) ]] \
-        && table="-t ${BASH_REMATCH[2]}"
+    [[ ${words[*]} =~ [[:space:]]-(t|-table=?)[[:space:]]*([^[:space:]]+) ]] &&
+        table="-t ${BASH_REMATCH[2]}"
 
     case $prev in
-    -!(-*)[AIDPFXLZ])
-        COMPREPLY=( $(compgen -W '`"$1" $table -L 2>/dev/null | \
-                command sed -ne "$chain"`' -- "$cur") )
-        ;;
-    -!(-*)t)
-        COMPREPLY=( $(compgen -W 'nat filter broute' -- "$cur") )
-        ;;
-    -!(-*)j)
-        if [[ "$table" == "-t filter" || -z "$table" ]]; then
-            COMPREPLY=( $(compgen -W '$targets
+        -!(-*)[AIDPFXLZ])
+            COMPREPLY=($(compgen -W '`"$1" $table -L 2>/dev/null | \
+                command sed -ne "$chain"`' -- "$cur"))
+            ;;
+        -!(-*)t)
+            COMPREPLY=($(compgen -W 'nat filter broute' -- "$cur"))
+            ;;
+        -!(-*)j)
+            if [[ $table == "-t filter" || -z $table ]]; then
+                COMPREPLY=($(compgen -W '$targets
                 $("$1" $table -L 2>/dev/null | \
                   command sed -n -e "s/INPUT\|OUTPUT\|FORWARD//" \
                                  -e "$chain")' \
-                -- "$cur") )
-        elif [[ $table == "-t nat" ]]; then
-            COMPREPLY=( $(compgen -W '$targets
+                    -- "$cur"))
+            elif [[ $table == "-t nat" ]]; then
+                COMPREPLY=($(compgen -W '$targets
                 $("$1" $table -L 2>/dev/null | \
                   command sed -n -e "s/OUTPUT|PREROUTING|POSTROUTING//" \
                                  -e "$chain")' \
-                -- "$cur") )
-        elif [[ $table == "-t broute" ]]; then
-            COMPREPLY=( $(compgen -W 'ACCEPT DROP
+                    -- "$cur"))
+            elif [[ $table == "-t broute" ]]; then
+                COMPREPLY=($(compgen -W 'ACCEPT DROP
                 $("$1" $table -L 2>/dev/null | \
                   command sed -n -e "s/BROUTING//" -e "$chain")' \
-                -- "$cur") )
-        fi
-        ;;
-    *)
-        if [[ "$cur" == -* ]]; then
-            COMPREPLY=( $(compgen -W '--802_3-sap --802_3-type --among-dst
+                    -- "$cur"))
+            fi
+            ;;
+        *)
+            if [[ $cur == -* ]]; then
+                COMPREPLY=($(compgen -W '--802_3-sap --802_3-type --among-dst
             --among-dst-file --among-src --among-src-file --append
             --arp-gratuitous --arp-htype --arp-ip-dst --arp-ip-src
             --arp-mac-dst --arp-mac-src --arp-opcode --arp-ptype --arpreply-mac
@@ -67,12 +67,12 @@ _ebtables()
             --stp-sender-prio --stp-type --table --to-destination --to-dst
             --to-source --to-src --ulog --ulog-cprange --ulog-nlgroup
             --ulog-prefix --ulog-qthreshold --version --vlan-encap --vlan-id
-            --vlan-prio --zero' -- "$cur") )
-        fi
-        ;;
+            --vlan-prio --zero' -- "$cur"))
+            fi
+            ;;
     esac
 
 } &&
-complete -F _ebtables ebtables
+    complete -F _ebtables ebtables
 
 # ex: filetype=sh

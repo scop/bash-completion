@@ -6,21 +6,21 @@ _strings()
     _init_completion -s || return
 
     case $prev in
-        --help|--version|--bytes|-!(-*)[hvVn])
+        --help | --version | --bytes | -!(-*)[hvVn])
             return
             ;;
-        --radix|-!(-*)t)
-            COMPREPLY=( $(compgen -W 'o d x' -- "$cur") )
+        --radix | -!(-*)t)
+            COMPREPLY=($(compgen -W 'o d x' -- "$cur"))
             return
             ;;
-        --target|-!(-*)T)
-            COMPREPLY=( $(compgen -W '$(LC_ALL=C "$1" --help 2>/dev/null | \
+        --target | -!(-*)T)
+            COMPREPLY=($(compgen -W '$(LC_ALL=C "$1" --help 2>/dev/null | \
                 command sed -ne "s/: supported targets: \(.*\)/\1/p")' \
-                -- "$cur") )
+                -- "$cur"))
             return
             ;;
-        --encoding|-!(-*)e)
-            COMPREPLY=( $(compgen -W 's S b l B L' -- "$cur") )
+        --encoding | -!(-*)e)
+            COMPREPLY=($(compgen -W 's S b l B L' -- "$cur"))
             return
             ;;
     esac
@@ -28,18 +28,18 @@ _strings()
     $split && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     elif [[ $cur == @* ]]; then
         cur=${cur:1}
         _filedir
-        COMPREPLY=( "${COMPREPLY[@]/#/@}" )
+        COMPREPLY=("${COMPREPLY[@]/#/@}")
         return
     fi
 
     _filedir
 } &&
-complete -F _strings strings
+    complete -F _strings strings
 
 # ex: filetype=sh

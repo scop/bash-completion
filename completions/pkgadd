@@ -2,7 +2,7 @@
 #
 # Copyright 2006 Yann Rouillard <yann@opencsw.org>
 
-_pkgadd ()
+_pkgadd()
 {
     local cur prev words cword
     _init_completion -n : || return
@@ -12,10 +12,10 @@ _pkgadd ()
     # available in this directory
     local device=/var/spool/pkg
     local i=$cword
-    while (( i-- > 0 )); do
+    while ((i-- > 0)); do
         case "${words[i]}" in
             -d)
-                device="${words[i+1]}"
+                device="${words[i + 1]}"
                 break
                 ;;
         esac
@@ -26,36 +26,37 @@ _pkgadd ()
             _filedir pkg
             _filedir -d
             ;;
-        -a|-r|-V)
+        -a | -r | -V)
             _filedir
             ;;
-        -k|-s|-R)
+        -k | -s | -R)
             _filedir -d
             ;;
-        -P|-x)
-            ;;
+        -P | -x) ;;
+
         *)
             if [[ ${cur} == -* ]]; then
                 local opts="-a -A -d -k -n -M -P -r -R -s -v -V -x"
-                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+                COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
             else
                 local pkginst_list
                 if [[ -d $device ]]; then
                     local -a tmplist
                     for filedir in $(/bin/ls -1 $device); do
                         if [[ -d "$device/$filedir" ]] && [[ -f "$device/$filedir/pkginfo" ]]; then
-                            tmplist+=( ${tmplist[@]:-} "$filedir" )
+                            tmplist+=(${tmplist[@]:-} "$filedir")
                         fi
                     done
                     pkginst_list="${tmplist[*]}"
                 else
-                    pkginst_list="$(strings "$(dequote $device)" | \
+                    pkginst_list="$(strings "$(dequote $device)" |
                         command grep ^PKG= | sort -u | cut -d= -f2)"
+                fi
+                COMPREPLY=($(compgen -W "$pkginst_list" -- ${cur}))
             fi
-            COMPREPLY=( $(compgen -W "$pkginst_list" -- ${cur}) )
-        fi
+            ;;
     esac
 } &&
-complete -F _pkgadd pkgadd
+    complete -F _pkgadd pkgadd
 
 # ex: filetype=sh

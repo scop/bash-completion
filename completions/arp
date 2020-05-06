@@ -6,28 +6,28 @@ _arp()
     _init_completion || return
 
     case $prev in
-        --device|-!(-*)i)
+        --device | -!(-*)i)
             _available_interfaces -a
             return
             ;;
-        --protocol|-!(-*)[Ap])
+        --protocol | -!(-*)[Ap])
             # TODO protocol/address family
             return
             ;;
-        --file|-!(-*)f)
+        --file | -!(-*)f)
             _filedir
             return
             ;;
-        --hw-type|-!(-*)[Ht])
+        --hw-type | -!(-*)[Ht])
             # TODO: parse from --help output?
-            COMPREPLY=( $(compgen -W 'ash ether ax25 netrom rose arcnet \
-                dlci fddi hippi irda x25 eui64' -- "$cur") )
+            COMPREPLY=($(compgen -W 'ash ether ax25 netrom rose arcnet \
+                dlci fddi hippi irda x25 eui64' -- "$cur"))
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         return
     fi
 
@@ -37,7 +37,7 @@ _arp()
         1)
             local ips=$("$1" -an | command sed -ne \
                 's/.*(\([0-9]\{1,3\}\(\.[0-9]\{1,3\}\)\{3\}\)).*/\1/p')
-            COMPREPLY=( $(compgen -W '$ips' -- "$cur") )
+            COMPREPLY=($(compgen -W '$ips' -- "$cur"))
             ;;
         2)
             # TODO if -d mode: "pub"; if not -f mode: hw_addr
@@ -54,6 +54,6 @@ _arp()
             ;;
     esac
 } &&
-complete -F _arp arp
+    complete -F _arp arp
 
 # ex: filetype=sh

@@ -6,13 +6,13 @@ _modinfo()
     _init_completion -s || return
 
     case "$prev" in
-        --field|-!(-*)F)
-            COMPREPLY=( $(compgen -W 'alias author depends description
+        --field | -!(-*)F)
+            COMPREPLY=($(compgen -W 'alias author depends description
                 filename firmware license parm srcversion staging vermagic
-                version' -- "${cur,,}") )
+                version' -- "${cur,,}"))
             return
             ;;
-        --set-version|-!(-*)k)
+        --set-version | -!(-*)k)
             _kernel_versions
             return
             ;;
@@ -20,28 +20,28 @@ _modinfo()
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
+    if [[ $cur == -* ]]; then
         local opts=$(_parse_help "$1")
-        COMPREPLY=( $(compgen -W '${opts:-$(_parse_usage "$1")}' -- "$cur") )
+        COMPREPLY=($(compgen -W '${opts:-$(_parse_usage "$1")}' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
 
     local i version=$(uname -r)
-    for (( i=${#words[@]}-1; i>0; i-- )); do
+    for ((i = ${#words[@]} - 1; i > 0; i--)); do
         if [[ ${words[i]} == -@(!(-*)k*|-set-version) ]]; then
-            version=${words[i+1]}
+            version=${words[i + 1]}
             break
         fi
     done
 
     # do filename completion if we're giving a path to a module
-    if [[ "$cur" == @(*/|[.~])* ]]; then
+    if [[ $cur == @(*/|[.~])* ]]; then
         _filedir '@(?(k)o?(.[gx]z))'
     else
         _modules $version
     fi
 } &&
-complete -F _modinfo modinfo
+    complete -F _modinfo modinfo
 
 # ex: filetype=sh

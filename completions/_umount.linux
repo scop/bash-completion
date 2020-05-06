@@ -31,7 +31,8 @@ _reply_compgen_array()
 }
 
 # Unescape strings in the linux fstab(5) format (with octal escapes).
-__linux_fstab_unescape() {
+__linux_fstab_unescape()
+{
     eval $1="'${!1//\'/\\047}'"
     eval $1="'${!1/%\\/\\\\}'"
     eval "$1=$'${!1}'"
@@ -52,7 +53,7 @@ _linux_fstab()
     while read -r fs_spec fs_file fs_other; do
         if [[ $fs_spec == [#]* ]]; then continue; fi
         if [[ $1 == -L ]]; then
-            local fs_label=${fs_spec/#LABEL=}
+            local fs_label=${fs_spec/#LABEL=/}
             if [[ $fs_label != "$fs_spec" ]]; then
                 __linux_fstab_unescape fs_label
                 IFS=$'\0'
@@ -84,10 +85,10 @@ _linux_fstab()
             basecur=${cur#"$dircur"}
             local i
             for i in ${!COMPREPLY[*]}; do
-                [[ "${COMPREPLY[i]}" == "$realcur"* ]] &&
-                    COMPREPLY+=( $(cd "$dircur" 2>/dev/null &&
+                [[ ${COMPREPLY[i]} == "$realcur"* ]] &&
+                    COMPREPLY+=($(cd "$dircur" 2>/dev/null &&
                         compgen -f -d -P "$dircur" \
-                        -X "!${COMPREPLY[i]##"$dirrealcur"}" -- "$basecur") )
+                            -X "!${COMPREPLY[i]##"$dirrealcur"}" -- "$basecur"))
             done
         fi
     fi
@@ -104,18 +105,18 @@ _umount()
         -t)
             # FIXME: no<fstype>
             local split=false
-            if [[ "$cur" == ?*,* ]]; then
+            if [[ $cur == ?*,* ]]; then
                 prev="${cur%,*}"
                 cur="${cur##*,}"
                 split=true
             fi
-            COMPREPLY=( $(compgen -W 'adfs affs autofs btrfs cifs coda
+            COMPREPLY=($(compgen -W 'adfs affs autofs btrfs cifs coda
                 cramfs debugfs devpts efs ext2 ext3 ext4 fuse hfs hfsplus hpfs
                 iso9660 jfs minix msdos ncpfs nfs nfs4 ntfs ntfs-3g proc qnx4
                 ramfs reiserfs romfs squashfs smbfs sysv tmpfs ubifs udf ufs
-                umsdos usbfs vfat xfs' -- "$cur") )
+                umsdos usbfs vfat xfs' -- "$cur"))
             _fstypes
-            $split && COMPREPLY=( ${COMPREPLY[@]/#/$prev,} )
+            $split && COMPREPLY=(${COMPREPLY[@]/#/$prev,})
             return
             ;;
         -O)
@@ -124,9 +125,9 @@ _umount()
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '-V -h -v -n -r -d -i -a -t -O -f -l
-            --no-canonicalize --fake' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '-V -h -v -n -r -d -i -a -t -O -f -l
+            --no-canonicalize --fake' -- "$cur"))
         [[ $COMPREPLY ]] && return
     fi
 
@@ -136,9 +137,9 @@ _umount()
         _linux_fstab </proc/mounts
     else
         local IFS=$'\n'
-        COMPREPLY=( $(compgen -W '$(mount | cut -d" " -f 3)' -- "$cur") )
+        COMPREPLY=($(compgen -W '$(mount | cut -d" " -f 3)' -- "$cur"))
     fi
 } &&
-complete -F _umount -o dirnames umount
+    complete -F _umount -o dirnames umount
 
 # ex: filetype=sh

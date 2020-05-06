@@ -8,13 +8,13 @@ _watch()
     _init_completion -s || return
 
     local offset=0 i
-    for (( i=1; i <= cword; i++ )); do
+    for ((i = 1; i <= cword; i++)); do
         case ${words[i]} in
-            --help|--version|-!(-*)h)
+            --help | --version | -!(-*)h)
                 return
                 ;;
-            --interval|-!(-*)n)
-                (( i++ ))
+            --interval | -!(-*)n)
+                ((i++))
                 continue
                 ;;
             -*)
@@ -25,18 +25,18 @@ _watch()
         break
     done
 
-    if (( offset > 0 )); then
+    if ((offset > 0)); then
         _command_offset $offset
         return
     fi
 
     case $prev in
-        --differences|-!(-*)d)
-            [[ $cur != -* ]] && \
-                COMPREPLY=( $(compgen -W 'cumulative' -- "$cur") )
+        --differences | -!(-*)d)
+            [[ $cur != -* ]] &&
+                COMPREPLY=($(compgen -W 'cumulative' -- "$cur"))
             return
             ;;
-        --interval|-!(-*)n)
+        --interval | -!(-*)n)
             return
             ;;
     esac
@@ -44,11 +44,11 @@ _watch()
     $split && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
 } &&
-complete -F _watch watch
+    complete -F _watch watch
 
 # ex: filetype=sh

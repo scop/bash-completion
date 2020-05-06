@@ -22,44 +22,44 @@ _mount()
     local sm host
 
     case $prev in
-        -t|--types)
+        -t | --types)
             _fstypes
             return
             ;;
     esac
 
-    [[ "$cur" == \\ ]] && cur="/"
+    [[ $cur == \\ ]] && cur="/"
 
-    if [[ "$cur" == *:* ]]; then
+    if [[ $cur == *:* ]]; then
         for sm in "$(type -P showmount)" {,/usr}/{,s}bin/showmount; do
             [[ -x $sm ]] || continue
-            COMPREPLY=( $(compgen -W "$("$sm" -e ${cur%%:*} | \
-                awk 'NR>1 {print $1}')" -- "${cur#*:}") )
+            COMPREPLY=($(compgen -W "$("$sm" -e ${cur%%:*} |
+                awk 'NR>1 {print $1}')" -- "${cur#*:}"))
             return
         done
     fi
 
-    if [[ "$cur" == //* ]]; then
+    if [[ $cur == //* ]]; then
         host=${cur#//}
         host=${host%%/*}
         if [[ -n $host ]]; then
-            COMPREPLY=( $(compgen -P "//$host" -W \
+            COMPREPLY=($(compgen -P "//$host" -W \
                 "$(smbclient -d 0 -NL $host 2>/dev/null |
-                command sed -ne '/^[[:blank:]]*Sharename/,/^$/p' |
-                command sed -ne '3,$s|^[^A-Za-z]*\([^[:blank:]]*\).*$|/\1|p')" \
-                    -- "${cur#//$host}") )
+                    command sed -ne '/^[[:blank:]]*Sharename/,/^$/p' |
+                    command sed -ne '3,$s|^[^A-Za-z]*\([^[:blank:]]*\).*$|/\1|p')" \
+                -- "${cur#//$host}"))
         fi
     elif [[ -r /etc/vfstab ]]; then
         # Solaris
-        COMPREPLY=( $(compgen -W "$(awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' /etc/vfstab)" -- "$cur") )
+        COMPREPLY=($(compgen -W "$(awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' /etc/vfstab)" -- "$cur"))
     elif [[ ! -e /etc/fstab ]]; then
         # probably Cygwin
-        COMPREPLY=( $(compgen -W "$($1 | awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}')" -- "$cur") )
+        COMPREPLY=($(compgen -W "$($1 | awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}')" -- "$cur"))
     else
         # probably BSD
-        COMPREPLY=( $(compgen -W "$(awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' /etc/fstab)" -- "$cur") )
+        COMPREPLY=($(compgen -W "$(awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' /etc/fstab)" -- "$cur"))
     fi
 } &&
-complete -F _mount -o default -o dirnames mount
+    complete -F _mount -o default -o dirnames mount
 
 # ex: filetype=sh

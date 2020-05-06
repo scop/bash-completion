@@ -14,21 +14,21 @@ _ri_get_methods()
             regex=Class
         fi
 
-        COMPREPLY+=( \
+        COMPREPLY+=(
             "$(ri "${classes[@]}" 2>/dev/null | ruby -ane \
-            'if /^'"$regex"' methods:/.../^------------------|^$/ and \
+                'if /^'"$regex"' methods:/.../^------------------|^$/ and \
             /^ / then print $_.split(/, |,$/).grep(/^[^\[]*$/).join("\n"); \
-            end' 2>/dev/null | sort -u)" )
+            end' 2>/dev/null | sort -u)")
     else
         # older versions of ri didn't distinguish between class/module and
         # instance methods
-        COMPREPLY+=( \
+        COMPREPLY+=(
             "$(ruby -W0 $ri_path "${classes[@]}" 2>/dev/null | ruby -ane \
-            'if /^-/.../^-/ and ! /^-/ and ! /^ +(class|module): / then \
+                'if /^-/.../^-/ and ! /^-/ and ! /^ +(class|module): / then \
             print $_.split(/, |,$| +/).grep(/^[^\[]*$/).join("\n"); \
-            end' | sort -u)" )
+            end' | sort -u)")
     fi
-    COMPREPLY=( $(compgen $prefix -W '${COMPREPLY[@]}' -- $method) )
+    COMPREPLY=($(compgen $prefix -W '${COMPREPLY[@]}' -- $method))
 }
 
 # needs at least Ruby 1.8.0 in order to use -W0
@@ -38,14 +38,14 @@ _ri()
     _init_completion -s -n : || return
 
     case $prev in
-        --help|--width|-!(-*)[hw])
+        --help | --width | -!(-*)[hw])
             return
             ;;
-        --format|-!(-*)f)
-            COMPREPLY=( $(compgen -W 'ansi bs html rdoc' -- "$cur") )
+        --format | -!(-*)f)
+            COMPREPLY=($(compgen -W 'ansi bs html rdoc' -- "$cur"))
             return
             ;;
-        --doc-dir|-!(-*)d)
+        --doc-dir | -!(-*)d)
             _filedir -d
             return
             ;;
@@ -57,8 +57,8 @@ _ri()
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
@@ -76,12 +76,12 @@ _ri()
 
     # need to also split on commas
     IFS=$', \n\t'
-    if [[ "$cur" == [A-Z]*[#.]* ]]; then
-        [[ "$cur" == *#* ]] && separator=# || separator=.
+    if [[ $cur == [A-Z]*[#.]* ]]; then
+        [[ $cur == *#* ]] && separator=# || separator=.
         # we're completing on class and method
         class=${cur%$separator*}
         method=${cur#*$separator}
-        classes=( $class )
+        classes=($class)
         prefix="-P $class$separator"
         _ri_get_methods
         return
@@ -89,24 +89,24 @@ _ri()
 
     if [[ $ri_version == integrated ]]; then
         # integrated ri from Ruby 1.9
-        classes=( $(ri -c 2>/dev/null | ruby -ne 'if /^\s*$/..$stdin.eof then \
-        if /^ +[A-Z]/ then print; end; end' 2>/dev/null) )
+        classes=($(ri -c 2>/dev/null | ruby -ne 'if /^\s*$/..$stdin.eof then \
+        if /^ +[A-Z]/ then print; end; end' 2>/dev/null))
     elif [[ $ri_major && $ri_major -ge 3 ]]; then
-        classes=( $(ri -l 2>/dev/null) )
+        classes=($(ri -l 2>/dev/null))
     elif [[ $ri_version == "ri 1.8a" ]]; then
-        classes=( $(ruby -W0 $ri_path | \
+        classes=($(ruby -W0 $ri_path |
             ruby -ne 'if /^'"'"'ri'"'"' has/..$stdin.eof then \
-            if /^ .*[A-Z]/ then print; end; end') )
+            if /^ .*[A-Z]/ then print; end; end'))
     else
-        classes=( $(ruby -W0 $ri_path | \
+        classes=($(ruby -W0 $ri_path |
             ruby -ne 'if /^I have/..$stdin.eof then \
-                if /^ .*[A-Z]/ then print; end; end') )
+                if /^ .*[A-Z]/ then print; end; end'))
     fi
 
-    COMPREPLY=( $(compgen -W '${classes[@]}' -- "$cur") )
+    COMPREPLY=($(compgen -W '${classes[@]}' -- "$cur"))
     __ltrim_colon_completions "$cur"
 
-    if [[ "$cur" == [A-Z]* ]]; then
+    if [[ $cur == [A-Z]* ]]; then
         # we're completing on class or module alone
         return
     fi
@@ -115,6 +115,6 @@ _ri()
     method=$cur
     _ri_get_methods
 } &&
-complete -F _ri ri
+    complete -F _ri ri
 
 # ex: filetype=sh

@@ -13,20 +13,20 @@ _postcat()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_usage "$1")' -- "$cur") )
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1")' -- "$cur"))
         return
     fi
 
     local idx qfile=0
     for idx in "${words[@]}"; do
-        [[ "$idx" == -q ]] && qfile=1 && break
+        [[ $idx == -q ]] && qfile=1 && break
     done
-    if (( qfile == 1 )); then
+    if ((qfile == 1)); then
         local len=${#cur} pval
-        for pval in $(mailq 2>/dev/null | \
+        for pval in $(mailq 2>/dev/null |
             command sed -e '1d; $d; /^[^0-9A-Z]/d; /^$/d; s/[* !].*$//'); do
-            if [[ "$cur" == "${pval:0:$len}" ]]; then
-                COMPREPLY+=( $pval )
+            if [[ $cur == "${pval:0:len}" ]]; then
+                COMPREPLY+=($pval)
             fi
         done
         return
@@ -34,6 +34,6 @@ _postcat()
 
     _filedir
 } &&
-complete -F _postcat postcat
+    complete -F _postcat postcat
 
 # ex: filetype=sh

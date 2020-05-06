@@ -1,18 +1,21 @@
 # Debian apt-cache(8) completion                           -*- shell-script -*-
 
 # List APT binary packages
-_apt_cache_packages() {
+_apt_cache_packages()
+{
     apt-cache --no-generate pkgnames "$cur" 2>/dev/null
 }
 
 # List APT source packages
-_apt_cache_sources() {
-    compgen -W "$(apt-cache dumpavail | \
+_apt_cache_sources()
+{
+    compgen -W "$(apt-cache dumpavail |
         awk '$1 == "Source:" { print $2 }' | sort -u)" -- "$1"
 }
 
 # List APT source packages
-_apt_cache_src_packages() {
+_apt_cache_src_packages()
+{
     compgen -W '$(_apt_cache_sources "$cur")' -- "$cur"
 }
 
@@ -23,7 +26,7 @@ _apt_cache()
 
     local special ispecial
     if [[ $cur != show ]]; then
-        for (( ispecial=1; ispecial < ${#words[@]}-1; ispecial++ )); do
+        for ((ispecial = 1; ispecial < ${#words[@]} - 1; ispecial++)); do
             if [[ ${words[ispecial]} == @(add|depends|dotty|madison|policy|rdepends|show?(pkg|src|)) ]]; then
                 special=${words[ispecial]}
                 break
@@ -31,54 +34,52 @@ _apt_cache()
         done
     fi
 
-
     if [[ -n $special && $ispecial -lt $cword ]]; then
         case $special in
-        add)
-            _filedir
-            ;;
+            add)
+                _filedir
+                ;;
 
-        showsrc)
-            COMPREPLY=( $(_apt_cache_sources "$cur") )
-            ;;
+            showsrc)
+                COMPREPLY=($(_apt_cache_sources "$cur"))
+                ;;
 
-        *)
-            COMPREPLY=( $(_apt_cache_packages) )
-            ;;
+            *)
+                COMPREPLY=($(_apt_cache_packages))
+                ;;
 
         esac
         return
     fi
 
-
     case $prev in
-        --config-file|--pkg-cache|--src-cache|-!(-*)[cps])
+        --config-file | --pkg-cache | --src-cache | -!(-*)[cps])
             _filedir
             return
             ;;
         search)
-            if [[ "$cur" != -* ]]; then
+            if [[ $cur != -* ]]; then
                 return
             fi
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
+    if [[ $cur == -* ]]; then
 
-        COMPREPLY=( $(compgen -W '-h -v -p -s -q -i -f -a -g -c -o --help
+        COMPREPLY=($(compgen -W '-h -v -p -s -q -i -f -a -g -c -o --help
                 --version --pkg-cache --src-cache --quiet --important --full
                 --all-versions --no-all-versions --generate --no-generate
                 --names-only --all-names --recurse --config-file --option
-                --installed' -- "$cur") )
+                --installed' -- "$cur"))
     elif [[ -z $special ]]; then
 
-        COMPREPLY=( $(compgen -W 'add gencaches show showpkg showsrc stats
+        COMPREPLY=($(compgen -W 'add gencaches show showpkg showsrc stats
                 dump dumpavail unmet search search depends rdepends pkgnames
-                dotty xvcg policy madison' -- "$cur") )
+                dotty xvcg policy madison' -- "$cur"))
 
     fi
 
 } &&
-complete -F _apt_cache apt-cache
+    complete -F _apt_cache apt-cache
 
 # ex: filetype=sh

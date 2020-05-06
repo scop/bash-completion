@@ -2,40 +2,41 @@
 
 _samba_resolve_order()
 {
-    COMPREPLY=( $(compgen -W 'lmhosts host wins bcast' -- "$cur") )
+    COMPREPLY=($(compgen -W 'lmhosts host wins bcast' -- "$cur"))
 }
 
 _samba_domains()
 {
     if [[ -n ${COMP_SAMBA_SCAN:-} ]]; then
-        COMPREPLY=( $(compgen -W '$(smbtree -N -D)' -- "$cur") )
+        COMPREPLY=($(compgen -W '$(smbtree -N -D)' -- "$cur"))
     fi
 }
 
 _samba_hosts()
 {
     if [[ -n ${COMP_SAMBA_SCAN:-} ]]; then
-        COMPREPLY=( $(compgen -W "$(smbtree -N -S | \
-            command sed -ne 's/^[[:space:]]*\\\\*\([^[:space:]]*\).*/\1/p' \
-            )" -- "$cur") )
+        COMPREPLY=($(compgen -W "$(
+            smbtree -N -S |
+                command sed -ne 's/^[[:space:]]*\\\\*\([^[:space:]]*\).*/\1/p'
+        )" -- "$cur"))
     fi
 }
 
 _samba_debuglevel()
 {
-    COMPREPLY=( $(compgen -W '{0..10}' -- "$cur") )
+    COMPREPLY=($(compgen -W '{0..10}' -- "$cur"))
 }
 
 _samba_sockopts()
 {
-    COMPREPLY=( $(compgen -W 'SO_KEEPALIVE SO_REUSEADDR SO_BROADCAST
+    COMPREPLY=($(compgen -W 'SO_KEEPALIVE SO_REUSEADDR SO_BROADCAST
         TCP_NODELAY IPTOS_LOWDELAY IPTOS_THROUGHPUT SO_SNDBUF SO_RCVBUF
-        SO_SNDLOWAT SO_RCVLOWAT' -- "$cur") )
+        SO_SNDLOWAT SO_RCVLOWAT' -- "$cur"))
 }
 
 _samba_signing()
 {
-    COMPREPLY=( $(compgen -W 'on off required' -- "$cur") )
+    COMPREPLY=($(compgen -W 'on off required' -- "$cur"))
 }
 
 _smbclient()
@@ -44,64 +45,64 @@ _smbclient()
     _init_completion -s || return
 
     case $prev in
-        --name-resolve|-!(-*)R)
+        --name-resolve | -!(-*)R)
             _samba_resolve_order
             return
             ;;
         -!(-*)t)
-            COMPREPLY=( $(compgen -W 'SJIS EUC JIS7 JIS8 JUNET HEX CAP' \
-                -- "$cur") )
+            COMPREPLY=($(compgen -W 'SJIS EUC JIS7 JIS8 JUNET HEX CAP' \
+                -- "$cur"))
             return
             ;;
-        --configfile|--authentication-file|-!(-*)[sA])
+        --configfile | --authentication-file | -!(-*)[sA])
             _filedir
             return
             ;;
-        --log-basename|--directory|-!(-*)[lD])
+        --log-basename | --directory | -!(-*)[lD])
             _filedir -d
             return
             ;;
-        --socket-options|-!(-*)O)
+        --socket-options | -!(-*)O)
             _samba_sockopts
             return
             ;;
         -!(-*)T)
-            COMPREPLY=( $(compgen -W 'c x I X F b g q r N a' -- "$cur") )
+            COMPREPLY=($(compgen -W 'c x I X F b g q r N a' -- "$cur"))
             return
             ;;
-        --workgroup|-!(-*)W)
+        --workgroup | -!(-*)W)
             _samba_domains
             return
             ;;
-        --debuglevel|-!(-*)d)
+        --debuglevel | -!(-*)d)
             _samba_debuglevel
             return
             ;;
-        --list|-!(-*)L)
+        --list | -!(-*)L)
             _samba_hosts
             return
             ;;
-        --signing|-!(-*)S)
+        --signing | -!(-*)S)
             _samba_signing
             return
             ;;
-        --port|--message|--ip-address|--send-buffer|--user|--netbiosname|\
-        --scope|--tar|--command|--max-protocol|-!(-*)[pMIbUniTcm])
+        --port | --message | --ip-address | --send-buffer | --user | --netbiosname | \
+            --scope | --tar | --command | --max-protocol | -!(-*)[pMIbUniTcm])
             return
             ;;
-        --help|--version|-!(-*)[?V])
+        --help | --version | -!(-*)[?V])
             return
             ;;
     esac
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     fi
 } &&
-complete -F _smbclient smbclient
+    complete -F _smbclient smbclient
 
 _smbget()
 {
@@ -109,31 +110,31 @@ _smbget()
     _init_completion -s || return
 
     case $prev in
-        --outputfile|--rcfile|-!(-*)[of])
+        --outputfile | --rcfile | -!(-*)[of])
             _filedir
             return
             ;;
-        --debuglevel|-!(-*)d)
+        --debuglevel | -!(-*)d)
             _samba_debuglevel
             return
             ;;
-        --workgroup|-!(-*)w)
+        --workgroup | -!(-*)w)
             _samba_domains
             return
             ;;
-        --username|--password|--blocksize|-!(-*)[upb])
+        --username | --password | --blocksize | -!(-*)[upb])
             return
             ;;
     esac
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     fi
 } &&
-complete -F _smbget smbget
+    complete -F _smbget smbget
 
 _smbcacls()
 {
@@ -141,15 +142,15 @@ _smbcacls()
     _init_completion -s || return
 
     case $prev in
-        --configfile|--authentication-file|-!(-*)[As])
+        --configfile | --authentication-file | -!(-*)[As])
             _filedir
             return
             ;;
-        --log-basename|-!(-*)l)
+        --log-basename | -!(-*)l)
             _filedir -d
             return
             ;;
-        --debuglevel|-!(-*)d)
+        --debuglevel | -!(-*)d)
             _samba_debuglevel
             return
             ;;
@@ -157,28 +158,28 @@ _smbcacls()
             _samba_signing
             return
             ;;
-        --socket-options|-!(-*)O)
+        --socket-options | -!(-*)O)
             _samba_sockopts
             return
             ;;
-        --workgroup|-!(-*)W)
+        --workgroup | -!(-*)W)
             _samba_domains
             return
             ;;
-        --help|--usage|--delete|--modify|--add|--set|--chown|--chgrp|\
-        --netbiosname|--scope|--user|-!(-*)[?DMaSCGniU])
+        --help | --usage | --delete | --modify | --add | --set | --chown | --chgrp | \
+            --netbiosname | --scope | --user | -!(-*)[?DMaSCGniU])
             return
             ;;
     esac
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     fi
 } &&
-complete -F _smbcacls smbcacls
+    complete -F _smbcacls smbcacls
 
 _smbcquotas()
 {
@@ -186,15 +187,15 @@ _smbcquotas()
     _init_completion -s || return
 
     case $prev in
-        --configfile|--authentication-file|-!(-*)[sA])
+        --configfile | --authentication-file | -!(-*)[sA])
             _filedir
             return
             ;;
-        --log-basename|-!(-*)l)
+        --log-basename | -!(-*)l)
             _filedir -d
             return
             ;;
-        --debuglevel|-!(-*)d)
+        --debuglevel | -!(-*)d)
             _samba_debuglevel
             return
             ;;
@@ -202,19 +203,19 @@ _smbcquotas()
             _samba_signing
             return
             ;;
-        --help|--usage|--user|--set|-!(-*)[?UuS])
+        --help | --usage | --user | --set | -!(-*)[?UuS])
             return
             ;;
     esac
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     fi
 } &&
-complete -F _smbcquotas smbcquotas
+    complete -F _smbcquotas smbcquotas
 
 _smbpasswd()
 {
@@ -243,11 +244,11 @@ _smbpasswd()
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1" -h)' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1" -h)' -- "$cur"))
     fi
 } &&
-complete -F _smbpasswd smbpasswd
+    complete -F _smbpasswd smbpasswd
 
 _smbtar()
 {
@@ -276,11 +277,11 @@ _smbtar()
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
     fi
 } &&
-complete -F _smbtar smbtar
+    complete -F _smbtar smbtar
 
 _smbtree()
 {
@@ -288,34 +289,34 @@ _smbtree()
     _init_completion -s || return
 
     case $prev in
-        --configfile|--authentication-file|-!(-*)[sA])
+        --configfile | --authentication-file | -!(-*)[sA])
             _filedir
             return
             ;;
-        --log-basename|-!(-*)l)
+        --log-basename | -!(-*)l)
             _filedir -d
             return
             ;;
-        --debuglevel|-!(-*)d)
+        --debuglevel | -!(-*)d)
             _samba_debuglevel
             return
             ;;
-        --signing|-!(-*)S)
+        --signing | -!(-*)S)
             _samba_signing
             return
             ;;
-        --help|--usage|--user|-!(-*)[?U])
+        --help | --usage | --user | -!(-*)[?U])
             return
             ;;
     esac
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     fi
 } &&
-complete -F _smbtree smbtree
+    complete -F _smbtree smbtree
 
 # ex: filetype=sh

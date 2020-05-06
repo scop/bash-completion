@@ -6,20 +6,22 @@ _wol()
     _init_completion -s -n : || return
 
     case $prev in
-        --version|--help|--port|--passwd|--wait|-!(-*)[Vpw])
+        --version | --help | --port | --passwd | --wait | -!(-*)[Vpw])
             return
             ;;
-        --host|--ipaddr|-!(-*)[hi])
+        --host | --ipaddr | -!(-*)[hi])
             # Broadcast addresses
             local PATH=$PATH:/sbin
-            COMPREPLY=( $({ ip addr show || ifconfig -a; } 2>/dev/null | \
+            COMPREPLY=($({
+                ip addr show || ifconfig -a
+            } 2>/dev/null |
                 command sed -ne 's/.*[[:space:]]Bcast:\([^[:space:]]*\).*/\1/p' -ne \
-                's/.*inet.*[[:space:]]brd[[:space:]]\([^[:space:]]*\).*/\1/p' -ne \
-                's/.*[[:space:]]broadcast[[:space:]]\{1,\}\([^[:space:]]*\).*/\1/p') )
+                    's/.*inet.*[[:space:]]brd[[:space:]]\([^[:space:]]*\).*/\1/p' -ne \
+                    's/.*[[:space:]]broadcast[[:space:]]\{1,\}\([^[:space:]]*\).*/\1/p'))
             _known_hosts_real -- "$cur"
             return
             ;;
-        --file|-!(-*)f)
+        --file | -!(-*)f)
             _filedir
             return
             ;;
@@ -27,14 +29,14 @@ _wol()
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
 
     _mac_addresses
 } &&
-complete -F _wol wol
+    complete -F _wol wol
 
 # ex: filetype=sh

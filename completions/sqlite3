@@ -8,8 +8,8 @@ _sqlite3()
     local dbexts='@(sqlite?(3)|?(s?(3))db)'
 
     case $prev in
-        -help|-version|-lookaside|-mmap|-newline|-nullvalue|-pagecache|\
-        -scratch|-separator|*.$dbexts)
+        -help | -version | -lookaside | -mmap | -newline | -nullvalue | -pagecache | \
+            -scratch | -separator | *.$dbexts)
             return
             ;;
         -init)
@@ -18,21 +18,21 @@ _sqlite3()
             ;;
         -cmd)
             compopt -o filenames
-            COMPREPLY=( $(compgen -c -- "$cur") )
+            COMPREPLY=($(compgen -c -- "$cur"))
             return
             ;;
     esac
 
-    [[ $cword -gt 2 && ${words[cword-2]} == -@(lookaside|pagecache|scratch) ]] \
-        && return
+    [[ $cword -gt 2 && ${words[cword - 2]} == -@(lookaside|pagecache|scratch) ]] &&
+        return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1" -help)' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1" -help)' -- "$cur"))
         return
     fi
 
     _filedir "$dbexts"
 } &&
-complete -F _sqlite3 sqlite3
+    complete -F _sqlite3 sqlite3
 
 # ex: filetype=sh

@@ -11,27 +11,27 @@ _mock()
     local plugins='tmpfs root_cache yum_cache bind_mount ccache'
     local cfgdir=/etc/mock count=0 i
 
-    for i in "${words[@]}" ; do
-        (( count == cword )) && break
-        if [[ "$i" == --configdir ]]; then
-            cfgdir="${words[count+1]}"
-        elif [[ "$i" == --configdir=* ]]; then
+    for i in "${words[@]}"; do
+        ((count == cword)) && break
+        if [[ $i == --configdir ]]; then
+            cfgdir="${words[count + 1]}"
+        elif [[ $i == --configdir=* ]]; then
             cfgdir=${i/*=/}
         fi
-        (( count++ ))
+        ((count++))
     done
 
     case $prev in
-        -h|--help|--copyin|--copyout|--arch|-D|--define|--with|--without|\
-        --uniqueext|--rpmbuild_timeout|--sources|--cwd)
+        -h | --help | --copyin | --copyout | --arch | -D | --define | --with | --without | \
+            --uniqueext | --rpmbuild_timeout | --sources | --cwd)
             return
             ;;
-        -r|--root)
-            COMPREPLY=( $(compgen -W "$(command ls $cfgdir)" -- "$cur") )
-            COMPREPLY=( ${COMPREPLY[@]/%.cfg/} )
+        -r | --root)
+            COMPREPLY=($(compgen -W "$(command ls $cfgdir)" -- "$cur"))
+            COMPREPLY=(${COMPREPLY[@]/%.cfg/})
             return
             ;;
-        --configdir|--resultdir)
+        --configdir | --resultdir)
             _filedir -d
             return
             ;;
@@ -44,26 +44,26 @@ _mock()
             # (e.g. ix86 chroot builds in x86_64 mock host)
             # This would actually depend on what the target root
             # can be used to build for...
-            COMPREPLY=( $(compgen -W "$(command rpm --showrc | \
+            COMPREPLY=($(compgen -W "$(command rpm --showrc |
                 command sed -ne 's/^\s*compatible\s\s*archs\s*:\s*\(.*\)/\1/i p')" \
-                -- "$cur") )
+                -- "$cur"))
             return
             ;;
-        --enable-plugin|--disable-plugin)
-            COMPREPLY=( $(compgen -W "$plugins" -- "$cur") )
+        --enable-plugin | --disable-plugin)
+            COMPREPLY=($(compgen -W "$plugins" -- "$cur"))
             return
             ;;
     esac
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     else
         _filedir '@(?(no)src.r|s)pm'
     fi
 } &&
-complete -F _mock mock
+    complete -F _mock mock
 
 # ex: filetype=sh

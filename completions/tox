@@ -12,35 +12,40 @@ _tox()
     fi
 
     case $prev in
-        --help|--version|--num|--index-url|--hashseed|--force-dep|-!(-*)[hni])
+        --help | --version | --num | --index-url | --hashseed | --force-dep | -!(-*)[hni])
             return
             ;;
         -!(-*)c)
             _filedir ini
             return
             ;;
-        --installpkg|--result-json|--workdir)
+        --installpkg | --result-json | --workdir)
             _filedir
             return
             ;;
         -!(-*)e)
             local envs=$(
-                { "$1" --listenvs-all || "$1" --listenvs; } 2>/dev/null )
+                {
+                    "$1" --listenvs-all || "$1" --listenvs
+                } 2>/dev/null
+            )
             [[ $envs ]] || envs=$(
-                    command sed -e 's/,/ /g' -ne 's/^envlist[[:space:]]*=//p' \
-                            tox.ini 2>/dev/null)
-            local prefix=""; [[ $cur == *,* ]] && prefix="${cur%,*},"
-            COMPREPLY=( $(compgen -X '*[{}]*' -W "$envs ALL" -- "${cur##*,}") )
-            (( ${#COMPREPLY[@]} == 1 )) && COMPREPLY=( ${COMPREPLY/#/$prefix} )
+                command sed -e 's/,/ /g' -ne 's/^envlist[[:space:]]*=//p' \
+                    tox.ini 2>/dev/null
+            )
+            local prefix=""
+            [[ $cur == *,* ]] && prefix="${cur%,*},"
+            COMPREPLY=($(compgen -X '*[{}]*' -W "$envs ALL" -- "${cur##*,}"))
+            ((${#COMPREPLY[@]} == 1)) && COMPREPLY=(${COMPREPLY/#/$prefix})
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1") --' -- "$cur") )
+        COMPREPLY=($(compgen -W '$(_parse_help "$1") --' -- "$cur"))
         return
     fi
 } &&
-complete -F _tox tox
+    complete -F _tox tox
 
 # ex: filetype=sh

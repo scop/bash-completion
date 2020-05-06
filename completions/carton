@@ -2,15 +2,15 @@
 
 _carton_commands()
 {
-    local cmds=$("${1:-carton}" usage 2>&1 | \
-                     command sed -ne '/.*command.* is one of/{n;p;q;}')
-    COMPREPLY+=( $(IFS="$IFS," compgen -W "$cmds" -- "$cur") )
+    local cmds=$("${1:-carton}" usage 2>&1 |
+        command sed -ne '/.*command.* is one of/{n;p;q;}')
+    COMPREPLY+=($(IFS="$IFS," compgen -W "$cmds" -- "$cur"))
 }
 
 _carton_command_help()
 {
     local help=$(PERLDOC_PAGER=cat PERLDOC=-otext "${1:-carton}" -h $2 2>&1)
-    COMPREPLY+=( $(compgen -W '$help' -- "$cur") )
+    COMPREPLY+=($(compgen -W '$help' -- "$cur"))
 }
 
 _carton()
@@ -19,24 +19,27 @@ _carton()
     _init_completion -s || return
 
     local i command
-    for (( i=1; i < cword; i++ )); do
+    for ((i = 1; i < cword; i++)); do
         case ${words[i]} in
             -*) ;;
-            *) command=${words[i]}; break ;;
+            *)
+                command=${words[i]}
+                break
+                ;;
         esac
     done
 
-    if [[ -z "$command" ]]; then
+    if [[ -z $command ]]; then
         _carton_commands "$1"
         return
     fi
 
     case $prev in
-        --version|-v)
+        --version | -v)
             return
             ;;
-        --help|-h)
-            [[ -n "$command" ]] || _carton_commands "$1"
+        --help | -h)
+            [[ -n $command ]] || _carton_commands "$1"
             return
             ;;
         --cpanfile)
@@ -54,7 +57,7 @@ _carton()
         --without)
             if [[ $command == install ]]; then
                 local phases="configure build test runtime develop"
-                COMPREPLY+=( $(compgen -W '$phases' -- "$cur") )
+                COMPREPLY+=($(compgen -W '$phases' -- "$cur"))
                 return
             fi
             ;;
@@ -68,11 +71,11 @@ _carton()
     fi
 
     case $command in
-        show|update)
-            :  # TODO modules completion
+        show | update)
+            : # TODO modules completion
             ;;
     esac
 } &&
-complete -F _carton carton
+    complete -F _carton carton
 
 # ex: filetype=sh

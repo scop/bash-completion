@@ -6,22 +6,22 @@ _feh()
     _init_completion -s || return
 
     case "$prev" in
-        --image-bg|-B)
-            COMPREPLY=( $(compgen -W 'checks white black' -- "$cur") )
+        --image-bg | -B)
+            COMPREPLY=($(compgen -W 'checks white black' -- "$cur"))
             return
             ;;
-        --filelist|--output|--output-only|--start-at|-!(-*)[foO\|])
+        --filelist | --output | --output-only | --start-at | -!(-*)[foO\|])
             _filedir
             return
             ;;
-        --caption-path|--fontpath|--output-dir|-!(-*)[KCj])
+        --caption-path | --fontpath | --output-dir | -!(-*)[KCj])
             _filedir -d
             return
             ;;
-        --font|--menu-font|--title-font|-!(-*)[eM@])
+        --font | --menu-font | --title-font | -!(-*)[eM@])
             # expect string like "dejavu.ttf/12"
-            if [[ "$cur" == */* ]]; then # expect integer value
-                COMPREPLY=( $(compgen -P "$cur" -W '{0..9}') )
+            if [[ $cur == */* ]]; then # expect integer value
+                COMPREPLY=($(compgen -P "$cur" -W '{0..9}'))
                 compopt -o nospace
                 return
             fi
@@ -29,69 +29,72 @@ _feh()
             # font_path="$(imlib2-config --prefix 2>/dev/null)/share/imlib2/data/fonts"
             # COMPREPLY=( $(cd "$font_path" 2>/dev/null; compgen -f \
             #     -X "!*.@([tT][tT][fF])" -S / -- "$cur") )
-            for (( i=${#words[@]}-1; i>0; i-- )); do
+            for ((i = ${#words[@]} - 1; i > 0; i--)); do
                 if [[ ${words[i]} == -@(C|-fontpath) ]]; then
-                    font_path="${words[i+1]}"
-                    COMPREPLY+=( $(cd "$font_path" 2>/dev/null; compgen -f \
-                        -X "!*.@([tT][tT][fF])" -S / -- "$cur") )
+                    font_path="${words[i + 1]}"
+                    COMPREPLY+=($(
+                        cd "$font_path" 2>/dev/null
+                        compgen -f \
+                            -X "!*.@([tT][tT][fF])" -S / -- "$cur"
+                    ))
                 fi
             done
             compopt -o nospace
             return
             ;;
-        --theme|-!(-*)T)
+        --theme | -!(-*)T)
             local conf_path=~/.config/feh/themes
             local theme_name theme_opts
             [[ -r $conf_path ]] || return
             while read theme_name theme_opts; do
-                if [[ "$theme_name" == '#'* || "$theme_name" == "" ]]; then
+                if [[ $theme_name == '#'* || $theme_name == "" ]]; then
                     continue
                 fi
-                COMPREPLY+=( $(compgen -W "$theme_name" -- "$cur") )
+                COMPREPLY+=($(compgen -W "$theme_name" -- "$cur"))
             done <"$conf_path"
             return
             ;;
-        --sort|-!(-*)S)
-            COMPREPLY=( $(compgen -W 'name filename mtime width height
-                pixels size format' -- "$cur") )
+        --sort | -!(-*)S)
+            COMPREPLY=($(compgen -W 'name filename mtime width height
+                pixels size format' -- "$cur"))
             return
             ;;
-        --reload|--limit-height|--limit-width|--thumb-height|--thumb-width|\
-        --thumb-redraw|--magick-timeout|-!(-*)[RHWEyJ])
+        --reload | --limit-height | --limit-width | --thumb-height | --thumb-width | \
+            --thumb-redraw | --magick-timeout | -!(-*)[RHWEyJ])
             # expect integer value
-            COMPREPLY+=( $(compgen -W '{0..9}') )
+            COMPREPLY+=($(compgen -W '{0..9}'))
             compopt -o nospace
             return
             ;;
         --zoom)
             # expect integer value or "max", "fill"
-            COMPREPLY=( $(compgen -W 'max fill' -- "$cur") )
+            COMPREPLY=($(compgen -W 'max fill' -- "$cur"))
             if [[ ! $cur || ! $COMPREPLY ]]; then
-                COMPREPLY+=( $(compgen -W '{0..9}') )
+                COMPREPLY+=($(compgen -W '{0..9}'))
                 compopt -o nospace
             fi
             return
             ;;
-        --alpha|-!(-*)a)
-            COMPREPLY=( $(compgen -W '{0..255}' -- "$cur") )
+        --alpha | -!(-*)a)
+            COMPREPLY=($(compgen -W '{0..255}' -- "$cur"))
             return
             ;;
-        --bg|-!(-*)b)
+        --bg | -!(-*)b)
             _filedir
-            COMPREPLY+=( $(compgen -W 'trans' -- "$cur") )
+            COMPREPLY+=($(compgen -W 'trans' -- "$cur"))
             return
             ;;
-        --geometry|--max-dimension|--min-dimension|-!(-*)g)
+        --geometry | --max-dimension | --min-dimension | -!(-*)g)
             # expect string like 640x480
-            if [[ $cur && "$cur" != *x* ]]; then
-                COMPREPLY=( x )
+            if [[ $cur && $cur != *x* ]]; then
+                COMPREPLY=(x)
             fi
-            COMPREPLY+=( $(compgen -W "{0..9}") )
+            COMPREPLY+=($(compgen -W "{0..9}"))
             compopt -o nospace
             return
             ;;
-        --customlist|--index-info|--info|--slideshow-delay|--thumb-title|\
-        --title|-!(-*)[LD~^])
+        --customlist | --index-info | --info | --slideshow-delay | --thumb-title | \
+            --title | -!(-*)[LD~^])
             # argument required but no completions available
             return
             ;;
@@ -99,9 +102,9 @@ _feh()
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
+    if [[ $cur == -* ]]; then
         # Some versions of feh just output "See 'man feh'" for --help :(
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1" --help)' -- "$cur") )
+        COMPREPLY=($(compgen -W '$(_parse_help "$1" --help)' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         [[ $COMPREPLY ]] && return
     fi
@@ -110,6 +113,6 @@ _feh()
     # feh can handle any format that imagemagick can plus some others
     _filedir 'xpm|tif?(f)|png|p[npgba]m|iff|?(i)lbm|jp?(e)g|jfi?(f)|gif|bmp|arg?(b)|tga|xcf|ani|ico|?(e)ps|pdf|dvi|txt|svg?(z)|cdr|[ot]tf'
 } &&
-complete -F _feh feh
+    complete -F _feh feh
 
 # ex: filetype=sh

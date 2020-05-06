@@ -16,35 +16,41 @@ _povray()
             cur="${povcur#[-+]I}" # to confuse _filedir
             pfx="${povcur%"$cur"}"
             _filedir pov
-            COMPREPLY=( ${COMPREPLY[@]/#/$pfx} )
+            COMPREPLY=(${COMPREPLY[@]/#/$pfx})
             return
             ;;
         [-+]O*)
             # guess what output file type user may want
-            case $(IFS=$'\n'; command grep '^[-+]F' <<<"${words[*]}") in
+            case $(
+                IFS=$'\n'
+                command grep '^[-+]F' <<<"${words[*]}"
+            ) in
                 [-+]FN) oext=png ;;
                 [-+]FP) oext=ppm ;;
                 [-+]F[CT]) oext=tga ;;
                 *) oext=$defoext ;;
             esac
             # complete filename corresponding to previously specified +I
-            COMPREPLY=( $(IFS=$'\n'; command grep '^[-+]I' <<<"${words[*]}") )
-            COMPREPLY=( ${COMPREPLY[@]#[-+]I} )
-            COMPREPLY=( ${COMPREPLY[@]/%.pov/.$oext} )
+            COMPREPLY=($(
+                IFS=$'\n'
+                command grep '^[-+]I' <<<"${words[*]}"
+            ))
+            COMPREPLY=(${COMPREPLY[@]#[-+]I})
+            COMPREPLY=(${COMPREPLY[@]/%.pov/.$oext})
             cur="${povcur#[-+]O}" # to confuse _filedir
             pfx="${povcur%"$cur"}"
             _filedir $oext
-            COMPREPLY=( ${COMPREPLY[@]/#/$pfx} )
+            COMPREPLY=(${COMPREPLY[@]/#/$pfx})
             return
             ;;
-        *.ini\[|*.ini\[*[^]]) # sections in .ini files
+        *.ini\[ | *.ini\[*[^]]) # sections in .ini files
             cur="${povcur#*\[}"
             pfx="${povcur%\["$cur"}" # prefix == filename
             [[ -r $pfx ]] || return
-            COMPREPLY=( $(command sed -e 's/^[[:space:]]*\[\('"$cur"'[^]]*\]\).*$/\1/' \
-                -e 't' -e 'd' -- "$pfx") )
+            COMPREPLY=($(command sed -e 's/^[[:space:]]*\[\('"$cur"'[^]]*\]\).*$/\1/' \
+                -e 't' -e 'd' -- "$pfx"))
             # to prevent [bar] expand to nothing.  can be done more easily?
-            COMPREPLY=( "${COMPREPLY[@]/#/${pfx}[}" )
+            COMPREPLY=("${COMPREPLY[@]/#/${pfx}[}")
             return
             ;;
         *)
@@ -53,6 +59,6 @@ _povray()
             ;;
     esac
 } &&
-complete -F _povray povray xpovray spovray
+    complete -F _povray povray xpovray spovray
 
 # ex: filetype=sh

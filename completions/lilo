@@ -2,9 +2,9 @@
 
 _lilo_labels()
 {
-    COMPREPLY=( $(compgen -W "$(awk -F= '$1 ~ /^[ \t]*label$/ {print $2}' \
+    COMPREPLY=($(compgen -W "$(awk -F= '$1 ~ /^[ \t]*label$/ {print $2}' \
         ${1:-/etc/lilo.conf} 2>/dev/null | command sed -e 's/\"//g')" \
-        -- "$cur") )
+        -- "$cur"))
 }
 
 _lilo()
@@ -13,7 +13,7 @@ _lilo()
     _init_completion || return
 
     case $prev in
-        -C|-i|-m|-s|-S)
+        -C | -i | -m | -s | -S)
             _filedir
             return
             ;;
@@ -21,19 +21,19 @@ _lilo()
             _filedir -d
             return
             ;;
-        -I|-D|-R)
+        -I | -D | -R)
             # label completion
             local i conf
             for i in "${!words[@]}"; do
                 if [[ ${words[i]} == -C ]]; then
-                    conf=${words[i+1]}
+                    conf=${words[i + 1]}
                     break
                 fi
             done
             _lilo_labels $conf
             return
             ;;
-        -A|-b|-M|-u|-U)
+        -A | -b | -M | -u | -U)
             # device completion
             cur=${cur:=/dev/}
             _filedir
@@ -41,8 +41,8 @@ _lilo()
             ;;
         -T)
             # topic completion
-            COMPREPLY=( $(compgen -W 'help ChRul EBDA geom geom= table=
-                video' -- "$cur") )
+            COMPREPLY=($(compgen -W 'help ChRul EBDA geom geom= table=
+                video' -- "$cur"))
             return
             ;;
         -B)
@@ -55,12 +55,12 @@ _lilo()
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
+    if [[ $cur == -* ]]; then
         # relevant options completion
-        COMPREPLY=( $(compgen -W '-A -B -b -c -C -d -E -f -g -i -I -l -L -m -M
-            -p -P -q -r -R -s -S -t -T -u -U -v -V -w -x -z' -- "$cur") )
+        COMPREPLY=($(compgen -W '-A -B -b -c -C -d -E -f -g -i -I -l -L -m -M
+            -p -P -q -r -R -s -S -t -T -u -U -v -V -w -x -z' -- "$cur"))
     fi
 } &&
-complete -F _lilo lilo
+    complete -F _lilo lilo
 
 # ex: filetype=sh

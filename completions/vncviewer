@@ -4,17 +4,17 @@ _vncviewer_bootstrap()
 {
     local fname
     case $(_realcommand vncviewer) in
-        *xvnc4viewer)      fname=_xvnc4viewer    ;;
-        *tightvncviewer)   fname=_tightvncviewer ;;
-        *)                 fname=_known_hosts    ;;
+        *xvnc4viewer) fname=_xvnc4viewer ;;
+        *tightvncviewer) fname=_tightvncviewer ;;
+        *) fname=_known_hosts ;;
     esac
 
     # Install real completion for subsequent completions
     complete -F $fname vncviewer
-    $fname  # Generate completions once for now
+    $fname # Generate completions once for now
     unset -f _vncviewer_bootstrap
 } &&
-complete -F _vncviewer_bootstrap vncviewer
+    complete -F _vncviewer_bootstrap vncviewer
 
 _tightvncviewer()
 {
@@ -27,8 +27,8 @@ _tightvncviewer()
             return
             ;;
         -encodings)
-            COMPREPLY=( $(compgen -W 'copyrect tight hextile zlib corre rre
-                raw' -- "$cur") )
+            COMPREPLY=($(compgen -W 'copyrect tight hextile zlib corre rre
+                raw' -- "$cur"))
             return
             ;;
         -via)
@@ -37,18 +37,16 @@ _tightvncviewer()
             ;;
     esac
 
-
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '-help -listen -via -shared -noshared
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '-help -listen -via -shared -noshared
             -viewonly -fullscreen -noraiseonbeep -passwd -encodings -bgr233
             -owncmap -truecolour -truecolor -depth -compresslevel -quality
-            -nojpeg -nocursorshape -x11cursor' -- "$cur") )
+            -nojpeg -nocursorshape -x11cursor' -- "$cur"))
     else
         _known_hosts_real -- "$cur"
     fi
 } &&
-complete -F _tightvncviewer tightvncviewer
-
+    complete -F _tightvncviewer tightvncviewer
 
 # NOTE: - VNC Viewer options are case insensitive.
 #         Preferred case is taken from -help.
@@ -61,12 +59,12 @@ _xvnc4viewer()
     local opt=${prev/#--/-}
     case ${opt,,} in
         # -passwd, -PasswordFile
-        -passwd|-passwordfile)
+        -passwd | -passwordfile)
             _filedir
             return
             ;;
         -preferredencoding)
-            COMPREPLY=( $(compgen -W 'zrle hextile raw' -- "$cur") )
+            COMPREPLY=($(compgen -W 'zrle hextile raw' -- "$cur"))
             return
             ;;
         -via)
@@ -75,26 +73,27 @@ _xvnc4viewer()
             ;;
     esac
 
-    if [[ "$cur" == -* || "$cur" == --* ]]; then
+    if [[ $cur == -* || $cur == --* ]]; then
         # Default to vncviewer camelcase options, see `vncviewer -help'
-        local dash options=( AcceptClipboard AutoSelect DebugDelay display
+        local dash options=(AcceptClipboard AutoSelect DebugDelay display
             DotWhenNoCursor FullColor FullColour FullScreen geometry help
             listen Log LowColourLevel MenuKey name Parent passwd PasswordFile
             PointerEventInterval PreferredEncoding SendClipboard SendPrimary
             Shared UseLocalCursor via ViewOnly WMDecorationHeight
-            WMDecorationWidth ZlibLevel )
-        [[ "$cur" == --* ]] && dash=-- || dash=-
+            WMDecorationWidth ZlibLevel)
+        [[ $cur == --* ]] && dash=-- || dash=-
 
-        local IFS=$' \t\n' reset=$(shopt -p nocasematch); shopt -s nocasematch
+        local IFS=$' \t\n' reset=$(shopt -p nocasematch)
+        shopt -s nocasematch
         local option
-        COMPREPLY=( $(for option in "${options[@]}"; do
-                [[ $dash$option == "$cur"* ]] && printf '%s\n' $dash$option
-            done) )
+        COMPREPLY=($(for option in "${options[@]}"; do
+            [[ $dash$option == "$cur"* ]] && printf '%s\n' $dash$option
+        done))
         $reset
     else
         _known_hosts_real -- "$cur"
     fi
 } &&
-complete -F _xvnc4viewer xvnc4viewer
+    complete -F _xvnc4viewer xvnc4viewer
 
 # ex: filetype=sh

@@ -2,8 +2,8 @@
 
 _iconv_charsets()
 {
-    COMPREPLY+=( $(compgen -X ... -W '$(${1:-iconv} -l | \
-        command sed -e "s@/*\$@@" -e "s/[,()]//g")' -- "$cur") )
+    COMPREPLY+=($(compgen -X ... -W '$(${1:-iconv} -l | \
+        command sed -e "s@/*\$@@" -e "s/[,()]//g")' -- "$cur"))
 }
 
 _iconv()
@@ -12,15 +12,15 @@ _iconv()
     _init_completion -s || return
 
     case $prev in
-        --help|--usage|--version|--unicode-subst|--byte-subst|\
-        --widechar-subst|-!(-*)[?V])
+        --help | --usage | --version | --unicode-subst | --byte-subst | \
+            --widechar-subst | -!(-*)[?V])
             return
             ;;
-        --from-code|--to-code|-!(-*)[ft])
+        --from-code | --to-code | -!(-*)[ft])
             _iconv_charsets $1
             return
             ;;
-        --output|-!(-*)o)
+        --output | -!(-*)o)
             _filedir
             return
             ;;
@@ -28,11 +28,11 @@ _iconv()
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     fi
 } &&
-complete -F _iconv -o default iconv
+    complete -F _iconv -o default iconv
 
 # ex: filetype=sh

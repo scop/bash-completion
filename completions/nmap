@@ -6,11 +6,11 @@ _nmap()
     _init_completion -s || return
 
     case $prev in
-        -iL|-oN|-oX|-oS|-oG|---excludefile|--resume|--stylesheet)
+        -iL | -oN | -oX | -oS | -oG | ---excludefile | --resume | --stylesheet)
             _filedir
             return
             ;;
-        -oA|--datadir)
+        -oA | --datadir)
             _filedir -d
             return
             ;;
@@ -18,7 +18,7 @@ _nmap()
             _available_interfaces -a
             return
             ;;
-        -b|--dns-servers)
+        -b | --dns-servers)
             _known_hosts_real -- "$cur"
             return
             ;;
@@ -26,7 +26,7 @@ _nmap()
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
+    if [[ $cur == -* ]]; then
         # strip everything following a :, inclusive
         # strip everything following a =, exclusive
         # expand -X; -Y to -X -Y
@@ -35,21 +35,22 @@ _nmap()
         # expand --foo/bar to --foo --bar
         # strip everything following a non-option name or = char
         # TODO: should expand -T<0-5> to -T0 ... -T5
-        COMPREPLY=( $(compgen -W "$("$1" --help 2>&1 | command sed \
-            -e "s/:.*$//" \
-            -e "s/=.*$/=/" \
-            -e "s/;[[:space:]]*-/ -/g" \
-            -e "s/\/-/ -/g" \
-            -e "/^[[:space:]]*-[^-]/s/\/\([^-]\)/ -\1/g" \
-            -e "/^[[:space:]]*--/s/\/\([^-]\)/ --\1/g" \
-            -e "s/[^[:space:]a-zA-Z0-9=-].*$//" \
-            )" \
-            -- "$cur") )
+        COMPREPLY=($(compgen -W "$(
+            "$1" --help 2>&1 | command sed \
+                -e "s/:.*$//" \
+                -e "s/=.*$/=/" \
+                -e "s/;[[:space:]]*-/ -/g" \
+                -e "s/\/-/ -/g" \
+                -e "/^[[:space:]]*-[^-]/s/\/\([^-]\)/ -\1/g" \
+                -e "/^[[:space:]]*--/s/\/\([^-]\)/ --\1/g" \
+                -e "s/[^[:space:]a-zA-Z0-9=-].*$//"
+        )" \
+            -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     else
         _known_hosts_real -- "$cur"
     fi
 } &&
-complete -F _nmap nmap
+    complete -F _nmap nmap
 
 # ex: filetype=sh

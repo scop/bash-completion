@@ -18,13 +18,16 @@ z40=0000000000000000000000000000000000000000
 
 while read local_ref local_sha remote_ref remote_sha; do
     case $remote_ref in */$branch) ;; *) continue ;; esac
-    [ $local_sha != $z40 ] || continue  # delete not handled (yet?)
+    [ $local_sha != $z40 ] || continue # delete not handled (yet?)
     if [ $remote_sha = $z40 ]; then
         list_files="git ls-tree -r --name-only $local_sha"
     else
         list_files="git diff --name-only $remote_sha..$local_sha"
     fi
-    ! $list_files | grep -qEx $files || { trigger=true; break; }
+    ! $list_files | grep -qEx $files || {
+        trigger=true
+        break
+    }
 done
 
 if $trigger; then

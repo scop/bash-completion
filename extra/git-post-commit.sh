@@ -12,7 +12,7 @@ url=$(git config bash-completion.docker-hub-trigger-url)
 
 test "$(git symbolic-ref --short HEAD 2>/dev/null)" = master
 
-git diff-tree -r --name-only --no-commit-id HEAD | \
+git diff-tree -r --name-only --no-commit-id HEAD |
     grep -qxE 'test/test-cmd-list\.txt'
 
 curl \

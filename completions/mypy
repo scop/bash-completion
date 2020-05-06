@@ -5,12 +5,12 @@ _mypy()
     local cur prev words cword split
     _init_completion -s || return
 
-    [[ $cword -gt 2 && ${words[cword-2]} == --shadow-file ]] && \
-        prev=--shadow-file  # hack; takes two args
+    [[ $cword -gt 2 && ${words[cword - 2]} == --shadow-file ]] &&
+        prev=--shadow-file # hack; takes two args
 
     case $prev in
-        --help|--version|--python-version|--platform|--always-true|\
-        --always-false|--find-occurrences|--package|--command|-!(-*)[hVpc])
+        --help | --version | --python-version | --platform | --always-true | \
+            --always-false | --find-occurrences | --package | --command | -!(-*)[hVpc])
             return
             ;;
         --config-file)
@@ -18,18 +18,18 @@ _mypy()
             return
             ;;
         --follow-imports)
-            COMPREPLY=( $(compgen -W 'normal silent skip error' -- "$cur") )
+            COMPREPLY=($(compgen -W 'normal silent skip error' -- "$cur"))
             return
             ;;
         --python-executable)
-            COMPREPLY=( $(compgen -c -- "${cur:-py}") )
+            COMPREPLY=($(compgen -c -- "${cur:-py}"))
             return
             ;;
-        --*-dir|--*-report)
+        --*-dir | --*-report)
             _filedir -d
             return
             ;;
-        --custom-typing|--module|-!(-*)m)
+        --custom-typing | --module | -!(-*)m)
             _xfunc python _python_modules
             return
             ;;
@@ -46,12 +46,12 @@ _mypy()
     $split && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         return
     fi
 
     _filedir '@(py|pyi)'
 } &&
-complete -F _mypy mypy
+    complete -F _mypy mypy
 
 # ex: filetype=sh

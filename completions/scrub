@@ -6,16 +6,16 @@ _scrub()
     _init_completion -s || return
 
     case $prev in
-        --version|--help|--blocksize|--device-size|--dirent|-!(-*)[vhbsD])
+        --version | --help | --blocksize | --device-size | --dirent | -!(-*)[vhbsD])
             return
             ;;
-        --pattern|-!(-*)p)
-            COMPREPLY=( $(compgen -W '$("$1" --help 2>&1 |
+        --pattern | -!(-*)p)
+            COMPREPLY=($(compgen -W '$("$1" --help 2>&1 |
                 awk "/^Available/{flag=1;next}/^ /&&flag{print \$1}")' \
-                -- "$cur") )
+                -- "$cur"))
             return
             ;;
-        --freespace|-!(-*)X)
+        --freespace | -!(-*)X)
             _filedir -d
             return
             ;;
@@ -24,13 +24,13 @@ _scrub()
     $split && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
 
     _filedir
 } &&
-complete -F _scrub scrub
+    complete -F _scrub scrub
 
 # ex: filetype=sh

@@ -8,27 +8,27 @@ _lzma()
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1") -{1..9}' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1") -{1..9}' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
 
     local IFS=$'\n' xspec="*.@(lzma|tlz)"
 
-    if [[ "$prev" == --* ]]; then
-        [[ "$prev" == --@(decompress|list|test) ]] && xspec="!"$xspec
-        [[ "$prev" == --compress ]] && xspec=
-    elif [[ "$prev" == -* ]]; then
-        [[ "$prev" == -*[dt]* ]] && xspec="!"$xspec
-        [[ "$prev" == -*z* ]] && xspec=
+    if [[ $prev == --* ]]; then
+        [[ $prev == --@(decompress|list|test) ]] && xspec="!"$xspec
+        [[ $prev == --compress ]] && xspec=
+    elif [[ $prev == -* ]]; then
+        [[ $prev == -*[dt]* ]] && xspec="!"$xspec
+        [[ $prev == -*z* ]] && xspec=
     fi
 
     _tilde "$cur" || return
 
     compopt -o filenames
-    COMPREPLY=( $(compgen -f -X "$xspec" -- "$cur") $(compgen -d -- "$cur") )
+    COMPREPLY=($(compgen -f -X "$xspec" -- "$cur") $(compgen -d -- "$cur"))
 } &&
-complete -F _lzma lzma
+    complete -F _lzma lzma
 
 # ex: filetype=sh

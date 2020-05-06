@@ -6,14 +6,14 @@
 
 _xen_domain_names()
 {
-    COMPREPLY=( $(compgen -W "$(xm list 2>/dev/null | \
-        awk '!/Name|Domain-0/ { print $1 }')" -- "$cur") )
+    COMPREPLY=($(compgen -W "$(xm list 2>/dev/null |
+        awk '!/Name|Domain-0/ { print $1 }')" -- "$cur"))
 }
 
 _xen_domain_ids()
 {
-    COMPREPLY=( $(compgen -W "$(xm list 2>/dev/null | \
-        awk '!/Name|Domain-0/ { print $2 }')" -- "$cur") )
+    COMPREPLY=($(compgen -W "$(xm list 2>/dev/null |
+        awk '!/Name|Domain-0/ { print $2 }')" -- "$cur"))
 }
 
 _xm()
@@ -36,16 +36,16 @@ _xm()
         labels addlabel rmlabel getlabel dry-run resources dumppolicy setpolicy
         resetpolicy getpolicy shell help'
 
-    if (( cword == 1 )); then
-        COMPREPLY=( $(compgen -W "$commands" -- "$cur") )
+    if ((cword == 1)); then
+        COMPREPLY=($(compgen -W "$commands" -- "$cur"))
     else
-        if [[ "$cur" == *=* ]]; then
+        if [[ $cur == *=* ]]; then
             prev=${cur/=*/}
             cur=${cur/*=/}
         fi
 
         command=${words[1]}
-        if [[ "$cur" == -* ]]; then
+        if [[ $cur == -* ]]; then
             # possible options for the command
             case $command in
                 create)
@@ -66,7 +66,7 @@ _xm()
                 sched-credit)
                     options='-d -w -c'
                     ;;
-                block-list|network-list|vtpm-list|vnet-list)
+                block-list | network-list | vtpm-list | vnet-list)
                     options='-l --long'
                     ;;
                 getpolicy)
@@ -78,12 +78,12 @@ _xm()
                         -s --skipdtd -p --paused -c --console_autoconnect'
                     ;;
             esac
-            COMPREPLY=( $(compgen -W "$options" -- "$cur") )
+            COMPREPLY=($(compgen -W "$options" -- "$cur"))
         else
             case $command in
-                console|destroy|domname|domid|list|mem-set|mem-max| \
-                pause|reboot|rename|shutdown|unpause|vcpu-list|vcpu-pin| \
-                vcpu-set|block-list|network-list|vtpm-list)
+                console | destroy | domname | domid | list | mem-set | mem-max | \
+                    pause | reboot | rename | shutdown | unpause | vcpu-list | vcpu-pin | \
+                    vcpu-set | block-list | network-list | vtpm-list)
                     _count_args
                     case $args in
                         2)
@@ -93,7 +93,7 @@ _xm()
                     ;;
                 migrate)
                     _count_args
-                        case $args in
+                    case $args in
                         2)
                             _xen_domain_names
                             ;;
@@ -102,7 +102,7 @@ _xm()
                             ;;
                     esac
                     ;;
-                restore|dry-run|vnet-create)
+                restore | dry-run | vnet-create)
                     _filedir
                     ;;
                 save)
@@ -123,7 +123,7 @@ _xm()
                             _xen_domain_names
                             ;;
                         3)
-                            COMPREPLY=( $(compgen -W "r s e i u b" -- "$cur") )
+                            COMPREPLY=($(compgen -W "r s e i u b" -- "$cur"))
                             ;;
                     esac
                     ;;
@@ -134,10 +134,10 @@ _xm()
                             _xen_domain_names
                             ;;
                         3)
-                            COMPREPLY=( $(compgen -W "phy: file:" -- "$cur") )
+                            COMPREPLY=($(compgen -W "phy: file:" -- "$cur"))
                             ;;
                         5)
-                            COMPREPLY=( $(compgen -W "w r" -- "$cur") )
+                            COMPREPLY=($(compgen -W "w r" -- "$cur"))
                             ;;
                         6)
                             _xen_domain_names
@@ -151,9 +151,9 @@ _xm()
                             _xen_domain_names
                             ;;
                         3)
-                            COMPREPLY=( $(compgen -W "$(xm block-list $prev \
+                            COMPREPLY=($(compgen -W "$(xm block-list $prev \
                                 2>/dev/null | awk '!/Vdev/ { print $1 }')" \
-                                -- "$cur") )
+                                -- "$cur"))
                             ;;
                     esac
                     ;;
@@ -164,8 +164,8 @@ _xm()
                             _xen_domain_names
                             ;;
                         *)
-                            COMPREPLY=( $(compgen -W "script= ip= mac= bridge=
-                                backend=" -- "$cur") )
+                            COMPREPLY=($(compgen -W "script= ip= mac= bridge=
+                                backend=" -- "$cur"))
                             ;;
                     esac
                     ;;
@@ -176,9 +176,9 @@ _xm()
                             _xen_domain_names
                             ;;
                         3)
-                            COMPREPLY=( $(compgen -W "$(xm network-list $prev \
+                            COMPREPLY=($(compgen -W "$(xm network-list $prev \
                                 2>/dev/null | awk '!/Idx/ { print $1 }')" \
-                                -- "$cur") )
+                                -- "$cur"))
                             ;;
                     esac
                     ;;
@@ -192,13 +192,13 @@ _xm()
                     ;;
                 create)
                     _filedir
-                    COMPREPLY+=( \
+                    COMPREPLY+=(
                         $(compgen -W '$(command ls /etc/xen 2>/dev/null)' \
-                        -- "$cur") )
+                            -- "$cur"))
                     ;;
                 new)
                     case $prev in
-                        -f|-F|--defconfig|--config)
+                        -f | -F | --defconfig | --config)
                             _filedir
                             return
                             ;;
@@ -209,7 +209,7 @@ _xm()
                     esac
 
                     _count_args
-                        case $args in
+                    case $args in
                         2)
                             _xen_domain_names
                             ;;
@@ -219,6 +219,6 @@ _xm()
         fi
     fi
 } &&
-complete -F _xm xm
+    complete -F _xm xm
 
 # ex: filetype=sh

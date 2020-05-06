@@ -9,27 +9,28 @@ _usermod()
     #       with -u/--uid
 
     case $prev in
-        --comment|--home|--expiredate|--inactive|--help|--login|--password|\
-        --uid|--selinux-user|-!(-*)[cdefhlpuZ])
+        --comment | --home | --expiredate | --inactive | --help | --login | --password | \
+            --uid | --selinux-user | -!(-*)[cdefhlpuZ])
             return
             ;;
-        --gid|-!(-*)g)
+        --gid | -!(-*)g)
             _gids
-            COMPREPLY=( $(compgen -W '${COMPREPLY[@]} $(compgen -g)' \
-                -- "$cur") )
+            COMPREPLY=($(compgen -W '${COMPREPLY[@]} $(compgen -g)' \
+                -- "$cur"))
             return
             ;;
-        --groups|-!(-*)G)
-            local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
-            COMPREPLY=( $(compgen -g -- "${cur##*,}") )
-            (( ${#COMPREPLY[@]} == 1 )) && COMPREPLY=( ${COMPREPLY/#/$prefix} )
+        --groups | -!(-*)G)
+            local prefix=
+            [[ $cur == *,* ]] && prefix="${cur%,*},"
+            COMPREPLY=($(compgen -g -- "${cur##*,}"))
+            ((${#COMPREPLY[@]} == 1)) && COMPREPLY=(${COMPREPLY/#/$prefix})
             return
             ;;
-        --root|-!(-*)R)
+        --root | -!(-*)R)
             _filedir -d
             return
             ;;
-        --shell|-!(-*)s)
+        --shell | -!(-*)s)
             _shells
             return
             ;;
@@ -37,14 +38,14 @@ _usermod()
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
+    if [[ $cur == -* ]]; then
         # TODO: -U/--unlock, -p/--password, -L/--lock mutually exclusive
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         return
     fi
 
-    COMPREPLY=( $(compgen -u -- "$cur") )
+    COMPREPLY=($(compgen -u -- "$cur"))
 } &&
-complete -F _usermod usermod
+    complete -F _usermod usermod
 
 # ex: filetype=sh

@@ -6,26 +6,26 @@ _rsync()
     _init_completion -s -n : || return
 
     case $prev in
-        --config|--password-file|--include-from|--exclude-from|--files-from|\
-        --log-file|--write-batch|--only-write-batch|--read-batch)
+        --config | --password-file | --include-from | --exclude-from | --files-from | \
+            --log-file | --write-batch | --only-write-batch | --read-batch)
             compopt +o nospace
             _filedir
             return
             ;;
-        --temp-dir|--compare-dest|--backup-dir|--partial-dir|--copy-dest|\
-        --link-dest|-!(-*)T)
+        --temp-dir | --compare-dest | --backup-dir | --partial-dir | --copy-dest | \
+            --link-dest | -!(-*)T)
             compopt +o nospace
             _filedir -d
             return
             ;;
-        --rsh|-!(-*)e)
+        --rsh | -!(-*)e)
             compopt +o nospace
-            COMPREPLY=( $(compgen -W 'rsh ssh' -- "$cur") )
+            COMPREPLY=($(compgen -W 'rsh ssh' -- "$cur"))
             return
             ;;
         --compress-level)
             compopt +o nospace
-            COMPREPLY=( $(compgen -W '{1..9}' -- "$cur") )
+            COMPREPLY=($(compgen -W '{1..9}' -- "$cur"))
             return
             ;;
     esac
@@ -36,7 +36,7 @@ _rsync()
 
     case $cur in
         -*)
-            COMPREPLY=( $(compgen -W '--verbose --quiet --no-motd --checksum
+            COMPREPLY=($(compgen -W '--verbose --quiet --no-motd --checksum
                 --archive --recursive --relative --no-implied-dirs
                 --backup --backup-dir= --suffix= --update --inplace --append
                 --append-verify --dirs --old-dirs --links --copy-links
@@ -61,15 +61,15 @@ _rsync()
                 --out-format= --log-file= --log-file-format= --password-file=
                 --list-only --bwlimit= --write-batch= --only-write-batch=
                 --read-batch= --protocol= --iconv= --ipv4 --ipv6 --version
-                --help --daemon --config= --no-detach' -- "$cur") )
+                --help --daemon --config= --no-detach' -- "$cur"))
             [[ $COMPREPLY == *= ]] || compopt +o nospace
             ;;
         *:*)
             # find which remote shell is used
             local i shell=ssh
-            for (( i=1; i < cword; i++ )); do
-                if [[ "${words[i]}" == -@(e|-rsh) ]]; then
-                    shell=${words[i+1]}
+            for ((i = 1; i < cword; i++)); do
+                if [[ ${words[i]} == -@(e|-rsh) ]]; then
+                    shell=${words[i + 1]}
                     break
                 fi
             done
@@ -81,6 +81,6 @@ _rsync()
             ;;
     esac
 } &&
-complete -F _rsync -o nospace rsync
+    complete -F _rsync -o nospace rsync
 
 # ex: filetype=sh

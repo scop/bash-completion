@@ -20,14 +20,14 @@
 # began to type svc:. In that case we will propose only the complete FMRI beginning with the
 # pattern
 #
-_smf_complete_fmri ()
+_smf_complete_fmri()
 {
     local cur="$1" prefix="$2"
     local cur_prefix fmri fmri_list=""
     local exact_mode pattern
 
-    if [[ "$cur" == $prefix* ]]; then
-        [[ "$cur" == "$prefix" ]] && cur+="/"
+    if [[ $cur == $prefix* ]]; then
+        [[ $cur == "$prefix" ]] && cur+="/"
         pattern="$cur*"
         exact_mode=1
     else
@@ -38,18 +38,21 @@ _smf_complete_fmri ()
 
     for fmri in $(svcs -H -o FMRI "$pattern" 2>/dev/null); do
         local fmri_part_list fmri_part
-        if [[ -z "$exact_mode" ]]; then
+        if [[ -z $exact_mode ]]; then
             fmri=${fmri#$prefix/}
 
             # we generate all possibles abbrevations for the FMRI
             # no need to have a generic loop as we will have a finite
             # number of components
-            local OIFS="$IFS"; IFS="/"; set -- $fmri; IFS="$OIFS"
+            local OIFS="$IFS"
+            IFS="/"
+            set -- $fmri
+            IFS="$OIFS"
             case $# in
-                1) fmri_part_list=" $1";;
-                2) fmri_part_list=" $2 $1/$2";;
-                3) fmri_part_list=" $3 $2/$3 $1/$2/$3";;
-                4) fmri_part_list=" $4 $3/$4 $2/$3/$4 $1/$2/$3/$4";;
+                1) fmri_part_list=" $1" ;;
+                2) fmri_part_list=" $2 $1/$2" ;;
+                3) fmri_part_list=" $3 $2/$3 $1/$2/$3" ;;
+                4) fmri_part_list=" $4 $3/$4 $2/$3/$4 $1/$2/$3/$4" ;;
             esac
         else
             fmri_part_list="$fmri"
@@ -58,28 +61,28 @@ _smf_complete_fmri ()
         # Here we make sure the completions begins with the pattern and
         # we cut them at the first slash
         for fmri_part in $fmri_part_list; do
-            [[ "$fmri_part" == $cur* ]] || continue
+            [[ $fmri_part == $cur* ]] || continue
             local first_part=${fmri_part#$cur_prefix}
             first_part=$cur_prefix${first_part%%/*}
-            [[ "$first_part" != "$fmri_part" ]] && first_part+="/"
+            [[ $first_part != "$fmri_part" ]] && first_part+="/"
             fmri_list+=" $first_part"
         done
     done
 
-    COMPREPLY=( $fmri_list )
+    COMPREPLY=($fmri_list)
 
     # here we want to detect if there only one completion proposed and that
     # it ends with a slash. That means the users will still have to complete
     # after, so we gain him one tab keystroke by immediately proposing the
     # next completion alternatives
     local i=${#COMPREPLY[*]}
-    if [[ $i -gt 0 && "${COMPREPLY[--i]}" == */ ]]; then
+    if [[ $i -gt 0 && ${COMPREPLY[--i]} == */ ]]; then
         # we have to iterate through the list as we may have duplicate
-        while (( i != 0 )); do
-            [[ "${COMPREPLY[i]}" != "${COMPREPLY[i-1]}" ]] && break
+        while ((i != 0)); do
+            [[ ${COMPREPLY[i]} != "${COMPREPLY[i - 1]}" ]] && break
             ((i--))
         done
-        if (( i == 0 )); then
+        if ((i == 0)); then
             _smf_complete_fmri "${COMPREPLY[0]}" "$prefix"
             return
         fi
@@ -90,12 +93,12 @@ _smf_complete_fmri ()
     # it from darcs completion code :)
     local colonprefixes=${cur%"${cur##*:}"}
     local i=${#COMPREPLY[*]}
-    while (( i-- > 0 )); do
+    while ((i-- > 0)); do
         COMPREPLY[i]=${COMPREPLY[i]#"$colonprefixes"}
     done
 }
 
-_svcadm ()
+_svcadm()
 {
     local cur prev words cword
     _init_completion -n : || return
@@ -103,34 +106,38 @@ _svcadm ()
     local command_list="enable disable restart refresh clear mark milestone"
     local command i
 
-    for (( i=1; i < cword; i++ )); do
+    for ((i = 1; i < cword; i++)); do
         if [[ ${words[i]} == @(enable|disable|restart|refresh|clear|mark|milestone) ]]; then
             command=${words[i]}
         fi
     done
 
-    if [[ -z "$command" ]]; then
+    if [[ -z $command ]]; then
         if [[ ${cur} == -* ]]; then
-            COMPREPLY=( $(compgen -W "-v" -- ${cur}) )
+            COMPREPLY=($(compgen -W "-v" -- ${cur}))
         else
-            COMPREPLY=( $(compgen -W "$command_list" -- ${cur}) )
+            COMPREPLY=($(compgen -W "$command_list" -- ${cur}))
         fi
     else
         if [[ ${cur} == -* ]]; then
             case "$command" in
                 enable)
-                    COMPREPLY=( $(compgen -W "-r -s -t" -- ${cur}) );;
+                    COMPREPLY=($(compgen -W "-r -s -t" -- ${cur}))
+                    ;;
                 disable)
-                    COMPREPLY=( $(compgen -W "-s -t" -- ${cur}) );;
+                    COMPREPLY=($(compgen -W "-s -t" -- ${cur}))
+                    ;;
                 mark)
-                    COMPREPLY=( $(compgen -W "-I -t" -- ${cur}) );;
+                    COMPREPLY=($(compgen -W "-I -t" -- ${cur}))
+                    ;;
                 milestone)
-                    COMPREPLY=( $(compgen -W "-d" -- ${cur}) );;
+                    COMPREPLY=($(compgen -W "-d" -- ${cur}))
+                    ;;
             esac
         else
-            if [[ "$command" == "mark" ]] && [[ "$prev" != @(degraded|maintenance) ]]; then
-                COMPREPLY=( $(compgen -W "degraded maintenance" -- ${cur}) )
-            elif [[ "$command" == "milestone" ]]; then
+            if [[ $command == "mark" ]] && [[ $prev != @(degraded|maintenance) ]]; then
+                COMPREPLY=($(compgen -W "degraded maintenance" -- ${cur}))
+            elif [[ $command == "milestone" ]]; then
                 _smf_complete_fmri "${cur}" "svc:/milestone"
             else
                 _smf_complete_fmri "${cur}" "svc:"
@@ -138,6 +145,6 @@ _svcadm ()
         fi
     fi
 } &&
-complete -F _svcadm svcadm
+    complete -F _svcadm svcadm
 
 # ex: filetype=sh

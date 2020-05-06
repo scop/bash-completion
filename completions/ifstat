@@ -6,7 +6,7 @@ _ifstat()
     _init_completion -s || return
 
     case $prev in
-        --help|--version|--scan|--interval|-!(-*)[hvV])
+        --help | --version | --scan | --interval | -!(-*)[hvV])
             return
             ;;
         -!(-*)i)
@@ -17,18 +17,22 @@ _ifstat()
         -!(-*)d)
             # iproute2: no completion (scan delay)
             # traditional: parse driver
-            if ! { "$1" --help 2>&1 || :; } | \
-                    command grep -q -- '-d.*--scan'; then
-                COMPREPLY=( $(compgen -W '$("$1" -v | command \
-                    sed -e "s/[,.]//g" -ne "s/^.*drivers://p")' -- "$cur") )
+            if ! {
+                "$1" --help 2>&1 || :
+            } |
+                command grep -q -- '-d.*--scan'; then
+                COMPREPLY=($(compgen -W '$("$1" -v | command \
+                    sed -e "s/[,.]//g" -ne "s/^.*drivers://p")' -- "$cur"))
             fi
             return
             ;;
-        --noupdate|-!(-*)s)
+        --noupdate | -!(-*)s)
             # iproute2: pass through (skip history update)
             # traditional: hostnames (snmp)
-            if ! { "$1" --help 2>&1 || :; } | \
-                    command grep -q -- '-s.*--noupdate'; then
+            if ! {
+                "$1" --help 2>&1 || :
+            } |
+                command grep -q -- '-s.*--noupdate'; then
                 _known_hosts_real -- "$cur"
                 return
             fi
@@ -36,27 +40,29 @@ _ifstat()
         -!(-*)t)
             # iproute2: no completion (interval)
             # traditional: pass through (add timestamp)
-            ! { "$1" --help 2>&1 || :; } | \
+            ! {
+                "$1" --help 2>&1 || :
+            } |
                 command grep -q -- '-t.*--interval' || return
             ;;
-        --extended|-!(-*)x)
+        --extended | -!(-*)x)
             # iproute2: parse xstat types
-            COMPREPLY=( $(compgen -W '$("$1" -x nonexistent-xstat 2>&1 |
+            COMPREPLY=($(compgen -W '$("$1" -x nonexistent-xstat 2>&1 |
                 awk "found { print \$1 } /supported xstats:/ { found=1 }")' \
-                -- "$cur") )
+                -- "$cur"))
             return
             ;;
     esac
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
+    if [[ $cur == -* ]]; then
         local opts=$(_parse_help "$1")
-        COMPREPLY=( $(compgen -W '${opts:-$(_parse_usage "$1")}' -- "$cur") )
+        COMPREPLY=($(compgen -W '${opts:-$(_parse_usage "$1")}' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
 } &&
-complete -F _ifstat ifstat
+    complete -F _ifstat ifstat
 
 # ex: filetype=sh

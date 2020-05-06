@@ -5,8 +5,8 @@ _timeout()
     local cur prev words cword split i found=false
     _init_completion -s || return
 
-    for (( i=1; i <= COMP_CWORD; i++ )); do
-        if [[ ${COMP_WORDS[i]} != -* && ${COMP_WORDS[i-1]} != = ]]; then
+    for ((i = 1; i <= COMP_CWORD; i++)); do
+        if [[ ${COMP_WORDS[i]} != -* && ${COMP_WORDS[i - 1]} != = ]]; then
             if $found; then
                 _command_offset $i
                 return
@@ -17,10 +17,10 @@ _timeout()
     done
 
     case $prev in
-        --help|--version|--kill-after|-!(-*)k)
+        --help | --version | --kill-after | -!(-*)k)
             return
             ;;
-        --signal|-!(-*)s)
+        --signal | -!(-*)s)
             _signals
             return
             ;;
@@ -30,10 +30,10 @@ _timeout()
 
     if [[ $cur == -* ]]; then
         local opts=$(_parse_help "$1")
-        COMPREPLY=( $(compgen -W '${opts:-$(_parse_usage "$1")}' -- "$cur") )
+        COMPREPLY=($(compgen -W '${opts:-$(_parse_usage "$1")}' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     fi
 } &&
-complete -F _timeout timeout
+    complete -F _timeout timeout
 
 # ex: filetype=sh

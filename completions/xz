@@ -8,39 +8,39 @@ _xz()
     local xspec="*.@(xz|lzma|txz|tlz)"
 
     case $prev in
-        --decompress|--list|--test|-!(-*)[dlt]*)
+        --decompress | --list | --test | -!(-*)[dlt]*)
             xspec="!"$xspec
             ;;
-        --files|--files0)
+        --files | --files0)
             _filedir
             return
             ;;
-        --check|-!(-*)C)
-            COMPREPLY=( $(compgen -W 'crc32 crc64 sha256 none' -- "$cur") )
+        --check | -!(-*)C)
+            COMPREPLY=($(compgen -W 'crc32 crc64 sha256 none' -- "$cur"))
             return
             ;;
-        --format|-!(-*)F)
-            COMPREPLY=( $(compgen -W 'auto xz lzma raw' -- "$cur") )
+        --format | -!(-*)F)
+            COMPREPLY=($(compgen -W 'auto xz lzma raw' -- "$cur"))
             return
             ;;
-        --threads|-!(-*)T)
-            COMPREPLY=( $(compgen -W "{0..$(_ncpus)}" -- "$cur") )
+        --threads | -!(-*)T)
+            COMPREPLY=($(compgen -W "{0..$(_ncpus)}" -- "$cur"))
             return
             ;;
-        --memlimit|--memlimit-compress|--memlimit-decompress|--memory|\
-        --suffix|--delta|--lzma1|--lzma2|-!(-*)[MS])
+        --memlimit | --memlimit-compress | --memlimit-decompress | --memory | \
+            --suffix | --delta | --lzma1 | --lzma2 | -!(-*)[MS])
             return
             ;;
-        --help|--long-help|--version|--info-memory|-!(-*)[hHV])
+        --help | --long-help | --version | --info-memory | -!(-*)[hHV])
             return
             ;;
     esac
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1" --long-help) {-1..-9}' \
-            -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1" --long-help) {-1..-9}' \
+            -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
@@ -49,8 +49,8 @@ _xz()
 
     local IFS=$'\n'
     compopt -o filenames
-    COMPREPLY=( $(compgen -f -X "$xspec" -- "$cur") $(compgen -d -- "$cur") )
+    COMPREPLY=($(compgen -f -X "$xspec" -- "$cur") $(compgen -d -- "$cur"))
 } &&
-complete -F _xz xz pxz
+    complete -F _xz xz pxz
 
 # ex: filetype=sh

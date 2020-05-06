@@ -9,41 +9,41 @@ _sudo()
     [[ $1 == *sudoedit ]] && mode=edit
 
     [[ $mode == normal ]] &&
-    for (( i=1; i <= cword; i++ )); do
-        if [[ ${words[i]} != -* ]]; then
-            local PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
-            local root_command=${words[i]}
-            _command_offset $i
-            return
-        fi
-        if [[ ${words[i]} == -@(!(-*)e*|-edit) ]]; then
-            mode=edit
-            break
-        fi
-        [[ ${words[i]} == \
-            -@(user|other-user|group|close-from|prompt|!(-*)[uUgCp]) ]] \
-            && ((i++))
-    done
+        for ((i = 1; i <= cword; i++)); do
+            if [[ ${words[i]} != -* ]]; then
+                local PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
+                local root_command=${words[i]}
+                _command_offset $i
+                return
+            fi
+            if [[ ${words[i]} == -@(!(-*)e*|-edit) ]]; then
+                mode=edit
+                break
+            fi
+            [[ ${words[i]} == \
+            -@(user|other-user|group|close-from|prompt|!(-*)[uUgCp]) ]] &&
+                ((i++))
+        done
 
     case "$prev" in
-        --user|--other-user|-!(-*)[uU])
-            COMPREPLY=( $(compgen -u -- "$cur") )
+        --user | --other-user | -!(-*)[uU])
+            COMPREPLY=($(compgen -u -- "$cur"))
             return
             ;;
-        --group|-!(-*)g)
-            COMPREPLY=( $(compgen -g -- "$cur") )
+        --group | -!(-*)g)
+            COMPREPLY=($(compgen -g -- "$cur"))
             return
             ;;
-        --close-from|--prompt|-!(-*)[Cp])
+        --close-from | --prompt | -!(-*)[Cp])
             return
             ;;
     esac
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
+    if [[ $cur == -* ]]; then
         local opts=$(_parse_help "$1")
-        COMPREPLY=( $(compgen -W '${opts:-$(_parse_usage "$1")}' -- "$cur") )
+        COMPREPLY=($(compgen -W '${opts:-$(_parse_usage "$1")}' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
@@ -51,6 +51,6 @@ _sudo()
         _filedir
     fi
 } &&
-complete -F _sudo sudo sudoedit
+    complete -F _sudo sudo sudoedit
 
 # ex: filetype=sh

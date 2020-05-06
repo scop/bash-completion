@@ -8,7 +8,7 @@ _postconf()
     local eqext
 
     case $prev in
-        -b|-t)
+        -b | -t)
             _filedir
             return
             ;;
@@ -23,17 +23,17 @@ _postconf()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_usage "$1")' -- "$cur") )
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1")' -- "$cur"))
         return
     fi
 
     local len=${#cur} pval
     for pval in $(/usr/sbin/postconf 2>/dev/null | cut -d ' ' -f 1); do
-        if [[ "$cur" == "${pval:0:$len}" ]]; then
-            COMPREPLY+=( "$pval$eqext" )
+        if [[ $cur == "${pval:0:len}" ]]; then
+            COMPREPLY+=("$pval$eqext")
         fi
     done
 } &&
-complete -F _postconf postconf
+    complete -F _postconf postconf
 
 # ex: filetype=sh

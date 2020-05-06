@@ -5,18 +5,18 @@ _lintian_tags()
     local match search tags
 
     tags=$(awk '/^Tag/ { print $2 }' /usr/share/lintian/checks/*.desc)
-    if [[ "$cur" == *, ]]; then
+    if [[ $cur == *, ]]; then
         search=${cur//,/ }
         for item in $search; do
             match=$(command grep -nE "^Tag: $item$" \
                 /usr/share/lintian/checks/*.desc | cut -d: -f1)
             tags=$(command sed -e "s/\<$item\>//g" <<<$tags)
         done
-        COMPREPLY+=( $(compgen -W "$tags") )
-    elif [[ "$cur" == *,* ]]; then
-        COMPREPLY+=( $(compgen -P "${cur%,*}," -W "$tags" -- "${cur##*,}") )
+        COMPREPLY+=($(compgen -W "$tags"))
+    elif [[ $cur == *,* ]]; then
+        COMPREPLY+=($(compgen -P "${cur%,*}," -W "$tags" -- "${cur##*,}"))
     else
-        COMPREPLY+=( $(compgen -W "$tags" -- "$cur") )
+        COMPREPLY+=($(compgen -W "$tags" -- "$cur"))
     fi
 }
 
@@ -26,7 +26,7 @@ _lintian_checks()
 
     checks=$(awk '/^(Check-Script|Abbrev)/ { print $2 }' \
         /usr/share/lintian/checks/*.desc)
-    if [[ "$cur" == *, ]]; then
+    if [[ $cur == *, ]]; then
         search=${cur//,/ }
         for item in $search; do
             match=$(command grep -nE "^(Check-Script|Abbrev): $item$" \
@@ -36,11 +36,11 @@ _lintian_checks()
                 checks=$(command sed -e "s/\<$name\>//g" <<<$checks)
             done
         done
-        COMPREPLY+=( $(compgen -W "$checks") )
-    elif [[ "$cur" == *,* ]]; then
-        COMPREPLY+=( $(compgen -P "${cur%,*}," -W "$checks" -- "${cur##*,}") )
+        COMPREPLY+=($(compgen -W "$checks"))
+    elif [[ $cur == *,* ]]; then
+        COMPREPLY+=($(compgen -P "${cur%,*}," -W "$checks" -- "${cur##*,}"))
     else
-        COMPREPLY+=( $(compgen -W "$checks" -- "$cur") )
+        COMPREPLY+=($(compgen -W "$checks" -- "$cur"))
     fi
 }
 
@@ -50,18 +50,18 @@ _lintian_infos()
 
     infos=$(awk '/^Collector/ { print $2 }' \
         /usr/share/lintian/collection/*.desc)
-    if [[ "$cur" == *, ]]; then
+    if [[ $cur == *, ]]; then
         search=${cur//,/ }
         for item in $search; do
             match=$(command grep -nE "^Collector: $item$" \
                 /usr/share/lintian/collection/*.desc | cut -d: -f1)
             infos=$(command sed -e "s/\<$item\>//g" <<<$infos)
         done
-        COMPREPLY+=( $(compgen -W "$infos") )
-    elif [[ "$cur" == *,* ]]; then
-        COMPREPLY+=( $(compgen -P "${cur%,*}," -W "$infos" -- "${cur##*,}") )
+        COMPREPLY+=($(compgen -W "$infos"))
+    elif [[ $cur == *,* ]]; then
+        COMPREPLY+=($(compgen -P "${cur%,*}," -W "$infos" -- "${cur##*,}"))
     else
-        COMPREPLY+=( $(compgen -W "$infos" -- "$cur") )
+        COMPREPLY+=($(compgen -W "$infos" -- "$cur"))
     fi
 }
 
@@ -83,32 +83,32 @@ _lintian()
     configuration_opts="--cfg --lab --archivedir --dist --area --section --arch
         --root"
 
-    if [[ "$prev" == -* ]]; then
+    if [[ $prev == -* ]]; then
         case $prev in
-            -C|--check-part|-X|--dont-check-part)
+            -C | --check-part | -X | --dont-check-part)
                 _lintian_checks
                 ;;
-            -T|--tags|--suppress-tags)
+            -T | --tags | --suppress-tags)
                 _lintian_tags
                 ;;
-            --tags-from-file|--suppress-tags-from-file|--cfg|-p|\
-            --packages-file)
+            --tags-from-file | --suppress-tags-from-file | --cfg | -p | \
+                --packages-file)
                 _filedir
                 ;;
-            --lab|--archivedir|--dist|--root)
+            --lab | --archivedir | --dist | --root)
                 _filedir -d
                 ;;
             --color)
                 COMPREPLY=($(compgen -W "never always auto html" -- "$cur"))
                 ;;
-            -U|--unpack-info)
+            -U | --unpack-info)
                 _lintian_infos
                 ;;
-            --area|--section)
+            --area | --section)
                 COMPREPLY=($(compgen -W "main contrib non-free" -- "$cur"))
                 ;;
-            --arch)
-                ;;
+            --arch) ;;
+
         esac
     fi
 
@@ -122,13 +122,13 @@ _lintian()
             # --action tag,tag,<TAB>
             # Only few actions permit that, re-complete them now.
             case "$prev" in
-                -C|--check-part|-X|--dont-check-part)
+                -C | --check-part | -X | --dont-check-part)
                     _lintian_checks
                     ;;
-                -T|--tags|--suppress-tags)
+                -T | --tags | --suppress-tags)
                     _lintian_tags
                     ;;
-                -U|--unpack-info)
+                -U | --unpack-info)
                     _lintian_infos
                     ;;
             esac
@@ -140,7 +140,7 @@ _lintian()
     esac
     return 0
 } &&
-complete -F _lintian lintian
+    complete -F _lintian lintian
 
 _lintian_info()
 {
@@ -148,10 +148,10 @@ _lintian_info()
     _init_completion || return
 
     case "$prev" in
-        --help|--profile)
+        --help | --profile)
             return
             ;;
-        -t|--tags)
+        -t | --tags)
             _lintian_tags
             return
             ;;
@@ -163,7 +163,7 @@ _lintian_info()
 
     case "$cur" in
         --*)
-            COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+            COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
             ;;
         *)
             _filedir
@@ -171,6 +171,6 @@ _lintian_info()
     esac
     return 0
 } &&
-complete -F _lintian_info lintian-info
+    complete -F _lintian_info lintian-info
 
 # ex: filetype=sh

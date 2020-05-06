@@ -8,7 +8,7 @@ _make_target_extract_script()
     local prefix="$1"
     local prefix_pat=$(command sed 's/[][\,.*^$(){}?+|/]/\\&/g' <<<"$prefix")
     local basename=${prefix##*/}
-    local dirname_len=$(( ${#prefix} - ${#basename} ))
+    local dirname_len=$((${#prefix} - ${#basename}))
 
     if [[ $mode == -d ]]; then
         # display mode, only output current path component to the next slash
@@ -67,8 +67,8 @@ _make_target_extract_script()
 EOF
 
     # don't complete with hidden targets unless we are doing a partial completion
-    if [[ -z "${prefix_pat}" || "${prefix_pat}" = */ ]]; then
-      cat <<EOF
+    if [[ -z ${prefix_pat} || ${prefix_pat} == */ ]]; then
+        cat <<EOF
       /^${prefix_pat}[^a-zA-Z0-9]/d;            # convention for hidden tgt
 EOF
     fi
@@ -86,36 +86,36 @@ _make()
     local cur prev words cword split
     _init_completion -s || return
 
-    local makef makef_dir=( "-C" "." ) i
+    local makef makef_dir=("-C" ".") i
 
     case $prev in
-        --file|--makefile|--old-file|--assume-old|--what-if| --new-file|\
-        --assume-new|-!(-*)[foW])
+        --file | --makefile | --old-file | --assume-old | --what-if | --new-file | \
+            --assume-new | -!(-*)[foW])
             _filedir
             return
             ;;
-        --include-dir|--directory|-!(-*)[ICm])
+        --include-dir | --directory | -!(-*)[ICm])
             _filedir -d
             return
             ;;
         -!(-*)E)
-            COMPREPLY=( $(compgen -v -- "$cur") )
+            COMPREPLY=($(compgen -v -- "$cur"))
             return
             ;;
-        --eval|-!(-*)[DVx])
+        --eval | -!(-*)[DVx])
             return
             ;;
-        --jobs|-!(-*)j)
-            COMPREPLY=( $(compgen -W "{1..$(( $(_ncpus)*2 ))}" -- "$cur") )
+        --jobs | -!(-*)j)
+            COMPREPLY=($(compgen -W "{1..$(($(_ncpus) * 2))}" -- "$cur"))
             return
             ;;
     esac
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
+    if [[ $cur == -* ]]; then
         local opts="$(_parse_help "$1")"
-        COMPREPLY=( $(compgen -W '${opts:-$(_parse_usage "$1")}' -- "$cur") )
+        COMPREPLY=($(compgen -W '${opts:-$(_parse_usage "$1")}' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     elif [[ $cur == *=* ]]; then
         prev=${cur%%=*}
@@ -126,20 +126,20 @@ _make()
     else
         # before we check for makefiles, see if a path was specified
         # with -C/--directory
-        for (( i=1; i < ${#words[@]}; i++ )); do
+        for ((i = 1; i < ${#words[@]}; i++)); do
             if [[ ${words[i]} == -@(C|-directory) ]]; then
                 # eval for tilde expansion
-                eval "makef_dir=( -C \"${words[i+1]}\" )"
+                eval "makef_dir=( -C \"${words[i + 1]}\" )"
                 break
             fi
         done
 
         # before we scan for targets, see if a Makefile name was
         # specified with -f/--file/--makefile
-        for (( i=1; i < ${#words[@]}; i++ )); do
+        for ((i = 1; i < ${#words[@]}; i++)); do
             if [[ ${words[i]} == -@(f|-?(make)file) ]]; then
                 # eval for tilde expansion
-                eval "makef=( -f \"${words[i+1]}\" )"
+                eval "makef=( -f \"${words[i + 1]}\" )"
                 break
             fi
         done
@@ -147,15 +147,15 @@ _make()
         # recognise that possible completions are only going to be displayed
         # so only the base name is shown
         local mode=--
-        if (( COMP_TYPE != 9 )); then
+        if ((COMP_TYPE != 9)); then
             mode=-d # display-only mode
         fi
 
         local IFS=$' \t\n' script=$(_make_target_extract_script $mode "$cur")
-        COMPREPLY=( $(LC_ALL=C \
+        COMPREPLY=($(LC_ALL=C \
             $1 -npq __BASH_MAKE_COMPLETION__=1 \
-                "${makef[@]}" "${makef_dir[@]}" .DEFAULT 2>/dev/null | \
-            command sed -ne "$script") )
+            "${makef[@]}" "${makef_dir[@]}" .DEFAULT 2>/dev/null |
+            command sed -ne "$script"))
 
         if [[ $mode != -d ]]; then
             # Completion will occur if there is only one suggestion
@@ -165,6 +165,6 @@ _make()
 
     fi
 } &&
-complete -F _make make gmake gnumake pmake colormake bmake
+    complete -F _make make gmake gnumake pmake colormake bmake
 
 # ex: filetype=sh

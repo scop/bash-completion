@@ -6,10 +6,10 @@ _sysctl()
     _init_completion || return
 
     case $prev in
-        --help|--version|--pattern|-!(-*)[hVr])
+        --help | --version | --pattern | -!(-*)[hVr])
             return
             ;;
-        --load|-!(-*)[pf])
+        --load | -!(-*)[pf])
             _filedir conf
             return
             ;;
@@ -17,15 +17,15 @@ _sysctl()
 
     if [[ $cur == -* ]]; then
         local opts="$(_parse_help "$1")"
-        COMPREPLY=( $(compgen -W '${opts:-$(_parse_usage "$1")}' -- "$cur") )
+        COMPREPLY=($(compgen -W '${opts:-$(_parse_usage "$1")}' -- "$cur"))
     else
         local suffix=
         [[ $prev == -w ]] && suffix="="
-        COMPREPLY=( $(compgen -S "$suffix" -W \
-            "$(PATH="$PATH:/sbin" $1 -N -a 2>/dev/null)" -- "$cur") )
+        COMPREPLY=($(compgen -S "$suffix" -W \
+            "$(PATH="$PATH:/sbin" $1 -N -a 2>/dev/null)" -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     fi
 } &&
-complete -F _sysctl sysctl
+    complete -F _sysctl sysctl
 
 # ex: filetype=sh

@@ -6,14 +6,14 @@ _jq()
     _init_completion || return
 
     case $prev in
-        --help|--version|--arg|--argjson|--slurpfile|--argfile)
+        --help | --version | --arg | --argjson | --slurpfile | --argfile)
             return
             ;;
         --indent)
-            COMPREPLY=( $(compgen -W '{1..8}' -- "$cur") )
+            COMPREPLY=($(compgen -W '{1..8}' -- "$cur"))
             return
             ;;
-        --from-file|--run-tests|-!(-*)f)
+        --from-file | --run-tests | -!(-*)f)
             _filedir
             return
             ;;
@@ -23,19 +23,19 @@ _jq()
             ;;
     esac
 
-    (( cword > 2 )) && \
-    case ${words[cword-2]} in
-        --arg|--argjson)
-            return
-            ;;
-        --slurpfile|--argfile)
-            _filedir json
-            return
-            ;;
-    esac
+    ((cword > 2)) &&
+        case ${words[cword - 2]} in
+            --arg | --argjson)
+                return
+                ;;
+            --slurpfile | --argfile)
+                _filedir json
+                return
+                ;;
+        esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         return
     fi
 
@@ -44,11 +44,11 @@ _jq()
     _count_args "" "@(--arg|--arg?(json|file)|--?(slurp|from-)file|--indent|--run-tests|-!(-*)[fL])"
 
     # 1st arg is filter
-    (( args == 1 )) && return
+    ((args == 1)) && return
     # 2... are input files
     _filedir json
 
 } &&
-complete -F _jq jq
+    complete -F _jq jq
 
 # ex: filetype=sh

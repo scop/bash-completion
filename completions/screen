@@ -2,11 +2,11 @@
 
 _screen_sessions()
 {
-    local sessions=( $(command screen -ls | command sed -ne \
-        's|^\t\{1,\}\([0-9]\{1,\}\.[^\t]\{1,\}\).*'"$1"'.*$|\1|p') )
+    local sessions=($(command screen -ls | command sed -ne \
+        's|^\t\{1,\}\([0-9]\{1,\}\.[^\t]\{1,\}\).*'"$1"'.*$|\1|p'))
     if [[ $cur == +([0-9])?(.*) ]]; then
         # Complete sessions including pid prefixes
-        COMPREPLY=( $(compgen -W '${sessions[@]}' -- "$cur") )
+        COMPREPLY=($(compgen -W '${sessions[@]}' -- "$cur"))
     else
         # Create unique completions, dropping pids where possible
         local -A res
@@ -17,104 +17,107 @@ _screen_sessions()
         for i in "${!res[@]}"; do
             [[ ${res[i]} == \ *\ * ]] && tmp+=" ${res[i]}" || tmp+=" $i"
         done
-        COMPREPLY=( $(compgen -W '$tmp' -- "$cur") )
+        COMPREPLY=($(compgen -W '$tmp' -- "$cur"))
     fi
 } &&
-_screen()
+    _screen()
 {
-    local cur prev words cword
-    _init_completion || return
+        local cur prev words cword
+        _init_completion || return
 
-    if ((cword == 1)); then
-        if [[ $cur == /dev* ]]; then
-            COMPREPLY=( $(compgen -W "$(shopt -s nullglob; printf '%s\n' \
-                /dev/serial/by-id/* /dev/ttyUSB* /dev/ttyACM* 2>/dev/null)" \
-                -- "$cur") )
-            return
-        fi
-        if [[ $cur == //* ]]; then
-            COMPREPLY=( $(compgen -W '//telnet' -- "$cur") )
-            return
-        fi
-    fi
-
-    case ${words[1]} in
-        /dev*)
-            if ((cword == 2)); then
-                COMPREPLY=( $(compgen -W '110 300 600 1200 2400 4800 9600 \
-                14400 19200 38400 57600 115200 128000 256000' -- "$cur") )
-                # TODO more, comma separated options
+        if ((cword == 1)); then
+            if [[ $cur == /dev* ]]; then
+                COMPREPLY=($(compgen -W "$(
+                    shopt -s nullglob
+                    printf '%s\n' \
+                        /dev/serial/by-id/* /dev/ttyUSB* /dev/ttyACM* 2>/dev/null
+                )" \
+                    -- "$cur"))
+                return
             fi
-            return
-            ;;
-        //telnet)
-            ((cword == 2)) && _known_hosts_real -- "$cur"
-            return
-            ;;
-    esac
+            if [[ $cur == //* ]]; then
+                COMPREPLY=($(compgen -W '//telnet' -- "$cur"))
+                return
+            fi
+        fi
 
-    if ((cword > 2)); then
-        case ${words[cword-2]} in
-            -*[dD])
-                _screen_sessions
+        case ${words[1]} in
+            /dev*)
+                if ((cword == 2)); then
+                    COMPREPLY=($(compgen -W '110 300 600 1200 2400 4800 9600 \
+                14400 19200 38400 57600 115200 128000 256000' -- "$cur"))
+                    # TODO more, comma separated options
+                fi
+                return
+                ;;
+            //telnet)
+                ((cword == 2)) && _known_hosts_real -- "$cur"
                 return
                 ;;
         esac
-    fi
 
-    local i
-    for (( i=1; i <= cword; i++ )); do
-        case ${words[i]} in
-            -*[rRdDxscTehpSt])
-                (( i++ ))
-                continue
+        if ((cword > 2)); then
+            case ${words[cword - 2]} in
+                -*[dD])
+                    _screen_sessions
+                    return
+                    ;;
+            esac
+        fi
+
+        local i
+        for ((i = 1; i <= cword; i++)); do
+            case ${words[i]} in
+                -*[rRdDxscTehpSt])
+                    ((i++))
+                    continue
+                    ;;
+                -*)
+                    continue
+                    ;;
+            esac
+
+            _command_offset $i
+            return
+        done
+
+        case $prev in
+            -*[rR])
+                # list detached
+                _screen_sessions 'Detached'
+                return
                 ;;
-            -*)
-                continue
+            -*[dD])
+                # list attached
+                _screen_sessions 'Attached'
+                return
+                ;;
+            -*x)
+                # list both
+                _screen_sessions
+                return
+                ;;
+            -*s)
+                _shells
+                return
+                ;;
+            -*c)
+                _filedir
+                return
+                ;;
+            -T)
+                _terms
+                return
+                ;;
+            -*[ehpSt])
+                return
                 ;;
         esac
 
-        _command_offset $i
-        return
-    done
-
-    case $prev in
-        -*[rR])
-            # list detached
-            _screen_sessions 'Detached'
-            return
-            ;;
-        -*[dD])
-            # list attached
-            _screen_sessions 'Attached'
-            return
-            ;;
-        -*x)
-            # list both
-            _screen_sessions
-            return
-            ;;
-        -*s)
-            _shells
-            return
-            ;;
-        -*c)
-            _filedir
-            return
-            ;;
-        -T)
-            _terms
-            return
-            ;;
-        -*[ehpSt])
-            return
-            ;;
-    esac
-
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
-    fi
-} &&
-complete -F _screen screen
+        if [[ $cur == -* ]]; then
+            COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        fi
+    } &&
+        complete -F _screen screen
 
 # ex: filetype=sh

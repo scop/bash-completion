@@ -9,9 +9,8 @@ _muttaddr()
     _muttaliases "$1"
     _muttquery "$1"
 
-    COMPREPLY+=( $(compgen -u -- "$1") )
+    COMPREPLY+=($(compgen -u -- "$1"))
 }
-
 
 # Find muttrc to use
 # @output  muttrc filename
@@ -42,7 +41,6 @@ _muttrc()
     printf "%s" "$muttrc"
 }
 
-
 # Recursively build list of sourced config files
 # @param $1  List of config files found so far
 # @param $2  Config file to process
@@ -55,10 +53,10 @@ _muttconffiles()
     sofar=" $1 "
     shift
     while [[ "$1" ]]; do
-        newconffiles=( $(command sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' "$(eval printf %s $1)" ) )
+        newconffiles=($(command sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' "$(eval printf %s $1)"))
         for file in "${newconffiles[@]}"; do
             __expand_tilde_by_ref file
-            [[ ! -f "$file" || $sofar == *\ $file\ * ]] && continue
+            [[ ! -f $file || $sofar == *\ $file\ * ]] && continue
             sofar+=" $file"
             sofar=" $(eval _muttconffiles \"$sofar\" $file) "
         done
@@ -66,7 +64,6 @@ _muttconffiles()
     done
     printf '%s\n' $sofar
 }
-
 
 # @param $1 (cur) Current word to complete
 _muttaliases()
@@ -77,13 +74,12 @@ _muttaliases()
     muttrc=$(_muttrc)
     [[ -z $muttrc ]] && return
 
-    conffiles=( $(eval _muttconffiles $muttrc $muttrc) )
+    conffiles=($(eval _muttconffiles $muttrc $muttrc))
     # shellcheck disable=SC2046
-    aliases=( "$(command sed -n 's|^alias[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' \
-        $(eval echo "${conffiles[@]}"))" )
-    COMPREPLY+=( $(compgen -W "${aliases[*]}" -- "$cur") )
+    aliases=("$(command sed -n 's|^alias[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' \
+        $(eval echo "${conffiles[@]}"))")
+    COMPREPLY+=($(compgen -W "${aliases[*]}" -- "$cur"))
 }
-
 
 # @param $1 (cur) Current word to complete
 _muttquery()
@@ -92,17 +88,16 @@ _muttquery()
     local -a queryresults
 
     querycmd="$($muttcmd -Q query_command 2>/dev/null | command sed -e 's|^query_command=\"\(.*\)\"$|\1|' -e 's|%s|'$cur'|')"
-    if [[ -z "$cur" || -z "$querycmd" ]]; then
+    if [[ -z $cur || -z $querycmd ]]; then
         queryresults=()
     else
         __expand_tilde_by_ref querycmd
-        queryresults=( $($querycmd | \
-            command sed -n '2,$s|^\([^[:space:]]\{1,\}\).*|\1|p') )
+        queryresults=($($querycmd |
+            command sed -n '2,$s|^\([^[:space:]]\{1,\}\).*|\1|p'))
     fi
 
-    COMPREPLY+=( $(compgen -W "${queryresults[*]}" -- "$cur") )
+    COMPREPLY+=($(compgen -W "${queryresults[*]}" -- "$cur"))
 }
-
 
 # @param $1 (cur) Current word to complete
 _muttfiledir()
@@ -117,17 +112,16 @@ _muttfiledir()
         # Match any file in $folder beginning with $cur
         # (minus the leading '=' sign).
         compopt -o filenames
-        COMPREPLY=( $(compgen -f -- "$folder/${cur:1}") )
-        COMPREPLY=( ${COMPREPLY[@]#$folder/} )
+        COMPREPLY=($(compgen -f -- "$folder/${cur:1}"))
+        COMPREPLY=(${COMPREPLY[@]#$folder/})
         return
     elif [[ $cur == !* ]]; then
-        spoolfile="$($muttcmd -F "$muttrc" -Q spoolfile 2>/dev/null | \
+        spoolfile="$($muttcmd -F "$muttrc" -Q spoolfile 2>/dev/null |
             command sed -e 's|^spoolfile=\"\(.*\)\"$|\1|')"
         [[ -n $spoolfile ]] && eval cur="${cur/^!/$spoolfile}"
     fi
     _filedir
 }
-
 
 _mutt()
 {
@@ -135,32 +129,32 @@ _mutt()
     _init_completion -n =+! || return
 
     case $cur in
-    -*)
-        COMPREPLY=( $(compgen -W '-A -a -b -c -e -f -F -H -i -m -n -p -Q -R -s
-            -v -x -y -z -Z -h' -- "$cur") )
-        return
-        ;;
-    *)
-        case $prev in
-        -*[afFHi])
-            _muttfiledir "$cur"
-            return
-            ;;
-        -*A)
-            _muttaliases "$cur"
-            return
-            ;;
-        -*[emQshpRvyzZ])
+        -*)
+            COMPREPLY=($(compgen -W '-A -a -b -c -e -f -F -H -i -m -n -p -Q -R -s
+            -v -x -y -z -Z -h' -- "$cur"))
             return
             ;;
         *)
-            _muttaddr "$cur"
-            return
+            case $prev in
+                -*[afFHi])
+                    _muttfiledir "$cur"
+                    return
+                    ;;
+                -*A)
+                    _muttaliases "$cur"
+                    return
+                    ;;
+                -*[emQshpRvyzZ])
+                    return
+                    ;;
+                *)
+                    _muttaddr "$cur"
+                    return
+                    ;;
+            esac
             ;;
-        esac
-        ;;
     esac
 } &&
-complete -F _mutt -o default mutt muttng
+    complete -F _mutt -o default mutt muttng
 
 # ex: filetype=sh

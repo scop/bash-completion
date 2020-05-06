@@ -8,12 +8,12 @@ _gcc()
     # Test that GCC is recent enough and if not fallback to
     # parsing of --completion option.
     if ! $1 --completion=" " 2>/dev/null; then
-        if [[ "$cur" == -* ]]; then
+        if [[ $cur == -* ]]; then
             local cc=$($1 -print-prog-name=cc1 2>/dev/null)
             [[ $cc ]] || return
-            COMPREPLY=($( compgen -W "$($cc --help 2>/dev/null | tr '\t' ' ' |\
+            COMPREPLY=($(compgen -W "$($cc --help 2>/dev/null | tr '\t' ' ' |
                 command sed -e '/^  *-/!d' -e 's/ *-\([^][ <>]*\).*/-\1/')" \
-                -- "$cur" ))
+                -- "$cur"))
             [[ $COMPREPLY == *= ]] && compopt -o nospace
         else
             _filedir
@@ -22,24 +22,24 @@ _gcc()
     fi
 
     # extract also for situations like: -fsanitize=add
-    if (( cword > 2 )); then
-        prev2="${COMP_WORDS[cword-2]}"
+    if ((cword > 2)); then
+        prev2="${COMP_WORDS[cword - 2]}"
     fi
 
     # sample: -fsan
-    if [[ "$cur" == -* ]]; then
+    if [[ $cur == -* ]]; then
         argument=$cur
         prefix=""
     # sample: -fsanitize=
-    elif [[ "$cur" == "=" && $prev == -* ]]; then
+    elif [[ $cur == "=" && $prev == -* ]]; then
         argument=$prev$cur
         prefix=$prev$cur
     # sample: -fsanitize=add
-    elif [[ "$prev" == "=" && $prev2 == -* ]]; then
+    elif [[ $prev == "=" && $prev2 == -* ]]; then
         argument=$prev2$prev$cur
         prefix=$prev2$prev
     # sample: --param lto-
-    elif [[ "$prev" == --param ]]; then
+    elif [[ $prev == --param ]]; then
         argument="$prev $cur"
         prefix="$prev "
     fi
@@ -49,27 +49,27 @@ _gcc()
     else
         # In situation like '-fsanitize=add' $cur is equal to last token.
         # Thus we need to strip the beginning of suggested option.
-        prefix_length=$((${#prefix}+1))
+        prefix_length=$((${#prefix} + 1))
         local flags=$($1 --completion="$argument" | cut -c $prefix_length-)
-        [[ "${flags}" == "=*" ]] && compopt -o nospace 2>/dev/null
-        COMPREPLY=( $(compgen -W "$flags" -- "") )
+        [[ ${flags} == "=*" ]] && compopt -o nospace 2>/dev/null
+        COMPREPLY=($(compgen -W "$flags" -- ""))
     fi
 } &&
-complete -F _gcc gcc{,-5,-6,-7,-8} g++{,-5,-6,-7,-8} g77 g95 \
-    gccgo{,-5,-6,-7,-8} gcj gfortran{,-5,-6,-7,-8} gpc &&
-{
-    cc  --version 2>/dev/null | command grep -q GCC || \
-        [[ $(_realcommand cc) == *gcc* ]] && \
-        complete -F _gcc cc  || complete -F _minimal cc
-    c++ --version 2>/dev/null | command grep -q GCC || \
-        [[ $(_realcommand c++) == *g++* ]] && \
-        complete -F _gcc c++ || complete -F _minimal c++
-    f77 --version 2>/dev/null | command grep -q GCC || \
-        [[ $(_realcommand f77) == *gfortran* ]] && \
-        complete -F _gcc f77 || complete -F _minimal f77
-    f95 --version 2>/dev/null | command grep -q GCC || \
-        [[ $(_realcommand f95) == *gfortran* ]] && \
-        complete -F _gcc f95 || complete -F _minimal f95
-}
+    complete -F _gcc gcc{,-5,-6,-7,-8} g++{,-5,-6,-7,-8} g77 g95 \
+        gccgo{,-5,-6,-7,-8} gcj gfortran{,-5,-6,-7,-8} gpc &&
+    {
+        cc --version 2>/dev/null | command grep -q GCC ||
+            [[ $(_realcommand cc) == *gcc* ]] &&
+            complete -F _gcc cc || complete -F _minimal cc
+        c++ --version 2>/dev/null | command grep -q GCC ||
+            [[ $(_realcommand c++) == *g++* ]] &&
+            complete -F _gcc c++ || complete -F _minimal c++
+        f77 --version 2>/dev/null | command grep -q GCC ||
+            [[ $(_realcommand f77) == *gfortran* ]] &&
+            complete -F _gcc f77 || complete -F _minimal f77
+        f95 --version 2>/dev/null | command grep -q GCC ||
+            [[ $(_realcommand f95) == *gfortran* ]] &&
+            complete -F _gcc f95 || complete -F _minimal f95
+    }
 
 # ex: filetype=sh

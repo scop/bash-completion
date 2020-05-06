@@ -31,14 +31,14 @@ _ant()
     _init_completion || return
 
     case $prev in
-        -h|-help|--h|--help|-projecthelp|-p|-version|-diagnostics)
+        -h | -help | --h | --help | -projecthelp | -p | -version | -diagnostics)
             return
             ;;
-        -buildfile|-file|-f)
+        -buildfile | -file | -f)
             _filedir 'xml'
             return
             ;;
-        -logfile|-l)
+        -logfile | -l)
             [[ $1 != *phing || $prev != -l ]] && _filedir
             return
             ;;
@@ -47,36 +47,36 @@ _ant()
             return
             ;;
         -nice)
-            COMPREPLY=( $(compgen -W '{1..10}' -- "$cur") )
+            COMPREPLY=($(compgen -W '{1..10}' -- "$cur"))
             return
             ;;
         -lib)
             _filedir -d
             return
             ;;
-        -logger|-listener|-inputhandler|-main|-find|-s)
+        -logger | -listener | -inputhandler | -main | -find | -s)
             return
             ;;
     esac
 
     if [[ $cur == -D* ]]; then
         return
-    elif [[ "$cur" == -* ]]; then
+    elif [[ $cur == -* ]]; then
         # The </dev/null prevents "phing -" weirdness/getting just a literal
         # tab displayed on complete on CentOS 6 with phing 2.6.1.
         COMPREPLY=(
-            $(compgen -W '$(_parse_help "$1" -h </dev/null)' -- "$cur") )
+            $(compgen -W '$(_parse_help "$1" -h </dev/null)' -- "$cur"))
     else
         # available targets completion
         # find which buildfile to use
         local buildfile=build.xml i
-        for (( i=1; i < cword; i++ )); do
-            if [[ "${words[i]}" == -@(?(build)file|f) ]]; then
-                buildfile=${words[i+1]}
+        for ((i = 1; i < cword; i++)); do
+            if [[ ${words[i]} == -@(?(build)file|f) ]]; then
+                buildfile=${words[i + 1]}
                 break
             fi
         done
-        if (( i == cword )); then
+        if ((i == cword)); then
             for i in $ANT_ARGS; do
                 if [[ $prev == -@(?(build)file|f) ]]; then
                     buildfile=$i
@@ -92,11 +92,11 @@ _ant()
         # fill targets
         _ant_parse_targets $buildfile
 
-        COMPREPLY=( $(compgen -W '$targets' -- "$cur") )
+        COMPREPLY=($(compgen -W '$targets' -- "$cur"))
     fi
 } &&
-complete -F _ant ant phing
-type complete-ant-cmd.pl &>/dev/null && \
+    complete -F _ant ant phing
+type complete-ant-cmd.pl &>/dev/null &&
     complete -C complete-ant-cmd.pl -F _ant ant || :
 
 # ex: filetype=sh

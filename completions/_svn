@@ -16,11 +16,11 @@ _svn()
                 proplist plist pl propset pset ps resolved revert \
                 status stat st switch sw unlock update up'
 
-    if (( cword == 1 )); then
-        if [[ "$cur" == -* ]]; then
-            COMPREPLY=( $(compgen -W '--version' -- "$cur") )
+    if ((cword == 1)); then
+        if [[ $cur == -* ]]; then
+            COMPREPLY=($(compgen -W '--version' -- "$cur"))
         else
-            COMPREPLY=( $(compgen -W "$commands" -- "$cur") )
+            COMPREPLY=($(compgen -W "$commands" -- "$cur"))
         fi
     else
 
@@ -29,7 +29,7 @@ _svn()
                 _filedir -d
                 return
                 ;;
-            -F|--file|--targets)
+            -F | --file | --targets)
                 _filedir
                 return
                 ;;
@@ -37,16 +37,16 @@ _svn()
                 _xfunc iconv _iconv_charsets
                 return
                 ;;
-            --editor-cmd|--diff-cmd|--diff3-cmd)
+            --editor-cmd | --diff-cmd | --diff3-cmd)
                 compopt -o filenames
-                COMPREPLY=( $(compgen -c -- "$cur") )
+                COMPREPLY=($(compgen -c -- "$cur"))
                 return
                 ;;
         esac
 
         local command=${words[1]}
 
-        if [[ "$cur" == -* ]]; then
+        if [[ $cur == -* ]]; then
             # possible options for the command
             local options
             case $command in
@@ -54,7 +54,7 @@ _svn()
                     options='--auto-props --no-auto-props --force --targets
                         --no-ignore --non-recursive --quiet'
                     ;;
-                blame|annotate|ann|praise)
+                blame | annotate | ann | praise)
                     options='--revision --username --password --no-auth-cache
                         --non-interactive --verbose --incremental --xml'
                     ;;
@@ -62,7 +62,7 @@ _svn()
                     options='--revision --username --password --no-auth-cache
                         --non-interactive'
                     ;;
-                checkout|co)
+                checkout | co)
                     options='--revision --quiet --non-recursive --username
                         --password --no-auth-cache --non-interactive
                         --ignore-externals'
@@ -70,23 +70,23 @@ _svn()
                 cleanup)
                     options='--diff3-cmd'
                     ;;
-                commit|ci)
+                commit | ci)
                     options='--message --file --encoding --force-log --quiet
                         --non-recursive --targets --editor-cmd --username
                         --password --no-auth-cache --non-interactive
                         --no-unlock'
                     ;;
-                copy|cp)
+                copy | cp)
                     options='--message --file --encoding --force-log --revision
                         --quiet --editor-cmd -username --password
                         --no-auth-cache --non-interactive'
                     ;;
-                delete|del|remove|rm)
+                delete | del | remove | rm)
                     options='--force --message --file --encoding --force-log
                         --quiet --targets --editor-cmd --username
                         --password --no-auth-cache --non-interactive'
                     ;;
-                diff|di)
+                diff | di)
                     options='--revision --extensions --diff-cmd
                         --no-diff-deleted --non-recursive --username
                         --password --no-auth-cache --non-interactive
@@ -108,7 +108,7 @@ _svn()
                         --non-interactive --revision --xml --targets
                         --recursive --incremental'
                     ;;
-                list|ls)
+                list | ls)
                     options='--revision --verbose --recursive --username
                         --password --no-auth-cache --non-interactive
                         --incremental --xml'
@@ -135,32 +135,32 @@ _svn()
                         --editor-cmd --username --password --no-auth-cache
                         --non-interactive'
                     ;;
-                move|mv|rename|ren)
+                move | mv | rename | ren)
                     options='--message --file --encoding --force-log --revision
                         --quiet --force --editor-cmd --username --password
                         --no-auth-cache --non-interactive'
                     ;;
-                propdel|pdel|pd)
+                propdel | pdel | pd)
                     options='--quiet --recursive --revision --revprop
                         --username --password --no-auth-cache
                         --non-interactive'
                     ;;
-                propedit|pedit|pe)
+                propedit | pedit | pe)
                     options='--revision --revprop --encoding --editor-cmd
                         --username --password --no-auth-cache
                         --non-interactive --force'
                     ;;
-                propget|pget|pg)
+                propget | pget | pg)
                     options='--recursive --revision --revprop --strict
                         --username --password --no-auth-cache
                         --non-interactive'
                     ;;
-                proplist|plist|pl)
+                proplist | plist | pl)
                     options='--verbose --recursive --revision --revprop --quiet
                         --username --password --no-auth-cache
                         --non-interactive'
                     ;;
-                propset|pset|ps)
+                propset | pset | ps)
                     options='--file --quiet --targets --recursive --revprop
                         --encoding --username --password --no-auth-cache
                         --non-interactive --revision --force'
@@ -171,13 +171,13 @@ _svn()
                 revert)
                     options='--targets --recursive --quiet'
                     ;;
-                status|stat|st)
+                status | stat | st)
                     options='--show-updates --verbose --non-recursive --quiet
                         --username --password --no-auth-cache
                         --non-interactive --no-ignore --ignore-externals
                         --incremental --xml'
                     ;;
-                switch|sw)
+                switch | sw)
                     options='--relocate --revision --non-recursive --quiet
                         --username --password --no-auth-cache
                         --non-interactive --diff3-cmd'
@@ -186,7 +186,7 @@ _svn()
                     options='--targets --force --username --password
                         --no-auth-cache --non-interactive'
                     ;;
-                update|up)
+                update | up)
                     options='--revision --non-recursive --quiet --username
                         --password --no-auth-cache --non-interactive
                         --diff3-cmd --ignore-externals'
@@ -194,10 +194,10 @@ _svn()
             esac
             options+=" --help --config-dir"
 
-            COMPREPLY=( $(compgen -W "$options" -- "$cur") )
+            COMPREPLY=($(compgen -W "$options" -- "$cur"))
         else
-            if [[ "$command" == @(help|[h?]) ]]; then
-                COMPREPLY=( $(compgen -W "$commands" -- "$cur") )
+            if [[ $command == @(help|[h?]) ]]; then
+                COMPREPLY=($(compgen -W "$commands" -- "$cur"))
             else
                 _filedir
             fi
@@ -205,6 +205,6 @@ _svn()
     fi
 
 } &&
-complete -F _svn svn
+    complete -F _svn svn
 
 # ex: filetype=sh

@@ -7,21 +7,21 @@ _jarsigner()
 
     case $prev in
         -keystore)
-            COMPREPLY=( $(compgen -W 'NONE' -- "$cur") )
+            COMPREPLY=($(compgen -W 'NONE' -- "$cur"))
             _filedir '@(jks|ks|p12|pfx)'
             return
             ;;
-        -storepass|-keypass|-sigfile|-digestalg|-sigalg|-tsacert|-tsapolicyid|\
-        -tsadigestalg|-altsigner|-altsignerpath|-providerName|-providerClass|\
-        -providerArg)
+        -storepass | -keypass | -sigfile | -digestalg | -sigalg | -tsacert | -tsapolicyid | \
+            -tsadigestalg | -altsigner | -altsignerpath | -providerName | -providerClass | \
+            -providerArg)
             return
             ;;
-        -certchain|-tsa)
+        -certchain | -tsa)
             _filedir
             return
             ;;
         -storetype)
-            COMPREPLY=( $(compgen -W 'JKS PKCS11 PKCS12' -- "$cur") )
+            COMPREPLY=($(compgen -W 'JKS PKCS11 PKCS12' -- "$cur"))
             return
             ;;
         -signedjar)
@@ -32,26 +32,26 @@ _jarsigner()
 
     # Check if a jar was already given.
     local i jar=false
-    for (( i=1; i < ${#words[@]}-1; i++ )); do
-        if [[ "${words[i]}" == *.@(jar|apk) && \
-            "${words[i-1]}" != -signedjar ]]; then
+    for ((i = 1; i < ${#words[@]} - 1; i++)); do
+        if [[ ${words[i]} == *.@(jar|apk) && \
+            ${words[i - 1]} != -signedjar ]]; then
             jar=true
             break
         fi
     done
 
-    if ! $jar ; then
-        if [[ "$cur" == -* ]]; then
+    if ! $jar; then
+        if [[ $cur == -* ]]; then
             # Documented as "should not be used": -internalsf, -sectionsonly
-            COMPREPLY=( $(compgen -W '-keystore -storepass -storetype
+            COMPREPLY=($(compgen -W '-keystore -storepass -storetype
                 -keypass -sigfile -signedjar -digestalg -sigalg -verify
                 -verbose -certs -tsa -tsacert -altsigner -altsignerpath
                 -protected -providerName -providerClass -providerArg' \
-                -- "$cur") )
+                -- "$cur"))
         fi
         _filedir '@(jar|apk)'
     fi
 } &&
-complete -F _jarsigner jarsigner
+    complete -F _jarsigner jarsigner
 
 # ex: filetype=sh

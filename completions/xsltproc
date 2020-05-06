@@ -6,7 +6,7 @@ _xsltproc()
     _init_completion || return
 
     case $prev in
-        --output|-o)
+        --output | -o)
             _filedir
             return
             ;;
@@ -16,11 +16,11 @@ _xsltproc()
             ;;
         --encoding)
             # some aliases removed
-            COMPREPLY=( $(compgen -X '@(UTF[1378]|8859|ISO[0-9_])*' \
-                -W "$(iconv -l | command sed -e 's/\/.*//')" -- "$cur") )
+            COMPREPLY=($(compgen -X '@(UTF[1378]|8859|ISO[0-9_])*' \
+                -W "$(iconv -l | command sed -e 's/\/.*//')" -- "$cur"))
             return
             ;;
-        --param|--stringparam)
+        --param | --stringparam)
             return
             ;;
         # not really like --writesubtree
@@ -36,14 +36,14 @@ _xsltproc()
 
     [[ $cword -gt 2 && $(_get_cword '' 2) == --?(string)param ]] && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
-        COMPREPLY=( "${COMPREPLY[@]%:}" )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        COMPREPLY=("${COMPREPLY[@]%:}")
     else
         # TODO: 1st file xsl|xslt, 2nd XML
         _filedir '@(xsl|xslt|xml|dbk|docbook|page)'
     fi
 } &&
-complete -F _xsltproc xsltproc
+    complete -F _xsltproc xsltproc
 
 # ex: filetype=sh

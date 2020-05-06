@@ -2,7 +2,7 @@
 
 _cryptsetup_name()
 {
-    COMPREPLY=( $(compgen -X control -W '$(command ls /dev/mapper)' -- "$cur") )
+    COMPREPLY=($(compgen -X control -W '$(command ls /dev/mapper)' -- "$cur"))
 }
 
 _cryptsetup_device()
@@ -17,16 +17,16 @@ _cryptsetup()
     _init_completion -s || return
 
     case $prev in
-        --help|--version|--cipher|--hash|--*-size|--key-slot|--size|--offset|\
-        --skip|--iter-time|--timeout|--tries|-!(-*)[chslSbopitT])
+        --help | --version | --cipher | --hash | --*-size | --key-slot | --size | --offset | \
+            --skip | --iter-time | --timeout | --tries | -!(-*)[chslSbopitT])
             return
             ;;
-        --key-file|--master-key-file|--header-backup-file|-!(-*)d)
+        --key-file | --master-key-file | --header-backup-file | -!(-*)d)
             _filedir
             return
             ;;
-        --type|-!(-*)M)
-            COMPREPLY=( $(compgen -W "luks plain loopaes tcrypt" -- "$cur") )
+        --type | -!(-*)M)
+            COMPREPLY=($(compgen -W "luks plain loopaes tcrypt" -- "$cur"))
             return
             ;;
     esac
@@ -36,19 +36,20 @@ _cryptsetup()
     local arg
     _get_first_arg
     if [[ -z $arg ]]; then
-        if [[ "$cur" == -* ]]; then
-            COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+        if [[ $cur == -* ]]; then
+            COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
             [[ $COMPREPLY == *= ]] && compopt -o nospace
         else
-            COMPREPLY=( $(compgen -W 'open close resize status benchmark
+            COMPREPLY=($(compgen -W 'open close resize status benchmark
                 repair erase luksFormat luksAddKey luksRemoveKey luksChangeKey
                 luksKillSlot luksUUID isLuks luksDump tcryptDump luksSuspend
-                luksResume luksHeaderBackup luksHeaderRestore' -- "$cur") )
+                luksResume luksHeaderBackup luksHeaderRestore' -- "$cur"))
         fi
     else
-        local args; _count_args "" "-!(-*)[chslSbopitTdM]"
+        local args
+        _count_args "" "-!(-*)[chslSbopitTdM]"
         case $arg in
-            open|create|luksOpen|loopaesOpen|tcryptOpen)
+            open | create | luksOpen | loopaesOpen | tcryptOpen)
                 case $args in
                     2)
                         _cryptsetup_device
@@ -58,15 +59,15 @@ _cryptsetup()
                         ;;
                 esac
                 ;;
-            close|remove|luksClose|loopaesClose|tcryptClose|status|resize|\
-            luksSuspend|luksResume)
+            close | remove | luksClose | loopaesClose | tcryptClose | status | resize | \
+                luksSuspend | luksResume)
                 case $args in
                     2)
                         _cryptsetup_name
                         ;;
                 esac
                 ;;
-            luksFormat|luksAddKey|luksRemoveKey|luksChangeKey)
+            luksFormat | luksAddKey | luksRemoveKey | luksChangeKey)
                 case $args in
                     2)
                         _cryptsetup_device
@@ -76,27 +77,27 @@ _cryptsetup()
                         ;;
                 esac
                 ;;
-            luksKillSlot|luksDelKey|luksUUID|isLuks|luksDump)
+            luksKillSlot | luksDelKey | luksUUID | isLuks | luksDump)
                 case $args in
                     2)
                         _cryptsetup_device
                         ;;
                 esac
                 ;;
-            luksHeaderBackup|luksHeaderRestore)
+            luksHeaderBackup | luksHeaderRestore)
                 case $args in
                     2)
                         _cryptsetup_device
                         ;;
                     3)
-                        COMPREPLY=( '--header-backup-file' )
+                        COMPREPLY=('--header-backup-file')
                         ;;
-                    esac
+                esac
                 ;;
         esac
     fi
 
 } &&
-complete -F _cryptsetup cryptsetup
+    complete -F _cryptsetup cryptsetup
 
 # ex: filetype=sh

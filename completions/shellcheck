@@ -2,9 +2,9 @@
 
 _shellcheck_optarg()
 {
-    local args=$("$1" --help 2>&1 | \
+    local args=$("$1" --help 2>&1 |
         command sed -e 's/,/ /g' -ne 's/^.*'$2'\>.*(\([^)]*\)).*/\1/p')
-    COMPREPLY+=( $(compgen -W '$args' -- "$cur") )
+    COMPREPLY+=($(compgen -W '$args' -- "$cur"))
 }
 
 _shellcheck()
@@ -13,51 +13,51 @@ _shellcheck()
     _init_completion -s || return
 
     case $prev in
-        --version|-!(-*)V*)
+        --version | -!(-*)V*)
             return
             ;;
-        --exclude|--include|-!(-*)[ei])
+        --exclude | --include | -!(-*)[ei])
             return
             ;;
-        --format|-!(-*)f)
-            local args=$("$1" --format=nonexistent-format /dev/null 2>&1 | \
-                command sed -ne '/^Supported formats/,//p' | \
+        --format | -!(-*)f)
+            local args=$("$1" --format=nonexistent-format /dev/null 2>&1 |
+                command sed -ne '/^Supported formats/,//p' |
                 command sed -ne '/^[[:space:]]/p')
-            COMPREPLY=( $(compgen -W '$args' -- "$cur") )
+            COMPREPLY=($(compgen -W '$args' -- "$cur"))
             return
             ;;
-        --color|-!(-*)C)
+        --color | -!(-*)C)
             _shellcheck_optarg "$1" --color
             return
             ;;
-        --shell|-!(-*)s)
+        --shell | -!(-*)s)
             _shellcheck_optarg "$1" --shell
             return
             ;;
-        --enable|-!(-*)o)
-            COMPREPLY=( $(compgen -W 'all' -- "$cur") )  # TODO others?
+        --enable | -!(-*)o)
+            COMPREPLY=($(compgen -W 'all' -- "$cur")) # TODO others?
             return
             ;;
-        --source-path|-!(-*)P)
+        --source-path | -!(-*)P)
             _filedir -d
-            COMPREPLY+=( $(compgen -W 'SCRIPTDIR' -- "$cur") )
+            COMPREPLY+=($(compgen -W 'SCRIPTDIR' -- "$cur"))
             return
             ;;
-        --wiki-link-count|-!(-*)W)
+        --wiki-link-count | -!(-*)W)
             return
             ;;
     esac
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
 
     _filedir
 } &&
-complete -F _shellcheck shellcheck
+    complete -F _shellcheck shellcheck
 
 # ex: filetype=sh

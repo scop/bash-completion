@@ -1,6 +1,7 @@
 # mr completion                                            -*- shell-script -*-
 
-_mr() {
+_mr()
+{
     local cur prev words cword
     _init_completion || return
 
@@ -17,7 +18,7 @@ _mr() {
     # Determine if user has entered an `mr` command. Used to block top-level
     # (option and command) completions.
     local cmd i
-    for (( i=1; i < ${#words[@]}-1; i++ )); do
+    for ((i = 1; i < ${#words[@]} - 1; i++)); do
         if [[ $commands == *"${words[i]}"* ]]; then
             cmd="${words[i]}"
             break
@@ -30,25 +31,25 @@ _mr() {
             bootstrap)
                 _filedir
                 # Also complete stdin (-) as a potential bootstrap source.
-                if [[ -z "${cur}" || $cur == - ]] && [[ $prev != - ]]; then
-                    COMPREPLY+=( - )
+                if [[ -z ${cur} || $cur == - ]] && [[ $prev != - ]]; then
+                    COMPREPLY+=(-)
                 fi
                 return
                 ;;
             clean)
-                if [[ "${cur}" == -* ]]; then
-                    COMPREPLY=( $(compgen -W '-f' -- "${cur}") )
+                if [[ ${cur} == -* ]]; then
+                    COMPREPLY=($(compgen -W '-f' -- "${cur}"))
                 fi
                 return
                 ;;
-            commit|ci|record)
-                if [[ "${cur}" == -* ]]; then
-                    COMPREPLY=( $(compgen -W '-m' -- "${cur}") )
+            commit | ci | record)
+                if [[ ${cur} == -* ]]; then
+                    COMPREPLY=($(compgen -W '-m' -- "${cur}"))
                 fi
                 return
                 ;;
             run)
-                COMPREPLY=( $(compgen -c -- "${cur}") )
+                COMPREPLY=($(compgen -c -- "${cur}"))
                 return
                 ;;
             *)
@@ -60,11 +61,11 @@ _mr() {
 
     # Complete top-level options and commands.
     case $prev in
-        --config|-!(-*)c)
+        --config | -!(-*)c)
             _filedir
             return
             ;;
-        --directory|-!(-*)d)
+        --directory | -!(-*)d)
             _filedir -d
             return
             ;;
@@ -76,11 +77,11 @@ _mr() {
         options="${options//-[a-z]$'\n'/}"
         # Remove deprecated options.
         options="${options//--path/}"
-        COMPREPLY=( $(compgen -W "${options}" -- "${cur}") )
+        COMPREPLY=($(compgen -W "${options}" -- "${cur}"))
     else
-        COMPREPLY=( $(compgen -W  "${commands}" -- "${cur}") )
+        COMPREPLY=($(compgen -W "${commands}" -- "${cur}"))
     fi
 } &&
-complete -F _mr mr
+    complete -F _mr mr
 
 # ex: filetype=sh

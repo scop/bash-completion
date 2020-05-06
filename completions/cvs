@@ -4,9 +4,9 @@ _cvs_entries()
 {
     local prefix=${cur%/*}/ IFS=$'\n'
     [[ -e ${prefix:-}CVS/Entries ]] || prefix=""
-    entries=( $(cut -d/ -f2 -s ${prefix:-}CVS/Entries 2>/dev/null) )
+    entries=($(cut -d/ -f2 -s ${prefix:-}CVS/Entries 2>/dev/null))
     if [[ $entries ]]; then
-        entries=( "${entries[@]/#/${prefix:-}}" )
+        entries=("${entries[@]/#/${prefix:-}}")
         compopt -o filenames
     fi
 }
@@ -14,9 +14,9 @@ _cvs_entries()
 _cvs_modules()
 {
     if [[ -n $prefix ]]; then
-        COMPREPLY=( $(command ls -d ${cvsroot}/${prefix}/!(CVSROOT)) )
+        COMPREPLY=($(command ls -d ${cvsroot}/${prefix}/!(CVSROOT)))
     else
-        COMPREPLY=( $(command ls -d ${cvsroot}/!(CVSROOT)) )
+        COMPREPLY=($(command ls -d ${cvsroot}/!(CVSROOT)))
     fi
 }
 
@@ -27,21 +27,21 @@ _cvs_commands()
 
 _cvs_command_options()
 {
-    COMPREPLY=( $(compgen -W '$(_parse_help "$1" "--help $2")' -- "$cur") )
+    COMPREPLY=($(compgen -W '$(_parse_help "$1" "--help $2")' -- "$cur"))
 }
 
 _cvs_kflags()
 {
-    COMPREPLY=( $(compgen -W 'kv kvl k o b v' -- "$cur") )
+    COMPREPLY=($(compgen -W 'kv kvl k o b v' -- "$cur"))
 }
 
 _cvs_roots()
 {
     local -a cvsroots
-    cvsroots=( $CVSROOT )
-    [[ -r ~/.cvspass ]] && cvsroots+=( $(awk '{ print $2 }' ~/.cvspass) )
+    cvsroots=($CVSROOT)
+    [[ -r ~/.cvspass ]] && cvsroots+=($(awk '{ print $2 }' ~/.cvspass))
     [[ -r CVS/Root ]] && mapfile -tO ${#cvsroots[@]} cvsroots <CVS/Root
-    COMPREPLY=( $(compgen -W '${cvsroots[@]}' -- "$cur") )
+    COMPREPLY=($(compgen -W '${cvsroots[@]}' -- "$cur"))
     __ltrim_colon_completions "$cur"
 }
 
@@ -55,86 +55,86 @@ _cvs()
 
     count=0
     for i in "${words[@]}"; do
-        (( count == cword )) && break
+        ((count == cword)) && break
         # Last parameter was the CVSROOT, now go back to mode selection
-        if [[ "${words[count]}" == "$cvsroot" && "$mode" == cvsroot ]]; then
+        if [[ ${words[count]} == "$cvsroot" && $mode == cvsroot ]]; then
             mode=""
         fi
         if [[ -z $mode ]]; then
             case $i in
-                --help|-!(-*)H)
-                    COMPREPLY=( $(compgen -W "$(_cvs_commands)" -- "$cur") )
+                --help | -!(-*)H)
+                    COMPREPLY=($(compgen -W "$(_cvs_commands)" -- "$cur"))
                     return
                     ;;
                 -!(-*)d)
                     mode=cvsroot
-                    cvsroot=${words[count+1]}
+                    cvsroot=${words[count + 1]}
                     ;;
-                add|ad|new)
+                add | ad | new)
                     mode=add
                     ;;
-                admin|adm|rcs)
+                admin | adm | rcs)
                     mode="admin"
                     ;;
-                annotate|ann|blame|rannotate|rann|ra)
+                annotate | ann | blame | rannotate | rann | ra)
                     mode=annotate
                     ;;
-                checkout|co|get)
+                checkout | co | get)
                     mode=checkout
                     ;;
-                commit|ci|com)
+                commit | ci | com)
                     mode=commit
                     ;;
-                diff|di|dif)
+                diff | di | dif)
                     mode="diff"
                     ;;
-                export|ex|exp)
+                export | ex | exp)
                     mode="export"
                     ;;
-                edit|unedit|editors|logout|pserver|server|watch|watchers)
+                edit | unedit | editors | logout | pserver | server | watch | watchers)
                     mode=$i
                     ;;
-                history|hi|his)
+                history | hi | his)
                     mode=history
                     ;;
-                import|im|imp)
+                import | im | imp)
                     mode=import
                     ;;
-                log|lo|rlog|rl)
+                log | lo | rlog | rl)
                     mode=log
                     ;;
-                login|logon|lgn)
+                login | logon | lgn)
                     mode=login
                     ;;
-                rdiff|patch|pa)
+                rdiff | patch | pa)
                     mode=rdiff
                     ;;
-                release|re|rel)
+                release | re | rel)
                     mode=release
                     ;;
-                remove|rm|delete)
+                remove | rm | delete)
                     mode=remove
                     ;;
-                rtag|rt|rfreeze)
+                rtag | rt | rfreeze)
                     mode=rtag
                     ;;
-                status|st|stat)
+                status | st | stat)
                     mode=status
                     ;;
-                tag|ta|freeze)
+                tag | ta | freeze)
                     mode=tag
                     ;;
-                update|up|upd)
+                update | up | upd)
                     mode=update
                     ;;
-                version|ve|ver)
+                version | ve | ver)
                     mode=version
                     ;;
             esac
-        elif [[ "$i" == -* ]]; then
-            flags+=( $i )
+        elif [[ $i == -* ]]; then
+            flags+=($i)
         fi
-        (( count++ ))
+        ((count++))
     done
 
     case $mode in
@@ -150,25 +150,25 @@ _cvs()
                     ;;
             esac
 
-            if [[ "$cur" != -* ]]; then
+            if [[ $cur != -* ]]; then
                 _cvs_entries
-                [[ -z $cur ]] && files=( !(CVS) ) || \
-                    files=( $(command ls -d ${cur}* 2>/dev/null) )
+                [[ -z $cur ]] && files=(!(CVS)) ||
+                    files=($(command ls -d ${cur}* 2>/dev/null))
                 local f
                 for i in "${!files[@]}"; do
                     if [[ ${files[i]} == ?(*/)CVS ]]; then
                         unset 'files[i]'
                     else
                         for f in "${entries[@]}"; do
-                            if [[ ${files[i]} == "$f" && ! -d "$f" ]]; then
+                            if [[ ${files[i]} == "$f" && ! -d $f ]]; then
                                 unset 'files[i]'
                                 break
                             fi
                         done
                     fi
                 done
-                COMPREPLY=( $(compgen -X "$_backup_glob" -W '${files[@]}' \
-                    -- "$cur") )
+                COMPREPLY=($(compgen -X "$_backup_glob" -W '${files[@]}' \
+                    -- "$cur"))
             else
                 _cvs_command_options "$1" $mode
             fi
@@ -189,21 +189,21 @@ _cvs()
                     ;;
             esac
 
-            if [[ "$cur" == -* ]]; then
+            if [[ $cur == -* ]]; then
                 _cvs_command_options "$1" $mode
             else
                 _cvs_entries
-                COMPREPLY=( $(compgen -W '${entries[@]}' -- "$cur") )
+                COMPREPLY=($(compgen -W '${entries[@]}' -- "$cur"))
             fi
             ;;
         annotate)
-            [[ "$prev" == -[rD] ]] && return
+            [[ $prev == -[rD] ]] && return
 
-            if [[ "$cur" == -* ]]; then
+            if [[ $cur == -* ]]; then
                 _cvs_command_options "$1" $mode
             else
                 _cvs_entries
-                COMPREPLY=( $(compgen -W '${entries[@]}' -- "$cur") )
+                COMPREPLY=($(compgen -W '${entries[@]}' -- "$cur"))
             fi
             ;;
         checkout)
@@ -222,11 +222,11 @@ _cvs()
                     ;;
             esac
 
-            if [[ "$cur" != -* ]]; then
+            if [[ $cur != -* ]]; then
                 [[ -z $cvsroot ]] && cvsroot=$CVSROOT
-                COMPREPLY=( $(cvs -d "$cvsroot" co -c 2>/dev/null | \
-                    awk '{print $1}') )
-                COMPREPLY=( $(compgen -W '${COMPREPLY[@]}' -- "$cur") )
+                COMPREPLY=($(cvs -d "$cvsroot" co -c 2>/dev/null |
+                    awk '{print $1}'))
+                COMPREPLY=($(compgen -W '${COMPREPLY[@]}' -- "$cur"))
             else
                 _cvs_command_options "$1" $mode
             fi
@@ -243,7 +243,7 @@ _cvs()
                     ;;
             esac
 
-            if [[ "$cur" != -* ]]; then
+            if [[ $cur != -* ]]; then
                 # if $COMP_CVS_REMOTE is not null, 'cvs commit' will
                 # complete on remotely checked-out files (requires
                 # passwordless access to the remote repository
@@ -251,15 +251,15 @@ _cvs()
                     # this is the least computationally intensive way found so
                     # far, but other changes (something other than
                     # changed/removed/new) may be missing
-                    changed=( $(cvs -q diff --brief 2>&1 | \
-                        command sed -ne 's/^Files [^ ]* and \([^ ]*\) differ$/\1/p') )
-                    newremoved=( $(cvs -q diff --brief 2>&1 | \
-                        command sed -ne 's/^cvs diff: \([^ ]*\) .*, no comparison available$/\1/p') )
-                    COMPREPLY=( $(compgen -W '${changed[@]:-} \
-                        ${newremoved[@]:-}' -- "$cur") )
+                    changed=($(cvs -q diff --brief 2>&1 |
+                        command sed -ne 's/^Files [^ ]* and \([^ ]*\) differ$/\1/p'))
+                    newremoved=($(cvs -q diff --brief 2>&1 |
+                        command sed -ne 's/^cvs diff: \([^ ]*\) .*, no comparison available$/\1/p'))
+                    COMPREPLY=($(compgen -W '${changed[@]:-} \
+                        ${newremoved[@]:-}' -- "$cur"))
                 else
                     _cvs_entries
-                    COMPREPLY=( $(compgen -W '${entries[@]}' -- "$cur") )
+                    COMPREPLY=($(compgen -W '${entries[@]}' -- "$cur"))
                 fi
             else
                 _cvs_command_options "$1" $mode
@@ -268,21 +268,21 @@ _cvs()
         cvsroot)
             _cvs_roots
             ;;
-        diff|log)
-            if [[ "$cur" == -* ]]; then
+        diff | log)
+            if [[ $cur == -* ]]; then
                 _cvs_command_options "$1" $mode
                 [[ $COMPREPLY == *= ]] && compopt -o nospace
             else
                 _cvs_entries
-                COMPREPLY=( $(compgen -W '${entries[@]:-}' -- "$cur") )
+                COMPREPLY=($(compgen -W '${entries[@]:-}' -- "$cur"))
             fi
             ;;
-        editors|watchers)
-            if [[ "$cur" == -* ]]; then
+        editors | watchers)
+            if [[ $cur == -* ]]; then
                 _cvs_command_options "$1" $mode
             else
                 _cvs_entries
-                COMPREPLY=( $(compgen -W '${entries[@]}' -- "$cur") )
+                COMPREPLY=($(compgen -W '${entries[@]}' -- "$cur"))
             fi
             ;;
         export)
@@ -301,10 +301,10 @@ _cvs()
                     ;;
             esac
 
-            if [[ "$cur" != -* ]]; then
+            if [[ $cur != -* ]]; then
                 [[ -z $cvsroot ]] && cvsroot=$CVSROOT
-                COMPREPLY=( $(cvs -d "$cvsroot" co -c | awk '{print $1}') )
-                COMPREPLY=( $(compgen -W '${COMPREPLY[@]}' -- "$cur") )
+                COMPREPLY=($(cvs -d "$cvsroot" co -c | awk '{print $1}'))
+                COMPREPLY=($(compgen -W '${COMPREPLY[@]}' -- "$cur"))
             else
                 _cvs_command_options "$1" $mode
             fi
@@ -321,32 +321,32 @@ _cvs()
                     ;;
             esac
 
-            if [[ "$cur" != -* ]]; then
+            if [[ $cur != -* ]]; then
                 # starts with same algorithm as checkout
                 [[ -z $cvsroot ]] && cvsroot=$CVSROOT
                 local prefix=${cur%/*}
                 if [[ -r ${cvsroot}/${prefix} ]]; then
                     _cvs_modules
-                    COMPREPLY=( ${COMPREPLY[@]#$cvsroot} )
-                    COMPREPLY=( ${COMPREPLY[@]#\/} )
+                    COMPREPLY=(${COMPREPLY[@]#$cvsroot})
+                    COMPREPLY=(${COMPREPLY[@]#\/})
                 fi
                 pwd=$(pwd)
                 pwd=${pwd##*/}
-                COMPREPLY=( $(compgen -W '${COMPREPLY[@]} $pwd' -- "$cur") )
+                COMPREPLY=($(compgen -W '${COMPREPLY[@]} $pwd' -- "$cur"))
             else
                 _cvs_command_options "$1" $mode
             fi
             ;;
         remove)
-            if [[ "$cur" != -* ]]; then
+            if [[ $cur != -* ]]; then
                 _cvs_entries
-                if [[ "$prev" != -f ]]; then
+                if [[ $prev != -f ]]; then
                     # find out what files are missing
                     for i in "${!entries[@]}"; do
-                        [[ -r "${entries[i]}" ]] && unset 'entries[i]'
+                        [[ -r ${entries[i]} ]] && unset 'entries[i]'
                     done
                 fi
-                COMPREPLY=( $(compgen -W '${entries[@]:-}' -- "$cur") )
+                COMPREPLY=($(compgen -W '${entries[@]:-}' -- "$cur"))
             else
                 _cvs_command_options "$1" $mode
             fi
@@ -363,11 +363,11 @@ _cvs()
                     ;;
             esac
 
-            if [[ "$cur" == -* ]]; then
+            if [[ $cur == -* ]]; then
                 _cvs_command_options "$1" $mode
             else
                 _cvs_entries
-                COMPREPLY=( $(compgen -W '${entries[@]}' -- "$cur") )
+                COMPREPLY=($(compgen -W '${entries[@]}' -- "$cur"))
             fi
             ;;
         "")
@@ -381,18 +381,18 @@ _cvs()
                     return
                     ;;
                 -*z)
-                    COMPREPLY=( $(compgen -W '{1..9}' -- "$cur") )
+                    COMPREPLY=($(compgen -W '{1..9}' -- "$cur"))
                     return
                     ;;
             esac
 
-            COMPREPLY=( $(compgen -W '$(_cvs_commands)
+            COMPREPLY=($(compgen -W '$(_cvs_commands)
                 $(_parse_help "$1" --help-options) --help --help-commands
-                --help-options --version' -- "$cur") )
+                --help-options --version' -- "$cur"))
             ;;
     esac
 
 } &&
-complete -F _cvs cvs
+    complete -F _cvs cvs
 
 # ex: filetype=sh

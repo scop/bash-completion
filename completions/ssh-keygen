@@ -22,11 +22,11 @@ _ssh_keygen()
                     sizes=(1024 2048 3072 4096)
                     ;;
             esac
-            COMPREPLY=( $(compgen -W '${sizes[@]}' -- "$cur") )
+            COMPREPLY=($(compgen -W '${sizes[@]}' -- "$cur"))
             return
             ;;
         -*E)
-            COMPREPLY=( $(compgen -W 'md5 sha256' -- "$cur") )
+            COMPREPLY=($(compgen -W 'md5 sha256' -- "$cur"))
             return
             ;;
         -*[FR])
@@ -43,23 +43,24 @@ _ssh_keygen()
             return
             ;;
         -*m)
-            COMPREPLY=( $(compgen -W 'PEM PKCS8 RFC4716' -- "$cur") )
+            COMPREPLY=($(compgen -W 'PEM PKCS8 RFC4716' -- "$cur"))
             return
             ;;
         -*n)
             [[ ${words[*]} != *\ -*Y\ * ]] || return
-            local prefix=; [[ $cur == *,* ]] && prefix="${cur%,*},"
+            local prefix=
+            [[ $cur == *,* ]] && prefix="${cur%,*},"
             if [[ ${words[*]} == *\ -*h\ * ]]; then
                 _known_hosts_real -- "${cur##*,}"
             else
-                COMPREPLY=( $(compgen -u -- "${cur##*,}") )
+                COMPREPLY=($(compgen -u -- "${cur##*,}"))
             fi
-            [[ ${#COMPREPLY[@]} -eq 1 ]] && COMPREPLY=( ${COMPREPLY/#/$prefix} )
+            [[ ${#COMPREPLY[@]} -eq 1 ]] && COMPREPLY=(${COMPREPLY/#/$prefix})
             return
             ;;
         -*O)
             if [[ $cur != *=* ]]; then
-                COMPREPLY=( $(compgen -W '
+                COMPREPLY=($(compgen -W '
                     clear critical: extension: force-command=
                     no-agent-forwarding no-port-forwarding no-pty no-user-rc
                     no-x11-forwarding permit-agent-forwarding
@@ -70,16 +71,16 @@ _ssh_keygen()
 
                     application challenge= device resident user
                     write-attestation-path
-                    ' -- "$cur") )
+                    ' -- "$cur"))
                 [[ $COMPREPLY == *[:=] ]] && compopt -o nospace
                 __ltrim_colon_completions "$cur"
             else
                 case $cur in
                     force-command=*)
                         compopt -o filenames
-                        COMPREPLY=( $(compgen -c -- "${cur#*=}") )
+                        COMPREPLY=($(compgen -c -- "${cur#*=}"))
                         ;;
-                    checkpoint=*|challenge=*)
+                    checkpoint=* | challenge=*)
                         cur=${cur#*=}
                         _filedir
                         ;;
@@ -97,26 +98,26 @@ _ssh_keygen()
             if [[ $protocols == *1* ]]; then
                 types+=' rsa1'
             fi
-            COMPREPLY=( $(compgen -W "$types" -- "$cur") )
+            COMPREPLY=($(compgen -W "$types" -- "$cur"))
             return
             ;;
         -*Y)
-            COMPREPLY=( $(compgen -W 'find-principals check-novalidate sign
-                verify' -- "$cur") )
+            COMPREPLY=($(compgen -W 'find-principals check-novalidate sign
+                verify' -- "$cur"))
             return
             ;;
     esac
 
     if [[ $cur == -* ]]; then
         local opts=$(_parse_usage "$1" "-?")
-        [[ -z "$opts" ]] && opts=$(_parse_help "$1" "-?")  # OpenSSH < 7
-        COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
+        [[ -z $opts ]] && opts=$(_parse_help "$1" "-?") # OpenSSH < 7
+        COMPREPLY=($(compgen -W "$opts" -- "$cur"))
     fi
 
     if [[ ${words[*]} == *\ -*s\ * ]]; then
         _filedir pub
     fi
 } &&
-complete -F _ssh_keygen ssh-keygen
+    complete -F _ssh_keygen ssh-keygen
 
 # ex: filetype=sh

@@ -14,30 +14,30 @@ _postsuper()
             ;;
         -[dr])
             len=${#cur}
-            for pval in ALL $(mailq 2>/dev/null | \
+            for pval in ALL $(mailq 2>/dev/null |
                 command sed -e '1d; $d; /^[^0-9A-Z]/d; /^$/d; s/[* !].*$//'); do
-                if [[ "$cur" == "${pval:0:$len}" ]]; then
-                    COMPREPLY+=( $pval )
+                if [[ $cur == "${pval:0:len}" ]]; then
+                    COMPREPLY+=($pval)
                 fi
             done
             return
             ;;
         -h)
             len=${#cur}
-            for pval in ALL $(mailq 2>/dev/null | \
+            for pval in ALL $(mailq 2>/dev/null |
                 command sed -e '1d; $d; /^[^0-9A-Z]/d; /^$/d; s/[* ].*$//; /!$/d'); do
-                if [[ "$cur" == "${pval:0:$len}" ]]; then
-                    COMPREPLY+=( $pval )
+                if [[ $cur == "${pval:0:len}" ]]; then
+                    COMPREPLY+=($pval)
                 fi
             done
             return
             ;;
         -H)
             len=${#cur}
-            for pval in ALL $(mailq 2>/dev/null | \
+            for pval in ALL $(mailq 2>/dev/null |
                 command sed -e '1d; $d; /^[^0-9A-Z]/d; /^$/d; /^[0-9A-Z]*[* ]/d; s/!.*$//'); do
-                if [[ "$cur" == "${pval:0:$len}" ]]; then
-                    COMPREPLY+=( $pval )
+                if [[ $cur == "${pval:0:len}" ]]; then
+                    COMPREPLY+=($pval)
                 fi
             done
             return
@@ -45,12 +45,12 @@ _postsuper()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         return
     fi
 
-    COMPREPLY=( $(compgen -W 'hold incoming active deferred' -- "$cur") )
+    COMPREPLY=($(compgen -W 'hold incoming active deferred' -- "$cur"))
 } &&
-complete -F _postsuper postsuper
+    complete -F _postsuper postsuper
 
 # ex: filetype=sh

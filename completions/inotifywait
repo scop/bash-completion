@@ -5,10 +5,10 @@ _inotifywait_events()
     # Expecting line with "Events:", followed by ones starting with one
     # tab. Word following the tab is event name, others are line
     # wrapped explanations.
-    COMPREPLY+=( $(compgen -W "$($1 --help 2>/dev/null | \
+    COMPREPLY+=($(compgen -W "$($1 --help 2>/dev/null |
         command sed -e '/^Events:/,/^[^'$'\t'']/!d' \
-           -ne 's/^'$'\t''\([^ '$'\t'']\{1,\}\)[ '$'\t''].*/\1/p')" \
-        -- "$cur") )
+            -ne 's/^'$'\t''\([^ '$'\t'']\{1,\}\)[ '$'\t''].*/\1/p')" \
+        -- "$cur"))
 }
 
 _inotifywait()
@@ -17,31 +17,31 @@ _inotifywait()
     _init_completion || return
 
     case $prev in
-        --help|--exclude|--excludei|--format|--timefmt|--timeout|-!(-*)[ht])
+        --help | --exclude | --excludei | --format | --timefmt | --timeout | -!(-*)[ht])
             return
             ;;
-        --fromfile|--outfile|-!(-*)o)
+        --fromfile | --outfile | -!(-*)o)
             _filedir
             return
             ;;
-        --event|-!(-*)e)
+        --event | -!(-*)e)
             _inotifywait_events "$1"
             return
             ;;
-        --ascending|--descending)
-            COMPREPLY=( $(compgen -W 'total' -- "$cur") )
+        --ascending | --descending)
+            COMPREPLY=($(compgen -W 'total' -- "$cur"))
             _inotifywait_events "$1"
             return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         return
     fi
 
     _filedir
 } &&
-complete -F _inotifywait inotifywait inotifywatch
+    complete -F _inotifywait inotifywait inotifywatch
 
 # ex: filetype=sh

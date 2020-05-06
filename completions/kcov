@@ -6,21 +6,21 @@ _kcov()
     _init_completion -s -n : || return
 
     case "$prev" in
-        --pid|-p)
+        --pid | -p)
             _pids
             return
             ;;
-        --sort-type|-s)
-            COMPREPLY=( $(compgen -W 'filename percent reverse lines
-                uncovered' -- "$cur") )
+        --sort-type | -s)
+            COMPREPLY=($(compgen -W 'filename percent reverse lines
+                uncovered' -- "$cur"))
             return
             ;;
-        --include-path|--exclude-path)
+        --include-path | --exclude-path)
             _filedir
             return
             ;;
         --replace-src-path)
-            if [[ "$cur" == ?*:* ]]; then
+            if [[ $cur == ?*:* ]]; then
                 cur="${cur##*:}"
                 _filedir
             else
@@ -29,21 +29,21 @@ _kcov()
             fi
             return
             ;;
-        --limits|-l)
-            if [[ "$cur" == ?*,* ]]; then
+        --limits | -l)
+            if [[ $cur == ?*,* ]]; then
                 prev="${cur%,*}"
                 cur="${cur##*,}"
-                COMPREPLY=( $(compgen -W "{0..100}" -- "$cur") )
-                (( ${#COMPREPLY[@]} == 1 )) && \
-                    COMPREPLY=( ${COMPREPLY/#/$prev,} )
+                COMPREPLY=($(compgen -W "{0..100}" -- "$cur"))
+                ((${#COMPREPLY[@]} == 1)) &&
+                    COMPREPLY=(${COMPREPLY/#/$prev,})
             else
-                COMPREPLY=( $(compgen -W "{0..100}" -- "$cur") )
-                (( ${#COMPREPLY[@]} == 1 )) && COMPREPLY=( ${COMPREPLY/%/,} )
+                COMPREPLY=($(compgen -W "{0..100}" -- "$cur"))
+                ((${#COMPREPLY[@]} == 1)) && COMPREPLY=(${COMPREPLY/%/,})
                 compopt -o nospace
             fi
             return
             ;;
-        --title|-t|--include-pattern|--exclude-pattern|--path-strip-level)
+        --title | -t | --include-pattern | --exclude-pattern | --path-strip-level)
             # argument required but no completions available
             return
             ;;
@@ -51,14 +51,14 @@ _kcov()
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1" --help)' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1" --help)' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
 
     _filedir
 } &&
-complete -F _kcov kcov
+    complete -F _kcov kcov
 
 # ex: filetype=sh

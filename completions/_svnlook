@@ -12,20 +12,20 @@ _svnlook()
     commands='author cat changed date diff dirs-changed help ? h history info
         lock log propget pget pg proplist plist pl tree uuid youngest'
 
-    if (( cword == 1 )); then
-        if [[ "$cur" == -* ]]; then
-            COMPREPLY=( $(compgen -W '--version' -- "$cur") )
+    if ((cword == 1)); then
+        if [[ $cur == -* ]]; then
+            COMPREPLY=($(compgen -W '--version' -- "$cur"))
         else
-            COMPREPLY=( $(compgen -W "$commands" -- "$cur") )
+            COMPREPLY=($(compgen -W "$commands" -- "$cur"))
         fi
     else
         local command=${words[1]}
 
-        if [[ "$cur" == -* ]]; then
+        if [[ $cur == -* ]]; then
             # possible options for the command
             local options
             case $command in
-                author|cat|date|dirs-changed|info|log)
+                author | cat | date | dirs-changed | info | log)
                     options='--revision --transaction'
                     ;;
                 changed)
@@ -38,7 +38,7 @@ _svnlook()
                 history)
                     options='--revision --show-ids'
                     ;;
-                propget|proplist)
+                propget | proplist)
                     options='--revision --transaction --revprop'
                     ;;
                 tree)
@@ -47,10 +47,10 @@ _svnlook()
             esac
 
             options+=" --help"
-            COMPREPLY=( $(compgen -W "$options" -- "$cur") )
+            COMPREPLY=($(compgen -W "$options" -- "$cur"))
         else
-            if [[ "$command" == @(help|[h?]) ]]; then
-                COMPREPLY=( $(compgen -W "$commands" -- "$cur") )
+            if [[ $command == @(help|[h?]) ]]; then
+                COMPREPLY=($(compgen -W "$commands" -- "$cur"))
             else
                 _filedir
             fi
@@ -58,6 +58,6 @@ _svnlook()
     fi
 
 } &&
-complete -F _svnlook -o default svnlook
+    complete -F _svnlook -o default svnlook
 
 # ex: filetype=sh

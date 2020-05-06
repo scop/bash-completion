@@ -6,8 +6,8 @@ _pkg_config()
     _init_completion -s || return
 
     case $prev in
-        --define-variable|--atleast-version|--atleast-pkgconfig-version| \
-        --exact-version|--max-version)
+        --define-variable | --atleast-version | --atleast-pkgconfig-version | \
+            --exact-version | --max-version)
             # argument required but no completions available
             return
             ;;
@@ -15,15 +15,15 @@ _pkg_config()
             local word
             for word in "${words[@]:1}"; do
                 if [[ $word != -* ]]; then
-                    COMPREPLY=( $(compgen -W \
+                    COMPREPLY=($(compgen -W \
                         '$("$1" $word --print-variables 2>/dev/null)' \
-                        -- "$cur") )
+                        -- "$cur"))
                     break
                 fi
             done
             return
             ;;
-        -\?|--help|--version|--usage)
+        -\? | --help | --version | --usage)
             # all other arguments are noop with these
             return
             ;;
@@ -31,15 +31,15 @@ _pkg_config()
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1")' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     else
-        COMPREPLY=( $(compgen -W "$($1 --list-all \
-            2>/dev/null | awk '{print $1}')" -- "$cur") )
+        COMPREPLY=($(compgen -W "$($1 --list-all \
+            2>/dev/null | awk '{print $1}')" -- "$cur"))
         _filedir pc
     fi
 } &&
-complete -F _pkg_config pkg-config
+    complete -F _pkg_config pkg-config
 
 # ex: filetype=sh

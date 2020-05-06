@@ -9,8 +9,8 @@ _valgrind()
     # Note: intentionally using COMP_WORDS and COMP_CWORD instead of
     # words and cword here due to splitting on = causing index differences
     # (_command_offset assumes the former).
-    for (( i=1; i <= COMP_CWORD; i++ )); do
-        if [[ ${COMP_WORDS[i]} != @([-=])* && ${COMP_WORDS[i-1]} != = ]]; then
+    for ((i = 1; i <= COMP_CWORD; i++)); do
+        if [[ ${COMP_WORDS[i]} != @([-=])* && ${COMP_WORDS[i - 1]} != = ]]; then
             _command_offset $i
             return
         fi
@@ -25,31 +25,31 @@ _valgrind()
     done
 
     case $prev in
-        -h|--help|--help-debug|--version)
+        -h | --help | --help-debug | --version)
             return
             ;;
         --tool)
             # Tools seem to be named e.g. like memcheck-amd64-linux from which
             # we want to grab memcheck.
-            COMPREPLY=( $(compgen -W '$(
+            COMPREPLY=($(compgen -W '$(
                 for f in /usr{,/local}/lib{,64,exec}{/*-linux-gnu,}/valgrind/*
                 do
                     [[ $f != *.so && -x $f && $f =~ ^.*/(.*)-[^-]+-[^-]+ ]] &&
                         printf "%s\n" "${BASH_REMATCH[1]}"
-                done)' -- "$cur") )
+                done)' -- "$cur"))
             return
             ;;
         --sim-hints)
-            COMPREPLY=( $(compgen -W 'lax-ioctls enable-outer' -- "$cur") )
+            COMPREPLY=($(compgen -W 'lax-ioctls enable-outer' -- "$cur"))
             return
             ;;
         --soname-synonyms)
-            COMPREPLY=( $(compgen -W 'somalloc' -S = -- "$cur") )
+            COMPREPLY=($(compgen -W 'somalloc' -S = -- "$cur"))
             [[ $COMPREPLY == *= ]] && compopt -o nospace
             return
             ;;
         --kernel-variant)
-            COMPREPLY=( $(compgen -W 'bproc' -- "$cur") )
+            COMPREPLY=($(compgen -W 'bproc' -- "$cur"))
             return
             ;;
         # callgrind:
@@ -59,18 +59,18 @@ _valgrind()
             ;;
         # exp-dhat:
         --sort-by)
-            COMPREPLY=( $(compgen -W 'max-bytes-live tot-bytes-allocd
-                max-blocks-live' -- "$cur") )
+            COMPREPLY=($(compgen -W 'max-bytes-live tot-bytes-allocd
+                max-blocks-live' -- "$cur"))
             return
             ;;
         # massif:
         --time-unit)
-            COMPREPLY=( $(compgen -W 'i ms B' -- "$cur") )
+            COMPREPLY=($(compgen -W 'i ms B' -- "$cur"))
             return
             ;;
-        # generic cases parsed from --help output
+            # generic cases parsed from --help output
         --+([-A-Za-z0-9_]))
-            local value=$($1 --help-debug $tool 2>/dev/null | \
+            local value=$($1 --help-debug $tool 2>/dev/null |
                 command sed -ne "s|^[[:blank:]]*$prev=\([^[:blank:]]\{1,\}\).*|\1|p")
             case $value in
                 \<file*\>)
@@ -79,18 +79,18 @@ _valgrind()
                     ;;
                 \<command\>)
                     compopt -o filenames
-                    COMPREPLY=( $(compgen -c -- "$cur") )
+                    COMPREPLY=($(compgen -c -- "$cur"))
                     return
                     ;;
                 \<+([0-9])..+([0-9])\>)
-                    COMPREPLY=( $(compgen -W "{${value:1:((${#value}-2))}}" \
-                        -- "$cur") )
+                    COMPREPLY=($(compgen -W "{${value:1:${#value}-2}}" \
+                        -- "$cur"))
                     return
                     ;;
                 # "yes", "yes|no", etc (but not "string", "STR",
                 # "hint1,hint2,...")
-                yes|+([-a-z0-9])\|+([-a-z0-9\|]))
-                    COMPREPLY=( $(IFS='|' compgen -W '$value' -- "$cur") )
+                yes | +([-a-z0-9])\|+([-a-z0-9\|]))
+                    COMPREPLY=($(IFS='|' compgen -W '$value' -- "$cur"))
                     return
                     ;;
             esac
@@ -100,12 +100,12 @@ _valgrind()
     $split && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1" "--help $tool")' \
-            -- "$cur") )
+        COMPREPLY=($(compgen -W '$(_parse_help "$1" "--help $tool")' \
+            -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
 } &&
-complete -F _valgrind valgrind
+    complete -F _valgrind valgrind
 
 # ex: filetype=sh

@@ -6,17 +6,17 @@ _gzip()
     _init_completion || return
 
     case $prev in
-        --blocksize|--suffix|--help|--version|-!(-*)[bShV])
+        --blocksize | --suffix | --help | --version | -!(-*)[bShV])
             return
             ;;
-        --processes|-!(-*)p)
-            COMPREPLY=( $(compgen -W "{1..$(_ncpus)}" -- "$cur") )
+        --processes | -!(-*)p)
+            COMPREPLY=($(compgen -W "{1..$(_ncpus)}" -- "$cur"))
             return
             ;;
     esac
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1") {-1..-9}' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1") {-1..-9}' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
         return
     fi
@@ -24,20 +24,20 @@ _gzip()
     local IFS=$'\n' xspec="*.@(gz|t[ag]z)"
     [[ ${1##*/} == pigz ]] && xspec="*.@([gz]z|t[ag]z)"
 
-    if [[ "$prev" == --* ]]; then
-        [[ "$prev" == --@(decompress|list|test) ]] && xspec="!"$xspec
-        [[ "$prev" == --force ]] && xspec=
-    elif [[ "$prev" == -* ]]; then
-        [[ "$prev" == -*[dlt]* ]] && xspec="!"$xspec
-        [[ "$prev" == -*f* ]] && xspec=
+    if [[ $prev == --* ]]; then
+        [[ $prev == --@(decompress|list|test) ]] && xspec="!"$xspec
+        [[ $prev == --force ]] && xspec=
+    elif [[ $prev == -* ]]; then
+        [[ $prev == -*[dlt]* ]] && xspec="!"$xspec
+        [[ $prev == -*f* ]] && xspec=
     fi
 
     _tilde "$cur" || return
 
     compopt -o filenames
-    COMPREPLY=( $(compgen -f -X "$xspec" -- "$cur") \
-        $(compgen -d -- "$cur") )
+    COMPREPLY=($(compgen -f -X "$xspec" -- "$cur")
+    $(compgen -d -- "$cur"))
 } &&
-complete -F _gzip gzip pigz
+    complete -F _gzip gzip pigz
 
 # ex: filetype=sh

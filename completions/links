@@ -6,20 +6,20 @@ _links()
     _init_completion -n : || return
 
     case $prev in
-        -html-t-text-color|-html-t-link-color)
-            COMPREPLY=( $(compgen -W '{0..15}' -- "$cur") )
+        -html-t-text-color | -html-t-link-color)
+            COMPREPLY=($(compgen -W '{0..15}' -- "$cur"))
             return
             ;;
-        -http.fake-firefox|-html-[gt]-ignore-document-color)
-            COMPREPLY=( $(compgen -W '0 1' -- "$cur") )
+        -http.fake-firefox | -html-[gt]-ignore-document-color)
+            COMPREPLY=($(compgen -W '0 1' -- "$cur"))
             return
             ;;
-        --help|-help|-mode|-display|-source|-dump|-width|-max-connections|\
-        -max-connections-to-host|-retries|-receive-timeout|\
-        -unrestartable-receive-timeout|-*-size|-*-proxy|\
-        -append-text-to-dns-lookups|-ssl.client-cert-passwd|-http.fake-*|\
-        -http.extra-header|-ftp.anonymous-passwd|-*-color|-*-gamma|\
-        -bfu-aspect|-html-image-scale|-html-margin)
+        --help | -help | -mode | -display | -source | -dump | -width | -max-connections | \
+            -max-connections-to-host | -retries | -receive-timeout | \
+            -unrestartable-receive-timeout | -*-size | -*-proxy | \
+            -append-text-to-dns-lookups | -ssl.client-cert-passwd | -http.fake-* | \
+            -http.extra-header | -ftp.anonymous-passwd | -*-color | -*-gamma | \
+            -bfu-aspect | -html-image-scale | -html-margin)
             return
             ;;
         -lookup)
@@ -30,10 +30,10 @@ _links()
             local drivers=$("$1" -driver foo 2>&1 |
                 command sed -ne '$!d' -e '/^[a-z0-9, ]\{1,\}$/s/,/ /gp')
             [[ $drivers ]] || drivers='x svgalib fb directfb pmshell atheos'
-            COMPREPLY=( $(compgen -W "$drivers" -- "$cur") )
+            COMPREPLY=($(compgen -W "$drivers" -- "$cur"))
             return
             ;;
-        -codepage|-bookmarks-codepage|-http-assume-codepage)
+        -codepage | -bookmarks-codepage | -http-assume-codepage)
             _xfunc iconv _iconv_charsets
             return
             ;;
@@ -50,19 +50,19 @@ _links()
             __ltrim_colon_completions "$cur"
             return
             ;;
-        -async-dns|-download-utime|-aggressive-cache|-only-proxies|\
-        -http-bugs.*|-http.do-not-track|-ftp.use-*|-ftp.fast|-ftp.set-iptos|\
-        -smb.allow-hyperlinks-to-smb|-save-url-history|-dither-letters|\
-        -dither-images|-overwrite-instead-of-scroll|-html-*)
-            COMPREPLY=( $(compgen -W '0 1' -- "$cur") )
+        -async-dns | -download-utime | -aggressive-cache | -only-proxies | \
+            -http-bugs.* | -http.do-not-track | -ftp.use-* | -ftp.fast | -ftp.set-iptos | \
+            -smb.allow-hyperlinks-to-smb | -save-url-history | -dither-letters | \
+            -dither-images | -overwrite-instead-of-scroll | -html-*)
+            COMPREPLY=($(compgen -W '0 1' -- "$cur"))
             return
             ;;
-        -address-preference|-http.referer)
-            COMPREPLY=( $(compgen -W '{0..4}' -- "$cur") )
+        -address-preference | -http.referer)
+            COMPREPLY=($(compgen -W '{0..4}' -- "$cur"))
             return
             ;;
-        -ssl-certificates|-display-optimize|-gamma-correction)
-            COMPREPLY=( $(compgen -W '{0..2}' -- "$cur") )
+        -ssl-certificates | -display-optimize | -gamma-correction)
+            COMPREPLY=($(compgen -W '{0..2}' -- "$cur"))
             return
             ;;
         -ssl.client-cert-key)
@@ -80,21 +80,21 @@ _links()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=( $(compgen -W '$(_parse_help "$1" |
-            command grep -vF -- "->")' -- "$cur") )
+        COMPREPLY=($(compgen -W '$(_parse_help "$1" |
+            command grep -vF -- "->")' -- "$cur"))
         return
     fi
 
     local dir
     for dir in .links .links2; do
         if [[ -r ~/$dir/links.his ]]; then
-            COMPREPLY+=( $(compgen -W '$(cat ~/$dir/links.his)' -- "$cur") )
+            COMPREPLY+=($(compgen -W '$(cat ~/$dir/links.his)' -- "$cur"))
             __ltrim_colon_completions "$cur"
         fi
     done
     _filedir '@(htm|html)'
 
 } &&
-complete -F _links links links2
+    complete -F _links links links2
 
 # ex: filetype=sh
