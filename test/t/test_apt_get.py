@@ -10,3 +10,7 @@ class TestAptGet:
     @pytest.mark.complete("apt-get install ./", cwd="dpkg")
     def test_2(self, completion):
         assert completion == "./bash-completion-test-subject.deb"
+
+    @pytest.mark.complete("apt-get build-dep ")
+    def test_build_dep_dirs(self, completion):
+        assert "dpkg/" in completion
