@@ -74,3 +74,12 @@ class TestUmount:
     @pytest.mark.complete("_mnt -L Deb")
     def test_mnt_label_quote(self, completion, dummy_mnt):
         assert completion == "Debian-it's awesome"
+
+    def test_linux_fstab_unescape(self, bash):
+        assert_bash_exec(bash, r"var=one\'two\\040three\\")
+        assert_bash_exec(bash, "__linux_fstab_unescape var")
+        output = assert_bash_exec(
+            bash, r'printf "%s\n" "$var"', want_output=True
+        )
+        assert output.strip() == "one'two three\\"
+        assert_bash_exec(bash, "unset var")
