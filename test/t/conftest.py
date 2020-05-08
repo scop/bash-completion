@@ -3,6 +3,7 @@ import os
 import re
 import shlex
 import subprocess
+import time
 from typing import Callable, Iterable, Iterator, List, Optional, Tuple
 
 import pexpect
@@ -493,6 +494,8 @@ def assert_complete(
             "export %s" % " ".join("%s=%s" % (k, v) for k, v in env.items()),
         )
     bash.send(cmd + "\t")
+    # Sleep a bit if requested, to avoid `.*` matching too early
+    time.sleep(kwargs.get("sleep_after_tab", 0))
     bash.expect_exact(cmd)
     bash.send(MAGIC_MARK)
     got = bash.expect(
