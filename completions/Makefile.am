@@ -372,6 +372,7 @@ bashcomp_DATA = 2to3 \
 		sbopkg \
 		screen \
 		scrub \
+		secret-tool \
 		sh \
 		shellcheck \
 		sitecopy \

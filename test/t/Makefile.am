@@ -530,6 +530,7 @@ EXTRA_DIST = \
 	test_screen.py \
 	test_scrub.py \
 	test_sdptool.py \
+	test_secret_tool.py \
 	test_sed.py \
 	test_seq.py \
 	test_service.py \
