@@ -90,3 +90,17 @@ make YACC="bison -d -y"
 install a.out /usr/local/lib/bsd-bin/awk
 cd ..
 rm -r one-true-awk
+
+# Install slapt-get and slapt-src
+
+cd /
+curl --fail https://software.jaos.org/slackpacks/slackware64-14.2/slapt-get/slapt-get-0.10.2t-x86_64-1.tgz \
+| tar xvz
+bash install/doinst.sh
+curl --fail https://software.jaos.org/slackpacks/slackware64-14.2/slapt-src/slapt-src-0.3.2i-x86_64-1.tgz \
+| tar xvz
+bash install/doinst.sh
+cp -a usr/lib64/* usr/lib/
+ln -s libcrypto.so.1.1 usr/lib/x86_64-linux-gnu/libcrypto.so.1
+rm -r install usr/lib64
+cd -
