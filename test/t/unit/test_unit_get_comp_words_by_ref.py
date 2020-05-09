@@ -4,7 +4,8 @@ from conftest import TestUnitBase, assert_bash_exec
 
 
 @pytest.mark.bashcomp(
-    cmd=None, ignore_env=r"^(\+(cur|prev)|[+-]COMP_(WORDS|CWORD|LINE|POINT))="
+    cmd=None,
+    ignore_env=r"^(\+(words|cword|cur|prev)|[+-]COMP_(WORDS|CWORD|LINE|POINT))=",
 )
 class TestUnitGetCompWordsByRef(TestUnitBase):
     def _test(self, bash, *args, **kwargs):
@@ -165,3 +166,91 @@ class TestUnitGetCompWordsByRef(TestUnitBase):
         """a 'b&c|"""
         output = self._test(bash, '(a "\'b&c")', 1, "a 'b&c", 6)
         assert output == "'b&c,a"
+
+    def test_30(self, bash):
+        """a b| to all vars"""
+        assert_bash_exec(bash, "unset words cword cur prev")
+        output = self._test_unit(
+            "_get_comp_words_by_ref words cword cur prev%s; "
+            'echo "${words[@]}",$cword,$cur,$prev',
+            bash,
+            "(a b)",
+            1,
+            "a b",
+            3,
+        )
+        assert output == "a b,1,b,a"
+
+    def test_31(self, bash):
+        """a b| to alternate vars"""
+        assert_bash_exec(bash, "unset words2 cword2 cur2 prev2")
+        output = self._test_unit(
+            "_get_comp_words_by_ref -w words2 -i cword2 -c cur2 -p prev2%s; "
+            'echo $cur2,$prev2,"${words2[@]}",$cword2',
+            bash,
+            "(a b)",
+            1,
+            "a b",
+            3,
+        )
+        assert output == "b,a,a b,1"
+        assert_bash_exec(bash, "unset words2 cword2 cur2 prev2")
+
+    def test_32(self, bash):
+        """a b : c| with wordbreaks -= :"""
+        assert_bash_exec(bash, "unset words")
+        output = self._test_unit(
+            '_get_comp_words_by_ref -n : words%s; echo "${words[@]}"',
+            bash,
+            "(a b : c)",
+            3,
+            "a b : c",
+            7,
+        )
+        assert output == "a b : c"
+
+    def test_33(self, bash):
+        """a b: c| with wordbreaks -= :"""
+        assert_bash_exec(bash, "unset words")
+        output = self._test_unit(
+            '_get_comp_words_by_ref -n : words%s; echo "${words[@]}"',
+            bash,
+            "(a b : c)",
+            3,
+            "a b: c",
+            6,
+        )
+        assert output == "a b: c"
+
+    def test_34(self, bash):
+        """a b :c| with wordbreaks -= :"""
+        assert_bash_exec(bash, "unset words")
+        output = self._test_unit(
+            '_get_comp_words_by_ref -n : words%s; echo "${words[@]}"',
+            bash,
+            "(a b : c)",
+            3,
+            "a b :c",
+            6,
+        )
+        assert output == "a b :c"
+
+    def test_35(self, bash):
+        r"""a b\ :c| with wordbreaks -= :"""
+        assert_bash_exec(bash, "unset words")
+        output = self._test_unit(
+            '_get_comp_words_by_ref -n : words%s; echo "${words[@]}"',
+            bash,
+            "(a 'b ' : c)",
+            3,
+            r"a b\ :c",
+            7,
+        )
+        assert output == "a b  :c"
+
+    def test_unknown_arg_error(self, bash):
+        with pytest.raises(AssertionError) as ex:
+            _ = assert_bash_exec(
+                bash, "_get_comp_words_by_ref dummy", want_output=True
+            )
+        ex.match("dummy.* unknown argument")
