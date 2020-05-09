@@ -46,23 +46,6 @@ proc assert_bash_exec {{aCmd ""} {title ""} {prompt /@} {out -1}} {
 }
 
 
-# Test `type ...' in bash
-# Indicate "unsupported" if `type' exits with error status.
-# @param string $command  Command to locate
-proc assert_bash_type {command} {
-    set test "$command should be available in bash"
-    set cmd "type $command &>/dev/null && echo -n 0 || echo -n 1"
-    send "$cmd\r"
-    expect "$cmd\r\n"
-    expect {
-        -ex 0 { set result true }
-        -ex 1 { set result false; unsupported "$test" }
-    }
-    expect "/@"
-    return $result
-}
-
-
 # Make sure the expected list matches the real list, as returned by executing
 # the specified bash command.
 # Specify `-sort' if the real list is sorted.
@@ -412,24 +395,6 @@ proc assert_no_output {{cmd} {test ""} {prompt /@}} {
 }
 
 
-# Source/run file with additional tests if completion for the specified command
-# is installed in bash, and the command is available.
-# @param string $command  Command to check completion availability for.
-# @param string $file  (optional) File to source/run.  Default is
-#                      "lib/completions/$cmd.exp".
-proc assert_source_completions {command {file ""}} {
-    if {[assert_bash_type $command]
-        && [assert_install_completion_for $command]} {
-        if {[string length $file] == 0} {
-            set file "$::srcdir/lib/completions/$command.exp"
-        }
-        source $file
-    } else {
-        untested $command
-    }
-}
-
-
 # Sort list.
 # `exec sort' is used instead of `lsort' to achieve exactly the
 #  same sort order as in bash.
@@ -487,23 +452,6 @@ proc init_tcl_bash_globals {} {
     assert_bash_exec {printf "%s" "$BASH_VERSION"} "" /@ BASH_VERSION
     assert_bash_exec {printf "%s" "$TESTDIR"} "" /@ TESTDIR
     assert_bash_exec {eval $(locale); printf "%s" "$LC_CTYPE"} "" /@ LC_CTYPE
-}
-
-
-# Try installing completion for the specified command.
-# @param string $command  Command to install completion for.
-# @return boolean  True (1) if completion is installed, False (0) if not.
-proc assert_install_completion_for {command} {
-    set test "$command should have completion installed in bash"
-    set cmd "__load_completion $command ; complete -p $command &>/dev/null && echo -n 0 || echo -n 1"
-    send "$cmd\r"
-    expect "$cmd\r\n"
-    expect {
-        -ex 0 { set result true }
-        -ex 1 { set result false }
-    }
-    expect "/@"
-    return $result
 }
 
 

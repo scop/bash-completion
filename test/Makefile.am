@@ -1,11 +1,10 @@
 AUTOMAKE_OPTIONS = dejagnu
-DEJATOOL = completion install unit
+DEJATOOL = install unit
 AM_RUNTESTFLAGS = --outdir log --ignore $(PACKAGE).log
 
 SUBDIRS = t
 
-EXTRA_DIST = completion \
-	     config \
+EXTRA_DIST = config \
 	     fixtures \
 	     lib \
 	     setup.cfg \
