@@ -122,6 +122,15 @@ def known_hosts(bash: pexpect.spawn) -> List[str]:
     return sorted(set(output.split()))
 
 
+@pytest.fixture(scope="class")
+def user_home(bash: pexpect.spawn) -> Tuple[str, str]:
+    user = assert_bash_exec(
+        bash, 'id -un 2>/dev/null || echo "$USER"', want_output=True
+    ).strip()
+    home = assert_bash_exec(bash, 'echo "$HOME"', want_output=True).strip()
+    return (user, home)
+
+
 def partialize(
     bash: pexpect.spawn, items: Iterable[str]
 ) -> Tuple[str, List[str]]:

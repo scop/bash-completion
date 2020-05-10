@@ -5,14 +5,6 @@ from conftest import assert_bash_exec
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^[+-]var=")
 class TestUnitExpandTildeByRef:
-    @pytest.fixture(scope="class")
-    def user_home(self, bash):
-        user = assert_bash_exec(
-            bash, 'id -un 2>/dev/null || echo "$USER"', want_output=True
-        ).strip()
-        home = assert_bash_exec(bash, 'echo "$HOME"', want_output=True).strip()
-        return (user, home)
-
     def test_1(self, bash):
         assert_bash_exec(bash, "__expand_tilde_by_ref >/dev/null")
 
