@@ -1,10 +1,11 @@
+import pexpect
 import pytest
 
-from conftest import TestUnitBase, assert_bash_exec
+from conftest import PS1, TestUnitBase, assert_bash_exec
 
 
 @pytest.mark.bashcomp(
-    cmd=None, ignore_env=r"^[+-]COMP_(WORDS|CWORD|LINE|POINT)="
+    cmd=None, ignore_env=r"^[+-](COMP_(WORDS|CWORD|LINE|POINT)|_scp_path_esc)="
 )
 class TestUnitGetCword(TestUnitBase):
     def _test(self, *args, **kwargs):
@@ -133,3 +134,16 @@ class TestUnitGetCword(TestUnitBase):
         """a 'b&c| should return 'b&c"""
         output = self._test(bash, '(a "\'b&c")', 1, "a 'b&c", 6)
         assert output == "'b&c"
+
+    def test_24(self, bash):
+        """Index shouldn't drop below 0"""
+        bash.send("scp ääää§ se\t\r\n")
+        got = bash.expect_exact(
+            [
+                "index: substring expression < 0",
+                PS1,
+                pexpect.EOF,
+                pexpect.TIMEOUT,
+            ]
+        )
+        assert got == 1
