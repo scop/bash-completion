@@ -10,10 +10,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y --no-install-recommends install \
         autoconf \
         automake \
-        dejagnu \
         make \
         python3-setuptools \
-        tcllib \
         xvfb
 
 # test/test-cmd-list.txt is a cache buster
