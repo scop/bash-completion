@@ -35,7 +35,7 @@ class TestUnitFiledir:
         if sys.platform.startswith("win"):
             pytest.skip("Filenames not allowed on Windows")
         tempdir = Path(tempfile.mkdtemp(prefix="bash-completion_filedir"))
-        request.addfinalizer(lambda: shutil.rmtree(tempdir))
+        request.addfinalizer(lambda: shutil.rmtree(str(tempdir)))
         subdir = tempdir / 'a"b'
         subdir.mkdir()
         (subdir / "d").touch()
