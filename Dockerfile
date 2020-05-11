@@ -11,11 +11,6 @@ RUN apk add --no-cache \
         python3-dev \
         xvfb \
         xz \
-    && wget -O - https://core.tcl.tk/tcllib/uv/tcllib-1.19.tar.xz | xz -dc | tar xC /tmp \
-    && cd /tmp/tcllib-* \
-    && ./configure --prefix=/usr \
-    && make install-libraries \
-    && cd - \
     && : old test suite works with context diffs, n/a with busybox diff \
     && apk add --no-cache diffutils \
     && : no xvfb-run yet, https://bugs.alpinelinux.org/issues/9617 \
