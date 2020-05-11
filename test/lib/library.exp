@@ -2,7 +2,6 @@
 # NOTE: DejaGnu has an old `unknown' procedure which unfortunately disables
 #       tcl auto-loading.
 source [file join [info library] init.tcl]
-package require cmdline
 
 
 
@@ -42,53 +41,6 @@ proc assert_bash_exec {{aCmd ""} {title ""} {prompt /@} {out -1}} {
         -ex "$cmd\r\n0\r\n$prompt" {}
         $prompt {fail "ERROR executing bash command \"$title\""}
     }
-}
-
-
-# Make sure the expected list matches the real list, as returned by executing
-# the specified bash command.
-# Specify `-sort' if the real list is sorted.
-# @param list $expected  Expected list items
-# @param string $cmd  Bash command to execute in order to generate real list
-#                     items
-# @param string $test  Test title.  Becomes "$cmd should show expected output"
-#                      if empty string.
-# @param list $args  Options:
-#                    -sort           Compare list sorted.  Default is unsorted
-#                    -prompt         Bash prompt.  Default is `/@'
-#                    -chunk-size N   Compare list N items at a time.  Default
-#                                    is 20.
-proc assert_bash_list {expected cmd test {args {}}} {
-    array set arg [::cmdline::getoptions args {
-        {sort                "compare list sorted"}
-        {prompt.arg     /@   "bash prompt"}
-        {chunk-size.arg 20   "compare N list items at a time"}
-    }]
-    set prompt $arg(prompt)
-    if {$test == ""} {set test "$cmd should show expected output"}
-    if {[llength $expected] == 0} {
-        assert_no_output $cmd $test $prompt
-    } else {
-        send "$cmd\r"
-        expect -ex "$cmd\r\n"
-        if {$arg(sort)} {set bash_sort "-bash-sort"} {set bash_sort ""}
-        if {[
-            eval match_items \$expected $bash_sort -chunk-size \
-                \$arg(chunk-size) -end-newline -end-prompt \
-                -prompt \$prompt
-        ]} {
-            pass "$test"
-        } else {
-            fail "$test"
-        }
-    }
-}
-
-
-# Escape regexp special characters
-proc _escape_regexp_chars {var} {
-    upvar $var str
-    regsub -all {([\^$+*?.|(){}[\]\\])} $str {\\\1} str
 }
 
 
@@ -155,26 +107,6 @@ proc assert_env_unmodified {{sed ""} {file ""} {diff ""}} {
 }
 
 
-# Check that no output is generated on a certain command.
-# @param string $cmd  The command to attempt to complete.
-# @param string $test  Optional parameter with test name.
-# @param string $prompt  (optional) Bash prompt.  Default is "/@"
-proc assert_no_output {{cmd} {test ""} {prompt /@}} {
-    if {[string length $test] == 0} {
-        set test "$cmd shouldn't generate output"
-    }
-
-    send "$cmd\r"
-    expect -ex "$cmd"
-
-    expect {
-        -re "^\r\n$prompt$" { pass "$test" }
-        default { fail "$test" }
-        timeout { fail "$test" }
-    }
-}
-
-
 # Sort list.
 # `exec sort' is used instead of `lsort' to achieve exactly the
 #  same sort order as in bash.
@@ -186,16 +118,9 @@ proc bash_sort {items} {
 
 
 # Get hostnames
-# @param list $args  Options:
-#                    -unsorted  Do not sort unique.  Default is sort unique.
 # @return list  Hostnames
 proc get_hosts {{args {}}} {
-    array set arg [::cmdline::getoptions args {
-        {unsorted   "do not sort unique"}
-    }]
-    set sort "| sort -u"
-    if {$arg(unsorted)} {set sort ""}
-    set hosts [exec bash -c "compgen -A hostname $sort"]
+    set hosts [exec bash -c "compgen -A hostname"]
     # NOTE: Circumventing var `avahi_hosts' and appending directly to `hosts'
     #       causes an empty element to be inserted in `hosts'.
     #       -- FVu, Fri Jul 17 23:11:46 CEST 2009
@@ -232,82 +157,6 @@ proc init_tcl_bash_globals {} {
     assert_bash_exec {printf "%s" "$BASH_VERSION"} "" /@ BASH_VERSION
     assert_bash_exec {printf "%s" "$TESTDIR"} "" /@ TESTDIR
     assert_bash_exec {eval $(locale); printf "%s" "$LC_CTYPE"} "" /@ LC_CTYPE
-}
-
-
-# Expect items, a limited number (20) at a time.
-# Break items into chunks because `expect' seems to have a limited buffer size
-# @param list $items  Expected list items
-# @param list $args  Options:
-#                    -bash-sort      Compare list bash-sorted.  Default is
-#                                    unsorted
-#                    -prompt PROMPT  Bash prompt.  Default is `/@'
-#                    -chunk-size CHUNK-SIZE   Compare list CHUNK-SIZE items at
-#                                             a time.  Default is 20.
-#                    -end-newline  Expect newline after last item.
-#                                  Default is not.
-#                    -end-prompt   Expect prompt after last item.
-#                                  Default is not.
-#                    -end-space    Expect single space after last item.
-#                                  Default is not.  Valid only if
-#                                  `end-newline' not set.
-# @result boolean  True if successful, False if not
-proc match_items {items {args {}}} {
-    array set arg [::cmdline::getoptions args {
-        {bash-sort      "compare list sorted"}
-        {prompt.arg     "/@" "bash prompt"}
-        {chunk-size.arg 20   "compare N list items at a time"}
-        {end-newline   "expect newline after last item"}
-        {end-prompt    "expect prompt after last item"}
-        {end-space     "expect space ater last item"}
-    }]
-    set prompt $arg(prompt)
-    set size $arg(chunk-size)
-    if {$arg(bash-sort)} {set items [bash_sort $items]}
-    set result false
-    for {set i 0} {$i < [llength $items]} {set i [expr {$i + $size}]} {
-            # For chunks > 1, allow leading whitespace
-        if {$i > $size} { set expected "\\s*" } else { set expected "" }
-        for {set j 0} {$j < $size && $i + $j < [llength $items]} {incr j} {
-            set item "[lindex $items [expr {$i + $j}]]"
-            _escape_regexp_chars item
-            append expected $item
-            if {[llength $items] > 1} {append expected {\s+}}
-        }
-        if {[llength $items] == 1} {
-            if {$arg(end-prompt)} {set end $prompt} {set end ""}
-            # Both trailing space and newline are specified?
-            if {$arg(end-newline) && $arg(end-space)} {
-                # Indicate both trailing space or newline are ok
-                set expected2 "|^$expected $end$";  # Include space
-                append expected "\r\n$end";      # Include newline
-            } else {
-                if {$arg(end-newline)} {append expected "\r\n$end"}
-                if {$arg(end-space)}   {append expected " $end"}
-                set expected2 ""
-            }
-            expect {
-                -re "^$expected$$expected2" { set result true }
-                -re "^$prompt$" {set result false; break }
-                default { set result false; break }
-                timeout { set result false; break }
-            }
-        } else {
-            set end ""
-            if {$arg(end-prompt) && $i + $j == [llength $items]} {
-                set end "$prompt"
-                _escape_regexp_chars end
-                # \$ matches real end of expect_out buffer
-                set end "$end\$"
-            }
-            expect {
-                -re "^$expected$end" { set result true }
-                default { set result false; break }
-                timeout { set result false; break }
-            }
-        }
-    }
-    return $result
 }
 
 
