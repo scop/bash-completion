@@ -49,8 +49,8 @@ class TestUnitKnownHostsReal:
         output = assert_bash_exec(
             bash,
             "_known_hosts_real -a%sF _known_hosts_real/config '%s'; "
-            # TODO: why does printf instead of echo hang here?
-            'echo "${COMPREPLY[@]}"; unset COMPREPLY' % (colon_flag, prefix),
+            r'printf "%%s\n" "${COMPREPLY[@]}"; unset COMPREPLY'
+            % (colon_flag, prefix),
             want_output=True,
         )
         assert sorted(output.split()) == sorted(expected)
