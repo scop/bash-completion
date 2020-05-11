@@ -4,7 +4,6 @@ RUN apk add --no-cache \
         autoconf \
         automake \
         bash \
-        dejagnu \
         gcc \
         make \
         musl-dev \
