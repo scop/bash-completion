@@ -1,35 +1,5 @@
 repos:
-  - repo: https://github.com/psf/black
-    rev: 19.10b0
-    hooks:
-      - id: black
-        types: [text]
-        files: ^(helpers/python|.+\.py)$
-        exclude: completions/
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.7.9
-    hooks:
-      - id: flake8
-        args: [--config=test/setup.cfg]
-        additional_dependencies: [flake8-bugbear==20.1.4]
-        types: [text]
-        files: ^(helpers/python|.+\.py)$
-        exclude: completions/
-  - repo: https://github.com/pre-commit/mirrors-isort
-    rev: v4.3.21
-    hooks:
-      - id: isort
-        args: [--settings-path=test/setup.cfg]
-        types: [text]
-        files: ^(helpers/python|.+\.py)$
-        exclude: completions/
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.770
-    hooks:
-      - id: mypy
-        args: [--config-file=test/setup.cfg]
-        # Intentionally not run on helpers/python (support very old versions)
-        exclude: completions/
+
   - repo: local
     hooks:
       - id: shfmt
@@ -41,6 +11,7 @@ repos:
         types: [text]
         files: ^(bash_completion|completions/.+|test/(config/bashrc|update-test-cmd-list)|.+\.sh(\.in)?)$
         exclude: ^completions/(\.gitignore|Makefile.*)$
+
   - repo: https://github.com/ryanrhee/shellcheck-py
     rev: v0.7.1.1
     hooks:
@@ -50,16 +21,58 @@ repos:
         files: ^(bash_completion|completions/.+|test/(config/bashrc|update-test-cmd-list)|.+\.sh(\.in)?)$
         exclude: completions/(\.gitignore|Makefile.*)$
         require_serial: false  # We disable SC1090 anyway, so parallel is ok
+
+  - repo: local
+    hooks:
+      - id: update-test-cmd-list
+        name: update-test-cmd-list
+        language: script
+        entry: test/update-test-cmd-list
+        files: ^test/t/.+\.py$
+        pass_filenames: false
+
+  - repo: https://github.com/psf/black
+    rev: 19.10b0
+    hooks:
+      - id: black
+        types: [text]
+        files: ^(helpers/python|.+\.py)$
+        exclude: completions/
+
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: 3.7.9
+    hooks:
+      - id: flake8
+        args: [--config=test/setup.cfg]
+        additional_dependencies: [flake8-bugbear==20.1.4]
+        types: [text]
+        files: ^(helpers/python|.+\.py)$
+        exclude: completions/
+
+  - repo: https://github.com/pre-commit/mirrors-isort
+    rev: v4.3.21
+    hooks:
+      - id: isort
+        args: [--settings-path=test/setup.cfg]
+        types: [text]
+        files: ^(helpers/python|.+\.py)$
+        exclude: completions/
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.770
+    hooks:
+      - id: mypy
+        args: [--config-file=test/setup.cfg]
+        # Intentionally not run on helpers/python (support very old versions)
+        exclude: completions/
+
   - repo: https://github.com/perltidy/perltidy
     rev: cbb4a687dd331db69219599d84d527397402efdd
     hooks:
       - id: perltidy
         types: [text]
         files: ^(helpers/perl|.+\.p[ml])$
-  - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.23.0
-    hooks:
-      - id: markdownlint
+
   - repo: local
     hooks:
       - id: perlcritic
@@ -70,9 +83,8 @@ repos:
         args: [--quiet, --verbose, "5"]
         types: [text]
         files: ^(helpers/perl|.+\.p[ml])$
-      - id: update-test-cmd-list
-        name: update-test-cmd-list
-        language: script
-        entry: test/update-test-cmd-list
-        files: ^test/t/.+\.py$
-        pass_filenames: false
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.23.0
+    hooks:
+      - id: markdownlint
