@@ -54,3 +54,22 @@ class TestUnitKnownHostsReal:
             want_output=True,
         )
         assert sorted(output.split()) == sorted(expected)
+
+    @pytest.mark.parametrize(
+        "family,result",
+        (
+            ("4", "127.0.0.1 localhost"),
+            ("6", "::1 localhost"),
+            ("46", "localhost"),
+        ),
+    )
+    def test_ip_filtering(self, bash, family, result):
+        assert_bash_exec(bash, "unset COMPREPLY")
+        output = assert_bash_exec(
+            bash,
+            "COMP_KNOWN_HOSTS_WITH_HOSTFILE= "
+            "_known_hosts_real -%sF _known_hosts_real/localhost_config ''; "
+            r'printf "%%s\n" "${COMPREPLY[@]}"' % family,
+            want_output=True,
+        )
+        assert sorted(output.strip().split()) == sorted(result.split())
