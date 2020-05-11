@@ -6,7 +6,8 @@ from conftest import assert_bash_exec
 
 
 @pytest.mark.bashcomp(
-    cmd=None, ignore_env="^[+-]COMP(REPLY|_KNOWN_HOSTS_WITH_HOSTFILE)="
+    cmd=None,
+    ignore_env="^[+-](COMP(REPLY|_KNOWN_HOSTS_WITH_HOSTFILE)|OLDHOME)=",
 )
 class TestUnitKnownHostsReal:
     @pytest.mark.parametrize(
@@ -73,3 +74,58 @@ class TestUnitKnownHostsReal:
             want_output=True,
         )
         assert sorted(output.strip().split()) == sorted(result.split())
+
+    def test_consecutive_spaces(self, bash, hosts):
+        # fixtures/_known_hosts_real/spaced  conf
+        hosts.extend("gee hus".split())
+        # fixtures/_known_hosts_real/known_hosts2
+        hosts.extend("two two2 two3 two4".split())
+        # fixtures/_known_hosts_/spaced  known_hosts
+        hosts.extend("doo ike".split())
+
+        output = assert_bash_exec(
+            bash,
+            "unset COMPREPLY; "
+            "_known_hosts_real -aF '_known_hosts_real/spaced  conf' ''; "
+            r'printf "%s\n" "${COMPREPLY[@]}"',
+            want_output=True,
+        )
+        assert sorted(output.strip().split()) == sorted(hosts)
+
+    def test_files_starting_with_tilde(self, bash, hosts):
+        # fixtures/_known_hosts_real/known_hosts2
+        hosts.extend("two two2 two3 two4".split())
+        # fixtures/_known_hosts_real/known_hosts3
+        hosts.append("three")
+        # fixtures/_known_hosts_real/known_hosts4
+        hosts.append("four")
+
+        assert_bash_exec(bash, 'OLDHOME="$HOME"; HOME="%s"' % bash.cwd)
+        output = assert_bash_exec(
+            bash,
+            "unset COMPREPLY; "
+            "_known_hosts_real -aF _known_hosts_real/config_tilde ''; "
+            r'printf "%s\n" "${COMPREPLY[@]}"',
+            want_output=True,
+        )
+        assert_bash_exec(bash, 'HOME="$OLDHOME"')
+        assert sorted(output.strip().split()) == sorted(hosts)
+
+    def test_included_configs(self, bash, hosts):
+        # fixtures/_known_hosts_real/config_include_recursion
+        hosts.append("recursion")
+        # fixtures/_known_hosts_real/.ssh/config_relative_path
+        hosts.append("relative_path")
+
+        assert_bash_exec(
+            bash, 'OLDHOME="$HOME"; HOME="%s/_known_hosts_real"' % bash.cwd
+        )
+        output = assert_bash_exec(
+            bash,
+            "unset COMPREPLY; "
+            "_known_hosts_real -aF _known_hosts_real/config_include ''; "
+            r'printf "%s\n" "${COMPREPLY[@]}"',
+            want_output=True,
+        )
+        assert_bash_exec(bash, 'HOME="$OLDHOME"')
+        assert sorted(output.strip().split()) == sorted(hosts)
