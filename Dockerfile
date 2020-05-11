@@ -6,11 +6,9 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y --no-install-recommends install \
         autoconf \
         automake \
-        dejagnu \
         make \
         python3-pexpect \
         python3-pytest-xdist \
-        tcllib \
         xvfb xauth \
     && ln -s $(bash -c "type -P pytest-3") /usr/local/bin/pytest
 
