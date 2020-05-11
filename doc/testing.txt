@@ -7,14 +7,8 @@ The bash-completion package contains an automated test suite.  Running the
 tests should help verifying that bash-completion works as expected.  The tests
 are also very helpful in uncovering software regressions at an early stage.
 
-The original, "legacy" bash-completion test suite is written on top of the
-https://www.gnu.org/software/dejagnu/[DejaGnu] testing framework.  DejaGnu is
-written in https://core.tcl-lang.org/expect/index[Expect], which in turn uses
-https://www.tcl-lang.org/[Tcl] -- Tool command language.
-
-Most of the test framework has been ported over to use
-https://pytest.org/[pytest] and https://pexpect.readthedocs.io/[pexpect].
-Eventually, all of it should be ported.
+The test suite is written in Python, using https://pytest.org/[pytest]
+and https://pexpect.readthedocs.io/[pexpect].
 
 
 Coding Style Guide
@@ -23,9 +17,6 @@ Coding Style Guide
 For the Python part, all of it is formatted using
 https://github.com/ambv/black[Black], and we also run
 https://flake8.pycqa.org/[Flake8] on it.
-
-The legacy test suite tries to adhere to this
-https://wiki.tcl-lang.org/page/Tcl+Style+Guide[Tcl Style Guide].
 
 
 Installing dependencies
@@ -45,7 +36,7 @@ Debian/Ubuntu
 
 On Debian/Ubuntu you can use `apt-get`:
 -------------
-sudo apt-get install python3-pytest python3-pexpect dejagnu
+sudo apt-get install python3-pytest python3-pexpect
 -------------
 This should also install the necessary dependencies. Only Debian testing
 (buster) and Ubuntu 18.10 (cosmic) and later have an appropriate version
@@ -56,7 +47,7 @@ Fedora/RHEL/CentOS
 
 On Fedora and RHEL/CentOS (with EPEL) you can try `yum` or `dnf`:
 -------------
-sudo yum install python3-pytest python3-pexpect dejagnu
+sudo yum install python3-pytest python3-pexpect
 -------------
 This should also install the necessary dependencies. At time of writing, only
 Fedora 29 comes with recent enough pytest.
@@ -66,39 +57,17 @@ Fedora 29 comes with recent enough pytest.
 Structure
 ---------
 
-Pytest tests are in the `t/` subdirectory, with `t/test_\*.py` being
-completion tests, and `t/unit/test_unit_\*.py` unit tests.
-
-Legacy tests are grouped into different areas, called _tool_ in DejaGnu:
-
-*completion*::
-  Functional tests per completion.
-*install*::
-  Functional tests for installation and caching of the main bash-completion
-  package.
-*unit*::
-  Unit tests for bash-completion helper functions.
+Tests are in the `t/` subdirectory, with `t/test_\*.py` being completion
+tests, and `t/unit/test_unit_\*.py` unit tests.
 
 
 Running the tests
 -----------------
 
-Python based tests are run by calling `pytest` on the desired test directories
-or individual files, for example in the project root directory:
+Tests are run by calling `pytest` on the desired test directories or
+individual files, for example in the project root directory:
 -----------------------
 pytest test/t
------------------------
-
-Legacy tests are run by calling `runtest` command in the test directory:
------------------------
-runtest --outdir log --tool install
-runtest --outdir log --tool unit
------------------------
-The commands above are already wrapped up in shell scripts within the `test`
-directory:
------------------------
-./runInstall
-./runUnit
 -----------------------
 
 See `test/docker/docker-script.sh` for how and what we run and test in CI.
