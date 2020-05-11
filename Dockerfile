@@ -11,8 +11,6 @@ RUN echo install_weak_deps=False >> /etc/dnf/dnf.conf \
         /usr/bin/pytest-3 \
         python3-pexpect \
         python3-pytest-xdist \
-        dejagnu \
-        tcllib \
     && ln -s $(type -P pytest-3) /usr/local/bin/pytest
 
 # test/test-cmd-list.txt is a cache buster
