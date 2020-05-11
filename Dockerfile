@@ -11,9 +11,7 @@ RUN sed -i -e /tsflags=nodocs/d /etc/yum.conf \
         /usr/bin/easy_install-3.4 \
         # /usr/bin/which: https://bugzilla.redhat.com/show_bug.cgi?id=1443357 \
         /usr/bin/which \
-        /usr/bin/xvfb-run \
-        dejagnu \
-        tcllib
+        /usr/bin/xvfb-run
 
 # test/test-cmd-list.txt is a cache buster
 ADD https://raw.githubusercontent.com/scop/bash-completion/master/test/test-cmd-list.txt \
