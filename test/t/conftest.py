@@ -502,57 +502,61 @@ def assert_complete(
             bash,
             "export %s" % " ".join("%s=%s" % (k, v) for k, v in env.items()),
         )
-    bash.send(cmd + "\t")
-    # Sleep a bit if requested, to avoid `.*` matching too early
-    time.sleep(kwargs.get("sleep_after_tab", 0))
-    bash.expect_exact(cmd)
-    bash.send(MAGIC_MARK)
-    got = bash.expect(
-        [
-            # 0: multiple lines, result in .before
-            r"\r\n" + re.escape(PS1 + cmd) + ".*" + MAGIC_MARK,
-            # 1: no completion
-            r"^" + MAGIC_MARK,
-            # 2: on same line, result in .match
-            r"^([^\r]+)%s$" % MAGIC_MARK,
-            pexpect.EOF,
-            pexpect.TIMEOUT,
-        ]
-    )
-    if got == 0:
-        output = bash.before
-        if output.endswith(MAGIC_MARK):
-            output = bash.before[: -len(MAGIC_MARK)]
-        result = CompletionResult(output)
-    elif got == 2:
-        output = bash.match.group(1)
-        result = CompletionResult(
-            output,
-            # Note that this causes returning the sole completion *unescaped*
-            [shlex.split(cmd + output)[-1]],
+    try:
+        bash.send(cmd + "\t")
+        # Sleep a bit if requested, to avoid `.*` matching too early
+        time.sleep(kwargs.get("sleep_after_tab", 0))
+        bash.expect_exact(cmd)
+        bash.send(MAGIC_MARK)
+        got = bash.expect(
+            [
+                # 0: multiple lines, result in .before
+                r"\r\n" + re.escape(PS1 + cmd) + ".*" + MAGIC_MARK,
+                # 1: no completion
+                r"^" + MAGIC_MARK,
+                # 2: on same line, result in .match
+                r"^([^\r]+)%s$" % MAGIC_MARK,
+                pexpect.EOF,
+                pexpect.TIMEOUT,
+            ]
         )
-    else:
-        # TODO: warn about EOF/TIMEOUT?
-        result = CompletionResult("", [])
-    bash.sendintr()
-    bash.expect_exact(PS1)
-    if env:
-        # Restore environment, and clean up backup
-        # TODO: Test with declare -p if a var was set, backup only if yes, and
-        #       similarly restore only backed up vars. Should remove some need
-        #       for ignore_env.
-        assert_bash_exec(
-            bash,
-            "export %s"
-            % " ".join('%s="$%s%s"' % (k, env_prefix, k) for k in env.keys()),
-        )
-        assert_bash_exec(
-            bash,
-            "unset -v %s"
-            % " ".join("%s%s" % (env_prefix, k) for k in env.keys()),
-        )
-    if cwd:
-        assert_bash_exec(bash, "cd - >/dev/null")
+        if got == 0:
+            output = bash.before
+            if output.endswith(MAGIC_MARK):
+                output = bash.before[: -len(MAGIC_MARK)]
+            result = CompletionResult(output)
+        elif got == 2:
+            output = bash.match.group(1)
+            result = CompletionResult(
+                output,
+                # Note that this causes returning the sole completion *unescaped*
+                [shlex.split(cmd + output)[-1]],
+            )
+        else:
+            # TODO: warn about EOF/TIMEOUT?
+            result = CompletionResult("", [])
+    finally:
+        bash.sendintr()
+        bash.expect_exact(PS1)
+        if env:
+            # Restore environment, and clean up backup
+            # TODO: Test with declare -p if a var was set, backup only if yes, and
+            #       similarly restore only backed up vars. Should remove some need
+            #       for ignore_env.
+            assert_bash_exec(
+                bash,
+                "export %s"
+                % " ".join(
+                    '%s="$%s%s"' % (k, env_prefix, k) for k in env.keys()
+                ),
+            )
+            assert_bash_exec(
+                bash,
+                "unset -v %s"
+                % " ".join("%s%s" % (env_prefix, k) for k in env.keys()),
+            )
+        if cwd:
+            assert_bash_exec(bash, "cd - >/dev/null")
     return result
 
 
