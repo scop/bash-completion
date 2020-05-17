@@ -29,9 +29,12 @@ class TestMr:
     def test_4(self, completion):
         assert completion == ["bar", "bar bar.d/", "foo", "foo.d/"]
 
-    @pytest.mark.xfail  # "clean" doesn't exist before mr 1.20141023
     @pytest.mark.complete(
-        "mr clean -", require_cmd=True, xfail="! man -h &>/dev/null"
+        "mr clean -",
+        require_cmd=True,
+        xfail="! man -h &>/dev/null",
+        # "clean" does not exist before mr 1.20141023
+        skipif="! mr help 2>&1 | command grep -qwF clean",
     )
     def test_5(self, completion):
         assert completion == "-f"
