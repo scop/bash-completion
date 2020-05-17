@@ -1508,6 +1508,18 @@ _terms()
     } 2>/dev/null)" -- "$cur"))
 }
 
+_bashcomp_try_faketty()
+{
+    if type unbuffer &>/dev/null; then
+        unbuffer -p "$@"
+    elif script --version 2>&1 | command grep -qF util-linux; then
+        # BSD and Solaris "script" do not seem to have required features
+        script -qaefc "$*" /dev/null
+    else
+        "$@" # no can do, fallback
+    fi
+}
+
 # a little help for FreeBSD ports users
 [[ $OSTYPE == *freebsd* ]] && complete -W 'index search fetch fetch-list
     extract patch configure build install reinstall deinstall clean
