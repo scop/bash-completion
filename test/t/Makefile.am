@@ -133,6 +133,7 @@ EXTRA_DIST = \
 	test_dot.py \
 	test_dpkg.py \
 	test_dpkg_deb.py \
+	test_dpkg_query.py \
 	test_dpkg_reconfigure.py \
 	test_dpkg_source.py \
 	test_dropdb.py \
