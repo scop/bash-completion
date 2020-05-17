@@ -17,9 +17,11 @@ _postfix()
     esac
 
     if [[ $cur == -* ]]; then
-        # TODO: doesn't seem to work; the usage message doesn't get output
-        #       if we try to grep it, it's only output on the console?
-        COMPREPLY=($(compgen -W '$(_parse_usage "$1")' -- "$cur"))
+        COMPREPLY=($(
+            compgen -W \
+                '$(_bashcomp_try_faketty "$1" --help 2>&1 | _parse_usage -)' \
+                -- "$cur"
+        ))
         return
     fi
 
