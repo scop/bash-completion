@@ -50,7 +50,7 @@ _dpkg()
 
     case $prev in
         --install | --unpack | --record-avail | --contents | --info | --fsys-tarfile | \
-            --field | --control | --extract | --vextract | -!(-*)[ciAIfexW])
+            --field | --control | --extract | --vextract | -!(-*)[ciAIfex])
             _filedir '?(u|d)deb'
             return
             ;;
@@ -58,8 +58,16 @@ _dpkg()
             _filedir -d
             return
             ;;
-        --status | --print-avail | --list | --show | -!(-*)[splW])
+        --status | --print-avail | --list | -!(-*)[spl])
             COMPREPLY=($(_xfunc apt-cache _apt_cache_packages))
+            return
+            ;;
+        --show | -!(-*)W)
+            if [[ $1 == *dpkg-query ]]; then
+                COMPREPLY=($(_xfunc apt-cache _apt_cache_packages))
+            else
+                _filedir '?(u|d)deb'
+            fi
             return
             ;;
         --search | -!(-*)S)
