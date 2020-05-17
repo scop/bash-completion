@@ -9,7 +9,11 @@ _mr()
 
     help="$(PERLDOC_PAGER=cat PERLDOC=-otext "${1}" help 2>/dev/null)"
 
-    commands="$(awk '/\[options\]/ { print $3 }' <<<"${help}")"
+    commands="$(
+        printf %s "$help" | while read -r _ options cmd _; do
+            [[ $options != "[options]" ]] || printf "%s\n" "$cmd"
+        done
+    )"
     # Split [online|offline] and remove `action` placeholder.
     commands="${commands//@(action|[\[\|\]])/$'\n'}"
     # Add standard aliases.
@@ -72,7 +76,7 @@ _mr()
     esac
 
     if [[ $cur == -* ]]; then
-        options="$(_parse_help - <<<"${help}")"
+        options="$(printf '%s\n' "$help" | _parse_help -)"
         # Remove short options (all have compatible long options).
         options="${options//-[a-z]$'\n'/}"
         # Remove deprecated options.
