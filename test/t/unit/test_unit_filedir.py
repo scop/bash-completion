@@ -236,6 +236,7 @@ class TestUnitFiledir:
             '\b\b\b\b%s/_filedir/a\\$b/h"' % bash.cwd
         )
 
+    @pytest.mark.xfail(reason="TODO: non-ASCII issues with test suite?")
     @pytest.mark.parametrize("funcname", "f f2".split())
     def test_27(self, bash, functions, funcname, utf8_ctype):
         completion = assert_complete(bash, "%s aé/" % funcname, cwd="_filedir")
