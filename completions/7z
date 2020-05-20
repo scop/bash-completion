@@ -46,11 +46,14 @@ _7z()
             return
             ;;
         -o* | -w?*)
-            local IFS=$' \t\n' reset=$(shopt -po noglob)
+            local reset=$(shopt -po noglob)
             set -o noglob
-            COMPREPLY=($(compgen -P${cur:0:2} -S/ -d -- "${cur:2}"))
+            compopt -o filenames
+            local ifs=$IFS IFS=$'\n'
+            COMPREPLY=($(compgen -d -P${cur:0:2} -S/ -- "${cur:2}"))
+            IFS=$ifs
             $reset
-            compopt -o nospace -o filenames
+            compopt -o nospace
             return
             ;;
         -r?*)

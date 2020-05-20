@@ -10,10 +10,9 @@ class Test7z:
     def test_2(self, completion):
         assert completion == "-tzip"
 
-    @pytest.mark.xfail  # TODO: whitespace split issue
     @pytest.mark.complete(r"7z x -wa\ ", cwd="_filedir")
     def test_3(self, completion):
-        assert completion == r"-wa\ b/"
+        assert completion == r"-wa b/"
         assert not completion.endswith(" ")
 
     @pytest.mark.complete("7z x ", cwd="7z")
