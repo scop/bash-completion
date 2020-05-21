@@ -27,7 +27,7 @@ _modprobe()
 
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
-        if [[ ! $COMPREPLY ]]; then
+        if [[ ! ${COMPREPLY-} ]]; then
             COMPREPLY=($(compgen -W '-a --all -b --use-blacklist -C --config
                 -c --showconfig --dump-modversions -d --dirname --first-time
                 --force-vermagic --force-modversion -f --force -i
@@ -36,7 +36,7 @@ _modprobe()
                 --show-depends -s --syslog -t --type -V --version -v
                 --verbose' -- "$cur"))
         fi
-        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
 
@@ -96,11 +96,11 @@ _modprobe()
                     COMPREPLY=($(compgen -S = -W "$(PATH="$PATH:/sbin" \
                         modinfo -p "$module" 2>/dev/null |
                         awk -F: '!/^[ \t]/ { print $1 }')" -- "$cur"))
-                    [[ $COMPREPLY == *= ]] && compopt -o nospace
+                    [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
                 fi
             else
                 _modules $version
-                if [[ $COMPREPLY ]]; then
+                if [[ ${COMPREPLY-} ]]; then
                     # filter out already installed modules
                     local -a mods=("${COMPREPLY[@]}")
                     _installed_modules "$cur"

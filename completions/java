@@ -21,7 +21,7 @@ _java_find_classpath()
     done
 
     # default to environment
-    [[ -z $classpath ]] && classpath=${CLASSPATH-}
+    [[ ! -v classpath ]] && classpath=${CLASSPATH-}
 
     # default to current directory
     [[ -z $classpath ]] && classpath=.
@@ -41,7 +41,7 @@ _java_find_sourcepath()
     done
 
     # default to classpath
-    if [[ -z $sourcepath ]]; then
+    if [[ ! -v sourcepath ]]; then
         local classpath
         _java_find_classpath
         sourcepath=$classpath
@@ -80,7 +80,7 @@ _java_classes()
                 $(compgen -f -X '!*.class' -- "$i/$cur" |
                     command sed -e '/\$/d' -e "s|^$i/||")
             )
-            [[ $COMPREPLY == *.class ]] || compopt -o nospace
+            [[ ${COMPREPLY-} == *.class ]] || compopt -o nospace
 
             # FIXME: if we have foo.class and foo/, the completion
             # returns "foo/"... how to give precedence to files
@@ -229,7 +229,7 @@ _java()
         fi
     fi
 
-    [[ $COMPREPLY == -*[:=] ]] && compopt -o nospace
+    [[ ${COMPREPLY-} == -*[:=] ]] && compopt -o nospace
 
     __ltrim_colon_completions "$cur"
 } &&
@@ -320,7 +320,7 @@ _javac()
         _filedir java
     fi
 
-    [[ $COMPREPLY == -*[:=] ]] && compopt -o nospace
+    [[ ${COMPREPLY-} == -*[:=] ]] && compopt -o nospace
 
     __ltrim_colon_completions "$cur"
 } &&

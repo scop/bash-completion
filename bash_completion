@@ -905,8 +905,8 @@ _parse_usage()
 # @param $1 prefix
 _signals()
 {
-    local -a sigs=($(compgen -P "$1" -A signal "SIG${cur#$1}"))
-    COMPREPLY+=("${sigs[@]/#${1}SIG/${1}}")
+    local -a sigs=($(compgen -P "${1-}" -A signal "SIG${cur#${1-}}"))
+    COMPREPLY+=("${sigs[@]/#${1-}SIG/${1-}}")
 }
 
 # This function completes on known mac addresses
@@ -1134,7 +1134,7 @@ _expand()
         _pnames()
 {
             local -a procs
-            if [[ $1 == -s ]]; then
+            if [[ ${1-} == -s ]]; then
                 procs=($(command ps axo comm | command sed -e 1d))
             else
                 local line i=-1 ifs=$IFS
@@ -1317,7 +1317,7 @@ _usergroup()
         prefix=${cur%%*([^:])}
         prefix=${prefix//\\/}
         local mycur="${cur#*[:]}"
-        if [[ $1 == -u ]]; then
+        if [[ ${1-} == -u ]]; then
             _allowed_groups "$mycur"
         else
             local IFS=$'\n'
@@ -1329,7 +1329,7 @@ _usergroup()
         # Reply with a list of unprefixed groups since readline with split on :
         # and only replace the 'gr' part
         local mycur="${cur#*:}"
-        if [[ $1 == -u ]]; then
+        if [[ ${1-} == -u ]]; then
             _allowed_groups "$mycur"
         else
             local IFS=$'\n'
@@ -1341,7 +1341,7 @@ _usergroup()
         # Don't suffix with a : because readline will escape it and add a
         # slash. It's better to complete into 'chown username ' than 'chown
         # username\:'.
-        if [[ $1 == -u ]]; then
+        if [[ ${1-} == -u ]]; then
             _allowed_users "$cur"
         else
             local IFS=$'\n'
@@ -1697,6 +1697,7 @@ _known_hosts_real()
             # https://man.openbsd.org/sshd.8#SSH_KNOWN_HOSTS_FILE_FORMAT
             for i in "${kh[@]}"; do
                 while read -ra tmpkh; do
+                    ((${#tmpkh[@]} == 0)) && continue
                     set -- "${tmpkh[@]}"
                     # Skip entries starting with | (hashed) and # (comment)
                     [[ $1 == [\|\#]* ]] && continue
@@ -1747,7 +1748,7 @@ _known_hosts_real()
     fi
 
     # Add hosts reported by avahi-browse, if desired and it's available.
-    if [[ ${COMP_KNOWN_HOSTS_WITH_AVAHI:-} ]] &&
+    if [[ ${COMP_KNOWN_HOSTS_WITH_AVAHI-} ]] &&
         type avahi-browse &>/dev/null; then
         # The original call to avahi-browse also had "-k", to avoid lookups
         # into avahi's services DB. We don't need the name of the service, and
@@ -2009,7 +2010,7 @@ _longopt()
                 [[ $line =~ --[-A-Za-z0-9]+=? ]] &&
                     printf '%s\n' ${BASH_REMATCH[0]}
             done)" -- "$cur"))
-        [[ $COMPREPLY == *= ]] && compopt -o nospace
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     elif [[ $1 == *@(rmdir|chroot) ]]; then
         _filedir -d
     else

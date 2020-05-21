@@ -38,7 +38,7 @@ _cvs_kflags()
 _cvs_roots()
 {
     local -a cvsroots
-    cvsroots=($CVSROOT)
+    [[ -v CVSROOT ]] && cvsroots=("$CVSROOT")
     [[ -r ~/.cvspass ]] && cvsroots+=($(awk '{ print $2 }' ~/.cvspass))
     [[ -r CVS/Root ]] && mapfile -tO ${#cvsroots[@]} cvsroots <CVS/Root
     COMPREPLY=($(compgen -W '${cvsroots[@]}' -- "$cur"))
@@ -57,10 +57,10 @@ _cvs()
     for i in "${words[@]}"; do
         ((count == cword)) && break
         # Last parameter was the CVSROOT, now go back to mode selection
-        if [[ ${words[count]} == "$cvsroot" && $mode == cvsroot ]]; then
+        if [[ ${words[count]} == "${cvsroot-}" && ${mode-} == cvsroot ]]; then
             mode=""
         fi
-        if [[ -z $mode ]]; then
+        if [[ ! -v mode ]]; then
             case $i in
                 --help | -!(-*)H)
                     COMPREPLY=($(compgen -W "$(_cvs_commands)" -- "$cur"))
@@ -137,7 +137,7 @@ _cvs()
         ((count++))
     done
 
-    case $mode in
+    case ${mode-} in
         add)
             case $prev in
                 --*) ;;
@@ -223,7 +223,7 @@ _cvs()
             esac
 
             if [[ $cur != -* ]]; then
-                [[ -z $cvsroot ]] && cvsroot=$CVSROOT
+                [[ ! -v cvsroot ]] && cvsroot=${CVSROOT-}
                 COMPREPLY=($(cvs -d "$cvsroot" co -c 2>/dev/null |
                     awk '{print $1}'))
                 COMPREPLY=($(compgen -W '${COMPREPLY[@]}' -- "$cur"))
@@ -271,7 +271,7 @@ _cvs()
         diff | log)
             if [[ $cur == -* ]]; then
                 _cvs_command_options "$1" $mode
-                [[ $COMPREPLY == *= ]] && compopt -o nospace
+                [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
             else
                 _cvs_entries
                 COMPREPLY=($(compgen -W '${entries[@]:-}' -- "$cur"))
@@ -302,7 +302,7 @@ _cvs()
             esac
 
             if [[ $cur != -* ]]; then
-                [[ -z $cvsroot ]] && cvsroot=$CVSROOT
+                [[ ! -v cvsroot ]] && cvsroot=${CVSROOT-}
                 COMPREPLY=($(cvs -d "$cvsroot" co -c | awk '{print $1}'))
                 COMPREPLY=($(compgen -W '${COMPREPLY[@]}' -- "$cur"))
             else
@@ -323,7 +323,7 @@ _cvs()
 
             if [[ $cur != -* ]]; then
                 # starts with same algorithm as checkout
-                [[ -z $cvsroot ]] && cvsroot=$CVSROOT
+                [[ ! -v cvsroot ]] && cvsroot=${CVSROOT-}
                 local prefix=${cur%/*}
                 if [[ -r ${cvsroot}/${prefix} ]]; then
                     _cvs_modules

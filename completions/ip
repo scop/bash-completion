@@ -30,23 +30,22 @@ _ip()
             ;;
     esac
 
-    local subcword cmd subcmd
+    local subcword cmd subcmd=""
     for ((subcword = 1; subcword < ${#words[@]} - 1; subcword++)); do
         [[ ${words[subcword]} == -b?(atch) ]] && return
-        [[ -n $cmd ]] && subcmd=${words[subcword]} && break
+        [[ -v cmd ]] && subcmd=${words[subcword]} && break
         [[ ${words[subcword]} != -* && \
         ${words[subcword - 1]} != -@(f?(amily)|rc?(vbuf)) ]] &&
             cmd=${words[subcword]}
     done
 
-    if [[ -z $cmd ]]; then
+    if [[ ! -v cmd ]]; then
         case $cur in
             -*)
                 local c="-Version -statistics -details -resolve -family
                     -oneline -timestamp -batch -rcvbuf"
                 ((cword == 1)) && c+=" -force"
                 COMPREPLY=($(compgen -W "$c" -- "$cur"))
-                return
                 ;;
             *)
                 COMPREPLY=($(compgen -W "help $($1 help 2>&1 | command sed -e \
@@ -54,9 +53,9 @@ _ip()
                     's/.*{//' -e \
                     's/}.*//' -e \
                     's/|//g')" -- "$cur"))
-                return
                 ;;
         esac
+        return
     fi
 
     [[ $subcmd == help ]] && return

@@ -69,7 +69,7 @@ _feh()
         --zoom)
             # expect integer value or "max", "fill"
             COMPREPLY=($(compgen -W 'max fill' -- "$cur"))
-            if [[ ! $cur || ! $COMPREPLY ]]; then
+            if [[ ! $cur || ! ${COMPREPLY-} ]]; then
                 COMPREPLY+=($(compgen -W '{0..9}'))
                 compopt -o nospace
             fi
@@ -105,8 +105,10 @@ _feh()
     if [[ $cur == -* ]]; then
         # Some versions of feh just output "See 'man feh'" for --help :(
         COMPREPLY=($(compgen -W '$(_parse_help "$1" --help)' -- "$cur"))
-        [[ $COMPREPLY == *= ]] && compopt -o nospace
-        [[ $COMPREPLY ]] && return
+        if [[ ${COMPREPLY-} ]]; then
+            [[ $COMPREPLY == *= ]] && compopt -o nospace
+            return
+        fi
     fi
 
     # FIXME: It is hard to determine correct supported extensions.
