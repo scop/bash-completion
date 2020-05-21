@@ -311,13 +311,9 @@ __get_cword_at_cursor_by_ref()
     if [[ $index -gt 0 && ($lead && ${lead//[[:space:]]/}) ]]; then
         cur=$COMP_LINE
         for ((i = 0; i <= cword; ++i)); do
-            while [[ \
-                \
-                ${#cur} -ge ${#words[i]} && \
-                \
-                ${cur:0:${#words[i]}} != "${words[i]}" ]] \
-                    ; do # Current word fits in $cur?
-                # $cur doesn't match cword?
+            # Current word fits in $cur, and $cur doesn't match cword?
+            while [[ ${#cur} -ge ${#words[i]} && \
+                ${cur:0:${#words[i]}} != "${words[i]}" ]]; do
                 # Strip first character
                 cur="${cur:1}"
                 # Decrease cursor position, staying >= 0
@@ -416,13 +412,11 @@ _get_comp_words_by_ref()
     }
     [[ $vprev && $cword -ge 1 ]] && {
         upvars+=("$vprev")
-        upargs+=(-v $vprev
-            "${words[cword - 1]}")
+        upargs+=(-v $vprev "${words[cword - 1]}")
     }
     [[ $vwords ]] && {
         upvars+=("$vwords")
-        upargs+=(-a${#words[@]} $vwords
-            "${words[@]}")
+        upargs+=(-a${#words[@]} $vwords "${words[@]}")
     }
 
     ((${#upvars[@]})) && local "${upvars[@]}" && _upvars "${upargs[@]}"
@@ -459,13 +453,9 @@ _get_cword()
         local cur="$COMP_LINE"
         local index="$COMP_POINT"
         for ((i = 0; i <= cword; ++i)); do
-            while [[ \
-                \
-                ${#cur} -ge ${#words[i]} && \
-                \
-                ${cur:0:${#words[i]}} != "${words[i]}" ]] \
-                    ; do # Current word fits in $cur?
-                # $cur doesn't match cword?
+            # Current word fits in $cur, and $cur doesn't match cword?
+            while [[ ${#cur} -ge ${#words[i]} && \
+                ${cur:0:${#words[i]}} != "${words[i]}" ]]; do
                 # Strip first character
                 cur="${cur:1}"
                 # Decrease cursor position, staying >= 0
