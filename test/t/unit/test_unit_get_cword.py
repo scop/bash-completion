@@ -12,7 +12,11 @@ class TestUnitGetCword(TestUnitBase):
         return self._test_unit("_get_cword %s; echo", *args, **kwargs)
 
     def test_1(self, bash):
-        assert_bash_exec(bash, "_get_cword >/dev/null")
+        assert_bash_exec(
+            bash,
+            "COMP_WORDS=() COMP_CWORD= COMP_LINE= COMP_POINT= "
+            "_get_cword >/dev/null",
+        )
 
     def test_2(self, bash):
         """a b| should return b"""

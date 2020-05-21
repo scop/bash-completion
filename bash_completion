@@ -248,7 +248,7 @@ __reassemble_comp_words_by_ref()
     # Default to cword unchanged
     printf -v "$3" %s "$COMP_CWORD"
     # Are characters excluded which were former included?
-    if [[ $exclude ]]; then
+    if [[ -v exclude ]]; then
         # Yes, list of word completion separators has shrunk;
         line=$COMP_LINE
         # Re-assemble words to complete
@@ -306,13 +306,13 @@ __get_cword_at_cursor_by_ref()
     local cword words=()
     __reassemble_comp_words_by_ref "$1" words cword
 
-    local i cur index=$COMP_POINT lead=${COMP_LINE:0:COMP_POINT}
+    local i cur="" index=$COMP_POINT lead=${COMP_LINE:0:COMP_POINT}
     # Cursor not at position 0 and not leaded by just space(s)?
     if [[ $index -gt 0 && ($lead && ${lead//[[:space:]]/}) ]]; then
         cur=$COMP_LINE
         for ((i = 0; i <= cword; ++i)); do
             # Current word fits in $cur, and $cur doesn't match cword?
-            while [[ ${#cur} -ge ${#words[i]} && \
+            while [[ -v words[i] && ${#cur} -ge ${#words[i]} && \
                 ${cur:0:${#words[i]}} != "${words[i]}" ]]; do
                 # Strip first character
                 cur="${cur:1}"
@@ -400,21 +400,21 @@ _get_comp_words_by_ref()
         ((OPTIND += 1))
     done
 
-    __get_cword_at_cursor_by_ref "$exclude" words cword cur
+    __get_cword_at_cursor_by_ref "${exclude-}" words cword cur
 
-    [[ $vcur ]] && {
+    [[ -v vcur ]] && {
         upvars+=("$vcur")
         upargs+=(-v $vcur "$cur")
     }
-    [[ $vcword ]] && {
+    [[ -v vcword ]] && {
         upvars+=("$vcword")
         upargs+=(-v $vcword "$cword")
     }
-    [[ $vprev && $cword -ge 1 ]] && {
+    [[ -v vprev && $cword -ge 1 ]] && {
         upvars+=("$vprev")
         upargs+=(-v $vprev "${words[cword - 1]}")
     }
-    [[ $vwords ]] && {
+    [[ -v vwords ]] && {
         upvars+=("$vwords")
         upargs+=(-a${#words[@]} $vwords "${words[@]}")
     }
@@ -441,13 +441,13 @@ _get_cword()
 {
     local LC_CTYPE=C
     local cword words
-    __reassemble_comp_words_by_ref "$1" words cword
+    __reassemble_comp_words_by_ref "${1-}" words cword
 
     # return previous word offset by $2
-    if [[ ${2//[^0-9]/} ]]; then
+    if [[ ${2-} && ${2//[^0-9]/} ]]; then
         printf "%s" "${words[cword - $2]}"
     elif ((${#words[cword]} == 0 && COMP_POINT == ${#COMP_LINE})); then
-        printf "%s" "${words[cword]}"
+        : # nothing
     else
         local i
         local cur="$COMP_LINE"
@@ -565,26 +565,26 @@ _filedir()
 {
     local IFS=$'\n'
 
-    _tilde "$cur" || return
+    _tilde "${cur-}" || return
 
     local -a toks
-    local reset
+    local reset arg=${1-}
 
-    if [[ $1 == -d ]]; then
+    if [[ $arg == -d ]]; then
         reset=$(shopt -po noglob)
         set -o noglob
-        toks=($(compgen -d -- "$cur"))
+        toks=($(compgen -d -- "${cur-}"))
         IFS=' '
         $reset
         IFS=$'\n'
     else
         local quoted
-        _quote_readline_by_ref "$cur" quoted
+        _quote_readline_by_ref "${cur-}" quoted
 
         # Munge xspec to contain uppercase version too
         # https://lists.gnu.org/archive/html/bug-bash/2010-09/msg00036.html
         # news://news.gmane.io/4C940E1C.1010304@case.edu
-        local xspec=${1:+"!*.@($1|${1^^})"} plusdirs=()
+        local xspec=${arg:+"!*.@($arg|${arg^^})"} plusdirs=()
 
         # Use plusdirs to get dir completions if we have a xspec; if we don't,
         # there's no need, dirs come along with other completions. Don't use
@@ -602,7 +602,7 @@ _filedir()
         IFS=$'\n'
 
         # Try without filter if it failed to produce anything and configured to
-        [[ -n ${COMP_FILEDIR_FALLBACK:-} && -n $1 && ${#toks[@]} -lt 1 ]] && {
+        [[ -n ${COMP_FILEDIR_FALLBACK-} && -n $arg && ${#toks[@]} -lt 1 ]] && {
             reset=$(shopt -po noglob)
             set -o noglob
             toks+=($(compgen -f "${plusdirs[@]}" -- $quoted))
@@ -647,9 +647,9 @@ _variables()
         # Completing $var / ${var / ${!var / ${#var
         if [[ $cur == '${'* ]]; then
             local arrs vars
-            vars=($(compgen -A variable -P ${BASH_REMATCH[1]} -S '}' -- ${BASH_REMATCH[3]})) &&
-                arrs=($(compgen -A arrayvar -P ${BASH_REMATCH[1]} -S '[' -- ${BASH_REMATCH[3]}))
-            if [[ ${#vars[@]} -eq 1 && $arrs ]]; then
+            vars=($(compgen -A variable -P ${BASH_REMATCH[1]} -S '}' -- ${BASH_REMATCH[3]}))
+            arrs=($(compgen -A arrayvar -P ${BASH_REMATCH[1]} -S '[' -- ${BASH_REMATCH[3]}))
+            if ((${#vars[@]} == 1 && ${#arrs[@]} != 0)); then
                 # Complete ${arr with ${array[ if there is only one match, and that match is an array variable
                 compopt -o nospace
                 COMPREPLY+=(${arrs[*]})
@@ -679,7 +679,7 @@ _variables()
         __ltrim_colon_completions "$cur"
         return 0
     else
-        case $prev in
+        case ${prev-} in
             TZ)
                 cur=/usr/share/zoneinfo/$cur
                 _filedir
@@ -761,7 +761,7 @@ _init_completion()
     # Complete on files if current is a redirect possibly followed by a
     # filename, e.g. ">foo", or previous is a "bare" redirect, e.g. ">".
     # shellcheck disable=SC2053
-    if [[ $cur == $redir* || $prev == $redir ]]; then
+    if [[ $cur == $redir* || ${prev-} == $redir ]]; then
         local xspec
         case $cur in
             2'>'*) xspec=$errx ;;
@@ -980,9 +980,10 @@ _configured_interfaces()
 _ip_addresses()
 {
     local n
-    case $1 in
+    case ${1-} in
         -a) n='6\?' ;;
         -6) n='6' ;;
+        *) n= ;;
     esac
     local PATH=$PATH:/sbin
     local addrs=$({
@@ -990,7 +991,7 @@ _ip_addresses()
     } 2>/dev/null |
         command sed -e 's/[[:space:]]addr:/ /' -ne \
             "s|.*inet${n}[[:space:]]\{1,\}\([^[:space:]/]*\).*|\1|p")
-    COMPREPLY+=($(compgen -W "$addrs" -- "$cur"))
+    COMPREPLY+=($(compgen -W "$addrs" -- "${cur-}"))
 }
 
 # This function completes on available kernels
@@ -1038,7 +1039,7 @@ _ncpus()
 _tilde()
 {
     local result=0
-    if [[ $1 == \~* && $1 != */* ]]; then
+    if [[ ${1-} == \~* && $1 != */* ]]; then
         # Try generate ~username completions
         COMPREPLY=($(compgen -P '~' -u -- "${1#\~}"))
         result=${#COMPREPLY[@]}
@@ -1072,7 +1073,7 @@ _tilde()
 # @param $1  Name of variable (not the value of the variable) to expand
 __expand_tilde_by_ref()
 {
-    if [[ ${!1} == \~* ]]; then
+    if [[ ${!1-} == \~* ]]; then
         eval $1="$(printf ~%q "${!1#\~}")"
     fi
 } # __expand_tilde_by_ref()
@@ -1085,12 +1086,16 @@ _expand()
     # ~foo/... to /home/foo/... to avoid problems when $cur starting with
     # a tilde is fed to commands and ending up quoted instead of expanded.
 
-    if [[ $cur == \~*/* ]]; then
-        __expand_tilde_by_ref cur
-    elif [[ $cur == \~* ]]; then
-        _tilde "$cur" || eval COMPREPLY[0]="$(printf ~%q "${COMPREPLY[0]#\~}")"
-        return ${#COMPREPLY[@]}
-    fi
+    case ${cur-} in
+        ~*/*)
+            __expand_tilde_by_ref cur
+            ;;
+        ~*)
+            _tilde "$cur" ||
+                eval COMPREPLY[0]="$(printf ~%q "${COMPREPLY[0]#\~}")"
+            return ${#COMPREPLY[@]}
+            ;;
+    esac
 }
 
 # This function completes on process IDs.
@@ -1212,7 +1217,7 @@ _xinetd_services()
         shopt -s nullglob
         local -a svcs=($(printf '%s\n' $xinetddir/!($_backup_glob)))
         $reset
-        COMPREPLY+=($(compgen -W '${svcs[@]#$xinetddir/}' -- "$cur"))
+        COMPREPLY+=($(compgen -W '${svcs[@]#$xinetddir/}' -- "${cur-}"))
     fi
 }
 
@@ -1445,13 +1450,13 @@ _get_first_arg()
 _count_args()
 {
     local i cword words
-    __reassemble_comp_words_by_ref "$1" words cword
+    __reassemble_comp_words_by_ref "${1-}" words cword
 
     args=1
     for ((i = 1; i < cword; i++)); do
         # shellcheck disable=SC2053
-        if [[ ${words[i]} != -* && ${words[i - 1]} != $2 || \
-            ${words[i]} == $3 ]]; then
+        if [[ ${words[i]} != -* && ${words[i - 1]} != ${2-} || \
+            ${words[i]} == ${3-} ]]; then
             ((args++))
         fi
     done
@@ -1596,9 +1601,9 @@ _included_ssh_config_files()
 # Return: Completions, starting with CWORD, are added to COMPREPLY[]
 _known_hosts_real()
 {
-    local configfile flag prefix ifs=$IFS
-    local cur user suffix aliases i host ipv4 ipv6
-    local -a kh tmpkh khd config
+    local configfile flag prefix="" ifs=$IFS
+    local cur suffix="" aliases i host ipv4 ipv6
+    local -a kh tmpkh khd=() config
 
     # TODO remove trailing %foo from entries
 
@@ -1632,7 +1637,7 @@ _known_hosts_real()
         return 1
     fi
 
-    [[ $cur == *@* ]] && user=${cur%@*}@ && cur=${cur#*@}
+    [[ $cur == *@* ]] && prefix=$prefix${cur%@*}@ && cur=${cur#*@}
     kh=()
 
     # ssh config files
@@ -1730,14 +1735,14 @@ _known_hosts_real()
 
         # apply suffix and prefix
         for i in ${!COMPREPLY[*]}; do
-            COMPREPLY[i]=$prefix$user${COMPREPLY[i]}$suffix
+            COMPREPLY[i]=$prefix${COMPREPLY[i]}$suffix
         done
     fi
 
     # append any available aliases from ssh config files
-    if [[ ${#config[@]} -gt 0 && -n $aliases ]]; then
+    if [[ ${#config[@]} -gt 0 && -v aliases ]]; then
         local hosts=$(command sed -ne 's/^[[:blank:]]*[Hh][Oo][Ss][Tt][[:blank:]]\{1,\}\([^#*?%]*\)\(#.*\)\{0,1\}$/\1/p' "${config[@]}")
-        COMPREPLY+=($(compgen -P "$prefix$user" \
+        COMPREPLY+=($(compgen -P "$prefix" \
             -S "$suffix" -W "$hosts" -- "$cur"))
     fi
 
@@ -1749,7 +1754,7 @@ _known_hosts_real()
         # if it contains ";", it may mistify the result. But on Gentoo (at
         # least), -k wasn't available (even if mentioned in the manpage) some
         # time ago, so...
-        COMPREPLY+=($(compgen -P "$prefix$user" -S "$suffix" -W \
+        COMPREPLY+=($(compgen -P "$prefix" -S "$suffix" -W \
             "$(avahi-browse -cpr _workstation._tcp 2>/dev/null |
                 awk -F';' '/^=/ { print $7 }' | sort -u)" -- "$cur"))
     fi
@@ -1765,22 +1770,22 @@ _known_hosts_real()
     # `COMP_KNOWN_HOSTS_WITH_HOSTFILE' is set to an empty value.
     if [[ -n ${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1} ]]; then
         COMPREPLY+=(
-            $(compgen -A hostname -P "$prefix$user" -S "$suffix" -- "$cur"))
+            $(compgen -A hostname -P "$prefix" -S "$suffix" -- "$cur"))
     fi
 
-    if [[ $ipv4 ]]; then
+    if [[ -v ipv4 ]]; then
         COMPREPLY=("${COMPREPLY[@]/*:*$suffix/}")
     fi
-    if [[ $ipv6 ]]; then
+    if [[ -v ipv6 ]]; then
         COMPREPLY=("${COMPREPLY[@]/+([0-9]).+([0-9]).+([0-9]).+([0-9])$suffix/}")
     fi
-    if [[ $ipv4 || $ipv6 ]]; then
+    if [[ -v ipv4 || -v ipv6 ]]; then
         for i in "${!COMPREPLY[@]}"; do
             [[ ${COMPREPLY[i]} ]] || unset -v "COMPREPLY[i]"
         done
     fi
 
-    __ltrim_colon_completions "$prefix$user$cur"
+    __ltrim_colon_completions "$prefix$cur"
 
 } # _known_hosts_real()
 complete -F _known_hosts traceroute traceroute6 \
@@ -2195,7 +2200,7 @@ __load_completion()
     done
 
     # Look up simple "xspec" completions
-    [[ "${_xspecs[$cmd]}" ]] &&
+    [[ -v _xspecs[$cmd] ]] &&
         complete -F _filedir_xspec "$cmd" "$backslash$cmd" && return 0
 
     return 1
