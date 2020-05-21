@@ -496,7 +496,7 @@ def assert_complete(
         # Back up environment and apply new one
         assert_bash_exec(
             bash,
-            " ".join('%s%s="$%s"' % (env_prefix, k, k) for k in env.keys()),
+            " ".join('%s%s="${%s-}"' % (env_prefix, k, k) for k in env.keys()),
         )
         assert_bash_exec(
             bash,
