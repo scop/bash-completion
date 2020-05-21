@@ -8,6 +8,7 @@ EXTRA_DIST = \
 	test_unit_get_cword.py \
 	test_unit_init_completion.py \
 	test_unit_ip_addresses.py \
+	test_unit_known_hosts_real.py \
 	test_unit_longopt.py \
 	test_unit_quote_readline.py \
 	test_unit_parse_help.py \
