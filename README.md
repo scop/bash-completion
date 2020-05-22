@@ -95,20 +95,6 @@ tracing on in it before doing anything else there.
    text utilities that they call (e.g. `grep`, `sed`, and `awk`). Your
    mileage may vary.
 
-3. If you are seeing 'unbound variable' warnings from bash when
-   hitting <kbd>&lt;Tab></kbd>, this is because you have either `set -u`
-   or `set -o nounset` somewhere in your start-up files. This causes bash
-   to flag the use of any uninitialised shell variables as an error.
-
-   Whilst we try to avoid references to uninitialised variables in the
-   code, there seem to be at least some cases where bash issues this
-   warning even though the variable in question has been initialised.
-
-   One place this appears to occur is within the `_muttconffiles()`
-   helper function used by `mutt` completion, where the function calls
-   itself recursively. This seems to confuse bash and it issues
-   spurious warnings if `nounset` is set.
-
 ## FAQ
 
 **Q. The bash completion code inhibits some commands from completing on
