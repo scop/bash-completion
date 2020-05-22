@@ -257,7 +257,7 @@ __tar_complete_mode()
         filler i
 
     short_modes="ctx"
-    [[ -z $basic_tar ]] && short_modes="ctxurdA"
+    [[ ! -v basic_tar ]] && short_modes="ctxurdA"
 
     # Remove prefix when needed
     rawopt=${cur#-}
@@ -270,7 +270,7 @@ __tar_complete_mode()
 
         # when user passed something like 'tar cf' do not put the '-' before
         filler=
-        if [[ -z $cur && -z $basic_tar ]]; then
+        if [[ -z $cur && ! -v basic_tar ]]; then
             filler=-
         fi
 
@@ -338,14 +338,14 @@ __tar_try_mode()
     case "$cur" in
         --*)
             # posix tar does not support long opts
-            [[ -n $basic_tar ]] && return 0
+            [[ -v basic_tar ]] && return 0
             __gtar_complete_lopts
             return $?
             ;;
 
         -*)
             # posix tar does not support short optios
-            [[ -n $basic_tar ]] && return 0
+            [[ -v basic_tar ]] && return 0
 
             __tar_complete_mode && return 0
             ;;
@@ -457,8 +457,8 @@ __tar_detect_ext()
 _gtar()
 {
     local long_opts short_opts \
-        long_arg_none long_arg_opt long_arg_req \
-        short_arg_none short_arg_opt short_arg_req \
+        long_arg_none="" long_arg_opt="" long_arg_req="" \
+        short_arg_none="" short_arg_opt="" short_arg_req="" \
         tar_mode tar_mode_arg old_opt_progress=0 \
         old_opt_used=0 old_opt_parsed=()
 
@@ -469,7 +469,7 @@ _gtar()
     # FIXME: handle long options
     local tar_mode_arg=
 
-    if [[ $_TAR_OPT_DEBUG == 1 ]]; then
+    if [[ -v BASHCOMP_TAR_OPT_DEBUG ]]; then
         set -x
         PS4='$BASH_SOURCE:$LINENO: '
     fi
@@ -607,7 +607,7 @@ _gtar()
         break
     done # just-for-easy-break while
 
-    if [[ $_TAR_OPT_DEBUG == 1 ]]; then
+    if [[ -v BASHCOMP_TAR_OPT_DEBUG ]]; then
         set +x
         unset PS4
     fi
@@ -631,7 +631,7 @@ __tar_posix_prev_handle()
 _posix_tar()
 {
     local long_opts short_opts basic_tar \
-        long_arg_none long_arg_opt long_arg_req \
+        long_arg_none="" long_arg_opt long_arg_req="" \
         short_arg_none short_arg_opt short_arg_req \
         tar_mode tar_mode_arg old_opt_progress=0 \
         old_opt_used=1 old_opt_parsed=()

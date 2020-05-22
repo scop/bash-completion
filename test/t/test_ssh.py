@@ -42,6 +42,10 @@ class TestSsh:
             "option requires an argument -- F" in x for x in completion
         )
 
+    @pytest.mark.complete("ssh -F nonexistent ")
+    def test_capital_f_nonexistent(self, completion):
+        assert completion
+
     def test_partial_hostname(self, bash, known_hosts):
         first_char, partial_hosts = partialize(bash, known_hosts)
         completion = assert_complete(bash, "ssh %s" % first_char)

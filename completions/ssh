@@ -167,7 +167,7 @@ _ssh_suboption()
             fi
             ;;
         proxyjump)
-            _known_hosts_real -a -F "$configfile" -- "$cur"
+            _known_hosts_real -a ${configfile:+-F "$configfile"} -- "$cur"
             ;;
         proxycommand | remotecommand | localcommand)
             COMPREPLY=($(compgen -c -- "$cur"))
@@ -219,7 +219,7 @@ _ssh_configfile()
                 configfile="$(dequote "${1:2}")"
             else
                 shift
-                [[ $1 ]] && configfile="$(dequote "$1")"
+                [[ ${1-} ]] && configfile="$(dequote "$1")"
             fi
             break
         fi
@@ -282,7 +282,7 @@ _ssh()
             return
             ;;
         -*J)
-            _known_hosts_real -a -F "$configfile" -- "$cur"
+            _known_hosts_real -a ${configfile:+-F "$configfile"} -- "$cur"
             return
             ;;
         -*l)
@@ -320,7 +320,7 @@ _ssh()
     elif [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1")' -- "$cur"))
     else
-        _known_hosts_real $ipvx -a -F "$configfile" -- "$cur"
+        _known_hosts_real ${ipvx-} -a ${configfile:+-F "$configfile"} -- "$cur"
 
         local args
         _count_args
@@ -369,7 +369,7 @@ _sftp()
             return
             ;;
         -*J)
-            _known_hosts_real -a -F "$configfile" -- "$cur"
+            _known_hosts_real -a ${configfile:+-F "$configfile"} -- "$cur"
             return
             ;;
         -*o)
@@ -392,7 +392,7 @@ _sftp()
     elif [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1")' -- "$cur"))
     else
-        _known_hosts_real $ipvx -a -F "$configfile" -- "$cur"
+        _known_hosts_real ${ipvx-} -a ${configfile:+-F "$configfile"} -- "$cur"
     fi
 } &&
     shopt -u hostcomplete && complete -F _sftp sftp
@@ -451,18 +451,18 @@ _scp_local_files()
     local IFS=$'\n'
 
     local dirsonly=false
-    if [[ $1 == -d ]]; then
+    if [[ ${1-} == -d ]]; then
         dirsonly=true
         shift
     fi
 
     if $dirsonly; then
         COMPREPLY+=($(command ls -aF1dL $cur* 2>/dev/null |
-            command sed -e "s/$_scp_path_esc/\\\\&/g" -e '/[^\/]$/d' -e "s/^/$1/"))
+            command sed -e "s/$_scp_path_esc/\\\\&/g" -e '/[^\/]$/d' -e "s/^/${1-}/"))
     else
         COMPREPLY+=($(command ls -aF1dL $cur* 2>/dev/null |
             command sed -e "s/$_scp_path_esc/\\\\&/g" -e 's/[*@|=]$//g' \
-                -e 's/[^\/]$/& /g' -e "s/^/$1/"))
+                -e 's/[^\/]$/& /g' -e "s/^/${1-}/"))
     fi
 }
 
@@ -506,7 +506,7 @@ _scp()
             return
             ;;
         -*J)
-            _known_hosts_real -a -F "$configfile" -- "$cur"
+            _known_hosts_real -a ${configfile:+-F "$configfile"} -- "$cur"
             return
             ;;
         -*[lP])
@@ -550,12 +550,13 @@ _scp()
                 # not a known host, pass through
                 ;;
             *)
-                _known_hosts_real $ipvx -c -a -F "$configfile" -- "$cur"
+                _known_hosts_real ${ipvx-} -c -a \
+                    ${configfile:+-F "$configfile"} -- "$cur"
                 ;;
         esac
     fi
 
-    _scp_local_files "$prefix"
+    _scp_local_files "${prefix-}"
 } &&
     complete -F _scp -o nospace scp
 

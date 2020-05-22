@@ -23,9 +23,10 @@ _tshark()
                 cur=${cur#*:}
                 _filedir
             else
-                [ -n "$_tshark_prefs" ] ||
+                [ -v _tshark_prefs ] ||
                     _tshark_prefs="$("$1" -G defaultprefs 2>/dev/null | command sed -ne 's/^#\{0,1\}\([a-z0-9_.-]\{1,\}:\).*/\1/p' |
                         tr '\n' ' ')"
+                : ${prefix:=}
                 COMPREPLY=($(compgen -P "$prefix" -W "$_tshark_prefs" \
                     -- "${cur:${#prefix}}"))
                 [[ ${COMPREPLY-} == *: ]] && compopt -o nospace
@@ -78,7 +79,7 @@ _tshark()
         -*O)
             local prefix=
             [[ $cur == *,* ]] && prefix="${cur%,*},"
-            [ -n "$_tshark_protocols" ] ||
+            [ -v _tshark_protocols ] ||
                 _tshark_protocols="$("$1" -G protocols 2>/dev/null |
                     cut -f 3 | tr '\n' ' ')"
             COMPREPLY=($(compgen -W "$_tshark_protocols" -- "${cur##*,}"))
