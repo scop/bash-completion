@@ -7,26 +7,42 @@ services:
 
 jobs:
   include:
-    - stage: lint
-      language: go
-      go: "1.14"
+    - stage: test
+      os: osx
+      osx_image: xcode11.4
       services: []
+      addons:
+        homebrew:
+          packages:
+            - bash
       cache:
         directories:
           - $HOME/.cache/pip
-          - $HOME/.cache/pre-commit
       before_install: []
       script:
-        - pyenv shell 3.8
-        - pip3 install "$(grep ^pre-commit test/requirements-dev.txt)"
-        - pre-commit run --all-files --color=always
-    - stage: test
-      env: DIST=alpine
-    - env: DIST=centos6
-    - env: DIST=debian10
-    - env: DIST=fedoradev
-    - env: DIST=ubuntu14
-    - env: DIST=ubuntu14 BSD=true NETWORK=none
+        - export PATH="/usr/local/bin:$PATH"
+        - pip3 install -r test/requirements.txt
+        - test/docker/docker-script.sh
+    #- stage: lint
+    #  language: go
+    #  go: "1.14"
+    #  services: []
+    #  cache:
+    #    directories:
+    #      - $HOME/.cache/pip
+    #      - $HOME/.cache/pre-commit
+    #  before_install: []
+    #  script:
+    #    - pyenv shell 3.8
+    #    - pip3 install "$(grep ^pre-commit test/requirements-dev.txt)"
+    #    - pre-commit run --all-files --color=always
+    #- stage: test
+    #  env: DIST=alpine
+    #- env: DIST=centos6
+    #- env: DIST=debian10
+    #- env: DIST=fedoradev
+    #- env: DIST=ubuntu14
+    #- env: DIST=ubuntu14 BSD=true NETWORK=none
 
 before_install:
   - docker build
