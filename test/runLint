@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/bash -u
 
 gitgrep()
 {
-    local out=$(git grep -I -P -n "$1" | \
-        grep -E '^(bash_completion|completions/|test/)' | \
-        grep -Fv 'test/runLint')
+    local out=$(git grep -I -P -n "$1" |
+        grep -E '^(bash_completion|completions/|test/)' |
+        grep -Ev "^test/runLint\>${filter_out:+|$filter_out}")
     if [ -n "$out" ]; then
         printf '***** %s\n' "$2"
         printf '%s\n\n' "$out"
@@ -15,6 +15,7 @@ unset CDPATH
 cd $(dirname "$0")/..
 
 cmdstart='(^|[[:space:]]|\()'
+filter_out=
 
 gitgrep $cmdstart"awk\b.*-F([[:space:]]|[[:space:]]*[\"'][^\"']{2,})" \
     'awk with -F char or -F ERE, use -Fchar instead (Solaris)'
@@ -45,3 +46,6 @@ gitgrep '(?<!command)'$cmdstart'(grep|ls|sed)(\s|$)' \
     'invoke grep, ls, and sed through "command", e.g. "command grep"'
 
 gitgrep '<<<' 'herestrings use temp files, use some other way'
+
+filter_out='^(test/|bash_completion\.sh)' gitgrep ' \[ ' \
+    'use [[ ]] instead of [ ]'
