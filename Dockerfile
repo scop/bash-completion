@@ -1,6 +1,7 @@
 FROM centos:7
 
-RUN sed -i -e /tsflags=nodocs/d /etc/yum.conf \
+RUN set -x \
+    && sed -i -e /tsflags=nodocs/d /etc/yum.conf \
     && yum -y install \
        https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
     && yum -y upgrade \
@@ -8,10 +9,10 @@ RUN sed -i -e /tsflags=nodocs/d /etc/yum.conf \
         /usr/bin/autoconf \
         /usr/bin/automake \
         /usr/bin/make \
-        /usr/bin/easy_install-3.4 \
         # /usr/bin/which: https://bugzilla.redhat.com/show_bug.cgi?id=1443357 \
         /usr/bin/which \
-        /usr/bin/xvfb-run
+        /usr/bin/xvfb-run \
+        python36-pexpect
 
 # test/test-cmd-list.txt is a cache buster
 ADD https://raw.githubusercontent.com/scop/bash-completion/master/test/test-cmd-list.txt \
@@ -19,8 +20,8 @@ ADD https://raw.githubusercontent.com/scop/bash-completion/master/test/test-cmd-
     install-packages.sh \
     /tmp/
 
-RUN easy_install-3.4 --user pip==19.1.1 \
-    && /root/.local/bin/pip install --user -Ir /tmp/requirements.txt \
+RUN set -x \
+    && pip3 install --user -Ir /tmp/requirements.txt \
     && echo '#!/bin/sh -e' >/usr/local/bin/pytest \
     && echo 'exec $HOME/.local/bin/pytest "$@"' >>/usr/local/bin/pytest \
     && chmod +x /usr/local/bin/pytest
