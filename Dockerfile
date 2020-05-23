@@ -1,8 +1,8 @@
-FROM centos:6
+FROM centos:7
 
 RUN sed -i -e /tsflags=nodocs/d /etc/yum.conf \
     && yum -y install \
-       https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm \
+       https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
     && yum -y upgrade \
     && yum -y install \
         /usr/bin/autoconf \
