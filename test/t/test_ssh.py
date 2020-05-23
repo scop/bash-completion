@@ -50,3 +50,8 @@ class TestSsh:
         first_char, partial_hosts = partialize(bash, known_hosts)
         completion = assert_complete(bash, "ssh %s" % first_char)
         assert completion == partial_hosts
+
+    @pytest.mark.parametrize("protocol", "4 6 9".split())
+    def test_protocol_option_bundling(self, bash, protocol):
+        completion = assert_complete(bash, "ssh -%sF ssh/" % protocol)
+        assert "config" in completion
