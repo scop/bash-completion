@@ -592,7 +592,8 @@ _filedir()
         # the fallback condition with the "plus" dirs.
         local opts=(-f -X "$xspec")
         [[ $xspec ]] && plusdirs=(-o plusdirs)
-        [[ ${COMP_FILEDIR_FALLBACK-} ]] || opts+=("${plusdirs[@]}")
+        [[ ${COMP_FILEDIR_FALLBACK-} || -z ${plusdirs-} ]] ||
+            opts+=("${plusdirs[@]}")
 
         reset=$(shopt -po noglob)
         set -o noglob
@@ -605,7 +606,7 @@ _filedir()
         [[ -n ${COMP_FILEDIR_FALLBACK-} && -n $arg && ${#toks[@]} -lt 1 ]] && {
             reset=$(shopt -po noglob)
             set -o noglob
-            toks+=($(compgen -f "${plusdirs[@]}" -- $quoted))
+            toks+=($(compgen -f ${plusdirs:+"${plusdirs[@]}"} -- $quoted))
             IFS=' '
             $reset
             IFS=$'\n'
