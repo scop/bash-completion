@@ -50,10 +50,10 @@ Also, please bare the following coding guidelines in mind:
   start interpreters. Use lightweight programs such as grep(1), awk(1)
   and sed(1).
 
-- Use the full power of bash >= 4.1. We no longer support earlier bash
+- Use the full power of bash >= 4.2. We no longer support earlier bash
   versions, so you may as well use all the features of that version of
   bash to optimise your code. However, be careful when using features
-  added since bash 4.1, since not everyone will be able to use them.
+  added since bash 4.2, since not everyone will be able to use them.
 
   For example, extended globs often enable you to avoid the use of
   external programs, which are expensive to fork and execute, so do

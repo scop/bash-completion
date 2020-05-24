@@ -2,8 +2,6 @@ import os
 
 import pytest
 
-from conftest import in_container
-
 
 class TestMake:
     @pytest.mark.complete("make -f Ma", cwd="make")
@@ -34,11 +32,6 @@ class TestMake:
         assert completion == "all clean extra_makefile install sample".split()
         os.remove("%s/make/%s" % (bash.cwd, "extra_makefile"))
 
-    @pytest.mark.xfail(
-        in_container() and os.environ.get("DIST") == "centos6",
-        reason="Fails for some unknown reason on CentOS 6, "
-        "even though the behavior appears to be correct",
-    )
     @pytest.mark.complete("make .cache/.", cwd="make", require_cmd=True)
     def test_7(self, bash, completion):
         assert completion == ".1 .2".split()

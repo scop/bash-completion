@@ -25,7 +25,7 @@ other file sourcing those). You can do this by simply using:
     . /usr/share/bash-completion/bash_completion
 ```
 
-(if you happen to have *only* bash >= 4.1 installed, see further if not)
+(if you happen to have *only* bash >= 4.2 installed, see further if not)
 
 If you don't have the package readily available for your distribution, or
 you simply don't want to use one, you can install bash completion using the

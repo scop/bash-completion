@@ -1,6 +1,6 @@
 #                                                          -*- shell-script -*-
 #
-#   bash_completion - programmable completion functions for bash 4.1+
+#   bash_completion - programmable completion functions for bash 4.2+
 #
 #   Copyright © 2006-2008, Ian Macdonald <ian@caliban.org>
 #             © 2009-2020, Bash Completion Maintainers
@@ -745,12 +745,6 @@ _init_completion()
                 ;;
         esac
     done
-
-    # For some reason completion functions are not invoked at all by
-    # bash (at least as of 4.1.7) after the command line contains an
-    # ampersand so we don't get a chance to deal with redirections
-    # containing them, but if we did, hopefully the below would also
-    # do the right thing with them...
 
     COMPREPLY=()
     local redir="@(?([0-9])<|?([0-9&])>?(>)|>&)"
@@ -2023,12 +2017,8 @@ complete -F _longopt a2ps awk base64 bash bc bison cat chroot colordiff cp \
     sed seq sha{,1,224,256,384,512}sum shar sort split strip sum tac tail tee \
     texindex touch tr uname unexpand uniq units vdir wc who
 
-# declare only knows -g in bash >= 4.2.
-if ((BASH_VERSINFO[0] > 4 || BASH_VERSINFO[1] >= 2)); then
-    declare -Ag _xspecs
-else
-    declare -A _xspecs
-fi
+declare -Ag _xspecs
+
 _filedir_xspec()
 {
     local cur prev words cword
