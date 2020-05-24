@@ -9,6 +9,7 @@ git clone --depth 1 https://github.com/scop/bash-completion.git
 
 while read -r file; do
     case $file in
+        mock | */mock) printf "%s\n" mock ;;
         /*) printf "%s\n" "$file" ;;
         *)  printf "%s\n" {/usr,}/{,s}bin/"$file" ;;
     esac
