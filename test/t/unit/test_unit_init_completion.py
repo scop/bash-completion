@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import TestUnitBase, assert_bash_exec
+from conftest import TestUnitBase, assert_bash_exec, assert_complete
 
 
 @pytest.mark.bashcomp(
@@ -25,3 +25,10 @@ class TestUnitInitCompletion(TestUnitBase):
             "_init_completion %s; echo $cur,${prev-}", bash, "(a)", 0, "a", 0
         )
         assert output == ","
+
+    @pytest.mark.parametrize("redirect", "> >> 2> < &>".split())
+    def test_redirect(self, bash, redirect):
+        completion = assert_complete(
+            bash, "%s " % redirect, cwd="shared/default"
+        )
+        assert all(x in completion for x in "foo bar".split())
