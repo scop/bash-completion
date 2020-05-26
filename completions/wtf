@@ -25,13 +25,13 @@ _wtf()
         shift
     done
 
-    if [[ -z $db ]]; then
+    if [[ ! -v db ]]; then
         local f
-        for f in "$ACRONYMDB" /usr/share/misc/acronyms \
+        for f in "${ACRONYMDB-}" /usr/share/misc/acronyms \
             /usr/share/games/bsdgames/acronyms; do
             [[ -f $f ]] && db="$f" && break
         done
-        [[ -z $db ]] && return
+        [[ -v db ]] || return
     fi
 
     COMPREPLY=($(compgen -W "$(cut -f 1 -s $db* 2>/dev/null) $addf" \
