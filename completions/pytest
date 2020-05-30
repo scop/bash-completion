@@ -91,7 +91,22 @@ _pytest()
         return
     fi
 
-    if [[ $cur == *.py:* ]]; then
+    if [[ $cur == *.py::*:* ]]; then
+        local file=${cur/.py:*/.py}
+        local class=${cur#*.py::}
+        class=${class%%:*}
+        local -a methods=(
+            "$(awk "
+                   /^[ \t]*class[ \t]+$class\>/ {flag=1; next}
+                   \$1 == \"class\" {flag=0}
+                   flag && \$1 == \"def\" {
+                       sub(\"\\\(.*\",\"\",\$2); print \$2
+                   }
+                   " <"$file")")
+        COMPREPLY=($(compgen -P "$file::$class::" -W "${methods[@]}" -- "${cur##*:?(:)}"))
+        __ltrim_colon_completions "$cur"
+        return
+    elif [[ $cur == *.py:* ]]; then
         local file="${cur/.py:*/.py}"
         local -a classes=(
             "$(awk '$1 == "class" {
