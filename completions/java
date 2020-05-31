@@ -88,10 +88,12 @@ _java_classes()
         fi
     done
 
-    # remove class extension
-    COMPREPLY=(${COMPREPLY[@]%.class})
-    # convert path syntax to package syntax
-    COMPREPLY=(${COMPREPLY[@]//\//.})
+    if ((${#COMPREPLY[@]} != 0)); then
+        # remove class extension
+        COMPREPLY=(${COMPREPLY[@]%.class})
+        # convert path syntax to package syntax
+        COMPREPLY=(${COMPREPLY[@]//\//.})
+    fi
 }
 
 # available packages completion
@@ -111,12 +113,14 @@ _java_packages()
                 command sed -e 's|^'$i'/||'))
         fi
     done
-    # keep only packages
-    COMPREPLY=($(tr " " "\n" <<<"${COMPREPLY[@]}" | command grep "/$"))
-    # remove packages extension
-    COMPREPLY=(${COMPREPLY[@]%/})
-    # convert path syntax to package syntax
-    cur="${COMPREPLY[*]//\//.}"
+    if ((${#COMPREPLY[@]} != 0)); then
+        # keep only packages
+        COMPREPLY=($(tr " " "\n" <<<"${COMPREPLY[@]}" | command grep "/$"))
+        # remove packages extension
+        COMPREPLY=(${COMPREPLY[@]%/})
+        # convert path syntax to package syntax
+        cur="${COMPREPLY[*]//\//.}"
+    fi
 }
 
 # java completion
