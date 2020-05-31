@@ -34,7 +34,7 @@ standard commands for GNU autotools packages:
 ```shell
 autoreconf -i  # if not installing from prepared release tarball
 ./configure
-make
+make           # GNU make required
 make check     # optional, requires python3 with pytest >= 3.6, pexpect
 make install   # as root
 ```
