@@ -31,14 +31,14 @@ _muttrc()
         shift
     done
 
-    if [[ -z $muttrc ]]; then
+    if [[ ! -v muttrc ]]; then
         if [[ -f ~/.${muttcmd}rc ]]; then
             muttrc=\~/.${muttcmd}rc
         elif [[ -f ~/.${muttcmd}/${muttcmd}rc ]]; then
             muttrc=\~/.${muttcmd}/${muttcmd}rc
         fi
     fi
-    printf "%s" "$muttrc"
+    printf "%s" "${muttrc-}"
 }
 
 # Recursively build list of sourced config files
@@ -54,7 +54,7 @@ _muttconffiles()
     shift
     while [[ ${1-} ]]; do
         newconffiles=($(command sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' "$(eval printf %s $1)"))
-        for file in "${newconffiles[@]}"; do
+        for file in ${newconffiles+"${newconffiles[@]}"}; do
             __expand_tilde_by_ref file
             [[ ! -f $file || $sofar == *\ $file\ * ]] && continue
             sofar+=" $file"
