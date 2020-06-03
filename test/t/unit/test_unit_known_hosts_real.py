@@ -78,12 +78,13 @@ class TestUnitKnownHostsReal:
         assert sorted(set(output.strip().split())) == sorted(result.split())
 
     def test_consecutive_spaces(self, bash, hosts):
+        expected = hosts.copy()
         # fixtures/_known_hosts_real/spaced  conf
-        hosts.extend("gee hus".split())
+        expected.extend("gee hus".split())
         # fixtures/_known_hosts_real/known_hosts2
-        hosts.extend("two two2 two3 two4".split())
+        expected.extend("two two2 two3 two4".split())
         # fixtures/_known_hosts_/spaced  known_hosts
-        hosts.extend("doo ike".split())
+        expected.extend("doo ike".split())
 
         output = assert_bash_exec(
             bash,
@@ -92,15 +93,16 @@ class TestUnitKnownHostsReal:
             r'printf "%s\n" "${COMPREPLY[@]}"',
             want_output=True,
         )
-        assert sorted(set(output.strip().split())) == sorted(hosts)
+        assert sorted(set(output.strip().split())) == sorted(expected)
 
     def test_files_starting_with_tilde(self, bash, hosts):
+        expected = hosts.copy()
         # fixtures/_known_hosts_real/known_hosts2
-        hosts.extend("two two2 two3 two4".split())
+        expected.extend("two two2 two3 two4".split())
         # fixtures/_known_hosts_real/known_hosts3
-        hosts.append("three")
+        expected.append("three")
         # fixtures/_known_hosts_real/known_hosts4
-        hosts.append("four")
+        expected.append("four")
 
         assert_bash_exec(bash, 'OLDHOME="$HOME"; HOME="%s"' % bash.cwd)
         output = assert_bash_exec(
@@ -111,13 +113,14 @@ class TestUnitKnownHostsReal:
             want_output=True,
         )
         assert_bash_exec(bash, 'HOME="$OLDHOME"')
-        assert sorted(set(output.strip().split())) == sorted(hosts)
+        assert sorted(set(output.strip().split())) == sorted(expected)
 
     def test_included_configs(self, bash, hosts):
+        expected = hosts.copy()
         # fixtures/_known_hosts_real/config_include_recursion
-        hosts.append("recursion")
+        expected.append("recursion")
         # fixtures/_known_hosts_real/.ssh/config_relative_path
-        hosts.append("relative_path")
+        expected.append("relative_path")
 
         assert_bash_exec(
             bash, 'OLDHOME="$HOME"; HOME="%s/_known_hosts_real"' % bash.cwd
@@ -130,4 +133,4 @@ class TestUnitKnownHostsReal:
             want_output=True,
         )
         assert_bash_exec(bash, 'HOME="$OLDHOME"')
-        assert sorted(set(output.strip().split())) == sorted(hosts)
+        assert sorted(set(output.strip().split())) == sorted(expected)
