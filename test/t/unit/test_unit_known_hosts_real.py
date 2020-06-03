@@ -65,7 +65,9 @@ class TestUnitKnownHostsReal:
         ),
     )
     def test_ip_filtering(self, bash, family, result):
-        assert_bash_exec(bash, "unset COMPREPLY")
+        assert_bash_exec(
+            bash, "unset -v COMPREPLY COMP_KNOWN_HOSTS_WITH_HOSTFILE"
+        )
         output = assert_bash_exec(
             bash,
             "COMP_KNOWN_HOSTS_WITH_HOSTFILE= "
@@ -85,7 +87,7 @@ class TestUnitKnownHostsReal:
 
         output = assert_bash_exec(
             bash,
-            "unset COMPREPLY; "
+            "unset -v COMPREPLY COMP_KNOWN_HOSTS_WITH_HOSTFILE; "
             "_known_hosts_real -aF '_known_hosts_real/spaced  conf' ''; "
             r'printf "%s\n" "${COMPREPLY[@]}"',
             want_output=True,
@@ -103,7 +105,7 @@ class TestUnitKnownHostsReal:
         assert_bash_exec(bash, 'OLDHOME="$HOME"; HOME="%s"' % bash.cwd)
         output = assert_bash_exec(
             bash,
-            "unset COMPREPLY; "
+            "unset -v COMPREPLY COMP_KNOWN_HOSTS_WITH_HOSTFILE; "
             "_known_hosts_real -aF _known_hosts_real/config_tilde ''; "
             r'printf "%s\n" "${COMPREPLY[@]}"',
             want_output=True,
@@ -122,7 +124,7 @@ class TestUnitKnownHostsReal:
         )
         output = assert_bash_exec(
             bash,
-            "unset COMPREPLY; "
+            "unset -v COMPREPLY COMP_KNOWN_HOSTS_WITH_HOSTFILE; "
             "_known_hosts_real -aF _known_hosts_real/config_include ''; "
             r'printf "%s\n" "${COMPREPLY[@]}"',
             want_output=True,
