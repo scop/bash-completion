@@ -54,7 +54,7 @@ class TestUnitKnownHostsReal:
             % (colon_flag, prefix),
             want_output=True,
         )
-        assert sorted(output.split()) == sorted(expected)
+        assert sorted(set(output.split())) == sorted(expected)
 
     @pytest.mark.parametrize(
         "family,result",
@@ -73,7 +73,7 @@ class TestUnitKnownHostsReal:
             r'printf "%%s\n" "${COMPREPLY[@]}"' % family,
             want_output=True,
         )
-        assert sorted(output.strip().split()) == sorted(result.split())
+        assert sorted(set(output.strip().split())) == sorted(result.split())
 
     def test_consecutive_spaces(self, bash, hosts):
         # fixtures/_known_hosts_real/spaced  conf
@@ -90,7 +90,7 @@ class TestUnitKnownHostsReal:
             r'printf "%s\n" "${COMPREPLY[@]}"',
             want_output=True,
         )
-        assert sorted(output.strip().split()) == sorted(hosts)
+        assert sorted(set(output.strip().split())) == sorted(hosts)
 
     def test_files_starting_with_tilde(self, bash, hosts):
         # fixtures/_known_hosts_real/known_hosts2
@@ -109,7 +109,7 @@ class TestUnitKnownHostsReal:
             want_output=True,
         )
         assert_bash_exec(bash, 'HOME="$OLDHOME"')
-        assert sorted(output.strip().split()) == sorted(hosts)
+        assert sorted(set(output.strip().split())) == sorted(hosts)
 
     def test_included_configs(self, bash, hosts):
         # fixtures/_known_hosts_real/config_include_recursion
@@ -128,4 +128,4 @@ class TestUnitKnownHostsReal:
             want_output=True,
         )
         assert_bash_exec(bash, 'HOME="$OLDHOME"')
-        assert sorted(output.strip().split()) == sorted(hosts)
+        assert sorted(set(output.strip().split())) == sorted(hosts)
