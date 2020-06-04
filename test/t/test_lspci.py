@@ -6,6 +6,8 @@ class TestLspci:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("lspci -A ", require_cmd=True)
+    @pytest.mark.complete(
+        "lspci -A ", require_cmd=True, skipif="! lspci -A help &>/dev/null"
+    )
     def test_2(self, completion):
         assert completion
