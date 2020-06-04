@@ -511,11 +511,11 @@ def assert_complete(
         got = bash.expect(
             [
                 # 0: multiple lines, result in .before
-                r"\r\n" + re.escape(PS1 + cmd) + ".*" + MAGIC_MARK,
+                r"\r\n" + re.escape(PS1 + cmd) + ".*" + re.escape(MAGIC_MARK),
                 # 1: no completion
-                r"^" + MAGIC_MARK,
+                r"^" + re.escape(MAGIC_MARK),
                 # 2: on same line, result in .match
-                r"^([^\r]+)%s$" % MAGIC_MARK,
+                r"^([^\r]+)%s$" % re.escape(MAGIC_MARK),
                 pexpect.EOF,
                 pexpect.TIMEOUT,
             ]
