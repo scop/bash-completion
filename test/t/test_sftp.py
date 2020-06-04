@@ -6,7 +6,7 @@ import pytest
 class TestSftp:
     @pytest.mark.complete("sftp -Fsp", cwd="sftp")
     def test_1(self, completion):
-        assert completion == "-Fspaced  conf"
+        assert completion == r"aced\ \ conf"
 
     @pytest.mark.complete("sftp -", require_cmd=True)
     def test_2(self, completion):

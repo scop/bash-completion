@@ -8,7 +8,7 @@ class TestKcov:
 
     @pytest.mark.complete("kcov --exclude-patter", require_cmd=True)
     def test_2(self, completion):
-        assert completion == "--exclude-pattern="
+        assert completion == "n="
         assert completion.endswith("=")
 
     @pytest.mark.complete("kcov -l 42,")

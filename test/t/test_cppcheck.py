@@ -20,12 +20,12 @@ class TestCppcheck:
 
     @pytest.mark.complete("cppcheck --enable=al")
     def test_5(self, completion):
-        assert completion == "--enable=all"
+        assert completion == "l"
 
     @pytest.mark.complete("cppcheck --enable=xx,styl")
     def test_6(self, completion):
-        assert completion == "--enable=xx,style"
+        assert completion == "e"
 
     @pytest.mark.complete("cppcheck --enable=xx,yy,styl")
     def test_7(self, completion):
-        assert completion == "--enable=xx,yy,style"
+        assert completion == "e"

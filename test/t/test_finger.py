@@ -17,11 +17,14 @@ class TestFinger:
         if not any(x.startswith("r") for x in users_at):
             pytest.skip("No users starting with r")
         assert completion
-        assert all(x.startswith("r") for x in completion)
+        idx = 1 if len(completion) == 1 else 0
+        assert completion == sorted(
+            x[idx:] for x in users_at if x.startswith("r")
+        )
         assert not completion.endswith(" ")
 
     def test_partial_hostname(self, bash, known_hosts):
         first_char, partial_hosts = partialize(bash, known_hosts)
         user = "test"
         completion = assert_complete(bash, "finger %s@%s" % (user, first_char))
-        assert completion == ["%s@%s" % (user, x) for x in partial_hosts]
+        assert completion == [x[1:] for x in partial_hosts]

@@ -8,7 +8,7 @@ class TestCrontab:
 
     @pytest.mark.complete("crontab -l -")
     def test_only_u_with_l(self, completion):
-        assert completion == "-u"
+        assert completion == "u"
 
     @pytest.mark.complete("crontab -r -")
     def test_no_l_with_r(self, completion):

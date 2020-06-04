@@ -19,17 +19,17 @@ class TestScreen:
     def test_4(self, completion):
         assert completion
 
-    @pytest.mark.complete("screen -T foo cat")
+    @pytest.mark.complete("screen -T foo ca")
     def test_5(self, completion):
-        assert completion
+        assert completion == "t" or "cat" in completion
 
     @pytest.mark.complete("screen //")
     def test_telnet(self, completion):
-        assert completion == "//telnet"
+        assert completion == "telnet"
 
     @pytest.mark.complete("screen cat //")
     def test_not_telnet(self, completion):
-        assert completion != "//telnet"
+        assert completion != "telnet"
 
     @pytest.mark.complete("screen //telnet ", env=dict(HOME="$PWD/shared"))
     def test_telnet_first_arg(self, completion):

@@ -393,27 +393,20 @@ class CompletionResult(Iterable[str]):
     Class to hold completion results.
     """
 
-    def __init__(self, output: str, items: Optional[Iterable[str]] = None):
+    def __init__(self, output: Optional[str] = None):
         """
-        When items are specified, they are used as the base for comparisons
-        provided by this class. When not, regular expressions are used instead.
-        This is because it is not always possible to unambiguously split a
-        completion output string into individual items, for example when the
-        items contain whitespace.
-
         :param output: All completion output as-is.
-        :param items: Completions as individual items. Should be specified
-            only in cases where the completions are robustly known to be
-            exactly the specified ones.
         """
-        self.output = output
-        self._items = None if items is None else sorted(items)
+        self.output = output or ""
 
     def endswith(self, suffix: str) -> bool:
         return self.output.endswith(suffix)
 
     def startswith(self, prefix: str) -> bool:
         return self.output.startswith(prefix)
+
+    def _items(self) -> List[str]:
+        return [x.strip() for x in self.output.strip().splitlines()]
 
     def __eq__(self, expected: object) -> bool:
         """
@@ -428,44 +421,19 @@ class CompletionResult(Iterable[str]):
             return False
         else:
             expiter = expected
-        if self._items is not None:
-            return self._items == expiter
-        return bool(
-            re.match(
-                r"^\s*" + r"\s+".join(re.escape(x) for x in expiter) + r"\s*$",
-                self.output,
-            )
-        )
+        return self._items() == expiter
 
     def __contains__(self, item: str) -> bool:
-        if self._items is not None:
-            return item in self._items
-        return bool(
-            re.search(r"(^|\s)%s(\s|$)" % re.escape(item), self.output)
-        )
+        return item in self._items()
 
     def __iter__(self) -> Iterator[str]:
-        """
-        Note that iteration over items may not be accurate when items were not
-        specified to the constructor, if individual items in the output contain
-        whitespace. In those cases, it errs on the side of possibly returning
-        more items than there actually are, and intends to never return fewer.
-        """
-        return iter(
-            self._items
-            if self._items is not None
-            else re.split(r" {2,}|\r\n", self.output.strip())
-        )
+        return iter(self._items())
 
     def __len__(self) -> int:
-        """
-        Uses __iter__, see caveat in it. While possibly inaccurate, this is
-        good enough for truthiness checks.
-        """
-        return len(list(iter(self)))
+        return len(self._items())
 
     def __repr__(self) -> str:
-        return "<CompletionResult %s>" % list(self)
+        return "<CompletionResult %s>" % self._items()
 
 
 def assert_complete(
@@ -527,14 +495,10 @@ def assert_complete(
             result = CompletionResult(output)
         elif got == 2:
             output = bash.match.group(1)
-            result = CompletionResult(
-                output,
-                # Note that this causes returning the sole completion *unescaped*
-                [shlex.split(cmd + output)[-1]],
-            )
+            result = CompletionResult(output)
         else:
             # TODO: warn about EOF/TIMEOUT?
-            result = CompletionResult("", [])
+            result = CompletionResult()
     finally:
         bash.sendintr()
         bash.expect_exact(PS1)
@@ -564,7 +528,7 @@ def assert_complete(
 def completion(request, bash: pexpect.spawn) -> CompletionResult:
     marker = request.node.get_closest_marker("complete")
     if not marker:
-        return CompletionResult("", [])
+        return CompletionResult()
     for pre_cmd in marker.kwargs.get("pre_cmds", []):
         assert_bash_exec(bash, pre_cmd)
     cmd = getattr(request.cls, "cmd", None)
@@ -630,7 +594,7 @@ def assert_complete_at_point(
         bash.expect(fullexpected)
     else:
         # TODO: warn about EOF/TIMEOUT?
-        result = CompletionResult("", [])
+        result = CompletionResult()
 
     return result
 

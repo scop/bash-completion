@@ -24,7 +24,7 @@ class TestGcc:
 
     @pytest.mark.complete("gcc -fsanitize=add")
     def test_enum_value(self, completion, gcc_with_completion):
-        assert completion == "-fsanitize=address"
+        assert completion == "ress"
 
     @pytest.mark.complete("gcc -fsanitize=")
     def test_enum_value_with_eq(self, completion, gcc_with_completion):
@@ -48,15 +48,12 @@ class TestGcc:
 
     @pytest.mark.complete("gcc --param=lto-max-p")
     def test_param_with_eq(self, completion, gcc_with_completion):
-        # starting with GCC 10.1 param end with =
-        assert (
-            completion == "--param=lto-max-partition"
-            or completion == "--param=lto-max-partition="
-        )
+        # starting with GCC 10.1 param ends with =
+        assert completion in ("artition", "artition=")
 
     @pytest.mark.complete("gcc -march=amd")
     def test_march(self, completion, gcc_with_completion, gcc_x86):
-        assert completion == "-march=amdfam10"
+        assert completion == "fam10"
 
     @pytest.mark.complete("gcc -march=")
     def test_march_native(self, completion, gcc_with_completion):

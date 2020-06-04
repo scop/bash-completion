@@ -34,15 +34,15 @@ class TestMan:
         require_cmd=True,
     )
     def test_1(self, completion):
-        assert completion == "bash-completion-testcase"
+        assert completion == "e"
 
     @pytest.mark.complete("man man1/f", cwd="man", env=dict(MANPATH=manpath))
     def test_2(self, completion):
-        assert completion == "man1/foo.1"
+        assert completion == "oo.1"
 
     @pytest.mark.complete("man man/", cwd="man", env=dict(MANPATH=manpath))
     def test_3(self, completion):
-        assert completion == "man/quux.8"
+        assert completion == "quux.8"
 
     @pytest.mark.complete(
         "man %s" % assumed_present,
@@ -72,7 +72,7 @@ class TestMan:
         env=dict(MANPATH="%s:" % manpath),
     )
     def test_6(self, completion):
-        assert completion == "bash-completion-testcase"
+        assert completion == "e"
 
     @pytest.mark.complete(
         "man %s" % assumed_present,
@@ -90,7 +90,7 @@ class TestMan:
         env=dict(MANPATH=":%s" % manpath),
     )
     def test_8(self, completion):
-        assert completion == "bash-completion-testcase"
+        assert completion == "e"
 
     @pytest.mark.complete(
         "man %s" % assumed_present,
@@ -108,7 +108,7 @@ class TestMan:
         env=dict(MANPATH="%s:../tmp/man" % manpath),
     )
     def test_10(self, bash, colonpath, completion):
-        assert completion == "Bash::Completion"
+        assert completion == "ompletion"
 
     @pytest.mark.complete("man -", require_cmd=True)
     def test_11(self, completion):

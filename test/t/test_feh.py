@@ -16,11 +16,11 @@ class TestFeh:
 
     @pytest.mark.complete("feh -S pix")
     def test_3(self, completion):
-        assert completion == "pixels"
+        assert completion == "els"
 
     @pytest.mark.complete("feh --zoom ma")
     def test_4(self, completion):
-        assert completion == "max"
+        assert completion == "x"
 
     @pytest.mark.complete("feh -g 640")
     def test_5(self, completion):

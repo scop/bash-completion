@@ -13,4 +13,4 @@ class TestRi:
 
     @pytest.mark.complete("ri BashCompletio", require_cmd=True)
     def test_3(self, completion):
-        assert completion == "BashCompletion"
+        assert completion == "n"

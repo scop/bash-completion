@@ -9,4 +9,4 @@ class TestDpkgDeb:
 
     @pytest.mark.complete("dpkg-deb --show b", cwd="dpkg")
     def test_show(self, completion):
-        assert completion == "bash-completion-test-subject.deb"
+        assert completion == "ash-completion-test-subject.deb"

@@ -6,6 +6,6 @@ class TestUserdel:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("userdel root")
+    @pytest.mark.complete("userdel roo")
     def test_2(self, completion):
-        assert "root" in completion
+        assert completion == "t" or "root" in completion

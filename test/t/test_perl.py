@@ -63,7 +63,7 @@ class TestPerl:
     @pytest.mark.complete("perl -xshared/default/b")
     def test_14(self, completion):
         """-x without space should complete dirs."""
-        assert completion == ["-xshared/default/bar bar.d/"]
+        assert completion == r"ar\ bar.d/"
 
     @pytest.mark.complete("perl -x shared/default/b")
     def test_15(self, completion):

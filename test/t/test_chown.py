@@ -31,39 +31,38 @@ class TestChown:
     def test_4(self, bash, part_full_user):
         part, full = part_full_user
         completion = assert_complete(bash, "chown %s" % part)
-        assert completion == full
+        assert completion == full[len(part) :]
         assert completion.endswith(" ")
 
     def test_5(self, bash, part_full_user, part_full_group):
         _, user = part_full_user
         partgroup, fullgroup = part_full_group
         completion = assert_complete(bash, "chown %s:%s" % (user, partgroup))
-        assert completion == "%s:%s" % (user, fullgroup)
+        assert completion == fullgroup[len(partgroup) :]
         assert completion.output.endswith(" ")
 
     def test_6(self, bash, part_full_group):
         part, full = part_full_group
         completion = assert_complete(bash, "chown dot.user:%s" % part)
-        assert completion == "dot.user:%s" % full
+        assert completion == full[len(part) :]
         assert completion.output.endswith(" ")
 
     @pytest.mark.parametrize(
         "prefix",
         [
-            # TODO(xfails): check escaping, whitespace
-            pytest.param(r"funky\ user:", marks=pytest.mark.xfail),
+            r"funky\ user:",
             "funky.user:",
-            pytest.param(r"funky\.user:", marks=pytest.mark.xfail),
-            pytest.param(r"fu\ nky.user:", marks=pytest.mark.xfail),
-            pytest.param(r"f\ o\ o\.\bar:", marks=pytest.mark.xfail),
-            pytest.param(r"foo\_b\ a\.r\ :", marks=pytest.mark.xfail),
+            r"funky\.user:",
+            r"fu\ nky.user:",
+            r"f\ o\ o\.\bar:",
+            r"foo\_b\ a\.r\ :",
         ],
     )
     def test_7(self, bash, part_full_group, prefix):
         """Test preserving special chars in $prefix$partgroup<TAB>."""
         part, full = part_full_group
         completion = assert_complete(bash, "chown %s%s" % (prefix, part))
-        assert completion == "%s%s" % (prefix, full)
+        assert completion == full[len(part) :]
         assert completion.output.endswith(" ")
 
     def test_8(self, bash, part_full_user, part_full_group):

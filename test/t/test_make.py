@@ -6,7 +6,7 @@ import pytest
 class TestMake:
     @pytest.mark.complete("make -f Ma", cwd="make")
     def test_1(self, completion):
-        assert completion == "Makefile"
+        assert completion == "kefile"
 
     @pytest.mark.complete("make .", cwd="make", require_cmd=True)
     def test_2(self, bash, completion):

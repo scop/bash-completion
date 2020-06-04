@@ -31,7 +31,7 @@ class TestUmount:
 
     @pytest.mark.complete("_mnt /mnt/nice-test-p")
     def test_mnt_basic(self, completion, dummy_mnt):
-        assert completion == "/mnt/nice-test-path"
+        assert completion == "ath"
 
     # Note in tests below that return only one result, that the result
     # is shell unescaped due to how assert_complete handles the
@@ -39,15 +39,15 @@ class TestUmount:
 
     @pytest.mark.complete(r"_mnt /mnt/nice\ test-p")
     def test_mnt_space(self, completion, dummy_mnt):
-        assert completion == r"/mnt/nice test-path"
+        assert completion == r"ath"
 
     @pytest.mark.complete(r"_mnt /mnt/nice\$test-p")
     def test_mnt_dollar(self, completion, dummy_mnt):
-        assert completion == "/mnt/nice$test-path"
+        assert completion == "ath"
 
     @pytest.mark.complete(r"_mnt /mnt/nice\ test\\p")
     def test_mnt_backslash(self, completion, dummy_mnt):
-        assert completion == r"/mnt/nice test\path"
+        assert completion == "ath"
 
     @pytest.mark.complete(r"_mnt /mnt/nice\ ")
     def test_mnt_after_space(self, completion, dummy_mnt):
@@ -57,23 +57,23 @@ class TestUmount:
 
     @pytest.mark.complete(r"_mnt /mnt/nice\$")
     def test_mnt_at_dollar(self, completion, dummy_mnt):
-        assert completion == "/mnt/nice$test-path"
+        assert completion == "test-path"
 
     @pytest.mark.complete(r"_mnt /mnt/nice\'")
     def test_mnt_at_quote(self, completion, dummy_mnt):
-        assert completion == "/mnt/nice'test-path"
+        assert completion == "test-path"
 
     @pytest.mark.complete("_mnt /mnt/other")
     def test_mnt_other(self, completion, dummy_mnt):
-        assert completion == "/mnt/other'test path"
+        assert completion == r"\'test\ path"
 
     @pytest.mark.complete("_mnt -L Ubu")
     def test_mnt_label_space(self, completion, dummy_mnt):
-        assert completion == "Ubuntu Karmic"
+        assert completion == r"ntu\ Karmic"
 
     @pytest.mark.complete("_mnt -L Deb")
     def test_mnt_label_quote(self, completion, dummy_mnt):
-        assert completion == "Debian-it's awesome"
+        assert completion == r"ian-it\'s\ awesome"
 
     def test_linux_fstab_unescape(self, bash):
         assert_bash_exec(bash, r"var=one\'two\\040three\\")

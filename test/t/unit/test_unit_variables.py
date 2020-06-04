@@ -18,11 +18,11 @@ class TestUnitVariables:
 
     @pytest.mark.complete(": $___v")
     def test_simple_variable_name(self, functions, completion):
-        assert completion == "$___var".split()
+        assert completion == "ar"
 
     @pytest.mark.complete(": ${assoc1[")
     def test_single_array_index(self, functions, completion):
-        assert completion == "${assoc1[idx]}".split()
+        assert completion == "idx]}"
 
     @pytest.mark.complete(": ${assoc2[")
     def test_multiple_array_indexes(self, functions, completion):
@@ -30,12 +30,12 @@ class TestUnitVariables:
 
     @pytest.mark.complete(": ${assoc1[bogus]")
     def test_closing_curly_after_square(self, functions, completion):
-        assert completion == "${assoc1[bogus]}".split()
+        assert completion == "}"
 
     @pytest.mark.complete(": ${assoc1[@")
     def test_closing_brackets_after_at(self, functions, completion):
-        assert completion == "${assoc1[@]}".split()
+        assert completion == "]}"
 
     @pytest.mark.complete(": ${#___v")
     def test_hash_prefix(self, functions, completion):
-        assert completion == "${#___var}".split()
+        assert completion == "ar}"

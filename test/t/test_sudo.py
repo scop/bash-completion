@@ -10,27 +10,27 @@ class TestSudo:
 
     @pytest.mark.complete("sudo cd fo", cwd="shared/default")
     def test_2(self, completion):
-        assert completion == "foo.d/"
+        assert completion == "o.d/"
         assert not completion.endswith(" ")
 
     @pytest.mark.complete("sudo sh share")
     def test_3(self, completion):
-        assert completion == "shared/"
+        assert completion == "d/"
         assert not completion.endswith(" ")
 
     @pytest.mark.complete("sudo mount /dev/sda1 def", cwd="shared")
     def test_4(self, completion):
-        assert completion == "default/"
+        assert completion == "ault/"
         assert not completion.endswith(" ")
 
     @pytest.mark.complete("sudo -e -u root bar foo", cwd="shared/default")
     def test_5(self, completion):
-        assert completion == ["foo", "foo.d/"]
+        assert completion == "foo foo.d/".split()
 
     def test_6(self, bash, part_full_user):
         part, full = part_full_user
         completion = assert_complete(bash, "sudo chown %s" % part)
-        assert completion == full
+        assert completion == full[len(part) :]
         assert completion.endswith(" ")
 
     def test_7(self, bash, part_full_user, part_full_group):
@@ -39,32 +39,31 @@ class TestSudo:
         completion = assert_complete(
             bash, "sudo chown %s:%s" % (user, partgroup)
         )
-        assert completion == "%s:%s" % (user, fullgroup)
+        assert completion == fullgroup[len(partgroup) :]
         assert completion.endswith(" ")
 
     def test_8(self, bash, part_full_group):
         part, full = part_full_group
         completion = assert_complete(bash, "sudo chown dot.user:%s" % part)
-        assert completion == "dot.user:%s" % full
+        assert completion == full[len(part) :]
         assert completion.endswith(" ")
 
     @pytest.mark.parametrize(
         "prefix",
         [
-            # TODO(xfails): check escaping, whitespace
-            pytest.param(r"funky\ user:", marks=pytest.mark.xfail),
+            r"funky\ user:",
             "funky.user:",
-            pytest.param(r"funky\.user:", marks=pytest.mark.xfail),
-            pytest.param(r"fu\ nky.user:", marks=pytest.mark.xfail),
-            pytest.param(r"f\ o\ o\.\bar:", marks=pytest.mark.xfail),
-            pytest.param(r"foo\_b\ a\.r\ :", marks=pytest.mark.xfail),
+            r"funky\.user:",
+            r"fu\ nky.user:",
+            r"f\ o\ o\.\bar:",
+            r"foo\_b\ a\.r\ :",
         ],
     )
     def test_9(self, bash, part_full_group, prefix):
         """Test preserving special chars in $prefix$partgroup<TAB>."""
         part, full = part_full_group
         completion = assert_complete(bash, "sudo chown %s%s" % (prefix, part))
-        assert completion == "%s%s" % (prefix, full)
+        assert completion == full[len(part) :]
         assert completion.endswith(" ")
 
     def test_10(self, bash, part_full_user, part_full_group):

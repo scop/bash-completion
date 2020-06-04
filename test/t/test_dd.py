@@ -14,4 +14,4 @@ class TestDd:
 
     @pytest.mark.complete("dd bs")
     def test_2(self, completion):
-        assert completion == "bs="
+        assert completion == "="

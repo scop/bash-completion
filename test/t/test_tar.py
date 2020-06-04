@@ -77,12 +77,12 @@ class TestTar:
 
     @pytest.mark.complete("tar --add-fil")
     def test_15(self, completion, gnu_tar):
-        assert completion == "--add-file="
+        assert completion == "e="
         assert not completion.endswith(" ")
 
     @pytest.mark.complete("tar -cf /dev/null --posi")
     def test_16(self, completion, gnu_tar):
-        assert completion == "--posix"
+        assert completion == "x"
         assert completion.endswith(" ")
 
     @pytest.mark.complete("tar --owner=")
@@ -115,6 +115,6 @@ class TestTar:
     @pytest.mark.complete(r"tar tf escape.tar a/b\'", cwd="tar")
     def test_22(self, bash, completion):
         """Test listing escaped chars in old option."""
-        assert completion == "a/b'c/"
+        assert completion == "c/"
 
     # TODO: "tar tf escape.tar a/b"

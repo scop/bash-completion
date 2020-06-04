@@ -8,7 +8,7 @@ class TestPrintenv:
 
     @pytest.mark.complete("printenv PAT")
     def test_path(self, completion):
-        assert "PATH" in completion
+        assert completion == "H" or "PATH" in completion
 
     @pytest.mark.complete(
         "printenv -",

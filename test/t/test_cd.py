@@ -9,7 +9,7 @@ class TestCd:
 
     @pytest.mark.complete("cd fo", env=dict(CDPATH="shared/default"))
     def test_2(self, completion):
-        assert completion == "foo.d/"
+        assert completion == "o.d/"
 
     @pytest.mark.complete("cd fo")
     def test_3(self, completion):

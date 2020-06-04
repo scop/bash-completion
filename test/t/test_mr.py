@@ -19,7 +19,7 @@ class TestMr:
         "mr -c shared/default/foo.d/", xfail="! man -h &>/dev/null"
     )
     def test_3(self, completion):
-        assert completion == "shared/default/foo.d/foo"
+        assert completion == "foo"
 
     @pytest.mark.complete(
         "mr bootstrap shared/default/",
@@ -37,13 +37,13 @@ class TestMr:
         skipif="! mr help 2>&1 | command grep -qwF clean",
     )
     def test_5(self, completion):
-        assert completion == "-f"
+        assert completion == "f"
 
     @pytest.mark.complete(
         "mr commit -", require_cmd=True, xfail="! man -h &>/dev/null"
     )
     def test_6(self, completion):
-        assert completion == "-m"
+        assert completion == "m"
 
     @pytest.mark.complete(
         "mr status ", require_cmd=True, xfail="! man -h &>/dev/null"

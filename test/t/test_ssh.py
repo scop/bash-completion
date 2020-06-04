@@ -6,7 +6,7 @@ from conftest import assert_complete, partialize
 class TestSsh:
     @pytest.mark.complete("ssh -Fsp", cwd="ssh")
     def test_1(self, completion):
-        assert completion == "-Fspaced  conf"
+        assert completion == r"aced\ \ conf"
 
     @pytest.mark.complete("ssh -F config ls", cwd="ssh")
     def test_2(self, completion):
@@ -49,7 +49,7 @@ class TestSsh:
     def test_partial_hostname(self, bash, known_hosts):
         first_char, partial_hosts = partialize(bash, known_hosts)
         completion = assert_complete(bash, "ssh %s" % first_char)
-        assert completion == partial_hosts
+        assert completion == sorted(x[1:] for x in partial_hosts)
 
     @pytest.mark.parametrize("protocol", "4 6 9".split())
     def test_protocol_option_bundling(self, bash, protocol):

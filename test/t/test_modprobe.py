@@ -6,7 +6,7 @@ import pytest
 class TestModprobe:
     @pytest.mark.complete("modprobe --al")
     def test_1(self, completion):
-        assert completion == "--all"
+        assert completion == "l"
 
     # "in": intel*, ...
     @pytest.mark.complete(

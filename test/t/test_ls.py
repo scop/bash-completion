@@ -36,5 +36,5 @@ class TestLs:
             return
         part, full = part_full
         completion = assert_complete(bash, "ls ~%s" % part)
-        assert completion == "~%s" % full
+        assert completion == full[len(part) :]
         assert completion.endswith(" ")

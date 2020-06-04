@@ -28,7 +28,7 @@ class TestFind:
 
     @pytest.mark.complete("find -exec shared/bin/ar")
     def test_exec(self, completion):
-        assert completion == "shared/bin/arp"
+        assert completion == "p"
 
     # sh +: something that produces completions also when command is not
     #       available, and the chosen completion is not one of find's

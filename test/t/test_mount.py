@@ -12,7 +12,7 @@ class TestMount:
 
     @pytest.mark.complete("mount /dev/sda1 def", cwd="shared")
     def test_3(self, completion):
-        assert completion == "default/"
+        assert completion == "ault/"
         assert not completion.endswith(" ")
 
     @pytest.mark.complete(

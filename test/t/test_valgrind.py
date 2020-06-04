@@ -16,13 +16,13 @@ class TestValgrind:
 
     @pytest.mark.complete("valgrind --tool=memche", require_cmd=True)
     def test_3(self, completion):
-        assert "--tool=memcheck" in completion
+        assert completion == "ck" or "--tool=memcheck" in completion
 
     @pytest.mark.complete(
         "valgrind --tool=helgrind --history-l", require_cmd=True
     )
     def test_4(self, completion):
-        assert "--history-level=" in completion
+        assert completion == "evel=" or "--history-level=" in completion
         assert not completion.endswith(" ")
 
     @pytest.mark.complete(r"valgrind --log-file=v\ 0.log ./bin/", cwd="shared")
