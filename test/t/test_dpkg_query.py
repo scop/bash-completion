@@ -1,3 +1,5 @@
+import os.path
+
 import pytest
 
 
@@ -7,6 +9,10 @@ class TestDpkgQuery:
     def test_options(self, completion):
         assert completion
 
+    @pytest.mark.xfail(
+        not os.path.exists("/etc/debian_version"),
+        reason="Likely fails on systems not based on Debian",
+    )
     @pytest.mark.complete("dpkg-query -W dpk", require_cmd=True)
     def test_show(self, completion):
         assert "dpkg" in completion
