@@ -14,4 +14,7 @@ class TestXhost:
     def test_partial_hosts(self, bash, hosts, prefix):
         first_char, partial_hosts = partialize(bash, hosts)
         completion = assert_complete(bash, "xhost %s%s" % (prefix, first_char))
-        assert completion == sorted(x[1:] for x in partial_hosts)
+        if len(completion) == 1:
+            assert completion == partial_hosts[0][1:]
+        else:
+            assert completion == sorted(x for x in partial_hosts)

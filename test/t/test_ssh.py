@@ -49,7 +49,10 @@ class TestSsh:
     def test_partial_hostname(self, bash, known_hosts):
         first_char, partial_hosts = partialize(bash, known_hosts)
         completion = assert_complete(bash, "ssh %s" % first_char)
-        assert completion == sorted(x[1:] for x in partial_hosts)
+        if len(completion) == 1:
+            assert completion == partial_hosts[0][1:]
+        else:
+            assert completion == sorted(x for x in partial_hosts)
 
     @pytest.mark.parametrize("protocol", "4 6 9".split())
     def test_protocol_option_bundling(self, bash, protocol):
