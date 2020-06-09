@@ -17,4 +17,6 @@ class TestXhost:
         if len(completion) == 1:
             assert completion == partial_hosts[0][1:]
         else:
-            assert completion == sorted(x for x in partial_hosts)
+            assert completion == sorted(
+                "%s%s" % (prefix, x) for x in partial_hosts
+            )
