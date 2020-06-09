@@ -28,11 +28,11 @@ class TestSlaptSrc:
 
     @pytest.mark.complete("slapt-src --bu", require_cmd=True)
     def test_2(self, completion):
-        assert completion == "--build"
+        assert completion == "ild" or "--build" in completion
 
     @pytest.mark.complete("slapt-src --ins", require_cmd=True)
     def test_3(self, completion):
-        assert completion == "--install"
+        assert completion == "tall" or "--install" in completion
 
     def test_install(self, bash, slapt_srcrc):
         if not is_bash_type(bash, "slapt-src"):
