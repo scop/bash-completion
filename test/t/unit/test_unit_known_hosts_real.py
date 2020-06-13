@@ -22,7 +22,7 @@ class TestUnitKnownHostsReal:
             for x in chain(
                 hosts if hostfile else avahi_hosts,
                 # fixtures/_known_hosts_real/config
-                "gee hus jar".split(),
+                "gee hus jar #not-a-comment".split(),
                 # fixtures/_known_hosts_real/known_hosts
                 (
                     "doo",
@@ -80,7 +80,7 @@ class TestUnitKnownHostsReal:
     def test_consecutive_spaces(self, bash, hosts):
         expected = hosts.copy()
         # fixtures/_known_hosts_real/spaced  conf
-        expected.extend("gee hus".split())
+        expected.extend("gee hus #not-a-comment".split())
         # fixtures/_known_hosts_real/known_hosts2
         expected.extend("two two2 two3 two4".split())
         # fixtures/_known_hosts_/spaced  known_hosts
