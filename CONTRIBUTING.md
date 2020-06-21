@@ -98,6 +98,16 @@ Also, please bare the following coding guidelines in mind:
   These forms of parameter substitutions can also be used on arrays,
   which makes them very powerful (if a little slow).
 
+- We want our completions to work in `posix` and `nounset` modes.
+
+  Unfortunately due to a bash < 5.1 bug, toggling POSIX mode interferes
+  with keybindings and should not be done. This rules out use of
+  process substitution which causes syntax errors in POSIX mode.
+
+  Instead of toggling `nounset` mode, make sure to test whether
+  variables are set (e.g. with `[[ -v varname ]]`) or use default
+  expansion (e.g. `${varname-}`).
+
 - Prefer `compgen -W '...' -- $cur` over embedding `$cur` in external
   command arguments (often e.g. sed, grep etc) unless there's a good
   reason to embed it. Embedding user input in command lines can result
