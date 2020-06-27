@@ -134,3 +134,21 @@ class TestUnitKnownHostsReal:
         )
         assert_bash_exec(bash, 'HOME="$OLDHOME"')
         assert sorted(set(output.strip().split())) == sorted(expected)
+
+    def test_no_globbing(self, bash):
+        assert_bash_exec(
+            bash, 'OLDHOME="$HOME"; HOME="%s/_known_hosts_real"' % bash.cwd
+        )
+        output = assert_bash_exec(
+            bash,
+            "cd _known_hosts_real; "
+            "unset -v COMPREPLY COMP_KNOWN_HOSTS_WITH_HOSTFILE; "
+            "_known_hosts_real -aF config ''; "
+            r'printf "%s\n" "${COMPREPLY[@]}"; '
+            "cd - &>/dev/null",
+            want_output=True,
+        )
+        assert_bash_exec(bash, 'HOME="$OLDHOME"')
+        completion = sorted(set(output.strip().split()))
+        assert "gee" in completion
+        assert "gee-filename-canary" not in completion
