@@ -1641,6 +1641,9 @@ _known_hosts_real()
         done
     fi
 
+    local reset=$(shopt -po noglob)
+    set -o noglob
+
     # "Include" keyword in ssh config files
     if ((${#config[@]} > 0)); then
         for i in "${config[@]}"; do
@@ -1770,6 +1773,8 @@ _known_hosts_real()
         COMPREPLY+=(
             $(compgen -A hostname -P "$prefix" -S "$suffix" -- "$cur"))
     fi
+
+    $reset
 
     if [[ -v ipv4 ]]; then
         COMPREPLY=("${COMPREPLY[@]/*:*$suffix/}")
