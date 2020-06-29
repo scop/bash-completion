@@ -121,6 +121,10 @@ class TestUnitKnownHostsReal:
         expected.append("recursion")
         # fixtures/_known_hosts_real/.ssh/config_relative_path
         expected.append("relative_path")
+        # fixtures/_known_hosts_real/.ssh/config_asterisk_*
+        expected.extend("asterisk_1 asterisk_2".split())
+        # fixtures/_known_hosts_real/.ssh/config_question_mark
+        expected.append("question_mark")
 
         assert_bash_exec(
             bash, 'OLDHOME="$HOME"; HOME="%s/_known_hosts_real"' % bash.cwd

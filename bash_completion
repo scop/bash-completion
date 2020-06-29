@@ -1551,7 +1551,12 @@ _included_ssh_config_files()
         echo "bash_completion: $FUNCNAME: missing mandatory argument CONFIG" >&2
     local configfile i f
     configfile=$1
-    local included=($(command sed -ne 's/^[[:blank:]]*[Ii][Nn][Cc][Ll][Uu][Dd][Ee][[:blank:]]\{1,\}\([^#%]*\)\(#.*\)\{0,1\}$/\1/p' "${configfile}"))
+
+    local reset=$(shopt -po noglob)
+    set -o noglob
+    local included=($(command sed -ne 's/^[[:blank:]]*[Ii][Nn][Cc][Ll][Uu][Dd][Ee][[:blank:]]\(.*\)$/\1/p' "${configfile}"))
+    $reset
+
     [[ ${included-} ]] || return
     for i in "${included[@]}"; do
         # Check the origin of $configfile to complete relative included paths on included
@@ -1567,6 +1572,7 @@ _included_ssh_config_files()
         fi
         __expand_tilde_by_ref i
         # In case the expanded variable contains multiple paths
+        set +o noglob
         for f in $i; do
             if [[ -r $f ]]; then
                 config+=("$f")
@@ -1574,6 +1580,7 @@ _included_ssh_config_files()
                 _included_ssh_config_files $f
             fi
         done
+        $reset
     done
 } # _included_ssh_config_files()
 
