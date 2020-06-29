@@ -11,6 +11,8 @@ class TestUnitLongopt:
     def functions(self, request, bash):
         assert_bash_exec(bash, "_grephelp() { cat _longopt/grep--help.txt; }")
         assert_bash_exec(bash, "complete -F _longopt _grephelp")
+        assert_bash_exec(bash, "_various() { cat _longopt/various.txt; }")
+        assert_bash_exec(bash, "complete -F _longopt _various")
 
     @pytest.mark.complete("_grephelp --")
     def test_1(self, functions, completion):
@@ -32,3 +34,19 @@ class TestUnitLongopt:
         assert completion
         assert any(x.endswith("=") for x in completion)
         assert any(not x.endswith("=") for x in completion)
+
+    @pytest.mark.complete("_various --")
+    def test_no_dashdashdash(self, functions, completion):
+        assert all(not x.startswith("---") for x in completion)
+
+    @pytest.mark.complete("_various --")
+    def test_no_trailingdash(self, functions, completion):
+        assert all(not x.endswith("-") for x in completion)
+
+    @pytest.mark.complete("_various --")
+    def test_underscore(self, functions, completion):
+        assert "--foo_bar" in completion
+
+    @pytest.mark.complete("_various --")
+    def test_equals(self, functions, completion):
+        assert "--foo=" in completion
