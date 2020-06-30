@@ -1750,8 +1750,10 @@ _known_hosts_real()
     # append any available aliases from ssh config files
     if [[ ${#config[@]} -gt 0 && -v aliases ]]; then
         local -a hosts=($(command sed -ne 's/^[[:blank:]]*[Hh][Oo][Ss][Tt][[:blank:]]\(.*\)$/\1/p' "${config[@]}"))
-        COMPREPLY+=($(compgen -P "$prefix" \
-            -S "$suffix" -W '${hosts[@]%%[*?%]*}' -- "$cur"))
+        if ((${#hosts[@]} != 0)); then
+            COMPREPLY+=($(compgen -P "$prefix" \
+                -S "$suffix" -W '${hosts[@]%%[*?%]*}' -- "$cur"))
+        fi
     fi
 
     # Add hosts reported by avahi-browse, if desired and it's available.
