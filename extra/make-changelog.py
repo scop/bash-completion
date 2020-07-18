@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-# -*- encoding: utf-8 -*-
 
 import sys
 from collections import defaultdict
