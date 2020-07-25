@@ -11,6 +11,10 @@ import git
 repo = git.Repo(".")
 changelog = defaultdict(list)  # type: Dict[str, List[str]]
 
+if len(sys.argv) != 2:
+    print("Usage: %s SINCE-TAG" % __file__, file=sys.stderr)
+    sys.exit(2)
+
 for id in repo.iter_commits("%s..HEAD" % sys.argv[1]):
     commit = repo.commit(id)
     if not commit.summary.startswith("Merge pull request "):
