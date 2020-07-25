@@ -13,9 +13,8 @@ class TestTshark:
 
     @pytest.mark.complete("tshark -O foo,htt", require_cmd=True)
     def test_3(self, completion):
-        # When there's only one completion, it's be the one with "foo," prefix;
-        # when multiple (e.g. http and http2), it's the completion alone.
-        assert completion == "foo,http" or "http" in completion
+        # p: one completion only; http: e.g. http and http2
+        assert completion == "p" or "http" in completion
 
     @pytest.mark.complete("tshark -o tcp", require_cmd=True)
     def test_4(self, completion):
