@@ -28,3 +28,7 @@ class TestTshark:
     def test_6(self, completion):
         """Test there are no URLs in completions."""
         assert not any("://" in x for x in completion)
+
+    @pytest.mark.complete("tshark -r ")
+    def test_input_files(self, completion):
+        assert completion
