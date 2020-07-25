@@ -93,29 +93,36 @@ _pytest()
 
     if [[ $cur == *.py::*:* ]]; then
         local file=${cur/.py:*/.py}
-        local class=${cur#*.py::}
+        local class=${cur#*.py::} in_class=false
+        local line
         class=${class%%:*}
-        local -a methods=(
-            "$(awk "
-                   /^[ \t]*class[ \t]+${class}[ \t:(]/ {flag=1; next}
-                   \$1 == \"class\" {flag=0}
-                   flag && \$1 == \"def\" {
-                       sub(\"\\\(.*\",\"\",\$2); print \$2
-                   }
-                   flag && \$1 == \"async\" && \$2 == \"def\" {
-                       sub(\"\\\(.*\",\"\",\$3); print \$3
-                   }
-                   " <"$file")")
-        COMPREPLY=($(compgen -P "$file::$class::" -W "${methods[@]}" -- "${cur##*:?(:)}"))
+        while IFS= read -r line; do
+            if [[ $line =~ ^class[[:space:]]+${class}[[:space:]:\(] ]]; then
+                in_class=true
+            elif [[ $line =~ ^class[[:space:]] ]]; then
+                in_class=false
+            fi
+            if $in_class && [[ $line =~ ^[[:space:]]+(async[[:space:]]+)?def[[:space:]]+(test_[A-Za-z0-9_]+) ]]; then
+                COMPREPLY+=(${BASH_REMATCH[2]})
+            fi
+        done 2>/dev/null <"$file"
+        ((!${#COMPREPLY[@]})) ||
+            COMPREPLY=($(compgen -P "$file::$class::" -W '${COMPREPLY[@]}' \
+                -- "${cur##*:?(:)}"))
         __ltrim_colon_completions "$cur"
         return
     elif [[ $cur == *.py:* ]]; then
-        local file="${cur/.py:*/.py}"
-        local -a classes=(
-            "$(awk '$1 == "class" {
-                   sub("[:(].*","",$2); print $2
-               }' 2>/dev/null <"$file")")
-        COMPREPLY=($(compgen -P "$file::" -W "${classes[@]}" -- "${cur##*.py:?(:)}"))
+        local file="${cur/.py:*/.py}" line
+        while IFS= read -r line; do
+            if [[ $line =~ ^class[[:space:]]+(Test[A-Za-z0-9_]+) ]]; then
+                COMPREPLY+=(${BASH_REMATCH[1]})
+            elif [[ $line =~ ^(async[[:space:]]+)?def[[:space:]]+(test_[A-Za-z0-9_]+) ]]; then
+                COMPREPLY+=(${BASH_REMATCH[2]})
+            fi
+        done 2>/dev/null <"$file"
+        ((!${#COMPREPLY[@]})) ||
+            COMPREPLY=($(compgen -P "$file::" -W '${COMPREPLY[@]}' \
+                -- "${cur##*.py:?(:)}"))
         __ltrim_colon_completions "$cur"
         return
     fi
