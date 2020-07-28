@@ -146,11 +146,14 @@ A. Install it in one of the directories pointed to by
      directory, completions are automatically loaded on demand based on invoked
      commands' names, so be sure to name your completion file accordingly, and
      to include (for example) symbolic links in case the file provides
-     completions for more than one command.
-   - The other directory (which only present for backwards compatibility)
-     is `compatdir` (get it with
-     `pkg-config --variable=compatdir bash-completion`) from which files
-     are loaded when `bash_completion` is loaded.
+     completions for more than one command. The completion filename for
+     command `foo` in this directory should be either `foo`, or `foo.bash`.
+     (Underscore prefixed `_foo` works too, but is reserved for
+     bash-completion internal use as a deprecation/fallback marker.)
+   - The other directory which is only present for backwards compatibility,
+     its usage is no longer recommended, is `compatdir` (get it with
+     `pkg-config --variable=compatdir bash-completion`). From this
+     directory, files are loaded eagerly when `bash_completion` is loaded.
 
    For packages using GNU autotools the installation can be handled
    for example like this in `configure.ac`:
