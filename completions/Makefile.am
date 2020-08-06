@@ -325,6 +325,7 @@ bashcomp_DATA = 2to3 \
 		prelink \
 		printenv \
 		protoc \
+		ps \
 		psql \
 		puppet \
 		pv \
