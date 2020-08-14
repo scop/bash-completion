@@ -44,7 +44,8 @@ _xfreerdp()
     esac
 
     if [[ $cur == /* ]]; then
-        COMPREPLY=($(compgen -W '$("$1" --help |
+        _filedir rdp
+        COMPREPLY+=($(compgen -W '$("$1" --help |
             awk "\$1 ~ /^\\// && \$1 !~ /^.(flag\$|option:)/ { sub(\":.*\",\":\",\$1); print \$1 }")' \
             -- "$cur"))
         [[ ${COMPREPLY-} == *: ]] && compopt -o nospace
@@ -60,7 +61,8 @@ _xfreerdp()
             COMPREPLY=($(compgen -W '${COMPREPLY[@]%:}' -- "$cur"))
         fi
     else
-        COMPREPLY=($(compgen -W "$(awk '{print $1}' ~/.freerdp/known_hosts \
+        _filedir rdp
+        COMPREPLY+=($(compgen -W "$(awk '{print $1}' ~/.freerdp/known_hosts \
             2>/dev/null)" -- "$cur"))
     fi
 

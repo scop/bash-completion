@@ -58,3 +58,7 @@ class TestXfreerdp:
     @pytest.mark.complete("xfreerdp --help ", require_cmd=True)
     def test_7(self, completion):
         assert not completion
+
+    @pytest.mark.complete("xfreerdp ./")
+    def test_rdp_files(self, completion):
+        assert completion  # just dirs for now in the fixture, but that'll do
