@@ -34,19 +34,19 @@ _ssh_macs()
 
 _ssh_options()
 {
+    # curl --silent https://raw.githubusercontent.com/openssh/openssh-portable/master/ssh_config.5 | awk '$1==".It" && $2=="Cm" && $3!="Host" && $3!="Match" {print "        "$3}' | sort
     local opts=(
-        AddKeysToAgent AddressFamily BatchMode BindAddress CanonicalDomains
-        CanonicalizeFallbackLocal CanonicalizeHostname CanonicalizeMaxDots
-        CanonicalizePermittedCNAMEs CASignatureAlgorithms CertificateFile
-        ChallengeResponseAuthentication CheckHostIP Ciphers ClearAllForwardings
-        Compression ConnectionAttempts ConnectTimeout ControlMaster ControlPath
-        ControlPersist DynamicForward EnableSSHKeysign EscapeChar
-        ExitOnForwardFailure FingerprintHash ForwardAgent ForwardX11
-        ForwardX11Timeout ForwardX11Trusted GatewayPorts GlobalKnownHostsFile
-        GSSAPIAuthentication GSSAPIClientIdentity GSSAPIDelegateCredentials
-        GSSAPIKeyExchange GSSAPIRenewalForcesRekey GSSAPIServerIdentity
-        GSSAPITrustDns HashKnownHosts Host HostbasedAuthentication
-        HostbasedKeyTypes HostKeyAlgorithms HostKeyAlias HostName
+        AddKeysToAgent AddressFamily BatchMode BindAddress BindInterface
+        CanonicalDomains CanonicalizeFallbackLocal CanonicalizeHostname
+        CanonicalizeMaxDots CanonicalizePermittedCNAMEs CASignatureAlgorithms
+        CertificateFile ChallengeResponseAuthentication CheckHostIP Ciphers
+        ClearAllForwardings Compression ConnectionAttempts ConnectTimeout
+        ControlMaster ControlPath ControlPersist DynamicForward
+        EnableSSHKeysign EscapeChar ExitOnForwardFailure FingerprintHash
+        ForwardAgent ForwardX11 ForwardX11Timeout ForwardX11Trusted
+        GatewayPorts GlobalKnownHostsFile GSSAPIAuthentication
+        GSSAPIDelegateCredentials HashKnownHosts HostbasedAuthentication
+        HostbasedKeyTypes HostKeyAlgorithms HostKeyAlias Hostname
         IdentitiesOnly IdentityAgent IdentityFile IgnoreUnknown Include IPQoS
         KbdInteractiveAuthentication KbdInteractiveDevices KexAlgorithms
         LocalCommand LocalForward LogLevel MACs
@@ -54,11 +54,17 @@ _ssh_options()
         PasswordAuthentication PermitLocalCommand PKCS11Provider Port
         PreferredAuthentications ProxyCommand ProxyJump ProxyUseFdpass
         PubkeyAcceptedKeyTypes PubkeyAuthentication RekeyLimit RemoteCommand
-        RemoteForward RequestTTY RevokedHostKeys SendEnv ServerAliveCountMax
-        ServerAliveInterval SmartcardDevice StreamLocalBindMask
+        RemoteForward RequestTTY RevokedHostKeys SecurityKeyProvider SendEnv
+        ServerAliveCountMax ServerAliveInterval SetEnv StreamLocalBindMask
         StreamLocalBindUnlink StrictHostKeyChecking SyslogFacility TCPKeepAlive
-        Tunnel TunnelDevice UpdateHostKeys UsePrivilegedPort User
-        UserKnownHostsFile VerifyHostKeyDNS VisualHostKey XAuthLocation)
+        Tunnel TunnelDevice UpdateHostKeys User UserKnownHostsFile
+        VerifyHostKeyDNS VisualHostKey XAuthLocation
+    )
+    # Selected old ones
+    opts+=(
+        GSSAPIKeyExchange GSSAPIRenewalForcesRekey GSSAPIServerIdentity
+        GSSAPITrustDns SmartcardDevice UsePrivilegedPort
+    )
     local protocols=$(_ssh_query "$1" protocol-version)
     if [[ -z $protocols || $protocols == *1* ]]; then
         opts+=(Cipher CompressionLevel Protocol RhostsRSAAuthentication
