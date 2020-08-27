@@ -43,4 +43,4 @@ class TestUnitExpandTildeByRef:
             % (user, suffix),
             want_output=True,
         )
-        assert output.strip() == "%s%s" % (home, suffix.replace(r"\$", "$"),)
+        assert output.strip() == "%s%s" % (home, suffix.replace(r"\$", "$"))

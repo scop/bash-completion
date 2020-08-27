@@ -3,7 +3,7 @@ import os.path
 import pytest
 
 
-@pytest.mark.bashcomp(cmd="dpkg-query",)
+@pytest.mark.bashcomp(cmd="dpkg-query")
 class TestDpkgQuery:
     @pytest.mark.complete("dpkg-query --", require_cmd=True)
     def test_options(self, completion):

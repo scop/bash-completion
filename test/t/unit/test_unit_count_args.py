@@ -47,7 +47,7 @@ class TestUnitCountArgs(TestUnitBase):
 
     def test_8(self, bash):
         """a -b -c d e| with -c arg excluded
-           and -b included should set args to 1"""
+        and -b included should set args to 1"""
         output = self._test(
             bash,
             "(a -b -c d e)",

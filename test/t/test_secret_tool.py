@@ -1,7 +1,7 @@
 import pytest
 
 
-@pytest.mark.bashcomp(cmd="secret-tool",)
+@pytest.mark.bashcomp(cmd="secret-tool")
 class TestSecretTool:
     @pytest.mark.complete("secret-tool ", require_cmd=True)
     def test_modes(self, completion):
