@@ -1,0 +1,40 @@
+# bash completion for avahi-browse(1)                      -*- shell-script -*-
+
+_avahi_browse()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        --domain | -!(-*)D)
+            return
+            ;;
+        --help | --version | -!(-*)[hV]*)
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        [[ $COMPREPLY != *= ]] || compopt -o nospace
+        return
+    fi
+
+    # Complete service types except with -a/-D/-b
+    [[ $1 != *-domains ]] || return
+    local word
+    for word in "${words[@]}"; do
+        case $word in
+            --all | --browse-domains | --dump-db | -!(-*)[aDb]*)
+                return
+                ;;
+        esac
+    done
+    COMPREPLY=($(compgen -W '$("$1" --dump-db --no-db-lookup)' -- "$cur"))
+
+} &&
+    complete -F _avahi_browse avahi-browse avahi-browse-domains
+
+# ex: filetype=sh

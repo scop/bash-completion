@@ -26,6 +26,7 @@ bashcomp_DATA = 2to3 \
 		autoreconf \
 		autorpm \
 		autoscan \
+		avahi-browse \
 		avctrl \
 		badblocks \
 		bind \
@@ -497,6 +498,7 @@ CLEANFILES = \
 	automake-1.16 \
 	autossh \
 	autoupdate \
+	avahi-browse-domains \
 	bmake \
 	bsdtar \
 	btdownloadcurses.py \
@@ -761,6 +763,8 @@ symlinks: $(DATA)
 		autoheader
 	$(ss) autoscan \
 		autoupdate
+	$(ss) avahi-browse \
+		avahi-browse-domains
 	$(ss) btdownloadheadless.py \
 		btdownloadcurses.py btdownloadgui.py
 	$(ss) bzip2 \

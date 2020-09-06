@@ -36,6 +36,7 @@ EXTRA_DIST = \
 	test_autoscan.py \
 	test_autossh.py \
 	test_autoupdate.py \
+	test_avahi_browse.py \
 	test_avctrl.py \
 	test_awk.py \
 	test_badblocks.py \
