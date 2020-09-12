@@ -917,7 +917,7 @@ _mac_addresses()
     # - ip link: link/ether
     COMPREPLY+=($(
         {
-            LC_ALL=C ifconfig -a || ip link show
+            LC_ALL=C ifconfig -a || ip -c=never link show || ip link show
         } 2>/dev/null | command sed -ne \
             "s/.*[[:space:]]HWaddr[[:space:]]\{1,\}\($re\)[[:space:]].*/\1/p" -ne \
             "s/.*[[:space:]]HWaddr[[:space:]]\{1,\}\($re\)[[:space:]]*$/\1/p" -ne \
@@ -927,7 +927,7 @@ _mac_addresses()
 
     # ARP cache
     COMPREPLY+=($({
-        arp -an || ip neigh show
+        arp -an || ip -c=never neigh show || ip neigh show
     } 2>/dev/null | command sed -ne \
         "s/.*[[:space:]]\($re\)[[:space:]].*/\1/p" -ne \
         "s/.*[[:space:]]\($re\)[[:space:]]*$/\1/p"))
@@ -982,7 +982,7 @@ _ip_addresses()
     esac
     local PATH=$PATH:/sbin
     local addrs=$({
-        LC_ALL=C ifconfig -a || ip addr show
+        LC_ALL=C ifconfig -a || ip -c=never addr show || ip addr show
     } 2>/dev/null |
         command sed -e 's/[[:space:]]addr:/ /' -ne \
             "s|.*inet${n}[[:space:]]\{1,\}\([^[:space:]/]*\).*|\1|p")
@@ -1008,9 +1008,9 @@ _available_interfaces()
         if [[ ${1:-} == -w ]]; then
             iwconfig
         elif [[ ${1:-} == -a ]]; then
-            ifconfig || ip link show up
+            ifconfig || ip -c=never link show up || ip link show up
         else
-            ifconfig -a || ip link show
+            ifconfig -a || ip -c=never link show || ip link show
         fi
     } 2>/dev/null | awk \
         '/^[^ \t]/ { if ($1 ~ /^[0-9]+:/) { print $2 } else { print $1 } }'))
