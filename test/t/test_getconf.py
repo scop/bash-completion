@@ -2,7 +2,9 @@ import pytest
 
 
 class TestGetconf:
-    @pytest.mark.complete("getconf P")
+    @pytest.mark.complete(
+        "getconf P", xfail="! getconf -a 2>&1 | command grep -q ^POSIX_V"
+    )
     def test_1(self, completion):
         assert completion
 
