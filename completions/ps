@@ -7,7 +7,8 @@ _ps()
 
     case $prev in
         --help)
-            COMPREPLY=($(compgen -W 'simple list output threads misc all' -- "$cur"))
+            COMPREPLY=($(compgen -W 'simple list output threads misc all' \
+                -- "$cur"))
             return
             ;;
         --info | V | --version)
@@ -39,7 +40,8 @@ _ps()
             ;;
         ?(-)t | [^-]*t | --tty)
             COMPREPLY=($(printf '%s\n' /dev/tty*))
-            COMPREPLY=($(compgen -W '${COMPREPLY[@]} ${COMPREPLY[@]#/dev/}' -- "$cur"))
+            COMPREPLY=($(compgen -W '${COMPREPLY[@]} ${COMPREPLY[@]#/dev/}' \
+                -- "$cur"))
             return
             ;;
         ?(-)U | [^-]*U | -u | --[Uu]ser)
@@ -51,7 +53,8 @@ _ps()
             # the non-first item (similarly to useradd --groups and others).
             local prefix=
             [[ $cur == *,* ]] && prefix="${cur%,*},"
-            COMPREPLY=($(compgen -W "$("$1" L | cut -d' ' -f1 | tr '\n' ' ')" -- "${cur##*,}"))
+            COMPREPLY=($(compgen -W "$("$1" L | awk '{ print $1 }')" \
+                -- "${cur##*,}"))
             ((${#COMPREPLY[@]} == 1)) && COMPREPLY=(${COMPREPLY/#/$prefix})
             return
             ;;
