@@ -63,9 +63,13 @@ _ps()
             ;;
     esac
 
-    # TODO: Add/remove flags and/or consider using _parse_help.
-    COMPREPLY=($(compgen -W '-A -a -d --deselect -C --Group --group --pid --ppid
---quick-pid --sid --tty --user --User --format --help --info --version' -- "$cur"))
+    if [[ $cur == -* ]]; then
+        # sed: strip single char dashless ", x," that trip _parse_help
+        COMPREPLY=($(compgen -W \
+            '$({ "$1" --help; "$1" --help all; } 2>/dev/null |
+             sed -e "s/, [A-Za-z],/,/" | _parse_help -)' \
+            -- "$cur"))
+    fi
 } &&
     complete -F _ps ps
 

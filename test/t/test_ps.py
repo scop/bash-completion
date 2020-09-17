@@ -11,7 +11,7 @@ def is_int(s):
 
 
 class TestPs:
-    @pytest.mark.complete("ps ")
+    @pytest.mark.complete("ps -")
     def test_1(self, completion):
         assert completion
 
@@ -19,8 +19,6 @@ class TestPs:
     def test_2(self, completion):
         assert completion == ['all', 'list', 'misc', 'output', 'simple', 'threads']
 
-    # TODO: Make this test pass.
-    @pytest.mark.xfail
     @pytest.mark.complete("ps --help all ")
     def test_3(self, completion):
         assert not completion
