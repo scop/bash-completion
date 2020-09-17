@@ -1,0 +1,76 @@
+# bash completion for ps(1)                                -*- shell-script -*-
+
+_ps()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --help)
+            COMPREPLY=($(compgen -W 'simple list output threads misc all' \
+                -- "$cur"))
+            return
+            ;;
+        --info | V | --version)
+            return
+            ;;
+        -C)
+            _pnames
+            return
+            ;;
+        -[Gg] | --[Gg]roup)
+            COMPREPLY=($(compgen -g -- "$cur"))
+            return
+            ;;
+        ?(-)p | [^-]*p | --pid)
+            _pids
+            return
+            ;;
+        --ppid)
+            _pids # TODO: Only pids with children?
+            return
+            ;;
+        ?(-)q | [^-]*q | --quick-pid)
+            _pids
+            return
+            ;;
+        -s | --sid)
+            # TODO
+            return
+            ;;
+        ?(-)t | [^-]*t | --tty)
+            COMPREPLY=($(
+                shopt -s nullglob
+                printf '%s\n' /dev/tty*
+            ))
+            COMPREPLY=($(compgen -W '${COMPREPLY[@]} ${COMPREPLY[@]#/dev/}' \
+                -- "$cur"))
+            return
+            ;;
+        ?(-)U | [^-]*U | -u | --[Uu]ser)
+            COMPREPLY=($(compgen -u -- "$cur"))
+            return
+            ;;
+        --format | ?(-)[Oo] | [^-]*[Oo])
+            # TODO: This doesn't work well when there are multiple options for
+            # the non-first item (similarly to useradd --groups and others).
+            local prefix=
+            [[ $cur == *,* ]] && prefix="${cur%,*},"
+            COMPREPLY=($(compgen -W "$("$1" L | awk '{ print $1 }')" \
+                -- "${cur##*,}"))
+            ((${#COMPREPLY[@]} == 1)) && COMPREPLY=(${COMPREPLY/#/$prefix})
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        # sed: strip single char dashless ", x," that trip _parse_help
+        COMPREPLY=($(compgen -W \
+            '$({ "$1" --help; "$1" --help all; } 2>/dev/null |
+             sed -e "s/, [A-Za-z],/,/" | _parse_help -)' \
+            -- "$cur"))
+    fi
+} &&
+    complete -F _ps ps
+
+# ex: filetype=sh

@@ -462,6 +462,7 @@ EXTRA_DIST = \
 	test_prelink.py \
 	test_printenv.py \
 	test_protoc.py \
+	test_ps.py \
 	test_psql.py \
 	test_ptx.py \
 	test_puppet.py \
