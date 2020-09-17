@@ -17,7 +17,14 @@ class TestPs:
 
     @pytest.mark.complete("ps --help ")
     def test_2(self, completion):
-        assert completion == ['all', 'list', 'misc', 'output', 'simple', 'threads']
+        assert completion == [
+            "all",
+            "list",
+            "misc",
+            "output",
+            "simple",
+            "threads",
+        ]
 
     @pytest.mark.complete("ps --help all ")
     def test_3(self, completion):
