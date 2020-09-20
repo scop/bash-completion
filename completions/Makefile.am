@@ -638,6 +638,7 @@ CLEANFILES = \
 	ping6 \
 	pkg_deinstall \
 	pkg_info \
+	pkgconf \
 	pkill \
 	plzip \
 	pm-suspend \
@@ -875,6 +876,8 @@ symlinks: $(DATA)
 		alpine
 	$(ss) ping \
 		ping6
+	$(ss) pkg-config \
+		pkgconf
 	$(ss) pkg_delete \
 		pkg_deinstall pkg_info
 	$(ss) pgrep \

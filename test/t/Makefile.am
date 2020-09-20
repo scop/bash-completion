@@ -440,6 +440,7 @@ EXTRA_DIST = \
 	test_pkg_get.py \
 	test_pkg_info.py \
 	test_pkgadd.py \
+	test_pkgconf.py \
 	test_pkgrm.py \
 	test_pkgtool.py \
 	test_pkgutil.py \
