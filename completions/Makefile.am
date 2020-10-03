@@ -938,7 +938,8 @@ symlinks: $(DATA)
 	$(ss) vncviewer \
 		tightvncviewer xvnc4viewer
 	$(ss) wine \
-		wine-development wine-stable
+		wine-development wine-stable \
+		wine64 wine64-development wine64-stable
 	$(ss) wodim \
 		cdrecord
 	$(ss) xz \
