@@ -744,6 +744,8 @@ CLEANFILES = \
 	vgsplit \
 	vigr \
 	whatis \
+	wine-development \
+	wine-stable \
 	xpovray \
 	xvnc4viewer \
 	ypcat
