@@ -2,7 +2,7 @@
 
 _xrandr_outputs()
 {
-    "$1" 2>/dev/null | awk '/connected/ {print $1}'
+    "$1" -q 2>/dev/null | awk '/connected/ {print $1}'
 }
 
 _xrandr_monitors()
@@ -17,11 +17,21 @@ _xrandr_providers()
 
 _xrandr_modes()
 {
-    "$1" -q 2>/dev/null | command sed -e "1,/^$2 / d" \
-                                      -e '/connected/,$ d' \
-                                      -e '/^[[:space:]]*h: / d' \
-                                      -e '/^[[:space:]]*v: / d' \
-                                      -e 's/\([^[:space:]]\)[[:space:]].*/\1/'
+    "$1" -q 2>/dev/null | command sed \
+        -e "1,/^$2 / d" \
+        -e '/connected/,$ d' \
+        -e '/^[[:space:]]*h: / d' \
+        -e '/^[[:space:]]*v: / d' \
+        -e 's/\([^[:space:]]\)[[:space:]].*/\1/'
+}
+
+_xrandr_all_modes()
+{
+    "$1" -q 2>/dev/null | command sed \
+        -e '/^[^[:space:]].*/ d' \
+        -e '/^[[:space:]]*h: / d' \
+        -e '/^[[:space:]]*v: / d' \
+        -e 's/[[:space:]]*\([^[:space:]]*\)[[:space:]].*/\1/'
 }
 
 _xrandr_help()
@@ -108,35 +118,40 @@ _xrandr()
 
     # second arguments
     if (($cword >= 2)); then
-       case "${words[cword-2]}" in
-           --set)
-               return
-               ;;
-           --addmode | --delmode)
-               local modes=$(_xrandr_modes "$1" "${words[cword-1]}")
-               COMPREPLY=($(compgen -W "$modes" -- "$cur"))
-               return
-               ;;
-           --setmonitor)
-               COMPREPLY=($(compgen -W 'auto' -- "$cur"))
-               return
-               ;;
-           --setprovideroutputsource)
-               local providers=$(_xrandr_providers "$1" "Source Output")
-               COMPREPLY=($(compgen -W "0x0 $providers" -- "$cur"))
-               return
-               ;;
-           --setprovideroffloadsink)
-               local providers=$(_xrandr_providers "$1" "Sink Offload")
-               COMPREPLY=($(compgen -W "0x0 $providers" -- "$cur"))
-               return
-               ;;
-       esac
+        case "${words[cword - 2]}" in
+            --set)
+                return
+                ;;
+            --addmode)
+                local modes=$(_xrandr_all_modes "$1")
+                COMPREPLY=($(compgen -W "$modes" -- "$cur"))
+                return
+                ;;
+            --delmode)
+                local modes=$(_xrandr_modes "$1" "${words[cword - 1]}")
+                COMPREPLY=($(compgen -W "$modes" -- "$cur"))
+                return
+                ;;
+            --setmonitor)
+                COMPREPLY=($(compgen -W 'auto' -- "$cur"))
+                return
+                ;;
+            --setprovideroutputsource)
+                local providers=$(_xrandr_providers "$1" "Source Output")
+                COMPREPLY=($(compgen -W "0x0 $providers" -- "$cur"))
+                return
+                ;;
+            --setprovideroffloadsink)
+                local providers=$(_xrandr_providers "$1" "Sink Offload")
+                COMPREPLY=($(compgen -W "0x0 $providers" -- "$cur"))
+                return
+                ;;
+        esac
     fi
 
     # third arguments
     if (($cword >= 3)); then
-        case "${words[cword-3]}" in
+        case "${words[cword - 3]}" in
             --setmonitor)
                 local outputs=$(_xrandr_outputs "$1")
                 COMPREPLY=($(compgen -W "none $outputs" -- "$cur"))
