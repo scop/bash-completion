@@ -15,6 +15,14 @@ _apt_mark()
 
     if [[ -v special ]]; then
         case $special in
+            auto | manual | unhold)
+                local -A showcmds=([auto]=manual [manual]=auto [unhold]=hold)
+                local showcmd=${showcmds[$special]}
+                COMPREPLY=($(
+                    compgen -W "$("$1" show$showcmd 2>/dev/null)" -- "$cur"
+                ))
+                return
+                ;;
             minimize-manual)
                 return
                 ;;
