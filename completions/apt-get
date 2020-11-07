@@ -1,5 +1,18 @@
 # Debian apt-get(8) completion                             -*- shell-script -*-
 
+_apt_get_installed_packages()
+{
+    if [[ -f /etc/debian_version ]]; then
+        # Debian system
+        COMPREPLY=($(
+            _xfunc dpkg _comp_dpkg_installed_packages $cur
+        ))
+    else
+        # assume RPM based
+        _xfunc rpm _rpm_installed_packages
+    fi
+}
+
 _apt_get()
 {
     local cur prev words cword package
@@ -16,15 +29,7 @@ _apt_get()
     if [[ -v special ]]; then
         case $special in
             remove | autoremove | purge)
-                if [[ -f /etc/debian_version ]]; then
-                    # Debian system
-                    COMPREPLY=($(
-                        _xfunc dpkg _comp_dpkg_installed_packages $cur
-                    ))
-                else
-                    # assume RPM based
-                    _xfunc rpm _rpm_installed_packages
-                fi
+                _apt_get_installed_packages
                 ;;
             source)
                 COMPREPLY=($(_xfunc apt-cache _apt_cache_packages)
