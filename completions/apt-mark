@@ -6,7 +6,7 @@ _apt_mark()
     _init_completion -s || return
 
     local special i
-    for (( i=1; i < ${#words[@]}-1; i++ )); do
+    for ((i = 1; i < ${#words[@]} - 1; i++)); do
         if [[ ${words[i]} == @(auto|manual|minimize-manual|showauto|showmanual|hold|unhold|showhold|install|remove|purge|showinstall|showremove|showpurge) ]]; then
             special=${words[i]}
         fi
@@ -18,21 +18,21 @@ _apt_mark()
                 return
                 ;;
             *)
-                COMPREPLY=( $(_xfunc apt-cache _apt_cache_packages) )
+                COMPREPLY=($(_xfunc apt-cache _apt_cache_packages))
                 ;;
         esac
         return
     fi
 
     case $prev in
-        --help|--version|--option|-!(-*)[hvo])
+        --help | --version | --option | -!(-*)[hvo])
             return
             ;;
-        --config-file|-!(-*)c)
+        --config-file | -!(-*)c)
             _filedir conf
             return
             ;;
-        --file|-!(-*)f)
+        --file | -!(-*)f)
             _filedir
             return
             ;;
@@ -40,14 +40,17 @@ _apt_mark()
 
     $split && return
 
-    if [[ "$cur" == -* ]]; then
-        COMPREPLY=( $(compgen -W '--file= --help --version --config-file --option' -- "$cur") )
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '--file= --help --version --config-file
+            --option' -- "$cur"))
         [[ $COMPREPLY == *= ]] && compopt -o nospace
     else
-        COMPREPLY=( $(compgen -W 'auto manual minimize-manual showauto showmanual hold unhold showhold install remove purge showinstall showremove showpurge' -- "$cur") )
+        COMPREPLY=($(compgen -W 'auto manual minimize-manual showauto
+            showmanual hold unhold showhold install remove purge
+            showinstall showremove showpurge' -- "$cur"))
     fi
 
 } &&
-complete -F _apt_mark apt-mark
+    complete -F _apt_mark apt-mark
 
 # ex: filetype=sh

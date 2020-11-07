@@ -5,10 +5,14 @@ import pytest
 class TestAptMark:
     @pytest.mark.complete("apt-mark ")
     def test_1(self, completion):
-        assert all(x in completion for x in (
-        "auto manual remove showinstall showremove "
-        "hold minimize-manual showauto showmanual unhold install "
-        "purge showhold showpurge").split())
+        assert all(
+            x in completion
+            for x in (
+                "auto manual remove showinstall showremove "
+                "hold minimize-manual showauto showmanual unhold install "
+                "purge showhold showpurge"
+            ).split()
+        )
 
     @pytest.mark.complete("apt-mark minimize-manual ")
     def test_2(self, completion):
@@ -25,4 +29,3 @@ class TestAptMark:
     @pytest.mark.complete("apt-mark --option ")
     def test_5(self, completion):
         assert not completion
-
