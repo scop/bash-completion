@@ -1114,27 +1114,32 @@ if [[ $OSTYPE == *@(solaris|aix)* ]]; then
 else
     _pids()
     {
-        COMPREPLY=($(compgen -W '$(command ps axo pid=)' -- "$cur"))
+        COMPREPLY=($(compgen -W '$(command ps ax -o pid=)' -- "$cur"))
     }
     _pgids()
     {
-        COMPREPLY=($(compgen -W '$(command ps axo pgid=)' -- "$cur"))
+        COMPREPLY=($(compgen -W '$(command ps ax -o pgid=)' -- "$cur"))
     }
     # @param $1 if -s, don't try to avoid truncated command names
     _pnames()
     {
         local -a procs
         if [[ ${1-} == -s ]]; then
-            procs=($(command ps axo comm | command sed -e 1d))
+            procs=($(command ps ax -o comm | command sed -e 1d))
         else
             local line i=-1 ifs=$IFS
             IFS=$'\n'
-            local -a psout=($(command ps axo command=))
+            # Some versions of ps don't support "command", but do "comm", e.g.
+            # some busybox ones. Fall back
+            local -a psout=($({
+                command ps ax -o command= || command ps ax -o comm=
+            } 2>/dev/null))
             IFS=$ifs
             for line in "${psout[@]}"; do
                 if ((i == -1)); then
-                    # First line, see if it has COMMAND column header. For example
-                    # the busybox ps does that, i.e. doesn't respect axo command=
+                    # First line, see if it has COMMAND column header. For
+                    # example some busybox ps versions do that, i.e. don't
+                    # respect command=
                     if [[ $line =~ ^(.*[[:space:]])COMMAND([[:space:]]|$) ]]; then
                         # It does; store its index.
                         i=${#BASH_REMATCH[1]}
@@ -1150,7 +1155,7 @@ else
                 fi
             done
             if ((i == -1)); then
-                # Regular axo command= parsing
+                # Regular command= parsing
                 for line in "${psout[@]}"; do
                     if [[ $line =~ ^[[(](.+)[])]$ ]]; then
                         procs+=(${BASH_REMATCH[1]})
