@@ -9,7 +9,11 @@ class TestAvahiBrowse:
     def test_options(self, completion):
         assert completion
 
-    @pytest.mark.complete("avahi-browse _", require_cmd=True)
+    @pytest.mark.complete(
+        "avahi-browse _",
+        require_cmd=True,
+        xfail='test -z "$(avahi-browse --dump-db 2>/dev/null)"',
+    )
     def test_service_types(self, completion):
         assert completion
 
