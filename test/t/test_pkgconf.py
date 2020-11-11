@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 
@@ -12,7 +14,8 @@ class TestPkgconf:
         assert completion
 
     @pytest.mark.complete(
-        "pkgconf ../../bash-completion.pc --variable=",
+        "pkgconf %s/bash-completion.pc --variable="
+        % os.getenv("ABS_TOP_BUILDDIR", "../.."),
         require_cmd=True,
     )
     def test_variable(self, completion):
