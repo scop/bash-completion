@@ -604,6 +604,26 @@ CLEANFILES = \
 	ldapwhoami \
 	links2 \
 	lintian-info \
+	lua50 \
+	lua5.0 \
+	lua51 \
+	lua5.1 \
+	lua52 \
+	lua5.2 \
+	lua53 \
+	lua5.3 \
+	lua54 \
+	lua5.4 \
+	luac50 \
+	luac5.0 \
+	luac51 \
+	luac5.1 \
+	luac52 \
+	luac5.2 \
+	luac53 \
+	luac5.3 \
+	luac54 \
+	luac5.4 \
 	lusermod \
 	lvchange \
 	lvcreate \
@@ -846,6 +866,10 @@ symlinks: $(DATA)
 		links2
 	$(ss) lintian \
 		lintian-info
+	$(ss) lua \
+		lua50 lua5.0 lua51 lua5.1 lua52 lua5.2 lua53 lua5.3 lua54 lua5.4
+	$(ss) luac \
+		luac50 luac5.0 luac51 luac5.1 luac52 luac5.2 luac53 luac5.3 luac54 luac5.4
 	$(ss) luseradd \
 		lusermod
 	$(ss) lvm \
