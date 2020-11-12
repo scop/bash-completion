@@ -695,7 +695,8 @@ all:
 PYTEST = @PYTEST@
 
 check-local:
-	$(PYTEST) $(PYTESTFLAGS) $(srcdir)
+	ABS_TOP_BUILDDIR="$(abs_top_builddir)" \
+		$(PYTEST) $(PYTESTFLAGS) $(srcdir)
 
 clean-local:
 	$(RM) -R __pycache__

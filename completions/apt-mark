@@ -1,0 +1,65 @@
+# Debian apt-mark(8) completion                             -*- shell-script -*-
+
+_apt_mark()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    local special i
+    for ((i = 1; i < ${#words[@]} - 1; i++)); do
+        if [[ ${words[i]} == @(auto|manual|minimize-manual|showauto|showmanual|hold|unhold|showhold|install|remove|deinstall|purge|showinstall|showremove|showpurge) ]]; then
+            special=${words[i]}
+            break
+        fi
+    done
+
+    if [[ -v special ]]; then
+        case $special in
+            auto | manual | unhold)
+                local -A showcmds=([auto]=manual [manual]=auto [unhold]=hold)
+                local showcmd=${showcmds[$special]}
+                COMPREPLY=($(
+                    compgen -W "$("$1" show$showcmd 2>/dev/null)" -- "$cur"
+                ))
+                return
+                ;;
+            minimize-manual)
+                return
+                ;;
+            *)
+                _xfunc apt-get _apt_get_installed_packages
+                ;;
+        esac
+        return
+    fi
+
+    case $prev in
+        --help | --version | --option | -!(-*)[hvo])
+            return
+            ;;
+        --config-file | -!(-*)c)
+            _filedir conf
+            return
+            ;;
+        --file | -!(-*)f)
+            _filedir
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '--file= --help --version --config-file
+            --option' -- "$cur"))
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+    else
+        COMPREPLY=($(compgen -W 'auto manual minimize-manual showauto
+            showmanual hold unhold showhold install remove purge
+            showinstall showremove showpurge' -- "$cur"))
+    fi
+
+} &&
+    complete -F _apt_mark apt-mark
+
+# ex: filetype=sh

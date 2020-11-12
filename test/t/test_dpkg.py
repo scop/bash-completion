@@ -13,3 +13,7 @@ class TestDpkg:
     @pytest.mark.complete("dpkg -i ~")
     def test_3(self, completion):
         assert completion
+
+    @pytest.mark.complete("dpkg -i dpkg/")
+    def test_i_deb(self, completion):
+        assert completion == "bash-completion-test-subject.deb"
