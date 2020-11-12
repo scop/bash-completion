@@ -4,7 +4,7 @@ ENV = dict(PATH="$PWD/xrandr:$PATH")
 OUTPUTS = sorted("DP-0 DP-1 DP-2 DP-3 eDP-1-1 HDMI-0".split())
 
 
-@pytest.mark.bashcomp(pre_cmds=("PATH=$PWD/xrandr:$PATH",))
+@pytest.mark.bashcomp(pre_cmds=("PATH=$PATH:$PWD/xrandr",))
 class TestXrandr:
     @pytest.mark.complete("xrandr ", require_cmd=True)
     def test_no_args(self, completion):
