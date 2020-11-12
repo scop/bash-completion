@@ -110,11 +110,12 @@ _muttfiledir()
         : folder:=~/Mail
 
         # Match any file in $folder beginning with $cur
-        # (minus the leading '=' sign).
+        # (minus the leading '=' or '+' sign).
         compopt -o filenames
         COMPREPLY=($(compgen -f -- "$folder/${cur:1}"))
         COMPREPLY=(${COMPREPLY[@]#$folder/})
-        [[ $cur == "${COMP_WORDS[$COMP_CWORD]}" ]] && COMPREPLY=(${COMPREPLY[@]/#/${cur:0:1}})
+        # Add the leading '=' or '+' sign when necessary.
+        [[ $cur == "${COMP_WORDS[COMP_CWORD]}" ]] && COMPREPLY=(${COMPREPLY[@]/#/${cur:0:1}})
         return
     elif [[ $cur == !* ]]; then
         spoolfile="$($muttcmd -F "$muttrc" -Q spoolfile 2>/dev/null |
