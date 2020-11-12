@@ -26,7 +26,7 @@ class TestXrandr:
     def test_output_reflect(self, completion):
         assert completion == sorted("normal x y xy".split())
 
-    @pytest.mark.complete("xrandr --reflect ", env=ENV)
+    @pytest.mark.complete("xrandr --reflect ", require_cmd=True)
     def test_output_reflect_nooutput(self, completion):
         assert not completion
 
@@ -34,7 +34,7 @@ class TestXrandr:
     def test_output_rotate(self, completion):
         assert completion == sorted("normal inverted left right".split())
 
-    @pytest.mark.complete("xrandr --rotate ", env=ENV)
+    @pytest.mark.complete("xrandr --rotate ", require_cmd=True)
     def test_output_rotate_nooutput(self, completion):
         assert not completion
 
@@ -49,7 +49,7 @@ class TestXrandr:
             "800x600 1152x864 1280x720 1440x900 1680x1050 640x480 720x576".split()
         )
 
-    @pytest.mark.complete("xrandr --mode ", env=ENV)
+    @pytest.mark.complete("xrandr --mode ", require_cmd=True)
     def test_output_mode_nooutput(self, completion):
         assert not completion
 
