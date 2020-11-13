@@ -1,62 +1,175 @@
 # bash completion for xrandr                               -*- shell-script -*-
 
+_xrandr_outputs()
+{
+    "$1" -q 2>/dev/null | awk '/connected/ {print $1}'
+}
+
+_xrandr_monitors()
+{
+    "$1" --listmonitors 2>/dev/null | command sed -ne 's/.* [0-9]*: [+\*]*\([^ ]*\).*/\1/p'
+}
+
+_xrandr_providers()
+{
+    "$1" --listproviders 2>/dev/null | command sed -ne "s/.*cap:.*$2.* name:\([^ ]*\).*/\1/p"
+}
+
+_xrandr_modes()
+{
+    "$1" -q 2>/dev/null | command sed \
+        -e "1,/^$2 / d" \
+        -e '/connected/,$ d' \
+        -e '/^[[:space:]]*h: / d' \
+        -e '/^[[:space:]]*v: / d' \
+        -e 's/\([^[:space:]]\)[[:space:]].*/\1/'
+}
+
+_xrandr_all_modes()
+{
+    "$1" -q 2>/dev/null | command sed \
+        -e '/^[^[:space:]].*/ d' \
+        -e '/^[[:space:]]*h: / d' \
+        -e '/^[[:space:]]*v: / d' \
+        -e 's/[[:space:]]*\([^[:space:]]*\)[[:space:]].*/\1/'
+}
+
+_xrandr_help()
+{
+    "$1" --help 2>/dev/null
+}
+
 _xrandr()
 {
     local cur prev words cword
     _init_completion || return
 
+    local i output
+    for ((i = cword - 1; i > 0; i--)); do
+        if [[ ${words[i]} == --output ]]; then
+            output=${words[i + 1]}
+            break
+        fi
+    done
+
     case "$prev" in
-        -display | -d | -help | -s | --size | -r | --rate | --refresh | --screen | --fb | --fbmm | \
-            --dpi | --pos | --set | --scale | --transform | --crtc | --panning | --gamma | \
-            --newmode | --rmmode | --addmode | --delmode)
+        -display | -d | -s | --size | -r | --rate | --refresh | --screen | --fb | --fbmm | \
+            --pos | --set | --scale | --transform | --crtc | --panning | --gamma | \
+            --newmode | --rmmode | --setmonitor)
             return
             ;;
-        --output | --left-of | --right-of | --above | --below | --same-as)
-            local outputs=$("$1" | awk '/connected/ {print $1}')
+        --output | --addmode | --delmode | --dpi)
+            local outputs=$(_xrandr_outputs "$1")
             COMPREPLY=($(compgen -W "$outputs" -- "$cur"))
             return
             ;;
-        --mode)
-            local i output
-            for ((i = 1; i < cword; i++)); do
-                if [[ ${words[i]} == --output ]]; then
-                    output=${words[i + 1]}
-                    break
-                fi
-            done
+        --left-of | --right-of | --above | --below | --same-as)
             if [[ -v output ]]; then
-                local modes=$("$1" | command sed -e "1,/^$output / d" \
-                    -e "/connected/,$ d" \
-                    -e "s/\([^[:space:]]\)[[:space:]].*/\1/")
+                local outputs=$(_xrandr_outputs "$1")
+                COMPREPLY=($(compgen -W "$outputs" -- "$cur"))
+            fi
+            return
+            ;;
+        --mode)
+            if [[ -v output ]]; then
+                local modes=$(_xrandr_modes "$1" "$output")
                 COMPREPLY=($(compgen -W "$modes" -- "$cur"))
             fi
             return
             ;;
         -o | --orientation)
-            COMPREPLY=($(compgen -W 'normal inverted left right 0 1 2 3' -- \
-                "$cur"))
+            COMPREPLY=($(compgen -W 'normal inverted left right 0 1 2 3' -- "$cur"))
             return
             ;;
         --reflect)
-            COMPREPLY=($(compgen -W 'normal x y xy' -- "$cur"))
+            if [[ -v output ]]; then
+                COMPREPLY=($(compgen -W 'normal x y xy' -- "$cur"))
+            fi
             return
             ;;
         --rotate)
-            COMPREPLY=($(compgen -W 'normal inverted left right' -- "$cur"))
+            if [[ -v output ]]; then
+                COMPREPLY=($(compgen -W 'normal inverted left right' -- "$cur"))
+            fi
             return
             ;;
-        --setprovideroutputsource | --setprovideroffloadsink)
-            local providers=$("$1" --listproviders 2>/dev/null |
-                command sed -ne 's/.* name:\([^ ]*\).*/\1/p')
+        --filter)
+            if [[ -v output ]]; then
+                COMPREPLY=($(compgen -W 'bilinear nearest' -- "$cur"))
+            fi
+            return
+            ;;
+        --setprovideroutputsource)
+            local providers=$(_xrandr_providers "$1" "Sink Output")
             COMPREPLY=($(compgen -W "$providers" -- "$cur"))
-            # TODO 2nd arg needed, is that a provider as well?
+            return
+            ;;
+        --setprovideroffloadsink)
+            local providers=$(_xrandr_providers "$1" "Source Offload")
+            COMPREPLY=($(compgen -W "$providers" -- "$cur"))
+            return
+            ;;
+        --delmonitor)
+            local monitors=$(_xrandr_monitors "$1")
+            COMPREPLY=($(compgen -W "$monitors" -- "$cur"))
             return
             ;;
     esac
 
-    COMPREPLY=($(compgen -W '$("$1" -help 2>&1 |
-        command sed -e "s/ or / /g" -e "s/<[^>]*>]//g" | _parse_help -)' \
-        -- "$cur"))
+    # second arguments
+    if ((cword >= 2)); then
+        case "${words[cword - 2]}" in
+            --set)
+                return
+                ;;
+            --addmode)
+                local modes=$(_xrandr_all_modes "$1")
+                COMPREPLY=($(compgen -W "$modes" -- "$cur"))
+                return
+                ;;
+            --delmode)
+                local modes=$(_xrandr_modes "$1" "${words[cword - 1]}")
+                COMPREPLY=($(compgen -W "$modes" -- "$cur"))
+                return
+                ;;
+            --setmonitor)
+                COMPREPLY=($(compgen -W 'auto' -- "$cur"))
+                return
+                ;;
+            --setprovideroutputsource)
+                local providers=$(_xrandr_providers "$1" "Source Output")
+                COMPREPLY=($(compgen -W "0x0 $providers" -- "$cur"))
+                return
+                ;;
+            --setprovideroffloadsink)
+                local providers=$(_xrandr_providers "$1" "Sink Offload")
+                COMPREPLY=($(compgen -W "0x0 $providers" -- "$cur"))
+                return
+                ;;
+        esac
+    fi
+
+    # third arguments
+    if ((cword >= 3)); then
+        case "${words[cword - 3]}" in
+            --setmonitor)
+                local outputs=$(_xrandr_outputs "$1")
+                COMPREPLY=($(compgen -W "none $outputs" -- "$cur"))
+                # TODO: the third argument is actually a comma-separated list
+                return
+                ;;
+        esac
+    fi
+
+    local options
+    if [[ -v output ]]; then
+        options=$(_xrandr_help "$1" | command sed -e 's/ or /\n  /g' -e 's/<[^>]*>]//g' | _parse_help -)
+    else
+        # if no output is specified, remove per-output options
+        options=$(_xrandr_help "$1" | command sed -e '/^  -/!d' -e 's/ or /\n  /g' -e 's/<[^>]*>]//g' | _parse_help -)
+    fi
+
+    COMPREPLY=($(compgen -W "$options" -- "$cur"))
 } &&
     complete -F _xrandr xrandr
 
