@@ -218,7 +218,7 @@ def bash(request) -> pexpect.spawn:
         cmd_found = "cmd" in marker.kwargs
         # Run pre-test commands, early so they're usable in skipif
         for pre_cmd in marker.kwargs.get("pre_cmds", []):
-            assert_bash_exec(bash, pre_cmd)
+            assert_bash_exec(bash, pre_cmd, want_output=None)
         # Process skip and xfail conditions
         skipif = marker.kwargs.get("skipif")
         if skipif:
@@ -262,7 +262,7 @@ def bash(request) -> pexpect.spawn:
 
     if marker:
         for post_cmd in marker.kwargs.get("post_cmds", []):
-            assert_bash_exec(bash, post_cmd)
+            assert_bash_exec(bash, post_cmd, want_output=None)
 
     # Clean up
     bash.close()
@@ -536,7 +536,7 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
     if not marker:
         return CompletionResult()
     for pre_cmd in marker.kwargs.get("pre_cmds", []):
-        assert_bash_exec(bash, pre_cmd)
+        assert_bash_exec(bash, pre_cmd, want_output=None)
     cmd = getattr(request.cls, "cmd", None)
     if marker.kwargs.get("require_longopt"):
         # longopt completions require both command presence and that it
