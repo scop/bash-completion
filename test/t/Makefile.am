@@ -48,6 +48,7 @@ EXTRA_DIST = \
 	test_bk.py \
 	test_bmake.py \
 	test_brctl.py \
+	test_bsdtar.py \
 	test_btdownloadcurses_py.py \
 	test_btdownloadgui_py.py \
 	test_btdownloadheadless_py.py \

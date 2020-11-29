@@ -423,6 +423,17 @@ __tar_cleanup_prev()
 __tar_detect_ext()
 {
     local tars='@(@(tar|gem|spkg)?(.@(Z|[bgx]z|bz2|lz?(ma|o)|zst))|t@([abglx]z|b?(z)2|zst))'
+    if [[ ${COMP_WORDS[0]} == ?(*/)bsdtar ]]; then
+        # https://github.com/libarchive/libarchive/wiki/LibarchiveFormats
+        tars=${tars/%\)/|pax|cpio|iso|zip|@(j|x)ar|mtree|a|7z|warc}
+        if __tar_extract_like_mode; then
+            # read only
+            tars+="|l@(ha|zh)|rar|cab)"
+        else
+            # write only
+            tars+="|shar)"
+        fi
+    fi
     ext="$tars"
 
     case "$tar_mode_arg" in
