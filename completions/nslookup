@@ -89,7 +89,15 @@ _host()
         return
     fi
 
-    _known_hosts_real -- "$cur"
+    local args
+    _count_args "" "-*[ctmNRW]"
+    if ((args == 1)); then
+        _known_hosts_real -- "$cur"
+    else
+        local ipvx
+        [[ ${words[*]} =~ \ -[^\ ]*([46]) ]] && ipvx=-${BASH_REMATCH[1]}
+        _known_hosts_real ${ipvx-} -- "$cur"
+    fi
 } &&
     complete -F _host host
 
