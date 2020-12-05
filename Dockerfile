@@ -7,7 +7,8 @@ RUN apk add --no-cache \
         gcc \
         make \
         musl-dev \
-        python3-dev \
+        py3-pexpect \
+        py3-pytest-xdist \
         xvfb \
         xvfb-run \
         xz
@@ -17,14 +18,8 @@ RUN apk add --no-cache \
 # executables) changes.
 
 ADD https://raw.githubusercontent.com/scop/bash-completion/master/completions/Makefile.am \
-    https://raw.githubusercontent.com/scop/bash-completion/master/test/requirements.txt \
     install-packages.sh \
     /tmp/
 
-RUN pip3 install --user -Ir /tmp/requirements.txt \
-    && echo '#!/bin/sh -e' >/usr/local/bin/pytest \
-    && echo 'exec $HOME/.local/bin/pytest "$@"' >>/usr/local/bin/pytest \
-    && chmod +x /usr/local/bin/pytest
-
 RUN /tmp/install-packages.sh \
-    && rm -r /tmp/* /root/.cache/pip
+    && rm -r /tmp/*
