@@ -9,12 +9,10 @@ RUN apk add --no-cache \
         musl-dev \
         python3-dev \
         xvfb \
+        xvfb-run \
         xz \
     && : old test suite works with context diffs, n/a with busybox diff \
-    && apk add --no-cache diffutils \
-    && : no xvfb-run yet, https://bugs.alpinelinux.org/issues/9617 \
-    && wget -O /usr/local/bin/xvfb-run https://sources.debian.org/data/main/x/xorg-server/2:1.20.4-1/debian/local/xvfb-run \
-    && chmod +x /usr/local/bin/xvfb-run
+    && apk add --no-cache diffutils
 
 # Use completions/Makefile.am as cache buster, triggering a fresh
 # install of packages whenever it (i.e. the set of possibly tested
