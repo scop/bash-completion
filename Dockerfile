@@ -10,9 +10,7 @@ RUN apk add --no-cache \
         python3-dev \
         xvfb \
         xvfb-run \
-        xz \
-    && : old test suite works with context diffs, n/a with busybox diff \
-    && apk add --no-cache diffutils
+        xz
 
 # Use completions/Makefile.am as cache buster, triggering a fresh
 # install of packages whenever it (i.e. the set of possibly tested
