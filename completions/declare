@@ -3,7 +3,7 @@
 _declare()
 {
     local cur prev words cword
-    _init_completion || return
+    _init_completion -n = || return
 
     if [[ $cur == [-+]* ]]; then
         local opts
@@ -31,7 +31,8 @@ _declare()
     done
     if ((i > 1)); then
         # There was at least one option and it was not one that limited
-        # operations to functions
+        # operations to functions and array variables
+        _variable_assignments $cur && return
         COMPREPLY=($(compgen -A variable -- "$cur"))
     fi
 } &&
