@@ -1,0 +1,34 @@
+# bash declare completion                                  -*- shell-script -*-
+
+_declare()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    if [[ $cur == [-+]* ]]; then
+        local opts
+        opts=($(_parse_usage "$1"))
+        # Most options also have a '+' form.
+        # We'll exclude the ones that don't with compgen.
+        opts+=(${opts[*]/-/+})
+        COMPREPLY=($(compgen -W "${opts[*]}" -X '+[Ffgp]' -- "$cur"))
+        return
+    fi
+
+    local i=1
+    while [[ ${words[i]} == [-+]* ]]; do
+        if [[ ${words[i]} == -*[fF]* ]]; then
+            COMPREPLY=($(compgen -A function -- "$cur"))
+            return
+        fi
+        ((i++))
+    done
+    if ((i > 1)); then
+        # There was at least one option and it was not one that limited
+        # operations to functions
+        COMPREPLY=($(compgen -A variable -- "$cur"))
+    fi
+} &&
+    complete -F _declare declare typeset
+
+# ex: filetype=sh
