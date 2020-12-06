@@ -18,3 +18,15 @@ class TestDeclare:
     @pytest.mark.complete("declare -f _parse_")
     def test_4(self, completion):
         assert "_parse_help" in completion
+
+    @pytest.mark.complete("declare -a BASH_VERS")
+    def test_arrayvar(self, completion):
+        assert "INFO" in completion
+
+    @pytest.mark.complete("declare -f BASH_VERS")
+    def test_no_arrayvar_for_f(self, completion):
+        assert "INFO" not in completion
+
+    @pytest.mark.complete("declare -i BASH_VERS")
+    def test_no_arrayvar_for_i(self, completion):
+        assert "INFO" not in completion
