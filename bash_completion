@@ -679,35 +679,58 @@ _variables()
         COMPREPLY+=("$cur}")
         __ltrim_colon_completions "$cur"
         return 0
-    else
-        case ${prev-} in
-            TZ)
-                cur=/usr/share/zoneinfo/$cur
-                _filedir
-                for i in "${!COMPREPLY[@]}"; do
-                    if [[ ${COMPREPLY[i]} == *.tab ]]; then
-                        unset 'COMPREPLY[i]'
-                        continue
-                    elif [[ -d ${COMPREPLY[i]} ]]; then
-                        COMPREPLY[i]+=/
-                        compopt -o nospace
-                    fi
-                    COMPREPLY[i]=${COMPREPLY[i]#/usr/share/zoneinfo/}
-                done
-                return 0
-                ;;
-            TERM)
-                _terms
-                return 0
-                ;;
-            LANG | LC_*)
-                COMPREPLY=($(compgen -W '$(locale -a 2>/dev/null)' \
-                    -- "$cur"))
-                return 0
-                ;;
-        esac
     fi
     return 1
+}
+
+# Complete assignment of various known environment variables.
+# The word to be completed is expected to contain the entire
+# assignment, including the variable name and the "=". See related
+# parameters to _init_completion.
+#
+# @param  $1 variable assignment to be completed
+# @return True (0) if variable value completion was attempted,
+#         False (> 0) if not.
+_variable_assignments()
+{
+    local cur=${1-}
+
+    if [[ $cur =~ ^([A-Za-z_][A-Za-z0-9_]*)=(.*)$ ]]; then
+        prev=${BASH_REMATCH[1]}
+        cur=${BASH_REMATCH[2]}
+    else
+        return 1
+    fi
+
+    case $prev in
+        TZ)
+            cur=/usr/share/zoneinfo/$cur
+            _filedir
+            for i in "${!COMPREPLY[@]}"; do
+                if [[ ${COMPREPLY[i]} == *.tab ]]; then
+                    unset 'COMPREPLY[i]'
+                    continue
+                elif [[ -d ${COMPREPLY[i]} ]]; then
+                    COMPREPLY[i]+=/
+                    compopt -o nospace
+                fi
+                COMPREPLY[i]=${COMPREPLY[i]#/usr/share/zoneinfo/}
+            done
+            ;;
+        TERM)
+            _terms
+            ;;
+        LANG | LC_*)
+            COMPREPLY=($(compgen -W '$(locale -a 2>/dev/null)' \
+                -- "$cur"))
+            ;;
+        *)
+            _variables && return 0
+            _filedir
+            ;;
+    esac
+
+    return 0
 }
 
 # Initialize completion and deal with various general things: do file

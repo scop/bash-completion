@@ -14,3 +14,13 @@ class TestGrep:
         Not really a grep option, but tests _longopt.
         """
         assert completion == "foo foo.d/".split()
+
+    @pytest.mark.complete("grep TZ ", cwd="shared/default")
+    def test_no_variable_assignment_confusion(self, completion):
+        """
+        Test TZ doesn't trigger known variable value assignment completion.
+
+        Not really a grep specific, but good to test somewhere.
+        Refs https://github.com/scop/bash-completion/issues/457
+        """
+        assert "foo" in completion
