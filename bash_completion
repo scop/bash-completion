@@ -725,9 +725,11 @@ _comp_delimited()
 }
 
 # Complete assignment of various known environment variables.
-# The word to be completed is expected to contain the entire
-# assignment, including the variable name and the "=". See related
-# parameters to _init_completion.
+#
+# The word to be completed is expected to contain the entire assignment,
+# including the variable name and the "=". Some known variables are completed
+# with colon separated values; for those to work, colon should not have been
+# used to split words. See related parameters to _init_completion.
 #
 # @param  $1 variable assignment to be completed
 # @return True (0) if variable value completion was attempted,
@@ -763,6 +765,9 @@ _comp_variable_assignments()
             ;;
         LANG | LC_*)
             COMPREPLY=($(compgen -W '$(locale -a 2>/dev/null)' -- "$cur"))
+            ;;
+        LANGUAGE)
+            _comp_delimited : -W '$(locale -a 2>/dev/null)'
             ;;
         *)
             _variables && return 0
