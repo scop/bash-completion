@@ -683,6 +683,47 @@ _variables()
     return 1
 }
 
+# Complete a delimited value.
+#
+# Usage: [-k] DELIMITER COMPGEN_ARG...
+#         -k: do not filter out already present tokens in value
+_comp_delimited()
+{
+    local prefix="" delimiter=$1 deduplicate=true
+    shift
+    if [[ $delimiter == -k ]]; then
+        deduplicate=false
+        delimiter=$1
+        shift
+    fi
+    [[ $cur == *$delimiter* ]] && prefix=${cur%$delimiter*}$delimiter
+
+    if $deduplicate; then
+        # We could construct a -X pattern to feed to compgen, but that'd
+        # conflict with possibly already set -X in $@, as well as have
+        # glob char escaping issues to deal with. Do removals by hand instead.
+        COMPREPLY=($(compgen "$@"))
+        local -a existing
+        local x i ifs=$IFS IFS=$delimiter
+        existing=($cur)
+        IFS=$ifs
+        for x in "${existing[@]}"; do
+            for i in "${!COMPREPLY[@]}"; do
+                if [[ $x == "${COMPREPLY[i]}" ]]; then
+                    unset "COMPREPLY[i]"
+                    continue 2 # assume no dupes in COMPREPLY
+                fi
+            done
+        done
+        COMPREPLY=($(compgen -W '${COMPREPLY[@]}' -- "${cur##*$delimiter}"))
+    else
+        COMPREPLY=($(compgen "$@" -- "${cur##*$delimiter}"))
+    fi
+
+    ((${#COMPREPLY[@]} == 1)) && COMPREPLY=(${COMPREPLY/#/$prefix})
+    [[ $delimiter != : ]] || __ltrim_colon_completions "$cur"
+}
+
 # Complete assignment of various known environment variables.
 # The word to be completed is expected to contain the entire
 # assignment, including the variable name and the "=". See related

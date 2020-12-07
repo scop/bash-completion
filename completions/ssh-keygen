@@ -48,14 +48,12 @@ _ssh_keygen()
             ;;
         -*n)
             [[ ${words[*]} != *\ -*Y\ * ]] || return
-            local prefix=
-            [[ $cur == *,* ]] && prefix="${cur%,*},"
             if [[ ${words[*]} == *\ -*h\ * ]]; then
                 _known_hosts_real -- "${cur##*,}"
+                _comp_delimited , -W '${COMPREPLY[@]}'
             else
-                COMPREPLY=($(compgen -u -- "${cur##*,}"))
+                _comp_delimited , -u
             fi
-            ((${#COMPREPLY[@]} == 1)) && COMPREPLY=(${COMPREPLY/#/$prefix})
             return
             ;;
         -*O)
