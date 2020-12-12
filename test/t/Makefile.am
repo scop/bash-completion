@@ -544,6 +544,7 @@ EXTRA_DIST = \
 	test_sftp.py \
 	test_sh.py \
 	test_sha1sum.py \
+	test_sha256sum.py \
 	test_shar.py \
 	test_shellcheck.py \
 	test_sitecopy.py \

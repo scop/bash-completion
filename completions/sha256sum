@@ -1,0 +1,37 @@
+# bash completion for sha256(1) and friends                -*- shell-script -*-
+
+_sha256sum()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -h | --help | --version)
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        _longopt "$1"
+        return
+    fi
+
+    local sumtype=${1##*/}
+    sumtype=${sumtype%sum}
+
+    local opt
+    for opt in "${words[@]}"; do
+        if [[ $opt == -@(c|-check) ]]; then
+            _filedir $sumtype
+            return
+        fi
+    done
+
+    _filedir
+    COMPREPLY=($(compgen -X "*.$sumtype" -W '${COMPREPLY[@]}' -- "$cur"))
+} &&
+    complete -F _sha256sum md5sum sha{,1,224,256,384,512}sum
+
+# ex: filetype=sh

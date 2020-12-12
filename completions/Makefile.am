@@ -377,6 +377,7 @@ bashcomp_DATA = 2to3 \
 		scrub \
 		secret-tool \
 		sh \
+		sha256sum \
 		shellcheck \
 		sitecopy \
 		slackpkg \
@@ -637,6 +638,7 @@ CLEANFILES = \
 	lvscan \
 	lz4c \
 	mailsnarf \
+	md5sum \
 	mdecrypt \
 	mencoder \
 	micropython \
@@ -728,6 +730,11 @@ CLEANFILES = \
 	sdptool \
 	setquota \
 	sftp \
+	shasum \
+	sha1sum \
+	sha224sum \
+	sha384sum \
+	sha512sum \
 	sidedoor \
 	slogin \
 	smbcacls \
@@ -949,6 +956,8 @@ symlinks: $(DATA)
 		smbcacls smbcquotas smbget smbpasswd smbtar smbtree
 	$(ss) sbcl \
 		sbcl-mt
+	$(ss) sha256sum \
+		md5sum shasum sha1sum sha224sum sha384sum sha512sum
 	$(ss) ssh \
 		autossh scp sftp sidedoor slogin
 	$(ss) sudo \
