@@ -1,0 +1,18 @@
+name: update-docker-images
+
+on:
+  push:
+    paths:
+      - test/test-cmd-list.txt
+
+jobs:
+  update-docker-images:
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'scop' && github.ref == 'refs/heads/master'
+    steps:
+      - run: >-
+          curl
+            --silent --show-error
+            --header Content-Type:application/json
+            --data '{"build":true}'
+            "${{secrets.DOCKER_HUB_TRIGGER_URL}}"
