@@ -72,6 +72,9 @@ rm -r bash-completion
 
 # Build some *BSD tools for testing
 
+apt-get -y --no-install-recommends install \
+    build-essential
+
 install -dm 755 /usr/local/lib/bsd-bin
 apt-get -y --no-install-recommends install bison libbsd-dev subversion
 
