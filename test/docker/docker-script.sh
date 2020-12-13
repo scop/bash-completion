@@ -8,6 +8,9 @@ fi
 export bashcomp_bash=bash
 env
 
+cp -a . /work
+cd /work
+
 autoreconf -i
 ./configure
 make -j

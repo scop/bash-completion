@@ -15,15 +15,13 @@ jobs:
     - env: DIST=ubuntu14
     - env: DIST=ubuntu14 BSD=true NETWORK=none
 
-before_install:
-  - docker build
-    --build-arg DIST=$DIST -t bash-completion:$DIST -f test/docker/Dockerfile .
-
 script:
   - docker run --name bash-completion
       -e CI=true -e DIST=$DIST -e BSD=$BSD -e NETWORK=$NETWORK
       ${NETWORK:+--network $NETWORK}
-      -t bash-completion:$DIST
+      -v $PWD:/usr/src/bash-completion:ro -w /usr/src/bash-completion
+      -t vskytta/bash-completion:$DIST
+      test/docker/docker-script.sh
 
 before_deploy:
   - docker start bash-completion
