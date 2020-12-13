@@ -78,24 +78,3 @@ apt-get -y --no-install-recommends install \
     postgresql-client
 
 rm -r bash-completion
-
-# Build some *BSD tools for testing
-
-install -dm 755 /usr/local/lib/bsd-bin
-apt-get -y --no-install-recommends install bison libbsd-dev subversion
-
-svn co https://svn.freebsd.org/base/release/11.1.0/usr.bin/sed bsd-sed
-cd bsd-sed
-sed -i -e 's,^__FBSDID.*,#include <bsd/bsd.h>,' *.c
-cc -O2 -g -Wall -Wno-unused-const-variable -D_GNU_SOURCE *.c \
-   -lbsd -o /usr/local/lib/bsd-bin/sed
-cd ..
-rm -r bsd-sed
-
-svn co https://svn.freebsd.org/base/release/11.1.0/contrib/one-true-awk
-cd one-true-awk
-sed -i -e /^__FBSDID/d *.c
-make YACC="bison -d -y"
-install a.out /usr/local/lib/bsd-bin/awk
-cd ..
-rm -r one-true-awk
