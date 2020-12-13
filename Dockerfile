@@ -20,4 +20,4 @@ ADD https://raw.githubusercontent.com/scop/bash-completion/master/test/test-cmd-
 
 RUN /tmp/install-packages.sh \
     && dnf -Cy clean all \
-    && rm -r /tmp/*
+    && rm -r /tmp/* /var/lib/dnf/history.sqlite* /var/lib/dnf/repos/*
