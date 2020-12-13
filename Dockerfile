@@ -28,4 +28,4 @@ RUN set -x \
 
 RUN /tmp/install-packages.sh \
     && yum -Cy clean all \
-    && rm -r /tmp/* /root/.cache/pip
+    && rm -r /tmp/* /root/.cache/pip /var/lib/yum/history/* /var/lib/yum/yumdb/*
