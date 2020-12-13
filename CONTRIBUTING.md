@@ -28,13 +28,17 @@ your completion to be usable without having bash-completion installed.
 It's nowhere near clear cut always what is the best place for the completion,
 upstream project or us. Even if it would seem to be upstream, not all upstreams
 are interested in shipping completions, or their install systems might not
-easily support installing completion files properly. But give it some thought,
-and ask if unsure.
+easily support installing completion files properly. Or the projects might be
+stagnant. But give it some thought, and ask if unsure.
 
 If you wish to contribute code to us, volunteering for long term maintainership
-of your code within bash-completion is welcome. When exactly you will be asked
-to do that depends on the case; don't be disappointed if it does or doesn't
-happen instantly.
+of your code within bash-completion is welcome, and stating willingness for
+that goes a long way in getting your contribution accepted. There are a lot of
+completions in bash-completion already, and chances are that existing
+maintainers might not want to add completions they don't actively use
+themselves into their maintenance workload. When exactly you will be asked to
+join the project depends on the case; there are no real, consistent "rules" for
+that. Don't be disappointed if it does or doesn't happen instantly.
 
 Also, please bear the following coding guidelines in mind:
 
