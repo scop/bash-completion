@@ -36,7 +36,7 @@ of your code within bash-completion is welcome. When exactly you will be asked
 to do that depends on the case; don't be disappointed if it does or doesn't
 happen instantly.
 
-Also, please bare the following coding guidelines in mind:
+Also, please bear the following coding guidelines in mind:
 
 - Do not use Perl, Ruby, Python etc. to do text processing unless the
   command for which you are writing the completion code implies the
