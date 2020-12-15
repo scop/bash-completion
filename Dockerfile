@@ -21,11 +21,7 @@ ADD https://raw.githubusercontent.com/scop/bash-completion/master/test/test-cmd-
     /tmp/
 
 RUN set -x \
-    && pip3 install --user -Ir /tmp/requirements.txt \
-    && echo '#!/bin/sh -e' >/usr/local/bin/pytest \
-    && printf 'exec "%s/.local/bin/pytest" "$@"\n' "$HOME" \
-        >>/usr/local/bin/pytest \
-    && chmod +x /usr/local/bin/pytest
+    && pip3 install --prefix /usr/local -Ir /tmp/requirements.txt
 
 RUN /tmp/install-packages.sh \
     && yum -Cy clean all \
