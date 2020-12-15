@@ -20,12 +20,12 @@ ADD https://raw.githubusercontent.com/scop/bash-completion/master/test/test-cmd-
     install-packages.sh \
     /tmp/
 
-RUN easy_install3 --user pip==19.1.1 \
-    && /root/.local/bin/pip install --user -Ir /tmp/requirements.txt \
-    && echo '#!/bin/sh -e' >/usr/local/bin/pytest \
-    && printf 'exec "%s/.local/bin/pytest" "$@"\n' "$HOME" \
-        >>/usr/local/bin/pytest \
-    && chmod +x /usr/local/bin/pytest
+RUN set -x \
+    && easy_install3 \
+        --install-dir /usr/local/lib/python3.*/dist-packages \
+        --script-dir /usr/local/bin \
+        pip==19.1.1 \
+    && pip install --prefix /usr/local -Ir /tmp/requirements.txt
 
 RUN /tmp/install-packages.sh \
     && rm -r /tmp/* /root/.cache/pip /var/lib/apt/lists/*
