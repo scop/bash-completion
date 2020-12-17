@@ -1,6 +1,6 @@
-#!/bin/sh -ex
+#!/bin/sh -eux
 
-if [ "$BSD" ]; then
+if [ "${BSD-}" ]; then
     PATH=/usr/local/lib/bsd-bin:$PATH
     export PATH
 fi
