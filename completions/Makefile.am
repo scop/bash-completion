@@ -650,6 +650,7 @@ CLEANFILES = \
 	msgsnarf \
 	muttng \
 	ncal \
+	neomutt \
 	pbzip2 \
 	pccardctl \
 	pdlzip \
@@ -900,7 +901,7 @@ symlinks: $(DATA)
 	$(ss) mplayer \
 		gmplayer kplayer mencoder mplayer2
 	$(ss) mutt \
-		muttng
+		muttng neomutt
 	$(ss) nslookup \
 		host
 	$(ss) p4 \

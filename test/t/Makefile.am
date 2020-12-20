@@ -397,6 +397,7 @@ EXTRA_DIST = \
 	test_mysqladmin.py \
 	test_nc.py \
 	test_ncftp.py \
+	test_neomutt.py \
 	test_nethogs.py \
 	test_netstat.py \
 	test_newgrp.py \
