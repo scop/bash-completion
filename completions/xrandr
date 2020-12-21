@@ -1,21 +1,21 @@
 # bash completion for xrandr                               -*- shell-script -*-
 
-_xrandr_outputs()
+_comp_cmd_xrandr_outputs()
 {
     "$1" -q 2>/dev/null | awk '/connected/ {print $1}'
 }
 
-_xrandr_monitors()
+_comp_cmd_xrandr_monitors()
 {
     "$1" --listmonitors 2>/dev/null | command sed -ne 's/.* [0-9]*: [+\*]*\([^ ]*\).*/\1/p'
 }
 
-_xrandr_providers()
+_comp_cmd_xrandr_providers()
 {
     "$1" --listproviders 2>/dev/null | command sed -ne "s/.*cap:.*$2.* name:\([^ ]*\).*/\1/p"
 }
 
-_xrandr_modes()
+_comp_cmd_xrandr_modes()
 {
     "$1" -q 2>/dev/null | command sed \
         -e "1,/^$2 / d" \
@@ -25,7 +25,7 @@ _xrandr_modes()
         -e 's/\([^[:space:]]\)[[:space:]].*/\1/'
 }
 
-_xrandr_all_modes()
+_comp_cmd_xrandr_all_modes()
 {
     "$1" -q 2>/dev/null | command sed \
         -e '/^[^[:space:]].*/ d' \
@@ -34,7 +34,7 @@ _xrandr_all_modes()
         -e 's/[[:space:]]*\([^[:space:]]*\)[[:space:]].*/\1/'
 }
 
-_xrandr_help()
+_comp_cmd_xrandr_help()
 {
     "$1" --help 2>/dev/null
 }
@@ -59,20 +59,20 @@ _xrandr()
             return
             ;;
         --output | --addmode | --delmode | --dpi)
-            local outputs=$(_xrandr_outputs "$1")
+            local outputs=$(_comp_cmd_xrandr_outputs "$1")
             COMPREPLY=($(compgen -W "$outputs" -- "$cur"))
             return
             ;;
         --left-of | --right-of | --above | --below | --same-as)
             if [[ -v output ]]; then
-                local outputs=$(_xrandr_outputs "$1")
+                local outputs=$(_comp_cmd_xrandr_outputs "$1")
                 COMPREPLY=($(compgen -W "$outputs" -- "$cur"))
             fi
             return
             ;;
         --mode)
             if [[ -v output ]]; then
-                local modes=$(_xrandr_modes "$1" "$output")
+                local modes=$(_comp_cmd_xrandr_modes "$1" "$output")
                 COMPREPLY=($(compgen -W "$modes" -- "$cur"))
             fi
             return
@@ -100,17 +100,17 @@ _xrandr()
             return
             ;;
         --setprovideroutputsource)
-            local providers=$(_xrandr_providers "$1" "Sink Output")
+            local providers=$(_comp_cmd_xrandr_providers "$1" "Sink Output")
             COMPREPLY=($(compgen -W "$providers" -- "$cur"))
             return
             ;;
         --setprovideroffloadsink)
-            local providers=$(_xrandr_providers "$1" "Source Offload")
+            local providers=$(_comp_cmd_xrandr_providers "$1" "Source Offload")
             COMPREPLY=($(compgen -W "$providers" -- "$cur"))
             return
             ;;
         --delmonitor)
-            local monitors=$(_xrandr_monitors "$1")
+            local monitors=$(_comp_cmd_xrandr_monitors "$1")
             COMPREPLY=($(compgen -W "$monitors" -- "$cur"))
             return
             ;;
@@ -123,12 +123,12 @@ _xrandr()
                 return
                 ;;
             --addmode)
-                local modes=$(_xrandr_all_modes "$1")
+                local modes=$(_comp_cmd_xrandr_all_modes "$1")
                 COMPREPLY=($(compgen -W "$modes" -- "$cur"))
                 return
                 ;;
             --delmode)
-                local modes=$(_xrandr_modes "$1" "${words[cword - 1]}")
+                local modes=$(_comp_cmd_xrandr_modes "$1" "${words[cword - 1]}")
                 COMPREPLY=($(compgen -W "$modes" -- "$cur"))
                 return
                 ;;
@@ -137,12 +137,16 @@ _xrandr()
                 return
                 ;;
             --setprovideroutputsource)
-                local providers=$(_xrandr_providers "$1" "Source Output")
+                local providers=$(
+                    _comp_cmd_xrandr_providers "$1" "Source Output"
+                )
                 COMPREPLY=($(compgen -W "0x0 $providers" -- "$cur"))
                 return
                 ;;
             --setprovideroffloadsink)
-                local providers=$(_xrandr_providers "$1" "Sink Offload")
+                local providers=$(
+                    _comp_cmd_xrandr_providers "$1" "Sink Offload"
+                )
                 COMPREPLY=($(compgen -W "0x0 $providers" -- "$cur"))
                 return
                 ;;
@@ -153,7 +157,7 @@ _xrandr()
     if ((cword >= 3)); then
         case "${words[cword - 3]}" in
             --setmonitor)
-                local outputs=$(_xrandr_outputs "$1")
+                local outputs=$(_comp_cmd_xrandr_outputs "$1")
                 COMPREPLY=($(compgen -W "none $outputs" -- "$cur"))
                 # TODO: the third argument is actually a comma-separated list
                 return
@@ -163,10 +167,10 @@ _xrandr()
 
     local options
     if [[ -v output ]]; then
-        options=$(_xrandr_help "$1" | command sed -e 's/ or /\n  /g' -e 's/<[^>]*>]//g' | _parse_help -)
+        options=$(_comp_cmd_xrandr_help "$1" | command sed -e 's/ or /\n  /g' -e 's/<[^>]*>]//g' | _parse_help -)
     else
         # if no output is specified, remove per-output options
-        options=$(_xrandr_help "$1" | command sed -e '/^  -/!d' -e 's/ or /\n  /g' -e 's/<[^>]*>]//g' | _parse_help -)
+        options=$(_comp_cmd_xrandr_help "$1" | command sed -e '/^  -/!d' -e 's/ or /\n  /g' -e 's/<[^>]*>]//g' | _parse_help -)
     fi
 
     COMPREPLY=($(compgen -W "$options" -- "$cur"))
