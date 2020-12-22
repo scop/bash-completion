@@ -538,6 +538,7 @@ CLEANFILES = \
 	f77 \
 	f95 \
 	filebucket \
+	firefox-esr \
 	freeciv-gtk2 \
 	freeciv-gtk3 \
 	freeciv-sdl \
@@ -827,7 +828,7 @@ symlinks: $(DATA)
 	$(ss) filesnarf \
 		mailsnarf msgsnarf
 	$(ss) firefox \
-		iceweasel mozilla-firefox
+		firefox-esr iceweasel mozilla-firefox
 	$(ss) freeciv \
 		civclient freeciv-gtk2 freeciv-gtk3 freeciv-sdl freeciv-xaw
 	$(ss) freeciv-server \
