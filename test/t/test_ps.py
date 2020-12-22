@@ -11,7 +11,7 @@ def is_int(s):
 
 
 class TestPs:
-    @pytest.mark.complete("ps -")
+    @pytest.mark.complete("ps -", require_cmd=True)
     def test_1(self, completion):
         assert completion
 
@@ -39,12 +39,12 @@ class TestPs:
         assert completion
         assert all(map(is_int, completion))
 
-    @pytest.mark.complete("ps --format ")
+    @pytest.mark.complete("ps --format ", require_cmd=True)
     def test_6(self, completion):
         assert completion
         assert all(map(lambda c: not c.startswith(("-", ",")), completion))
 
-    @pytest.mark.complete("ps --format user,")
+    @pytest.mark.complete("ps --format user,", require_cmd=True)
     def test_7(self, completion):
         assert completion
         assert all(map(lambda c: not c.startswith(("-", ",")), completion))
