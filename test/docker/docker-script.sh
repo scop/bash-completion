@@ -16,4 +16,4 @@ autoreconf -i
 make -j
 
 xvfb-run make distcheck \
-    PYTESTFLAGS="--verbose --numprocesses=auto --dist=loadfile"
+    PYTESTFLAGS="${PYTESTFLAGS---verbose --numprocesses=auto --dist=loadfile}"
