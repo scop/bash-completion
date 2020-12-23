@@ -127,7 +127,9 @@ def user_home(bash: pexpect.spawn) -> Tuple[str, str]:
     user = assert_bash_exec(
         bash, 'id -un 2>/dev/null || echo "$USER"', want_output=True
     ).strip()
-    home = assert_bash_exec(bash, 'echo "$HOME"', want_output=True).strip()
+    # We used to echo $HOME here, but we expect that it will be consistent with
+    # ~user as far as bash is concerned which may not hold.
+    home = assert_bash_exec(bash, "echo ~%s" % user, want_output=True).strip()
     return (user, home)
 
 

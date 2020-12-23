@@ -3,7 +3,7 @@ import pytest
 from conftest import assert_bash_exec
 
 
-@pytest.mark.bashcomp(cmd=None, ignore_env=r"^[+-]var=")
+@pytest.mark.bashcomp(cmd=None, ignore_env=r"^[+-](home|var)=")
 class TestUnitExpandTildeByRef:
     def test_1(self, bash):
         assert_bash_exec(bash, "__expand_tilde_by_ref >/dev/null")
@@ -31,6 +31,9 @@ class TestUnitExpandTildeByRef:
     def test_expand(self, bash, user_home, plain_tilde, suffix_expanded):
         user, home = user_home
         suffix, expanded = suffix_expanded
+        # $HOME tinkering: protect against $HOME != ~user; our "home" is the
+        # latter but plain_tilde follows $HOME
+        assert_bash_exec(bash, 'home="$HOME"; HOME="%s"' % home)
         if plain_tilde:
             user = ""
             if not suffix or not expanded:
@@ -43,4 +46,5 @@ class TestUnitExpandTildeByRef:
             % (user, suffix),
             want_output=True,
         )
+        assert_bash_exec(bash, 'HOME="$home"')
         assert output.strip() == "%s%s" % (home, suffix.replace(r"\$", "$"))
