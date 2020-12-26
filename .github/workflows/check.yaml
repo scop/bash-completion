@@ -26,8 +26,7 @@ jobs:
           - dist: debian10
             bsd: true
             network: none
-          # https://bugzilla.redhat.com/1910208
-          #- dist: fedoradev
+          - dist: fedoradev
           - dist: ubuntu14
     steps:
       - uses: actions/checkout@v2
@@ -35,6 +34,7 @@ jobs:
       # some restrictions/oddities: changes root's $HOME to /github/home
       # without changing the actual home dir that can cause some problems,
       # and does not provide a way to run with --network none.
+      # fedoradev unconfined: https://bugzilla.redhat.com/1900021
       - run: >-
           docker run
           --rm
@@ -45,11 +45,13 @@ jobs:
           --env PYTESTFLAGS=--verbose
           --env NETWORK=$NETWORK
           ${NETWORK:+--network $NETWORK}
+          $(test $DIST = fedoradev && echo --security-opt seccomp=unconfined)
           --volume $PWD:/usr/src/bash-completion
           --workdir /usr/src/bash-completion
           vskytta/bash-completion:${{matrix.dist}}
           test/docker-script.sh
         env:
+          DIST: ${{matrix.dist}}
           NETWORK: ${{matrix.network}}
 
   # TODO releases config
