@@ -704,12 +704,14 @@ CLEANFILES = \
 	python3.7 \
 	python3.8 \
 	python3.9 \
+	python3.10 \
 	pyvenv-3.4 \
 	pyvenv-3.5 \
 	pyvenv-3.6 \
 	pyvenv-3.7 \
 	pyvenv-3.8 \
 	pyvenv-3.9 \
+	pyvenv-3.10 \
 	qemu-kvm \
 	qemu-system-i386 \
 	qemu-system-x86_64 \
@@ -941,10 +943,11 @@ symlinks: $(DATA)
 		pylint-2 pylint-3
 	$(ss) python \
 		micropython pypy pypy3 python2 python2.7 python3 python3.3 \
-		python3.4 python3.5 python3.6 python3.7 python3.8 python3.9
+		python3.4 python3.5 python3.6 python3.7 python3.8 python3.9 \
+		python3.10
 	$(ss) pyvenv \
 		pyvenv-3.4 pyvenv-3.5 pyvenv-3.6 pyvenv-3.7 pyvenv-3.8 \
-		pyvenv-3.9
+		pyvenv-3.9 pyvenv-3.10
 	$(ss) qdbus \
 		dcop
 	$(ss) qemu \
