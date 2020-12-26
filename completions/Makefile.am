@@ -775,6 +775,9 @@ CLEANFILES = \
 	whatis \
 	wine-development \
 	wine-stable \
+	wine64 \
+	wine64-development \
+	wine64-stable \
 	xpovray \
 	xvnc4viewer \
 	ypcat
