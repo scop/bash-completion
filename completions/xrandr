@@ -7,12 +7,14 @@ _comp_cmd_xrandr_outputs()
 
 _comp_cmd_xrandr_monitors()
 {
-    "$1" --listmonitors 2>/dev/null | command sed -ne 's/.* [0-9]*: [+\*]*\([^ ]*\).*/\1/p'
+    "$1" --listmonitors 2>/dev/null |
+        command sed -ne 's/.* [0-9]*: [+\*]*\([^ ]*\).*/\1/p'
 }
 
 _comp_cmd_xrandr_providers()
 {
-    "$1" --listproviders 2>/dev/null | command sed -ne "s/.*cap:.*$2.* name:\([^ ]*\).*/\1/p"
+    "$1" --listproviders 2>/dev/null |
+        command sed -ne "s/.*cap:.*$2.* name:\([^ ]*\).*/\1/p"
 }
 
 _comp_cmd_xrandr_modes()
@@ -53,9 +55,9 @@ _xrandr()
     done
 
     case "$prev" in
-        -display | -d | -s | --size | -r | --rate | --refresh | --screen | --fb | --fbmm | \
-            --pos | --set | --scale | --transform | --crtc | --panning | --gamma | \
-            --newmode | --rmmode | --setmonitor)
+        -display | -d | -s | --size | -r | --rate | --refresh | --screen | \
+            --fb | --fbmm | --pos | --set | --scale | --transform | --crtc | \
+            --panning | --gamma | --newmode | --rmmode | --setmonitor)
             return
             ;;
         --output | --addmode | --delmode | --dpi)
@@ -78,7 +80,9 @@ _xrandr()
             return
             ;;
         -o | --orientation)
-            COMPREPLY=($(compgen -W 'normal inverted left right 0 1 2 3' -- "$cur"))
+            COMPREPLY=($(
+                compgen -W 'normal inverted left right 0 1 2 3' -- "$cur"
+            ))
             return
             ;;
         --reflect)
@@ -167,10 +171,18 @@ _xrandr()
 
     local options
     if [[ -v output ]]; then
-        options=$(_comp_cmd_xrandr_help "$1" | command sed -e 's/ or /\n  /g' -e 's/<[^>]*>]//g' | _parse_help -)
+        options=$(
+            _comp_cmd_xrandr_help "$1" |
+                command sed -e 's/ or /\n  /g' -e 's/<[^>]*>]//g' |
+                _parse_help -
+        )
     else
         # if no output is specified, remove per-output options
-        options=$(_comp_cmd_xrandr_help "$1" | command sed -e '/^  -/!d' -e 's/ or /\n  /g' -e 's/<[^>]*>]//g' | _parse_help -)
+        options=$(
+            _comp_cmd_xrandr_help "$1" |
+                command sed -e '/^  -/!d' -e 's/ or /\n  /g' \
+                    -e 's/<[^>]*>]//g' | _parse_help -
+        )
     fi
 
     COMPREPLY=($(compgen -W "$options" -- "$cur"))

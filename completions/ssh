@@ -94,14 +94,16 @@ _ssh_suboption()
     case ${prev,,} in
         batchmode | canonicaldomains | canonicalizefallbacklocal | \
             challengeresponseauthentication | checkhostip | \
-            clearallforwardings | controlpersist | compression | enablesshkeysign | \
-            exitonforwardfailure | forwardagent | forwardx11 | forwardx11trusted | \
-            gatewayports | gssapiauthentication | gssapikeyexchange | \
-            gssapidelegatecredentials | gssapirenewalforcesrekey | gssapitrustdns | \
-            hashknownhosts | hostbasedauthentication | identitiesonly | \
-            kbdinteractiveauthentication | kbdinteractivedevices | \
-            nohostauthenticationforlocalhost | passwordauthentication | permitlocalcommand | \
-            proxyusefdpass | pubkeyauthentication | rhostsrsaauthentication | \
+            clearallforwardings | controlpersist | compression | \
+            enablesshkeysign | exitonforwardfailure | forwardagent | \
+            forwardx11 | forwardx11trusted | gatewayports | \
+            gssapiauthentication | gssapikeyexchange | \
+            gssapidelegatecredentials | gssapirenewalforcesrekey | \
+            gssapitrustdns | hashknownhosts | hostbasedauthentication | \
+            identitiesonly | kbdinteractiveauthentication | \
+            kbdinteractivedevices | nohostauthenticationforlocalhost | \
+            passwordauthentication | permitlocalcommand | proxyusefdpass | \
+            pubkeyauthentication | rhostsrsaauthentication | \
             rsaauthentication | streamlocalbindunlink | \
             tcpkeepalive | useprivilegedport | visualhostkey)
             COMPREPLY=($(compgen -W 'yes no' -- "$cur"))
@@ -121,7 +123,8 @@ _ssh_suboption()
         identityfile)
             _ssh_identityfile
             ;;
-        *file | identityagent | include | controlpath | revokedhostkeys | xauthlocation)
+        *file | identityagent | include | controlpath | revokedhostkeys | \
+            xauthlocation)
             _filedir
             ;;
         casignaturealgorithms)
@@ -153,7 +156,10 @@ _ssh_suboption()
             COMPREPLY=($(compgen -W '$(_ssh_query "$2" kex)' -- "$cur"))
             ;;
         loglevel)
-            COMPREPLY=($(compgen -W 'QUIET FATAL ERROR INFO VERBOSE DEBUG{,1,2,3}' -- "$cur"))
+            COMPREPLY=($(
+                compgen -W 'QUIET FATAL ERROR INFO VERBOSE DEBUG{,1,2,3}' \
+                    -- "$cur"
+            ))
             ;;
         macs)
             _ssh_macs "$2"
@@ -464,7 +470,8 @@ _scp_local_files()
 
     if $dirsonly; then
         COMPREPLY+=($(command ls -aF1dL $cur* 2>/dev/null |
-            command sed -e "s/$_scp_path_esc/\\\\&/g" -e '/[^\/]$/d' -e "s/^/${1-}/"))
+            command sed -e "s/$_scp_path_esc/\\\\&/g" -e '/[^\/]$/d' \
+                -e "s/^/${1-}/"))
     else
         COMPREPLY+=($(command ls -aF1dL $cur* 2>/dev/null |
             command sed -e "s/$_scp_path_esc/\\\\&/g" -e 's/[*@|=]$//g' \

@@ -22,7 +22,10 @@ _puppet_certs()
         puppetca=puppetca
 
     if [[ $1 == --all ]]; then
-        cert_list=$($puppetca --list --all | command sed -e 's/^[+-]\{0,1\}\s*\(\S\+\)\s\+.*$/\1/')
+        cert_list=$(
+            $puppetca --list --all |
+                command sed -e 's/^[+-]\{0,1\}\s*\(\S\+\)\s\+.*$/\1/'
+        )
     else
         cert_list=$($puppetca --list)
     fi
@@ -31,7 +34,9 @@ _puppet_certs()
 
 _puppet_types()
 {
-    puppet_types=$(puppet describe --list | command sed -e 's/^\(\S\{1,\}\).*$/\1/')
+    puppet_types=$(
+        puppet describe --list | command sed -e 's/^\(\S\{1,\}\).*$/\1/'
+    )
     COMPREPLY+=($(compgen -W "$puppet_types" -- "$cur"))
 }
 
@@ -41,7 +46,9 @@ _puppet_references()
     PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin type puppetdoc &>/dev/null &&
         puppetdoc=puppetdoc
 
-    puppet_doc_list=$($puppetdoc --list | command sed -e 's/^\(\S\{1,\}\).*$/\1/')
+    puppet_doc_list=$(
+        $puppetdoc --list | command sed -e 's/^\(\S\{1,\}\).*$/\1/'
+    )
     COMPREPLY+=($(compgen -W "$puppet_doc_list" -- "$cur"))
 }
 
@@ -96,7 +103,8 @@ _puppet()
             ;;
         puppet)
             case ${words[1]} in
-                agent | apply | cert | describe | doc | filebucket | kick | master | parser | queue | resource)
+                agent | apply | cert | describe | doc | filebucket | kick | \
+                    master | parser | queue | resource)
                     subcommand=${words[1]}
                     ;;
                 *.pp | *.rb)
@@ -179,10 +187,11 @@ _puppet()
                     ;;
                 *)
                     action=$prev
-                    COMPREPLY=($(compgen -W '--digest --debug --help --verbose --version' \
-                        -- "$cur"))
+                    COMPREPLY=($(compgen -W '--digest --debug --help --verbose
+                         --version' -- "$cur"))
                     case $action in
-                        fingerprint | list | verify | --fingerprint | --list | --verify)
+                        fingerprint | list | verify | --fingerprint | --list | \
+                            --verify)
                             COMPREPLY+=($(compgen -W '--all' -- "$cur"))
                             _puppet_certs --all
                             return
@@ -201,8 +210,9 @@ _puppet()
                             return
                             ;;
                         *)
-                            COMPREPLY+=($(compgen -W 'clean fingerprint generate
-                                list print revoke sign verify reinventory' -- "$cur"))
+                            COMPREPLY+=($(compgen -W 'clean fingerprint
+                                generate list print revoke sign verify
+                                reinventory' -- "$cur"))
                             return
                             ;;
                     esac
@@ -333,6 +343,7 @@ _puppet()
             ;;
     esac
 } &&
-    complete -F _puppet puppetmasterd puppetd puppetca ralsh puppetrun puppetqd filebucket puppetdoc puppet
+    complete -F _puppet puppetmasterd puppetd puppetca ralsh puppetrun \
+        puppetqd filebucket puppetdoc puppet
 
 # ex: filetype=sh
