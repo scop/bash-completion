@@ -1,9 +1,5 @@
 FROM ubuntu:14.04
 
-# Distro's python3-pip is too old to understand environment markers in
-# requirements.txt, therefore installing pip from PyPI too, using
-# easy_install3 from python3-setuptools.
-
 RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get update \
     && apt-get -y upgrade \
@@ -11,8 +7,14 @@ RUN export DEBIAN_FRONTEND=noninteractive \
         autoconf \
         automake \
         make \
-        python3-setuptools \
-        xvfb
+        software-properties-common \
+        xvfb \
+    && apt-add-repository -y ppa:deadsnakes/ppa \
+    && apt-get update \
+    && apt-get -y --no-install-recommends install \
+        python3.6 \
+    && python3.6 -c "import urllib.request; urllib.request.urlretrieve('https://bootstrap.pypa.io/get-pip.py', '/tmp/get-pip.py')" \
+    && python3.6 /tmp/get-pip.py --prefix /usr/local
 
 # test/test-cmd-list.txt is a cache buster
 ADD https://raw.githubusercontent.com/scop/bash-completion/master/test/test-cmd-list.txt \
@@ -21,11 +23,7 @@ ADD https://raw.githubusercontent.com/scop/bash-completion/master/test/test-cmd-
     /tmp/
 
 RUN set -x \
-    && easy_install3 \
-        --install-dir /usr/local/lib/python3.*/dist-packages \
-        --script-dir /usr/local/bin \
-        pip==19.1.1 \
-    && pip install --prefix /usr/local -Ir /tmp/requirements.txt
+    && python3.6 -m pip install --prefix /usr/local -Ir /tmp/requirements.txt
 
 RUN /tmp/install-packages.sh \
     && rm -r /tmp/* /root/.cache/pip /var/lib/apt/lists/*
