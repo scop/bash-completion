@@ -9,9 +9,7 @@ from conftest import assert_bash_exec, assert_complete, prepare_fixture_dir
 
 class TestKpdf:
     @pytest.fixture(scope="class")
-    def setup_fixture(
-        self, request: pytest.FixtureRequest
-    ) -> Tuple[Path, List[str], List[str]]:
+    def setup_fixture(self, request) -> Tuple[Path, List[str], List[str]]:
         return prepare_fixture_dir(
             request,
             ".eps .EPS .pdf .PDF .ps .PS .txt".split(),

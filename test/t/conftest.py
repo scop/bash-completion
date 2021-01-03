@@ -637,7 +637,7 @@ def in_container() -> bool:
 
 
 def prepare_fixture_dir(
-    request: pytest.FixtureRequest, files: Iterable[str], dirs: Iterable[str]
+    request, files: Iterable[str], dirs: Iterable[str]
 ) -> Tuple[Path, List[str], List[str]]:
     """
     Fixture to prepare a test dir with dummy contents on the fly.
