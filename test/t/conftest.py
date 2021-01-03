@@ -2,9 +2,12 @@ import difflib
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import sys
+import tempfile
 import time
+from pathlib import Path
 from typing import Callable, Iterable, Iterator, List, Optional, Tuple
 
 import pexpect
@@ -631,6 +634,36 @@ def in_container() -> bool:
     except OSError:
         pass
     return False
+
+
+def prepare_fixture_dir(
+    request: pytest.FixtureRequest, files: Iterable[str], dirs: Iterable[str]
+) -> Tuple[Path, List[str], List[str]]:
+    """
+    Fixture to prepare a test dir with dummy contents on the fly.
+
+    Tests that contain filenames differing only by case should use this to
+    prepare a dir on the fly rather than including their fixtures in git and
+    the tarball. This is to work better with case insensitive file systems.
+    """
+    tempdir = Path(tempfile.mkdtemp(prefix="bash-completion-fixture-dir"))
+    request.addfinalizer(lambda: shutil.rmtree(str(tempdir)))
+
+    new_files = []
+    new_dirs = []
+
+    for file_ in files:
+        path = tempdir / file_
+        if not path.exists():
+            path.touch()
+            new_files.append(file_)
+    for dir_ in dirs:
+        path = tempdir / dir_
+        if not path.exists():
+            path.mkdir()
+            new_dirs.append(dir_)
+
+    return tempdir, sorted(new_files), sorted(new_dirs)
 
 
 class TestUnitBase:
