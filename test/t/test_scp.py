@@ -76,4 +76,4 @@ class TestScp:
         Connection to it must open sufficiently quickly for the
         ConnectTimeout and sleep_after_tab settings.
         """
-        assert completion == "%s:%s/" % (LIVE_HOST, live_pwd)
+        assert completion == f"{LIVE_HOST}:{live_pwd}/"

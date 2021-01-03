@@ -28,6 +28,6 @@ class TestMutt:
             .split()
         )
         assert got == [
-            "%s/mutt/%s" % (bash.cwd, x)
+            f"{bash.cwd}/mutt/{x}"
             for x in ("muttrc", "bar/muttrc_b", "foo/muttrc_f")
         ]

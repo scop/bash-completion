@@ -9,7 +9,7 @@ from typing import Dict, List
 import git
 
 repo = git.Repo(".")
-changelog = defaultdict(list)  # type: Dict[str, List[str]]
+changelog: Dict[str, List[str]] = defaultdict(list)
 
 if len(sys.argv) != 2:
     print("Usage: %s SINCE-TAG" % __file__, file=sys.stderr)

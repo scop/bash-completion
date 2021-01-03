@@ -14,7 +14,7 @@ class TestUnitGetCompWordsByRef(TestUnitBase):
             "_get_comp_words_by_ref %s cur prev; echo $cur,${prev-}",
             bash,
             *args,
-            **kwargs
+            **kwargs,
         )
         return output.strip()
 

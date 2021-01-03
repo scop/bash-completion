@@ -196,7 +196,7 @@ class TestUnitFiledir:
     @pytest.mark.parametrize("funcname", "f f2".split())
     def test_22(self, bash, functions, funcname, non_windows_testdir):
         completion = assert_complete(
-            bash, r"%s '%s/a\b/" % (funcname, non_windows_testdir)
+            bash, fr"{funcname} '{non_windows_testdir}/a\b/"
         )
         assert completion == "g'"
 

@@ -26,8 +26,8 @@ class TestFinger:
     def test_partial_hostname(self, bash, known_hosts):
         first_char, partial_hosts = partialize(bash, known_hosts)
         user = "test"
-        completion = assert_complete(bash, "finger %s@%s" % (user, first_char))
+        completion = assert_complete(bash, f"finger {user}@{first_char}")
         if len(completion) == 1:
             assert completion == partial_hosts[0][1:]
         else:
-            assert completion == ["%s@%s" % (user, x) for x in partial_hosts]
+            assert completion == [f"{user}@{x}" for x in partial_hosts]
