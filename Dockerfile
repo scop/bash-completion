@@ -9,6 +9,7 @@ RUN apk add --no-cache \
         musl-dev \
         py3-pexpect \
         py3-pytest-xdist \
+        tar \
         xvfb \
         xvfb-run \
         xz
