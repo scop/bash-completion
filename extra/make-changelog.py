@@ -6,7 +6,7 @@ from email.utils import formatdate
 from textwrap import wrap
 from typing import Dict, List
 
-import git
+import git  # type: ignore[import]
 
 repo = git.Repo(".")
 changelog: Dict[str, List[str]] = defaultdict(list)

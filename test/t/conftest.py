@@ -10,7 +10,7 @@ import time
 from pathlib import Path
 from typing import Callable, Iterable, Iterator, List, Optional, Tuple
 
-import pexpect
+import pexpect  # type: ignore[import]
 import pytest
 
 PS1 = "/@"
