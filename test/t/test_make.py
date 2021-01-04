@@ -12,7 +12,7 @@ class TestMake:
     def test_2(self, bash, completion):
         """Hidden targets."""
         assert completion == ".cache/ .test_passes".split()
-        os.remove(f"{bash.cwd}/make/extra/makefile")
+        os.remove(f"{bash.cwd}/make/extra_makefile")
 
     @pytest.mark.complete("make .cache/", cwd="make", require_cmd=True)
     def test_3(self, bash, completion):
