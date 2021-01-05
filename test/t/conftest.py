@@ -177,6 +177,8 @@ def bash(request) -> pexpect.spawn:
     logfile = None
     if os.environ.get("BASHCOMP_TEST_LOGFILE"):
         logfile = open(os.environ["BASHCOMP_TEST_LOGFILE"], "w")
+    elif os.environ.get("CI"):
+        logfile = sys.stdout
     testdir = os.path.abspath(
         os.path.join(os.path.dirname(__file__), os.pardir)
     )
@@ -199,7 +201,7 @@ def bash(request) -> pexpect.spawn:
     bash = pexpect.spawn(
         "%s --norc" % os.environ.get("BASHCOMP_TEST_BASH", "bash"),
         maxread=os.environ.get("BASHCOMP_TEST_PEXPECT_MAXREAD", 20000),
-        logfile=logfile or sys.stdout,
+        logfile=logfile,
         cwd=fixturesdir,
         env=env,
         encoding="utf-8",  # TODO? or native or...?
