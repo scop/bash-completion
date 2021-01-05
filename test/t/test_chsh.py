@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 
@@ -7,8 +9,11 @@ class TestChsh:
         assert completion
 
     @pytest.mark.complete("chsh -s ")
-    def test_2(self, completion):
-        assert completion
+    def test_shells(self, completion):
+        if os.path.exists("/etc/shells"):
+            assert completion
+        else:
+            assert not completion
 
     @pytest.mark.complete("chsh -", require_cmd=True)
     def test_3(self, completion):
