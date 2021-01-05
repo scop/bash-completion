@@ -8,6 +8,15 @@ _chsh()
     local cur prev words cword
     _init_completion || return
 
+    local word chroot
+    for word in "${words[@]}"; do
+        if [[ -v chroot ]]; then
+            chroot=$word
+            break
+        fi
+        [[ $word != -@(R|-root) ]] || chroot=
+    done
+
     case $prev in
         --list-shells | --help | -v | --version)
             return
@@ -17,7 +26,7 @@ _chsh()
             return
             ;;
         -s | --shell)
-            _shells
+            _shells "${chroot-}"
             return
             ;;
     esac

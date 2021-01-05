@@ -18,3 +18,7 @@ class TestChsh:
     @pytest.mark.complete("chsh -", require_cmd=True)
     def test_3(self, completion):
         assert completion
+
+    @pytest.mark.complete("chsh --root shells -s ")
+    def test_chroot_shells(self, completion):
+        assert completion == "/bash/completion/canary"

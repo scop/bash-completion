@@ -8,6 +8,15 @@ _usermod()
     # TODO: if -o/--non-unique is given, could complete on existing uids
     #       with -u/--uid
 
+    local word chroot
+    for word in "${words[@]}"; do
+        if [[ -v chroot ]]; then
+            chroot=$word
+            break
+        fi
+        [[ $word != -@(R|-root) ]] || chroot=
+    done
+
     case $prev in
         --comment | --home | --expiredate | --inactive | --help | --login | \
             --password | --uid | --selinux-user | -!(-*)[cdefhlpuZ])
@@ -27,7 +36,7 @@ _usermod()
             return
             ;;
         --shell | -!(-*)s)
-            _shells
+            _shells "${chroot-}"
             return
             ;;
     esac
