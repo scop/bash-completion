@@ -101,7 +101,8 @@ _slackpkg()
             COMPREPLY+=($(compgen -W 'install reinstall upgrade remove
                 blacklist download update install-new upgrade-all
                 clean-system new-config check-updates help generate-template
-                install-template remove-template search file-search info' -- \
+                install-template remove-template search file-search info
+                show-changelog' -- \
                 "$cur"))
             return
             ;;
