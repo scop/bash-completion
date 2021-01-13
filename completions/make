@@ -157,18 +157,41 @@ _make()
             mode=-d # display-only mode
         fi
 
-        local IFS=$' \t\n' script=$(_make_target_extract_script $mode "$cur")
-        COMPREPLY=($(LC_ALL=C \
-            $1 -npq __BASH_MAKE_COMPLETION__=1 \
-            ${makef+"${makef[@]}"} "${makef_dir[@]}" .DEFAULT 2>/dev/null |
-            command sed -ne "$script"))
+        local use_fallback=yes
+        if [[ ${BASH_COMPLETION_MAKE_ENABLE_MAKEFILE_TARGET:=0} == 1 ]]; then
+            local makefile_targets exit_status
+
+            # Execute the makefile target and interpret the output as completion info
+            makefile_targets=$($1 -sS __BASH_MAKE_COMPLETION__=1 \
+                ${makef+"${makef[@]}"} "${makef_dir[@]}" \
+                ${BASH_COMPLETION_MAKE_MAKEFILE_TARGET:=.BASH-COMPLETION} 2>/dev/null)
+            exit_status=$?
+
+            if [[ $exit_status -eq 0 ]]; then
+                use_fallback=no
+
+                local prefix="$2"
+                local prefix_pat=$(command sed 's/[][\,.*^$(){}?+|/]/\\&/g' <<<"$prefix")
+                local filtered_output=$(command grep -E "^${prefix_pat}" <<<"${makefile_targets// /$'\n'}")
+                local IFS=$' \t\n'
+                COMPREPLY=($filtered_output)
+            fi
+        fi
+
+        if [[ $use_fallback == yes ]]; then
+            # Parse the output of "make -npq .DEFAULT" (or similar) command
+            local IFS=$' \t\n' script=$(_make_target_extract_script $mode "$cur")
+            COMPREPLY=($(LC_ALL=C \
+                $1 -npq __BASH_MAKE_COMPLETION__=1 \
+                ${makef+"${makef[@]}"} "${makef_dir[@]}" .DEFAULT 2>/dev/null |
+                command sed -ne "$script"))
+        fi
 
         if [[ $mode != -d ]]; then
             # Completion will occur if there is only one suggestion
             # so set options for completion based on the first one
             [[ ${COMPREPLY-} == */ ]] && compopt -o nospace
         fi
-
     fi
 } &&
     complete -F _make make gmake gnumake pmake colormake bmake
