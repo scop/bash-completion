@@ -20,9 +20,14 @@ _qemu()
             return
             ;;
         -k)
-            COMPREPLY=($(compgen -W 'ar de-ch es fo fr-ca hu ja mk no pt-br
-                sv da en-gb et fr fr-ch is lt nl pl ru th de en-us fi fr-be hr
-                it lv nl-be pt sl tr' -- "$cur"))
+            local IFS=$' \t\n' reset=$(shopt -p nullglob)
+            shopt -s nullglob
+            local -a keymaps=($(
+                printf "%s\n" \
+                    /usr/{local/,}share/qemu/keymaps/!(common|modifiers)
+            ))
+            $reset
+            COMPREPLY=($(compgen -W '${keymaps[@]##*/}' -- "$cur"))
             return
             ;;
         -soundhw)
