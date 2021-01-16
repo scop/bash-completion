@@ -493,6 +493,7 @@ EXTRA_DIST = \
 	test_python3.py \
 	test_pyvenv.py \
 	test_qemu.py \
+	test_qemu_system_x86_64.py \
 	test_qrunner.py \
 	test_querybts.py \
 	test_quota.py \
