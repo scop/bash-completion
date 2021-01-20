@@ -547,12 +547,17 @@ _quote_readline_by_ref()
         printf -v $2 %s "${1:1}"
     else
         printf -v $2 %q "$1"
-    fi
 
-    # If result becomes quoted like this: $'string', re-evaluate in order to
-    # drop the additional quoting.  See also:
-    # https://www.mail-archive.com/bash-completion-devel@lists.alioth.debian.org/msg01942.html
-    [[ ${!2} == \$* ]] && eval $2=${!2}
+        # If result becomes quoted like this: $'string', re-evaluate in order
+        # to drop the additional quoting.  See also:
+        # https://www.mail-archive.com/bash-completion-devel@lists.alioth.debian.org/msg01942.html
+        if [[ ${!2} == \$\'*\' ]]; then
+          local value=${!2:2:-1}   # Strip beginning $' and ending '.
+          value=${value//'%'/%%}   # Escape % for printf format.
+          printf -v value "$value" # Decode escape sequences of \....
+          local "$2" && _upvars -v "$2" "$value"
+        fi
+    fi
 } # _quote_readline_by_ref()
 
 # This function performs file and directory completion. It's better than
