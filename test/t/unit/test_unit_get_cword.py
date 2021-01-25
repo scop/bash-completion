@@ -103,7 +103,7 @@ class TestUnitGetCword(TestUnitBase):
         a -n| should return -n
 
         This test makes sure `_get_cword' doesn't use `echo' to return its
-        value, because -n might be interpreted by `echo' and thus woud not
+        value, because -n might be interpreted by `echo' and thus would not
         be returned.
         """
         output = self._test(bash, "(a -n)", 1, "a -n", 4)
