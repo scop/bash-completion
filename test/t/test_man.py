@@ -113,3 +113,26 @@ class TestMan:
     @pytest.mark.complete("man -", require_cmd=True)
     def test_11(self, completion):
         assert completion
+
+    @pytest.mark.complete("man -S 1", require_cmd=True)
+    def test_delimited_first(self, completion):
+        # just appends space
+        assert not completion
+        assert completion.endswith(" ")
+
+    @pytest.mark.complete("man -S 1:", require_cmd=True)
+    def test_delimited_after_delimiter(self, completion):
+        assert completion
+        assert "1" not in completion
+
+    @pytest.mark.complete("man -S 1:2", require_cmd=True)
+    def test_delimited_later(self, completion):
+        # just appends space
+        assert not completion
+        assert completion.endswith(" ")
+
+    @pytest.mark.complete("man -S 1:1", require_cmd=True)
+    def test_delimited_deduplication(self, completion):
+        # no completion, no space appended
+        assert not completion
+        assert not completion.endswith(" ")
