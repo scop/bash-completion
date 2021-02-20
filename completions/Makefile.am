@@ -295,6 +295,7 @@ bashcomp_DATA = 2to3 \
 		pack200 \
 		passwd \
 		patch \
+		pdftoppm \
 		pdftotext \
 		perl \
 		perlcritic \

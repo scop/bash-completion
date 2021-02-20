@@ -425,6 +425,7 @@ EXTRA_DIST = \
 	test_passwd.py \
 	test_paste.py \
 	test_patch.py \
+	test_pdftoppm.py \
 	test_pdftotext.py \
 	test_perl.py \
 	test_perlcritic.py \

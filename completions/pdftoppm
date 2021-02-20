@@ -1,0 +1,35 @@
+# bash completion for pdftoppm(1)                          -*- shell-script -*-
+
+_comp_cmd_pdftoppm()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -[flrxyWH] | -r[xy] | -scale?(-to-[xy]) | -jpegopt | -[ou]pw)
+            return
+            ;;
+        -tiffcompression)
+            COMPREPLY=($(compgen -W 'none packbits jpeg lzw deflate' -- "$cur"))
+            return
+            ;;
+        -freetype | -aa | -aaVector)
+            COMPREPLY=($(compgen -W 'yes no' -- "$cur"))
+            return
+            ;;
+        -thinlinemode)
+            COMPREPLY=($(compgen -W 'none solid shape' -- "$cur"))
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        return
+    fi
+
+    [[ $prev == *.pdf ]] || _filedir pdf
+} &&
+    complete -F _comp_cmd_pdftoppm pdftoppm
+
+# ex: filetype=sh
