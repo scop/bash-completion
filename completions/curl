@@ -7,14 +7,14 @@ _curl()
 
     case $prev in
         --ciphers | --connect-timeout | --continue-at | --form | --form-string | \
-            --ftp-account | --ftp-alternative-to-user | --ftp-port | --header | --help | \
+            --ftp-account | --ftp-alternative-to-user | --ftp-port | --header | \
             --hostpubmd5 | --keepalive-time | --krb | --limit-rate | --local-port | \
             --mail-from | --mail-rcpt | --max-filesize | --max-redirs | --max-time | --pass | \
             --proto | --proto-redir | --proxy-user | --proxy1.0 | --quote | --range | \
             --request | --retry | --retry-delay | --retry-max-time | \
             --socks5-gssapi-service | --telnet-option | --tftp-blksize | --time-cond | \
             --url | --user | --user-agent | --version | --write-out | --resolve | --tlsuser | \
-            --tlspassword | -!(-*)[CFPHhmQrXtzuAVw])
+            --tlspassword | -!(-*)[CFPHmQrXtzuAVw])
             return
             ;;
         --config | --cookie | --cookie-jar | --dump-header | --egd-file | \
@@ -71,6 +71,18 @@ _curl()
             _available_interfaces -a
             return
             ;;
+        --help | -!(-*)h)
+            local x categories=(
+                $("$1" --help non-existent-category 2>&1 |
+                    awk '/^[[:space:]]/ {print $1}')
+            )
+            for x in "${categories[@]}"; do
+                # Looks like an option? Likely no --help category support
+                [[ $x != -* ]] || return
+            done
+            COMPREPLY=($(compgen -W '${categories[@]}' -- "$cur"))
+            return
+            ;;
         --proxy | --socks4 | --socks4a | --socks5 | --socks5-hostname | -!(-*)x)
             _known_hosts_real -- "$cur"
             return
@@ -91,7 +103,9 @@ _curl()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        COMPREPLY=($(compgen -W '$(_parse_help "$1" --help all)' -- "$cur"))
+        [[ $COMPREPLY ]] ||
+            COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
     fi
 } &&
     complete -F _curl curl
