@@ -6,40 +6,50 @@ _curl()
     _init_completion || return
 
     case $prev in
-        --ciphers | --connect-timeout | --continue-at | --form | --form-string | \
-            --ftp-account | --ftp-alternative-to-user | --ftp-port | --header | \
-            --hostpubmd5 | --keepalive-time | --krb | --limit-rate | --local-port | \
-            --mail-from | --mail-rcpt | --max-filesize | --max-redirs | --max-time | --pass | \
-            --proto | --proto-redir | --proxy-user | --proxy1.0 | --quote | --range | \
-            --request | --retry | --retry-delay | --retry-max-time | \
-            --socks5-gssapi-service | --telnet-option | --tftp-blksize | --time-cond | \
-            --url | --user | --user-agent | --version | --write-out | --resolve | --tlsuser | \
-            --tlspassword | -!(-*)[CFPHmQrXtzuAVw])
-            return
-            ;;
-        --config | --cookie | --cookie-jar | --dump-header | --egd-file | \
-            --key | --libcurl | --output | --random-file | --upload-file | --trace | \
-            --trace-ascii | --netrc-file | -!(-*)[KbcDoT])
+        --abstract-unix-socket | --alt-svc | --config | --cookie | \
+            --cookie-jar | --dump-header | --egd-file | --etag-compare | \
+            --etag-save | --hsts | --key | --libcurl | --netrc-file | \
+            --output | --proxy-key | --random-file | --trace | --trace-ascii | \
+            --unix-socket | --upload-file | -!(-*)[KbcDoT])
             _filedir
             return
             ;;
-        --cacert | --cert | -!(-*)E)
+        --ciphers | --connect-timeout | --connect-to | --continue-at | \
+            --curves | --data-raw | --doh-url | --expect100-timeout | --form | \
+            --form-string | --ftp-account | --ftp-alternative-to-user | \
+            --happy-eyeballs-timeout-ms | --hostpubmd5 | --keepalive-time | \
+            --limit-rate | --local-port | --login-options | --mail-auth | \
+            --mail-from | --mail-rcpt | --max-filesize | --max-redirs | \
+            --max-time | --pass | --proto | --proto-default | --proto-redir | \
+            --proxy-ciphers | --proxy-pass | --proxy-service-name | \
+            --proxy-tls13-ciphers | --proxy-tlspassword | --proxy-tlsuser | \
+            --proxy-user | --proxy1.0 | --quote | --range | --referer | \
+            --resolve | --retry | --retry-delay | --retry-max-time | \
+            --sasl-authzid | --service-name | --socks5-gssapi-service | \
+            --speed-limit | --speed-time | --telnet-option | --tftp-blksize | \
+            --time-cond | --tls13-ciphers | --tlspassword | --tlsuser | \
+            --url | --user | --user-agent | --version | --write-out | \
+            -!(-*)[CFmQreYytzuAVw])
+            return
+            ;;
+        --cacert | --cert | --proxy-cacert | --proxy-cert | -!(-*)E)
             _filedir '@(c?(e)rt|cer|pem|der)'
             return
             ;;
-        --capath)
+        --capath | --output-dir | --proxy-capath)
             _filedir -d
             return
             ;;
-        --cert-type | --key-type)
+        --cert-type | --key-type | --proxy-cert-type | --proxy-key-type)
             COMPREPLY=($(compgen -W 'DER PEM ENG' -- "$cur"))
             return
             ;;
-        --crlfile)
+        --crlfile | --proxy-crlfile)
             _filedir crl
             return
             ;;
-        --data | --data-ascii | --data-binary | --data-urlencode | -!(-*)d)
+        --data | --data-ascii | --data-binary | --data-urlencode | --header | \
+            --proxy-header | -!(-*)[dH])
             if [[ $cur == \@* ]]; then
                 cur=${cur:1}
                 _filedir
@@ -55,8 +65,27 @@ _curl()
             COMPREPLY=($(compgen -W 'none policy always' -- "$cur"))
             return
             ;;
+        --dns-ipv[46]-addr)
+            _ip_addresses -${prev:9:1}
+            return
+            ;;
+        --dns-servers | --noproxy)
+            _known_hosts_real -- "${cur##*,}"
+            _comp_delimited , -W '${COMPREPLY[@]}'
+            return
+            ;;
         --engine)
-            COMPREPLY=($(compgen -W 'list' -- "$cur"))
+            local engines=$(
+                "$1" --engine list 2>/dev/null |
+                    command grep "^[[:space:]]"
+            )
+            COMPREPLY=($(compgen -W '$engines list' -- "$cur"))
+            return
+            ;;
+        --ftp-port | -!(-*)P)
+            _available_interfaces -a
+            _known_hosts_real -- "$cur"
+            _ip_addresses -a
             return
             ;;
         --ftp-method)
@@ -83,7 +112,16 @@ _curl()
             COMPREPLY=($(compgen -W '${categories[@]}' -- "$cur"))
             return
             ;;
-        --proxy | --socks4 | --socks4a | --socks5 | --socks5-hostname | -!(-*)x)
+        --krb)
+            COMPREPLY=($(compgen -W 'clear safe confidential private' -- "$cur"))
+            return
+            ;;
+        --pinnedpubkey | --proxy-pinnedpubkey)
+            _filedir '@(pem|der|key)'
+            return
+            ;;
+        --preproxy | --proxy | --socks4 | --socks4a | --socks5 | \
+            --socks5-hostname | -!(-*)x)
             _known_hosts_real -- "$cur"
             return
             ;;
@@ -91,12 +129,25 @@ _curl()
             _xfunc ssh _ssh_identityfile pub
             return
             ;;
+        --request | -!(-*)X)
+            # TODO: these are valid for http(s) only
+            COMPREPLY=($(
+                compgen -W \
+                    'GET HEAD POST PUT DELETE CONNECT OPTIONS TRACE PATCH' \
+                    -- "$cur"
+            ))
+            return
+            ;;
         --stderr)
             COMPREPLY=($(compgen -W '-' -- "$cur"))
             _filedir
             return
             ;;
-        --tlsauthtype)
+        --tls-max)
+            COMPREPLY=($(compgen -W 'default 1.0 1.1 1.2 1.3' -- "$cur"))
+            return
+            ;;
+        --tlsauthtype | --proxy-tlsauthtype)
             COMPREPLY=($(compgen -W 'SRP' -- "$cur"))
             return
             ;;
