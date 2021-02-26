@@ -77,6 +77,7 @@ bashcomp_DATA = 2to3 \
 		cvs \
 		cvsps \
 		dd \
+		declare \
 		deja-dup \
 		desktop-file-validate \
 		dhclient \
