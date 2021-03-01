@@ -671,6 +671,7 @@ EXTRA_DIST = \
 	test_wvdial.py \
 	test_xdg_mime.py \
 	test_xdg_settings.py \
+	test_xev.py \
 	test_xfreerdp.py \
 	test_xgamma.py \
 	test_xhost.py \

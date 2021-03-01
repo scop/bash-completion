@@ -454,6 +454,7 @@ bashcomp_DATA = 2to3 \
 		wvdial \
 		xdg-mime \
 		xdg-settings \
+		xev \
 		xfreerdp \
 		xgamma \
 		xhost \
