@@ -10,7 +10,14 @@ _firefox()
     case $prev in
         --help | --version | --display | --UILocale | -MOZ_LOG | --new-window | --new-tab | \
             --private-window | --window-size | --search | --start-debugger-server | \
-            --recording | --debugger-args | -[hvPa])
+            --recording | --debugger-args | -[hva])
+            return
+            ;;
+        -P)
+            COMPREPLY=($(compgen -W "$(
+                awk -F= '$1 == "Name" { print $2 }' \
+                    ~/.mozilla/firefox/profiles.ini 2>/dev/null
+            )" -- "$cur"))
             return
             ;;
         --profile | --screenshot)
@@ -21,7 +28,7 @@ _firefox()
             _filedir log
             return
             ;;
-        --recording-file)
+        --recording-output | --recording-file)
             _filedir
             return
             ;;
