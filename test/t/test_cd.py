@@ -7,11 +7,11 @@ class TestCd:
     def test_1(self, completion):
         assert completion == ["bar bar.d/", "foo.d/"]
 
-    @pytest.mark.complete("cd fo", env=dict(CDPATH="shared/default"))
+    @pytest.mark.complete("cd foo", env=dict(CDPATH="shared/default"))
     def test_2(self, completion):
-        assert completion == "o.d/"
+        assert completion == ".d/"
 
-    @pytest.mark.complete("cd fo")
+    @pytest.mark.complete("cd foo")
     def test_3(self, completion):
         assert not completion
 

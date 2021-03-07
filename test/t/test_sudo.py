@@ -8,9 +8,9 @@ class TestSudo:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("sudo cd fo", cwd="shared/default")
+    @pytest.mark.complete("sudo cd foo", cwd="shared/default")
     def test_2(self, completion):
-        assert completion == "o.d/"
+        assert completion == ".d/"
         assert not completion.endswith(" ")
 
     @pytest.mark.complete("sudo sh share")
