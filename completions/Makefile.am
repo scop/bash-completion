@@ -288,7 +288,7 @@ bashcomp_DATA = 2to3 \
 		nsupdate \
 		ntpdate \
 		oggdec \
-		op \
+		_op \
 		openssl \
 		opera \
 		optipng \
