@@ -2287,7 +2287,9 @@ __load_completion()
         for compfile in "$cmd" "$cmd.bash" "_$cmd"; do
             compfile="$dir/$compfile"
             # Avoid trying to source dirs; https://bugzilla.redhat.com/903540
-            if [[ -f $compfile ]] && . "$compfile" &>/dev/null; then
+            if [[ -d $compfile ]]; then
+                echo "bash_completion: $compfile: is a directory" >&2
+            elif [[ -e $compfile ]] && . "$compfile"; then
                 [[ $backslash ]] && $(complete -p "$cmd") "\\$cmd"
                 return 0
             fi
