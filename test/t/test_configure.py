@@ -15,3 +15,11 @@ class TestConfigure:
     @pytest.mark.complete("configure --prefix ")
     def test_2(self, completion):
         assert completion
+
+    @pytest.mark.complete("configure --unknown-option-with-split=")
+    def test_unknown_split_filedir_fallback(self, completion):
+        assert "shared/" in completion
+
+    @pytest.mark.complete("configure --unknown-option ")
+    def test_unknown_filedir_fallback(self, completion):
+        assert "shared/" in completion
