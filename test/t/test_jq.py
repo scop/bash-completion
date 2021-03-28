@@ -28,3 +28,11 @@ class TestJq:
     @pytest.mark.complete("jq --slurpfile foo ")
     def test_6(self, completion):
         assert completion
+
+    @pytest.mark.complete("jq --args ")
+    def test_no_completion_after_args(self, completion):
+        assert not completion
+
+    @pytest.mark.complete("jq --jsonargs foo ")
+    def test_no_completion_after_jsonargs(self, completion):
+        assert not completion
