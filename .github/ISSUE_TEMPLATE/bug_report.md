@@ -17,9 +17,9 @@
 - [ ] bash version, `echo "$BASH_VERSION"`:
 - [ ] bash-completion version, `(IFS=.; echo "${BASH_COMPLETION_VERSINFO[*]}")`:
 
-**Debug trace**
-<!--See Troubleshooting section in README.md how to generate a debug trace, copy-paste it into a separate file and attach the file here.-->
-
-
 **Additional context**
 <!--Add any other context about the problem here.-->
+
+
+**Debug trace**
+<!--See Troubleshooting section in README.md how to generate a debug trace, copy-paste it into a separate file and attach the file here.-->
