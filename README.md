@@ -78,6 +78,11 @@ again. This will produce useful debugging output that will aid us in
 fixing the problem if you are unable to do so yourself. Turn off the
 trace output by running either `set +x` or `set +v`.
 
+If you are filing an issue, please attach the generated debugging output
+in `set -x` mode copy-pasted to a separate, attached file in the report.
+Before doing so, be sure to review the output for anything you may not want
+to share in public, and redact as appropriate.
+
 To debug dynamic loading of a completion, tracing needs to be turned
 on before the debugged completion is attempted the first time. The
 easiest way to do this is to start a new shell session, and to turn
