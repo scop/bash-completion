@@ -27,7 +27,7 @@ _python()
     esac
 
     case $prev in
-        --help | --version | -!(-*)[?hVcX])
+        --help | --version | -!(-*)[?hVc])
             return
             ;;
         -!(-*)m)
@@ -41,6 +41,14 @@ _python()
             ;;
         -!(-*)W)
             _python_warning_actions
+            return
+            ;;
+        -!(-*)X)
+            COMPREPLY=($(compgen -W "$("$1" -h 2>&1 |
+                awk '$1 == "-X" && $2 ~ /:$/ {
+                    sub(":$","",$2); sub("=.*","=",$2); print $2
+                }')" -- "$cur"))
+            [[ $COMPREPLY == *= ]] && compopt -o nospace
             return
             ;;
         --jit)
