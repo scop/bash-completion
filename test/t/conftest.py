@@ -274,7 +274,7 @@ def bash(request) -> pexpect.spawn:
 
     # Clean up
     bash.close()
-    if logfile:
+    if logfile and logfile != sys.stdout:
         logfile.close()
 
 
