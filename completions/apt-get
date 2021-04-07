@@ -36,7 +36,7 @@ _apt_get()
                 $(compgen -W "$(apt-cache dumpavail |
                     awk '$1 == "Source:" { print $2 }' | sort -u)" -- "$cur"))
                 ;;
-            install)
+            install | reinstall)
                 if [[ $cur == */* ]]; then
                     _filedir deb
                     return
@@ -66,7 +66,7 @@ _apt_get()
     fi
 
     case $prev in
-        --help | --version | --option | -!(-*)[hvo])
+        --error-on | --help | --version | --option | -!(-*)[ehvo])
             return
             ;;
         --config-file | -!(-*)c)
@@ -94,13 +94,13 @@ _apt_get()
             --trivial-only --no-remove --auto-remove --autoremove --only-source
             --diff-only --dsc-only --tar-only --arch-only --indep-only
             --allow-unauthenticated --no-allow-insecure-repositories
-            --allow-releaseinfo-change --show-progress --with-source --help
-            --version --config-file --option' -- "$cur"))
+            --allow-releaseinfo-change --show-progress --with-source --error-on
+            --help --version --config-file --option' -- "$cur"))
     else
         COMPREPLY=($(compgen -W 'update upgrade dist-upgrade
-            dselect-upgrade install remove purge source build-dep check
-            download clean autoclean autoremove changelog indextargets' \
-            -- "$cur"))
+            dselect-upgrade install reinstall remove purge source build-dep
+            satisfy check download clean autoclean autoremove changelog
+            indextargets' -- "$cur"))
     fi
 
 } &&
