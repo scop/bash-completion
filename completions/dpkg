@@ -87,6 +87,10 @@ _dpkg()
     $split && return
 
     COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+    for i in ${!COMPREPLY[*]}; do
+        # remove ones ending with a dash (known parse issue, hard to fix)
+        [[ ${COMPREPLY[i]} != *- ]] || unset 'COMPREPLY[i]'
+    done
     [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 } &&
     complete -F _dpkg dpkg dpkg-deb dpkg-query
