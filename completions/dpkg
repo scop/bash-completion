@@ -54,7 +54,7 @@ _dpkg()
             _filedir '?(u|d)deb'
             return
             ;;
-        --build | -!(-*)b)
+        --build | --admindir | --instdir | --root | -!(-*)b)
             _filedir -d
             return
             ;;
@@ -80,6 +80,32 @@ _dpkg()
             ;;
         --listfiles | --purge | -!(-*)[LP])
             COMPREPLY=($(_comp_dpkg_purgeable_packages "$cur"))
+            return
+            ;;
+        --debug | -!(-*)D)
+            COMPREPLY=($(compgen -W 'help' -- "$cur"))
+            return
+            ;;
+        --ignore-depends)
+            local packages=$(
+                cur=${cur##*,} _xfunc apt-cache _apt_cache_packages
+            )
+            _comp_delimited , -W '$packages'
+            return
+            ;;
+        --log)
+            _filedir log
+            return
+            ;;
+        --path-exclude | --path-include)
+            return
+            ;;
+        --status-logger)
+            COMPREPLY=($(compgen -c -- "$cur"))
+            return
+            ;;
+        --verify-format)
+            COMPREPLY=($(compgen -W 'rpm' -- "$cur"))
             return
             ;;
     esac
