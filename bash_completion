@@ -1641,7 +1641,7 @@ _included_ssh_config_files()
     local configfile i f
     configfile=$1
 
-    local reset=$(shopt -po noglob)
+    local IFS=$' \t\n' reset=$(shopt -po noglob)
     set -o noglob
     local included=($(command sed -ne 's/^[[:blank:]]*[Ii][Nn][Cc][Ll][Uu][Dd][Ee][[:blank:]]\(.*\)$/\1/p' "${configfile}"))
     $reset
@@ -1870,6 +1870,7 @@ _known_hosts_real()
             $(compgen -A hostname -P "$prefix" -S "$suffix" -- "$cur"))
     fi
 
+    IFS=$' \t\n'
     $reset
 
     if [[ -v ipv4 ]]; then
