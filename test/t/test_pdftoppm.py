@@ -6,6 +6,6 @@ class TestPdftoppm:
     def test_files(self, completion):
         assert completion
 
-    @pytest.mark.complete("pdftoppm -")
+    @pytest.mark.complete("pdftoppm -", require_cmd=True)
     def test_options(self, completion):
         assert completion
