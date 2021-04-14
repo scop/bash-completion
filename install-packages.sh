@@ -10,4 +10,4 @@ apk upgrade
 
 # An arbitrary package containing an init script or the like for
 # testing service completion.
-apk add nginx
+apk add nginx-openrc
