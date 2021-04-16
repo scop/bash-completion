@@ -508,8 +508,28 @@ _gtar()
         # user (TODO: is there any sane way to deal with this?).  This case
         # statement successes only if there already is PREV.
         case $prev in
+            --add-file | --exclude | --exclude-ignore | \
+                --exclude-ignore-recursive | --exclude-tag | \
+                --exclude-tag-all | --exclude-tag-under | --files-from | \
+                --exclude-from | --listed-incremental | --group-map | \
+                --mtime | --owner-map | --volno-file | --newer | \
+                --after-date | --index-file | -!(-*)[TXg])
+                _filedir
+                break
+                ;;
             --directory | -!(-*)C)
                 _filedir -d
+                break
+                ;;
+            --hole-detection)
+                COMPREPLY=($(compgen -W 'raw seek' -- "$cur"))
+                break
+                ;;
+            --to-command | --info-script | --new-volume-script | \
+                --rmt-command | --rsh-command | --use-compress-program | \
+                -!(-*)[FI])
+                compopt -o filenames
+                COMPREPLY=($(compgen -c -- "$cur"))
                 break
                 ;;
             --atime-preserve)
@@ -524,15 +544,12 @@ _gtar()
                 COMPREPLY=($(compgen -u -- "$cur"))
                 break
                 ;;
-            --info-script | --new-volume-script | --rmt-command | \
-                --rsh-command | --use-compress-program | -!(-*)[FI])
-                compopt -o filenames
-                COMPREPLY=($(compgen -c -- "$cur"))
+            --sort)
+                COMPREPLY=($(compgen -W 'none name inode' -- "$cur"))
                 break
                 ;;
-            --volno-file | --add-file | --files-from | --exclude-from | \
-                --index-file | --listed-incremental | -!(-*)[TXg])
-                _filedir
+            --file | -!(-*)f)
+                __tar_file_option "$ext"
                 break
                 ;;
             --format | -!(-*)H)
@@ -541,8 +558,9 @@ _gtar()
                 break
                 ;;
             --quoting-style)
-                COMPREPLY=($(compgen -W 'literal shell shell-always c c-maybe
-                    escape locale clocale' -- "$cur"))
+                COMPREPLY=($(compgen -W 'literal shell shell-always
+                    shell-escape shell-escape-always c c-maybe escape locale
+                    clocale' -- "$cur"))
                 break
                 ;;
             --totals)
@@ -553,10 +571,6 @@ _gtar()
                 ;;
             --warning)
                 COMPREPLY=($(compgen -W "$(__gtar_parse_warnings)" -- "$cur"))
-                break
-                ;;
-            --file | -!(-*)f)
-                __tar_file_option "$ext"
                 break
                 ;;
             --*)
