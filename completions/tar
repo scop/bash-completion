@@ -79,21 +79,22 @@ __gtar_parse_help_opt()
 
 __gtar_parse_help_line()
 {
-    local i
+    local -a tmp
+    while read -ra tmp; do
+        for i in "${tmp[@]}"; do
+            case "$i" in
+                # regular options
+                --* | -*)
+                    __gtar_parse_help_opt "$i" "$2"
+                    ;;
 
-    for i in $1; do
-        case "$i" in
-            # regular options
-            --* | -*)
-                __gtar_parse_help_opt "$i" "$2"
-                ;;
-
-            # end once there is single non-option word
-            *)
-                break
-                ;;
-        esac
-    done
+                # end once there is single non-option word
+                *)
+                    break
+                    ;;
+            esac
+        done
+    done <<<"$1"
 }
 
 __gnu_tar_parse_help()
