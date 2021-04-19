@@ -367,15 +367,19 @@ def assert_bash_exec(
 
 
 def get_env(bash: pexpect.spawn) -> List[str]:
-    return (
-        assert_bash_exec(
+    return [
+        x
+        for x in assert_bash_exec(
             bash,
             "{ (set -o posix ; set); declare -F; shopt -p; set -o; }",
             want_output=True,
         )
         .strip()
         .splitlines()
-    )
+        # Sometimes there are empty lines in the output due to unknown
+        # reasons, e.g. in GitHub Actions' macos-latest OS. Filter them out.
+        if x
+    ]
 
 
 def diff_env(before: List[str], after: List[str], ignore: str):
