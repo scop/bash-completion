@@ -25,8 +25,9 @@ _ntpdate()
     esac
 
     if [[ $cur == -* ]]; then
-        local opts="$(_parse_help "$1" -h)"
-        COMPREPLY=($(compgen -W '${opts:-$(_parse_usage "$1")}' -- "$cur"))
+        COMPREPLY=($(
+            compgen -W '$(_parse_help "$1" -h || _parse_usage "$1")' -- "$cur"
+        ))
     else
         _known_hosts_real -- "$cur"
     fi
