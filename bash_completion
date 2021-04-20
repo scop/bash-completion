@@ -869,6 +869,7 @@ _init_completion()
 }
 
 # Helper function for _parse_help and _parse_usage.
+# @return True (0) if an option was found, False (> 0) otherwise
 __parse_options()
 {
     local option option2 i IFS=$' \t\n,/|'
@@ -887,7 +888,7 @@ __parse_options()
             *) break ;;
         esac
     done
-    [[ $option ]] || return 0
+    [[ $option ]] || return 1
 
     IFS=$' \t\n' # affects parsing of the regexps below...
 
@@ -900,7 +901,10 @@ __parse_options()
     fi
 
     option=${option%%[<{().[]*}
-    printf '%s\n' "${option/=*/=}"
+    option=${option/=*/=}
+    [[ $option ]] || return 1
+
+    printf '%s\n' "$option"
 }
 
 # Parse GNU style help output of the given command.
@@ -909,8 +913,13 @@ __parse_options()
 #
 _parse_help()
 {
+    local IFS=$' \t\n'
+    local reset_monitor=$(shopt -po monitor) reset_lastpipe=$(shopt -p lastpipe)
+    set +o monitor
+    shopt -s lastpipe
+
     eval local cmd="$(quote "$1")"
-    local line
+    local line rc=1
     {
         case $cmd in
             -) cat ;;
@@ -925,9 +934,13 @@ _parse_help()
                 ((^|[^-])-[A-Za-z0-9?][[:space:]]+)\[?[A-Z0-9]+([,_-]+[A-Z0-9]+)?(\.\.+)?\]? ]]; do
                 line=${line/"${BASH_REMATCH[0]}"/"${BASH_REMATCH[1]}"}
             done
-            __parse_options "${line// or /, }"
+            __parse_options "${line// or /, }" && rc=0
 
         done
+
+    $reset_monitor
+    $reset_lastpipe
+    return $rc
 }
 
 # Parse BSD style usage output (options in brackets) of the given command.
@@ -936,8 +949,13 @@ _parse_help()
 #
 _parse_usage()
 {
+    local IFS=$' \t\n'
+    local reset_monitor=$(shopt -po monitor) reset_lastpipe=$(shopt -p lastpipe)
+    set +o monitor
+    shopt -s lastpipe
+
     eval local cmd="$(quote "$1")"
-    local line match option i char
+    local line match option i char rc=1
     {
         case $cmd in
             -) cat ;;
@@ -954,17 +972,21 @@ _parse_usage()
                         # Treat as bundled short options
                         for ((i = 1; i < ${#option}; i++)); do
                             char=${option:i:1}
-                            [[ $char != '[' ]] && printf '%s\n' -$char
+                            [[ $char != '[' ]] && printf '%s\n' -$char && rc=0
                         done
                         ;;
                     *)
-                        __parse_options "$option"
+                        __parse_options "$option" && rc=0
                         ;;
                 esac
                 line=${line#*"$match"}
             done
 
         done
+
+    $reset_monitor
+    $reset_lastpipe
+    return $rc
 }
 
 # This function completes on signal names (minus the SIG prefix)

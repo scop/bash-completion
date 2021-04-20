@@ -7,12 +7,12 @@ from conftest import assert_bash_exec
 class TestUnitParseUsage:
     def test_1(self, bash):
         assert_bash_exec(bash, "fn() { echo; }")
-        output = assert_bash_exec(bash, "_parse_usage fn")
+        output = assert_bash_exec(bash, "_parse_usage fn; (($? == 1))")
         assert not output
 
     def test_2(self, bash):
         assert_bash_exec(bash, "fn() { echo 'no dashes here'; }")
-        output = assert_bash_exec(bash, "_parse_usage fn")
+        output = assert_bash_exec(bash, "_parse_usage fn; (($? == 1))")
         assert not output
 
     def test_3(self, bash):
@@ -59,7 +59,7 @@ class TestUnitParseUsage:
         assert_bash_exec(
             bash, "fn() { echo ----; echo ---foo; echo '----- bar'; }"
         )
-        output = assert_bash_exec(bash, "_parse_usage fn")
+        output = assert_bash_exec(bash, "_parse_usage fn; (($? == 1))")
         assert not output
 
     def test_12(self, bash):

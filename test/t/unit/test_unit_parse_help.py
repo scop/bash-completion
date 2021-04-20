@@ -9,22 +9,22 @@ from conftest import assert_bash_exec
 class TestUnitParseHelp:
     def test_1(self, bash):
         assert_bash_exec(bash, "fn() { echo; }")
-        output = assert_bash_exec(bash, "_parse_help fn")
+        output = assert_bash_exec(bash, "_parse_help fn; (($? == 1))")
         assert not output
 
     def test_2(self, bash):
         assert_bash_exec(bash, "fn() { echo 'no dashes here'; }")
-        output = assert_bash_exec(bash, "_parse_help fn")
+        output = assert_bash_exec(bash, "_parse_help fn; (($? == 1))")
         assert not output
 
     def test_3(self, bash):
         assert_bash_exec(bash, "fn() { echo 'internal-dash'; }")
-        output = assert_bash_exec(bash, "_parse_help fn")
+        output = assert_bash_exec(bash, "_parse_help fn; (($? == 1))")
         assert not output
 
     def test_4(self, bash):
         assert_bash_exec(bash, "fn() { echo 'no -leading-dashes'; }")
-        output = assert_bash_exec(bash, "_parse_help fn")
+        output = assert_bash_exec(bash, "_parse_help fn; (($? == 1))")
         assert not output
 
     def test_5(self, bash):
@@ -161,7 +161,7 @@ class TestUnitParseHelp:
         assert_bash_exec(
             bash, r"fn() { printf '%s\n' $'----\n---foo\n----- bar'; }"
         )
-        output = assert_bash_exec(bash, "_parse_help fn")
+        output = assert_bash_exec(bash, "_parse_help fn; (($? == 1))")
         assert not output
 
     def test_31(self, bash):
