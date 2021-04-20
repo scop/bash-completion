@@ -11,6 +11,6 @@ class TestRmdir:
         """Should complete dirs only, also when invoked using full path."""
         assert completion == ["bar bar.d/", "foo.d/"]
 
-    @pytest.mark.complete("rmdir -", require_cmd=True)
+    @pytest.mark.complete("rmdir -", require_longopt=True)
     def test_options(self, completion):
         assert completion
