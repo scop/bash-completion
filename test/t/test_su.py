@@ -6,6 +6,8 @@ class TestSu:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("su -", require_cmd=True)
+    @pytest.mark.complete(
+        "su -", require_cmd=True, skipif="[[ $OSTYPE != *linux* ]]"
+    )
     def test_2(self, completion):
         assert completion
