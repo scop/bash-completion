@@ -578,6 +578,7 @@ CLEANFILES = \
 	google-chrome-stable \
 	gpc \
 	gpgv2 \
+	gssdp-device-sniffer \
 	gtar \
 	hciattach \
 	hciconfig \
@@ -853,6 +854,8 @@ symlinks: $(DATA)
 		gkrellm2
 	$(ss) gpgv \
 		gpgv2
+	$(ss) gssdp-discover \
+		gssdp-device-sniffer
 	$(ss) gzip \
 		pigz
 	$(ss) hcitool \
