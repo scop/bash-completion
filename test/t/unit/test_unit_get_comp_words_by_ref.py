@@ -41,12 +41,12 @@ class TestUnitGetCompWordsByRef(TestUnitBase):
         assert output == ","
 
     def test_5(self, bash):
-        """|a """
+        """|a """  # fmt: skip
         output = self._test(bash, "(a)", 0, "a ", 0)
         assert output == ","
 
     def test_6(self, bash):
-        """ | a """
+        """ | a """  # fmt: skip
         output = self._test(bash, "(a)", 0, "  a ", 1)
         assert output.strip() == ","
 

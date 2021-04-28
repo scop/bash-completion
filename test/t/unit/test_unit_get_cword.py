@@ -49,12 +49,12 @@ class TestUnitGetCword(TestUnitBase):
         assert output == r"b\ c"
 
     def test_8(self, bash):
-        r"""a b\| c should return b\ """
+        r"""a b\| c should return b\ """  # fmt: skip
         output = self._test(bash, r"(a 'b\ c')", 1, r"a b\ c", 4)
         assert output == "b\\"
 
     def test_9(self, bash):
-        r"""a "b\| should return "b\ """
+        r"""a "b\| should return "b\ """  # fmt: skip
         output = self._test(bash, "(a '\"b\\')", 1, r"a \"b\\", 5)
         assert output == '"b\\'
 
