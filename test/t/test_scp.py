@@ -77,3 +77,7 @@ class TestScp:
         ConnectTimeout and sleep_after_tab settings.
         """
         assert completion == f"{LIVE_HOST}:{live_pwd}/"
+
+    @pytest.mark.complete("scp -o Foo=")
+    def test_option_arg(self, completion):
+        assert not completion  # and no errors either
