@@ -34,7 +34,14 @@ _strings()
     $split && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        # macOS: ... [-t format] [-number] [-n number] ...
+        COMPREPLY=($(
+            compgen -W \
+                '$(_parse_help "$1" ||
+                   "$1" --help 2>&1 | \
+                       command sed -e "s/\[-number\]//" | _parse_usage -)' \
+                -- "$cur"
+        ))
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     elif [[ $cur == @* ]]; then
