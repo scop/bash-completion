@@ -21,7 +21,12 @@ _strings()
             return
             ;;
         --encoding | -!(-*)e)
-            COMPREPLY=($(compgen -W 's S b l B L' -- "$cur"))
+            COMPREPLY=($(
+                IFS=, compgen -W \
+                    '$(LC_ALL=C "$1" --help 2>/dev/null | \
+                         command sed -ne "s/.*--encoding={\([^}]*\)}.*/\1/p")' \
+                    -- "$cur"
+            ))
             return
             ;;
     esac
