@@ -2,7 +2,7 @@ import pytest
 
 
 class TestGetconf:
-    @pytest.mark.complete("getconf P")
+    @pytest.mark.complete("getconf P", skipif="! getconf -a &>/dev/null")
     def test_1(self, completion):
         assert completion
 
