@@ -1,0 +1,38 @@
+# POSIX ab completion                                   -*- shell-script -*-
+
+_ab()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        -n|-c|-t|-s|-b)
+            COMPREPLY+=( $( compgen -P "$cur" -W "{0..9}" ) )
+            compopt -o nospace
+            return
+        ;;
+        -T)
+            COMPREPLY=(
+                $( compgen -W 'application/x-www-form-urlencoded text/plain' -- "$cur" )
+            )
+            return
+        ;;
+        -B|-v|-x|-y|-z|-C|-H|-A|-P|-X|-g|-e|-p|-u|-m|-Z)
+            return
+        ;;
+        -f)
+            COMPREPLY=(
+                $( compgen -W 'SSL2 TLS1 TLS1.1 TLS1.2 ALL' -- "$cur" )
+            )
+            return
+        ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=( $( compgen -W '$( _parse_help "$1" )' -- "$cur" ) )
+        return
+    fi
+} &&
+complete -F _ab ab
+
+# ex: filetype=sh
