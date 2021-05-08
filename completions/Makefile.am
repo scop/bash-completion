@@ -11,6 +11,7 @@ bashcomp_DATA = 2to3 \
 		ant \
 		apache2ctl \
 		appdata-validate \
+		apt \
 		apt-build \
 		apt-cache \
 		apt-get \
