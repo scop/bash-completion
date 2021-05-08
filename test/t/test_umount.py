@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 
 from conftest import assert_bash_exec
@@ -11,6 +13,8 @@ class TestUmount:
         (correctly) uses absolute paths. So we create a custom completion which
         reads from a file in our text fixture instead.
         """
+        if sys.platform != "linux":
+            pytest.skip("Linux specific")
         assert_bash_exec(bash, "unset COMPREPLY cur; unset -f _mnt_completion")
         assert_bash_exec(
             bash,
@@ -75,6 +79,7 @@ class TestUmount:
     def test_mnt_label_quote(self, completion, dummy_mnt):
         assert completion == r"ian-it\'s\ awesome"
 
+    @pytest.mark.skipif(sys.platform != "linux", reason="Linux specific")
     def test_linux_fstab_unescape(self, bash):
         assert_bash_exec(bash, r"var=one\'two\\040three\\")
         assert_bash_exec(bash, "__linux_fstab_unescape var")
