@@ -38,4 +38,3 @@ class TestCvs:
     @pytest.mark.complete("cvs status foo/", cwd="cvs")
     def test_9(self, completion):
         assert completion == "bar"
-
