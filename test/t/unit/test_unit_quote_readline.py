@@ -1,7 +1,6 @@
-import pytest
 import os
-import tempfile
-import re
+
+import pytest
 
 from conftest import assert_bash_exec
 
@@ -24,10 +23,10 @@ class TestUnitQuoteReadline:
 
         Syntax error messages should not be shown by completion on the
         following line:
-        
+
           $ ls -- '${[TAB]
           $ rm -- '${[TAB]
-        
+
         """
         assert_bash_exec(bash, "quote_readline $'\\'${' >/dev/null")
 
@@ -36,15 +35,17 @@ class TestUnitQuoteReadline:
 
         Reported at https://github.com/scop/bash-completion/pull/492
 
-        Arbitrary commands could be unintendedly executed by 
-        _quote_readline_by_ref.  In the following example, the command 
+        Arbitrary commands could be unintendedly executed by
+        _quote_readline_by_ref.  In the following example, the command
         "touch 1.txt" would be unintendedly created before the fix.  The file
         "1.txt" should not be created by completion on the following line:
-        
+
           $ echo '$(touch file.txt)[TAB]
 
         """
-        assert_bash_exec(bash, "quote_readline $'\\'$(touch 1.txt)' >/dev/null")
+        assert_bash_exec(
+            bash, "quote_readline $'\\'$(touch 1.txt)' >/dev/null"
+        )
         assert not os.path.exists("./1.txt")
 
     def test_github_issue_492_2(self, bash):
@@ -54,9 +55,9 @@ class TestUnitQuoteReadline:
 
         The file "1.0" should not be created by completion on the following
         line:
-        
+
           $ awk '$1 > 1.0[TAB]
-        
+
         """
         assert_bash_exec(bash, "quote_readline $'\\'$1 > 1.0' >/dev/null")
         assert not os.path.exists("./1.0")
@@ -67,25 +68,25 @@ class TestUnitQuoteReadline:
         When there is a file named "quote=$(COMMAND)" (for _filedir) or
         "ret=$(COMMAND)" (for quote_readline), the completion of the word '$*
         results in the execution of COMMAND.
-        
+
           $ echo '$*[TAB]
-    
+
         """
         os.mkdir("./ret=$(echo injected >&2)")
         assert_bash_exec(bash, "quote_readline $'\\'$*' >/dev/null")
 
+
 @pytest.mark.bashcomp(cmd=None, temp_cwd=True, pre_cmds=("shopt -s failglob",))
 class TestUnitQuoteReadlineWithFailglob:
-
     def test_github_issue_492_4(self, bash):
         """Test error messages through unintended pathname expansions
 
         When "shopt -s failglob" is set by the user, the completion of the word
         containing glob character and special characters (e.g. TAB) results in
         the failure of pathname expansions.
-        
+
           $ shopt -s failglob
           $ echo a\\	b*[TAB]
-        
+
         """
         assert_bash_exec(bash, "quote_readline $'a\\\\\\tb*' >/dev/null")
