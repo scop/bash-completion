@@ -195,88 +195,93 @@ def bash(request) -> pexpect.spawn:
         )
     )
 
-    fixturesdir = os.path.join(testdir, "fixtures")
-    os.chdir(fixturesdir)
+    bash = None
+    try:
+        fixturesdir = os.path.join(testdir, "fixtures")
+        os.chdir(fixturesdir)
 
-    # Start bash
-    bash = pexpect.spawn(
-        "%s --norc" % os.environ.get("BASHCOMP_TEST_BASH", "bash"),
-        maxread=os.environ.get("BASHCOMP_TEST_PEXPECT_MAXREAD", 20000),
-        logfile=logfile,
-        cwd=fixturesdir,
-        env=env,
-        encoding="utf-8",  # TODO? or native or...?
-        # FIXME: Tests shouldn't depend on dimensions, but it's difficult to
-        # expect robustly enough for Bash to wrap lines anywhere (e.g. inside
-        # MAGIC_MARK).  Increase window width to reduce wrapping.
-        dimensions=(24, 160),
-        # TODO? codec_errors="replace",
-    )
-    bash.expect_exact(PS1)
-
-    # Load bashrc and bash_completion
-    assert_bash_exec(bash, "source '%s/config/bashrc'" % testdir)
-    assert_bash_exec(bash, "source '%s/../bash_completion'" % testdir)
-
-    # Use command name from marker if set, or grab from test filename
-    cmd = None  # type: Optional[str]
-    cmd_found = False
-    marker = request.node.get_closest_marker("bashcomp")
-    if marker:
-        cmd = marker.kwargs.get("cmd")
-        cmd_found = "cmd" in marker.kwargs
-        # Run pre-test commands, early so they're usable in skipif
-        for pre_cmd in marker.kwargs.get("pre_cmds", []):
-            assert_bash_exec(bash, pre_cmd, want_output=None)
-        # Process skip and xfail conditions
-        skipif = marker.kwargs.get("skipif")
-        if skipif:
-            try:
-                assert_bash_exec(bash, skipif, want_output=None)
-            except AssertionError:
-                pass
-            else:
-                bash.close()
-                pytest.skip(skipif)
-        xfail = marker.kwargs.get("xfail")
-        if xfail:
-            try:
-                assert_bash_exec(bash, xfail, want_output=None)
-            except AssertionError:
-                pass
-            else:
-                pytest.xfail(xfail)
-    if not cmd_found:
-        match = re.search(
-            r"^test_(.+)\.py$", os.path.basename(str(request.fspath))
+        # Start bash
+        bash = pexpect.spawn(
+            "%s --norc" % os.environ.get("BASHCOMP_TEST_BASH", "bash"),
+            maxread=os.environ.get("BASHCOMP_TEST_PEXPECT_MAXREAD", 20000),
+            logfile=logfile,
+            cwd=fixturesdir,
+            env=env,
+            encoding="utf-8",  # TODO? or native or...?
+            # FIXME: Tests shouldn't depend on dimensions, but it's difficult to
+            # expect robustly enough for Bash to wrap lines anywhere (e.g. inside
+            # MAGIC_MARK).  Increase window width to reduce wrapping.
+            dimensions=(24, 160),
+            # TODO? codec_errors="replace",
         )
-        if match:
-            cmd = match.group(1)
-
-    request.cls.cmd = cmd
-
-    if (cmd_found and cmd is None) or is_testable(bash, cmd):
-        before_env = get_env(bash)
-        yield bash
-        # Not exactly sure why, but some errors leave bash in state where
-        # getting the env here would fail and trash our test output. So
-        # reset to a good state first (Ctrl+C, expect prompt).
-        bash.sendintr()
         bash.expect_exact(PS1)
-        diff_env(
-            before_env,
-            get_env(bash),
-            marker.kwargs.get("ignore_env") if marker else "",
-        )
 
-    if marker:
-        for post_cmd in marker.kwargs.get("post_cmds", []):
-            assert_bash_exec(bash, post_cmd, want_output=None)
+        # Load bashrc and bash_completion
+        assert_bash_exec(bash, "source '%s/config/bashrc'" % testdir)
+        assert_bash_exec(bash, "source '%s/../bash_completion'" % testdir)
 
-    # Clean up
-    bash.close()
-    if logfile and logfile != sys.stdout:
-        logfile.close()
+        # Use command name from marker if set, or grab from test filename
+        cmd = None  # type: Optional[str]
+        cmd_found = False
+        marker = request.node.get_closest_marker("bashcomp")
+        if marker:
+            cmd = marker.kwargs.get("cmd")
+            cmd_found = "cmd" in marker.kwargs
+            # Run pre-test commands, early so they're usable in skipif
+            for pre_cmd in marker.kwargs.get("pre_cmds", []):
+                assert_bash_exec(bash, pre_cmd, want_output=None)
+            # Process skip and xfail conditions
+            skipif = marker.kwargs.get("skipif")
+            if skipif:
+                try:
+                    assert_bash_exec(bash, skipif, want_output=None)
+                except AssertionError:
+                    pass
+                else:
+                    bash.close()
+                    bash = None
+                    pytest.skip(skipif)
+            xfail = marker.kwargs.get("xfail")
+            if xfail:
+                try:
+                    assert_bash_exec(bash, xfail, want_output=None)
+                except AssertionError:
+                    pass
+                else:
+                    pytest.xfail(xfail)
+        if not cmd_found:
+            match = re.search(
+                r"^test_(.+)\.py$", os.path.basename(str(request.fspath))
+            )
+            if match:
+                cmd = match.group(1)
+
+        request.cls.cmd = cmd
+
+        if (cmd_found and cmd is None) or is_testable(bash, cmd):
+            before_env = get_env(bash)
+            yield bash
+            # Not exactly sure why, but some errors leave bash in state where
+            # getting the env here would fail and trash our test output. So
+            # reset to a good state first (Ctrl+C, expect prompt).
+            bash.sendintr()
+            bash.expect_exact(PS1)
+            diff_env(
+                before_env,
+                get_env(bash),
+                marker.kwargs.get("ignore_env") if marker else "",
+            )
+
+        if marker:
+            for post_cmd in marker.kwargs.get("post_cmds", []):
+                assert_bash_exec(bash, post_cmd, want_output=None)
+
+    finally:
+        # Clean up
+        if bash:
+            bash.close()
+        if logfile and logfile != sys.stdout:
+            logfile.close()
 
 
 def is_testable(bash: pexpect.spawn, cmd: Optional[str]) -> bool:
