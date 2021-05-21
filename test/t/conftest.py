@@ -195,17 +195,29 @@ def bash(request) -> pexpect.spawn:
         )
     )
 
+    tmpdir = None
     bash = None
     try:
-        fixturesdir = os.path.join(testdir, "fixtures")
-        os.chdir(fixturesdir)
+        marker = request.node.get_closest_marker("bashcomp")
+
+        # Set up the current working directory
+        cwd = None
+        if marker:
+            if "cwd" in marker.kwargs and marker.kwargs.get("cwd") is not None:
+                cwd = marker.kwargs.get("cwd")
+            elif "temp_cwd" in marker.kwargs and marker.kwargs.get("temp_cwd"):
+                tmpdir = tempfile.TemporaryDirectory()
+                cwd = tmpdir.name
+        if cwd is None:
+            cwd = os.path.join(testdir, "fixtures")
+        os.chdir(cwd)
 
         # Start bash
         bash = pexpect.spawn(
             "%s --norc" % os.environ.get("BASHCOMP_TEST_BASH", "bash"),
             maxread=os.environ.get("BASHCOMP_TEST_PEXPECT_MAXREAD", 20000),
             logfile=logfile,
-            cwd=fixturesdir,
+            cwd=cwd,
             env=env,
             encoding="utf-8",  # TODO? or native or...?
             # FIXME: Tests shouldn't depend on dimensions, but it's difficult to
@@ -223,7 +235,6 @@ def bash(request) -> pexpect.spawn:
         # Use command name from marker if set, or grab from test filename
         cmd = None  # type: Optional[str]
         cmd_found = False
-        marker = request.node.get_closest_marker("bashcomp")
         if marker:
             cmd = marker.kwargs.get("cmd")
             cmd_found = "cmd" in marker.kwargs
@@ -280,6 +291,8 @@ def bash(request) -> pexpect.spawn:
         # Clean up
         if bash:
             bash.close()
+        if tmpdir:
+            tmpdir.cleanup()
         if logfile and logfile != sys.stdout:
             logfile.close()
 
