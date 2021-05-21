@@ -3,23 +3,25 @@ import pytest
 from conftest import assert_bash_exec
 
 
-@pytest.mark.bashcomp(ignore_env=r"^\+ANT_ARGS=")
+@pytest.mark.bashcomp(
+    ignore_env=r"^\+ANT_ARGS=",
+    temp_cwd=True,
+    pre_cmds=('cp "$SRCDIRABS"/fixtures/ant/*.xml .',),
+)
 class TestAnt:
     @pytest.mark.complete("ant -", require_cmd=True)
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("ant ", cwd="ant")
+    @pytest.mark.complete("ant ")
     def test_2(self, completion):
         assert completion == "bashcomp clean init realclean".split()
 
-    @pytest.mark.complete("ant -f build-with-import.xml ", cwd="ant")
+    @pytest.mark.complete("ant -f build-with-import.xml ")
     def test_3(self, completion):
         assert completion == "build-with-import imported-build".split()
 
-    @pytest.mark.complete(
-        "ant ", cwd="ant", env=dict(ANT_ARGS="'-f named-build.xml'")
-    )
+    @pytest.mark.complete("ant ", env=dict(ANT_ARGS="'-f named-build.xml'"))
     def test_4(self, bash, completion):
         output = assert_bash_exec(bash, "complete -p ant", want_output=True)
         if "complete-ant-cmd.pl" in output:
