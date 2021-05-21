@@ -191,6 +191,7 @@ def bash(request) -> pexpect.spawn:
             INPUTRC="%s/config/inputrc" % testdir,
             TERM="dumb",
             LC_COLLATE="C",  # to match Python's default locale unaware sort
+            HISTFILE="/dev/null", # not to break the user's history file
         )
     )
 
