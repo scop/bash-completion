@@ -192,7 +192,7 @@ def bash(request) -> pexpect.spawn:
             TERM="dumb",
             LC_COLLATE="C",  # to match Python's default locale unaware sort
             HISTFILE="/dev/null",  # to leave user's history file alone
-         )
+        )
     )
 
     fixturesdir = os.path.join(testdir, "fixtures")
