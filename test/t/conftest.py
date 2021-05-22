@@ -410,7 +410,10 @@ def diff_env(before: List[str], after: List[str], ignore: str):
         # Remove unified diff markers:
         if not re.search(r"^(---|\+\+\+|@@ )", x)
         # Ignore variables expected to change:
-        and not re.search("^[-+](_|PPID|BASH_REMATCH|OLDPWD)=", x)
+        and not re.search(
+            "^[-+](_|PPID|BASH_REMATCH|_bash_completion_test_[a-zA-Z_0-9]*)=",
+            x,
+        )
         # Ignore likely completion functions added by us:
         and not re.search(r"^\+declare -f _.+", x)
         # ...and additional specified things:
@@ -496,6 +499,11 @@ def assert_complete(
             pytest.xfail(xfail)
     cwd = kwargs.get("cwd")
     if cwd:
+        assert_bash_exec(
+            bash,
+            "if [[ ${OLDPWD+set} ]]; then _bash_completion_test_OLDPWD=$OLDPWD; else unset -v _bash_completion_test_OLDPWD; fi",
+            want_output=None,
+        )
         assert_bash_exec(bash, "cd '%s'" % cwd)
     env_prefix = "_BASHCOMP_TEST_"
     env = kwargs.get("env", {})
@@ -560,6 +568,11 @@ def assert_complete(
             )
         if cwd:
             assert_bash_exec(bash, "cd - >/dev/null")
+            assert_bash_exec(
+                bash,
+                "if [[ ${_bash_completion_test_OLDPWD+set} ]]; then OLDPWD=$_bash_completion_test_OLDPWD; else unset -v OLDPWD; fi",
+                want_output=None,
+            )
     return result
 
 
