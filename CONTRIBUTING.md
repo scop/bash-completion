@@ -185,6 +185,11 @@ Also, please bear the following coding guidelines in mind:
 - In addition to running the test suite, there are a few scripts in the test/
   dir that catch some common issues, see and use for example runLint.
 
+- Install pre-commit and set it up, see <https://pre-commit.com/>.
+  That'll run a bunch of linters and the like, the same as the
+  bash-completion CI does. Running it locally and fixing found issues before
+  commit/push/PR reduces some roundtrips with the review.
+
 - File bugs, enhancement, and pull requests at GitHub,
   <https://github.com/scop/bash-completion>.
   Sending them to the developers might work too, but is really strongly
