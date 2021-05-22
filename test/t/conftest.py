@@ -676,21 +676,41 @@ def prepare_fixture_dir(
     tempdir = Path(tempfile.mkdtemp(prefix="bash-completion-fixture-dir"))
     request.addfinalizer(lambda: shutil.rmtree(str(tempdir)))
 
+    old_cwd = os.getcwd()
+    try:
+        os.chdir(tempdir)
+        new_files, new_dirs = create_dummy_filedirs(files, dirs)
+    finally:
+        os.chdir(old_cwd)
+
+    return tempdir, new_files, new_dirs
+
+
+def create_dummy_filedirs(
+    files: Iterable[str], dirs: Iterable[str]
+) -> Tuple[List[str], List[str]]:
+    """
+    Create dummy files and directories on the fly in the current directory.
+
+    Tests that contain filenames differing only by case should use this to
+    prepare a dir on the fly rather than including their fixtures in git and
+    the tarball. This is to work better with case insensitive file systems.
+    """
     new_files = []
     new_dirs = []
 
     for dir_ in dirs:
-        path = tempdir / dir_
+        path = Path(dir_)
         if not path.exists():
             path.mkdir()
             new_dirs.append(dir_)
     for file_ in files:
-        path = tempdir / file_
+        path = Path(file_)
         if not path.exists():
             path.touch()
             new_files.append(file_)
 
-    return tempdir, sorted(new_files), sorted(new_dirs)
+    return sorted(new_files), sorted(new_dirs)
 
 
 class TestUnitBase:
