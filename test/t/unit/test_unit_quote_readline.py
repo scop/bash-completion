@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from conftest import assert_bash_exec
+from conftest import assert_bash_exec, assert_complete
 
 
 @pytest.mark.bashcomp(cmd=None, temp_cwd=True)
@@ -75,6 +75,23 @@ class TestUnitQuoteReadline:
         os.mkdir("./ret=$(echo injected >&2)")
         assert_bash_exec(bash, "quote_readline $'\\'$*' >/dev/null")
 
+    def test_github_issue_526_1(self, bash):
+        """Regression tests for unprocessed escape sequences after quotes
+
+        Ref [1] https://github.com/scop/bash-completion/pull/492#discussion_r637213822
+        Ref [2] https://github.com/scop/bash-completion/pull/526
+
+        The escape sequences in the local variable of "value" in
+        "_quote_readline_by_ref" needs to be unescaped by passing it to printf
+        as the format string.  This causes a problem in the following case
+        [where the spaces after "alpha\" is a TAB character inserted in the
+        command string by "C-v TAB"]:
+
+          $ echo alpha\   b[TAB]
+
+        """
+        os.mkdir("./alpha\tbeta")
+        assert assert_complete(bash, "echo alpha\\\026\tb", rendered_cmd="echo alpha\\   b") == "eta/"
 
 @pytest.mark.bashcomp(cmd=None, temp_cwd=True, pre_cmds=("shopt -s failglob",))
 class TestUnitQuoteReadlineWithFailglob:
