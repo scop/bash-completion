@@ -143,6 +143,10 @@ class TestUnitKnownHostsReal:
         assert_bash_exec(
             bash, 'OLDHOME="$HOME"; HOME="%s/_known_hosts_real"' % bash.cwd
         )
+        assert_bash_exec(
+            bash,
+            "if [[ ${OLDPWD+set} ]]; then _bash_completion_test_OLDPWD=$OLDPWD; else unset -v _bash_completion_test_OLDPWD; fi",
+        )
         output = assert_bash_exec(
             bash,
             "cd _known_hosts_real; "
@@ -151,6 +155,10 @@ class TestUnitKnownHostsReal:
             r'printf "%s\n" "${COMPREPLY[@]}"; '
             "cd - &>/dev/null",
             want_output=True,
+        )
+        assert_bash_exec(
+            bash,
+            "if [[ ${_bash_completion_test_OLDPWD+set} ]]; then OLDPWD=$_bash_completion_test_OLDPWD; else unset -v OLDPWD; fi",
         )
         assert_bash_exec(bash, 'HOME="$OLDHOME"')
         completion = sorted(set(output.strip().split()))
