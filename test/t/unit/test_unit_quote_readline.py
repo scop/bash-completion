@@ -93,7 +93,13 @@ class TestUnitQuoteReadline:
         os.mkdir("./alpha\tbeta")
         assert (
             assert_complete(
-                bash, "echo alpha\\\026\tb", rendered_cmd="echo alpha\\   b"
+                # Remark on "rendered_cmd": Bash aligns the last character 'b'
+                # in the rendered cmd to an "8 x n" boundary using spaces.
+                # Here, the command string is assumed to start from column 2
+                # because the width of PS1 (conftest.PS1 = '/@') is 2,
+                bash,
+                "echo alpha\\\026\tb",
+                rendered_cmd="echo alpha\\   b",
             )
             == "eta/"
         )
