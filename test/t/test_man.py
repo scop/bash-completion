@@ -1,10 +1,10 @@
 import pytest
 
-from conftest import assert_bash_exec
+from conftest import assert_bash_exec, assert_complete, prepare_fixture_dir
 
 
 @pytest.mark.bashcomp(
-    ignore_env=r"^[+-]((BASHOPTS|MANPATH)=|shopt -. failglob)"
+    ignore_env=r"^[+-]((BASHOPTS|MANPATH|manpath)=|shopt -. failglob)"
 )
 class TestMan:
 
@@ -20,13 +20,12 @@ class TestMan:
         else:
             pytest.skip("Cygwin doesn't like paths with colons")
             return
-        assert_bash_exec(bash, "mkdir -p $TESTDIR/../tmp/man/man3")
-        assert_bash_exec(
-            bash, "touch $TESTDIR/../tmp/man/man3/Bash::Completion.3pm.gz"
+        tmpdir, _, _ = prepare_fixture_dir(
+            request,
+            files=["man/man3/Bash::Completion.3pm.gz"],
+            dirs=["man", "man/man3"],
         )
-        request.addfinalizer(
-            lambda: assert_bash_exec(bash, "rm -r $TESTDIR/../tmp/man")
-        )
+        return tmpdir
 
     @pytest.mark.complete(
         "man bash-completion-testcas",
@@ -102,12 +101,17 @@ class TestMan:
         assert self.assumed_present in completion
         assert_bash_exec(bash, "shopt -u failglob")
 
-    @pytest.mark.complete(
-        "man Bash::C",
-        require_cmd=True,
-        env=dict(MANPATH="%s:../tmp/man" % manpath),
-    )
-    def test_10(self, bash, colonpath, completion):
+    @pytest.mark.complete(require_cmd=True)
+    def test_10(self, request, bash, colonpath):
+        assert_bash_exec(
+            bash,
+            'manpath=${MANPATH-}; export MANPATH="%s:%s/man"'
+            % (TestMan.manpath, colonpath),
+        )
+        request.addfinalizer(
+            lambda: assert_bash_exec(bash, "MANPATH=$manpath")
+        )
+        completion = assert_complete(bash, "man Bash::C")
         assert completion == "ompletion"
 
     @pytest.mark.complete("man -", require_cmd=True)
