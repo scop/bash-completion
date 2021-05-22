@@ -13,7 +13,7 @@ class TestPrintenv:
     @pytest.mark.complete(
         "printenv -",
         require_cmd=True,
-        xfail="! printenv --help 2>&1 | command grep -qF -- ' -'",
+        xfail="! printenv --help 2>&1 | command grep -q '^[[:space:]]*-'",
     )
     def test_options(self, completion):
         assert completion
