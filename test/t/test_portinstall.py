@@ -14,7 +14,6 @@ class TestPortinstall:
             '"$SRCDIRABS"/fixtures/pkgtools/ports/INDEX.dist >INDEX',
         )
         assert_bash_exec(bash, "cp INDEX INDEX-5")
-        request.addfinalizer(lambda: assert_bash_exec(bash, "rm INDEX{,-5}"))
 
     @pytest.mark.complete("portinstall ", env=dict(PORTSDIR="$PWD"))
     def test_1(self, completion, portsdir):
