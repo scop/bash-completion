@@ -186,7 +186,7 @@ def bash(request) -> pexpect.spawn:
     env.update(
         dict(
             SRCDIR=testdir,  # TODO needed at least by bashrc
-            SRCDIRABS=testdir,  # TODO needed?
+            SRCDIRABS=testdir,
             PS1=PS1,
             INPUTRC="%s/config/inputrc" % testdir,
             TERM="dumb",
