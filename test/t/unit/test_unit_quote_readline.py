@@ -76,7 +76,7 @@ class TestUnitQuoteReadline:
         assert_bash_exec(bash, "quote_readline $'\\'$*' >/dev/null")
 
     def test_github_issue_526_1(self, bash):
-        """Regression tests for unprocessed escape sequences after quotes
+        r"""Regression tests for unprocessed escape sequences after quotes
 
         Ref [1] https://github.com/scop/bash-completion/pull/492#discussion_r637213822
         Ref [2] https://github.com/scop/bash-completion/pull/526
@@ -91,7 +91,13 @@ class TestUnitQuoteReadline:
 
         """
         os.mkdir("./alpha\tbeta")
-        assert assert_complete(bash, "echo alpha\\\026\tb", rendered_cmd="echo alpha\\   b") == "eta/"
+        assert (
+            assert_complete(
+                bash, "echo alpha\\\026\tb", rendered_cmd="echo alpha\\   b"
+            )
+            == "eta/"
+        )
+
 
 @pytest.mark.bashcomp(cmd=None, temp_cwd=True, pre_cmds=("shopt -s failglob",))
 class TestUnitQuoteReadlineWithFailglob:
