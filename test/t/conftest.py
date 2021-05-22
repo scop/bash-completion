@@ -679,16 +679,16 @@ def prepare_fixture_dir(
     new_files = []
     new_dirs = []
 
-    for file_ in files:
-        path = tempdir / file_
-        if not path.exists():
-            path.touch()
-            new_files.append(file_)
     for dir_ in dirs:
         path = tempdir / dir_
         if not path.exists():
             path.mkdir()
             new_dirs.append(dir_)
+    for file_ in files:
+        path = tempdir / file_
+        if not path.exists():
+            path.touch()
+            new_files.append(file_)
 
     return tempdir, sorted(new_files), sorted(new_dirs)
 
