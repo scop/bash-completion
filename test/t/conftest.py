@@ -387,6 +387,28 @@ def assert_bash_exec(
     return output
 
 
+def _bash_copy_variable(bash: pexpect.spawn, src_var: str, dst_var: str):
+    assert_bash_exec(
+        bash,
+        "if [[ ${%s+set} ]]; then %s=${%s}; else unset -v %s; fi"
+        % (src_var, dst_var, src_var, dst_var),
+    )
+
+
+def bash_save_variable(
+    bash: pexpect.spawn, varname: str, new_value: Optional[str] = None
+):
+    _bash_copy_variable(bash, varname, "_bash_completion_test_" + varname)
+    if new_value:
+        assert_bash_exec(
+            bash, "%s=%s" % (varname, shlex.quote(str(new_value)))
+        )
+
+
+def bash_restore_variable(bash: pexpect.spawn, varname: str):
+    _bash_copy_variable(bash, "_bash_completion_test_" + varname, varname)
+
+
 def get_env(bash: pexpect.spawn) -> List[str]:
     return [
         x
@@ -499,11 +521,7 @@ def assert_complete(
             pytest.xfail(xfail)
     cwd = kwargs.get("cwd")
     if cwd:
-        assert_bash_exec(
-            bash,
-            "if [[ ${OLDPWD+set} ]]; then _bash_completion_test_OLDPWD=$OLDPWD; else unset -v _bash_completion_test_OLDPWD; fi",
-            want_output=None,
-        )
+        bash_save_variable(bash, "OLDPWD")
         assert_bash_exec(bash, "cd '%s'" % cwd)
     env_prefix = "_BASHCOMP_TEST_"
     env = kwargs.get("env", {})
@@ -568,11 +586,7 @@ def assert_complete(
             )
         if cwd:
             assert_bash_exec(bash, "cd - >/dev/null")
-            assert_bash_exec(
-                bash,
-                "if [[ ${_bash_completion_test_OLDPWD+set} ]]; then OLDPWD=$_bash_completion_test_OLDPWD; else unset -v OLDPWD; fi",
-                want_output=None,
-            )
+            bash_restore_variable(bash, "OLDPWD")
     return result
 
 

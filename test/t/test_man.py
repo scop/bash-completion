@@ -1,6 +1,12 @@
 import pytest
 
-from conftest import assert_bash_exec, assert_complete, prepare_fixture_dir
+from conftest import (
+    assert_bash_exec,
+    assert_complete,
+    bash_restore_variable,
+    bash_save_variable,
+    prepare_fixture_dir,
+)
 
 
 @pytest.mark.bashcomp(
@@ -103,15 +109,12 @@ class TestMan:
 
     @pytest.mark.complete(require_cmd=True)
     def test_10(self, request, bash, colonpath):
-        assert_bash_exec(
-            bash,
-            'manpath=${MANPATH-}; export MANPATH="%s:%s/man"'
-            % (TestMan.manpath, colonpath),
+        bash_save_variable(
+            bash, "MANPATH", "%s:%s/man" % (TestMan.manpath, colonpath)
         )
-        request.addfinalizer(
-            lambda: assert_bash_exec(bash, "MANPATH=$manpath")
-        )
+        assert_bash_exec(bash, "export MANPATH")
         completion = assert_complete(bash, "man Bash::C")
+        bash_restore_variable(bash, "MANPATH")
         assert completion == "ompletion"
 
     @pytest.mark.complete("man -", require_cmd=True)

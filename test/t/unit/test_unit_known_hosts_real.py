@@ -2,7 +2,11 @@ from itertools import chain
 
 import pytest
 
-from conftest import assert_bash_exec
+from conftest import (
+    assert_bash_exec,
+    bash_restore_variable,
+    bash_save_variable,
+)
 
 
 @pytest.mark.bashcomp(
@@ -126,9 +130,7 @@ class TestUnitKnownHostsReal:
         # fixtures/_known_hosts_real/.ssh/config_question_mark
         expected.append("question_mark")
 
-        assert_bash_exec(
-            bash, 'OLDHOME="$HOME"; HOME="%s/_known_hosts_real"' % bash.cwd
-        )
+        bash_save_variable(bash, "HOME", "%s/_known_hosts_real" % bash.cwd)
         output = assert_bash_exec(
             bash,
             "unset -v COMPREPLY COMP_KNOWN_HOSTS_WITH_HOSTFILE; "
@@ -136,17 +138,12 @@ class TestUnitKnownHostsReal:
             r'printf "%s\n" "${COMPREPLY[@]}"',
             want_output=True,
         )
-        assert_bash_exec(bash, 'HOME="$OLDHOME"')
+        bash_restore_variable(bash, "HOME")
         assert sorted(set(output.strip().split())) == sorted(expected)
 
     def test_no_globbing(self, bash):
-        assert_bash_exec(
-            bash, 'OLDHOME="$HOME"; HOME="%s/_known_hosts_real"' % bash.cwd
-        )
-        assert_bash_exec(
-            bash,
-            "if [[ ${OLDPWD+set} ]]; then _bash_completion_test_OLDPWD=$OLDPWD; else unset -v _bash_completion_test_OLDPWD; fi",
-        )
+        bash_save_variable(bash, "HOME", "%s/_known_hosts_real" % bash.cwd)
+        bash_save_variable(bash, "OLDPWD")
         output = assert_bash_exec(
             bash,
             "cd _known_hosts_real; "
@@ -156,11 +153,8 @@ class TestUnitKnownHostsReal:
             "cd - &>/dev/null",
             want_output=True,
         )
-        assert_bash_exec(
-            bash,
-            "if [[ ${_bash_completion_test_OLDPWD+set} ]]; then OLDPWD=$_bash_completion_test_OLDPWD; else unset -v OLDPWD; fi",
-        )
-        assert_bash_exec(bash, 'HOME="$OLDHOME"')
+        bash_restore_variable(bash, "OLDPWD")
+        bash_restore_variable(bash, "HOME")
         completion = sorted(set(output.strip().split()))
         assert "gee" in completion
         assert "gee-filename-canary" not in completion
