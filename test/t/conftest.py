@@ -433,8 +433,9 @@ def diff_env(before: List[str], after: List[str], ignore: str):
         if not re.search(r"^(---|\+\+\+|@@ )", x)
         # Ignore variables expected to change:
         and not re.search(
-            "^[-+](_|PPID|BASH_REMATCH|_bash_completion_test_[a-zA-Z_0-9]*)=",
+            r"^[-+](_|PPID|BASH_REMATCH|_bash_completion_test_\w+)=",
             x,
+            re.ASCII,
         )
         # Ignore likely completion functions added by us:
         and not re.search(r"^\+declare -f _.+", x)
