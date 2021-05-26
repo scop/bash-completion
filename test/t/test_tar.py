@@ -13,10 +13,9 @@ class TestTar:
         if not re.search(r"\bGNU ", got):
             pytest.skip("Not GNU tar")
 
-    @pytest.mark.complete("tar ", pre_cmds=("shopt -s failglob",))
+    @pytest.mark.complete("tar ", shopt=dict(failglob=True))
     def test_1(self, bash, completion):
         assert completion
-        assert_bash_exec(bash, "shopt -u failglob")
 
     # Test "f" when mode is not as first option
     @pytest.mark.complete("tar zfc ", cwd="tar")

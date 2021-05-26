@@ -8,13 +8,24 @@ import sys
 import tempfile
 import time
 from pathlib import Path
-from typing import Callable, Iterable, Iterator, List, Optional, Tuple
+from types import TracebackType
+from typing import (
+    Callable,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Optional,
+    Tuple,
+    Type,
+)
 
 import pexpect  # type: ignore[import]
 import pytest
 
 PS1 = "/@"
 MAGIC_MARK = "__MaGiC-maRKz!__"
+MAGIC_MARK2 = "Re8SCgEdfN"
 
 
 def find_unique_completion_pair(
@@ -387,26 +398,139 @@ def assert_bash_exec(
     return output
 
 
-def _bash_copy_variable(bash: pexpect.spawn, src_var: str, dst_var: str):
-    assert_bash_exec(
-        bash,
-        "if [[ ${%s+set} ]]; then %s=${%s}; else unset -v %s; fi"
-        % (src_var, dst_var, src_var, dst_var),
-    )
+class bash_env_saved:
+    def __init__(self, bash: pexpect.spawn, sendintr: bool = False):
+        self.bash = bash
+        self.cwd: Optional[str] = None
+        self.saved_shopt: Dict[str, int] = {}
+        self.saved_variables: Dict[str, int] = {}
+        self.sendintr = sendintr
 
+    def __enter__(self):
+        return self
 
-def bash_save_variable(
-    bash: pexpect.spawn, varname: str, new_value: Optional[str] = None
-):
-    _bash_copy_variable(bash, varname, "_bash_completion_test_" + varname)
-    if new_value:
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        exc_traceback: Optional[TracebackType],
+    ) -> None:
+        self._restore_env()
+        return None
+
+    def _copy_variable(self, src_var: str, dst_var: str):
         assert_bash_exec(
-            bash, "%s=%s" % (varname, shlex.quote(str(new_value)))
+            self.bash,
+            "if [[ ${%s+set} ]]; then %s=${%s}; else unset -v %s; fi"
+            % (src_var, dst_var, src_var, dst_var),
         )
 
+    def _unset_variable(self, varname: str):
+        assert_bash_exec(self.bash, "unset -v %s" % varname)
 
-def bash_restore_variable(bash: pexpect.spawn, varname: str):
-    _bash_copy_variable(bash, "_bash_completion_test_" + varname, varname)
+    def _save_cwd(self):
+        if not self.cwd:
+            self.cwd = self.bash.cwd
+
+    def _check_shopt(self, name: str):
+        assert_bash_exec(
+            self.bash,
+            '[[ $(shopt -p %s) == "${_BASHCOMP_TEST_NEWSHOPT_%s}" ]]'
+            % (name, name),
+        )
+
+    def _unprotect_shopt(self, name: str):
+        if name not in self.saved_shopt:
+            self.saved_shopt[name] = 1
+            assert_bash_exec(
+                self.bash,
+                "_BASHCOMP_TEST_OLDSHOPT_%s=$(shopt -p %s; true)"
+                % (name, name),
+            )
+        else:
+            self._check_shopt(name)
+
+    def _protect_shopt(self, name: str):
+        assert_bash_exec(
+            self.bash,
+            "_BASHCOMP_TEST_NEWSHOPT_%s=$(shopt -p %s; true)" % (name, name),
+        )
+
+    def _check_variable(self, varname: str):
+        assert_bash_exec(
+            self.bash,
+            '[[ ${%s-%s} == "${_BASHCOMP_TEST_NEWVAR_%s-%s}" ]]'
+            % (varname, MAGIC_MARK2, varname, MAGIC_MARK2),
+        )
+
+    def _unprotect_variable(self, varname: str):
+        if varname not in self.saved_variables:
+            self.saved_variables[varname] = 1
+            self._copy_variable(varname, "_BASHCOMP_TEST_OLDVAR_" + varname)
+        else:
+            self._check_variable(varname)
+
+    def _protect_variable(self, varname: str):
+        self._copy_variable(varname, "_BASHCOMP_TEST_NEWVAR_" + varname)
+
+    def _restore_env(self):
+        if self.sendintr:
+            self.bash.sendintr()
+            self.bash.expect_exact(PS1)
+
+        # We first go back to the original directory before restoring
+        # variables because "cd" affects "OLDPWD".
+        if self.cwd:
+            self._unprotect_variable("OLDPWD")
+            assert_bash_exec(self.bash, "cd %s" % shlex.quote(str(self.cwd)))
+            self._protect_variable("OLDPWD")
+            self.cwd = None
+
+        for name in self.saved_shopt:
+            self._check_shopt(name)
+            assert_bash_exec(
+                self.bash, 'eval "$_BASHCOMP_TEST_OLDSHOPT_%s"' % name
+            )
+            self._unset_variable("_BASHCOMP_TEST_OLDSHOPT_" + name)
+            self._unset_variable("_BASHCOMP_TEST_NEWSHOPT_" + name)
+        self.saved_shopt = {}
+
+        for varname in self.saved_variables:
+            self._check_variable(varname)
+            self._copy_variable("_BASHCOMP_TEST_OLDVAR_" + varname, varname)
+            self._unset_variable("_BASHCOMP_TEST_OLDVAR_" + varname)
+            self._unset_variable("_BASHCOMP_TEST_NEWVAR_" + varname)
+        self.saved_variables = {}
+
+    def chdir(self, path: str):
+        self._save_cwd()
+        self._unprotect_variable("OLDPWD")
+        assert_bash_exec(self.bash, "cd %s" % shlex.quote(path))
+        self._protect_variable("OLDPWD")
+
+    def shopt(self, name: str, value: bool):
+        self._unprotect_shopt(name)
+        if value:
+            assert_bash_exec(self.bash, "shopt -s %s" % name)
+        else:
+            assert_bash_exec(self.bash, "shopt -u %s" % name)
+        self._protect_shopt(name)
+
+    def write_variable(self, varname: str, new_value: str, quote: bool = True):
+        if quote:
+            new_value = shlex.quote(new_value)
+        self._unprotect_variable(varname)
+        assert_bash_exec(self.bash, "%s=%s" % (varname, new_value))
+        self._protect_variable(varname)
+
+    # TODO: We may restore the "export" attribute as well though it is
+    #   not currently tested in "diff_env"
+    def write_env(self, envname: str, new_value: str, quote: bool = True):
+        if quote:
+            new_value = shlex.quote(new_value)
+        self._unprotect_variable(envname)
+        assert_bash_exec(self.bash, "export %s=%s" % (envname, new_value))
+        self._protect_variable(envname)
 
 
 def get_env(bash: pexpect.spawn) -> List[str]:
@@ -433,7 +557,7 @@ def diff_env(before: List[str], after: List[str], ignore: str):
         if not re.search(r"^(---|\+\+\+|@@ )", x)
         # Ignore variables expected to change:
         and not re.search(
-            r"^[-+](_|PPID|BASH_REMATCH|_bash_completion_test_\w+)=",
+            r"^[-+](_|PPID|BASH_REMATCH|_BASHCOMP_TEST_\w+)=",
             x,
             re.ASCII,
         )
@@ -520,23 +644,19 @@ def assert_complete(
             pass
         else:
             pytest.xfail(xfail)
-    cwd = kwargs.get("cwd")
-    if cwd:
-        bash_save_variable(bash, "OLDPWD")
-        assert_bash_exec(bash, "cd '%s'" % cwd)
-    env_prefix = "_BASHCOMP_TEST_"
-    env = kwargs.get("env", {})
-    if env:
-        # Back up environment and apply new one
-        assert_bash_exec(
-            bash,
-            " ".join('%s%s="${%s-}"' % (env_prefix, k, k) for k in env.keys()),
-        )
-        assert_bash_exec(
-            bash,
-            "export %s" % " ".join("%s=%s" % (k, v) for k, v in env.items()),
-        )
-    try:
+
+    with bash_env_saved(bash, sendintr=True) as bash_env:
+
+        cwd = kwargs.get("cwd")
+        if cwd:
+            bash_env.chdir(str(cwd))
+
+        for k, v in kwargs.get("env", {}).items():
+            bash_env.write_env(k, v, quote=False)
+
+        for k, v in kwargs.get("shopt", {}).items():
+            bash_env.shopt(k, v)
+
         bash.send(cmd + "\t")
         # Sleep a bit if requested, to avoid `.*` matching too early
         time.sleep(kwargs.get("sleep_after_tab", 0))
@@ -558,37 +678,13 @@ def assert_complete(
             output = bash.before
             if output.endswith(MAGIC_MARK):
                 output = bash.before[: -len(MAGIC_MARK)]
-            result = CompletionResult(output)
+            return CompletionResult(output)
         elif got == 2:
             output = bash.match.group(1)
-            result = CompletionResult(output)
+            return CompletionResult(output)
         else:
             # TODO: warn about EOF/TIMEOUT?
-            result = CompletionResult()
-    finally:
-        bash.sendintr()
-        bash.expect_exact(PS1)
-        if env:
-            # Restore environment, and clean up backup
-            # TODO: Test with declare -p if a var was set, backup only if yes, and
-            #       similarly restore only backed up vars. Should remove some need
-            #       for ignore_env.
-            assert_bash_exec(
-                bash,
-                "export %s"
-                % " ".join(
-                    '%s="$%s%s"' % (k, env_prefix, k) for k in env.keys()
-                ),
-            )
-            assert_bash_exec(
-                bash,
-                "unset -v %s"
-                % " ".join("%s%s" % (env_prefix, k) for k in env.keys()),
-            )
-        if cwd:
-            assert_bash_exec(bash, "cd - >/dev/null")
-            bash_restore_variable(bash, "OLDPWD")
-    return result
+            return CompletionResult()
 
 
 @pytest.fixture
