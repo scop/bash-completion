@@ -3,8 +3,7 @@ import pytest
 from conftest import (
     assert_bash_exec,
     assert_complete,
-    bash_restore_variable,
-    bash_save_variable,
+    bash_env_saved,
     prepare_fixture_dir,
 )
 
@@ -101,21 +100,22 @@ class TestMan:
         "man %s" % assumed_present,
         require_cmd=True,
         cwd="shared/empty_dir",
-        pre_cmds=("shopt -s failglob",),
+        shopt=dict(failglob=True),
     )
     def test_9(self, bash, completion):
         assert self.assumed_present in completion
-        assert_bash_exec(bash, "shopt -u failglob")
 
     @pytest.mark.complete(require_cmd=True)
     def test_10(self, request, bash, colonpath):
-        bash_save_variable(
-            bash, "MANPATH", "%s:%s/man" % (TestMan.manpath, colonpath)
-        )
-        assert_bash_exec(bash, "export MANPATH")
-        completion = assert_complete(bash, "man Bash::C")
-        bash_restore_variable(bash, "MANPATH")
-        assert completion == "ompletion"
+        with bash_env_saved(bash) as bash_env:
+            bash_env.write_env(
+                "MANPATH",
+                "%s:%s/man" % (TestMan.manpath, colonpath),
+                quote=False,
+            )
+
+            completion = assert_complete(bash, "man Bash::C")
+            assert completion == "ompletion"
 
     @pytest.mark.complete("man -", require_cmd=True)
     def test_11(self, completion):

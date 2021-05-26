@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from conftest import assert_bash_exec, assert_complete
+from conftest import assert_bash_exec, assert_complete, bash_env_saved
 
 
 @pytest.mark.bashcomp(cmd=None, temp_cwd=True)
@@ -75,6 +75,21 @@ class TestUnitQuoteReadline:
         os.mkdir("./ret=$(echo injected >&2)")
         assert_bash_exec(bash, "quote_readline $'\\'$*' >/dev/null")
 
+    def test_github_issue_492_4(self, bash):
+        """Test error messages through unintended pathname expansions
+
+        When "shopt -s failglob" is set by the user, the completion of the word
+        containing glob character and special characters (e.g. TAB) results in
+        the failure of pathname expansions.
+
+          $ shopt -s failglob
+          $ echo a\\	b*[TAB]
+
+        """
+        with bash_env_saved(bash) as bash_env:
+            bash_env.shopt("failglob", True)
+            assert_bash_exec(bash, "quote_readline $'a\\\\\\tb*' >/dev/null")
+
     def test_github_issue_526_1(self, bash):
         r"""Regression tests for unprocessed escape sequences after quotes
 
@@ -103,19 +118,3 @@ class TestUnitQuoteReadline:
             )
             == "eta/"
         )
-
-
-@pytest.mark.bashcomp(cmd=None, temp_cwd=True, pre_cmds=("shopt -s failglob",))
-class TestUnitQuoteReadlineWithFailglob:
-    def test_github_issue_492_4(self, bash):
-        """Test error messages through unintended pathname expansions
-
-        When "shopt -s failglob" is set by the user, the completion of the word
-        containing glob character and special characters (e.g. TAB) results in
-        the failure of pathname expansions.
-
-          $ shopt -s failglob
-          $ echo a\\	b*[TAB]
-
-        """
-        assert_bash_exec(bash, "quote_readline $'a\\\\\\tb*' >/dev/null")

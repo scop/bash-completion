@@ -2,11 +2,7 @@ from itertools import chain
 
 import pytest
 
-from conftest import (
-    assert_bash_exec,
-    bash_restore_variable,
-    bash_save_variable,
-)
+from conftest import assert_bash_exec, bash_env_saved
 
 
 @pytest.mark.bashcomp(
@@ -130,31 +126,28 @@ class TestUnitKnownHostsReal:
         # fixtures/_known_hosts_real/.ssh/config_question_mark
         expected.append("question_mark")
 
-        bash_save_variable(bash, "HOME", "%s/_known_hosts_real" % bash.cwd)
-        output = assert_bash_exec(
-            bash,
-            "unset -v COMPREPLY COMP_KNOWN_HOSTS_WITH_HOSTFILE; "
-            "_known_hosts_real -aF _known_hosts_real/config_include ''; "
-            r'printf "%s\n" "${COMPREPLY[@]}"',
-            want_output=True,
-        )
-        bash_restore_variable(bash, "HOME")
+        with bash_env_saved(bash) as bash_env:
+            bash_env.write_variable("HOME", "%s/_known_hosts_real" % bash.cwd)
+            output = assert_bash_exec(
+                bash,
+                "unset -v COMPREPLY COMP_KNOWN_HOSTS_WITH_HOSTFILE; "
+                "_known_hosts_real -aF _known_hosts_real/config_include ''; "
+                r'printf "%s\n" "${COMPREPLY[@]}"',
+                want_output=True,
+            )
         assert sorted(set(output.strip().split())) == sorted(expected)
 
     def test_no_globbing(self, bash):
-        bash_save_variable(bash, "HOME", "%s/_known_hosts_real" % bash.cwd)
-        bash_save_variable(bash, "OLDPWD")
-        output = assert_bash_exec(
-            bash,
-            "cd _known_hosts_real; "
-            "unset -v COMPREPLY COMP_KNOWN_HOSTS_WITH_HOSTFILE; "
-            "_known_hosts_real -aF config ''; "
-            r'printf "%s\n" "${COMPREPLY[@]}"; '
-            "cd - &>/dev/null",
-            want_output=True,
-        )
-        bash_restore_variable(bash, "OLDPWD")
-        bash_restore_variable(bash, "HOME")
+        with bash_env_saved(bash) as bash_env:
+            bash_env.write_variable("HOME", "%s/_known_hosts_real" % bash.cwd)
+            bash_env.chdir("_known_hosts_real")
+            output = assert_bash_exec(
+                bash,
+                "unset -v COMPREPLY COMP_KNOWN_HOSTS_WITH_HOSTFILE; "
+                "_known_hosts_real -aF config ''; "
+                r'printf "%s\n" "${COMPREPLY[@]}"',
+                want_output=True,
+            )
         completion = sorted(set(output.strip().split()))
         assert "gee" in completion
         assert "gee-filename-canary" not in completion
