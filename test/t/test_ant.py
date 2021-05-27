@@ -23,8 +23,17 @@ class TestAnt:
         assert completion == "bashcomp clean init realclean".split()
 
     @pytest.mark.complete("ant -f build-with-import.xml ")
-    def test_3(self, completion):
-        assert completion == "build-with-import imported-build".split()
+    def test_3(self, completion, has_complete_ant_cmd_pl):
+        if has_complete_ant_cmd_pl:
+            # Some versions of complete-ant-cmd.pl add "import-project-name."
+            # prefix to imported targets, just check that the ones _ant adds
+            # are there.
+            assert all(
+                x in completion
+                for x in "build-with-import imported-build".split()
+            )
+        else:
+            assert completion == "build-with-import imported-build".split()
 
     @pytest.mark.complete("ant ", env=dict(ANT_ARGS="'-f named-build.xml'"))
     def test_4(self, bash, completion, has_complete_ant_cmd_pl):
