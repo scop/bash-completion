@@ -3,7 +3,6 @@ import pytest
 from conftest import (
     assert_bash_exec,
     assert_complete,
-    bash_env_saved,
     is_bash_type,
     prepare_fixture_dir,
 )
@@ -109,15 +108,12 @@ class TestMan:
     def test_10(self, request, bash, colonpath):
         if not is_bash_type(bash, "man"):
             pytest.skip("Command not found")
-        with bash_env_saved(bash) as bash_env:
-            bash_env.write_env(
-                "MANPATH",
-                "%s:%s/man" % (TestMan.manpath, colonpath),
-                quote=False,
-            )
-
-            completion = assert_complete(bash, "man Bash::C")
-            assert completion == "ompletion"
+        completion = assert_complete(
+            bash,
+            "man Bash::C",
+            env=dict(MANPATH="%s:%s/man" % (TestMan.manpath, colonpath)),
+        )
+        assert completion == "ompletion"
 
     @pytest.mark.complete("man -", require_cmd=True)
     def test_11(self, completion):

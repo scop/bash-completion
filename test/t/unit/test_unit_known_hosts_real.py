@@ -7,7 +7,7 @@ from conftest import assert_bash_exec, bash_env_saved
 
 @pytest.mark.bashcomp(
     cmd=None,
-    ignore_env="^[+-](COMP(REPLY|_KNOWN_HOSTS_WITH_HOSTFILE)|OLDHOME)=",
+    ignore_env="^[+-](COMP(REPLY|_KNOWN_HOSTS_WITH_HOSTFILE))=",
 )
 class TestUnitKnownHostsReal:
     @pytest.mark.parametrize(
@@ -104,15 +104,16 @@ class TestUnitKnownHostsReal:
         # fixtures/_known_hosts_real/known_hosts4
         expected.append("four")
 
-        assert_bash_exec(bash, 'OLDHOME="$HOME"; HOME="%s"' % bash.cwd)
-        output = assert_bash_exec(
-            bash,
-            "unset -v COMPREPLY COMP_KNOWN_HOSTS_WITH_HOSTFILE; "
-            "_known_hosts_real -aF _known_hosts_real/config_tilde ''; "
-            r'printf "%s\n" "${COMPREPLY[@]}"',
-            want_output=True,
-        )
-        assert_bash_exec(bash, 'HOME="$OLDHOME"')
+        with bash_env_saved(bash) as bash_env:
+            bash_env.write_variable("HOME", bash.cwd)
+            output = assert_bash_exec(
+                bash,
+                "unset -v COMPREPLY COMP_KNOWN_HOSTS_WITH_HOSTFILE; "
+                "_known_hosts_real -aF _known_hosts_real/config_tilde ''; "
+                r'printf "%s\n" "${COMPREPLY[@]}"',
+                want_output=True,
+            )
+
         assert sorted(set(output.strip().split())) == sorted(expected)
 
     def test_included_configs(self, bash, hosts):
