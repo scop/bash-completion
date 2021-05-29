@@ -4,6 +4,7 @@ from conftest import (
     assert_bash_exec,
     assert_complete,
     bash_env_saved,
+    is_bash_type,
     prepare_fixture_dir,
 )
 
@@ -105,8 +106,9 @@ class TestMan:
     def test_9(self, bash, completion):
         assert self.assumed_present in completion
 
-    @pytest.mark.complete(require_cmd=True)
     def test_10(self, request, bash, colonpath):
+        if not is_bash_type(bash, "man"):
+            pytest.skip("Command not found")
         with bash_env_saved(bash) as bash_env:
             bash_env.write_env(
                 "MANPATH",
