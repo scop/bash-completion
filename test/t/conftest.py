@@ -399,7 +399,12 @@ def assert_bash_exec(
 
 
 class bash_env_saved:
+    counter: int = 0
+
     def __init__(self, bash: pexpect.spawn, sendintr: bool = False):
+        bash_env_saved.counter += 1
+        self.prefix: str = "_BASHCOMP_TEST%d" % bash_env_saved.counter
+
         self.bash = bash
         self.cwd_changed: bool = False
         self.saved_shopt: Dict[str, int] = {}
@@ -465,53 +470,58 @@ class bash_env_saved:
     def _save_cwd(self):
         if not self.cwd_changed:
             self.cwd_changed = True
-            self._copy_variable("PWD", "_BASHCOMP_TEST_OLDPWD")
+            self._copy_variable("PWD", "%s_OLDPWD" % self.prefix)
 
     def _check_shopt(self, name: str):
         self._safe_assert(
-            '[[ $(shopt -p %s) == "${_BASHCOMP_TEST_NEWSHOPT_%s}" ]]'
-            % (name, name),
+            '[[ $(shopt -p %s) == "${%s_NEWSHOPT_%s}" ]]'
+            % (name, self.prefix, name),
         )
 
     def _unprotect_shopt(self, name: str):
         if name not in self.saved_shopt:
             self.saved_shopt[name] = 1
             self._safe_exec(
-                "_BASHCOMP_TEST_OLDSHOPT_%s=$(shopt -p %s || true)"
-                % (name, name),
+                "%s_OLDSHOPT_%s=$(shopt -p %s || true)"
+                % (self.prefix, name, name),
             )
         else:
             self._check_shopt(name)
 
     def _protect_shopt(self, name: str):
         self._safe_exec(
-            "_BASHCOMP_TEST_NEWSHOPT_%s=$(shopt -p %s || true)" % (name, name),
+            "%s_NEWSHOPT_%s=$(shopt -p %s || true)"
+            % (self.prefix, name, name),
         )
 
     def _check_variable(self, varname: str):
         try:
             self._safe_assert(
-                '[[ ${%s-%s} == "${_BASHCOMP_TEST_NEWVAR_%s-%s}" ]]'
-                % (varname, MAGIC_MARK2, varname, MAGIC_MARK2),
+                '[[ ${%s-%s} == "${%s_NEWVAR_%s-%s}" ]]'
+                % (varname, MAGIC_MARK2, self.prefix, varname, MAGIC_MARK2),
             )
         except Exception:
-            self._copy_variable("_BASHCOMP_TEST_NEWVAR_" + varname, varname)
+            self._copy_variable(
+                "%s_NEWVAR_%s" % (self.prefix, varname), varname
+            )
             raise
         else:
             if self.noexcept and self.captured_error:
                 self._copy_variable(
-                    "_BASHCOMP_TEST_NEWVAR_" + varname, varname
+                    "%s_NEWVAR_%s" % (self.prefix, varname), varname
                 )
 
     def _unprotect_variable(self, varname: str):
         if varname not in self.saved_variables:
             self.saved_variables[varname] = 1
-            self._copy_variable(varname, "_BASHCOMP_TEST_OLDVAR_" + varname)
+            self._copy_variable(
+                varname, "%s_OLDVAR_%s" % (self.prefix, varname)
+            )
         else:
             self._check_variable(varname)
 
     def _protect_variable(self, varname: str):
-        self._copy_variable(varname, "_BASHCOMP_TEST_NEWVAR_" + varname)
+        self._copy_variable(varname, "%s_NEWVAR_%s" % (self.prefix, varname))
 
     def _restore_env(self):
         self.noexcept = True
@@ -523,23 +533,25 @@ class bash_env_saved:
         # variables because "cd" affects "OLDPWD".
         if self.cwd_changed:
             self._unprotect_variable("OLDPWD")
-            self._safe_exec('command cd -- "$_BASHCOMP_TEST_OLDPWD"')
+            self._safe_exec('command cd -- "$%s_OLDPWD"' % self.prefix)
             self._protect_variable("OLDPWD")
-            self._unset_variable("_BASHCOMP_TEST_OLDPWD")
+            self._unset_variable("%s_OLDPWD" % self.prefix)
             self.cwd_changed = False
 
         for name in self.saved_shopt:
             self._check_shopt(name)
-            self._safe_exec('eval "$_BASHCOMP_TEST_OLDSHOPT_%s"' % name)
-            self._unset_variable("_BASHCOMP_TEST_OLDSHOPT_" + name)
-            self._unset_variable("_BASHCOMP_TEST_NEWSHOPT_" + name)
+            self._safe_exec('eval "$%s_OLDSHOPT_%s"' % (self.prefix, name))
+            self._unset_variable("%s_OLDSHOPT_%s" % (self.prefix, name))
+            self._unset_variable("%s_NEWSHOPT_%s" % (self.prefix, name))
         self.saved_shopt = {}
 
         for varname in self.saved_variables:
             self._check_variable(varname)
-            self._copy_variable("_BASHCOMP_TEST_OLDVAR_" + varname, varname)
-            self._unset_variable("_BASHCOMP_TEST_OLDVAR_" + varname)
-            self._unset_variable("_BASHCOMP_TEST_NEWVAR_" + varname)
+            self._copy_variable(
+                "%s_OLDVAR_%s" % (self.prefix, varname), varname
+            )
+            self._unset_variable("%s_OLDVAR_%s" % (self.prefix, varname))
+            self._unset_variable("%s_NEWVAR_%s" % (self.prefix, varname))
         self.saved_variables = {}
 
         self.noexcept = False
@@ -602,7 +614,7 @@ def diff_env(before: List[str], after: List[str], ignore: str):
         if not re.search(r"^(---|\+\+\+|@@ )", x)
         # Ignore variables expected to change:
         and not re.search(
-            r"^[-+](_|PPID|BASH_REMATCH|_BASHCOMP_TEST_\w+)=",
+            r"^[-+](_|PPID|BASH_REMATCH|_BASHCOMP_TEST\w+)=",
             x,
             re.ASCII,
         )
