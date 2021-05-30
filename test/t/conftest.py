@@ -401,7 +401,7 @@ def assert_bash_exec(
 class bash_env_saved:
     def __init__(self, bash: pexpect.spawn, sendintr: bool = False):
         self.bash = bash
-        self.cwd: Optional[str] = None
+        self.cwd_changed: bool = False
         self.saved_shopt: Dict[str, int] = {}
         self.saved_variables: Dict[str, int] = {}
         self.sendintr = sendintr
@@ -429,8 +429,9 @@ class bash_env_saved:
         assert_bash_exec(self.bash, "unset -v %s" % varname)
 
     def _save_cwd(self):
-        if not self.cwd:
-            self.cwd = self.bash.cwd
+        if not self.cwd_changed:
+            self.cwd_changed = True
+            self._copy_variable("PWD", "_BASHCOMP_TEST_OLDPWD")
 
     def _check_shopt(self, name: str):
         assert_bash_exec(
@@ -457,11 +458,15 @@ class bash_env_saved:
         )
 
     def _check_variable(self, varname: str):
-        assert_bash_exec(
-            self.bash,
-            '[[ ${%s-%s} == "${_BASHCOMP_TEST_NEWVAR_%s-%s}" ]]'
-            % (varname, MAGIC_MARK2, varname, MAGIC_MARK2),
-        )
+        try:
+            assert_bash_exec(
+                self.bash,
+                '[[ ${%s-%s} == "${_BASHCOMP_TEST_NEWVAR_%s-%s}" ]]'
+                % (varname, MAGIC_MARK2, varname, MAGIC_MARK2),
+            )
+        except AssertionError:
+            self._copy_variable("_BASHCOMP_TEST_NEWVAR_" + varname, varname)
+            raise
 
     def _unprotect_variable(self, varname: str):
         if varname not in self.saved_variables:
@@ -480,13 +485,14 @@ class bash_env_saved:
 
         # We first go back to the original directory before restoring
         # variables because "cd" affects "OLDPWD".
-        if self.cwd:
+        if self.cwd_changed:
             self._unprotect_variable("OLDPWD")
             assert_bash_exec(
-                self.bash, "command cd -- %s" % shlex.quote(str(self.cwd))
+                self.bash, 'command cd -- "$_BASHCOMP_TEST_OLDPWD"'
             )
             self._protect_variable("OLDPWD")
-            self.cwd = None
+            self._unset_variable("_BASHCOMP_TEST_OLDPWD")
+            self.cwd_changed = False
 
         for name in self.saved_shopt:
             self._check_shopt(name)
@@ -506,6 +512,7 @@ class bash_env_saved:
 
     def chdir(self, path: str):
         self._save_cwd()
+        self.cwd_changed = True
         self._unprotect_variable("OLDPWD")
         assert_bash_exec(self.bash, "command cd -- %s" % shlex.quote(path))
         self._protect_variable("OLDPWD")
