@@ -406,6 +406,9 @@ class bash_env_saved:
         self.saved_variables: Dict[str, int] = {}
         self.sendintr = sendintr
 
+        self.noexcept: bool = False
+        self.captured_error: Optional[Exception] = None
+
     def __enter__(self):
         return self
 
@@ -418,15 +421,46 @@ class bash_env_saved:
         self._restore_env()
         return None
 
+    def _safe_sendintr(self):
+        try:
+            self.bash.sendintr()
+            self.bash.expect_exact(PS1)
+        except Exception as e:
+            if self.noexcept:
+                self.captured_error = e
+            else:
+                raise
+
+    def _safe_exec(self, cmd: str):
+        try:
+            self.bash.sendline(cmd)
+            self.bash.expect_exact(cmd)
+            self.bash.expect_exact("\r\n" + PS1)
+        except Exception as e:
+            if self.noexcept:
+                self._safe_sendintr()
+                self.captured_error = e
+            else:
+                raise
+
+    def _safe_assert(self, cmd: str):
+        try:
+            assert_bash_exec(self.bash, cmd, want_output=None)
+        except Exception as e:
+            if self.noexcept:
+                self._safe_sendintr()
+                self.captured_error = e
+            else:
+                raise
+
     def _copy_variable(self, src_var: str, dst_var: str):
-        assert_bash_exec(
-            self.bash,
+        self._safe_exec(
             "if [[ ${%s+set} ]]; then %s=${%s}; else unset -v %s; fi"
             % (src_var, dst_var, src_var, dst_var),
         )
 
     def _unset_variable(self, varname: str):
-        assert_bash_exec(self.bash, "unset -v %s" % varname)
+        self._safe_exec("unset -v %s" % varname)
 
     def _save_cwd(self):
         if not self.cwd_changed:
@@ -434,8 +468,7 @@ class bash_env_saved:
             self._copy_variable("PWD", "_BASHCOMP_TEST_OLDPWD")
 
     def _check_shopt(self, name: str):
-        assert_bash_exec(
-            self.bash,
+        self._safe_assert(
             '[[ $(shopt -p %s) == "${_BASHCOMP_TEST_NEWSHOPT_%s}" ]]'
             % (name, name),
         )
@@ -443,30 +476,32 @@ class bash_env_saved:
     def _unprotect_shopt(self, name: str):
         if name not in self.saved_shopt:
             self.saved_shopt[name] = 1
-            assert_bash_exec(
-                self.bash,
-                "_BASHCOMP_TEST_OLDSHOPT_%s=$(shopt -p %s; true)"
+            self._safe_exec(
+                "_BASHCOMP_TEST_OLDSHOPT_%s=$(shopt -p %s || true)"
                 % (name, name),
             )
         else:
             self._check_shopt(name)
 
     def _protect_shopt(self, name: str):
-        assert_bash_exec(
-            self.bash,
-            "_BASHCOMP_TEST_NEWSHOPT_%s=$(shopt -p %s; true)" % (name, name),
+        self._safe_exec(
+            "_BASHCOMP_TEST_NEWSHOPT_%s=$(shopt -p %s || true)" % (name, name),
         )
 
     def _check_variable(self, varname: str):
         try:
-            assert_bash_exec(
-                self.bash,
+            self._safe_assert(
                 '[[ ${%s-%s} == "${_BASHCOMP_TEST_NEWVAR_%s-%s}" ]]'
                 % (varname, MAGIC_MARK2, varname, MAGIC_MARK2),
             )
-        except AssertionError:
+        except Exception:
             self._copy_variable("_BASHCOMP_TEST_NEWVAR_" + varname, varname)
             raise
+        else:
+            if self.noexcept and self.captured_error:
+                self._copy_variable(
+                    "_BASHCOMP_TEST_NEWVAR_" + varname, varname
+                )
 
     def _unprotect_variable(self, varname: str):
         if varname not in self.saved_variables:
@@ -479,26 +514,23 @@ class bash_env_saved:
         self._copy_variable(varname, "_BASHCOMP_TEST_NEWVAR_" + varname)
 
     def _restore_env(self):
+        self.noexcept = True
+
         if self.sendintr:
-            self.bash.sendintr()
-            self.bash.expect_exact(PS1)
+            self._safe_sendintr()
 
         # We first go back to the original directory before restoring
         # variables because "cd" affects "OLDPWD".
         if self.cwd_changed:
             self._unprotect_variable("OLDPWD")
-            assert_bash_exec(
-                self.bash, 'command cd -- "$_BASHCOMP_TEST_OLDPWD"'
-            )
+            self._safe_exec('command cd -- "$_BASHCOMP_TEST_OLDPWD"')
             self._protect_variable("OLDPWD")
             self._unset_variable("_BASHCOMP_TEST_OLDPWD")
             self.cwd_changed = False
 
         for name in self.saved_shopt:
             self._check_shopt(name)
-            assert_bash_exec(
-                self.bash, 'eval "$_BASHCOMP_TEST_OLDSHOPT_%s"' % name
-            )
+            self._safe_exec('eval "$_BASHCOMP_TEST_OLDSHOPT_%s"' % name)
             self._unset_variable("_BASHCOMP_TEST_OLDSHOPT_" + name)
             self._unset_variable("_BASHCOMP_TEST_NEWSHOPT_" + name)
         self.saved_shopt = {}
@@ -510,26 +542,30 @@ class bash_env_saved:
             self._unset_variable("_BASHCOMP_TEST_NEWVAR_" + varname)
         self.saved_variables = {}
 
+        self.noexcept = False
+        if self.captured_error:
+            raise self.captured_error
+
     def chdir(self, path: str):
         self._save_cwd()
         self.cwd_changed = True
         self._unprotect_variable("OLDPWD")
-        assert_bash_exec(self.bash, "command cd -- %s" % shlex.quote(path))
+        self._safe_exec("command cd -- %s" % shlex.quote(path))
         self._protect_variable("OLDPWD")
 
     def shopt(self, name: str, value: bool):
         self._unprotect_shopt(name)
         if value:
-            assert_bash_exec(self.bash, "shopt -s %s" % name)
+            self._safe_exec("shopt -s %s" % name)
         else:
-            assert_bash_exec(self.bash, "shopt -u %s" % name)
+            self._safe_exec("shopt -u %s" % name)
         self._protect_shopt(name)
 
     def write_variable(self, varname: str, new_value: str, quote: bool = True):
         if quote:
             new_value = shlex.quote(new_value)
         self._unprotect_variable(varname)
-        assert_bash_exec(self.bash, "%s=%s" % (varname, new_value))
+        self._safe_exec("%s=%s" % (varname, new_value))
         self._protect_variable(varname)
 
     # TODO: We may restore the "export" attribute as well though it is
@@ -538,7 +574,7 @@ class bash_env_saved:
         if quote:
             new_value = shlex.quote(new_value)
         self._unprotect_variable(envname)
-        assert_bash_exec(self.bash, "export %s=%s" % (envname, new_value))
+        self._safe_exec("export %s=%s" % (envname, new_value))
         self._protect_variable(envname)
 
 
