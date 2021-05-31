@@ -2369,8 +2369,12 @@ fi
 unset compat_dir i _blacklist_glob
 
 # source user completion file
+#
+# Remark: We explicitly check that $user_completion is not '/dev/null' since
+#   /dev/null may be a regular file in broken systems and can contain arbitrary
+#   garbages of suppressed command outputs.
 user_completion=${BASH_COMPLETION_USER_FILE:-~/.bash_completion}
-[[ ${BASH_SOURCE[0]} != "$user_completion" && -r $user_completion && -f $user_completion ]] &&
+[[ $user_completion != "${BASH_SOURCE[0]}" && $user_completion != /dev/null && -r $user_completion && -f $user_completion ]] &&
     . $user_completion
 unset user_completion
 
