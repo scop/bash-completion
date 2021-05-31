@@ -483,7 +483,7 @@ class bash_env_saved:
         if self.cwd:
             self._unprotect_variable("OLDPWD")
             assert_bash_exec(
-                self.bash, "command cd %s" % shlex.quote(str(self.cwd))
+                self.bash, "command cd -- %s" % shlex.quote(str(self.cwd))
             )
             self._protect_variable("OLDPWD")
             self.cwd = None
@@ -507,7 +507,7 @@ class bash_env_saved:
     def chdir(self, path: str):
         self._save_cwd()
         self._unprotect_variable("OLDPWD")
-        assert_bash_exec(self.bash, "command cd %s" % shlex.quote(path))
+        assert_bash_exec(self.bash, "command cd -- %s" % shlex.quote(path))
         self._protect_variable("OLDPWD")
 
     def shopt(self, name: str, value: bool):
