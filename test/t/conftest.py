@@ -186,29 +186,55 @@ def partialize(
 def bash(request) -> pexpect.spawn:
 
     logfile = None
+    histfile = None
+    tmpdir = None
+    bash = None
+
     if os.environ.get("BASHCOMP_TEST_LOGFILE"):
         logfile = open(os.environ["BASHCOMP_TEST_LOGFILE"], "w")
     elif os.environ.get("CI"):
         logfile = sys.stdout
+
     testdir = os.path.abspath(
         os.path.join(os.path.dirname(__file__), os.pardir)
     )
-    env = os.environ.copy()
-    env.update(
-        dict(
-            SRCDIR=testdir,  # TODO needed at least by bashrc
-            SRCDIRABS=testdir,
-            PS1=PS1,
-            INPUTRC="%s/config/inputrc" % testdir,
-            TERM="dumb",
-            LC_COLLATE="C",  # to match Python's default locale unaware sort
-            HISTFILE="/dev/null",  # to leave user's history file alone
-        )
+
+    # Create an empty temporary file for HISTFILE.
+    #
+    # To prevent the tested Bash processes from writing to the user's
+    # history file or any other files, we prepare an empty temporary
+    # file for each test.
+    #
+    # - Note that HISTFILE=/dev/null may not work.  It results in the
+    #   removal of the device /dev/null and the creation of a regular
+    #   file at /dev/null when the number of commands reach
+    #   HISTFILESIZE by Bash-4.3's bug.  This causes the execution of
+    #   garbages through BASH_COMPLETION_USER_FILE=/dev/null.  - Note
+    #   also that "unset -v HISTFILE" in "test/config/bashrc" was not
+    #   adopted because "test/config/bashrc" is loaded after the
+    #   history is read from the history file.
+    #
+    histfile = tempfile.NamedTemporaryFile(
+        prefix="bash-completion-test_", delete=False
     )
 
-    tmpdir = None
-    bash = None
     try:
+        # release the file handle so that Bash can open the file.
+        histfile.close()
+
+        env = os.environ.copy()
+        env.update(
+            dict(
+                SRCDIR=testdir,  # TODO needed at least by bashrc
+                SRCDIRABS=testdir,
+                PS1=PS1,
+                INPUTRC="%s/config/inputrc" % testdir,
+                TERM="dumb",
+                LC_COLLATE="C",  # to match Python's default locale unaware sort
+                HISTFILE=histfile.name,
+            )
+        )
+
         marker = request.node.get_closest_marker("bashcomp")
 
         # Set up the current working directory
@@ -306,6 +332,11 @@ def bash(request) -> pexpect.spawn:
             bash.close()
         if tmpdir:
             tmpdir.cleanup()
+        if histfile:
+            try:
+                os.remove(histfile.name)
+            except OSError:
+                pass
         if logfile and logfile != sys.stdout:
             logfile.close()
 
