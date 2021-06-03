@@ -573,6 +573,7 @@ EXTRA_DIST = \
 	test_ssh_add.py \
 	test_ssh_copy_id.py \
 	test_ssh_keygen.py \
+	test_ssh_keyscan.py \
 	test_sshfs.py \
 	test_sshmitm.py \
 	test_sshow.py \
