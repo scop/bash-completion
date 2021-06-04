@@ -382,7 +382,7 @@ bashcomp_DATA = 2to3 \
 		sha256sum \
 		shellcheck \
 		sitecopy \
-		slackpkg \
+		_slackpkg \
 		slapt-get \
 		slapt-src \
 		smartctl \
