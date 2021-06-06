@@ -193,6 +193,11 @@ Also, please bear the following coding guidelines in mind:
   That'll run a bunch of linters and the like, the same as the
   bash-completion CI does. Running it locally and fixing found issues before
   commit/push/PR reduces some roundtrips with the review.
+  After installing it, enable it for stages we use it with like:
+
+  ```shell
+  pre-commit install --hook-type pre-commit --hook-type commit-msg
+  ```
 
 - File bugs, enhancement, and pull requests at GitHub,
   <https://github.com/scop/bash-completion>.
