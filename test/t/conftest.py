@@ -24,7 +24,7 @@ import pexpect  # type: ignore[import]
 import pytest
 
 PS1 = "/@"
-MAGIC_MARK = "__MaGiC-maRKz!__"
+MAGIC_MARK = "__MaGiC-maRKz-NEtXZVZfKC__"
 MAGIC_MARK2 = "Re8SCgEdfN"
 
 
