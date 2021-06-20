@@ -46,7 +46,7 @@ _make_target_extract_script()
     /^$/ {                                      # end of target block
       x;                                        # unhold target
       /^$/d;                                    # dont print blanks
-      s|^${dirname_re-}\(.\{${#basename}\}[^:/]*/\{0,1\}\)[^:]*:.*$|${output}|p;
+      s|^${dirname_re-}\(.\{${#basename}\}[^:]*\):.*$|${output}|p;
       d;                                        # hide any bugs
     }
 
@@ -163,6 +163,45 @@ _make()
             $1 -npq __BASH_MAKE_COMPLETION__=1 \
             ${makef+"${makef[@]}"} "${makef_dir[@]}" .DEFAULT 2>/dev/null |
             command sed -ne "$script"))
+
+        local prefix=$cur
+        [[ $mode == -d ]] && prefix=
+        if ((${#COMPREPLY[@]} > 0)); then
+            local -A processed paths
+            local target
+            for target in "${COMPREPLY[@]}"; do
+                local path=${target%/}
+                [[ ${processed[$path]+set} ]] && continue
+                processed[$path]=$target
+
+                while
+                    if [[ ! ${paths[$path]+set} ]]; then
+                        ((paths[\$path] = 1))
+                    else
+                        ((paths[\$path]++))
+                    fi
+                    [[ $path == "$prefix"*/* ]]
+                do
+                    path=${path%/*}
+                done
+            done
+
+            COMPREPLY=()
+            local nreply=0 target
+            for target in "${!paths[@]}"; do
+                local path=$target
+                while [[ $path == "$prefix"*/* ]]; do
+                    path=${path%/*}
+                    ((paths[\$path] != 1)) && continue 2
+                done
+
+                if [[ ${processed[$target]+set} ]]; then
+                    COMPREPLY[nreply++]=${processed[$target]}
+                elif ((paths[\$target] > 1)); then
+                    COMPREPLY[nreply++]=$target/
+                fi
+            done
+        fi
 
         if [[ $mode != -d ]]; then
             # Completion will occur if there is only one suggestion
