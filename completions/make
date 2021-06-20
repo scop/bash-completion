@@ -46,7 +46,7 @@ _make_target_extract_script()
     /^$/ {                                      # end of target block
       x;                                        # unhold target
       /^$/d;                                    # dont print blanks
-      s|^${dirname_re-}\(.\{${#basename}\}[^:/]*/\{0,1\}\)[^:]*:.*$|${output}|p;
+      s|^${dirname_re-}\(.\{${#basename}\}[^:]*\):.*$|${output}|p;
       d;                                        # hide any bugs
     }
 
@@ -85,6 +85,56 @@ EOF
     }
 
 EOF
+}
+
+# Truncate the non-unique filepaths in COMPRELY to only generate unique
+# directories or files.  This function discards the files under subdirectories
+# unless the path is unique under each subdirectory and instead generate the
+# subdirectory path.  For example, when there are two candidates, "abc/def" and
+# "abc/xyz", we generate "abc/" instead of generating both candidates directly.
+# When there is only one candidate "abc/def", we generate the full path
+# "abc/def".
+#
+# @var[in] cur
+# @var[in] mode
+# @var[in,out] COMPREPLY
+_comp_make__truncate_non_unique_paths()
+{
+    local prefix=$cur
+    [[ $mode == -d ]] && prefix=
+    if ((${#COMPREPLY[@]} > 0)); then
+        # collect the possible completions including the directory names in
+        # `paths' and count the number of children of each subdirectory in
+        # `nchild'.
+        local -A paths nchild
+        local target
+        for target in "${COMPREPLY[@]}"; do
+            local path=${target%/}
+            while [[ ! ${paths[$path]+set} ]] &&
+                paths[$path]=1 &&
+                [[ $path == "$prefix"*/* ]]; do
+                path=${path%/*}
+                nchild[$path]=$((${nchild[$path]-0} + 1))
+            done
+        done
+
+        COMPREPLY=()
+        local nreply=0
+        for target in "${!paths[@]}"; do
+            # generate only the paths that do not have a unique child and whose
+            # all parent and ancestor directories have a unique child.
+            ((${nchild[$target]-0} == 1)) && continue
+            local path=$target
+            while [[ $path == "$prefix"*/* ]]; do
+                path=${path%/*}
+                ((${nchild[$path]-0} == 1)) || continue 2
+            done
+
+            # suffix `/' when the target path is a subdiretory, which has
+            # at least one child.
+            COMPREPLY[nreply++]=$target${nchild[$target]+/}
+        done
+    fi
 }
 
 _make()
@@ -171,6 +221,8 @@ _make()
             $1 -npq __BASH_MAKE_COMPLETION__=1 \
             ${makef+"${makef[@]}"} "${makef_dir[@]}" .DEFAULT 2>/dev/null |
             command sed -ne "$script"))
+
+        _comp_make__truncate_non_unique_paths
 
         if [[ $mode != -d ]]; then
             # Completion will occur if there is only one suggestion
