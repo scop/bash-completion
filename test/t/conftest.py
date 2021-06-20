@@ -305,6 +305,13 @@ def bash(request) -> pexpect.spawn:
             )
             if match:
                 cmd = match.group(1)
+        if (
+            marker
+            and marker.kwargs
+            and marker.kwargs.get("require_cmd", False)
+        ):
+            if not is_bash_type(bash, cmd):
+                pytest.skip("Command not found")
 
         request.cls.cmd = cmd
 
