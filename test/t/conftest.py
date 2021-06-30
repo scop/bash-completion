@@ -241,7 +241,9 @@ def bash(request) -> pexpect.spawn:
         cwd = None
         if marker:
             if "cwd" in marker.kwargs and marker.kwargs.get("cwd") is not None:
-                cwd = marker.kwargs.get("cwd")
+                cwd = os.path.join(
+                    testdir, "fixtures", marker.kwargs.get("cwd")
+                )
             elif "temp_cwd" in marker.kwargs and marker.kwargs.get("temp_cwd"):
                 tmpdir = tempfile.TemporaryDirectory(
                     prefix="bash-completion-test_"
