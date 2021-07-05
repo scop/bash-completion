@@ -428,27 +428,27 @@ _scp_remote_files()
 
     # unescape (3 backslashes to 1 for chars we escaped)
     # shellcheck disable=SC2090
-    path=$(command sed -e 's/\\\\\\\('$_scp_path_esc'\)/\\\1/g' <<<"$path")
+    path=$(command sed -e 's/\\\\\\\('"$_scp_path_esc"'\)/\\\1/g' <<<"$path")
 
     # default to home dir of specified user on remote host
     if [[ -z $path ]]; then
-        path=$(ssh -o 'Batchmode yes' $userhost pwd 2>/dev/null)
+        path=$(ssh -o 'Batchmode yes' "$userhost" pwd 2>/dev/null)
     fi
 
     local files
     if [[ ${1-} == -d ]]; then
         # escape problematic characters; remove non-dirs
         # shellcheck disable=SC2090
-        files=$(ssh -o 'Batchmode yes' $userhost \
+        files=$(ssh -o 'Batchmode yes' "$userhost" \
             command ls -aF1dL "$path*" 2>/dev/null |
-            command sed -e 's/'$_scp_path_esc'/\\\\\\&/g' -e '/[^\/]$/d')
+            command sed -e 's/'"$_scp_path_esc"'/\\\\\\&/g' -e '/[^\/]$/d')
     else
         # escape problematic characters; remove executables, aliases, pipes
         # and sockets; add space at end of file names
         # shellcheck disable=SC2090
-        files=$(ssh -o 'Batchmode yes' $userhost \
+        files=$(ssh -o 'Batchmode yes' "$userhost" \
             command ls -aF1dL "$path*" 2>/dev/null |
-            command sed -e 's/'$_scp_path_esc'/\\\\\\&/g' -e 's/[*@|=]$//g' \
+            command sed -e 's/'"$_scp_path_esc"'/\\\\\\&/g' -e 's/[*@|=]$//g' \
                 -e 's/[^\/]$/& /g')
     fi
     COMPREPLY+=($files)
