@@ -3,12 +3,135 @@
 import pkgutil
 import sys
 
-# walk_packages() is much slower than iter_modules(), use it only when
-# completing something with a dot in it.
-if len(sys.argv) > 1 and "." in sys.argv[1]:
-    walker = pkgutil.walk_packages
-else:
-    walker = pkgutil.iter_modules
 
-for mod in walker():
-    print(mod[1])  # noqa: E211
+class PackageNotFoundError(Exception):
+    def __init__(self, name):
+        Exception.__init__(self, name)
+        self.name = name
+
+
+try:
+    from importlib import import_module
+except ImportError:
+
+    def import_module(name):
+        __import__(name)
+        return sys.modules[name]
+
+
+try:
+    from importlib.util import find_spec
+except ImportError:
+    find_spec = None
+
+
+def print_error(message):
+    sys.stderr.write("error: %s\n" % message)
+
+
+def import_package(pkgname):
+    """Import a module only if it is known to be a package.
+
+    The purpose is to reduce the risk of unwanted side effects caused by
+    importing misbehaving modules (e.g. ones that are designed to be only run
+    as programs but lack `__name__ == "__main__"` guard). Thus, already loaded
+    modules are returned as is even if they are not packages.
+    """
+    pkg = sys.modules.get(pkgname)
+    if pkg is not None:
+        return pkg
+    parentname = pkgname.rpartition(".")[0]
+    if parentname:
+        parent = import_package(parentname)
+    if find_spec is not None:
+        spec = find_spec(pkgname)
+        if spec is not None and spec.submodule_search_locations is not None:
+            return import_module(pkgname)
+    # find_spec() unavailable, fall back to searching iter_modules(...).
+    if parentname:
+        path = parent.__path__ or []
+        prefix = parentname + "."
+    else:
+        path = sys.path
+        prefix = ""
+    for _, name, ispkg in pkgutil.iter_modules(path, prefix=prefix):
+        if ispkg and name == pkgname:
+            return import_module(pkgname)
+    raise PackageNotFoundError(pkgname)
+
+
+def walkpkg_onerror(pkgname=None):
+    """Report errors encountered during walk_[sub]packages().
+
+    Print the exception traceback if available.
+    """
+    if pkgname is None:
+        pkgname = "<unknown>"
+    print_error("failed to import package %s" % pkgname)
+    exc_info = sys.exc_info()
+    if exc_info[1] is not None:
+        sys.__excepthook__(*exc_info)
+
+
+def walk_subpackages(pkgname, tail_prefix="", _recursion=False):
+    """Walk recursively all submodules of package pkgname.
+
+    Return a subset of items returned by pkgutil.walk_packages().
+    If tail_prefix is provided, additionally restrict results to modules whose
+    name starts with `{pkgname}.{tail_prefix}`.
+    """
+    try:
+        if not _recursion:
+            pkg = import_package(pkgname)
+        else:
+            pkg = import_module(pkgname)
+    except PackageNotFoundError:
+        name = sys.exc_info()[1].name
+        print_error("package not found: %s" % name)
+        return []
+    except Exception:
+        if not _recursion:
+            raise
+        walkpkg_onerror(name)
+        return []
+
+    pkgpath = getattr(pkg, "__path__", [])
+    prefix = pkgname + "."
+    if not tail_prefix:
+        return pkgutil.walk_packages(pkgpath, prefix, walkpkg_onerror)
+
+    def _walk_filtered():
+        match_prefix = prefix + tail_prefix
+        for modinfo in pkgutil.iter_modules(pkgpath, prefix):
+            _, name, ispkg = modinfo
+            if not name.startswith(match_prefix):
+                continue
+            yield modinfo
+            if not ispkg:
+                continue
+            for info in walk_subpackages(name, _recursion=True):
+                yield info
+
+    return _walk_filtered()
+
+
+def main():
+    # If the name to complete contains a dot, list all submodules recursively.
+    # Otherwise list only toplevel modules to keep speed reasonable.
+    if len(sys.argv) > 1 and "." in sys.argv[1]:
+        prefix = sys.argv[1]
+        if prefix.startswith(".") or ".." in prefix:
+            print_error("invalid module name prefix: %s" % prefix)
+            modules = []
+        else:
+            pkgname, _, tail = prefix.rpartition(".")
+            modules = walk_subpackages(pkgname, tail_prefix=tail)
+    else:
+        modules = pkgutil.iter_modules()
+
+    for mod in modules:
+        print(mod[1])  # noqa: E211
+
+
+if __name__ == "__main__":
+    main()
