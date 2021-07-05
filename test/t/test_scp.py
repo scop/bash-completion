@@ -81,3 +81,17 @@ class TestScp:
     @pytest.mark.complete("scp -o Foo=")
     def test_option_arg(self, completion):
         assert not completion  # and no errors either
+
+    @pytest.mark.complete(
+        "scp hostname-not-expected-to-exist-in-known-hosts:",
+        shopt=dict(nullglob=True),
+    )
+    def test_remote_path_with_nullglob(self, completion):
+        assert not completion
+
+    @pytest.mark.complete(
+        "scp hostname-not-expected-to-exist-in-known-hosts:",
+        shopt=dict(failglob=True),
+    )
+    def test_remote_path_with_failglob(self, completion):
+        assert not completion
