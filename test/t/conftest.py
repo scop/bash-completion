@@ -765,6 +765,8 @@ def assert_complete(
                 r"^" + re.escape(MAGIC_MARK),
                 # 2: on same line, result in .match
                 r"^([^\r]+)%s$" % re.escape(MAGIC_MARK),
+                # 3: error messages
+                r"^([^\r].*)%s$" % re.escape(MAGIC_MARK),
                 pexpect.EOF,
                 pexpect.TIMEOUT,
             ]
@@ -777,6 +779,9 @@ def assert_complete(
         elif got == 2:
             output = bash.match.group(1)
             return CompletionResult(output)
+        elif got == 3:
+            output = bash.match.group(1)
+            raise AssertionError("Unexpected output: [%s]" % output)
         else:
             # TODO: warn about EOF/TIMEOUT?
             return CompletionResult()
