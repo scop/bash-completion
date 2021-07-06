@@ -1,0 +1,39 @@
+# ssh-keyscan(1) completion                                -*- shell-script -*-
+
+_comp_cmd_ssh_keyscan()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    local ipvx
+
+    case $prev in
+        -*4*)
+            ipvx=-4
+            ;;
+        -*6*)
+            ipvx=-6
+            ;;
+        -*f)
+            _filedir
+            return
+            ;;
+        -*p | -*T)
+            return
+            ;;
+        -*t)
+            _comp_delimited , -W "dsa ecdsa ed25519 rsa"
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1")' -- "$cur"))
+        return
+    fi
+
+    _known_hosts_real ${ipvx-} -- "$cur"
+} &&
+    complete -F _comp_cmd_ssh_keyscan ssh-keyscan
+
+# ex: filetype=sh

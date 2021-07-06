@@ -394,6 +394,7 @@ bashcomp_DATA = 2to3 \
 		ssh-add \
 		ssh-copy-id \
 		ssh-keygen \
+		ssh-keyscan \
 		sshfs \
 		sshmitm \
 		sshow \
