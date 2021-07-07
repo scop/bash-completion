@@ -15,7 +15,7 @@ _ri_get_methods()
         fi
 
         COMPREPLY+=(
-            "$(ri "${classes[@]}" 2>/dev/null | ruby -ane \
+            "$(ri ${classes[@]+"${classes[@]}"} 2>/dev/null | ruby -ane \
                 'if /^'"$regex"' methods:/.../^------------------|^$/ and \
             /^ / then print $_.split(/, |,$/).grep(/^[^\[]*$/).join("\n"); \
             end' 2>/dev/null | sort -u)")
@@ -23,7 +23,7 @@ _ri_get_methods()
         # older versions of ri didn't distinguish between class/module and
         # instance methods
         COMPREPLY+=(
-            "$(ruby -W0 $ri_path "${classes[@]}" 2>/dev/null | ruby -ane \
+            "$(ruby -W0 $ri_path ${classes[@]+"${classes[@]}"} 2>/dev/null | ruby -ane \
                 'if /^-/.../^-/ and ! /^-/ and ! /^ +(class|module): / then \
             print $_.split(/, |,$| +/).grep(/^[^\[]*$/).join("\n"); \
             end' | sort -u)")
@@ -104,7 +104,8 @@ _ri()
                 if /^ .*[A-Z]/ then print; end; end'))
     fi
 
-    COMPREPLY=($(compgen -W '${classes[@]}' -- "$cur"))
+    ((${#classes[@]})) &&
+        COMPREPLY=($(compgen -W '"${classes[@]}"' -- "$cur"))
     __ltrim_colon_completions "$cur"
 
     if [[ $cur == [A-Z]* ]]; then

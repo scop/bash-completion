@@ -23,7 +23,10 @@ _invoke_rc_d()
                 command sed -ne "/$(command sed 's/ /\\|/g' <<<"${options[*]}")/p" |
                 sort | uniq -u
         ))
-        COMPREPLY=($(compgen -W '${valid_options[@]} ${services[@]}' -- "$cur"))
+        ((${#valid_options[@]})) && COMPREPLY+=("${valid_options[@]}")
+        ((${#services[@]})) && COMPREPLY+=("${services[@]}")
+        ((${#COMPREPLY[@]})) &&
+            COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
     elif [[ -x $sysvdir/$prev ]]; then
         COMPREPLY=($(compgen -W '`command sed -e "y/|/ /" \
             -ne "s/^.*Usage:[ ]*[^ ]*[ ]*{*\([^}\"]*\).*$/\1/p" \

@@ -69,12 +69,14 @@ _vpnc()
         local IFS=$' \t\n' reset=$(shopt -p nullglob)
         shopt -s nullglob
         local -a configs=(/etc/vpnc/*.conf)
-        configs=("${configs[@]##*/}")
-        configs=("${configs[@]%.conf}")
         $reset
-        IFS=$'\n'
-        compopt -o filenames
-        COMPREPLY=($(compgen -W '${configs[@]}' -- "$cur"))
+        if ((${#configs[@]})); then
+            configs=("${configs[@]##*/}")
+            configs=("${configs[@]%.conf}")
+            IFS=$'\n'
+            compopt -o filenames
+            COMPREPLY=($(compgen -W '${configs[@]}' -- "$cur"))
+        fi
     fi
 } &&
     complete -F _vpnc vpnc

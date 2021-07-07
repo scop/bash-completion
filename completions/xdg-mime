@@ -41,10 +41,12 @@ _xdg_mime()
                 local IFS=$' \t\n' reset=$(shopt -p nullglob)
                 shopt -s nullglob
                 local -a desktops=(/usr/share/applications/*.desktop)
-                desktops=("${desktops[@]##*/}")
                 $reset
-                IFS=$'\n'
-                COMPREPLY=($(compgen -W '${desktops[@]}' -- "$cur"))
+                if ((${#desktops[@]})); then
+                    desktops=("${desktops[@]##*/}")
+                    IFS=$'\n'
+                    COMPREPLY=($(compgen -W '"${desktops[@]}"' -- "$cur"))
+                fi
             else
                 _xdg_mime_mimetype
             fi
