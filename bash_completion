@@ -718,15 +718,17 @@ _comp_delimited()
         # delimiter so we get space appended.
         [[ ! $cur || $cur == *"$delimiter" ]] || unset "existing[${#existing[@]}-1]"
         IFS=$ifs
-        for x in ${existing+"${existing[@]}"}; do
-            for i in "${!COMPREPLY[@]}"; do
-                if [[ $x == "${COMPREPLY[i]}" ]]; then
-                    unset "COMPREPLY[i]"
-                    continue 2 # assume no dupes in COMPREPLY
-                fi
+        if ((${#COMPREPLY[@]})); then
+            for x in ${existing+"${existing[@]}"}; do
+                for i in "${!COMPREPLY[@]}"; do
+                    if [[ $x == "${COMPREPLY[i]}" ]]; then
+                        unset "COMPREPLY[i]"
+                        continue 2 # assume no dupes in COMPREPLY
+                    fi
+                done
             done
-        done
-        COMPREPLY=($(compgen -W '${COMPREPLY[@]}' -- "${cur##*$delimiter}"))
+            COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "${cur##*$delimiter}"))
+        fi
     else
         COMPREPLY=($(compgen "$@" -- "${cur##*$delimiter}"))
     fi
@@ -760,16 +762,18 @@ _comp_variable_assignments()
         TZ)
             cur=/usr/share/zoneinfo/$cur
             _filedir
-            for i in "${!COMPREPLY[@]}"; do
-                if [[ ${COMPREPLY[i]} == *.tab ]]; then
-                    unset 'COMPREPLY[i]'
-                    continue
-                elif [[ -d ${COMPREPLY[i]} ]]; then
-                    COMPREPLY[i]+=/
-                    compopt -o nospace
-                fi
-                COMPREPLY[i]=${COMPREPLY[i]#/usr/share/zoneinfo/}
-            done
+            if ((${#COMPREPLY[@]})); then
+                for i in "${!COMPREPLY[@]}"; do
+                    if [[ ${COMPREPLY[i]} == *.tab ]]; then
+                        unset 'COMPREPLY[i]'
+                        continue
+                    elif [[ -d ${COMPREPLY[i]} ]]; then
+                        COMPREPLY[i]+=/
+                        compopt -o nospace
+                    fi
+                    COMPREPLY[i]=${COMPREPLY[i]#/usr/share/zoneinfo/}
+                done
+            fi
             ;;
         TERM)
             _terms
@@ -1036,7 +1040,8 @@ _mac_addresses()
     COMPREPLY+=($(command sed -ne \
         "s/^[[:space:]]*\($re\)[[:space:]].*/\1/p" /etc/ethers 2>/dev/null))
 
-    COMPREPLY=($(compgen -W '${COMPREPLY[@]}' -- "$cur"))
+    ((${#COMPREPLY[@]})) &&
+        COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
     __ltrim_colon_completions "$cur"
 }
 
@@ -1115,7 +1120,8 @@ _available_interfaces()
     } 2>/dev/null | awk \
         '/^[^ \t]/ { if ($1 ~ /^[0-9]+:/) { print $2 } else { print $1 } }'))
 
-    COMPREPLY=($(compgen -W '${COMPREPLY[@]/%[[:punct:]]/}' -- "$cur"))
+    ((${#COMPREPLY[@]})) &&
+        COMPREPLY=($(compgen -W '"${COMPREPLY[@]/%[[:punct:]]/}"' -- "$cur"))
 }
 
 # Echo number of CPUs, falling back to 1 on failure.
@@ -1345,7 +1351,8 @@ _services()
         COMPREPLY+=($(initctl list 2>/dev/null | cut -d' ' -f1))
     fi
 
-    COMPREPLY=($(compgen -W '${COMPREPLY[@]#${sysvdirs[0]}/}' -- "$cur"))
+    ((${#COMPREPLY[@]})) &&
+        COMPREPLY=($(compgen -W '"${COMPREPLY[@]#${sysvdirs[0]}/}"' -- "$cur"))
 }
 
 # This completes on a list of all available service scripts for the
@@ -1424,7 +1431,8 @@ _usergroup()
             local IFS=$'\n'
             COMPREPLY=($(compgen -g -- "$mycur"))
         fi
-        COMPREPLY=($(compgen -P "$prefix" -W "${COMPREPLY[@]}"))
+        ((${#COMPREPLY[@]})) &&
+            COMPREPLY=($(compgen -P "$prefix" -W '"${COMPREPLY[@]}"'))
     elif [[ $cur == *:* ]]; then
         # Completing group after 'user:gr<TAB>'.
         # Reply with a list of unprefixed groups since readline with split on :
@@ -1844,7 +1852,8 @@ _known_hosts_real()
                     IFS=$ifs
                 done <"$i"
             done
-            COMPREPLY=($(compgen -W '${COMPREPLY[@]}' -- "$cur"))
+            ((${#COMPREPLY[@]})) &&
+                COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
         fi
         if ((${#khd[@]} > 0)); then
             # Needs to look for files called
@@ -1861,9 +1870,11 @@ _known_hosts_real()
         fi
 
         # apply suffix and prefix
-        for i in ${!COMPREPLY[*]}; do
-            COMPREPLY[i]=$prefix${COMPREPLY[i]}$suffix
-        done
+        if ((${#COMPREPLY[@]})); then
+            for i in ${!COMPREPLY[*]}; do
+                COMPREPLY[i]=$prefix${COMPREPLY[i]}$suffix
+            done
+        fi
     fi
 
     # append any available aliases from ssh config files
@@ -1903,16 +1914,18 @@ _known_hosts_real()
     IFS=$' \t\n'
     $reset
 
-    if [[ -v ipv4 ]]; then
-        COMPREPLY=("${COMPREPLY[@]/*:*$suffix/}")
-    fi
-    if [[ -v ipv6 ]]; then
-        COMPREPLY=("${COMPREPLY[@]/+([0-9]).+([0-9]).+([0-9]).+([0-9])$suffix/}")
-    fi
-    if [[ -v ipv4 || -v ipv6 ]]; then
-        for i in "${!COMPREPLY[@]}"; do
-            [[ ${COMPREPLY[i]} ]] || unset -v "COMPREPLY[i]"
-        done
+    if ((${#COMPREPLY[@]})); then
+        if [[ -v ipv4 ]]; then
+            COMPREPLY=("${COMPREPLY[@]/*:*$suffix/}")
+        fi
+        if [[ -v ipv6 ]]; then
+            COMPREPLY=("${COMPREPLY[@]/+([0-9]).+([0-9]).+([0-9]).+([0-9])$suffix/}")
+        fi
+        if [[ -v ipv4 || -v ipv6 ]]; then
+            for i in "${!COMPREPLY[@]}"; do
+                [[ ${COMPREPLY[i]} ]] || unset -v "COMPREPLY[i]"
+            done
+        fi
     fi
 
     __ltrim_colon_completions "$prefix$cur"
