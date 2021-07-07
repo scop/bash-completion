@@ -158,7 +158,7 @@ _cvs()
                 for i in "${!files[@]}"; do
                     if [[ ${files[i]} == ?(*/)CVS ]]; then
                         unset 'files[i]'
-                    else
+                    elif ((${#entries[@]})); then
                         for f in "${entries[@]}"; do
                             if [[ ${files[i]} == "$f" && ! -d $f ]]; then
                                 unset 'files[i]'
@@ -167,8 +167,9 @@ _cvs()
                         done
                     fi
                 done
-                COMPREPLY=($(compgen -X "$_backup_glob" -W '${files[@]}' \
-                    -- "$cur"))
+                ((${#files[@]})) &&
+                    COMPREPLY=($(compgen -X "$_backup_glob" -W '"${files[@]}"' \
+                        -- "$cur"))
             else
                 _cvs_command_options "$1" $mode
             fi
@@ -193,7 +194,8 @@ _cvs()
                 _cvs_command_options "$1" $mode
             else
                 _cvs_entries
-                COMPREPLY=($(compgen -W '${entries[@]}' -- "$cur"))
+                ((${#entries[@]})) &&
+                    COMPREPLY=($(compgen -W '"${entries[@]}"' -- "$cur"))
             fi
             ;;
         annotate)
@@ -203,7 +205,8 @@ _cvs()
                 _cvs_command_options "$1" $mode
             else
                 _cvs_entries
-                COMPREPLY=($(compgen -W '${entries[@]}' -- "$cur"))
+                ((${#entries[@]})) &&
+                    COMPREPLY=($(compgen -W '"${entries[@]}"' -- "$cur"))
             fi
             ;;
         checkout)
@@ -256,11 +259,14 @@ _cvs()
                         command sed -ne 's/^Files [^ ]* and \([^ ]*\) differ$/\1/p'))
                     newremoved=($(cvs -q diff --brief 2>&1 |
                         command sed -ne 's/^cvs diff: \([^ ]*\) .*, no comparison available$/\1/p'))
-                    COMPREPLY=($(compgen -W '${changed[@]:-} \
-                        ${newremoved[@]:-}' -- "$cur"))
+                    ((${#changed[@]})) && COMPREPLY+=("${changed[@]}")
+                    ((${#newremoved[@]})) && COMPREPLY+=("${newremoved[@]}")
+                    ((${#COMPREPLY[@]})) &&
+                        COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
                 else
                     _cvs_entries
-                    COMPREPLY=($(compgen -W '${entries[@]}' -- "$cur"))
+                    ((${#entries[@]})) &&
+                        COMPREPLY=($(compgen -W '"${entries[@]}"' -- "$cur"))
                 fi
             else
                 _cvs_command_options "$1" $mode
@@ -275,7 +281,8 @@ _cvs()
                 [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
             else
                 _cvs_entries
-                COMPREPLY=($(compgen -W '${entries[@]:-}' -- "$cur"))
+                ((${#entries[@]})) &&
+                    COMPREPLY=($(compgen -W '"${entries[@]}"' -- "$cur"))
             fi
             ;;
         editors | watchers)
@@ -283,7 +290,8 @@ _cvs()
                 _cvs_command_options "$1" $mode
             else
                 _cvs_entries
-                COMPREPLY=($(compgen -W '${entries[@]}' -- "$cur"))
+                ((${#entries[@]})) &&
+                    COMPREPLY=($(compgen -W '"${entries[@]}"' -- "$cur"))
             fi
             ;;
         export)
@@ -350,7 +358,8 @@ _cvs()
                         [[ -r ${entries[i]} ]] && unset 'entries[i]'
                     done
                 fi
-                COMPREPLY=($(compgen -W '${entries[@]:-}' -- "$cur"))
+                ((${#entries[@]})) &&
+                    COMPREPLY=($(compgen -W '"${entries[@]}"' -- "$cur"))
             else
                 _cvs_command_options "$1" $mode
             fi
@@ -371,7 +380,8 @@ _cvs()
                 _cvs_command_options "$1" $mode
             else
                 _cvs_entries
-                COMPREPLY=($(compgen -W '${entries[@]}' -- "$cur"))
+                ((${#entries[@]})) &&
+                    COMPREPLY=($(compgen -W '"${entries[@]}"' -- "$cur"))
             fi
             ;;
         "")

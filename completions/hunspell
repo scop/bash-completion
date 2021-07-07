@@ -14,11 +14,13 @@ _hunspell()
             shopt -s nullglob
             local -a dicts=(/usr/share/hunspell/*.dic
                 /usr/local/share/hunspell/*.dic)
-            dicts=("${dicts[@]##*/}")
-            dicts=("${dicts[@]%.dic}")
             $reset
-            IFS=$'\n'
-            COMPREPLY=($(compgen -W '${dicts[@]}' -- "$cur"))
+            if ((${#dicts[@]})); then
+                dicts=("${dicts[@]##*/}")
+                dicts=("${dicts[@]%.dic}")
+                IFS=$'\n'
+                COMPREPLY=($(compgen -W '${dicts[@]}' -- "$cur"))
+            fi
             return
             ;;
         -i)

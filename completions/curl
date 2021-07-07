@@ -106,11 +106,13 @@ _curl()
                 $("$1" --help non-existent-category 2>&1 |
                     awk '/^[[:space:]]/ {print $1}')
             )
-            for x in "${categories[@]}"; do
-                # Looks like an option? Likely no --help category support
-                [[ $x != -* ]] || return
-            done
-            COMPREPLY=($(compgen -W '${categories[@]}' -- "$cur"))
+            if ((${#categories[@]})); then
+                for x in "${categories[@]}"; do
+                    # Looks like an option? Likely no --help category support
+                    [[ $x != -* ]] || return
+                done
+                COMPREPLY=($(compgen -W '${categories[@]}' -- "$cur"))
+            fi
             return
             ;;
         --krb)

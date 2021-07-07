@@ -1233,7 +1233,7 @@ else
     # @param $1 if -s, don't try to avoid truncated command names
     _pnames()
     {
-        local -a procs
+        local -a procs=()
         if [[ ${1-} == -s ]]; then
             procs=($(command ps ax -o comm | command sed -e 1d))
         else
@@ -1277,7 +1277,8 @@ else
                 done
             fi
         fi
-        COMPREPLY=($(compgen -X "<defunct>" -W '${procs[@]}' -- "$cur"))
+        ((${#procs[@]})) &&
+            COMPREPLY=($(compgen -X "<defunct>" -W '"${procs[@]}"' -- "$cur"))
     }
 fi
 
@@ -1324,7 +1325,7 @@ _xinetd_services()
         local -a svcs=($xinetddir/!($_backup_glob))
         $reset
         ((!${#svcs[@]})) ||
-            COMPREPLY+=($(compgen -W '${svcs[@]#$xinetddir/}' -- "${cur-}"))
+            COMPREPLY+=($(compgen -W '"${svcs[@]#$xinetddir/}"' -- "${cur-}"))
     fi
 }
 
@@ -1882,7 +1883,7 @@ _known_hosts_real()
         local -a hosts=($(command sed -ne 's/^[[:blank:]]*[Hh][Oo][Ss][Tt][[:blank:]=]\{1,\}\(.*\)$/\1/p' "${config[@]}"))
         if ((${#hosts[@]} != 0)); then
             COMPREPLY+=($(compgen -P "$prefix" \
-                -S "$suffix" -W '${hosts[@]%%[*?%]*}' -X '\!*' -- "$cur"))
+                -S "$suffix" -W '"${hosts[@]%%[*?%]*}"' -X '\!*' -- "$cur"))
         fi
     fi
 

@@ -13,13 +13,13 @@ _update_rc_d()
         sysvdir=/etc/init.d
 
     services=($sysvdir/!(README*|*.sh|$_backup_glob))
-    services=(${services[@]#$sysvdir/})
+    ((${#services[@]})) && services=("${services[@]#$sysvdir/}")
     options=(-f -n)
 
     if [[ $cword -eq 1 || $prev == -* ]]; then
-        COMPREPLY=($(compgen -W '${options[@]} ${services[@]}' \
+        COMPREPLY=($(compgen -W '${options[@]} ${services[@]+"${services[@]}"}' \
             -X '$(tr " " "|" <<<${words[@]})' -- "$cur"))
-    elif [[ $prev == ?($(tr " " "|" <<<"${services[*]}")) ]]; then
+    elif ((${#services[@]})) && [[ $prev == ?($(tr " " "|" <<<"${services[*]}")) ]]; then
         COMPREPLY=($(compgen -W 'remove defaults start stop' -- "$cur"))
     elif [[ $prev == defaults && $cur == [0-9] ]]; then
         COMPREPLY=(0 1 2 3 4 5 6 7 8 9)
