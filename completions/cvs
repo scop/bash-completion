@@ -226,7 +226,8 @@ _cvs()
                 [[ ! -v cvsroot ]] && cvsroot=${CVSROOT-}
                 COMPREPLY=($(cvs -d "$cvsroot" co -c 2>/dev/null |
                     awk '{print $1}'))
-                COMPREPLY=($(compgen -W '${COMPREPLY[@]}' -- "$cur"))
+                ((${#COMPREPLY[@]})) &&
+                    COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
             else
                 _cvs_command_options "$1" $mode
             fi
@@ -304,7 +305,8 @@ _cvs()
             if [[ $cur != -* ]]; then
                 [[ ! -v cvsroot ]] && cvsroot=${CVSROOT-}
                 COMPREPLY=($(cvs -d "$cvsroot" co -c | awk '{print $1}'))
-                COMPREPLY=($(compgen -W '${COMPREPLY[@]}' -- "$cur"))
+                ((${#COMPREPLY[@]})) &&
+                    COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
             else
                 _cvs_command_options "$1" $mode
             fi
@@ -332,7 +334,9 @@ _cvs()
                 fi
                 pwd=$(pwd)
                 pwd=${pwd##*/}
-                COMPREPLY=($(compgen -W '${COMPREPLY[@]} $pwd' -- "$cur"))
+                [[ $pwd ]] && COMPREPLY+=("$pwd")
+                ((${#COMPREPLY[@]})) &&
+                    COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
             else
                 _cvs_command_options "$1" $mode
             fi
