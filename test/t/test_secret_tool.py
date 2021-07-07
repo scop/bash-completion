@@ -9,4 +9,4 @@ class TestSecretTool:
 
     @pytest.mark.complete("secret-tool search ")
     def test_no_complete(self, completion):
-        assert not completion
+        assert completion == ["--all", "--unlock"]
