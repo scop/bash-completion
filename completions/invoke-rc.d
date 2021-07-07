@@ -12,7 +12,7 @@ _invoke_rc_d()
     [[ -d /etc/rc.d/init.d ]] && sysvdir=/etc/rc.d/init.d ||
         sysvdir=/etc/init.d
 
-    services=($(printf '%s ' $sysvdir/!(README*|*.sh|$_backup_glob)))
+    services=($sysvdir/!(README*|*.sh|$_backup_glob))
     services=(${services[@]#$sysvdir/})
     options=(--help --quiet --force --try-anyway --disclose-deny --query
         --no-fallback)
