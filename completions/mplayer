@@ -58,10 +58,12 @@ _mplayer()
         -subcp | -msgcharset)
             local cp
             cp=($(iconv --list 2>/dev/null | command sed -e "s@//@@;" 2>/dev/null))
-            if [[ $cur == "${cur,,}" ]]; then
-                COMPREPLY=($(compgen -W '${cp[@],,}' -- "$cur"))
-            else
-                COMPREPLY=($(compgen -W '${cp[@]^^}' -- "$cur"))
+            if ((${#cp[@]})); then
+                if [[ $cur == "${cur,,}" ]]; then
+                    COMPREPLY=($(compgen -W '${cp[@],,}' -- "$cur"))
+                else
+                    COMPREPLY=($(compgen -W '${cp[@]^^}' -- "$cur"))
+                fi
             fi
             return
             ;;
