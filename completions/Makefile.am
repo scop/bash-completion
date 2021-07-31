@@ -419,6 +419,7 @@ bashcomp_DATA = 2to3 \
 		tipc \
 		tox \
 		tracepath \
+		tree \
 		tshark \
 		tsig-keygen \
 		tune2fs \
