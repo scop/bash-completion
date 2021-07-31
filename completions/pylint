@@ -1,5 +1,17 @@
 # pylint(1) completion                                     -*- shell-script -*-
 
+_comp_cmd_pylint_message_ids()
+{
+    local filter=p
+    [[ ${2-} ]] && filter="/^$2 messages/,/^$/p"
+    # 6: arbitrary, assumed no ids shorter than that
+    _comp_delimited , -W "$(
+        ${1:-pylint} --list-msgs-enabled 2>/dev/null |
+            command sed -ne "$filter" |
+            command sed -ne 's/^[[:space:]]\{1,\}\([a-z-]\{6,\}\).*/\1/p'
+    )"
+}
+
 _pylint()
 {
     local cur prev words cword split
@@ -9,8 +21,8 @@ _pylint()
     [[ ${1##*/} == *3* ]] && python=python3
 
     case $prev in
-        --version | --help | --long-help | --help-msg | --init-hook | \
-            --ignore | --enable | --evaluation | --max-line-length | \
+        --version | --help | --long-help | --init-hook | \
+            --ignore | --evaluation | --max-line-length | \
             --max-module-lines | --indent-string | --min-similarity-lines | \
             --max-args | --ignored-argument-names | --max-locals | \
             --max-returns | --max-branchs | --max-statements | --max-parents | \
@@ -23,11 +35,20 @@ _pylint()
             --ignored-classes | --generated-members | \
             --overgeneral-exceptions | --ignore-iface-methods | \
             --defining-attr-methods | --valid-classmethod-first-arg | \
-            --valid-metaclass-classmethod-first-arg | -!(-*)[he])
+            --valid-metaclass-classmethod-first-arg | -!(-*)[h])
+            return
+            ;;
+        --fail-on | --help-msg)
+            _comp_cmd_pylint_message_ids "$1"
+            return
+            ;;
+        --enable | -!(-*)e)
+            _comp_cmd_pylint_message_ids "$1" Disabled
             return
             ;;
         --disable | -!(-*)d)
-            COMPREPLY=($(compgen -W 'all' -- "$cur"))
+            _comp_cmd_pylint_message_ids "$1" Enabled
+            COMPREPLY+=($(compgen -W 'all' -- "$cur"))
             return
             ;;
         --rcfile)
