@@ -2,8 +2,8 @@
 
 _comp_cmd_tree()
 {
-    local cur prev words cword
-    _init_completion || return
+    local cur prev words cword split
+    _init_completion -s || return
 
     case $prev in
         -!(-*)[LPIHT] | --filelimit | --timefmt | --help | --version)
@@ -22,6 +22,8 @@ _comp_cmd_tree()
             return
             ;;
     esac
+
+    $split && return
 
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))

@@ -13,3 +13,7 @@ class TestTree:
     @pytest.mark.complete("tree -", require_cmd=True)
     def test_options(self, completion):
         assert completion
+
+    @pytest.mark.complete("tree --sort=", require_cmd=True)
+    def test_equals_sign_split(self, completion):
+        assert completion
