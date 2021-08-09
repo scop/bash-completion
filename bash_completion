@@ -2030,18 +2030,18 @@ _command_offset()
         COMPREPLY=($(compgen -d -c -- "$cur"))
     else
         local cmd=${COMP_WORDS[0]} compcmd=${COMP_WORDS[0]}
-        local cspec=$(complete -p $cmd 2>/dev/null)
+        local cspec=$(complete -p "$cmd" 2>/dev/null)
 
         # If we have no completion for $cmd yet, see if we have for basename
         if [[ ! $cspec && $cmd == */* ]]; then
-            cspec=$(complete -p ${cmd##*/} 2>/dev/null)
+            cspec=$(complete -p "${cmd##*/}" 2>/dev/null)
             [[ $cspec ]] && compcmd=${cmd##*/}
         fi
         # If still nothing, just load it for the basename
         if [[ ! $cspec ]]; then
             compcmd=${cmd##*/}
-            _completion_loader $compcmd
-            cspec=$(complete -p $compcmd 2>/dev/null)
+            _completion_loader "$compcmd"
+            cspec=$(complete -p "$compcmd" 2>/dev/null)
         fi
 
         if [[ -n $cspec ]]; then
@@ -2053,9 +2053,9 @@ _command_offset()
                 func=${func%% *}
 
                 if ((${#COMP_WORDS[@]} >= 2)); then
-                    $func $cmd "${COMP_WORDS[-1]}" "${COMP_WORDS[-2]}"
+                    $func "$cmd" "${COMP_WORDS[-1]}" "${COMP_WORDS[-2]}"
                 else
-                    $func $cmd "${COMP_WORDS[-1]}"
+                    $func "$cmd" "${COMP_WORDS[-1]}"
                 fi
 
                 # restore initial compopts
