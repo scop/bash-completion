@@ -125,7 +125,7 @@ have()
 #
 _rl_enabled()
 {
-    [[ "$(bind -v)" == *$1+([[:space:]])on* ]]
+    [[ $(bind -v) == *$1+([[:space:]])on* ]]
 }
 
 # This function shell-quotes the argument
@@ -201,7 +201,7 @@ _upvars()
                     return 1
                 }
                 # Assign array of -aN elements
-                [[ "$2" ]] && unset -v "$2" && eval $2=\(\"\$"{@:3:${1#-a}}"\"\) &&
+                [[ $2 ]] && unset -v "$2" && eval $2=\(\"\$"{@:3:${1#-a}}"\"\) &&
                     shift $((${1#-a} + 2)) || {
                     echo bash_completion: \
                         "$FUNCNAME: \`$1${2+ }$2': missing argument(s)" \
@@ -211,7 +211,7 @@ _upvars()
                 ;;
             -v)
                 # Assign single value
-                [[ "$2" ]] && unset -v "$2" && eval $2=\"\$3\" &&
+                [[ $2 ]] && unset -v "$2" && eval $2=\"\$3\" &&
                     shift 3 || {
                     echo "bash_completion: $FUNCNAME: $1:" \
                         "missing argument(s)" >&2
@@ -315,7 +315,7 @@ __get_cword_at_cursor_by_ref()
             while [[ ${#cur} -ge ${#words[i]} &&
                 ${cur:0:${#words[i]}} != "${words[i]-}" ]]; do
                 # Strip first character
-                cur="${cur:1}"
+                cur=${cur:1}
                 # Decrease cursor position, staying >= 0
                 ((index > 0)) && ((index--))
             done
@@ -324,7 +324,7 @@ __get_cword_at_cursor_by_ref()
             if ((i < cword)); then
                 # No, cword lies further;
                 local old_size=${#cur}
-                cur="${cur#"${words[i]}"}"
+                cur=${cur#"${words[i]}"}
                 local new_size=${#cur}
                 ((index -= old_size - new_size))
             fi
@@ -450,14 +450,14 @@ _get_cword()
         : # nothing
     else
         local i
-        local cur="$COMP_LINE"
-        local index="$COMP_POINT"
+        local cur=$COMP_LINE
+        local index=$COMP_POINT
         for ((i = 0; i <= cword; ++i)); do
             # Current word fits in $cur, and $cur doesn't match cword?
             while [[ ${#cur} -ge ${#words[i]} &&
                 ${cur:0:${#words[i]}} != "${words[i]}" ]]; do
                 # Strip first character
-                cur="${cur:1}"
+                cur=${cur:1}
                 # Decrease cursor position, staying >= 0
                 ((index > 0)) && ((index--))
             done
@@ -465,9 +465,9 @@ _get_cword()
             # Does found word match cword?
             if ((i < cword)); then
                 # No, cword lies further;
-                local old_size="${#cur}"
-                cur="${cur#${words[i]}}"
-                local new_size="${#cur}"
+                local old_size=${#cur}
+                cur=${cur#${words[i]}}
+                local new_size=${#cur}
                 ((index -= old_size - new_size))
             fi
         done
@@ -637,8 +637,8 @@ _split_longopt()
     if [[ $cur == --?*=* ]]; then
         # Cut also backslash before '=' in case it ended up there
         # for some reason.
-        prev="${cur%%?(\\)=*}"
-        cur="${cur#*=}"
+        prev=${cur%%?(\\)=*}
+        cur=${cur#*=}
         return 0
     fi
 
@@ -847,7 +847,7 @@ _init_completion()
                 esac
                 ;;
         esac
-        cur="${cur##$redir}"
+        cur=${cur##$redir}
         _filedir $xspec
         return 1
     fi
@@ -1415,7 +1415,7 @@ _usergroup()
         local prefix
         prefix=${cur%%*([^:])}
         prefix=${prefix//\\/}
-        local mycur="${cur#*[:]}"
+        local mycur=${cur#*[:]}
         if [[ ${1-} == -u ]]; then
             _allowed_groups "$mycur"
         else
@@ -1427,7 +1427,7 @@ _usergroup()
         # Completing group after 'user:gr<TAB>'.
         # Reply with a list of unprefixed groups since readline with split on :
         # and only replace the 'gr' part
-        local mycur="${cur#*:}"
+        local mycur=${cur#*:}
         if [[ ${1-} == -u ]]; then
             _allowed_groups "$mycur"
         else
@@ -1833,9 +1833,9 @@ _known_hosts_real()
                         # Skip hosts containing wildcards
                         [[ $host == *[*?]* ]] && continue
                         # Remove leading [
-                        host="${host#[}"
+                        host=${host#[}
                         # Remove trailing ] + optional :port
-                        host="${host%]?(:+([0-9]))}"
+                        host=${host%]?(:+([0-9]))}
                         # Add host to candidates
                         COMPREPLY+=($host)
                     done
@@ -1944,7 +1944,7 @@ _cd()
     # we have a CDPATH, so loop on its contents
     for i in ${CDPATH//:/$'\n'}; do
         # create an array of matched subdirs
-        k="${#COMPREPLY[@]}"
+        k=${#COMPREPLY[@]}
         for j in $(compgen -d -- $i/$cur); do
             if [[ ($mark_symdirs && -L $j || $mark_dirs && ! -L $j) && ! -d ${j#$i/} ]]; then
                 j+="/"
@@ -2305,7 +2305,7 @@ __load_completion()
 
     local backslash=
     if [[ $cmd == \\* ]]; then
-        cmd="${cmd:1}"
+        cmd=${cmd:1}
         # If we already have a completion for the "real" command, use it
         $(complete -p "$cmd" 2>/dev/null || echo false) "\\$cmd" && return 0
         backslash=\\
@@ -2336,7 +2336,7 @@ __load_completion()
 _completion_loader()
 {
     # $1=_EmptycmD_ already for empty cmds in bash 4.3, set to it for earlier
-    local cmd="${1:-_EmptycmD_}"
+    local cmd=${1:-_EmptycmD_}
 
     __load_completion "$cmd" && return 124
 
