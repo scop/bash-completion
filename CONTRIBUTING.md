@@ -135,7 +135,7 @@ Also, please bear the following coding guidelines in mind:
   `--something` do the same thing and require an argument, offer only
   `--something` as a completion when completing option names starting
   with a dash, but do implement required argument processing for all
-  `-s`, `-S`, and `--something`.  Note that GNU versions of various
+  `-s`, `-S`, and `--something`. Note that GNU versions of various
   standard commands tend to have long options while other userland
   implementations of the same commands may not have them, and it would
   be good to have the completions work for as many userlands as
