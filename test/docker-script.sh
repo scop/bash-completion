@@ -8,7 +8,7 @@ fi
 export bashcomp_bash=bash
 env
 
-oldpwd="$(pwd)"
+oldpwd=$(pwd)
 cp -a . /work
 cd /work
 
