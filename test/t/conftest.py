@@ -755,16 +755,22 @@ def assert_complete(
         bash.send(cmd + "\t")
         # Sleep a bit if requested, to avoid `.*` matching too early
         time.sleep(kwargs.get("sleep_after_tab", 0))
-        bash.expect_exact(kwargs.get("rendered_cmd", cmd))
+        rendered_cmd = kwargs.get("rendered_cmd", cmd)
+        bash.expect_exact(rendered_cmd)
         bash.send(MAGIC_MARK)
         got = bash.expect(
             [
                 # 0: multiple lines, result in .before
-                r"\r\n" + re.escape(PS1 + cmd) + ".*" + re.escape(MAGIC_MARK),
+                r"\r\n"
+                + re.escape(PS1 + rendered_cmd)
+                + ".*"
+                + re.escape(MAGIC_MARK),
                 # 1: no completion
                 r"^" + re.escape(MAGIC_MARK),
                 # 2: on same line, result in .match
                 r"^([^\r]+)%s$" % re.escape(MAGIC_MARK),
+                # 3: error messages
+                r"^([^\r].*)%s$" % re.escape(MAGIC_MARK),
                 pexpect.EOF,
                 pexpect.TIMEOUT,
             ]
@@ -777,6 +783,9 @@ def assert_complete(
         elif got == 2:
             output = bash.match.group(1)
             return CompletionResult(output)
+        elif got == 3:
+            output = bash.match.group(1)
+            raise AssertionError("Unexpected output: [%s]" % output)
         else:
             # TODO: warn about EOF/TIMEOUT?
             return CompletionResult()
