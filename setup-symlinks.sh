@@ -1,8 +1,8 @@
 #!/bin/sh -eu
 
-targetdir="$1"
+targetdir=$1
 shift
-target="$1"
+target=$1
 shift
 
 for file in "$@"; do
