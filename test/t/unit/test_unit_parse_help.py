@@ -94,6 +94,20 @@ class TestUnitParseHelp:
         output = assert_bash_exec(bash, "_parse_help fn", want_output=True)
         assert output.split() == "--foo".split()
 
+    def test_17_failglob(self, bash):
+        assert_bash_exec(bash, "fn() { echo '--foo[=bar]'; }")
+        with bash_env_saved(bash) as bash_env:
+            bash_env.shopt("failglob", True)
+            output = assert_bash_exec(bash, "_parse_help fn", want_output=True)
+        assert output.split() == "--foo".split()
+
+    def test_17_nullglob(self, bash):
+        assert_bash_exec(bash, "fn() { echo '--foo[=bar]'; }")
+        with bash_env_saved(bash) as bash_env:
+            bash_env.shopt("nullglob", True)
+            output = assert_bash_exec(bash, "_parse_help fn", want_output=True)
+        assert output.split() == "--foo".split()
+
     def test_18(self, bash):
         assert_bash_exec(bash, "fn() { echo '--foo=<bar>'; }")
         output = assert_bash_exec(bash, "_parse_help fn", want_output=True)
