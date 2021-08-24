@@ -5,12 +5,15 @@ _aspell_dictionary()
     local datadir aspell=${1:-aspell}
     datadir=$($aspell config data-dir 2>/dev/null || echo /usr/lib/aspell)
     # First, get aliases (dicts dump does not list them)
-    COMPREPLY=($(printf '%s\n' $datadir/*.alias))
-    COMPREPLY=("${COMPREPLY[@]%.alias}")
-    COMPREPLY=("${COMPREPLY[@]#$datadir/}")
+    COMPREPLY=($datadir/*.alias)
+    if ((${#COMPREPLY[@]})); then
+        COMPREPLY=("${COMPREPLY[@]%.alias}")
+        COMPREPLY=("${COMPREPLY[@]#$datadir/}")
+    fi
     # Then, add the canonical dicts
     COMPREPLY+=($($aspell dicts 2>/dev/null))
-    COMPREPLY=($(compgen -X '\*' -W '${COMPREPLY[@]}' -- "$cur"))
+    ((${#COMPREPLY[@]})) &&
+        COMPREPLY=($(compgen -X '\*' -W '"${COMPREPLY[@]}"' -- "$cur"))
 }
 
 _aspell()

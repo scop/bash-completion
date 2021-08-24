@@ -10,7 +10,7 @@ _ssh_keygen()
             return
             ;;
         -*b)
-            local -a sizes
+            local -a sizes=()
             case "${words[*]}" in
                 *" -t dsa"?( *))
                     sizes=(1024)
@@ -22,7 +22,8 @@ _ssh_keygen()
                     sizes=(1024 2048 3072 4096)
                     ;;
             esac
-            COMPREPLY=($(compgen -W '${sizes[@]}' -- "$cur"))
+            ((${#sizes[@]})) &&
+                COMPREPLY=($(compgen -W '"${sizes[@]}"' -- "$cur"))
             return
             ;;
         -*E)
@@ -50,7 +51,8 @@ _ssh_keygen()
             [[ ${words[*]} != *\ -*Y\ * ]] || return
             if [[ ${words[*]} == *\ -*h\ * ]]; then
                 _known_hosts_real -- "${cur##*,}"
-                _comp_delimited , -W '${COMPREPLY[@]}'
+                ((${#COMPREPLY[@]})) &&
+                    _comp_delimited , -W '"${COMPREPLY[@]}"'
             else
                 _comp_delimited , -u
             fi

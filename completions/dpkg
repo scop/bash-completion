@@ -132,10 +132,12 @@ _dpkg_reconfigure()
 
     case $prev in
         --frontend | -!(-*)f)
-            opt=($(printf '%s\n' /usr/share/perl5/Debconf/FrontEnd/*))
-            opt=(${opt[@]##*/})
-            opt=(${opt[@]%.pm})
-            COMPREPLY=($(compgen -W '${opt[@]}' -- "$cur"))
+            opt=(/usr/share/perl5/Debconf/FrontEnd/*)
+            if ((${#opt[@]})); then
+                opt=(${opt[@]##*/})
+                opt=(${opt[@]%.pm})
+                COMPREPLY=($(compgen -W '${opt[@]}' -- "$cur"))
+            fi
             return
             ;;
         --priority | -!(-*)p)

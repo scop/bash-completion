@@ -58,7 +58,17 @@ _man()
     fi
 
     local manpath=$(manpath 2>/dev/null || command man -w 2>/dev/null)
-    [[ -z $manpath ]] && manpath="/usr/share/man:/usr/local/share/man"
+    if [[ -z $manpath ]]; then
+        # Note: Both "manpath" and "man -w" may be unavailable, in
+        # which case we determine the man paths based on the
+        # environment variable MANPATH.
+        manpath=:${MANPATH-}:
+        # Note: An empty path (represented by two consecutive colons
+        # or a preceding/trailing colon) represents the system man
+        # paths.
+        manpath=${manpath//::/':/usr/share/man:/usr/local/share/man:'}
+        manpath=${manpath:1:-1}
+    fi
 
     # determine manual section to search
     local sect
@@ -84,8 +94,10 @@ _man()
         # weed out directory path names and paths to man pages
         COMPREPLY=(${COMPREPLY[@]##*/?(:)})
         # strip suffix from man pages
-        COMPREPLY=(${COMPREPLY[@]%$comprsuffix})
-        COMPREPLY=($(compgen -W '${COMPREPLY[@]%.*}' -- "${cur//\\\\/}"))
+        ((${#COMPREPLY[@]})) &&
+            COMPREPLY=(${COMPREPLY[@]%$comprsuffix})
+        ((${#COMPREPLY[@]})) &&
+            COMPREPLY=($(compgen -W '"${COMPREPLY[@]%.*}"' -- "${cur//\\\\/}"))
     fi
 
     # shellcheck disable=SC2053
