@@ -75,6 +75,17 @@ jobs:
         env:
           DIST: ${{matrix.dist}}
           NETWORK: ${{matrix.network}}
+      - run: |
+          set -x
+          upload_url="${{steps.release.outputs.upload_url}}"
+          tarball="bash-completion-$(cat version.txt).tar.xz"
+          curl \
+            --header "Authorization: Bearer ${{secrets.GITHUB_TOKEN}}" \
+            --header "Accept: application/vnd.github.v3+json" \
+            --header "Content-Type: application/x-xz-compressed-tar" \
+            --data-binary "@$tarball" \
+            "${upload_url%{*}?name=$tarball"
+        if: ${{steps.release.outputs.release_created}}
       - uses: actions/upload-artifact@v2
         with:
           path: bash-completion-*.tar.xz
