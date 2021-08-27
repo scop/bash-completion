@@ -1,38 +1,52 @@
 #!/usr/bin/env python3
 
-import sys
-from collections import defaultdict
-from email.utils import formatdate
-from textwrap import wrap
-from typing import Dict, List
+from datetime import date
 
 import git  # type: ignore[import]
 
 repo = git.Repo(".")
-changelog: Dict[str, List[str]] = defaultdict(list)
+current_tag_name = None
+previous_tag_name = None
 
-if len(sys.argv) != 2:
-    print("Usage: %s SINCE-TAG" % __file__, file=sys.stderr)
-    sys.exit(2)
-
-for id in repo.iter_commits("%s..HEAD" % sys.argv[1]):
-    commit = repo.commit(id)
-    if not commit.summary.startswith("Merge pull request "):
-        changelog[commit.author.name].append(commit.summary)
-
-print("bash-completion (X.Y)")
-print("")
-
-for author in sorted(changelog.keys()):
-    print("  [ %s ]" % author)
-    for log in changelog[author]:
+for tag in list(
+    sorted(repo.tags, key=lambda tag: -tag.commit.committed_date)
+) + [None]:
+    if tag:
+        current_tag_name = tag.name
+        current_tag_date = str(date.fromtimestamp(tag.commit.committed_date))
+    else:
+        current_tag_name = "49e7b957815a3ba0972c4a0d979132d6e7a549c6"
+        current_tag_date = "2000-08-08"
+    if "-alt" in current_tag_name:
+        continue
+    if not previous_tag_name:
+        previous_tag_name = current_tag_name
+        previous_tag_date = current_tag_date
+        continue
+    if previous_tag_name.startswith("rel200"):
+        datestamp = ""
+    else:
+        datestamp = f" ({previous_tag_date})"
+    print(
+        "## %s%s"
+        % (
+            previous_tag_name.lstrip("rel"),
+            datestamp,
+        )
+    )
+    print("")
+    for commit in reversed(
+        list(repo.iter_commits(f"{current_tag_name}..{previous_tag_name}"))
+    ):
+        message = commit.message.strip().splitlines()[0].lstrip(" -*")
         print(
-            "\n".join(
-                wrap(log, initial_indent="  * ", subsequent_indent="    ")
+            "* %s ([%s](https://www.github.com/scop/bash-completion/commit/%s))"
+            % (
+                message,
+                commit.hexsha[:7],
+                commit.hexsha,
             )
         )
     print("")
-
-print(
-    " -- Ville Skyttä <ville.skytta@iki.fi>  %s" % formatdate(localtime=True)
-)
+    previous_tag_name = current_tag_name
+    previous_tag_date = current_tag_date
