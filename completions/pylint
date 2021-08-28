@@ -5,11 +5,18 @@ _comp_cmd_pylint_message_ids()
     local filter=p
     [[ ${2-} ]] && filter="/^$2 messages/,/^$/p"
     # 6: arbitrary, assumed no ids shorter than that
-    _comp_delimited , -W "$(
+    # TODO(scop): The fallback here is slow, maybe memoize whether
+    #   --list-msgs-enabled worked (>= 2.4.0) and avoid unnecessary tries
+    #   again later?
+    local msgs="$(
+        set -o pipefail
         ${1:-pylint} --list-msgs-enabled 2>/dev/null |
             command sed -ne "$filter" |
-            command sed -ne 's/^[[:space:]]\{1,\}\([a-z-]\{6,\}\).*/\1/p'
+            command sed -ne 's/^[[:space:]]\{1,\}\([a-z-]\{6,\}\).*/\1/p' ||
+            ${1:-pylint} --list-msgs 2>/dev/null |
+            command sed -ne 's/^:\([a-z-]\{6,\}\).*/\1/p'
     )"
+    _comp_delimited , -W "$msgs"
 }
 
 _pylint()
