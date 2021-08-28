@@ -28,7 +28,7 @@ cmakeconfig_DATA = bash-completion-config.cmake \
 CLEANFILES = bash_completion.sh bash-completion.pc \
 	bash-completion-config.cmake bash-completion-config-version.cmake
 
-EXTRA_DIST = CHANGES $(pkgdata_DATA) bash_completion.sh.in .dir-locals.el \
+EXTRA_DIST = CHANGELOG.md $(pkgdata_DATA) bash_completion.sh.in .dir-locals.el \
 	.editorconfig README.md CONTRIBUTING.md pyproject.toml .perltidyrc \
 	.shellcheckrc bash-completion.pc.in bash-completion-config.cmake.in \
 	bash-completion-config-version.cmake.in setup-symlinks.sh
