@@ -23,11 +23,13 @@ jobs:
         with:
           path: ~/.cache/pre-commit
           key: pre-commit-${{hashFiles('.pre-commit-config.yaml')}}
-      - run: |
+      - name: Install dependencies
+        run: |
           python3 -m venv venv  # for venv-run
           source venv/bin/activate
           python3 -m pip install -Ur test/requirements-dev.txt
-      - run: |
+      - name: Run checks
+        run: |
           source venv/bin/activate
 
           # Commit message checks
@@ -92,7 +94,8 @@ jobs:
           release-type: simple
         id: release
         if: ${{matrix.dist == 'alpine'}}
-      - run: |
+      - name: Do release preparations
+        run: |
           version=$(cat version.txt)
           sed -i -re "s/^(BASH_COMPLETION_VERSINFO=).*/\\1(${version//./ })/" bash_completion
           sed -i -re "s/^(AC_INIT\(.*\[)[0-9.]+(\].*)/\\1$version\\2/" configure.ac
@@ -108,7 +111,8 @@ jobs:
       # without changing the actual home dir that can cause some problems,
       # and does not provide a way to run with --network none.
       # fedoradev unconfined: https://bugzilla.redhat.com/1900021
-      - run: >-
+      - name: Run main build
+        run: >-
           docker run
           --rm
           --tty
@@ -126,7 +130,8 @@ jobs:
         env:
           DIST: ${{matrix.dist}}
           NETWORK: ${{matrix.network}}
-      - run: |
+      - name: Upload release assets
+        run: |
           set -x
           upload_url="${{steps.release.outputs.upload_url}}"
           tarball="bash-completion-$(cat version.txt).tar.xz"
