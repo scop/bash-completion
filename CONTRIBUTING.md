@@ -157,6 +157,11 @@ Also, please bear the following coding guidelines in mind:
   to format commit messages, with types and most other details from
   [commitlint's config-conventional](https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional).
 
+  It is important to do this correctly; commit types `fix` and `feat`
+  as well as any change marked as breaking affects what ends up in the
+  release notes, and what will the next bash-completion release's
+  (semantic) version be.
+
 - If your code was written for a particular platform, try to make it
   portable to other platforms, so that everyone may enjoy it. If your
   code works only with the version of a binary on a particular
