@@ -19,11 +19,15 @@ jobs:
         with:
           path: ~/.cache/pip
           key: pip-${{hashFiles('test/requirements*.txt')}}
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{hashFiles('.pre-commit-config.yaml')}}
       - run: |
           python3 -m venv venv  # for venv-run
           source venv/bin/activate
           python3 -m pip install -Ur test/requirements-dev.txt
-      - uses: pre-commit/action@v2.0.3
+          pre-commit run --color=always --all-files
 
   distcheck:
     runs-on: ubuntu-latest
