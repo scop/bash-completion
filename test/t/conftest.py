@@ -808,6 +808,9 @@ def completion(request, bash: pexpect.spawn) -> CompletionResult:
             marker.kwargs["require_cmd"] = True
         if "xfail" not in marker.kwargs:
             marker.kwargs["xfail"] = (
+                # --help is required to exit with zero in order to not get a
+                # positive for cases where it errors out with a message like
+                # "foo: unrecognized option '--help'"
                 "! %s --help &>/dev/null || "
                 "! %s --help 2>&1 | command grep -qF -- --help"
             ) % ((cmd,) * 2)
