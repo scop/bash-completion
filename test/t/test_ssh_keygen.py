@@ -7,6 +7,18 @@ class TestSshKeygen:
     def test_1(self, completion):
         assert completion
 
+    @pytest.mark.complete(
+        "ssh-keygen -", require_cmd=True, shopt=dict(failglob=True)
+    )
+    def test_1_failglob(self, completion):
+        assert completion
+
+    @pytest.mark.complete(
+        "ssh-keygen -", require_cmd=True, shopt=dict(nullglob=True)
+    )
+    def test_1_nullglob(self, completion):
+        assert completion
+
     @pytest.mark.complete("ssh-keygen -s foo_key ssh-copy-id/.ssh/")
     def test_filedir_pub_at_end_of_s(self, completion):
         assert completion
