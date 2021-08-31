@@ -6,12 +6,6 @@ class TestNproc:
     def test_1(self, completion):
         assert not completion
 
-    @pytest.mark.complete(
-        "nproc --",
-        xfail=(
-            "! nproc --help &>/dev/null || "
-            "! nproc --help 2>&1 | command grep -qF -- --help"
-        ),
-    )
+    @pytest.mark.complete("nproc --", require_longopt=True)
     def test_2(self, completion):
         assert completion
