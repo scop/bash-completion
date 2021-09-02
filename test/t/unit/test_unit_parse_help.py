@@ -2,7 +2,7 @@
 
 import pytest
 
-from conftest import assert_bash_exec
+from conftest import assert_bash_exec, bash_env_saved
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+declare -f fn$")
@@ -181,3 +181,33 @@ class TestUnitParseHelp:
         )
         output = assert_bash_exec(bash, "_parse_help fn", want_output=True)
         assert output.split() == "--exclude=".split()
+
+    def test_custom_helpopt1(self, bash):
+        assert_bash_exec(bash, "fn() { [[ $1 == -h ]] && echo '-option'; }")
+        output = assert_bash_exec(bash, "_parse_help fn -h", want_output=True)
+        assert output.split() == "-option".split()
+
+    def test_custom_helpopt2(self, bash):
+        assert_bash_exec(bash, "fn() { [[ $1 == '-?' ]] && echo '-option'; }")
+        output = assert_bash_exec(
+            bash, "_parse_help fn '-?'", want_output=True
+        )
+        assert output.split() == "-option".split()
+
+    def test_custom_helpopt2_failglob(self, bash):
+        assert_bash_exec(bash, "fn() { [[ $1 == '-?' ]] && echo '-option'; }")
+        with bash_env_saved(bash) as bash_env:
+            bash_env.shopt("failglob", True)
+            output = assert_bash_exec(
+                bash, "_parse_help fn '-?'", want_output=True
+            )
+        assert output.split() == "-option".split()
+
+    def test_custom_helpopt2_nullglob(self, bash):
+        assert_bash_exec(bash, "fn() { [[ $1 == '-?' ]] && echo '-option'; }")
+        with bash_env_saved(bash) as bash_env:
+            bash_env.shopt("nullglob", True)
+            output = assert_bash_exec(
+                bash, "_parse_help fn '-?'", want_output=True
+            )
+        assert output.split() == "-option".split()
