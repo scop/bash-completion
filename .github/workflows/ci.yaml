@@ -93,7 +93,7 @@ jobs:
         with:
           release-type: simple
         id: release
-        if: ${{matrix.dist == 'alpine'}}
+        if: matrix.dist == 'alpine'
       - name: Do release preparations
         run: |
           version=$(cat version.txt)
@@ -105,7 +105,7 @@ jobs:
           git tag --force ${{steps.release.outputs.tag_name}}
           git push
           git push --tags --force
-        if: ${{steps.release.outputs.release_created}}
+        if: steps.release.outputs.release_created
       # A "container" workflow config would be cleaner here, but comes with
       # some restrictions/oddities: changes root's $HOME to /github/home
       # without changing the actual home dir that can cause some problems,
@@ -141,8 +141,8 @@ jobs:
             --header "Content-Type: application/x-xz-compressed-tar" \
             --data-binary "@$tarball" \
             "${upload_url%{*}?name=$tarball"
-        if: ${{steps.release.outputs.release_created}}
+        if: steps.release.outputs.release_created
       - uses: actions/upload-artifact@v2
         with:
           path: bash-completion-*.tar.xz
-        if: ${{matrix.dist == 'alpine'}}
+        if: matrix.dist == 'alpine'
