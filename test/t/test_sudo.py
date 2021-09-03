@@ -1,7 +1,6 @@
 import pytest
 
-from conftest import assert_bash_exec
-from conftest import assert_complete
+from conftest import assert_complete, assert_bash_exec
 
 
 class TestSudo:
@@ -84,11 +83,6 @@ class TestSudo:
         assert not completion
 
     def test_12(self, bash):
-        completion = assert_complete(bash, 'sudo "/tmp/aaa bbb" ')
-        output = assert_bash_exec(
-            bash, "complete -p aaa || true", want_output=True
-        )
-        assert output.endswith(
-            "bash: complete: aaa: no completion specification"
-        )
+        assert_complete(bash, 'sudo "/tmp/aaa bbb" ')
+        assert_bash_exec(bash, "! complete -p aaa", want_output=None)
 
