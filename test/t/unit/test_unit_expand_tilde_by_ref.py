@@ -12,7 +12,7 @@ class TestUnitExpandTildeByRef:
         """Test environment non-pollution, detected at teardown."""
         assert_bash_exec(
             bash,
-            '_x() { local aa="~"; __expand_tilde_by_ref aa; }; _x; unset _x',
+            '_x() { local aa="~"; __expand_tilde_by_ref aa; }; _x; unset -f _x',
         )
 
     @pytest.mark.parametrize("plain_tilde", (True, False))

@@ -11,10 +11,10 @@ gitgrep()
     fi
 }
 
-unset CDPATH
+unset -v CDPATH
 cd $(dirname "$0")/..
 
-cmdstart='(^|[[:space:]]|\()'
+cmdstart='(^|[[:space:];&|]|\()'
 filter_out=
 
 gitgrep $cmdstart"awk\b.*-F([[:space:]]|[[:space:]]*[\"'][^\"']{2,})" \
@@ -49,3 +49,5 @@ gitgrep '<<<' 'herestrings use temp files, use some other way'
 
 filter_out='^(test/|bash_completion\.sh)' gitgrep ' \[ ' \
     'use [[ ]] instead of [ ]'
+
+gitgrep $cmdstart'unset [^-]' 'Explicitly specify "unset -v/-f"'

@@ -13,7 +13,7 @@ class TestUnitPnames:
     def test_non_pollution(self, bash):
         """Test environment non-pollution, detected at teardown."""
         assert_bash_exec(
-            bash, "foo() { local cur=; _pnames; }; foo; unset foo"
+            bash, "foo() { local cur=; _pnames; }; foo; unset -f foo"
         )
 
     def test_something(self, bash):

@@ -131,7 +131,7 @@ def known_hosts(bash: pexpect.spawn) -> List[str]:
     output = assert_bash_exec(
         bash,
         '_known_hosts_real ""; '
-        r'printf "%s\n" "${COMPREPLY[@]}"; unset COMPREPLY',
+        r'printf "%s\n" "${COMPREPLY[@]}"; unset -v COMPREPLY',
         want_output=True,
     )
     return sorted(set(output.split()))

@@ -10,13 +10,15 @@ class TestUnitXinetdServices:
 
     def test_env_non_pollution(self, bash):
         """Test environment non-pollution, detected at teardown."""
-        assert_bash_exec(bash, "foo() { _xinetd_services; }; foo; unset foo")
+        assert_bash_exec(
+            bash, "foo() { _xinetd_services; }; foo; unset -f foo"
+        )
 
     def test_basic(self, bash):
         output = assert_bash_exec(
             bash,
-            "foo() { local BASHCOMP_XINETDDIR=$PWD/shared/bin;unset COMPREPLY; "
-            '_xinetd_services; printf "%s\\n" "${COMPREPLY[@]}"; }; foo; unset foo',
+            "foo() { local BASHCOMP_XINETDDIR=$PWD/shared/bin;unset -v COMPREPLY; "
+            '_xinetd_services; printf "%s\\n" "${COMPREPLY[@]}"; }; foo; unset -f foo',
             want_output=True,
         )
         assert sorted(output.split()) == ["arp", "ifconfig"]

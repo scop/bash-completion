@@ -716,13 +716,13 @@ _comp_delimited()
         existing=($cur)
         # Do not remove the last from existing if it's not followed by the
         # delimiter so we get space appended.
-        [[ ! $cur || $cur == *"$delimiter" ]] || unset "existing[${#existing[@]}-1]"
+        [[ ! $cur || $cur == *"$delimiter" ]] || unset -v "existing[${#existing[@]}-1]"
         IFS=$ifs
         if ((${#COMPREPLY[@]})); then
             for x in ${existing+"${existing[@]}"}; do
                 for i in "${!COMPREPLY[@]}"; do
                     if [[ $x == "${COMPREPLY[i]}" ]]; then
-                        unset "COMPREPLY[i]"
+                        unset -v 'COMPREPLY[i]'
                         continue 2 # assume no dupes in COMPREPLY
                     fi
                 done
@@ -765,7 +765,7 @@ _comp_variable_assignments()
             if ((${#COMPREPLY[@]})); then
                 for i in "${!COMPREPLY[@]}"; do
                     if [[ ${COMPREPLY[i]} == *.tab ]]; then
-                        unset 'COMPREPLY[i]'
+                        unset -v 'COMPREPLY[i]'
                         continue
                     elif [[ -d ${COMPREPLY[i]} ]]; then
                         COMPREPLY[i]+=/
@@ -1931,7 +1931,7 @@ _known_hosts_real()
         fi
         if [[ -v ipv4 || -v ipv6 ]]; then
             for i in "${!COMPREPLY[@]}"; do
-                [[ ${COMPREPLY[i]} ]] || unset -v "COMPREPLY[i]"
+                [[ ${COMPREPLY[i]} ]] || unset -v 'COMPREPLY[i]'
             done
         fi
     fi
@@ -2039,7 +2039,7 @@ _command_offset()
         COMP_WORDS[i]=${COMP_WORDS[i + word_offset]}
     done
     for ((i; i <= COMP_CWORD; i++)); do
-        unset 'COMP_WORDS[i]'
+        unset -v 'COMP_WORDS[i]'
     done
     ((COMP_CWORD -= word_offset))
 
@@ -2402,9 +2402,9 @@ user_completion=${BASH_COMPLETION_USER_FILE:-~/.bash_completion}
 unset user_completion
 
 unset -f have
-unset have
+unset -v have
 
 set $BASH_COMPLETION_ORIGINAL_V_VALUE
-unset BASH_COMPLETION_ORIGINAL_V_VALUE
+unset -v BASH_COMPLETION_ORIGINAL_V_VALUE
 
 # ex: filetype=sh

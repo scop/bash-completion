@@ -11,7 +11,7 @@ class TestUnitTilde:
     def test_2(self, bash):
         """Test environment non-pollution, detected at teardown."""
         assert_bash_exec(
-            bash, 'foo() { local aa="~"; _tilde "$aa"; }; foo; unset foo'
+            bash, 'foo() { local aa="~"; _tilde "$aa"; }; foo; unset -f foo'
         )
 
     def test_3(self, bash):

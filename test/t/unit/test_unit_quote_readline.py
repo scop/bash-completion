@@ -13,7 +13,7 @@ class TestUnitQuoteReadline:
     def test_env_non_pollution(self, bash):
         """Test environment non-pollution, detected at teardown."""
         assert_bash_exec(
-            bash, "foo() { quote_readline meh >/dev/null; }; foo; unset foo"
+            bash, "foo() { quote_readline meh >/dev/null; }; foo; unset -f foo"
         )
 
     def test_github_issue_189_1(self, bash):

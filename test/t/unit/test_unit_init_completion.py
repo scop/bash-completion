@@ -17,7 +17,7 @@ class TestUnitInitCompletion(TestUnitBase):
             "local cur prev words cword "
             "COMP_WORDS=() COMP_CWORD=0 COMP_LINE= COMP_POINT=0; "
             "_init_completion; }; "
-            "foo; unset foo",
+            "foo; unset -f foo",
         )
 
     def test_2(self, bash):

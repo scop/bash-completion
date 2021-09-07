@@ -10,7 +10,7 @@ class TestUnitExpand:
 
     def test_2(self, bash):
         """Test environment non-pollution, detected at teardown."""
-        assert_bash_exec(bash, "foo() { _expand; }; foo; unset foo")
+        assert_bash_exec(bash, "foo() { _expand; }; foo; unset -f foo")
 
     def test_user_home_compreply(self, bash, user_home):
         user, home = user_home
