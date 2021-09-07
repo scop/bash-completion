@@ -50,7 +50,7 @@ class TestUnitKnownHostsReal:
         output = assert_bash_exec(
             bash,
             "_known_hosts_real -a%sF _known_hosts_real/config '%s'; "
-            r'printf "%%s\n" "${COMPREPLY[@]}"; unset COMPREPLY'
+            r'printf "%%s\n" "${COMPREPLY[@]}"; unset -v COMPREPLY'
             % (colon_flag, prefix),
             want_output=True,
         )

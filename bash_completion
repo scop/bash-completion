@@ -39,7 +39,7 @@ fi
 
 # Blacklisted completions, causing problems with our code.
 #
-_blacklist_glob='@(acroread.sh)'
+_comp_init_blacklist_glob='@(acroread.sh)'
 
 # Turn on extended globbing and programmable completion
 shopt -s extglob progcomp
@@ -716,13 +716,13 @@ _comp_delimited()
         existing=($cur)
         # Do not remove the last from existing if it's not followed by the
         # delimiter so we get space appended.
-        [[ ! $cur || $cur == *"$delimiter" ]] || unset "existing[${#existing[@]}-1]"
+        [[ ! $cur || $cur == *"$delimiter" ]] || unset -v "existing[${#existing[@]}-1]"
         IFS=$ifs
         if ((${#COMPREPLY[@]})); then
             for x in ${existing+"${existing[@]}"}; do
                 for i in "${!COMPREPLY[@]}"; do
                     if [[ $x == "${COMPREPLY[i]}" ]]; then
-                        unset "COMPREPLY[i]"
+                        unset -v 'COMPREPLY[i]'
                         continue 2 # assume no dupes in COMPREPLY
                     fi
                 done
@@ -765,7 +765,7 @@ _comp_variable_assignments()
             if ((${#COMPREPLY[@]})); then
                 for i in "${!COMPREPLY[@]}"; do
                     if [[ ${COMPREPLY[i]} == *.tab ]]; then
-                        unset 'COMPREPLY[i]'
+                        unset -v 'COMPREPLY[i]'
                         continue
                     elif [[ -d ${COMPREPLY[i]} ]]; then
                         COMPREPLY[i]+=/
@@ -1387,13 +1387,19 @@ _service()
     fi
 } &&
     complete -F _service service
-_sysvdirs
-for svcdir in "${sysvdirs[@]}"; do
-    for svc in $svcdir/!($_backup_glob); do
-        [[ -x $svc ]] && complete -F _service $svc
+
+_comp_init_set_up_service_completions()
+{
+    local sysvdirs svc svcdir
+    _sysvdirs
+    for svcdir in "${sysvdirs[@]}"; do
+        for svc in $svcdir/!($_backup_glob); do
+            [[ -x $svc ]] && complete -F _service "$svc"
+        done
     done
-done
-unset svc svcdir sysvdirs
+}
+_comp_init_set_up_service_completions
+unset -f _comp_init_set_up_service_completions
 
 # This function completes on modules
 #
@@ -1931,7 +1937,7 @@ _known_hosts_real()
         fi
         if [[ -v ipv4 || -v ipv6 ]]; then
             for i in "${!COMPREPLY[@]}"; do
-                [[ ${COMPREPLY[i]} ]] || unset -v "COMPREPLY[i]"
+                [[ ${COMPREPLY[i]} ]] || unset -v 'COMPREPLY[i]'
             done
         fi
     fi
@@ -2039,7 +2045,7 @@ _command_offset()
         COMP_WORDS[i]=${COMP_WORDS[i + word_offset]}
     done
     for ((i; i <= COMP_CWORD; i++)); do
-        unset 'COMP_WORDS[i]'
+        unset -v 'COMP_WORDS[i]'
     done
     ((COMP_CWORD -= word_offset))
 
@@ -2382,29 +2388,29 @@ _xfunc()
 }
 
 # source compat completion directory definitions
-compat_dir=${BASH_COMPLETION_COMPAT_DIR:-/etc/bash_completion.d}
-if [[ -d $compat_dir && -r $compat_dir && -x $compat_dir ]]; then
-    for i in "$compat_dir"/*; do
-        [[ ${i##*/} != @($_backup_glob|Makefile*|$_blacklist_glob) &&
-            -f $i && -r $i ]] && . "$i"
+_comp_compat_dir=${BASH_COMPLETION_COMPAT_DIR:-/etc/bash_completion.d}
+if [[ -d $_comp_compat_dir && -r $_comp_compat_dir && -x $_comp_compat_dir ]]; then
+    for _comp_file in "$_comp_compat_dir"/*; do
+        [[ ${_comp_file##*/} != @($_backup_glob|Makefile*|$_comp_init_blacklist_glob) &&
+            -f $_comp_file && -r $_comp_file ]] && . "$_comp_file"
     done
 fi
-unset compat_dir i _blacklist_glob
+unset -v _comp_compat_dir _comp_file _comp_init_blacklist_glob
 
 # source user completion file
 #
 # Remark: We explicitly check that $user_completion is not '/dev/null' since
 #   /dev/null may be a regular file in broken systems and can contain arbitrary
 #   garbages of suppressed command outputs.
-user_completion=${BASH_COMPLETION_USER_FILE:-~/.bash_completion}
-[[ $user_completion != "${BASH_SOURCE[0]}" && $user_completion != /dev/null && -r $user_completion && -f $user_completion ]] &&
-    . $user_completion
-unset user_completion
+_comp_user_completion=${BASH_COMPLETION_USER_FILE:-~/.bash_completion}
+[[ $_comp_user_completion != "${BASH_SOURCE[0]}" && $_comp_user_completion != /dev/null && -r $_comp_user_completion && -f $_comp_user_completion ]] &&
+    . $_comp_user_completion
+unset -v _comp_user_completion
 
 unset -f have
-unset have
+unset -v have
 
 set $BASH_COMPLETION_ORIGINAL_V_VALUE
-unset BASH_COMPLETION_ORIGINAL_V_VALUE
+unset -v BASH_COMPLETION_ORIGINAL_V_VALUE
 
 # ex: filetype=sh

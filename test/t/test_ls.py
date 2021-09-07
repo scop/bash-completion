@@ -24,7 +24,7 @@ class TestLs:
             assert_bash_exec(
                 bash,
                 "for u in $(compgen -u); do "
-                "eval test -d ~$u || echo $u; unset u; done",
+                "eval test -d ~$u || echo $u; unset -v u; done",
                 want_output=True,
             )
             .strip()

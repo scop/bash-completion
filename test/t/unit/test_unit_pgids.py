@@ -12,7 +12,9 @@ class TestUnitPgids:
 
     def test_non_pollution(self, bash):
         """Test environment non-pollution, detected at teardown."""
-        assert_bash_exec(bash, "foo() { local cur=; _pgids; }; foo; unset foo")
+        assert_bash_exec(
+            bash, "foo() { local cur=; _pgids; }; foo; unset -f foo"
+        )
 
     def test_ints(self, bash):
         """Test that we get something, and only ints."""
