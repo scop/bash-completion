@@ -1387,13 +1387,19 @@ _service()
     fi
 } &&
     complete -F _service service
-_sysvdirs
-for svcdir in "${sysvdirs[@]}"; do
-    for svc in $svcdir/!($_backup_glob); do
-        [[ -x $svc ]] && complete -F _service $svc
+
+_comp_init_set_up_service_completions()
+{
+    local sysvdirs svc svcdir
+    _sysvdirs
+    for svcdir in "${sysvdirs[@]}"; do
+        for svc in $svcdir/!($_backup_glob); do
+            [[ -x $svc ]] && complete -F _service "$svc"
+        done
     done
-done
-unset svc svcdir sysvdirs
+}
+_comp_init_set_up_service_completions
+unset -f _comp_init_set_up_service_completions
 
 # This function completes on modules
 #
