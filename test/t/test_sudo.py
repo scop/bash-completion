@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import assert_complete
+from conftest import assert_bash_exec, assert_complete
 
 
 class TestSudo:
@@ -81,3 +81,7 @@ class TestSudo:
         part, _ = part_full_group
         completion = assert_complete(bash, "sudo chown foo:bar:%s" % part)
         assert not completion
+
+    def test_12(self, bash):
+        assert_complete(bash, 'sudo "/tmp/aaa bbb" ')
+        assert_bash_exec(bash, "! complete -p aaa", want_output=None)
