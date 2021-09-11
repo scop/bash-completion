@@ -260,6 +260,55 @@ _upvars()
     done
 }
 
+# Get the list of filenames that match with the specified glob pattern.
+# This function does the globbing in a controlled environment, avoiding
+# interference from user's shell options/settings or environment variables.
+# @param $1 array_name  Array name
+#   The array name should not start with the double underscores "__".  The
+#   array name should not be "GLOBIGNORE".
+# @param $2 pattern     Pattern string to be evaluated.
+#   This pattern string will be evaluated using "eval", so brace expansions,
+#   parameter expansions, command substitutions, and other expansions will be
+#   processed.  The user-provided strings should not be directly specified to
+#   this argument.
+_comp_expand_glob()
+{
+    if (($# != 2)); then
+        printf 'bash-completion: %s: unexpected number of arguments\n' "$FUNCNAME" >&2
+        printf 'usage: %s ARRAY_NAME PATTERN\n' "$FUNCNAME" >&2
+        return 2
+    elif [[ $1 == @(GLOBIGNORE|__*|*[^_a-zA-Z0-9]*|[0-9]*|'') ]]; then
+        printf 'bash-completion: %s: invalid array name "%s"\n' "$FUNCNAME" "$1" >&2
+        return 2
+    fi
+
+    # Save and adjust the settings.
+    local __original_opts=$SHELLOPTS:$BASHOPTS
+    set +o noglob
+    shopt -s nullglob
+    shopt -u failglob dotglob
+
+    # Also the user's GLOBIGNORE may affect the result of pathname expansions.
+    local GLOBIGNORE=
+
+    eval -- "$1=()" # a fallback in case that the next line fails.
+    eval -- "$1=($2)"
+
+    # Restore the settings.  Note: Changing GLOBIGNORE affects the state of
+    # "shopt -q dotglob", so we need to explicitly restore the original state
+    # of "shopt -q dotglob".
+    _comp_unlocal GLOBIGNORE
+    if [[ :$__original_opts: == *:dotglob:* ]]; then
+        shopt -s dotglob
+    else
+        shopt -u dotglob
+    fi
+    [[ :$__original_opts: == *:nullglob:* ]] || shopt -u nullglob
+    [[ :$__original_opts: == *:failglob:* ]] && shopt -s failglob
+    [[ :$__original_opts: == *:noglob:* ]] && set -o noglob
+    return 0
+}
+
 # Reassemble command line words, excluding specified characters from the
 # list of word completion separators (COMP_WORDBREAKS).
 # @param $1 chars  Characters out of $COMP_WORDBREAKS which should
