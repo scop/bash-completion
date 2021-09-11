@@ -1984,10 +1984,11 @@ _service()
 
 _comp__init_set_up_service_completions()
 {
-    local sysvdirs svc svcdir
+    local sysvdirs svc svcdir svcs
     _comp_sysvdirs &&
         for svcdir in "${sysvdirs[@]}"; do
-            for svc in "$svcdir"/!($_comp_backup_glob); do
+            _comp_expand_glob svcs '"$svcdir"/!($_comp_backup_glob)'
+            for svc in "${svcs[@]}"; do
                 [[ -x $svc ]] && complete -F _service "$svc"
             done
         done
