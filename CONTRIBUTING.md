@@ -156,6 +156,8 @@ Also, please bear the following coding guidelines in mind:
 - We use [Conventional Commits](https://www.conventionalcommits.org/)
   to format commit messages, with types and most other details from
   [commitlint's config-conventional](https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional).
+  `gitlint` in our pre-commit config checks commit messages for
+  conformance with these rules.
 
   It is important to do this correctly; commit types `fix` and `feat`
   as well as any change marked as breaking affects what ends up in the
