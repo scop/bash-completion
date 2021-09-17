@@ -51,13 +51,15 @@ jobs:
               jq '[.[] | {id: .sha, message: .commit.message}]' >"$commits_json"
           fi
 
+          git config user.name $(git log -1 --format=format:%an)
+          git config user.email $(git log -1 --format=format:%ae)
           rc=0
           for id in $(jq --raw-output '.[].id' <"$commits_json"); do
             jq --raw-output ".[] | select(.id==\"$id\") | .message" \
               <"$commits_json" >"$commit_txt"
             echo "Linting commit $id message..."
             set +e
-            pre-commit run commitlint \
+            pre-commit run gitlint \
               --color=always \
               --hook-stage=commit-msg \
               --commit-msg-filename="$commit_txt"
