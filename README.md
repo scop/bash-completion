@@ -90,13 +90,7 @@ tracing on in it before doing anything else there.
 
 ## Known problems
 
-1. There seems to be some issue with using the bash built-in `cd` within
-   Makefiles. When invoked as `/bin/sh` within `Makefile`s, bash seems
-   to have a problem changing directory via the `cd` command. A
-   work-around for this is to define `SHELL=/bin/bash` within your
-   `Makefile`. This is believed to be a bug in bash.
-
-2. Many of the completion functions assume GNU versions of the various
+1. Many of the completion functions assume GNU versions of the various
    text utilities that they call (e.g. `grep`, `sed`, and `awk`). Your
    mileage may vary.
 
