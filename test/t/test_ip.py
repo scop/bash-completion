@@ -10,6 +10,6 @@ class TestIp:
     def test_2(self, completion):
         assert completion
 
-    @pytest.mark.complete("ip route replace ")
+    @pytest.mark.complete("ip route replace ", require_cmd=True)
     def test_r_r(self, completion):
         assert completion
