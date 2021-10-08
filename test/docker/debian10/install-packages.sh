@@ -97,6 +97,7 @@ cd /
 curl --fail https://software.jaos.org/slackpacks/slackware64-14.2/slapt-get/slapt-get-0.11.3-x86_64-1.txz |
     tar xvJ
 bash -x install/doinst.sh
+mkdir -p var/lib/pkgtools/packages # 0.11.3 --available empty without this dir
 rm -r install
 curl --fail https://software.jaos.org/slackpacks/slackware64-14.2/slapt-src/slapt-src-0.3.6-x86_64-1.txz |
     tar xvJ
