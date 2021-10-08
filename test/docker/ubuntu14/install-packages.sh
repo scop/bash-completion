@@ -13,17 +13,9 @@ apt-get -y upgrade
 
 apt-get -y --no-install-recommends install \
     apt-file \
-    curl \
     software-properties-common
 
 apt-add-repository multiverse
-
-curl -sL https://deb.nodesource.com/setup_8.x | bash -
-apt-get -y --no-install-recommends install \
-    nodejs
-
-npm install -g jshint
-npm cache clean --force
 
 apt-file update
 
