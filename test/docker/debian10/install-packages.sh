@@ -94,14 +94,13 @@ rm -r one-true-awk
 # Install slapt-get and slapt-src
 
 cd /
-curl --fail https://software.jaos.org/slackpacks/slackware64-14.2/slapt-get/slapt-get-0.10.2t-x86_64-1.tgz |
-    tar xvz
+curl --fail https://software.jaos.org/slackpacks/slackware64-14.2/slapt-get/slapt-get-0.11.3-x86_64-1.txz |
+    tar xvJ
 bash -x install/doinst.sh
 rm -r install
-curl --fail https://software.jaos.org/slackpacks/slackware64-14.2/slapt-src/slapt-src-0.3.2i-x86_64-1.tgz |
-    tar xvz
-# Exit status ignore: https://github.com/jaos/slapt-src/issues/4
-bash -x install/doinst.sh || :
+curl --fail https://software.jaos.org/slackpacks/slackware64-14.2/slapt-src/slapt-src-0.3.6-x86_64-1.txz |
+    tar xvJ
+bash -x install/doinst.sh
 rm -r install
 cp -a usr/lib64/* usr/lib/
 ln -s libcrypto.so.1.1 usr/lib/x86_64-linux-gnu/libcrypto.so.1
