@@ -490,6 +490,7 @@ EXTRA_DIST = \
 	test_pyflakes.py \
 	test_pylint.py \
 	test_pylint_3.py \
+	test_pyston.py \
 	test_pytest.py \
 	test_python.py \
 	test_python3.py \
