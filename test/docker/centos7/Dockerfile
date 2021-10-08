@@ -1,4 +1,4 @@
-FROM centos:7
+FROM centos:8
 
 RUN set -x \
     && sed -i -e /tsflags=nodocs/d /etc/yum.conf \
