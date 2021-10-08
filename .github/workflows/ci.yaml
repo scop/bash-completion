@@ -87,7 +87,9 @@ jobs:
           - dist: debian10
             bsd: true
             network: none
-          - dist: fedoradev
+          # fedoradev disabled until we have the image,
+          # see .github/workflows/update-docker-images.yml
+          #- dist: fedoradev
           - dist: ubuntu14
     steps:
       - uses: actions/checkout@v2
@@ -127,8 +129,8 @@ jobs:
           $(test $DIST = fedoradev && echo --security-opt seccomp=unconfined)
           --volume $PWD:/usr/src/bash-completion
           --workdir /usr/src/bash-completion
-          vskytta/bash-completion:${{matrix.dist}}
-          test/docker-script.sh
+          ghcr.io/scop/bash-completion/test:${{matrix.dist}}
+          test/docker/entrypoint.sh
         env:
           DIST: ${{matrix.dist}}
           NETWORK: ${{matrix.network}}
