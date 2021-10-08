@@ -1,18 +1,42 @@
 name: update-docker-images
 
+# Update Docker images when the set of commands required present for testing
+# change. This is not perfect as it would be good to have the new commands
+# installed already at PR time, and at least at time the change lands in the
+# default branch. That way it'd be tested immediately then with images
+# containing it, instead of later along with some other, completely unrelated
+# change.
+
+# TODO
 on:
   push:
-    paths:
-      - test/test-cmd-list.txt
+#    paths:
+#      - test/test-cmd-list.txt
 
 jobs:
-  update-docker-images:
+  update-test-image:
     runs-on: ubuntu-latest
-    if: github.repository_owner == 'scop' && github.ref == 'refs/heads/master'
+    if: github.repository_owner == 'scop' && github.ref == 'refs/heads/chore/ghcr'  # TODO master only
+    strategy:
+      matrix:
+        include:
+          - dist: alpine
+          - dist: centos7
+          - dist: debian10
+          # https://github.com/actions/virtual-environments/issues/4193
+          #- dist: fedoradev
+          - dist: ubuntu14
     steps:
-      - run: >-
-          curl
-          --silent --show-error
-          --header Content-Type:application/json
-          --data '{"build":true}'
-          "${{secrets.DOCKER_HUB_TRIGGER_URL}}"
+      - uses: actions/checkout@v2
+      - uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{github.repository_owner}}
+          password: ${{secrets.GITHUB_TOKEN}}
+      - uses: docker/build-push-action@v2
+        with:
+          context: test
+          file: test/docker/${{matrix.dist}}/Dockerfile
+          tags: |
+            ghcr.io/scop/bash-completion/test:${{matrix.dist}}
+          push: true
