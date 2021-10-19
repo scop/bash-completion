@@ -34,6 +34,10 @@ class TestPython3:
     def test_8(self, completion):
         assert completion
 
-    @pytest.mark.complete("python3 -m json.", require_cmd=True)
-    def test_9(self, completion):
-        assert "json.tool" in completion
+    @pytest.mark.complete(
+        "python3 -b",
+        require_cmd=True,
+        skipif="! python3 -h | command grep -qwF -- -bb",
+    )
+    def test_bb(self, completion):
+        assert "-bb" in completion
