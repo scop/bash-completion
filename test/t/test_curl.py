@@ -26,3 +26,8 @@ class TestCurl:
     def test_data_atfile_dir(self, completion):
         assert completion == "d/"
         assert not completion.endswith(" ")
+
+    @pytest.mark.complete("curl --dont-fail-in-unset-mode")
+    def test_unknown_option(self, completion):
+        # Just see that it does not error out
+        pass
