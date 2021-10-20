@@ -20,3 +20,8 @@ class TestAvahiBrowse:
     @pytest.mark.complete("avahi-browse -a _")
     def test_no_service_type_with_a(self, completion):
         assert not completion
+
+    @pytest.mark.complete("avahi-browse --dont-fail-in-unset-mode")
+    def test_unknown_option(self, completion):
+        # Just see that it does not error out
+        pass
