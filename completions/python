@@ -67,7 +67,9 @@ _python()
     elif [[ $cur != -* ]]; then
         _filedir '@(py?([cowz])|zip)'
     else
-        COMPREPLY=($(compgen -W '$(_parse_help "$1" -h)' -- "$cur"))
+        COMPREPLY=($(compgen -W \
+            '$("$1" -h | awk "{ sub(\"\\\(-bb:\",\"\n-bb \"); print }" |
+                         _parse_help -)' -- "$cur"))
     fi
 } &&
     complete -F _python python python2 python2.7 python3 python3.{3..11} \
