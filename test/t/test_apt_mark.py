@@ -32,3 +32,8 @@ class TestAptMark:
     @pytest.mark.complete("apt-mark --option ")
     def test_5(self, completion):
         assert not completion
+
+    @pytest.mark.complete("apt-mark --dont-fail-in-unset-mode")
+    def test_unknown_option(self, completion):
+        # Just see that it does not error out
+        pass
