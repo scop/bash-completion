@@ -563,6 +563,14 @@ _quote_readline_by_ref()
     fi
 } # _quote_readline_by_ref()
 
+# This function fetches the newest file in a directory.
+_filedir_newest()
+{
+    local parent=$(compgen -d -- ${1:0:-1})
+    newest=$(bash -c "ls -tr $parent | tail -n 1")
+    echo "$parent/$newest"
+} # _filedir_newest()
+
 # This function performs file and directory completion. It's better than
 # simply using 'compgen -f', because it honours spaces in filenames.
 # @param $1  If `-d', complete only on directories.  Otherwise filter/pick only
@@ -630,8 +638,7 @@ _filedir()
         # 2>/dev/null for direct invocation, e.g. in the _filedir unit test
         compopt -o filenames 2>/dev/null
         if [[ $newest -eq 1 ]]; then
-            newest=$(bash -c "ls -tr $cur | tail -n 1")
-            COMPREPLY+=("$cur$newest")
+            COMPREPLY+=($(_filedir_newest "$cur"))
         else
             COMPREPLY+=("${toks[@]}")
         fi
