@@ -1,5 +1,7 @@
 import pytest
 
+from conftest import assert_complete
+
 
 class TestUlimit:
     @pytest.mark.complete("ulimit ")
@@ -32,4 +34,9 @@ class TestUlimit:
     @pytest.mark.complete("ulimit -a -H -")
     def test_7(self, completion):
         """Test modes are NOT completed with -a given somewhere."""
+        assert not completion
+
+    @pytest.mark.parametrize("flag", ["-S", "-H"])
+    def test_no_special_values_after_soft_or_hard(self, bash, flag):
+        completion = assert_complete(bash, "ulimit %s " % flag)
         assert not completion
