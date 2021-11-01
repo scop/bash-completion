@@ -1,0 +1,92 @@
+# setfacl(1) completion                                    -*- shell-script -*-
+
+_setfacl()
+{
+    local cur prev words cword split
+    # Don't treat user:group as separate words.
+    _init_completion -s -n : || return
+
+    if [[ $cword -ge 2 ]]; then
+        local word
+        for word in "${words[@]:1:$(( cword - 1 ))}"; do
+            if [[ "$word" == '--' ]]; then
+                _filedir
+                return 0
+            fi
+        done
+    fi
+
+    case "$prev" in
+        --restore)
+            _filedir
+            return 0
+            ;;
+
+        -m|--modify|-x|--remove|--set)
+            local other_rules prefix_default mycur
+            other_rules="${cur%"${cur##*,}"}"
+            cur="${cur##*,}"
+            if [[ $cur = d:* || $cur = default:* ]]; then
+                prefix_default=${cur%%"${cur#*:}"}
+                cur="${cur#*:}"
+            else
+                prefix_default=
+            fi
+            mycur="${cur##*:}"
+            if [[ $cur == *:*:*:* ]]; then
+                return
+            elif [[ $cur == *:*:* || $cur == [mo]*:* ]]; then
+                local opts
+                opts='- r w x X rw rx rX wx wX rwx rwX'
+                COMPREPLY=( $( compgen -S ',' -W "$opts" -- "$mycur" ) )
+            elif [[ $cur == u*:* ]]; then
+                local IFS
+                IFS=$'\n'
+                COMPREPLY=( $( compgen -u -S ':' -- "$mycur" ) )
+            elif [[ $cur == g*:* ]]; then
+                local IFS
+                IFS=$'\n'
+                COMPREPLY=( $( compgen -g -S ':' -- "$mycur" ) )
+            else
+                local prefixes
+                prefixes='user: group: mask: other:'
+                if [[ -z $prefix_default ]]; then
+                    prefixes+=' default:'
+                fi
+                COMPREPLY=( $( compgen -W "$prefixes" -- "$mycur" ) )
+            fi
+            if [[ $cur != *:* && -z $prefix_default && "$other_rules" && ${#COMPREPLY[@]} -eq 1 ]]; then
+                COMPREPLY=("${other_rules##*:}${COMPREPLY[0]}")
+            fi
+            [[ $COMPREPLY == *[:,] ]] && compopt -o nospace
+            return 0
+            ;;
+
+        -M|--modify-file|-X|--remove-file|--set-file)
+            _filedir
+            return 0
+            ;;
+
+    esac
+
+    $split && return 0
+
+    if [[ "$cur" == -* || $cword -eq 1 ]]; then
+        local opts
+        opts='--modify-file= --modify --remove-file= --remove --set-file= --set
+            --remove-all --remove-default --no-mask --mask --default --test
+            --recursive --logical --physical --'
+        if [[ ${#words[@]} -eq 2 ]]; then
+            opts+=' --version --help --restore='
+        elif [[ ${#words[@]} -eq 3 && "$prev" == --test ]]; then
+            opts+=' --restore='
+        fi
+        COMPREPLY=( $( compgen -W "$opts" -- "$cur" ) )
+        [[ $COMPREPLY == *= ]] && compopt -o nospace
+    else
+        _filedir
+    fi
+} &&
+complete -F _setfacl setfacl
+
+# ex: ts=4 sw=4 et filetype=sh
