@@ -11,6 +11,8 @@ cd ${TMPDIR:-/tmp}
 # -minimal won't be updated otherwise.
 dnf --refresh -y upgrade
 
+dnf -y install /usr/bin/xargs
+
 while read -r file; do
     case $file in
         /*) printf "%s\n" "$file" ;;
