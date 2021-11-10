@@ -39,7 +39,7 @@ _smf_complete_fmri()
     for fmri in $(svcs -H -o FMRI "$pattern" 2>/dev/null); do
         local fmri_part_list fmri_part
         if [[ -z $exact_mode ]]; then
-            fmri=${fmri#$prefix/}
+            fmri=${fmri#"$prefix/"}
 
             # we generate all possibles abbreviations for the FMRI
             # no need to have a generic loop as we will have a finite
@@ -62,7 +62,7 @@ _smf_complete_fmri()
         # we cut them at the first slash
         for fmri_part in $fmri_part_list; do
             [[ $fmri_part == $cur* ]] || continue
-            local first_part=${fmri_part#$cur_prefix}
+            local first_part=${fmri_part#"$cur_prefix"}
             first_part=$cur_prefix${first_part%%/*}
             [[ $first_part != "$fmri_part" ]] && first_part+="/"
             fmri_list+=" $first_part"

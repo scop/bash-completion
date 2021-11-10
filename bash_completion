@@ -466,7 +466,7 @@ _get_cword()
             if ((i < cword)); then
                 # No, cword lies further;
                 local old_size=${#cur}
-                cur=${cur#${words[i]}}
+                cur=${cur#"${words[i]}"}
                 local new_size=${#cur}
                 ((index -= old_size - new_size))
             fi
@@ -704,7 +704,7 @@ _comp_delimited()
         delimiter=$1
         shift
     fi
-    [[ $cur == *$delimiter* ]] && prefix=${cur%$delimiter*}$delimiter
+    [[ $cur == *$delimiter* ]] && prefix=${cur%"$delimiter"*}$delimiter
 
     if $deduplicate; then
         # We could construct a -X pattern to feed to compgen, but that'd
@@ -727,10 +727,10 @@ _comp_delimited()
                     fi
                 done
             done
-            COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "${cur##*$delimiter}"))
+            COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "${cur##*"$delimiter"}"))
         fi
     else
-        COMPREPLY=($(compgen "$@" -- "${cur##*$delimiter}"))
+        COMPREPLY=($(compgen "$@" -- "${cur##*"$delimiter"}"))
     fi
 
     ((${#COMPREPLY[@]} == 1)) && COMPREPLY=(${COMPREPLY/#/$prefix})
@@ -853,7 +853,7 @@ _init_completion()
                 esac
                 ;;
         esac
-        cur=${cur##$redir}
+        cur=${cur##"$redir"}
         _filedir $xspec
         return 1
     fi
@@ -1011,7 +1011,7 @@ _parse_usage()
 # @param $1 prefix
 _signals()
 {
-    local -a sigs=($(compgen -P "${1-}" -A signal "SIG${cur#${1-}}"))
+    local -a sigs=($(compgen -P "${1-}" -A signal "SIG${cur#"${1-}"}"))
     COMPREPLY+=("${sigs[@]/#${1-}SIG/${1-}}")
 }
 
@@ -1975,10 +1975,10 @@ _cd()
         # create an array of matched subdirs
         k=${#COMPREPLY[@]}
         for j in $(compgen -d -- $i/$cur); do
-            if [[ ($mark_symdirs && -L $j || $mark_dirs && ! -L $j) && ! -d ${j#$i/} ]]; then
+            if [[ ($mark_symdirs && -L $j || $mark_dirs && ! -L $j) && ! -d ${j#"$i/"} ]]; then
                 j+="/"
             fi
-            COMPREPLY[k++]=${j#$i/}
+            COMPREPLY[k++]=${j#"$i/"}
         done
     done
 
@@ -2094,7 +2094,7 @@ _command_offset()
                     cspec=${cspec#*-o }
                     opt=${cspec%% *}
                     compopt -o $opt
-                    cspec=${cspec#$opt}
+                    cspec=${cspec#"$opt"}
                 done
             else
                 cspec=${cspec#complete}
