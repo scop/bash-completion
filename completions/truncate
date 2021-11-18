@@ -1,0 +1,30 @@
+# truncate(1) completion                                   -*- shell-script -*-
+
+_comp_cmd_truncate()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        -!(-*)s | --size | --help | --version)
+            return
+            ;;
+        -!(-*)r | --reference)
+            _filedir
+            return
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _filedir
+} &&
+    complete -F _comp_cmd_truncate truncate
+
+# ex: filetype=sh
