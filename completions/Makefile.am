@@ -420,6 +420,7 @@ bashcomp_DATA = 2to3 \
 		tox \
 		tracepath \
 		tree \
+		truncate \
 		tshark \
 		tsig-keygen \
 		tune2fs \

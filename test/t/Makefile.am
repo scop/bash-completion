@@ -612,6 +612,7 @@ EXTRA_DIST = \
 	test_tr.py \
 	test_tracepath.py \
 	test_tree.py \
+	test_truncate.py \
 	test_tshark.py \
 	test_tsig_keygen.py \
 	test_tune2fs.py \
