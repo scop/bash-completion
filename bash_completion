@@ -2074,33 +2074,42 @@ _command_offset()
         fi
 
         if [[ -n $cspec ]]; then
-            if [[ ${cspec#* -F } != "$cspec" ]]; then
-                # complete -F <function>
+            for ((i = 0; i <= 1; i++)); do
+                if [[ ${cspec#* -F } != "$cspec" ]]; then
+                    # complete -F <function>
 
-                # get function name
-                local func=${cspec#*-F }
-                func=${func%% *}
+                    # get function name
+                    local func=${cspec#*-F }
+                    func=${func%% *}
 
-                if ((${#COMP_WORDS[@]} >= 2)); then
-                    $func "$cmd" "${COMP_WORDS[-1]}" "${COMP_WORDS[-2]}"
+                    if ((${#COMP_WORDS[@]} >= 2)); then
+                        $func "$cmd" "${COMP_WORDS[-1]}" "${COMP_WORDS[-2]}"
+                    else
+                        $func "$cmd" "${COMP_WORDS[-1]}"
+                    fi
+
+                    # restart completion (once) if function exited with 124
+                    if (($? == 124 && i == 0)); then
+                        cspec=$(complete -p "$compcmd" 2>/dev/null)
+                        [[ -n $cspec ]] && continue
+                    fi
+
+                    # restore initial compopts
+                    local opt
+                    while [[ $cspec == *" -o "* ]]; do
+                        # FIXME: should we take "+o opt" into account?
+                        cspec=${cspec#*-o }
+                        opt=${cspec%% *}
+                        compopt -o $opt
+                        cspec=${cspec#"$opt"}
+                    done
                 else
-                    $func "$cmd" "${COMP_WORDS[-1]}"
+                    cspec=${cspec#complete}
+                    cspec=${cspec%%"$compcmd"}
+                    COMPREPLY=($(eval compgen "$cspec" -- '$cur'))
                 fi
-
-                # restore initial compopts
-                local opt
-                while [[ $cspec == *" -o "* ]]; do
-                    # FIXME: should we take "+o opt" into account?
-                    cspec=${cspec#*-o }
-                    opt=${cspec%% *}
-                    compopt -o $opt
-                    cspec=${cspec#"$opt"}
-                done
-            else
-                cspec=${cspec#complete}
-                cspec=${cspec%%"$compcmd"}
-                COMPREPLY=($(eval compgen "$cspec" -- '$cur'))
-            fi
+                break
+            done
         elif ((${#COMPREPLY[@]} == 0)); then
             # XXX will probably never happen as long as completion loader loads
             #     *something* for every command thrown at it ($cspec != empty)
