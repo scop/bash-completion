@@ -1,4 +1,5 @@
 #!/bin/sh -eux
+# shellcheck shell=sh
 
 if [ "${BSD-}" ]; then
     PATH=/usr/local/lib/bsd-bin:$PATH
