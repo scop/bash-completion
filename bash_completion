@@ -201,6 +201,7 @@ _upvars()
                     return 1
                 }
                 # Assign array of -aN elements
+                # shellcheck disable=SC2015  # TODO
                 [[ $2 ]] && unset -v "$2" && eval $2=\(\"\$"{@:3:${1#-a}}"\"\) &&
                     shift $((${1#-a} + 2)) || {
                     echo bash_completion: \
@@ -211,6 +212,7 @@ _upvars()
                 ;;
             -v)
                 # Assign single value
+                # shellcheck disable=SC2015  # TODO
                 [[ $2 ]] && unset -v "$2" && eval $2=\"\$3\" &&
                     shift 3 || {
                     echo "bash_completion: $FUNCNAME: $1:" \
@@ -274,7 +276,11 @@ __reassemble_comp_words_by_ref()
                 [[ $line == [[:blank:]]* ]] && ((j++))
                 # Indicate next word if available, else end *both* while and
                 # for loop
-                ((i < ${#COMP_WORDS[@]} - 1)) && ((i++)) || break 2
+                if ((i < ${#COMP_WORDS[@]} - 1)); then
+                    ((i++))
+                else
+                    break 2
+                fi
             done
             # Append word to current word
             ref="$2[$j]"
