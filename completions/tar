@@ -101,7 +101,7 @@ __gtar_parse_help_line()
 __gnu_tar_parse_help()
 {
     local str line arg
-    while IFS= read line; do
+    while IFS= read -r line; do
         # Ok, this requires some comment probably.  The GNU help output prints
         # options on lines beginning with spaces.  After that, there is one
         # or more options separated by ', ' separator string.  We are matching
@@ -134,7 +134,7 @@ __gnu_tar_parse_help()
 __gtar_parse_warnings()
 {
     local line
-    LC_ALL=C tar --warning= 2>&1 | while IFS= read line; do
+    LC_ALL=C tar --warning= 2>&1 | while IFS= read -r line; do
         if [[ $line =~ ^[[:blank:]]*-[[:blank:]]*[\`\']([a-zA-Z0-9-]+)\'$ ]]; then
             echo "${BASH_REMATCH[1]} no-${BASH_REMATCH[1]}"
         fi
@@ -405,7 +405,7 @@ __tar_try_list_archive()
         local IFS=$'\n'
         COMPREPLY=($(compgen -o filenames -W "$(
             $tarbin $untar "$tarball" 2>/dev/null |
-                while read line; do
+                while read -r line; do
                     printf "%q\n" "$(printf %q"\n" "$line")"
                 done
         )" -- "$(printf "%q\n" "$cur")"))
