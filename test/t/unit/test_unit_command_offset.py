@@ -28,7 +28,8 @@ class TestUnitCommandOffset:
         completions = [
             'complete -F _compfunc "${COMP_WORDS[0]}"',
             'complete -W %s "${COMP_WORDS[0]}"' % quote(join(self.wordlist)),
-            'complete -r "${COMP_WORDS[0]}"',
+            'COMPREPLY=(dummy); complete -r "${COMP_WORDS[0]}"',
+            "COMPREPLY+=(${#COMPREPLY[@]})",
         ]
 
         for idx, comp in enumerate(completions, 2):
@@ -45,11 +46,29 @@ class TestUnitCommandOffset:
 
     @pytest.mark.parametrize(
         "cmd,expected_completion",
-        [("cmd2", wordlist), ("cmd3", wordlist), ("cmd4", [])],
+        [
+            ("cmd2", wordlist),
+            ("cmd3", wordlist),
+            ("cmd4", []),
+            ("cmd5", ["0"]),
+        ],
     )
     def test_2(self, bash, functions, cmd, expected_completion):
-        """
-        Test meta-completion for completion functions that signal that
+        """Test meta-completion for completion functions that signal that
         completion should be retried (i.e. change compspec and return 124).
+
+        cmd2: The case when the completion spec is overwritten by the one that
+        contains "-F func"
+
+        cmd3: The case when the completion spec is overwritten by the one
+        without "-F func".
+
+        cmd4: The case when the completion spec is removed, in which we expect
+        no completions.  This mimics the behavior of Bash's progcomp for the
+        exit status 124.
+
+        cmd5: The case when the completion spec is unchanged.  The retry should
+        be attempted at most once to avoid infinite loops.  COMPREPLY should be
+        cleared before the retry.
         """
         assert assert_complete(bash, "meta %s " % cmd) == expected_completion
