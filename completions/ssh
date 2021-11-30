@@ -332,13 +332,14 @@ _ssh()
     elif [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1")' -- "$cur"))
     else
-        _known_hosts_real ${ipvx-} -a ${configfile:+-F "$configfile"} -- "$cur"
-
         local args
         _count_args "=" "-*[bcDeLpRWEFSiIJlmOoQw]"
         if ((args > 1)); then
             compopt -o filenames
             COMPREPLY+=($(compgen -c -- "$cur"))
+        else
+            _known_hosts_real ${ipvx-} -a ${configfile:+-F "$configfile"} \
+                -- "$cur"
         fi
     fi
 } &&
