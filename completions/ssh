@@ -263,6 +263,8 @@ _ssh()
 
     local ipvx
 
+    # Keep cases sorted the same they're in ssh's usage message
+    # (but do group ones with same arg completion)
     case $prev in
         -*b)
             _ip_addresses
@@ -279,12 +281,12 @@ _ssh()
             _filedir
             return
             ;;
-        -*i)
-            _ssh_identityfile
-            return
-            ;;
         -*I)
             _filedir so
+            return
+            ;;
+        -*i)
+            _ssh_identityfile
             return
             ;;
         -*J)
@@ -333,7 +335,8 @@ _ssh()
         COMPREPLY=($(compgen -W '$(_parse_usage "$1")' -- "$cur"))
     else
         local args
-        _count_args "=" "-*[bcDeLpRWEFSiIJlmOoQw]"
+        # Keep glob sort in sync with cases above
+        _count_args "=" "-*[bcDeLpRWEFSIiJlmOoQw]"
         if ((args > 1)); then
             compopt -o filenames
             COMPREPLY+=($(compgen -c -- "$cur"))
