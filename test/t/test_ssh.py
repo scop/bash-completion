@@ -10,8 +10,12 @@ class TestSsh:
 
     @pytest.mark.complete("ssh -F config ls", cwd="ssh")
     def test_2(self, completion):
-        """Should complete both commands and hostname."""
-        assert all(x in completion for x in "ls ls_known_host".split())
+        """
+        Should not complete commands when host is not specified.
+
+        Test sanity assumes there are commands starting with `ls`.
+        """
+        assert completion == "_known_host"
 
     @pytest.mark.complete("ssh bash", cwd="ssh")
     def test_3(self, completion):
