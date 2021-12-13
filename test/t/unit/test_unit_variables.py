@@ -28,6 +28,10 @@ class TestUnitVariables:
     def test_multiple_array_indexes(self, functions, completion):
         assert completion == "${assoc2[idx1]} ${assoc2[idx2]}".split()
 
+    @pytest.mark.complete(": ${assoc2[", shopt=dict(failglob=True))
+    def test_multiple_array_indexes_failglob(self, functions, completion):
+        assert completion == "${assoc2[idx1]} ${assoc2[idx2]}".split()
+
     @pytest.mark.complete(": ${assoc1[bogus]")
     def test_closing_curly_after_square(self, functions, completion):
         assert completion == "}"
