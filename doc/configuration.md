@@ -46,6 +46,32 @@ known hosts completion will omit hostnames from `HOSTFILE`. Omitting
 hostnames from `HOSTFILE` is useful if `HOSTFILE` contains many entries for
 local web development or ad-blocking.
 
+### `BASH_COMPLETION_COMPAT_IGNORE`
+
+Files in `BASH_COMPLETION_COMPAT_DIR` (the compat dir) to ignore, specified by
+a glob pattern.  The completion files in the compat dir whose basename matches
+with this pattern will not be sourced by `bash_completion` at its load time.
+This variable can be used to suppress the problematic completions.  Note that
+backup files and Makefiles in the compat dir are by default ignored regardless
+of this setting.
+
+One example is `acroread.sh` which is installed by some versions of Adobe
+Reader, overrides `_filedir` with an incompatible version, and causes
+various problems.  To recover this `_filedir`, another completion file
+`redefine_filedir` had been placed in the compat dir, which could also
+cause another incompatibility when the user uses their own version of
+bash-completion instead of the systemwide version.  To suppress these files
+one can set the following value:
+
+```bash
+export BASH_COMPLETION_COMPAT_IGNORE='@(acroread.sh|redefine_filedir)'
+```
+
+- <https://bugzilla.redhat.com/677446>
+- <http://forums.adobe.com/thread/745833>
+- <https://bugzilla.redhat.com/show_bug.cgi?id=1171396#c27>
+- <https://github.com/scop/bash-completion/pull/667>
+
 ### `BASH_COMPLETION_CMD_CONFIGURE_HINTS`
 
 If set and not null, `configure` completion will return the entire option
