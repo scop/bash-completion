@@ -1,0 +1,46 @@
+# mono(1) completion                                         -*- shell-script -*-
+
+_mono()
+{
+    local cur prev words cword
+    _init_completion -n = || return
+
+    local extglob_state=$(shopt -p extglob)
+    shopt -s extglob
+
+    local RUNTIME_OPTIONS=('-h' '--help'
+        '-V' '--version'
+        '--aot' '--aot='
+        '--aot-path='
+        '--apply-bindings='
+        '--assembly-loader='
+        '--attach='
+        '--config'
+        '--debugger-agent='
+        '--desktop'
+        '--full-aot'
+        '--full-aot-interp'
+        '--gc'
+        '--gc-debug='
+        '--gc-params='
+        '--arch='
+        '--interpreter'
+        '--hybrid-aot'
+        '--llvm'
+        '--ffast-math'
+        '--nollvm'
+        '--optimize=' '-O='
+        '--response='
+        '--runtime='
+        '--server'
+        '--use-map-jit'
+        '--verify-all'
+        '--version=')
+
+    readarray -t COMPREPLY < <(compgen -W "${RUNTIME_OPTIONS[*]}" -- "$cur")
+    $extglob_state
+}
+
+complete -F _mono mono
+
+# ex: filetype=sh
