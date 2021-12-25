@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import assert_bash_exec
+from conftest import assert_bash_exec, bash_env_saved
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^[+-](cur|COMPREPLY)=")
@@ -19,6 +19,17 @@ class TestUnitExpand:
             r'cur="~%s"; _expand; printf "%%s\n" "$COMPREPLY"' % user,
             want_output=True,
         )
+        assert output.strip() == home
+
+    def test_user_home_compreply_failglob(self, bash, user_home):
+        user, home = user_home
+        with bash_env_saved(bash) as bash_env:
+            bash_env.shopt("failglob", True)
+            output = assert_bash_exec(
+                bash,
+                r'cur="~%s"; _expand; printf "%%s\n" "$COMPREPLY"' % user,
+                want_output=True,
+            )
         assert output.strip() == home
 
     def test_user_home_cur(self, bash, user_home):
