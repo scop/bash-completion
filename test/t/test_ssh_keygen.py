@@ -69,3 +69,7 @@ class TestSshKeygen:
     @pytest.mark.complete("ssh-keygen -O unknown=")
     def test_O_unknown(self, completion):
         assert not completion
+
+    @pytest.mark.complete("ssh-keygen -O application=")
+    def test_O_application(self, completion):
+        assert completion == "ssh:"
