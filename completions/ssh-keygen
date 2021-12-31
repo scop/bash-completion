@@ -66,11 +66,12 @@ _ssh_keygen()
                     no-x11-forwarding permit-agent-forwarding
                     permit-port-forwarding permit-pty permit-user-rc
                     permit-X11-forwarding no-touch-required source-address=
+                    verify-required
 
                     lines= start-line= checkpoint= memory= start= generator=
 
-                    application challenge= device resident user
-                    write-attestation-path
+                    application= challenge= device= no-touch-required resident
+                    user= write-attestation=
                     ' -- "$cur"))
                 [[ ${COMPREPLY-} == *[:=] ]] && compopt -o nospace
                 __ltrim_colon_completions "$cur"
@@ -80,9 +81,16 @@ _ssh_keygen()
                         compopt -o filenames
                         COMPREPLY=($(compgen -c -- "${cur#*=}"))
                         ;;
-                    checkpoint=* | challenge=*)
+                    checkpoint=* | challenge=* | write-attestation=*)
                         cur=${cur#*=}
                         _filedir
+                        ;;
+                    application=*([^:=]))
+                        COMPREPLY=($(compgen -W "ssh:" -- "${cur#*=}"))
+                        compopt -o nospace
+                        ;;
+                    user=*)
+                        COMPREPLY=($(compgen -u -- "${cur#*=}"))
                         ;;
                 esac
             fi
