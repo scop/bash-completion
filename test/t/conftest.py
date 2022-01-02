@@ -191,8 +191,8 @@ def bash(request) -> pexpect.spawn:
     tmpdir = None
     bash = None
 
-    if os.environ.get("BASHCOMP_TEST_LOGFILE"):
-        logfile = open(os.environ["BASHCOMP_TEST_LOGFILE"], "w")
+    if os.environ.get("BASH_COMPLETION_TEST_LOGFILE"):
+        logfile = open(os.environ["BASH_COMPLETION_TEST_LOGFILE"], "w")
     elif os.environ.get("CI"):
         logfile = sys.stdout
 
@@ -256,8 +256,10 @@ def bash(request) -> pexpect.spawn:
 
         # Start bash
         bash = pexpect.spawn(
-            "%s --norc" % os.environ.get("BASHCOMP_TEST_BASH", "bash"),
-            maxread=os.environ.get("BASHCOMP_TEST_PEXPECT_MAXREAD", 20000),
+            "%s --norc" % os.environ.get("BASH_COMPLETION_TEST_BASH", "bash"),
+            maxread=os.environ.get(
+                "BASH_COMPLETION_TEST_PEXPECT_MAXREAD", 20000
+            ),
             logfile=logfile,
             cwd=cwd,
             env=env,
