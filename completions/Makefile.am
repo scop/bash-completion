@@ -400,6 +400,7 @@ bashcomp_DATA = 2to3 \
 		sshow \
 		strace \
 		strings \
+		stunnel \
 		_su \
 		sudo \
 		svcadm \
