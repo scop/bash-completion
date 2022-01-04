@@ -292,6 +292,7 @@ bashcomp_DATA = 2to3 \
 		openssl \
 		opera \
 		optipng \
+		osslsigncode \
 		p4 \
 		pack200 \
 		passwd \
