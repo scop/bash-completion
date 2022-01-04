@@ -45,7 +45,7 @@ If set and not null, completions that look for filenames based on their
 "extensions" will fall back to suggesting all files if there are none
 matching the sought ones.
 
-### `COMP_IWLIST_SCAN`
+### `BASH_COMPLETION_CMD_IWCONFIG_SCAN`
 
 If set and not null, `iwconfig` completion will try to complete on
 available wireless networks identifiers. Default is unset.
