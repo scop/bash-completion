@@ -212,34 +212,6 @@ A. Define `$COMP_CVS_REMOTE`. Setting this to anything will result in
 A. Define `$COMP_CONFIGURE_HINTS`. Setting this to anything will
    result in the behaviour you would like.
 
-**Q. When doing tar completion on a file within a tar file like this:**
-
-   ```shell
-   tar tzvf foo.tar.gz <Tab>
-   ```
-
-   **the pathnames contained in the tar file are not displayed
-   correctly. The slashes are removed, and everything looks like it's
-   in a single directory. Why is this?**
-
-A. It's a choice we had to make. bash's programmable completion is
-   limited in how it handles the list of possible completions it
-   returns.
-
-   Because the paths returned from within the tar file are likely not
-   existing paths on the file system, `-o dirnames` must be passed to
-   the `complete` built-in to make it treat them as such. However,
-   then bash will append a space when completing on directories during
-   pathname completion to the tar files themselves.
-
-   It's more important to have proper completion of paths to tar files
-   than it is to have completion for their contents, so this sacrifice
-   was made and `-o filenames` is used with complete instead.
-
-   If you would rather have correct path completion for tar file
-   contents, define `$COMP_TAR_INTERNAL_PATHS` *before* sourcing
-   `bash_completion`.
-
 **Q. When completing on a symlink to a directory, bash does not append
    the trailing `/` and I have to hit <kbd>&lt;Tab></kbd> again.
    I don't like this.**
