@@ -39,7 +39,7 @@ If set and not null, `cvs commit` completion will try to complete on
 remotely checked-out files. This requires passwordless access to the
 remote repository. Default is unset.
 
-### `COMP_FILEDIR_FALLBACK`
+### `BASH_COMPLETION_FILEDIR_FALLBACK`
 
 If set and not null, completions that look for filenames based on their
 "extensions" will fall back to suggesting all files if there are none

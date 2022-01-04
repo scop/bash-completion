@@ -623,7 +623,8 @@ _filedir()
         # the fallback condition with the "plus" dirs.
         local opts=(-f -X "$xspec")
         [[ $xspec ]] && plusdirs=(-o plusdirs)
-        [[ ${COMP_FILEDIR_FALLBACK-} || -z ${plusdirs-} ]] ||
+        [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-${COMP_FILEDIR_FALLBACK-}} ||
+            -z ${plusdirs-} ]] ||
             opts+=("${plusdirs[@]}")
 
         reset=$(shopt -po noglob)
@@ -634,7 +635,8 @@ _filedir()
         IFS=$'\n'
 
         # Try without filter if it failed to produce anything and configured to
-        [[ -n ${COMP_FILEDIR_FALLBACK-} && -n $arg && ${#toks[@]} -lt 1 ]] && {
+        [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-${COMP_FILEDIR_FALLBACK-}} &&
+            -n $arg && ${#toks[@]} -lt 1 ]] && {
             reset=$(shopt -po noglob)
             set -o noglob
             toks+=($(compgen -f ${plusdirs+"${plusdirs[@]}"} -- $quoted))
@@ -2267,7 +2269,8 @@ _filedir_xspec()
     ))
 
     # Try without filter if it failed to produce anything and configured to
-    [[ -n ${COMP_FILEDIR_FALLBACK:-} && ${#toks[@]} -lt 1 ]] && {
+    [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-${COMP_FILEDIR_FALLBACK-}} &&
+        ${#toks[@]} -lt 1 ]] && {
         local reset=$(shopt -po noglob)
         set -o noglob
         toks+=($(compgen -f -- "$(quote_readline "$cur")"))
