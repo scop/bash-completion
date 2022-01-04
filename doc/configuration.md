@@ -25,7 +25,7 @@ completion files that are loaded eagerly from `bash_completion` when it is
 loaded. If unset or null, the default compatibility directory to use is
 `/etc/bash_completion.d`.
 
-### `COMP_CONFIGURE_HINTS`
+### `BASH_COMPLETION_CMD_CONFIGURE_HINTS`
 
 If set and not null, `configure` completion will return the entire option
 string (e.g. `--this-option=DESCRIPTION`) so one can see what kind of data
