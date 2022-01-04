@@ -188,30 +188,6 @@ A. Install it in one of the directories pointed to by
      ${BASH_COMPLETION_COMPLETIONSDIR})
    ```
 
-**Q. I use CVS in combination with passwordless SSH access to my remote
-   repository. How can I have the `cvs` command complete on remotely
-   checked-out files where relevant?**
-
-A. Define `$COMP_CVS_REMOTE`. Setting this to anything will result in
-   the behaviour you would like.
-
-**Q. When I'm running a `./configure` script and completion returns a list
-   of long options to me, some of these take a parameter,
-   e.g. `--this-option=DESCRIPTION`.**
-
-   **Running `./configure --help` lists these descriptions, but
-   everything after the `=` is stripped when returning completions, so
-   I don't know what kind of data is expected as a given option's
-   parameter.**
-
-   **Is there a way of getting `./configure` completion to return the
-   entire option string, so that I can see what kind of data is
-   required and then simply delete the descriptive text and add my own
-   data?**
-
-A. Define `$COMP_CONFIGURE_HINTS`. Setting this to anything will
-   result in the behaviour you would like.
-
 **Q. When completing on a symlink to a directory, bash does not append
    the trailing `/` and I have to hit <kbd>&lt;Tab></kbd> again.
    I don't like this.**
