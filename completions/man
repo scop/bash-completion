@@ -77,27 +77,22 @@ _man()
     # shellcheck disable=SC2053
     [[ $prev == $mansect ]] && sect=$prev || sect='*'
 
-    manpath=$manpath:
-    if [[ $cur ]]; then
-        manpath="${manpath//://*man$sect/$cur* } ${manpath//://*cat$sect/$cur* }"
-    else
-        manpath="${manpath//://*man$sect/ } ${manpath//://*cat$sect/ }"
-    fi
+    _comp_split -F : manpath "$manpath"
+    if ((${#manpath[@]})); then
+        manpath=("${manpath[@]/%//*man$sect/$cur*}" "${manpath[@]/%//*cat$sect/$cur*}")
+        local IFS=
+        _comp_expand_glob COMPREPLY '${manpath[@]}'
+        _comp_unlocal IFS
 
-    local IFS=$' \t\n' reset=$(shopt -p failglob)
-    shopt -u failglob
-    # redirect stderr for when path doesn't exist
-    COMPREPLY=($(eval command ls "$manpath" 2>/dev/null))
-    $reset
-
-    if ((${#COMPREPLY[@]} != 0)); then
-        # weed out directory path names and paths to man pages
-        COMPREPLY=(${COMPREPLY[@]##*/?(:)})
-        # strip suffix from man pages
-        ((${#COMPREPLY[@]})) &&
-            COMPREPLY=(${COMPREPLY[@]%$comprsuffix})
-        ((${#COMPREPLY[@]})) &&
-            COMPREPLY=($(compgen -W '"${COMPREPLY[@]%.*}"' -- "${cur//\\\\/}"))
+        if ((${#COMPREPLY[@]} != 0)); then
+            # weed out directory path names and paths to man pages
+            COMPREPLY=(${COMPREPLY[@]##*/?(:)})
+            # strip suffix from man pages
+            ((${#COMPREPLY[@]})) &&
+                COMPREPLY=(${COMPREPLY[@]%$comprsuffix})
+            ((${#COMPREPLY[@]})) &&
+                COMPREPLY=($(compgen -W '"${COMPREPLY[@]%.*}"' -- "${cur//\\\\/}"))
+        fi
     fi
 
     # shellcheck disable=SC2053
