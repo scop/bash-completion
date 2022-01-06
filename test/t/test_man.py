@@ -148,3 +148,11 @@ class TestMan:
     )
     def test_zstd_arbitrary_sectsuffix(self, completion):
         assert completion == "e"
+
+    @pytest.mark.complete(
+        "man bash-completion-testcas",
+        env=dict(MANPATH="'$(echo malicious code >/dev/tty)'"),
+    )
+    def test_manpath_code_injection(self, completion):
+        # no completion, no space appended
+        assert not completion
