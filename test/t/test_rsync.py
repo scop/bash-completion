@@ -14,3 +14,7 @@ class TestRsync:
     @pytest.mark.complete("rsync --rsh=")
     def test_3(self, completion):
         assert completion == "rsh ssh".split()
+
+    @pytest.mark.complete("rsync --", require_cmd=True)
+    def test_4(self, completion):
+        assert "--help" in completion
