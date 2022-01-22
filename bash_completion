@@ -149,6 +149,23 @@ dequote()
     eval printf %s "$1" 2>/dev/null
 }
 
+# Unset the given variables across a scope boundary. Useful for unshadowing
+# global scoped variables. Note that simply calling unset on a local variable
+# will not unshadow the global variable. Rather, the result will be a local
+# variable in an unset state.
+# Usage: local IFS='|'; _comp_unlocal IFS
+# Param: $* Variable names to be unset
+_comp_unlocal()
+{
+    if ((BASH_VERSINFO[0] >= 5)) && shopt -q localvar_unset; then
+        shopt -u localvar_unset
+        unset -v "$@"
+        shopt -s localvar_unset
+    else
+        unset -v "$@"
+    fi
+}
+
 # Assign variable one scope above the caller
 # Usage: local "$1" && _upvar $1 "value(s)"
 # Param: $1  Variable name to assign value to
@@ -721,12 +738,12 @@ _comp_delimited()
         # glob char escaping issues to deal with. Do removals by hand instead.
         COMPREPLY=($(compgen "$@"))
         local -a existing
-        local x i ifs=$IFS IFS=$delimiter
+        local x i IFS=$delimiter
         existing=($cur)
         # Do not remove the last from existing if it's not followed by the
         # delimiter so we get space appended.
         [[ ! $cur || $cur == *"$delimiter" ]] || unset -v "existing[${#existing[@]}-1]"
-        IFS=$ifs
+        _comp_unlocal IFS
         if ((${#COMPREPLY[@]})); then
             for x in ${existing+"${existing[@]}"}; do
                 for i in "${!COMPREPLY[@]}"; do
@@ -1253,14 +1270,13 @@ else
         if [[ ${1-} == -s ]]; then
             procs=($(command ps ax -o comm | command sed -e 1d))
         else
-            local line i=-1 ifs=$IFS
-            IFS=$'\n'
+            local line i=-1 IFS=$'\n'
             # Some versions of ps don't support "command", but do "comm", e.g.
             # some busybox ones. Fall back
             local -a psout=($({
                 command ps ax -o command= || command ps ax -o comm=
             } 2>/dev/null))
-            IFS=$ifs
+            _comp_unlocal IFS
             for line in "${psout[@]}"; do
                 if ((i == -1)); then
                     # First line, see if it has COMMAND column header. For
@@ -1751,7 +1767,7 @@ _included_ssh_config_files()
 # Return: Completions, starting with CWORD, are added to COMPREPLY[]
 _known_hosts_real()
 {
-    local configfile flag prefix="" ifs=$IFS
+    local configfile flag prefix=""
     local cur suffix="" aliases i host ipv4 ipv6
     local -a kh tmpkh=() khd=() config=()
 
@@ -1817,7 +1833,7 @@ _known_hosts_real()
         #          spaces in their name work (watch out for ~ expansion
         #          breakage! Alioth#311595)
         tmpkh=($(awk 'sub("^[ \t]*([Gg][Ll][Oo][Bb][Aa][Ll]|[Uu][Ss][Ee][Rr])[Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee][ \t=]+", "") { print $0 }' "${config[@]}" | sort -u))
-        IFS=$ifs
+        _comp_unlocal IFS
     fi
     if ((${#tmpkh[@]} != 0)); then
         local j
@@ -1873,7 +1889,7 @@ _known_hosts_real()
                         # Add host to candidates
                         COMPREPLY+=($host)
                     done
-                    IFS=$ifs
+                    _comp_unlocal IFS
                 done <"$i"
             done
             ((${#COMPREPLY[@]})) &&
@@ -1935,7 +1951,6 @@ _known_hosts_real()
             $(compgen -A hostname -P "$prefix" -S "$suffix" -- "$cur"))
     fi
 
-    IFS=$' \t\n'
     $reset
 
     if ((${#COMPREPLY[@]})); then
@@ -2349,12 +2364,12 @@ complete -F _minimal ''
 __load_completion()
 {
     local -a dirs=(${BASH_COMPLETION_USER_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion}/completions)
-    local ifs=$IFS IFS=: dir cmd="${1##*/}" compfile
+    local IFS=: dir cmd="${1##*/}" compfile
     [[ -n $cmd ]] || return 1
     for dir in ${XDG_DATA_DIRS:-/usr/local/share:/usr/share}; do
         dirs+=($dir/bash-completion/completions)
     done
-    IFS=$ifs
+    _comp_unlocal IFS
 
     if [[ $BASH_SOURCE == */* ]]; then
         dirs+=("${BASH_SOURCE%/*}/completions")
