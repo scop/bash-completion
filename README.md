@@ -112,11 +112,12 @@ A. No. Use `M-/` to (in the words of the bash man page) attempt file
 
 A. Install a local completion of your own appropriately for the desired
    command, and it will take precedence over the one shipped by us. See the
-   next answer for details where to install it, if you are doing it on per
-   user basis. If you want to do it system wide, you can install eagerly
-   loaded files in `compatdir` (see a couple of questions further down for
-   more info) and install a completion for the commands to override our
-   completion for in them.
+   next answer for details where to install it, if you are doing it on per user
+   basis. If you want to do it system wide, you can install eagerly loaded
+   files in `compatdir` (see a couple of questions further down for more
+   info. To get the path of `compatdir` for the current system, the output of
+   `pkg-config bash-completion --variable compatdir` can be used) and install a
+   completion for the commands to override our completion for in them.
 
    If you want to use bash's default completion instead of one of ours,
    something like this should work (where `$cmd` is the command to override
@@ -175,7 +176,7 @@ A. [ Disclaimer: Here, how to make the completion code visible to
 
    ```makefile
    bashcompdir = @bashcompdir@
-   dist_bashcomp_DATA = # completion files go here
+   dist_bashcomp_DATA = your-completion-file # completion files go here
    ```
 
    For cmake we ship the `bash-completion-config.cmake` and
@@ -194,6 +195,26 @@ A. [ Disclaimer: Here, how to make the completion code visible to
 
    install(FILES your-completion-file DESTINATION
      ${BASH_COMPLETION_COMPLETIONSDIR})
+   ```
+
+   From bash-completion-2.12, we are going to search the data directory of
+   `bash-completion` under the installation prefix where the target command is
+   installed.  When one can assume that the version of the target
+   bash-completion is 2.12 or higher, the completion script can actually be
+   installed to `$PREFIX/share/bash-completion/completions/` under the same
+   installation prefix as the target program installed under `$PREFIX/bin/`.
+
+   Example for `Makefile.am`:
+
+   ```makefile
+   bashcompdir = $(datarootdir)/bash-completion/completions
+   dist_bashcomp_DATA = your-completion-file
+   ```
+
+   Example for `CMakeLists.txt`:
+
+   ```cmake
+   install(FILES your-completion-file DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/bash-completion/completions")
    ```
 
 **Q. When completing on a symlink to a directory, bash does not append
