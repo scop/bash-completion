@@ -112,9 +112,9 @@ A. Install a local completion of your own appropriately for the desired
    command, and it will take precedence over the one shipped by us. See the
    next answer for details where to install it, if you are doing it on per
    user basis. If you want to do it system wide, you can install eagerly
-   loaded files in `compatdir` (see a couple of questions further down for
-   more info) and install a completion for the commands to override our
-   completion for in them.
+   loaded files in the path `pkg-config bash-completion --variable
+   compatdir` outputs and install a completion for the commands to override
+   our completion for in them.
 
    If you want to use bash's default completion instead of one of ours,
    something like this should work (where `$cmd` is the command to override
@@ -136,57 +136,21 @@ A. Put them in the `completions` subdir of `$BASH_COMPLETION_USER_DIR`
    completion code for this package. Where should I put it to be sure
    that interactive bash shells will find it and source it?**
 
-A. Install it in one of the directories pointed to by
-   bash-completion's `pkgconfig` file variables. There are two
-   alternatives:
-
-   - The recommended directory is `completionsdir`, which you can get with
-     `pkg-config --variable=completionsdir bash-completion`. From this
-     directory, completions are automatically loaded on demand based on invoked
-     commands' names, so be sure to name your completion file accordingly, and
-     to include (for example) symbolic links in case the file provides
-     completions for more than one command. The completion filename for
-     command `foo` in this directory should be either `foo`, or `foo.bash`.
-     (Underscore prefixed `_foo` works too, but is reserved for
-     bash-completion internal use as a deprecation/fallback marker.)
-   - The other directory which is only present for backwards compatibility,
-     its usage is no longer recommended, is `compatdir` (get it with
-     `pkg-config --variable=compatdir bash-completion`). From this
-     directory, files are loaded eagerly when `bash_completion` is loaded.
-
-   For packages using GNU autotools the installation can be handled
-   for example like this in `configure.ac`:
-
-   ```m4
-   PKG_CHECK_VAR(bashcompdir, [bash-completion], [completionsdir], ,
-     bashcompdir="${sysconfdir}/bash_completion.d")
-   AC_SUBST(bashcompdir)
-   ```
-
-   ...accompanied by this in `Makefile.am`:
+A. For GNU Autotools, in `Makefile.am` add:
 
    ```makefile
-   bashcompdir = @bashcompdir@
-   dist_bashcomp_DATA = # completion files go here
+   bashcompdir = $(datarootdir)/bash-completion/completions
+   dist_bashcomp_DATA = your-completion-file
    ```
 
-   For cmake we ship the `bash-completion-config.cmake` and
-   `bash-completion-config-version.cmake` files. Example usage:
-
+   For CMake, add:
    ```cmake
-   find_package(bash-completion)
-   if(BASH_COMPLETION_FOUND)
-     message(STATUS
-       "Using bash completion dir ${BASH_COMPLETION_COMPLETIONSDIR}")
-   else()
-     set (BASH_COMPLETION_COMPLETIONSDIR "/etc/bash_completion.d")
-     message (STATUS
-       "Using fallback bash completion dir ${BASH_COMPLETION_COMPLETIONSDIR}")
-   endif()
-
-   install(FILES your-completion-file DESTINATION
-     ${BASH_COMPLETION_COMPLETIONSDIR})
+   install(FILES your-completion-file DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/bash-completion/completions")
    ```
+
+   bash shells will source your completion scripts if the system has
+   bash-completion installed and your package is installed into `/usr`
+   or `/usr/local`.
 
 **Q. When completing on a symlink to a directory, bash does not append
    the trailing `/` and I have to hit <kbd>&lt;Tab></kbd> again.
