@@ -138,7 +138,13 @@ A. Put them in the `completions` subdir of `$BASH_COMPLETION_USER_DIR`
    completion code for this package. Where should I put it to be sure
    that interactive bash shells will find it and source it?**
 
-A. Install it in one of the directories pointed to by
+A. [ Disclaimer: Here, how to make the completion code visible to
+   bash-completion is explained.  We do not require always making the
+   completion code to bash-completion.  In what condition the completion code
+   is installed should be determined at the author/maintainers' own
+   discretion. ]
+
+   Install it in one of the directories pointed to by
    bash-completion's `pkgconfig` file variables. There are two
    alternatives:
 
