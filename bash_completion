@@ -387,6 +387,56 @@ _comp_expand_glob()
     return 0
 }
 
+# Split a string and assign to an array.  This function basically performs
+# `IFS=<sep>; <array_name>=(<text>)` but properly handles saving/restoring the
+# state of `IFS` and the shell option `noglob`.  A naive splitting by
+# `arr=(...)` suffers from unexpected IFS and pathname expansions, so one
+# should prefer this function to such naive splitting.
+# @param $1 array_name  The array name
+#   The array name should not start with an underscores "_", which is
+#   internally used.  The array name should not be either "IFS" or
+#   "OPT{IND,ARG,ERR}".
+# @param $2 text        The string to split
+# OPTIONS
+#   -a      Append to the array
+#   -F sep  Set a set of separator characters (used as IFS).  The default
+#           separator is $' \t\n'
+#   -l      The same as -F $'\n'
+_comp_split()
+{
+    local _assign='=' IFS=$' \t\n'
+
+    local OPTIND=1 OPTARG='' OPTERR=0 _opt
+    while getopts ':alF:' _opt "$@"; do
+        case $_opt in
+            a) _assign='+=' ;;
+            l) IFS=$'\n' ;;
+            F) IFS=$OPTARG ;;
+            *)
+                echo "bash_completion: $FUNCNAME: usage error" >&2
+                return 2
+                ;;
+        esac
+    done
+    shift "$((OPTIND - 1))"
+    if (($# != 2)); then
+        printf '%s\n' "bash_completion: $FUNCNAME: unexpected number of arguments." >&2
+        printf '%s\n' "usage: $FUNCNAME [-a] [-F SEP] ARRAY_NAME TEXT" >&2
+        return 2
+    elif [[ $1 == @(*[^_a-zA-Z0-9]*|[0-9]*|''|_*|IFS|OPTIND|OPTARG|OPTERR) ]]; then
+        printf '%s\n' "bash_completion: $FUNCNAME: invalid array name '$1'." >&2
+        return 2
+    fi
+
+    local _original_opts=$SHELLOPTS
+    set -o noglob
+
+    eval "$1$_assign(\$2)"
+
+    [[ :$_original_opts: == *:noglob:* ]] || set +o noglob
+    return 0
+}
+
 # Check if the argument looks like a path.
 # @param $1 thing to check
 # @return True (0) if it does, False (> 0) otherwise
