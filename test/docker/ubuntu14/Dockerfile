@@ -9,12 +9,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
         make \
         software-properties-common \
         xvfb \
-    && apt-add-repository -y ppa:deadsnakes/ppa \
-    && apt-get update \
-    && apt-get -y --no-install-recommends install \
-        python3.6 \
-    && python3.6 -c "import urllib.request; urllib.request.urlretrieve('https://bootstrap.pypa.io/get-pip.py', '/tmp/get-pip.py')" \
-    && python3.6 /tmp/get-pip.py --prefix /usr/local
+    && python3.4 -c "import urllib.request; urllib.request.urlretrieve('https://github.com/pyston/pyston/releases/download/pyston_2.3.1/pyston_2.3.1_portable_v2.tar.gz', '/tmp/pyston.tar.gz')" \
+    && tar xCf /usr/local /tmp/pyston.tar.gz --strip-components=1
 
 ADD test-cmd-list.txt \
     requirements.txt \
@@ -22,7 +18,7 @@ ADD test-cmd-list.txt \
     /tmp/
 
 RUN set -x \
-    && python3.6 -m pip install --prefix /usr/local -Ir /tmp/requirements.txt
+    && pyston3 -m pip install -Ir /tmp/requirements.txt
 
 RUN /tmp/install-packages.sh </tmp/test-cmd-list.txt \
     && rm -r /tmp/* /root/.cache/pip /var/lib/apt/lists/*
