@@ -33,7 +33,7 @@ is required and then simply delete the descriptive text and add one's own
 data. If unset or null (default), `configure` completion will strip
 everything after the `=` when returning completions.
 
-### `COMP_CVS_REMOTE`
+### `BASH_COMPLETION_CMD_CVS_REMOTE`
 
 If set and not null, `cvs commit` completion will try to complete on
 remotely checked-out files. This requires passwordless access to the
