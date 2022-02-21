@@ -25,6 +25,27 @@ completion files that are loaded eagerly from `bash_completion` when it is
 loaded. If unset or null, the default compatibility directory to use is
 `/etc/bash_completion.d`.
 
+### `BASH_COMPLETION_FILEDIR_FALLBACK`
+
+If set and not null, completions that look for filenames based on their
+"extensions" will fall back to suggesting all files if there are none
+matching the sought ones.
+
+### `BASH_COMPLETION_KNOWN_HOSTS_WITH_AVAHI`
+
+If set and not null, known hosts completion will try to use `avahi-browse`
+for additional completions. This may be a slow operation in some setups.
+Default is unset.
+
+### `BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE`
+
+If set and not null (default), known hosts completion will complement
+hostnames from ssh's known_hosts files with hostnames taken from the file
+specified by the `HOSTFILE` shell variable (`compgen -A hostname`). If null,
+known hosts completion will omit hostnames from `HOSTFILE`. Omitting
+hostnames from `HOSTFILE` is useful if `HOSTFILE` contains many entries for
+local web development or ad-blocking.
+
 ### `BASH_COMPLETION_CMD_CONFIGURE_HINTS`
 
 If set and not null, `configure` completion will return the entire option
@@ -39,31 +60,10 @@ If set and not null, `cvs commit` completion will try to complete on
 remotely checked-out files. This requires passwordless access to the
 remote repository. Default is unset.
 
-### `BASH_COMPLETION_FILEDIR_FALLBACK`
-
-If set and not null, completions that look for filenames based on their
-"extensions" will fall back to suggesting all files if there are none
-matching the sought ones.
-
 ### `BASH_COMPLETION_CMD_IWCONFIG_SCAN`
 
 If set and not null, `iwconfig` completion will try to complete on
 available wireless networks identifiers. Default is unset.
-
-### `BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE`
-
-If set and not null (default), known hosts completion will complement
-hostnames from ssh's known_hosts files with hostnames taken from the file
-specified by the `HOSTFILE` shell variable (`compgen -A hostname`). If null,
-known hosts completion will omit hostnames from `HOSTFILE`. Omitting
-hostnames from `HOSTFILE` is useful if `HOSTFILE` contains many entries for
-local web development or ad-blocking.
-
-### `BASH_COMPLETION_KNOWN_HOSTS_WITH_AVAHI`
-
-If set and not null, known hosts completion will try to use `avahi-browse`
-for additional completions. This may be a slow operation in some setups.
-Default is unset.
 
 ### `BASH_COMPLETION_CMD_TAR_INTERNAL_PATHS`
 
