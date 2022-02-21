@@ -7,7 +7,7 @@ from conftest import assert_bash_exec, bash_env_saved
 
 @pytest.mark.bashcomp(
     cmd=None,
-    ignore_env="^[+-](COMP(REPLY|_KNOWN_HOSTS_WITH_HOSTFILE))=",
+    ignore_env="^[+-](COMPREPLY|BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE)=",
 )
 class TestUnitKnownHostsReal:
     @pytest.mark.parametrize(
@@ -43,9 +43,9 @@ class TestUnitKnownHostsReal:
         )
         assert_bash_exec(
             bash,
-            "unset -v COMP_KNOWN_HOSTS_WITH_HOSTFILE"
+            "unset -v BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE"
             if hostfile
-            else "COMP_KNOWN_HOSTS_WITH_HOSTFILE=",
+            else "BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE=",
         )
         output = assert_bash_exec(
             bash,
@@ -66,11 +66,12 @@ class TestUnitKnownHostsReal:
     )
     def test_ip_filtering(self, bash, family, result):
         assert_bash_exec(
-            bash, "unset -v COMPREPLY COMP_KNOWN_HOSTS_WITH_HOSTFILE"
+            bash,
+            "unset -v COMPREPLY BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE",
         )
         output = assert_bash_exec(
             bash,
-            "COMP_KNOWN_HOSTS_WITH_HOSTFILE= "
+            "BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE= "
             "_known_hosts_real -%sF _known_hosts_real/localhost_config ''; "
             r'printf "%%s\n" "${COMPREPLY[@]}"' % family,
             want_output=True,
@@ -88,7 +89,7 @@ class TestUnitKnownHostsReal:
 
         output = assert_bash_exec(
             bash,
-            "unset -v COMPREPLY COMP_KNOWN_HOSTS_WITH_HOSTFILE; "
+            "unset -v COMPREPLY BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE; "
             "_known_hosts_real -aF '_known_hosts_real/spaced  conf' ''; "
             r'printf "%s\n" "${COMPREPLY[@]}"',
             want_output=True,
@@ -108,8 +109,8 @@ class TestUnitKnownHostsReal:
             bash_env.write_variable("HOME", bash.cwd)
             output = assert_bash_exec(
                 bash,
-                "unset -v COMPREPLY COMP_KNOWN_HOSTS_WITH_HOSTFILE; "
-                "_known_hosts_real -aF _known_hosts_real/config_tilde ''; "
+                "unset -v COMPREPLY BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE;"
+                " _known_hosts_real -aF _known_hosts_real/config_tilde ''; "
                 r'printf "%s\n" "${COMPREPLY[@]}"',
                 want_output=True,
             )
@@ -131,8 +132,8 @@ class TestUnitKnownHostsReal:
             bash_env.write_variable("HOME", "%s/_known_hosts_real" % bash.cwd)
             output = assert_bash_exec(
                 bash,
-                "unset -v COMPREPLY COMP_KNOWN_HOSTS_WITH_HOSTFILE; "
-                "_known_hosts_real -aF _known_hosts_real/config_include ''; "
+                "unset -v COMPREPLY BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE;"
+                " _known_hosts_real -aF _known_hosts_real/config_include ''; "
                 r'printf "%s\n" "${COMPREPLY[@]}"',
                 want_output=True,
             )
@@ -144,8 +145,8 @@ class TestUnitKnownHostsReal:
             bash_env.chdir("_known_hosts_real")
             output = assert_bash_exec(
                 bash,
-                "unset -v COMPREPLY COMP_KNOWN_HOSTS_WITH_HOSTFILE; "
-                "_known_hosts_real -aF config ''; "
+                "unset -v COMPREPLY BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE;"
+                " _known_hosts_real -aF config ''; "
                 r'printf "%s\n" "${COMPREPLY[@]}"',
                 want_output=True,
             )

@@ -50,7 +50,7 @@ matching the sought ones.
 If set and not null, `iwconfig` completion will try to complete on
 available wireless networks identifiers. Default is unset.
 
-### `COMP_KNOWN_HOSTS_WITH_HOSTFILE`
+### `BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE`
 
 If set and not null (default), known hosts completion will complement
 hostnames from ssh's known_hosts files with hostnames taken from the file
