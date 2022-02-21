@@ -59,7 +59,7 @@ known hosts completion will omit hostnames from `HOSTFILE`. Omitting
 hostnames from `HOSTFILE` is useful if `HOSTFILE` contains many entries for
 local web development or ad-blocking.
 
-### `COMP_KNOWN_HOSTS_WITH_AVAHI`
+### `BASH_COMPLETION_KNOWN_HOSTS_WITH_AVAHI`
 
 If set and not null, known hosts completion will try to use `avahi-browse`
 for additional completions. This may be a slow operation in some setups.
