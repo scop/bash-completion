@@ -53,7 +53,7 @@
 # It's more important to have proper completion of paths to tar files than it
 # is to have completion for their contents, so this sacrifice was made and
 # `-o filenames` is used with complete instead by default. Setting the
-# `$COMP_TAR_INTERNAL_PATHS` environment variable to a non-null
+# `$BASH_COMPLETION_CMD_TAR_INTERNAL_PATHS` environment variable to a non-null
 # value *before sourcing* this completion toggles that the other way around.
 
 __gtar_parse_help_opt()
@@ -732,7 +732,7 @@ _tar()
     $func "$@"
 
     # Install real completion for subsequent completions
-    if [[ ${COMP_TAR_INTERNAL_PATHS-} ]]; then
+    if [[ ${BASH_COMPLETION_CMD_TAR_INTERNAL_PATHS-${COMP_TAR_INTERNAL_PATHS-}} ]]; then
         complete -F $func -o dirnames tar
     else
         complete -F $func tar
@@ -740,7 +740,7 @@ _tar()
     unset -f _tar
 }
 
-if [[ ${COMP_TAR_INTERNAL_PATHS-} ]]; then
+if [[ ${BASH_COMPLETION_CMD_TAR_INTERNAL_PATHS-${COMP_TAR_INTERNAL_PATHS-}} ]]; then
     complete -F _tar -o dirnames tar
     complete -F _gtar -o dirnames gtar
     complete -F _posix_tar -o dirnames bsdtar

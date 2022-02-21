@@ -65,7 +65,7 @@ If set and not null, known hosts completion will try to use `avahi-browse`
 for additional completions. This may be a slow operation in some setups.
 Default is unset.
 
-### `COMP_TAR_INTERNAL_PATHS`
+### `BASH_COMPLETION_CMD_TAR_INTERNAL_PATHS`
 
 If set and not null _before sourcing_ the `tar` completion, it will do
 correct path completion for tar file _contents_. If unset or null,
