@@ -1786,7 +1786,7 @@ _included_ssh_config_files()
 {
     (($# < 1)) &&
         echo "bash_completion: $FUNCNAME: missing mandatory argument CONFIG" >&2
-    local configfile i f
+    local configfile i files f
     configfile=$1
 
     local IFS=$' \t\n' reset=$(shopt -po noglob)
@@ -1809,15 +1809,16 @@ _included_ssh_config_files()
         fi
         __expand_tilde_by_ref i
         # In case the expanded variable contains multiple paths
-        set +o noglob
-        for f in $i; do
-            if [[ -r $f ]]; then
-                config+=("$f")
-                # The Included file is processed to look for Included files in itself
-                _included_ssh_config_files $f
-            fi
-        done
-        $reset
+        _comp_expand_glob files '$i'
+        if ((${#files[@]})); then
+            for f in "${files[@]}"; do
+                if [[ -r $f ]]; then
+                    config+=("$f")
+                    # The Included file is processed to look for Included files in itself
+                    _included_ssh_config_files $f
+                fi
+            done
+        fi
     done
 } # _included_ssh_config_files()
 
