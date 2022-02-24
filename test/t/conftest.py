@@ -455,6 +455,7 @@ class bash_env_saved:
 
         self.bash = bash
         self.cwd_changed: bool = False
+        self.saved_set: Dict[str, bash_env_saved.saved_state] = {}
         self.saved_shopt: Dict[str, bash_env_saved.saved_state] = {}
         self.saved_variables: Dict[str, bash_env_saved.saved_state] = {}
         self.sendintr = sendintr
@@ -519,6 +520,30 @@ class bash_env_saved:
         if not self.cwd_changed:
             self.cwd_changed = True
             self._copy_variable("PWD", "%s_OLDPWD" % self.prefix)
+
+    def _check_set(self, name: str):
+        if self.saved_set[name] != bash_env_saved.saved_state.ChangesDetected:
+            return
+        self._safe_assert(
+            '[[ $(shopt -po %s) == "${%s_NEWSHOPT_%s}" ]]'
+            % (name, self.prefix, name),
+        )
+
+    def _unprotect_set(self, name: str):
+        if name not in self.saved_set:
+            self.saved_set[name] = bash_env_saved.saved_state.ChangesDetected
+            self._safe_exec(
+                "%s_OLDSHOPT_%s=$(shopt -po %s || true)"
+                % (self.prefix, name, name),
+            )
+        else:
+            self._check_set(name)
+
+    def _protect_set(self, name: str):
+        self._safe_exec(
+            "%s_NEWSHOPT_%s=$(shopt -po %s || true)"
+            % (self.prefix, name, name),
+        )
 
     def _check_shopt(self, name: str):
         if (
@@ -614,6 +639,13 @@ class bash_env_saved:
             self._unset_variable("%s_NEWSHOPT_%s" % (self.prefix, name))
         self.saved_shopt = {}
 
+        for name in self.saved_set:
+            self._check_set(name)
+            self._safe_exec('eval "$%s_OLDSHOPT_%s"' % (self.prefix, name))
+            self._unset_variable("%s_OLDSHOPT_%s" % (self.prefix, name))
+            self._unset_variable("%s_NEWSHOPT_%s" % (self.prefix, name))
+        self.saved_set = {}
+
         self.noexcept = False
         if self.captured_error:
             raise self.captured_error
@@ -624,6 +656,18 @@ class bash_env_saved:
         self._unprotect_variable("OLDPWD")
         self._safe_exec("command cd -- %s" % shlex.quote(path))
         self._protect_variable("OLDPWD")
+
+    def set(self, name: str, value: bool):
+        self._unprotect_set(name)
+        if value:
+            self._safe_exec("set -u %s" % name)
+        else:
+            self._safe_exec("set +o %s" % name)
+        self._protect_set(name)
+
+    def save_set(self, name: str):
+        self._unprotect_set(name)
+        self.saved_set[name] = bash_env_saved.saved_state.ChangesIgnored
 
     def shopt(self, name: str, value: bool):
         self._unprotect_shopt(name)
