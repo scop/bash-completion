@@ -1148,15 +1148,20 @@ _mac_addresses()
 #
 _configured_interfaces()
 {
+    local -a files
     if [[ -f /etc/debian_version ]]; then
         # Debian system
+        _comp_expand_glob files '/etc/network/interfaces /etc/network/interfaces.d/*'
+        ((${#files[@]})) || return 0
         COMPREPLY=($(compgen -W "$(command sed -ne 's|^iface \([^ ]\{1,\}\).*$|\1|p' \
-            /etc/network/interfaces /etc/network/interfaces.d/* 2>/dev/null)" \
+            "${files[@]}" 2>/dev/null)" \
             -- "$cur"))
     elif [[ -f /etc/SuSE-release ]]; then
         # SuSE system
+        _comp_expand_glob files '/etc/sysconfig/network/ifcfg-*'
+        ((${#files[@]})) || return 0
         COMPREPLY=($(compgen -W "$(printf '%s\n' \
-            /etc/sysconfig/network/ifcfg-* |
+            "${files[@]}" |
             command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')" -- "$cur"))
     elif [[ -f /etc/pld-release ]]; then
         # PLD Linux
@@ -1165,8 +1170,10 @@ _configured_interfaces()
             command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')" -- "$cur"))
     else
         # Assume Red Hat
+        _comp_expand_glob files '/etc/sysconfig/network-scripts/ifcfg-*'
+        ((${#files[@]})) || return 0
         COMPREPLY=($(compgen -W "$(printf '%s\n' \
-            /etc/sysconfig/network-scripts/ifcfg-* |
+            "${files[@]}" |
             command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')" -- "$cur"))
     fi
 }
@@ -1422,12 +1429,12 @@ _xinetd_services()
 {
     local xinetddir=${_comp__test_xinetd_dir:-/etc/xinetd.d}
     if [[ -d $xinetddir ]]; then
-        local IFS=$' \t\n' reset=$(shopt -p nullglob)
-        shopt -s nullglob
-        local -a svcs=($xinetddir/!($_comp_backup_glob))
-        $reset
-        ((!${#svcs[@]})) ||
+        local -a svcs
+        _comp_expand_glob svcs '$xinetddir/!($_comp_backup_glob)'
+        if ((${#svcs[@]})); then
+            local IFS=$'\n'
             COMPREPLY+=($(compgen -W '"${svcs[@]#$xinetddir/}"' -- "${cur-}"))
+        fi
     fi
 }
 
@@ -1438,12 +1445,9 @@ _services()
     local sysvdirs
     _sysvdirs
 
-    local IFS=$' \t\n' reset=$(shopt -p nullglob)
-    shopt -s nullglob
-    COMPREPLY=(
-        $(printf '%s\n' ${sysvdirs[0]}/!($_comp_backup_glob|functions|README)))
-    $reset
+    _comp_expand_glob COMPREPLY '${sysvdirs[0]}/!($_comp_backup_glob|functions|README)'
 
+    local IFS=$'\n'
     COMPREPLY+=($({
         systemctl list-units --full --all ||
             systemctl list-unit-files
@@ -1474,7 +1478,7 @@ _service()
         _services
         [[ -e /etc/mandrake-release ]] && _xinetd_services
     else
-        local sysvdirs
+        local IFS=$'\n' sysvdirs
         _sysvdirs
         COMPREPLY=($(compgen -W '`command sed -e "y/|/ /" \
             -ne "s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p" \
@@ -1726,7 +1730,9 @@ _terms()
         {
             toe -a || toe
         } | awk '{ print $1 }'
-        find /{etc,lib,usr/lib,usr/share}/terminfo/? -type f -maxdepth 1 |
+        _comp_expand_glob dirs '/{etc,lib,usr/lib,usr/share}/terminfo/?'
+        ((${#dirs[@]})) &&
+            find "${dirs[@]}" -type f -maxdepth 1 |
             awk -F/ '{ print $NF }'
     } 2>/dev/null)" -- "$cur"))
 }

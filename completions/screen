@@ -28,12 +28,9 @@ _screen_sessions()
 
         if ((cword == 1)); then
             if [[ $cur == /dev* ]]; then
-                COMPREPLY=($(compgen -W "$(
-                    shopt -s nullglob
-                    printf '%s\n' \
-                        /dev/serial/*/* /dev/ttyUSB* /dev/ttyACM* 2>/dev/null
-                )" \
-                    -- "$cur"))
+                _comp_expand_glob COMPREPLY '/dev/serial/*/* /dev/ttyUSB* /dev/ttyACM*'
+                ((${#COMPREPLY[@]})) &&
+                    COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
                 return
             fi
             if [[ $cur == //* ]]; then

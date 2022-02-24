@@ -20,13 +20,8 @@ _qemu()
             return
             ;;
         -k)
-            local IFS=$' \t\n' reset=$(shopt -p nullglob)
-            shopt -s nullglob
-            local -a keymaps=($(
-                printf "%s\n" \
-                    /usr/{local/,}share/qemu/keymaps/!(common|modifiers)
-            ))
-            $reset
+            local -a keymaps
+            _comp_expand_glob keymaps '/usr/{local/,}share/qemu/keymaps/!(common|modifiers)'
             ((${#keymaps[@]})) &&
                 COMPREPLY=($(compgen -W '"${keymaps[@]##*/}"}' -- "$cur"))
             return
