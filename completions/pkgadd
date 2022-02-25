@@ -39,22 +39,21 @@ _pkgadd()
                 local -a opts=(-a -A -d -k -n -M -P -r -R -s -v -V -x)
                 COMPREPLY=($(compgen -W '"${opts[@]}"' -- "${cur}"))
             else
-                local pkginst_list
+                local -a pkginst_list
                 if [[ -d $device ]]; then
-                    local -a tmplist
-                    for filedir in $(/bin/ls -1 "$device"); do
-                        if [[ -d "$device/$filedir" && -f "$device/$filedir/pkginfo" ]]; then
-                            tmplist+=(${tmplist[@]-} "$filedir")
-                        fi
-                    done
-                    pkginst_list="${tmplist[*]}"
+                    _comp_expand_glob pkginst_list '"$device"/*/pkginfo'
+                    if ((${#pkginst_list[@]})); then
+                        pkginst_list=("${pkginst_list[@]#"$device/"}")
+                        pkginst_list=("${pkginst_list[@]%/pkginfo}")
+                    fi
                 else
                     local ret
                     _comp_dequote "$device"
-                    pkginst_list="$(strings "$ret" |
-                        command grep ^PKG= | sort -u | cut -d= -f2)"
+                    _comp_split -l pkginst_list "$(strings "${ret-}" |
+                        command sed -n 's/^PKG=//p' | sort -u)"
                 fi
-                COMPREPLY=($(compgen -W "$pkginst_list" -- "${cur}"))
+                ((${#pkginst_list[@]})) &&
+                    COMPREPLY=($(compgen -W '"${pkginst_list[@]}"' -- "${cur}"))
             fi
             ;;
     esac
