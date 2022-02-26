@@ -1099,12 +1099,12 @@ _parse_help()
 
     local cmd=$1
     local line rc=1
-    {
+    (
         case $cmd in
-            -) cat ;;
-            *) LC_ALL=C "$(dequote "$cmd")" ${2:---help} 2>&1 ;;
+            -) exec cat ;;
+            *) _comp_dequote "$cmd" && LC_ALL=C "$ret" ${2:---help} 2>&1 ;;
         esac
-    } |
+    ) |
         while read -r line; do
 
             [[ $line == *([[:blank:]])-* ]] || continue
@@ -1136,12 +1136,12 @@ _parse_usage()
 
     local cmd=$1
     local line match option i char rc=1
-    {
+    (
         case $cmd in
-            -) cat ;;
-            *) LC_ALL=C "$(dequote "$cmd")" ${2:---usage} 2>&1 ;;
+            -) exec cat ;;
+            *) _comp_dequote "$cmd" && LC_ALL=C "$ret" ${2:---usage} 2>&1 ;;
         esac
-    } |
+    ) |
         while read -r line; do
 
             while [[ $line =~ \[[[:space:]]*(-[^]]+)[[:space:]]*\] ]]; do
