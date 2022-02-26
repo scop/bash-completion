@@ -101,9 +101,10 @@ _muttaliases()
     _comp_cmd_mutt__get_conffiles "$muttrc" || return 0
     conffiles=("${ret[@]}")
     # shellcheck disable=SC2046
-    aliases=("$(command sed -n 's|^alias[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' \
-        "${conffiles[@]}")")
-    COMPREPLY+=($(compgen -W "${aliases[*]}" -- "$cur"))
+    aliases=($(command sed -n 's|^alias[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' \
+        "${conffiles[@]}"))
+    ((${#aliases[@]})) &&
+        COMPREPLY+=($(compgen -W '"${aliases[@]}"' -- "$cur"))
 }
 
 # @param $1 (cur) Current word to complete
