@@ -135,8 +135,11 @@ _make()
         # with -C/--directory
         for ((i = 1; i < ${#words[@]}; i++)); do
             if [[ ${words[i]} == -@(C|-directory) ]]; then
-                # eval for tilde expansion
-                eval "makef_dir=( -C \"${words[i + 1]}\" )"
+                # Expand tilde expansion
+                local ret
+                _comp_dequote "${words[i + 1]}" &&
+                    [[ -d ${ret-} ]] &&
+                    makef_dir=(-C "$ret")
                 break
             fi
         done
@@ -145,8 +148,11 @@ _make()
         # specified with -f/--file/--makefile
         for ((i = 1; i < ${#words[@]}; i++)); do
             if [[ ${words[i]} == -@(f|-?(make)file) ]]; then
-                # eval for tilde expansion
-                eval "makef=( -f \"${words[i + 1]}\" )"
+                # Expand tilde expansion
+                local ret
+                _comp_dequote "${words[i + 1]}" &&
+                    [[ -f ${ret-} ]] &&
+                    makef=(-f "$ret")
                 break
             fi
         done
