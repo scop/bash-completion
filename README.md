@@ -17,7 +17,8 @@ list of operating system distributions, package names, and available versions.
 
 Depending on the package, you may still
 need to source it from either `/etc/bashrc` or `~/.bashrc` (or any
-other file sourcing those). You can do this by simply using:
+other file sourcing those). If you have _only_ bash >= 4.2 installed, you can
+do this by simply using:
 
 ```shell
 # Use bash-completion, if available
@@ -25,7 +26,8 @@ other file sourcing those). You can do this by simply using:
     . /usr/share/bash-completion/bash_completion
 ```
 
-(if you happen to have *only* bash >= 4.2 installed, see further if not)
+If you have older bash versions in use, their loading of `bash_completion`
+should be prevented. See further for more info.
 
 If you don't have the package readily available for your distribution, or
 you simply don't want to use one, you can install bash completion using the
@@ -43,8 +45,8 @@ These commands install the completions and helpers, as well as a
 `profile.d` script that loads `bash_completion` where appropriate.
 
 If your system does not use the `profile.d` directory (usually below
-`/etc`) mechanism—i.e. does not automatically source shell scripts in
-it—you can source the `$sysconfdir/profile.d/bash_completion.sh`
+`/etc`) mechanism (i.e., does not automatically source shell scripts in
+it), you can source the `$sysconfdir/profile.d/bash_completion.sh`
 script in `/etc/bashrc` or `~/.bashrc`.
 
 The `profile.d` script provides a configuration file hook that can be
