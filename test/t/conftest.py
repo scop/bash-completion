@@ -16,6 +16,7 @@ from typing import (
     Iterator,
     List,
     Optional,
+    TextIO,
     Tuple,
     Type,
 )
@@ -185,7 +186,7 @@ def partialize(
 @pytest.fixture(scope="class")
 def bash(request) -> pexpect.spawn:
 
-    logfile = None
+    logfile: Optional[TextIO] = None
     histfile = None
     tmpdir = None
     bash = None
