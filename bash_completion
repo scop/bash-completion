@@ -1969,7 +1969,7 @@ _known_hosts_real()
 
     # Remove hosts that match any host exclusion patterns
     if ((${#COMPREPLY[@]})) && { [ -n "${BASH_COMPLETION_HOST_EXCLUSION_PATTERN-}" ] || [ -n "${BASH_COMPLETION_HOST_EXCLUSION_PATTERN_FILES-}" ] ; }; then
-        local host_exclusion_pattern="$( printf '%s' "${BASH_COMPLETION_HOST_EXCLUSION_PATTERN-}"  |  command -p awk 1 - "${BASH_COMPLETION_HOST_EXCLUSION_PATTERN_FILES[@]-}" 2>/dev/null  ||  true )"
+        local host_exclusion_pattern="$( printf '%s' "${BASH_COMPLETION_HOST_EXCLUSION_PATTERN-}"  |  command -p awk 1 - "${BASH_COMPLETION_HOST_EXCLUSION_PATTERN_FILES[@]-}" 2>/dev/null  |  grep -E -v '^[[:space:]]*(#|$)'  ||  true )"
 
         if [ -n "${host_exclusion_pattern}" ]; then
             COMPREPLY=( $(  printf '%s\n' "${COMPREPLY[@]}"  |  command -p grep -E -v "${host_exclusion_pattern}" 2>/dev/null  ||  true  ) )
