@@ -10,6 +10,17 @@ if [ "x${BASH_VERSION-}" != x -a "x${PS1-}" != x -a "x${BASH_COMPLETION_VERSINFO
         if shopt -q progcomp && [ -r @datadir@/@PACKAGE@/bash_completion ]; then
             # Source completion code.
             . @datadir@/@PACKAGE@/bash_completion
+
+
+            # Set up defaults for host exclusion patterns
+            if [ -f "${XDG_CONFIG_HOME:-${HOME:-/nonexistent}/.config}/bash-completion/host-exclusion-patterns" ]; then
+                BASH_COMPLETION_HOST_EXCLUSION_PATTERN_FILES+=( "${XDG_CONFIG_HOME:-${HOME:-/nonexistent}/.config}/bash-completion/host-exclusion-patterns" )
+            fi
+            for p in "${XDG_CONFIG_HOME:-${HOME:-/nonexistent}/.config}/bash-completion/host-exclusion-patterns.d"/*.conf; do
+                if [ -f "${p}" ]; then
+                    BASH_COMPLETION_HOST_EXCLUSION_PATTERN_FILES+=( "${p}" )
+                fi
+            done
         fi
     fi
 
