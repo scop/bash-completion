@@ -1485,6 +1485,14 @@ _comp_variable_assignments()
     return 0
 }
 
+_comp_return_hook()
+{
+    ((${#FUNCNAME[*]} != 2)) && return  # this _will_ need some refinement and thought
+    echo "Hello from return hook for ${FUNCNAME[1]}"
+    echo "words: ${words[@]}"
+    echo "COMPREPLY: ${COMPREPLY[@]}"
+}
+
 # Initialize completion and deal with various general things: do file
 # and variable completion where appropriate, and adjust prev, words,
 # and cword as if no redirections exist so that completions do not
@@ -1521,6 +1529,8 @@ _comp_variable_assignments()
 _comp_initialize()
 {
     local exclude="" opt_split="" outx="" errx="" inx=""
+
+    trap _comp_return_hook RETURN
 
     local flag OPTIND=1 OPTARG="" OPTERR=0
     while getopts "n:e:o:i:s" flag "$@"; do
