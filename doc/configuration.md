@@ -1,0 +1,75 @@
+# Configuration
+
+## Files
+
+### `$BASH_COMPLETION_USER_FILE`
+
+Sourced late by `bash_completion`, pretty much after everything else.
+Use this file for example to load additional completions, and to remove
+and override ones installed by bash_completion. Defaults to
+`~/.bash_completion` if unset or null.
+
+### `$XDG_CONFIG_HOME/bash_completion`
+
+Sourced by the `bash_completion.sh` `profile.d` script. This file is
+suitable for definitions of all `COMP*` environment variables below.
+If `$XDG_CONFIG_HOME` is unset or null,`~/.config` is
+used instead of it.
+
+## Environment variables
+
+### `BASH_COMPLETION_COMPAT_DIR`
+
+Directory for pre-dynamic loading era (pre-2.0) backwards compatibility
+completion files that are loaded eagerly from `bash_completion` when it is
+loaded. If unset or null, the default compatibility directory to use is
+`/etc/bash_completion.d`.
+
+### `COMP_CONFIGURE_HINTS`
+
+If set and not null, `configure` completion will return the entire option
+string (e.g. `--this-option=DESCRIPTION`) so one can see what kind of data
+is required and then simply delete the descriptive text and add one's own
+data. If unset or null (default), `configure` completion will strip
+everything after the `=` when returning completions.
+
+### `COMP_CVS_REMOTE`
+
+If set and not null, `cvs commit` completion will try to complete on
+remotely checked-out files. This requires passwordless access to the
+remote repository. Default is unset.
+
+### `COMP_FILEDIR_FALLBACK`
+
+If set and not null, completions that look for filenames based on their
+"extensions" will fall back to suggesting all files if there are none
+matching the sought ones.
+
+### `COMP_IWLIST_SCAN`
+
+If set and not null, `iwconfig` completion will try to complete on
+available wireless networks identifiers. Default is unset.
+
+### `COMP_KNOWN_HOSTS_WITH_HOSTFILE`
+
+If set and not null (default), known hosts completion will complement
+hostnames from ssh's known_hosts files with hostnames taken from the file
+specified by the `HOSTFILE` shell variable (`compgen -A hostname`). If null,
+known hosts completion will omit hostnames from `HOSTFILE`. Omitting
+hostnames from `HOSTFILE` is useful if `HOSTFILE` contains many entries for
+local web development or ad-blocking.
+
+### `COMP_KNOWN_HOSTS_WITH_AVAHI`
+
+If set and not null, known hosts completion will try to use `avahi-browse`
+for additional completions. This may be a slow operation in some setups.
+Default is unset.
+
+### `COMP_TAR_INTERNAL_PATHS`
+
+If set and not null _before sourcing_ the `tar` completion, it will do
+correct path completion for tar file _contents_. If unset or null,
+_paths to_ tar files will be correctly completed. Unfortunately we do not
+have a way to make both Just Work properly at the moment. We consider it
+more important to have proper completion of paths to tar files than it is
+to have completion for their contents, so the default is unset.
