@@ -5,7 +5,8 @@ from conftest import PS1, TestUnitBase, assert_bash_exec
 
 
 @pytest.mark.bashcomp(
-    cmd=None, ignore_env=r"^[+-](COMP_(WORDS|CWORD|LINE|POINT)|_scp_path_esc)="
+    cmd=None,
+    ignore_env=r"^[+-](COMP_(WORDS|CWORD|LINE|POINT)|_comp_cmd_scp__path_esc)=",
 )
 class TestUnitGetCword(TestUnitBase):
     def _test(self, *args, **kwargs):
