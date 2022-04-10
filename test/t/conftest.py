@@ -446,7 +446,7 @@ class bash_env_saved:
 
     def __init__(self, bash: pexpect.spawn, sendintr: bool = False):
         bash_env_saved.counter += 1
-        self.prefix: str = "_comp_test_%d" % bash_env_saved.counter
+        self.prefix: str = "_comp__test_%d" % bash_env_saved.counter
 
         self.bash = bash
         self.cwd_changed: bool = False
@@ -657,7 +657,7 @@ def diff_env(before: List[str], after: List[str], ignore: str):
         if not re.search(r"^(---|\+\+\+|@@ )", x)
         # Ignore variables expected to change:
         and not re.search(
-            r"^[-+](_|PPID|BASH_REMATCH|_comp_test_\d+_\w+)=",
+            r"^[-+](_|PPID|BASH_REMATCH|_comp__test_\d+_\w+)=",
             x,
             re.ASCII,
         )
