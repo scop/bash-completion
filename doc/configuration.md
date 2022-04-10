@@ -12,11 +12,11 @@ and override ones installed by bash_completion. Defaults to
 ### `$XDG_CONFIG_HOME/bash_completion`
 
 Sourced by the `bash_completion.sh` `profile.d` script. This file is
-suitable for definitions of all `COMP*` environment variables below.
+suitable for definitions of all `COMP*` shell variables below.
 If `$XDG_CONFIG_HOME` is unset or null,`~/.config` is
 used instead of it.
 
-## Environment variables
+## Shell variables
 
 ### `BASH_COMPLETION_COMPAT_DIR`
 
