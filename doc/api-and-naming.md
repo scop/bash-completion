@@ -3,12 +3,13 @@
 Due to its nature, bash-completion adds a number of functions and variables in
 the shell's environment.
 
-|                                | `bash_completion`   | `completions/*`                                        |
-| :----------------------------- | :------------------ | :----------------------------------------------------- |
-| public configuration variables | `BASH_COMPLETION_*` | `BASH_COMPLETION_CMD_${Command^^}_${Config^^}`         |
-| non-local internal variables   | `_comp__*`          | `_comp_cmd_${Command}__${Data}`                        |
-| public/exported functions      | `_comp_*`           | `_comp_cmd_${Command}` (functions for `complete -F`)   |
-| private/internal functions     | `_comp__*`          | `_comp_cmd_${Command}__${Utility}` (utility functions) |
+|                                | `bash_completion`   | `completions/*`                                                            |
+| :----------------------------- | :------------------ | :------------------------------------------------------------------------- |
+| public configuration variables | `BASH_COMPLETION_*` | `BASH_COMPLETION_CMD_${Command^^}_${Config^^}`                             |
+| non-local internal variables   | `_comp__*`          | `_comp_cmd_${Command}__${Data}`                                            |
+| public/exported functions      | `_comp_*`           | `_comp_cmd_${Command}` (functions for `complete -F`)                       |
+|                                |                     | `_comp_xfunc_${Command}_${Utility}` (functions for use with `_comp_xfunc`) |
+| private/internal functions     | `_comp__*`          | `_comp_cmd_${Command}__${Utility}` (utility functions)                     |
 
 `${Command}` refers to a command name (with characters not allowed in POSIX
 function or variable names replaced by an underscore), `${Config}` the name of
@@ -30,6 +31,11 @@ the box. But there are some, see [configuration](configuration.md).
 Variables and functions whose name contains a double underscore (`__`) anywhere
 in their name are private implementation details, not part of the stable API,
 and not intended to be used outside of their defining context.
+
+Functions with names prefixed with `_comp_xfunc_` are intended to be used
+through the `_comp_xfunc` function from files other than the one they are
+defined in. From the same file they can be used directly using their complete
+name.
 
 Function names start with an underscore in order to avoid them being
 included in completions of command names. (Except naturally when a command
