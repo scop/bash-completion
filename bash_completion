@@ -2429,6 +2429,22 @@ _completion_loader()
 # Function for loading and calling functions from dynamically loaded
 # completion files that may not have been sourced yet.
 # @param $1 completion file to load function from in case it is missing
+# @param $2 the xfunc name.  When it does not start with `_',
+#   `_comp_xfunc_${1//[^a-zA-Z0-9_]/_}_$2' is used for the actual name of the
+#   shell function.
+# @param $3... if any, specifies the arguments that are passed to the xfunc.
+_comp_xfunc()
+{
+    local xfunc_name=$2
+    [[ $xfunc_name == _* ]] ||
+        xfunc_name=_comp_xfunc_${1//[^a-zA-Z0-9_]/_}_$xfunc_name
+    declare -F "$xfunc_name" &>/dev/null || __load_completion "$1"
+    "$xfunc_name" "${@:3}"
+}
+
+# Function for loading and calling functions from dynamically loaded
+# completion files that may not have been sourced yet.
+# @param $1 completion file to load function from in case it is missing
 # @param $2... function and its arguments
 _xfunc()
 {
