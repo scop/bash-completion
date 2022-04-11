@@ -105,7 +105,7 @@ _comp_deprecate_func _userland _comp_userland
 
 # This function sets correct SysV init directories
 #
-_sysvdirs()
+_comp_sysvdirs()
 {
     sysvdirs=()
     [[ -d /etc/rc.d/init.d ]] && sysvdirs+=(/etc/rc.d/init.d)
@@ -114,6 +114,8 @@ _sysvdirs()
     [[ -f /etc/slackware-version ]] && sysvdirs=(/etc/rc.d)
     return 0
 }
+
+_comp_deprecate_func _sysvdirs _comp_sysvdirs
 
 # This function checks whether we have a given program on the system.
 #
@@ -1441,7 +1443,7 @@ _xinetd_services()
 _services()
 {
     local sysvdirs
-    _sysvdirs
+    _comp_sysvdirs
 
     _comp_expand_glob COMPREPLY '${sysvdirs[0]}/!($_comp_backup_glob|functions|README)'
 
@@ -1477,7 +1479,7 @@ _service()
         [[ -e /etc/mandrake-release ]] && _xinetd_services
     else
         local IFS=$'\n' sysvdirs
-        _sysvdirs
+        _comp_sysvdirs
         COMPREPLY=($(compgen -W '`command sed -e "y/|/ /" \
             -ne "s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p" \
             ${sysvdirs[0]}/${prev##*/} 2>/dev/null` start stop' -- "$cur"))
@@ -1488,7 +1490,7 @@ _service()
 _comp__init_set_up_service_completions()
 {
     local sysvdirs svc svcdir
-    _sysvdirs
+    _comp_sysvdirs
     for svcdir in "${sysvdirs[@]}"; do
         for svc in "$svcdir"/!($_comp_backup_glob); do
             [[ -x $svc ]] && complete -F _service "$svc"
