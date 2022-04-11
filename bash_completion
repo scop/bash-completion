@@ -140,10 +140,12 @@ have()
 # This function checks whether a given readline variable
 # is `on'.
 #
-_rl_enabled()
+_comp_readline_variable_on()
 {
     [[ $(bind -v) == *$1+([[:space:]])on* ]]
 }
+
+_comp_deprecate_func _rl_enabled _comp_readline_variable_on
 
 # This function shell-quotes the argument
 quote()
@@ -2071,8 +2073,8 @@ _cd()
         return
     fi
 
-    local -r mark_dirs=$(_rl_enabled mark-directories && echo y)
-    local -r mark_symdirs=$(_rl_enabled mark-symlinked-directories && echo y)
+    local -r mark_dirs=$(_comp_readline_variable_on mark-directories && echo y)
+    local -r mark_symdirs=$(_comp_readline_variable_on mark-symlinked-directories && echo y)
 
     # we have a CDPATH, so loop on its contents
     for i in ${CDPATH//:/$'\n'}; do
