@@ -44,6 +44,21 @@ _comp__init_blacklist_glob='@(acroread.sh)'
 # Turn on extended globbing and programmable completion
 shopt -s extglob progcomp
 
+# Declare a compatibility function name
+# @param $1 Old function name
+# @param $2 New function name
+_comp_deprecate_func()
+{
+    if [[ $1 != [a-zA-Z_]*([a-zA-Z_0-9]) ]]; then
+        printf 'bash_completion: %s: %s\n' "$FUNCNAME" "\$1: invalid function name '$1'" >&2
+        return 2
+    elif [[ $2 != [a-zA-Z_]*([a-zA-Z_0-9]) ]]; then
+        printf 'bash_completion: %s: %s\n' "$FUNCNAME" "\$2: invalid function name '$2'" >&2
+        return 2
+    fi
+    eval -- "$1() { $2 \"\$@\"; }"
+}
+
 # A lot of the following one-liners were taken directly from the
 # completion examples provided with the bash 2.04 source distribution
 
@@ -2442,18 +2457,7 @@ _comp_xfunc()
     "$xfunc_name" "${@:3}"
 }
 
-# Function for loading and calling functions from dynamically loaded
-# completion files that may not have been sourced yet.
-# @param $1 completion file to load function from in case it is missing
-# @param $2... function and its arguments
-_xfunc()
-{
-    set -- "$@"
-    local srcfile=$1
-    shift
-    declare -F $1 &>/dev/null || __load_completion "$srcfile"
-    "$@"
-}
+_comp_deprecate_func _xfunc _comp_xfunc
 
 # source compat completion directory definitions
 _comp__init_compat_dir=${BASH_COMPLETION_COMPAT_DIR:-/etc/bash_completion.d}
