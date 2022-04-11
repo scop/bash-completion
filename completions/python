@@ -1,17 +1,20 @@
 # bash completion for python                               -*- shell-script -*-
 
-_python_modules()
+_comp_xfunc_python_modules()
 {
     COMPREPLY+=($(compgen -W \
         "$(${1:-python} ${BASH_SOURCE[0]%/*}/../helpers/python $cur \
             2>/dev/null)" -- "$cur"))
 }
 
-_python_warning_actions()
+_comp_xfunc_python_warning_actions()
 {
     COMPREPLY+=($(compgen -W "ignore default all module once error" \
         ${prefix:+-P "$prefix"} -- "$cur"))
 }
+
+_comp_deprecate_func _python_modules _comp_xfunc_python_modules
+_comp_deprecate_func _python_warning_actions _comp_xfunc_python_warning_actions
 
 _python()
 {
@@ -31,7 +34,7 @@ _python()
             return
             ;;
         -!(-*)m)
-            _python_modules "$1"
+            _comp_xfunc_python_modules "$1"
             return
             ;;
         -!(-*)Q)
@@ -40,7 +43,7 @@ _python()
             return
             ;;
         -!(-*)W)
-            _python_warning_actions
+            _comp_xfunc_python_warning_actions
             return
             ;;
         -!(-*)X)
