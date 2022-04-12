@@ -1,0 +1,151 @@
+# Utility xfunc functions for array manipulations          -*- shell-script -*-
+
+# Filter the array elements with the specified condition.
+# @param $1 Array name (that is not "value" or other internal variable names)
+# @param $2 When any of the options `-EFG' is specified, the second argument is
+#   used as a pattern string whose meaning is determined by the option `-EFG'.
+#   Otherwise, the second argument specifies the command that tests the array
+#   element.  The command is supposed to exit with:
+#
+#     status 0 .... when the element should be preserved
+#     status 1 .... when the element should be removed
+#     status 2 .... when the usage of the predicate is wrong
+#     status 27 ... when the loop should be canceled.  All the remaining
+#                   elements will be preserved regardless of the presence of
+#                   option `-r'.
+#
+#   The other exit statuses are reserved and cancel the array filtering with an
+#   error message, and the function returns with the exit status 2.  If this is
+#   an existing command name, the command is called with the value of the array
+#   element being specified as the first command argument.  Otherwise, this
+#   shall be a shell command that tests the array-element value stored in the
+#   environment variable "value".
+#
+# Options:
+#
+#     The following options specify the type of the pattern.  When mutiple
+#     options are supplied, the last-specified one overwrite the previous
+#     option.
+#
+#     -E          $2 is interpreted as a POSIX extended regular expression.
+#                 The default anchoring is `-m` (see below).
+#     -F          $2 is interpreted as a fixed string.  The default anchoring
+#                 is `-m` (see below).
+#     -G          $2 is interpreted as a glob pattern.  The default anchoring
+#                 is `-x` (see below).
+#
+#     Combined with any of -EFG, the following options specify the anchoring
+#     type of the pattern matching.  When multiple options are supplied, the
+#     last-specified one overwrites the previous option.
+#
+#     -p          performs the prefix matching.
+#     -s          performs the suffix matching.
+#     -m          performs the middle matching.
+#     -x          performs the exact matching.
+#
+#     -r          Revert the condition, i.e., remove elements that satisfy
+#                 the original condition.
+#     -C          Array compaction is not performed.
+#
+# @return 2 with a wrong usage, 1 when any elements are removed, 0 when the set
+#   of array elements are unchanged. [ Note: the compaction will be performed
+#   (without the option -C) even when the set of array elements are
+#   unchanged. ]
+_comp_xfunc_ARRAY_filter()
+{
+    local _comp_local_flags='' _comp_local_pattype='' _comp_local_anchoring=''
+    local OPTIND=1 OPTARG='' OPTERR=0 _comp_local_opt=''
+    while getopts 'EFGpsmxrC' _comp_local_opt "$@"; do
+        case $_comp_local_opt in
+            [EFG]) _comp_local_pattype=$_comp_local_opt ;;
+            [psmx]) _comp_local_anchoring=$_comp_local_opt ;;
+            [rC]) _comp_local_flags=$_comp_local_opt$_comp_local_flags ;;
+            *)
+                printf 'bash_completion: %s: %s\n' "$FUNCNAME" 'usage error' >&2
+                printf 'usage: %s %s\n' "$FUNCNAME" "[-EFGpsmxrC] ARRAY_NAME CONDITION" >&2
+                return 2
+                ;;
+        esac
+    done
+
+    shift "$((OPTIND - 1))"
+    if (($# != 2)); then
+        printf 'bash_completion: %s: %s\n' "$FUNCNAME" "unexpected number of arguments: $#" >&2
+        printf 'usage: %s %s\n' "$FUNCNAME" "[-EFGpsmxrC] ARRAY_NAME CONDITION" >&2
+        return 2
+    elif [[ $1 != [a-zA-Z_]*([a-zA-Z_0-9]) ]]; then
+        printf 'bash_completion: %s: %s\n' "$FUNCNAME" "invalid array name '$1'." >&2
+        return 2
+    elif [[ $1 == @(_comp_local_*|OPTIND|OPTARG|OPTERR) ]]; then
+        printf 'bash_completion: %s: %s\n' "$FUNCNAME" "array name '$1' is reserved for internal uses" >&2
+        return 2
+    elif [[ ! $_comp_local_pattype && $1 == value ]]; then
+        printf 'bash_completion: %s: %s\n' "$FUNCNAME" "array name '$1' cannot be used for the predicate" >&2
+        return 2
+    fi
+    # When the array is empty:
+    eval "((\${#$1[@]}))" || return 0
+
+    local _comp_local_predicate='' _comp_local_pattern=$2
+    case $_comp_local_pattype in
+        E)
+            case $_comp_local_anchoring in
+                p) _comp_local_predicate='[[ $_comp_local_value =~ ^($_comp_local_pattern) ]]' ;;
+                s) _comp_local_predicate='[[ $_comp_local_value =~ ($_comp_local_pattern)$ ]]' ;;
+                x) _comp_local_predicate='[[ $_comp_local_value =~ ^($_comp_local_pattern)$ ]]' ;;
+                *) _comp_local_predicate='[[ $_comp_local_value =~ $_comp_local_pattern ]]' ;;
+            esac
+            ;;
+        F)
+            case $_comp_local_anchoring in
+                p) _comp_local_predicate='[[ $_comp_local_value == "$_comp_local_pattern"* ]]' ;;
+                s) _comp_local_predicate='[[ $_comp_local_value == *"$_comp_local_pattern" ]]' ;;
+                x) _comp_local_predicate='[[ $_comp_local_value == "$_comp_local_pattern" ]]' ;;
+                *) _comp_local_predicate='[[ $_comp_local_value == *"$_comp_local_pattern"* ]]' ;;
+            esac
+            ;;
+        G)
+            case $_comp_local_anchoring in
+                p) _comp_local_predicate='[[ $_comp_local_value == $_comp_local_pattern* ]]' ;;
+                s) _comp_local_predicate='[[ $_comp_local_value == *$_comp_local_pattern ]]' ;;
+                m) _comp_local_predicate='[[ $_comp_local_value == *$_comp_local_pattern* ]]' ;;
+                *) _comp_local_predicate='[[ $_comp_local_value == $_comp_local_pattern ]]' ;;
+            esac
+            ;;
+        *)
+            if type -t "$2" &>/dev/null; then
+                _comp_local_predicate="$2 \"\$_comp_local_value\""
+            else
+                _comp_local_predicate="local -x value=\$_comp_local_value; $2"
+            fi
+            ;;
+    esac
+
+    local _comp_local_unset='' _comp_local_expected_status=0
+    [[ $_comp_local_flags == *r* ]] && _comp_local_expected_status=1
+
+    local _comp_local_indices _comp_local_index _comp_local_value
+    eval "_comp_local_indices=(\"\${!$1[@]}\")"
+    for _comp_local_index in "${_comp_local_indices[@]}"; do
+        eval "_comp_local_value=\${$1[\$_comp_local_index]}; $_comp_local_predicate"
+        case $? in
+            "$_comp_local_expected_status") continue ;;
+            [01])
+                unset -v "$1[\$_comp_local_index]"
+                _comp_local_unset=1
+                ;;
+            27) break ;;
+            *)
+                printf 'bash_completion: %s: %s\n' "$FUNCNAME" \
+                    "filter condition broken '${_comp_local_pattype:+-$_comp_local_pattype }$2'" >&2
+                return 2
+                ;;
+        esac
+    done
+
+    # Compaction of the sparse array
+    [[ $_comp_local_flags == *C* ]] ||
+        eval "((\${#$1[@]})) && $1=(\"\${$1[@]}\")"
+
+    [[ ! $_comp_local_unset ]]
+}
