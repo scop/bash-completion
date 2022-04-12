@@ -623,7 +623,8 @@ _filedir()
         # the fallback condition with the "plus" dirs.
         local opts=(-f -X "$xspec")
         [[ $xspec ]] && plusdirs=(-o plusdirs)
-        [[ ${COMP_FILEDIR_FALLBACK-} || -z ${plusdirs-} ]] ||
+        [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-${COMP_FILEDIR_FALLBACK-}} ||
+            -z ${plusdirs-} ]] ||
             opts+=("${plusdirs[@]}")
 
         reset=$(shopt -po noglob)
@@ -634,7 +635,8 @@ _filedir()
         IFS=$'\n'
 
         # Try without filter if it failed to produce anything and configured to
-        [[ -n ${COMP_FILEDIR_FALLBACK-} && -n $arg && ${#toks[@]} -lt 1 ]] && {
+        [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-${COMP_FILEDIR_FALLBACK-}} &&
+            -n $arg && ${#toks[@]} -lt 1 ]] && {
             reset=$(shopt -po noglob)
             set -o noglob
             toks+=($(compgen -f ${plusdirs+"${plusdirs[@]}"} -- $quoted))
@@ -1350,7 +1352,7 @@ _backup_glob='@(#*#|*@(~|.@(bak|orig|rej|swp|dpkg*|rpm@(orig|new|save))))'
 #
 _xinetd_services()
 {
-    local xinetddir=${BASHCOMP_XINETDDIR:-/etc/xinetd.d}
+    local xinetddir=${_comp__test_xinetd_dir:-/etc/xinetd.d}
     if [[ -d $xinetddir ]]; then
         local IFS=$' \t\n' reset=$(shopt -p nullglob)
         shopt -s nullglob
@@ -1754,9 +1756,9 @@ _included_ssh_config_files()
 # Helper function for completing _known_hosts.
 # This function performs host completion based on ssh's config and known_hosts
 # files, as well as hostnames reported by avahi-browse if
-# COMP_KNOWN_HOSTS_WITH_AVAHI is set to a non-empty value.  Also hosts from
-# HOSTFILE (compgen -A hostname) are added, unless
-# COMP_KNOWN_HOSTS_WITH_HOSTFILE is set to an empty value.
+# BASH_COMPLETION_KNOWN_HOSTS_WITH_AVAHI is set to a non-empty value.
+# Also hosts from HOSTFILE (compgen -A hostname) are added, unless
+# BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE is set to an empty value.
 # Usage: _known_hosts_real [OPTIONS] CWORD
 # Options:  -a             Use aliases from ssh config files
 #           -c             Use `:' suffix
@@ -1927,7 +1929,7 @@ _known_hosts_real()
     fi
 
     # Add hosts reported by avahi-browse, if desired and it's available.
-    if [[ ${COMP_KNOWN_HOSTS_WITH_AVAHI-} ]] &&
+    if [[ ${BASH_COMPLETION_KNOWN_HOSTS_WITH_AVAHI-${COMP_KNOWN_HOSTS_WITH_AVAHI-}} ]] &&
         type avahi-browse &>/dev/null; then
         # Some old versions of avahi-browse reportedly didn't have -k
         # (even if mentioned in the manpage); those we do not support any more.
@@ -1945,8 +1947,8 @@ _known_hosts_real()
     fi
 
     # Add results of normal hostname completion, unless
-    # `COMP_KNOWN_HOSTS_WITH_HOSTFILE' is set to an empty value.
-    if [[ -n ${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1} ]]; then
+    # `BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE' is set to an empty value.
+    if [[ -n ${BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE-${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1}} ]]; then
         COMPREPLY+=(
             $(compgen -A hostname -P "$prefix" -S "$suffix" -- "$cur"))
     fi
@@ -2267,7 +2269,8 @@ _filedir_xspec()
     ))
 
     # Try without filter if it failed to produce anything and configured to
-    [[ -n ${COMP_FILEDIR_FALLBACK:-} && ${#toks[@]} -lt 1 ]] && {
+    [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-${COMP_FILEDIR_FALLBACK-}} &&
+        ${#toks[@]} -lt 1 ]] && {
         local reset=$(shopt -po noglob)
         set -o noglob
         toks+=($(compgen -f -- "$(quote_readline "$cur")"))
