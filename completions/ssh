@@ -427,6 +427,10 @@ _scp_path_esc='[][(){}<>"'"'"',:;^&!$=?`\\|[:space:]]'
 _scp_remote_files()
 {
     local IFS=$'\n'
+	
+    # Parse port number from whole command
+    __sshport=`echo ${COMP_WORDS[@]} | sed -n 's/.*-*P\([ 0-9]*\)[ ].*/\1/p' `
+    [[ -n $"{__sshport// }" ]] && __sshoption="-p $__sshport" || __sshoption=""
 
     # remove backslash escape from the first colon
     cur=${cur/\\:/:}
@@ -440,21 +444,21 @@ _scp_remote_files()
 
     # default to home dir of specified user on remote host
     if [[ -z $path ]]; then
-        path=$(ssh -o 'Batchmode yes' "$userhost" pwd 2>/dev/null)
+        path=$(ssh $__sshoption -o 'Batchmode yes' "$userhost" pwd 2>/dev/null)
     fi
 
     local files
     if [[ ${1-} == -d ]]; then
         # escape problematic characters; remove non-dirs
         # shellcheck disable=SC2090
-        files=$(ssh -o 'Batchmode yes' "$userhost" \
+        files=$(ssh $__sshoption -o 'Batchmode yes' "$userhost" \
             command ls -aF1dL "$path*" 2>/dev/null |
             command sed -e 's/'"$_scp_path_esc"'/\\\\\\&/g' -e '/[^\/]$/d')
     else
         # escape problematic characters; remove executables, aliases, pipes
         # and sockets; add space at end of file names
         # shellcheck disable=SC2090
-        files=$(ssh -o 'Batchmode yes' "$userhost" \
+        files=$(ssh $__sshoption -o 'Batchmode yes' "$userhost" \
             command ls -aF1dL "$path*" 2>/dev/null |
             command sed -e 's/'"$_scp_path_esc"'/\\\\\\&/g' -e 's/[*@|=]$//g' \
                 -e 's/[^\/]$/& /g')
