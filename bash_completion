@@ -1485,13 +1485,51 @@ _comp_variable_assignments()
     return 0
 }
 
-_comp_return_hook()
+_comp_finalize__depth=()
+_comp_finalize__target=()
+_comp_finalize__original_return_trap=
+
+# This associative array contains the finalizer commands with the key
+# being the name of the completed command.
+declare -gA BASH_COMPLETION_FINALIZE_CMD_HOOKS
+
+# This array contains the general finalizer commands that will be
+# executed for all the commands.
+declare -ga BASH_COMPLETION_FINALIZE_HOOKS
+
+_comp_finalize()
 {
-    ((${#FUNCNAME[*]} != 2)) && return  # this _will_ need some refinement and thought
-    echo "Hello from return hook for ${FUNCNAME[1]}"
-    echo "words: ${words[@]}"
-    echo "COMPREPLY: ${COMPREPLY[@]}"
+    ((${#_comp_finalize__depth[@]})) || return 0
+    while ((${#FUNCNAME[@]} <= ${_comp_finalize__depth[-1]})); do
+        if [[ ${#FUNCNAME[@]} -eq ${_comp_finalize__depth[-1]} && ${FUNCNAME[1]-} == "${_comp_finalize__target[-1]}" ]]; then
+            # Call finalizer for each command
+            local cmd=${words[0]-} _comp_local_hook
+            if [[ $cmd ]]; then
+                _comp_local_hook=${BASH_COMPLETION_FINALIZE_CMD_HOOKS[$cmd]-}
+                eval -- "$_comp_local_hook"
+            fi
+
+            # Call general finalizers
+            if [[ ${BASH_COMPLETION_FINALIZE_HOOKS[*]+set} ]]; then
+                for _comp_local_hook in "${BASH_COMPLETION_FINALIZE_HOOKS[@]}"; do
+                    eval -- "$_comp_local_hook"
+                done
+            fi
+        fi
+
+        unset -v '_comp_finalize__depth[-1]'
+        unset -v '_comp_finalize__target[-1]'
+        if ((${#_comp_finalize__depth[@]} == 0)); then
+            eval -- "${_comp_finalize__original_return_trap:-trap - RETURN}"
+            _comp_finalize__original_return_trap=
+            break
+        fi
+    done
 }
+# Note: We need to set "trace" function attribute of _comp_finalize to
+# make the trap restoration by "trap - RETURN" take effect in the
+# upper level.
+declare -ft _comp_finalize
 
 # Initialize completion and deal with various general things: do file
 # and variable completion where appropriate, and adjust prev, words,
@@ -1530,7 +1568,28 @@ _comp_initialize()
 {
     local exclude="" opt_split="" outx="" errx="" inx=""
 
-    trap _comp_return_hook RETURN
+    if ((${#FUNCNAME[@]} >= 2)); then
+        # Install "_comp_finalize" to the RETURN trap when "_init_completion" is
+        # called for the top-level completion. [ Note: the completion function may
+        # be called recursively using "_command_offset", etc. ]
+        if ((${#_comp_finalize__depth[@]} == 0)); then
+            if shopt -q extdebug || shopt -qo functrace; then
+                # If extdebug / functrace is set, we need to explicitly save and
+                # restore the original trap handler because the outer trap handlers
+                # will be affected by "trap - RETURN" inside functions with these
+                # settings.
+                _comp_finalize__original_return_trap=$(trap -p RETURN)
+            else
+                # Otherwise, the outer RETURN trap will be restored when the RETURN
+                # trap is removed inside the functions using "trap - RETURN".  So, we
+                # do not need to explicitly save the outer trap handler.
+                _comp_finalize__original_return_trap=
+            fi
+            trap _comp_finalize RETURN
+        fi
+        _comp_finalize__depth+=("${#FUNCNAME[@]}")
+        _comp_finalize__target+=("${FUNCNAME[1]-}")
+    fi
 
     local flag OPTIND=1 OPTARG="" OPTERR=0
     while getopts "n:e:o:i:s" flag "$@"; do
