@@ -12,7 +12,7 @@ _update_rc_d()
     [[ -d /etc/rc.d/init.d ]] && sysvdir=/etc/rc.d/init.d ||
         sysvdir=/etc/init.d
 
-    services=($sysvdir/!(README*|*.sh|$_backup_glob))
+    services=($sysvdir/!(README*|*.sh|$_comp_backup_glob))
     ((${#services[@]})) && services=("${services[@]#$sysvdir/}")
     options=(-f -n)
 
