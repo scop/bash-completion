@@ -31,7 +31,8 @@ prone, more featureful, and slightly faster.
 
 ## `$x` and `! $x` vs `-n $x` and `-z $x`
 
-Use `[[ $x ]]` and `[[ ! $x ]]` instead of `[[ -n $x ]]` and `[[ -z $x ]]`.
+Use `[[ $x ]]` and `[[ ! $x ]]` instead of `[[ -n $x ]]` and `[[ -z $x ]]`,
+and similarly with the `test` builtin.
 Rationale: no strong technical reasons to prefer either style, but the former
 is subjectively slightly more readable and it was traditionally more common in
 the codebase before this style item was standardized.
