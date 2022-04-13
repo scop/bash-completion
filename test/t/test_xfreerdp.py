@@ -42,7 +42,7 @@ class TestXfreerdp:
     @pytest.mark.complete(
         "xfreerdp /kbd:",
         require_cmd=True,
-        skipif='test -z "$(xfreerdp /kbd-list 2>/dev/null)"',
+        skipif='test ! "$(xfreerdp /kbd-list 2>/dev/null)"',
     )
     def test_4(self, bash, completion, help_success, slash_syntax):
         assert completion

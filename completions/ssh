@@ -66,7 +66,7 @@ _ssh_options()
         GSSAPITrustDns SmartcardDevice UsePrivilegedPort
     )
     local protocols=$(_ssh_query "${1:-ssh}" protocol-version)
-    if [[ -z $protocols || $protocols == *1* ]]; then
+    if [[ ! $protocols || $protocols == *1* ]]; then
         opts+=(Cipher CompressionLevel Protocol RhostsRSAAuthentication
             RSAAuthentication)
     fi
@@ -243,7 +243,7 @@ _ssh_configfile()
 # shellcheck disable=SC2120
 _ssh_identityfile()
 {
-    [[ -z $cur && -d ~/.ssh ]] && cur=~/.ssh/id
+    [[ ! $cur && -d ~/.ssh ]] && cur=~/.ssh/id
     _filedir
     if ((${#COMPREPLY[@]} > 0)); then
         COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' \
@@ -439,7 +439,7 @@ _scp_remote_files()
     path=$(command sed -e 's/\\\\\\\('"$_comp_cmd_scp__path_esc"'\)/\\\1/g' <<<"$path")
 
     # default to home dir of specified user on remote host
-    if [[ -z $path ]]; then
+    if [[ ! $path ]]; then
         path=$(ssh -o 'Batchmode yes' "$userhost" pwd 2>/dev/null)
     fi
 
