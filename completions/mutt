@@ -65,6 +65,17 @@ _muttconffiles()
     printf '%s\n' $sofar
 }
 
+# Query the value of a mutt configuration variable
+# @param $1  Name of the variable
+# @output  Value of the variable
+_muttconfvar()
+{
+    local varname=$1 muttrc
+
+    muttrc=$(_muttrc)
+    $muttcmd -F "$muttrc" -Q $varname 2>/dev/null | command sed -e 's|^\(set[[:space:]]\{1,\}\)\{0,1\}'"$varname"'[[:space:]]*=[[:space:]]*\"\(.*\)\"$|\2|'
+}
+
 # @param $1 (cur) Current word to complete
 _muttaliases()
 {
@@ -87,7 +98,7 @@ _muttquery()
     local cur=$1 querycmd muttcmd=${words[0]}
     local -a queryresults
 
-    querycmd="$($muttcmd -Q query_command 2>/dev/null | command sed -e 's|^query_command=\"\(.*\)\"$|\1|' -e 's|%s|'$cur'|')"
+    querycmd="$(_muttconfvar query_command | command sed -e 's|%s|'$cur'|')"
     if [[ -z $cur || -z $querycmd ]]; then
         queryresults=()
     else
@@ -104,9 +115,8 @@ _muttfiledir()
 {
     local cur=$1 folder muttrc spoolfile muttcmd=${words[0]}
 
-    muttrc=$(_muttrc)
     if [[ $cur == [=+]* ]]; then
-        folder="$($muttcmd -F "$muttrc" -Q folder 2>/dev/null | command sed -e 's|^folder=\"\(.*\)\"$|\1|')"
+        folder="$(_muttconfvar folder)"
         : folder:=~/Mail
 
         # Match any file in $folder beginning with $cur
@@ -116,8 +126,7 @@ _muttfiledir()
         COMPREPLY=(${COMPREPLY[@]#$folder/})
         return
     elif [[ $cur == !* ]]; then
-        spoolfile="$($muttcmd -F "$muttrc" -Q spoolfile 2>/dev/null |
-            command sed -e 's|^spoolfile=\"\(.*\)\"$|\1|')"
+        spoolfile="$(_muttconfvar spoolfile)"
         [[ -n $spoolfile ]] && eval cur="${cur/^!/$spoolfile}"
     fi
     _filedir
