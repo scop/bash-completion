@@ -636,7 +636,7 @@ _filedir()
 
         # Try without filter if it failed to produce anything and configured to
         [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-${COMP_FILEDIR_FALLBACK-}} &&
-            -n $arg && ${#toks[@]} -lt 1 ]] && {
+            $arg && ${#toks[@]} -lt 1 ]] && {
             reset=$(shopt -po noglob)
             set -o noglob
             toks+=($(compgen -f ${plusdirs+"${plusdirs[@]}"} -- $quoted))
@@ -1567,7 +1567,7 @@ _fstypes()
              $([[ -d /etc/fs ]] && command ls /etc/fs)"
     fi
 
-    [[ -n $fss ]] && COMPREPLY+=($(compgen -W "$fss" -- "$cur"))
+    [[ $fss ]] && COMPREPLY+=($(compgen -W "$fss" -- "$cur"))
 }
 
 # Get real command.
@@ -1952,7 +1952,7 @@ _known_hosts_real()
 
     # Add results of normal hostname completion, unless
     # `BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE' is set to an empty value.
-    if [[ -n ${BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE-${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1}} ]]; then
+    if [[ ${BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE-${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1}} ]]; then
         COMPREPLY+=(
             $(compgen -A hostname -P "$prefix" -S "$suffix" -- "$cur"))
     fi
@@ -2136,7 +2136,7 @@ _command_offset()
                     # Note: When completion spec is removed after 124, we do
                     # not generate any completions including the default ones.
                     # This is the behavior of the original Bash progcomp.
-                    [[ -n $cspec ]] || break
+                    [[ $cspec ]] || break
 
                     continue
                 fi
@@ -2267,7 +2267,7 @@ _filedir_xspec()
     toks+=($(
         eval compgen -f -X "'!$xspec'" -- '$(quote_readline "$cur")' | {
             while read -r tmp; do
-                [[ -n $tmp ]] && printf '%s\n' $tmp
+                [[ $tmp ]] && printf '%s\n' $tmp
             done
         }
     ))
@@ -2372,7 +2372,7 @@ __load_completion()
 {
     local -a dirs=(${BASH_COMPLETION_USER_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion}/completions)
     local IFS=: dir cmd="${1##*/}" compfile
-    [[ -n $cmd ]] || return 1
+    [[ $cmd ]] || return 1
     for dir in ${XDG_DATA_DIRS:-/usr/local/share:/usr/share}; do
         dirs+=($dir/bash-completion/completions)
     done
