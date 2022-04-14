@@ -135,7 +135,7 @@ __gnu_tar_parse_help()
             # variable may contain e.g. '-X, --XXX[=NAME], -XXX2[=NAME]'.
             arg=none
             if [[ $line =~ --[A-Za-z0-9-]+(\[?)= ]]; then
-                [[ -n ${BASH_REMATCH[1]} ]] && arg=opt || arg=req
+                [[ ${BASH_REMATCH[1]} ]] && arg=opt || arg=req
             fi
 
             __gtar_parse_help_line "$str" "$arg"
@@ -170,19 +170,19 @@ __tar_parse_old_opt()
     local first_word char
 
     # current word is the first word
-    [[ $cword -eq 1 && -n $cur && ${cur:0:1} != '-' ]] &&
+    [[ $cword -eq 1 && $cur && ${cur:0:1} != '-' ]] &&
         old_opt_progress=1
 
     # check that first argument does not begin with "-"
     first_word=${words[1]}
-    [[ -n $first_word && ${first_word:0:1} != "-" ]] &&
+    [[ $first_word && ${first_word:0:1} != "-" ]] &&
         old_opt_used=1
 
     # parse the old option (if present) contents to allow later code expect
     # corresponding arguments
     if ((old_opt_used == 1)); then
         char=${first_word:0:1}
-        while [[ -n $char ]]; do
+        while [[ $char ]]; do
             if __tar_is_argreq "$char"; then
                 old_opt_parsed+=("$char")
             fi
@@ -289,14 +289,14 @@ __tar_complete_mode()
 
         # when user passed something like 'tar cf' do not put the '-' before
         filler=
-        if [[ -z $cur && ! -v basic_tar ]]; then
+        if [[ ! $cur && ! -v basic_tar ]]; then
             filler=-
         fi
 
         generated=""
         for ((i = 0; 1; i++)); do
             local c="${short_modes:i:1}"
-            [[ -z $c ]] && break
+            [[ ! $c ]] && break
             generated+=" $filler$cur$c"
         done
 
@@ -319,7 +319,7 @@ __tar_complete_mode()
     generated=
     for ((i = 0; 1; i++)); do
         local c="${allshort_raw_unused:i:1}"
-        [[ -z $c ]] && break
+        [[ ! $c ]] && break
         generated+=" $cur$c"
     done
 
@@ -345,7 +345,7 @@ __gtar_complete_sopts()
 
     for ((i = 0; 1; i++)); do
         c="${allshort_raw_unused:i:1}"
-        [[ -z $c ]] && break
+        [[ ! $c ]] && break
         generated+=" $cur$c"
     done
 
