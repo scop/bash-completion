@@ -1,23 +1,27 @@
 # Debian apt-cache(8) completion                           -*- shell-script -*-
 
 # List APT binary packages
-_apt_cache_packages()
+_comp_xfunc_apt_cache_packages()
 {
     apt-cache --no-generate pkgnames "$cur" 2>/dev/null || :
 }
 
 # List APT source packages
-_apt_cache_sources()
+_comp_xfunc_apt_cache_sources()
 {
     compgen -W "$(apt-cache dumpavail |
         awk '$1 == "Source:" { print $2 }' | sort -u)" -- "$1"
 }
 
 # List APT source packages
-_apt_cache_src_packages()
+_comp_xfunc_apt_cache_src_packages()
 {
-    compgen -W '$(_apt_cache_sources "$cur")' -- "$cur"
+    compgen -W '$(_comp_xfunc_apt_cache_sources "$cur")' -- "$cur"
 }
+
+_comp_deprecate_func _apt_cache_packages _comp_xfunc_apt_cache_packages
+_comp_deprecate_func _apt_cache_sources _comp_xfunc_apt_cache_sources
+_comp_deprecate_func _apt_cache_src_packages _comp_xfunc_apt_cache_src_packages
 
 _apt_cache()
 {
@@ -41,11 +45,11 @@ _apt_cache()
                 ;;
 
             showsrc)
-                COMPREPLY=($(_apt_cache_sources "$cur"))
+                COMPREPLY=($(_comp_xfunc_apt_cache_sources "$cur"))
                 ;;
 
             *)
-                COMPREPLY=($(_apt_cache_packages))
+                COMPREPLY=($(_comp_xfunc_apt_cache_packages))
                 ;;
 
         esac

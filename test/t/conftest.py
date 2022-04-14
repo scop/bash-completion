@@ -267,7 +267,7 @@ def bash(request) -> pexpect.spawn:
             # FIXME: Tests shouldn't depend on dimensions, but it's difficult to
             # expect robustly enough for Bash to wrap lines anywhere (e.g. inside
             # MAGIC_MARK).  Increase window width to reduce wrapping.
-            dimensions=(24, 160),
+            dimensions=(24, 200),
             # TODO? codec_errors="replace",
         )
         bash.expect_exact(PS1)
