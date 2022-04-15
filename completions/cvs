@@ -13,7 +13,7 @@ _cvs_entries()
 
 _cvs_modules()
 {
-    if [[ -n $prefix ]]; then
+    if [[ $prefix ]]; then
         COMPREPLY=($(command ls -d ${cvsroot}/${prefix}/!(CVSROOT)))
     else
         COMPREPLY=($(command ls -d ${cvsroot}/!(CVSROOT)))
@@ -35,7 +35,7 @@ _cvs_kflags()
     COMPREPLY=($(compgen -W 'kv kvl k o b v' -- "$cur"))
 }
 
-_cvs_roots()
+_comp_xfunc_cvs_roots()
 {
     local -a cvsroots
     [[ -v CVSROOT ]] && cvsroots=("$CVSROOT")
@@ -44,6 +44,8 @@ _cvs_roots()
     COMPREPLY=($(compgen -W '${cvsroots[@]}' -- "$cur"))
     __ltrim_colon_completions "$cur"
 }
+
+_comp_deprecate_func _cvs_roots _comp_xfunc_cvs_roots
 
 _cvs()
 {
@@ -152,7 +154,7 @@ _cvs()
 
             if [[ $cur != -* ]]; then
                 _cvs_entries
-                [[ -z $cur ]] && files=(!(CVS)) ||
+                [[ ! $cur ]] && files=(!(CVS)) ||
                     files=($(command ls -d ${cur}* 2>/dev/null))
                 local f
                 for i in "${!files[@]}"; do
@@ -168,7 +170,7 @@ _cvs()
                     fi
                 done
                 ((${#files[@]})) &&
-                    COMPREPLY=($(compgen -X "$_backup_glob" -W '"${files[@]}"' \
+                    COMPREPLY=($(compgen -X "$_comp_backup_glob" -W '"${files[@]}"' \
                         -- "$cur"))
             else
                 _cvs_command_options "$1" $mode
@@ -248,10 +250,10 @@ _cvs()
             esac
 
             if [[ $cur != -* ]]; then
-                # if $COMP_CVS_REMOTE is not null, 'cvs commit' will
-                # complete on remotely checked-out files (requires
+                # if $BASH_COMPLETION_CMD_CVS_REMOTE is not null, 'cvs commit'
+                # will complete on remotely checked-out files (requires
                 # passwordless access to the remote repository
-                if [[ -n ${COMP_CVS_REMOTE:-} ]]; then
+                if [[ ${BASH_COMPLETION_CMD_CVS_REMOTE-${COMP_CVS_REMOTE-}} ]]; then
                     # this is the least computationally intensive way found so
                     # far, but other changes (something other than
                     # changed/removed/new) may be missing
@@ -273,7 +275,7 @@ _cvs()
             fi
             ;;
         cvsroot)
-            _cvs_roots
+            _comp_xfunc_cvs_roots
             ;;
         diff | log | status)
             if [[ $cur == -* ]]; then

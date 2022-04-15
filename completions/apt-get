@@ -1,17 +1,19 @@
 # Debian apt-get(8) completion                             -*- shell-script -*-
 
-_comp_cmd_apt_get_installed_packages()
+_comp_xfunc_apt_get_installed_packages()
 {
     if [[ -f /etc/debian_version ]]; then
         # Debian system
         COMPREPLY=($(
-            _xfunc dpkg _comp_dpkg_installed_packages $cur
+            _comp_xfunc dpkg installed_packages $cur
         ))
     else
         # assume RPM based
-        _xfunc rpm _rpm_installed_packages
+        _comp_xfunc rpm installed_packages
     fi
 }
+
+_comp_deprecate_func _comp_cmd_apt_get_installed_packages _comp_xfunc_apt_get_installed_packages
 
 _apt_get()
 {
@@ -29,10 +31,10 @@ _apt_get()
     if [[ -v special ]]; then
         case $special in
             remove | auto?(-)remove | purge)
-                _comp_cmd_apt_get_installed_packages
+                _comp_xfunc_apt_get_installed_packages
                 ;;
             source)
-                COMPREPLY=($(_xfunc apt-cache _apt_cache_packages)
+                COMPREPLY=($(_comp_xfunc apt-cache packages)
                 $(compgen -W "$(apt-cache dumpavail |
                     awk '$1 == "Source:" { print $2 }' | sort -u)" -- "$cur"))
                 ;;
@@ -59,7 +61,7 @@ _apt_get()
                 [[ $cur != */* ]] || return
                 ;;&
             *)
-                COMPREPLY+=($(_xfunc apt-cache _apt_cache_packages))
+                COMPREPLY+=($(_comp_xfunc apt-cache packages))
                 ;;
         esac
         return

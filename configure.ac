@@ -8,7 +8,7 @@ AC_PROG_LN_S
 AC_PROG_MKDIR_P
 AC_PROG_SED
 AC_ARG_WITH([pytest],[  --with-pytest=executable],[PYTEST="$withval"])
-if test -z "$PYTEST"; then
+if test "x$PYTEST" = x; then
     AC_CHECK_PROGS([PYTEST],[pytest pytest-3],[pytest])
 fi
 AC_CONFIG_FILES([

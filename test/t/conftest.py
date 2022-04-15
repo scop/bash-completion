@@ -191,8 +191,8 @@ def bash(request) -> pexpect.spawn:
     tmpdir = None
     bash = None
 
-    if os.environ.get("BASHCOMP_TEST_LOGFILE"):
-        logfile = open(os.environ["BASHCOMP_TEST_LOGFILE"], "w")
+    if os.environ.get("BASH_COMPLETION_TEST_LOGFILE"):
+        logfile = open(os.environ["BASH_COMPLETION_TEST_LOGFILE"], "w")
     elif os.environ.get("CI"):
         logfile = sys.stdout
 
@@ -256,8 +256,10 @@ def bash(request) -> pexpect.spawn:
 
         # Start bash
         bash = pexpect.spawn(
-            "%s --norc" % os.environ.get("BASHCOMP_TEST_BASH", "bash"),
-            maxread=os.environ.get("BASHCOMP_TEST_PEXPECT_MAXREAD", 20000),
+            "%s --norc" % os.environ.get("BASH_COMPLETION_TEST_BASH", "bash"),
+            maxread=os.environ.get(
+                "BASH_COMPLETION_TEST_PEXPECT_MAXREAD", 20000
+            ),
             logfile=logfile,
             cwd=cwd,
             env=env,
@@ -265,7 +267,7 @@ def bash(request) -> pexpect.spawn:
             # FIXME: Tests shouldn't depend on dimensions, but it's difficult to
             # expect robustly enough for Bash to wrap lines anywhere (e.g. inside
             # MAGIC_MARK).  Increase window width to reduce wrapping.
-            dimensions=(24, 160),
+            dimensions=(24, 200),
             # TODO? codec_errors="replace",
         )
         bash.expect_exact(PS1)
@@ -444,7 +446,7 @@ class bash_env_saved:
 
     def __init__(self, bash: pexpect.spawn, sendintr: bool = False):
         bash_env_saved.counter += 1
-        self.prefix: str = "_BASHCOMP_TEST%d" % bash_env_saved.counter
+        self.prefix: str = "_comp__test_%d" % bash_env_saved.counter
 
         self.bash = bash
         self.cwd_changed: bool = False
@@ -655,7 +657,7 @@ def diff_env(before: List[str], after: List[str], ignore: str):
         if not re.search(r"^(---|\+\+\+|@@ )", x)
         # Ignore variables expected to change:
         and not re.search(
-            r"^[-+](_|PPID|BASH_REMATCH|_BASHCOMP_TEST\w+)=",
+            r"^[-+](_|PPID|BASH_REMATCH|_comp__test_\d+_\w+)=",
             x,
             re.ASCII,
         )

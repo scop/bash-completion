@@ -8,7 +8,7 @@ import pytest
         # identities are found. Try to make sure there is at least one.
         "HOME=$PWD/ssh-copy-id",
     ),
-    ignore_env=r"^[+-]_scp_path_esc=",
+    ignore_env=r"^[+-]_comp_cmd_scp__path_esc=",
 )
 class TestSshCopyId:
     @pytest.mark.complete("ssh-copy-id -", require_cmd=True)

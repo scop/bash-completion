@@ -12,7 +12,7 @@ _cached_bugs()
 _src_packages_with_prefix()
 {
     ppn=${cur:4} # partial package name, after stripping "src:"
-    compgen -P "src:" -W '$(_xfunc apt-cache _apt_cache_sources "$ppn")' \
+    compgen -P "src:" -W '$(_comp_xfunc apt-cache sources "$ppn")' \
         -- "$ppn"
 }
 
@@ -58,17 +58,17 @@ _bts()
             return
             ;;
         package)
-            COMPREPLY=($(_xfunc apt-cache _apt_cache_packages))
+            COMPREPLY=($(_comp_xfunc apt-cache packages))
             return
             ;;
         cache)
-            COMPREPLY=($(_xfunc apt-cache _apt_cache_packages)
+            COMPREPLY=($(_comp_xfunc apt-cache packages)
             $(_src_packages_with_prefix)
             $(compgen -W 'from: release-critical RC' -- "$cur"))
             return
             ;;
         cleancache)
-            COMPREPLY=($(_xfunc apt-cache _apt_cache_packages)
+            COMPREPLY=($(_comp_xfunc apt-cache packages)
             $(_src_packages_with_prefix)
             $(compgen -W 'from: tag: usertag: ALL' -- "$cur"))
             return
@@ -83,7 +83,7 @@ _bts()
             # COMP_WORDS would be: "bts cleancache src : <partial_pkg_name>"
             pos=$((COMP_CWORD - 2))
             if [[ $pos -gt 0 && ${COMP_WORDS[pos]} == "src" ]]; then
-                COMPREPLY=($(_xfunc apt-cache _apt_cache_src_packages))
+                COMPREPLY=($(_comp_xfunc apt-cache src_packages))
                 return
             fi
             ;;

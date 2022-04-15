@@ -2,7 +2,7 @@
 
 _ssh_queries()
 {
-    local queries=$(_ssh_query "$1" help)
+    local queries=$(_comp_xfunc_ssh_query "$1" help)
     [[ $queries ]] || queries="cipher cipher-auth mac kex key key-cert
          key-plain key-sig protocol-version compression sig ciphers macs
          kexalgorithms pubkeyacceptedkeytypes hostkeyalgorithms
@@ -10,14 +10,16 @@ _ssh_queries()
     COMPREPLY+=($(compgen -W "$queries help" -- "${cur,,}"))
 }
 
-_ssh_query()
+_comp_xfunc_ssh_query()
 {
     ${1:-ssh} -Q $2 2>/dev/null
 }
 
+_comp_deprecate_func _ssh_query _comp_xfunc_ssh_query
+
 _ssh_ciphers()
 {
-    local ciphers=$(_ssh_query "$1" cipher)
+    local ciphers=$(_comp_xfunc_ssh_query "$1" cipher)
     [[ $ciphers ]] || ciphers="3des-cbc aes128-cbc aes192-cbc aes256-cbc
         aes128-ctr aes192-ctr aes256-ctr arcfour128 arcfour256 arcfour
         blowfish-cbc cast128-cbc"
@@ -26,13 +28,13 @@ _ssh_ciphers()
 
 _ssh_macs()
 {
-    local macs=$(_ssh_query "$1" mac)
+    local macs=$(_comp_xfunc_ssh_query "$1" mac)
     [[ $macs ]] || macs="hmac-md5 hmac-sha1 umac-64@openssh.com hmac-ripemd160
         hmac-sha1-96 hmac-md5-96"
     COMPREPLY+=($(compgen -W "$macs" -- "$cur"))
 }
 
-_ssh_options()
+_comp_xfunc_ssh_options()
 {
     # curl --silent https://raw.githubusercontent.com/openssh/openssh-portable/master/ssh_config.5 | awk '$1==".It" && $2=="Cm" && $3!="Host" && $3!="Match" {print "        "$3}' | sort
     local opts=(
@@ -65,8 +67,8 @@ _ssh_options()
         GSSAPIKeyExchange GSSAPIRenewalForcesRekey GSSAPIServerIdentity
         GSSAPITrustDns SmartcardDevice UsePrivilegedPort
     )
-    local protocols=$(_ssh_query "${1:-ssh}" protocol-version)
-    if [[ -z $protocols || $protocols == *1* ]]; then
+    local protocols=$(_comp_xfunc_ssh_query "${1:-ssh}" protocol-version)
+    if [[ ! $protocols || $protocols == *1* ]]; then
         opts+=(Cipher CompressionLevel Protocol RhostsRSAAuthentication
             RSAAuthentication)
     fi
@@ -80,6 +82,8 @@ _ssh_options()
     done))
     $reset
 }
+
+_comp_deprecate_func _ssh_options _comp_xfunc_ssh_options
 
 # Complete a ssh suboption (like ForwardAgent=y<tab>)
 # Two parameters: the string to complete including the equal sign, and
@@ -121,14 +125,14 @@ _ssh_suboption()
             COMPREPLY=($(compgen -W 'yes no always' -- "$cur"))
             ;;
         identityfile)
-            _ssh_identityfile
+            _comp_xfunc_ssh_identityfile
             ;;
         *file | identityagent | include | controlpath | revokedhostkeys | \
             xauthlocation)
             _filedir
             ;;
         casignaturealgorithms)
-            COMPREPLY=($(compgen -W '$(_ssh_query "$2" sig)' -- "$cur"))
+            COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$2" sig)' -- "$cur"))
             ;;
         cipher)
             COMPREPLY=($(compgen -W 'blowfish des 3des' -- "$cur"))
@@ -150,10 +154,10 @@ _ssh_suboption()
                 cs{0..7} ef lowdelay throughput reliability' -- "$cur"))
             ;;
         hostbasedkeytypes | hostkeyalgorithms)
-            COMPREPLY=($(compgen -W '$(_ssh_query "$2" key)' -- "$cur"))
+            COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$2" key)' -- "$cur"))
             ;;
         kexalgorithms)
-            COMPREPLY=($(compgen -W '$(_ssh_query "$2" kex)' -- "$cur"))
+            COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$2" kex)' -- "$cur"))
             ;;
         loglevel)
             COMPREPLY=($(
@@ -172,7 +176,7 @@ _ssh_suboption()
                 keyboard-interactive password' -- "$cur"))
             ;;
         protocol)
-            local protocols=($(_ssh_query "$2" protocol-version))
+            local protocols=($(_comp_xfunc_ssh_query "$2" protocol-version))
             [[ $protocols ]] || protocols=(1 2)
             if ((${#protocols[@]} > 1)); then
                 COMPREPLY=($(compgen -W '${protocols[@]}' -- "$cur"))
@@ -185,7 +189,7 @@ _ssh_suboption()
             COMPREPLY=($(compgen -c -- "$cur"))
             ;;
         pubkeyacceptedkeytypes)
-            COMPREPLY=($(compgen -W '$(_ssh_query "$2" key)' -- "$cur"))
+            COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$2" key)' -- "$cur"))
             ;;
         requesttty)
             COMPREPLY=($(compgen -W 'no yes force auto' -- "$cur"))
@@ -210,7 +214,7 @@ _ssh_suboption()
 # Try to complete -o SubOptions=
 #
 # Returns 0 if the completion was handled or non-zero otherwise.
-_ssh_suboption_check()
+_comp_xfunc_ssh_suboption_check()
 {
     # Get prev and cur words without splitting on =
     local cureq=$(_get_cword :=) preveq=$(_get_pword :=)
@@ -220,6 +224,8 @@ _ssh_suboption_check()
     fi
     return 1
 }
+
+_comp_deprecate_func _ssh_suboption_check _comp_xfunc_ssh_suboption_check
 
 # Search COMP_WORDS for '-F configfile' or '-Fconfigfile' argument
 _ssh_configfile()
@@ -241,15 +247,17 @@ _ssh_configfile()
 
 # With $1 set, look for public key files, else private
 # shellcheck disable=SC2120
-_ssh_identityfile()
+_comp_xfunc_ssh_identityfile()
 {
-    [[ -z $cur && -d ~/.ssh ]] && cur=~/.ssh/id
+    [[ ! $cur && -d ~/.ssh ]] && cur=~/.ssh/id
     _filedir
     if ((${#COMPREPLY[@]} > 0)); then
         COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' \
             -X "${1:+!}*.pub" -- "$cur"))
     fi
 }
+
+_comp_deprecate_func _ssh_identityfile _comp_xfunc_ssh_identityfile
 
 _ssh()
 {
@@ -259,7 +267,7 @@ _ssh()
     local configfile
     _ssh_configfile
 
-    _ssh_suboption_check "$1" && return
+    _comp_xfunc_ssh_suboption_check "$1" && return
 
     local ipvx
 
@@ -290,7 +298,7 @@ _ssh()
             return
             ;;
         -*i)
-            _ssh_identityfile
+            _comp_xfunc_ssh_identityfile
             return
             ;;
         -*J)
@@ -310,7 +318,7 @@ _ssh()
             return
             ;;
         -*o)
-            _ssh_options "$1"
+            _comp_xfunc_ssh_options "$1"
             return
             ;;
         -*Q)
@@ -362,7 +370,7 @@ _sftp()
     local configfile
     _ssh_configfile
 
-    _ssh_suboption_check && return
+    _comp_xfunc_ssh_suboption_check && return
 
     local ipvx
 
@@ -376,7 +384,7 @@ _sftp()
             return
             ;;
         -*i)
-            _ssh_identityfile
+            _comp_xfunc_ssh_identityfile
             return
             ;;
         -*c)
@@ -388,7 +396,7 @@ _sftp()
             return
             ;;
         -*o)
-            _ssh_options
+            _comp_xfunc_ssh_options
             return
             ;;
         -*S)
@@ -420,12 +428,12 @@ _sftp()
 
 # things we want to backslash escape in scp paths
 # shellcheck disable=SC2089
-_scp_path_esc='[][(){}<>"'"'"',:;^&!$=?`\\|[:space:]]'
+_comp_cmd_scp__path_esc='[][(){}<>"'"'"',:;^&!$=?`\\|[:space:]]'
 
 # Complete remote files with ssh.  If the first arg is -d, complete on dirs
 # only.  Returns paths escaped with three backslashes.
 # shellcheck disable=SC2120
-_scp_remote_files()
+_comp_xfunc_ssh_scp_remote_files()
 {
     local IFS=$'\n'
     
@@ -439,10 +447,10 @@ _scp_remote_files()
 
     # unescape (3 backslashes to 1 for chars we escaped)
     # shellcheck disable=SC2090
-    path=$(command sed -e 's/\\\\\\\('"$_scp_path_esc"'\)/\\\1/g' <<<"$path")
+    path=$(command sed -e 's/\\\\\\\('"$_comp_cmd_scp__path_esc"'\)/\\\1/g' <<<"$path")
 
     # default to home dir of specified user on remote host
-    if [[ -z $path ]]; then
+    if [[ ! $path ]]; then
         path=$(ssh $sshoption -o 'Batchmode yes' "$userhost" pwd 2>/dev/null)
     fi
 
@@ -452,24 +460,26 @@ _scp_remote_files()
         # shellcheck disable=SC2090
         files=$(ssh $sshoption -o 'Batchmode yes' "$userhost" \
             command ls -aF1dL "$path*" 2>/dev/null |
-            command sed -e 's/'"$_scp_path_esc"'/\\\\\\&/g' -e '/[^\/]$/d')
+            command sed -e 's/'"$_comp_cmd_scp__path_esc"'/\\\\\\&/g' -e '/[^\/]$/d')
     else
         # escape problematic characters; remove executables, aliases, pipes
         # and sockets; add space at end of file names
         # shellcheck disable=SC2090
         files=$(ssh $sshoption -o 'Batchmode yes' "$userhost" \
             command ls -aF1dL "$path*" 2>/dev/null |
-            command sed -e 's/'"$_scp_path_esc"'/\\\\\\&/g' -e 's/[*@|=]$//g' \
+            command sed -e 's/'"$_comp_cmd_scp__path_esc"'/\\\\\\&/g' -e 's/[*@|=]$//g' \
                 -e 's/[^\/]$/& /g')
     fi
     COMPREPLY+=($files)
 }
 
+_comp_deprecate_func _scp_remote_files _comp_xfunc_ssh_scp_remote_files
+
 # This approach is used instead of _filedir to get a space appended
 # after local file/dir completions, and -o nospace retained for others.
 # If first arg is -d, complete on directory names only.  The next arg is
 # an optional prefix to add to returned completions.
-_scp_local_files()
+_comp_xfunc_ssh_scp_local_files()
 {
     local IFS=$'\n'
 
@@ -481,14 +491,16 @@ _scp_local_files()
 
     if $dirsonly; then
         COMPREPLY+=($(command ls -aF1dL $cur* 2>/dev/null |
-            command sed -e "s/$_scp_path_esc/\\\\&/g" -e '/[^\/]$/d' \
+            command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" -e '/[^\/]$/d' \
                 -e "s/^/${1-}/"))
     else
         COMPREPLY+=($(command ls -aF1dL $cur* 2>/dev/null |
-            command sed -e "s/$_scp_path_esc/\\\\&/g" -e 's/[*@|=]$//g' \
+            command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" -e 's/[*@|=]$//g' \
                 -e 's/[^\/]$/& /g' -e "s/^/${1-}/"))
     fi
 }
+
+_comp_deprecate_func _scp_local_files _comp_xfunc_ssh_scp_local_files
 
 # scp(1) completion
 #
@@ -500,7 +512,7 @@ _scp()
     local configfile
     _ssh_configfile
 
-    _ssh_suboption_check && {
+    _comp_xfunc_ssh_suboption_check && {
         COMPREPLY=("${COMPREPLY[@]/%/ }")
         return
     }
@@ -544,7 +556,7 @@ _scp()
             return
             ;;
         -*i)
-            _ssh_identityfile
+            _comp_xfunc_ssh_identityfile
             compopt +o nospace
             return
             ;;
@@ -556,7 +568,7 @@ _scp()
             return
             ;;
         -*o)
-            _ssh_options
+            _comp_xfunc_ssh_options
             return
             ;;
         -*S)
@@ -577,7 +589,7 @@ _scp()
     case $cur in
         !(*:*)/* | [.~]*) ;; # looks like a path
         *:*)
-            _scp_remote_files "$sshoption"
+            _comp_xfunc_ssh_scp_remote_files "$sshoption"
             return
             ;;
     esac
@@ -605,7 +617,7 @@ _scp()
         esac
     fi
 
-    _scp_local_files "${prefix-}"
+    _comp_xfunc_ssh_scp_local_files "${prefix-}"
 } &&
     complete -F _scp -o nospace scp
 

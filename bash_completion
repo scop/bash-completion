@@ -26,9 +26,9 @@
 BASH_COMPLETION_VERSINFO=(2 11 0)
 
 if [[ $- == *v* ]]; then
-    BASH_COMPLETION_ORIGINAL_V_VALUE="-v"
+    _comp__init_original_set_v="-v"
 else
-    BASH_COMPLETION_ORIGINAL_V_VALUE="+v"
+    _comp__init_original_set_v="+v"
 fi
 
 if [[ ${BASH_COMPLETION_DEBUG-} ]]; then
@@ -39,10 +39,25 @@ fi
 
 # Blacklisted completions, causing problems with our code.
 #
-_comp_init_blacklist_glob='@(acroread.sh)'
+_comp__init_blacklist_glob='@(acroread.sh)'
 
 # Turn on extended globbing and programmable completion
 shopt -s extglob progcomp
+
+# Declare a compatibility function name
+# @param $1 Old function name
+# @param $2 New function name
+_comp_deprecate_func()
+{
+    if [[ $1 != [a-zA-Z_]*([a-zA-Z_0-9]) ]]; then
+        printf 'bash_completion: %s: %s\n' "$FUNCNAME" "\$1: invalid function name '$1'" >&2
+        return 2
+    elif [[ $2 != [a-zA-Z_]*([a-zA-Z_0-9]) ]]; then
+        printf 'bash_completion: %s: %s\n' "$FUNCNAME" "\$2: invalid function name '$2'" >&2
+        return 2
+    fi
+    eval -- "$1() { $2 \"\$@\"; }"
+}
 
 # A lot of the following one-liners were taken directly from the
 # completion examples provided with the bash 2.04 source distribution
@@ -623,7 +638,8 @@ _filedir()
         # the fallback condition with the "plus" dirs.
         local opts=(-f -X "$xspec")
         [[ $xspec ]] && plusdirs=(-o plusdirs)
-        [[ ${COMP_FILEDIR_FALLBACK-} || -z ${plusdirs-} ]] ||
+        [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-${COMP_FILEDIR_FALLBACK-}} ||
+            ! ${plusdirs-} ]] ||
             opts+=("${plusdirs[@]}")
 
         reset=$(shopt -po noglob)
@@ -634,7 +650,8 @@ _filedir()
         IFS=$'\n'
 
         # Try without filter if it failed to produce anything and configured to
-        [[ -n ${COMP_FILEDIR_FALLBACK-} && -n $arg && ${#toks[@]} -lt 1 ]] && {
+        [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-${COMP_FILEDIR_FALLBACK-}} &&
+            $arg && ${#toks[@]} -lt 1 ]] && {
             reset=$(shopt -po noglob)
             set -o noglob
             toks+=($(compgen -f ${plusdirs+"${plusdirs[@]}"} -- $quoted))
@@ -1344,17 +1361,21 @@ _gids()
 
 # Glob for matching various backup files.
 #
-_backup_glob='@(#*#|*@(~|.@(bak|orig|rej|swp|dpkg*|rpm@(orig|new|save))))'
+_comp_backup_glob='@(#*#|*@(~|.@(bak|orig|rej|swp|dpkg*|rpm@(orig|new|save))))'
+
+# @deprecated Use the variable `_comp_backup_glob` instead.  This is the
+# backward-compatibility name.
+_backup_glob=$_comp_backup_glob
 
 # Complete on xinetd services
 #
 _xinetd_services()
 {
-    local xinetddir=${BASHCOMP_XINETDDIR:-/etc/xinetd.d}
+    local xinetddir=${_comp__test_xinetd_dir:-/etc/xinetd.d}
     if [[ -d $xinetddir ]]; then
         local IFS=$' \t\n' reset=$(shopt -p nullglob)
         shopt -s nullglob
-        local -a svcs=($xinetddir/!($_backup_glob))
+        local -a svcs=($xinetddir/!($_comp_backup_glob))
         $reset
         ((!${#svcs[@]})) ||
             COMPREPLY+=($(compgen -W '"${svcs[@]#$xinetddir/}"' -- "${cur-}"))
@@ -1371,7 +1392,7 @@ _services()
     local IFS=$' \t\n' reset=$(shopt -p nullglob)
     shopt -s nullglob
     COMPREPLY=(
-        $(printf '%s\n' ${sysvdirs[0]}/!($_backup_glob|functions|README)))
+        $(printf '%s\n' ${sysvdirs[0]}/!($_comp_backup_glob|functions|README)))
     $reset
 
     COMPREPLY+=($({
@@ -1413,18 +1434,18 @@ _service()
 } &&
     complete -F _service service
 
-_comp_init_set_up_service_completions()
+_comp__init_set_up_service_completions()
 {
     local sysvdirs svc svcdir
     _sysvdirs
     for svcdir in "${sysvdirs[@]}"; do
-        for svc in "$svcdir"/!($_backup_glob); do
+        for svc in "$svcdir"/!($_comp_backup_glob); do
             [[ -x $svc ]] && complete -F _service "$svc"
         done
     done
+    unset -f "$FUNCNAME"
 }
-_comp_init_set_up_service_completions
-unset -f _comp_init_set_up_service_completions
+_comp__init_set_up_service_completions
 
 # This function completes on modules
 #
@@ -1561,7 +1582,7 @@ _fstypes()
              $([[ -d /etc/fs ]] && command ls /etc/fs)"
     fi
 
-    [[ -n $fss ]] && COMPREPLY+=($(compgen -W "$fss" -- "$cur"))
+    [[ $fss ]] && COMPREPLY+=($(compgen -W "$fss" -- "$cur"))
 }
 
 # Get real command.
@@ -1754,9 +1775,9 @@ _included_ssh_config_files()
 # Helper function for completing _known_hosts.
 # This function performs host completion based on ssh's config and known_hosts
 # files, as well as hostnames reported by avahi-browse if
-# COMP_KNOWN_HOSTS_WITH_AVAHI is set to a non-empty value.  Also hosts from
-# HOSTFILE (compgen -A hostname) are added, unless
-# COMP_KNOWN_HOSTS_WITH_HOSTFILE is set to an empty value.
+# BASH_COMPLETION_KNOWN_HOSTS_WITH_AVAHI is set to a non-empty value.
+# Also hosts from HOSTFILE (compgen -A hostname) are added, unless
+# BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE is set to an empty value.
 # Usage: _known_hosts_real [OPTIONS] CWORD
 # Options:  -a             Use aliases from ssh config files
 #           -c             Use `:' suffix
@@ -1922,12 +1943,12 @@ _known_hosts_real()
         local -a hosts=($(command sed -ne 's/^[[:blank:]]*[Hh][Oo][Ss][Tt][[:blank:]=]\{1,\}\(.*\)$/\1/p' "${config[@]}"))
         if ((${#hosts[@]} != 0)); then
             COMPREPLY+=($(compgen -P "$prefix" \
-                -S "$suffix" -W '"${hosts[@]%%[*?%]*}"' -X '\!*' -- "$cur"))
+                -S "$suffix" -W '"${hosts[@]%%[*?%]*}"' -X '@(\!*|)' -- "$cur"))
         fi
     fi
 
     # Add hosts reported by avahi-browse, if desired and it's available.
-    if [[ ${COMP_KNOWN_HOSTS_WITH_AVAHI-} ]] &&
+    if [[ ${BASH_COMPLETION_KNOWN_HOSTS_WITH_AVAHI-${COMP_KNOWN_HOSTS_WITH_AVAHI-}} ]] &&
         type avahi-browse &>/dev/null; then
         # Some old versions of avahi-browse reportedly didn't have -k
         # (even if mentioned in the manpage); those we do not support any more.
@@ -1945,8 +1966,8 @@ _known_hosts_real()
     fi
 
     # Add results of normal hostname completion, unless
-    # `COMP_KNOWN_HOSTS_WITH_HOSTFILE' is set to an empty value.
-    if [[ -n ${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1} ]]; then
+    # `BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE' is set to an empty value.
+    if [[ ${BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE-${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1}} ]]; then
         COMPREPLY+=(
             $(compgen -A hostname -P "$prefix" -S "$suffix" -- "$cur"))
     fi
@@ -1987,7 +2008,7 @@ _cd()
 
     # Use standard dir completion if no CDPATH or parameter starts with /,
     # ./ or ../
-    if [[ -z ${CDPATH:-} || $cur == ?(.)?(.)/* ]]; then
+    if [[ ! ${CDPATH:-} || $cur == ?(.)?(.)/* ]]; then
         _filedir -d
         return
     fi
@@ -2130,7 +2151,7 @@ _command_offset()
                     # Note: When completion spec is removed after 124, we do
                     # not generate any completions including the default ones.
                     # This is the behavior of the original Bash progcomp.
-                    [[ -n $cspec ]] || break
+                    [[ $cspec ]] || break
 
                     continue
                 fi
@@ -2261,13 +2282,14 @@ _filedir_xspec()
     toks+=($(
         eval compgen -f -X "'!$xspec'" -- '$(quote_readline "$cur")' | {
             while read -r tmp; do
-                [[ -n $tmp ]] && printf '%s\n' $tmp
+                [[ $tmp ]] && printf '%s\n' $tmp
             done
         }
     ))
 
     # Try without filter if it failed to produce anything and configured to
-    [[ -n ${COMP_FILEDIR_FALLBACK:-} && ${#toks[@]} -lt 1 ]] && {
+    [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-${COMP_FILEDIR_FALLBACK-}} &&
+        ${#toks[@]} -lt 1 ]] && {
         local reset=$(shopt -po noglob)
         set -o noglob
         toks+=($(compgen -f -- "$(quote_readline "$cur")"))
@@ -2365,7 +2387,7 @@ __load_completion()
 {
     local -a dirs=(${BASH_COMPLETION_USER_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion}/completions)
     local IFS=: dir cmd="${1##*/}" compfile
-    [[ -n $cmd ]] || return 1
+    [[ $cmd ]] || return 1
     for dir in ${XDG_DATA_DIRS:-/usr/local/share:/usr/share}; do
         dirs+=($dir/bash-completion/completions)
     done
@@ -2422,40 +2444,45 @@ _completion_loader()
 # Function for loading and calling functions from dynamically loaded
 # completion files that may not have been sourced yet.
 # @param $1 completion file to load function from in case it is missing
-# @param $2... function and its arguments
-_xfunc()
+# @param $2 the xfunc name.  When it does not start with `_',
+#   `_comp_xfunc_${1//[^a-zA-Z0-9_]/_}_$2' is used for the actual name of the
+#   shell function.
+# @param $3... if any, specifies the arguments that are passed to the xfunc.
+_comp_xfunc()
 {
-    set -- "$@"
-    local srcfile=$1
-    shift
-    declare -F $1 &>/dev/null || __load_completion "$srcfile"
-    "$@"
+    local xfunc_name=$2
+    [[ $xfunc_name == _* ]] ||
+        xfunc_name=_comp_xfunc_${1//[^a-zA-Z0-9_]/_}_$xfunc_name
+    declare -F "$xfunc_name" &>/dev/null || __load_completion "$1"
+    "$xfunc_name" "${@:3}"
 }
 
+_comp_deprecate_func _xfunc _comp_xfunc
+
 # source compat completion directory definitions
-_comp_compat_dir=${BASH_COMPLETION_COMPAT_DIR:-/etc/bash_completion.d}
-if [[ -d $_comp_compat_dir && -r $_comp_compat_dir && -x $_comp_compat_dir ]]; then
-    for _comp_file in "$_comp_compat_dir"/*; do
-        [[ ${_comp_file##*/} != @($_backup_glob|Makefile*|$_comp_init_blacklist_glob) &&
-            -f $_comp_file && -r $_comp_file ]] && . "$_comp_file"
+_comp__init_compat_dir=${BASH_COMPLETION_COMPAT_DIR:-/etc/bash_completion.d}
+if [[ -d $_comp__init_compat_dir && -r $_comp__init_compat_dir && -x $_comp__init_compat_dir ]]; then
+    for _comp__init_file in "$_comp__init_compat_dir"/*; do
+        [[ ${_comp__init_file##*/} != @($_comp_backup_glob|Makefile*|$_comp__init_blacklist_glob) &&
+            -f $_comp__init_file && -r $_comp__init_file ]] && . "$_comp__init_file"
     done
 fi
-unset -v _comp_compat_dir _comp_file _comp_init_blacklist_glob
+unset -v _comp__init_compat_dir _comp__init_file _comp__init_blacklist_glob
 
 # source user completion file
 #
 # Remark: We explicitly check that $user_completion is not '/dev/null' since
 #   /dev/null may be a regular file in broken systems and can contain arbitrary
 #   garbages of suppressed command outputs.
-_comp_user_completion=${BASH_COMPLETION_USER_FILE:-~/.bash_completion}
-[[ $_comp_user_completion != "${BASH_SOURCE[0]}" && $_comp_user_completion != /dev/null && -r $_comp_user_completion && -f $_comp_user_completion ]] &&
-    . $_comp_user_completion
-unset -v _comp_user_completion
+_comp__init_user_file=${BASH_COMPLETION_USER_FILE:-~/.bash_completion}
+[[ $_comp__init_user_file != "${BASH_SOURCE[0]}" && $_comp__init_user_file != /dev/null && -r $_comp__init_user_file && -f $_comp__init_user_file ]] &&
+    . $_comp__init_user_file
+unset -v _comp__init_user_file
 
 unset -f have
 unset -v have
 
-set $BASH_COMPLETION_ORIGINAL_V_VALUE
-unset -v BASH_COMPLETION_ORIGINAL_V_VALUE
+set $_comp__init_original_set_v
+unset -v _comp__init_original_set_v
 
 # ex: filetype=sh
