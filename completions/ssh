@@ -430,14 +430,24 @@ _sftp()
 # shellcheck disable=SC2089
 _comp_cmd_scp__path_esc='[][(){}<>"'"'"',:;^&!$=?`\\|[:space:]]'
 
-# Complete remote files with ssh.  If the first arg is -d, complete on dirs
-# only.  Returns paths escaped with three backslashes.
+# Complete remote files with ssh.  If the arg is -d, complete on dirs
+# only. Returns paths escaped with three backslashes.
+# Pass argument as "-p portnumber" for non-default ssh connection port.
 # shellcheck disable=SC2120
 _comp_xfunc_ssh_scp_remote_files()
 {
     local IFS=$'\n'
     
-    sshoption=$1
+    local sshoption
+    local dirsonly=false
+    local i
+    for i in "$@"; do
+        if [[ ${i-} == -d ]]; then
+            dirsonly=true
+    elif [[ ${i:0:2} == -p ]]; then
+            sshoption=$1
+        fi
+    done	
     
     # remove backslash escape from the first colon
     cur=${cur/\\:/:}
@@ -455,7 +465,7 @@ _comp_xfunc_ssh_scp_remote_files()
     fi
 
     local files
-    if [[ ${1-} == -d ]]; then
+	if $dirsonly; then
         # escape problematic characters; remove non-dirs
         # shellcheck disable=SC2090
         files=$(ssh $sshoption -o 'Batchmode yes' "$userhost" \
