@@ -366,6 +366,7 @@ _sftp()
 
     local ipvx
 
+
     case $prev in
         -*[BDlPRs])
             return
@@ -427,11 +428,9 @@ _scp_path_esc='[][(){}<>"'"'"',:;^&!$=?`\\|[:space:]]'
 _scp_remote_files()
 {
     local IFS=$'\n'
-	
-    # Parse port number from whole command
-    local sshport=$(command echo ${COMP_WORDS[@]} | command sed -n 's/^.*\( -[a-zA-Z0-9]*P\)\([ ]*[0-9]*\)[ ].*/\2/p')
-    [[ -n "${sshport// }" ]] && local sshoption="-p $sshport" || local sshoption=""
-
+    
+    sshoption=$1
+    
     # remove backslash escape from the first colon
     cur=${cur/\\:/:}
 
@@ -507,6 +506,31 @@ _scp()
     }
 
     local ipvx
+	
+    # Parse Port number from command
+    local sshport=""
+    local sshoption=""
+    local i
+    for ((i = 0; i < ${#words[@]}; i++)); do
+	    if [[ ${words[i]} =~ -[a-zA-Z0-9]*P[0-9]*$ ]]; then
+			if [[ ${words[i]: -1} == P ]]; then
+				((i+=1))
+				[[ ${words[i]} =~ ^[0-9]+$ ]] && sshport=${words[i]} 
+		    else
+				sshport=$(echo ${words[i]} | command sed -n 's/-.*P\([0-9]\{1,\}\)/\1/p')
+		    fi
+	    elif [[ ${words[i]} =~ -[a-zA-Z0-9]*o$ ]]; then
+		    if [[ ${words[i+1],,} == port ]]; then
+				((i+=3))
+				[[ ${words[i]} =~ ^[0-9]+$ ]] && sshport=${words[i]}
+		    fi
+	    elif [[ ${words[i]} =~ -[a-zA-Z0-9]*o[pP][oO][rR][tT]$ ]]; then
+			((i+=2))
+            [[ ${words[i]} =~ ^[0-9]+$ ]] && sshport=${words[i]}
+	    fi
+    done
+    
+	[[ ${sshport// } ]] && sshoption="-p $sshport"
 
     case $prev in
         -*c)
@@ -553,7 +577,7 @@ _scp()
     case $cur in
         !(*:*)/* | [.~]*) ;; # looks like a path
         *:*)
-            _scp_remote_files
+            _scp_remote_files "$sshoption"
             return
             ;;
     esac
