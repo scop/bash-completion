@@ -19,11 +19,7 @@ _ipmitool()
             local -a files
             _comp_expand_glob files '/dev/ipmi* /dev/ipmi/* /dev/ipmidev/*'
             ((${#files[@]})) &&
-                COMPREPLY=($(compgen -W "$(
-                    printf '%s\n' "${files[@]}" |
-                        command sed -ne 's/^[^0-9]*\([0-9]\{1,\}\)/\1/p'
-                )" \
-                    -- "$cur"))
+                COMPREPLY=($(compgen -W '"${files[@]##*([^0-9])}"' -X '![0-9]*' -- "$cur"))
             return
             ;;
         -*I)
