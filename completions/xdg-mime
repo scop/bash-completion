@@ -38,13 +38,11 @@ _xdg_mime()
             ;;
         default)
             if ((args == 2)); then
-                local IFS=$' \t\n' reset=$(shopt -p nullglob)
-                shopt -s nullglob
-                local -a desktops=(/usr/share/applications/*.desktop)
-                $reset
+                local -a desktops
+                _comp_expand_glob desktops '/usr/share/applications/*.desktop'
                 if ((${#desktops[@]})); then
                     desktops=("${desktops[@]##*/}")
-                    IFS=$'\n'
+                    local IFS=$'\n'
                     COMPREPLY=($(compgen -W '"${desktops[@]}"' -- "$cur"))
                 fi
             else

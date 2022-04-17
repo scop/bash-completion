@@ -66,14 +66,12 @@ _vpnc()
         _filedir conf
     else
         # config name, /etc/vpnc/<name>.conf
-        local IFS=$' \t\n' reset=$(shopt -p nullglob)
-        shopt -s nullglob
-        local -a configs=(/etc/vpnc/*.conf)
-        $reset
+        local -a configs
+        _comp_expand_glob configs '/etc/vpnc/*.conf'
         if ((${#configs[@]})); then
             configs=("${configs[@]##*/}")
             configs=("${configs[@]%.conf}")
-            IFS=$'\n'
+            local IFS=$'\n'
             compopt -o filenames
             COMPREPLY=($(compgen -W '${configs[@]}' -- "$cur"))
         fi

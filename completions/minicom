@@ -15,7 +15,7 @@ _minicom()
             return
             ;;
         --ptty | -!(-*)p)
-            COMPREPLY=(/dev/tty*)
+            _comp_expand_glob COMPREPLY '/dev/tty*'
             ((${#COMPREPLY[@]})) &&
                 COMPREPLY=($(compgen -W '"${COMPREPLY[@]}" "${COMPREPLY[@]#/dev/}}' \
                     -- "$cur"))
@@ -31,10 +31,10 @@ _minicom()
         return
     fi
 
-    COMPREPLY=(
-        $(printf '%s\n' /etc/minirc.* /etc/minicom/minirc.* ~/.minirc.* |
-            command sed -e '/\*$/d' -e 's/^.*minirc\.//' |
-            command grep "^${cur}"))
+    local -a files
+    _comp_expand_glob files '/etc/minirc.* /etc/minicom/minirc.* ~/.minirc.*'
+    ((${#files[@]})) &&
+        COMPREPLY=($(compgen -W '"${files[@]##*minirc.}"' -- "$cur"))
 } &&
     complete -F _minicom -o default minicom
 

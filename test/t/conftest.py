@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from enum import Enum
 from pathlib import Path
 from types import TracebackType
 from typing import (
@@ -444,14 +445,19 @@ def assert_bash_exec(
 class bash_env_saved:
     counter: int = 0
 
+    class saved_state(Enum):
+        ChangesDetected = 1
+        ChangesIgnored = 2
+
     def __init__(self, bash: pexpect.spawn, sendintr: bool = False):
         bash_env_saved.counter += 1
         self.prefix: str = "_comp__test_%d" % bash_env_saved.counter
 
         self.bash = bash
         self.cwd_changed: bool = False
-        self.saved_shopt: Dict[str, int] = {}
-        self.saved_variables: Dict[str, int] = {}
+        self.saved_set: Dict[str, bash_env_saved.saved_state] = {}
+        self.saved_shopt: Dict[str, bash_env_saved.saved_state] = {}
+        self.saved_variables: Dict[str, bash_env_saved.saved_state] = {}
         self.sendintr = sendintr
 
         self.noexcept: bool = False
@@ -515,7 +521,36 @@ class bash_env_saved:
             self.cwd_changed = True
             self._copy_variable("PWD", "%s_OLDPWD" % self.prefix)
 
+    def _check_set(self, name: str):
+        if self.saved_set[name] != bash_env_saved.saved_state.ChangesDetected:
+            return
+        self._safe_assert(
+            '[[ $(shopt -po %s) == "${%s_NEWSHOPT_%s}" ]]'
+            % (name, self.prefix, name),
+        )
+
+    def _unprotect_set(self, name: str):
+        if name not in self.saved_set:
+            self.saved_set[name] = bash_env_saved.saved_state.ChangesDetected
+            self._safe_exec(
+                "%s_OLDSHOPT_%s=$(shopt -po %s || true)"
+                % (self.prefix, name, name),
+            )
+        else:
+            self._check_set(name)
+
+    def _protect_set(self, name: str):
+        self._safe_exec(
+            "%s_NEWSHOPT_%s=$(shopt -po %s || true)"
+            % (self.prefix, name, name),
+        )
+
     def _check_shopt(self, name: str):
+        if (
+            self.saved_shopt[name]
+            != bash_env_saved.saved_state.ChangesDetected
+        ):
+            return
         self._safe_assert(
             '[[ $(shopt -p %s) == "${%s_NEWSHOPT_%s}" ]]'
             % (name, self.prefix, name),
@@ -523,7 +558,7 @@ class bash_env_saved:
 
     def _unprotect_shopt(self, name: str):
         if name not in self.saved_shopt:
-            self.saved_shopt[name] = 1
+            self.saved_shopt[name] = bash_env_saved.saved_state.ChangesDetected
             self._safe_exec(
                 "%s_OLDSHOPT_%s=$(shopt -p %s || true)"
                 % (self.prefix, name, name),
@@ -538,6 +573,11 @@ class bash_env_saved:
         )
 
     def _check_variable(self, varname: str):
+        if (
+            self.saved_variables[varname]
+            != bash_env_saved.saved_state.ChangesDetected
+        ):
+            return
         try:
             self._safe_assert(
                 '[[ ${%s-%s} == "${%s_NEWVAR_%s-%s}" ]]'
@@ -556,7 +596,9 @@ class bash_env_saved:
 
     def _unprotect_variable(self, varname: str):
         if varname not in self.saved_variables:
-            self.saved_variables[varname] = 1
+            self.saved_variables[
+                varname
+            ] = bash_env_saved.saved_state.ChangesDetected
             self._copy_variable(
                 varname, "%s_OLDVAR_%s" % (self.prefix, varname)
             )
@@ -581,13 +623,6 @@ class bash_env_saved:
             self._unset_variable("%s_OLDPWD" % self.prefix)
             self.cwd_changed = False
 
-        for name in self.saved_shopt:
-            self._check_shopt(name)
-            self._safe_exec('eval "$%s_OLDSHOPT_%s"' % (self.prefix, name))
-            self._unset_variable("%s_OLDSHOPT_%s" % (self.prefix, name))
-            self._unset_variable("%s_NEWSHOPT_%s" % (self.prefix, name))
-        self.saved_shopt = {}
-
         for varname in self.saved_variables:
             self._check_variable(varname)
             self._copy_variable(
@@ -596,6 +631,20 @@ class bash_env_saved:
             self._unset_variable("%s_OLDVAR_%s" % (self.prefix, varname))
             self._unset_variable("%s_NEWVAR_%s" % (self.prefix, varname))
         self.saved_variables = {}
+
+        for name in self.saved_shopt:
+            self._check_shopt(name)
+            self._safe_exec('eval "$%s_OLDSHOPT_%s"' % (self.prefix, name))
+            self._unset_variable("%s_OLDSHOPT_%s" % (self.prefix, name))
+            self._unset_variable("%s_NEWSHOPT_%s" % (self.prefix, name))
+        self.saved_shopt = {}
+
+        for name in self.saved_set:
+            self._check_set(name)
+            self._safe_exec('eval "$%s_OLDSHOPT_%s"' % (self.prefix, name))
+            self._unset_variable("%s_OLDSHOPT_%s" % (self.prefix, name))
+            self._unset_variable("%s_NEWSHOPT_%s" % (self.prefix, name))
+        self.saved_set = {}
 
         self.noexcept = False
         if self.captured_error:
@@ -608,6 +657,18 @@ class bash_env_saved:
         self._safe_exec("command cd -- %s" % shlex.quote(path))
         self._protect_variable("OLDPWD")
 
+    def set(self, name: str, value: bool):
+        self._unprotect_set(name)
+        if value:
+            self._safe_exec("set -u %s" % name)
+        else:
+            self._safe_exec("set +o %s" % name)
+        self._protect_set(name)
+
+    def save_set(self, name: str):
+        self._unprotect_set(name)
+        self.saved_set[name] = bash_env_saved.saved_state.ChangesIgnored
+
     def shopt(self, name: str, value: bool):
         self._unprotect_shopt(name)
         if value:
@@ -616,12 +677,22 @@ class bash_env_saved:
             self._safe_exec("shopt -u %s" % name)
         self._protect_shopt(name)
 
+    def save_shopt(self, name: str):
+        self._unprotect_shopt(name)
+        self.saved_shopt[name] = bash_env_saved.saved_state.ChangesIgnored
+
     def write_variable(self, varname: str, new_value: str, quote: bool = True):
         if quote:
             new_value = shlex.quote(new_value)
         self._unprotect_variable(varname)
         self._safe_exec("%s=%s" % (varname, new_value))
         self._protect_variable(varname)
+
+    def save_variable(self, varname: str):
+        self._unprotect_variable(varname)
+        self.saved_variables[
+            varname
+        ] = bash_env_saved.saved_state.ChangesIgnored
 
     # TODO: We may restore the "export" attribute as well though it is
     #   not currently tested in "diff_env"

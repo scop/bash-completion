@@ -260,6 +260,55 @@ _upvars()
     done
 }
 
+# Get the list of filenames that match with the specified glob pattern.
+# This function does the globbing in a controlled environment, avoiding
+# interference from user's shell options/settings or environment variables.
+# @param $1 array_name  Array name
+#   The array name should not start with the double underscores "__".  The
+#   array name should not be "GLOBIGNORE".
+# @param $2 pattern     Pattern string to be evaluated.
+#   This pattern string will be evaluated using "eval", so brace expansions,
+#   parameter expansions, command substitutions, and other expansions will be
+#   processed.  The user-provided strings should not be directly specified to
+#   this argument.
+_comp_expand_glob()
+{
+    if (($# != 2)); then
+        printf 'bash-completion: %s: unexpected number of arguments\n' "$FUNCNAME" >&2
+        printf 'usage: %s ARRAY_NAME PATTERN\n' "$FUNCNAME" >&2
+        return 2
+    elif [[ $1 == @(GLOBIGNORE|__*|*[^_a-zA-Z0-9]*|[0-9]*|'') ]]; then
+        printf 'bash-completion: %s: invalid array name "%s"\n' "$FUNCNAME" "$1" >&2
+        return 2
+    fi
+
+    # Save and adjust the settings.
+    local __original_opts=$SHELLOPTS:$BASHOPTS
+    set +o noglob
+    shopt -s nullglob
+    shopt -u failglob dotglob
+
+    # Also the user's GLOBIGNORE may affect the result of pathname expansions.
+    local GLOBIGNORE=
+
+    eval -- "$1=()" # a fallback in case that the next line fails.
+    eval -- "$1=($2)"
+
+    # Restore the settings.  Note: Changing GLOBIGNORE affects the state of
+    # "shopt -q dotglob", so we need to explicitly restore the original state
+    # of "shopt -q dotglob".
+    _comp_unlocal GLOBIGNORE
+    if [[ :$__original_opts: == *:dotglob:* ]]; then
+        shopt -s dotglob
+    else
+        shopt -u dotglob
+    fi
+    [[ :$__original_opts: == *:nullglob:* ]] || shopt -u nullglob
+    [[ :$__original_opts: == *:failglob:* ]] && shopt -s failglob
+    [[ :$__original_opts: == *:noglob:* ]] && set -o noglob
+    return 0
+}
+
 # Reassemble command line words, excluding specified characters from the
 # list of word completion separators (COMP_WORDBREAKS).
 # @param $1 chars  Characters out of $COMP_WORDBREAKS which should
@@ -1099,15 +1148,20 @@ _mac_addresses()
 #
 _configured_interfaces()
 {
+    local -a files
     if [[ -f /etc/debian_version ]]; then
         # Debian system
+        _comp_expand_glob files '/etc/network/interfaces /etc/network/interfaces.d/*'
+        ((${#files[@]})) || return 0
         COMPREPLY=($(compgen -W "$(command sed -ne 's|^iface \([^ ]\{1,\}\).*$|\1|p' \
-            /etc/network/interfaces /etc/network/interfaces.d/* 2>/dev/null)" \
+            "${files[@]}" 2>/dev/null)" \
             -- "$cur"))
     elif [[ -f /etc/SuSE-release ]]; then
         # SuSE system
+        _comp_expand_glob files '/etc/sysconfig/network/ifcfg-*'
+        ((${#files[@]})) || return 0
         COMPREPLY=($(compgen -W "$(printf '%s\n' \
-            /etc/sysconfig/network/ifcfg-* |
+            "${files[@]}" |
             command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')" -- "$cur"))
     elif [[ -f /etc/pld-release ]]; then
         # PLD Linux
@@ -1116,8 +1170,10 @@ _configured_interfaces()
             command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')" -- "$cur"))
     else
         # Assume Red Hat
+        _comp_expand_glob files '/etc/sysconfig/network-scripts/ifcfg-*'
+        ((${#files[@]})) || return 0
         COMPREPLY=($(compgen -W "$(printf '%s\n' \
-            /etc/sysconfig/network-scripts/ifcfg-* |
+            "${files[@]}" |
             command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')" -- "$cur"))
     fi
 }
@@ -1373,12 +1429,12 @@ _xinetd_services()
 {
     local xinetddir=${_comp__test_xinetd_dir:-/etc/xinetd.d}
     if [[ -d $xinetddir ]]; then
-        local IFS=$' \t\n' reset=$(shopt -p nullglob)
-        shopt -s nullglob
-        local -a svcs=($xinetddir/!($_comp_backup_glob))
-        $reset
-        ((!${#svcs[@]})) ||
+        local -a svcs
+        _comp_expand_glob svcs '$xinetddir/!($_comp_backup_glob)'
+        if ((${#svcs[@]})); then
+            local IFS=$'\n'
             COMPREPLY+=($(compgen -W '"${svcs[@]#$xinetddir/}"' -- "${cur-}"))
+        fi
     fi
 }
 
@@ -1389,12 +1445,9 @@ _services()
     local sysvdirs
     _sysvdirs
 
-    local IFS=$' \t\n' reset=$(shopt -p nullglob)
-    shopt -s nullglob
-    COMPREPLY=(
-        $(printf '%s\n' ${sysvdirs[0]}/!($_comp_backup_glob|functions|README)))
-    $reset
+    _comp_expand_glob COMPREPLY '${sysvdirs[0]}/!($_comp_backup_glob|functions|README)'
 
+    local IFS=$'\n'
     COMPREPLY+=($({
         systemctl list-units --full --all ||
             systemctl list-unit-files
@@ -1425,7 +1478,7 @@ _service()
         _services
         [[ -e /etc/mandrake-release ]] && _xinetd_services
     else
-        local sysvdirs
+        local IFS=$'\n' sysvdirs
         _sysvdirs
         COMPREPLY=($(compgen -W '`command sed -e "y/|/ /" \
             -ne "s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p" \
@@ -1677,7 +1730,9 @@ _terms()
         {
             toe -a || toe
         } | awk '{ print $1 }'
-        find /{etc,lib,usr/lib,usr/share}/terminfo/? -type f -maxdepth 1 |
+        _comp_expand_glob dirs '/{etc,lib,usr/lib,usr/share}/terminfo/?'
+        ((${#dirs[@]})) &&
+            find "${dirs[@]}" -type f -maxdepth 1 |
             awk -F/ '{ print $NF }'
     } 2>/dev/null)" -- "$cur"))
 }
@@ -1737,7 +1792,7 @@ _included_ssh_config_files()
 {
     (($# < 1)) &&
         echo "bash_completion: $FUNCNAME: missing mandatory argument CONFIG" >&2
-    local configfile i f
+    local configfile i files f
     configfile=$1
 
     local IFS=$' \t\n' reset=$(shopt -po noglob)
@@ -1760,15 +1815,16 @@ _included_ssh_config_files()
         fi
         __expand_tilde_by_ref i
         # In case the expanded variable contains multiple paths
-        set +o noglob
-        for f in $i; do
-            if [[ -r $f ]]; then
-                config+=("$f")
-                # The Included file is processed to look for Included files in itself
-                _included_ssh_config_files $f
-            fi
-        done
-        $reset
+        _comp_expand_glob files '$i'
+        if ((${#files[@]})); then
+            for f in "${files[@]}"; do
+                if [[ -r $f ]]; then
+                    config+=("$f")
+                    # The Included file is processed to look for Included files in itself
+                    _included_ssh_config_files $f
+                fi
+            done
+        fi
     done
 } # _included_ssh_config_files()
 

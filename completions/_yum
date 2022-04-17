@@ -30,7 +30,10 @@ _yum_repolist()
 
 _yum_plugins()
 {
-    command ls /usr/lib/yum-plugins/*.py{,c,o} 2>/dev/null |
+    local -a files
+    _comp_expand_glob files '/usr/lib/yum-plugins/*.py{,c,o}'
+    ((${#files[@]})) &&
+        printf '%s\n' "${files[@]}" |
         command sed -ne 's|.*/\([^./]*\)\.py[co]\{0,1\}$|\1|p' | sort -u
 }
 

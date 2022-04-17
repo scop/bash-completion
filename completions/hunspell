@@ -10,15 +10,12 @@ _hunspell()
             return
             ;;
         -d)
-            local IFS=$' \t\n' reset=$(shopt -p nullglob)
-            shopt -s nullglob
-            local -a dicts=(/usr/share/hunspell/*.dic
-                /usr/local/share/hunspell/*.dic)
-            $reset
+            local -a dicts
+            _comp_expand_glob dicts '/usr/share/hunspell/*.dic /usr/local/share/hunspell/*.dic'
             if ((${#dicts[@]})); then
                 dicts=("${dicts[@]##*/}")
                 dicts=("${dicts[@]%.dic}")
-                IFS=$'\n'
+                local IFS=$'\n'
                 COMPREPLY=($(compgen -W '${dicts[@]}' -- "$cur"))
             fi
             return

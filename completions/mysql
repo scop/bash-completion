@@ -2,15 +2,13 @@
 
 _comp_xfunc_mysql_character_sets()
 {
-    local IFS=$' \t\n' reset=$(shopt -p failglob)
-    shopt -u failglob
-    local -a charsets=(/usr/share/m{ariadb,ysql}/charsets/*.xml)
-    $reset
-    if ((${#charsets[@]})); then
-        charsets=("${charsets[@]##*/}")
-        charsets=("${charsets[@]%%?(Index|\*).xml}" utf8)
-        COMPREPLY+=($(compgen -W '${charsets[@]}' -- "$cur"))
-    fi
+    local -a charsets
+    _comp_expand_glob charsets '/usr/share/m{ariadb,ysql}/charsets/!(Index).xml'
+    charsets+=(utf8)
+    charsets=("${charsets[@]##*/}")
+    charsets=("${charsets[@]%.xml}")
+    local IFS=$'\n'
+    COMPREPLY+=($(compgen -W '${charsets[@]}' -X '' -- "$cur"))
 }
 
 _comp_deprecate_func _mysql_character_sets _comp_xfunc_mysql_character_sets
