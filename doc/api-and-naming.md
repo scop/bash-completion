@@ -30,7 +30,13 @@ the box. But there are some, see [configuration](configuration.md).
 
 Variables and functions whose name contains a double underscore (`__`) anywhere
 in their name are private implementation details, not part of the stable API,
-and not intended to be used outside of their defining context.
+and not intended to be used outside of their defining context. Internally, the
+double underscores serve as privacy scope markers; there can be more than one
+pair of them in a name, and functions and variables are intended to reference
+and call other functions and variables within that scope, one level deep,
+sharing a common prefix. For example, a function named `_comp_foo` is allowed
+to access `_comp_foo__*` where `*` does not contain any double underscores,
+i.e. it should not access `_comp_foo__something__*` despite the common prefix.
 
 Functions with names prefixed with `_comp_xfunc_` are intended to be used
 through the `_comp_xfunc` function from files other than the one they are
