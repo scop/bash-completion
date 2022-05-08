@@ -223,13 +223,13 @@ _comp_unlocal()
 
 # Assign variables one scope above the caller
 # Usage: local varname [varname ...] &&
-#        _upvars [-v varname value] | [-aN varname [value ...]] ...
+#        _comp_upvars [-v varname value] | [-aN varname [value ...]] ...
 # Available OPTIONS:
 #     -aN  Assign next N values to varname as array
 #     -v   Assign single value to varname
 # @return  1 if error occurs
 # @see https://fvue.nl/wiki/Bash:_Passing_variables_by_reference
-_upvars()
+_comp_upvars()
 {
     if ! (($#)); then
         echo "bash_completion: $FUNCNAME: usage: $FUNCNAME" \
@@ -394,7 +394,7 @@ _comp_looks_like_path()
 # @param $2 words  Name of variable to return words to
 # @param $3 cword  Name of variable to return cword to
 #
-__reassemble_comp_words_by_ref()
+_comp__reassemble_comp_words_by_ref()
 {
     local exclude i j line ref
     # Exclude word separator characters?
@@ -454,7 +454,7 @@ __reassemble_comp_words_by_ref()
             printf -v "$2[i]" %s "${COMP_WORDS[i]}"
         done
     fi
-} # __reassemble_comp_words_by_ref()
+} # _comp__reassemble_comp_words_by_ref()
 
 # @param $1 exclude  Characters out of $COMP_WORDBREAKS which should NOT be
 #     considered word breaks. This is useful for things like scp where
@@ -463,11 +463,11 @@ __reassemble_comp_words_by_ref()
 # @param $2 words  Name of variable to return words to
 # @param $3 cword  Name of variable to return cword to
 # @param $4 cur  Name of variable to return current word to complete to
-# @see __reassemble_comp_words_by_ref()
-__get_cword_at_cursor_by_ref()
+# @see _comp__reassemble_comp_words_by_ref()
+_comp__get_cword_at_cursor_by_ref()
 {
     local cword words=()
-    __reassemble_comp_words_by_ref "$1" words cword
+    _comp__reassemble_comp_words_by_ref "$1" words cword
 
     local i cur="" index=$COMP_POINT lead=${COMP_LINE:0:COMP_POINT}
     # Cursor not at position 0 and not led by just space(s)?
@@ -498,7 +498,7 @@ __get_cword_at_cursor_by_ref()
         ((index < 0)) && index=0
     fi
 
-    local "$2" "$3" "$4" && _upvars -a${#words[@]} "$2" ${words+"${words[@]}"} \
+    local "$2" "$3" "$4" && _comp_upvars -a${#words[@]} "$2" ${words+"${words[@]}"} \
         -v "$3" "$cword" -v "$4" "${cur:0:index}"
 }
 
@@ -508,7 +508,7 @@ __get_cword_at_cursor_by_ref()
 # (For example, if the line is "ls foobar",
 # and the cursor is here -------->   ^
 # Also one is able to cross over possible wordbreak characters.
-# Usage: _get_comp_words_by_ref [OPTIONS] [VARNAMES]
+# Usage: _comp_get_comp_words_by_ref [OPTIONS] [VARNAMES]
 # Available VARNAMES:
 #     cur         Return cur via $cur
 #     prev        Return prev via $prev
@@ -527,9 +527,9 @@ __get_cword_at_cursor_by_ref()
 #
 # Example usage:
 #
-#    $ _get_comp_words_by_ref -n : cur prev
+#    $ _comp_get_comp_words_by_ref -n : cur prev
 #
-_get_comp_words_by_ref()
+_comp_get_comp_words_by_ref()
 {
     local exclude flag i OPTIND=1
     local cur cword words=()
@@ -564,7 +564,7 @@ _get_comp_words_by_ref()
         ((OPTIND += 1))
     done
 
-    __get_cword_at_cursor_by_ref "${exclude-}" words cword cur
+    _comp__get_cword_at_cursor_by_ref "${exclude-}" words cword cur
 
     [[ -v vcur ]] && {
         upvars+=("$vcur")
@@ -583,15 +583,15 @@ _get_comp_words_by_ref()
         upargs+=(-a${#words[@]} $vwords ${words+"${words[@]}"})
     }
 
-    ((${#upvars[@]})) && local "${upvars[@]}" && _upvars "${upargs[@]}"
+    ((${#upvars[@]})) && local "${upvars[@]}" && _comp_upvars "${upargs[@]}"
 }
 
 # Get word previous to the current word.
 # This is a good alternative to `prev=${COMP_WORDS[COMP_CWORD-1]}' because bash4
 # will properly return the previous word with respect to any given exclusions to
 # COMP_WORDBREAKS.
-# @deprecated  Use `_get_comp_words_by_ref cur prev' instead
-# @see _get_comp_words_by_ref()
+# @deprecated  Use `_comp_get_comp_words_by_ref cur prev' instead
+# @see _comp_get_comp_words_by_ref()
 #
 _get_pword()
 {
@@ -662,7 +662,7 @@ _quote_readline_by_ref()
             value=${value//'%'/%%} # Escape % for printf format.
             # shellcheck disable=SC2059
             printf -v value "$value" # Decode escape sequences of \....
-            local "$2" && _upvars -v "$2" "$value"
+            local "$2" && _comp_upvars -v "$2" "$value"
         fi
     fi
 } # _quote_readline_by_ref()
@@ -909,7 +909,7 @@ _comp_variable_assignments()
 # cur, prev, words, and cword are local, ditto split if you use -s.
 #
 # Options:
-#     -n EXCLUDE  Passed to _get_comp_words_by_ref -n with redirection chars
+#     -n EXCLUDE  Passed to _comp_get_comp_words_by_ref -n with redirection chars
 #     -e XSPEC    Passed to _filedir as first arg for stderr redirections
 #     -o XSPEC    Passed to _filedir as first arg for other output redirections
 #     -i XSPEC    Passed to _filedir as first arg for stdin redirections
@@ -957,7 +957,7 @@ _comp_initialize()
 
     COMPREPLY=()
     local redir='@(?(+([0-9])|{[a-zA-Z_]*([a-zA-Z_0-9])})@(>?([>|&])|<?([>&])|<<?([-<]))|&>?(>))'
-    _get_comp_words_by_ref -n "$exclude<>&" cur prev words cword
+    _comp_get_comp_words_by_ref -n "$exclude<>&" cur prev words cword
 
     # Complete variable names.
     _variables && return 1
@@ -1696,7 +1696,7 @@ _realcommand()
 
 # This function returns the first argument, excluding options
 # @param $1 chars  Characters out of $COMP_WORDBREAKS which should
-#     NOT be considered word breaks. See __reassemble_comp_words_by_ref.
+#     NOT be considered word breaks. See _comp__reassemble_comp_words_by_ref.
 _get_first_arg()
 {
     local i
@@ -1712,13 +1712,13 @@ _get_first_arg()
 
 # This function counts the number of args, excluding options
 # @param $1 chars  Characters out of $COMP_WORDBREAKS which should
-#     NOT be considered word breaks. See __reassemble_comp_words_by_ref.
+#     NOT be considered word breaks. See _comp__reassemble_comp_words_by_ref.
 # @param $2 glob   Options whose following argument should not be counted
 # @param $3 glob   Options that should be counted as args
 _count_args()
 {
     local i cword words
-    __reassemble_comp_words_by_ref "${1-}" words cword
+    _comp__reassemble_comp_words_by_ref "${1-}" words cword
 
     args=1
     for ((i = 1; i < cword; i++)); do
@@ -2177,7 +2177,7 @@ _comp_command_offset()
 
     COMPREPLY=()
     local cur
-    _get_comp_words_by_ref cur
+    _comp_get_comp_words_by_ref cur
 
     if ((COMP_CWORD == 0)); then
         local IFS=$'\n'
