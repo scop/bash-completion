@@ -105,7 +105,7 @@ _comp_cmd_java__classes()
 # available packages completion
 _comp_cmd_java__packages()
 {
-    local sourcepath i
+    local sourcepath i files
 
     # find which sourcepath to use
     _java_find_sourcepath
@@ -116,15 +116,17 @@ _comp_cmd_java__packages()
     # parse each sourcepath element for packages
     for i in "${sourcepath[@]}"; do
         if [[ -d $i ]]; then
-            COMPREPLY+=($(command ls -F -d "$i/$cur"* 2>/dev/null |
-                command sed -e 's|^'"$i"'/||'))
+            _comp_expand_glob files '"$i/$cur"*'
+            ((${#files[@]})) || continue
+            _comp_split -la COMPREPLY "$(
+                command ls -F -d "${files[@]}" 2>/dev/null |
+                    command sed -e 's|^'"$i"'/||'
+            )"
         fi
     done
     if ((${#COMPREPLY[@]} != 0)); then
-        # keep only packages
-        COMPREPLY=($(tr " " "\n" <<<"${COMPREPLY[@]}" | command grep "/$"))
-        # remove packages extension
-        COMPREPLY=(${COMPREPLY[@]%/})
+        # keep only packages with the package suffix `/` being removed
+        _comp_split -l COMPREPLY "$(printf '%s\n' "${COMPREPLY[@]}" | command sed -n 's,/$,,p')"
         # convert path syntax to package syntax
         cur="${COMPREPLY[*]//\//.}"
     fi
