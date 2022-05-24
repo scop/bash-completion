@@ -94,16 +94,18 @@ complete -b builtin
 
 # Check if we're running on the given userland
 # @param $1 userland to check for
-_userland()
+_comp_userland()
 {
     local userland=$(uname -s)
     [[ $userland == @(Linux|GNU/*) ]] && userland=GNU
     [[ $userland == "$1" ]]
 }
 
+_comp_deprecate_func _userland _comp_userland
+
 # This function sets correct SysV init directories
 #
-_sysvdirs()
+_comp_sysvdirs()
 {
     sysvdirs=()
     [[ -d /etc/rc.d/init.d ]] && sysvdirs+=(/etc/rc.d/init.d)
@@ -113,31 +115,37 @@ _sysvdirs()
     return 0
 }
 
+_comp_deprecate_func _sysvdirs _comp_sysvdirs
+
 # This function checks whether we have a given program on the system.
 #
-_have()
+_comp_have_command()
 {
     # Completions for system administrator commands are installed as well in
     # case completion is attempted via `sudo command ...'.
     PATH=$PATH:/usr/sbin:/sbin:/usr/local/sbin type $1 &>/dev/null
 }
 
+_comp_deprecate_func _have _comp_have_command
+
 # Backwards compatibility for compat completions that use have().
 # @deprecated should no longer be used; generally not needed with dynamically
-#             loaded completions, and _have is suitable for runtime use.
+#             loaded completions, and _comp_have_command is suitable for runtime use.
 have()
 {
     unset -v have
-    _have $1 && have=yes
+    _comp_have_command $1 && have=yes
 }
 
 # This function checks whether a given readline variable
 # is `on'.
 #
-_rl_enabled()
+_comp_readline_variable_on()
 {
     [[ $(bind -v) == *$1+([[:space:]])on* ]]
 }
+
+_comp_deprecate_func _rl_enabled _comp_readline_variable_on
 
 # This function shell-quotes the argument
 quote()
@@ -1439,7 +1447,7 @@ _xinetd_services()
 _services()
 {
     local sysvdirs
-    _sysvdirs
+    _comp_sysvdirs
 
     _comp_expand_glob COMPREPLY '${sysvdirs[0]}/!($_comp_backup_glob|functions|README)'
 
@@ -1475,7 +1483,7 @@ _service()
         [[ -e /etc/mandrake-release ]] && _xinetd_services
     else
         local IFS=$'\n' sysvdirs
-        _sysvdirs
+        _comp_sysvdirs
         COMPREPLY=($(compgen -W '`command sed -e "y/|/ /" \
             -ne "s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p" \
             ${sysvdirs[0]}/${prev##*/} 2>/dev/null` start stop' -- "$cur"))
@@ -1486,7 +1494,7 @@ _service()
 _comp__init_set_up_service_completions()
 {
     local sysvdirs svc svcdir
-    _sysvdirs
+    _comp_sysvdirs
     for svcdir in "${sysvdirs[@]}"; do
         for svc in "$svcdir"/!($_comp_backup_glob); do
             [[ -x $svc ]] && complete -F _service "$svc"
@@ -2065,8 +2073,9 @@ _cd()
         return
     fi
 
-    local -r mark_dirs=$(_rl_enabled mark-directories && echo y)
-    local -r mark_symdirs=$(_rl_enabled mark-symlinked-directories && echo y)
+    local mark_dirs='' mark_symdirs=''
+    _comp_readline_variable_on mark-directories && mark_dirs=y
+    _comp_readline_variable_on mark-symlinked-directories && mark_symdirs=y
 
     # we have a CDPATH, so loop on its contents
     for i in ${CDPATH//:/$'\n'}; do
