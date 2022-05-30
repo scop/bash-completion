@@ -7,6 +7,11 @@ _kldload()
     local cur prev words cword
     _init_completion || return
 
+    if [[ "$cur" == */* ]]; then
+        _filedir ko
+        return
+    fi
+
     local moddirs modules i IFS=";"
     moddirs=($(kldconfig -r 2>/dev/null))
     _comp_unlocal IFS
@@ -18,6 +23,9 @@ _kldload()
         COMPREPLY+=("${modules[@]}")
     done
     COMPREPLY=(${COMPREPLY[@]%.ko})
+
+    # also add dirs in current dir
+    _filedir -d
 
 } &&
     complete -F _kldload kldload
