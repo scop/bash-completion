@@ -148,6 +148,16 @@ _comp_readline_variable_on()
 _comp_deprecate_func _rl_enabled _comp_readline_variable_on
 
 # This function shell-quotes the argument
+# @param    $1  String to be quoted
+# @var[out] ret Resulting string
+_comp_quote()
+{
+    ret=\'${1//\'/\'\\\'\'}\'
+}
+
+# This function shell-quotes the argument
+# @deprecated Use `_comp_quote` instead.  Note that `_comp_quote` stores
+#   the results in the variable `ret` instead of writing them to stdout.
 quote()
 {
     local quoted=${1//\'/\'\\\'\'}
@@ -162,10 +172,77 @@ quote_readline()
     printf %s "$ret"
 } # quote_readline()
 
+# shellcheck disable=SC1003
+_comp_dequote__initialize()
+{
+    unset -f "$FUNCNAME"
+    local regex_param='\$([_a-zA-Z][_a-zA-Z0-9]*|[-*@#?$!0-9_])|\$\{[!#]?([_a-zA-Z][_a-zA-Z0-9]*(\[([0-9]+|[*@])\])?|[-*@#?$!0-9_])\}'
+    local regex_quoted='\\.|'\''[^'\'']*'\''|\$?"([^\"$`!]|'$regex_param'|\\.)*"|\$'\''([^\'\'']|\\.)*'\'''
+    _comp_dequote__regex_safe_word='^([^\'\''"$`;&|<>()!]|'$regex_quoted'|'$regex_param')*$'
+}
+_comp_dequote__initialize
+
+# This function expands a word using `eval` in a safe way.  This function can
+# be typically used to get the expanded value of `${word[i]}` as
+# `_comp_dequote "${word[i]}"`.  When the word contains unquoted shell special
+# characters, command substitutions, and other unsafe strings, the function
+# call fails before applying `eval`.  Otherwise, `eval` is applied to the
+# string to generate the result.
+#
+# @param    $1  String to be expanded.  A safe word consists of the following
+#               sequence of substrings:
+#
+#               - Shell non-special characaters: [^\'"$`;&|<>()!].
+#               - Parameter expansions of the forms $PARAM, ${!PARAM},
+#                 ${#PARAM}, ${NAME[INDEX]}, ${!NAME[INDEX]}, ${#NAME[INDEX]}
+#                 where INDEX is an integer, `*` or `@`, NAME is a valid
+#                 variable name [_a-zA-Z][_a-zA-Z0-9]*, and PARAM is NAME or a
+#                 parameter [-*@#?$!0-9_].
+#               - Quotes \?, '...', "...", $'...', and $"...".  In the double
+#                 quotations, parameter expansions are allowed.
+#
+# @var[out] ret Array that contains the expanded results.  Multiple words or no
+#               words may be generated through pathname expansions.
+#
+# Note: This function allows parameter expansions as safe strings, which might
+# cause unexpected results:
+#
+# * This allows execution of arbitrary commands through extra expansions of
+#   array subscripts in name references. For example,
+#
+#     declare -n v='dummy[$(echo xxx >/dev/tty)]'
+#     echo "$v"            # This line executes the command 'echo xxx'.
+#     _comp_dequote '"$v"' # This line also executes it.
+#
+# * This may change the internal state of the variable that has side effects.
+#   For example, the state of the random number generator of RANDOM can change:
+#
+#     RANDOM=1234               # Set seed
+#     echo "$RANDOM"            # This produces 30658.
+#     RANDOM=1234               # Reset seed
+#     _comp_dequote '"$RANDOM"' # This line changes the internal state.
+#     echo "$RANDOM"            # This fails to reproduce 30658.
+#
+# We allow these parameter expansions as a part of safe strings assuming the
+# referential transparency of the simple parameter expansions and the sane
+# setup of the variables by the user or other frameworks that the user loads.
+_comp_dequote()
+{
+    ret=() # fallback value for unsafe word and failglob
+    [[ $1 =~ $_comp_dequote__regex_safe_word ]] || return 1
+    eval "ret=($1)" 2>/dev/null # may produce failglob
+}
+
 # This function shell-dequotes the argument
+# @deprecated Use `_comp_dequote' instead.  Note that `_comp_dequote` stores
+#   the results in the array `ret` instead of writing them to stdout.
 dequote()
 {
-    eval printf %s "$1" 2>/dev/null
+    local ret
+    _comp_dequote "$1"
+    local rc=$?
+    printf %s "$ret"
+    return $rc
 }
 
 # Unset the given variables across a scope boundary. Useful for unshadowing
@@ -1030,14 +1107,14 @@ _parse_help()
     shopt -s lastpipe
     set -o noglob
 
-    eval local cmd="$(quote "$1")"
+    local cmd=$1
     local line rc=1
-    {
+    (
         case $cmd in
-            -) cat ;;
-            *) LC_ALL=C "$(dequote "$cmd")" ${2:---help} 2>&1 ;;
+            -) exec cat ;;
+            *) _comp_dequote "$cmd" && LC_ALL=C "$ret" ${2:---help} 2>&1 ;;
         esac
-    } |
+    ) |
         while read -r line; do
 
             [[ $line == *([[:blank:]])-* ]] || continue
@@ -1067,14 +1144,14 @@ _parse_usage()
     shopt -s lastpipe
     set -o noglob
 
-    eval local cmd="$(quote "$1")"
+    local cmd=$1
     local line match option i char rc=1
-    {
+    (
         case $cmd in
-            -) cat ;;
-            *) LC_ALL=C "$(dequote "$cmd")" ${2:---usage} 2>&1 ;;
+            -) exec cat ;;
+            *) _comp_dequote "$cmd" && LC_ALL=C "$ret" ${2:---usage} 2>&1 ;;
         esac
-    } |
+    ) |
         while read -r line; do
 
             while [[ $line =~ \[[[:space:]]*(-[^]]+)[[:space:]]*\] ]]; do

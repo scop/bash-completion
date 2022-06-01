@@ -16,22 +16,24 @@ _muttaddr()
 # @output  muttrc filename
 _muttrc()
 {
+    local muttrc=
     # Search COMP_WORDS for '-F muttrc' or '-Fmuttrc' argument
     set -- "${words[@]}"
     while (($# > 0)); do
         if [[ $1 == -F* ]]; then
+            local ret
             if ((${#1} > 2)); then
-                muttrc="$(dequote "${1:2}")"
+                _comp_dequote "${1:2}" && muttrc=$ret
             else
                 shift
-                [[ $1 ]] && muttrc="$(dequote "$1")"
+                [[ ${1-} ]] && _comp_dequote "$1" && muttrc=$ret
             fi
             break
         fi
         shift
     done
 
-    if [[ ! -v muttrc ]]; then
+    if [[ ! $muttrc ]]; then
         if [[ -f ~/.${muttcmd}rc ]]; then
             muttrc=\~/.${muttcmd}rc
         elif [[ -f ~/.${muttcmd}/${muttcmd}rc ]]; then
@@ -42,27 +44,48 @@ _muttrc()
 }
 
 # Recursively build list of sourced config files
-# @param $1  List of config files found so far
-# @param $2  Config file to process
-# @output  List of config files
+# @param $1...   Config file to process
+# @var[out] ret  List of config files
+# @return 0 if any conffiles are generated, 1 if none is generated.
+_comp_cmd_mutt__get_conffiles()
+{
+    local -a conffiles=()
+    local -A visited=()
+    local file
+    for file; do
+        _comp_dequote "$file"
+        _comp_cmd_mutt__get_conffiles__visit "$ret"
+    done
+    ((${#conffiles[@]})) || return 1
+    ret=("${conffiles[@]}")
+}
+# Recursion function for _comp_cmd_mutt__get_conffiles
+# @var[ref] conffiles  List of config files found so far
+# @var[ref] visited    Dictionary of config files already visited
+_comp_cmd_mutt__get_conffiles__visit()
+{
+    [[ -f $1 && ${visited[$1]-} != yes ]] || return 0
+    visited[$1]=yes
+    conffiles+=("$1")
+
+    local -a newconffiles=($(command sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' "$1"))
+    ((${#newconffiles[@]})) || return 0
+
+    local file
+    for file in "${newconffiles[@]}"; do
+        __expand_tilde_by_ref file
+        _comp_cmd_mutt__get_conffiles__visit "$file"
+    done
+}
+
+# Recursively build list of sourced config files
+# @param $1...  Config file to process
+# @output       List of config files
 _muttconffiles()
 {
-    local file sofar
-    local -a newconffiles
-
-    sofar=" $1 "
-    shift
-    while [[ ${1-} ]]; do
-        newconffiles=($(command sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' "$(eval printf %s $1)"))
-        for file in ${newconffiles+"${newconffiles[@]}"}; do
-            __expand_tilde_by_ref file
-            [[ ! -f $file || $sofar == *\ $file\ * ]] && continue
-            sofar+=" $file"
-            sofar=" $(eval _muttconffiles \"$sofar\" $file) "
-        done
-        shift
-    done
-    printf '%s\n' $sofar
+    local ret
+    _comp_cmd_mutt__get_conffiles "$@" &&
+        printf '%s\n' "${ret[@]}"
 }
 
 # @param $1 (cur) Current word to complete
@@ -74,11 +97,14 @@ _muttaliases()
     muttrc=$(_muttrc)
     [[ ! $muttrc ]] && return
 
-    conffiles=($(eval _muttconffiles $muttrc $muttrc))
+    local ret
+    _comp_cmd_mutt__get_conffiles "$muttrc" || return 0
+    conffiles=("${ret[@]}")
     # shellcheck disable=SC2046
-    aliases=("$(command sed -n 's|^alias[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' \
-        "${conffiles[@]}")")
-    COMPREPLY+=($(compgen -W "${aliases[*]}" -- "$cur"))
+    aliases=($(command sed -n 's|^alias[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' \
+        "${conffiles[@]}"))
+    ((${#aliases[@]})) &&
+        COMPREPLY+=($(compgen -W '"${aliases[@]}"' -- "$cur"))
 }
 
 # @param $1 (cur) Current word to complete
