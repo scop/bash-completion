@@ -91,10 +91,15 @@ _comp_cmd_cryptsetup()
             _comp_compgen_help
             [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         else
-            _comp_compgen -- -W 'open close resize status benchmark repair
-                erase luksFormat luksAddKey luksRemoveKey luksChangeKey
-                luksKillSlot luksUUID isLuks luksDump tcryptDump luksSuspend
-                luksResume luksHeaderBackup luksHeaderRestore'
+            _comp_compgen -- -W 'benchmark bitlkClose bitlkDump bitlkOpen close
+                config convert create erase fvault2Close fvault2Dump
+                fvault2Open isLuks loopaesClose loopaesOpen luksAddKey
+                luksChangeKey luksClose luksConfig luksConvertKey luksDump
+                luksErase luksFormat luksHeaderBackup luksHeaderRestore
+                luksKillSlot luksOpen luksRemoveKey luksResume luksSuspend
+                luksUUID open plainClose plainOpen reencrypt refresh remove
+                repair resize status tcryptClose tcryptDump tcryptOpen
+                tcryptOpen_ token'
         fi
     fi
 
