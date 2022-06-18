@@ -13,7 +13,7 @@ _comp_cmd_cryptsetup__device()
 _comp_cmd_cryptsetup__action()
 {
     local REPLY IFS=$' \t\n'
-    _comp_dequote "$1" || return 1
+    _comp_dequote "${1-}" || return 1
     local cmd=${REPLY:-cryptsetup}
     local -a actions
     _comp_split -l actions "$(
@@ -46,7 +46,7 @@ _comp_cmd_cryptsetup__action()
             filtering_pattern=${filtering_pattern%$'\n'}
 
             local filtered_actions
-            filtered_actions=$(strings "$path" | grep -Fx "$filtering_pattern" | sort -u) &&
+            filtered_actions=$(strings "$path" | command grep -Fx "$filtering_pattern" | sort -u) &&
                 [[ $filtered_actions ]] &&
                 _comp_split -l actions "$filtered_actions"
         fi
