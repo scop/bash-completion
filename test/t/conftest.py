@@ -211,8 +211,8 @@ def bash(request) -> pexpect.spawn:
     #   removal of the device /dev/null and the creation of a regular
     #   file at /dev/null when the number of commands reach
     #   HISTFILESIZE due to a bug in bash 4.3.  This causes execution of
-    #   garbage through BASH_COMPLETION_USER_FILE=/dev/null.  - Note
-    #   also that "unset -v HISTFILE" in "test/config/bashrc" was not
+    #   garbage through BASH_COMPLETION_USER_FILE=/dev/null.
+    # - Note also that "unset -v HISTFILE" in "test/config/bashrc" was not
     #   adopted because "test/config/bashrc" is loaded after the
     #   history is read from the history file.
     #
