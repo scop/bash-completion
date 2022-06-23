@@ -485,6 +485,7 @@ CLEANFILES = \
 	7za \
 	7zr \
 	7zz \
+	7zzs \
 	aclocal-1.10 \
 	aclocal-1.11 \
 	aclocal-1.12 \
@@ -801,7 +802,8 @@ symlinks: $(DATA)
 	$(ss) 7z \
 		7za \
 		7zr \
-		7zz
+		7zz \
+		7zzs
 	$(ss) aclocal \
 		aclocal-1.10 aclocal-1.11 aclocal-1.12 aclocal-1.13 \
 		aclocal-1.14 aclocal-1.15 aclocal-1.16
