@@ -132,6 +132,7 @@ EXTRA_DIST = \
 	test_dmypy.py \
 	test_dnssec_keygen.py \
 	test_dnsspoof.py \
+	test_doas.py \
 	test_dot.py \
 	test_dpkg.py \
 	test_dpkg_deb.py \

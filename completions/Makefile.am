@@ -86,6 +86,7 @@ bashcomp_DATA = 2to3 \
 		dmypy \
 		dnssec-keygen \
 		dnsspoof \
+		doas \
 		dot \
 		dpkg \
 		dpkg-source \
