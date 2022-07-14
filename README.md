@@ -254,13 +254,15 @@ A. Probably because the database is being queried every time and this uses a
    unless it detects that the database has changed since the file was created,
    in which case it will still use the database to ensure accuracy.
 
-**Q. bash-completion interferes with my `command_not_found_handler` function!**
+**Q. bash-completion interferes with my `command_not_found_handle` function
+   (or the other way around)!**
 
-A. If your `command_not_found_handler` function is not intended to
+A. If your `command_not_found_handle` function is not intended to
    address (possibly missing) commands invoked during bash
    programmable completion functions, you can account for this
-   by, for example, testing if the `$COMP_`\* variables are set and
-   taking appropriate bypass or other action.
+   in the function by, for example, testing if the `$COMP_LINE`
+   variable is set and taking appropriate action, typically returning
+   early and silently with success.
 
 **Q. Can tab completion be made even easier?**
 
