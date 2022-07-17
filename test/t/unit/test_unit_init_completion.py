@@ -6,7 +6,7 @@ from conftest import TestUnitBase, assert_bash_exec, assert_complete
 @pytest.mark.bashcomp(
     cmd=None,
     ignore_env=r"^[+-](COMP(_(WORDS|CWORD|LINE|POINT)|REPLY)|"
-    r"cur|cword|words)=",
+    r"cur|cword|words)=|^\+declare -f _cmd1$",
 )
 class TestUnitInitCompletion(TestUnitBase):
     def test_1(self, bash):
@@ -32,3 +32,28 @@ class TestUnitInitCompletion(TestUnitBase):
             bash, "%s " % redirect, cwd="shared/default"
         )
         assert all(x in completion for x in "foo bar".split())
+
+    @pytest.fixture(scope="class")
+    def cmd1_empty_completion_setup(self, bash):
+        assert_bash_exec(
+            bash,
+            "_cmd1() { local cur prev words cword; _init_completion; } && "
+            "complete -F _cmd1 cmd1",
+        )
+
+    @pytest.mark.parametrize("redirect", "> >> 2> {fd1}> < &> &>> >|".split())
+    def test_redirect_2(self, bash, cmd1_empty_completion_setup, redirect):
+        # Note: Bash 4.3 and below cannot properly extract the redirection ">|"
+        if redirect == ">|":
+            skipif = "((BASH_VERSINFO[0] * 100 + BASH_VERSINFO[1] < 404))"
+            try:
+                assert_bash_exec(bash, skipif, want_output=None)
+            except AssertionError:
+                pass
+            else:
+                pytest.skip(skipif)
+
+        completion = assert_complete(
+            bash, "cmd1 %s f" % redirect, cwd="shared/default"
+        )
+        assert "foo" in completion
