@@ -580,12 +580,11 @@ _scp()
                 COMPREPLY=("${COMPREPLY[@]/%/ }")
                 return
                 ;;
-            */* | [.~]*)
-                # not a known host, pass through
-                ;;
             *)
-                _known_hosts_real ${ipvx-} -c -a \
-                    ${configfile:+-F "$configfile"} -- "$cur"
+                if ! _comp_looks_like_path "$cur"; then
+                    _known_hosts_real ${ipvx-} -c -a \
+                        ${configfile:+-F "$configfile"} -- "$cur"
+                fi
                 ;;
         esac
     fi

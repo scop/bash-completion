@@ -39,7 +39,7 @@ _apt_get()
                     awk '$1 == "Source:" { print $2 }' | sort -u)" -- "$cur"))
                 ;;
             install | reinstall)
-                if [[ $cur == */* ]]; then
+                if _comp_looks_like_path "$cur"; then
                     _filedir deb
                     return
                 elif [[ $cur == *=* ]]; then
@@ -58,7 +58,7 @@ _apt_get()
                 ;;&
             build-dep)
                 _filedir -d
-                [[ $cur != */* ]] || return
+                _comp_looks_like_path "$cur" && return
                 ;;&
             *)
                 COMPREPLY+=($(_comp_xfunc apt-cache packages))
