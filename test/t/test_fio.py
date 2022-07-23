@@ -39,3 +39,7 @@ class TestFio:
     def test_cmdhelp_nonexistent(self, completion):
         """Test --cmdhelp=COMMAND errors out gracefully."""
         assert not completion
+
+    @pytest.mark.complete("fio --crctest=", require_cmd=True)
+    def test_crctest(self, completion):
+        assert "sha1" in completion
