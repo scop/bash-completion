@@ -40,6 +40,10 @@ class TestFio:
         """Test --cmdhelp=COMMAND errors out gracefully."""
         assert not completion
 
-    @pytest.mark.complete("fio --crctest=", require_cmd=True)
+    @pytest.mark.complete(
+        "fio --crctest=",
+        require_cmd=True,
+        xfail="! fio --help 2>&1 | command grep -q -- --crctest",
+    )
     def test_crctest(self, completion):
         assert "sha1" in completion
