@@ -1,5 +1,7 @@
 import pytest
 
+from conftest import assert_bash_exec
+
 
 class TestExport:
     @pytest.mark.complete("export BASH")
@@ -34,3 +36,13 @@ class TestExport:
     @pytest.mark.complete("export -", require_cmd=True)
     def test_8(self, completion):
         assert completion
+
+    @pytest.fixture(scope="class")
+    def export_f_canary(self, request, bash):
+        assert_bash_exec(bash, "_comp__test_export_f_canary() { return; }")
+
+    @pytest.mark.complete("export -f _comp__test_export_f_canar")
+    def test_no_equals_sign_for_function(self, completion, export_f_canary):
+        assert completion
+        assert "=" not in "".join(completion)
+        assert completion.endswith(" ")
