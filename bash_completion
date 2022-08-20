@@ -2558,9 +2558,12 @@ __load_completion()
         [[ -d $dir ]] || continue
         for compfile in "$cmd" "$cmd.bash" "_$cmd"; do
             compfile="$dir/$compfile"
-            # Avoid trying to source dirs; https://bugzilla.redhat.com/903540
+            # Avoid trying to source dirs as long as we support bash < 4.3
+            # to avoid an fd leak; https://bugzilla.redhat.com/903540
             if [[ -d $compfile ]]; then
-                echo "bash_completion: $compfile: is a directory" >&2
+                # Do not warn with . or .. (especially the former is common)
+                [[ $compfile == */.?(.) ]] ||
+                    echo "bash_completion: $compfile: is a directory" >&2
             elif [[ -e $compfile ]] && . "$compfile"; then
                 [[ $backslash ]] && $(complete -p "$cmd") "\\$cmd"
                 return 0
