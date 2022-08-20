@@ -147,5 +147,5 @@ class TestMan:
         env=dict(MANPATH=manpath),
         require_cmd=True,
     )
-    def test_zstd(self, completion):
+    def test_zstd_arbitrary_sectsuffix(self, completion):
         assert completion == "e"
