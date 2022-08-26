@@ -65,6 +65,22 @@ add_comp_wordbreak_char()
     [[ "${COMP_WORDBREAKS//[^$1]/}" ]] || COMP_WORDBREAKS+=$1
 }
 
+_comp__test_get_env()
+{
+    (
+        # Do not output the state of test variables "_comp__test_+([0-9])_*"
+        # and internal mutable variables "_comp_*_mut_*".
+        # shellcheck disable=SC2046
+        unset -v $(compgen -W '"${!_comp_@}"' -X '!_comp_@(_test_+([0-9])_*|*_mut_*)')
+
+        set -o posix
+        set
+    )
+    declare -F
+    shopt -p
+    set -o
+}
+
 # Local variables:
 # mode: shell-script
 # End:

@@ -709,7 +709,7 @@ def get_env(bash: pexpect.spawn) -> List[str]:
         x
         for x in assert_bash_exec(
             bash,
-            "{ (set -o posix ; set); declare -F; shopt -p; set -o; }",
+            "_comp__test_get_env",
             want_output=True,
         )
         .strip()
@@ -728,7 +728,7 @@ def diff_env(before: List[str], after: List[str], ignore: str):
         if not re.search(r"^(---|\+\+\+|@@ )", x)
         # Ignore variables expected to change:
         and not re.search(
-            r"^[-+](_|PPID|BASH_REMATCH|_comp__test_\d+_\w+)=",
+            r"^[-+](_|PPID|BASH_REMATCH|(BASH_)?LINENO)=",
             x,
             re.ASCII,
         )
