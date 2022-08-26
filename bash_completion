@@ -2220,6 +2220,13 @@ _command_offset()
     # rewrite current completion context before invoking
     # actual command completion
 
+    # make changes to COMP_* local.  Note that bash-4.3..5.0 have a
+    # bug that `local -a arr=("${arr[@]}")` fails.  We instead first
+    # assign the values of `COMP_WORDS` to another array `comp_words`.
+    local COMP_LINE=$COMP_LINE COMP_POINT=$COMP_POINT COMP_CWORD=$COMP_CWORD
+    local -a comp_words=("${COMP_WORDS[@]}")
+    local -a COMP_WORDS=("${comp_words[@]}")
+
     # find new first word position, then
     # rewrite COMP_LINE and adjust COMP_POINT
     local word_offset=$1 i tail
