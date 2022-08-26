@@ -2246,6 +2246,95 @@ else
     complete -F _cd -o nospace cd pushd
 fi
 
+# Create a regular expresssion that matches with one of the characters in the
+# specified string.  This function basically constructs a bracket expression
+# `ret=[$1]' but works around the cases where some characters in $1 have
+# unexpected special meanings.
+# @param $1 chars  The set of characters that can match
+# @var[out] ret    Set to a regexp that matches with one character from `set`
+_comp_command_offset__get_charcter_set_regex()
+{
+    local chars=$1
+    ret=
+    if [[ $chars == '^' ]]; then
+        # This is the special case where /[$chars]/ cannot be used.
+        ret='\^'
+    elif [[ $chars ]]; then
+        # reorder characters so that /[$chars]/ is not misinterpreted as
+        # /[[:space:]]/, /[a]]/ (interpreted as [a] + ]), /[^a]/, and /[a-z]/.
+        [[ $chars == *'['* ]] && chars=${chars//'['/}'[' # avoid [:space:]
+        [[ $chars == *']'* ]] && chars=']'${chars//']'/} # avoid ]
+        [[ $chars == '^'* ]] && chars=${chars//'^'/}'^'  # avoid [^
+        [[ $chars == *'-'* ]] && chars=${chars//'-'/}'-' # avoid a-z
+        ret=[$chars]
+    else
+        # a regular expression that does not match with any strings
+        ret='dummy^'
+    fi
+}
+
+# Initialize regular expressions used by `_comp_command_offset__reduce_cur`.
+_comp_command_offset__initialize_regex()
+{
+    # skip if it is already initialized.
+    [[ -v _comp_command_offset__mut_initialized && $COMP_WORDBREAKS == "$_comp_command_offset__mut_initialized" ]] && return
+    _comp_command_offset__mut_initialized=$COMP_WORDBREAKS
+    local backslash_quote='\\.'               # \?
+    local double_quotes='"([^\"]|\\.)*"'      # "..."
+    local single_quotes="'[^']*'"             # '...'
+    local escape_string="\\$'([^'\]|\\\\.)*'" # $'...'
+
+    _comp_command_offset__mut_regex_closed_prefix='^([^\"'\'']|'$backslash_quote'|'$double_quotes'|'$single_quotes')*'
+
+    local chars=${COMP_WORDBREAKS//[\'\"]/}
+    if [[ $chars ]]; then
+        # construct a regular expression used to break the word by
+        # COMP_WORDBREAKS.  The characters ' and " are not considered.  The
+        # characters \ and $ matches in special ways.
+        local regex_break=
+        [[ $chars == *\\* ]] && chars=${chars//\\/} regex_break='\\(.|$)'
+        [[ $chars == *\$* ]] && chars=${chars//\$/} regex_break+=${regex_break:+'|'}'\$([^$'\'${regex_break:+\\}']|$)'
+        if [[ $chars ]]; then
+            local ret
+            _comp_command_offset__get_charcter_set_regex "$chars"
+            regex_break+=${regex_break:+'|'}$ret
+        fi
+        # Note: /\$*xxx|\$*yyy|\$+([^']|$)/ is a workaround for POSIX
+        # ERE not supporting forward assertions like
+        # /xxx|yyy|\$(?!')/.
+        _comp_command_offset__mut_regex_break='^([^\"'\''$]|'$single_quotes'|\$*'$escape_string'|\$*'$backslash_quote'|\$*'$double_quotes'|\$+([^'\'']|$))*\$*('$regex_break')'
+    else
+        # a regular expression that never matches
+        _comp_command_offset__mut_regex_break='dummy^'
+    fi
+}
+
+# Modify the current word in the way bash passes it as the second argument of a
+# completion function specified by `complete -F func`.
+#
+# The rule is 1) When there is an unclosed left quote, the result is its
+# content.  To find an unclosed quotes, "...", '...', and \? are considered.
+# 2) Otherwise, when there are delimiters that are specified by
+# COMP_WORDBREAKS, the result is the substring after the last delimiter.  The
+# quote characters ' and " in COMP_WORDBREAKS are not counted as delimiters.
+# To find unquoted delimiters, "...", '...', $'...', and \?  are considered.
+# The delimiters $, @, and \ are contained in the result in a special
+# manner. 3) Otherwise, the result is the original string.
+#
+# @param $1 cur  Current word before COMP_POINT
+# @var[out] ret  Set to modified current word
+_comp_command_offset__reduce_cur()
+{
+    _comp_command_offset__initialize_regex
+    ret=$1
+    if [[ $ret =~ $_comp_command_offset__mut_regex_closed_prefix && ${ret:${#BASH_REMATCH}} == [\'\"]* ]]; then
+        ret=${ret:${#BASH_REMATCH}+1}
+    elif [[ $ret =~ $_comp_command_offset__mut_regex_break ]]; then
+        ret=${ret:${#BASH_REMATCH}}
+        [[ ${BASH_REMATCH[5]} == @(\$*|@|\\?) ]] && ret=${BASH_REMATCH[5]#\\}$ret
+    fi
+}
+
 # A meta-command completion function for commands like sudo(8), which need to
 # first complete on a command, then complete according to that command's own
 # completion definition.
@@ -2314,10 +2403,13 @@ _comp_command_offset()
                 local func=${cspec#* -F }
                 func=${func%% *}
 
+                local ret
+                _comp_command_offset__reduce_cur "$cur"
+                local original_cur=$ret
                 if ((${#COMP_WORDS[@]} >= 2)); then
-                    $func "$cmd" "${COMP_WORDS[-1]}" "${COMP_WORDS[-2]}"
+                    $func "$cmd" "$original_cur" "${COMP_WORDS[-2]}"
                 else
-                    $func "$cmd" "${COMP_WORDS[-1]}"
+                    $func "$cmd" "$original_cur"
                 fi
 
                 # restart completion (once) if function exited with 124
