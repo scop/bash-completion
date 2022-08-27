@@ -2196,7 +2196,7 @@ fi
 # first complete on a command, then complete according to that command's own
 # completion definition.
 #
-_command_offset()
+_comp_command_offset()
 {
     # rewrite current completion context before invoking
     # actual command completion
@@ -2302,12 +2302,13 @@ _command_offset()
         done
     fi
 }
+_comp_deprecate_func _command_offset _comp_command_offset
 
-# A _command_offset wrapper function for use when the offset is unknown.
+# A _comp_command_offset wrapper function for use when the offset is unknown.
 # Only intended to be used as a completion function directly associated
 # with a command, not to be invoked from within other completion functions.
 #
-_command()
+_comp_command()
 {
     local offset i
 
@@ -2319,18 +2320,20 @@ _command()
             break
         fi
     done
-    _command_offset $offset
+    _comp_command_offset $offset
 }
-complete -F _command aoss command "do" else eval exec ltrace nice nohup padsp \
+_comp_deprecate_func _command _comp_command
+complete -F _comp_command aoss command "do" else eval exec ltrace nice nohup padsp \
     "then" time tsocks vsound xargs
 
-_root_command()
+_comp_root_command()
 {
     local PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
     local root_command=$1
-    _command
+    _comp_command
 }
-complete -F _root_command fakeroot gksu gksudo kdesudo really
+_comp_deprecate_func _root_command _comp_root_command
+complete -F _comp_root_command fakeroot gksu gksudo kdesudo really
 
 # Return true if the completion should be treated as running as root
 _complete_as_root()

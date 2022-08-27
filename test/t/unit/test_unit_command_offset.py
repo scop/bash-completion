@@ -21,8 +21,8 @@ class TestUnitCommandOffset:
     def functions(self, bash):
         assert_bash_exec(
             bash,
-            "_cmd1() { _command_offset 1; }; complete -F _cmd1 cmd1; "
-            "complete -F _command meta; "
+            "_cmd1() { _comp_command_offset 1; }; complete -F _cmd1 cmd1; "
+            "complete -F _comp_command meta; "
             "_compfunc() { COMPREPLY=(%s); }" % join(self.wordlist),
         )
         completions = [
