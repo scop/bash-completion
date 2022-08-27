@@ -2192,25 +2192,6 @@ else
     complete -F _cd -o nospace cd pushd
 fi
 
-# A _command_offset wrapper function for use when the offset is unknown.
-# Only intended to be used as a completion function directly associated
-# with a command, not to be invoked from within other completion functions.
-#
-_command()
-{
-    local offset i
-
-    # find actual offset, as position of the first non-option
-    offset=1
-    for ((i = 1; i <= COMP_CWORD; i++)); do
-        if [[ ${COMP_WORDS[i]} != -* ]]; then
-            offset=$i
-            break
-        fi
-    done
-    _command_offset $offset
-}
-
 # A meta-command completion function for commands like sudo(8), which need to
 # first complete on a command, then complete according to that command's own
 # completion definition.
@@ -2320,6 +2301,25 @@ _command_offset()
             break
         done
     fi
+}
+
+# A _command_offset wrapper function for use when the offset is unknown.
+# Only intended to be used as a completion function directly associated
+# with a command, not to be invoked from within other completion functions.
+#
+_command()
+{
+    local offset i
+
+    # find actual offset, as position of the first non-option
+    offset=1
+    for ((i = 1; i <= COMP_CWORD; i++)); do
+        if [[ ${COMP_WORDS[i]} != -* ]]; then
+            offset=$i
+            break
+        fi
+    done
+    _command_offset $offset
 }
 complete -F _command aoss command "do" else eval exec ltrace nice nohup padsp \
     "then" time tsocks vsound xargs
