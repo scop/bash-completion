@@ -1517,8 +1517,11 @@ _comp_finalize()
             fi
         fi
 
-        unset -v '_comp_finalize__depth[-1]'
-        unset -v '_comp_finalize__target[-1]'
+        # Note: bash 4.2 does not support negative array indices with `unset`
+        # like `unset -v 'arr[-1]'` even when the array has at least one
+        # element.  It is supported in bash 4.3.
+        unset -v '_comp_finalize__depth[${#_comp_finalize__depth[@]}-1]'
+        unset -v '_comp_finalize__target[${#_comp_finalize__target[@]}-1]'
         if ((${#_comp_finalize__depth[@]} == 0)); then
             eval -- "${_comp_finalize__original_return_trap:-trap - RETURN}"
             _comp_finalize__original_return_trap=
