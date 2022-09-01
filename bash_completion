@@ -1488,6 +1488,7 @@ _comp_variable_assignments()
 _comp_finalize__depth=()
 _comp_finalize__target=()
 _comp_finalize__original_return_trap=
+_comp_finalize__original_int_trap=
 
 # This associative array contains the finalizer commands with the key
 # being the name of the completed command.
@@ -1497,6 +1498,28 @@ declare -gA BASH_COMPLETION_FINALIZE_CMD_HOOKS
 # executed for all the commands.
 declare -ga BASH_COMPLETION_FINALIZE_HOOKS
 
+# This array contains the finalizer commands that will be executed for the
+# top-level bash-completion functions. Unlike BASH_COMPLETION_FINALIZE_HOOKS,
+# these hooks are only called at the end of the top-level bash-completion.
+# These hooks are ensured to be called even when the completion is canceled by
+# SIGINT.
+declare -ga BASH_COMPLETION_FINALIZE_TOPLEVEL_HOOKS
+
+_comp_finalize__clear()
+{
+    local _hook
+    if [[ ${BASH_COMPLETION_FINALIZE_TOPLEVEL_HOOKS[*]+set} ]]; then
+        for _hook in "${BASH_COMPLETION_FINALIZE_TOPLEVEL_HOOKS[@]}"; do
+            eval -- "$_hook"
+        done
+    fi
+    _comp_finalize__depth=()
+    _comp_finalize__target=()
+    eval -- "${_comp_finalize__original_int_trap:-trap - INT}"
+    eval -- "${_comp_finalize__original_return_trap:-trap - RETURN}"
+    _comp_finalize__original_int_trap=
+    _comp_finalize__original_return_trap=
+}
 _comp_finalize()
 {
     ((${#_comp_finalize__depth[@]})) || return 0
@@ -1523,16 +1546,15 @@ _comp_finalize()
         unset -v '_comp_finalize__depth[${#_comp_finalize__depth[@]}-1]'
         unset -v '_comp_finalize__target[${#_comp_finalize__target[@]}-1]'
         if ((${#_comp_finalize__depth[@]} == 0)); then
-            eval -- "${_comp_finalize__original_return_trap:-trap - RETURN}"
-            _comp_finalize__original_return_trap=
+            _comp_finalize__clear
             break
         fi
     done
 }
-# Note: We need to set "trace" function attribute of _comp_finalize to
-# make the trap restoration by "trap - RETURN" take effect in the
-# upper level.
-declare -ft _comp_finalize
+# Note: We need to set "trace" function attribute of _comp_finalize{,__clear}
+# to make the trap restoration by "trap - RETURN" take effect in the upper
+# level.
+declare -ft _comp_finalize__clear _comp_finalize
 
 # Initialize completion and deal with various general things: do file
 # and variable completion where appropriate, and adjust prev, words,
@@ -1576,6 +1598,7 @@ _comp_initialize()
         # called for the top-level completion. [ Note: the completion function may
         # be called recursively using "_command_offset", etc. ]
         if ((${#_comp_finalize__depth[@]} == 0)); then
+            _comp_finalize__original_int_trap=$(trap -p INT)
             if shopt -q extdebug || shopt -qo functrace; then
                 # If extdebug / functrace is set, we need to explicitly save and
                 # restore the original trap handler because the outer trap handlers
@@ -1588,7 +1611,15 @@ _comp_initialize()
                 # do not need to explicitly save the outer trap handler.
                 _comp_finalize__original_return_trap=
             fi
+
+            # Note: Ignore the traps previously set by us to avoid infinite
+            # loop in case that the previously set traps remain by some
+            # accidents.
+            _comp_finalize__original_return_trap=${_comp_finalize__original_return_trap##"trap -- '_comp_finalize"*}
+            _comp_finalize__original_int_trap=${_comp_finalize__original_int_trap##"trap -- '_comp_finalize"*}
+
             trap _comp_finalize RETURN
+            trap '_comp_finalize__clear; kill -INT "$BASHPID"' INT
         fi
         _comp_finalize__depth+=("${#FUNCNAME[@]}")
         _comp_finalize__target+=("${FUNCNAME[1]-}")
