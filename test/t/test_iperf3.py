@@ -18,3 +18,7 @@ class TestIperf3:
     @pytest.mark.complete("iperf3 --server --", require_cmd=True)
     def test_4(self, completion):
         assert "--daemon" in completion
+
+    @pytest.mark.complete("iperf3 --format ", require_cmd=True)
+    def test_format(self, completion):
+        assert all(x in completion for x in "k m g K M G".split())
