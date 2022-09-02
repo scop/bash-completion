@@ -141,3 +141,11 @@ class TestMan:
         # no completion, no space appended
         assert not completion
         assert not completion.endswith(" ")
+
+    @pytest.mark.complete(
+        "man bash-completion-zstd-testcas",
+        env=dict(MANPATH=manpath),
+        require_cmd=True,
+    )
+    def test_zstd_arbitrary_sectsuffix(self, completion):
+        assert completion == "e"
