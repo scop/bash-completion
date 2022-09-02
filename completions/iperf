@@ -9,7 +9,10 @@ _iperf()
         --help | --version | --interval | --len | --port | --window | --mss | --bandwidth | \
             --num | --time | --listenport | --parallel | --ttl | --linux-congestion | --omit | \
             --congestion | --bytes | --blockcount | --cport | --set-mss | --flowlabel | \
-            --title | --tos | --affinity | -!(-*)[hvilpwMbntLPTZCkOSA])
+            --title | --tos | --affinity | --rcv-timeout | --server-bitrate-limit | \
+            --idle-timeout | --time-skew-threshold | --xbind | --nstreams | --connect-timeout | \
+            --bitrate | --pacing-timer | --fq-rate | --length | --dscp | --extra-data | \
+            --username | -!(-*)[hvilpwMXbntLPTZCkOSA])
             return
             ;;
         --format | -!(-*)f)
@@ -21,7 +24,11 @@ _iperf()
             COMPREPLY=($(compgen -W '$formats' -- "$cur"))
             return
             ;;
-        --output | --fileinput | -!(-*)[oF])
+        --pidfile | -!(-*)I)
+            _filedir pid
+            return
+            ;;
+        --output | --fileinput | --authorized-users-path | -!(-*)[oF])
             _filedir
             return
             ;;
@@ -29,6 +36,10 @@ _iperf()
             _available_interfaces -a
             _ip_addresses -a
             __ltrim_colon_completions "$cur"
+            return
+            ;;
+        --bind-dev)
+            _available_interfaces -a
             return
             ;;
         --client | -!(-*)c)
@@ -45,6 +56,10 @@ _iperf()
             ;;
         --logfile)
             _filedir log
+            return
+            ;;
+        --rsa-private-key-path | --rsa-public-key-path)
+            _filedir pem
             return
             ;;
     esac
