@@ -6,101 +6,78 @@ from conftest import assert_bash_exec, bash_env_saved
 @pytest.mark.bashcomp(
     cmd=None,
     cwd="_filedir",
-    ignore_env=r"^\+(my_array=|declare -f dump_array$)",
+    ignore_env=r"^\+declare -f (dump_array|__tester)$",
 )
 class TestExpandGlob:
-    def test_match_all(self, bash):
+    @pytest.fixture(scope="class")
+    def functions(self, bash):
         assert_bash_exec(
             bash,
-            "dump_array() { ((${#my_array[@]})) && printf '<%s>' \"${my_array[@]}\"; echo; }",
+            "dump_array() { ((${#arr[@]})) && printf '<%s>' \"${arr[@]}\"; echo; }",
         )
-        output = assert_bash_exec(
+        assert_bash_exec(
             bash,
-            "LC_ALL= LC_COLLATE=C _comp_expand_glob my_array '*';dump_array",
-            want_output=True,
+            '__tester() { local LC_ALL= LC_COLLATE=C arr; _comp_expand_glob arr "$@";dump_array; }',
         )
+
+    def test_match_all(self, bash, functions):
+        output = assert_bash_exec(bash, "__tester '*'", want_output=True)
         assert output.strip() == "<a b><a$b><a&b><a'b><ab><aé><brackets><ext>"
 
-    def test_match_pattern(self, bash):
-        output = assert_bash_exec(
-            bash,
-            "LC_ALL= LC_COLLATE=C _comp_expand_glob my_array 'a*';dump_array",
-            want_output=True,
-        )
+    def test_match_pattern(self, bash, functions):
+        output = assert_bash_exec(bash, "__tester 'a*'", want_output=True)
         assert output.strip() == "<a b><a$b><a&b><a'b><ab><aé>"
 
-    def test_match_unmatched(self, bash):
+    def test_match_unmatched(self, bash, functions):
         output = assert_bash_exec(
-            bash,
-            "_comp_expand_glob my_array 'unmatched-*';dump_array",
-            want_output=True,
+            bash, "__tester 'unmatched-*'", want_output=True
         )
         assert output.strip() == ""
 
-    def test_match_multiple_words(self, bash):
-        output = assert_bash_exec(
-            bash,
-            "_comp_expand_glob my_array 'b* e*';dump_array",
-            want_output=True,
-        )
+    def test_match_multiple_words(self, bash, functions):
+        output = assert_bash_exec(bash, "__tester 'b* e*'", want_output=True)
         assert output.strip() == "<brackets><ext>"
 
-    def test_match_brace_expansion(self, bash):
+    def test_match_brace_expansion(self, bash, functions):
         output = assert_bash_exec(
-            bash,
-            "_comp_expand_glob my_array 'brac{ket,unmatched}*';dump_array",
-            want_output=True,
+            bash, "__tester 'brac{ket,unmatched}*'", want_output=True
         )
         assert output.strip() == "<brackets>"
 
-    def test_protect_from_noglob(self, bash):
-        with bash_env_saved(bash) as bash_env:
+    def test_protect_from_noglob(self, bash, functions):
+        with bash_env_saved(bash, functions) as bash_env:
             bash_env.set("noglob", True)
-            output = assert_bash_exec(
-                bash,
-                "LC_ALL= LC_COLLATE=C _comp_expand_glob my_array 'a*';dump_array",
-                want_output=True,
-            )
+            output = assert_bash_exec(bash, "__tester 'a*'", want_output=True)
             assert output.strip() == "<a b><a$b><a&b><a'b><ab><aé>"
 
-    def test_protect_from_failglob(self, bash):
+    def test_protect_from_failglob(self, bash, functions):
         with bash_env_saved(bash) as bash_env:
             bash_env.shopt("failglob", True)
             output = assert_bash_exec(
-                bash,
-                "_comp_expand_glob my_array 'unmatched-*';dump_array",
-                want_output=True,
+                bash, "__tester 'unmatched-*'", want_output=True
             )
             assert output.strip() == ""
 
-    def test_protect_from_nullglob(self, bash):
+    def test_protect_from_nullglob(self, bash, functions):
         with bash_env_saved(bash) as bash_env:
             bash_env.shopt("nullglob", False)
             output = assert_bash_exec(
-                bash,
-                "_comp_expand_glob my_array 'unmatched-*';dump_array",
-                want_output=True,
+                bash, "__tester 'unmatched-*'", want_output=True
             )
             assert output.strip() == ""
 
-    def test_protect_from_dotglob(self, bash):
+    def test_protect_from_dotglob(self, bash, functions):
         with bash_env_saved(bash) as bash_env:
             bash_env.shopt("dotglob", True)
             output = assert_bash_exec(
-                bash,
-                "_comp_expand_glob my_array 'ext/foo/*';dump_array",
-                want_output=True,
+                bash, "__tester 'ext/foo/*'", want_output=True
             )
             assert output.strip() == ""
 
-    def test_protect_from_GLOBIGNORE(self, bash):
+    def test_protect_from_GLOBIGNORE(self, bash, functions):
         with bash_env_saved(bash) as bash_env:
             # Note: dotglob is changed by GLOBIGNORE
             bash_env.save_shopt("dotglob")
             bash_env.write_variable("GLOBIGNORE", "*")
-            output = assert_bash_exec(
-                bash,
-                "LC_ALL= LC_COLLATE=C _comp_expand_glob my_array 'a*';dump_array",
-                want_output=True,
-            )
+            output = assert_bash_exec(bash, "__tester 'a*'", want_output=True)
             assert output.strip() == "<a b><a$b><a&b><a'b><ab><aé>"

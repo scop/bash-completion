@@ -21,6 +21,7 @@ EXTRA_DIST = \
 	test_apt_build.py \
 	test_apt_cache.py \
 	test_apt_get.py \
+	test_apt_mark.py \
 	test_aptitude.py \
 	test_arch.py \
 	test_arp.py \
@@ -256,6 +257,7 @@ EXTRA_DIST = \
 	test_ip.py \
 	test_ipcalc.py \
 	test_iperf.py \
+	test_iperf3.py \
 	test_ipmitool.py \
 	test_ipsec.py \
 	test_iptables.py \
