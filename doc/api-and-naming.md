@@ -3,14 +3,15 @@
 Due to its nature, bash-completion adds a number of functions and variables in
 the shell's environment.
 
-|                                   | `bash_completion`   | `completions/*`                                                            |
-| :-------------------------------- | :------------------ | :------------------------------------------------------------------------- |
-| public configuration variables    | `BASH_COMPLETION_*` | `BASH_COMPLETION_CMD_${Command^^}_${Config^^}`                             |
-| non-local internal variables      | `_comp__*`          | `_comp_cmd_${Command}__${Data}`                                            |
-| exporter function local variables | `_*` (not `_comp*`) | `_*` (not `_comp*`)                                                        |
-| public/exported functions         | `_comp_*`           | `_comp_cmd_${Command}` (functions for `complete -F`)                       |
-|                                   |                     | `_comp_xfunc_${Command}_${Utility}` (functions for use with `_comp_xfunc`) |
-| private/internal functions        | `_comp__*`          | `_comp_cmd_${Command}__${Utility}` (utility functions)                     |
+|                                      | `bash_completion`   | `completions/*`                                                            |
+|:-------------------------------------|:--------------------|:---------------------------------------------------------------------------|
+| public configuration variables       | `BASH_COMPLETION_*` | `BASH_COMPLETION_CMD_${Command^^}_${Config^^}`                             |
+| non-local internal variables         | `_comp__*`          | `_comp_cmd_${Command}__${Data}`                                            |
+| non-local internal mutable variables | `_comp__*_mut_*`    | `_comp_cmd_${Command}__mut_${Data}`                                        |
+| exporter function local variables    | `_*` (not `_comp*`) | `_*` (not `_comp*`)                                                        |
+| public/exported functions            | `_comp_*`           | `_comp_cmd_${Command}` (functions for `complete -F`)                       |
+|                                      |                     | `_comp_xfunc_${Command}_${Utility}` (functions for use with `_comp_xfunc`) |
+| private/internal functions           | `_comp__*`          | `_comp_cmd_${Command}__${Utility}` (utility functions)                     |
 
 `${Command}` refers to a command name (with characters not allowed in POSIX
 function or variable names replaced by an underscore), `${Config}` the name of
@@ -38,6 +39,13 @@ and call other functions and variables within that scope, one level deep,
 sharing a common prefix. For example, a function named `_comp_foo` is "allowed"
 to access `_comp_foo__*` where `*` does not contain any double underscores,
 i.e. it should not access `_comp_foo__something__*` despite the common prefix.
+
+Non-local internal variables are considered readonly by default.  When a
+completion function needs to change variables for e.g. caching purposes, the
+variables should contain the infix `*_mut_*` anywhere in their names.  This is
+needed to tell the test framework to allow these variables changing.
+Nevertheless, the completion results should be consistent among different calls
+and unaffected by the state of the cache variables when it is called.
 
 Internal local variables of functions that "export" their results using a
 variable name that is passed in start with an underscore and do not start with
