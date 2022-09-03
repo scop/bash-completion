@@ -196,12 +196,12 @@ class TestUnitCommandOffsetReduceCur:
             bash_env.write_variable(
                 "COMP_WORDBREAKS", "%s$IFS" % quote("\\"), quote=False
             )
-            self.check(bash, "a`b\\cd", "cd")
-            self.check(bash, "a`b\\cde\\fg", "fg")
-            self.check(bash, "a`b\\c\\\\a", "\\a")
-            self.check(bash, "a`b\\c\\\\\\a", "a")
-            self.check(bash, "a`b\\c\\\\\\\\a", "\\a")
-            self.check(bash, "a`b\\c\\a\\a", "a")
+            self.check(bash, r"a`b\cd", "cd")
+            self.check(bash, r"a`b\cde\fg", "fg")
+            self.check(bash, r"a`b\c\\a", r"\a")
+            self.check(bash, r"a`b\c\\\a", "a")
+            self.check(bash, r"a`b\c\\\\a", r"\a")
+            self.check(bash, r"a`b\c\a\a", "a")
             self.check(bash, "a`b\\", "")
             self.check(bash, "a`b\\\\", "\\")
             self.check(bash, "a`b\\\\\\", "")
