@@ -21,4 +21,5 @@ class TestIperf3:
 
     @pytest.mark.complete("iperf3 --format ", require_cmd=True)
     def test_format(self, completion):
-        assert all(x in completion for x in "k m g K M G".split())
+        # 3.0.7 has only up to m/M, later may have g/G, t/T, ...
+        assert all(x in completion for x in "k m K M".split())
