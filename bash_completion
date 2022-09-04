@@ -2206,6 +2206,30 @@ _known_hosts_real()
 complete -F _known_hosts traceroute traceroute6 \
     fping fping6 telnet rsh rlogin ftp dig drill mtr ssh-installkeys showmount
 
+# Convert the word index in `words` to the index in `COMP_WORDS`.
+# @param $1           Index in the array WORDS.
+# @var[in,opt] words  Words that contain reassmbled words.
+# @var[in,opt] cword  Current word index in WORDS.
+#                     WORDS and CWORD, if any, are expected to be created by
+#                     _comp__reassemble_words.
+#
+_comp__find_original_word()
+{
+    ret=$1
+
+    # If CWORD or WORDS are undefined, we return the first argument without any
+    # processing.
+    [[ -v cword && -v words ]] || return 0
+
+    local reassembled_offset=$1 i=0 j
+    for ((j = 0; j < reassembled_offset; j++)); do
+        local word=${words[j]}
+        while [[ $word && i -lt ${#COMP_WORDS[@]} && $word == *"${COMP_WORDS[i]}"* ]]; do
+            word=${word#*"${COMP_WORDS[i++]}"}
+        done
+    done
+    ret=$i
+}
 # A meta-command completion function for commands like sudo(8), which need to
 # first complete on a command, then complete according to that command's own
 # completion definition.
@@ -2214,6 +2238,11 @@ _comp_command_offset()
 {
     # rewrite current completion context before invoking
     # actual command completion
+
+    # obtain the word index in COMP_WORDS
+    local ret
+    _comp__find_original_word "$1"
+    local word_offset=$ret
 
     # make changes to COMP_* local.  Note that bash-4.3..5.0 have a
     # bug that `local -a arr=("${arr[@]}")` fails.  We instead first
@@ -2224,7 +2253,7 @@ _comp_command_offset()
 
     # find new first word position, then
     # rewrite COMP_LINE and adjust COMP_POINT
-    local word_offset=$1 i tail
+    local i tail
     for ((i = 0; i < word_offset; i++)); do
         tail=${COMP_LINE#*"${COMP_WORDS[i]}"}
         ((COMP_POINT -= ${#COMP_LINE} - ${#tail}))
@@ -2244,7 +2273,6 @@ _comp_command_offset()
         compopt -o filenames
         _comp_compgen COMPREPLY -d -c -- "$cur"
     else
-        local ret
         _comp_dequote "${COMP_WORDS[0]}" || ret=${COMP_WORDS[0]}
         local cmd=$ret compcmd=$ret
         local cspec=$(complete -p "$cmd" 2>/dev/null)
