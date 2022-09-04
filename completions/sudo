@@ -10,20 +10,20 @@ _sudo()
 
     local noargopts='!(-*|*[uUgCp]*)'
     [[ $mode == normal ]] &&
-        for ((i = 1; i <= cword; i++)); do
-            if [[ ${words[i]} != -* ]]; then
+        for ((i = 1; i <= COMP_CWORD; i++)); do
+            if [[ ${COMP_WORDS[i]} != -* && ${COMP_WORDS[i - 1]} != = ]]; then
                 local PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
-                local root_command=${words[i]}
+                local root_command=${COMP_WORDS[i]}
                 _comp_command_offset $i
                 return
             fi
             # shellcheck disable=SC2254
-            if [[ ${words[i]} == -@(${noargopts}e*|-edit) ]]; then
+            if [[ ${COMP_WORDS[i]} == -@(${noargopts}e*|-edit) ]]; then
                 mode=edit
                 break
             fi
             # shellcheck disable=SC2254
-            [[ ${words[i]} == -@(user|other-user|group|close-from|prompt|${noargopts}[uUgCp]) ]] &&
+            [[ ${COMP_WORDS[i]} == -@(user|other-user|group|close-from|prompt|${noargopts}[uUgCp]) ]] &&
                 ((i++))
         done
 
