@@ -345,8 +345,8 @@ _upvars()
 # This function does the globbing in a controlled environment, avoiding
 # interference from user's shell options/settings or environment variables.
 # @param $1 array_name  Array name
-#   The array name should not start with the double underscores "__".  The
-#   array name should not be "GLOBIGNORE".
+#   The array name should not start with an underscore "_", which is internally
+#   used.  The array name should not be "GLOBIGNORE".
 # @param $2 pattern     Pattern string to be evaluated.
 #   This pattern string will be evaluated using "eval", so brace expansions,
 #   parameter expansions, command substitutions, and other expansions will be
@@ -358,13 +358,13 @@ _comp_expand_glob()
         printf 'bash-completion: %s: unexpected number of arguments\n' "$FUNCNAME" >&2
         printf 'usage: %s ARRAY_NAME PATTERN\n' "$FUNCNAME" >&2
         return 2
-    elif [[ $1 == @(GLOBIGNORE|__*|*[^_a-zA-Z0-9]*|[0-9]*|'') ]]; then
+    elif [[ $1 == @(GLOBIGNORE|_*|*[^_a-zA-Z0-9]*|[0-9]*|'') ]]; then
         printf 'bash-completion: %s: invalid array name "%s"\n' "$FUNCNAME" "$1" >&2
         return 2
     fi
 
     # Save and adjust the settings.
-    local __original_opts=$SHELLOPTS:$BASHOPTS
+    local _original_opts=$SHELLOPTS:$BASHOPTS
     set +o noglob
     shopt -s nullglob
     shopt -u failglob dotglob
@@ -379,14 +379,14 @@ _comp_expand_glob()
     # "shopt -q dotglob", so we need to explicitly restore the original state
     # of "shopt -q dotglob".
     _comp_unlocal GLOBIGNORE
-    if [[ :$__original_opts: == *:dotglob:* ]]; then
+    if [[ :$_original_opts: == *:dotglob:* ]]; then
         shopt -s dotglob
     else
         shopt -u dotglob
     fi
-    [[ :$__original_opts: == *:nullglob:* ]] || shopt -u nullglob
-    [[ :$__original_opts: == *:failglob:* ]] && shopt -s failglob
-    [[ :$__original_opts: == *:noglob:* ]] && set -o noglob
+    [[ :$_original_opts: == *:nullglob:* ]] || shopt -u nullglob
+    [[ :$_original_opts: == *:failglob:* ]] && shopt -s failglob
+    [[ :$_original_opts: == *:noglob:* ]] && set -o noglob
     return 0
 }
 
