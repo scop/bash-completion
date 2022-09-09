@@ -12,7 +12,7 @@ def join(words):
 
 @pytest.mark.bashcomp(
     cmd=None,
-    ignore_env=r"^[+-](COMP(_(WORDS|CWORD|LINE|POINT)|REPLY)|cur|cword|words)=",
+    ignore_env=r"^[+-]COMPREPLY=",
 )
 class TestUnitCommandOffset:
     wordlist = sorted(["foo", "bar"])

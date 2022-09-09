@@ -2220,26 +2220,24 @@ _command_offset()
     # rewrite current completion context before invoking
     # actual command completion
 
+    # make changes to COMP_* local.  Note that bash-4.3..5.0 have a
+    # bug that `local -a arr=("${arr[@]}")` fails.  We instead first
+    # assign the values of `COMP_WORDS` to another array `comp_words`.
+    local COMP_LINE=$COMP_LINE COMP_POINT=$COMP_POINT COMP_CWORD=$COMP_CWORD
+    local -a comp_words=("${COMP_WORDS[@]}")
+    local -a COMP_WORDS=("${comp_words[@]}")
+
     # find new first word position, then
     # rewrite COMP_LINE and adjust COMP_POINT
-    local word_offset=$1 i j
+    local word_offset=$1 i tail
     for ((i = 0; i < word_offset; i++)); do
-        for ((j = 0; j <= ${#COMP_LINE}; j++)); do
-            [[ $COMP_LINE == "${COMP_WORDS[i]}"* ]] && break
-            COMP_LINE=${COMP_LINE:1}
-            ((COMP_POINT--))
-        done
-        COMP_LINE=${COMP_LINE#"${COMP_WORDS[i]}"}
-        ((COMP_POINT -= ${#COMP_WORDS[i]}))
+        tail=${COMP_LINE#*"${COMP_WORDS[i]}"}
+        ((COMP_POINT -= ${#COMP_LINE} - ${#tail}))
+        COMP_LINE=$tail
     done
 
     # shift COMP_WORDS elements and adjust COMP_CWORD
-    for ((i = 0; i <= COMP_CWORD - word_offset; i++)); do
-        COMP_WORDS[i]=${COMP_WORDS[i + word_offset]}
-    done
-    for ((i; i <= COMP_CWORD; i++)); do
-        unset -v 'COMP_WORDS[i]'
-    done
+    COMP_WORDS=("${COMP_WORDS[@]:word_offset}")
     ((COMP_CWORD -= word_offset))
 
     COMPREPLY=()
