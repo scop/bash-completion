@@ -5,6 +5,7 @@ _fio()
     local cur prev words cword split
     _init_completion -s || return
 
+    local ret
     case $prev in
         --help | --version)
             return
@@ -24,8 +25,8 @@ _fio()
             return
             ;;
         --cmdhelp)
-            # TODO more commands?
-            COMPREPLY=($(compgen -W "all" -- "$cur"))
+            ret=($("$1" --cmdhelp=all 2>/dev/null | awk '{print $1}'))
+            COMPREPLY=($(compgen -W '${ret[@]} all' -- "$cur"))
             return
             ;;
         --enghelp)
@@ -75,7 +76,13 @@ _fio()
     $split && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        COMPREPLY=($(
+            compgen -W '
+                      $(_parse_help "$1")
+                      $("$1" --cmdhelp=all 2>/dev/null | \
+                             awk "{printf \"--%s=\n\", \$1}")
+            ' -- "$cur"
+        ))
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
