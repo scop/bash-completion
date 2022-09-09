@@ -345,8 +345,8 @@ _upvars()
 # This function does the globbing in a controlled environment, avoiding
 # interference from user's shell options/settings or environment variables.
 # @param $1 array_name  Array name
-#   The array name should not start with the double underscores "__".  The
-#   array name should not be "GLOBIGNORE".
+#   The array name should not start with an underscore "_", which is internally
+#   used.  The array name should not be "GLOBIGNORE".
 # @param $2 pattern     Pattern string to be evaluated.
 #   This pattern string will be evaluated using "eval", so brace expansions,
 #   parameter expansions, command substitutions, and other expansions will be
@@ -358,13 +358,13 @@ _comp_expand_glob()
         printf 'bash-completion: %s: unexpected number of arguments\n' "$FUNCNAME" >&2
         printf 'usage: %s ARRAY_NAME PATTERN\n' "$FUNCNAME" >&2
         return 2
-    elif [[ $1 == @(GLOBIGNORE|__*|*[^_a-zA-Z0-9]*|[0-9]*|'') ]]; then
+    elif [[ $1 == @(GLOBIGNORE|_*|*[^_a-zA-Z0-9]*|[0-9]*|'') ]]; then
         printf 'bash-completion: %s: invalid array name "%s"\n' "$FUNCNAME" "$1" >&2
         return 2
     fi
 
     # Save and adjust the settings.
-    local __original_opts=$SHELLOPTS:$BASHOPTS
+    local _original_opts=$SHELLOPTS:$BASHOPTS
     set +o noglob
     shopt -s nullglob
     shopt -u failglob dotglob
@@ -379,14 +379,14 @@ _comp_expand_glob()
     # "shopt -q dotglob", so we need to explicitly restore the original state
     # of "shopt -q dotglob".
     _comp_unlocal GLOBIGNORE
-    if [[ :$__original_opts: == *:dotglob:* ]]; then
+    if [[ :$_original_opts: == *:dotglob:* ]]; then
         shopt -s dotglob
     else
         shopt -u dotglob
     fi
-    [[ :$__original_opts: == *:nullglob:* ]] || shopt -u nullglob
-    [[ :$__original_opts: == *:failglob:* ]] && shopt -s failglob
-    [[ :$__original_opts: == *:noglob:* ]] && set -o noglob
+    [[ :$_original_opts: == *:nullglob:* ]] || shopt -u nullglob
+    [[ :$_original_opts: == *:failglob:* ]] && shopt -s failglob
+    [[ :$_original_opts: == *:noglob:* ]] && set -o noglob
     return 0
 }
 
@@ -2220,26 +2220,24 @@ _command_offset()
     # rewrite current completion context before invoking
     # actual command completion
 
+    # make changes to COMP_* local.  Note that bash-4.3..5.0 have a
+    # bug that `local -a arr=("${arr[@]}")` fails.  We instead first
+    # assign the values of `COMP_WORDS` to another array `comp_words`.
+    local COMP_LINE=$COMP_LINE COMP_POINT=$COMP_POINT COMP_CWORD=$COMP_CWORD
+    local -a comp_words=("${COMP_WORDS[@]}")
+    local -a COMP_WORDS=("${comp_words[@]}")
+
     # find new first word position, then
     # rewrite COMP_LINE and adjust COMP_POINT
-    local word_offset=$1 i j
+    local word_offset=$1 i tail
     for ((i = 0; i < word_offset; i++)); do
-        for ((j = 0; j <= ${#COMP_LINE}; j++)); do
-            [[ $COMP_LINE == "${COMP_WORDS[i]}"* ]] && break
-            COMP_LINE=${COMP_LINE:1}
-            ((COMP_POINT--))
-        done
-        COMP_LINE=${COMP_LINE#"${COMP_WORDS[i]}"}
-        ((COMP_POINT -= ${#COMP_WORDS[i]}))
+        tail=${COMP_LINE#*"${COMP_WORDS[i]}"}
+        ((COMP_POINT -= ${#COMP_LINE} - ${#tail}))
+        COMP_LINE=$tail
     done
 
     # shift COMP_WORDS elements and adjust COMP_CWORD
-    for ((i = 0; i <= COMP_CWORD - word_offset; i++)); do
-        COMP_WORDS[i]=${COMP_WORDS[i + word_offset]}
-    done
-    for ((i; i <= COMP_CWORD; i++)); do
-        unset -v 'COMP_WORDS[i]'
-    done
+    COMP_WORDS=("${COMP_WORDS[@]:word_offset}")
     ((COMP_CWORD -= word_offset))
 
     COMPREPLY=()
@@ -2558,9 +2556,12 @@ __load_completion()
         [[ -d $dir ]] || continue
         for compfile in "$cmd" "$cmd.bash" "_$cmd"; do
             compfile="$dir/$compfile"
-            # Avoid trying to source dirs; https://bugzilla.redhat.com/903540
+            # Avoid trying to source dirs as long as we support bash < 4.3
+            # to avoid an fd leak; https://bugzilla.redhat.com/903540
             if [[ -d $compfile ]]; then
-                echo "bash_completion: $compfile: is a directory" >&2
+                # Do not warn with . or .. (especially the former is common)
+                [[ $compfile == */.?(.) ]] ||
+                    echo "bash_completion: $compfile: is a directory" >&2
             elif [[ -e $compfile ]] && . "$compfile"; then
                 [[ $backslash ]] && $(complete -p "$cmd") "\\$cmd"
                 return 0
