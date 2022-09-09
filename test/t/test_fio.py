@@ -18,3 +18,8 @@ class TestFio:
     def test_cmdhelp_all(self, completion):
         """Test we got a "known present" option from --cmdhelp=all."""
         assert completion == "e=" or "e" in completion
+
+    @pytest.mark.complete("fio --ioengine=", require_cmd=True)
+    def test_enghelp(self, completion):
+        """Test --enghelp parsing."""
+        assert completion
