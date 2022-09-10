@@ -24,3 +24,7 @@ class TestCd:
     @pytest.mark.complete("cd shared/default/", trail="foo")
     def test_dir_at_point(self, completion):
         assert completion == ["bar bar.d/", "foo.d/"]
+
+    @pytest.mark.complete("cd -")
+    def test_options(self, completion):
+        assert completion
