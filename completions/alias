@@ -5,7 +5,10 @@ _alias()
     local cur prev words cword comp_args
     _comp_initialize -n = -- "$@" || return
 
-    case ${words[@]} in
+    case "${words[*]}" in
+        *" -p "*)
+            return
+            ;;
         *[^=])
             COMPREPLY=($(compgen -A alias -- "$cur"))
             ;;
@@ -14,6 +17,11 @@ _alias()
                 -e 's|^alias '"$cur"'\(.*\)$|\1|')")
             ;;
     esac
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage help "-s $1")' -- "$cur"))
+        ((${#COMPREPLY[*]} != 1)) || compopt +o nospace
+    fi
 } &&
     complete -F _alias -o nospace alias
 

@@ -19,3 +19,11 @@ class TestAlias:
     @pytest.mark.complete("alias ", trail="foo")
     def test_alias_at_point(self, completion):
         assert completion == "bar foo".split()
+
+    @pytest.mark.complete("alias -")
+    def test_options(self, completion):
+        assert completion
+
+    @pytest.mark.complete("alias -p ")
+    def test_p(self, completion):
+        assert not completion
