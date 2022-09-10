@@ -37,9 +37,9 @@ _complete()
     esac
 
     if [[ $cur == -* ]]; then
-        # relevant options completion
-        local -a opts=(-a -b -c -d -e -f -g -j -k -o -s -u -v -A -G -W -P -S -X)
-        [[ $1 != compgen ]] && opts+=(-F -C)
+        local -a opts=($(compgen -W '$(_parse_usage help "-s $1")' -- "$cur"))
+        # -F, -C do not work the expected way with compgen
+        [[ $1 != *compgen ]] || opts=("${opts[@]//-[FC]/}")
         COMPREPLY=($(compgen -W '${opts[@]}' -- "$cur"))
     else
         COMPREPLY=($(compgen -A command -- "$cur"))
