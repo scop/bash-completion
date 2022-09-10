@@ -31,13 +31,13 @@ _fio()
             return
             ;;
         --cmdhelp)
-            ret=($("$1" --cmdhelp=all 2>/dev/null | awk '{print $1}'))
-            COMPREPLY=($(compgen -W '${ret[@]} all' -- "$cur"))
+            ret=($("$1" --cmdhelp=all 2>/dev/null | awk '{print $1}') all)
+            COMPREPLY=($(compgen -W '"${ret[@]}"' -- "$cur"))
             return
             ;;
         --enghelp)
-            _comp_cmd_fio__engines "$1"
-            COMPREPLY=($(compgen -W '${ret[@]}' -- "$cur"))
+            _comp_cmd_fio__engines "$1" &&
+                COMPREPLY=($(compgen -W '"${ret[@]}"' -- "$cur"))
             return
             ;;
         --eta)
@@ -98,7 +98,7 @@ _fio()
             local IFS=$'\n'
             local cmdhelp=($("$1" --cmdhelp=${prev#--} 2>/dev/null))
             _comp_unlocal IFS
-            case ${cmdhelp[*]} in
+            case ${cmdhelp[*]-} in
                 *"showing closest match"*)
                     # ignore
                     ;;
@@ -111,6 +111,7 @@ _fio()
                     #        valid values: 1024       [...]
                     #                    : 1000       [...]
                     local line="" in_values=false
+                    ret=()
                     for line in "${cmdhelp[@]}"; do
                         if $in_values; then
                             if [[ $line =~ ^[[:space:]]*:[[:space:]]*([^[:space:]]+) ]]; then
@@ -123,7 +124,7 @@ _fio()
                             ret+=("${BASH_REMATCH[1]}")
                         fi
                     done
-                    COMPREPLY=($(compgen -W '${ret[@]}' -- "$cur"))
+                    COMPREPLY=($(compgen -W '"${ret[@]}"' -- "$cur"))
                     return
                     ;;
             esac
