@@ -11,15 +11,15 @@ _vncviewer_bootstrap()
 
     # Install real completion for subsequent completions
     complete -F $fname vncviewer
-    $fname # Generate completions once for now
+    $fname "$@" # Generate completions once for now
     unset -f _vncviewer_bootstrap
 } &&
     complete -F _vncviewer_bootstrap vncviewer
 
 _tightvncviewer()
 {
-    local cur prev words cword
-    _comp_initialize || return
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     case $prev in
         -passwd)
@@ -52,8 +52,8 @@ _tightvncviewer()
 #         Preferred case is taken from -help.
 _xvnc4viewer()
 {
-    local cur prev words cword
-    _comp_initialize || return
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     # Both single dash (-) and double dash (--) are allowed as option prefix
     local opt=${prev/#--/-}

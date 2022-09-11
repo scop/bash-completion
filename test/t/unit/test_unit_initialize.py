@@ -14,7 +14,7 @@ class TestUnitInitCompletion(TestUnitBase):
         assert_bash_exec(
             bash,
             "foo() { "
-            "local cur prev words cword "
+            "local cur prev words cword comp_args "
             "COMP_WORDS=() COMP_CWORD=0 COMP_LINE= COMP_POINT=0; "
             "_comp_initialize; }; "
             "foo; unset -f foo",
@@ -37,7 +37,7 @@ class TestUnitInitCompletion(TestUnitBase):
     def cmd1_empty_completion_setup(self, bash):
         assert_bash_exec(
             bash,
-            "_cmd1() { local cur prev words cword; _comp_initialize; } && "
+            '_cmd1() { local cur prev words cword comp_args; _comp_initialize -- "$@"; } && '
             "complete -F _cmd1 cmd1",
         )
 

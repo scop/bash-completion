@@ -1034,13 +1034,27 @@ _comp_variable_assignments()
 #     -o XSPEC    Passed to _filedir as first arg for other output redirections
 #     -i XSPEC    Passed to _filedir as first arg for stdin redirections
 #     -s          Split long options with _split_longopt, implies -n =
+# @param $1...$3 args Original arguments specified to the completion function.
+#                     The first argument $1 is command name.  The second
+#                     argument $2 is the string before the cursor in the
+#                     current word.  The third argument $3 is the previous
+#                     word.
+# @var[out] cur       Reconstructed current word
+# @var[out] prev      Reconstructed previous word
+# @var[out] words     Reconstructed words
+# @var[out] cword     Current word index in `words`
+# @var[out] comp_args Original arguments specified to the completion function
+#                     are saved.
+# @var[out,opt] split When "-s" is specified, `true/false` is set depending on
+#                     whether the split happened.
 # @return  True (0) if completion needs further processing,
 #          False (> 0) no further processing is necessary.
 #
 _comp_initialize()
 {
-    local exclude="" flag outx errx inx OPTIND=1
+    local exclude="" outx errx inx
 
+    local flag OPTIND=1 OPTARG='' OPTERR=0
     while getopts "n:e:o:i:s" flag "$@"; do
         case $flag in
             n) exclude+=$OPTARG ;;
@@ -1057,6 +1071,8 @@ _comp_initialize()
                 ;;
         esac
     done
+    shift "$((OPTIND - 1))"
+    (($#)) && comp_args=("$@")
 
     COMPREPLY=()
     local redir='@(?(+([0-9])|{[a-zA-Z_]*([a-zA-Z_0-9])})@(>?([>|&])|<?([>&])|<<?([-<]))|&>?(>))'
@@ -1108,6 +1124,7 @@ _comp_initialize()
 
     return 0
 }
+_comp_deprecate_func _init_completion _comp_initialize
 
 # Helper function for _parse_help and _parse_usage.
 # @return True (0) if an option was found, False (> 0) otherwise
@@ -1605,8 +1622,8 @@ _services()
 #
 _service()
 {
-    local cur prev words cword
-    _comp_initialize || return
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     # don't complete past 2nd token
     ((cword > 2)) && return
@@ -1895,8 +1912,8 @@ _bashcomp_try_faketty()
 #
 _user_at_host()
 {
-    local cur prev words cword
-    _comp_initialize -n : || return
+    local cur prev words cword comp_args
+    _comp_initialize -n : -- "$@" || return
 
     if [[ $cur == *@* ]]; then
         _known_hosts_real "$cur"
@@ -1911,8 +1928,8 @@ shopt -u hostcomplete && complete -F _user_at_host talk ytalk finger
 #       `_known_hosts_real' instead.
 _known_hosts()
 {
-    local cur prev words cword
-    _comp_initialize -n : || return
+    local cur prev words cword comp_args
+    _comp_initialize -n : -- "$@" || return
 
     # NOTE: Using `_known_hosts' as a helper function and passing options
     #       to `_known_hosts' is deprecated: Use `_known_hosts_real' instead.
@@ -2193,8 +2210,8 @@ complete -F _known_hosts traceroute traceroute6 \
 #
 _cd()
 {
-    local cur prev words cword
-    _comp_initialize || return
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_help help "$1")' -- "$cur"))
@@ -2301,11 +2318,18 @@ _comp_command_offset()
 
         local retry_count=0
         while true; do # loop for the retry request by status 124
+            local args original_cur=${comp_args[1]-$cur}
+            if ((${#COMP_WORDS[@]} >= 2)); then
+                args=("$cmd" "$original_cur" "${COMP_WORDS[-2]}")
+            else
+                args=("$cmd" "$original_cur")
+            fi
+
             if [[ ! $cspec ]]; then
                 if ((${#COMPREPLY[@]} == 0)); then
                     # XXX will probably never happen as long as completion loader loads
                     #     *something* for every command thrown at it ($cspec != empty)
-                    _minimal
+                    _minimal "${args[@]}"
                 fi
             elif [[ $cspec == *' -F '* ]]; then
                 # complete -F <function>
@@ -2313,12 +2337,7 @@ _comp_command_offset()
                 # get function name
                 local func=${cspec#* -F }
                 func=${func%% *}
-
-                if ((${#COMP_WORDS[@]} >= 2)); then
-                    $func "$cmd" "${COMP_WORDS[-1]}" "${COMP_WORDS[-2]}"
-                else
-                    $func "$cmd" "${COMP_WORDS[-1]}"
-                fi
+                $func "${args[@]}"
 
                 # restart completion (once) if function exited with 124
                 if (($? == 124 && retry_count++ == 0)); then
@@ -2395,8 +2414,8 @@ _complete_as_root()
 
 _longopt()
 {
-    local cur prev words cword split
-    _comp_initialize -s || return
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
 
     case "${prev,,}" in
         --help | --usage | --version)
@@ -2454,8 +2473,8 @@ declare -Ag _xspecs
 
 _filedir_xspec()
 {
-    local cur prev words cword
-    _comp_initialize || return
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
 
     _tilde "$cur" || return
 
@@ -2576,8 +2595,8 @@ unset -f _install_xspec
 # Minimal completion to use as fallback in _completion_loader.
 _minimal()
 {
-    local cur prev words cword split
-    _comp_initialize -s || return
+    local cur prev words cword split comp_args
+    _comp_initialize -s -- "$@" || return
     $split && return
     _filedir
 }
