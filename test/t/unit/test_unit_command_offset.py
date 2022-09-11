@@ -2,7 +2,7 @@ from shlex import quote
 
 import pytest
 
-from conftest import assert_bash_exec, assert_complete
+from conftest import assert_bash_exec, assert_complete, bash_env_saved
 
 
 def join(words):
@@ -43,6 +43,7 @@ class TestUnitCommandOffset:
         assert_bash_exec(
             bash, "complete -W %s 'cmd!'" % quote(join(self.wordlist))
         )
+        assert_bash_exec(bash, 'complete -W \'"$word1" "$word2"\' cmd6')
 
     def test_1(self, bash, functions):
         assert_complete(bash, 'cmd1 "/tmp/aaa bbb" ')
@@ -82,3 +83,9 @@ class TestUnitCommandOffset:
 
     def test_cmd_specialchar(self, bash, functions):
         assert assert_complete(bash, "meta 'cmd!' ") == self.wordlist
+
+    def test_space(self, bash, functions):
+        with bash_env_saved(bash) as bash_env:
+            bash_env.write_variable("word1", "a b c")
+            bash_env.write_variable("word2", "d e f")
+            assert assert_complete(bash, "meta cmd6 ") == ["a b c", "d e f"]
