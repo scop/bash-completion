@@ -72,3 +72,6 @@ class TestUnitCommandOffset:
         cleared before the retry.
         """
         assert assert_complete(bash, "meta %s " % cmd) == expected_completion
+
+    def test_cmd_quoted(self, bash, functions):
+        assert assert_complete(bash, "meta 'cmd2' ") == self.wordlist
