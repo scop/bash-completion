@@ -10,7 +10,10 @@ class TestHelp:
     def test_options(self, completion):
         assert completion
 
-    @pytest.mark.complete(r"help \(")
+    @pytest.mark.complete(
+        r"help \(",
+        skipif="! compgen -A helptopic | grep -qxF '(( ... ))'",  # bash 4.2
+    )
     def test_parens(self, completion):
         # Assumption: an item like "(( ... ))" exists in the output
         assert any(
