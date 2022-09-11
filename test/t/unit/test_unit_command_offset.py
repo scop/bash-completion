@@ -25,13 +25,13 @@ class TestUnitCommandOffset:
             "complete -F _comp_command meta; "
             "_compfunc() { COMPREPLY=(%s); }" % join(self.wordlist),
         )
+
         completions = [
             'complete -F _compfunc "${COMP_WORDS[0]}"',
             'complete -W %s "${COMP_WORDS[0]}"' % quote(join(self.wordlist)),
             'COMPREPLY=(dummy); complete -r "${COMP_WORDS[0]}"',
             "COMPREPLY+=(${#COMPREPLY[@]})",
         ]
-
         for idx, comp in enumerate(completions, 2):
             assert_bash_exec(
                 bash,
@@ -39,6 +39,10 @@ class TestUnitCommandOffset:
                 "complete -F _cmd%(idx)s cmd%(idx)s"
                 % {"idx": idx, "comp": comp},
             )
+
+        assert_bash_exec(
+            bash, "complete -W %s 'cmd!'" % quote(join(self.wordlist))
+        )
 
     def test_1(self, bash, functions):
         assert_complete(bash, 'cmd1 "/tmp/aaa bbb" ')
@@ -75,3 +79,6 @@ class TestUnitCommandOffset:
 
     def test_cmd_quoted(self, bash, functions):
         assert assert_complete(bash, "meta 'cmd2' ") == self.wordlist
+
+    def test_cmd_specialchar(self, bash, functions):
+        assert assert_complete(bash, "meta 'cmd!' ") == self.wordlist
