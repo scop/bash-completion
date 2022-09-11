@@ -971,7 +971,7 @@ _comp_delimited()
 # The word to be completed is expected to contain the entire assignment,
 # including the variable name and the "=". Some known variables are completed
 # with colon separated values; for those to work, colon should not have been
-# used to split words. See related parameters to _init_completion.
+# used to split words. See related parameters to _comp_initialize.
 #
 # @param  $1 variable assignment to be completed
 # @return True (0) if variable value completion was attempted,
@@ -1037,7 +1037,7 @@ _comp_variable_assignments()
 # @return  True (0) if completion needs further processing,
 #          False (> 0) no further processing is necessary.
 #
-_init_completion()
+_comp_initialize()
 {
     local exclude="" flag outx errx inx OPTIND=1
 
@@ -1606,7 +1606,7 @@ _services()
 _service()
 {
     local cur prev words cword
-    _init_completion || return
+    _comp_initialize || return
 
     # don't complete past 2nd token
     ((cword > 2)) && return
@@ -1896,7 +1896,7 @@ _bashcomp_try_faketty()
 _user_at_host()
 {
     local cur prev words cword
-    _init_completion -n : || return
+    _comp_initialize -n : || return
 
     if [[ $cur == *@* ]]; then
         _known_hosts_real "$cur"
@@ -1912,7 +1912,7 @@ shopt -u hostcomplete && complete -F _user_at_host talk ytalk finger
 _known_hosts()
 {
     local cur prev words cword
-    _init_completion -n : || return
+    _comp_initialize -n : || return
 
     # NOTE: Using `_known_hosts' as a helper function and passing options
     #       to `_known_hosts' is deprecated: Use `_known_hosts_real' instead.
@@ -2194,7 +2194,7 @@ complete -F _known_hosts traceroute traceroute6 \
 _cd()
 {
     local cur prev words cword
-    _init_completion || return
+    _comp_initialize || return
 
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_help help "$1")' -- "$cur"))
@@ -2396,7 +2396,7 @@ _complete_as_root()
 _longopt()
 {
     local cur prev words cword split
-    _init_completion -s || return
+    _comp_initialize -s || return
 
     case "${prev,,}" in
         --help | --usage | --version)
@@ -2455,7 +2455,7 @@ declare -Ag _xspecs
 _filedir_xspec()
 {
     local cur prev words cword
-    _init_completion || return
+    _comp_initialize || return
 
     _tilde "$cur" || return
 
@@ -2577,7 +2577,7 @@ unset -f _install_xspec
 _minimal()
 {
     local cur prev words cword split
-    _init_completion -s || return
+    _comp_initialize -s || return
     $split && return
     _filedir
 }

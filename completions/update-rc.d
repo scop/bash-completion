@@ -5,7 +5,7 @@
 _update_rc_d()
 {
     local cur prev words cword
-    _init_completion || return
+    _comp_initialize || return
 
     local sysvdir services options
 

@@ -3,7 +3,7 @@
 _btdownload()
 {
     local cur prev words cword
-    _init_completion || return
+    _comp_initialize || return
 
     case $prev in
         --responsefile | --saveas)
