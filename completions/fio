@@ -1,10 +1,18 @@
 # fio(1) completion                                        -*- shell-script -*-
 
+_comp_cmd_fio__engines()
+{
+    local IFS=$'\n'
+    ret=($("$1" --enghelp 2>/dev/null | command sed -ne '/^[[:space:]]/p'))
+    return $((!${#ret[*]}))
+}
+
 _fio()
 {
     local cur prev words cword split
     _init_completion -s || return
 
+    local ret
     case $prev in
         --help | --version)
             return
@@ -24,13 +32,13 @@ _fio()
             return
             ;;
         --cmdhelp)
-            # TODO more commands?
-            COMPREPLY=($(compgen -W "all" -- "$cur"))
+            ret=($("$1" --cmdhelp=all 2>/dev/null | awk '{print $1}') all)
+            COMPREPLY=($(compgen -W '"${ret[@]}"' -- "$cur"))
             return
             ;;
         --enghelp)
-            # TODO print ioengine help, or list available ioengines
-            # TODO engine,help arg
+            _comp_cmd_fio__engines "$1" &&
+                COMPREPLY=($(compgen -W '"${ret[@]}"' -- "$cur"))
             return
             ;;
         --eta)
@@ -70,12 +78,71 @@ _fio()
             _filedir -d
             return
             ;;
+        --ioengine)
+            _comp_cmd_fio__engines "$1" &&
+                COMPREPLY=($(compgen -W '"${ret[@]}"' -- "$cur"))
+            return
+            ;;
+        --exec_postrun | --exec_prerun)
+            COMPREPLY=($(compgen -c -- "$cur"))
+            return
+            ;;
+        --uid)
+            _uids
+            return
+            ;;
+        --gid)
+            _gids
+            return
+            ;;
+        --?*)
+            local IFS=$'\n'
+            local cmdhelp=($("$1" --cmdhelp=${prev#--} 2>/dev/null))
+            _comp_unlocal IFS
+            case ${cmdhelp[*]-} in
+                *"showing closest match"*)
+                    # ignore
+                    ;;
+                *" type: boolean "* | *" type: empty or boolean "*)
+                    COMPREPLY=($(compgen -W '0 1' -- "$cur"))
+                    return
+                    ;;
+                *" valid values:"*)
+                    # For example, for --kb_base=:
+                    #        valid values: 1024       [...]
+                    #                    : 1000       [...]
+                    local line="" in_values=false
+                    ret=()
+                    for line in "${cmdhelp[@]}"; do
+                        if $in_values; then
+                            if [[ $line =~ ^[[:space:]]*:[[:space:]]*([^[:space:]]+) ]]; then
+                                ret+=("${BASH_REMATCH[1]}")
+                            else
+                                break
+                            fi
+                        elif [[ $line =~ ^[[:space:]]*valid\ values:[[:space:]]*([^[:space:]]+) ]]; then
+                            in_values=true
+                            ret+=("${BASH_REMATCH[1]}")
+                        fi
+                    done
+                    COMPREPLY=($(compgen -W '"${ret[@]}"' -- "$cur"))
+                    return
+                    ;;
+            esac
+            # else fallthrough
+            ;;
     esac
 
     $split && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
+        COMPREPLY=($(
+            compgen -W '
+                      $(_parse_help "$1")
+                      $("$1" --cmdhelp=all 2>/dev/null | \
+                             awk "{printf \"--%s=\n\", \$1}")
+            ' -- "$cur"
+        ))
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
