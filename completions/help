@@ -1,0 +1,17 @@
+# bash completion for help                                 -*- shell-script -*-
+
+_comp_cmd_help()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_usage "$1" "-s $1")' -- "$cur"))
+        return
+    fi
+
+    local IFS=$'\t\n'
+    COMPREPLY=($(compgen -A helptopic -- "$cur"))
+    ((${#COMPREPLY[*]} != 1)) || printf -v "COMPREPLY[0]" %q "$COMPREPLY"
+} &&
+    complete -F _comp_cmd_help help

@@ -152,6 +152,7 @@ bashcomp_DATA = 2to3 \
 		gzip \
 		hcitool \
 		hddtemp \
+		help \
 		_hexdump \
 		hid2hci \
 		hostname \

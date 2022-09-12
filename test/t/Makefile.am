@@ -225,6 +225,7 @@ EXTRA_DIST = \
 	test_hcitool.py \
 	test_hddtemp.py \
 	test_head.py \
+	test_help.py \
 	test_hexdump.py \
 	test_hid2hci.py \
 	test_host.py \
