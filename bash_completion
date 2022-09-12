@@ -1905,7 +1905,7 @@ _included_ssh_config_files()
         _comp_expand_glob files '$i'
         if ((${#files[@]})); then
             for f in "${files[@]}"; do
-                if [[ -r $f ]]; then
+                if [[ -r $f && ! -d $f ]]; then
                     config+=("$f")
                     # The Included file is processed to look for Included files in itself
                     _included_ssh_config_files $f
@@ -1973,10 +1973,10 @@ _known_hosts_real()
 
     # ssh config files
     if [[ -v configfile ]]; then
-        [[ -r $configfile ]] && config+=("$configfile")
+        [[ -r $configfile && ! -d $configfile ]] && config+=("$configfile")
     else
         for i in /etc/ssh/ssh_config ~/.ssh/config ~/.ssh2/config; do
-            [[ -r $i ]] && config+=("$i")
+            [[ -r $i && ! -d $i ]] && config+=("$i")
         done
     fi
 
@@ -2023,7 +2023,7 @@ _known_hosts_real()
         for i in /etc/ssh/ssh_known_hosts /etc/ssh/ssh_known_hosts2 \
             /etc/known_hosts /etc/known_hosts2 ~/.ssh/known_hosts \
             ~/.ssh/known_hosts2; do
-            [[ -r $i ]] && kh+=("$i")
+            [[ -r $i && ! -d $i ]] && kh+=("$i")
         done
         for i in /etc/ssh2/knownhosts ~/.ssh2/hostkeys; do
             [[ -d $i ]] && khd+=("$i"/*pub)
