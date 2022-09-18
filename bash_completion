@@ -2593,7 +2593,9 @@ __load_completion()
 
     local -a dirs=()
 
-    # From BASH_COMPLETION_USER_DIR (e.g. ~/.local/share/bash-completion)
+    # Lookup order:
+    # 1) From BASH_COMPLETION_USER_DIR (e.g. ~/.local/share/bash-completion):
+    # User installed completions.
     if [[ ${BASH_COMPLETION_USER_DIR-} ]]; then
         _comp_split -F : paths "$BASH_COMPLETION_USER_DIR"
         dirs+=("${paths[@]/%//completions}")
@@ -2601,7 +2603,18 @@ __load_completion()
         dirs=("${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion/completions")
     fi
 
-    # From bin directories extracted from $(realpath "$cmd") and PATH
+    # 2) From the location of bash_completion: Completions relative to the main
+    # script. This is primarily for run-in-place-from-git-clone setups, where
+    # we want to prefer in-tree completions over ones possibly coming with a
+    # system installed bash-completion. (Due to usual install layouts, this
+    # often hits the correct completions in system installations, too.)
+    if [[ $BASH_SOURCE == */* ]]; then
+        dirs+=("${BASH_SOURCE%/*}/completions")
+    else
+        dirs+=(./completions)
+    fi
+
+    # 3) From bin directories extracted from $(realpath "$cmd") and PATH
     dir=$(_realcommand "$1")
     paths=("${dir%/*}")
     _comp_split -aF : paths "$PATH"
@@ -2611,16 +2624,10 @@ __load_completion()
         fi
     done
 
-    # From XDG_DATA_DIRS or system dirs (e.g. /usr/share, /usr/local/share)
+    # 4) From XDG_DATA_DIRS or system dirs (e.g. /usr/share, /usr/local/share):
+    # Completions in the system data dirs.
     _comp_split -F : paths "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
     dirs+=("${paths[@]/%//bash-completion/completions}")
-
-    # From the location of bash_completion
-    if [[ $BASH_SOURCE == */* ]]; then
-        dirs+=("${BASH_SOURCE%/*}/completions")
-    else
-        dirs+=(./completions)
-    fi
 
     local backslash=
     if [[ $cmd == \\* ]]; then
