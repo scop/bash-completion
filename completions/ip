@@ -7,6 +7,15 @@ _iproute2_etc()
         -- "$cur"))
 }
 
+_comp_cmd_ip__netns()
+{
+    COMPREPLY=($(compgen -W "$(
+        {
+            ${1-ip} -c=never netns list 2>/dev/null || ${1-ip} netns list
+        } | awk '{print $1}'
+    )" -- "$cur"))
+}
+
 _ip()
 {
     local cur prev words cword
@@ -22,6 +31,10 @@ _ip()
             ;;
         -b | -batch)
             _filedir
+            return
+            ;;
+        -n | -netns)
+            _comp_cmd_ip__netns "$1"
             return
             ;;
         -force)
@@ -358,12 +371,7 @@ _ip()
                     # TODO
                     ;;
                 delete | exec | pids | set)
-                    [[ $prev == "$subcmd" ]] &&
-                        COMPREPLY=($(compgen -W "$(
-                            {
-                                $1 -c=never netns list 2>/dev/null || $1 netns list
-                            } | awk '{print $1}'
-                        )" -- "$cur"))
+                    [[ $prev == "$subcmd" ]] && _comp_cmd_ip__netns "$1"
                     ;;
                 *)
                     ((cword == subcword)) &&
