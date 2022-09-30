@@ -1,7 +1,7 @@
 import pytest
 
 
-@pytest.mark.bashcomp(cmd="xdg-mime")
+@pytest.mark.bashcomp(cmd="xdg-mime", ignore_env=r"^[+-](OLD)?PWD=")
 class TestXdgMime:
     @pytest.mark.complete("xdg-mime ")
     def test_1(self, completion):
@@ -19,7 +19,7 @@ class TestXdgMime:
     def test_4(self, completion):
         assert completion
 
-    @pytest.mark.complete("xdg-mime default foo.desktop ")
+    @pytest.mark.complete("xdg-mime default foo.desktop ", require_cmd=True)
     def test_5(self, completion):
         assert completion
 
