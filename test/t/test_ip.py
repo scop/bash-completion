@@ -16,4 +16,4 @@ class TestIp:
 
     @pytest.mark.complete("ip -", require_cmd=True)
     def test_options(self, completion):
-        assert "-Version" in completion
+        assert "-family" in completion
