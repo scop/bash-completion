@@ -1,5 +1,25 @@
 # API and naming
 
+## General API conventions
+
+Most of the functions in bash-completion generate completions and directly
+inject them to the `COMPREPLY` array variable, as required for completions to
+work.
+
+Most other functions make use of "output" variables, i.e. assign values to
+them. The most common one of these is named `ret`. Consult the commentary
+before each function in the source to find out the specific names.
+`local`izing output variables before invoking a function that populates them
+is the caller's responsibility.
+Note that if calling multiple functions that assign output to the same variable
+during one completion function run, each result should be copied to another
+variable between the calls to avoid it possibly being overwritten and lost on
+the next call. Also, the variables should also be ensured to be clear before
+each call, typically by `unset -v`ing them when multiple such calls are used,
+to avoid them interfering with each other.
+
+## Naming
+
 Due to its nature, bash-completion adds a number of functions and variables in
 the shell's environment.
 
