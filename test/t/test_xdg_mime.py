@@ -26,3 +26,7 @@ class TestXdgMime:
     @pytest.mark.complete("xdg-mime install --mode ")
     def test_6(self, completion):
         assert completion
+
+    @pytest.mark.complete("xdg-mime query filetype foo ")
+    def test_filetype_one_arg(self, completion):
+        assert not completion
