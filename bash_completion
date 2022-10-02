@@ -2030,7 +2030,7 @@ _known_hosts_real()
         done
     fi
 
-    local reset=$(shopt -po noglob)
+    local IFS=$' \t\n' reset=$(shopt -po noglob)
     set -o noglob
 
     # "Include" keyword in ssh config files
@@ -2042,13 +2042,13 @@ _known_hosts_real()
 
     # Known hosts files from configs
     if ((${#config[@]} > 0)); then
-        local IFS=$'\n'
+        IFS=$'\n'
         # expand paths (if present) to global and user known hosts files
         # TODO(?): try to make known hosts files with more than one consecutive
         #          spaces in their name work (watch out for ~ expansion
         #          breakage! Alioth#311595)
         tmpkh=($(awk 'sub("^[ \t]*([Gg][Ll][Oo][Bb][Aa][Ll]|[Uu][Ss][Ee][Rr])[Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee][ \t=]+", "") { print $0 }' "${config[@]}" | sort -u))
-        _comp_unlocal IFS
+        IFS=$' \t\n'
     fi
     if ((${#tmpkh[@]} != 0)); then
         local j
@@ -2093,7 +2093,7 @@ _known_hosts_real()
                     # Ignore leading @foo (markers)
                     [[ $1 == @* ]] && shift
                     # Split entry on commas
-                    local IFS=,
+                    IFS=,
                     for host in $1; do
                         # Skip hosts containing wildcards
                         [[ $host == *[*?]* ]] && continue
@@ -2104,7 +2104,7 @@ _known_hosts_real()
                         # Add host to candidates
                         COMPREPLY+=($host)
                     done
-                    _comp_unlocal IFS
+                    IFS=$' \t\n'
                 done <"$i"
             done
             ((${#COMPREPLY[@]})) &&
