@@ -141,13 +141,12 @@ A. Put them in the `completions` subdir of `$BASH_COMPLETION_USER_DIR`
 
 A. [ Disclaimer: Here, how to make the completion code visible to
    bash-completion is explained.  We do not require always making the
-   completion code to bash-completion.  In what condition the completion code
-   is installed should be determined at the author/maintainers' own
-   discretion. ]
+   completion code visible to bash-completion.  In what condition the
+   completion code is installed should be determined at the author/maintainers'
+   own discretion. ]
 
-   Install it in one of the directories pointed to by
-   bash-completion's `pkgconfig` file variables. There are two
-   alternatives:
+   Install it in one of the directories pointed to by bash-completion's
+   `pkgconfig` file variables. There are two alternatives:
 
    - The recommended directory is `completionsdir`, which you can get with
      `pkg-config --variable=completionsdir bash-completion`. From this
@@ -197,12 +196,14 @@ A. [ Disclaimer: Here, how to make the completion code visible to
      ${BASH_COMPLETION_COMPLETIONSDIR})
    ```
 
-   From bash-completion-2.12, we are going to search the data directory of
+   In bash-completion >= 2.12, we search the data directory of
    `bash-completion` under the installation prefix where the target command is
    installed.  When one can assume that the version of the target
    bash-completion is 2.12 or higher, the completion script can actually be
    installed to `$PREFIX/share/bash-completion/completions/` under the same
-   installation prefix as the target program installed under `$PREFIX/bin/`.
+   installation prefix as the target program installed under `$PREFIX/bin/` or
+   `$PREFIX/sbin/`.  For the detailed search order, see also "Q. What is the
+   search order for the completion file of each target command?" below.
 
    Example for `Makefile.am`:
 
@@ -326,3 +327,28 @@ A. Absolutely not. zsh has an extremely sophisticated completion system
    that offers many features absent from the bash implementation. Its
    users often cannot resist pointing this out. More information can
    be found at <https://www.zsh.org/>.
+
+**Q. What is the search order for the completion file of each target command?**
+
+A. The completion files of commands are looked up by the shell function
+  `__load_completion`.  Here, the search order in bash-completion >= 2.12 is
+  explained.
+
+  1. `BASH_COMPLETION_USER_DIR`. The subdirectory `completions` of each paths
+     in `BASH_COMPLETION_USER_DIR` separated by colons is considered for a
+     completion directory.
+  2. The location of the main `bash_completion` file. The subdirectory
+     `completions` in the same directory as `bash_completion` is considered.
+  3. The location of the target command.  When the real location of the command
+     is in the directory `<prefix>/bin` or `<prefix>/sbin`, the directory
+     `<prefix>/share/bash-completion/completions` is considered.
+  4. `XDG_DATA_DIRS` (or the system directories `/usr/local/share:/usr/share`
+     if empty).  The subdirectory `bash-completion/completions` of each paths
+     in `XDG_DATA_DIRS` separated by colons is considered.
+
+  The completion files of the name `<cmd>` or `<cmd>.bash`, where `<cmd>` is
+  the name of the target command, are searched in the above completion
+  directories in order.  The file that is found first is used.  When no
+  completion file is found in any completion directories in this process, the
+  completion files of the name `_<cmd>` is next searched in the completion
+  directories in order.
