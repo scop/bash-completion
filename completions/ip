@@ -55,10 +55,16 @@ _ip()
     if [[ ! -v cmd ]]; then
         case $cur in
             -*)
-                local c="-Version -statistics -details -resolve -family
-                    -oneline -timestamp -batch -rcvbuf"
-                ((cword == 1)) && c+=" -force"
-                COMPREPLY=($(compgen -W "$c" -- "$cur"))
+                local force=""
+                ((cword == 1)) && force=-force
+                COMPREPLY=($(compgen -W "$force $(
+                    {
+                        $1 -c=never help || $1 help
+                    } 2>&1 | command sed -e \
+                        's/[{|}=]/\n/g' -e \
+                        's/\[\([^]]\{1,\}\)\]/\1/g' |
+                        _parse_help -
+                )" -- "$cur"))
                 ;;
             *)
                 COMPREPLY=($(compgen -W "help $(
