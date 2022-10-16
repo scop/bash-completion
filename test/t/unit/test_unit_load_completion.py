@@ -67,3 +67,14 @@ class TestLoadCompletion:
                 bash, "__load_completion cmd2", want_output=True
             )
             assert output.strip() == "cmd2: sourced from prefix1"
+
+    def test_cmd_intree_precedence(self, bash):
+        """
+        Test in-tree, i.e. completions/$cmd relative to the main script
+        has precedence over location derived from PATH.
+        """
+        with bash_env_saved(bash) as bash_env:
+            bash_env.write_variable("PATH", "$PWD/prefix1/bin", quote=False)
+            # The in-tree `sh` completion should be loaded here,
+            # and cause no output, unlike our `$PWD/prefix1/bin/sh` canary.
+            assert_bash_exec(bash, "__load_completion sh", want_output=False)
