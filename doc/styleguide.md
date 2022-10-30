@@ -80,7 +80,7 @@ available in `COMPREPLY`.
 
 ## `$split && return`
 
-Should be used in completions using the `-s` flag of `_init_completion`,
+Should be used in completions using the `-s` flag of `_comp_initialize`,
 or other similar cases where `_split_longopt` has been invoked, after
 `$prev` has been managed but before `$cur` is considered. If `$cur` of the
 form `--foo=bar` was split into `prev=--foo` and `cur=bar`, and the `$prev`
