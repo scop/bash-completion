@@ -1,0 +1,14 @@
+#!/bin/bash
+set -euo pipefail
+
+cd "$(dirname "$0")/completions"
+for f in *; do
+    case $f in
+        Makefile* | README.md) ;;
+        *) git rm -f $f ;;
+    esac
+done
+for f in ../../../completions/_*; do
+    ln -sf $f ${f##*/_}
+    git add --verbose ${f##*/_}
+done

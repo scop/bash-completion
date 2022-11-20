@@ -33,15 +33,3 @@ EXTRA_DIST = \
 	write \
 	xm \
 	yum
-
-update:
-	for f in *; do \
-		case $$f in \
-			Makefile*|README.md) ;; \
-			*) git rm -f $$f ;; \
-		esac \
-	done
-	for f in ../../../completions/_*; do \
-		ln -sf $$f $${f##*/_}; \
-		git add $${f##*/_}; \
-	done
