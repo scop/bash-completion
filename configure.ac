@@ -17,6 +17,8 @@ completions/Makefile
 doc/Makefile
 helpers/Makefile
 test/Makefile
+test/deprecated/Makefile
+test/deprecated/completions/Makefile
 test/t/Makefile
 test/t/unit/Makefile
 ])
