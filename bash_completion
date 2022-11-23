@@ -1273,9 +1273,15 @@ _comp_quote_compgen()
 
 # This function performs file and directory completion. It's better than
 # simply using 'compgen -f', because it honours spaces in filenames.
-# @param $1  If `-d', complete only on directories.  Otherwise filter/pick only
-#            completions with `.$1' and the uppercase version of it as file
-#            extension.
+# @param $1 Complete filenames matching `.$1' and the uppercase version of it.
+#           Ignored with `-d`.
+# OPTIONS
+#   -d      Complete only on directories
+#   -f      Perform `compopt -o filenames` modifications manually.  This
+#           suffixes a slash to a directory name.  This can be combined with
+#           the `-C dir` option to `_comp_compgen`, where the generated
+#           filenames do not exist in the current working directory and Bash
+#           fails to properly detect the filenames.
 # @return 0 if at least one completion is generated, or 1 otherwise.
 #
 # @since 2.12
@@ -1284,9 +1290,22 @@ _comp_compgen_filedir()
     _comp_compgen_tilde && return
 
     local -a toks
+    local _dir="" _filenames=""
+    local OPTIND=1 OPTARG="" OPTERR=0 _opt
+    while getopts ":df" _opt "$@"; do
+        case $_opt in
+            d) _dir=set ;;
+            f) _filenames=set ;;
+            *)
+                printf "bash_completion: %s: usage error\n" "$FUNCNAME" >&2
+                return 2
+                ;;
+        esac
+    done
+    shift "$((OPTIND - 1))"
     local _arg=${1-}
 
-    if [[ $_arg == -d ]]; then
+    if [[ $_dir ]]; then
         _comp_compgen -v toks -- -d
     else
         local REPLY
@@ -1330,9 +1349,19 @@ _comp_compgen_filedir()
     fi
 
     if ((${#toks[@]} != 0)); then
-        # 2>/dev/null for direct invocation, e.g. in the _comp_compgen_filedir
-        # unit test
-        compopt -o filenames 2>/dev/null
+        # compopt 2>/dev/null for direct invocation, e.g. in
+        # _comp_compgen_filedir unit test
+        if [[ $_filenames ]]; then
+            local i
+            for i in "${!toks[@]}"; do
+                if [[ -d ${toks[i]} ]]; then
+                    toks[i]+=/
+                    compopt -o nospace 2>/dev/null
+                fi
+            done
+        else
+            compopt -o filenames 2>/dev/null
+        fi
     fi
 
     # Note: bash < 4.4 has a bug that all the elements are connected with
