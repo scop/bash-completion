@@ -3,17 +3,23 @@
 _xdg_mime_mimetype()
 {
     local d i
+    local -a arr
     for d in /usr/share/mime /usr/local/share/mime; do
-        command cd $d 2>/dev/null || continue
-        trap "command cd - &>/dev/null" RETURN
-        _filedir xml
-        for i in ${!COMPREPLY[*]}; do
-            # packages/ is not a MIME type dir
-            [[ ${COMPREPLY[i]} != packages* ]] || unset -v "COMPREPLY[i]"
+        arr=($(
+            command cd "$d" 2>/dev/null || exit 1
+            compgen -f -o plusdirs -X "!*.xml" -- "$cur"
+        )) || continue
+        for i in ${!arr[*]}; do
+            case ${arr[i]} in
+                packages*) unset -v "arr[i]" ;; # not a MIME type dir
+                *.xml) arr[i]=${arr[i]%.xml} ;;
+                */*) ;;
+                *) arr[i]+=/ ;;
+            esac
         done
-        COMPREPLY=("${COMPREPLY[@]%.xml}")
-        return
+        COMPREPLY+=("${arr[@]}")
     done
+    [[ $COMPREPLY != */ ]] || compopt -o nospace
 }
 
 _xdg_mime()

@@ -1,7 +1,7 @@
 import pytest
 
 
-@pytest.mark.bashcomp(cmd="xdg-mime", ignore_env=r"^[+-](OLD)?PWD=")
+@pytest.mark.bashcomp(cmd="xdg-mime")
 class TestXdgMime:
     @pytest.mark.complete("xdg-mime ")
     def test_1(self, completion):
