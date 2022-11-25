@@ -2,9 +2,25 @@
 
 _xdg_mime_mimetype()
 {
-    COMPREPLY+=($(compgen -S / -W 'application audio font image message model
-                                    multipart text video' -- "$cur"))
-    [[ ${COMPREPLY-} == */ ]] && compopt -o nospace
+    local d i
+    local -a arr
+    for d in /usr/share/mime /usr/local/share/mime; do
+        arr=($(
+            command cd "$d" 2>/dev/null || exit 1
+            compgen -f -o plusdirs -X "!*.xml" -- "$cur"
+        )) || continue
+        for i in "${!arr[*]}"; do
+            case ${arr[i]} in
+                packages*) unset -v "arr[i]" ;; # not a MIME type dir
+                *.xml) arr[i]=${arr[i]%.xml} ;;
+                */*) ;;
+                *) arr[i]+=/ ;;
+            esac
+        done
+        ((${#arr[@]})) &&
+          COMPREPLY+=("${arr[@]}")
+    done
+    [[ ${COMPREPLY-} != */ ]] || compopt -o nospace
 }
 
 _xdg_mime()
@@ -31,7 +47,8 @@ _xdg_mime()
                 COMPREPLY=($(compgen -W 'filetype default' -- "$cur"))
                 return
             fi
-            case ${words[2]} in # TODO and args == 3 (takes only one arg!)
+            ((args == 3)) || return
+            case ${words[2]} in
                 filetype) _filedir ;;
                 default) _xdg_mime_mimetype ;;
             esac
