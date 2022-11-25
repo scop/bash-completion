@@ -2302,7 +2302,9 @@ _comp_command_offset()
         compopt -o filenames
         COMPREPLY=($(compgen -d -c -- "$cur"))
     else
-        local cmd=${COMP_WORDS[0]} compcmd=${COMP_WORDS[0]}
+        local ret
+        _comp_dequote "${COMP_WORDS[0]}" || ret=${COMP_WORDS[0]}
+        local cmd=$ret compcmd=$ret
         local cspec=$(complete -p "$cmd" 2>/dev/null)
 
         # If we have no completion for $cmd yet, see if we have for basename
@@ -2367,8 +2369,10 @@ _comp_command_offset()
                 done
             else
                 cspec=${cspec#complete}
-                cspec=${cspec%%"$compcmd"}
-                COMPREPLY=($(eval compgen "$cspec" -- '$cur'))
+                cspec=${cspec%%@("$compcmd"|"'${compcmd//\'/\'\\\'\'}'")}
+                local result=$(eval compgen "$cspec" -- '$cur')
+                local IFS=$'\n'
+                COMPREPLY=($result)
             fi
             break
         done
