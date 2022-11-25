@@ -9,7 +9,7 @@ _xdg_mime_mimetype()
             command cd "$d" 2>/dev/null || exit 1
             compgen -f -o plusdirs -X "!*.xml" -- "$cur"
         )) || continue
-        for i in ${!arr[*]}; do
+        for i in "${!arr[*]}"; do
             case ${arr[i]} in
                 packages*) unset -v "arr[i]" ;; # not a MIME type dir
                 *.xml) arr[i]=${arr[i]%.xml} ;;
@@ -17,9 +17,10 @@ _xdg_mime_mimetype()
                 *) arr[i]+=/ ;;
             esac
         done
-        COMPREPLY+=("${arr[@]}")
+        ((${#arr[@]})) &&
+          COMPREPLY+=("${arr[@]}")
     done
-    [[ $COMPREPLY != */ ]] || compopt -o nospace
+    [[ ${COMPREPLY-} != */ ]] || compopt -o nospace
 }
 
 _xdg_mime()
