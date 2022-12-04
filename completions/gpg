@@ -10,14 +10,23 @@ _gpg()
             _filedir
             return
             ;;
-        --export | --sign-key | --lsign-key | --nrsign-key | --nrlsign-key | \
-            --edit-key | --delete-keys | --delete-secret-and-public-keys | \
-            --locate-keys | --refresh-keys)
+        --list-keys | --list-public-keys | --locate-keys | \
+            --locate-external-keys | --fingerprint | --delete-keys | \
+            --delete-secret-and-public-keys | --export | --refresh-keys | \
+            --search-keys | --edit-key | --sign-key | --lsign-key | \
+            --nrsign-key | --nrlsign-key | --try-secret-key | -!(-*)k)
             # return list of public keys
             COMPREPLY=($(compgen -W "$($1 --list-keys 2>/dev/null |
                 command sed -ne \
                     's@^pub.*/\([^ ]*\).*$@\1@p' -ne \
                     's@^.*\(<\([^>]*\)>\).*$@\2@p')" -- "$cur"))
+            return
+            ;;
+        --list-secret-keys | --delete-secret-keys | --export-secret-keys | \
+            --export-secret-subkeys | -!(-*)K)
+            # return list of secret keys
+            COMPREPLY=($(compgen -W "$($1 --list-secret-keys 2>/dev/null |
+                command sed -ne 's@^.*<\([^>]*\)>.*$@\1@p')" -- "$cur"))
             return
             ;;
         --recipient | -!(-*)r)
