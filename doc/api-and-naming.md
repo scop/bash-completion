@@ -15,7 +15,8 @@ Note that if calling multiple functions that assign output to the same variable
 during one completion function run, each result should be copied to another
 variable between the calls to avoid it possibly being overwritten and lost on
 the next call. Also, the variables should also be ensured to be clear before
-each call, typically by `unset -v`ing them when multiple such calls are used,
+each call that references the value, variable name, or their existence,
+typically by `unset -v`ing them when multiple such calls are used,
 to avoid them interfering with each other.
 
 ## Naming
