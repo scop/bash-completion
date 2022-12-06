@@ -42,6 +42,9 @@ that. Don't be disappointed if it does or doesn't happen instantly.
 
 Also, please bear the following coding guidelines in mind:
 
+- See the [API and naming](doc/api-and-naming.md) document for information
+  about conventions to follow related to those topics.
+
 - Do not use Perl, Ruby, Python etc. to do text processing unless the
   command for which you are writing the completion code implies the
   presence of one of those languages.
