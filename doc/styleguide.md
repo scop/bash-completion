@@ -119,19 +119,6 @@ over actual values. If an index or value is to be accessed later on instead of
 being just locally for looping, use a more descriptive and specific name for
 it.
 
-## Function names
+## Function and variable names
 
-Use the `_comp_` prefix for all function names, and `_comp_cmd_` for functions
-defined in per command completion files and not anywhere else. Prefixing with
-an underscore helps keep the functions out of the way for most command name
-completions (except obviously ones starting with an underscore or ones that have
-nothing typed in yet), and having a consistent prefix helps avoid some clashes
-and gives a hint where a function originates from.
-
-It is known that a lot of functions in the tree do not follow this practice.
-This is due to backwards compatibility reasons, but all functions introduced
-after version 2.11 should follow this name prefix rule.
-
-## Variable naming
-
-To be written.
+See [API and naming](api-and-naming.md).
