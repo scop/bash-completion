@@ -2765,28 +2765,71 @@ _comp_command_offset()
                     #     *something* for every command thrown at it ($cspec != empty)
                     _comp_complete_minimal "${args[@]}"
                 fi
-            elif [[ $cspec == *' -F '* ]]; then
-                # complete -F <function>
+            elif [[ $cspec == *\ -[CF]\ * ]]; then
+                if [[ $cspec == *' -F '* ]]; then
+                    # complete -F <function>
 
-                # get function name
-                local func=${cspec#* -F }
-                func=${func%% *}
-                $func "${args[@]}"
+                    # get function name
+                    local func=${cspec#* -F }
+                    func=${func%% *}
+                    $func "${args[@]}"
 
-                # restart completion (once) if function exited with 124
-                if (($? == 124 && retry_count++ == 0)); then
-                    # Note: When the completion function returns 124, the state
-                    # of COMPREPLY is discarded.
+                    # restart completion (once) if function exited with 124
+                    if (($? == 124 && retry_count++ == 0)); then
+                        # Note: When the completion function returns 124, the
+                        # state of COMPREPLY is discarded.
+                        COMPREPLY=()
+
+                        cspec=$(complete -p "$compcmd" 2>/dev/null)
+
+                        # Note: When completion spec is removed after 124, we
+                        # do not generate any completions including the default
+                        # ones. This is the behavior of the original Bash
+                        # progcomp.
+                        [[ $cspec ]] || break
+
+                        continue
+                    fi
+                else
+                    # complete -C <command>
+
+                    # get command name
+                    local completer=${cspec#* -C \'}
+
+                    # completer commands are always single-quoted
+                    if ! _comp_dequote "'$completer"; then
+                        _minimal "${args[@]}"
+                        break
+                    fi
+                    completer=${REPLY[0]}
+
+                    local -a suggestions
+
+                    local IFS=$' \t\n'
+                    local reset_monitor=$(shopt -po monitor) reset_lastpipe=$(shopt -p lastpipe) reset_noglob=$(shopt -po noglob)
+                    set +o monitor
+                    shopt -s lastpipe
+                    set -o noglob
+
+                    COMP_KEY="$COMP_KEY" COMP_LINE="$COMP_LINE" \
+                        COMP_POINT="$COMP_POINT" COMP_TYPE="$COMP_TYPE" \
+                        $completer "${args[@]}" | mapfile -t suggestions
+
+                    $reset_monitor
+                    $reset_lastpipe
+                    $reset_noglob
+                    _comp_unlocal IFS
+
+                    local suggestion
+                    local i=0
                     COMPREPLY=()
+                    for suggestion in "${suggestions[@]}"; do
+                        COMPREPLY[i]+=${COMPREPLY[i]+$'\n'}$suggestion
 
-                    cspec=$(complete -p "$compcmd" 2>/dev/null)
-
-                    # Note: When completion spec is removed after 124, we do
-                    # not generate any completions including the default ones.
-                    # This is the behavior of the original Bash progcomp.
-                    [[ $cspec ]] || break
-
-                    continue
+                        if [[ $suggestion != *\\ ]]; then
+                            ((i++))
+                        fi
+                    done
                 fi
 
                 # restore initial compopts
