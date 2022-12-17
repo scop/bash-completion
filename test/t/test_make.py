@@ -18,7 +18,7 @@ class TestMake:
 
     @pytest.mark.complete("make .cache/", cwd="make", require_cmd=True)
     def test_3(self, bash, completion):
-        assert completion == "1 2".split()
+        assert completion == ".cache/1 .cache/2".split()
         os.remove(f"{bash.cwd}/make/extra_makefile")
 
     @pytest.mark.complete("make ", cwd="shared/empty_dir")
@@ -36,7 +36,7 @@ class TestMake:
 
     @pytest.mark.complete("make .cache/.", cwd="make", require_cmd=True)
     def test_7(self, bash, completion):
-        assert completion == ".1 .2".split()
+        assert completion == ".cache/.1 .cache/.2".split()
         os.remove(f"{bash.cwd}/make/extra_makefile")
 
     @pytest.mark.complete("make -C make ", require_cmd=True)
@@ -61,7 +61,7 @@ class TestMake2:
 
     def test_github_issue_544_3(self, bash):
         completion = assert_complete(bash, "make 123/")
-        assert completion == ["xaa", "xbb"]
+        assert completion == ["123/xaa", "123/xbb"]
 
     def test_github_issue_544_4(self, bash):
         completion = assert_complete(bash, "make 123/xa")

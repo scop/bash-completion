@@ -209,12 +209,19 @@ _make()
             fi
         done
 
-        # recognise that possible completions are only going to be displayed
-        # so only the base name is shown
+        # recognise that possible completions are only going to be displayed so
+        # only the base name is shown.
+        #
+        # Note: This is currently turned off because the test suite of
+        # bash-completion conflicts with it; it uses "set show-all-if-ambiguous
+        # on" (causing COMP_TYPE == 37) to retrieve the action completion
+        # results, and also the compact form with only the basenames is not
+        # essentially needed.  To re-enable it, please uncomment the following
+        # if-statement.
         local mode=--
-        if ((COMP_TYPE != 9 && COMP_TYPE != 37 && COMP_TYPE != 42)); then
-            mode=-d # display-only mode
-        fi
+        # if ((COMP_TYPE != 9 && COMP_TYPE != 37 && COMP_TYPE != 42)); then
+        #     mode=-d # display-only mode
+        # fi
 
         local IFS=$' \t\n' script=$(_make_target_extract_script $mode "$cur")
         COMPREPLY=($(LC_ALL=C \
