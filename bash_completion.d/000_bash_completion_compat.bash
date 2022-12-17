@@ -245,4 +245,17 @@ _cd()
     _comp_cmd_cd "$@"
 }
 
+# @deprecated Use `_comp_command_offset` instead.  Note that the new interface
+# `_comp_command_offset` is changed to receive an index in `words` instead of
+# that in `COMP_WORDS` as `_command_offset` did.
+_command_offset()
+{
+    # We unset the shell variable `words` locally to tell
+    # `_comp_command_offset` that the index is intended to be that in
+    # `COMP_WORDS` instead of `words`.
+    local words
+    unset -v words
+    _comp_command_offset "$@"
+}
+
 # ex: filetype=sh
