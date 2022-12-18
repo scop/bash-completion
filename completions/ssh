@@ -473,6 +473,48 @@ _comp_xfunc_ssh_scp_remote_files()
 
 _comp_deprecate_func _scp_remote_files _comp_xfunc_ssh_scp_remote_files
 
+# Like `_filedir' but accepts a prefix similar to `compgen -P'
+# and intended for usage with `compopt -o nospace' and` mixed completions
+# `host:', `file ', and `folder/'. Postprocessing is required to escape
+# shell special characters and to remove trailing backslash added
+# to distinguish files with trailing space and spaces added after file names.
+# @param $1  If `-d', complete only on directories (actually unused).
+#            Otherwise add `$1' prefix to each variant.
+#            Warning! `-d' can not be specified as a prefix,
+#            but `scp' does not have such option.
+_comp_xfunc_ssh_scp_local_filedir()
+{
+    local COMPREPLY=()
+    local dirsonly=
+    if [[ ${1-} == -d ]]; then
+        dirsonly=-d
+        shift
+    fi
+    local prefix=${1-}
+
+    # Do not expand tilde after prefix.
+    # Such case should be handled by caller.
+    [[ -z "$prefix" || "$cur" != \~* ]] || return
+
+    _filedir $dirsonly
+
+    local f expanded append
+    for f in "${COMPREPLY[@]}"; do
+        expanded=$f
+        __expand_tilde_by_ref expanded
+        if [[ -d "$expanded" ]]; then
+            append=/
+        elif [[ -e "$expanded" ]]; then
+            append=' '
+        elif [[ "$f" = *[\ \\] ]]; then
+            append=\\
+        else
+            append=
+        fi
+        printf "%s" "$prefix$f$append$IFS"
+    done
+}
+
 # This approach is used instead of _filedir to get a space appended
 # after local file/dir completions, and -o nospace retained for others.
 # If first arg is -d, complete on directory names only.  The next arg is
@@ -481,20 +523,26 @@ _comp_xfunc_ssh_scp_local_files()
 {
     local IFS=$'\n'
 
-    local dirsonly=false
+    local dirsonly
     if [[ ${1-} == -d ]]; then
-        dirsonly=true
+        dirsonly=-d
         shift
     fi
-
-    if $dirsonly; then
-        COMPREPLY+=($(command ls -aF1dL $cur* 2>/dev/null |
+    local prefix=${1-}
+    # e.g. "-F~file" should be completed with literal tilde
+    if [[ -z "$prefix" || "$cur" != \~* ]]; then
+        local i=${#COMPREPLY[@]}
+        # Unescape trailing "\ " and drop trailing "\\".
+        COMPREPLY+=($(_comp_xfunc_ssh_scp_local_filedir $dirsonly "$@" |
+            command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" -e 's/\\ $/ /' -e 's/\\$//'))
+    elif [ -n "$dirsonly" ]; then
+        COMPREPLY+=($(command ls -aF1dL "$cur"* 2>/dev/null |
             command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" -e '/[^\/]$/d' \
-                -e "s/^/${1-}/"))
+                -e "s/^/$prefix/"))
     else
-        COMPREPLY+=($(command ls -aF1dL $cur* 2>/dev/null |
+        COMPREPLY+=($(command ls -aF1dL "$cur"* 2>/dev/null |
             command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" -e 's/[*@|=]$//g' \
-                -e 's/[^\/]$/& /g' -e "s/^/${1-}/"))
+                -e 's/[^\/]$/& /g' -e "s/^/$prefix/"))
     fi
 }
 
@@ -556,8 +604,6 @@ _scp()
             ipvx=-6
             ;;
     esac
-
-    _expand || return
 
     case $cur in
         !(*:*)/* | [.~]*) ;; # looks like a path
