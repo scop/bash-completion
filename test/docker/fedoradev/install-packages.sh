@@ -3,7 +3,7 @@ set -xeuo pipefail
 
 shopt -s extglob
 
-cd ${TMPDIR:-/tmp}
+cd "${TMPDIR:-/tmp}"
 
 # upgrade: base image contains vim-minimal, newer vim-* which
 # implicitly conflicts with it (typically vim.1.gz) may be in

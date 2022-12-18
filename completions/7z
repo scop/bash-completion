@@ -15,7 +15,7 @@ _7z()
 
     case $cur in
         -ao*)
-            COMPREPLY=($(compgen -P${cur:0:3} -W 'a s t u' -- "${cur:3}"))
+            COMPREPLY=($(compgen -P"${cur:0:3}" -W 'a s t u' -- "${cur:3}"))
             return
             ;;
         -?(a)[ix]*)
@@ -26,7 +26,7 @@ _7z()
                 opt=${cur:0:2} cur=${cur:2}
             fi
             if [[ $cur != *[@\!]* ]]; then
-                COMPREPLY=($(compgen -P$opt -W '@ ! r@ r-@ r0@ r! r-! r0!' \
+                COMPREPLY=($(compgen -P"$opt" -W '@ ! r@ r-@ r0@ r! r-! r0!' \
                     -- "$cur"))
             elif [[ $cur == ?(r@(-|0|))@* ]]; then
                 local IFS=$' \t\n' reset=$(shopt -po noglob)
@@ -50,31 +50,31 @@ _7z()
             set -o noglob
             compopt -o filenames
             local IFS=$'\n'
-            COMPREPLY=($(compgen -d -P${cur:0:2} -S/ -- "${cur:2}"))
+            COMPREPLY=($(compgen -d -P"${cur:0:2}" -S/ -- "${cur:2}"))
             _comp_unlocal IFS
             $reset
             compopt -o nospace
             return
             ;;
         -r?*)
-            COMPREPLY=($(compgen -P${cur:0:2} -W '- 0' -- "${cur:2}"))
+            COMPREPLY=($(compgen -P"${cur:0:2}" -W '- 0' -- "${cur:2}"))
             return
             ;;
         -scs*)
-            COMPREPLY=($(compgen -P${cur:0:4} -W 'UTF-8 WIN DOS' \
+            COMPREPLY=($(compgen -P"${cur:0:4}" -W 'UTF-8 WIN DOS' \
                 -- "${cur:4}"))
             return
             ;;
         -ssc?*)
-            COMPREPLY=($(compgen -P${cur:0:4} -W '-' -- "${cur:4}"))
+            COMPREPLY=($(compgen -P"${cur:0:4}" -W '-' -- "${cur:4}"))
             return
             ;;
         -t*)
             if [[ $mode == w ]]; then
-                COMPREPLY=($(compgen -P${cur:0:2} -W '7z bzip2 gzip swfc
+                COMPREPLY=($(compgen -P"${cur:0:2}" -W '7z bzip2 gzip swfc
                     tar wim xz zip' -- "${cur:2}"))
             else
-                COMPREPLY=($(compgen -P${cur:0:2} -W '7z apm arj bzip2 cab
+                COMPREPLY=($(compgen -P"${cur:0:2}" -W '7z apm arj bzip2 cab
                     chm cpio cramfs deb dmg elf fat flv gzip hfs iso lzh lzma
                     lzma86 macho mbr mslz mub nsis ntfs pe ppmd rar rpm
                     squashfs swf swfc tar udf vhd wim xar xz z zip' \
@@ -114,7 +114,7 @@ _7z()
     else
         if [[ ${words[1]} == d ]]; then
             local IFS=$'\n'
-            COMPREPLY=($(compgen -W "$(printf '%s\n' "$($1 l ${words[2]} \
+            COMPREPLY=($(compgen -W "$(printf '%s\n' "$($1 l "${words[2]}" \
                 -slt 2>/dev/null | command sed -n '/^Path =/s/^Path = \(.*\)$/\1/p' \
                 2>/dev/null | tail -n+2)")" -- "$cur"))
             compopt -o filenames

@@ -3,7 +3,7 @@ set -xeuo pipefail
 
 shopt -s extglob
 
-cd ${TMPDIR:-/tmp}
+cd "${TMPDIR:-/tmp}"
 
 while read -r file; do
     case $file in

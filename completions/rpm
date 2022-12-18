@@ -75,7 +75,7 @@ _rpm()
             return
             ;;
         --eval | -${noargopts}E)
-            _rpm_macros $1
+            _rpm_macros "$1"
             return
             ;;
         --pipe)
@@ -146,7 +146,7 @@ _rpm()
                 COMPREPLY=($(compgen -W '${opts[@]} --allmatches --noscripts
                     --notriggers --nodeps --test --repackage' -- "$cur"))
             else
-                _comp_xfunc_rpm_installed_packages $1
+                _comp_xfunc_rpm_installed_packages "$1"
             fi
             ;;
         -q* | --query)
@@ -170,7 +170,7 @@ _rpm()
                 fi
             elif [[ ${words[*]} == *\ -@(*([^ -])g|-group )* ]]; then
                 # -qg completion
-                _rpm_groups $1
+                _rpm_groups "$1"
             elif [[ ${words[*]} == *\ -@(*([^ -])p|-package )* ]]; then
                 # -qp; uninstalled package completion
                 if [[ $cur == -* ]]; then
@@ -189,7 +189,7 @@ _rpm()
                         --whatrecommends --whatrequires --whatsuggests
                         --whatsupplements' -- "$cur"))
                 elif [[ ${words[*]} != *\ -@(*([^ -])a|-all )* ]]; then
-                    _comp_xfunc_rpm_installed_packages $1
+                    _comp_xfunc_rpm_installed_packages "$1"
                 fi
             fi
             ;;
@@ -213,18 +213,18 @@ _rpm()
             elif [[ ${words[*]} == *\ -@(*([^ -])f|-file )* ]]; then
                 _filedir
             elif [[ ${words[*]} == *\ -@(*([^ -])g|-group )* ]]; then
-                _rpm_groups $1
+                _rpm_groups "$1"
             elif [[ ${words[*]} == *\ -@(*([^ -])p|-package )* ]]; then
                 _filedir '[rs]pm'
             else
-                _comp_xfunc_rpm_installed_packages $1
+                _comp_xfunc_rpm_installed_packages "$1"
             fi
             ;;
         --resign | --addsign | --delsign)
             _filedir '[rs]pm'
             ;;
         --setperms | --setgids)
-            _comp_xfunc_rpm_installed_packages $1
+            _comp_xfunc_rpm_installed_packages "$1"
             ;;
         --import | --dbpath | --root)
             if [[ $cur == -* ]]; then
@@ -245,7 +245,7 @@ _rpmbuild()
     _comp_initialize -s -- "$@" || return
 
     local rpm="${1%build*}"
-    [[ $rpm == "$1" ]] || ! type $rpm &>/dev/null && rpm=
+    [[ $rpm == "$1" ]] || ! type "$rpm" &>/dev/null && rpm=
 
     local noargopts='!(-*|*[rED]*)'
     # shellcheck disable=SC2254
@@ -255,11 +255,11 @@ _rpmbuild()
             return
             ;;
         --target)
-            _rpm_buildarchs $rpm
+            _rpm_buildarchs "$rpm"
             return
             ;;
         --eval | -${noargopts}E)
-            _rpm_macros $rpm
+            _rpm_macros "$rpm"
             return
             ;;
         --macros | --rcfile)
@@ -269,7 +269,7 @@ _rpmbuild()
         --buildpolicy)
             local cfgdir=$($rpm --eval '%{_rpmconfigdir}' 2>/dev/null)
             if [[ $cfgdir ]]; then
-                COMPREPLY=($(compgen -W "$(command ls $cfgdir 2>/dev/null |
+                COMPREPLY=($(compgen -W "$(command ls "$cfgdir" 2>/dev/null |
                     command sed -ne 's/^brp-//p')" -- "$cur"))
             fi
             ;;
@@ -304,7 +304,7 @@ _rpmbuild()
                 ;;
         esac
     done
-    [[ $ext ]] && _filedir $ext
+    [[ $ext ]] && _filedir "$ext"
 } &&
     complete -F _rpmbuild rpmbuild rpmbuild-md5
 

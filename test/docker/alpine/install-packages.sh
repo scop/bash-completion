@@ -1,7 +1,7 @@
 #!/bin/bash
 set -xeuo pipefail
 
-cd ${TMPDIR:-/tmp}
+cd "${TMPDIR:-/tmp}"
 
 apk upgrade
 

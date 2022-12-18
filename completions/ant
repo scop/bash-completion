@@ -11,7 +11,7 @@ _ant_parse_targets()
         if [[ $line =~ \<(target|extension-point)[[:space:]].*name=[\"\']([^\"\']+) ]]; then
             targets+=" ${BASH_REMATCH[2]}"
         fi
-    done <$1
+    done <"$1"
 
     # parse imports
     while read -rd '>' line; do
@@ -19,10 +19,10 @@ _ant_parse_targets()
             local imported_buildfile
             imported_buildfile="${basedir}/${BASH_REMATCH[1]}"
             if [[ -f $imported_buildfile ]]; then
-                _ant_parse_targets $imported_buildfile
+                _ant_parse_targets "$imported_buildfile"
             fi
         fi
-    done <$1
+    done <"$1"
 }
 
 _ant()
@@ -90,7 +90,7 @@ _ant()
         local targets
 
         # fill targets
-        _ant_parse_targets $buildfile
+        _ant_parse_targets "$buildfile"
 
         COMPREPLY=($(compgen -W '$targets' -- "$cur"))
     fi

@@ -3,7 +3,7 @@
 _perl_helper()
 {
     COMPREPLY=($(compgen -P "$prefix" -W \
-        "$(${2:-perl} ${BASH_SOURCE[0]%/*}/../helpers/perl $1 $cur)" \
+        "$(${2:-perl} "${BASH_SOURCE[0]%/*}/../helpers/perl" "$1" "$cur")" \
         -- "$cur"))
     [[ $1 == functions ]] || __ltrim_colon_completions "$prefix$cur"
 }
@@ -35,14 +35,14 @@ _perl()
             -*[Ix])
                 local IFS=$'\n'
                 compopt -o filenames
-                COMPREPLY=($(compgen -d $optPrefix $optSuffix -- "$cur"))
+                COMPREPLY=($(compgen -d "$optPrefix" $optSuffix -- "$cur"))
                 return
                 ;;
             -*[mM])
                 temp="${cur#-}"
                 prefix+=${cur%"$temp"}
                 cur="$temp"
-                _perl_helper modules $1
+                _perl_helper modules "$1"
                 return
                 ;;
             -*V)
@@ -62,7 +62,7 @@ _perl()
                     temp="${cur#:}"
                     prefix=$prefix${cur%"$temp"}
                     cur="Devel::$temp"
-                    _perl_helper modules $1
+                    _perl_helper modules "$1"
                 fi
                 ;;
         esac
@@ -80,6 +80,7 @@ _perl()
     elif [[ $prev == -I ]]; then
         local IFS=$'\n'
         compopt -o filenames
+        # shellcheck disable=SC2086
         COMPREPLY=($(compgen -d ${optPrefix-} ${optSuffix-} -- "$cur"))
         return
 
@@ -108,7 +109,7 @@ _perldoc()
     fi
 
     local perl="${1%doc}"
-    [[ $perl == "$1" ]] || ! type $perl &>/dev/null && perl=
+    [[ $perl == "$1" ]] || ! type "$perl" &>/dev/null && perl=
 
     case $prev in
         -*[hVnoMwL])
@@ -119,7 +120,7 @@ _perldoc()
             return
             ;;
         -*f)
-            _perl_helper functions $perl
+            _perl_helper functions "$perl"
             return
             ;;
     esac
@@ -129,7 +130,7 @@ _perldoc()
     else
         # return available modules (unless it is clearly a file)
         if [[ $cur != @(*/|[.~])* ]]; then
-            _perl_helper perldocs $perl
+            _perl_helper perldocs "$perl"
             if [[ $cur == p* ]]; then
                 COMPREPLY+=($(compgen -W \
                     '$(PERLDOC_PAGER=cat "$1" -u perl |  \
