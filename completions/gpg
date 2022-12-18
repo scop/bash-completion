@@ -19,7 +19,7 @@ _gpg()
             --search-keys | --edit-key | --sign-key | --lsign-key | \
             --nrsign-key | --nrlsign-key | --try-secret-key | -${noargopts}k)
             # return list of public keys
-            COMPREPLY=($(compgen -W "$($1 --list-keys 2>/dev/null |
+            COMPREPLY=($(compgen -W "$("$1" --list-keys 2>/dev/null |
                 command sed -ne \
                     's@^pub.*/\([^ ]*\).*$@\1@p' -ne \
                     's@^.*\(<\([^>]*\)>\).*$@\2@p')" -- "$cur"))
@@ -28,12 +28,12 @@ _gpg()
         --list-secret-keys | --delete-secret-keys | --export-secret-keys | \
             --export-secret-subkeys | -${noargopts}K)
             # return list of secret keys
-            COMPREPLY=($(compgen -W "$($1 --list-secret-keys 2>/dev/null |
+            COMPREPLY=($(compgen -W "$("$1" --list-secret-keys 2>/dev/null |
                 command sed -ne 's@^.*<\([^>]*\)>.*$@\1@p')" -- "$cur"))
             return
             ;;
         --recipient | -${noargopts}r)
-            COMPREPLY=($(compgen -W "$($1 --list-keys 2>/dev/null |
+            COMPREPLY=($(compgen -W "$("$1" --list-keys 2>/dev/null |
                 command sed -ne 's@^.*<\([^>]*\)>.*$@\1@p')" -- "$cur"))
             if [[ -e ~/.gnupg/gpg.conf ]]; then
                 COMPREPLY+=($(compgen -W "$(command sed -ne \
@@ -45,7 +45,7 @@ _gpg()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$($1 --dump-options)' -- "$cur"))
+        COMPREPLY=($(compgen -W '$("$1" --dump-options)' -- "$cur"))
     fi
 } &&
     complete -F _gpg -o default gpg

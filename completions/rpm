@@ -14,7 +14,7 @@ _comp_xfunc_rpm_installed_packages()
         # SUSE's rpmqpack is faster than rpm -qa
         COMPREPLY=($(compgen -W '$(rpmqpack)' -- "$cur"))
     else
-        COMPREPLY=($(${1:-rpm} -qa --nodigest --nosignature \
+        COMPREPLY=($("${1:-rpm}" -qa --nodigest --nosignature \
             --queryformat='%{NAME} ' "$cur*" 2>/dev/null))
     fi
 }
@@ -24,21 +24,21 @@ _comp_deprecate_func _rpm_installed_packages _comp_xfunc_rpm_installed_packages
 _rpm_groups()
 {
     local IFS=$'\n'
-    COMPREPLY=($(compgen -W "$(${1:-rpm} -qa --nodigest --nosignature \
+    COMPREPLY=($(compgen -W "$("${1:-rpm}" -qa --nodigest --nosignature \
         --queryformat='%{GROUP}\n' 2>/dev/null)" -- "$cur"))
 }
 
 _rpm_macros()
 {
     # get a list of macros
-    COMPREPLY=($(compgen -W "$(${1:-rpm} --showrc | command sed -ne \
+    COMPREPLY=($(compgen -W "$("${1:-rpm}" --showrc | command sed -ne \
         's/^-\{0,1\}[0-9]\{1,\}[:=][[:space:]]\{1,\}\([^[:space:](]\{3,\}\).*/%\1/p')" \
         -- "$cur"))
 }
 
 _rpm_buildarchs()
 {
-    COMPREPLY=($(compgen -W "$(${1:-rpm} --showrc | command sed -ne \
+    COMPREPLY=($(compgen -W "$("${1:-rpm}" --showrc | command sed -ne \
         's/^\s*compatible\s\s*build\s\s*archs\s*:\s*\(.*\)/\1/ p')" \
         -- "$cur"))
 }
@@ -107,7 +107,7 @@ _rpm()
                     *suggests) fmt="%{SUGGESTNAME}" ;;
                     *supplements) fmt="%{SUPPLEMENTNAME}" ;;
                 esac
-                COMPREPLY=($(compgen -W "$($1 -qa --nodigest --nosignature \
+                COMPREPLY=($(compgen -W "$("$1" -qa --nodigest --nosignature \
                     --queryformat=\"$fmt\\n\" 2>/dev/null |
                     command grep -vF '(none)')" -- "$cur"))
             fi
@@ -267,7 +267,7 @@ _rpmbuild()
             return
             ;;
         --buildpolicy)
-            local cfgdir=$($rpm --eval '%{_rpmconfigdir}' 2>/dev/null)
+            local cfgdir=$("$rpm" --eval '%{_rpmconfigdir}' 2>/dev/null)
             if [[ $cfgdir ]]; then
                 COMPREPLY=($(compgen -W "$(command ls "$cfgdir" 2>/dev/null |
                     command sed -ne 's/^brp-//p')" -- "$cur"))
