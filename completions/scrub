@@ -5,18 +5,20 @@ _scrub()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[bsDpX]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --version | --help | --blocksize | --device-size | --dirent | \
-            -!(-*)[vhbsD])
+            -${noargopts}[vhbsD])
             return
             ;;
-        --pattern | -!(-*)p)
+        --pattern | -${noargopts}p)
             COMPREPLY=($(compgen -W '$("$1" --help 2>&1 |
                 awk "/^Available/{flag=1;next}/^ /&&flag{print \$1}")' \
                 -- "$cur"))
             return
             ;;
-        --freespace | -!(-*)X)
+        --freespace | -${noargopts}X)
             _filedir -d
             return
             ;;

@@ -9,34 +9,36 @@ _man()
     local manext="@([0-9]*([a-z])|[lnp]|man)?($comprsuffix)"
     local mansect="@([0-9]*([a-z])|[lnp])"
 
+    local noargopts='!(-*|*[ClMSsPpLmerRE]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --config-file | -!(-*)C)
+        --config-file | -${noargopts}C)
             _filedir conf
             return
             ;;
-        --local-file | -!(-*)l)
+        --local-file | -${noargopts}l)
             _filedir "$manext"
             return
             ;;
-        --manpath | -!(-*)M)
+        --manpath | -${noargopts}M)
             _filedir -d
             return
             ;;
-        --sections | -!(-*)[Ss])
+        --sections | -${noargopts}[Ss])
             _comp_delimited : -W '{1..9}'
             return
             ;;
-        --pager | -!(-*)P)
+        --pager | -${noargopts}P)
             compopt -o filenames
             COMPREPLY=($(compgen -c -- "$cur"))
             return
             ;;
-        --preprocessor | -!(-*)p)
+        --preprocessor | -${noargopts}p)
             COMPREPLY=($(compgen -W 'e p t g r v' -- "$cur"))
             return
             ;;
         --locale | --systems | --extension | --prompt | --recode | --encoding | \
-            -!(-*)[LmerRE])
+            -${noargopts}[LmerRE])
             return
             ;;
     esac

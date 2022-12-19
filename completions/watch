@@ -8,12 +8,14 @@ _watch()
     _comp_initialize -s -- "$@" || return
 
     local offset=0 i
+    local noargopts='!(-*|*[dn]*)'
+    # shellcheck disable=SC2254
     for ((i = 1; i <= cword; i++)); do
         case ${words[i]} in
-            --help | --version | -!(-*)h)
+            --help | --version | -${noargopts}h)
                 return
                 ;;
-            --interval | -!(-*)n)
+            --interval | -${noargopts}n)
                 ((i++))
                 continue
                 ;;
@@ -30,13 +32,14 @@ _watch()
         return
     fi
 
+    # shellcheck disable=SC2254
     case $prev in
-        --differences | -!(-*)d)
+        --differences | -${noargopts}d)
             [[ $cur != -* ]] &&
                 COMPREPLY=($(compgen -W 'cumulative' -- "$cur"))
             return
             ;;
-        --interval | -!(-*)n)
+        --interval | -${noargopts}n)
             return
             ;;
     esac

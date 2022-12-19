@@ -5,12 +5,14 @@ _gpg2()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
+    local noargopts='!(-*|*[sr]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --homedir)
             _filedir -d
             return
             ;;
-        --sign | --clearsign | --options | --decrypt | -!(-*)s)
+        --sign | --clearsign | --options | --decrypt | -${noargopts}s)
             _filedir
             return
             ;;
@@ -24,7 +26,7 @@ _gpg2()
                     's@^.*\(<\([^>]*\)>\).*$@\2@p')" -- "$cur"))
             return
             ;;
-        --recipient | -!(-*)r)
+        --recipient | -${noargopts}r)
             COMPREPLY=($(compgen -W "$($1 --list-keys 2>/dev/null |
                 command sed -ne 's@^.*<\([^>]*\)>.*$@\1@p')" -- "$cur"))
             if [[ -e ~/.gnupg/gpg.conf ]]; then

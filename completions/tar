@@ -524,17 +524,19 @@ _gtar()
         # Handle all options *REQUIRING* argument.  Optional arguments are up to
         # user (TODO: is there any sane way to deal with this?).  This case
         # statement successes only if there already is PREV.
+        local noargopts='!(-*|*[TXgCFIfH]*)'
+        # shellcheck disable=SC2254
         case $prev in
             --add-file | --exclude | --exclude-ignore | \
                 --exclude-ignore-recursive | --exclude-tag | \
                 --exclude-tag-all | --exclude-tag-under | --files-from | \
                 --exclude-from | --listed-incremental | --group-map | \
                 --mtime | --owner-map | --volno-file | --newer | \
-                --after-date | --index-file | -!(-*)[TXg])
+                --after-date | --index-file | -${noargopts}[TXg])
                 _filedir
                 break
                 ;;
-            --directory | -!(-*)C)
+            --directory | -${noargopts}C)
                 _filedir -d
                 break
                 ;;
@@ -544,7 +546,7 @@ _gtar()
                 ;;
             --to-command | --info-script | --new-volume-script | \
                 --rmt-command | --rsh-command | --use-compress-program | \
-                -!(-*)[FI])
+                -${noargopts}[FI])
                 compopt -o filenames
                 COMPREPLY=($(compgen -c -- "$cur"))
                 break
@@ -565,11 +567,11 @@ _gtar()
                 COMPREPLY=($(compgen -W 'none name inode' -- "$cur"))
                 break
                 ;;
-            --file | -!(-*)f)
+            --file | -${noargopts}f)
                 __tar_file_option "$ext"
                 break
                 ;;
-            --format | -!(-*)H)
+            --format | -${noargopts}H)
                 COMPREPLY=($(compgen -W 'gnu oldgnu pax posix ustar v7' \
                     -- "$cur"))
                 break
@@ -606,7 +608,7 @@ _gtar()
                 # Most probably, when code goes here, the PREV variable contains
                 # some string from "$long_arg_none" and we want continue.
                 ;;
-            -!(-*)[a-zA-Z0-9?])
+            -${noargopts}[a-zA-Z0-9?])
                 # argument required but no completion yet
                 [[ $short_arg_req =~ ${prev##-} ]] && break
                 ;;

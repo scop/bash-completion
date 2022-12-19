@@ -5,6 +5,8 @@ _iperf()
     local cur prev words cword split comp_args
     _comp_initialize -s -n : -- "$@" || return
 
+    local noargopts='!(-*|*[ilpwMXbntLPTZCkOSAfIoFBcxy]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --help | --version | --interval | --len | --port | --window | --mss | --bandwidth | \
             --num | --time | --listenport | --parallel | --ttl | --linux-congestion | --omit | \
@@ -12,10 +14,10 @@ _iperf()
             --title | --tos | --affinity | --rcv-timeout | --server-bitrate-limit | \
             --idle-timeout | --time-skew-threshold | --xbind | --nstreams | --connect-timeout | \
             --bitrate | --pacing-timer | --fq-rate | --length | --dscp | --extra-data | \
-            --username | -!(-*)[hvilpwMXbntLPTZCkOSA])
+            --username | -${noargopts}[hvilpwMXbntLPTZCkOSA])
             return
             ;;
-        --format | -!(-*)f)
+        --format | -${noargopts}f)
             local formats=$(
                 "$1" --help 2>&1 |
                     command sed -ne 's/^.*--format .*\[\([a-zA-Z]\{1,\}\)\].*/\1/p' |
@@ -24,15 +26,15 @@ _iperf()
             COMPREPLY=($(compgen -W '$formats' -- "$cur"))
             return
             ;;
-        --pidfile | -!(-*)I)
+        --pidfile | -${noargopts}I)
             _filedir pid
             return
             ;;
-        --output | --fileinput | --authorized-users-path | -!(-*)[oF])
+        --output | --fileinput | --authorized-users-path | -${noargopts}[oF])
             _filedir
             return
             ;;
-        --bind | -!(-*)B)
+        --bind | -${noargopts}B)
             _available_interfaces -a
             _ip_addresses -a
             __ltrim_colon_completions "$cur"
@@ -42,15 +44,15 @@ _iperf()
             _available_interfaces -a
             return
             ;;
-        --client | -!(-*)c)
+        --client | -${noargopts}c)
             _known_hosts_real -- "$cur"
             return
             ;;
-        --reportexclude | -!(-*)x)
+        --reportexclude | -${noargopts}x)
             COMPREPLY=($(compgen -W 'C D M S V' -- "$cur"))
             return
             ;;
-        --reportstyle | -!(-*)y)
+        --reportstyle | -${noargopts}y)
             COMPREPLY=($(compgen -W 'C' -- "$cur"))
             return
             ;;

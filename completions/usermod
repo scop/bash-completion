@@ -17,31 +17,33 @@ _usermod()
         [[ $word != -@(R|-root) ]] || chroot=
     done
 
+    local noargopts='!(-*|*[cdeflpugGRZs]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --comment | --home | --expiredate | --inactive | --help | --login | \
-            --password | --uid | -!(-*)[cdefhlpu])
+            --password | --uid | -${noargopts}[cdefhlpu])
             return
             ;;
-        --gid | -!(-*)g)
+        --gid | -${noargopts}g)
             _gids
             COMPREPLY+=($(compgen -g))
             ((${#COMPREPLY[@]})) &&
                 COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
             return
             ;;
-        --groups | -!(-*)G)
+        --groups | -${noargopts}G)
             _comp_delimited , -g
             return
             ;;
-        --root | -!(-*)R)
+        --root | -${noargopts}R)
             _filedir -d
             return
             ;;
-        --selinux-user | -!(-*)Z)
+        --selinux-user | -${noargopts}Z)
             _comp_selinux_users
             return
             ;;
-        --shell | -!(-*)s)
+        --shell | -${noargopts}s)
             _shells "${chroot-}"
             return
             ;;

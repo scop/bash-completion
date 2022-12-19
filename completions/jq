@@ -5,6 +5,8 @@ _jq()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
+    local noargopts='!(-*|*[fL]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --help | --version | --arg | --argjson | --slurpfile | --argfile)
             return
@@ -13,11 +15,11 @@ _jq()
             COMPREPLY=($(compgen -W '{1..8}' -- "$cur"))
             return
             ;;
-        --from-file | --run-tests | -!(-*)f)
+        --from-file | --run-tests | -${noargopts}f)
             _filedir
             return
             ;;
-        -!(-*)L)
+        -${noargopts}L)
             _filedir -d
             return
             ;;
@@ -65,7 +67,7 @@ _jq()
     local args
     # TODO: DTRT with args taking 2 options
     # -f|--from-file are not counted here because they supply the filter
-    _count_args "" "@(--arg|--arg?(json|file)|--slurpfile|--indent|--run-tests|-!(-*)L)"
+    _count_args "" "@(--arg|--arg?(json|file)|--slurpfile|--indent|--run-tests|-${noargopts}L)"
 
     # 1st arg is filter
     ((args == 1)) && return

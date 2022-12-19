@@ -5,28 +5,30 @@ _ccze()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[acFmop]*)'
+    # shellcheck disable=SC2254
     case $prev in
         -'?' | --help | --usage | -V | --version)
             return
             ;;
-        --argument | --color | -!(-*)[ac])
+        --argument | --color | -${noargopts}[ac])
             # TODO?
             return
             ;;
-        --rcfile | -!(-*)F)
+        --rcfile | -${noargopts}F)
             _filedir
             return
             ;;
-        --mode | -!(-*)m)
+        --mode | -${noargopts}m)
             COMPREPLY=($(compgen -W "curses ansi html" -- "$cur"))
             return
             ;;
-        --option | -!(-*)o)
+        --option | -${noargopts}o)
             local -a opts=(scroll wordcolor lookups transparent cssfile)
             COMPREPLY=($(compgen -W '${opts[@]} ${opts[@]/#/no}' -- "$cur"))
             return
             ;;
-        --plugin | -!(-*)p)
+        --plugin | -${noargopts}p)
             COMPREPLY=($(compgen -W '$("$1" --list-plugins | command \
                 sed -ne "s/^\([a-z0-9]\{1,\}\)[[:space:]]\{1,\}|.*/\1/p")' \
                 -- "$cur"))

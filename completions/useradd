@@ -17,31 +17,33 @@ _useradd()
         [[ $word != -@(R|-root) ]] || chroot=
     done
 
+    local noargopts='!(-*|*[cefKpubdkRgGZs]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --comment | --help | --expiredate | --inactive | --key | --password | \
-            --uid | -!(-*)[chefKpu])
+            --uid | -${noargopts}[chefKpu])
             return
             ;;
-        --base-dir | --home-dir | --skel | --root | -!(-*)[bdkR])
+        --base-dir | --home-dir | --skel | --root | -${noargopts}[bdkR])
             _filedir -d
             return
             ;;
-        --gid | -!(-*)g)
+        --gid | -${noargopts}g)
             _gids
             COMPREPLY+=($(compgen -g))
             ((${#COMPREPLY[@]})) &&
                 COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
             return
             ;;
-        --groups | -!(-*)G)
+        --groups | -${noargopts}G)
             _comp_delimited , -g
             return
             ;;
-        --selinux-user | -!(-*)Z)
+        --selinux-user | -${noargopts}Z)
             _comp_selinux_users
             return
             ;;
-        --shell | -!(-*)s)
+        --shell | -${noargopts}s)
             _shells "${chroot-}"
             return
             ;;

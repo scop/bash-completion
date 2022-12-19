@@ -5,20 +5,22 @@ _patch()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[pDBYzgFiorVd]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --strip | --ifdef | --prefix | --basename-prefix | --suffix | --get | \
-            -!(-*)[pDBYzg])
+            -${noargopts}[pDBYzg])
             return
             ;;
-        --fuzz | -!(-*)F)
+        --fuzz | -${noargopts}F)
             COMPREPLY=($(compgen -W '{0..3}' -- "$cur"))
             return
             ;;
-        --input | -!(-*)i)
+        --input | -${noargopts}i)
             _filedir '@(?(d)patch|dif?(f))'
             return
             ;;
-        --output | --reject-file | -!(-*)[or])
+        --output | --reject-file | -${noargopts}[or])
             [[ ! $cur || $cur == - ]] && COMPREPLY=(-)
             _filedir
             return
@@ -28,11 +30,11 @@ _patch()
                 -- "$cur"))
             return
             ;;
-        --version-control | -!(-*)V)
+        --version-control | -${noargopts}V)
             COMPREPLY=($(compgen -W 'simple numbered existing' -- "$cur"))
             return
             ;;
-        --directory | -!(-*)d)
+        --directory | -${noargopts}d)
             _filedir -d
             return
             ;;

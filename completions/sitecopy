@@ -8,18 +8,20 @@ _sitecopy()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[dgrp]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --debug | -!(-*)d)
+        --debug | -${noargopts}d)
             COMPREPLY=($(compgen -W "socket files rcfile ftp http httpbody
                 rsh sftp xml xmlparse cleartext" -- "$cur"))
             compopt -o nospace
             return
             ;;
-        --logfile | --rcfile | -!(-*)[gr])
+        --logfile | --rcfile | -${noargopts}[gr])
             _filedir
             return
             ;;
-        --storepath | -!(-*)p)
+        --storepath | -${noargopts}p)
             _filedir -d
             return
             ;;

@@ -23,17 +23,19 @@ _createdb()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[hUOpDET]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --host | -!(-*)h)
+        --host | -${noargopts}h)
             _known_hosts_real -- "$cur"
             return
             ;;
-        --username | --owner | -!(-*)[UO])
+        --username | --owner | -${noargopts}[UO])
             _pg_users
             return
             ;;
         --help | --version | --port | --tablespace | --encoding | --template | \
-            -!(-*)[pDET])
+            -${noargopts}[pDET])
             return
             ;;
     esac
@@ -56,15 +58,17 @@ _createuser()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[pchU]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --help | --version | --port | --connection-limit | -!(-*)[pc])
+        --help | --version | --port | --connection-limit | -${noargopts}[pc])
             return
             ;;
-        --host | -!(-*)h)
+        --host | -${noargopts}h)
             _known_hosts_real -- "$cur"
             return
             ;;
-        --username | -!(-*)U)
+        --username | -${noargopts}U)
             _pg_users
             return
             ;;
@@ -86,12 +90,14 @@ _dropdb()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[hU]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --host | -!(-*)h)
+        --host | -${noargopts}h)
             _known_hosts_real -- "$cur"
             return
             ;;
-        --username | -!(-*)U)
+        --username | -${noargopts}U)
             _pg_users
             return
             ;;
@@ -118,15 +124,17 @@ _dropuser()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[phU]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --help | --version | --port | -!(-*)p)
+        --help | --version | --port | -${noargopts}p)
             return
             ;;
-        --host | -!(-*)h)
+        --host | -${noargopts}h)
             _known_hosts_real -- "$cur"
             return
             ;;
-        --username | -!(-*)U)
+        --username | -${noargopts}U)
             _pg_users
             return
             ;;
@@ -150,26 +158,28 @@ _psql()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[hUdofLcFpPRTv]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --host | -!(-*)h)
+        --host | -${noargopts}h)
             _known_hosts_real -- "$cur"
             return
             ;;
-        --username | -!(-*)U)
+        --username | -${noargopts}U)
             _pg_users
             return
             ;;
-        --dbname | -!(-*)d)
+        --dbname | -${noargopts}d)
             _pg_databases
             return
             ;;
-        --output | --file | --log-file | -!(-*)[ofL])
+        --output | --file | --log-file | -${noargopts}[ofL])
             _filedir
             return
             ;;
         --help | --version | --command | --field-separator | --port | --pset | \
             --record-separator | --table-attr | --set | --variable | \
-            -!(-*)[?VcFpPRTv])
+            -${noargopts}[?VcFpPRTv])
             return
             ;;
     esac

@@ -5,19 +5,21 @@ _pgrep()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
+    local noargopts='!(-*|*[cdgJMNstTzFGPuU]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --delimiter | --pgroup | --session | --terminal | -!(-*)[cdgJMNstTz])
+        --delimiter | --pgroup | --session | --terminal | -${noargopts}[cdgJMNstTz])
             return
             ;;
         --signal)
             _signals
             return
             ;;
-        --pidfile | -!(-*)F)
+        --pidfile | -${noargopts}F)
             _filedir
             return
             ;;
-        --group | -!(-*)G)
+        --group | -${noargopts}G)
             _gids
             return
             ;;
@@ -25,11 +27,11 @@ _pgrep()
             COMPREPLY=($(compgen -W 'any none' -- "$cur"))
             return
             ;;
-        --parent | --ns | -!(-*)P)
+        --parent | --ns | -${noargopts}P)
             _pids
             return
             ;;
-        --euid | --uid | -!(-*)[uU])
+        --euid | --uid | -${noargopts}[uU])
             _uids
             return
             ;;

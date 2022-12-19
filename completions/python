@@ -29,24 +29,26 @@ _python()
             ;;
     esac
 
+    local noargopts='!(-*|*[cmQWX]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --help | --version | -!(-*)[?hVc])
+        --help | --version | -${noargopts}[?hVc])
             return
             ;;
-        -!(-*)m)
+        -${noargopts}m)
             _comp_xfunc_python_modules "$1"
             return
             ;;
-        -!(-*)Q)
+        -${noargopts}Q)
             COMPREPLY=($(compgen -W "old new warn warnall" -P "$prefix" \
                 -- "$cur"))
             return
             ;;
-        -!(-*)W)
+        -${noargopts}W)
             _comp_xfunc_python_warning_actions
             return
             ;;
-        -!(-*)X)
+        -${noargopts}X)
             COMPREPLY=($(compgen -W "$("$1" -h 2>&1 |
                 awk '$1 == "-X" && $2 ~ /:$/ {
                     sub(":$","",$2); sub("=.*","=",$2); print $2

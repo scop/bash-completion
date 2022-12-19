@@ -5,16 +5,18 @@ _minicom()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[acSCp]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --attrib | --color | -!(-*)[ac])
+        --attrib | --color | -${noargopts}[ac])
             COMPREPLY=($(compgen -W 'on off' -- "$cur"))
             return
             ;;
-        --script | --capturefile | -!(-*)[SC])
+        --script | --capturefile | -${noargopts}[SC])
             _filedir
             return
             ;;
-        --ptty | -!(-*)p)
+        --ptty | -${noargopts}p)
             _comp_expand_glob COMPREPLY '/dev/tty*'
             ((${#COMPREPLY[@]})) &&
                 COMPREPLY=($(compgen -W '"${COMPREPLY[@]}" "${COMPREPLY[@]#/dev/}}' \

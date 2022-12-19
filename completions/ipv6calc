@@ -5,11 +5,13 @@ _ipv6calc()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[dIOA]*)'
+    # shellcheck disable=SC2254
     case "$prev" in
-        --debug | -!(-*)d)
+        --debug | -${noargopts}d)
             return
             ;;
-        --in | --out | --action | -!(-*)[IOA])
+        --in | --out | --action | -${noargopts}[IOA])
             # With ipv6calc < 0.73.0, -m does nothing here, so use sed instead.
             COMPREPLY=($(compgen -W "$($1 "$prev" -h 2>&1 |
                 command sed -ne 's/^[[:space:]]\{1,\}\([^[:space:]:]\{1,\}\)[[:space:]]*:.*/\1/p')" \

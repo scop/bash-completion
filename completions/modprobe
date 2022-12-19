@@ -5,19 +5,21 @@ _modprobe()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[CdtS]*)'
+    # shellcheck disable=SC2254
     case "$prev" in
-        --help | --version | -!(-*)[hV])
+        --help | --version | -${noargopts}[hV])
             return
             ;;
-        --config | -!(-*)C)
+        --config | -${noargopts}C)
             _filedir
             return
             ;;
-        --dirname | --type | -!(-*)[dt])
+        --dirname | --type | -${noargopts}[dt])
             _filedir -d
             return
             ;;
-        --set-version | -!(-*)S)
+        --set-version | -${noargopts}S)
             _kernel_versions
             return
             ;;
@@ -42,20 +44,21 @@ _modprobe()
 
     local i mode=insert module="" version=$(uname -r)
     for ((i = 1; i < cword; i++)); do
+        # shellcheck disable=SC2254
         case "${words[i]}" in
-            --remove | -!(-*)r*)
+            --remove | -${noargopts}r*)
                 mode=remove
                 ;;
-            --list | -!(-*)l*)
+            --list | -${noargopts}l*)
                 mode=list
                 ;;
             --dump-modversions)
                 mode="file"
                 ;;
-            --set-version | -!(-*)S)
+            --set-version | -${noargopts}S)
                 version=${words[i + 1]} # -S is not $prev and not $cur
                 ;;
-            --config | --dirname | --type | -!(-*)[Cdt])
+            --config | --dirname | --type | -${noargopts}[Cdt])
                 ((i++)) # skip option and its argument
                 ;;
             -*)

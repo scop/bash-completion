@@ -5,20 +5,22 @@ _feh()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[foO|KCjeM@TSRHWEyJabgLD~^]*)'
+    # shellcheck disable=SC2254
     case "$prev" in
         --image-bg | -B)
             COMPREPLY=($(compgen -W 'checks white black' -- "$cur"))
             return
             ;;
-        --filelist | --output | --output-only | --start-at | -!(-*)[foO\|])
+        --filelist | --output | --output-only | --start-at | -${noargopts}[foO\|])
             _filedir
             return
             ;;
-        --caption-path | --fontpath | --output-dir | -!(-*)[KCj])
+        --caption-path | --fontpath | --output-dir | -${noargopts}[KCj])
             _filedir -d
             return
             ;;
-        --font | --menu-font | --title-font | -!(-*)[eM@])
+        --font | --menu-font | --title-font | -${noargopts}[eM@])
             # expect string like "dejavu.ttf/12"
             if [[ $cur == */* ]]; then # expect integer value
                 COMPREPLY=($(compgen -P "$cur" -W '{0..9}'))
@@ -42,7 +44,7 @@ _feh()
             compopt -o nospace
             return
             ;;
-        --theme | -!(-*)T)
+        --theme | -${noargopts}T)
             local conf_path=~/.config/feh/themes
             local theme_name theme_opts
             [[ -r $conf_path ]] || return
@@ -54,13 +56,13 @@ _feh()
             done <"$conf_path"
             return
             ;;
-        --sort | -!(-*)S)
+        --sort | -${noargopts}S)
             COMPREPLY=($(compgen -W 'name filename mtime width height
                 pixels size format' -- "$cur"))
             return
             ;;
         --reload | --limit-height | --limit-width | --thumb-height | --thumb-width | \
-            --thumb-redraw | --magick-timeout | -!(-*)[RHWEyJ])
+            --thumb-redraw | --magick-timeout | -${noargopts}[RHWEyJ])
             # expect integer value
             COMPREPLY+=($(compgen -W '{0..9}'))
             compopt -o nospace
@@ -75,16 +77,16 @@ _feh()
             fi
             return
             ;;
-        --alpha | -!(-*)a)
+        --alpha | -${noargopts}a)
             COMPREPLY=($(compgen -W '{0..255}' -- "$cur"))
             return
             ;;
-        --bg | -!(-*)b)
+        --bg | -${noargopts}b)
             _filedir
             COMPREPLY+=($(compgen -W 'trans' -- "$cur"))
             return
             ;;
-        --geometry | --max-dimension | --min-dimension | -!(-*)g)
+        --geometry | --max-dimension | --min-dimension | -${noargopts}g)
             # expect string like 640x480
             if [[ $cur && $cur != *x* ]]; then
                 COMPREPLY=(x)
@@ -94,7 +96,7 @@ _feh()
             return
             ;;
         --customlist | --index-info | --info | --slideshow-delay | --thumb-title | \
-            --title | -!(-*)[LD~^])
+            --title | -${noargopts}[LD~^])
             # argument required but no completions available
             return
             ;;

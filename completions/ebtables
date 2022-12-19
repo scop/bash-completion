@@ -11,15 +11,17 @@ _ebtables()
     [[ ${words[*]} =~ [[:space:]]-(t|-table=?)[[:space:]]*([^[:space:]]+) ]] &&
         table="-t ${BASH_REMATCH[2]}"
 
+    local noargopts='!(-*|*[AIDPFXLZtj]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -!(-*)[AIDPFXLZ])
+        -${noargopts}[AIDPFXLZ])
             COMPREPLY=($(compgen -W '`"$1" $table -L 2>/dev/null | \
                 command sed -ne "$chain"`' -- "$cur"))
             ;;
-        -!(-*)t)
+        -${noargopts}t)
             COMPREPLY=($(compgen -W 'nat filter broute' -- "$cur"))
             ;;
-        -!(-*)j)
+        -${noargopts}j)
             if [[ $table == "-t filter" || ! $table ]]; then
                 COMPREPLY=($(compgen -W '$targets
                 $("$1" $table -L 2>/dev/null | \

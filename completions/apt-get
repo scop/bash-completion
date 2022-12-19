@@ -67,15 +67,17 @@ _apt_get()
         return
     fi
 
+    local noargopts='!(-*|*[eoct]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --error-on | --help | --version | --option | -!(-*)[ehvo])
+        --error-on | --help | --version | --option | -${noargopts}[ehvo])
             return
             ;;
-        --config-file | -!(-*)c)
+        --config-file | -${noargopts}c)
             _filedir
             return
             ;;
-        --target-release | --default-release | -!(-*)t)
+        --target-release | --default-release | -${noargopts}t)
             COMPREPLY=($(compgen -W "$(apt-cache policy | command sed -ne \
                 's/^ *release.*[ ,]o=\(Debian\|Ubuntu\),a=\(\w*\).*/\2/p')" \
                 -- "$cur"))

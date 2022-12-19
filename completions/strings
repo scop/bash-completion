@@ -5,22 +5,24 @@ _strings()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[nstTe]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --help | --version | --bytes | --output-separator | -arch | \
-            -!(-*)[hvVns])
+            -${noargopts}[hvVns])
             return
             ;;
-        --radix | -!(-*)t)
+        --radix | -${noargopts}t)
             COMPREPLY=($(compgen -W 'o d x' -- "$cur"))
             return
             ;;
-        --target | -!(-*)T)
+        --target | -${noargopts}T)
             COMPREPLY=($(compgen -W '$(LC_ALL=C "$1" --help 2>/dev/null | \
                 command sed -ne "s/: supported targets: \(.*\)/\1/p")' \
                 -- "$cur"))
             return
             ;;
-        --encoding | -!(-*)e)
+        --encoding | -${noargopts}e)
             COMPREPLY=($(
                 IFS=, compgen -W \
                     '$(LC_ALL=C "$1" --help 2>/dev/null | \

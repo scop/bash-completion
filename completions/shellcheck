@@ -12,38 +12,40 @@ _shellcheck()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[eifCsoPW]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --version | -!(-*)V*)
+        --version | -${noargopts}V*)
             return
             ;;
-        --exclude | --include | -!(-*)[ei])
+        --exclude | --include | -${noargopts}[ei])
             return
             ;;
-        --format | -!(-*)f)
+        --format | -${noargopts}f)
             local args=$("$1" --format=nonexistent-format /dev/null 2>&1 |
                 command sed -ne '/^Supported formats/,//p' |
                 command sed -ne '/^[[:space:]]/p')
             COMPREPLY=($(compgen -W '$args' -- "$cur"))
             return
             ;;
-        --color | -!(-*)C)
+        --color | -${noargopts}C)
             _shellcheck_optarg "$1" --color
             return
             ;;
-        --shell | -!(-*)s)
+        --shell | -${noargopts}s)
             _shellcheck_optarg "$1" --shell
             return
             ;;
-        --enable | -!(-*)o)
+        --enable | -${noargopts}o)
             COMPREPLY=($(compgen -W 'all' -- "$cur")) # TODO others?
             return
             ;;
-        --source-path | -!(-*)P)
+        --source-path | -${noargopts}P)
             _filedir -d
             COMPREPLY+=($(compgen -W 'SCRIPTDIR' -- "$cur"))
             return
             ;;
-        --wiki-link-count | -!(-*)W)
+        --wiki-link-count | -${noargopts}W)
             return
             ;;
     esac

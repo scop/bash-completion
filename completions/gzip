@@ -5,12 +5,14 @@ _gzip()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
+    local noargopts='!(-*|*[bSACIJp]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --blocksize | --suffix | --help | --version | --alias | --comment | \
-            --iterations | --maxsplits | -!(-*)[bShVACIJ])
+            --iterations | --maxsplits | -${noargopts}[bShVACIJ])
             return
             ;;
-        --processes | -!(-*)p)
+        --processes | -${noargopts}p)
             COMPREPLY=($(compgen -W "{1..$(_ncpus)}" -- "$cur"))
             return
             ;;

@@ -55,6 +55,7 @@ _cvs()
     local count mode i cvsroot cvsroots pwd
     local -a flags files entries changed newremoved
 
+    local noargopts='!(-*|*[d]*)'
     count=0
     for i in "${words[@]}"; do
         ((count == cword)) && break
@@ -63,12 +64,13 @@ _cvs()
             mode=""
         fi
         if [[ ! -v mode ]]; then
+            # shellcheck disable=SC2254
             case $i in
-                --help | -!(-*)H)
+                --help | -${noargopts}H)
                     COMPREPLY=($(compgen -W "$(_cvs_commands)" -- "$cur"))
                     return
                     ;;
-                -!(-*)d)
+                -${noargopts}d)
                     mode=cvsroot
                     cvsroot=${words[count + 1]}
                     ;;

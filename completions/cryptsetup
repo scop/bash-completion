@@ -16,16 +16,18 @@ _cryptsetup()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[cslSbopitTdM]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --help | --version | --cipher | --hash | --*-size | --key-slot | --size | --offset | \
-            --skip | --iter-time | --timeout | --tries | -!(-*)[chslSbopitT])
+            --skip | --iter-time | --timeout | --tries | -${noargopts}[chslSbopitT])
             return
             ;;
-        --key-file | --master-key-file | --header-backup-file | -!(-*)d)
+        --key-file | --master-key-file | --header-backup-file | -${noargopts}d)
             _filedir
             return
             ;;
-        --type | -!(-*)M)
+        --type | -${noargopts}M)
             COMPREPLY=($(compgen -W "luks plain loopaes tcrypt" -- "$cur"))
             return
             ;;
@@ -47,7 +49,7 @@ _cryptsetup()
         fi
     else
         local args
-        _count_args "" "-!(-*)[chslSbopitTdM]"
+        _count_args "" "-${noargopts}[chslSbopitTdM]"
         case $arg in
             open | create | luksOpen | loopaesOpen | tcryptOpen)
                 case $args in

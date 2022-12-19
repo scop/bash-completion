@@ -5,20 +5,22 @@ _arp()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
+    local noargopts='!(-*|*[iApfHt]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --device | -!(-*)i)
+        --device | -${noargopts}i)
             _available_interfaces -a
             return
             ;;
-        --protocol | -!(-*)[Ap])
+        --protocol | -${noargopts}[Ap])
             # TODO protocol/address family
             return
             ;;
-        --file | -!(-*)f)
+        --file | -${noargopts}f)
             _filedir
             return
             ;;
-        --hw-type | -!(-*)[Ht])
+        --hw-type | -${noargopts}[Ht])
             # TODO: parse from --help output?
             COMPREPLY=($(compgen -W 'ash ether ax25 netrom rose arcnet \
                 dlci fddi hippi irda x25 eui64' -- "$cur"))
@@ -34,7 +36,7 @@ _arp()
     fi
 
     local args
-    _count_args "" "@(--device|--protocol|--file|--hw-type|-!(-*)[iApfHt])"
+    _count_args "" "@(--device|--protocol|--file|--hw-type|-${noargopts}[iApfHt])"
     case $args in
         1)
             local ips=$("$1" -an | command sed -ne \

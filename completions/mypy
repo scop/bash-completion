@@ -8,10 +8,12 @@ _mypy()
     [[ $cword -gt 2 && ${words[cword - 2]} == --shadow-file ]] &&
         prev=--shadow-file # hack; takes two args
 
+    local noargopts='!(-*|*[pcm]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --help | --version | --python-version | --platform | --always-true | \
             --always-false | --@(dis|en)able-error-code | --find-occurrences | \
-            --exclude | --package | --command | -!(-*)[hVpc])
+            --exclude | --package | --command | -${noargopts}[hVpc])
             return
             ;;
         --config-file)
@@ -30,7 +32,7 @@ _mypy()
             _filedir -d
             return
             ;;
-        --custom-typing-module | --module | -!(-*)m)
+        --custom-typing-module | --module | -${noargopts}m)
             _comp_xfunc python modules
             return
             ;;

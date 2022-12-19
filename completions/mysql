@@ -18,17 +18,19 @@ _mysql()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[uDhSPeI]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --user | -!(-*)u)
+        --user | -${noargopts}u)
             COMPREPLY=($(compgen -u -- "$cur"))
             return
             ;;
-        --database | -!(-*)D)
+        --database | -${noargopts}D)
             COMPREPLY=($(compgen -W "$(mysqlshow 2>/dev/null | command sed -ne '2d' -e 's/^|.\([^|]*\)|.*/\1/p')" -- "$cur"))
             return
             ;;
 
-        --host | -!(-*)h)
+        --host | -${noargopts}h)
             _known_hosts_real -- "$cur"
             return
             ;;
@@ -41,7 +43,7 @@ _mysql()
             _filedir -d
             return
             ;;
-        --socket | -!(-*)S)
+        --socket | -${noargopts}S)
             _filedir sock
             return
             ;;
@@ -64,10 +66,10 @@ _mysql()
         --port | --set-variable | --ssl-cipher | --connect_timeout | \
             --max_allowed_packet | --prompt | --net_buffer_length | --select_limit | \
             --max_join_size | --server-arg | --debug | --delimiter | --execute | --pager | \
-            -!(-*)[Pe])
+            -${noargopts}[Pe])
             return
             ;;
-        --help | --version | -!(-*)[?IV])
+        --help | --version | -${noargopts}[?IV])
             return
             ;;
     esac
