@@ -4,7 +4,7 @@ pkgdata_DATA = bash_completion
 
 # Empty, but here just to get the compat dir created with install
 compatdir = $(sysconfdir)/bash_completion.d
-compat_DATA =
+compat_DATA = bash_completion.d/000_bash_completion_compat
 
 profiledir = $(sysconfdir)/profile.d
 profile_DATA = bash_completion.sh
@@ -31,7 +31,8 @@ CLEANFILES = bash_completion.sh bash-completion.pc \
 EXTRA_DIST = CHANGELOG.md $(pkgdata_DATA) bash_completion.sh.in .dir-locals.el \
 	.editorconfig README.md CONTRIBUTING.md pyproject.toml .perltidyrc \
 	.shellcheckrc bash-completion.pc.in bash-completion-config.cmake.in \
-	bash-completion-config-version.cmake.in setup-symlinks.sh
+	bash-completion-config-version.cmake.in setup-symlinks.sh \
+	$(compat_DATA)
 
 install-data-hook:
 	tmpfile=`mktemp $${TMPDIR:-/tmp}/bash_completion.XXXXXX` && \
