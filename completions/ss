@@ -5,21 +5,23 @@ _ss()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[fADF]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --help | --version | -!(-*)[hV])
+        --help | --version | -${noargopts}[hV])
             return
             ;;
-        --family | -!(-*)f)
+        --family | -${noargopts}f)
             COMPREPLY=($(compgen -W 'unix inet inet6 link netlink' \
                 -- "$cur"))
             return
             ;;
-        --query | -!(-*)A)
+        --query | -${noargopts}A)
             _comp_delimited , -W "$("$1" --help |
                 command sed -e 's/|/ /g' -ne 's/.*QUERY := {\([^}]*\)}.*/\1/p')"
             return
             ;;
-        --diag | --filter | -!(-*)[DF])
+        --diag | --filter | -${noargopts}[DF])
             _filedir
             return
             ;;

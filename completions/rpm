@@ -67,12 +67,14 @@ _rpm()
         return
     fi
 
+    local noargopts='!(-*|*[rED]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --dbpath | --excludepath | --prefix | --relocate | --root | -!(-*)r)
+        --dbpath | --excludepath | --prefix | --relocate | --root | -${noargopts}r)
             _filedir -d
             return
             ;;
-        --eval | -!(-*)E)
+        --eval | -${noargopts}E)
             _rpm_macros $1
             return
             ;;
@@ -111,7 +113,7 @@ _rpm()
             fi
             return
             ;;
-        --define | --fileid | --hdrid | --pkgid | -!(-*)D)
+        --define | --fileid | --hdrid | --pkgid | -${noargopts}D)
             # argument required but no completions available
             return
             ;;
@@ -245,8 +247,10 @@ _rpmbuild()
     local rpm="${1%build*}"
     [[ $rpm == "$1" ]] || ! type $rpm &>/dev/null && rpm=
 
+    local noargopts='!(-*|*[rED]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --buildroot | --root | --dbpath | -!(-*)r)
+        --buildroot | --root | --dbpath | -${noargopts}r)
             _filedir -d
             return
             ;;
@@ -254,7 +258,7 @@ _rpmbuild()
             _rpm_buildarchs $rpm
             return
             ;;
-        --eval | -!(-*)E)
+        --eval | -${noargopts}E)
             _rpm_macros $rpm
             return
             ;;
@@ -269,7 +273,7 @@ _rpmbuild()
                     command sed -ne 's/^brp-//p')" -- "$cur"))
             fi
             ;;
-        --define | --with | --without | -!(-*)D)
+        --define | --with | --without | -${noargopts}D)
             return
             ;;
     esac

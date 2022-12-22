@@ -5,20 +5,23 @@ _xvfb_run()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[npsef]*)'
     local i
     for ((i = 1; i <= COMP_CWORD; i++)); do
         if [[ ${COMP_WORDS[i]} != -* ]]; then
             _comp_command_offset $i
             return
         fi
-        [[ ${COMP_WORDS[i]} == -!(-*)[npsef] ]] && ((i++))
+        # shellcheck disable=SC2254
+        [[ ${COMP_WORDS[i]} == -${noargopts}[npsef] ]] && ((i++))
     done
 
+    # shellcheck disable=SC2254
     case $prev in
-        --help | --server-num | --xauth-protocol | --server-args | -!(-*)[hnps])
+        --help | --server-num | --xauth-protocol | --server-args | -${noargopts}[hnps])
             return
             ;;
-        --error-file | --auth-file | -!(-*)[ef])
+        --error-file | --auth-file | -${noargopts}[ef])
             _filedir
             return
             ;;

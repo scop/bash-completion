@@ -7,19 +7,21 @@ _lzip()
 
     local decompress=false
 
+    local noargopts='!(-*|*[bmsSBdno]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --help | --version | --member-size | --match-length | --dictionary-size | \
-            --volume-size | --data-size | -!(-*)@([bmsSB]|[hV]*))
+            --volume-size | --data-size | -${noargopts}@([bmsSB]|[hV]*))
             return
             ;;
-        --decompress-!(-*)d)
+        --decompress-${noargopts}d)
             decompress=true
             ;;
-        --threads-!(-*)n)
+        --threads-${noargopts}n)
             COMPREPLY=($(compgen -W "{1..$(_ncpus)}" -- "$cur"))
             return
             ;;
-        --output-!(-*)o)
+        --output-${noargopts}o)
             _filedir
             return
             ;;

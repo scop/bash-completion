@@ -94,24 +94,26 @@ _make()
 
     local makef makef_dir=("-C" ".") i
 
+    local noargopts='!(-*|*[foWICmEDVxj]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --file | --makefile | --old-file | --assume-old | --what-if | --new-file | \
-            --assume-new | -!(-*)[foW])
+            --assume-new | -${noargopts}[foW])
             _filedir
             return
             ;;
-        --include-dir | --directory | -!(-*)[ICm])
+        --include-dir | --directory | -${noargopts}[ICm])
             _filedir -d
             return
             ;;
-        -!(-*)E)
+        -${noargopts}E)
             COMPREPLY=($(compgen -v -- "$cur"))
             return
             ;;
-        --eval | -!(-*)[DVx])
+        --eval | -${noargopts}[DVx])
             return
             ;;
-        --jobs | -!(-*)j)
+        --jobs | -${noargopts}j)
             COMPREPLY=($(compgen -W "{1..$(($(_ncpus) * 2))}" -- "$cur"))
             return
             ;;

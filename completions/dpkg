@@ -49,21 +49,23 @@ _dpkg()
         done
     fi
 
+    local noargopts='!(-*|*[ciAIfexXbsplWSrVLPD]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --install | --unpack | --record-avail | --contents | --info | --fsys-tarfile | \
-            --field | --control | --extract | --vextract | --raw-extract | -!(-*)[ciAIfexX])
+            --field | --control | --extract | --vextract | --raw-extract | -${noargopts}[ciAIfexX])
             _filedir '?(u|d)deb'
             return
             ;;
-        --build | --admindir | --instdir | --root | -!(-*)b)
+        --build | --admindir | --instdir | --root | -${noargopts}b)
             _filedir -d
             return
             ;;
-        --status | --print-avail | --list | -!(-*)[spl])
+        --status | --print-avail | --list | -${noargopts}[spl])
             COMPREPLY=($(_comp_xfunc apt-cache packages))
             return
             ;;
-        --show | -!(-*)W)
+        --show | -${noargopts}W)
             if [[ $1 == *dpkg-query ]]; then
                 COMPREPLY=($(_comp_xfunc apt-cache packages))
             else
@@ -71,19 +73,19 @@ _dpkg()
             fi
             return
             ;;
-        --search | -!(-*)S)
+        --search | -${noargopts}S)
             _filedir
             return
             ;;
-        --remove | --verify | -!(-*)[rV])
+        --remove | --verify | -${noargopts}[rV])
             COMPREPLY=($(_comp_xfunc_dpkg_installed_packages "$cur"))
             return
             ;;
-        --listfiles | --purge | -!(-*)[LP])
+        --listfiles | --purge | -${noargopts}[LP])
             COMPREPLY=($(_comp_xfunc_dpkg_purgeable_packages "$cur"))
             return
             ;;
-        --debug | -!(-*)D)
+        --debug | -${noargopts}D)
             COMPREPLY=($(compgen -W 'help' -- "$cur"))
             return
             ;;
@@ -131,8 +133,10 @@ _dpkg_reconfigure()
 
     local opt
 
+    local noargopts='!(-*|*[fp]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --frontend | -!(-*)f)
+        --frontend | -${noargopts}f)
             _comp_expand_glob opt '/usr/share/perl5/Debconf/FrontEnd/*'
             if ((${#opt[@]})); then
                 opt=(${opt[@]##*/})
@@ -141,7 +145,7 @@ _dpkg_reconfigure()
             fi
             return
             ;;
-        --priority | -!(-*)p)
+        --priority | -${noargopts}p)
             COMPREPLY=($(compgen -W 'low medium high critical' -- "$cur"))
             return
             ;;

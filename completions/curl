@@ -5,12 +5,14 @@ _curl()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
+    local noargopts='!(-*|*[KbcDoTCFmQreYytzuAwEdHPxX]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --abstract-unix-socket | --alt-svc | --config | --cookie | \
             --cookie-jar | --dump-header | --egd-file | --etag-compare | \
             --etag-save | --hsts | --key | --libcurl | --netrc-file | \
             --output | --proxy-key | --random-file | --trace | --trace-ascii | \
-            --unix-socket | --upload-file | -!(-*)[KbcDoT])
+            --unix-socket | --upload-file | -${noargopts}[KbcDoT])
             _filedir
             return
             ;;
@@ -29,10 +31,10 @@ _curl()
             --speed-limit | --speed-time | --telnet-option | --tftp-blksize | \
             --time-cond | --tls13-ciphers | --tlspassword | --tlsuser | \
             --url | --user | --user-agent | --version | --write-out | \
-            -!(-*)[CFmQreYytzuAVw])
+            -${noargopts}[CFmQreYytzuAVw])
             return
             ;;
-        --cacert | --cert | --proxy-cacert | --proxy-cert | -!(-*)E)
+        --cacert | --cert | --proxy-cacert | --proxy-cert | -${noargopts}E)
             _filedir '@(c?(e)rt|cer|pem|der)'
             return
             ;;
@@ -49,7 +51,7 @@ _curl()
             return
             ;;
         --data | --data-ascii | --data-binary | --data-urlencode | --header | \
-            --proxy-header | -!(-*)[dH])
+            --proxy-header | -${noargopts}[dH])
             if [[ $cur == \@* ]]; then
                 cur=${cur:1}
                 _filedir
@@ -83,7 +85,7 @@ _curl()
             COMPREPLY=($(compgen -W '$engines list' -- "$cur"))
             return
             ;;
-        --ftp-port | -!(-*)P)
+        --ftp-port | -${noargopts}P)
             _available_interfaces -a
             _known_hosts_real -- "$cur"
             _ip_addresses -a
@@ -101,7 +103,7 @@ _curl()
             _available_interfaces -a
             return
             ;;
-        --help | -!(-*)h)
+        --help | -${noargopts}h)
             local x categories=(
                 $("$1" --help non-existent-category 2>&1 |
                     awk '/^[[:space:]]/ {print $1}')
@@ -124,7 +126,7 @@ _curl()
             return
             ;;
         --preproxy | --proxy | --socks4 | --socks4a | --socks5 | \
-            --socks5-hostname | -!(-*)x)
+            --socks5-hostname | -${noargopts}x)
             _known_hosts_real -- "$cur"
             return
             ;;
@@ -132,7 +134,7 @@ _curl()
             _comp_xfunc ssh identityfile pub
             return
             ;;
-        --request | -!(-*)X)
+        --request | -${noargopts}X)
             # TODO: these are valid for http(s) only
             COMPREPLY=($(
                 compgen -W \

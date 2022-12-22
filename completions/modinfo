@@ -5,19 +5,21 @@ _modinfo()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[Fkb]*)'
+    # shellcheck disable=SC2254
     case "$prev" in
-        --field | -!(-*)F)
+        --field | -${noargopts}F)
             COMPREPLY=($(compgen -W 'alias author depends description
                 filename firmware intree license name parm release_date
                 retpoline sig_hashalgo sig_key signat signer softdep srcversion
                 staging vermagic version' -- "${cur,,}"))
             return
             ;;
-        --set-version | -!(-*)k)
+        --set-version | -${noargopts}k)
             _kernel_versions
             return
             ;;
-        --basedir | -!(-*)b)
+        --basedir | -${noargopts}b)
             _filedir -d
             return
             ;;
@@ -35,7 +37,7 @@ _modinfo()
 
     local i version=$(uname -r)
     for ((i = ${#words[@]} - 1; i > 0; i--)); do
-        if [[ ${words[i]} == -@(!(-*)k*|-set-version) ]]; then
+        if [[ ${words[i]} == -@(${noargopts}k*|-set-version) ]]; then
             version=${words[i + 1]}
             break
         fi

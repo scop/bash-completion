@@ -5,6 +5,8 @@ _rsync()
     local cur prev words cword split comp_args
     _comp_initialize -s -n : -- "$@" || return
 
+    local noargopts='!(-*|*[Te]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --config | --password-file | --include-from | --exclude-from | \
             --files-from | --log-file | --write-batch | --only-write-batch | \
@@ -14,12 +16,12 @@ _rsync()
             return
             ;;
         --temp-dir | --compare-dest | --backup-dir | --partial-dir | \
-            --copy-dest | --link-dest | -!(-*)T)
+            --copy-dest | --link-dest | -${noargopts}T)
             compopt +o nospace
             _filedir -d
             return
             ;;
-        --rsh | -!(-*)e)
+        --rsh | -${noargopts}e)
             compopt +o nospace
             COMPREPLY=($(compgen -W 'rsh ssh' -- "$cur"))
             return

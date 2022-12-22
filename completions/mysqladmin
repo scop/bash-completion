@@ -5,12 +5,14 @@ _mysqladmin()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[uhScPOiw]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --user | -!(-*)u)
+        --user | -${noargopts}u)
             COMPREPLY=($(compgen -u -- "$cur"))
             return
             ;;
-        --host | -!(-*)h)
+        --host | -${noargopts}h)
             _known_hosts_real -- "$cur"
             return
             ;;
@@ -22,7 +24,7 @@ _mysqladmin()
             _comp_xfunc mysql character_sets
             return
             ;;
-        --socket | -!(-*)S)
+        --socket | -${noargopts}S)
             _filedir sock
             return
             ;;
@@ -39,10 +41,10 @@ _mysqladmin()
             return
             ;;
         --count | --port | --set-variable | --sleep | --ssl-cipher | --wait | \
-            --connect_timeout | --shutdown_timeout | -!(-*)[cPOiw])
+            --connect_timeout | --shutdown_timeout | -${noargopts}[cPOiw])
             return
             ;;
-        --help | --version | -!(-*)[?V])
+        --help | --version | -${noargopts}[?V])
             return
             ;;
     esac

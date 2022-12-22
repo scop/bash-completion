@@ -5,6 +5,7 @@ _timeout()
     local cur prev words cword split comp_args i found=false
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[ks]*)'
     for ((i = 1; i <= COMP_CWORD; i++)); do
         if [[ ${COMP_WORDS[i]} != -* && ${COMP_WORDS[i - 1]} != = ]]; then
             if $found; then
@@ -13,14 +14,16 @@ _timeout()
             fi
             found=true
         fi
-        [[ ${COMP_WORDS[i]} == -@(-kill-after|-signal|!(-*)[ks]) ]] && ((i++))
+        # shellcheck disable=SC2254
+        [[ ${COMP_WORDS[i]} == -@(-kill-after|-signal|${noargopts}[ks]) ]] && ((i++))
     done
 
+    # shellcheck disable=SC2254
     case $prev in
-        --help | --version | --kill-after | -!(-*)k)
+        --help | --version | --kill-after | -${noargopts}k)
             return
             ;;
-        --signal | -!(-*)s)
+        --signal | -${noargopts}s)
             _signals
             return
             ;;

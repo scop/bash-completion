@@ -5,8 +5,10 @@ _wget()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[DPoaOitTwlQeBUARIX]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --version | --help | -!(-*)[hV])
+        --version | --help | -${noargopts}[hV])
             return
             ;;
         --progress)
@@ -17,7 +19,7 @@ _wget()
             _ip_addresses
             return
             ;;
-        --domains | --exclude-domains | -!(-*)D)
+        --domains | --exclude-domains | -${noargopts}D)
             _known_hosts_real -- "$cur"
             return
             ;;
@@ -60,18 +62,18 @@ _wget()
             COMPREPLY=($(compgen -W 'IPv4 IPv6 none' -- "$cur"))
             return
             ;;
-        --directory-prefix | --ca-directory | --warc-tempdir | -!(-*)P)
+        --directory-prefix | --ca-directory | --warc-tempdir | -${noargopts}P)
             _filedir -d
             return
             ;;
         --output-file | --append-output | --config | --load-cookies | \
             --save-cookies | --post-file | --certificate | --ca-certificate | \
             --private-key | --random-file | --egd-file | --warc-file | \
-            --warc-dedup | -!(-*)[oa])
+            --warc-dedup | -${noargopts}[oa])
             _filedir
             return
             ;;
-        --output-document | --input-file | -!(-*)[Oi])
+        --output-document | --input-file | -${noargopts}[Oi])
             _filedir && [[ $cur == - || ! $cur ]] && COMPREPLY+=(-)
             return
             ;;
@@ -100,13 +102,13 @@ _wget()
             ;;
         --tries | --timeout | --dns-timeout | --connect-timeout | \
             --read-timeout | --wait | --waitretry | --cut-dirs | \
-            --max-redirect | --level | -!(-*)[tTwl])
+            --max-redirect | --level | -${noargopts}[tTwl])
             # expect integer number
             COMPREPLY+=($(compgen -P "$cur" -W "{0..9}"))
             compopt -o nospace
             return
             ;;
-        --quota | --limit-rate | --warc-max-size | -!(-*)Q)
+        --quota | --limit-rate | --warc-max-size | -${noargopts}Q)
             # expect size
             if [[ $cur == *[km] ]]; then
                 COMPREPLY=($(compgen -W "$cur"))
@@ -143,7 +145,7 @@ _wget()
             type -P xauth &>/dev/null && _comp_xfunc iconv charsets
             return
             ;;
-        --execute | -!(-*)e)
+        --execute | -${noargopts}e)
             return # TODO base=STR
             ;;
         --report-speed)
@@ -158,7 +160,7 @@ _wget()
             --proxy-password | --default-page | --referer | --user-agent | \
             --post-data | --warc-header | --accept | --reject | \
             --accept-regex | --reject-regex | --include-directories | \
-            --exclude-directories | -!(-*)[BUARIX])
+            --exclude-directories | -${noargopts}[BUARIX])
             # argument required but no completions available
             return
             ;;

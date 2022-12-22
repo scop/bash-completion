@@ -46,24 +46,26 @@ _aptitude()
         esac
     fi
 
+    local noargopts='!(-*|*[SwFoOt]*)'
+    # shellcheck disable=SC2254
     case $prev in
         # don't complete anything if these options are found
         autoclean | clean | forget-new | search | upgrade | update | keep-all)
             return
             ;;
-        -!(-*)S)
+        -${noargopts}S)
             _filedir
             return
             ;;
-        --display-format | --width | -!(-*)[wFo])
+        --display-format | --width | -${noargopts}[wFo])
             return
             ;;
-        --sort | -!(-*)O)
+        --sort | -${noargopts}O)
             COMPREPLY=($(compgen -W 'installsize installsizechange debsize
                 name priority version' -- "$cur"))
             return
             ;;
-        --target-release | --default-release | -!(-*)t)
+        --target-release | --default-release | -${noargopts}t)
             COMPREPLY=($(apt-cache policy |
                 command grep "release.o=Debian,a=$cur" |
                 command sed -e "s/.*a=\(\w*\).*/\1/" | uniq 2>/dev/null))

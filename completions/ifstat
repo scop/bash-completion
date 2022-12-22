@@ -5,16 +5,18 @@ _ifstat()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[idstx]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --help | --version | --scan | --interval | -!(-*)[hvV])
+        --help | --version | --scan | --interval | -${noargopts}[hvV])
             return
             ;;
-        -!(-*)i)
+        -${noargopts}i)
             # TODO comma separated
             _available_interfaces -a
             return
             ;;
-        -!(-*)d)
+        -${noargopts}d)
             # iproute2: no completion (scan delay)
             # traditional: parse driver
             if ! {
@@ -26,7 +28,7 @@ _ifstat()
             fi
             return
             ;;
-        --noupdate | -!(-*)s)
+        --noupdate | -${noargopts}s)
             # iproute2: pass through (skip history update)
             # traditional: hostnames (snmp)
             if ! {
@@ -37,7 +39,7 @@ _ifstat()
                 return
             fi
             ;;
-        -!(-*)t)
+        -${noargopts}t)
             # iproute2: no completion (interval)
             # traditional: pass through (add timestamp)
             ! {
@@ -45,7 +47,7 @@ _ifstat()
             } |
                 command grep -q -- '-t.*--interval' || return
             ;;
-        --extended | -!(-*)x)
+        --extended | -${noargopts}x)
             # iproute2: parse xstat types
             COMPREPLY=($(compgen -W '$("$1" -x nonexistent-xstat 2>&1 |
                 awk "found { print \$1 } /supported xstats:/ { found=1 }")' \

@@ -13,17 +13,19 @@ _dict()
 
     local host port db i
 
+    local noargopts='!(-*|*[hpdis]*)'
     for ((i = 1; i < cword; i++)); do
+        # shellcheck disable=SC2254
         case ${words[i]} in
-            --host | -!(-*)h)
+            --host | -${noargopts}h)
                 host=${words[++i]}
                 [[ $host ]] && host="-h $host"
                 ;;
-            --port | -!(-*)p)
+            --port | -${noargopts}p)
                 port=${words[++i]}
                 [[ $port ]] && port="-p $port"
                 ;;
-            --database | -!(-*)d)
+            --database | -${noargopts}d)
                 db=${words[++i]}
                 [[ $db ]] && host="-d $db"
                 ;;
@@ -35,12 +37,13 @@ _dict()
         return
     fi
 
+    # shellcheck disable=SC2254
     case $prev in
-        --database | -info | -!(-*)[di])
+        --database | -info | -${noargopts}[di])
             COMPREPLY=($(compgen -W '$(_dictdata -D)' -- "$cur"))
             return
             ;;
-        --strategy | -!(-*)s)
+        --strategy | -${noargopts}s)
             COMPREPLY=($(compgen -W '$(_dictdata -S)' -- "$cur"))
             return
             ;;

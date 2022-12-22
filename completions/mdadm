@@ -4,13 +4,15 @@ _mdadm_raid_level()
 {
     local mode
 
+    local noargopts='!(-*|*[CB]*)'
     for ((i = 1; i < cword; i++)); do
+        # shellcheck disable=SC2254
         case ${words[i]} in
-            -!(-*)C* | --create)
+            -${noargopts}C* | --create)
                 mode=create
                 break
                 ;;
-            -!(-*)B* | --build)
+            -${noargopts}B* | --build)
                 mode=build
                 break
                 ;;
@@ -72,24 +74,26 @@ _mdadm()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[cblpaU]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --config | --bitmap | --backup-file | -!(-*)[cb])
+        --config | --bitmap | --backup-file | -${noargopts}[cb])
             _filedir
             return
             ;;
-        --level | -!(-*)l)
+        --level | -${noargopts}l)
             _mdadm_raid_level
             return
             ;;
-        --layout | --parity | -!(-*)p)
+        --layout | --parity | -${noargopts}p)
             _mdadm_raid_layout
             return
             ;;
-        --auto | -!(-*)a)
+        --auto | -${noargopts}a)
             _mdadm_auto_flag
             return
             ;;
-        --update | -!(-*)U)
+        --update | -${noargopts}U)
             _mdadm_update_flag
             return
             ;;
@@ -105,14 +109,15 @@ _mdadm()
             COMPREPLY=($(compgen -W "$options --assemble --build --create
                 --monitor --grow" -- "$cur"))
         else
+            # shellcheck disable=SC2254
             case ${words[cword - 1]} in
-                --assemble | -!(-*)A*)
+                --assemble | -${noargopts}A*)
                     COMPREPLY=($(compgen -W "$options --uuid= --super-minor=
                         --name= --force --run --no-degraded --auto= --bitmap=
                         --backup-file= --update= --auto-update-homehost" \
                         -- "$cur"))
                     ;;
-                --build | --create | --grow | -!(-*)[BCG]*)
+                --build | --create | --grow | -${noargopts}[BCG]*)
                     COMPREPLY=($(compgen -W "$options --raid-devices=
                         --spare-devices= --size= --chunk= --rounding= --level=
                         --layout= --parity= --bitmap= --bitmap-chunk=
@@ -120,7 +125,7 @@ _mdadm()
                         --backup-file= --name= --run --force --auto=" \
                         -- "$cur"))
                     ;;
-                --follow | --monitor | -!(-*)F)
+                --follow | --monitor | -${noargopts}F)
                     COMPREPLY=($(compgen -W "$options --mail --program
                         --alert --syslog --delay --daemonise --pid-file
                         --oneshot --test" -- "$cur"))

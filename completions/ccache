@@ -14,11 +14,13 @@ _ccache()
         [[ ${COMP_WORDS[i]} == -*[oFM] ]] && ((i++))
     done
 
+    local noargopts='!(-*|*[FMo]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --help | --version | --max-files | --max-size | -!(-*)[hVFM])
+        --help | --version | --max-files | --max-size | -${noargopts}[hVFM])
             return
             ;;
-        --set-config | -!(-*)o)
+        --set-config | -${noargopts}o)
             if [[ $cur != *=* ]]; then
                 COMPREPLY=($(compgen -S = -W "$($1 -p 2>/dev/null |
                     awk '$3 = "=" { print $2 }')" -- "$cur"))

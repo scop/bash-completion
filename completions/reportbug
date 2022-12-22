@@ -5,20 +5,22 @@ _reportbug()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[CefKHPsoiATjVuQtBS]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --class | --header | --pseudo-header | --mirror | --list-cc | \
             --subject | --http_proxy | --proxy | --email | --realname | \
             --smtpuser | --smtppasswd | --replyto | --reply-to | \
             --justification | --package-version | --body | --body-file | \
             --timeout | --max-attachment-size | --envelope-from | \
-            -!(-*)[CHPsjV])
+            -${noargopts}[CHPsjV])
             return
             ;;
         --filename | --include | --mta | --output | --attach | -[fioA])
             _filedir
             return
             ;;
-        --keyid | -!(-*)K)
+        --keyid | -${noargopts}K)
             COMPREPLY=($(compgen -W '$(IFS=: ; \
                 gpg --list-keys --with-colons 2>/dev/null \
                 | while read -ra row ; do
@@ -27,15 +29,15 @@ _reportbug()
                 done)' -- "$cur"))
             return
             ;;
-        --tag | --ui | --interface | --type | --bts | --severity | --mode | -!(-*)[TutBS])
+        --tag | --ui | --interface | --type | --bts | --severity | --mode | -${noargopts}[TutBS])
             COMPREPLY+=($(
                 compgen -W \
-                    '$("$1" $prev help 2>&1 </dev/null | sed -ne "/^[[:space:]]/p")' \
+                    '$("$1" $prev help 2>&1 | sed -ne "/^[[:space:]]/p")' \
                     -- "$cur"
             ))
             return
             ;;
-        --editor | --mua | --mbox-reader-cmd | -!(-*)e)
+        --editor | --mua | --mbox-reader-cmd | -${noargopts}e)
             compopt -o filenames
             COMPREPLY=($(compgen -c -- "$cur"))
             return

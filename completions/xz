@@ -7,31 +7,33 @@ _xz()
 
     local xspec="*.@(xz|lzma|txz|tlz)"
 
+    local noargopts='!(-*|*[CFTMS]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --decompress | --list | --test | -!(-*)[dlt]*)
+        --decompress | --list | --test | -${noargopts}[dlt]*)
             xspec="!"$xspec
             ;;
         --files | --files0)
             _filedir
             return
             ;;
-        --check | -!(-*)C)
+        --check | -${noargopts}C)
             COMPREPLY=($(compgen -W 'crc32 crc64 sha256 none' -- "$cur"))
             return
             ;;
-        --format | -!(-*)F)
+        --format | -${noargopts}F)
             COMPREPLY=($(compgen -W 'auto xz lzma raw' -- "$cur"))
             return
             ;;
-        --threads | -!(-*)T)
+        --threads | -${noargopts}T)
             COMPREPLY=($(compgen -W "{0..$(_ncpus)}" -- "$cur"))
             return
             ;;
         --memlimit | --memlimit-compress | --memlimit-decompress | --memory | \
-            --suffix | --delta | --lzma1 | --lzma2 | -!(-*)[MS])
+            --suffix | --delta | --lzma1 | --lzma2 | -${noargopts}[MS])
             return
             ;;
-        --help | --long-help | --version | --info-memory | -!(-*)[hHV])
+        --help | --long-help | --version | --info-memory | -${noargopts}[hHV])
             return
             ;;
     esac

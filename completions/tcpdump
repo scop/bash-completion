@@ -5,43 +5,45 @@ _tcpdump()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
+    local noargopts='!(-*|*[rwFVimTzZBcCDEGMsWyjQ]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -!(-*)[rwFV])
+        -${noargopts}[rwFV])
             _filedir
             return
             ;;
-        --interface | -!(-*)i)
+        --interface | -${noargopts}i)
             _available_interfaces -a
             return
             ;;
-        -!(-*)m)
+        -${noargopts}m)
             _filedir mib
             return
             ;;
-        -!(-*)T)
+        -${noargopts}T)
             COMPREPLY=($(compgen -W 'aodv carp cnfp lmp pgm pgm_zmtp1 radius
                 resp rpc rtcp rtp rtcp snmp tftp vat vxlan wb zmtp1' \
                 -- "$cur"))
             return
             ;;
-        -!(-*)z)
+        -${noargopts}z)
             compopt -o filenames
             COMPREPLY=($(compgen -c -- "$cur"))
             return
             ;;
-        --relinquish-privileges | -!(-*)Z)
+        --relinquish-privileges | -${noargopts}Z)
             _allowed_users
             return
             ;;
-        -!(-*)[BcCDEGMsWy])
+        -${noargopts}[BcCDEGMsWy])
             return
             ;;
-        --time-stamp-type | -!(-*)j)
+        --time-stamp-type | -${noargopts}j)
             COMPREPLY=($(compgen -W 'host host_lowprec host_hiprec adapter
                 adapter_unsynced' -- "$cur"))
             return
             ;;
-        --direction | -!(-*)Q)
+        --direction | -${noargopts}Q)
             COMPREPLY=($(compgen -W 'in out inout' -- "$cur"))
             return
             ;;

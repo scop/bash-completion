@@ -5,9 +5,11 @@ _gpg()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
+    local noargopts='!(-*|*[skKr]*)'
+    # shellcheck disable=SC2254
     case $prev in
         --sign | --clear-sign | --clearsign | --decrypt-files | \
-            --load-extension | -!(-*)s)
+            --load-extension | -${noargopts}s)
             _filedir
             return
             ;;
@@ -15,7 +17,7 @@ _gpg()
             --locate-external-keys | --fingerprint | --delete-keys | \
             --delete-secret-and-public-keys | --export | --refresh-keys | \
             --search-keys | --edit-key | --sign-key | --lsign-key | \
-            --nrsign-key | --nrlsign-key | --try-secret-key | -!(-*)k)
+            --nrsign-key | --nrlsign-key | --try-secret-key | -${noargopts}k)
             # return list of public keys
             COMPREPLY=($(compgen -W "$($1 --list-keys 2>/dev/null |
                 command sed -ne \
@@ -24,13 +26,13 @@ _gpg()
             return
             ;;
         --list-secret-keys | --delete-secret-keys | --export-secret-keys | \
-            --export-secret-subkeys | -!(-*)K)
+            --export-secret-subkeys | -${noargopts}K)
             # return list of secret keys
             COMPREPLY=($(compgen -W "$($1 --list-secret-keys 2>/dev/null |
                 command sed -ne 's@^.*<\([^>]*\)>.*$@\1@p')" -- "$cur"))
             return
             ;;
-        --recipient | -!(-*)r)
+        --recipient | -${noargopts}r)
             COMPREPLY=($(compgen -W "$($1 --list-keys 2>/dev/null |
                 command sed -ne 's@^.*<\([^>]*\)>.*$@\1@p')" -- "$cur"))
             if [[ -e ~/.gnupg/gpg.conf ]]; then

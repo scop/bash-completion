@@ -5,11 +5,13 @@ _wol()
     local cur prev words cword split comp_args
     _comp_initialize -s -n : -- "$@" || return
 
+    local noargopts='!(-*|*[pwhif]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        --version | --help | --port | --passwd | --wait | -!(-*)[Vpw])
+        --version | --help | --port | --passwd | --wait | -${noargopts}[Vpw])
             return
             ;;
-        --host | --ipaddr | -!(-*)[hi])
+        --host | --ipaddr | -${noargopts}[hi])
             # Broadcast addresses
             local PATH=$PATH:/sbin
             COMPREPLY=($({
@@ -22,7 +24,7 @@ _wol()
             _known_hosts_real -- "$cur"
             return
             ;;
-        --file | -!(-*)f)
+        --file | -${noargopts}f)
             _filedir
             return
             ;;
