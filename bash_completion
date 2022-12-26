@@ -120,7 +120,7 @@ _comp_have_command()
 {
     # Completions for system administrator commands are installed as well in
     # case completion is attempted via `sudo command ...'.
-    PATH=$PATH:/usr/sbin:/sbin:/usr/local/sbin type $1 &>/dev/null
+    PATH=$PATH:/usr/sbin:/sbin:/usr/local/sbin type "$1" &>/dev/null
 }
 
 _comp_deprecate_func _have _comp_have_command
@@ -132,7 +132,7 @@ _comp_deprecate_func _have _comp_have_command
 have()
 {
     unset -v have
-    _comp_have_command $1 && have=yes
+    _comp_have_command "$1" && have=yes
 }
 
 # This function checks whether a given readline variable
@@ -274,10 +274,11 @@ _upvar()
     echo "bash_completion: $FUNCNAME: deprecated function," \
         "use _upvars instead" >&2
     if unset -v "$1"; then # Unset & validate varname
+        # shellcheck disable=SC2140  # TODO
         if (($# == 2)); then
-            eval $1=\"\$2\" # Return single value
+            eval "$1"=\"\$2\" # Return single value
         else
-            eval $1=\(\"\$"{@:2}"\"\) # Return array
+            eval "$1"=\(\"\$"{@:2}"\"\) # Return array
         fi
     fi
 }
@@ -312,8 +313,8 @@ _upvars()
                     return 1
                 }
                 # Assign array of -aN elements
-                # shellcheck disable=SC2015  # TODO
-                [[ $2 ]] && unset -v "$2" && eval $2=\(\"\$"{@:3:${1#-a}}"\"\) &&
+                # shellcheck disable=SC2015,SC2140  # TODO
+                [[ $2 ]] && unset -v "$2" && eval "$2"=\(\"\$"{@:3:${1#-a}}"\"\) &&
                     shift $((${1#-a} + 2)) || {
                     echo bash_completion: \
                         "$FUNCNAME: \`$1${2+ }$2': missing argument(s)" \
@@ -324,7 +325,7 @@ _upvars()
             -v)
                 # Assign single value
                 # shellcheck disable=SC2015  # TODO
-                [[ $2 ]] && unset -v "$2" && eval $2=\"\$3\" &&
+                [[ $2 ]] && unset -v "$2" && eval "$2"=\"\$3\" &&
                     shift 3 || {
                     echo "bash_completion: $FUNCNAME: $1:" \
                         "missing argument(s)" >&2
@@ -559,8 +560,8 @@ __get_cword_at_cursor_by_ref()
         ((index < 0)) && index=0
     fi
 
-    local "$2" "$3" "$4" && _upvars -a${#words[@]} $2 ${words+"${words[@]}"} \
-        -v $3 "$cword" -v $4 "${cur:0:index}"
+    local "$2" "$3" "$4" && _upvars -a${#words[@]} "$2" ${words+"${words[@]}"} \
+        -v "$3" "$cword" -v "$4" "${cur:0:index}"
 }
 
 # Get the word to complete and optional previous words.
@@ -771,9 +772,9 @@ _quote_readline_by_ref()
 {
     if [[ $1 == \'* ]]; then
         # Leave out first character
-        printf -v $2 %s "${1:1}"
+        printf -v "$2" %s "${1:1}"
     else
-        printf -v $2 %q "$1"
+        printf -v "$2" %q "$1"
 
         # If result becomes quoted like this: $'string', re-evaluate in order
         # to drop the additional quoting.  See also:
@@ -831,7 +832,7 @@ _filedir()
 
         reset=$(shopt -po noglob)
         set -o noglob
-        toks+=($(compgen "${opts[@]}" -- $quoted))
+        toks+=($(compgen "${opts[@]}" -- "$quoted"))
         IFS=' '
         $reset
         IFS=$'\n'
@@ -841,7 +842,7 @@ _filedir()
             $arg && ${#toks[@]} -lt 1 ]] && {
             reset=$(shopt -po noglob)
             set -o noglob
-            toks+=($(compgen -f ${plusdirs+"${plusdirs[@]}"} -- $quoted))
+            toks+=($(compgen -f ${plusdirs+"${plusdirs[@]}"} -- "$quoted"))
             IFS=' '
             $reset
             IFS=$'\n'
@@ -883,8 +884,8 @@ _variables()
         # Completing $var / ${var / ${!var / ${#var
         if [[ $cur == '${'* ]]; then
             local arrs vars
-            vars=($(compgen -A variable -P ${BASH_REMATCH[1]} -S '}' -- ${BASH_REMATCH[3]}))
-            arrs=($(compgen -A arrayvar -P ${BASH_REMATCH[1]} -S '[' -- ${BASH_REMATCH[3]}))
+            vars=($(compgen -A variable -P "${BASH_REMATCH[1]}" -S '}' -- "${BASH_REMATCH[3]}"))
+            arrs=($(compgen -A arrayvar -P "${BASH_REMATCH[1]}" -S '[' -- "${BASH_REMATCH[3]}"))
             if ((${#vars[@]} == 1 && ${#arrs[@]} != 0)); then
                 # Complete ${arr with ${array[ if there is only one match, and that match is an array variable
                 compopt -o nospace
@@ -902,7 +903,7 @@ _variables()
         # Complete ${array[i with ${array[idx]}
         local reset=$(shopt -po noglob) IFS=$'\n'
         set -o noglob
-        COMPREPLY+=($(compgen -W '$(printf %s\\n "${!'${BASH_REMATCH[2]}'[@]}")' \
+        COMPREPLY+=($(compgen -W '$(printf %s\\n "${!'"${BASH_REMATCH[2]}"'[@]}")' \
             -P "${BASH_REMATCH[1]}${BASH_REMATCH[2]}[" -S ']}' -- "${BASH_REMATCH[3]}"))
         IFS=$' \t\n'
         $reset
@@ -1101,7 +1102,7 @@ _comp_initialize()
                 ;;
         esac
         cur=${cur##"$redir"}
-        _filedir $xspec
+        _filedir "$xspec"
         return 1
     fi
 
@@ -1187,7 +1188,10 @@ _parse_help()
     (
         case $cmd in
             -) exec cat ;;
-            *) _comp_dequote "$cmd" && LC_ALL=C "$ret" ${2:---help} 2>&1 ;;
+            *)
+                # shellcheck disable=SC2086
+                _comp_dequote "$cmd" && LC_ALL=C "$ret" ${2:---help} 2>&1
+                ;;
         esac
     ) |
         while read -r line; do
@@ -1224,7 +1228,10 @@ _parse_usage()
     (
         case $cmd in
             -) exec cat ;;
-            *) _comp_dequote "$cmd" && LC_ALL=C "$ret" ${2:---usage} 2>&1 ;;
+            *)
+                # shellcheck disable=SC2086
+                _comp_dequote "$cmd" && LC_ALL=C "$ret" ${2:---usage} 2>&1
+                ;;
         esac
     ) |
         while read -r line; do
@@ -1237,7 +1244,7 @@ _parse_usage()
                         # Treat as bundled short options
                         for ((i = 1; i < ${#option}; i++)); do
                             char=${option:i:1}
-                            [[ $char != '[' ]] && printf '%s\n' -$char && rc=0
+                            [[ $char != '[' ]] && printf '%s\n' -"$char" && rc=0
                         done
                         ;;
                     *)
@@ -1392,7 +1399,7 @@ _ncpus()
     local var=NPROCESSORS_ONLN
     [[ $OSTYPE == *@(linux|msys|cygwin)* ]] && var=_$var
     local n=$(getconf $var 2>/dev/null)
-    printf %s ${n:-1}
+    printf %s "${n:-1}"
 }
 
 # Perform tilde (~) completion
@@ -1409,7 +1416,7 @@ _tilde()
         # 2>/dev/null for direct invocation, e.g. in the _tilde unit test
         ((result > 0)) && compopt -o filenames 2>/dev/null
     fi
-    return $result
+    return "$result"
 }
 
 # Expand variable starting with tilde (~)
@@ -1437,7 +1444,7 @@ _tilde()
 __expand_tilde_by_ref()
 {
     if [[ ${!1-} == \~* ]]; then
-        eval $1="$(printf ~%q "${!1#\~}")"
+        eval "$1"="$(printf ~%q "${!1#\~}")"
     fi
 } # __expand_tilde_by_ref()
 
@@ -1662,7 +1669,7 @@ _modules()
 {
     local modpath
     modpath=/lib/modules/$1
-    COMPREPLY=($(compgen -W "$(command ls -RL $modpath 2>/dev/null |
+    COMPREPLY=($(compgen -W "$(command ls -RL "$modpath" 2>/dev/null |
         command sed -ne 's/^\(.*\)\.k\{0,1\}o\(\.[gx]z\)\{0,1\}$/\1/p' \
             -e 's/^\(.*\)\.ko\.zst$/\1/p')" -- "$cur"))
 }
@@ -1938,6 +1945,7 @@ _known_hosts()
     local options
     [[ ${1-} == -a || ${2-} == -a ]] && options=-a
     [[ ${1-} == -c || ${2-} == -c ]] && options+=" -c"
+    # shellcheck disable=SC2086
     _known_hosts_real ${options-} -- "$cur"
 } # _known_hosts()
 
@@ -1977,7 +1985,7 @@ _included_ssh_config_files()
                 if [[ -r $f && ! -d $f ]]; then
                     config+=("$f")
                     # The Included file is processed to look for Included files in itself
-                    _included_ssh_config_files $f
+                    _included_ssh_config_files "$f"
                 fi
             done
         fi
@@ -2240,7 +2248,7 @@ _cd()
     for i in ${CDPATH//:/$'\n'}; do
         # create an array of matched subdirs
         k=${#COMPREPLY[@]}
-        for j in $(compgen -d -- $i/$cur); do
+        for j in $(compgen -d -- "$i/$cur"); do
             if [[ ($mark_symdirs && -L $j || $mark_dirs && ! -L $j) && ! -d ${j#"$i/"} ]]; then
                 j+="/"
             fi
@@ -2365,7 +2373,7 @@ _comp_command_offset()
                     # FIXME: should we take "+o opt" into account?
                     cspec=${cspec#*-o }
                     opt=${cspec%% *}
-                    compopt -o $opt
+                    compopt -o "$opt"
                     cspec=${cspec#"$opt"}
                 done
             else
@@ -2457,7 +2465,7 @@ _longopt()
         COMPREPLY=($(compgen -W "$(LC_ALL=C $1 --help 2>&1 |
             while read -r line; do
                 [[ $line =~ --[A-Za-z0-9]+([-_][A-Za-z0-9]+)*=? ]] &&
-                    printf '%s\n' ${BASH_REMATCH[0]}
+                    printf '%s\n' "${BASH_REMATCH[0]}"
             done)" -- "$cur"))
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     elif [[ $1 == *@(rmdir|chroot) ]]; then
@@ -2490,7 +2498,7 @@ _filedir_xspec()
     toks=($(
         compgen -d -- "$(quote_readline "$cur")" | {
             while read -r tmp; do
-                printf '%s\n' $tmp
+                printf '%s\n' "$tmp"
             done
         }
     ))
@@ -2509,7 +2517,7 @@ _filedir_xspec()
     toks+=($(
         eval compgen -f -X "'!$xspec'" -- '$(quote_readline "$cur")' | {
             while read -r tmp; do
-                [[ $tmp ]] && printf '%s\n' $tmp
+                [[ $tmp ]] && printf '%s\n' "$tmp"
             done
         }
     ))
@@ -2750,7 +2758,7 @@ unset -v _comp__init_compat_dir _comp__init_file
 #   garbages of suppressed command outputs.
 _comp__init_user_file=${BASH_COMPLETION_USER_FILE:-~/.bash_completion}
 [[ $_comp__init_user_file != "${BASH_SOURCE[0]}" && $_comp__init_user_file != /dev/null && -r $_comp__init_user_file && -f $_comp__init_user_file ]] &&
-    . $_comp__init_user_file
+    . "$_comp__init_user_file"
 unset -v _comp__init_user_file
 
 unset -f have

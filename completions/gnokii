@@ -25,7 +25,7 @@ _gnokii()
             done
             [[ ! -f $config_file ]] && return
             COMPREPLY=($(compgen -W \
-                "$(command sed -n 's/^\[phone_\(.*\)\]/\1/p' $config_file)" \
+                "$(command sed -n 's/^\[phone_\(.*\)\]/\1/p' "$config_file")" \
                 -- "$cur"))
             return
             ;;
@@ -222,13 +222,13 @@ _gnokii()
     fi
 
     # safer to use LANG=C
-    local all_cmd="$(LANG=C _parse_help $1 "--help all")"
+    local all_cmd="$(LANG=C _parse_help "$1" "--help all")"
     # these 2 below are allowed in combination with others
     local main_cmd=$(command grep -v -- '--config\|--phone' <<<"$all_cmd")
 
     # don't provide main command completions if one is
     # already on the command line
-    [[ $COMP_LINE =~ $(tr ' ' '\b|' <<<$main_cmd) ]] && return
+    [[ $COMP_LINE =~ $(tr ' ' '\b|' <<<"$main_cmd") ]] && return
 
     COMPREPLY=($(compgen -W "$all_cmd" -- "$cur"))
 } &&

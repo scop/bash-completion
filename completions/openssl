@@ -22,7 +22,7 @@ _openssl_sections()
 
     [[ ! -f $config ]] && return
 
-    COMPREPLY=($(compgen -W "$(awk '/\[.*\]/ {print $2}' $config)" -- "$cur"))
+    COMPREPLY=($(compgen -W "$(awk '/\[.*\]/ {print $2}' "$config")" -- "$cur"))
 }
 
 _openssl_digests()
@@ -105,7 +105,7 @@ _openssl()
                 return
                 ;;
             -cipher)
-                COMPREPLY=($(IFS=: compgen -W "$($1 ciphers)" -- "$cur"))
+                COMPREPLY=($(IFS=: compgen -W "$("$1" ciphers)" -- "$cur"))
                 return
                 ;;
             -kdf)
@@ -118,7 +118,7 @@ _openssl()
             # possible options for the command
             options=$(_parse_help "$1" "$command -help" 2>/dev/null)
             case $command in
-                dgst | req | x509) options+=" $(_openssl_digests $1)" ;;
+                dgst | req | x509) options+=" $(_openssl_digests "$1")" ;;
             esac
             COMPREPLY=($(compgen -W "$options" -- "$cur"))
         else

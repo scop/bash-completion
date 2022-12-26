@@ -9,9 +9,9 @@ _gcc()
     # parsing of --completion option.
     if ! $1 --completion=" " 2>/dev/null; then
         if [[ $cur == -* ]]; then
-            local cc=$($1 -print-prog-name=cc1 2>/dev/null)
+            local cc=$("$1" -print-prog-name=cc1 2>/dev/null)
             [[ $cc ]] || return
-            COMPREPLY=($(compgen -W "$($cc --help 2>/dev/null | tr '\t' ' ' |
+            COMPREPLY=($(compgen -W "$("$cc" --help 2>/dev/null | tr '\t' ' ' |
                 command sed -e '/^  *-/!d' -e 's/ *-\([^][ <>]*\).*/-\1/')" \
                 -- "$cur"))
             [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
@@ -51,7 +51,7 @@ _gcc()
         # In situation like '-fsanitize=add' $cur is equal to last token.
         # Thus we need to strip the beginning of suggested option.
         prefix_length=$((${#prefix} + 1))
-        local flags=$($1 --completion="$argument" | cut -c $prefix_length-)
+        local flags=$("$1" --completion="$argument" | cut -c $prefix_length-)
         [[ ${flags} == "=*" ]] && compopt -o nospace 2>/dev/null
         COMPREPLY=($(compgen -W "$flags" -- ""))
     fi

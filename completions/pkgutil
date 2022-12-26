@@ -54,7 +54,7 @@ _pkgutil()
             pkgliststyle: maxpkglist: noncsw: stop_on_hook_soft_error:
             exclude_pattern: gpg_homedir: root_path: deptree_filter_common:
             show_current: catalog_not_cached: catalog_update:
-        " -- $cur))
+        " -- "$cur"))
         return
     fi
 
@@ -66,7 +66,7 @@ _pkgutil()
         COMPREPLY=($(
             compgen -W \
                 "sparc:5.9 sparc:5.10 sparc:5.11 i386:5.9 i386:5.10 i386:5.11" \
-                -- $cur
+                -- "$cur"
         ))
         local i=${#COMPREPLY[*]}
         while ((i-- > 0)); do
@@ -87,7 +87,7 @@ _pkgutil()
 
         if [[ $command == -@([dius]|-download|-install|-upgrade|-stream) ]]; then
             local packages_list=$(awk ' $0 ~ /BEGIN PGP SIGNATURE/ { exit } $1 ~ /^Hash:/ || $1 ~ /^ *(-|#|$)/ { next } { print $1 }' "${catalog_files[@]}")
-            COMPREPLY=($(compgen -W "${packages_list}" -- $cur))
+            COMPREPLY=($(compgen -W "${packages_list}" -- "$cur"))
 
         elif [[ $command == @(-r|--remove) ]]; then
             local packages_list=$(
@@ -95,7 +95,7 @@ _pkgutil()
             )
             packages_list=${packages_list%|}
             packages_list=$(nawk " \$3 ~ /^$packages_list\$/ { print \$1 }" "${catalog_files[@]}")
-            COMPREPLY=($(compgen -W "${packages_list}" -- $cur))
+            COMPREPLY=($(compgen -W "${packages_list}" -- "$cur"))
         fi
         return
     fi
@@ -108,7 +108,7 @@ _pkgutil()
         --findfile --deptree --extract --stream --output --target --single
         --param --parse --cleanup --catinfo
     )
-    COMPREPLY=($(compgen -W '${commands[@]}' -- $cur))
+    COMPREPLY=($(compgen -W '${commands[@]}' -- "$cur"))
 
 } &&
     complete -F _pkgutil pkgutil

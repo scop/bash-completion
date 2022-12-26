@@ -16,7 +16,7 @@ _pkg_get_get_catalog_file()
     conffile="${conffile:-/opt/csw/etc/pkg-get.conf}"
 
     if [[ ! $url ]]; then
-        url=$(awk -F= ' $1=="url" { print $2 }' $conffile)
+        url=$(awk -F= ' $1=="url" { print $2 }' "$conffile")
     fi
 
     catalog_file="${url##*//}"
@@ -50,8 +50,8 @@ _pkg_get_get_catalog_file()
             if [[ $command == @(-[Ddi]|describe|download|install) ]]; then
                 catalog_file=$(_pkg_get_get_catalog_file "$url")
                 if [[ -f $catalog_file ]]; then
-                    local packages_list=$(awk ' $0 ~ /BEGIN PGP SIGNATURE/ { exit } $1 ~ /^Hash:/ || $1 ~ /^ *(-|#|$)/ { next } { print $1 }' $catalog_file)
-                    COMPREPLY=($(compgen -W "${packages_list}" -- ${cur}))
+                    local packages_list=$(awk '$0 ~ /BEGIN PGP SIGNATURE/ { exit } $1 ~ /^Hash:/ || $1 ~ /^ *(-|#|$)/ { next } { print $1 }' "$catalog_file")
+                    COMPREPLY=($(compgen -W "${packages_list}" -- "${cur}"))
                 fi
             fi
             return
@@ -59,14 +59,14 @@ _pkg_get_get_catalog_file()
 
         if [[ ${cur} == -* ]]; then
             local -a opts=(-c -d -D -f -i -l -s -S -u -U -v)
-            COMPREPLY=($(compgen -W '${opts[@]}' -- ${cur}))
+            COMPREPLY=($(compgen -W '${opts[@]}' -- "${cur}"))
             return
         fi
 
         local -a commands=(
             available describe download install list updatecatalog upgrade
         )
-        COMPREPLY=($(compgen -W '${commands[@]}' -- ${cur}))
+        COMPREPLY=($(compgen -W '${commands[@]}' -- "${cur}"))
     } &&
         complete -F _pkg_get pkg-get
 
