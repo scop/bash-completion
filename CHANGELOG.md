@@ -66,7 +66,7 @@
 * ip: add support for netns (#391) ([a2ccfa6](https://www.github.com/scop/bash-completion/commit/a2ccfa6bb0438cdb88ef1e551448e839bf70f99f))
 * apt-get etc: use _apt_cache_packages from apt-cache ([d90fbe3](https://www.github.com/scop/bash-completion/commit/d90fbe3bfd7e53c365897fa584edc9d2d0a2e9bf))
 * : whitespace tweaks ([3c87811](https://www.github.com/scop/bash-completion/commit/3c87811d8917852a132771e5c92b1e76886e493e))
-* : argument interation improvements ([ec6995c](https://www.github.com/scop/bash-completion/commit/ec6995cadc3ab24246e363b4cbc2452091cd4d28))
+* : argument interaction improvements ([ec6995c](https://www.github.com/scop/bash-completion/commit/ec6995cadc3ab24246e363b4cbc2452091cd4d28))
 * test/aptitude: add some test cases ([762ee12](https://www.github.com/scop/bash-completion/commit/762ee12d24db419f02fc026e063962dde82e7275))
 * aptitude: parse options list from --help, hardcode less ([27219f8](https://www.github.com/scop/bash-completion/commit/27219f8e76970e7780062d6746ab609792bb7e3d))
 * aptitude: add some option arg (non)completions ([826b333](https://www.github.com/scop/bash-completion/commit/826b3336cfa25696b0886908609c29f87a37f8e4))
