@@ -1,4 +1,19 @@
 # bash completion for brctl                                -*- shell-script -*-
+_brctl_interfaces()
+{
+    local PATH=$PATH:/sbin
+    COMPREPLY=($({
+        if [[ -z "$1" ]]; then
+            brctl show
+        else
+            brctl show "$1"
+        fi
+    } 2>/dev/null | awk \
+        '(NR == 1) { next }; (/^\t/) { print $1; next }; { print $4 }'))
+
+    ((${#COMPREPLY[@]})) &&
+        COMPREPLY=($(compgen -W '"${COMPREPLY[@]/%[[:punct:]]/}"' -- "$cur"))
+}
 
 _brctl()
 {
@@ -25,8 +40,11 @@ _brctl()
             ;;
         3)
             case $command in
-                addif | delif)
+                addif)
                     _available_interfaces
+                    ;;
+                delif)
+                    _brctl_interfaces "$prev"
                     ;;
                 stp)
                     COMPREPLY=($(compgen -W 'on off' -- "$cur"))
