@@ -1,5 +1,11 @@
 # bash completion for brctl                                -*- shell-script -*-
 
+_comp_cmd_brctl__interfaces()
+{
+    _comp_compgen_split -- "$(${1:-brctl} show ${2:+"$2"} 2>/dev/null | _comp_awk \
+        '(NR == 1) { next }; (/^\t/) { print $1; next }; { print $4 }')"
+}
+
 _comp_cmd_brctl()
 {
     local cur prev words cword comp_args
@@ -25,8 +31,11 @@ _comp_cmd_brctl()
             ;;
         3)
             case $command in
-                addif | delif)
+                addif)
                     _comp_compgen_available_interfaces
+                    ;;
+                delif)
+                    _comp_cmd_brctl__interfaces "$1" "$prev"
                     ;;
                 stp)
                     _comp_compgen -- -W 'on off'
