@@ -1,3 +1,5 @@
+import shlex
+
 import pytest
 
 from conftest import TestUnitBase, assert_bash_exec
@@ -23,7 +25,7 @@ class TestUnitQuote(TestUnitBase):
         thing, looks_like = thing_looks_like
         output = assert_bash_exec(
             bash,
-            f"_comp_looks_like_path '{thing}'; printf %s $?",
+            f"_comp_looks_like_path {shlex.quote(thing)}; printf %s $?",
             want_output=True,
             want_newline=False,
         )
