@@ -186,7 +186,6 @@ def partialize(
 
 @pytest.fixture(scope="class")
 def bash(request) -> pexpect.spawn:
-
     logfile: Optional[TextIO] = None
     histfile = None
     tmpdir = None
@@ -817,7 +816,6 @@ def assert_complete(
             pytest.xfail(xfail)
 
     with bash_env_saved(bash, sendintr=True) as bash_env:
-
         cwd = kwargs.get("cwd")
         if cwd:
             bash_env.chdir(str(cwd))
