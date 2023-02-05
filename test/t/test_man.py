@@ -12,7 +12,6 @@ from conftest import (
     ignore_env=r"^[+-]((BASHOPTS|MANPATH|manpath)=|shopt -. failglob)"
 )
 class TestMan:
-
     manpath = "$PWD/man"
     assumed_present = "man"
 

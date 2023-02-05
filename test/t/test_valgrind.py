@@ -4,7 +4,6 @@ import pytest
 
 
 class TestValgrind:
-
     # b: Assume we have at least bash that starts with b in PATH
     @pytest.mark.complete("valgrind b")
     def test_1(self, completion):
