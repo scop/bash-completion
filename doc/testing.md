@@ -13,7 +13,7 @@ and [pexpect](https://pexpect.readthedocs.io/).
 
 For the Python part, all of it is formatted using
 [Black](https://github.com/psf/black), and we also run
-[Flake8](https://flake8.pycqa.org/) on it.
+[Ruff](https://github.com/charliermarsh/ruff) on it.
 
 ## Installing dependencies
 
