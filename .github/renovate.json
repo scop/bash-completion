@@ -2,6 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:base",
+    ":enablePreCommit",
     ":prConcurrentLimit20",
     ":preserveSemverRanges",
     ":semanticPrefixChore"
@@ -13,17 +14,21 @@
   ],
   "semanticCommits": "enabled",
   "commitMessageTopic": "{{depName}}",
-  "pip_requirements": {
-    "fileMatch": [
-      "(^|/)(test/requirements[\\w-]*\\.txt|\\.pre-commit-config\\.yaml)$"
-    ]
-  },
   "dockerfile": {
     "enabled": false
   },
-  "pre-commit": {
-    "enabled": true
+  "pip_requirements": {
+    "fileMatch": [
+      "(^|/)requirements[\\w-]*\\.txt$"
+    ]
   },
+  "regexManagers": [
+    {
+      "fileMatch": ["^\\.pre-commit-config\\.yaml$"],
+      "matchStrings": ["(?<depName>[\\w-]+)(?<currentValue>==[a-z0-9.]+)"],
+      "datasourceTemplate": "pypi"
+    }
+  ],
   "packageRules": [
     {
       "matchFiles": ["test/requirements.txt"],
