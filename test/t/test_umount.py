@@ -20,7 +20,7 @@ class TestUmount:
             bash,
             "_mnt_completion() { "
             "local cur=$(_get_cword); "
-            "_linux_fstab $(_get_pword) < mount/test-fstab; "
+            "_comp_cmd_umount__linux_fstab $(_get_pword) < mount/test-fstab; "
             "} && complete -F _mnt_completion _mnt",
         )
         request.addfinalizer(
@@ -82,7 +82,7 @@ class TestUmount:
     @pytest.mark.skipif(sys.platform != "linux", reason="Linux specific")
     def test_linux_fstab_unescape(self, bash):
         assert_bash_exec(bash, r"var=one\'two\\040three\\")
-        assert_bash_exec(bash, "__linux_fstab_unescape var")
+        assert_bash_exec(bash, "_comp_cmd_umount__linux_fstab_unescape var")
         output = assert_bash_exec(
             bash, r'printf "%s\n" "$var"', want_output=True
         )
