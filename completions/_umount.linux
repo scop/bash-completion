@@ -45,7 +45,7 @@ _comp_cmd_umount__linux_fstab_unescape()
 # Reads a file from stdin in the linux fstab(5) format; as used by /etc/fstab
 # and /proc/mounts. With 1st arg -L, look for entries by label.
 # shellcheck disable=SC2120
-_comp_cmd__umount_linux_fstab()
+_comp_cmd_umount__linux_fstab()
 {
     COMPREPLY=()
 
@@ -56,12 +56,12 @@ _comp_cmd__umount_linux_fstab()
         if [[ ${1-} == -L ]]; then
             local fs_label=${fs_spec/#LABEL=/}
             if [[ $fs_label != "$fs_spec" ]]; then
-                __comp_cmd_umount__linux_fstab_unescape fs_label
+                _comp_cmd_umount__linux_fstab_unescape fs_label
                 COMPREPLY+=("$fs_label")
             fi
         else
-            __comp_cmd_umount__linux_fstab_unescape fs_spec
-            __comp_cmd_umount__linux_fstab_unescape fs_file
+            _comp_cmd_umount__linux_fstab_unescape fs_spec
+            _comp_cmd_umount__linux_fstab_unescape fs_file
             [[ $fs_spec == */* ]] && COMPREPLY+=("$fs_spec")
             [[ $fs_file == */* ]] && COMPREPLY+=("$fs_file")
         fi
@@ -131,7 +131,7 @@ _comp_cmd_umount()
     if [[ -r /proc/mounts ]]; then
         # Linux /proc/mounts is properly quoted. This is important when
         # unmounting usb devices with pretty names.
-        _comp_cmd__umount_linux_fstab </proc/mounts
+        _comp_cmd_umount__linux_fstab </proc/mounts
     else
         local IFS=$'\n'
         COMPREPLY=($(compgen -W '$(mount | cut -d" " -f 3)' -- "$cur"))
