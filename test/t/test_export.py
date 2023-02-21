@@ -24,10 +24,9 @@ class TestExport:
     def test_5(self, completion):
         assert completion == ["foo", "foo.d/"]
 
-    @pytest.mark.complete("export -fn _ex")
+    @pytest.mark.complete("export -fn _comp_cmd_ex")
     def test_6(self, completion):
-        assert "_expand" in completion
-        assert "_export" in completion
+        assert completion == "port"
 
     @pytest.mark.complete(r"export FOO=$BASH")
     def test_7(self, completion):
