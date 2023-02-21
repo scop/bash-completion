@@ -1,19 +1,19 @@
 # carton(3pm) completion                                   -*- shell-script -*-
 
-_carton_commands()
+_comp_cmd_carton__commands()
 {
     local cmds=$("${1:-carton}" usage 2>&1 |
         command sed -ne '/.*command.* is one of/{n;p;q;}')
     COMPREPLY+=($(IFS="$IFS," compgen -W "$cmds" -- "$cur"))
 }
 
-_carton_command_help()
+_comp_cmd_carton__command_help()
 {
     local help=$(PERLDOC_PAGER=cat PERLDOC=-otext "${1:-carton}" -h "$2" 2>&1)
     COMPREPLY+=($(compgen -W '$help' -- "$cur"))
 }
 
-_carton()
+_comp_cmd_carton()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
@@ -31,7 +31,7 @@ _carton()
     done
 
     if [[ ! $has_command ]]; then
-        _carton_commands "$1"
+        _comp_cmd_carton__commands "$1"
         return
     fi
 
@@ -40,7 +40,7 @@ _carton()
             return
             ;;
         --help | -h)
-            [[ $has_command ]] || _carton_commands "$1"
+            [[ $has_command ]] || _comp_cmd_carton__commands "$1"
             return
             ;;
         --cpanfile)
@@ -68,7 +68,7 @@ _carton()
 
     if [[ $cur == -* ]]; then
         [[ $command == @(help|usage) ]] || COMPREPLY=(--help)
-        _carton_command_help "$1" "$command"
+        _comp_cmd_carton__command_help "$1" "$command"
     fi
 
     case $command in
@@ -77,6 +77,6 @@ _carton()
             ;;
     esac
 } &&
-    complete -F _carton carton
+    complete -F _comp_cmd_carton carton
 
 # ex: filetype=sh

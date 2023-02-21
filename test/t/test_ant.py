@@ -26,7 +26,7 @@ class TestAnt:
     def test_3(self, completion, has_complete_ant_cmd_pl):
         if has_complete_ant_cmd_pl:
             # Some versions of complete-ant-cmd.pl add "import-project-name."
-            # prefix to imported targets, just check that the ones _ant adds
+            # prefix to imported targets, just check that the ones we add
             # are there.
             assert all(
                 x in completion
@@ -39,7 +39,7 @@ class TestAnt:
     def test_4(self, bash, completion, has_complete_ant_cmd_pl):
         if has_complete_ant_cmd_pl:
             # Some versions of complete-ant-cmd.pl don't treat ANT_ARGS right;
-            # in those cases we get the correct completion produced by _ant
+            # in those cases we get the correct completion produced by us
             # plus whatever complete-ant-cmd.pl was able to get from build.xml
             assert "named-build" in completion
         else:
