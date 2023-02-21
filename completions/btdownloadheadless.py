@@ -1,6 +1,6 @@
 # btdownloadheadless(1) completion                         -*- shell-script -*-
 
-_btdownload()
+_comp_cmd_btdownload()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -26,7 +26,7 @@ _btdownload()
         _filedir
     fi
 } &&
-    complete -F _btdownload btdownloadheadless.py btdownloadcurses.py \
+    complete -F _comp_cmd_btdownload btdownloadheadless.py btdownloadcurses.py \
         btdownloadgui.py
 
 # ex: filetype=sh

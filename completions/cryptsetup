@@ -1,17 +1,17 @@
 # bash completion for cryptsetup                           -*- shell-script -*-
 
-_cryptsetup_name()
+_comp_cmd_cryptsetup__name()
 {
     COMPREPLY=($(compgen -X control -W '$(command ls /dev/mapper)' -- "$cur"))
 }
 
-_cryptsetup_device()
+_comp_cmd_cryptsetup__device()
 {
     : "${cur:=/dev/}"
     _filedir
 }
 
-_cryptsetup()
+_comp_cmd_cryptsetup()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
@@ -54,10 +54,10 @@ _cryptsetup()
             open | create | luksOpen | loopaesOpen | tcryptOpen)
                 case $args in
                     2)
-                        _cryptsetup_device
+                        _comp_cmd_cryptsetup__device
                         ;;
                     3)
-                        _cryptsetup_name
+                        _comp_cmd_cryptsetup__name
                         ;;
                 esac
                 ;;
@@ -65,14 +65,14 @@ _cryptsetup()
                 luksSuspend | luksResume)
                 case $args in
                     2)
-                        _cryptsetup_name
+                        _comp_cmd_cryptsetup__name
                         ;;
                 esac
                 ;;
             luksFormat | luksAddKey | luksRemoveKey | luksChangeKey)
                 case $args in
                     2)
-                        _cryptsetup_device
+                        _comp_cmd_cryptsetup__device
                         ;;
                     3)
                         _filedir
@@ -82,14 +82,14 @@ _cryptsetup()
             luksKillSlot | luksDelKey | luksUUID | isLuks | luksDump)
                 case $args in
                     2)
-                        _cryptsetup_device
+                        _comp_cmd_cryptsetup__device
                         ;;
                 esac
                 ;;
             luksHeaderBackup | luksHeaderRestore)
                 case $args in
                     2)
-                        _cryptsetup_device
+                        _comp_cmd_cryptsetup__device
                         ;;
                     3)
                         COMPREPLY=('--header-backup-file')
@@ -100,6 +100,6 @@ _cryptsetup()
     fi
 
 } &&
-    complete -F _cryptsetup cryptsetup
+    complete -F _comp_cmd_cryptsetup cryptsetup
 
 # ex: filetype=sh
