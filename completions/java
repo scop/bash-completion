@@ -1,7 +1,7 @@
 # bash completion for java, javac and javadoc              -*- shell-script -*-
 
 # available path elements completion
-_java_path()
+_comp_cmd_java__classpath()
 {
     cur=${cur##*:}
     _filedir '@(jar|zip)'
@@ -53,7 +53,7 @@ _java_find_sourcepath()
 }
 
 # available classes completion
-_java_classes()
+_comp_cmd_java__classes()
 {
     local classpath i
 
@@ -101,7 +101,7 @@ _java_classes()
 }
 
 # available packages completion
-_java_packages()
+_comp_cmd_java__packages()
 {
     local sourcepath i
 
@@ -129,7 +129,7 @@ _java_packages()
 
 # java completion
 #
-_java()
+_comp_cmd_java()
 {
     local cur prev words cword comp_args
     _comp_initialize -n : -- "$@" || return
@@ -175,7 +175,7 @@ _java()
             return
             ;;
         -Xbootclasspath*:*)
-            _java_path
+            _comp_cmd_java__classpath
             return
             ;;
         -Xcheck:*)
@@ -218,7 +218,7 @@ _java()
 
     case $prev in
         -cp | -classpath)
-            _java_path
+            _comp_cmd_java__classpath
             return
             ;;
     esac
@@ -233,7 +233,7 @@ _java()
             _filedir '[jw]ar'
         else
             # classes completion
-            _java_classes
+            _comp_cmd_java__classes
         fi
     fi
 
@@ -241,9 +241,9 @@ _java()
 
     __ltrim_colon_completions "$cur"
 } &&
-    complete -F _java java
+    complete -F _comp_cmd_java java
 
-_javadoc()
+_comp_cmd_javadoc()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -268,7 +268,7 @@ _javadoc()
             ;;
         -classpath | -cp | -bootclasspath | -docletpath | -sourcepath | -extdirs | \
             -excludedocfilessubdir)
-            _java_path
+            _comp_cmd_java__classpath
             return
             ;;
     esac
@@ -285,12 +285,12 @@ _javadoc()
         # source files completion
         _filedir java
         # packages completion
-        _java_packages
+        _comp_cmd_java__packages
     fi
 } &&
-    complete -F _javadoc javadoc
+    complete -F _comp_cmd_javadoc javadoc
 
-_javac()
+_comp_cmd_javac()
 {
     local cur prev words cword comp_args
     _comp_initialize -n : -- "$@" || return
@@ -301,7 +301,7 @@ _javac()
             return
             ;;
         -cp | -classpath | -bootclasspath | -sourcepath | -extdirs)
-            _java_path
+            _comp_cmd_java__classpath
             return
             ;;
     esac
@@ -332,6 +332,6 @@ _javac()
 
     __ltrim_colon_completions "$cur"
 } &&
-    complete -F _javac javac
+    complete -F _comp_cmd_javac javac
 
 # ex: filetype=sh

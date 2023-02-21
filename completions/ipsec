@@ -3,7 +3,7 @@
 # Complete ipsec.conf conn entries.
 #
 # Reads a file from stdin in the ipsec.conf(5) format.
-_ipsec_connections()
+_comp_cmd_ipsec__connections()
 {
     local keyword name
     while read -r keyword name; do
@@ -14,7 +14,7 @@ _ipsec_connections()
         COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
 }
 
-_ipsec_freeswan()
+_comp_cmd_ipsec__freeswan()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -47,7 +47,7 @@ _ipsec_freeswan()
     esac
 }
 
-_ipsec_strongswan()
+_comp_cmd_ipsec__strongswan()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -68,7 +68,7 @@ _ipsec_strongswan()
     case ${words[1]} in
         down | route | status | statusall | unroute | up)
             local confdir=$(ipsec --confdir)
-            _ipsec_connections <"$confdir/ipsec.conf"
+            _comp_cmd_ipsec__connections <"$confdir/ipsec.conf"
             ;;
         list*)
             COMPREPLY=($(compgen -W '--utc' -- "$cur"))
@@ -93,10 +93,10 @@ _ipsec_strongswan()
 
 case "$(ipsec --version 2>/dev/null)" in
     *strongSwan*)
-        complete -F _ipsec_strongswan ipsec
+        complete -F _comp_cmd_ipsec__strongswan ipsec
         ;;
     *)
-        complete -F _ipsec_freeswan ipsec
+        complete -F _comp_cmd_ipsec__freeswan ipsec
         ;;
 esac
 
