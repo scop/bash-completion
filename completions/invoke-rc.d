@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2004 Servilio Afre Puentes <servilio@gmail.com>
 
-_invoke_rc_d()
+_comp_cmd_invoke_rc_d()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -36,6 +36,6 @@ _invoke_rc_d()
     fi
 
 } &&
-    complete -F _invoke_rc_d invoke-rc.d
+    complete -F _comp_cmd_invoke_rc_d invoke-rc.d
 
 # ex: filetype=sh

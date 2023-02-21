@@ -1,6 +1,6 @@
 # bash completion for bluez utils                          -*- shell-script -*-
 
-_bluetooth_addresses()
+_comp_cmd_hcitool__bluetooth_addresses()
 {
     if [[ ${COMP_BLUETOOTH_SCAN-} ]]; then
         COMPREPLY+=($(compgen -W "$(hcitool scan |
@@ -8,33 +8,33 @@ _bluetooth_addresses()
     fi
 }
 
-_bluetooth_devices()
+_comp_cmd_hcitool__bluetooth_devices()
 {
     COMPREPLY+=($(compgen -W "$(hcitool dev |
         awk '/^\t/{print $1}')" -- "$cur"))
 }
 
-_bluetooth_services()
+_comp_cmd_hcitool__bluetooth_services()
 {
     COMPREPLY=($(compgen -W 'DID SP DUN LAN FAX OPUSH FTP HS HF HFAG SAP NAP
         GN PANU HCRP HID CIP A2SRC A2SNK AVRCT AVRTG UDIUE UDITE SYNCML' \
         -- "$cur"))
 }
 
-_bluetooth_packet_types()
+_comp_cmd_hcitool__bluetooth_packet_types()
 {
     COMPREPLY=($(compgen -W 'DM1 DM3 DM5 DH1 DH3 DH5 HV1 HV2 HV3' \
         -- "$cur"))
 }
 
-_hcitool()
+_comp_cmd_hcitool()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
     case $prev in
         -i)
-            _bluetooth_devices
+            _comp_cmd_hcitool__bluetooth_devices
             return
             ;;
         --role)
@@ -42,7 +42,7 @@ _hcitool()
             return
             ;;
         --pkt-type)
-            _bluetooth_packet_types
+            _comp_cmd_hcitool__bluetooth_packet_types
             return
             ;;
     esac
@@ -65,7 +65,7 @@ _hcitool()
             name | info | dc | rssi | lq | afh | auth | key | clkoff | lst)
                 _count_args
                 if ((args == 2)); then
-                    _bluetooth_addresses
+                    _comp_cmd_hcitool__bluetooth_addresses
                 fi
                 ;;
             cc)
@@ -74,14 +74,14 @@ _hcitool()
                 else
                     _count_args
                     if ((args == 2)); then
-                        _bluetooth_addresses
+                        _comp_cmd_hcitool__bluetooth_addresses
                     fi
                 fi
                 ;;
             sr)
                 _count_args
                 if ((args == 2)); then
-                    _bluetooth_addresses
+                    _comp_cmd_hcitool__bluetooth_addresses
                 else
                     COMPREPLY=($(compgen -W 'master slave' -- "$cur"))
                 fi
@@ -89,15 +89,15 @@ _hcitool()
             cpt)
                 _count_args
                 if ((args == 2)); then
-                    _bluetooth_addresses
+                    _comp_cmd_hcitool__bluetooth_addresses
                 else
-                    _bluetooth_packet_types
+                    _comp_cmd_hcitool__bluetooth_packet_types
                 fi
                 ;;
             tpl | enc | clock)
                 _count_args
                 if ((args == 2)); then
-                    _bluetooth_addresses
+                    _comp_cmd_hcitool__bluetooth_addresses
                 else
                     COMPREPLY=($(compgen -W '0 1' -- "$cur"))
                 fi
@@ -105,16 +105,16 @@ _hcitool()
         esac
     fi
 } &&
-    complete -F _hcitool hcitool
+    complete -F _comp_cmd_hcitool hcitool
 
-_sdptool()
+_comp_cmd_sdptool()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
     case $prev in
         --bdaddr)
-            _bluetooth_addresses
+            _comp_cmd_hcitool__bluetooth_addresses
             return
             ;;
     esac
@@ -137,21 +137,21 @@ _sdptool()
                     COMPREPLY=($(compgen -W '--bdaddr --tree --raw --xml' \
                         -- "$cur"))
                 else
-                    _bluetooth_services
+                    _comp_cmd_hcitool__bluetooth_services
                 fi
                 ;;
             browse | records)
                 if [[ $cur == -* ]]; then
                     COMPREPLY=($(compgen -W '--tree --raw --xml' -- "$cur"))
                 else
-                    _bluetooth_addresses
+                    _comp_cmd_hcitool__bluetooth_addresses
                 fi
                 ;;
             add)
                 if [[ $cur == -* ]]; then
                     COMPREPLY=($(compgen -W '--handle --channel' -- "$cur"))
                 else
-                    _bluetooth_services
+                    _comp_cmd_hcitool__bluetooth_services
                 fi
                 ;;
             get)
@@ -163,16 +163,16 @@ _sdptool()
         esac
     fi
 } &&
-    complete -F _sdptool sdptool
+    complete -F _comp_cmd_sdptool sdptool
 
-_l2ping()
+_comp_cmd_l2ping()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
     case $prev in
         -i)
-            _bluetooth_devices
+            _comp_cmd_hcitool__bluetooth_devices
             return
             ;;
         -s | -c | -t | -d)
@@ -183,12 +183,12 @@ _l2ping()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1")' -- "$cur"))
     else
-        _bluetooth_addresses
+        _comp_cmd_hcitool__bluetooth_addresses
     fi
 } &&
-    complete -F _l2ping l2ping
+    complete -F _comp_cmd_l2ping l2ping
 
-_rfcomm()
+_comp_cmd_rfcomm()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -199,8 +199,8 @@ _rfcomm()
             return
             ;;
         -i)
-            _bluetooth_devices
-            _bluetooth_addresses
+            _comp_cmd_hcitool__bluetooth_devices
+            _comp_cmd_hcitool__bluetooth_addresses
             return
             ;;
     esac
@@ -218,29 +218,29 @@ _rfcomm()
         local args
         _count_args
         if ((args == 2)); then
-            _bluetooth_devices
+            _comp_cmd_hcitool__bluetooth_devices
         else
             case $arg in
                 connect | bind)
                     if ((args == 3)); then
-                        _bluetooth_addresses
+                        _comp_cmd_hcitool__bluetooth_addresses
                     fi
                     ;;
             esac
         fi
     fi
 } &&
-    complete -F _rfcomm rfcomm
+    complete -F _comp_cmd_rfcomm rfcomm
 
-_ciptool()
+_comp_cmd_ciptool()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
     case $prev in
         -i)
-            _bluetooth_devices
-            _bluetooth_addresses
+            _comp_cmd_hcitool__bluetooth_devices
+            _comp_cmd_hcitool__bluetooth_addresses
             return
             ;;
     esac
@@ -260,22 +260,22 @@ _ciptool()
             connect | release | loopback)
                 _count_args
                 if ((args == 2)); then
-                    _bluetooth_addresses
+                    _comp_cmd_hcitool__bluetooth_addresses
                 fi
                 ;;
         esac
     fi
 } &&
-    complete -F _ciptool ciptool
+    complete -F _comp_cmd_ciptool ciptool
 
-_dfutool()
+_comp_cmd_dfutool()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
     case $prev in
         -d | --device)
-            _bluetooth_devices
+            _comp_cmd_hcitool__bluetooth_devices
             return
             ;;
     esac
@@ -296,9 +296,9 @@ _dfutool()
         esac
     fi
 } &&
-    complete -F _dfutool dfutool
+    complete -F _comp_cmd_dfutool dfutool
 
-_hciconfig()
+_comp_cmd_hciconfig()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -321,7 +321,7 @@ _hciconfig()
             putkey | delkey)
                 _count_args
                 if ((args == 2)); then
-                    _bluetooth_addresses
+                    _comp_cmd_hcitool__bluetooth_addresses
                 fi
                 ;;
             lm)
@@ -334,15 +334,15 @@ _hciconfig()
             ptype)
                 _count_args
                 if ((args == 2)); then
-                    _bluetooth_packet_types
+                    _comp_cmd_hcitool__bluetooth_packet_types
                 fi
                 ;;
         esac
     fi
 } &&
-    complete -F _hciconfig hciconfig
+    complete -F _comp_cmd_hciconfig hciconfig
 
-_hciattach()
+_comp_cmd_hciattach()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -371,11 +371,11 @@ _hciattach()
                 COMPREPLY=($(compgen -W 'flow noflow' -- "$cur"))
                 ;;
             5)
-                _bluetooth_addresses
+                _comp_cmd_hcitool__bluetooth_addresses
                 ;;
         esac
     fi
 } &&
-    complete -F _hciattach hciattach
+    complete -F _comp_cmd_hciattach hciattach
 
 # ex: filetype=sh
