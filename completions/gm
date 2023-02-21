@@ -1,21 +1,21 @@
 # bash completion for gm(1)                                -*- shell-script -*-
 
-_gm_commands()
+_comp_cmd_gm__commands()
 {
     COMPREPLY+=($(compgen -W '$("$1" help |
         awk "/^ +[^ ]+ +- / { print \$1 }")' -- "$cur"))
 }
 
-_gm()
+_comp_cmd_gm()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
     if ((cword == 1)); then
-        _gm_commands "$1"
+        _comp_cmd_gm__commands "$1"
         return
     elif [[ $cword -eq 2 && ${words[1]} == time ]]; then
-        _gm_commands "$1"
+        _comp_cmd_gm__commands "$1"
         return
     fi
 
@@ -24,7 +24,7 @@ _gm()
 
     case $gmcmd in
         help)
-            [[ $prev == help ]] && _gm_commands "$1"
+            [[ $prev == help ]] && _comp_cmd_gm__commands "$1"
             return
             ;;
         version)
@@ -35,6 +35,6 @@ _gm()
     # TODO... defer some commands to the imagemagick "gm"less completions etc?
     compopt -o default
 } &&
-    complete -F _gm gm
+    complete -F _comp_cmd_gm gm
 
 # ex: filetype=sh
