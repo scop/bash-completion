@@ -3,7 +3,7 @@
 # Use of this file is deprecated.  Upstream completion is available in
 # yum > 3.2.25, use that instead.
 
-_yum_list()
+_comp_cmd_yum__list()
 {
     if [[ $1 == all ]]; then
         # Try to strip in between headings like "Available Packages"
@@ -37,7 +37,7 @@ _yum_plugins()
         command sed -ne 's|.*/\([^./]*\)\.py[co]\{0,1\}$|\1|p' | sort -u
 }
 
-_yum()
+_comp_cmd_yum()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
@@ -59,20 +59,20 @@ _yum()
         fi
         case $special in
             install)
-                _yum_list available
+                _comp_cmd_yum__list available
                 return
                 ;;
             deplist | info)
-                _yum_list all
+                _comp_cmd_yum__list all
                 return
                 ;;
             upgrade | update)
-                _yum_list updates
+                _comp_cmd_yum__list updates
                 return
                 ;;
             remove | erase)
                 # _comp_xfunc_rpm_installed_packages is not arch-qualified
-                _yum_list installed
+                _comp_cmd_yum__list installed
                 return
                 ;;
         esac
@@ -143,6 +143,6 @@ _yum()
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     fi
 } &&
-    complete -F _yum yum
+    complete -F _comp_cmd_yum yum
 
 # ex: filetype=sh

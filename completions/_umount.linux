@@ -6,7 +6,7 @@
 # Just like COMPREPLY=(`compgen -W "${COMPREPLY[*]}" -- "$cur"`), only better!
 #
 # This will correctly escape special characters in COMPREPLY.
-_reply_compgen_array()
+_comp_cmd_umount__reply_compgen_array()
 {
     # Create the argument for compgen -W by escaping twice.
     #
@@ -33,7 +33,7 @@ _reply_compgen_array()
 }
 
 # Unescape strings in the linux fstab(5) format (with octal escapes).
-__linux_fstab_unescape()
+_comp_cmd_umount__linux_fstab_unescape()
 {
     eval "$1='${!1//\'/\\047}'"
     eval "$1='${!1/%\\/\\\\}'"
@@ -45,7 +45,7 @@ __linux_fstab_unescape()
 # Reads a file from stdin in the linux fstab(5) format; as used by /etc/fstab
 # and /proc/mounts. With 1st arg -L, look for entries by label.
 # shellcheck disable=SC2120
-_linux_fstab()
+_comp_cmd_umount__linux_fstab()
 {
     COMPREPLY=()
 
@@ -56,12 +56,12 @@ _linux_fstab()
         if [[ ${1-} == -L ]]; then
             local fs_label=${fs_spec/#LABEL=/}
             if [[ $fs_label != "$fs_spec" ]]; then
-                __linux_fstab_unescape fs_label
+                _comp_cmd_umount__linux_fstab_unescape fs_label
                 COMPREPLY+=("$fs_label")
             fi
         else
-            __linux_fstab_unescape fs_spec
-            __linux_fstab_unescape fs_file
+            _comp_cmd_umount__linux_fstab_unescape fs_spec
+            _comp_cmd_umount__linux_fstab_unescape fs_file
             [[ $fs_spec == */* ]] && COMPREPLY+=("$fs_spec")
             [[ $fs_file == */* ]] && COMPREPLY+=("$fs_file")
         fi
@@ -90,10 +90,10 @@ _linux_fstab()
         fi
     fi
 
-    _reply_compgen_array
+    _comp_cmd_umount__reply_compgen_array
 }
 
-_umount()
+_comp_cmd_umount()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -131,12 +131,12 @@ _umount()
     if [[ -r /proc/mounts ]]; then
         # Linux /proc/mounts is properly quoted. This is important when
         # unmounting usb devices with pretty names.
-        _linux_fstab </proc/mounts
+        _comp_cmd_umount__linux_fstab </proc/mounts
     else
         local IFS=$'\n'
         COMPREPLY=($(compgen -W '$(mount | cut -d" " -f 3)' -- "$cur"))
     fi
 } &&
-    complete -F _umount -o dirnames umount
+    complete -F _comp_cmd_umount -o dirnames umount
 
 # ex: filetype=sh
