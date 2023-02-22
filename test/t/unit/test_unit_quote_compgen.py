@@ -6,7 +6,7 @@ from conftest import assert_bash_exec, assert_complete, bash_env_saved
 
 
 @pytest.mark.bashcomp(cmd=None, temp_cwd=True)
-class TestUnitQuoteReadline:
+class TestUnitQuoteCompgen:
     def test_exec(self, bash):
         assert_bash_exec(bash, "quote_readline '' >/dev/null")
 
@@ -36,9 +36,9 @@ class TestUnitQuoteReadline:
         Reported at https://github.com/scop/bash-completion/pull/492
 
         Arbitrary commands could be unintendedly executed by
-        _quote_readline_by_ref.  In the following example, the command
-        "touch 1.txt" would be unintendedly created before the fix.  The file
-        "1.txt" should not be created by completion on the following line:
+        _comp_quote_compgen.  In the following example, the command "touch
+        1.txt" would be unintendedly created before the fix.  The file "1.txt"
+        should not be created by completion on the following line:
 
           $ echo '$(touch file.txt)[TAB]
 
@@ -97,10 +97,10 @@ class TestUnitQuoteReadline:
         Ref [2] https://github.com/scop/bash-completion/pull/526
 
         The escape sequences in the local variable of "value" in
-        "_quote_readline_by_ref" needs to be unescaped by passing it to printf
-        as the format string.  This causes a problem in the following case
-        [where the spaces after "alpha\" is a TAB character inserted in the
-        command string by "C-v TAB"]:
+        "_comp_quote_compgen" needs to be unescaped by passing it to printf as
+        the format string.  This causes a problem in the following case [where
+        the spaces after "alpha\" is a TAB character inserted in the command
+        string by "C-v TAB"]:
 
           $ echo alpha\   b[TAB]
 

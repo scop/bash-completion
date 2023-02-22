@@ -13,6 +13,7 @@ _comp_deprecate_func _upvars _comp_upvars
 _comp_deprecate_func __reassemble_comp_words_by_ref _comp__reassemble_words
 _comp_deprecate_func __get_cword_at_cursor_by_ref _comp__get_cword_at_cursor
 _comp_deprecate_func _get_comp_words_by_ref _comp_get_words
+_comp_deprecate_func _quote_readline_by_ref _comp_quote_compgen
 
 # Backwards compatibility for compat completions that use have().
 # @deprecated should no longer be used; generally not needed with dynamically

@@ -135,11 +135,11 @@ _comp_quote()
     ret=\'${1//\'/\'\\\'\'}\'
 }
 
-# @see _quote_readline_by_ref()
+# @see _comp_quote_compgen()
 quote_readline()
 {
     local ret
-    _quote_readline_by_ref "$1" ret
+    _comp_quote_compgen "$1" ret
     printf %s "$ret"
 } # quote_readline()
 
@@ -637,7 +637,7 @@ __ltrim_colon_completions()
 # - https://www.mail-archive.com/bash-completion-devel@lists.alioth.debian.org/msg01944.html
 # @param $1  Argument to quote
 # @param $2  Name of variable to return result to
-_quote_readline_by_ref()
+_comp_quote_compgen()
 {
     if [[ $1 == \'* ]]; then
         # Leave out first character
@@ -656,7 +656,7 @@ _quote_readline_by_ref()
             local "$2" && _comp_upvars -v "$2" "$value"
         fi
     fi
-} # _quote_readline_by_ref()
+} # _comp_quote_compgen()
 
 # This function performs file and directory completion. It's better than
 # simply using 'compgen -f', because it honours spaces in filenames.
@@ -682,7 +682,7 @@ _filedir()
         IFS=$'\n'
     else
         local quoted
-        _quote_readline_by_ref "${cur-}" quoted
+        _comp_quote_compgen "${cur-}" quoted
 
         # Munge xspec to contain uppercase version too
         # https://lists.gnu.org/archive/html/bug-bash/2010-09/msg00036.html
