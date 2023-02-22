@@ -20,10 +20,11 @@ used instead of it.
 
 ### `BASH_COMPLETION_COMPAT_DIR`
 
-Directory for pre-dynamic loading era (pre-2.0) backwards compatibility
-completion files that are loaded eagerly from `bash_completion` when it is
-loaded. If unset or null, the default compatibility directory to use is
-`/etc/bash_completion.d`.
+Directory for pre-dynamic loading era (pre-2.0) and other backwards
+compatibility completion files that are loaded eagerly from `bash_completion`
+when it is loaded. If unset or null, the default compatibility directories to
+use are `/etc/bash_completion.d`, and `bash_completion.d` relative to
+`bash_completion` location.
 
 ### `BASH_COMPLETION_FILEDIR_FALLBACK`
 
