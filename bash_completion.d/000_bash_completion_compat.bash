@@ -13,7 +13,6 @@ _comp_deprecate_func _upvars _comp_upvars
 _comp_deprecate_func __reassemble_comp_words_by_ref _comp__reassemble_words
 _comp_deprecate_func __get_cword_at_cursor_by_ref _comp__get_cword_at_cursor
 _comp_deprecate_func _get_comp_words_by_ref _comp_get_words
-_comp_deprecate_func _quote_readline_by_ref _comp_quote_compgen
 
 # Backwards compatibility for compat completions that use have().
 # @deprecated should no longer be used; generally not needed with dynamically
@@ -33,6 +32,19 @@ quote()
 {
     local quoted=${1//\'/\'\\\'\'}
     printf "'%s'" "$quoted"
+}
+
+# This function is the same as `_comp_quote_compgen`, but receives the second
+# argument specifying the variable name to store the result.
+# @param $1  Argument to quote
+# @param $2  Name of variable to return result to
+# @deprecated Use `_comp_quote_compgen "$1"` instead.  Note that
+# `_comp_quote_compgen` stores the result in a fixed variable `ret`.
+_quote_readline_by_ref()
+{
+    [[ $2 == ret ]] || local ret
+    _comp_quote_compgen "$1"
+    [[ $2 == ret ]] || printf -v "$2" %s "$ret"
 }
 
 # This function shell-dequotes the argument
