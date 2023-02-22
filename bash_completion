@@ -135,14 +135,6 @@ _comp_quote()
     ret=\'${1//\'/\'\\\'\'}\'
 }
 
-# @see _comp_quote_compgen()
-quote_readline()
-{
-    local ret
-    _comp_quote_compgen "$1"
-    printf %s "$ret"
-} # quote_readline()
-
 # shellcheck disable=SC1003
 _comp_dequote__initialize()
 {
@@ -2360,11 +2352,15 @@ _filedir_xspec()
 
     _tilde "$cur" || return
 
+    local ret
+    _comp_quote_compgen "$cur"
+    local quoted=$ret
+
     local IFS=$'\n' xspec=${_xspecs[${1##*/}]} tmp
     local -a toks
 
     toks=($(
-        compgen -d -- "$(quote_readline "$cur")" | {
+        compgen -d -- "$quoted" | {
             while read -r tmp; do
                 printf '%s\n' "$tmp"
             done
@@ -2383,7 +2379,7 @@ _filedir_xspec()
     xspec="$matchop($xspec|${xspec^^})"
 
     toks+=($(
-        eval compgen -f -X "'!$xspec'" -- '$(quote_readline "$cur")' | {
+        eval compgen -f -X "'!$xspec'" -- '$quoted' | {
             while read -r tmp; do
                 [[ $tmp ]] && printf '%s\n' "$tmp"
             done
@@ -2395,7 +2391,7 @@ _filedir_xspec()
         ${#toks[@]} -lt 1 ]] && {
         local reset=$(shopt -po noglob)
         set -o noglob
-        toks+=($(compgen -f -- "$(quote_readline "$cur")"))
+        toks+=($(compgen -f -- "$quoted"))
         IFS=' '
         $reset
         IFS=$'\n'

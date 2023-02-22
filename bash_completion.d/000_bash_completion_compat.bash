@@ -34,6 +34,14 @@ quote()
     printf "'%s'" "$quoted"
 }
 
+# @deprecated Use `_comp_quote_compgen`
+quote_readline()
+{
+    local ret
+    _comp_quote_compgen "$1"
+    printf %s "$ret"
+} # quote_readline()
+
 # This function is the same as `_comp_quote_compgen`, but receives the second
 # argument specifying the variable name to store the result.
 # @param $1  Argument to quote

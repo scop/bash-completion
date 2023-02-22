@@ -5,18 +5,30 @@ import pytest
 from conftest import assert_bash_exec, assert_complete, bash_env_saved
 
 
-@pytest.mark.bashcomp(cmd=None, temp_cwd=True)
+@pytest.mark.bashcomp(
+    cmd=None,
+    temp_cwd=True,
+    ignore_env=r"^\+declare -f _comp_test_quote_compgen$",
+)
 class TestUnitQuoteCompgen:
-    def test_exec(self, bash):
-        assert_bash_exec(bash, "quote_readline '' >/dev/null")
-
-    def test_env_non_pollution(self, bash):
-        """Test environment non-pollution, detected at teardown."""
+    @pytest.fixture(scope="class")
+    def functions(self, bash):
         assert_bash_exec(
-            bash, "foo() { quote_readline meh >/dev/null; }; foo; unset -f foo"
+            bash,
+            '_comp_test_quote_compgen() { local ret; _comp_quote_compgen "$1"; printf %s "$ret"; }',
         )
 
-    def test_github_issue_189_1(self, bash):
+    def test_exec(self, bash, functions):
+        assert_bash_exec(bash, "_comp_test_quote_compgen '' >/dev/null")
+
+    def test_env_non_pollution(self, bash, functions):
+        """Test environment non-pollution, detected at teardown."""
+        assert_bash_exec(
+            bash,
+            "foo() { _comp_test_quote_compgen meh >/dev/null; }; foo; unset -f foo",
+        )
+
+    def test_github_issue_189_1(self, bash, functions):
         """Test error messages on a certain command line
 
         Reported at https://github.com/scop/bash-completion/issues/189
@@ -28,9 +40,9 @@ class TestUnitQuoteCompgen:
           $ rm -- '${[TAB]
 
         """
-        assert_bash_exec(bash, "quote_readline $'\\'${' >/dev/null")
+        assert_bash_exec(bash, "_comp_test_quote_compgen $'\\'${' >/dev/null")
 
-    def test_github_issue_492_1(self, bash):
+    def test_github_issue_492_1(self, bash, functions):
         """Test unintended code execution on a certain command line
 
         Reported at https://github.com/scop/bash-completion/pull/492
@@ -44,11 +56,11 @@ class TestUnitQuoteCompgen:
 
         """
         assert_bash_exec(
-            bash, "quote_readline $'\\'$(touch 1.txt)' >/dev/null"
+            bash, "_comp_test_quote_compgen $'\\'$(touch 1.txt)' >/dev/null"
         )
         assert not os.path.exists("./1.txt")
 
-    def test_github_issue_492_2(self, bash):
+    def test_github_issue_492_2(self, bash, functions):
         """Test the file clear by unintended redirection on a certain command line
 
         Reported at https://github.com/scop/bash-completion/pull/492
@@ -59,23 +71,25 @@ class TestUnitQuoteCompgen:
           $ awk '$1 > 1.0[TAB]
 
         """
-        assert_bash_exec(bash, "quote_readline $'\\'$1 > 1.0' >/dev/null")
+        assert_bash_exec(
+            bash, "_comp_test_quote_compgen $'\\'$1 > 1.0' >/dev/null"
+        )
         assert not os.path.exists("./1.0")
 
-    def test_github_issue_492_3(self, bash):
+    def test_github_issue_492_3(self, bash, functions):
         """Test code execution through unintended pathname expansions
 
         When there is a file named "quote=$(COMMAND)" (for _filedir) or
-        "ret=$(COMMAND)" (for quote_readline), the completion of the word '$*
-        results in the execution of COMMAND.
+        "ret=$(COMMAND)" (for _comp_quote_compgen), the completion of the word
+        '$* results in the execution of COMMAND.
 
           $ echo '$*[TAB]
 
         """
         os.mkdir("./ret=$(echo injected >&2)")
-        assert_bash_exec(bash, "quote_readline $'\\'$*' >/dev/null")
+        assert_bash_exec(bash, "_comp_test_quote_compgen $'\\'$*' >/dev/null")
 
-    def test_github_issue_492_4(self, bash):
+    def test_github_issue_492_4(self, bash, functions):
         """Test error messages through unintended pathname expansions
 
         When "shopt -s failglob" is set by the user, the completion of the word
@@ -88,7 +102,9 @@ class TestUnitQuoteCompgen:
         """
         with bash_env_saved(bash) as bash_env:
             bash_env.shopt("failglob", True)
-            assert_bash_exec(bash, "quote_readline $'a\\\\\\tb*' >/dev/null")
+            assert_bash_exec(
+                bash, "_comp_test_quote_compgen $'a\\\\\\tb*' >/dev/null"
+            )
 
     def test_github_issue_526_1(self, bash):
         r"""Regression tests for unprocessed escape sequences after quotes
