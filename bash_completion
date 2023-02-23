@@ -396,8 +396,7 @@ _comp_looks_like_path()
 #
 __reassemble_comp_words_by_ref()
 {
-    local exclude i j line ref
-    unset -v exclude # workaround for localvar_inherit
+    local exclude="" i j line ref
     # Exclude word separator characters?
     if [[ $1 ]]; then
         # Yes, exclude word separator characters;
@@ -408,7 +407,7 @@ __reassemble_comp_words_by_ref()
     # Default to cword unchanged
     printf -v "$3" %s "$COMP_CWORD"
     # Are characters excluded which were former included?
-    if [[ -v exclude ]]; then
+    if [[ $exclude ]]; then
         # Yes, list of word completion separators has shrunk;
         line=$COMP_LINE
         # Re-assemble words to complete
@@ -532,13 +531,18 @@ __get_cword_at_cursor_by_ref()
 #
 _get_comp_words_by_ref()
 {
-    local exclude flag i OPTIND=1
+    local exclude="" flag i OPTIND=1
     local cur cword words=()
-    local upargs=() upvars=() vcur vcword vprev vwords
-    unset -v vcur vcword vprev vwords # workaround for localvar_inherit
+    local upargs=() upvars=() vcur="" vcword="" vprev="" vwords=""
 
     while getopts "c:i:n:p:w:" flag "$@"; do
         case $flag in
+            [cipw])
+                if [[ $OPTARG != [a-zA-Z_]*([a-zA-Z_0-9])?(\[*\]) ]]; then
+                    echo "bash_completion: $FUNCNAME: -$flag: invalid variable name \`$OPTARG'" >&2
+                    return 1
+                fi
+                ;;&
             c) vcur=$OPTARG ;;
             i) vcword=$OPTARG ;;
             n) exclude=$OPTARG ;;
@@ -567,19 +571,19 @@ _get_comp_words_by_ref()
 
     __get_cword_at_cursor_by_ref "${exclude-}" words cword cur
 
-    [[ -v vcur ]] && {
+    [[ $vcur ]] && {
         upvars+=("$vcur")
         upargs+=(-v $vcur "$cur")
     }
-    [[ -v vcword ]] && {
+    [[ $vcword ]] && {
         upvars+=("$vcword")
         upargs+=(-v $vcword "$cword")
     }
-    [[ -v vprev && $cword -ge 1 ]] && {
+    [[ $vprev && $cword -ge 1 ]] && {
         upvars+=("$vprev")
         upargs+=(-v $vprev "${words[cword - 1]}")
     }
-    [[ -v vwords ]] && {
+    [[ $vwords ]] && {
         upvars+=("$vwords")
         upargs+=(-a${#words[@]} $vwords ${words+"${words[@]}"})
     }
@@ -1883,10 +1887,9 @@ _included_ssh_config_files()
 # @return Completions, starting with CWORD, are added to COMPREPLY[]
 _known_hosts_real()
 {
-    local configfile flag prefix=""
-    local cur suffix="" aliases i host ipv4 ipv6
+    local configfile="" flag prefix=""
+    local cur suffix="" aliases="" i host ipv4="" ipv6=""
     local -a kh tmpkh=() khd=() config=()
-    unset -v configfile aliases ipv4 ipv6 # workaround for localvar_inherit
 
     # TODO remove trailing %foo from entries
 
@@ -1895,7 +1898,13 @@ _known_hosts_real()
         case $flag in
             a) aliases='yes' ;;
             c) suffix=':' ;;
-            F) configfile=$OPTARG ;;
+            F)
+                if [[ ! $OPTARG ]]; then
+                    echo "bash_completion: $FUNCNAME: -F: an empty filename is specified" >&2
+                    return 1
+                fi
+                configfile=$OPTARG
+                ;;
             p) prefix=$OPTARG ;;
             4) ipv4=1 ;;
             6) ipv6=1 ;;
@@ -1924,7 +1933,7 @@ _known_hosts_real()
     kh=()
 
     # ssh config files
-    if [[ -v configfile ]]; then
+    if [[ $configfile ]]; then
         [[ -r $configfile && ! -d $configfile ]] && config+=("$configfile")
     else
         for i in /etc/ssh/ssh_config ~/.ssh/config ~/.ssh2/config; do
@@ -1970,7 +1979,7 @@ _known_hosts_real()
         done
     fi
 
-    if [[ ! -v configfile ]]; then
+    if [[ ! $configfile ]]; then
         # Global and user known_hosts files
         for i in /etc/ssh/ssh_known_hosts /etc/ssh/ssh_known_hosts2 \
             /etc/known_hosts /etc/known_hosts2 ~/.ssh/known_hosts \
@@ -2035,7 +2044,7 @@ _known_hosts_real()
     fi
 
     # append any available aliases from ssh config files
-    if [[ ${#config[@]} -gt 0 && -v aliases ]]; then
+    if [[ ${#config[@]} -gt 0 && $aliases ]]; then
         local -a hosts=($(command sed -ne 's/^[[:blank:]]*[Hh][Oo][Ss][Tt][[:blank:]=]\{1,\}\(.*\)$/\1/p' "${config[@]}"))
         if ((${#hosts[@]} != 0)); then
             COMPREPLY+=($(compgen -P "$prefix" \
@@ -2071,13 +2080,13 @@ _known_hosts_real()
     $reset
 
     if ((${#COMPREPLY[@]})); then
-        if [[ -v ipv4 ]]; then
+        if [[ $ipv4 ]]; then
             COMPREPLY=("${COMPREPLY[@]/*:*$suffix/}")
         fi
-        if [[ -v ipv6 ]]; then
+        if [[ $ipv6 ]]; then
             COMPREPLY=("${COMPREPLY[@]/+([0-9]).+([0-9]).+([0-9]).+([0-9])$suffix/}")
         fi
-        if [[ -v ipv4 || -v ipv6 ]]; then
+        if [[ $ipv4 || $ipv6 ]]; then
             for i in "${!COMPREPLY[@]}"; do
                 [[ ${COMPREPLY[i]} ]] || unset -v 'COMPREPLY[i]'
             done
