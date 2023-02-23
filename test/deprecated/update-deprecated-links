@@ -1,14 +1,20 @@
 #!/bin/bash
 set -euo pipefail
 
+is_tracked_by_git()
+{
+    git ls-files --error-unmatch "$1" &>/dev/null
+}
+
 cd "$(dirname "$0")/completions"
 for f in *; do
-    case $f in
-        Makefile* | README.md) ;;
-        *) git rm -f $f ;;
-    esac
+    if [[ -h $f ]] && is_tracked_by_git "$f"; then
+        git rm -f "$f"
+    fi
 done
 for f in ../../../completions/_*; do
-    ln -sf $f ${f##*/_}
-    git add --verbose ${f##*/_}
+    if is_tracked_by_git "$f"; then
+        ln -sf $f ${f##*/_}
+        git add --verbose ${f##*/_}
+    fi
 done
