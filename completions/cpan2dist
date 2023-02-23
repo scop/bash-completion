@@ -23,13 +23,12 @@ _cpan2dist()
         COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
     else
         local cpandirs=("$HOME/.cpanplus/" "$HOME/.cpan/source/modules/")
-        local dir packagelist
-        unset -v packagelist # workaround for localvar_inherit
+        local dir packagelist=
         for dir in "${cpandirs[@]}"; do
             [[ -d $dir && -r "$dir/02packages.details.txt.gz" ]] &&
                 packagelist="$dir/02packages.details.txt.gz"
         done
-        [[ -v packagelist ]] && COMPREPLY=($(zgrep "^${cur//-/::}" \
+        [[ $packagelist ]] && COMPREPLY=($(zgrep "^${cur//-/::}" \
             "$packagelist" 2>/dev/null | awk '{print $1}' |
             command sed -e 's/::/-/g'))
     fi

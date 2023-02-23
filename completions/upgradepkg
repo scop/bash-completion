@@ -14,13 +14,12 @@ _upgradepkg()
     if [[ $cur == ?*%* ]]; then
         prev="${cur%%?(\\)%*}"
         cur="${cur#*%}"
-        local nofiles IFS=$'\n'
-        unset -v nofiles # workaround for localvar_inherit
+        local nofiles="" IFS=$'\n'
         compopt -o filenames
         COMPREPLY=($(compgen -P "$prev%" -f -X "!*.@(t[bgxl]z)" -- "$cur"))
         [[ ${COMPREPLY-} ]] || nofiles=1
         COMPREPLY+=($(compgen -P "$prev%" -S '/' -d -- "$cur"))
-        [[ -v nofiles ]] && compopt -o nospace
+        [[ $nofiles ]] && compopt -o nospace
         return
     fi
 

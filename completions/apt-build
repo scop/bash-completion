@@ -5,8 +5,7 @@ _apt_build()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
-    local special i
-    unset -v special # workaround for localvar_inherit
+    local special="" i
     for ((i = 1; i < ${#words[@]} - 1; i++)); do
         if [[ ${words[i]} == @(install|remove|source|info|clean) ]]; then
             special=${words[i]}
@@ -14,7 +13,7 @@ _apt_build()
         fi
     done
 
-    if [[ -v special ]]; then
+    if [[ $special ]]; then
         case $special in
             install | source | info)
                 COMPREPLY=($(_comp_xfunc apt-cache packages))

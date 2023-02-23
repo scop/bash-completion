@@ -52,9 +52,8 @@ _cvs()
     local cur prev words cword comp_args
     _comp_initialize -n : -- "$@" || return
 
-    local count mode i cvsroot cvsroots pwd
+    local count mode="" i cvsroot="" has_cvsroot=false cvsroots pwd
     local -a flags files entries changed newremoved
-    unset -v mode cvsroot # workaround for localvar_inherit
 
     local noargopts='!(-*|*[d]*)'
     count=0
@@ -62,9 +61,9 @@ _cvs()
         ((count == cword)) && break
         # Last parameter was the CVSROOT, now go back to mode selection
         if [[ ${words[count]} == "${cvsroot-}" && ${mode-} == cvsroot ]]; then
-            unset -v mode
+            mode=""
         fi
-        if [[ ! -v mode ]]; then
+        if [[ ! $mode ]]; then
             # shellcheck disable=SC2254
             case $i in
                 --help | -${noargopts}H)
@@ -74,6 +73,7 @@ _cvs()
                 -${noargopts}d)
                     mode=cvsroot
                     cvsroot=${words[count + 1]}
+                    has_cvsroot=true
                     ;;
                 add | ad | new)
                     mode=add
@@ -231,7 +231,7 @@ _cvs()
             esac
 
             if [[ $cur != -* ]]; then
-                [[ ! -v cvsroot ]] && cvsroot=${CVSROOT-}
+                ! "$has_cvsroot" && cvsroot=${CVSROOT-}
                 COMPREPLY=($(cvs -d "$cvsroot" co -c 2>/dev/null |
                     awk '{print $1}'))
                 ((${#COMPREPLY[@]})) &&
@@ -316,7 +316,7 @@ _cvs()
             esac
 
             if [[ $cur != -* ]]; then
-                [[ ! -v cvsroot ]] && cvsroot=${CVSROOT-}
+                ! "$has_cvsroot" && cvsroot=${CVSROOT-}
                 COMPREPLY=($(cvs -d "$cvsroot" co -c | awk '{print $1}'))
                 ((${#COMPREPLY[@]})) &&
                     COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
@@ -338,7 +338,7 @@ _cvs()
 
             if [[ $cur != -* ]]; then
                 # starts with same algorithm as checkout
-                [[ ! -v cvsroot ]] && cvsroot=${CVSROOT-}
+                ! "$has_cvsroot" && cvsroot=${CVSROOT-}
                 local prefix=${cur%/*}
                 if [[ -r ${cvsroot}/${prefix} ]]; then
                     _cvs_modules

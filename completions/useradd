@@ -8,14 +8,13 @@ _useradd()
     # TODO: if -o/--non-unique is given, could complete on existing uids
     #       with -u/--uid
 
-    local word chroot
-    unset -v chroot # workaround for localvar_inherit
+    local word chroot="" has_chroot=false
     for word in "${words[@]}"; do
-        if [[ -v chroot ]]; then
+        if "$has_chroot"; then
             chroot=$word
             break
         fi
-        [[ $word != -@(R|-root) ]] || chroot=
+        [[ $word != -@(R|-root) ]] || has_chroot=true
     done
 
     local noargopts='!(-*|*[cefKpubdkRgGZs]*)'

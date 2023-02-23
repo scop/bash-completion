@@ -30,28 +30,28 @@ _comp_cmd_op()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
-    local command i
-    unset -v command # workaround for localvar_inherit
+    local command has_command=false i
     for ((i = 1; i < cword; i++)); do
         case ${words[i]} in
             --help | --version) return ;;
             -*) ;;
             *)
                 command=${words[i]}
+                has_command=true
                 break
                 ;;
         esac
     done
 
-    if [[ ! -v command && $cur == -* ]]; then
+    if ! "$has_command" && [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
 
-    [[ -v command ]] && _comp_cmd_op__command_options "$1" && return
+    "$has_command" && _comp_cmd_op__command_options "$1" && return
 
-    if [[ ! -v command || $command == "$prev" ]]; then
+    if ! "$has_command" || [[ $command == "$prev" ]]; then
         COMPREPLY=($(compgen -W '$(_op_commands "$1" ${command-})' -- "$cur"))
         [[ ${COMPREPLY-} ]] && return
     fi
