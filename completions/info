@@ -57,16 +57,13 @@ _info()
         _comp_unlocal IFS
 
         if ((${#COMPREPLY[@]})); then
-            # weed out directory path names and paths to info pages
-            COMPREPLY=(${COMPREPLY[@]##*/?(:)})
-            # weed out info dir file
-            for i in ${!COMPREPLY[*]}; do
-                [[ ${COMPREPLY[i]} == dir ]] && unset -v 'COMPREPLY[i]'
-            done
+            # weed out directory path names and paths to info pages (empty
+            # elements will be removed by the later `compgen -X ''`)
+            COMPREPLY=("${COMPREPLY[@]##*/?(:)}")
             # strip suffix from info pages
-            COMPREPLY=(${COMPREPLY[@]%.@(gz|bz2|xz|lzma)})
-            ((${#COMPREPLY[@]})) &&
-                COMPREPLY=($(compgen -W '"${COMPREPLY[@]%.*}"' -- "${cur//\\\\/}"))
+            COMPREPLY=("${COMPREPLY[@]%.@(gz|bz2|xz|lzma)}")
+            # weed out info dir file with -X 'dir'
+            _comp_split -l COMPREPLY "$(compgen -W '"${COMPREPLY[@]%.*}"' -X '@(|dir)' -- "${cur//\\\\/}")"
         fi
     fi
 } &&
