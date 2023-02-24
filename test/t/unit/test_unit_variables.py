@@ -11,7 +11,7 @@ class TestUnitVariables:
         assert_bash_exec(
             bash, "unset assoc2 && declare -A assoc2=([idx1]=1 [idx2]=2)"
         )
-        assert_bash_exec(bash, "unset ${!___v*} && declare ___var=''")
+        assert_bash_exec(bash, 'unset ${!___v*} && declare ___var=""')
         request.addfinalizer(
             lambda: assert_bash_exec(bash, "unset ___var assoc1 assoc2")
         )
