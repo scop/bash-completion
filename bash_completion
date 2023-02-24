@@ -381,6 +381,79 @@ _comp_split()
     ((_new_size > _old_size))
 }
 
+# Call `compgen` with the specified arguments and store the results in the
+# specified array.
+# Usage: _comp_compgen [-al] [-F sep] ARRAY args... [-- cur]
+# This function essentially performs ARRAY=($(compgen args...)) but properly
+# handles shell options, IFS, etc. using _comp_split.  This function is
+# equivalent to `_comp_split [-a] -F sep ARRAY "$(compgen args...)"`, but this
+# pattern is frequent in the codebase and is good to separate out as a function
+# for the possible future implementation change.
+# OPTIONS
+#   -a      Append to the array
+#   -F sep  Set a set of separator characters (used as IFS in evaluating
+#           `compgen').  The default separator is $' \t\n'.  Note that this is
+#           not the set of separators to delimit output of `compgen', but the
+#           separators in evaluating the expansions of `-W '...'`, etc.  The
+#           delimiter of the output of `compgen` is always a newline.
+#   -l      The same as -F $'\n'
+# @param $1 array_name  The array name
+#   The array name should not start with an underscores "_", which is
+#   internally used.  The array name should not be either "IFS" or
+#   "OPT{IND,ARG,ERR}".
+# @param $2... args     The arguments that are passed to compgen
+#   Note: References to positional parameters $1, $2, ... (such as -W '$1')
+#   will not work as expected because these reference the arguments of
+#   `_comp_compgen' instead of those of the caller function.  When there are
+#   needs to reference them, save the arguments to an array and reference the
+#   array instead.
+_comp_compgen()
+{
+    local _append=false IFS=$' \t\n'
+    local -a _split_options=(-l)
+
+    local OPTIND=1 OPTARG="" OPTERR=0 _opt
+    while getopts ':alF:' _opt "$@"; do
+        case $_opt in
+            a) _append=true _split_options+=(-a) ;;
+            l) IFS=$'\n' ;;
+            F) IFS=$OPTARG ;;
+            *)
+                echo "bash_completion: $FUNCNAME: usage error" >&2
+                return 2
+                ;;
+        esac
+    done
+    shift "$((OPTIND - 1))"
+    if (($# < 2)); then
+        printf '%s\n' "bash_completion: $FUNCNAME: unexpected number of arguments." >&2
+        printf '%s\n' "usage: $FUNCNAME [-al] [-F SEP] ARRAY_NAME ARGS... [-- CUR]" >&2
+        return 2
+    elif [[ $1 == @(*[^_a-zA-Z0-9]*|[0-9]*|''|_*|IFS|OPTIND|OPTARG|OPTERR) ]]; then
+        printf '%s\n' "bash_completion: $FUNCNAME: invalid array name \`$1'." >&2
+        return 2
+    elif [[ ${*:2} == *\$[0-9]* || ${*:2} == *\$\{[0-9]* ]]; then
+        # Note: extglob *\$?(\{)[0-9]* can be extremely slow when the string
+        # "${*:2}" becomes longer, so we test \$[0-9] and \$\{[0-9] separately.
+        printf '%s\n' "bash_completion: $FUNCNAME: positional parameter \$1, \$2, ... do not work inside this function." >&2
+        return 2
+    fi
+
+    local _result
+    _result=$(compgen "${@:2}") || {
+        local _status=$?
+        if "$_append"; then
+            # make sure existence of variable
+            eval -- "$1+=()"
+        else
+            eval -- "$1=()"
+        fi
+        return "$_status"
+    }
+
+    _comp_split "${_split_options[@]}" "$1" "$_result"
+}
+
 # Check if the argument looks like a path.
 # @param $1 thing to check
 # @return True (0) if it does, False (> 0) otherwise
