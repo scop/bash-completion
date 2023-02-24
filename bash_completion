@@ -324,24 +324,27 @@ _comp_expand_glob()
 # state of `IFS` and the shell option `noglob`.  A naive splitting by
 # `arr=(...)` suffers from unexpected IFS and pathname expansions, so one
 # should prefer this function to such naive splitting.
-# @param $1 array_name  The array name
-#   The array name should not start with an underscores "_", which is
-#   internally used.  The array name should not be either "IFS" or
-#   "OPT{IND,ARG,ERR}".
-# @param $2 text        The string to split
 # OPTIONS
 #   -a      Append to the array
 #   -F sep  Set a set of separator characters (used as IFS).  The default
 #           separator is $' \t\n'
 #   -l      The same as -F $'\n'
+# @param $1 array_name  The array name
+#   The array name should not start with an underscores "_", which is
+#   internally used.  The array name should not be either "IFS" or
+#   "OPT{IND,ARG,ERR}".
+# @param $2 text        The string to split
+# @return 2 when the usage is wrong, 0 when one or more completions are
+#   generated, or 1 when the execution succeeds but no candidates are
+#   generated.
 _comp_split()
 {
-    local _assign='=' IFS=$' \t\n'
+    local _append=false IFS=$' \t\n'
 
     local OPTIND=1 OPTARG="" OPTERR=0 _opt
     while getopts ':alF:' _opt "$@"; do
         case $_opt in
-            a) _assign='+=' ;;
+            a) _append=true ;;
             l) IFS=$'\n' ;;
             F) IFS=$OPTARG ;;
             *)
@@ -363,10 +366,19 @@ _comp_split()
     local _original_opts=$SHELLOPTS
     set -o noglob
 
-    eval "$1$_assign(\$2)"
+    local _old_size _new_size
+    if "$_append"; then
+        eval "$1+=()" # in case $1 is unset
+        eval "_old_size=\${#$1[@]}"
+        eval "$1+=(\$2)"
+    else
+        _old_size=0
+        eval "$1=(\$2)"
+    fi
+    eval "_new_size=\${#$1[@]}"
 
     [[ :$_original_opts: == *:noglob:* ]] || set +o noglob
-    return 0
+    ((_new_size > _old_size))
 }
 
 # Check if the argument looks like a path.
@@ -2507,8 +2519,8 @@ __load_completion()
     # 1) From BASH_COMPLETION_USER_DIR (e.g. ~/.local/share/bash-completion):
     # User installed completions.
     if [[ ${BASH_COMPLETION_USER_DIR-} ]]; then
-        _comp_split -F : paths "$BASH_COMPLETION_USER_DIR"
-        dirs+=("${paths[@]/%//completions}")
+        _comp_split -F : paths "$BASH_COMPLETION_USER_DIR" &&
+            dirs+=("${paths[@]/%//completions}")
     else
         dirs=("${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion/completions")
     fi
@@ -2536,8 +2548,8 @@ __load_completion()
 
     # 4) From XDG_DATA_DIRS or system dirs (e.g. /usr/share, /usr/local/share):
     # Completions in the system data dirs.
-    _comp_split -F : paths "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
-    dirs+=("${paths[@]/%//bash-completion/completions}")
+    _comp_split -F : paths "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" &&
+        dirs+=("${paths[@]/%//bash-completion/completions}")
 
     local backslash=
     if [[ $cmd == \\* ]]; then
