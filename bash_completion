@@ -1930,7 +1930,7 @@ _included_ssh_config_files()
 _known_hosts_real()
 {
     local configfile="" flag prefix=""
-    local cur suffix="" aliases="" i host ipv4="" ipv6=""
+    local cur suffix="" aliases="" i host ipv4=false ipv6=false
     local -a kh tmpkh=() khd=() config=()
 
     # TODO remove trailing %foo from entries
@@ -1948,8 +1948,8 @@ _known_hosts_real()
                 configfile=$OPTARG
                 ;;
             p) prefix=$OPTARG ;;
-            4) ipv4=1 ;;
-            6) ipv6=1 ;;
+            4) ipv4=true ;;
+            6) ipv6=true ;;
             *)
                 echo "bash_completion: $FUNCNAME: usage error" >&2
                 return 1
@@ -2122,13 +2122,13 @@ _known_hosts_real()
     $reset
 
     if ((${#COMPREPLY[@]})); then
-        if [[ $ipv4 ]]; then
+        if "$ipv4"; then
             COMPREPLY=("${COMPREPLY[@]/*:*$suffix/}")
         fi
-        if [[ $ipv6 ]]; then
+        if "$ipv6"; then
             COMPREPLY=("${COMPREPLY[@]/+([0-9]).+([0-9]).+([0-9]).+([0-9])$suffix/}")
         fi
-        if [[ $ipv4 || $ipv6 ]]; then
+        if "$ipv4" || "$ipv6"; then
             for i in "${!COMPREPLY[@]}"; do
                 [[ ${COMPREPLY[i]} ]] || unset -v 'COMPREPLY[i]'
             done
