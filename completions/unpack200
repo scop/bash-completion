@@ -25,15 +25,15 @@ _unpack200()
     $split && return
 
     # Check if a pack or a jar was already given.
-    local word pack=false jar=false
+    local word pack="" jar=""
     for word in "${words[@]:1}"; do
         case $word in
-            *.pack | *.pack.gz) pack=true ;;
-            *.jar) jar=true ;;
+            *.pack | *.pack.gz) pack=set ;;
+            *.jar) jar=set ;;
         esac
     done
 
-    if ! $pack; then
+    if [[ ! $pack ]]; then
         if [[ $cur == -* ]]; then
             COMPREPLY=($(compgen -W '--deflate-hint= --remove-pack-file
                 --verbose --quiet --log-file= --help --version' -- "$cur"))
@@ -41,7 +41,7 @@ _unpack200()
         else
             _filedir 'pack?(.gz)'
         fi
-    elif ! $jar; then
+    elif [[ ! $jar ]]; then
         _filedir jar
     fi
 } &&

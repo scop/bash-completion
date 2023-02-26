@@ -480,16 +480,16 @@ _comp_xfunc_ssh_scp_local_files()
 {
     local IFS=$'\n'
 
-    local dirsonly=false
+    local dirsonly=""
     if [[ ${1-} == -d ]]; then
-        dirsonly=true
+        dirsonly=set
         shift
     fi
 
     local files
     _comp_expand_glob files '"$cur"*'
     ((${#files[@]})) || return 0
-    if $dirsonly; then
+    if [[ $dirsonly ]]; then
         COMPREPLY+=($(command ls -aF1dL "${files[@]}" 2>/dev/null |
             command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" -e '/[^\/]$/d' \
                 -e "s/^/${1-}/"))

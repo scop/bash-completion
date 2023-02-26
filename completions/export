@@ -5,7 +5,7 @@ _comp_cmd_export()
     local cur prev words cword comp_args
     _comp_initialize -n := -- "$@" || return
 
-    local i action=variable remove=false
+    local i action=variable remove=""
     for ((i = 1; i < cword; i++)); do
         case ${words[i]} in
             -p)
@@ -15,7 +15,7 @@ _comp_cmd_export()
                 action=function
                 ;;&
             -*n*)
-                remove=true
+                remove=set
                 ;;
             -*)
                 continue
@@ -52,7 +52,7 @@ _comp_cmd_export()
                 return
             fi
             local suffix=""
-            if ! $remove && [[ $action != function ]]; then
+            if [[ ! $remove && $action != function ]]; then
                 suffix="="
                 compopt -o nospace
             fi
