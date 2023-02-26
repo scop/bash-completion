@@ -171,16 +171,16 @@ __tar_parse_old_opt()
 
     # current word is the first word
     [[ $cword -eq 1 && $cur && ${cur:0:1} != '-' ]] &&
-        old_opt_progress=1
+        old_opt_progress=true
 
     # check that first argument does not begin with "-"
     first_word=${words[1]}
     [[ $first_word && ${first_word:0:1} != "-" ]] &&
-        old_opt_used=1
+        old_opt_used=true
 
     # parse the old option (if present) contents to allow later code expect
     # corresponding arguments
-    if ((old_opt_used == 1)); then
+    if "$old_opt_used"; then
         char=${first_word:0:1}
         while [[ $char ]]; do
             if __tar_is_argreq "$char"; then
@@ -195,13 +195,12 @@ __tar_parse_old_opt()
 # Make the analysis of whole command line.
 __tar_preparse_cmdline()
 {
-    local first_arg i modes="ctxurdA"
+    local first_arg=true i modes="ctxurdA"
 
     shift # progname
 
     __tar_parse_old_opt
 
-    first_arg=1
     for i in "$@"; do
         case "$i" in
             --delete | --test-label)
@@ -220,14 +219,14 @@ __tar_preparse_cmdline()
                 ;;
             *[$modes]*)
                 # Only the first arg may be "MODE" without leading dash
-                if ((first_arg == 1)); then
+                if "$first_arg"; then
                     tar_mode=${i//[^$modes]/}
                     tar_mode=${tar_mode:0:1}
                     tar_mode_arg=$i
                 fi
                 ;;
         esac
-        first_arg=0
+        first_arg=false
     done
 }
 
@@ -306,7 +305,7 @@ __tar_complete_mode()
 
     # The last short option requires argument, like '-cf<TAB>'.  Cut the
     # completion here to enforce argument processing.
-    if ((old_opt_progress == 0)) &&
+    if ! "$old_opt_progress" &&
         __tar_is_argreq "$(__tar_last_char "$cur")"; then
         COMPREPLY=("$cur") && return 0
     fi
@@ -383,7 +382,7 @@ __tar_adjust_PREV_from_old_option()
     # deal with old style arguments here
     # $ tar cfTC # expects this sequence of arguments:
     # $ tar cfTC ARCHIVE_FILE PATTERNS_FILE CHANGE_DIR
-    if ((old_opt_used == 1 && cword > 1 && cword < ${#old_opt_parsed[@]} + 2)); then
+    if "$old_opt_used" && ((cword > 1 && cword < ${#old_opt_parsed[@]} + 2)); then
         # make e.g. 'C' option from 'cffCT'
         prev="-${old_opt_parsed[cword - 2]}"
     fi
@@ -488,8 +487,8 @@ _gtar()
     local long_opts short_opts basic_tar=false \
         long_arg_none="" long_arg_opt="" long_arg_req="" \
         short_arg_none="" short_arg_opt="" short_arg_req="" \
-        tar_mode tar_mode_arg old_opt_progress=0 \
-        old_opt_used=0 old_opt_parsed=()
+        tar_mode tar_mode_arg old_opt_progress=false \
+        old_opt_used=false old_opt_parsed=()
 
     # Main mode, e.g. -x or -c (extract/creation)
     local tar_mode=none
@@ -678,8 +677,8 @@ _posix_tar()
     local long_opts short_opts basic_tar=true \
         long_arg_none="" long_arg_opt long_arg_req="" \
         short_arg_none short_arg_opt short_arg_req \
-        tar_mode tar_mode_arg old_opt_progress=0 \
-        old_opt_used=1 old_opt_parsed=()
+        tar_mode tar_mode_arg old_opt_progress=false \
+        old_opt_used=true old_opt_parsed=()
 
     # Main mode, e.g. -x or -c (extract/creation)
     local tar_mode=none

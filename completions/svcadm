@@ -24,12 +24,12 @@ _smf_complete_fmri()
 {
     local cur="$1" prefix="$2"
     local cur_prefix fmri fmri_list=""
-    local exact_mode="" pattern
+    local exact_mode=false pattern
 
     if [[ $cur == $prefix* ]]; then
         [[ $cur == "$prefix" ]] && cur+="/"
         pattern="$cur*"
-        exact_mode=1
+        exact_mode=true
     else
         pattern="$prefix*/$cur*"
     fi
@@ -38,7 +38,7 @@ _smf_complete_fmri()
 
     for fmri in $(svcs -H -o FMRI "$pattern" 2>/dev/null); do
         local fmri_part_list fmri_part
-        if [[ ! $exact_mode ]]; then
+        if ! "$exact_mode"; then
             fmri=${fmri#"$prefix/"}
 
             # we generate all possibles abbreviations for the FMRI
