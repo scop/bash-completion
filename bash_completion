@@ -394,7 +394,7 @@ _comp_looks_like_path()
 # @param $2 words  Name of variable to return words to
 # @param $3 cword  Name of variable to return cword to
 #
-_comp__reassemble_comp_words_by_ref()
+_comp__reassemble_words()
 {
     local exclude i j line ref
     # Exclude word separator characters?
@@ -454,7 +454,7 @@ _comp__reassemble_comp_words_by_ref()
             printf -v "$2[i]" %s "${COMP_WORDS[i]}"
         done
     fi
-} # _comp__reassemble_comp_words_by_ref()
+} # _comp__reassemble_words()
 
 # @param $1 exclude  Characters out of $COMP_WORDBREAKS which should NOT be
 #     considered word breaks. This is useful for things like scp where
@@ -463,11 +463,11 @@ _comp__reassemble_comp_words_by_ref()
 # @param $2 words  Name of variable to return words to
 # @param $3 cword  Name of variable to return cword to
 # @param $4 cur  Name of variable to return current word to complete to
-# @see _comp__reassemble_comp_words_by_ref()
-_comp__get_cword_at_cursor_by_ref()
+# @see _comp__reassemble_words()
+_comp__get_cword_at_cursor()
 {
     local cword words=()
-    _comp__reassemble_comp_words_by_ref "$1" words cword
+    _comp__reassemble_words "$1" words cword
 
     local i cur="" index=$COMP_POINT lead=${COMP_LINE:0:COMP_POINT}
     # Cursor not at position 0 and not led by just space(s)?
@@ -508,7 +508,7 @@ _comp__get_cword_at_cursor_by_ref()
 # (For example, if the line is "ls foobar",
 # and the cursor is here -------->   ^
 # Also one is able to cross over possible wordbreak characters.
-# Usage: _comp_get_comp_words_by_ref [OPTIONS] [VARNAMES]
+# Usage: _comp_get_words [OPTIONS] [VARNAMES]
 # Available VARNAMES:
 #     cur         Return cur via $cur
 #     prev        Return prev via $prev
@@ -527,9 +527,9 @@ _comp__get_cword_at_cursor_by_ref()
 #
 # Example usage:
 #
-#    $ _comp_get_comp_words_by_ref -n : cur prev
+#    $ _comp_get_words -n : cur prev
 #
-_comp_get_comp_words_by_ref()
+_comp_get_words()
 {
     local exclude flag i OPTIND=1
     local cur cword words=()
@@ -564,7 +564,7 @@ _comp_get_comp_words_by_ref()
         ((OPTIND += 1))
     done
 
-    _comp__get_cword_at_cursor_by_ref "${exclude-}" words cword cur
+    _comp__get_cword_at_cursor "${exclude-}" words cword cur
 
     [[ -v vcur ]] && {
         upvars+=("$vcur")
@@ -895,7 +895,7 @@ _comp_variable_assignments()
 # cur, prev, words, and cword are local, ditto split if you use -s.
 #
 # Options:
-#     -n EXCLUDE  Passed to _comp_get_comp_words_by_ref -n with redirection chars
+#     -n EXCLUDE  Passed to _comp_get_words -n with redirection chars
 #     -e XSPEC    Passed to _filedir as first arg for stderr redirections
 #     -o XSPEC    Passed to _filedir as first arg for other output redirections
 #     -i XSPEC    Passed to _filedir as first arg for stdin redirections
@@ -943,7 +943,7 @@ _comp_initialize()
 
     COMPREPLY=()
     local redir='@(?(+([0-9])|{[a-zA-Z_]*([a-zA-Z_0-9])})@(>?([>|&])|<?([>&])|<<?([-<]))|&>?(>))'
-    _comp_get_comp_words_by_ref -n "$exclude<>&" cur prev words cword
+    _comp_get_words -n "$exclude<>&" cur prev words cword
 
     # Complete variable names.
     _variables && return 1
@@ -1682,7 +1682,7 @@ _realcommand()
 
 # This function returns the first argument, excluding options
 # @param $1 chars  Characters out of $COMP_WORDBREAKS which should
-#     NOT be considered word breaks. See _comp__reassemble_comp_words_by_ref.
+#     NOT be considered word breaks. See _comp__reassemble_words.
 _get_first_arg()
 {
     local i
@@ -1698,13 +1698,13 @@ _get_first_arg()
 
 # This function counts the number of args, excluding options
 # @param $1 chars  Characters out of $COMP_WORDBREAKS which should
-#     NOT be considered word breaks. See _comp__reassemble_comp_words_by_ref.
+#     NOT be considered word breaks. See _comp__reassemble_words.
 # @param $2 glob   Options whose following argument should not be counted
 # @param $3 glob   Options that should be counted as args
 _count_args()
 {
     local i cword words
-    _comp__reassemble_comp_words_by_ref "${1-}" words cword
+    _comp__reassemble_words "${1-}" words cword
 
     args=1
     for ((i = 1; i < cword; i++)); do
@@ -2163,7 +2163,7 @@ _comp_command_offset()
 
     COMPREPLY=()
     local cur
-    _comp_get_comp_words_by_ref cur
+    _comp_get_words cur
 
     if ((COMP_CWORD == 0)); then
         local IFS=$'\n'

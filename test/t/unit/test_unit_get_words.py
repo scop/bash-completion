@@ -11,7 +11,7 @@ class TestUnitGetCompWordsByRef(TestUnitBase):
     def _test(self, bash, *args, **kwargs):
         assert_bash_exec(bash, "unset cur prev")
         output = self._test_unit(
-            "_comp_get_comp_words_by_ref %s cur prev; echo $cur,${prev-}",
+            "_comp_get_words %s cur prev; echo $cur,${prev-}",
             bash,
             *args,
             **kwargs,
@@ -22,7 +22,7 @@ class TestUnitGetCompWordsByRef(TestUnitBase):
         assert_bash_exec(
             bash,
             "COMP_WORDS=() COMP_CWORD= COMP_POINT= COMP_LINE= "
-            "_comp_get_comp_words_by_ref cur >/dev/null",
+            "_comp_get_words cur >/dev/null",
         )
 
     def test_2(self, bash):
@@ -134,9 +134,9 @@ class TestUnitGetCompWordsByRef(TestUnitBase):
     def test_23(self, bash):
         """a -n|
 
-        This test makes sure `_comp_get_comp_words_by_ref' doesn't use
-        `echo' to return its value, because -n might be interpreted by
-        `echo' and thus would not be returned.
+        This test makes sure `_comp_get_words' doesn't use `echo' to
+        return its value, because -n might be interpreted by `echo'
+        and thus would not be returned.
         """
         output = self._test(bash, "(a -n)", 1, "a -n", 4)
         assert output == "-n,a"
@@ -175,7 +175,7 @@ class TestUnitGetCompWordsByRef(TestUnitBase):
         """a b| to all vars"""
         assert_bash_exec(bash, "unset words cword cur prev")
         output = self._test_unit(
-            "_comp_get_comp_words_by_ref words cword cur prev%s; "
+            "_comp_get_words words cword cur prev%s; "
             'echo "${words[@]}",$cword,$cur,$prev',
             bash,
             "(a b)",
@@ -189,7 +189,7 @@ class TestUnitGetCompWordsByRef(TestUnitBase):
         """a b| to alternate vars"""
         assert_bash_exec(bash, "unset words2 cword2 cur2 prev2")
         output = self._test_unit(
-            "_comp_get_comp_words_by_ref -w words2 -i cword2 -c cur2 -p prev2%s; "
+            "_comp_get_words -w words2 -i cword2 -c cur2 -p prev2%s; "
             'echo $cur2,$prev2,"${words2[@]}",$cword2',
             bash,
             "(a b)",
@@ -204,7 +204,7 @@ class TestUnitGetCompWordsByRef(TestUnitBase):
         """a b : c| with wordbreaks -= :"""
         assert_bash_exec(bash, "unset words")
         output = self._test_unit(
-            '_comp_get_comp_words_by_ref -n : words%s; echo "${words[@]}"',
+            '_comp_get_words -n : words%s; echo "${words[@]}"',
             bash,
             "(a b : c)",
             3,
@@ -217,7 +217,7 @@ class TestUnitGetCompWordsByRef(TestUnitBase):
         """a b: c| with wordbreaks -= :"""
         assert_bash_exec(bash, "unset words")
         output = self._test_unit(
-            '_comp_get_comp_words_by_ref -n : words%s; echo "${words[@]}"',
+            '_comp_get_words -n : words%s; echo "${words[@]}"',
             bash,
             "(a b : c)",
             3,
@@ -230,7 +230,7 @@ class TestUnitGetCompWordsByRef(TestUnitBase):
         """a b :c| with wordbreaks -= :"""
         assert_bash_exec(bash, "unset words")
         output = self._test_unit(
-            '_comp_get_comp_words_by_ref -n : words%s; echo "${words[@]}"',
+            '_comp_get_words -n : words%s; echo "${words[@]}"',
             bash,
             "(a b : c)",
             3,
@@ -243,7 +243,7 @@ class TestUnitGetCompWordsByRef(TestUnitBase):
         r"""a b\ :c| with wordbreaks -= :"""
         assert_bash_exec(bash, "unset words")
         output = self._test_unit(
-            '_comp_get_comp_words_by_ref -n : words%s; echo "${words[@]}"',
+            '_comp_get_words -n : words%s; echo "${words[@]}"',
             bash,
             "(a 'b ' : c)",
             3,
@@ -255,6 +255,6 @@ class TestUnitGetCompWordsByRef(TestUnitBase):
     def test_unknown_arg_error(self, bash):
         with pytest.raises(AssertionError) as ex:
             _ = assert_bash_exec(
-                bash, "_comp_get_comp_words_by_ref dummy", want_output=True
+                bash, "_comp_get_words dummy", want_output=True
             )
         ex.match("dummy.* unknown argument")

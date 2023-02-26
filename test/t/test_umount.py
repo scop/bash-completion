@@ -19,7 +19,7 @@ class TestUmount:
         assert_bash_exec(
             bash,
             "_mnt_completion() { "
-            "local cur prev;_comp_get_comp_words_by_ref cur prev; "
+            "local cur prev;_comp_get_words cur prev; "
             '_comp_cmd_umount__linux_fstab "$prev" < mount/test-fstab; '
             "} && complete -F _mnt_completion _mnt",
         )
