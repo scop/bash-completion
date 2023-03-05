@@ -105,22 +105,23 @@ _sysbench()
     esac
 
     # find out which test we're running
-    local i test
+    local i test="" has_test=false
     for ((i = 1; i < ${#words[@]} - 1; i++)); do
         # TODO --test= is deprecated, bare test name preferred
         if [[ ${words[i]} == --test* ]]; then
             test=${words[i]#*=}
+            has_test=true
             break
         fi
     done
 
     local opts=$(_parse_help "$1")
-    if [[ -v test ]]; then
+    if "$has_test"; then
         local help=($(_parse_help "$1" "--test=$test help"))
         opts="${opts/--test=/} ${help[*]} prepare run cleanup help version"
     fi
 
-    if [[ $cur == -* || ! -v test ]]; then
+    if [[ $cur == -* ]] || ! "$has_test"; then
         COMPREPLY=($(compgen -W "$opts" -- "$cur"))
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     else

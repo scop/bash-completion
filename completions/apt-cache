@@ -28,7 +28,7 @@ _apt_cache()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
-    local special ispecial
+    local special="" ispecial
     if [[ $cur != show ]]; then
         for ((ispecial = 1; ispecial < ${#words[@]} - 1; ispecial++)); do
             if [[ ${words[ispecial]} == @(add|depends|dotty|madison|policy|rdepends|show?(pkg|src|)) ]]; then
@@ -38,7 +38,7 @@ _apt_cache()
         done
     fi
 
-    if [[ -v special && $ispecial -lt $cword ]]; then
+    if [[ $special && $ispecial -lt $cword ]]; then
         case $special in
             add)
                 _filedir
@@ -84,7 +84,7 @@ _apt_cache()
             --full --all-versions --no-all-versions --generate --no-generate
             --names-only --all-names --recurse --installed --with-source --help
             --version --config-file --option' -- "$cur"))
-    elif [[ ! -v special ]]; then
+    elif [[ ! $special ]]; then
         COMPREPLY=($(compgen -W 'gencaches showpkg stats showsrc dump
             dumpavail unmet show search depends rdepends pkgnames dotty xvcg
             policy madison' -- "$cur"))

@@ -8,10 +8,11 @@ _comp_cmd_udevadm()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
-    local i udevcmd
+    local i udevcmd has_udevcmd=false
     for ((i = 1; i < cword; i++)); do
         if [[ ${words[i]} != -* ]]; then
             udevcmd=${words[i]}
+            has_udevcmd=true
             break
         fi
     done
@@ -53,7 +54,7 @@ _comp_cmd_udevadm()
 
     $split && return
 
-    if [[ ! -v udevcmd ]]; then
+    if ! "$has_udevcmd"; then
         case $cur in
             -*)
                 COMPREPLY=($(compgen -W '--help --version --debug' -- "$cur"))

@@ -6,7 +6,7 @@ _comp_cmd_getent()
     _comp_initialize -s -- "$@" || return
 
     local noargopts='!(-*|*[s]*)'
-    local i db
+    local i db has_db=false
     for ((i = 1; i < cword; i++)); do
         # shellcheck disable=SC2254
         case ${words[i]} in
@@ -21,6 +21,7 @@ _comp_cmd_getent()
             *)
                 # First non-option value is the db
                 db=${words[i]}
+                has_db=true
                 break
                 ;;
         esac
@@ -68,7 +69,7 @@ _comp_cmd_getent()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
-    elif [[ ! -v db ]]; then
+    elif ! "$has_db"; then
         COMPREPLY=($(compgen -W 'passwd group hosts services protocols
             networks ahosts ahostsv4 ahostsv6 aliases ethers netgroup rpc
             shadow gshadow' -- "$cur"))

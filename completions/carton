@@ -18,18 +18,19 @@ _carton()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
-    local i command
+    local i command="" has_command=false
     for ((i = 1; i < cword; i++)); do
         case ${words[i]} in
             -*) ;;
             *)
                 command=${words[i]}
+                has_command=true
                 break
                 ;;
         esac
     done
 
-    if [[ ! -v command ]]; then
+    if ! "$has_command"; then
         _carton_commands "$1"
         return
     fi
@@ -39,7 +40,7 @@ _carton()
             return
             ;;
         --help | -h)
-            [[ $command ]] || _carton_commands "$1"
+            "$has_command" || _carton_commands "$1"
             return
             ;;
         --cpanfile)
