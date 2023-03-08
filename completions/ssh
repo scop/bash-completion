@@ -373,7 +373,7 @@ _sftp()
 
     _comp_xfunc_ssh_suboption_check && return
 
-    local ipvx
+    local ipvx=
 
     case $prev in
         -*[BDlPRs])
@@ -421,7 +421,7 @@ _sftp()
     elif [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1")' -- "$cur"))
     else
-        _known_hosts_real ${ipvx-} -a ${configfile:+-F "$configfile"} -- "$cur"
+        _known_hosts_real ${ipvx:+"$ipvx"} -a ${configfile:+-F "$configfile"} -- "$cur"
     fi
 } &&
     shopt -u hostcomplete && complete -F _sftp sftp
@@ -435,8 +435,6 @@ _comp_cmd_scp__path_esc='[][(){}<>"'"'"',:;^&!$=?`\\|[:space:]]'
 # shellcheck disable=SC2120
 _comp_xfunc_ssh_scp_remote_files()
 {
-    local IFS=$'\n'
-
     # remove backslash escape from the first colon
     cur=${cur/\\:/:}
 
@@ -468,7 +466,7 @@ _comp_xfunc_ssh_scp_remote_files()
             command sed -e 's/'"$_comp_cmd_scp__path_esc"'/\\\\\\&/g' -e 's/[*@|=]$//g' \
                 -e 's/[^\/]$/& /g')
     fi
-    COMPREPLY+=($files)
+    _comp_split -la COMPREPLY "$files"
 }
 
 _comp_deprecate_func _scp_remote_files _comp_xfunc_ssh_scp_remote_files
@@ -487,12 +485,15 @@ _comp_xfunc_ssh_scp_local_files()
         shift
     fi
 
+    local files
+    _comp_expand_glob files '"$cur"*'
+    ((${#files[@]})) || return 0
     if $dirsonly; then
-        COMPREPLY+=($(command ls -aF1dL "$cur"* 2>/dev/null |
+        COMPREPLY+=($(command ls -aF1dL "${files[@]}" 2>/dev/null |
             command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" -e '/[^\/]$/d' \
                 -e "s/^/${1-}/"))
     else
-        COMPREPLY+=($(command ls -aF1dL "$cur"* 2>/dev/null |
+        COMPREPLY+=($(command ls -aF1dL "${files[@]}" 2>/dev/null |
             command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" -e 's/[*@|=]$//g' \
                 -e 's/[^\/]$/& /g' -e "s/^/${1-}/"))
     fi
