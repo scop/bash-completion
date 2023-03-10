@@ -9,20 +9,20 @@ class TestUnitIpAddresses:
     def functions(self, request, bash):
         assert_bash_exec(
             bash,
-            "_ia() { local cur=$(_get_cword);unset -v COMPREPLY;"
-            "_ip_addresses; }",
+            "_ia() { local cur;_comp_get_words cur;"
+            "unset -v COMPREPLY;_ip_addresses; }",
         )
         assert_bash_exec(bash, "complete -F _ia ia")
         assert_bash_exec(
             bash,
-            "_iaa() { local cur=$(_get_cword);unset -v COMPREPLY;"
-            "_ip_addresses -a; }",
+            "_iaa() { local cur;_comp_get_words cur;"
+            "unset -v COMPREPLY;_ip_addresses -a; }",
         )
         assert_bash_exec(bash, "complete -F _iaa iaa")
         assert_bash_exec(
             bash,
-            " _ia6() { local cur=$(_get_cword);unset -v COMPREPLY;"
-            "_ip_addresses -6; }",
+            " _ia6() { local cur;_comp_get_words cur;"
+            "unset -v COMPREPLY;_ip_addresses -6; }",
         )
         assert_bash_exec(bash, "complete -F _ia6 ia6")
 

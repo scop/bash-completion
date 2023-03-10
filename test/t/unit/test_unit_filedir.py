@@ -15,18 +15,18 @@ class TestUnitFiledir:
     def functions(self, request, bash):
         assert_bash_exec(
             bash,
-            "_f() { local cur=$(_get_cword); unset -v COMPREPLY; _filedir; }; "
+            "_f() { local cur;_comp_get_words cur; unset -v COMPREPLY; _filedir; }; "
             "complete -F _f f; "
             "complete -F _f -o filenames f2",
         )
         assert_bash_exec(
             bash,
-            "_g() { local cur=$(_get_cword); unset -v COMPREPLY; _filedir e1; }; "
+            "_g() { local cur;_comp_get_words cur; unset -v COMPREPLY; _filedir e1; }; "
             "complete -F _g g",
         )
         assert_bash_exec(
             bash,
-            "_fd() { local cur=$(_get_cword); unset -v COMPREPLY; _filedir -d; };"
+            "_fd() { local cur;_comp_get_words cur; unset -v COMPREPLY; _filedir -d; };"
             "complete -F _fd fd",
         )
 

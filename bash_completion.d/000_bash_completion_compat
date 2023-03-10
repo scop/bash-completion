@@ -9,6 +9,10 @@ _comp_deprecate_func _command_offset _comp_command_offset
 _comp_deprecate_func _command _comp_command
 _comp_deprecate_func _root_command _comp_root_command
 _comp_deprecate_func _xfunc _comp_xfunc
+_comp_deprecate_func _upvars _comp_upvars
+_comp_deprecate_func __reassemble_comp_words_by_ref _comp__reassemble_words
+_comp_deprecate_func __get_cword_at_cursor_by_ref _comp__get_cword_at_cursor
+_comp_deprecate_func _get_comp_words_by_ref _comp_get_words
 
 # Backwards compatibility for compat completions that use have().
 # @deprecated should no longer be used; generally not needed with dynamically
@@ -47,14 +51,15 @@ dequote()
 # @param $1  Variable name to assign value to
 # @param $*  Value(s) to assign.  If multiple values, an array is
 #            assigned, otherwise a single value is assigned.
-# NOTE: For assigning multiple variables, use '_upvars'.  Do NOT
+# NOTE: For assigning multiple variables, use '_comp_upvars'.  Do NOT
 #       use multiple '_upvar' calls, since one '_upvar' call might
 #       reassign a variable to be used by another '_upvar' call.
 # @see https://fvue.nl/wiki/Bash:_Passing_variables_by_reference
+# @deprecated  Use `_comp_upvars' instead
 _upvar()
 {
     echo "bash_completion: $FUNCNAME: deprecated function," \
-        "use _upvars instead" >&2
+        "use _comp_upvars instead" >&2
     if unset -v "$1"; then # Unset & validate varname
         # shellcheck disable=SC2140  # TODO
         if (($# == 2)); then
@@ -78,13 +83,13 @@ _upvar()
 #     current word (default is 0, previous is 1), respecting the exclusions
 #     given at $1.  For example, `_get_cword "=:" 1' returns the word left of
 #     the current word, respecting the exclusions "=:".
-# @deprecated  Use `_get_comp_words_by_ref cur' instead
-# @see _get_comp_words_by_ref()
+# @deprecated  Use `_comp_get_words cur' instead
+# @see _comp_get_words()
 _get_cword()
 {
     local LC_CTYPE=C
     local cword words
-    __reassemble_comp_words_by_ref "${1-}" words cword
+    _comp__reassemble_words "${1-}" words cword
 
     # return previous word offset by $2
     if [[ ${2-} && ${2//[^0-9]/} ]]; then
@@ -125,8 +130,23 @@ _get_cword()
     fi
 } # _get_cword()
 
+# Get word previous to the current word.
+# This is a good alternative to `prev=${COMP_WORDS[COMP_CWORD-1]}' because bash4
+# will properly return the previous word with respect to any given exclusions to
+# COMP_WORDBREAKS.
+# @deprecated  Use `_comp_get_words cur prev' instead
+# @see _comp_get_words()
+#
+_get_pword()
+{
+    if ((COMP_CWORD >= 1)); then
+        _get_cword "${@-}" 1
+    fi
+}
+
 # @deprecated Use the variable `_comp_backup_glob` instead.  This is the
 # backward-compatibility name.
+# shellcheck disable=SC2154  # defined in the main "bash_completion"
 _backup_glob=$_comp_backup_glob
 
 # ex: filetype=sh
