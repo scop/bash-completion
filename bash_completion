@@ -658,6 +658,14 @@ _quote_readline_by_ref()
     fi
 } # _quote_readline_by_ref()
 
+# This function fetches the newest file in a directory.
+_filedir_newest()
+{
+    local parent=$(compgen -d -- ${1:0:-1})
+    newest=$(bash -c "ls -tr $parent | tail -n 1")
+    echo "$parent/$newest"
+} # _filedir_newest()
+
 # This function performs file and directory completion. It's better than
 # simply using 'compgen -f', because it honours spaces in filenames.
 # @param $1  If `-d', complete only on directories.  Otherwise filter/pick only
@@ -672,6 +680,7 @@ _filedir()
 
     local -a toks
     local reset arg=${1-}
+    local newest=0
 
     if [[ $arg == -d ]]; then
         reset=$(shopt -po noglob)
@@ -682,6 +691,10 @@ _filedir()
         IFS=$'\n'
     else
         local quoted
+        if [[ "$cur" = "?" ]] || [[ "${cur: -2}" = "/?" ]]; then
+            cur="${cur:0:-1}"
+            newest=1
+        fi
         _quote_readline_by_ref "${cur-}" quoted
 
         # Munge xspec to contain uppercase version too
@@ -721,7 +734,11 @@ _filedir()
     if ((${#toks[@]} != 0)); then
         # 2>/dev/null for direct invocation, e.g. in the _filedir unit test
         compopt -o filenames 2>/dev/null
-        COMPREPLY+=("${toks[@]}")
+        if [[ $newest -eq 1 ]]; then
+            COMPREPLY+=($(_filedir_newest "$cur"))
+        else
+            COMPREPLY+=("${toks[@]}")
+        fi
     fi
 } # _filedir()
 
@@ -2361,6 +2378,12 @@ _filedir_xspec()
 
     local IFS=$'\n' xspec=${_xspecs[${1##*/}]} tmp
     local -a toks
+    local newest=0
+
+    if [[ "$cur" = "?" ]] || [[ "${cur: -2}" = "/?" ]]; then
+        cur="${cur:0:-1}"
+        newest=1
+    fi
 
     toks=($(
         compgen -d -- "$(quote_readline "$cur")" | {
@@ -2402,7 +2425,11 @@ _filedir_xspec()
 
     if ((${#toks[@]} != 0)); then
         compopt -o filenames
-        COMPREPLY=("${toks[@]}")
+        if [[ $newest -eq 1 ]]; then
+            COMPREPLY=($(_filedir_newest "$cur"))
+        else
+            COMPREPLY=("${toks[@]}")
+        fi
     fi
 }
 
