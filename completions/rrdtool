@@ -5,11 +5,31 @@ _rrdtool()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
+    local args
+    _count_args
+
     if ((${#words[@]} == 2)); then
         COMPREPLY=($(compgen -W 'create update updatev graph dump restore
             last lastupdate first info fetch tune resize xport' -- "$cur"))
+    elif [[ ${words[1]} == "dump" ]]; then
+        # dump takes rrd, then xml
+        if [[ $args == 2 ]]; then
+            _filedir rrd
+        elif [[ $args == 3 ]]; then
+            _filedir xml
+        fi
+    elif [[ ${words[1]} == "restore" ]]; then
+        # restore takes xml, then rrd
+        if [[ $args == 2 ]]; then
+            _filedir xml
+        elif [[ $args == 3 ]]; then
+            _filedir rrd
+        fi
     else
-        _filedir rrd
+        # other commands take just a single rrd argument
+        if [[ $args == 2 ]]; then
+            _filedir rrd
+        fi
     fi
 } &&
     complete -F _rrdtool rrdtool
