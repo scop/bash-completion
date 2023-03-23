@@ -595,6 +595,7 @@ CLEANFILES = \
 	host \
 	hping \
 	hping3 \
+	_hugo \
 	iceweasel \
 	identify \
 	ifdown \
@@ -868,6 +869,8 @@ symlinks: $(DATA)
 		geoiplookup6
 	$(ss) gkrellm \
 		gkrellm2
+	$(ss) _golangci-lint \
+		_hugo
 	$(ss) gpgv \
 		gpgv2
 	$(ss) gssdp-discover \
