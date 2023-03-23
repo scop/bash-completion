@@ -775,6 +775,7 @@ CLEANFILES = \
 	tracepath6 \
 	typeset \
 	_upctl \
+	_vacuum \
 	vgcfgbackup \
 	vgcfgrestore \
 	vgchange \
@@ -872,7 +873,7 @@ symlinks: $(DATA)
 	$(ss) gkrellm \
 		gkrellm2
 	$(ss) _golangci-lint \
-		_hugo _sshi _upctl
+		_hugo _sshi _upctl _vacuum
 	$(ss) gpgv \
 		gpgv2
 	$(ss) gssdp-discover \
