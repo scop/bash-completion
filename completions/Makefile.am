@@ -611,6 +611,7 @@ CLEANFILES = \
 	iperf3 \
 	javac \
 	javadoc \
+	_kn \
 	kplayer \
 	l2ping \
 	lbzip2 \
@@ -877,7 +878,7 @@ symlinks: $(DATA)
 	$(ss) gkrellm \
 		gkrellm2
 	$(ss) _golangci-lint \
-		_hugo _sshi _upctl _vacuum
+		_hugo _kn _sshi _upctl _vacuum
 	$(ss) gpgv \
 		gpgv2
 	$(ss) gssdp-discover \
