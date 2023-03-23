@@ -34,4 +34,5 @@ EXTRA_DIST = \
 	umount.linux \
 	write \
 	xm \
+	yq \
 	yum

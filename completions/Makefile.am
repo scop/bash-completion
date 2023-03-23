@@ -477,6 +477,7 @@ bashcomp_DATA = 2to3 \
 		xz \
 		xzdec \
 		ypmatch \
+		_yq \
 		_yum \
 		yum-arch \
 		zopfli \
