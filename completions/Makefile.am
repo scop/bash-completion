@@ -375,6 +375,7 @@ bashcomp_DATA = 2to3 \
 		rrdtool \
 		rsync \
 		_rtcwake \
+		_ruff \
 		_runuser \
 		sbcl \
 		sbopkg \

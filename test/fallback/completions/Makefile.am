@@ -23,6 +23,7 @@ EXTRA_DIST = \
 	reptyr \
 	rfkill \
 	rtcwake \
+	ruff \
 	runuser \
 	slackpkg \
 	su \
