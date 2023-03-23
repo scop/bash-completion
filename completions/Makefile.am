@@ -137,6 +137,7 @@ bashcomp_DATA = 2to3 \
 		gnokii \
 		gnome-mplayer \
 		gnome-screenshot \
+		_golangci-lint \
 		gpasswd \
 		gpg \
 		gpg2 \

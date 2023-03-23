@@ -6,6 +6,7 @@ EXTRA_DIST = \
 	dmesg \
 	eject \
 	gh \
+	golangci-lint \
 	hexdump \
 	hwclock \
 	ionice \
