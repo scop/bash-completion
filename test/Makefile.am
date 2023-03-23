@@ -1,4 +1,4 @@
-SUBDIRS = deprecated t
+SUBDIRS = fallback t
 
 EXTRA_DIST = config \
 	     fixtures \

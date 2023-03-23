@@ -19,8 +19,8 @@ each call that references the value, variable name, or their existence,
 typically by `unset -v`ing them when multiple such calls are used,
 to avoid them interfering with each other.
 
-Everything in deprecated completion files (ones starting with an underscore)
-is considered private and is to be named accordingly. Deprecated files are not
+Everything in fallback completion files (ones starting with an underscore)
+is considered private and is to be named accordingly. Fallback files are not
 intended to be explicitly used with `_comp_xfunc`, and completion files having
 precedence over them may have a different API.
 
