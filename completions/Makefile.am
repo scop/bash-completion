@@ -767,6 +767,7 @@ CLEANFILES = \
 	smbtree \
 	sparc-koji \
 	spovray \
+	_sshi \
 	star \
 	stream \
 	sudoedit \
@@ -871,7 +872,7 @@ symlinks: $(DATA)
 	$(ss) gkrellm \
 		gkrellm2
 	$(ss) _golangci-lint \
-		_hugo _upctl
+		_hugo _sshi _upctl
 	$(ss) gpgv \
 		gpgv2
 	$(ss) gssdp-discover \
