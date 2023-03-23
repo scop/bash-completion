@@ -130,6 +130,7 @@ bashcomp_DATA = 2to3 \
 		geoiplookup \
 		getconf \
 		getent \
+		_gh \
 		gkrellm \
 		gm \
 		gnatmake \

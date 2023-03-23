@@ -5,6 +5,7 @@ EXTRA_DIST = \
 	chsh \
 	dmesg \
 	eject \
+	gh \
 	hexdump \
 	hwclock \
 	ionice \
