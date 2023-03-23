@@ -773,6 +773,7 @@ CLEANFILES = \
 	tightvncviewer \
 	tracepath6 \
 	typeset \
+	_upctl \
 	vgcfgbackup \
 	vgcfgrestore \
 	vgchange \
@@ -870,7 +871,7 @@ symlinks: $(DATA)
 	$(ss) gkrellm \
 		gkrellm2
 	$(ss) _golangci-lint \
-		_hugo
+		_hugo _upctl
 	$(ss) gpgv \
 		gpgv2
 	$(ss) gssdp-discover \
