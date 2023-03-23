@@ -377,6 +377,7 @@ bashcomp_DATA = 2to3 \
 		_rtcwake \
 		_ruff \
 		_runuser \
+		_rustup \
 		sbcl \
 		sbopkg \
 		screen \

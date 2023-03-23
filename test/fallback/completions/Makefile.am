@@ -25,6 +25,7 @@ EXTRA_DIST = \
 	rtcwake \
 	ruff \
 	runuser \
+	rustup \
 	slackpkg \
 	su \
 	svn \
