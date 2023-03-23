@@ -38,6 +38,7 @@ bashcomp_DATA = 2to3 \
 		bzip2 \
 		_cal \
 		cancel \
+		_cargo \
 		cardctl \
 		carton \
 		ccache \

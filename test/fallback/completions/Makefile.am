@@ -1,6 +1,7 @@
 EXTRA_DIST = \
 	adb \
 	cal \
+	cargo \
 	chfn \
 	chsh \
 	dmesg \
