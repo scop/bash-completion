@@ -38,6 +38,7 @@ bashcomp_DATA = 2to3 \
 		bzip2 \
 		_cal \
 		cancel \
+		_cargo \
 		cardctl \
 		carton \
 		ccache \
@@ -130,12 +131,14 @@ bashcomp_DATA = 2to3 \
 		geoiplookup \
 		getconf \
 		getent \
+		_gh \
 		gkrellm \
 		gm \
 		gnatmake \
 		gnokii \
 		gnome-mplayer \
 		gnome-screenshot \
+		_golangci-lint \
 		gpasswd \
 		gpg \
 		gpg2 \
@@ -373,7 +376,9 @@ bashcomp_DATA = 2to3 \
 		rrdtool \
 		rsync \
 		_rtcwake \
+		_ruff \
 		_runuser \
+		_rustup \
 		sbcl \
 		sbopkg \
 		screen \
@@ -475,6 +480,7 @@ bashcomp_DATA = 2to3 \
 		xz \
 		xzdec \
 		ypmatch \
+		_yq \
 		_yum \
 		yum-arch \
 		zopfli \
@@ -593,6 +599,7 @@ CLEANFILES = \
 	host \
 	hping \
 	hping3 \
+	_hugo \
 	iceweasel \
 	identify \
 	ifdown \
@@ -604,6 +611,7 @@ CLEANFILES = \
 	iperf3 \
 	javac \
 	javadoc \
+	_kn \
 	kplayer \
 	l2ping \
 	lbzip2 \
@@ -766,12 +774,15 @@ CLEANFILES = \
 	smbtree \
 	sparc-koji \
 	spovray \
+	_sshi \
 	star \
 	stream \
 	sudoedit \
 	tightvncviewer \
 	tracepath6 \
 	typeset \
+	_upctl \
+	_vacuum \
 	vgcfgbackup \
 	vgcfgrestore \
 	vgchange \
@@ -868,6 +879,8 @@ symlinks: $(DATA)
 		geoiplookup6
 	$(ss) gkrellm \
 		gkrellm2
+	$(ss) _golangci-lint \
+		_hugo _kn _sshi _upctl _vacuum
 	$(ss) gpgv \
 		gpgv2
 	$(ss) gssdp-discover \

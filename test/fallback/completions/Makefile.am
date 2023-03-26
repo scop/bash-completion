@@ -1,10 +1,13 @@
 EXTRA_DIST = \
 	adb \
 	cal \
+	cargo \
 	chfn \
 	chsh \
 	dmesg \
 	eject \
+	gh \
+	golangci-lint \
 	hexdump \
 	hwclock \
 	ionice \
@@ -21,7 +24,9 @@ EXTRA_DIST = \
 	reptyr \
 	rfkill \
 	rtcwake \
+	ruff \
 	runuser \
+	rustup \
 	slackpkg \
 	su \
 	svn \
@@ -32,4 +37,5 @@ EXTRA_DIST = \
 	umount.linux \
 	write \
 	xm \
+	yq \
 	yum
