@@ -779,6 +779,7 @@ CLEANFILES = \
 	star \
 	stream \
 	sudoedit \
+	_terraform \
 	tightvncviewer \
 	tracepath6 \
 	typeset \
@@ -1012,6 +1013,8 @@ symlinks: $(DATA)
 		tracepath6
 	$(ss) update-alternatives \
 		alternatives
+	$(ss) _vault \
+		_terraform
 	$(ss) vipw \
 		vigr
 	$(ss) vncviewer \
