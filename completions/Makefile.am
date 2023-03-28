@@ -538,6 +538,7 @@ CLEANFILES = \
 	compgen \
 	composite \
 	conjure \
+	_consul \
 	cowthink \
 	createdb \
 	createuser \
@@ -1015,7 +1016,7 @@ symlinks: $(DATA)
 	$(ss) update-alternatives \
 		alternatives
 	$(ss) _vault \
-		_packer _terraform
+		_consul _packer _terraform
 	$(ss) vipw \
 		vigr
 	$(ss) vncviewer \
