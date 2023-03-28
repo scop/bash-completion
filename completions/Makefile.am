@@ -672,6 +672,7 @@ CLEANFILES = \
 	ncal \
 	neomutt \
 	_op \
+	_packer \
 	pbzip2 \
 	pccardctl \
 	pdlzip \
@@ -1014,7 +1015,7 @@ symlinks: $(DATA)
 	$(ss) update-alternatives \
 		alternatives
 	$(ss) _vault \
-		_terraform
+		_packer _terraform
 	$(ss) vipw \
 		vigr
 	$(ss) vncviewer \
