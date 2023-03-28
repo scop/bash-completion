@@ -672,6 +672,7 @@ CLEANFILES = \
 	muttng \
 	ncal \
 	neomutt \
+	_nomad \
 	_op \
 	_packer \
 	pbzip2 \
@@ -1016,7 +1017,7 @@ symlinks: $(DATA)
 	$(ss) update-alternatives \
 		alternatives
 	$(ss) _vault \
-		_consul _packer _terraform
+		_consul _nomad _packer _terraform
 	$(ss) vipw \
 		vigr
 	$(ss) vncviewer \
