@@ -292,7 +292,6 @@ bashcomp_DATA = 2to3 \
 		nsupdate \
 		ntpdate \
 		oggdec \
-		_op \
 		openssl \
 		opera \
 		optipng \
@@ -671,6 +670,7 @@ CLEANFILES = \
 	muttng \
 	ncal \
 	neomutt \
+	_op \
 	pbzip2 \
 	pccardctl \
 	pdlzip \
@@ -880,7 +880,7 @@ symlinks: $(DATA)
 	$(ss) gkrellm \
 		gkrellm2
 	$(ss) _golangci-lint \
-		_hugo _kn _sshi _upctl _vacuum
+		_hugo _kn _op _sshi _upctl _vacuum
 	$(ss) gpgv \
 		gpgv2
 	$(ss) gssdp-discover \
