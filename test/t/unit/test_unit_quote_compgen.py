@@ -5,28 +5,65 @@ import pytest
 from conftest import assert_bash_exec, assert_complete, bash_env_saved
 
 
-@pytest.mark.bashcomp(
-    cmd=None,
-    temp_cwd=True,
-    ignore_env=r"^\+declare -f _comp_test_quote_compgen$",
-)
+@pytest.mark.bashcomp(cmd=None, temp_cwd=True)
 class TestUnitQuoteCompgen:
     @pytest.fixture(scope="class")
     def functions(self, bash):
         assert_bash_exec(
             bash,
-            '_comp_test_quote_compgen() { local ret; _comp_quote_compgen "$1"; printf %s "$ret"; }',
+            '_comp__test_quote_compgen() { local ret; _comp_quote_compgen "$1"; printf %s "$ret"; }',
         )
 
-    def test_exec(self, bash, functions):
-        assert_bash_exec(bash, "_comp_test_quote_compgen '' >/dev/null")
+    @pytest.mark.parametrize(
+        "funcname", "_comp__test_quote_compgen quote_readline".split()
+    )
+    def test_exec(self, bash, functions, funcname):
+        assert_bash_exec(bash, "%s '' >/dev/null" % funcname)
 
-    def test_env_non_pollution(self, bash, functions):
+    @pytest.mark.parametrize(
+        "funcname", "_comp__test_quote_compgen quote_readline".split()
+    )
+    def test_env_non_pollution(self, bash, functions, funcname):
         """Test environment non-pollution, detected at teardown."""
         assert_bash_exec(
-            bash,
-            "foo() { _comp_test_quote_compgen meh >/dev/null; }; foo; unset -f foo",
+            bash, "foo() { %s meh >/dev/null; }; foo; unset -f foo" % funcname
         )
+
+    @pytest.mark.parametrize(
+        "funcname", "_comp__test_quote_compgen quote_readline".split()
+    )
+    def test_1(self, bash, functions, funcname):
+        output = assert_bash_exec(
+            bash, "%s '';echo" % funcname, want_output=True
+        )
+        assert output.strip() == "''"
+
+    @pytest.mark.parametrize(
+        "funcname", "_comp__test_quote_compgen quote_readline".split()
+    )
+    def test_2(self, bash, functions, funcname):
+        output = assert_bash_exec(
+            bash, "%s foo;echo" % funcname, want_output=True
+        )
+        assert output.strip() == "foo"
+
+    @pytest.mark.parametrize(
+        "funcname", "_comp__test_quote_compgen quote_readline".split()
+    )
+    def test_3(self, bash, functions, funcname):
+        output = assert_bash_exec(
+            bash, '%s foo\\"bar;echo' % funcname, want_output=True
+        )
+        assert output.strip() == 'foo\\"bar'
+
+    @pytest.mark.parametrize(
+        "funcname", "_comp__test_quote_compgen quote_readline".split()
+    )
+    def test_4(self, bash, functions, funcname):
+        output = assert_bash_exec(
+            bash, "%s '$(echo x >&2)';echo" % funcname, want_output=True
+        )
+        assert output.strip() == "\\$\\(echo\\ x\\ \\>\\&2\\)"
 
     def test_github_issue_189_1(self, bash, functions):
         """Test error messages on a certain command line
@@ -40,7 +77,7 @@ class TestUnitQuoteCompgen:
           $ rm -- '${[TAB]
 
         """
-        assert_bash_exec(bash, "_comp_test_quote_compgen $'\\'${' >/dev/null")
+        assert_bash_exec(bash, "_comp__test_quote_compgen $'\\'${' >/dev/null")
 
     def test_github_issue_492_1(self, bash, functions):
         """Test unintended code execution on a certain command line
@@ -56,7 +93,7 @@ class TestUnitQuoteCompgen:
 
         """
         assert_bash_exec(
-            bash, "_comp_test_quote_compgen $'\\'$(touch 1.txt)' >/dev/null"
+            bash, "_comp__test_quote_compgen $'\\'$(touch 1.txt)' >/dev/null"
         )
         assert not os.path.exists("./1.txt")
 
@@ -72,7 +109,7 @@ class TestUnitQuoteCompgen:
 
         """
         assert_bash_exec(
-            bash, "_comp_test_quote_compgen $'\\'$1 > 1.0' >/dev/null"
+            bash, "_comp__test_quote_compgen $'\\'$1 > 1.0' >/dev/null"
         )
         assert not os.path.exists("./1.0")
 
@@ -87,7 +124,7 @@ class TestUnitQuoteCompgen:
 
         """
         os.mkdir("./ret=$(echo injected >&2)")
-        assert_bash_exec(bash, "_comp_test_quote_compgen $'\\'$*' >/dev/null")
+        assert_bash_exec(bash, "_comp__test_quote_compgen $'\\'$*' >/dev/null")
 
     def test_github_issue_492_4(self, bash, functions):
         """Test error messages through unintended pathname expansions
@@ -103,7 +140,7 @@ class TestUnitQuoteCompgen:
         with bash_env_saved(bash) as bash_env:
             bash_env.shopt("failglob", True)
             assert_bash_exec(
-                bash, "_comp_test_quote_compgen $'a\\\\\\tb*' >/dev/null"
+                bash, "_comp__test_quote_compgen $'a\\\\\\tb*' >/dev/null"
             )
 
     def test_github_issue_526_1(self, bash):
