@@ -41,6 +41,11 @@ _comp_cmd_inotifywait()
         return
     fi
 
+    if [[ $cur == @* ]]; then
+        _comp_compgen -P "@" filedir
+        return 0
+    fi
+
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_inotifywait inotifywait inotifywatch fsnotifywait \

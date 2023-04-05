@@ -23,3 +23,11 @@ class TestInotifywait:
 
         """
         assert "ab/" in completion
+
+    @pytest.mark.complete("inotifywait @a", cwd="_filedir")
+    def test_5(self, completion):
+        """Test for the specification of the exclude filenames, which
+        has the form `@filename`.
+
+        """
+        assert "@ab/" in completion
