@@ -135,14 +135,6 @@ _comp_quote()
     ret=\'${1//\'/\'\\\'\'}\'
 }
 
-# @see _quote_readline_by_ref()
-quote_readline()
-{
-    local ret
-    _quote_readline_by_ref "$1" ret
-    printf %s "$ret"
-} # quote_readline()
-
 # shellcheck disable=SC1003
 _comp_dequote__initialize()
 {
@@ -624,7 +616,7 @@ __ltrim_colon_completions()
 
 # This function quotes the argument in a way so that readline dequoting
 # results in the original argument.  This is necessary for at least
-# `compgen' which requires its arguments quoted/escaped:
+# `compgen` which requires its arguments quoted/escaped:
 #
 #     $ ls "a'b/"
 #     c
@@ -635,28 +627,28 @@ __ltrim_colon_completions()
 # See also:
 # - https://lists.gnu.org/archive/html/bug-bash/2009-03/msg00155.html
 # - https://www.mail-archive.com/bash-completion-devel@lists.alioth.debian.org/msg01944.html
-# @param $1  Argument to quote
-# @param $2  Name of variable to return result to
-_quote_readline_by_ref()
+# @param $1      Argument to quote
+# @var[out] ret  Quoted result is stored in this variable
+# shellcheck disable=SC2178 # The assignment is not intended for the global "ret"
+_comp_quote_compgen()
 {
     if [[ $1 == \'* ]]; then
         # Leave out first character
-        printf -v "$2" %s "${1:1}"
+        ret=${1:1}
     else
-        printf -v "$2" %q "$1"
+        printf -v ret %q "$1"
 
         # If result becomes quoted like this: $'string', re-evaluate in order
         # to drop the additional quoting.  See also:
         # https://www.mail-archive.com/bash-completion-devel@lists.alioth.debian.org/msg01942.html
-        if [[ ${!2} == \$\'*\' ]]; then
-            local value=${!2:2:-1} # Strip beginning $' and ending '.
-            value=${value//'%'/%%} # Escape % for printf format.
+        if [[ $ret == \$\'*\' ]]; then
+            local value=${ret:2:-1} # Strip beginning $' and ending '.
+            value=${value//'%'/%%}  # Escape % for printf format.
             # shellcheck disable=SC2059
-            printf -v value "$value" # Decode escape sequences of \....
-            local "$2" && _comp_upvars -v "$2" "$value"
+            printf -v ret "$value" # Decode escape sequences of \....
         fi
     fi
-} # _quote_readline_by_ref()
+} # _comp_quote_compgen()
 
 # This function performs file and directory completion. It's better than
 # simply using 'compgen -f', because it honours spaces in filenames.
@@ -681,8 +673,9 @@ _filedir()
         $reset
         IFS=$'\n'
     else
-        local quoted
-        _quote_readline_by_ref "${cur-}" quoted
+        local ret
+        _comp_quote_compgen "${cur-}"
+        local quoted=$ret
 
         # Munge xspec to contain uppercase version too
         # https://lists.gnu.org/archive/html/bug-bash/2010-09/msg00036.html
@@ -2359,11 +2352,15 @@ _filedir_xspec()
 
     _tilde "$cur" || return
 
+    local ret
+    _comp_quote_compgen "$cur"
+    local quoted=$ret
+
     local IFS=$'\n' xspec=${_xspecs[${1##*/}]} tmp
     local -a toks
 
     toks=($(
-        compgen -d -- "$(quote_readline "$cur")" | {
+        compgen -d -- "$quoted" | {
             while read -r tmp; do
                 printf '%s\n' "$tmp"
             done
@@ -2382,7 +2379,7 @@ _filedir_xspec()
     xspec="$matchop($xspec|${xspec^^})"
 
     toks+=($(
-        eval compgen -f -X "'!$xspec'" -- '$(quote_readline "$cur")' | {
+        eval compgen -f -X "'!$xspec'" -- '$quoted' | {
             while read -r tmp; do
                 [[ $tmp ]] && printf '%s\n' "$tmp"
             done
@@ -2394,7 +2391,7 @@ _filedir_xspec()
         ${#toks[@]} -lt 1 ]] && {
         local reset=$(shopt -po noglob)
         set -o noglob
-        toks+=($(compgen -f -- "$(quote_readline "$cur")"))
+        toks+=($(compgen -f -- "$quoted"))
         IFS=' '
         $reset
         IFS=$'\n'

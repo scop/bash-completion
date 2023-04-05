@@ -34,6 +34,27 @@ quote()
     printf "'%s'" "$quoted"
 }
 
+# @deprecated Use `_comp_quote_compgen`
+quote_readline()
+{
+    local ret
+    _comp_quote_compgen "$1"
+    printf %s "$ret"
+} # quote_readline()
+
+# This function is the same as `_comp_quote_compgen`, but receives the second
+# argument specifying the variable name to store the result.
+# @param $1  Argument to quote
+# @param $2  Name of variable to return result to
+# @deprecated Use `_comp_quote_compgen "$1"` instead.  Note that
+# `_comp_quote_compgen` stores the result in a fixed variable `ret`.
+_quote_readline_by_ref()
+{
+    [[ $2 == ret ]] || local ret
+    _comp_quote_compgen "$1"
+    [[ $2 == ret ]] || printf -v "$2" %s "$ret"
+}
+
 # This function shell-dequotes the argument
 # @deprecated Use `_comp_dequote' instead.  Note that `_comp_dequote` stores
 #   the results in the array `ret` instead of writing them to stdout.

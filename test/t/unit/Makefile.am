@@ -21,7 +21,7 @@ EXTRA_DIST = \
 	test_unit_pids.py \
 	test_unit_pnames.py \
 	test_unit_quote.py \
-	test_unit_quote_readline.py \
+	test_unit_quote_compgen.py \
 	test_unit_split.py \
 	test_unit_tilde.py \
 	test_unit_unlocal.py \
