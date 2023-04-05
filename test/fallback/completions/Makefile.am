@@ -18,6 +18,7 @@ EXTRA_DIST = \
 	mount.linux \
 	newgrp \
 	nmcli \
+	nox \
 	renice \
 	repomanage \
 	reptyr \
