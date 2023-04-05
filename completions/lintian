@@ -2,7 +2,7 @@
 
 _lintian_tags()
 {
-    local match search tags check_files
+    local search tags check_files
     _comp_expand_glob check_files '/usr/share/lintian/checks/*.desc'
     ((${#check_files[@]})) || return 0
 
@@ -10,8 +10,6 @@ _lintian_tags()
     if [[ $cur == *, ]]; then
         search=${cur//,/ }
         for item in $search; do
-            match=$(command grep -nE "^Tag: $item$" \
-                "${check_files[@]}" | cut -d: -f1)
             tags=$(command sed -e "s/\<$item\>//g" <<<"$tags")
         done
         COMPREPLY+=($(compgen -W "$tags"))
@@ -50,7 +48,7 @@ _lintian_checks()
 
 _lintian_infos()
 {
-    local match search infos collection_files
+    local search infos collection_files
     _comp_expand_glob collection_files '/usr/share/lintian/collection/*.desc'
     ((${#collection_files[@]})) || return 0
 
@@ -59,8 +57,6 @@ _lintian_infos()
     if [[ $cur == *, ]]; then
         search=${cur//,/ }
         for item in $search; do
-            match=$(command grep -nE "^Collector: $item$" \
-                "${collection_files[@]}" | cut -d: -f1)
             infos=$(command sed -e "s/\<$item\>//g" <<<"$infos")
         done
         COMPREPLY+=($(compgen -W "$infos"))
