@@ -420,7 +420,6 @@ EXTRA_DIST = \
 	test_objdump.py \
 	test_od.py \
 	test_oggdec.py \
-	test_op.py \
 	test_openssl.py \
 	test_opera.py \
 	test_optipng.py \

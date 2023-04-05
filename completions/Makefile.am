@@ -292,7 +292,6 @@ bashcomp_DATA = 2to3 \
 		nsupdate \
 		ntpdate \
 		oggdec \
-		_op \
 		openssl \
 		opera \
 		optipng \
@@ -446,6 +445,7 @@ bashcomp_DATA = 2to3 \
 		userdel \
 		usermod \
 		valgrind \
+		_vault \
 		vipw \
 		vmstat \
 		vncviewer \
@@ -538,6 +538,7 @@ CLEANFILES = \
 	compgen \
 	composite \
 	conjure \
+	_consul \
 	cowthink \
 	createdb \
 	createuser \
@@ -671,6 +672,9 @@ CLEANFILES = \
 	muttng \
 	ncal \
 	neomutt \
+	_nomad \
+	_op \
+	_packer \
 	pbzip2 \
 	pccardctl \
 	pdlzip \
@@ -778,6 +782,7 @@ CLEANFILES = \
 	star \
 	stream \
 	sudoedit \
+	_terraform \
 	tightvncviewer \
 	tracepath6 \
 	typeset \
@@ -880,7 +885,7 @@ symlinks: $(DATA)
 	$(ss) gkrellm \
 		gkrellm2
 	$(ss) _golangci-lint \
-		_hugo _kn _sshi _upctl _vacuum
+		_hugo _kn _op _sshi _upctl _vacuum
 	$(ss) gpgv \
 		gpgv2
 	$(ss) gssdp-discover \
@@ -1011,6 +1016,8 @@ symlinks: $(DATA)
 		tracepath6
 	$(ss) update-alternatives \
 		alternatives
+	$(ss) _vault \
+		_consul _nomad _packer _terraform
 	$(ss) vipw \
 		vigr
 	$(ss) vncviewer \
