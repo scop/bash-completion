@@ -15,7 +15,7 @@ _comp_cmd_inotifywait()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
-    local noargopts='!(-*|*[oe]*)'
+    local noargopts='!(-*|*[toe]*)'
     # shellcheck disable=SC2254
     case $prev in
         --help | --exclude | --excludei | --include | --includei | --format | --timefmt | --timeout | -${noargopts}[ht])
