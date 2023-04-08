@@ -287,6 +287,7 @@ bashcomp_DATA = 2to3 \
 		ngrep \
 		nmap \
 		_nmcli \
+		_nox \
 		nproc \
 		nslookup \
 		nsupdate \
