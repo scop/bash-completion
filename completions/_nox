@@ -2,7 +2,11 @@
 #
 # This serves as a fallback in case the completion is not installed otherwise.
 
-eval -- "$(register-python-argcomplete --shell bash "$1" 2>/dev/null)"
+eval -- "$(
+    PATH=$(type -p "$1" 2>/dev/null | sed 's,/[^/]*$,,')${PATH:+:$PATH}
+    register-python-argcomplete --shell bash "$1" 2>/dev/null ||
+        register-python-argcomplete3 --shell bash "$1" 2>/dev/null
+)"
 
 complete -p "$1" &>/dev/null
 
