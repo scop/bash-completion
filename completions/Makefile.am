@@ -958,7 +958,7 @@ symlinks: $(DATA)
 	$(ss) pine \
 		alpine
 	$(ss) ping \
-		ping6
+		ping4 ping6
 	$(ss) pkg-config \
 		pkgconf
 	$(ss) pkg_delete \
