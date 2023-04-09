@@ -78,7 +78,7 @@ appended after the equal sign. Calling `compopt -o nospace` makes sense
 in case completion actually occurs: when only one completion is
 available in `COMPREPLY`.
 
-## `$split && return`
+## `[[ $was_split ]] && return`
 
 Should be used in completions using the `-s` flag of `_comp_initialize`,
 or other similar cases where `_split_longopt` has been invoked, after
