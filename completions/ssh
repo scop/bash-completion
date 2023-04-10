@@ -55,7 +55,7 @@ _comp_xfunc_ssh_options()
         NoHostAuthenticationForLocalhost NumberOfPasswordPrompts
         PasswordAuthentication PermitLocalCommand PKCS11Provider Port
         PreferredAuthentications ProxyCommand ProxyJump ProxyUseFdpass
-        PubkeyAcceptedKeyTypes PubkeyAuthentication RekeyLimit RemoteCommand
+        PubkeyAcceptedAlgorithms PubkeyAuthentication RekeyLimit RemoteCommand
         RemoteForward RequestTTY RevokedHostKeys SecurityKeyProvider SendEnv
         ServerAliveCountMax ServerAliveInterval SetEnv StreamLocalBindMask
         StreamLocalBindUnlink StrictHostKeyChecking SyslogFacility TCPKeepAlive
@@ -65,7 +65,7 @@ _comp_xfunc_ssh_options()
     # Selected old ones
     opts+=(
         GSSAPIKeyExchange GSSAPIRenewalForcesRekey GSSAPIServerIdentity
-        GSSAPITrustDns SmartcardDevice UsePrivilegedPort
+        GSSAPITrustDns PubkeyAcceptedKeyTypes SmartcardDevice UsePrivilegedPort
     )
     local protocols=$(_comp_xfunc_ssh_query "${1:-ssh}" protocol-version)
     if [[ ! $protocols || $protocols == *1* ]]; then
@@ -188,7 +188,7 @@ _ssh_suboption()
         proxycommand | remotecommand | localcommand)
             COMPREPLY=($(compgen -c -- "$cur"))
             ;;
-        pubkeyacceptedkeytypes)
+        pubkeyacceptedalgorithms | pubkeyacceptedkeytypes)
             COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$2" key)' -- "$cur"))
             ;;
         requesttty)
