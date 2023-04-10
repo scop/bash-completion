@@ -2500,6 +2500,14 @@ __load_completion()
     local -a paths
     [[ $cmdname ]] || return 1
 
+    local backslash=
+    if [[ $cmd == \\* ]]; then
+        cmd=${cmd:1}
+        # If we already have a completion for the "real" command, use it
+        $(complete -p "$cmd" 2>/dev/null || echo false) "\\$cmd" && return 0
+        backslash=\\
+    fi
+
     local -a dirs=()
 
     # Lookup order:
@@ -2537,14 +2545,6 @@ __load_completion()
     # Completions in the system data dirs.
     _comp_split -F : paths "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
     dirs+=("${paths[@]/%//bash-completion/completions}")
-
-    local backslash=
-    if [[ $cmdname == \\* ]]; then
-        cmdname=${cmdname:1}
-        # If we already have a completion for the "real" command, use it
-        $(complete -p "$cmdname" 2>/dev/null || echo false) "\\$cmdname" && return 0
-        backslash=\\
-    fi
 
     # For loading 3rd party completions wrapped in shopt reset
     local IFS=$' \t\n'
