@@ -1678,6 +1678,15 @@ _comp_realcommand()
         ret=$(readlink -f "$file")
     else
         ret=$file
+        if [[ $ret == */* ]]; then
+            if [[ $ret == ./* ]]; then
+                ret=$PWD/${file:2}
+            elif [[ $ret == ../* ]]; then
+                ret=$PWD/${file:3}
+            elif [[ $ret != /* ]]; then
+                ret=$PWD/$file
+            fi
+        fi
     fi
 }
 
