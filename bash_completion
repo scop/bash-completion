@@ -2549,37 +2549,26 @@ __load_completion()
     # For loading 3rd party completions wrapped in shopt reset
     local IFS=$' \t\n'
 
-    for dir in "${dirs[@]}"; do
-        [[ -d $dir ]] || continue
-        for compfile in "$cmdname" "$cmdname.bash"; do
-            compfile="$dir/$compfile"
-            # Avoid trying to source dirs as long as we support bash < 4.3
-            # to avoid an fd leak; https://bugzilla.redhat.com/903540
-            if [[ -d $compfile ]]; then
-                # Do not warn with . or .. (especially the former is common)
-                [[ $compfile == */.?(.) ]] ||
-                    echo "bash_completion: $compfile: is a directory" >&2
-            elif [[ -e $compfile ]] && . "$compfile"; then
-                [[ $backslash ]] && $(complete -p "$cmdname") "\\$cmdname"
-                return 0
-            fi
+    # Look up and source
+    shift
+    local prefix
+    for prefix in "" _; do # Regular from all dirs first, then fallbacks
+        for dir in "${dirs[@]}"; do
+            [[ -d $dir ]] || continue
+            for compfile in "$prefix$cmdname" "$prefix$cmdname.bash"; do
+                compfile="$dir/$compfile"
+                # Avoid trying to source dirs as long as we support bash < 4.3
+                # to avoid an fd leak; https://bugzilla.redhat.com/903540
+                if [[ -d $compfile ]]; then
+                    # Do not warn with . or .. (especially the former is common)
+                    [[ $compfile == */.?(.) ]] ||
+                        echo "bash_completion: $compfile: is a directory" >&2
+                elif [[ -e $compfile ]] && . "$compfile" "$cmd" "$@"; then
+                    [[ $backslash ]] && $(complete -p "$cmdname") "\\$cmdname"
+                    return 0
+                fi
+            done
         done
-    done
-
-    # Search fallback completions named "_$cmdname"
-    for dir in "${dirs[@]}"; do
-        [[ -d $dir ]] || continue
-        compfile="$dir/_$cmdname"
-        # Avoid trying to source dirs as long as we support bash < 4.3
-        # to avoid an fd leak; https://bugzilla.redhat.com/903540
-        if [[ -d $compfile ]]; then
-            # Do not warn with . or .. (especially the former is common)
-            [[ $compfile == */.?(.) ]] ||
-                echo "bash_completion: $compfile: is a directory" >&2
-        elif [[ -e $compfile ]] && . "$compfile" "$cmd" "$@"; then
-            [[ $backslash ]] && $(complete -p "$cmdname") "\\$cmdname"
-            return 0
-        fi
     done
 
     # Look up simple "xspec" completions
