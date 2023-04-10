@@ -2496,9 +2496,9 @@ complete -F _minimal ''
 
 __load_completion()
 {
-    local cmd="${1##*/}" dir compfile
+    local cmd=$1 cmdname=${1##*/} dir compfile
     local -a paths
-    [[ $cmd ]] || return 1
+    [[ $cmdname ]] || return 1
 
     local -a dirs=()
 
@@ -2523,9 +2523,9 @@ __load_completion()
         dirs+=(./completions)
     fi
 
-    # 3) From bin directories extracted from $(realpath "$cmd") and PATH
+    # 3) From bin directories extracted from $(realpath "$cmdname") and PATH
     local ret
-    _comp_realcommand "$1" && paths=("${ret%/*}") || paths=()
+    _comp_realcommand "$cmd" && paths=("${ret%/*}") || paths=()
     _comp_split -aF : paths "$PATH"
     for dir in "${paths[@]%/}"; do
         if [[ -d $dir && $dir == ?*/@(bin|sbin) ]]; then
@@ -2539,10 +2539,10 @@ __load_completion()
     dirs+=("${paths[@]/%//bash-completion/completions}")
 
     local backslash=
-    if [[ $cmd == \\* ]]; then
-        cmd=${cmd:1}
+    if [[ $cmdname == \\* ]]; then
+        cmdname=${cmdname:1}
         # If we already have a completion for the "real" command, use it
-        $(complete -p "$cmd" 2>/dev/null || echo false) "\\$cmd" && return 0
+        $(complete -p "$cmdname" 2>/dev/null || echo false) "\\$cmdname" && return 0
         backslash=\\
     fi
 
@@ -2551,7 +2551,7 @@ __load_completion()
 
     for dir in "${dirs[@]}"; do
         [[ -d $dir ]] || continue
-        for compfile in "$cmd" "$cmd.bash"; do
+        for compfile in "$cmdname" "$cmdname.bash"; do
             compfile="$dir/$compfile"
             # Avoid trying to source dirs as long as we support bash < 4.3
             # to avoid an fd leak; https://bugzilla.redhat.com/903540
@@ -2560,31 +2560,31 @@ __load_completion()
                 [[ $compfile == */.?(.) ]] ||
                     echo "bash_completion: $compfile: is a directory" >&2
             elif [[ -e $compfile ]] && . "$compfile"; then
-                [[ $backslash ]] && $(complete -p "$cmd") "\\$cmd"
+                [[ $backslash ]] && $(complete -p "$cmdname") "\\$cmdname"
                 return 0
             fi
         done
     done
 
-    # Search fallback completions named "_$cmd"
+    # Search fallback completions named "_$cmdname"
     for dir in "${dirs[@]}"; do
         [[ -d $dir ]] || continue
-        compfile="$dir/_$cmd"
+        compfile="$dir/_$cmdname"
         # Avoid trying to source dirs as long as we support bash < 4.3
         # to avoid an fd leak; https://bugzilla.redhat.com/903540
         if [[ -d $compfile ]]; then
             # Do not warn with . or .. (especially the former is common)
             [[ $compfile == */.?(.) ]] ||
                 echo "bash_completion: $compfile: is a directory" >&2
-        elif [[ -e $compfile ]] && . "$compfile" "$cmd"; then
-            [[ $backslash ]] && $(complete -p "$cmd") "\\$cmd"
+        elif [[ -e $compfile ]] && . "$compfile" "$cmdname"; then
+            [[ $backslash ]] && $(complete -p "$cmdname") "\\$cmdname"
             return 0
         fi
     done
 
     # Look up simple "xspec" completions
-    [[ -v _xspecs[$cmd] ]] &&
-        complete -F _filedir_xspec "$cmd" "$backslash$cmd" && return 0
+    [[ -v _xspecs[$cmdname] ]] &&
+        complete -F _filedir_xspec "$cmdname" "$backslash$cmdname" && return 0
 
     return 1
 }
