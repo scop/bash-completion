@@ -1660,23 +1660,25 @@ _fstypes()
 }
 
 # Get real command.
-# - arg: $1  Command
-# - stdout:  Filename of command in PATH with possible symbolic links resolved.
-#            Empty string if command not found.
-# - return:  True (0) if command found, False (> 0) if not.
-_realcommand()
+# Command is the filename of command in PATH with possible symlinks resolved
+# (if resolve tooling available), empty string if command not found.
+# @param    $1 Command
+# @var[out] ret Resulting string
+# @return   True (0) if command found, False (> 0) if not.
+_comp_realcommand()
 {
-    type -P "$1" >/dev/null && {
-        if type -p realpath >/dev/null; then
-            realpath "$(type -P "$1")"
-        elif type -p greadlink >/dev/null; then
-            greadlink -f "$(type -P "$1")"
-        elif type -p readlink >/dev/null; then
-            readlink -f "$(type -P "$1")"
-        else
-            type -P "$1"
-        fi
-    }
+    ret=""
+    local file
+    file=$(type -P "$1") || return $?
+    if type -p realpath >/dev/null; then
+        ret=$(realpath "$file")
+    elif type -p greadlink >/dev/null; then
+        ret=$(greadlink -f "$file")
+    elif type -p readlink >/dev/null; then
+        ret=$(readlink -f "$file")
+    else
+        ret=$file
+    fi
 }
 
 # This function returns the first argument, excluding options
@@ -2513,8 +2515,9 @@ __load_completion()
     fi
 
     # 3) From bin directories extracted from $(realpath "$cmd") and PATH
-    dir=$(_realcommand "$1")
-    paths=("${dir%/*}")
+    local ret
+    _comp_realcommand "$1"
+    paths=("${ret%/*}")
     _comp_split -aF : paths "$PATH"
     for dir in "${paths[@]%/}"; do
         if [[ -d $dir && $dir == ?*/@(bin|sbin) ]]; then
