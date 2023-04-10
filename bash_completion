@@ -2508,6 +2508,13 @@ __load_completion()
         backslash=\\
     fi
 
+    # Try to resolve real path to $cmd, and make it absolute
+    local ret realcmd=
+    if _comp_realcommand "$cmd"; then
+        realcmd=$ret
+        cmd=${realcmd%/*}/$cmdname # basename could be an alias
+    fi
+
     local -a dirs=()
 
     # Lookup order:
@@ -2531,9 +2538,8 @@ __load_completion()
         dirs+=(./completions)
     fi
 
-    # 3) From bin directories extracted from $(realpath "$cmdname") and PATH
-    local ret
-    _comp_realcommand "$cmd" && paths=("${ret%/*}") || paths=()
+    # 3) From bin directories extracted from path to command, and $PATH
+    [[ $realcmd ]] && paths=("${realcmd%/*}") || paths=()
     _comp_split -aF : paths "$PATH"
     for dir in "${paths[@]%/}"; do
         if [[ -d $dir && $dir == ?*/@(bin|sbin) ]]; then
