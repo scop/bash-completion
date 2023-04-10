@@ -37,12 +37,26 @@ class TestLoadCompletion:
                 bash, "__load_completion cmd2", want_output=True
             )
             assert output.strip() == "cmd2: sourced from prefix1"
+            output = assert_bash_exec(
+                bash, "complete -p cmd2", want_output=True
+            )
+            assert " cmd2" in output
+            output = assert_bash_exec(
+                bash, 'complete -p "$PWD/prefix1/sbin/cmd2"', want_output=True
+            )
+            assert "/prefix1/sbin/cmd2" in output
 
     def test_cmd_path_1(self, bash):
+        assert_bash_exec(bash, "complete -r cmd1 || :", want_output=None)
         output = assert_bash_exec(
             bash, "__load_completion prefix1/bin/cmd1", want_output=True
         )
         assert output.strip() == "cmd1: sourced from prefix1"
+        output = assert_bash_exec(
+            bash, 'complete -p "$PWD/prefix1/bin/cmd1"', want_output=True
+        )
+        assert "/prefix1/bin/cmd1" in output
+        assert_bash_exec(bash, "! complete -p cmd1", want_output=None)
         output = assert_bash_exec(
             bash, "__load_completion prefix1/sbin/cmd2", want_output=True
         )
