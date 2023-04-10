@@ -2542,9 +2542,8 @@ __load_completion()
     [[ $realcmd ]] && paths=("${realcmd%/*}") || paths=()
     _comp_split -aF : paths "$PATH"
     for dir in "${paths[@]%/}"; do
-        if [[ -d $dir && $dir == ?*/@(bin|sbin) ]]; then
+        [[ $dir == ?*/@(bin|sbin) ]] &&
             dirs+=("${dir%/*}/share/bash-completion/completions")
-        fi
     done
 
     # 4) From XDG_DATA_DIRS or system dirs (e.g. /usr/share, /usr/local/share):
@@ -2557,10 +2556,14 @@ __load_completion()
 
     # Look up and source
     shift
-    local prefix
+    local i prefix compspec
     for prefix in "" _; do # Regular from all dirs first, then fallbacks
-        for dir in "${dirs[@]}"; do
-            [[ -d $dir ]] || continue
+        for i in ${!dirs[*]}; do
+            dir=${dirs[i]}
+            if [[ ! -d $dir ]]; then
+                unset -v 'dirs[i]'
+                continue
+            fi
             for compfile in "$prefix$cmdname" "$prefix$cmdname.bash"; do
                 compfile="$dir/$compfile"
                 # Avoid trying to source dirs as long as we support bash < 4.3
