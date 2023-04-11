@@ -2518,14 +2518,11 @@ __load_completion()
         backslash=\\
     fi
 
-    # Try to resolve real path to $cmd, and make it absolute
-    local ret realcmd="" origcmd=$cmd
-    if _comp_realcommand "$cmd"; then
-        realcmd=$ret
-        # Retain original basename, target $realcmd might behave differently
-        # depending on what it gets invoked as, so we should not install
-        # a completion for a different one for it. For example `busybox`.
-        cmd=${realcmd%/*}/$cmdname
+    # Resolve absolute path to $cmd
+    local ret pathcmd origcmd=$cmd
+    if pathcmd=$(type -P "$cmd"); then
+        _comp_abspath "$pathcmd"
+        cmd=$ret
     fi
 
     local -a dirs=()
@@ -2552,7 +2549,7 @@ __load_completion()
     fi
 
     # 3) From bin directories extracted from path to command, and $PATH
-    [[ $realcmd ]] && paths=("${realcmd%/*}") || paths=()
+    [[ $cmd == */* ]] && paths=("${cmd%/*}") || paths=()
     _comp_split -aF : paths "$PATH"
     for dir in "${paths[@]%/}"; do
         [[ $dir == ?*/@(bin|sbin) ]] &&
