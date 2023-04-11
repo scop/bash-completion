@@ -165,6 +165,19 @@ _get_pword()
     fi
 }
 
+# Get real command.
+# @deprecated Use `_comp_realcommand` instead.
+# Note that `_comp_realcommand` stores the result in the variable `ret`
+# instead of writing it to stdout.
+_realcommand()
+{
+    local ret
+    _comp_realcommand "$1"
+    local rc=$?
+    printf "%s\n" "$ret"
+    return $rc
+}
+
 # @deprecated Use the variable `_comp_backup_glob` instead.  This is the
 # backward-compatibility name.
 # shellcheck disable=SC2154  # defined in the main "bash_completion"
