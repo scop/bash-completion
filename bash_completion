@@ -1659,6 +1659,25 @@ _fstypes()
     [[ $fss ]] && COMPREPLY+=($(compgen -W "$fss" -- "$cur"))
 }
 
+# Get absolute path to a file, with rudimentary canonicalization.
+# No symlink resolution or existence checks are done;
+# see `_comp_realcommand` for those.
+# @param $1 The file
+# @var[out] ret The path
+_comp_abspath()
+{
+    ret=$1
+    case $ret in
+        /*) ;;
+        ../*) ret=$PWD/${ret:3} ;;
+        *) ret=$PWD/$ret ;;
+    esac
+    while [[ $ret == */./* ]]; do
+        ret=${ret//\/.\//\/}
+    done
+    ret=${ret//+(\/)/\/}
+}
+
 # Get real command.
 # Command is the filename of command in PATH with possible symlinks resolved
 # (if resolve tooling available), empty string if command not found.
@@ -1677,16 +1696,7 @@ _comp_realcommand()
     elif type -p readlink >/dev/null; then
         ret=$(readlink -f "$file")
     else
-        ret=$file
-        if [[ $ret == */* ]]; then
-            if [[ $ret == ./* ]]; then
-                ret=$PWD/${file:2}
-            elif [[ $ret == ../* ]]; then
-                ret=$PWD/${file:3}
-            elif [[ $ret != /* ]]; then
-                ret=$PWD/$file
-            fi
-        fi
+        _comp_abspath "$file"
     fi
 }
 
