@@ -2512,7 +2512,10 @@ __load_completion()
     local ret realcmd="" origcmd=$cmd
     if _comp_realcommand "$cmd"; then
         realcmd=$ret
-        cmd=${realcmd%/*}/$cmdname # basename could be an alias
+        # Retain original basename, target $realcmd might behave differently
+        # depending on what it gets invoked as, so we should not install
+        # a completion for a different one for it. For example `busybox`.
+        cmd=${realcmd%/*}/$cmdname
     fi
 
     local -a dirs=()
