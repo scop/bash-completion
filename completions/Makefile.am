@@ -786,6 +786,7 @@ CLEANFILES = \
 	_terraform \
 	tightvncviewer \
 	tracepath6 \
+	_trivy \
 	typeset \
 	_upctl \
 	_vacuum \
@@ -886,7 +887,7 @@ symlinks: $(DATA)
 	$(ss) gkrellm \
 		gkrellm2
 	$(ss) _golangci-lint \
-		_hugo _kn _op _sshi _upctl _vacuum
+		_hugo _kn _op _sshi _trivy _upctl _vacuum
 	$(ss) gpgv \
 		gpgv2
 	$(ss) gssdp-discover \
