@@ -432,9 +432,14 @@ _comp_compgen()
     elif [[ $1 == @(*[^_a-zA-Z0-9]*|[0-9]*|''|_*|IFS|OPTIND|OPTARG|OPTERR) ]]; then
         printf '%s\n' "bash_completion: $FUNCNAME: invalid array name \`$1'." >&2
         return 2
-    elif [[ ${*:2} == *\$[0-9]* || ${*:2} == *\$\{[0-9]* ]]; then
+    elif
+        local _nopt=$(($# - 1))
+        [[ ${*:$#-1:1} == -- ]] && ((_nopt -= 2)) # exclude "-- CUR" from check
+        [[ ${*:2:_nopt} == *\$[0-9]* || ${*:2:_nopt} == *\$\{[0-9]* ]]
+    then
         # Note: extglob *\$?(\{)[0-9]* can be extremely slow when the string
-        # "${*:2}" becomes longer, so we test \$[0-9] and \$\{[0-9] separately.
+        # "${*:2:_nopt}" becomes longer, so we test \$[0-9] and \$\{[0-9]
+        # separately.
         printf '%s\n' "bash_completion: $FUNCNAME: positional parameter \$1, \$2, ... do not work inside this function." >&2
         return 2
     fi
