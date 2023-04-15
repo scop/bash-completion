@@ -7,7 +7,7 @@ _btdownload()
 
     case $prev in
         --responsefile | --saveas)
-            _filedir
+            compopt -o bashdefault -o default
             return
             ;;
     esac
@@ -23,7 +23,7 @@ _btdownload()
             --rarest_first_cutoff --min_uploads --report_hash_failures' \
             -- "$cur"))
     else
-        _filedir
+        compopt -o bashdefault -o default
     fi
 } &&
     complete -F _btdownload btdownloadheadless.py btdownloadcurses.py \
