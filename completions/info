@@ -49,26 +49,23 @@ _info()
         infopath=$INFOPATH
     fi
 
-    infopath=$infopath:
-    if [[ $cur ]]; then
-        infopath="${infopath//://$cur* }"
-    else
-        infopath="${infopath//:// }"
+    _comp_split -F : infopath "$infopath"
+    if ((${#infopath[@]})); then
+        infopath=("${infopath[@]/%//$cur*}")
+        local IFS=
+        _comp_expand_glob COMPREPLY '${infopath[@]}'
+        _comp_unlocal IFS
+
+        if ((${#COMPREPLY[@]})); then
+            # weed out directory path names and paths to info pages (empty
+            # elements will be removed by the later `compgen -X ''`)
+            COMPREPLY=("${COMPREPLY[@]##*/?(:)}")
+            # strip suffix from info pages
+            COMPREPLY=("${COMPREPLY[@]%.@(gz|bz2|xz|lzma)}")
+            # weed out info dir file with -X 'dir'
+            _comp_split -l COMPREPLY "$(compgen -W '"${COMPREPLY[@]%.*}"' -X '@(|dir)' -- "${cur//\\\\/}")"
+        fi
     fi
-
-    # redirect stderr for when path doesn't exist
-    COMPREPLY=($(eval command ls "$infopath" 2>/dev/null))
-    # weed out directory path names and paths to info pages
-    COMPREPLY=(${COMPREPLY[@]##*/?(:)})
-    # weed out info dir file
-    for i in ${!COMPREPLY[*]}; do
-        [[ ${COMPREPLY[i]} == dir ]] && unset -v 'COMPREPLY[i]'
-    done
-    # strip suffix from info pages
-    COMPREPLY=(${COMPREPLY[@]%.@(gz|bz2|xz|lzma)})
-    ((${#COMPREPLY[@]})) &&
-        COMPREPLY=($(compgen -W '"${COMPREPLY[@]%.*}"' -- "${cur//\\\\/}"))
-
 } &&
     complete -F _info info pinfo
 
