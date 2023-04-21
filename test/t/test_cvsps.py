@@ -1,7 +1,10 @@
 import pytest
 
 
-@pytest.mark.bashcomp(pre_cmds=("HOME=$PWD/cvs",))
+@pytest.mark.bashcomp(
+    pre_cmds=("HOME=$PWD/cvs",),
+    ignore_env=r"^[+-]COMP_CVS_REMOTE=",
+)
 class TestCvsps:
     @pytest.mark.complete("cvsps -", require_cmd=True)
     def test_1(self, completion):

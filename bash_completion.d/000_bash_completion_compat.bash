@@ -42,6 +42,10 @@ _comp_deprecate_func 2.12 _longopt _comp_complete_longopt
 _comp_deprecate_func 2.12 _filedir_xspec _comp_complete_filedir_xspec
 _comp_deprecate_func 2.12 _minimal _comp_complete_minimal
 
+_comp_deprecate_var 2.12 COMP_FILEDIR_FALLBACK BASH_COMPLETION_FILEDIR_FALLBACK
+_comp_deprecate_var 2.12 COMP_KNOWN_HOSTS_WITH_AVAHI BASH_COMPLETION_KNOWN_HOSTS_WITH_AVAHI
+_comp_deprecate_var 2.12 COMP_KNOWN_HOSTS_WITH_HOSTFILE BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE
+
 # @deprecated 2.12 Use `_comp_xspecs`
 declare -Ag _xspecs
 

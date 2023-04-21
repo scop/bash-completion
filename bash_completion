@@ -61,6 +61,36 @@ _comp_deprecate_func()
     eval -- "$2() { $3 \"\$@\"; }"
 }
 
+# Declare a compatibility variable name.
+# For bash 4.3+, a real name alias is created, allowing value changes to
+# "apply through" when the variables are set later. For bash versions earlier
+# than that, the operation is once-only; the value of the new variable
+# (if it's unset) is set to that of the old (if set) at call time.
+#
+# @param $1 Version of bash-completion where the deprecation occurred
+# @param $2 Old variable name
+# @param $3 New variable name
+# @since 2.12
+_comp_deprecate_var()
+{
+    if (($# != 3)); then
+        printf 'bash_completion: %s: usage: %s DEPRECATION_VERSION OLD_NAME NEW_NAME\n' "$FUNCNAME" "$FUNCNAME"
+        return 2
+    fi
+    if [[ $2 != [a-zA-Z_]*([a-zA-Z_0-9]) ]]; then
+        printf 'bash_completion: %s: %s\n' "$FUNCNAME" "\$2: invalid variable name '$1'" >&2
+        return 2
+    elif [[ $3 != [a-zA-Z_]*([a-zA-Z_0-9]) ]]; then
+        printf 'bash_completion: %s: %s\n' "$FUNCNAME" "\$3: invalid variable name '$2'" >&2
+        return 2
+    fi
+    if ((BASH_VERSINFO[0] >= 5 || BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 3)); then
+        eval "declare -gn $2=$3"
+    elif [[ -v $2 && ! -v $3 ]]; then
+        printf -v "$3" %s "$2"
+    fi
+}
+
 # A lot of the following one-liners were taken directly from the
 # completion examples provided with the bash 2.04 source distribution
 
@@ -1092,14 +1122,13 @@ _comp_compgen_filedir()
         # the fallback condition with the "plus" dirs.
         local _opts=(-f -X "$_xspec")
         [[ $_xspec ]] && _plusdirs=(-o plusdirs)
-        [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-${COMP_FILEDIR_FALLBACK-}} ||
-            ! ${_plusdirs-} ]] ||
+        [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-} || ! ${_plusdirs-} ]] ||
             _opts+=("${_plusdirs[@]}")
 
         _comp_compgen -v toks -c "$_quoted" -- "${_opts[@]}"
 
         # Try without filter if it failed to produce anything and configured to
-        [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-${COMP_FILEDIR_FALLBACK-}} &&
+        [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-} &&
             $_arg && ${#toks[@]} -lt 1 ]] &&
             _comp_compgen -av toks -c "$_quoted" -- \
                 -f ${_plusdirs+"${_plusdirs[@]}"}
@@ -2626,7 +2655,7 @@ _comp_compgen_known_hosts__impl()
     fi
 
     # Add hosts reported by avahi-browse, if desired and it's available.
-    if [[ ${BASH_COMPLETION_KNOWN_HOSTS_WITH_AVAHI-${COMP_KNOWN_HOSTS_WITH_AVAHI-}} ]] &&
+    if [[ ${BASH_COMPLETION_KNOWN_HOSTS_WITH_AVAHI-} ]] &&
         type avahi-browse &>/dev/null; then
         # Some old versions of avahi-browse reportedly didn't have -k
         # (even if mentioned in the manpage); those we do not support any more.
@@ -2644,7 +2673,7 @@ _comp_compgen_known_hosts__impl()
 
     # Add results of normal hostname completion, unless
     # `BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE' is set to an empty value.
-    if [[ ${BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE-${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1}} ]]; then
+    if [[ ${BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE-set} ]]; then
         _comp_compgen -av known_hosts -- -A hostname -P "$prefix" -S "$suffix"
     fi
 
@@ -3006,8 +3035,7 @@ _comp_compgen_filedir_xspec()
     _comp_compgen -av toks -c "$quoted" -- -f -X "@(|!($xspec))"
 
     # Try without filter if it failed to produce anything and configured to
-    [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-${COMP_FILEDIR_FALLBACK-}} &&
-        ${#toks[@]} -lt 1 ]] &&
+    [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-} && ${#toks[@]} -lt 1 ]] &&
         _comp_compgen -av toks -c "$quoted" -- -f
 
     ((${#toks[@]})) || return 1
