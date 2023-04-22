@@ -14,7 +14,7 @@ class TestTshark:
     @pytest.mark.complete("tshark -O foo,htt", require_cmd=True)
     def test_3(self, completion):
         # p: one completion only; http: e.g. http and http2
-        assert completion == "p" or "http" in completion
+        assert completion == "p" or "foo,http" in completion
 
     @pytest.mark.complete("tshark -o tcp", require_cmd=True)
     def test_4(self, completion):

@@ -27,13 +27,11 @@ class TestSshKeygen:
     @pytest.mark.complete("ssh-keygen -s foo_key -n foo,")
     def test_usernames_for_n(self, completion):
         assert completion
-        assert not any("," in x for x in completion)
         # TODO check that these are usernames
 
     @pytest.mark.complete("ssh-keygen -s foo_key -h -n foo,")
     def test_host_for_h_n(self, completion):
         assert completion
-        assert not any("," in x for x in completion)
         # TODO check that these are hostnames
 
     @pytest.mark.complete("ssh-keygen -Y foo -n ")

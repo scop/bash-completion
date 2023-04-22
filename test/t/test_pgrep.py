@@ -31,4 +31,3 @@ class TestPgrep:
     )
     def test_nslist_after_comma(self, completion):
         assert completion
-        assert not any("," in x for x in completion)
