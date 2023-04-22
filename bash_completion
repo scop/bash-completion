@@ -735,24 +735,68 @@ _comp_compgen__call_generator()
 # @arr[in] _upvars
 # @var[in] _append
 # @var[in] _var
-_comp_compgen__call_builtin()
-{
-    local _result
-    _result=$(
+if ((BASH_VERSINFO[0] > 5 || BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 3)); then
+    # bash >= 5.3 has `compgen -V array_name`
+    _comp_compgen__call_builtin()
+    {
         if [[ $_dir ]]; then
+            local _original_pwd=$PWD
+            local PWD=${PWD-} OLDPWD=${OLDPWD-}
             # Note: We also redirect stdout because `cd` may output the target
             # directory to stdout when CDPATH is set.
-            command cd -- "$_dir" &>/dev/null || return
+            command cd -- "$_dir" &>/dev/null || {
+                _comp_compgen__error_fallback
+                return
+            }
         fi
-        IFS=$_ifs compgen "$@" ${_cur:+-- "$_cur"}
-    ) || {
-        _comp_compgen__error_fallback
+
+        local -a _result=()
+
+        # Note: We specify -X '' to exclude empty completions to make the
+        # behavior consistent with the implementation for Bash < 5.3 where
+        # `_comp_split -l` removes empty lines.  If the caller specifies -X
+        # pat, the effect of -X '' is overwritten by the specified one.
+        IFS=$_ifs compgen -V _result -X '' "$@" ${_cur:+-- "$_cur"} || {
+            _comp_compgen__error_fallback
+            return
+        }
+
+        # Go back to the original directory.
+        # Note: Failure of this line results in the change of the current
+        # directory visible to the user.  We intentionally do not redirect
+        # stderr so that the error message appear in the terminal.
+        # shellcheck disable=SC2164
+        [[ $_dir ]] && command cd -- "$_original_pwd"
+
+        ((${#_upvars[@]})) && _comp_unlocal "${_upvars[@]}"
+        ((${#_result[@]})) || return
+        if [[ $_append ]]; then
+            eval -- "$_var+=(\"\${_result[@]}\")"
+        else
+            eval -- "$_var=(\"\${_result[@]}\")"
+        fi
         return
     }
+else
+    _comp_compgen__call_builtin()
+    {
+        local _result
+        _result=$(
+            if [[ $_dir ]]; then
+                # Note: We also redirect stdout because `cd` may output the target
+                # directory to stdout when CDPATH is set.
+                command cd -- "$_dir" &>/dev/null || return
+            fi
+            IFS=$_ifs compgen "$@" ${_cur:+-- "$_cur"}
+        ) || {
+            _comp_compgen__error_fallback
+            return
+        }
 
-    ((${#_upvars[@]})) && _comp_unlocal "${_upvars[@]}"
-    _comp_split -l ${_append:+-a} "$_var" "$_result"
-}
+        ((${#_upvars[@]})) && _comp_unlocal "${_upvars[@]}"
+        _comp_split -l ${_append:+-a} "$_var" "$_result"
+    }
+fi
 
 # usage: _comp_compgen_set [words...]
 # Reset COMPREPLY with the specified WORDS.  If no arguments are specified, the
