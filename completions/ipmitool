@@ -67,15 +67,15 @@ _ipmitool()
     local cmds=(raw i2c spd lan chassis power event mc sdr sensor fru gendev
         sel pef sol tsol isol user channel session sunoem kontronoem picmg fwum
         firewall shell exec set hpm ekanalyzer)
-    local i c cmd="" has_cmd=false subcmd
+    local i c cmd="" has_cmd="" subcmd
     for ((i = 1; i < ${#words[@]} - 1; i++)); do
-        "$has_cmd" && subcmd=${words[i]} && break
+        [[ $has_cmd ]] && subcmd=${words[i]} && break
         for c in "${cmds[@]}"; do
-            [[ ${words[i]} == "$c" ]] && cmd=$c has_cmd=true && break
+            [[ ${words[i]} == "$c" ]] && cmd=$c has_cmd=set && break
         done
     done
 
-    if ! "$has_cmd"; then
+    if [[ ! $has_cmd ]]; then
         COMPREPLY=($(compgen -W '"${cmds[@]}"' -- "$cur"))
         return
     fi

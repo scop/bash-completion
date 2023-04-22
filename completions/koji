@@ -37,11 +37,11 @@ _koji()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
-    local commandix command="" has_command=false
+    local commandix command="" has_command=""
     for ((commandix = 1; commandix < cword; commandix++)); do
         if [[ ${words[commandix]} != -* ]]; then
             command=${words[commandix]}
-            has_command=true
+            has_command=set
             break
         fi
     done
@@ -108,7 +108,7 @@ _koji()
 
     $split && return
 
-    if "$has_command"; then
+    if [[ $has_command ]]; then
         if [[ $cur == -* ]]; then
             COMPREPLY=($(compgen -W \
                 '$(_parse_help "$1" "$command --help")' -- "$cur"))
@@ -238,7 +238,7 @@ _koji()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
-    elif ! "$has_command"; then
+    elif [[ ! $has_command ]]; then
         COMPREPLY=($(compgen -W '$("$1" --help-commands 2>/dev/null | \
             awk "/^(  +|\t)/ { print \$1 }")' -- "$cur"))
     fi

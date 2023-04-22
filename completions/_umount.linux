@@ -101,11 +101,11 @@ _comp_cmd_umount()
     case "$prev" in
         -t)
             # FIXME: no<fstype>
-            local split=false
+            local split=""
             if [[ $cur == ?*,* ]]; then
                 prev="${cur%,*}"
                 cur="${cur##*,}"
-                split=true
+                split=set
             fi
             COMPREPLY=($(compgen -W 'adfs affs autofs btrfs cifs coda
                 cramfs debugfs devpts efs ext2 ext3 ext4 fuse hfs hfsplus hpfs
@@ -113,7 +113,7 @@ _comp_cmd_umount()
                 ramfs reiserfs romfs squashfs smbfs sysv tmpfs ubifs udf ufs
                 umsdos usbfs vfat xfs' -- "$cur"))
             _fstypes
-            $split && COMPREPLY=(${COMPREPLY[@]/#/$prev,})
+            [[ $split ]] && COMPREPLY=(${COMPREPLY[@]/#/$prev,})
             return
             ;;
         -O)
