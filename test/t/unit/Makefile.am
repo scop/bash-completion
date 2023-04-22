@@ -1,4 +1,5 @@
 EXTRA_DIST = \
+	test_unit_abspath.py \
 	test_unit_command_offset.py \
 	test_unit_compgen.py \
 	test_unit_count_args.py \
