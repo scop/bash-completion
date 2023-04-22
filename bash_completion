@@ -655,61 +655,88 @@ _comp_compgen()
             printf 'bash_completion: %s: unrecognized generator `%s'\'' (function %s not found)\n' "$FUNCNAME" "$1" "${_generator[0]}" >&2
             return 2
         fi
+        shift
 
-        ((${#_upvars[@]})) && _comp_unlocal "${_upvars[@]}"
-
-        if [[ $_dir ]]; then
-            local _original_pwd=$PWD
-            local PWD=${PWD-} OLDPWD=${OLDPWD-}
-            # Note: We also redirect stdout because `cd` may output the target
-            # directory to stdout when CDPATH is set.
-            command cd -- "$_dir" &>/dev/null ||
-                {
-                    _comp_compgen__error_fallback
-                    return
-                }
+        _comp_compgen__call_generator "$@"
+    else
+        # usage: _comp_compgen [options] -- [compgen_options]
+        if [[ $_icmd || $_xcmd ]]; then
+            printf 'bash_completion: %s: generator name is unspecified for `%s'\''\n' "$FUNCNAME" "${_icmd:+-i $_icmd}${_xcmd:+x $_xcmd}" >&2
+            return 2
         fi
 
-        local _comp_compgen__append=$_append
-        local _comp_compgen__var=$_var
-        local _comp_compgen__cur=$_cur cur=$_cur
-        # Note: we use $1 as a part of a function name, and we use $2... as
-        # arguments to the function if any.
-        # shellcheck disable=SC2145
-        "${_generator[@]}" "${@:2}"
-        local _status=$?
+        # Note: $* in the below checks would be affected by uncontrolled IFS in
+        # bash >= 5.0, so we need to set IFS to the normal value.  The behavior
+        # in bash < 5.0, where unquoted $* in conditional command did not honor
+        # IFS, was a bug.
+        # Note: Also, ${_cur:+-- "$_cur"} and ${_append:+-a} would be affected
+        # by uncontrolled IFS.
+        local IFS=$' \t\n'
+        # Note: extglob *\$?(\{)[0-9]* can be extremely slow when the string
+        # "${*:2:_nopt}" becomes longer, so we test \$[0-9] and \$\{[0-9]
+        # separately.
+        if [[ $* == *\$[0-9]* || $* == *\$\{[0-9]* ]]; then
+            printf 'bash_completion: %s: positional parameter $1, $2, ... do not work inside this function\n' "$FUNCNAME" >&2
+            return 2
+        fi
 
-        # Go back to the original directory.
-        # Note: Failure of this line results in the change of the current
-        # directory visible to the user.  We intentionally do not redirect
-        # stderr so that the error message appear in the terminal.
-        # shellcheck disable=SC2164
-        [[ $_dir ]] && command cd -- "$_original_pwd"
+        _comp_compgen__call_builtin "$@"
+    fi
+}
 
-        return "$_status"
+# Helper function for _comp_compgen.  This function calls a generator.
+# @param $1... generator_args
+# @var[in] _dir
+# @var[in] _cur
+# @arr[in] _generator
+# @arr[in] _upvars
+# @var[in] _append
+# @var[in] _var
+_comp_compgen__call_generator()
+{
+    ((${#_upvars[@]})) && _comp_unlocal "${_upvars[@]}"
+
+    if [[ $_dir ]]; then
+        local _original_pwd=$PWD
+        local PWD=${PWD-} OLDPWD=${OLDPWD-}
+        # Note: We also redirect stdout because `cd` may output the target
+        # directory to stdout when CDPATH is set.
+        command cd -- "$_dir" &>/dev/null ||
+            {
+                _comp_compgen__error_fallback
+                return
+            }
     fi
 
-    # usage: _comp_compgen [options] -- [compgen_options]
-    if [[ $_icmd || $_xcmd ]]; then
-        printf 'bash_completion: %s: generator name is unspecified for `%s'\''\n' "$FUNCNAME" "${_icmd:+-i $_icmd}${_xcmd:+x $_xcmd}" >&2
-        return 2
-    fi
+    local _comp_compgen__append=$_append
+    local _comp_compgen__var=$_var
+    local _comp_compgen__cur=$_cur cur=$_cur
+    # Note: we use $1 as a part of a function name, and we use $2... as
+    # arguments to the function if any.
+    # shellcheck disable=SC2145
+    "${_generator[@]}" "$@"
+    local _status=$?
 
-    # Note: $* in the below checks would be affected by uncontrolled IFS in
-    # bash >= 5.0, so we need to set IFS to the normal value.  The behavior in
-    # bash < 5.0, where unquoted $* in conditional command did not honor IFS,
-    # was a bug.
-    # Note: Also, ${_cur:+-- "$_cur"} and ${_append:+-a} would be affected by
-    # uncontrolled IFS.
-    local IFS=$' \t\n'
-    # Note: extglob *\$?(\{)[0-9]* can be extremely slow when the string
-    # "${*:2:_nopt}" becomes longer, so we test \$[0-9] and \$\{[0-9]
-    # separately.
-    if [[ $* == *\$[0-9]* || $* == *\$\{[0-9]* ]]; then
-        printf 'bash_completion: %s: positional parameter $1, $2, ... do not work inside this function\n' "$FUNCNAME" >&2
-        return 2
-    fi
+    # Go back to the original directory.
+    # Note: Failure of this line results in the change of the current
+    # directory visible to the user.  We intentionally do not redirect
+    # stderr so that the error message appear in the terminal.
+    # shellcheck disable=SC2164
+    [[ $_dir ]] && command cd -- "$_original_pwd"
 
+    return "$_status"
+}
+
+# Helper function for _comp_compgen.  This function calls the builtin compgen.
+# @param $1... compgen_args
+# @var[in] _dir
+# @var[in] _ifs
+# @var[in] _cur
+# @arr[in] _upvars
+# @var[in] _append
+# @var[in] _var
+_comp_compgen__call_builtin()
+{
     local _result
     _result=$(
         if [[ $_dir ]]; then
