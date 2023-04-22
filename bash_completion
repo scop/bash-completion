@@ -895,6 +895,13 @@ _comp_delimited()
         _comp_compgen COMPREPLY "$@" -- "${cur##*"$delimiter"}"
     fi
 
+    # It would seem that in some specific cases we could avoid adding the
+    # prefix to all completions, thereby making the list of suggestions
+    # cleaner, and only adding it when there's exactly one completion.
+    # The cases where this opportunity has been observed involve having
+    # `show-all-if-ambiguous` on, but even that has cases where it fails
+    # and the last separator including everything before it is lost.
+    # https://github.com/scop/bash-completion/pull/913#issuecomment-1490140309
     local i
     for i in "${!COMPREPLY[@]}"; do
         COMPREPLY[i]="$prefix${COMPREPLY[i]}"
