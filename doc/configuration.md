@@ -92,6 +92,11 @@ remote repository. Default is unset.
 If set and not null, `iwconfig` completion will try to complete on
 available wireless networks identifiers. Default is unset.
 
+### `BASH_COMPLETION_CMD_SMBTREE_SCAN`
+
+If set and not null, various samba related tool completions perform
+a network scan to complete domains and hosts. Default is unset.
+
 ### `BASH_COMPLETION_CMD_TAR_INTERNAL_PATHS`
 
 If set and not null _before sourcing_ the `tar` completion, it will do
