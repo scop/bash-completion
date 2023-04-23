@@ -7,7 +7,7 @@ class TestNmap:
     @pytest.fixture(scope="class")
     def functions(self, request, bash):
         assert_bash_exec(bash, "_mock_nmap() { cat nmap/nmap-h.txt; }")
-        assert_bash_exec(bash, "complete -F _nmap _mock_nmap")
+        assert_bash_exec(bash, "complete -F _comp_cmd_nmap _mock_nmap")
 
     @pytest.mark.complete("nmap --v", require_cmd=True)
     def test_live_options(self, completion):
