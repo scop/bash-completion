@@ -1,6 +1,6 @@
 # bash completion for Postgresql                           -*- shell-script -*-
 
-_pg_databases()
+_comp_cmd_psql__databases()
 {
     # -w was introduced in 8.4, https://launchpad.net/bugs/164772
     # "Access privileges" in output may contain linefeeds, hence the NF > 1
@@ -8,7 +8,7 @@ _pg_databases()
         awk 'NF > 1 { print $1 }')" -- "$cur"))
 }
 
-_pg_users()
+_comp_cmd_psql__users()
 {
     # -w was introduced in 8.4, https://launchpad.net/bugs/164772
     COMPREPLY=($(compgen -W "$(psql -XAtqwc 'select usename from pg_user' \
@@ -18,7 +18,7 @@ _pg_users()
 
 # createdb(1) completion
 #
-_createdb()
+_comp_cmd_createdb()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
@@ -31,7 +31,7 @@ _createdb()
             return
             ;;
         --username | --owner | -${noargopts}[UO])
-            _pg_users
+            _comp_cmd_psql__users
             return
             ;;
         --help | --version | --port | --tablespace | --encoding | --template | \
@@ -46,14 +46,14 @@ _createdb()
         COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     else
-        _pg_databases
+        _comp_cmd_psql__databases
     fi
 } &&
-    complete -F _createdb createdb
+    complete -F _comp_cmd_createdb createdb
 
 # createuser(1) completion
 #
-_createuser()
+_comp_cmd_createuser()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
@@ -69,7 +69,7 @@ _createuser()
             return
             ;;
         --username | -${noargopts}U)
-            _pg_users
+            _comp_cmd_psql__users
             return
             ;;
     esac
@@ -81,11 +81,11 @@ _createuser()
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     fi
 } &&
-    complete -F _createuser createuser
+    complete -F _comp_cmd_createuser createuser
 
 # dropdb(1) completion
 #
-_dropdb()
+_comp_cmd_dropdb()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
@@ -98,7 +98,7 @@ _dropdb()
             return
             ;;
         --username | -${noargopts}U)
-            _pg_users
+            _comp_cmd_psql__users
             return
             ;;
         --help | --version)
@@ -112,14 +112,14 @@ _dropdb()
         COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     else
-        _pg_databases
+        _comp_cmd_psql__databases
     fi
 } &&
-    complete -F _dropdb dropdb
+    complete -F _comp_cmd_dropdb dropdb
 
 # dropuser(1) completion
 #
-_dropuser()
+_comp_cmd_dropuser()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
@@ -135,7 +135,7 @@ _dropuser()
             return
             ;;
         --username | -${noargopts}U)
-            _pg_users
+            _comp_cmd_psql__users
             return
             ;;
     esac
@@ -146,14 +146,14 @@ _dropuser()
         COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     else
-        _pg_users
+        _comp_cmd_psql__users
     fi
 } &&
-    complete -F _dropuser dropuser
+    complete -F _comp_cmd_dropuser dropuser
 
 # psql(1) completion
 #
-_psql()
+_comp_cmd_psql()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
@@ -166,11 +166,11 @@ _psql()
             return
             ;;
         --username | -${noargopts}U)
-            _pg_users
+            _comp_cmd_psql__users
             return
             ;;
         --dbname | -${noargopts}d)
-            _pg_databases
+            _comp_cmd_psql__databases
             return
             ;;
         --output | --file | --log-file | -${noargopts}[ofL])
@@ -192,9 +192,9 @@ _psql()
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     else
         # return list of available databases
-        _pg_databases
+        _comp_cmd_psql__databases
     fi
 } &&
-    complete -F _psql psql
+    complete -F _comp_cmd_psql psql
 
 # ex: filetype=sh

@@ -1,6 +1,6 @@
 # pylint(1) completion                                     -*- shell-script -*-
 
-_comp_cmd_pylint_message_ids()
+_comp_cmd_pylint__message_ids()
 {
     local filter=p
     [[ ${2-} ]] && filter="/^$2 messages/,/^$/p"
@@ -19,7 +19,7 @@ _comp_cmd_pylint_message_ids()
     _comp_delimited , -W "$msgs"
 }
 
-_pylint()
+_comp_cmd_pylint()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
@@ -48,15 +48,15 @@ _pylint()
             return
             ;;
         --fail-on | --help-msg)
-            _comp_cmd_pylint_message_ids "$1"
+            _comp_cmd_pylint__message_ids "$1"
             return
             ;;
         --enable | -${noargopts}e)
-            _comp_cmd_pylint_message_ids "$1" Disabled
+            _comp_cmd_pylint__message_ids "$1" Disabled
             return
             ;;
         --disable | -${noargopts}d)
-            _comp_cmd_pylint_message_ids "$1" Enabled
+            _comp_cmd_pylint__message_ids "$1" Enabled
             COMPREPLY+=($(compgen -W 'all' -- "$cur"))
             return
             ;;
@@ -112,6 +112,6 @@ _pylint()
     _comp_looks_like_path "$cur" || _comp_xfunc python modules $python
     _filedir py
 } &&
-    complete -F _pylint pylint pylint-2 pylint-3
+    complete -F _comp_cmd_pylint pylint pylint-2 pylint-3
 
 # ex: filetype=sh
