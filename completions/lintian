@@ -1,6 +1,6 @@
 # bash completion for lintian(1) and lintian-info(1)       -*- shell-script -*-
 
-_lintian_tags()
+_comp_cmd_lintian__tags()
 {
     local search tags check_files
     _comp_expand_glob check_files '/usr/share/lintian/checks/*.desc'
@@ -20,7 +20,7 @@ _lintian_tags()
     fi
 }
 
-_lintian_checks()
+_comp_cmd_lintian__checks()
 {
     local match search todisable checks check_files
     _comp_expand_glob check_files '/usr/share/lintian/checks/*.desc'
@@ -46,7 +46,7 @@ _lintian_checks()
     fi
 }
 
-_lintian_infos()
+_comp_cmd_lintian__infos()
 {
     local search infos collection_files
     _comp_expand_glob collection_files '/usr/share/lintian/collection/*.desc'
@@ -67,7 +67,7 @@ _lintian_infos()
     fi
 }
 
-_lintian()
+_comp_cmd_lintian()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -88,10 +88,10 @@ _lintian()
     if [[ $prev == -* ]]; then
         case $prev in
             -C | --check-part | -X | --dont-check-part)
-                _lintian_checks
+                _comp_cmd_lintian__checks
                 ;;
             -T | --tags | --suppress-tags)
-                _lintian_tags
+                _comp_cmd_lintian__tags
                 ;;
             --tags-from-file | --suppress-tags-from-file | --cfg | -p | \
                 --packages-file)
@@ -104,7 +104,7 @@ _lintian()
                 COMPREPLY=($(compgen -W "never always auto html" -- "$cur"))
                 ;;
             -U | --unpack-info)
-                _lintian_infos
+                _comp_cmd_lintian__infos
                 ;;
             --area | --section)
                 COMPREPLY=($(compgen -W "main contrib non-free" -- "$cur"))
@@ -125,13 +125,13 @@ _lintian()
             # Only few actions permit that, re-complete them now.
             case "$prev" in
                 -C | --check-part | -X | --dont-check-part)
-                    _lintian_checks
+                    _comp_cmd_lintian__checks
                     ;;
                 -T | --tags | --suppress-tags)
-                    _lintian_tags
+                    _comp_cmd_lintian__tags
                     ;;
                 -U | --unpack-info)
-                    _lintian_infos
+                    _comp_cmd_lintian__infos
                     ;;
             esac
             ;;
@@ -142,9 +142,9 @@ _lintian()
     esac
     return 0
 } &&
-    complete -F _lintian lintian
+    complete -F _comp_cmd_lintian lintian
 
-_lintian_info()
+_comp_cmd_lintian_info()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -154,7 +154,7 @@ _lintian_info()
             return
             ;;
         -t | --tags)
-            _lintian_tags
+            _comp_cmd_lintian__tags
             return
             ;;
         --include-dir)
@@ -173,6 +173,6 @@ _lintian_info()
     esac
     return 0
 } &&
-    complete -F _lintian_info lintian-info
+    complete -F _comp_cmd_lintian_info lintian-info
 
 # ex: filetype=sh

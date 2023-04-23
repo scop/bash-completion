@@ -1,25 +1,25 @@
 # ktutil completion                                        -*- shell-script -*-
 
-_heimdal_principals()
+_comp_cmd_ktutil__heimdal_principals()
 {
     COMPREPLY=($(compgen -W "$(kadmin -l dump 2>/dev/null |
         awk '{print $1}')" -- "$cur"))
 }
 
-_heimdal_realms()
+_comp_cmd_ktutil__heimdal_realms()
 {
     COMPREPLY=($(compgen -W "$(kadmin -l dump 2>/dev/null |
         awk '{print $1}' | awk -F@ '{print $2}')" -- "$cur"))
 }
 
-_heimdal_encodings()
+_comp_cmd_ktutil__heimdal_encodings()
 {
     COMPREPLY=($(compgen -W 'des-cbc-mcrc des-cbc-md4 des-cbc-md5
         des3-cbc-sha1 arcfour-hmac-md5 aes128-cts-hmac-sha1-96
         aes256-cts-hmac-sha1-96' -- "$cur"))
 }
 
-_ktutil()
+_comp_cmd_ktutil()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
@@ -28,11 +28,11 @@ _ktutil()
 
     case $prev in
         -p | --principal)
-            _heimdal_principals
+            _comp_cmd_ktutil__heimdal_principals
             return
             ;;
         -e | --enctype)
-            _heimdal_encodings
+            _comp_cmd_ktutil__heimdal_encodings
             return
             ;;
         -a | --admin-server)
@@ -40,7 +40,7 @@ _ktutil()
             return
             ;;
         -r | --realm)
-            _heimdal_realms
+            _comp_cmd_ktutil__heimdal_realms
             return
             ;;
         -s | -k | --srvtab | --keytab)
@@ -104,10 +104,10 @@ _ktutil()
                 _filedir
                 ;;
             get)
-                _heimdal_principals
+                _comp_cmd_ktutil__heimdal_principals
                 ;;
             rename)
-                _heimdal_principals
+                _comp_cmd_ktutil__heimdal_principals
                 ;;
             *)
                 COMPREPLY=($(compgen -W "$commands" -- "$cur"))
@@ -115,6 +115,6 @@ _ktutil()
         esac
     fi
 } &&
-    complete -F _ktutil ktutil
+    complete -F _comp_cmd_ktutil ktutil
 
 # ex: filetype=sh
