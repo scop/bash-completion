@@ -43,16 +43,16 @@ _ip()
             ;;
     esac
 
-    local subcword cmd="" has_cmd=false subcmd=""
+    local subcword cmd="" has_cmd="" subcmd=""
     for ((subcword = 1; subcword < ${#words[@]} - 1; subcword++)); do
         [[ ${words[subcword]} == -b?(atch) ]] && return
-        "$has_cmd" && subcmd=${words[subcword]} && break
+        [[ $has_cmd ]] && subcmd=${words[subcword]} && break
         [[ ${words[subcword]} != -* &&
             ${words[subcword - 1]} != -@(f?(amily)|rc?(vbuf)) ]] &&
-            cmd=${words[subcword]} has_cmd=true
+            cmd=${words[subcword]} has_cmd=set
     done
 
-    if ! "$has_cmd"; then
+    if [[ ! $has_cmd ]]; then
         case $cur in
             -*)
                 local force=""

@@ -339,12 +339,12 @@ _comp_expand_glob()
 #   generated.
 _comp_split()
 {
-    local _append=false IFS=$' \t\n'
+    local _append="" IFS=$' \t\n'
 
     local OPTIND=1 OPTARG="" OPTERR=0 _opt
     while getopts ':alF:' _opt "$@"; do
         case $_opt in
-            a) _append=true ;;
+            a) _append=set ;;
             l) IFS=$'\n' ;;
             F) IFS=$OPTARG ;;
             *)
@@ -367,7 +367,7 @@ _comp_split()
     set -o noglob
 
     local _old_size _new_size
-    if "$_append"; then
+    if [[ $_append ]]; then
         eval "$1+=()" # in case $1 is unset
         eval "_old_size=\${#$1[@]}"
         eval "$1+=(\$2)"
@@ -409,13 +409,13 @@ _comp_split()
 #   array instead.
 _comp_compgen()
 {
-    local _append=false IFS=$' \t\n'
+    local _append="" IFS=$' \t\n'
     local -a _split_options=(-l)
 
     local OPTIND=1 OPTARG="" OPTERR=0 _opt
     while getopts ':alF:' _opt "$@"; do
         case $_opt in
-            a) _append=true _split_options+=(-a) ;;
+            a) _append=set _split_options+=(-a) ;;
             l) IFS=$'\n' ;;
             F) IFS=$OPTARG ;;
             *)
@@ -447,7 +447,7 @@ _comp_compgen()
     local _result
     _result=$(compgen "${@:2}") || {
         local _status=$?
-        if "$_append"; then
+        if [[ $_append ]]; then
             # make sure existence of variable
             eval -- "$1+=()"
         else
@@ -859,16 +859,16 @@ _variables()
 #         -k: do not filter out already present tokens in value
 _comp_delimited()
 {
-    local prefix="" delimiter=$1 deduplicate=true
+    local prefix="" delimiter=$1 deduplicate=set
     shift
     if [[ $delimiter == -k ]]; then
-        deduplicate=false
+        deduplicate=""
         delimiter=$1
         shift
     fi
     [[ $cur == *$delimiter* ]] && prefix=${cur%"$delimiter"*}$delimiter
 
-    if $deduplicate; then
+    if [[ $deduplicate ]]; then
         # We could construct a -X pattern to feed to compgen, but that'd
         # conflict with possibly already set -X in $@, as well as have
         # glob char escaping issues to deal with. Do removals by hand instead.
@@ -1959,7 +1959,7 @@ _known_hosts_real()
     local OPTIND=1
     while getopts "ac46F:p:" flag "$@"; do
         case $flag in
-            a) aliases='yes' ;;
+            a) aliases=set ;;
             c) suffix=':' ;;
             F)
                 if [[ ! $OPTARG ]]; then
@@ -1969,8 +1969,8 @@ _known_hosts_real()
                 configfile=$OPTARG
                 ;;
             p) prefix=$OPTARG ;;
-            4) ipv4=1 ;;
-            6) ipv6=1 ;;
+            4) ipv4=set ;;
+            6) ipv6=set ;;
             *)
                 echo "bash_completion: $FUNCNAME: usage error" >&2
                 return 1

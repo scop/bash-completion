@@ -45,15 +45,15 @@ _pack200()
     $split && return
 
     # Check if a pack or a jar was already given.
-    local i pack=false jar=false
+    local i pack="" jar=""
     for ((i = 1; i < ${#words[@]} - 1; i++)); do
         case ${words[i]} in
-            *.pack | *.pack.gz) pack=true ;;
-            *.jar) jar=true ;;
+            *.pack | *.pack.gz) pack=set ;;
+            *.jar) jar=set ;;
         esac
     done
 
-    if ! $pack; then
+    if [[ ! $pack ]]; then
         if [[ $cur == -* ]]; then
             COMPREPLY=($(compgen -W '--no-gzip --gzip --strip-debug
                 --no-keep-file-order --segment-limit= --effort= --deflate-hint=
@@ -65,7 +65,7 @@ _pack200()
         else
             _filedir 'pack?(.gz)'
         fi
-    elif ! $jar; then
+    elif [[ ! $jar ]]; then
         _filedir jar
     fi
 } &&

@@ -46,11 +46,11 @@ _xrandr()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
-    local i output has_output=false
+    local i output has_output=""
     for ((i = cword - 1; i > 0; i--)); do
         if [[ ${words[i]} == --output ]]; then
             output=${words[i + 1]}
-            has_output=true
+            has_output=set
             break
         fi
     done
@@ -67,14 +67,14 @@ _xrandr()
             return
             ;;
         --left-of | --right-of | --above | --below | --same-as)
-            if "$has_output"; then
+            if [[ $has_output ]]; then
                 local outputs=$(_comp_cmd_xrandr_outputs "$1")
                 COMPREPLY=($(compgen -W "$outputs" -- "$cur"))
             fi
             return
             ;;
         --mode)
-            if "$has_output"; then
+            if [[ $has_output ]]; then
                 local modes=$(_comp_cmd_xrandr_modes "$1" "$output")
                 COMPREPLY=($(compgen -W "$modes" -- "$cur"))
             fi
@@ -87,19 +87,19 @@ _xrandr()
             return
             ;;
         --reflect)
-            if "$has_output"; then
+            if [[ $has_output ]]; then
                 COMPREPLY=($(compgen -W 'normal x y xy' -- "$cur"))
             fi
             return
             ;;
         --rotate)
-            if "$has_output"; then
+            if [[ $has_output ]]; then
                 COMPREPLY=($(compgen -W 'normal inverted left right' -- "$cur"))
             fi
             return
             ;;
         --filter)
-            if "$has_output"; then
+            if [[ $has_output ]]; then
                 COMPREPLY=($(compgen -W 'bilinear nearest' -- "$cur"))
             fi
             return
@@ -171,7 +171,7 @@ _xrandr()
     fi
 
     local options
-    if "$has_output"; then
+    if [[ $has_output ]]; then
         options=$(
             _comp_cmd_xrandr_help "$1" |
                 command sed -e 's/ or /\n  /g' -e 's/<[^>]*>]//g' |

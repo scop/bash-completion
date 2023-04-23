@@ -5,7 +5,7 @@ _lzip()
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
-    local decompress=false
+    local decompress=""
 
     local noargopts='!(-*|*[bmsSBdno]*)'
     # shellcheck disable=SC2254
@@ -15,7 +15,7 @@ _lzip()
             return
             ;;
         --decompress | -${noargopts}d)
-            decompress=true
+            decompress=set
             ;;
         --threads | -${noargopts}n)
             COMPREPLY=($(compgen -W "{1..$(_ncpus)}" -- "$cur"))
@@ -35,7 +35,7 @@ _lzip()
         return
     fi
 
-    if $decompress; then
+    if [[ $decompress ]]; then
         _filedir lz
         return
     fi

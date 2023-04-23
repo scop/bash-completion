@@ -13,7 +13,7 @@ _wtf()
         return
     fi
 
-    local db="" has_db=false
+    local db="" has_db=""
 
     set -- "${words[@]}"
     while (($# > 0)); do
@@ -21,20 +21,20 @@ _wtf()
             shift
             if (($# > 0)); then
                 db=$1
-                has_db=true
+                has_db=set
             fi
             break
         fi
         shift
     done
 
-    if ! "$has_db"; then
+    if [[ ! $has_db ]]; then
         local f
         for f in "${ACRONYMDB-}" /usr/share/misc/acronyms \
             /usr/share/games/bsdgames/acronyms; do
-            [[ -f $f ]] && db="$f" has_db=true && break
+            [[ -f $f ]] && db="$f" has_db=set && break
         done
-        "$has_db" || return
+        [[ $has_db ]] || return
     fi
 
     COMPREPLY=($(compgen -W "$(cut -f 1 -s "$db"* 2>/dev/null) $addf" \

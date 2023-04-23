@@ -103,16 +103,16 @@ _pytest()
 
     if [[ $cur == *.py::*:* ]]; then
         local file=${cur/.py:*/.py}
-        local class=${cur#*.py::} in_class=false
+        local class=${cur#*.py::} in_class=""
         local line
         class=${class%%:*}
         while IFS= read -r line; do
             if [[ $line =~ ^class[[:space:]]+${class}[[:space:]:\(] ]]; then
-                in_class=true
+                in_class=set
             elif [[ $line =~ ^class[[:space:]] ]]; then
-                in_class=false
+                in_class=""
             fi
-            if $in_class && [[ $line =~ ^[[:space:]]+(async[[:space:]]+)?def[[:space:]]+(test_[A-Za-z0-9_]+) ]]; then
+            if [[ $in_class && $line =~ ^[[:space:]]+(async[[:space:]]+)?def[[:space:]]+(test_[A-Za-z0-9_]+) ]]; then
                 COMPREPLY+=(${BASH_REMATCH[2]})
             fi
         done 2>/dev/null <"$file"
