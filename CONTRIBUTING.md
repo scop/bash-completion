@@ -199,6 +199,15 @@ Also, please bear the following coding guidelines in mind:
 - In addition to running the test suite, there are a few scripts in the test/
   dir that catch some common issues, see and use for example runLint.
 
+- Make sure you have Python 3.7 or later installed. This is required for
+  running the development tooling, linters etc. Rest of the development
+  Python dependencies are specified in `test/requirements-dev.txt` which
+  can be fed for example to `pip`:
+
+  ```shell
+  python3 -m pip install -r test/requirements-dev.txt
+  ```
+
 - Install pre-commit and set it up, see <https://pre-commit.com/>.
   That'll run a bunch of linters and the like, the same as the
   bash-completion CI does. Running it locally and fixing found issues before
