@@ -21,14 +21,14 @@ _comp_xfunc_rpm_installed_packages()
 
 _comp_deprecate_func _rpm_installed_packages _comp_xfunc_rpm_installed_packages
 
-_rpm_groups()
+_comp_cmd_rpm__groups()
 {
     local IFS=$'\n'
     COMPREPLY=($(compgen -W "$("${1:-rpm}" -qa --nodigest --nosignature \
         --queryformat='%{GROUP}\n' 2>/dev/null)" -- "$cur"))
 }
 
-_rpm_macros()
+_comp_cmd_rpm__macros()
 {
     # get a list of macros
     COMPREPLY=($(compgen -W "$("${1:-rpm}" --showrc | command sed -ne \
@@ -45,7 +45,7 @@ _rpm_buildarchs()
 
 # rpm(8) completion
 #
-_rpm()
+_comp_cmd_rpm()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
@@ -75,7 +75,7 @@ _rpm()
             return
             ;;
         --eval | -${noargopts}E)
-            _rpm_macros "$1"
+            _comp_cmd_rpm__macros "$1"
             return
             ;;
         --pipe)
@@ -170,7 +170,7 @@ _rpm()
                 fi
             elif [[ ${words[*]} == *\ -@(*([^ -])g|-group )* ]]; then
                 # -qg completion
-                _rpm_groups "$1"
+                _comp_cmd_rpm__groups "$1"
             elif [[ ${words[*]} == *\ -@(*([^ -])p|-package )* ]]; then
                 # -qp; uninstalled package completion
                 if [[ $cur == -* ]]; then
@@ -213,7 +213,7 @@ _rpm()
             elif [[ ${words[*]} == *\ -@(*([^ -])f|-file )* ]]; then
                 _filedir
             elif [[ ${words[*]} == *\ -@(*([^ -])g|-group )* ]]; then
-                _rpm_groups "$1"
+                _comp_cmd_rpm__groups "$1"
             elif [[ ${words[*]} == *\ -@(*([^ -])p|-package )* ]]; then
                 _filedir '[rs]pm'
             else
@@ -237,9 +237,9 @@ _rpm()
     esac
     [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 } &&
-    complete -F _rpm rpm
+    complete -F _comp_cmd_rpm rpm
 
-_rpmbuild()
+_comp_cmd_rpmbuild()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
@@ -259,7 +259,7 @@ _rpmbuild()
             return
             ;;
         --eval | -${noargopts}E)
-            _rpm_macros "$rpm"
+            _comp_cmd_rpm__macros "$rpm"
             return
             ;;
         --macros | --rcfile)
@@ -306,6 +306,6 @@ _rpmbuild()
     done
     [[ $ext ]] && _filedir "$ext"
 } &&
-    complete -F _rpmbuild rpmbuild rpmbuild-md5
+    complete -F _comp_cmd_rpmbuild rpmbuild rpmbuild-md5
 
 # ex: filetype=sh

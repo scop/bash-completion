@@ -1,6 +1,6 @@
 # bash completion for quota-tools                          -*- shell-script -*-
 
-_user_or_group()
+_comp_cmd_quota__user_or_group()
 {
     local i
 
@@ -16,7 +16,7 @@ _user_or_group()
     COMPREPLY=($(compgen -u -- "$cur"))
 }
 
-_quota_parse_help()
+_comp_cmd_quota__parse_help()
 {
     COMPREPLY=($(
         compgen -W '$(_parse_help "$1" || _parse_usage "$1")' -- "$cur"
@@ -24,12 +24,12 @@ _quota_parse_help()
     [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 }
 
-_quota_formats()
+_comp_cmd_quota__formats()
 {
     COMPREPLY=($(compgen -W 'vfsold vfsv0 rpc xfs' -- "$cur"))
 }
 
-_filesystems()
+_comp_cmd_quota__filesystems()
 {
     #  Only list filesystems starting with "/", otherwise we also get
     #+ "binfmt_misc", "proc", "tmpfs", ...
@@ -37,14 +37,14 @@ _filesystems()
         -- "$cur"))
 }
 
-_quota()
+_comp_cmd_quota()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
     case $prev in
         -F | --format)
-            _quota_formats
+            _comp_cmd_quota__formats
             return
             ;;
         -h | --help | -V | --version)
@@ -55,25 +55,25 @@ _quota()
     $split && return
 
     if [[ $cur == -* ]]; then
-        _quota_parse_help "$1"
+        _comp_cmd_quota__parse_help "$1"
     else
-        _user_or_group
+        _comp_cmd_quota__user_or_group
     fi
 } &&
-    complete -F _quota -o default quota
+    complete -F _comp_cmd_quota -o default quota
 
-_setquota()
+_comp_cmd_setquota()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
     case $prev in
         -F | --format)
-            _quota_formats
+            _comp_cmd_quota__formats
             return
             ;;
         -p | --prototype)
-            _user_or_group
+            _comp_cmd_quota__user_or_group
             return
             ;;
         -h | --help | -V | --version)
@@ -84,40 +84,40 @@ _setquota()
     $split && return
 
     if [[ $cur == -* ]]; then
-        _quota_parse_help "$1"
+        _comp_cmd_quota__parse_help "$1"
     else
         local args
         _count_args
 
         case $args in
             1)
-                _user_or_group
+                _comp_cmd_quota__user_or_group
                 ;;
             2)
-                _filesystems
+                _comp_cmd_quota__filesystems
                 ;;
         esac
 
     fi
 } &&
-    complete -F _setquota -o default setquota
+    complete -F _comp_cmd_setquota -o default setquota
 
-_edquota()
+_comp_cmd_edquota()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
     case $prev in
         -F | --format)
-            _quota_formats
+            _comp_cmd_quota__formats
             return
             ;;
         -f | --filesystem)
-            _filesystems
+            _comp_cmd_quota__filesystems
             return
             ;;
         -p | --prototype)
-            _user_or_group
+            _comp_cmd_quota__user_or_group
             return
             ;;
         -h | --help | -V | --version)
@@ -128,21 +128,21 @@ _edquota()
     $split && return
 
     if [[ $cur == -* ]]; then
-        _quota_parse_help "$1"
+        _comp_cmd_quota__parse_help "$1"
     else
-        _user_or_group
+        _comp_cmd_quota__user_or_group
     fi
 } &&
-    complete -F _edquota -o default edquota
+    complete -F _comp_cmd_edquota -o default edquota
 
-_quotacheck()
+_comp_cmd_quotacheck()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
     case $prev in
         -F | --format)
-            _quota_formats
+            _comp_cmd_quota__formats
             return
             ;;
         -h | --help | -V | --version)
@@ -153,21 +153,21 @@ _quotacheck()
     $split && return
 
     if [[ $cur == -* ]]; then
-        _quota_parse_help "$1"
+        _comp_cmd_quota__parse_help "$1"
     else
-        _filesystems
+        _comp_cmd_quota__filesystems
     fi
 } &&
-    complete -F _quotacheck -o default quotacheck repquota
+    complete -F _comp_cmd_quotacheck -o default quotacheck repquota
 
-_quotaon()
+_comp_cmd_quotaon()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
 
     case $prev in
         -F | --format)
-            _quota_formats
+            _comp_cmd_quota__formats
             return
             ;;
         -x | --xfs-command)
@@ -182,11 +182,11 @@ _quotaon()
     $split && return
 
     if [[ $cur == -* ]]; then
-        _quota_parse_help "$1"
+        _comp_cmd_quota__parse_help "$1"
     else
-        _filesystems
+        _comp_cmd_quota__filesystems
     fi
 } &&
-    complete -F _quotaon -o default quotaon quotaoff
+    complete -F _comp_cmd_quotaon -o default quotaon quotaoff
 
 # ex: filetype=sh
