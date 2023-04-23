@@ -1,18 +1,18 @@
 # bash completion for samba                                -*- shell-script -*-
 
-_samba_resolve_order()
+_comp_cmd_smbclient__resolve_order()
 {
     COMPREPLY=($(compgen -W 'lmhosts host wins bcast' -- "$cur"))
 }
 
-_samba_domains()
+_comp_cmd_smbclient__domains()
 {
     if [[ ${COMP_SAMBA_SCAN-} ]]; then
         COMPREPLY=($(compgen -W '$(smbtree -N -D)' -- "$cur"))
     fi
 }
 
-_samba_hosts()
+_comp_cmd_smbclient__hosts()
 {
     if [[ ${COMP_SAMBA_SCAN-} ]]; then
         COMPREPLY=($(compgen -W "$(
@@ -22,24 +22,24 @@ _samba_hosts()
     fi
 }
 
-_samba_debuglevel()
+_comp_cmd_smbclient__debuglevel()
 {
     COMPREPLY=($(compgen -W '{0..10}' -- "$cur"))
 }
 
-_samba_sockopts()
+_comp_cmd_smbclient__sockopts()
 {
     COMPREPLY=($(compgen -W 'SO_KEEPALIVE SO_REUSEADDR SO_BROADCAST
         TCP_NODELAY IPTOS_LOWDELAY IPTOS_THROUGHPUT SO_SNDBUF SO_RCVBUF
         SO_SNDLOWAT SO_RCVLOWAT' -- "$cur"))
 }
 
-_samba_signing()
+_comp_cmd_smbclient__signing()
 {
     COMPREPLY=($(compgen -W 'on off required' -- "$cur"))
 }
 
-_smbclient()
+_comp_cmd_smbclient()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
@@ -48,7 +48,7 @@ _smbclient()
     # shellcheck disable=SC2254
     case $prev in
         --name-resolve | -${noargopts}R)
-            _samba_resolve_order
+            _comp_cmd_smbclient__resolve_order
             return
             ;;
         -${noargopts}t)
@@ -65,7 +65,7 @@ _smbclient()
             return
             ;;
         --socket-options | -${noargopts}O)
-            _samba_sockopts
+            _comp_cmd_smbclient__sockopts
             return
             ;;
         -${noargopts}T)
@@ -73,19 +73,19 @@ _smbclient()
             return
             ;;
         --workgroup | -${noargopts}W)
-            _samba_domains
+            _comp_cmd_smbclient__domains
             return
             ;;
         --debuglevel | -${noargopts}d)
-            _samba_debuglevel
+            _comp_cmd_smbclient__debuglevel
             return
             ;;
         --list | -${noargopts}L)
-            _samba_hosts
+            _comp_cmd_smbclient__hosts
             return
             ;;
         --signing | -${noargopts}S)
-            _samba_signing
+            _comp_cmd_smbclient__signing
             return
             ;;
         --port | --message | --ip-address | --send-buffer | --user | \
@@ -105,9 +105,9 @@ _smbclient()
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     fi
 } &&
-    complete -F _smbclient smbclient
+    complete -F _comp_cmd_smbclient smbclient
 
-_smbget()
+_comp_cmd_smbget()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
@@ -120,11 +120,11 @@ _smbget()
             return
             ;;
         --debuglevel | -${noargopts}d)
-            _samba_debuglevel
+            _comp_cmd_smbclient__debuglevel
             return
             ;;
         --workgroup | -${noargopts}w)
-            _samba_domains
+            _comp_cmd_smbclient__domains
             return
             ;;
         --username | --password | --blocksize | -${noargopts}[upb])
@@ -139,9 +139,9 @@ _smbget()
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     fi
 } &&
-    complete -F _smbget smbget
+    complete -F _comp_cmd_smbget smbget
 
-_smbcacls()
+_comp_cmd_smbcacls()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
@@ -158,19 +158,19 @@ _smbcacls()
             return
             ;;
         --debuglevel | -${noargopts}d)
-            _samba_debuglevel
+            _comp_cmd_smbclient__debuglevel
             return
             ;;
         --signing)
-            _samba_signing
+            _comp_cmd_smbclient__signing
             return
             ;;
         --socket-options | -${noargopts}O)
-            _samba_sockopts
+            _comp_cmd_smbclient__sockopts
             return
             ;;
         --workgroup | -${noargopts}W)
-            _samba_domains
+            _comp_cmd_smbclient__domains
             return
             ;;
         --help | --usage | --delete | --modify | --add | --set | --chown | \
@@ -186,9 +186,9 @@ _smbcacls()
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     fi
 } &&
-    complete -F _smbcacls smbcacls
+    complete -F _comp_cmd_smbcacls smbcacls
 
-_smbcquotas()
+_comp_cmd_smbcquotas()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
@@ -205,11 +205,11 @@ _smbcquotas()
             return
             ;;
         --debuglevel | -${noargopts}d)
-            _samba_debuglevel
+            _comp_cmd_smbclient__debuglevel
             return
             ;;
         --signing)
-            _samba_signing
+            _comp_cmd_smbclient__signing
             return
             ;;
         --help | --usage | --user | --set | -${noargopts}[?UuS])
@@ -224,20 +224,20 @@ _smbcquotas()
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     fi
 } &&
-    complete -F _smbcquotas smbcquotas
+    complete -F _comp_cmd_smbcquotas smbcquotas
 
-_smbpasswd()
+_comp_cmd_smbpasswd()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
     case $prev in
         -*r)
-            _samba_hosts
+            _comp_cmd_smbclient__hosts
             return
             ;;
         -*R)
-            _samba_resolve_order
+            _comp_cmd_smbclient__resolve_order
             return
             ;;
         -*c)
@@ -245,7 +245,7 @@ _smbpasswd()
             return
             ;;
         -*D)
-            _samba_debuglevel
+            _comp_cmd_smbclient__debuglevel
             return
             ;;
         -*[Uhw])
@@ -257,9 +257,9 @@ _smbpasswd()
         COMPREPLY=($(compgen -W '$(_parse_help "$1" -h)' -- "$cur"))
     fi
 } &&
-    complete -F _smbpasswd smbpasswd
+    complete -F _comp_cmd_smbpasswd smbpasswd
 
-_smbtar()
+_comp_cmd_smbtar()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -270,11 +270,11 @@ _smbtar()
             return
             ;;
         -*s)
-            _samba_hosts
+            _comp_cmd_smbclient__hosts
             return
             ;;
         -*l)
-            _samba_debuglevel
+            _comp_cmd_smbclient__debuglevel
             return
             ;;
         -*N)
@@ -290,9 +290,9 @@ _smbtar()
         COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
     fi
 } &&
-    complete -F _smbtar smbtar
+    complete -F _comp_cmd_smbtar smbtar
 
-_smbtree()
+_comp_cmd_smbtree()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -- "$@" || return
@@ -309,11 +309,11 @@ _smbtree()
             return
             ;;
         --debuglevel | -${noargopts}d)
-            _samba_debuglevel
+            _comp_cmd_smbclient__debuglevel
             return
             ;;
         --signing | -${noargopts}S)
-            _samba_signing
+            _comp_cmd_smbclient__signing
             return
             ;;
         --help | --usage | --user | -${noargopts}[?U])
@@ -328,6 +328,6 @@ _smbtree()
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     fi
 } &&
-    complete -F _smbtree smbtree
+    complete -F _comp_cmd_smbtree smbtree
 
 # ex: filetype=sh
