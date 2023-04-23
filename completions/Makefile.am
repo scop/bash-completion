@@ -683,6 +683,7 @@ CLEANFILES = \
 	phing \
 	pigz \
 	pinfo \
+	ping4 \
 	ping6 \
 	pkg_deinstall \
 	pkg_info \
