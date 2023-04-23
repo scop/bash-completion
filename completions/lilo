@@ -1,13 +1,13 @@
 # bash completion for lilo(8)                              -*- shell-script -*-
 
-_lilo_labels()
+_comp_cmd_lilo__labels()
 {
     COMPREPLY=($(compgen -W "$(awk -F= '$1 ~ /^[ \t]*label$/ {print $2}' \
         "${1:-/etc/lilo.conf}" 2>/dev/null | command sed -e 's/\"//g')" \
         -- "$cur"))
 }
 
-_lilo()
+_comp_cmd_lilo()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -30,7 +30,7 @@ _lilo()
                     break
                 fi
             done
-            _lilo_labels "$conf"
+            _comp_cmd_lilo__labels "$conf"
             return
             ;;
         -A | -b | -M | -u | -U)
@@ -61,6 +61,6 @@ _lilo()
             -p -P -q -r -R -s -S -t -T -u -U -v -V -w -x -z' -- "$cur"))
     fi
 } &&
-    complete -F _lilo lilo
+    complete -F _comp_cmd_lilo lilo
 
 # ex: filetype=sh

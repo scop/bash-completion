@@ -1,30 +1,30 @@
 # bash completion for lvm                                  -*- shell-script -*-
 
-_lvm_filedir()
+_comp_cmd_lvm__filedir()
 {
     : "${cur:=/dev/}"
     _filedir
 }
 
-_lvm_volumegroups()
+_comp_cmd_lvm__volumegroups()
 {
     COMPREPLY=($(compgen -W "$(vgscan 2>/dev/null |
         command sed -n -e 's|.*Found.*"\(.*\)".*$|\1|p')" -- "$cur"))
 }
 
-_lvm_physicalvolumes_all()
+_comp_cmd_lvm__physicalvolumes_all()
 {
     COMPREPLY=($(compgen -W "$(pvscan 2>/dev/null |
         command sed -n -e 's|^.*PV \([^ ]*\) .*|\1|p')" -- "$cur"))
 }
 
-_lvm_physicalvolumes()
+_comp_cmd_lvm__physicalvolumes()
 {
     COMPREPLY=($(compgen -W "$(pvscan 2>/dev/null |
         command sed -n -e 's|^.*PV \(.*\) VG.*$|\1|p')" -- "$cur"))
 }
 
-_lvm_logicalvolumes()
+_comp_cmd_lvm__logicalvolumes()
 {
     COMPREPLY=($(compgen -W "$(lvscan 2>/dev/null |
         command sed -n -e "s|^.*'\(.*\)'.*$|\1|p")" -- "$cur"))
@@ -37,20 +37,20 @@ _lvm_logicalvolumes()
     fi
 }
 
-_lvm_units()
+_comp_cmd_lvm__units()
 {
     COMPREPLY=($(compgen -W 'h s b k m g t H K M G T' -- "$cur"))
 }
 
-_lvm_sizes()
+_comp_cmd_lvm__sizes()
 {
     COMPREPLY=($(compgen -W 'k K m M g G t T' -- "$cur"))
 }
 
 # @param $1 glob matching args known to take an argument
-_lvm_count_args()
+_comp_cmd_lvm__count_args()
 {
-    args=0
+    ret=0
     local offset=1
     if [[ ${words[0]} == lvm ]]; then
         offset=2
@@ -59,13 +59,13 @@ _lvm_count_args()
     for ((i = offset; i < cword; i++)); do
         # shellcheck disable=SC2053
         if [[ ${words[i]} != -* && $prev != $1 ]]; then
-            ((args++))
+            ((ret++))
         fi
         prev=${words[i]}
     done
 }
 
-_lvmdiskscan()
+_comp_cmd_lvmdiskscan()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -74,9 +74,9 @@ _lvmdiskscan()
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     fi
 } &&
-    complete -F _lvmdiskscan lvmdiskscan
+    complete -F _comp_cmd_lvmdiskscan lvmdiskscan
 
-_pvscan()
+_comp_cmd_pvscan()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -85,9 +85,9 @@ _pvscan()
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     fi
 } &&
-    complete -F _pvscan pvscan
+    complete -F _comp_cmd_pvscan pvscan
 
-_pvs()
+_comp_cmd_pvs()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -101,7 +101,7 @@ _pvs()
             return
             ;;
         --units)
-            _lvm_units
+            _comp_cmd_lvm__units
             return
             ;;
     esac
@@ -109,19 +109,19 @@ _pvs()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_physicalvolumes_all
+        _comp_cmd_lvm__physicalvolumes_all
     fi
 } &&
-    complete -F _pvs pvs
+    complete -F _comp_cmd_pvs pvs
 
-_pvdisplay()
+_comp_cmd_pvdisplay()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
     case $prev in
         --units)
-            _lvm_units
+            _comp_cmd_lvm__units
             return
             ;;
     esac
@@ -129,12 +129,12 @@ _pvdisplay()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_physicalvolumes_all
+        _comp_cmd_lvm__physicalvolumes_all
     fi
 } &&
-    complete -F _pvdisplay pvdisplay
+    complete -F _comp_cmd_pvdisplay pvdisplay
 
-_pvchange()
+_comp_cmd_pvchange()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -151,12 +151,12 @@ _pvchange()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_physicalvolumes_all
+        _comp_cmd_lvm__physicalvolumes_all
     fi
 } &&
-    complete -F _pvchange pvchange
+    complete -F _comp_cmd_pvchange pvchange
 
-_pvcreate()
+_comp_cmd_pvcreate()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -177,7 +177,7 @@ _pvcreate()
             return
             ;;
         --metadatasize | --setphysicalvolumesize)
-            _lvm_sizes
+            _comp_cmd_lvm__sizes
             return
             ;;
     esac
@@ -185,12 +185,12 @@ _pvcreate()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_filedir
+        _comp_cmd_lvm__filedir
     fi
 } &&
-    complete -F _pvcreate pvcreate
+    complete -F _comp_cmd_pvcreate pvcreate
 
-_pvmove()
+_comp_cmd_pvmove()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -203,7 +203,7 @@ _pvmove()
             return
             ;;
         --name | -${noargopts}n)
-            _lvm_logicalvolumes
+            _comp_cmd_lvm__logicalvolumes
             return
             ;;
     esac
@@ -211,12 +211,12 @@ _pvmove()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_physicalvolumes
+        _comp_cmd_lvm__physicalvolumes
     fi
 } &&
-    complete -F _pvmove pvmove
+    complete -F _comp_cmd_pvmove pvmove
 
-_pvremove()
+_comp_cmd_pvremove()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -224,12 +224,12 @@ _pvremove()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_physicalvolumes_all
+        _comp_cmd_lvm__physicalvolumes_all
     fi
 } &&
-    complete -F _pvremove pvremove
+    complete -F _comp_cmd_pvremove pvremove
 
-_vgscan()
+_comp_cmd_vgscan()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -238,9 +238,9 @@ _vgscan()
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     fi
 } &&
-    complete -F _vgscan vgscan
+    complete -F _comp_cmd_vgscan vgscan
 
-_vgs()
+_comp_cmd_vgs()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -256,7 +256,7 @@ _vgs()
             return
             ;;
         --units)
-            _lvm_units
+            _comp_cmd_lvm__units
             return
             ;;
     esac
@@ -264,19 +264,19 @@ _vgs()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
 } &&
-    complete -F _vgs vgs
+    complete -F _comp_cmd_vgs vgs
 
-_vgdisplay()
+_comp_cmd_vgdisplay()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
     case $prev in
         --units)
-            _lvm_units
+            _comp_cmd_lvm__units
             return
             ;;
     esac
@@ -284,12 +284,12 @@ _vgdisplay()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
 } &&
-    complete -F _vgdisplay vgdisplay
+    complete -F _comp_cmd_vgdisplay vgdisplay
 
-_vgchange()
+_comp_cmd_vgchange()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -306,12 +306,12 @@ _vgchange()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
 } &&
-    complete -F _vgchange vgchange
+    complete -F _comp_cmd_vgchange vgchange
 
-_vgcreate()
+_comp_cmd_vgcreate()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -328,7 +328,7 @@ _vgcreate()
             return
             ;;
         --physicalextentsize | -${noargopts}s)
-            _lvm_sizes
+            _comp_cmd_lvm__sizes
             return
             ;;
     esac
@@ -336,18 +336,18 @@ _vgcreate()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        local args
-        _lvm_count_args '@(-A|--autobackup|-M|--metadatatype|-s|--physicalextentsize)'
-        if ((args == 0)); then
-            _lvm_volumegroups
+        local ret
+        _comp_cmd_lvm__count_args '@(-A|--autobackup|-M|--metadatatype|-s|--physicalextentsize)'
+        if ((ret == 0)); then
+            _comp_cmd_lvm__volumegroups
         else
-            _lvm_physicalvolumes_all
+            _comp_cmd_lvm__physicalvolumes_all
         fi
     fi
 } &&
-    complete -F _vgcreate vgcreate
+    complete -F _comp_cmd_vgcreate vgcreate
 
-_vgremove()
+_comp_cmd_vgremove()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -355,12 +355,12 @@ _vgremove()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
 } &&
-    complete -F _vgremove vgremove
+    complete -F _comp_cmd_vgremove vgremove
 
-_vgrename()
+_comp_cmd_vgrename()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -377,12 +377,12 @@ _vgrename()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
 } &&
-    complete -F _vgrename vgrename
+    complete -F _comp_cmd_vgrename vgrename
 
-_vgreduce()
+_comp_cmd_vgreduce()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -400,18 +400,18 @@ _vgreduce()
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
 
     else
-        local args
-        _lvm_count_args '@(-A|--autobackup)'
-        if ((args == 0)); then
-            _lvm_volumegroups
+        local ret
+        _comp_cmd_lvm__count_args '@(-A|--autobackup)'
+        if ((ret == 0)); then
+            _comp_cmd_lvm__volumegroups
         else
-            _lvm_physicalvolumes
+            _comp_cmd_lvm__physicalvolumes
         fi
     fi
 } &&
-    complete -F _vgreduce vgreduce
+    complete -F _comp_cmd_vgreduce vgreduce
 
-_vgextend()
+_comp_cmd_vgextend()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -424,7 +424,7 @@ _vgextend()
             return
             ;;
         --size | -${noargopts}L)
-            _lvm_sizes
+            _comp_cmd_lvm__sizes
             return
             ;;
     esac
@@ -432,18 +432,18 @@ _vgextend()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        local args
-        _lvm_count_args '@(-A|--autobackup|-L|--size)'
-        if ((args == 0)); then
-            _lvm_volumegroups
+        local ret
+        _comp_cmd_lvm__count_args '@(-A|--autobackup|-L|--size)'
+        if ((ret == 0)); then
+            _comp_cmd_lvm__volumegroups
         else
-            _lvm_physicalvolumes_all
+            _comp_cmd_lvm__physicalvolumes_all
         fi
     fi
 } &&
-    complete -F _vgextend vgextend
+    complete -F _comp_cmd_vgextend vgextend
 
-_vgport()
+_comp_cmd_vgport()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -451,12 +451,12 @@ _vgport()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
 } &&
-    complete -F _vgport vgimport vgexport
+    complete -F _comp_cmd_vgport vgimport vgexport
 
-_vgck()
+_comp_cmd_vgck()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -464,12 +464,12 @@ _vgck()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
 } &&
-    complete -F _vgck vgck
+    complete -F _comp_cmd_vgck vgck
 
-_vgconvert()
+_comp_cmd_vgconvert()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -486,7 +486,7 @@ _vgconvert()
             return
             ;;
         --metadatasize)
-            _lvm_sizes
+            _comp_cmd_lvm__sizes
             return
             ;;
     esac
@@ -494,12 +494,12 @@ _vgconvert()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
 } &&
-    complete -F _vgconvert vgconvert
+    complete -F _comp_cmd_vgconvert vgconvert
 
-_vgcfgbackup()
+_comp_cmd_vgcfgbackup()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -516,12 +516,12 @@ _vgcfgbackup()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
 } &&
-    complete -F _vgcfgbackup vgcfgbackup
+    complete -F _comp_cmd_vgcfgbackup vgcfgbackup
 
-_vgcfgrestore()
+_comp_cmd_vgcfgrestore()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -538,7 +538,7 @@ _vgcfgrestore()
             return
             ;;
         --name | -${noargopts}n)
-            _lvm_volumegroups
+            _comp_cmd_lvm__volumegroups
             return
             ;;
     esac
@@ -546,12 +546,12 @@ _vgcfgrestore()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
 } &&
-    complete -F _vgcfgrestore vgcfgrestore
+    complete -F _comp_cmd_vgcfgrestore vgcfgrestore
 
-_vgmerge()
+_comp_cmd_vgmerge()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -568,12 +568,12 @@ _vgmerge()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
 } &&
-    complete -F _vgmerge vgmerge
+    complete -F _comp_cmd_vgmerge vgmerge
 
-_vgsplit()
+_comp_cmd_vgsplit()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -594,18 +594,18 @@ _vgsplit()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        local args
-        _lvm_count_args '@(-A|--autobackup|-M|--metadatatype)'
-        if ((args == 0 || args == 1)); then
-            _lvm_volumegroups
+        local ret
+        _comp_cmd_lvm__count_args '@(-A|--autobackup|-M|--metadatatype)'
+        if ((ret < 2)); then
+            _comp_cmd_lvm__volumegroups
         else
-            _lvm_physicalvolumes
+            _comp_cmd_lvm__physicalvolumes
         fi
     fi
 } &&
-    complete -F _vgsplit vgsplit
+    complete -F _comp_cmd_vgsplit vgsplit
 
-_vgmknodes()
+_comp_cmd_vgmknodes()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -613,12 +613,12 @@ _vgmknodes()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_volumegroups
+        _comp_cmd_lvm__volumegroups
     fi
 } &&
-    complete -F _vgmknodes vgmknodes
+    complete -F _comp_cmd_vgmknodes vgmknodes
 
-_lvscan()
+_comp_cmd_lvscan()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -627,9 +627,9 @@ _lvscan()
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     fi
 } &&
-    complete -F _lvscan lvscan
+    complete -F _comp_cmd_lvscan lvscan
 
-_lvs()
+_comp_cmd_lvs()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -644,7 +644,7 @@ _lvs()
             return
             ;;
         --units)
-            _lvm_units
+            _comp_cmd_lvm__units
             return
             ;;
     esac
@@ -652,19 +652,19 @@ _lvs()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_logicalvolumes
+        _comp_cmd_lvm__logicalvolumes
     fi
 } &&
-    complete -F _lvs lvs
+    complete -F _comp_cmd_lvs lvs
 
-_lvdisplay()
+_comp_cmd_lvdisplay()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
     case $prev in
         --units)
-            _lvm_units
+            _comp_cmd_lvm__units
             return
             ;;
     esac
@@ -672,12 +672,12 @@ _lvdisplay()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_logicalvolumes
+        _comp_cmd_lvm__logicalvolumes
     fi
 } &&
-    complete -F _lvdisplay lvdisplay
+    complete -F _comp_cmd_lvdisplay lvdisplay
 
-_lvchange()
+_comp_cmd_lvchange()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -698,12 +698,12 @@ _lvchange()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_logicalvolumes
+        _comp_cmd_lvm__logicalvolumes
     fi
 } &&
-    complete -F _lvchange lvchange
+    complete -F _comp_cmd_lvchange lvchange
 
-_lvcreate()
+_comp_cmd_lvcreate()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -716,7 +716,7 @@ _lvcreate()
             return
             ;;
         --size | -${noargopts}L)
-            _lvm_sizes
+            _comp_cmd_lvm__sizes
             return
             ;;
         --permission | -${noargopts}p)
@@ -724,7 +724,7 @@ _lvcreate()
             return
             ;;
         --name | -${noargopts}n)
-            _lvm_logicalvolumes
+            _comp_cmd_lvm__logicalvolumes
             return
             ;;
     esac
@@ -732,18 +732,18 @@ _lvcreate()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        local args
-        _lvm_count_args '@(-A|-C|-M|-Z|--autobackup|--contiguous|--persistent|--zero|-L|--size|-p|--permission|-n|--name)'
-        if ((args == 0)); then
-            _lvm_volumegroups
+        local ret
+        _comp_cmd_lvm__count_args '@(-A|-C|-M|-Z|--autobackup|--contiguous|--persistent|--zero|-L|--size|-p|--permission|-n|--name)'
+        if ((ret == 0)); then
+            _comp_cmd_lvm__volumegroups
         else
-            _lvm_physicalvolumes
+            _comp_cmd_lvm__physicalvolumes
         fi
     fi
 } &&
-    complete -F _lvcreate lvcreate
+    complete -F _comp_cmd_lvcreate lvcreate
 
-_lvremove()
+_comp_cmd_lvremove()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -760,12 +760,12 @@ _lvremove()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_logicalvolumes
+        _comp_cmd_lvm__logicalvolumes
     fi
 } &&
-    complete -F _lvremove lvremove
+    complete -F _comp_cmd_lvremove lvremove
 
-_lvrename()
+_comp_cmd_lvrename()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -782,12 +782,12 @@ _lvrename()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_logicalvolumes
+        _comp_cmd_lvm__logicalvolumes
     fi
 } &&
-    complete -F _lvrename lvrename
+    complete -F _comp_cmd_lvrename lvrename
 
-_lvreduce()
+_comp_cmd_lvreduce()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -800,7 +800,7 @@ _lvreduce()
             return
             ;;
         --size | -${noargopts}L)
-            _lvm_sizes
+            _comp_cmd_lvm__sizes
             return
             ;;
     esac
@@ -808,12 +808,12 @@ _lvreduce()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        _lvm_logicalvolumes
+        _comp_cmd_lvm__logicalvolumes
     fi
 } &&
-    complete -F _lvreduce lvreduce
+    complete -F _comp_cmd_lvreduce lvreduce
 
-_lvresize()
+_comp_cmd_lvresize()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -826,7 +826,7 @@ _lvresize()
             return
             ;;
         --size | -${noargopts}L)
-            _lvm_sizes
+            _comp_cmd_lvm__sizes
             return
             ;;
     esac
@@ -834,18 +834,18 @@ _lvresize()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        local args
-        _lvm_count_args '@(-A|--autobackup|-L|--size)'
-        if ((args == 0)); then
-            _lvm_logicalvolumes
+        local ret
+        _comp_cmd_lvm__count_args '@(-A|--autobackup|-L|--size)'
+        if ((ret == 0)); then
+            _comp_cmd_lvm__logicalvolumes
         else
-            _lvm_physicalvolumes
+            _comp_cmd_lvm__physicalvolumes
         fi
     fi
 } &&
-    complete -F _lvresize lvresize
+    complete -F _comp_cmd_lvresize lvresize
 
-_lvextend()
+_comp_cmd_lvextend()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -858,7 +858,7 @@ _lvextend()
             return
             ;;
         --size | -${noargopts}L)
-            _lvm_sizes
+            _comp_cmd_lvm__sizes
             return
             ;;
     esac
@@ -866,18 +866,18 @@ _lvextend()
     if [[ $cur == -* ]]; then
         COMPREPLY=($(compgen -W '$(_parse_usage "$1" --help)' -- "$cur"))
     else
-        local args
-        _lvm_count_args '@(-A|--autobackup|-L|--size)'
-        if ((args == 0)); then
-            _lvm_logicalvolumes
+        local ret
+        _comp_cmd_lvm__count_args '@(-A|--autobackup|-L|--size)'
+        if ((ret == 0)); then
+            _comp_cmd_lvm__logicalvolumes
         else
-            _lvm_physicalvolumes
+            _comp_cmd_lvm__physicalvolumes
         fi
     fi
 } &&
-    complete -F _lvextend lvextend
+    complete -F _comp_cmd_lvextend lvextend
 
-_lvm()
+_comp_cmd_lvm()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -902,6 +902,6 @@ _lvm()
         esac
     fi
 } &&
-    complete -F _lvm lvm
+    complete -F _comp_cmd_lvm lvm
 
 # ex: filetype=sh
