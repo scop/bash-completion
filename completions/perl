@@ -1,6 +1,6 @@
 # bash completion for perl                                 -*- shell-script -*-
 
-_perl_helper()
+_comp_cmd_perl__helper()
 {
     COMPREPLY=($(compgen -P "$prefix" -W \
         "$("${2:-perl}" "${BASH_SOURCE[0]%/*}/../helpers/perl" "$1" "$cur")" \
@@ -8,7 +8,7 @@ _perl_helper()
     [[ $1 == functions ]] || __ltrim_colon_completions "$prefix$cur"
 }
 
-_perl()
+_comp_cmd_perl()
 {
     local cur prev words cword comp_args
     _comp_initialize -n : -- "$@" || return
@@ -42,7 +42,7 @@ _perl()
                 temp="${cur#-}"
                 prefix+=${cur%"$temp"}
                 cur="$temp"
-                _perl_helper modules "$1"
+                _comp_cmd_perl__helper modules "$1"
                 return
                 ;;
             -*V)
@@ -62,7 +62,7 @@ _perl()
                     temp="${cur#:}"
                     prefix=$prefix${cur%"$temp"}
                     cur="Devel::$temp"
-                    _perl_helper modules "$1"
+                    _comp_cmd_perl__helper modules "$1"
                 fi
                 ;;
         esac
@@ -91,9 +91,9 @@ _perl()
         _filedir
     fi
 } &&
-    complete -F _perl perl
+    complete -F _comp_cmd_perl perl
 
-_perldoc()
+_comp_cmd_perldoc()
 {
     local cur prev words cword comp_args
     _comp_initialize -n : -- "$@" || return
@@ -120,7 +120,7 @@ _perldoc()
             return
             ;;
         -*f)
-            _perl_helper functions "$perl"
+            _comp_cmd_perl__helper functions "$perl"
             return
             ;;
     esac
@@ -130,7 +130,7 @@ _perldoc()
     else
         # return available modules (unless it is clearly a file)
         if [[ $cur != @(*/|[.~])* ]]; then
-            _perl_helper perldocs "$perl"
+            _comp_cmd_perl__helper perldocs "$perl"
             if [[ $cur == p* ]]; then
                 COMPREPLY+=($(compgen -W \
                     '$(PERLDOC_PAGER=cat "$1" -u perl |  \
@@ -142,6 +142,6 @@ _perldoc()
         _filedir 'p@([lm]|od)'
     fi
 } &&
-    complete -F _perldoc -o bashdefault perldoc
+    complete -F _comp_cmd_perldoc -o bashdefault perldoc
 
 # ex: filetype=sh

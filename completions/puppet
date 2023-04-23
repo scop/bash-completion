@@ -1,6 +1,6 @@
 # bash completion for puppet                               -*- shell-script -*-
 
-_puppet_logdest()
+_comp_cmd_puppet__logdest()
 {
     if [[ ! $cur ]]; then
         COMPREPLY=($(compgen -W 'syslog console /' -- "$cur"))
@@ -10,12 +10,12 @@ _puppet_logdest()
     fi
 }
 
-_puppet_digest()
+_comp_cmd_puppet__digest()
 {
     COMPREPLY=($(compgen -W 'MD5 MD2 SHA1 SHA256' -- "$cur"))
 }
 
-_puppet_certs()
+_comp_cmd_puppet__certs()
 {
     local puppetca="puppet cert"
     PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin type puppetca &>/dev/null &&
@@ -32,7 +32,7 @@ _puppet_certs()
     COMPREPLY+=($(compgen -W "$cert_list" -- "$cur"))
 }
 
-_puppet_types()
+_comp_cmd_puppet__types()
 {
     puppet_types=$(
         puppet describe --list | command sed -e 's/^\(\S\{1,\}\).*$/\1/'
@@ -40,7 +40,7 @@ _puppet_types()
     COMPREPLY+=($(compgen -W "$puppet_types" -- "$cur"))
 }
 
-_puppet_references()
+_comp_cmd_puppet__references()
 {
     local puppetdoc="puppet doc"
     PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin type puppetdoc &>/dev/null &&
@@ -52,7 +52,7 @@ _puppet_references()
     COMPREPLY+=($(compgen -W "$puppet_doc_list" -- "$cur"))
 }
 
-_puppet_subcmd_opts()
+_comp_cmd_puppet__subcmd_opts()
 {
     # puppet cmd help is somewhat slow, avoid if possible
     [[ ! $cur || $cur == -* ]] &&
@@ -60,7 +60,7 @@ _puppet_subcmd_opts()
             '$(_parse_usage "$1" "help $2")' -- "$cur"))
 }
 
-_puppet()
+_comp_cmd_puppet()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -128,7 +128,7 @@ _puppet()
                     return
                     ;;
                 --digest)
-                    _puppet_digest
+                    _comp_cmd_puppet__digest
                     return
                     ;;
                 --fqdn)
@@ -136,7 +136,7 @@ _puppet()
                     return
                     ;;
                 -l | --logdest)
-                    _puppet_logdest
+                    _comp_cmd_puppet__logdest
                     return
                     ;;
                 --masterport)
@@ -148,7 +148,7 @@ _puppet()
                     return
                     ;;
                 *)
-                    _puppet_subcmd_opts "$1" "$subcommand"
+                    _comp_cmd_puppet__subcmd_opts "$1" "$subcommand"
                     # _parse_usage doesn't grok [-D|--daemonize|--no-daemonize]
                     COMPREPLY+=($(compgen -W '--no-daemonize' -- "$cur"))
                     return
@@ -166,12 +166,12 @@ _puppet()
                     return
                     ;;
                 -l | --logdest)
-                    _puppet_logdest
+                    _comp_cmd_puppet__logdest
                     return
                     ;;
                 *)
                     if [[ $cur == -* ]]; then
-                        _puppet_subcmd_opts "$1" "$subcommand"
+                        _comp_cmd_puppet__subcmd_opts "$1" "$subcommand"
                     else
                         _filedir
                     fi
@@ -182,7 +182,7 @@ _puppet()
         cert)
             case $prev in
                 --digest)
-                    _puppet_digest
+                    _comp_cmd_puppet__digest
                     return
                     ;;
                 *)
@@ -193,7 +193,7 @@ _puppet()
                         fingerprint | list | verify | --fingerprint | --list | \
                             --verify)
                             COMPREPLY+=($(compgen -W '--all' -- "$cur"))
-                            _puppet_certs --all
+                            _comp_cmd_puppet__certs --all
                             return
                             ;;
                         generate | --generate)
@@ -201,12 +201,12 @@ _puppet()
                             return
                             ;;
                         clean | print | revoke | --clean | --print | --revoke)
-                            _puppet_certs --all
+                            _comp_cmd_puppet__certs --all
                             return
                             ;;
                         sign | --sign)
                             COMPREPLY+=($(compgen -W '--all' -- "$cur"))
-                            _puppet_certs
+                            _comp_cmd_puppet__certs
                             return
                             ;;
                         *)
@@ -220,9 +220,9 @@ _puppet()
             esac
             ;;
         describe)
-            _puppet_subcmd_opts "$1" "$subcommand"
+            _comp_cmd_puppet__subcmd_opts "$1" "$subcommand"
             if [[ $cur != -* ]]; then
-                _puppet_types
+                _comp_cmd_puppet__types
             fi
             return
             ;;
@@ -237,12 +237,12 @@ _puppet()
                     return
                     ;;
                 -r | --reference)
-                    _puppet_references
+                    _comp_cmd_puppet__references
                     return
                     ;;
                 *)
                     if [[ $cur == -* ]]; then
-                        _puppet_subcmd_opts "$1" "$subcommand"
+                        _comp_cmd_puppet__subcmd_opts "$1" "$subcommand"
                     else
                         _filedir
                     fi
@@ -262,7 +262,7 @@ _puppet()
                     ;;
                 *)
                     if [[ $cur == -* ]]; then
-                        _puppet_subcmd_opts "$1" "$subcommand"
+                        _comp_cmd_puppet__subcmd_opts "$1" "$subcommand"
                     else
                         COMPREPLY=($(compgen -W 'backup get restore' \
                             -- "$cur"))
@@ -286,7 +286,7 @@ _puppet()
                     ;;
                 *)
                     if [[ $cur == -* ]]; then
-                        _puppet_subcmd_opts "$1" "$subcommand"
+                        _comp_cmd_puppet__subcmd_opts "$1" "$subcommand"
                     else
                         _known_hosts_real -- "$cur"
                     fi
@@ -297,11 +297,11 @@ _puppet()
         master)
             case $prev in
                 -l | --logdest)
-                    _puppet_logdest
+                    _comp_cmd_puppet__logdest
                     return
                     ;;
                 *)
-                    _puppet_subcmd_opts "$1" "$subcommand"
+                    _comp_cmd_puppet__subcmd_opts "$1" "$subcommand"
                     # _parse_usage doesn't grok [-D|--daemonize|--no-daemonize]
                     COMPREPLY+=($(compgen -W '--no-daemonize' -- "$cur"))
                     return
@@ -324,12 +324,12 @@ _puppet()
         queue)
             case $prev in
                 -l | --logdest)
-                    _puppet_logdest
+                    _comp_cmd_puppet__logdest
                     return
                     ;;
                 *)
                     if [[ $cur == -* ]]; then
-                        _puppet_subcmd_opts "$1" "$subcommand"
+                        _comp_cmd_puppet__subcmd_opts "$1" "$subcommand"
                     else
                         _filedir
                     fi
@@ -338,12 +338,12 @@ _puppet()
             esac
             ;;
         resource | *)
-            _puppet_subcmd_opts "$1" "$subcommand"
+            _comp_cmd_puppet__subcmd_opts "$1" "$subcommand"
             return
             ;;
     esac
 } &&
-    complete -F _puppet puppetmasterd puppetd puppetca ralsh puppetrun \
-        puppetqd filebucket puppetdoc puppet
+    complete -F _comp_cmd_puppet puppetmasterd puppetd puppetca ralsh \
+        puppetrun puppetqd filebucket puppetdoc puppet
 
 # ex: filetype=sh

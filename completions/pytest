@@ -1,6 +1,6 @@
 # bash completion for pytest(1)                            -*- shell-script -*-
 
-_pytest_option_choice_args()
+_comp_cmd_pytest__option_choice_args()
 {
     local modes=$("${2:-pytest}" "$1=bash-completion-nonexistent" 2>&1 |
         command sed -e 's/[^[:space:][:alnum:]-]\{1,\}//g' \
@@ -8,7 +8,7 @@ _pytest_option_choice_args()
     COMPREPLY+=($(compgen -W '$modes' -- "$cur"))
 }
 
-_pytest()
+_comp_cmd_pytest()
 {
     local cur prev words cword split comp_args
     _comp_initialize -s -n : -- "$@" || return
@@ -88,7 +88,7 @@ _pytest()
             return
             ;;
         --dist | --vcr-record?(-mode))
-            _pytest_option_choice_args "$prev" "$1"
+            _comp_cmd_pytest__option_choice_args "$prev" "$1"
             return
             ;;
     esac
@@ -139,6 +139,7 @@ _pytest()
 
     _filedir py
 } &&
-    complete -F _pytest pytest pytest-2 pytest-3 py.test py.test-2 py.test-3
+    complete -F _comp_cmd_pytest \
+        pytest pytest-2 pytest-3 py.test py.test-2 py.test-3
 
 # ex: filetype=sh
