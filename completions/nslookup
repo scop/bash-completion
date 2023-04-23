@@ -1,11 +1,11 @@
 # bash completion for nslookup                             -*- shell-script -*-
 
-_bind_queryclass()
+_comp_cmd_nslookup__queryclass()
 {
     COMPREPLY+=($(compgen -W 'IN CH HS ANY' -- "$cur"))
 }
 
-_bind_querytype()
+_comp_cmd_nslookup__querytype()
 {
     # https://en.wikipedia.org/wiki/List_of_DNS_record_types
     # Resource records
@@ -23,7 +23,7 @@ _bind_querytype()
     COMPREPLY+=($(compgen -W '"${types[@]}"' -- "$cur"))
 }
 
-_nslookup()
+_comp_cmd_nslookup()
 {
     local cur prev words cword comp_args
     _comp_initialize -n = -- "$@" || return
@@ -31,12 +31,12 @@ _nslookup()
     case $cur in
         -class=* | -cl=*)
             cur=${cur#*=}
-            _bind_queryclass
+            _comp_cmd_nslookup__queryclass
             return
             ;;
         -querytype=* | -type=* | -q=* | -ty=*)
             cur=${cur#*=}
-            _bind_querytype
+            _comp_cmd_nslookup__querytype
             return
             ;;
         -?*=*)
@@ -59,20 +59,20 @@ _nslookup()
         [[ $args -eq 1 && $cur == @(|-) ]] && COMPREPLY+=(-)
     fi
 } &&
-    complete -F _nslookup nslookup
+    complete -F _comp_cmd_nslookup nslookup
 
-_host()
+_comp_cmd_host()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
     case $prev in
         -c)
-            _bind_queryclass
+            _comp_cmd_nslookup__queryclass
             return
             ;;
         -t)
-            _bind_querytype
+            _comp_cmd_nslookup__querytype
             return
             ;;
         -m)
@@ -100,6 +100,6 @@ _host()
         _known_hosts_real ${ipvx-} -- "$cur"
     fi
 } &&
-    complete -F _host host
+    complete -F _comp_cmd_host host
 
 # ex: filetype=sh

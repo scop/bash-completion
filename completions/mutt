@@ -4,10 +4,10 @@
 # a "query" function to retrieve addresses, so that's what we use here.
 
 # @param $1 (cur) Current word to complete
-_muttaddr()
+_comp_cmd_mutt__addresses()
 {
-    _muttaliases "$1"
-    _muttquery "$1"
+    _comp_cmd_mutt__aliases "$1"
+    _comp_cmd_mutt__query "$1"
 
     COMPREPLY+=($(compgen -u -- "$1"))
 }
@@ -89,7 +89,7 @@ _muttconffiles()
 }
 
 # @param $1 (cur) Current word to complete
-_muttaliases()
+_comp_cmd_mutt__aliases()
 {
     local cur=$1 muttrc muttcmd=${words[0]}
     local -a conffiles aliases
@@ -108,7 +108,7 @@ _muttaliases()
 }
 
 # @param $1 (cur) Current word to complete
-_muttquery()
+_comp_cmd_mutt__query()
 {
     local cur=$1 querycmd muttcmd=${words[0]}
     local -a queryresults
@@ -127,7 +127,7 @@ _muttquery()
 }
 
 # @param $1 (cur) Current word to complete
-_muttfiledir()
+_comp_cmd_mutt__filedir()
 {
     local cur=$1 folder muttrc spoolfile muttcmd=${words[0]}
 
@@ -150,7 +150,7 @@ _muttfiledir()
     _filedir
 }
 
-_mutt()
+_comp_cmd_mutt()
 {
     local cur prev words cword comp_args
     _comp_initialize -n =+! -- "$@" || return
@@ -164,24 +164,24 @@ _mutt()
         *)
             case $prev in
                 -*[afFHi])
-                    _muttfiledir "$cur"
+                    _comp_cmd_mutt__filedir "$cur"
                     return
                     ;;
                 -*A)
-                    _muttaliases "$cur"
+                    _comp_cmd_mutt__aliases "$cur"
                     return
                     ;;
                 -*[emQshpRvyzZ])
                     return
                     ;;
                 *)
-                    _muttaddr "$cur"
+                    _comp_cmd_mutt__addresses "$cur"
                     return
                     ;;
             esac
             ;;
     esac
 } &&
-    complete -F _mutt -o default mutt muttng neomutt
+    complete -F _comp_cmd_mutt -o default mutt muttng neomutt
 
 # ex: filetype=sh
