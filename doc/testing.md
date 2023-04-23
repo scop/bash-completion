@@ -23,7 +23,7 @@ dependencies are specified in the `test/requirements.txt` file. If using `pip`,
 this file can be fed directly to it, e.g. like:
 
 ```shell
-pip install -r test/requirements.txt
+python3 -m pip install -r test/requirements.txt
 ```
 
 ### Debian/Ubuntu
