@@ -5,7 +5,7 @@ import pytest
 from conftest import assert_bash_exec
 
 
-@pytest.mark.bashcomp(ignore_env=r"^-declare -f _tar$")
+@pytest.mark.bashcomp(ignore_env=r"^-declare -f _comp_cmd_tar$")
 class TestTar:
     @pytest.fixture(scope="class")
     def gnu_tar(self, bash):

@@ -1,6 +1,6 @@
 # bash completion for update-alternatives                  -*- shell-script -*-
 
-_installed_alternatives()
+_comp_cmd_update_alternatives__installed()
 {
     local admindir
     # find the admin dir
@@ -16,7 +16,7 @@ _installed_alternatives()
     COMPREPLY=($(compgen -W '$(command ls $admindir)' -- "$cur"))
 }
 
-_update_alternatives()
+_comp_cmd_update_alternatives()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -49,7 +49,7 @@ _update_alternatives()
                     _filedir
                     ;;
                 2)
-                    _installed_alternatives
+                    _comp_cmd_update_alternatives__installed
                     ;;
                 4)
                     # priority - no completions
@@ -63,7 +63,7 @@ _update_alternatives()
                             COMPREPLY=($(compgen -W '--slave' -- "$cur"))
                             ;;
                         3)
-                            _installed_alternatives
+                            _comp_cmd_update_alternatives__installed
                             ;;
                     esac
                     ;;
@@ -72,7 +72,7 @@ _update_alternatives()
         --remove | --set)
             case $args in
                 1)
-                    _installed_alternatives
+                    _comp_cmd_update_alternatives__installed
                     ;;
                 2)
                     _filedir
@@ -80,13 +80,13 @@ _update_alternatives()
             esac
             ;;
         --auto | --remove-all | --display | --config)
-            _installed_alternatives
+            _comp_cmd_update_alternatives__installed
             ;;
         *)
             COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
             ;;
     esac
 } &&
-    complete -F _update_alternatives update-alternatives alternatives
+    complete -F _comp_cmd_update_alternatives update-alternatives alternatives
 
 # ex: filetype=sh

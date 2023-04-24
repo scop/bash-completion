@@ -1,6 +1,6 @@
 # tipc(8) completion                                       -*- shell-script -*-
 
-_tipc_media()
+_comp_cmd_tipc__media()
 {
     local optind=$1
 
@@ -15,12 +15,12 @@ _tipc_media()
     return 1
 }
 
-_tipc_bearer()
+_comp_cmd_tipc__bearer()
 {
     local optind=$1
     local media i
 
-    if _tipc_media "$optind"; then
+    if _comp_cmd_tipc__media "$optind"; then
         return
     fi
 
@@ -55,12 +55,12 @@ _tipc_bearer()
     fi
 }
 
-_tipc_link_opts()
+_comp_cmd_tipc__link_opts()
 {
     COMPREPLY=($(compgen -W 'priority tolerance window' -- "$cur"))
 }
 
-_tipc_link()
+_comp_cmd_tipc__link()
 {
     local optind=$1
     local filter=$2
@@ -77,7 +77,7 @@ _tipc_link()
     fi
 }
 
-_tipc()
+_comp_cmd_tipc()
 {
     local cur prev words cword comp_args optind i p
     _comp_initialize -- "$@" || return
@@ -117,7 +117,7 @@ _tipc()
                     ((optind++))
 
                     if ((cword < optind + 4)); then
-                        _tipc_bearer $optind
+                        _comp_cmd_tipc__bearer $optind
                         return
                     fi
 
@@ -162,24 +162,24 @@ _tipc()
                 disable)
                     ((optind++))
 
-                    _tipc_bearer $optind
+                    _comp_cmd_tipc__bearer $optind
                     ;;
                 get)
                     ((optind++))
 
                     if ((cword == optind)); then
-                        _tipc_link_opts
+                        _comp_cmd_tipc__link_opts
                     elif ((cword >= optind + 1)); then
-                        _tipc_bearer $((optind + 1))
+                        _comp_cmd_tipc__bearer $((optind + 1))
                     fi
                     ;;
                 set)
                     ((optind++))
 
                     if ((cword == optind)); then
-                        _tipc_link_opts
+                        _comp_cmd_tipc__link_opts
                     elif ((cword >= optind + 2)); then
-                        _tipc_bearer $((optind + 2))
+                        _comp_cmd_tipc__bearer $((optind + 2))
                     fi
                     ;;
             esac
@@ -197,18 +197,18 @@ _tipc()
                     ((optind++))
 
                     if ((cword == optind)); then
-                        _tipc_link_opts
+                        _comp_cmd_tipc__link_opts
                     elif ((cword >= optind + 1)); then
-                        _tipc_link $((optind + 1)) "peers"
+                        _comp_cmd_tipc__link $((optind + 1)) "peers"
                     fi
                     ;;
                 set)
                     ((optind++))
 
                     if ((cword == optind)); then
-                        _tipc_link_opts
+                        _comp_cmd_tipc__link_opts
                     elif ((cword >= optind + 2)); then
-                        _tipc_link $((optind + 2)) "peers"
+                        _comp_cmd_tipc__link $((optind + 2)) "peers"
                     fi
                     ;;
                 statistics)
@@ -221,7 +221,7 @@ _tipc()
 
                     case "${words[optind]}" in
                         show | reset)
-                            _tipc_link $((optind + 1))
+                            _comp_cmd_tipc__link $((optind + 1))
                             ;;
                     esac
                     ;;
@@ -240,18 +240,18 @@ _tipc()
                     ((optind++))
 
                     if ((cword == optind)); then
-                        _tipc_link_opts
+                        _comp_cmd_tipc__link_opts
                     elif ((cword >= optind + 1)); then
-                        _tipc_media $((optind + 1))
+                        _comp_cmd_tipc__media $((optind + 1))
                     fi
                     ;;
                 set)
                     ((optind++))
 
                     if ((cword == optind)); then
-                        _tipc_link_opts
+                        _comp_cmd_tipc__link_opts
                     elif ((cword >= optind + 2)); then
-                        _tipc_media $((optind + 2))
+                        _comp_cmd_tipc__media $((optind + 2))
                     fi
                     ;;
             esac
@@ -290,6 +290,6 @@ _tipc()
             ;;
     esac
 } &&
-    complete -F _tipc tipc
+    complete -F _comp_cmd_tipc tipc
 
 # ex: filetype=sh

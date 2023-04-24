@@ -268,7 +268,7 @@ __tar_is_argreq()
 }
 
 # Called only for short parameter
-__tar_complete_mode()
+_comp_cmd_tar__mode()
 {
     local short_modes rawopt generated \
         allshort_raw_unused allshort_raw \
@@ -327,7 +327,7 @@ __tar_complete_mode()
     return 0
 }
 
-__gtar_complete_lopts()
+_comp_cmd_tar__gnu_long_options()
 {
     local rv
     COMPREPLY=($(compgen -W "$long_opts" -- "$cur"))
@@ -336,7 +336,7 @@ __gtar_complete_lopts()
     return $rv
 }
 
-__gtar_complete_sopts()
+_comp_cmd_tar__gnu_short_options()
 {
     local generated short_mode_opts i c
     short_mode_opts="ctxurdA"
@@ -357,7 +357,7 @@ __tar_try_mode()
         --*)
             # posix tar does not support long opts
             [[ $basic_tar ]] && return 0
-            __gtar_complete_lopts
+            _comp_cmd_tar__gnu_long_options
             return $?
             ;;
 
@@ -365,12 +365,12 @@ __tar_try_mode()
             # posix tar does not support short options
             [[ $basic_tar ]] && return 0
 
-            __tar_complete_mode && return 0
+            _comp_cmd_tar__mode && return 0
             ;;
 
         *)
             if [[ $cword -eq 1 || $tar_mode == none ]]; then
-                __tar_complete_mode && return 0
+                _comp_cmd_tar__mode && return 0
             fi
             ;;
     esac
@@ -397,7 +397,7 @@ __tar_extract_like_mode()
     return 1
 }
 
-__tar_try_list_archive()
+_comp_cmd_tar__try_list_archive()
 {
     local tarball="" tarbin untar i
 
@@ -482,7 +482,7 @@ __tar_detect_ext()
     esac
 }
 
-_gtar()
+_comp_cmd_tar__gnu()
 {
     local long_opts short_opts basic_tar="" \
         long_arg_none="" long_arg_opt="" long_arg_req="" \
@@ -628,12 +628,12 @@ _gtar()
         # handle others
         case "$cur" in
             --*)
-                __gtar_complete_lopts
+                _comp_cmd_tar__gnu_long_options
                 break
                 ;;
             -*)
                 # called only if it is *not* first parameter
-                __gtar_complete_sopts
+                _comp_cmd_tar__gnu_short_options
                 break
                 ;;
         esac
@@ -642,7 +642,7 @@ _gtar()
         # was truth - the 'break' statement would have been already called
         ((cword == 1)) && break
 
-        __tar_try_list_archive && break
+        _comp_cmd_tar__try_list_archive && break
 
         # file completion on relevant files
         if [[ $tar_mode != none ]]; then
@@ -672,7 +672,7 @@ __tar_posix_prev_handle()
     return 1
 }
 
-_posix_tar()
+_comp_cmd_tar__posix()
 {
     local long_opts short_opts basic_tar=set \
         long_arg_none="" long_arg_opt long_arg_req="" \
@@ -710,22 +710,22 @@ _posix_tar()
 
     __tar_try_mode && return
 
-    __tar_try_list_archive && return
+    _comp_cmd_tar__try_list_archive && return
 
     # file completion on relevant files
     _filedir
 }
 
-_tar()
+_comp_cmd_tar()
 {
     local cmd=${COMP_WORDS[0]} func line
     line="$("$cmd" --version 2>/dev/null)"
     case "$line" in
         *GNU*)
-            func=_gtar
+            func=_comp_cmd_tar__gnu
             ;;
         *)
-            func=_posix_tar
+            func=_comp_cmd_tar__posix
             ;;
     esac
     $func "$@"
@@ -736,19 +736,19 @@ _tar()
     else
         complete -F $func tar
     fi
-    unset -f _tar
+    unset -f "$FUNCNAME"
 }
 
 if [[ ${BASH_COMPLETION_CMD_TAR_INTERNAL_PATHS-${COMP_TAR_INTERNAL_PATHS-}} ]]; then
-    complete -F _tar -o dirnames tar
-    complete -F _gtar -o dirnames gtar
-    complete -F _posix_tar -o dirnames bsdtar
-    complete -F _posix_tar -o dirnames star
+    complete -F _comp_cmd_tar -o dirnames tar
+    complete -F _comp_cmd_tar__gnu -o dirnames gtar
+    complete -F _comp_cmd_tar__posix -o dirnames bsdtar
+    complete -F _comp_cmd_tar__posix -o dirnames star
 else
-    complete -F _tar tar
-    complete -F _gtar gtar
-    complete -F _posix_tar bsdtar
-    complete -F _posix_tar star
+    complete -F _comp_cmd_tar tar
+    complete -F _comp_cmd_tar__gnu gtar
+    complete -F _comp_cmd_tar__posix bsdtar
+    complete -F _comp_cmd_tar__posix star
 fi
 
 # ex: filetype=sh

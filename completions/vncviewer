@@ -1,23 +1,23 @@
 # bash completion for vncviewer                            -*- shell-script -*-
 
-_vncviewer_bootstrap()
+_comp_cmd_vncviewer__bootstrap()
 {
     local fname ret
     _comp_realcommand vncviewer
     case $ret in
-        *xvnc4viewer) fname=_xvnc4viewer ;;
-        *tightvncviewer) fname=_tightvncviewer ;;
+        *xvnc4viewer) fname=_comp_cmd_xvnc4viewer ;;
+        *tightvncviewer) fname=_comp_cmd_tightvncviewer ;;
         *) fname=_known_hosts ;;
     esac
 
     # Install real completion for subsequent completions
     complete -F $fname vncviewer
     $fname "$@" # Generate completions once for now
-    unset -f _vncviewer_bootstrap
+    unset -f "$FUNCNAME"
 } &&
-    complete -F _vncviewer_bootstrap vncviewer
+    complete -F _comp_cmd_vncviewer__bootstrap vncviewer
 
-_tightvncviewer()
+_comp_cmd_tightvncviewer()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -47,11 +47,11 @@ _tightvncviewer()
         _known_hosts_real -- "$cur"
     fi
 } &&
-    complete -F _tightvncviewer tightvncviewer
+    complete -F _comp_cmd_tightvncviewer tightvncviewer
 
 # NOTE: - VNC Viewer options are case insensitive.
 #         Preferred case is taken from -help.
-_xvnc4viewer()
+_comp_cmd_xvnc4viewer()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -95,6 +95,6 @@ _xvnc4viewer()
         _known_hosts_real -- "$cur"
     fi
 } &&
-    complete -F _xvnc4viewer xvnc4viewer
+    complete -F _comp_cmd_xvnc4viewer xvnc4viewer
 
 # ex: filetype=sh
