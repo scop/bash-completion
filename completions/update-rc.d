@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2004 Servilio Afre Puentes <servilio@gmail.com>
 
-_update_rc_d()
+_comp_cmd_update_rc_d()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -53,6 +53,6 @@ _update_rc_d()
         COMPREPLY=()
     fi
 } &&
-    complete -F _update_rc_d update-rc.d
+    complete -F _comp_cmd_update_rc_d update-rc.d
 
 # ex: filetype=sh
