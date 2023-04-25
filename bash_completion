@@ -983,21 +983,21 @@ _comp_variable_assignments()
 #                     argument $2 is the string before the cursor in the
 #                     current word.  The third argument $3 is the previous
 #                     word.
-# @var[out] cur       Reconstructed current word
-# @var[out] prev      Reconstructed previous word
-# @var[out] words     Reconstructed words
-# @var[out] cword     Current word index in `words`
-# @var[out] comp_args Original arguments specified to the completion function
-#                     are saved in this array, if the arguments $1...$3 is
-#                     specified.
-# @var[out,opt] split When "-s" is specified, `true/false` is set depending on
-#                     whether the split happened.
+# @var[out] cur           Reconstructed current word
+# @var[out] prev          Reconstructed previous word
+# @var[out] words         Reconstructed words
+# @var[out] cword         Current word index in `words`
+# @var[out] comp_args     Original arguments specified to the completion function
+#                         are saved in this array, if the arguments $1...$3 is
+#                         specified.
+# @var[out,opt] was_split When "-s" is specified, `"set"/""` is set depending
+#                         on whether the split happened.
 # @return  True (0) if completion needs further processing,
 #          False (> 0) no further processing is necessary.
 #
 _comp_initialize()
 {
-    local exclude="" outx errx inx
+    local exclude="" opt_split="" outx errx inx
 
     local flag OPTIND=1 OPTARG="" OPTERR=0
     while getopts "n:e:o:i:s" flag "$@"; do
@@ -1007,7 +1007,8 @@ _comp_initialize()
             o) outx=$OPTARG ;;
             i) inx=$OPTARG ;;
             s)
-                split=false
+                opt_split="set"
+                was_split=""
                 exclude+="="
                 ;;
             *)
@@ -1065,7 +1066,7 @@ _comp_initialize()
     ((cword <= 0)) && return 1
     prev=${words[cword - 1]}
 
-    [[ ${split-} ]] && _split_longopt && split=true
+    [[ $opt_split ]] && _split_longopt && was_split="set"
 
     return 0
 }
@@ -2371,7 +2372,7 @@ _complete_as_root()
 
 _longopt()
 {
-    local cur prev words cword split comp_args
+    local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
     case "${prev,,}" in
@@ -2402,7 +2403,7 @@ _longopt()
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
         _comp_compgen COMPREPLY -W "$(LC_ALL=C $1 --help 2>&1 |

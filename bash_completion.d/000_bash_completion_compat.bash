@@ -4,7 +4,6 @@ _comp_deprecate_func _userland _comp_userland
 _comp_deprecate_func _sysvdirs _comp_sysvdirs
 _comp_deprecate_func _have _comp_have_command
 _comp_deprecate_func _rl_enabled _comp_readline_variable_on
-_comp_deprecate_func _init_completion _comp_initialize
 _comp_deprecate_func _command_offset _comp_command_offset
 _comp_deprecate_func _command _comp_command
 _comp_deprecate_func _root_command _comp_root_command
@@ -176,6 +175,59 @@ _realcommand()
     local rc=$?
     printf "%s\n" "$ret"
     return $rc
+}
+
+# Initialize completion and deal with various general things: do file
+# and variable completion where appropriate, and adjust prev, words,
+# and cword as if no redirections exist so that completions do not
+# need to deal with them.  Before calling this function, make sure
+# cur, prev, words, and cword are local, ditto split if you use -s.
+#
+# Options:
+#     -n EXCLUDE  Passed to _comp_get_words -n with redirection chars
+#     -e XSPEC    Passed to _filedir as first arg for stderr redirections
+#     -o XSPEC    Passed to _filedir as first arg for other output redirections
+#     -i XSPEC    Passed to _filedir as first arg for stdin redirections
+#     -s          Split long options with _split_longopt, implies -n =
+# @var[out] cur       Reconstructed current word
+# @var[out] prev      Reconstructed previous word
+# @var[out] words     Reconstructed words
+# @var[out] cword     Current word index in `words`
+# @var[out,opt] split When "-s" is specified, `"true"/"false"` is set depending
+#                     on whether the split happened.
+# @return  True (0) if completion needs further processing,
+#          False (> 0) no further processing is necessary.
+#
+# @deprecated Use the new interface `_comp_initialize`.  The new interface
+# supports the same set of options.  The new interface receives additional
+# arguments $1 (command name), $2 (part of current word before the cursor), and
+# $3 (previous word) that are specified to the completion function by Bash.
+# When `-s` is specified, instead of variable `split`, the new interface sets
+# variable `was_split` to the value "set"/"" when the split happened/not
+# happened.
+_init_completion()
+{
+    local was_split
+    _comp_initialize "$@"
+    local rc=$?
+
+    # When -s is specified, convert "split={set,}" to "split={true,false}"
+    local flag OPTIND=1 OPTARG="" OPTERR=0
+    while getopts "n:e:o:i:s" flag "$@"; do
+        case $flag in
+            [neoi]) ;;
+            s)
+                if [[ $was_split ]]; then
+                    split=true
+                else
+                    split=false
+                fi
+                break
+                ;;
+        esac
+    done
+
+    return "$rc"
 }
 
 # @deprecated Use the variable `_comp_backup_glob` instead.  This is the
