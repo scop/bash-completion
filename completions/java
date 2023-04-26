@@ -8,64 +8,65 @@ _comp_cmd_java__classpath()
 }
 
 # exact classpath determination
-_java_find_classpath()
+# @var[out] ret  Array to store classpaths
+# @return 0 if at least one element is generated, or otherwise 1
+_comp_cmd_java__find_classpath()
 {
     local i
 
-    classpath=
+    ret=
 
     # search first in current options
     for ((i = 1; i < cword; i++)); do
         if [[ ${words[i]} == -@(cp|classpath) ]]; then
-            classpath=${words[i + 1]}
+            ret=${words[i + 1]}
             break
         fi
     done
 
-    # default to environment
-    [[ ! $classpath ]] && classpath=${CLASSPATH-}
-
-    # default to current directory
-    [[ ! $classpath ]] && classpath=.
+    # fall back to environment, followed by current directory
+    _comp_split -F : ret "${ret:-${CLASSPATH:-.}}"
 }
 
 # exact sourcepath determination
-_java_find_sourcepath()
+# @var[out] ret  Array to store sourcepaths
+# @return 0 if at least one element is generated, or otherwise 1
+_comp_cmd_java__find_sourcepath()
 {
     local i
 
-    sourcepath=
+    ret=
 
     # search first in current options
     for ((i = 1; i < cword; i++)); do
         if [[ ${words[i]} == -sourcepath ]]; then
-            sourcepath=${words[i + 1]}
+            ret=${words[i + 1]}
             break
         fi
     done
 
-    # default to classpath
-    if [[ ! -v sourcepath ]]; then
-        local classpath
-        _java_find_classpath
-        sourcepath=$classpath
+    # fall back to classpath
+    if [[ ! $ret ]]; then
+        _comp_cmd_java__find_classpath
+        return
     fi
 
-    _comp_split -F : sourcepath "$sourcepath"
+    _comp_split -F : ret "$ret"
 }
 
 # available classes completion
 _comp_cmd_java__classes()
 {
-    local classpath i
+    local ret i
 
     # find which classpath to use
-    _java_find_classpath
+    _comp_cmd_java__find_classpath
+    local -a classpaths=("${ret[@]}")
 
     # convert package syntax to path syntax
     cur=${cur//.//}
     # parse each classpath element for classes
-    for i in ${classpath//:/ }; do
+    for i in "${classpaths[@]}"; do
         if [[ $i == *.@(jar|zip) && -r $i ]]; then
             if type zipinfo &>/dev/null; then
                 COMPREPLY+=($(zipinfo -1 "$i" "$cur*" 2>/dev/null |
@@ -105,16 +106,16 @@ _comp_cmd_java__classes()
 # available packages completion
 _comp_cmd_java__packages()
 {
-    local sourcepath i files
+    local ret i files
 
     # find which sourcepath to use
-    _java_find_sourcepath
-    ((${#sourcepath[@]})) || return 0
+    _comp_cmd_java__find_sourcepath || return 0
+    local -a sourcepaths=("${ret[@]}")
 
     # convert package syntax to path syntax
     local cur=${cur//.//}
     # parse each sourcepath element for packages
-    for i in "${sourcepath[@]}"; do
+    for i in "${sourcepaths[@]}"; do
         if [[ -d $i ]]; then
             _comp_expand_glob files '"$i/$cur"*'
             ((${#files[@]})) || continue
