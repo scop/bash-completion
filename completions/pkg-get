@@ -2,10 +2,10 @@
 #
 # Copyright 2006 Yann Rouillard <yann@opencsw.org>
 
-_pkg_get_get_catalog_file()
+_comp_cmd_pkg_get__catalog_file()
 {
     local url="$1"
-    local catalog_file i conffile
+    local i conffile
 
     for file in /etc/opt/csw/pkg-get.conf /opt/csw/etc/pkg-get.conf /etc/pkg-get.conf; do
         if [[ -f $file ]]; then
@@ -19,15 +19,13 @@ _pkg_get_get_catalog_file()
         url=$(awk -F= ' $1=="url" { print $2 }' "$conffile")
     fi
 
-    catalog_file="${url##*//}"
-    catalog_file="${catalog_file%%/*}"
-    catalog_file="/var/pkg-get/catalog-$catalog_file"
-
-    echo "$catalog_file"
+    ret="${url##*//}"
+    ret="${ret%%/*}"
+    ret="/var/pkg-get/catalog-$ret"
 } &&
     _comp_cmd_pkg_get()
     {
-        local cur prev file catalog_file url command=""
+        local cur prev file url command=""
         COMPREPLY=()
         cur="${COMP_WORDS[COMP_CWORD]}"
         prev="${COMP_WORDS[COMP_CWORD - 1]}"
@@ -48,9 +46,10 @@ _pkg_get_get_catalog_file()
 
         if [[ $command ]]; then
             if [[ $command == @(-[Ddi]|describe|download|install) ]]; then
-                catalog_file=$(_pkg_get_get_catalog_file "$url")
-                if [[ -f $catalog_file ]]; then
-                    local packages_list=$(awk '$0 ~ /BEGIN PGP SIGNATURE/ { exit } $1 ~ /^Hash:/ || $1 ~ /^ *(-|#|$)/ { next } { print $1 }' "$catalog_file")
+                local ret
+                _comp_cmd_pkg_get__catalog_file "$url"
+                if [[ -f $ret ]]; then
+                    local packages_list=$(awk '$0 ~ /BEGIN PGP SIGNATURE/ { exit } $1 ~ /^Hash:/ || $1 ~ /^ *(-|#|$)/ { next } { print $1 }' "$ret")
                     COMPREPLY=($(compgen -W "${packages_list}" -- "${cur}"))
                 fi
             fi

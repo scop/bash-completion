@@ -1,6 +1,6 @@
 # bash completion for ant and phing                        -*- shell-script -*-
 
-_ant_parse_targets()
+_comp_cmd_ant__targets()
 {
     local line basedir
 
@@ -9,7 +9,7 @@ _ant_parse_targets()
     # parse buildfile for targets
     while read -rd '>' line; do
         if [[ $line =~ \<(target|extension-point)[[:space:]].*name=[\"\']([^\"\']+) ]]; then
-            targets+=" ${BASH_REMATCH[2]}"
+            ret+=("${BASH_REMATCH[2]}")
         fi
     done <"$1"
 
@@ -19,7 +19,7 @@ _ant_parse_targets()
             local imported_buildfile
             imported_buildfile="${basedir}/${BASH_REMATCH[1]}"
             if [[ -f $imported_buildfile ]]; then
-                _ant_parse_targets "$imported_buildfile"
+                "$FUNCNAME" "$imported_buildfile"
             fi
         fi
     done <"$1"
@@ -87,12 +87,12 @@ _comp_cmd_ant()
         fi
         [[ ! -f $buildfile ]] && return
 
-        local targets
+        local ret=()
 
         # fill targets
-        _ant_parse_targets "$buildfile"
+        _comp_cmd_ant__targets "$buildfile"
 
-        COMPREPLY=($(compgen -W '$targets' -- "$cur"))
+        COMPREPLY=($(compgen -W '"${ret[@]}"' -- "$cur"))
     fi
 } &&
     complete -F _comp_cmd_ant ant phing
