@@ -20,7 +20,7 @@
 # user already began to type svc:. In that case we will propose only the
 # complete FMRI beginning with the pattern
 #
-_smf_complete_fmri()
+_comp_cmd_svcadm__fmri()
 {
     local cur="$1" prefix="$2"
     local cur_prefix fmri fmri_list=""
@@ -82,7 +82,7 @@ _smf_complete_fmri()
             ((i--))
         done
         if ((i == 0)); then
-            _smf_complete_fmri "${COMPREPLY[0]}" "$prefix"
+            _comp_cmd_svcadm__fmri "${COMPREPLY[0]}" "$prefix"
             return
         fi
     fi
@@ -97,7 +97,7 @@ _smf_complete_fmri()
     done
 }
 
-_svcadm()
+_comp_cmd_svcadm()
 {
     local cur prev words cword comp_args
     _comp_initialize -n : -- "$@" || return
@@ -137,13 +137,13 @@ _svcadm()
             if [[ $command == "mark" && $prev != @(degraded|maintenance) ]]; then
                 COMPREPLY=($(compgen -W "degraded maintenance" -- "${cur}"))
             elif [[ $command == "milestone" ]]; then
-                _smf_complete_fmri "${cur}" "svc:/milestone"
+                _comp_cmd_svcadm__fmri "${cur}" "svc:/milestone"
             else
-                _smf_complete_fmri "${cur}" "svc:"
+                _comp_cmd_svcadm__fmri "${cur}" "svc:"
             fi
         fi
     fi
 } &&
-    complete -F _svcadm svcadm
+    complete -F _comp_cmd_svcadm svcadm
 
 # ex: filetype=sh

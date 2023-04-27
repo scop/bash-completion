@@ -1,6 +1,6 @@
 # ssh(1) completion                                        -*- shell-script -*-
 
-_ssh_queries()
+_comp_cmd_ssh__queries()
 {
     local queries=$(_comp_xfunc_ssh_query "$1" help)
     [[ $queries ]] || queries="cipher cipher-auth mac kex key key-cert
@@ -17,7 +17,7 @@ _comp_xfunc_ssh_query()
 
 _comp_deprecate_func _ssh_query _comp_xfunc_ssh_query
 
-_ssh_ciphers()
+_comp_cmd_ssh__ciphers()
 {
     local ciphers=$(_comp_xfunc_ssh_query "$1" cipher)
     [[ $ciphers ]] || ciphers="3des-cbc aes128-cbc aes192-cbc aes256-cbc
@@ -26,7 +26,7 @@ _ssh_ciphers()
     COMPREPLY+=($(compgen -W "$ciphers" -- "$cur"))
 }
 
-_ssh_macs()
+_comp_cmd_ssh__macs()
 {
     local macs=$(_comp_xfunc_ssh_query "$1" mac)
     [[ $macs ]] || macs="hmac-md5 hmac-sha1 umac-64@openssh.com hmac-ripemd160
@@ -90,7 +90,7 @@ _comp_deprecate_func _ssh_options _comp_xfunc_ssh_options
 # the ssh executable to invoke (optional).
 # Not all suboptions are completed.
 # Doesn't handle comma-separated lists.
-_ssh_suboption()
+_comp_cmd_ssh__suboption()
 {
     # Split into subopt and subval
     local prev=${1%%=*} cur=${1#*=}
@@ -138,7 +138,7 @@ _ssh_suboption()
             COMPREPLY=($(compgen -W 'blowfish des 3des' -- "$cur"))
             ;;
         ciphers)
-            _ssh_ciphers "$2"
+            _comp_cmd_ssh__ciphers "$2"
             ;;
         controlmaster)
             COMPREPLY=($(compgen -W 'yes ask auto autoask no' -- "$cur"))
@@ -166,7 +166,7 @@ _ssh_suboption()
             ))
             ;;
         macs)
-            _ssh_macs "$2"
+            _comp_cmd_ssh__macs "$2"
             ;;
         pkcs11provider)
             _filedir so
@@ -220,7 +220,7 @@ _comp_xfunc_ssh_suboption_check()
     local cur prev
     _comp_get_words -n := cur prev
     if [[ $cur == *=* && $prev == -*o ]]; then
-        _ssh_suboption "$cur" "${1-}"
+        _comp_cmd_ssh__suboption "$cur" "${1-}"
         return $?
     fi
     return 1
@@ -261,7 +261,7 @@ _comp_xfunc_ssh_identityfile()
 
 _comp_deprecate_func _ssh_identityfile _comp_xfunc_ssh_identityfile
 
-_ssh()
+_comp_cmd_ssh()
 {
     local cur prev words cword comp_args
     _comp_initialize -n : -- "$@" || return
@@ -285,7 +285,7 @@ _ssh()
             return
             ;;
         -*c)
-            _ssh_ciphers "$1"
+            _comp_cmd_ssh__ciphers "$1"
             return
             ;;
         -*[DeLpRW])
@@ -312,7 +312,7 @@ _ssh()
             return
             ;;
         -*m)
-            _ssh_macs "$1"
+            _comp_cmd_ssh__macs "$1"
             return
             ;;
         -*O)
@@ -324,7 +324,7 @@ _ssh()
             return
             ;;
         -*Q)
-            _ssh_queries "$1"
+            _comp_cmd_ssh__queries "$1"
             return
             ;;
         -*w)
@@ -360,11 +360,12 @@ _ssh()
         fi
     fi
 } &&
-    shopt -u hostcomplete && complete -F _ssh ssh slogin autossh sidedoor
+    shopt -u hostcomplete &&
+    complete -F _comp_cmd_ssh ssh slogin autossh sidedoor
 
 # sftp(1) completion
 #
-_sftp()
+_comp_cmd_sftp()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -389,7 +390,7 @@ _sftp()
             return
             ;;
         -*c)
-            _ssh_ciphers
+            _comp_cmd_ssh__ciphers
             return
             ;;
         -*J)
@@ -425,7 +426,7 @@ _sftp()
         _known_hosts_real ${ipvx:+"$ipvx"} -a ${configfile:+-F "$configfile"} -- "$cur"
     fi
 } &&
-    shopt -u hostcomplete && complete -F _sftp sftp
+    shopt -u hostcomplete && complete -F _comp_cmd_sftp sftp
 
 # things we want to backslash escape in scp paths
 # shellcheck disable=SC2089
@@ -504,7 +505,7 @@ _comp_deprecate_func _scp_local_files _comp_xfunc_ssh_scp_local_files
 
 # scp(1) completion
 #
-_scp()
+_comp_cmd_scp()
 {
     local cur prev words cword comp_args
     _comp_initialize -n : -- "$@" || return
@@ -521,7 +522,7 @@ _scp()
 
     case $prev in
         -*c)
-            _ssh_ciphers
+            _comp_cmd_ssh__ciphers
             COMPREPLY=("${COMPREPLY[@]/%/ }")
             return
             ;;
@@ -593,6 +594,6 @@ _scp()
 
     _comp_xfunc_ssh_scp_local_files "${prefix-}"
 } &&
-    complete -F _scp -o nospace scp
+    complete -F _comp_cmd_scp -o nospace scp
 
 # ex: filetype=sh
