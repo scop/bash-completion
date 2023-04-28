@@ -58,3 +58,21 @@ class TestJava:
         """pathname expansion should not happen after splitting the argument by
         `:`"""
         assert not completion
+
+    @pytest.mark.complete("javadoc -sourcepath java/a ")
+    def test_packages_1(self, completion):
+        assert completion == "c"
+
+    @pytest.mark.complete("javadoc -sourcepath java/a x")
+    def test_packages_2(self, completion):
+        assert not completion
+
+    @pytest.mark.complete(
+        "javadoc -sourcepath java/a x", shopt=dict(failglob=True)
+    )
+    def test_packages_3(self, completion):
+        assert not completion
+
+    @pytest.mark.complete("javadoc -sourcepath java/a ", env=dict(IFS="a"))
+    def test_packages_4(self, completion):
+        assert completion == "c"
