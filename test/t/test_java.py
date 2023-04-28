@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import is_bash_type
+from conftest import is_bash_type, assert_bash_exec, bash_env_saved
 
 
 @pytest.mark.bashcomp(
@@ -76,3 +76,12 @@ class TestJava:
     @pytest.mark.complete("javadoc -sourcepath java/a ", env=dict(IFS="a"))
     def test_packages_4(self, completion):
         assert completion == "c"
+
+    def test_packages_5(self, bash):
+        """_comp_cmd_java__packages should not modify the outerscope `cur`"""
+        with bash_env_saved(bash) as bash_env:
+            bash_env.write_variable("cur", "a.b.c")
+            assert_bash_exec(
+                bash,
+                "_comp_test_f() { local cword=3 words=(javadoc -sourcepath java/a a.b.c); COMPREPLY+=(); _comp_cmd_java__packages; }; _comp_test_f",
+            )
