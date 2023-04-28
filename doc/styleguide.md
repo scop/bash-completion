@@ -81,7 +81,7 @@ available in `COMPREPLY`.
 ## `[[ $was_split ]] && return`
 
 Should be used in completions using the `-s` flag of `_comp_initialize`,
-or other similar cases where `_split_longopt` has been invoked, after
+or other similar cases where `_comp__split_longopt` has been invoked, after
 `$prev` has been managed but before `$cur` is considered. If `$cur` of the
 form `--foo=bar` was split into `prev=--foo` and `cur=bar`, and the `$prev`
 block did not process the option argument completion, it makes sense to return
