@@ -1,0 +1,57 @@
+# cd(1) completion                                         -*- shell-script -*-
+
+# This meta-cd function observes the CDPATH variable, so that `cd`
+# additionally completes on directories under those specified in CDPATH.
+_comp_cmd_cd()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    if [[ $cur == -* ]]; then
+        local cmd=$1
+        _comp_compgen COMPREPLY -W '$(_parse_help help "$cmd")' -- "$cur"
+        compopt +o nospace
+        return
+    fi
+
+    local IFS=$'\n' i j k
+
+    compopt -o filenames
+
+    # Use standard dir completion if no CDPATH or parameter starts with /,
+    # ./ or ../
+    if [[ ! ${CDPATH-} || $cur == ?(.)?(.)/* ]]; then
+        _filedir -d
+        return
+    fi
+
+    local mark_dirs="" mark_symdirs=""
+    _comp_readline_variable_on mark-directories && mark_dirs=y
+    _comp_readline_variable_on mark-symlinked-directories && mark_symdirs=y
+
+    # we have a CDPATH, so loop on its contents
+    for i in ${CDPATH//:/$'\n'}; do
+        # create an array of matched subdirs
+        k=${#COMPREPLY[@]}
+        for j in $(compgen -d -- "$i/$cur"); do
+            if [[ ($mark_symdirs && -L $j || $mark_dirs && ! -L $j) && ! -d ${j#"$i/"} ]]; then
+                j+="/"
+            fi
+            COMPREPLY[k++]=${j#"$i/"}
+        done
+    done
+
+    _filedir -d
+
+    if ((${#COMPREPLY[@]} == 1)); then
+        i=${COMPREPLY[0]}
+        if [[ $i == "$cur" && $i != "*/" ]]; then
+            COMPREPLY[0]="${i}/"
+        fi
+    fi
+}
+if shopt -q cdable_vars; then
+    complete -v -F _comp_cmd_cd -o nospace cd pushd
+else
+    complete -F _comp_cmd_cd -o nospace cd pushd
+fi

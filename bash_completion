@@ -2163,65 +2163,6 @@ _known_hosts_real()
 complete -F _known_hosts traceroute traceroute6 \
     fping fping6 telnet rsh rlogin ftp dig drill mtr ssh-installkeys showmount
 
-# This meta-cd function observes the CDPATH variable, so that cd additionally
-# completes on directories under those specified in CDPATH.
-#
-_cd()
-{
-    local cur prev words cword comp_args
-    _comp_initialize -- "$@" || return
-
-    if [[ $cur == -* ]]; then
-        local cmd=$1
-        _comp_compgen COMPREPLY -W '$(_parse_help help "$cmd")' -- "$cur"
-        compopt +o nospace
-        return
-    fi
-
-    local IFS=$'\n' i j k
-
-    compopt -o filenames
-
-    # Use standard dir completion if no CDPATH or parameter starts with /,
-    # ./ or ../
-    if [[ ! ${CDPATH-} || $cur == ?(.)?(.)/* ]]; then
-        _filedir -d
-        return
-    fi
-
-    local mark_dirs="" mark_symdirs=""
-    _comp_readline_variable_on mark-directories && mark_dirs=y
-    _comp_readline_variable_on mark-symlinked-directories && mark_symdirs=y
-
-    # we have a CDPATH, so loop on its contents
-    for i in ${CDPATH//:/$'\n'}; do
-        # create an array of matched subdirs
-        k=${#COMPREPLY[@]}
-        for j in $(compgen -d -- "$i/$cur"); do
-            if [[ ($mark_symdirs && -L $j || $mark_dirs && ! -L $j) && ! -d ${j#"$i/"} ]]; then
-                j+="/"
-            fi
-            COMPREPLY[k++]=${j#"$i/"}
-        done
-    done
-
-    _filedir -d
-
-    if ((${#COMPREPLY[@]} == 1)); then
-        i=${COMPREPLY[0]}
-        if [[ $i == "$cur" && $i != "*/" ]]; then
-            COMPREPLY[0]="${i}/"
-        fi
-    fi
-
-    return
-}
-if shopt -q cdable_vars; then
-    complete -v -F _cd -o nospace cd pushd
-else
-    complete -F _cd -o nospace cd pushd
-fi
-
 # A meta-command completion function for commands like sudo(8), which need to
 # first complete on a command, then complete according to that command's own
 # completion definition.

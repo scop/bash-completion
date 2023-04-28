@@ -235,4 +235,11 @@ _init_completion()
 # shellcheck disable=SC2154  # defined in the main "bash_completion"
 _backup_glob=$_comp_backup_glob
 
+# @deprecated use `_comp_cmd_cd` instead.
+_cd()
+{
+    declare -F _comp_cmd_cd &>/dev/null || __load_completion cd
+    _comp_cmd_cd "$@"
+}
+
 # ex: filetype=sh
