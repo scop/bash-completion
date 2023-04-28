@@ -47,3 +47,14 @@ class TestJava:
     @pytest.mark.complete("java -jar java/")
     def test_6(self, completion):
         assert completion == "a/ bashcomp.jar bashcomp.war".split()
+
+    @pytest.mark.complete("javadoc -sourcepath java/a:java/a/c ")
+    def test_sourcepath_1(self, completion):
+        """sourcepath should be split by `:`"""
+        assert completion == "c"
+
+    @pytest.mark.complete("javadoc -sourcepath java/?:java/x ")
+    def test_sourcepath_2(self, completion):
+        """pathname expansion should not happen after splitting the argument by
+        `:`"""
+        assert not completion
