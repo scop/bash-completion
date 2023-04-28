@@ -43,6 +43,7 @@ bashcomp_DATA = 2to3 \
 		carton \
 		ccache \
 		ccze \
+		cd \
 		cfagent \
 		cfrun \
 		chage \
@@ -701,6 +702,7 @@ CLEANFILES = \
 	puppetmasterd \
 	puppetqd \
 	puppetrun \
+	pushd \
 	pvchange \
 	pvcreate \
 	pvdisplay \
@@ -852,6 +854,8 @@ symlinks: $(DATA)
 		ncal
 	$(ss) cardctl \
 		pccardctl
+	$(ss) cd \
+		pushd
 	$(ss) chromium-browser \
 		chrome chromium google-chrome google-chrome-stable
 	$(ss) complete \
