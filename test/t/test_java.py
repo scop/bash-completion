@@ -85,3 +85,8 @@ class TestJava:
                 bash,
                 "_comp_test_f() { local cword=3 words=(javadoc -sourcepath java/a a.b.c); COMPREPLY+=(); _comp_cmd_java__packages; }; _comp_test_f",
             )
+
+    @pytest.mark.complete("javadoc -sourcepath java a.")
+    def test_packages_6(self, completion):
+        """A period in package names should not be converted to slash."""
+        assert completion == "c"
