@@ -14,6 +14,7 @@ _comp_deprecate_func __get_cword_at_cursor_by_ref _comp__get_cword_at_cursor
 _comp_deprecate_func _get_comp_words_by_ref _comp_get_words
 _comp_deprecate_func _longopt _comp_longopt
 _comp_deprecate_func _split_longopt _comp__split_longopt
+_comp_deprecate_func __ltrim_colon_completions _comp_ltrim_colon_completions
 
 # Backwards compatibility for compat completions that use have().
 # @deprecated should no longer be used; generally not needed with dynamically

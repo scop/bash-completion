@@ -691,7 +691,7 @@ _comp_get_words()
 # @param $1 current word to complete (cur)
 # @modifies global array $COMPREPLY
 #
-__ltrim_colon_completions()
+_comp_ltrim_colon_completions()
 {
     local i=${#COMPREPLY[*]}
     ((i == 0)) && return 0
@@ -703,7 +703,7 @@ __ltrim_colon_completions()
             COMPREPLY[i]=${COMPREPLY[i]#"$colon_word"}
         done
     fi
-} # __ltrim_colon_completions()
+} # _comp_ltrim_colon_completions()
 
 # This function quotes the argument in a way so that readline dequoting
 # results in the original argument.  This is necessary for at least
@@ -842,12 +842,12 @@ _variables()
         if [[ ${BASH_REMATCH[3]} == [@*] ]]; then
             COMPREPLY+=("${BASH_REMATCH[1]}${BASH_REMATCH[2]}[${BASH_REMATCH[3]}]}")
         fi
-        __ltrim_colon_completions "$cur" # array indexes may have colons
+        _comp_ltrim_colon_completions "$cur" # array indexes may have colons
         return 0
     elif [[ $cur =~ ^\$\{[#!]?[A-Za-z0-9_]*\[.*\]$ ]]; then
         # Complete ${array[idx] with ${array[idx]}
         COMPREPLY+=("$cur}")
-        __ltrim_colon_completions "$cur"
+        _comp_ltrim_colon_completions "$cur"
         return 0
     fi
     return 1
@@ -907,7 +907,7 @@ _comp_delimited()
         COMPREPLY[i]="$prefix${COMPREPLY[i]}"
     done
 
-    [[ $delimiter != : ]] || __ltrim_colon_completions "$cur"
+    [[ $delimiter != : ]] || _comp_ltrim_colon_completions "$cur"
 }
 
 # Complete assignment of various known environment variables.
@@ -1246,7 +1246,7 @@ _mac_addresses()
 
     ((${#COMPREPLY[@]})) &&
         _comp_compgen COMPREPLY -W '"${COMPREPLY[@]}"' -- "$cur"
-    __ltrim_colon_completions "$cur"
+    _comp_ltrim_colon_completions "$cur"
 }
 
 # This function completes on configured network interfaces
@@ -2157,7 +2157,7 @@ _known_hosts_real()
         fi
     fi
 
-    __ltrim_colon_completions "$prefix$cur"
+    _comp_ltrim_colon_completions "$prefix$cur"
 
 } # _known_hosts_real()
 complete -F _known_hosts traceroute traceroute6 \
