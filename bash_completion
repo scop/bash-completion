@@ -797,7 +797,7 @@ _filedir()
 # this to be useful.
 # Returns 0 if current option was split, 1 otherwise.
 #
-_split_longopt()
+_comp__split_longopt()
 {
     if [[ $cur == --?*=* ]]; then
         # Cut also backslash before '=' in case it ended up there
@@ -977,7 +977,7 @@ _comp_variable_assignments()
 #     -e XSPEC    Passed to _filedir as first arg for stderr redirections
 #     -o XSPEC    Passed to _filedir as first arg for other output redirections
 #     -i XSPEC    Passed to _filedir as first arg for stdin redirections
-#     -s          Split long options with _split_longopt, implies -n =
+#     -s          Split long options with _comp__split_longopt, implies -n =
 # @param $1...$3 args Original arguments specified to the completion function.
 #                     The first argument $1 is command name.  The second
 #                     argument $2 is the string before the cursor in the
@@ -1066,7 +1066,7 @@ _comp_initialize()
     ((cword <= 0)) && return 1
     prev=${words[cword - 1]}
 
-    [[ $opt_split ]] && _split_longopt && was_split="set"
+    [[ $opt_split ]] && _comp__split_longopt && was_split="set"
 
     return 0
 }
@@ -2370,7 +2370,7 @@ _complete_as_root()
     [[ $EUID -eq 0 || ${root_command-} ]]
 }
 
-_longopt()
+_comp_longopt()
 {
     local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
@@ -2420,7 +2420,8 @@ _longopt()
     fi
 }
 # makeinfo and texi2dvi are defined elsewhere.
-complete -F _longopt a2ps awk base64 bash bc bison cat chroot colordiff cp \
+complete -F _comp_longopt \
+    a2ps awk base64 bash bc bison cat chroot colordiff cp \
     csplit cut date df diff dir du enscript env expand fmt fold gperf \
     grep grub head irb ld ldd less ln ls m4 mkdir mkfifo mknod \
     mv netstat nl nm objcopy objdump od paste pr ptx readelf rm rmdir \

@@ -12,6 +12,8 @@ _comp_deprecate_func _upvars _comp_upvars
 _comp_deprecate_func __reassemble_comp_words_by_ref _comp__reassemble_words
 _comp_deprecate_func __get_cword_at_cursor_by_ref _comp__get_cword_at_cursor
 _comp_deprecate_func _get_comp_words_by_ref _comp_get_words
+_comp_deprecate_func _longopt _comp_longopt
+_comp_deprecate_func _split_longopt _comp__split_longopt
 
 # Backwards compatibility for compat completions that use have().
 # @deprecated should no longer be used; generally not needed with dynamically
@@ -188,7 +190,7 @@ _realcommand()
 #     -e XSPEC    Passed to _filedir as first arg for stderr redirections
 #     -o XSPEC    Passed to _filedir as first arg for other output redirections
 #     -i XSPEC    Passed to _filedir as first arg for stdin redirections
-#     -s          Split long options with _split_longopt, implies -n =
+#     -s          Split long options with _comp__split_longopt, implies -n =
 # @var[out] cur       Reconstructed current word
 # @var[out] prev      Reconstructed previous word
 # @var[out] words     Reconstructed words
