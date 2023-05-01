@@ -699,6 +699,7 @@ CLEANFILES = \
 	mozilla-firefox \
 	mplayer2 \
 	msgsnarf \
+	_multi-gitter \
 	muttng \
 	ncal \
 	neomutt \
@@ -951,6 +952,7 @@ symlinks: $(DATA)
 		_metalctl \
 		_mmctl \
 		_moldy \
+		_multi-gitter \
 		_op \
 		_sshi \
 		_trivy \
