@@ -41,7 +41,7 @@ _comp_cmd_openssl()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
-    local commands command options formats
+    local commands command formats
 
     commands='asn1parse ca ciphers crl crl2pkcs7 dgst dh dhparam dsa dsaparam
         ec ecparam enc engine errstr gendh gendsa genrsa nseq ocsp passwd
@@ -117,11 +117,13 @@ _comp_cmd_openssl()
 
         if [[ $cur == -* ]]; then
             # possible options for the command
-            options=$(_parse_help "$1" "$command -help" 2>/dev/null)
+            _comp_compgen_help -- "$command" -help
             case $command in
-                dgst | req | x509) options+=" $(_openssl_digests "$1")" ;;
+                dgst | req | x509)
+                    local options=$(_openssl_digests "$1")
+                    _comp_compgen -a -- -W '$options'
+                    ;;
             esac
-            _comp_compgen -- -W "$options"
         else
             if [[ $command == speed ]]; then
                 COMPREPLY=($(compgen -W 'md2 mdc2 md5 hmac sha1 rmd160

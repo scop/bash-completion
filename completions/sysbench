@@ -115,14 +115,16 @@ _comp_cmd_sysbench()
         fi
     done
 
-    local opts=$(_parse_help "$1")
+    local opts
+    _comp_compgen -v opts help
     if [[ $has_test ]]; then
-        local help=($(_parse_help "$1" "--test=$test help"))
-        opts="${opts/--test=/} ${help[*]} prepare run cleanup help version"
+        opts=("${opts[@]/#--test=/}")
+        _comp_compgen -aRv opts help -- --test="$test" help
+        opts+=(prepare run cleanup help version)
     fi
 
     if [[ $cur == -* || ! $has_test ]]; then
-        _comp_compgen -- -W "$opts"
+        _comp_compgen -- -W '"${opts[@]}"'
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     else
         _comp_compgen -- -W "prepare run cleanup help version"
