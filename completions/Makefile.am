@@ -596,6 +596,7 @@ CLEANFILES = \
 	gfortran-6 \
 	gfortran-7 \
 	gfortran-8 \
+	_gh-label \
 	_git-bump \
 	gkrellm2 \
 	gmake \
@@ -913,6 +914,7 @@ symlinks: $(DATA)
 		_constellation \
 		_datree \
 		_gardenctl \
+		_gh-label \
 		_git-bump \
 		_hugo \
 		_ignite \
