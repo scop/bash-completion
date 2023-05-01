@@ -536,6 +536,7 @@ CLEANFILES = \
 	ciptool \
 	civclient \
 	civserver \
+	_cloudquery \
 	clzip \
 	co \
 	colormake \
@@ -898,6 +899,7 @@ symlinks: $(DATA)
 		_allero \
 		_arduino-cli \
 		_cilium \
+		_cloudquery \
 		_hugo \
 		_kn \
 		_op \
