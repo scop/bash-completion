@@ -555,6 +555,7 @@ CLEANFILES = \
 	dcop \
 	dfutool \
 	display \
+	_docker \
 	dpkg-deb \
 	dpkg-query \
 	dpkg-reconfigure \
@@ -929,6 +930,7 @@ symlinks: $(DATA)
 		_cloudquery \
 		_constellation \
 		_datree \
+		_docker \
 		_gardenctl \
 		_gh-label \
 		_git-bump \
