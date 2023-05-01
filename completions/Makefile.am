@@ -625,6 +625,7 @@ CLEANFILES = \
 	ifstatus \
 	_ignite \
 	import \
+	_infracost \
 	inotifywatch \
 	insmod.static \
 	iperf3 \
@@ -907,6 +908,8 @@ symlinks: $(DATA)
 		mkisofs
 	$(ss) geoiplookup \
 		geoiplookup6
+	$(ss) _gh \
+		_infracost
 	$(ss) gkrellm \
 		gkrellm2
 	$(ss) _golangci-lint \
