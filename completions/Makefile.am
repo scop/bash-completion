@@ -613,6 +613,7 @@ CLEANFILES = \
 	hciattach \
 	hciconfig \
 	hd \
+	_helm \
 	host \
 	hping \
 	hping3 \
@@ -920,6 +921,7 @@ symlinks: $(DATA)
 		_git-bump \
 		_gopherjs \
 		_goreleaser \
+		_helm \
 		_hugo \
 		_ignite \
 		_kn \
