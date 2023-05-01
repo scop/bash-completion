@@ -693,6 +693,7 @@ CLEANFILES = \
 	mencoder \
 	_metalctl \
 	micropython \
+	_minikube \
 	mkisofs \
 	_mmctl \
 	mogrify \
@@ -968,6 +969,7 @@ symlinks: $(DATA)
 		_linkerd \
 		_mattermost \
 		_metalctl \
+		_minikube \
 		_mmctl \
 		_moldy \
 		_multi-gitter \
