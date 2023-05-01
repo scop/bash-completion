@@ -633,6 +633,7 @@ CLEANFILES = \
 	javac \
 	javadoc \
 	_kn \
+	_kool \
 	kplayer \
 	l2ping \
 	lbzip2 \
@@ -930,6 +931,7 @@ symlinks: $(DATA)
 		_ignite \
 		_istioctl \
 		_kn \
+		_kool \
 		_op \
 		_sshi \
 		_trivy \
