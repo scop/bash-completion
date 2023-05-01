@@ -629,6 +629,7 @@ CLEANFILES = \
 	inotifywatch \
 	insmod.static \
 	iperf3 \
+	_istioctl \
 	javac \
 	javadoc \
 	_kn \
@@ -927,6 +928,7 @@ symlinks: $(DATA)
 		_helm \
 		_hugo \
 		_ignite \
+		_istioctl \
 		_kn \
 		_op \
 		_sshi \
