@@ -690,6 +690,7 @@ CLEANFILES = \
 	mencoder \
 	micropython \
 	mkisofs \
+	_mmctl \
 	mogrify \
 	montage \
 	mozilla-firefox \
@@ -943,6 +944,7 @@ symlinks: $(DATA)
 		_kubescape \
 		_linkerd \
 		_mattermost \
+		_mmctl \
 		_op \
 		_sshi \
 		_trivy \
