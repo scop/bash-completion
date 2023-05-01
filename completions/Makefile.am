@@ -707,6 +707,7 @@ CLEANFILES = \
 	_nomad \
 	_okteto \
 	_op \
+	_ory \
 	_packer \
 	pbzip2 \
 	pccardctl \
@@ -958,6 +959,7 @@ symlinks: $(DATA)
 		_nfpm \
 		_okteto \
 		_op \
+		_ory \
 		_sshi \
 		_trivy \
 		_upctl \
