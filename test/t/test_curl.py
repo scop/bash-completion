@@ -31,3 +31,15 @@ class TestCurl:
     def test_unknown_option(self, completion):
         # Just see that it does not error out
         pass
+
+    @pytest.mark.complete("curl --data-bina", require_cmd=True)
+    def test_help_all_option(self, completion):
+        """
+        The option used as a canary here is one that should be available
+        in all curl versions. It should be only listed in `--help all` output
+        for curl versions that have their help output split to multiple
+        categories (i.e. ones that support `--help all` to get the complete
+        list), as well as the basic `--help` output for earlier versions that
+        do not have that.
+        """
+        assert completion
