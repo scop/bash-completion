@@ -6,6 +6,7 @@ EXTRA_DIST = \
 	chsh \
 	dmesg \
 	eject \
+	gaiacli \
 	gh \
 	golangci-lint \
 	hexdump \

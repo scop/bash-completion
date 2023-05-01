@@ -123,6 +123,7 @@ bashcomp_DATA = 2to3 \
 		freeciv-server \
 		function \
 		fusermount \
+		_gaiacli \
 		gcc \
 		gcl \
 		gdb \
