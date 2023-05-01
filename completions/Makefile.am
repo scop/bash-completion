@@ -613,6 +613,7 @@ CLEANFILES = \
 	ifdown \
 	ifquery \
 	ifstatus \
+	_ignite \
 	import \
 	inotifywatch \
 	insmod.static \
@@ -903,6 +904,7 @@ symlinks: $(DATA)
 		_cloudquery \
 		_constellation \
 		_hugo \
+		_ignite \
 		_kn \
 		_op \
 		_sshi \
