@@ -532,6 +532,7 @@ CLEANFILES = \
 	chrome \
 	chromium \
 	ci \
+	_cilium \
 	ciptool \
 	civclient \
 	civserver \
@@ -894,7 +895,16 @@ symlinks: $(DATA)
 	$(ss) gkrellm \
 		gkrellm2
 	$(ss) _golangci-lint \
-		_allero _arduino-cli _hugo _kn _op _sshi _trivy _upctl _vacuum
+		_allero \
+		_arduino-cli \
+		_cilium \
+		_hugo \
+		_kn \
+		_op \
+		_sshi \
+		_trivy \
+		_upctl \
+		_vacuum
 	$(ss) gpgv \
 		gpgv2
 	$(ss) gssdp-discover \
