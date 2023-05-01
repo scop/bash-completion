@@ -634,6 +634,7 @@ CLEANFILES = \
 	_istioctl \
 	javac \
 	javadoc \
+	_k3s \
 	_kn \
 	_kool \
 	kplayer \
@@ -960,6 +961,7 @@ symlinks: $(DATA)
 		_hugo \
 		_ignite \
 		_istioctl \
+		_k3s \
 		_kn \
 		_kool \
 		_kratos \
