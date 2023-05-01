@@ -636,6 +636,7 @@ CLEANFILES = \
 	_kn \
 	_kool \
 	kplayer \
+	_kratos \
 	_kubeadm \
 	_kubectl \
 	_kubescape \
@@ -947,6 +948,7 @@ symlinks: $(DATA)
 		_istioctl \
 		_kn \
 		_kool \
+		_kratos \
 		_kubeadm \
 		_kubectl \
 		_kubescape \
