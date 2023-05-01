@@ -1190,10 +1190,52 @@ _comp_initialize()
     return 0
 }
 
-# Helper function for _parse_help and _parse_usage.
+# Helper function for _comp_compgen_help and _comp_compgen_usage.
+# Obtain the help output based on the arguments.
+# @param $@ args  Arguments specified to the caller.
+# @var[out] _lines
+# @return 2 if the usage is wrong, 1 if no output is obtained, or otherwise 0.
+_comp_compgen_help__get_help_lines()
+{
+    local -a help_cmd
+    case ${1-} in
+        -)
+            if (($# > 1)); then
+                printf 'bash_completion: %s -: extra arguments for -\n' "${FUNCNAME[1]}" >&2
+                printf 'usage: %s -\n' "${FUNCNAME[1]}" >&2
+                printf 'usage: %s -c cmd args...\n' "${FUNCNAME[1]}" >&2
+                printf 'usage: %s [-- args...]\n' "${FUNCNAME[1]}" >&2
+                return 2
+            fi
+            help_cmd=(exec cat)
+            ;;
+        -c)
+            if (($# < 2)); then
+                printf 'bash_completion: %s -c: no command is specified\n' "${FUNCNAME[1]}" >&2
+                printf 'usage: %s -\n' "${FUNCNAME[1]}" >&2
+                printf 'usage: %s -c cmd args...\n' "${FUNCNAME[1]}" >&2
+                printf 'usage: %s [-- args...]\n' "${FUNCNAME[1]}" >&2
+                return 2
+            fi
+            help_cmd=("${@:2}")
+            ;;
+        --) shift 1 ;&
+        *)
+            local ret
+            _comp_dequote "${comp_args[0]-}" || ret=${comp_args[0]-}
+            help_cmd=("${ret:-false}" "$@")
+            ;;
+    esac
+
+    local ret
+    _comp_split -l ret "$(LC_ALL=C "${help_cmd[@]}" 2>&1)" &&
+        _lines=("${ret[@]}")
+}
+
+# Helper function for _comp_compgen_help and _comp_compgen_usage.
+# @var[in,out] _options Add options
 # @return True (0) if an option was found, False (> 0) otherwise
-# TODO: rename per API conventions, rework to use vars rather than outputting
-__parse_options()
+_comp_compgen_help__parse()
 {
     local option option2 i
 
@@ -1219,7 +1261,7 @@ __parse_options()
     if [[ $option =~ (\[((no|dont)-?)\]). ]]; then
         option2=${option/"${BASH_REMATCH[1]}"/}
         option2=${option2%%[<{().[]*}
-        printf '%s\n' "${option2/=*/=}"
+        _options+=("${option2/=*/=}")
         option=${option/"${BASH_REMATCH[1]}"/"${BASH_REMATCH[2]}"}
     fi
 
@@ -1227,100 +1269,81 @@ __parse_options()
     option=${option/=*/=}
     [[ $option ]] || return 1
 
-    printf '%s\n' "$option"
+    _options+=("$option")
 }
 
-# Parse GNU style help output of the given command.
-# @param $1  command; if "-", read from stdin and ignore rest of args
-# @param $2  command options (default: --help)
+# Parse GNU style help output of the given command and generate and store
+# completions in an array. The help output is produced in the way depending on
+# the usage:
+# usage: _comp_compgen_help -              # read from stdin
+# usage: _comp_compgen_help -c cmd args... # run "cmd args..."
+# usage: _comp_compgen_help [[--] args...] # run "${comp_args[0]} args..."
+# When no arguments are specified, `--help` is assumed.
 #
-# TODO: rename per API conventions, rework to use vars rather than outputting
-_parse_help()
+# @var[in] comp_args[0]
+_comp_compgen_help()
 {
-    local IFS=$' \t\n'
-    local reset_monitor=$(shopt -po monitor) reset_lastpipe=$(shopt -p lastpipe) reset_noglob=$(shopt -po noglob)
-    set +o monitor
-    shopt -s lastpipe
-    set -o noglob
+    (($#)) || set -- -- --help
 
-    local cmd=$1
-    local line rc=1
-    (
-        case $cmd in
-            -) exec cat ;;
-            *)
-                # shellcheck disable=SC2086
-                _comp_dequote "$cmd" && LC_ALL=C "$ret" ${2:---help} 2>&1
-                ;;
-        esac
-    ) |
-        while read -r line; do
+    local -a _lines
+    _comp_compgen_help__get_help_lines "$@" || return "$?"
 
-            [[ $line == *([[:blank:]])-* ]] || continue
-            # transform "-f FOO, --foo=FOO" to "-f , --foo=FOO" etc
-            while [[ $line =~ ((^|[^-])-[A-Za-z0-9?][[:space:]]+)\[?[A-Z0-9]+([,_-]+[A-Z0-9]+)?(\.\.+)?\]? ]]; do
-                line=${line/"${BASH_REMATCH[0]}"/"${BASH_REMATCH[1]}"}
-            done
-            __parse_options "${line// or /, }" && rc=0
-
+    local -a _options=()
+    local _line
+    for _line in "${_lines[@]}"; do
+        [[ $_line == *([[:blank:]])-* ]] || continue
+        # transform "-f FOO, --foo=FOO" to "-f , --foo=FOO" etc
+        while [[ $_line =~ ((^|[^-])-[A-Za-z0-9?][[:space:]]+)\[?[A-Z0-9]+([,_-]+[A-Z0-9]+)?(\.\.+)?\]? ]]; do
+            _line=${_line/"${BASH_REMATCH[0]}"/"${BASH_REMATCH[1]}"}
         done
+        _comp_compgen_help__parse "${_line// or /, }"
+    done
+    ((${#_options[@]})) || return 1
 
-    $reset_monitor
-    $reset_lastpipe
-    $reset_noglob
-    return $rc
+    _comp_compgen -- -W '"${_options[@]}"'
+    return 0
 }
 
-# Parse BSD style usage output (options in brackets) of the given command.
-# @param $1  command; if "-", read from stdin and ignore rest of args
-# @param $2  command options (default: --usage)
+# Parse BSD style usage output (options in brackets) of the given command. The
+# help output is produced in the way depending on the usage:
+# usage: _comp_compgen_usage -              # read from stdin
+# usage: _comp_compgen_usage -c cmd args... # run "cmd args..."
+# usage: _comp_compgen_usage [[--] args...] # run "${comp_args[0]} args..."
+# When no arguments are specified, `--usage` is assumed.
 #
-# TODO: rename per API conventions, rework to use vars rather than outputting
-_parse_usage()
+# @var[in] comp_args[0]
+_comp_compgen_usage()
 {
-    local IFS=$' \t\n'
-    local reset_monitor=$(shopt -po monitor) reset_lastpipe=$(shopt -p lastpipe) reset_noglob=$(shopt -po noglob)
-    set +o monitor
-    shopt -s lastpipe
-    set -o noglob
+    (($#)) || set -- -- --usage
 
-    local cmd=$1
-    local line match option i char rc=1
-    (
-        case $cmd in
-            -) exec cat ;;
-            *)
-                # shellcheck disable=SC2086
-                _comp_dequote "$cmd" && LC_ALL=C "$ret" ${2:---usage} 2>&1
-                ;;
-        esac
-    ) |
-        while read -r line; do
+    local -a _lines
+    _comp_compgen_help__get_help_lines "$@" || return "$?"
 
-            while [[ $line =~ \[[[:space:]]*(-[^]]+)[[:space:]]*\] ]]; do
-                match=${BASH_REMATCH[0]}
-                option=${BASH_REMATCH[1]}
-                case $option in
-                    -?(\[)+([a-zA-Z0-9?]))
-                        # Treat as bundled short options
-                        for ((i = 1; i < ${#option}; i++)); do
-                            char=${option:i:1}
-                            [[ $char != '[' ]] && printf '%s\n' -"$char" && rc=0
-                        done
-                        ;;
-                    *)
-                        __parse_options "$option" && rc=0
-                        ;;
-                esac
-                line=${line#*"$match"}
-            done
-
+    local -a _options=()
+    local _line _match _option _i _char
+    for _line in "${_lines[@]}"; do
+        while [[ $_line =~ \[[[:space:]]*(-[^]]+)[[:space:]]*\] ]]; do
+            _match=${BASH_REMATCH[0]}
+            _option=${BASH_REMATCH[1]}
+            case $_option in
+                -?(\[)+([a-zA-Z0-9?]))
+                    # Treat as bundled short options
+                    for ((_i = 1; _i < ${#_option}; _i++)); do
+                        _char=${_option:_i:1}
+                        [[ $_char != '[' ]] && _options+=("-$_char")
+                    done
+                    ;;
+                *)
+                    _comp_compgen_help__parse "$_option"
+                    ;;
+            esac
+            _line=${_line#*"$_match"}
         done
+    done
+    ((${#_options[@]})) || return 1
 
-    $reset_monitor
-    $reset_lastpipe
-    $reset_noglob
-    return $rc
+    _comp_compgen -- -W '"${_options[@]}"'
+    return 0
 }
 
 # This function completes on signal names (minus the SIG prefix)

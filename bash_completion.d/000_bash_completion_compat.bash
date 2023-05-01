@@ -276,4 +276,62 @@ _tilde()
     ! _comp_compgen -c "$1" tilde
 }
 
+# Helper function for _parse_help and _parse_usage.
+# @return True (0) if an option was found, False (> 0) otherwise
+# @deprecated Use _comp_compgen_help__parse
+__parse_options()
+{
+    local -a _options=()
+    _comp_compgen_help__parse "$1"
+    printf '%s\n' "${_options[@]}"
+}
+
+# Parse GNU style help output of the given command.
+# @param $1  command; if "-", read from stdin and ignore rest of args
+# @param $2  command options (default: --help)
+# @deprecated Use `_comp_compgen_help`.  `COMPREPLY=($(compgen -W
+#   '$(_parse_help "$1" ...)' -- "$cur"))` can be replaced with
+#   `_comp_compgen_help [-- ...]`.  Also, `var=($(_parse_help "$1" ...))` can
+#   be replaced with `_comp_compgen -Rv var help [-- ...]`.
+_parse_help()
+{
+    local -a args
+    if [[ $1 == - ]]; then
+        args=(-)
+    else
+        local ret opt IFS=$' \t\n'
+        _comp_dequote "$1"
+        _comp_split opt "${2:---help}"
+        args=(-c "$ret" ${opt[@]+"${opt[@]}"})
+    fi
+    local -a ret=()
+    _comp_compgen -Rv ret help "${args[@]}" || return 1
+    ((${#ret[@]})) && printf '%s\n' "${ret[@]}"
+    return 0
+}
+
+# Parse BSD style usage output (options in brackets) of the given command.
+# @param $1  command; if "-", read from stdin and ignore rest of args
+# @param $2  command options (default: --usage)
+# @deprecated Use `_comp_compgen_usage`.  `COMPREPLY=($(compgen -W
+#   '$(_parse_usage "$1" ...)' -- "$cur"))` can be replaced with
+#   `_comp_compgen_usage [-- ...]`. `var=($(_parse_usage "$1" ...))` can be
+#   replaced with `_comp_compgen -Rv var usage [-- ...]`.
+_parse_usage()
+{
+    local -a args
+    if [[ $1 == - ]]; then
+        args=(-)
+    else
+        local ret opt IFS=$' \t\n'
+        _comp_dequote "$1"
+        _comp_split opt "${2:---usage}"
+        args=(-c "$ret" ${opt[@]+"${opt[@]}"})
+    fi
+    local -a ret=()
+    _comp_compgen -Rv ret usage "${args[@]}" || return 1
+    ((${#ret[@]})) && printf '%s\n' "${ret[@]}"
+    return 0
+}
+
 # ex: filetype=sh
