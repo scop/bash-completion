@@ -224,10 +224,14 @@ _comp_cmd_gnokii()
     local all_cmd="$(_parse_help "$1" "--help all")"
 
     # these 2 below are allowed in combination with others
-    local main_cmd=$(command sed -e '/--config/d;/--phone/d' <<<"$all_cmd")
+    local main_cmd
+    _comp_split -l main_cmd "$(command sed -e '/--config/d;/--phone/d' <<<"$all_cmd")"
     # don't provide main command completions if one is
     # already on the command line
-    [[ $COMP_LINE =~ $(tr ' ' '\b|' <<<"$main_cmd") ]] && return
+    local IFS='|'
+    local regex_main_cmd="(${main_cmd[*]})($|[^_[:alnum:]])"
+    IFS=$' \t\n'
+    [[ $COMP_LINE =~ $regex_main_cmd ]] && return
 
     COMPREPLY=($(compgen -W "$all_cmd" -- "$cur"))
 } &&
