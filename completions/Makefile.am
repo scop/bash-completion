@@ -703,6 +703,7 @@ CLEANFILES = \
 	muttng \
 	ncal \
 	neomutt \
+	_nfpm \
 	_nomad \
 	_op \
 	_packer \
@@ -953,6 +954,7 @@ symlinks: $(DATA)
 		_mmctl \
 		_moldy \
 		_multi-gitter \
+		_nfpm \
 		_op \
 		_sshi \
 		_trivy \
