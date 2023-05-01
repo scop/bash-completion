@@ -694,6 +694,7 @@ CLEANFILES = \
 	mkisofs \
 	_mmctl \
 	mogrify \
+	_moldy \
 	montage \
 	mozilla-firefox \
 	mplayer2 \
@@ -949,6 +950,7 @@ symlinks: $(DATA)
 		_mattermost \
 		_metalctl \
 		_mmctl \
+		_moldy \
 		_op \
 		_sshi \
 		_trivy \
