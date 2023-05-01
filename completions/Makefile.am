@@ -731,6 +731,7 @@ CLEANFILES = \
 	_polygon-edge \
 	postalias \
 	ppc-koji \
+	_pulumi \
 	puppetca \
 	puppetd \
 	puppetdoc \
@@ -967,6 +968,7 @@ symlinks: $(DATA)
 		_op \
 		_ory \
 		_polygon-edge \
+		_pulumi \
 		_px \
 		_sshi \
 		_trivy \
