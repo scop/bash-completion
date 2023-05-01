@@ -6,8 +6,8 @@ _comp_cmd_timeout()
     _comp_initialize -s -- "$@" || return
 
     local noargopts='!(-*|*[ks]*)'
-    for ((i = 1; i <= COMP_CWORD; i++)); do
-        if [[ ${COMP_WORDS[i]} != -* && ${COMP_WORDS[i - 1]} != = ]]; then
+    for ((i = 1; i <= cword; i++)); do
+        if [[ ${words[i]} != -* ]]; then
             if [[ $found ]]; then
                 _comp_command_offset $i
                 return
@@ -15,7 +15,7 @@ _comp_cmd_timeout()
             found=set
         fi
         # shellcheck disable=SC2254
-        [[ ${COMP_WORDS[i]} == -@(-kill-after|-signal|${noargopts}[ks]) ]] && ((i++))
+        [[ ${words[i]} == -@(-kill-after|-signal|${noargopts}[ks]) ]] && ((i++))
     done
 
     # shellcheck disable=SC2254

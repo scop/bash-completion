@@ -89,3 +89,38 @@ class TestUnitCommandOffset:
             bash_env.write_variable("word1", "a b c")
             bash_env.write_variable("word2", "d e f")
             assert assert_complete(bash, "meta cmd6 ") == ["a b c", "d e f"]
+
+    @pytest.fixture(scope="class")
+    def find_original_word_functions(self, bash):
+        assert_bash_exec(
+            bash,
+            "_comp_test_reassemble() {"
+            "    local IFS=$' \\t\\n' ret;"
+            '    COMP_LINE=$1; _comp_split COMP_WORDS "$2"; COMP_CWORD=$((${#COMP_WORDS[@]}-1));'
+            "    _comp__reassemble_words = words cword;"
+            "}",
+        )
+        assert_bash_exec(
+            bash,
+            "_comp_test_1() {"
+            '    local COMP_WORDS COMP_LINE COMP_CWORD words cword ret; _comp_test_reassemble "$1" "$2";'
+            '    _comp__find_original_word "$3";'
+            '    echo "$ret";'
+            "}",
+        )
+
+    def test_find_original_word_1(self, bash, find_original_word_functions):
+        result = assert_bash_exec(
+            bash,
+            '_comp_test_1 "sudo su do su do abc" "sudo su do su do abc" 3',
+            want_output=True,
+        ).strip()
+        assert result == "3"
+
+    def test_find_original_word_2(self, bash, find_original_word_functions):
+        result = assert_bash_exec(
+            bash,
+            '_comp_test_1 "sudo --prefix=su su do abc" "sudo --prefix = su su do abc" 2',
+            want_output=True,
+        ).strip()
+        assert result == "4"
