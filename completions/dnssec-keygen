@@ -37,8 +37,10 @@ _comp_cmd_dnssec_keygen()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1" | \
-            command sed -e "s/:\$//")' -- "$cur"))
+        _comp_compgen -R help
+        ((${#COMPREPLY[@]})) &&
+            _comp_compgen -- -W '$(printf "%s\n" "${COMPREPLY[@]}" |
+                command sed -e "s/:\$//")'
         return
     fi
 } &&
