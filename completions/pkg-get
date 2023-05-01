@@ -50,7 +50,7 @@ _comp_cmd_pkg_get__catalog_file()
                 _comp_cmd_pkg_get__catalog_file "$url"
                 if [[ -f $ret ]]; then
                     local packages_list=$(awk '$0 ~ /BEGIN PGP SIGNATURE/ { exit } $1 ~ /^Hash:/ || $1 ~ /^ *(-|#|$)/ { next } { print $1 }' "$ret")
-                    COMPREPLY=($(compgen -W "${packages_list}" -- "${cur}"))
+                    _comp_compgen -- -W "${packages_list}"
                 fi
             fi
             return
@@ -58,14 +58,14 @@ _comp_cmd_pkg_get__catalog_file()
 
         if [[ ${cur} == -* ]]; then
             local -a opts=(-c -d -D -f -i -l -s -S -u -U -v)
-            COMPREPLY=($(compgen -W '"${opts[@]}"' -- "${cur}"))
+            _comp_compgen -- -W '"${opts[@]}"'
             return
         fi
 
         local -a commands=(
             available describe download install list updatecatalog upgrade
         )
-        COMPREPLY=($(compgen -W '"${commands[@]}"' -- "${cur}"))
+        _comp_compgen -- -W '"${commands[@]}"'
     } &&
         complete -F _comp_cmd_pkg_get pkg-get
 

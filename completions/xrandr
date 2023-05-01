@@ -69,20 +69,20 @@ _comp_cmd_xrandr()
             ;;
         --output | --addmode | --delmode | --dpi)
             local outputs=$(_comp_cmd_xrandr_outputs "$1")
-            COMPREPLY=($(compgen -W "$outputs" -- "$cur"))
+            _comp_compgen -- -W "$outputs"
             return
             ;;
         --left-of | --right-of | --above | --below | --same-as)
             if [[ $has_output ]]; then
                 local outputs=$(_comp_cmd_xrandr_outputs "$1")
-                COMPREPLY=($(compgen -W "$outputs" -- "$cur"))
+                _comp_compgen -- -W "$outputs"
             fi
             return
             ;;
         --mode)
             if [[ $has_output ]]; then
                 local modes=$(_comp_cmd_xrandr_modes "$1" "$output")
-                COMPREPLY=($(compgen -W "$modes" -- "$cur"))
+                _comp_compgen -- -W "$modes"
             fi
             return
             ;;
@@ -94,35 +94,35 @@ _comp_cmd_xrandr()
             ;;
         --reflect)
             if [[ $has_output ]]; then
-                COMPREPLY=($(compgen -W 'normal x y xy' -- "$cur"))
+                _comp_compgen -- -W 'normal x y xy'
             fi
             return
             ;;
         --rotate)
             if [[ $has_output ]]; then
-                COMPREPLY=($(compgen -W 'normal inverted left right' -- "$cur"))
+                _comp_compgen -- -W 'normal inverted left right'
             fi
             return
             ;;
         --filter)
             if [[ $has_output ]]; then
-                COMPREPLY=($(compgen -W 'bilinear nearest' -- "$cur"))
+                _comp_compgen -- -W 'bilinear nearest'
             fi
             return
             ;;
         --setprovideroutputsource)
             local providers=$(_comp_cmd_xrandr_providers "$1" "Sink Output")
-            COMPREPLY=($(compgen -W "$providers" -- "$cur"))
+            _comp_compgen -- -W "$providers"
             return
             ;;
         --setprovideroffloadsink)
             local providers=$(_comp_cmd_xrandr_providers "$1" "Source Offload")
-            COMPREPLY=($(compgen -W "$providers" -- "$cur"))
+            _comp_compgen -- -W "$providers"
             return
             ;;
         --delmonitor)
             local monitors=$(_comp_cmd_xrandr_monitors "$1")
-            COMPREPLY=($(compgen -W "$monitors" -- "$cur"))
+            _comp_compgen -- -W "$monitors"
             return
             ;;
     esac
@@ -135,30 +135,30 @@ _comp_cmd_xrandr()
                 ;;
             --addmode)
                 local modes=$(_comp_cmd_xrandr_all_modes "$1")
-                COMPREPLY=($(compgen -W "$modes" -- "$cur"))
+                _comp_compgen -- -W "$modes"
                 return
                 ;;
             --delmode)
                 local modes=$(_comp_cmd_xrandr_modes "$1" "${words[cword - 1]}")
-                COMPREPLY=($(compgen -W "$modes" -- "$cur"))
+                _comp_compgen -- -W "$modes"
                 return
                 ;;
             --setmonitor)
-                COMPREPLY=($(compgen -W 'auto' -- "$cur"))
+                _comp_compgen -- -W 'auto'
                 return
                 ;;
             --setprovideroutputsource)
                 local providers=$(
                     _comp_cmd_xrandr_providers "$1" "Source Output"
                 )
-                COMPREPLY=($(compgen -W "0x0 $providers" -- "$cur"))
+                _comp_compgen -- -W "0x0 $providers"
                 return
                 ;;
             --setprovideroffloadsink)
                 local providers=$(
                     _comp_cmd_xrandr_providers "$1" "Sink Offload"
                 )
-                COMPREPLY=($(compgen -W "0x0 $providers" -- "$cur"))
+                _comp_compgen -- -W "0x0 $providers"
                 return
                 ;;
         esac
@@ -169,7 +169,7 @@ _comp_cmd_xrandr()
         case "${words[cword - 3]}" in
             --setmonitor)
                 local outputs=$(_comp_cmd_xrandr_outputs "$1")
-                COMPREPLY=($(compgen -W "none $outputs" -- "$cur"))
+                _comp_compgen -- -W "none $outputs"
                 # TODO: the third argument is actually a comma-separated list
                 return
                 ;;
@@ -192,7 +192,7 @@ _comp_cmd_xrandr()
         )
     fi
 
-    COMPREPLY=($(compgen -W "$options" -- "$cur"))
+    _comp_compgen -- -W "$options"
 } &&
     complete -F _comp_cmd_xrandr xrandr
 

@@ -34,7 +34,7 @@ _comp_cmd_cvs__command_options()
 
 _comp_cmd_cvs__kflags()
 {
-    COMPREPLY=($(compgen -W 'kv kvl k o b v' -- "$cur"))
+    _comp_compgen -- -W 'kv kvl k o b v'
 }
 
 _comp_xfunc_cvs_roots()
@@ -44,7 +44,7 @@ _comp_xfunc_cvs_roots()
     [[ -r ~/.cvspass ]] && cvsroots+=($(awk '{ print $2 }' ~/.cvspass))
     [[ -r CVS/Root ]] && mapfile -tO ${#cvsroots[@]} cvsroots <CVS/Root
     ((${#cvsroots[@]})) &&
-        COMPREPLY=($(compgen -W '"${cvsroots[@]}"' -- "$cur"))
+        _comp_compgen -- -W '"${cvsroots[@]}"'
     _comp_ltrim_colon_completions "$cur"
 }
 
@@ -203,7 +203,7 @@ _comp_cmd_cvs()
             else
                 _cvs_entries
                 ((${#entries[@]})) &&
-                    COMPREPLY=($(compgen -W '"${entries[@]}"' -- "$cur"))
+                    _comp_compgen -- -W '"${entries[@]}"'
             fi
             ;;
         annotate)
@@ -214,7 +214,7 @@ _comp_cmd_cvs()
             else
                 _cvs_entries
                 ((${#entries[@]})) &&
-                    COMPREPLY=($(compgen -W '"${entries[@]}"' -- "$cur"))
+                    _comp_compgen -- -W '"${entries[@]}"'
             fi
             ;;
         checkout)
@@ -238,7 +238,7 @@ _comp_cmd_cvs()
                 COMPREPLY=($(cvs -d "$cvsroot" co -c 2>/dev/null |
                     awk '{print $1}'))
                 ((${#COMPREPLY[@]})) &&
-                    COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
+                    _comp_compgen -- -W '"${COMPREPLY[@]}"'
             else
                 _comp_cmd_cvs__command_options "$1" "$mode"
             fi
@@ -270,11 +270,11 @@ _comp_cmd_cvs()
                     ((${#changed[@]})) && COMPREPLY+=("${changed[@]}")
                     ((${#newremoved[@]})) && COMPREPLY+=("${newremoved[@]}")
                     ((${#COMPREPLY[@]})) &&
-                        COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
+                        _comp_compgen -- -W '"${COMPREPLY[@]}"'
                 else
                     _cvs_entries
                     ((${#entries[@]})) &&
-                        COMPREPLY=($(compgen -W '"${entries[@]}"' -- "$cur"))
+                        _comp_compgen -- -W '"${entries[@]}"'
                 fi
             else
                 _comp_cmd_cvs__command_options "$1" "$mode"
@@ -290,7 +290,7 @@ _comp_cmd_cvs()
             else
                 _cvs_entries
                 ((${#entries[@]})) &&
-                    COMPREPLY=($(compgen -W '"${entries[@]}"' -- "$cur"))
+                    _comp_compgen -- -W '"${entries[@]}"'
             fi
             ;;
         editors | watchers)
@@ -299,7 +299,7 @@ _comp_cmd_cvs()
             else
                 _cvs_entries
                 ((${#entries[@]})) &&
-                    COMPREPLY=($(compgen -W '"${entries[@]}"' -- "$cur"))
+                    _comp_compgen -- -W '"${entries[@]}"'
             fi
             ;;
         export)
@@ -322,7 +322,7 @@ _comp_cmd_cvs()
                 [[ ! $has_cvsroot ]] && cvsroot=${CVSROOT-}
                 COMPREPLY=($(cvs -d "$cvsroot" co -c | awk '{print $1}'))
                 ((${#COMPREPLY[@]})) &&
-                    COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
+                    _comp_compgen -- -W '"${COMPREPLY[@]}"'
             else
                 _comp_cmd_cvs__command_options "$1" "$mode"
             fi
@@ -352,7 +352,7 @@ _comp_cmd_cvs()
                 pwd=${pwd##*/}
                 [[ $pwd ]] && COMPREPLY+=("$pwd")
                 ((${#COMPREPLY[@]})) &&
-                    COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
+                    _comp_compgen -- -W '"${COMPREPLY[@]}"'
             else
                 _comp_cmd_cvs__command_options "$1" "$mode"
             fi
@@ -367,7 +367,7 @@ _comp_cmd_cvs()
                     done
                 fi
                 ((${#entries[@]})) &&
-                    COMPREPLY=($(compgen -W '"${entries[@]}"' -- "$cur"))
+                    _comp_compgen -- -W '"${entries[@]}"'
             else
                 _comp_cmd_cvs__command_options "$1" "$mode"
             fi
@@ -389,7 +389,7 @@ _comp_cmd_cvs()
             else
                 _cvs_entries
                 ((${#entries[@]})) &&
-                    COMPREPLY=($(compgen -W '"${entries[@]}"' -- "$cur"))
+                    _comp_compgen -- -W '"${entries[@]}"'
             fi
             ;;
         "")
@@ -403,7 +403,7 @@ _comp_cmd_cvs()
                     return
                     ;;
                 -*z)
-                    COMPREPLY=($(compgen -W '{1..9}' -- "$cur"))
+                    _comp_compgen -- -W '{1..9}'
                     return
                     ;;
             esac
