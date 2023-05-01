@@ -813,6 +813,7 @@ CLEANFILES = \
 	sha384sum \
 	sha512sum \
 	sidedoor \
+	_skaffold \
 	slogin \
 	smbcacls \
 	smbcquotas \
@@ -976,6 +977,7 @@ symlinks: $(DATA)
 		_qrpc \
 		_random \
 		_rclone \
+		_skaffold \
 		_sshi \
 		_trivy \
 		_upctl \
