@@ -827,6 +827,7 @@ CLEANFILES = \
 	star \
 	stream \
 	sudoedit \
+	_tanzu \
 	_tendermint \
 	_terraform \
 	tightvncviewer \
@@ -980,6 +981,7 @@ symlinks: $(DATA)
 		_rclone \
 		_skaffold \
 		_sshi \
+		_tanzu \
 		_trivy \
 		_upctl \
 		_vacuum \
