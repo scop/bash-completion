@@ -785,6 +785,7 @@ CLEANFILES = \
 	qemu-kvm \
 	qemu-system-i386 \
 	qemu-system-x86_64 \
+	_qrpc \
 	quotacheck \
 	quotaoff \
 	quotaon \
@@ -970,6 +971,7 @@ symlinks: $(DATA)
 		_polygon-edge \
 		_pulumi \
 		_px \
+		_qrpc \
 		_sshi \
 		_trivy \
 		_upctl \
