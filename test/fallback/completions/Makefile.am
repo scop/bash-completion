@@ -9,6 +9,7 @@ EXTRA_DIST = \
 	gaiacli \
 	gh \
 	golangci-lint \
+	gsctl \
 	hexdump \
 	hwclock \
 	ionice \
