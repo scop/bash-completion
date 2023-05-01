@@ -502,6 +502,7 @@ CLEANFILES = \
 	aclocal-1.14 \
 	aclocal-1.15 \
 	aclocal-1.16 \
+	_allero \
 	alpine \
 	alternatives \
 	animate \
@@ -892,7 +893,7 @@ symlinks: $(DATA)
 	$(ss) gkrellm \
 		gkrellm2
 	$(ss) _golangci-lint \
-		_hugo _kn _op _sshi _trivy _upctl _vacuum
+		_allero _hugo _kn _op _sshi _trivy _upctl _vacuum
 	$(ss) gpgv \
 		gpgv2
 	$(ss) gssdp-discover \
