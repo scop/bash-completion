@@ -578,6 +578,7 @@ CLEANFILES = \
 	g77 \
 	g95 \
 	_gaiad \
+	_gardenctl \
 	gcc-5 \
 	gcc-6 \
 	gcc-7 \
@@ -909,6 +910,7 @@ symlinks: $(DATA)
 		_cloudquery \
 		_constellation \
 		_datree \
+		_gardenctl \
 		_hugo \
 		_ignite \
 		_kn \
