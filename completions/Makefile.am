@@ -684,6 +684,7 @@ CLEANFILES = \
 	lvscan \
 	lz4c \
 	mailsnarf \
+	_mattermost \
 	md5sum \
 	mdecrypt \
 	mencoder \
@@ -941,6 +942,7 @@ symlinks: $(DATA)
 		_kubectl \
 		_kubescape \
 		_linkerd \
+		_mattermost \
 		_op \
 		_sshi \
 		_trivy \
