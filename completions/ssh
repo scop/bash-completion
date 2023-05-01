@@ -345,7 +345,7 @@ _comp_cmd_ssh()
         # Prefix completions with '-F'
         COMPREPLY=("${COMPREPLY[@]/#/-F}")
     elif [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_usage "$1")' -- "$cur"))
+        _comp_compgen_usage
     else
         local args
         # Keep glob sort in sync with cases above
@@ -418,7 +418,7 @@ _comp_cmd_sftp()
         # Prefix completions with '-F'
         COMPREPLY=("${COMPREPLY[@]/#/-F}")
     elif [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_usage "$1")' -- "$cur"))
+        _comp_compgen_usage
     else
         _known_hosts_real ${ipvx:+"$ipvx"} -a ${configfile:+-F "$configfile"} -- "$cur"
     fi
@@ -575,8 +575,7 @@ _comp_cmd_scp()
     else
         case $cur in
             -*)
-                COMPREPLY=($(compgen -W '$(_parse_usage "${words[0]}")' \
-                    -- "$cur"))
+                _comp_compgen_usage "${words[0]}"
                 COMPREPLY=("${COMPREPLY[@]/%/ }")
                 return
                 ;;
