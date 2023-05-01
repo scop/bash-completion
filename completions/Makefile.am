@@ -528,6 +528,7 @@ CLEANFILES = \
 	bsdtar \
 	btdownloadcurses.py \
 	btdownloadgui.py \
+	_buf \
 	c++ \
 	cc \
 	cdrecord \
@@ -934,6 +935,7 @@ symlinks: $(DATA)
 	$(ss) _golangci-lint \
 		_allero \
 		_arduino-cli \
+		_buf \
 		_cilium \
 		_cloudquery \
 		_constellation \
