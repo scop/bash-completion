@@ -743,6 +743,7 @@ CLEANFILES = \
 	pvremove \
 	pvs \
 	pvscan \
+	_px \
 	pxz \
 	py.test \
 	py.test-2 \
@@ -962,6 +963,7 @@ symlinks: $(DATA)
 		_okteto \
 		_op \
 		_ory \
+		_px \
 		_sshi \
 		_trivy \
 		_upctl \
