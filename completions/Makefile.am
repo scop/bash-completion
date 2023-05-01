@@ -637,6 +637,7 @@ CLEANFILES = \
 	kplayer \
 	_kubeadm \
 	_kubectl \
+	_kubescape \
 	l2ping \
 	lbzip2 \
 	ldapadd \
@@ -936,6 +937,7 @@ symlinks: $(DATA)
 		_kool \
 		_kubeadm \
 		_kubectl \
+		_kubescape \
 		_op \
 		_sshi \
 		_trivy \
