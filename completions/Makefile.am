@@ -705,6 +705,7 @@ CLEANFILES = \
 	neomutt \
 	_nfpm \
 	_nomad \
+	_okteto \
 	_op \
 	_packer \
 	pbzip2 \
@@ -955,6 +956,7 @@ symlinks: $(DATA)
 		_moldy \
 		_multi-gitter \
 		_nfpm \
+		_okteto \
 		_op \
 		_sshi \
 		_trivy \
