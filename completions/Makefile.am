@@ -834,6 +834,7 @@ CLEANFILES = \
 	vgscan \
 	vgsplit \
 	vigr \
+	_virtctl \
 	whatis \
 	wine-development \
 	wine-stable \
@@ -942,7 +943,8 @@ symlinks: $(DATA)
 		_sshi \
 		_trivy \
 		_upctl \
-		_vacuum
+		_vacuum \
+		_virtctl
 	$(ss) gpgv \
 		gpgv2
 	$(ss) gssdp-discover \
