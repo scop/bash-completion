@@ -647,6 +647,7 @@ CLEANFILES = \
 	ldapmodrdn \
 	ldappasswd \
 	ldapwhoami \
+	_linkerd \
 	links2 \
 	lintian-info \
 	lua50 \
@@ -939,6 +940,7 @@ symlinks: $(DATA)
 		_kubeadm \
 		_kubectl \
 		_kubescape \
+		_linkerd \
 		_op \
 		_sshi \
 		_trivy \
