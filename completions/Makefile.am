@@ -727,6 +727,7 @@ CLEANFILES = \
 	pm-suspend \
 	pm-suspend-hybrid \
 	pmake \
+	_polygon-edge \
 	postalias \
 	ppc-koji \
 	puppetca \
@@ -963,6 +964,7 @@ symlinks: $(DATA)
 		_okteto \
 		_op \
 		_ory \
+		_polygon-edge \
 		_px \
 		_sshi \
 		_trivy \
