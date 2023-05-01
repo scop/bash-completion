@@ -544,6 +544,7 @@ CLEANFILES = \
 	compgen \
 	composite \
 	conjure \
+	_constellation \
 	_consul \
 	cowthink \
 	createdb \
@@ -900,6 +901,7 @@ symlinks: $(DATA)
 		_arduino-cli \
 		_cilium \
 		_cloudquery \
+		_constellation \
 		_hugo \
 		_kn \
 		_op \
