@@ -550,6 +550,7 @@ CLEANFILES = \
 	cowthink \
 	createdb \
 	createuser \
+	_datree \
 	dcop \
 	dfutool \
 	display \
@@ -907,6 +908,7 @@ symlinks: $(DATA)
 		_cilium \
 		_cloudquery \
 		_constellation \
+		_datree \
 		_hugo \
 		_ignite \
 		_kn \
