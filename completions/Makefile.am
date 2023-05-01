@@ -604,6 +604,7 @@ CLEANFILES = \
 	gnumake \
 	google-chrome \
 	google-chrome-stable \
+	_gopherjs \
 	gpc \
 	gpgv2 \
 	gssdp-device-sniffer \
@@ -916,6 +917,7 @@ symlinks: $(DATA)
 		_gardenctl \
 		_gh-label \
 		_git-bump \
+		_gopherjs \
 		_hugo \
 		_ignite \
 		_kn \
