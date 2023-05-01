@@ -123,6 +123,7 @@ bashcomp_DATA = 2to3 \
 		freeciv-server \
 		function \
 		fusermount \
+		_gaiacli \
 		gcc \
 		gcl \
 		gdb \
@@ -152,6 +153,7 @@ bashcomp_DATA = 2to3 \
 		groupmod \
 		growisofs \
 		grpck \
+		_gsctl \
 		gssdp-discover \
 		gzip \
 		hcitool \
@@ -502,11 +504,13 @@ CLEANFILES = \
 	aclocal-1.14 \
 	aclocal-1.15 \
 	aclocal-1.16 \
+	_allero \
 	alpine \
 	alternatives \
 	animate \
 	apropos \
 	aptitude-curses \
+	_arduino-cli \
 	arm-koji \
 	asciidoc.py \
 	autoheader \
@@ -524,15 +528,18 @@ CLEANFILES = \
 	bsdtar \
 	btdownloadcurses.py \
 	btdownloadgui.py \
+	_buf \
 	c++ \
 	cc \
 	cdrecord \
 	chrome \
 	chromium \
 	ci \
+	_cilium \
 	ciptool \
 	civclient \
 	civserver \
+	_cloudquery \
 	clzip \
 	co \
 	colormake \
@@ -540,13 +547,16 @@ CLEANFILES = \
 	compgen \
 	composite \
 	conjure \
+	_constellation \
 	_consul \
 	cowthink \
 	createdb \
 	createuser \
+	_datree \
 	dcop \
 	dfutool \
 	display \
+	_docker \
 	dpkg-deb \
 	dpkg-query \
 	dpkg-reconfigure \
@@ -570,6 +580,8 @@ CLEANFILES = \
 	g4 \
 	g77 \
 	g95 \
+	_gaiad \
+	_gardenctl \
 	gcc-5 \
 	gcc-6 \
 	gcc-7 \
@@ -586,12 +598,16 @@ CLEANFILES = \
 	gfortran-6 \
 	gfortran-7 \
 	gfortran-8 \
+	_gh-label \
+	_git-bump \
 	gkrellm2 \
 	gmake \
 	gmplayer \
 	gnumake \
 	google-chrome \
 	google-chrome-stable \
+	_gopherjs \
+	_goreleaser \
 	gpc \
 	gpgv2 \
 	gssdp-device-sniffer \
@@ -599,6 +615,7 @@ CLEANFILES = \
 	hciattach \
 	hciconfig \
 	hd \
+	_helm \
 	host \
 	hping \
 	hping3 \
@@ -608,14 +625,23 @@ CLEANFILES = \
 	ifdown \
 	ifquery \
 	ifstatus \
+	_ignite \
 	import \
+	_infracost \
 	inotifywatch \
 	insmod.static \
 	iperf3 \
+	_istioctl \
 	javac \
 	javadoc \
+	_k3s \
 	_kn \
+	_kool \
 	kplayer \
+	_kratos \
+	_kubeadm \
+	_kubectl \
+	_kubescape \
 	l2ping \
 	lbzip2 \
 	ldapadd \
@@ -625,6 +651,7 @@ CLEANFILES = \
 	ldapmodrdn \
 	ldappasswd \
 	ldapwhoami \
+	_linkerd \
 	links2 \
 	lintian-info \
 	lua50 \
@@ -661,21 +688,30 @@ CLEANFILES = \
 	lvscan \
 	lz4c \
 	mailsnarf \
+	_mattermost \
 	md5sum \
 	mdecrypt \
 	mencoder \
+	_metalctl \
 	micropython \
+	_minikube \
 	mkisofs \
+	_mmctl \
 	mogrify \
+	_moldy \
 	montage \
 	mozilla-firefox \
 	mplayer2 \
 	msgsnarf \
+	_multi-gitter \
 	muttng \
 	ncal \
 	neomutt \
+	_nfpm \
 	_nomad \
+	_okteto \
 	_op \
+	_ory \
 	_packer \
 	pbzip2 \
 	pccardctl \
@@ -694,8 +730,10 @@ CLEANFILES = \
 	pm-suspend \
 	pm-suspend-hybrid \
 	pmake \
+	_polygon-edge \
 	postalias \
 	ppc-koji \
+	_pulumi \
 	puppetca \
 	puppetd \
 	puppetdoc \
@@ -710,6 +748,7 @@ CLEANFILES = \
 	pvremove \
 	pvs \
 	pvscan \
+	_px \
 	pxz \
 	py.test \
 	py.test-2 \
@@ -748,10 +787,13 @@ CLEANFILES = \
 	qemu-kvm \
 	qemu-system-i386 \
 	qemu-system-x86_64 \
+	_qrpc \
 	quotacheck \
 	quotaoff \
 	quotaon \
 	ralsh \
+	_random \
+	_rclone \
 	rcsdiff \
 	rdict \
 	repquota \
@@ -773,6 +815,7 @@ CLEANFILES = \
 	sha384sum \
 	sha512sum \
 	sidedoor \
+	_skaffold \
 	slogin \
 	smbcacls \
 	smbcquotas \
@@ -786,6 +829,9 @@ CLEANFILES = \
 	star \
 	stream \
 	sudoedit \
+	_tanzu \
+	_tanzu-core \
+	_tendermint \
 	_terraform \
 	tightvncviewer \
 	tracepath6 \
@@ -812,6 +858,7 @@ CLEANFILES = \
 	vgscan \
 	vgsplit \
 	vigr \
+	_virtctl \
 	whatis \
 	wine-development \
 	wine-stable \
@@ -820,7 +867,8 @@ CLEANFILES = \
 	wine64-stable \
 	xpovray \
 	xvnc4viewer \
-	ypcat
+	ypcat \
+	_zitadel
 
 symlinks: $(DATA)
 	$(ss) 7z \
@@ -881,6 +929,8 @@ symlinks: $(DATA)
 		civclient freeciv-gtk2 freeciv-gtk3 freeciv-sdl freeciv-xaw
 	$(ss) freeciv-server \
 		civserver
+	$(ss) _gaiacli \
+		_gaiad _tendermint
 	$(ss) gcc \
 		c++ cc f77 f95 g++ g++-5 g++-6 g++-7 g++-8 g77 g95 gcc-5 \
 		gcc-6 gcc-7 gcc-8 gccgo gccgo-5 gccgo-6 gccgo-7 gccgo-8 gcj \
@@ -889,10 +939,61 @@ symlinks: $(DATA)
 		mkisofs
 	$(ss) geoiplookup \
 		geoiplookup6
+	$(ss) _gh \
+		_infracost
 	$(ss) gkrellm \
 		gkrellm2
 	$(ss) _golangci-lint \
-		_hugo _kn _op _sshi _trivy _upctl _vacuum
+		_allero \
+		_arduino-cli \
+		_buf \
+		_cilium \
+		_cloudquery \
+		_constellation \
+		_datree \
+		_docker \
+		_gardenctl \
+		_gh-label \
+		_git-bump \
+		_gopherjs \
+		_goreleaser \
+		_helm \
+		_hugo \
+		_ignite \
+		_istioctl \
+		_k3s \
+		_kn \
+		_kool \
+		_kratos \
+		_kubeadm \
+		_kubectl \
+		_kubescape \
+		_linkerd \
+		_mattermost \
+		_metalctl \
+		_minikube \
+		_mmctl \
+		_moldy \
+		_multi-gitter \
+		_nfpm \
+		_okteto \
+		_op \
+		_ory \
+		_polygon-edge \
+		_pulumi \
+		_px \
+		_qrpc \
+		_random \
+		_rclone \
+		_skaffold \
+		_sshi \
+		_tanzu \
+		_tanzu-core \
+		_trivy \
+		_upctl \
+		_vacuum \
+		_virtctl \
+		_zitadel
 	$(ss) gpgv \
 		gpgv2
 	$(ss) gssdp-discover \

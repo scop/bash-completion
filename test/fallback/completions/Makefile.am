@@ -6,8 +6,10 @@ EXTRA_DIST = \
 	chsh \
 	dmesg \
 	eject \
+	gaiacli \
 	gh \
 	golangci-lint \
+	gsctl \
 	hexdump \
 	hwclock \
 	ionice \
