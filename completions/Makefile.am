@@ -635,6 +635,7 @@ CLEANFILES = \
 	_kn \
 	_kool \
 	kplayer \
+	_kubeadm \
 	_kubectl \
 	l2ping \
 	lbzip2 \
@@ -933,6 +934,7 @@ symlinks: $(DATA)
 		_istioctl \
 		_kn \
 		_kool \
+		_kubeadm \
 		_kubectl \
 		_op \
 		_sshi \
