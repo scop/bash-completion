@@ -605,6 +605,7 @@ CLEANFILES = \
 	google-chrome \
 	google-chrome-stable \
 	_gopherjs \
+	_goreleaser \
 	gpc \
 	gpgv2 \
 	gssdp-device-sniffer \
@@ -918,6 +919,7 @@ symlinks: $(DATA)
 		_gh-label \
 		_git-bump \
 		_gopherjs \
+		_goreleaser \
 		_hugo \
 		_ignite \
 		_kn \
