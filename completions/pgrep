@@ -48,11 +48,9 @@ _comp_cmd_pgrep()
     esac
 
     if [[ $cur == -* ]]; then
-        local help=$(_parse_help "$1")
-        [[ $help ]] || help='$("$1" --usage 2>&1 |
-            command sed -e "s/\[-signal\]//" -e "s/\[-SIGNAL\]//" |
-            _parse_usage -)'
-        _comp_compgen -- -W "$help"
+        _comp_compgen_help ||
+            _comp_compgen_usage - <<<"$("$1" --usage 2>&1 |
+                command sed -e "s/\[-signal\]//" -e "s/\[-SIGNAL\]//")"
         [[ $cword -eq 1 && $1 == *pkill ]] && _signals -
         return
     fi

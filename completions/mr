@@ -10,6 +10,7 @@ _comp_cmd_mr()
     help="$(PERLDOC_PAGER=cat PERLDOC=-otext "${1}" help 2>/dev/null)"
 
     commands="$(
+        # shellcheck disable=SC2030
         printf %s "$help" | while read -r _ options cmd _; do
             [[ $options != "[options]" ]] || printf "%s\n" "$cmd"
         done
@@ -79,12 +80,10 @@ _comp_cmd_mr()
     esac
 
     if [[ $cur == -* ]]; then
-        options="$(printf '%s\n' "$help" | _parse_help -)"
-        # Remove short options (all have compatible long options).
-        options="${options//-[a-z]$'\n'/}"
-        # Remove deprecated options.
-        options="${options//--path/}"
-        _comp_compgen -- -W "${options}"
+        _comp_compgen -Rv options help - <<<"$help"
+        # -X '-[a-z]': Remove short options (all have compatible long options).
+        # -X '--path': Remove deprecated options.
+        _comp_compgen -- -W '"${options[@]}"' -X '@(-[a-z]|--path)'
     else
         _comp_compgen -- -W "${commands}"
     fi

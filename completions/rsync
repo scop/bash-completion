@@ -60,15 +60,16 @@ _comp_cmd_rsync()
 
     case $cur in
         -*)
-            COMPREPLY=($(
-                # Account for the fact that older rsync versions (before cba00be6, meaning before v3.2.0)
-                # contain the following unusual line in --help:
-                # "(-h) --help                  show this help (-h is --help only if used alone)"
-                compgen -W '$(
-                "$1" --help 2>&1 | sed -e "s/^([^)]*)//" | _parse_help -)
+            local tmp
+            # Account for the fact that older rsync versions (before cba00be6,
+            # meaning before v3.2.0) contain the following unusual line in
+            # --help:
+            # "(-h) --help                  show this help (-h is --help only if used alone)"
+            _comp_compgen -Rv tmp help - <<<"$("$1" --help 2>&1 | sed -e 's/^([^)]*)//')"
+
+            _comp_compgen -- -W '"${tmp[@]}"
                 --daemon --old-d{,irs}
-                --no-{blocking-io,detach,whole-file,inc-recursive,i-r}' -X '--no-OPTION' -- "$cur"
-            ))
+                --no-{blocking-io,detach,whole-file,inc-recursive,i-r}' -X '--no-OPTION'
             [[ ${COMPREPLY-} == *= ]] || compopt +o nospace
             ;;
         *:*)
