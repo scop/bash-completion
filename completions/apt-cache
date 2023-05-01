@@ -25,8 +25,10 @@ _comp_xfunc_apt_cache_sources()
 # TODO:API: rework to use vars rather than outputting
 _comp_cmd_apt_cache__sources()
 {
-    compgen -W "$("$1" dumpavail |
-        awk '$1 == "Source:" { print $2 }' | sort -u)" -- "$2"
+    local ret
+    _comp_compgen -c "$2" -v ret split -- "$("$1" dumpavail |
+        awk '$1 == "Source:" { print $2 }' | sort -u)" &&
+        printf '%s\n' "${ret[@]}"
 }
 
 # List APT source packages

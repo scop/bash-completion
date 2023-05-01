@@ -22,7 +22,7 @@ _comp_cmd_openssl__sections()
 
     [[ ! -f $config ]] && return
 
-    COMPREPLY=($(compgen -W "$(awk '/\[.*\]/ {print $2}' "$config")" -- "$cur"))
+    _comp_compgen_split -- "$(awk '/\[.*\]/ {print $2}' "$config")"
 }
 
 # TODO:API: rename per conventions, rework to use vars rather than outputting
@@ -104,7 +104,7 @@ _comp_cmd_openssl()
                 return
                 ;;
             -cipher)
-                COMPREPLY=($(IFS=: compgen -W "$("$1" ciphers)" -- "$cur"))
+                _comp_compgen_split -F : -- "$("$1" ciphers)"
                 return
                 ;;
             -kdf)

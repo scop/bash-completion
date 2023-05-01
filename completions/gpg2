@@ -20,19 +20,19 @@ _comp_cmd_gpg2()
             --edit-key | --delete-keys | --delete-secret-and-public-keys | \
             --locate-keys | --refresh-keys)
             # return list of public keys
-            COMPREPLY=($(compgen -W "$("$1" --list-keys 2>/dev/null |
+            _comp_compgen_split -- "$("$1" --list-keys 2>/dev/null |
                 command sed -ne \
                     's@^pub.*/\([^ ]*\).*$@\1@p' -ne \
-                    's@^.*\(<\([^>]*\)>\).*$@\2@p')" -- "$cur"))
+                    's@^.*\(<\([^>]*\)>\).*$@\2@p')"
             return
             ;;
         --recipient | -${noargopts}r)
-            COMPREPLY=($(compgen -W "$("$1" --list-keys 2>/dev/null |
-                command sed -ne 's@^.*<\([^>]*\)>.*$@\1@p')" -- "$cur"))
+            _comp_compgen_split -- "$("$1" --list-keys 2>/dev/null |
+                command sed -ne 's@^.*<\([^>]*\)>.*$@\1@p')"
             if [[ -e ~/.gnupg/gpg.conf ]]; then
-                COMPREPLY+=($(compgen -W "$(command sed -ne \
+                _comp_compgen -a split -- "$(command sed -ne \
                     's@^[ \t]*group[ \t][ \t]*\([^=]*\).*$@\1@p' \
-                    ~/.gnupg/gpg.conf)" -- "$cur"))
+                    ~/.gnupg/gpg.conf)"
             fi
             return
             ;;

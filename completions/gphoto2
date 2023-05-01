@@ -23,21 +23,18 @@ _comp_cmd_gphoto2()
             return
             ;;
         --port)
-            COMPREPLY=($(compgen -W "$("$1" --list-ports 2>/dev/null |
-                awk 'NR>3 { print $1 }')" -- "$cur"))
+            _comp_compgen_split -- "$("$1" --list-ports 2>/dev/null |
+                awk 'NR>3 { print $1 }')"
             _comp_ltrim_colon_completions "$cur"
             return
             ;;
         --camera)
-            local IFS=$'\n'
-            COMPREPLY=($(compgen -W "$("$1" --list-cameras 2>/dev/null |
-                awk -F'"' 'NR>2 { print $2 }')" -- "$cur"))
+            _comp_compgen_split -l -- "$("$1" --list-cameras 2>/dev/null |
+                awk -F'"' 'NR>2 { print $2 }')"
             return
             ;;
         --get-config | --set-config | --set-config-index | --set-config-value)
-            COMPREPLY=($(compgen -W "$(
-                $1 --list-config 2>/dev/null
-            )" -- "$cur"))
+            _comp_compgen_split -- "$("$1" --list-config 2>/dev/null)"
             return
             ;;
     esac

@@ -1524,23 +1524,23 @@ _configured_interfaces()
         # Debian system
         _comp_expand_glob files '/etc/network/interfaces /etc/network/interfaces.d/*'
         ((${#files[@]})) || return 0
-        _comp_compgen -- -W "$(command sed -ne 's|^iface \([^ ]\{1,\}\).*$|\1|p' \
-            "${files[@]}" 2>/dev/null)"
+        _comp_compgen_split -- "$(command sed -ne \
+            's|^iface \([^ ]\{1,\}\).*$|\1|p' "${files[@]}" 2>/dev/null)"
     elif [[ -f /etc/SuSE-release ]]; then
         # SuSE system
         _comp_expand_glob files '/etc/sysconfig/network/ifcfg-*'
         ((${#files[@]})) || return 0
-        _comp_compgen -- -W "$(printf '%s\n' "${files[@]}" |
+        _comp_compgen_split -- "$(printf '%s\n' "${files[@]}" |
             command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')"
     elif [[ -f /etc/pld-release ]]; then
         # PLD Linux
-        _comp_compgen -- -W "$(command ls -B /etc/sysconfig/interfaces |
+        _comp_compgen_split -- "$(command ls -B /etc/sysconfig/interfaces |
             command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')"
     else
         # Assume Red Hat
         _comp_expand_glob files '/etc/sysconfig/network-scripts/ifcfg-*'
         ((${#files[@]})) || return 0
-        _comp_compgen -- -W "$(printf '%s\n' "${files[@]}" |
+        _comp_compgen_split -- "$(printf '%s\n' "${files[@]}" |
             command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')"
     fi
 }
@@ -1889,7 +1889,7 @@ _modules()
 {
     local modpath
     modpath=/lib/modules/$1
-    _comp_compgen -- -W "$(command ls -RL "$modpath" 2>/dev/null |
+    _comp_compgen_split -- "$(command ls -RL "$modpath" 2>/dev/null |
         command sed -ne 's/^\(.*\)\.k\{0,1\}o\(\.[gx]z\)\{0,1\}$/\1/p' \
             -e 's/^\(.*\)\.ko\.zst$/\1/p')"
 }
@@ -1899,7 +1899,7 @@ _modules()
 # TODO:API: rename per conventions (+ include "kernel" in the name)
 _installed_modules()
 {
-    _comp_compgen -c "$1" -- -W "$(PATH="$PATH:/sbin" lsmod |
+    _comp_compgen -c "$1" split -- "$(PATH="$PATH:/sbin" lsmod |
         awk '{if (NR != 1) print $1}')"
 }
 
@@ -1961,8 +1961,8 @@ _allowed_users()
     if _complete_as_root; then
         _comp_compgen -c "${1:-$cur}" -- -u
     else
-        _comp_compgen -c "${1:-$cur}" -- -W \
-            "$(id -un 2>/dev/null || whoami 2>/dev/null)"
+        _comp_compgen -c "${1:-$cur}" split -- "$(id -un 2>/dev/null ||
+            whoami 2>/dev/null)"
     fi
 }
 
@@ -1972,8 +1972,8 @@ _allowed_groups()
     if _complete_as_root; then
         _comp_compgen -c "$1" -- -g
     else
-        _comp_compgen -c "$1" -- -W \
-            "$(id -Gn 2>/dev/null || groups 2>/dev/null)"
+        _comp_compgen -c "$1" split -- "$(id -Gn 2>/dev/null ||
+            groups 2>/dev/null)"
     fi
 }
 
@@ -2107,7 +2107,8 @@ _count_args()
 # TODO:API: rename per conventions
 _pci_ids()
 {
-    _comp_compgen -a -- -W "$(PATH="$PATH:/sbin" lspci -n | awk '{print $3}')"
+    _comp_compgen -a split -- "$(PATH="$PATH:/sbin" lspci -n |
+        awk '{print $3}')"
 }
 
 # This function completes on USB IDs
@@ -2115,7 +2116,7 @@ _pci_ids()
 # TODO:API: rename per conventions
 _usb_ids()
 {
-    _comp_compgen -a -- -W "$(PATH="$PATH:/sbin" lsusb | awk '{print $6}')"
+    _comp_compgen -a split -- "$(PATH="$PATH:/sbin" lsusb | awk '{print $6}')"
 }
 
 # CD device names
@@ -2136,7 +2137,7 @@ _dvd_devices()
 # TODO:API: rename per conventions
 _terms()
 {
-    _comp_compgen -a -- -W "$({
+    _comp_compgen -a split -- "$({
         command sed -ne 's/^\([^[:space:]#|]\{2,\}\)|.*/\1/p' /etc/termcap
         {
             toe -a || toe
@@ -2694,7 +2695,7 @@ _comp_longopt()
     [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        _comp_compgen -- -W "$(LC_ALL=C $1 --help 2>&1 |
+        _comp_compgen_split -- "$(LC_ALL=C $1 --help 2>&1 |
             while read -r line; do
                 [[ $line =~ --[A-Za-z0-9]+([-_][A-Za-z0-9]+)*=? ]] &&
                     printf '%s\n' "${BASH_REMATCH[0]}"

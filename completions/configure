@@ -28,10 +28,9 @@ _comp_cmd_configure()
     # if $BASH_COMPLETION_CMD_CONFIGURE_HINTS is not null, then completions of
     # the form --option=SETTING will include 'SETTING' as a contextual hint
     if [[ ${BASH_COMPLETION_CMD_CONFIGURE_HINTS-${COMP_CONFIGURE_HINTS-}} ]]; then
-        COMPREPLY=($(compgen -W "$("$1" --help 2>&1 |
+        _comp_compgen_split -- "$("$1" --help 2>&1 |
             awk '/^  --[A-Za-z]/ { print $1; \
-            if ($2 ~ /--[A-Za-z]/) print $2 }' | command sed -e 's/[[,].*//g')" \
-            -- "$cur"))
+            if ($2 ~ /--[A-Za-z]/) print $2 }' | command sed -e 's/[[,].*//g')"
         [[ ${COMPREPLY-} == *=* ]] && compopt -o nospace
     else
         _comp_compgen_help

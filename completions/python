@@ -16,9 +16,8 @@ _python_modules()
 
 _comp_cmd_python__modules()
 {
-    COMPREPLY+=($(compgen -W \
-        "$("$1" "${BASH_SOURCE[0]%/*}/../helpers/python" "$cur" \
-            2>/dev/null)" -- "$cur"))
+    _comp_compgen -a split -- "$("$1" \
+        "${BASH_SOURCE[0]%/*}/../helpers/python" "$cur" 2>/dev/null)"
 }
 
 # @since 2.12
@@ -63,10 +62,10 @@ _comp_cmd_python()
             return
             ;;
         -${noargopts}X)
-            COMPREPLY=($(compgen -W "$("$1" -h 2>&1 |
+            _comp_compgen_split -- "$("$1" -h 2>&1 |
                 awk '$1 == "-X" && $2 ~ /:$/ {
                     sub(":$","",$2); sub("=.*","=",$2); print $2
-                }')" -- "$cur"))
+                }')"
             [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
             return
             ;;
