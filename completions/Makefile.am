@@ -576,6 +576,7 @@ CLEANFILES = \
 	g4 \
 	g77 \
 	g95 \
+	_gaiad \
 	gcc-5 \
 	gcc-6 \
 	gcc-7 \
@@ -888,6 +889,8 @@ symlinks: $(DATA)
 		civclient freeciv-gtk2 freeciv-gtk3 freeciv-sdl freeciv-xaw
 	$(ss) freeciv-server \
 		civserver
+	$(ss) _gaiacli \
+		_gaiad
 	$(ss) gcc \
 		c++ cc f77 f95 g++ g++-5 g++-6 g++-7 g++-8 g77 g95 gcc-5 \
 		gcc-6 gcc-7 gcc-8 gccgo gccgo-5 gccgo-6 gccgo-7 gccgo-8 gcj \
