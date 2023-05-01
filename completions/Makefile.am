@@ -790,6 +790,7 @@ CLEANFILES = \
 	quotaoff \
 	quotaon \
 	ralsh \
+	_random \
 	rcsdiff \
 	rdict \
 	repquota \
@@ -972,6 +973,7 @@ symlinks: $(DATA)
 		_pulumi \
 		_px \
 		_qrpc \
+		_random \
 		_sshi \
 		_trivy \
 		_upctl \
