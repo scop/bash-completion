@@ -827,6 +827,7 @@ CLEANFILES = \
 	star \
 	stream \
 	sudoedit \
+	_tendermint \
 	_terraform \
 	tightvncviewer \
 	tracepath6 \
@@ -924,7 +925,7 @@ symlinks: $(DATA)
 	$(ss) freeciv-server \
 		civserver
 	$(ss) _gaiacli \
-		_gaiad
+		_gaiad _tendermint
 	$(ss) gcc \
 		c++ cc f77 f95 g++ g++-5 g++-6 g++-7 g++-8 g77 g95 gcc-5 \
 		gcc-6 gcc-7 gcc-8 gccgo gccgo-5 gccgo-6 gccgo-7 gccgo-8 gcj \
