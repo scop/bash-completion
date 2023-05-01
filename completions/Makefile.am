@@ -865,7 +865,8 @@ CLEANFILES = \
 	wine64-stable \
 	xpovray \
 	xvnc4viewer \
-	ypcat
+	ypcat \
+	_zitadel
 
 symlinks: $(DATA)
 	$(ss) 7z \
@@ -987,7 +988,8 @@ symlinks: $(DATA)
 		_trivy \
 		_upctl \
 		_vacuum \
-		_virtctl
+		_virtctl \
+		_zitadel
 	$(ss) gpgv \
 		gpgv2
 	$(ss) gssdp-discover \
