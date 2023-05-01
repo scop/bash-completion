@@ -688,6 +688,7 @@ CLEANFILES = \
 	md5sum \
 	mdecrypt \
 	mencoder \
+	_metalctl \
 	micropython \
 	mkisofs \
 	_mmctl \
@@ -944,6 +945,7 @@ symlinks: $(DATA)
 		_kubescape \
 		_linkerd \
 		_mattermost \
+		_metalctl \
 		_mmctl \
 		_op \
 		_sshi \
