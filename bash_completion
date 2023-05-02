@@ -381,14 +381,8 @@ _comp_split()
     ((_new_size > _old_size))
 }
 
-# Call `compgen` with the specified arguments and store the results in the
-# specified array.
-# Usage: _comp_compgen [-alR|-F sep|-v arr|-c cur] -- args...
-# This function essentially performs arr=($(compgen args...)) but properly
-# handles shell options, IFS, etc. using _comp_split.  This function is
-# equivalent to `_comp_split [-a] -l arr "$(IFS=sep; compgen args... -- cur)"`,
-# but this pattern is frequent in the codebase and is good to separate out as a
-# function for the possible future implementation change.
+# Provide a common interface to generate completion candidates in COMPREPLY or
+# in a specified array.
 # OPTIONS
 #   -a      Append to the array
 #   -v arr  Store the results to the array ARR. The default is `COMPREPLY`.
@@ -404,25 +398,72 @@ _comp_split()
 #   -c cur  Set a word used as a prefix to filter the completions.  The default
 #           is ${cur-}.
 #   -R      The same as -c ''.  Use raw outputs without filtering.
-# @param $1... args     Arguments that are passed to compgen
+# @var[in,opt] cur  Used as the default value of a prefix to filter the
+#   completions.
+#
+# Usage #1: _comp_compgen [-alR|-F sep|-v arr|-c cur] -- options...
+# Call `compgen` with the specified arguments and store the results in the
+# specified array.  This function essentially performs arr=($(compgen args...))
+# but properly handles shell options, IFS, etc. using _comp_split.  This
+# function is equivalent to `_comp_split [-a] -l arr "$(IFS=sep; compgen
+# args... -- cur)"`, but this pattern is frequent in the codebase and is good
+# to separate out as a function for the possible future implementation change.
+# @param $1... options  Arguments that are passed to compgen (if $1 starts with
+#   a hyphen `-`).
 #
 #   Note: References to positional parameters $1, $2, ... (such as -W '$1')
 #   will not work as expected because these reference the arguments of
 #   `_comp_compgen' instead of those of the caller function.  When there are
 #   needs to reference them, save the arguments to an array and reference the
-#   array instead.  The array option `-V arr` in bash >= 5.3 should be instead
-#   specified as `-v arr` as a part of the `_comp_compgen` options.
-# @var[in] cur  Used as the default value of a prefix to filter the
-#   completions.
+#   array instead.
+#
+#   Note: The array option `-V arr` in bash >= 5.3 should be instead specified
+#   as `-v arr` as a part of the `_comp_compgen` options.
+#
+# Usage #2: _comp_compgen [-alR|-v arr|-c cur] name args...
+# Call `_comp_compgen_NAME ARGS...` with the specified options.  This provides
+# a common interface to call the functions `_comp_compgen_NAME`, which produce
+# completion candidates, with custom options [-alR|-v arr|-cur].  The option
+# `-F sep` is not used with this usage.
+# @param $1... name args  Calls the function _comp_compgen_NAME with the
+#   specified ARGS (if $1 does not start with a hyphen `-`).  The options
+#   [-alR|-v arr|-c cur] are inherited by the child calls of `_comp_compgen`
+#   inside `_comp_compgen_NAME` unless the child call `_comp_compgen` receives
+#   overriding options.
+# @var[in,opt,internal] _comp_compgen__append
+# @var[in,opt,internal] _comp_compgen__var
+# @var[in,opt,internal] _comp_compgen__cur
+#   These variables are internally used to pass the effect of the options
+#   [-alR|-v arr|-c cur] to the child calls of `_comp_compgen` in
+#   `_comp_compgen_NAME`.
+#
+# @remarks Design `_comp_compgen_NAME`: a function that produce completions can
+# be defined with the name _comp_compgen_NAME.  The function is supposed to
+# generate completions by calling `_comp_compgen`.  To reflect the options
+# specified to the outer calls of `_comp_compgen`, the function should not
+# directly modify `COMPREPLY`.  To add words, one can call
+#
+#     _comp_compgen -- -W '"${words[@]}"'
+#
+# To directly add words without filtering by `cur`, one can call
+#
+#     _comp_compgen -R -- -W '"${words[@]}"'
+#
+# Other nested calls of _comp_compgen can also be used.  The function is
+# supposed to replace the existing content of the array by default to allow the
+# caller control whether to replace or append by the option `-a`.
+#
 _comp_compgen()
 {
-    local _append="" _var=COMPREPLY _cur=${cur-} _ifs=$' \t\n'
-    local -a _split_options=(-l)
+    local _append=${_comp_compgen__append-}
+    local _var=${_comp_compgen__var-COMPREPLY}
+    local _cur=${_comp_compgen__cur-${cur-}}
+    local _ifs=$' \t\n'
 
     local OPTIND=1 OPTARG="" OPTERR=0 _opt
     while getopts ':alF:v:Rc:' _opt "$@"; do
         case $_opt in
-            a) _append=set _split_options+=(-a) ;;
+            a) _append=set ;;
             v)
                 if [[ $OPTARG == @(*[^_a-zA-Z0-9]*|[0-9]*|''|_*|IFS|OPTIND|OPTARG|OPTERR) ]]; then
                     printf 'bash_completion: %s: -v: invalid array name `%s'\''.\n' "$FUNCNAME" "$OPTARG" >&2
@@ -445,17 +486,38 @@ _comp_compgen()
         printf 'bash_completion: %s: unexpected number of arguments.\n' "$FUNCNAME" >&2
         printf 'usage: %s [-alR|-F SEP|-v ARR|-c CUR] -- ARGS...' "$FUNCNAME" >&2
         return 2
-    elif
-        # Note: $* in the below checks would be affected by uncontrolled IFS in
-        # bash >= 5.0, so we need to set IFS to the normal value.  The behavior
-        # in bash < 5.0, where unquoted $* in conditional command did not honor
-        # IFS, was a bug.
-        local IFS=$' \t\n'
-        # Note: extglob *\$?(\{)[0-9]* can be extremely slow when the string
-        # "${*:2:_nopt}" becomes longer, so we test \$[0-9] and \$\{[0-9]
-        # separately.
-        [[ $* == *\$[0-9]* || $* == *\$\{[0-9]* ]]
-    then
+    fi
+
+    if [[ $1 != -* ]]; then
+        # usage: _comp_compgen [options] NAME args
+        if ! declare -F "_comp_compgen_$1" &>/dev/null; then
+            printf 'bash_completion: %s: unrecognized category `%s'\'' (function _comp_compgen_%s not found).\n' "$FUNCNAME" "$1" "$1" >&2
+            return 2
+        fi
+
+        local _comp_compgen__append=$_append
+        local _comp_compgen__var=$_var
+        local _comp_compgen__cur=$_cur cur=$_cur
+        # Note: we use $1 as a part of a function name, and we use $2... as
+        # arguments to the function if any.
+        # shellcheck disable=SC2145
+        _comp_compgen_"$@"
+        return
+    fi
+
+    # usage: _comp_compgen [options] -- [compgen_options]
+
+    # Note: $* in the below checks would be affected by uncontrolled IFS in
+    # bash >= 5.0, so we need to set IFS to the normal value.  The behavior in
+    # bash < 5.0, where unquoted $* in conditional command did not honor IFS,
+    # was a bug.
+    # Note: Also, ${_cur:+-- "$_cur"} and ${_append:+-a} would be affected by
+    # uncontrolled IFS.
+    local IFS=$' \t\n'
+    # Note: extglob *\$?(\{)[0-9]* can be extremely slow when the string
+    # "${*:2:_nopt}" becomes longer, so we test \$[0-9] and \$\{[0-9]
+    # separately.
+    if [[ $* == *\$[0-9]* || $* == *\$\{[0-9]* ]]; then
         printf 'bash_completion: %s: positional parameter $1, $2, ... do not work inside this function.\n' "$FUNCNAME" >&2
         return 2
     fi
@@ -475,7 +537,7 @@ _comp_compgen()
         return "$_status"
     }
 
-    _comp_split "${_split_options[@]}" "$_var" "$_result"
+    _comp_split -l ${_append:+-a} "$_var" "$_result"
 }
 
 # Check if the argument looks like a path.
