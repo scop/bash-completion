@@ -416,7 +416,7 @@ _comp_split()
 #   completions.
 _comp_compgen()
 {
-    local _append="" _var=COMPREPLY _cur=${cur-} IFS=$' \t\n'
+    local _append="" _var=COMPREPLY _cur=${cur-} _ifs=$' \t\n'
     local -a _split_options=(-l)
 
     local OPTIND=1 OPTARG="" OPTERR=0 _opt
@@ -430,8 +430,8 @@ _comp_compgen()
                 fi
                 _var=$OPTARG
                 ;;
-            l) IFS=$'\n' ;;
-            F) IFS=$OPTARG ;;
+            l) _ifs=$'\n' ;;
+            F) _ifs=$OPTARG ;;
             c) _cur=$OPTARG ;;
             R) _cur="" ;;
             *)
@@ -445,7 +445,14 @@ _comp_compgen()
         printf 'bash_completion: %s: unexpected number of arguments.\n' "$FUNCNAME" >&2
         printf 'usage: %s [-alR|-F SEP|-v ARR|-c CUR] -- ARGS...' "$FUNCNAME" >&2
         return 2
-    elif [[ $* == *\$[0-9]* || $* == *\$\{[0-9]* ]]; then
+    elif
+        # Note: $* in the below checks would be affected by uncontrolled IFS in
+        # bash >= 5.0, so we need to set IFS to the normal value.  The behavior
+        # in bash < 5.0, where unquoted $* in conditional command did not honor
+        # IFS, was a bug.
+        local IFS=$' \t\n'
+        [[ $* == *\$[0-9]* || $* == *\$\{[0-9]* ]]
+    then
         # Note: extglob *\$?(\{)[0-9]* can be extremely slow when the string
         # "${*:2:_nopt}" becomes longer, so we test \$[0-9] and \$\{[0-9]
         # separately.
@@ -454,7 +461,10 @@ _comp_compgen()
     fi
 
     local _result
-    _result=$(compgen "$@" ${_cur:+-- "$_cur"}) || {
+    _result=$(
+        IFS=$_ifs
+        compgen "$@" ${_cur:+-- "$_cur"}
+    ) || {
         local _status=$?
         if [[ $_append ]]; then
             # make sure existence of variable
