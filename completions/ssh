@@ -129,7 +129,7 @@ _comp_cmd_ssh__suboption()
             ;;
         *file | identityagent | include | controlpath | revokedhostkeys | \
             xauthlocation)
-            _filedir
+            _comp_compgen -a filedir
             ;;
         casignaturealgorithms)
             COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$2" sig)' -- "$cur"))
@@ -169,7 +169,7 @@ _comp_cmd_ssh__suboption()
             _comp_cmd_ssh__macs "$2"
             ;;
         pkcs11provider)
-            _filedir so
+            _comp_compgen -a filedir so
             ;;
         preferredauthentications)
             COMPREPLY=($(compgen -W 'gssapi-with-mic host-based publickey
@@ -253,7 +253,7 @@ _comp_cmd_ssh__configfile()
 _comp_xfunc_ssh_identityfile()
 {
     [[ ! $cur && -d ~/.ssh ]] && cur=~/.ssh/id
-    _filedir
+    _comp_compgen -a filedir
     if ((${#COMPREPLY[@]} > 0)); then
         COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' \
             -X "${1:+!}*.pub" -- "$cur"))
@@ -293,11 +293,11 @@ _comp_cmd_ssh()
             return
             ;;
         -*[EFS])
-            _filedir
+            _comp_compgen -a filedir
             return
             ;;
         -*I)
-            _filedir so
+            _comp_compgen -a filedir so
             return
             ;;
         -*i)
@@ -342,7 +342,7 @@ _comp_cmd_ssh()
 
     if [[ $cur == -F* ]]; then
         cur=${cur#-F}
-        _filedir
+        _comp_compgen -a filedir
         # Prefix completions with '-F'
         COMPREPLY=("${COMPREPLY[@]/#/-F}")
         cur=-F$cur # Restore cur
@@ -383,7 +383,7 @@ _comp_cmd_sftp()
             return
             ;;
         -*[bF])
-            _filedir
+            _comp_compgen -a filedir
             return
             ;;
         -*i)
@@ -417,7 +417,7 @@ _comp_cmd_sftp()
 
     if [[ $cur == -F* ]]; then
         cur=${cur#-F}
-        _filedir
+        _comp_compgen -a filedir
         # Prefix completions with '-F'
         COMPREPLY=("${COMPREPLY[@]/#/-F}")
         cur=-F$cur # Restore cur
@@ -474,7 +474,7 @@ _comp_xfunc_ssh_scp_remote_files()
 
 _comp_deprecate_func _scp_remote_files _comp_xfunc_ssh_scp_remote_files
 
-# This approach is used instead of _filedir to get a space appended
+# This approach is used instead of _comp_compgen -a filedir to get a space appended
 # after local file/dir completions, and -o nospace retained for others.
 # If first arg is -d, complete on directory names only.  The next arg is
 # an optional prefix to add to returned completions.
@@ -528,7 +528,7 @@ _comp_cmd_scp()
             return
             ;;
         -*F)
-            _filedir
+            _comp_compgen -a filedir
             compopt +o nospace
             return
             ;;

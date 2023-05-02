@@ -1016,7 +1016,7 @@ _comp_variable_assignments()
     case $prev in
         TZ)
             cur=/usr/share/zoneinfo/$cur
-            _filedir
+            _comp_compgen -a filedir
             if ((${#COMPREPLY[@]})); then
                 for i in "${!COMPREPLY[@]}"; do
                     if [[ ${COMPREPLY[i]} == *.tab ]]; then
@@ -1041,7 +1041,7 @@ _comp_variable_assignments()
             ;;
         *)
             _variables && return 0
-            _filedir
+            _comp_compgen -a filedir
             ;;
     esac
 
@@ -1056,9 +1056,12 @@ _comp_variable_assignments()
 #
 # Options:
 #     -n EXCLUDE  Passed to _comp_get_words -n with redirection chars
-#     -e XSPEC    Passed to _filedir as first arg for stderr redirections
-#     -o XSPEC    Passed to _filedir as first arg for other output redirections
-#     -i XSPEC    Passed to _filedir as first arg for stdin redirections
+#     -e XSPEC    Passed to _comp_compgen_filedir as first arg for stderr
+#                 redirections
+#     -o XSPEC    Passed to _comp_compgen_filedir as first arg for other output
+#                 redirections
+#     -i XSPEC    Passed to _comp_compgen_filedir as first arg for stdin
+#                 redirections
 #     -s          Split long options with _comp__split_longopt, implies -n =
 # @param $1...$3 args Original arguments specified to the completion function.
 #                     The first argument $1 is command name.  The second
@@ -1069,9 +1072,9 @@ _comp_variable_assignments()
 # @var[out] prev          Reconstructed previous word
 # @var[out] words         Reconstructed words
 # @var[out] cword         Current word index in `words`
-# @var[out] comp_args     Original arguments specified to the completion function
-#                         are saved in this array, if the arguments $1...$3 is
-#                         specified.
+# @var[out] comp_args     Original arguments specified to the completion
+#                         function are saved in this array, if the arguments
+#                         $1...$3 is specified.
 # @var[out,opt] was_split When "-s" is specified, `"set"/""` is set depending
 #                         on whether the split happened.
 # @return  True (0) if completion needs further processing,
@@ -1127,7 +1130,7 @@ _comp_initialize()
                 ;;
         esac
         cur=${cur##"$redir"}
-        _filedir "$xspec"
+        _comp_compgen -a filedir "$xspec"
         return 1
     fi
 
@@ -2473,11 +2476,11 @@ _comp_longopt()
             return
             ;;
         --!(no-*)dir*)
-            _filedir -d
+            _comp_compgen -a filedir -d
             return
             ;;
         --!(no-*)@(file|path)*)
-            _filedir
+            _comp_compgen -a filedir
             return
             ;;
         --+([-a-z0-9_]))
@@ -2485,11 +2488,11 @@ _comp_longopt()
                 "s|.*$prev\[\{0,1\}=[<[]\{0,1\}\([-A-Za-z0-9_]\{1,\}\).*|\1|p")
             case ${argtype,,} in
                 *dir*)
-                    _filedir -d
+                    _comp_compgen -a filedir -d
                     return
                     ;;
                 *file* | *path*)
-                    _filedir
+                    _comp_compgen -a filedir
                     return
                     ;;
             esac
@@ -2506,10 +2509,10 @@ _comp_longopt()
             done)"
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     elif [[ $1 == *@(rmdir|chroot) ]]; then
-        _filedir -d
+        _comp_compgen -a filedir -d
     else
         [[ $1 == *mkdir ]] && compopt -o nospace
-        _filedir
+        _comp_compgen -a filedir
     fi
 }
 # makeinfo and texi2dvi are defined elsewhere.
