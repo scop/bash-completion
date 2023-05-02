@@ -392,26 +392,26 @@ _comp_split()
 # OPTIONS
 #   -a      Append to the array
 #   -v arr  Store the results to the array ARR. The default is `COMPREPLY`.
+#           The array name should not start with an underscores "_", which is
+#           internally used.  The array name should not be either "IFS" or
+#           "OPT{IND,ARG,ERR}".
 #   -F sep  Set a set of separator characters (used as IFS in evaluating
 #           `compgen').  The default separator is $' \t\n'.  Note that this is
 #           not the set of separators to delimit output of `compgen', but the
 #           separators in evaluating the expansions of `-W '...'`, etc.  The
 #           delimiter of the output of `compgen` is always a newline.
-#   -l      The same as -F $'\n'.
+#   -l      The same as -F $'\n'.  Use lines as words in evaluating compgen.
 #   -c cur  Set a word used as a prefix to filter the completions.  The default
 #           is ${cur-}.
-#   -R      The same as -c ''.
-# @param $1 array_name  The array name
-#   The array name should not start with an underscores "_", which is
-#   internally used.  The array name should not be either "IFS" or
-#   "OPT{IND,ARG,ERR}".
-# @param $2... args     The arguments that are passed to compgen
+#   -R      The same as -c ''.  Use raw outputs without filtering.
+# @param $1... args     Arguments that are passed to compgen
+#
 #   Note: References to positional parameters $1, $2, ... (such as -W '$1')
 #   will not work as expected because these reference the arguments of
 #   `_comp_compgen' instead of those of the caller function.  When there are
 #   needs to reference them, save the arguments to an array and reference the
 #   array instead.  The array option `-V arr` in bash >= 5.3 should be instead
-#   specified as `-v arr` as a part of `_comp_compgen` options.
+#   specified as `-v arr` as a part of the `_comp_compgen` options.
 # @var[in] cur  Used as the default value of a prefix to filter the
 #   completions.
 _comp_compgen()
@@ -425,7 +425,7 @@ _comp_compgen()
             a) _append=set _split_options+=(-a) ;;
             v)
                 if [[ $OPTARG == @(*[^_a-zA-Z0-9]*|[0-9]*|''|_*|IFS|OPTIND|OPTARG|OPTERR) ]]; then
-                    printf 'bash_completion: %s: invalid array name `%s'\''.\n' "$FUNCNAME" "-v $OPTARG" >&2
+                    printf 'bash_completion: %s: -v: invalid array name `%s'\''.\n' "$FUNCNAME" "$OPTARG" >&2
                     return 2
                 fi
                 _var=$OPTARG
@@ -451,11 +451,11 @@ _comp_compgen()
         # in bash < 5.0, where unquoted $* in conditional command did not honor
         # IFS, was a bug.
         local IFS=$' \t\n'
-        [[ $* == *\$[0-9]* || $* == *\$\{[0-9]* ]]
-    then
         # Note: extglob *\$?(\{)[0-9]* can be extremely slow when the string
         # "${*:2:_nopt}" becomes longer, so we test \$[0-9] and \$\{[0-9]
         # separately.
+        [[ $* == *\$[0-9]* || $* == *\$\{[0-9]* ]]
+    then
         printf 'bash_completion: %s: positional parameter $1, $2, ... do not work inside this function.\n' "$FUNCNAME" >&2
         return 2
     fi
