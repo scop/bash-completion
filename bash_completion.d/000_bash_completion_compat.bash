@@ -258,4 +258,10 @@ _command_offset()
     _comp_command_offset "$@"
 }
 
+# @deprecated Use `_comp_compgen -a filedir`
+_filedir()
+{
+    _comp_compgen -a filedir "$@"
+}
+
 # ex: filetype=sh

@@ -116,9 +116,9 @@ class TestUnitQuoteCompgen:
     def test_github_issue_492_3(self, bash, functions):
         """Test code execution through unintended pathname expansions
 
-        When there is a file named "quote=$(COMMAND)" (for _filedir) or
-        "ret=$(COMMAND)" (for _comp_quote_compgen), the completion of the word
-        '$* results in the execution of COMMAND.
+        When there is a file named "quote=$(COMMAND)" (for
+        _comp_compgen_filedir) or "ret=$(COMMAND)" (for _comp_quote_compgen),
+        the completion of the word '$* results in the execution of COMMAND.
 
           $ echo '$*[TAB]
 

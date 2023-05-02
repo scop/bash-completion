@@ -15,18 +15,18 @@ class TestUnitFiledir:
     def functions(self, request, bash):
         assert_bash_exec(
             bash,
-            "_f() { local cur;_comp_get_words cur; unset -v COMPREPLY; _filedir; }; "
+            "_f() { local cur;_comp_get_words cur; unset -v COMPREPLY; _comp_compgen_filedir; }; "
             "complete -F _f f; "
             "complete -F _f -o filenames f2",
         )
         assert_bash_exec(
             bash,
-            "_g() { local cur;_comp_get_words cur; unset -v COMPREPLY; _filedir e1; }; "
+            "_g() { local cur;_comp_get_words cur; unset -v COMPREPLY; _comp_compgen_filedir e1; }; "
             "complete -F _g g",
         )
         assert_bash_exec(
             bash,
-            "_fd() { local cur;_comp_get_words cur; unset -v COMPREPLY; _filedir -d; };"
+            "_fd() { local cur;_comp_get_words cur; unset -v COMPREPLY; _comp_compgen_filedir -d; };"
             "complete -F _fd fd",
         )
 
@@ -59,7 +59,7 @@ class TestUnitFiledir:
         return lc_ctype
 
     def test_1(self, bash):
-        assert_bash_exec(bash, "_filedir >/dev/null")
+        assert_bash_exec(bash, "_comp_compgen_filedir >/dev/null")
 
     @pytest.mark.parametrize("funcname", "f f2".split())
     def test_2(self, bash, functions, funcname):
