@@ -150,3 +150,57 @@ _comp_xfunc_ARRAY_filter()
 
     [[ ! $_unset ]]
 }
+
+_bashcomp_uniq()
+{
+    local -n _bashcomp_uniq_array_=$1
+    local -A tmp
+    local -i i
+    for i in ${!_bashcomp_uniq_array_[*]}; do
+        ((tmp["${_bashcomp_uniq_array_[i]}"]++ > 0)) &&
+            unset '_bashcomp_uniq_array_[i]'
+    done
+}
+
+_bashcomp_last_index()
+{
+    local -n _bashcomp_last_index_array_=$1 _bashcomp_last_index_ret_=$2
+    local -i i
+    for i in ${!_bashcomp_last_index_array_[*]}; do :; done
+    _bashcomp_last_index_ret_=$i
+}
+
+_bashcomp_compact()
+{
+    local -n _bashcomp_compact_array_=$1
+    local i j=0
+
+    for i in ${!_bashcomp_compact_array_[*]}; do
+        if ((i > j)); then
+            _bashcomp_compact_array_[j]="${_bashcomp_compact_array_[i]}"
+            unset "_bashcomp_compact_array_[i]"
+        fi
+        ((j++))
+    done
+}
+
+_bashcomp_index_of()
+{
+    # TODO getopts -> -r gets rightmost (last) index
+    # TODO getopts: -R uses regex instead of glob
+    local -n _bashcomp_index_of_array_=$1
+    local pattern=$2
+    local -n _bashcomp_index_of_ret_=$3
+
+    local -i i
+    for i in ${!_bashcomp_index_of_array_[*]}; do
+        # shellcheck disable=SC2053
+        if [[ ${_bashcomp_index_of_array_[i]} == $pattern ]]; then
+            _bashcomp_index_of_ret_=$i
+            return 0
+        fi
+    done
+
+    _bashcomp_index_of_ret_=-1
+    return 1
+}
