@@ -154,33 +154,33 @@ _comp_xfunc_ARRAY_filter()
 _comp_uniq()
 {
     local -n _comp_uniq__array=$1
-    local -A tmp
-    local -i i
-    for i in "${!_comp_uniq__array[@]}"; do
-        ((tmp["${_comp_uniq__array[i]}"]++ > 0)) &&
-            unset '_comp_uniq__array[i]'
+    local -A _comp_uniq__tmp
+    local -i _comp_uniq__i
+    for _comp_uniq__i in "${!_comp_uniq__array[@]}"; do
+        ((_comp_uniq__tmp["${_comp_uniq__array[_comp_uniq__i]}"]++ > 0)) &&
+            unset '_comp_uniq__array[_comp_uniq__i]'
     done
 }
 
 _comp_last_index()
 {
     local -n _comp_last_index__array=$1 _comp_last_index__ret=$2
-    local -i i
-    for i in "${!_comp_last_index__array[@]}"; do :; done
-    _comp_last_index__ret=$i
+    local -i _comp_last_index__i
+    for _comp_last_index__i in "${!_comp_last_index__array[@]}"; do :; done
+    _comp_last_index__ret=$_comp_last_index__i
 }
 
 _comp_compact()
 {
     local -n _comp_compact__array=$1
-    local i j=0
+    local _comp_compact__i _comp_compact__j=0
 
-    for i in "${!_comp_compact__array[@]}"; do
-        if ((i > j)); then
-            _comp_compact__array[j]="${_comp_compact__array[i]}"
-            unset "_comp_compact__array[i]"
+    for _comp_compact__i in "${!_comp_compact__array[@]}"; do
+        if ((_comp_compact__i > _comp_compact__j)); then
+            _comp_compact__array[_comp_compact__j]="${_comp_compact__array[_comp_compact__i]}"
+            unset "_comp_compact__array[_comp_compact__i]"
         fi
-        ((j++))
+        ((_comp_compact__j++))
     done
 }
 
@@ -189,14 +189,14 @@ _comp_index_of()
     # TODO getopts -> -r gets rightmost (last) index
     # TODO getopts: -R uses regex instead of glob
     local -n _comp_index_of__array=$1
-    local pattern=$2
+    local _comp_compact__pattern=$2
     local -n _comp_index_of__ret=$3
 
-    local -i i
-    for i in "${!_comp_index_of__array[@]}"; do
+    local -i _comp_index_of__i
+    for _comp_index_of__i in "${!_comp_index_of__array[@]}"; do
         # shellcheck disable=SC2053
-        if [[ ${_comp_index_of__array[i]} == $pattern ]]; then
-            _comp_index_of__ret=$i
+        if [[ ${_comp_index_of__array[_comp_index_of__i]} == $_comp_compact__pattern ]]; then
+            _comp_index_of__ret=$_comp_index_of__i
             return 0
         fi
     done
