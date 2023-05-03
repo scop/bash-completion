@@ -1,5 +1,87 @@
 # Utility xfunc functions for array manipulations          -*- shell-script -*-
 
+# usage: _comp_xfunc_ARRAY__init_predicate pattern pattype [anchoring flags]
+# @param $1      pattern   Pattern
+# @param $2      pattype   /[EFG]/ or empty
+# @param[opt] $3 anchoring /[psmx]/ or empty
+# @param[opt] $4 flags     /r/ or empty
+#   See _comp_xfunc_ARRAY_filter for details of pattern, pattype,
+#   anchoring, and flags.
+#
+# @var[out] _predicate[0] command
+# @var[out] _predicate[1] pattern
+# @var[out] _predicate[2] type
+# @var[out] _predicate[3] revert
+_comp_xfunc_ARRAY__init_predicate()
+{
+    _predicate[0]=false
+    _predicate[1]=$1
+    _predicate[2]=$2
+    _predicate[3]=""
+
+    local old_nocasematch=""
+    if shopt -q nocasematch; then
+        old_nocasematch=set
+        shopt -u nocasematch
+    fi
+
+    local _pattype=$2 _anchoring=${3-} flags=${4-}
+    case $_pattype in
+        E)
+            case $_anchoring in
+                p) _predicate[0]='[[ $_value =~ ^(${_predicate[1]}) ]]' ;;
+                s) _predicate[0]='[[ $_value =~ (${_predicate[1]})$ ]]' ;;
+                x) _predicate[0]='[[ $_value =~ ^(${_predicate[1]})$ ]]' ;;
+                *) _predicate[0]='[[ $_value =~ ${_predicate[1]} ]]' ;;
+            esac
+            ;;
+        F)
+            case $_anchoring in
+                p) _predicate[0]='[[ $_value == "${_predicate[1]}"* ]]' ;;
+                s) _predicate[0]='[[ $_value == *"${_predicate[1]}" ]]' ;;
+                x) _predicate[0]='[[ $_value == "${_predicate[1]}" ]]' ;;
+                *) _predicate[0]='[[ $_value == *"${_predicate[1]}"* ]]' ;;
+            esac
+            ;;
+        G)
+            case $_anchoring in
+                p) _predicate[0]='[[ $_value == ${_predicate[1]}* ]]' ;;
+                s) _predicate[0]='[[ $_value == *${_predicate[1]} ]]' ;;
+                m) _predicate[0]='[[ $_value == *${_predicate[1]}* ]]' ;;
+                *) _predicate[0]='[[ $_value == ${_predicate[1]} ]]' ;;
+            esac
+            ;;
+        *)
+            if type -t "$2" &>/dev/null; then
+                _predicate[0]="$2 \"\$_value\""
+            else
+                _predicate[0]="local -x value=\$_value; $2"
+            fi
+            ;;
+    esac
+
+    [[ $_flags == *r* ]] && _predicate[3]=set
+    [[ $old_nocasematch ]] && shopt -s nocasematch
+}
+
+_comp_xfunc_ARRAY__predicate()
+{
+    local _value=$1
+    eval "${_predicate[0]}"
+
+    local _ext=$?
+    case $_ext in
+        [01]) [[ ${_predicate[3]} ]] && _ext=$((1 - _ext)) ;;
+        27) ;;
+        *)
+            printf 'bash_completion: %s: %s\n' "$FUNCNAME" \
+                "filter condition broken '${_predicate[2]:+-${_predicate[2]} }$2'" >&2
+            return 2
+            ;;
+    esac
+    return "$_ext"
+}
+
 # Filter the array elements with the specified condition.
 # @param $1 Array name (that is not "value", "_*" or other internal variable
 #   names)
@@ -80,67 +162,28 @@ _comp_xfunc_ARRAY_filter()
     elif [[ $1 == @(_*|OPTIND|OPTARG|OPTERR) ]]; then
         printf 'bash_completion: %s: %s\n' "$FUNCNAME" "array name '$1' is reserved for internal uses" >&2
         return 2
-    elif [[ ! $_pattype && $1 == value ]]; then
-        printf 'bash_completion: %s: %s\n' "$FUNCNAME" "array name '$1' cannot be used for the predicate" >&2
-        return 2
     fi
     # When the array is empty:
     eval "((\${#$1[@]}))" || return 0
 
-    local _predicate='' _pattern=$2
-    case $_pattype in
-        E)
-            case $_anchoring in
-                p) _predicate='[[ $_value =~ ^($_pattern) ]]' ;;
-                s) _predicate='[[ $_value =~ ($_pattern)$ ]]' ;;
-                x) _predicate='[[ $_value =~ ^($_pattern)$ ]]' ;;
-                *) _predicate='[[ $_value =~ $_pattern ]]' ;;
-            esac
-            ;;
-        F)
-            case $_anchoring in
-                p) _predicate='[[ $_value == "$_pattern"* ]]' ;;
-                s) _predicate='[[ $_value == *"$_pattern" ]]' ;;
-                x) _predicate='[[ $_value == "$_pattern" ]]' ;;
-                *) _predicate='[[ $_value == *"$_pattern"* ]]' ;;
-            esac
-            ;;
-        G)
-            case $_anchoring in
-                p) _predicate='[[ $_value == $_pattern* ]]' ;;
-                s) _predicate='[[ $_value == *$_pattern ]]' ;;
-                m) _predicate='[[ $_value == *$_pattern* ]]' ;;
-                *) _predicate='[[ $_value == $_pattern ]]' ;;
-            esac
-            ;;
-        *)
-            if type -t "$2" &>/dev/null; then
-                _predicate="$2 \"\$_value\""
-            else
-                _predicate="local -x value=\$_value; $2"
-            fi
-            ;;
-    esac
+    local _predicate
+    _comp_xfunc_ARRAY__init_predicate "$2" "$_pattype" "$_anchoring" "$_flags"
 
-    local _unset="" _expected_status=0
-    [[ $_flags == *r* ]] && _expected_status=1
+    local _unset=""
 
-    local _indices _index _value
+    local _indices _index _ref
     eval "_indices=(\"\${!$1[@]}\")"
     for _index in "${_indices[@]}"; do
-        eval "_value=\${$1[\$_index]}; $_predicate"
+        _ref="$1[\$_index]"
+        _comp_xfunc_ARRAY__predicate "${!_ref}"
         case $? in
-            "$_expected_status") continue ;;
-            [01])
-                unset -v "$1[\$_index]"
+            0) continue ;;
+            1)
+                unset -v "$_ref"
                 _unset=set
                 ;;
             27) break ;;
-            *)
-                printf 'bash_completion: %s: %s\n' "$FUNCNAME" \
-                    "filter condition broken '${_pattype:+-$_pattype }$2'" >&2
-                return 2
-                ;;
+            *) return 2 ;;
         esac
     done
 
