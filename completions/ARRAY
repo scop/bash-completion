@@ -224,25 +224,97 @@ _comp_compact()
     _comp_compact__array=("${_comp_compact__array[@]}")
 }
 
+# @version bash-4.3
+_comp_xfunc_ARRAY_reverse()
+{
+    _comp_compact "$1"
+    local -n _comp_reverse__arr=$1
+    local _comp_reverse__i=0
+    local _comp_reverse__j=$((${#_comp_reverse__arr[@]} - 1))
+    local _comp_reverse__tmp
+    while ((_comp_reverse__i < _comp_reverse__j)); do
+        _comp_reverse__tmp=${_comp_reverse__arr[_comp_reverse__i]}
+        _comp_reverse__arr[_comp_reverse__i]=${_comp_reverse__arr[_comp_reverse__j]}
+        _comp_reverse__arr[_comp_reverse__j]=$_comp_reverse__tmp
+        ((_comp_reverse__i++, _comp_reverse__j--))
+    done
+}
+
+# usage: _comp_index_of [-EFGpxmxrl] array pattern
 # Find the index of a matching element
+# Options:
+#
+#   -EFGe  Select the type of the pattern.  The default is -F.
+#   -psmx  Select the anchoring option.
+#   -r     Revert the condition.
+#     See _comp_xfunc_ARRAY_filter for the details of these options.
+#
+#   -l     Get the last index of matching elements.
+#
 # @var[out] ret
 # @version bash-4.3
 _comp_index_of()
 {
-    # TODO getopts -> -r gets rightmost (last) index
-    # TODO getopts: -R uses regex instead of glob
-    local -n _comp_index_of__array=$1
-    local _comp_compact__pattern=$2
-
-    local -i _comp_index_of__i
-    for _comp_index_of__i in "${!_comp_index_of__array[@]}"; do
-        # shellcheck disable=SC2053
-        if [[ ${_comp_index_of__array[_comp_index_of__i]} == $_comp_compact__pattern ]]; then
-            ret=$_comp_index_of__i
-            return 0
-        fi
+    local _old_nocasematch=""
+    if shopt -q nocasematch; then
+        _old_nocasematch=set
+        shopt -u nocasematch
+    fi
+    local _flags="" _pattype=F _anchoring=""
+    local OPTIND=1 OPTARG="" OPTERR=0 _opt=""
+    while getopts 'EFGepsmxrl' _opt "$@"; do
+        case $_opt in
+            [EFGe]) _pattype=$_opt ;;
+            [psmx]) _anchoring=$_opt ;;
+            [rl]) _flags+=$_opt ;;
+            *)
+                printf 'bash_completion: %s: %s\n' "$FUNCNAME" 'usage error' >&2
+                printf 'usage: %s %s\n' "$FUNCNAME" "[-EFGepsmxrl] ARRAY_NAME CONDITION" >&2
+                return 2
+                ;;
+        esac
     done
+    shift "$((OPTIND - 1))"
+    if (($# != 2)); then
+        printf 'bash_completion: %s: %s\n' "$FUNCNAME" "unexpected number of arguments: $#" >&2
+        printf 'usage: %s %s\n' "$FUNCNAME" "[-EFGepsmxrl] ARRAY_NAME CONDITION" >&2
+        [[ $_old_nocasematch ]] && shopt -s nocasematch
+        return 2
+    elif [[ $1 != [a-zA-Z_]*([a-zA-Z_0-9]) ]]; then
+        printf 'bash_completion: %s: %s\n' "$FUNCNAME" "invalid array name '$1'." >&2
+        [[ $_old_nocasematch ]] && shopt -s nocasematch
+        return 2
+    elif [[ $1 == @(_*|OPTIND|OPTARG|OPTERR) ]]; then
+        printf 'bash_completion: %s: %s\n' "$FUNCNAME" "array name '$1' is reserved for internal uses" >&2
+        [[ $_old_nocasematch ]] && shopt -s nocasematch
+        return 2
+    fi
+    [[ $_old_nocasematch ]] && shopt -s nocasematch
 
     ret=-1
+
+    local -n _array=$1
+    if ((${#_array[@]})); then
+        local _predicate
+        _comp_xfunc_ARRAY__init_predicate "$2" "$_pattype" "$_anchoring" "$_flags"
+
+        local -a _indices=("${!_array[@]}")
+        [[ $_flags == *l* ]] && _comp_xfunc_ARRAY_reverse _indices
+
+        local -i _i
+        for _i in "${_indices[@]}"; do
+            _comp_xfunc_ARRAY__predicate "${_array[_i]}"
+            case $? in
+                0)
+                    ret=$_i
+                    return 0
+                    ;;
+                1) continue ;;
+                27) return 27 ;;
+                *) return 2 ;;
+            esac
+        done
+    fi
+
     return 1
 }
