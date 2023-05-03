@@ -151,56 +151,56 @@ _comp_xfunc_ARRAY_filter()
     [[ ! $_unset ]]
 }
 
-_bashcomp_uniq()
+_comp_uniq()
 {
-    local -n _bashcomp_uniq_array_=$1
+    local -n _comp_uniq__array=$1
     local -A tmp
     local -i i
-    for i in ${!_bashcomp_uniq_array_[*]}; do
-        ((tmp["${_bashcomp_uniq_array_[i]}"]++ > 0)) &&
-            unset '_bashcomp_uniq_array_[i]'
+    for i in ${!_comp_uniq__array[*]}; do
+        ((tmp["${_comp_uniq__array[i]}"]++ > 0)) &&
+            unset '_comp_uniq__array[i]'
     done
 }
 
-_bashcomp_last_index()
+_comp_last_index()
 {
-    local -n _bashcomp_last_index_array_=$1 _bashcomp_last_index_ret_=$2
+    local -n _comp_last_index__array=$1 _comp_last_index__ret=$2
     local -i i
-    for i in ${!_bashcomp_last_index_array_[*]}; do :; done
-    _bashcomp_last_index_ret_=$i
+    for i in ${!_comp_last_index__array[*]}; do :; done
+    _comp_last_index__ret=$i
 }
 
-_bashcomp_compact()
+_comp_compact()
 {
-    local -n _bashcomp_compact_array_=$1
+    local -n _comp_compact__array=$1
     local i j=0
 
-    for i in ${!_bashcomp_compact_array_[*]}; do
+    for i in ${!_comp_compact__array[*]}; do
         if ((i > j)); then
-            _bashcomp_compact_array_[j]="${_bashcomp_compact_array_[i]}"
-            unset "_bashcomp_compact_array_[i]"
+            _comp_compact__array[j]="${_comp_compact__array[i]}"
+            unset "_comp_compact__array[i]"
         fi
         ((j++))
     done
 }
 
-_bashcomp_index_of()
+_comp_index_of()
 {
     # TODO getopts -> -r gets rightmost (last) index
     # TODO getopts: -R uses regex instead of glob
-    local -n _bashcomp_index_of_array_=$1
+    local -n _comp_index_of__array=$1
     local pattern=$2
-    local -n _bashcomp_index_of_ret_=$3
+    local -n _comp_index_of__ret=$3
 
     local -i i
-    for i in ${!_bashcomp_index_of_array_[*]}; do
+    for i in ${!_comp_index_of__array[*]}; do
         # shellcheck disable=SC2053
-        if [[ ${_bashcomp_index_of_array_[i]} == $pattern ]]; then
-            _bashcomp_index_of_ret_=$i
+        if [[ ${_comp_index_of__array[i]} == $pattern ]]; then
+            _comp_index_of__ret=$i
             return 0
         fi
     done
 
-    _bashcomp_index_of_ret_=-1
+    _comp_index_of__ret=-1
     return 1
 }
