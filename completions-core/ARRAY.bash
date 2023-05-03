@@ -166,9 +166,8 @@ _comp_uniq()
 _comp_last_index()
 {
     local -n _comp_last_index__array=$1 _comp_last_index__ret=$2
-    local -i _comp_last_index__i
-    for _comp_last_index__i in "${!_comp_last_index__array[@]}"; do :; done
-    _comp_last_index__ret=$_comp_last_index__i
+    local -a _comp_last_index__indices=("${!_comp_last_index__array[@]}")
+    _comp_last_index__ret=${_comp_last_index__indices[*]: -1}
 }
 
 _comp_compact()
