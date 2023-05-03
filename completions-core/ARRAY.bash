@@ -154,11 +154,12 @@ _comp_xfunc_ARRAY_filter()
 _comp_uniq()
 {
     local -n _comp_uniq__array=$1
-    local -A _comp_uniq__tmp
+    local -A _comp_uniq__tmp=()
     local -i _comp_uniq__i
     for _comp_uniq__i in "${!_comp_uniq__array[@]}"; do
-        ((_comp_uniq__tmp["${_comp_uniq__array[_comp_uniq__i]}"]++ > 0)) &&
+        [[ ${_comp_uniq__tmp[${_comp_uniq__array[_comp_uniq__i]}]-} ]] &&
             unset -v '_comp_uniq__array[_comp_uniq__i]'
+        _comp_uniq__tmp[${_comp_uniq__array[_comp_uniq__i]}]=set
     done
 }
 
