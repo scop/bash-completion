@@ -29,10 +29,7 @@ _comp_cmd_7z()
                 COMPREPLY=($(compgen -P"$opt" -W '@ ! r@ r-@ r0@ r! r-! r0!' \
                     -- "$cur"))
             elif [[ $cur == ?(r@(-|0|))@* ]]; then
-                local IFS=$' \t\n' reset=$(shopt -po noglob)
-                set -o noglob
                 _comp_compgen -c "${cur#*@}" -- -P"${opt}${cur%%@*}@" -f
-                $reset
                 compopt -o filenames
             fi
             return
@@ -46,13 +43,8 @@ _comp_cmd_7z()
             return
             ;;
         -o* | -w?*)
-            local reset=$(shopt -po noglob)
-            set -o noglob
             compopt -o filenames
-            local IFS=$'\n'
             _comp_compgen -c "${cur:2}" -- -d -P"${cur:0:2}" -S/
-            _comp_unlocal IFS
-            $reset
             compopt -o nospace
             return
             ;;
