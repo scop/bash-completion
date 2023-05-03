@@ -151,6 +151,7 @@ _comp_xfunc_ARRAY_filter()
     [[ ! $_unset ]]
 }
 
+# @version bash-4.3
 _comp_uniq()
 {
     local -n _comp_uniq__array=$1
@@ -163,36 +164,42 @@ _comp_uniq()
     done
 }
 
+# Obtain the largest index
+# @var[out] ret
+# @version bash-4.3
 _comp_last_index()
 {
-    local -n _comp_last_index__array=$1 _comp_last_index__ret=$2
+    local -n _comp_last_index__array=$1
     local -a _comp_last_index__indices=("${!_comp_last_index__array[@]}")
-    _comp_last_index__ret=${_comp_last_index__indices[*]: -1}
+    ret=${_comp_last_index__indices[*]: -1}
 }
 
+# @version bash-4.3
 _comp_compact()
 {
     local -n _comp_compact__array=$1
     _comp_compact__array=("${_comp_compact__array[@]}")
 }
 
+# Find the index of a matching element
+# @var[out] ret
+# @version bash-4.3
 _comp_index_of()
 {
     # TODO getopts -> -r gets rightmost (last) index
     # TODO getopts: -R uses regex instead of glob
     local -n _comp_index_of__array=$1
     local _comp_compact__pattern=$2
-    local -n _comp_index_of__ret=$3
 
     local -i _comp_index_of__i
     for _comp_index_of__i in "${!_comp_index_of__array[@]}"; do
         # shellcheck disable=SC2053
         if [[ ${_comp_index_of__array[_comp_index_of__i]} == $_comp_compact__pattern ]]; then
-            _comp_index_of__ret=$_comp_index_of__i
+            ret=$_comp_index_of__i
             return 0
         fi
     done
 
-    _comp_index_of__ret=-1
+    ret=-1
     return 1
 }
