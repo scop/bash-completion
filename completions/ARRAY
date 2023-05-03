@@ -158,7 +158,7 @@ _comp_uniq()
     local -i _comp_uniq__i
     for _comp_uniq__i in "${!_comp_uniq__array[@]}"; do
         ((_comp_uniq__tmp["${_comp_uniq__array[_comp_uniq__i]}"]++ > 0)) &&
-            unset '_comp_uniq__array[_comp_uniq__i]'
+            unset -v '_comp_uniq__array[_comp_uniq__i]'
     done
 }
 
@@ -178,7 +178,7 @@ _comp_compact()
     for _comp_compact__i in "${!_comp_compact__array[@]}"; do
         if ((_comp_compact__i > _comp_compact__j)); then
             _comp_compact__array[_comp_compact__j]="${_comp_compact__array[_comp_compact__i]}"
-            unset "_comp_compact__array[_comp_compact__i]"
+            unset -v '_comp_compact__array[_comp_compact__i]'
         fi
         ((_comp_compact__j++))
     done
