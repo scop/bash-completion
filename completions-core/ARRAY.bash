@@ -156,7 +156,7 @@ _comp_uniq()
     local -n _comp_uniq__array=$1
     local -A tmp
     local -i i
-    for i in ${!_comp_uniq__array[*]}; do
+    for i in "${!_comp_uniq__array[@]}"; do
         ((tmp["${_comp_uniq__array[i]}"]++ > 0)) &&
             unset '_comp_uniq__array[i]'
     done
@@ -166,7 +166,7 @@ _comp_last_index()
 {
     local -n _comp_last_index__array=$1 _comp_last_index__ret=$2
     local -i i
-    for i in ${!_comp_last_index__array[*]}; do :; done
+    for i in "${!_comp_last_index__array[@]}"; do :; done
     _comp_last_index__ret=$i
 }
 
@@ -175,7 +175,7 @@ _comp_compact()
     local -n _comp_compact__array=$1
     local i j=0
 
-    for i in ${!_comp_compact__array[*]}; do
+    for i in "${!_comp_compact__array[@]}"; do
         if ((i > j)); then
             _comp_compact__array[j]="${_comp_compact__array[i]}"
             unset "_comp_compact__array[i]"
@@ -193,7 +193,7 @@ _comp_index_of()
     local -n _comp_index_of__ret=$3
 
     local -i i
-    for i in ${!_comp_index_of__array[*]}; do
+    for i in "${!_comp_index_of__array[@]}"; do
         # shellcheck disable=SC2053
         if [[ ${_comp_index_of__array[i]} == $pattern ]]; then
             _comp_index_of__ret=$i
