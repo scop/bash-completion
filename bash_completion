@@ -1183,7 +1183,7 @@ _comp_variable_assignments()
             _terms
             ;;
         LANG | LC_*)
-            _comp_compgen -- -W '$(locale -a 2>/dev/null)'
+            _comp_compgen_split -- "$(locale -a 2>/dev/null)"
             ;;
         LANGUAGE)
             _comp_delimited : -W '$(locale -a 2>/dev/null)'
@@ -1576,7 +1576,7 @@ _ip_addresses()
 # TODO:API: rename per conventions
 _kernel_versions()
 {
-    _comp_compgen -- -W '$(command ls /lib/modules)'
+    _comp_compgen_split -- "$(command ls /lib/modules)"
 }
 
 # This function completes on all available network interfaces
@@ -1694,26 +1694,26 @@ if [[ $OSTYPE == *@(solaris|aix)* ]]; then
     # This function completes on process IDs.
     _pids()
     {
-        _comp_compgen -- -W '$(command ps -efo pid | command sed 1d)'
+        _comp_compgen_split -- "$(command ps -efo pid | command sed 1d)"
     }
 
     _pgids()
     {
-        _comp_compgen -- -W '$(command ps -efo pgid | command sed 1d)'
+        _comp_compgen_split -- "$(command ps -efo pgid | command sed 1d)"
     }
     _pnames()
     {
-        _comp_compgen -- -X '<defunct>' -W '$(command ps -efo comm | \
-            command sed -e 1d -e "s:.*/::" -e "s/^-//" | sort -u)'
+        _comp_compgen_split -X '<defunct>' -- "$(command ps -efo comm |
+            command sed -e 1d -e 's:.*/::' -e 's/^-//' | sort -u)"
     }
 else
     _pids()
     {
-        _comp_compgen -- -W '$(command ps ax -o pid=)'
+        _comp_compgen_split -- "$(command ps ax -o pid=)"
     }
     _pgids()
     {
-        _comp_compgen -- -W '$(command ps ax -o pgid=)'
+        _comp_compgen_split -- "$(command ps ax -o pgid=)"
     }
     # @param $1 if -s, don't try to avoid truncated command names
     _pnames()
@@ -1772,12 +1772,12 @@ fi
 _uids()
 {
     if type getent &>/dev/null; then
-        _comp_compgen -- -W '$(getent passwd | cut -d: -f3)'
+        _comp_compgen_split -- "$(getent passwd | cut -d: -f3)"
     elif type perl &>/dev/null; then
-        _comp_compgen -- -W '$(perl -e '"'"'while (($uid) = (getpwent)[2]) { print $uid . "\n" }'"'"')'
+        _comp_compgen_split -- "$(perl -e 'while (($uid) = (getpwent)[2]) { print $uid . "\n" }')"
     else
         # make do with /etc/passwd
-        _comp_compgen -- -W '$(cut -d: -f3 /etc/passwd)'
+        _comp_compgen_split -- "$(cut -d: -f3 /etc/passwd)"
     fi
 }
 
@@ -1787,12 +1787,12 @@ _uids()
 _gids()
 {
     if type getent &>/dev/null; then
-        _comp_compgen -- -W '$(getent group | cut -d: -f3)'
+        _comp_compgen_split -- "$(getent group | cut -d: -f3)"
     elif type perl &>/dev/null; then
-        _comp_compgen -- -W '$(perl -e '"'"'while (($gid) = (getgrent)[2]) { print $gid . "\n" }'"'"')'
+        _comp_compgen_split -- "$(perl -e 'while (($gid) = (getgrent)[2]) { print $gid . "\n" }')"
     else
         # make do with /etc/group
-        _comp_compgen -- -W '$(cut -d: -f3 /etc/group)'
+        _comp_compgen_split -- "$(cut -d: -f3 /etc/group)"
     fi
 }
 
@@ -1862,9 +1862,9 @@ _service()
     else
         local sysvdirs
         _comp_sysvdirs
-        _comp_compgen -l -- -W '$(command sed -e "y/|/ /" \
-            -ne "s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p" \
-            "${sysvdirs[0]}/${prev##*/}" 2>/dev/null) start stop'
+        _comp_compgen_split -l -- "$(command sed -e 'y/|/ /' \
+            -ne 's/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p' \
+            "${sysvdirs[0]}/${prev##*/}" 2>/dev/null) start stop"
     fi
 } &&
     complete -F _service service
@@ -1980,9 +1980,8 @@ _allowed_groups()
 # @since 2.12
 _comp_selinux_users()
 {
-    _comp_compgen -a -- -W '$(
-        semanage user -nl 2>/dev/null | awk "{ print \$1 }"
-    )'
+    _comp_compgen -a split -- "$(semanage user -nl 2>/dev/null |
+        awk '{ print $1 }')"
 }
 
 # This function completes on valid shells

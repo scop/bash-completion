@@ -2,8 +2,7 @@
 
 _comp_cmd_koji__search()
 {
-    COMPREPLY+=($(compgen -W \
-        '$("$1" -q search "$2" "$cur*" 2>/dev/null)' -- "$cur"))
+    _comp_compgen -a split -- "$("$1" -q search "$2" "$cur*" 2>/dev/null)"
 }
 
 _comp_cmd_koji__build()
@@ -23,13 +22,13 @@ _comp_cmd_koji__user()
 
 _comp_cmd_koji__tag()
 {
-    COMPREPLY+=($(compgen -W '$("$1" -q list-tags 2>/dev/null)' -- "$cur"))
+    _comp_compgen -a split -- "$("$1" -q list-tags 2>/dev/null)"
 }
 
 _comp_cmd_koji__target()
 {
-    COMPREPLY+=($(compgen -W '$("$1" -q list-targets 2>/dev/null |
-        awk "{ print \$1 }")' -- "$cur"))
+    _comp_compgen -a split -- "$("$1" -q list-targets 2>/dev/null |
+        awk '{ print $1 }')"
 }
 
 _comp_cmd_koji()
@@ -238,8 +237,8 @@ _comp_cmd_koji()
         _comp_compgen_help
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     elif [[ ! $has_command ]]; then
-        COMPREPLY=($(compgen -W '$("$1" --help-commands 2>/dev/null | \
-            awk "/^(  +|\t)/ { print \$1 }")' -- "$cur"))
+        _comp_compgen_split -- "$("$1" --help-commands 2>/dev/null |
+            awk '/^(  +|\t)/ { print $1 }')"
     fi
 } &&
     complete -F _comp_cmd_koji koji arm-koji ppc-koji s390-koji sparc-koji

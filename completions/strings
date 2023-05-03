@@ -17,18 +17,13 @@ _comp_cmd_strings()
             return
             ;;
         --target | -${noargopts}T)
-            COMPREPLY=($(compgen -W '$(LC_ALL=C "$1" --help 2>/dev/null | \
-                command sed -ne "s/: supported targets: \(.*\)/\1/p")' \
-                -- "$cur"))
+            _comp_compgen_split -- "$(LC_ALL=C "$1" --help 2>/dev/null |
+                command sed -ne 's/: supported targets: \(.*\)/\1/p')"
             return
             ;;
         --encoding | -${noargopts}e)
-            COMPREPLY=($(
-                IFS=, compgen -W \
-                    '$(LC_ALL=C "$1" --help 2>/dev/null | \
-                         command sed -ne "s/.*--encoding={\([^}]*\)}.*/\1/p")' \
-                    -- "$cur"
-            ))
+            _comp_compgen_split -F , -- "$(LC_ALL=C "$1" --help 2>/dev/null |
+                command sed -ne 's/.*--encoding={\([^}]*\)}.*/\1/p')"
             return
             ;;
     esac

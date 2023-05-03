@@ -7,14 +7,13 @@ _comp_cmd_fbgs()
 
     case "$prev" in
         -f | --font)
-            local IFS=$'\n'
-            COMPREPLY=($(compgen -W '$(fc-list 2>/dev/null)' -- "$cur"))
+            _comp_compgen_split -l -- "$(fc-list 2>/dev/null)"
             return
             ;;
         -m | --mode)
-            COMPREPLY=($(compgen -W '$(command sed \
-                -n "/^mode/{s/^mode \{1,\}\"\([^\"]\{1,\}\)\"/\1/g;p}" \
-                /etc/fb.modes 2>/dev/null)' -- "$cur"))
+            _comp_compgen_split -- "$(command sed \
+                -n '/^mode/{s/^mode \{1,\}"\([^"]\{1,\}\)"/\1/g;p}' \
+                /etc/fb.modes 2>/dev/null)"
             return
             ;;
         -d | --device)
