@@ -173,15 +173,7 @@ _comp_last_index()
 _comp_compact()
 {
     local -n _comp_compact__array=$1
-    local _comp_compact__i _comp_compact__j=0
-
-    for _comp_compact__i in "${!_comp_compact__array[@]}"; do
-        if ((_comp_compact__i > _comp_compact__j)); then
-            _comp_compact__array[_comp_compact__j]="${_comp_compact__array[_comp_compact__i]}"
-            unset -v '_comp_compact__array[_comp_compact__i]'
-        fi
-        ((_comp_compact__j++))
-    done
+    _comp_compact__array=("${_comp_compact__array[@]}")
 }
 
 _comp_index_of()
