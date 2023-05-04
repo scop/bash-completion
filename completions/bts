@@ -1,22 +1,24 @@
 # bts completion                                      -*- shell-script -*-
 
-# List bug numbers from bugs cache in ~/.devscripts_cache/bts
-# TODO:API: rename per conventions, rework to use vars rather than outputting
-_cached_bugs()
+# Generate bug numbers from bugs cache in ~/.devscripts_cache/bts
+# TODO:API: generator
+_comp_cmd_bts__cached_bugs()
 {
-    [[ -d $HOME/.devscripts_cache/bts ]] &&
+    [[ -d $HOME/.devscripts_cache/bts ]] || return 1
+    local bugs=$(
         find "$HOME/.devscripts_cache/bts" -maxdepth 1 \
             -name "${cur}[0-9]*.html" \
             -printf "%f\n" | cut -d'.' -f1
+    )
+    _comp_compgen -aR -- -W '$bugs'
 }
 
-# List APT source packages prefixed with "src:"
-# TODO:API: rename per conventions, rework to use vars rather than outputting
-_src_packages_with_prefix()
+# Generate APT source packages prefixed with "src:"
+# TODO:API: generator
+_comp_cmd_bts__src_packages_with_prefix()
 {
-    ppn=${cur:4} # partial package name, after stripping "src:"
-    compgen -P "src:" -W '$(_comp_xfunc apt-cache sources "$ppn")' \
-        -- "$ppn"
+    local ppn=${cur:4} # partial package name, after stripping "src:"
+    _comp_compgen -ac "$ppn" -- -P "src:" -W '$(_comp_xfunc apt-cache sources "$ppn")'
 }
 
 _comp_cmd_bts()
@@ -26,9 +28,9 @@ _comp_cmd_bts()
 
     case $prev in
         show | bugs)
-            COMPREPLY=($(compgen -W 'release-critical RC from: tag:
-                usertag:' -- "$cur") $(_cached_bugs)
-            $(_src_packages_with_prefix))
+            _comp_compgen -- -W 'release-critical RC from: tag: usertag:'
+            _comp_cmd_bts__cached_bugs
+            _comp_cmd_bts__src_packages_with_prefix
             return
             ;;
         select)
@@ -38,8 +40,8 @@ _comp_cmd_bts()
             return
             ;;
         status)
-            COMPREPLY=($(compgen -W 'file: fields: verbose' -- "$cur")
-            $(_cached_bugs))
+            _comp_compgen -- -W 'file: fields: verbose'
+            _comp_cmd_bts__cached_bugs
             return
             ;;
         block | unblock)
@@ -57,7 +59,8 @@ _comp_cmd_bts()
             return
             ;;
         clone | "done" | reopen | archive | unarchive | retitle | summary | submitter | found | notfound | fixed | notfixed | merge | forcemerge | unmerge | claim | unclaim | forwarded | notforwarded | owner | noowner | subscribe | unsubscribe | reportspam | spamreport | affects | usertag | usertags | reassign | tag | tags)
-            COMPREPLY=($(_cached_bugs))
+            COMPREPLY=()
+            _comp_cmd_bts__cached_bugs
             return
             ;;
         package)
@@ -65,15 +68,15 @@ _comp_cmd_bts()
             return
             ;;
         cache)
-            COMPREPLY=($(_comp_xfunc apt-cache packages)
-            $(_src_packages_with_prefix)
-            $(compgen -W 'from: release-critical RC' -- "$cur"))
+            COMPREPLY=($(_comp_xfunc apt-cache packages))
+            _comp_cmd_bts__src_packages_with_prefix
+            _comp_compgen -a -- -W 'from: release-critical RC'
             return
             ;;
         cleancache)
-            COMPREPLY=($(_comp_xfunc apt-cache packages)
-            $(_src_packages_with_prefix)
-            $(compgen -W 'from: tag: usertag: ALL' -- "$cur"))
+            COMPREPLY=($(_comp_xfunc apt-cache packages))
+            _comp_cmd_bts__src_packages_with_prefix
+            _comp_compgen -a -- -W 'from: tag: usertag: ALL'
             return
             ;;
         user)
