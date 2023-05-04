@@ -71,9 +71,7 @@ _comp_cmd_apt_cache()
             ;;
         --with-source)
             _comp_compgen_filedir '@(deb|dsc|changes)'
-            COMPREPLY+=($(
-                compgen -f -o plusdirs -X '!?(*/)@(Sources|Packages)' -- "$cur"
-            ))
+            _comp_compgen -a -- -f -o plusdirs -X '!?(*/)@(Sources|Packages)'
             return
             ;;
         search)
@@ -84,16 +82,16 @@ _comp_cmd_apt_cache()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '--pkg-cache --src-cache --quiet --important
+        _comp_compgen -- -W '--pkg-cache --src-cache --quiet --important
             --no-pre-depends --no-depends --no-recommends --no-suggests
             --no-conflicts --no-breaks --no-replaces --no-enhances --implicit
             --full --all-versions --no-all-versions --generate --no-generate
-            --names-only --all-names --recurse --installed --with-source --help
-            --version --config-file --option' -- "$cur"))
+            --names-only --all-names --recurse --installed --with-source
+            --help --version --config-file --option'
     elif [[ ! $special ]]; then
-        COMPREPLY=($(compgen -W 'gencaches showpkg stats showsrc dump
-            dumpavail unmet show search depends rdepends pkgnames dotty xvcg
-            policy madison' -- "$cur"))
+        _comp_compgen -- -W 'gencaches showpkg stats showsrc dump dumpavail
+            unmet show search depends rdepends pkgnames dotty xvcg policy
+            madison'
     fi
 
 } &&

@@ -21,13 +21,12 @@ _comp_cmd_mdadm__raid_level()
 
     case $mode in
         create)
-            COMPREPLY=($(compgen -W 'linear raid0 0 stripe raid1 1 mirror
-                raid4 4 raid5 5 raid6 6 raid10 10 multipath mp faulty' \
-                -- "$cur"))
+            _comp_compgen -- -W 'linear raid0 0 stripe raid1 1 mirror raid4 4
+                raid5 5 raid6 6 raid10 10 multipath mp faulty'
             ;;
         build)
-            COMPREPLY=($(compgen -W 'linear stripe raid0 0 raid1 multipath mp
-                faulty' -- "$cur"))
+            _comp_compgen -- -W 'linear stripe raid0 0 raid1 multipath mp
+                faulty'
             ;;
     esac
 }
@@ -44,16 +43,16 @@ _comp_cmd_mdadm__raid_layout()
 
     case $level in
         raid5)
-            COMPREPLY=($(compgen -W 'left-asymmetric left-symmetric
-                right-asymmetric right-symmetric la ra ls rs' -- "$cur"))
+            _comp_compgen -- -W 'left-asymmetric left-symmetric
+                right-asymmetric right-symmetric la ra ls rs'
             ;;
         raid10)
             _comp_compgen -- -W 'n o p'
             ;;
         faulty)
-            COMPREPLY=($(compgen -W 'write-transient wt read-transient rt
+            _comp_compgen -- -W 'write-transient wt read-transient rt
                 write-persistent wp read-persistent rp write-all read-fixable
-                rf clear flush none' -- "$cur"))
+                rf clear flush none'
             ;;
     esac
 }
@@ -65,8 +64,8 @@ _comp_cmd_mdadm__auto_flag()
 
 _comp_cmd_mdadm__update_flag()
 {
-    COMPREPLY=($(compgen -W 'sparc2.2 summaries uuid name homehost resync
-        byteorder super-minor' -- "$cur"))
+    _comp_compgen -- -W 'sparc2.2 summaries uuid name homehost resync byteorder
+        super-minor'
 }
 
 _comp_cmd_mdadm()
@@ -106,40 +105,37 @@ _comp_cmd_mdadm()
 
     if [[ $cur == -* ]]; then
         if ((cword == 1)); then
-            COMPREPLY=($(compgen -W "$options --assemble --build --create
-                --monitor --grow" -- "$cur"))
+            _comp_compgen -- -W "$options --assemble --build --create --monitor
+                --grow"
         else
             # shellcheck disable=SC2254
             case ${words[cword - 1]} in
                 --assemble | -${noargopts}A*)
-                    COMPREPLY=($(compgen -W "$options --uuid= --super-minor=
+                    _comp_compgen -- -W "$options --uuid= --super-minor=
                         --name= --force --run --no-degraded --auto= --bitmap=
-                        --backup-file= --update= --auto-update-homehost" \
-                        -- "$cur"))
+                        --backup-file= --update= --auto-update-homehost"
                     ;;
                 --build | --create | --grow | -${noargopts}[BCG]*)
-                    COMPREPLY=($(compgen -W "$options --raid-devices=
+                    _comp_compgen -- -W "$options --raid-devices=
                         --spare-devices= --size= --chunk= --rounding= --level=
                         --layout= --parity= --bitmap= --bitmap-chunk=
                         --write-mostly --write-behind= --assume-clean
-                        --backup-file= --name= --run --force --auto=" \
-                        -- "$cur"))
+                        --backup-file= --name= --run --force --auto="
                     ;;
                 --follow | --monitor | -${noargopts}F)
-                    COMPREPLY=($(compgen -W "$options --mail --program
-                        --alert --syslog --delay --daemonise --pid-file
-                        --oneshot --test" -- "$cur"))
+                    _comp_compgen -- -W "$options --mail --program --alert
+                        --syslog --delay --daemonise --pid-file --oneshot
+                        --test"
 
                     ;;
                 /dev/* | --add | --fail | --remove)
-                    COMPREPLY=($(compgen -W "$options --add --re-add
-                        --remove --fail --set-faulty" -- "$cur"))
+                    _comp_compgen -- -W "$options --add --re-add --remove
+                        --fail --set-faulty"
                     ;;
                 *)
-                    COMPREPLY=($(compgen -W "$options --query --detail
-                        --examine --sparc2.2 --examine-bitmap --run --stop
-                        --readonly --readwrite --zero-superblock --test" \
-                        -- "$cur"))
+                    _comp_compgen -- -W "$options --query --detail --examine
+                        --sparc2.2 --examine-bitmap --run --stop --readonly
+                        --readwrite --zero-superblock --test"
                     ;;
             esac
         fi

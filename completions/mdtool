@@ -16,16 +16,15 @@ _comp_cmd_mdtool()
     if [[ $command ]]; then
         case $command in
             "build")
-                COMPREPLY=($(compgen -W '--f --buildfile --p --project' \
-                    -S":" -- "$cur"))
+                _comp_compgen -- -W '--f --buildfile --p --project' -S":"
                 # TODO: This does not work :(
                 #if [[ "$prev" == *: ]]; then
                 #   case $prev in
                 #       @(--p:|--project:))
-                #           COMPREPLY=( $(compgen -f -G "*.mdp" -- "$cur") )
+                #           _comp_compgen -- -f -G "*.mdp"
                 #           ;;
                 #       @(--f:|--buildfile:))
-                #           COMPREPLY=( $(compgen -f -G "*.mdp" -G "*.mds" -- "$cur") )
+                #           _comp_compgen -- -f -G "*.mdp" -G "*.mds"
                 #           ;;
                 #   esac
                 #fi
@@ -35,25 +34,23 @@ _comp_cmd_mdtool()
                 compopt -o filenames
                 _comp_compgen -- -o filenames -G"*.mds"
                 if [[ $prev == *mds ]]; then
-                    COMPREPLY=($(compgen -W '--simple-makefiles --s --d:' \
-                        -- "$cur"))
+                    _comp_compgen -- -W '--simple-makefiles --s --d:'
                 fi
                 return
                 ;;
             "setup")
                 # TODO: at least return filenames after these options.
-                COMPREPLY=($(compgen -W 'install i uninstall u check-install
-                    ci update up list l list-av la list-update lu rep-add ra
+                _comp_compgen -- -W 'install i uninstall u check-install ci
+                    update up list l list-av la list-update lu rep-add ra
                     rep-remove rr rep-update ru rep-list rl reg-update
-                    reg-build rgu info rep-build rb pack p help h dump-file' \
-                    -- "$cur"))
+                    reg-build rgu info rep-build rb pack p help h dump-file'
                 return
                 ;;
         esac
     fi
 
-    COMPREPLY=($(compgen -W 'gsetup build dbgen project-export
-        generate-makefiles gettext-update setup -q' -- "$cur"))
+    _comp_compgen -- -W 'gsetup build dbgen project-export generate-makefiles
+        gettext-update setup -q'
 
 } &&
     complete -F _comp_cmd_mdtool mdtool
