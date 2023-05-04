@@ -1508,13 +1508,19 @@ _available_interfaces()
 }
 
 # Echo number of CPUs, falling back to 1 on failure.
-# TODO:API: rename per conventions, rework to use vars rather than outputting
-_ncpus()
+# @var[out] ret
+# @return 0 if it successfully obtained the number of CPUs, or otherwise 1
+# @since 2.12
+_comp_get_ncpus()
 {
     local var=NPROCESSORS_ONLN
     [[ $OSTYPE == *@(linux|msys|cygwin)* ]] && var=_$var
-    local n=$(getconf $var 2>/dev/null)
-    printf %s "${n:-1}"
+    if ret=$(getconf $var 2>/dev/null) && ((ret >= 1)); then
+        return 0
+    else
+        ret=1
+        return 1
+    fi
 }
 
 # Perform tilde (~) completion
