@@ -85,10 +85,11 @@ _comp_cmd_mplayer()
                 dirs=(/usr/share/mplayer/skins /usr/local/share/mplayer/skins)
             fi
 
-            local IFS=$'\n'
+            local -a subdirs
             for i in ~/.mplayer/skins "${dirs[@]}"; do
                 if [[ -d $i && -r $i ]]; then
-                    for j in $(compgen -d -- "$i/$cur"); do
+                    _comp_compgen -v subdirs -c "$i/$cur" -- -d
+                    for j in "${subdirs[@]}"; do
                         COMPREPLY[k++]=${j#"$i/"}
                     done
                 fi
