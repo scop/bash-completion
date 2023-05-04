@@ -7,31 +7,32 @@ _comp_cmd_iptables()
 
     local table="" chain='s/^Chain \([^ ]\{1,\}\).*$/\1/p'
 
+    local IFS=$' \t\n' # for ${table:+-t "$table"}
     [[ ${words[*]} =~ [[:space:]]-(t|-table=?)[[:space:]]*([^[:space:]]+) ]] &&
-        table="-t ${BASH_REMATCH[2]}"
+        table=${BASH_REMATCH[2]}
 
     case $prev in
         -*[AIDRPFXLZ])
-            COMPREPLY=($(compgen -W '`"$1" $table -nL 2>/dev/null | \
+            COMPREPLY=($(compgen -W '`"$1" ${table:+-t "$table"} -nL 2>/dev/null | \
                 command sed -ne "s/^Chain \([^ ]\{1,\}\).*$/\1/p"`' -- "$cur"))
             ;;
         -*t)
             COMPREPLY=($(compgen -W 'nat filter mangle' -- "$cur"))
             ;;
         -j)
-            if [[ $table == "-t filter" || ! $table ]]; then
+            if [[ $table == "filter" || ! $table ]]; then
                 COMPREPLY=($(compgen -W 'ACCEPT DROP LOG ULOG REJECT
-                `"$1" $table -nL 2>/dev/null | command sed -ne "$chain" \
+                `"$1" ${table:+-t "$table"} -nL 2>/dev/null | command sed -ne "$chain" \
                 -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' -- \
                     "$cur"))
-            elif [[ $table == "-t nat" ]]; then
+            elif [[ $table == "nat" ]]; then
                 COMPREPLY=($(compgen -W 'ACCEPT DROP LOG ULOG REJECT MIRROR SNAT
-                DNAT MASQUERADE `"$1" $table -nL 2>/dev/null | \
+                DNAT MASQUERADE `"$1" -t "$table" -nL 2>/dev/null | \
                 command sed -ne "$chain" -e "s/OUTPUT|PREROUTING|POSTROUTING//"`' \
                     -- "$cur"))
-            elif [[ $table == "-t mangle" ]]; then
+            elif [[ $table == "mangle" ]]; then
                 COMPREPLY=($(compgen -W 'ACCEPT DROP LOG ULOG REJECT MARK TOS
-                `"$1" $table -nL 2>/dev/null | command sed -ne "$chain" \
+                `"$1" -t "$table" -nL 2>/dev/null | command sed -ne "$chain" \
                 -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' -- \
                     "$cur"))
             fi
