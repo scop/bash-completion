@@ -449,6 +449,10 @@ _comp_split()
 #
 #     _comp_compgen -R -- -W '"${words[@]}"'
 #
+# or use the utility `_comp_compgen_set`:
+#
+#     _comp_compgen_set "${words[@]}"
+#
 # Other nested calls of _comp_compgen can also be used.  The function is
 # supposed to replace the existing content of the array by default to allow the
 # caller control whether to replace or append by the option `-a`.
@@ -538,6 +542,22 @@ _comp_compgen()
     }
 
     _comp_split -l ${_append:+-a} "$_var" "$_result"
+}
+
+# usage: _comp_compgen_set [words...]
+# Reset COMPREPLY with the specified WORDS.  If no arguments are specified, the
+# array is cleared.
+#
+# When an array name is specified by `-v VAR` in a caller _comp_compgen, the
+# array is reset instead of COMPREPLY.  When the `-a` flag is specified in a
+# caller _comp_compgen, the words are appended to the existing elements of the
+# array instead of replacing the existing elements.  This function ignores
+# ${cur-} or the prefix specified by `-v CUR`.
+_comp_compgen_set()
+{
+    local _append=${_comp_compgen__append-}
+    local _var=${_comp_compgen__var-COMPREPLY}
+    eval -- "$_var${_append:++}=(\"\$@\")"
 }
 
 # Check if the argument looks like a path.
@@ -868,8 +888,12 @@ _comp_compgen_filedir()
     if ((${#toks[@]} != 0)); then
         # 2>/dev/null for direct invocation, e.g. in the _comp_compgen_filedir unit test
         compopt -o filenames 2>/dev/null
-        _comp_compgen -R -- -W '"${toks[@]}"'
     fi
+
+    # Note: bash < 4.4 has a bug that all the elements are connected with
+    # ${v-"${a[@]}"} when IFS does not contain whitespace.
+    local IFS=$' \t\n'
+    _comp_compgen_set ${toks[@]+"${toks[@]}"}
 } # _comp_compgen_filedir()
 
 # This function splits $cur=--foo=bar into $prev=--foo, $cur=bar, making it
