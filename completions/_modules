@@ -21,30 +21,26 @@
 # being sourced before it and thus before the `module' alias has been defined.
 [[ -f /etc/profile.d/modules.sh ]] || return 1
 
-# TODO:API: rename per conventions, rework to use vars rather than outputting
-_module_list()
+_comp_cmd_module__compgen_list()
 {
     local modules="$(command sed 's/:/ /g' <<<"$LOADEDMODULES" | sort)"
-    compgen -W "$modules" -- "$1"
+    _comp_compgen -- -W "$modules"
 }
 
-# TODO:API: rename per conventions, rework to use vars rather than outputting
-_module_path()
+_comp_cmd_module__compgen_path()
 {
     local modules="$(command sed 's/:/ /g' <<<"$MODULEPATH" | sort)"
-    compgen -W "$modules" -- "$1"
+    _comp_compgen -- -W "$modules"
 }
 
-# TODO:API: rename per conventions, rework to use vars rather than outputting
-_module_avail()
+_comp_cmd_module__compgen_avail()
 {
     local modules="$(
         module avail 2>&1 |
             command grep -E -v '^(-|$)' |
             xargs printf '%s\n' | command sed -e 's/(default)//g' | sort
     )"
-
-    compgen -W "$modules" -- "$1"
+    _comp_compgen -- -W "$modules"
 }
 
 # A completion function for the module alias
@@ -65,19 +61,23 @@ _comp_cmd_module()
     elif ((cword == 2)); then
         case $prev in
             add | display | help | load | show | whatis)
-                COMPREPLY=($(_module_avail "$cur"))
+                # TODO:API: use generator call?
+                _comp_cmd_module__compgen_avail
                 ;;
             rm | switch | swap | unload | update)
-                COMPREPLY=($(_module_list "$cur"))
+                # TODO:API: use generator call?
+                _comp_cmd_module__compgen_list
                 ;;
             unuse)
-                COMPREPLY=($(_module_path "$cur"))
+                # TODO:API: use generator call?
+                _comp_cmd_module__compgen_path
                 ;;
         esac
     elif ((cword == 3)); then
         case ${words[1]} in
             swap | switch)
-                COMPREPLY=($(_module_avail "$cur"))
+                # TODO:API: use generator call?
+                _comp_cmd_module__compgen_avail
                 ;;
         esac
     fi
