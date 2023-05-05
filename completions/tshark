@@ -21,7 +21,7 @@ _comp_cmd_tshark()
         -o*)
             if [[ $cur == *:* ]]; then
                 cur=${cur#*:}
-                _filedir
+                _comp_compgen filedir
             else
                 [[ -v _comp_cmd_tshark__prefs ]] ||
                     _comp_cmd_tshark__prefs="$("$1" -G defaultprefs 2>/dev/null | command sed -ne 's/^#\{0,1\}\([a-z0-9_.-]\{1,\}:\).*/\1/p' |
@@ -61,11 +61,11 @@ _comp_cmd_tshark()
             ;;
         -*[rH])
             # -r accepts a lot of different file types
-            _filedir
+            _comp_compgen filedir
             return
             ;;
         -*w)
-            _filedir
+            _comp_compgen filedir
             [[ $cur == @(|-) ]] && COMPREPLY+=(-)
             return
             ;;
@@ -105,7 +105,7 @@ _comp_cmd_tshark()
         -*X)
             if [[ ${cur:${#prefix}} == lua_script:* ]]; then
                 cur=${cur#*:}
-                _filedir lua
+                _comp_compgen filedir lua
             else
                 COMPREPLY=($(compgen -P "$prefix" -W 'lua_script:' -- \
                     "${cur:${#prefix}}"))

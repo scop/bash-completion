@@ -89,28 +89,36 @@ _comp_cmd_lintian()
         case $prev in
             -C | --check-part | -X | --dont-check-part)
                 _comp_cmd_lintian__checks
+                return
                 ;;
             -T | --tags | --suppress-tags)
                 _comp_cmd_lintian__tags
+                return
                 ;;
             --tags-from-file | --suppress-tags-from-file | --cfg | -p | \
                 --packages-file)
-                _filedir
+                _comp_compgen filedir
+                return
                 ;;
             --lab | --archivedir | --dist | --root)
-                _filedir -d
+                _comp_compgen filedir -d
+                return
                 ;;
             --color)
                 COMPREPLY=($(compgen -W "never always auto html" -- "$cur"))
+                return
                 ;;
             -U | --unpack-info)
                 _comp_cmd_lintian__infos
+                return
                 ;;
             --area | --section)
                 COMPREPLY=($(compgen -W "main contrib non-free" -- "$cur"))
+                return
                 ;;
-            --arch) ;;
-
+            --arch)
+                return
+                ;;
         esac
     fi
 
@@ -137,7 +145,7 @@ _comp_cmd_lintian()
             ;;
         *)
             # in Ubuntu, dbgsym packages end in .ddeb, lintian >= 2.57.0 groks
-            _filedir '@(?(u|d)deb|changes|dsc|buildinfo)'
+            _comp_compgen filedir '@(?(u|d)deb|changes|dsc|buildinfo)'
             ;;
     esac
     return 0
@@ -158,7 +166,7 @@ _comp_cmd_lintian_info()
             return
             ;;
         --include-dir)
-            _filedir -d
+            _comp_compgen filedir -d
             return
             ;;
     esac
@@ -168,7 +176,7 @@ _comp_cmd_lintian_info()
             COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
             ;;
         *)
-            _filedir
+            _comp_compgen filedir
             ;;
     esac
     return 0

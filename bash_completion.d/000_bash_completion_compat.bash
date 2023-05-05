@@ -258,4 +258,22 @@ _command_offset()
     _comp_command_offset "$@"
 }
 
+# @deprecated Use `_comp_compgen -a filedir`
+_filedir()
+{
+    _comp_compgen -a filedir "$@"
+}
+
+# Perform tilde (~) completion
+# @return  True (0) if completion needs further processing,
+#          False (1) if tilde is followed by a valid username, completions are
+#          put in COMPREPLY and no further processing is necessary.
+# @deprecated Use `_comp_compgen -c CUR tilde [-d]`.  Note that the exit status
+# of `_comp_compgen_tilde` is flipped.  It returns 0 when the tilde completions
+# are attempted, or otherwise 1.
+_tilde()
+{
+    ! _comp_compgen -c "$1" tilde
+}
+
 # ex: filetype=sh

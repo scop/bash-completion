@@ -2,8 +2,7 @@
 
 _comp_cmd_lvm__filedir()
 {
-    : "${cur:=/dev/}"
-    _filedir
+    _comp_compgen -c "${cur:-/dev/}" filedir
 }
 
 _comp_cmd_lvm__volumegroups()
@@ -29,7 +28,7 @@ _comp_cmd_lvm__logicalvolumes()
     COMPREPLY=($(compgen -W "$(lvscan 2>/dev/null |
         command sed -n -e "s|^.*'\(.*\)'.*$|\1|p")" -- "$cur"))
     if [[ $cur == /dev/mapper/* ]]; then
-        _filedir
+        _comp_compgen -a filedir
         local i
         for i in "${!COMPREPLY[@]}"; do
             [[ ${COMPREPLY[i]} == */control ]] && unset -v 'COMPREPLY[i]'
@@ -165,7 +164,7 @@ _comp_cmd_pvcreate()
     # shellcheck disable=SC2254
     case $prev in
         --restorefile)
-            _filedir
+            _comp_compgen filedir
             return
             ;;
         --metadatatype | -${noargopts}M)
@@ -508,7 +507,7 @@ _comp_cmd_vgcfgbackup()
     # shellcheck disable=SC2254
     case $prev in
         --file | -${noargopts}f)
-            _filedir
+            _comp_compgen filedir
             return
             ;;
     esac
@@ -530,7 +529,7 @@ _comp_cmd_vgcfgrestore()
     # shellcheck disable=SC2254
     case $prev in
         --file | -${noargopts}f)
-            _filedir
+            _comp_compgen filedir
             return
             ;;
         --metadatatype | -${noargopts}M)

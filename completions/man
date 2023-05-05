@@ -13,15 +13,15 @@ _comp_cmd_man()
     # shellcheck disable=SC2254
     case $prev in
         --config-file | -${noargopts}C)
-            _filedir conf
+            _comp_compgen filedir conf
             return
             ;;
         --local-file | -${noargopts}l)
-            _filedir "$manext"
+            _comp_compgen filedir "$manext"
             return
             ;;
         --manpath | -${noargopts}M)
-            _filedir -d
+            _comp_compgen filedir -d
             return
             ;;
         --sections | -${noargopts}[Ss])
@@ -55,7 +55,7 @@ _comp_cmd_man()
 
     # file based completion if parameter looks like a path
     if _comp_looks_like_path "$cur"; then
-        _filedir "$manext"
+        _comp_compgen filedir "$manext"
         return
     fi
 
@@ -99,7 +99,7 @@ _comp_cmd_man()
         # File based completion for the rest, prepending ./ if needed
         # (man 1.6f needs that for man pages in current dir)
         local i start=${#COMPREPLY[@]}
-        _filedir "$manext"
+        _comp_compgen -a filedir "$manext"
         for ((i = start; i < ${#COMPREPLY[@]}; i++)); do
             [[ ${COMPREPLY[i]} == */* ]] || COMPREPLY[i]=./${COMPREPLY[i]}
         done

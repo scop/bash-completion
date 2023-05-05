@@ -381,51 +381,96 @@ _comp_split()
     ((_new_size > _old_size))
 }
 
-# Call `compgen` with the specified arguments and store the results in the
-# specified array.
-# Usage: _comp_compgen [-alR|-F sep|-v arr|-c cur] -- args...
-# This function essentially performs arr=($(compgen args...)) but properly
-# handles shell options, IFS, etc. using _comp_split.  This function is
-# equivalent to `_comp_split [-a] -l arr "$(IFS=sep; compgen args... -- cur)"`,
-# but this pattern is frequent in the codebase and is good to separate out as a
-# function for the possible future implementation change.
+# Provide a common interface to generate completion candidates in COMPREPLY or
+# in a specified array.
 # OPTIONS
 #   -a      Append to the array
 #   -v arr  Store the results to the array ARR. The default is `COMPREPLY`.
+#           The array name should not start with an underscores "_", which is
+#           internally used.  The array name should not be either "IFS" or
+#           "OPT{IND,ARG,ERR}".
 #   -F sep  Set a set of separator characters (used as IFS in evaluating
 #           `compgen').  The default separator is $' \t\n'.  Note that this is
 #           not the set of separators to delimit output of `compgen', but the
 #           separators in evaluating the expansions of `-W '...'`, etc.  The
 #           delimiter of the output of `compgen` is always a newline.
-#   -l      The same as -F $'\n'.
+#   -l      The same as -F $'\n'.  Use lines as words in evaluating compgen.
 #   -c cur  Set a word used as a prefix to filter the completions.  The default
 #           is ${cur-}.
-#   -R      The same as -c ''.
-# @param $1 array_name  The array name
-#   The array name should not start with an underscores "_", which is
-#   internally used.  The array name should not be either "IFS" or
-#   "OPT{IND,ARG,ERR}".
-# @param $2... args     The arguments that are passed to compgen
+#   -R      The same as -c ''.  Use raw outputs without filtering.
+# @var[in,opt] cur  Used as the default value of a prefix to filter the
+#   completions.
+#
+# Usage #1: _comp_compgen [-alR|-F sep|-v arr|-c cur] -- options...
+# Call `compgen` with the specified arguments and store the results in the
+# specified array.  This function essentially performs arr=($(compgen args...))
+# but properly handles shell options, IFS, etc. using _comp_split.  This
+# function is equivalent to `_comp_split [-a] -l arr "$(IFS=sep; compgen
+# args... -- cur)"`, but this pattern is frequent in the codebase and is good
+# to separate out as a function for the possible future implementation change.
+# @param $1... options  Arguments that are passed to compgen (if $1 starts with
+#   a hyphen `-`).
+#
 #   Note: References to positional parameters $1, $2, ... (such as -W '$1')
 #   will not work as expected because these reference the arguments of
 #   `_comp_compgen' instead of those of the caller function.  When there are
 #   needs to reference them, save the arguments to an array and reference the
-#   array instead.  The array option `-V arr` in bash >= 5.3 should be instead
-#   specified as `-v arr` as a part of `_comp_compgen` options.
-# @var[in] cur  Used as the default value of a prefix to filter the
-#   completions.
+#   array instead.
+#
+#   Note: The array option `-V arr` in bash >= 5.3 should be instead specified
+#   as `-v arr` as a part of the `_comp_compgen` options.
+#
+# Usage #2: _comp_compgen [-alR|-v arr|-c cur] name args...
+# Call `_comp_compgen_NAME ARGS...` with the specified options.  This provides
+# a common interface to call the functions `_comp_compgen_NAME`, which produce
+# completion candidates, with custom options [-alR|-v arr|-cur].  The option
+# `-F sep` is not used with this usage.
+# @param $1... name args  Calls the function _comp_compgen_NAME with the
+#   specified ARGS (if $1 does not start with a hyphen `-`).  The options
+#   [-alR|-v arr|-c cur] are inherited by the child calls of `_comp_compgen`
+#   inside `_comp_compgen_NAME` unless the child call `_comp_compgen` receives
+#   overriding options.
+# @var[in,opt,internal] _comp_compgen__append
+# @var[in,opt,internal] _comp_compgen__var
+# @var[in,opt,internal] _comp_compgen__cur
+#   These variables are internally used to pass the effect of the options
+#   [-alR|-v arr|-c cur] to the child calls of `_comp_compgen` in
+#   `_comp_compgen_NAME`.
+#
+# @remarks Design `_comp_compgen_NAME`: a function that produce completions can
+# be defined with the name _comp_compgen_NAME.  The function is supposed to
+# generate completions by calling `_comp_compgen`.  To reflect the options
+# specified to the outer calls of `_comp_compgen`, the function should not
+# directly modify `COMPREPLY`.  To add words, one can call
+#
+#     _comp_compgen -- -W '"${words[@]}"'
+#
+# To directly add words without filtering by `cur`, one can call
+#
+#     _comp_compgen -R -- -W '"${words[@]}"'
+#
+# or use the utility `_comp_compgen_set`:
+#
+#     _comp_compgen_set "${words[@]}"
+#
+# Other nested calls of _comp_compgen can also be used.  The function is
+# supposed to replace the existing content of the array by default to allow the
+# caller control whether to replace or append by the option `-a`.
+#
 _comp_compgen()
 {
-    local _append="" _var=COMPREPLY _cur=${cur-} _ifs=$' \t\n'
-    local -a _split_options=(-l)
+    local _append=${_comp_compgen__append-}
+    local _var=${_comp_compgen__var-COMPREPLY}
+    local _cur=${_comp_compgen__cur-${cur-}}
+    local _ifs=$' \t\n'
 
     local OPTIND=1 OPTARG="" OPTERR=0 _opt
     while getopts ':alF:v:Rc:' _opt "$@"; do
         case $_opt in
-            a) _append=set _split_options+=(-a) ;;
+            a) _append=set ;;
             v)
                 if [[ $OPTARG == @(*[^_a-zA-Z0-9]*|[0-9]*|''|_*|IFS|OPTIND|OPTARG|OPTERR) ]]; then
-                    printf 'bash_completion: %s: invalid array name `%s'\''.\n' "$FUNCNAME" "-v $OPTARG" >&2
+                    printf 'bash_completion: %s: -v: invalid array name `%s'\''.\n' "$FUNCNAME" "$OPTARG" >&2
                     return 2
                 fi
                 _var=$OPTARG
@@ -445,17 +490,38 @@ _comp_compgen()
         printf 'bash_completion: %s: unexpected number of arguments.\n' "$FUNCNAME" >&2
         printf 'usage: %s [-alR|-F SEP|-v ARR|-c CUR] -- ARGS...' "$FUNCNAME" >&2
         return 2
-    elif
-        # Note: $* in the below checks would be affected by uncontrolled IFS in
-        # bash >= 5.0, so we need to set IFS to the normal value.  The behavior
-        # in bash < 5.0, where unquoted $* in conditional command did not honor
-        # IFS, was a bug.
-        local IFS=$' \t\n'
-        [[ $* == *\$[0-9]* || $* == *\$\{[0-9]* ]]
-    then
-        # Note: extglob *\$?(\{)[0-9]* can be extremely slow when the string
-        # "${*:2:_nopt}" becomes longer, so we test \$[0-9] and \$\{[0-9]
-        # separately.
+    fi
+
+    if [[ $1 != -* ]]; then
+        # usage: _comp_compgen [options] NAME args
+        if ! declare -F "_comp_compgen_$1" &>/dev/null; then
+            printf 'bash_completion: %s: unrecognized category `%s'\'' (function _comp_compgen_%s not found).\n' "$FUNCNAME" "$1" "$1" >&2
+            return 2
+        fi
+
+        local _comp_compgen__append=$_append
+        local _comp_compgen__var=$_var
+        local _comp_compgen__cur=$_cur cur=$_cur
+        # Note: we use $1 as a part of a function name, and we use $2... as
+        # arguments to the function if any.
+        # shellcheck disable=SC2145
+        _comp_compgen_"$@"
+        return
+    fi
+
+    # usage: _comp_compgen [options] -- [compgen_options]
+
+    # Note: $* in the below checks would be affected by uncontrolled IFS in
+    # bash >= 5.0, so we need to set IFS to the normal value.  The behavior in
+    # bash < 5.0, where unquoted $* in conditional command did not honor IFS,
+    # was a bug.
+    # Note: Also, ${_cur:+-- "$_cur"} and ${_append:+-a} would be affected by
+    # uncontrolled IFS.
+    local IFS=$' \t\n'
+    # Note: extglob *\$?(\{)[0-9]* can be extremely slow when the string
+    # "${*:2:_nopt}" becomes longer, so we test \$[0-9] and \$\{[0-9]
+    # separately.
+    if [[ $* == *\$[0-9]* || $* == *\$\{[0-9]* ]]; then
         printf 'bash_completion: %s: positional parameter $1, $2, ... do not work inside this function.\n' "$FUNCNAME" >&2
         return 2
     fi
@@ -475,7 +541,23 @@ _comp_compgen()
         return "$_status"
     }
 
-    _comp_split "${_split_options[@]}" "$_var" "$_result"
+    _comp_split -l ${_append:+-a} "$_var" "$_result"
+}
+
+# usage: _comp_compgen_set [words...]
+# Reset COMPREPLY with the specified WORDS.  If no arguments are specified, the
+# array is cleared.
+#
+# When an array name is specified by `-v VAR` in a caller _comp_compgen, the
+# array is reset instead of COMPREPLY.  When the `-a` flag is specified in a
+# caller _comp_compgen, the words are appended to the existing elements of the
+# array instead of replacing the existing elements.  This function ignores
+# ${cur-} or the prefix specified by `-v CUR`.
+_comp_compgen_set()
+{
+    local _append=${_comp_compgen__append-}
+    local _var=${_comp_compgen__var-COMPREPLY}
+    eval -- "$_var${_append:++}=(\"\$@\")"
 }
 
 # Check if the argument looks like a path.
@@ -766,10 +848,9 @@ _comp_quote_compgen()
 #            completions with `.$1' and the uppercase version of it as file
 #            extension.
 #
-# TODO: rename per API conventions
-_filedir()
+_comp_compgen_filedir()
 {
-    _tilde "${cur-}" || return
+    _comp_compgen_tilde && return
 
     local -a toks
     local arg=${1-}
@@ -805,11 +886,15 @@ _filedir()
     fi
 
     if ((${#toks[@]} != 0)); then
-        # 2>/dev/null for direct invocation, e.g. in the _filedir unit test
+        # 2>/dev/null for direct invocation, e.g. in the _comp_compgen_filedir unit test
         compopt -o filenames 2>/dev/null
-        COMPREPLY+=("${toks[@]}")
     fi
-} # _filedir()
+
+    # Note: bash < 4.4 has a bug that all the elements are connected with
+    # ${v-"${a[@]}"} when IFS does not contain whitespace.
+    local IFS=$' \t\n'
+    _comp_compgen_set ${toks[@]+"${toks[@]}"}
+} # _comp_compgen_filedir()
 
 # This function splits $cur=--foo=bar into $prev=--foo, $cur=bar, making it
 # easier to support both "--foo bar" and "--foo=bar" style completions.
@@ -955,7 +1040,7 @@ _comp_variable_assignments()
     case $prev in
         TZ)
             cur=/usr/share/zoneinfo/$cur
-            _filedir
+            _comp_compgen -a filedir
             if ((${#COMPREPLY[@]})); then
                 for i in "${!COMPREPLY[@]}"; do
                     if [[ ${COMPREPLY[i]} == *.tab ]]; then
@@ -980,7 +1065,7 @@ _comp_variable_assignments()
             ;;
         *)
             _variables && return 0
-            _filedir
+            _comp_compgen -a filedir
             ;;
     esac
 
@@ -995,9 +1080,12 @@ _comp_variable_assignments()
 #
 # Options:
 #     -n EXCLUDE  Passed to _comp_get_words -n with redirection chars
-#     -e XSPEC    Passed to _filedir as first arg for stderr redirections
-#     -o XSPEC    Passed to _filedir as first arg for other output redirections
-#     -i XSPEC    Passed to _filedir as first arg for stdin redirections
+#     -e XSPEC    Passed to _comp_compgen_filedir as first arg for stderr
+#                 redirections
+#     -o XSPEC    Passed to _comp_compgen_filedir as first arg for other output
+#                 redirections
+#     -i XSPEC    Passed to _comp_compgen_filedir as first arg for stdin
+#                 redirections
 #     -s          Split long options with _comp__split_longopt, implies -n =
 # @param $1...$3 args Original arguments specified to the completion function.
 #                     The first argument $1 is command name.  The second
@@ -1008,9 +1096,9 @@ _comp_variable_assignments()
 # @var[out] prev          Reconstructed previous word
 # @var[out] words         Reconstructed words
 # @var[out] cword         Current word index in `words`
-# @var[out] comp_args     Original arguments specified to the completion function
-#                         are saved in this array, if the arguments $1...$3 is
-#                         specified.
+# @var[out] comp_args     Original arguments specified to the completion
+#                         function are saved in this array, if the arguments
+#                         $1...$3 is specified.
 # @var[out,opt] was_split When "-s" is specified, `"set"/""` is set depending
 #                         on whether the split happened.
 # @return  True (0) if completion needs further processing,
@@ -1066,7 +1154,7 @@ _comp_initialize()
                 ;;
         esac
         cur=${cur##"$redir"}
-        _filedir "$xspec"
+        _comp_compgen filedir "$xspec"
         return 1
     fi
 
@@ -1370,21 +1458,21 @@ _ncpus()
 }
 
 # Perform tilde (~) completion
-# @return  True (0) if completion needs further processing,
-#          False (1) if tilde is followed by a valid username, completions are
+# @return  False (1) if completion needs further processing,
+#          True (0) if tilde is followed by a valid username, completions are
 #          put in COMPREPLY and no further processing is necessary.
-# TODO: rename per API conventions
-_tilde()
+_comp_compgen_tilde()
 {
-    if [[ ${1-} == \~* && $1 != */* ]]; then
+    if [[ ${cur-} == \~* && $cur != */* ]]; then
         # Try generate ~username completions
-        if _comp_compgen -c "${1#\~}" -- -P '~' -u; then
-            # 2>/dev/null for direct invocation, e.g. in the _tilde unit test
+        if _comp_compgen -c "${cur#\~}" -- -P '~' -u; then
+            # 2>/dev/null for direct invocation, e.g. in the
+            # _comp_compgen_tilde unit test
             compopt -o filenames 2>/dev/null
-            return 1
+            return 0
         fi
     fi
-    return 0
+    return 1
 }
 
 # Expand variable starting with tilde (~)
@@ -1431,7 +1519,7 @@ _expand()
             __expand_tilde_by_ref cur
             ;;
         ~*)
-            _tilde "$cur" ||
+            _comp_compgen -v COMPREPLY tilde &&
                 eval "COMPREPLY[0]=$(printf ~%q "${COMPREPLY[0]#\~}")"
             return ${#COMPREPLY[@]}
             ;;
@@ -2412,11 +2500,11 @@ _comp_longopt()
             return
             ;;
         --!(no-*)dir*)
-            _filedir -d
+            _comp_compgen -a filedir -d
             return
             ;;
         --!(no-*)@(file|path)*)
-            _filedir
+            _comp_compgen -a filedir
             return
             ;;
         --+([-a-z0-9_]))
@@ -2424,11 +2512,11 @@ _comp_longopt()
                 "s|.*$prev\[\{0,1\}=[<[]\{0,1\}\([-A-Za-z0-9_]\{1,\}\).*|\1|p")
             case ${argtype,,} in
                 *dir*)
-                    _filedir -d
+                    _comp_compgen -a filedir -d
                     return
                     ;;
                 *file* | *path*)
-                    _filedir
+                    _comp_compgen -a filedir
                     return
                     ;;
             esac
@@ -2445,10 +2533,10 @@ _comp_longopt()
             done)"
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     elif [[ $1 == *@(rmdir|chroot) ]]; then
-        _filedir -d
+        _comp_compgen -a filedir -d
     else
         [[ $1 == *mkdir ]] && compopt -o nospace
-        _filedir
+        _comp_compgen -a filedir
     fi
 }
 # makeinfo and texi2dvi are defined elsewhere.
@@ -2468,7 +2556,7 @@ _filedir_xspec()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
-    _tilde "$cur" || return
+    _comp_compgen_tilde && return
 
     local ret
     _comp_quote_compgen "$cur"

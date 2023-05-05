@@ -71,7 +71,7 @@ _comp_cmd_rpm()
     # shellcheck disable=SC2254
     case $prev in
         --dbpath | --excludepath | --prefix | --relocate | --root | -${noargopts}r)
-            _filedir -d
+            _comp_compgen filedir -d
             return
             ;;
         --eval | -${noargopts}E)
@@ -84,18 +84,18 @@ _comp_cmd_rpm()
             return
             ;;
         --rcfile)
-            _filedir
+            _comp_compgen filedir
             return
             ;;
         --specfile)
             # complete on .spec files
-            _filedir spec
+            _comp_compgen filedir spec
             return
             ;;
         --whatenhances | --whatprovides | --whatrecommends | --whatrequires | \
             --whatsuggests | --whatsupplements)
             if _comp_looks_like_path "$cur"; then
-                _filedir
+                _comp_compgen filedir
             else
                 # complete on capabilities
                 local IFS=$'\n' fmt
@@ -138,7 +138,7 @@ _comp_cmd_rpm()
                 --ignoresize --oldpackage --queryformat --repackage
                 --nosuggests' -- "$cur"))
             else
-                _filedir '[rs]pm'
+                _comp_compgen filedir '[rs]pm'
             fi
             ;;
         -e | --erase)
@@ -166,7 +166,7 @@ _comp_cmd_rpm()
                     COMPREPLY=($(compgen -W '"${opts[@]}" --dbpath --fscontext
                         --last --root --state' -- "$cur"))
                 else
-                    _filedir
+                    _comp_compgen filedir
                 fi
             elif [[ ${words[*]} == *\ -@(*([^ -])g|-group )* ]]; then
                 # -qg completion
@@ -177,7 +177,7 @@ _comp_cmd_rpm()
                     COMPREPLY=($(compgen -W '"${opts[@]}" --ftpport --ftpproxy
                         --httpport --httpproxy --nomanifest' -- "$cur"))
                 else
-                    _filedir '[rs]pm'
+                    _comp_compgen filedir '[rs]pm'
                 fi
             else
                 # -q; installed package completion
@@ -198,7 +198,7 @@ _comp_cmd_rpm()
                 COMPREPLY=($(compgen -W '"${opts[@]}" --nopgp --nogpg --nomd5' \
                     -- "$cur"))
             else
-                _filedir '[rs]pm'
+                _comp_compgen filedir '[rs]pm'
             fi
             ;;
         -[Vy]* | --verify)
@@ -211,17 +211,17 @@ _comp_cmd_rpm()
                     -- "$cur"))
             # check whether we're doing file completion
             elif [[ ${words[*]} == *\ -@(*([^ -])f|-file )* ]]; then
-                _filedir
+                _comp_compgen filedir
             elif [[ ${words[*]} == *\ -@(*([^ -])g|-group )* ]]; then
                 _comp_cmd_rpm__groups "$1"
             elif [[ ${words[*]} == *\ -@(*([^ -])p|-package )* ]]; then
-                _filedir '[rs]pm'
+                _comp_compgen filedir '[rs]pm'
             else
                 _comp_xfunc_rpm_installed_packages "$1"
             fi
             ;;
         --resign | --addsign | --delsign)
-            _filedir '[rs]pm'
+            _comp_compgen filedir '[rs]pm'
             ;;
         --setperms | --setgids)
             _comp_xfunc_rpm_installed_packages "$1"
@@ -231,7 +231,7 @@ _comp_cmd_rpm()
                 COMPREPLY=($(compgen -W '--import --dbpath --root=' \
                     -- "$cur"))
             else
-                _filedir
+                _comp_compgen filedir
             fi
             ;;
     esac
@@ -251,7 +251,7 @@ _comp_cmd_rpmbuild()
     # shellcheck disable=SC2254
     case $prev in
         --buildroot | --root | --dbpath | -${noargopts}r)
-            _filedir -d
+            _comp_compgen filedir -d
             return
             ;;
         --target)
@@ -263,7 +263,7 @@ _comp_cmd_rpmbuild()
             return
             ;;
         --macros | --rcfile)
-            _filedir
+            _comp_compgen filedir
             return
             ;;
         --buildpolicy)
@@ -304,7 +304,7 @@ _comp_cmd_rpmbuild()
                 ;;
         esac
     done
-    [[ $ext ]] && _filedir "$ext"
+    [[ $ext ]] && _comp_compgen filedir "$ext"
 } &&
     complete -F _comp_cmd_rpmbuild rpmbuild rpmbuild-md5
 

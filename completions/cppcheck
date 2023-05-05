@@ -8,7 +8,7 @@ _comp_cmd_cppcheck()
     case $prev in
         --append | --exitcode-suppressions | --rule-file | --config-excludes-file | \
             --suppressions-list | --includes-file | --include | -i)
-            _filedir
+            _comp_compgen filedir
             return
             ;;
         -D | -U | --rule | --suppress | --template | --max-configs | -h | --help | --version | \
@@ -34,12 +34,12 @@ _comp_cmd_cppcheck()
             return
             ;;
         --file-list)
-            _filedir
+            _comp_compgen filedir
             [[ ! $cur || $cur == - ]] && COMPREPLY+=(-)
             return
             ;;
         -I)
-            _filedir -d
+            _comp_compgen filedir -d
             return
             ;;
         -j)
@@ -56,19 +56,19 @@ _comp_cmd_cppcheck()
             return
             ;;
         --platform)
-            _filedir
+            _comp_compgen filedir
             COMPREPLY+=($(compgen -W 'unix32 unix64 win32A win32W win64
                 native' -- "$cur"))
             return
             ;;
         -rp | --relative-paths)
             if [[ $was_split ]]; then # -rp without argument is allowed
-                _filedir -d
+                _comp_compgen filedir -d
                 return
             fi
             ;;
         --library)
-            _filedir cfg
+            _comp_compgen filedir cfg
             return
             ;;
         --xml-version)
@@ -83,7 +83,7 @@ _comp_cmd_cppcheck()
         COMPREPLY=($(compgen -W '$(_parse_help "$1")' -- "$cur"))
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     else
-        _filedir '@([cht]pp|[cht]xx|cc|[ch]++|[ch])'
+        _comp_compgen filedir '@([cht]pp|[cht]xx|cc|[ch]++|[ch])'
     fi
 } &&
     complete -F _comp_cmd_cppcheck cppcheck
