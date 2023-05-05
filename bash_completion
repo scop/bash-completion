@@ -397,6 +397,23 @@ _comp_split()
     ((_new_size > _old_size))
 }
 
+# Helper function for _comp_compgen
+# @var[in] $?
+# @var[in] _var
+# @var[in] _append
+# @return original $?
+_comp_compgen__error_fallback()
+{
+    local _status=$?
+    if [[ $_append ]]; then
+        # make sure existence of variable
+        eval -- "$_var+=()"
+    else
+        eval -- "$_var=()"
+    fi
+    return "$_status"
+}
+
 # Provide a common interface to generate completion candidates in COMPREPLY or
 # in a specified array.
 # OPTIONS
@@ -414,6 +431,7 @@ _comp_split()
 #   -c cur  Set a word used as a prefix to filter the completions.  The default
 #           is ${cur-}.
 #   -R      The same as -c ''.  Use raw outputs without filtering.
+#   -C dir  Evaluate compgen/generator in the specified directory.
 # @var[in,opt] cur  Used as the default value of a prefix to filter the
 #   completions.
 #
@@ -437,10 +455,10 @@ _comp_split()
 #   as `-v arr` as a part of the `_comp_compgen` options.
 #
 # Usage #2: _comp_compgen [-alR|-v arr|-c cur] name args...
-# Call `_comp_compgen_NAME ARGS...` with the specified options.  This provides
-# a common interface to call the functions `_comp_compgen_NAME`, which produce
-# completion candidates, with custom options [-alR|-v arr|-c cur].  The option
-# `-F sep` is not used with this usage.
+# Call the generator `_comp_compgen_NAME ARGS...` with the specified options.
+# This provides a common interface to call the functions `_comp_compgen_NAME`,
+# which produce completion candidates, with custom options [-alR|-v arr|-c
+# cur].  The option `-F sep` is not used with this usage.
 # @param $1... name args  Calls the function _comp_compgen_NAME with the
 #   specified ARGS (if $1 does not start with a hyphen `-`).  The options
 #   [-alR|-v arr|-c cur] are inherited by the child calls of `_comp_compgen`
@@ -484,10 +502,15 @@ _comp_compgen()
     local _append=${_comp_compgen__append-}
     local _var=${_comp_compgen__var-COMPREPLY}
     local _cur=${_comp_compgen__cur-${cur-}}
-    local _ifs=$' \t\n'
+    local _ifs=$' \t\n' _dir=""
 
+    local _old_nocasematch=""
+    if shopt -q nocasematch; then
+        _old_nocasematch=set
+        shopt -u nocasematch
+    fi
     local OPTIND=1 OPTARG="" OPTERR=0 _opt
-    while getopts ':alF:v:Rc:' _opt "$@"; do
+    while getopts ':alF:v:Rc:C:' _opt "$@"; do
         case $_opt in
             a) _append=set ;;
             v)
@@ -501,12 +524,20 @@ _comp_compgen()
             F) _ifs=$OPTARG ;;
             c) _cur=$OPTARG ;;
             R) _cur="" ;;
+            C)
+                if [[ ! $OPTARG ]]; then
+                    printf 'bash_completion: %s: -C: invalid directory name `%s'\''.\n' "$FUNCNAME" "$OPTARG" >&2
+                    return 2
+                fi
+                _dir=$OPTARG
+                ;;
             *)
                 printf 'bash_completion: %s: usage error\n' "$FUNCNAME" >&2
                 return 2
                 ;;
         esac
     done
+    [[ $_old_nocasematch ]] && shopt -s nocasematch
     shift "$((OPTIND - 1))"
     if (($# == 0)); then
         printf 'bash_completion: %s: unexpected number of arguments.\n' "$FUNCNAME" >&2
@@ -521,6 +552,18 @@ _comp_compgen()
             return 2
         fi
 
+        if [[ $_dir ]]; then
+            local _original_pwd=$PWD
+            local PWD=${PWD-} OLDPWD=${OLDPWD-}
+            # Note: We also redirect stdout because `cd` may output the target
+            # directory to stdout when CDPATH is set.
+            command cd -- "$_dir" &>/dev/null ||
+                {
+                    _comp_compgen__error_fallback
+                    return
+                }
+        fi
+
         local _comp_compgen__append=$_append
         local _comp_compgen__var=$_var
         local _comp_compgen__cur=$_cur cur=$_cur
@@ -528,7 +571,16 @@ _comp_compgen()
         # arguments to the function if any.
         # shellcheck disable=SC2145
         _comp_compgen_"$@"
-        return
+        local _status=$?
+
+        # Go back to the original directory.
+        # Note: Failure of this line results in the change of the current
+        # directory visible to the user.  We intentionally do not redirect
+        # stderr so that the error message appear in the terminal.
+        # shellcheck disable=SC2164
+        [[ $_dir ]] && command cd -- "$_original_pwd"
+
+        return "$_status"
     fi
 
     # usage: _comp_compgen [options] -- [compgen_options]
@@ -550,16 +602,15 @@ _comp_compgen()
 
     local _result
     _result=$(
+        if [[ $_dir ]]; then
+            # Note: We also redirect stdout because `cd` may output the target
+            # directory to stdout when CDPATH is set.
+            command cd -- "$_dir" &>/dev/null || return
+        fi
         IFS=$_ifs compgen "$@" ${_cur:+-- "$_cur"}
     ) || {
-        local _status=$?
-        if [[ $_append ]]; then
-            # make sure existence of variable
-            eval -- "$_var+=()"
-        else
-            eval -- "$_var=()"
-        fi
-        return "$_status"
+        _comp_compgen__error_fallback
+        return
     }
 
     _comp_split -l ${_append:+-a} "$_var" "$_result"
