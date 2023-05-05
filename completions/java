@@ -4,7 +4,7 @@
 _comp_cmd_java__classpath()
 {
     cur=${cur##*:}
-    _comp_compgen -a filedir '@(jar|zip)'
+    _comp_compgen filedir '@(jar|zip)'
 }
 
 # exact classpath determination
@@ -152,7 +152,7 @@ _comp_cmd_java()
                 ;;
             *)
                 # once we've seen a class, just do filename completion
-                _comp_compgen -a filedir
+                _comp_compgen filedir
                 return
                 ;;
         esac
@@ -166,18 +166,18 @@ _comp_cmd_java()
             ;;
         -javaagent:*)
             cur=${cur#*:}
-            _comp_compgen -a filedir '@(jar|zip)'
+            _comp_compgen filedir '@(jar|zip)'
             return
             ;;
         -agentpath:*)
             cur=${cur#*:}
-            _comp_compgen -a filedir so
+            _comp_compgen filedir so
             return
             ;;
         # various non-standard option completions
         -splash:*)
             cur=${cur#*:}
-            _comp_compgen -a filedir '@(gif|jp?(e)g|png)'
+            _comp_compgen filedir '@(gif|jp?(e)g|png)'
             return
             ;;
         -Xbootclasspath*:*)
@@ -200,7 +200,7 @@ _comp_cmd_java()
             ;;
         -Xloggc:* | -Xverboselog:*)
             cur=${cur#*:}
-            _comp_compgen -a filedir
+            _comp_compgen filedir
             return
             ;;
         -Xshare:*)
@@ -236,7 +236,7 @@ _comp_cmd_java()
     else
         if [[ $prev == -jar ]]; then
             # jar file completion
-            _comp_compgen -a filedir '[jw]ar'
+            _comp_compgen filedir '[jw]ar'
         else
             # classes completion
             _comp_cmd_java__classes
@@ -256,7 +256,7 @@ _comp_cmd_javadoc()
 
     case $prev in
         -overview | -helpfile)
-            _comp_compgen -a filedir '?(x)htm?(l)'
+            _comp_compgen filedir '?(x)htm?(l)'
             return
             ;;
         -doclet | -exclude | -subpackages | -source | -locale | -encoding | -windowtitle | \
@@ -265,11 +265,11 @@ _comp_cmd_javadoc()
             return
             ;;
         -stylesheetfile)
-            _comp_compgen -a filedir css
+            _comp_compgen filedir css
             return
             ;;
         -d | -link | -linkoffline)
-            _comp_compgen -a filedir -d
+            _comp_compgen filedir -d
             return
             ;;
         -classpath | -cp | -bootclasspath | -docletpath | -sourcepath | -extdirs | \
@@ -281,7 +281,7 @@ _comp_cmd_javadoc()
 
     # -linkoffline takes two arguments
     if [[ $cword -gt 2 && ${words[cword - 2]} == -linkoffline ]]; then
-        _comp_compgen -a filedir -d
+        _comp_compgen filedir -d
         return
     fi
 
@@ -289,7 +289,7 @@ _comp_cmd_javadoc()
         COMPREPLY=($(compgen -W '$(_parse_help "$1" -help)' -- "$cur"))
     else
         # source files completion
-        _comp_compgen -a filedir java
+        _comp_compgen filedir java
         # packages completion
         _comp_cmd_java__packages
     fi
@@ -303,7 +303,7 @@ _comp_cmd_javac()
 
     case $prev in
         -d)
-            _comp_compgen -a filedir -d
+            _comp_compgen filedir -d
             return
             ;;
         -cp | -classpath | -bootclasspath | -sourcepath | -extdirs)
@@ -331,7 +331,7 @@ _comp_cmd_javac()
             COMPREPLY+=($(compgen -W '$(_parse_help "$1" -X)' -- "$cur"))
     else
         # source files completion
-        _comp_compgen -a filedir java
+        _comp_compgen filedir java
     fi
 
     [[ ${COMPREPLY-} == -*[:=] ]] && compopt -o nospace
