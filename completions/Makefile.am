@@ -864,6 +864,7 @@ CLEANFILES = \
 	vgsplit \
 	vigr \
 	_virtctl \
+	_watchexec \
 	whatis \
 	wine-development \
 	wine-stable \
@@ -930,6 +931,8 @@ symlinks: $(DATA)
 		mailsnarf msgsnarf
 	$(ss) firefox \
 		firefox-esr iceweasel mozilla-firefox
+	$(ss) _flamegraph \
+		_watchexec
 	$(ss) freeciv \
 		civclient freeciv-gtk2 freeciv-gtk3 freeciv-sdl freeciv-xaw
 	$(ss) freeciv-server \
