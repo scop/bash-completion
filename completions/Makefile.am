@@ -557,6 +557,7 @@ CLEANFILES = \
 	createuser \
 	_datree \
 	dcop \
+	_deno \
 	dfutool \
 	_diesel \
 	display \
@@ -1061,7 +1062,7 @@ symlinks: $(DATA)
 	$(ss) mcrypt \
 		mdecrypt
 	$(ss) _mdbook \
-		_diesel _starship
+		_deno _diesel _starship
 	$(ss) mplayer \
 		gmplayer kplayer mencoder mplayer2
 	$(ss) mutt \
