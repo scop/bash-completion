@@ -556,6 +556,7 @@ CLEANFILES = \
 	_datree \
 	dcop \
 	dfutool \
+	_diesel \
 	display \
 	_docker \
 	dpkg-deb \
@@ -1055,7 +1056,7 @@ symlinks: $(DATA)
 	$(ss) mcrypt \
 		mdecrypt
 	$(ss) _mdbook \
-		_starship
+		_diesel _starship
 	$(ss) mplayer \
 		gmplayer kplayer mencoder mplayer2
 	$(ss) mutt \
