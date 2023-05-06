@@ -6,6 +6,7 @@ EXTRA_DIST = \
 	chsh \
 	dmesg \
 	eject \
+	flamegraph \
 	gaiacli \
 	gh \
 	golangci-lint \
@@ -14,6 +15,7 @@ EXTRA_DIST = \
 	hwclock \
 	ionice \
 	look \
+	mdbook \
 	mock \
 	modules \
 	mount \
@@ -34,6 +36,7 @@ EXTRA_DIST = \
 	svn \
 	svnadmin \
 	svnlook \
+	tokio-console \
 	udevadm \
 	umount \
 	umount.linux \
