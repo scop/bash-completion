@@ -428,6 +428,7 @@ bashcomp_DATA = 2to3 \
 		tcpnice \
 		timeout \
 		tipc \
+		_tokio-console \
 		tox \
 		tracepath \
 		tree \
