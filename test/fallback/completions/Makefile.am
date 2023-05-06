@@ -6,6 +6,7 @@ EXTRA_DIST = \
 	chsh \
 	dmesg \
 	eject \
+	flamegraph \
 	gaiacli \
 	gh \
 	golangci-lint \

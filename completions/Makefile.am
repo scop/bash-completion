@@ -118,6 +118,7 @@ bashcomp_DATA = 2to3 \
 		fio \
 		firefox \
 		flake8 \
+		_flamegraph \
 		freebsd-update \
 		freeciv \
 		freeciv-server \
