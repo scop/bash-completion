@@ -828,6 +828,7 @@ CLEANFILES = \
 	spovray \
 	_sshi \
 	star \
+	_starship \
 	stream \
 	sudoedit \
 	_tanzu \
@@ -1053,6 +1054,8 @@ symlinks: $(DATA)
 		apropos whatis
 	$(ss) mcrypt \
 		mdecrypt
+	$(ss) _mdbook \
+		_starship
 	$(ss) mplayer \
 		gmplayer kplayer mencoder mplayer2
 	$(ss) mutt \
