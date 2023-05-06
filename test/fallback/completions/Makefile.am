@@ -14,6 +14,7 @@ EXTRA_DIST = \
 	hwclock \
 	ionice \
 	look \
+	mdbook \
 	mock \
 	modules \
 	mount \

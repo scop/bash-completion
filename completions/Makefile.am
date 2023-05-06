@@ -253,6 +253,7 @@ bashcomp_DATA = 2to3 \
 		mc \
 		mcrypt \
 		mdadm \
+		_mdbook \
 		mdtool \
 		medusa \
 		mii-diag \
