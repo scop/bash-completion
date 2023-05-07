@@ -1,4 +1,4 @@
-# Deprecated bash_completion functions and variables        -*- shell-script -*-
+# Deprecated bash_completion functions and variables       -*- shell-script -*-
 
 _comp_deprecate_func 2.12 _userland _comp_userland
 _comp_deprecate_func 2.12 _sysvdirs _comp_sysvdirs
