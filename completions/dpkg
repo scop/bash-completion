@@ -30,6 +30,14 @@ else
     }
 fi
 
+# @since 2.12
+_comp_xfunc_dpkg_held_packages()
+{
+    local pkgs=$(dpkg --get-selections ${cur:+"$cur}"} |
+        awk '{for(i=2;i<=NF;i++){ if($i=="hold"){ print $1;break }}}')
+    _comp_compgen -a -- -W '$pkgs'
+}
+
 _comp_deprecate_func _comp_dpkg_installed_packages _comp_xfunc_dpkg_installed_packages
 _comp_deprecate_func _comp_dpkg_purgeable_packages _comp_xfunc_dpkg_purgeable_packages
 
