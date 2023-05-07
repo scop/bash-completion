@@ -30,7 +30,7 @@ _comp_cmd_invoke_rc_d()
     elif [[ -x $sysvdir/$prev ]]; then
         COMPREPLY=($(compgen -W '`command sed -e "y/|/ /" \
             -ne "s/^.*Usage:[ ]*[^ ]*[ ]*{*\([^}\"]*\).*$/\1/p" \
-            $sysvdir/$prev`' -- "$cur"))
+            "$sysvdir/$prev"`' -- "$cur"))
     else
         COMPREPLY=()
     fi

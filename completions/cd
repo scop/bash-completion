@@ -30,10 +30,13 @@ _comp_cmd_cd()
     _comp_readline_variable_on mark-symlinked-directories && mark_symdirs=y
 
     # we have a CDPATH, so loop on its contents
-    for i in ${CDPATH//:/$'\n'}; do
+    local paths dirs
+    _comp_split -F : paths "$CDPATH"
+    for i in "${paths[@]}"; do
         # create an array of matched subdirs
         k=${#COMPREPLY[@]}
-        for j in $(compgen -d -- "$i/$cur"); do
+        _comp_compgen -v dirs -c "$i/$cur" -- -d
+        for j in "${dirs[@]}"; do
             if [[ ($mark_symdirs && -L $j || $mark_dirs && ! -L $j) && ! -d ${j#"$i/"} ]]; then
                 j+="/"
             fi

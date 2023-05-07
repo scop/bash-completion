@@ -5,38 +5,39 @@ _comp_cmd_ebtables()
     local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
-    local table chain='s/^Bridge chain: \([^ ,]\{1,\}\).*$/\1/p' \
+    local table="" chain='s/^Bridge chain: \([^ ,]\{1,\}\).*$/\1/p' \
         targets='ACCEPT DROP CONTINUE RETURN'
 
+    local IFS=$' \t\n' # for ${table:+-t "$table"}
     [[ ${words[*]} =~ [[:space:]]-(t|-table=?)[[:space:]]*([^[:space:]]+) ]] &&
-        table="-t ${BASH_REMATCH[2]}"
+        table=${BASH_REMATCH[2]}
 
     local noargopts='!(-*|*[AIDPFXLZtj]*)'
     # shellcheck disable=SC2254
     case $prev in
         -${noargopts}[AIDPFXLZ])
-            COMPREPLY=($(compgen -W '`"$1" $table -L 2>/dev/null | \
+            COMPREPLY=($(compgen -W '`"$1" ${table:+-t "$table"} -L 2>/dev/null | \
                 command sed -ne "$chain"`' -- "$cur"))
             ;;
         -${noargopts}t)
             COMPREPLY=($(compgen -W 'nat filter broute' -- "$cur"))
             ;;
         -${noargopts}j)
-            if [[ $table == "-t filter" || ! $table ]]; then
+            if [[ $table == "filter" || ! $table ]]; then
                 COMPREPLY=($(compgen -W '$targets
-                $("$1" $table -L 2>/dev/null | \
+                $("$1" ${table:+-t "$table"} -L 2>/dev/null | \
                   command sed -n -e "s/INPUT\|OUTPUT\|FORWARD//" \
                                  -e "$chain")' \
                     -- "$cur"))
-            elif [[ $table == "-t nat" ]]; then
+            elif [[ $table == "nat" ]]; then
                 COMPREPLY=($(compgen -W '$targets
-                $("$1" $table -L 2>/dev/null | \
+                $("$1" -t "$table" -L 2>/dev/null | \
                   command sed -n -e "s/OUTPUT|PREROUTING|POSTROUTING//" \
                                  -e "$chain")' \
                     -- "$cur"))
-            elif [[ $table == "-t broute" ]]; then
+            elif [[ $table == "broute" ]]; then
                 COMPREPLY=($(compgen -W 'ACCEPT DROP
-                $("$1" $table -L 2>/dev/null | \
+                $("$1" -t "$table" -L 2>/dev/null | \
                   command sed -n -e "s/BROUTING//" -e "$chain")' \
                     -- "$cur"))
             fi
