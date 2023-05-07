@@ -1,34 +1,38 @@
 # dpkg(1) and related commands completion                  -*- shell-script -*-
 
-if _comp_have_command grep-status; then
-    _comp_xfunc_dpkg_installed_packages()
-    {
-        grep-status -P -e "^${1-}" -a -FStatus 'ok installed' -n -s Package
-    }
-
-    _comp_xfunc_dpkg_purgeable_packages()
-    {
-        grep-status -P -e "^${1-}" -a -FStatus 'ok installed' -o -FStatus 'ok config-files' -n -s Package
-    }
-else
-    _comp_xfunc_dpkg_installed_packages()
-    {
-        command awk -F '\n' -v RS="" "
-            index(\$1, \"Package: ${1-}\") == 1 &&
+# @since 2.12
+_comp_xfunc_dpkg_installed_packages()
+{
+    local pkgs
+    pkgs=$(
+        grep-status -P -e "^${cur-}" -a \
+            -FStatus 'ok installed' \
+            -n -s Package 2>/dev/null ||
+            command awk -F '\n' -v RS="" "
+            index(\$1, \"Package: ${cur-}\") == 1 &&
             \$2 ~ /ok installed|half-installed|unpacked|half-configured|^Essential: yes/ {
                 print(substr(\$1, 10));
             }" /var/lib/dpkg/status 2>/dev/null
-    }
+    )
+    _comp_compgen -a -- -W '$pkgs'
+}
 
-    _comp_xfunc_dpkg_purgeable_packages()
-    {
-        command awk -F '\n' -v RS="" "
-            index(\$1, \"Package: ${1-}\") == 1 &&
+# @since 2.12
+_comp_xfunc_dpkg_purgeable_packages()
+{
+    local pkgs
+    pkgs=$(
+        grep-status -P -e "^${cur-}" -a \
+            -FStatus 'ok installed' -o -FStatus 'ok config-files' \
+            -n -s Package 2>/dev/null ||
+            command awk -F '\n' -v RS="" "
+            index(\$1, \"Package: ${cur-}\") == 1 &&
             \$2 ~ /ok installed|half-installed|unpacked|half-configured|config-files|^Essential: yes/ {
                 print(substr(\$1, 10));
             }" /var/lib/dpkg/status 2>/dev/null
-    }
-fi
+    )
+    _comp_compgen -a -- -W '$pkgs'
+}
 
 # @since 2.12
 _comp_xfunc_dpkg_held_packages()
@@ -38,8 +42,22 @@ _comp_xfunc_dpkg_held_packages()
     _comp_compgen -a -- -W '$pkgs'
 }
 
-_comp_deprecate_func _comp_dpkg_installed_packages _comp_xfunc_dpkg_installed_packages
-_comp_deprecate_func _comp_dpkg_purgeable_packages _comp_xfunc_dpkg_purgeable_packages
+# @deprecated 2.12 use _comp_xfunc_dpkg_installed_packages instead
+_comp_dpkg_installed_packages()
+{
+    local COMPREPLY=() cur="${1-}"
+    # shellcheck disable=SC2119
+    _comp_xfunc_dpkg_installed_packages
+    printf "%s\n" "${COMPREPLY[@]}"
+}
+# @deprecated 2.12 use _comp_xfunc_dpkg_purgeable_packages instead
+_comp_dpkg_purgeable_packages()
+{
+    local COMPREPLY=() cur="${1-}"
+    # shellcheck disable=SC2119
+    _comp_xfunc_dpkg_purgeable_packages
+    printf "%s\n" "${COMPREPLY[@]}"
+}
 
 # Debian dpkg(1) completion
 #
@@ -86,11 +104,11 @@ _comp_cmd_dpkg()
             return
             ;;
         --remove | --verify | -${noargopts}[rV])
-            COMPREPLY=($(_comp_xfunc_dpkg_installed_packages "$cur"))
+            _comp_xfunc_dpkg_installed_packages
             return
             ;;
         --listfiles | --purge | -${noargopts}[LP])
-            COMPREPLY=($(_comp_xfunc_dpkg_purgeable_packages "$cur"))
+            _comp_xfunc_dpkg_purgeable_packages
             return
             ;;
         --debug | -${noargopts}D)
@@ -161,7 +179,7 @@ _comp_cmd_dpkg_reconfigure()
         COMPREPLY=($(compgen -W '--frontend --priority --all --unseen-only
             --help --showold --force --terse' -- "$cur"))
     else
-        COMPREPLY=($(_comp_xfunc_dpkg_installed_packages "$cur"))
+        _comp_xfunc_dpkg_installed_packages
     fi
 } &&
     complete -F _comp_cmd_dpkg_reconfigure -o default dpkg-reconfigure
