@@ -7,7 +7,7 @@ _comp_cmd_btdownload()
 
     case $prev in
         --responsefile | --saveas)
-            _comp_compgen filedir
+            _comp_compgen_filedir
             return
             ;;
     esac
@@ -23,7 +23,7 @@ _comp_cmd_btdownload()
             --rarest_first_cutoff --min_uploads --report_hash_failures' \
             -- "$cur"))
     else
-        _comp_compgen filedir
+        _comp_compgen_filedir
     fi
 } &&
     complete -F _comp_cmd_btdownload btdownloadheadless.py btdownloadcurses.py \
