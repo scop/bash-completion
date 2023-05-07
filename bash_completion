@@ -853,47 +853,52 @@ _comp_compgen_filedir()
     _comp_compgen_tilde && return
 
     local -a toks
-    local arg=${1-}
+    local _arg=${1-}
 
-    if [[ $arg == -d ]]; then
+    if [[ $_arg == -d ]]; then
         _comp_compgen -v toks -- -d
     else
         local ret
         _comp_quote_compgen "${cur-}"
-        local quoted=$ret
+        local _quoted=$ret
+        _comp_unlocal ret
 
         # Munge xspec to contain uppercase version too
         # https://lists.gnu.org/archive/html/bug-bash/2010-09/msg00036.html
         # news://news.gmane.io/4C940E1C.1010304@case.edu
-        local xspec=${arg:+"!*.@($arg|${arg^^})"} plusdirs=()
+        local _xspec=${_arg:+"!*.@($_arg|${_arg^^})"} _plusdirs=()
 
         # Use plusdirs to get dir completions if we have a xspec; if we don't,
         # there's no need, dirs come along with other completions. Don't use
         # plusdirs quite yet if fallback is in use though, in order to not ruin
         # the fallback condition with the "plus" dirs.
-        local opts=(-f -X "$xspec")
-        [[ $xspec ]] && plusdirs=(-o plusdirs)
+        local _opts=(-f -X "$_xspec")
+        [[ $_xspec ]] && _plusdirs=(-o plusdirs)
         [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-${COMP_FILEDIR_FALLBACK-}} ||
-            ! ${plusdirs-} ]] ||
-            opts+=("${plusdirs[@]}")
+            ! ${_plusdirs-} ]] ||
+            _opts+=("${_plusdirs[@]}")
 
-        _comp_compgen -v toks -c "$quoted" -- "${opts[@]}"
+        _comp_compgen -v toks -c "$_quoted" -- "${_opts[@]}"
 
         # Try without filter if it failed to produce anything and configured to
         [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-${COMP_FILEDIR_FALLBACK-}} &&
-            $arg && ${#toks[@]} -lt 1 ]] &&
-            _comp_compgen -av toks -c "$quoted" -- -f ${plusdirs+"${plusdirs[@]}"}
+            $_arg && ${#toks[@]} -lt 1 ]] &&
+            _comp_compgen -av toks -c "$_quoted" -- \
+                -f ${_plusdirs+"${_plusdirs[@]}"}
     fi
 
     if ((${#toks[@]} != 0)); then
-        # 2>/dev/null for direct invocation, e.g. in the _comp_compgen_filedir unit test
+        # 2>/dev/null for direct invocation, e.g. in the _comp_compgen_filedir
+        # unit test
         compopt -o filenames 2>/dev/null
     fi
 
     # Note: bash < 4.4 has a bug that all the elements are connected with
     # ${v-"${a[@]}"} when IFS does not contain whitespace.
     local IFS=$' \t\n'
-    _comp_compgen_set ${toks[@]+"${toks[@]}"}
+    local -a _tmp=(${toks[@]+"${toks[@]}"})
+    _comp_unlocal toks
+    _comp_compgen_set ${_tmp[@]+"${_tmp[@]}"}
 } # _comp_compgen_filedir()
 
 # This function splits $cur=--foo=bar into $prev=--foo, $cur=bar, making it
