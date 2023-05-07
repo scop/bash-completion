@@ -41,15 +41,17 @@ deprecated in.
 Due to its nature, bash-completion adds a number of functions and variables in
 the shell's environment.
 
-|                                     | `bash_completion`   | `completions/*`                                                            |
-|:------------------------------------|:--------------------|:---------------------------------------------------------------------------|
-| public configuration variables      | `BASH_COMPLETION_*` | `BASH_COMPLETION_CMD_${Command^^}_${Config^^}`                             |
-| private non-local variables         | `_comp__*`          | `_comp_cmd_${Command}__${Data}`                                            |
-| private non-local mutable variables | `_comp__*_mut_*`    | `_comp_cmd_${Command}__mut_${Data}`                                        |
-| exporter function local variables   | `_*` (not `_comp*`) | `_*` (not `_comp*`)                                                        |
-| public/exported functions           | `_comp_*`           | `_comp_cmd_${Command}` (functions for `complete -F`)                       |
-|                                     |                     | `_comp_xfunc_${Command}_${Utility}` (functions for use with `_comp_xfunc`) |
-| private/internal functions          | `_comp__*`          | `_comp_cmd_${Command}__${Utility}` (utility functions)                     |
+|                                     | `bash_completion`       | `completions/*`                                                                       |
+|:------------------------------------|:------------------------|:--------------------------------------------------------------------------------------|
+| public configuration variables      | `BASH_COMPLETION_*`     | `BASH_COMPLETION_CMD_${Command^^}_${Config^^}`                                        |
+| private non-local variables         | `_comp__*`              | `_comp_cmd_${Command}__${Data}`                                                       |
+| private non-local mutable variables | `_comp__*_mut_*`        | `_comp_cmd_${Command}__mut_${Data}`                                                   |
+| exporter function local variables   | `_*` (not `_comp*`)     | `_*` (not `_comp*`)                                                                   |
+| public/exported functions           | `_comp_*`               | `_comp_cmd_${Command}` (functions for `complete -F`)                                  |
+|                                     |                         | `_comp_xfunc_${Command}_${Utility}` (functions for use with `_comp_xfunc`)            |
+|                                     | `_comp_compgen_${Name}` | `_comp_xfunc_${Command}_compgen_${Name}` (generators for use with `_comp_compgen -x`) |
+| private/internal functions          | `_comp__*`              | `_comp_cmd_${Command}__${Utility}` (utility functions)                                |
+|                                     |                         | `_comp_cmd_${Command}__compgen_${Name}` (generators for use with `_comp_compgen -i`)  |
 
 `${Command}` refers to a command name (with characters not allowed in POSIX
 function or variable names replaced by an underscore), `${Config}` the name of
@@ -110,3 +112,68 @@ distinctive and clash free enough.
 It is known that a lot of functions and variables in the tree do not follow
 these naming rules yet. Things introduced after version 2.11 should, and we are
 evaluating our options for handling older ones.
+
+## Exported functions (xfunc)
+
+Exported functions (xfunc) are the functions defined in completion files for
+specific commands but exposed to other completion files.  The xfuncs have the
+name `_comp_xfunc_CMD_NAME` where `CMD` is the name of the associated command,
+and `NAME` is the name of the utility.  The other functions defined in specific
+completion files are considered private and should not be called outside the
+file.
+
+The xfuncs can be called by `_comp_xfunc CMD NAME ARGS` from external files.
+The xfuncs are supposed to be directly called as `_comp_xfunc_CMD_NAME ARGS`
+from the same file where they are defined, or if they wrap a `_comp_cmd_NAME__*`
+function, that one should be called directly instead.
+
+Note: The name `xfunc` was initially the name of a utility function, `_xfunc`,
+to call "eXternal FUNCtions" that are defined in other completion files.  The
+concept is later extended to also mean "eXported".
+
+## Generator functions
+
+The generator functions, which have names of the form `_comp_compgen_NAME`, are
+used to generate completion candidates.  A generator function is supposed to be
+called by `_comp_compgen [OPTS] NAME ARGS` where `OPTS = -aRl|-v var|-c cur|-C
+dir|-F sep` are the options to modify the behavior (see the code comment of
+`_comp_compgen` for details).  When there are no `opts`, the generator function
+is supposed to be directly called as `_comp_compgen_NAME ARGS`.  The result is
+stored in the target variable (which is `COMPREPLY` by default but can be
+specified by `-v var` in `OPTS`).
+
+### Implementing a generator function
+
+To implement a generator function, one should generate completion candidates by
+calling `_comp_compgen` or other generators.  To avoid conflicts with the
+options specified to `_comp_compgen`, one should not directly modify or
+reference the target variable.  When post-filtering is needed, store them in
+local arrays, filter them, and finally append them by `_comp_compgen -- -W
+"${arr[@]}"`.
+
+A generator function should replace the existing content of the variable by
+default.  When the appending behavior is favored, the caller should specify it
+through `_comp_compgen -a NAME`.  The generator function do not need to process
+it because internal `_comp_compgen` calls automatically reflects the option
+`-a` specified to the outer calls of `_comp_compgen`.
+
+The exit status is implementation-defined.
+
+- The `_comp_compgen -- COMPGEN_ARGS` returns whether there is at least one
+  completion.  This is useful when one wants to reuse the array content with
+  `"${tmp[@]}"` avoiding `nounset` error.
+- Some use other rules for the exit status. E.g., `help` and `usage` return
+  whether there were options *before* filtering by cur. This is used for
+  `_comp_compgen_help || _comp_compgen_usage`.
+
+Whether to clear the target variable on runtime error (when `-a` is not
+specified in `OPTS`) is implementation-defined.  On the other hand, the
+generator function should not leave any side effects in the target variable on
+usage error.  Note that the target variable might be cleared by the internal
+calls of `_comp_compgen`.  To explicitly clear the target variable,
+`_comp_compgen_set` can be called without arguments.
+
+Exported generators are defined with the names `_comp_xfunc_CMD_compgen_NAME`
+and called by `_comp_compgen [opts] -x CMD NAME args`.  Internal generators are
+defined with the names `_comp_cmd_CMD__compgen_NAME` and called by
+`_comp_compgen [opts] -i CMD NAME args`.
