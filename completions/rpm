@@ -5,6 +5,11 @@
 # @since 2.12
 _comp_xfunc_rpm_installed_packages()
 {
+    _comp_cmd_rpm__installed_packages rpm
+}
+
+_comp_cmd_rpm__installed_packages()
+{
     if [[ -r /var/log/rpmpkgs &&
         /var/log/rpmpkgs -nt /var/lib/rpm/Packages ]]; then
         # using RHL 7.2 or later - this is quicker than querying the DB
@@ -38,11 +43,18 @@ _comp_cmd_rpm__macros()
         -- "$cur"))
 }
 
+# shellcheck disable=SC2120
 _comp_cmd_rpm__buildarchs()
 {
     COMPREPLY=($(compgen -W "$("${1:-rpm}" --showrc | command sed -ne \
         's/^\s*compatible\s\s*build\s\s*archs\s*:\s*\(.*\)/\1/ p')" \
         -- "$cur"))
+}
+
+# shellcheck disable=SC2120
+_comp_cmd_rpm__configdir()
+{
+    cfgdir=$("${1:-rpm}" --eval '%{_rpmconfigdir}' 2>/dev/null)
 }
 
 # rpm(8) completion
@@ -147,7 +159,7 @@ _comp_cmd_rpm()
                 _comp_compgen -- -W '"${opts[@]}" --allmatches --noscripts
                     --notriggers --nodeps --test --repackage'
             else
-                _comp_xfunc_rpm_installed_packages "$1"
+                _comp_cmd_rpm__installed_packages "$1"
             fi
             ;;
         -q* | --query)
@@ -190,7 +202,7 @@ _comp_cmd_rpm()
                         --whatrecommends --whatrequires --whatsuggests
                         --whatsupplements'
                 elif [[ ${words[*]} != *\ -@(*([^ -])a|-all )* ]]; then
-                    _comp_xfunc_rpm_installed_packages "$1"
+                    _comp_cmd_rpm__installed_packages "$1"
                 fi
             fi
             ;;
@@ -216,14 +228,14 @@ _comp_cmd_rpm()
             elif [[ ${words[*]} == *\ -@(*([^ -])p|-package )* ]]; then
                 _comp_compgen_filedir '[rs]pm'
             else
-                _comp_xfunc_rpm_installed_packages "$1"
+                _comp_cmd_rpm__installed_packages "$1"
             fi
             ;;
         --resign | --addsign | --delsign)
             _comp_compgen_filedir '[rs]pm'
             ;;
         --setperms | --setgids)
-            _comp_xfunc_rpm_installed_packages "$1"
+            _comp_cmd_rpm__installed_packages "$1"
             ;;
         --import | --dbpath | --root)
             if [[ $cur == -* ]]; then
@@ -242,22 +254,24 @@ _comp_cmd_rpmbuild()
     local cur prev words cword was_split comp_args
     _comp_initialize -s -- "$@" || return
 
-    local rpm="${1%build*}"
-    [[ $rpm == "$1" ]] || ! type "$rpm" &>/dev/null && rpm=
-
     local noargopts='!(-*|*[rED]*)'
-    # shellcheck disable=SC2254
+    # shellcheck disable=SC2119,SC2254
     case $prev in
         --buildroot | --root | --dbpath | -${noargopts}r)
             _comp_compgen_filedir -d
             return
             ;;
+        --target | --eval | -${noargopts}E | --buildpolicy)
+            # Prefer `rpm` in the same dir in utility functions
+            local pathcmd
+            pathcmd=$(type -P "$1") && local PATH=${pathcmd%/*}:$PATH
+            ;;&
         --target)
-            _comp_cmd_rpm__buildarchs "$rpm"
+            _comp_cmd_rpm__buildarchs
             return
             ;;
         --eval | -${noargopts}E)
-            _comp_cmd_rpm__macros "$rpm"
+            _comp_cmd_rpm__macros
             return
             ;;
         --macros | --rcfile)
@@ -265,7 +279,8 @@ _comp_cmd_rpmbuild()
             return
             ;;
         --buildpolicy)
-            local cfgdir=$("$rpm" --eval '%{_rpmconfigdir}' 2>/dev/null)
+            local cfgdir
+            _comp_cmd_rpm__configdir
             if [[ $cfgdir ]]; then
                 COMPREPLY=($(compgen -W "$(command ls "$cfgdir" 2>/dev/null |
                     command sed -ne 's/^brp-//p')" -- "$cur"))
