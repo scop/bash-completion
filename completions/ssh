@@ -435,7 +435,7 @@ _comp_cmd_scp__path_esc='[][(){}<>"'"'"',:;^&!$=?`\\|[:space:]]'
 # only.  Returns paths escaped with three backslashes.
 # @since 2.12
 # shellcheck disable=SC2120
-_comp_xfunc_ssh_scp_remote_files()
+_comp_xfunc_scp_remote_files()
 {
     # remove backslash escape from the first colon
     cur=${cur/\\:/:}
@@ -471,14 +471,14 @@ _comp_xfunc_ssh_scp_remote_files()
     _comp_split -la COMPREPLY "$files"
 }
 
-_comp_deprecate_func 2.12 _scp_remote_files _comp_xfunc_ssh_scp_remote_files
+_comp_deprecate_func 2.12 _scp_remote_files _comp_xfunc_scp_remote_files
 
 # This approach is used instead of _comp_compgen_filedir to get a space
 # appended after local file/dir completions, and -o nospace retained for
 # others.  If first arg is -d, complete on directory names only.  The next arg
 # is an optional prefix to add to returned completions.
 # @since 2.12
-_comp_xfunc_ssh_scp_local_files()
+_comp_xfunc_scp_local_files()
 {
     local IFS=$'\n'
 
@@ -502,7 +502,7 @@ _comp_xfunc_ssh_scp_local_files()
     fi
 }
 
-_comp_deprecate_func 2.12 _scp_local_files _comp_xfunc_ssh_scp_local_files
+_comp_deprecate_func 2.12 _scp_local_files _comp_xfunc_scp_local_files
 
 # scp(1) completion
 #
@@ -566,7 +566,7 @@ _comp_cmd_scp()
     case $cur in
         !(*:*)/* | [.~]*) ;; # looks like a path
         *:*)
-            _comp_xfunc_ssh_scp_remote_files
+            _comp_xfunc_scp_remote_files
             return
             ;;
     esac
@@ -592,7 +592,7 @@ _comp_cmd_scp()
         esac
     fi
 
-    _comp_xfunc_ssh_scp_local_files "${prefix-}"
+    _comp_xfunc_scp_local_files "${prefix-}"
 } &&
     complete -F _comp_cmd_scp -o nospace scp
 
