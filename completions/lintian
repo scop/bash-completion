@@ -12,11 +12,11 @@ _comp_cmd_lintian__tags()
         for item in $search; do
             tags=$(command sed -e "s/\<$item\>//g" <<<"$tags")
         done
-        COMPREPLY+=($(compgen -W "$tags"))
+        _comp_compgen -aR -- -W "$tags"
     elif [[ $cur == *,* ]]; then
-        COMPREPLY+=($(compgen -P "${cur%,*}," -W "$tags" -- "${cur##*,}"))
+        _comp_compgen -ac "${cur##*,}" -- -P "${cur%,*}," -W "$tags"
     else
-        COMPREPLY+=($(compgen -W "$tags" -- "$cur"))
+        _comp_compgen -a -- -W "$tags"
     fi
 }
 
@@ -38,11 +38,11 @@ _comp_cmd_lintian__checks()
                 checks=$(command sed -e "s/\<$name\>//g" <<<"$checks")
             done
         done
-        COMPREPLY+=($(compgen -W "$checks"))
+        _comp_compgen -aR -- -W "$checks"
     elif [[ $cur == *,* ]]; then
-        COMPREPLY+=($(compgen -P "${cur%,*}," -W "$checks" -- "${cur##*,}"))
+        _comp_compgen -ac "${cur##*,}" -- -P "${cur%,*}," -W "$checks"
     else
-        COMPREPLY+=($(compgen -W "$checks" -- "$cur"))
+        _comp_compgen -a -- -W "$checks"
     fi
 }
 
@@ -59,11 +59,11 @@ _comp_cmd_lintian__infos()
         for item in $search; do
             infos=$(command sed -e "s/\<$item\>//g" <<<"$infos")
         done
-        COMPREPLY+=($(compgen -W "$infos"))
+        _comp_compgen -aR -- -W "$infos"
     elif [[ $cur == *,* ]]; then
-        COMPREPLY+=($(compgen -P "${cur%,*}," -W "$infos" -- "${cur##*,}"))
+        _comp_compgen -ac "${cur##*,}" -- -P "${cur%,*}," -W "$infos"
     else
-        COMPREPLY+=($(compgen -W "$infos" -- "$cur"))
+        _comp_compgen -a -- -W "$infos"
     fi
 }
 
@@ -105,7 +105,7 @@ _comp_cmd_lintian()
                 return
                 ;;
             --color)
-                COMPREPLY=($(compgen -W "never always auto html" -- "$cur"))
+                _comp_compgen -- -W "never always auto html"
                 return
                 ;;
             -U | --unpack-info)
@@ -113,7 +113,7 @@ _comp_cmd_lintian()
                 return
                 ;;
             --area | --section)
-                COMPREPLY=($(compgen -W "main contrib non-free" -- "$cur"))
+                _comp_compgen -- -W "main contrib non-free"
                 return
                 ;;
             --arch)

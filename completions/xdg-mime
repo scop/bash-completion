@@ -33,7 +33,7 @@ _comp_cmd_xdg_mime()
 
     if ((args == 1)); then
         if [[ $cur == -* ]]; then
-            COMPREPLY=($(compgen -W '--help --manual --version' -- "$cur"))
+            _comp_compgen -- -W '--help --manual --version'
             return
         fi
         COMPREPLY=($(compgen -W \
@@ -44,7 +44,7 @@ _comp_cmd_xdg_mime()
     case ${words[1]} in
         query)
             if ((args == 2)); then
-                COMPREPLY=($(compgen -W 'filetype default' -- "$cur"))
+                _comp_compgen -- -W 'filetype default'
                 return
             fi
             ((args == 3)) || return
@@ -59,8 +59,7 @@ _comp_cmd_xdg_mime()
                 _comp_expand_glob desktops '/usr/share/applications/*.desktop'
                 if ((${#desktops[@]})); then
                     desktops=("${desktops[@]##*/}")
-                    local IFS=$'\n'
-                    COMPREPLY=($(compgen -W '"${desktops[@]}"' -- "$cur"))
+                    _comp_compgen -- -W '"${desktops[@]}"'
                 fi
             else
                 _comp_cmd_xdg_mime__mimetype
@@ -68,18 +67,18 @@ _comp_cmd_xdg_mime()
             ;;
         install)
             if [[ $cur == -* ]]; then
-                COMPREPLY=($(compgen -W '--mode --novendor' -- "$cur"))
+                _comp_compgen -- -W '--mode --novendor'
             elif [[ $prev == --mode ]]; then
-                COMPREPLY=($(compgen -W 'user system' -- "$cur"))
+                _comp_compgen -- -W 'user system'
             else
                 _comp_compgen_filedir xml
             fi
             ;;
         uninstall)
             if [[ $cur == -* ]]; then
-                COMPREPLY=($(compgen -W '--mode' -- "$cur"))
+                _comp_compgen -- -W '--mode'
             elif [[ $prev == --mode ]]; then
-                COMPREPLY=($(compgen -W 'user system' -- "$cur"))
+                _comp_compgen -- -W 'user system'
             else
                 _comp_compgen_filedir xml
             fi

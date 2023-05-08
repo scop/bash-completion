@@ -87,7 +87,7 @@ _comp_cmd_pkgutil()
 
         if [[ $command == -@([dius]|-download|-install|-upgrade|-stream) ]]; then
             local packages_list=$(awk ' $0 ~ /BEGIN PGP SIGNATURE/ { exit } $1 ~ /^Hash:/ || $1 ~ /^ *(-|#|$)/ { next } { print $1 }' "${catalog_files[@]}")
-            COMPREPLY=($(compgen -W "${packages_list}" -- "$cur"))
+            _comp_compgen -- -W "${packages_list}"
 
         elif [[ $command == @(-r|--remove) ]]; then
             local packages_list=$(
@@ -95,7 +95,7 @@ _comp_cmd_pkgutil()
             )
             packages_list=${packages_list%|}
             packages_list=$(nawk " \$3 ~ /^$packages_list\$/ { print \$1 }" "${catalog_files[@]}")
-            COMPREPLY=($(compgen -W "${packages_list}" -- "$cur"))
+            _comp_compgen -- -W "${packages_list}"
         fi
         return
     fi
@@ -108,7 +108,7 @@ _comp_cmd_pkgutil()
         --findfile --deptree --extract --stream --output --target --single
         --param --parse --cleanup --catinfo
     )
-    COMPREPLY=($(compgen -W '"${commands[@]}"' -- "$cur"))
+    _comp_compgen -- -W '"${commands[@]}"'
 
 } &&
     complete -F _comp_cmd_pkgutil pkgutil

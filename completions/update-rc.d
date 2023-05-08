@@ -20,7 +20,7 @@ _comp_cmd_update_rc_d()
         COMPREPLY=($(compgen -W '"${options[@]}" ${services[@]+"${services[@]}"}' \
             -X '$(tr " " "|" <<<${words[@]})' -- "$cur"))
     elif ((${#services[@]})) && [[ $prev == ?($(tr " " "|" <<<"${services[*]}")) ]]; then
-        COMPREPLY=($(compgen -W 'remove defaults start stop' -- "$cur"))
+        _comp_compgen -- -W 'remove defaults start stop'
     elif [[ $prev == defaults && $cur == [0-9] ]]; then
         COMPREPLY=(0 1 2 3 4 5 6 7 8 9)
     elif [[ $prev == defaults && $cur == [sk]?([0-9]) ]]; then
@@ -48,7 +48,7 @@ _comp_cmd_update_rc_d()
             COMPREPLY=()
         fi
     elif [[ $prev == "." ]]; then
-        COMPREPLY=($(compgen -W "start stop" -- "$cur"))
+        _comp_compgen -- -W "start stop"
     else
         COMPREPLY=()
     fi

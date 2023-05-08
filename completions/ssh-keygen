@@ -23,11 +23,11 @@ _comp_cmd_ssh_keygen()
                     ;;
             esac
             ((${#sizes[@]})) &&
-                COMPREPLY=($(compgen -W '"${sizes[@]}"' -- "$cur"))
+                _comp_compgen -- -W '"${sizes[@]}"'
             return
             ;;
         -*E)
-            COMPREPLY=($(compgen -W 'md5 sha256' -- "$cur"))
+            _comp_compgen -- -W 'md5 sha256'
             return
             ;;
         -*[FR])
@@ -44,7 +44,7 @@ _comp_cmd_ssh_keygen()
             return
             ;;
         -*m)
-            COMPREPLY=($(compgen -W 'PEM PKCS8 RFC4716' -- "$cur"))
+            _comp_compgen -- -W 'PEM PKCS8 RFC4716'
             return
             ;;
         -*n)
@@ -79,17 +79,17 @@ _comp_cmd_ssh_keygen()
                 case $cur in
                     force-command=*)
                         compopt -o filenames
-                        COMPREPLY=($(compgen -c -- "${cur#*=}"))
+                        _comp_compgen -c "${cur#*=}" -- -c
                         ;;
                     checkpoint=* | challenge=* | write-attestation=*)
                         _comp_compgen -c "${cur#*=}" filedir
                         ;;
                     application=*([^:=]))
-                        COMPREPLY=($(compgen -W "ssh:" -- "${cur#*=}"))
+                        _comp_compgen -c "${cur#*=}" -- -W "ssh:"
                         compopt -o nospace
                         ;;
                     user=*)
-                        COMPREPLY=($(compgen -u -- "${cur#*=}"))
+                        _comp_compgen -c "${cur#*=}" -- -u
                         ;;
                 esac
             fi
@@ -105,7 +105,7 @@ _comp_cmd_ssh_keygen()
             if [[ $protocols == *1* ]]; then
                 types+=' rsa1'
             fi
-            COMPREPLY=($(compgen -W "$types" -- "$cur"))
+            _comp_compgen -- -W "$types"
             return
             ;;
         -*Y)
@@ -119,7 +119,7 @@ _comp_cmd_ssh_keygen()
     if [[ $cur == -* ]]; then
         local opts=$(_parse_usage "$1" "-?")
         [[ ! $opts ]] && opts=$(_parse_help "$1" "-?") # OpenSSH < 7
-        COMPREPLY=($(compgen -W "$opts" -- "$cur"))
+        _comp_compgen -- -W "$opts"
     fi
 
     if [[ ${words[*]} == *\ -*s\ * ]]; then

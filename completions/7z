@@ -6,7 +6,7 @@ _comp_cmd_7z()
     _comp_initialize -n = -- "$@" || return
 
     if ((cword == 1)); then
-        COMPREPLY=($(compgen -W 'a b d e h i l rn t u x' -- "$cur"))
+        _comp_compgen -- -W 'a b d e h i l rn t u x'
         return
     fi
 
@@ -15,7 +15,7 @@ _comp_cmd_7z()
 
     case $cur in
         -ao*)
-            COMPREPLY=($(compgen -P"${cur:0:3}" -W 'a s t u' -- "${cur:3}"))
+            _comp_compgen -c "${cur:3}" -- -P"${cur:0:3}" -W 'a s t u'
             return
             ;;
         -?(a)[ix]*)
@@ -29,35 +29,27 @@ _comp_cmd_7z()
                 COMPREPLY=($(compgen -P"$opt" -W '@ ! r@ r-@ r0@ r! r-! r0!' \
                     -- "$cur"))
             elif [[ $cur == ?(r@(-|0|))@* ]]; then
-                local IFS=$' \t\n' reset=$(shopt -po noglob)
-                set -o noglob
-                COMPREPLY=($(compgen -P"${opt}${cur%%@*}@" -f -- "${cur#*@}"))
-                $reset
+                _comp_compgen -c "${cur#*@}" -- -P"${opt}${cur%%@*}@" -f
                 compopt -o filenames
             fi
             return
             ;;
         -mhe=* | -mhc=* | -ms=* | -mt=*)
-            COMPREPLY=($(compgen -W 'on off' -- "${cur#*=}"))
+            _comp_compgen -c "${cur#*=}" -- -W 'on off'
             return
             ;;
         -mx=*)
-            COMPREPLY=($(compgen -W '0 1 3 5 7 9' -- "${cur#*=}"))
+            _comp_compgen -c "${cur#*=}" -- -W '0 1 3 5 7 9'
             return
             ;;
         -o* | -w?*)
-            local reset=$(shopt -po noglob)
-            set -o noglob
             compopt -o filenames
-            local IFS=$'\n'
-            COMPREPLY=($(compgen -d -P"${cur:0:2}" -S/ -- "${cur:2}"))
-            _comp_unlocal IFS
-            $reset
+            _comp_compgen -c "${cur:2}" -- -d -P"${cur:0:2}" -S/
             compopt -o nospace
             return
             ;;
         -r?*)
-            COMPREPLY=($(compgen -P"${cur:0:2}" -W '- 0' -- "${cur:2}"))
+            _comp_compgen -c "${cur:2}" -- -P"${cur:0:2}" -W '- 0'
             return
             ;;
         -scs*)
@@ -66,7 +58,7 @@ _comp_cmd_7z()
             return
             ;;
         -ssc?*)
-            COMPREPLY=($(compgen -P"${cur:0:4}" -W '-' -- "${cur:4}"))
+            _comp_compgen -c "${cur:4}" -- -P"${cur:0:4}" -W '-'
             return
             ;;
         -t*)

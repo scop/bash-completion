@@ -26,7 +26,7 @@ _comp_cmd_ip()
             return
             ;;
         -f | -family)
-            COMPREPLY=($(compgen -W 'inet inet6 ipx dnet link' -- "$cur"))
+            _comp_compgen -- -W 'inet inet6 ipx dnet link'
             return
             ;;
         -b | -batch)
@@ -38,7 +38,7 @@ _comp_cmd_ip()
             return
             ;;
         -force)
-            COMPREPLY=($(compgen -W '-batch' -- "$cur"))
+            _comp_compgen -- -W '-batch'
             return
             ;;
     esac
@@ -95,7 +95,7 @@ _comp_cmd_ip()
                             _available_interfaces
                             ;;
                         2)
-                            COMPREPLY=($(compgen -W 'type' -- "$cur"))
+                            _comp_compgen -- -W 'type'
                             ;;
                         3)
                             [[ $prev == type ]] &&
@@ -111,7 +111,7 @@ _comp_cmd_ip()
                         case $prev in
                             arp | dynamic | multicast | allmulticast | promisc | \
                                 trailers)
-                                COMPREPLY=($(compgen -W 'on off' -- "$cur"))
+                                _comp_compgen -- -W 'on off'
                                 ;;
                             txqueuelen | name | address | broadcast | mtu | netns | alias) ;;
 
@@ -120,7 +120,7 @@ _comp_cmd_ip()
                                     promisc trailers txqueuelen name address
                                     broadcast mtu netns alias"
                                 [[ $prev != @(up|down) ]] && c+=" up down"
-                                COMPREPLY=($(compgen -W "$c" -- "$cur"))
+                                _comp_compgen -- -W "$c"
                                 ;;
                         esac
                     fi
@@ -128,7 +128,7 @@ _comp_cmd_ip()
                 show)
                     if ((cword == subcword + 1)); then
                         _available_interfaces
-                        COMPREPLY+=($(compgen -W 'dev group up' -- "$cur"))
+                        _comp_compgen -a -- -W 'dev group up'
                     elif [[ $prev == dev ]]; then
                         _available_interfaces
                     elif [[ $prev == group ]]; then
@@ -227,9 +227,9 @@ _comp_cmd_ip()
                     elif [[ $prev == dev ]]; then
                         _available_interfaces -a
                     elif [[ $prev == table ]]; then
-                        COMPREPLY=($(compgen -W 'local main default' -- "$cur"))
+                        _comp_compgen -- -W 'local main default'
                     else
-                        COMPREPLY=($(compgen -W 'via dev weight' -- "$cur"))
+                        _comp_compgen -- -W 'via dev weight'
                     fi
                     ;;
                 *)
@@ -252,7 +252,7 @@ _comp_cmd_ip()
                             _available_interfaces -a
                             ;;
                         table | lookup)
-                            COMPREPLY=($(compgen -W 'local main default' -- "$cur"))
+                            _comp_compgen -- -W 'local main default'
                             ;;
                         *)
                             COMPREPLY=($(compgen -W 'from to tos dsfield fwmark
@@ -266,7 +266,7 @@ _comp_cmd_ip()
                     if [[ $prev == protocol ]]; then
                         :
                     else
-                        COMPREPLY=($(compgen -W 'protocol' -- "$cur"))
+                        _comp_compgen -- -W 'protocol'
                     fi
                     ;;
                 restore | show) ;;
@@ -334,8 +334,7 @@ _comp_cmd_ip()
                     if [[ $cword -eq $subcword+1 || $prev == dev ]]; then
                         _available_interfaces
                         if [[ $prev != dev ]]; then
-                            COMPREPLY+=(dev)
-                            COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
+                            _comp_compgen -a -W dev
                         fi
                     fi
                     ;;
@@ -354,7 +353,7 @@ _comp_cmd_ip()
                     ;;
                 *)
                     ((cword == subcword)) &&
-                        COMPREPLY=($(compgen -W 'help show' -- "$cur"))
+                        _comp_compgen -- -W 'help show'
                     ;;
             esac
             ;;
@@ -364,7 +363,7 @@ _comp_cmd_ip()
                 all) ;;
                 *)
                     ((cword == subcword)) &&
-                        COMPREPLY=($(compgen -W 'help all' -- "$cur"))
+                        _comp_compgen -- -W 'help all'
                     ;;
             esac
             ;;

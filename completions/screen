@@ -7,7 +7,7 @@ _comp_cmd_screen__sessions()
     ((${#sessions[@]} == 0)) && return
     if [[ $cur == +([0-9])?(.*) ]]; then
         # Complete sessions including pid prefixes
-        COMPREPLY=($(compgen -W '"${sessions[@]}"' -- "$cur"))
+        _comp_compgen -- -W '"${sessions[@]}"'
     else
         # Create unique completions, dropping pids where possible
         local -A res
@@ -18,7 +18,7 @@ _comp_cmd_screen__sessions()
         for i in "${!res[@]}"; do
             [[ ${res[i]} == \ *\ * ]] && tmp+=" ${res[i]}" || tmp+=" $i"
         done
-        COMPREPLY=($(compgen -W '$tmp' -- "$cur"))
+        _comp_compgen -- -W '$tmp'
     fi
 } &&
     _comp_cmd_screen()
@@ -30,11 +30,11 @@ _comp_cmd_screen__sessions()
             if [[ $cur == /dev* ]]; then
                 _comp_expand_glob COMPREPLY '/dev/serial/*/* /dev/ttyUSB* /dev/ttyACM*'
                 ((${#COMPREPLY[@]})) &&
-                    COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
+                    _comp_compgen -- -W '"${COMPREPLY[@]}"'
                 return
             fi
             if [[ $cur == //* ]]; then
-                COMPREPLY=($(compgen -W '//telnet' -- "$cur"))
+                _comp_compgen -- -W '//telnet'
                 return
             fi
         fi

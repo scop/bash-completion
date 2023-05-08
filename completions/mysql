@@ -7,8 +7,7 @@ _comp_xfunc_mysql_character_sets()
     charsets+=(utf8)
     charsets=("${charsets[@]##*/}")
     charsets=("${charsets[@]%.xml}")
-    local IFS=$'\n'
-    COMPREPLY+=($(compgen -W '"${charsets[@]}"' -X '' -- "$cur"))
+    _comp_compgen -a -- -W '"${charsets[@]}"' -X ''
 }
 
 _comp_deprecate_func _mysql_character_sets _comp_xfunc_mysql_character_sets
@@ -22,7 +21,7 @@ _comp_cmd_mysql()
     # shellcheck disable=SC2254
     case $prev in
         --user | -${noargopts}u)
-            COMPREPLY=($(compgen -u -- "$cur"))
+            _comp_compgen -- -u
             return
             ;;
         --database | -${noargopts}D)
@@ -48,7 +47,7 @@ _comp_cmd_mysql()
             return
             ;;
         --protocol)
-            COMPREPLY=($(compgen -W 'tcp socket pipe memory' -- "$cur"))
+            _comp_compgen -- -W 'tcp socket pipe memory'
             return
             ;;
         --defaults-file | --defaults-extra-file | --tee)
@@ -81,7 +80,7 @@ _comp_cmd_mysql()
             local help=$(_parse_help "$1")
             help+=" --skip-comments --skip-ssl"
 
-            COMPREPLY=($(compgen -W "$help" -- "$cur"))
+            _comp_compgen -- -W "$help"
             [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
             return
             ;;

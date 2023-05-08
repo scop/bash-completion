@@ -21,17 +21,17 @@ _comp_cmd_complete()
             ;;
 
         -*C)
-            COMPREPLY=($(compgen -A command -- "$cur"))
+            _comp_compgen -- -A command
             return
             ;;
         -*F)
-            COMPREPLY=($(compgen -A function -- "$cur"))
+            _comp_compgen -- -A function
             return
             ;;
         -*p | -*r)
             COMPREPLY=($(complete -p | command sed -e 's|.* ||'))
             ((${#COMPREPLY[@]})) &&
-                COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' -- "$cur"))
+                _comp_compgen -- -W '"${COMPREPLY[@]}"'
             return
             ;;
     esac
@@ -40,9 +40,9 @@ _comp_cmd_complete()
         local -a opts=($(compgen -W '$(_parse_usage help "-s $1")' -- "$cur"))
         # -F, -C do not work the expected way with compgen
         [[ $1 != *compgen ]] || opts=("${opts[@]//-[FC]/}")
-        COMPREPLY=($(compgen -W '"${opts[@]}"' -X '' -- "$cur"))
+        _comp_compgen -- -W '"${opts[@]}"' -X ''
     else
-        COMPREPLY=($(compgen -A command -- "$cur"))
+        _comp_compgen -- -A command
     fi
 } &&
     complete -F _comp_cmd_complete compgen complete

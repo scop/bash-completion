@@ -9,7 +9,7 @@ _comp_cmd_feh()
     # shellcheck disable=SC2254
     case "$prev" in
         --image-bg | -B)
-            COMPREPLY=($(compgen -W 'checks white black' -- "$cur"))
+            _comp_compgen -- -W 'checks white black'
             return
             ;;
         --filelist | --output | --output-only | --start-at | -${noargopts}[foO\|])
@@ -23,7 +23,7 @@ _comp_cmd_feh()
         --font | --menu-font | --title-font | -${noargopts}[eM@])
             # expect string like "dejavu.ttf/12"
             if [[ $cur == */* ]]; then # expect integer value
-                COMPREPLY=($(compgen -P "$cur" -W '{0..9}'))
+                _comp_compgen -R -- -P "$cur" -W '{0..9}'
                 compopt -o nospace
                 return
             fi
@@ -52,7 +52,7 @@ _comp_cmd_feh()
                 if [[ $theme_name == '#'* || $theme_name == "" ]]; then
                     continue
                 fi
-                COMPREPLY+=($(compgen -W "$theme_name" -- "$cur"))
+                _comp_compgen -a -- -W "$theme_name"
             done <"$conf_path"
             return
             ;;
@@ -64,26 +64,26 @@ _comp_cmd_feh()
         --reload | --limit-height | --limit-width | --thumb-height | --thumb-width | \
             --thumb-redraw | --magick-timeout | -${noargopts}[RHWEyJ])
             # expect integer value
-            COMPREPLY+=($(compgen -W '{0..9}'))
+            _comp_compgen -aR -- -W '{0..9}'
             compopt -o nospace
             return
             ;;
         --zoom)
             # expect integer value or "max", "fill"
-            COMPREPLY=($(compgen -W 'max fill' -- "$cur"))
+            _comp_compgen -- -W 'max fill'
             if [[ ! $cur || ! ${COMPREPLY-} ]]; then
-                COMPREPLY+=($(compgen -W '{0..9}'))
+                _comp_compgen -aR -- -W '{0..9}'
                 compopt -o nospace
             fi
             return
             ;;
         --alpha | -${noargopts}a)
-            COMPREPLY=($(compgen -W '{0..255}' -- "$cur"))
+            _comp_compgen -- -W '{0..255}'
             return
             ;;
         --bg | -${noargopts}b)
             _comp_compgen_filedir
-            COMPREPLY+=($(compgen -W 'trans' -- "$cur"))
+            _comp_compgen -a -- -W 'trans'
             return
             ;;
         --geometry | --max-dimension | --min-dimension | -${noargopts}g)
@@ -91,7 +91,7 @@ _comp_cmd_feh()
             if [[ $cur && $cur != *x* ]]; then
                 COMPREPLY=(x)
             fi
-            COMPREPLY+=($(compgen -W "{0..9}"))
+            _comp_compgen -aR -- -W "{0..9}"
             compopt -o nospace
             return
             ;;

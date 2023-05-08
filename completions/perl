@@ -33,9 +33,8 @@ _comp_cmd_perl()
                 return
                 ;;
             -*[Ix])
-                local IFS=$'\n'
                 compopt -o filenames
-                COMPREPLY=($(compgen -d "$optPrefix" $optSuffix -- "$cur"))
+                _comp_compgen -- -d "$optPrefix" $optSuffix
                 return
                 ;;
             -*[mM])
@@ -78,10 +77,9 @@ _comp_cmd_perl()
     # Likewise, `-I' also accepts a space between option and argument
     # and it takes a directory as value.
     elif [[ $prev == -I ]]; then
-        local IFS=$'\n'
         compopt -o filenames
         # shellcheck disable=SC2086
-        COMPREPLY=($(compgen -d ${optPrefix-} ${optSuffix-} -- "$cur"))
+        _comp_compgen -- -d ${optPrefix-} ${optSuffix-}
         return
 
     elif [[ $cur == -* ]]; then
@@ -139,7 +137,7 @@ _comp_cmd_perldoc()
                     -- "$cur"))
             fi
         fi
-        _comp_compgen_filedir 'p@([lm]|od)'
+        _comp_compgen -a filedir 'p@([lm]|od)'
     fi
 } &&
     complete -F _comp_cmd_perldoc -o bashdefault perldoc

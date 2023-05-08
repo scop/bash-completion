@@ -20,8 +20,7 @@ _comp_cmd_tshark()
             ;;
         -o*)
             if [[ $cur == *:* ]]; then
-                cur=${cur#*:}
-                _comp_compgen_filedir
+                _comp_compgen -c "${cur#*:}" filedir
             else
                 [[ -v _comp_cmd_tshark__prefs ]] ||
                     _comp_cmd_tshark__prefs="$("$1" -G defaultprefs 2>/dev/null | command sed -ne 's/^#\{0,1\}\([a-z0-9_.-]\{1,\}:\).*/\1/p' |
@@ -55,7 +54,7 @@ _comp_cmd_tshark()
             return
             ;;
         -*[ab])
-            COMPREPLY=($(compgen -W 'duration: filesize: files:' -- "$cur"))
+            _comp_compgen -- -W 'duration: filesize: files:'
             [[ ${COMPREPLY-} == *: ]] && compopt -o nospace
             return
             ;;
@@ -95,17 +94,16 @@ _comp_cmd_tshark()
             ;;
         -*u)
             # TODO: could be parsed from "-u ." output
-            COMPREPLY=($(compgen -W 's hms' -- "$cur"))
+            _comp_compgen -- -W 's hms'
             return
             ;;
         -*W)
-            COMPREPLY=($(compgen -W 'n' -- "$cur"))
+            _comp_compgen -- -W 'n'
             return
             ;;
         -*X)
             if [[ ${cur:${#prefix}} == lua_script:* ]]; then
-                cur=${cur#*:}
-                _comp_compgen_filedir lua
+                _comp_compgen -c "${cur#*:}" filedir lua
             else
                 COMPREPLY=($(compgen -P "$prefix" -W 'lua_script:' -- \
                     "${cur:${#prefix}}"))
