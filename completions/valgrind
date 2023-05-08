@@ -13,7 +13,7 @@ _comp_cmd_valgrind()
         fi
     done
 
-    local word tool
+    local word tool=""
     for word in "${words[@]:1}"; do
         if [[ $word == --tool=?* ]]; then
             tool=$word
@@ -70,7 +70,7 @@ _comp_cmd_valgrind()
             # generic cases parsed from --help output
         --+([-A-Za-z0-9_]))
             # shellcheck disable=SC2086
-            local value=$("$1" --help-debug ${tool-} 2>/dev/null |
+            local value=$("$1" --help-debug $tool 2>/dev/null |
                 command sed \
                     -ne "s|^[[:blank:]]*$prev=\([^[:blank:]]\{1,\}\).*|\1|p")
             case $value in
@@ -101,8 +101,7 @@ _comp_cmd_valgrind()
     [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_help "$1" "--help ${tool-}")' \
-            -- "$cur"))
+        _comp_compgen_help -- --help ${tool:+"$tool"}
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
