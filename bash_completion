@@ -44,6 +44,7 @@ shopt -s extglob progcomp
 # @param $1 Version of bash-completion where the deprecation occurred
 # @param $2 Old function name
 # @param $3 New function name
+# @since 2.12
 _comp_deprecate_func()
 {
     if (($# != 3)); then
@@ -96,6 +97,7 @@ complete -b builtin
 
 # Check if we're running on the given userland
 # @param $1 userland to check for
+# @since 2.12
 _comp_userland()
 {
     local userland=$(uname -s)
@@ -105,6 +107,7 @@ _comp_userland()
 
 # This function sets correct SysV init directories
 #
+# @since 2.12
 _comp_sysvdirs()
 {
     sysvdirs=()
@@ -117,6 +120,7 @@ _comp_sysvdirs()
 
 # This function checks whether we have a given program on the system.
 #
+# @since 2.12
 _comp_have_command()
 {
     # Completions for system administrator commands are installed as well in
@@ -127,6 +131,7 @@ _comp_have_command()
 # This function checks whether a given readline variable
 # is `on'.
 #
+# @since 2.12
 _comp_readline_variable_on()
 {
     [[ $(bind -v) == *$1+([[:space:]])on* ]]
@@ -135,6 +140,7 @@ _comp_readline_variable_on()
 # This function shell-quotes the argument
 # @param    $1  String to be quoted
 # @var[out] ret Resulting string
+# @since 2.12
 _comp_quote()
 {
     ret=\'${1//\'/\'\\\'\'}\'
@@ -194,6 +200,7 @@ _comp_dequote__initialize
 # We allow these parameter expansions as a part of safe strings assuming the
 # referential transparency of the simple parameter expansions and the sane
 # setup of the variables by the user or other frameworks that the user loads.
+# @since 2.12
 _comp_dequote()
 {
     ret=() # fallback value for unsafe word and failglob
@@ -207,6 +214,7 @@ _comp_dequote()
 # variable in an unset state.
 # Usage: local IFS='|'; _comp_unlocal IFS
 # @param $* Variable names to be unset
+# @since 2.12
 _comp_unlocal()
 {
     if ((BASH_VERSINFO[0] >= 5)) && shopt -q localvar_unset; then
@@ -226,6 +234,7 @@ _comp_unlocal()
 #     -v   Assign single value to varname
 # @return  1 if error occurs
 # @see https://fvue.nl/wiki/Bash:_Passing_variables_by_reference
+# @since 2.12
 _comp_upvars()
 {
     if ! (($#)); then
@@ -286,6 +295,7 @@ _comp_upvars()
 #   parameter expansions, command substitutions, and other expansions will be
 #   processed.  The user-provided strings should not be directly specified to
 #   this argument.
+# @since 2.12
 _comp_expand_glob()
 {
     if (($# != 2)); then
@@ -342,6 +352,7 @@ _comp_expand_glob()
 # @return 2 when the usage is wrong, 0 when one or more completions are
 #   generated, or 1 when the execution succeeds but no candidates are
 #   generated.
+# @since 2.12
 _comp_split()
 {
     local _append="" IFS=$' \t\n'
@@ -467,6 +478,7 @@ _comp_split()
 # supposed to replace the existing content of the array by default to allow the
 # caller control whether to replace or append by the option `-a`.
 #
+# @since 2.12
 _comp_compgen()
 {
     local _append=${_comp_compgen__append-}
@@ -562,6 +574,7 @@ _comp_compgen()
 # caller _comp_compgen, the words are appended to the existing elements of the
 # array instead of replacing the existing elements.  This function ignores
 # ${cur-} or the prefix specified by `-v CUR`.
+# @since 2.12
 _comp_compgen_set()
 {
     local _append=${_comp_compgen__append-}
@@ -572,6 +585,7 @@ _comp_compgen_set()
 # Check if the argument looks like a path.
 # @param $1 thing to check
 # @return True (0) if it does, False (> 0) otherwise
+# @since 2.12
 _comp_looks_like_path()
 {
     [[ ${1-} == @(*/|[.~])* ]]
@@ -722,6 +736,7 @@ _comp__get_cword_at_cursor()
 #
 #    $ _comp_get_words -n : cur prev
 #
+# @since 2.12
 _comp_get_words()
 {
     local exclude="" flag i OPTIND=1
@@ -801,6 +816,7 @@ _comp_get_words()
 # @param $1 current word to complete (cur)
 # @modifies global array $COMPREPLY
 #
+# @since 2.12
 _comp_ltrim_colon_completions()
 {
     local i=${#COMPREPLY[*]}
@@ -830,6 +846,7 @@ _comp_ltrim_colon_completions()
 # - https://www.mail-archive.com/bash-completion-devel@lists.alioth.debian.org/msg01944.html
 # @param $1      Argument to quote
 # @var[out] ret  Quoted result is stored in this variable
+# @since 2.12
 # shellcheck disable=SC2178 # The assignment is not intended for the global "ret"
 _comp_quote_compgen()
 {
@@ -857,6 +874,7 @@ _comp_quote_compgen()
 #            completions with `.$1' and the uppercase version of it as file
 #            extension.
 #
+# @since 2.12
 _comp_compgen_filedir()
 {
     _comp_compgen_tilde && return
@@ -977,6 +995,7 @@ _variables()
 #
 # Usage: [-k] DELIMITER COMPGEN_ARG...
 #         -k: do not filter out already present tokens in value
+# @since 2.12
 _comp_delimited()
 {
     local prefix="" delimiter=$1 deduplicate=set
@@ -1040,6 +1059,7 @@ _comp_delimited()
 # @param  $1 variable assignment to be completed
 # @return True (0) if variable value completion was attempted,
 #         False (> 0) if not.
+# @since 2.12
 _comp_variable_assignments()
 {
     local cur=${1-} i
@@ -1118,6 +1138,7 @@ _comp_variable_assignments()
 # @return  True (0) if completion needs further processing,
 #          False (> 0) no further processing is necessary.
 #
+# @since 2.12
 _comp_initialize()
 {
     local exclude="" opt_split="" outx errx inx
@@ -1285,6 +1306,7 @@ _comp_compgen_help__parse()
 # When no arguments are specified, `--help` is assumed.
 #
 # @var[in] comp_args[0]
+# @since 2.12
 _comp_compgen_help()
 {
     (($#)) || set -- -- --help
@@ -1316,6 +1338,7 @@ _comp_compgen_help()
 # When no arguments are specified, `--usage` is assumed.
 #
 # @var[in] comp_args[0]
+# @since 2.12
 _comp_compgen_usage()
 {
     (($#)) || set -- -- --usage
@@ -1498,6 +1521,7 @@ _ncpus()
 # @return  False (1) if completion needs further processing,
 #          True (0) if tilde is followed by a valid username, completions are
 #          put in COMPREPLY and no further processing is necessary.
+# @since 2.12
 _comp_compgen_tilde()
 {
     if [[ ${cur-} == \~* && $cur != */* ]]; then
@@ -1853,6 +1877,7 @@ _allowed_groups()
     fi
 }
 
+# @since 2.12
 _comp_selinux_users()
 {
     _comp_compgen -a -- -W '$(
@@ -1901,6 +1926,7 @@ _fstypes()
 # see `_comp_realcommand` for those.
 # @param $1 The file
 # @var[out] ret The path
+# @since 2.12
 _comp_abspath()
 {
     ret=$1
@@ -1921,6 +1947,7 @@ _comp_abspath()
 # @param    $1 Command
 # @var[out] ret Resulting string
 # @return   True (0) if command found, False (> 0) if not.
+# @since 2.12
 _comp_realcommand()
 {
     ret=""
@@ -2372,6 +2399,7 @@ _comp__find_original_word()
 # first complete on a command, then complete according to that command's own
 # completion definition.
 #
+# @since 2.12
 _comp_command_offset()
 {
     # rewrite current completion context before invoking
@@ -2489,6 +2517,7 @@ _comp_command_offset()
 # Only intended to be used as a completion function directly associated
 # with a command, not to be invoked from within other completion functions.
 #
+# @since 2.12
 _comp_command()
 {
     # We unset the shell variable `words` locally to tell
@@ -2512,6 +2541,7 @@ _comp_command()
 complete -F _comp_command aoss command "do" else eval exec ltrace nice nohup padsp \
     "then" time tsocks vsound xargs
 
+# @since 2.12
 _comp_root_command()
 {
     local PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
@@ -2527,6 +2557,7 @@ _complete_as_root()
     [[ $EUID -eq 0 || ${root_command-} ]]
 }
 
+# @since 2.12
 _comp_longopt()
 {
     local cur prev words cword was_split comp_args
@@ -2846,6 +2877,7 @@ _completion_loader()
 #   `_comp_xfunc_${1//[^a-zA-Z0-9_]/_}_$2' is used for the actual name of the
 #   shell function.
 # @param $3... if any, specifies the arguments that are passed to the xfunc.
+# @since 2.12
 _comp_xfunc()
 {
     local xfunc_name=$2

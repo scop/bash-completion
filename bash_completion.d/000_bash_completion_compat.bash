@@ -18,9 +18,9 @@ _comp_deprecate_func 2.12 _split_longopt _comp__split_longopt
 _comp_deprecate_func 2.12 __ltrim_colon_completions _comp_ltrim_colon_completions
 
 # Backwards compatibility for compat completions that use have().
-# @deprecated should no longer be used; generally not needed with dynamically
-#             loaded completions, and _comp_have_command is suitable for
-#             runtime use.
+# @deprecated 1.90 should no longer be used; generally not needed with
+#   dynamically loaded completions, and _comp_have_command is suitable for
+#   runtime use.
 # shellcheck disable=SC2317 # available at load time only
 have()
 {
@@ -29,7 +29,7 @@ have()
 }
 
 # This function shell-quotes the argument
-# @deprecated Use `_comp_quote` instead.  Note that `_comp_quote` stores
+# @deprecated 2.12 Use `_comp_quote` instead.  Note that `_comp_quote` stores
 #   the results in the variable `ret` instead of writing them to stdout.
 quote()
 {
@@ -37,7 +37,7 @@ quote()
     printf "'%s'" "$quoted"
 }
 
-# @deprecated Use `_comp_quote_compgen`
+# @deprecated 2.12 Use `_comp_quote_compgen`
 quote_readline()
 {
     local ret
@@ -49,7 +49,7 @@ quote_readline()
 # argument specifying the variable name to store the result.
 # @param $1  Argument to quote
 # @param $2  Name of variable to return result to
-# @deprecated Use `_comp_quote_compgen "$1"` instead.  Note that
+# @deprecated 2.12 Use `_comp_quote_compgen "$1"` instead.  Note that
 # `_comp_quote_compgen` stores the result in a fixed variable `ret`.
 _quote_readline_by_ref()
 {
@@ -59,8 +59,8 @@ _quote_readline_by_ref()
 }
 
 # This function shell-dequotes the argument
-# @deprecated Use `_comp_dequote' instead.  Note that `_comp_dequote` stores
-#   the results in the array `ret` instead of writing them to stdout.
+# @deprecated 2.12 Use `_comp_dequote' instead.  Note that `_comp_dequote`
+#   stores the results in the array `ret` instead of writing them to stdout.
 dequote()
 {
     local ret
@@ -79,7 +79,7 @@ dequote()
 #       use multiple '_upvar' calls, since one '_upvar' call might
 #       reassign a variable to be used by another '_upvar' call.
 # @see https://fvue.nl/wiki/Bash:_Passing_variables_by_reference
-# @deprecated  Use `_comp_upvars' instead
+# @deprecated 2.10 Use `_comp_upvars' instead
 _upvar()
 {
     echo "bash_completion: $FUNCNAME: deprecated function," \
@@ -107,7 +107,7 @@ _upvar()
 #     current word (default is 0, previous is 1), respecting the exclusions
 #     given at $1.  For example, `_get_cword "=:" 1' returns the word left of
 #     the current word, respecting the exclusions "=:".
-# @deprecated  Use `_comp_get_words cur' instead
+# @deprecated 1.2 Use `_comp_get_words cur' instead
 # @see _comp_get_words()
 _get_cword()
 {
@@ -158,7 +158,7 @@ _get_cword()
 # This is a good alternative to `prev=${COMP_WORDS[COMP_CWORD-1]}' because bash4
 # will properly return the previous word with respect to any given exclusions to
 # COMP_WORDBREAKS.
-# @deprecated  Use `_comp_get_words cur prev' instead
+# @deprecated 1.2 Use `_comp_get_words cur prev' instead
 # @see _comp_get_words()
 #
 _get_pword()
@@ -169,7 +169,7 @@ _get_pword()
 }
 
 # Get real command.
-# @deprecated Use `_comp_realcommand` instead.
+# @deprecated 2.12 Use `_comp_realcommand` instead.
 # Note that `_comp_realcommand` stores the result in the variable `ret`
 # instead of writing it to stdout.
 _realcommand()
@@ -202,7 +202,7 @@ _realcommand()
 # @return  True (0) if completion needs further processing,
 #          False (> 0) no further processing is necessary.
 #
-# @deprecated Use the new interface `_comp_initialize`.  The new interface
+# @deprecated 2.12 Use the new interface `_comp_initialize`.  The new interface
 # supports the same set of options.  The new interface receives additional
 # arguments $1 (command name), $2 (part of current word before the cursor), and
 # $3 (previous word) that are specified to the completion function by Bash.
@@ -234,21 +234,21 @@ _init_completion()
     return "$rc"
 }
 
-# @deprecated Use the variable `_comp_backup_glob` instead.  This is the
+# @deprecated 2.12 Use the variable `_comp_backup_glob` instead.  This is the
 # backward-compatibility name.
 # shellcheck disable=SC2154  # defined in the main "bash_completion"
 _backup_glob=$_comp_backup_glob
 
-# @deprecated use `_comp_cmd_cd` instead.
+# @deprecated 2.12 use `_comp_cmd_cd` instead.
 _cd()
 {
     declare -F _comp_cmd_cd &>/dev/null || __load_completion cd
     _comp_cmd_cd "$@"
 }
 
-# @deprecated Use `_comp_command_offset` instead.  Note that the new interface
-# `_comp_command_offset` is changed to receive an index in `words` instead of
-# that in `COMP_WORDS` as `_command_offset` did.
+# @deprecated 2.12 Use `_comp_command_offset` instead.  Note that the new
+# interface `_comp_command_offset` is changed to receive an index in
+# `words` instead of that in `COMP_WORDS` as `_command_offset` did.
 _command_offset()
 {
     # We unset the shell variable `words` locally to tell
@@ -259,7 +259,7 @@ _command_offset()
     _comp_command_offset "$@"
 }
 
-# @deprecated Use `_comp_compgen -a filedir`
+# @deprecated 2.12 Use `_comp_compgen -a filedir`
 _filedir()
 {
     _comp_compgen -a filedir "$@"
@@ -269,9 +269,9 @@ _filedir()
 # @return  True (0) if completion needs further processing,
 #          False (1) if tilde is followed by a valid username, completions are
 #          put in COMPREPLY and no further processing is necessary.
-# @deprecated Use `_comp_compgen -c CUR tilde [-d]`.  Note that the exit status
-# of `_comp_compgen_tilde` is flipped.  It returns 0 when the tilde completions
-# are attempted, or otherwise 1.
+# @deprecated 2.12 Use `_comp_compgen -c CUR tilde [-d]`.  Note that the exit
+# status of `_comp_compgen_tilde` is flipped.  It returns 0 when the tilde
+# completions are attempted, or otherwise 1.
 _tilde()
 {
     ! _comp_compgen -c "$1" tilde
@@ -279,7 +279,7 @@ _tilde()
 
 # Helper function for _parse_help and _parse_usage.
 # @return True (0) if an option was found, False (> 0) otherwise
-# @deprecated Use _comp_compgen_help__parse
+# @deprecated 2.12 Use _comp_compgen_help__parse
 __parse_options()
 {
     local -a _options=()
@@ -290,7 +290,7 @@ __parse_options()
 # Parse GNU style help output of the given command.
 # @param $1  command; if "-", read from stdin and ignore rest of args
 # @param $2  command options (default: --help)
-# @deprecated Use `_comp_compgen_help`.  `COMPREPLY=($(compgen -W
+# @deprecated 2.12 Use `_comp_compgen_help`.  `COMPREPLY=($(compgen -W
 #   '$(_parse_help "$1" ...)' -- "$cur"))` can be replaced with
 #   `_comp_compgen_help [-- ...]`.  Also, `var=($(_parse_help "$1" ...))` can
 #   be replaced with `_comp_compgen -Rv var help [-- ...]`.
@@ -314,7 +314,7 @@ _parse_help()
 # Parse BSD style usage output (options in brackets) of the given command.
 # @param $1  command; if "-", read from stdin and ignore rest of args
 # @param $2  command options (default: --usage)
-# @deprecated Use `_comp_compgen_usage`.  `COMPREPLY=($(compgen -W
+# @deprecated 2.12 Use `_comp_compgen_usage`.  `COMPREPLY=($(compgen -W
 #   '$(_parse_usage "$1" ...)' -- "$cur"))` can be replaced with
 #   `_comp_compgen_usage [-- ...]`. `var=($(_parse_usage "$1" ...))` can be
 #   replaced with `_comp_compgen -Rv var usage [-- ...]`.
