@@ -24,6 +24,18 @@ is considered private and is to be named accordingly. Fallback files are not
 intended to be explicitly used with `_comp_xfunc`, and completion files having
 precedence over them may have a different API.
 
+## Availability
+
+All public API functions and variables are marked with a `@since VERSION`
+comment, where `VERSION` is the bash-completion version the thing was
+introduced in.
+
+Similarly, deprecated functions and variables are either marked with a
+`@deprecated VERSION ...` comment, or deprecated using the
+`_comp_deprecate_func VERSION OLD_NAME NEW_NAME` function.
+`VERSION` in both cases is the bash-completion version the thing was
+deprecated in.
+
 ## Naming
 
 Due to its nature, bash-completion adds a number of functions and variables in
