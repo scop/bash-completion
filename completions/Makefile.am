@@ -609,6 +609,7 @@ CLEANFILES = \
 	gmake \
 	gmplayer \
 	gnumake \
+	_go-licenses \
 	google-chrome \
 	google-chrome-stable \
 	_gopherjs \
@@ -964,6 +965,7 @@ symlinks: $(DATA)
 		_gardenctl \
 		_gh-label \
 		_git-bump \
+		_go-licenses \
 		_gopherjs \
 		_goreleaser \
 		_helm \
