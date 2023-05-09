@@ -37,10 +37,10 @@ _comp_cmd_slackpkg()
 
     if [[ $cur == -* ]]; then
         compopt -o nospace
-        COMPREPLY=($(compgen -W '-delall= -checkmd5= -checkgpg=
-            -checksize= -postinst= -onoff= -download_all= -dialog=
-            -dialog_maxargs= -batch= -only_new_dotnew= -use_includes=
-            -spinning= -default_answer= -mirror=' -- "$cur"))
+        _comp_compgen -- -W '-delall= -checkmd5= -checkgpg= -checksize=
+            -postinst= -onoff= -download_all= -dialog= -dialog_maxargs= -batch=
+            -only_new_dotnew= -use_includes= -spinning= -default_answer=
+            -mirror='
         return
     fi
 
@@ -75,8 +75,8 @@ _comp_cmd_slackpkg()
             ;;
         remove)
             _comp_compgen_filedir
-            COMPREPLY+=($(compgen -W 'a ap d e f k kde kdei l n t tcl x
-                xap xfce y' -- "$cur"))
+            _comp_compgen -a -- -W 'a ap d e f k kde kdei l n t tcl x xap xfce
+                y'
             COMPREPLY+=($(
                 command cd /var/log/packages
                 compgen -f -- "$cur"
@@ -85,8 +85,8 @@ _comp_cmd_slackpkg()
             ;;
         install | reinstall | upgrade | blacklist | download)
             _comp_compgen_filedir
-            COMPREPLY+=($(compgen -W 'a ap d e f k kde kdei l n t tcl x
-                xap xfce y' -- "$cur"))
+            _comp_compgen -a -- -W 'a ap d e f k kde kdei l n t tcl x xap xfce
+                y'
             COMPREPLY+=($(cut -f 6 -d\  "${WORKDIR}/pkglist" 2>/dev/null |
                 command grep "^$cur"))
             return
@@ -101,11 +101,10 @@ _comp_cmd_slackpkg()
             _comp_compgen -- -W 'gpg'
             ;&
         *)
-            COMPREPLY+=($(compgen -W 'install reinstall upgrade remove
-                blacklist download update install-new upgrade-all
-                clean-system new-config check-updates help generate-template
-                install-template remove-template search file-search info' -- \
-                "$cur"))
+            _comp_compgen -a -- -W 'install reinstall upgrade remove blacklist
+                download update install-new upgrade-all clean-system new-config
+                check-updates help generate-template install-template
+                remove-template search file-search info'
             return
             ;;
     esac

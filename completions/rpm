@@ -55,11 +55,10 @@ _comp_cmd_rpm()
         # first parameter on line
         case $cur in
             --*)
-                COMPREPLY=($(compgen -W '--help --version --initdb
-                    --checksig --addsign --delsign --rebuilddb --showrc
-                    --setperms --setugids --eval --install --upgrade --query
-                    --freshen --erase --verify --querytags --import' \
-                    -- "$cur"))
+                _comp_compgen -- -W '--help --version --initdb --checksig
+                    --addsign --delsign --rebuilddb --showrc --setperms
+                    --setugids --eval --install --upgrade --query --freshen
+                    --erase --verify --querytags --import'
                 ;;
             *)
                 _comp_compgen -- -W '-e -E -F -i -q -t -U -V'
@@ -131,21 +130,21 @@ _comp_cmd_rpm()
     case ${words[1]} in
         -[iFU]* | --install | --freshen | --upgrade)
             if [[ $cur == -* ]]; then
-                COMPREPLY=($(compgen -W '"${opts[@]}" --percent --force --test
-                --replacepkgs --replacefiles --root --excludedocs --includedocs
-                --noscripts --ignorearch --dbpath --prefix= --ignoreos --nodeps
-                --allfiles --ftpproxy --ftpport --justdb --httpproxy --httpport
-                --noorder --relocate= --badreloc --notriggers --excludepath=
-                --ignoresize --oldpackage --queryformat --repackage
-                --nosuggests' -- "$cur"))
+                _comp_compgen -- -W '"${opts[@]}" --percent --force --test
+                    --replacepkgs --replacefiles --root --excludedocs
+                    --includedocs --noscripts --ignorearch --dbpath --prefix=
+                    --ignoreos --nodeps --allfiles --ftpproxy --ftpport
+                    --justdb --httpproxy --httpport --noorder --relocate=
+                    --badreloc --notriggers --excludepath= --ignoresize
+                    --oldpackage --queryformat --repackage --nosuggests'
             else
                 _comp_compgen_filedir '[rs]pm'
             fi
             ;;
         -e | --erase)
             if [[ $cur == -* ]]; then
-                COMPREPLY=($(compgen -W '"${opts[@]}" --allmatches --noscripts
-                    --notriggers --nodeps --test --repackage' -- "$cur"))
+                _comp_compgen -- -W '"${opts[@]}" --allmatches --noscripts
+                    --notriggers --nodeps --test --repackage'
             else
                 _comp_xfunc_rpm_installed_packages "$1"
             fi
@@ -164,8 +163,8 @@ _comp_cmd_rpm()
             if [[ ${words[*]} == *\ -@(*([^ -])f|-file )* ]]; then
                 # -qf completion
                 if [[ $cur == -* ]]; then
-                    COMPREPLY=($(compgen -W '"${opts[@]}" --dbpath --fscontext
-                        --last --root --state' -- "$cur"))
+                    _comp_compgen -- -W '"${opts[@]}" --dbpath --fscontext
+                        --last --root --state'
                 else
                     _comp_compgen_filedir
                 fi
@@ -175,20 +174,20 @@ _comp_cmd_rpm()
             elif [[ ${words[*]} == *\ -@(*([^ -])p|-package )* ]]; then
                 # -qp; uninstalled package completion
                 if [[ $cur == -* ]]; then
-                    COMPREPLY=($(compgen -W '"${opts[@]}" --ftpport --ftpproxy
-                        --httpport --httpproxy --nomanifest' -- "$cur"))
+                    _comp_compgen -- -W '"${opts[@]}" --ftpport --ftpproxy
+                        --httpport --httpproxy --nomanifest'
                 else
                     _comp_compgen_filedir '[rs]pm'
                 fi
             else
                 # -q; installed package completion
                 if [[ $cur == -* ]]; then
-                    COMPREPLY=($(compgen -W '"${opts[@]}" --all --file --fileid
+                    _comp_compgen -- -W '"${opts[@]}" --all --file --fileid
                         --dbpath --fscontext --ftswalk --group --hdrid --last
                         --package --pkgid --root= --specfile --state
                         --triggeredby --whatenhances --whatprovides
                         --whatrecommends --whatrequires --whatsuggests
-                        --whatsupplements' -- "$cur"))
+                        --whatsupplements'
                 elif [[ ${words[*]} != *\ -@(*([^ -])a|-all )* ]]; then
                     _comp_xfunc_rpm_installed_packages "$1"
                 fi
@@ -196,20 +195,18 @@ _comp_cmd_rpm()
             ;;
         -K* | --checksig)
             if [[ $cur == -* ]]; then
-                COMPREPLY=($(compgen -W '"${opts[@]}" --nopgp --nogpg --nomd5' \
-                    -- "$cur"))
+                _comp_compgen -- -W '"${opts[@]}" --nopgp --nogpg --nomd5'
             else
                 _comp_compgen_filedir '[rs]pm'
             fi
             ;;
         -[Vy]* | --verify)
             if [[ $cur == -* ]]; then
-                COMPREPLY=($(compgen -W '"${opts[@]}" --root= --dbpath --nodeps
+                _comp_compgen -- -W '"${opts[@]}" --root= --dbpath --nodeps
                     --nogroup --nolinkto --nomode --nomtime --nordev --nouser
                     --nofiles --noscripts --nomd5 --querytags --specfile
                     --whatenhances --whatprovides --whatrecommends
-                    --whatrequires --whatsuggests --whatsupplements' \
-                    -- "$cur"))
+                    --whatrequires --whatsuggests --whatsupplements'
             # check whether we're doing file completion
             elif [[ ${words[*]} == *\ -@(*([^ -])f|-file )* ]]; then
                 _comp_compgen_filedir
@@ -229,8 +226,7 @@ _comp_cmd_rpm()
             ;;
         --import | --dbpath | --root)
             if [[ $cur == -* ]]; then
-                COMPREPLY=($(compgen -W '--import --dbpath --root=' \
-                    -- "$cur"))
+                _comp_compgen -- -W '--import --dbpath --root='
             else
                 _comp_compgen_filedir
             fi

@@ -26,8 +26,8 @@ _comp_cmd_tshark()
                     _comp_cmd_tshark__prefs="$("$1" -G defaultprefs 2>/dev/null | command sed -ne 's/^#\{0,1\}\([a-z0-9_.-]\{1,\}:\).*/\1/p' |
                         tr '\n' ' ')"
                 : ${prefix:=}
-                COMPREPLY=($(compgen -P "$prefix" -W "$_comp_cmd_tshark__prefs" \
-                    -- "${cur:${#prefix}}"))
+                _comp_compgen -c "${cur:${#prefix}}" -- -P "$prefix" \
+                    -W "$_comp_cmd_tshark__prefs"
                 [[ ${COMPREPLY-} == *: ]] && compopt -o nospace
             fi
             return
@@ -82,14 +82,12 @@ _comp_cmd_tshark()
             ;;
         -*T)
             # Parse from: tshark -T . 2>&1 | awk -F \" '/^\t*"/ { print $2 }'
-            COMPREPLY=($(compgen -W \
-                'pdml ps psml json jsonraw ek tabs text fields' -- "$cur"))
+            _comp_compgen -- -W 'pdml ps psml json jsonraw ek tabs text fields'
             return
             ;;
         -*t)
             # Parse from: tshark -t . 2>&1 | awk -F \" '/^\t*"/ { print $2 }'
-            COMPREPLY=($(compgen -W \
-                'a ad adoy d dd e r u ud udoy' -- "$cur"))
+            _comp_compgen -- -W 'a ad adoy d dd e r u ud udoy'
             return
             ;;
         -*u)
@@ -105,8 +103,8 @@ _comp_cmd_tshark()
             if [[ ${cur:${#prefix}} == lua_script:* ]]; then
                 _comp_compgen -c "${cur#*:}" filedir lua
             else
-                COMPREPLY=($(compgen -P "$prefix" -W 'lua_script:' -- \
-                    "${cur:${#prefix}}"))
+                _comp_compgen -c "${cur:${#prefix}}" -- -P "$prefix" \
+                    -W 'lua_script:'
                 [[ ${COMPREPLY-} == *: ]] && compopt -o nospace
             fi
             return

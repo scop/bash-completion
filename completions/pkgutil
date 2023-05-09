@@ -49,12 +49,10 @@ _comp_cmd_pkgutil()
 
     if [[ $prev == -@(p|-param) ]]; then
         compopt -o nospace
-        COMPREPLY=($(compgen -W "
-            mirror: pkgaddopts: pkgrmopts: wgetopts: use_gpg: use_md5:
-            pkgliststyle: maxpkglist: noncsw: stop_on_hook_soft_error:
+        _comp_compgen -- -W 'mirror: pkgaddopts: pkgrmopts: wgetopts: use_gpg:
+            use_md5: pkgliststyle: maxpkglist: noncsw: stop_on_hook_soft_error:
             exclude_pattern: gpg_homedir: root_path: deptree_filter_common:
-            show_current: catalog_not_cached: catalog_update:
-        " -- "$cur"))
+            show_current: catalog_not_cached: catalog_update:'
         return
     fi
 
@@ -63,11 +61,8 @@ _comp_cmd_pkgutil()
         # as a separator, borrowed from maven completion code which borrowed
         # it from darcs completion code :)
         local colonprefixes=${cur%"${cur##*:}"}
-        COMPREPLY=($(
-            compgen -W \
-                "sparc:5.9 sparc:5.10 sparc:5.11 i386:5.9 i386:5.10 i386:5.11" \
-                -- "$cur"
-        ))
+        _comp_compgen -- -W 'sparc:5.9 sparc:5.10 sparc:5.11 i386:5.9 i386:5.10
+            i386:5.11'
         local i=${#COMPREPLY[*]}
         while ((i-- > 0)); do
             COMPREPLY[i]=${COMPREPLY[i]#"$colonprefixes"}
