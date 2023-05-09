@@ -176,21 +176,19 @@ _comp_cmd_xrandr()
 
     local options
     if [[ $has_output ]]; then
-        options=$(
+        _comp_compgen -v options help - <<<"$(
             _comp_cmd_xrandr_help "$1" |
-                command sed -e 's/ or /\n  /g' -e 's/<[^>]*>]//g' |
-                _parse_help -
-        )
+                command sed -e 's/ or /\n  /g' -e 's/<[^>]*>]//g'
+        )"
     else
         # if no output is specified, remove per-output options
-        options=$(
+        _comp_compgen -v options help - <<<"$(
             _comp_cmd_xrandr_help "$1" |
-                command sed -e '/^  -/!d' -e 's/ or /\n  /g' \
-                    -e 's/<[^>]*>]//g' | _parse_help -
-        )
+                command sed -e '/^  -/!d' -e 's/ or /\n  /g' -e 's/<[^>]*>]//g'
+        )"
     fi
 
-    _comp_compgen -- -W "$options"
+    _comp_compgen -- -W '"${options[@]}"'
 } &&
     complete -F _comp_cmd_xrandr xrandr
 

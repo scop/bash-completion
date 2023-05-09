@@ -76,9 +76,8 @@ _comp_cmd_python()
     elif [[ $cur != -* ]]; then
         _comp_compgen -a filedir '@(py?([cowz])|zip)'
     else
-        COMPREPLY=($(compgen -W \
-            '$("$1" -h | awk "{ sub(\"\\\(-bb:\",\"\n-bb \"); print }" |
-                         _parse_help -)' -- "$cur"))
+        _comp_compgen_help - <<<"$("$1" -h |
+            awk '{ sub("\\(-bb:","\n-bb "); print }')"
     fi
 } &&
     complete -F _comp_cmd_python \

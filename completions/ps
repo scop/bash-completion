@@ -57,12 +57,12 @@ _comp_cmd_ps()
 
     if [[ $cur == -* ]]; then
         # sed: strip single char dashless ", x," that trip _parse_help
-        local opts=$({
+        _comp_compgen_help - <<<"$({
             "$1" --help
             "$1" --help all
         } 2>/dev/null |
-            sed -e "s/, [A-Za-z],/,/" | _parse_help -)
-        COMPREPLY=($(compgen -W '${opts:-$(_parse_usage "$1")}' -- "$cur"))
+            sed -e "s/, [A-Za-z],/,/")" ||
+            _comp_compgen_usage
     fi
 } &&
     complete -F _comp_cmd_ps ps

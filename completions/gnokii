@@ -216,12 +216,13 @@ _comp_cmd_gnokii()
         esac
     fi
 
-    local all_cmd="$(_parse_help "$1" "--help all")"
+    local all_cmd
+    _comp_compgen -Rv all_cmd help -- --help all
 
     # these 2 below are allowed in combination with others
     local main_cmd
-    _comp_split -l main_cmd "$(command sed -e '/--config/d;/--phone/d' -e \
-        's/[][\(){}|^$*+?.]/\\&/g' <<<"$all_cmd")"
+    _comp_split -l main_cmd "$(printf '%s\n' "${all_cmd[@]}" |
+        command sed -e '/--config/d;/--phone/d;s/[][\(){}|^$*+?.]/\\&/g')"
     # don't provide main command completions if one is
     # already on the command line
     local IFS='|'
@@ -229,7 +230,7 @@ _comp_cmd_gnokii()
     IFS=$' \t\n'
     [[ $COMP_LINE =~ $regex_main_cmd ]] && return
 
-    _comp_compgen -- -W "$all_cmd"
+    _comp_compgen -- -W '"${all_cmd[@]}"'
 } &&
     complete -F _comp_cmd_gnokii gnokii
 

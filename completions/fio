@@ -140,13 +140,10 @@ _comp_cmd_fio()
     [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(
-            compgen -W '
-                      $(_parse_help "$1")
-                      $("$1" --cmdhelp=all 2>/dev/null | \
-                             awk "{printf \"--%s=\n\", \$1}")
-            ' -- "$cur"
-        ))
+        _comp_compgen_help
+        local stdout=$("$1" --cmdhelp=all 2>/dev/null |
+            awk '{printf "--%s=\n", $1}')
+        _comp_compgen -a -- -W '$stdout'
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi

@@ -5,9 +5,8 @@
 
 _comp_cmd_adb__command_usage()
 {
-    COMPREPLY=($(compgen -W '$("$1" help 2>&1 | \
-            command sed -e "/^ *\(adb \)\{0,1\} *$2 /!d;s/[]|[]/\n/g" | \
-            _parse_help -)' -- "$cur"))
+    _comp_compgen_help - <<<"$("$1" help 2>&1 |
+        command sed -e "/^ *\(adb \)\{0,1\} *$2 /!d;s/[]|[]/\n/g")"
 }
 
 _comp_cmd_adb()
@@ -57,9 +56,8 @@ _comp_cmd_adb()
             _comp_compgen -a filedir
             ;;
         forward)
-            COMPREPLY=($(compgen -W \
-                '$("$1" help 2>&1 | command sed -ne "s/^ *adb  *forward  *-/-/p" | \
-                    _parse_help -)' -- "$cur"))
+            _comp_compgen_help - <<<"$("$1" help 2>&1 |
+                command sed -ne "s/^ *adb  *forward  *-/-/p")"
             ;;
         reboot)
             _comp_compgen -- -W 'bootloader recovery'

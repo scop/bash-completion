@@ -60,19 +60,19 @@ _comp_cmd_aptitude()
     esac
 
     if [[ $cur == -* ]]; then
-        local opts=" $("$1" --help 2>&1 | command sed -e \
-            's/--with(out)-recommends/--without-recommends\n--with-recommends/' |
-            _parse_help - | tr '\n' ' ') "
+        _comp_compgen -R help - <<<"$("$1" --help 2>&1 | command sed -e \
+            's/--with(out)-recommends/--without-recommends\n--with-recommends/')"
+        ((${#COMPREPLY[@]})) || return 0
 
         # Exclude some mutually exclusive options
+        local exclude_flags=""
         for i in "${words[@]}"; do
-            [[ $i == -u ]] && opts=${opts/ -i / }
-            [[ $i == -i ]] && opts=${opts/ -u / }
+            [[ $i == -u ]] && exclude_flags+=i
+            [[ $i == -i ]] && exclude_flags+=u
         done
 
         # Do known short -> long replacements; at least up to 0.8.12, --help
         # outputs mostly only short ones.
-        COMPREPLY=($opts)
         for i in "${!COMPREPLY[@]}"; do
             case ${COMPREPLY[i]} in
                 -h) COMPREPLY[i]=--help ;;
@@ -92,8 +92,8 @@ _comp_cmd_aptitude()
             esac
         done
 
-        ((${#COMPREPLY[@]})) &&
-            _comp_compgen -- -W '"${COMPREPLY[@]}"'
+        _comp_compgen -- -W '"${COMPREPLY[@]}"' \
+            ${exclude_flags:+-X "-[$exclude_flags]"}
     else
         _comp_compgen -- -W 'update upgrade safe-upgrade forget-new clean
             autoclean install reinstall remove hold unhold purge markauto
