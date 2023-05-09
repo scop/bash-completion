@@ -1,20 +1,21 @@
 # Deprecated bash_completion functions and variables        -*- shell-script -*-
 
-_comp_deprecate_func _userland _comp_userland
-_comp_deprecate_func _sysvdirs _comp_sysvdirs
-_comp_deprecate_func _have _comp_have_command
-_comp_deprecate_func _rl_enabled _comp_readline_variable_on
-_comp_deprecate_func _command_offset _comp_command_offset
-_comp_deprecate_func _command _comp_command
-_comp_deprecate_func _root_command _comp_root_command
-_comp_deprecate_func _xfunc _comp_xfunc
-_comp_deprecate_func _upvars _comp_upvars
-_comp_deprecate_func __reassemble_comp_words_by_ref _comp__reassemble_words
-_comp_deprecate_func __get_cword_at_cursor_by_ref _comp__get_cword_at_cursor
-_comp_deprecate_func _get_comp_words_by_ref _comp_get_words
-_comp_deprecate_func _longopt _comp_longopt
-_comp_deprecate_func _split_longopt _comp__split_longopt
-_comp_deprecate_func __ltrim_colon_completions _comp_ltrim_colon_completions
+_comp_deprecate_func 2.12 _userland _comp_userland
+_comp_deprecate_func 2.12 _sysvdirs _comp_sysvdirs
+_comp_deprecate_func 2.12 _have _comp_have_command
+_comp_deprecate_func 2.12 _rl_enabled _comp_readline_variable_on
+_comp_deprecate_func 2.12 _command_offset _comp_command_offset
+_comp_deprecate_func 2.12 _command _comp_command
+_comp_deprecate_func 2.12 _root_command _comp_root_command
+_comp_deprecate_func 2.12 _xfunc _comp_xfunc
+_comp_deprecate_func 2.12 _upvars _comp_upvars
+_comp_deprecate_func 2.12 __reassemble_comp_words_by_ref _comp__reassemble_words
+_comp_deprecate_func 2.12 __get_cword_at_cursor_by_ref \
+    _comp__get_cword_at_cursor
+_comp_deprecate_func 2.12 _get_comp_words_by_ref _comp_get_words
+_comp_deprecate_func 2.12 _longopt _comp_longopt
+_comp_deprecate_func 2.12 _split_longopt _comp__split_longopt
+_comp_deprecate_func 2.12 __ltrim_colon_completions _comp_ltrim_colon_completions
 
 # Backwards compatibility for compat completions that use have().
 # @deprecated should no longer be used; generally not needed with dynamically
