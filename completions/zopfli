@@ -12,8 +12,9 @@ _comp_cmd_zopfli()
     esac
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W \
-            '$(_parse_help "$1" -h | command sed -e "s/#$//")' -- "$cur"))
+        _comp_compgen -R help -- -h
+        ((${#COMPREPLY[@]})) &&
+            _comp_compgen -- -W '"${COMPREPLY[@]%#}"'
         [[ ${COMPREPLY-} == --i ]] && compopt -o nospace
         return
     fi
