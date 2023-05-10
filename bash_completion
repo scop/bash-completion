@@ -633,6 +633,46 @@ _comp_compgen_set()
     eval -- "$_var${_append:++}=(\"\$@\")"
 }
 
+# Simply split the text and generate completions.  This function should be used
+# instead of `_comp_compgen -- -W "$(command)"`, which is vulnerable because
+# option -W evaluates the shell expansions included in the option argument.
+# Options:
+#   -F sep  Specify the separators. The default is $' \t\n'
+#   -l      The same as -F $'\n'
+#   -X arg  The same as the compgen option -X.
+#   -S arg  The same as the compgen option -S.
+#   -P arg  The same as the compgen option -P.
+#   -o arg  The same as the compgen option -o.
+# @param $1 String to split
+# @since 2.12
+_comp_compgen_split()
+{
+    local _ifs=$' \t\n'
+    local -a _compgen_options=()
+
+    local OPTIND=1 OPTARG="" OPTERR=0 _opt
+    while getopts ':lF:X:S:P:o:' _opt "$@"; do
+        case $_opt in
+            l) _ifs=$'\n' ;;
+            F) _ifs=$OPTARG ;;
+            [XSPo]) _compgen_options+=("-$_opt" "$OPTARG") ;;
+            *)
+                printf 'bash_completion: usage: %s [-l|-F sep] [--] str\n' "$FUNCNAME" >&2
+                return 2
+                ;;
+        esac
+    done
+    shift "$((OPTIND - 1))"
+    if (($# != 1)); then
+        printf 'bash_completion: %s: unexpected number of arguments.\n' "$FUNCNAME" >&2
+        printf 'usage: %s [-l|-F sep] [--] str' "$FUNCNAME" >&2
+        return 2
+    fi
+
+    local _split_input=$1
+    _comp_compgen -F "$_ifs" -- "${_compgen_options[@]}" -W '$_split_input'
+}
+
 # Check if the argument looks like a path.
 # @param $1 thing to check
 # @return True (0) if it does, False (> 0) otherwise
