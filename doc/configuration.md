@@ -137,3 +137,13 @@ to have completion for their contents, so the default is unset.
 
 Available since version 2.12.
 Deprecated alias: `COMP_TAR_INTERNAL_PATHS`
+
+## Shell options
+
+### `no_empty_cmd_completion`
+
+If on, completions producing command names do not do anything if the command to
+be completed is empty. This can be useful on systems where generating the
+entire list of commands takes a long time.
+
+Available since version 2.12.
