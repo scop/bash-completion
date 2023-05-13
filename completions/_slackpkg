@@ -65,11 +65,8 @@ _comp_cmd_slackpkg()
             ;;
         install-template | remove-template)
             if [[ -e $confdir/templates ]]; then
-                COMPREPLY=($(
-                    command cd -- "$confdir/templates"
-                    compgen -f -X "!*.template" -- "$cur"
-                ))
-                COMPREPLY=(${COMPREPLY[@]%.template})
+                _comp_compgen -C "$confdir/templates" -- -f -X \
+                    "!?*.template" && COMPREPLY=("${COMPREPLY[@]%.template}")
             fi
             return
             ;;
@@ -77,10 +74,7 @@ _comp_cmd_slackpkg()
             _comp_compgen_filedir
             _comp_compgen -a -- -W 'a ap d e f k kde kdei l n t tcl x xap xfce
                 y'
-            COMPREPLY+=($(
-                command cd /var/log/packages
-                compgen -f -- "$cur"
-            ))
+            _comp_compgen -aC /var/log/packages -- -f
             return
             ;;
         install | reinstall | upgrade | blacklist | download)

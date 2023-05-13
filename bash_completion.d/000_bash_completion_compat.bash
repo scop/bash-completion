@@ -335,4 +335,12 @@ _parse_usage()
     return 0
 }
 
+# @deprecated 2.12 Use `_comp_get_ncpus`.
+_ncpus()
+{
+    local ret
+    _comp_get_ncpus
+    printf %s "$ret"
+}
+
 # ex: filetype=sh

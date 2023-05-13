@@ -1,6 +1,7 @@
 import pytest
+import re
 
-from conftest import assert_bash_exec, bash_env_saved
+from conftest import assert_bash_exec, bash_env_saved, assert_complete
 
 
 @pytest.mark.bashcomp(cmd=None)
@@ -13,11 +14,27 @@ class TestUtilCompgen:
         )
         assert_bash_exec(
             bash,
-            '_comp__test_words() { local -a arr=(00) input; input=("${@:1:$#-1}"); _comp_compgen -v arr -c "${@:$#}" -- -W \'${input[@]+"${input[@]}"}\'; _comp__test_dump; }',
+            '_comp__test_compgen() { local -a arr=(00); _comp_compgen -v arr "$@"; _comp__test_dump; }',
         )
         assert_bash_exec(
             bash,
-            '_comp__test_words_ifs() { local -a arr=(00); local input=$2; _comp_compgen -F "$1" -v arr -c "${@:$#}" -- -W \'$input\'; _comp__test_dump; }',
+            '_comp__test_words() { local -a input=("${@:1:$#-1}"); _comp__test_compgen -c "${@:$#}" -- -W \'${input[@]+"${input[@]}"}\'; }',
+        )
+        assert_bash_exec(
+            bash,
+            '_comp__test_words_ifs() { local input=$2; _comp__test_compgen -F "$1" -c "${@:$#}" -- -W \'$input\'; }',
+        )
+
+        assert_bash_exec(
+            bash,
+            '_comp_cmd_fc() { _comp_compgen -c "$(_get_cword)" -C _filedir filedir; }; '
+            "complete -F _comp_cmd_fc fc; "
+            "complete -F _comp_cmd_fc -o filenames fc2",
+        )
+        assert_bash_exec(
+            bash,
+            '_comp_cmd_fcd() { _comp_compgen -c "$(_get_cword)" -C _filedir filedir -d; }; '
+            "complete -F _comp_cmd_fcd fcd",
         )
 
     def test_1_basic(self, bash, functions):
@@ -83,3 +100,31 @@ class TestUtilCompgen:
             want_output=True,
         )
         assert output.strip() == "< 1><3 4><6 >< >"
+
+    def test_6_option_C_1(self, bash, functions):
+        output = assert_bash_exec(
+            bash,
+            "_comp__test_compgen -c a -C _filedir filedir",
+            want_output=True,
+        )
+        set1 = set(re.findall(r"<[^<>]*>", output.strip()))
+        assert set1 == {"<a b>", "<a$b>", "<a&b>", "<a'b>", "<ab>", "<aé>"}
+
+    def test_6_option_C_2(self, bash, functions):
+        output = assert_bash_exec(
+            bash,
+            "_comp__test_compgen -c b -C _filedir -- -d",
+            want_output=True,
+        )
+        assert output.strip() == "<brackets>"
+
+    @pytest.mark.parametrize("funcname", "fc fc2".split())
+    def test_6_option_C_3(self, bash, functions, funcname):
+        completion = assert_complete(bash, "%s _filedir ab/" % funcname)
+        assert completion == "e"
+
+    @pytest.mark.complete(r"fcd a\ ")
+    def test_6_option_C_4(self, functions, completion):
+        # Note: we are not in the original directory that "b" exists, so Bash
+        # will not suffix a slash to the directory name.
+        assert completion == "b"
