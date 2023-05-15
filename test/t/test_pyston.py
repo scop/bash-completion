@@ -6,7 +6,7 @@ class TestPyston:
     def test_basic(self, completion):
         assert completion
 
-    @pytest.mark.complete("pyston -")
+    @pytest.mark.complete("pyston -", require_cmd=True)
     def test_options(self, completion):
         assert completion
 
