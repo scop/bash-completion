@@ -34,11 +34,12 @@ you simply don't want to use one, you can install bash completion using the
 standard commands for GNU autotools packages:
 
 ```shell
-autoreconf -i  # if not installing from prepared release tarball
+autoreconf -i      # if not installing from prepared release tarball
 ./configure
-make           # GNU make required
-make check     # optional, requires python3 with pytest >= 3.6, pexpect
-make install   # as root
+make               # GNU make required
+make check         # optional
+make install       # as root
+make installcheck  # optional, requires python3 with pytest >= 3.6, pexpect
 ```
 
 These commands install the completions and helpers, as well as a

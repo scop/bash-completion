@@ -273,8 +273,12 @@ def bash(request) -> pexpect.spawn:
         bash.expect_exact(PS1)
 
         # Load bashrc and bash_completion
+        bash_completion = os.environ.get(
+            "BASH_COMPLETION_TEST_BASH_COMPLETION",
+            "%s/../bash_completion" % testdir,
+        )
         assert_bash_exec(bash, "source '%s/config/bashrc'" % testdir)
-        assert_bash_exec(bash, "source '%s/../bash_completion'" % testdir)
+        assert_bash_exec(bash, "source '%s'" % bash_completion)
 
         # Use command name from marker if set, or grab from test filename
         cmd = None  # type: Optional[str]
