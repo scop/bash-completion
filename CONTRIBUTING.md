@@ -67,11 +67,11 @@ Also, please bear the following coding guidelines in mind:
   external programs, which are expensive to fork and execute, so do
   make full use of those:
 
-  `?(pattern-list)` - match zero or one occurrences of patterns
-  `*(pattern-list)` - match zero or more occurrences of patterns
-  `+(pattern-list)` - match one or more occurrences of patterns
-  `@(pattern-list)` - match exactly one of the given patterns
-  `!(pattern-list)` - match anything except one of the given patterns
+  - `?(pattern-list)` - match zero or one occurrences of patterns
+  - `*(pattern-list)` - match zero or more occurrences of patterns
+  - `+(pattern-list)` - match one or more occurrences of patterns
+  - `@(pattern-list)` - match exactly one of the given patterns
+  - `!(pattern-list)` - match anything except one of the given patterns
 
 - Following on from the last point, be sparing with the use of
   external processes whenever you can. Completion functions need to be
