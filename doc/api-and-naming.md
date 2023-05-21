@@ -145,11 +145,14 @@ specified by `-v var` in `OPTS`).
 ### Implementing a generator function
 
 To implement a generator function, one should generate completion candidates by
-calling `_comp_compgen` or other generators.  To avoid conflicts with the
-options specified to `_comp_compgen`, one should not directly modify or
-reference the target variable.  When post-filtering is needed, store them in
-local arrays, filter them, and finally append them by `_comp_compgen -- -W
-"${arr[@]}"`.
+calling `_comp_compgen` or other generators.
+
+To avoid conflicts with the options specified to `_comp_compgen`, one should
+not directly modify or reference the target variable.  When post-filtering is
+needed, store them in a local array, filter them, and finally append them by
+`_comp_compgen -- -W '"${arr[@]}"'`.  To split the output of commands and
+append the results to the target variable, use `_comp_compgen_split -- "$(cmd
+...)"` instead of using `_comp_split COMPREPLY "$(cmd ...)"`.
 
 A generator function should replace the existing content of the variable by
 default.  When the appending behavior is favored, the caller should specify it

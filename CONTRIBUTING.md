@@ -117,15 +117,21 @@ Also, please bear the following coding guidelines in mind:
   variables are set (e.g. with `[[ -v varname ]]`) or use default
   expansion (e.g. `${varname-}`).
 
-- Prefer `compgen -W '...' -- $cur` over embedding `$cur` in external
-  command arguments (often e.g. sed, grep etc) unless there's a good
-  reason to embed it. Embedding user input in command lines can result
-  in syntax errors and other undesired behavior, or messy quoting
-  requirements when the input contains unusual characters. Good
-  reasons for embedding include functionality (if the thing does not
-  sanely work otherwise) or performance (if it makes a big difference
-  in speed), but all embedding cases should be documented with
-  rationale in comments in the code.
+- Prefer `_comp_compgen_split -- "$(...)"` over embedding `$cur` in external
+  command arguments (often e.g. sed, grep etc) unless there's a good reason to
+  embed it. Embedding user input in command lines can result in syntax errors
+  and other undesired behavior, or messy quoting requirements when the input
+  contains unusual characters.  Good reasons for embedding include
+  functionality (if the thing does not sanely work otherwise) or performance
+  (if it makes a big difference in speed), but all embedding cases should be
+  documented with rationale in comments in the code.
+
+  Do not use `_comp_compgen -- -W "$(...)"` or `_comp_compgen -- -W '$(...)'`
+  but always use `_comp_compgen_split -- "$(...)"`.  In the former case, when
+  the command output contains strings looking like shell expansions, the
+  expansions will be unexpectedly performed, which becomes a vulnerability.  In
+  the latter case, checks by shellcheck and shfmt will not be performed inside
+  `'...'`.  Also, `_comp_compgen_split` is `IFS`-safe.
 
 - When completing available options, offer only the most descriptive
   ones as completion results if there are multiple options that do the
