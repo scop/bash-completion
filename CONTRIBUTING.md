@@ -108,9 +108,10 @@ Also, please bear the following coding guidelines in mind:
 
 - We want our completions to work in `posix` and `nounset` modes.
 
-  Unfortunately due to a bash < 5.1 bug, toggling POSIX mode interferes
-  with keybindings and should not be done. This rules out use of
-  process substitution which causes syntax errors in POSIX mode.
+  Unfortunately due to a bash < 5.1 bug, toggling POSIX mode
+  interferes with keybindings and should not be done. This rules out
+  use of process substitution which causes syntax errors in POSIX mode
+  of bash < 5.1.
 
   Instead of toggling `nounset` mode, make sure to test whether
   variables are set (e.g. with `[[ -v varname ]]`) or use default
