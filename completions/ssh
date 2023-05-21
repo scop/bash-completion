@@ -89,14 +89,14 @@ _comp_xfunc_ssh_options()
 _comp_deprecate_func 2.12 _ssh_options _comp_xfunc_ssh_options
 
 # Complete a ssh suboption (like ForwardAgent=y<tab>)
-# Two parameters: the string to complete including the equal sign, and
-# the ssh executable to invoke (optional).
+# @param $1 the ssh executable to invoke
+# @param $2 the string to complete including the equal sign
 # Not all suboptions are completed.
 # Doesn't handle comma-separated lists.
 _comp_cmd_ssh__suboption()
 {
     # Split into subopt and subval
-    local prev=${1%%=*} cur=${1#*=}
+    local prev=${2%%=*} cur=${2#*=}
 
     case ${prev,,} in
         batchmode | canonicaldomains | canonicalizefallbacklocal | \
@@ -135,13 +135,13 @@ _comp_cmd_ssh__suboption()
             _comp_compgen_filedir
             ;;
         casignaturealgorithms)
-            COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$2" sig)' -- "$cur"))
+            COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$1" sig)' -- "$cur"))
             ;;
         cipher)
             _comp_compgen -- -W 'blowfish des 3des'
             ;;
         ciphers)
-            _comp_cmd_ssh__ciphers "$2"
+            _comp_cmd_ssh__ciphers "$1"
             ;;
         controlmaster)
             _comp_compgen -- -W 'yes ask auto autoask no'
@@ -157,16 +157,16 @@ _comp_cmd_ssh__suboption()
                 cs{0..7} ef lowdelay throughput reliability'
             ;;
         hostbasedkeytypes | hostkeyalgorithms)
-            COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$2" key)' -- "$cur"))
+            COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$1" key)' -- "$cur"))
             ;;
         kexalgorithms)
-            COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$2" kex)' -- "$cur"))
+            COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$1" kex)' -- "$cur"))
             ;;
         loglevel)
             _comp_compgen -- -W 'QUIET FATAL ERROR INFO VERBOSE DEBUG{,1,2,3}'
             ;;
         macs)
-            _comp_cmd_ssh__macs "$2"
+            _comp_cmd_ssh__macs "$1"
             ;;
         pkcs11provider)
             _comp_compgen_filedir so
@@ -176,7 +176,7 @@ _comp_cmd_ssh__suboption()
                 keyboard-interactive password' -- "$cur"))
             ;;
         protocol)
-            local protocols=($(_comp_xfunc_ssh_query "$2" protocol-version))
+            local protocols=($(_comp_xfunc_ssh_query "$1" protocol-version))
             [[ $protocols ]] || protocols=(1 2)
             if ((${#protocols[@]} > 1)); then
                 _comp_compgen -- -W '"${protocols[@]}"'
@@ -189,7 +189,7 @@ _comp_cmd_ssh__suboption()
             _comp_compgen -- -c
             ;;
         pubkeyacceptedalgorithms | pubkeyacceptedkeytypes)
-            COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$2" key)' -- "$cur"))
+            COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$1" key)' -- "$cur"))
             ;;
         requesttty)
             _comp_compgen -- -W 'no yes force auto'
@@ -221,7 +221,7 @@ _comp_xfunc_ssh_suboption_check()
     local cur prev
     _comp_get_words -n := cur prev
     if [[ $cur == *=* && $prev == -*o ]]; then
-        _comp_cmd_ssh__suboption "$cur" "${1-}"
+        _comp_cmd_ssh__suboption "${1:-ssh}" "$cur"
         return $?
     fi
     return 1
