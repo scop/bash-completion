@@ -2,7 +2,7 @@
 
 _comp_cmd_ssh__queries()
 {
-    local queries=$(_comp_xfunc_ssh_query "$1" help)
+    local queries=$(_comp_cmd_ssh__query "$1" help)
     [[ $queries ]] || queries="cipher cipher-auth mac kex key key-cert
          key-plain key-sig protocol-version compression sig ciphers macs
          kexalgorithms pubkeyacceptedkeytypes hostkeyalgorithms
@@ -14,14 +14,24 @@ _comp_cmd_ssh__queries()
 # TODO:API:rework to use vars rather than outputting
 _comp_xfunc_ssh_query()
 {
-    ${1:-ssh} -Q "$2" 2>/dev/null
+    _comp_cmd_ssh__query ssh "$1"
 }
 
-_comp_deprecate_func 2.12 _ssh_query _comp_xfunc_ssh_query
+# @deprecated 2.12 use _comp_xfunc_ssh_query
+_ssh_query()
+{
+    _comp_cmd_ssh__query "${1:-ssh}" "$2"
+}
+
+# TODO:API:rework to use vars rather than outputting
+_comp_cmd_ssh__query()
+{
+    "$1" -Q "$2" 2>/dev/null
+}
 
 _comp_cmd_ssh__ciphers()
 {
-    local ciphers=$(_comp_xfunc_ssh_query "$1" cipher)
+    local ciphers=$(_comp_cmd_ssh__query "$1" cipher)
     [[ $ciphers ]] || ciphers="3des-cbc aes128-cbc aes192-cbc aes256-cbc
         aes128-ctr aes192-ctr aes256-ctr arcfour128 arcfour256 arcfour
         blowfish-cbc cast128-cbc"
@@ -30,7 +40,7 @@ _comp_cmd_ssh__ciphers()
 
 _comp_cmd_ssh__macs()
 {
-    local macs=$(_comp_xfunc_ssh_query "$1" mac)
+    local macs=$(_comp_cmd_ssh__query "$1" mac)
     [[ $macs ]] || macs="hmac-md5 hmac-sha1 umac-64@openssh.com hmac-ripemd160
         hmac-sha1-96 hmac-md5-96"
     _comp_compgen -a -- -W "$macs"
@@ -70,7 +80,7 @@ _comp_xfunc_ssh_options()
         GSSAPIKeyExchange GSSAPIRenewalForcesRekey GSSAPIServerIdentity
         GSSAPITrustDns PubkeyAcceptedKeyTypes SmartcardDevice UsePrivilegedPort
     )
-    local protocols=$(_comp_xfunc_ssh_query "${1:-ssh}" protocol-version)
+    local protocols=$(_comp_cmd_ssh__query ssh protocol-version)
     if [[ ! $protocols || $protocols == *1* ]]; then
         opts+=(Cipher CompressionLevel Protocol RhostsRSAAuthentication
             RSAAuthentication)
@@ -135,7 +145,7 @@ _comp_cmd_ssh__suboption()
             _comp_compgen_filedir
             ;;
         casignaturealgorithms)
-            COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$1" sig)' -- "$cur"))
+            COMPREPLY=($(compgen -W '$(_comp_cmd_ssh__query "$1" sig)' -- "$cur"))
             ;;
         cipher)
             _comp_compgen -- -W 'blowfish des 3des'
@@ -157,10 +167,10 @@ _comp_cmd_ssh__suboption()
                 cs{0..7} ef lowdelay throughput reliability'
             ;;
         hostbasedkeytypes | hostkeyalgorithms)
-            COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$1" key)' -- "$cur"))
+            COMPREPLY=($(compgen -W '$(_comp_cmd_ssh__query "$1" key)' -- "$cur"))
             ;;
         kexalgorithms)
-            COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$1" kex)' -- "$cur"))
+            COMPREPLY=($(compgen -W '$(_comp_cmd_ssh__query "$1" kex)' -- "$cur"))
             ;;
         loglevel)
             _comp_compgen -- -W 'QUIET FATAL ERROR INFO VERBOSE DEBUG{,1,2,3}'
@@ -176,7 +186,7 @@ _comp_cmd_ssh__suboption()
                 keyboard-interactive password' -- "$cur"))
             ;;
         protocol)
-            local protocols=($(_comp_xfunc_ssh_query "$1" protocol-version))
+            local protocols=($(_comp_cmd_ssh__query "$1" protocol-version))
             [[ $protocols ]] || protocols=(1 2)
             if ((${#protocols[@]} > 1)); then
                 _comp_compgen -- -W '"${protocols[@]}"'
@@ -189,7 +199,7 @@ _comp_cmd_ssh__suboption()
             _comp_compgen -- -c
             ;;
         pubkeyacceptedalgorithms | pubkeyacceptedkeytypes)
-            COMPREPLY=($(compgen -W '$(_comp_xfunc_ssh_query "$1" key)' -- "$cur"))
+            COMPREPLY=($(compgen -W '$(_comp_cmd_ssh__query "$1" key)' -- "$cur"))
             ;;
         requesttty)
             _comp_compgen -- -W 'no yes force auto'
