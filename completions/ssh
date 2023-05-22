@@ -217,17 +217,27 @@ _comp_cmd_ssh__suboption()
 # @since 2.12
 _comp_xfunc_ssh_suboption_check()
 {
+    _comp_cmd_ssh__suboption_check ssh
+}
+
+# @param $1 the ssh executable to invoke
+_comp_cmd_ssh__suboption_check()
+{
     # Get prev and cur words without splitting on =
     local cur prev
     _comp_get_words -n := cur prev
     if [[ $cur == *=* && $prev == -*o ]]; then
-        _comp_cmd_ssh__suboption "${1:-ssh}" "$cur"
+        _comp_cmd_ssh__suboption "$1" "$cur"
         return $?
     fi
     return 1
 }
 
-_comp_deprecate_func 2.12 _ssh_suboption_check _comp_xfunc_ssh_suboption_check
+# @deprecated 2.12 use `_comp_xfunc_ssh_suboption_check` instead
+_ssh_suboption_check()
+{
+    _comp_cmd_ssh__suboption_check "${1:-ssh}"
+}
 
 # Search COMP_WORDS for '-F configfile' or '-Fconfigfile' argument
 # @var[out] configfile   Found configfile, if any
@@ -272,7 +282,7 @@ _comp_cmd_ssh()
     local configfile
     _comp_cmd_ssh__configfile
 
-    _comp_xfunc_ssh_suboption_check "$1" && return
+    _comp_cmd_ssh__suboption_check "$1" && return
 
     local ipvx
 
