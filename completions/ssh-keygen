@@ -99,6 +99,9 @@ _comp_cmd_ssh_keygen()
             return
             ;;
         -*t)
+            # Prefer `ssh` from same dir for resolving options, etc
+            local pathcmd
+            pathcmd=$(type -P "$1") && local PATH=${pathcmd%/*}:$PATH
             local protocols=$(_comp_xfunc ssh query protocol-version)
             local types='dsa ecdsa ecdsa-sk ed25519 ed25519-sk rsa'
             if [[ $protocols == *1* ]]; then
