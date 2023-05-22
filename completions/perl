@@ -3,7 +3,7 @@
 _comp_cmd_perl__helper()
 {
     COMPREPLY=($(compgen -P "$prefix" -W \
-        "$("${2:-perl}" "${BASH_SOURCE[0]%/*}/../helpers/perl" "$1" "$cur")" \
+        "$("${1:-perl}" "${BASH_SOURCE[0]%/*}/../helpers/perl" "$2" "$cur")" \
         -- "$cur"))
     [[ $1 == functions ]] || _comp_ltrim_colon_completions "$prefix$cur"
 }
@@ -41,7 +41,7 @@ _comp_cmd_perl()
                 temp="${cur#-}"
                 prefix+=${cur%"$temp"}
                 cur="$temp"
-                _comp_cmd_perl__helper modules "$1"
+                _comp_cmd_perl__helper "$1" modules
                 return
                 ;;
             -*V)
@@ -61,7 +61,7 @@ _comp_cmd_perl()
                     temp="${cur#:}"
                     prefix=$prefix${cur%"$temp"}
                     cur="Devel::$temp"
-                    _comp_cmd_perl__helper modules "$1"
+                    _comp_cmd_perl__helper "$1" modules
                 fi
                 ;;
         esac
@@ -106,8 +106,9 @@ _comp_cmd_perldoc()
         prefix=$prev
     fi
 
-    local perl="${1%doc}"
-    [[ $perl == "$1" ]] || ! type "$perl" &>/dev/null && perl=
+    # Prefer `perl` in the same dir in utility functions
+    local pathcmd
+    pathcmd=$(type -P "$1") && local PATH=${pathcmd%/*}:$PATH
 
     case $prev in
         -*[hVnoMwL])
@@ -118,7 +119,7 @@ _comp_cmd_perldoc()
             return
             ;;
         -*f)
-            _comp_cmd_perl__helper functions "$perl"
+            _comp_cmd_perl__helper "" functions
             return
             ;;
     esac
@@ -128,7 +129,7 @@ _comp_cmd_perldoc()
     else
         # return available modules (unless it is clearly a file)
         if [[ $cur != @(*/|[.~])* ]]; then
-            _comp_cmd_perl__helper perldocs "$perl"
+            _comp_cmd_perl__helper "" perldocs
             if [[ $cur == p* ]]; then
                 COMPREPLY+=($(compgen -W \
                     '$(PERLDOC_PAGER=cat "$1" -u perl |  \
