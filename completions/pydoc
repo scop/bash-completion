@@ -23,9 +23,10 @@ _comp_cmd_pydoc()
     _comp_compgen -- -W 'keywords topics modules'
 
     if ! _comp_looks_like_path "$cur"; then
-        local python=python
-        [[ ${1##*/} == *3* ]] && python=python3
-        _comp_xfunc python modules $python
+        # Prefer python in the same dir for resolving modules
+        local pathcmd
+        pathcmd=$(type -P "$1") && local PATH=${pathcmd%/*}:$PATH
+        _comp_xfunc python modules
     fi
 
     # Note that we don't do "pydoc modules" as it is known to hang on
