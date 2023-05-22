@@ -19,9 +19,9 @@ _comp_cmd_pkg_get__catalog_file()
         url=$(_comp_awk -F = ' $1=="url" { print $2 }' "$conffile")
     fi
 
-    ret="${url##*//}"
-    ret="${ret%%/*}"
-    ret="/var/pkg-get/catalog-$ret"
+    REPLY="${url##*//}"
+    REPLY="${REPLY%%/*}"
+    REPLY="/var/pkg-get/catalog-$REPLY"
 } &&
     _comp_cmd_pkg_get()
     {
@@ -46,10 +46,10 @@ _comp_cmd_pkg_get__catalog_file()
 
         if [[ $command ]]; then
             if [[ $command == @(-[Ddi]|describe|download|install) ]]; then
-                local ret
+                local REPLY
                 _comp_cmd_pkg_get__catalog_file "$url"
-                if [[ -f $ret ]]; then
-                    local packages_list=$(_comp_awk '$0 ~ /BEGIN PGP SIGNATURE/ { exit } $1 ~ /^Hash:/ || $1 ~ /^ *(-|#|$)/ { next } { print $1 }' "$ret")
+                if [[ -f $REPLY ]]; then
+                    local packages_list=$(_comp_awk '$0 ~ /BEGIN PGP SIGNATURE/ { exit } $1 ~ /^Hash:/ || $1 ~ /^ *(-|#|$)/ { next } { print $1 }' "$REPLY")
                     _comp_compgen -- -W "${packages_list}"
                 fi
             fi

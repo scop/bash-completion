@@ -9,7 +9,7 @@ class TestUnitGetFirstArg:
     def functions(self, bash):
         assert_bash_exec(
             bash,
-            '_comp__test_unit() { local -a "words=$1"; local cword=$2 ret=; shift 2; _comp_get_first_arg "$@" && printf "%s\\n" "$ret"; return 0; }',
+            '_comp__test_unit() { local -a "words=$1"; local cword=$2 REPLY=; shift 2; _comp_get_first_arg "$@" && printf "%s\\n" "$REPLY"; return 0; }',
         )
 
     def _test(self, bash, words, cword, args=""):

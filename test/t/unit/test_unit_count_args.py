@@ -5,14 +5,14 @@ from conftest import TestUnitBase, assert_bash_exec
 
 @pytest.mark.bashcomp(
     cmd=None,
-    ignore_env=r"^[+-](ret|cword|words|COMP_(WORDS|CWORD|LINE|POINT))=",
+    ignore_env=r"^[+-](REPLY|cword|words|COMP_(WORDS|CWORD|LINE|POINT))=",
 )
 class TestUnitCountArgs(TestUnitBase):
     @pytest.fixture
     def functions(self, bash):
         assert_bash_exec(
             bash,
-            '_comp__test_unit() { local -a words=(); local cword ret=""; _comp__reassemble_words "<>&" words cword; _comp_count_args "$@"; echo "$ret"; }',
+            '_comp__test_unit() { local -a words=(); local cword REPLY=""; _comp__reassemble_words "<>&" words cword; _comp_count_args "$@"; echo "$REPLY"; }',
         )
 
     def _test(self, *args, **kwargs):

@@ -7,60 +7,60 @@ _comp_cmd_java__classpath()
 }
 
 # exact classpath determination
-# @var[out] ret  Array to store classpaths
+# @var[out] REPLY  Array to store classpaths
 # @return 0 if at least one element is generated, or otherwise 1
 _comp_cmd_java__find_classpath()
 {
     local i
 
-    ret=
+    REPLY=
 
     # search first in current options
     for ((i = 1; i < cword; i++)); do
         if [[ ${words[i]} == -@(cp|classpath) ]]; then
-            ret=${words[i + 1]}
+            REPLY=${words[i + 1]}
             break
         fi
     done
 
     # fall back to environment, followed by current directory
-    _comp_split -F : ret "${ret:-${CLASSPATH:-.}}"
+    _comp_split -F : REPLY "${REPLY:-${CLASSPATH:-.}}"
 }
 
 # exact sourcepath determination
-# @var[out] ret  Array to store sourcepaths
+# @var[out] REPLY  Array to store sourcepaths
 # @return 0 if at least one element is generated, or otherwise 1
 _comp_cmd_java__find_sourcepath()
 {
     local i
 
-    ret=
+    REPLY=
 
     # search first in current options
     for ((i = 1; i < cword; i++)); do
         if [[ ${words[i]} == -sourcepath ]]; then
-            ret=${words[i + 1]}
+            REPLY=${words[i + 1]}
             break
         fi
     done
 
     # fall back to classpath
-    if [[ ! $ret ]]; then
+    if [[ ! $REPLY ]]; then
         _comp_cmd_java__find_classpath
         return
     fi
 
-    _comp_split -F : ret "$ret"
+    _comp_split -F : REPLY "$REPLY"
 }
 
 # available classes completion
 _comp_cmd_java__classes()
 {
-    local ret i
+    local REPLY i
 
     # find which classpath to use
     _comp_cmd_java__find_classpath
-    local -a classpaths=("${ret[@]}")
+    local -a classpaths=("${REPLY[@]}")
 
     # convert package syntax to path syntax
     cur=${cur//.//}
@@ -105,11 +105,11 @@ _comp_cmd_java__classes()
 # available packages completion
 _comp_cmd_java__packages()
 {
-    local ret i files
+    local REPLY i files
 
     # find which sourcepath to use
     _comp_cmd_java__find_sourcepath || return 0
-    local -a sourcepaths=("${ret[@]}")
+    local -a sourcepaths=("${REPLY[@]}")
 
     # convert package syntax to path syntax
     local cur=${cur//.//}

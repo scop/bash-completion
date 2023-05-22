@@ -49,7 +49,7 @@ _comp_cmd_lvm__sizes()
 # @param $1 glob matching args known to take an argument
 _comp_cmd_lvm__count_args()
 {
-    ret=0
+    REPLY=0
     local offset=1
     if [[ ${words[0]} == lvm ]]; then
         offset=2
@@ -58,7 +58,7 @@ _comp_cmd_lvm__count_args()
     for ((i = offset; i < cword; i++)); do
         # shellcheck disable=SC2053
         if [[ ${words[i]} != -* && $prev != $1 ]]; then
-            ((ret++))
+            ((REPLY++))
         fi
         prev=${words[i]}
     done
@@ -334,9 +334,9 @@ _comp_cmd_vgcreate()
     if [[ $cur == -* ]]; then
         _comp_compgen_usage -- --help
     else
-        local ret
+        local REPLY
         _comp_cmd_lvm__count_args '@(-A|--autobackup|-M|--metadatatype|-s|--physicalextentsize)'
-        if ((ret == 0)); then
+        if ((REPLY == 0)); then
             _comp_cmd_lvm__volumegroups
         else
             _comp_cmd_lvm__physicalvolumes_all
@@ -398,9 +398,9 @@ _comp_cmd_vgreduce()
         _comp_compgen_usage -- --help
 
     else
-        local ret
+        local REPLY
         _comp_cmd_lvm__count_args '@(-A|--autobackup)'
-        if ((ret == 0)); then
+        if ((REPLY == 0)); then
             _comp_cmd_lvm__volumegroups
         else
             _comp_cmd_lvm__physicalvolumes
@@ -430,9 +430,9 @@ _comp_cmd_vgextend()
     if [[ $cur == -* ]]; then
         _comp_compgen_usage -- --help
     else
-        local ret
+        local REPLY
         _comp_cmd_lvm__count_args '@(-A|--autobackup|-L|--size)'
-        if ((ret == 0)); then
+        if ((REPLY == 0)); then
             _comp_cmd_lvm__volumegroups
         else
             _comp_cmd_lvm__physicalvolumes_all
@@ -592,9 +592,9 @@ _comp_cmd_vgsplit()
     if [[ $cur == -* ]]; then
         _comp_compgen_usage -- --help
     else
-        local ret
+        local REPLY
         _comp_cmd_lvm__count_args '@(-A|--autobackup|-M|--metadatatype)'
-        if ((ret < 2)); then
+        if ((REPLY < 2)); then
             _comp_cmd_lvm__volumegroups
         else
             _comp_cmd_lvm__physicalvolumes
@@ -730,9 +730,9 @@ _comp_cmd_lvcreate()
     if [[ $cur == -* ]]; then
         _comp_compgen_usage -- --help
     else
-        local ret
+        local REPLY
         _comp_cmd_lvm__count_args '@(-A|-C|-M|-Z|--autobackup|--contiguous|--persistent|--zero|-L|--size|-p|--permission|-n|--name)'
-        if ((ret == 0)); then
+        if ((REPLY == 0)); then
             _comp_cmd_lvm__volumegroups
         else
             _comp_cmd_lvm__physicalvolumes
@@ -832,9 +832,9 @@ _comp_cmd_lvresize()
     if [[ $cur == -* ]]; then
         _comp_compgen_usage -- --help
     else
-        local ret
+        local REPLY
         _comp_cmd_lvm__count_args '@(-A|--autobackup|-L|--size)'
-        if ((ret == 0)); then
+        if ((REPLY == 0)); then
             _comp_cmd_lvm__logicalvolumes
         else
             _comp_cmd_lvm__physicalvolumes
@@ -864,9 +864,9 @@ _comp_cmd_lvextend()
     if [[ $cur == -* ]]; then
         _comp_compgen_usage -- --help
     else
-        local ret
+        local REPLY
         _comp_cmd_lvm__count_args '@(-A|--autobackup|-L|--size)'
-        if ((ret == 0)); then
+        if ((REPLY == 0)); then
             _comp_cmd_lvm__logicalvolumes
         else
             _comp_cmd_lvm__physicalvolumes

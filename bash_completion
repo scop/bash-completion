@@ -139,11 +139,11 @@ _comp_readline_variable_on()
 
 # This function shell-quotes the argument
 # @param    $1  String to be quoted
-# @var[out] ret Resulting string
+# @var[out] REPLY Resulting string
 # @since 2.12
 _comp_quote()
 {
-    ret=\'${1//\'/\'\\\'\'}\'
+    REPLY=\'${1//\'/\'\\\'\'}\'
 }
 
 # shellcheck disable=SC1003
@@ -175,8 +175,8 @@ _comp_dequote__initialize
 #               - Quotes \?, '...', "...", $'...', and $"...".  In the double
 #                 quotations, parameter expansions are allowed.
 #
-# @var[out] ret Array that contains the expanded results.  Multiple words or no
-#               words may be generated through pathname expansions.
+# @var[out] REPLY  Array that contains the expanded results.  Multiple words or
+#                  no words may be generated through pathname expansions.
 #
 # Note: This function allows parameter expansions as safe strings, which might
 # cause unexpected results:
@@ -203,9 +203,9 @@ _comp_dequote__initialize
 # @since 2.12
 _comp_dequote()
 {
-    ret=() # fallback value for unsafe word and failglob
+    REPLY=() # fallback value for unsafe word and failglob
     [[ $1 =~ $_comp_dequote__regex_safe_word ]] || return 1
-    eval "ret=($1)" 2>/dev/null # may produce failglob
+    eval "REPLY=($1)" 2>/dev/null # may produce failglob
 }
 
 # Unset the given variables across a scope boundary. Useful for unshadowing
@@ -1032,25 +1032,25 @@ _comp_ltrim_colon_completions()
 # - https://lists.gnu.org/archive/html/bug-bash/2009-03/msg00155.html
 # - https://www.mail-archive.com/bash-completion-devel@lists.alioth.debian.org/msg01944.html
 # @param $1      Argument to quote
-# @var[out] ret  Quoted result is stored in this variable
+# @var[out] REPLY  Quoted result is stored in this variable
 # @since 2.12
-# shellcheck disable=SC2178 # The assignment is not intended for the global "ret"
+# shellcheck disable=SC2178 # The assignment is not intended for the global "REPLY"
 _comp_quote_compgen()
 {
     if [[ $1 == \'* ]]; then
         # Leave out first character
-        ret=${1:1}
+        REPLY=${1:1}
     else
-        printf -v ret %q "$1"
+        printf -v REPLY %q "$1"
 
         # If result becomes quoted like this: $'string', re-evaluate in order
         # to drop the additional quoting.  See also:
         # https://www.mail-archive.com/bash-completion-devel@lists.alioth.debian.org/msg01942.html
-        if [[ $ret == \$\'*\' ]]; then
-            local value=${ret:2:-1} # Strip beginning $' and ending '.
-            value=${value//'%'/%%}  # Escape % for printf format.
+        if [[ $REPLY == \$\'*\' ]]; then
+            local value=${REPLY:2:-1} # Strip beginning $' and ending '.
+            value=${value//'%'/%%}    # Escape % for printf format.
             # shellcheck disable=SC2059
-            printf -v ret "$value" # Decode escape sequences of \....
+            printf -v REPLY "$value" # Decode escape sequences of \....
         fi
     fi
 }
@@ -1073,10 +1073,10 @@ _comp_compgen_filedir()
     if [[ $_arg == -d ]]; then
         _comp_compgen -v toks -- -d
     else
-        local ret
+        local REPLY
         _comp_quote_compgen "${cur-}"
-        local _quoted=$ret
-        _comp_unlocal ret
+        local _quoted=$REPLY
+        _comp_unlocal REPLY
 
         # work around bash-4.2 where compgen -f "''" produces nothing.
         [[ $_quoted == "''" ]] && _quoted=""
@@ -1441,15 +1441,15 @@ _comp_compgen_help__get_help_lines()
             ;;
         --) shift 1 ;&
         *)
-            local ret
-            _comp_dequote "${comp_args[0]-}" || ret=${comp_args[0]-}
-            help_cmd=("${ret:-false}" "$@")
+            local REPLY
+            _comp_dequote "${comp_args[0]-}" || REPLY=${comp_args[0]-}
+            help_cmd=("${REPLY:-false}" "$@")
             ;;
     esac
 
-    local ret
-    _comp_split -l ret "$(LC_ALL=C "${help_cmd[@]}" 2>&1)" &&
-        _lines=("${ret[@]}")
+    local REPLY
+    _comp_split -l REPLY "$(LC_ALL=C "${help_cmd[@]}" 2>&1)" &&
+        _lines=("${REPLY[@]}")
 }
 
 # Helper function for _comp_compgen_help and _comp_compgen_usage.
@@ -1709,17 +1709,17 @@ _comp_compgen_available_interfaces()
 }
 
 # Echo number of CPUs, falling back to 1 on failure.
-# @var[out] ret
+# @var[out] REPLY
 # @return 0 if it successfully obtained the number of CPUs, or otherwise 1
 # @since 2.12
 _comp_get_ncpus()
 {
     local var=NPROCESSORS_ONLN
     [[ $OSTYPE == *@(linux|msys|cygwin)* ]] && var=_$var
-    if ret=$(getconf $var 2>/dev/null) && ((ret >= 1)); then
+    if REPLY=$(getconf $var 2>/dev/null) && ((REPLY >= 1)); then
         return 0
     else
-        ret=1
+        REPLY=1
         return 1
     fi
 }
@@ -1752,11 +1752,11 @@ _comp_compgen_tilde()
 # a dollar sign variable ($) or asterisk (*) is not expanded.
 # Example usage:
 #
-#    $ _comp_expand_tilde "~"; echo "$ret"
+#    $ _comp_expand_tilde "~"; echo "$REPLY"
 #
 # Example output:
 #
-#       $1                 ret
+#       $1                 REPLY
 #    --------         ----------------
 #    ~                /home/user
 #    ~foo/bar         /home/foo/bar
@@ -1765,14 +1765,14 @@ _comp_compgen_tilde()
 #    ~foo/*           /home/foo/*
 #
 # @param $1     Value to expand
-# @var[out] ret Expanded result
+# @var[out] REPLY Expanded result
 # @since 2.12
 _comp_expand_tilde()
 {
-    ret=$1
+    REPLY=$1
     if [[ $1 == \~* ]]; then
-        printf -v ret '~%q' "${1#\~}"
-        eval "ret=$ret"
+        printf -v REPLY '~%q' "${1#\~}"
+        eval "REPLY=$REPLY"
     fi
 }
 
@@ -1787,9 +1787,9 @@ _comp_expand()
 
     case ${cur-} in
         ~*/*)
-            local ret
+            local REPLY
             _comp_expand_tilde "$cur"
-            cur=$ret
+            cur=$REPLY
             ;;
         ~*)
             _comp_compgen -v COMPREPLY tilde &&
@@ -2143,40 +2143,40 @@ _comp_compgen_fstypes()
 # No symlink resolution or existence checks are done;
 # see `_comp_realcommand` for those.
 # @param $1 The file
-# @var[out] ret The path
+# @var[out] REPLY The path
 # @since 2.12
 _comp_abspath()
 {
-    ret=$1
-    case $ret in
+    REPLY=$1
+    case $REPLY in
         /*) ;;
-        ../*) ret=$PWD/${ret:3} ;;
-        *) ret=$PWD/$ret ;;
+        ../*) REPLY=$PWD/${REPLY:3} ;;
+        *) REPLY=$PWD/$REPLY ;;
     esac
-    while [[ $ret == */./* ]]; do
-        ret=${ret//\/.\//\/}
+    while [[ $REPLY == */./* ]]; do
+        REPLY=${REPLY//\/.\//\/}
     done
-    ret=${ret//+(\/)/\/}
+    REPLY=${REPLY//+(\/)/\/}
 }
 
 # Get real command.
 # Command is the filename of command in PATH with possible symlinks resolved
 # (if resolve tooling available), empty string if command not found.
 # @param    $1 Command
-# @var[out] ret Resulting string
+# @var[out] REPLY Resulting string
 # @return   True (0) if command found, False (> 0) if not.
 # @since 2.12
 _comp_realcommand()
 {
-    ret=""
+    REPLY=""
     local file
     file=$(type -P "$1") || return $?
     if type -p realpath >/dev/null; then
-        ret=$(realpath "$file")
+        REPLY=$(realpath "$file")
     elif type -p greadlink >/dev/null; then
-        ret=$(greadlink -f "$file")
+        REPLY=$(greadlink -f "$file")
     elif type -p readlink >/dev/null; then
-        ret=$(readlink -f "$file")
+        REPLY=$(readlink -f "$file")
     else
         _comp_abspath "$file"
     fi
@@ -2187,7 +2187,7 @@ _comp_realcommand()
 # Options:
 #     -a GLOB  Pattern of options that take an option argument
 #
-# @var[out] ret Position of the first argument before the current one being
+# @var[out] REPLY Position of the first argument before the current one being
 # completed if any, or otherwise an empty string
 # @return True (0) if any argument is found, False (> 0) otherwise.
 # @since 2.12
@@ -2207,16 +2207,16 @@ _comp_locate_first_arg()
     shift "$((OPTIND - 1))"
 
     local i
-    ret=
+    REPLY=
     for ((i = 1; i < cword; i++)); do
         # shellcheck disable=SC2053
         if [[ $has_optarg && ${words[i]} == $has_optarg ]]; then
             ((i++))
         elif [[ ${words[i]} != -?* ]]; then
-            ret=$i
+            REPLY=$i
             return 0
         elif [[ ${words[i]} == -- ]]; then
-            ((i + 1 < cword)) && ret=$((i + 1)) && return 0
+            ((i + 1 < cword)) && REPLY=$((i + 1)) && return 0
             break
         fi
     done
@@ -2228,13 +2228,13 @@ _comp_locate_first_arg()
 # Options:
 #     -a GLOB  Pattern of options that take an option argument
 #
-# @var[out] ret First argument before the current one being completed if any,
+# @var[out] REPLY First argument before the current one being completed if any,
 # or otherwise an empty string
 # @return True (0) if any argument is found, False (> 0) otherwise.
 # @since 2.12
 _comp_get_first_arg()
 {
-    _comp_locate_first_arg "$@" && ret=${words[ret]}
+    _comp_locate_first_arg "$@" && REPLY=${words[REPLY]}
 }
 
 # This function counts the number of args, excluding options
@@ -2246,7 +2246,7 @@ _comp_get_first_arg()
 #     -a GLOB   Options whose following argument should not be counted
 #     -i GLOB   Options that should be counted as args
 #
-# @var[out] ret    Return the number of arguments
+# @var[out] REPLY    Return the number of arguments
 # @since 2.12
 _comp_count_args()
 {
@@ -2271,15 +2271,15 @@ _comp_count_args()
     fi
 
     local i
-    ret=1
+    REPLY=1
     for ((i = 1; i < cword; i++)); do
         # shellcheck disable=SC2053
         if [[ $has_optarg && ${words[i]} == $has_optarg ]]; then
             ((i++))
         elif [[ ${words[i]} != -?* || $glob_include && ${words[i]} == $glob_include ]]; then
-            ((ret++))
+            ((REPLY++))
         elif [[ ${words[i]} == -- ]]; then
-            ((ret += cword - i - 1))
+            ((REPLY += cword - i - 1))
             break
         fi
     done
@@ -2394,7 +2394,7 @@ _comp__included_ssh_config_files()
 {
     (($# < 1)) &&
         echo "bash_completion: $FUNCNAME: missing mandatory argument CONFIG" >&2
-    local configfile i files f ret
+    local configfile i files f REPLY
     configfile=$1
 
     # From man ssh_config:
@@ -2427,7 +2427,7 @@ _comp__included_ssh_config_files()
                 i="${relative_include_base}/${i}"
             fi
             _comp_expand_tilde "$i"
-            _comp_expand_glob files '$ret'
+            _comp_expand_glob files '$REPLY'
             # In case the expanded variable contains multiple paths
             if ((${#files[@]})); then
                 for f in "${files[@]}"; do
@@ -2535,19 +2535,19 @@ _comp_compgen_known_hosts__impl()
         #          spaces in their name work (watch out for ~ expansion
         #          breakage! Alioth#311595)
         if _comp_split -l tmpkh "$(_comp_awk 'sub("^[ \t]*([Gg][Ll][Oo][Bb][Aa][Ll]|[Uu][Ss][Ee][Rr])[Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee][ \t=]+", "") { print $0 }' "${config[@]}" | sort -u)"; then
-            local tmpkh2 j ret
+            local tmpkh2 j REPLY
             for i in "${tmpkh[@]}"; do
                 # First deal with quoted entries...
                 while [[ $i =~ ^([^\"]*)\"([^\"]*)\"(.*)$ ]]; do
                     i=${BASH_REMATCH[1]}${BASH_REMATCH[3]}
                     _comp_expand_tilde "${BASH_REMATCH[2]}" # Eval/expand possible `~' or `~user'
-                    [[ -r $ret ]] && kh+=("$ret")
+                    [[ -r $REPLY ]] && kh+=("$REPLY")
                 done
                 # ...and then the rest.
                 _comp_split tmpkh2 "$i" || continue
                 for j in "${tmpkh2[@]}"; do
                     _comp_expand_tilde "$j" # Eval/expand possible `~' or `~user'
-                    [[ -r $ret ]] && kh+=("$ret")
+                    [[ -r $REPLY ]] && kh+=("$REPLY")
                 done
             done
         fi
@@ -2676,7 +2676,7 @@ complete -F _comp_complete_known_hosts traceroute traceroute6 \
 #
 _comp__find_original_word()
 {
-    ret=$1
+    REPLY=$1
 
     # If CWORD or WORDS are undefined, we return the first argument without any
     # processing.
@@ -2689,7 +2689,7 @@ _comp__find_original_word()
             word=${word#*"${COMP_WORDS[i++]}"}
         done
     done
-    ret=$i
+    REPLY=$i
 }
 # A meta-command completion function for commands like sudo(8), which need to
 # first complete on a command, then complete according to that command's own
@@ -2702,9 +2702,9 @@ _comp_command_offset()
     # actual command completion
 
     # obtain the word index in COMP_WORDS
-    local ret
+    local REPLY
     _comp__find_original_word "$1"
-    local word_offset=$ret
+    local word_offset=$REPLY
 
     # make changes to COMP_* local.  Note that bash-4.3..5.0 have a
     # bug that `local -a arr=("${arr[@]}")` fails.  We instead first
@@ -2733,8 +2733,8 @@ _comp_command_offset()
     if ((COMP_CWORD == 0)); then
         _comp_compgen_commands
     else
-        _comp_dequote "${COMP_WORDS[0]}" || ret=${COMP_WORDS[0]}
-        local cmd=$ret compcmd=$ret
+        _comp_dequote "${COMP_WORDS[0]}" || REPLY=${COMP_WORDS[0]}
+        local cmd=$REPLY compcmd=$REPLY
         local cspec=$(complete -p "$cmd" 2>/dev/null)
 
         # If we have no completion for $cmd yet, see if we have for basename
@@ -2940,9 +2940,9 @@ _comp_compgen_filedir_xspec()
 {
     _comp_compgen_tilde && return
 
-    local ret
+    local REPLY
     _comp_quote_compgen "$cur"
-    local quoted=$ret
+    local quoted=$REPLY
 
     local xspec=${_comp_xspecs[${1##*/}]-${_xspecs[${1##*/}]-}}
     local -a toks
@@ -3080,10 +3080,10 @@ _comp_load()
     fi
 
     # Resolve absolute path to $cmd
-    local ret pathcmd origcmd=$cmd
+    local REPLY pathcmd origcmd=$cmd
     if pathcmd=$(type -P "$cmd"); then
         _comp_abspath "$pathcmd"
-        cmd=$ret
+        cmd=$REPLY
     fi
 
     local -a dirs=()
@@ -3113,7 +3113,7 @@ _comp_load()
     # the real path to the command, and $PATH
     paths=()
     [[ $cmd == /* ]] && paths+=("${cmd%/*}")
-    _comp_realcommand "$cmd" && paths+=("${ret%/*}")
+    _comp_realcommand "$cmd" && paths+=("${REPLY%/*}")
     _comp_split -aF : paths "$PATH"
     for dir in "${paths[@]%/}"; do
         [[ $dir == ?*/@(bin|sbin) ]] &&

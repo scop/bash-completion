@@ -13,10 +13,10 @@ _comp_cmd_mutt__addresses()
 }
 
 # Find muttrc to use
-# @var[out] ret  muttrc filename
+# @var[out] REPLY  muttrc filename
 _comp_cmd_mutt__get_muttrc()
 {
-    ret=
+    REPLY=
     # Search COMP_WORDS for '-F muttrc' or '-Fmuttrc' argument
     set -- "${words[@]}"
     while (($# > 0)); do
@@ -32,18 +32,18 @@ _comp_cmd_mutt__get_muttrc()
         shift
     done
 
-    if [[ ! $ret ]]; then
+    if [[ ! $REPLY ]]; then
         if [[ -f ~/.${muttcmd}rc ]]; then
-            ret=\~/.${muttcmd}rc
+            REPLY=\~/.${muttcmd}rc
         elif [[ -f ~/.${muttcmd}/${muttcmd}rc ]]; then
-            ret=\~/.${muttcmd}/${muttcmd}rc
+            REPLY=\~/.${muttcmd}/${muttcmd}rc
         fi
     fi
 }
 
 # Recursively build list of sourced config files
 # @param $1...   Config file to process
-# @var[out] ret  List of config files
+# @var[out] REPLY  List of config files
 # @return 0 if any conffiles are generated, 1 if none is generated.
 _comp_cmd_mutt__get_conffiles()
 {
@@ -52,10 +52,10 @@ _comp_cmd_mutt__get_conffiles()
     local file
     for file; do
         _comp_dequote "$file"
-        _comp_cmd_mutt__get_conffiles__visit "$ret"
+        _comp_cmd_mutt__get_conffiles__visit "$REPLY"
     done
     ((${#conffiles[@]})) || return 1
-    ret=("${conffiles[@]}")
+    REPLY=("${conffiles[@]}")
 }
 # Recursion function for _comp_cmd_mutt__get_conffiles
 # @var[ref] conffiles  List of config files found so far
@@ -69,26 +69,26 @@ _comp_cmd_mutt__get_conffiles__visit()
     local -a newconffiles=($(command sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' "$1"))
     ((${#newconffiles[@]})) || return 0
 
-    local file ret
+    local file REPLY
     for file in "${newconffiles[@]}"; do
         _comp_expand_tilde "$file"
-        _comp_cmd_mutt__get_conffiles__visit "$ret"
+        _comp_cmd_mutt__get_conffiles__visit "$REPLY"
     done
 }
 
 # @param $1 (cur) Current word to complete
 _comp_cmd_mutt__aliases()
 {
-    local cur=$1 muttrc muttcmd=${words[0]} ret
+    local cur=$1 muttrc muttcmd=${words[0]} REPLY
     local -a conffiles aliases
 
     _comp_cmd_mutt__get_muttrc
-    muttrc=$ret
+    muttrc=$REPLY
     [[ ! $muttrc ]] && return
 
-    local ret
+    local REPLY
     _comp_cmd_mutt__get_conffiles "$muttrc" || return 0
-    conffiles=("${ret[@]}")
+    conffiles=("${REPLY[@]}")
     # shellcheck disable=SC2046
     aliases=($(command sed -n 's|^alias[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' \
         "${conffiles[@]}"))
@@ -106,9 +106,9 @@ _comp_cmd_mutt__query()
     if [[ ! $cur || ! $querycmd ]]; then
         queryresults=()
     else
-        local ret
+        local REPLY
         _comp_expand_tilde "$querycmd"
-        querycmd=$ret
+        querycmd=$REPLY
         # $querycmd is expected to be a command with arguments
         queryresults=($($querycmd |
             command sed -n '2,$s|^\([^[:space:]]\{1,\}\).*|\1|p'))
@@ -120,9 +120,9 @@ _comp_cmd_mutt__query()
 # @param $1 (cur) Current word to complete
 _comp_cmd_mutt__filedir()
 {
-    local cur=$1 folder muttrc spoolfile muttcmd=${words[0]} ret
+    local cur=$1 folder muttrc spoolfile muttcmd=${words[0]} REPLY
     _comp_cmd_mutt__get_muttrc
-    muttrc=$ret
+    muttrc=$REPLY
     if [[ $cur == [=+]* ]]; then
         folder="$("$muttcmd" -F "$muttrc" -Q folder 2>/dev/null | command sed -e 's|^folder=\"\(.*\)\"$|\1|')"
         [[ $folder ]] || folder=~/Mail

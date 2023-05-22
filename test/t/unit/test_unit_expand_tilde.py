@@ -14,7 +14,7 @@ class TestUnitExpandTilde:
         """Test environment non-pollution, detected at teardown."""
         assert_bash_exec(
             bash,
-            '_x() { local ret; _comp_expand_tilde "~"; }; _x; unset -f _x',
+            '_x() { local REPLY; _comp_expand_tilde "~"; }; _x; unset -f _x',
         )
 
     @pytest.fixture(scope="class")
@@ -23,7 +23,7 @@ class TestUnitExpandTilde:
         # latter but plain_tilde follows $HOME
         assert_bash_exec(
             bash,
-            '_comp__test_unit() { local ret HOME=$1; _comp_expand_tilde "$2"; printf "%s\\n" "$ret"; }',
+            '_comp__test_unit() { local REPLY HOME=$1; _comp_expand_tilde "$2"; printf "%s\\n" "$REPLY"; }',
         )
 
     @pytest.mark.parametrize("plain_tilde", (True, False))

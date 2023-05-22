@@ -58,7 +58,7 @@ have()
 
 # This function shell-quotes the argument
 # @deprecated 2.12 Use `_comp_quote` instead.  Note that `_comp_quote` stores
-#   the results in the variable `ret` instead of writing them to stdout.
+#   the results in the variable `REPLY` instead of writing them to stdout.
 quote()
 {
     local quoted=${1//\'/\'\\\'\'}
@@ -68,9 +68,9 @@ quote()
 # @deprecated 2.12 Use `_comp_quote_compgen`
 quote_readline()
 {
-    local ret
+    local REPLY
     _comp_quote_compgen "$1"
-    printf %s "$ret"
+    printf %s "$REPLY"
 }
 
 # This function is the same as `_comp_quote_compgen`, but receives the second
@@ -78,23 +78,23 @@ quote_readline()
 # @param $1  Argument to quote
 # @param $2  Name of variable to return result to
 # @deprecated 2.12 Use `_comp_quote_compgen "$1"` instead.  Note that
-# `_comp_quote_compgen` stores the result in a fixed variable `ret`.
+# `_comp_quote_compgen` stores the result in a fixed variable `REPLY`.
 _quote_readline_by_ref()
 {
-    [[ $2 == ret ]] || local ret
+    [[ $2 == REPLY ]] || local REPLY
     _comp_quote_compgen "$1"
-    [[ $2 == ret ]] || printf -v "$2" %s "$ret"
+    [[ $2 == REPLY ]] || printf -v "$2" %s "$REPLY"
 }
 
 # This function shell-dequotes the argument
 # @deprecated 2.12 Use `_comp_dequote' instead.  Note that `_comp_dequote`
-#   stores the results in the array `ret` instead of writing them to stdout.
+#   stores the results in the array `REPLY` instead of writing them to stdout.
 dequote()
 {
-    local ret
+    local REPLY
     _comp_dequote "$1"
     local rc=$?
-    printf %s "$ret"
+    printf %s "$REPLY"
     return $rc
 }
 
@@ -198,14 +198,14 @@ _get_pword()
 
 # Get real command.
 # @deprecated 2.12 Use `_comp_realcommand` instead.
-# Note that `_comp_realcommand` stores the result in the variable `ret`
+# Note that `_comp_realcommand` stores the result in the variable `REPLY`
 # instead of writing it to stdout.
 _realcommand()
 {
-    local ret
+    local REPLY
     _comp_realcommand "$1"
     local rc=$?
-    printf "%s\n" "$ret"
+    printf "%s\n" "$REPLY"
     return $rc
 }
 
@@ -328,14 +328,14 @@ _parse_help()
     if [[ $1 == - ]]; then
         args=(-)
     else
-        local ret opt IFS=$' \t\n'
+        local REPLY opt IFS=$' \t\n'
         _comp_dequote "$1"
         _comp_split opt "${2:---help}"
-        args=(-c "$ret" ${opt[@]+"${opt[@]}"})
+        args=(-c "$REPLY" ${opt[@]+"${opt[@]}"})
     fi
-    local -a ret=()
-    _comp_compgen -Rv ret help "${args[@]}" || return 1
-    ((${#ret[@]})) && printf '%s\n' "${ret[@]}"
+    local -a REPLY=()
+    _comp_compgen -Rv REPLY help "${args[@]}" || return 1
+    ((${#REPLY[@]})) && printf '%s\n' "${REPLY[@]}"
     return 0
 }
 
@@ -352,23 +352,23 @@ _parse_usage()
     if [[ $1 == - ]]; then
         args=(-)
     else
-        local ret opt IFS=$' \t\n'
+        local REPLY opt IFS=$' \t\n'
         _comp_dequote "$1"
         _comp_split opt "${2:---usage}"
-        args=(-c "$ret" ${opt[@]+"${opt[@]}"})
+        args=(-c "$REPLY" ${opt[@]+"${opt[@]}"})
     fi
-    local -a ret=()
-    _comp_compgen -Rv ret usage "${args[@]}" || return 1
-    ((${#ret[@]})) && printf '%s\n' "${ret[@]}"
+    local -a REPLY=()
+    _comp_compgen -Rv REPLY usage "${args[@]}" || return 1
+    ((${#REPLY[@]})) && printf '%s\n' "${REPLY[@]}"
     return 0
 }
 
 # @deprecated 2.12 Use `_comp_get_ncpus`.
 _ncpus()
 {
-    local ret
+    local REPLY
     _comp_get_ncpus
-    printf %s "$ret"
+    printf %s "$REPLY"
 }
 
 # Expand variable starting with tilde (~).
@@ -381,14 +381,14 @@ _ncpus()
 #
 # @deprecated 2.12 Use `_comp_expand_tilde`.  The new function receives the
 # value instead of a variable name as $1 and always returns the result to the
-# variable `ret`.
+# variable `REPLY`.
 __expand_tilde_by_ref()
 {
     [[ ${1+set} ]] || return 0
-    [[ $1 == ret ]] || local ret
+    [[ $1 == REPLY ]] || local REPLY
     _comp_expand_tilde "${!1-}"
     # shellcheck disable=SC2059
-    [[ $1 == ret ]] || printf -v "$1" "$ret"
+    [[ $1 == REPLY ]] || printf -v "$1" "$REPLY"
 }
 
 # @deprecated 2.12 Use `_comp_compgen -a cd_devices`
@@ -449,7 +449,7 @@ _fstypes()
 # @deprecated 2.12 Use `_comp_get_first_arg`.  Note that the new function
 # `_comp_get_first_arg` operates on `words` and `cword` instead of `COMP_WORDS`
 # and `COMP_CWORD`.  The new function considers a command-line argument after
-# `--` as an argument.  The new function returns the result in variable `ret`
+# `--` as an argument.  The new function returns the result in variable `REPLY`
 # instead of `arg`.
 _get_first_arg()
 {
@@ -471,7 +471,7 @@ _get_first_arg()
 # @param $3 glob   Options that should be counted as args
 # @var[out] args   Return the number of arguments
 # @deprecated 2.12 Use `_comp_count_args`.  Note that the new function
-# `_comp_count_args` returns the result in variable `ret` instead of `args`.
+# `_comp_count_args` returns the result in variable `REPLY` instead of `args`.
 # In the new function, `-` is also counted as an argument.  The new function
 # counts all the arguments after `--`.
 # shellcheck disable=SC2178 # assignments are not intended for global "args"

@@ -95,7 +95,7 @@ class TestUnitCommandOffset:
         assert_bash_exec(
             bash,
             "_comp_test_reassemble() {"
-            "    local IFS=$' \\t\\n' ret;"
+            "    local IFS=$' \\t\\n' REPLY;"
             '    COMP_LINE=$1; _comp_split COMP_WORDS "$2"; COMP_CWORD=$((${#COMP_WORDS[@]}-1));'
             "    _comp__reassemble_words = words cword;"
             "}",
@@ -103,9 +103,9 @@ class TestUnitCommandOffset:
         assert_bash_exec(
             bash,
             "_comp_test_1() {"
-            '    local COMP_WORDS COMP_LINE COMP_CWORD words cword ret; _comp_test_reassemble "$1" "$2";'
+            '    local COMP_WORDS COMP_LINE COMP_CWORD words cword REPLY; _comp_test_reassemble "$1" "$2";'
             '    _comp__find_original_word "$3";'
-            '    echo "$ret";'
+            '    echo "$REPLY";'
             "}",
         )
 
