@@ -34,6 +34,9 @@ _comp_cmd_apt_get()
                 _comp_xfunc_apt_get_installed_packages
                 ;;
             source)
+                # Prefer `apt-cache` in the same dir as command
+                local pathcmd
+                pathcmd=$(type -P "$1") && local PATH=${pathcmd%/*}:$PATH
                 COMPREPLY=($(_comp_xfunc apt-cache packages)
                 $(compgen -W "$(apt-cache dumpavail |
                     awk '$1 == "Source:" { print $2 }' | sort -u)" -- "$cur"))
@@ -78,6 +81,9 @@ _comp_cmd_apt_get()
             return
             ;;
         --target-release | --default-release | -${noargopts}t)
+            # Prefer `apt-cache` in the same dir as command
+            local pathcmd
+            pathcmd=$(type -P "$1") && local PATH=${pathcmd%/*}:$PATH
             COMPREPLY=($(compgen -W "$(apt-cache policy | command sed -ne \
                 's/^ *release.*[ ,]o=\(Debian\|Ubuntu\),a=\(\w*\).*/\2/p')" \
                 -- "$cur"))
