@@ -3,8 +3,21 @@
 # @since 2.12
 _comp_xfunc_python_modules()
 {
+    local python=python
+    [[ ${comp_args[0]##*/} == *3* ]] && python=python3
+    _comp_cmd_python__modules "$python"
+}
+
+# @deprecated 2.12 use `_comp_xfunc_python_modules` instead
+_python_modules()
+{
+    _comp_cmd_python__modules "${1:-python}"
+}
+
+_comp_cmd_python__modules()
+{
     COMPREPLY+=($(compgen -W \
-        "$("${1:-python}" "${BASH_SOURCE[0]%/*}/../helpers/python" "$cur" \
+        "$("$1" "${BASH_SOURCE[0]%/*}/../helpers/python" "$cur" \
             2>/dev/null)" -- "$cur"))
 }
 
@@ -15,7 +28,6 @@ _comp_xfunc_python_warning_actions()
         ${prefix:+-P "$prefix"}
 }
 
-_comp_deprecate_func 2.12 _python_modules _comp_xfunc_python_modules
 _comp_deprecate_func 2.12 _python_warning_actions \
     _comp_xfunc_python_warning_actions
 
@@ -39,7 +51,7 @@ _comp_cmd_python()
             return
             ;;
         -${noargopts}m)
-            _comp_xfunc_python_modules "$1"
+            _comp_cmd_python__modules "$1"
             return
             ;;
         -${noargopts}Q)

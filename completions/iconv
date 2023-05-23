@@ -3,11 +3,20 @@
 # @since 2.12
 _comp_xfunc_iconv_charsets()
 {
-    COMPREPLY+=($(compgen -X ... -W '$("${1:-iconv}" -l | \
-        command sed -e "s@/*\$@@" -e "s/[,()]//g")' -- "$cur"))
+    _comp_cmd_iconv__charsets iconv
 }
 
-_comp_deprecate_func 2.12 _iconv_charsets _comp_xfunc_iconv_charsets
+# @deprecated 2.12 use `_comp_xfunc_iconv_charsets` instead
+_iconv_charsets()
+{
+    _comp_cmd_iconv__charsets "${1:-iconv}"
+}
+
+_comp_cmd_iconv__charsets()
+{
+    COMPREPLY+=($(compgen -X ... -W '$("$1" -l | \
+        command sed -e "s@/*\$@@" -e "s/[,()]//g")' -- "$cur"))
+}
 
 _comp_cmd_iconv()
 {
@@ -22,7 +31,7 @@ _comp_cmd_iconv()
             return
             ;;
         --from-code | --to-code | -${noargopts}[ft])
-            _comp_xfunc_iconv_charsets "$1"
+            _comp_cmd_iconv__charsets "$1"
             return
             ;;
         --output | -${noargopts}o)
