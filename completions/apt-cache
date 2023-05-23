@@ -5,7 +5,13 @@
 # @since 2.12
 _comp_xfunc_apt_cache_packages()
 {
-    apt-cache --no-generate pkgnames "$cur" 2>/dev/null || :
+    _comp_cmd_apt_cache__packages apt-cache
+}
+
+# TODO:API: rework to use vars rather than outputting
+_comp_cmd_apt_cache__packages()
+{
+    "$1" --no-generate pkgnames "$cur" 2>/dev/null || :
 }
 
 # List APT source packages
@@ -13,8 +19,14 @@ _comp_xfunc_apt_cache_packages()
 # @since 2.12
 _comp_xfunc_apt_cache_sources()
 {
-    compgen -W "$(apt-cache dumpavail |
-        awk '$1 == "Source:" { print $2 }' | sort -u)" -- "$1"
+    _comp_cmd_apt_cache__sources apt-cache "$1"
+}
+
+# TODO:API: rework to use vars rather than outputting
+_comp_cmd_apt_cache__sources()
+{
+    compgen -W "$("$1" dumpavail |
+        awk '$1 == "Source:" { print $2 }' | sort -u)" -- "$2"
 }
 
 # List APT source packages
@@ -22,7 +34,7 @@ _comp_xfunc_apt_cache_sources()
 # @since 2.12
 _comp_xfunc_apt_cache_src_packages()
 {
-    compgen -W '$(_comp_xfunc_apt_cache_sources "$cur")' -- "$cur"
+    compgen -W '$(_comp_cmd_apt_cache__sources apt-cache "$cur")' -- "$cur"
 }
 
 _comp_deprecate_func 2.12 _apt_cache_packages _comp_xfunc_apt_cache_packages
@@ -52,11 +64,11 @@ _comp_cmd_apt_cache()
                 ;;
 
             showsrc)
-                COMPREPLY=($(_comp_xfunc_apt_cache_sources "$cur"))
+                COMPREPLY=($(_comp_cmd_apt_cache__sources "$1" "$cur"))
                 ;;
 
             *)
-                COMPREPLY=($(_comp_xfunc_apt_cache_packages))
+                COMPREPLY=($(_comp_cmd_apt_cache__packages "$1"))
                 ;;
 
         esac
