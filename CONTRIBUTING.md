@@ -42,8 +42,9 @@ that. Don't be disappointed if it does or doesn't happen instantly.
 
 Also, please bear the following coding guidelines in mind:
 
-- See the [API and naming](doc/api-and-naming.md) document for information
-  about conventions to follow related to those topics.
+- See the related documents, [API and naming](doc/api-and-naming.md) and
+  [Coding style guide](doc/styleguide.md), for information about conventions to
+  follow related to those topics.
 
 - Do not use Perl, Ruby, Python etc. to do text processing unless the
   command for which you are writing the completion code implies the
@@ -66,11 +67,11 @@ Also, please bear the following coding guidelines in mind:
   external programs, which are expensive to fork and execute, so do
   make full use of those:
 
-  `?(pattern-list)` - match zero or one occurrences of patterns
-  `*(pattern-list)` - match zero or more occurrences of patterns
-  `+(pattern-list)` - match one or more occurrences of patterns
-  `@(pattern-list)` - match exactly one of the given patterns
-  `!(pattern-list)` - match anything except one of the given patterns
+  - `?(pattern-list)` - match zero or one occurrences of patterns
+  - `*(pattern-list)` - match zero or more occurrences of patterns
+  - `+(pattern-list)` - match one or more occurrences of patterns
+  - `@(pattern-list)` - match exactly one of the given patterns
+  - `!(pattern-list)` - match anything except one of the given patterns
 
 - Following on from the last point, be sparing with the use of
   external processes whenever you can. Completion functions need to be
@@ -107,9 +108,10 @@ Also, please bear the following coding guidelines in mind:
 
 - We want our completions to work in `posix` and `nounset` modes.
 
-  Unfortunately due to a bash < 5.1 bug, toggling POSIX mode interferes
-  with keybindings and should not be done. This rules out use of
-  process substitution which causes syntax errors in POSIX mode.
+  Unfortunately due to a bash < 5.1 bug, toggling POSIX mode
+  interferes with keybindings and should not be done. This rules out
+  use of process substitution which causes syntax errors in POSIX mode
+  of bash < 5.1.
 
   Instead of toggling `nounset` mode, make sure to test whether
   variables are set (e.g. with `[[ -v varname ]]`) or use default
