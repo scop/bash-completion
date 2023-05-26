@@ -9,12 +9,8 @@ _comp_deprecate_func 2.12 _command _comp_command
 _comp_deprecate_func 2.12 _root_command _comp_root_command
 _comp_deprecate_func 2.12 _xfunc _comp_xfunc
 _comp_deprecate_func 2.12 _upvars _comp_upvars
-_comp_deprecate_func 2.12 __reassemble_comp_words_by_ref _comp__reassemble_words
-_comp_deprecate_func 2.12 __get_cword_at_cursor_by_ref \
-    _comp__get_cword_at_cursor
 _comp_deprecate_func 2.12 _get_comp_words_by_ref _comp_get_words
 _comp_deprecate_func 2.12 _longopt _comp_longopt
-_comp_deprecate_func 2.12 _split_longopt _comp__split_longopt
 _comp_deprecate_func 2.12 __ltrim_colon_completions _comp_ltrim_colon_completions
 _comp_deprecate_func 2.12 _signals _comp_signals
 
