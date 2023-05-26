@@ -16,6 +16,7 @@ _comp_deprecate_func 2.12 _get_comp_words_by_ref _comp_get_words
 _comp_deprecate_func 2.12 _longopt _comp_longopt
 _comp_deprecate_func 2.12 _split_longopt _comp__split_longopt
 _comp_deprecate_func 2.12 __ltrim_colon_completions _comp_ltrim_colon_completions
+_comp_deprecate_func 2.12 _signals _comp_signals
 
 # Backwards compatibility for compat completions that use have().
 # @deprecated 1.90 should no longer be used; generally not needed with
