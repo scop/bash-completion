@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import assert_bash_exec, bash_env_saved
+from conftest import assert_bash_exec, assert_complete, bash_env_saved
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+COMPREPLY=")
@@ -14,6 +14,15 @@ class TestUtilCompgenCommands:
             r"    _comp_compgen_commands;"
             r'    printf "%s\n" "${COMPREPLY[@]}";'
             r"}",
+        )
+        assert_bash_exec(
+            bash,
+            "_comp_cmd_ccc() {"
+            "    local cur;"
+            "    _comp_get_words cur;"
+            "     unset -v COMPREPLY;"
+            "    _comp_compgen_commands;"
+            "}; complete -F _comp_cmd_ccc ccc",
         )
 
     def test_basic(self, bash, functions):
@@ -32,3 +41,7 @@ class TestUtilCompgenCommands:
                 bash, "_comp_compgen_commands__test", want_output=True
             )
         assert (output.strip() == "") == result_empty
+
+    def test_spaces(self, bash, functions):
+        completion = assert_complete(bash, "ccc shared/default/bar")
+        assert completion == r"\ bar.d/"
