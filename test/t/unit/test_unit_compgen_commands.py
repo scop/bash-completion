@@ -12,7 +12,7 @@ class TestUtilCompgenCommands:
             r"_comp_compgen_commands__test() {"
             r"    local COMPREPLY=() cur=${1-};"
             r"    _comp_compgen_commands;"
-            r'    printf "%s\n" "${COMPREPLY[@]}";'
+            r'    printf "%s\n" "${COMPREPLY[@]-}";'
             r"}",
         )
         assert_bash_exec(
