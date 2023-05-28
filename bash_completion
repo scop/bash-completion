@@ -457,11 +457,14 @@ _comp_compgen__error_fallback()
 # @return  True (0) if at least one completion is generated, False (1) if no
 #   completion is generated, or 2 with an incorrect usage.
 #
-# Usage #2: _comp_compgen [-aR|-v arr|-c cur|-C dir] name args...
+# Usage #2: _comp_compgen [-aR|-v arr|-c cur|-C dir|-i cmd|-x cmd] name args...
 # Call the generator `_comp_compgen_NAME ARGS...` with the specified options.
 # This provides a common interface to call the functions `_comp_compgen_NAME`,
 # which produce completion candidates, with custom options [-alR|-v arr|-c
 # cur].  The option `-F sep` is not used with this usage.
+# OPTIONS
+#   -x cmd  Call exported generator `_comp_xfunc_CMD_compgen_NAME`
+#   -i cmd  Call internal generator `_comp_cmd_CMD__compgen_NAME`
 # @param $1... name args  Calls the function _comp_compgen_NAME with the
 #   specified ARGS (if $1 does not start with a hyphen `-`).  The options
 #   [-alR|-v arr|-c cur] are inherited by the child calls of `_comp_compgen`
@@ -516,7 +519,7 @@ _comp_compgen()
         shopt -u nocasematch
     fi
     local OPTIND=1 OPTARG="" OPTERR=0 _opt
-    while getopts ':av:Rc:C:lF:' _opt "$@"; do
+    while getopts ':av:Rc:C:lF:i:x:' _opt "$@"; do
         case $_opt in
             a) _append=set ;;
             v)
@@ -537,6 +540,20 @@ _comp_compgen()
                 ;;
             l) _has_ifs=set _ifs=$'\n' ;;
             F) _has_ifs=set _ifs=$OPTARG ;;
+            [ix])
+                if [[ ! $OPTARG ]]; then
+                    printf 'bash_completion: %s: -%s: invalid command name `%s'\''\n' "$FUNCNAME" "$_opt" "$OPTARG" >&2
+                    return 2
+                elif [[ $_icmd ]]; then
+                    printf 'bash_completion: %s: -%s: `-i %s'\'' is already specified\n' "$FUNCNAME" "$_opt" "$_icmd" >&2
+                    return 2
+                elif [[ $_xcmd ]]; then
+                    printf 'bash_completion: %s: -%s: `-x %s'\'' is already specified\n' "$FUNCNAME" "$_opt" "$_xcmd" >&2
+                    return 2
+                fi
+                ;;&
+            i) _icmd=$OPTARG ;;
+            x) _xcmd=$OPTARG ;;
             *)
                 printf 'bash_completion: %s: usage error\n' "$FUNCNAME" >&2
                 return 2
@@ -558,8 +575,16 @@ _comp_compgen()
             return 2
         fi
 
-        if ! declare -F "_comp_compgen_$1" &>/dev/null; then
-            printf 'bash_completion: %s: unrecognized category `%s'\'' (function _comp_compgen_%s not found)\n' "$FUNCNAME" "$1" "$1" >&2
+        local -a _generator
+        if [[ $_icmd ]]; then
+            _generator=("_comp_cmd_${_icmd//[^a-zA-Z0-9_]/_}__compgen_$1")
+        elif [[ $_xcmd ]]; then
+            _generator=(_comp_xfunc "$_xcmd" "compgen_$1")
+        else
+            _generator=("_comp_compgen_$1")
+        fi
+        if ! declare -F "${_generator[0]}" &>/dev/null; then
+            printf 'bash_completion: %s: unrecognized generator `%s'\'' (function %s not found)\n' "$FUNCNAME" "$1" "${_generator[0]}" >&2
             return 2
         fi
 
@@ -581,7 +606,7 @@ _comp_compgen()
         # Note: we use $1 as a part of a function name, and we use $2... as
         # arguments to the function if any.
         # shellcheck disable=SC2145
-        _comp_compgen_"$@"
+        "${_generator[@]}" "${@:2}"
         local _status=$?
 
         # Go back to the original directory.
@@ -595,6 +620,10 @@ _comp_compgen()
     fi
 
     # usage: _comp_compgen [options] -- [compgen_options]
+    if [[ $_icmd || $_xcmd ]]; then
+        printf 'bash_completion: %s: generator name is unspecified for `%s'\''\n' "$FUNCNAME" "${_icmd:+-i $_icmd}${_xcmd:+x $_xcmd}" >&2
+        return 2
+    fi
 
     # Note: $* in the below checks would be affected by uncontrolled IFS in
     # bash >= 5.0, so we need to set IFS to the normal value.  The behavior in
