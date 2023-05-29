@@ -21,20 +21,19 @@ _comp_cmd_reportbug()
             return
             ;;
         --keyid | -${noargopts}K)
-            COMPREPLY=($(compgen -W '$(IFS=: ; \
-                gpg --list-keys --with-colons 2>/dev/null \
-                | while read -ra row ; do
-                    [[ "${row[0]}" == [ps]ub && ${row[11]} == *s* ]] && \
-                        printf "%s\n" "${row[4]}"
-                done)' -- "$cur"))
+            _comp_compgen_split -- "$(
+                IFS=:
+                gpg --list-keys --with-colons 2>/dev/null |
+                    while read -ra row; do
+                        [[ ${row[0]} == [ps]ub && ${row[11]} == *s* ]] &&
+                            printf '%s\n' "${row[4]}"
+                    done
+            )"
             return
             ;;
         --tag | --ui | --interface | --type | --bts | --severity | --mode | -${noargopts}[TutBS])
-            COMPREPLY=($(
-                compgen -W \
-                    '$("$1" "$prev" help 2>&1 | sed -ne "/^[[:space:]]/p")' \
-                    -- "$cur"
-            ))
+            _comp_compgen_split -- "$("$1" "$prev" help 2>&1 |
+                sed -ne '/^[[:space:]]/p')"
             return
             ;;
         --editor | --mua | --mbox-reader-cmd | -${noargopts}e)
@@ -43,8 +42,8 @@ _comp_cmd_reportbug()
             return
             ;;
         --from-buildd)
-            COMPREPLY=($(compgen -S "_" -W '$(apt-cache dumpavail | \
-                command grep "^Source: $cur" | sort -u | cut -f2 -d" ")'))
+            _comp_compgen_split -S "_" -- "$(apt-cache dumpavail |
+                command grep "^Source: $cur" | sort -u | cut -f2 -d' ')"
             return
             ;;
         --smtphost)

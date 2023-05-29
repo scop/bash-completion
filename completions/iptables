@@ -6,6 +6,7 @@ _comp_cmd_iptables()
     _comp_initialize -s -- "$@" || return
 
     local table="" chain='s/^Chain \([^ ]\{1,\}\).*$/\1/p'
+    local targets='ACCEPT DROP LOG ULOG REJECT'
 
     local IFS=$' \t\n' # for ${table:+-t "$table"}
     [[ ${words[*]} =~ [[:space:]]-(t|-table=?)[[:space:]]*([^[:space:]]+) ]] &&
@@ -13,28 +14,30 @@ _comp_cmd_iptables()
 
     case $prev in
         -*[AIDRPFXLZ])
-            COMPREPLY=($(compgen -W '`"$1" ${table:+-t "$table"} -nL 2>/dev/null | \
-                command sed -ne "s/^Chain \([^ ]\{1,\}\).*$/\1/p"`' -- "$cur"))
+            _comp_compgen_split -- "$(
+                "$1" ${table:+-t "$table"} -nL 2>/dev/null |
+                    command sed -ne 's/^Chain \([^ ]\{1,\}\).*$/\1/p'
+            )"
             ;;
         -*t)
             _comp_compgen -- -W 'nat filter mangle'
             ;;
         -j)
             if [[ $table == "filter" || ! $table ]]; then
-                COMPREPLY=($(compgen -W 'ACCEPT DROP LOG ULOG REJECT
-                `"$1" ${table:+-t "$table"} -nL 2>/dev/null | command sed -ne "$chain" \
-                -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' -- \
-                    "$cur"))
+                _comp_compgen -- -W '$targets'
+                _comp_compgen -a split -- "$("$1" ${table:+-t "$table"} -nL \
+                    2>/dev/null | command sed -ne "$chain" \
+                    -e 's/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//')"
             elif [[ $table == "nat" ]]; then
-                COMPREPLY=($(compgen -W 'ACCEPT DROP LOG ULOG REJECT MIRROR SNAT
-                DNAT MASQUERADE `"$1" -t "$table" -nL 2>/dev/null | \
-                command sed -ne "$chain" -e "s/OUTPUT|PREROUTING|POSTROUTING//"`' \
-                    -- "$cur"))
+                _comp_compgen -- -W '$targets MIRROR SNAT DNAT MASQUERADE'
+                _comp_compgen -a split -- "$("$1" -t "$table" -nL 2>/dev/null |
+                    command sed -ne "$chain" \
+                        -e 's/OUTPUT|PREROUTING|POSTROUTING//')"
             elif [[ $table == "mangle" ]]; then
-                COMPREPLY=($(compgen -W 'ACCEPT DROP LOG ULOG REJECT MARK TOS
-                `"$1" -t "$table" -nL 2>/dev/null | command sed -ne "$chain" \
-                -e "s/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//"`' -- \
-                    "$cur"))
+                _comp_compgen -- -W '$targets MARK TOS'
+                _comp_compgen -a split -- "$("$1" -t "$table" -nL 2>/dev/null |
+                    command sed -ne "$chain" \
+                        -e 's/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//')"
             fi
             ;;
         *)

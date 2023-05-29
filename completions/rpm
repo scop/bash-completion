@@ -13,12 +13,12 @@ _comp_cmd_rpm__installed_packages()
     if [[ -r /var/log/rpmpkgs &&
         /var/log/rpmpkgs -nt /var/lib/rpm/Packages ]]; then
         # using RHL 7.2 or later - this is quicker than querying the DB
-        COMPREPLY=($(compgen -W "$(command sed -ne \
+        _comp_compgen_split -- "$(command sed -ne \
             's|^\([^[:space:]]\{1,\}\)-[^[:space:]-]\{1,\}-[^[:space:]-]\{1,\}\.rpm$|\1|p' \
-            /var/log/rpmpkgs)" -- "$cur"))
+            /var/log/rpmpkgs)"
     elif type rpmqpack &>/dev/null; then
         # SUSE's rpmqpack is faster than rpm -qa
-        COMPREPLY=($(compgen -W '$(rpmqpack)' -- "$cur"))
+        _comp_compgen_split -- "$(rpmqpack)"
     else
         COMPREPLY=($("${1:-rpm}" -qa --nodigest --nosignature \
             --queryformat='%{NAME} ' "$cur*" 2>/dev/null))
@@ -31,24 +31,22 @@ _comp_deprecate_func 2.12 _rpm_installed_packages \
 _comp_cmd_rpm__groups()
 {
     local IFS=$'\n'
-    COMPREPLY=($(compgen -W "$("${1:-rpm}" -qa --nodigest --nosignature \
-        --queryformat='%{GROUP}\n' 2>/dev/null)" -- "$cur"))
+    _comp_compgen_split -- "$("${1:-rpm}" -qa --nodigest --nosignature \
+        --queryformat='%{GROUP}\n' 2>/dev/null)"
 }
 
 _comp_cmd_rpm__macros()
 {
     # get a list of macros
-    COMPREPLY=($(compgen -W "$("${1:-rpm}" --showrc | command sed -ne \
-        's/^-\{0,1\}[0-9]\{1,\}[:=][[:space:]]\{1,\}\([^[:space:](]\{3,\}\).*/%\1/p')" \
-        -- "$cur"))
+    _comp_compgen_split -- "$("${1:-rpm}" --showrc | command sed -ne \
+        's/^-\{0,1\}[0-9]\{1,\}[:=][[:space:]]\{1,\}\([^[:space:](]\{3,\}\).*/%\1/p')"
 }
 
 # shellcheck disable=SC2120
 _comp_cmd_rpm__buildarchs()
 {
-    COMPREPLY=($(compgen -W "$("${1:-rpm}" --showrc | command sed -ne \
-        's/^\s*compatible\s\s*build\s\s*archs\s*:\s*\(.*\)/\1/ p')" \
-        -- "$cur"))
+    _comp_compgen_split -- "$("${1:-rpm}" --showrc | command sed -ne \
+        's/^\s*compatible\s\s*build\s\s*archs\s*:\s*\(.*\)/\1/ p')"
 }
 
 # shellcheck disable=SC2120
@@ -120,9 +118,9 @@ _comp_cmd_rpm()
                     *suggests) fmt="%{SUGGESTNAME}" ;;
                     *supplements) fmt="%{SUPPLEMENTNAME}" ;;
                 esac
-                COMPREPLY=($(compgen -W "$("$1" -qa --nodigest --nosignature \
+                _comp_compgen_split -- "$("$1" -qa --nodigest --nosignature \
                     --queryformat=\"$fmt\\n\" 2>/dev/null |
-                    command grep -vF '(none)')" -- "$cur"))
+                    command grep -vF '(none)')"
             fi
             return
             ;;
@@ -282,8 +280,8 @@ _comp_cmd_rpmbuild()
             local cfgdir
             _comp_cmd_rpm__configdir
             if [[ $cfgdir ]]; then
-                COMPREPLY=($(compgen -W "$(command ls "$cfgdir" 2>/dev/null |
-                    command sed -ne 's/^brp-//p')" -- "$cur"))
+                _comp_compgen_split -- "$(command ls "$cfgdir" 2>/dev/null |
+                    command sed -ne 's/^brp-//p')"
             fi
             ;;
         --define | --with | --without | -${noargopts}D)

@@ -33,8 +33,9 @@ _comp_cmd_mount()
     if [[ $cur == *:* ]]; then
         for sm in "$(type -P showmount)" {,/usr}/{,s}bin/showmount; do
             [[ -x $sm ]] || continue
-            COMPREPLY=($(compgen -W "$("$sm" -e ${cur%%:*} |
-                awk 'NR>1 {print $1}')" -- "${cur#*:}"))
+            _comp_compgen -c "${cur#*:}" split -- "$(
+                "$sm" -e ${cur%%:*} | awk 'NR>1 {print $1}'
+            )"
             return
         done
     fi
@@ -43,21 +44,27 @@ _comp_cmd_mount()
         host=${cur#//}
         host=${host%%/*}
         if [[ $host ]]; then
-            COMPREPLY=($(compgen -P "//$host" -W \
-                "$(smbclient -d 0 -NL "$host" 2>/dev/null |
+            _comp_compgen -c "${cur#//"$host"}" split -P "//$host" -- "$(
+                smbclient -d 0 -NL "$host" 2>/dev/null |
                     command sed -ne '/^[[:blank:]]*Sharename/,/^$/p' |
-                    command sed -ne '3,$s|^[^A-Za-z]*\([^[:blank:]]*\).*$|/\1|p')" \
-                -- "${cur#//"$host"}"))
+                    command sed -ne '3,$s|^[^A-Za-z]*\([^[:blank:]]*\).*$|/\1|p'
+            )"
         fi
     elif [[ -r /etc/vfstab ]]; then
         # Solaris
-        COMPREPLY=($(compgen -W "$(awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' /etc/vfstab)" -- "$cur"))
+        _comp_compgen_split -- "$(
+            awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' /etc/vfstab
+        )"
     elif [[ ! -e /etc/fstab ]]; then
         # probably Cygwin
-        COMPREPLY=($(compgen -W "$("$1" | awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}')" -- "$cur"))
+        _comp_compgen_split -- "$(
+            "$1" | awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}'
+        )"
     else
         # probably BSD
-        COMPREPLY=($(compgen -W "$(awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' /etc/fstab)" -- "$cur"))
+        _comp_compgen_split -- "$(
+            awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' /etc/fstab
+        )"
     fi
 } &&
     complete -F _comp_cmd_mount -o default -o dirnames mount

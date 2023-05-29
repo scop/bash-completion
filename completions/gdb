@@ -29,14 +29,15 @@ _comp_cmd_gdb()
             local path_array=($(
                 command sed -e 's/:\{2,\}/:/g' -e 's/^://' -e 's/:$//' <<<"$PATH"
             ))
-            IFS=$'\n'
-            COMPREPLY=($(compgen -d -W '$(find ${path_array[@]+"${path_array[@]}"} . \
-                -mindepth 1 -maxdepth 1 -not -type d -executable \
-                -printf "%f\\n" 2>/dev/null)' -- "$cur"))
+            _comp_compgen_split -o plusdirs -- "$(
+                find ${path_array[@]+"${path_array[@]}"} . -mindepth 1 \
+                    -maxdepth 1 -not -type d -executable -printf '%f\n' \
+                    2>/dev/null
+            )"
         fi
     elif ((cword == 2)); then
-        COMPREPLY=($(compgen -W "$(command ps axo comm,pid |
-            awk '{if ($1 ~ /^'"${prev##*/}"'/) print $2}')" -- "$cur"))
+        _comp_compgen_split -- "$(command ps axo comm,pid |
+            awk '{if ($1 ~ /^'"${prev##*/}"'/) print $2}')"
         compopt -o filenames
         _comp_compgen -a -- -f -X '!?(*/)core?(.?*)' -o plusdirs
     fi

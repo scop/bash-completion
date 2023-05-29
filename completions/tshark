@@ -36,8 +36,7 @@ _comp_cmd_tshark()
             return
             ;;
         -*i)
-            COMPREPLY=($(compgen -W \
-                "$("$1" -D 2>/dev/null | awk '{print $2}')" -- "$cur"))
+            _comp_compgen_split -- "$("$1" -D 2>/dev/null | awk '{print $2}')"
             return
             ;;
         -*y)
@@ -49,8 +48,8 @@ _comp_cmd_tshark()
                 fi
             done
             # shellcheck disable=SC2086
-            COMPREPLY=($(compgen -W "$("$1" $opts -L 2>/dev/null |
-                awk '/^  / { print $1 }')" -- "$cur"))
+            _comp_compgen_split -- "$("$1" $opts -L 2>/dev/null |
+                awk '/^  / { print $1 }')"
             return
             ;;
         -*[ab])
@@ -69,8 +68,7 @@ _comp_cmd_tshark()
             return
             ;;
         -*F)
-            COMPREPLY=($(compgen -W "$("$1" -F 2>&1 |
-                awk '/^  / { print $1 }')" -- "$cur"))
+            _comp_compgen_split -- "$("$1" -F 2>&1 | awk '/^  / { print $1 }')"
             return
             ;;
         -*O)
@@ -110,10 +108,10 @@ _comp_cmd_tshark()
             return
             ;;
         -*G)
-            COMPREPLY=($(compgen -W "$("$1" -G \? 2>/dev/null |
-                awk '/^[ \t]*-G / \
-                    { sub("^[[]","",$2); sub("[]]$","",$2); print $2 }')" \
-                -- "$cur"))
+            _comp_compgen_split -- "$("$1" -G \? 2>/dev/null |
+                awk '/^[ \t]*-G / {
+                    sub("^[[]","",$2); sub("[]]$","",$2); print $2
+                }')"
             return
             ;;
 

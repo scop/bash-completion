@@ -30,7 +30,8 @@ _comp_cmd_mysql()
             return
             ;;
         --database | -${noargopts}D)
-            COMPREPLY=($(compgen -W "$(mysqlshow 2>/dev/null | command sed -ne '2d' -e 's/^|.\([^|]*\)|.*/\1/p')" -- "$cur"))
+            _comp_compgen_split -- "$(mysqlshow 2>/dev/null |
+                command sed -ne '2d' -e 's/^|.\([^|]*\)|.*/\1/p')"
             return
             ;;
 
@@ -96,9 +97,8 @@ _comp_cmd_mysql()
             ;;
     esac
 
-    COMPREPLY=($(compgen -W \
-        "$(mysqlshow 2>/dev/null | command sed -ne '2d' -e 's/^|.\([^|]*\)|.*/\1/p')" \
-        -- "$cur"))
+    _comp_compgen_split -- "$(mysqlshow 2>/dev/null |
+        command sed -ne '2d' -e 's/^|.\([^|]*\)|.*/\1/p')"
 } &&
     complete -F _comp_cmd_mysql mysql
 

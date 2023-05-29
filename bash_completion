@@ -673,6 +673,46 @@ _comp_compgen_set()
     eval -- "$_var${_append:++}=(\"\$@\")"
 }
 
+# Simply split the text and generate completions.  This function should be used
+# instead of `_comp_compgen -- -W "$(command)"`, which is vulnerable because
+# option -W evaluates the shell expansions included in the option argument.
+# Options:
+#   -F sep  Specify the separators. The default is $' \t\n'
+#   -l      The same as -F $'\n'
+#   -X arg  The same as the compgen option -X.
+#   -S arg  The same as the compgen option -S.
+#   -P arg  The same as the compgen option -P.
+#   -o arg  The same as the compgen option -o.
+# @param $1 String to split
+# @since 2.12
+_comp_compgen_split()
+{
+    local _ifs=$' \t\n'
+    local -a _compgen_options=()
+
+    local OPTIND=1 OPTARG="" OPTERR=0 _opt
+    while getopts ':lF:X:S:P:o:' _opt "$@"; do
+        case $_opt in
+            l) _ifs=$'\n' ;;
+            F) _ifs=$OPTARG ;;
+            [XSPo]) _compgen_options+=("-$_opt" "$OPTARG") ;;
+            *)
+                printf 'bash_completion: usage: %s [-l|-F sep] [--] str\n' "$FUNCNAME" >&2
+                return 2
+                ;;
+        esac
+    done
+    shift "$((OPTIND - 1))"
+    if (($# != 1)); then
+        printf 'bash_completion: %s: unexpected number of arguments.\n' "$FUNCNAME" >&2
+        printf 'usage: %s [-l|-F sep] [--] str' "$FUNCNAME" >&2
+        return 2
+    fi
+
+    local _split_input=$1 IFS=$' \t\n'
+    _comp_compgen -F "$_ifs" -- ${_compgen_options[@]+"${_compgen_options[@]}"} -W '$_split_input'
+}
+
 # Check if the argument looks like a path.
 # @param $1 thing to check
 # @return True (0) if it does, False (> 0) otherwise
@@ -1183,7 +1223,7 @@ _comp_variable_assignments()
             _terms
             ;;
         LANG | LC_*)
-            _comp_compgen -- -W '$(locale -a 2>/dev/null)'
+            _comp_compgen_split -- "$(locale -a 2>/dev/null)"
             ;;
         LANGUAGE)
             _comp_delimited : -W '$(locale -a 2>/dev/null)'
@@ -1524,23 +1564,23 @@ _configured_interfaces()
         # Debian system
         _comp_expand_glob files '/etc/network/interfaces /etc/network/interfaces.d/*'
         ((${#files[@]})) || return 0
-        _comp_compgen -- -W "$(command sed -ne 's|^iface \([^ ]\{1,\}\).*$|\1|p' \
-            "${files[@]}" 2>/dev/null)"
+        _comp_compgen_split -- "$(command sed -ne \
+            's|^iface \([^ ]\{1,\}\).*$|\1|p' "${files[@]}" 2>/dev/null)"
     elif [[ -f /etc/SuSE-release ]]; then
         # SuSE system
         _comp_expand_glob files '/etc/sysconfig/network/ifcfg-*'
         ((${#files[@]})) || return 0
-        _comp_compgen -- -W "$(printf '%s\n' "${files[@]}" |
+        _comp_compgen_split -- "$(printf '%s\n' "${files[@]}" |
             command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')"
     elif [[ -f /etc/pld-release ]]; then
         # PLD Linux
-        _comp_compgen -- -W "$(command ls -B /etc/sysconfig/interfaces |
+        _comp_compgen_split -- "$(command ls -B /etc/sysconfig/interfaces |
             command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')"
     else
         # Assume Red Hat
         _comp_expand_glob files '/etc/sysconfig/network-scripts/ifcfg-*'
         ((${#files[@]})) || return 0
-        _comp_compgen -- -W "$(printf '%s\n' "${files[@]}" |
+        _comp_compgen_split -- "$(printf '%s\n' "${files[@]}" |
             command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')"
     fi
 }
@@ -1576,7 +1616,7 @@ _ip_addresses()
 # TODO:API: rename per conventions
 _kernel_versions()
 {
-    _comp_compgen -- -W '$(command ls /lib/modules)'
+    _comp_compgen_split -- "$(command ls /lib/modules)"
 }
 
 # This function completes on all available network interfaces
@@ -1694,26 +1734,26 @@ if [[ $OSTYPE == *@(solaris|aix)* ]]; then
     # This function completes on process IDs.
     _pids()
     {
-        _comp_compgen -- -W '$(command ps -efo pid | command sed 1d)'
+        _comp_compgen_split -- "$(command ps -efo pid | command sed 1d)"
     }
 
     _pgids()
     {
-        _comp_compgen -- -W '$(command ps -efo pgid | command sed 1d)'
+        _comp_compgen_split -- "$(command ps -efo pgid | command sed 1d)"
     }
     _pnames()
     {
-        _comp_compgen -- -X '<defunct>' -W '$(command ps -efo comm | \
-            command sed -e 1d -e "s:.*/::" -e "s/^-//" | sort -u)'
+        _comp_compgen_split -X '<defunct>' -- "$(command ps -efo comm |
+            command sed -e 1d -e 's:.*/::' -e 's/^-//' | sort -u)"
     }
 else
     _pids()
     {
-        _comp_compgen -- -W '$(command ps ax -o pid=)'
+        _comp_compgen_split -- "$(command ps ax -o pid=)"
     }
     _pgids()
     {
-        _comp_compgen -- -W '$(command ps ax -o pgid=)'
+        _comp_compgen_split -- "$(command ps ax -o pgid=)"
     }
     # @param $1 if -s, don't try to avoid truncated command names
     _pnames()
@@ -1772,12 +1812,12 @@ fi
 _uids()
 {
     if type getent &>/dev/null; then
-        _comp_compgen -- -W '$(getent passwd | cut -d: -f3)'
+        _comp_compgen_split -- "$(getent passwd | cut -d: -f3)"
     elif type perl &>/dev/null; then
-        _comp_compgen -- -W '$(perl -e '"'"'while (($uid) = (getpwent)[2]) { print $uid . "\n" }'"'"')'
+        _comp_compgen_split -- "$(perl -e 'while (($uid) = (getpwent)[2]) { print $uid . "\n" }')"
     else
         # make do with /etc/passwd
-        _comp_compgen -- -W '$(cut -d: -f3 /etc/passwd)'
+        _comp_compgen_split -- "$(cut -d: -f3 /etc/passwd)"
     fi
 }
 
@@ -1787,12 +1827,12 @@ _uids()
 _gids()
 {
     if type getent &>/dev/null; then
-        _comp_compgen -- -W '$(getent group | cut -d: -f3)'
+        _comp_compgen_split -- "$(getent group | cut -d: -f3)"
     elif type perl &>/dev/null; then
-        _comp_compgen -- -W '$(perl -e '"'"'while (($gid) = (getgrent)[2]) { print $gid . "\n" }'"'"')'
+        _comp_compgen_split -- "$(perl -e 'while (($gid) = (getgrent)[2]) { print $gid . "\n" }')"
     else
         # make do with /etc/group
-        _comp_compgen -- -W '$(cut -d: -f3 /etc/group)'
+        _comp_compgen_split -- "$(cut -d: -f3 /etc/group)"
     fi
 }
 
@@ -1862,9 +1902,9 @@ _service()
     else
         local sysvdirs
         _comp_sysvdirs
-        _comp_compgen -l -- -W '$(command sed -e "y/|/ /" \
-            -ne "s/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p" \
-            ${sysvdirs[0]}/${prev##*/} 2>/dev/null) start stop'
+        _comp_compgen_split -l -- "$(command sed -e 'y/|/ /' \
+            -ne 's/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p' \
+            "${sysvdirs[0]}/${prev##*/}" 2>/dev/null) start stop"
     fi
 } &&
     complete -F _service service
@@ -1889,7 +1929,7 @@ _modules()
 {
     local modpath
     modpath=/lib/modules/$1
-    _comp_compgen -- -W "$(command ls -RL "$modpath" 2>/dev/null |
+    _comp_compgen_split -- "$(command ls -RL "$modpath" 2>/dev/null |
         command sed -ne 's/^\(.*\)\.k\{0,1\}o\(\.[gx]z\)\{0,1\}$/\1/p' \
             -e 's/^\(.*\)\.ko\.zst$/\1/p')"
 }
@@ -1899,7 +1939,7 @@ _modules()
 # TODO:API: rename per conventions (+ include "kernel" in the name)
 _installed_modules()
 {
-    _comp_compgen -c "$1" -- -W "$(PATH="$PATH:/sbin" lsmod |
+    _comp_compgen -c "$1" split -- "$(PATH="$PATH:/sbin" lsmod |
         awk '{if (NR != 1) print $1}')"
 }
 
@@ -1961,8 +2001,8 @@ _allowed_users()
     if _complete_as_root; then
         _comp_compgen -c "${1:-$cur}" -- -u
     else
-        _comp_compgen -c "${1:-$cur}" -- -W \
-            "$(id -un 2>/dev/null || whoami 2>/dev/null)"
+        _comp_compgen -c "${1:-$cur}" split -- "$(id -un 2>/dev/null ||
+            whoami 2>/dev/null)"
     fi
 }
 
@@ -1972,17 +2012,16 @@ _allowed_groups()
     if _complete_as_root; then
         _comp_compgen -c "$1" -- -g
     else
-        _comp_compgen -c "$1" -- -W \
-            "$(id -Gn 2>/dev/null || groups 2>/dev/null)"
+        _comp_compgen -c "$1" split -- "$(id -Gn 2>/dev/null ||
+            groups 2>/dev/null)"
     fi
 }
 
 # @since 2.12
 _comp_selinux_users()
 {
-    _comp_compgen -a -- -W '$(
-        semanage user -nl 2>/dev/null | awk "{ print \$1 }"
-    )'
+    _comp_compgen -a split -- "$(semanage user -nl 2>/dev/null |
+        awk '{ print $1 }')"
 }
 
 # This function completes on valid shells
@@ -2107,7 +2146,8 @@ _count_args()
 # TODO:API: rename per conventions
 _pci_ids()
 {
-    _comp_compgen -a -- -W "$(PATH="$PATH:/sbin" lspci -n | awk '{print $3}')"
+    _comp_compgen -a split -- "$(PATH="$PATH:/sbin" lspci -n |
+        awk '{print $3}')"
 }
 
 # This function completes on USB IDs
@@ -2115,7 +2155,7 @@ _pci_ids()
 # TODO:API: rename per conventions
 _usb_ids()
 {
-    _comp_compgen -a -- -W "$(PATH="$PATH:/sbin" lsusb | awk '{print $6}')"
+    _comp_compgen -a split -- "$(PATH="$PATH:/sbin" lsusb | awk '{print $6}')"
 }
 
 # CD device names
@@ -2136,7 +2176,7 @@ _dvd_devices()
 # TODO:API: rename per conventions
 _terms()
 {
-    _comp_compgen -a -- -W "$({
+    _comp_compgen -a split -- "$({
         command sed -ne 's/^\([^[:space:]#|]\{2,\}\)|.*/\1/p' /etc/termcap
         {
             toe -a || toe
@@ -2694,7 +2734,7 @@ _comp_longopt()
     [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        _comp_compgen -- -W "$(LC_ALL=C $1 --help 2>&1 |
+        _comp_compgen_split -- "$(LC_ALL=C $1 --help 2>&1 |
             while read -r line; do
                 [[ $line =~ --[A-Za-z0-9]+([-_][A-Za-z0-9]+)*=? ]] &&
                     printf '%s\n' "${BASH_REMATCH[0]}"

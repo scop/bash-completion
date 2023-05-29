@@ -2,18 +2,17 @@
 
 _comp_cmd_ip__iproute2_etc()
 {
-    COMPREPLY+=($(compgen -W \
-        "$(awk '!/#/ { print $2 }' "/etc/iproute2/$1" 2>/dev/null)" \
-        -- "$cur"))
+    _comp_compgen -a split -- "$(awk '!/#/ { print $2 }' "/etc/iproute2/$1" \
+        2>/dev/null)"
 }
 
 _comp_cmd_ip__netns()
 {
-    COMPREPLY=($(compgen -W "$(
+    _comp_compgen_split -- "$(
         {
             ${1-ip} -c=never netns list 2>/dev/null || ${1-ip} netns list
         } | awk '{print $1}'
-    )" -- "$cur"))
+    )"
 }
 
 _comp_cmd_ip()
@@ -65,7 +64,7 @@ _comp_cmd_ip()
                 )"
                 ;;
             *)
-                COMPREPLY=($(compgen -W "help $(
+                _comp_compgen_split -- "help $(
                     {
                         $1 -c=never help || $1 help
                     } 2>&1 | command sed -e \
@@ -73,7 +72,7 @@ _comp_cmd_ip()
                         's/.*{//' -e \
                         's/}.*//' -e \
                         's/|//g'
-                )" -- "$cur"))
+                )"
                 ;;
         esac
         return
@@ -210,16 +209,18 @@ _comp_cmd_ip()
                     ;;
                 a | add | d | del | change | append | r | replace | monitor)
                     if [[ $prev == via ]]; then
-                        COMPREPLY=($(compgen -W "$(
+                        _comp_compgen_split -- "$(
                             {
                                 $1 -c=never r 2>/dev/null || $1 r
                             } | command sed -ne \
                                 's/.*via \([0-9.]*\).*/\1/p'
-                        )" -- "$cur"))
+                        )"
                     elif [[ $prev == "$subcmd" ]]; then
-                        COMPREPLY=($(compgen -W "table default $({
-                            $1 -c=never r 2>/dev/null || $1 r
-                        } | cut -d ' ' -f 1)" -- "$cur"))
+                        _comp_compgen_split -- "table default $(
+                            {
+                                $1 -c=never r 2>/dev/null || $1 r
+                            } | cut -d ' ' -f 1
+                        )"
                     elif [[ $prev == dev ]]; then
                         _available_interfaces -a
                     elif [[ $prev == table ]]; then

@@ -42,11 +42,11 @@ _comp_cmd_dict()
     # shellcheck disable=SC2254
     case $prev in
         --database | -info | -${noargopts}[di])
-            COMPREPLY=($(compgen -W '$(_dictdata -D)' -- "$cur"))
+            _comp_compgen_split -- "$(_dictdata -D)"
             return
             ;;
         --strategy | -${noargopts}s)
-            COMPREPLY=($(compgen -W '$(_dictdata -S)' -- "$cur"))
+            _comp_compgen_split -- "$(_dictdata -S)"
             return
             ;;
     esac
@@ -57,10 +57,11 @@ _comp_cmd_dict()
         # it down with grep if $cur looks like something that's safe to embed
         # in a pattern instead.
         if [[ $cur == +([-A-Za-z0-9/.]) ]]; then
-            COMPREPLY=($(compgen -W \
-                '$(command grep "^${cur//./\\.}" "$dictfile")' -- "$cur"))
+            _comp_compgen_split -- "$(
+                command grep "^${cur//./\\.}" "$dictfile"
+            )"
         else
-            COMPREPLY=($(compgen -W '$(cat "$dictfile")' -- "$cur"))
+            _comp_compgen_split -- "$(cat "$dictfile")"
         fi
     fi
 } &&

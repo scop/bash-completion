@@ -32,7 +32,7 @@ _comp_cmd_fio()
             return
             ;;
         --crctest)
-            COMPREPLY=($(compgen -W '$("$1" --crctest=nonexistent 2>/dev/null)' -- "$cur"))
+            _comp_compgen_split -- "$("$1" --crctest=nonexistent 2>/dev/null)"
             return
             ;;
         --cmdhelp)
@@ -141,9 +141,8 @@ _comp_cmd_fio()
 
     if [[ $cur == -* ]]; then
         _comp_compgen_help
-        local stdout=$("$1" --cmdhelp=all 2>/dev/null |
-            awk '{printf "--%s=\n", $1}')
-        _comp_compgen -a -- -W '$stdout'
+        _comp_compgen -a split -- "$("$1" --cmdhelp=all 2>/dev/null |
+            awk '{printf "--%s=\n", $1}')"
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi

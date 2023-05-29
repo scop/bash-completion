@@ -30,12 +30,14 @@ _comp_cmd_valgrind()
             # we want to grab memcheck.
             local -a files
             _comp_expand_glob files '/usr{,/local}/lib{,64,exec}{/*-linux-gnu,}/valgrind/*'
-            ((${#files[@]})) &&
-                COMPREPLY=($(compgen -W '$(
+            if ((${#files[@]})); then
+                _comp_compgen_split -- "$(
                     for f in "${files[@]}"; do
                         [[ $f != *.so && -x $f && $f =~ ^.*/(.*)-[^-]+-[^-]+ ]] &&
-                            printf "%s\n" "${BASH_REMATCH[1]}"
-                    done)' -- "$cur"))
+                            printf '%s\n' "${BASH_REMATCH[1]}"
+                    done
+                )"
+            fi
             return
             ;;
         --sim-hints)

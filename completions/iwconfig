@@ -14,9 +14,8 @@ _comp_cmd_iwconfig()
         essid)
             _comp_compgen -- -W 'on off any'
             if [[ ${BASH_COMPLETION_CMD_IWCONFIG_SCAN-${COMP_IWLIST_SCAN-}} ]]; then
-                COMPREPLY+=($(compgen -W \
-                    "$(iwlist "${words[1]}" scan |
-                        awk -F'\"' '/ESSID/ {print $2}')" -- "$cur"))
+                _comp_compgen -a split -- "$(iwlist "${words[1]}" scan |
+                    awk -F'\"' '/ESSID/ {print $2}')"
             fi
             return
             ;;
@@ -25,30 +24,28 @@ _comp_cmd_iwconfig()
             return
             ;;
         channel)
-            COMPREPLY=($(compgen -W "$(iwlist "${words[1]}" channel |
-                awk '/^[ \t]*Channel/ {print $2}')" -- "$cur"))
+            _comp_compgen_split -- "$(iwlist "${words[1]}" channel |
+                awk '/^[ \t]*Channel/ {print $2}')"
             return
             ;;
 
         freq)
-            COMPREPLY=($(compgen -W "$(iwlist "${words[1]}" channel |
-                awk '/^[ \t]*Channel/ {print $4"G"}')" -- "$cur"))
+            _comp_compgen_split -- "$(iwlist "${words[1]}" channel |
+                awk '/^[ \t]*Channel/ {print $4"G"}')"
             return
             ;;
         ap)
             _comp_compgen -- -W 'on off any'
             if [[ ${BASH_COMPLETION_CMD_IWCONFIG_SCAN-${COMP_IWLIST_SCAN-}} ]]; then
-                COMPREPLY+=($(compgen -W \
-                    "$(iwlist "${words[1]}" scan |
-                        awk -F ': ' '/Address/ {print $2}')" -- "$cur"))
+                _comp_compgen -a split -- "$(iwlist "${words[1]}" scan |
+                    awk -F ': ' '/Address/ {print $2}')"
             fi
             return
             ;;
         rate)
             _comp_compgen -- -W 'auto fixed'
-            COMPREPLY+=($(compgen -W \
-                "$(iwlist "${words[1]}" rate |
-                    awk '/^[ \t]*[0-9]/ {print $1"M"}')" -- "$cur"))
+            _comp_compgen -a split -- "$(iwlist "${words[1]}" rate |
+                awk '/^[ \t]*[0-9]/ {print $1"M"}')"
             return
             ;;
         rts | frag)

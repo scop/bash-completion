@@ -7,27 +7,23 @@ _comp_cmd_msynctool()
 
     case $words in
         --configure)
-            COMPREPLY=($(compgen -W "$("$1" --showgroup \
-                "$prev" | awk '/^Member/ {print $2}' | command sed \
-                -e 's/:$//')" -- "$cur"))
+            _comp_compgen_split -- "$("$1" --showgroup "$prev" |
+                awk '/^Member/ {print $2}' | command sed -e 's/:$//')"
             return
             ;;
         --addmember)
-            COMPREPLY=($(compgen -W '$("$1" --listplugins \
-                | command sed -e 1d)' -- "$cur"))
+            _comp_compgen_split -- "$("$1" --listplugins | command sed -e 1d)"
             return
             ;;
     esac
 
     case $prev in
         --configure | --addgroup | --delgroup | --showgroup | --sync | --addmember)
-            COMPREPLY=($(compgen -W '$("$1" --listgroups \
-                | command sed -e 1d)' -- "$cur"))
+            _comp_compgen_split -- "$("$1" --listgroups | command sed -e 1d)"
             return
             ;;
         --showformats | --filter-objtype | --slow-sync)
-            COMPREPLY=($(compgen -W '$("$1" --listobjects \
-                | command sed -e 1d)' -- "$cur"))
+            _comp_compgen_split -- "$("$1" --listobjects | command sed -e 1d)"
             return
             ;;
     esac

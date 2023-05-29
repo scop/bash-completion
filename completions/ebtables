@@ -16,30 +16,29 @@ _comp_cmd_ebtables()
     # shellcheck disable=SC2254
     case $prev in
         -${noargopts}[AIDPFXLZ])
-            COMPREPLY=($(compgen -W '`"$1" ${table:+-t "$table"} -L 2>/dev/null | \
-                command sed -ne "$chain"`' -- "$cur"))
+            _comp_compgen_split -- "$(
+                "$1" ${table:+-t "$table"} -L 2>/dev/null |
+                    command sed -ne "$chain"
+            )"
             ;;
         -${noargopts}t)
             _comp_compgen -- -W 'nat filter broute'
             ;;
         -${noargopts}j)
             if [[ $table == "filter" || ! $table ]]; then
-                COMPREPLY=($(compgen -W '$targets
-                $("$1" ${table:+-t "$table"} -L 2>/dev/null | \
-                  command sed -n -e "s/INPUT\|OUTPUT\|FORWARD//" \
-                                 -e "$chain")' \
-                    -- "$cur"))
+                _comp_compgen -- -W '$targets'
+                _comp_compgen -a split -- "$("$1" ${table:+-t "$table"} -L \
+                    2>/dev/null | command sed -n -e \
+                    "s/INPUT\|OUTPUT\|FORWARD//" -e "$chain")"
             elif [[ $table == "nat" ]]; then
-                COMPREPLY=($(compgen -W '$targets
-                $("$1" -t "$table" -L 2>/dev/null | \
-                  command sed -n -e "s/OUTPUT|PREROUTING|POSTROUTING//" \
-                                 -e "$chain")' \
-                    -- "$cur"))
+                _comp_compgen -- -W '$targets'
+                _comp_compgen -a split -- "$("$1" -t "$table" -L 2>/dev/null |
+                    command sed -n -e "s/OUTPUT|PREROUTING|POSTROUTING//" \
+                        -e "$chain")"
             elif [[ $table == "broute" ]]; then
-                COMPREPLY=($(compgen -W 'ACCEPT DROP
-                $("$1" -t "$table" -L 2>/dev/null | \
-                  command sed -n -e "s/BROUTING//" -e "$chain")' \
-                    -- "$cur"))
+                _comp_compgen -- -W 'ACCEPT DROP'
+                _comp_compgen -a split -- "$("$1" -t "$table" -L 2>/dev/null |
+                    command sed -n -e "s/BROUTING//" -e "$chain")"
             fi
             ;;
         *)

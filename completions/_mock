@@ -27,7 +27,7 @@ _comp_cmd_mock()
             return
             ;;
         -r | --root)
-            COMPREPLY=($(compgen -W "$(command ls "$cfgdir")" -- "$cur"))
+            _comp_compgen_split -- "$(command ls "$cfgdir")"
             COMPREPLY=(${COMPREPLY[@]/%.cfg/})
             return
             ;;
@@ -44,9 +44,8 @@ _comp_cmd_mock()
             # (e.g. ix86 chroot builds in x86_64 mock host)
             # This would actually depend on what the target root
             # can be used to build for...
-            COMPREPLY=($(compgen -W "$(command rpm --showrc |
-                command sed -ne 's/^\s*compatible\s\s*archs\s*:\s*\(.*\)/\1/i p')" \
-                -- "$cur"))
+            _comp_compgen_split -- "$(command rpm --showrc | command sed -ne \
+                's/^\s*compatible\s\s*archs\s*:\s*\(.*\)/\1/i p')"
             return
             ;;
         --enable-plugin | --disable-plugin)

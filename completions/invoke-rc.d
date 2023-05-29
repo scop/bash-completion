@@ -28,9 +28,9 @@ _comp_cmd_invoke_rc_d()
         ((${#COMPREPLY[@]})) &&
             _comp_compgen -- -W '"${COMPREPLY[@]}"'
     elif [[ -x $sysvdir/$prev ]]; then
-        COMPREPLY=($(compgen -W '`command sed -e "y/|/ /" \
-            -ne "s/^.*Usage:[ ]*[^ ]*[ ]*{*\([^}\"]*\).*$/\1/p" \
-            "$sysvdir/$prev"`' -- "$cur"))
+        _comp_compgen_split -- "$(command sed -e 'y/|/ /' \
+            -ne 's/^.*Usage:[ ]*[^ ]*[ ]*{*\([^}"]*\).*$/\1/p' \
+            "$sysvdir/$prev")"
     else
         COMPREPLY=()
     fi

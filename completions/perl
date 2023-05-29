@@ -2,9 +2,8 @@
 
 _comp_cmd_perl__helper()
 {
-    COMPREPLY=($(compgen -P "$prefix" -W \
-        "$("${1:-perl}" "${BASH_SOURCE[0]%/*}/../helpers/perl" "$2" "$cur")" \
-        -- "$cur"))
+    _comp_compgen_split -P "$prefix" -- "$("${1:-perl}" \
+        "${BASH_SOURCE[0]%/*}/../helpers/perl" "$2" "$cur")"
     [[ $2 == functions ]] || _comp_ltrim_colon_completions "$prefix$cur"
 }
 
@@ -48,10 +47,10 @@ _comp_cmd_perl()
                 if [[ $cur == :* ]]; then
                     temp="${cur##+(:)}"
                     prefix+=${cur%"$temp"}
-                    local IFS=$'\n'
-                    COMPREPLY=($(compgen -P "$prefix" -W \
-                        '$("$1" -MConfig -e "print join \"\\n\",
-                           keys %Config::Config" 2>/dev/null)' -- "$temp"))
+                    _comp_compgen -c "$temp" split -lP "$prefix" -- "$(
+                        "$1" -MConfig -e 'print join "\n",
+                           keys %Config::Config' 2>/dev/null
+                    )"
                     _comp_ltrim_colon_completions "$prefix$temp"
                 fi
                 return
@@ -131,11 +130,9 @@ _comp_cmd_perldoc()
         if [[ $cur != @(*/|[.~])* ]]; then
             _comp_cmd_perl__helper "" perldocs
             if [[ $cur == p* ]]; then
-                COMPREPLY+=($(compgen -W \
-                    '$(PERLDOC_PAGER=cat "$1" -u perl |  \
-                       command sed -ne "/perl.*Perl overview/,/perlwin32/p" | \
-                       awk "\$NF=2 && \$1 ~ /^perl/ { print \$1 }")' \
-                    -- "$cur"))
+                _comp_compgen -a split -- "$(PERLDOC_PAGER=cat "$1" -u perl |
+                    command sed -ne '/perl.*Perl overview/,/perlwin32/p' |
+                    awk '$NF=2 && $1 ~ /^perl/ { print $1 }')"
             fi
         fi
         _comp_compgen -a filedir 'p@([lm]|od)'
