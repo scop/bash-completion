@@ -128,3 +128,21 @@ class TestUtilCompgen:
         # Note: we are not in the original directory that "b" exists, so Bash
         # will not suffix a slash to the directory name.
         assert completion == "b"
+
+    def test_7_icmd(self, bash, functions):
+        with bash_env_saved(bash) as bash_env:
+            bash_env.write_variable(
+                "BASH_COMPLETION_USER_DIR", "$PWD/_comp_compgen", quote=False
+            )
+
+            completions = assert_complete(bash, "compgen-cmd1 '")
+            assert completions == ["012", "123", "234", "5abc", "6def", "7ghi"]
+
+    def test_7_xcmd(self, bash, functions):
+        with bash_env_saved(bash) as bash_env:
+            bash_env.write_variable(
+                "BASH_COMPLETION_USER_DIR", "$PWD/_comp_compgen", quote=False
+            )
+
+            completions = assert_complete(bash, "compgen-cmd2 '")
+            assert completions == ["012", "123", "234", "5foo", "6bar", "7baz"]
