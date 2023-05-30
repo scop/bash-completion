@@ -850,12 +850,17 @@ _comp_get_words()
     ((${#upvars[@]})) && local "${upvars[@]}" && _comp_upvars "${upargs[@]}"
 }
 
-# If the word-to-complete contains a colon (:), left-trim COMPREPLY items with
-# word-to-complete.
-# With a colon in COMP_WORDBREAKS, words containing
-# colons are always completed as entire words if the word to complete contains
-# a colon.  This function fixes this, by removing the colon-containing-prefix
-# from COMPREPLY items.
+# Generate the specified items after left-trimming with the word-to-complete
+# containing a colon (:).  If the word-to-complete does not contain a colon,
+# this generates the specified items without modifications.
+# @param $@     items to generate
+# @var[in] cur  current word to complete
+#
+# @remarks In Bash, with a colon in COMP_WORDBREAKS, words containing colons
+# are always completed as entire words if the word to complete contains a
+# colon.  This function fixes this behavior by removing the
+# colon-containing-prefix from the items.
+#
 # The preferred solution is to remove the colon (:) from COMP_WORDBREAKS in
 # your .bashrc:
 #
@@ -864,19 +869,32 @@ _comp_get_words()
 #
 # See also: Bash FAQ - E13) Why does filename completion misbehave if a colon
 # appears in the filename? - https://tiswww.case.edu/php/chet/bash/FAQ
+#
+# @since 2.12
+_comp_compgen_ltrim_colon()
+{
+    (($#)) || return 0
+    local -a tmp
+    tmp=("$@")
+    if [[ $cur == *:* && $COMP_WORDBREAKS == *:* ]]; then
+        # Remove colon-word prefix from items
+        local colon_word=${cur%"${cur##*:}"}
+        tmp=("${tmp[@]#"$colon_word"}")
+    fi
+    _comp_compgen -R -- -W '"${tmp[@]}"'
+}
+
+# If the word-to-complete contains a colon (:), left-trim COMPREPLY items with
+# word-to-complete.
+#
 # @param $1 current word to complete (cur)
-# @modifies global array $COMPREPLY
+# @var[in,out] COMPREPLY
 #
 # @since 2.12
 _comp_ltrim_colon_completions()
 {
-    local i=${#COMPREPLY[*]}
-    ((i == 0)) && return 0
-    if [[ $1 == *:* && $COMP_WORDBREAKS == *:* ]]; then
-        # Remove colon-word prefix from COMPREPLY items
-        local colon_word=${1%"${1##*:}"}
-        COMPREPLY=("${COMPREPLY[@]#"$colon_word"}")
-    fi
+    ((${#COMPREPLY[@]})) || return 0
+    _comp_compgen -c "$1" ltrim_colon "${COMPREPLY[@]}"
 } # _comp_ltrim_colon_completions()
 
 # This function quotes the argument in a way so that readline dequoting
