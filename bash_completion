@@ -1523,7 +1523,7 @@ _comp_compgen_configured_interfaces()
 # -6: IPv6 addresses only
 # -a: All addresses
 #
-_comp_ip_addresses()
+_comp_compgen_ip_addresses()
 {
     local n
     case ${1-} in
@@ -1532,13 +1532,19 @@ _comp_ip_addresses()
         *) n= ;;
     esac
     local PATH=$PATH:/sbin
-    local addrs=$({
+    local addrs
+    _comp_compgen -v addrs split -- "$({
         LC_ALL=C ifconfig -a || ip -c=never addr show || ip addr show
     } 2>/dev/null |
         command sed -e 's/[[:space:]]addr:/ /' -ne \
-            "s|.*inet${n}[[:space:]]\{1,\}\([^[:space:]/]*\).*|\1|p")
-    _comp_compgen -a -- -W "$addrs"
-    [[ ! $n ]] || _comp_ltrim_colon_completions "$cur"
+            "s|.*inet${n}[[:space:]]\{1,\}\([^[:space:]/]*\).*|\1|p")" ||
+        return
+
+    if [[ ! $n ]]; then
+        _comp_compgen -R -- -W '"${addrs[@]}"'
+    else
+        _comp_compgen_ltrim_colon "${addrs[@]}"
+    fi
 }
 
 # This function completes on available kernels
