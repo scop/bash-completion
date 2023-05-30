@@ -7,7 +7,9 @@ _comp_cmd_isql()
     _comp_initialize -- "$@" || return
 
     [[ -f ${ODBCINI-} ]] &&
-        COMPREPLY=($(command grep "\[$cur" "$ODBCINI" | tr -d \[\]))
+        _comp_compgen_split -l -- "$(
+            command sed -n 's/\]//g;s/^\[//gp' "$ODBCINI"
+        )"
 } &&
     complete -F _comp_cmd_isql isql
 
