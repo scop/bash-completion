@@ -1450,16 +1450,17 @@ _comp_compgen_signals()
 
 # This function completes on known mac addresses
 #
-_comp_mac_addresses()
+_comp_compgen_mac_addresses()
 {
     local re='\([A-Fa-f0-9]\{2\}:\)\{5\}[A-Fa-f0-9]\{2\}'
     local PATH="$PATH:/sbin:/usr/sbin"
+    local -a addresses
 
     # Local interfaces
     # - ifconfig on Linux: HWaddr or ether
     # - ifconfig on FreeBSD: ether
     # - ip link: link/ether
-    _comp_split -a COMPREPLY "$(
+    _comp_compgen -v addresses split -- "$(
         {
             LC_ALL=C ifconfig -a || ip -c=never link show || ip link show
         } 2>/dev/null | command sed -ne \
@@ -1470,7 +1471,7 @@ _comp_mac_addresses()
     )"
 
     # ARP cache
-    _comp_split -a COMPREPLY "$(
+    _comp_compgen -av addresses split -- "$(
         {
             arp -an || ip -c=never neigh show || ip neigh show
         } 2>/dev/null | command sed -ne \
@@ -1479,12 +1480,10 @@ _comp_mac_addresses()
     )"
 
     # /etc/ethers
-    _comp_split -a COMPREPLY "$(command sed -ne \
+    _comp_compgen -av addresses split -- "$(command sed -ne \
         "s/^[[:space:]]*\($re\)[[:space:]].*/\1/p" /etc/ethers 2>/dev/null)"
 
-    ((${#COMPREPLY[@]})) &&
-        _comp_compgen -- -W '"${COMPREPLY[@]}"'
-    _comp_ltrim_colon_completions "$cur"
+    _comp_compgen_ltrim_colon "${addresses[@]}"
 }
 
 # This function completes on configured network interfaces
