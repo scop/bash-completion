@@ -12,7 +12,7 @@ _comp_deprecate_func 2.12 _upvars _comp_upvars
 _comp_deprecate_func 2.12 _get_comp_words_by_ref _comp_get_words
 _comp_deprecate_func 2.12 _longopt _comp_longopt
 _comp_deprecate_func 2.12 __ltrim_colon_completions _comp_ltrim_colon_completions
-_comp_deprecate_func 2.12 _signals _comp_signals
+_comp_deprecate_func 2.12 _signals _comp_compgen_signals
 _comp_deprecate_func 2.12 _mac_addresses _comp_mac_addresses
 _comp_deprecate_func 2.12 _available_interfaces _comp_available_interfaces
 _comp_deprecate_func 2.12 _configured_interfaces _comp_configured_interfaces
