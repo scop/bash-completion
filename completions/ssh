@@ -273,13 +273,10 @@ _comp_cmd_ssh__configfile()
 # shellcheck disable=SC2120
 _comp_xfunc_ssh_identityfile()
 {
-    local cur=$cur
+    local cur=$cur tmp
     [[ ! $cur && -d ~/.ssh ]] && cur=~/.ssh/id
-    _comp_compgen -a filedir
-    if ((${#COMPREPLY[@]} > 0)); then
-        COMPREPLY=($(compgen -W '"${COMPREPLY[@]}"' \
-            -X "${1:+!}*.pub" -- "$cur"))
-    fi
+    _comp_compgen -v tmp -c "$cur" filedir &&
+        _comp_compgen -- -W '"${tmp[@]}"' -X "${1:+!}*.pub"
 }
 
 _comp_deprecate_func 2.12 _ssh_identityfile _comp_xfunc_ssh_identityfile
