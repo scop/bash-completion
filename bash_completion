@@ -2441,7 +2441,9 @@ _known_hosts_real()
             [[ -r $i && ! -d $i ]] && kh+=("$i")
         done
         for i in /etc/ssh2/knownhosts ~/.ssh2/hostkeys; do
-            [[ -d $i ]] && khd+=("$i"/*pub)
+            [[ -d $i ]] || continue
+            _comp_expand_glob tmpkh '"$i"/*pub'
+            ((${#tmpkh[@]})) && khd+=("${tmpkh[@]}")
         done
     fi
 
