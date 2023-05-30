@@ -2449,9 +2449,9 @@ _known_hosts_real()
 
     # If we have known_hosts files to use
     if ((${#kh[@]} + ${#khd[@]} > 0)); then
-        if ((${#kh[@]} > 0)); then
-            COMPREPLY+=() # make sure it exists
+        local -a tmp=()
 
+        if ((${#kh[@]} > 0)); then
             # https://man.openbsd.org/sshd.8#SSH_KNOWN_HOSTS_FILE_FORMAT
             for i in "${kh[@]}"; do
                 while read -ra tmpkh; do
@@ -2472,14 +2472,11 @@ _known_hosts_real()
                             # Remove trailing ] + optional :port
                             host=${host%]?(:+([0-9]))}
                             # Add host to candidates
-                            [[ $host ]] &&
-                                COMPREPLY+=("$host")
+                            [[ $host ]] && tmp+=("$host")
                         done
                     fi
                 done <"$i"
             done
-            ((${#COMPREPLY[@]})) &&
-                _comp_compgen -- -W '"${COMPREPLY[@]}"'
         fi
         if ((${#khd[@]} > 0)); then
             # Needs to look for files called
@@ -2487,20 +2484,17 @@ _known_hosts_real()
             # dont fork any processes, because in a cluster environment,
             # there can be hundreds of hostkeys
             for i in "${khd[@]}"; do
-                if [[ $i == *key_22_$cur*.pub && -r $i ]]; then
+                if [[ $i == *key_22_*.pub && -r $i ]]; then
                     host=${i/#*key_22_/}
                     host=${host/%.pub/}
-                    [[ $host ]] && COMPREPLY+=("$host")
+                    [[ $host ]] && tmp+=("$host")
                 fi
             done
         fi
 
         # apply suffix and prefix
-        if ((${#COMPREPLY[@]})); then
-            for i in ${!COMPREPLY[*]}; do
-                COMPREPLY[i]=$prefix${COMPREPLY[i]}$suffix
-            done
-        fi
+        ((${#tmp[@]})) &&
+            _comp_compgen -- -W '"${tmp[@]}"' -P "$prefix" -S "$suffix"
     fi
 
     # append any available aliases from ssh config files
