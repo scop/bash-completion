@@ -5,6 +5,8 @@ _comp_cmd_portinstall()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
+    [[ $prev == -l || $prev == -L || $prev == -o ]] && return
+
     local portsdir indexfile
     local -a COMPREPLY2
 
@@ -15,8 +17,7 @@ _comp_cmd_portinstall()
     # Then INDEX if INDEX-5 does not exist or system is not FreeBSD 5.x
     [[ ${OSTYPE%.*} == freebsd5 && -f $indexfile ]] ||
         indexfile=$portsdir/INDEX
-
-    [[ $prev == -l || $prev == -L || $prev == -o ]] && return
+    [[ -f $indexfile && -r $indexfile ]] || return
 
     COMPREPLY=($(command grep -E "^$cur" 2>/dev/null <"$indexfile" |
         cut -d'|' -f1))
