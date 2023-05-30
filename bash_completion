@@ -1559,10 +1559,11 @@ _kernel_versions()
 # -a: restrict to active interfaces only
 # -w: restrict to wireless interfaces only
 #
-_comp_available_interfaces()
+_comp_compgen_available_interfaces()
 {
     local PATH=$PATH:/sbin
-    local generated=$({
+    local generated
+    _comp_compgen -v generated split -- "$({
         if [[ ${1-} == -w ]]; then
             iwconfig
         elif [[ ${1-} == -a ]]; then
@@ -1571,9 +1572,8 @@ _comp_available_interfaces()
             ifconfig -a || ip -c=never link show || ip link show
         fi
     } 2>/dev/null | awk \
-        '/^[^ \t]/ { if ($1 ~ /^[0-9]+:/) { print $2 } else { print $1 } }')
-    _comp_split -l COMPREPLY "$generated" &&
-        _comp_compgen -- -W '"${COMPREPLY[@]/%[[:punct:]]/}"'
+        '/^[^ \t]/ { if ($1 ~ /^[0-9]+:/) { print $2 } else { print $1 } }')" &&
+        _comp_compgen -R -- -W '"${generated[@]/%[[:punct:]]/}"'
 }
 
 # Echo number of CPUs, falling back to 1 on failure.
