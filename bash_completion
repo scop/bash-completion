@@ -2456,14 +2456,14 @@ _known_hosts_real()
             for i in "${kh[@]}"; do
                 while read -ra tmpkh; do
                     ((${#tmpkh[@]} == 0)) && continue
-                    set -- "${tmpkh[@]}"
                     # Skip entries starting with | (hashed) and # (comment)
-                    [[ $1 == [\|\#]* ]] && continue
+                    [[ ${tmpkh[0]} == [\|\#]* ]] && continue
                     # Ignore leading @foo (markers)
-                    [[ $1 == @* ]] && shift
+                    local host_list=${tmpkh[0]}
+                    [[ ${tmpkh[0]} == @* ]] && host_list=${tmpkh[1]-}
                     # Split entry on commas
                     local -a hosts
-                    if _comp_split -F , hosts "$1"; then
+                    if _comp_split -F , hosts "$host_list"; then
                         for host in "${hosts[@]}"; do
                             # Skip hosts containing wildcards
                             [[ $host == *[*?]* ]] && continue
