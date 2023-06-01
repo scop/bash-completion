@@ -665,12 +665,14 @@ _comp_compgen()
 # caller _comp_compgen, the words are appended to the existing elements of the
 # array instead of replacing the existing elements.  This function ignores
 # ${cur-} or the prefix specified by `-v CUR`.
+# @return 0 if at least one completion is generated, or 1 otherwise.
 # @since 2.12
 _comp_compgen_set()
 {
     local _append=${_comp_compgen__append-}
     local _var=${_comp_compgen__var-COMPREPLY}
     eval -- "$_var${_append:++}=(\"\$@\")"
+    (($#))
 }
 
 # Simply split the text and generate completions.  This function should be used
@@ -1004,6 +1006,7 @@ _comp_quote_compgen()
 # @param $1  If `-d', complete only on directories.  Otherwise filter/pick only
 #            completions with `.$1' and the uppercase version of it as file
 #            extension.
+# @return 0 if at least one completion is generated, or 1 otherwise.
 #
 # @since 2.12
 _comp_compgen_filedir()
@@ -1020,6 +1023,9 @@ _comp_compgen_filedir()
         _comp_quote_compgen "${cur-}"
         local _quoted=$ret
         _comp_unlocal ret
+
+        # work around bash-4.2 where compgen -f "''" produces nothing.
+        [[ $_quoted == "''" ]] && _quoted=""
 
         # Munge xspec to contain uppercase version too
         # https://lists.gnu.org/archive/html/bug-bash/2010-09/msg00036.html
@@ -2575,7 +2581,6 @@ _comp_command_offset()
     _comp_get_words cur
 
     if ((COMP_CWORD == 0)); then
-        local IFS=$'\n'
         compopt -o filenames
         _comp_compgen -- -d -c
     else

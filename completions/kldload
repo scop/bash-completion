@@ -18,11 +18,11 @@ _comp_cmd_kldload()
 
     compopt -o filenames
     for i in "${moddirs[@]}"; do
-        modules=($(compgen -f "$i/$cur"))
-        modules=(${modules[@]#$i/})
-        COMPREPLY+=("${modules[@]}")
+        _comp_compgen -v modules -c "$i/$cur" -- -f &&
+            COMPREPLY+=("${modules[@]#$i/}")
     done
-    COMPREPLY=(${COMPREPLY[@]%.ko})
+    ((${#COMPREPLY[@]})) &&
+        COMPREPLY=("${COMPREPLY[@]%.ko}")
 
     # also add dirs in current dir
     _comp_compgen -a filedir -d

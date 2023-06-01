@@ -30,8 +30,7 @@ _comp_deprecate_func 2.12 _rpm_installed_packages \
 
 _comp_cmd_rpm__groups()
 {
-    local IFS=$'\n'
-    _comp_compgen_split -- "$("${1:-rpm}" -qa --nodigest --nosignature \
+    _comp_compgen_split -l -- "$("${1:-rpm}" -qa --nodigest --nosignature \
         --queryformat='%{GROUP}\n' 2>/dev/null)"
 }
 
@@ -109,7 +108,7 @@ _comp_cmd_rpm()
                 _comp_compgen_filedir
             else
                 # complete on capabilities
-                local IFS=$'\n' fmt
+                local fmt
                 case $prev in
                     *enhances) fmt="%{ENHANCENAME}" ;;
                     *provides) fmt="%{PROVIDENAME}" ;;
@@ -118,8 +117,8 @@ _comp_cmd_rpm()
                     *suggests) fmt="%{SUGGESTNAME}" ;;
                     *supplements) fmt="%{SUPPLEMENTNAME}" ;;
                 esac
-                _comp_compgen_split -- "$("$1" -qa --nodigest --nosignature \
-                    --queryformat=\"$fmt\\n\" 2>/dev/null |
+                _comp_compgen_split -l -- "$("$1" -qa --nodigest \
+                    --nosignature --queryformat="\"$fmt\\n\"" 2>/dev/null |
                     command grep -vF '(none)')"
             fi
             return
