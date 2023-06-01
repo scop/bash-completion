@@ -9,13 +9,14 @@ _comp_deprecate_func 2.12 _command _comp_command
 _comp_deprecate_func 2.12 _root_command _comp_root_command
 _comp_deprecate_func 2.12 _xfunc _comp_xfunc
 _comp_deprecate_func 2.12 _upvars _comp_upvars
-_comp_deprecate_func 2.12 __reassemble_comp_words_by_ref _comp__reassemble_words
-_comp_deprecate_func 2.12 __get_cword_at_cursor_by_ref \
-    _comp__get_cword_at_cursor
 _comp_deprecate_func 2.12 _get_comp_words_by_ref _comp_get_words
 _comp_deprecate_func 2.12 _longopt _comp_longopt
-_comp_deprecate_func 2.12 _split_longopt _comp__split_longopt
 _comp_deprecate_func 2.12 __ltrim_colon_completions _comp_ltrim_colon_completions
+_comp_deprecate_func 2.12 _signals _comp_compgen_signals
+_comp_deprecate_func 2.12 _mac_addresses _comp_compgen_mac_addresses
+_comp_deprecate_func 2.12 _available_interfaces _comp_compgen_available_interfaces
+_comp_deprecate_func 2.12 _configured_interfaces _comp_compgen_configured_interfaces
+_comp_deprecate_func 2.12 _ip_addresses _comp_compgen_ip_addresses
 
 # Backwards compatibility for compat completions that use have().
 # @deprecated 1.90 should no longer be used; generally not needed with

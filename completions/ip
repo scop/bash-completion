@@ -89,7 +89,7 @@ _comp_cmd_ip()
                 delete)
                     case $((cword - subcword)) in
                         1)
-                            _available_interfaces
+                            _comp_compgen_available_interfaces
                             ;;
                         2)
                             _comp_compgen -- -W 'type'
@@ -103,7 +103,7 @@ _comp_cmd_ip()
                     ;;
                 set)
                     if ((cword - subcword == 1)); then
-                        _available_interfaces
+                        _comp_compgen_available_interfaces
                     else
                         case $prev in
                             arp | dynamic | multicast | allmulticast | promisc | \
@@ -124,10 +124,10 @@ _comp_cmd_ip()
                     ;;
                 show)
                     if ((cword == subcword + 1)); then
-                        _available_interfaces
+                        _comp_compgen_available_interfaces
                         _comp_compgen -a -- -W 'dev group up'
                     elif [[ $prev == dev ]]; then
-                        _available_interfaces
+                        _comp_compgen_available_interfaces
                     elif [[ $prev == group ]]; then
                         _comp_cmd_ip__iproute2_etc group
                     fi
@@ -143,7 +143,7 @@ _comp_cmd_ip()
             case $subcmd in
                 add | change | replace)
                     if [[ $prev == dev ]]; then
-                        _available_interfaces
+                        _comp_compgen_available_interfaces
                     elif [[ $prev == scope ]]; then
                         _comp_cmd_ip__iproute2_etc rt_scopes
                     else
@@ -152,7 +152,7 @@ _comp_cmd_ip()
                     ;;
                 del)
                     if [[ $prev == dev ]]; then
-                        _available_interfaces
+                        _comp_compgen_available_interfaces
                     elif [[ $prev == scope ]]; then
                         _comp_cmd_ip__iproute2_etc rt_scopes
                     else
@@ -161,12 +161,12 @@ _comp_cmd_ip()
                     ;;
                 show | flush)
                     if ((cword == subcword + 1)); then
-                        _available_interfaces
+                        _comp_compgen_available_interfaces
                         _comp_compgen -a -- -W 'dev scope to label dynamic
                             permanent tentative deprecated dadfailed temporary
                             primary secondary up'
                     elif [[ $prev == dev ]]; then
-                        _available_interfaces
+                        _comp_compgen_available_interfaces
                     elif [[ $prev == scope ]]; then
                         _comp_cmd_ip__iproute2_etc rt_scopes
                     fi
@@ -183,7 +183,7 @@ _comp_cmd_ip()
             case $subcmd in
                 list | add | del | flush)
                     if [[ $prev == dev ]]; then
-                        _available_interfaces
+                        _comp_compgen_available_interfaces
                     else
                         : # TODO
                     fi
@@ -222,7 +222,7 @@ _comp_cmd_ip()
                             } | cut -d ' ' -f 1
                         )"
                     elif [[ $prev == dev ]]; then
-                        _available_interfaces -a
+                        _comp_compgen_available_interfaces -a
                     elif [[ $prev == table ]]; then
                         _comp_compgen -- -W 'local main default'
                     else
@@ -246,7 +246,7 @@ _comp_cmd_ip()
                             suppress_ifgroup | realms | nat | goto) ;;
 
                         iif | oif)
-                            _available_interfaces -a
+                            _comp_compgen_available_interfaces -a
                             ;;
                         table | lookup)
                             _comp_compgen -- -W 'local main default'
@@ -327,7 +327,7 @@ _comp_cmd_ip()
                     ;;
                 show)
                     if [[ $cword -eq $subcword+1 || $prev == dev ]]; then
-                        _available_interfaces
+                        _comp_compgen_available_interfaces
                         if [[ $prev != dev ]]; then
                             _comp_compgen -a -W dev
                         fi
