@@ -2596,8 +2596,7 @@ _comp_command_offset()
     _comp_get_words cur
 
     if ((COMP_CWORD == 0)); then
-        compopt -o filenames
-        _comp_compgen -- -d -c
+        _comp_compgen_commands
     else
         _comp_dequote "${COMP_WORDS[0]}" || ret=${COMP_WORDS[0]}
         local cmd=$ret compcmd=$ret
@@ -2715,6 +2714,19 @@ complete -F _comp_root_command fakeroot gksu gksudo kdesudo really
 _complete_as_root()
 {
     [[ $EUID -eq 0 || ${root_command-} ]]
+}
+
+# Complete on available commands, subject to `no_empty_cmd_completion`.
+# @return True (0) if one or more completions are generated, or otherwise False
+# (1).  Note that it returns 1 even when the completion generation is canceled
+# by `shopt -s no_empty_cmd_completion`.
+#
+# @since 2.12
+_comp_compgen_commands()
+{
+    [[ ! ${cur-} ]] && shopt -q no_empty_cmd_completion && return 1
+    # -o filenames for e.g. spaces in paths to and in command names
+    _comp_compgen -- -c -o plusdirs && compopt -o filenames
 }
 
 # @since 2.12
