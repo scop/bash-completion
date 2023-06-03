@@ -2272,33 +2272,47 @@ _included_ssh_config_files()
     local configfile i files f
     configfile=$1
 
-    local -a included
-    _comp_split included "$(command sed -ne 's/^[[:blank:]]*[Ii][Nn][Cc][Ll][Uu][Dd][Ee][[:blank:]]\(.*\)$/\1/p' "${configfile}")" || return
+    # From man ssh_config:
+    # "Files without absolute paths are assumed to be in ~/.ssh if included
+    # in a user configuration file or /etc/ssh if included from the system
+    # configuration file."
+    # This behavior is not affected by the the including file location -
+    # if the system configuration file is included from the user's config,
+    # relative includes are still resolved in the user's ssh config directory.
+    local relative_include_base
+    if [[ $configfile == /etc/ssh* ]]; then
+        relative_include_base="/etc/ssh"
+    else
+        relative_include_base="$HOME/.ssh"
+    fi
 
-    for i in "${included[@]}"; do
-        # Check the origin of $configfile to complete relative included paths on included
-        # files according to ssh_config(5):
-        #  "[...] Files without absolute paths are assumed to be in ~/.ssh if included in a user
-        #   configuration file or /etc/ssh if included from the system configuration file.[...]"
-        if ! [[ $i =~ ^\~.*|^\/.* ]]; then
-            if [[ $configfile =~ ^\/etc\/ssh.* ]]; then
-                i="/etc/ssh/$i"
-            else
-                i="$HOME/.ssh/$i"
+    local depth=1
+    local -a included
+    local -a include_files
+    included=("$configfile")
+
+    # Max recursion depth per openssh's READCONF_MAX_DEPTH:
+    # https://github.com/openssh/openssh-portable/blob/5ec5504f1d328d5bfa64280cd617c3efec4f78f3/readconf.c#L2240
+    local max_depth=16
+    while ((${#included[@]} > 0 && depth++ < max_depth)); do
+        _comp_split include_files "$(command sed -ne 's/^[[:blank:]]*[Ii][Nn][Cc][Ll][Uu][Dd][Ee][[:blank:]]\(.*\)$/\1/p' "${included[@]}")" || return
+        included=()
+        for i in "${include_files[@]}"; do
+            if [[ $i != [~/]* ]]; then
+                i="${relative_include_base}/${i}"
             fi
-        fi
-        __expand_tilde_by_ref i
-        # In case the expanded variable contains multiple paths
-        _comp_expand_glob files '$i'
-        if ((${#files[@]})); then
-            for f in "${files[@]}"; do
-                if [[ -r $f && ! -d $f ]]; then
-                    config+=("$f")
-                    # The Included file is processed to look for Included files in itself
-                    _included_ssh_config_files "$f"
-                fi
-            done
-        fi
+            __expand_tilde_by_ref i
+            # In case the expanded variable contains multiple paths
+            _comp_expand_glob files '$i'
+            if ((${#files[@]})); then
+                for f in "${files[@]}"; do
+                    if [[ -r $f && ! -d $f ]]; then
+                        config+=("$f")
+                        included+=("$f")
+                    fi
+                done
+            fi
+        done
     done
 } # _included_ssh_config_files()
 
