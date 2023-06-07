@@ -1126,7 +1126,7 @@ symlinks: $(DATA)
 	$(ss) sbcl \
 		sbcl-mt
 	$(ss) sha256sum \
-		md5sum shasum sha1sum sha224sum sha384sum sha512sum
+		b2sum md5sum shasum sha1sum sha224sum sha384sum sha512sum
 	$(ss) ssh \
 		autossh scp sftp sidedoor slogin
 	$(ss) sudo \
