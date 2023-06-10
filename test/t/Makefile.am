@@ -40,6 +40,7 @@ EXTRA_DIST = \
 	test_avahi_browse.py \
 	test_avctrl.py \
 	test_awk.py \
+	test_b2sum.py \
 	test_badblocks.py \
 	test_base64.py \
 	test_bash.py \
