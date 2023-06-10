@@ -2,7 +2,7 @@ import pytest
 
 
 class TestSha256sum:
-    @pytest.mark.complete("sha256sum -", require_cmd=True)
+    @pytest.mark.complete("sha256sum --", require_longopt=True)
     def test_options(self, completion):
         assert completion
 
