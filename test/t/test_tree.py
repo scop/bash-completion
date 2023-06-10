@@ -10,7 +10,11 @@ class TestTree:
     def test_fromfile(self, completion):
         assert completion == ["bar", "bar bar.d/", "foo", "foo.d/"]
 
-    @pytest.mark.complete("tree -", require_cmd=True)
+    @pytest.mark.complete(
+        "tree -",
+        require_cmd=True,
+        xfail="! tree --help 2>&1 | command grep -qF -- ' -'",
+    )
     def test_options(self, completion):
         assert completion
 
