@@ -15,9 +15,9 @@ class TestDeclare:
         # bash 5.0 has BASH_ARGV0 too
         assert all(x in completion for x in "BASH_ARGC BASH_ARGV".split())
 
-    @pytest.mark.complete("declare -f _parse_")
+    @pytest.mark.complete("declare -f _comp_comp")
     def test_4(self, completion):
-        assert "_parse_help" in completion
+        assert "_comp_compgen" in completion
 
     @pytest.mark.complete("declare -a BASH_VERS")
     def test_arrayvar(self, completion):
