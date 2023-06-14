@@ -511,6 +511,15 @@ CLEANFILES = \
 	alpine \
 	alternatives \
 	animate \
+	_ansible \
+	_ansible-config \
+	_ansible-console \
+	_ansible-doc \
+	_ansible-galaxy \
+	_ansible-inventory \
+	_ansible-playbook \
+	_ansible-pull \
+	_ansible-vault \
 	apropos \
 	aptitude-curses \
 	_arduino-cli \
@@ -1069,6 +1078,16 @@ symlinks: $(DATA)
 		gmplayer kplayer mencoder mplayer2
 	$(ss) mutt \
 		muttng neomutt
+	$(ss) _nox \
+		_ansible \
+		_ansible-config \
+		_ansible-console \
+		_ansible-doc \
+		_ansible-galaxy \
+		_ansible-inventory \
+		_ansible-playbook \
+		_ansible-pull \
+		_ansible-vault
 	$(ss) nslookup \
 		host
 	$(ss) p4 \
