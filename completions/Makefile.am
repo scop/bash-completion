@@ -507,6 +507,7 @@ CLEANFILES = \
 	aclocal-1.14 \
 	aclocal-1.15 \
 	aclocal-1.16 \
+	_airflow \
 	_allero \
 	alpine \
 	alternatives \
@@ -1080,6 +1081,7 @@ symlinks: $(DATA)
 	$(ss) mutt \
 		muttng neomutt
 	$(ss) _nox \
+		_airflow \
 		_ansible \
 		_ansible-config \
 		_ansible-console \
