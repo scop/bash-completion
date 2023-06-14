@@ -564,6 +564,7 @@ CLEANFILES = \
 	cowthink \
 	createdb \
 	createuser \
+	_cz \
 	_datree \
 	dcop \
 	_deno \
@@ -1087,7 +1088,8 @@ symlinks: $(DATA)
 		_ansible-inventory \
 		_ansible-playbook \
 		_ansible-pull \
-		_ansible-vault
+		_ansible-vault \
+		_cz
 	$(ss) nslookup \
 		host
 	$(ss) p4 \
