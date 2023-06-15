@@ -843,6 +843,7 @@ CLEANFILES = \
 	sparc-koji \
 	spovray \
 	_sshi \
+	_ssh-inscribe \
 	star \
 	_starship \
 	stream \
@@ -1009,6 +1010,7 @@ symlinks: $(DATA)
 		_rclone \
 		_skaffold \
 		_sshi \
+		_ssh-inscribe \
 		_tanzu \
 		_tanzu-core \
 		_trivy \
