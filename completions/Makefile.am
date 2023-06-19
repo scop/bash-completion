@@ -507,10 +507,20 @@ CLEANFILES = \
 	aclocal-1.14 \
 	aclocal-1.15 \
 	aclocal-1.16 \
+	_airflow \
 	_allero \
 	alpine \
 	alternatives \
 	animate \
+	_ansible \
+	_ansible-config \
+	_ansible-console \
+	_ansible-doc \
+	_ansible-galaxy \
+	_ansible-inventory \
+	_ansible-playbook \
+	_ansible-pull \
+	_ansible-vault \
 	apropos \
 	aptitude-curses \
 	_arduino-cli \
@@ -555,6 +565,7 @@ CLEANFILES = \
 	cowthink \
 	createdb \
 	createuser \
+	_cz \
 	_datree \
 	dcop \
 	_deno \
@@ -832,6 +843,7 @@ CLEANFILES = \
 	sparc-koji \
 	spovray \
 	_sshi \
+	_ssh-inscribe \
 	star \
 	_starship \
 	stream \
@@ -998,6 +1010,7 @@ symlinks: $(DATA)
 		_rclone \
 		_skaffold \
 		_sshi \
+		_ssh-inscribe \
 		_tanzu \
 		_tanzu-core \
 		_trivy \
@@ -1069,6 +1082,18 @@ symlinks: $(DATA)
 		gmplayer kplayer mencoder mplayer2
 	$(ss) mutt \
 		muttng neomutt
+	$(ss) _nox \
+		_airflow \
+		_ansible \
+		_ansible-config \
+		_ansible-console \
+		_ansible-doc \
+		_ansible-galaxy \
+		_ansible-inventory \
+		_ansible-playbook \
+		_ansible-pull \
+		_ansible-vault \
+		_cz
 	$(ss) nslookup \
 		host
 	$(ss) p4 \
