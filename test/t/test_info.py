@@ -12,7 +12,7 @@ class TestInfo:
         assert completion
 
     @pytest.mark.complete(
-        "info nonexistent-nam",
+        "info nonexistent-na",
         env=dict(INFOPATH="'$(echo malicious code >/dev/tty)'"),
     )
     def test_infopath_code_injection(self, completion):
