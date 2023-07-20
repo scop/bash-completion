@@ -221,6 +221,7 @@ EXTRA_DIST = \
 	test_gssdp_device_sniffer.py \
 	test_gssdp_discover.py \
 	test_gzip.py \
+	test_hash.py \
 	test_hciattach.py \
 	test_hciconfig.py \
 	test_hcitool.py \
