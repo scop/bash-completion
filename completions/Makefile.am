@@ -157,6 +157,7 @@ bashcomp_DATA = 2to3 \
 		_gsctl \
 		gssdp-discover \
 		gzip \
+		hash \
 		hcitool \
 		hddtemp \
 		help \
