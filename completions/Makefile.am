@@ -210,6 +210,7 @@ bashcomp_DATA = 2to3 \
 		jsonschema \
 		k3b \
 		kcov \
+		_keyring \
 		kill \
 		killall \
 		kldload \
