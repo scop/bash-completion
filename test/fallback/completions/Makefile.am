@@ -14,6 +14,7 @@ EXTRA_DIST = \
 	hexdump \
 	hwclock \
 	ionice \
+	keyring \
 	look \
 	mdbook \
 	mock \
