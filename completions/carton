@@ -72,6 +72,23 @@ _comp_cmd_carton()
     fi
 
     case $command in
+        exec)
+            # skip all the options --, -v, etc. and identify the command name
+            # position.
+            for ((i++; i < cword; i++)); do
+                case ${words[i]} in
+                    --)
+                        ((i++))
+                        break
+                        ;;
+                    -*) ;;
+                    *) break ;;
+                esac
+            done
+
+            _comp_command_offset "$i"
+            return
+            ;;
         show | update)
             : # TODO modules completion
             ;;
