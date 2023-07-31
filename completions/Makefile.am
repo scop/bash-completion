@@ -821,6 +821,7 @@ CLEANFILES = \
 	rpm2txz \
 	rpmbuild \
 	rpmbuild-md5 \
+	_rtx \
 	s390-koji \
 	sbcl-mt \
 	scp \
@@ -1009,6 +1010,7 @@ symlinks: $(DATA)
 		_qrpc \
 		_random \
 		_rclone \
+		_rtx \
 		_skaffold \
 		_sshi \
 		_ssh-inscribe \
