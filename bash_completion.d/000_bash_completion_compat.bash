@@ -391,4 +391,10 @@ _allowed_groups()
     _comp_compgen -c "${1:-$cur}" allowed_groups
 }
 
+# @deprecated 2.12 Use `_comp_compgen -a fstypes`
+_fstypes()
+{
+    _comp_compgen -a fstypes
+}
+
 # ex: filetype=sh
