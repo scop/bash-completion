@@ -17,6 +17,7 @@ _comp_deprecate_func 2.12 _mac_addresses _comp_compgen_mac_addresses
 _comp_deprecate_func 2.12 _available_interfaces _comp_compgen_available_interfaces
 _comp_deprecate_func 2.12 _configured_interfaces _comp_compgen_configured_interfaces
 _comp_deprecate_func 2.12 _ip_addresses _comp_compgen_ip_addresses
+_comp_deprecate_func 2.12 _kernel_versions _comp_compgen_kernel_versions
 
 # Backwards compatibility for compat completions that use have().
 # @deprecated 1.90 should no longer be used; generally not needed with
