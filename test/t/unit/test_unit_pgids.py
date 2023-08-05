@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 from conftest import assert_bash_exec, bash_env_saved
@@ -18,7 +20,7 @@ class TestUnitPgids:
         )
 
     def test_ints(self, bash):
-        """Test that we get something, and only ints."""
+        """Test that we get something sensible, and only int'y strings."""
         with bash_env_saved(bash) as bash_env:
             bash_env.write_variable("cur", "")
             completion = assert_bash_exec(
@@ -27,4 +29,6 @@ class TestUnitPgids:
                 want_output=True,
             ).split()
         assert completion
+        if hasattr(os, "getpgid"):
+            assert str(os.getpgid(0)) in completion
         assert all(x.isdigit() for x in completion)
