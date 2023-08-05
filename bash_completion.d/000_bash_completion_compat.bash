@@ -349,6 +349,12 @@ _ncpus()
     printf %s "$ret"
 }
 
+# @deprecated 2.12 Use `_comp_compgen -a cd_devices`
+_cd_devices()
+{
+    _comp_compgen -a cd_devices
+}
+
 # @deprecated 2.12 Use `_comp_compgen -a dvd_devices`
 _dvd_devices()
 {
