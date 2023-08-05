@@ -2018,21 +2018,20 @@ _usergroup()
         # slash. It's better to complete into 'chown username ' than 'chown
         # username\:'.
         if [[ ${1-} == -u ]]; then
-            _allowed_users "$cur"
+            _comp_compgen_allowed_users
         else
             _comp_compgen -- -u
         fi
     fi
 }
 
-# TODO:API: rename per conventions
-_allowed_users()
+# @since 2.12
+_comp_compgen_allowed_users()
 {
     if _complete_as_root; then
-        _comp_compgen -c "${1:-$cur}" -- -u
+        _comp_compgen -- -u
     else
-        _comp_compgen -c "${1:-$cur}" split -- "$(id -un 2>/dev/null ||
-            whoami 2>/dev/null)"
+        _comp_compgen split -- "$(id -un 2>/dev/null || whoami 2>/dev/null)"
     fi
 }
 

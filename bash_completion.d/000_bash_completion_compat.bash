@@ -378,4 +378,10 @@ _usb_ids()
     _comp_compgen -a usb_ids
 }
 
+# @deprecated 2.12 Use `_comp_compgen -c "${prefix:-$cur}" allowed_users`
+_allowed_users()
+{
+    _comp_compgen -c "${1:-$cur}" allowed_users
+}
+
 # ex: filetype=sh
