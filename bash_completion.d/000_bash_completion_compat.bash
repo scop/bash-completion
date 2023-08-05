@@ -20,6 +20,7 @@ _comp_deprecate_func 2.12 _ip_addresses _comp_compgen_ip_addresses
 _comp_deprecate_func 2.12 _kernel_versions _comp_compgen_kernel_versions
 _comp_deprecate_func 2.12 _uids _comp_compgen_uids
 _comp_deprecate_func 2.12 _gids _comp_compgen_gids
+_comp_deprecate_func 2.12 _xinetd_services _comp_compgen_xinetd_services
 
 # Backwards compatibility for compat completions that use have().
 # @deprecated 1.90 should no longer be used; generally not needed with
