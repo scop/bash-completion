@@ -361,6 +361,12 @@ _dvd_devices()
     _comp_compgen -a dvd_devices
 }
 
+# @deprecated 2.12 Use `_comp_compgen -a pci_ids`
+_pci_ids()
+{
+    _comp_compgen -a pci_ids
+}
+
 # @deprecated 2.12 Use `_comp_compgen -a usb_ids`
 _usb_ids()
 {
