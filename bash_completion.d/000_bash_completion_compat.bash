@@ -384,4 +384,10 @@ _allowed_users()
     _comp_compgen -c "${1:-$cur}" allowed_users
 }
 
+# @deprecated 2.12 Use `_comp_compgen -c "${prefix:-$cur}" allowed_groups`
+_allowed_groups()
+{
+    _comp_compgen -c "${1:-$cur}" allowed_groups
+}
+
 # ex: filetype=sh
