@@ -45,3 +45,42 @@ class TestPython:
     )
     def test_bb(self, completion):
         assert "-bb" in completion
+
+    @pytest.mark.complete("python foo ", cwd="python")
+    def test_script_arg(self, completion):
+        assert "bar.txt" in completion
+
+    @pytest.mark.complete("python -- foo ", cwd="python")
+    def test_script_arg_with_double_hyphen(self, completion):
+        assert "bar.txt" in completion
+
+    @pytest.mark.complete("python -m foo bar -p ", cwd="python")
+    def test_module_arg(self, completion):
+        assert "bar.txt" in completion
+
+    @pytest.mark.complete("python foo bar -p ", cwd="python")
+    def test_script_arg_after_option(self, completion):
+        assert "bar.txt" in completion
+
+    @pytest.mark.complete("python -- foo bar -p ", cwd="python")
+    def test_script_arg_after_option_with_double_hyphen(self, completion):
+        assert "bar.txt" in completion
+
+    @pytest.mark.complete("python -m foo bar -p ", cwd="python")
+    def test_module_arg_after_option(self, completion):
+        assert "bar.txt" in completion
+
+    @pytest.mark.complete("python -mfoo bar -p ", cwd="python")
+    def test_module_arg_after_option_with_connected_m_arg(self, completion):
+        assert "bar.txt" in completion
+
+    @pytest.mark.complete("python -- ", cwd="python")
+    def test_script_name(self, completion):
+        assert "bar.txt" not in completion
+
+    @pytest.mark.complete("python -W -mfoo ", cwd="python")
+    def test_script_name_with_fake_m_arg(self, completion):
+        """In this case, -mfoo looks like an option to specify the module, but
+        it should not be treated as the module name because it is an option
+        argument to -W."""
+        assert "bar.txt" not in completion
