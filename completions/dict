@@ -3,8 +3,7 @@
 # TODO:API: rename per conventions, rework to use vars rather than outputting
 _dictdata()
 {
-    # shellcheck disable=SC2086
-    dict $host $port $1 2>/dev/null | command sed -ne \
+    dict "$@" 2>/dev/null | command sed -ne \
         's/^[[:blank:]]\{1,\}\([^[:blank:]]*\).*$/\1/p'
 }
 
@@ -13,6 +12,7 @@ _comp_cmd_dict()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
+    local -a dict_options=()
     local host="" port="" db i
 
     local noargopts='!(-*|*[hpdis]*)'
@@ -21,15 +21,15 @@ _comp_cmd_dict()
         case ${words[i]} in
             --host | -${noargopts}h)
                 host=${words[++i]}
-                [[ $host ]] && host="-h $host"
+                [[ $host ]] && dict_options+=(-h "$host")
                 ;;
             --port | -${noargopts}p)
                 port=${words[++i]}
-                [[ $port ]] && port="-p $port"
+                [[ $port ]] && dict_options+=(-p "$port")
                 ;;
             --database | -${noargopts}d)
                 db=${words[++i]}
-                [[ $db ]] && host="-d $db"
+                [[ $db ]] && dict_options+=(-d "$db")
                 ;;
         esac
     done
@@ -42,11 +42,11 @@ _comp_cmd_dict()
     # shellcheck disable=SC2254
     case $prev in
         --database | -info | -${noargopts}[di])
-            _comp_compgen_split -- "$(_dictdata -D)"
+            _comp_compgen_split -- "$(_dictdata "${dict_options[@]}" -D)"
             return
             ;;
         --strategy | -${noargopts}s)
-            _comp_compgen_split -- "$(_dictdata -S)"
+            _comp_compgen_split -- "$(_dictdata "${dict_options[@]}" -S)"
             return
             ;;
     esac
