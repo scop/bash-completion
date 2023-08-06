@@ -1,8 +1,7 @@
 # bts completion                                      -*- shell-script -*-
 
 # Generate bug numbers from bugs cache in ~/.devscripts_cache/bts
-# TODO:API: generator
-_comp_cmd_bts__cached_bugs()
+_comp_cmd_bts__compgen_cached_bugs()
 {
     [[ -d $HOME/.devscripts_cache/bts ]] || return 1
     local bugs=$(
@@ -14,8 +13,7 @@ _comp_cmd_bts__cached_bugs()
 }
 
 # Generate APT source packages prefixed with "src:"
-# TODO:API: generator
-_comp_cmd_bts__src_packages_with_prefix()
+_comp_cmd_bts__compgen_src_packages_with_prefix()
 {
     local ppn=${cur:4} # partial package name, after stripping "src:"
     _comp_compgen -ac "$ppn" split -P "src:" -- \
@@ -30,8 +28,8 @@ _comp_cmd_bts()
     case $prev in
         show | bugs)
             _comp_compgen -- -W 'release-critical RC from: tag: usertag:'
-            _comp_cmd_bts__cached_bugs
-            _comp_cmd_bts__src_packages_with_prefix
+            _comp_cmd_bts__compgen_cached_bugs
+            _comp_cmd_bts__compgen_src_packages_with_prefix
             return
             ;;
         select)
@@ -42,7 +40,7 @@ _comp_cmd_bts()
             ;;
         status)
             _comp_compgen -- -W 'file: fields: verbose'
-            _comp_cmd_bts__cached_bugs
+            _comp_cmd_bts__compgen_cached_bugs
             return
             ;;
         block | unblock)
@@ -60,8 +58,7 @@ _comp_cmd_bts()
             return
             ;;
         clone | "done" | reopen | archive | unarchive | retitle | summary | submitter | found | notfound | fixed | notfixed | merge | forcemerge | unmerge | claim | unclaim | forwarded | notforwarded | owner | noowner | subscribe | unsubscribe | reportspam | spamreport | affects | usertag | usertags | reassign | tag | tags)
-            COMPREPLY=()
-            _comp_cmd_bts__cached_bugs
+            _comp_cmd_bts__compgen_cached_bugs
             return
             ;;
         package)
@@ -70,19 +67,18 @@ _comp_cmd_bts()
             ;;
         cache)
             COMPREPLY=($(_comp_xfunc apt-cache packages))
-            _comp_cmd_bts__src_packages_with_prefix
+            _comp_cmd_bts__compgen_src_packages_with_prefix
             _comp_compgen -a -- -W 'from: release-critical RC'
             return
             ;;
         cleancache)
             COMPREPLY=($(_comp_xfunc apt-cache packages))
-            _comp_cmd_bts__src_packages_with_prefix
+            _comp_cmd_bts__compgen_src_packages_with_prefix
             _comp_compgen -a -- -W 'from: tag: usertag: ALL'
             return
             ;;
         user)
             # non-predicible arguments
-            COMPREPLY=()
             return
             ;;
         :)
