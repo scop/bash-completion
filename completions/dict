@@ -1,10 +1,12 @@
 # dict(1) completion                                       -*- shell-script -*-
 
-# TODO:API: rename per conventions, rework to use vars rather than outputting
-_dictdata()
+_comp_cmd_dict__compgen_dictdata()
 {
-    dict "$@" 2>/dev/null | command sed -ne \
-        's/^[[:blank:]]\{1,\}\([^[:blank:]]*\).*$/\1/p'
+    # shellcheck disable=SC2086
+    _comp_compgen_split -- "$(
+        "$@" 2>/dev/null | command sed -ne \
+            's/^[[:blank:]]\{1,\}\([^[:blank:]]*\).*$/\1/p'
+    )"
 }
 
 _comp_cmd_dict()
@@ -42,11 +44,11 @@ _comp_cmd_dict()
     # shellcheck disable=SC2254
     case $prev in
         --database | -info | -${noargopts}[di])
-            _comp_compgen_split -- "$(_dictdata ${dict_options[@]+"${dict_options[@]}"} -D)"
+            _comp_cmd_dict__compgen_dictdata "$1" ${dict_options[@]+"${dict_options[@]}"} -D
             return
             ;;
         --strategy | -${noargopts}s)
-            _comp_compgen_split -- "$(_dictdata ${dict_options[@]+"${dict_options[@]}"} -S)"
+            _comp_cmd_dict__compgen_dictdata "$1" ${dict_options[@]+"${dict_options[@]}"} -S
             return
             ;;
     esac
