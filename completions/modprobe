@@ -20,7 +20,7 @@ _comp_cmd_modprobe()
             return
             ;;
         --set-version | -${noargopts}S)
-            _kernel_versions
+            _comp_compgen_kernel_versions
             return
             ;;
     esac
@@ -72,7 +72,7 @@ _comp_cmd_modprobe()
 
     case $mode in
         remove)
-            _installed_modules "$cur"
+            _comp_compgen_inserted_kernel_modules
             ;;
         list)
             # no completion available
@@ -102,11 +102,11 @@ _comp_cmd_modprobe()
                     [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
                 fi
             else
-                _modules "$version"
+                _comp_compgen_kernel_modules "$version"
                 if [[ ${COMPREPLY-} ]]; then
                     # filter out already installed modules
                     local -a mods=("${COMPREPLY[@]}")
-                    _installed_modules "$cur"
+                    _comp_compgen_inserted_kernel_modules
                     for i in "${!mods[@]}"; do
                         for module in "${COMPREPLY[@]}"; do
                             if [[ ${mods[i]} == "$module" ]]; then

@@ -17,6 +17,18 @@ _comp_deprecate_func 2.12 _mac_addresses _comp_compgen_mac_addresses
 _comp_deprecate_func 2.12 _available_interfaces _comp_compgen_available_interfaces
 _comp_deprecate_func 2.12 _configured_interfaces _comp_compgen_configured_interfaces
 _comp_deprecate_func 2.12 _ip_addresses _comp_compgen_ip_addresses
+_comp_deprecate_func 2.12 _kernel_versions _comp_compgen_kernel_versions
+_comp_deprecate_func 2.12 _uids _comp_compgen_uids
+_comp_deprecate_func 2.12 _gids _comp_compgen_gids
+_comp_deprecate_func 2.12 _xinetd_services _comp_compgen_xinetd_services
+_comp_deprecate_func 2.12 _terms _comp_compgen_terms
+_comp_deprecate_func 2.12 _pids _comp_compgen_pids
+_comp_deprecate_func 2.12 _pgids _comp_compgen_pgids
+_comp_deprecate_func 2.12 _pnames _comp_compgen_pnames
+_comp_deprecate_func 2.12 _modules _comp_compgen_kernel_modules
+_comp_deprecate_func 2.12 _installed_modules _comp_compgen_inserted_kernel_modules
+_comp_deprecate_func 2.12 _usergroup _comp_compgen_usergroup
+_comp_deprecate_func 2.12 _complete_as_root _comp_as_root
 
 # Backwards compatibility for compat completions that use have().
 # @deprecated 1.90 should no longer be used; generally not needed with
@@ -342,6 +354,48 @@ _ncpus()
     local ret
     _comp_get_ncpus
     printf %s "$ret"
+}
+
+# @deprecated 2.12 Use `_comp_compgen -a cd_devices`
+_cd_devices()
+{
+    _comp_compgen -a cd_devices
+}
+
+# @deprecated 2.12 Use `_comp_compgen -a dvd_devices`
+_dvd_devices()
+{
+    _comp_compgen -a dvd_devices
+}
+
+# @deprecated 2.12 Use `_comp_compgen -a pci_ids`
+_pci_ids()
+{
+    _comp_compgen -a pci_ids
+}
+
+# @deprecated 2.12 Use `_comp_compgen -a usb_ids`
+_usb_ids()
+{
+    _comp_compgen -a usb_ids
+}
+
+# @deprecated 2.12 Use `_comp_compgen -c "${prefix:-$cur}" allowed_users`
+_allowed_users()
+{
+    _comp_compgen -c "${1:-$cur}" allowed_users
+}
+
+# @deprecated 2.12 Use `_comp_compgen -c "${prefix:-$cur}" allowed_groups`
+_allowed_groups()
+{
+    _comp_compgen -c "${1:-$cur}" allowed_groups
+}
+
+# @deprecated 2.12 Use `_comp_compgen -a fstypes`
+_fstypes()
+{
+    _comp_compgen -a fstypes
 }
 
 # ex: filetype=sh
