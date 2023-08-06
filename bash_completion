@@ -2017,16 +2017,19 @@ _comp_compgen_usergroup()
         # Completing group after 'user\:gr<TAB>'.
         # Reply with a list of groups prefixed with 'user:', readline will
         # escape to the colon.
-        local _prefix
-        _prefix=${cur%%*([^:])}
-        _prefix=${_prefix//\\/}
+        local tmp
         if [[ ${1-} == -u ]]; then
-            _comp_compgen -c "${cur#*:}" allowed_groups
+            _comp_compgen -v tmp -c "${cur#*:}" allowed_groups
         else
-            _comp_compgen -c "${cur#*:}" -- -g
+            _comp_compgen -v tmp -c "${cur#*:}" -- -g
         fi
-        ((${#COMPREPLY[@]})) &&
-            COMPREPLY=("${COMPREPLY[@]/#/$_prefix}")
+        if ((${#tmp[@]})); then
+            local _prefix=${cur%%*([^:])}
+            _prefix=${_prefix//\\/}
+            local -a _tmp=("${tmp[@]/#/$_prefix}")
+            _comp_unlocal tmp
+            _comp_compgen_set "${_tmp[@]}"
+        fi
     elif [[ $cur == *:* ]]; then
         # Completing group after 'user:gr<TAB>'.
         # Reply with a list of unprefixed groups since readline with split on :
