@@ -26,7 +26,7 @@ _comp_deprecate_func 2.12 _pgids _comp_compgen_pgids
 _comp_deprecate_func 2.12 _pnames _comp_compgen_pnames
 _comp_deprecate_func 2.12 _modules _comp_compgen_kernel_modules
 _comp_deprecate_func 2.12 _installed_modules _comp_compgen_inserted_kernel_modules
-_comp_deprecate_func 2.12 _usergroup _comp_compgen_usergroup
+_comp_deprecate_func 2.12 _usergroup _comp_compgen_usergroups
 _comp_deprecate_func 2.12 _complete_as_root _comp_as_root
 
 # Backwards compatibility for compat completions that use have().
