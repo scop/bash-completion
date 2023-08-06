@@ -1,34 +1,37 @@
 # bash completion for python                               -*- shell-script -*-
 
 # @since 2.12
-_comp_xfunc_python_modules()
+_comp_xfunc_python_compgen_modules()
 {
     local python=python
     [[ ${comp_args[0]##*/} == *3* ]] && python=python3
-    _comp_cmd_python__modules "$python"
+    _comp_cmd_python__compgen_modules "$python"
 }
 
-# @deprecated 2.12 use `_comp_xfunc_python_modules` instead
+# @deprecated 2.12 use `_comp_xfunc_python_compgen_modules` instead
 _python_modules()
 {
-    _comp_cmd_python__modules "${1:-python}"
+    _comp_compgen -a -i python modules "${1:-python}"
 }
 
-_comp_cmd_python__modules()
+_comp_cmd_python__compgen_modules()
 {
-    _comp_compgen -a split -- "$("$1" \
+    _comp_compgen_split -- "$("$1" \
         "${BASH_SOURCE[0]%/*}/../helpers/python" "$cur" 2>/dev/null)"
 }
 
 # @since 2.12
-_comp_xfunc_python_warning_actions()
+_comp_xfunc_python_compgen_warning_actions()
 {
-    _comp_compgen -a -- -W "ignore default all module once error" \
+    _comp_compgen -- -W "ignore default all module once error" \
         ${prefix:+-P "$prefix"}
 }
 
-_comp_deprecate_func 2.12 _python_warning_actions \
-    _comp_xfunc_python_warning_actions
+# @deprecated 2.12 use `_comp_xfunc_python_compgen_warning_actions` instead
+_python_warning_actions()
+{
+    _comp_compgen -a -i python warning_actions "${1:-python}"
+}
 
 _comp_cmd_python()
 {
@@ -82,7 +85,7 @@ _comp_cmd_python()
             return
             ;;
         -${noargopts}m)
-            _comp_cmd_python__modules "$1"
+            _comp_cmd_python__compgen_modules "$1"
             return
             ;;
         -${noargopts}Q)
@@ -90,7 +93,7 @@ _comp_cmd_python()
             return
             ;;
         -${noargopts}W)
-            _comp_xfunc_python_warning_actions
+            _comp_xfunc_python_compgen_warning_actions
             return
             ;;
         -${noargopts}X)
