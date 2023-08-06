@@ -13,3 +13,9 @@ class TestDict:
         # by "-o default" when "_comp_cmd_dict" fails to generate any
         # completions.
         assert completion and "__load_completion/" not in completion
+
+    @pytest.mark.complete(
+        "dict -h dict.org --database ", require_cmd=True, env=dict(IFS="")
+    )
+    def test_database_IFS(self, completion):
+        assert completion and "__load_completion/" not in completion
