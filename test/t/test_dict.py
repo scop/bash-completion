@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 
@@ -6,6 +8,10 @@ class TestDict:
     def test_1(self, completion):
         assert completion
 
+    @pytest.mark.xfail(
+        os.environ.get("NETWORK") == "none",
+        reason="The database list is unavailable without network",
+    )
     @pytest.mark.complete("dict --database ", require_cmd=True)
     def test_database(self, completion):
         # Ensure the directory name "__load_completion/" not generated because
@@ -14,6 +20,10 @@ class TestDict:
         # completions.
         assert completion and "__load_completion/" not in completion
 
+    @pytest.mark.xfail(
+        os.environ.get("NETWORK") == "none",
+        reason="The database list is unavailable without network",
+    )
     @pytest.mark.complete(
         "dict -h dict.org --database ", require_cmd=True, env=dict(IFS="")
     )
