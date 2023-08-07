@@ -44,6 +44,38 @@ _comp_cmd_python()
     esac
 
     local noargopts='!(-*|*[cmQWX]*)'
+
+    # if command, module, or script is already given by [-c command | -m module
+    # | script], complete all kind of files.
+    local i has_command=""
+    for ((i = 1; i < cword; i++)); do
+        # shellcheck disable=SC2254
+        case ${words[i]} in
+            -${noargopts}[QWX])
+                ((i++))
+                ;;
+            -${noargopts}[cm]?*)
+                has_command=set
+                break
+                ;;
+            -- | -${noargopts}[cm])
+                if ((i + 1 < cword)); then
+                    has_command=set
+                    break
+                fi
+                ;;
+            -*) ;;
+            *)
+                has_command=set
+                break
+                ;;
+        esac
+    done
+    if [[ $has_command ]]; then
+        _comp_compgen_filedir
+        return
+    fi
+
     # shellcheck disable=SC2254
     case $prev in
         --help | --version | -${noargopts}[?hVc])
@@ -74,19 +106,10 @@ _comp_cmd_python()
             _comp_compgen -- -W "help off"
             return
             ;;
-        !(?(*/)?(micro)python*([0-9.])|?(*/)py@(py|ston)*([0-9.])|-?))
-            if [[ $cword -lt 2 || ${words[cword - 2]} != -[QWX] ]]; then
-                _comp_compgen_filedir
-                return
-            fi
-            ;;
     esac
 
-    # if -c or -m is already given, complete all kind of files.
-    if [[ ${words[*]::cword} == *\ -[cm]\ * ]]; then
-        _comp_compgen -a filedir
-    elif [[ $cur != -* ]]; then
-        _comp_compgen -a filedir '@(py?([cowz])|zip)'
+    if [[ $prev == -- || $cur != -* ]]; then
+        _comp_compgen_filedir '@(py?([cowz])|zip)'
     else
         _comp_compgen_help - <<<"$("$1" -h |
             awk '{ sub("\\(-bb:","\n-bb "); print }')"
