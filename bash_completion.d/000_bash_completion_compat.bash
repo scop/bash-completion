@@ -398,4 +398,21 @@ _fstypes()
     _comp_compgen -a fstypes
 }
 
+# This function returns the first argument, excluding options
+# @deprecated 2.12 Use `_comp_get_first_arg`.  Note that the new function
+# `_comp_get_first_arg` operates on `words` and `cword` instead of `COMP_WORDS`
+# and `COMP_CWORD`.
+_get_first_arg()
+{
+    local i
+
+    arg=
+    for ((i = 1; i < COMP_CWORD; i++)); do
+        if [[ ${COMP_WORDS[i]} != -* ]]; then
+            arg=${COMP_WORDS[i]}
+            break
+        fi
+    done
+}
+
 # ex: filetype=sh
