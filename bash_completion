@@ -2212,23 +2212,43 @@ _comp_get_first_arg()
 }
 
 # This function counts the number of args, excluding options
-# @param $1 chars  Characters out of $COMP_WORDBREAKS which should
-#     NOT be considered word breaks. See _comp__reassemble_words.
-# @param $2 glob   Options whose following argument should not be counted
-# @param $3 glob   Options that should be counted as args
+#
+# Options:
+#     -n CHARS  Characters out of $COMP_WORDBREAKS which should
+#               NOT be considered word breaks. See
+#               _comp__reassemble_words.
+#     -a GLOB   Options whose following argument should not be counted
+#     -i GLOB   Options that should be counted as args
+#
 # @var[out] ret    Return the number of arguments
 # @since 2.12
 _comp_count_args()
 {
-    local i cword words
-    _comp__reassemble_words "${1-}<>&" words cword
+    local has_optarg="" has_exclude="" exclude="" glob_include=""
+    local OPTIND=1 OPTARG="" OPTERR=0 _opt
+    while getopts ':a:n:i:' _opt "$@"; do
+        case $_opt in
+            a) has_optarg=$OPTARG ;;
+            n) has_exclude=set exclude+=$OPTARG ;;
+            i) glob_include=$OPTARG ;;
+            *)
+                echo "bash_completion: $FUNCNAME: usage error" >&2
+                return 2
+                ;;
+        esac
+    done
+    shift "$((OPTIND - 1))"
 
+    local cword words
+    _comp__reassemble_words "$exclude<>&" words cword
+
+    local i
     ret=1
     for ((i = 1; i < cword; i++)); do
         # shellcheck disable=SC2053
-        if [[ ${2-} && ${words[i]} == ${2-} ]]; then
+        if [[ $has_optarg && ${words[i]} == $has_optarg ]]; then
             ((i++))
-        elif [[ ${words[i]} != -?* || ${3-} && ${words[i]} == ${3-} ]]; then
+        elif [[ ${words[i]} != -?* || $glob_include && ${words[i]} == $glob_include ]]; then
             ((ret++))
         elif [[ ${words[i]} == -- ]]; then
             ((ret += cword - i - 1))
