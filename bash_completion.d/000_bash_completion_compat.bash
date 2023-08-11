@@ -402,7 +402,8 @@ _fstypes()
 # @deprecated 2.12 Use `_comp_get_first_arg`.  Note that the new function
 # `_comp_get_first_arg` operates on `words` and `cword` instead of `COMP_WORDS`
 # and `COMP_CWORD`.  The new function considers a command-line argument after
-# `--` as an argument.
+# `--` as an argument.  The new function returns the result in variable `ret`
+# instead of `arg`.
 _get_first_arg()
 {
     local i
