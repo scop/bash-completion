@@ -8,7 +8,7 @@ from conftest import TestUnitBase, assert_bash_exec
 )
 class TestUnitCountArgs(TestUnitBase):
     def _test(self, *args, **kwargs):
-        return self._test_unit("_count_args %s; echo $args", *args, **kwargs)
+        return self._test_unit('_count_args %s; echo "$args"', *args, **kwargs)
 
     def test_1(self, bash):
         assert_bash_exec(bash, "COMP_CWORD= _count_args >/dev/null")
