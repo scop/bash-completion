@@ -2157,17 +2157,36 @@ _comp_realcommand()
 }
 
 # This function returns the first argument, excluding options
+#
+# Options:
+#     -a GLOB  Pattern of options that take an option argument
+#
 # @var[out] ret First argument before current being completed if any, or
 # otherwise an empty string
 # @return True (0) if any argument is found, False (> 0) otherwise.
 # @since 2.12
 _comp_get_first_arg()
 {
-    local i
+    local has_optarg=""
+    local OPTIND=1 OPTARG="" OPTERR=0 _opt
+    while getopts ':a:' _opt "$@"; do
+        case $_opt in
+            a) has_optarg=$OPTARG ;;
+            *)
+                echo "bash_completion: $FUNCNAME: usage error" >&2
+                return 2
+                ;;
+        esac
+    done
+    shift "$((OPTIND - 1))"
 
+    local i
     ret=
     for ((i = 1; i < cword; i++)); do
-        if [[ ${words[i]} != -?* ]]; then
+        # shellcheck disable=SC2053
+        if [[ $has_optarg && ${words[i]} == $has_optarg ]]; then
+            ((i++))
+        elif [[ ${words[i]} != -?* ]]; then
             ret=${words[i]}
             return 0
         elif [[ ${words[i]} == -- ]]; then

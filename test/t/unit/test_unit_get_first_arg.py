@@ -69,3 +69,57 @@ class TestUnitGetFirstArg:
             bash, '_comp__test_unit "(a b -- -c -d e)" 5', want_output=None
         ).strip()
         assert output == "b"
+
+    def test_9_skip_optarg_1(self, bash, functions):
+        output = assert_bash_exec(
+            bash,
+            '_comp__test_unit "(a -b -c d e f)" 5 -a "@(-c|--foo)"',
+            want_output=None,
+        ).strip()
+        assert output == "e"
+
+    def test_9_skip_optarg_2(self, bash, functions):
+        output = assert_bash_exec(
+            bash,
+            '_comp__test_unit "(a -b --foo d e f)" 5 -a "@(-c|--foo)"',
+            want_output=None,
+        ).strip()
+        assert output == "e"
+
+    def test_9_skip_optarg_3(self, bash):
+        output = assert_bash_exec(
+            bash,
+            '_comp__test_unit "(a -b - c d e)" 5 -a "-b"',
+            want_output=None,
+        ).strip()
+        assert output == "c"
+
+    def test_9_skip_optarg_4(self, bash):
+        output = assert_bash_exec(
+            bash,
+            '_comp__test_unit "(a -b -c d e f)" 5 -a "-[bc]"',
+            want_output=None,
+        ).strip()
+        assert output == "d"
+
+    def test_9_skip_optarg_5(self, bash):
+        output = assert_bash_exec(
+            bash, '_comp__test_unit "(a +o b c d)" 4 -a "+o"', want_output=None
+        ).strip()
+        assert output == "c"
+
+    def test_9_skip_optarg_6(self, bash):
+        output = assert_bash_exec(
+            bash,
+            '_comp__test_unit "(a -o -o -o -o b c)" 6 -a "-o"',
+            want_output=None,
+        ).strip()
+        assert output == "b"
+
+    def test_9_skip_optarg_7(self, bash):
+        output = assert_bash_exec(
+            bash,
+            '_comp__test_unit "(a -o -- -b -c d e)" 6 -a "-o"',
+            want_output=None,
+        ).strip()
+        assert output == "d"
