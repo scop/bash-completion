@@ -31,6 +31,9 @@ _comp_deprecate_func 2.12 _usergroup _comp_compgen_usergroup
 _comp_deprecate_func 2.12 _complete_as_root _comp_as_root
 _comp_deprecate_func 2.12 __load_completion _comp_load
 
+# @deprecated 2.12 Use `_comp_xspecs`
+declare -Ag _xspecs
+
 # Backwards compatibility for compat completions that use have().
 # @deprecated 1.90 should no longer be used; generally not needed with
 #   dynamically loaded completions, and _comp_have_command is suitable for

@@ -2837,7 +2837,8 @@ complete -F _comp_longopt \
     sed seq shar sort split strip sum tac tail tee \
     texindex touch tr uname unexpand uniq units vdir wc who
 
-declare -Ag _xspecs
+# @since 2.12
+declare -Ag _comp_xspecs
 
 # TODO:API: rename per conventions
 _filedir_xspec()
@@ -2851,7 +2852,7 @@ _filedir_xspec()
     _comp_quote_compgen "$cur"
     local quoted=$ret
 
-    local xspec=${_xspecs[${1##*/}]}
+    local xspec=${_comp_xspecs[${1##*/}]-${_xspecs[${1##*/}]-}}
     local -a toks
     _comp_compgen -v toks -c "$quoted" -- -d
 
@@ -2884,7 +2885,7 @@ _comp__init_install_xspec()
     local xspec=$1 cmd
     shift
     for cmd in "$@"; do
-        _xspecs[$cmd]=$xspec
+        _comp_xspecs[$cmd]=$xspec
     done
 }
 # bzcmp, bzdiff, bz*grep, bzless, bzmore intentionally not here, see Debian: #455510
@@ -3067,7 +3068,7 @@ _comp_load()
     done
 
     # Look up simple "xspec" completions
-    [[ -v _xspecs[$cmdname] ]] &&
+    [[ -v _comp_xspecs[$cmdname] || -v _xspecs[$cmdname] ]] &&
         complete -F _filedir_xspec "$cmdname" "$backslash$cmdname" && return 0
 
     return 1
