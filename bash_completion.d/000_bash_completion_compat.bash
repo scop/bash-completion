@@ -29,7 +29,6 @@ _comp_deprecate_func 2.12 _modules _comp_compgen_kernel_modules
 _comp_deprecate_func 2.12 _installed_modules _comp_compgen_inserted_kernel_modules
 _comp_deprecate_func 2.12 _usergroup _comp_compgen_usergroup
 _comp_deprecate_func 2.12 _complete_as_root _comp_as_root
-_comp_deprecate_func 2.12 _count_args _comp_count_args
 
 # Backwards compatibility for compat completions that use have().
 # @deprecated 1.90 should no longer be used; generally not needed with
@@ -414,6 +413,22 @@ _get_first_arg()
             break
         fi
     done
+}
+
+# This function counts the number of args, excluding options
+# @param $1 chars  Characters out of $COMP_WORDBREAKS which should
+#     NOT be considered word breaks. See _comp__reassemble_words.
+# @param $2 glob   Options whose following argument should not be counted
+# @param $3 glob   Options that should be counted as args
+# @var[out] args   Return the number of arguments
+# @deprecated 2.12 Use `_comp_count_args`.  Note that the new function
+# `_comp_count_args` returns the result in variable `ret` instead of `args`.
+_count_args()
+{
+    local ret
+    _comp_count_args "$@"
+    # shellcheck disable=SC2178
+    args=$ret
 }
 
 # ex: filetype=sh

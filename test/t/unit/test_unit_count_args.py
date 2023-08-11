@@ -4,7 +4,7 @@ from conftest import TestUnitBase, assert_bash_exec
 
 
 @pytest.mark.bashcomp(
-    cmd=None, ignore_env=r"^[+-](args|COMP_(WORDS|CWORD|LINE|POINT))="
+    cmd=None, ignore_env=r"^[+-](ret|COMP_(WORDS|CWORD|LINE|POINT))="
 )
 class TestUnitCountArgs(TestUnitBase):
     def _test(self, *args, **kwargs):
