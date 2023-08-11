@@ -11,7 +11,7 @@ class TestUnitCountArgs(TestUnitBase):
         return self._test_unit('_count_args %s; echo "$args"', *args, **kwargs)
 
     def test_1(self, bash):
-        assert_bash_exec(bash, "COMP_CWORD= _count_args >/dev/null")
+        assert_bash_exec(bash, "COMP_CWORD= _count_args")
 
     def test_2(self, bash):
         """a b| should set args to 1"""
