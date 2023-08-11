@@ -2168,6 +2168,9 @@ _comp_get_first_arg()
         if [[ ${words[i]} != -?* ]]; then
             arg=${words[i]}
             break
+        elif [[ ${words[i]} == -- ]]; then
+            ((i + 1 < cword)) && arg=${words[i + 1]}
+            break
         fi
     done
 }
@@ -2190,6 +2193,9 @@ _comp_count_args()
         if [[ ${words[i]} != -?* && ${words[i - 1]} != ${2-} ||
             ${words[i]} == ${3-} ]]; then
             ((ret++))
+        elif [[ ${words[i]} == -- ]]; then
+            ((ret += cword - i - 1))
+            break
         fi
     done
 }

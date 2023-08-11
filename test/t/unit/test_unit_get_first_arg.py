@@ -55,3 +55,17 @@ class TestUnitGetFirstArg:
             bash, '_comp__test_unit "(a -b - c -d e)" 5', want_output=None
         ).strip()
         assert output == "-"
+
+    def test_8_double_hyphen_1(self, bash, functions):
+        """any word after -- should be picked"""
+        output = assert_bash_exec(
+            bash, '_comp__test_unit "(a -b -- -c -d e)" 5', want_output=None
+        ).strip()
+        assert output == "-c"
+
+    def test_8_double_hyphen_2(self, bash, functions):
+        """any word after -- should be picked only without any preceding argument"""
+        output = assert_bash_exec(
+            bash, '_comp__test_unit "(a b -- -c -d e)" 5', want_output=None
+        ).strip()
+        assert output == "b"

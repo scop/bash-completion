@@ -78,3 +78,15 @@ class TestUnitCountArgs(TestUnitBase):
             bash, "(a -b - c - e)", 5, "a -b - c - e", 11, arg='"" "-b"'
         )
         assert output == "3"
+
+    def test_11_double_hyphen_1(self, bash):
+        """all the words after -- should be counted"""
+        output = self._test(
+            bash, "(a -b -- -c -d e)", 5, "a -b -- -c -d e", 14
+        )
+        assert output == "3"
+
+    def test_11_double_hyphen_2(self, bash):
+        """all the words after -- should be counted"""
+        output = self._test(bash, "(a b -- -c -d e)", 5, "a b -- -c -d e", 13)
+        assert output == "4"

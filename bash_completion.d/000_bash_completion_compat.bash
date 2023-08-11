@@ -401,7 +401,8 @@ _fstypes()
 # This function returns the first argument, excluding options
 # @deprecated 2.12 Use `_comp_get_first_arg`.  Note that the new function
 # `_comp_get_first_arg` operates on `words` and `cword` instead of `COMP_WORDS`
-# and `COMP_CWORD`.
+# and `COMP_CWORD`.  The new function considers a command-line argument after
+# `--` as an argument.
 _get_first_arg()
 {
     local i
@@ -423,7 +424,8 @@ _get_first_arg()
 # @var[out] args   Return the number of arguments
 # @deprecated 2.12 Use `_comp_count_args`.  Note that the new function
 # `_comp_count_args` returns the result in variable `ret` instead of `args`.
-# In the new function, `-` is also counted as an argument.
+# In the new function, `-` is also counted as an argument.  The new function
+# counts all the arguments after `--`.
 # shellcheck disable=SC2178 # assignments are not intended for global "args"
 _count_args()
 {
