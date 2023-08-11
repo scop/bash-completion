@@ -2092,15 +2092,17 @@ _comp_compgen_selinux_users()
 }
 
 # This function completes on valid shells
-#
 # @param $1 chroot to search from
-# TODO:API: rename per conventions
-_shells()
+#
+# @since 2.12
+_comp_compgen_shells()
 {
-    local shell rest
-    while read -r shell rest; do
-        [[ $shell == /* && $shell == "$cur"* ]] && COMPREPLY+=("$shell")
+    local -a shells=()
+    local _shell _rest
+    while read -r _shell _rest; do
+        [[ $_shell == /* ]] && shells+=("$_shell")
     done 2>/dev/null <"${1-}"/etc/shells
+    _comp_compgen -U shells -- -W '"${shells[@]}"'
 }
 
 # This function completes on valid filesystem types

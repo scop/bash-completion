@@ -423,6 +423,12 @@ _allowed_groups()
     _comp_compgen -c "${1:-$cur}" allowed_groups
 }
 
+# @deprecated 2.12 Use `_comp_compgen -a shells`
+_shells()
+{
+    _comp_compgen -a shells
+}
+
 # @deprecated 2.12 Use `_comp_compgen -a fstypes`
 _fstypes()
 {
