@@ -423,12 +423,21 @@ _get_first_arg()
 # @var[out] args   Return the number of arguments
 # @deprecated 2.12 Use `_comp_count_args`.  Note that the new function
 # `_comp_count_args` returns the result in variable `ret` instead of `args`.
+# In the new function, `-` is also counted as an argument.
+# shellcheck disable=SC2178 # assignments are not intended for global "args"
 _count_args()
 {
-    local ret
-    _comp_count_args "$@"
-    # shellcheck disable=SC2178
-    args=$ret
+    local i cword words
+    _comp__reassemble_words "${1-}" words cword
+
+    args=1
+    for ((i = 1; i < cword; i++)); do
+        # shellcheck disable=SC2053
+        if [[ ${words[i]} != -* && ${words[i - 1]} != ${2-} ||
+            ${words[i]} == ${3-} ]]; then
+            ((args++))
+        fi
+    done
 }
 
 # ex: filetype=sh

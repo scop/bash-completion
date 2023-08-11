@@ -48,3 +48,10 @@ class TestUnitGetFirstArg:
             bash, '_comp__test_unit "(a -b -c d e)" 4', want_output=None
         ).strip()
         assert output == "d"
+
+    def test_7_single_hyphen(self, bash, functions):
+        """- should be counted as an argument representing stdout/stdin"""
+        output = assert_bash_exec(
+            bash, '_comp__test_unit "(a -b - c -d e)" 5', want_output=None
+        ).strip()
+        assert output == "-"

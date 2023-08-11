@@ -66,3 +66,15 @@ class TestUnitCountArgs(TestUnitBase):
             bash, "(a -b -c d e)", 4, "a -b -c d e", 11, arg='"" "" "-b"'
         )
         assert output == "3"
+
+    def test_10_single_hyphen_1(self, bash):
+        """- should be counted as an argument representing stdout/stdin"""
+        output = self._test(bash, "(a -b - c -d e)", 5, "a -b - c -d e", 12)
+        assert output == "3"
+
+    def test_10_single_hyphen_2(self, bash):
+        """- in an option argument should be skipped"""
+        output = self._test(
+            bash, "(a -b - c - e)", 5, "a -b - c - e", 11, arg='"" "-b"'
+        )
+        assert output == "3"
