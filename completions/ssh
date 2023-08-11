@@ -8,7 +8,7 @@ _comp_cmd_ssh__compgen_queries()
         key-plain key-sig protocol-version compression sig ciphers macs
         kexalgorithms pubkeyacceptedkeytypes hostkeyalgorithms
         hostbasedkeytypes hostbasedacceptedkeytypes)
-    _comp_compgen -c "${cur,,}" -- -W '"${ret[@]}" help"'
+    _comp_compgen -c "${cur,,}" -U ret -- -W '"${ret[@]}" help"'
 }
 
 # @since 2.12
@@ -37,7 +37,7 @@ _comp_cmd_ssh__compgen_ciphers()
     [[ ${ret-} ]] || ret=(3des-cbc aes128-cbc aes192-cbc aes256-cbc
         aes128-ctr aes192-ctr aes256-ctr arcfour128 arcfour256 arcfour
         blowfish-cbc cast128-cbc)
-    _comp_compgen -- -W '"${ret[@]}"'
+    _comp_compgen -U ret -- -W '"${ret[@]}"'
 }
 
 _comp_cmd_ssh__compgen_macs()
@@ -46,7 +46,7 @@ _comp_cmd_ssh__compgen_macs()
     _comp_compgen -v ret -i ssh query "$1" mac
     [[ ${ret-} ]] || ret=(hmac-md5 hmac-sha1 umac-64@openssh.com
         hmac-ripemd160 hmac-sha1-96 hmac-md5-96)
-    _comp_compgen -- -W '"${ret[@]}"'
+    _comp_compgen -U ret -- -W '"${ret[@]}"'
 }
 
 # @since 2.12
@@ -283,7 +283,7 @@ _comp_xfunc_ssh_compgen_identityfile()
     local cur=$cur tmp
     [[ ! $cur && -d ~/.ssh ]] && cur=~/.ssh/id
     _comp_compgen -v tmp -c "$cur" filedir &&
-        _comp_compgen -- -W '"${tmp[@]}"' -X "${1:+!}*.pub"
+        _comp_compgen -U tmp -- -W '"${tmp[@]}"' -X "${1:+!}*.pub"
 }
 
 _comp_deprecate_func 2.12 _ssh_identityfile _comp_xfunc_ssh_compgen_identityfile
@@ -467,35 +467,35 @@ _comp_xfunc_scp_compgen_remote_files()
     # remove backslash escape from the first colon
     cur=${cur/\\:/:}
 
-    local userhost=${cur%%?(\\):*}
-    local path=${cur#*:}
+    local _userhost=${cur%%?(\\):*}
+    local _path=${cur#*:}
 
     # unescape (3 backslashes to 1 for chars we escaped)
     # shellcheck disable=SC2090
-    path=$(command sed -e 's/\\\\\\\('"$_comp_cmd_scp__path_esc"'\)/\\\1/g' <<<"$path")
+    _path=$(command sed -e 's/\\\\\\\('"$_comp_cmd_scp__path_esc"'\)/\\\1/g' <<<"$_path")
 
     # default to home dir of specified user on remote host
-    if [[ ! $path ]]; then
-        path=$(ssh -o 'Batchmode yes' "$userhost" pwd 2>/dev/null)
+    if [[ ! $_path ]]; then
+        _path=$(ssh -o 'Batchmode yes' "$_userhost" pwd 2>/dev/null)
     fi
 
-    local files
+    local _files
     if [[ ${1-} == -d ]]; then
         # escape problematic characters; remove non-dirs
         # shellcheck disable=SC2090
-        files=$(ssh -o 'Batchmode yes' "$userhost" \
-            command ls -aF1dL "$path*" 2>/dev/null |
+        _files=$(ssh -o 'Batchmode yes' "$_userhost" \
+            command ls -aF1dL "$_path*" 2>/dev/null |
             command sed -e 's/'"$_comp_cmd_scp__path_esc"'/\\\\\\&/g' -e '/[^\/]$/d')
     else
         # escape problematic characters; remove executables, aliases, pipes
         # and sockets; add space at end of file names
         # shellcheck disable=SC2090
-        files=$(ssh -o 'Batchmode yes' "$userhost" \
-            command ls -aF1dL "$path*" 2>/dev/null |
+        _files=$(ssh -o 'Batchmode yes' "$_userhost" \
+            command ls -aF1dL "$_path*" 2>/dev/null |
             command sed -e 's/'"$_comp_cmd_scp__path_esc"'/\\\\\\&/g' -e 's/[*@|=]$//g' \
                 -e 's/[^\/]$/& /g')
     fi
-    _comp_split -l COMPREPLY "$files"
+    _comp_compgen_split -l -- "$_files"
 }
 
 # @deprecated 2.12 use `_comp_compgen -ax ssh remote_files` instead
