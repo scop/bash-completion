@@ -90,3 +90,24 @@ class TestUnitCountArgs(TestUnitBase):
         """all the words after -- should be counted"""
         output = self._test(bash, "(a b -- -c -d e)", 5, "a b -- -c -d e", 13)
         assert output == "4"
+
+    def test_12_exclude_optarg_1(self, bash):
+        """an option argument should be skipped even if it matches the argument pattern"""
+        output = self._test(
+            bash, "(a -o -x b c)", 4, "a -o -x b c", 10, arg='"" "-o" "-x"'
+        )
+        assert output == "2"
+
+    def test_12_exclude_optarg_2(self, bash):
+        """an option argument should be skipped even if it matches the argument pattern"""
+        output = self._test(
+            bash, "(a -o -x -x c)", 4, "a -o -x -x c", 11, arg='"" "-o" "-x"'
+        )
+        assert output == "2"
+
+    def test_12_exclude_optarg_3(self, bash):
+        """an option argument should be skipped even if it matches the argument pattern"""
+        output = self._test(
+            bash, "(a -o -x -y c)", 4, "a -o -x -y c", 11, arg='"" "-o" "-x"'
+        )
+        assert output == "1"
