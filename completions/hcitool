@@ -46,15 +46,7 @@ _comp_cmd_hcitool()
     [[ $was_split ]] && return
 
     local ret
-    _comp_get_first_arg
-    if [[ ! $ret ]]; then
-        if [[ $cur == -* ]]; then
-            _comp_compgen_help
-        else
-            _comp_compgen -- -W 'dev inq scan name info spinq epinq cmd con cc
-                dc sr cpt rssi lq tpl afh lst auth enc key clkoff clock'
-        fi
-    else
+    if _comp_get_first_arg; then
         case $ret in
             name | info | dc | rssi | lq | afh | auth | key | clkoff | lst)
                 _comp_count_args
@@ -97,6 +89,13 @@ _comp_cmd_hcitool()
                 fi
                 ;;
         esac
+    else
+        if [[ $cur == -* ]]; then
+            _comp_compgen_help
+        else
+            _comp_compgen -- -W 'dev inq scan name info spinq epinq cmd con cc
+                dc sr cpt rssi lq tpl afh lst auth enc key clkoff clock'
+        fi
     fi
 } &&
     complete -F _comp_cmd_hcitool hcitool
@@ -116,15 +115,7 @@ _comp_cmd_sdptool()
     [[ $was_split ]] && return
 
     local ret
-    _comp_get_first_arg
-    if [[ ! $ret ]]; then
-        if [[ $cur == -* ]]; then
-            _comp_compgen_help
-        else
-            _comp_compgen -- -W 'search browse records add del get setattr
-                setseq'
-        fi
-    else
+    if _comp_get_first_arg; then
         case $ret in
             search)
                 if [[ $cur == -* ]]; then
@@ -153,6 +144,13 @@ _comp_cmd_sdptool()
                 fi
                 ;;
         esac
+    else
+        if [[ $cur == -* ]]; then
+            _comp_compgen_help
+        else
+            _comp_compgen -- -W 'search browse records add del get setattr
+                setseq'
+        fi
     fi
 } &&
     complete -F _comp_cmd_sdptool sdptool
@@ -198,15 +196,8 @@ _comp_cmd_rfcomm()
     esac
 
     local ret
-    _comp_get_first_arg
-    local arg=$ret
-    if [[ ! $arg ]]; then
-        if [[ $cur == -* ]]; then
-            _comp_compgen_help
-        else
-            _comp_compgen -- -W 'show connect listen watch bind release'
-        fi
-    else
+    if _comp_get_first_arg; then
+        local arg=$ret
         _comp_count_args
         local args=$ret
         if ((args == 2)); then
@@ -219,6 +210,12 @@ _comp_cmd_rfcomm()
                     fi
                     ;;
             esac
+        fi
+    else
+        if [[ $cur == -* ]]; then
+            _comp_compgen_help
+        else
+            _comp_compgen -- -W 'show connect listen watch bind release'
         fi
     fi
 } &&
@@ -238,14 +235,7 @@ _comp_cmd_ciptool()
     esac
 
     local ret
-    _comp_get_first_arg
-    if [[ ! $ret ]]; then
-        if [[ $cur == -* ]]; then
-            _comp_compgen_help
-        else
-            _comp_compgen -- -W 'show search connect release loopback'
-        fi
-    else
+    if _comp_get_first_arg; then
         case $ret in
             connect | release | loopback)
                 local ret
@@ -255,6 +245,12 @@ _comp_cmd_ciptool()
                 fi
                 ;;
         esac
+    else
+        if [[ $cur == -* ]]; then
+            _comp_compgen_help
+        else
+            _comp_compgen -- -W 'show search connect release loopback'
+        fi
     fi
 } &&
     complete -F _comp_cmd_ciptool ciptool
@@ -294,18 +290,7 @@ _comp_cmd_hciconfig()
     _comp_initialize -- "$@" || return
 
     local ret
-    _comp_get_first_arg
-    if [[ ! $ret ]]; then
-        if [[ $cur == -* ]]; then
-            _comp_compgen -- -W '--help --all'
-        else
-            _comp_compgen -- -W 'up down reset rstat auth noauth encrypt
-                noencrypt secmgr nosecmgr piscan noscan iscan pscan ptype name
-                class voice iac inqmode inqdata inqtype inqparams pageparms
-                pageto afhmode aclmtu scomtu putkey delkey commands features
-                version revision lm'
-        fi
-    else
+    if _comp_get_first_arg; then
         case $ret in
             putkey | delkey)
                 _comp_count_args
@@ -326,6 +311,16 @@ _comp_cmd_hciconfig()
                 fi
                 ;;
         esac
+    else
+        if [[ $cur == -* ]]; then
+            _comp_compgen -- -W '--help --all'
+        else
+            _comp_compgen -- -W 'up down reset rstat auth noauth encrypt
+                noencrypt secmgr nosecmgr piscan noscan iscan pscan ptype name
+                class voice iac inqmode inqdata inqtype inqparams pageparms
+                pageto afhmode aclmtu scomtu putkey delkey commands features
+                version revision lm'
+        fi
     fi
 } &&
     complete -F _comp_cmd_hciconfig hciconfig

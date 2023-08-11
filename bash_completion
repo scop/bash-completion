@@ -2159,6 +2159,7 @@ _comp_realcommand()
 # This function returns the first argument, excluding options
 # @var[out] ret First argument before current being completed if any, or
 # otherwise an empty string
+# @return True (0) if any argument is found, False (> 0) otherwise.
 # @since 2.12
 _comp_get_first_arg()
 {
@@ -2168,12 +2169,13 @@ _comp_get_first_arg()
     for ((i = 1; i < cword; i++)); do
         if [[ ${words[i]} != -?* ]]; then
             ret=${words[i]}
-            break
+            return 0
         elif [[ ${words[i]} == -- ]]; then
-            ((i + 1 < cword)) && ret=${words[i + 1]}
+            ((i + 1 < cword)) && ret=${words[i + 1]} && return 0
             break
         fi
     done
+    return 1
 }
 
 # This function counts the number of args, excluding options
