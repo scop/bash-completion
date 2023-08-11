@@ -2401,9 +2401,6 @@ _known_hosts_real()
         done
     fi
 
-    local IFS=$' \t\n' reset=$(shopt -po noglob)
-    set -o noglob
-
     # "Include" keyword in ssh config files
     if ((${#config[@]} > 0)); then
         for i in "${config[@]}"; do
@@ -2417,24 +2414,24 @@ _known_hosts_real()
         # TODO(?): try to make known hosts files with more than one consecutive
         #          spaces in their name work (watch out for ~ expansion
         #          breakage! Alioth#311595)
-        _comp_split -l tmpkh "$(awk 'sub("^[ \t]*([Gg][Ll][Oo][Bb][Aa][Ll]|[Uu][Ss][Ee][Rr])[Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee][ \t=]+", "") { print $0 }' "${config[@]}" | sort -u)"
-    fi
-    if ((${#tmpkh[@]} != 0)); then
-        local j
-        for i in "${tmpkh[@]}"; do
-            # First deal with quoted entries...
-            while [[ $i =~ ^([^\"]*)\"([^\"]*)\"(.*)$ ]]; do
-                i=${BASH_REMATCH[1]}${BASH_REMATCH[3]}
-                j=${BASH_REMATCH[2]}
-                __expand_tilde_by_ref j # Eval/expand possible `~' or `~user'
-                [[ -r $j ]] && kh+=("$j")
+        if _comp_split -l tmpkh "$(awk 'sub("^[ \t]*([Gg][Ll][Oo][Bb][Aa][Ll]|[Uu][Ss][Ee][Rr])[Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee][ \t=]+", "") { print $0 }' "${config[@]}" | sort -u)"; then
+            local tmpkh2 j
+            for i in "${tmpkh[@]}"; do
+                # First deal with quoted entries...
+                while [[ $i =~ ^([^\"]*)\"([^\"]*)\"(.*)$ ]]; do
+                    i=${BASH_REMATCH[1]}${BASH_REMATCH[3]}
+                    j=${BASH_REMATCH[2]}
+                    __expand_tilde_by_ref j # Eval/expand possible `~' or `~user'
+                    [[ -r $j ]] && kh+=("$j")
+                done
+                # ...and then the rest.
+                _comp_split tmpkh2 "$i" || continue
+                for j in "${tmpkh2[@]}"; do
+                    __expand_tilde_by_ref j # Eval/expand possible `~' or `~user'
+                    [[ -r $j ]] && kh+=("$j")
+                done
             done
-            # ...and then the rest.
-            for j in $i; do
-                __expand_tilde_by_ref j # Eval/expand possible `~' or `~user'
-                [[ -r $j ]] && kh+=("$j")
-            done
-        done
+        fi
     fi
 
     if [[ ! $configfile ]]; then
@@ -2445,27 +2442,29 @@ _known_hosts_real()
             [[ -r $i && ! -d $i ]] && kh+=("$i")
         done
         for i in /etc/ssh2/knownhosts ~/.ssh2/hostkeys; do
-            [[ -d $i ]] && khd+=("$i"/*pub)
+            [[ -d $i ]] || continue
+            _comp_expand_glob tmpkh '"$i"/*.pub'
+            ((${#tmpkh[@]})) && khd+=("${tmpkh[@]}")
         done
     fi
 
     # If we have known_hosts files to use
     if ((${#kh[@]} + ${#khd[@]} > 0)); then
-        if ((${#kh[@]} > 0)); then
-            COMPREPLY+=() # make sure it exists
+        local -a tmp=()
 
+        if ((${#kh[@]} > 0)); then
             # https://man.openbsd.org/sshd.8#SSH_KNOWN_HOSTS_FILE_FORMAT
             for i in "${kh[@]}"; do
                 while read -ra tmpkh; do
                     ((${#tmpkh[@]} == 0)) && continue
-                    set -- "${tmpkh[@]}"
                     # Skip entries starting with | (hashed) and # (comment)
-                    [[ $1 == [\|\#]* ]] && continue
+                    [[ ${tmpkh[0]} == [\|\#]* ]] && continue
                     # Ignore leading @foo (markers)
-                    [[ $1 == @* ]] && shift
+                    local host_list=${tmpkh[0]}
+                    [[ ${tmpkh[0]} == @* ]] && host_list=${tmpkh[1]-}
                     # Split entry on commas
                     local -a hosts
-                    if _comp_split -F , hosts "$1"; then
+                    if _comp_split -F , hosts "$host_list"; then
                         for host in "${hosts[@]}"; do
                             # Skip hosts containing wildcards
                             [[ $host == *[*?]* ]] && continue
@@ -2474,14 +2473,11 @@ _known_hosts_real()
                             # Remove trailing ] + optional :port
                             host=${host%]?(:+([0-9]))}
                             # Add host to candidates
-                            [[ $host ]] &&
-                                COMPREPLY+=("$host")
+                            [[ $host ]] && tmp+=("$host")
                         done
                     fi
                 done <"$i"
             done
-            ((${#COMPREPLY[@]})) &&
-                _comp_compgen -- -W '"${COMPREPLY[@]}"'
         fi
         if ((${#khd[@]} > 0)); then
             # Needs to look for files called
@@ -2489,20 +2485,17 @@ _known_hosts_real()
             # dont fork any processes, because in a cluster environment,
             # there can be hundreds of hostkeys
             for i in "${khd[@]}"; do
-                if [[ $i == *key_22_$cur*.pub && -r $i ]]; then
+                if [[ $i == *key_22_*.pub && -r $i ]]; then
                     host=${i/#*key_22_/}
                     host=${host/%.pub/}
-                    [[ $host ]] && COMPREPLY+=("$host")
+                    [[ $host ]] && tmp+=("$host")
                 fi
             done
         fi
 
         # apply suffix and prefix
-        if ((${#COMPREPLY[@]})); then
-            for i in ${!COMPREPLY[*]}; do
-                COMPREPLY[i]=$prefix${COMPREPLY[i]}$suffix
-            done
-        fi
+        ((${#tmp[@]})) &&
+            _comp_compgen -- -W '"${tmp[@]}"' -P "$prefix" -S "$suffix"
     fi
 
     # append any available aliases from ssh config files
@@ -2536,8 +2529,6 @@ _known_hosts_real()
     if [[ ${BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE-${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1}} ]]; then
         _comp_compgen -a -- -A hostname -P "$prefix" -S "$suffix"
     fi
-
-    $reset
 
     if ((${#COMPREPLY[@]})); then
         if [[ $ipv4 ]]; then
