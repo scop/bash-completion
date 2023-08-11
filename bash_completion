@@ -2958,8 +2958,8 @@ _minimal()
 # https://lists.gnu.org/archive/html/bug-bash/2012-01/msg00045.html
 complete -F _minimal ''
 
-# TODO:API: rename per conventions
-__load_completion()
+# @since 2.12
+_comp_load()
 {
     local cmd=$1 cmdname=${1##*/} dir compfile
     local -a paths
@@ -3080,7 +3080,7 @@ _completion_loader()
     # $1=_EmptycmD_ already for empty cmds in bash 4.3, set to it for earlier
     local cmd=${1:-_EmptycmD_}
 
-    __load_completion "$cmd" && return 124
+    _comp_load "$cmd" && return 124
 
     # Need to define *something*, otherwise there will be no completion at all.
     complete -F _minimal -- "$cmd" && return 124
@@ -3100,7 +3100,7 @@ _comp_xfunc()
     local xfunc_name=$2
     [[ $xfunc_name == _* ]] ||
         xfunc_name=_comp_xfunc_${1//[^a-zA-Z0-9_]/_}_$xfunc_name
-    declare -F "$xfunc_name" &>/dev/null || __load_completion "$1"
+    declare -F "$xfunc_name" &>/dev/null || _comp_load "$1"
     "$xfunc_name" "${@:3}"
 }
 

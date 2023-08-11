@@ -3,7 +3,7 @@ import pytest
 from conftest import assert_bash_exec, bash_env_saved
 
 
-@pytest.mark.bashcomp(cmd=None, cwd="__load_completion")
+@pytest.mark.bashcomp(cmd=None, cwd="_comp_load")
 class TestLoadCompletion:
     def test_userdir_1(self, bash):
         with bash_env_saved(bash) as bash_env:
@@ -16,11 +16,11 @@ class TestLoadCompletion:
                 "PATH", "$PWD/prefix1/bin:$PWD/prefix1/sbin", quote=False
             )
             output = assert_bash_exec(
-                bash, "__load_completion cmd1", want_output=True
+                bash, "_comp_load cmd1", want_output=True
             )
             assert output.strip() == "cmd1: sourced from userdir1"
             output = assert_bash_exec(
-                bash, "__load_completion cmd2", want_output=True
+                bash, "_comp_load cmd2", want_output=True
             )
             assert output.strip() == "cmd2: sourced from userdir2"
 
@@ -30,11 +30,11 @@ class TestLoadCompletion:
                 "PATH", "$PWD/prefix1/bin:$PWD/prefix1/sbin", quote=False
             )
             output = assert_bash_exec(
-                bash, "__load_completion cmd1", want_output=True
+                bash, "_comp_load cmd1", want_output=True
             )
             assert output.strip() == "cmd1: sourced from prefix1"
             output = assert_bash_exec(
-                bash, "__load_completion cmd2", want_output=True
+                bash, "_comp_load cmd2", want_output=True
             )
             assert output.strip() == "cmd2: sourced from prefix1"
             output = assert_bash_exec(
@@ -49,7 +49,7 @@ class TestLoadCompletion:
     def test_cmd_path_1(self, bash):
         assert_bash_exec(bash, "complete -r cmd1 || :", want_output=None)
         output = assert_bash_exec(
-            bash, "__load_completion prefix1/bin/cmd1", want_output=True
+            bash, "_comp_load prefix1/bin/cmd1", want_output=True
         )
         assert output.strip() == "cmd1: sourced from prefix1"
         output = assert_bash_exec(
@@ -58,15 +58,15 @@ class TestLoadCompletion:
         assert "/prefix1/bin/cmd1" in output
         assert_bash_exec(bash, "! complete -p cmd1", want_output=None)
         output = assert_bash_exec(
-            bash, "__load_completion prefix1/sbin/cmd2", want_output=True
+            bash, "_comp_load prefix1/sbin/cmd2", want_output=True
         )
         assert output.strip() == "cmd2: sourced from prefix1"
         output = assert_bash_exec(
-            bash, "__load_completion bin/cmd1", want_output=True
+            bash, "_comp_load bin/cmd1", want_output=True
         )
         assert output.strip() == "cmd1: sourced from prefix1"
         output = assert_bash_exec(
-            bash, "__load_completion bin/cmd2", want_output=True
+            bash, "_comp_load bin/cmd2", want_output=True
         )
         assert output.strip() == "cmd2: sourced from prefix1"
 
@@ -74,11 +74,11 @@ class TestLoadCompletion:
         with bash_env_saved(bash) as bash_env:
             bash_env.write_variable("PATH", "$PWD/bin:$PATH", quote=False)
             output = assert_bash_exec(
-                bash, "__load_completion cmd1", want_output=True
+                bash, "_comp_load cmd1", want_output=True
             )
             assert output.strip() == "cmd1: sourced from prefix1"
             output = assert_bash_exec(
-                bash, "__load_completion cmd2", want_output=True
+                bash, "_comp_load cmd2", want_output=True
             )
             assert output.strip() == "cmd2: sourced from prefix1"
 
@@ -91,4 +91,4 @@ class TestLoadCompletion:
             bash_env.write_variable("PATH", "$PWD/prefix1/bin", quote=False)
             # The in-tree `sh` completion should be loaded here,
             # and cause no output, unlike our `$PWD/prefix1/bin/sh` canary.
-            assert_bash_exec(bash, "__load_completion sh", want_output=False)
+            assert_bash_exec(bash, "_comp_load sh", want_output=False)
