@@ -22,6 +22,7 @@ _comp_deprecate_func 2.12 _uids _comp_compgen_uids
 _comp_deprecate_func 2.12 _gids _comp_compgen_gids
 _comp_deprecate_func 2.12 _xinetd_services _comp_compgen_xinetd_services
 _comp_deprecate_func 2.12 _services _comp_compgen_services
+_comp_deprecate_func 2.12 _bashcomp_try_faketty _comp_try_faketty
 _comp_deprecate_func 2.12 _expand _comp_expand
 _comp_deprecate_func 2.12 _pids _comp_compgen_pids
 _comp_deprecate_func 2.12 _pgids _comp_compgen_pgids
