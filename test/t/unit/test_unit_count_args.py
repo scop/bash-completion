@@ -111,3 +111,41 @@ class TestUnitCountArgs(TestUnitBase):
             bash, "(a -o -x -y c)", 4, "a -o -x -y c", 11, arg='"" "-o" "-x"'
         )
         assert output == "1"
+
+    def test_13_plus_option_optarg(self, bash):
+        """When +o is specified to be an option taking an option argument, it should not be counted as an argument"""
+        output = self._test(
+            bash, "(a +o b c)", 3, "a +o b c", 7, arg='"" "+o"'
+        )
+        assert output == "1"
+
+    def test_14_no_optarg_chain_1(self, bash):
+        """an option argument should not take another option argument"""
+        output = self._test(
+            bash, "(a -o -o -o -o c)", 5, "a -o -o -o -o c", 14, arg='"" "-o"'
+        )
+        assert output == "1"
+
+    def test_14_no_optarg_chain_2(self, bash):
+        """an option argument should not take another option argument"""
+        output = self._test(
+            bash,
+            "(a -o -o b -o -o c)",
+            6,
+            "a -o -o b -o -o c",
+            16,
+            arg='"" "-o"',
+        )
+        assert output == "2"
+
+    def test_15_double_hyphen_optarg(self, bash):
+        """-- should lose its meaning when it is an option argument"""
+        output = self._test(
+            bash, "(a -o -- -b -c d)", 5, "a -o -- -b -c d", 14, arg='"" "-o"'
+        )
+        assert output == "1"
+
+    def test_16_empty_word(self, bash):
+        """An empty word should not take an option argument"""
+        output = self._test(bash, "(a '' x '' y d)", 5, "a  x  y d", 8)
+        assert output == "5"
