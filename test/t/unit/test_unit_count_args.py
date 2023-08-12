@@ -13,7 +13,7 @@ class TestUnitCountArgs(TestUnitBase):
         )
 
     def test_1(self, bash):
-        assert_bash_exec(bash, "COMP_CWORD= _comp_count_args")
+        assert_bash_exec(bash, "COMP_LINE= COMP_POINT=0 COMP_WORDS=() COMP_CWORD=; _comp_count_args")
 
     def test_2(self, bash):
         """a b| should set args to 1"""
