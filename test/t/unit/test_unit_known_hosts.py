@@ -9,7 +9,7 @@ from conftest import assert_bash_exec, bash_env_saved
     cmd=None,
     ignore_env="^[+-](COMPREPLY|BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE)=",
 )
-class TestUnitKnownHostsReal:
+class TestUnitCompgenKnownHosts:
     @pytest.mark.parametrize(
         "prefix,colon_flag,hostfile",
         [("", "", True), ("", "", False), ("user@", "c", True)],
@@ -21,9 +21,9 @@ class TestUnitKnownHostsReal:
             "%s%s%s" % (prefix, x, ":" if colon_flag else "")
             for x in chain(
                 hosts if hostfile else avahi_hosts,
-                # fixtures/_known_hosts_real/config
+                # fixtures/_known_hosts/config
                 "gee hus jar #not-a-comment".split(),
-                # fixtures/_known_hosts_real/known_hosts
+                # fixtures/_known_hosts/known_hosts
                 (
                     "doo",
                     "ike",
@@ -49,7 +49,7 @@ class TestUnitKnownHostsReal:
         )
         output = assert_bash_exec(
             bash,
-            "_known_hosts_real -a%sF _known_hosts_real/config '%s'; "
+            "_comp_compgen_known_hosts -a%sF _known_hosts/config '%s'; "
             r'printf "%%s\n" "${COMPREPLY[@]}"; unset -v COMPREPLY'
             % (colon_flag, prefix),
             want_output=True,
@@ -72,7 +72,7 @@ class TestUnitKnownHostsReal:
         output = assert_bash_exec(
             bash,
             "BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE= "
-            "_known_hosts_real -%sF _known_hosts_real/localhost_config ''; "
+            "_comp_compgen_known_hosts -%sF _known_hosts/localhost_config ''; "
             r'printf "%%s\n" "${COMPREPLY[@]}"' % family,
             want_output=True,
         )
@@ -80,9 +80,9 @@ class TestUnitKnownHostsReal:
 
     def test_consecutive_spaces(self, bash, hosts):
         expected = hosts.copy()
-        # fixtures/_known_hosts_real/spaced  conf
+        # fixtures/_known_hosts/spaced  conf
         expected.extend("gee hus #not-a-comment".split())
-        # fixtures/_known_hosts_real/known_hosts2
+        # fixtures/_known_hosts/known_hosts2
         expected.extend("two two2 two3 two4".split())
         # fixtures/_known_hosts_/spaced  known_hosts
         expected.extend("doo ike".split())
@@ -90,7 +90,7 @@ class TestUnitKnownHostsReal:
         output = assert_bash_exec(
             bash,
             "unset -v COMPREPLY BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE; "
-            "_known_hosts_real -aF '_known_hosts_real/spaced  conf' ''; "
+            "_comp_compgen_known_hosts -aF '_known_hosts/spaced  conf' ''; "
             r'printf "%s\n" "${COMPREPLY[@]}"',
             want_output=True,
         )
@@ -98,11 +98,11 @@ class TestUnitKnownHostsReal:
 
     def test_files_starting_with_tilde(self, bash, hosts):
         expected = hosts.copy()
-        # fixtures/_known_hosts_real/known_hosts2
+        # fixtures/_known_hosts/known_hosts2
         expected.extend("two two2 two3 two4".split())
-        # fixtures/_known_hosts_real/known_hosts3
+        # fixtures/_known_hosts/known_hosts3
         expected.append("three")
-        # fixtures/_known_hosts_real/known_hosts4
+        # fixtures/_known_hosts/known_hosts4
         expected.append("four")
 
         with bash_env_saved(bash) as bash_env:
@@ -110,7 +110,7 @@ class TestUnitKnownHostsReal:
             output = assert_bash_exec(
                 bash,
                 "unset -v COMPREPLY BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE;"
-                " _known_hosts_real -aF _known_hosts_real/config_tilde ''; "
+                " _comp_compgen_known_hosts -aF _known_hosts/config_tilde ''; "
                 r'printf "%s\n" "${COMPREPLY[@]}"',
                 want_output=True,
             )
@@ -119,21 +119,21 @@ class TestUnitKnownHostsReal:
 
     def test_included_configs(self, bash, hosts):
         expected = hosts.copy()
-        # fixtures/_known_hosts_real/config_include_recursion
+        # fixtures/_known_hosts/config_include_recursion
         expected.append("recursion")
-        # fixtures/_known_hosts_real/.ssh/config_relative_path
+        # fixtures/_known_hosts/.ssh/config_relative_path
         expected.append("relative_path")
-        # fixtures/_known_hosts_real/.ssh/config_asterisk_*
+        # fixtures/_known_hosts/.ssh/config_asterisk_*
         expected.extend("asterisk_1 asterisk_2".split())
-        # fixtures/_known_hosts_real/.ssh/config_question_mark
+        # fixtures/_known_hosts/.ssh/config_question_mark
         expected.append("question_mark")
 
         with bash_env_saved(bash) as bash_env:
-            bash_env.write_variable("HOME", "%s/_known_hosts_real" % bash.cwd)
+            bash_env.write_variable("HOME", "%s/_known_hosts" % bash.cwd)
             output = assert_bash_exec(
                 bash,
                 "unset -v COMPREPLY BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE;"
-                " _known_hosts_real -aF _known_hosts_real/config_include ''; "
+                " _comp_compgen_known_hosts -aF _known_hosts/config_include ''; "
                 r'printf "%s\n" "${COMPREPLY[@]}"',
                 want_output=True,
             )
@@ -141,12 +141,12 @@ class TestUnitKnownHostsReal:
 
     def test_no_globbing(self, bash):
         with bash_env_saved(bash) as bash_env:
-            bash_env.write_variable("HOME", "%s/_known_hosts_real" % bash.cwd)
-            bash_env.chdir("_known_hosts_real")
+            bash_env.write_variable("HOME", "%s/_known_hosts" % bash.cwd)
+            bash_env.chdir("_known_hosts")
             output = assert_bash_exec(
                 bash,
                 "unset -v COMPREPLY BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE;"
-                " _known_hosts_real -aF config ''; "
+                " _comp_compgen_known_hosts -aF config ''; "
                 r'printf "%s\n" "${COMPREPLY[@]}"',
                 want_output=True,
             )

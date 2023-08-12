@@ -2351,7 +2351,7 @@ _user_at_host()
     _comp_initialize -n : -- "$@" || return
 
     if [[ $cur == *@* ]]; then
-        _known_hosts_real "$cur"
+        _comp_compgen_known_hosts "$cur"
     else
         _comp_compgen -- -u -S @
         compopt -o nospace
@@ -2360,20 +2360,21 @@ _user_at_host()
 shopt -u hostcomplete && complete -F _user_at_host talk ytalk finger
 
 # NOTE: Using this function as a helper function is deprecated.  Use
-#       `_known_hosts_real' instead.
+#       `_comp_compgen_known_hosts' instead.
 # TODO:API: rename per conventions
 _known_hosts()
 {
     local cur prev words cword comp_args
     _comp_initialize -n : -- "$@" || return
 
-    # NOTE: Using `_known_hosts' as a helper function and passing options
-    #       to `_known_hosts' is deprecated: Use `_known_hosts_real' instead.
+    # NOTE: Using `_known_hosts' as a helper function and passing options to
+    #       `_known_hosts' is deprecated: Use `_comp_compgen_known_hosts'
+    #       instead.
     local -a options=()
     [[ ${1-} == -a || ${2-} == -a ]] && options+=(-a)
     [[ ${1-} == -c || ${2-} == -c ]] && options+=(-c)
     local IFS=$' \t\n' # Workaround for connected ${v+"$@"} in bash < 4.4
-    _known_hosts_real ${options[@]+"${options[@]}"} -- "$cur"
+    _comp_compgen_known_hosts ${options[@]+"${options[@]}"} -- "$cur"
 } # _known_hosts()
 
 # Helper function to locate ssh included files in configs
@@ -2436,7 +2437,7 @@ _comp__included_ssh_config_files()
 # BASH_COMPLETION_KNOWN_HOSTS_WITH_AVAHI is set to a non-empty value.
 # Also hosts from HOSTFILE (compgen -A hostname) are added, unless
 # BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE is set to an empty value.
-# Usage: _known_hosts_real [OPTIONS] CWORD
+# Usage: _comp_compgen_known_hosts [OPTIONS] CWORD
 # Options:
 #     -a             Use aliases from ssh config files
 #     -c             Use `:' suffix
@@ -2445,9 +2446,17 @@ _comp__included_ssh_config_files()
 #     -4             Filter IPv6 addresses from results
 #     -6             Filter IPv4 addresses from results
 # @return Completions, starting with CWORD, are added to COMPREPLY[]
-# TODO:API: rename per conventions
-_known_hosts_real()
+# @since 2.12
+_comp_compgen_known_hosts()
 {
+    local known_hosts
+    _comp_compgen_known_hosts__impl "$@" || return "$?"
+    _comp_compgen -U known_hosts set "${known_hosts[@]}"
+}
+_comp_compgen_known_hosts__impl()
+{
+    known_hosts=()
+
     local configfile="" flag prefix=""
     local cur suffix="" aliases="" i host ipv4="" ipv6=""
     local -a kh tmpkh=() khd=() config=()
@@ -2550,8 +2559,6 @@ _known_hosts_real()
 
     # If we have known_hosts files to use
     if ((${#kh[@]} + ${#khd[@]} > 0)); then
-        local -a tmp=()
-
         if ((${#kh[@]} > 0)); then
             # https://man.openbsd.org/sshd.8#SSH_KNOWN_HOSTS_FILE_FORMAT
             for i in "${kh[@]}"; do
@@ -2573,7 +2580,7 @@ _known_hosts_real()
                             # Remove trailing ] + optional :port
                             host=${host%]?(:+([0-9]))}
                             # Add host to candidates
-                            [[ $host ]] && tmp+=("$host")
+                            [[ $host ]] && known_hosts+=("$host")
                         done
                     fi
                 done <"$i"
@@ -2588,21 +2595,21 @@ _known_hosts_real()
                 if [[ $i == *key_22_*.pub && -r $i ]]; then
                     host=${i/#*key_22_/}
                     host=${host/%.pub/}
-                    [[ $host ]] && tmp+=("$host")
+                    [[ $host ]] && known_hosts+=("$host")
                 fi
             done
         fi
 
         # apply suffix and prefix
-        ((${#tmp[@]})) &&
-            _comp_compgen -- -W '"${tmp[@]}"' -P "$prefix" -S "$suffix"
+        ((${#known_hosts[@]})) &&
+            _comp_compgen -v known_hosts -- -W '"${known_hosts[@]}"' -P "$prefix" -S "$suffix"
     fi
 
     # append any available aliases from ssh config files
     if [[ ${#config[@]} -gt 0 && $aliases ]]; then
         local -a hosts
         if _comp_split hosts "$(command sed -ne 's/^[[:blank:]]*[Hh][Oo][Ss][Tt][[:blank:]=]\{1,\}\(.*\)$/\1/p' "${config[@]}")"; then
-            _comp_compgen -a -- -P "$prefix" \
+            _comp_compgen -av known_hosts -- -P "$prefix" \
                 -S "$suffix" -W '"${hosts[@]%%[*?%]*}"' -X '@(\!*|)'
         fi
     fi
@@ -2615,38 +2622,37 @@ _known_hosts_real()
         local generated=$(avahi-browse -cprak 2>/dev/null | awk -F';' \
             '/^=/ && $5 ~ /^_(ssh|workstation)\._tcp$/ { print $7 }' |
             sort -u)
-        _comp_compgen -a -- -P "$prefix" -S "$suffix" -W '$generated'
+        _comp_compgen -av known_hosts -- -P "$prefix" -S "$suffix" -W '$generated'
     fi
 
     # Add hosts reported by ruptime.
     if type ruptime &>/dev/null; then
         local generated=$(ruptime 2>/dev/null | awk '!/^ruptime:/ { print $1 }')
-        _comp_compgen -a -- -W '$generated'
+        _comp_compgen -av known_hosts -- -W '$generated'
     fi
 
     # Add results of normal hostname completion, unless
     # `BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE' is set to an empty value.
     if [[ ${BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE-${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1}} ]]; then
-        _comp_compgen -a -- -A hostname -P "$prefix" -S "$suffix"
+        _comp_compgen -av known_hosts -- -A hostname -P "$prefix" -S "$suffix"
     fi
 
-    if ((${#COMPREPLY[@]})); then
+    if ((${#known_hosts[@]})); then
         if [[ $ipv4 ]]; then
-            COMPREPLY=("${COMPREPLY[@]/*:*$suffix/}")
+            known_hosts=("${known_hosts[@]/*:*$suffix/}")
         fi
         if [[ $ipv6 ]]; then
-            COMPREPLY=("${COMPREPLY[@]/+([0-9]).+([0-9]).+([0-9]).+([0-9])$suffix/}")
+            known_hosts=("${known_hosts[@]/+([0-9]).+([0-9]).+([0-9]).+([0-9])$suffix/}")
         fi
         if [[ $ipv4 || $ipv6 ]]; then
-            for i in "${!COMPREPLY[@]}"; do
-                [[ ${COMPREPLY[i]} ]] || unset -v 'COMPREPLY[i]'
+            for i in "${!known_hosts[@]}"; do
+                [[ ${known_hosts[i]} ]] || unset -v 'known_hosts[i]'
             done
         fi
+        _comp_compgen -v known_hosts -c "$prefix$cur" ltrim_colon "${known_hosts[@]}"
     fi
 
-    _comp_ltrim_colon_completions "$prefix$cur"
-
-} # _known_hosts_real()
+} # _comp_compgen_known_hosts__impl()
 complete -F _known_hosts traceroute traceroute6 \
     fping fping6 telnet rsh rlogin ftp dig drill mtr ssh-installkeys showmount
 

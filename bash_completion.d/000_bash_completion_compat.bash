@@ -10,6 +10,7 @@ _comp_deprecate_func 2.12 _root_command _comp_root_command
 _comp_deprecate_func 2.12 _xfunc _comp_xfunc
 _comp_deprecate_func 2.12 _upvars _comp_upvars
 _comp_deprecate_func 2.12 _get_comp_words_by_ref _comp_get_words
+_comp_deprecate_func 2.12 _known_hosts_real _comp_compgen_known_hosts
 _comp_deprecate_func 2.12 _longopt _comp_longopt
 _comp_deprecate_func 2.12 __ltrim_colon_completions _comp_ltrim_colon_completions
 _comp_deprecate_func 2.12 _signals _comp_compgen_signals

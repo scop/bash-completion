@@ -17,7 +17,7 @@ EXTRA_DIST = \
 	test_unit_get_words.py \
 	test_unit_initialize.py \
 	test_unit_ip_addresses.py \
-	test_unit_known_hosts_real.py \
+	test_unit_known_hosts.py \
 	test_unit_longopt.py \
 	test_unit_looks_like_path.py \
 	test_unit_parse_help.py \
