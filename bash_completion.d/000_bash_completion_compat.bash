@@ -360,6 +360,26 @@ _ncpus()
     printf %s "$ret"
 }
 
+# Expand variable starting with tilde (~).
+# We want to expand ~foo/... to /home/foo/... to avoid problems when
+# word-to-complete starting with a tilde is fed to commands and ending up
+# quoted instead of expanded.
+# Only the first portion of the variable from the tilde up to the first slash
+# (~../) is expanded.  The remainder of the variable, containing for example
+# a dollar sign variable ($) or asterisk (*) is not expanded.
+#
+# @deprecated 2.12 Use `_comp_expand_tilde`.  The new function receives the
+# value instead of a variable name as $1 and always returns the result to the
+# variable `ret`.
+__expand_tilde_by_ref()
+{
+    [[ ${1+set} ]] || return 0
+    [[ $1 == ret ]] || local ret
+    _comp_expand_tilde "${!1-}"
+    # shellcheck disable=SC2059
+    [[ $1 == ret ]] || printf -v "$1" "$ret"
+} # __expand_tilde_by_ref()
+
 # @deprecated 2.12 Use `_comp_compgen -a cd_devices`
 _cd_devices()
 {

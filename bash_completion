@@ -1734,7 +1734,7 @@ _comp_compgen_tilde()
     return 1
 }
 
-# Expand variable starting with tilde (~)
+# Expand string starting with tilde (~)
 # We want to expand ~foo/... to /home/foo/... to avoid problems when
 # word-to-complete starting with a tilde is fed to commands and ending up
 # quoted instead of expanded.
@@ -1743,11 +1743,11 @@ _comp_compgen_tilde()
 # a dollar sign variable ($) or asterisk (*) is not expanded.
 # Example usage:
 #
-#    $ v="~"; __expand_tilde_by_ref v; echo "$v"
+#    $ _comp_expand_tilde "~"; echo "$ret"
 #
 # Example output:
 #
-#       v                  output
+#       $1                 ret
 #    --------         ----------------
 #    ~                /home/user
 #    ~foo/bar         /home/foo/bar
@@ -1755,14 +1755,17 @@ _comp_compgen_tilde()
 #    ~foo/a  b        /home/foo/a  b
 #    ~foo/*           /home/foo/*
 #
-# @param $1  Name of variable (not the value of the variable) to expand
-# TODO:API: rename per conventions
-__expand_tilde_by_ref()
+# @param $1     Value to expand
+# @var[out] ret Expanded result
+# @since 2.12
+_comp_expand_tilde()
 {
-    if [[ ${!1-} == \~* ]]; then
-        eval "$1"="$(printf ~%q "${!1#\~}")"
+    ret=$1
+    if [[ $1 == \~* ]]; then
+        printf -v ret '~%q' "${1#\~}"
+        eval "ret=$ret"
     fi
-} # __expand_tilde_by_ref()
+}
 
 # This function expands tildes in pathnames
 #
@@ -1775,7 +1778,9 @@ _expand()
 
     case ${cur-} in
         ~*/*)
-            __expand_tilde_by_ref cur
+            local ret
+            _comp_expand_tilde "$cur"
+            cur=$ret
             ;;
         ~*)
             _comp_compgen -v COMPREPLY tilde &&
@@ -2376,7 +2381,7 @@ _comp__included_ssh_config_files()
 {
     (($# < 1)) &&
         echo "bash_completion: $FUNCNAME: missing mandatory argument CONFIG" >&2
-    local configfile i files f
+    local configfile i files f ret
     configfile=$1
 
     # From man ssh_config:
@@ -2408,9 +2413,9 @@ _comp__included_ssh_config_files()
             if [[ $i != [~/]* ]]; then
                 i="${relative_include_base}/${i}"
             fi
-            __expand_tilde_by_ref i
+            _comp_expand_tilde "$i"
+            _comp_expand_glob files '$ret'
             # In case the expanded variable contains multiple paths
-            _comp_expand_glob files '$i'
             if ((${#files[@]})); then
                 for f in "${files[@]}"; do
                     if [[ -r $f && ! -d $f ]]; then
@@ -2509,20 +2514,19 @@ _known_hosts_real()
         #          spaces in their name work (watch out for ~ expansion
         #          breakage! Alioth#311595)
         if _comp_split -l tmpkh "$(awk 'sub("^[ \t]*([Gg][Ll][Oo][Bb][Aa][Ll]|[Uu][Ss][Ee][Rr])[Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee][ \t=]+", "") { print $0 }' "${config[@]}" | sort -u)"; then
-            local tmpkh2 j
+            local tmpkh2 j ret
             for i in "${tmpkh[@]}"; do
                 # First deal with quoted entries...
                 while [[ $i =~ ^([^\"]*)\"([^\"]*)\"(.*)$ ]]; do
                     i=${BASH_REMATCH[1]}${BASH_REMATCH[3]}
-                    j=${BASH_REMATCH[2]}
-                    __expand_tilde_by_ref j # Eval/expand possible `~' or `~user'
-                    [[ -r $j ]] && kh+=("$j")
+                    _comp_expand_tilde "${BASH_REMATCH[2]}" # Eval/expand possible `~' or `~user'
+                    [[ -r $ret ]] && kh+=("$ret")
                 done
                 # ...and then the rest.
                 _comp_split tmpkh2 "$i" || continue
                 for j in "${tmpkh2[@]}"; do
-                    __expand_tilde_by_ref j # Eval/expand possible `~' or `~user'
-                    [[ -r $j ]] && kh+=("$j")
+                    _comp_expand_tilde "$j" # Eval/expand possible `~' or `~user'
+                    [[ -r $ret ]] && kh+=("$ret")
                 done
             done
         fi

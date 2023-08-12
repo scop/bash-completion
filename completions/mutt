@@ -72,10 +72,10 @@ _comp_cmd_mutt__get_conffiles__visit()
     local -a newconffiles=($(command sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' "$1"))
     ((${#newconffiles[@]})) || return 0
 
-    local file
+    local file ret
     for file in "${newconffiles[@]}"; do
-        __expand_tilde_by_ref file
-        _comp_cmd_mutt__get_conffiles__visit "$file"
+        _comp_expand_tilde "$file"
+        _comp_cmd_mutt__get_conffiles__visit "$ret"
     done
 }
 
@@ -119,7 +119,9 @@ _comp_cmd_mutt__query()
     if [[ ! $cur || ! $querycmd ]]; then
         queryresults=()
     else
-        __expand_tilde_by_ref querycmd
+        local ret
+        _comp_expand_tilde "$querycmd"
+        querycmd=$ret
         # $querycmd is expected to be a command with arguments
         queryresults=($($querycmd |
             command sed -n '2,$s|^\([^[:space:]]\{1,\}\).*|\1|p'))
