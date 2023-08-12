@@ -21,6 +21,7 @@ _comp_deprecate_func 2.12 _kernel_versions _comp_compgen_kernel_versions
 _comp_deprecate_func 2.12 _uids _comp_compgen_uids
 _comp_deprecate_func 2.12 _gids _comp_compgen_gids
 _comp_deprecate_func 2.12 _xinetd_services _comp_compgen_xinetd_services
+_comp_deprecate_func 2.12 _services _comp_compgen_services
 _comp_deprecate_func 2.12 _pids _comp_compgen_pids
 _comp_deprecate_func 2.12 _pgids _comp_compgen_pgids
 _comp_deprecate_func 2.12 _pnames _comp_compgen_pnames

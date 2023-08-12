@@ -1917,27 +1917,28 @@ _comp_compgen_xinetd_services()
 
 # This function completes on services
 #
-# TODO:API: rename per conventions
-_services()
+# @since 2.12
+_comp_compgen_services()
 {
     local sysvdirs
     _comp_sysvdirs
 
-    _comp_expand_glob COMPREPLY '${sysvdirs[0]}/!($_comp_backup_glob|functions|README)'
+    local services
+    _comp_expand_glob services '${sysvdirs[0]}/!($_comp_backup_glob|functions|README)'
 
-    local generated=$({
+    local _generated=$({
         systemctl list-units --full --all ||
             systemctl list-unit-files
     } 2>/dev/null |
         awk '$1 ~ /\.service$/ { sub("\\.service$", "", $1); print $1 }')
-    _comp_split -la COMPREPLY "$generated"
+    _comp_split -la services "$_generated"
 
     if [[ -x /sbin/upstart-udev-bridge ]]; then
-        _comp_split -la COMPREPLY "$(initctl list 2>/dev/null | cut -d' ' -f1)"
+        _comp_split -la services "$(initctl list 2>/dev/null | cut -d' ' -f1)"
     fi
 
-    ((${#COMPREPLY[@]})) &&
-        _comp_compgen -- -W '"${COMPREPLY[@]#${sysvdirs[0]}/}"'
+    ((${#services[@]})) || return 1
+    _comp_compgen -U services -U sysvdirs -- -W '"${services[@]#${sysvdirs[0]}/}"'
 }
 
 # This completes on a list of all available service scripts for the
@@ -1957,7 +1958,7 @@ _service()
     ((cword > 2)) && return
 
     if [[ $cword -eq 1 && $prev == ?(*/)service ]]; then
-        _services
+        _comp_compgen_services
         [[ -e /etc/mandrake-release ]] && _comp_compgen_xinetd_services
     else
         local sysvdirs
