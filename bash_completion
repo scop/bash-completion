@@ -520,8 +520,8 @@ _comp_compgen__error_fallback()
 # @since 2.12
 _comp_compgen()
 {
-    local _append=${_comp_compgen__append-}
-    local _var=${_comp_compgen__var-COMPREPLY}
+    local _append=
+    local _var=
     local _cur=${_comp_compgen__cur-${cur-}}
     local _dir=""
     local _ifs=$' \t\n' _has_ifs=""
@@ -591,6 +591,11 @@ _comp_compgen()
         printf 'bash_completion: %s: unexpected number of arguments\n' "$FUNCNAME" >&2
         printf 'usage: %s [-alR|-F SEP|-v ARR|-c CUR] -- ARGS...' "$FUNCNAME" >&2
         return 2
+    fi
+    if [[ ! $_var ]]; then
+        # Inherit _append and _var only when -v var is unspecified.
+        _var=${_comp_compgen__var-COMPREPLY}
+        [[ $_append ]] || _append=${_comp_compgen__append-}
     fi
 
     if [[ $1 != -* ]]; then
