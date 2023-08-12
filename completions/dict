@@ -14,7 +14,7 @@ _comp_cmd_dict()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
-    local -a dict_options=()
+    local -a dict_command=("$1")
     local host="" port="" db i
 
     local noargopts='!(-*|*[hpdis]*)'
@@ -23,15 +23,15 @@ _comp_cmd_dict()
         case ${words[i]} in
             --host | -${noargopts}h)
                 host=${words[++i]}
-                [[ $host ]] && dict_options+=(-h "$host")
+                [[ $host ]] && dict_command+=(-h "$host")
                 ;;
             --port | -${noargopts}p)
                 port=${words[++i]}
-                [[ $port ]] && dict_options+=(-p "$port")
+                [[ $port ]] && dict_command+=(-p "$port")
                 ;;
             --database | -${noargopts}d)
                 db=${words[++i]}
-                [[ $db ]] && dict_options+=(-d "$db")
+                [[ $db ]] && dict_command+=(-d "$db")
                 ;;
         esac
     done
@@ -44,11 +44,11 @@ _comp_cmd_dict()
     # shellcheck disable=SC2254
     case $prev in
         --database | -info | -${noargopts}[di])
-            _comp_cmd_dict__compgen_dictdata "$1" ${dict_options[@]+"${dict_options[@]}"} -D
+            _comp_cmd_dict__compgen_dictdata "${dict_command[@]}" -D
             return
             ;;
         --strategy | -${noargopts}s)
-            _comp_cmd_dict__compgen_dictdata "$1" ${dict_options[@]+"${dict_options[@]}"} -S
+            _comp_cmd_dict__compgen_dictdata "${dict_command[@]}" -S
             return
             ;;
     esac
