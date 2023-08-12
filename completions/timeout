@@ -2,17 +2,14 @@
 
 _comp_cmd_timeout()
 {
-    local cur prev words cword was_split comp_args i found=""
+    local cur prev words cword was_split comp_args i
     _comp_initialize -s -- "$@" || return
 
     local noargopts='!(-*|*[ks]*)'
-    for ((i = 1; i <= cword; i++)); do
+    for ((i = 1; i < cword; i++)); do
         if [[ ${words[i]} != -* ]]; then
-            if [[ $found ]]; then
-                _comp_command_offset $i
-                return
-            fi
-            found=set
+            _comp_command_offset "$((i + 1))"
+            return
         fi
         # shellcheck disable=SC2254
         [[ ${words[i]} == -@(-kill-after|-signal|${noargopts}[ks]) ]] && ((i++))
