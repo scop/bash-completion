@@ -2156,16 +2156,16 @@ _comp_realcommand()
     fi
 }
 
-# This function returns the first argument, excluding options
+# This function returns the position of the first argument, excluding options
 #
 # Options:
 #     -a GLOB  Pattern of options that take an option argument
 #
-# @var[out] ret First argument before current being completed if any, or
-# otherwise an empty string
+# @var[out] ret Position of the first argument before the current one being
+# completed if any, or otherwise an empty string
 # @return True (0) if any argument is found, False (> 0) otherwise.
 # @since 2.12
-_comp_get_first_arg()
+_comp_locate_first_arg()
 {
     local has_optarg=""
     local OPTIND=1 OPTARG="" OPTERR=0 _opt
@@ -2187,14 +2187,28 @@ _comp_get_first_arg()
         if [[ $has_optarg && ${words[i]} == $has_optarg ]]; then
             ((i++))
         elif [[ ${words[i]} != -?* ]]; then
-            ret=${words[i]}
+            ret=$i
             return 0
         elif [[ ${words[i]} == -- ]]; then
-            ((i + 1 < cword)) && ret=${words[i + 1]} && return 0
+            ((i + 1 < cword)) && ret=$((i + 1)) && return 0
             break
         fi
     done
     return 1
+}
+
+# This function returns the first argument, excluding options
+#
+# Options:
+#     -a GLOB  Pattern of options that take an option argument
+#
+# @var[out] ret First argument before the current one being completed if any,
+# or otherwise an empty string
+# @return True (0) if any argument is found, False (> 0) otherwise.
+# @since 2.12
+_comp_get_first_arg()
+{
+    _comp_locate_first_arg "$@" && ret=${words[ret]}
 }
 
 # This function counts the number of args, excluding options
