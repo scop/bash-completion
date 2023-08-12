@@ -1136,8 +1136,8 @@ _comp__split_longopt()
 # Complete variables.
 # @return  True (0) if variables were completed,
 #          False (> 0) if not.
-# TODO:API: rename per conventions
-_variables()
+# @since 2.12
+_comp_compgen_variables()
 {
     if [[ $cur =~ ^(\$(\{[!#]?)?)([A-Za-z0-9_]*)$ ]]; then
         # Completing $var / ${var / ${!var / ${#var
@@ -1148,10 +1148,10 @@ _variables()
             if ((${#vars[@]} == 1 && ${#arrs[@]} != 0)); then
                 # Complete ${arr with ${array[ if there is only one match, and that match is an array variable
                 compopt -o nospace
-                COMPREPLY+=("${arrs[@]}")
+                _comp_compgen -U vars -U arrs -R -- -W '"${arrs[@]}"'
             else
                 # Complete ${var with ${variable}
-                COMPREPLY+=("${vars[@]}")
+                _comp_compgen -U vars -U arrs -R -- -W '"${vars[@]}"'
             fi
         else
             # Complete $var with $variable
@@ -1160,18 +1160,23 @@ _variables()
         return 0
     elif [[ $cur =~ ^(\$\{[#!]?)([A-Za-z0-9_]*)\[([^]]*)$ ]]; then
         # Complete ${array[i with ${array[idx]}
-        _comp_compgen -ac "${BASH_REMATCH[3]}" -- -W '"${!'"${BASH_REMATCH[2]}"'[@]}"' \
+        local vars
+        _comp_compgen -v vars -c "${BASH_REMATCH[3]}" -- -W '"${!'"${BASH_REMATCH[2]}"'[@]}"' \
             -P "${BASH_REMATCH[1]}${BASH_REMATCH[2]}[" -S ']}'
         # Complete ${arr[@ and ${arr[*
         if [[ ${BASH_REMATCH[3]} == [@*] ]]; then
-            COMPREPLY+=("${BASH_REMATCH[1]}${BASH_REMATCH[2]}[${BASH_REMATCH[3]}]}")
+            vars+=("${BASH_REMATCH[1]}${BASH_REMATCH[2]}[${BASH_REMATCH[3]}]}")
         fi
-        _comp_ltrim_colon_completions "$cur" # array indexes may have colons
+        # array indexes may have colons
+        if ((${#vars[@]})); then
+            _comp_compgen -U vars -c "$cur" ltrim_colon "${vars[@]}"
+        else
+            _comp_compgen_set
+        fi
         return 0
     elif [[ $cur =~ ^\$\{[#!]?[A-Za-z0-9_]*\[.*\]$ ]]; then
         # Complete ${array[idx] with ${array[idx]}
-        COMPREPLY+=("$cur}")
-        _comp_ltrim_colon_completions "$cur"
+        _comp_compgen -c "$cur" ltrim_colon "$cur}"
         return 0
     fi
     return 1
@@ -1284,7 +1289,7 @@ _comp_variable_assignments()
             _comp_delimited : -W '$(locale -a 2>/dev/null)'
             ;;
         *)
-            _variables && return 0
+            _comp_compgen_variables && return 0
             _comp_compgen -a filedir
             ;;
     esac
@@ -1355,7 +1360,7 @@ _comp_initialize()
     _comp_get_words -n "$exclude<>&" cur prev words cword
 
     # Complete variable names.
-    _variables && return 1
+    _comp_compgen_variables && return 1
 
     # Complete on files if current is a redirect possibly followed by a
     # filename, e.g. ">foo", or previous is a "bare" redirect, e.g. ">".
