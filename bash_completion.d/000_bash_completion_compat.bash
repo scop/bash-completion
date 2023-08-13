@@ -35,6 +35,7 @@ _comp_deprecate_func 2.12 _usergroup _comp_compgen_usergroups
 _comp_deprecate_func 2.12 _complete_as_root _comp_as_root
 _comp_deprecate_func 2.12 __load_completion _comp_load
 _comp_deprecate_func 2.12 _service _comp_complete_service
+_comp_deprecate_func 2.12 _user_at_host _comp_complete_user_at_host
 
 # @deprecated 2.12 Use `_comp_xspecs`
 declare -Ag _xspecs
