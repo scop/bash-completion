@@ -2642,21 +2642,22 @@ _comp_compgen_known_hosts__impl()
         _comp_compgen -av known_hosts -- -A hostname -P "$prefix" -S "$suffix"
     fi
 
-    if ((${#known_hosts[@]})); then
-        if [[ $ipv4 ]]; then
-            known_hosts=("${known_hosts[@]/*:*$suffix/}")
-        fi
-        if [[ $ipv6 ]]; then
-            known_hosts=("${known_hosts[@]/+([0-9]).+([0-9]).+([0-9]).+([0-9])$suffix/}")
-        fi
-        if [[ $ipv4 || $ipv6 ]]; then
-            for i in "${!known_hosts[@]}"; do
-                [[ ${known_hosts[i]} ]] || unset -v 'known_hosts[i]'
-            done
-        fi
-        _comp_compgen -v known_hosts -c "$prefix$cur" ltrim_colon "${known_hosts[@]}"
-    fi
+    ((${#known_hosts[@]})) || return 1
 
+    if [[ $ipv4 ]]; then
+        known_hosts=("${known_hosts[@]/*:*$suffix/}")
+    fi
+    if [[ $ipv6 ]]; then
+        known_hosts=("${known_hosts[@]/+([0-9]).+([0-9]).+([0-9]).+([0-9])$suffix/}")
+    fi
+    if [[ $ipv4 || $ipv6 ]]; then
+        for i in "${!known_hosts[@]}"; do
+            [[ ${known_hosts[i]} ]] || unset -v 'known_hosts[i]'
+        done
+    fi
+    ((${#known_hosts[@]})) || return 1
+
+    _comp_compgen -v known_hosts -c "$prefix$cur" ltrim_colon "${known_hosts[@]}"
 } # _comp_compgen_known_hosts__impl()
 complete -F _known_hosts traceroute traceroute6 \
     fping fping6 telnet rsh rlogin ftp dig drill mtr ssh-installkeys showmount
