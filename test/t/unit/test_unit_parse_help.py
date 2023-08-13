@@ -158,6 +158,13 @@ class TestUnitParseHelp:
         output = assert_bash_exec(bash, "_parse_help fn", want_output=True)
         assert output.split() == "--foo".split()
 
+    def test_27_middle_dot(self, bash):
+        """We do not want to include the period at the end of the sentence but
+        want to include dots connecting names."""
+        assert_bash_exec(bash, "fn() { echo '--foo.bar.'; }")
+        output = assert_bash_exec(bash, "_parse_help fn", want_output=True)
+        assert output.split() == "--foo.bar".split()
+
     def test_28(self, bash):
         assert_bash_exec(bash, "fn() { echo '-f or --foo'; }")
         output = assert_bash_exec(bash, "_parse_help fn", want_output=True)
