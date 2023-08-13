@@ -1961,8 +1961,8 @@ _comp_compgen_services()
 # one, because we set it up eagerly as completer for scripts in sysv init dirs
 # below.
 #
-# TODO:API: rename per conventions, rework to use vars rather than outputting
-_service()
+# @since 2.12
+_comp_complete_service()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -1981,7 +1981,7 @@ _service()
             "${sysvdirs[0]}/${prev##*/}" 2>/dev/null) start stop"
     fi
 } &&
-    complete -F _service service
+    complete -F _comp_complete_service service
 
 _comp__init_set_up_service_completions()
 {
@@ -1990,7 +1990,7 @@ _comp__init_set_up_service_completions()
         for svcdir in "${sysvdirs[@]}"; do
             _comp_expand_glob svcs '"$svcdir"/!($_comp_backup_glob)'
             for svc in "${svcs[@]}"; do
-                [[ -x $svc ]] && complete -F _service "$svc"
+                [[ -x $svc ]] && complete -F _comp_complete_service "$svc"
             done
         done
     unset -f "$FUNCNAME"

@@ -34,6 +34,7 @@ _comp_deprecate_func 2.12 _installed_modules _comp_compgen_inserted_kernel_modul
 _comp_deprecate_func 2.12 _usergroup _comp_compgen_usergroups
 _comp_deprecate_func 2.12 _complete_as_root _comp_as_root
 _comp_deprecate_func 2.12 __load_completion _comp_load
+_comp_deprecate_func 2.12 _service _comp_complete_service
 
 # @deprecated 2.12 Use `_comp_xspecs`
 declare -Ag _xspecs
