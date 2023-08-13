@@ -2926,12 +2926,17 @@ complete -F _comp_complete_longopt \
 # @since 2.12
 declare -Ag _comp_xspecs
 
-# TODO:API: rename per conventions
-_filedir_xspec()
+# @since 2.12
+_comp_complete_filedir_xspec()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
+    _comp_compgen_filedir_xspec "$1"
+}
 
+# @since 2.12
+_comp_compgen_filedir_xspec()
+{
     _comp_compgen_tilde && return
 
     local ret
@@ -2960,10 +2965,10 @@ _filedir_xspec()
         ${#toks[@]} -lt 1 ]] &&
         _comp_compgen -av toks -c "$quoted" -- -f
 
-    if ((${#toks[@]} != 0)); then
-        compopt -o filenames
-        COMPREPLY=("${toks[@]}")
-    fi
+    ((${#toks[@]})) || return 1
+
+    compopt -o filenames
+    _comp_compgen -RU toks -- -W '"${toks[@]}"'
 }
 
 _comp__init_install_xspec()
@@ -3168,7 +3173,7 @@ _comp_load()
 
     # Look up simple "xspec" completions
     [[ -v _comp_xspecs[$cmdname] || -v _xspecs[$cmdname] ]] &&
-        complete -F _filedir_xspec "$cmdname" "$backslash$cmdname" && return 0
+        complete -F _comp_complete_filedir_xspec "$cmdname" "$backslash$cmdname" && return 0
 
     if [[ $flag_fallback_default ]]; then
         complete -F _minimal -- "$origcmd" && return 0

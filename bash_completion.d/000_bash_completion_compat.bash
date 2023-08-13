@@ -37,6 +37,7 @@ _comp_deprecate_func 2.12 _service _comp_complete_service
 _comp_deprecate_func 2.12 _user_at_host _comp_complete_user_at_host
 _comp_deprecate_func 2.12 _known_hosts _comp_complete_known_hosts
 _comp_deprecate_func 2.12 _longopt _comp_complete_longopt
+_comp_deprecate_func 2.12 _filedir_xspec _comp_complete_filedir_xspec
 
 # @deprecated 2.12 Use `_comp_xspecs`
 declare -Ag _xspecs
