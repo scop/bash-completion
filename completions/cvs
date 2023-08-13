@@ -20,24 +20,25 @@ _comp_cmd_cvs__modules()
     fi
 }
 
-# TODO:API: rename per conventions, rework to use vars rather than outputting
-_cvs_commands()
+_comp_cmd_cvs__compgen_commands()
 {
-    cvs --help-commands 2>&1 | awk '/^(     *|\t)/ { print $1 }'
+    _comp_compgen_split -- "$(
+        "$1" --help-commands 2>&1 | awk '/^(     *|\t)/ { print $1 }'
+    )"
 }
 
-_comp_cmd_cvs__command_options()
+_comp_cmd_cvs__compgen_command_options()
 {
     _comp_compgen_help -- --help "$2"
 }
 
-_comp_cmd_cvs__kflags()
+_comp_cmd_cvs__compgen_kflags()
 {
     _comp_compgen -- -W 'kv kvl k o b v'
 }
 
 # @since 2.12
-_comp_xfunc_cvs_roots()
+_comp_xfunc_cvs_compgen_roots()
 {
     local -a cvsroots=()
     [[ -v CVSROOT ]] && cvsroots=("$CVSROOT")
@@ -48,7 +49,7 @@ _comp_xfunc_cvs_roots()
     _comp_ltrim_colon_completions "$cur"
 }
 
-_comp_deprecate_func 2.12 _cvs_roots _comp_xfunc_cvs_roots
+_comp_deprecate_func 2.12 _cvs_roots _comp_xfunc_cvs_compgen_roots
 
 _comp_cmd_cvs()
 {
@@ -70,7 +71,7 @@ _comp_cmd_cvs()
             # shellcheck disable=SC2254
             case $i in
                 --help | -${noargopts}H)
-                    _comp_compgen_split -- "$(_cvs_commands)"
+                    _comp_cmd_cvs__compgen_commands "$1"
                     return
                     ;;
                 -${noargopts}d)
@@ -153,7 +154,7 @@ _comp_cmd_cvs()
                     return
                     ;;
                 -*k)
-                    _comp_cmd_cvs__kflags
+                    _comp_cmd_cvs__compgen_kflags
                     return
                     ;;
             esac
@@ -179,7 +180,7 @@ _comp_cmd_cvs()
                 ((${#files[@]})) &&
                     _comp_compgen -- -X "$_comp_backup_glob" -W '"${files[@]}"'
             else
-                _comp_cmd_cvs__command_options "$1" "$mode"
+                _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             fi
             ;;
         admin)
@@ -193,13 +194,13 @@ _comp_cmd_cvs()
                     return
                     ;;
                 -*k)
-                    _comp_cmd_cvs__kflags
+                    _comp_cmd_cvs__compgen_kflags
                     return
                     ;;
             esac
 
             if [[ $cur == -* ]]; then
-                _comp_cmd_cvs__command_options "$1" "$mode"
+                _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             else
                 _comp_cmd_cvs__entries
                 ((${#entries[@]})) &&
@@ -210,7 +211,7 @@ _comp_cmd_cvs()
             [[ $prev == -[rD] ]] && return
 
             if [[ $cur == -* ]]; then
-                _comp_cmd_cvs__command_options "$1" "$mode"
+                _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             else
                 _comp_cmd_cvs__entries
                 ((${#entries[@]})) &&
@@ -228,7 +229,7 @@ _comp_cmd_cvs()
                     return
                     ;;
                 -*k)
-                    _comp_cmd_cvs__kflags
+                    _comp_cmd_cvs__compgen_kflags
                     return
                     ;;
             esac
@@ -240,7 +241,7 @@ _comp_cmd_cvs()
                 ((${#COMPREPLY[@]})) &&
                     _comp_compgen -- -W '"${COMPREPLY[@]}"'
             else
-                _comp_cmd_cvs__command_options "$1" "$mode"
+                _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             fi
             ;;
         commit)
@@ -277,15 +278,15 @@ _comp_cmd_cvs()
                         _comp_compgen -- -W '"${entries[@]}"'
                 fi
             else
-                _comp_cmd_cvs__command_options "$1" "$mode"
+                _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             fi
             ;;
         cvsroot)
-            _comp_xfunc_cvs_roots
+            _comp_xfunc_cvs_compgen_roots
             ;;
         diff | log | status)
             if [[ $cur == -* ]]; then
-                _comp_cmd_cvs__command_options "$1" "$mode"
+                _comp_cmd_cvs__compgen_command_options "$1" "$mode"
                 [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
             else
                 _comp_cmd_cvs__entries
@@ -295,7 +296,7 @@ _comp_cmd_cvs()
             ;;
         editors | watchers)
             if [[ $cur == -* ]]; then
-                _comp_cmd_cvs__command_options "$1" "$mode"
+                _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             else
                 _comp_cmd_cvs__entries
                 ((${#entries[@]})) &&
@@ -313,7 +314,7 @@ _comp_cmd_cvs()
                     return
                     ;;
                 -*k)
-                    _comp_cmd_cvs__kflags
+                    _comp_cmd_cvs__compgen_kflags
                     return
                     ;;
             esac
@@ -324,7 +325,7 @@ _comp_cmd_cvs()
                 ((${#COMPREPLY[@]})) &&
                     _comp_compgen -- -W '"${COMPREPLY[@]}"'
             else
-                _comp_cmd_cvs__command_options "$1" "$mode"
+                _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             fi
             ;;
         import)
@@ -334,7 +335,7 @@ _comp_cmd_cvs()
                     return
                     ;;
                 -*k)
-                    _comp_cmd_cvs__kflags
+                    _comp_cmd_cvs__compgen_kflags
                     return
                     ;;
             esac
@@ -354,7 +355,7 @@ _comp_cmd_cvs()
                 ((${#COMPREPLY[@]})) &&
                     _comp_compgen -- -W '"${COMPREPLY[@]}"'
             else
-                _comp_cmd_cvs__command_options "$1" "$mode"
+                _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             fi
             ;;
         remove)
@@ -369,7 +370,7 @@ _comp_cmd_cvs()
                 ((${#entries[@]})) &&
                     _comp_compgen -- -W '"${entries[@]}"'
             else
-                _comp_cmd_cvs__command_options "$1" "$mode"
+                _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             fi
             ;;
         update)
@@ -379,13 +380,13 @@ _comp_cmd_cvs()
                     return
                     ;;
                 -*k)
-                    _comp_cmd_cvs__kflags
+                    _comp_cmd_cvs__compgen_kflags
                     return
                     ;;
             esac
 
             if [[ $cur == -* ]]; then
-                _comp_cmd_cvs__command_options "$1" "$mode"
+                _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             else
                 _comp_cmd_cvs__entries
                 ((${#entries[@]})) &&
@@ -409,8 +410,9 @@ _comp_cmd_cvs()
             esac
 
             _comp_compgen_help -- --help-options
-            _comp_compgen -a split -- "$(_cvs_commands) --help
-                --help-commands --help-options --version"
+            _comp_compgen -a -i cvs commands "$1"
+            _comp_compgen -a -- -W \
+                "--help --help-commands --help-options --version"
             ;;
     esac
 

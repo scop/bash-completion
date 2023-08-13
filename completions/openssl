@@ -1,6 +1,6 @@
 # bash completion for openssl                              -*- shell-script -*-
 
-_comp_cmd_openssl__sections()
+_comp_cmd_openssl__compgen_sections()
 {
     local config f
 
@@ -25,15 +25,16 @@ _comp_cmd_openssl__sections()
     _comp_compgen_split -- "$(awk '/\[.*\]/ {print $2}' "$config")"
 }
 
-# TODO:API: rename per conventions, rework to use vars rather than outputting
-_openssl_digests()
+_comp_cmd_openssl__compgen_digests()
 {
-    "$1" dgst -h 2>&1 |
-        awk '/^-.*[ \t]to use the .* message digest algorithm/ { print $1 }'
-    local -a digests=($("$1" help 2>&1 |
-        command sed -ne '/^Message Digest commands/,/^[[:space:]]*$/p' |
-        command sed -e 1d))
-    printf "%s\n" "${digests[@]/#/-}"
+    _comp_compgen_split -- "$(
+        "$1" dgst -h 2>&1 |
+            awk '/^-.*[ \t]to use the .* message digest algorithm/ { print $1 }'
+        local -a digests=($("$1" help 2>&1 |
+            command sed -ne '/^Message Digest commands/,/^[[:space:]]*$/p' |
+            command sed -e 1d))
+        printf "%s\n" "${digests[@]/#/-}"
+    )"
 }
 
 _comp_cmd_openssl()
@@ -74,7 +75,7 @@ _comp_cmd_openssl()
                 return
                 ;;
             -name | -crlexts | -extensions)
-                _comp_cmd_openssl__sections
+                _comp_cmd_openssl__compgen_sections
                 return
                 ;;
             -inform | -outform | -keyform | -certform | -CAform | -CAkeyform | -dkeyform | \
@@ -118,8 +119,7 @@ _comp_cmd_openssl()
             _comp_compgen_help -- "$command" -help
             case $command in
                 dgst | req | x509)
-                    local options=$(_openssl_digests "$1")
-                    _comp_compgen -a -- -W '$options'
+                    _comp_compgen -a -i openssl digests "$1"
                     ;;
             esac
         else

@@ -1,52 +1,56 @@
 # ssh(1) completion                                        -*- shell-script -*-
 
-_comp_cmd_ssh__queries()
+_comp_cmd_ssh__compgen_queries()
 {
-    local queries=$(_comp_cmd_ssh__query "$1" help)
-    [[ $queries ]] || queries="cipher cipher-auth mac kex key key-cert
-         key-plain key-sig protocol-version compression sig ciphers macs
-         kexalgorithms pubkeyacceptedkeytypes hostkeyalgorithms
-         hostbasedkeytypes hostbasedacceptedkeytypes"
-    _comp_compgen -ac "${cur,,}" -- -W "$queries help"
+    local -a ret
+    _comp_compgen -v ret -i ssh query "$1" help
+    [[ ${ret-} ]] || ret=(cipher cipher-auth mac kex key key-cert
+        key-plain key-sig protocol-version compression sig ciphers macs
+        kexalgorithms pubkeyacceptedkeytypes hostkeyalgorithms
+        hostbasedkeytypes hostbasedacceptedkeytypes)
+    _comp_compgen -ac "${cur,,}" -- -W '"${ret[@]}" help"'
 }
 
 # @since 2.12
-# TODO:API:rework to use vars rather than outputting
-_comp_xfunc_ssh_query()
+_comp_xfunc_ssh_compgen_query()
 {
-    _comp_cmd_ssh__query ssh "$1"
+    _comp_cmd_ssh__compgen_query ssh "$1"
 }
 
-# @deprecated 2.12 use _comp_xfunc_ssh_query
+# @deprecated 2.12 use _comp_xfunc_ssh_compgen_query
 _ssh_query()
 {
-    _comp_cmd_ssh__query "${1:-ssh}" "$2"
+    local -a ret=()
+    _comp_compgen -v ret -i ssh query "${1:-ssh}" "$2"
+    printf "%s\n" "${ret[@]}"
 }
 
-# TODO:API:rework to use vars rather than outputting
-_comp_cmd_ssh__query()
+_comp_cmd_ssh__compgen_query()
 {
-    "$1" -Q "$2" 2>/dev/null
+    _comp_compgen_split -- "$("$1" -Q "$2" 2>/dev/null)"
 }
 
-_comp_cmd_ssh__ciphers()
+_comp_cmd_ssh__compgen_ciphers()
 {
-    local ciphers=$(_comp_cmd_ssh__query "$1" cipher)
-    [[ $ciphers ]] || ciphers="3des-cbc aes128-cbc aes192-cbc aes256-cbc
+    local -a ret
+    _comp_compgen -v ret -i ssh query "$1" cipher
+    [[ ${ret-} ]] || ret=(3des-cbc aes128-cbc aes192-cbc aes256-cbc
         aes128-ctr aes192-ctr aes256-ctr arcfour128 arcfour256 arcfour
-        blowfish-cbc cast128-cbc"
-    _comp_compgen -a -- -W "$ciphers"
+        blowfish-cbc cast128-cbc)
+    _comp_compgen -a -- -W '"${ret[@]}"'
 }
 
-_comp_cmd_ssh__macs()
+_comp_cmd_ssh__compgen_macs()
 {
-    local macs=$(_comp_cmd_ssh__query "$1" mac)
-    [[ $macs ]] || macs="hmac-md5 hmac-sha1 umac-64@openssh.com hmac-ripemd160
-        hmac-sha1-96 hmac-md5-96"
-    _comp_compgen -a -- -W "$macs"
+    local -a ret
+    _comp_compgen -v ret -i ssh query "$1" mac
+    [[ ${ret-} ]] || ret=(hmac-md5 hmac-sha1 umac-64@openssh.com
+        hmac-ripemd160 hmac-sha1-96 hmac-md5-96)
+    _comp_compgen -a -- -W '"${ret[@]}"'
 }
 
 # @since 2.12
+# TODO:API: make it a generator
 _comp_xfunc_ssh_options()
 {
     # curl --silent https://raw.githubusercontent.com/openssh/openssh-portable/master/ssh_config.5 | awk '$1==".It" && $2=="Cm" && $3!="Host" && $3!="Match" {print "        "$3}' | sort
@@ -80,8 +84,9 @@ _comp_xfunc_ssh_options()
         GSSAPIKeyExchange GSSAPIRenewalForcesRekey GSSAPIServerIdentity
         GSSAPITrustDns PubkeyAcceptedKeyTypes SmartcardDevice UsePrivilegedPort
     )
-    local protocols=$(_comp_cmd_ssh__query ssh protocol-version)
-    if [[ ! $protocols || $protocols == *1* ]]; then
+    local -a protocols
+    _comp_compgen -v protocols -i ssh query ssh protocol-version
+    if [[ ${protocols[*]-} == *1* ]]; then
         opts+=(Cipher CompressionLevel Protocol RhostsRSAAuthentication
             RSAAuthentication)
     fi
@@ -138,20 +143,20 @@ _comp_cmd_ssh__suboption()
             _comp_compgen -- -W 'yes no always'
             ;;
         identityfile)
-            _comp_xfunc_ssh_identityfile
+            _comp_xfunc_ssh_compgen_identityfile
             ;;
         *file | identityagent | include | controlpath | revokedhostkeys | \
             xauthlocation)
             _comp_compgen_filedir
             ;;
         casignaturealgorithms)
-            _comp_compgen_split -- "$(_comp_cmd_ssh__query "$1" sig)"
+            _comp_cmd_ssh__compgen_query "$1" sig
             ;;
         cipher)
             _comp_compgen -- -W 'blowfish des 3des'
             ;;
         ciphers)
-            _comp_cmd_ssh__ciphers "$1"
+            _comp_cmd_ssh__compgen_ciphers "$1"
             ;;
         controlmaster)
             _comp_compgen -- -W 'yes ask auto autoask no'
@@ -167,16 +172,16 @@ _comp_cmd_ssh__suboption()
                 cs{0..7} ef lowdelay throughput reliability'
             ;;
         hostbasedkeytypes | hostkeyalgorithms)
-            _comp_compgen_split -- "$(_comp_cmd_ssh__query "$1" key)"
+            _comp_cmd_ssh__compgen_query "$1" key
             ;;
         kexalgorithms)
-            _comp_compgen_split -- "$(_comp_cmd_ssh__query "$1" kex)"
+            _comp_cmd_ssh__compgen_query "$1" kex
             ;;
         loglevel)
             _comp_compgen -- -W 'QUIET FATAL ERROR INFO VERBOSE DEBUG{,1,2,3}'
             ;;
         macs)
-            _comp_cmd_ssh__macs "$1"
+            _comp_cmd_ssh__compgen_macs "$1"
             ;;
         pkcs11provider)
             _comp_compgen_filedir so
@@ -186,8 +191,9 @@ _comp_cmd_ssh__suboption()
                 keyboard-interactive password'
             ;;
         protocol)
-            local protocols=($(_comp_cmd_ssh__query "$1" protocol-version))
-            [[ $protocols ]] || protocols=(1 2)
+            local -a protocols
+            _comp_compgen -v protocols -i ssh query "$1" protocol-version
+            [[ ${protocols-} ]] || protocols=(1 2)
             if ((${#protocols[@]} > 1)); then
                 _comp_compgen -- -W '"${protocols[@]}"'
             fi
@@ -199,7 +205,7 @@ _comp_cmd_ssh__suboption()
             _comp_compgen_commands
             ;;
         pubkeyacceptedalgorithms | pubkeyacceptedkeytypes)
-            _comp_compgen_split -- "$(_comp_cmd_ssh__query "$1" key)"
+            _comp_cmd_ssh__compgen_query "$1" key
             ;;
         requesttty)
             _comp_compgen -- -W 'no yes force auto'
@@ -224,6 +230,7 @@ _comp_cmd_ssh__suboption()
 #
 # Returns 0 if the completion was handled or non-zero otherwise.
 # @since 2.12
+# # TODO:API: make it a generator
 _comp_xfunc_ssh_suboption_check()
 {
     _comp_cmd_ssh__suboption_check ssh
@@ -271,7 +278,7 @@ _comp_cmd_ssh__configfile()
 # With $1 set, look for public key files, else private
 # @since 2.12
 # shellcheck disable=SC2120
-_comp_xfunc_ssh_identityfile()
+_comp_xfunc_ssh_compgen_identityfile()
 {
     local cur=$cur tmp
     [[ ! $cur && -d ~/.ssh ]] && cur=~/.ssh/id
@@ -279,7 +286,7 @@ _comp_xfunc_ssh_identityfile()
         _comp_compgen -- -W '"${tmp[@]}"' -X "${1:+!}*.pub"
 }
 
-_comp_deprecate_func 2.12 _ssh_identityfile _comp_xfunc_ssh_identityfile
+_comp_deprecate_func 2.12 _ssh_identityfile _comp_xfunc_ssh_compgen_identityfile
 
 _comp_cmd_ssh()
 {
@@ -305,7 +312,7 @@ _comp_cmd_ssh()
             return
             ;;
         -*c)
-            _comp_cmd_ssh__ciphers "$1"
+            _comp_cmd_ssh__compgen_ciphers "$1"
             return
             ;;
         -*[DeLpRW])
@@ -320,7 +327,7 @@ _comp_cmd_ssh()
             return
             ;;
         -*i)
-            _comp_xfunc_ssh_identityfile
+            _comp_xfunc_ssh_compgen_identityfile
             return
             ;;
         -*J)
@@ -332,7 +339,7 @@ _comp_cmd_ssh()
             return
             ;;
         -*m)
-            _comp_cmd_ssh__macs "$1"
+            _comp_cmd_ssh__compgen_macs "$1"
             return
             ;;
         -*O)
@@ -344,7 +351,7 @@ _comp_cmd_ssh()
             return
             ;;
         -*Q)
-            _comp_cmd_ssh__queries "$1"
+            _comp_cmd_ssh__compgen_queries "$1"
             return
             ;;
         -*w)
@@ -408,11 +415,11 @@ _comp_cmd_sftp()
             return
             ;;
         -*i)
-            _comp_xfunc_ssh_identityfile
+            _comp_xfunc_ssh_compgen_identityfile
             return
             ;;
         -*c)
-            _comp_cmd_ssh__ciphers
+            _comp_cmd_ssh__compgen_ciphers
             return
             ;;
         -*J)
@@ -455,7 +462,7 @@ _comp_cmd_scp__path_esc='[][(){}<>"'"'"',:;^&!$=?`\\|[:space:]]'
 # only.  Returns paths escaped with three backslashes.
 # @since 2.12
 # shellcheck disable=SC2120
-_comp_xfunc_scp_remote_files()
+_comp_xfunc_scp_compgen_remote_files()
 {
     # remove backslash escape from the first colon
     cur=${cur/\\:/:}
@@ -488,16 +495,21 @@ _comp_xfunc_scp_remote_files()
             command sed -e 's/'"$_comp_cmd_scp__path_esc"'/\\\\\\&/g' -e 's/[*@|=]$//g' \
                 -e 's/[^\/]$/& /g')
     fi
-    _comp_split -la COMPREPLY "$files"
+    _comp_split -l COMPREPLY "$files"
 }
 
-_comp_deprecate_func 2.12 _scp_remote_files _comp_xfunc_scp_remote_files
+# @deprecated 2.12 use `_comp_compgen -ax ssh remote_files` instead
+_scp_remote_files()
+{
+    _comp_compgen -ax scp remote_files
+}
 
 # This approach is used instead of _comp_compgen_filedir to get a space
 # appended after local file/dir completions, and -o nospace retained for
 # others.  If first arg is -d, complete on directory names only.  The next arg
 # is an optional prefix to add to returned completions.
 # @since 2.12
+# TODO:API: make it a generator, don't append by default
 _comp_xfunc_scp_local_files()
 {
     local IFS=$'\n'
@@ -547,7 +559,7 @@ _comp_cmd_scp()
 
     case $prev in
         -*c)
-            _comp_cmd_ssh__ciphers
+            _comp_cmd_ssh__compgen_ciphers
             COMPREPLY=("${COMPREPLY[@]/%/ }")
             return
             ;;
@@ -557,7 +569,7 @@ _comp_cmd_scp()
             return
             ;;
         -*i)
-            _comp_xfunc_ssh_identityfile
+            _comp_xfunc_ssh_compgen_identityfile
             compopt +o nospace
             return
             ;;
@@ -590,7 +602,7 @@ _comp_cmd_scp()
     case $cur in
         !(*:*)/* | [.~]*) ;; # looks like a path
         *:*)
-            _comp_xfunc_scp_remote_files
+            _comp_xfunc_scp_compgen_remote_files
             return
             ;;
     esac
