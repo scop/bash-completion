@@ -2761,7 +2761,7 @@ _comp_command_offset()
                 if ((${#COMPREPLY[@]} == 0)); then
                     # XXX will probably never happen as long as completion loader loads
                     #     *something* for every command thrown at it ($cspec != empty)
-                    _minimal "${args[@]}"
+                    _comp_complete_minimal "${args[@]}"
                 fi
             elif [[ $cspec == *' -F '* ]]; then
                 # complete -F <function>
@@ -3040,7 +3040,7 @@ unset -f _comp__init_install_xspec
 
 # Minimal completion to use as fallback in _comp_complete_load.
 # TODO:API: rename per conventions
-_minimal()
+_comp_complete_minimal()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -3048,7 +3048,7 @@ _minimal()
 }
 # Complete the empty string to allow completion of '>', '>>', and '<' on < 4.3
 # https://lists.gnu.org/archive/html/bug-bash/2012-01/msg00045.html
-complete -F _minimal ''
+complete -F _comp_complete_minimal ''
 
 # @since 2.12
 _comp_load()
@@ -3176,7 +3176,7 @@ _comp_load()
         complete -F _comp_complete_filedir_xspec "$cmdname" "$backslash$cmdname" && return 0
 
     if [[ $flag_fallback_default ]]; then
-        complete -F _minimal -- "$origcmd" && return 0
+        complete -F _comp_complete_minimal -- "$origcmd" && return 0
     fi
 
     return 1
