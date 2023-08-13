@@ -11,7 +11,7 @@ class TestGrep:
         """
         Test --no-*dir isn't restricted to dirs only.
 
-        Not really a grep option, but tests _comp_longopt.
+        Not really a grep option, but tests _comp_complete_longopt.
         """
         assert completion == "foo foo.d/".split()
 

@@ -10,9 +10,9 @@ class TestUnitLongopt:
     @pytest.fixture(scope="class")
     def functions(self, request, bash):
         assert_bash_exec(bash, "_grephelp() { cat _longopt/grep--help.txt; }")
-        assert_bash_exec(bash, "complete -F _comp_longopt _grephelp")
+        assert_bash_exec(bash, "complete -F _comp_complete_longopt _grephelp")
         assert_bash_exec(bash, "_various() { cat _longopt/various.txt; }")
-        assert_bash_exec(bash, "complete -F _comp_longopt _various")
+        assert_bash_exec(bash, "complete -F _comp_complete_longopt _various")
 
     @pytest.mark.complete("_grephelp --")
     def test_1(self, functions, completion):

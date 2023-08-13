@@ -11,7 +11,6 @@ _comp_deprecate_func 2.12 _xfunc _comp_xfunc
 _comp_deprecate_func 2.12 _upvars _comp_upvars
 _comp_deprecate_func 2.12 _get_comp_words_by_ref _comp_get_words
 _comp_deprecate_func 2.12 _known_hosts_real _comp_compgen_known_hosts
-_comp_deprecate_func 2.12 _longopt _comp_longopt
 _comp_deprecate_func 2.12 __ltrim_colon_completions _comp_ltrim_colon_completions
 _comp_deprecate_func 2.12 _variables _comp_compgen_variables
 _comp_deprecate_func 2.12 _signals _comp_compgen_signals
@@ -37,6 +36,7 @@ _comp_deprecate_func 2.12 __load_completion _comp_load
 _comp_deprecate_func 2.12 _service _comp_complete_service
 _comp_deprecate_func 2.12 _user_at_host _comp_complete_user_at_host
 _comp_deprecate_func 2.12 _known_hosts _comp_complete_known_hosts
+_comp_deprecate_func 2.12 _longopt _comp_complete_longopt
 
 # @deprecated 2.12 Use `_comp_xspecs`
 declare -Ag _xspecs
