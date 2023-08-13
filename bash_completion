@@ -2265,11 +2265,11 @@ _known_hosts()
 
     # NOTE: Using `_known_hosts' as a helper function and passing options
     #       to `_known_hosts' is deprecated: Use `_known_hosts_real' instead.
-    local options=""
-    [[ ${1-} == -a || ${2-} == -a ]] && options=-a
-    [[ ${1-} == -c || ${2-} == -c ]] && options+=" -c"
-    # shellcheck disable=SC2086
-    _known_hosts_real ${options-} -- "$cur"
+    local -a options=()
+    [[ ${1-} == -a || ${2-} == -a ]] && options+=(-a)
+    [[ ${1-} == -c || ${2-} == -c ]] && options+=(-c)
+    local IFS=$' \t\n' # Workaround for connected ${v+"$@"} in bash < 4.4
+    _known_hosts_real ${options[@]+"${options[@]}"} -- "$cur"
 } # _known_hosts()
 
 # Helper function to locate ssh included files in configs
