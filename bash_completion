@@ -115,7 +115,7 @@ _comp_sysvdirs()
     [[ -d /etc/init.d ]] && sysvdirs+=(/etc/init.d)
     # Slackware uses /etc/rc.d
     [[ -f /etc/slackware-version ]] && sysvdirs=(/etc/rc.d)
-    return 0
+    ((${#sysvdirs[@]}))
 }
 
 # This function checks whether we have a given program on the system.
@@ -1931,7 +1931,7 @@ _comp_compgen_xinetd_services()
 _comp_compgen_services()
 {
     local sysvdirs
-    _comp_sysvdirs
+    _comp_sysvdirs || return 1
 
     local services
     _comp_expand_glob services '${sysvdirs[0]}/!($_comp_backup_glob|functions|README)'
@@ -1972,7 +1972,7 @@ _service()
         [[ -e /etc/mandrake-release ]] && _comp_compgen_xinetd_services
     else
         local sysvdirs
-        _comp_sysvdirs
+        _comp_sysvdirs || return 1
         _comp_compgen_split -l -- "$(command sed -e 'y/|/ /' \
             -ne 's/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p' \
             "${sysvdirs[0]}/${prev##*/}" 2>/dev/null) start stop"
@@ -1983,12 +1983,12 @@ _service()
 _comp__init_set_up_service_completions()
 {
     local sysvdirs svc svcdir
-    _comp_sysvdirs
-    for svcdir in "${sysvdirs[@]}"; do
-        for svc in "$svcdir"/!($_comp_backup_glob); do
-            [[ -x $svc ]] && complete -F _service "$svc"
+    _comp_sysvdirs &&
+        for svcdir in "${sysvdirs[@]}"; do
+            for svc in "$svcdir"/!($_comp_backup_glob); do
+                [[ -x $svc ]] && complete -F _service "$svc"
+            done
         done
-    done
     unset -f "$FUNCNAME"
 }
 _comp__init_set_up_service_completions
