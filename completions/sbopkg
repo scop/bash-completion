@@ -36,7 +36,7 @@ _comp_cmd_sbopkg()
 
     local i config
     config="/etc/sbopkg/sbopkg.conf"
-    for ((i = ${#words[@]} - 1; i > 0; i--)); do
+    for ((i = ${#words[@]} - 2; i > 0; i--)); do
         if [[ ${words[i]} == -f ]]; then
             config="${words[i + 1]}"
             __expand_tilde_by_ref config
@@ -47,7 +47,7 @@ _comp_cmd_sbopkg()
     [[ -r $config ]] || return
     . "$config"
 
-    for ((i = 1; i < ${#words[@]}; i++)); do
+    for ((i = 1; i < ${#words[@]} - 1; i++)); do
         case "${words[i]}" in
             -V)
                 REPO_NAME="${words[i + 1]%%/*}"
@@ -58,11 +58,12 @@ _comp_cmd_sbopkg()
                 ;;
         esac
     done
-    [[ -r $REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT ]] || return
+    local file=${REPO_ROOT-}/${REPO_NAME-}/${REPO_BRANCH-}/SLACKBUILDS.TXT
+    [[ -r $file ]] || return
 
     COMPREPLY=($(
         command sed -ne "/^SLACKBUILD NAME: $cur/{s/^SLACKBUILD NAME: //;p}" \
-            "$REPO_ROOT/$REPO_NAME/$REPO_BRANCH/SLACKBUILDS.TXT"
+            "$file"
     ))
     _comp_compgen -aC "$QUEUEDIR" -- -f -X "!*.sqf"
 } &&
