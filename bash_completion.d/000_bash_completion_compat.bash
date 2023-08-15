@@ -447,4 +447,14 @@ _count_args()
     done
 }
 
+# @deprecated 2.12 Use `_comp_load -D -- CommandName` to load the completion,
+# or use `_comp_complete_load` as a completion function specified to `complete
+# -F`.
+_completion_loader()
+{
+    # We call `_comp_complete_load` instead of `_comp_load -D` in case that
+    # `_completion_loader` is used without an argument or `_completion_loader`
+    # is specified to `complete -F` by a user.
+    _comp_complete_load "$@"
+}
 # ex: filetype=sh
