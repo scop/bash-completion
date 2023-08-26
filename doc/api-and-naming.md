@@ -150,7 +150,7 @@ calling `_comp_compgen` or other generators.
 To avoid conflicts with the options specified to `_comp_compgen`, one should
 not directly modify or reference the target variable.  When post-filtering is
 needed, store them in a local array, filter them, and finally append them by
-`_comp_compgen -- -W '"${arr[@]}"'`.  To split the output of commands and
+`_comp_compgen -- -W '"${_arr[@]}"'`.  To split the output of commands and
 append the results to the target variable, use `_comp_compgen_split -- "$(cmd
 ...)"` instead of using `_comp_split COMPREPLY "$(cmd ...)"`.
 
@@ -180,3 +180,45 @@ Exported generators are defined with the names `_comp_xfunc_CMD_compgen_NAME`
 and called by `_comp_compgen [opts] -x CMD NAME args`.  Internal generators are
 defined with the names `_comp_cmd_CMD__compgen_NAME` and called by
 `_comp_compgen [opts] -i CMD NAME args`.
+
+#### Local variables of generator and `_comp_compgen -U var`
+
+A generator should basically define local variables with the names starting
+with `_`.  However, a generator sometimes needs to use local variable names
+that do not start with `_`.  When the child generator call with a variable name
+(such as `local var; _comp_compgen -v var`) is used within the generator, the
+local variable can unexpectedly mask a local variable of the upper call.
+
+For example, the following call fails to obtain the result of generator
+`mygen1` because the array `arr` is masked by the same name of a local variable
+in `_comp_compgen_mygen1`.
+
+```bash
+# generator with a problem
+_comp_compgen_mygen1()
+{
+    local -a arr=(1 2 3)
+    _comp_compgen -av arr -- -W '4 5 6'
+    _comp_compgen_set "${arr[@]/#p}"
+}
+
+_comp_compgen -v arr mygen1 # fails to get the result in array `arr`
+```
+
+To avoid this, a generator that defines a local variable with its name not
+starting with `_` can use the option `-U var` to unlocalize the variable on
+assigning the final result.
+
+```bash
+# properly designed generator
+_comp_compgen_mygen1()
+{
+    local -a arr=(1 2 3)
+    _comp_compgen -av arr -- -W '4 5 6'
+    _comp_compgen -U arr set "${arr[@]/#p}"
+}
+```
+
+To avoid unexpected unlocalization of previous-scope variables, a generator
+should specify `-U var` to a child generator (that attempts to store results to
+the current target variable) at most once.

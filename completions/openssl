@@ -2,27 +2,27 @@
 
 _comp_cmd_openssl__compgen_sections()
 {
-    local config i f
+    local config _i _file
 
     # check if a specific configuration file is used
-    for ((i = 2; i < cword; i++)); do
-        if [[ ${words[i]} == -config ]]; then
-            config=${words[i + 1]}
+    for ((_i = 2; _i < cword; _i++)); do
+        if [[ ${words[_i]} == -config ]]; then
+            config=${words[_i + 1]}
             break
         fi
     done
 
     # if no config given, check some usual default locations
     if [[ ! $config ]]; then
-        for f in /etc/ssl/openssl.cnf /etc/pki/tls/openssl.cnf \
+        for _file in /etc/ssl/openssl.cnf /etc/pki/tls/openssl.cnf \
             /usr/share/ssl/openssl.cnf; do
-            [[ -f $f ]] && config=$f && break
+            [[ -f $_file ]] && config=$_file && break
         done
     fi
 
     [[ ! -f $config ]] && return
 
-    _comp_compgen_split -- "$(awk '/\[.*\]/ {print $2}' "$config")"
+    _comp_compgen -U config split -- "$(awk '/\[.*\]/ {print $2}' "$config")"
 }
 
 _comp_cmd_openssl__compgen_digests()
