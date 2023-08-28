@@ -587,6 +587,7 @@ CLEANFILES = \
 	f95 \
 	filebucket \
 	firefox-esr \
+	_flask \
 	freeciv-gtk2 \
 	freeciv-gtk3 \
 	freeciv-sdl \
@@ -1109,6 +1110,8 @@ symlinks: $(DATA)
 		alpine
 	$(ss) ping \
 		ping4 ping6
+	$(ss) _pipenv \
+		_flask
 	$(ss) pkg-config \
 		pkgconf
 	$(ss) pkg_delete \
