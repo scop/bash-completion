@@ -640,6 +640,7 @@ CLEANFILES = \
 	host \
 	hping \
 	hping3 \
+	_httpx \
 	_hugo \
 	iceweasel \
 	identify \
@@ -1111,7 +1112,7 @@ symlinks: $(DATA)
 	$(ss) ping \
 		ping4 ping6
 	$(ss) _pipenv \
-		_flask
+		_flask _httpx
 	$(ss) pkg-config \
 		pkgconf
 	$(ss) pkg_delete \
