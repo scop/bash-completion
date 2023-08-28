@@ -540,6 +540,8 @@ CLEANFILES = \
 	autossh \
 	autoupdate \
 	avahi-browse-domains \
+	_black \
+	_blackd \
 	bmake \
 	bsdtar \
 	btdownloadcurses.py \
@@ -1112,7 +1114,7 @@ symlinks: $(DATA)
 	$(ss) ping \
 		ping4 ping6
 	$(ss) _pipenv \
-		_flask _httpx
+		_black _blackd _flask _httpx
 	$(ss) pkg-config \
 		pkgconf
 	$(ss) pkg_delete \
