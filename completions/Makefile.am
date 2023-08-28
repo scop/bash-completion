@@ -316,6 +316,7 @@ bashcomp_DATA = 2to3 \
 		pidof \
 		pine \
 		ping \
+		_pipenv \
 		pkg-config \
 		pkg-get \
 		pkg_delete \
