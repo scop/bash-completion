@@ -2157,20 +2157,25 @@ _comp_realcommand()
 }
 
 # This function returns the first argument, excluding options
-# @param $1 chars  Characters out of $COMP_WORDBREAKS which should
-#     NOT be considered word breaks. See _comp__reassemble_words.
-# TODO:API: rename per conventions
-_get_first_arg()
+# @var[out] ret First argument before current being completed if any, or
+# otherwise an empty string
+# @return True (0) if any argument is found, False (> 0) otherwise.
+# @since 2.12
+_comp_get_first_arg()
 {
     local i
 
-    arg=
-    for ((i = 1; i < COMP_CWORD; i++)); do
-        if [[ ${COMP_WORDS[i]} != -* ]]; then
-            arg=${COMP_WORDS[i]}
+    ret=
+    for ((i = 1; i < cword; i++)); do
+        if [[ ${words[i]} != -?* ]]; then
+            ret=${words[i]}
+            return 0
+        elif [[ ${words[i]} == -- ]]; then
+            ((i + 1 < cword)) && ret=${words[i + 1]} && return 0
             break
         fi
     done
+    return 1
 }
 
 # This function counts the number of args, excluding options
@@ -2178,18 +2183,23 @@ _get_first_arg()
 #     NOT be considered word breaks. See _comp__reassemble_words.
 # @param $2 glob   Options whose following argument should not be counted
 # @param $3 glob   Options that should be counted as args
-# TODO:API: rename per conventions
-_count_args()
+# @var[out] ret    Return the number of arguments
+# @since 2.12
+_comp_count_args()
 {
     local i cword words
     _comp__reassemble_words "${1-}" words cword
 
-    args=1
+    ret=1
     for ((i = 1; i < cword; i++)); do
         # shellcheck disable=SC2053
-        if [[ ${words[i]} != -* && ${words[i - 1]} != ${2-} ||
-            ${words[i]} == ${3-} ]]; then
-            ((args++))
+        if [[ ${2-} && ${words[i]} == ${2-} ]]; then
+            ((i++))
+        elif [[ ${words[i]} != -?* || ${3-} && ${words[i]} == ${3-} ]]; then
+            ((ret++))
+        elif [[ ${words[i]} == -- ]]; then
+            ((ret += cword - i - 1))
+            break
         fi
     done
 }

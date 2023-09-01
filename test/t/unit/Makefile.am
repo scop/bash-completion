@@ -12,8 +12,9 @@ EXTRA_DIST = \
 	test_unit_expand_tilde_by_ref.py \
 	test_unit_filedir.py \
 	test_unit_find_unique_completion_pair.py \
-	test_unit_get_words.py \
+	test_unit_get_first_arg.py \
 	test_unit_get_cword.py \
+	test_unit_get_words.py \
 	test_unit_initialize.py \
 	test_unit_ip_addresses.py \
 	test_unit_known_hosts_real.py \

@@ -398,4 +398,49 @@ _fstypes()
     _comp_compgen -a fstypes
 }
 
+# This function returns the first argument, excluding options
+# @deprecated 2.12 Use `_comp_get_first_arg`.  Note that the new function
+# `_comp_get_first_arg` operates on `words` and `cword` instead of `COMP_WORDS`
+# and `COMP_CWORD`.  The new function considers a command-line argument after
+# `--` as an argument.  The new function returns the result in variable `ret`
+# instead of `arg`.
+_get_first_arg()
+{
+    local i
+
+    arg=
+    for ((i = 1; i < COMP_CWORD; i++)); do
+        if [[ ${COMP_WORDS[i]} != -* ]]; then
+            arg=${COMP_WORDS[i]}
+            break
+        fi
+    done
+}
+
+# This function counts the number of args, excluding options
+# @param $1 chars  Characters out of $COMP_WORDBREAKS which should
+#     NOT be considered word breaks. See _comp__reassemble_words.
+# @param $2 glob   Options whose following argument should not be counted
+# @param $3 glob   Options that should be counted as args
+# @var[out] args   Return the number of arguments
+# @deprecated 2.12 Use `_comp_count_args`.  Note that the new function
+# `_comp_count_args` returns the result in variable `ret` instead of `args`.
+# In the new function, `-` is also counted as an argument.  The new function
+# counts all the arguments after `--`.
+# shellcheck disable=SC2178 # assignments are not intended for global "args"
+_count_args()
+{
+    local i cword words
+    _comp__reassemble_words "${1-}" words cword
+
+    args=1
+    for ((i = 1; i < cword; i++)); do
+        # shellcheck disable=SC2053
+        if [[ ${words[i]} != -* && ${words[i - 1]} != ${2-} ||
+            ${words[i]} == ${3-} ]]; then
+            ((args++))
+        fi
+    done
+}
+
 # ex: filetype=sh

@@ -34,21 +34,11 @@ _comp_cmd_cryptsetup()
 
     [[ $was_split ]] && return
 
-    local arg
-    _get_first_arg
-    if [[ ! $arg ]]; then
-        if [[ $cur == -* ]]; then
-            _comp_compgen_help
-            [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
-        else
-            _comp_compgen -- -W 'open close resize status benchmark repair
-                erase luksFormat luksAddKey luksRemoveKey luksChangeKey
-                luksKillSlot luksUUID isLuks luksDump tcryptDump luksSuspend
-                luksResume luksHeaderBackup luksHeaderRestore'
-        fi
-    else
-        local args
-        _count_args "" "-${noargopts}[chslSbopitTdM]"
+    local ret
+    if _comp_get_first_arg; then
+        local arg=$ret
+        _comp_count_args "" "-${noargopts}[chslSbopitTdM]"
+        local args=$ret
         case $arg in
             open | create | luksOpen | loopaesOpen | tcryptOpen)
                 case $args in
@@ -96,6 +86,16 @@ _comp_cmd_cryptsetup()
                 esac
                 ;;
         esac
+    else
+        if [[ $cur == -* ]]; then
+            _comp_compgen_help
+            [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        else
+            _comp_compgen -- -W 'open close resize status benchmark repair
+                erase luksFormat luksAddKey luksRemoveKey luksChangeKey
+                luksKillSlot luksUUID isLuks luksDump tcryptDump luksSuspend
+                luksResume luksHeaderBackup luksHeaderRestore'
+        fi
     fi
 
 } &&

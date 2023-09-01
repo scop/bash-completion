@@ -45,21 +45,12 @@ _comp_cmd_hcitool()
 
     [[ $was_split ]] && return
 
-    local arg
-    _get_first_arg
-    if [[ ! $arg ]]; then
-        if [[ $cur == -* ]]; then
-            _comp_compgen_help
-        else
-            _comp_compgen -- -W 'dev inq scan name info spinq epinq cmd con cc
-                dc sr cpt rssi lq tpl afh lst auth enc key clkoff clock'
-        fi
-    else
-        local args
-        case $arg in
+    local ret
+    if _comp_get_first_arg; then
+        case $ret in
             name | info | dc | rssi | lq | afh | auth | key | clkoff | lst)
-                _count_args
-                if ((args == 2)); then
+                _comp_count_args
+                if ((ret == 2)); then
                     _comp_cmd_hcitool__bluetooth_addresses
                 fi
                 ;;
@@ -67,37 +58,44 @@ _comp_cmd_hcitool()
                 if [[ $cur == -* ]]; then
                     _comp_compgen -- -W '--role --pkt-type'
                 else
-                    _count_args
-                    if ((args == 2)); then
+                    _comp_count_args
+                    if ((ret == 2)); then
                         _comp_cmd_hcitool__bluetooth_addresses
                     fi
                 fi
                 ;;
             sr)
-                _count_args
-                if ((args == 2)); then
+                _comp_count_args
+                if ((ret == 2)); then
                     _comp_cmd_hcitool__bluetooth_addresses
                 else
                     _comp_compgen -- -W 'master slave'
                 fi
                 ;;
             cpt)
-                _count_args
-                if ((args == 2)); then
+                _comp_count_args
+                if ((ret == 2)); then
                     _comp_cmd_hcitool__bluetooth_addresses
                 else
                     _comp_cmd_hcitool__bluetooth_packet_types
                 fi
                 ;;
             tpl | enc | clock)
-                _count_args
-                if ((args == 2)); then
+                _comp_count_args
+                if ((ret == 2)); then
                     _comp_cmd_hcitool__bluetooth_addresses
                 else
                     _comp_compgen -- -W '0 1'
                 fi
                 ;;
         esac
+    else
+        if [[ $cur == -* ]]; then
+            _comp_compgen_help
+        else
+            _comp_compgen -- -W 'dev inq scan name info spinq epinq cmd con cc
+                dc sr cpt rssi lq tpl afh lst auth enc key clkoff clock'
+        fi
     fi
 } &&
     complete -F _comp_cmd_hcitool hcitool
@@ -116,17 +114,9 @@ _comp_cmd_sdptool()
 
     [[ $was_split ]] && return
 
-    local arg
-    _get_first_arg
-    if [[ ! $arg ]]; then
-        if [[ $cur == -* ]]; then
-            _comp_compgen_help
-        else
-            _comp_compgen -- -W 'search browse records add del get setattr
-                setseq'
-        fi
-    else
-        case $arg in
+    local ret
+    if _comp_get_first_arg; then
+        case $ret in
             search)
                 if [[ $cur == -* ]]; then
                     _comp_compgen -- -W '--bdaddr --tree --raw --xml'
@@ -154,6 +144,13 @@ _comp_cmd_sdptool()
                 fi
                 ;;
         esac
+    else
+        if [[ $cur == -* ]]; then
+            _comp_compgen_help
+        else
+            _comp_compgen -- -W 'search browse records add del get setattr
+                setseq'
+        fi
     fi
 } &&
     complete -F _comp_cmd_sdptool sdptool
@@ -198,17 +195,11 @@ _comp_cmd_rfcomm()
             ;;
     esac
 
-    local arg
-    _get_first_arg
-    if [[ ! $arg ]]; then
-        if [[ $cur == -* ]]; then
-            _comp_compgen_help
-        else
-            _comp_compgen -- -W 'show connect listen watch bind release'
-        fi
-    else
-        local args
-        _count_args
+    local ret
+    if _comp_get_first_arg; then
+        local arg=$ret
+        _comp_count_args
+        local args=$ret
         if ((args == 2)); then
             _comp_cmd_hcitool__bluetooth_devices
         else
@@ -219,6 +210,12 @@ _comp_cmd_rfcomm()
                     fi
                     ;;
             esac
+        fi
+    else
+        if [[ $cur == -* ]]; then
+            _comp_compgen_help
+        else
+            _comp_compgen -- -W 'show connect listen watch bind release'
         fi
     fi
 } &&
@@ -237,24 +234,23 @@ _comp_cmd_ciptool()
             ;;
     esac
 
-    local arg
-    _get_first_arg
-    if [[ ! $arg ]]; then
+    local ret
+    if _comp_get_first_arg; then
+        case $ret in
+            connect | release | loopback)
+                local ret
+                _comp_count_args
+                if ((ret == 2)); then
+                    _comp_cmd_hcitool__bluetooth_addresses
+                fi
+                ;;
+        esac
+    else
         if [[ $cur == -* ]]; then
             _comp_compgen_help
         else
             _comp_compgen -- -W 'show search connect release loopback'
         fi
-    else
-        local args
-        case $arg in
-            connect | release | loopback)
-                _count_args
-                if ((args == 2)); then
-                    _comp_cmd_hcitool__bluetooth_addresses
-                fi
-                ;;
-        esac
     fi
 } &&
     complete -F _comp_cmd_ciptool ciptool
@@ -274,9 +270,9 @@ _comp_cmd_dfutool()
     if [[ $cur == -* ]]; then
         _comp_compgen_help
     else
-        local args
-        _count_args
-        case $args in
+        local ret
+        _comp_count_args
+        case $ret in
             1)
                 _comp_compgen -- -W 'verify modify upgrade archive'
                 ;;
@@ -293,9 +289,29 @@ _comp_cmd_hciconfig()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
-    local arg
-    _get_first_arg
-    if [[ ! $arg ]]; then
+    local ret
+    if _comp_get_first_arg; then
+        case $ret in
+            putkey | delkey)
+                _comp_count_args
+                if ((ret == 2)); then
+                    _comp_cmd_hcitool__bluetooth_addresses
+                fi
+                ;;
+            lm)
+                _comp_count_args
+                if ((ret == 2)); then
+                    _comp_compgen -- -W 'MASTER SLAVE NONE ACCEPT'
+                fi
+                ;;
+            ptype)
+                _comp_count_args
+                if ((ret == 2)); then
+                    _comp_cmd_hcitool__bluetooth_packet_types
+                fi
+                ;;
+        esac
+    else
         if [[ $cur == -* ]]; then
             _comp_compgen -- -W '--help --all'
         else
@@ -305,28 +321,6 @@ _comp_cmd_hciconfig()
                 pageto afhmode aclmtu scomtu putkey delkey commands features
                 version revision lm'
         fi
-    else
-        local args
-        case $arg in
-            putkey | delkey)
-                _count_args
-                if ((args == 2)); then
-                    _comp_cmd_hcitool__bluetooth_addresses
-                fi
-                ;;
-            lm)
-                _count_args
-                if ((args == 2)); then
-                    _comp_compgen -- -W 'MASTER SLAVE NONE ACCEPT'
-                fi
-                ;;
-            ptype)
-                _count_args
-                if ((args == 2)); then
-                    _comp_cmd_hcitool__bluetooth_packet_types
-                fi
-                ;;
-        esac
     fi
 } &&
     complete -F _comp_cmd_hciconfig hciconfig
@@ -339,9 +333,9 @@ _comp_cmd_hciattach()
     if [[ $cur == -* ]]; then
         _comp_compgen -- -W '-n -p -t -b -s -l'
     else
-        local args
-        _count_args
-        case $args in
+        local ret
+        _comp_count_args
+        case $ret in
             1)
                 _comp_expand_glob COMPREPLY '/dev/tty*'
                 ((${#COMPREPLY[@]})) &&
