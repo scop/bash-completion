@@ -29,6 +29,10 @@ _comp_deprecate_func 2.12 _modules _comp_compgen_kernel_modules
 _comp_deprecate_func 2.12 _installed_modules _comp_compgen_inserted_kernel_modules
 _comp_deprecate_func 2.12 _usergroup _comp_compgen_usergroup
 _comp_deprecate_func 2.12 _complete_as_root _comp_as_root
+_comp_deprecate_func 2.12 __load_completion _comp_load
+
+# @deprecated 2.12 Use `_comp_xspecs`
+declare -Ag _xspecs
 
 # Backwards compatibility for compat completions that use have().
 # @deprecated 1.90 should no longer be used; generally not needed with
@@ -443,4 +447,14 @@ _count_args()
     done
 }
 
+# @deprecated 2.12 Use `_comp_load -D -- CommandName` to load the completion,
+# or use `_comp_complete_load` as a completion function specified to `complete
+# -F`.
+_completion_loader()
+{
+    # We call `_comp_complete_load` instead of `_comp_load -D` in case that
+    # `_completion_loader` is used without an argument or `_completion_loader`
+    # is specified to `complete -F` by a user.
+    _comp_complete_load "$@"
+}
 # ex: filetype=sh
