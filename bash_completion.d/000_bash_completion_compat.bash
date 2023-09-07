@@ -21,13 +21,12 @@ _comp_deprecate_func 2.12 _kernel_versions _comp_compgen_kernel_versions
 _comp_deprecate_func 2.12 _uids _comp_compgen_uids
 _comp_deprecate_func 2.12 _gids _comp_compgen_gids
 _comp_deprecate_func 2.12 _xinetd_services _comp_compgen_xinetd_services
-_comp_deprecate_func 2.12 _terms _comp_compgen_terms
 _comp_deprecate_func 2.12 _pids _comp_compgen_pids
 _comp_deprecate_func 2.12 _pgids _comp_compgen_pgids
 _comp_deprecate_func 2.12 _pnames _comp_compgen_pnames
 _comp_deprecate_func 2.12 _modules _comp_compgen_kernel_modules
 _comp_deprecate_func 2.12 _installed_modules _comp_compgen_inserted_kernel_modules
-_comp_deprecate_func 2.12 _usergroup _comp_compgen_usergroup
+_comp_deprecate_func 2.12 _usergroup _comp_compgen_usergroups
 _comp_deprecate_func 2.12 _complete_as_root _comp_as_root
 _comp_deprecate_func 2.12 __load_completion _comp_load
 
@@ -382,6 +381,12 @@ _pci_ids()
 _usb_ids()
 {
     _comp_compgen -a usb_ids
+}
+
+# @deprecated 2.12 Use `_comp_compgen -a terms`
+_terms()
+{
+    _comp_compgen -a terms
 }
 
 # @deprecated 2.12 Use `_comp_compgen -c "${prefix:-$cur}" allowed_users`

@@ -2008,7 +2008,7 @@ _comp_compgen_inserted_kernel_modules()
 #            context of current completion.
 #
 # @since 2.12
-_comp_compgen_usergroup()
+_comp_compgen_usergroups()
 {
     if [[ $cur == *\\\\* || $cur == *:*:* ]]; then
         # Give up early on if something seems horribly wrong.
@@ -2017,16 +2017,19 @@ _comp_compgen_usergroup()
         # Completing group after 'user\:gr<TAB>'.
         # Reply with a list of groups prefixed with 'user:', readline will
         # escape to the colon.
-        local _prefix
-        _prefix=${cur%%*([^:])}
-        _prefix=${_prefix//\\/}
+        local tmp
         if [[ ${1-} == -u ]]; then
-            _comp_compgen -c "${cur#*:}" allowed_groups
+            _comp_compgen -v tmp -c "${cur#*:}" allowed_groups
         else
-            _comp_compgen -c "${cur#*:}" -- -g
+            _comp_compgen -v tmp -c "${cur#*:}" -- -g
         fi
-        ((${#COMPREPLY[@]})) &&
-            COMPREPLY=("${COMPREPLY[@]/#/$_prefix}")
+        if ((${#tmp[@]})); then
+            local _prefix=${cur%%*([^:])}
+            _prefix=${_prefix//\\/}
+            local -a _tmp=("${tmp[@]/#/$_prefix}")
+            _comp_unlocal tmp
+            _comp_compgen_set "${_tmp[@]}"
+        fi
     elif [[ $cur == *:* ]]; then
         # Completing group after 'user:gr<TAB>'.
         # Reply with a list of unprefixed groups since readline with split on :
@@ -2056,7 +2059,7 @@ _comp_compgen_allowed_users()
     if _comp_as_root; then
         _comp_compgen -- -u
     else
-        _comp_compgen split -- "$(id -un 2>/dev/null || whoami 2>/dev/null)"
+        _comp_compgen_split -- "$(id -un 2>/dev/null || whoami 2>/dev/null)"
     fi
 }
 
@@ -2066,7 +2069,7 @@ _comp_compgen_allowed_groups()
     if _comp_as_root; then
         _comp_compgen -- -g
     else
-        _comp_compgen split -- "$(id -Gn 2>/dev/null || groups 2>/dev/null)"
+        _comp_compgen_split -- "$(id -Gn 2>/dev/null || groups 2>/dev/null)"
     fi
 }
 
@@ -2110,7 +2113,7 @@ _comp_compgen_fstypes()
              $([[ -d /etc/fs ]] && command ls /etc/fs)"
     fi
 
-    [[ $_fss ]] && _comp_compgen -- -W "$_fss"
+    [[ $_fss ]] && _comp_compgen_split -- "$_fss"
 }
 
 # Get absolute path to a file, with rudimentary canonicalization.
@@ -2241,7 +2244,7 @@ _comp_compgen_dvd_devices()
 # @since 2.12
 _comp_compgen_terms()
 {
-    _comp_compgen -a split -- "$({
+    _comp_compgen_split -- "$({
         command sed -ne 's/^\([^[:space:]#|]\{2,\}\)|.*/\1/p' /etc/termcap
         {
             toe -a || toe
