@@ -3214,16 +3214,18 @@ if [[ ${BASH_COMPLETION_COMPAT_DIR-} ]]; then
 else
     _comp__init_compat_dirs+=(/etc/bash_completion.d)
     # Similarly as for the "completions" dir, look up from relative to
-    # bash_completion, primarily for run-in-place-from-git-clone setups.
-    # Notably we do it after the system location here, in order to
-    # prefer in-tree variables and functions.
-    if [[ $BASH_SOURCE == */* ]]; then
+    # bash_completion, primarily for installed-with-prefix and
+    # run-in-place-from-git-clone setups.  Notably we do it after the system
+    # location here, in order to prefer in-tree variables and functions.
+    if [[ ${BASH_SOURCE%/*} == */share/bash-completion ]]; then
+        _comp__init_compat_dir=${BASH_SOURCE%/share/bash-completion/*}/etc/bash_completion.d
+    elif [[ $BASH_SOURCE == */* ]]; then
         _comp__init_compat_dir="${BASH_SOURCE%/*}/bash_completion.d"
-        [[ ${_comp__init_compat_dirs[0]} == "$_comp__init_compat_dir" ]] ||
-            _comp__init_compat_dirs+=("$_comp__init_compat_dir")
     else
-        _comp__init_compat_dirs+=(./bash_completion.d)
+        _comp__init_compat_dir=./bash_completion.d
     fi
+    [[ ${_comp__init_compat_dirs[0]} == "$_comp__init_compat_dir" ]] ||
+        _comp__init_compat_dirs+=("$_comp__init_compat_dir")
 fi
 for _comp__init_compat_dir in "${_comp__init_compat_dirs[@]}"; do
     [[ -d $_comp__init_compat_dir && -r $_comp__init_compat_dir && -x $_comp__init_compat_dir ]] || continue
