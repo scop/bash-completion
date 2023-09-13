@@ -41,17 +41,17 @@ deprecated in.
 Due to its nature, bash-completion adds a number of functions and variables in
 the shell's environment.
 
-|                                     | `bash_completion`       | `completions/*`                                                                       |
-|:------------------------------------|:------------------------|:--------------------------------------------------------------------------------------|
-| public configuration variables      | `BASH_COMPLETION_*`     | `BASH_COMPLETION_CMD_${Command^^}_${Config^^}`                                        |
-| private non-local variables         | `_comp__*`              | `_comp_cmd_${Command}__${Data}`                                                       |
-| private non-local mutable variables | `_comp__*_mut_*`        | `_comp_cmd_${Command}__mut_${Data}`                                                   |
-| exporter function local variables   | `_*` (not `_comp*`)     | `_*` (not `_comp*`)                                                                   |
-| public/exported functions           | `_comp_*`               | `_comp_cmd_${Command}` (functions for `complete -F`)                                  |
-|                                     |                         | `_comp_xfunc_${Command}_${Utility}` (functions for use with `_comp_xfunc`)            |
-|                                     | `_comp_compgen_${Name}` | `_comp_xfunc_${Command}_compgen_${Name}` (generators for use with `_comp_compgen -x`) |
-| private/internal functions          | `_comp__*`              | `_comp_cmd_${Command}__${Utility}` (utility functions)                                |
-|                                     |                         | `_comp_cmd_${Command}__compgen_${Name}` (generators for use with `_comp_compgen -i`)  |
+|                                     | `bash_completion`   | `completions/*`                                                                       |
+|:------------------------------------|:--------------------|:--------------------------------------------------------------------------------------|
+| public configuration variables      | `BASH_COMPLETION_*` | `BASH_COMPLETION_CMD_${Command^^}_${Config^^}`                                        |
+| private non-local variables         | `_comp__*`          | `_comp_cmd_${Command}__${Data}`                                                       |
+| private non-local mutable variables | `_comp__*_mut_*`    | `_comp_cmd_${Command}__mut_${Data}`                                                   |
+| exporter function local variables   | `_*` (not `_comp*`) | `_*` (not `_comp*`)                                                                   |
+| public/exported functions           | `_comp_*`           | `_comp_xfunc_${Command}_${Utility}` (functions for use with `_comp_xfunc`)            |
+| - completers (for `complete -F`)    | `_comp_complete_*`  | `_comp_cmd_${Command}`                                                                |
+| - generators                        | `_comp_compgen_*`   | `_comp_xfunc_${Command}_compgen_${Name}` (generators for use with `_comp_compgen -x`) |
+| private/internal functions          | `_comp__*`          | `_comp_cmd_${Command}__${Utility}` (utility functions)                                |
+| - generators                        |                     | `_comp_cmd_${Command}__compgen_${Name}` (generators for use with `_comp_compgen -i`)  |
 
 `${Command}` refers to a command name (with characters not allowed in POSIX
 function or variable names replaced by an underscore), `${Config}` the name of
