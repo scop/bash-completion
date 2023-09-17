@@ -64,7 +64,7 @@ quote_readline()
     local ret
     _comp_quote_compgen "$1"
     printf %s "$ret"
-} # quote_readline()
+}
 
 # This function is the same as `_comp_quote_compgen`, but receives the second
 # argument specifying the variable name to store the result.
@@ -173,7 +173,7 @@ _get_cword()
             printf "%s" "${cur:0:index}"
         fi
     fi
-} # _get_cword()
+}
 
 # Get word previous to the current word.
 # This is a good alternative to `prev=${COMP_WORDS[COMP_CWORD-1]}' because bash4
@@ -382,7 +382,7 @@ __expand_tilde_by_ref()
     _comp_expand_tilde "${!1-}"
     # shellcheck disable=SC2059
     [[ $1 == ret ]] || printf -v "$1" "$ret"
-} # __expand_tilde_by_ref()
+}
 
 # @deprecated 2.12 Use `_comp_compgen -a cd_devices`
 _cd_devices()
