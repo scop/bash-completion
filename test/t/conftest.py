@@ -132,7 +132,7 @@ def _avahi_hosts(bash: pexpect.spawn) -> List[str]:
 def known_hosts(bash: pexpect.spawn) -> List[str]:
     output = assert_bash_exec(
         bash,
-        '_known_hosts_real ""; '
+        '_comp_compgen_known_hosts ""; '
         r'printf "%s\n" "${COMPREPLY[@]}"; unset -v COMPREPLY',
         want_output=True,
     )

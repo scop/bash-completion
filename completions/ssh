@@ -199,7 +199,7 @@ _comp_cmd_ssh__suboption()
             fi
             ;;
         proxyjump)
-            _known_hosts_real -a ${configfile:+-F "$configfile"} -- "$cur"
+            _comp_compgen_known_hosts -a ${configfile:+-F "$configfile"} -- "$cur"
             ;;
         proxycommand | remotecommand | localcommand)
             _comp_compgen_commands
@@ -331,7 +331,7 @@ _comp_cmd_ssh()
             return
             ;;
         -*J)
-            _known_hosts_real -a ${configfile:+-F "$configfile"} -- "$cur"
+            _comp_compgen_known_hosts -a ${configfile:+-F "$configfile"} -- "$cur"
             return
             ;;
         -*l)
@@ -380,7 +380,7 @@ _comp_cmd_ssh()
             compopt -o filenames
             _comp_compgen_commands
         else
-            _known_hosts_real ${ipvx-} -a ${configfile:+-F "$configfile"} \
+            _comp_compgen_known_hosts ${ipvx-} -a ${configfile:+-F "$configfile"} \
                 -- "$cur"
         fi
     fi
@@ -423,7 +423,7 @@ _comp_cmd_sftp()
             return
             ;;
         -*J)
-            _known_hosts_real -a ${configfile:+-F "$configfile"} -- "$cur"
+            _comp_compgen_known_hosts -a ${configfile:+-F "$configfile"} -- "$cur"
             return
             ;;
         -*o)
@@ -449,7 +449,7 @@ _comp_cmd_sftp()
     elif [[ $cur == -* ]]; then
         _comp_compgen_usage
     else
-        _known_hosts_real ${ipvx:+"$ipvx"} -a ${configfile:+-F "$configfile"} -- "$cur"
+        _comp_compgen_known_hosts ${ipvx:+"$ipvx"} -a ${configfile:+-F "$configfile"} -- "$cur"
     fi
 } &&
     shopt -u hostcomplete && complete -F _comp_cmd_sftp sftp
@@ -574,7 +574,7 @@ _comp_cmd_scp()
             return
             ;;
         -*J)
-            _known_hosts_real -a ${configfile:+-F "$configfile"} -- "$cur"
+            _comp_compgen_known_hosts -a ${configfile:+-F "$configfile"} -- "$cur"
             return
             ;;
         -*[lP])
@@ -597,7 +597,7 @@ _comp_cmd_scp()
             ;;
     esac
 
-    _expand || return
+    _comp_expand || return
 
     case $cur in
         !(*:*)/* | [.~]*) ;; # looks like a path
@@ -621,7 +621,7 @@ _comp_cmd_scp()
                 ;;
             *)
                 if ! _comp_looks_like_path "$cur"; then
-                    _known_hosts_real ${ipvx-} -c -a \
+                    _comp_compgen_known_hosts ${ipvx-} -c -a \
                         ${configfile:+-F "$configfile"} -- "$cur"
                 fi
                 ;;

@@ -115,7 +115,7 @@ _comp_sysvdirs()
     [[ -d /etc/init.d ]] && sysvdirs+=(/etc/init.d)
     # Slackware uses /etc/rc.d
     [[ -f /etc/slackware-version ]] && sysvdirs=(/etc/rc.d)
-    return 0
+    ((${#sysvdirs[@]}))
 }
 
 # This function checks whether we have a given program on the system.
@@ -520,8 +520,8 @@ _comp_compgen__error_fallback()
 # @since 2.12
 _comp_compgen()
 {
-    local _append=${_comp_compgen__append-}
-    local _var=${_comp_compgen__var-COMPREPLY}
+    local _append=
+    local _var=
     local _cur=${_comp_compgen__cur-${cur-}}
     local _dir=""
     local _ifs=$' \t\n' _has_ifs=""
@@ -591,6 +591,11 @@ _comp_compgen()
         printf 'bash_completion: %s: unexpected number of arguments\n' "$FUNCNAME" >&2
         printf 'usage: %s [-alR|-F SEP|-v ARR|-c CUR] -- ARGS...' "$FUNCNAME" >&2
         return 2
+    fi
+    if [[ ! $_var ]]; then
+        # Inherit _append and _var only when -v var is unspecified.
+        _var=${_comp_compgen__var-COMPREPLY}
+        [[ $_append ]] || _append=${_comp_compgen__append-}
     fi
 
     if [[ $1 != -* ]]; then
@@ -1131,8 +1136,8 @@ _comp__split_longopt()
 # Complete variables.
 # @return  True (0) if variables were completed,
 #          False (> 0) if not.
-# TODO:API: rename per conventions
-_variables()
+# @since 2.12
+_comp_compgen_variables()
 {
     if [[ $cur =~ ^(\$(\{[!#]?)?)([A-Za-z0-9_]*)$ ]]; then
         # Completing $var / ${var / ${!var / ${#var
@@ -1143,10 +1148,10 @@ _variables()
             if ((${#vars[@]} == 1 && ${#arrs[@]} != 0)); then
                 # Complete ${arr with ${array[ if there is only one match, and that match is an array variable
                 compopt -o nospace
-                COMPREPLY+=("${arrs[@]}")
+                _comp_compgen -U vars -U arrs -R -- -W '"${arrs[@]}"'
             else
                 # Complete ${var with ${variable}
-                COMPREPLY+=("${vars[@]}")
+                _comp_compgen -U vars -U arrs -R -- -W '"${vars[@]}"'
             fi
         else
             # Complete $var with $variable
@@ -1155,18 +1160,23 @@ _variables()
         return 0
     elif [[ $cur =~ ^(\$\{[#!]?)([A-Za-z0-9_]*)\[([^]]*)$ ]]; then
         # Complete ${array[i with ${array[idx]}
-        _comp_compgen -ac "${BASH_REMATCH[3]}" -- -W '"${!'"${BASH_REMATCH[2]}"'[@]}"' \
+        local vars
+        _comp_compgen -v vars -c "${BASH_REMATCH[3]}" -- -W '"${!'"${BASH_REMATCH[2]}"'[@]}"' \
             -P "${BASH_REMATCH[1]}${BASH_REMATCH[2]}[" -S ']}'
         # Complete ${arr[@ and ${arr[*
         if [[ ${BASH_REMATCH[3]} == [@*] ]]; then
-            COMPREPLY+=("${BASH_REMATCH[1]}${BASH_REMATCH[2]}[${BASH_REMATCH[3]}]}")
+            vars+=("${BASH_REMATCH[1]}${BASH_REMATCH[2]}[${BASH_REMATCH[3]}]}")
         fi
-        _comp_ltrim_colon_completions "$cur" # array indexes may have colons
+        # array indexes may have colons
+        if ((${#vars[@]})); then
+            _comp_compgen -U vars -c "$cur" ltrim_colon "${vars[@]}"
+        else
+            _comp_compgen_set
+        fi
         return 0
     elif [[ $cur =~ ^\$\{[#!]?[A-Za-z0-9_]*\[.*\]$ ]]; then
         # Complete ${array[idx] with ${array[idx]}
-        COMPREPLY+=("$cur}")
-        _comp_ltrim_colon_completions "$cur"
+        _comp_compgen -c "$cur" ltrim_colon "$cur}"
         return 0
     fi
     return 1
@@ -1279,7 +1289,7 @@ _comp_variable_assignments()
             _comp_delimited : -W '$(locale -a 2>/dev/null)'
             ;;
         *)
-            _variables && return 0
+            _comp_compgen_variables && return 0
             _comp_compgen -a filedir
             ;;
     esac
@@ -1350,7 +1360,7 @@ _comp_initialize()
     _comp_get_words -n "$exclude<>&" cur prev words cword
 
     # Complete variable names.
-    _variables && return 1
+    _comp_compgen_variables && return 1
 
     # Complete on files if current is a redirect possibly followed by a
     # filename, e.g. ">foo", or previous is a "bare" redirect, e.g. ">".
@@ -1729,7 +1739,7 @@ _comp_compgen_tilde()
     return 1
 }
 
-# Expand variable starting with tilde (~)
+# Expand string starting with tilde (~)
 # We want to expand ~foo/... to /home/foo/... to avoid problems when
 # word-to-complete starting with a tilde is fed to commands and ending up
 # quoted instead of expanded.
@@ -1738,11 +1748,11 @@ _comp_compgen_tilde()
 # a dollar sign variable ($) or asterisk (*) is not expanded.
 # Example usage:
 #
-#    $ v="~"; __expand_tilde_by_ref v; echo "$v"
+#    $ _comp_expand_tilde "~"; echo "$ret"
 #
 # Example output:
 #
-#       v                  output
+#       $1                 ret
 #    --------         ----------------
 #    ~                /home/user
 #    ~foo/bar         /home/foo/bar
@@ -1750,19 +1760,22 @@ _comp_compgen_tilde()
 #    ~foo/a  b        /home/foo/a  b
 #    ~foo/*           /home/foo/*
 #
-# @param $1  Name of variable (not the value of the variable) to expand
-# TODO:API: rename per conventions
-__expand_tilde_by_ref()
+# @param $1     Value to expand
+# @var[out] ret Expanded result
+# @since 2.12
+_comp_expand_tilde()
 {
-    if [[ ${!1-} == \~* ]]; then
-        eval "$1"="$(printf ~%q "${!1#\~}")"
+    ret=$1
+    if [[ $1 == \~* ]]; then
+        printf -v ret '~%q' "${1#\~}"
+        eval "ret=$ret"
     fi
-} # __expand_tilde_by_ref()
+}
 
 # This function expands tildes in pathnames
 #
-# TODO:API: rename per conventions
-_expand()
+# @since 2.12
+_comp_expand()
 {
     # Expand ~username type directory specifications.  We want to expand
     # ~foo/... to /home/foo/... to avoid problems when $cur starting with
@@ -1770,7 +1783,9 @@ _expand()
 
     case ${cur-} in
         ~*/*)
-            __expand_tilde_by_ref cur
+            local ret
+            _comp_expand_tilde "$cur"
+            cur=$ret
             ;;
         ~*)
             _comp_compgen -v COMPREPLY tilde &&
@@ -1912,27 +1927,28 @@ _comp_compgen_xinetd_services()
 
 # This function completes on services
 #
-# TODO:API: rename per conventions
-_services()
+# @since 2.12
+_comp_compgen_services()
 {
     local sysvdirs
-    _comp_sysvdirs
+    _comp_sysvdirs || return 1
 
-    _comp_expand_glob COMPREPLY '${sysvdirs[0]}/!($_comp_backup_glob|functions|README)'
+    local services
+    _comp_expand_glob services '${sysvdirs[0]}/!($_comp_backup_glob|functions|README)'
 
-    local generated=$({
+    local _generated=$({
         systemctl list-units --full --all ||
             systemctl list-unit-files
     } 2>/dev/null |
         awk '$1 ~ /\.service$/ { sub("\\.service$", "", $1); print $1 }')
-    _comp_split -la COMPREPLY "$generated"
+    _comp_split -la services "$_generated"
 
     if [[ -x /sbin/upstart-udev-bridge ]]; then
-        _comp_split -la COMPREPLY "$(initctl list 2>/dev/null | cut -d' ' -f1)"
+        _comp_split -la services "$(initctl list 2>/dev/null | cut -d' ' -f1)"
     fi
 
-    ((${#COMPREPLY[@]})) &&
-        _comp_compgen -- -W '"${COMPREPLY[@]#${sysvdirs[0]}/}"'
+    ((${#services[@]})) || return 1
+    _comp_compgen -U services -U sysvdirs -- -W '"${services[@]#${sysvdirs[0]}/}"'
 }
 
 # This completes on a list of all available service scripts for the
@@ -1952,11 +1968,11 @@ _service()
     ((cword > 2)) && return
 
     if [[ $cword -eq 1 && $prev == ?(*/)service ]]; then
-        _services
+        _comp_compgen_services
         [[ -e /etc/mandrake-release ]] && _comp_compgen_xinetd_services
     else
         local sysvdirs
-        _comp_sysvdirs
+        _comp_sysvdirs || return 1
         _comp_compgen_split -l -- "$(command sed -e 'y/|/ /' \
             -ne 's/^.*\(U\|msg_u\)sage.*{\(.*\)}.*$/\2/p' \
             "${sysvdirs[0]}/${prev##*/}" 2>/dev/null) start stop"
@@ -1967,12 +1983,12 @@ _service()
 _comp__init_set_up_service_completions()
 {
     local sysvdirs svc svcdir
-    _comp_sysvdirs
-    for svcdir in "${sysvdirs[@]}"; do
-        for svc in "$svcdir"/!($_comp_backup_glob); do
-            [[ -x $svc ]] && complete -F _service "$svc"
+    _comp_sysvdirs &&
+        for svcdir in "${sysvdirs[@]}"; do
+            for svc in "$svcdir"/!($_comp_backup_glob); do
+                [[ -x $svc ]] && complete -F _service "$svc"
+            done
         done
-    done
     unset -f "$FUNCNAME"
 }
 _comp__init_set_up_service_completions
@@ -2081,15 +2097,17 @@ _comp_compgen_selinux_users()
 }
 
 # This function completes on valid shells
-#
 # @param $1 chroot to search from
-# TODO:API: rename per conventions
-_shells()
+#
+# @since 2.12
+_comp_compgen_shells()
 {
-    local shell rest
-    while read -r shell rest; do
-        [[ $shell == /* && $shell == "$cur"* ]] && COMPREPLY+=("$shell")
+    local -a shells=()
+    local _shell _rest
+    while read -r _shell _rest; do
+        [[ $_shell == /* ]] && shells+=("$_shell")
     done 2>/dev/null <"${1-}"/etc/shells
+    _comp_compgen -U shells -- -W '"${shells[@]}"'
 }
 
 # This function completes on valid filesystem types
@@ -2311,8 +2329,8 @@ _comp_compgen_terms()
     } 2>/dev/null)"
 }
 
-# TODO:API: rename per conventions
-_bashcomp_try_faketty()
+# @since 2.12
+_comp_try_faketty()
 {
     if type unbuffer &>/dev/null; then
         unbuffer -p "$@"
@@ -2338,7 +2356,7 @@ _user_at_host()
     _comp_initialize -n : -- "$@" || return
 
     if [[ $cur == *@* ]]; then
-        _known_hosts_real "$cur"
+        _comp_compgen_known_hosts "$cur"
     else
         _comp_compgen -- -u -S @
         compopt -o nospace
@@ -2347,20 +2365,21 @@ _user_at_host()
 shopt -u hostcomplete && complete -F _user_at_host talk ytalk finger
 
 # NOTE: Using this function as a helper function is deprecated.  Use
-#       `_known_hosts_real' instead.
+#       `_comp_compgen_known_hosts' instead.
 # TODO:API: rename per conventions
 _known_hosts()
 {
     local cur prev words cword comp_args
     _comp_initialize -n : -- "$@" || return
 
-    # NOTE: Using `_known_hosts' as a helper function and passing options
-    #       to `_known_hosts' is deprecated: Use `_known_hosts_real' instead.
+    # NOTE: Using `_known_hosts' as a helper function and passing options to
+    #       `_known_hosts' is deprecated: Use `_comp_compgen_known_hosts'
+    #       instead.
     local -a options=()
     [[ ${1-} == -a || ${2-} == -a ]] && options+=(-a)
     [[ ${1-} == -c || ${2-} == -c ]] && options+=(-c)
     local IFS=$' \t\n' # Workaround for connected ${v+"$@"} in bash < 4.4
-    _known_hosts_real ${options[@]+"${options[@]}"} -- "$cur"
+    _comp_compgen_known_hosts ${options[@]+"${options[@]}"} -- "$cur"
 } # _known_hosts()
 
 # Helper function to locate ssh included files in configs
@@ -2370,7 +2389,7 @@ _comp__included_ssh_config_files()
 {
     (($# < 1)) &&
         echo "bash_completion: $FUNCNAME: missing mandatory argument CONFIG" >&2
-    local configfile i files f
+    local configfile i files f ret
     configfile=$1
 
     # From man ssh_config:
@@ -2402,9 +2421,9 @@ _comp__included_ssh_config_files()
             if [[ $i != [~/]* ]]; then
                 i="${relative_include_base}/${i}"
             fi
-            __expand_tilde_by_ref i
+            _comp_expand_tilde "$i"
+            _comp_expand_glob files '$ret'
             # In case the expanded variable contains multiple paths
-            _comp_expand_glob files '$i'
             if ((${#files[@]})); then
                 for f in "${files[@]}"; do
                     if [[ -r $f && ! -d $f ]]; then
@@ -2423,7 +2442,7 @@ _comp__included_ssh_config_files()
 # BASH_COMPLETION_KNOWN_HOSTS_WITH_AVAHI is set to a non-empty value.
 # Also hosts from HOSTFILE (compgen -A hostname) are added, unless
 # BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE is set to an empty value.
-# Usage: _known_hosts_real [OPTIONS] CWORD
+# Usage: _comp_compgen_known_hosts [OPTIONS] CWORD
 # Options:
 #     -a             Use aliases from ssh config files
 #     -c             Use `:' suffix
@@ -2432,9 +2451,17 @@ _comp__included_ssh_config_files()
 #     -4             Filter IPv6 addresses from results
 #     -6             Filter IPv4 addresses from results
 # @return Completions, starting with CWORD, are added to COMPREPLY[]
-# TODO:API: rename per conventions
-_known_hosts_real()
+# @since 2.12
+_comp_compgen_known_hosts()
 {
+    local known_hosts
+    _comp_compgen_known_hosts__impl "$@" || return "$?"
+    _comp_compgen -U known_hosts set "${known_hosts[@]}"
+}
+_comp_compgen_known_hosts__impl()
+{
+    known_hosts=()
+
     local configfile="" flag prefix=""
     local cur suffix="" aliases="" i host ipv4="" ipv6=""
     local -a kh tmpkh=() khd=() config=()
@@ -2449,7 +2476,7 @@ _known_hosts_real()
             F)
                 if [[ ! $OPTARG ]]; then
                     echo "bash_completion: $FUNCNAME: -F: an empty filename is specified" >&2
-                    return 1
+                    return 2
                 fi
                 configfile=$OPTARG
                 ;;
@@ -2458,13 +2485,13 @@ _known_hosts_real()
             6) ipv6=set ;;
             *)
                 echo "bash_completion: $FUNCNAME: usage error" >&2
-                return 1
+                return 2
                 ;;
         esac
     done
     if (($# < OPTIND)); then
         echo "bash_completion: $FUNCNAME: missing mandatory argument CWORD" >&2
-        return 1
+        return 2
     fi
     cur=${!OPTIND}
     ((OPTIND += 1))
@@ -2474,7 +2501,7 @@ _known_hosts_real()
                 printf '%s ' ${!OPTIND}
                 shift
             done)" >&2
-        return 1
+        return 2
     fi
 
     [[ $cur == *@* ]] && prefix=$prefix${cur%@*}@ && cur=${cur#*@}
@@ -2503,20 +2530,19 @@ _known_hosts_real()
         #          spaces in their name work (watch out for ~ expansion
         #          breakage! Alioth#311595)
         if _comp_split -l tmpkh "$(awk 'sub("^[ \t]*([Gg][Ll][Oo][Bb][Aa][Ll]|[Uu][Ss][Ee][Rr])[Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee][ \t=]+", "") { print $0 }' "${config[@]}" | sort -u)"; then
-            local tmpkh2 j
+            local tmpkh2 j ret
             for i in "${tmpkh[@]}"; do
                 # First deal with quoted entries...
                 while [[ $i =~ ^([^\"]*)\"([^\"]*)\"(.*)$ ]]; do
                     i=${BASH_REMATCH[1]}${BASH_REMATCH[3]}
-                    j=${BASH_REMATCH[2]}
-                    __expand_tilde_by_ref j # Eval/expand possible `~' or `~user'
-                    [[ -r $j ]] && kh+=("$j")
+                    _comp_expand_tilde "${BASH_REMATCH[2]}" # Eval/expand possible `~' or `~user'
+                    [[ -r $ret ]] && kh+=("$ret")
                 done
                 # ...and then the rest.
                 _comp_split tmpkh2 "$i" || continue
                 for j in "${tmpkh2[@]}"; do
-                    __expand_tilde_by_ref j # Eval/expand possible `~' or `~user'
-                    [[ -r $j ]] && kh+=("$j")
+                    _comp_expand_tilde "$j" # Eval/expand possible `~' or `~user'
+                    [[ -r $ret ]] && kh+=("$ret")
                 done
             done
         fi
@@ -2538,8 +2564,6 @@ _known_hosts_real()
 
     # If we have known_hosts files to use
     if ((${#kh[@]} + ${#khd[@]} > 0)); then
-        local -a tmp=()
-
         if ((${#kh[@]} > 0)); then
             # https://man.openbsd.org/sshd.8#SSH_KNOWN_HOSTS_FILE_FORMAT
             for i in "${kh[@]}"; do
@@ -2561,7 +2585,7 @@ _known_hosts_real()
                             # Remove trailing ] + optional :port
                             host=${host%]?(:+([0-9]))}
                             # Add host to candidates
-                            [[ $host ]] && tmp+=("$host")
+                            [[ $host ]] && known_hosts+=("$host")
                         done
                     fi
                 done <"$i"
@@ -2576,21 +2600,21 @@ _known_hosts_real()
                 if [[ $i == *key_22_*.pub && -r $i ]]; then
                     host=${i/#*key_22_/}
                     host=${host/%.pub/}
-                    [[ $host ]] && tmp+=("$host")
+                    [[ $host ]] && known_hosts+=("$host")
                 fi
             done
         fi
 
         # apply suffix and prefix
-        ((${#tmp[@]})) &&
-            _comp_compgen -- -W '"${tmp[@]}"' -P "$prefix" -S "$suffix"
+        ((${#known_hosts[@]})) &&
+            _comp_compgen -v known_hosts -- -W '"${known_hosts[@]}"' -P "$prefix" -S "$suffix"
     fi
 
     # append any available aliases from ssh config files
     if [[ ${#config[@]} -gt 0 && $aliases ]]; then
         local -a hosts
         if _comp_split hosts "$(command sed -ne 's/^[[:blank:]]*[Hh][Oo][Ss][Tt][[:blank:]=]\{1,\}\(.*\)$/\1/p' "${config[@]}")"; then
-            _comp_compgen -a -- -P "$prefix" \
+            _comp_compgen -av known_hosts -- -P "$prefix" \
                 -S "$suffix" -W '"${hosts[@]%%[*?%]*}"' -X '@(\!*|)'
         fi
     fi
@@ -2603,38 +2627,38 @@ _known_hosts_real()
         local generated=$(avahi-browse -cprak 2>/dev/null | awk -F';' \
             '/^=/ && $5 ~ /^_(ssh|workstation)\._tcp$/ { print $7 }' |
             sort -u)
-        _comp_compgen -a -- -P "$prefix" -S "$suffix" -W '$generated'
+        _comp_compgen -av known_hosts -- -P "$prefix" -S "$suffix" -W '$generated'
     fi
 
     # Add hosts reported by ruptime.
     if type ruptime &>/dev/null; then
         local generated=$(ruptime 2>/dev/null | awk '!/^ruptime:/ { print $1 }')
-        _comp_compgen -a -- -W '$generated'
+        _comp_compgen -av known_hosts -- -W '$generated'
     fi
 
     # Add results of normal hostname completion, unless
     # `BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE' is set to an empty value.
     if [[ ${BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE-${COMP_KNOWN_HOSTS_WITH_HOSTFILE-1}} ]]; then
-        _comp_compgen -a -- -A hostname -P "$prefix" -S "$suffix"
+        _comp_compgen -av known_hosts -- -A hostname -P "$prefix" -S "$suffix"
     fi
 
-    if ((${#COMPREPLY[@]})); then
-        if [[ $ipv4 ]]; then
-            COMPREPLY=("${COMPREPLY[@]/*:*$suffix/}")
-        fi
-        if [[ $ipv6 ]]; then
-            COMPREPLY=("${COMPREPLY[@]/+([0-9]).+([0-9]).+([0-9]).+([0-9])$suffix/}")
-        fi
-        if [[ $ipv4 || $ipv6 ]]; then
-            for i in "${!COMPREPLY[@]}"; do
-                [[ ${COMPREPLY[i]} ]] || unset -v 'COMPREPLY[i]'
-            done
-        fi
+    ((${#known_hosts[@]})) || return 1
+
+    if [[ $ipv4 ]]; then
+        known_hosts=("${known_hosts[@]/*:*$suffix/}")
     fi
+    if [[ $ipv6 ]]; then
+        known_hosts=("${known_hosts[@]/+([0-9]).+([0-9]).+([0-9]).+([0-9])$suffix/}")
+    fi
+    if [[ $ipv4 || $ipv6 ]]; then
+        for i in "${!known_hosts[@]}"; do
+            [[ ${known_hosts[i]} ]] || unset -v 'known_hosts[i]'
+        done
+    fi
+    ((${#known_hosts[@]})) || return 1
 
-    _comp_ltrim_colon_completions "$prefix$cur"
-
-} # _known_hosts_real()
+    _comp_compgen -v known_hosts -c "$prefix$cur" ltrim_colon "${known_hosts[@]}"
+} # _comp_compgen_known_hosts__impl()
 complete -F _known_hosts traceroute traceroute6 \
     fping fping6 telnet rsh rlogin ftp dig drill mtr ssh-installkeys showmount
 

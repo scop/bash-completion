@@ -10,8 +10,10 @@ _comp_deprecate_func 2.12 _root_command _comp_root_command
 _comp_deprecate_func 2.12 _xfunc _comp_xfunc
 _comp_deprecate_func 2.12 _upvars _comp_upvars
 _comp_deprecate_func 2.12 _get_comp_words_by_ref _comp_get_words
+_comp_deprecate_func 2.12 _known_hosts_real _comp_compgen_known_hosts
 _comp_deprecate_func 2.12 _longopt _comp_longopt
 _comp_deprecate_func 2.12 __ltrim_colon_completions _comp_ltrim_colon_completions
+_comp_deprecate_func 2.12 _variables _comp_compgen_variables
 _comp_deprecate_func 2.12 _signals _comp_compgen_signals
 _comp_deprecate_func 2.12 _mac_addresses _comp_compgen_mac_addresses
 _comp_deprecate_func 2.12 _available_interfaces _comp_compgen_available_interfaces
@@ -21,6 +23,9 @@ _comp_deprecate_func 2.12 _kernel_versions _comp_compgen_kernel_versions
 _comp_deprecate_func 2.12 _uids _comp_compgen_uids
 _comp_deprecate_func 2.12 _gids _comp_compgen_gids
 _comp_deprecate_func 2.12 _xinetd_services _comp_compgen_xinetd_services
+_comp_deprecate_func 2.12 _services _comp_compgen_services
+_comp_deprecate_func 2.12 _bashcomp_try_faketty _comp_try_faketty
+_comp_deprecate_func 2.12 _expand _comp_expand
 _comp_deprecate_func 2.12 _pids _comp_compgen_pids
 _comp_deprecate_func 2.12 _pgids _comp_compgen_pgids
 _comp_deprecate_func 2.12 _pnames _comp_compgen_pnames
@@ -359,6 +364,26 @@ _ncpus()
     printf %s "$ret"
 }
 
+# Expand variable starting with tilde (~).
+# We want to expand ~foo/... to /home/foo/... to avoid problems when
+# word-to-complete starting with a tilde is fed to commands and ending up
+# quoted instead of expanded.
+# Only the first portion of the variable from the tilde up to the first slash
+# (~../) is expanded.  The remainder of the variable, containing for example
+# a dollar sign variable ($) or asterisk (*) is not expanded.
+#
+# @deprecated 2.12 Use `_comp_expand_tilde`.  The new function receives the
+# value instead of a variable name as $1 and always returns the result to the
+# variable `ret`.
+__expand_tilde_by_ref()
+{
+    [[ ${1+set} ]] || return 0
+    [[ $1 == ret ]] || local ret
+    _comp_expand_tilde "${!1-}"
+    # shellcheck disable=SC2059
+    [[ $1 == ret ]] || printf -v "$1" "$ret"
+} # __expand_tilde_by_ref()
+
 # @deprecated 2.12 Use `_comp_compgen -a cd_devices`
 _cd_devices()
 {
@@ -399,6 +424,12 @@ _allowed_users()
 _allowed_groups()
 {
     _comp_compgen -c "${1:-$cur}" allowed_groups
+}
+
+# @deprecated 2.12 Use `_comp_compgen -a shells`
+_shells()
+{
+    _comp_compgen -a shells
 }
 
 # @deprecated 2.12 Use `_comp_compgen -a fstypes`

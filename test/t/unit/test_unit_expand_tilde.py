@@ -3,16 +3,27 @@ import pytest
 from conftest import assert_bash_exec
 
 
-@pytest.mark.bashcomp(cmd=None, ignore_env=r"^[+-](home|var)=")
-class TestUnitExpandTildeByRef:
+@pytest.mark.bashcomp(cmd=None)
+class TestUnitExpandTilde:
     def test_1(self, bash):
+        """The old interface `__expand_tilde_by_ref` should not fail when it is
+        called without arguments"""
         assert_bash_exec(bash, "__expand_tilde_by_ref >/dev/null")
 
     def test_2(self, bash):
         """Test environment non-pollution, detected at teardown."""
         assert_bash_exec(
             bash,
-            '_x() { local aa="~"; __expand_tilde_by_ref aa; }; _x; unset -f _x',
+            '_x() { local ret; _comp_expand_tilde "~"; }; _x; unset -f _x',
+        )
+
+    @pytest.fixture(scope="class")
+    def functions(self, bash):
+        # $HOME tinkering: protect against $HOME != ~user; our "home" is the
+        # latter but plain_tilde follows $HOME
+        assert_bash_exec(
+            bash,
+            '_comp__test_unit() { local ret HOME=$1; _comp_expand_tilde "$2"; printf "%s\\n" "$ret"; }',
         )
 
     @pytest.mark.parametrize("plain_tilde", (True, False))
@@ -28,23 +39,21 @@ class TestUnitExpandTildeByRef:
             ("/a;echo hello", True),
         ),
     )
-    def test_expand(self, bash, user_home, plain_tilde, suffix_expanded):
+    def test_expand(
+        self, bash, user_home, plain_tilde, suffix_expanded, functions
+    ):
         user, home = user_home
         suffix, expanded = suffix_expanded
-        # $HOME tinkering: protect against $HOME != ~user; our "home" is the
-        # latter but plain_tilde follows $HOME
-        assert_bash_exec(bash, 'home="$HOME"; HOME="%s"' % home)
+        home2 = home
         if plain_tilde:
             user = ""
             if not suffix or not expanded:
-                home = "~"
+                home2 = "~"
         elif not expanded:
-            home = "~%s" % user
+            home2 = "~%s" % user
         output = assert_bash_exec(
             bash,
-            r'var="~%s%s"; __expand_tilde_by_ref var; printf "%%s\n" "$var"'
-            % (user, suffix),
+            r'_comp__test_unit "%s" "~%s%s"' % (home, user, suffix),
             want_output=True,
         )
-        assert_bash_exec(bash, 'HOME="$home"')
-        assert output.strip() == "%s%s" % (home, suffix.replace(r"\$", "$"))
+        assert output.strip() == "%s%s" % (home2, suffix.replace(r"\$", "$"))
