@@ -216,6 +216,7 @@ bashcomp_DATA = 2to3 \
 		kldload \
 		kldunload \
 		koji \
+		_kontena \
 		ktutil \
 		larch \
 		lastlog \

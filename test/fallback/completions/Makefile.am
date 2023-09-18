@@ -15,6 +15,7 @@ EXTRA_DIST = \
 	hwclock \
 	ionice \
 	keyring \
+	kontena \
 	look \
 	mdbook \
 	mock \
