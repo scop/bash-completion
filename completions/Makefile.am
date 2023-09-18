@@ -734,6 +734,7 @@ CLEANFILES = \
 	neomutt \
 	_nfpm \
 	_nomad \
+	_oc \
 	_okteto \
 	_op \
 	_ory \
@@ -1009,6 +1010,7 @@ symlinks: $(DATA)
 		_moldy \
 		_multi-gitter \
 		_nfpm \
+		_oc \
 		_okteto \
 		_op \
 		_ory \
