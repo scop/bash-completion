@@ -568,6 +568,7 @@ CLEANFILES = \
 	_constellation \
 	_consul \
 	cowthink \
+	_crc \
 	createdb \
 	createuser \
 	_cz \
@@ -980,6 +981,7 @@ symlinks: $(DATA)
 		_cilium \
 		_cloudquery \
 		_constellation \
+		_crc \
 		_datree \
 		_docker \
 		_gardenctl \
