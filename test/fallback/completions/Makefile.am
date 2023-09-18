@@ -14,6 +14,7 @@ EXTRA_DIST = \
 	hexdump \
 	hwclock \
 	ionice \
+	jungle \
 	keyring \
 	kontena \
 	look \

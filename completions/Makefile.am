@@ -208,6 +208,7 @@ bashcomp_DATA = 2to3 \
 		jshint \
 		json_xs \
 		jsonschema \
+		_jungle \
 		k3b \
 		kcov \
 		_keyring \
