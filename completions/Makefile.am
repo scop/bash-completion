@@ -316,6 +316,7 @@ bashcomp_DATA = 2to3 \
 		pidof \
 		pine \
 		ping \
+		_pip \
 		_pipenv \
 		pkg-config \
 		pkg-get \
@@ -751,6 +752,7 @@ CLEANFILES = \
 	pinfo \
 	ping4 \
 	ping6 \
+	_pip3 \
 	pkg_deinstall \
 	pkg_info \
 	pkgconf \
@@ -1126,6 +1128,8 @@ symlinks: $(DATA)
 		alpine
 	$(ss) ping \
 		ping4 ping6
+	$(ss) _pip \
+		_pip3
 	$(ss) _pipenv \
 		_black _blackd _flask _httpx
 	$(ss) pkg-config \

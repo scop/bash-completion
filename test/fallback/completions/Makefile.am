@@ -24,6 +24,7 @@ EXTRA_DIST = \
 	newgrp \
 	nmcli \
 	nox \
+	pip \
 	pipenv \
 	renice \
 	repomanage \
