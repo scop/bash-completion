@@ -15,9 +15,10 @@ _comp_cmd_bts__compgen_cached_bugs()
 # Generate APT source packages prefixed with "src:"
 _comp_cmd_bts__compgen_src_packages_with_prefix()
 {
-    local ppn=${cur:4} # partial package name, after stripping "src:"
-    _comp_compgen -c "$ppn" -U ppn split -P "src:" -- \
-        "$(_comp_xfunc apt-cache sources "$ppn")"
+    local _ppn=${cur:4} # partial package name, after stripping "src:"
+    local sources
+    _comp_compgen -v sources -c "$_ppn" -x apt-cache sources &&
+        _comp_compgen -U sources -- -P "src:" -W '"${sources[@]}"'
 }
 
 _comp_cmd_bts()
@@ -86,7 +87,8 @@ _comp_cmd_bts()
             # COMP_WORDS would be: "bts cleancache src : <partial_pkg_name>"
             pos=$((COMP_CWORD - 2))
             if [[ $pos -gt 0 && ${COMP_WORDS[pos]} == "src" ]]; then
-                COMPREPLY=($(_comp_xfunc apt-cache src_packages))
+                _comp_compgen -x apt-cache sources
+
                 return
             fi
             ;;
