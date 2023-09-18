@@ -550,6 +550,7 @@ CLEANFILES = \
 	c++ \
 	cc \
 	cdrecord \
+	_chezmoi \
 	chrome \
 	chromium \
 	ci \
@@ -981,6 +982,7 @@ symlinks: $(DATA)
 		_allero \
 		_arduino-cli \
 		_buf \
+		_chezmoi \
 		_cilium \
 		_cloudquery \
 		_constellation \
