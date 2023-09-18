@@ -565,6 +565,7 @@ CLEANFILES = \
 	compare \
 	compgen \
 	composite \
+	_conda \
 	conjure \
 	_constellation \
 	_consul \
@@ -1112,6 +1113,7 @@ symlinks: $(DATA)
 		_ansible-playbook \
 		_ansible-pull \
 		_ansible-vault \
+		_conda \
 		_cz
 	$(ss) nslookup \
 		host
