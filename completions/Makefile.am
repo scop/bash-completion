@@ -862,6 +862,7 @@ CLEANFILES = \
 	_tanzu-core \
 	_tendermint \
 	_terraform \
+	_tkn \
 	tightvncviewer \
 	tracepath6 \
 	_trivy \
@@ -1026,6 +1027,7 @@ symlinks: $(DATA)
 		_ssh-inscribe \
 		_tanzu \
 		_tanzu-core \
+		_tkn \
 		_trivy \
 		_upctl \
 		_vacuum \
