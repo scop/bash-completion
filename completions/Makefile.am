@@ -863,6 +863,7 @@ CLEANFILES = \
 	_tendermint \
 	_terraform \
 	_tkn \
+	_tkn-pac \
 	tightvncviewer \
 	tracepath6 \
 	_trivy \
@@ -1028,6 +1029,7 @@ symlinks: $(DATA)
 		_tanzu \
 		_tanzu-core \
 		_tkn \
+		_tkn-pac \
 		_trivy \
 		_upctl \
 		_vacuum \
