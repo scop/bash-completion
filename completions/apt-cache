@@ -1,17 +1,17 @@
 # Debian apt-cache(8) completion                           -*- shell-script -*-
 
 # List APT binary packages
-# TODO:API: make it a generator
 # @since 2.12
-_comp_xfunc_apt_cache_packages()
+_comp_xfunc_apt_cache_compgen_packages()
 {
-    _comp_cmd_apt_cache__packages apt-cache
+    _comp_cmd_apt_cache__compgen_packages apt-cache
 }
 
-# TODO:API: make it a generator
-_comp_cmd_apt_cache__packages()
+# List APT binary packages
+# @param $1  Name of executable
+_comp_cmd_apt_cache__compgen_packages()
 {
-    "$1" --no-generate pkgnames "$cur" 2>/dev/null || :
+    _comp_compgen_split -- "$("$1" --no-generate pkgnames "$cur" 2>/dev/null)"
 }
 
 # List APT source packages
@@ -29,7 +29,14 @@ _comp_cmd_apt_cache__compgen_sources()
         awk '$1 == "Source:" { print $2 }' | sort -u)"
 }
 
-_comp_deprecate_func 2.12 _apt_cache_packages _comp_xfunc_apt_cache_packages
+# List APT binary packages
+# @deprecated 2.12
+_apt_cache_packages()
+{
+    local packages
+    _comp_compgen -v packages -i apt-cache packages apt-cache &&
+        printf '%s\n' "${packages[@]}"
+}
 
 # List APT source packages
 # @deprecated 2.12
@@ -75,7 +82,7 @@ _comp_cmd_apt_cache()
                 ;;
 
             *)
-                COMPREPLY=($(_comp_cmd_apt_cache__packages "$1"))
+                _comp_cmd_apt_cache__compgen_packages "$1"
                 ;;
 
         esac

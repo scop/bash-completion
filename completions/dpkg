@@ -91,12 +91,12 @@ _comp_cmd_dpkg()
             return
             ;;
         --status | --print-avail | --list | -${noargopts}[spl])
-            COMPREPLY=($(_comp_xfunc apt-cache packages))
+            _comp_compgen -x apt-cache packages
             return
             ;;
         --show | -${noargopts}W)
             if [[ $1 == *dpkg-query ]]; then
-                COMPREPLY=($(_comp_xfunc apt-cache packages))
+                _comp_compgen -x apt-cache packages
             else
                 _comp_compgen_filedir '?(u|d)deb'
             fi
@@ -119,10 +119,9 @@ _comp_cmd_dpkg()
             return
             ;;
         --ignore-depends)
-            local packages=$(
-                cur=${cur##*,} _comp_xfunc apt-cache packages
-            )
-            _comp_delimited , -W '$packages'
+            local packages
+            _comp_compgen -v packages -c "${cur##*,}" -x apt-cache packages
+            _comp_delimited , -W '"${packages[@]}"'
             return
             ;;
         --log)
