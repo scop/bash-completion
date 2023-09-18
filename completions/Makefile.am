@@ -299,6 +299,7 @@ bashcomp_DATA = 2to3 \
 		nslookup \
 		nsupdate \
 		ntpdate \
+		_nvm \
 		oggdec \
 		openssl \
 		opera \
