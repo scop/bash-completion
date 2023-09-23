@@ -14,7 +14,9 @@ EXTRA_DIST = \
 	hexdump \
 	hwclock \
 	ionice \
+	jungle \
 	keyring \
+	kontena \
 	look \
 	mdbook \
 	mock \
@@ -24,6 +26,8 @@ EXTRA_DIST = \
 	newgrp \
 	nmcli \
 	nox \
+	nvm \
+	pip \
 	pipenv \
 	renice \
 	repomanage \

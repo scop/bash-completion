@@ -208,6 +208,7 @@ bashcomp_DATA = 2to3 \
 		jshint \
 		json_xs \
 		jsonschema \
+		_jungle \
 		k3b \
 		kcov \
 		_keyring \
@@ -216,6 +217,7 @@ bashcomp_DATA = 2to3 \
 		kldload \
 		kldunload \
 		koji \
+		_kontena \
 		ktutil \
 		larch \
 		lastlog \
@@ -299,6 +301,7 @@ bashcomp_DATA = 2to3 \
 		nslookup \
 		nsupdate \
 		ntpdate \
+		_nvm \
 		oggdec \
 		openssl \
 		opera \
@@ -316,6 +319,7 @@ bashcomp_DATA = 2to3 \
 		pidof \
 		pine \
 		ping \
+		_pip \
 		_pipenv \
 		pkg-config \
 		pkg-get \
@@ -550,6 +554,7 @@ CLEANFILES = \
 	c++ \
 	cc \
 	cdrecord \
+	_chezmoi \
 	chrome \
 	chromium \
 	ci \
@@ -564,10 +569,12 @@ CLEANFILES = \
 	compare \
 	compgen \
 	composite \
+	_conda \
 	conjure \
 	_constellation \
 	_consul \
 	cowthink \
+	_crc \
 	createdb \
 	createuser \
 	_cz \
@@ -733,6 +740,8 @@ CLEANFILES = \
 	neomutt \
 	_nfpm \
 	_nomad \
+	_npm \
+	_oc \
 	_okteto \
 	_op \
 	_ory \
@@ -746,6 +755,7 @@ CLEANFILES = \
 	pinfo \
 	ping4 \
 	ping6 \
+	_pip3 \
 	pkg_deinstall \
 	pkg_info \
 	pkgconf \
@@ -860,6 +870,8 @@ CLEANFILES = \
 	_tanzu-core \
 	_tendermint \
 	_terraform \
+	_tkn \
+	_tkn-pac \
 	tightvncviewer \
 	tracepath6 \
 	_trivy \
@@ -960,7 +972,7 @@ symlinks: $(DATA)
 	$(ss) freeciv-server \
 		civserver
 	$(ss) _gaiacli \
-		_gaiad _tendermint
+		_gaiad _npm _tendermint
 	$(ss) gcc \
 		c++ cc f77 f95 g++ g++-5 g++-6 g++-7 g++-8 g77 g95 gcc-5 \
 		gcc-6 gcc-7 gcc-8 gccgo gccgo-5 gccgo-6 gccgo-7 gccgo-8 gcj \
@@ -977,9 +989,11 @@ symlinks: $(DATA)
 		_allero \
 		_arduino-cli \
 		_buf \
+		_chezmoi \
 		_cilium \
 		_cloudquery \
 		_constellation \
+		_crc \
 		_datree \
 		_docker \
 		_gardenctl \
@@ -1007,6 +1021,7 @@ symlinks: $(DATA)
 		_moldy \
 		_multi-gitter \
 		_nfpm \
+		_oc \
 		_okteto \
 		_op \
 		_ory \
@@ -1022,6 +1037,8 @@ symlinks: $(DATA)
 		_ssh-inscribe \
 		_tanzu \
 		_tanzu-core \
+		_tkn \
+		_tkn-pac \
 		_trivy \
 		_upctl \
 		_vacuum \
@@ -1102,6 +1119,7 @@ symlinks: $(DATA)
 		_ansible-playbook \
 		_ansible-pull \
 		_ansible-vault \
+		_conda \
 		_cz
 	$(ss) nslookup \
 		host
@@ -1113,6 +1131,8 @@ symlinks: $(DATA)
 		alpine
 	$(ss) ping \
 		ping4 ping6
+	$(ss) _pip \
+		_pip3
 	$(ss) _pipenv \
 		_black _blackd _flask _httpx
 	$(ss) pkg-config \
