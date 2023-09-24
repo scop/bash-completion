@@ -1,18 +1,21 @@
 # mysql(1) completion                                      -*- shell-script -*-
 
 # @since 2.12
-# TODO:API: make it a generator, replace by default
-_comp_xfunc_mysql_character_sets()
+_comp_xfunc_mysql_compgen_character_sets()
 {
     local -a charsets
     _comp_expand_glob charsets '/usr/share/m{ariadb,ysql}/charsets/!(Index).xml'
     charsets+=(utf8)
     charsets=("${charsets[@]##*/}")
     charsets=("${charsets[@]%.xml}")
-    _comp_compgen -a -- -W '"${charsets[@]}"' -X ''
+    _comp_compgen -U charsets -- -W '"${charsets[@]}"' -X ''
 }
 
-_comp_deprecate_func 2.12 _mysql_character_sets _comp_xfunc_mysql_character_sets
+# @deprecated 2.12
+_mysql_character_sets()
+{
+    _comp_compgen -ax mysql character_sets "$@"
+}
 
 _comp_cmd_mysql()
 {
@@ -41,7 +44,7 @@ _comp_cmd_mysql()
             return
             ;;
         --default-character-set)
-            _comp_xfunc_mysql_character_sets
+            _comp_xfunc_mysql_compgen_character_sets
             return
             ;;
 
