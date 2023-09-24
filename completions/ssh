@@ -513,32 +513,37 @@ _scp_remote_files()
 # others.  If first arg is -d, complete on directory names only.  The next arg
 # is an optional prefix to add to returned completions.
 # @since 2.12
-# TODO:API: make it a generator, don't append by default
-_comp_xfunc_scp_local_files()
+_comp_xfunc_scp_compgen_local_files()
 {
-    local IFS=$'\n'
-
-    local dirsonly=""
+    local _dirsonly=""
     if [[ ${1-} == -d ]]; then
-        dirsonly=set
+        _dirsonly=set
         shift
     fi
 
     local files
     _comp_expand_glob files '"$cur"*'
     ((${#files[@]})) || return 0
-    if [[ $dirsonly ]]; then
-        COMPREPLY+=($(command ls -aF1dL "${files[@]}" 2>/dev/null |
-            command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" -e '/[^\/]$/d' \
-                -e "s/^/${1-}/"))
+    if [[ $_dirsonly ]]; then
+        _comp_compgen -U files split -l -- "$(
+            command ls -aF1dL "${files[@]}" 2>/dev/null |
+                command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" \
+                    -e '/[^\/]$/d' -e "s/^/${1-}/"
+        )"
     else
-        COMPREPLY+=($(command ls -aF1dL "${files[@]}" 2>/dev/null |
-            command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" -e 's/[*@|=]$//g' \
-                -e 's/[^\/]$/& /g' -e "s/^/${1-}/"))
+        _comp_compgen -U files split -l -- "$(
+            command ls -aF1dL "${files[@]}" 2>/dev/null |
+                command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" \
+                    -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' -e "s/^/${1-}/"
+        )"
     fi
 }
 
-_comp_deprecate_func 2.12 _scp_local_files _comp_xfunc_scp_local_files
+# @deprecated 2.12
+_scp_local_files()
+{
+    _comp_compgen -ax scp local_files "$@"
+}
 
 # scp(1) completion
 #
@@ -632,7 +637,7 @@ _comp_cmd_scp()
         esac
     fi
 
-    _comp_xfunc_scp_local_files "${prefix-}"
+    _comp_compgen -ax scp local_files "${prefix-}"
 } &&
     complete -F _comp_cmd_scp -o nospace scp
 
