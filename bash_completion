@@ -420,8 +420,8 @@ _comp_compgen__error_fallback()
 #   -a      Append to the array
 #   -v arr  Store the results to the array ARR. The default is `COMPREPLY`.
 #           The array name should not start with an underscores "_", which is
-#           internally used.  The array name should not be either "IFS" or
-#           "OPT{IND,ARG,ERR}".
+#           internally used.  The array name should not be any of "cur", "IFS"
+#           or "OPT{IND,ARG,ERR}".
 #   -U var  Unlocalize VAR before performing the assignments.  This option can
 #           be specified multiple times to register multiple variables.  This
 #           option is supposed to be used in implementing a generator (G1) when
@@ -538,7 +538,7 @@ _comp_compgen()
         case $_opt in
             a) _append=set ;;
             v)
-                if [[ $OPTARG == @(*[^_a-zA-Z0-9]*|[0-9]*|''|_*|IFS|OPTIND|OPTARG|OPTERR) ]]; then
+                if [[ $OPTARG == @(*[^_a-zA-Z0-9]*|[0-9]*|''|_*|IFS|OPTIND|OPTARG|OPTERR|cur) ]]; then
                     printf 'bash_completion: %s: -v: invalid array name `%s'\''\n' "$FUNCNAME" "$OPTARG" >&2
                     return 2
                 fi
@@ -548,7 +548,7 @@ _comp_compgen()
                 if [[ $OPTARG == @(*[^_a-zA-Z0-9]*|[0-9]*|'') ]]; then
                     printf 'bash_completion: %s: -U: invalid variable name `%s'\''\n' "$FUNCNAME" "$OPTARG" >&2
                     return 2
-                elif [[ $OPTARG == @(_*|IFS|OPTIND|OPTARG|OPTERR) ]]; then
+                elif [[ $OPTARG == @(_*|IFS|OPTIND|OPTARG|OPTERR|cur) ]]; then
                     printf 'bash_completion: %s: -U: unnecessary to mark `%s'\'' as upvar\n' "$FUNCNAME" "$OPTARG" >&2
                     return 2
                 fi
