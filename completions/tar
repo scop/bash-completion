@@ -162,13 +162,6 @@ _comp_cmd_gtar__parse_warnings()
     _comp_compgen -- -W '"${warnings[@]}"'
 }
 
-# Helper to obtain last character of string.
-# TODO:API: rework to use vars rather than outputting
-_comp_cmd_tar__last_char()
-{
-    echo "${1:$((${#1} - 1))}"
-}
-
 _comp_cmd_tar__parse_old_opt()
 {
     local first_word char
@@ -310,7 +303,7 @@ _comp_cmd_tar__mode()
     # The last short option requires argument, like '-cf<TAB>'.  Cut the
     # completion here to enforce argument processing.
     if [[ ! $old_opt_progress ]] &&
-        _comp_cmd_tar__is_argreq "$(_comp_cmd_tar__last_char "$cur")"; then
+        _comp_cmd_tar__is_argreq "${cur: -1}"; then
         COMPREPLY=("$cur") && return 0
     fi
 
@@ -437,7 +430,7 @@ _comp_cmd_tar__cleanup_prev()
 {
     if [[ $prev =~ ^-[a-zA-Z0-9?]*$ ]]; then
         # transform '-caf' ~> '-f'
-        prev="-$(_comp_cmd_tar__last_char "$prev")"
+        prev="-${prev: -1}"
     fi
 }
 
