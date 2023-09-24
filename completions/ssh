@@ -50,11 +50,10 @@ _comp_cmd_ssh__compgen_macs()
 }
 
 # @since 2.12
-# TODO:API: make it a generator
-_comp_xfunc_ssh_options()
+_comp_xfunc_ssh_compgen_options()
 {
     # curl --silent https://raw.githubusercontent.com/openssh/openssh-portable/master/ssh_config.5 | awk '$1==".It" && $2=="Cm" && $3!="Host" && $3!="Match" {print "        "$3}' | sort
-    local opts=(
+    local _opts=(
         AddKeysToAgent AddressFamily BatchMode BindAddress BindInterface
         CanonicalDomains CanonicalizeFallbackLocal CanonicalizeHostname
         CanonicalizeMaxDots CanonicalizePermittedCNAMEs CASignatureAlgorithms
@@ -80,28 +79,29 @@ _comp_xfunc_ssh_options()
         UserKnownHostsFile VerifyHostKeyDNS VisualHostKey XAuthLocation
     )
     # Selected old ones
-    opts+=(
+    _opts+=(
         GSSAPIKeyExchange GSSAPIRenewalForcesRekey GSSAPIServerIdentity
         GSSAPITrustDns PubkeyAcceptedKeyTypes SmartcardDevice UsePrivilegedPort
     )
     local -a protocols
     _comp_compgen -v protocols -i ssh query ssh protocol-version
     if [[ ${protocols[*]-} == *1* ]]; then
-        opts+=(Cipher CompressionLevel Protocol RhostsRSAAuthentication
+        _opts+=(Cipher CompressionLevel Protocol RhostsRSAAuthentication
             RSAAuthentication)
     fi
+    _comp_unlocal protocols
 
     compopt -o nospace
-    local IFS=$' \t\n' reset=$(shopt -p nocasematch)
-    shopt -s nocasematch
-    local option
-    COMPREPLY=($(for option in "${opts[@]}"; do
-        [[ $option == "$cur"* ]] && printf '%s=\n' "$option"
-    done))
-    $reset
+    _comp_compgen_split -l -- "$(
+        shopt -s nocasematch
+        local option
+        for option in "${_opts[@]}"; do
+            [[ $option == "$cur"* ]] && printf '%s=\n' "$option"
+        done
+    )"
 }
 
-_comp_deprecate_func 2.12 _ssh_options _comp_xfunc_ssh_options
+_comp_deprecate_func 2.12 _ssh_options _comp_xfunc_ssh_compgen_options
 
 # Complete a ssh suboption (like ForwardAgent=y<tab>)
 # @param $1 the ssh executable to invoke
@@ -351,7 +351,7 @@ _comp_cmd_ssh()
             return
             ;;
         -*o)
-            _comp_xfunc_ssh_options "$1"
+            _comp_xfunc_ssh_compgen_options "$1"
             return
             ;;
         -*Q)
@@ -431,7 +431,7 @@ _comp_cmd_sftp()
             return
             ;;
         -*o)
-            _comp_xfunc_ssh_options
+            _comp_xfunc_ssh_compgen_options
             return
             ;;
         -*S)
@@ -585,7 +585,7 @@ _comp_cmd_scp()
             return
             ;;
         -*o)
-            _comp_xfunc_ssh_options
+            _comp_xfunc_ssh_compgen_options
             return
             ;;
         -*S)
