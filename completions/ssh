@@ -108,12 +108,12 @@ _comp_deprecate_func 2.12 _ssh_options _comp_xfunc_ssh_compgen_options
 # @param $2 the string to complete including the equal sign
 # Not all suboptions are completed.
 # Doesn't handle comma-separated lists.
-_comp_cmd_ssh__suboption()
+_comp_cmd_ssh__compgen_suboption()
 {
     # Split into subopt and subval
-    local prev=${2%%=*} cur=${2#*=}
+    local _prev=${2%%=*} cur=${2#*=}
 
-    case ${prev,,} in
+    case ${_prev,,} in
         batchmode | canonicaldomains | canonicalizefallbacklocal | \
             challengeresponseauthentication | checkhostip | \
             clearallforwardings | controlpersist | compression | \
@@ -233,29 +233,29 @@ _comp_cmd_ssh__suboption()
 #
 # Returns 0 if the completion was handled or non-zero otherwise.
 # @since 2.12
-# # TODO:API: make it a generator
-_comp_xfunc_ssh_suboption_check()
+_comp_xfunc_ssh_compgen_suboption_check()
 {
-    _comp_cmd_ssh__suboption_check ssh
+    _comp_cmd_ssh__compgen_suboption_check ssh
 }
 
 # @param $1 the ssh executable to invoke
-_comp_cmd_ssh__suboption_check()
+_comp_cmd_ssh__compgen_suboption_check()
 {
     # Get prev and cur words without splitting on =
     local cur prev
     _comp_get_words -n := cur prev
     if [[ $cur == *=* && $prev == -*o ]]; then
-        _comp_cmd_ssh__suboption "$1" "$cur"
+        _comp_unlocal prev
+        _comp_cmd_ssh__compgen_suboption "$1" "$cur"
         return $?
     fi
     return 1
 }
 
-# @deprecated 2.12 use `_comp_xfunc_ssh_suboption_check` instead
+# @deprecated 2.12 use `_comp_xfunc_ssh_compgen_suboption_check` instead
 _ssh_suboption_check()
 {
-    _comp_cmd_ssh__suboption_check "${1:-ssh}"
+    _comp_cmd_ssh__compgen_suboption_check "${1:-ssh}"
 }
 
 # Search COMP_WORDS for '-F configfile' or '-Fconfigfile' argument
@@ -300,7 +300,7 @@ _comp_cmd_ssh()
     local configfile
     _comp_cmd_ssh__configfile
 
-    _comp_cmd_ssh__suboption_check "$1" && return
+    _comp_cmd_ssh__compgen_suboption_check "$1" && return
 
     local ipvx
 
@@ -406,7 +406,7 @@ _comp_cmd_sftp()
     local pathcmd
     pathcmd=$(type -P "$1") && local PATH=${pathcmd%/*}:$PATH
 
-    _comp_xfunc_ssh_suboption_check && return
+    _comp_xfunc_ssh_compgen_suboption_check && return
 
     local ipvx=
 
@@ -554,7 +554,7 @@ _comp_cmd_scp()
     local pathcmd
     pathcmd=$(type -P "$1") && local PATH=${pathcmd%/*}:$PATH
 
-    _comp_xfunc_ssh_suboption_check && {
+    _comp_xfunc_ssh_compgen_suboption_check && {
         ((${#COMPREPLY[@]})) && COMPREPLY=("${COMPREPLY[@]/%/ }")
         return
     }
