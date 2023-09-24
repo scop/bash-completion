@@ -149,15 +149,17 @@ _comp_cmd_gtar__parse_help()
 }
 
 # Hack: parse --warning keywords from tar's error output
-# TODO:API: rework to use vars rather than outputting
 _comp_cmd_gtar__parse_warnings()
 {
-    local line
-    LC_ALL=C tar --warning= 2>&1 | while IFS= read -r line; do
+    local -a warnings=()
+    local lines line
+    _comp_split -l lines "$(LC_ALL=C exec tar --warning= 2>&1)"
+    for line in "${line[@]}"; do
         if [[ $line =~ ^[[:blank:]]*-[[:blank:]]*[\`\']([a-zA-Z0-9-]+)\'$ ]]; then
-            echo "${BASH_REMATCH[1]} no-${BASH_REMATCH[1]}"
+            warnings+=("${BASH_REMATCH[1]}" "no-${BASH_REMATCH[1]}")
         fi
     done
+    _comp_compgen -- -W '"${warnings[@]}"'
 }
 
 # Helper to obtain last character of string.
@@ -585,7 +587,7 @@ _comp_cmd_tar__gnu()
                 break
                 ;;
             --warning)
-                _comp_compgen_split -- "$(_comp_cmd_gtar__parse_warnings)"
+                _comp_cmd_gtar__parse_warnings
                 break
                 ;;
             --*)
