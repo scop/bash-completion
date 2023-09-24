@@ -30,14 +30,15 @@ _comp_cmd_yum__compgen_repolist()
     )"
 }
 
-# TODO:API: rename per conventions, rework to use vars rather than outputting
-_yum_plugins()
+_comp_cmd_yum__compgen_plugins()
 {
     local -a files
     _comp_expand_glob files '/usr/lib/yum-plugins/*.py{,c,o}'
-    ((${#files[@]})) &&
+    ((${#files[@]})) || return
+    _comp_compgen -U files split -- "$(
         printf '%s\n' "${files[@]}" |
-        command sed -ne 's|.*/\([^./]*\)\.py[co]\{0,1\}$|\1|p' | sort -u
+            command sed -ne 's|.*/\([^./]*\)\.py[co]\{0,1\}$|\1|p' | sort -u
+    )"
 }
 
 _comp_cmd_yum()
@@ -116,7 +117,7 @@ _comp_cmd_yum()
             _comp_compgen -a -- -W "all main"
             ;;
         --enableplugin | --disableplugin)
-            _comp_compgen_split -- "$(_yum_plugins)"
+            _comp_cmd_yum__compgen_plugins
             ;;
         --color)
             _comp_compgen -- -W 'always auto never'
