@@ -2,13 +2,13 @@
 
 _comp_cmd_ssh__compgen_queries()
 {
-    local -a ret
-    _comp_compgen -v ret -i ssh query "$1" help
-    [[ ${ret-} ]] || ret=(cipher cipher-auth mac kex key key-cert
-        key-plain key-sig protocol-version compression sig ciphers macs
-        kexalgorithms pubkeyacceptedkeytypes hostkeyalgorithms
-        hostbasedkeytypes hostbasedacceptedkeytypes)
-    _comp_compgen -c "${cur,,}" -U ret -- -W '"${ret[@]}" help"'
+    local -a queries
+    _comp_compgen -v queries -i ssh query "$1" help ||
+        queries=(cipher cipher-auth mac kex key key-cert key-plain key-sig
+            protocol-version compression sig ciphers macs kexalgorithms
+            pubkeyacceptedkeytypes hostkeyalgorithms hostbasedkeytypes
+            hostbasedacceptedkeytypes)
+    _comp_compgen -c "${cur,,}" -U queries -- -W '"${queries[@]}" help'
 }
 
 # @since 2.12
@@ -20,9 +20,9 @@ _comp_xfunc_ssh_compgen_query()
 # @deprecated 2.12 use _comp_xfunc_ssh_compgen_query
 _ssh_query()
 {
-    local -a ret=()
-    _comp_compgen -v ret -i ssh query "${1:-ssh}" "$2"
-    printf "%s\n" "${ret[@]}"
+    local -a queries=()
+    _comp_compgen -v queries -i ssh query "${1:-ssh}" "$2" &&
+        printf "%s\n" "${queries[@]}"
 }
 
 _comp_cmd_ssh__compgen_query()
@@ -32,21 +32,21 @@ _comp_cmd_ssh__compgen_query()
 
 _comp_cmd_ssh__compgen_ciphers()
 {
-    local -a ret
-    _comp_compgen -v ret -i ssh query "$1" cipher
-    [[ ${ret-} ]] || ret=(3des-cbc aes128-cbc aes192-cbc aes256-cbc
-        aes128-ctr aes192-ctr aes256-ctr arcfour128 arcfour256 arcfour
-        blowfish-cbc cast128-cbc)
-    _comp_compgen -U ret -- -W '"${ret[@]}"'
+    local -a queries
+    _comp_compgen -v queries -i ssh query "$1" cipher ||
+        queries=(3des-cbc aes128-cbc aes192-cbc aes256-cbc aes128-ctr
+            aes192-ctr aes256-ctr arcfour128 arcfour256 arcfour blowfish-cbc
+            cast128-cbc)
+    _comp_compgen -U queries -- -W '"${queries[@]}"'
 }
 
 _comp_cmd_ssh__compgen_macs()
 {
-    local -a ret
-    _comp_compgen -v ret -i ssh query "$1" mac
-    [[ ${ret-} ]] || ret=(hmac-md5 hmac-sha1 umac-64@openssh.com
-        hmac-ripemd160 hmac-sha1-96 hmac-md5-96)
-    _comp_compgen -U ret -- -W '"${ret[@]}"'
+    local -a queries
+    _comp_compgen -v queries -i ssh query "$1" mac ||
+        queries=(hmac-md5 hmac-sha1 umac-64@openssh.com hmac-ripemd160
+            hmac-sha1-96 hmac-md5-96)
+    _comp_compgen -U queries -- -W '"${queries[@]}"'
 }
 
 # @since 2.12
@@ -259,6 +259,7 @@ _ssh_suboption_check()
 # @var[out] configfile   Found configfile, if any
 _comp_cmd_ssh__configfile()
 {
+    configfile=""
     set -- "${words[@]}"
     while (($# > 0)); do
         if [[ $1 == -F* ]]; then

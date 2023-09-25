@@ -19,12 +19,17 @@ _comp_cmd_mr()
     commands="${commands//@(action|[\[\|\]])/$'\n'}"
     # Add standard aliases.
     commands="${commands} ci co ls"
+    _comp_split commands "$commands"
+    local IFS='|'
+    local glob_commands="@(${commands[*]})"
+    _comp_unlocal IFS
 
     # Determine if user has entered an `mr` command. Used to block top-level
     # (option and command) completions.
     local cmd has_cmd="" i
-    for ((i = 1; i < ${#words[@]} - 1; i++)); do
-        if [[ $commands == *"${words[i]}"* ]]; then
+    for ((i = 1; i < cword; i++)); do
+        # shellcheck disable=SC2053
+        if [[ ${words[i]} == $glob_commands ]]; then
             cmd="${words[i]}"
             has_cmd=set
             break
@@ -85,7 +90,7 @@ _comp_cmd_mr()
         # -X '--path': Remove deprecated options.
         _comp_compgen -- -W '"${options[@]}"' -X '@(-[a-z]|--path)'
     else
-        _comp_compgen -- -W "${commands}"
+        _comp_compgen -- -W '"${commands[@]}"'
     fi
 } &&
     complete -F _comp_cmd_mr mr

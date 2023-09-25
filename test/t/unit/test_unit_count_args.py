@@ -153,7 +153,7 @@ class TestUnitCountArgs(TestUnitBase):
             6,
             "a -o -o b -o -o c",
             16,
-            arg='"" "-o"',
+            arg='-a "-o"',
         )
         assert output == "2"
 
