@@ -372,7 +372,7 @@ _comp_split()
     shift "$((OPTIND - 1))"
     if (($# != 2)); then
         printf '%s\n' "bash_completion: $FUNCNAME: unexpected number of arguments" >&2
-        printf '%s\n' "usage: $FUNCNAME [-a] [-F SEP] ARRAY_NAME TEXT" >&2
+        printf '%s\n' "usage: $FUNCNAME [-al] [-F SEP] ARRAY_NAME TEXT" >&2
         return 2
     elif [[ $1 == @(*[^_a-zA-Z0-9]*|[0-9]*|''|_*|IFS|OPTIND|OPTARG|OPTERR) ]]; then
         printf '%s\n' "bash_completion: $FUNCNAME: invalid array name '$1'" >&2
@@ -420,8 +420,8 @@ _comp_compgen__error_fallback()
 #   -a      Append to the array
 #   -v arr  Store the results to the array ARR. The default is `COMPREPLY`.
 #           The array name should not start with an underscores "_", which is
-#           internally used.  The array name should not be either "IFS" or
-#           "OPT{IND,ARG,ERR}".
+#           internally used.  The array name should not be any of "cur", "IFS"
+#           or "OPT{IND,ARG,ERR}".
 #   -U var  Unlocalize VAR before performing the assignments.  This option can
 #           be specified multiple times to register multiple variables.  This
 #           option is supposed to be used in implementing a generator (G1) when
@@ -538,7 +538,7 @@ _comp_compgen()
         case $_opt in
             a) _append=set ;;
             v)
-                if [[ $OPTARG == @(*[^_a-zA-Z0-9]*|[0-9]*|''|_*|IFS|OPTIND|OPTARG|OPTERR) ]]; then
+                if [[ $OPTARG == @(*[^_a-zA-Z0-9]*|[0-9]*|''|_*|IFS|OPTIND|OPTARG|OPTERR|cur) ]]; then
                     printf 'bash_completion: %s: -v: invalid array name `%s'\''\n' "$FUNCNAME" "$OPTARG" >&2
                     return 2
                 fi
@@ -548,7 +548,7 @@ _comp_compgen()
                 if [[ $OPTARG == @(*[^_a-zA-Z0-9]*|[0-9]*|'') ]]; then
                     printf 'bash_completion: %s: -U: invalid variable name `%s'\''\n' "$FUNCNAME" "$OPTARG" >&2
                     return 2
-                elif [[ $OPTARG == @(_*|IFS|OPTIND|OPTARG|OPTERR) ]]; then
+                elif [[ $OPTARG == @(_*|IFS|OPTIND|OPTARG|OPTERR|cur) ]]; then
                     printf 'bash_completion: %s: -U: unnecessary to mark `%s'\'' as upvar\n' "$FUNCNAME" "$OPTARG" >&2
                     return 2
                 fi
@@ -954,9 +954,11 @@ _comp_get_words()
         upvars+=("$vcword")
         upargs+=(-v "$vcword" "$cword")
     }
-    [[ $vprev && $cword -ge 1 ]] && {
+    [[ $vprev ]] && {
+        local value=""
+        ((cword >= 1)) && value=${words[cword - 1]}
         upvars+=("$vprev")
-        upargs+=(-v "$vprev" "${words[cword - 1]}")
+        upargs+=(-v "$vprev" "$value")
     }
     [[ $vwords ]] && {
         # Note: bash < 4.4 has a bug that all the elements are connected with
@@ -1333,7 +1335,7 @@ _comp_variable_assignments()
 # @since 2.12
 _comp_initialize()
 {
-    local exclude="" opt_split="" outx errx inx
+    local exclude="" opt_split="" outx="" errx="" inx=""
 
     local flag OPTIND=1 OPTARG="" OPTERR=0
     while getopts "n:e:o:i:s" flag "$@"; do
@@ -1983,10 +1985,11 @@ _service()
 
 _comp__init_set_up_service_completions()
 {
-    local sysvdirs svc svcdir
+    local sysvdirs svc svcdir svcs
     _comp_sysvdirs &&
         for svcdir in "${sysvdirs[@]}"; do
-            for svc in "$svcdir"/!($_comp_backup_glob); do
+            _comp_expand_glob svcs '"$svcdir"/!($_comp_backup_glob)'
+            for svc in "${svcs[@]}"; do
                 [[ -x $svc ]] && complete -F _service "$svc"
             done
         done

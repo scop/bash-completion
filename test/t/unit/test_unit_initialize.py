@@ -6,7 +6,7 @@ from conftest import TestUnitBase, assert_bash_exec, assert_complete
 @pytest.mark.bashcomp(
     cmd=None,
     ignore_env=r"^[+-](COMP(_(WORDS|CWORD|LINE|POINT)|REPLY)|"
-    r"cur|cword|words)=|^\+declare -f _cmd1$",
+    r"cur|prev|cword|words)=|^\+declare -f _cmd1$",
 )
 class TestUnitInitCompletion(TestUnitBase):
     def test_1(self, bash):
