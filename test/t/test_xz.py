@@ -9,8 +9,9 @@ class TestXz:
     @pytest.mark.complete("xz -d xz/")
     def test_2(self, completion):
         assert (
-            completion == "a/ bashcomp.lzma bashcomp.tar.xz "
-            "bashcomp.tlz bashcomp.xz".split()
+            completion
+            == "a/ bashcomp.lzma bashcomp.tar.xz bashcomp.tlz "
+            "bashcomp.xz".split()
         )
 
     @pytest.mark.complete("xz xz/")
