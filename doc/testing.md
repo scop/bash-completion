@@ -11,9 +11,8 @@ and [pexpect](https://pexpect.readthedocs.io/).
 
 ## Coding style
 
-For the Python part, all of it is formatted using
-[Black](https://github.com/psf/black), and we also run
-[Ruff](https://github.com/charliermarsh/ruff) on it.
+For the Python part, all of it is checked and formatted using
+[Ruff](https://docs.astral.sh/ruff/).
 
 ## Installing dependencies
 
