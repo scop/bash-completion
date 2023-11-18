@@ -12,7 +12,8 @@ class TestInstallpkg:
     @pytest.mark.complete("installpkg --")
     def test_2(self, completion):
         assert (
-            completion == "--ask --infobox --md5sum --menu "
+            completion
+            == "--ask --infobox --md5sum --menu "
             "--priority --root --tagfile --terse --warn".split()
         )
 

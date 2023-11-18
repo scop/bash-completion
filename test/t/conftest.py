@@ -426,20 +426,22 @@ def assert_bash_exec(
     )
     if want_output is not None:
         if output:
-            assert (
-                want_output
-            ), 'Unexpected output from "%s": exit status=%s, output="%s"' % (
-                cmd,
-                status,
-                output,
+            assert want_output, (
+                'Unexpected output from "%s": exit status=%s, output="%s"'
+                % (
+                    cmd,
+                    status,
+                    output,
+                )
             )
         else:
-            assert (
-                not want_output
-            ), 'Expected output from "%s": exit status=%s, output="%s"' % (
-                cmd,
-                status,
-                output,
+            assert not want_output, (
+                'Expected output from "%s": exit status=%s, output="%s"'
+                % (
+                    cmd,
+                    status,
+                    output,
+                )
             )
 
     return output
