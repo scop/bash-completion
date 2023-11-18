@@ -3,14 +3,12 @@
 # helper functions
 
 # @since 2.12
-# TODO:API: make it a generator
-_comp_xfunc_rpm_installed_packages()
+_comp_xfunc_rpm_compgen_installed_packages()
 {
-    _comp_cmd_rpm__installed_packages rpm
+    _comp_cmd_rpm__compgen_installed_packages rpm
 }
 
-# TODO:API: make it a generator
-_comp_cmd_rpm__installed_packages()
+_comp_cmd_rpm__compgen_installed_packages()
 {
     if [[ -r /var/log/rpmpkgs &&
         /var/log/rpmpkgs -nt /var/lib/rpm/Packages ]]; then
@@ -22,13 +20,13 @@ _comp_cmd_rpm__installed_packages()
         # SUSE's rpmqpack is faster than rpm -qa
         _comp_compgen_split -- "$(rpmqpack)"
     else
-        COMPREPLY=($("${1:-rpm}" -qa --nodigest --nosignature \
-            --queryformat='%{NAME} ' "$cur*" 2>/dev/null))
+        _comp_compgen_split -- "$("${1:-rpm}" -qa --nodigest --nosignature \
+            --queryformat='%{NAME} ' "$cur*" 2>/dev/null)"
     fi
 }
 
 _comp_deprecate_func 2.12 _rpm_installed_packages \
-    _comp_xfunc_rpm_installed_packages
+    _comp_xfunc_rpm_compgen_installed_packages
 
 _comp_cmd_rpm__groups()
 {
@@ -157,7 +155,7 @@ _comp_cmd_rpm()
                 _comp_compgen -- -W '"${opts[@]}" --allmatches --noscripts
                     --notriggers --nodeps --test --repackage'
             else
-                _comp_cmd_rpm__installed_packages "$1"
+                _comp_cmd_rpm__compgen_installed_packages "$1"
             fi
             ;;
         -q* | --query)
@@ -200,7 +198,7 @@ _comp_cmd_rpm()
                         --whatrecommends --whatrequires --whatsuggests
                         --whatsupplements'
                 elif [[ ${words[*]} != *\ -@(*([^ -])a|-all )* ]]; then
-                    _comp_cmd_rpm__installed_packages "$1"
+                    _comp_cmd_rpm__compgen_installed_packages "$1"
                 fi
             fi
             ;;
@@ -226,14 +224,14 @@ _comp_cmd_rpm()
             elif [[ ${words[*]} == *\ -@(*([^ -])p|-package )* ]]; then
                 _comp_compgen_filedir '[rs]pm'
             else
-                _comp_cmd_rpm__installed_packages "$1"
+                _comp_cmd_rpm__compgen_installed_packages "$1"
             fi
             ;;
         --resign | --addsign | --delsign)
             _comp_compgen_filedir '[rs]pm'
             ;;
         --setperms | --setgids)
-            _comp_cmd_rpm__installed_packages "$1"
+            _comp_cmd_rpm__compgen_installed_packages "$1"
             ;;
         --import | --dbpath | --root)
             if [[ $cur == -* ]]; then

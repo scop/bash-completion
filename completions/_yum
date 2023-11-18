@@ -18,25 +18,27 @@ _comp_cmd_yum__list()
     fi
 }
 
-# TODO:API: rename per conventions, rework to use vars rather than outputting
-_yum_repolist()
+_comp_cmd_yum__compgen_repolist()
 {
     # -d 0 causes repolist to output nothing as of yum 3.2.22:
     # http://yum.baseurl.org/ticket/83
     # Drop first ("repo id      repo name") and last ("repolist: ...") rows
-    yum --noplugins -C repolist "$1" 2>/dev/null |
-        command sed -ne '/^repo\s\s*id/d' -e '/^repolist:/d' \
-            -e 's/[[:space:]].*//p'
+    _comp_compgen_split -- "$(
+        yum --noplugins -C repolist "$1" 2>/dev/null |
+            command sed -ne '/^repo\s\s*id/d' -e '/^repolist:/d' \
+                -e 's/[[:space:]].*//p'
+    )"
 }
 
-# TODO:API: rename per conventions, rework to use vars rather than outputting
-_yum_plugins()
+_comp_cmd_yum__compgen_plugins()
 {
     local -a files
     _comp_expand_glob files '/usr/lib/yum-plugins/*.py{,c,o}'
-    ((${#files[@]})) &&
+    ((${#files[@]})) || return
+    _comp_compgen -U files split -- "$(
         printf '%s\n' "${files[@]}" |
-        command sed -ne 's|.*/\([^./]*\)\.py[co]\{0,1\}$|\1|p' | sort -u
+            command sed -ne 's|.*/\([^./]*\)\.py[co]\{0,1\}$|\1|p' | sort -u
+    )"
 }
 
 _comp_cmd_yum()
@@ -105,16 +107,17 @@ _comp_cmd_yum()
             _comp_compgen_filedir -d
             ;;
         --enablerepo)
-            _comp_compgen_split -- "$(_yum_repolist disabled)"
+            _comp_cmd_yum__compgen_repolist disabled
             ;;
         --disablerepo)
-            _comp_compgen_split -- "$(_yum_repolist enabled)"
+            _comp_cmd_yum__compgen_repolist enabled
             ;;
         --disableexcludes)
-            _comp_compgen_split -- "$(_yum_repolist all) all main"
+            _comp_cmd_yum__compgen_repolist all
+            _comp_compgen -a -- -W "all main"
             ;;
         --enableplugin | --disableplugin)
-            _comp_compgen_split -- "$(_yum_plugins)"
+            _comp_cmd_yum__compgen_plugins
             ;;
         --color)
             _comp_compgen -- -W 'always auto never'

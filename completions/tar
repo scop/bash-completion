@@ -56,8 +56,7 @@
 # `$BASH_COMPLETION_CMD_TAR_INTERNAL_PATHS` environment variable to a non-null
 # value *before sourcing* this completion toggles that the other way around.
 
-# TODO:API: rename per conventions
-__gtar_parse_help_opt()
+_comp_cmd_gtar__parse_help_opt()
 {
     local opttype arg opt separator optvar
     opttype=long
@@ -96,8 +95,7 @@ __gtar_parse_help_opt()
     eval "$optvar=\"\$$optvar$separator\"\"$opt\""
 }
 
-# TODO:API: rename per conventions
-__gtar_parse_help_line()
+_comp_cmd_gtar__parse_help_line()
 {
     local i
     local -a tmp
@@ -106,7 +104,7 @@ __gtar_parse_help_line()
             case "$i" in
                 # regular options
                 --* | -*)
-                    __gtar_parse_help_opt "$i" "$2"
+                    _comp_cmd_gtar__parse_help_opt "$i" "$2"
                     ;;
 
                 # end once there is single non-option word
@@ -118,8 +116,7 @@ __gtar_parse_help_line()
     done <<<"$1"
 }
 
-# TODO:API: rename per conventions
-__gnu_tar_parse_help()
+_comp_cmd_gtar__parse_help()
 {
     local str line arg
     while IFS= read -r line; do
@@ -141,7 +138,7 @@ __gnu_tar_parse_help()
                 [[ ${BASH_REMATCH[1]} ]] && arg=opt || arg=req
             fi
 
-            __gtar_parse_help_line "$str" "$arg"
+            _comp_cmd_gtar__parse_help_line "$str" "$arg"
         fi
     done <<<"$(tar --help)"
 
@@ -152,26 +149,20 @@ __gnu_tar_parse_help()
 }
 
 # Hack: parse --warning keywords from tar's error output
-# TODO:API: rename per conventions, rework to use vars rather than outputting
-__gtar_parse_warnings()
+_comp_cmd_gtar__parse_warnings()
 {
-    local line
-    LC_ALL=C tar --warning= 2>&1 | while IFS= read -r line; do
+    local -a warnings=()
+    local lines line
+    _comp_split -l lines "$(LC_ALL=C exec tar --warning= 2>&1)"
+    for line in "${line[@]}"; do
         if [[ $line =~ ^[[:blank:]]*-[[:blank:]]*[\`\']([a-zA-Z0-9-]+)\'$ ]]; then
-            echo "${BASH_REMATCH[1]} no-${BASH_REMATCH[1]}"
+            warnings+=("${BASH_REMATCH[1]}" "no-${BASH_REMATCH[1]}")
         fi
     done
+    _comp_compgen -- -W '"${warnings[@]}"'
 }
 
-# Helper to obtain last character of string.
-# TODO:API: rename per conventions, rework to use vars rather than outputting
-__tar_last_char()
-{
-    echo "${1:$((${#1} - 1))}"
-}
-
-# TODO:API: rename per conventions
-__tar_parse_old_opt()
+_comp_cmd_tar__parse_old_opt()
 {
     local first_word char
 
@@ -189,7 +180,7 @@ __tar_parse_old_opt()
     if [[ $old_opt_used ]]; then
         char=${first_word:0:1}
         while [[ $char ]]; do
-            if __tar_is_argreq "$char"; then
+            if _comp_cmd_tar__is_argreq "$char"; then
                 old_opt_parsed+=("$char")
             fi
             first_word=${first_word##"$char"}
@@ -199,14 +190,13 @@ __tar_parse_old_opt()
 }
 
 # Make the analysis of whole command line.
-# TODO:API: rename per conventions
-__tar_preparse_cmdline()
+_comp_cmd_tar__preparse_cmdline()
 {
     local first_arg=set i modes="ctxurdA"
 
     shift # progname
 
-    __tar_parse_old_opt
+    _comp_cmd_tar__parse_old_opt
 
     for i in "$@"; do
         case "$i" in
@@ -238,8 +228,7 @@ __tar_preparse_cmdline()
 }
 
 # Generate completions for -f/--file.
-# TODO:API: rename per conventions
-__tar_file_option()
+_comp_cmd_tar__file_option()
 {
     local ext="$1"
 
@@ -256,8 +245,7 @@ __tar_file_option()
 
 # Returns truth if option requires argument.  No equal sign must be pasted.
 # Accepts option in format: 'c', '-c', '--create'
-# TODO:API: rename per conventions
-__tar_is_argreq()
+_comp_cmd_tar__is_argreq()
 {
     local opt
     opt=$1
@@ -315,7 +303,7 @@ _comp_cmd_tar__mode()
     # The last short option requires argument, like '-cf<TAB>'.  Cut the
     # completion here to enforce argument processing.
     if [[ ! $old_opt_progress ]] &&
-        __tar_is_argreq "$(__tar_last_char "$cur")"; then
+        _comp_cmd_tar__is_argreq "${cur: -1}"; then
         COMPREPLY=("$cur") && return 0
     fi
 
@@ -360,8 +348,7 @@ _comp_cmd_tar__gnu_short_options()
     _comp_compgen -- -W "$generated"
 }
 
-# TODO:API: rename per conventions
-__tar_try_mode()
+_comp_cmd_tar__try_mode()
 {
     case "$cur" in
         --*)
@@ -387,8 +374,7 @@ __tar_try_mode()
     return 1
 }
 
-# TODO:API: rename per conventions
-__tar_adjust_PREV_from_old_option()
+_comp_cmd_tar__adjust_PREV_from_old_option()
 {
     # deal with old style arguments here
     # $ tar cfTC # expects this sequence of arguments:
@@ -399,8 +385,7 @@ __tar_adjust_PREV_from_old_option()
     fi
 }
 
-# TODO:API: rename per conventions
-__tar_extract_like_mode()
+_comp_cmd_tar__extract_like_mode()
 {
     local i
     for i in x d t delete; do
@@ -413,7 +398,7 @@ _comp_cmd_tar__try_list_archive()
 {
     local tarball="" tarbin untar i
 
-    __tar_extract_like_mode || return 1
+    _comp_cmd_tar__extract_like_mode || return 1
 
     # This all is just to approach directory completion from "virtual"
     # directory structure in tarball (for which the _comp_compgen_filedir is
@@ -441,23 +426,21 @@ _comp_cmd_tar__try_list_archive()
     fi
 }
 
-# TODO:API: rename per conventions
-__tar_cleanup_prev()
+_comp_cmd_tar__cleanup_prev()
 {
     if [[ $prev =~ ^-[a-zA-Z0-9?]*$ ]]; then
         # transform '-caf' ~> '-f'
-        prev="-$(__tar_last_char "$prev")"
+        prev="-${prev: -1}"
     fi
 }
 
-# TODO:API: rename per conventions
-__tar_detect_ext()
+_comp_cmd_tar__detect_ext()
 {
     local tars='@(@(tar|spkg)?(.@(Z|[bgx]z|bz2|lz?(ma|o)|zst))|t@([abglx]z|b?(z)2|zst)|cbt|gem|xbps)'
     if [[ ${COMP_WORDS[0]} == ?(*/)bsdtar ]]; then
         # https://github.com/libarchive/libarchive/wiki/LibarchiveFormats
         tars=${tars/%\)/|pax|cpio|iso|zip|@(j|x)ar|mtree|a|7z|warc}
-        if __tar_extract_like_mode; then
+        if _comp_cmd_tar__extract_like_mode; then
             # read only
             tars+="|l@(ha|zh)|rar|cab)"
         else
@@ -521,18 +504,18 @@ _comp_cmd_tar__gnu()
     _comp_initialize -s -- "$@" || return
 
     # Fill the {long,short}_{opts,arg*}
-    __gnu_tar_parse_help
+    _comp_cmd_gtar__parse_help
 
-    __tar_preparse_cmdline "${words[@]}"
+    _comp_cmd_tar__preparse_cmdline "${words[@]}"
 
     local ext
 
-    __tar_detect_ext
+    _comp_cmd_tar__detect_ext
 
     while true; do # just-for-easy-break while, not looping
-        __tar_adjust_PREV_from_old_option
-        __tar_posix_prev_handle && break
-        __tar_cleanup_prev
+        _comp_cmd_tar__adjust_PREV_from_old_option
+        _comp_cmd_tar__posix_prev_handle && break
+        _comp_cmd_tar__cleanup_prev
 
         # Handle all options *REQUIRING* argument.  Optional arguments are up to
         # user (TODO: is there any sane way to deal with this?).  This case
@@ -580,7 +563,7 @@ _comp_cmd_tar__gnu()
                 break
                 ;;
             --file | -${noargopts}f)
-                __tar_file_option "$ext"
+                _comp_cmd_tar__file_option "$ext"
                 break
                 ;;
             --format | -${noargopts}H)
@@ -597,7 +580,7 @@ _comp_cmd_tar__gnu()
                 break
                 ;;
             --warning)
-                _comp_compgen_split -- "$(__gtar_parse_warnings)"
+                _comp_cmd_gtar__parse_warnings
                 break
                 ;;
             --*)
@@ -632,7 +615,7 @@ _comp_cmd_tar__gnu()
 
         # Handle the main operational mode of tar.  We should do it as soon as
         # possible.
-        __tar_try_mode && break
+        _comp_cmd_tar__try_mode && break
 
         # handle others
         case "$cur" in
@@ -666,12 +649,11 @@ _comp_cmd_tar__gnu()
     fi
 }
 
-# TODO:API: rename per conventions
-__tar_posix_prev_handle()
+_comp_cmd_tar__posix_prev_handle()
 {
     case "$prev" in
         -f)
-            __tar_file_option "$ext"
+            _comp_cmd_tar__file_option "$ext"
             return 0
             ;;
         -b)
@@ -708,17 +690,17 @@ _comp_cmd_tar__posix()
     short_arg_none="wmv"
     short_opts="$short_arg_req$short_arg_none"
 
-    __tar_preparse_cmdline "${words[@]}"
+    _comp_cmd_tar__preparse_cmdline "${words[@]}"
 
     local ext
 
-    __tar_detect_ext
+    _comp_cmd_tar__detect_ext
 
-    __tar_adjust_PREV_from_old_option
+    _comp_cmd_tar__adjust_PREV_from_old_option
 
-    __tar_posix_prev_handle && return
+    _comp_cmd_tar__posix_prev_handle && return
 
-    __tar_try_mode && return
+    _comp_cmd_tar__try_mode && return
 
     _comp_cmd_tar__try_list_archive && return
 

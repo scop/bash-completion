@@ -13,35 +13,32 @@ _comp_cmd_mutt__addresses()
 }
 
 # Find muttrc to use
-# @output  muttrc filename
-# TODO:API: rename per conventions, rework to use vars rather than outputting
-_muttrc()
+# @var[out] ret  muttrc filename
+_comp_cmd_mutt__get_muttrc()
 {
-    local muttrc=
+    ret=
     # Search COMP_WORDS for '-F muttrc' or '-Fmuttrc' argument
     set -- "${words[@]}"
     while (($# > 0)); do
         if [[ $1 == -F* ]]; then
-            local ret
             if ((${#1} > 2)); then
-                _comp_dequote "${1:2}" && muttrc=$ret
+                _comp_dequote "${1:2}"
             else
                 shift
-                [[ ${1-} ]] && _comp_dequote "$1" && muttrc=$ret
+                [[ ${1-} ]] && _comp_dequote "$1"
             fi
             break
         fi
         shift
     done
 
-    if [[ ! $muttrc ]]; then
+    if [[ ! $ret ]]; then
         if [[ -f ~/.${muttcmd}rc ]]; then
-            muttrc=\~/.${muttcmd}rc
+            ret=\~/.${muttcmd}rc
         elif [[ -f ~/.${muttcmd}/${muttcmd}rc ]]; then
-            muttrc=\~/.${muttcmd}/${muttcmd}rc
+            ret=\~/.${muttcmd}/${muttcmd}rc
         fi
     fi
-    printf "%s" "${muttrc-}"
 }
 
 # Recursively build list of sourced config files
@@ -79,24 +76,14 @@ _comp_cmd_mutt__get_conffiles__visit()
     done
 }
 
-# Recursively build list of sourced config files
-# @param $1...  Config file to process
-# @output       List of config files
-# TODO:API: rename per conventions, rework to use vars rather than outputting
-_muttconffiles()
-{
-    local ret
-    _comp_cmd_mutt__get_conffiles "$@" &&
-        printf '%s\n' "${ret[@]}"
-}
-
 # @param $1 (cur) Current word to complete
 _comp_cmd_mutt__aliases()
 {
-    local cur=$1 muttrc muttcmd=${words[0]}
+    local cur=$1 muttrc muttcmd=${words[0]} ret
     local -a conffiles aliases
 
-    muttrc=$(_muttrc)
+    _comp_cmd_mutt__get_muttrc
+    muttrc=$ret
     [[ ! $muttrc ]] && return
 
     local ret
@@ -133,9 +120,9 @@ _comp_cmd_mutt__query()
 # @param $1 (cur) Current word to complete
 _comp_cmd_mutt__filedir()
 {
-    local cur=$1 folder muttrc spoolfile muttcmd=${words[0]}
-
-    muttrc=$(_muttrc)
+    local cur=$1 folder muttrc spoolfile muttcmd=${words[0]} ret
+    _comp_cmd_mutt__get_muttrc
+    muttrc=$ret
     if [[ $cur == [=+]* ]]; then
         folder="$("$muttcmd" -F "$muttrc" -Q folder 2>/dev/null | command sed -e 's|^folder=\"\(.*\)\"$|\1|')"
         [[ $folder ]] || folder=~/Mail

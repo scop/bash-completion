@@ -1,51 +1,60 @@
 # Debian apt-cache(8) completion                           -*- shell-script -*-
 
 # List APT binary packages
-# TODO:API: make it a generator
 # @since 2.12
-_comp_xfunc_apt_cache_packages()
+_comp_xfunc_apt_cache_compgen_packages()
 {
-    _comp_cmd_apt_cache__packages apt-cache
+    _comp_cmd_apt_cache__compgen_packages apt-cache
 }
 
-# TODO:API: make it a generator
-_comp_cmd_apt_cache__packages()
+# List APT binary packages
+# @param $1  Name of executable
+_comp_cmd_apt_cache__compgen_packages()
 {
-    "$1" --no-generate pkgnames "$cur" 2>/dev/null || :
+    _comp_compgen_split -- "$("$1" --no-generate pkgnames "$cur" 2>/dev/null)"
 }
 
 # List APT source packages
-# TODO:API: make it a generator
 # @since 2.12
-_comp_xfunc_apt_cache_sources()
+_comp_xfunc_apt_cache_compgen_sources()
 {
-    _comp_cmd_apt_cache__sources apt-cache "$1"
-}
-
-# TODO:API: make it a generator
-_comp_cmd_apt_cache__sources()
-{
-    local ret
-    _comp_compgen -c "$2" -v ret split -- "$("$1" dumpavail |
-        awk '$1 == "Source:" { print $2 }' | sort -u)" &&
-        printf '%s\n' "${ret[@]}"
+    _comp_cmd_apt_cache__compgen_sources apt-cache
 }
 
 # List APT source packages
-# TODO:API: make it a generator
-# @since 2.12
-_comp_xfunc_apt_cache_src_packages()
+# @param $1  Name of executable
+_comp_cmd_apt_cache__compgen_sources()
 {
-    local ret
-    _comp_compgen -v ret split -- \
-        "$(_comp_cmd_apt_cache__sources apt-cache "$cur")" &&
-        printf '%s\n' "${ret[@]}"
+    _comp_compgen_split -- "$("$1" dumpavail |
+        awk '$1 == "Source:" { print $2 }' | sort -u)"
 }
 
-_comp_deprecate_func 2.12 _apt_cache_packages _comp_xfunc_apt_cache_packages
-_comp_deprecate_func 2.12 _apt_cache_sources _comp_xfunc_apt_cache_sources
-_comp_deprecate_func 2.12 _apt_cache_src_packages \
-    _comp_xfunc_apt_cache_src_packages
+# List APT binary packages
+# @deprecated 2.12
+_apt_cache_packages()
+{
+    local packages
+    _comp_compgen -v packages -i apt-cache packages apt-cache &&
+        printf '%s\n' "${packages[@]}"
+}
+
+# List APT source packages
+# @deprecated 2.12
+_apt_cache_sources()
+{
+    local sources
+    _comp_compgen -v sources -c "$1" -i apt-cache sources apt-cache &&
+        printf '%s\n' "${sources[@]}"
+}
+
+# List APT source packages
+# @deprecated 2.12
+_apt_cache_src_packages()
+{
+    local sources
+    _comp_compgen -v sources -i apt-cache sources apt-cache &&
+        printf '%s\n' "${sources[@]}"
+}
 
 _comp_cmd_apt_cache()
 {
@@ -69,11 +78,11 @@ _comp_cmd_apt_cache()
                 ;;
 
             showsrc)
-                COMPREPLY=($(_comp_cmd_apt_cache__sources "$1" "$cur"))
+                _comp_cmd_apt_cache__compgen_sources "$1"
                 ;;
 
             *)
-                COMPREPLY=($(_comp_cmd_apt_cache__packages "$1"))
+                _comp_cmd_apt_cache__compgen_packages "$1"
                 ;;
 
         esac

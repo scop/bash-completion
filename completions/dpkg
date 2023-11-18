@@ -1,11 +1,9 @@
 # dpkg(1) and related commands completion                  -*- shell-script -*-
 
 # @since 2.12
-# TODO:API: make it a generator, replace by default
-_comp_xfunc_dpkg_installed_packages()
+_comp_xfunc_dpkg_compgen_installed_packages()
 {
-    local pkgs
-    pkgs=$(
+    _comp_compgen_split -- "$(
         grep-status -P -e "^${cur-}" -a \
             -FStatus 'ok installed' \
             -n -s Package 2>/dev/null ||
@@ -14,16 +12,13 @@ _comp_xfunc_dpkg_installed_packages()
             \$2 ~ /ok installed|half-installed|unpacked|half-configured|^Essential: yes/ {
                 print(substr(\$1, 10));
             }" /var/lib/dpkg/status 2>/dev/null
-    )
-    _comp_compgen -a -- -W '$pkgs'
+    )"
 }
 
 # @since 2.12
-# TODO:API: make it a generator, replace by default
-_comp_xfunc_dpkg_purgeable_packages()
+_comp_xfunc_dpkg_compgen_purgeable_packages()
 {
-    local pkgs
-    pkgs=$(
+    _comp_compgen_split -- "$(
         grep-status -P -e "^${cur-}" -a \
             -FStatus 'ok installed' -o -FStatus 'ok config-files' \
             -n -s Package 2>/dev/null ||
@@ -32,33 +27,32 @@ _comp_xfunc_dpkg_purgeable_packages()
             \$2 ~ /ok installed|half-installed|unpacked|half-configured|config-files|^Essential: yes/ {
                 print(substr(\$1, 10));
             }" /var/lib/dpkg/status 2>/dev/null
-    )
-    _comp_compgen -a -- -W '$pkgs'
+    )"
 }
 
 # @since 2.12
-# TODO:API: make it a generator, replace by default
-_comp_xfunc_dpkg_held_packages()
+_comp_xfunc_dpkg_compgen_held_packages()
 {
-    local pkgs=$(dpkg --get-selections ${cur:+"$cur}"} |
-        awk '{for(i=2;i<=NF;i++){ if($i=="hold"){ print $1;break }}}')
-    _comp_compgen -a -- -W '$pkgs'
+    _comp_compgen_split -- "$(
+        dpkg --get-selections ${cur:+"$cur}"} |
+            awk '{for(i=2;i<=NF;i++){ if($i=="hold"){ print $1;break }}}'
+    )"
 }
 
-# @deprecated 2.12 use _comp_xfunc_dpkg_installed_packages instead
+# @deprecated 2.12 use _comp_xfunc_dpkg_compgen_installed_packages instead
 _comp_dpkg_installed_packages()
 {
     local COMPREPLY=() cur="${1-}"
     # shellcheck disable=SC2119
-    _comp_xfunc_dpkg_installed_packages
+    _comp_xfunc_dpkg_compgen_installed_packages
     printf "%s\n" "${COMPREPLY[@]}"
 }
-# @deprecated 2.12 use _comp_xfunc_dpkg_purgeable_packages instead
+# @deprecated 2.12 use _comp_xfunc_dpkg_compgen_purgeable_packages instead
 _comp_dpkg_purgeable_packages()
 {
     local COMPREPLY=() cur="${1-}"
     # shellcheck disable=SC2119
-    _comp_xfunc_dpkg_purgeable_packages
+    _comp_xfunc_dpkg_compgen_purgeable_packages
     printf "%s\n" "${COMPREPLY[@]}"
 }
 
@@ -91,12 +85,12 @@ _comp_cmd_dpkg()
             return
             ;;
         --status | --print-avail | --list | -${noargopts}[spl])
-            COMPREPLY=($(_comp_xfunc apt-cache packages))
+            _comp_compgen -x apt-cache packages
             return
             ;;
         --show | -${noargopts}W)
             if [[ $1 == *dpkg-query ]]; then
-                COMPREPLY=($(_comp_xfunc apt-cache packages))
+                _comp_compgen -x apt-cache packages
             else
                 _comp_compgen_filedir '?(u|d)deb'
             fi
@@ -107,11 +101,11 @@ _comp_cmd_dpkg()
             return
             ;;
         --remove | --verify | -${noargopts}[rV])
-            _comp_xfunc_dpkg_installed_packages
+            _comp_xfunc_dpkg_compgen_installed_packages
             return
             ;;
         --listfiles | --purge | -${noargopts}[LP])
-            _comp_xfunc_dpkg_purgeable_packages
+            _comp_xfunc_dpkg_compgen_purgeable_packages
             return
             ;;
         --debug | -${noargopts}D)
@@ -119,10 +113,9 @@ _comp_cmd_dpkg()
             return
             ;;
         --ignore-depends)
-            local packages=$(
-                cur=${cur##*,} _comp_xfunc apt-cache packages
-            )
-            _comp_delimited , -W '$packages'
+            local packages
+            _comp_compgen -v packages -c "${cur##*,}" -x apt-cache packages
+            _comp_delimited , -W '"${packages[@]}"'
             return
             ;;
         --log)
@@ -182,7 +175,7 @@ _comp_cmd_dpkg_reconfigure()
         _comp_compgen -- -W '--frontend --priority --all --unseen-only --help
             --showold --force --terse'
     else
-        _comp_xfunc_dpkg_installed_packages
+        _comp_xfunc_dpkg_compgen_installed_packages
     fi
 } &&
     complete -F _comp_cmd_dpkg_reconfigure -o default dpkg-reconfigure

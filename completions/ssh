@@ -50,11 +50,10 @@ _comp_cmd_ssh__compgen_macs()
 }
 
 # @since 2.12
-# TODO:API: make it a generator
-_comp_xfunc_ssh_options()
+_comp_xfunc_ssh_compgen_options()
 {
     # curl --silent https://raw.githubusercontent.com/openssh/openssh-portable/master/ssh_config.5 | awk '$1==".It" && $2=="Cm" && $3!="Host" && $3!="Match" {print "        "$3}' | sort
-    local opts=(
+    local _opts=(
         AddKeysToAgent AddressFamily BatchMode BindAddress BindInterface
         CanonicalDomains CanonicalizeFallbackLocal CanonicalizeHostname
         CanonicalizeMaxDots CanonicalizePermittedCNAMEs CASignatureAlgorithms
@@ -80,40 +79,41 @@ _comp_xfunc_ssh_options()
         UserKnownHostsFile VerifyHostKeyDNS VisualHostKey XAuthLocation
     )
     # Selected old ones
-    opts+=(
+    _opts+=(
         GSSAPIKeyExchange GSSAPIRenewalForcesRekey GSSAPIServerIdentity
         GSSAPITrustDns PubkeyAcceptedKeyTypes SmartcardDevice UsePrivilegedPort
     )
     local -a protocols
     _comp_compgen -v protocols -i ssh query ssh protocol-version
     if [[ ${protocols[*]-} == *1* ]]; then
-        opts+=(Cipher CompressionLevel Protocol RhostsRSAAuthentication
+        _opts+=(Cipher CompressionLevel Protocol RhostsRSAAuthentication
             RSAAuthentication)
     fi
+    _comp_unlocal protocols
 
     compopt -o nospace
-    local IFS=$' \t\n' reset=$(shopt -p nocasematch)
-    shopt -s nocasematch
-    local option
-    COMPREPLY=($(for option in "${opts[@]}"; do
-        [[ $option == "$cur"* ]] && printf '%s=\n' "$option"
-    done))
-    $reset
+    _comp_compgen_split -l -- "$(
+        shopt -s nocasematch
+        local option
+        for option in "${_opts[@]}"; do
+            [[ $option == "$cur"* ]] && printf '%s=\n' "$option"
+        done
+    )"
 }
 
-_comp_deprecate_func 2.12 _ssh_options _comp_xfunc_ssh_options
+_comp_deprecate_func 2.12 _ssh_options _comp_xfunc_ssh_compgen_options
 
 # Complete a ssh suboption (like ForwardAgent=y<tab>)
 # @param $1 the ssh executable to invoke
 # @param $2 the string to complete including the equal sign
 # Not all suboptions are completed.
 # Doesn't handle comma-separated lists.
-_comp_cmd_ssh__suboption()
+_comp_cmd_ssh__compgen_suboption()
 {
     # Split into subopt and subval
-    local prev=${2%%=*} cur=${2#*=}
+    local _prev=${2%%=*} cur=${2#*=}
 
-    case ${prev,,} in
+    case ${_prev,,} in
         batchmode | canonicaldomains | canonicalizefallbacklocal | \
             challengeresponseauthentication | checkhostip | \
             clearallforwardings | controlpersist | compression | \
@@ -233,29 +233,29 @@ _comp_cmd_ssh__suboption()
 #
 # Returns 0 if the completion was handled or non-zero otherwise.
 # @since 2.12
-# # TODO:API: make it a generator
-_comp_xfunc_ssh_suboption_check()
+_comp_xfunc_ssh_compgen_suboption_check()
 {
-    _comp_cmd_ssh__suboption_check ssh
+    _comp_cmd_ssh__compgen_suboption_check ssh
 }
 
 # @param $1 the ssh executable to invoke
-_comp_cmd_ssh__suboption_check()
+_comp_cmd_ssh__compgen_suboption_check()
 {
     # Get prev and cur words without splitting on =
     local cur prev
     _comp_get_words -n := cur prev
     if [[ $cur == *=* && $prev == -*o ]]; then
-        _comp_cmd_ssh__suboption "$1" "$cur"
+        _comp_unlocal prev
+        _comp_cmd_ssh__compgen_suboption "$1" "$cur"
         return $?
     fi
     return 1
 }
 
-# @deprecated 2.12 use `_comp_xfunc_ssh_suboption_check` instead
+# @deprecated 2.12 use `_comp_xfunc_ssh_compgen_suboption_check` instead
 _ssh_suboption_check()
 {
-    _comp_cmd_ssh__suboption_check "${1:-ssh}"
+    _comp_cmd_ssh__compgen_suboption_check "${1:-ssh}"
 }
 
 # Search COMP_WORDS for '-F configfile' or '-Fconfigfile' argument
@@ -300,7 +300,7 @@ _comp_cmd_ssh()
     local configfile
     _comp_cmd_ssh__configfile
 
-    _comp_cmd_ssh__suboption_check "$1" && return
+    _comp_cmd_ssh__compgen_suboption_check "$1" && return
 
     local ipvx
 
@@ -351,7 +351,7 @@ _comp_cmd_ssh()
             return
             ;;
         -*o)
-            _comp_xfunc_ssh_options "$1"
+            _comp_xfunc_ssh_compgen_options "$1"
             return
             ;;
         -*Q)
@@ -406,7 +406,7 @@ _comp_cmd_sftp()
     local pathcmd
     pathcmd=$(type -P "$1") && local PATH=${pathcmd%/*}:$PATH
 
-    _comp_xfunc_ssh_suboption_check && return
+    _comp_xfunc_ssh_compgen_suboption_check && return
 
     local ipvx=
 
@@ -431,7 +431,7 @@ _comp_cmd_sftp()
             return
             ;;
         -*o)
-            _comp_xfunc_ssh_options
+            _comp_xfunc_ssh_compgen_options
             return
             ;;
         -*S)
@@ -513,32 +513,37 @@ _scp_remote_files()
 # others.  If first arg is -d, complete on directory names only.  The next arg
 # is an optional prefix to add to returned completions.
 # @since 2.12
-# TODO:API: make it a generator, don't append by default
-_comp_xfunc_scp_local_files()
+_comp_xfunc_scp_compgen_local_files()
 {
-    local IFS=$'\n'
-
-    local dirsonly=""
+    local _dirsonly=""
     if [[ ${1-} == -d ]]; then
-        dirsonly=set
+        _dirsonly=set
         shift
     fi
 
     local files
     _comp_expand_glob files '"$cur"*'
     ((${#files[@]})) || return 0
-    if [[ $dirsonly ]]; then
-        COMPREPLY+=($(command ls -aF1dL "${files[@]}" 2>/dev/null |
-            command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" -e '/[^\/]$/d' \
-                -e "s/^/${1-}/"))
+    if [[ $_dirsonly ]]; then
+        _comp_compgen -U files split -l -- "$(
+            command ls -aF1dL "${files[@]}" 2>/dev/null |
+                command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" \
+                    -e '/[^\/]$/d' -e "s/^/${1-}/"
+        )"
     else
-        COMPREPLY+=($(command ls -aF1dL "${files[@]}" 2>/dev/null |
-            command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" -e 's/[*@|=]$//g' \
-                -e 's/[^\/]$/& /g' -e "s/^/${1-}/"))
+        _comp_compgen -U files split -l -- "$(
+            command ls -aF1dL "${files[@]}" 2>/dev/null |
+                command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" \
+                    -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' -e "s/^/${1-}/"
+        )"
     fi
 }
 
-_comp_deprecate_func 2.12 _scp_local_files _comp_xfunc_scp_local_files
+# @deprecated 2.12
+_scp_local_files()
+{
+    _comp_compgen -ax scp local_files "$@"
+}
 
 # scp(1) completion
 #
@@ -554,7 +559,7 @@ _comp_cmd_scp()
     local pathcmd
     pathcmd=$(type -P "$1") && local PATH=${pathcmd%/*}:$PATH
 
-    _comp_xfunc_ssh_suboption_check && {
+    _comp_xfunc_ssh_compgen_suboption_check && {
         ((${#COMPREPLY[@]})) && COMPREPLY=("${COMPREPLY[@]/%/ }")
         return
     }
@@ -585,7 +590,7 @@ _comp_cmd_scp()
             return
             ;;
         -*o)
-            _comp_xfunc_ssh_options
+            _comp_xfunc_ssh_compgen_options
             return
             ;;
         -*S)
@@ -632,7 +637,7 @@ _comp_cmd_scp()
         esac
     fi
 
-    _comp_xfunc_scp_local_files "${prefix-}"
+    _comp_compgen -ax scp local_files "${prefix-}"
 } &&
     complete -F _comp_cmd_scp -o nospace scp
 
