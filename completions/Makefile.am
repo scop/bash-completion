@@ -683,6 +683,7 @@ CLEANFILES = \
 	ldapmodrdn \
 	ldappasswd \
 	ldapwhoami \
+	_lefthook \
 	_linkerd \
 	links2 \
 	lintian-info \
@@ -1014,6 +1015,7 @@ symlinks: $(DATA)
 		_kubeadm \
 		_kubectl \
 		_kubescape \
+		_lefthook \
 		_linkerd \
 		_mattermost \
 		_metalctl \
