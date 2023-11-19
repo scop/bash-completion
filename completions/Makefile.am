@@ -588,6 +588,7 @@ CLEANFILES = \
 	dpkg-deb \
 	dpkg-query \
 	dpkg-reconfigure \
+	_dprint \
 	dropdb \
 	dropuser \
 	edquota \
@@ -682,6 +683,7 @@ CLEANFILES = \
 	ldapmodrdn \
 	ldappasswd \
 	ldapwhoami \
+	_lefthook \
 	_linkerd \
 	links2 \
 	lintian-info \
@@ -1013,6 +1015,7 @@ symlinks: $(DATA)
 		_kubeadm \
 		_kubectl \
 		_kubescape \
+		_lefthook \
 		_linkerd \
 		_mattermost \
 		_metalctl \
@@ -1103,7 +1106,7 @@ symlinks: $(DATA)
 	$(ss) mcrypt \
 		mdecrypt
 	$(ss) _mdbook \
-		_deno _diesel _starship
+		_deno _diesel _dprint _starship
 	$(ss) mplayer \
 		gmplayer kplayer mencoder mplayer2
 	$(ss) mutt \
