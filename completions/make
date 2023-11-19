@@ -15,78 +15,7 @@ _comp_cmd_make__extract_targets()
     [[ $mode == -d && $prefix == */* ]] &&
         prefix_replace=${prefix##*/}
 
-    awk '
-      BEGIN {
-        prefix = ENVIRON["prefix"];
-        prefix_replace = ENVIRON["prefix_replace"];
-        is_target_block = 0;
-        target = "";
-      }
-      function starts_with(str, prefix) {
-        return substr(str, 1, length(prefix)) == prefix;
-      }
-
-      NR == 1, /^# +Make data base/ { next; }     # skip any makefile output
-      /^# +Finished Make data base/,/^# +Make data base/ { next; } # skip any makefile output
-      /^# +Variables/, /^# +Files/ { next; }      # skip until files section
-      /^# +Not a target/, /^$/     { next; }      # skip not target blocks
-
-      # The stuff above here describes lines that are not
-      #  explicit targets or not targets other than special ones
-      # The stuff below here decides whether an explicit target
-      #  should be output.
-
-      starts_with($0, prefix) { is_target_block = 1; }
-      !is_target_block { next; }
-
-      /^# +File is an intermediate prerequisite/ { # cancel the block
-        is_target_block = 0;
-        target = "";
-        next;
-      }
-
-      /^$/ {                                      # end of target block
-        is_target_block = 0;
-        if (target != "") {
-          print target;
-          target = "";
-        }
-        next;
-      }
-
-      # only process the targets the user wants.
-      /^[^#\t:%]+:/ {                             # found target block
-        if (/^\.PHONY:/               ) next;     # special target
-        if (/^\.SUFFIXES:/            ) next;     # special target
-        if (/^\.DEFAULT:/             ) next;     # special target
-        if (/^\.PRECIOUS:/            ) next;     # special target
-        if (/^\.INTERMEDIATE:/        ) next;     # special target
-        if (/^\.SECONDARY:/           ) next;     # special target
-        if (/^\.SECONDEXPANSION:/     ) next;     # special target
-        if (/^\.DELETE_ON_ERROR:/     ) next;     # special target
-        if (/^\.IGNORE:/              ) next;     # special target
-        if (/^\.LOW_RESOLUTION_TIME:/ ) next;     # special target
-        if (/^\.SILENT:/              ) next;     # special target
-        if (/^\.EXPORT_ALL_VARIABLES:/) next;     # special target
-        if (/^\.NOTPARALLEL:/         ) next;     # special target
-        if (/^\.ONESHELL:/            ) next;     # special target
-        if (/^\.POSIX:/               ) next;     # special target
-        if (/^\.NOEXPORT:/            ) next;     # special target
-        if (/^\.MAKE:/                ) next;     # special target
-
-        # dont complete with hidden targets unless we are doing a partial completion
-        if (prefix == "" || prefix ~ /\/$/)
-          if (substr($0, length(prefix) + 1, 1) ~ /[^a-zA-Z0-9]/)
-            next;
-
-        target = $0;
-        sub(/:.*/, "", target);
-        if (prefix_replace != prefix)
-          target = prefix_replace substr(target, 1 + length(prefix))
-
-        next;
-      }
-    '
+    awk -f "${BASH_SOURCE[0]%/*}/../helpers/make-extract-targets.awk"
 }
 
 # Truncate the non-unique filepaths in COMPREPLY to only generate unique
