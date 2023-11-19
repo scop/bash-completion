@@ -3207,6 +3207,22 @@ _comp_xfunc()
     "$xfunc_name" "${@:3}"
 }
 
+# Call a POSIX-compatible awk.  Solaris awk is not POSIX-compliant, but Solaris
+# provides a POSIX-compatible version through /usr/xpg4/bin/awk.  We switch the
+# implementation to /usr/xpg4/bin/awk in Solaris if any.
+# @since 2.12
+if [[ $OSTYPE == *solaris* && -x /usr/xpg4/bin/awk ]]; then
+    _comp_awk()
+    {
+        /usr/xpg4/bin/awk "$@"
+    }
+else
+    _comp_awk()
+    {
+        command awk "$@"
+    }
+fi
+
 # source compat completion directory definitions
 _comp__init_compat_dirs=()
 if [[ ${BASH_COMPLETION_COMPAT_DIR-} ]]; then
