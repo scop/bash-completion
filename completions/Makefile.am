@@ -588,6 +588,7 @@ CLEANFILES = \
 	dpkg-deb \
 	dpkg-query \
 	dpkg-reconfigure \
+	_dprint \
 	dropdb \
 	dropuser \
 	edquota \
@@ -1103,7 +1104,7 @@ symlinks: $(DATA)
 	$(ss) mcrypt \
 		mdecrypt
 	$(ss) _mdbook \
-		_deno _diesel _starship
+		_deno _diesel _dprint _starship
 	$(ss) mplayer \
 		gmplayer kplayer mencoder mplayer2
 	$(ss) mutt \
