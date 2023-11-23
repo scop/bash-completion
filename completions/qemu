@@ -27,13 +27,15 @@ _comp_cmd_qemu()
             return
             ;;
         -soundhw)
-            _comp_compgen_split -- "$("$1" -soundhw help |
-                _comp_awk '/^[[:lower:]]/ {print $1}') all"
+            _comp_compgen_split -- "$("$1" -soundhw help | _comp_awk '
+                function islower(s) { return length(s) > 0 && s == tolower(s); }
+                islower(substr($0, 1, 1)) {print $1}') all"
             return
             ;;
         -machine | -M)
-            _comp_compgen_split -- "$("$1" "$prev" help | _comp_awk \
-                '/^[[:lower:]]/ {print $1}')"
+            _comp_compgen_split -- "$("$1" "$prev" help | _comp_awk '
+                function islower(s) { return length(s) > 0 && s == tolower(s); }
+                islower(substr($0, 1, 1)) {print $1}')"
             return
             ;;
         -cpu)
