@@ -5,6 +5,7 @@ EXTRA_DIST = \
 	test_unit_compgen_available_interfaces.py \
 	test_unit_compgen_commands.py \
 	test_unit_compgen_filedir.py \
+	test_unit_compgen_filedir_xspec.py \
 	test_unit_compgen_ip_addresses.py \
 	test_unit_compgen_known_hosts.py \
 	test_unit_compgen_pgids.py \
