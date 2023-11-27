@@ -1,91 +1,21 @@
 # bash completion for GNU make                             -*- shell-script -*-
 
-# TODO: rename per API conventions, rework to use vars rather than outputting(?)
-_make_target_extract_script()
+# Extract the valid target names starting with PREFIX from the output of
+# `make -npq'
+# @param mode    If this is `-d', the directory names already specified in
+#                PREFIX are omitted in the output
+# @param prefix  Prefix of the target names
+_comp_cmd_make__extract_targets()
 {
-    local mode="$1"
-    shift
+    local mode=$1
+    local -x prefix=$2
 
-    local prefix="$1"
-    local prefix_pat=$(command sed 's/[][\,.*^$(){}?+|/]/\\&/g' <<<"$prefix")
-    local basename=${prefix##*/}
-    local dirname_len=$((${#prefix} - ${#basename}))
-    # Avoid expressions like '\(.\{0\}\)', FreeBSD sed doesn't like them:
-    # > sed: 1: ...: RE error: empty (sub)expression
-    local dirname_re=
-    ((dirname_len > 0)) && dirname_re="\(.\{${dirname_len}\}\)"
+    # display mode, only output current path component to the next slash
+    local -x prefix_replace=$prefix
+    [[ $mode == -d && $prefix == */* ]] &&
+        prefix_replace=${prefix##*/}
 
-    if [[ ! $dirname_re ]]; then
-        local output="\1"
-    elif [[ $mode == -d ]]; then
-        # display mode, only output current path component to the next slash
-        local output="\2"
-    else
-        # completion mode, output full path to the next slash
-        local output="\1\2"
-    fi
-
-    cat <<EOF
-    1,/^# * Make data base/           d;        # skip any makefile output
-    /^# * Finished Make data base/,/^# * Make data base/{
-                                      d;        # skip any makefile output
-    }
-    /^# * Variables/,/^# * Files/     d;        # skip until files section
-    /^# * Not a target/,/^$/          d;        # skip not target blocks
-    /^${prefix_pat}/,/^$/!            d;        # skip anything user dont want
-
-    # The stuff above here describes lines that are not
-    #  explicit targets or not targets other than special ones
-    # The stuff below here decides whether an explicit target
-    #  should be output.
-
-    /^# * File is an intermediate prerequisite/ {
-      s/^.*$//;x;                               # unhold target
-      d;                                        # delete line
-    }
-
-    /^$/ {                                      # end of target block
-      x;                                        # unhold target
-      /^$/d;                                    # dont print blanks
-      s|^${dirname_re-}\(.\{${#basename}\}[^:]*\):.*$|${output}|p;
-      d;                                        # hide any bugs
-    }
-
-    # This pattern includes a literal tab character as \t is not a portable
-    # representation and fails with BSD sed
-    /^[^#	:%]\{1,\}:/ {         # found target block
-      /^\.PHONY:/                 d;            # special target
-      /^\.SUFFIXES:/              d;            # special target
-      /^\.DEFAULT:/               d;            # special target
-      /^\.PRECIOUS:/              d;            # special target
-      /^\.INTERMEDIATE:/          d;            # special target
-      /^\.SECONDARY:/             d;            # special target
-      /^\.SECONDEXPANSION:/       d;            # special target
-      /^\.DELETE_ON_ERROR:/       d;            # special target
-      /^\.IGNORE:/                d;            # special target
-      /^\.LOW_RESOLUTION_TIME:/   d;            # special target
-      /^\.SILENT:/                d;            # special target
-      /^\.EXPORT_ALL_VARIABLES:/  d;            # special target
-      /^\.NOTPARALLEL:/           d;            # special target
-      /^\.ONESHELL:/              d;            # special target
-      /^\.POSIX:/                 d;            # special target
-      /^\.NOEXPORT:/              d;            # special target
-      /^\.MAKE:/                  d;            # special target
-EOF
-
-    # don't complete with hidden targets unless we are doing a partial completion
-    if [[ ! ${prefix_pat} || ${prefix_pat} == */ ]]; then
-        cat <<EOF
-      /^${prefix_pat}[^a-zA-Z0-9]/d;            # convention for hidden tgt
-EOF
-    fi
-
-    cat <<EOF
-      h;                                        # hold target
-      d;                                        # delete line
-    }
-
-EOF
+    _comp_awk -f "${BASH_SOURCE[0]%/*}/../helpers/make-extract-targets.awk"
 }
 
 # Truncate the non-unique filepaths in COMPREPLY to only generate unique
@@ -224,11 +154,11 @@ _comp_cmd_make()
         #     mode=-d # display-only mode
         # fi
 
-        local IFS=$' \t\n' script=$(_make_target_extract_script $mode "$cur")
+        local IFS=$' \t\n'
         COMPREPLY=($(LC_ALL=C \
             $1 -npq __BASH_MAKE_COMPLETION__=1 \
             ${makef+"${makef[@]}"} "${makef_dir[@]}" .DEFAULT 2>/dev/null |
-            command sed -ne "$script"))
+            _comp_cmd_make__extract_targets "$mode" "$cur"))
 
         _comp_cmd_make__truncate_non_unique_paths
 
