@@ -57,3 +57,10 @@ class TestUnitInitCompletion(TestUnitBase):
             bash, "cmd1 %s f" % redirect, cwd="shared/default"
         )
         assert "foo" in completion
+
+    @pytest.mark.parametrize("redirect", "> >> 2> < &>".split())
+    def test_redirect_3(self, bash, redirect):
+        completion = assert_complete(
+            bash, "cmd1 %sf" % redirect, cwd="shared/default"
+        )
+        assert "foo" in completion
