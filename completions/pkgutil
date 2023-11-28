@@ -73,7 +73,7 @@ _comp_cmd_pkgutil()
     if [[ $command && $cur != -* ]]; then
 
         local mirrors mirror_url
-        mirrors=$(awk -F= ' $1 ~ /^ *mirror *$/ { print $2 }' "${configuration_files[@]}")
+        mirrors=$(_comp_awk -F = ' $1 ~ /^ *mirror *$/ { print $2 }' "${configuration_files[@]}")
         mirrors=${mirrors:-http://mirror.opencsw.org/opencsw/testing}
         for mirror_url in $mirrors; do
             _comp_cmd_pkgutil__url2catalog "$mirror_url"
@@ -81,12 +81,12 @@ _comp_cmd_pkgutil()
         done
 
         if [[ $command == -@([dius]|-download|-install|-upgrade|-stream) ]]; then
-            local packages_list=$(awk ' $0 ~ /BEGIN PGP SIGNATURE/ { exit } $1 ~ /^Hash:/ || $1 ~ /^ *(-|#|$)/ { next } { print $1 }' "${catalog_files[@]}")
+            local packages_list=$(_comp_awk ' $0 ~ /BEGIN PGP SIGNATURE/ { exit } $1 ~ /^Hash:/ || $1 ~ /^ *(-|#|$)/ { next } { print $1 }' "${catalog_files[@]}")
             _comp_compgen -- -W "${packages_list}"
 
         elif [[ $command == @(-r|--remove) ]]; then
             local packages_list=$(
-                pkginfo | awk ' $2 ~ /^CSW/ { printf ("%s|",$2) }'
+                pkginfo | _comp_awk ' $2 ~ /^CSW/ { printf ("%s|",$2) }'
             )
             packages_list=${packages_list%|}
             packages_list=$(nawk " \$3 ~ /^$packages_list\$/ { print \$1 }" "${catalog_files[@]}")

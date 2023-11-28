@@ -8,7 +8,7 @@ _comp_cmd_xfreerdp()
     case $prev in
         -k)
             _comp_compgen_split -- "$("$1" --kbd-list |
-                awk '/^0x/ { print $1 }')"
+                _comp_awk '/^0x/ { print $1 }')"
             return
             ;;
         -a)
@@ -31,7 +31,7 @@ _comp_cmd_xfreerdp()
     case $cur in
         /kbd:*)
             _comp_compgen -c "${cur#/kbd:}" split -- "$("$1" /kbd-list |
-                awk '/^0x/ { print $1 }')"
+                _comp_awk '/^0x/ { print $1 }')"
             return
             ;;
         /bpp:*)
@@ -46,7 +46,7 @@ _comp_cmd_xfreerdp()
     if [[ $cur == /* ]]; then
         _comp_compgen_filedir rdp
         _comp_compgen -a split -- "$(
-            "$1" --help | awk '$1 ~ /^\// && $1 !~ /^.(flag$|option:)/ {
+            "$1" --help | _comp_awk '$1 ~ /^\// && $1 !~ /^.(flag$|option:)/ {
                 sub(":.*",":",$1); print $1 }'
         )"
         [[ ${COMPREPLY-} == *: ]] && compopt -o nospace
@@ -54,7 +54,7 @@ _comp_cmd_xfreerdp()
         local char=${cur:0:1}
         local help="$("$1" --help)"
         if [[ $help == */help* ]]; then # new/slash syntax
-            _comp_compgen_split -- "$(awk '$1 ~ /^[+-]/ && $1 !~ /^.toggle$/ {
+            _comp_compgen_split -- "$(_comp_awk '$1 ~ /^[+-]/ && $1 !~ /^.toggle$/ {
                     sub("^.","'"$char"'",$1); print $1 }' <<<"$help")"
         else # old/dash syntax
             _comp_compgen -R help - <<<"$help"
@@ -64,7 +64,7 @@ _comp_cmd_xfreerdp()
     else
         _comp_compgen_filedir rdp
         _comp_compgen -a split -- "$(
-            awk '{print $1}' ~/.freerdp/known_hosts 2>/dev/null
+            _comp_awk '{print $1}' ~/.freerdp/known_hosts 2>/dev/null
         )"
     fi
 

@@ -6,7 +6,7 @@ _comp_cmd_lintian__tags()
     _comp_expand_glob check_files '/usr/share/lintian/checks/*.desc'
     ((${#check_files[@]})) || return 0
 
-    tags=$(awk '/^Tag/ { print $2 }' "${check_files[@]}")
+    tags=$(_comp_awk '/^Tag/ { print $2 }' "${check_files[@]}")
     if [[ $cur == *, ]]; then
         search=${cur//,/ }
         for item in $search; do
@@ -26,14 +26,14 @@ _comp_cmd_lintian__checks()
     _comp_expand_glob check_files '/usr/share/lintian/checks/*.desc'
     ((${#check_files[@]})) || return 0
 
-    checks=$(awk '/^(Check-Script|Abbrev)/ { print $2 }' \
+    checks=$(_comp_awk '/^(Check-Script|Abbrev)/ { print $2 }' \
         "${check_files[@]}")
     if [[ $cur == *, ]]; then
         search=${cur//,/ }
         for item in $search; do
             match=$(command grep -nE "^(Check-Script|Abbrev): $item$" \
                 "${check_files[@]}" | cut -d: -f1)
-            todisable=$(awk '/^(Check-Script|Abbrev)/ { print $2 }' "$match")
+            todisable=$(_comp_awk '/^(Check-Script|Abbrev)/ { print $2 }' "$match")
             for name in $todisable; do
                 checks=$(command sed -e "s/\<$name\>//g" <<<"$checks")
             done
@@ -52,7 +52,7 @@ _comp_cmd_lintian__infos()
     _comp_expand_glob collection_files '/usr/share/lintian/collection/*.desc'
     ((${#collection_files[@]})) || return 0
 
-    infos=$(awk '/^Collector/ { print $2 }' \
+    infos=$(_comp_awk '/^Collector/ { print $2 }' \
         "${collection_files[@]}")
     if [[ $cur == *, ]]; then
         search=${cur//,/ }

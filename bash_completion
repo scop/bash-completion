@@ -1702,7 +1702,7 @@ _comp_compgen_available_interfaces()
         else
             ifconfig -a || ip -c=never link show || ip link show
         fi
-    } 2>/dev/null | awk \
+    } 2>/dev/null | _comp_awk \
         '/^[^ \t]/ { if ($1 ~ /^[0-9]+:/) { print $2 } else { print $1 } }')" &&
         _comp_compgen -U generated set "${generated[@]}"
 }
@@ -1943,7 +1943,7 @@ _comp_compgen_services()
         systemctl list-units --full --all ||
             systemctl list-unit-files
     } 2>/dev/null |
-        awk '$1 ~ /\.service$/ { sub("\\.service$", "", $1); print $1 }')
+        _comp_awk '$1 ~ /\.service$/ { sub("\\.service$", "", $1); print $1 }')
     _comp_split -la services "$_generated"
 
     if [[ -x /sbin/upstart-udev-bridge ]]; then
@@ -2016,7 +2016,7 @@ _comp_compgen_kernel_modules()
 _comp_compgen_inserted_kernel_modules()
 {
     _comp_compgen -c "${1:-$cur}" split -- "$(PATH="$PATH:/sbin" lsmod |
-        awk '{if (NR != 1) print $1}')"
+        _comp_awk '{if (NR != 1) print $1}')"
 }
 
 # This function completes on user or user:group format; as for chown and cpio.
@@ -2097,7 +2097,7 @@ _comp_compgen_allowed_groups()
 _comp_compgen_selinux_users()
 {
     _comp_compgen_split -- "$(semanage user -nl 2>/dev/null |
-        awk '{ print $1 }')"
+        _comp_awk '{ print $1 }')"
 }
 
 # This function completes on valid shells
@@ -2124,14 +2124,14 @@ _comp_compgen_fstypes()
     if [[ -e /proc/filesystems ]]; then
         # Linux
         _fss="$(cut -d$'\t' -f2 /proc/filesystems)
-             $(awk '! /\*/ { print $NF }' /etc/filesystems 2>/dev/null)"
+             $(_comp_awk '! /\*/ { print $NF }' /etc/filesystems 2>/dev/null)"
     else
         # Generic
-        _fss="$(awk '/^[ \t]*[^#]/ { print $3 }' /etc/fstab 2>/dev/null)
-             $(awk '/^[ \t]*[^#]/ { print $3 }' /etc/mnttab 2>/dev/null)
-             $(awk '/^[ \t]*[^#]/ { print $4 }' /etc/vfstab 2>/dev/null)
-             $(awk '{ print $1 }' /etc/dfs/fstypes 2>/dev/null)
-             $(lsvfs 2>/dev/null | awk '$1 !~ /^(Filesystem|[^a-zA-Z])/ { print $1 }')
+        _fss="$(_comp_awk '/^[ \t]*[^#]/ { print $3 }' /etc/fstab 2>/dev/null)
+             $(_comp_awk '/^[ \t]*[^#]/ { print $3 }' /etc/mnttab 2>/dev/null)
+             $(_comp_awk '/^[ \t]*[^#]/ { print $4 }' /etc/vfstab 2>/dev/null)
+             $(_comp_awk '{ print $1 }' /etc/dfs/fstypes 2>/dev/null)
+             $(lsvfs 2>/dev/null | _comp_awk '$1 !~ /^(Filesystem|[^a-zA-Z])/ { print $1 }')
              $([[ -d /etc/fs ]] && command ls /etc/fs)"
     fi
 
@@ -2289,7 +2289,7 @@ _comp_count_args()
 # @since 2.12
 _comp_compgen_pci_ids()
 {
-    _comp_compgen_split -- "$(PATH="$PATH:/sbin" lspci -n | awk '{print $3}')"
+    _comp_compgen_split -- "$(PATH="$PATH:/sbin" lspci -n | _comp_awk '{print $3}')"
 }
 
 # This function completes on USB IDs
@@ -2297,7 +2297,7 @@ _comp_compgen_pci_ids()
 # @since 2.12
 _comp_compgen_usb_ids()
 {
-    _comp_compgen_split -- "$(PATH="$PATH:/sbin" lsusb | awk '{print $6}')"
+    _comp_compgen_split -- "$(PATH="$PATH:/sbin" lsusb | _comp_awk '{print $6}')"
 }
 
 # CD device names
@@ -2325,11 +2325,11 @@ _comp_compgen_terms()
         command sed -ne 's/^\([^[:space:]#|]\{2,\}\)|.*/\1/p' /etc/termcap
         {
             toe -a || toe
-        } | awk '{ print $1 }'
+        } | _comp_awk '{ print $1 }'
         _comp_expand_glob dirs '/{etc,lib,usr/lib,usr/share}/terminfo/?'
         ((${#dirs[@]})) &&
             find "${dirs[@]}" -type f -maxdepth 1 |
-            awk -F/ '{ print $NF }'
+            _comp_awk -F / '{ print $NF }'
     } 2>/dev/null)"
 }
 
@@ -2533,7 +2533,7 @@ _comp_compgen_known_hosts__impl()
         # TODO(?): try to make known hosts files with more than one consecutive
         #          spaces in their name work (watch out for ~ expansion
         #          breakage! Alioth#311595)
-        if _comp_split -l tmpkh "$(awk 'sub("^[ \t]*([Gg][Ll][Oo][Bb][Aa][Ll]|[Uu][Ss][Ee][Rr])[Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee][ \t=]+", "") { print $0 }' "${config[@]}" | sort -u)"; then
+        if _comp_split -l tmpkh "$(_comp_awk 'sub("^[ \t]*([Gg][Ll][Oo][Bb][Aa][Ll]|[Uu][Ss][Ee][Rr])[Kk][Nn][Oo][Ww][Nn][Hh][Oo][Ss][Tt][Ss][Ff][Ii][Ll][Ee][ \t=]+", "") { print $0 }' "${config[@]}" | sort -u)"; then
             local tmpkh2 j ret
             for i in "${tmpkh[@]}"; do
                 # First deal with quoted entries...
@@ -2628,7 +2628,7 @@ _comp_compgen_known_hosts__impl()
         type avahi-browse &>/dev/null; then
         # Some old versions of avahi-browse reportedly didn't have -k
         # (even if mentioned in the manpage); those we do not support any more.
-        local generated=$(avahi-browse -cprak 2>/dev/null | awk -F';' \
+        local generated=$(avahi-browse -cprak 2>/dev/null | _comp_awk -F ';' \
             '/^=/ && $5 ~ /^_(ssh|workstation)\._tcp$/ { print $7 }' |
             sort -u)
         _comp_compgen -av known_hosts -- -P "$prefix" -S "$suffix" -W '$generated'
@@ -2636,7 +2636,7 @@ _comp_compgen_known_hosts__impl()
 
     # Add hosts reported by ruptime.
     if type ruptime &>/dev/null; then
-        local generated=$(ruptime 2>/dev/null | awk '!/^ruptime:/ { print $1 }')
+        local generated=$(ruptime 2>/dev/null | _comp_awk '!/^ruptime:/ { print $1 }')
         _comp_compgen -av known_hosts -- -W '$generated'
     fi
 

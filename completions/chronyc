@@ -4,7 +4,7 @@ _comp_cmd_chronyc__command_args()
 {
     local -a args
     _comp_split args "$("$1" help 2>/dev/null |
-        awk '/^'"$prev"'\s[^ []/ { gsub("\\|", " ", $2); print $2 }')"
+        _comp_awk '/^'"$prev"'[ \t][^ []/ { gsub("\\|", " ", $2); print $2 }')"
     case $args in
         \<address\>) _comp_compgen_known_hosts -- "$cur" ;;
         \<*) ;;
@@ -43,7 +43,7 @@ _comp_cmd_chronyc()
     case $args in
         0)
             _comp_compgen_split -- "$("$1" help 2>/dev/null |
-                awk '!/(^ |: *$)/ { sub("\\|", " ", $1); print $1 }')"
+                _comp_awk '!/(^ |: *$)/ { sub("\\|", " ", $1); print $1 }')"
             ;;
         1)
             _comp_cmd_chronyc__command_args "$1"
