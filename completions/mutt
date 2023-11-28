@@ -136,7 +136,10 @@ _comp_cmd_mutt__filedir()
     elif [[ $cur == !* ]]; then
         spoolfile="$("$muttcmd" -F "$muttrc" -Q spoolfile 2>/dev/null |
             command sed -e 's|^spoolfile=\"\(.*\)\"$|\1|')"
-        [[ $spoolfile ]] && eval cur="${cur/#!/$spoolfile}"
+        if [[ $spoolfile ]]; then
+            _comp_dequote "\"$spoolfile\"" && spoolfile=$REPLY
+            cur="${cur/#!/$spoolfile}"
+        fi
     fi
     _comp_compgen -c "$cur" filedir
 }
