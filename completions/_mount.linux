@@ -25,7 +25,7 @@ _comp_cmd_mount()
                 ufs umsdos usbfs vfat xfs'
             _comp_compgen -a fstypes
             [[ $split ]] && ((${#COMPREPLY[@]})) &&
-                COMPREPLY=(${COMPREPLY[@]/#/$prev,})
+                _comp_compgen -Rv COMPREPLY -- -P "$prev," -W '"${COMPREPLY[@]}"'
             return
             ;;
         --bind | -B | --rbind | -R)
@@ -204,7 +204,7 @@ _comp_cmd_mount()
             # COMP_WORDBREAKS is a real pain in the ass
             prev="${prev##*["$COMP_WORDBREAKS"]}"
             [[ $split ]] && ((${COMPREPLY[@]})) &&
-                COMPREPLY=(${COMPREPLY[@]/#/"$prev,"})
+                _comp_compgen -Rv COMPREPLY -- -P "$prev," -W '"${COMPREPLY[@]}"'
             [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
             return
             ;;

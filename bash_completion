@@ -1572,8 +1572,8 @@ _comp_compgen_usage()
 _comp_compgen_signals()
 {
     local -a sigs
-    _comp_compgen -v sigs -c "SIG${cur#"${1-}"}" -- -P "${1-}" -A signal &&
-        _comp_compgen -U sigs set "${sigs[@]/#${1-}SIG/${1-}}"
+    _comp_compgen -v sigs -c "SIG${cur#"${1-}"}" -- -A signal &&
+        _comp_compgen -RU sigs -- -P "${1-}" -W '"${sigs[@]#SIG}"'
 }
 
 # This function completes on known mac addresses
@@ -2047,9 +2047,8 @@ _comp_compgen_usergroups()
         if ((${#tmp[@]})); then
             local _prefix=${cur%%*([^:])}
             _prefix=${_prefix//\\/}
-            local -a _tmp=("${tmp[@]/#/$_prefix}")
-            _comp_unlocal tmp
-            _comp_compgen_set "${_tmp[@]}"
+            _comp_compgen -Rv tmp -- -P "$_prefix" -W '"${tmp[@]}"'
+            _comp_compgen -U tmp set "${tmp[@]}"
         fi
     elif [[ $cur == *:* ]]; then
         # Completing group after 'user:gr<TAB>'.
