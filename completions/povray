@@ -37,7 +37,10 @@ _comp_cmd_povray()
                 command grep '^[-+]I' <<<"${words[*]}"
             ))
             _comp_compgen -Rv COMPREPLY -- -X '' -W '"${COMPREPLY[@]#[-+]I}"'
-            COMPREPLY=("${COMPREPLY[@]/%.pov/.$oext}")
+            local i
+            for i in "${!COMPREPLY[@]}"; do
+                COMPREPLY[i]=${COMPREPLY[i]/%.pov/".$oext"}
+            done
             cur="${povcur#[-+]O}" # to confuse _comp_compgen_filedir
             pfx="${povcur%"$cur"}"
             _comp_compgen -a filedir $oext
