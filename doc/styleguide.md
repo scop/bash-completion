@@ -181,3 +181,52 @@ avoid backslash escaping or use the one that minimizes the use of backslash
 escaping.  When the value contains control characters such as a tab and a
 newline, we do not directly include them but we use backslash escape sequences
 such as `\t` and `\n` in the escape string `$'...'`.
+
+### `patsub_replacement` for array elements
+
+There is a subtlety in quoting of the array expansions with a pattern
+replacement when `shopt -s patsub_replacement` (Bash >= 5.2) is
+enabled (which is the default of Bash >= 5.2).
+
+For example, the array expansions with a pattern replacement may be
+used to add a prefix to every element in an array:
+
+```bash
+# problem in bash >= 5.2
+arr=("${arr[@]/#/$prefix}")
+```
+
+However, this has the problem.  The characters `&` contained in
+`$prefix`, if any, will be replaced with the matched string.  The
+unexpected `patsub_replacement` may be suppressed by quoting the
+replacement as
+
+```bash
+# problem with bash <= 4.2 or "shopt -s compat42"
+arr=("${arr[@]/#/"$prefix"}")
+```
+
+However, this has another problem in bash < 4.3 or when `shopt -s
+compat42` is turned on.  The inner double quotations are treated
+literally so that the `PREFIX` instead of ``"PREFIX"` is prefixed to
+elements.  To avoid this situation, the outer double quotations might
+be removed, but this has even another problem of the pathname
+expansions and `IFS`.
+
+Specifically for prefixing and suffixing, we may instead use
+`_comp_compgen -- -P prefix` and `_comp_compgen -- -S suffix`.
+
+```bash
+# solution for prefixing
+_comp_compgen -Rv arr -- -P "$prefix" -W '"${arr[@]}"'
+```
+
+In a general case, one needs to modify each array element in a loop,
+where only the replacement is quoted.
+
+```bash
+# general solution
+for i in "${!arr[@]}"; do
+    arr[i]=${arr[i]//pat/"$rep"}
+done
+```

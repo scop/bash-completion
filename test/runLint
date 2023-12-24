@@ -52,6 +52,9 @@ gitgrep '(?<!command)'"$cmdstart"'(grep|ls|sed|cd)(\s|$)' \
 gitgrep '(?<!command)'"$cmdstart"'awk(\s|$)' \
     'invoke awk through "_comp_awk"'
 
+#------------------------------------------------------------------------------
+# Bash pitfalls/styles/compatibilities (which are not detected by shellcheck)
+
 gitgrep '<<<' 'herestrings use temp files, use some other way'
 
 filter_out='^(test/|bash_completion\.sh)' gitgrep ' \[ ' \
@@ -61,3 +64,9 @@ gitgrep "$cmdstart"'unset [^-]' 'Explicitly specify "unset -v/-f"'
 
 gitgrep "$cmdstart"'((set|shopt)\s+[+-][a-z]+\s+posix\b|(local\s+)?POSIXLY_CORRECT\b)' \
     'fiddling with posix mode breaks keybindings with some bash versions'
+
+gitgrep '\$\{([^{}\n]|\{.*\})+/([^{}\n]|\{.*\})+/([^{}"\n]|\{.*\})*\$.*\}' \
+    '$rep of ${var/pat/$rep} needs to be double-quoted for shopt -s patsub_replacement (bash >= 5.2) [see Sec. of patsub_replacement in doc/styleguide.md]'
+
+gitgrep '"([^"\n]|\\.)*\$\{([^{}\n]|\{.*\})+/([^{}\n]|\{.*\})+/([^{}"\n]|\{.*\})*"([^{}"\n]|\{.*\})*\$.*\}' \
+    '$rep of "${var/pat/"$rep"}" should not be quoted for bash-4.2 or shopt -s compat42 (bash >= 4.3) [see Sec. of patsub_replacement in doc/styleguide.md]'

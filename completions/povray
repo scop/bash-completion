@@ -16,7 +16,8 @@ _comp_cmd_povray()
             cur="${povcur#[-+]I}" # to confuse _comp_compgen_filedir
             pfx="${povcur%"$cur"}"
             _comp_compgen_filedir pov
-            ((${#COMPREPLY[@]})) && COMPREPLY=("${COMPREPLY[@]/#/$pfx}")
+            ((${#COMPREPLY[@]})) &&
+                _comp_compgen -Rv COMPREPLY -- -P "$pfx" -W '"${COMPREPLY[@]}"'
             return
             ;;
         [-+]O*)
@@ -35,12 +36,16 @@ _comp_cmd_povray()
                 IFS=$'\n'
                 command grep '^[-+]I' <<<"${words[*]}"
             ))
-            COMPREPLY=(${COMPREPLY[@]#[-+]I})
-            COMPREPLY=(${COMPREPLY[@]/%.pov/.$oext})
+            _comp_compgen -Rv COMPREPLY -- -X '' -W '"${COMPREPLY[@]#[-+]I}"'
+            local i
+            for i in "${!COMPREPLY[@]}"; do
+                COMPREPLY[i]=${COMPREPLY[i]/%.pov/".$oext"}
+            done
             cur="${povcur#[-+]O}" # to confuse _comp_compgen_filedir
             pfx="${povcur%"$cur"}"
             _comp_compgen -a filedir $oext
-            ((${#COMPREPLY[@]})) && COMPREPLY=("${COMPREPLY[@]/#/$pfx}")
+            ((${#COMPREPLY[@]})) &&
+                _comp_compgen -Rv COMPREPLY -- -P "$pfx" -W '"${COMPREPLY[@]}"'
             return
             ;;
         *.ini\[ | *.ini\[*[^]]) # sections in .ini files
@@ -50,7 +55,8 @@ _comp_cmd_povray()
             COMPREPLY=($(command sed -ne \
                 's/^[[:space:]]*\[\('"$cur"'[^]]*\]\).*$/\1/p' -- "$pfx"))
             # to prevent [bar] expand to nothing.  can be done more easily?
-            ((${#COMPREPLY[@]})) && COMPREPLY=("${COMPREPLY[@]/#/${pfx}[}")
+            ((${#COMPREPLY[@]})) &&
+                _comp_compgen -Rv COMPREPLY -- -P "${pfx}[" -W '"${COMPREPLY[@]}"'
             return
             ;;
         *)

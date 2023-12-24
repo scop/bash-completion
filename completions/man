@@ -76,9 +76,12 @@ _comp_cmd_man()
 
     _comp_split -F : manpath "$manpath"
     if ((${#manpath[@]})); then
-        manpath=("${manpath[@]/%//*man$sect/$cur*}" "${manpath[@]/%//*cat$sect/$cur*}")
+        local manfiles
+        _comp_compgen -Rv manfiles -- -S "/*man$sect/$cur*" -W '"${manpath[@]}"'
+        _comp_compgen -aRv manfiles -- -S "/*cat$sect/$cur*" -W '"${manpath[@]}"'
+
         local IFS=
-        _comp_expand_glob COMPREPLY '${manpath[@]}'
+        _comp_expand_glob COMPREPLY '${manfiles[@]}'
         _comp_unlocal IFS
 
         if ((${#COMPREPLY[@]} != 0)); then
