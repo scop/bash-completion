@@ -13,9 +13,9 @@ class TestUnitAbsPath:
             bash,
             (
                 "__tester() { "
-                "local ret; "
+                "local REPLY; "
                 '_comp_abspath "$1"; '
-                'printf %s "$ret"; '
+                'printf %s "$REPLY"; '
                 "}"
             ),
         )
@@ -24,7 +24,7 @@ class TestUnitAbsPath:
         """Test environment non-pollution, detected at teardown."""
         assert_bash_exec(
             bash,
-            "foo() { local ret=; _comp_abspath bar; }; foo; unset -f foo",
+            "foo() { local REPLY=; _comp_abspath bar; }; foo; unset -f foo",
             want_output=None,
         )
 

@@ -7,17 +7,25 @@ inject them to the `COMPREPLY` array variable, as required for completions to
 work.
 
 Most other functions make use of "output" variables, i.e. assign values to
-them. The most common one of these is named `ret`. Consult the commentary
-before each function in the source to find out the specific names.
-`local`izing output variables before invoking a function that populates them
-is the caller's responsibility.
-Note that if calling multiple functions that assign output to the same variable
-during one completion function run, each result should be copied to another
-variable between the calls to avoid it possibly being overwritten and lost on
-the next call. Also, the variables should also be ensured to be clear before
-each call that references the value, variable name, or their existence,
-typically by `unset -v`ing them when multiple such calls are used,
-to avoid them interfering with each other.
+them.  The name of an output variable should be basically in lowercase.
+Consult the commentary before each function in the source to find out the
+specific names. `local`izing output variables before invoking a function that
+populates them is the caller's responsibility.  Note that if calling multiple
+functions that assign output to the same variable during one completion
+function run, each result should be copied to another variable between the
+calls to avoid it possibly being overwritten and lost on the next call.  Also,
+the variables should also be ensured to be clear before each call that
+references the value, variable name, or their existence, typically by `unset
+-v`ing them when multiple such calls are used, to avoid them interfering with
+each other.
+
+The most common output variable is named `REPLY`.  The use of the uppercase is
+unconventional, but this choice of the name is intended to be consistent with
+the value substitutions `${| func; }`, which is originally supported by mksh
+and will be supported by Bash >= 5.3.  The value substitutions are replaced by
+the contents of the output variable `REPLY` set by `func`.  Although we cannot
+currently assume Bash 5.3 in the codebase, but we can switch to the value
+substitutions at the point Bash <= 5.2 disappear from the market.
 
 Everything in fallback completion files (ones starting with an underscore)
 is considered private and is to be named accordingly. Fallback files are not

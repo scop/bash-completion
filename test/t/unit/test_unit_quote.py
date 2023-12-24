@@ -11,7 +11,7 @@ class TestUnitQuote(TestUnitBase):
     def test_1(self, bash):
         assert_bash_exec(
             bash,
-            '__tester() { local ret; _comp_quote "$1"; printf %s "$ret"; }',
+            '__tester() { local REPLY; _comp_quote "$1"; printf %s "$REPLY"; }',
         )
         output = assert_bash_exec(
             bash, '__tester "a b"', want_output=True, want_newline=False

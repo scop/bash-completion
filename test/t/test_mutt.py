@@ -9,7 +9,7 @@ class TestMutt:
     def functions(self, bash):
         assert_bash_exec(
             bash,
-            '_comp_test__muttconffiles() { local ret; _comp_cmd_mutt__get_conffiles "$@" && printf "%s\\n" "${ret[@]}"; }',
+            '_comp_test__muttconffiles() { local REPLY; _comp_cmd_mutt__get_conffiles "$@" && printf "%s\\n" "${REPLY[@]}"; }',
         )
 
     @pytest.mark.complete("mutt -")

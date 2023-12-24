@@ -12,7 +12,7 @@ class TestDequote:
     def test_1_char(self, bash):
         assert_bash_exec(
             bash,
-            '__tester() { local ret=dummy v=var;_comp_dequote "$1";local ext=$?;((${#ret[@]}))&&printf \'<%s>\' "${ret[@]}";echo;return $ext;}',
+            '__tester() { local REPLY=dummy v=var;_comp_dequote "$1";local ext=$?;((${#REPLY[@]}))&&printf \'<%s>\' "${REPLY[@]}";echo;return $ext;}',
         )
         output = assert_bash_exec(bash, "__tester a", want_output=True)
         assert output.strip() == "<a>"

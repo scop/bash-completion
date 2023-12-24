@@ -9,7 +9,7 @@ _comp_cmd_pkgutil__url2catalog()
     filename="${filename//\//_}"
     filename="/var/opt/csw/pkgutil/catalog.${filename}_$(uname -p)_$(uname -r)"
 
-    ret=$filename
+    REPLY=$filename
 }
 
 _comp_cmd_pkgutil()
@@ -22,16 +22,16 @@ _comp_cmd_pkgutil()
         "/opt/csw/etc/pkgutil.conf" "/etc/opt/csw/pkgutil.conf")
     declare -a catalog_files=()
 
-    local i=$cword ret
+    local i=$cword REPLY
     while ((i-- > 1)); do
         if [[ ${words[i]} == -@(t|-temp) ]]; then
             local url="${words[i + 1]}"
             _comp_cmd_pkgutil__url2catalog "$url"
-            catalog_files=("$ret")
+            catalog_files=("$REPLY")
         elif [[ ${words[i]} == --config ]]; then
-            local ret
+            local REPLY
             _comp_dequote "${words[i + 1]}"
-            [[ ${ret-} ]] && configuration_files=("$ret")
+            [[ ${REPLY-} ]] && configuration_files=("$REPLY")
         elif [[ ${words[i]} == -@([iurdacUS]|-install|-upgrade|-remove|-download|-available|-compare|-catalog|-stream) ]]; then
             command="${words[i]}"
         fi
@@ -77,7 +77,7 @@ _comp_cmd_pkgutil()
         mirrors=${mirrors:-http://mirror.opencsw.org/opencsw/testing}
         for mirror_url in $mirrors; do
             _comp_cmd_pkgutil__url2catalog "$mirror_url"
-            catalog_files+=("$ret")
+            catalog_files+=("$REPLY")
         done
 
         if [[ $command == -@([dius]|-download|-install|-upgrade|-stream) ]]; then

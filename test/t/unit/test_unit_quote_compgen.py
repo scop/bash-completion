@@ -11,7 +11,7 @@ class TestUnitQuoteCompgen:
     def functions(self, bash):
         assert_bash_exec(
             bash,
-            '_comp__test_quote_compgen() { local ret; _comp_quote_compgen "$1"; printf %s "$ret"; }',
+            '_comp__test_quote_compgen() { local REPLY; _comp_quote_compgen "$1"; printf %s "$REPLY"; }',
         )
 
     @pytest.mark.parametrize(
@@ -117,13 +117,13 @@ class TestUnitQuoteCompgen:
         """Test code execution through unintended pathname expansions
 
         When there is a file named "quote=$(COMMAND)" (for
-        _comp_compgen_filedir) or "ret=$(COMMAND)" (for _comp_quote_compgen),
+        _comp_compgen_filedir) or "REPLY=$(COMMAND)" (for _comp_quote_compgen),
         the completion of the word '$* results in the execution of COMMAND.
 
           $ echo '$*[TAB]
 
         """
-        os.mkdir("./ret=$(echo injected >&2)")
+        os.mkdir("./REPLY=$(echo injected >&2)")
         assert_bash_exec(bash, "_comp__test_quote_compgen $'\\'$*' >/dev/null")
 
     def test_github_issue_492_4(self, bash, functions):
