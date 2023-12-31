@@ -3,15 +3,16 @@
 _comp_deprecate_var 2.12 \
     COMP_CVS_REMOTE BASH_COMPLETION_CMD_CVS_REMOTE
 
-_comp_cmd_cvs__entries()
+# Usage: _comp_cmd_cvs__compgen_entries [base_path]
+# @param[opt] $1
+# shellcheck disable=SC2120
+_comp_cmd_cvs__compgen_entries()
 {
-    local prefix=${cur%/*}/ IFS=$'\n'
-    [[ -e ${prefix-}CVS/Entries ]] || prefix=""
-    entries=($(cut -d/ -f2 -s "${prefix-}CVS/Entries" 2>/dev/null))
-    if ((${#entries[@]})); then
-        _comp_compgen -Rv entries -- -P "${prefix-}" -W '"${entries[@]}"'
+    local base_path=${1-$cur}
+    local _prefix=${base_path%/*}/
+    [[ -e ${_prefix-}CVS/Entries ]] || _prefix=""
+    _comp_compgen -c "${cur#"$_prefix"}" split -lP "$_prefix" -- "$(cut -d/ -f2 -s "${_prefix-}CVS/Entries" 2>/dev/null)" &&
         compopt -o filenames
-    fi
 }
 
 _comp_cmd_cvs__modules()
@@ -159,7 +160,7 @@ _comp_cmd_cvs()
             esac
 
             if [[ $cur != -* ]]; then
-                _comp_cmd_cvs__entries
+                _comp_compgen -Rv entries -i cvs entries "${cur-}"
                 if [[ ! $cur ]]; then
                     _comp_expand_glob files '!(CVS)'
                 else
@@ -204,9 +205,7 @@ _comp_cmd_cvs()
             if [[ $cur == -* ]]; then
                 _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             else
-                _comp_cmd_cvs__entries
-                ((${#entries[@]})) &&
-                    _comp_compgen -- -W '"${entries[@]}"'
+                _comp_cmd_cvs__compgen_entries
             fi
             ;;
         annotate)
@@ -215,9 +214,7 @@ _comp_cmd_cvs()
             if [[ $cur == -* ]]; then
                 _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             else
-                _comp_cmd_cvs__entries
-                ((${#entries[@]})) &&
-                    _comp_compgen -- -W '"${entries[@]}"'
+                _comp_cmd_cvs__compgen_entries
             fi
             ;;
         checkout)
@@ -272,9 +269,7 @@ _comp_cmd_cvs()
                             s/^cvs diff: \([^ ]*\) .*, no comparison available$/\1/p
                         ')"
                 else
-                    _comp_cmd_cvs__entries
-                    ((${#entries[@]})) &&
-                        _comp_compgen -- -W '"${entries[@]}"'
+                    _comp_cmd_cvs__compgen_entries
                 fi
             else
                 _comp_cmd_cvs__compgen_command_options "$1" "$mode"
@@ -288,18 +283,14 @@ _comp_cmd_cvs()
                 _comp_cmd_cvs__compgen_command_options "$1" "$mode"
                 [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
             else
-                _comp_cmd_cvs__entries
-                ((${#entries[@]})) &&
-                    _comp_compgen -- -W '"${entries[@]}"'
+                _comp_cmd_cvs__compgen_entries
             fi
             ;;
         editors | watchers)
             if [[ $cur == -* ]]; then
                 _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             else
-                _comp_cmd_cvs__entries
-                ((${#entries[@]})) &&
-                    _comp_compgen -- -W '"${entries[@]}"'
+                _comp_cmd_cvs__compgen_entries
             fi
             ;;
         export)
@@ -358,7 +349,7 @@ _comp_cmd_cvs()
             ;;
         remove)
             if [[ $cur != -* ]]; then
-                _comp_cmd_cvs__entries
+                _comp_compgen -Rv entries -i cvs entries "${cur-}"
                 if [[ $prev != -f ]]; then
                     # find out what files are missing
                     for i in "${!entries[@]}"; do
@@ -386,9 +377,7 @@ _comp_cmd_cvs()
             if [[ $cur == -* ]]; then
                 _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             else
-                _comp_cmd_cvs__entries
-                ((${#entries[@]})) &&
-                    _comp_compgen -- -W '"${entries[@]}"'
+                _comp_cmd_cvs__compgen_entries
             fi
             ;;
         "")
