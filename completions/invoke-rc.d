@@ -22,11 +22,10 @@ _comp_cmd_invoke_rc_d()
                 sort | uniq -u
         ))
         ((${#valid_options[@]})) && COMPREPLY+=("${valid_options[@]}")
-        services=($sysvdir/!(README*|*.sh|$_comp_backup_glob))
-        services=(${services[@]#$sysvdir/})
-        ((${#services[@]})) && COMPREPLY+=("${services[@]}")
         ((${#COMPREPLY[@]})) &&
             _comp_compgen -- -W '"${COMPREPLY[@]}"'
+        _comp_expand_glob services '"$sysvdir"/!(README*|*.sh|$_comp_backup_glob)' &&
+            _comp_compgen -a -- -W '"${services[@]#"$sysvdir"/}"'
     elif [[ -x $sysvdir/$prev ]]; then
         _comp_compgen_split -- "$(command sed -e 'y/|/ /' \
             -ne 's/^.*Usage:[ ]*[^ ]*[ ]*{*\([^}"]*\).*$/\1/p' \

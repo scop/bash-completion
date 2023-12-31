@@ -12,8 +12,8 @@ _comp_cmd_update_rc_d()
     [[ -d /etc/rc.d/init.d ]] && sysvdir=/etc/rc.d/init.d ||
         sysvdir=/etc/init.d
 
-    services=($sysvdir/!(README*|*.sh|$_comp_backup_glob))
-    ((${#services[@]})) && services=("${services[@]#$sysvdir/}")
+    _comp_expand_glob services '"$sysvdir"/!(README*|*.sh|$_comp_backup_glob)' &&
+        services=("${services[@]#$sysvdir/}")
     options=(-f -n)
 
     if [[ $cword -eq 1 || $prev == -* ]]; then

@@ -16,7 +16,7 @@ _comp_cmd_cvs__entries()
 
 _comp_cmd_cvs__modules()
 {
-    COMPREPLY=($(command ls -d "${cvsroot}${prefix:+/$prefix}"/!(CVSROOT)))
+    _comp_expand_glob COMPREPLY '"$cvsroot${prefix:+/$prefix}"/!(CVSROOT)'
 }
 
 _comp_cmd_cvs__compgen_commands()
@@ -160,8 +160,11 @@ _comp_cmd_cvs()
 
             if [[ $cur != -* ]]; then
                 _comp_cmd_cvs__entries
-                [[ ! $cur ]] && files=(!(CVS)) ||
-                    files=($(command ls -d "${cur}"* 2>/dev/null))
+                if [[ ! $cur ]]; then
+                    _comp_expand_glob files '!(CVS)'
+                else
+                    _comp_expand_glob files '"${cur}"*'
+                fi
                 local f
                 for i in "${!files[@]}"; do
                     if [[ ${files[i]} == ?(*/)CVS ]]; then
