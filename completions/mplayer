@@ -43,15 +43,16 @@ _comp_cmd_mplayer()
             return
             ;;
         -vobsub)
-            _comp_compgen_filedir '@(idx|ifo|sub)'
-            local IFS=$'\n'
-            COMPREPLY=($(for i in "${COMPREPLY[@]}"; do
-                if [[ -f $i && -r $i ]]; then
-                    printf '%s\n' "${i%.*}"
-                else
-                    printf '%s\n' "$i"
-                fi
-            done))
+            if _comp_compgen_filedir '@(idx|ifo|sub)'; then
+                local IFS=$'\n'
+                COMPREPLY=($(for i in "${COMPREPLY[@]}"; do
+                    if [[ -f $i && -r $i ]]; then
+                        printf '%s\n' "${i%.*}"
+                    else
+                        printf '%s\n' "$i"
+                    fi
+                done))
+            fi
             return
             ;;
         -subcp | -msgcharset)
@@ -84,15 +85,17 @@ _comp_cmd_mplayer()
                 dirs=(/usr/share/mplayer/skins /usr/local/share/mplayer/skins)
             fi
 
-            local -a subdirs
-            for i in ~/.mplayer/skins "${dirs[@]}"; do
-                if [[ -d $i && -r $i ]]; then
-                    _comp_compgen -v subdirs -c "$i/$cur" -- -d
-                    for j in "${subdirs[@]}"; do
-                        COMPREPLY[k++]=${j#"$i/"}
-                    done
-                fi
-            done
+            if ((${#dirs[@]})); then
+                local -a subdirs
+                for i in ~/.mplayer/skins "${dirs[@]}"; do
+                    if [[ -d $i && -r $i ]]; then
+                        _comp_compgen -v subdirs -c "$i/$cur" -- -d
+                        for j in "${subdirs[@]}"; do
+                            COMPREPLY[k++]=${j#"$i/"}
+                        done
+                    fi
+                done
+            fi
             return
             ;;
         -cdrom-device)

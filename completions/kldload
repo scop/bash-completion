@@ -16,13 +16,15 @@ _comp_cmd_kldload()
     moddirs=($(kldconfig -r 2>/dev/null))
     _comp_unlocal IFS
 
-    compopt -o filenames
-    for i in "${moddirs[@]}"; do
-        _comp_compgen -v modules -c "$i/$cur" -- -f &&
-            COMPREPLY+=("${modules[@]#$i/}")
-    done
-    ((${#COMPREPLY[@]})) &&
-        COMPREPLY=("${COMPREPLY[@]%.ko}")
+    if ((${#moddirs[@]})); then
+        compopt -o filenames
+        for i in "${moddirs[@]}"; do
+            _comp_compgen -v modules -c "$i/$cur" -- -f &&
+                COMPREPLY+=("${modules[@]#$i/}")
+        done
+        ((${#COMPREPLY[@]})) &&
+            COMPREPLY=("${COMPREPLY[@]%.ko}")
+    fi
 
     # also add dirs in current dir
     _comp_compgen -a filedir -d
