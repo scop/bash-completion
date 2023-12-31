@@ -53,10 +53,7 @@ _comp_cmd_info()
     if ((${#infopath[@]})); then
         _comp_compgen -Rv infopath -- -S "/$cur*" -W '"${infopath[@]}"'
         local IFS=
-        _comp_expand_glob COMPREPLY '${infopath[@]}'
-        _comp_unlocal IFS
-
-        if ((${#COMPREPLY[@]})); then
+        if _comp_expand_glob COMPREPLY '${infopath[@]}'; then
             # weed out directory path names and paths to info pages (empty
             # elements will be removed by the later `compgen -X ''`)
             COMPREPLY=("${COMPREPLY[@]##*/?(:)}")
@@ -65,6 +62,7 @@ _comp_cmd_info()
             # weed out info dir file with -X 'dir'
             _comp_compgen -c "${cur//\\\\/}" -- -W '"${COMPREPLY[@]%.*}"' -X '@(|dir)'
         fi
+        _comp_unlocal IFS
     fi
 } &&
     complete -F _comp_cmd_info info pinfo
