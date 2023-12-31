@@ -66,8 +66,9 @@ _comp_cmd_mutt__get_conffiles__visit()
     visited[$1]=set
     conffiles+=("$1")
 
-    local -a newconffiles=($(command sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' "$1"))
-    ((${#newconffiles[@]})) || return 0
+    local -a newconffiles
+    _comp_split newconffiles "$(command sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' "$1")" ||
+        return 0
 
     local file REPLY
     for file in "${newconffiles[@]}"; do

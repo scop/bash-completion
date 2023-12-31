@@ -103,11 +103,9 @@ _comp_cmd_curl()
             return
             ;;
         --help | -${noargopts}h)
-            local x categories=(
-                $("$1" --help non-existent-category 2>&1 |
-                    _comp_awk '/^[ \t]/ {print $1}')
-            )
-            if ((${#categories[@]})); then
+            local x categories
+            if _comp_split categories "$("$1" --help non-existent-category 2>&1 |
+                _comp_awk '/^[ \t]/ {print $1}')"; then
                 for x in "${categories[@]}"; do
                     # Looks like an option? Likely no --help category support
                     [[ $x != -* ]] || return

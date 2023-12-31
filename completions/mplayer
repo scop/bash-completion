@@ -57,8 +57,7 @@ _comp_cmd_mplayer()
             ;;
         -subcp | -msgcharset)
             local cp
-            cp=($(iconv --list 2>/dev/null | command sed -e "s@//@@;" 2>/dev/null))
-            if ((${#cp[@]})); then
+            if _comp_split cp "$(iconv --list 2>/dev/null | command sed -e "s@//@@;" 2>/dev/null)"; then
                 if [[ $cur == "${cur,,}" ]]; then
                     _comp_compgen -- -W '"${cp[@],,}"'
                 else
@@ -80,7 +79,7 @@ _comp_cmd_mplayer()
             # may want to set the MPLAYER_SKINS_DIR global variable
             local -a dirs
             if [[ $MPLAYER_SKINS_DIR ]]; then
-                dirs=($MPLAYER_SKINS_DIR)
+                _comp_split dirs "$MPLAYER_SKINS_DIR"
             else
                 dirs=(/usr/share/mplayer/skins /usr/local/share/mplayer/skins)
             fi
