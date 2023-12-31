@@ -99,11 +99,13 @@ _comp_cmd_mutt__aliases()
 # @param $1 (cur) Current word to complete
 _comp_cmd_mutt__query()
 {
-    local cur=$1 querycmd muttcmd=${words[0]}
+    local cur=$1
+    [[ $cur ]] || return 0
+    local querycmd muttcmd=${words[0]}
     local -a queryresults
 
     querycmd="$("$muttcmd" -Q query_command 2>/dev/null | command sed -e 's|^query_command=\"\(.*\)\"$|\1|' -e 's|%s|'"$cur"'|')"
-    if [[ $cur && $querycmd ]]; then
+    if [[ $querycmd ]]; then
         local REPLY
         _comp_expand_tilde "$querycmd"
         querycmd=$REPLY
