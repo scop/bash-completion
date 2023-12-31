@@ -62,22 +62,23 @@ _comp_cmd_java__classes()
     _comp_cmd_java__find_classpath
     local -a classpaths=("${REPLY[@]}")
 
+    local -a classes=()
     # convert package syntax to path syntax
     local cur=${cur//.//}
     # parse each classpath element for classes
     for i in "${classpaths[@]}"; do
         if [[ $i == *.@(jar|zip) && -r $i ]]; then
             if type zipinfo &>/dev/null; then
-                COMPREPLY+=($(zipinfo -1 "$i" "$cur*" 2>/dev/null |
-                    command grep '^[^$]*\.class$'))
+                _comp_split -a classes "$(zipinfo -1 "$i" "$cur*" 2>/dev/null |
+                    command grep '^[^$]*\.class$')"
             elif type unzip &>/dev/null; then
                 # Last column, between entries consisting entirely of dashes
-                COMPREPLY+=($(unzip -lq "$i" "$cur*" 2>/dev/null |
+                _comp_split -a classes "$(unzip -lq "$i" "$cur*" 2>/dev/null |
                     _comp_awk '$NF ~ /^-+$/ { flag=!flag; next };
-                         flag && $NF ~ /^[^$]*\.class/ { print $NF }'))
+                         flag && $NF ~ /^[^$]*\.class/ { print $NF }')"
             elif type jar &>/dev/null; then
-                COMPREPLY+=($(jar tf "$i" "$cur" |
-                    command grep '^[^$]*\.class$'))
+                _comp_split -a classes "$(jar tf "$i" "$cur" |
+                    command grep '^[^$]*\.class$')"
             fi
 
         elif [[ -d $i ]]; then
@@ -85,8 +86,8 @@ _comp_cmd_java__classes()
             _comp_compgen -v tmp -c "$i/$cur" -- -d -S .
             _comp_compgen -av tmp -c "$i/$cur" -- -f -X '!*.class'
             ((${#tmp[@]})) &&
-                _comp_compgen -a -- -X '*\$*' -W '"${tmp[@]#$i/}"'
-            [[ ${COMPREPLY-} == *.class ]] || compopt -o nospace
+                _comp_compgen -av classes -- -X '*\$*' -W '"${tmp[@]#$i/}"'
+            [[ ${classes-} == *.class ]] || compopt -o nospace
 
             # FIXME: if we have foo.class and foo/, the completion
             # returns "foo/"... how to give precedence to files
@@ -94,11 +95,12 @@ _comp_cmd_java__classes()
         fi
     done
 
-    if ((${#COMPREPLY[@]} != 0)); then
+    if ((${#classes[@]} != 0)); then
         # remove class extension
-        COMPREPLY=("${COMPREPLY[@]%.class}")
+        classes=("${classes[@]%.class}")
         # convert path syntax to package syntax
-        COMPREPLY=("${COMPREPLY[@]//\//.}")
+        classes=("${classes[@]//\//.}")
+        _comp_compgen -U classes -- -W '"${classes[@]}"'
     fi
 }
 
