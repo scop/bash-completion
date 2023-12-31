@@ -101,16 +101,15 @@ _comp_cmd_mutt__query()
 {
     local cur=$1
     [[ $cur ]] || return 0
-    local querycmd muttcmd=${words[0]}
-    local -a queryresults
+    local muttcmd=${words[0]}
 
-    querycmd="$("$muttcmd" -Q query_command 2>/dev/null | command sed -e 's|^query_command=\"\(.*\)\"$|\1|' -e 's|%s|'"$cur"'|')"
+    local querycmd="$("$muttcmd" -Q query_command 2>/dev/null | command sed -e 's|^query_command=\"\(.*\)\"$|\1|' -e 's|%s|'"$cur"'|')"
     if [[ $querycmd ]]; then
         local REPLY
         _comp_expand_tilde "$querycmd"
         querycmd=$REPLY
         # $querycmd is expected to be a command with arguments
-        queryresults=($($querycmd |
+        local -a queryresults=($($querycmd |
             command sed -n '2,$s|^\([^[:space:]]\{1,\}\).*|\1|p'))
         ((${#queryresults[@]})) &&
             _comp_compgen -a -- -W '"${queryresults[@]}"'
