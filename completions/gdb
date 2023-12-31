@@ -25,10 +25,8 @@ _comp_cmd_gdb()
             # otherwise compgen -c contains Bash's built-in commands,
             # functions and aliases. Thus we need to retrieve the program
             # names manually.
-            IFS=":"
-            local path_array=($(
-                command sed -e 's/:\{2,\}/:/g' -e 's/^://' -e 's/:$//' <<<"$PATH"
-            ))
+            local path_array
+            _comp_compgen -Rv path_array split -X '' -- "$PATH"
             _comp_compgen_split -o plusdirs -- "$(
                 find ${path_array[@]+"${path_array[@]}"} . -mindepth 1 \
                     -maxdepth 1 -not -type d -executable -printf '%f\n' \
