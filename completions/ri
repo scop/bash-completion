@@ -14,19 +14,19 @@ _comp_cmd_ri__methods()
             regex=Class
         fi
 
-        COMPREPLY+=(
+        _comp_split -la COMPREPLY \
             "$(ri ${classes[@]+"${classes[@]}"} 2>/dev/null | ruby -ane \
                 'if /^'"$regex"' methods:/.../^------------------|^$/ and \
             /^ / then print $_.split(/, |,$/).grep(/^[^\[]*$/).join("\n"); \
-            end' 2>/dev/null | sort -u)")
+            end' 2>/dev/null | sort -u)"
     else
         # older versions of ri didn't distinguish between class/module and
         # instance methods
-        COMPREPLY+=(
+        _comp_split -la COMPREPLY \
             "$(ruby -W0 "$ri_path" ${classes[@]+"${classes[@]}"} 2>/dev/null | ruby -ane \
                 'if /^-/.../^-/ and ! /^-/ and ! /^ +(class|module): / then \
             print $_.split(/, |,$| +/).grep(/^[^\[]*$/).join("\n"); \
-            end' | sort -u)")
+            end' | sort -u)"
     fi
     ((${#COMPREPLY[@]})) &&
         _comp_compgen -c "$method" -- "$prefix" -W '"${COMPREPLY[@]}"'
