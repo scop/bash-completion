@@ -44,14 +44,11 @@ _comp_cmd_mplayer()
             ;;
         -vobsub)
             if _comp_compgen_filedir '@(idx|ifo|sub)'; then
-                local IFS=$'\n'
-                COMPREPLY=($(for i in "${COMPREPLY[@]}"; do
-                    if [[ -f $i && -r $i ]]; then
-                        printf '%s\n' "${i%.*}"
-                    else
-                        printf '%s\n' "$i"
+                for i in "${!COMPREPLY[@]}"; do
+                    if [[ -f ${COMPREPLY[i]} && -r ${COMPREPLY[i]} ]]; then
+                        COMPREPLY[i]=${COMPREPLY[i]%.*}
                     fi
-                done))
+                done
             fi
             return
             ;;
