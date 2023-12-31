@@ -8,13 +8,13 @@ _comp_cmd_yum__list()
     if [[ $1 == all ]]; then
         # Try to strip in between headings like "Available Packages"
         # This will obviously only work for English :P
-        COMPREPLY=($(yum -d 0 -C list "$1" "$cur*" 2>/dev/null |
+        _comp_split COMPREPLY "$(yum -d 0 -C list "$1" "$cur*" 2>/dev/null |
             command sed -ne '/^Available /d' -e '/^Installed /d' \
-                -e '/^Updated /d' -e 's/[[:space:]].*//p'))
+                -e '/^Updated /d' -e 's/[[:space:]].*//p')"
     else
         # Drop first line (e.g. "Updated Packages")
-        COMPREPLY=($(yum -d 0 -C list "$1" "$cur*" 2>/dev/null |
-            command sed -ne 1d -e 's/[[:space:]].*//p'))
+        _comp_split COMPREPLY "$(yum -d 0 -C list "$1" "$cur*" 2>/dev/null |
+            command sed -ne 1d -e 's/[[:space:]].*//p')"
     fi
 }
 
