@@ -56,7 +56,7 @@ _comp_cmd_cvs()
     _comp_initialize -n : -- "$@" || return
 
     local count mode="" i cvsroot="" has_cvsroot="" pwd
-    local -a flags files entries changed newremoved
+    local -a flags files entries
 
     local noargopts='!(-*|*[d]*)'
     count=0
@@ -238,10 +238,8 @@ _comp_cmd_cvs()
 
             if [[ $cur != -* ]]; then
                 [[ ! $has_cvsroot ]] && cvsroot=${CVSROOT-}
-                COMPREPLY=($(cvs -d "$cvsroot" co -c 2>/dev/null |
-                    _comp_awk '{print $1}'))
-                ((${#COMPREPLY[@]})) &&
-                    _comp_compgen -- -W '"${COMPREPLY[@]}"'
+                _comp_compgen_split -- "$(cvs -d "$cvsroot" co -c 2>/dev/null |
+                    _comp_awk '{print $1}')"
             else
                 _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             fi
@@ -265,15 +263,14 @@ _comp_cmd_cvs()
                 if [[ ${BASH_COMPLETION_CMD_CVS_REMOTE-} ]]; then
                     # this is the least computationally intensive way found so
                     # far, but other changes (something other than
-                    # changed/removed/new) may be missing
-                    changed=($(cvs -q diff --brief 2>&1 |
-                        command sed -ne 's/^Files [^ ]* and \([^ ]*\) differ$/\1/p'))
-                    newremoved=($(cvs -q diff --brief 2>&1 |
-                        command sed -ne 's/^cvs diff: \([^ ]*\) .*, no comparison available$/\1/p'))
-                    ((${#changed[@]})) && COMPREPLY+=("${changed[@]}")
-                    ((${#newremoved[@]})) && COMPREPLY+=("${newremoved[@]}")
-                    ((${#COMPREPLY[@]})) &&
-                        _comp_compgen -- -W '"${COMPREPLY[@]}"'
+                    # changed/removed/new) may be missing.
+                    _comp_compgen -a split -- "$(cvs -q diff --brief 2>&1 |
+                        command sed -ne '
+                            # changed
+                            s/^Files [^ ]* and \([^ ]*\) differ$/\1/p
+                            # new/removed
+                            s/^cvs diff: \([^ ]*\) .*, no comparison available$/\1/p
+                        ')"
                 else
                     _comp_cmd_cvs__entries
                     ((${#entries[@]})) &&
@@ -323,9 +320,8 @@ _comp_cmd_cvs()
 
             if [[ $cur != -* ]]; then
                 [[ ! $has_cvsroot ]] && cvsroot=${CVSROOT-}
-                COMPREPLY=($(cvs -d "$cvsroot" co -c | _comp_awk '{print $1}'))
-                ((${#COMPREPLY[@]})) &&
-                    _comp_compgen -- -W '"${COMPREPLY[@]}"'
+                _comp_compgen_split -- "$(cvs -d "$cvsroot" co -c |
+                    _comp_awk '{print $1}')"
             else
                 _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             fi
