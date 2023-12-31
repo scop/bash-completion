@@ -12,8 +12,6 @@ _comp_cmd_invoke_rc_d()
     [[ -d /etc/rc.d/init.d ]] && sysvdir=/etc/rc.d/init.d ||
         sysvdir=/etc/init.d
 
-    services=($sysvdir/!(README*|*.sh|$_comp_backup_glob))
-    services=(${services[@]#$sysvdir/})
     options=(--help --quiet --force --try-anyway --disclose-deny --query
         --no-fallback)
 
@@ -24,6 +22,8 @@ _comp_cmd_invoke_rc_d()
                 sort | uniq -u
         ))
         ((${#valid_options[@]})) && COMPREPLY+=("${valid_options[@]}")
+        services=($sysvdir/!(README*|*.sh|$_comp_backup_glob))
+        services=(${services[@]#$sysvdir/})
         ((${#services[@]})) && COMPREPLY+=("${services[@]}")
         ((${#COMPREPLY[@]})) &&
             _comp_compgen -- -W '"${COMPREPLY[@]}"'
