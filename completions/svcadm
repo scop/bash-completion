@@ -44,15 +44,16 @@ _comp_cmd_svcadm__fmri()
             # we generate all possibles abbreviations for the FMRI
             # no need to have a generic loop as we will have a finite
             # number of components
-            local IFS="/"
-            set -- "$fmri"
-            _comp_unlocal IFS
-            case $# in
-                1) fmri_part_list=" $1" ;;
-                2) fmri_part_list=" $2 $1/$2" ;;
-                3) fmri_part_list=" $3 $2/$3 $1/$2/$3" ;;
-                4) fmri_part_list=" $4 $3/$4 $2/$3/$4 $1/$2/$3/$4" ;;
-            esac
+            local -a tmp
+            if _comp_split -F / tmp "$fmri"; then
+                set -- "${tmp[@]}"
+                case $# in
+                    1) fmri_part_list=" $1" ;;
+                    2) fmri_part_list=" $2 $1/$2" ;;
+                    3) fmri_part_list=" $3 $2/$3 $1/$2/$3" ;;
+                    4) fmri_part_list=" $4 $3/$4 $2/$3/$4 $1/$2/$3/$4" ;;
+                esac
+            fi
         else
             fmri_part_list="$fmri"
         fi
