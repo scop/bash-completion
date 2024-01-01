@@ -1,36 +1,39 @@
 # ri completion for Ruby documentation                     -*- shell-script -*-
 # by Ian Macdonald <ian@caliban.org>
 
-_comp_cmd_ri__methods()
+# @var[in] ri_version
+# @var[in] prefix
+# @var[in] classes
+_comp_cmd_ri__compgen_methods()
 {
-    local regex
+    local _regex
     local IFS=$' \t\n' # needed for ${classes[@]+"${classes[@]}"} in bash-5.2
 
+    local _methods
     if [[ $ri_version == integrated ]]; then
         if [[ ! $separator ]]; then
-            regex="(Instance|Class)"
+            _regex="(Instance|Class)"
         elif [[ $separator == "#" ]]; then
-            regex=Instance
+            _regex=Instance
         else
-            regex=Class
+            _regex=Class
         fi
 
-        _comp_split -la COMPREPLY \
+        _comp_split -la _methods \
             "$(ri ${classes[@]+"${classes[@]}"} 2>/dev/null | ruby -ane \
-                'if /^'"$regex"' methods:/.../^------------------|^$/ and \
+                'if /^'"$_regex"' methods:/.../^------------------|^$/ and \
             /^ / then print $_.split(/, |,$/).grep(/^[^\[]*$/).join("\n"); \
             end' 2>/dev/null | sort -u)"
     else
         # older versions of ri didn't distinguish between class/module and
         # instance methods
-        _comp_split -la COMPREPLY \
+        _comp_split -la _methods \
             "$(ruby -W0 "$ri_path" ${classes[@]+"${classes[@]}"} 2>/dev/null | ruby -ane \
                 'if /^-/.../^-/ and ! /^-/ and ! /^ +(class|module): / then \
             print $_.split(/, |,$| +/).grep(/^[^\[]*$/).join("\n"); \
             end' | sort -u)"
-    fi
-    ((${#COMPREPLY[@]})) &&
-        _comp_compgen -c "$method" -- -P "$prefix" -W '"${COMPREPLY[@]}"'
+    fi &&
+        _comp_compgen -- -P "$prefix" -W '"${_methods[@]}"'
 }
 
 # needs at least Ruby 1.8.0 in order to use -W0
@@ -87,7 +90,7 @@ _comp_cmd_ri()
         method=${cur#*"$separator"}
         classes=($class)
         prefix=$class$separator
-        _comp_cmd_ri__methods
+        _comp_compgen -c "$method" -i ri methods
         return
     fi
 
@@ -117,8 +120,7 @@ _comp_cmd_ri()
     fi
 
     # we're completing on methods
-    method=$cur
-    _comp_cmd_ri__methods
+    _comp_cmd_ri__compgen_methods
 } &&
     complete -F _comp_cmd_ri ri
 
