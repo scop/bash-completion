@@ -70,7 +70,7 @@ _comp_cmd_ri()
         return
     fi
 
-    local class method prefix="" ri_path ri_version ri_major="" separator IFS
+    local class method prefix="" ri_path ri_version ri_major="" separator
     local -a classes
 
     ri_path=$(type -p ri)
@@ -82,13 +82,12 @@ _comp_cmd_ri()
     [[ $ri_version =~ ri[[:space:]]v?([0-9]+) ]] && ri_major=${BASH_REMATCH[1]}
 
     # need to also split on commas
-    IFS=$', \n\t'
     if [[ $cur == [A-Z]*[#.]* ]]; then
         [[ $cur == *#* ]] && separator=# || separator=.
         # we're completing on class and method
         class=${cur%"$separator"*}
         method=${cur#*"$separator"}
-        classes=($class)
+        _comp_split -F $', \n\t' classes "$class"
         prefix=$class$separator
         _comp_compgen -c "$method" -i ri methods
         return
@@ -96,21 +95,20 @@ _comp_cmd_ri()
 
     if [[ $ri_version == integrated ]]; then
         # integrated ri from Ruby 1.9
-        classes=($(ri -c 2>/dev/null | ruby -ne 'if /^\s*$/..$stdin.eof then \
-        if /^ +[A-Z]/ then print; end; end' 2>/dev/null))
+        _comp_split -F $', \n\t' classes \
+            "$(ri -c 2>/dev/null | ruby -ne 'if /^\s*$/..$stdin.eof then \
+            if /^ +[A-Z]/ then print; end; end' 2>/dev/null)"
     elif [[ $ri_major && $ri_major -ge 3 ]]; then
-        classes=($(ri -l 2>/dev/null))
+        _comp_split -F $', \n\t' classes "$(ri -l 2>/dev/null)"
     elif [[ $ri_version == "ri 1.8a" ]]; then
-        classes=($(ruby -W0 "$ri_path" |
+        _comp_split -F $', \n\t' classes "$(ruby -W0 "$ri_path" |
             ruby -ne 'if /^'"'"'ri'"'"' has/..$stdin.eof then \
-            if /^ .*[A-Z]/ then print; end; end'))
+            if /^ .*[A-Z]/ then print; end; end')"
     else
-        classes=($(ruby -W0 "$ri_path" |
+        _comp_split -F $', \n\t' classes "$(ruby -W0 "$ri_path" |
             ruby -ne 'if /^I have/..$stdin.eof then \
-                if /^ .*[A-Z]/ then print; end; end'))
-    fi
-
-    ((${#classes[@]})) &&
+                if /^ .*[A-Z]/ then print; end; end')"
+    fi &&
         _comp_compgen -- -W '"${classes[@]}"'
     _comp_ltrim_colon_completions "$cur"
 
