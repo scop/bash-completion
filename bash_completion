@@ -1618,9 +1618,10 @@ _comp_compgen_mac_addresses()
     # - ifconfig on Linux: HWaddr or ether
     # - ifconfig on FreeBSD: ether
     # - ip link: link/ether
+    # - long interface name will be truncated by ifconfig (#1089), prefer iproute2
     _comp_compgen -v addresses split -- "$(
         {
-            LC_ALL=C ifconfig -a || ip -c=never link show || ip link show
+            ip -c=never link show || ip link show || LC_ALL=C ifconfig -a
         } 2>/dev/null | command sed -ne \
             "s/.*[[:space:]]HWaddr[[:space:]]\{1,\}\($_re\)[[:space:]].*/\1/p" -ne \
             "s/.*[[:space:]]HWaddr[[:space:]]\{1,\}\($_re\)[[:space:]]*$/\1/p" -ne \
@@ -1694,7 +1695,7 @@ _comp_compgen_ip_addresses()
     local PATH=$PATH:/sbin
     local addrs
     _comp_compgen -v addrs split -- "$({
-        LC_ALL=C ifconfig -a || ip -c=never addr show || ip addr show
+        ip -c=never addr show || ip addr show || LC_ALL=C ifconfig -a
     } 2>/dev/null |
         command sed -e 's/[[:space:]]addr:/ /' -ne \
             "s|.*inet${_n}[[:space:]]\{1,\}\([^[:space:]/]*\).*|\1|p")" ||
@@ -1728,9 +1729,9 @@ _comp_compgen_available_interfaces()
         if [[ ${1-} == -w ]]; then
             iwconfig
         elif [[ ${1-} == -a ]]; then
-            ifconfig || ip -c=never link show up || ip link show up
+            ip -c=never link show up || ip link show up || ifconfig
         else
-            ifconfig -a || ip -c=never link show || ip link show
+            ip -c=never link show || ip link show || ifconfig -a
         fi
     } 2>/dev/null | _comp_awk \
         '/^[^ \t]/ { if ($1 ~ /^[0-9]+:/) { print $2 } else { print $1 } }')" &&
