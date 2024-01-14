@@ -1,10 +1,8 @@
 # fio(1) completion                                        -*- shell-script -*-
 
-_comp_cmd_fio__engines()
+_comp_cmd_fio__compgen_engines()
 {
-    local IFS=$'\n'
-    REPLY=($("$1" --enghelp 2>/dev/null | command sed -ne '/^[[:space:]]/p'))
-    return $((!${#REPLY[*]}))
+    _comp_compgen_split -l -- "$("$1" --enghelp 2>/dev/null | command sed -ne '/^[[:space:]]/p'))"
 }
 
 _comp_cmd_fio()
@@ -36,13 +34,11 @@ _comp_cmd_fio()
             return
             ;;
         --cmdhelp)
-            REPLY=($("$1" --cmdhelp=all 2>/dev/null | _comp_awk '{print $1}') all)
-            _comp_compgen -- -W '"${REPLY[@]}"'
+            _comp_compgen_split -- "$("$1" --cmdhelp=all 2>/dev/null | _comp_awk '{print $1}') all"
             return
             ;;
         --enghelp)
-            _comp_cmd_fio__engines "$1" &&
-                _comp_compgen -- -W '"${REPLY[@]}"'
+            _comp_cmd_fio__compgen_engines "$1"
             return
             ;;
         --eta)
@@ -82,8 +78,7 @@ _comp_cmd_fio()
             return
             ;;
         --ioengine)
-            _comp_cmd_fio__engines "$1" &&
-                _comp_compgen -- -W '"${REPLY[@]}"'
+            _comp_cmd_fio__compgen_engines "$1"
             return
             ;;
         --exec_postrun | --exec_prerun)
@@ -99,9 +94,8 @@ _comp_cmd_fio()
             return
             ;;
         --?*)
-            local IFS=$'\n'
-            local cmdhelp=($("$1" --cmdhelp="${prev#--}" 2>/dev/null))
-            _comp_unlocal IFS
+            local -a cmdhelp
+            _comp_split -l cmdhelp "$("$1" --cmdhelp="${prev#--}" 2>/dev/null)"
             case ${cmdhelp[*]-} in
                 *"showing closest match"*)
                     # ignore

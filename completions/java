@@ -96,9 +96,9 @@ _comp_cmd_java__classes()
 
     if ((${#COMPREPLY[@]} != 0)); then
         # remove class extension
-        COMPREPLY=(${COMPREPLY[@]%.class})
+        COMPREPLY=("${COMPREPLY[@]%.class}")
         # convert path syntax to package syntax
-        COMPREPLY=(${COMPREPLY[@]//\//.})
+        COMPREPLY=("${COMPREPLY[@]//\//.}")
     fi
 }
 
@@ -116,8 +116,7 @@ _comp_cmd_java__packages()
     # parse each sourcepath element for packages
     for i in "${sourcepaths[@]}"; do
         if [[ -d $i ]]; then
-            _comp_expand_glob files '"$i/$cur"*'
-            ((${#files[@]})) || continue
+            _comp_expand_glob files '"$i/$cur"*' || continue
             _comp_split -la COMPREPLY "$(
                 command ls -F -d "${files[@]}" 2>/dev/null |
                     command sed -e 's|^'"$i"'/||'

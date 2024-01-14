@@ -12,17 +12,17 @@ _comp_cmd_dot()
             return
             ;;
         -T*)
-            local langs=($("$1" -TNON_EXISTENT 2>&1 |
-                command sed -ne 's/.*one of://p'))
-            ((${#langs[@]})) &&
-                _comp_compgen -c "${cur#-T}" -- -P -T -W '"${langs[@]}"'
+            # generate langs
+            _comp_compgen -c "${cur#-T}" split -P "-T" -- "$(
+                "$1" -TNON_EXISTENT 2>&1 | command sed -ne 's/.*one of://p'
+            )"
             return
             ;;
         -K*)
-            local layouts=($("$1" -KNON_EXISTENT 2>&1 |
-                command sed -ne 's/.*one of://p'))
-            ((${#layouts[@]})) &&
-                _comp_compgen -c "${cur#-K}" -- -P -K -W '"${layouts[@]}"'
+            # generate layouts
+            _comp_compgen -c "${cur#-K}" split -P "-K" -- "$(
+                "$1" -KNON_EXISTENT 2>&1 | command sed -ne 's/.*one of://p'
+            )"
             return
             ;;
         -o*)

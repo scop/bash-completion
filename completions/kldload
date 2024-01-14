@@ -12,11 +12,8 @@ _comp_cmd_kldload()
         return
     fi
 
-    local moddirs modules i IFS=";"
-    moddirs=($(kldconfig -r 2>/dev/null))
-    _comp_unlocal IFS
-
-    if ((${#moddirs[@]})); then
+    local moddirs modules i
+    if _comp_split -F ";" moddirs "$(kldconfig -r 2>/dev/null)"; then
         compopt -o filenames
         for i in "${moddirs[@]}"; do
             _comp_compgen -v modules -c "$i/$cur" -- -f &&

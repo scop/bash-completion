@@ -3,20 +3,21 @@
 _comp_deprecate_var 2.12 \
     COMP_CVS_REMOTE BASH_COMPLETION_CMD_CVS_REMOTE
 
-_comp_cmd_cvs__entries()
+# Usage: _comp_cmd_cvs__compgen_entries [base_path]
+# @param[opt] $1
+# shellcheck disable=SC2120
+_comp_cmd_cvs__compgen_entries()
 {
-    local prefix=${cur%/*}/ IFS=$'\n'
-    [[ -e ${prefix-}CVS/Entries ]] || prefix=""
-    entries=($(cut -d/ -f2 -s "${prefix-}CVS/Entries" 2>/dev/null))
-    if ((${#entries[@]})); then
-        _comp_compgen -Rv entries -- -P "${prefix-}" -W '"${entries[@]}"'
+    local base_path=${1-$cur}
+    local _prefix=${base_path%/*}/
+    [[ -e ${_prefix-}CVS/Entries ]] || _prefix=""
+    _comp_compgen -c "${cur#"$_prefix"}" split -lP "$_prefix" -- "$(cut -d/ -f2 -s "${_prefix-}CVS/Entries" 2>/dev/null)" &&
         compopt -o filenames
-    fi
 }
 
 _comp_cmd_cvs__modules()
 {
-    COMPREPLY=($(command ls -d "${cvsroot}${prefix:+/$prefix}"/!(CVSROOT)))
+    _comp_expand_glob COMPREPLY '"$cvsroot${prefix:+/$prefix}"/!(CVSROOT)'
 }
 
 _comp_cmd_cvs__compgen_commands()
@@ -41,7 +42,7 @@ _comp_xfunc_cvs_compgen_roots()
 {
     local -a cvsroots=()
     [[ -v CVSROOT ]] && cvsroots=("$CVSROOT")
-    [[ -r ~/.cvspass ]] && cvsroots+=($(_comp_awk '{ print $2 }' ~/.cvspass))
+    [[ -r ~/.cvspass ]] && _comp_split -a cvsroots "$(_comp_awk '{ print $2 }' ~/.cvspass)"
     [[ -r CVS/Root ]] && mapfile -tO "${#cvsroots[@]}" cvsroots <CVS/Root
     ((${#cvsroots[@]})) &&
         _comp_compgen -U cvsroots -- -W '"${cvsroots[@]}"'
@@ -56,7 +57,7 @@ _comp_cmd_cvs()
     _comp_initialize -n : -- "$@" || return
 
     local count mode="" i cvsroot="" has_cvsroot="" pwd
-    local -a flags files entries changed newremoved
+    local -a flags files entries
 
     local noargopts='!(-*|*[d]*)'
     count=0
@@ -140,7 +141,7 @@ _comp_cmd_cvs()
                     ;;
             esac
         elif [[ $i == -* ]]; then
-            flags+=($i)
+            flags+=("$i")
         fi
         ((count++))
     done
@@ -159,9 +160,12 @@ _comp_cmd_cvs()
             esac
 
             if [[ $cur != -* ]]; then
-                _comp_cmd_cvs__entries
-                [[ ! $cur ]] && files=(!(CVS)) ||
-                    files=($(command ls -d "${cur}"* 2>/dev/null))
+                _comp_compgen -Rv entries -i cvs entries "${cur-}"
+                if [[ ! $cur ]]; then
+                    _comp_expand_glob files '!(CVS)'
+                else
+                    _comp_expand_glob files '"${cur}"*'
+                fi
                 local f
                 for i in "${!files[@]}"; do
                     if [[ ${files[i]} == ?(*/)CVS ]]; then
@@ -201,9 +205,7 @@ _comp_cmd_cvs()
             if [[ $cur == -* ]]; then
                 _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             else
-                _comp_cmd_cvs__entries
-                ((${#entries[@]})) &&
-                    _comp_compgen -- -W '"${entries[@]}"'
+                _comp_cmd_cvs__compgen_entries
             fi
             ;;
         annotate)
@@ -212,9 +214,7 @@ _comp_cmd_cvs()
             if [[ $cur == -* ]]; then
                 _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             else
-                _comp_cmd_cvs__entries
-                ((${#entries[@]})) &&
-                    _comp_compgen -- -W '"${entries[@]}"'
+                _comp_cmd_cvs__compgen_entries
             fi
             ;;
         checkout)
@@ -235,10 +235,8 @@ _comp_cmd_cvs()
 
             if [[ $cur != -* ]]; then
                 [[ ! $has_cvsroot ]] && cvsroot=${CVSROOT-}
-                COMPREPLY=($(cvs -d "$cvsroot" co -c 2>/dev/null |
-                    _comp_awk '{print $1}'))
-                ((${#COMPREPLY[@]})) &&
-                    _comp_compgen -- -W '"${COMPREPLY[@]}"'
+                _comp_compgen_split -- "$(cvs -d "$cvsroot" co -c 2>/dev/null |
+                    _comp_awk '{print $1}')"
             else
                 _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             fi
@@ -262,19 +260,16 @@ _comp_cmd_cvs()
                 if [[ ${BASH_COMPLETION_CMD_CVS_REMOTE-} ]]; then
                     # this is the least computationally intensive way found so
                     # far, but other changes (something other than
-                    # changed/removed/new) may be missing
-                    changed=($(cvs -q diff --brief 2>&1 |
-                        command sed -ne 's/^Files [^ ]* and \([^ ]*\) differ$/\1/p'))
-                    newremoved=($(cvs -q diff --brief 2>&1 |
-                        command sed -ne 's/^cvs diff: \([^ ]*\) .*, no comparison available$/\1/p'))
-                    ((${#changed[@]})) && COMPREPLY+=("${changed[@]}")
-                    ((${#newremoved[@]})) && COMPREPLY+=("${newremoved[@]}")
-                    ((${#COMPREPLY[@]})) &&
-                        _comp_compgen -- -W '"${COMPREPLY[@]}"'
+                    # changed/removed/new) may be missing.
+                    _comp_compgen -a split -- "$(cvs -q diff --brief 2>&1 |
+                        command sed -ne '
+                            # changed
+                            s/^Files [^ ]* and \([^ ]*\) differ$/\1/p
+                            # new/removed
+                            s/^cvs diff: \([^ ]*\) .*, no comparison available$/\1/p
+                        ')"
                 else
-                    _comp_cmd_cvs__entries
-                    ((${#entries[@]})) &&
-                        _comp_compgen -- -W '"${entries[@]}"'
+                    _comp_cmd_cvs__compgen_entries
                 fi
             else
                 _comp_cmd_cvs__compgen_command_options "$1" "$mode"
@@ -288,18 +283,14 @@ _comp_cmd_cvs()
                 _comp_cmd_cvs__compgen_command_options "$1" "$mode"
                 [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
             else
-                _comp_cmd_cvs__entries
-                ((${#entries[@]})) &&
-                    _comp_compgen -- -W '"${entries[@]}"'
+                _comp_cmd_cvs__compgen_entries
             fi
             ;;
         editors | watchers)
             if [[ $cur == -* ]]; then
                 _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             else
-                _comp_cmd_cvs__entries
-                ((${#entries[@]})) &&
-                    _comp_compgen -- -W '"${entries[@]}"'
+                _comp_cmd_cvs__compgen_entries
             fi
             ;;
         export)
@@ -320,9 +311,8 @@ _comp_cmd_cvs()
 
             if [[ $cur != -* ]]; then
                 [[ ! $has_cvsroot ]] && cvsroot=${CVSROOT-}
-                COMPREPLY=($(cvs -d "$cvsroot" co -c | _comp_awk '{print $1}'))
-                ((${#COMPREPLY[@]})) &&
-                    _comp_compgen -- -W '"${COMPREPLY[@]}"'
+                _comp_compgen_split -- "$(cvs -d "$cvsroot" co -c |
+                    _comp_awk '{print $1}')"
             else
                 _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             fi
@@ -345,8 +335,8 @@ _comp_cmd_cvs()
                 local prefix=${cur%/*}
                 if [[ -r ${cvsroot}/${prefix} ]]; then
                     _comp_cmd_cvs__modules
-                    COMPREPLY=(${COMPREPLY[@]#"$cvsroot"})
-                    COMPREPLY=(${COMPREPLY[@]#\/})
+                    COMPREPLY=("${COMPREPLY[@]#"$cvsroot"}")
+                    COMPREPLY=("${COMPREPLY[@]#\/}")
                 fi
                 pwd=$(pwd)
                 pwd=${pwd##*/}
@@ -359,7 +349,7 @@ _comp_cmd_cvs()
             ;;
         remove)
             if [[ $cur != -* ]]; then
-                _comp_cmd_cvs__entries
+                _comp_compgen -Rv entries -i cvs entries "${cur-}"
                 if [[ $prev != -f ]]; then
                     # find out what files are missing
                     for i in "${!entries[@]}"; do
@@ -387,9 +377,7 @@ _comp_cmd_cvs()
             if [[ $cur == -* ]]; then
                 _comp_cmd_cvs__compgen_command_options "$1" "$mode"
             else
-                _comp_cmd_cvs__entries
-                ((${#entries[@]})) &&
-                    _comp_compgen -- -W '"${entries[@]}"'
+                _comp_cmd_cvs__compgen_entries
             fi
             ;;
         "")

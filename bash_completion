@@ -325,6 +325,8 @@ _comp_upvars()
 #   parameter expansions, command substitutions, and other expansions will be
 #   processed.  The user-provided strings should not be directly specified to
 #   this argument.
+# @return 0 if at least one path is generated, 1 if no path is generated, or 2
+#   if the usage is incorrect.
 # @since 2.12
 _comp_expand_glob()
 {
@@ -361,7 +363,7 @@ _comp_expand_glob()
     [[ :$_original_opts: == *:nullglob:* ]] || shopt -u nullglob
     [[ :$_original_opts: == *:failglob:* ]] && shopt -s failglob
     [[ :$_original_opts: == *:noglob:* ]] && set -o noglob
-    return 0
+    eval "((\${#$1[@]}))"
 }
 
 # Split a string and assign to an array.  This function basically performs
@@ -1652,14 +1654,12 @@ _comp_compgen_configured_interfaces()
     local -a files
     if [[ -f /etc/debian_version ]]; then
         # Debian system
-        _comp_expand_glob files '/etc/network/interfaces /etc/network/interfaces.d/*'
-        ((${#files[@]})) || return 0
+        _comp_expand_glob files '/etc/network/interfaces /etc/network/interfaces.d/*' || return 0
         _comp_compgen -U files split -- "$(command sed -ne \
             's|^iface \([^ ]\{1,\}\).*$|\1|p' "${files[@]}" 2>/dev/null)"
     elif [[ -f /etc/SuSE-release ]]; then
         # SuSE system
-        _comp_expand_glob files '/etc/sysconfig/network/ifcfg-*'
-        ((${#files[@]})) || return 0
+        _comp_expand_glob files '/etc/sysconfig/network/ifcfg-*' || return 0
         _comp_compgen -U files split -- "$(printf '%s\n' "${files[@]}" |
             command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')"
     elif [[ -f /etc/pld-release ]]; then
@@ -1668,8 +1668,7 @@ _comp_compgen_configured_interfaces()
             command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')"
     else
         # Assume Red Hat
-        _comp_expand_glob files '/etc/sysconfig/network-scripts/ifcfg-*'
-        ((${#files[@]})) || return 0
+        _comp_expand_glob files '/etc/sysconfig/network-scripts/ifcfg-*' || return 0
         _comp_compgen -U files split -- "$(printf '%s\n' "${files[@]}" |
             command sed -ne 's|.*ifcfg-\([^*].*\)$|\1|p')"
     fi
@@ -1951,8 +1950,7 @@ _comp_compgen_xinetd_services()
     local xinetddir=${_comp__test_xinetd_dir:-/etc/xinetd.d}
     if [[ -d $xinetddir ]]; then
         local -a svcs
-        _comp_expand_glob svcs '$xinetddir/!($_comp_backup_glob)'
-        if ((${#svcs[@]})); then
+        if _comp_expand_glob svcs '$xinetddir/!($_comp_backup_glob)'; then
             _comp_compgen -U svcs -U xinetddir -- -W '"${svcs[@]#$xinetddir/}"'
         fi
     fi
@@ -2018,10 +2016,11 @@ _comp__init_set_up_service_completions()
     local sysvdirs svc svcdir svcs
     _comp_sysvdirs &&
         for svcdir in "${sysvdirs[@]}"; do
-            _comp_expand_glob svcs '"$svcdir"/!($_comp_backup_glob)'
-            for svc in "${svcs[@]}"; do
-                [[ -x $svc ]] && complete -F _comp_complete_service "$svc"
-            done
+            if _comp_expand_glob svcs '"$svcdir"/!($_comp_backup_glob)'; then
+                for svc in "${svcs[@]}"; do
+                    [[ -x $svc ]] && complete -F _comp_complete_service "$svc"
+                done
+            fi
         done
     unset -f "$FUNCNAME"
 }
@@ -2355,8 +2354,7 @@ _comp_compgen_terms()
         {
             toe -a || toe
         } | _comp_awk '{ print $1 }'
-        _comp_expand_glob dirs '/{etc,lib,usr/lib,usr/share}/terminfo/?'
-        ((${#dirs[@]})) &&
+        _comp_expand_glob dirs '/{etc,lib,usr/lib,usr/share}/terminfo/?' &&
             find "${dirs[@]}" -type f -maxdepth 1 |
             _comp_awk -F / '{ print $NF }'
     } 2>/dev/null)"
@@ -2455,9 +2453,8 @@ _comp__included_ssh_config_files()
                 i="${relative_include_base}/${i}"
             fi
             _comp_expand_tilde "$i"
-            _comp_expand_glob files '$REPLY'
-            # In case the expanded variable contains multiple paths
-            if ((${#files[@]})); then
+            if _comp_expand_glob files '$REPLY'; then
+                # In case the expanded variable contains multiple paths
                 for f in "${files[@]}"; do
                     if [[ -r $f && ! -d $f ]]; then
                         config+=("$f")
@@ -2592,8 +2589,7 @@ _comp_compgen_known_hosts__impl()
         done
         for i in /etc/ssh2/knownhosts ~/.ssh2/hostkeys; do
             [[ -d $i ]] || continue
-            _comp_expand_glob tmpkh '"$i"/*.pub'
-            ((${#tmpkh[@]})) && khd+=("${tmpkh[@]}")
+            _comp_expand_glob tmpkh '"$i"/*.pub' && khd+=("${tmpkh[@]}")
         done
     fi
 

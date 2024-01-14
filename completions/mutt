@@ -66,8 +66,9 @@ _comp_cmd_mutt__get_conffiles__visit()
     visited[$1]=set
     conffiles+=("$1")
 
-    local -a newconffiles=($(command sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' "$1"))
-    ((${#newconffiles[@]})) || return 0
+    local -a newconffiles
+    _comp_split newconffiles "$(command sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' "$1")" ||
+        return 0
 
     local file REPLY
     for file in "${newconffiles[@]}"; do
@@ -89,11 +90,8 @@ _comp_cmd_mutt__aliases()
     local REPLY
     _comp_cmd_mutt__get_conffiles "$muttrc" || return 0
     conffiles=("${REPLY[@]}")
-    # shellcheck disable=SC2046
-    aliases=($(command sed -n 's|^alias[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' \
-        "${conffiles[@]}"))
-    ((${#aliases[@]})) &&
-        _comp_compgen -a -- -W '"${aliases[@]}"'
+    _comp_compgen -a split -- "$(command sed -n 's|^alias[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' \
+        "${conffiles[@]}")"
 }
 
 # @param $1 (cur) Current word to complete
@@ -108,11 +106,10 @@ _comp_cmd_mutt__query()
         local REPLY
         _comp_expand_tilde "$querycmd"
         querycmd=$REPLY
+        # generate queryresults:
         # $querycmd is expected to be a command with arguments
-        local -a queryresults=($($querycmd |
-            command sed -n '2,$s|^\([^[:space:]]\{1,\}\).*|\1|p'))
-        ((${#queryresults[@]})) &&
-            _comp_compgen -a -- -W '"${queryresults[@]}"'
+        _comp_compgen -a split -- "$($querycmd |
+            command sed -n '2,$s|^\([^[:space:]]\{1,\}\).*|\1|p')"
     fi
 }
 
@@ -130,7 +127,7 @@ _comp_cmd_mutt__filedir()
         # (minus the leading '=' sign).
         compopt -o filenames
         _comp_compgen -c "$folder/${cur:1}" -- -f
-        COMPREPLY=(${COMPREPLY[@]#"$folder/"})
+        COMPREPLY=("${COMPREPLY[@]#"$folder"/}")
         return
     elif [[ $cur == !* ]]; then
         spoolfile="$("$muttcmd" -F "$muttrc" -Q spoolfile 2>/dev/null |
