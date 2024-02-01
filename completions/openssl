@@ -27,14 +27,14 @@ _comp_cmd_openssl__compgen_sections()
 
 _comp_cmd_openssl__compgen_digests()
 {
+    [[ $cur == -* ]] || return
     _comp_compgen_split -- "$(
         "$1" dgst -h 2>&1 |
             _comp_awk '/^-.*[ \t]to use the .* message digest algorithm/ { print $1 }'
-        local -a digests=($("$1" help 2>&1 |
-            command sed -ne '/^Message Digest commands/,/^[[:space:]]*$/p' |
-            command sed -e 1d))
-        printf "%s\n" "${digests[@]/#/-}"
     )"
+    _comp_compgen -ac "${cur#-}" split -P "-" -- "$("$1" help 2>&1 |
+        command sed -ne '/^Message Digest commands/,/^[[:space:]]*$/p' |
+        command sed -e 1d)"
 }
 
 _comp_cmd_openssl()
