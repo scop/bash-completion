@@ -61,10 +61,8 @@ _comp_cmd_sbopkg()
     local file=${REPO_ROOT-}/${REPO_NAME-}/${REPO_BRANCH-}/SLACKBUILDS.TXT
     [[ -f $file && -r $file ]] || return
 
-    COMPREPLY=($(
-        command sed -ne "/^SLACKBUILD NAME: $cur/{s/^SLACKBUILD NAME: //;p;}" \
-            "$file"
-    ))
+    _comp_compgen_split -l -- "$(command sed -ne "s/^SLACKBUILD NAME: //p" \
+        "$file")"
     _comp_compgen -aC "$QUEUEDIR" -- -f -X "!*.sqf"
 } &&
     complete -F _comp_cmd_sbopkg sbopkg

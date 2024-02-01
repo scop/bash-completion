@@ -60,13 +60,17 @@ _comp_cmd_slapt_get()
             # slapt-get will fail to search for "^name-version"
             # it can search for names only
             local name=${cur%%-*}
-            COMPREPLY=($(LC_ALL=C "$1" -c "$config" --search "^$name" \
-                2>/dev/null | LC_ALL=C command sed -ne "/^$cur/{s/ .*$//;p;}"))
+            _comp_compgen_split -l -- "$(
+                LC_ALL=C "$1" -c "$config" --search "^$name" 2>/dev/null |
+                    LC_ALL=C command sed -ne "/^$cur/{s/ .*$//;p;}"
+            )"
             return
             ;;
         avl) # --install|-i|
-            COMPREPLY=($(LC_ALL=C "$1" -c "$config" --available \
-                2>/dev/null | LC_ALL=C command sed -ne "/^$cur/{s/ .*$//;p;}"))
+            _comp_compgen_split -l -- "$(
+                LC_ALL=C "$1" -c "$config" --available 2>/dev/null |
+                    LC_ALL=C command sed -ne "/^$cur/{s/ .*$//;p;}"
+            )"
             return
             ;;
         ins) # --remove|--filelist

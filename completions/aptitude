@@ -52,9 +52,8 @@ _comp_cmd_aptitude()
             return
             ;;
         --target-release | --default-release | -${noargopts}t)
-            COMPREPLY=($(apt-cache policy |
-                command grep "release.o=Debian,a=$cur" |
-                command sed -e "s/.*a=\([_[:alnum:]]*\).*/\1/" | uniq 2>/dev/null))
+            _comp_compgen_split -l -- "$(apt-cache policy |
+                command sed -ne 's/.*release.o=Debian,a=\([_[:alnum:]]*\).*/\1/p')"
             return
             ;;
     esac

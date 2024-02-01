@@ -56,12 +56,17 @@ _comp_cmd_slapt_src()
 
     if [[ $cur == *:* ]]; then
         local name=${cur%:*}
-        COMPREPLY=($(LC_ALL=C "$1" --config "$config" --search "^$name" \
-            2>/dev/null | LC_ALL=C command sed -ne \
-            "/^$cur/{s/^$name:\([^ ]*\) .*$/\1/;p;}"))
+        _comp_compgen_split -l -- "$(
+            LC_ALL=C
+            "$1" --config "$config" --search "^$name" 2>/dev/null |
+                command sed -ne "/^$cur/{s/^$name:\([^ ]*\) .*$/\1/;p;}"
+        )"
     else
-        COMPREPLY=($(LC_ALL=C "$1" --config "$config" --search "^$cur" \
-            2>/dev/null | LC_ALL=C command sed -ne "/^$cur/{s/ .*$//;p;}"))
+        _comp_compgen_split -l -- "$(
+            LC_ALL=C
+            "$1" --config "$config" --search "^$cur" 2>/dev/null |
+                command sed -ne "/^$cur/{s/ .*$//;p;}"
+        )"
     fi
 } &&
     complete -F _comp_cmd_slapt_src slapt-src
