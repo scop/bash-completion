@@ -8,7 +8,7 @@ class TestPytest:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("pytest -")
+    @pytest.mark.complete("pytest -", require_cmd=True)
     def test_2(self, completion):
         assert completion
 
