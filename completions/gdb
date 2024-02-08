@@ -15,7 +15,6 @@ _comp_cmd_gdb()
 
     # gdb [options] [executable-file [core-file or process-id]]
     if ((cword == 1)); then
-        local IFS
         compopt -o filenames
         if _comp_looks_like_path "$cur"; then
             # compgen -c works as expected if $cur contains any slashes.
@@ -28,6 +27,8 @@ _comp_cmd_gdb()
             local path_array
             _comp_compgen -Rv path_array split -F : -X '' -- "$PATH"
             _comp_compgen_split -o plusdirs -- "$(
+                # Note: ${v+"$@"} does not work with empty IFS in bash < 4.4
+                IFS=$' \t\n'
                 find ${path_array[@]+"${path_array[@]}"} . -mindepth 1 \
                     -maxdepth 1 -not -type d -executable -printf '%f\n' \
                     2>/dev/null
