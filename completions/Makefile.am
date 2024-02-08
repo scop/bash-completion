@@ -728,6 +728,7 @@ CLEANFILES = \
 	_metalctl \
 	micropython \
 	_minikube \
+	_mise \
 	mkisofs \
 	_mmctl \
 	mogrify \
@@ -839,7 +840,6 @@ CLEANFILES = \
 	rpm2txz \
 	rpmbuild \
 	rpmbuild-md5 \
-	_rtx \
 	s390-koji \
 	sbcl-mt \
 	scp \
@@ -1020,6 +1020,7 @@ symlinks: $(DATA)
 		_mattermost \
 		_metalctl \
 		_minikube \
+		_mise \
 		_mmctl \
 		_moldy \
 		_multi-gitter \
@@ -1034,7 +1035,6 @@ symlinks: $(DATA)
 		_qrpc \
 		_random \
 		_rclone \
-		_rtx \
 		_skaffold \
 		_sshi \
 		_ssh-inscribe \
