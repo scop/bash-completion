@@ -30,8 +30,12 @@ _comp_cmd_xfreerdp()
 
     case $cur in
         /kbd:*)
-            _comp_compgen -c "${cur#/kbd:}" split -- "$("$1" /kbd-list |
-                _comp_awk '/^0x/ { print $1 }')"
+            local kbd_list
+            kbd_list=$("$1" /kbd-list 2>/dev/null) ||
+                kbd_list=$("$1" /list:kbd 2>/dev/null)
+            _comp_compgen -c "${cur#/kbd:}" split -- "$(
+                _comp_awk '/^0x/ { print $1 }' <<<"$kbd_list"
+            )"
             return
             ;;
         /bpp:*)
