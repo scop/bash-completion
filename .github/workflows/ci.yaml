@@ -58,18 +58,6 @@ jobs:
           manifest-file: .github/release-please-manifest.json
         id: release
         if: github.event_name == 'push' && matrix.dist == 'alpine'
-      - name: Do release preparations
-        run: |
-          version=$(cat version.txt)
-          sed -i -re "s/^(BASH_COMPLETION_VERSINFO=).*/\\1(${version//./ })/" bash_completion
-          sed -i -re "s/^(AC_INIT\(.*\[)[0-9.]+(\].*)/\\1$version\\2/" configure.ac
-          git config user.name $(git log -1 --format=format:%an)
-          git config user.email $(git log -1 --format=format:%ae)
-          git commit --message="chore: bump release in dist files" bash_completion configure.ac
-          git tag --force ${{steps.release.outputs.tag_name}}
-          git push
-          git push --tags --force
-        if: steps.release.outputs.release_created
       # A "container" workflow config would be cleaner here, but comes with
       # some restrictions/oddities: changes root's $HOME to /github/home
       # without changing the actual home dir that can cause some problems,
