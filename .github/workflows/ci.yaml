@@ -85,14 +85,8 @@ jobs:
       - name: Upload release assets
         run: |
           set -x
-          upload_url="${{steps.release.outputs.upload_url}}"
-          tarball="bash-completion-$(cat version.txt).tar.xz"
-          curl \
-            --header "Authorization: Bearer ${{secrets.GITHUB_TOKEN}}" \
-            --header "Accept: application/vnd.github.v3+json" \
-            --header "Content-Type: application/x-xz-compressed-tar" \
-            --data-binary "@$tarball" \
-            "${upload_url%{*}?name=$tarball"
+          gh release upload ${{steps.release.outputs.tag_name}} \
+            bash-completion-$(cat version.txt).tar.xz
         if: steps.release.outputs.release_created
       - uses: actions/upload-artifact@v4
         with:
