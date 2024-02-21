@@ -84,13 +84,15 @@ jobs:
           NETWORK: ${{matrix.network}}
       - uses: actions/upload-artifact@v4
         with:
-          path: bash-completion-*.tar.xz
+          path: |
+            bash-completion-*.tar.xz
+            sha256sums.txt
         if: matrix.dist == 'alpine'
       - name: Upload release assets
         run: |
           set -x
           gh release upload ${{steps.release.outputs.tag_name}} \
-            bash-completion-$(cat version.txt).tar.xz
+            bash-completion-$(cat version.txt).tar.xz sha256sums.txt
         env:
           GH_TOKEN: ${{github.token}}
         if: steps.release.outputs.release_created
