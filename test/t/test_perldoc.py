@@ -9,7 +9,11 @@ class TestPerldoc:
         assert "fixtures/" not in completion  # Our fixtures/ dir
         assert not [x for x in completion if "File::File::" in x]
 
-    @pytest.mark.complete("perldoc -", require_cmd=True)
+    @pytest.mark.complete(
+        "perldoc -",
+        require_cmd=True,
+        skipif="! perldoc -V &>/dev/null",
+    )
     def test_2(self, completion):
         assert completion
 
