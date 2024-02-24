@@ -5,11 +5,6 @@ _comp_cmd_cryptsetup__name()
     _comp_compgen_split -X control -- "$(command ls /dev/mapper)"
 }
 
-_comp_cmd_cryptsetup__device()
-{
-    _comp_compgen -c "${cur:-/dev/}" filedir
-}
-
 _comp_cmd_cryptsetup()
 {
     local cur prev words cword was_split comp_args
@@ -23,6 +18,7 @@ _comp_cmd_cryptsetup()
             return
             ;;
         --key-file | --master-key-file | --header | --header-backup-file | -${noargopts}d)
+
             _comp_compgen_filedir
             return
             ;;
@@ -34,67 +30,25 @@ _comp_cmd_cryptsetup()
 
     [[ $was_split ]] && return
 
-    local REPLY
-    if _comp_get_first_arg; then
-        local arg=$REPLY
-        _comp_count_args -a "-${noargopts}[chslSbopitTdM]"
-        local args=$REPLY
-        case $arg in
-            open | create | luksOpen | loopaesOpen | tcryptOpen)
-                case $args in
-                    2)
-                        _comp_cmd_cryptsetup__device
-                        ;;
-                    3)
-                        _comp_cmd_cryptsetup__name
-                        ;;
-                esac
-                ;;
-            close | remove | luksClose | loopaesClose | tcryptClose | status | resize | \
-                luksSuspend | luksResume)
-                case $args in
-                    2)
-                        _comp_cmd_cryptsetup__name
-                        ;;
-                esac
-                ;;
-            luksFormat | luksAddKey | luksRemoveKey | luksChangeKey)
-                case $args in
-                    2)
-                        _comp_cmd_cryptsetup__device
-                        ;;
-                    3)
-                        _comp_compgen_filedir
-                        ;;
-                esac
-                ;;
-            luksKillSlot | luksDelKey | luksUUID | isLuks | luksDump)
-                case $args in
-                    2)
-                        _comp_cmd_cryptsetup__device
-                        ;;
-                esac
-                ;;
-            luksHeaderBackup | luksHeaderRestore)
-                case $args in
-                    2)
-                        _comp_cmd_cryptsetup__device
-                        ;;
-                    3)
-                        COMPREPLY=('--header-backup-file')
-                        ;;
-                esac
-                ;;
-        esac
+    local arg
+    _get_first_arg
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help
+        [[ ${COMPREPLY- } == *= ]] && compopt -o nospace
+        return
+    fi
+
+    if [[ ! $arg ]]; then
+        _comp_compgen -- -W 'open close resize status benchmark repair
+            erase luksFormat luksAddKey luksRemoveKey luksChangeKey
+            luksKillSlot luksUUID isLuks luksDump tcryptDump luksSuspend
+            luksResume luksHeaderBackup luksHeaderRestore'
     else
-        if [[ $cur == -* ]]; then
-            _comp_compgen_help
-            [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        if [[ $arg == +(*[cC]lose|remove|status|resize|luksSuspend|luksResume) ]]; then
+            _comp_cmd_cryptsetup__name
         else
-            _comp_compgen -- -W 'open close resize status benchmark repair
-                erase luksFormat luksAddKey luksRemoveKey luksChangeKey
-                luksKillSlot luksUUID isLuks luksDump tcryptDump luksSuspend
-                luksResume luksHeaderBackup luksHeaderRestore'
+            _comp_compgen_filedir
         fi
     fi
 
