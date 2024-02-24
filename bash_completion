@@ -763,10 +763,11 @@ _comp_compgen_split()
     local -a _compgen_options=()
 
     local OPTIND=1 OPTARG="" OPTERR=0 _opt
-    while getopts ':lF:X:S:P:o:' _opt "$@"; do
+    while getopts ':lF:c:X:S:P:o:' _opt "$@"; do
         case $_opt in
             l) _ifs=$'\n' ;;
             F) _ifs=$OPTARG ;;
+            c) _cur=$OPTARG ;;
             [XSPo]) _compgen_options+=("-$_opt" "$OPTARG") ;;
             *)
                 printf 'bash_completion: usage: %s [-l|-F sep] [--] str\n' "$FUNCNAME" >&2
@@ -782,7 +783,7 @@ _comp_compgen_split()
     fi
 
     local input=$1 IFS=$' \t\n'
-    _comp_compgen -F "$_ifs" -U input -- ${_compgen_options[@]+"${_compgen_options[@]}"} -W '$input'
+    _comp_compgen -F "$_ifs" ${_cur:+-c "$_cur"} -U input -- ${_compgen_options[@]+"${_compgen_options[@]}"} -W '$input'
 }
 
 # Check if the argument looks like a path.
