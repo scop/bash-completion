@@ -601,9 +601,9 @@ class bash_env_saved:
 
     def _unprotect_variable(self, varname: str):
         if varname not in self.saved_variables:
-            self.saved_variables[
-                varname
-            ] = bash_env_saved.saved_state.ChangesDetected
+            self.saved_variables[varname] = (
+                bash_env_saved.saved_state.ChangesDetected
+            )
             self._copy_variable(
                 varname, "%s_OLDVAR_%s" % (self.prefix, varname)
             )
@@ -695,9 +695,9 @@ class bash_env_saved:
 
     def save_variable(self, varname: str):
         self._unprotect_variable(varname)
-        self.saved_variables[
-            varname
-        ] = bash_env_saved.saved_state.ChangesIgnored
+        self.saved_variables[varname] = (
+            bash_env_saved.saved_state.ChangesIgnored
+        )
 
     # TODO: We may restore the "export" attribute as well though it is
     #   not currently tested in "diff_env"
