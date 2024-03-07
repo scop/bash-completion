@@ -13,8 +13,8 @@ specific names. `local`izing output variables before invoking a function that
 populates them is the caller's responsibility.  Note that if calling multiple
 functions that assign output to the same variable during one completion
 function run, each result should be copied to another variable between the
-calls to avoid it possibly being overwritten and lost on the next call.  Also,
-the variables should also be ensured to be clear before each call that
+calls to avoid it possibly being overwritten and lost on the next call.
+The variables should also be ensured to be clear before each call that
 references the value, variable name, or their existence, typically by `unset
 -v`ing them when multiple such calls are used, to avoid them interfering with
 each other.
@@ -24,8 +24,8 @@ unconventional, but this choice of the name is intended to be consistent with
 the value substitutions `${| func; }`, which is originally supported by mksh
 and will be supported by Bash >= 5.3.  The value substitutions are replaced by
 the contents of the output variable `REPLY` set by `func`.  Although we cannot
-currently assume Bash 5.3 in the codebase, but we can switch to the value
-substitutions at the point Bash <= 5.2 disappear from the market.
+currently assume Bash 5.3 in the codebase, we can switch to the value
+substitutions at the point Bash <= 5.2 disappears from the market.
 
 Everything in fallback completion files (ones starting with an underscore)
 is considered private and is to be named accordingly. Fallback files are not
@@ -164,9 +164,9 @@ append the results to the target variable, use `_comp_compgen_split -- "$(cmd
 
 A generator function should replace the existing content of the variable by
 default.  When the appending behavior is favored, the caller should specify it
-through `_comp_compgen -a NAME`.  The generator function do not need to process
-it because internal `_comp_compgen` calls automatically reflects the option
-`-a` specified to the outer calls of `_comp_compgen`.
+through `_comp_compgen -a NAME`.  The generator function does not need to
+process it because internal `_comp_compgen` calls automatically reflect the
+option `-a` specified to the outer calls of `_comp_compgen`.
 
 The exit status is implementation-defined.
 
