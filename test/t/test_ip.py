@@ -23,6 +23,10 @@ class TestIp:
         assert "neigh" in completion
         assert "all" in completion
 
+    @pytest.mark.complete("ip netconf ")
+    def test_netconf(self, completion):
+        assert "show" in completion
+
     @pytest.mark.complete("ip -", require_cmd=True)
     def test_options(self, completion):
         assert "-family" in completion
