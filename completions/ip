@@ -100,19 +100,12 @@ _comp_cmd_ip()
                     # TODO
                     ;;
                 delete)
-                    case $((cword - subcword)) in
-                        1)
-                            _comp_compgen_available_interfaces
-                            ;;
-                        2)
-                            _comp_compgen -- -W 'type'
-                            ;;
-                        3)
-                            [[ $prev == type ]] &&
-                                _comp_compgen -- -W 'vlan veth vcan dummy ifb
-                                    macvlan can'
-                            ;;
-                    esac
+                    if [[ $prev == type ]]; then
+                        _comp_cmd_ip__link_types "$1"
+                    else
+                        _comp_compgen_available_interfaces
+                        _comp_compgen -a -- -W 'type'
+                    fi
                     ;;
                 set)
                     if ((cword - subcword == 1)); then
