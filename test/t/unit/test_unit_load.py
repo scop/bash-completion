@@ -4,7 +4,7 @@ from conftest import assert_bash_exec, bash_env_saved
 
 
 @pytest.mark.bashcomp(cmd=None, cwd="_comp_load")
-class TestLoadCompletion:
+class TestCompLoad:
     def test_userdir_1(self, bash):
         with bash_env_saved(bash) as bash_env:
             bash_env.write_variable(

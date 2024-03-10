@@ -3,6 +3,7 @@ EXTRA_DIST = \
 	test_unit_command_offset.py \
 	test_unit_compgen.py \
 	test_unit_compgen_commands.py \
+	test_unit_compgen_split.py \
 	test_unit_count_args.py \
 	test_unit_delimited.py \
 	test_unit_deprecate_func.py \
@@ -18,6 +19,7 @@ EXTRA_DIST = \
 	test_unit_initialize.py \
 	test_unit_ip_addresses.py \
 	test_unit_known_hosts.py \
+	test_unit_load.py \
 	test_unit_longopt.py \
 	test_unit_looks_like_path.py \
 	test_unit_parse_help.py \
