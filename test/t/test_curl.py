@@ -27,6 +27,10 @@ class TestCurl:
         assert completion == "d/"
         assert not completion.endswith(" ")
 
+    @pytest.mark.complete("curl --proto-default ", require_cmd=True)
+    def test_proto_default(self, completion):
+        assert completion
+
     @pytest.mark.complete("curl --dont-fail-in-unset-mode")
     def test_unknown_option(self, completion):
         # Just see that it does not error out
