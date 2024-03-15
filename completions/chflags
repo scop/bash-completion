@@ -1,0 +1,45 @@
+# chflags(1) completion                                      -*- shell-script -*-
+
+[[ $OSTYPE == *@(bsd|darwin)* ]] || return 1
+
+_comp_cmd_chflags()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    if [[ $cur == -* ]]; then
+        # Complete -options
+        local w opts=""
+        for w in "${words[@]}"; do
+            [[ $w == -R ]] && opts="-H -L -P" && break
+        done
+        _comp_compgen -- -W '-f -h -v -x -R $opts'
+    else
+        local REPLY
+        # The first argument is a list of flags; the rest are filedir.
+        _comp_count_args
+        if ((REPLY == 1)); then
+            case "$OSTYPE" in
+                *netbsd*)
+                    _comp_delimited , -W '
+                        arch opaque nodump sappnd schg uappnd uchg'
+                    ;;
+                *openbsd*)
+                    _comp_delimited , -W 'arch nodump sappnd schg uappnd uchg'
+                    ;;
+                *)
+                    _comp_delimited , -W '
+                        simmutable nosimmutable sappend nosappend archived
+                        noarchived sunlink nosunlink opaque noopaque nodump
+                        dump uimmutable nouimmutable uappend nouappend hidden
+                        nohidden uunlink nouunlink'
+                    ;;
+            esac
+        else
+            _comp_compgen_filedir
+        fi
+    fi
+} &&
+    complete -F _comp_cmd_chflags chflags
+
+# ex: filetype=sh

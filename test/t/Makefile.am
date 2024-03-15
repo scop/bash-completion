@@ -73,6 +73,7 @@ EXTRA_DIST = \
 	test_check_db.py \
 	test_check_perms.py \
 	test_checksec.py \
+	test_chflags.py \
 	test_chfn.py \
 	test_chgrp.py \
 	test_chkconfig.py \
