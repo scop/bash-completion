@@ -299,6 +299,23 @@
 * pre-commit: anchor exclude patterns ([cc697a6](https://www.github.com/scop/bash-completion/commit/cc697a646c1bd1100890abd367bb8d0274a42275))
 * extra/make-changelog: check and output usage message ([cf90b29](https://www.github.com/scop/bash-completion/commit/cf90b297696cee57650f4fb6c29cebe872f773a7))
 
+## [2.13.0](https://github.com/scop/bash-completion/compare/2.12.0...2.13.0) (2024-03-13)
+
+
+### Features
+
+* **ip:** Add completion for netconf subcommand ([03a10ff](https://github.com/scop/bash-completion/commit/03a10ff63226782e61dae4407138c3240ff0c7c2))
+* **ip:** Complete link types for address show ([ca5ea03](https://github.com/scop/bash-completion/commit/ca5ea037e2ec1b0b5ec4d31295df88125d51b43e))
+* **ip:** Create function to get link types ([8e60245](https://github.com/scop/bash-completion/commit/8e60245c7531e1615dc96b032035bb4f59972f4a))
+
+
+### Bug Fixes
+
+* **available_interfaces:** fix regression of unwanted trailing colons ([c2f83e0](https://github.com/scop/bash-completion/commit/c2f83e0436208ef2bfa9c762bc28ff6374ba0c73))
+* **ip:** Complete ip delete with type correctly ([f3a9be3](https://github.com/scop/bash-completion/commit/f3a9be3e2f6eaf0d94bb66220fd02cf0e3c76481))
+* **ip:** Complete more variations of subcommands ([c8920c5](https://github.com/scop/bash-completion/commit/c8920c57f83199a14230485cc44b426f028acafb))
+* **Makefile:** include api-and-naming.md in dist ([fdd8048](https://github.com/scop/bash-completion/commit/fdd80487ba6944e639baf32ba991f8665840728d))
+
 ## [2.12.0](https://github.com/scop/bash-completion/compare/v2.11.0...2.12.0) (2024-02-21)
 
 

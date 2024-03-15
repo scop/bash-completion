@@ -1,5 +1,5 @@
 AC_PREREQ([2.60])
-AC_INIT([bash-completion], [2.12.0]) dnl x-release-please-version
+AC_INIT([bash-completion], [2.13.0]) dnl x-release-please-version
 dnl tar-pax for portable UTF-8 handling
 AM_INIT_AUTOMAKE([
     foreign dist-xz no-dist-gzip tar-pax -Wall -Wno-portability -Werror
