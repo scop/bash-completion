@@ -36,6 +36,11 @@ class TestIp:
     def test_netconf(self, completion):
         assert "show" in completion
 
+    @pytest.mark.complete("ip link property add ")
+    def test_link_property(self, completion):
+        assert "altname" in completion
+        assert "dev" in completion
+
     @pytest.mark.complete(
         "ip addr show type ",
         require_cmd=True,
