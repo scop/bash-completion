@@ -100,6 +100,7 @@ bashcomp_DATA = 2to3 \
 		ebtables \
 		ecryptfs-migrate-home \
 		_eject \
+		env \
 		eog \
 		ether-wake \
 		evince \
