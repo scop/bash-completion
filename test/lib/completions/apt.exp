@@ -1,0 +1,26 @@
+proc setup {} {
+    save_env
+}
+
+
+proc teardown {} {
+    assert_env_unmodified
+}
+
+
+setup
+
+
+set test "Tab should complete commands"
+set cmd "apt "
+send "$cmd\t"
+
+set expected "^$cmd\r\n.* edit-sources .* full-upgrade .* install .* list .* remove .* search .* show .* update .* upgrade .*\r\n/@$cmd$"
+expect {
+    -re $expected { pass "$test" }
+    default { fail "$test" }
+}
+sync_after_int
+
+
+teardown
