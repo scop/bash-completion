@@ -8,11 +8,20 @@ _comp_cmd_ip__iproute2_etc()
 
 _comp_cmd_ip__netns()
 {
-    _comp_compgen_split -- "$(
+    local unquoted
+    _comp_split -l unquoted "$(
         {
             ${1-ip} -c=never netns list 2>/dev/null || ${1-ip} netns list
-        } | _comp_awk '{print $1}'
+        } | command sed -e 's/ (.*//'
     )"
+    # namespace names can have spaces, so we quote all of them if needed
+    local ns quoted=()
+    for ns in "${unquoted[@]}"; do
+        local namespace
+        printf -v namespace '%q' "$ns"
+        quoted+=("$namespace")
+    done
+    ((${#quoted[@]})) && _comp_compgen -- -W '"${quoted[@]}"'
 }
 
 _comp_cmd_ip__link_types()
