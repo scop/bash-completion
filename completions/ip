@@ -60,7 +60,7 @@ _comp_cmd_ip()
         [[ ${words[subcword]} == -b?(atch) ]] && return
         [[ $has_cmd ]] && subcmd=${words[subcword]} && break
         [[ ${words[subcword]} != -* &&
-            ${words[subcword - 1]} != -@(f?(amily)|rc?(vbuf)) ]] &&
+            ${words[subcword - 1]} != -@(f?(amily)|rc?(vbuf)|n?(etns)) ]] &&
             cmd=${words[subcword]} has_cmd=set
     done
 
@@ -384,12 +384,30 @@ _comp_cmd_ip()
                 add | identify | list-id)
                     # TODO
                     ;;
-                delete | exec | pids | set)
+                delete | pids | set)
                     [[ $prev == "$subcmd" ]] && _comp_cmd_ip__netns "$1"
+                    ;;
+                exec)
+                    local is_all=0
+                    for ((i = 1; i <= cword; i++)); do
+                        case ${words[i]} in
+                            -a | -all)
+                                is_all=1
+                                break
+                                ;;
+                        esac
+                    done
+                    if [[ $prev == "$subcmd" && $is_all != 1 ]]; then
+                        _comp_cmd_ip__netns "$1"
+                    else
+                        local offset i
+                        offset="$((subcword + 2 - is_all))"
+                        _comp_command_offset "$offset"
+                    fi
                     ;;
                 *)
                     ((cword == subcword)) &&
-                        _comp_compgen -- -W 'help add delete exec identify list
+                        _comp_compgen -- -W 'help add attach delete exec identify list
                             list-id monitor pids set'
                     ;;
             esac
