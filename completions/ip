@@ -430,8 +430,26 @@ _comp_cmd_ip()
                 add | identify | list-id)
                     # TODO
                     ;;
-                delete | exec | pids | set)
+                delete | pids | set)
                     [[ $prev == "$subcmd" ]] && _comp_cmd_ip__netns "$1"
+                    ;;
+                exec)
+                    local all_offset=0 i
+                    for ((i = 1; i <= cword; i++)); do
+                        case ${words[i]} in
+                            -a | -all)
+                                all_offset=1
+                                break
+                                ;;
+                        esac
+                    done
+                    if [[ $prev == "$subcmd" && $all_offset != 1 ]]; then
+                        _comp_cmd_ip__netns "$1"
+                    else
+                        local offset
+                        offset="$((subcword + 2 - all_offset))"
+                        _comp_command_offset "$offset"
+                    fi
                     ;;
                 *)
                     ((cword == subcword)) &&
