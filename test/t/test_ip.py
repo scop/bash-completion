@@ -15,6 +15,14 @@ class TestIp:
         assert completion
 
     @pytest.mark.complete(
+        "ip neigh show nud ",
+        require_cmd=True,
+        skipif="ip neigh help 2>/dev/null; (( $? != 255 ))",
+    )
+    def test_neigh_state(self, completion):
+        assert "stale" in completion
+
+    @pytest.mark.complete(
         "ip monitor ",
         require_cmd=True,
         skipif="ip monitor help 2>/dev/null; (( $? != 255 ))",
