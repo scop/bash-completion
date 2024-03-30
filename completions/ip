@@ -282,6 +282,41 @@ _comp_cmd_ip()
                     ;;
             esac
             ;;
+        stats)
+            case "$subcmd" in
+                show)
+                    if [[ $prev == dev ]]; then
+                        _comp_compgen_available_interfaces
+                    elif [[ $prev == group ]]; then
+                        _comp_compgen -- -W "$(
+                            # stats command was added after color, should always have it
+                            "$1" -c=never stats help 2>&1 |
+                                command sed -e \
+                                    '/^GROUP := /,/}/!d' -e \
+                                    's/^GROUP := //g' -e \
+                                    '/:=/d' -e \
+                                    's/[{}|]//g'
+                        )"
+                    elif [[ $prev == subgroup || $prev == suite ]]; then
+                        : # TODO: complete subgroup and suite
+                    else
+                        _comp_compgen -- -W 'dev group subgroup suite'
+                    fi
+                    ;;
+                set)
+                    if [[ $prev == dev ]]; then
+                        _comp_compgen_available_interfaces
+                    elif [[ $prev == l3_stats ]]; then
+                        _comp_compgen -- -W 'on off'
+                    else
+                        _comp_compgen -- -W 'dev l3_stats'
+                    fi
+                    ;;
+                *)
+                    _comp_compgen -- -W 'show set help'
+                    ;;
+            esac
+            ;;
 
         n | neigh | neighbor | neighbour)
             case $subcmd in
