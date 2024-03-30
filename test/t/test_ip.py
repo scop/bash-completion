@@ -15,6 +15,15 @@ class TestIp:
         assert completion
 
     @pytest.mark.complete(
+        "ip stats show group ",
+        require_cmd=True,
+        skipif="ip stats help 2>/dev/null; (( $? != 255 ))",
+    )
+    def test_stats(self, completion):
+        # "link" was one of the first groups added, should always be there
+        assert "link" in completion
+
+    @pytest.mark.complete(
         "ip monitor ",
         require_cmd=True,
         skipif="ip monitor help 2>/dev/null; (( $? != 255 ))",
