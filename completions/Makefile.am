@@ -377,6 +377,7 @@ bashcomp_DATA = 2to3 \
 		_reptyr \
 		resolvconf \
 		_rfkill \
+		_rg \
 		ri \
 		rmlist \
 		rmmod \
