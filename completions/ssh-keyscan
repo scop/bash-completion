@@ -3,7 +3,7 @@
 _comp_cmd_ssh_keyscan()
 {
     local cur prev words cword comp_args
-    _comp_initialize -- "$@" || return
+    _comp_initialize -n = -- "$@" || return
 
     local ipvx
 
@@ -16,6 +16,20 @@ _comp_cmd_ssh_keyscan()
             ;;
         -*f)
             _comp_compgen_filedir
+            return
+            ;;
+        -*O)
+            case $cur in
+                hashalg=*)
+                    cur=${cur#*=}
+                    _comp_compgen -- -W 'sha1 sha256'
+                    ;;
+                *=*) ;;
+                *)
+                    _comp_compgen -- -W 'hashalg='
+                    compopt -o nospace
+                    ;;
+            esac
             return
             ;;
         -*p | -*T)
