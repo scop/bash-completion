@@ -1,7 +1,8 @@
-import pytest
 import re
 
-from conftest import assert_bash_exec, bash_env_saved, assert_complete
+import pytest
+
+from conftest import assert_bash_exec, assert_complete, bash_env_saved
 
 
 @pytest.mark.bashcomp(cmd=None)
