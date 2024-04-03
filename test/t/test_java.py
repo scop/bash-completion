@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import is_bash_type, assert_bash_exec, bash_env_saved
+from conftest import assert_bash_exec, bash_env_saved, is_bash_type
 
 
 @pytest.mark.bashcomp(
