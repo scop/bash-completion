@@ -88,3 +88,11 @@ class TestUnitRealCommand:
             want_output=False,
         )
         assert output.strip() == ""
+
+    def test_option_like_cmd_name(self, bash, functions):
+        output = assert_bash_exec(
+            bash,
+            "! __tester --non-existent",
+            want_output=False,
+        )
+        assert output.strip() == ""
