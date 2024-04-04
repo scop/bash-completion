@@ -382,7 +382,7 @@ def load_completion_for(bash: pexpect.spawn, cmd: str) -> bool:
         # Allow _comp_load to fail so we can test completions
         # that are directly loaded in bash_completion without a separate file.
         assert_bash_exec(bash, "_comp_load -- %s || :" % cmd)
-        assert_bash_exec(bash, "complete -p %s &>/dev/null" % cmd)
+        assert_bash_exec(bash, "complete -p -- %s &>/dev/null" % cmd)
     except AssertionError:
         return False
     return True
