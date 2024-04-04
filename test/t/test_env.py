@@ -23,12 +23,22 @@ class TestEnv:
             "foo=bar",
             "--debug",
             "--debug foo=bar",
+            "-",
+            "- foo=bar",
         ],
     )
     def test_command(self, bash, opts):
         completion = assert_complete(bash, "env %s s" % opts)
         assert completion == "h" or "sh" in completion
 
-    @pytest.mark.complete("env foo=bar --debug s")
-    def test_option_like_command_after_assignment(self, completion):
+    @pytest.mark.parametrize(
+        "opts",
+        [
+            "foo=bar --non-existent",
+            "- --non-existent",
+            "-- --non-existent",
+        ],
+    )
+    def test_option_like_command(self, bash, opts):
+        completion = assert_complete(bash, "env %s s" % opts)
         assert not (completion == "h" or "sh" in completion)
