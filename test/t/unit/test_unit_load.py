@@ -128,3 +128,6 @@ class TestCompLoad:
             # The in-tree `sh` completion should be loaded here,
             # and cause no output, unlike our `$PWD/prefix1/bin/sh` canary.
             assert_bash_exec(bash, "_comp_load sh", want_output=False)
+
+    def test_option_like_cmd_name(self, bash):
+        assert_bash_exec(bash, "! _comp_load -- --non-existent")
