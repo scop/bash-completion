@@ -7,10 +7,16 @@ _comp_cmd_env()
 
     local i noargopts='!(-*|*[uCS]*)'
     for ((i = 1; i <= cword; i++)); do
-        if [[ ${words[i]} != -* && ${words[i]} != *=* ]]; then
-            _comp_command_offset $i
-            return
+        if [[ ${words[i]} != -* ]]; then
+            for (( ; i <= cword; i++)); do
+                if [[ ${words[i]} != *=* ]]; then
+                    _comp_command_offset "$i"
+                    return
+                fi
+            done
+            break
         fi
+
         # shellcheck disable=SC2254
         [[ ${words[i]} == @(--@(unset|chdir|split-string)|-${noargopts}[uCS]) ]] &&
             ((i++))
