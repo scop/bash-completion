@@ -913,6 +913,7 @@ CLEANFILES = \
 	xpovray \
 	xvnc4viewer \
 	ypcat \
+	_zarf \
 	_zitadel
 
 symlinks: $(DATA)
@@ -1050,6 +1051,7 @@ symlinks: $(DATA)
 		_upctl \
 		_vacuum \
 		_virtctl \
+		_zarf \
 		_zitadel
 	$(ss) gpgv \
 		gpgv2
