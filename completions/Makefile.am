@@ -661,6 +661,7 @@ CLEANFILES = \
 	ifstatus \
 	_ignite \
 	import \
+	_incus \
 	_infracost \
 	inotifywatch \
 	insmod.static \
@@ -1008,6 +1009,7 @@ symlinks: $(DATA)
 		_goreleaser \
 		_helm \
 		_hugo \
+		_incus \
 		_ignite \
 		_istioctl \
 		_k3s \
