@@ -649,7 +649,7 @@ _comp_compgen()
         else
             _generator=("_comp_compgen_$1")
         fi
-        if ! declare -F "${_generator[0]}" &>/dev/null; then
+        if ! declare -F -- "${_generator[0]}" &>/dev/null; then
             printf 'bash_completion: %s: unrecognized generator `%s'\'' (function %s not found)\n' "$FUNCNAME" "$1" "${_generator[0]}" >&2
             return 2
         fi
@@ -2765,18 +2765,18 @@ _comp_command_offset()
     else
         _comp_dequote "${COMP_WORDS[0]}" || REPLY=${COMP_WORDS[0]}
         local cmd=$REPLY compcmd=$REPLY
-        local cspec=$(complete -p "$cmd" 2>/dev/null)
+        local cspec=$(complete -p -- "$cmd" 2>/dev/null)
 
         # If we have no completion for $cmd yet, see if we have for basename
         if [[ ! $cspec && $cmd == */* ]]; then
-            cspec=$(complete -p "${cmd##*/}" 2>/dev/null)
+            cspec=$(complete -p -- "${cmd##*/}" 2>/dev/null)
             [[ $cspec ]] && compcmd=${cmd##*/}
         fi
         # If still nothing, just load it for the basename
         if [[ ! $cspec ]]; then
             compcmd=${cmd##*/}
             _comp_load -D -- "$compcmd"
-            cspec=$(complete -p "$compcmd" 2>/dev/null)
+            cspec=$(complete -p -- "$compcmd" 2>/dev/null)
         fi
 
         local retry_count=0
@@ -2809,7 +2809,7 @@ _comp_command_offset()
                         # state of COMPREPLY is discarded.
                         COMPREPLY=()
 
-                        cspec=$(complete -p "$compcmd" 2>/dev/null)
+                        cspec=$(complete -p -- "$compcmd" 2>/dev/null)
 
                         # Note: When completion spec is removed after 124, we
                         # do not generate any completions including the default
@@ -3147,7 +3147,7 @@ _comp_load()
     if [[ $cmd == \\* ]]; then
         cmd=${cmd:1}
         # If we already have a completion for the "real" command, use it
-        $(complete -p "$cmd" 2>/dev/null || echo false) "\\$cmd" && return 0
+        $(complete -p -- "$cmd" 2>/dev/null || echo false) "\\$cmd" && return 0
         backslash=\\
     fi
 
@@ -3222,18 +3222,18 @@ _comp_load()
                 elif [[ -e $compfile ]] && . "$compfile" "$cmd" "$@"; then
                     # At least $cmd is expected to have a completion set when
                     # we return successfully; see if it already does
-                    if compspec=$(complete -p "$cmd" 2>/dev/null); then
+                    if compspec=$(complete -p -- "$cmd" 2>/dev/null); then
                         # $cmd is the case in which we do backslash processing
                         [[ $backslash ]] && eval "$compspec \"\$backslash\$cmd\""
                         # If invoked without path, that one should be set, too
                         # ...but let's not overwrite an existing one, if any
                         [[ $origcmd != */* ]] &&
-                            ! complete -p "$origcmd" &>/dev/null &&
+                            ! complete -p -- "$origcmd" &>/dev/null &&
                             eval "$compspec \"\$origcmd\""
                         return 0
                     fi
                     # If not, see if we got one for $cmdname
-                    if [[ $cmdname != "$cmd" ]] && compspec=$(complete -p "$cmdname" 2>/dev/null); then
+                    if [[ $cmdname != "$cmd" ]] && compspec=$(complete -p -- "$cmdname" 2>/dev/null); then
                         # Use that for $cmd too, if we have a full path to it
                         [[ $cmd == /* ]] && eval "$compspec \"\$cmd\""
                         return 0
@@ -3281,7 +3281,7 @@ _comp_xfunc()
     local xfunc_name=$2
     [[ $xfunc_name == _* ]] ||
         xfunc_name=_comp_xfunc_${1//[^a-zA-Z0-9_]/_}_$xfunc_name
-    declare -F "$xfunc_name" &>/dev/null || _comp_load "$1"
+    declare -F -- "$xfunc_name" &>/dev/null || _comp_load -- "$1"
     "$xfunc_name" "${@:3}"
 }
 
