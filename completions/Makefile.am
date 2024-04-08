@@ -586,6 +586,7 @@ CLEANFILES = \
 	dfutool \
 	_diesel \
 	display \
+	_dlv \
 	_docker \
 	dpkg-deb \
 	dpkg-query \
@@ -1001,6 +1002,7 @@ symlinks: $(DATA)
 		_constellation \
 		_crc \
 		_datree \
+		_dlv \
 		_docker \
 		_gardenctl \
 		_gh-label \
