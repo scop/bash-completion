@@ -646,6 +646,7 @@ CLEANFILES = \
 	gpgv2 \
 	gssdp-device-sniffer \
 	gtar \
+	_gup \
 	hciattach \
 	hciconfig \
 	hd \
@@ -1010,6 +1011,7 @@ symlinks: $(DATA)
 		_go-licenses \
 		_gopherjs \
 		_goreleaser \
+		_gup \
 		_helm \
 		_hugo \
 		_incus \
