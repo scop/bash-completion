@@ -586,6 +586,7 @@ CLEANFILES = \
 	dfutool \
 	_diesel \
 	display \
+	_dlv \
 	_docker \
 	dpkg-deb \
 	dpkg-query \
@@ -645,6 +646,7 @@ CLEANFILES = \
 	gpgv2 \
 	gssdp-device-sniffer \
 	gtar \
+	_gup \
 	hciattach \
 	hciconfig \
 	hd \
@@ -661,6 +663,7 @@ CLEANFILES = \
 	ifstatus \
 	_ignite \
 	import \
+	_incus \
 	_infracost \
 	inotifywatch \
 	insmod.static \
@@ -912,6 +915,7 @@ CLEANFILES = \
 	xpovray \
 	xvnc4viewer \
 	ypcat \
+	_zarf \
 	_zitadel
 
 symlinks: $(DATA)
@@ -999,6 +1003,7 @@ symlinks: $(DATA)
 		_constellation \
 		_crc \
 		_datree \
+		_dlv \
 		_docker \
 		_gardenctl \
 		_gh-label \
@@ -1006,8 +1011,10 @@ symlinks: $(DATA)
 		_go-licenses \
 		_gopherjs \
 		_goreleaser \
+		_gup \
 		_helm \
 		_hugo \
+		_incus \
 		_ignite \
 		_istioctl \
 		_k3s \
@@ -1048,6 +1055,7 @@ symlinks: $(DATA)
 		_upctl \
 		_vacuum \
 		_virtctl \
+		_zarf \
 		_zitadel
 	$(ss) gpgv \
 		gpgv2
