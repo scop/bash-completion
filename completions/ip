@@ -249,7 +249,22 @@ _comp_cmd_ip()
                     fi
                     ;;
                 get)
-                    # TODO
+                    case $prev in
+                        as | dport | from | sport | ipproto | vrf | to | tos | mark)
+                            : # TODO: Can we complete ipproto, tos, or vrf?
+                            ;;
+                        uid)
+                            _comp_compgen_uids
+                            ;;
+                        oif | iif | dev)
+                            _comp_compgen_available_interfaces -a
+                            ;;
+                        *)
+                            # TODO: 'iif' only works if also 'from' is specified
+                            _comp_compgen -- -W 'as connected dport from fibmatch
+			        iif ipproto mark notify oif sport to tos uid vrf'
+                            ;;
+                    esac
                     ;;
                 a | add | d | del | change | append | r | replace)
                     if [[ $prev == via ]]; then
