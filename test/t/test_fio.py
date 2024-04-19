@@ -23,6 +23,8 @@ class TestFio:
     def test_enghelp(self, completion):
         """Test --enghelp parsing."""
         assert completion
+        assert all(x == x.strip() for x in completion)
+        assert all(")" not in x for x in completion)
 
     @pytest.mark.complete("fio --unlink=", require_cmd=True)
     def test_cmdhelp_boolean(self, completion):
