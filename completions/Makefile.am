@@ -546,6 +546,7 @@ CLEANFILES = \
 	autossh \
 	autoupdate \
 	avahi-browse-domains \
+	_bao \
 	_black \
 	_blackd \
 	bmake \
@@ -1207,7 +1208,7 @@ symlinks: $(DATA)
 	$(ss) update-alternatives \
 		alternatives
 	$(ss) _vault \
-		_consul _nomad _packer _terraform
+		_bao _consul _nomad _packer _terraform
 	$(ss) vipw \
 		vigr
 	$(ss) vncviewer \
