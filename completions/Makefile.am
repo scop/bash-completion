@@ -881,6 +881,7 @@ CLEANFILES = \
 	_tkn \
 	_tkn-pac \
 	tightvncviewer \
+	_tofu \
 	tracepath6 \
 	_trivy \
 	typeset \
@@ -1208,7 +1209,7 @@ symlinks: $(DATA)
 	$(ss) update-alternatives \
 		alternatives
 	$(ss) _vault \
-		_bao _consul _nomad _packer _terraform
+		_bao _consul _nomad _packer _terraform _tofu
 	$(ss) vipw \
 		vigr
 	$(ss) vncviewer \
