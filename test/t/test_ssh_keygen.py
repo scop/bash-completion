@@ -55,11 +55,15 @@ class TestSshKeygen:
         assert not completion
 
     @pytest.mark.complete("ssh-keygen -O ")
-    def test_O(self, completion):
+    def test_bare_O(self, completion):
+        assert not completion
+
+    @pytest.mark.complete("ssh-keygen -s -O ")
+    def test_s_O(self, completion):
         assert completion
         assert any(x.endswith("=") for x in completion)
 
-    @pytest.mark.complete("ssh-keygen -O force-command=bas")
+    @pytest.mark.complete("ssh-keygen -s -O force-command=bas")
     def test_O_force_command(self, completion):
         assert completion
         assert not completion.startswith("force-command=")
@@ -68,18 +72,20 @@ class TestSshKeygen:
     def test_O_unknown(self, completion):
         assert not completion
 
-    @pytest.mark.complete("ssh-keygen -O application=")
+    @pytest.mark.complete("ssh-keygen -t ed25519-sk -O application=")
     def test_O_application(self, completion):
         assert completion == "ssh:"
 
-    @pytest.mark.complete("ssh-keygen -O application=s")
+    @pytest.mark.complete("ssh-keygen -t ed25519-sk -O application=s")
     def test_O_application_s(self, completion):
         assert completion == "sh:"
 
-    @pytest.mark.complete("ssh-keygen -O application=ssh:")
+    @pytest.mark.complete("ssh-keygen -t ed25519-sk -O application=ssh:")
     def test_O_application_ssh_colon(self, completion):
         assert not completion
 
-    @pytest.mark.complete("ssh-keygen -O application=nonexistent")
+    @pytest.mark.complete(
+        "ssh-keygen -t ed25519-sk -O application=nonexistent"
+    )
     def test_O_application_nonexistent(self, completion):
         assert not completion

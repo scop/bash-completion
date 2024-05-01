@@ -60,17 +60,33 @@ _comp_cmd_ssh_keygen()
             ;;
         -*O)
             if [[ $cur != *=* ]]; then
-                _comp_compgen -- -W 'clear critical: extension: force-command=
-                    no-agent-forwarding no-port-forwarding no-pty no-user-rc
-                    no-x11-forwarding permit-agent-forwarding
-                    permit-port-forwarding permit-pty permit-user-rc
-                    permit-X11-forwarding no-touch-required source-address=
-                    verify-required
-
-                    lines= start-line= checkpoint= memory= start= generator=
-
-                    application= challenge= device= no-touch-required resident
-                    user= write-attestation='
+                local -a opts=()
+                case ${words[*]} in
+                    *\ -*M\ *)
+                        opts=(
+                            lines= start-line= checkpoint= memory= start=
+                            generator=
+                        )
+                        ;;
+                    *\ -*s\ *)
+                        opts=(
+                            clear critical: extension: force-command=
+                            no-agent-forwarding no-port-forwarding no-pty
+                            no-user-rc no-x11-forwarding permit-agent-forwarding
+                            permit-port-forwarding permit-pty permit-user-rc
+                            permit-X11-forwarding no-touch-required
+                            source-address= verify-required
+                        )
+                        ;;
+                    *\ -*t\ +([a-z0-9])-sk\ *)
+                        opts=(
+                            application= challenge= device= no-touch-required
+                            resident user= verify-required write-attestation=
+                        )
+                        ;;
+                esac
+                ((${#opts[@]})) &&
+                    _comp_compgen -- -W '"${opts[@]}"'
 
                 [[ ${COMPREPLY-} == *[:=] ]] && compopt -o nospace
                 _comp_ltrim_colon_completions "$cur"
