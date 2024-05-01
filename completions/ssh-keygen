@@ -68,6 +68,9 @@ _comp_cmd_ssh_keygen()
                             generator=
                         )
                         ;;
+                    *\ -*r\ *)
+                        opts=(hashalg=)
+                        ;;
                     *\ -*s\ *)
                         opts=(
                             clear critical: extension: force-command=
@@ -83,6 +86,9 @@ _comp_cmd_ssh_keygen()
                             application= challenge= device= no-touch-required
                             resident user= verify-required write-attestation=
                         )
+                        ;;
+                    *\ -*Y\ *)
+                        opts=(hashalg= print-pubkey verify-time)
                         ;;
                 esac
                 ((${#opts[@]})) &&
@@ -105,6 +111,19 @@ _comp_cmd_ssh_keygen()
                         ;;
                     user=*)
                         _comp_compgen -c "${cur#*=}" -- -u
+                        ;;
+                    hashalg=*)
+                        local -a args=()
+                        case ${words[*]} in
+                            *\ -*Y\ *)
+                                args=(sha256 sha512)
+                                ;;
+                            *\ -*r\ *)
+                                args=(sha1 sha256)
+                                ;;
+                        esac
+                        ((${#args[@]})) &&
+                            _comp_compgen -c "${cur#*=}" -- -W '"${args[@]}"'
                         ;;
                 esac
             fi
