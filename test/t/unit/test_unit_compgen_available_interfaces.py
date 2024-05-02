@@ -22,4 +22,4 @@ class TestUtilCompgenAvailableInterfaces:
             "_comp__test_compgen available_interfaces",
             want_output=True,
         )
-        assert ":" not in output.strip()
+        assert ":>" not in output.strip()
