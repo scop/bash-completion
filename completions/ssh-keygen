@@ -5,11 +5,13 @@ _comp_cmd_ssh_keygen()
     local cur prev words cword comp_args
     _comp_initialize -n := -- "$@" || return
 
+    local noargopts='!(-*|*[ aCIJjMNPSVWzbEFRDwfGKsTmnOrtY]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -*[aCIJjMNPSVWz])
+        -${noargopts}[aCIJjMNPSVWz])
             return
             ;;
-        -*b)
+        -${noargopts}b)
             local -a sizes=()
             case "${words[*]}" in
                 *" -t dsa"?( *))
@@ -26,28 +28,28 @@ _comp_cmd_ssh_keygen()
                 _comp_compgen -- -W '"${sizes[@]}"'
             return
             ;;
-        -*E)
+        -${noargopts}E)
             _comp_compgen -- -W 'md5 sha256'
             return
             ;;
-        -*[FR])
+        -${noargopts}[FR])
             # TODO: trim this down to actual entries in known hosts files
             _comp_compgen_known_hosts -- "$cur"
             return
             ;;
-        -*[Dw])
+        -${noargopts}[Dw])
             _comp_compgen_filedir so
             return
             ;;
-        -*[fGKsT])
+        -${noargopts}[fGKsT])
             _comp_compgen_filedir
             return
             ;;
-        -*m)
+        -${noargopts}m)
             _comp_compgen -- -W 'PEM PKCS8 RFC4716'
             return
             ;;
-        -*n)
+        -${noargopts}n)
             [[ ${words[*]} != *\ -*Y\ * ]] || return
             if [[ ${words[*]} == *\ -*h\ * ]]; then
                 _comp_compgen_known_hosts -- "${cur##*,}"
@@ -58,20 +60,20 @@ _comp_cmd_ssh_keygen()
             fi
             return
             ;;
-        -*O)
+        -${noargopts}O)
             if [[ $cur != *=* ]]; then
                 local -a opts=()
                 case ${words[*]} in
-                    *\ -*M\ *)
+                    *\ -${noargopts}M\ *)
                         opts=(
                             lines= start-line= checkpoint= memory= start=
                             generator=
                         )
                         ;;
-                    *\ -*r\ *)
+                    *\ -${noargopts}r\ *)
                         opts=(hashalg=)
                         ;;
-                    *\ -*s\ *)
+                    *\ -${noargopts}s\ *)
                         opts=(
                             clear critical: extension: force-command=
                             no-agent-forwarding no-port-forwarding no-pty
@@ -81,13 +83,13 @@ _comp_cmd_ssh_keygen()
                             source-address= verify-required
                         )
                         ;;
-                    *\ -*t\ +([a-z0-9])-sk\ *)
+                    *\ -${noargopts}t\ +([a-z0-9])-sk\ *)
                         opts=(
                             application= challenge= device= no-touch-required
                             resident user= verify-required write-attestation=
                         )
                         ;;
-                    *\ -*Y\ *)
+                    *\ -${noargopts}Y\ *)
                         opts=(hashalg= print-pubkey verify-time)
                         ;;
                 esac
@@ -129,11 +131,11 @@ _comp_cmd_ssh_keygen()
             fi
             return
             ;;
-        -*r)
-            [[ ${words[*]} != *\ -*Y\ * ]] || _comp_compgen_filedir
+        -${noargopts}r)
+            [[ ${words[*]} != *\ -${noargopts}Y\ * ]] || _comp_compgen_filedir
             return
             ;;
-        -*t)
+        -${noargopts}t)
             # Prefer `ssh` from same dir for resolving options, etc
             local pathcmd protocols
             pathcmd=$(type -P -- "$1") && local PATH=${pathcmd%/*}:$PATH
@@ -145,7 +147,7 @@ _comp_cmd_ssh_keygen()
             _comp_compgen -- -W "$types"
             return
             ;;
-        -*Y)
+        -${noargopts}Y)
             _comp_compgen -- -W 'find-principals check-novalidate sign verify'
             return
             ;;
@@ -157,7 +159,7 @@ _comp_cmd_ssh_keygen()
             _comp_compgen_help -- "-?" # OpenSSH < 7
     fi
 
-    if [[ ${words[*]} == *\ -*s\ * ]]; then
+    if [[ ${words[*]} == *\ -${noargopts}s\ * ]]; then
         _comp_compgen -a filedir pub
     fi
 } &&
