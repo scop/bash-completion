@@ -5,11 +5,14 @@ _comp_cmd_ssh_keygen()
     local cur prev words cword comp_args
     _comp_initialize -n := -- "$@" || return
 
+    local IFS=$' \t\n' # for ${words[*]}
+    local noargopts='!(-*|*[ aCIJjMNPSVWzbEFRDwfGKsTmnOrtY]*)'
+    # shellcheck disable=SC2254
     case $prev in
-        -*[aCIJjMNPSVWz])
+        -${noargopts}[aCIJjMNPSVWz])
             return
             ;;
-        -*b)
+        -${noargopts}b)
             local -a sizes=()
             case "${words[*]}" in
                 *" -t dsa"?( *))
@@ -26,28 +29,28 @@ _comp_cmd_ssh_keygen()
                 _comp_compgen -- -W '"${sizes[@]}"'
             return
             ;;
-        -*E)
+        -${noargopts}E)
             _comp_compgen -- -W 'md5 sha256'
             return
             ;;
-        -*[FR])
+        -${noargopts}[FR])
             # TODO: trim this down to actual entries in known hosts files
             _comp_compgen_known_hosts -- "$cur"
             return
             ;;
-        -*[Dw])
+        -${noargopts}[Dw])
             _comp_compgen_filedir so
             return
             ;;
-        -*[fGKsT])
+        -${noargopts}[fGKsT])
             _comp_compgen_filedir
             return
             ;;
-        -*m)
+        -${noargopts}m)
             _comp_compgen -- -W 'PEM PKCS8 RFC4716'
             return
             ;;
-        -*n)
+        -${noargopts}n)
             [[ ${words[*]} != *\ -*Y\ * ]] || return
             if [[ ${words[*]} == *\ -*h\ * ]]; then
                 _comp_compgen_known_hosts -- "${cur##*,}"
@@ -58,19 +61,41 @@ _comp_cmd_ssh_keygen()
             fi
             return
             ;;
-        -*O)
+        -${noargopts}O)
             if [[ $cur != *=* ]]; then
-                _comp_compgen -- -W 'clear critical: extension: force-command=
-                    no-agent-forwarding no-port-forwarding no-pty no-user-rc
-                    no-x11-forwarding permit-agent-forwarding
-                    permit-port-forwarding permit-pty permit-user-rc
-                    permit-X11-forwarding no-touch-required source-address=
-                    verify-required
-
-                    lines= start-line= checkpoint= memory= start= generator=
-
-                    application= challenge= device= no-touch-required resident
-                    user= write-attestation='
+                local -a opts=()
+                case ${words[*]} in
+                    *\ -${noargopts}M\ *)
+                        opts=(
+                            lines= start-line= checkpoint= memory= start=
+                            generator=
+                        )
+                        ;;
+                    *\ -${noargopts}r\ *)
+                        opts=(hashalg=)
+                        ;;
+                    *\ -${noargopts}s\ *)
+                        opts=(
+                            clear critical: extension: force-command=
+                            no-agent-forwarding no-port-forwarding no-pty
+                            no-user-rc no-x11-forwarding permit-agent-forwarding
+                            permit-port-forwarding permit-pty permit-user-rc
+                            permit-X11-forwarding no-touch-required
+                            source-address= verify-required
+                        )
+                        ;;
+                    *\ -${noargopts}t\ +([a-z0-9])-sk\ *)
+                        opts=(
+                            application= challenge= device= no-touch-required
+                            resident user= verify-required write-attestation=
+                        )
+                        ;;
+                    *\ -${noargopts}Y\ *)
+                        opts=(hashalg= print-pubkey verify-time)
+                        ;;
+                esac
+                ((${#opts[@]})) &&
+                    _comp_compgen -- -W '"${opts[@]}"'
 
                 [[ ${COMPREPLY-} == *[:=] ]] && compopt -o nospace
                 _comp_ltrim_colon_completions "$cur"
@@ -90,15 +115,28 @@ _comp_cmd_ssh_keygen()
                     user=*)
                         _comp_compgen -c "${cur#*=}" -- -u
                         ;;
+                    hashalg=*)
+                        local -a args=()
+                        case ${words[*]} in
+                            *\ -*Y\ *)
+                                args=(sha256 sha512)
+                                ;;
+                            *\ -*r\ *)
+                                args=(sha1 sha256)
+                                ;;
+                        esac
+                        ((${#args[@]})) &&
+                            _comp_compgen -c "${cur#*=}" -- -W '"${args[@]}"'
+                        ;;
                 esac
             fi
             return
             ;;
-        -*r)
-            [[ ${words[*]} != *\ -*Y\ * ]] || _comp_compgen_filedir
+        -${noargopts}r)
+            [[ ${words[*]} != *\ -${noargopts}Y\ * ]] || _comp_compgen_filedir
             return
             ;;
-        -*t)
+        -${noargopts}t)
             # Prefer `ssh` from same dir for resolving options, etc
             local pathcmd protocols
             pathcmd=$(type -P -- "$1") && local PATH=${pathcmd%/*}:$PATH
@@ -110,7 +148,7 @@ _comp_cmd_ssh_keygen()
             _comp_compgen -- -W "$types"
             return
             ;;
-        -*Y)
+        -${noargopts}Y)
             _comp_compgen -- -W 'find-principals check-novalidate sign verify'
             return
             ;;
@@ -122,7 +160,7 @@ _comp_cmd_ssh_keygen()
             _comp_compgen_help -- "-?" # OpenSSH < 7
     fi
 
-    if [[ ${words[*]} == *\ -*s\ * ]]; then
+    if [[ ${words[*]} == *\ -${noargopts}s\ * ]]; then
         _comp_compgen -a filedir pub
     fi
 } &&
