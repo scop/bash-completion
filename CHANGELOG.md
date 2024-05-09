@@ -1,34 +1,3 @@
-## [2.13.0](https://github.com/scop/bash-completion/compare/2.12.0...2.13.0) (2024-04-03)
-
-
-### Features
-
-* **curl:** Complete protocols for --proto-default ([7051379](https://github.com/scop/bash-completion/commit/7051379e448147407c3fe43c89872dafb76ebb27))
-* **ip:** Add completion for netconf subcommand ([03a10ff](https://github.com/scop/bash-completion/commit/03a10ff63226782e61dae4407138c3240ff0c7c2))
-* **ip:** Complete commands for netns exec ([1f03796](https://github.com/scop/bash-completion/commit/1f03796cd930ddad6207d46814da820674f16edc))
-* **ip:** Complete help for unknown subcommands ([21f7e32](https://github.com/scop/bash-completion/commit/21f7e32f9009c2064d1659668425b6b6ccb537bd))
-* **ip:** Complete ip link property ([efa663c](https://github.com/scop/bash-completion/commit/efa663cd0dd63d54fd2d2987ee66fb954ccf4a86))
-* **ip:** Complete link types for address show ([ca5ea03](https://github.com/scop/bash-completion/commit/ca5ea037e2ec1b0b5ec4d31295df88125d51b43e))
-* **ip:** Complete neigh show and flush ([c7c3c03](https://github.com/scop/bash-completion/commit/c7c3c039bf5a462ea577e8fcc92ebd94d6afad49))
-* **ip:** Complete stats subcommand ([cd73e8c](https://github.com/scop/bash-completion/commit/cd73e8c1689e3e014c4a75d5101ee3d932013120))
-* **ip:** Create function to get link types ([8e60245](https://github.com/scop/bash-completion/commit/8e60245c7531e1615dc96b032035bb4f59972f4a))
-* **rg:** add fallback 3rd party completion loader ([7e4cc2f](https://github.com/scop/bash-completion/commit/7e4cc2fb199f1c88bd9a358a157fe06327fc2b28))
-* **xmllint,xmlwf:** also suggest *.rss files ([a89cde2](https://github.com/scop/bash-completion/commit/a89cde2216b1634521b4a264b2dbc5cda7522061))
-
-
-### Bug Fixes
-
-* **available_interfaces:** fix regression of unwanted trailing colons ([c2f83e0](https://github.com/scop/bash-completion/commit/c2f83e0436208ef2bfa9c762bc28ff6374ba0c73))
-* **ip:** Complete addrlabel add/del properties ([ea07616](https://github.com/scop/bash-completion/commit/ea076166e9a5cce9d22a27e63f95bbf00be9b894))
-* **ip:** Complete ip delete with type correctly ([f3a9be3](https://github.com/scop/bash-completion/commit/f3a9be3e2f6eaf0d94bb66220fd02cf0e3c76481))
-* **ip:** Complete more variations of subcommands ([c8920c5](https://github.com/scop/bash-completion/commit/c8920c57f83199a14230485cc44b426f028acafb))
-* **ip:** Complete netns attach subcommand ([bfb1de6](https://github.com/scop/bash-completion/commit/bfb1de64a53d1eba749c9921cea3809460cd2319))
-* **ip:** Complete only relevant addrlabel subcmds ([05147f1](https://github.com/scop/bash-completion/commit/05147f19d3d04040fa8dacbd9e1705bfc1432073))
-* **ip:** Keep completing after -netns name ([1a5df4f](https://github.com/scop/bash-completion/commit/1a5df4fe22eb374424b18e7db27b8446e919f4b2))
-* **ip:** Quote all instantiation of ip as "$1" ([ef25163](https://github.com/scop/bash-completion/commit/ef25163e6bd9095e528b57d44cb31d32f0321bb9))
-* **ip:** Quote network namespace names ([216734b](https://github.com/scop/bash-completion/commit/216734bed7ba02655128bf1dbc2f184420ad69ef))
-* **Makefile:** include api-and-naming.md in dist ([fdd8048](https://github.com/scop/bash-completion/commit/fdd80487ba6944e639baf32ba991f8665840728d))
-
 ## [2.14.0](https://github.com/scop/bash-completion/compare/2.13.0...2.14.0) (2024-05-09)
 
 
@@ -72,6 +41,37 @@
 * **ssh-keygen:** suggest -O arg completions depending on mode ([b49ab1d](https://github.com/scop/bash-completion/commit/b49ab1d9f5515d12920ddb1548790fa0bf78d0b1))
 * use -- to pass arbitrary cmdnames to `_comp_load` ([3c1d9bc](https://github.com/scop/bash-completion/commit/3c1d9bc3f5432dee7de0935e8a4b6bf66c2fad77))
 * use `pathcmd=$(type -P -- "$1")` for arbitrary cmds ([8795ca9](https://github.com/scop/bash-completion/commit/8795ca99f3eb147e26d49f06e535f0ce64b4d162))
+
+## [2.13.0](https://github.com/scop/bash-completion/compare/2.12.0...2.13.0) (2024-04-03)
+
+
+### Features
+
+* **curl:** Complete protocols for --proto-default ([7051379](https://github.com/scop/bash-completion/commit/7051379e448147407c3fe43c89872dafb76ebb27))
+* **ip:** Add completion for netconf subcommand ([03a10ff](https://github.com/scop/bash-completion/commit/03a10ff63226782e61dae4407138c3240ff0c7c2))
+* **ip:** Complete commands for netns exec ([1f03796](https://github.com/scop/bash-completion/commit/1f03796cd930ddad6207d46814da820674f16edc))
+* **ip:** Complete help for unknown subcommands ([21f7e32](https://github.com/scop/bash-completion/commit/21f7e32f9009c2064d1659668425b6b6ccb537bd))
+* **ip:** Complete ip link property ([efa663c](https://github.com/scop/bash-completion/commit/efa663cd0dd63d54fd2d2987ee66fb954ccf4a86))
+* **ip:** Complete link types for address show ([ca5ea03](https://github.com/scop/bash-completion/commit/ca5ea037e2ec1b0b5ec4d31295df88125d51b43e))
+* **ip:** Complete neigh show and flush ([c7c3c03](https://github.com/scop/bash-completion/commit/c7c3c039bf5a462ea577e8fcc92ebd94d6afad49))
+* **ip:** Complete stats subcommand ([cd73e8c](https://github.com/scop/bash-completion/commit/cd73e8c1689e3e014c4a75d5101ee3d932013120))
+* **ip:** Create function to get link types ([8e60245](https://github.com/scop/bash-completion/commit/8e60245c7531e1615dc96b032035bb4f59972f4a))
+* **rg:** add fallback 3rd party completion loader ([7e4cc2f](https://github.com/scop/bash-completion/commit/7e4cc2fb199f1c88bd9a358a157fe06327fc2b28))
+* **xmllint,xmlwf:** also suggest *.rss files ([a89cde2](https://github.com/scop/bash-completion/commit/a89cde2216b1634521b4a264b2dbc5cda7522061))
+
+
+### Bug Fixes
+
+* **available_interfaces:** fix regression of unwanted trailing colons ([c2f83e0](https://github.com/scop/bash-completion/commit/c2f83e0436208ef2bfa9c762bc28ff6374ba0c73))
+* **ip:** Complete addrlabel add/del properties ([ea07616](https://github.com/scop/bash-completion/commit/ea076166e9a5cce9d22a27e63f95bbf00be9b894))
+* **ip:** Complete ip delete with type correctly ([f3a9be3](https://github.com/scop/bash-completion/commit/f3a9be3e2f6eaf0d94bb66220fd02cf0e3c76481))
+* **ip:** Complete more variations of subcommands ([c8920c5](https://github.com/scop/bash-completion/commit/c8920c57f83199a14230485cc44b426f028acafb))
+* **ip:** Complete netns attach subcommand ([bfb1de6](https://github.com/scop/bash-completion/commit/bfb1de64a53d1eba749c9921cea3809460cd2319))
+* **ip:** Complete only relevant addrlabel subcmds ([05147f1](https://github.com/scop/bash-completion/commit/05147f19d3d04040fa8dacbd9e1705bfc1432073))
+* **ip:** Keep completing after -netns name ([1a5df4f](https://github.com/scop/bash-completion/commit/1a5df4fe22eb374424b18e7db27b8446e919f4b2))
+* **ip:** Quote all instantiation of ip as "$1" ([ef25163](https://github.com/scop/bash-completion/commit/ef25163e6bd9095e528b57d44cb31d32f0321bb9))
+* **ip:** Quote network namespace names ([216734b](https://github.com/scop/bash-completion/commit/216734bed7ba02655128bf1dbc2f184420ad69ef))
+* **Makefile:** include api-and-naming.md in dist ([fdd8048](https://github.com/scop/bash-completion/commit/fdd80487ba6944e639baf32ba991f8665840728d))
 
 ## [2.12.0](https://github.com/scop/bash-completion/compare/v2.11.0...2.12.0) (2024-02-21)
 
