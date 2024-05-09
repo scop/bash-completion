@@ -1,3 +1,47 @@
+## [2.14.0](https://github.com/scop/bash-completion/compare/2.13.0...2.14.0) (2024-05-09)
+
+
+### Features
+
+* **bao:** add 3rd party fallback completion loader ([af7fbb9](https://github.com/scop/bash-completion/commit/af7fbb97b470abce4025144fe4676c38cf4514d4))
+* **cryptsetup:** complete --header with filenames ([4c9fc87](https://github.com/scop/bash-completion/commit/4c9fc87975bd2dc04a6851017d9a71116ec1e44f))
+* **dlv:** add 3rd party fallback completion loader ([eefe71d](https://github.com/scop/bash-completion/commit/eefe71d8681d0735abc541cd0b7d2c7f9c535212))
+* **env:** complete commands and variable assignments ([5c75fa3](https://github.com/scop/bash-completion/commit/5c75fa332b5f86863f14c2ef45cdc8732c9a2c35))
+* **env:** treat `-*` as the command name after `-` and `--` ([0cd2883](https://github.com/scop/bash-completion/commit/0cd2883ca17e65a86fe81c650cea869f9fc70839))
+* **env:** treat `-*` as the command name after assignments ([71b7fb2](https://github.com/scop/bash-completion/commit/71b7fb2bc6fd9eef901e959aaf089419cc6f74a4))
+* **gup:** add 3rd party fallback completion loader (&gt;= 0.25.0) ([1641f1a](https://github.com/scop/bash-completion/commit/1641f1a3043e3a378b4dd08a0f07240dd1d56548))
+* **incus:** add 3rd party fallback completion loader ([7108d9c](https://github.com/scop/bash-completion/commit/7108d9ca84a2617ae36e88181d39aeeabe3225dd))
+* **ip:** Complete 'route get' options ([12fbdb1](https://github.com/scop/bash-completion/commit/12fbdb163b9ffabb5f673c910a98edc8eaa6ac65))
+* **ip:** Complete addr add/change/replace options ([8262664](https://github.com/scop/bash-completion/commit/82626648c75406509187d3775b25430da6347fea))
+* **ip:** Complete ip route list options ([43beafc](https://github.com/scop/bash-completion/commit/43beafcfde8f6c8630ad9197ffbae76bfae010a5))
+* **ip:** Complete link afstats command ([6721346](https://github.com/scop/bash-completion/commit/672134688efceb71dc58c1c00463f8c38a4b0477))
+* **ip:** Complete neigh add, del, change, replace ([ba80203](https://github.com/scop/bash-completion/commit/ba8020349c965e92e25ae66fc1f8eceda50bc450))
+* **ip:** Complete route save/showdump ([606f650](https://github.com/scop/bash-completion/commit/606f6509ddff9c30bb8b4971fb16a90fa39e4dfe))
+* **iperf:** --tos/-S argument completion ([d2f59bb](https://github.com/scop/bash-completion/commit/d2f59bb6fa55e2f4becd21bdd21ff75fe627ad38))
+* **ssh-copy-id:** (non-)complete args to `-t` and `-F` ([53fdce4](https://github.com/scop/bash-completion/commit/53fdce4bd972a71dba3e8e5be05eadb443ec93f3))
+* **ssh-keygen:** complete -r/-Y specific -O args ([d6977fc](https://github.com/scop/bash-completion/commit/d6977fcd43302c8b3820fe5f90ce56c31db6e5ad))
+* **ssh-keyscan:** complete -O argument ([39ea543](https://github.com/scop/bash-completion/commit/39ea5435abfc4b13445bb0eec086e246e3cadb38))
+* **tofu:** add 3rd party fallback completion loader ([4edd9a2](https://github.com/scop/bash-completion/commit/4edd9a2bde503d3897eb1906275d6509a3fafc97))
+* **zarf:** add 3rd party fallback completion loader ([032f0f0](https://github.com/scop/bash-completion/commit/032f0f0f35b53856c3be642bb3101a4d01c81aee))
+
+
+### Bug Fixes
+
+* **_comp_{compgen,xfunc}:** use `declare -F --` for arbitrary funcs ([8998491](https://github.com/scop/bash-completion/commit/899849127707f6d616d5312c0efab0092b8caea8))
+* **_comp_{load,realcommand}:** handle option-like command name ([883946d](https://github.com/scop/bash-completion/commit/883946d84d13d7947eb0c21a536bd947b3dbc31a))
+* **available_interfaces:** strip only trailing colon from entries ([a452aee](https://github.com/scop/bash-completion/commit/a452aee8fb58720ecfadbdaad95277ac9d9072ac))
+* **bash_completion,conftest:** use `complete -p --` for arbitrary cmds ([dafd338](https://github.com/scop/bash-completion/commit/dafd3382e019cf90156cc6abc4266a82ab4ebe5f))
+* **fio:** engines completion ([27a0ef8](https://github.com/scop/bash-completion/commit/27a0ef80a2dbd84d8a0d2f90945cc66577149726))
+* **ip:** Complete link change as well as set ([956bd5d](https://github.com/scop/bash-completion/commit/956bd5dfd26f40ba23d1708bb15174d18b142087))
+* **ip:** Don't stop at proxy and nomaster in neigh ([d58ea76](https://github.com/scop/bash-completion/commit/d58ea763364f234ed90e8152f36b99f02e82ec84))
+* **scp remote_files:** do not filter generated paths with "$cur" ([bc812df](https://github.com/scop/bash-completion/commit/bc812dff7246e5186c7ae752081605787942f8f9))
+* **scp remote_files:** localize variable `cur` ([34f7d0c](https://github.com/scop/bash-completion/commit/34f7d0c321977016e3191cb7e9ab7ebd1a4083a0))
+* **ssh-keygen:** handling of bundled short options ([18e436d](https://github.com/scop/bash-completion/commit/18e436d0a0a25809bc1c8e6457aaa78a1667fa51))
+* **ssh-keygen:** make work with custom IFS ([b71340b](https://github.com/scop/bash-completion/commit/b71340bb411fb5d8ddb0c96836e484ace7eeb8f3))
+* **ssh-keygen:** suggest -O arg completions depending on mode ([b49ab1d](https://github.com/scop/bash-completion/commit/b49ab1d9f5515d12920ddb1548790fa0bf78d0b1))
+* use -- to pass arbitrary cmdnames to `_comp_load` ([3c1d9bc](https://github.com/scop/bash-completion/commit/3c1d9bc3f5432dee7de0935e8a4b6bf66c2fad77))
+* use `pathcmd=$(type -P -- "$1")` for arbitrary cmds ([8795ca9](https://github.com/scop/bash-completion/commit/8795ca99f3eb147e26d49f06e535f0ce64b4d162))
+
 ## [2.13.0](https://github.com/scop/bash-completion/compare/2.12.0...2.13.0) (2024-04-03)
 
 
