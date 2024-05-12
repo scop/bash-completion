@@ -398,6 +398,7 @@ bashcomp_DATA = 2to3 \
 		screen \
 		scrub \
 		secret-tool \
+		set \
 		sh \
 		sha256sum \
 		shellcheck \
