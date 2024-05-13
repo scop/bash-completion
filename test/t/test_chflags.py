@@ -7,14 +7,13 @@ class TestChflags:
         assert completion
 
     @pytest.mark.complete("chflags -")
-    def test_basic(self, completion):
+    def test_options(self, completion):
         assert completion and "-P" not in completion
 
     @pytest.mark.complete("chflags -R -")
-    def test_basic(self, completion):
+    def test_options_after_R(self, completion):
         assert "-P" in completion
 
     @pytest.mark.complete("chflags -v sappend ")
-    def test_basic(self, completion):
+    def test_first_word(self, completion):
         assert completion
-
