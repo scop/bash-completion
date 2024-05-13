@@ -208,13 +208,13 @@ _comp_uniq()
 }
 
 # Obtain the largest index
-# @var[out] ret
+# @var[out] REPLY
 # @version bash-4.3
 _comp_last_index()
 {
     local -n _comp_last_index__array=$1
     local -a _comp_last_index__indices=("${!_comp_last_index__array[@]}")
-    ret=${_comp_last_index__indices[*]: -1}
+    REPLY=${_comp_last_index__indices[*]: -1}
 }
 
 # @version bash-4.3
@@ -251,7 +251,7 @@ _comp_xfunc_ARRAY_reverse()
 #
 #   -l     Get the last index of matching elements.
 #
-# @var[out] ret
+# @var[out] REPLY
 # @version bash-4.3
 _comp_index_of()
 {
@@ -291,7 +291,7 @@ _comp_index_of()
     fi
     [[ $_old_nocasematch ]] && shopt -s nocasematch
 
-    ret=-1
+    REPLY=-1
 
     local -n _array=$1
     if ((${#_array[@]})); then
@@ -306,7 +306,7 @@ _comp_index_of()
             _comp_xfunc_ARRAY__predicate "${_array[_i]}"
             case $? in
                 0)
-                    ret=$_i
+                    REPLY=$_i
                     return 0
                     ;;
                 1) continue ;;
