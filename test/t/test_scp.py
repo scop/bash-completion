@@ -97,5 +97,5 @@ class TestScp:
         assert not completion
 
     @pytest.mark.complete(f"scp {LIVE_HOST}:spaces", sleep_after_tab=2)
-    def test_remote_path_with_spaces(self, completion):
+    def test_remote_path_with_spaces(self, live_pwd, completion):
         assert completion == r"\\\ in\\\ filename.txt"
