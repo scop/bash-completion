@@ -17,7 +17,7 @@ class TestUnitCompgenXinetdServices:
     def test_basic(self, bash):
         output = assert_bash_exec(
             bash,
-            "foo() { local _comp__test_xinetd_dir=$PWD/shared/bin; unset -v COMPREPLY; "
+            "foo() { local _comp__test_xinetd_dir=$PWD/_comp_compgen_xinetd_services/xinetd.d; unset -v COMPREPLY; "
             '_comp_compgen_xinetd_services; printf "%s\\n" "${COMPREPLY[@]}"; }; foo; unset -f foo',
             want_output=True,
         )
