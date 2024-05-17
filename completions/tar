@@ -203,9 +203,11 @@ _comp_cmd_tar__preparse_cmdline()
 
     for i in "$@"; do
         case "$i" in
-            --delete | --test-label)
+            --delete | --test-label | --catenate | --concatenate | --extract | --get | --update | --list | --append | --create)
                 tar_mode=${i:2:100}
-                tar_mode_arg=$i
+                # FIXME: We don't set $tar_mode_arg since it's used for combined
+                #        single letter options, but that means we don't handle
+                #        compression formats.
                 break
                 ;;
             --*)
@@ -236,7 +238,7 @@ _comp_cmd_tar__file_option()
     local ext="$1"
 
     case "$tar_mode" in
-        c)
+        c | create)
             # no need to advise user to re-write existing tarball
             _comp_compgen_filedir -d
             ;;
@@ -391,7 +393,7 @@ _comp_cmd_tar__adjust_PREV_from_old_option()
 _comp_cmd_tar__extract_like_mode()
 {
     local i
-    for i in x d t delete; do
+    for i in x d t delete extract get list; do
         [[ $tar_mode == "$i" ]] && return 0
     done
     return 1
@@ -455,7 +457,7 @@ _comp_cmd_tar__detect_ext()
 
     case "$tar_mode_arg" in
         --*)
-            # Should never happen?
+            # FIXME: get correct extensions for long options (gnu style)
             ;;
         ?(-)*[cr]*f)
             ext='@(tar|gem|spkg|cbt|xpbs)'
@@ -490,7 +492,7 @@ _comp_cmd_tar__gnu()
         tar_mode tar_mode_arg old_opt_progress="" \
         old_opt_used="" old_opt_parsed=()
 
-    # Main mode, e.g. -x or -c (extract/creation)
+    # Main mode, e.g. "x" or "c" or the long forms "extract" or "create"
     local tar_mode=none
 
     # The mode argument, e.g. -cpf or -c
@@ -684,8 +686,6 @@ _comp_cmd_tar__posix()
     local cur prev words cword was_split comp_args
 
     _comp_initialize -s -- "$@" || return
-
-    tar_mode=none
 
     # relatively compatible modes are {c,t,x}
     # relatively compatible options {b,f,m,v,w}
