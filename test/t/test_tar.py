@@ -122,4 +122,9 @@ class TestTar:
     def test_23(self, completion):
         assert completion == "archive.tar.xz dir/ dir2/ escape.tar".split()
 
+    # Test detection of file type by extension, J is for .xz
+    @pytest.mark.complete("tar xJf ", cwd="tar")
+    def test_24(self, completion):
+        assert completion == "archive.tar.xz dir/ dir2/".split()
+
     # TODO: "tar tf escape.tar a/b"
