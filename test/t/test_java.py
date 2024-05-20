@@ -19,32 +19,40 @@ class TestJava:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.complete("java ")
+    @pytest.mark.complete("java ", cwd="java")
     def test_2(self, completion, can_list_jar):
         if can_list_jar:
-            assert completion == "b bashcomp.jarred c. toplevel".split()
+            assert (
+                completion
+                == "JEP330.java a/ b bashcomp.jarred c. toplevel".split()
+            )
         else:
-            assert completion == "b c.".split()
+            assert completion == "JEP330.java a/ b c.".split()
 
-    @pytest.mark.complete("java -classpath java/bashcomp.jar ")
+    @pytest.mark.complete("java -classpath bashcomp.jar ", cwd="java")
     def test_3(self, completion, can_list_jar):
         if can_list_jar:
-            assert completion == "bashcomp.jarred toplevel".split()
+            assert (
+                completion == "JEP330.java a/ bashcomp.jarred toplevel".split()
+            )
         else:
-            assert not completion
+            assert completion == "JEP330.java a/".split()
 
-    @pytest.mark.complete("java -cp java/bashcomp.jar:java/a/c ")
+    @pytest.mark.complete("java -cp bashcomp.jar:a/c ", cwd="java")
     def test_4(self, completion, can_list_jar):
         if can_list_jar:
-            assert completion == "bashcomp.jarred d toplevel".split()
+            assert (
+                completion
+                == "JEP330.java a/ bashcomp.jarred d toplevel".split()
+            )
         else:
-            assert completion == ["d"]
+            assert completion == "JEP330.java a/ d".split()
 
-    @pytest.mark.complete("java -cp '' ")
+    @pytest.mark.complete("java -cp '' ", cwd="java")
     def test_5(self, completion):
-        assert not completion
+        assert completion == "JEP330.java a/".split()
 
-    @pytest.mark.complete("java -jar java/")
+    @pytest.mark.complete("java -jar ", cwd="java")
     def test_6(self, completion):
         assert completion == "a/ bashcomp.jar bashcomp.war".split()
 
