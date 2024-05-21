@@ -104,10 +104,11 @@ tracing on in it before doing anything else there.
    have to disable completion for that command in order to complete on
    the files that I need to?**
 
-A. No. Use `M-/` to (in the words of the bash man page) attempt file
+A. No. If needed just once in a while,
+   use `M-/` to (in the words of the bash man page) attempt file
    name completion on the text to the left of the cursor. This will
    circumvent any file type restrictions put in place by the bash
-   completion code.
+   completion code. If needed more regularly, see the next question:
 
 **Q. How can I override a completion shipped by bash-completion?**
 
