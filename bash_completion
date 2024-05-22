@@ -2542,7 +2542,8 @@ _comp__included_ssh_config_files()
     # https://github.com/openssh/openssh-portable/blob/5ec5504f1d328d5bfa64280cd617c3efec4f78f3/readconf.c#L2240
     local max_depth=16
     while ((${#included[@]} > 0 && depth++ < max_depth)); do
-        _comp_split include_files "$(command sed -ne 's/^[[:blank:]]*[Ii][Nn][Cc][Ll][Uu][Dd][Ee][[:blank:]]\(.*\)$/\1/p' "${included[@]}")" || return
+        _comp_split include_files "$(command sed -ne 's/^[[:blank:]]*[Ii][Nn][Cc][Ll][Uu][Dd][Ee][[:blank:]]*\([^#]*\).*$/\1/p' "${included[@]}")" || return
+
         included=()
         for i in "${include_files[@]}"; do
             if [[ $i != [~/]* ]]; then
