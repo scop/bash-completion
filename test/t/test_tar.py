@@ -127,4 +127,9 @@ class TestTar:
     def test_24(self, completion):
         assert completion == "archive.tar.xz dir/ dir2/".split()
 
+    # Test compression detection of gnu style options
+    @pytest.mark.complete("tar --extract --xz --file ", cwd="tar")
+    def test_25(self, completion):
+        assert completion == "archive.tar.xz dir/ dir2/".split()
+
     # TODO: "tar tf escape.tar a/b"
