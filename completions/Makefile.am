@@ -328,7 +328,6 @@ bashcomp_DATA = 2to3 \
 		pkgadd \
 		pkgrm \
 		pkgtool \
-		pkgutil \
 		plague-client \
 		pm-hibernate \
 		pm-is-supported \
@@ -502,6 +501,11 @@ bashcomp_DATA = 2to3 \
 		yum-arch \
 		zopfli \
 		zopflipng
+
+
+if SOLARIS
+bashcomp_DATA += pkgutil
+endif
 
 EXTRA_DIST = $(bashcomp_DATA)
 

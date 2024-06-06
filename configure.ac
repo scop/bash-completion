@@ -11,6 +11,17 @@ AC_ARG_WITH([pytest],[  --with-pytest=executable],[PYTEST="$withval"])
 if test "x$PYTEST" = x; then
     AC_CHECK_PROGS([PYTEST],[pytest pytest-3],[pytest])
 fi
+
+AC_CANONICAL_HOST
+
+build_solaris=
+case ${host_os} in
+    *solaris*)
+        build_solaris=yes ;;
+esac
+
+AM_CONDITIONAL([SOLARIS], [test "${build_solaris}" = yes])
+
 AC_CONFIG_FILES([
 Makefile
 completions/Makefile
