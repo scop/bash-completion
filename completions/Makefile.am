@@ -401,6 +401,7 @@ bashcomp_DATA = 2to3 \
 		smartctl \
 		smbclient \
 		snownews \
+		_sops \
 		sqlite3 \
 		ss \
 		ssh \

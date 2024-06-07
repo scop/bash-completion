@@ -38,6 +38,7 @@ EXTRA_DIST = \
 	runuser \
 	rustup \
 	slackpkg \
+	sops \
 	su \
 	svn \
 	svnadmin \
