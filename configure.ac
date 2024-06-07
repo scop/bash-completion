@@ -14,12 +14,22 @@ fi
 
 AC_CANONICAL_HOST
 
+build_bsd=
+build_freebsd=
 build_solaris=
 case ${host_os} in
+    *bsd*)
+        build_bsd=yes
+        case ${host_os} in
+            *freebsd*)
+                build_freebsd=yes ;;
+        esac ;;
     *solaris*)
         build_solaris=yes ;;
 esac
 
+AM_CONDITIONAL([BSD], [test "${build_bsd}" = yes])
+AM_CONDITIONAL([FREEBSD], [test "${build_freebsd}" = yes])
 AM_CONDITIONAL([SOLARIS], [test "${build_solaris}" = yes])
 
 AC_CONFIG_FILES([
