@@ -120,7 +120,6 @@ bashcomp_DATA = 2to3 \
 		firefox \
 		flake8 \
 		_flamegraph \
-		freebsd-update \
 		freeciv \
 		freeciv-server \
 		function \
@@ -215,8 +214,6 @@ bashcomp_DATA = 2to3 \
 		_keyring \
 		kill \
 		killall \
-		kldload \
-		kldunload \
 		koji \
 		_kontena \
 		ktutil \
@@ -324,7 +321,6 @@ bashcomp_DATA = 2to3 \
 		_pipenv \
 		pkg-config \
 		pkg-get \
-		pkg_delete \
 		pkgadd \
 		pkgrm \
 		pkgtool \
@@ -333,9 +329,6 @@ bashcomp_DATA = 2to3 \
 		pm-is-supported \
 		pm-powersave \
 		pngfix \
-		portinstall \
-		portsnap \
-		portupgrade \
 		postcat \
 		postconf \
 		postfix \
@@ -506,6 +499,21 @@ bashcomp_DATA = 2to3 \
 if SOLARIS
 bashcomp_DATA += pkgutil
 endif
+
+if BSD
+bashcomp_DATA += pkg_delete
+endif
+
+if FREEBSD
+bashcomp_DATA += \
+		freebsd-update \
+		kldload \
+		kldunload \
+		portinstall \
+		portsnap \
+		portupgrade
+endif
+
 
 EXTRA_DIST = $(bashcomp_DATA)
 
@@ -770,8 +778,6 @@ CLEANFILES = \
 	ping4 \
 	ping6 \
 	_pip3 \
-	pkg_deinstall \
-	pkg_info \
 	pkgconf \
 	pkill \
 	plzip \
@@ -1159,8 +1165,10 @@ symlinks: $(DATA)
 		_black _blackd _flask _httpx
 	$(ss) pkg-config \
 		pkgconf
+if BSD
 	$(ss) pkg_delete \
 		pkg_deinstall pkg_info
+endif
 	$(ss) pgrep \
 		pkill
 	$(ss) pm-hibernate \
