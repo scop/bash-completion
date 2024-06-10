@@ -320,7 +320,7 @@ _comp_upvars()
 # interference from user's shell options/settings or environment variables.
 # @param $1 array_name  Array name
 #   The array name should not start with an underscore "_", which is internally
-#   used.  The array name should not be "GLOBIGNORE".
+#   used.  The array name should not be "GLOBIGNORE" or "GLOBSORT".
 # @param $2 pattern     Pattern string to be evaluated.
 #   This pattern string will be evaluated using "eval", so brace expansions,
 #   parameter expansions, command substitutions, and other expansions will be
@@ -335,7 +335,7 @@ _comp_expand_glob()
         printf 'bash-completion: %s: unexpected number of arguments\n' "$FUNCNAME" >&2
         printf 'usage: %s ARRAY_NAME PATTERN\n' "$FUNCNAME" >&2
         return 2
-    elif [[ $1 == @(GLOBIGNORE|_*|*[^_a-zA-Z0-9]*|[0-9]*|'') ]]; then
+    elif [[ $1 == @(GLOBIGNORE|GLOBSORT|_*|*[^_a-zA-Z0-9]*|[0-9]*|'') ]]; then
         printf 'bash-completion: %s: invalid array name "%s"\n' "$FUNCNAME" "$1" >&2
         return 2
     fi
@@ -346,8 +346,9 @@ _comp_expand_glob()
     shopt -s nullglob
     shopt -u failglob dotglob
 
-    # Also the user's GLOBIGNORE may affect the result of pathname expansions.
-    local GLOBIGNORE=
+    # Also the user's GLOBIGNORE and GLOBSORT (bash >= 5.3) may affect the
+    # result of pathname expansions.
+    local GLOBIGNORE="" GLOBSORT=name
 
     eval -- "$1=()" # a fallback in case that the next line fails.
     eval -- "$1=($2)"
