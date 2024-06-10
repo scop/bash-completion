@@ -3325,12 +3325,14 @@ else
 fi
 for _comp__init_compat_dir in "${_comp__init_compat_dirs[@]}"; do
     [[ -d $_comp__init_compat_dir && -r $_comp__init_compat_dir && -x $_comp__init_compat_dir ]] || continue
-    for _comp__init_file in "$_comp__init_compat_dir"/*; do
+    _comp_expand_glob _comp__init_files '"$_comp__init_compat_dir"/*'
+    # shellcheck disable=SC2154
+    for _comp__init_file in "${_comp__init_files[@]}"; do
         [[ ${_comp__init_file##*/} != @($_comp_backup_glob|Makefile*|${BASH_COMPLETION_COMPAT_IGNORE-}) &&
             -f $_comp__init_file && -r $_comp__init_file ]] && . "$_comp__init_file"
     done
 done
-unset -v _comp__init_compat_dirs _comp__init_compat_dir _comp__init_file
+unset -v _comp__init_compat_dirs _comp__init_compat_dir _comp__init_files _comp__init_file
 
 # source user completion file
 #
