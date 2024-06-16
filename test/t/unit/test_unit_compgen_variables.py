@@ -4,7 +4,7 @@ from conftest import assert_bash_exec
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^[+-](___var|assoc[12])=")
-class TestUnitVariables:
+class TestUnitCompgenVariables:
     @pytest.fixture(scope="class")
     def functions(self, request, bash):
         assert_bash_exec(bash, "unset assoc1 && declare -A assoc1=([idx]=1)")

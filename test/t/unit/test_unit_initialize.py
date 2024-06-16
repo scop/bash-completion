@@ -8,7 +8,7 @@ from conftest import TestUnitBase, assert_bash_exec, assert_complete
     ignore_env=r"^[+-](COMP(_(WORDS|CWORD|LINE|POINT)|REPLY)|"
     r"cur|prev|cword|words)=|^\+declare -f _cmd1$",
 )
-class TestUnitInitCompletion(TestUnitBase):
+class TestUnitInitialize(TestUnitBase):
     def test_1(self, bash):
         """Test environment non-pollution, detected at teardown."""
         assert_bash_exec(

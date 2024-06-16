@@ -7,7 +7,7 @@ from conftest import TestUnitBase, assert_bash_exec
     cmd=None,
     ignore_env=r"^(\+(words|cword|cur|prev)|[+-]COMP_(WORDS|CWORD|LINE|POINT))=",
 )
-class TestUnitGetCompWordsByRef(TestUnitBase):
+class TestUnitGetCompWords(TestUnitBase):
     def _test(self, bash, *args, **kwargs):
         assert_bash_exec(bash, "unset cur prev")
         output = self._test_unit(
