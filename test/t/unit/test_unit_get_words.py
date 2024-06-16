@@ -11,7 +11,7 @@ class TestUnitGetCompWordsByRef(TestUnitBase):
     def _test(self, bash, *args, **kwargs):
         assert_bash_exec(bash, "unset cur prev")
         output = self._test_unit(
-            "_comp_get_words %s cur prev; echo $cur,${prev-}",
+            '_comp_get_words %s cur prev; echo "$cur,${prev-}"',
             bash,
             *args,
             **kwargs,
