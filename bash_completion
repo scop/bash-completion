@@ -320,7 +320,7 @@ _comp_upvars()
 # interference from user's shell options/settings or environment variables.
 # @param $1 array_name  Array name
 #   The array name should not start with an underscore "_", which is internally
-#   used.  The array name should not be "GLOBIGNORE".
+#   used.  The array name should not be "GLOBIGNORE" or "GLOBSORT".
 # @param $2 pattern     Pattern string to be evaluated.
 #   This pattern string will be evaluated using "eval", so brace expansions,
 #   parameter expansions, command substitutions, and other expansions will be
@@ -335,7 +335,7 @@ _comp_expand_glob()
         printf 'bash-completion: %s: unexpected number of arguments\n' "$FUNCNAME" >&2
         printf 'usage: %s ARRAY_NAME PATTERN\n' "$FUNCNAME" >&2
         return 2
-    elif [[ $1 == @(GLOBIGNORE|_*|*[^_a-zA-Z0-9]*|[0-9]*|'') ]]; then
+    elif [[ $1 == @(GLOBIGNORE|GLOBSORT|_*|*[^_a-zA-Z0-9]*|[0-9]*|'') ]]; then
         printf 'bash-completion: %s: invalid array name "%s"\n' "$FUNCNAME" "$1" >&2
         return 2
     fi
@@ -346,8 +346,13 @@ _comp_expand_glob()
     shopt -s nullglob
     shopt -u failglob dotglob
 
-    # Also the user's GLOBIGNORE may affect the result of pathname expansions.
-    local GLOBIGNORE=
+    # Also the user's GLOBIGNORE and GLOBSORT (bash >= 5.3) may affect the
+    # result of pathname expansions.
+    local GLOBIGNORE="" GLOBSORT=name
+
+    # To canonicalize the sorting order of the generated paths, we set
+    # LC_COLLATE=C and unset LC_ALL while preserving LC_CTYPE.
+    local LC_COLLATE=C LC_CTYPE=${LC_ALL:-${LC_CTYPE:-${LANG-}}} LC_ALL=
 
     eval -- "$1=()" # a fallback in case that the next line fails.
     eval -- "$1=($2)"
@@ -3298,45 +3303,65 @@ else
     }
 fi
 
-# source compat completion directory definitions
-_comp__init_compat_dirs=()
-if [[ ${BASH_COMPLETION_COMPAT_DIR-} ]]; then
-    _comp__init_compat_dirs+=("$BASH_COMPLETION_COMPAT_DIR")
-else
-    _comp__init_compat_dirs+=(/etc/bash_completion.d)
-    # Similarly as for the "completions" dir, look up from relative to
-    # bash_completion, primarily for installed-with-prefix and
-    # run-in-place-from-git-clone setups.  Notably we do it after the system
-    # location here, in order to prefer in-tree variables and functions.
-    if [[ ${BASH_SOURCE%/*} == */share/bash-completion ]]; then
-        _comp__init_compat_dir=${BASH_SOURCE%/share/bash-completion/*}/etc/bash_completion.d
-    elif [[ $BASH_SOURCE == */* ]]; then
-        _comp__init_compat_dir="${BASH_SOURCE%/*}/bash_completion.d"
+# List custom/extra completion files to source on the startup
+## @param $1 path Path to "bash_completion"
+## @var[out] _comp__init_startup_configs
+_comp__init_collect_startup_configs()
+{
+    local base_path=${1:-${BASH_SOURCE[1]}}
+    _comp__init_startup_configs=()
+
+    # source compat completion directory definitions
+    local -a compat_dirs=()
+    local compat_dir
+    if [[ ${BASH_COMPLETION_COMPAT_DIR-} ]]; then
+        compat_dirs+=("$BASH_COMPLETION_COMPAT_DIR")
     else
-        _comp__init_compat_dir=./bash_completion.d
+        compat_dirs+=(/etc/bash_completion.d)
+        # Similarly as for the "completions" dir, look up from relative to
+        # bash_completion, primarily for installed-with-prefix and
+        # run-in-place-from-git-clone setups.  Notably we do it after the
+        # system location here, in order to prefer in-tree variables and
+        # functions.
+        if [[ ${base_path%/*} == */share/bash-completion ]]; then
+            compat_dir=${base_path%/share/bash-completion/*}/etc/bash_completion.d
+        elif [[ $base_path == */* ]]; then
+            compat_dir="${base_path%/*}/bash_completion.d"
+        else
+            compat_dir=./bash_completion.d
+        fi
+        [[ ${compat_dirs[0]} == "$compat_dir" ]] ||
+            compat_dirs+=("$compat_dir")
     fi
-    [[ ${_comp__init_compat_dirs[0]} == "$_comp__init_compat_dir" ]] ||
-        _comp__init_compat_dirs+=("$_comp__init_compat_dir")
-fi
-for _comp__init_compat_dir in "${_comp__init_compat_dirs[@]}"; do
-    [[ -d $_comp__init_compat_dir && -r $_comp__init_compat_dir && -x $_comp__init_compat_dir ]] || continue
-    for _comp__init_file in "$_comp__init_compat_dir"/*; do
-        [[ ${_comp__init_file##*/} != @($_comp_backup_glob|Makefile*|${BASH_COMPLETION_COMPAT_IGNORE-}) &&
-            -f $_comp__init_file && -r $_comp__init_file ]] && . "$_comp__init_file"
+    for compat_dir in "${compat_dirs[@]}"; do
+        [[ -d $compat_dir && -r $compat_dir && -x $compat_dir ]] || continue
+        local compat_files
+        _comp_expand_glob compat_files '"$compat_dir"/*'
+        local compat_file
+        for compat_file in "${compat_files[@]}"; do
+            [[ ${compat_file##*/} != @($_comp_backup_glob|Makefile*|${BASH_COMPLETION_COMPAT_IGNORE-}) &&
+                -f $compat_file && -r $compat_file ]] &&
+                _comp__init_startup_configs+=("$compat_file")
+        done
     done
+
+    # source user completion file
+    #
+    # Remark: We explicitly check that $user_completion is not '/dev/null'
+    #   since /dev/null may be a regular file in broken systems and can contain
+    #   arbitrary garbages of suppressed command outputs.
+    local user_file=${BASH_COMPLETION_USER_FILE:-~/.bash_completion}
+    [[ $user_file != "$base_path" && $user_file != /dev/null && -r $user_file && -f $user_file ]] &&
+        _comp__init_startup_configs+=("$user_file")
+
+    unset -f "$FUNCNAME"
+}
+_comp__init_collect_startup_configs "$BASH_SOURCE"
+# shellcheck disable=SC2154
+for _comp_init_startup_config in "${_comp__init_startup_configs[@]}"; do
+    . "$_comp_init_startup_config"
 done
-unset -v _comp__init_compat_dirs _comp__init_compat_dir _comp__init_file
-
-# source user completion file
-#
-# Remark: We explicitly check that $user_completion is not '/dev/null' since
-#   /dev/null may be a regular file in broken systems and can contain arbitrary
-#   garbages of suppressed command outputs.
-_comp__init_user_file=${BASH_COMPLETION_USER_FILE:-~/.bash_completion}
-[[ $_comp__init_user_file != "${BASH_SOURCE[0]}" && $_comp__init_user_file != /dev/null && -r $_comp__init_user_file && -f $_comp__init_user_file ]] &&
-    . "$_comp__init_user_file"
-unset -v _comp__init_user_file
-
+unset -v _comp__init_startup_configs _comp_init_startup_config
 unset -f have
 unset -v have
 
