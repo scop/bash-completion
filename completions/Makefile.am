@@ -896,6 +896,7 @@ CLEANFILES = \
 	_tkn \
 	_tkn-pac \
 	tightvncviewer \
+	_todoist \
 	_tofu \
 	tracepath6 \
 	_trivy \
@@ -1216,7 +1217,7 @@ endif
 	$(ss) sha256sum \
 		b2sum md5sum shasum sha1sum sha224sum sha384sum sha512sum
 	$(ss) _sops \
-		_kata-runtime
+		_kata-runtime _todoist
 	$(ss) ssh \
 		autossh scp sftp sidedoor slogin
 	$(ss) sudo \
