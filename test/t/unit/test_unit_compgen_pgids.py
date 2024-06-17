@@ -6,7 +6,7 @@ from conftest import assert_bash_exec, bash_env_saved
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+(COMPREPLY|cur)=")
-class TestUnitPgids:
+class TestUnitCompgenPgids:
     def test_smoke(self, bash):
         with bash_env_saved(bash) as bash_env:
             bash_env.write_variable("cur", "")

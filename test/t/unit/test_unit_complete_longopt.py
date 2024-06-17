@@ -6,7 +6,7 @@ from conftest import assert_bash_exec
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+COMPREPLY=")
-class TestUnitLongopt:
+class TestUnitCompleteLongopt:
     @pytest.fixture(scope="class")
     def functions(self, request, bash):
         assert_bash_exec(bash, "_grephelp() { cat _longopt/grep--help.txt; }")

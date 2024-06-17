@@ -4,7 +4,7 @@ from conftest import assert_bash_exec, in_container
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+COMPREPLY=")
-class TestUnitIpAddresses:
+class TestUnitCompgenIpAddresses:
     @pytest.fixture(scope="class")
     def functions(self, request, bash):
         assert_bash_exec(

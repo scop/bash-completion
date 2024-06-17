@@ -6,7 +6,7 @@ from conftest import TestUnitBase, assert_bash_exec
 
 
 @pytest.mark.bashcomp(cmd=None)
-class TestUnitQuote(TestUnitBase):
+class TestUnitLooksLikePath(TestUnitBase):
     @pytest.mark.parametrize(
         "thing_looks_like",
         (

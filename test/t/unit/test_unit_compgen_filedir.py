@@ -10,7 +10,7 @@ from conftest import assert_bash_exec, assert_complete
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+COMPREPLY=")
-class TestUnitFiledir:
+class TestUnitCompgenFiledir:
     @pytest.fixture(scope="class")
     def functions(self, request, bash):
         assert_bash_exec(

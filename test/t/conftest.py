@@ -665,7 +665,7 @@ class bash_env_saved:
     def set(self, name: str, value: bool):
         self._unprotect_set(name)
         if value:
-            self._safe_exec("set -u %s" % name)
+            self._safe_exec("set -o %s" % name)
         else:
             self._safe_exec("set +o %s" % name)
         self._protect_set(name)

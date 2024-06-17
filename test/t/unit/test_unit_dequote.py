@@ -154,6 +154,7 @@ class TestDequote:
 
     def test_glob_nullglob(self, bash):
         with bash_env_saved(bash) as bash_env:
+            bash_env.shopt("failglob", False)
             bash_env.shopt("nullglob", True)
             output = assert_bash_exec(
                 bash, "__tester 'non-existent-*.txt'", want_output=True
