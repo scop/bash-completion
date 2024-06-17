@@ -687,6 +687,7 @@ CLEANFILES = \
 	javac \
 	javadoc \
 	_k3s \
+	_kata-runtime \
 	_kn \
 	_kool \
 	kplayer \
@@ -1214,6 +1215,8 @@ endif
 		sbcl-mt
 	$(ss) sha256sum \
 		b2sum md5sum shasum sha1sum sha224sum sha384sum sha512sum
+	$(ss) _sops \
+		_kata-runtime
 	$(ss) ssh \
 		autossh scp sftp sidedoor slogin
 	$(ss) sudo \
