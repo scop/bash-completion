@@ -687,6 +687,7 @@ CLEANFILES = \
 	javac \
 	javadoc \
 	_k3s \
+	_kata-runtime \
 	_kn \
 	_kool \
 	kplayer \
@@ -761,6 +762,7 @@ CLEANFILES = \
 	muttng \
 	ncal \
 	neomutt \
+	_nerdctl \
 	_nfpm \
 	_nomad \
 	_npm \
@@ -895,6 +897,7 @@ CLEANFILES = \
 	_tkn \
 	_tkn-pac \
 	tightvncviewer \
+	_todoist \
 	_tofu \
 	tracepath6 \
 	_trivy \
@@ -1049,6 +1052,7 @@ symlinks: $(DATA)
 		_mmctl \
 		_moldy \
 		_multi-gitter \
+		_nerdctl \
 		_nfpm \
 		_oc \
 		_okteto \
@@ -1214,6 +1218,8 @@ endif
 		sbcl-mt
 	$(ss) sha256sum \
 		b2sum md5sum shasum sha1sum sha224sum sha384sum sha512sum
+	$(ss) _sops \
+		_kata-runtime _todoist
 	$(ss) ssh \
 		autossh scp sftp sidedoor slogin
 	$(ss) sudo \
