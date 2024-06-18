@@ -2181,15 +2181,22 @@ _comp_compgen_fstypes()
 _comp_abspath()
 {
     REPLY=$1
-    case $REPLY in
-        /*) ;;
-        ../*) REPLY=$PWD/${REPLY:3} ;;
-        *) REPLY=$PWD/$REPLY ;;
-    esac
-    while [[ $REPLY == */./* ]]; do
-        REPLY=${REPLY//\/.\//\/}
-    done
+    [[ $REPLY == /* ]] || REPLY=$PWD/$REPLY
     REPLY=${REPLY//+(\/)/\/}
+    while true; do
+        # Process "." and "..".  To avoid reducing "/../../ => /", we convert
+        # "/*/../" one by one. "/.."  at the beginning is ignored. Then, /*/../
+        # in the middle is processed.  Finally, /*/.. at the end is removed.
+        case $REPLY in
+            */./*) REPLY=${REPLY//\/.\//\/} ;;
+            */.) REPLY=${REPLY%/.} ;;
+            /..?(/*)) REPLY=${REPLY#/..} ;;
+            */+([^/])/../*) REPLY=${REPLY/\/+([^\/])\/..\//\/} ;;
+            */+([^/])/..) REPLY=${REPLY%/+([^/])/..} ;;
+            *) break ;;
+        esac
+    done
+    [[ $REPLY ]] || REPLY=/
 }
 
 # Get real command.
