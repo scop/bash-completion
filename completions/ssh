@@ -462,12 +462,30 @@ _comp_cmd_sftp()
 # shellcheck disable=SC2089
 _comp_cmd_scp__path_esc='[][(){}<>"'"'"',:;^&!$=?`\\|[:space:]]'
 
-# Complete remote files with ssh.  If the first arg is -d, complete on dirs
-# only.  Returns paths escaped with three backslashes.
+# Complete remote files with ssh. Returns paths escaped with three backslashes
+# (unless -l option is provided).
+# Options:
+#     -d  Complete on dirs only.
+#     -l  Return paths escaped with one backslash instead of three.
 # @since 2.12
 # shellcheck disable=SC2120
 _comp_xfunc_scp_compgen_remote_files()
 {
+    local _dirs_only=""
+    local _less_escaping=""
+
+    local _flag OPTIND=1 OPTARG="" OPTERR=0
+    while getopts "dl" _flag "$@"; do
+        case $_flag in
+            d) _dirs_only=set ;;
+            l) _less_escaping=set ;;
+            *)
+                echo "bash_completion: $FUNCNAME: usage error: $*" >&2
+                return 1
+                ;;
+        esac
+    done
+
     # remove backslash escape from the first colon
     local cur=${cur/\\:/:}
 
@@ -483,20 +501,25 @@ _comp_xfunc_scp_compgen_remote_files()
         _path=$(ssh -o 'Batchmode yes' "$_userhost" pwd 2>/dev/null)
     fi
 
+    local _escape_replacement='\\\\\\&'
+    if [[ $_less_escaping ]]; then
+        _escape_replacement='\\&'
+    fi
+
     local _files
-    if [[ ${1-} == -d ]]; then
+    if [[ $_dirs_only ]]; then
         # escape problematic characters; remove non-dirs
         # shellcheck disable=SC2090
         _files=$(ssh -o 'Batchmode yes' "$_userhost" \
             command ls -aF1dL "$_path*" 2>/dev/null |
-            command sed -e 's/'"$_comp_cmd_scp__path_esc"'/\\\\\\&/g' -e '/[^\/]$/d')
+            command sed -e 's/'"$_comp_cmd_scp__path_esc"'/'"$_escape_replacement"'/g' -e '/[^\/]$/d')
     else
         # escape problematic characters; remove executables, aliases, pipes
         # and sockets; add space at end of file names
         # shellcheck disable=SC2090
         _files=$(ssh -o 'Batchmode yes' "$_userhost" \
             command ls -aF1dL "$_path*" 2>/dev/null |
-            command sed -e 's/'"$_comp_cmd_scp__path_esc"'/\\\\\\&/g' -e 's/[*@|=]$//g' \
+            command sed -e 's/'"$_comp_cmd_scp__path_esc"'/'"$_escape_replacement"'/g' -e 's/[*@|=]$//g' \
                 -e 's/[^\/]$/& /g')
     fi
     _comp_compgen -R split -l -- "$_files"
