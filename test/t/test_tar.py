@@ -117,4 +117,19 @@ class TestTar:
         """Test listing escaped chars in old option."""
         assert completion == "c/"
 
+    # Test long options (gnu style)
+    @pytest.mark.complete("tar --create --file created.tar ", cwd="tar")
+    def test_23(self, completion):
+        assert completion == "archive.tar.xz dir/ dir2/ escape.tar".split()
+
+    # Test detection of file type by extension, J is for .xz
+    @pytest.mark.complete("tar xJf ", cwd="tar")
+    def test_24(self, completion):
+        assert completion == "archive.tar.xz dir/ dir2/".split()
+
+    # Test compression detection of gnu style options
+    @pytest.mark.complete("tar --extract --xz --file ", cwd="tar")
+    def test_25(self, completion):
+        assert completion == "archive.tar.xz dir/ dir2/".split()
+
     # TODO: "tar tf escape.tar a/b"
