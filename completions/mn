@@ -1,0 +1,65 @@
+# bash completion for mn                              -*- shell-script -*-
+
+_mn()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    case $prev in
+        --switch)
+             COMPREPLY=($( compgen -W 'default ivs lxbr ovs ovsbr ovsk user
+                 ' -- "$cur" ) )
+             return
+             ;;
+        --host)
+             COMPREPLY=($( compgen -W 'block random' -- "$cur" ) )
+             return
+             ;;
+        --controller)
+             COMPREPLY=($( compgen -W 'default none nox ovsc ref remote
+                 ryu' -- "$cur" ) )
+             return
+             ;;
+        --link)
+             COMPREPLY=($( compgen -W 'default ovs tc' -- "$cur" ) )
+             return
+             ;;
+        --topo)
+             COMPREPLY=($( compgen -W 'linear minimal reversed single torus
+                 tree ' -- "$cur" ) )
+             return
+             ;;
+        --test)
+             COMPREPLY=( $( compgen -W 'cli build pingall pingpair iperf
+                 all iperfudp none' -- "$cur" ) )
+             return
+             ;;
+        -v|--verbosity)
+             COMPREPLY=($( compgen -W 'info warning critical error debug
+                 output' -- "$cur" ) )
+             return
+             ;;
+        --placement)
+             COMPREPLY=($( compgen -W 'block random' -- "$cur" ) )
+             return
+             ;;
+        --custom)
+             _filedir
+             return
+             ;;
+         -h|--help|-c|--clean|--version|--listenport)
+             return
+             ;;
+    esac
+
+    COMPREPLY=( $( compgen -W '-h -c -x -i -v
+        --help --switch --host --controller --link --topo --clean --custom
+        --test --xterms --ipbase --mac --arp --verbosity --innamespace
+        --listenport --nolistenport --pre --post --pin --nat --version
+        --cluster --placement' -- "$cur" ) )
+
+    return
+} &&
+complete -F _mn mn
+
+# ex: ts=4 sw=4 et filetype=sh
