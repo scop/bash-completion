@@ -456,7 +456,21 @@ _comp_cmd_ip()
                     # TODO
                     ;;
                 show)
-                    # TODO
+                    case $prev in
+                        dev)
+                            _comp_compgen_available_interfaces
+                            ;;
+                        name)
+                            _comp_compgen_split -- "$(
+                                {
+                                    ip -c=never ntable show 2>/dev/null || ip ntable show
+                                } | command sed -ne 's/^inet6\{0,1\} //p'
+                            )"
+                            ;;
+                        *)
+                            _comp_compgen -- -W 'dev name'
+                            ;;
+                    esac
                     ;;
                 *)
                     ((cword == subcword)) &&
