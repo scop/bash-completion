@@ -20,7 +20,8 @@ class TestCurl:
 
     @pytest.mark.complete("curl --data @", cwd="shared/default/foo.d")
     def test_data_atfile(self, completion):
-        assert completion == "foo"
+        assert "@foo" in completion
+        assert "@-" in completion
 
     @pytest.mark.complete("curl --data @foo.", cwd="shared/default")
     def test_data_atfile_dir(self, completion):
