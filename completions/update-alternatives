@@ -83,7 +83,12 @@ _comp_cmd_update_alternatives()
             _comp_cmd_update_alternatives__installed
             ;;
         *)
-            _comp_compgen_help
+            _comp_compgen_help - <<<"$(LANG=C "$1" --help 2>&1 | command sed '
+                /usage:/,/^[[:space:]]*$/{
+                  s/^\([[:space:]]*usage:\)\{0,1\}[[:space:]]*[^[:space:]]*alternatives /  /
+                  s/^[[:space:]]*\[\(-.*\)\]/  \1/
+                }
+                /common options:/,$s/ --/\n --/g')"
             ;;
     esac
 } &&
