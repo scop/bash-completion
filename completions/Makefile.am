@@ -259,6 +259,7 @@ bashcomp_DATA = 2to3 \
 		_mdbook \
 		mdtool \
 		medusa \
+		mfiutil \
 		mii-diag \
 		mii-tool \
 		minicom \
