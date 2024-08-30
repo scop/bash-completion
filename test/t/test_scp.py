@@ -2,7 +2,7 @@ from itertools import chain
 
 import pytest
 
-from conftest import assert_bash_exec
+from conftest import assert_bash_exec, assert_complete
 
 LIVE_HOST = "bash_completion"
 
@@ -96,6 +96,8 @@ class TestScp:
     def test_remote_path_with_failglob(self, completion):
         assert not completion
 
-    @pytest.mark.complete(f"scp {LIVE_HOST}:spaces", sleep_after_tab=2)
-    def test_remote_path_with_spaces(self, live_pwd, completion):
+    def test_remote_path_with_spaces(self, bash):
+        assert_bash_exec(bash, "ssh() { echo 'spaces in filename.txt'; }")
+        completion = assert_complete(bash, "scp remote_host:spaces")
+        assert_bash_exec(bash, "unset -f ssh")
         assert completion == r"\\\ in\\\ filename.txt"

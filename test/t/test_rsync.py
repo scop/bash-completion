@@ -1,8 +1,6 @@
 import pytest
 
-from conftest import assert_bash_exec
-
-LIVE_HOST = "bash_completion"
+from conftest import assert_bash_exec, assert_complete
 
 
 @pytest.mark.bashcomp(ignore_env=r"^[+-]_comp_cmd_scp__path_esc=")
@@ -67,8 +65,10 @@ class TestRsync:
         else:
             raise Exception(f"Unsupported comparison result: {result}")
 
-    @pytest.mark.complete(f"rsync {LIVE_HOST}:spaces", sleep_after_tab=2)
-    def test_remote_path_with_spaces(self, completion):
+    def test_remote_path_with_spaces(self, bash):
+        assert_bash_exec(bash, "ssh() { echo 'spaces in filename.txt'; }")
+        completion = assert_complete(bash, "rsync remote_host:spaces")
+        assert_bash_exec(bash, "unset -f ssh")
         assert (
             completion == r"\ in\ filename.txt"
             or completion == r"\\\ in\\\ filename.txt"
