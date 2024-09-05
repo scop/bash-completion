@@ -2,7 +2,7 @@ from itertools import chain
 
 import pytest
 
-from conftest import assert_bash_exec, assert_complete
+from conftest import assert_bash_exec, assert_complete, bash_env_saved
 
 LIVE_HOST = "bash_completion"
 
@@ -23,7 +23,7 @@ class TestScp:
                     )
                 ),
                 # Local filenames
-                ["config", "known_hosts", r"spaced\ \ conf"],
+                ["bin/", "config", "known_hosts", r"spaced\ \ conf"],
             )
         )
         assert completion == expected
@@ -43,7 +43,7 @@ class TestScp:
                     )
                 ),
                 # Local filenames
-                ["config", "known_hosts", r"spaced\ \ conf"],
+                ["bin/", "config", "known_hosts", r"spaced\ \ conf"],
             )
         )
         assert completion == expected
@@ -101,3 +101,43 @@ class TestScp:
         completion = assert_complete(bash, "scp remote_host:spaces")
         assert_bash_exec(bash, "unset -f ssh")
         assert completion == r"\\\ in\\\ filename.txt"
+
+    def test_xfunc_remote_files(self, bash):
+        with bash_env_saved(bash) as bash_env:
+            bash_env.save_variable("COMPREPLY")
+            bash_env.write_variable(
+                "PATH",
+                "$PWD/scp/bin:$PATH",
+                quote=False,
+            )
+            bash_env.write_variable("cur", "local:shared/default/")
+            completions_regular_escape = (
+                assert_bash_exec(
+                    bash,
+                    r'_comp_compgen -x scp remote_files; printf "%s\n" "${COMPREPLY[@]}"',
+                    want_output=True,
+                )
+                .strip()
+                .splitlines()
+            )
+            completions_less_escape = (
+                assert_bash_exec(
+                    bash,
+                    r'_comp_compgen -x scp remote_files -l; printf "%s\n" "${COMPREPLY[@]}"',
+                    want_output=True,
+                )
+                .strip()
+                .splitlines()
+            )
+        assert completions_regular_escape == [
+            "shared/default/bar ",
+            r"shared/default/bar\\\ bar.d/",
+            "shared/default/foo ",
+            "shared/default/foo.d/",
+        ]
+        assert completions_less_escape == [
+            "shared/default/bar ",
+            r"shared/default/bar\ bar.d/",
+            "shared/default/foo ",
+            "shared/default/foo.d/",
+        ]
