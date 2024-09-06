@@ -1,5 +1,25 @@
 # bash completion for rsync                                -*- shell-script -*-
 
+_comp_cmd_rsync__vercomp()
+{
+    if [[ $1 == "$2" ]]; then
+        return 0
+    fi
+    local i ver1 ver2
+    _comp_split -F . ver1 "$1"
+    _comp_split -F . ver2 "$2"
+    local n=$((${#ver1[@]} >= ${#ver2[@]} ? ${#ver1[@]} : ${#ver2[@]}))
+    for ((i = 0; i < n; i++)); do
+        if ((10#${ver1[i]:-0} > 10#${ver2[i]:-0})); then
+            return 1
+        fi
+        if ((10#${ver1[i]:-0} < 10#${ver2[i]:-0})); then
+            return 2
+        fi
+    done
+    return 0
+}
+
 _comp_cmd_rsync()
 {
     local cur prev words cword was_split comp_args
@@ -81,7 +101,15 @@ _comp_cmd_rsync()
                     break
                 fi
             done
-            [[ $shell == ssh ]] && _comp_compgen -x scp remote_files
+            if [[ $shell == ssh ]]; then
+                local rsync_version=$("$1" --version 2>/dev/null | sed -n '1s/.*rsync *version \([0-9.]*\).*/\1/p')
+                _comp_cmd_rsync__vercomp "$rsync_version" "3.2.4"
+                if (($? == 2)); then
+                    _comp_compgen -x scp remote_files
+                else
+                    _comp_compgen -x scp remote_files -l
+                fi
+            fi
             ;;
         *)
             _comp_compgen_known_hosts -c -a -- "$cur"
