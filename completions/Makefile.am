@@ -395,6 +395,7 @@ bashcomp_DATA = 2to3 \
 		sha256sum \
 		shellcheck \
 		sitecopy \
+		slabtop \
 		_slackpkg \
 		slapt-get \
 		slapt-src \
