@@ -560,6 +560,7 @@ EXTRA_DIST = \
 	test_shar.py \
 	test_shellcheck.py \
 	test_sitecopy.py \
+	test_slabtop.py \
 	test_slackpkg.py \
 	test_slapt_get.py \
 	test_slapt_src.py \
