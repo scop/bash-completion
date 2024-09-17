@@ -1,0 +1,111 @@
+# duply completion                           -*- shell-script -*-
+
+_duply () {
+    COMPREPLY=()
+    local IFS=$' \n'
+    local cur=$2 prev=$3
+    local -a opts
+    # fetch duply profiles from their usual location
+    pushd ~/.duply >/dev/null
+    profiles=(*)
+    popd >/dev/null
+    commands=(
+        backup
+        bkp
+        cleanup
+        create
+        fetch
+        full
+        changelog
+        incr
+        list
+	post
+        pre
+        purge
+        purgeFull
+        purgeIncr
+        restore
+        status
+        txt2man
+        usage
+        verify
+        verifyPath
+        version
+    )
+
+    chained_commands=(
+        backup
+        bkp
+        cleanup
+        create
+        fetch
+        full
+        incr
+        list
+	post
+        pre
+        purge
+        purgeFull
+        purgeIncr
+        restore
+        status
+        verify
+        verifyPath
+    )
+
+    opts=(
+    --preview
+    --disable-encryption
+    )
+
+    # autocomplete duply profile name
+    if [[ $COMP_CWORD == 1 ]]
+    then
+	    COMPREPLY=( $(compgen -W "${profiles[*]} usage version txt2man changelog" -- "$cur") )
+    # autocomplete command
+    elif [[ $COMP_CWORD == 2 ]] 
+    then
+	    if [[ "$cur" == *[_+-]* ]]
+	    then
+		    comp_commands=()
+		    sep=${cur//[!_+-]}
+		    sep="${sep: -1}"
+		    may_continue=0
+		    for chained_command in ${chained_commands[@]}
+		    do
+			    if  echo "${cur%%[_+-]*}" | grep -qE "^${chained_command}$"
+			    then
+				    may_continue=1
+			    fi
+		    done
+		    if [[ ${may_continue} != 1 ]]
+		    then
+			    return
+		    fi
+
+		    for command in "${chained_commands[@]}"
+		    do
+			    if echo "${command}" | grep -q "^${cur##*[_+-]}"
+			    then
+				    comp_commands+=("${cur%[_+-]*}${sep}${command}")
+			    fi
+		    done
+		    COMPREPLY=( $(compgen -W "${comp_commands[*]}" -- "${cur}") )
+	    else
+		    COMPREPLY=( $(compgen -W "${commands[*]}" -- "$cur") )
+    fi
+    # autocomplete command option
+    elif [[ "$cur" == -* ]]
+    then
+	    # --force only makes sense with purge* and cleanup commands
+	    if echo "${COMP_WORDS[2]}" | egrep -qe 'purge' -e 'cleanup'
+			then
+				opts+=(--force)
+			fi
+	    COMPREPLY=( $(compgen -W "${opts[*]}" -- "$cur") )
+    fi
+
+    return 0
+}
+
+complete -F _duply duply
