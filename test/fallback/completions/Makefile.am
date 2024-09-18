@@ -33,6 +33,7 @@ EXTRA_DIST = \
 	renice \
 	repomanage \
 	reptyr \
+	rmmod \
 	rfkill \
 	rtcwake \
 	ruff \
