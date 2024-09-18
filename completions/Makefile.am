@@ -266,7 +266,7 @@ bashcomp_DATA = 2to3 \
 		mktemp \
 		mmsitepass \
 		_mock \
-		modinfo \
+		_modinfo \
 		modprobe \
 		_modules \
 		monodevelop \
