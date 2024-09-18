@@ -13,6 +13,7 @@ EXTRA_DIST = \
 	gsctl \
 	hexdump \
 	hwclock \
+	insmod \
 	ionice \
 	jungle \
 	keyring \
