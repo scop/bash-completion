@@ -23,6 +23,7 @@ EXTRA_DIST = \
 	mock \
 	modinfo \
 	modules \
+	modprobe \
 	mount \
 	mount.linux \
 	newgrp \
