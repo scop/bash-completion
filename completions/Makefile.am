@@ -376,7 +376,7 @@ bashcomp_DATA = 2to3 \
 		_rg \
 		ri \
 		rmlist \
-		rmmod \
+		_rmmod \
 		route \
 		rpcdebug \
 		rpm \
