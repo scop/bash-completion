@@ -181,7 +181,7 @@ bashcomp_DATA = 2to3 \
 		info \
 		inject \
 		inotifywait \
-		insmod \
+		_insmod \
 		installpkg \
 		interdiff \
 		invoke-rc.d \
@@ -688,7 +688,7 @@ CLEANFILES = \
 	_incus \
 	_infracost \
 	inotifywatch \
-	insmod.static \
+	_insmod.static \
 	iperf3 \
 	_istioctl \
 	javac \
@@ -1108,8 +1108,8 @@ symlinks: $(DATA)
 		pinfo
 	$(ss) inotifywait \
 		inotifywatch
-	$(ss) insmod \
-		insmod.static
+	$(ss) _insmod \
+		_insmod.static
 	$(ss) iperf \
 		iperf3
 	$(ss) java \
