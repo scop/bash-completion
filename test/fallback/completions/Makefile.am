@@ -21,6 +21,7 @@ EXTRA_DIST = \
 	look \
 	mdbook \
 	mock \
+	modinfo \
 	modules \
 	mount \
 	mount.linux \
