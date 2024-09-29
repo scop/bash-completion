@@ -42,6 +42,40 @@
 * use -- to pass arbitrary cmdnames to `_comp_load` ([3c1d9bc](https://github.com/scop/bash-completion/commit/3c1d9bc3f5432dee7de0935e8a4b6bf66c2fad77))
 * use `pathcmd=$(type -P -- "$1")` for arbitrary cmds ([8795ca9](https://github.com/scop/bash-completion/commit/8795ca99f3eb147e26d49f06e535f0ce64b4d162))
 
+## [2.15.0](https://github.com/scop/bash-completion/compare/2.14.0...2.15.0) (2024-09-28)
+
+
+### Features
+
+* **curl:** Complete "%", "-" for --trace[-ascii] ([b44b29c](https://github.com/scop/bash-completion/commit/b44b29ca1078043d2957d68e932e1a27c7e10283))
+* **curl:** Complete files for --json, --write-out ([62c0ecb](https://github.com/scop/bash-completion/commit/62c0ecbc6b8d018f4eb313961d888ab1cb18ecb5))
+* **curl:** Complete stdin "-" in file locations ([9c72cf8](https://github.com/scop/bash-completion/commit/9c72cf85c72f1cc0ad31ab1a5b12bbc78f06956e))
+* **iftop:** -G, -s, -L, and -o arg (non-)completions ([35293af](https://github.com/scop/bash-completion/commit/35293af0aaa2d37cee5549d3687004a045003578))
+* **ip:** complete ip ntable show ([432f95f](https://github.com/scop/bash-completion/commit/432f95f2ac29e83a705cfeb1b2de2a1eba45b5c2))
+* **java:** enable .java filename completion for java command ([959ce82](https://github.com/scop/bash-completion/commit/959ce82920bf20329a4586a325dd4579f8d5b822)), closes [#1196](https://github.com/scop/bash-completion/issues/1196)
+* **kata-runtime:** add 3rd party fallback completion loader ([5ff8055](https://github.com/scop/bash-completion/commit/5ff805532d45768ff2ddb55bb8ac0ea7869c023c))
+* **nerdctl:** add 3rd party fallback completion loader ([cf0591a](https://github.com/scop/bash-completion/commit/cf0591a01eec9350d294dae6b8f9c04d314dfcc9))
+* **python,pyvenv:** versioned 3.13 executable support ([3039122](https://github.com/scop/bash-completion/commit/3039122fecf228e96174d23dc7a5dafa6bff2002))
+* **set:** more featureful completion ([1cb3eae](https://github.com/scop/bash-completion/commit/1cb3eaee7166f81ff3f0b8e0b178ddfe0f5c230c))
+* **slabtop:** new completion ([64be5ea](https://github.com/scop/bash-completion/commit/64be5ea8d90d7d743976dd9c439c6aab0ab14ae5))
+* **sops:** add 3rd party fallback completion loader ([47af482](https://github.com/scop/bash-completion/commit/47af482d43ad91b6aba0bb736ec68e1ab47458b6))
+* **tar:** use long option compression options ([0518a21](https://github.com/scop/bash-completion/commit/0518a21b3419c53c2dc13753320a4b205ea5a493))
+* **todoist:** add 3rd party fallback completion loader ([75f5d26](https://github.com/scop/bash-completion/commit/75f5d2684b2c36b2ac066648d33d70a13936e942))
+* **xv:** associate with *.webp and *.pnm ([#1227](https://github.com/scop/bash-completion/issues/1227)) ([2dab633](https://github.com/scop/bash-completion/commit/2dab63379b90619f93873976944f4f9ad338dc0d))
+* **xxd:** add -n, -o, and -R arg (non-)completions ([8304d33](https://github.com/scop/bash-completion/commit/8304d3342a07e0f1a402ff0a6752e513c2a0541a))
+
+
+### Bug Fixes
+
+* **_comp_expand_glob:** set LC_COLLATE for the sorting order ([ce98f68](https://github.com/scop/bash-completion/commit/ce98f686c0aac19bc5b0938cbfa245a2f06d8b79))
+* **_comp_expand_glob:** work around GLOBSORT in Bash 5.3 ([0fda821](https://github.com/scop/bash-completion/commit/0fda8211079e32e6fea29dabb46fe1a55a80cccd))
+* **compatdir:** use _comp_expand_glob for the correct order ([51e680a](https://github.com/scop/bash-completion/commit/51e680a684c5e0e8eb8a485797aea68975901fef))
+* **curl:** Complete all and category for --help ([7eb2eb2](https://github.com/scop/bash-completion/commit/7eb2eb2ceabfc882a1407f34c9dadb8e194a4ec2))
+* **dpkg:** Add missing short option -R ([9891762](https://github.com/scop/bash-completion/commit/9891762cc88f13a05b300466a9d317f39d95f7dd))
+* **rsync,ssh:** do not overescape spaces in remote filenames ([#910](https://github.com/scop/bash-completion/issues/910)) ([e8dc253](https://github.com/scop/bash-completion/commit/e8dc253ddda79f83532551e45deeeab0c3afc5f4))
+* **tar:** Complete added files with long opts ([c94bebb](https://github.com/scop/bash-completion/commit/c94bebbe919ce696d57466d7c9c9328d82be9fd8))
+* **update-alternatives:** fix the "--help" parsing ([07605cb](https://github.com/scop/bash-completion/commit/07605cb3e0a3aca8963401c8f7a8e7ee42dbc399))
+
 ## [2.13.0](https://github.com/scop/bash-completion/compare/2.12.0...2.13.0) (2024-04-03)
 
 
