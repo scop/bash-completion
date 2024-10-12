@@ -265,6 +265,7 @@ bashcomp_DATA = 2to3 \
 		mkinitrd \
 		mktemp \
 		mmsitepass \
+		mn \
 		_mock \
 		modinfo \
 		modprobe \
