@@ -455,6 +455,7 @@ bashcomp_DATA = 2to3 \
 		useradd \
 		userdel \
 		usermod \
+		_uvx \
 		valgrind \
 		_vault \
 		vipw \

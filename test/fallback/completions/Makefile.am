@@ -47,6 +47,7 @@ EXTRA_DIST = \
 	udevadm \
 	umount \
 	umount.linux \
+	uvx \
 	vault \
 	write \
 	xm \
