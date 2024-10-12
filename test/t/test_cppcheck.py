@@ -22,10 +22,10 @@ class TestCppcheck:
     def test_5(self, completion):
         assert completion == "l"
 
-    @pytest.mark.complete("cppcheck --enable=xx,styl")
+    @pytest.mark.complete("cppcheck --enable=xx,sty")
     def test_6(self, completion):
-        assert completion == "e"
+        assert completion == "le"
 
-    @pytest.mark.complete("cppcheck --enable=xx,yy,styl")
+    @pytest.mark.complete("cppcheck --enable=xx,yy,sty")
     def test_7(self, completion):
-        assert completion == "e"
+        assert completion == "le"
