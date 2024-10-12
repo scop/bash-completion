@@ -904,6 +904,7 @@ CLEANFILES = \
 	_trivy \
 	typeset \
 	_upctl \
+	_uv \
 	_vacuum \
 	vgcfgbackup \
 	vgcfgrestore \
@@ -1213,6 +1214,8 @@ endif
 		rpmbuild rpmbuild-md5
 	$(ss) rpm2tgz \
 		rpm2targz rpm2txz
+	$(ss) _ruff \
+		_uv
 	$(ss) smbclient \
 		smbcacls smbcquotas smbget smbpasswd smbtar smbtree
 	$(ss) sbcl \
