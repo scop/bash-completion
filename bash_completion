@@ -1143,6 +1143,15 @@ _comp_compgen_filedir()
     fi
 
     if ((${#toks[@]} != 0)); then
+        # Remove . and .. (as well as */. and */..) from suggestions, unless
+        # .. or */.. was typed explicitly by the user (for users who use
+        # tab-completion to append a slash after '..')
+        if [[ $cur != ?(*/).. ]]; then
+            _comp_compgen -Rv toks -- -X '?(*/)@(.|..)' -W '"${toks[@]}"'
+        fi
+    fi
+
+    if ((${#toks[@]} != 0)); then
         # 2>/dev/null for direct invocation, e.g. in the _comp_compgen_filedir
         # unit test
         compopt -o filenames 2>/dev/null
@@ -3041,6 +3050,13 @@ _comp_compgen_filedir_xspec()
         _comp_compgen -av toks -c "$quoted" -- -f
 
     ((${#toks[@]})) || return 1
+
+    # Remove . and .. (as well as */. and */..) from suggestions, unless .. or
+    # */.. was typed explicitly by the user (for users who use tab-completion
+    # to append a slash after '..')
+    if [[ $cur != ?(*/).. ]]; then
+        _comp_compgen -Rv toks -- -X '?(*/)@(.|..)' -W '"${toks[@]}"' || return 1
+    fi
 
     compopt -o filenames
     _comp_compgen -RU toks -- -W '"${toks[@]}"'
