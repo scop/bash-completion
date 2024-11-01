@@ -22,7 +22,10 @@ class TestExpandGlob:
 
     def test_match_all(self, bash, functions):
         output = assert_bash_exec(bash, "__tester '*'", want_output=True)
-        assert output.strip() == "<a b><a$b><a&b><a'b><ab><aé><brackets><ext>"
+        assert (
+            output.strip()
+            == "<a b><a$b><a&b><a'b><ab><aé><brackets><dotdot><ext>"
+        )
 
     def test_match_pattern(self, bash, functions):
         output = assert_bash_exec(bash, "__tester 'a*'", want_output=True)

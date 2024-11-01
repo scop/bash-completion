@@ -259,3 +259,23 @@ class TestUnitCompgenFiledir:
         """Include . when the completion is attempted for '..[TAB]'"""
         completion = assert_complete(bash, r"%s _filedir/.." % funcname)
         assert completion == "/"
+
+    @pytest.mark.parametrize("funcname", "f f2".split())
+    def test_29_dotdot(self, bash, functions, funcname):
+        """Complete files starting with "..".
+
+        These types of files are used by the go kubernetes atomic writer [0],
+        and presumably other types of systems, and we want to make sure they
+        will be completed correctly.
+
+        [0] https://pkg.go.dev/k8s.io/kubernetes/pkg/volume/util#AtomicWriter.Write
+        """
+        completion = assert_complete(
+            bash, r"%s .." % funcname, cwd="_filedir/dotdot/"
+        )
+        assert completion == [
+            "../",
+            "..2016_02_01_15_04_05.123456",
+            "..data",
+            "..folder/",
+        ]
