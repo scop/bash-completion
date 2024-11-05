@@ -120,6 +120,8 @@ bashcomp_DATA = 2to3 \
 		firefox \
 		flake8 \
 		_flamegraph \
+		fprintd-delete \
+		fprintd-enroll \
 		freeciv \
 		freeciv-server \
 		function \
@@ -618,6 +620,8 @@ CLEANFILES = \
 	filebucket \
 	firefox-esr \
 	_flask \
+	fprintd-list \
+	fprintd-verify \
 	freeciv-gtk2 \
 	freeciv-gtk3 \
 	freeciv-sdl \
@@ -997,6 +1001,10 @@ symlinks: $(DATA)
 		firefox-esr iceweasel mozilla-firefox
 	$(ss) _flamegraph \
 		_watchexec
+	$(ss) fprintd-delete \
+		fprintd-list
+	$(ss) fprintd-enroll \
+		fprintd-verify
 	$(ss) freeciv \
 		civclient freeciv-gtk2 freeciv-gtk3 freeciv-sdl freeciv-xaw
 	$(ss) freeciv-server \

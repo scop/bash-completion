@@ -177,6 +177,10 @@ EXTRA_DIST = \
 	test_flake8.py \
 	test_fmt.py \
 	test_fold.py \
+	test_fprintd_delete.py \
+	test_fprintd_enroll.py \
+	test_fprintd_list.py \
+	test_fprintd_verify.py \
 	test_freebsd_update.py \
 	test_freeciv.py \
 	test_freeciv_server.py \
