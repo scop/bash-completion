@@ -275,6 +275,7 @@ bashcomp_DATA = 2to3 \
 		mplayer \
 		mr \
 		msynctool \
+		_mtr \
 		mtx \
 		munindoc \
 		munin-node-configure \

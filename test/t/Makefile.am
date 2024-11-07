@@ -390,6 +390,7 @@ EXTRA_DIST = \
 	test_mr.py \
 	test_msgsnarf.py \
 	test_msynctool.py \
+	test_mtr.py \
 	test_mtx.py \
 	test_munin_node_configure.py \
 	test_munin_run.py \
