@@ -13,6 +13,7 @@ EXTRA_DIST = \
 	gsctl \
 	hexdump \
 	hwclock \
+	insmod \
 	ionice \
 	jungle \
 	keyring \
@@ -20,7 +21,9 @@ EXTRA_DIST = \
 	look \
 	mdbook \
 	mock \
+	modinfo \
 	modules \
+	modprobe \
 	mount \
 	mount.linux \
 	newgrp \
@@ -32,6 +35,7 @@ EXTRA_DIST = \
 	renice \
 	repomanage \
 	reptyr \
+	rmmod \
 	rfkill \
 	rtcwake \
 	ruff \

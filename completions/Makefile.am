@@ -181,7 +181,7 @@ bashcomp_DATA = 2to3 \
 		info \
 		inject \
 		inotifywait \
-		insmod \
+		_insmod \
 		installpkg \
 		interdiff \
 		invoke-rc.d \
@@ -268,8 +268,8 @@ bashcomp_DATA = 2to3 \
 		mktemp \
 		mmsitepass \
 		_mock \
-		modinfo \
-		modprobe \
+		_modinfo \
+		_modprobe \
 		_modules \
 		monodevelop \
 		_mount \
@@ -376,7 +376,7 @@ bashcomp_DATA = 2to3 \
 		_rg \
 		ri \
 		rmlist \
-		rmmod \
+		_rmmod \
 		route \
 		rpcdebug \
 		rpm \
@@ -688,7 +688,7 @@ CLEANFILES = \
 	_incus \
 	_infracost \
 	inotifywatch \
-	insmod.static \
+	_insmod.static \
 	iperf3 \
 	_istioctl \
 	javac \
@@ -1108,8 +1108,8 @@ symlinks: $(DATA)
 		pinfo
 	$(ss) inotifywait \
 		inotifywatch
-	$(ss) insmod \
-		insmod.static
+	$(ss) _insmod \
+		_insmod.static
 	$(ss) iperf \
 		iperf3
 	$(ss) java \
