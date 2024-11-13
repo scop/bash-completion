@@ -2190,15 +2190,22 @@ _comp_compgen_fstypes()
 _comp_abspath()
 {
     REPLY=$1
-    case $REPLY in
-        /*) ;;
-        ../*) REPLY=$PWD/${REPLY:3} ;;
-        *) REPLY=$PWD/$REPLY ;;
-    esac
-    while [[ $REPLY == */./* ]]; do
-        REPLY=${REPLY//\/.\//\/}
-    done
+    [[ $REPLY == /* ]] || REPLY=$PWD/$REPLY
     REPLY=${REPLY//+(\/)/\/}
+    while true; do
+        # Process "." and "..".  To avoid reducing "/../../ => /", we convert
+        # "/*/../" one by one. "/.."  at the beginning is ignored. Then, /*/../
+        # in the middle is processed.  Finally, /*/.. at the end is removed.
+        case $REPLY in
+            */./*) REPLY=${REPLY//\/.\//\/} ;;
+            */.) REPLY=${REPLY%/.} ;;
+            /..?(/*)) REPLY=${REPLY#/..} ;;
+            */+([^/])/../*) REPLY=${REPLY/\/+([^\/])\/..\//\/} ;;
+            */+([^/])/..) REPLY=${REPLY%/+([^/])/..} ;;
+            *) break ;;
+        esac
+    done
+    [[ $REPLY ]] || REPLY=/
 }
 
 # Get real command.
@@ -3141,6 +3148,18 @@ _comp_complete_minimal()
 # https://lists.gnu.org/archive/html/bug-bash/2012-01/msg00045.html
 complete -F _comp_complete_minimal ''
 
+# Initialize the variable "_comp__base_directory"
+# @var[out] _comp__base_directory
+_comp__init_base_directory()
+{
+    local REPLY
+    _comp_abspath "${BASH_SOURCE[0]-./bash_completion}"
+    _comp__base_directory=${REPLY%/*}
+    [[ $_comp__base_directory ]] || _comp__base_directory=/
+    unset -f "$FUNCNAME"
+}
+_comp__init_base_directory
+
 # @since 2.12
 _comp_load()
 {
@@ -3193,11 +3212,7 @@ _comp_load()
     # we want to prefer in-tree completions over ones possibly coming with a
     # system installed bash-completion. (Due to usual install layouts, this
     # often hits the correct completions in system installations, too.)
-    if [[ $BASH_SOURCE == */* ]]; then
-        dirs+=("${BASH_SOURCE%/*}/completions")
-    else
-        dirs+=(./completions)
-    fi
+    dirs+=("$_comp__base_directory/completions")
 
     # 3) From bin directories extracted from the specified path to the command,
     # the real path to the command, and $PATH
@@ -3339,12 +3354,10 @@ _comp__init_collect_startup_configs()
         # run-in-place-from-git-clone setups.  Notably we do it after the
         # system location here, in order to prefer in-tree variables and
         # functions.
-        if [[ ${base_path%/*} == */share/bash-completion ]]; then
-            compat_dir=${base_path%/share/bash-completion/*}/etc/bash_completion.d
-        elif [[ $base_path == */* ]]; then
-            compat_dir="${base_path%/*}/bash_completion.d"
+        if [[ $_comp__base_directory == */share/bash-completion ]]; then
+            compat_dir=${_comp__base_directory%/share/bash-completion}/etc/bash_completion.d
         else
-            compat_dir=./bash_completion.d
+            compat_dir=$_comp__base_directory/bash_completion.d
         fi
         [[ ${compat_dirs[0]} == "$compat_dir" ]] ||
             compat_dirs+=("$compat_dir")
