@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import assert_bash_exec, assert_complete
+from conftest import assert_bash_exec, assert_complete, bash_env_saved
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+COMPREPLY=")
@@ -59,7 +59,9 @@ class TestUnitCompgenFiledir:
         return lc_ctype
 
     def test_1(self, bash):
-        assert_bash_exec(bash, "_comp_compgen_filedir >/dev/null")
+        with bash_env_saved(bash) as bash_env:
+            bash_env.write_variable("cur", "")
+            assert_bash_exec(bash, 'cur="" _comp_compgen_filedir >/dev/null')
 
     @pytest.mark.parametrize("funcname", "f f2".split())
     def test_2(self, bash, functions, funcname):
@@ -233,3 +235,47 @@ class TestUnitCompgenFiledir:
     def test_27(self, bash, functions, funcname, utf8_ctype):
         completion = assert_complete(bash, "%s aé/" % funcname, cwd="_filedir")
         assert completion == "g"
+
+    @pytest.mark.parametrize("funcname", "f f2".split())
+    def test_28_dot_1(self, bash, functions, funcname):
+        """Exclude . and .. when the completion is attempted for '.[TAB]'"""
+        completion = assert_complete(bash, r"%s ." % funcname, cwd="_filedir")
+        assert completion == [".dotfile1", ".dotfile2"]
+
+    @pytest.mark.parametrize("funcname", "f f2".split())
+    def test_28_dot_2(self, bash, functions, funcname):
+        """Exclude . and .. when the completion is attempted for 'dir/.[TAB]'"""
+        completion = assert_complete(bash, r"%s _filedir/." % funcname)
+        assert completion == [".dotfile1", ".dotfile2"]
+
+    @pytest.mark.parametrize("funcname", "f f2".split())
+    def test_28_dot_3(self, bash, functions, funcname):
+        """Include . when the completion is attempted for '..[TAB]'"""
+        completion = assert_complete(bash, r"%s .." % funcname, cwd="_filedir")
+        assert completion == "/"
+
+    @pytest.mark.parametrize("funcname", "f f2".split())
+    def test_28_dot_4(self, bash, functions, funcname):
+        """Include . when the completion is attempted for '..[TAB]'"""
+        completion = assert_complete(bash, r"%s _filedir/.." % funcname)
+        assert completion == "/"
+
+    @pytest.mark.parametrize("funcname", "f f2".split())
+    def test_29_dotdot(self, bash, functions, funcname):
+        """Complete files starting with "..".
+
+        These types of files are used by the go kubernetes atomic writer [0],
+        and presumably other types of systems, and we want to make sure they
+        will be completed correctly.
+
+        [0] https://pkg.go.dev/k8s.io/kubernetes/pkg/volume/util#AtomicWriter.Write
+        """
+        completion = assert_complete(
+            bash, r"%s .." % funcname, cwd="_filedir/dotdot/"
+        )
+        assert completion == [
+            "../",
+            "..2016_02_01_15_04_05.123456",
+            "..data",
+            "..folder/",
+        ]
