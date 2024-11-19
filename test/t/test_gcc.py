@@ -52,13 +52,23 @@ class TestGcc:
         assert completion in ("artition", "artition=")
 
     @pytest.mark.complete("gcc -march=amd")
-    def test_march(self, completion, gcc_with_completion, gcc_x86):
+    def test_march_amd(self, completion, gcc_with_completion, gcc_x86):
         assert completion == "fam10"
 
     @pytest.mark.complete("gcc -march=")
-    def test_march_native(self, completion, gcc_with_completion):
-        assert "native" in completion
+    def test_march(self, completion, gcc_with_completion):
+        # https://github.com/scop/bash-completion/issues/1201
+        # native: x86, some others
+        # power*: ppc
+        assert "native" in completion or any(
+            x.startswith("power") for x in completion
+        )
 
     @pytest.mark.complete("gcc -mtune=")
-    def test_mtune_generic(self, completion, gcc_with_completion):
-        assert "generic" in completion
+    def test_mtune(self, completion, gcc_with_completion):
+        # https://github.com/scop/bash-completion/issues/1201
+        # generic: x86, some others
+        # power*: ppc
+        assert "generic" in completion or any(
+            x.startswith("power") for x in completion
+        )
