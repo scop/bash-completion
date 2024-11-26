@@ -551,6 +551,7 @@ CLEANFILES = \
 	_ansible-vault \
 	apropos \
 	aptitude-curses \
+	_aqua \
 	_arduino-cli \
 	arm-koji \
 	asciidoc.py \
@@ -1027,6 +1028,7 @@ symlinks: $(DATA)
 		gkrellm2
 	$(ss) _golangci-lint \
 		_allero \
+		_aqua \
 		_arduino-cli \
 		_buf \
 		_chezmoi \
