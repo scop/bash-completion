@@ -62,25 +62,21 @@ jobs:
       # some restrictions/oddities: changes root's $HOME to /github/home
       # without changing the actual home dir that can cause some problems,
       # and does not provide a way to run with --network none.
-      # fedoradev unconfined: https://bugzilla.redhat.com/1900021
       - name: Run main build
         run: >-
           docker run
           --rm
           --tty
           --env CI=true
-          --env DIST=${{matrix.dist}}
           --env BSD=${{matrix.bsd}}
           --env PYTESTFLAGS="--verbose -p no:cacheprovider"
           --env NETWORK=$NETWORK
           ${NETWORK:+--network $NETWORK}
-          $(test $DIST = fedoradev && echo --security-opt seccomp=unconfined)
           --volume $PWD:/usr/src/bash-completion
           --workdir /usr/src/bash-completion
           ghcr.io/scop/bash-completion/test:${{matrix.dist}}
           test/docker/entrypoint.sh
         env:
-          DIST: ${{matrix.dist}}
           NETWORK: ${{matrix.network}}
       - uses: actions/upload-artifact@v4
         with:
