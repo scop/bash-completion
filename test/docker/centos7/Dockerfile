@@ -9,8 +9,6 @@ RUN set -x \
         /usr/bin/autoconf \
         /usr/bin/automake \
         /usr/bin/make \
-        # /usr/bin/which: https://bugzilla.redhat.com/show_bug.cgi?id=1443357 \
-        /usr/bin/which \
         /usr/bin/xvfb-run \
         python36-pexpect
 
