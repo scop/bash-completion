@@ -8,9 +8,9 @@ class TestModprobe:
     def test_1(self, completion):
         assert completion == "l"
 
-    # "in": intel*, ...
+    # "du": dummy, ...
     @pytest.mark.complete(
-        "modprobe in",
+        "modprobe du",
         xfail="! ls /lib/modules/%s &>/dev/null"
         % subprocess.check_output(
             "uname -r 2>/dev/null || " "echo non-existent-kernel", shell=True
@@ -21,8 +21,8 @@ class TestModprobe:
     def test_2(self, completion):
         assert completion
 
-    # "in": intel*, ...
-    @pytest.mark.complete("modprobe -S non-existent-kernel in")
+    # "du": dummy, ...
+    @pytest.mark.complete("modprobe -S non-existent-kernel du")
     def test_3(self, completion):
         assert not completion
 
