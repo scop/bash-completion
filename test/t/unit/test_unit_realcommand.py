@@ -43,11 +43,11 @@ class TestUnitRealCommand:
 
     def test_basename_nonexistent(self, bash, functions):
         filename = "non-existent-file-for-bash-completion-tests"
-        skipif = "! type -P %s" % filename
+        file_exists_check = "! type -P %s" % filename
         try:
-            assert_bash_exec(bash, skipif, want_output=None)
+            assert_bash_exec(bash, file_exists_check, want_output=None)
         except AssertionError:
-            pytest.skipif(skipif)
+            pytest.skip(f"Found command that shouldn't exist: '{filename}'")
         output = assert_bash_exec(
             bash,
             "! __tester %s" % filename,
