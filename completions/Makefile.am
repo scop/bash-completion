@@ -596,6 +596,7 @@ CLEANFILES = \
 	conjure \
 	_constellation \
 	_consul \
+	_cosign \
 	cowthink \
 	_crc \
 	createdb \
@@ -1035,6 +1036,7 @@ symlinks: $(DATA)
 		_cilium \
 		_cloudquery \
 		_constellation \
+		_cosign \
 		_crc \
 		_datree \
 		_dlv \
