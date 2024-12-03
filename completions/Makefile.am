@@ -1,5 +1,4 @@
-bashcompdir = $(datadir)/$(PACKAGE)/completions
-bashcomp_DATA = 2to3 \
+cross_platform = 2to3 \
 		7z \
 		a2x \
 		abook \
@@ -501,27 +500,37 @@ bashcomp_DATA = 2to3 \
 		zopfli \
 		zopflipng
 
+solaris_extra = pkgutil
 
-if SOLARIS
-bashcomp_DATA += pkgutil
-endif
+bsd_extra = pkg_delete
 
-if BSD
-bashcomp_DATA += pkg_delete
-endif
-
-if FREEBSD
-bashcomp_DATA += \
+freebsd_extra = \
 		freebsd-update \
 		kldload \
 		kldunload \
 		portinstall \
 		portsnap \
 		portupgrade
+
+# We include all the files in the tarball
+EXTRA_DIST = $(cross_platform) \
+	     $(solaris_extra) \
+	     $(bsd_extra) \
+	     $(freebsd_extra)
+
+bashcompdir = $(datadir)/$(PACKAGE)/completions
+bashcomp_DATA = $(cross_platform)
+# We add only the completions that are relevant for the current platform we're
+# installing on.
+if SOLARIS
+bashcomp_DATA += $(solaris_extra)
 endif
-
-
-EXTRA_DIST = $(bashcomp_DATA)
+if BSD
+bashcomp_DATA += $(bsd_extra)
+endif
+if FREEBSD
+bashcomp_DATA += $(freebsd_extra)
+endif
 
 CLEANFILES = \
 	7za \
