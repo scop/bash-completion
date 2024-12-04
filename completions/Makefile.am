@@ -800,6 +800,8 @@ CLEANFILES = \
 	ping4 \
 	ping6 \
 	_pip3 \
+	pkg_deinstall \
+	pkg_info \
 	pkgconf \
 	pkill \
 	plzip \
