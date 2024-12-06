@@ -43,6 +43,14 @@
 * **tar:** Complete added files with long opts ([c94bebb](https://github.com/scop/bash-completion/commit/c94bebbe919ce696d57466d7c9c9328d82be9fd8))
 * **update-alternatives:** fix the "--help" parsing ([07605cb](https://github.com/scop/bash-completion/commit/07605cb3e0a3aca8963401c8f7a8e7ee42dbc399))
 
+## [2.16.0](https://github.com/scop/bash-completion/compare/2.15.0...2.16.0) (2024-12-06)
+
+
+### Features
+
+* **aqua:** add 3rd party fallback completion loader ([#1275](https://github.com/scop/bash-completion/issues/1275)) ([379a951](https://github.com/scop/bash-completion/commit/379a951454283e64ad6b5f55f885ff25bfc7454e))
+* **cosign:** add 3rd party fallback completion loader ([#1286](https://github.com/scop/bash-completion/issues/1286)) ([2dba9c6](https://github.com/scop/bash-completion/commit/2dba9c66a42b0d0bbbcde678d54123f3f56c12d5))
+
 ## [2.14.0](https://github.com/scop/bash-completion/compare/2.13.0...2.14.0) (2024-05-09)
 
 
