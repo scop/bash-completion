@@ -65,7 +65,7 @@ Homebrew will install to $HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh.
 We can source it by adding the following to our login file `~/.bash_profile`
 
 ```shell
-if [[ -r "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh" && -s "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh" ]]; then
+if [[ -s $HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh ]]; then
     . "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
 fi
 ```
