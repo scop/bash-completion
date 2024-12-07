@@ -61,14 +61,12 @@ installed system wide. To do this:
    programmable completion for other purposes.
 
 ### macOS (OS X)
-
-If you're using macOS (formerly OS X), `/etc/bashrc` is apparently not sourced at
-all. In that case, you can put the `bash_completion` file in `/sw/etc`
-and add the following code to `~/.bash_profile`:
+Homebrew will install to $HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh.
+We can source it by adding the following to our login file `~/.bash_profile`
 
 ```shell
-if [ -f /sw/etc/bash_completion ]; then
-   . /sw/etc/bash_completion
+if [[ -r "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh" && -s "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh" ]]; then
+    . "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
 fi
 ```
 
