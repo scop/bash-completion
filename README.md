@@ -89,7 +89,7 @@ We can source it by adding the following to our startup file `~/.bashrc`.
 
 ```shell
 if [[ -s $HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh ]]; then
-    . "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
+  . "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
 fi
 ```
 
