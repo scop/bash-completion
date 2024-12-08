@@ -260,6 +260,7 @@ cross_platform = 2to3 \
 		_mdbook \
 		mdtool \
 		medusa \
+		mfiutil \
 		mii-diag \
 		mii-tool \
 		minicom \
@@ -1165,6 +1166,8 @@ symlinks: $(DATA)
 		mdecrypt
 	$(ss) _mdbook \
 		_deno _diesel _dprint _starship
+	$(ss) mfilutil \
+		mrsasutil
 	$(ss) mplayer \
 		gmplayer kplayer mencoder mplayer2
 	$(ss) mutt \

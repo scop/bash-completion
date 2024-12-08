@@ -372,6 +372,7 @@ EXTRA_DIST = \
 	test_mdtool.py \
 	test_medusa.py \
 	test_mencoder.py \
+	test_mfiutil.py \
 	test_mii_diag.py \
 	test_mii_tool.py \
 	test_minicom.py \
