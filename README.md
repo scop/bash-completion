@@ -84,8 +84,10 @@ start nested Bash sessions, the interactive settings in `~/.bash_profile` will
 disappear.  It is strongly recommended to source `~/.bashrc` from
 `~/.bash_profile` and write interactive settings in `~/.bashrc`.
 
-Homebrew will install to `$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh`.
-We can source it by adding the following to our startup file `~/.bashrc`.
+For example, if you install `bash-completion` using Homebrew, it will install
+the entry point of `bash-completion` to
+`$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh`.  We can source it by
+adding the following to our startup file `~/.bashrc`:
 
 ```shell
 if [[ -s $HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh ]]; then
