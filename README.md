@@ -62,7 +62,8 @@ installed system wide. To do this:
 
 ### macOS (OS X)
 Homebrew will install to $HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh.
-We can source it by adding the following to our login file `~/.bash_profile`
+We can source it by adding the following to our login file `~/.bash_profile`.
+Note that by default MacOS does not automatically source `~/.bashrc`. 
 
 ```shell
 if [[ -s $HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh ]]; then
