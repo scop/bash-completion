@@ -61,9 +61,31 @@ installed system wide. To do this:
    programmable completion for other purposes.
 
 ### macOS (OS X)
+
+If you're using macOS (formerly OS X), `/etc/bashrc` is apparently not sourced
+at all, and `~/.bashrc` is not sourced from `~/.bash_profile` by default
+(because `~/.bash_profile` is not created by default).  In this case, the
+standard way is to configure `~/.bash_profile` to source `~/.bashrc` and write
+interactive settings in `~/.bashrc`.  You can source `~/.bashrc` in
+`~/.bash_profile` in the following way:
+
+```shell
+# ~/.bash_profile
+
+if [[ -f ~/.bashrc ]]; then
+  source ~/.bashrc
+fi
+```
+
+Then, you can source `bash-completion` in your `~/.bashrc`.  It should be noted
+that `bash-completion` should not be sourced in `~/.bash_profile` because
+`~/.bash_profile` is only sourced in interactive login shell sessions.  If you
+start nested Bash sessions, the interactive settings in `~/.bash_profile` will
+disappear.  It is strongly recommended to source `~/.bashrc` from
+`~/.bash_profile` and write interactive settings in `~/.bashrc`.
+
 Homebrew will install to $HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh.
-We can source it by adding the following to our login file `~/.bash_profile`.
-Note that by default MacOS does not automatically source `~/.bashrc` or `/etc/bashrc`. 
+We can source it by adding the following to our startup file `~/.bashrc`.
 
 ```shell
 if [[ -s $HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh ]]; then
