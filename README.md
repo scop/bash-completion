@@ -62,13 +62,36 @@ installed system wide. To do this:
 
 ### macOS (OS X)
 
-If you're using macOS (formerly OS X), `/etc/bashrc` is apparently not sourced at
-all. In that case, you can put the `bash_completion` file in `/sw/etc`
-and add the following code to `~/.bash_profile`:
+If you're using macOS (formerly OS X), `/etc/bashrc` is apparently not sourced
+at all, and `~/.bashrc` is not sourced from `~/.bash_profile` by default
+(because `~/.bash_profile` is not created by default).  In this case, the
+standard way is to configure `~/.bash_profile` to source `~/.bashrc` and write
+interactive settings in `~/.bashrc`.  You can source `~/.bashrc` in
+`~/.bash_profile` in the following way:
 
 ```shell
-if [ -f /sw/etc/bash_completion ]; then
-   . /sw/etc/bash_completion
+# ~/.bash_profile
+
+if [[ -f ~/.bashrc ]]; then
+  source ~/.bashrc
+fi
+```
+
+Then, you can source `bash-completion` in your `~/.bashrc`.  It should be noted
+that `bash-completion` should not be sourced in `~/.bash_profile` because
+`~/.bash_profile` is only loaded in interactive _login_ shell sessions.  If you
+start nested Bash sessions, the interactive settings in `~/.bash_profile` will
+disappear.  It is strongly recommended to source `~/.bashrc` from
+`~/.bash_profile` and write interactive settings in `~/.bashrc`.
+
+For example, if you install `bash-completion` using Homebrew, it will install
+the entry point of `bash-completion` to
+`$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh`.  We can source it by
+adding the following to our startup file `~/.bashrc`:
+
+```shell
+if [[ -s $HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh ]]; then
+  . "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
 fi
 ```
 
