@@ -79,7 +79,7 @@ fi
 
 Then, you can source `bash-completion` in your `~/.bashrc`.  It should be noted
 that `bash-completion` should not be sourced in `~/.bash_profile` because
-`~/.bash_profile` is only sourced in interactive login shell sessions.  If you
+`~/.bash_profile` is only sourced in interactive _login_ shell sessions.  If you
 start nested Bash sessions, the interactive settings in `~/.bash_profile` will
 disappear.  It is strongly recommended to source `~/.bashrc` from
 `~/.bash_profile` and write interactive settings in `~/.bashrc`.
