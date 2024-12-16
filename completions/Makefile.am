@@ -719,6 +719,7 @@ CLEANFILES = \
 	hd \
 	_helm \
 	host \
+	_hostctl \
 	hping \
 	hping3 \
 	_httpx \
@@ -1126,6 +1127,7 @@ symlinks: $(DATA)
 		_goreleaser \
 		_gup \
 		_helm \
+		_hostctl \
 		_hugo \
 		_incus \
 		_ignite \
