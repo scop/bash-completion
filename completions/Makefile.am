@@ -587,6 +587,7 @@ CLEANFILES = \
 	_black \
 	_blackd \
 	bmake \
+	_bosh \
 	bsdtar \
 	btdownloadcurses.py \
 	btdownloadgui.py \
@@ -1056,6 +1057,7 @@ symlinks: $(DATA)
 		_atlas \
 		_atmos \
 		_bashbot \
+		_bosh \
 		_buf \
 		_chezmoi \
 		_cilium \
