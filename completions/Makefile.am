@@ -754,6 +754,7 @@ CLEANFILES = \
 	_krane \
 	_kratos \
 	_kube-capacity \
+	_kube-linter \
 	_kubeadm \
 	_kubectl \
 	_kubescape \
@@ -1154,6 +1155,7 @@ symlinks: $(DATA)
 		_kratos \
 		_kubeadm \
 		_kube-capacity \
+		_kube-linter \
 		_kubectl \
 		_kubescape \
 		_lefthook \
