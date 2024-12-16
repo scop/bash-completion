@@ -569,6 +569,7 @@ CLEANFILES = \
 	_argo \
 	arm-koji \
 	asciidoc.py \
+	_atlas \
 	autoheader \
 	automake-1.10 \
 	automake-1.11 \
@@ -1050,6 +1051,7 @@ symlinks: $(DATA)
 		_aqua \
 		_arduino-cli \
 		_argo \
+		_atlas \
 		_buf \
 		_chezmoi \
 		_cilium \
