@@ -619,6 +619,7 @@ CLEANFILES = \
 	conjure \
 	_constellation \
 	_consul \
+	_container-structure-test \
 	_cosign \
 	cowthink \
 	_crc \
@@ -1073,6 +1074,7 @@ symlinks: $(DATA)
 		_conform \
 		_conftest \
 		_constellation \
+		_container-structure-test \
 		_cosign \
 		_crc \
 		_datree \
