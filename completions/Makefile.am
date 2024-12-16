@@ -759,6 +759,7 @@ CLEANFILES = \
 	_kubebuilder \
 	_kubecm \
 	_kubectl \
+	_kubectl-argo-rollouts \
 	_kubescape \
 	l2ping \
 	lbzip2 \
@@ -1161,6 +1162,7 @@ symlinks: $(DATA)
 		_kubebuilder \
 		_kubecm \
 		_kubectl \
+		_kubectl-argo-rollouts \
 		_kubescape \
 		_lefthook \
 		_linkerd \
