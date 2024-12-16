@@ -605,6 +605,7 @@ CLEANFILES = \
 	civclient \
 	civserver \
 	_cloudquery \
+	_clusterctl \
 	clzip \
 	co \
 	colormake \
@@ -1064,6 +1065,7 @@ symlinks: $(DATA)
 		_chezmoi \
 		_cilium \
 		_cloudquery \
+		_clusterctl \
 		_constellation \
 		_cosign \
 		_crc \
