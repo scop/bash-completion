@@ -747,6 +747,7 @@ CLEANFILES = \
 	_kata-runtime \
 	_kconf \
 	_kn \
+	_ko \
 	_kool \
 	kplayer \
 	_krane \
@@ -1144,6 +1145,7 @@ symlinks: $(DATA)
 		_kapp \
 		_kconf \
 		_kn \
+		_ko \
 		_kool \
 		_krane \
 		_kratos \
