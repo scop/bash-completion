@@ -632,6 +632,7 @@ CLEANFILES = \
 	_cz \
 	_dagger \
 	_dapr \
+	_dasel \
 	_datree \
 	dcop \
 	_deno \
@@ -1091,6 +1092,7 @@ symlinks: $(DATA)
 		_cue \
 		_dagger \
 		_dapr \
+		_dasel \
 		_datree \
 		_dlv \
 		_docker \
