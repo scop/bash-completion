@@ -753,6 +753,7 @@ CLEANFILES = \
 	kplayer \
 	_krane \
 	_kratos \
+	_kube-capacity \
 	_kubeadm \
 	_kubectl \
 	_kubescape \
@@ -1152,6 +1153,7 @@ symlinks: $(DATA)
 		_krane \
 		_kratos \
 		_kubeadm \
+		_kube-capacity \
 		_kubectl \
 		_kubescape \
 		_lefthook \
