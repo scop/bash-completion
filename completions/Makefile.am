@@ -757,6 +757,7 @@ CLEANFILES = \
 	_kube-linter \
 	_kubeadm \
 	_kubebuilder \
+	_kubecm \
 	_kubectl \
 	_kubescape \
 	l2ping \
@@ -1158,6 +1159,7 @@ symlinks: $(DATA)
 		_kube-capacity \
 		_kube-linter \
 		_kubebuilder \
+		_kubecm \
 		_kubectl \
 		_kubescape \
 		_lefthook \
