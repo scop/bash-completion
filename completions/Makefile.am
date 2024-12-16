@@ -626,6 +626,7 @@ CLEANFILES = \
 	_crc \
 	createdb \
 	createuser \
+	_crictl \
 	_cz \
 	_datree \
 	dcop \
@@ -1081,6 +1082,7 @@ symlinks: $(DATA)
 		_cosign \
 		_crane \
 		_crc \
+		_crictl \
 		_datree \
 		_dlv \
 		_docker \
