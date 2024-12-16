@@ -4,6 +4,7 @@ EXTRA_DIST = \
 	cargo \
 	chfn \
 	chsh \
+	coder \
 	dmesg \
 	eject \
 	flamegraph \
@@ -15,6 +16,7 @@ EXTRA_DIST = \
 	hwclock \
 	insmod \
 	ionice \
+	jj \
 	jungle \
 	keyring \
 	kontena \
