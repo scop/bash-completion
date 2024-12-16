@@ -614,6 +614,7 @@ CLEANFILES = \
 	compgen \
 	composite \
 	_conda \
+	_conform \
 	conjure \
 	_constellation \
 	_consul \
@@ -1068,6 +1069,7 @@ symlinks: $(DATA)
 		_cloudquery \
 		_clusterctl \
 		_cmctl \
+		_conform \
 		_constellation \
 		_cosign \
 		_crc \
