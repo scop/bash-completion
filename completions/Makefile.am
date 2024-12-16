@@ -749,6 +749,7 @@ CLEANFILES = \
 	_kn \
 	_ko \
 	_kool \
+	_kops \
 	kplayer \
 	_krane \
 	_kratos \
@@ -1147,6 +1148,7 @@ symlinks: $(DATA)
 		_kn \
 		_ko \
 		_kool \
+		_kops \
 		_krane \
 		_kratos \
 		_kubeadm \
