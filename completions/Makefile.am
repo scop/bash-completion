@@ -706,6 +706,7 @@ CLEANFILES = \
 	_go-licenses \
 	google-chrome \
 	google-chrome-stable \
+	_gopass \
 	_gopherjs \
 	_goreleaser \
 	gpc \
@@ -1120,6 +1121,7 @@ symlinks: $(DATA)
 		_gitsign \
 		_glow \
 		_go-licenses \
+		_gopass \
 		_gopherjs \
 		_goreleaser \
 		_gup \
