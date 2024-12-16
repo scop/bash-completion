@@ -694,6 +694,7 @@ CLEANFILES = \
 	gfortran-7 \
 	gfortran-8 \
 	_gh-label \
+	_ghorg \
 	_git-bump \
 	gkrellm2 \
 	gmake \
@@ -1110,6 +1111,7 @@ symlinks: $(DATA)
 		_gardenctl \
 		_gcrane \
 		_gh-label \
+		_ghorg \
 		_git-bump \
 		_go-licenses \
 		_gopherjs \
