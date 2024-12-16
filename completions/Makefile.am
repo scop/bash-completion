@@ -697,6 +697,7 @@ CLEANFILES = \
 	_ghorg \
 	_git-bump \
 	_gitleaks \
+	_gitsign \
 	gkrellm2 \
 	gmake \
 	gmplayer \
@@ -1115,6 +1116,7 @@ symlinks: $(DATA)
 		_ghorg \
 		_git-bump \
 		_gitleaks \
+		_gitsign \
 		_go-licenses \
 		_gopherjs \
 		_goreleaser \
