@@ -615,6 +615,7 @@ CLEANFILES = \
 	composite \
 	_conda \
 	_conform \
+	_conftest \
 	conjure \
 	_constellation \
 	_consul \
@@ -1070,6 +1071,7 @@ symlinks: $(DATA)
 		_clusterctl \
 		_cmctl \
 		_conform \
+		_conftest \
 		_constellation \
 		_cosign \
 		_crc \
