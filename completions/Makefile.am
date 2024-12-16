@@ -741,6 +741,7 @@ CLEANFILES = \
 	javac \
 	javadoc \
 	_k3s \
+	_k3sup \
 	_kata-runtime \
 	_kn \
 	_kool \
@@ -1135,6 +1136,7 @@ symlinks: $(DATA)
 		_ignite \
 		_istioctl \
 		_k3s \
+		_k3sup \
 		_kn \
 		_kool \
 		_krane \
