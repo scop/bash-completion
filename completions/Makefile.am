@@ -566,6 +566,7 @@ CLEANFILES = \
 	_apko \
 	_aqua \
 	_arduino-cli \
+	_argo \
 	arm-koji \
 	asciidoc.py \
 	autoheader \
@@ -1048,6 +1049,7 @@ symlinks: $(DATA)
 		_apko \
 		_aqua \
 		_arduino-cli \
+		_argo \
 		_buf \
 		_chezmoi \
 		_cilium \
