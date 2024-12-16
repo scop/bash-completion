@@ -647,6 +647,7 @@ CLEANFILES = \
 	dpkg-query \
 	dpkg-reconfigure \
 	_dprint \
+	_driftctl \
 	dropdb \
 	dropuser \
 	edquota \
@@ -1100,6 +1101,7 @@ symlinks: $(DATA)
 		_devspace \
 		_dlv \
 		_docker \
+		_driftctl \
 		_gardenctl \
 		_gcrane \
 		_gh-label \
