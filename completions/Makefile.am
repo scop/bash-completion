@@ -665,6 +665,7 @@ CLEANFILES = \
 	freeciv-gtk3 \
 	freeciv-sdl \
 	freeciv-xaw \
+	_fx \
 	g++ \
 	g++-5 \
 	g++-6 \
@@ -1317,7 +1318,7 @@ endif
 	$(ss) update-alternatives \
 		alternatives
 	$(ss) _vault \
-		_bao _consul _nomad _packer _terraform _tofu
+		_bao _consul _fx _nomad _packer _terraform _tofu
 	$(ss) vipw \
 		vigr
 	$(ss) vncviewer \
