@@ -767,6 +767,7 @@ CLEANFILES = \
 	_kubesec \
 	_kubeshark \
 	_kubespy \
+	_kustomize \
 	l2ping \
 	lbzip2 \
 	ldapadd \
@@ -1176,6 +1177,7 @@ symlinks: $(DATA)
 		_kubesec \
 		_kubeshark \
 		_kubespy \
+		_kustomize \
 		_lefthook \
 		_linkerd \
 		_mattermost \
