@@ -4,6 +4,7 @@ EXTRA_DIST = \
 	cargo \
 	chfn \
 	chsh \
+	coder \
 	dmesg \
 	eject \
 	flamegraph \
