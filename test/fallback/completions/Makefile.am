@@ -26,6 +26,7 @@ EXTRA_DIST = \
 	modprobe \
 	mount \
 	mount.linux \
+	mtr \
 	newgrp \
 	nmcli \
 	nox \
