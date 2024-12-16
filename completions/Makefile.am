@@ -636,6 +636,7 @@ CLEANFILES = \
 	_datree \
 	dcop \
 	_deck \
+	_devspace \
 	_deno \
 	dfutool \
 	_diesel \
@@ -1096,6 +1097,7 @@ symlinks: $(DATA)
 		_dasel \
 		_datree \
 		_deck \
+		_devspace \
 		_dlv \
 		_docker \
 		_gardenctl \
