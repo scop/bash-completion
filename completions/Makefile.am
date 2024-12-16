@@ -607,6 +607,7 @@ CLEANFILES = \
 	_cloudquery \
 	_clusterctl \
 	clzip \
+	_cmctl \
 	co \
 	colormake \
 	compare \
@@ -1066,6 +1067,7 @@ symlinks: $(DATA)
 		_cilium \
 		_cloudquery \
 		_clusterctl \
+		_cmctl \
 		_constellation \
 		_cosign \
 		_crc \
