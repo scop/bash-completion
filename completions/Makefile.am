@@ -982,6 +982,7 @@ CLEANFILES = \
 	_upctl \
 	_uv \
 	_vacuum \
+	_vela \
 	vgcfgbackup \
 	vgcfgrestore \
 	vgchange \
@@ -1211,6 +1212,7 @@ symlinks: $(DATA)
 		_trivy \
 		_upctl \
 		_vacuum \
+		_vela \
 		_virtctl \
 		_zarf \
 		_zitadel
