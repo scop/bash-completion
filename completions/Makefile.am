@@ -563,6 +563,7 @@ CLEANFILES = \
 	_ansible-vault \
 	apropos \
 	aptitude-curses \
+	_apko \
 	_aqua \
 	_arduino-cli \
 	arm-koji \
@@ -1044,6 +1045,7 @@ symlinks: $(DATA)
 	$(ss) _golangci-lint \
 		_allero \
 		_alp \
+		_apko \
 		_aqua \
 		_arduino-cli \
 		_buf \
