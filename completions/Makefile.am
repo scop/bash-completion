@@ -745,6 +745,7 @@ CLEANFILES = \
 	_kafkactl \
 	_kapp \
 	_kata-runtime \
+	_kconf \
 	_kn \
 	_kool \
 	kplayer \
@@ -1141,6 +1142,7 @@ symlinks: $(DATA)
 		_k3sup \
 		_kafkactl \
 		_kapp \
+		_kconf \
 		_kn \
 		_kool \
 		_krane \
