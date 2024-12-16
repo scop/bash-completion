@@ -730,6 +730,7 @@ CLEANFILES = \
 	ifquery \
 	ifstatus \
 	_ignite \
+	_imgpkg \
 	import \
 	_incus \
 	_infracost \
@@ -1129,6 +1130,7 @@ symlinks: $(DATA)
 		_helm \
 		_hostctl \
 		_hugo \
+		_imgpkg \
 		_incus \
 		_ignite \
 		_istioctl \
