@@ -548,6 +548,7 @@ CLEANFILES = \
 	aclocal-1.16 \
 	_airflow \
 	_allero \
+	_alp \
 	alpine \
 	alternatives \
 	animate \
@@ -1042,6 +1043,7 @@ symlinks: $(DATA)
 		gkrellm2
 	$(ss) _golangci-lint \
 		_allero \
+		_alp \
 		_aqua \
 		_arduino-cli \
 		_buf \
