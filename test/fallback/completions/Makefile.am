@@ -16,6 +16,7 @@ EXTRA_DIST = \
 	hwclock \
 	insmod \
 	ionice \
+	jj \
 	jungle \
 	keyring \
 	kontena \

@@ -204,6 +204,7 @@ cross_platform = 2to3 \
 		jarsigner \
 		java \
 		javaws \
+		_jj \
 		jq \
 		jpegoptim \
 		jps \
