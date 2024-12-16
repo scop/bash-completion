@@ -622,6 +622,7 @@ CLEANFILES = \
 	_container-structure-test \
 	_cosign \
 	cowthink \
+	_crane \
 	_crc \
 	createdb \
 	createuser \
@@ -673,6 +674,7 @@ CLEANFILES = \
 	gccgo-7 \
 	gccgo-8 \
 	gcj \
+	_gcrane \
 	geoiplookup6 \
 	gfortran \
 	gfortran-5 \
@@ -724,6 +726,7 @@ CLEANFILES = \
 	_kn \
 	_kool \
 	kplayer \
+	_krane \
 	_kratos \
 	_kubeadm \
 	_kubectl \
@@ -1076,11 +1079,13 @@ symlinks: $(DATA)
 		_constellation \
 		_container-structure-test \
 		_cosign \
+		_crane \
 		_crc \
 		_datree \
 		_dlv \
 		_docker \
 		_gardenctl \
+		_gcrane \
 		_gh-label \
 		_git-bump \
 		_go-licenses \
@@ -1095,6 +1100,7 @@ symlinks: $(DATA)
 		_k3s \
 		_kn \
 		_kool \
+		_krane \
 		_kratos \
 		_kubeadm \
 		_kubectl \
