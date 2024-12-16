@@ -593,6 +593,7 @@ CLEANFILES = \
 	btdownloadgui.py \
 	_buf \
 	c++ \
+	_caddy \
 	cc \
 	cdrecord \
 	_chezmoi \
@@ -1059,6 +1060,7 @@ symlinks: $(DATA)
 		_bashbot \
 		_bosh \
 		_buf \
+		_caddy \
 		_chezmoi \
 		_cilium \
 		_cloudquery \
