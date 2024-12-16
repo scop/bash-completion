@@ -762,6 +762,7 @@ CLEANFILES = \
 	_kubectl-argo-rollouts \
 	_kubectl-kuttl \
 	_kubescape \
+	_kubelogin \
 	l2ping \
 	lbzip2 \
 	ldapadd \
@@ -1166,6 +1167,7 @@ symlinks: $(DATA)
 		_kubectl-argo-rollouts \
 		_kubectl-kuttl \
 		_kubescape \
+		_kubelogin \
 		_lefthook \
 		_linkerd \
 		_mattermost \
