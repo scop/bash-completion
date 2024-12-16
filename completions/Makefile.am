@@ -64,6 +64,7 @@ cross_platform = 2to3 \
 		cleanarch \
 		clisp \
 		clone_member \
+		_coder \
 		complete \
 		config_list \
 		configure \
