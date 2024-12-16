@@ -658,6 +658,7 @@ CLEANFILES = \
 	filebucket \
 	firefox-esr \
 	_flask \
+	_flux \
 	fprintd-list \
 	fprintd-verify \
 	freeciv-gtk2 \
@@ -1104,6 +1105,7 @@ symlinks: $(DATA)
 		_docker \
 		_driftctl \
 		_dyff \
+		_flux \
 		_gardenctl \
 		_gcrane \
 		_gh-label \
