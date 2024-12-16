@@ -628,6 +628,7 @@ CLEANFILES = \
 	createuser \
 	_crictl \
 	_ctlptl \
+	_cue \
 	_cz \
 	_datree \
 	dcop \
@@ -1085,6 +1086,7 @@ symlinks: $(DATA)
 		_crc \
 		_crictl \
 		_ctlptl \
+		_cue \
 		_datree \
 		_dlv \
 		_docker \
