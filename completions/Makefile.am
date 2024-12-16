@@ -583,6 +583,7 @@ CLEANFILES = \
 	autoupdate \
 	avahi-browse-domains \
 	_bao \
+	_bashbot \
 	_black \
 	_blackd \
 	bmake \
@@ -1054,6 +1055,7 @@ symlinks: $(DATA)
 		_argo \
 		_atlas \
 		_atmos \
+		_bashbot \
 		_buf \
 		_chezmoi \
 		_cilium \
