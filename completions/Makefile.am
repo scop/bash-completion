@@ -64,6 +64,7 @@ cross_platform = 2to3 \
 		cleanarch \
 		clisp \
 		clone_member \
+		_coder \
 		complete \
 		config_list \
 		configure \
@@ -203,6 +204,7 @@ cross_platform = 2to3 \
 		jarsigner \
 		java \
 		javaws \
+		_jj \
 		jq \
 		jpegoptim \
 		jps \
@@ -546,6 +548,7 @@ CLEANFILES = \
 	aclocal-1.16 \
 	_airflow \
 	_allero \
+	_alp \
 	alpine \
 	alternatives \
 	animate \
@@ -560,10 +563,14 @@ CLEANFILES = \
 	_ansible-vault \
 	apropos \
 	aptitude-curses \
+	_apko \
 	_aqua \
 	_arduino-cli \
+	_argo \
 	arm-koji \
 	asciidoc.py \
+	_atlas \
+	_atmos \
 	autoheader \
 	automake-1.10 \
 	automake-1.11 \
@@ -576,14 +583,17 @@ CLEANFILES = \
 	autoupdate \
 	avahi-browse-domains \
 	_bao \
+	_bashbot \
 	_black \
 	_blackd \
 	bmake \
+	_bosh \
 	bsdtar \
 	btdownloadcurses.py \
 	btdownloadgui.py \
 	_buf \
 	c++ \
+	_caddy \
 	cc \
 	cdrecord \
 	_chezmoi \
@@ -595,24 +605,38 @@ CLEANFILES = \
 	civclient \
 	civserver \
 	_cloudquery \
+	_clusterctl \
 	clzip \
+	_cmctl \
 	co \
 	colormake \
 	compare \
 	compgen \
 	composite \
 	_conda \
+	_conform \
+	_conftest \
 	conjure \
 	_constellation \
 	_consul \
+	_container-structure-test \
 	_cosign \
 	cowthink \
+	_crane \
 	_crc \
 	createdb \
 	createuser \
+	_crictl \
+	_ctlptl \
+	_cue \
 	_cz \
+	_dagger \
+	_dapr \
+	_dasel \
 	_datree \
 	dcop \
+	_deck \
+	_devspace \
 	_deno \
 	dfutool \
 	_diesel \
@@ -623,8 +647,10 @@ CLEANFILES = \
 	dpkg-query \
 	dpkg-reconfigure \
 	_dprint \
+	_driftctl \
 	dropdb \
 	dropuser \
+	_dyff \
 	edquota \
 	etherwake \
 	f77 \
@@ -632,12 +658,14 @@ CLEANFILES = \
 	filebucket \
 	firefox-esr \
 	_flask \
+	_flux \
 	fprintd-list \
 	fprintd-verify \
 	freeciv-gtk2 \
 	freeciv-gtk3 \
 	freeciv-sdl \
 	freeciv-xaw \
+	_fx \
 	g++ \
 	g++-5 \
 	g++-6 \
@@ -658,6 +686,7 @@ CLEANFILES = \
 	gccgo-7 \
 	gccgo-8 \
 	gcj \
+	_gcrane \
 	geoiplookup6 \
 	gfortran \
 	gfortran-5 \
@@ -665,14 +694,19 @@ CLEANFILES = \
 	gfortran-7 \
 	gfortran-8 \
 	_gh-label \
+	_ghorg \
 	_git-bump \
+	_gitleaks \
+	_gitsign \
 	gkrellm2 \
+	_glow \
 	gmake \
 	gmplayer \
 	gnumake \
 	_go-licenses \
 	google-chrome \
 	google-chrome-stable \
+	_gopass \
 	_gopherjs \
 	_goreleaser \
 	gpc \
@@ -685,6 +719,7 @@ CLEANFILES = \
 	hd \
 	_helm \
 	host \
+	_hostctl \
 	hping \
 	hping3 \
 	_httpx \
@@ -695,6 +730,7 @@ CLEANFILES = \
 	ifquery \
 	ifstatus \
 	_ignite \
+	_imgpkg \
 	import \
 	_incus \
 	_infracost \
@@ -705,14 +741,34 @@ CLEANFILES = \
 	javac \
 	javadoc \
 	_k3s \
+	_k3sup \
+	_kafkactl \
+	_kapp \
 	_kata-runtime \
+	_kconf \
 	_kn \
+	_ko \
 	_kool \
+	_kops \
 	kplayer \
+	_krane \
 	_kratos \
+	_kube-capacity \
+	_kube-linter \
 	_kubeadm \
+	_kubebuilder \
+	_kubecm \
 	_kubectl \
+	_kubectl-argo-rollouts \
+	_kubectl-kuttl \
 	_kubescape \
+	_kubelogin \
+	_kubemqctl \
+	_kubesec \
+	_kubeshark \
+	_kubespy \
+	_kustomize \
+	_kyverno \
 	l2ping \
 	lbzip2 \
 	ldapadd \
@@ -926,6 +982,7 @@ CLEANFILES = \
 	_upctl \
 	_uv \
 	_vacuum \
+	_vela \
 	vgcfgbackup \
 	vgcfgrestore \
 	vgchange \
@@ -1040,37 +1097,90 @@ symlinks: $(DATA)
 		gkrellm2
 	$(ss) _golangci-lint \
 		_allero \
+		_alp \
+		_apko \
 		_aqua \
 		_arduino-cli \
+		_argo \
+		_atlas \
+		_atmos \
+		_bashbot \
+		_bosh \
 		_buf \
+		_caddy \
 		_chezmoi \
 		_cilium \
 		_cloudquery \
+		_clusterctl \
+		_cmctl \
+		_conform \
+		_conftest \
 		_constellation \
+		_container-structure-test \
 		_cosign \
+		_crane \
 		_crc \
+		_crictl \
+		_ctlptl \
+		_cue \
+		_dagger \
+		_dapr \
+		_dasel \
 		_datree \
+		_deck \
+		_devspace \
 		_dlv \
 		_docker \
+		_driftctl \
+		_dyff \
+		_flux \
 		_gardenctl \
+		_gcrane \
 		_gh-label \
+		_ghorg \
 		_git-bump \
+		_gitleaks \
+		_gitsign \
+		_glow \
 		_go-licenses \
+		_gopass \
 		_gopherjs \
 		_goreleaser \
 		_gup \
 		_helm \
+		_hostctl \
 		_hugo \
+		_imgpkg \
 		_incus \
 		_ignite \
 		_istioctl \
 		_k3s \
+		_k3sup \
+		_kafkactl \
+		_kapp \
+		_kconf \
 		_kn \
+		_ko \
 		_kool \
+		_kops \
+		_krane \
 		_kratos \
 		_kubeadm \
+		_kube-capacity \
+		_kube-linter \
+		_kubebuilder \
+		_kubecm \
 		_kubectl \
+		_kubectl-argo-rollouts \
+		_kubectl-kuttl \
 		_kubescape \
+		_kubelogin \
+		_kubemqctl \
+		_kubesec \
+		_kubeshark \
+		_kubespy \
+		_kustomize \
+		_kyverno \
 		_lefthook \
 		_linkerd \
 		_mattermost \
@@ -1102,6 +1212,7 @@ symlinks: $(DATA)
 		_trivy \
 		_upctl \
 		_vacuum \
+		_vela \
 		_virtctl \
 		_zarf \
 		_zitadel
@@ -1261,7 +1372,7 @@ endif
 	$(ss) update-alternatives \
 		alternatives
 	$(ss) _vault \
-		_bao _consul _nomad _packer _terraform _tofu
+		_bao _consul _fx _nomad _packer _terraform _tofu
 	$(ss) vipw \
 		vigr
 	$(ss) vncviewer \
