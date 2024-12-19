@@ -781,6 +781,7 @@ CLEANFILES = \
 	ldappasswd \
 	ldapwhoami \
 	_lefthook \
+	_limactl \
 	_linkerd \
 	links2 \
 	lintian-info \
@@ -1184,6 +1185,7 @@ symlinks: $(DATA)
 		_kustomize \
 		_kyverno \
 		_lefthook \
+		_limactl \
 		_linkerd \
 		_mattermost \
 		_metalctl \
