@@ -993,6 +993,7 @@ CLEANFILES = \
 	sha384sum \
 	sha512sum \
 	sidedoor \
+	_sinker \
 	_skaffold \
 	slogin \
 	smbcacls \
@@ -1284,6 +1285,7 @@ symlinks: $(DATA)
 		_rclone \
 		_regal \
 		_regctl \
+		_sinker \
 		_skaffold \
 		_sshi \
 		_ssh-inscribe \
