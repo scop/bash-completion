@@ -598,6 +598,7 @@ CLEANFILES = \
 	_caddy \
 	cc \
 	cdrecord \
+	_chamber \
 	_chezmoi \
 	chrome \
 	chromium \
@@ -1111,6 +1112,7 @@ symlinks: $(DATA)
 		_bosh \
 		_buf \
 		_caddy \
+		_chamber \
 		_chezmoi \
 		_cilium \
 		_cloudquery \
