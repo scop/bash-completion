@@ -996,6 +996,7 @@ CLEANFILES = \
 	_sinker \
 	_skaffold \
 	slogin \
+	_slsa-verifier \
 	smbcacls \
 	smbcquotas \
 	smbget \
@@ -1287,6 +1288,7 @@ symlinks: $(DATA)
 		_regctl \
 		_sinker \
 		_skaffold \
+		_slsa-verifier \
 		_sshi \
 		_ssh-inscribe \
 		_tanzu \
