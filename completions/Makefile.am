@@ -851,6 +851,7 @@ CLEANFILES = \
 	_metalctl \
 	micropython \
 	_minikube \
+	_minishift \
 	_mise \
 	mkisofs \
 	_mmctl \
@@ -1243,6 +1244,7 @@ symlinks: $(DATA)
 		_melange \
 		_metalctl \
 		_minikube \
+		_minishift \
 		_mise \
 		_mmctl \
 		_moldy \
