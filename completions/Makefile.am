@@ -869,6 +869,7 @@ CLEANFILES = \
 	_ngrok \
 	_nomad \
 	_notation \
+	_nova \
 	_npm \
 	_oc \
 	_okteto \
@@ -1253,6 +1254,7 @@ symlinks: $(DATA)
 		_nerdctl \
 		_nfpm \
 		_notation \
+		_nova \
 		_oc \
 		_okteto \
 		_op \
