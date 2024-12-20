@@ -768,6 +768,7 @@ CLEANFILES = \
 	_kapp \
 	_kata-runtime \
 	_kconf \
+	_kind \
 	_kn \
 	_ko \
 	_kool \
@@ -1207,6 +1208,7 @@ symlinks: $(DATA)
 		_kafkactl \
 		_kapp \
 		_kconf \
+		_kind \
 		_kn \
 		_ko \
 		_kool \
