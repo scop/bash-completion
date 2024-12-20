@@ -61,6 +61,7 @@ EXTRA_DIST = \
 	umount.linux \
 	uvx \
 	vault \
+	wasmer \
 	write \
 	xm \
 	yq \
