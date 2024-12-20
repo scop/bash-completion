@@ -421,6 +421,7 @@ cross_platform = 2to3 \
 		sshow \
 		_stern \
 		strace \
+		_stripe \
 		strings \
 		_su \
 		sudo \

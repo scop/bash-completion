@@ -49,6 +49,7 @@ EXTRA_DIST = \
 	slackpkg \
 	sops \
 	stern \
+	stripe \
 	su \
 	svn \
 	svnadmin \
