@@ -6,6 +6,7 @@ EXTRA_DIST = \
 	chfn \
 	chsh \
 	coder \
+	delta \
 	dmesg \
 	eject \
 	flamegraph \

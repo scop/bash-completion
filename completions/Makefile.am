@@ -83,6 +83,7 @@ cross_platform = 2to3 \
 		dd \
 		declare \
 		deja-dup \
+		_delta \
 		desktop-file-validate \
 		dhclient \
 		dict \
