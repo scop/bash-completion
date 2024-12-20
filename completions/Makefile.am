@@ -735,6 +735,7 @@ CLEANFILES = \
 	hciconfig \
 	hd \
 	_helm \
+	_helmfile \
 	host \
 	_hostctl \
 	hping \
@@ -1184,6 +1185,7 @@ symlinks: $(DATA)
 		_grype \
 		_gup \
 		_helm \
+		_helmfile \
 		_hostctl \
 		_hugo \
 		_imgpkg \
