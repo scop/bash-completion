@@ -896,6 +896,7 @@ CLEANFILES = \
 	pkg_info \
 	pkgconf \
 	pkill \
+	_pluto \
 	plzip \
 	pm-suspend \
 	pm-suspend-hybrid \
@@ -1269,6 +1270,7 @@ symlinks: $(DATA)
 		_oras \
 		_ory \
 		_pitchfork \
+		_pluto \
 		_polygon-edge \
 		_pulumi \
 		_px \
