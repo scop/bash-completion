@@ -1016,6 +1016,7 @@ CLEANFILES = \
 	_talhelper \
 	_tanzu \
 	_tanzu-core \
+	_tctl \
 	_tendermint \
 	_terraform \
 	_tkn \
@@ -1299,6 +1300,7 @@ symlinks: $(DATA)
 		_talhelper \
 		_tanzu \
 		_tanzu-core \
+		_tctl \
 		_tkn \
 		_tkn-pac \
 		_trivy \
