@@ -745,6 +745,7 @@ CLEANFILES = \
 	_istioctl \
 	javac \
 	javadoc \
+	_just \
 	_k3s \
 	_k3sup \
 	_kafkactl \
@@ -1078,6 +1079,7 @@ symlinks: $(DATA)
 	$(ss) firefox \
 		firefox-esr iceweasel mozilla-firefox
 	$(ss) _flamegraph \
+		_just \
 		_watchexec
 	$(ss) fprintd-delete \
 		fprintd-list
