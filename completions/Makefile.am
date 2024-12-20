@@ -727,6 +727,7 @@ CLEANFILES = \
 	_goreleaser \
 	gpc \
 	gpgv2 \
+	_grype \
 	gssdp-device-sniffer \
 	gtar \
 	_gup \
@@ -1180,6 +1181,7 @@ symlinks: $(DATA)
 		_gopass \
 		_gopherjs \
 		_goreleaser \
+		_grype \
 		_gup \
 		_helm \
 		_hostctl \
