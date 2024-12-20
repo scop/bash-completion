@@ -48,6 +48,7 @@ EXTRA_DIST = \
 	rustup \
 	slackpkg \
 	sops \
+	stern \
 	su \
 	svn \
 	svnadmin \
