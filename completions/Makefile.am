@@ -874,6 +874,7 @@ CLEANFILES = \
 	_nova \
 	_npm \
 	_oc \
+	_odo \
 	_okteto \
 	_op \
 	_ory \
@@ -1258,6 +1259,7 @@ symlinks: $(DATA)
 		_notation \
 		_nova \
 		_oc \
+		_odo \
 		_okteto \
 		_op \
 		_ory \
