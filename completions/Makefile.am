@@ -1009,6 +1009,7 @@ CLEANFILES = \
 	_ssh-inscribe \
 	star \
 	_starship \
+	_steampipe \
 	stream \
 	sudoedit \
 	_tanzu \
@@ -1291,6 +1292,7 @@ symlinks: $(DATA)
 		_spacectl \
 		_sshi \
 		_ssh-inscribe \
+		_steampipe \
 		_tanzu \
 		_tanzu-core \
 		_tkn \
