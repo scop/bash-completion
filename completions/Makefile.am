@@ -757,6 +757,7 @@ CLEANFILES = \
 	javac \
 	javadoc \
 	_just \
+	_jwt \
 	_k3s \
 	_k3sup \
 	_kafkactl \
@@ -1190,6 +1191,7 @@ symlinks: $(DATA)
 		_incus \
 		_ignite \
 		_istioctl \
+		_jwt \
 		_k3s \
 		_k3sup \
 		_kafkactl \
