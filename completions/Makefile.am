@@ -663,6 +663,7 @@ CLEANFILES = \
 	dropdb \
 	dropuser \
 	_dyff \
+	_esc \
 	edquota \
 	etherwake \
 	f77 \
@@ -1159,6 +1160,7 @@ symlinks: $(DATA)
 		_docker \
 		_driftctl \
 		_dyff \
+		_esc \
 		_flux \
 		_gardenctl \
 		_gcrane \
