@@ -1013,6 +1013,7 @@ CLEANFILES = \
 	stream \
 	sudoedit \
 	_syft \
+	_talhelper \
 	_tanzu \
 	_tanzu-core \
 	_tendermint \
@@ -1295,6 +1296,7 @@ symlinks: $(DATA)
 		_ssh-inscribe \
 		_steampipe \
 		_syft \
+		_talhelper \
 		_tanzu \
 		_tanzu-core \
 		_tkn \
