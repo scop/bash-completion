@@ -714,6 +714,7 @@ CLEANFILES = \
 	_gitleaks \
 	_gitsign \
 	gkrellm2 \
+	_glen \
 	_glow \
 	gmake \
 	gmplayer \
@@ -1173,6 +1174,7 @@ symlinks: $(DATA)
 		_gitconfig \
 		_gitleaks \
 		_gitsign \
+		_glen \
 		_glow \
 		_go-licenses \
 		_gopass \
