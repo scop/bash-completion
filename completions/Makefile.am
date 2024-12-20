@@ -970,6 +970,7 @@ CLEANFILES = \
 	_rclone \
 	rcsdiff \
 	rdict \
+	_regal \
 	repquota \
 	rfcomm \
 	rlog \
@@ -1279,6 +1280,7 @@ symlinks: $(DATA)
 		_qrpc \
 		_random \
 		_rclone \
+		_regal \
 		_skaffold \
 		_sshi \
 		_ssh-inscribe \
