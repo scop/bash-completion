@@ -764,6 +764,7 @@ CLEANFILES = \
 	_k3d \
 	_k3s \
 	_k3sup \
+	_k6 \
 	_kafkactl \
 	_kapp \
 	_kata-runtime \
@@ -1200,6 +1201,7 @@ symlinks: $(DATA)
 		_k3d \
 		_k3s \
 		_k3sup \
+		_k6 \
 		_kafkactl \
 		_kapp \
 		_kconf \
