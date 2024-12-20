@@ -437,6 +437,7 @@ cross_platform = 2to3 \
 		sysbench \
 		sysctl \
 		tar \
+		_task \
 		tcpdump \
 		tcpkill \
 		tcpnice \
