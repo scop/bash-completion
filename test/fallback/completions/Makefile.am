@@ -1,4 +1,5 @@
 EXTRA_DIST = \
+	argc \
 	adb \
 	cal \
 	cargo \

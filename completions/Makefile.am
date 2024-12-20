@@ -16,6 +16,7 @@ cross_platform = 2to3 \
 		apt-mark \
 		aptitude \
 		arch \
+		_argc \
 		arp \
 		arping \
 		arpspoof \
