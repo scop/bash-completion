@@ -870,6 +870,7 @@ CLEANFILES = \
 	_nfpm \
 	_ngrok \
 	_nomad \
+	_notation \
 	_npm \
 	_oc \
 	_okteto \
@@ -1253,6 +1254,7 @@ symlinks: $(DATA)
 		_multi-gitter \
 		_nerdctl \
 		_nfpm \
+		_notation \
 		_oc \
 		_okteto \
 		_op \
