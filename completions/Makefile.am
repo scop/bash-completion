@@ -962,6 +962,7 @@ CLEANFILES = \
 	rpm2txz \
 	rpmbuild \
 	rpmbuild-md5 \
+	_rustic \
 	s390-koji \
 	sbcl-mt \
 	scp \
@@ -1324,7 +1325,11 @@ symlinks: $(DATA)
 	$(ss) mcrypt \
 		mdecrypt
 	$(ss) _mdbook \
-		_deno _diesel _dprint _starship
+		_deno \
+		_diesel \
+		_dprint \
+		_rustic \
+		_starship
 	$(ss) mplayer \
 		gmplayer kplayer mencoder mplayer2
 	$(ss) mutt \
