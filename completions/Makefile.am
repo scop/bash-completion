@@ -875,6 +875,7 @@ CLEANFILES = \
 	_odo \
 	_okteto \
 	_op \
+	_opa \
 	_ory \
 	_packer \
 	pbzip2 \
@@ -1260,6 +1261,7 @@ symlinks: $(DATA)
 		_odo \
 		_okteto \
 		_op \
+		_opa \
 		_ory \
 		_polygon-edge \
 		_pulumi \
