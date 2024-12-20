@@ -1069,6 +1069,7 @@ CLEANFILES = \
 	_xc \
 	xpovray \
 	xvnc4viewer \
+	_ytt \
 	ypcat \
 	_zarf \
 	_zitadel \
@@ -1320,6 +1321,7 @@ symlinks: $(DATA)
 		_velero \
 		_venom \
 		_virtctl \
+		_ytt \
 		_zarf \
 		_zitadel \
 		_zola
