@@ -619,6 +619,7 @@ CLEANFILES = \
 	clzip \
 	_cmctl \
 	co \
+	_colima \
 	colormake \
 	compare \
 	compgen \
@@ -1135,6 +1136,7 @@ symlinks: $(DATA)
 		_cloudquery \
 		_clusterctl \
 		_cmctl \
+		_colima \
 		_conform \
 		_conftest \
 		_constellation \
