@@ -1021,6 +1021,7 @@ CLEANFILES = \
 	_tctl \
 	_tendermint \
 	_terraform \
+	_tfctl \
 	_tkn \
 	_tkn-pac \
 	tightvncviewer \
@@ -1303,6 +1304,7 @@ symlinks: $(DATA)
 		_tanzu \
 		_tanzu-core \
 		_tctl \
+		_tfctl \
 		_tkn \
 		_tkn-pac \
 		_trivy \
