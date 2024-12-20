@@ -1027,7 +1027,8 @@ CLEANFILES = \
 	xvnc4viewer \
 	ypcat \
 	_zarf \
-	_zitadel
+	_zitadel \
+	_zola
 
 symlinks: $(DATA)
 	$(ss) 7z \
@@ -1232,7 +1233,8 @@ symlinks: $(DATA)
 		_vela \
 		_virtctl \
 		_zarf \
-		_zitadel
+		_zitadel \
+		_zola
 	$(ss) gpgv \
 		gpgv2
 	$(ss) gssdp-discover \
