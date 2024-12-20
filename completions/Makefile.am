@@ -771,6 +771,7 @@ CLEANFILES = \
 	_kind \
 	_kn \
 	_ko \
+	_kompose \
 	_kool \
 	_kops \
 	kplayer \
@@ -1211,6 +1212,7 @@ symlinks: $(DATA)
 		_kind \
 		_kn \
 		_ko \
+		_kompose \
 		_kool \
 		_kops \
 		_krane \
