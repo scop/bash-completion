@@ -16,6 +16,7 @@ cross_platform = 2to3 \
 		apt-mark \
 		aptitude \
 		arch \
+		_argc \
 		arp \
 		arping \
 		arpspoof \
@@ -81,6 +82,7 @@ cross_platform = 2to3 \
 		dd \
 		declare \
 		deja-dup \
+		_delta \
 		desktop-file-validate \
 		dhclient \
 		dict \
@@ -417,7 +419,9 @@ cross_platform = 2to3 \
 		sshfs \
 		sshmitm \
 		sshow \
+		_stern \
 		strace \
+		_stripe \
 		strings \
 		_su \
 		sudo \
@@ -431,6 +435,7 @@ cross_platform = 2to3 \
 		sysbench \
 		sysctl \
 		tar \
+		_task \
 		tcpdump \
 		tcpkill \
 		tcpnice \
@@ -466,6 +471,7 @@ cross_platform = 2to3 \
 		vmstat \
 		vncviewer \
 		vpnc \
+		_wasmer \
 		watch \
 		webmitm \
 		wget \
@@ -596,6 +602,8 @@ CLEANFILES = \
 	_caddy \
 	cc \
 	cdrecord \
+	_chamber \
+	_changie \
 	_chezmoi \
 	chrome \
 	chromium \
@@ -609,6 +617,7 @@ CLEANFILES = \
 	clzip \
 	_cmctl \
 	co \
+	_colima \
 	colormake \
 	compare \
 	compgen \
@@ -636,6 +645,7 @@ CLEANFILES = \
 	_datree \
 	dcop \
 	_deck \
+	_depot \
 	_devspace \
 	_deno \
 	dfutool \
@@ -651,6 +661,7 @@ CLEANFILES = \
 	dropdb \
 	dropuser \
 	_dyff \
+	_esc \
 	edquota \
 	etherwake \
 	f77 \
@@ -665,6 +676,7 @@ CLEANFILES = \
 	freeciv-gtk3 \
 	freeciv-sdl \
 	freeciv-xaw \
+	_furyctl \
 	_fx \
 	g++ \
 	g++-5 \
@@ -696,9 +708,11 @@ CLEANFILES = \
 	_gh-label \
 	_ghorg \
 	_git-bump \
+	_gitconfig \
 	_gitleaks \
 	_gitsign \
 	gkrellm2 \
+	_glen \
 	_glow \
 	gmake \
 	gmplayer \
@@ -711,6 +725,7 @@ CLEANFILES = \
 	_goreleaser \
 	gpc \
 	gpgv2 \
+	_grype \
 	gssdp-device-sniffer \
 	gtar \
 	_gup \
@@ -718,6 +733,7 @@ CLEANFILES = \
 	hciconfig \
 	hd \
 	_helm \
+	_helmfile \
 	host \
 	_hostctl \
 	hping \
@@ -740,14 +756,22 @@ CLEANFILES = \
 	_istioctl \
 	javac \
 	javadoc \
+	_just \
+	_jwt \
+	_k0sctl \
+	_k3d \
 	_k3s \
 	_k3sup \
+	_k6 \
+	_k9s \
 	_kafkactl \
 	_kapp \
 	_kata-runtime \
 	_kconf \
+	_kind \
 	_kn \
 	_ko \
+	_kompose \
 	_kool \
 	_kops \
 	kplayer \
@@ -779,6 +803,7 @@ CLEANFILES = \
 	ldappasswd \
 	ldapwhoami \
 	_lefthook \
+	_limactl \
 	_linkerd \
 	links2 \
 	lintian-info \
@@ -817,15 +842,18 @@ CLEANFILES = \
 	lz4c \
 	mailsnarf \
 	_mattermost \
+	_melange \
 	md5sum \
 	mdecrypt \
 	mencoder \
 	_metalctl \
 	micropython \
 	_minikube \
+	_minishift \
 	_mise \
 	mkisofs \
 	_mmctl \
+	_mockery \
 	mogrify \
 	_moldy \
 	montage \
@@ -840,10 +868,15 @@ CLEANFILES = \
 	_nfpm \
 	_ngrok \
 	_nomad \
+	_notation \
+	_nova \
 	_npm \
 	_oc \
+	_odo \
 	_okteto \
 	_op \
+	_opa \
+	_oras \
 	_ory \
 	_packer \
 	pbzip2 \
@@ -856,15 +889,18 @@ CLEANFILES = \
 	ping4 \
 	ping6 \
 	_pip3 \
+	_pitchfork \
 	pkg_deinstall \
 	pkg_info \
 	pkgconf \
 	pkill \
+	_pluto \
 	plzip \
 	pm-suspend \
 	pm-suspend-hybrid \
 	pmake \
 	_polygon-edge \
+	_popeye \
 	postalias \
 	ppc-koji \
 	_pulumi \
@@ -932,6 +968,8 @@ CLEANFILES = \
 	_rclone \
 	rcsdiff \
 	rdict \
+	_regal \
+	_regctl \
 	repquota \
 	rfcomm \
 	rlog \
@@ -939,10 +977,12 @@ CLEANFILES = \
 	rpm2txz \
 	rpmbuild \
 	rpmbuild-md5 \
+	_rustic \
 	s390-koji \
 	sbcl-mt \
 	scp \
 	sdptool \
+	_sentry-cli \
 	setquota \
 	sftp \
 	shasum \
@@ -951,26 +991,37 @@ CLEANFILES = \
 	sha384sum \
 	sha512sum \
 	sidedoor \
+	_sinker \
 	_skaffold \
 	slogin \
+	_slsa-verifier \
 	smbcacls \
 	smbcquotas \
 	smbget \
 	smbpasswd \
 	smbtar \
 	smbtree \
+	_sopstool \
+	_spacectl \
 	sparc-koji \
 	spovray \
 	_sshi \
 	_ssh-inscribe \
 	star \
 	_starship \
+	_steampipe \
 	stream \
 	sudoedit \
+	_syft \
+	_talhelper \
 	_tanzu \
 	_tanzu-core \
+	_tctl \
 	_tendermint \
 	_terraform \
+	_tfctl \
+	_tilt \
+	_timoni \
 	_tkn \
 	_tkn-pac \
 	tightvncviewer \
@@ -983,6 +1034,8 @@ CLEANFILES = \
 	_uv \
 	_vacuum \
 	_vela \
+	_velero \
+	_venom \
 	vgcfgbackup \
 	vgcfgrestore \
 	vgchange \
@@ -1003,6 +1056,7 @@ CLEANFILES = \
 	vgsplit \
 	vigr \
 	_virtctl \
+	_wasmer-headless \
 	_watchexec \
 	whatis \
 	wine-development \
@@ -1010,11 +1064,14 @@ CLEANFILES = \
 	wine64 \
 	wine64-development \
 	wine64-stable \
+	_xc \
 	xpovray \
 	xvnc4viewer \
+	_ytt \
 	ypcat \
 	_zarf \
-	_zitadel
+	_zitadel \
+	_zola
 
 symlinks: $(DATA)
 	$(ss) 7z \
@@ -1072,6 +1129,7 @@ symlinks: $(DATA)
 	$(ss) firefox \
 		firefox-esr iceweasel mozilla-firefox
 	$(ss) _flamegraph \
+		_just \
 		_watchexec
 	$(ss) fprintd-delete \
 		fprintd-list
@@ -1082,7 +1140,11 @@ symlinks: $(DATA)
 	$(ss) freeciv-server \
 		civserver
 	$(ss) _gaiacli \
-		_gaiad _ngrok _npm _tendermint
+		_gaiad \
+		_ngrok \
+		_npm \
+		_sopstool \
+		_tendermint
 	$(ss) gcc \
 		c++ cc f77 f95 g++ g++-5 g++-6 g++-7 g++-8 g77 g95 gcc-5 \
 		gcc-6 gcc-7 gcc-8 gccgo gccgo-5 gccgo-6 gccgo-7 gccgo-8 gcj \
@@ -1108,11 +1170,14 @@ symlinks: $(DATA)
 		_bosh \
 		_buf \
 		_caddy \
+		_chamber \
+		_changie \
 		_chezmoi \
 		_cilium \
 		_cloudquery \
 		_clusterctl \
 		_cmctl \
+		_colima \
 		_conform \
 		_conftest \
 		_constellation \
@@ -1128,39 +1193,53 @@ symlinks: $(DATA)
 		_dasel \
 		_datree \
 		_deck \
+		_depot \
 		_devspace \
 		_dlv \
 		_docker \
 		_driftctl \
 		_dyff \
+		_esc \
 		_flux \
+		_furyctl \
 		_gardenctl \
 		_gcrane \
 		_gh-label \
 		_ghorg \
 		_git-bump \
+		_gitconfig \
 		_gitleaks \
 		_gitsign \
+		_glen \
 		_glow \
 		_go-licenses \
 		_gopass \
 		_gopherjs \
 		_goreleaser \
+		_grype \
 		_gup \
 		_helm \
+		_helmfile \
 		_hostctl \
 		_hugo \
 		_imgpkg \
 		_incus \
 		_ignite \
 		_istioctl \
+		_jwt \
+		_k0sctl \
+		_k3d \
 		_k3s \
 		_k3sup \
+		_k6 \
+		_k9s \
 		_kafkactl \
 		_kapp \
 		_kconf \
+		_kind \
 		_kn \
 		_ko \
+		_kompose \
 		_kool \
 		_kops \
 		_krane \
@@ -1182,40 +1261,68 @@ symlinks: $(DATA)
 		_kustomize \
 		_kyverno \
 		_lefthook \
+		_limactl \
 		_linkerd \
 		_mattermost \
+		_melange \
 		_metalctl \
 		_minikube \
+		_minishift \
 		_mise \
 		_mmctl \
+		_mockery \
 		_moldy \
 		_multi-gitter \
 		_nerdctl \
 		_nfpm \
+		_notation \
+		_nova \
 		_oc \
+		_odo \
 		_okteto \
 		_op \
+		_opa \
+		_oras \
 		_ory \
+		_pitchfork \
+		_pluto \
 		_polygon-edge \
+		_popeye \
 		_pulumi \
 		_px \
 		_qrpc \
 		_random \
 		_rclone \
+		_regal \
+		_regctl \
+		_sinker \
 		_skaffold \
+		_slsa-verifier \
+		_spacectl \
 		_sshi \
 		_ssh-inscribe \
+		_steampipe \
+		_syft \
+		_talhelper \
 		_tanzu \
 		_tanzu-core \
+		_tctl \
+		_tfctl \
+		_tilt \
+		_timoni \
 		_tkn \
 		_tkn-pac \
 		_trivy \
 		_upctl \
 		_vacuum \
 		_vela \
+		_velero \
+		_venom \
 		_virtctl \
+		_ytt \
 		_zarf \
-		_zitadel
+		_zitadel \
+		_zola
 	$(ss) gpgv \
 		gpgv2
 	$(ss) gssdp-discover \
@@ -1275,7 +1382,12 @@ symlinks: $(DATA)
 	$(ss) mcrypt \
 		mdecrypt
 	$(ss) _mdbook \
-		_deno _diesel _dprint _starship
+		_deno \
+		_diesel \
+		_dprint \
+		_rustic \
+		_sentry-cli \
+		_starship
 	$(ss) mplayer \
 		gmplayer kplayer mencoder mplayer2
 	$(ss) mutt \
@@ -1372,11 +1484,20 @@ endif
 	$(ss) update-alternatives \
 		alternatives
 	$(ss) _vault \
-		_bao _consul _fx _nomad _packer _terraform _tofu
+		_bao \
+		_consul \
+		_fx \
+		_nomad \
+		_packer \
+		_terraform \
+		_tofu \
+		_xc
 	$(ss) vipw \
 		vigr
 	$(ss) vncviewer \
 		tightvncviewer xvnc4viewer
+	$(ss) _wasmer \
+		_wasmer-headless
 	$(ss) wine \
 		wine-development wine-stable \
 		wine64 wine64-development wine64-stable
