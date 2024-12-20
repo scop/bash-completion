@@ -1004,6 +1004,7 @@ CLEANFILES = \
 	smbtar \
 	smbtree \
 	_sopstool \
+	_spacectl \
 	sparc-koji \
 	spovray \
 	_sshi \
@@ -1289,6 +1290,7 @@ symlinks: $(DATA)
 		_sinker \
 		_skaffold \
 		_slsa-verifier \
+		_spacectl \
 		_sshi \
 		_ssh-inscribe \
 		_tanzu \
