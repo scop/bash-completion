@@ -1021,6 +1021,7 @@ CLEANFILES = \
 	_terraform \
 	_tfctl \
 	_tilt \
+	_timoni \
 	_tkn \
 	_tkn-pac \
 	tightvncviewer \
@@ -1305,6 +1306,7 @@ symlinks: $(DATA)
 		_tctl \
 		_tfctl \
 		_tilt \
+		_timoni \
 		_tkn \
 		_tkn-pac \
 		_trivy \
