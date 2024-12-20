@@ -759,6 +759,7 @@ CLEANFILES = \
 	_just \
 	_jwt \
 	_k0sctl \
+	_k3d \
 	_k3s \
 	_k3sup \
 	_kafkactl \
@@ -1194,6 +1195,7 @@ symlinks: $(DATA)
 		_istioctl \
 		_jwt \
 		_k0sctl \
+		_k3d \
 		_k3s \
 		_k3sup \
 		_kafkactl \
