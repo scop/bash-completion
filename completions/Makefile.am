@@ -982,6 +982,7 @@ CLEANFILES = \
 	sbcl-mt \
 	scp \
 	sdptool \
+	_sentry-cli \
 	setquota \
 	sftp \
 	shasum \
@@ -1359,6 +1360,7 @@ symlinks: $(DATA)
 		_diesel \
 		_dprint \
 		_rustic \
+		_sentry-cli \
 		_starship
 	$(ss) mplayer \
 		gmplayer kplayer mencoder mplayer2
