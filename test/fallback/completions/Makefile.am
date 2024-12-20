@@ -54,6 +54,7 @@ EXTRA_DIST = \
 	svn \
 	svnadmin \
 	svnlook \
+	task \
 	tokio-console \
 	udevadm \
 	umount \
