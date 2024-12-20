@@ -1014,6 +1014,7 @@ CLEANFILES = \
 	_steampipe \
 	stream \
 	sudoedit \
+	_syft \
 	_tanzu \
 	_tanzu-core \
 	_tendermint \
@@ -1295,6 +1296,7 @@ symlinks: $(DATA)
 		_sshi \
 		_ssh-inscribe \
 		_steampipe \
+		_syft \
 		_tanzu \
 		_tanzu-core \
 		_tkn \
