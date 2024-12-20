@@ -1035,6 +1035,7 @@ CLEANFILES = \
 	_vacuum \
 	_vela \
 	_velero \
+	_venom \
 	vgcfgbackup \
 	vgcfgrestore \
 	vgchange \
@@ -1315,6 +1316,7 @@ symlinks: $(DATA)
 		_vacuum \
 		_vela \
 		_velero \
+		_venom \
 		_virtctl \
 		_zarf \
 		_zitadel \
