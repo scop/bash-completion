@@ -842,6 +842,7 @@ CLEANFILES = \
 	lz4c \
 	mailsnarf \
 	_mattermost \
+	_melange \
 	md5sum \
 	mdecrypt \
 	mencoder \
@@ -1237,6 +1238,7 @@ symlinks: $(DATA)
 		_limactl \
 		_linkerd \
 		_mattermost \
+		_melange \
 		_metalctl \
 		_minikube \
 		_mise \
