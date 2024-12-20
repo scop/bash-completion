@@ -855,6 +855,7 @@ CLEANFILES = \
 	_mise \
 	mkisofs \
 	_mmctl \
+	_mockery \
 	mogrify \
 	_moldy \
 	montage \
@@ -1247,6 +1248,7 @@ symlinks: $(DATA)
 		_minishift \
 		_mise \
 		_mmctl \
+		_mockery \
 		_moldy \
 		_multi-gitter \
 		_nerdctl \
