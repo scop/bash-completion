@@ -889,6 +889,7 @@ CLEANFILES = \
 	ping4 \
 	ping6 \
 	_pip3 \
+	_pitchfork \
 	pkg_deinstall \
 	pkg_info \
 	pkgconf \
@@ -1265,6 +1266,7 @@ symlinks: $(DATA)
 		_opa \
 		_oras \
 		_ory \
+		_pitchfork \
 		_polygon-edge \
 		_pulumi \
 		_px \
