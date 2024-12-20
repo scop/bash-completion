@@ -471,6 +471,7 @@ cross_platform = 2to3 \
 		vmstat \
 		vncviewer \
 		vpnc \
+		_wasmer \
 		watch \
 		webmitm \
 		wget \
@@ -1011,6 +1012,7 @@ CLEANFILES = \
 	vgsplit \
 	vigr \
 	_virtctl \
+	_wasmer-headless \
 	_watchexec \
 	whatis \
 	wine-development \
@@ -1388,6 +1390,8 @@ endif
 		vigr
 	$(ss) vncviewer \
 		tightvncviewer xvnc4viewer
+	$(ss) _wasmer \
+		_wasmer-headless
 	$(ss) wine \
 		wine-development wine-stable \
 		wine64 wine64-development wine64-stable
