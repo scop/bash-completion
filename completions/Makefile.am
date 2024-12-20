@@ -419,6 +419,7 @@ cross_platform = 2to3 \
 		sshfs \
 		sshmitm \
 		sshow \
+		_stern \
 		strace \
 		strings \
 		_su \
