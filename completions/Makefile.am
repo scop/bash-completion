@@ -708,6 +708,7 @@ CLEANFILES = \
 	_gh-label \
 	_ghorg \
 	_git-bump \
+	_gitconfig \
 	_gitleaks \
 	_gitsign \
 	gkrellm2 \
@@ -1167,6 +1168,7 @@ symlinks: $(DATA)
 		_gh-label \
 		_ghorg \
 		_git-bump \
+		_gitconfig \
 		_gitleaks \
 		_gitsign \
 		_glow \
