@@ -1037,6 +1037,7 @@ CLEANFILES = \
 	wine64 \
 	wine64-development \
 	wine64-stable \
+	_xc \
 	xpovray \
 	xvnc4viewer \
 	ypcat \
@@ -1424,7 +1425,14 @@ endif
 	$(ss) update-alternatives \
 		alternatives
 	$(ss) _vault \
-		_bao _consul _fx _nomad _packer _terraform _tofu
+		_bao \
+		_consul \
+		_fx \
+		_nomad \
+		_packer \
+		_terraform \
+		_tofu \
+		_xc
 	$(ss) vipw \
 		vigr
 	$(ss) vncviewer \
