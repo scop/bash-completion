@@ -678,6 +678,7 @@ CLEANFILES = \
 	freeciv-gtk3 \
 	freeciv-sdl \
 	freeciv-xaw \
+	_furyctl \
 	_fx \
 	g++ \
 	g++-5 \
@@ -1162,6 +1163,7 @@ symlinks: $(DATA)
 		_dyff \
 		_esc \
 		_flux \
+		_furyctl \
 		_gardenctl \
 		_gcrane \
 		_gh-label \
