@@ -1151,7 +1151,7 @@ symlinks: $(DATA)
 		mdecrypt
 	$(ss) _mdbook \
 		_deno _diesel _dprint _starship
-	$(ss) mfilutil \
+	$(ss) mfiutil \
 		mrsasutil
 	$(ss) mplayer \
 		gmplayer kplayer mencoder mplayer2
