@@ -50,6 +50,7 @@ cross_platform = 2to3 \
 		check_db \
 		check_perms \
 		checksec \
+		chflags \
 		_chfn \
 		chgrp \
 		chkconfig \
