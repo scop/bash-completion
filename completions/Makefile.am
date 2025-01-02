@@ -861,6 +861,7 @@ CLEANFILES = \
 	montage \
 	mozilla-firefox \
 	mplayer2 \
+	mrsasutil \
 	msgsnarf \
 	_multi-gitter \
 	muttng \
