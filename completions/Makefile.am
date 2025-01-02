@@ -300,6 +300,7 @@ cross_platform = 2to3 \
 		newlist \
 		newusers \
 		ngrep \
+		nload \
 		nmap \
 		_nmcli \
 		_nox \
