@@ -122,6 +122,13 @@
 
 * **mfiutil:** more link and style issues ([cbd2661](https://github.com/scop/bash-completion/commit/cbd266155020194ec824028fb5c0d7ac95c89474))
 
+## [2.16.1](https://github.com/scop/bash-completion/compare/2.16.0...2.16.1) (2025-01-02)
+
+
+### Bug Fixes
+
+* **brctl:** fix quoting of the command name ([#1296](https://github.com/scop/bash-completion/issues/1296)) ([3201497](https://github.com/scop/bash-completion/commit/32014973c96f317990693412bcf680b614b460ea))
+
 ## [2.15.0](https://github.com/scop/bash-completion/compare/2.14.0...2.15.0) (2024-11-24)
 
 
