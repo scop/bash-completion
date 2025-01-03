@@ -418,6 +418,7 @@ EXTRA_DIST = \
 	test_newusers.py \
 	test_ngrep.py \
 	test_nl.py \
+	test_nload.py \
 	test_nm.py \
 	test_nmap.py \
 	test_nmcli.py \
