@@ -69,22 +69,22 @@ class TestUnitGetFirstArg:
         output = self._test(bash, "(a -b --foo d e f)", 5, '-a "@(-c|--foo)"')
         assert output == "e"
 
-    def test_9_skip_optarg_3(self, bash):
+    def test_9_skip_optarg_3(self, bash, functions):
         output = self._test(bash, "(a -b - c d e)", 5, '-a "-b"')
         assert output == "c"
 
-    def test_9_skip_optarg_4(self, bash):
+    def test_9_skip_optarg_4(self, bash, functions):
         output = self._test(bash, "(a -b -c d e f)", 5, '-a "-[bc]"')
         assert output == "d"
 
-    def test_9_skip_optarg_5(self, bash):
+    def test_9_skip_optarg_5(self, bash, functions):
         output = self._test(bash, "(a +o b c d)", 4, '-a "+o"')
         assert output == "c"
 
-    def test_9_skip_optarg_6(self, bash):
+    def test_9_skip_optarg_6(self, bash, functions):
         output = self._test(bash, "(a -o -o -o -o b c)", 6, '-a "-o"')
         assert output == "b"
 
-    def test_9_skip_optarg_7(self, bash):
+    def test_9_skip_optarg_7(self, bash, functions):
         output = self._test(bash, "(a -o -- -b -c d e)", 6, '-a "-o"')
         assert output == "d"

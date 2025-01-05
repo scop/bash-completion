@@ -76,38 +76,38 @@ class TestUnitCountArgs(TestUnitBase):
         )
         assert output == "3"
 
-    def test_10_single_hyphen_1(self, bash):
+    def test_10_single_hyphen_1(self, bash, functions):
         """- should be counted as an argument representing stdout/stdin"""
         output = self._test(bash, "(a -b - c -d e)", 5, "a -b - c -d e", 12)
         assert output == "3"
 
-    def test_10_single_hyphen_2(self, bash):
+    def test_10_single_hyphen_2(self, bash, functions):
         """- in an option argument should be skipped"""
         output = self._test(
             bash, "(a -b - c - e)", 5, "a -b - c - e", 11, arg='-a "-b"'
         )
         assert output == "3"
 
-    def test_11_double_hyphen_1(self, bash):
+    def test_11_double_hyphen_1(self, bash, functions):
         """all the words after -- should be counted"""
         output = self._test(
             bash, "(a -b -- -c -d e)", 5, "a -b -- -c -d e", 14
         )
         assert output == "3"
 
-    def test_11_double_hyphen_2(self, bash):
+    def test_11_double_hyphen_2(self, bash, functions):
         """all the words after -- should be counted"""
         output = self._test(bash, "(a b -- -c -d e)", 5, "a b -- -c -d e", 13)
         assert output == "4"
 
-    def test_12_exclude_optarg_1(self, bash):
+    def test_12_exclude_optarg_1(self, bash, functions):
         """an option argument should be skipped even if it matches the argument pattern"""
         output = self._test(
             bash, "(a -o -x b c)", 4, "a -o -x b c", 10, arg='-a "-o" -i "-x"'
         )
         assert output == "2"
 
-    def test_12_exclude_optarg_2(self, bash):
+    def test_12_exclude_optarg_2(self, bash, functions):
         """an option argument should be skipped even if it matches the argument pattern"""
         output = self._test(
             bash,
@@ -119,7 +119,7 @@ class TestUnitCountArgs(TestUnitBase):
         )
         assert output == "2"
 
-    def test_12_exclude_optarg_3(self, bash):
+    def test_12_exclude_optarg_3(self, bash, functions):
         """an option argument should be skipped even if it matches the argument pattern"""
         output = self._test(
             bash,
@@ -131,21 +131,21 @@ class TestUnitCountArgs(TestUnitBase):
         )
         assert output == "1"
 
-    def test_13_plus_option_optarg(self, bash):
+    def test_13_plus_option_optarg(self, bash, functions):
         """When +o is specified to be an option taking an option argument, it should not be counted as an argument"""
         output = self._test(
             bash, "(a +o b c)", 3, "a +o b c", 7, arg='-a "+o"'
         )
         assert output == "1"
 
-    def test_14_no_optarg_chain_1(self, bash):
+    def test_14_no_optarg_chain_1(self, bash, functions):
         """an option argument should not take another option argument"""
         output = self._test(
             bash, "(a -o -o -o -o c)", 5, "a -o -o -o -o c", 14, arg='-a "-o"'
         )
         assert output == "1"
 
-    def test_14_no_optarg_chain_2(self, bash):
+    def test_14_no_optarg_chain_2(self, bash, functions):
         """an option argument should not take another option argument"""
         output = self._test(
             bash,
@@ -157,14 +157,14 @@ class TestUnitCountArgs(TestUnitBase):
         )
         assert output == "2"
 
-    def test_15_double_hyphen_optarg(self, bash):
+    def test_15_double_hyphen_optarg(self, bash, functions):
         """-- should lose its meaning when it is an option argument"""
         output = self._test(
             bash, "(a -o -- -b -c d)", 5, "a -o -- -b -c d", 14, arg='-a "-o"'
         )
         assert output == "1"
 
-    def test_16_empty_word(self, bash):
+    def test_16_empty_word(self, bash, functions):
         """An empty word should not take an option argument"""
         output = self._test(bash, "(a '' x '' y d)", 5, "a  x  y d", 8)
         assert output == "5"
