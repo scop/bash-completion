@@ -48,3 +48,8 @@ class TestCurl:
         do not have that.
         """
         assert completion
+
+    @pytest.mark.complete("curl --interface :")
+    def test_interface_ipv6(self, completion):
+        # Complete ipv6 localhost
+        assert ":1" in completion
