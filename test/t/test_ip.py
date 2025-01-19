@@ -32,6 +32,14 @@ class TestIp:
         assert "stale" in completion
 
     @pytest.mark.complete(
+        "ip neig",
+        require_cmd=True,
+        skipif="ip neighbor help 2>/dev/null; (( $? != 255 ))",
+    )
+    def test_neigh_one_completion(self, completion):
+        assert len(completion) == 1
+
+    @pytest.mark.complete(
         "ip monitor ",
         require_cmd=True,
         skipif="ip monitor help 2>/dev/null; (( $? != 255 ))",
