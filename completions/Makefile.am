@@ -398,7 +398,7 @@ cross_platform = 2to3 \
 		sbopkg \
 		screen \
 		scrub \
-		secret-tool \
+		_secret-tool \
 		set \
 		sh \
 		sha256sum \
