@@ -46,6 +46,7 @@ EXTRA_DIST = \
 	ruff \
 	runuser \
 	rustup \
+	secret-tool \
 	slackpkg \
 	sops \
 	stern \
