@@ -6,26 +6,16 @@ _comp_cmd_rndc__list_commands()
 	rndc 2>&1 | awk '/^  / {print $1}' | sort -u
 }
 
-_comp_cmd_rndc__list_parameters()
-{
-	local SUBCMD=$1
-	rndc 2>&1 | awk "/^  ${SUBCMD} / { print \$2 }"
-	if [[ $cur == @* ]]; then
-		_comp_compgen_known_hosts -- "$cur"
-		return
-	fi
-
-}
-
-# TODO: not used yet, useful for dnssec-signzone etc.
 _comp_cmd_named_checkconf__list_zones()
 {
 	named-checkconf -l | awk '{print $1}'
 }
 
-# TODO: named-rrchecker provides -T -C listings of supported query types.
-# should replace _comp_cmd_nslookup__queryclass, _comp_cmd_nslookup__querytype
-# when command is present.
+_comp_cmd_rndc__list_parameters()
+{
+	local SUBCMD=$1
+	rndc 2>&1 | awk "/^  ${SUBCMD} / { print \$2 }"
+}
 
 _comp_cmd_rndc()
 {
@@ -37,19 +27,29 @@ _comp_cmd_rndc()
 			_comp_compgen -a filedir
 			return
 			;;
+		-s)
+			_comp_compgen_known_hosts -- "$cur"
+			return
+			;;
 	esac
 
 	local REPLY
 	_comp_count_args
-	if [[ $cur == -* ]]; then
-		_comp_compgen_usage
-		return
-	fi
 	if ((REPLY == 1)); then
 		_comp_compgen -- -W "$(_comp_cmd_rndc__list_commands)"
 	fi
 	if ((REPLY == 2)); then
-		_comp_compgen -- -W "$(_comp_cmd_rndc__list_parameters $prev)"
+		local PARAMS="$(_comp_cmd_rndc__list_parameters $prev)"
+		if [[ "$PARAMS" == zone ]]; then
+			_comp_compgen -- -W "$(_comp_cmd_named_checkconf__list_zones)"
+			return
+		else
+			_comp_compgen -- -W "$PARAMS"
+		fi
+	fi
+	if [[ $cur == -* ]]; then
+		_comp_compgen_usage
+		return
 	fi
 } && complete -F _comp_cmd_rndc rndc
 
@@ -87,12 +87,12 @@ _comp_cmd_dig()
 			;;
 	esac
 
-	if [[ $cur == @* ]]; then
-		_comp_compgen_known_hosts -- "$cur"
-		return
-	fi
 	if [[ $cur == -* ]]; then
 		_comp_compgen_usage
+		return
+	fi
+	if [[ $cur == @* ]]; then
+		_comp_compgen_known_hosts -- "$cur"
 		return
 	fi
 	if [[ $cur == +* ]]; then
@@ -142,7 +142,6 @@ _comp_cmd_mdig()
 		_comp_compgen_known_hosts -- "$cur"
 		return
 	fi
-
 	if [[ $cur == +* ]]; then
 		_comp_compgen -- -W "$(_comp_cmd_dig__list_plusopts mdig)"
 		[[ ${COMPREPLY-} == *= ]] && compopt -o nospace
@@ -190,7 +189,6 @@ _comp_cmd_delv()
 		_comp_compgen_known_hosts -- "$cur"
 		return
 	fi
-
 	if [[ $cur == +* ]]; then
 		_comp_compgen -- -W "$(_comp_cmd_dig__list_plusopts delv)"
 		[[ ${COMPREPLY-} == *= ]] && compopt -o nospace
