@@ -52,6 +52,7 @@ _comp_cmd_rndc()
 	fi
 } && complete -F _comp_cmd_rndc rndc
 
+# Generate list of +example opts from dig help, including negative.
 _comp_cmd_dig__list_plusopts()
 {
 	local CMD="${1:-dig}" # delv and mdig has similar style options
@@ -65,11 +66,11 @@ _comp_cmd_dig()
 
 	case $prev in
 		-c)
-			_comp_cmd_nslookup__queryclass
+			_comp_compgen -x nslookup queryclass
 			return
 			;;
 		-t)
-			_comp_cmd_nslookup__querytype
+			_comp_compgen -x nslookup querytype
 			return
 			;;
 		-q)
@@ -101,6 +102,8 @@ _comp_cmd_dig()
 	# TODO: dig is tricky. It can accept hostname, queryclass or querytype without any parameter.
 	# Not sure how to autocomplete all of them.
 	_comp_compgen_known_hosts -- "$cur"
+	_comp_compgen -x nslookup queryclass
+	_comp_compgen -x nslookup querytype
 } && complete -F _comp_cmd_dig dig
 
 _comp_cmd_mdig()
@@ -110,11 +113,11 @@ _comp_cmd_mdig()
 
 	case $prev in
 		-c)
-			_comp_cmd_nslookup__queryclass
+			_comp_compgen -x nslookup queryclass
 			return
 			;;
 		-t)
-			_comp_cmd_nslookup__querytype
+			_comp_compgen -x nslookup querytype
 			return
 			;;
 		-q)
@@ -140,12 +143,12 @@ _comp_cmd_mdig()
 	elif [[ $cur == +* ]]; then
 		_comp_compgen_split -- "$(_comp_cmd_dig__list_plusopts mdig)"
 		[[ ${COMPREPLY-} == *= ]] && compopt -o nospace
-
+		return
 	fi
 
-	# TODO: dig is tricky. It can accept hostname, queryclass or querytype without any parameter.
-	# Not sure how to autocomplete all of them.
 	_comp_compgen_known_hosts -- "$cur"
+	_comp_compgen -x nslookup queryclass
+	_comp_compgen -x nslookup querytype
 } && complete -F _comp_cmd_mdig mdig
 
 _comp_cmd_delv()
@@ -155,11 +158,11 @@ _comp_cmd_delv()
 
 	case $prev in
 		-c)
-			_comp_cmd_nslookup__queryclass
+			_comp_compgen -x nslookup queryclass
 			return
 			;;
 		-t)
-			_comp_cmd_nslookup__querytype
+			_comp_compgen -x nslookup querytype
 			return
 			;;
 		-q)
@@ -179,20 +182,65 @@ _comp_cmd_delv()
 	if [[ $cur == -* ]]; then
 		_comp_compgen_usage
 		return
-	fi
-	if [[ $cur == @* ]]; then
+	elif [[ $cur == @* ]]; then
 		_comp_compgen_known_hosts -- "$cur"
 		return
-	fi
-	if [[ $cur == +* ]]; then
+	elif [[ $cur == +* ]]; then
 		_comp_compgen_split -- "$(_comp_cmd_dig__list_plusopts delv)"
 		[[ ${COMPREPLY-} == *= ]] && compopt -o nospace
-
+		return
 	fi
 
-	# TODO: dig is tricky. It can accept hostname, queryclass or querytype without any parameter.
-	# Not sure how to autocomplete all of them.
 	_comp_compgen_known_hosts -- "$cur"
+	_comp_compgen -x nslookup queryclass
+	_comp_compgen -x nslookup querytype
 } && complete -F _comp_cmd_delv delv
+
+# kdig is provided by knot-utils, but is more or less a drop-in replacement for dig
+# Reuse common parts for it too.
+_comp_cmd_kdig()
+{
+	local cur prev words cword comp_args
+	_comp_initialize -n = -- "$@" || return
+
+	case $prev in
+		-c)
+			_comp_compgen -x nslookup queryclass
+			return
+			;;
+		-t)
+			_comp_compgen -x nslookup querytype
+			return
+			;;
+		-q)
+			_comp_compgen_known_hosts -- "$cur"
+			return
+			;;
+		-k|-E|-G)
+			_comp_compgen filedir
+			return
+			;;
+		-x|-b)
+			_comp_compgen_ip_addresses -- "$cur"
+			return
+			;;
+	esac
+
+	if [[ $cur == -* ]]; then
+		_comp_compgen_usage
+		return
+	elif [[ $cur == @* ]]; then
+		_comp_compgen_known_hosts -- "$cur"
+		return
+	elif [[ $cur == +* ]]; then
+		_comp_compgen_split -- "$(_comp_cmd_dig__list_plusopts kdig)"
+		[[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+		return
+	fi
+
+	_comp_compgen_known_hosts -- "$cur"
+	_comp_compgen -x nslookup queryclass
+	_comp_compgen -x nslookup querytype
+} && complete -F _comp_cmd_kdig kdig
 
 # ex: filetype=sh
