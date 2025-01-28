@@ -55,8 +55,40 @@ _comp_cmd_rndc()
 # Generate list of +example opts from dig help, including negative.
 _comp_cmd_dig__list_plusopts()
 {
-	local CMD="${1:-dig}" # delv and mdig has similar style options
-	"$CMD" -h 2>&1 | awk '/^\s+\+\[no\]/ { sub("+\\[no\\]", "", $1); sub("=##+$", "=", $1); sub("\\[=##+\\]", "", $1); print "+"$1, "+no"$1} /^\s+\+[^[]/ {sub("=##+", "=", $1); print $1}'
+	local cmd="${1:-dig}" # delv and mdig has similar style options
+	"$cmd" -h 2>&1 | awk '/^\s+\+\[no\]/ { sub("+\\[no\\]", "", $1); sub("=##+$", "=", $1); sub("\\[=##+\\]", "", $1); print "+"$1, "+no"$1} /^\s+\+[^[]/ {sub("=##+", "=", $1); print $1}'
+}
+
+# Extract dig -parameters list, modified version of _comp_compgen_help
+_comp_cmd_dig__help_params()
+{
+	local cmd="$1"
+	"$cmd" -h 2>&1 | awk '/^\s+-[a-z0-9]\s/ {print $1}'
+}
+
+# Implements common dig usage patterns
+_comp_cmd_dig__common()
+{
+	local cmd="$1"
+	local cur="$2"
+	shift
+	shift
+
+	if [[ $cur == -* ]]; then
+		_comp_compgen_split -- "$(_comp_cmd_dig__help_params "$cmd")"
+		return
+	elif [[ $cur == @* ]]; then
+		_comp_compgen_known_hosts -- "$cur"
+		return
+	elif [[ $cur == +* ]]; then
+		_comp_compgen_split -- "$(_comp_cmd_dig__list_plusopts "$cmd")"
+		[[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+		return
+	fi
+
+	_comp_compgen_known_hosts -- "$cur"
+	_comp_compgen -x nslookup queryclass
+	_comp_compgen -x nslookup querytype
 }
 
 _comp_cmd_dig()
@@ -87,23 +119,7 @@ _comp_cmd_dig()
 			;;
 	esac
 
-	if [[ $cur == -* ]]; then
-		_comp_compgen_usage
-		return
-	elif [[ $cur == @* ]]; then
-		_comp_compgen_known_hosts -- "$cur"
-		return
-	elif [[ $cur == +* ]]; then
-		_comp_compgen_split -- "$(_comp_cmd_dig__list_plusopts dig)"
-		[[ ${COMPREPLY-} == *= ]] && compopt -o nospace
-		return
-	fi
-
-	# TODO: dig is tricky. It can accept hostname, queryclass or querytype without any parameter.
-	# Not sure how to autocomplete all of them.
-	_comp_compgen_known_hosts -- "$cur"
-	_comp_compgen -x nslookup queryclass
-	_comp_compgen -x nslookup querytype
+	_comp_cmd_dig__common dig "$cur" "$@"
 } && complete -F _comp_cmd_dig dig
 
 _comp_cmd_mdig()
@@ -134,21 +150,7 @@ _comp_cmd_mdig()
 			;;
 	esac
 
-	if [[ $cur == -* ]]; then
-		_comp_compgen_usage
-		return
-	elif [[ $cur == @* ]]; then
-		_comp_compgen_known_hosts -- "$cur"
-		return
-	elif [[ $cur == +* ]]; then
-		_comp_compgen_split -- "$(_comp_cmd_dig__list_plusopts mdig)"
-		[[ ${COMPREPLY-} == *= ]] && compopt -o nospace
-		return
-	fi
-
-	_comp_compgen_known_hosts -- "$cur"
-	_comp_compgen -x nslookup queryclass
-	_comp_compgen -x nslookup querytype
+	_comp_cmd_dig__common mdig "$cur" "$@"
 } && complete -F _comp_cmd_mdig mdig
 
 _comp_cmd_delv()
@@ -179,21 +181,7 @@ _comp_cmd_delv()
 			;;
 	esac
 
-	if [[ $cur == -* ]]; then
-		_comp_compgen_usage
-		return
-	elif [[ $cur == @* ]]; then
-		_comp_compgen_known_hosts -- "$cur"
-		return
-	elif [[ $cur == +* ]]; then
-		_comp_compgen_split -- "$(_comp_cmd_dig__list_plusopts delv)"
-		[[ ${COMPREPLY-} == *= ]] && compopt -o nospace
-		return
-	fi
-
-	_comp_compgen_known_hosts -- "$cur"
-	_comp_compgen -x nslookup queryclass
-	_comp_compgen -x nslookup querytype
+	_comp_cmd_dig__common delv "$cur" "$@"
 } && complete -F _comp_cmd_delv delv
 
 # kdig is provided by knot-utils, but is more or less a drop-in replacement for dig
@@ -229,18 +217,8 @@ _comp_cmd_kdig()
 	if [[ $cur == -* ]]; then
 		_comp_compgen_usage
 		return
-	elif [[ $cur == @* ]]; then
-		_comp_compgen_known_hosts -- "$cur"
-		return
-	elif [[ $cur == +* ]]; then
-		_comp_compgen_split -- "$(_comp_cmd_dig__list_plusopts kdig)"
-		[[ ${COMPREPLY-} == *= ]] && compopt -o nospace
-		return
 	fi
-
-	_comp_compgen_known_hosts -- "$cur"
-	_comp_compgen -x nslookup queryclass
-	_comp_compgen -x nslookup querytype
+	_comp_cmd_dig__common kdig "$cur" "$@"
 } && complete -F _comp_cmd_kdig kdig
 
 # ex: filetype=sh
