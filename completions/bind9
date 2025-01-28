@@ -24,7 +24,7 @@ _comp_cmd_rndc()
 
 	case $prev in
 		-c|-k)
-			_comp_compgen filedir
+			_comp_compgen_filedir
 			return
 			;;
 		-s)
@@ -59,13 +59,6 @@ _comp_cmd_dig__list_plusopts()
 	"$cmd" -h 2>&1 | awk '/^\s+\+\[no\]/ { sub("+\\[no\\]", "", $1); sub("=##+$", "=", $1); sub("\\[=##+\\]", "", $1); print "+"$1, "+no"$1} /^\s+\+[^[]/ {sub("=##+", "=", $1); print $1}'
 }
 
-# Extract dig -parameters list, modified version of _comp_compgen_help
-_comp_cmd_dig__help_params()
-{
-	local cmd="$1"
-	"$cmd" -h 2>&1 | awk '/^\s+-[a-z0-9]\s/ {print $1}'
-}
-
 # Implements common dig usage patterns
 _comp_cmd_dig__common()
 {
@@ -75,12 +68,15 @@ _comp_cmd_dig__common()
 	shift
 
 	if [[ $cur == -* ]]; then
-		_comp_compgen_split -- "$(_comp_cmd_dig__help_params "$cmd")"
+		_comp_compgen_help -- -h
 		return
 	elif [[ $cur == @* ]]; then
 		_comp_compgen_known_hosts -- "$cur"
 		return
 	elif [[ $cur == +* ]]; then
+		if [[ $cur == *= ]]; then
+			return
+		fi
 		_comp_compgen_split -- "$(_comp_cmd_dig__list_plusopts "$cmd")"
 		[[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 		return
@@ -110,7 +106,7 @@ _comp_cmd_dig()
 			return
 			;;
 		-k|-f)
-			_comp_compgen filedir
+			_comp_compgen_filedir
 			return
 			;;
 		-x|-b)
@@ -141,7 +137,7 @@ _comp_cmd_mdig()
 			return
 			;;
 		-f)
-			_comp_compgen filedir
+			_comp_compgen_filedir
 			return
 			;;
 		-x|-b)
@@ -172,7 +168,7 @@ _comp_cmd_delv()
 			return
 			;;
 		-a)
-			_comp_compgen filedir
+			_comp_compgen_filedir
 			return
 			;;
 		-x|-b)
@@ -205,7 +201,7 @@ _comp_cmd_kdig()
 			return
 			;;
 		-k|-E|-G)
-			_comp_compgen filedir
+			_comp_compgen_filedir
 			return
 			;;
 		-x|-b)
