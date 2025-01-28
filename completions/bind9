@@ -55,18 +55,12 @@ _comp_cmd_rndc()
 # Generate list of +example opts from dig help, including negative.
 _comp_cmd_dig__list_plusopts()
 {
-	local cmd="${1:-dig}" # delv and mdig has similar style options
-	"$cmd" -h 2>&1 | awk '/^\s+\+\[no\]/ { sub("+\\[no\\]", "", $1); sub("=##+$", "=", $1); sub("\\[=##+\\]", "", $1); print "+"$1, "+no"$1} /^\s+\+[^[]/ {sub("=##+", "=", $1); print $1}'
+	"${comp_args[0]}" -h 2>&1 | awk '/^\s+\+\[no\]/ { sub("+\\[no\\]", "", $1); sub("=##+$", "=", $1); sub("\\[=##+\\]", "", $1); print "+"$1, "+no"$1} /^\s+\+[^[]/ {sub("=##+", "=", $1); print $1}'
 }
 
 # Implements common dig usage patterns
 _comp_cmd_dig__common()
 {
-	local cmd="$1"
-	local cur="$2"
-	shift
-	shift
-
 	if [[ $cur == -* ]]; then
 		_comp_compgen_help -- -h
 		return
@@ -77,7 +71,7 @@ _comp_cmd_dig__common()
 		if [[ $cur == *= ]]; then
 			return
 		fi
-		_comp_compgen_split -- "$(_comp_cmd_dig__list_plusopts "$cmd")"
+		_comp_compgen_split -- "$(_comp_cmd_dig__list_plusopts)"
 		[[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 		return
 	fi
@@ -115,7 +109,7 @@ _comp_cmd_dig()
 			;;
 	esac
 
-	_comp_cmd_dig__common dig "$cur" "$@"
+	_comp_cmd_dig__common "$@"
 } && complete -F _comp_cmd_dig dig
 
 _comp_cmd_mdig()
@@ -146,7 +140,7 @@ _comp_cmd_mdig()
 			;;
 	esac
 
-	_comp_cmd_dig__common mdig "$cur" "$@"
+	_comp_cmd_dig__common "$@"
 } && complete -F _comp_cmd_mdig mdig
 
 _comp_cmd_delv()
@@ -177,7 +171,7 @@ _comp_cmd_delv()
 			;;
 	esac
 
-	_comp_cmd_dig__common delv "$cur" "$@"
+	_comp_cmd_dig__common "$@"
 } && complete -F _comp_cmd_delv delv
 
 # kdig is provided by knot-utils, but is more or less a drop-in replacement for dig
@@ -214,7 +208,7 @@ _comp_cmd_kdig()
 		_comp_compgen_usage
 		return
 	fi
-	_comp_cmd_dig__common kdig "$cur" "$@"
+	_comp_cmd_dig__common "$@"
 } && complete -F _comp_cmd_kdig kdig
 
 # ex: filetype=sh
