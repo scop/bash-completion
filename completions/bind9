@@ -24,7 +24,7 @@ _comp_cmd_rndc()
 
 	case $prev in
 		-c|-k)
-			_comp_compgen -a filedir
+			_comp_compgen filedir
 			return
 			;;
 		-s)
@@ -36,15 +36,14 @@ _comp_cmd_rndc()
 	local REPLY
 	_comp_count_args
 	if ((REPLY == 1)); then
-		_comp_compgen -- -W "$(_comp_cmd_rndc__list_commands)"
-	fi
-	if ((REPLY == 2)); then
+		_comp_compgen_split -- "$(_comp_cmd_rndc__list_commands)"
+	elif ((REPLY == 2)); then
 		local PARAMS="$(_comp_cmd_rndc__list_parameters $prev)"
 		if [[ "$PARAMS" == zone ]]; then
-			_comp_compgen -- -W "$(_comp_cmd_named_checkconf__list_zones)"
+			_comp_compgen_split -- "$(_comp_cmd_named_checkconf__list_zones)"
 			return
 		else
-			_comp_compgen -- -W "$PARAMS"
+			_comp_compgen_split -- "$PARAMS"
 		fi
 	fi
 	if [[ $cur == -* ]]; then
@@ -55,8 +54,8 @@ _comp_cmd_rndc()
 
 _comp_cmd_dig__list_plusopts()
 {
-	local CMD=${1:-dig} # delv and mdig has similar style options
-	$CMD -h 2>&1 | awk '/^\s+\+\[no\]/ { sub("+\\[no\\]", "", $1); sub("=##+$", "=", $1); sub("\\[=##+\\]", "", $1); print "+"$1, "+no"$1} /^\s+\+[^[]/ {sub("=##+", "=", $1); print $1}'
+	local CMD="${1:-dig}" # delv and mdig has similar style options
+	"$CMD" -h 2>&1 | awk '/^\s+\+\[no\]/ { sub("+\\[no\\]", "", $1); sub("=##+$", "=", $1); sub("\\[=##+\\]", "", $1); print "+"$1, "+no"$1} /^\s+\+[^[]/ {sub("=##+", "=", $1); print $1}'
 }
 
 _comp_cmd_dig()
@@ -78,7 +77,7 @@ _comp_cmd_dig()
 			return
 			;;
 		-k|-f)
-			_comp_compgen -a filedir
+			_comp_compgen filedir
 			return
 			;;
 		-x|-b)
@@ -90,15 +89,13 @@ _comp_cmd_dig()
 	if [[ $cur == -* ]]; then
 		_comp_compgen_usage
 		return
-	fi
-	if [[ $cur == @* ]]; then
+	elif [[ $cur == @* ]]; then
 		_comp_compgen_known_hosts -- "$cur"
 		return
-	fi
-	if [[ $cur == +* ]]; then
-		_comp_compgen -- -W "$(_comp_cmd_dig__list_plusopts dig)"
+	elif [[ $cur == +* ]]; then
+		_comp_compgen_split -- "$(_comp_cmd_dig__list_plusopts dig)"
 		[[ ${COMPREPLY-} == *= ]] && compopt -o nospace
-
+		return
 	fi
 
 	# TODO: dig is tricky. It can accept hostname, queryclass or querytype without any parameter.
@@ -125,7 +122,7 @@ _comp_cmd_mdig()
 			return
 			;;
 		-f)
-			_comp_compgen -a filedir
+			_comp_compgen filedir
 			return
 			;;
 		-x|-b)
@@ -137,13 +134,11 @@ _comp_cmd_mdig()
 	if [[ $cur == -* ]]; then
 		_comp_compgen_usage
 		return
-	fi
-	if [[ $cur == @* ]]; then
+	elif [[ $cur == @* ]]; then
 		_comp_compgen_known_hosts -- "$cur"
 		return
-	fi
-	if [[ $cur == +* ]]; then
-		_comp_compgen -- -W "$(_comp_cmd_dig__list_plusopts mdig)"
+	elif [[ $cur == +* ]]; then
+		_comp_compgen_split -- "$(_comp_cmd_dig__list_plusopts mdig)"
 		[[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 
 	fi
@@ -172,7 +167,7 @@ _comp_cmd_delv()
 			return
 			;;
 		-a)
-			_comp_compgen -a filedir
+			_comp_compgen filedir
 			return
 			;;
 		-x|-b)
@@ -190,7 +185,7 @@ _comp_cmd_delv()
 		return
 	fi
 	if [[ $cur == +* ]]; then
-		_comp_compgen -- -W "$(_comp_cmd_dig__list_plusopts delv)"
+		_comp_compgen_split -- "$(_comp_cmd_dig__list_plusopts delv)"
 		[[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 
 	fi
