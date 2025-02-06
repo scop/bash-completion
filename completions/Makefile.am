@@ -1344,7 +1344,7 @@ symlinks: $(DATA)
 	$(ss) info \
 		pinfo
 	$(ss) inotifywait \
-		inotifywatch
+		inotifywatch fsnotifywait fsnotifywatch
 	$(ss) _insmod \
 		_insmod.static
 	$(ss) iperf \
