@@ -111,6 +111,11 @@ _comp_cmd_openssl()
                 dgst | req | x509)
                     _comp_compgen -a -i openssl digests "$1"
                     ;;
+                enc)
+                    # The -list option was added in openssl 1.1.1e, so we ignore the error here.
+                    # We do get some of the ciphers "by accident", since some are detected in the help output.
+                    _comp_compgen -a split -- "$("$1" enc -list 2>/dev/null | command sed '/Supported ciphers:/d')"
+                    ;;
             esac
         else
             if [[ $command == speed ]]; then
