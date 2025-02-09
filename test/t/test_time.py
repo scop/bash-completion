@@ -4,7 +4,7 @@ import pytest
 
 
 class TestTime:
-    @pytest.mark.complete("time _comp_delimite", cwd="shared/empty_dir")
+    @pytest.mark.complete("time _comp_delimit", cwd="shared/empty_dir")
     def test_command(self, completion):
         """
         Test completion of commands.
@@ -12,7 +12,7 @@ class TestTime:
         We use a function of ours as the test subject, as that's guaranteed
         to be available, and do not rely on anything in particular in $PATH.
         """
-        assert completion == "d" or "_comp_delimited" in completion
+        assert completion == "ed" or "_comp_delimited" in completion
 
     @pytest.mark.complete("time -p find -typ")
     def test_2(self, completion):
