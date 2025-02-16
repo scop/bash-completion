@@ -46,7 +46,8 @@ _comp_cmd_openssl()
 
     if ((cword == 1)); then
         local commands
-        commands="$("$1" help 2>&1 | command sed -e '/commands\|help:/d')"
+        # We only want the standard commands, so we delete everything starting after and including "Message Digest commands"
+        commands="$("$1" help 2>&1 | command sed -e '/Standard commands/d;/help:/d' -e '/Message Digest commands/,$d')"
         _comp_compgen -- -W "$commands"
     else
         command=${words[1]}
@@ -109,6 +110,11 @@ _comp_cmd_openssl()
             case $command in
                 dgst | req | x509)
                     _comp_compgen -a -i openssl digests "$1"
+                    ;;
+                enc)
+                    # The -list option was added in openssl 1.1.1e, so we ignore the error here.
+                    # We do get some of the ciphers "by accident", since some are detected in the help output.
+                    _comp_compgen -a split -- "$("$1" enc -list 2>/dev/null | command sed '/Supported ciphers:/d')"
                     ;;
             esac
         else
