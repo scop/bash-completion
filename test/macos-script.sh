@@ -10,6 +10,10 @@ brew install \
 
 python3 -m pip install -r test/requirements.txt
 
+oldpwd=$(pwd)
+cp -a . /work
+cd /work
+
 export bashcomp_bash=bash
 env
 
@@ -18,5 +22,5 @@ autoreconf -i
 make -j
 
 make distcheck \
-    PYTESTFLAGS="${PYTESTFLAGS---verbose --numprocesses=auto --dist=loadfile}"
+    PYTESTFLAGS="${PYTESTFLAGS---verbose -p no:cacheprovider --numprocesses=auto --dist=loadfile}"
 cp -p bash-completion-*.tar.* "$oldpwd/"
