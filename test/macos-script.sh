@@ -8,11 +8,14 @@ brew install \
     automake \
     bash
 
-python3 -m pip install -r test/requirements.txt
-
 oldpwd=$(pwd)
 cp -a . /work
 cd /work
+
+python3 -m venv venv
+#shellcheck disable=SC1091
+source venv/bin/activate
+python3 -m pip install -r test/requirements.txt
 
 export bashcomp_bash=bash
 env
