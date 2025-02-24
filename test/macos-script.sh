@@ -8,10 +8,6 @@ brew install \
     automake \
     bash
 
-oldpwd=$(pwd)
-cp -a . /work
-cd /work
-
 python3 -m venv venv
 #shellcheck disable=SC1091
 source venv/bin/activate
@@ -26,4 +22,3 @@ make -j
 
 make distcheck \
     PYTESTFLAGS="${PYTESTFLAGS---verbose -p no:cacheprovider --numprocesses=auto --dist=loadfile}"
-cp -p bash-completion-*.tar.* "$oldpwd/"
