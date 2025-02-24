@@ -8,6 +8,9 @@ brew install \
     automake \
     bash
 
+python3 -m venv venv
+#shellcheck disable=SC1091
+source venv/bin/activate
 python3 -m pip install -r test/requirements.txt
 
 export bashcomp_bash=bash
@@ -18,5 +21,4 @@ autoreconf -i
 make -j
 
 make distcheck \
-    PYTESTFLAGS="${PYTESTFLAGS---verbose --numprocesses=auto --dist=loadfile}"
-cp -p bash-completion-*.tar.* "$oldpwd/"
+    PYTESTFLAGS="${PYTESTFLAGS---verbose -p no:cacheprovider --numprocesses=auto --dist=loadfile}"
