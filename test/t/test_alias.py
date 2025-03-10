@@ -10,7 +10,6 @@ class TestAlias:
     def test_1(self, completion):
         assert completion == "bar foo".split()
 
-    @pytest.mark.xfail  # TODO: Would like this completion to work
     @pytest.mark.complete("alias foo=")
     def test_2(self, completion):
         assert completion == "foo='bar'"
