@@ -182,6 +182,7 @@ EXTRA_DIST = \
 	test_fprintd_enroll.py \
 	test_fprintd_list.py \
 	test_fprintd_verify.py \
+	test_free.py \
 	test_freebsd_update.py \
 	test_freeciv.py \
 	test_freeciv_server.py \
