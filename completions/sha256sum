@@ -20,18 +20,18 @@ _comp_cmd_sha256sum()
 
     local sumtype=${1##*/}
     sumtype=${sumtype%sum}
+    local sumglob="@(*.$sumtype|@(check|${sumtype})sums?(.txt))"
+    compopt -o filenames
 
     local opt
     for opt in "${words[@]}"; do
         if [[ $opt == -@(c|-check) ]]; then
-            _comp_compgen_filedir "$sumtype"
+            _comp_compgen -- -f -X "!$sumglob" -o plusdirs
             return
         fi
     done
 
-    local files
-    _comp_compgen -v files filedir &&
-        _comp_compgen -- -X "*.$sumtype" -W '"${files[@]}"'
+    _comp_compgen -- -f -X "$sumglob" -o plusdirs
 } &&
     complete -F _comp_cmd_sha256sum b2sum cksum md5sum \
         sha{,1,224,256,384,512}sum
