@@ -125,6 +125,7 @@ cross_platform = 2to3 \
 		_flamegraph \
 		fprintd-delete \
 		fprintd-enroll \
+		free \
 		freeciv \
 		freeciv-server \
 		function \
