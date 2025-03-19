@@ -122,6 +122,34 @@
 
 * **mfiutil:** more link and style issues ([cbd2661](https://github.com/scop/bash-completion/commit/cbd266155020194ec824028fb5c0d7ac95c89474))
 
+## [2.17.0](https://github.com/scop/bash-completion/compare/2.16.0...2.17.0) (2025-03-19)
+
+
+### Features
+
+* **aptitude:** update sub-commands ([4ac918f](https://github.com/scop/bash-completion/commit/4ac918f075c71e54753e90b8d1fd87871ca4a08f))
+* associate .ogx and .oga with relevant programs ([0a13be1](https://github.com/scop/bash-completion/commit/0a13be1f6576ee4977552379e11157073b4e841b))
+* **curl:** Complete IP addresses for --interface ([0ea21b9](https://github.com/scop/bash-completion/commit/0ea21b987a1ffeec3d0a2d4c630bfcd20e19b87c))
+* **free:** new completion ([f82ac04](https://github.com/scop/bash-completion/commit/f82ac04a5ec3bd6d1832aab62d06e44232e0e2fd))
+* **fsnotifywait,fsnotifywatch:** new, alias to inotifywait ([8e8dacc](https://github.com/scop/bash-completion/commit/8e8dacc78a5d1a3bc7638353e9ba6d9523a5b6b7))
+* **nload:** new completion ([e700ae7](https://github.com/scop/bash-completion/commit/e700ae78d7f5c1f4ddd5cdf778ea1a0c6bf1798f))
+* **openssl:** Complete encryption algos for `enc` ([01b3aa2](https://github.com/scop/bash-completion/commit/01b3aa2fadd01ead3e79dd449d5767334bc2543b))
+* **openssl:** show only standard commands ([6fb0827](https://github.com/scop/bash-completion/commit/6fb082718d86163ca2a3310d91c3491e72253cc7))
+* **pytest:** complete --asyncio-mode arg ([6b27125](https://github.com/scop/bash-completion/commit/6b27125ffa965ad6b93ce82788f973234ea84a67))
+* **pytest:** complete --record-mode arg ([d14cf0d](https://github.com/scop/bash-completion/commit/d14cf0d1613d8940e0b4bdc7b73eb2d904198ef4))
+* **unzip,zipinfo:** Android split APK .apkm .apks .xapk ([92f558d](https://github.com/scop/bash-completion/commit/92f558d582c452e96872f480ebf86cc3c08f0a87))
+* **wget:** ipv6 addresses for --bind-address ([d3ff6a7](https://github.com/scop/bash-completion/commit/d3ff6a7081c53778529f5bad3e0846f12b29bc74))
+
+
+### Bug Fixes
+
+* **_umount,feh,sbopkg:** check diretory name for "_comp_compgen -C" ([c2c6c08](https://github.com/scop/bash-completion/commit/c2c6c08a62d8fc905739abe4e8dc8c1f37850e86))
+* **_umount,feh,sbopkg:** check diretory name for `_comp_compgen -C` ([ff9e1d3](https://github.com/scop/bash-completion/commit/ff9e1d35b820d967242bae7163c2ae84fec22369))
+* **brctl:** fix quoting of the command name ([#1296](https://github.com/scop/bash-completion/issues/1296)) ([3201497](https://github.com/scop/bash-completion/commit/32014973c96f317990693412bcf680b614b460ea))
+* **feh:** fix "nounset" error ([e9e665e](https://github.com/scop/bash-completion/commit/e9e665efd7623dd9ec6d72c25c5797c497d58f65))
+* **ip:** Don't offer neighbour, only neighbor ([79fd051](https://github.com/scop/bash-completion/commit/79fd051907328c8c26372691f68d627c1f0e3916))
+* **openssl:** Make command extraction from help portable for BSD sed. ([6fb0827](https://github.com/scop/bash-completion/commit/6fb082718d86163ca2a3310d91c3491e72253cc7))
+
 ## [2.15.0](https://github.com/scop/bash-completion/compare/2.14.0...2.15.0) (2024-11-24)
 
 
