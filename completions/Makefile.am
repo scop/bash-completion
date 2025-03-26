@@ -716,6 +716,7 @@ CLEANFILES = \
 	_gitleaks \
 	_gitsign \
 	gkrellm2 \
+	_glab \
 	_glen \
 	_glow \
 	gmake \
@@ -1159,7 +1160,7 @@ symlinks: $(DATA)
 	$(ss) geoiplookup \
 		geoiplookup6
 	$(ss) _gh \
-		_infracost
+		_glab _infracost
 	$(ss) gkrellm \
 		gkrellm2
 	$(ss) _golangci-lint \
