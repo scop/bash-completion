@@ -205,3 +205,11 @@ class TestScp:
             bash, "scp local_path_1-", cwd=tmpdir_mkfifo
         )
         assert completion == "pipe"
+
+    @pytest.mark.complete("scp spa", cwd="scp")
+    def test_local_path_with_spaces_1(self, completion):
+        assert completion == r"ced\ \ conf"
+
+    @pytest.mark.complete(r"scp spaced\ ", cwd="scp")
+    def test_local_path_with_spaces_2(self, completion):
+        assert completion == r"\ conf"
