@@ -183,7 +183,13 @@ class TestScp:
 
     @pytest.fixture
     def tmpdir_mkfifo(self, request, bash):
-        tmpdir, _, _ = prepare_fixture_dir(request, files=[], dirs=[])
+        # We prepare two files: 1) a named pipe and 2) a regular file ending
+        # with the same name but an extra special character "|".
+        tmpdir, _, _ = prepare_fixture_dir(
+            request,
+            files=["local_path_2-pipe|"],
+            dirs=[],
+        )
 
         # If the system allows creating a named pipe, we create it in a
         # temporary directory and returns the path.  We cannot check the
@@ -205,6 +211,13 @@ class TestScp:
             bash, "scp local_path_1-", cwd=tmpdir_mkfifo
         )
         assert completion == "pipe"
+
+    # FIXME: This test currently fails.
+    # def test_local_path_mark_2(self, bash, tmpdir_mkfifo):
+    #     completion = assert_complete(
+    #         bash, "scp local_path_2-", cwd=tmpdir_mkfifo
+    #     )
+    #     assert completion == "pipe\\|"
 
     @pytest.mark.complete("scp spa", cwd="scp")
     def test_local_path_with_spaces_1(self, completion):
