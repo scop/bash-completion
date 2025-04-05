@@ -73,3 +73,11 @@ class TestRsync:
             completion == r"\ in\ filename.txt"
             or completion == r"\\\ in\\\ filename.txt"
         )
+
+    @pytest.mark.complete("rsync -na spaced\\ ", cwd="scp")
+    def test_local_path_with_spaces(self, completion):
+        """This function tests xfunc _comp_xfunc_scp_compgen_local_files, which
+        is defined in completions/ssh, through the rsync interface.  We reuse
+        the fixture directory for the test of the scp completion.
+        """
+        assert completion

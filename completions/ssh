@@ -459,8 +459,49 @@ _comp_cmd_sftp()
     shopt -u hostcomplete && complete -F _comp_cmd_sftp sftp
 
 # things we want to backslash escape in scp paths
-# shellcheck disable=SC2089
 _comp_cmd_scp__path_esc='[][(){}<>"'"'"',:;^&!$=?`\\|[:space:]]'
+
+# Escape shell special characters in filenames by backslash.  This also
+# suffixes a space or a slash based on the file type.
+#
+# Note: With a non-empty prefix ($1 of _comp_xfunc_scp_compgen_local_files),
+# Bash will not recognize any filenames, so we need to perform the proper
+# quoting manually.  We also need to manually suffix a space or a slash based
+# on the file type because "-o nospace" is specified.  One might think of using
+# "compopt +o nospace" instead, but it would suffix a space to directory names
+# unexpectedly.
+#
+# FIXME: With the current strategy of using "ls -FL", we cannot distinguish the
+# filenames that end with one of the type-classifier characters.  For example,
+# a regular file "pipe|" and a named pipe "pipe" would both produce the
+# identical result "pipe|" with "ls -1FL".  As a consequence, those characters
+# at the end of the filename are removed unexpectedly.  To solve this problem,
+# we need to give up relying on "ls -1FL".
+#
+# @param $1 dirs_only - If a non-empty value is specified, only directory names
+#   are selected.
+# @param $2 escape_replacement - If a non-empty value is specified, special
+#     characters are replaced with the specified value (instead of the default
+#     '\\&').
+# @stdin - List of filenames in the "ls -1F" format, where filenames are
+#   separated by newlines, and characters /=@|* are suffixed based on the types
+#   of the files.
+_comp_cmd_scp__escape_path()
+{
+    local dirs_only=$1 escape_replacement=${2:-'\\&'}
+    if [[ $dirs_only ]]; then
+        # escape problematic characters; remove non-dirs
+        command sed \
+            -e 's/'"$_comp_cmd_scp__path_esc"'/'"$escape_replacement"'/g' \
+            -e '/[^/]$/d'
+    else
+        # escape problematic characters; remove executables, aliases, pipes
+        # and sockets; add space at end of file names
+        command sed \
+            -e 's/'"$_comp_cmd_scp__path_esc"'/'"$escape_replacement"'/g' \
+            -e 's/[*@]$//g' -e 's/\\[|=]$//g' -e 's/[^/]$/& /g'
+    fi
+}
 
 # Complete remote files with ssh. Returns paths escaped with three backslashes
 # (unless -l option is provided).
@@ -487,14 +528,16 @@ _comp_xfunc_scp_compgen_remote_files()
     done
 
     # remove backslash escape from the first colon
-    local cur=${cur/\\:/:}
+    local REPLY=$cur
+    if [[ ! $_less_escaping ]]; then
+        # unescape (3 backslashes to 1 for chars we escaped)
+        REPLY=$(command sed -e 's/\\\\\\\('"$_comp_cmd_scp__path_esc"'\)/\\\1/g' <<<"$REPLY")
+    fi
+    _comp_dequote_incomplete "$REPLY"
+    local cur_val=${REPLY-}
 
-    local _userhost=${cur%%?(\\):*}
-    local _path=${cur#*:}
-
-    # unescape (3 backslashes to 1 for chars we escaped)
-    # shellcheck disable=SC2090
-    _path=$(command sed -e 's/\\\\\\\('"$_comp_cmd_scp__path_esc"'\)/\\\1/g' <<<"$_path")
+    local _userhost=${cur_val%%:*}
+    local _path=${cur_val#*:}
 
     # default to home dir of specified user on remote host
     if [[ ! $_path ]]; then
@@ -507,21 +550,9 @@ _comp_xfunc_scp_compgen_remote_files()
     fi
 
     local _files
-    if [[ $_dirs_only ]]; then
-        # escape problematic characters; remove non-dirs
-        # shellcheck disable=SC2090
-        _files=$(ssh -o 'Batchmode yes' "$_userhost" \
-            command ls -aF1dL "$_path*" 2>/dev/null |
-            command sed -e 's/'"$_comp_cmd_scp__path_esc"'/'"$_escape_replacement"'/g' -e '/[^\/]$/d')
-    else
-        # escape problematic characters; remove executables, aliases, pipes
-        # and sockets; add space at end of file names
-        # shellcheck disable=SC2090
-        _files=$(ssh -o 'Batchmode yes' "$_userhost" \
-            command ls -aF1dL "$_path*" 2>/dev/null |
-            command sed -e 's/'"$_comp_cmd_scp__path_esc"'/'"$_escape_replacement"'/g' -e 's/[*@|=]$//g' \
-                -e 's/[^\/]$/& /g')
-    fi
+    _files=$(ssh -o 'Batchmode yes' "$_userhost" \
+        command ls -aF1dL "$_path*" 2>/dev/null |
+        _comp_cmd_scp__escape_path "$_dirs_only" "$_escape_replacement")
     _comp_compgen -R split -l -- "$_files"
 }
 
@@ -544,21 +575,16 @@ _comp_xfunc_scp_compgen_local_files()
         shift
     fi
 
+    local REPLY
+    _comp_dequote_incomplete "$cur"
+    local cur_val=${REPLY-}
+
     local files
-    _comp_expand_glob files '"$cur"*' || return 0
-    if [[ $_dirsonly ]]; then
-        _comp_compgen -U files split -l -- "$(
-            command ls -aF1dL "${files[@]}" 2>/dev/null |
-                command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" \
-                    -e '/[^\/]$/d' -e "s/^/${1-}/"
-        )"
-    else
-        _comp_compgen -U files split -l -- "$(
-            command ls -aF1dL "${files[@]}" 2>/dev/null |
-                command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" \
-                    -e 's/[*@|=]$//g' -e 's/[^\/]$/& /g' -e "s/^/${1-}/"
-        )"
-    fi
+    _comp_expand_glob files '"$cur_val"*' || return 0
+    _comp_compgen -RU files split -l ${1:+-P "$1"} -- "$(
+        command ls -aF1dL "${files[@]}" 2>/dev/null |
+            _comp_cmd_scp__escape_path "$_dirsonly"
+    )"
 }
 
 # @deprecated 2.12

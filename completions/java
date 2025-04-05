@@ -113,12 +113,16 @@ _comp_cmd_java__packages()
     _comp_cmd_java__find_sourcepath || return 0
     local -a sourcepaths=("${REPLY[@]}")
 
+    local REPLY
+    _comp_dequote_incomplete "$cur"
+    local cur_val=${REPLY-}
+
     # convert package syntax to path syntax
-    local cur=${cur//.//}
+    local cur_val=${cur_val//.//}
     # parse each sourcepath element for packages
     for i in "${sourcepaths[@]}"; do
         if [[ -d $i ]]; then
-            _comp_expand_glob files '"$i/$cur"*' || continue
+            _comp_expand_glob files '"$i/$cur_val"*' || continue
             _comp_split -la COMPREPLY "$(
                 command ls -F -d "${files[@]}" 2>/dev/null |
                     command sed -e 's|^'"$i"'/||'
