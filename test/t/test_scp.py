@@ -58,6 +58,14 @@ class TestScp:
             "option requires an argument -- F" in x for x in completion
         )
 
+    @pytest.mark.complete("scp -Fconf", cwd="scp")
+    def test_capital_f_without_space_2(self, completion):
+        assert completion == "ig"
+
+    @pytest.mark.complete("scp -Fbi", cwd="scp")
+    def test_capital_f_without_space_3(self, completion):
+        assert completion == "n/"
+
     @pytest.fixture(scope="class")
     def live_pwd(self, bash):
         try:
