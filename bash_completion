@@ -190,11 +190,11 @@ _comp_dequote__initialize()
 _comp_dequote__initialize
 
 # This function expands a word using `eval` in a safe way.  This function can
-# be typically used to get the expanded value of `${word[i]}` as
-# `_comp_dequote "${word[i]}"`.  When the word contains unquoted shell special
-# characters, command substitutions, and other unsafe strings, the function
-# call fails before applying `eval`.  Otherwise, `eval` is applied to the
-# string to generate the result.
+# be typically used to get the expanded value of `${word[i]}` as `_comp_dequote
+# "${word[i]}"`.  When the word contains unquoted shell special characters,
+# command substitutions, and other unsafe strings, the function call fails
+# before applying `eval` and REPLY is set to be the literal string.  Otherwise,
+# `eval` is applied to the string to generate the result.
 #
 # @param    $1  String to be expanded.  A safe word consists of the following
 #               sequence of substrings:
@@ -209,7 +209,12 @@ _comp_dequote__initialize
 #                 quotations, parameter expansions are allowed.
 #
 # @var[out] REPLY  Array that contains the expanded results.  Multiple words or
-#                  no words may be generated through pathname expansions.
+#                  no words may be generated through pathname expansions.  If
+#                  $1 is not a safe word, REPLY contains the literal value of
+#                  $1.
+#
+# @return 0 if $1 is a safe word and the expansion result contains one word at
+#     least, or 1 otherwise.
 #
 # Note: This function allows parameter expansions as safe strings, which might
 # cause unexpected results:
@@ -236,9 +241,15 @@ _comp_dequote__initialize
 # @since 2.12
 _comp_dequote()
 {
-    REPLY=() # fallback value for unsafe word and failglob
-    [[ $1 =~ $_comp_dequote__regex_safe_word ]] || return 1
-    eval "REPLY=($1)" 2>/dev/null # may produce failglob
+    if [[ ${1-} =~ $_comp_dequote__regex_safe_word ]]; then
+        REPLY=()                      # fallback value for failglob
+        eval "REPLY=($1)" 2>/dev/null # may produce failglob
+        ((${#REPLY[@]} > 0))
+        return "$?"
+    else
+        REPLY=("${1-}")
+        return 1
+    fi
 }
 
 # Unset the given variables across a scope boundary. Useful for unshadowing
@@ -1627,7 +1638,7 @@ _comp_compgen_help__get_help_lines()
         --) shift 1 ;&
         *)
             local REPLY
-            _comp_dequote "${comp_args[0]-}" || REPLY=${comp_args[0]-}
+            _comp_dequote "${comp_args[0]-}"
             help_cmd=("${REPLY:-false}" "$@")
             ;;
     esac
@@ -2923,7 +2934,7 @@ _comp_command_offset()
     if ((COMP_CWORD == 0)); then
         _comp_compgen_commands
     else
-        _comp_dequote "${COMP_WORDS[0]}" || REPLY=${COMP_WORDS[0]}
+        _comp_dequote "${COMP_WORDS[0]}"
         local cmd=${REPLY-} compcmd=${REPLY-}
         local cspec=$(complete -p -- "$cmd" 2>/dev/null)
 

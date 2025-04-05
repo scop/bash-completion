@@ -25,7 +25,7 @@ class TestDequote:
         assert output.strip() == "<abc>"
 
     def test_3_null(self, bash, functions):
-        output = assert_bash_exec(bash, "__tester ''", want_output=True)
+        output = assert_bash_exec(bash, "! __tester ''", want_output=True)
         assert output.strip() == ""
 
     def test_4_empty(self, bash, functions):
@@ -108,25 +108,25 @@ class TestDequote:
         output = assert_bash_exec(
             bash, "! __tester '$(echo hello >&2)'", want_output=True
         )
-        assert output.strip() == ""
+        assert output.strip() == "<$(echo hello >&2)>"
 
     def test_unsafe_2(self, bash, functions):
         output = assert_bash_exec(
             bash, "! __tester '|echo hello >&2'", want_output=True
         )
-        assert output.strip() == ""
+        assert output.strip() == "<|echo hello >&2>"
 
     def test_unsafe_3(self, bash, functions):
         output = assert_bash_exec(
             bash, "! __tester '>| important_file.txt'", want_output=True
         )
-        assert output.strip() == ""
+        assert output.strip() == "<>| important_file.txt>"
 
     def test_unsafe_4(self, bash, functions):
         output = assert_bash_exec(
             bash, "! __tester '`echo hello >&2`'", want_output=True
         )
-        assert output.strip() == ""
+        assert output.strip() == "<`echo hello >&2`>"
 
     def test_glob_default(self, bash, functions):
         with bash_env_saved(bash) as bash_env:
@@ -160,6 +160,6 @@ class TestDequote:
             bash_env.shopt("failglob", False)
             bash_env.shopt("nullglob", True)
             output = assert_bash_exec(
-                bash, "__tester 'non-existent-*.txt'", want_output=True
+                bash, "! __tester 'non-existent-*.txt'", want_output=True
             )
             assert output.strip() == ""
