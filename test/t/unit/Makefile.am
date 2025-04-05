@@ -19,6 +19,7 @@ EXTRA_DIST = \
 	test_unit_delimited.py \
 	test_unit_deprecate_func.py \
 	test_unit_dequote.py \
+	test_unit_dequote_incomplete.py \
 	test_unit_expand.py \
 	test_unit_expand_glob.py \
 	test_unit_expand_tilde.py \
