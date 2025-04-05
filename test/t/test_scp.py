@@ -2,7 +2,12 @@ from itertools import chain
 
 import pytest
 
-from conftest import assert_bash_exec, assert_complete, bash_env_saved
+from conftest import (
+    assert_bash_exec,
+    assert_complete,
+    bash_env_saved,
+    prepare_fixture_dir,
+)
 
 LIVE_HOST = "bash_completion"
 
@@ -54,6 +59,14 @@ class TestScp:
         assert not any(
             "option requires an argument -- F" in x for x in completion
         )
+
+    @pytest.mark.complete("scp -Fconf", cwd="scp")
+    def test_capital_f_without_space_2(self, completion):
+        assert completion == "ig"
+
+    @pytest.mark.complete("scp -Fbi", cwd="scp")
+    def test_capital_f_without_space_3(self, completion):
+        assert completion == "n/"
 
     @pytest.fixture(scope="class")
     def live_pwd(self, bash):
@@ -141,3 +154,22 @@ class TestScp:
             "shared/default/foo ",
             "shared/default/foo.d/",
         ]
+
+    @pytest.fixture
+    def tmpdir_mkfifo(self, request, bash):
+        tmpdir, _, _ = prepare_fixture_dir(request, files=[], dirs=[])
+
+        try:
+            assert_bash_exec(bash, "mkfifo '%s/local_path_1-pipe'" % tmpdir)
+        except Exception:
+            pytest.skip(
+                "The present system does not allow creating a named pipe."
+            )
+
+        return tmpdir
+
+    def test_local_path_mark_1(self, bash, tmpdir_mkfifo):
+        completion = assert_complete(
+            bash, "scp local_path_1-", cwd=tmpdir_mkfifo
+        )
+        assert completion == "pipe"

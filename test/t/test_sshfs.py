@@ -6,3 +6,7 @@ class TestSshfs:
     @pytest.mark.complete("sshfs ./")
     def test_1(self, completion):
         assert completion
+
+    @pytest.mark.complete("sshfs local_path", cwd="sshfs")
+    def test_local_path_suffix_1(self, completion):
+        assert completion == "-dir/"
