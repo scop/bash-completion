@@ -251,6 +251,28 @@ _comp_dequote()
     fi
 }
 
+# Try to reconstruct an incomplete word and apply _comp_dequote.
+# @param    $1  String to be expanded.  The same as _comp_dequote, but
+#               incomplete backslash, single quotation, and double quotation
+#               are allowed.
+# @var[out] REPLY  Result.  The same as _comp_dequote.
+# @since 2.17
+_comp_dequote_incomplete()
+{
+    local _word=${1-}
+    if ! [[ $_word =~ $_comp_dequote__regex_safe_word ]]; then
+        # shellcheck disable=SC1003
+        if [[ ${_word%'\'} =~ $_comp_dequote__regex_safe_word ]]; then
+            _word=${_word%'\'}
+        elif [[ $_word\' =~ $_comp_dequote__regex_safe_word ]]; then
+            _word=$_word\'
+        elif [[ $_word\" =~ $_comp_dequote__regex_safe_word ]]; then
+            _word=$_word\"
+        fi
+    fi
+    _comp_dequote "$_word"
+}
+
 # Unset the given variables across a scope boundary. Useful for unshadowing
 # global scoped variables. Note that simply calling unset on a local variable
 # will not unshadow the global variable. Rather, the result will be a local
