@@ -115,6 +115,19 @@ class TestScp:
         assert_bash_exec(bash, "unset -f ssh")
         assert completion == r"\\\ in\\\ filename.txt"
 
+    def test_remote_path_with_backslash(self, bash):
+        assert_bash_exec(
+            bash, "ssh() { printf '%s\\n' 'abc def.txt' 'abc\ def.txt'; }"
+        )
+        completion = assert_complete(bash, "scp remote_host:abc\\")
+        assert_bash_exec(bash, "unset -f ssh")
+
+        # Note: The number of backslash escaping differs depending on the scp
+        # version.
+        assert completion == sorted(
+            [r"abc\ def.txt", r"abc\\\ def.txt"]
+        ) or completion == sorted([r"abc\\\ def.txt", r"abc\\\\\\\ def.txt"])
+
     def test_xfunc_remote_files(self, bash):
         with bash_env_saved(bash) as bash_env:
             bash_env.save_variable("COMPREPLY")
@@ -193,3 +206,12 @@ class TestScp:
     @pytest.mark.complete("scp spaced\\ ", cwd="scp")
     def test_local_path_with_spaces_2(self, completion):
         assert completion == "\\ conf"
+
+    @pytest.mark.complete("scp local_path-backslash-a\\", cwd="scp")
+    def test_local_path_backslash(self, completion):
+        assert completion == sorted(
+            [
+                r"local_path-backslash-a\ b.txt",
+                r"local_path-backslash-a\\\ b.txt",
+            ]
+        )

@@ -251,6 +251,24 @@ _comp_dequote()
     fi
 }
 
+# Try to reconstruct an incomplete word and apply _comp_dequote.
+# @since 2.16
+_comp_dequote_incomplete()
+{
+    local word=${1-}
+    if ! [[ $word =~ $_comp_dequote__regex_safe_word ]]; then
+        # shellcheck disable=SC1003
+        if [[ ${word%'\'} =~ $_comp_dequote__regex_safe_word ]]; then
+            word=${word%'\'}
+        elif [[ $word\' =~ $_comp_dequote__regex_safe_word ]]; then
+            word=$word\'
+        elif [[ $word\" =~ $_comp_dequote__regex_safe_word ]]; then
+            word=$word\"
+        fi
+    fi
+    _comp_dequote "$word"
+}
+
 # Unset the given variables across a scope boundary. Useful for unshadowing
 # global scoped variables. Note that simply calling unset on a local variable
 # will not unshadow the global variable. Rather, the result will be a local
