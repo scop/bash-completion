@@ -544,17 +544,17 @@ _comp_xfunc_scp_compgen_local_files()
     local files
     _comp_expand_glob files '"$cur"*' || return 0
     if [[ $_dirsonly ]]; then
-        _comp_compgen -RU files split -l -- "$(
+        _comp_compgen -RU files split -l ${1:+-P "$1"} -- "$(
             command ls -aF1dL "${files[@]}" 2>/dev/null |
                 command sed -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" \
-                    -e '/[^/]$/d' -e "s/^/${1-}/"
+                    -e '/[^/]$/d'
         )"
     else
-        _comp_compgen -RU files split -l -- "$(
+        _comp_compgen -RU files split -l ${1:+-P "$1"} -- "$(
             command ls -aF1dL "${files[@]}" 2>/dev/null |
                 command sed -e 's/[*@|=]$//g' \
                     -e "s/$_comp_cmd_scp__path_esc/\\\\&/g" \
-                    -e 's/[^/]$/& /g' -e "s/^/${1-}/"
+                    -e 's/[^/]$/& /g'
         )"
     fi
 }
