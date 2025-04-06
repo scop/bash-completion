@@ -132,6 +132,14 @@ Also, please bear the following coding guidelines in mind:
   expansions will be unexpectedly performed, which becomes a vulnerability.  In
   the latter case, checks by shellcheck and shfmt will not be performed inside
   `'...'`.  Also, `_comp_compgen_split` is `IFS`-safe.
+  
+  Avoid using `_comp_compgen -- -G "pattern"` to generate completions.  The
+  result is not filtered by the current word `cur` due to the Bash design of
+  `compgen`.  Also, this cannot be used to generate filenames with a specified
+  extension because the `-G` specification only generates the matching
+  filepaths in the current directory.  It does not look into subdirectories
+  even when `$cur` implies completion in a subdirectory.  One can instead use
+  `_comp_compgen -- -f -X '!pattern'`.
 
 - When completing available options, offer only the most descriptive
   ones as completion results if there are multiple options that do the
