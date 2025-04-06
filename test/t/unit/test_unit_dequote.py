@@ -54,7 +54,7 @@ class TestDequote:
 
     def test_7_quote_3(self, bash, functions):
         output = assert_bash_exec(
-            bash, "__tester \\$\\'a\\\\tb\\'", want_output=True
+            bash, r"__tester \$\'a\\tb\'", want_output=True
         )
         assert output.strip() == "<a\tb>"
 
@@ -66,7 +66,7 @@ class TestDequote:
 
     def test_7_quote_5(self, bash, functions):
         output = assert_bash_exec(
-            bash, "__tester \\'abc\\'\\\\\\'\\'def\\'", want_output=True
+            bash, r"__tester \'abc\'\\\'\'def\'", want_output=True
         )
         assert output.strip() == "<abc'def>"
 

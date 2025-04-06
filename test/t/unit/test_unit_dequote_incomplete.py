@@ -54,7 +54,7 @@ class TestDequoteIncomplete:
 
     def test_quote_3(self, bash, functions):
         output = assert_bash_exec(
-            bash, "__tester \\$\\'a\\\\tb\\'", want_output=True
+            bash, r"__tester \$\'a\\tb\'", want_output=True
         )
         assert output.strip() == "<a\tb>"
 
@@ -66,12 +66,12 @@ class TestDequoteIncomplete:
 
     def test_quote_5(self, bash, functions):
         output = assert_bash_exec(
-            bash, "__tester \\'abc\\'\\\\\\'\\'def\\'", want_output=True
+            bash, r"__tester \'abc\'\\\'\'def\'", want_output=True
         )
         assert output.strip() == "<abc'def>"
 
     def test_incomplete_1(self, bash, functions):
-        output = assert_bash_exec(bash, "__tester 'a\\'", want_output=True)
+        output = assert_bash_exec(bash, r"__tester 'a\'", want_output=True)
         assert output.strip() == "<a>"
 
     def test_incomplete_2(self, bash, functions):
