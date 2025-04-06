@@ -541,7 +541,27 @@ _comp_xfunc_scp_compgen_remote_files()
     local REPLY=$cur
     if [[ ! $_less_escaping ]]; then
         # unescape (3 backslashes to 1 for chars we escaped)
-        REPLY=$(command sed -e 's/\\\\\\\('"$_comp_cmd_scp__path_esc"'\)/\\\1/g' <<<"$REPLY")
+        #
+        # In the following while-loop, we essentially do the following:
+        #
+        #     REPLY=$(command sed -e 's/\\\\\\\('"$_comp_cmd_scp__path_esc"'\|$\)/\\\1/g' <<<"$REPLY")
+        #
+        # We implement this by the Bash built-in features because POSIX BRE
+        # does not support \|.  POSIX sed newly standardized the "-E" flag to
+        # use POSIX ERE in POSIX.1-2024, but older implementations of sed are
+        # still expected to remain in the market.  Also, we can avoid the fork
+        # cost by implementing this using built-in features.
+        #
+        # Note: We need to store \\\\\\ in a variable to work around "shopt -s
+        # compat31".
+        local _tail=$REPLY _regex_triple_backslashes='\\\\\\('$_comp_cmd_scp__path_esc'|$)(.*)$'
+        REPLY=
+        while [[ $_tail && $_tail =~ $_regex_triple_backslashes ]]; do
+            # shellcheck disable=SC1003
+            REPLY=${_tail::${#_tail}-${#BASH_REMATCH}}'\'${BASH_REMATCH[1]}
+            _tail=${BASH_REMATCH[2]}
+        done
+        REPLY+=$_tail
     fi
     _comp_dequote_incomplete "$REPLY"
     local cur_val=${REPLY-}
