@@ -488,7 +488,19 @@ _comp_cmd_scp__path_esc='[][(){}<>"'"'"',:;^&!$=?`\\|[:space:]]'
 #     types of the files.
 _comp_cmd_scp__escape_path()
 {
-    local dirs_only=$1 escape_replacement=${2:-'\\&'}
+    local OPTIND=1 OPTARG="" OPTERR=0 opt dirs_only=""
+    while getopts ':d' _flag "$@"; do
+        case $_flag in
+            d) dirs_only=set ;;
+            *)
+                echo "bash_completion: $FUNCNAME: usage error: $*" >&2
+                return 1
+                ;;
+        esac
+    done
+    shift "$((OPTIND - 1))"
+    local escape_replacement=${1:-'\\&'}
+
     if [[ $dirs_only ]]; then
         # escape problematic characters; remove non-dirs
         command sed \
@@ -553,7 +565,8 @@ _comp_xfunc_scp_compgen_remote_files()
     local _files
     _files=$(ssh -o 'Batchmode yes' "$_userhost" \
         command ls -aF1dL "$_path*" 2>/dev/null |
-        _comp_cmd_scp__escape_path "$_dirs_only" "$_escape_replacement")
+        _comp_cmd_scp__escape_path ${_dirs_only:+'-d'} -- \
+            "$_escape_replacement")
     _comp_compgen -R split -l -- "$_files"
 }
 
@@ -584,7 +597,7 @@ _comp_xfunc_scp_compgen_local_files()
     _comp_expand_glob files '"$cur_val"*' || return 0
     _comp_compgen -RU files split -l ${1:+-P "$1"} -- "$(
         command ls -aF1dL "${files[@]}" 2>/dev/null |
-            _comp_cmd_scp__escape_path "$_dirsonly"
+            _comp_cmd_scp__escape_path ${_dirsonly:+'-d'}
     )"
 }
 
