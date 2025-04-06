@@ -10,13 +10,11 @@ _comp_cmd_upgradepkg()
         return
     fi
 
-    if [[ $cur == ?*%* ]]; then
-        prev="${cur%%?(\\)%*}"
-        cur="${cur#*%}"
-        local nofiles=""
+    if [[ $cur =~ ^[^%]+% ]]; then
+        local prefix=$BASH_REMATCH nofiles=""
         compopt -o filenames
-        _comp_compgen -- -P "$prev%" -f -X "!*.t[bgxl]z" || nofiles=set
-        _comp_compgen -a -- -P "$prev%" -S '/' -d
+        _comp_compgen -P "$prefix" -- -f -X "!*.t[bgxl]z" || nofiles=set
+        _comp_compgen -aP "$prefix" -- -S '/' -d
         [[ $nofiles ]] && compopt -o nospace
         return
     fi

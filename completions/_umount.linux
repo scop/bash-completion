@@ -98,20 +98,14 @@ _comp_cmd_umount()
     case "$prev" in
         -t)
             # FIXME: no<fstype>
-            local split=""
-            if [[ $cur == ?*,* ]]; then
-                prev="${cur%,*}"
-                cur="${cur##*,}"
-                split=set
-            fi
-            _comp_compgen -- -W 'adfs affs autofs btrfs cifs coda cramfs
-                debugfs devpts efs ext2 ext3 ext4 fuse hfs hfsplus hpfs iso9660
-                jfs minix msdos ncpfs nfs nfs4 ntfs ntfs-3g proc qnx4 ramfs
-                reiserfs romfs squashfs smbfs sysv tmpfs ubifs udf ufs umsdos
-                usbfs vfat xfs'
-            _comp_compgen -a fstypes
-            [[ $split ]] && ((${#COMPREPLY[@]})) &&
-                _comp_compgen -Rv COMPREPLY -- -P "$prev," -W '"${COMPREPLY[@]}"'
+            [[ $cur =~ ^.+, ]]
+            local prefix=${BASH_REMATCH-}
+            _comp_compgen -P "$prefix" -- -W 'adfs affs autofs btrfs cifs coda
+                cramfs debugfs devpts efs ext2 ext3 ext4 fuse hfs hfsplus hpfs
+                iso9660 jfs minix msdos ncpfs nfs nfs4 ntfs ntfs-3g proc qnx4
+                ramfs reiserfs romfs squashfs smbfs sysv tmpfs ubifs udf ufs
+                umsdos usbfs vfat xfs'
+            _comp_compgen -aP "$prefix" fstypes
             return
             ;;
         -O)

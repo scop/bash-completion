@@ -8,24 +8,18 @@ _comp_cmd_mount()
     local cur prev words cword comp_args
     _comp_initialize -n =: -- "$@" || return
 
-    local split=""
     case "$prev" in
         -t | --types)
             # find /lib/modules/$(uname -r)/ -type f -path '*/fs/*.ko' -printf '%f\n' | cut -d. -f1
             # FIXME: no<fstype>
-            if [[ $cur == ?*,* ]]; then
-                prev="${cur%,*}"
-                cur="${cur##*,}"
-                split=set
-            fi
-            _comp_compgen -- -W 'auto adfs affs autofs btrfs cifs coda cramfs
-                davfs debugfs devpts efs ext2 ext3 ext4 fuse hfs hfsplus hpfs
-                iso9660 jffs2 jfs minix msdos ncpfs nfs nfs4 ntfs ntfs-3g proc
-                qnx4 ramfs reiserfs romfs squashfs smbfs sysv tmpfs ubifs udf
-                ufs umsdos usbfs vfat xfs'
-            _comp_compgen -a fstypes
-            [[ $split ]] && ((${#COMPREPLY[@]})) &&
-                _comp_compgen -Rv COMPREPLY -- -P "$prev," -W '"${COMPREPLY[@]}"'
+            [[ $cur =~ ^.+, ]]
+            local prefix=${BASH_REMATCH-}
+            _comp_compgen -P "$prefix" -- -W 'auto adfs affs autofs btrfs cifs
+                coda cramfs davfs debugfs devpts efs ext2 ext3 ext4 fuse hfs
+                hfsplus hpfs iso9660 jffs2 jfs minix msdos ncpfs nfs nfs4 ntfs
+                ntfs-3g proc qnx4 ramfs reiserfs romfs squashfs smbfs sysv
+                tmpfs ubifs udf ufs umsdos usbfs vfat xfs'
+            _comp_compgen -aP "$prefix" fstypes
             return
             ;;
         --bind | -B | --rbind | -R)
@@ -66,61 +60,58 @@ _comp_cmd_mount()
             # no<fstype> is not a real fstype, reset to "auto"
             [[ $fstype == no?* ]] && fstype=auto
             # split options list
-            if [[ $cur == ?*,* ]]; then
-                prev="${cur%,*}"
-                cur="${cur##*,}"
-                split=set
-            fi
+            [[ $cur =~ ^.+, ]]
+            local prefix=${BASH_REMATCH-}
             # no completion if $cur is opt=smth
-            [[ $cur == *=* ]] && return
+            [[ ${cur##*,} == *=* ]] && return
             # mount options
-            _comp_compgen -- -W 'loop {,a}sync {,no}atime {,no}auto
-                {,fs,def,root}context= defaults {,no}dev {,no}diratime dirsync
-                {,no}exec group {,no}iversion {,no}mand _netdev nofail
-                {,no}relatime {,no}strictatime {,no}suid owner remount ro rw
-                {,no}user users'
+            _comp_compgen -P "$prefix" -- -W 'loop {,a}sync {,no}atime
+                {,no}auto {,fs,def,root}context= defaults {,no}dev
+                {,no}diratime dirsync {,no}exec group {,no}iversion {,no}mand
+                _netdev nofail {,no}relatime {,no}strictatime {,no}suid owner
+                remount ro rw {,no}user users'
             case "$fstype" in
                 adfs | auto)
-                    _comp_compgen -a -- -W '{u,g}id= {own,oth}mask='
+                    _comp_compgen -aP "$prefix" -- -W '{u,g}id= {own,oth}mask='
                     ;;&
                 affs | auto)
-                    _comp_compgen -a -- -W '{u,g}id= set{u,g}id= mode= protect
-                        usemp verbose prefix= volume= reserved= root= bs=
-                        {,no,usr,grp}quota'
+                    _comp_compgen -aP "$prefix" -- -W '{u,g}id= set{u,g}id=
+                        mode= protect usemp verbose prefix= volume= reserved=
+                        root= bs= {,no,usr,grp}quota'
                     ;;&
                 btrfs | auto)
-                    _comp_compgen -a -- -W 'degraded subvol= subvolid= device=
-                        nodatasum nodatacow nobarrier max_inline= alloc_start=
-                        thread_pool= compress= compress-force= ssd noacl
-                        notreelog flushoncommit metadata_ratio=
-                        {,no}space_cache clear_cache user_subvol_rm_allowed
-                        autodefrag inode_cache'
+                    _comp_compgen -aP "$prefix" -- -W 'degraded subvol=
+                        subvolid= device= nodatasum nodatacow nobarrier
+                        max_inline= alloc_start= thread_pool= compress=
+                        compress-force= ssd noacl notreelog flushoncommit
+                        metadata_ratio= {,no}space_cache clear_cache
+                        user_subvol_rm_allowed autodefrag inode_cache'
                     ;;&
                 cifs | auto)
-                    _comp_compgen -a -- -W 'user= password= credentials=
-                        {u,g}id= force{u,g}id port= servern= netbiosname=
-                        {file,dir}_mode= ip= domain= guest iocharset
-                        {,no}setuids {,no,dyn}perm directio {,no}mapchars
-                        {,no}intr hard soft noacl nocase sec= nobrl sfu
-                        {,no}serverino nounix nouser_xattr {r,w}size=
+                    _comp_compgen -aP "$prefix" -- -W 'user= password=
+                        credentials= {u,g}id= force{u,g}id port= servern=
+                        netbiosname= {file,dir}_mode= ip= domain= guest
+                        iocharset {,no}setuids {,no,dyn}perm directio
+                        {,no}mapchars {,no}intr hard soft noacl nocase sec=
+                        nobrl sfu {,no}serverino nounix nouser_xattr {r,w}size=
                         rwpidforward backup{u,g}id cache='
                     ;;&
                 davfs | auto)
-                    _comp_compgen -a -- -W 'conf= {file,dir}_mode= {u,g}id=
-                        username='
+                    _comp_compgen -aP "$prefix" -- -W 'conf= {file,dir}_mode=
+                        {u,g}id= username='
                     ;;&
                 ext[2-4] | auto)
-                    _comp_compgen -a -- -W '{,no}acl bsddf minixdf check= debug
-                        errors= {,no}grpid {bsd,sysv}groups {,no,usr,grp}quota
-                        nobh nouid32 oldalloc orlov res{u,g}id= sb=
-                        {,no}user_xattr'
+                    _comp_compgen -aP "$prefix" -- -W '{,no}acl bsddf minixdf
+                        check= debug errors= {,no}grpid {bsd,sysv}groups
+                        {,no,usr,grp}quota nobh nouid32 oldalloc orlov
+                        res{u,g}id= sb= {,no}user_xattr'
                     ;;&
                 ext[34] | auto)
-                    _comp_compgen -a -- -W 'journal= journal_dev= norecovery
-                        noload data= barrier= commit='
+                    _comp_compgen -aP "$prefix" -- -W 'journal= journal_dev=
+                        norecovery noload data= barrier= commit='
                     ;;&
                 ext4 | auto)
-                    _comp_compgen -a -- -W 'journal_checksum
+                    _comp_compgen -aP "$prefix" -- -W 'journal_checksum
                         journal_async_commit nobarrier inode_readahead= stripe=
                         {,no}delalloc abort {max,min}_batch_time=
                         journal_ioprio= {,no}auto_da_alloc {,no}discard nouid32
@@ -128,83 +119,87 @@ _comp_cmd_mount()
                         max_dir_size_kb= i_version'
                     ;;&
                 msdos | umsdos | vfat | auto)
-                    _comp_compgen -a -- -W 'blocksize= {u,g}id= {u,d,f}mask=
-                        allow_utime= check= codepage= conv= cvf_format=
-                        cvf_option= debug fat= iocharset= tz= quiet showexec
-                        sys_immutable flush usefree {,no}dots dotsOK='
+                    _comp_compgen -aP "$prefix" -- -W 'blocksize= {u,g}id=
+                        {u,d,f}mask= allow_utime= check= codepage= conv=
+                        cvf_format= cvf_option= debug fat= iocharset= tz= quiet
+                        showexec sys_immutable flush usefree {,no}dots dotsOK='
                     ;;&
                 vfat | auto)
-                    _comp_compgen -a -- -W 'uni_xlate posix nonumtail utf8
-                        shortname='
+                    _comp_compgen -aP "$prefix" -- -W 'uni_xlate posix
+                        nonumtail utf8 shortname='
                     ;;&
                 iso9660 | auto)
-                    _comp_compgen -a -- -W 'norock nojoliet check= {u,g}id=
-                        map= mode= unhide block= conv= cruft session= sbsector=
-                        iocharset= utf8'
+                    _comp_compgen -aP "$prefix" -- -W 'norock nojoliet check=
+                        {u,g}id= map= mode= unhide block= conv= cruft session=
+                        sbsector= iocharset= utf8'
                     ;;&
                 jffs2 | auto)
-                    _comp_compgen -a -- -W 'compr= rp_size='
+                    _comp_compgen -aP "$prefix" -- -W 'compr= rp_size='
                     ;;&
                 jfs | auto)
-                    _comp_compgen -a -- -W 'iocharset= resize= {,no}integrity
-                        errors= {,no,usr,grp}quota'
+                    _comp_compgen -aP "$prefix" -- -W 'iocharset= resize=
+                        {,no}integrity errors= {,no,usr,grp}quota'
                     ;;&
                 nfs | nfs4 | auto)
-                    _comp_compgen -a -- -W 'soft hard timeo= retrans= {r,w}size=
-                        {,no}ac acreg{min,max}= acdir{min,max}= actimeo= bg fg
-                        retry= sec= {,no}sharecache {,no}resvport lookupcache=
-                        proto= port= {,no}intr {,no}cto {,nfs}vers='
+                    _comp_compgen -aP "$prefix" -- -W 'soft hard timeo=
+                        retrans= {r,w}size= {,no}ac acreg{min,max}=
+                        acdir{min,max}= actimeo= bg fg retry= sec=
+                        {,no}sharecache {,no}resvport lookupcache= proto= port=
+                        {,no}intr {,no}cto {,nfs}vers='
                     ;;&
                 nfs | auto)
-                    _comp_compgen -a -- -W 'udp tcp rdma mount{port,proto,host}=
-                        mountvers= namlen={,no}lock {,no}acl {,no}rdirplus
-                        {,no}fsc'
+                    _comp_compgen -aP "$prefix" -- -W 'udp tcp rdma
+                        mount{port,proto,host}= mountvers= namlen={,no}lock
+                        {,no}acl {,no}rdirplus {,no}fsc'
                     ;;&
                 nfs4 | auto)
-                    _comp_compgen -a -- -W 'clientaddr= {,no}migration'
+                    _comp_compgen -aP "$prefix" -- -W 'clientaddr=
+                        {,no}migration'
                     ;;&
                 ntfs-3g)
-                    _comp_compgen -a -- -W '{u,g}id= {u,f,d}mask= usermapping=
-                        permissions inherit locale= force {,no}recover
-                        ignore_case remove_hiberfile show_sys_files
-                        hide_{hid,dot}_files windows_names allow_other
-                        max_read= silent no_def_opts streams_interface=
-                        user_xattr efs_raw {,no}compression debug no_detach'
+                    _comp_compgen -aP "$prefix" -- -W '{u,g}id= {u,f,d}mask=
+                        usermapping= permissions inherit locale= force
+                        {,no}recover ignore_case remove_hiberfile
+                        show_sys_files hide_{hid,dot}_files windows_names
+                        allow_other max_read= silent no_def_opts
+                        streams_interface= user_xattr efs_raw {,no}compression
+                        debug no_detach'
                     ;;&
                 proc | auto)
-                    _comp_compgen -a -- -W '{u,g}id='
+                    _comp_compgen -aP "$prefix" -- -W '{u,g}id='
                     ;;&
                 reiserfs | auto)
-                    _comp_compgen -a -- -W 'conv hash=
+                    _comp_compgen -aP "$prefix" -- -W 'conv hash=
                         {,no_un}hashed_relocation noborder nolog notail
                         replayonly resize= user_xattr acl barrier='
                     ;;&
                 tmpfs | auto)
-                    _comp_compgen -a -- -W 'size= nr_blocks= nr_inodes= mode=
-                      {u,g}id= mpol='
+                    _comp_compgen -aP "$prefix" -- -W 'size= nr_blocks=
+                        nr_inodes= mode= {u,g}id= mpol='
                     ;;&
                 udf | auto)
-                    _comp_compgen -a -- -W '{u,g}id= umask= unhide undelete
-                        nostrict iocharset bs= novrs session= anchor= volume=
-                        partition= lastblock= fileset= rootdir='
+                    _comp_compgen -aP "$prefix" -- -W '{u,g}id= umask= unhide
+                        undelete nostrict iocharset bs= novrs session= anchor=
+                        volume= partition= lastblock= fileset= rootdir='
                     ;;&
                 usbfs | auto)
-                    _comp_compgen -a -- -W 'dev{u,g}id= devmode= bus{u,g}id=
-                        busmode= list{u,g}id= listmode='
+                    _comp_compgen -aP "$prefix" -- -W 'dev{u,g}id= devmode=
+                        bus{u,g}id= busmode= list{u,g}id= listmode='
                     ;;&
                 xfs | auto)
-                    _comp_compgen -a -- -W 'allocsize= {,no}attr2 barrier dmapi
-                        {,no}grpid {bsd,sysv}groups ihashsize= {,no}ikeep
-                        inode{32,64} {,no}largeio logbufs= logbsize= logdev=
-                        rtdev= mtpt= noalign norecovery nouuid osyncisosync
-                        {u,g,p}qnoenforce {,u,usr,g,grp,p,prj}quota sunit=
-                        swidth= swalloc'
+                    _comp_compgen -aP "$prefix" -- -W 'allocsize= {,no}attr2
+                        barrier dmapi {,no}grpid {bsd,sysv}groups ihashsize=
+                        {,no}ikeep inode{32,64} {,no}largeio logbufs= logbsize=
+                        logdev= rtdev= mtpt= noalign norecovery nouuid
+                        osyncisosync {u,g,p}qnoenforce
+                        {,u,usr,g,grp,p,prj}quota sunit= swidth= swalloc'
                     ;;&
             esac
             # COMP_WORDBREAKS is a real pain in the ass
-            prev="${prev##*["$COMP_WORDBREAKS"]}"
-            [[ $split ]] && ((${COMPREPLY[@]})) &&
-                _comp_compgen -Rv COMPREPLY -- -P "$prev," -W '"${COMPREPLY[@]}"'
+            if ((${#COMPREPLY[@]})) && [[ $prefix == *["$COMP_WORDBREAKS"]* ]]; then
+                local tmp=${prefix%["$COMP_WORDBREAKS"]*}
+                COMPREPLY=("${COMPREPLY[@]#"$tmp"?}")
+            fi
             [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
             return
             ;;
@@ -236,7 +231,7 @@ _comp_cmd_mount()
         host=${cur#//}
         host=${host%%/*}
         if [[ $host ]]; then
-            _comp_compgen -c "${cur#//"$host"}" split -P "//$host" -- "$(
+            _comp_compgen -P "//$host" split -- "$(
                 smbclient -d 0 -NL "$host" 2>/dev/null |
                     command sed -ne '/^[[:blank:]]*Sharename/,/^$/p' |
                     command sed -ne '3,$s|^[^A-Za-z]*\([^[:blank:]]*\).*$|/\1|p'
