@@ -133,6 +133,15 @@ class TestScp:
             [r"abc\ def.txt", r"abc\\\ def.txt"]
         ) or completion == sorted([r"abc\\\ def.txt", r"abc\\\\\\\ def.txt"])
 
+    def test_remote_path_with_backslash_2(self, bash):
+        assert_bash_exec(
+            bash, r"ssh() { [[ $1 == abc ]]; printf '%s\n' 'abc OK'; }"
+        )
+        completion = assert_complete(bash, "scp remote_host:abc\\\\\\")
+        assert_bash_exec(bash, "unset -f ssh")
+
+        assert completion == "OK"
+
     def test_xfunc_remote_files(self, live_pwd, bash):
         def prefix_paths(prefix, paths):
             return [f"{prefix}{path}" for path in paths]
