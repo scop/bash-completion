@@ -471,9 +471,9 @@ _comp_cmd_scp__path_esc='[][(){}<>"'"'"',:;^&!$=?`\\|[:space:]]'
 # "compopt +o nospace" instead, but it would suffix a space to directory names
 # unexpectedly.
 #
-# @param $1 dirs_only - If a non-empty value is specified, only directory names
-#     are selected.
-# @param $2 escape_replacement - If a non-empty value is specified, special
+# Options:
+#     -d  Only directory names are selected.
+# @param $1 escape_replacement - If a non-empty value is specified, special
 #     characters are replaced with the specified value (instead of the default
 #     '\\&').
 # @stdin List of filenames in the "ls -1F" format, where filenames are
@@ -481,7 +481,19 @@ _comp_cmd_scp__path_esc='[][(){}<>"'"'"',:;^&!$=?`\\|[:space:]]'
 #     types of the files.
 _comp_cmd_scp__escape_path()
 {
-    local dirs_only=$1 escape_replacement=${2:-'\\&'}
+    local OPTIND=1 OPTARG="" OPTERR=0 opt dirs_only=""
+    while getopts ':d' _flag "$@"; do
+        case $_flag in
+            d) dirs_only=set ;;
+            *)
+                echo "bash_completion: $FUNCNAME: usage error: $*" >&2
+                return 1
+                ;;
+        esac
+    done
+    shift "$((OPTIND - 1))"
+    local escape_replacement=${1:-'\\&'}
+
     if [[ $dirs_only ]]; then
         # escape problematic characters; remove non-dirs
         command sed \
@@ -543,7 +555,8 @@ _comp_xfunc_scp_compgen_remote_files()
     local _files
     _files=$(ssh -o 'Batchmode yes' "$_userhost" \
         command ls -aF1dL "$_path*" 2>/dev/null |
-        _comp_cmd_scp__escape_path "$_dirs_only" "$_escape_replacement")
+        _comp_cmd_scp__escape_path ${_dirs_only:+'-d'} -- \
+            "$_escape_replacement")
     _comp_compgen -R split -l -- "$_files"
 }
 
@@ -570,7 +583,7 @@ _comp_xfunc_scp_compgen_local_files()
     _comp_expand_glob files '"$cur"*' || return 0
     _comp_compgen -RU files split -l ${1:+-P "$1"} -- "$(
         command ls -aF1dL "${files[@]}" 2>/dev/null |
-            _comp_cmd_scp__escape_path "$_dirs_only"
+            _comp_cmd_scp__escape_path ${_dirs_only:+'-d'}
     )"
 }
 
