@@ -119,6 +119,18 @@ _comp_cmd_gtar__parse_help_line()
     done <<<"$1"
 }
 
+# Parse the output of "tar --help" with GNU tar and store the parse results
+# into variables.
+#
+# @var[out] long_opts
+# @var[out] short_opts
+# @var[out] long_arg_none
+# @var[out] long_arg_opt
+# @var[out] long_arg_req
+# @var[out] short_arg_none
+# @var[out] short_arg_opt
+# @var[out] short_arg_req
+#     The parse results are returned in these variables.
 _comp_cmd_gtar__parse_help()
 {
     local str line arg
@@ -193,6 +205,10 @@ _comp_cmd_tar__parse_old_opt()
 }
 
 # Make the analysis of whole command line.
+#
+# @var[out] old_opt_progress
+# @var[out] old_opt_used
+# @var[out,array] old_opt_parsed
 _comp_cmd_tar__preparse_cmdline()
 {
     local first_arg=set i modes="ctxurdA"
@@ -507,11 +523,8 @@ _comp_cmd_tar__detect_ext()
 
 _comp_cmd_tar__gnu()
 {
-    local long_opts short_opts basic_tar="" \
-        long_arg_none="" long_arg_opt="" long_arg_req="" \
-        short_arg_none="" short_arg_opt="" short_arg_req="" \
-        tar_mode tar_mode_arg old_opt_progress="" \
-        old_opt_used="" old_opt_parsed=()
+    local basic_tar="" \
+        tar_mode tar_mode_arg
 
     # Main mode, e.g. "x" or "c" or the long forms "extract" or "create"
     local tar_mode=none
@@ -528,12 +541,15 @@ _comp_cmd_tar__gnu()
     fi
 
     local cur prev words cword was_split comp_args
-
     _comp_initialize -s -- "$@" || return
 
     # Fill the {long,short}_{opts,arg*}
+    local long_opts short_opts \
+        long_arg_none="" long_arg_opt="" long_arg_req="" \
+        short_arg_none="" short_arg_opt="" short_arg_req=""
     _comp_cmd_gtar__parse_help
 
+    local old_opt_progress="" old_opt_used="" old_opt_parsed=()
     _comp_cmd_tar__preparse_cmdline "${words[@]}"
 
     local ext
@@ -694,11 +710,8 @@ _comp_cmd_tar__posix_prev_handle()
 
 _comp_cmd_tar__posix()
 {
-    local long_opts short_opts basic_tar=set \
-        long_arg_none="" long_arg_opt long_arg_req="" \
-        short_arg_none short_arg_opt short_arg_req \
-        tar_mode tar_mode_arg old_opt_progress="" \
-        old_opt_used=set old_opt_parsed=()
+    local basic_tar=set \
+        tar_mode tar_mode_arg
 
     # Main mode, e.g. -x or -c (extract/creation)
     local tar_mode=none
@@ -710,15 +723,20 @@ _comp_cmd_tar__posix()
     local tar_compression_mode=none
 
     local cur prev words cword was_split comp_args
-
     _comp_initialize -s -- "$@" || return
 
+    # Initialize option variables:
     # relatively compatible modes are {c,t,x}
     # relatively compatible options {b,f,m,v,w}
+    # Note: long_opts, long_arg_*, short_arg_opt are currently unused
+    local long_opts short_opts \
+        long_arg_none="" long_arg_opt long_arg_req="" \
+        short_arg_none short_arg_opt short_arg_req
     short_arg_req="fb"
     short_arg_none="wmv"
     short_opts="$short_arg_req$short_arg_none"
 
+    local old_opt_progress="" old_opt_used=set old_opt_parsed=()
     _comp_cmd_tar__preparse_cmdline "${words[@]}"
 
     local ext
