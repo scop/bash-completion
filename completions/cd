@@ -1,5 +1,12 @@
 # cd(1) completion                                         -*- shell-script -*-
 
+_comp_cmd_cd__compgen_cdable_vars()
+{
+    shopt -q cdable_vars || return 1
+
+    _comp_compgen -- -v
+}
+
 # This generator function observes the CDPATH variable, to additionally
 # complete directories under those specified in CDPATH.
 _comp_cmd_cd__compgen_cdpath()
@@ -53,11 +60,8 @@ _comp_cmd_cd()
     fi
 
     compopt -o filenames
+    _comp_cmd_cd__compgen_cdable_vars
     _comp_cmd_cd__compgen_cdpath
     _comp_compgen -a filedir -d
 }
-if shopt -q cdable_vars; then
-    complete -v -F _comp_cmd_cd -o nospace cd pushd
-else
-    complete -F _comp_cmd_cd -o nospace cd pushd
-fi
+complete -F _comp_cmd_cd -o nospace cd pushd
