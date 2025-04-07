@@ -33,7 +33,7 @@ class TestLs:
         part_full = find_unique_completion_pair(res)
         if not part_full:
             pytest.skip("No suitable test user found")
-            return
+
         part, full = part_full
         completion = assert_complete(bash, "ls ~%s" % part)
         assert completion == full[len(part) :]
