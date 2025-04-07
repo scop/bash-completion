@@ -133,6 +133,13 @@ _comp_cmd_gtar__parse_help_line()
 #     The parse results are returned in these variables.
 _comp_cmd_gtar__parse_help()
 {
+    long_arg_none=""
+    long_arg_opt=""
+    long_arg_req=""
+    short_arg_none=""
+    short_arg_opt=""
+    short_arg_req=""
+
     local str line arg
     while IFS= read -r line; do
         # Ok, this requires some comment probably.  The GNU help output prints
@@ -177,8 +184,15 @@ _comp_cmd_gtar__parse_warnings()
     _comp_compgen -- -W '"${warnings[@]}"'
 }
 
+# @var[out] old_opt_progress
+# @var[out] old_opt_used
+# @var[out,array] old_opt_parsed
 _comp_cmd_tar__parse_old_opt()
 {
+    old_opt_progress=""
+    old_opt_used=""
+    old_opt_parsed=()
+
     local first_word char
 
     # current word is the first word
@@ -544,11 +558,11 @@ _comp_cmd_tar__gnu()
 
     # Fill the {long,short}_{opts,arg*}
     local long_opts short_opts \
-        long_arg_none="" long_arg_opt="" long_arg_req="" \
-        short_arg_none="" short_arg_opt="" short_arg_req=""
+        long_arg_none long_arg_opt long_arg_req \
+        short_arg_none short_arg_opt short_arg_req
     _comp_cmd_gtar__parse_help
 
-    local old_opt_progress="" old_opt_used="" old_opt_parsed=()
+    local old_opt_progress old_opt_used old_opt_parsed
     _comp_cmd_tar__preparse_cmdline "${words[@]}"
 
     local ext
@@ -726,15 +740,20 @@ _comp_cmd_tar__posix()
     # Initialize option variables:
     # relatively compatible modes are {c,t,x}
     # relatively compatible options {b,f,m,v,w}
-    # Note: long_opts, long_arg_*, short_arg_opt are currently unused
+    # Note: long_{opts,arg_{none,opt}} and short_arg_opt are currently unused
     local long_opts short_opts \
-        long_arg_none="" long_arg_opt long_arg_req="" \
+        long_arg_none long_arg_opt long_arg_req \
         short_arg_none short_arg_opt short_arg_req
+    long_arg_none=""
+    long_arg_opt=""
+    long_arg_req=""
+    long_opts=""
     short_arg_req="fb"
+    short_arg_opt=""
     short_arg_none="wmv"
     short_opts="$short_arg_req$short_arg_none"
 
-    local old_opt_progress="" old_opt_used=set old_opt_parsed=()
+    local old_opt_progress old_opt_used old_opt_parsed
     _comp_cmd_tar__preparse_cmdline "${words[@]}"
 
     local ext
