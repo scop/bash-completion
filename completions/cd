@@ -4,7 +4,18 @@ _comp_cmd_cd__compgen_cdable_vars()
 {
     shopt -q cdable_vars || return 1
 
-    _comp_compgen -- -v
+    local vars
+    _comp_compgen -v vars -- -v || return "$?"
+
+    # Remove variables that do not contain a valid directory path.
+    local _i
+    for _i in "${!vars[@]}"; do
+        # Note: ${!vars[_i]} produces the "nounset" error when vars[_i] is an
+        # empty array name.
+        [[ -d ${!vars[_i]-} ]] || unset -v 'vars[_i]'
+    done
+
+    _comp_compgen -U vars set "${vars[@]}"
 }
 
 # This generator function observes the CDPATH variable, to additionally
