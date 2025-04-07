@@ -120,25 +120,19 @@ _comp_cmd_gtar__parse_help_line()
 }
 
 # Parse the output of "tar --help" with GNU tar and store the parse results
-# into variables.
+# in a global variable.
 #
-# @var[out] long_opts
-# @var[out] short_opts
-# @var[out] long_arg_none
-# @var[out] long_arg_opt
-# @var[out] long_arg_req
-# @var[out] short_arg_none
-# @var[out] short_arg_opt
-# @var[out] short_arg_req
-#     The parse results are returned in these variables.
-_comp_cmd_gtar__parse_help()
+# @var[out] _comp_cmd_gtar__parse_help__result
+#     The parse results are stored in this global variable in a form that can
+#     be evaluated by the builtin "eval".
+_comp_cmd_gtar__parse_help_initialize()
 {
-    long_arg_none=""
-    long_arg_opt=""
-    long_arg_req=""
-    short_arg_none=""
-    short_arg_opt=""
-    short_arg_req=""
+    local long_arg_none=""
+    local long_arg_opt=""
+    local long_arg_req=""
+    local short_arg_none=""
+    local short_arg_opt=""
+    local short_arg_req=""
 
     local str line arg
     while IFS= read -r line; do
@@ -164,10 +158,45 @@ _comp_cmd_gtar__parse_help()
         fi
     done <<<"$(tar --help)"
 
-    long_opts="\
-        $long_arg_none        $long_arg_opt        $long_arg_req"
+    local long_opts="$long_arg_none $long_arg_opt $long_arg_req"
 
-    short_opts="$short_arg_none$short_arg_opt$short_arg_req"
+    local short_opts="$short_arg_none$short_arg_opt$short_arg_req"
+
+    printf -v _comp_cmd_gtar__parse_help__result '%s=%q ' \
+        long_opts "$long_opts" \
+        short_opts "$short_opts" \
+        long_arg_none "$long_arg_none" \
+        long_arg_opt "$long_arg_opt" \
+        long_arg_req "$long_arg_req" \
+        short_arg_none "$short_arg_none" \
+        short_arg_opt "$short_arg_opt" \
+        short_arg_req "$short_arg_req"
+
+    # Clean up functions only used in initialization
+    unset -f "$FUNCNAME"
+    unset -f _comp_cmd_gtar__parse_help_line
+    unset -f _comp_cmd_gtar__parse_help_opt
+}
+_comp_cmd_gtar__parse_help_initialize
+
+# Load the parse results of "tar --help" for GNU tar into variables.
+#
+# @var[out] long_opts
+# @var[out] short_opts
+# @var[out] long_arg_none
+# @var[out] long_arg_opt
+# @var[out] long_arg_req
+# @var[out] short_arg_none
+# @var[out] short_arg_opt
+# @var[out] short_arg_req
+#     The parse results are returned in these variables.
+#
+# @var[in] _comp_cmd_gtar__parse_help__result
+#     The parse results are obtained by evaluating this variable with the
+#     "eval" builtin.
+_comp_cmd_gtar__parse_help()
+{
+    eval -- "$_comp_cmd_gtar__parse_help__result"
 }
 
 # Hack: parse --warning keywords from tar's error output
