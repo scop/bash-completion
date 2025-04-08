@@ -5,6 +5,29 @@ _comp_cmd_sqlite3()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
+    if [[ ${words[*]} == *\ -A* ]]; then
+        local noargopts='!(-*|*[faC]*)'
+        # shellcheck disable=SC2254
+        case $prev in
+            --file | --append | -${noargopts}[fa])
+                _comp_compgen_filedir sqlar
+                return
+                ;;
+            --directory | -${noargopts}C)
+                _comp_compgen_filedir -d
+                return
+                ;;
+        esac
+
+        if [[ $cur == -* ]]; then
+            _comp_compgen_help -- -A --help
+            return
+        fi
+
+        _comp_compgen_filedir sqlar
+        return
+    fi
+
     local dbexts='@(sqlite?(3)|?(s?(3))db)'
 
     case $prev in
