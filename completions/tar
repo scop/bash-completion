@@ -59,7 +59,7 @@
 _comp_deprecate_var 2.12 \
     COMP_TAR_INTERNAL_PATHS BASH_COMPLETION_CMD_TAR_INTERNAL_PATHS
 
-_comp_cmd_gtar__parse_help_opt()
+_comp_cmd_gtar__init_parse_help_opt()
 {
     local opttype arg opt separator optvar
     opttype=long
@@ -98,7 +98,7 @@ _comp_cmd_gtar__parse_help_opt()
     eval "$optvar=\"\$$optvar$separator\"\"$opt\""
 }
 
-_comp_cmd_gtar__parse_help_line()
+_comp_cmd_gtar__init_parse_help_line()
 {
     local i
     local -a tmp
@@ -107,7 +107,7 @@ _comp_cmd_gtar__parse_help_line()
             case "$i" in
                 # regular options
                 --* | -*)
-                    _comp_cmd_gtar__parse_help_opt "$i" "$2"
+                    _comp_cmd_gtar__init_parse_help_opt "$i" "$2"
                     ;;
 
                 # end once there is single non-option word
@@ -122,10 +122,10 @@ _comp_cmd_gtar__parse_help_line()
 # Parse the output of "tar --help" with GNU tar and store the parse results
 # in a global variable.
 #
-# @var[out] _comp_cmd_gtar__parse_help__result
+# @var[out] _comp_cmd_gtar__saved_opts
 #     The parse results are stored in this global variable in a form that can
 #     be evaluated by the builtin "eval".
-_comp_cmd_gtar__parse_help_initialize()
+_comp_cmd_gtar__init_parse_help()
 {
     local long_arg_none=""
     local long_arg_opt=""
@@ -154,7 +154,7 @@ _comp_cmd_gtar__parse_help_initialize()
                 [[ ${BASH_REMATCH[1]} ]] && arg=opt || arg=req
             fi
 
-            _comp_cmd_gtar__parse_help_line "$str" "$arg"
+            _comp_cmd_gtar__init_parse_help_line "$str" "$arg"
         fi
     done <<<"$(tar --help)"
 
@@ -162,7 +162,7 @@ _comp_cmd_gtar__parse_help_initialize()
 
     local short_opts="$short_arg_none$short_arg_opt$short_arg_req"
 
-    printf -v _comp_cmd_gtar__parse_help__result '%s=%q ' \
+    printf -v _comp_cmd_gtar__saved_opts '%s=%q ' \
         long_opts "$long_opts" \
         short_opts "$short_opts" \
         long_arg_none "$long_arg_none" \
@@ -173,11 +173,11 @@ _comp_cmd_gtar__parse_help_initialize()
         short_arg_req "$short_arg_req"
 
     # Clean up functions only used in initialization
-    unset -f "$FUNCNAME"
-    unset -f _comp_cmd_gtar__parse_help_line
-    unset -f _comp_cmd_gtar__parse_help_opt
+    unset -f _comp_cmd_gtar__init_parse_help
+    unset -f _comp_cmd_gtar__init_parse_help_line
+    unset -f _comp_cmd_gtar__init_parse_help_opt
 }
-_comp_cmd_gtar__parse_help_initialize
+_comp_cmd_gtar__init_parse_help
 
 # Load the parse results of "tar --help" for GNU tar into variables.
 #
@@ -191,12 +191,12 @@ _comp_cmd_gtar__parse_help_initialize
 # @var[out] short_arg_req
 #     The parse results are returned in these variables.
 #
-# @var[in] _comp_cmd_gtar__parse_help__result
+# @var[in] _comp_cmd_gtar__saved_opts
 #     The parse results are obtained by evaluating this variable with the
 #     "eval" builtin.
-_comp_cmd_gtar__parse_help()
+_comp_cmd_gtar__load_opts()
 {
-    eval -- "$_comp_cmd_gtar__parse_help__result"
+    eval -- "$_comp_cmd_gtar__saved_opts"
 }
 
 # Hack: parse --warning keywords from tar's error output
@@ -589,7 +589,7 @@ _comp_cmd_tar__gnu()
     local long_opts short_opts \
         long_arg_none long_arg_opt long_arg_req \
         short_arg_none short_arg_opt short_arg_req
-    _comp_cmd_gtar__parse_help
+    _comp_cmd_gtar__load_opts
 
     local old_opt_progress old_opt_used old_opt_parsed
     _comp_cmd_tar__preparse_cmdline "${words[@]}"
