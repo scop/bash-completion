@@ -951,7 +951,9 @@ def prepare_fixture_dir(
     the tarball. This is to work better with case insensitive file systems.
     """
     tempdir = Path(tempfile.mkdtemp(prefix="bash-completion-fixture-dir"))
-    request.addfinalizer(lambda: shutil.rmtree(str(tempdir)))
+    request.addfinalizer(
+        lambda: shutil.rmtree(str(tempdir), ignore_errors=True)
+    )
 
     old_cwd = os.getcwd()
     try:
