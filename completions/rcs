@@ -5,7 +5,7 @@ _comp_cmd_rcs()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
-    local file dir i
+    local file dir
 
     file=${cur##*/}
     dir=${cur%/*}
@@ -21,8 +21,11 @@ _comp_cmd_rcs()
         COMPREPLY[i]=$dir$file
     done
 
-    _comp_compgen -aR -- -G "$dir/$file*,v"
+    local files
+    _comp_expand_glob files '"$dir/$file"*,v' &&
+        _comp_compgen -aR -- -W '"${files[@]}"'
 
+    local i
     for i in ${!COMPREPLY[*]}; do
         COMPREPLY[i]=${COMPREPLY[i]%,v}
     done
