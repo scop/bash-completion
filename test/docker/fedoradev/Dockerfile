@@ -19,4 +19,4 @@ ADD test-cmd-list.txt \
 
 RUN /tmp/install-packages.sh </tmp/test-cmd-list.txt \
     && dnf -Cy clean all \
-    && rm -r /tmp/* /var/lib/dnf/history.sqlite* /var/lib/dnf/repos/*
+    && rm -r /tmp/* /usr/lib/sysimage/libdnf5/transaction_history.sqlite* /var/lib/dnf/repos/*
