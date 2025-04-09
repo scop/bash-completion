@@ -1,7 +1,64 @@
 # cd(1) completion                                         -*- shell-script -*-
 
-# This meta-cd function observes the CDPATH variable, so that `cd`
-# additionally completes on directories under those specified in CDPATH.
+_comp_cmd_cd__compgen_cdable_vars()
+{
+    shopt -q cdable_vars || return 1
+
+    local vars
+    _comp_compgen -v vars -- -v || return "$?"
+
+    # Remove variables that do not contain a valid directory path.
+    local _i
+    for _i in "${!vars[@]}"; do
+        # Note: ${!vars[_i]} produces the "nounset" error when vars[_i] is an
+        # empty array name.
+        [[ -d ${!vars[_i]-} ]] || unset -v 'vars[_i]'
+    done
+
+    _comp_compgen -U vars set "${vars[@]}"
+}
+
+# This generator function observes the CDPATH variable, to additionally
+# complete directories under those specified in CDPATH.
+_comp_cmd_cd__compgen_cdpath()
+{
+    local _p
+
+    # Generate CDPATH completions when the parameter does not start with /,
+    # ./ or ../
+    [[ ! ${CDPATH-} || $cur == ?(.)?(.)/* ]] && return 1
+
+    local _mark_dirs="" _mark_symdirs=""
+    _comp_readline_variable_on mark-directories && _mark_dirs=set
+    _comp_readline_variable_on mark-symlinked-directories && _mark_symdirs=set
+
+    local -a _cdpaths=()
+
+    # we have a CDPATH, so loop on its contents
+    local paths dirs _d
+    _comp_split -F : paths "$CDPATH"
+    for _p in "${paths[@]}"; do
+        # create an array of matched subdirs
+        _comp_compgen -v dirs -c "$_p/$cur" -- -d
+        for _d in "${dirs[@]}"; do
+            if [[ ($_mark_symdirs && -L $_d || $_mark_dirs && ! -L $_d) && ! -d ${_d#"$_p/"} ]]; then
+                _d+="/"
+            fi
+            _cdpaths+=("${_d#"$_p/"}")
+        done
+    done
+    _comp_unlocal paths dirs
+
+    if ((${#_cdpaths[@]} == 1)); then
+        _p=${_cdpaths[0]}
+        if [[ $_p == "$cur" && $_p != */ ]]; then
+            _cdpaths[0]=$_p/
+        fi
+    fi
+
+    _comp_compgen_set "${_cdpaths[@]}"
+}
+
 _comp_cmd_cd()
 {
     local cur prev words cword comp_args
@@ -13,47 +70,9 @@ _comp_cmd_cd()
         return
     fi
 
-    local i j k
-
     compopt -o filenames
-
-    # Use standard dir completion if no CDPATH or parameter starts with /,
-    # ./ or ../
-    if [[ ! ${CDPATH-} || $cur == ?(.)?(.)/* ]]; then
-        _comp_compgen_filedir -d
-        return
-    fi
-
-    local mark_dirs="" mark_symdirs=""
-    _comp_readline_variable_on mark-directories && mark_dirs=set
-    _comp_readline_variable_on mark-symlinked-directories && mark_symdirs=set
-
-    # we have a CDPATH, so loop on its contents
-    local paths dirs
-    _comp_split -F : paths "$CDPATH"
-    for i in "${paths[@]}"; do
-        # create an array of matched subdirs
-        k=${#COMPREPLY[@]}
-        _comp_compgen -v dirs -c "$i/$cur" -- -d
-        for j in "${dirs[@]}"; do
-            if [[ ($mark_symdirs && -L $j || $mark_dirs && ! -L $j) && ! -d ${j#"$i/"} ]]; then
-                j+="/"
-            fi
-            COMPREPLY[k++]=${j#"$i/"}
-        done
-    done
-
+    _comp_cmd_cd__compgen_cdable_vars
+    _comp_cmd_cd__compgen_cdpath
     _comp_compgen -a filedir -d
-
-    if ((${#COMPREPLY[@]} == 1)); then
-        i=${COMPREPLY[0]}
-        if [[ $i == "$cur" && $i != "*/" ]]; then
-            COMPREPLY[0]="${i}/"
-        fi
-    fi
 }
-if shopt -q cdable_vars; then
-    complete -v -F _comp_cmd_cd -o nospace cd pushd
-else
-    complete -F _comp_cmd_cd -o nospace cd pushd
-fi
+complete -F _comp_cmd_cd -o nospace cd pushd
