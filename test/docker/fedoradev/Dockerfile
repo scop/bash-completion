@@ -9,6 +9,7 @@ RUN echo install_weak_deps=False >> /etc/dnf/dnf.conf \
         /usr/bin/make \
         /usr/bin/xvfb-run \
         /usr/bin/pytest-3 \
+        openssh-server \
         python3-pexpect \
         python3-pytest-xdist \
     && ln -s $(type -P pytest-3) /usr/local/bin/pytest
