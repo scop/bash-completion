@@ -8,6 +8,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
         automake \
         make \
         software-properties-common \
+        openssh-server \
         xvfb \
     && python3.4 -c "import urllib.request; urllib.request.urlretrieve('https://github.com/pyston/pyston/releases/download/pyston_2.3.1/pyston_2.3.1_portable_v2.tar.gz', '/tmp/pyston.tar.gz')" \
     && tar xCf /usr/local /tmp/pyston.tar.gz --strip-components=1

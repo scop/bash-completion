@@ -7,6 +7,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
         autoconf \
         automake \
         make \
+        openssh-server \
         python3-pexpect \
         python3-pytest-xdist \
         xvfb xauth \
