@@ -17,6 +17,7 @@ RUN set -x \
         # /usr/bin/which: https://bugzilla.redhat.com/show_bug.cgi?id=1443357 \
         /usr/bin/which \
         /usr/bin/xvfb-run \
+        openssh-server \
         python36-pexpect
 
 ADD test-cmd-list.txt \

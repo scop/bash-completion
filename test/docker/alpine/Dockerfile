@@ -9,6 +9,7 @@ RUN apk add --no-cache \
         musl-dev \
         py3-pexpect \
         py3-pytest-xdist \
+        openssh-server \
         tar \
         xvfb \
         xvfb-run \
