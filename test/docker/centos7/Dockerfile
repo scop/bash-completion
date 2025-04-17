@@ -3,7 +3,12 @@ FROM centos:7
 RUN set -x \
     && sed -i -e /tsflags=nodocs/d /etc/yum.conf \
     && yum -y install \
-       https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
+       https://dl.fedoraproject.org/pub/archive/epel/7/x86_64/Packages/e/epel-release-7-14.noarch.rpm \
+    && sed -i \
+           -e 's/^mirrorlist/#mirrorlist/' \
+           -e 's/mirror\.centos\.org/vault.centos.org/' \
+           -e 's|^#\(baseurl=http.*/vault\)|\1|' \
+       /etc/yum.repos.d/*.repo \
     && yum -y upgrade \
     && yum -y install \
         /usr/bin/autoconf \
