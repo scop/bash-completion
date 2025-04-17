@@ -404,6 +404,7 @@ cross_platform = 2to3 \
 		sh \
 		sha256sum \
 		shellcheck \
+		_shtab \
 		sitecopy \
 		slabtop \
 		_slackpkg \
