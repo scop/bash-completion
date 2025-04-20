@@ -38,8 +38,8 @@ cross_platform = 2to3 \
 		bzip2 \
 		_cal \
 		cancel \
-		_cargo \
 		cardctl \
+		_cargo \
 		carton \
 		ccache \
 		ccze \
@@ -209,9 +209,9 @@ cross_platform = 2to3 \
 		java \
 		javaws \
 		_jj \
-		jq \
 		jpegoptim \
 		jps \
+		jq \
 		jshint \
 		json_xs \
 		jsonschema \
@@ -238,8 +238,8 @@ cross_platform = 2to3 \
 		list_lists \
 		list_members \
 		list_owners \
-		_look \
 		locale-gen \
+		_look \
 		lpq \
 		lpr \
 		lrzip \
@@ -404,6 +404,7 @@ cross_platform = 2to3 \
 		sh \
 		sha256sum \
 		shellcheck \
+		_shtab \
 		sitecopy \
 		slabtop \
 		_slackpkg \
@@ -425,8 +426,8 @@ cross_platform = 2to3 \
 		sshow \
 		_stern \
 		strace \
-		_stripe \
 		strings \
+		_stripe \
 		_su \
 		sudo \
 		svcadm \
@@ -571,9 +572,9 @@ CLEANFILES = \
 	_ansible-playbook \
 	_ansible-pull \
 	_ansible-vault \
+	_apko \
 	apropos \
 	aptitude-curses \
-	_apko \
 	_aqua \
 	_arduino-cli \
 	_argo \
@@ -649,9 +650,9 @@ CLEANFILES = \
 	_datree \
 	dcop \
 	_deck \
+	_deno \
 	_depot \
 	_devspace \
-	_deno \
 	dfutool \
 	_diesel \
 	display \
@@ -665,8 +666,8 @@ CLEANFILES = \
 	dropdb \
 	dropuser \
 	_dyff \
-	_esc \
 	edquota \
+	_esc \
 	etherwake \
 	f77 \
 	f95 \
@@ -717,6 +718,7 @@ CLEANFILES = \
 	_gitsign \
 	gkrellm2 \
 	_glab \
+	_glances \
 	_glen \
 	_glow \
 	gmake \
@@ -790,9 +792,9 @@ CLEANFILES = \
 	_kubectl \
 	_kubectl-argo-rollouts \
 	_kubectl-kuttl \
-	_kubescape \
 	_kubelogin \
 	_kubemqctl \
+	_kubescape \
 	_kubesec \
 	_kubeshark \
 	_kubespy \
@@ -847,9 +849,9 @@ CLEANFILES = \
 	lz4c \
 	mailsnarf \
 	_mattermost \
-	_melange \
 	md5sum \
 	mdecrypt \
+	_melange \
 	mencoder \
 	_metalctl \
 	micropython \
@@ -991,11 +993,11 @@ CLEANFILES = \
 	_sentry-cli \
 	setquota \
 	sftp \
-	shasum \
 	sha1sum \
 	sha224sum \
 	sha384sum \
 	sha512sum \
+	shasum \
 	sidedoor \
 	_sinker \
 	_skaffold \
@@ -1026,14 +1028,20 @@ CLEANFILES = \
 	_tendermint \
 	_terraform \
 	_tfctl \
+	tightvncviewer \
 	_tilt \
 	_timoni \
 	_tkn \
 	_tkn-pac \
-	tightvncviewer \
+	_tldr \
 	_todoist \
 	_tofu \
 	tracepath6 \
+	_trash \
+	_trash-empty \
+	_trash-list \
+	_trash-put \
+	_trash-restore \
 	_trivy \
 	typeset \
 	_upctl \
@@ -1073,8 +1081,8 @@ CLEANFILES = \
 	_xc \
 	xpovray \
 	xvnc4viewer \
-	_ytt \
 	ypcat \
+	_ytt \
 	_zarf \
 	_zitadel \
 	_zola
@@ -1355,6 +1363,9 @@ symlinks: $(DATA)
 		javac javadoc
 	$(ss) koji \
 		arm-koji ppc-koji s390-koji sparc-koji
+	$(ss) _keyring \
+		_glances _tldr _trash _trash-empty _trash-list \
+		_trash-put _trash-restore
 	$(ss) ldapsearch \
 		ldapadd ldapcompare ldapdelete ldapmodify ldapmodrdn \
 		ldappasswd ldapwhoami
