@@ -718,6 +718,7 @@ CLEANFILES = \
 	_gitsign \
 	gkrellm2 \
 	_glab \
+	_glances \
 	_glen \
 	_glow \
 	gmake \
@@ -1356,6 +1357,8 @@ symlinks: $(DATA)
 		javac javadoc
 	$(ss) koji \
 		arm-koji ppc-koji s390-koji sparc-koji
+	$(ss) _keyring \
+		_glances
 	$(ss) ldapsearch \
 		ldapadd ldapcompare ldapdelete ldapmodify ldapmodrdn \
 		ldappasswd ldapwhoami
