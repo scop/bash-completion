@@ -1037,6 +1037,11 @@ CLEANFILES = \
 	_todoist \
 	_tofu \
 	tracepath6 \
+	_trash \
+	_trash-empty \
+	_trash-list \
+	_trash-put \
+	_trash-restore \
 	_trivy \
 	typeset \
 	_upctl \
@@ -1359,7 +1364,8 @@ symlinks: $(DATA)
 	$(ss) koji \
 		arm-koji ppc-koji s390-koji sparc-koji
 	$(ss) _keyring \
-		_glances _tldr
+		_glances _tldr _trash _trash-empty _trash-list \
+		_trash-put _trash-restore
 	$(ss) ldapsearch \
 		ldapadd ldapcompare ldapdelete ldapmodify ldapmodrdn \
 		ldappasswd ldapwhoami
