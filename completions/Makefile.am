@@ -1033,6 +1033,7 @@ CLEANFILES = \
 	_timoni \
 	_tkn \
 	_tkn-pac \
+	_tldr \
 	_todoist \
 	_tofu \
 	tracepath6 \
@@ -1358,7 +1359,7 @@ symlinks: $(DATA)
 	$(ss) koji \
 		arm-koji ppc-koji s390-koji sparc-koji
 	$(ss) _keyring \
-		_glances
+		_glances _tldr
 	$(ss) ldapsearch \
 		ldapadd ldapcompare ldapdelete ldapmodify ldapmodrdn \
 		ldappasswd ldapwhoami
