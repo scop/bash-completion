@@ -1,5 +1,16 @@
 # xfreerdp completion                                      -*- shell-script -*-
 
+_comp_cmd_xfreerdp__kbd_list()
+{
+    local kbd_list
+    # Trying non deprecated /list:kbd first
+    kbd_list=$("$1" /list:kbd 2>/dev/null) ||
+        # Old syntax, deprecated in 2022-10-19
+        # See https://github.com/FreeRDP/FreeRDP/commit/119b8d4474ab8578101f86226e0d20a53460dd51
+        kbd_list=$("$1" /kbd-list 2>/dev/null)
+    _comp_awk '/^0x/ { print $1 }' <<<"$kbd_list"
+}
+
 _comp_cmd_xfreerdp()
 {
     local cur prev words cword comp_args
@@ -7,8 +18,7 @@ _comp_cmd_xfreerdp()
 
     case $prev in
         -k)
-            _comp_compgen_split -- "$("$1" --kbd-list |
-                _comp_awk '/^0x/ { print $1 }')"
+            _comp_compgen_split -- "$(_comp_cmd_xfreerdp__kbd_list "$1")"
             return
             ;;
         -a)
@@ -30,12 +40,7 @@ _comp_cmd_xfreerdp()
 
     case $cur in
         /kbd:*)
-            local kbd_list
-            kbd_list=$("$1" /kbd-list 2>/dev/null) ||
-                kbd_list=$("$1" /list:kbd 2>/dev/null)
-            _comp_compgen -c "${cur#/kbd:}" split -- "$(
-                _comp_awk '/^0x/ { print $1 }' <<<"$kbd_list"
-            )"
+            _comp_compgen -c "${cur#/kbd:}" split -- "$(_comp_cmd_xfreerdp__kbd_list "$1")"
             return
             ;;
         /bpp:*)
