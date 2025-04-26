@@ -9,9 +9,7 @@ class TestJavaws:
     @pytest.mark.complete(
         "javaws -",
         require_cmd=True,
-        xfail=(
-            "! (javaws -help 2>&1 || :) | " "command grep -q -- '[[:space:]]-'"
-        ),
+        xfail="! (javaws -help 2>&1 || :) | command grep -q -- '[[:space:]]-'",
     )
     def test_2(self, completion):
         assert completion
