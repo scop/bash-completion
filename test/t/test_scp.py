@@ -1,10 +1,13 @@
+import os
 from itertools import chain
 
 import pytest
 
 from conftest import assert_bash_exec, assert_complete, bash_env_saved
 
-LIVE_HOST = "bash_completion"
+LIVE_HOST = os.environ.get(
+    "BASH_COMPLETION_TEST_LIVE_SSH_HOST", default="bash_completion"
+)
 
 
 class TestScp:
@@ -76,7 +79,7 @@ class TestScp:
         Connection to it must open sufficiently quickly for the
         ConnectTimeout and sleep_after_tab settings.
         """
-        assert completion == f"{LIVE_HOST}:{live_pwd}/"
+        assert completion == f"{live_pwd}/"
 
     @pytest.mark.complete("scp -o Foo=")
     def test_option_arg(self, completion):
