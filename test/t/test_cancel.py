@@ -16,7 +16,7 @@ class TestCancel:
             )
         except AssertionError:
             pytest.skip("Could not add test print job")
-            return
+
         if len(got) > 3:
             request.addfinalizer(
                 lambda: assert_bash_exec(bash, "cancel %s" % got[3])
