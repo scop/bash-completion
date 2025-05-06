@@ -1,4 +1,4 @@
-FROM fedora:rawhide
+FROM registry.fedoraproject.org/fedora:rawhide
 
 RUN echo install_weak_deps=False >> /etc/dnf/dnf.conf \
     && sed -i -e /tsflags=nodocs/d /etc/dnf/dnf.conf \
