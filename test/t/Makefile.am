@@ -624,6 +624,7 @@ EXTRA_DIST = \
 	test_time.py \
 	test_timeout.py \
 	test_tipc.py \
+	test_tmux.py \
 	test_totem.py \
 	test_touch.py \
 	test_tox.py \

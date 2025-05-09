@@ -446,6 +446,7 @@ cross_platform = 2to3 \
 		tcpnice \
 		timeout \
 		tipc \
+		tmux \
 		_tokio-console \
 		tox \
 		tracepath \
