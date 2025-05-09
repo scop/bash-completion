@@ -192,7 +192,7 @@ A. [ Disclaimer: Here, how to make the completion code visible to
 
    ```m4
    PKG_CHECK_VAR(bashcompdir, [bash-completion], [completionsdir], ,
-     bashcompdir="${sysconfdir}/bash_completion.d")
+     bashcompdir="${datadir}/bash-completion/completions")
    AC_SUBST(bashcompdir)
    ```
 
@@ -207,12 +207,13 @@ A. [ Disclaimer: Here, how to make the completion code visible to
    `bash-completion-config-version.cmake` files. Example usage:
 
    ```cmake
+   include(GNUInstallDirs)
    find_package(bash-completion)
    if(BASH_COMPLETION_FOUND)
      message(STATUS
        "Using bash completion dir ${BASH_COMPLETION_COMPLETIONSDIR}")
    else()
-     set (BASH_COMPLETION_COMPLETIONSDIR "/etc/bash_completion.d")
+     set (BASH_COMPLETION_COMPLETIONSDIR "${CMAKE_INSTALL_DATADIR}/bash-completion/completions")
      message (STATUS
        "Using fallback bash completion dir ${BASH_COMPLETION_COMPLETIONSDIR}")
    endif()
