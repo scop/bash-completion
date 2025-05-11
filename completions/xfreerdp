@@ -7,7 +7,13 @@ _comp_cmd_xfreerdp__kbd_list()
     kbd_list=$("$1" /list:kbd 2>/dev/null) ||
         # Old syntax, deprecated in 2022-10-19
         # See https://github.com/FreeRDP/FreeRDP/commit/119b8d4474ab8578101f86226e0d20a53460dd51
-        kbd_list=$("$1" /kbd-list 2>/dev/null)
+        kbd_list=$("$1" /kbd-list 2>/dev/null) ||
+        # This seems to have broken in 2020 by commit
+        # https://github.com/FreeRDP/FreeRDP/commit/30275e7ac3eedf4db1b8fb1c0cb81f03e630ee8a,
+        # see https://github.com/scop/bash-completion/pull/1380#issuecomment-2870229302
+        # but is seemingly the only way to list the keyboard layout in 1.0.2, which is
+        # the version in ubuntu 14.04.6
+        kbd_list=$("$1" --kbd-list 2>/dev/null)
     _comp_awk '/^0x/ { print $1 }' <<<"$kbd_list"
 }
 
