@@ -162,6 +162,25 @@ _comp_cmd_tmux__options()
     done
 }
 
+# Complete arguments to a nested command.
+#
+# @param $1 the arg type of the command, e.g., command or shell-command
+# @param $2... args to the command, starting with the command itself, ending
+#     before the current word to complete
+_comp_cmd_tmux__nested_arguments()
+{
+    local arg_type="$1"
+    shift
+    _comp_cmd_tmux__log \
+        "Attempting completion for arguments to '$1' of type '$arg_type'"
+
+    case $arg_type in
+        command)
+            _comp_cmd_tmux__subcommand "$@"
+            ;;
+    esac
+}
+
 # Complete arguments to a subcommand.
 #
 # @param $@ the subcommand followed by its args, ending before the current word
@@ -239,12 +258,28 @@ _comp_cmd_tmux__subcommand()
             # above.
             _comp_cmd_tmux__value "$subcommand" "$prev_arg_type"
             return
+        elif [[ $arg_type == argument ]]; then
+            # New-style usage after
+            # https://github.com/tmux/tmux/commit/68ffe654990764ed5bdb7efb88e4d01b921fd3d5
+            # (2025-04-09) ends in `argument ...`
+            if ((usage_args_index == ${#args[@]} - 2)) &&
+                [[ ${args[-1]-} == *("[")...*("]") ]]; then
+                _comp_cmd_tmux__nested_arguments \
+                    "$prev_arg_type" \
+                    "${subcommand_args[@]:args_index-1}"
+                return
+            else
+                _comp_cmd_tmux__log \
+                    "'tmux $subcommand' has unsupported 'argument' in usage"
+                return
+            fi
         elif [[ $arg_type == arguments ]]; then
-            if [[ $prev_arg_type == command ]] &&
-                ((usage_args_index == ${#args[@]} - 1)); then
-                # The usage ends in `command arguments`, so recurse to the new
-                # subcommand.
-                _comp_cmd_tmux__subcommand \
+            # Old-style usage before
+            # https://github.com/tmux/tmux/commit/68ffe654990764ed5bdb7efb88e4d01b921fd3d5
+            # (2025-04-09) ends in `arguments`
+            if ((usage_args_index == ${#args[@]} - 1)); then
+                _comp_cmd_tmux__nested_arguments \
+                    "$prev_arg_type" \
                     "${subcommand_args[@]:args_index-1}"
                 return
             else

@@ -70,6 +70,15 @@ class TestTmux:
     def test_option_multiple_without_value(self, completion):
         assert "new-session" in completion
 
+    # Tests for _comp_cmd_tmux__nested_arguments()
+
+    @pytest.mark.complete(
+        "tmux bind-key C-a new-window -c ",
+        cwd="shared/default",
+    )
+    def test_nested_arguments_tmux_subcommand(self, completion):
+        assert completion == ["bar bar.d/", "foo.d/"]
+
     # Tests for _comp_cmd_tmux__subcommand()
 
     @pytest.mark.complete("tmux this-is-not-a-real-subcommand-i-hope ")
@@ -92,13 +101,6 @@ class TestTmux:
     @pytest.mark.complete("tmux source-file abc def ", cwd="shared/default")
     def test_subcommand_repetition(self, completion):
         assert completion == ["bar", "bar bar.d/", "foo", "foo.d/"]
-
-    @pytest.mark.complete(
-        "tmux bind-key C-a new-window -c ",
-        cwd="shared/default",
-    )
-    def test_subcommand_recursion(self, completion):
-        assert completion == ["bar bar.d/", "foo.d/"]
 
     @pytest.mark.complete("tmux source-file ", cwd="shared/default")
     def test_subcommand_positional_arg_1(self, completion):
