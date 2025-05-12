@@ -12,12 +12,22 @@ class TestMake:
 
     @pytest.mark.complete("make .", cwd="make", require_cmd=True)
     def test_2(self, bash, completion):
+        import glob
+
+        print(f"Files in {bash.cwd}/make")
+        for filename in glob.iglob(f"{bash.cwd}/make/**/*", recursive=True):
+            print(filename)
         """Hidden targets."""
         assert completion == ".cache/ .test_passes".split()
         os.remove(f"{bash.cwd}/make/extra_makefile")
 
     @pytest.mark.complete("make .cache/", cwd="make", require_cmd=True)
     def test_3(self, bash, completion):
+        import glob
+
+        print(f"Files in {bash.cwd}/make")
+        for filename in glob.iglob(f"{bash.cwd}/make/**/*", recursive=True):
+            print(filename)
         assert completion == ".cache/1 .cache/2".split()
         os.remove(f"{bash.cwd}/make/extra_makefile")
 
@@ -31,6 +41,11 @@ class TestMake:
 
     @pytest.mark.complete("make ", cwd="make", require_cmd=True)
     def test_6(self, bash, completion):
+        import glob
+
+        print(f"Files in {bash.cwd}/make")
+        for filename in glob.iglob(f"{bash.cwd}/make/**/*", recursive=True):
+            print(filename)
         assert completion == "all clean extra_makefile install sample".split()
         os.remove(f"{bash.cwd}/make/extra_makefile")
 
