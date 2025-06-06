@@ -32,6 +32,7 @@ cross_platform = 2to3 \
 		badblocks \
 		bind \
 		bk \
+		_bombadil \
 		brctl \
 		btdownloadheadless.py \
 		bts \

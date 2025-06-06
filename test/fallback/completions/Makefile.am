@@ -1,6 +1,7 @@
 EXTRA_DIST = \
 	argc \
 	adb \
+	bombadil \
 	cal \
 	cargo \
 	chfn \
