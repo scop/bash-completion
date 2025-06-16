@@ -42,4 +42,7 @@ class TestUtilCompgenAvailableInterfaces:
                 "_comp__test_compgen available_interfaces",
                 want_output=True,
             )
-            assert all(iface in output for iface in ["<eth0>", "<lo>"])
+            assert all(
+                iface in output
+                for iface in ["<eth0>", "<lo>", "<peer1>", "<peer2>"]
+            )
