@@ -28,17 +28,23 @@ _comp_cmd_kcov()
             return
             ;;
         --limits | -l)
-            if [[ $cur == ?*,* ]]; then
-                prev="${cur%,*}"
-                cur="${cur##*,}"
-                _comp_compgen -- -W "{0..100}"
-                ((${#COMPREPLY[@]} == 1)) &&
-                    _comp_compgen -Rv COMPREPLY -- -P "$prev," -W '"$COMPREPLY"'
+            # Complete the option argument of the form "--limits low,high".
+            local prefix
+            if [[ $cur =~ ^.+, ]]; then
+                prefix=$BASH_REMATCH
             else
-                _comp_compgen -- -W "{0..100}"
-                ((${#COMPREPLY[@]} == 1)) && COMPREPLY=("${COMPREPLY/%/,}")
+                prefix=""
                 compopt -o nospace
             fi
+            _comp_compgen -P "$prefix" -- -W "{0..100}" &&
+                if ((${#COMPREPLY[@]} == 1)); then
+                    # When we complete the "low" part, we suffix a comma.
+                    [[ $prefix ]] || COMPREPLY=("${COMPREPLY[@]/%/,}")
+                else
+                    # When the result is not unique, we do not show the prefix
+                    # part on the list.
+                    COMPREPLY=("${COMPREPLY[@]##*,}")
+                fi
             return
             ;;
         --title | -t | --include-pattern | --exclude-pattern | --path-strip-level)

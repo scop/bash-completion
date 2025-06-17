@@ -15,20 +15,17 @@ _comp_cmd_7z()
 
     case $cur in
         -ao*)
-            _comp_compgen -c "${cur:3}" -- -P"${cur:0:3}" -W 'a s t u'
+            _comp_compgen -P "-ao" -- -W 'a s t u'
             return
             ;;
         -?(a)[ix]*)
-            local opt
-            if [[ $cur == -a[ix]* ]]; then
-                opt=${cur:0:3} cur=${cur:3}
-            else
-                opt=${cur:0:2} cur=${cur:2}
-            fi
             if [[ $cur != *[@\!]* ]]; then
-                _comp_compgen -- -P"$opt" -W '@ ! r@ r-@ r0@ r! r-! r0!'
-            elif [[ $cur == ?(r@(-|0|))@* ]]; then
-                _comp_compgen -c "${cur#*@}" -- -P"${opt}${cur%%@*}@" -f
+                [[ $cur =~ ^-a?[ix] ]]
+                local prefix=${BASH_REMATCH-}
+                _comp_compgen -P "$prefix" -- -W '@ ! r@ r-@ r0@ r! r-! r0!'
+            elif [[ $cur =~ ^-a?[ix](r|r-|r0)?@ ]]; then
+                local prefix=${BASH_REMATCH-}
+                _comp_compgen -P "$prefix" -- -f
                 compopt -o filenames
             fi
             return
@@ -43,31 +40,30 @@ _comp_cmd_7z()
             ;;
         -o* | -w?*)
             compopt -o filenames
-            _comp_compgen -c "${cur:2}" -- -d -P"${cur:0:2}" -S/
+            _comp_compgen -P "${cur:0:2}" -- -d -S/
             compopt -o nospace
             return
             ;;
         -r?*)
-            _comp_compgen -c "${cur:2}" -- -P"${cur:0:2}" -W '- 0'
+            _comp_compgen -P "-r" -- -W '- 0'
             return
             ;;
         -scs*)
-            _comp_compgen -c "${cur:4}" -- -P"${cur:0:4}" -W 'UTF-8 WIN DOS'
+            _comp_compgen -P "-scs" -- -W 'UTF-8 WIN DOS'
             return
             ;;
         -ssc?*)
-            _comp_compgen -c "${cur:4}" -- -P"${cur:0:4}" -W '-'
+            _comp_compgen -P "-ssc" -- -W '-'
             return
             ;;
         -t*)
             if [[ $mode == w ]]; then
-                _comp_compgen -c "${cur:2}" -- -P"${cur:0:2}" -W '7z bzip2 gzip
-                    swfc tar wim xz zip'
+                _comp_compgen -P "-t" -- -W '7z bzip2 gzip swfc tar wim xz zip'
             else
-                _comp_compgen -c "${cur:2}" -- -P"${cur:0:2}" -W '7z apm arj
-                    bzip2 cab chm cpio cramfs deb dmg elf fat flv gzip hfs iso
-                    lzh lzma lzma86 macho mbr mslz mub nsis ntfs pe ppmd rar
-                    rpm squashfs swf swfc tar udf vhd wim xar xz z zip'
+                _comp_compgen -P "-t" -- -W '7z apm arj bzip2 cab chm cpio
+                    cramfs deb dmg elf fat flv gzip hfs iso lzh lzma lzma86
+                    macho mbr mslz mub nsis ntfs pe ppmd rar rpm squashfs swf
+                    swfc tar udf vhd wim xar xz z zip'
             fi
             return
             ;;
