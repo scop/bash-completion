@@ -111,6 +111,16 @@ E.g. write `${foo[bar]}`, not `${foo[$bar]}`, and similarly `${foo[bar+1]}`
 vs `${foo[((bar+1))]}` or `${foo[$((bar+1))]}`, `${foo[--i]}` vs
 `${foo[((--i))]}`.
 
+## `((${#array[@]})) && cmd "${array[@]}"`
+
+When one uses the array expansion of the form `"${array[@]}"` or `${array[*]}`,
+please make sure that the `array` is not empty.  This is because of a strange
+behavior of Bash <= 4.3, where `${array[@]}` and `${array[*]}` fail for the
+`nounset` error when `array` is an empty array.  It can be explicitly tested
+with `((${#array[@]}))`, or the exit status of `_comp_compgen` that assigned
+values to the array can be used (when the generator is designed to return the
+appropriate exit status).
+
 ## Loop variable names
 
 Use `i`, `j`, `k` for loop-local indices; `n` and `m` for lengths; some other

@@ -172,7 +172,8 @@ The exit status is implementation-defined.
 
 - The `_comp_compgen -- COMPGEN_ARGS` returns whether there is at least one
   completion.  This is useful when one wants to reuse the array content with
-  `"${tmp[@]}"` avoiding `nounset` error.
+  `"${tmp[@]}"` avoiding `nounset` error in Bash <= 4.3 for an empty array
+  `tmp`.
 - Some use other rules for the exit status. E.g., `help` and `usage` return
   whether there were options *before* filtering by cur. This is used for
   `_comp_compgen_help || _comp_compgen_usage`.
@@ -206,8 +207,8 @@ in `_comp_compgen_mygen1`.
 _comp_compgen_mygen1()
 {
     local -a arr=(1 2 3)
-    _comp_compgen -av arr -- -W '4 5 6'
-    _comp_compgen_set "${arr[@]/#p}"
+    _comp_compgen -av arr -- -W '4 5 6' &&
+      _comp_compgen_set "${arr[@]/#p}"
 }
 
 _comp_compgen -v arr mygen1 # fails to get the result in array `arr`
@@ -222,8 +223,8 @@ assigning the final result.
 _comp_compgen_mygen1()
 {
     local -a arr=(1 2 3)
-    _comp_compgen -av arr -- -W '4 5 6'
-    _comp_compgen -U arr set "${arr[@]/#p}"
+    _comp_compgen -av arr -- -W '4 5 6' &&
+      _comp_compgen -U arr set "${arr[@]/#p}"
 }
 ```
 
