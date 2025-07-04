@@ -1,4 +1,5 @@
 import os
+import sys
 
 import pytest
 
@@ -9,7 +10,9 @@ class TestMake:
     @pytest.fixture
     def remove_extra_makefile(self, bash):
         yield
-        os.remove(f"{bash.cwd}/make/extra_makefile")
+        # For some reason macos make doesn't actually create extra_makefile
+        if sys.platform != "darwin":
+            os.remove(f"{bash.cwd}/make/extra_makefile")
 
     @pytest.mark.complete("make -f Ma", cwd="make")
     def test_1(self, completion):
