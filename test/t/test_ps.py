@@ -1,5 +1,7 @@
 import pytest
 
+from conftest import assert_bash_exec
+
 
 def is_int(s):
     try:
@@ -35,7 +37,9 @@ class TestPs:
         assert not completion
 
     @pytest.mark.complete("ps --pid ")
-    def test_5(self, completion):
+    def test_5(self, completion, bash):
+        ps_pid_output = assert_bash_exec(bash, "command ps ax -o pid=", want_output=True)
+        print("\n=====PS output=====\n", ps_pid_output, "\n======PS output end=====\n")
         assert completion
         assert all(map(is_int, completion))
 
