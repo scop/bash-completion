@@ -1626,6 +1626,85 @@ _comp_initialize()
     local redir='@(?(+([0-9])|{[a-zA-Z_]*([a-zA-Z_0-9])})@(>?([>|&])|<?([>&])|<<?([-<]))|&>?(>))'
     _comp_get_words -n "$exclude<>&" cur prev words cword
 
+    # Since bash 4.3, find_cmd_start() skips over unclosed $(,
+    # causing the entire $( content to appear as one token in
+    # COMP_WORDS.  For example, in "echo $(cmd1 arg $(cmd2 ",
+    # cur is the single blob "$(cmd1 arg $(cmd2 ".
+    #
+    # The loop below strips $( layers one at a time: split
+    # into words, find a word with unclosed $(, rebuild
+    # inner_line from that word onward, and repeat.  When no
+    # unclosed $( remains, COMP_* describes the innermost
+    # command and _comp_command_offset dispatches to it.
+    if [[ $cur == '$('* ]]; then
+        local inner_line=$cur
+        local i nested_idx open_count close_count
+
+        while true; do
+            # Empty or whitespace-only -- nothing to complete,
+            # matching bare-prompt behavior.
+            [[ ${inner_line//[[:space:]]/} ]] || return 1
+
+            COMP_LINE=$inner_line
+            COMP_POINT=${#inner_line}
+            _comp_split COMP_WORDS "$inner_line"
+
+            # _comp_split discarded trailing whitespace, but if a trailing
+            # space was present, then the cursor is past the last word.
+            # Append an empty word so COMP_CWORD points to the empty position
+            # to correctly perform the completion there.
+            if [[ $inner_line == *[[:space:]] ]]; then
+                COMP_WORDS+=("")
+            fi
+
+            # COMP_CWORD is the index of the word at the cursor.  Bash provides
+            # the entire unclosed $( as one opaque token, so the cursor
+            # position within it is lost; we set COMP_POINT to end-of-line
+            # above and COMP_CWORD to the last word to match.
+            COMP_CWORD=$((${#COMP_WORDS[@]} - 1))
+
+            # Scan backward, accumulating $( and ) counts across
+            # words, to find the rightmost unclosed $(.  Per-word
+            # counting would fail when $( and ) are in different
+            # words, e.g. "$(echo" "hi)".
+            nested_idx=""
+            open_count=0
+            close_count=0
+            for ((i = COMP_CWORD; i >= 0; i--)); do
+                local word=${COMP_WORDS[i]}
+                local without_closes=${word//)/}
+                ((close_count += ${#word} - ${#without_closes}))
+                if [[ $word == *'$('* ]]; then
+                    local without_opens=${word//\$\(/}
+                    ((open_count += (${#word} - ${#without_opens}) / 2))
+                    if ((open_count > close_count)); then
+                        nested_idx=$i
+                        # re-parse from this word onward;
+                        # inner_line is assembled below
+                        break
+                    fi
+                fi
+            done
+
+            # No unclosed $( found -- we're at the innermost level.
+            [[ $nested_idx ]] || break
+
+            # Rebuild inner_line from the nested word onward, then
+            # strip its leading $( for the next iteration.
+            local IFS=$' \t\n' # for ${COMP_WORDS[*]:...} below
+            inner_line="${COMP_WORDS[*]:nested_idx}"
+            inner_line=${inner_line#\$\(}
+        done
+
+        # Unset words so _comp_command_offset uses COMP_WORDS directly
+        # (same pattern as _comp_command).
+        local words
+        unset -v words
+
+        _comp_command_offset 0
+        return 1
+    fi
+
     # Complete variable names.
     _comp_compgen_variables && return 1
 
