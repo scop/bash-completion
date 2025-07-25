@@ -122,6 +122,72 @@
 
 * **mfiutil:** more link and style issues ([cbd2661](https://github.com/scop/bash-completion/commit/cbd266155020194ec824028fb5c0d7ac95c89474))
 
+## [2.17.0](https://github.com/scop/bash-completion/compare/2.16.0...2.17.0) (2025-07-25)
+
+
+### Features
+
+* **_comp_backup_glob:** add zsync .zs-old ([a342d3a](https://github.com/scop/bash-completion/commit/a342d3a48039d896113f7a8c876f74890f417185))
+* **aptitude:** update sub-commands ([4ac918f](https://github.com/scop/bash-completion/commit/4ac918f075c71e54753e90b8d1fd87871ca4a08f))
+* associate .ogx and .oga with relevant programs ([0a13be1](https://github.com/scop/bash-completion/commit/0a13be1f6576ee4977552379e11157073b4e841b))
+* **bombadil:** add 3rd party fallback completion loader ([90ef9a2](https://github.com/scop/bash-completion/commit/90ef9a215521f14e0c66dd10d530c14648e7ecf6))
+* **curl:** Complete IP addresses for --interface ([0ea21b9](https://github.com/scop/bash-completion/commit/0ea21b987a1ffeec3d0a2d4c630bfcd20e19b87c))
+* **free:** new completion ([f82ac04](https://github.com/scop/bash-completion/commit/f82ac04a5ec3bd6d1832aab62d06e44232e0e2fd))
+* **fsnotifywait,fsnotifywatch:** new, alias to inotifywait ([8e8dacc](https://github.com/scop/bash-completion/commit/8e8dacc78a5d1a3bc7638353e9ba6d9523a5b6b7))
+* **glab:** add 3rd party fallback completion loader ([c298dcf](https://github.com/scop/bash-completion/commit/c298dcfd2f5a8a67ada2b48723701ed0941383df))
+* **glances:** add 3rd party fallback completion loader ([4218596](https://github.com/scop/bash-completion/commit/421859654c94c9864c8d93ca539295024f480504))
+* **nload:** new completion ([e700ae7](https://github.com/scop/bash-completion/commit/e700ae78d7f5c1f4ddd5cdf778ea1a0c6bf1798f))
+* **openssl:** Complete encryption algos for `enc` ([01b3aa2](https://github.com/scop/bash-completion/commit/01b3aa2fadd01ead3e79dd449d5767334bc2543b))
+* **openssl:** show only standard commands ([6fb0827](https://github.com/scop/bash-completion/commit/6fb082718d86163ca2a3310d91c3491e72253cc7))
+* **pytest:** complete --asyncio-mode arg ([6b27125](https://github.com/scop/bash-completion/commit/6b27125ffa965ad6b93ce82788f973234ea84a67))
+* **pytest:** complete --record-mode arg ([d14cf0d](https://github.com/scop/bash-completion/commit/d14cf0d1613d8940e0b4bdc7b73eb2d904198ef4))
+* **shtab:** add 3rd party fallback completion loader ([90162b0](https://github.com/scop/bash-completion/commit/90162b0a6cb31fe32acfe6af5079c9c4454dc8fb))
+* **shtab:** add 3rd party fallback completion loader ([20f5622](https://github.com/scop/bash-completion/commit/20f5622fb602fd0dc6c1d8921f2d061c5fd9eaf8))
+* **tldr:** add 3rd party fallback completion loader ([298700a](https://github.com/scop/bash-completion/commit/298700a0f34e7cd72b1c7535e0993b8d350e5c2e))
+* **tmux:** add a new completion ([#1364](https://github.com/scop/bash-completion/issues/1364)) ([1b87ff7](https://github.com/scop/bash-completion/commit/1b87ff7f6c08a5ce9b89f001e70856c501034ca5))
+* **trash-cli:** add 3rd party fallback completion loader ([533244c](https://github.com/scop/bash-completion/commit/533244c7603b7a139a56549c0b3238c16995a7e7))
+* **unzip,zipinfo:** Android split APK .apkm .apks .xapk ([92f558d](https://github.com/scop/bash-completion/commit/92f558d582c452e96872f480ebf86cc3c08f0a87))
+* **wget:** ipv6 addresses for --bind-address ([d3ff6a7](https://github.com/scop/bash-completion/commit/d3ff6a7081c53778529f5bad3e0846f12b29bc74))
+
+
+### Bug Fixes
+
+* **_umount,feh,sbopkg:** check diretory name for "_comp_compgen -C" ([c2c6c08](https://github.com/scop/bash-completion/commit/c2c6c08a62d8fc905739abe4e8dc8c1f37850e86))
+* **_umount,feh,sbopkg:** check diretory name for `_comp_compgen -C` ([ff9e1d3](https://github.com/scop/bash-completion/commit/ff9e1d35b820d967242bae7163c2ae84fec22369))
+* add miscellaneous fixes before implementing `_comp_compgen -P` ([6bd5e26](https://github.com/scop/bash-completion/commit/6bd5e264105fda5b16abc2287f4e5253b7124d5e))
+* **brctl:** fix quoting of the command name ([#1296](https://github.com/scop/bash-completion/issues/1296)) ([3201497](https://github.com/scop/bash-completion/commit/32014973c96f317990693412bcf680b614b460ea))
+* **cd:** fix the pattern matching ([b6503ba](https://github.com/scop/bash-completion/commit/b6503baa72f73da5304cbd13f1c0f09599080c68))
+* **cd:** generate only cdable_vars containing valid directory paths ([b1374fc](https://github.com/scop/bash-completion/commit/b1374fc304776568f8184c72f23674ed15f376b6))
+* **cd:** generate only cdable_vars containing valid directory paths ([355eb4d](https://github.com/scop/bash-completion/commit/355eb4d7c80522d33b64750400729d9e31388458))
+* **convert:** Try calling magick, for IM7 ([4509832](https://github.com/scop/bash-completion/commit/4509832011d4c3df68d933d94ebb2d9e6aa97594))
+* **convert:** Try calling magick, for IM7 ([ba0b8b9](https://github.com/scop/bash-completion/commit/ba0b8b9e65142d303c7b6545f0e5965562bfc88e))
+* **feh:** fix "nounset" error ([e9e665e](https://github.com/scop/bash-completion/commit/e9e665efd7623dd9ec6d72c25c5797c497d58f65))
+* **firefox:** do not split longopt argument ([5f3e5f8](https://github.com/scop/bash-completion/commit/5f3e5f8b939074221539750a70d5636283975717))
+* **interfaces:** trim [@link](https://github.com/link) from completions ([#1393](https://github.com/scop/bash-completion/issues/1393)) ([51b009f](https://github.com/scop/bash-completion/commit/51b009f6a653c66454816e9bc869c40f61329764))
+* **ip:** Don't offer neighbour, only neighbor ([79fd051](https://github.com/scop/bash-completion/commit/79fd051907328c8c26372691f68d627c1f0e3916))
+* **make,tshark:** work around localvar_inherit ([d4ae526](https://github.com/scop/bash-completion/commit/d4ae52641e7e976a2c94dafeedf36b3f2d1f39cc))
+* **make:** work around custom IFS ([27adc3e](https://github.com/scop/bash-completion/commit/27adc3e8bc4591247f5ae0533a4510a022dea2ff))
+* **mdtool:** fix usage of `compgen -G` ([e623bdb](https://github.com/scop/bash-completion/commit/e623bdb8810a25065f542c6f7b517279d11221b7))
+* **mdtool:** use `-f -X '!pat'` instead of `-G pat` ([db1d239](https://github.com/scop/bash-completion/commit/db1d239d1823e80bb88c21e00a4d22da71afccde))
+* **openssl:** Make command extraction from help portable for BSD sed. ([6fb0827](https://github.com/scop/bash-completion/commit/6fb082718d86163ca2a3310d91c3491e72253cc7))
+* **rcs:** avoid unexpected pathname expansion ([0fc8fff](https://github.com/scop/bash-completion/commit/0fc8fff69b4f0b5db44a56c94b84db450c79a4b2))
+* **rsync,ssh,sshfs:** do not generate regular files *'\' as dirs ([040b117](https://github.com/scop/bash-completion/commit/040b117799ff38404f3d36a4f395a1946e85488f))
+* **rsync,ssh,sshfs:** do not generate regular files *'\' as dirs ([0695e8a](https://github.com/scop/bash-completion/commit/0695e8a1f5dd960ffc72ffd3022c324ba718b27f))
+* **scp:** fix a bug that `-F<prefix>[TAB]` did not complete at all ([#1396](https://github.com/scop/bash-completion/issues/1396)) ([3cdb549](https://github.com/scop/bash-completion/commit/3cdb5493d45e0e9301a56a8e8a377e0b47f81b04))
+* **sshfs:** work around bash-4.3 nounset ([2c54a45](https://github.com/scop/bash-completion/commit/2c54a45f5263ec108cbcb27837defc1160c1cd4a))
+* **strings:** work around nounset ([612c891](https://github.com/scop/bash-completion/commit/612c89157254177c6ad6928fb59caab50732b84b))
+* **tmux:** fix usage parsing with git master tmux ([#1381](https://github.com/scop/bash-completion/issues/1381)) ([d7ae352](https://github.com/scop/bash-completion/commit/d7ae352903b66104ca8fd89c9b98dc6b56855fa2))
+* **xfreerdp:** Always try /list:kbd first ([89aa18b](https://github.com/scop/bash-completion/commit/89aa18b15462f117c20cde5f71e109c2f616bb62))
+* **xfreerdp:** try `--list-kbd` as last resort ([721fa87](https://github.com/scop/bash-completion/commit/721fa87c9c4ed5f2be8e890948f351f07731dcbb))
+* **xfreerdp:** try `--list-kbd` as last resort ([34c1d89](https://github.com/scop/bash-completion/commit/34c1d89d1a3a4be31b4bef16259467b245bc563d))
+
+
+### Performance Improvements
+
+* **_comp_delimited:** add "$prefix" only when it is non-empty ([bbb5b11](https://github.com/scop/bash-completion/commit/bbb5b1157744b0908eef7d38940bca3eb6a38a96))
+* **tar:** cache the parse result of GNU tar help ([247ba7b](https://github.com/scop/bash-completion/commit/247ba7bb794332a42920cae796a4a9deff5179b0))
+* **tar:** parse the GNU tar help on initialization ([b030e07](https://github.com/scop/bash-completion/commit/b030e07f1055dbc1e40b7d2f17ccd045802ff061))
+
 ## [2.15.0](https://github.com/scop/bash-completion/compare/2.14.0...2.15.0) (2024-11-24)
 
 
