@@ -310,12 +310,22 @@ A. Probably because the database is being queried every time and this uses a
 **Q. bash-completion interferes with my `command_not_found_handle` function
    (or the other way around)!**
 
-A. If your `command_not_found_handle` function is not intended to
-   address (possibly missing) commands invoked during bash
-   programmable completion functions, you can account for this
-   in the function by, for example, testing if the `$COMP_LINE`
-   variable is set and taking appropriate action, typically returning
-   early and silently with success.
+A. If your `command_not_found_handle` function is not intended to address
+   (possibly missing) commands invoked during bash programmable completion
+   functions, you can account for this in the function by, for example, testing
+   if the `$COMP_POINT` variable is set and taking appropriate action,
+   typically returning early and silently with success.  For keybindings with
+   `bind -x`, you may additionally want to check if the variable
+   `$READLINE_POINT` is set to skip the action.
+
+   > [!Note]
+   > We recommended checking whether `COMP_LINE` is *set*, which still works if
+   > properly done with e.g. `[[ ${COMP_LINE+set} ]]`.  However, if you have
+   > been checking if `COMP_LINE` is *non-empty* with `[[ ${COMP_LINE:-} ]]`,
+   > it may fail to detect programmable completion with the setting `complete
+   > -E` (in Bash >= 4.1) because `COMP_LINE` can be empty in this context.  It
+   > is safer to test `COMP_POINT` as one does not need to care about the
+   > differences between the set and non-empty states of variables.
 
 **Q. Can tab completion be made even easier?**
 
