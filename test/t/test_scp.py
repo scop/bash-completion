@@ -3,7 +3,12 @@ from itertools import chain
 
 import pytest
 
-from conftest import assert_bash_exec, assert_complete, bash_env_saved
+from conftest import (
+    assert_bash_exec,
+    assert_complete,
+    bash_env_saved,
+    prepare_fixture_dir,
+)
 
 LIVE_HOST = os.environ.get(
     "BASH_COMPLETION_TEST_LIVE_SSH_HOST", default="bash_completion"
@@ -152,3 +157,28 @@ class TestScp:
             "shared/default/foo ",
             "shared/default/foo.d/",
         ]
+
+    @pytest.fixture
+    def tmpdir_mkfifo(self, request, bash):
+        tmpdir, _, _ = prepare_fixture_dir(request, files=[], dirs=[])
+
+        # If the system allows creating a named pipe, we create it in a
+        # temporary directory and returns the path.  We cannot check the
+        # availability of the named pipe simply by the existence of the command
+        # "mkfifo" Even if the command "mkfifo" exists in the system, the
+        # current operating system or the filesystem may not allow creating a
+        # named pipe.
+        try:
+            assert_bash_exec(bash, "mkfifo '%s/local_path_1-pipe'" % tmpdir)
+        except Exception:
+            pytest.skip(
+                "The present system does not allow creating a named pipe through 'mkfifo'."
+            )
+
+        return tmpdir
+
+    def test_local_path_mark_1(self, bash, tmpdir_mkfifo):
+        completion = assert_complete(
+            bash, "scp local_path_1-", cwd=tmpdir_mkfifo
+        )
+        assert completion == "pipe"
