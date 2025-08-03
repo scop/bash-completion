@@ -1,4 +1,5 @@
 import os
+import sys
 from itertools import chain
 
 import pytest
@@ -157,6 +158,28 @@ class TestScp:
             "shared/default/foo ",
             "shared/default/foo.d/",
         ]
+
+    @pytest.fixture
+    def tmpdir_backslash(self, request, bash):
+        if sys.platform.startswith("win"):
+            pytest.skip("Filenames not allowed on Windows")
+
+        tmpdir, _, _ = prepare_fixture_dir(
+            request, files=["local_path-file\\"], dirs=[]
+        )
+        return tmpdir
+
+    def test_local_path_ending_with_backslash(self, bash, tmpdir_backslash):
+        completion = assert_complete(
+            bash, "scp local_path-", cwd=tmpdir_backslash
+        )
+        assert completion.output == r"file\\ "
+
+    def test_remote_path_ending_with_backslash(self, bash):
+        assert_bash_exec(bash, "ssh() { echo 'hypothetical\\'; }")
+        completion = assert_complete(bash, "scp remote_host:hypo")
+        assert_bash_exec(bash, "unset -f ssh")
+        assert completion.output == r"thetical\\\\ "
 
     @pytest.fixture
     def tmpdir_mkfifo(self, request, bash):
