@@ -14,9 +14,11 @@ class TestTime:
         """
         assert completion == "ed" or "_comp_delimited" in completion
 
-    @pytest.mark.complete("time -p find -typ")
+    @pytest.mark.complete(
+        "time -p bash --", skipif="! bash --help &>/dev/null"
+    )
     def test_2(self, completion):
-        assert completion  # find's options
+        assert "--login" in completion  # bash's options
 
     @pytest.mark.complete("time shared/bin/")
     def test_3(self, completion):
