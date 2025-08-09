@@ -441,6 +441,7 @@ _comp_split()
 # @var[in] $?
 # @var[in] _var
 # @var[in] _append
+# @var[in] _upvars
 # @return original $?
 _comp_compgen__error_fallback()
 {
@@ -451,35 +452,46 @@ _comp_compgen__error_fallback()
     else
         eval -- "$_var=()"
     fi
+    if ((${#_upvars[@]})); then
+        _comp_unlocal "${_upvars[@]}"
+        _upvars=()
+    fi
     return "$_status"
 }
 
 # Provide a common interface to generate completion candidates in COMPREPLY or
 # in a specified array.
 # OPTIONS
-#   -a      Append to the array
-#   -v arr  Store the results to the array ARR. The default is `COMPREPLY`.
-#           The array name should not start with an underscores "_", which is
-#           internally used.  The array name should not be any of "cur", "IFS"
-#           or "OPT{IND,ARG,ERR}".
-#   -U var  Unlocalize VAR before performing the assignments.  This option can
-#           be specified multiple times to register multiple variables.  This
-#           option is supposed to be used in implementing a generator (G1) when
-#           G1 defines a local variable name that does not start with `_`.  In
-#           such a case, when the target variable specified to G1 by `-v VAR1`
-#           conflicts with the local variable, the assignment to the target
-#           variable fails to propagate outside G1.  To avoid such a situation,
-#           G1 can call `_comp_compgen` with `-U VAR` to unlocalize `VAR`
-#           before accessing the target variable.  For a builtin compgen call
-#           (i.e., _comp_compgen [options] -- options), VAR is unlocalized
-#           after calling the builtin `compgen` but before assigning results to
-#           the target array.  For a generator call (i.e., _comp_compgen
-#           [options] G2 ...), VAR is unlocalized before calling the child
-#           generator function `_comp_compgen_G2`.
-#   -c cur  Set a word used as a prefix to filter the completions.  The default
-#           is ${cur-}.
-#   -R      The same as -c ''.  Use raw outputs without filtering.
-#   -C dir  Evaluate compgen/generator in the specified directory.
+#   -a        Append to the array
+#   -v arr    Store the results to the array ARR. The default is `COMPREPLY`.
+#             The array name should not start with an underscores "_", which is
+#             internally used.  The array name should not be any of "cur",
+#             "IFS" or "OPT{IND,ARG,ERR}".
+#   -U var    Unlocalize VAR before performing the assignments.  This option
+#             can be specified multiple times to register multiple variables.
+#             This option is supposed to be used in implementing a generator
+#             (G1) when G1 defines a local variable name that does not start
+#             with `_`.  In such a case, when the target variable specified to
+#             G1 by `-v VAR1` conflicts with the local variable, the assignment
+#             to the target variable fails to propagate outside G1.  To avoid
+#             such a situation, G1 can call `_comp_compgen` with `-U VAR` to
+#             unlocalize `VAR` before accessing the target variable.  For a
+#             builtin compgen call (i.e., _comp_compgen [options] -- options),
+#             VAR is unlocalized after calling the builtin `compgen` but before
+#             assigning results to the target array.  For a generator call
+#             (i.e., _comp_compgen [options] G2 ...), VAR is unlocalized before
+#             calling the child generator function `_comp_compgen_G2`.
+#   -c cur    Set a word used as a prefix to filter the completions.  The
+#             default is ${cur-}.
+#   -R        The same as -c ''.  Use raw outputs without filtering.
+#   -C dir    Evaluate compgen/generator in the specified directory.
+#   -P prefix Prepend the prefix to the generated completions.  Unlike `compgen
+#             -P prefix`, this prefix is subject to filtering by `cur`.  When a
+#             non-empty prefix is specified, first `cur` is tested whether it
+#             is consistent with the prefix.  Then, `cur` is reduced for the
+#             part excluding the prefix, and the normal completion generation
+#             is performed.  Finally, the prefix is prepended to generated
+#             completions.
 # @var[in,opt] cur  Used as the default value of a prefix to filter the
 #   completions.
 #
@@ -564,6 +576,7 @@ _comp_compgen()
     local _var=
     local _cur=${_comp_compgen__cur-${cur-}}
     local _dir=""
+    local _prefix=""
     local _ifs=$' \t\n' _has_ifs=""
     local _icmd="" _xcmd=""
     local -a _upvars=()
@@ -574,7 +587,7 @@ _comp_compgen()
         shopt -u nocasematch
     fi
     local OPTIND=1 OPTARG="" OPTERR=0 _opt
-    while getopts ':av:U:Rc:C:lF:i:x:' _opt "$@"; do
+    while getopts ':av:U:Rc:C:P:lF:i:x:' _opt "$@"; do
         case $_opt in
             a) _append=set ;;
             v)
@@ -603,6 +616,7 @@ _comp_compgen()
                 fi
                 _dir=$OPTARG
                 ;;
+            P) _prefix=$OPTARG ;;
             l) _has_ifs=set _ifs=$'\n' ;;
             F) _has_ifs=set _ifs=$OPTARG ;;
             [ix])
@@ -638,6 +652,19 @@ _comp_compgen()
         [[ $_append ]] || _append=${_comp_compgen__append-}
     fi
 
+    local _prefix_fail=""
+    if [[ $_prefix ]]; then
+        if [[ $_cur == "$_prefix"* ]]; then
+            _cur=${_cur#"$_prefix"}
+        elif [[ $_prefix == "$_cur"* ]]; then
+            _cur=""
+        else
+            # No completions are generated because the current word does not match
+            # the prefix.
+            _prefix_fail=set
+        fi
+    fi
+
     if [[ $1 != -* ]]; then
         # usage: _comp_compgen [options] NAME args
         if [[ $_has_ifs ]]; then
@@ -658,6 +685,11 @@ _comp_compgen()
             return 2
         fi
         shift
+
+        if [[ $_prefix_fail ]]; then
+            _comp_compgen__error_fallback
+            return 1
+        fi
 
         _comp_compgen__call_generator "$@"
     else
@@ -682,6 +714,11 @@ _comp_compgen()
             return 2
         fi
 
+        if [[ $_prefix_fail ]]; then
+            _comp_compgen__error_fallback
+            return 1
+        fi
+
         _comp_compgen__call_builtin "$@"
     fi
 }
@@ -696,8 +733,6 @@ _comp_compgen()
 # @var[in] _var
 _comp_compgen__call_generator()
 {
-    ((${#_upvars[@]})) && _comp_unlocal "${_upvars[@]}"
-
     if [[ $_dir ]]; then
         local _original_pwd=$PWD
         local PWD=${PWD-} OLDPWD=${OLDPWD-}
@@ -710,14 +745,28 @@ _comp_compgen__call_generator()
             }
     fi
 
+    ((${#_upvars[@]})) && _comp_unlocal "${_upvars[@]}"
+
     local _comp_compgen__append=$_append
     local _comp_compgen__var=$_var
     local _comp_compgen__cur=$_cur cur=$_cur
+    if [[ $_prefix ]]; then
+        local -a tmp=()
+        local _comp_compgen__var=tmp
+        local _comp_compgen__append=""
+    fi
     # Note: we use $1 as a part of a function name, and we use $2... as
     # arguments to the function if any.
     # shellcheck disable=SC2145
     "${_generator[@]}" "$@"
     local _status=$?
+    if [[ $_prefix ]]; then
+        local _i
+        for _i in "${!tmp[@]}"; do
+            tmp[_i]=$_prefix${tmp[_i]}
+        done
+        _comp_compgen -RU tmp ${_append:+-a} -v "$_var" -- -W '"${tmp[@]}"'
+    fi
 
     # Go back to the original directory.
     # Note: Failure of this line results in the change of the current
@@ -772,6 +821,13 @@ if ((BASH_VERSINFO[0] > 5 || BASH_VERSINFO[0] == 5 && BASH_VERSINFO[1] >= 3)); t
 
         ((${#_upvars[@]})) && _comp_unlocal "${_upvars[@]}"
         ((${#_result[@]})) || return
+
+        if [[ $_prefix ]]; then
+            local _i
+            for _i in "${!_result[@]}"; do
+                _result[_i]=$_prefix${_result[_i]}
+            done
+        fi
         if [[ $_append ]]; then
             eval -- "$_var+=(\"\${_result[@]}\")"
         else
@@ -796,7 +852,13 @@ else
         }
 
         ((${#_upvars[@]})) && _comp_unlocal "${_upvars[@]}"
-        _comp_split -l ${_append:+-a} "$_var" "$_result"
+
+        if [[ $_prefix ]]; then
+            _comp_split -l ${_append:+-a} "$_var" \
+                "$(IFS=$'\n' compgen -W '$_result' -P "$_prefix")"
+        else
+            _comp_split -l ${_append:+-a} "$_var" "$_result"
+        fi
     }
 fi
 
@@ -1854,7 +1916,7 @@ _comp_compgen_tilde()
 {
     if [[ ${cur-} == \~* && $cur != */* ]]; then
         # Try generate ~username completions
-        if _comp_compgen -c "${cur#\~}" -- -P '~' -u; then
+        if _comp_compgen -P '~' -- -u; then
             # 2>/dev/null for direct invocation, e.g. in the
             # _comp_compgen_tilde unit test
             compopt -o filenames 2>/dev/null

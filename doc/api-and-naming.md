@@ -143,12 +143,12 @@ concept is later extended to also mean "eXported".
 
 The generator functions, which have names of the form `_comp_compgen_NAME`, are
 used to generate completion candidates.  A generator function is supposed to be
-called by `_comp_compgen [OPTS] NAME ARGS` where `OPTS = -aRl|-v var|-c cur|-C
-dir|-F sep` are the options to modify the behavior (see the code comment of
-`_comp_compgen` for details).  When there are no `opts`, the generator function
-is supposed to be directly called as `_comp_compgen_NAME ARGS`.  The result is
-stored in the target variable (which is `COMPREPLY` by default but can be
-specified by `-v var` in `OPTS`).
+called by `_comp_compgen [OPTS] NAME ARGS` where `OPTS = -aR|-v var|-c cur|-C
+dir|-U var|-P prefix` are the options to modify the behavior (see the code
+comment of `_comp_compgen` for details).  When there are no `opts`, the
+generator function is supposed to be directly called as `_comp_compgen_NAME
+ARGS`.  The result is stored in the target variable (which is `COMPREPLY` by
+default but can be specified by `-v var` in `OPTS`).
 
 ### Implementing a generator function
 
