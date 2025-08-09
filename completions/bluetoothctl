@@ -1,0 +1,46 @@
+# bluetoothctl(1) completion                                    -*- shell-script -*-
+
+_bluetoothctl()
+{
+    local cur=${COMP_WORDS[COMP_CWORD]}
+    local prev=${COMP_WORDS[COMP_CWORD-1]}
+    if [[ "$COMP_CWORD" == "1" ]]; then
+        # Parse help for list of commands and remove ansi colors
+        COMPREPLY=( $( compgen -W "$(bluetoothctl help | sed -n '/  /{s/\x1B\[[0-9;]*[a-zA-Z]//g;s/\x01//g;s/\x02//g;s/ .*//p}')" -- $cur))
+        return
+    fi
+    if [[ "$COMP_CWORD" == "2" ]]; then
+        case "$prev" in
+            info|pair|trust|untrust|block|unblock|remove|connect|disconnect)
+                # Return a device to complete
+                COMPREPLY=( $( compgen -W "$(bluetoothctl devices|awk '{print $2}')" -- $cur))
+                    ;;
+            show|select)
+                # Return a controller address
+                COMPREPLY=( $( compgen -W "$(bluetoothctl list|awk '{print $2}')" -- $cur))
+                ;;
+            power|pairable|discoverable|scan)
+                COMPREPLY=( $( compgen -W "on off" -- $cur))
+                ;;
+            agent)
+                COMPREPLY=( $( compgen -W "on off capability" -- $cur))
+                ;;
+            advertise)
+                COMPREPLY=( $( compgen -W "on off type" -- $cur))
+                ;;
+        esac
+    fi
+    if [[ ${COMP_WORDS[1]} == "menu" ]]; then
+        if [[ "$COMP_CWORD" == "2" ]]; then
+            # List out submenues
+            COMPREPLY=( $(compgen -W "$(bluetoothctl help | sed -n '/Submenu/{s/\x1B\[[0-9;]*[a-zA-Z]//g;s/\x02//g;s/\x01//;s/ .*//p}')" -- $cur))
+            return
+        fi
+        if [[ "$COMP_CWORD" == "3" ]]; then
+            # Parse submenu and return commands.
+            COMPREPLY=( $( compgen -W "$(bluetoothctl menu $prev | sed -n '/  /{s/\x1B\[[0-9;]*[a-zA-Z]//g;s/\x01//g;s/\x02//g;s/ .*//p}' )" -- $cur))
+        fi
+    fi
+}
+
+# ex: filetype=sh
