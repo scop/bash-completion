@@ -241,6 +241,7 @@ A. [ Disclaimer: Here, how to make the completion code visible to
    Example for `CMakeLists.txt`:
 
    ```cmake
+   include(GNUInstallDirs)
    install(FILES your-completion-file DESTINATION "${CMAKE_INSTALL_DATADIR}/bash-completion/completions")
    ```
 
