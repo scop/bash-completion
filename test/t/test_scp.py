@@ -32,7 +32,13 @@ class TestScp:
                     )
                 ),
                 # Local filenames
-                ["bin/", "config", "known_hosts", r"spaced\ \ conf"],
+                [
+                    "bin/",
+                    "config",
+                    "known_hosts",
+                    "local_path/",
+                    r"spaced\ \ conf",
+                ],
             )
         )
         assert completion == expected
@@ -52,7 +58,13 @@ class TestScp:
                     )
                 ),
                 # Local filenames
-                ["bin/", "config", "known_hosts", r"spaced\ \ conf"],
+                [
+                    "bin/",
+                    "config",
+                    "known_hosts",
+                    "local_path/",
+                    r"spaced\ \ conf",
+                ],
             )
         )
         assert completion == expected
@@ -119,6 +131,28 @@ class TestScp:
         assert_bash_exec(bash, "unset -f ssh")
         assert completion == r"\\\ in\\\ filename.txt"
 
+    def test_remote_path_with_backslash(self, bash):
+        assert_bash_exec(
+            bash, r"ssh() { printf '%s\n' 'abc def.txt' 'abc\ def.txt'; }"
+        )
+        completion = assert_complete(bash, "scp remote_host:abc\\")
+        assert_bash_exec(bash, "unset -f ssh")
+
+        # Note: The number of backslash escaping differs depending on the scp
+        # version.
+        assert completion == sorted(
+            [r"abc\ def.txt", r"abc\\\ def.txt"]
+        ) or completion == sorted([r"abc\\\ def.txt", r"abc\\\\\\\ def.txt"])
+
+    def test_remote_path_with_backslash_2(self, bash):
+        assert_bash_exec(
+            bash, r"ssh() { [[ $1 == abc ]]; printf '%s\n' 'abc OK'; }"
+        )
+        completion = assert_complete(bash, "scp remote_host:abc\\\\\\")
+        assert_bash_exec(bash, "unset -f ssh")
+
+        assert completion == "OK"
+
     def test_xfunc_remote_files(self, bash):
         with bash_env_saved(bash) as bash_env:
             bash_env.save_variable("COMPREPLY")
@@ -183,7 +217,13 @@ class TestScp:
 
     @pytest.fixture
     def tmpdir_mkfifo(self, request, bash):
-        tmpdir, _, _ = prepare_fixture_dir(request, files=[], dirs=[])
+        # We prepare two files: 1) a named pipe and 2) a regular file ending
+        # with the same name but an extra special character "|".
+        tmpdir, _, _ = prepare_fixture_dir(
+            request,
+            files=["local_path_2-pipe|"],
+            dirs=[],
+        )
 
         # If the system allows creating a named pipe, we create it in a
         # temporary directory and returns the path.  We cannot check the
@@ -205,3 +245,24 @@ class TestScp:
             bash, "scp local_path_1-", cwd=tmpdir_mkfifo
         )
         assert completion == "pipe"
+
+    # FIXME: This test currently fails.
+    # def test_local_path_mark_2(self, bash, tmpdir_mkfifo):
+    #     completion = assert_complete(
+    #         bash, "scp local_path_2-", cwd=tmpdir_mkfifo
+    #     )
+    #     assert completion == "pipe\\|"
+
+    @pytest.mark.complete("scp spa", cwd="scp")
+    def test_local_path_with_spaces_1(self, completion):
+        assert completion == r"ced\ \ conf"
+
+    @pytest.mark.complete(r"scp spaced\ ", cwd="scp")
+    def test_local_path_with_spaces_2(self, completion):
+        assert completion == r"\ conf"
+
+    @pytest.mark.complete("scp backslash-a\\", cwd="scp/local_path")
+    def test_local_path_backslash(self, completion):
+        assert completion == sorted(
+            [r"backslash-a\ b.txt", r"backslash-a\\\ b.txt"]
+        )
