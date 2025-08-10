@@ -207,12 +207,12 @@ A. [ Disclaimer: Here, how to make the completion code visible to
    `bash-completion-config-version.cmake` files. Example usage:
 
    ```cmake
-   include(GNUInstallDirs)
    find_package(bash-completion)
    if(BASH_COMPLETION_FOUND)
      message(STATUS
        "Using bash completion dir ${BASH_COMPLETION_COMPLETIONSDIR}")
    else()
+     include(GNUInstallDirs)
      set (BASH_COMPLETION_COMPLETIONSDIR "${CMAKE_INSTALL_DATADIR}/bash-completion/completions")
      message (STATUS
        "Using fallback bash completion dir ${BASH_COMPLETION_COMPLETIONSDIR}")
