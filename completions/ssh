@@ -473,7 +473,7 @@ _comp_cmd_scp__path_esc='[][(){}<>"'"'"',:;^&!$=?`\\|[:space:]]'
 #     characters are replaced with the specified value (instead of the default
 #     '\\&').
 # @stdin List of filenames in the "ls -1F" format, where filenames are
-#     separated by newlines, and characters /=@|* are suffixed based on the
+#     separated by newlines, and characters /*@|=> are suffixed based on the
 #     types of the files.
 _comp_cmd_scp__escape_path()
 {
@@ -496,10 +496,10 @@ _comp_cmd_scp__escape_path()
             -e '/[^/]$/d' \
             -e 's/'"$_comp_cmd_scp__path_esc"'/'"$escape_replacement"'/g'
     else
-        # escape problematic characters; remove executables, aliases, pipes
-        # and sockets; add space at end of file names
+        # escape problematic characters; remove executable, symlink, pipe,
+        # socket and door indicators; add space at end of file names
         command sed \
-            -e 's/[*@|=]$//g' \
+            -e 's/[*@|=>]$//g' \
             -e 's/'"$_comp_cmd_scp__path_esc"'/'"$escape_replacement"'/g' \
             -e 's/[^/]$/& /g'
     fi
