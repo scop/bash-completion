@@ -172,3 +172,49 @@ class TestUtilCompgen:
             bash, "_comp__test_compgen gen9", want_output=True
         )
         assert output.strip() == "<11><11>"
+
+    def test_10_option_P_unmatching_prefix(self, bash, functions):
+        output = assert_bash_exec(
+            bash,
+            "_comp__test_compgen -c 'x' -P 'prefix,' -- -W 'alpha apple beta lemon'",
+            want_output=True,
+        )
+        assert output.strip() == ""
+
+    def test_10_option_P_incomplete_prefix(self, bash, functions):
+        output = assert_bash_exec(
+            bash,
+            "_comp__test_compgen -c 'pre' -P 'prefix,' -- -W 'alpha apple beta lemon'",
+            want_output=True,
+        )
+        assert (
+            output.strip()
+            == "<prefix,alpha><prefix,apple><prefix,beta><prefix,lemon>"
+        )
+
+    def test_10_option_P_exact_prefix(self, bash, functions):
+        output = assert_bash_exec(
+            bash,
+            "_comp__test_compgen -c 'prefix,' -P 'prefix,' -- -W 'alpha apple beta lemon'",
+            want_output=True,
+        )
+        assert (
+            output.strip()
+            == "<prefix,alpha><prefix,apple><prefix,beta><prefix,lemon>"
+        )
+
+    def test_10_option_P_starts_with_prefix(self, bash, functions):
+        output = assert_bash_exec(
+            bash,
+            "_comp__test_compgen -c 'prefix,a' -P 'prefix,' -- -W 'alpha apple beta lemon'",
+            want_output=True,
+        )
+        assert output.strip() == "<prefix,alpha><prefix,apple>"
+
+    def test_10_option_P_no_match(self, bash, functions):
+        output = assert_bash_exec(
+            bash,
+            "_comp__test_compgen -c 'prefix,x' -P 'prefix,' -- -W 'alpha apple beta lemon'",
+            want_output=True,
+        )
+        assert output.strip() == ""
