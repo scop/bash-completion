@@ -12,4 +12,10 @@ class TestSha256sum:
 
     @pytest.mark.complete("sha256sum -c ", cwd="sha256sum")
     def test_checking(self, completion):
-        assert completion == "foo.sha256"
+        assert completion == [
+            "checksums",
+            "checksums.txt",
+            "foo.sha256",
+            "sha256sums",
+            "sha256sums.txt",
+        ]
