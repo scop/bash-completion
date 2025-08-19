@@ -274,6 +274,7 @@ cross_platform = 2to3 \
 		mkinitrd \
 		mktemp \
 		mmsitepass \
+		mn \
 		_mock \
 		_modinfo \
 		_modprobe \
