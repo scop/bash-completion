@@ -184,6 +184,10 @@ def partialize(
     return first_char, partial_items
 
 
+def get_testdir():
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+
+
 @pytest.fixture(scope="class")
 def bash(request) -> pexpect.spawn:
     logfile: Optional[TextIO] = None
@@ -196,9 +200,7 @@ def bash(request) -> pexpect.spawn:
     elif os.environ.get("CI"):
         logfile = sys.stdout
 
-    testdir = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), os.pardir)
-    )
+    testdir = get_testdir()
 
     # Create an empty temporary file for HISTFILE.
     #

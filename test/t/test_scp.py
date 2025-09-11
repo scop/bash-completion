@@ -8,6 +8,7 @@ from conftest import (
     assert_bash_exec,
     assert_complete,
     bash_env_saved,
+    get_testdir,
     prepare_fixture_dir,
 )
 
@@ -32,7 +33,7 @@ class TestScp:
                     )
                 ),
                 # Local filenames
-                ["bin/", "config", "known_hosts", r"spaced\ \ conf"],
+                ["config", "known_hosts", r"spaced\ \ conf"],
             )
         )
         assert completion == expected
@@ -52,7 +53,7 @@ class TestScp:
                     )
                 ),
                 # Local filenames
-                ["bin/", "config", "known_hosts", r"spaced\ \ conf"],
+                ["config", "known_hosts", r"spaced\ \ conf"],
             )
         )
         assert completion == expected
@@ -68,9 +69,9 @@ class TestScp:
     def test_capital_f_without_space_2(self, completion):
         assert completion == "ig"
 
-    @pytest.mark.complete("scp -Fbi", cwd="scp")
+    @pytest.mark.complete("scp -Fempty", cwd="shared")
     def test_capital_f_without_space_3(self, completion):
-        assert completion == "n/"
+        assert completion == "_dir/"
 
     @pytest.fixture(scope="class")
     def live_pwd(self, bash):
@@ -119,15 +120,15 @@ class TestScp:
         assert_bash_exec(bash, "unset -f ssh")
         assert completion == r"\\\ in\\\ filename.txt"
 
-    def test_xfunc_remote_files(self, bash):
+    def test_xfunc_remote_files(self, live_pwd, bash):
+        def prefix_paths(prefix, paths):
+            return [f"{prefix}{path}" for path in paths]
+
         with bash_env_saved(bash) as bash_env:
             bash_env.save_variable("COMPREPLY")
             bash_env.write_variable(
-                "PATH",
-                "$PWD/scp/bin:$PATH",
-                quote=False,
+                "cur", f"{LIVE_HOST}:{get_testdir()}/fixtures/shared/default/"
             )
-            bash_env.write_variable("cur", "local:shared/default/")
             completions_regular_escape = (
                 assert_bash_exec(
                     bash,
@@ -146,18 +147,24 @@ class TestScp:
                 .strip()
                 .splitlines()
             )
-        assert completions_regular_escape == [
-            "shared/default/bar ",
-            r"shared/default/bar\\\ bar.d/",
-            "shared/default/foo ",
-            "shared/default/foo.d/",
-        ]
-        assert completions_less_escape == [
-            "shared/default/bar ",
-            r"shared/default/bar\ bar.d/",
-            "shared/default/foo ",
-            "shared/default/foo.d/",
-        ]
+        assert completions_regular_escape == prefix_paths(
+            f"{get_testdir()}/fixtures/shared/default/",
+            [
+                "bar ",
+                r"bar\\\ bar.d/",
+                "foo ",
+                "foo.d/",
+            ],
+        )
+        assert completions_less_escape == prefix_paths(
+            f"{get_testdir()}/fixtures/shared/default/",
+            [
+                "bar ",
+                r"bar\ bar.d/",
+                "foo ",
+                "foo.d/",
+            ],
+        )
 
     @pytest.fixture
     def tmpdir_backslash(self, request, bash):
