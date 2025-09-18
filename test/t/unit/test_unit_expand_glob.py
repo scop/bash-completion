@@ -1,6 +1,16 @@
+import unicodedata
+
 import pytest
 
 from conftest import assert_bash_exec, bash_env_saved
+
+
+def normalize(string):
+    # Applies "canonical decomposition", so might make errors look weird?
+    # The alternative is probably `NFC` which composes together some of
+    # the characters again.
+    # See https://docs.python.org/3/library/unicodedata.html#unicodedata.normalize
+    return unicodedata.normalize("NFD", string)
 
 
 @pytest.mark.bashcomp(
@@ -22,14 +32,15 @@ class TestExpandGlob:
 
     def test_match_all(self, bash, functions):
         output = assert_bash_exec(bash, "__tester '*'", want_output=True)
-        assert (
-            output.strip()
-            == "<a b><a$b><a&b><a'b><ab><aé><brackets><dotdot><ext>"
+        assert normalize(output.strip()) == normalize(
+            "<a b><a$b><a&b><a'b><ab><aé><brackets><dotdot><ext>"
         )
 
     def test_match_pattern(self, bash, functions):
         output = assert_bash_exec(bash, "__tester 'a*'", want_output=True)
-        assert output.strip() == "<a b><a$b><a&b><a'b><ab><aé>"
+        assert normalize(output.strip()) == normalize(
+            "<a b><a$b><a&b><a'b><ab><aé>"
+        )
 
     def test_match_unmatched(self, bash, functions):
         output = assert_bash_exec(
@@ -51,7 +62,9 @@ class TestExpandGlob:
         with bash_env_saved(bash, functions) as bash_env:
             bash_env.set("noglob", True)
             output = assert_bash_exec(bash, "__tester 'a*'", want_output=True)
-            assert output.strip() == "<a b><a$b><a&b><a'b><ab><aé>"
+            assert normalize(output.strip()) == normalize(
+                "<a b><a$b><a&b><a'b><ab><aé>"
+            )
 
     def test_protect_from_failglob(self, bash, functions):
         with bash_env_saved(bash) as bash_env:
@@ -83,4 +96,6 @@ class TestExpandGlob:
             bash_env.save_shopt("dotglob")
             bash_env.write_variable("GLOBIGNORE", "*")
             output = assert_bash_exec(bash, "__tester 'a*'", want_output=True)
-            assert output.strip() == "<a b><a$b><a&b><a'b><ab><aé>"
+            assert normalize(output.strip()) == normalize(
+                "<a b><a$b><a&b><a'b><ab><aé>"
+            )

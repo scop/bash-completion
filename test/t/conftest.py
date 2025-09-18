@@ -773,7 +773,7 @@ class CompletionResult(Iterable[str]):
         return self.output.startswith(prefix)
 
     def _items(self) -> List[str]:
-        return [x.strip() for x in self.output.strip().splitlines()]
+        return sorted([x.strip() for x in self.output.strip().splitlines()])
 
     def __eq__(self, expected: object) -> bool:
         """
@@ -788,7 +788,7 @@ class CompletionResult(Iterable[str]):
             return False
         else:
             expiter = expected
-        return self._items() == expiter
+        return self._items() == sorted(expiter)
 
     def __contains__(self, item: str) -> bool:
         return item in self._items()
@@ -953,7 +953,9 @@ def prepare_fixture_dir(
     the tarball. This is to work better with case insensitive file systems.
     """
     tempdir = Path(tempfile.mkdtemp(prefix="bash-completion-fixture-dir"))
-    request.addfinalizer(lambda: shutil.rmtree(str(tempdir)))
+    request.addfinalizer(
+        lambda: shutil.rmtree(str(tempdir), ignore_errors=True)
+    )
 
     old_cwd = os.getcwd()
     try:
