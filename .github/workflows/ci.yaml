@@ -6,12 +6,15 @@ on:
     branches:
       - main
 
+permissions: {}
+
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with: # for gitlint
+          persist-credentials: false
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
       - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
@@ -39,6 +42,8 @@ jobs:
 
   distcheck:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # TODO: This is needed for release, maybe split the release steps to a different job?
     strategy:
       matrix:
         include:
@@ -53,6 +58,8 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
       - uses: googleapis/release-please-action@5792afc6b46e9bb55deda9eda973a18c226bc3fc # v4.1.5
         with:
           config-file: .github/release-please-config.json
@@ -89,8 +96,9 @@ jobs:
       - name: Upload release assets
         run: |
           set -x
-          gh release upload ${{steps.release.outputs.tag_name}} \
+          gh release upload ${RELEASE_PLEASE_TAG_NAME} \
             bash-completion-$(cat version.txt).tar.xz sha256sums.txt
         env:
           GH_TOKEN: ${{github.token}}
+          RELEASE_PLEASE_TAG_NAME: ${{steps.release.outputs.tag_name}}
         if: steps.release.outputs.release_created
