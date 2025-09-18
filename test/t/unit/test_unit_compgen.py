@@ -28,6 +28,11 @@ class TestUtilCompgen:
 
         assert_bash_exec(
             bash,
+            '_comp_cmd_fb() { _comp_compgen -c "$(_get_cword)" -C _filedir -- -f; }; '
+            "complete -F _comp_cmd_fb fb",
+        )
+        assert_bash_exec(
+            bash,
             '_comp_cmd_fc() { _comp_compgen -c "$(_get_cword)" -C _filedir filedir; }; '
             "complete -F _comp_cmd_fc fc; "
             "complete -F _comp_cmd_fc -o filenames fc2",
@@ -142,6 +147,10 @@ class TestUtilCompgen:
         # Note: we are not in the original directory that "b" exists, so Bash
         # will not suffix a slash to the directory name.
         assert completion == "b"
+
+    @pytest.mark.complete(r"fb nonexistent")
+    def test_6_option_C_5(self, bash, functions, completion):
+        assert not completion
 
     def test_7_icmd(self, bash, functions):
         with bash_env_saved(bash) as bash_env:
