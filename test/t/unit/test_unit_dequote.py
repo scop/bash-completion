@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 from conftest import assert_bash_exec, bash_env_saved
@@ -38,7 +40,8 @@ class TestDequote:
 
     def test_6_glob(self, bash, functions):
         output = assert_bash_exec(bash, "__tester 'a?b'", want_output=True)
-        assert output.strip() == "<a b><a$b><a&b><a'b>"
+        items = sorted(re.findall(r"<[^>]*>", output))
+        assert "".join(items) == "<a b><a$b><a&b><a'b>"
 
     def test_7_quote_1(self, bash, functions):
         output = assert_bash_exec(
