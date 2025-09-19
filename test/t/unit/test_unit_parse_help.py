@@ -203,6 +203,20 @@ class TestUnitParseHelp:
         output = assert_bash_exec(bash, "_parse_help fn", want_output=True)
         assert output.split() == "--exclude=".split()
 
+    def test_33(self, bash):
+        """Pattern found in the output of 'smartctl --help'."""
+        assert_bash_exec(
+            bash, "fn() { echo '-f A1[,A2[,A3]] --foo=A1[,A2[,A3]]'; }"
+        )
+        output = assert_bash_exec(bash, "_parse_help fn", want_output=True)
+        assert output.split() == "--foo=".split()
+
+    def test_34(self, bash):
+        """Pattern found in the output of 'smartctl --help'."""
+        assert_bash_exec(bash, "fn() { echo '-f [+]ARG --foo=[+]ARG'; }")
+        output = assert_bash_exec(bash, "_parse_help fn", want_output=True)
+        assert output.split() == "--foo=".split()
+
     def test_custom_helpopt1(self, bash):
         assert_bash_exec(bash, "fn() { [[ $1 == -h ]] && echo '-option'; }")
         output = assert_bash_exec(bash, "_parse_help fn -h", want_output=True)
