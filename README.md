@@ -1,6 +1,7 @@
 # bash-completion
 
 [![CI](https://github.com/scop/bash-completion/actions/workflows/ci.yaml/badge.svg)](https://github.com/scop/bash-completion/actions/workflows/ci.yaml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/scop/bash-completion/badge)](https://scorecard.dev/viewer/?uri=github.com%2Fscop%2Fbash-completion)
 
 ## Introduction
 
