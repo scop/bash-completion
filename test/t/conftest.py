@@ -784,7 +784,9 @@ class CompletionResult(Iterable[str]):
         return self.output.startswith(prefix)
 
     def _items(self) -> List[str]:
-        return sorted([x.strip() for x in self.output.strip().splitlines()])
+        return sorted(
+            [x.strip() for x in self.output.strip().splitlines() if x]
+        )
 
     def __eq__(self, expected: object) -> bool:
         """
