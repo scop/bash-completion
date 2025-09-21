@@ -13,6 +13,9 @@ python3 -m venv venv
 source venv/bin/activate
 python3 -m pip install -r test/requirements.txt
 
+rsync --version
+rsync --help
+
 export bashcomp_bash=bash
 env
 
