@@ -15,6 +15,8 @@ python3 -m pip install -r test/requirements.txt
 
 rsync --version
 rsync --help
+echo 'tar version:'
+tar --version
 
 export bashcomp_bash=bash
 env
