@@ -106,6 +106,9 @@ Also, please bear the following coding guidelines in mind:
   These forms of parameter substitutions can also be used on arrays,
   which makes them very powerful (if a little slow).
 
+  See ["Pure Bash"](https://github.com/dylanaraps/pure-bash-bible)
+  for more examples.
+
 - We want our completions to work in `posix` and `nounset` modes.
 
   Unfortunately due to a bash < 5.1 bug, toggling POSIX mode
