@@ -21,7 +21,7 @@ need to source it from either `/etc/bashrc` or `~/.bashrc` (or any
 other file sourcing those). If you have _only_ bash >= 4.2 installed, you can
 do this by simply using:
 
-```shell
+```bash
 # Use bash-completion, if available
 [[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && \
     . /usr/share/bash-completion/bash_completion
@@ -70,7 +70,7 @@ standard way is to configure `~/.bash_profile` to source `~/.bashrc` and write
 interactive settings in `~/.bashrc`.  You can source `~/.bashrc` in
 `~/.bash_profile` in the following way:
 
-```shell
+```bash
 # ~/.bash_profile
 
 if [[ -f ~/.bashrc ]]; then
@@ -90,7 +90,7 @@ the entry point of `bash-completion` to
 `$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh`.  We can source it by
 adding the following to our startup file `~/.bashrc`:
 
-```shell
+```bash
 if [[ -s $HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh ]]; then
   . "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
 fi
