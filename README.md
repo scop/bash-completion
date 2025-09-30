@@ -26,6 +26,14 @@ do this by simply using:
 [[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && \
     . /usr/share/bash-completion/bash_completion
 ```
+or if your `bashrc` will be shared across distros (and major upgrades):
+```bash
+# Use bash-completion, if available, and avoid double-sourcing
+[[ $PS1 && \
+  -z ${BASH_COMPLETION_VERSINFO:-} && \
+  -f /usr/share/bash-completion/bash_completion ]] && \
+    . /usr/share/bash-completion/bash_completion
+```
 
 If you have older bash versions in use, their loading of `bash_completion`
 should be prevented. See further for more info.
