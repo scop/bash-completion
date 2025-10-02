@@ -99,12 +99,15 @@ Also, please bear the following coding guidelines in mind:
 
   can be replaced by:
 
-  ```shell
+  ```bash
   bar=${foo//bar/baz}
   ```
 
   These forms of parameter substitutions can also be used on arrays,
   which makes them very powerful (if a little slow).
+
+  See ["Pure Bash"](https://github.com/dylanaraps/pure-bash-bible)
+  for more examples.
 
 - We want our completions to work in `posix` and `nounset` modes.
 
@@ -132,7 +135,7 @@ Also, please bear the following coding guidelines in mind:
   expansions will be unexpectedly performed, which becomes a vulnerability.  In
   the latter case, checks by shellcheck and shfmt will not be performed inside
   `'...'`.  Also, `_comp_compgen_split` is `IFS`-safe.
-  
+
   Avoid using `_comp_compgen -- -G "pattern"` to generate completions.  The
   result is not filtered by the current word `cur` due to the Bash design of
   `compgen`.  Also, this cannot be used to generate filenames with a specified
