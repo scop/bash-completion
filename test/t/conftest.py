@@ -272,6 +272,9 @@ def bash(request) -> pexpect.spawn:
             dimensions=(24, 240),
             # TODO? codec_errors="replace",
         )
+        # See https://pexpect.readthedocs.io/en/stable/commonissues.html?highlight=delaybeforesend#timing-issue-with-send-and-sendline
+        # We don't need the delay, and it makes running the tests much slower.
+        bash.delaybeforesend = 0
         bash.expect_exact(PS1)
 
         # Load bashrc and bash_completion
