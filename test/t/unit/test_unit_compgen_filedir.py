@@ -228,7 +228,21 @@ class TestUnitCompgenFiledir:
         completion = assert_complete(
             bash, r'%s "a\$b/' % funcname, cwd="_filedir"
         )
-        assert completion == 'h"'
+        try:
+            assert completion == 'h"'
+        except AssertionError:
+            bash_version = assert_bash_exec(
+                bash,
+                r'printf "%s.%s\n" "${BASH_VERSINFO[0]}" "${BASH_VERSINFO[1]}"',
+                want_output=True,
+            ).strip()
+            # This is workaround for https://github.com/scop/bash-completion/issues/1435, see
+            # https://lists.gnu.org/archive/html/bug-bash/2025-09/msg00332.html
+            # Once this is fixed, the version check should be minimized further
+            if bash_version == "5.3":
+                assert completion.endswith('h" ')
+            else:
+                raise
 
     @pytest.mark.xfail(reason="TODO: non-ASCII issues with test suite?")
     @pytest.mark.parametrize("funcname", "f f2".split())
