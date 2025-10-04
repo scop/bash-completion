@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+
+# Same as in https://github.com/mikkoi/keychain-bash-completion
+
+__keychain_init_completion() {
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev words cword
+}
+# Get ssh key file names. Find all files with .pub suffix and remove the suffix
+__keychain_ssh_keys() {
+    if [[ -d ~/.ssh ]]; then
+        keys=()
+        while IFS= read -r -d '' file; do
+            key="$(basename -s .pub "$file")"
+            keys+=( "$key" )
+        done < <(\find "${HOME}/.ssh" -type f -name \*.pub -print0)
+        echo "${keys[*]}"
+    fi
+}
+# Get gpg keys and their UIDs when they are email addresses
+__keychain_gpg_keys() {
+    keys=()
+    while IFS= read -r row; do
+        if [[ "$row" =~ ^sec:[a-z]:[[:digit:]]{0,}:[[:alnum:]]{0,}:([[:alnum:]]{0,}): ]]; then
+            key="$(echo "${BASH_REMATCH[1]}" | cut -b 9-16)"
+            keys+=( "$key" )
+        fi
+    done < <(\gpg --list-secret-keys --with-colons)
+    echo "${keys[*]}"
+}
+__keychain_command_line_options() {
+    opts=()
+    while IFS= read -r row; do
+        if [[ "$row" =~ ^[[:space:]]{4}([-]{1}[[:alpha:]]{1})[[:space:]]{1,}([-]{2}[[:alnum:]]{1,})[[:space:]]{0,} ]]
+        then
+            opt1="${BASH_REMATCH[1]}"
+            opts+=( "$opt1" )
+            opt2="${BASH_REMATCH[2]}"
+            opts+=( "$opt2" )
+        elif [[ "$row" =~ ^[[:space:]]{4}([-]{2}[[:alnum:]]{1,})[[:space:]]{1,} ]]
+        then
+            opt="${BASH_REMATCH[1]}"
+            opts+=( "$opt" )
+        fi
+    done < <(\keychain --help 2>/dev/null)
+    echo "${opts[*]}"
+}
+
+_keychain() {
+    local cur
+    if declare -F _init_completion >/dev/null 2>&1; then
+        _init_completion
+    else
+        __keychain_init_completion
+    fi
+
+    COMPREPLY=()   # Array variable storing the possible completions.
+    cur=${COMP_WORDS[COMP_CWORD]}
+
+    keys=( )
+    keys+=( "$(__keychain_command_line_options)" )
+    keys+=( "$(__keychain_ssh_keys)" )
+    keys+=( "$(__keychain_gpg_keys)" )
+    # shellcheck disable=SC2207
+    COMPREPLY=( $( compgen -W "${keys[*]}" -- "$cur" ) )
+    return 0
+}
+
+complete -F _keychain keychain
