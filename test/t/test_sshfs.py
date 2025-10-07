@@ -16,7 +16,7 @@ class TestSshfs:
         if sys.platform.startswith("win"):
             pytest.skip("Filenames not allowed on Windows")
 
-        tmpdir, _, _ = prepare_fixture_dir(
+        tmpdir = prepare_fixture_dir(
             request, files=["local_path-file\\"], dirs=["local_path-dir"]
         )
         return tmpdir
