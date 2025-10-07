@@ -171,7 +171,7 @@ class TestScp:
         if sys.platform.startswith("win"):
             pytest.skip("Filenames not allowed on Windows")
 
-        tmpdir, _, _ = prepare_fixture_dir(
+        tmpdir = prepare_fixture_dir(
             request, files=["local_path-file\\"], dirs=[]
         )
         return tmpdir
@@ -192,7 +192,7 @@ class TestScp:
     def tmpdir_mkfifo(self, request, bash):
         # We prepare two files: 1) a named pipe and 2) a regular file ending
         # with the same name but an extra special character "|".
-        tmpdir, _, _ = prepare_fixture_dir(
+        tmpdir = prepare_fixture_dir(
             request,
             files=["local_path_2-pipe|"],
             dirs=[],
