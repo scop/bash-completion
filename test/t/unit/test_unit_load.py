@@ -1,4 +1,5 @@
 import os
+import sys
 
 import pytest
 
@@ -33,7 +34,11 @@ class TestCompLoad:
         assert_bash_exec(
             bash, "ln -sf ../prefix1/sbin/cmd2 %s/bin/cmd2" % tmpdir
         )
-        return str(tmpdir)
+        yield str(tmpdir)
+        if sys.platform == "darwin":
+            assert_bash_exec(bash, "sudo rm -rf %s/*" % tmpdir)
+        else:
+            assert_bash_exec(bash, "rm -rf %s/*" % tmpdir)
 
     def test_userdir_1(self, bash, fixture_dir):
         with bash_env_saved(bash) as bash_env:
