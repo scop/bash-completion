@@ -19,11 +19,13 @@ list of operating system distributions, package names, and available versions.
 Depending on the package, you may still
 need to source it from either `/etc/bashrc` or `~/.bashrc` (or any
 other file sourcing those). If you have _only_ bash >= 4.2 installed, you can
-do this by simply using:
+do this by using:
 
-```shell
-# Use bash-completion, if available
-[[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && \
+```bash
+# Use bash-completion, if available, and avoid double-sourcing
+[[ $PS1 &&
+  ! ${BASH_COMPLETION_VERSINFO:-} &&
+  -f /usr/share/bash-completion/bash_completion ]] &&
     . /usr/share/bash-completion/bash_completion
 ```
 
@@ -70,7 +72,7 @@ standard way is to configure `~/.bash_profile` to source `~/.bashrc` and write
 interactive settings in `~/.bashrc`.  You can source `~/.bashrc` in
 `~/.bash_profile` in the following way:
 
-```shell
+```bash
 # ~/.bash_profile
 
 if [[ -f ~/.bashrc ]]; then
@@ -90,7 +92,7 @@ the entry point of `bash-completion` to
 `$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh`.  We can source it by
 adding the following to our startup file `~/.bashrc`:
 
-```shell
+```bash
 if [[ -s $HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh ]]; then
   . "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
 fi
