@@ -19,7 +19,8 @@ class TestRsync:
 
     @pytest.mark.complete("rsync --", require_cmd=True)
     def test_4(self, completion):
-        assert "--help" in completion
+        assert "--compress" in completion
+        assert "--timeout=" in completion
 
     @pytest.mark.parametrize(
         "ver1,ver2,result",
