@@ -24,7 +24,7 @@ class TestCompLoad:
         set up symbolic links.
         """
 
-        tmpdir, _, _ = prepare_fixture_dir(request, files=[], dirs=[])
+        tmpdir = prepare_fixture_dir(request, files=[], dirs=[])
         assert_bash_exec(bash, "cp -R %s/* %s/" % (os.getcwd(), tmpdir))
         assert_bash_exec(bash, "mkdir -p %s/bin" % tmpdir)
         assert_bash_exec(

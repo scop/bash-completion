@@ -947,7 +947,7 @@ def in_container() -> bool:
 
 def prepare_fixture_dir(
     request, files: Iterable[str], dirs: Iterable[str]
-) -> Tuple[Path, List[str], List[str]]:
+) -> Path:
     """
     Fixture to prepare a test dir with dummy contents on the fly.
 
@@ -961,11 +961,11 @@ def prepare_fixture_dir(
     old_cwd = os.getcwd()
     try:
         os.chdir(tempdir)
-        new_files, new_dirs = create_dummy_filedirs(files, dirs)
+        _, _ = create_dummy_filedirs(files, dirs)
     finally:
         os.chdir(old_cwd)
 
-    return tempdir, new_files, new_dirs
+    return tempdir
 
 
 def create_dummy_filedirs(

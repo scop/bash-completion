@@ -24,7 +24,7 @@ class TestMan:
         else:
             pytest.skip("Cygwin doesn't like paths with colons")
 
-        tmpdir, _, _ = prepare_fixture_dir(
+        tmpdir = prepare_fixture_dir(
             request,
             files=["man/man3/Bash::Completion.3pm.gz"],
             dirs=["man", "man/man3"],
