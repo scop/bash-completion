@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# Simultaneously committed to https://github.com/libwww-perl/WWW-Mechanize
+
+__mech_dump_init_completion() {
+    COMPREPLY=()
+    _get_comp_words_by_ref cur prev words cword
+}
+__mech_dump_command_line_options() {
+    opts=(
+            --headers --forms --links --images --all --test
+            --user= --password= --cookie-file= --agent
+            --agent-alias= --absolute --help --version
+            *
+        )
+    echo "${opts[*]}"
+}
+
+_mech_dump() {
+    local cur
+    if declare -F _init_completion >/dev/null 2>&1; then
+        _init_completion
+    else
+        __mech_dump_init_completion
+    fi
+
+    keys=( )
+    cur=${COMP_WORDS[COMP_CWORD]}
+
+    keys+=( "$(__mech_dump_command_line_options)" )
+    # shellcheck disable=SC2207
+    COMPREPLY=( $( compgen -W "${keys[*]}" -- "$cur" ) )
+    return 0
+}
+
+complete -F _mech_dump mech-dump
