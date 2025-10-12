@@ -602,6 +602,8 @@ CLEANFILES = \
 	_blackd \
 	bmake \
 	_bosh \
+	brave \
+	brave-browser \
 	bsdtar \
 	btdownloadcurses.py \
 	btdownloadgui.py \
@@ -1125,7 +1127,8 @@ symlinks: $(DATA)
 	$(ss) cd \
 		pushd
 	$(ss) chromium-browser \
-		chrome chromium google-chrome google-chrome-stable
+		brave brave-browser chrome chromium google-chrome \
+		google-chrome-stable
 	$(ss) complete \
 		compgen
 	$(ss) convert \
