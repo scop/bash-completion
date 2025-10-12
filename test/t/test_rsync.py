@@ -17,9 +17,10 @@ class TestRsync:
     def test_3(self, completion):
         assert completion == "rsh ssh".split()
 
-    @pytest.mark.complete("rsync --", require_cmd=True)
+    @pytest.mark.complete("rsync --", require_longopt=True)
     def test_4(self, completion):
-        assert "--help" in completion
+        assert "--compress" in completion
+        assert "--timeout=" in completion
 
     @pytest.mark.parametrize(
         "ver1,ver2,result",
