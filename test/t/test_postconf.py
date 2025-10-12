@@ -11,7 +11,7 @@ class TestPostconf:
     # this. For example, inet_protocols=all but no IPv6 configured:
     # postconf: fatal: parameter inet_interfaces: no local interface found
     #                  for ::1
-    # ...and output can be cut off somewhere near lmtp_tls_secur*.
+    # ...and output can be cut off somewhere near lmtp_tls_secu*.
     # ...or be completely missing, so all we can do is to skip.
     @pytest.mark.complete(
         "postconf al", require_cmd=True, xfail="! postconf &>/dev/null"
