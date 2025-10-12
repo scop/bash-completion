@@ -19,42 +19,54 @@
   "dockerfile": {
     "enabled": false
   },
-  "pip_requirements": {
-    "fileMatch": [
-      "(^|/)requirements[\\w-]*\\.txt$"
-    ]
-  },
-  "regexManagers": [
+  "customManagers": [
     {
-      "fileMatch": ["^\\.pre-commit-config\\.yaml$"],
-      "matchStrings": ["(?<depName>[\\w-]+)(?<currentValue>==[a-z0-9.]+)"],
+      "customType": "regex",
+      "managerFilePatterns": [
+        ".pre-commit-config.yaml"
+      ],
+      "matchStrings": [
+        "(?<depName>[\\w-]+)(?<currentValue>==[a-z0-9.]+)"
+      ],
       "datasourceTemplate": "pypi"
     }
   ],
-  "labels": ["bot"],
+  "labels": [
+    "bot"
+  ],
   "packageRules": [
     {
-      "matchFiles": ["test/requirements.txt"],
+      "matchFileNames": [
+        "test/requirements.txt"
+      ],
       "semanticCommitType": "test"
     },
     {
-      "matchManagers": ["pre-commit"],
+      "matchManagers": [
+        "pre-commit"
+      ],
       "commitMessageTopic": "{{depName}}",
       "semanticCommitScope": "pre-commit"
     },
     {
-      "matchPackagePatterns": ["(^|/)gitlint$"],
       "versioning": "pep440",
-      "groupName": "gitlint"
+      "groupName": "gitlint",
+      "matchPackageNames": [
+        "/(^|/)gitlint$/"
+      ]
     },
     {
-      "matchPackageNames": ["perltidy/perltidy"],
+      "matchPackageNames": [
+        "perltidy/perltidy"
+      ],
       "versioning": "regex:^(?<major>\\d{8})$"
     },
     {
-      "matchPackagePatterns": ["(^|/)ruff(-pre-commit)?$"],
       "groupName": "ruff",
-      "versioning": "pep440"
+      "versioning": "pep440",
+      "matchPackageNames": [
+        "/(^|/)ruff(-pre-commit)?$/"
+      ]
     },
     {
       "matchPackageNames": [
