@@ -65,19 +65,19 @@ _=GPG_AGENT_INFO
 bash205='3.2.39(1)-release'
 bash205b='3.2.39(1)-release'
 bash3='3.2.39(1)-release'
-cdots () 
-{ 
+cdots ()
+{
     [ -d "$1$2" ] && cd "$1$2" || eval cd "$1$2"
 }
-comp_load () 
-{ 
+comp_load ()
+{
     local cmd=${COMP_WORDS[0]} dir globs OLDIFS=$IFS;
     IFS=:;
     local -a aPaths=($COMP_PATH);
     IFS='
 ';
     globs=($(
-	for dir in "${aPaths[@]}"; do 
+	for dir in "${aPaths[@]}"; do
 	    echo \"$dir\"/complete\*/\*.$cmd
 	    echo \"$dir\"/complete\*/$cmd\!
 	    echo \"$dir\"/complete\*/$cmd
@@ -94,26 +94,26 @@ comp_load ()
     comp_load_init;
     local script="$(eval find "${globs[@]}" 2> /dev/null | head -1)";
     local link comp=${script##*/};
-    [[ ${comp: -1:1} == ! ]] || { 
+    [[ ${comp: -1:1} == ! ]] || {
         link=${comp#*.};
         comp=${comp%.$link}
     };
     local path=${script%/*};
-    [ "$script" -a -r "$path/$comp" ] && . "$path/$comp" && declare -F _$comp >&/dev/null && { 
+    [ "$script" -a -r "$path/$comp" ] && . "$path/$comp" && declare -F _$comp >&/dev/null && {
         [ ${COMP_INSTALL:-1} -eq 0 ] || _comp_install $comp "$path"
     } && _$comp $link;
     comp_load_deinit
 }
-nameTerminal () 
-{ 
+nameTerminal ()
+{
     [ "${TERM:0:5}" = "xterm" ] && local ansiNrTab=0;
     [ "$TERM" = "rxvt" ] && local ansiNrTab=61;
     [ "$TERM" = "konsole" ] && local ansiNrTab=30 ansiNrWindow=0;
     [ $ansiNrTab ] && echo -n ''"]$ansiNrTab;$1"'';
     [ $ansiNrWindow -a "$2" ] && echo -n ''"]$ansiNrWindow;$2"''
 }
-stoppedjobs () 
-{ 
+stoppedjobs ()
+{
     if [ "$(jobs -s)" ]; then
         echo -n "%";
         jobs -s | wc -l;
