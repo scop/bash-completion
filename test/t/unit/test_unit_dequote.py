@@ -1,5 +1,3 @@
-import re
-
 import pytest
 
 from conftest import assert_bash_exec, bash_env_saved
@@ -39,9 +37,10 @@ class TestDequote:
         assert output.strip() == "<a1><a2><a3>"
 
     def test_6_glob(self, bash, functions):
+        LC_out = assert_bash_exec(bash, "env | grep LC_", want_output=True)
+        print(f"LC_ vars:\n\n{LC_out}\n")
         output = assert_bash_exec(bash, "__tester 'a?b'", want_output=True)
-        items = sorted(re.findall(r"<[^>]*>", output))
-        assert "".join(items) == "<a b><a$b><a&b><a'b>"
+        assert output.strip() == "<a b><a$b><a&b><a'b>"
 
     def test_7_quote_1(self, bash, functions):
         output = assert_bash_exec(
