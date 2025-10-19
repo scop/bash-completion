@@ -620,6 +620,7 @@ CLEANFILES = \
 	ciptool \
 	civclient \
 	civserver \
+	cksum \
 	_cloudquery \
 	_clusterctl \
 	clzip \
@@ -1493,7 +1494,7 @@ endif
 	$(ss) sbcl \
 		sbcl-mt
 	$(ss) sha256sum \
-		b2sum md5sum shasum sha1sum sha224sum sha384sum sha512sum
+		b2sum cksum md5sum shasum sha1sum sha224sum sha384sum sha512sum
 	$(ss) _sops \
 		_kata-runtime _todoist
 	$(ss) ssh \
