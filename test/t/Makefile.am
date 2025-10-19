@@ -42,7 +42,9 @@ EXTRA_DIST = \
 	test_awk.py \
 	test_b2sum.py \
 	test_badblocks.py \
+	test_base32.py \
 	test_base64.py \
+	test_basenc.py \
 	test_bash.py \
 	test_bc.py \
 	test_bind.py \
@@ -90,11 +92,13 @@ EXTRA_DIST = \
 	test_civclient.py \
 	test_civserver.py \
 	test_cksfv.py \
+	test_cksum.py \
 	test_cleanarch.py \
 	test_clisp.py \
 	test_clone_member.py \
 	test_co.py \
 	test_colordiff.py \
+	test_comm.py \
 	test_compare.py \
 	test_compgen.py \
 	test_complete.py \
@@ -427,6 +431,7 @@ EXTRA_DIST = \
 	test_nslookup.py \
 	test_nsupdate.py \
 	test_ntpdate.py \
+	test_numfmt.py \
 	test_objcopy.py \
 	test_objdump.py \
 	test_od.py \
@@ -521,7 +526,9 @@ EXTRA_DIST = \
 	test_rdesktop.py \
 	test_rdict.py \
 	test_readelf.py \
+	test_readlink.py \
 	test_readonly.py \
+	test_realpath.py \
 	test_remove_members.py \
 	test_removepkg.py \
 	test_renice.py \
@@ -568,7 +575,9 @@ EXTRA_DIST = \
 	test_sha512sum.py \
 	test_shar.py \
 	test_shellcheck.py \
+	test_shred.py \
 	test_shtab.py \
+	test_shuf.py \
 	test_sitecopy.py \
 	test_slabtop.py \
 	test_slackpkg.py \
@@ -596,6 +605,7 @@ EXTRA_DIST = \
 	test_sshfs.py \
 	test_sshmitm.py \
 	test_sshow.py \
+	test_stat.py \
 	test_strace.py \
 	test_stream.py \
 	test_strings.py \
@@ -608,6 +618,7 @@ EXTRA_DIST = \
 	test_svn.py \
 	test_svnadmin.py \
 	test_svnlook.py \
+	test_sync.py \
 	test_sync_members.py \
 	test_synclient.py \
 	test_sysbench.py \
