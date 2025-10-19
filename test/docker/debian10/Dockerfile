@@ -1,6 +1,7 @@
 FROM debian:10
 
 RUN export DEBIAN_FRONTEND=noninteractive \
+    && sed -i -e 's/\<deb\.debian\.org\>/archive.debian.org/' /etc/apt/sources.list \
     && apt-get update \
     && apt-get -y upgrade \
     && apt-get -y --no-install-recommends install \
