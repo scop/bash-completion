@@ -660,6 +660,7 @@ CLEANFILES = \
 	_depot \
 	_devspace \
 	dfutool \
+	_diffoci \
 	_diesel \
 	display \
 	_dlv \
@@ -1217,6 +1218,7 @@ symlinks: $(DATA)
 		_deck \
 		_depot \
 		_devspace \
+		_diffoci \
 		_dlv \
 		_docker \
 		_driftctl \
