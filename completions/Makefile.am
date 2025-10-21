@@ -855,6 +855,7 @@ CLEANFILES = \
 	lvs \
 	lvscan \
 	lz4c \
+	_mado \
 	mailsnarf \
 	_mattermost \
 	md5sum \
@@ -1495,6 +1496,7 @@ endif
 	$(ss) rpm2tgz \
 		rpm2targz rpm2txz
 	$(ss) _ruff \
+		_mado \
 		_uv
 	$(ss) smbclient \
 		smbcacls smbcquotas smbget smbpasswd smbtar smbtree
