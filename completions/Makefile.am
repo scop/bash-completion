@@ -732,6 +732,7 @@ CLEANFILES = \
 	gmplayer \
 	gnumake \
 	_go-licenses \
+	_gomarklint \
 	google-chrome \
 	google-chrome-stable \
 	_gopass \
@@ -1237,6 +1238,7 @@ symlinks: $(DATA)
 		_glen \
 		_glow \
 		_go-licenses \
+		_gomarklint \
 		_gopass \
 		_gopherjs \
 		_goreleaser \
