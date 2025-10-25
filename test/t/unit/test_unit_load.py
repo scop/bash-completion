@@ -1,5 +1,5 @@
 import os
-import sys
+import shutil
 
 import pytest
 
@@ -25,20 +25,16 @@ class TestCompLoad:
         set up symbolic links.
         """
 
-        tmpdir = prepare_fixture_dir(request, files=[], dirs=[])
-        assert_bash_exec(bash, "cp -R %s/* %s/" % (os.getcwd(), tmpdir))
-        assert_bash_exec(bash, "mkdir -p %s/bin" % tmpdir)
-        assert_bash_exec(
-            bash, "ln -sf ../prefix1/bin/cmd1 %s/bin/cmd1" % tmpdir
-        )
-        assert_bash_exec(
-            bash, "ln -sf ../prefix1/sbin/cmd2 %s/bin/cmd2" % tmpdir
-        )
-        yield str(tmpdir)
-        if sys.platform == "darwin":
-            assert_bash_exec(bash, "sudo rm -rf %s/*" % tmpdir)
-        else:
-            assert_bash_exec(bash, "rm -rf %s/*" % tmpdir)
+        tmpdir = prepare_fixture_dir(request, files=[], dirs=["bin"])
+        try:
+            shutil.copytree(os.getcwd(), str(tmpdir), dirs_exist_ok=True)
+        except TypeError:  # For python <= 3.7
+            from distutils import dir_util  # type: ignore[import-not-found]
+
+            dir_util.copy_tree(os.getcwd(), str(tmpdir))
+        os.symlink("../prefix1/bin/cmd1", f"{tmpdir}/bin/cmd1")
+        os.symlink("../prefix1/sbin/cmd2", f"{tmpdir}/bin/cmd2")
+        return str(tmpdir)
 
     def test_userdir_1(self, bash, fixture_dir):
         with bash_env_saved(bash) as bash_env:
