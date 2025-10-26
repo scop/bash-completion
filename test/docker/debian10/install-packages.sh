@@ -12,11 +12,9 @@ apt-get update
 apt-get -y upgrade
 
 apt-get -y --no-install-recommends install \
-    apt-file \
-    software-properties-common
+    apt-file
 
-apt-add-repository contrib
-apt-add-repository non-free
+sed -i -e 's/ main/ main non-free contrib/' /etc/apt/sources.list
 
 apt-get -y --no-install-recommends install \
     npm
