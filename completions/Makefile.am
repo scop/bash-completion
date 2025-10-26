@@ -660,6 +660,7 @@ CLEANFILES = \
 	_depot \
 	_devspace \
 	dfutool \
+	_diffoci \
 	_diesel \
 	display \
 	_dlv \
@@ -731,6 +732,7 @@ CLEANFILES = \
 	gmplayer \
 	gnumake \
 	_go-licenses \
+	_gomarklint \
 	google-chrome \
 	google-chrome-stable \
 	_gopass \
@@ -853,6 +855,7 @@ CLEANFILES = \
 	lvs \
 	lvscan \
 	lz4c \
+	_mado \
 	mailsnarf \
 	_mattermost \
 	md5sum \
@@ -1217,6 +1220,7 @@ symlinks: $(DATA)
 		_deck \
 		_depot \
 		_devspace \
+		_diffoci \
 		_dlv \
 		_docker \
 		_driftctl \
@@ -1235,6 +1239,7 @@ symlinks: $(DATA)
 		_glen \
 		_glow \
 		_go-licenses \
+		_gomarklint \
 		_gopass \
 		_gopherjs \
 		_goreleaser \
@@ -1491,6 +1496,7 @@ endif
 	$(ss) rpm2tgz \
 		rpm2targz rpm2txz
 	$(ss) _ruff \
+		_mado \
 		_uv
 	$(ss) smbclient \
 		smbcacls smbcquotas smbget smbpasswd smbtar smbtree
