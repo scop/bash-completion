@@ -15,3 +15,7 @@ class TestJavadoc:
     )
     def test_3(self, completion):
         assert completion == ["bar bar.d/", "foo.d/"]
+
+    @pytest.mark.complete("javadoc 'shared.d")
+    def test_4_comp_dequote_incomplete(self, completion):
+        assert completion == "efault'"
