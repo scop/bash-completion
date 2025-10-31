@@ -25,8 +25,7 @@ _comp_cmd_7z()
                 _comp_compgen -P "$prefix" -- -W '@ ! r@ r-@ r0@ r! r-! r0!'
             elif [[ $cur =~ ^-a?[ix](r|r-|r0)?@ ]]; then
                 local prefix=${BASH_REMATCH-}
-                _comp_compgen -P "$prefix" -- -f
-                compopt -o filenames
+                _comp_compgen -P "$prefix" filedir
             fi
             return
             ;;
@@ -39,9 +38,7 @@ _comp_cmd_7z()
             return
             ;;
         -o* | -w?*)
-            compopt -o filenames
-            _comp_compgen -P "${cur:0:2}" -- -d -S/
-            compopt -o nospace
+            _comp_compgen -P "${cur:0:2}" filedir -d
             return
             ;;
         -r?*)
