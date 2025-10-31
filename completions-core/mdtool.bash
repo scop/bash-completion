@@ -21,18 +21,17 @@ _comp_cmd_mdtool()
                 #if [[ "$prev" == *: ]]; then
                 #   case $prev in
                 #       @(--p:|--project:))
-                #           _comp_compgen -- -f -X '!*.mdp'
+                #           _comp_compgen_filedir mdp
                 #           ;;
                 #       @(--f:|--buildfile:))
-                #           _comp_compgen -- -f -X '!*.md[ps]'
+                #           _comp_compgen_filedir 'md[ps]'
                 #           ;;
                 #   esac
                 #fi
                 return
                 ;;
             "generate-makefiles")
-                compopt -o filenames
-                _comp_compgen -- -o filenames -f -X '!*.mds'
+                _comp_compgen_filedir mds
                 if [[ $prev == *mds ]]; then
                     _comp_compgen -- -W '--simple-makefiles --s --d:'
                 fi
