@@ -26,8 +26,19 @@ class TestUnitCompgenFiledir:
         )
         assert_bash_exec(
             bash,
+            "_fc() { local cur=$(_get_cword); unset -v COMPREPLY; _comp_compgen -C _filedir filedir; }; "
+            "complete -F _fc fc; "
+            "complete -F _fc -o filenames fc2",
+        )
+        assert_bash_exec(
+            bash,
             "_fd() { local cur;_comp_get_words cur; unset -v COMPREPLY; _comp_compgen_filedir -d; };"
             "complete -F _fd fd",
+        )
+        assert_bash_exec(
+            bash,
+            "_fcd() { local cur=$(_get_cword); unset -v COMPREPLY; _comp_compgen -C _filedir filedir -df; };"
+            "complete -F _fcd fcd",
         )
 
     @pytest.fixture(scope="class")
@@ -66,6 +77,11 @@ class TestUnitCompgenFiledir:
     @pytest.mark.parametrize("funcname", "f f2".split())
     def test_2(self, bash, functions, funcname):
         completion = assert_complete(bash, "%s ab/" % funcname, cwd="_filedir")
+        assert completion == "e"
+
+    @pytest.mark.parametrize("funcname", "fc fc2".split())
+    def test_2C(self, bash, functions, funcname):
+        completion = assert_complete(bash, "%s _filedir ab/" % funcname)
         assert completion == "e"
 
     @pytest.mark.parametrize("funcname", "f f2".split())
@@ -154,6 +170,10 @@ class TestUnitCompgenFiledir:
 
     @pytest.mark.complete(r"fd a\ ", cwd="_filedir")
     def test_15(self, functions, completion):
+        assert completion == "b/"
+
+    @pytest.mark.complete(r"fcd a\ ")
+    def test_15d(self, functions, completion):
         assert completion == "b/"
 
     @pytest.mark.complete("g ", cwd="_filedir/ext")
