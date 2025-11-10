@@ -916,6 +916,7 @@ CLEANFILES = \
 	pm-suspend \
 	pm-suspend-hybrid \
 	pmake \
+	_pnpm \
 	_polygon-edge \
 	_popeye \
 	postalias \
@@ -1313,6 +1314,7 @@ symlinks: $(DATA)
 		_ory \
 		_pitchfork \
 		_pluto \
+		_pnpm \
 		_polygon-edge \
 		_popeye \
 		_pulumi \
