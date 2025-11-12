@@ -100,6 +100,13 @@
 * **tar:** cache the parse result of GNU tar help ([247ba7b](https://github.com/scop/bash-completion/commit/247ba7bb794332a42920cae796a4a9deff5179b0))
 * **tar:** parse the GNU tar help on initialization ([b030e07](https://github.com/scop/bash-completion/commit/b030e07f1055dbc1e40b7d2f17ccd045802ff061))
 
+## [2.17.1](https://github.com/scop/bash-completion/compare/2.17.0...2.17.1) (2025-11-12)
+
+
+### Bug Fixes
+
+* **_comp_complete_service:** fix init-script-action parsing ([#1499](https://github.com/scop/bash-completion/issues/1499)) ([91e075a](https://github.com/scop/bash-completion/commit/91e075a96d39d0234ada752a63937f63ea186eb8))
+
 ## [2.16.0](https://github.com/scop/bash-completion/compare/2.15.0...2.16.0) (2024-12-25)
 
 
