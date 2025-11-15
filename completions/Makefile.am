@@ -1032,6 +1032,8 @@ CLEANFILES = \
 	_starship \
 	_steampipe \
 	stream \
+	sudo-rs \
+	sudo.ws \
 	sudoedit \
 	_syft \
 	_talhelper \
@@ -1514,7 +1516,7 @@ endif
 	$(ss) ssh \
 		autossh scp sftp sidedoor slogin
 	$(ss) sudo \
-		sudoedit
+		sudo-rs sudo.ws sudoedit
 	$(ss) tar \
 		bsdtar gtar star
 	$(ss) tracepath \
