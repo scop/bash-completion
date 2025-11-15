@@ -942,6 +942,9 @@ CLEANFILES = \
 	py.test-2 \
 	py.test-3 \
 	pydoc3 \
+	pydoc3.13 \
+	pydoc3.14 \
+	pydoc3.15 \
 	pylint-2 \
 	pylint-3 \
 	pypy \
@@ -1475,7 +1478,7 @@ endif
 	$(ss) pytest \
 		py.test py.test-2 py.test-3 pytest-2 pytest-3
 	$(ss) pydoc \
-		pydoc3
+		pydoc3 pydoc3.13 pydoc3.14 pydoc3.15
 	$(ss) pylint \
 		pylint-2 pylint-3
 	$(ss) python \
