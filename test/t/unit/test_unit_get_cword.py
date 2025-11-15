@@ -140,7 +140,6 @@ class TestUnitGetCword(TestUnitBase):
         output = self._test(bash, '(a "\'b&c")', 1, "a 'b&c", 6)
         assert output == "'b&c"
 
-    @pytest.mark.xfail(reason="TODO: non-ASCII issues with test suite?")
     def test_24(self, bash):
         """Index shouldn't drop below 0"""
         bash.send("scp ääää§ se\t\r\n")

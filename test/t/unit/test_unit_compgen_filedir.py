@@ -264,7 +264,6 @@ class TestUnitCompgenFiledir:
             else:
                 raise
 
-    @pytest.mark.xfail(reason="TODO: non-ASCII issues with test suite?")
     @pytest.mark.parametrize("funcname", "f f2".split())
     def test_27(self, bash, functions, funcname, utf8_ctype):
         completion = assert_complete(bash, "%s aé/" % funcname, cwd="_filedir")
