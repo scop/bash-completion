@@ -100,6 +100,22 @@
 * **tar:** cache the parse result of GNU tar help ([247ba7b](https://github.com/scop/bash-completion/commit/247ba7bb794332a42920cae796a4a9deff5179b0))
 * **tar:** parse the GNU tar help on initialization ([b030e07](https://github.com/scop/bash-completion/commit/b030e07f1055dbc1e40b7d2f17ccd045802ff061))
 
+## [2.18.0](https://github.com/scop/bash-completion/compare/2.17.0...2.18.0) (2025-11-16)
+
+
+### Features
+
+* **aclocal,automake:** support versioned 1.17 executables ([94bbb3a](https://github.com/scop/bash-completion/commit/94bbb3a1b6fafeac96c27e1899dd5efc920a6a89))
+* **pnpm:** add 3rd party fallback completion loader ([44804ae](https://github.com/scop/bash-completion/commit/44804ae89fd032af6058cd8307080aa759a0a73d))
+* **pydoc:** support versioned 3.13..15 executables ([bd60b26](https://github.com/scop/bash-completion/commit/bd60b26e6fb3c774c959ad3e7f8558485b60c405))
+* **python,pyvenv:** support versioned 3.14 and .15 executables ([72a2e47](https://github.com/scop/bash-completion/commit/72a2e479cfe743ab870bf479adb3a3c27eb7e64f))
+* **sudo-rs,sudo.ws:** alias to sudo ([084cc68](https://github.com/scop/bash-completion/commit/084cc684071fcd025eae650bdf09429a8d3eb33d))
+
+
+### Bug Fixes
+
+* **_comp_complete_service:** fix init-script-action parsing ([#1499](https://github.com/scop/bash-completion/issues/1499)) ([91e075a](https://github.com/scop/bash-completion/commit/91e075a96d39d0234ada752a63937f63ea186eb8))
+
 ## [2.16.0](https://github.com/scop/bash-completion/compare/2.15.0...2.16.0) (2024-12-25)
 
 
