@@ -1093,6 +1093,7 @@ CLEANFILES = \
 	_virtctl \
 	_wasmer-headless \
 	_watchexec \
+	_waydroid \
 	whatis \
 	wine-development \
 	wine-stable \
@@ -1449,7 +1450,8 @@ symlinks: $(DATA)
 		_ansible-pull \
 		_ansible-vault \
 		_conda \
-		_cz
+		_cz \
+		_waydroid
 	$(ss) nslookup \
 		host
 	$(ss) p4 \
