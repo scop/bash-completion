@@ -218,7 +218,7 @@ arr=("${arr[@]/#/"$prefix"}")
 
 However, this has another problem in bash < 4.3 or when `shopt -s
 compat42` is turned on.  The inner double quotations are treated
-literally so that the `PREFIX` instead of ``"PREFIX"` is prefixed to
+literally so that the `PREFIX` instead of `"PREFIX"` is prefixed to
 elements.  To avoid this situation, the outer double quotations might
 be removed, but this has even another problem of the pathname
 expansions and `IFS`.
