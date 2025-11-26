@@ -1616,6 +1616,27 @@ _comp_initialize()
     local redir='@(?(+([0-9])|{[a-zA-Z_]*([a-zA-Z_0-9])})@(>?([>|&])|<?([>&])|<<?([-<]))|&>?(>))'
     _comp_get_words -n "$exclude<>&" cur prev words cword
 
+    # If the current word is a command substitution $(, reset the completion context to be the
+    # command line *inside* the substitution.
+    if [[ $cur == '$('* ]]; then
+        local inner_line=${cur#\$\(}
+
+        # Replace the completion variables with ones that reflect the inner context.
+        COMP_LINE=$inner_line
+        read -ra COMP_WORDS <<<"$inner_line"
+        COMP_CWORD=$((${#COMP_WORDS[@]} - 1))
+        cur=${COMP_WORDS[COMP_CWORD]}
+        # Also update words and cword used by the rest of _comp_initialize
+        words=("${COMP_WORDS[@]}")
+        cword=$COMP_CWORD
+        # Handle case where there's only one word in the substitution
+        if ((COMP_CWORD > 0)); then
+            prev=${COMP_WORDS[COMP_CWORD - 1]}
+        else
+            prev=""
+        fi
+    fi
+
     # Complete variable names.
     _comp_compgen_variables && return 1
 
