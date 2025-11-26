@@ -8,7 +8,7 @@ _comp_cmd_sudo()
     local i mode=normal
     [[ $1 == *sudoedit ]] && mode=edit
 
-    local noargopts='!(-*|*[uUgCp]*)'
+    local noargopts='!(-*|*[CDghpRrTtUu]*)'
     [[ $mode == normal ]] &&
         for ((i = 1; i <= cword; i++)); do
             if [[ ${words[i]} != -* ]]; then
@@ -23,7 +23,7 @@ _comp_cmd_sudo()
                 break
             fi
             # shellcheck disable=SC2254
-            [[ ${words[i]} == @(--@(user|other-user|group|close-from|prompt)|-${noargopts}[uUgCp]) ]] &&
+            [[ ${words[i]} == @(--@(close-from|chdir|group|host|prompt|chroot|role|command-timeout|type|other-user|user)|-${noargopts}[CDghpRrTtUu]) ]] &&
                 ((i++))
         done
 
@@ -37,7 +37,16 @@ _comp_cmd_sudo()
             _comp_compgen -- -g
             return
             ;;
-        --close-from | --prompt | -${noargopts}[Cp])
+        --close-from | --prompt | --role | --type | --command-timeout | \
+            -${noargopts}[CprTt])
+            return
+            ;;
+        --chdir | --chroot | -${noargopts}[DR])
+            _comp_compgen_filedir -d
+            return
+            ;;
+        --host | -${noargopts}h)
+            _comp_compgen_known_hosts -- "$cur"
             return
             ;;
     esac
