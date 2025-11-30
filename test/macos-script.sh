@@ -15,6 +15,11 @@ python3 -m pip install -r test/requirements.txt
 
 export bashcomp_bash=bash
 env
+LC_ALL=C sort <<<$'python-dev\npython3-dev'
+LC_COLLATE=C sort <<<$'python-dev\npython3-dev'
+LC_ALL=en_US.UTF-8 sort <<<$'python-dev\npython3-dev'
+LC_COLLATE=en_US.UTF-8 sort <<<$'python-dev\npython3-dev'
+
 
 autoreconf -i
 ./configure
