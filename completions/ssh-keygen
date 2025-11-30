@@ -145,11 +145,14 @@ _comp_cmd_ssh_keygen()
             local pathcmd protocols
             pathcmd=$(type -P -- "$1") && local PATH=${pathcmd%/*}:$PATH
             _comp_compgen -v protocols -x ssh query protocol-version
-            local types='dsa ecdsa ecdsa-sk ed25519 ed25519-sk rsa'
+            local -a types=(
+                dsa ecdsa ecdsa-sk ed25519 ed25519-sk rsa
+                rsa-sha2-256 rsa-sha2-512 ssh-rsa
+            )
             if [[ ${protocols[*]} == *1* ]]; then
-                types+=' rsa1'
+                types+=(rsa1)
             fi
-            _comp_compgen -- -W "$types"
+            _comp_compgen -- -W '"${types[@]}"'
             return
             ;;
         -${noargopts}Y)
