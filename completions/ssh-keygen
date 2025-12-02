@@ -6,10 +6,10 @@ _comp_cmd_ssh_keygen()
     _comp_initialize -n := -- "$@" || return
 
     local IFS=$' \t\n' # for ${words[*]}
-    local noargopts='!(-*|*[ aCIJjMNPSVWzbEFRDwfGKsTmnOrtY]*)'
+    local noargopts='!(-*|*[ aCIJjMNPSVWzbEFRDwfGKsTmnOrtYZ]*)'
     # shellcheck disable=SC2254
     case $prev in
-        -${noargopts}[aCIJjMNPSVWz])
+        -${noargopts}[aCIJjNPSVWz])
             return
             ;;
         -${noargopts}b)
@@ -44,6 +44,10 @@ _comp_cmd_ssh_keygen()
             ;;
         -${noargopts}[fGKsT])
             _comp_compgen_filedir
+            return
+            ;;
+        -${noargopts}M)
+            _comp_compgen -- -W 'generate screen'
             return
             ;;
         -${noargopts}m)
@@ -141,15 +145,23 @@ _comp_cmd_ssh_keygen()
             local pathcmd protocols
             pathcmd=$(type -P -- "$1") && local PATH=${pathcmd%/*}:$PATH
             _comp_compgen -v protocols -x ssh query protocol-version
-            local types='dsa ecdsa ecdsa-sk ed25519 ed25519-sk rsa'
+            local -a types=(
+                dsa ecdsa ecdsa-sk ed25519 ed25519-sk rsa
+                rsa-sha2-256 rsa-sha2-512 ssh-rsa
+            )
             if [[ ${protocols[*]} == *1* ]]; then
-                types+=' rsa1'
+                types+=(rsa1)
             fi
-            _comp_compgen -- -W "$types"
+            _comp_compgen -- -W '"${types[@]}"'
             return
             ;;
         -${noargopts}Y)
-            _comp_compgen -- -W 'find-principals check-novalidate sign verify'
+            _comp_compgen -- -W \
+                'find-principals match-principals check-novalidate sign verify'
+            return
+            ;;
+        -${noargopts}Z)
+            _comp_compgen -x ssh query ciphers
             return
             ;;
     esac
