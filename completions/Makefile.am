@@ -598,6 +598,7 @@ CLEANFILES = \
 	autossh \
 	autoupdate \
 	avahi-browse-domains \
+	b2sum \
 	_bao \
 	_bashbot \
 	_black \
@@ -690,6 +691,8 @@ CLEANFILES = \
 	freeciv-gtk3 \
 	freeciv-sdl \
 	freeciv-xaw \
+	fsnotifywait \
+	fsnotifywatch \
 	_furyctl \
 	_fx \
 	g++ \
