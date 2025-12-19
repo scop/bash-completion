@@ -100,6 +100,30 @@
 * **tar:** cache the parse result of GNU tar help ([247ba7b](https://github.com/scop/bash-completion/commit/247ba7bb794332a42920cae796a4a9deff5179b0))
 * **tar:** parse the GNU tar help on initialization ([b030e07](https://github.com/scop/bash-completion/commit/b030e07f1055dbc1e40b7d2f17ccd045802ff061))
 
+## [2.18.0](https://github.com/scop/bash-completion/compare/2.17.0...2.18.0) (2025-12-19)
+
+
+### Features
+
+* **aclocal,automake:** support versioned 1.17 executables ([94bbb3a](https://github.com/scop/bash-completion/commit/94bbb3a1b6fafeac96c27e1899dd5efc920a6a89))
+* **pnpm:** add 3rd party fallback completion loader ([44804ae](https://github.com/scop/bash-completion/commit/44804ae89fd032af6058cd8307080aa759a0a73d))
+* **pydoc:** support versioned 3.13..15 executables ([bd60b26](https://github.com/scop/bash-completion/commit/bd60b26e6fb3c774c959ad3e7f8558485b60c405))
+* **python,pyvenv:** support versioned 3.14 and .15 executables ([72a2e47](https://github.com/scop/bash-completion/commit/72a2e479cfe743ab870bf479adb3a3c27eb7e64f))
+* **ssh-keygen:** -M arg completion ([b13bf99](https://github.com/scop/bash-completion/commit/b13bf99ac8f765fde880b464e41e1e64b1f1161d))
+* **ssh-keygen:** -Z argument completion ([c763d52](https://github.com/scop/bash-completion/commit/c763d52dfd8934c59e8fa7f8d95142444d08dc8e))
+* **ssh-keygen:** more option arg completions ([1303f8a](https://github.com/scop/bash-completion/commit/1303f8aba2f083d6d064225a1155fc23099f538d))
+* **ssh-keygen:** update -t arg completions ([4269a90](https://github.com/scop/bash-completion/commit/4269a90fa4d0920c330c90a679c18e8cafb19e7b))
+* **ssh-keygen:** update -Y arg completions ([a73bcaf](https://github.com/scop/bash-completion/commit/a73bcaf1e1ee366362d121534ce1cc8e6dece090))
+* **sudo-rs,sudo.ws:** alias to sudo ([084cc68](https://github.com/scop/bash-completion/commit/084cc684071fcd025eae650bdf09429a8d3eb33d))
+* **sudo:** more option argument (non-)completions ([379ec2d](https://github.com/scop/bash-completion/commit/379ec2d57c417ca49bfea3670e6fbb03e67a528f))
+* **sudo:** more option argument (non-)completions ([216135e](https://github.com/scop/bash-completion/commit/216135ecb10457f247e33a40aa3247915ab095cc))
+* **waydroid:** add 3rd party fallback completion loader ([acc800f](https://github.com/scop/bash-completion/commit/acc800f023ab446775c4ab1db7c77db3d2fdc739))
+
+
+### Bug Fixes
+
+* **_comp_complete_service:** fix init-script-action parsing ([#1499](https://github.com/scop/bash-completion/issues/1499)) ([91e075a](https://github.com/scop/bash-completion/commit/91e075a96d39d0234ada752a63937f63ea186eb8))
+
 ## [2.16.0](https://github.com/scop/bash-completion/compare/2.15.0...2.16.0) (2024-12-25)
 
 
