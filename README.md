@@ -391,3 +391,5 @@ A. The completion files of commands are looked up by the shell function
   completion file is found in any completion directories in this process, the
   completion files of the name `_<cmd>` is next searched in the completion
   directories in order.
+
+  Just a canary change that passes all checks, in order to test committed.
