@@ -38,6 +38,7 @@ _comp_cmd_cd__compgen_cdpath()
     local paths dirs _d
     _comp_split -F : paths "$CDPATH"
     for _p in "${paths[@]}"; do
+        _p="${_p:-.}"
         # create an array of matched subdirs
         _comp_compgen -v dirs -c "$_p/$cur" -- -d &&
             for _d in "${dirs[@]}"; do

@@ -51,3 +51,15 @@ class TestCd:
             bash_env.write_variable("foo2", "shared/default")
             completion = assert_complete(bash, "cd f")
             assert completion == ["foo1", "foo2"]
+
+    @pytest.mark.complete("cd ", cwd="shared/default", env=dict(CDPATH=":.."))
+    def test_cdpath_leading_colon(self, completion):
+        assert completion == [
+            ".ssh/",
+            "bar bar.d/",
+            "bin/",
+            "default/",
+            "empty_dir/",
+            "foo.d/",
+            "ld.so.conf.d/",
+        ]
