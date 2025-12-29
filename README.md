@@ -142,9 +142,8 @@ A. Install a local completion of your own appropriately for the desired
    command, and it will take precedence over the one shipped by us. See the
    next answer for details where to install it, if you are doing it on per user
    basis. If you want to do it system wide, you can install eagerly loaded
-   files in `compatdir` (see a couple of questions further down for more
-   info. To get the path of `compatdir` for the current system, the output of
-   `pkg-config bash-completion --variable compatdir` can be used) and install a
+   files in `<startupdir>`, whose value in the current system can be retrieved
+   by `pkg-config bash-completion --variable=startupdir`, and install a
    completion for the commands to override our completion for in them.
 
    If you want to use bash's default completion instead of one of ours,
