@@ -207,6 +207,9 @@ def test_session_tmpdir(tmp_path_factory) -> Path:
     helpers_1.symlink_to(bash_completion_root / "helpers-core")
     helpers_2.symlink_to(bash_completion_root / "helpers-core")
 
+    compat_dir = tmpdir / "bash_completion.d"
+    compat_dir.mkdir()
+
     # Create an empty temporary file for HISTFILE.
     #
     # To prevent the tested Bash processes from writing to the user's

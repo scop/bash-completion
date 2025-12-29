@@ -1,11 +1,11 @@
 SUBDIRS = doc completions-core completions-fallback helpers-core \
-	test completions helpers
+	startup-core test completions helpers startup
 
 pkgdata_DATA = bash_completion
 
 # Empty, but here just to get the compat dir created with install
 compatdir = $(sysconfdir)/bash_completion.d
-compat_DATA = bash_completion.d/000_bash_completion_compat.bash
+compat_DATA =
 
 profiledir = $(sysconfdir)/profile.d
 profile_DATA = bash_completion.sh
