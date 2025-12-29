@@ -1,8 +1,8 @@
 # helper AWK script for GNU make                                    -*- awk -*-
 
 # This AWK script is used by the function `_comp_cmd_make__extract_targets` in
-# `completions/make`.  This script receives the output of `make -npq' as the
-# input file or stdin and outputs the list of targets matching the prefix.
+# `completions-core/make`.  This script receives the output of `make -npq' as
+# the input file or stdin and outputs the list of targets matching the prefix.
 #
 # @env prefix         Specifies the prefix to match.
 # @env prefix_replace Specifies the string that replaces the prefix in the

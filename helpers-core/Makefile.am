@@ -1,4 +1,4 @@
-helpersdir = $(datadir)/$(PACKAGE)/helpers
-helpers_DATA = perl python make-extract-targets.awk
+helperscoredir = $(datadir)/$(PACKAGE)/helpers-core
+helperscore_DATA = perl python make-extract-targets.awk
 
-EXTRA_DIST = $(helpers_DATA)
+EXTRA_DIST = $(helperscore_DATA)

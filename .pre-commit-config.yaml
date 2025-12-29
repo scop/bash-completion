@@ -18,8 +18,7 @@ repos:
     hooks:
       - id: shfmt
         types: [text]
-        files: ^(bash_completion(\.d/[^/]+\.bash)?|completions-core/.+|test/(config/bashrc|fixtures/.+/bin/.+|fallback/update-fallback-links|runLint|update-test-cmd-list)|.+\.sh(\.in)?)$
-        exclude: ^completions-core/(\.gitignore|Makefile.*)$
+        files: ^(bash_completion(\.d/[^/]+\.bash)?|completions-(core|fallback)/.+\.bash|test/(config/bashrc|fixtures/.+/bin/.+|fallback/update-fallback-links|runLint|update-test-cmd-list)|.+\.sh(\.in)?)$
 
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.11.0.1
@@ -27,8 +26,7 @@ repos:
       - id: shellcheck
         args: [-f, gcc]
         types: [text]
-        files: ^(bash_completion(\.d/[^/]+\.bash)?|completions-core/.+|test/(config/bashrc|fixtures/.+/bin/.+|fallback/update-fallback-links|runLint|update-test-cmd-list)|.+\.sh(\.in)?)$
-        exclude: ^completions-core/(\.gitignore|Makefile.*)$
+        files: ^(bash_completion(\.d/[^/]+\.bash)?|completions-(core|fallback)/.+\.bash|test/(config/bashrc|fixtures/.+/bin/.+|fallback/update-fallback-links|runLint|update-test-cmd-list)|.+\.sh(\.in)?)$
         require_serial: false  # We disable SC1090 anyway, so parallel is ok
 
   - repo: local
@@ -44,7 +42,7 @@ repos:
         name: update-test-fallback-links
         language: script
         entry: test/fallback/update-fallback-links
-        files: ^completions-core/_
+        files: ^completions-fallback/
         pass_filenames: false
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
@@ -53,11 +51,9 @@ repos:
       - id: ruff-check
         types: [text]
         files: ^(helpers-core/python|.+\.py)$
-        exclude: ^completions-core/
       - id: ruff-format
         types: [text]
         files: ^(helpers-core/python|.+\.py)$
-        exclude: ^completions-core/
 
   - repo: local
     hooks:
@@ -70,7 +66,7 @@ repos:
         args: [--config-file=test/setup.cfg]
         types: [python]
         # Intentionally not run on helpers-core/python (we support very old versions)
-        exclude: ^completions-core/|^test/fixtures/pytest/
+        exclude: ^completions-(core|fallback)/|^test/fixtures/pytest/
 
   - repo: https://github.com/perltidy/perltidy
     rev: "20250912"

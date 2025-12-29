@@ -4,7 +4,7 @@
 # available in util-linux >= 2.28, use that instead.
 
 if [[ $OSTYPE == *linux* ]]; then
-    . "$BASH_SOURCE.linux"
+    . "${BASH_SOURCE%.bash}.linux.bash"
     return
 fi
 

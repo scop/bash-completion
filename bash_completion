@@ -3381,6 +3381,58 @@ _comp__init_base_directory()
 }
 _comp__init_base_directory
 
+# Attempt to load the specified file and check if the completion setting is
+# successfully loaded.
+#
+# @param $1 compfile ... filename to check.
+# @var[in] cmdname
+# @var[in] cmd
+# @var[in] backslash
+# @var[in] origcmd
+# @var[in] source_args
+# @exit 0 when the file is found, and the completion setting was successfully
+#     loaded.  Otherwise, 1.
+_comp_load__visit_file()
+{
+    local compfile=$1
+    shift
+    [[ -e $compfile ]] || return 1
+
+    # Set up default $IFS in case loaded completions depend on it, as well as
+    # for $compspec invocation below.
+    local IFS=$' \t\n' compspec
+
+    # Avoid trying to source dirs as long as we support bash < 4.3
+    # to avoid an fd leak; https://bugzilla.redhat.com/903540
+    if [[ -d $compfile ]]; then
+        # Do not warn with . or .. (especially the former is common)
+        [[ $compfile == */.?(.) ]] ||
+            echo "bash_completion: $compfile: is a directory" >&2
+    elif . "$compfile" "$cmd" ${source_args[@]+"${source_args[@]}"}; then
+
+        # At least $cmd is expected to have a completion set when we return
+        # successfully; see if it already does
+        if compspec=$(complete -p -- "$cmd" 2>/dev/null); then
+            # $cmd is the case in which we do backslash processing
+            [[ $backslash ]] && eval "$compspec \"\$backslash\$cmd\""
+            # If invoked without path, that one should be set, too
+            # ...but let's not overwrite an existing one, if any
+            [[ $origcmd != */* ]] &&
+                ! complete -p -- "$origcmd" &>/dev/null &&
+                eval "$compspec \"\$origcmd\""
+            return 0
+        fi
+        # If not, see if we got one for $cmdname
+        if [[ $cmdname != "$cmd" ]] && compspec=$(complete -p -- "$cmdname" 2>/dev/null); then
+            # Use that for $cmd too, if we have a full path to it
+            [[ $cmd == /* ]] && eval "$compspec \"\$cmd\""
+            return 0
+        fi
+        # Nothing expected was set, continue lookup
+    fi
+    return 1
+}
+
 # @since 2.12
 _comp_load()
 {
@@ -3422,10 +3474,9 @@ _comp_load()
     # 1) From BASH_COMPLETION_USER_DIR (e.g. ~/.local/share/bash-completion):
     # User installed completions.
     if [[ ${BASH_COMPLETION_USER_DIR-} ]]; then
-        _comp_split -F : paths "$BASH_COMPLETION_USER_DIR" &&
-            dirs+=("${paths[@]/%//completions}")
+        _comp_split -F : dirs "$BASH_COMPLETION_USER_DIR"
     else
-        dirs=("${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion/completions")
+        dirs=("${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion")
     fi
 
     # 2) From the location of bash_completion: Completions relative to the main
@@ -3433,7 +3484,7 @@ _comp_load()
     # we want to prefer in-tree completions over ones possibly coming with a
     # system installed bash-completion. (Due to usual install layouts, this
     # often hits the correct completions in system installations, too.)
-    dirs+=("$_comp__base_directory/completions")
+    dirs+=("$_comp__base_directory")
 
     # 3) From bin directories extracted from the specified path to the command,
     # the real path to the command, and $PATH
@@ -3443,60 +3494,30 @@ _comp_load()
     _comp_split -aF : paths "$PATH"
     for dir in "${paths[@]%/}"; do
         [[ $dir == ?*/@(bin|sbin) ]] &&
-            dirs+=("${dir%/*}/share/bash-completion/completions")
+            dirs+=("${dir%/*}/share/bash-completion")
     done
 
     # 4) From XDG_DATA_DIRS or system dirs (e.g. /usr/share, /usr/local/share):
     # Completions in the system data dirs.
     _comp_split -F : paths "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" &&
-        dirs+=("${paths[@]/%//bash-completion/completions}")
-
-    # Set up default $IFS in case loaded completions depend on it,
-    # as well as for $compspec invocation below.
-    local IFS=$' \t\n'
+        dirs+=("${paths[@]/%//bash-completion}")
 
     # Look up and source
     shift
-    local i prefix compspec
+    local -a source_args=("$@")
+
+    local i prefix
     for prefix in "" _; do # Regular from all dirs first, then fallbacks
-        for i in ${!dirs[*]}; do
-            dir=${dirs[i]}
-            if [[ ! -d $dir ]]; then
-                unset -v 'dirs[i]'
-                continue
-            fi
+        for i in "${!dirs[@]}"; do
+            dir=${dirs[i]}/completions
+            [[ -d $dir ]] || continue
             for compfile in "$prefix$cmdname" "$prefix$cmdname.bash"; do
-                compfile="$dir/$compfile"
-                # Avoid trying to source dirs as long as we support bash < 4.3
-                # to avoid an fd leak; https://bugzilla.redhat.com/903540
-                if [[ -d $compfile ]]; then
-                    # Do not warn with . or .. (especially the former is common)
-                    [[ $compfile == */.?(.) ]] ||
-                        echo "bash_completion: $compfile: is a directory" >&2
-                elif [[ -e $compfile ]] && . "$compfile" "$cmd" "$@"; then
-                    # At least $cmd is expected to have a completion set when
-                    # we return successfully; see if it already does
-                    if compspec=$(complete -p -- "$cmd" 2>/dev/null); then
-                        # $cmd is the case in which we do backslash processing
-                        [[ $backslash ]] && eval "$compspec \"\$backslash\$cmd\""
-                        # If invoked without path, that one should be set, too
-                        # ...but let's not overwrite an existing one, if any
-                        [[ $origcmd != */* ]] &&
-                            ! complete -p -- "$origcmd" &>/dev/null &&
-                            eval "$compspec \"\$origcmd\""
-                        return 0
-                    fi
-                    # If not, see if we got one for $cmdname
-                    if [[ $cmdname != "$cmd" ]] && compspec=$(complete -p -- "$cmdname" 2>/dev/null); then
-                        # Use that for $cmd too, if we have a full path to it
-                        [[ $cmd == /* ]] && eval "$compspec \"\$cmd\""
-                        return 0
-                    fi
-                    # Nothing expected was set, continue lookup
-                fi
+                _comp_load__visit_file "$dir/$compfile" && return 0
             done
         done
     done
+    _comp_load__visit_file "$_comp__base_directory/completions-core/$cmdname.bash" && return 0
+    _comp_load__visit_file "$_comp__base_directory/completions-fallback/$cmdname.bash" && return 0
 
     # Look up simple "xspec" completions
     [[ -v _comp_xspecs[$cmdname] || -v _xspecs[$cmdname] ]] &&

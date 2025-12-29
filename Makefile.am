@@ -1,4 +1,5 @@
-SUBDIRS = completions doc helpers test
+SUBDIRS = doc completions-core completions-fallback helpers-core \
+	test completions helpers
 
 pkgdata_DATA = bash_completion
 

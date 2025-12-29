@@ -17,7 +17,7 @@ _python_modules()
 _comp_cmd_python__compgen_modules()
 {
     _comp_compgen_split -- "$("$1" \
-        "${BASH_SOURCE[0]%/*}/../helpers/python" "$cur" 2>/dev/null)"
+        "${BASH_SOURCE[0]%/*}/../helpers-core/python" "$cur" 2>/dev/null)"
 }
 
 # @since 2.12

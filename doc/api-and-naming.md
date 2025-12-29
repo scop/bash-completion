@@ -49,7 +49,7 @@ deprecated in.
 Due to its nature, bash-completion adds a number of functions and variables in
 the shell's environment.
 
-|                                     | `bash_completion`   | `completions/*`                                                                       |
+|                                     | `bash_completion`   | `completions*/*`                                                                      |
 |:------------------------------------|:--------------------|:--------------------------------------------------------------------------------------|
 | public configuration variables      | `BASH_COMPLETION_*` | `BASH_COMPLETION_CMD_${Command^^}_${Config^^}`                                        |
 | private non-local variables         | `_comp__*`          | `_comp_cmd_${Command}__${Data}`                                                       |
@@ -70,7 +70,7 @@ the function.
 Variables and functions affecting multiple completions are usually defined
 in the main `bash_completion` file and do not require any additional files to
 be sourced. Variables and functions in command specific completion files in
-`completions/*` follow a slightly different naming scheme; they include
+`completions*/*` follow a slightly different naming scheme; they include
 `cmd` in their name as well as the name of the command.
 
 Public configuration variables are shell ones that affect the runtime behavior

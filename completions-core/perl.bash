@@ -3,7 +3,7 @@
 _comp_cmd_perl__helper()
 {
     _comp_compgen_split -P "$prefix" -- "$("${1:-perl}" \
-        "${BASH_SOURCE[0]%/*}/../helpers/perl" "$2" "$cur")"
+        "${BASH_SOURCE[0]%/*}/../helpers-core/perl" "$2" "$cur")"
     [[ $2 == functions ]] || _comp_ltrim_colon_completions "$prefix$cur"
 }
 
