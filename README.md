@@ -176,18 +176,23 @@ A. [ Disclaimer: Here, how to make the completion code visible to
    Install it in one of the directories pointed to by bash-completion's
    `pkgconfig` file variables. There are two alternatives:
 
-   - The recommended directory is `completionsdir`, which you can get with
+   - The recommended directory is `<completionsdir>`, which you can get with
      `pkg-config --variable=completionsdir bash-completion`. From this
      directory, completions are automatically loaded on demand based on invoked
      commands' names, so be sure to name your completion file accordingly, and
      to include (for example) symbolic links in case the file provides
-     completions for more than one command. The completion filename for
-     command `foo` in this directory should be either `foo`, or `foo.bash`.
-     (Underscore prefixed `_foo` works too, but is reserved for
-     bash-completion internal use as a deprecation/fallback marker.)
-   - The other directory which is only present for backwards compatibility,
-     its usage is no longer recommended, is `compatdir` (get it with
-     `pkg-config --variable=compatdir bash-completion`). From this
+     completions for more than one command. The completion filename for command
+     `foo` in this directory should be either `foo`, or `foo.bash`.
+     (Underscore prefixed `_foo` works too, but is reserved for bash-completion
+     internal use as a deprecation/fallback marker.)
+   - Helper scripts used by completions may be placed in the directory
+     `<helpersdir>`, which can be retrieved with `pkg-config
+     --variable=helpersdir bash-completion`.  The completion files in
+     `<completionsdir>` can reference the helper script `<helpersdir>/<helper>`
+     as `${BASH_SOURCE[0]%/*}/../helpers/<helper>`.
+   - The other directory, which is only present for backwards compatibility and
+     is not recommended to use, is `<compatdir>` (get it with
+     `pkg-config --variable=compatdir bash-completion`).  From this
      directory, files are loaded eagerly when `bash_completion` is loaded.
 
    For packages using GNU autotools the installation can be handled
