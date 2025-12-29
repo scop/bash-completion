@@ -1,5 +1,8 @@
 # interdiff(1) completion                                  -*- shell-script -*-
 
+# Use of this file is deprecated.  Upstream completion is available in
+# patchutil >= 0.4.3, use that instead.
+
 _comp_cmd_interdiff()
 {
     local cur prev words cword was_split comp_args
