@@ -184,8 +184,6 @@ A. [ Disclaimer: Here, how to make the completion code visible to
      completions for more than one command. The completion filename for command
      `foo` in this directory should be `foo.bash`.  Unsuffixed `foo` also
      works, but it is deprecated in >= 2.18.
-     (Underscore prefixed `_foo` works too, but is reserved for bash-completion
-     internal use as a deprecation/fallback marker.)
    - Helper scripts used by completions may be placed in the directory
      `<helpersdir>`, which can be retrieved with `pkg-config
      --variable=helpersdir bash-completion`.  The completion files in
