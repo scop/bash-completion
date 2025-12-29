@@ -1,1 +1,0 @@
-../../../completions-fallback/chsh.bash

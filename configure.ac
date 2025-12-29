@@ -41,8 +41,6 @@ doc/Makefile
 helpers/Makefile
 helpers-core/Makefile
 test/Makefile
-test/fallback/Makefile
-test/fallback/completions/Makefile
 test/t/Makefile
 test/t/unit/Makefile
 ])

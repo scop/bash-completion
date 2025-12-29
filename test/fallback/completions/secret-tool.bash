@@ -1,1 +1,0 @@
-../../../completions-fallback/secret-tool.bash
