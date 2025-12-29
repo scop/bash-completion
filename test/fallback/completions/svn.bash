@@ -1,0 +1,1 @@
+../../../completions-fallback/svn.bash
