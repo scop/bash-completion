@@ -42,3 +42,12 @@ class TestCd:
             bash_env.write_variable("foo6", "shared/default/bar")
             completion = assert_complete(bash, "cd f")
             assert completion == ["foo1", "foo2"]
+
+    def test_cdable_vars_2(self, bash):
+        with bash_env_saved(bash) as bash_env:
+            bash_env.write_variable("CDPATH", "nonexistent")
+            bash_env.shopt("cdable_vars", True)
+            bash_env.write_variable("foo1", "shared")
+            bash_env.write_variable("foo2", "shared/default")
+            completion = assert_complete(bash, "cd f")
+            assert completion == ["foo1", "foo2"]
