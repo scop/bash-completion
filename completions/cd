@@ -39,13 +39,13 @@ _comp_cmd_cd__compgen_cdpath()
     _comp_split -F : paths "$CDPATH"
     for _p in "${paths[@]}"; do
         # create an array of matched subdirs
-        _comp_compgen -v dirs -c "$_p/$cur" -- -d
-        for _d in "${dirs[@]}"; do
-            if [[ ($_mark_symdirs && -L $_d || $_mark_dirs && ! -L $_d) && ! -d ${_d#"$_p/"} ]]; then
-                _d+="/"
-            fi
-            _cdpaths+=("${_d#"$_p/"}")
-        done
+        _comp_compgen -v dirs -c "$_p/$cur" -- -d &&
+            for _d in "${dirs[@]}"; do
+                if [[ ($_mark_symdirs && -L $_d || $_mark_dirs && ! -L $_d) && ! -d ${_d#"$_p/"} ]]; then
+                    _d+="/"
+                fi
+                _cdpaths+=("${_d#"$_p/"}")
+            done
     done
     _comp_unlocal paths dirs
 
@@ -56,7 +56,8 @@ _comp_cmd_cd__compgen_cdpath()
         fi
     fi
 
-    _comp_compgen_set "${_cdpaths[@]}"
+    ((${#_cdpaths[@]})) &&
+        _comp_compgen_set "${_cdpaths[@]}"
 }
 
 _comp_cmd_cd()
