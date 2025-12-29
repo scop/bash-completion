@@ -17,6 +17,7 @@ cross_platform = adb.bash \
 		hexdump.bash \
 		hwclock.bash \
 		insmod.bash \
+		interdiff.bash \
 		ionice.bash \
 		jj.bash \
 		jungle.bash \
