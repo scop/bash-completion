@@ -11,7 +11,7 @@ class TestIfup:
         reason="There won't be any configured interfaces without network",
     )
     @pytest.mark.xfail(in_container(), reason="Probably fails in a container")
-    @pytest.mark.complete("ifup ")
+    @pytest.mark.complete("ifup ", require_cmd=True)
     def test_1(self, completion):
         assert completion
 

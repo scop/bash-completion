@@ -11,7 +11,7 @@ class TestIfdown:
         reason="There won't be any configured interfaces without network",
     )
     @pytest.mark.xfail(in_container(), reason="Probably fails in a container")
-    @pytest.mark.complete("ifdown ")
+    @pytest.mark.complete("ifdown ", require_cmd=True)
     def test_1(self, completion):
         assert completion
 
