@@ -370,24 +370,26 @@ A. Absolutely not. zsh has an extremely sophisticated completion system
 **Q. What is the search order for the completion file of each target command?**
 
 A. The completion files of commands are looked up by the shell function
-  `__load_completion`.  Here, the search order in bash-completion >= 2.12 is
-  explained.
+  `__load_completion`.  Here, the search order in bash-completion >= 2.18 is
+  explained.  We first list up the bash-completion directories:
 
-  1. `BASH_COMPLETION_USER_DIR`. The subdirectory `completions` of each paths
-     in `BASH_COMPLETION_USER_DIR` separated by colons is considered for a
-     completion directory.
-  2. The location of the main `bash_completion` file. The subdirectory
-     `completions` in the same directory as `bash_completion` is considered.
+  1. `BASH_COMPLETION_USER_DIR`.  Each paths in `BASH_COMPLETION_USER_DIR`
+     separated by colons is considered for a completion directory.
+  2. The location of the main `bash_completion` file. The directory
+     containing `bash_completion` is considered.
   3. The location of the target command.  When the real location of the command
      is in the directory `<prefix>/bin` or `<prefix>/sbin`, the directory
-     `<prefix>/share/bash-completion/completions` is considered.
+     `<prefix>/share/bash-completion` is considered.
   4. `XDG_DATA_DIRS` (or the system directories `/usr/local/share:/usr/share`
-     if empty).  The subdirectory `bash-completion/completions` of each paths
+     if empty).  The subdirectory `bash-completion` of each paths
      in `XDG_DATA_DIRS` separated by colons is considered.
 
-  The completion files of the name `<cmd>` or `<cmd>.bash`, where `<cmd>` is
-  the name of the target command, are searched in the above completion
-  directories in order.  The file that is found first is used.  When no
-  completion file is found in any completion directories in this process, the
-  completion files of the name `_<cmd>` is next searched in the completion
-  directories in order.
+  The completion files of the name `<cmd>.bash` or `<cmd>`, where `<cmd>` is
+  the name of the target command, are searched in the subdirectory
+  `completions` in the above bash-completion directories in order.  The file
+  that is found first is used.  When no completion file is found in this step,
+  the completion files of the name `_<cmd>` is next searched in the
+  `completions` subdirectories in order.  When no completion file has not yet
+  been found in any `completions` directories, the completion files in the
+  subdirectory `completions-core` and `completions-fallback` at the location of
+  the main `bash_completion` file are searched in order.

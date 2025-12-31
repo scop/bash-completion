@@ -6,6 +6,6 @@ target=$1
 shift
 
 for file in "$@"; do
-    rm -f "$targetdir/$file"
-    ln -s "$target" "$targetdir/$file"
+    rm -f "$targetdir/$file" "$targetdir/_$file" "$targetdir/$file.bash"
+    ln -s "$target.bash" "$targetdir/$file.bash"
 done

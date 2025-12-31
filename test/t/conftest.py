@@ -188,19 +188,26 @@ def get_testdir():
     return os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 
 
-@pytest.fixture(scope="class")
-def bash(request) -> pexpect.spawn:
-    logfile: Optional[TextIO] = None
-    histfile = None
-    tmpdir = None
-    bash = None
+@pytest.fixture(scope="session")
+def test_session_tmpdir(tmp_path_factory) -> Path:
+    tmpdir = tmp_path_factory.mktemp("bash-completion-test_")
 
-    if os.environ.get("BASH_COMPLETION_TEST_LOGFILE"):
-        logfile = open(os.environ["BASH_COMPLETION_TEST_LOGFILE"], "w")
-    elif os.environ.get("CI"):
-        logfile = sys.stdout
+    user_dir_1 = tmpdir / "bash-completion"
+    user_dir_2 = tmpdir / "bash-completion-fallback"
+    user_dir_1.mkdir()
+    user_dir_2.mkdir()
 
-    testdir = get_testdir()
+    bash_completion_root = Path(get_testdir()).parent
+
+    completions_1 = user_dir_1 / "completions"
+    completions_2 = user_dir_2 / "completions"
+    completions_1.symlink_to(bash_completion_root / "completions-core")
+    completions_2.symlink_to(bash_completion_root / "completions-fallback")
+
+    helpers_1 = user_dir_1 / "helpers-core"
+    helpers_2 = user_dir_2 / "helpers-core"
+    helpers_1.symlink_to(bash_completion_root / "helpers-core")
+    helpers_2.symlink_to(bash_completion_root / "helpers-core")
 
     # Create an empty temporary file for HISTFILE.
     #
@@ -217,14 +224,26 @@ def bash(request) -> pexpect.spawn:
     #   adopted because "test/config/bashrc" is loaded after the
     #   history is read from the history file.
     #
-    histfile = tempfile.NamedTemporaryFile(
-        prefix="bash-completion-test_", delete=False
-    )
+    histfile = tmpdir / "bash_history"
+    histfile.touch()
+
+    return tmpdir
+
+
+@pytest.fixture(scope="class")
+def bash(request, test_session_tmpdir) -> pexpect.spawn:
+    logfile: Optional[TextIO] = None
+    tmpdir = None
+    bash = None
+
+    if os.environ.get("BASH_COMPLETION_TEST_LOGFILE"):
+        logfile = open(os.environ["BASH_COMPLETION_TEST_LOGFILE"], "w")
+    elif os.environ.get("CI"):
+        logfile = sys.stdout
+
+    testdir = get_testdir()
 
     try:
-        # release the file handle so that Bash can open the file.
-        histfile.close()
-
         env = os.environ.copy()
         env.update(
             dict(
@@ -234,7 +253,8 @@ def bash(request) -> pexpect.spawn:
                 INPUTRC="%s/config/inputrc" % testdir,
                 TERM="dumb",
                 LC_COLLATE="C",  # to match Python's default locale unaware sort
-                HISTFILE=histfile.name,
+                _comp__test_session_tmpdir=str(test_session_tmpdir),
+                HISTFILE=str(test_session_tmpdir / "bash_history"),
             )
         )
 
@@ -353,11 +373,6 @@ def bash(request) -> pexpect.spawn:
             bash.close()
         if tmpdir:
             tmpdir.cleanup()
-        if histfile:
-            try:
-                os.remove(histfile.name)
-            except OSError:
-                pass
         if logfile and logfile != sys.stdout:
             logfile.close()
 

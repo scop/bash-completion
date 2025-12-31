@@ -35,11 +35,12 @@ AM_CONDITIONAL([SOLARIS], [test "${install_solaris}" = yes])
 AC_CONFIG_FILES([
 Makefile
 completions/Makefile
+completions-core/Makefile
+completions-fallback/Makefile
 doc/Makefile
 helpers/Makefile
+helpers-core/Makefile
 test/Makefile
-test/fallback/Makefile
-test/fallback/completions/Makefile
 test/t/Makefile
 test/t/unit/Makefile
 ])

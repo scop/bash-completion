@@ -1,4 +1,4 @@
-SUBDIRS = fallback t
+SUBDIRS = t
 
 EXTRA_DIST = config \
 	     fixtures \

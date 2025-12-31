@@ -119,8 +119,8 @@ class TestCompLoad:
 
     def test_cmd_intree_precedence(self, bash, fixture_dir):
         """
-        Test in-tree, i.e. completions/$cmd relative to the main script
-        has precedence over location derived from PATH.
+        Test in-tree, i.e. completions/$cmd relative to the main script has
+        precedence over location derived from PATH.
         """
         with bash_env_saved(bash) as bash_env:
             bash_env.chdir(fixture_dir)

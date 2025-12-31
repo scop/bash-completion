@@ -1,0 +1,72 @@
+# mount(8) completion                                      -*- shell-script -*-
+
+# Use of this file is deprecated on Linux.  Upstream completion is
+# available in util-linux >= 2.28, use that instead.
+
+if [[ $OSTYPE == *linux* ]]; then
+    . "${BASH_SOURCE%.bash}.linux.bash"
+    return
+fi
+
+# This will pull a list of possible mounts out of
+# /etc/{,v}fstab, unless the word being completed contains a ':', which
+# would indicate the specification of an NFS server. In that case, we
+# query the server for a list of all available exports and complete on
+# that instead.
+#
+_comp_cmd_mount()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -n : -- "$@" || return
+
+    local sm host
+
+    case $prev in
+        -t | --types)
+            _comp_compgen_fstypes
+            return
+            ;;
+    esac
+
+    [[ $cur == \\ ]] && cur="/"
+
+    if [[ $cur == *:* ]]; then
+        for sm in "$(type -P showmount)" {,/usr}/{,s}bin/showmount; do
+            [[ -x $sm ]] || continue
+            _comp_compgen -c "${cur#*:}" split -- "$(
+                "$sm" -e ${cur%%:*} | _comp_awk 'NR>1 {print $1}'
+            )"
+            return
+        done
+    fi
+
+    if [[ $cur == //* ]]; then
+        host=${cur#//}
+        host=${host%%/*}
+        if [[ $host ]]; then
+            _comp_compgen -P "//$host" split -- "$(
+                smbclient -d 0 -NL "$host" 2>/dev/null |
+                    command sed -ne '/^[[:blank:]]*Sharename/,/^$/p' |
+                    command sed -ne '3,$s|^[^A-Za-z]*\([^[:blank:]]*\).*$|/\1|p'
+            )"
+        fi
+    elif [[ -r /etc/vfstab ]]; then
+        # Solaris
+        _comp_compgen_split -- "$(
+            _comp_awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}' /etc/vfstab
+        )"
+    elif [[ ! -e /etc/fstab ]]; then
+        # probably Cygwin
+        _comp_compgen_split -- "$(
+            "$1" | _comp_awk '! /^[ \t]*#/ {if ($3 ~ /\//) print $3}'
+        )"
+    else
+        # probably BSD
+        _comp_compgen_split -- "$(
+            _comp_awk '! /^[ \t]*#/ {if ($2 ~ /\//) print $2}' /etc/fstab
+        )"
+    fi
+} &&
+    complete -F _comp_cmd_mount -o default -o dirnames mount
+
+# ex: filetype=sh
