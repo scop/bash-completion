@@ -25,7 +25,7 @@ class TestLs:
                 bash,
                 "for u in $(compgen -u); do "
                 "eval test -d ~$u || echo $u; unset -v u; done",
-                want_output=True,
+                want_output=None,  # We might not find anything
             )
             .strip()
             .split()
