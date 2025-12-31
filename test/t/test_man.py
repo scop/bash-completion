@@ -16,7 +16,7 @@ class TestMan:
     assumed_present = "man"
 
     @pytest.fixture
-    def colonpath(self, request, bash):
+    def colonpath(self, bash, tmp_path_factory):
         try:
             assert_bash_exec(bash, "uname -s 2>&1 | grep -qiF cygwin")
         except AssertionError:
@@ -25,7 +25,7 @@ class TestMan:
             pytest.skip("Cygwin doesn't like paths with colons")
 
         tmpdir = prepare_fixture_dir(
-            request,
+            tmp_path_factory,
             files=["man/man3/Bash::Completion.3pm.gz"],
             dirs=["man", "man/man3"],
         )

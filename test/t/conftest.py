@@ -2,10 +2,8 @@ import difflib
 import os
 import re
 import shlex
-import shutil
 import subprocess
 import sys
-import tempfile
 import time
 from enum import Enum
 from pathlib import Path
@@ -190,7 +188,7 @@ def get_testdir():
 
 @pytest.fixture(scope="session")
 def test_session_tmpdir(tmp_path_factory) -> Path:
-    tmpdir = tmp_path_factory.mktemp("bash-completion-test_")
+    tmpdir = tmp_path_factory.mktemp("bash-completion.session.")
 
     user_dir_1 = tmpdir / "bash-completion"
     user_dir_2 = tmpdir / "bash-completion-fallback"
@@ -231,9 +229,8 @@ def test_session_tmpdir(tmp_path_factory) -> Path:
 
 
 @pytest.fixture(scope="class")
-def bash(request, test_session_tmpdir) -> pexpect.spawn:
+def bash(request, test_session_tmpdir, tmp_path_factory) -> pexpect.spawn:
     logfile: Optional[TextIO] = None
-    tmpdir = None
     bash = None
 
     if os.environ.get("BASH_COMPLETION_TEST_LOGFILE"):
@@ -268,10 +265,8 @@ def bash(request, test_session_tmpdir) -> pexpect.spawn:
                     testdir, "fixtures", marker.kwargs.get("cwd")
                 )
             elif "temp_cwd" in marker.kwargs and marker.kwargs.get("temp_cwd"):
-                tmpdir = tempfile.TemporaryDirectory(
-                    prefix="bash-completion-test_"
-                )
-                cwd = tmpdir.name
+                tmpdir = tmp_path_factory.mktemp("bash-completion.bash.")
+                cwd = str(tmpdir)
         if cwd is None:
             cwd = os.path.join(testdir, "fixtures")
         os.chdir(cwd)
@@ -371,8 +366,6 @@ def bash(request, test_session_tmpdir) -> pexpect.spawn:
         # Clean up
         if bash:
             bash.close()
-        if tmpdir:
-            tmpdir.cleanup()
         if logfile and logfile != sys.stdout:
             logfile.close()
 
@@ -961,7 +954,7 @@ def in_container() -> bool:
 
 
 def prepare_fixture_dir(
-    request, files: Iterable[str], dirs: Iterable[str]
+    tmp_path_factory, files: Iterable[str], dirs: Iterable[str]
 ) -> Path:
     """
     Fixture to prepare a test dir with dummy contents on the fly.
@@ -970,8 +963,7 @@ def prepare_fixture_dir(
     prepare a dir on the fly rather than including their fixtures in git and
     the tarball. This is to work better with case insensitive file systems.
     """
-    tempdir = Path(tempfile.mkdtemp(prefix="bash-completion-fixture-dir"))
-    request.addfinalizer(lambda: shutil.rmtree(str(tempdir)))
+    tempdir = tmp_path_factory.mktemp("bash-completion.fixture_dir.")
 
     old_cwd = os.getcwd()
     try:

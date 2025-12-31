@@ -1,5 +1,4 @@
 import os
-from tempfile import mkstemp
 
 import pytest
 
@@ -9,18 +8,17 @@ from conftest import assert_complete, is_bash_type
 @pytest.mark.bashcomp(cmd="slapt-src")
 class TestSlaptSrc:
     @pytest.fixture(scope="class")
-    def slapt_srcrc(self, request, bash):
-        fd, fname = mkstemp(prefix="slapt-srcrc.", text=True)
-        request.addfinalizer(lambda: os.remove(fname))
-        with os.fdopen(fd, "w") as f:
-            print(
-                "BUILDDIR=%s/"
-                % os.path.join(
-                    bash.cwd, *"slackware usr src slapt-src".split()
-                ),
-                file=f,
-            )
-        return fname
+    def slapt_srcrc(self, bash, tmp_path_factory):
+        build_dir = os.path.join(
+            bash.cwd, *"slackware usr src slapt-src".split()
+        )
+
+        tmpdir = tmp_path_factory.mktemp(
+            "bash-completion._comp_cmd_slapt_src."
+        )
+        tmpfile = tmpdir / "slapt-srcrc.0"
+        tmpfile.write_text(f"BUILDDIR={build_dir}/\n")
+        return str(tmpfile)
 
     @pytest.mark.complete("slapt-src -", require_cmd=True)
     def test_1(self, completion):

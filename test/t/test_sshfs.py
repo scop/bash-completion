@@ -12,12 +12,14 @@ class TestSshfs:
         assert completion
 
     @pytest.fixture
-    def tmpdir_backslash(self, request, bash):
+    def tmpdir_backslash(self, bash, tmp_path_factory):
         if sys.platform.startswith("win"):
             pytest.skip("Filenames not allowed on Windows")
 
         tmpdir = prepare_fixture_dir(
-            request, files=["local_path-file\\"], dirs=["local_path-dir"]
+            tmp_path_factory,
+            files=["local_path-file\\"],
+            dirs=["local_path-dir"],
         )
         return tmpdir
 
