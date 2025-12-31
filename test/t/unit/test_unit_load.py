@@ -7,7 +7,7 @@ from conftest import assert_bash_exec, bash_env_saved
 
 @pytest.mark.bashcomp(cmd=None, cwd="_comp_load")
 class TestCompLoad:
-    @pytest.fixture
+    @pytest.fixture(scope="class")
     def fixture_dir(self, bash, tmp_path_factory):
         """Construct the fixture directory in a temporary directory.
 
