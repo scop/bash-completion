@@ -1,8 +1,5 @@
 import os
-import shutil
 import sys
-import tempfile
-from pathlib import Path
 
 import pytest
 
@@ -42,11 +39,12 @@ class TestUnitCompgenFiledir:
         )
 
     @pytest.fixture(scope="class")
-    def non_windows_testdir(self, request, bash):
+    def non_windows_testdir(self, bash, tmp_path_factory):
         if sys.platform.startswith("win"):
             pytest.skip("Filenames not allowed on Windows")
-        tempdir = Path(tempfile.mkdtemp(prefix="bash-completion_filedir"))
-        request.addfinalizer(lambda: shutil.rmtree(str(tempdir)))
+        tempdir = tmp_path_factory.mktemp(
+            "bash-completion._comp_compgen_filedir."
+        )
         subdir = tempdir / 'a"b'
         subdir.mkdir()
         (subdir / "d").touch()

@@ -189,12 +189,12 @@ class TestScp:
         )
 
     @pytest.fixture
-    def tmpdir_backslash(self, request, bash):
+    def tmpdir_backslash(self, bash, tmp_path_factory):
         if sys.platform.startswith("win"):
             pytest.skip("Filenames not allowed on Windows")
 
         tmpdir = prepare_fixture_dir(
-            request, files=["local_path-file\\"], dirs=[]
+            tmp_path_factory, files=["local_path-file\\"], dirs=[]
         )
         return tmpdir
 
@@ -211,11 +211,11 @@ class TestScp:
         assert completion.output == r"thetical\\\\ "
 
     @pytest.fixture
-    def tmpdir_mkfifo(self, request, bash):
+    def tmpdir_mkfifo(self, bash, tmp_path_factory):
         # We prepare two files: 1) a named pipe and 2) a regular file ending
         # with the same name but an extra special character "|".
         tmpdir = prepare_fixture_dir(
-            request,
+            tmp_path_factory,
             files=["local_path_2-pipe|"],
             dirs=[],
         )
@@ -257,12 +257,12 @@ class TestScp:
         assert completion == r"\ conf"
 
     @pytest.fixture
-    def tmpdir_backslash_2(self, request, bash):
+    def tmpdir_backslash_2(self, bash, tmp_path_factory):
         if sys.platform.startswith("win"):
             pytest.skip("Filenames not allowed on Windows")
 
         tmpdir = prepare_fixture_dir(
-            request,
+            tmp_path_factory,
             files=["backslash-a b.txt", r"backslash-a\ b.txt"],
             dirs=[],
         )

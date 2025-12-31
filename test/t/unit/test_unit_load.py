@@ -2,13 +2,13 @@ import os
 
 import pytest
 
-from conftest import assert_bash_exec, bash_env_saved, prepare_fixture_dir
+from conftest import assert_bash_exec, bash_env_saved
 
 
 @pytest.mark.bashcomp(cmd=None, cwd="_comp_load")
 class TestCompLoad:
-    @pytest.fixture
-    def fixture_dir(self, request, bash):
+    @pytest.fixture(scope="class")
+    def fixture_dir(self, bash, tmp_path_factory):
         """Construct the fixture directory in a temporary directory.
 
         Some of the tests use specific setups of symbolic links.  However, if
@@ -24,15 +24,26 @@ class TestCompLoad:
         set up symbolic links.
         """
 
-        tmpdir = prepare_fixture_dir(request, files=[], dirs=[])
+        tmpdir = tmp_path_factory.mktemp("bash-completion._comp_load.")
+
+        # Note: I tried to use
+        #
+        #   shutil.copytree(os.getcwd(), tmpdir, dirs_exist_ok=True)
+        #
+        # but it turned out that shutil.copytree of Python 3.7 (used in centos7
+        # and debian10 in the docker images) does not provide the
+        # "dirs_exist_ok" option.  We continue to use "cp -R" here, but we may
+        # update this line after we drop centos7 and debian10.
         assert_bash_exec(bash, "cp -R %s/* %s/" % (os.getcwd(), tmpdir))
-        assert_bash_exec(bash, "mkdir -p %s/bin" % tmpdir)
-        assert_bash_exec(
-            bash, "ln -sf ../prefix1/bin/cmd1 %s/bin/cmd1" % tmpdir
-        )
-        assert_bash_exec(
-            bash, "ln -sf ../prefix1/sbin/cmd2 %s/bin/cmd2" % tmpdir
-        )
+
+        bin_dir = tmpdir / "bin"
+        bin_dir.mkdir()
+
+        cmd1 = bin_dir / "cmd1"
+        cmd2 = bin_dir / "cmd2"
+        cmd1.symlink_to("../prefix1/bin/cmd1")
+        cmd2.symlink_to("../prefix1/sbin/cmd2")
+
         return str(tmpdir)
 
     def test_userdir_1(self, bash, fixture_dir):
