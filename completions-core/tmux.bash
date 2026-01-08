@@ -111,6 +111,10 @@ _comp_cmd_tmux__value()
         file | *-file | path | *-path)
             _comp_compgen_filedir
             ;;
+        target-session)
+            _comp_compgen_split -l -- "$(_comp_cmd_tmux__run \
+                list-sessions -F '#{session_name}')"
+            ;;
     esac
 }
 
