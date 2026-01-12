@@ -253,6 +253,7 @@ CLEANFILES = \
 	rclone.bash \
 	regal.bash \
 	regctl.bash \
+	release-plz.bash \
 	rustic.bash \
 	sentry-cli.bash \
 	sinker.bash \
@@ -302,6 +303,8 @@ CLEANFILES = \
 	zola.bash
 
 symlinks: $(DATA)
+	$(ss) bombadil \
+		release-plz
 	$(ss) cal \
 		ncal
 	$(ss) flamegraph \
