@@ -593,7 +593,6 @@ CLEANFILES = \
 	gtar.bash \
 	hciattach.bash \
 	hciconfig.bash \
-	hd.bash \
 	host.bash \
 	hping.bash \
 	hping3.bash \
@@ -665,7 +664,6 @@ CLEANFILES = \
 	mrsasutil.bash \
 	msgsnarf.bash \
 	muttng.bash \
-	ncal.bash \
 	neomutt.bash \
 	pbzip2.bash \
 	pccardctl.bash \

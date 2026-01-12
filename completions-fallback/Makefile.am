@@ -164,6 +164,7 @@ CLEANFILES = \
 	goreleaser.bash \
 	grype.bash \
 	gup.bash \
+	hd.bash \
 	helm.bash \
 	helmfile.bash \
 	hostctl.bash \
@@ -225,6 +226,7 @@ CLEANFILES = \
 	mockery.bash \
 	moldy.bash \
 	multi-gitter.bash \
+	ncal.bash \
 	nerdctl.bash \
 	nfpm.bash \
 	ngrok.bash \
