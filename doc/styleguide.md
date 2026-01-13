@@ -47,7 +47,7 @@ Other files, like ChangeLog, or COPYING, are exempt from this rule.
 ## `$( )` vs backticks
 
 When you need to do some code substitution in your completion script,
-you _MUST_ use the `$(...)` construct, rather than backticks. The former
+you **must** use the `$(...)` construct, rather than backticks. The former
 is preferable because anyone, with any keyboard layout, is able to
 type it. Backticks aren't always available, without doing strange
 key combinations.
@@ -159,9 +159,9 @@ expansions are not needed.
 In bash-completion, we do not quote them by default.  However, there are
 exceptions where the quoting is still needed for other reasons.
 
-- When the word *directly* contains shell special characters (space, tab,
+- When the word _directly_ contains shell special characters (space, tab,
   newline, or a character from ``;|&()<>\\$`'"#!~{``), these characters need to
-  be quoted.  The "*directly*" means that the special characters produced by
+  be quoted.  "_directly_" means that the special characters produced by
   shell expansions are excluded here.  For example, when one wants to include a
   whitespace as a part of the value of the word, the right-hand side can be
   quoted as `v="a b"`.

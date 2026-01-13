@@ -175,7 +175,7 @@ The exit status is implementation-defined.
   `"${tmp[@]}"` avoiding `nounset` error in Bash <= 4.3 for an empty array
   `tmp`.
 - Some use other rules for the exit status. E.g., `help` and `usage` return
-  whether there were options *before* filtering by cur. This is used for
+  whether there were options _before_ filtering by cur. This is used for
   `_comp_compgen_help || _comp_compgen_usage`.
 
 Whether to clear the target variable on runtime error (when `-a` is not
