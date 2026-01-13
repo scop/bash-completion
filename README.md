@@ -323,13 +323,13 @@ A. If your `command_not_found_handle` function is not intended to address
    `$READLINE_POINT` is set to skip the action.
 
    > [!Note]
-   > We recommended checking whether `COMP_LINE` is *set*, which still works if
+   > We recommended checking whether `COMP_LINE` is _set_, which still works if
    > properly done with e.g. `[[ ${COMP_LINE+set} ]]`.  However, if you have
-   > been checking if `COMP_LINE` is *non-empty* with `[[ ${COMP_LINE:-} ]]`,
-   > it may fail to detect programmable completion with the setting `complete
-   > -E` (in Bash >= 4.1) because `COMP_LINE` can be empty in this context.  It
-   > is safer to test `COMP_POINT` as one does not need to care about the
-   > differences between the set and non-empty states of variables.
+   > been checking if `COMP_LINE` is _non-empty_ with `[[ ${COMP_LINE:-} ]]`,
+   > it may fail to detect programmable completion with the setting
+   > `complete -E` (in Bash >= 4.1) because `COMP_LINE` can be empty in this
+   > context. It is safer to test `COMP_POINT` as one does not need to care
+   > about the differences between the set and non-empty states of variables.
 
 **Q. Can tab completion be made even easier?**
 
