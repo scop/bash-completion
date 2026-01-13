@@ -3506,14 +3506,12 @@ _comp_load()
     shift
     local -a source_args=("$@")
 
-    local i prefix
-    for prefix in "" _; do # Regular from all dirs first, then fallbacks
-        for i in "${!dirs[@]}"; do
-            dir=${dirs[i]}/completions
-            [[ -d $dir ]] || continue
-            for compfile in "$prefix$cmdname" "$prefix$cmdname.bash"; do
-                _comp_load__visit_file "$dir/$compfile" && return 0
-            done
+    local i
+    for i in "${!dirs[@]}"; do
+        dir=${dirs[i]}/completions
+        [[ -d $dir ]] || continue
+        for compfile in "$cmdname.bash" "$cmdname"; do
+            _comp_load__visit_file "$dir/$compfile" && return 0
         done
     done
     _comp_load__visit_file "$_comp__base_directory/completions-core/$cmdname.bash" && return 0
