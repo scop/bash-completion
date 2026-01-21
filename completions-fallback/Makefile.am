@@ -134,6 +134,7 @@ CLEANFILES = \
 	devspace.bash \
 	diesel.bash \
 	diffoci.bash \
+	dive.bash \
 	dlv.bash \
 	docker.bash \
 	dprint.bash \
@@ -360,6 +361,7 @@ symlinks: $(DATA)
 		depot \
 		devspace \
 		diffoci \
+		dive \
 		dlv \
 		docker \
 		driftctl \
