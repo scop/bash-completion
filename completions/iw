@@ -1,0 +1,326 @@
+# iw(8) completion                                         -*- shell-script -*-
+
+_iw()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    local subcword obj cmd
+    for (( subcword=1; subcword < cword; subcword++ )); do
+        [[ "${words[subcword]}" == '--version' ]] && return
+        if [[ -n $obj ]]; then
+            case $obj in
+                phy|dev|wdev)
+                    if [[ $subcword+1 -lt $cword ]]; then
+                        cmd=${words[subcword+1]}
+                        (( subcword++ ))
+                        break
+                    fi
+                    ;;
+            esac && break
+        fi
+        [[ "${words[subcword]}" != -* ]] && obj=${words[subcword]}
+    done
+
+    if [[ -z $obj ]]; then
+        case $cur in
+            -*)
+                local c='--version --debug'
+                COMPREPLY=( $( compgen -W "$c" -- "$cur" ) )
+                return
+                ;;
+            *)
+                COMPREPLY=( $( compgen -W 'commands dev event features help
+                    list phy reg wdev' -- "$cur" ) )
+                return
+                ;;
+        esac
+    fi
+
+    if [[ $obj == help ]]; then
+        COMPREPLY=( $( compgen -W 'ap cac channels coalesce connect cqm del
+            dev disconnect get ibss info interface link mesh mpath mpp ocb
+            offchannel phy p2p reg roc scan set station survey switch vendor
+            wowlan' -- "$cur") )
+        return
+    fi
+
+    case $obj in
+        dev)
+            if [[ $prev == dev ]]; then
+                _available_interfaces
+                return
+            elif [[ -z $cmd ]]; then
+                COMPREPLY=( $( compgen -W 'ap cac connect cqm del
+                    disconnect get ibss info interface link mesh mpath mpp
+                    ocb offchannel roc scan set station survey switch
+                    vendor' -- "$cur") )
+                return
+            elif [[ $prev == $cmd ]]; then
+                case $cmd in
+                    ap)
+                        COMPREPLY=( $( compgen -W 'start stop' -- "$cur" ) )
+                        return
+                        ;;
+                    cac)
+                        COMPREPLY=( $( compgen -W 'channel freq trigger'
+                            -- "$cur" ) )
+                        return
+                        ;;
+                    cqm)
+                        COMPREPLY=( $( compgen -W 'rssi' -- "$cur" ) )
+                        return
+                        ;;
+                    del)
+                        return
+                        ;;
+                    disconnect)
+                        return
+                        ;;
+                    get)
+                        COMPREPLY=( $( compgen -W 'mesh_param power_save'
+                            -- "$cur" ) )
+                        return
+                        ;;
+                    ibss)
+                        COMPREPLY=( $( compgen -W 'join leave' -- "$cur" ) )
+                        return
+                        ;;
+                    info)
+                        return
+                        ;;
+                    interface)
+                        COMPREPLY=( $( compgen -W 'add' -- "$cur" ) )
+                        return
+                        ;;
+                    link)
+                        return
+                        ;;
+                    mesh)
+                        COMPREPLY=( $( compgen -W 'join leave' -- "$cur" ) )
+                        return
+                        ;;
+                    mpath)
+                        COMPREPLY=( $( compgen -W 'del dump get new set'
+                            -- "$cur" ) )
+                        return
+                        ;;
+                    mpp)
+                        COMPREPLY=( $( compgen -W 'dump get' -- "$cur" ) )
+                        return
+                        ;;
+                    ocb)
+                        COMPREPLY=( $( compgen -W 'join leave' -- "$cur" ) )
+                        return
+                        ;;
+                    offchannel)
+                        return
+                        ;;
+                    roc)
+                        COMPREPLY=( $( compgen -W 'start' -- "$cur" ) )
+                        return
+                        ;;
+                    scan)
+                        COMPREPLY=( $( compgen -W 'abort dump sched_stop'
+                            -- "$cur" ) )
+                        return
+                        ;;
+                    set)
+                        COMPREPLY=( $( compgen -W '4addr channel freq
+                            mcast_rate meshid mesh_param monitor noack_map
+                            peer power_save txpower type' -- "$cur" ) )
+                        return
+                        ;;
+                    station)
+                        COMPREPLY=( $( compgen -W 'del dump get set'
+                            -- "$cur" ) )
+                        return
+                        ;;
+                    survey)
+                        COMPREPLY=( $( compgen -W 'dump' -- "$cur" ) )
+                        return
+                        ;;
+                    switch)
+                        COMPREPLY=( $( compgen -W 'channel freq' -- "$cur" ) )
+                        return
+                        ;;
+                    vendor)
+                        COMPREPLY=( $( compgen -W 'recv recvbin send'
+                            -- "$cur" ) )
+                        return
+                        ;;
+                esac
+            else
+                case $cmd in
+                    cac)
+                        case $prev in
+                            channel)
+                                ;;
+                            freq)
+                                if [[ $prev == freq ]]; then
+                                    COMPREPLY=( $( compgen -W 'chanel freq'
+                                        -- "$cur" ) )
+                                    return
+                                fi
+                                ;;
+                            trigger)
+                                return
+                                ;;
+                        esac
+                        ;;
+                    get)
+                        if [[ "${words[subcword+1]}" == 'mesh_param' ]]; then
+                            COMPREPLY=( $( compgen -W "$( "${words[@]:0:cword}"
+                                sed -n '/\s\+-\s\+/{s/\s\+-\s\+//;p}' )" 
+                                -- "$cur" ) )
+                        fi
+                        ;;
+                    interface)
+                        case "$(( cword-subcword ))" in
+                            2)
+                                COMPREPLY=( $( compgen -W 'type' -- "$cur" ) )
+                                return
+                                ;;
+                            3)
+                                COMPREPLY=( $( compgen -W 'none fcsfail control 
+                                    otherbss cook active mumimo-groupid 
+                                    mumimo-follow-mac' -- "$cur" ) )
+                                return
+                                ;;
+                            4)
+                                COMPREPLY=( $( compgen -W 'mesh_id 4addr flags 
+                                    addr' -- "$cur" ) )
+                                return
+                                ;;
+                        esac
+                        ;;
+                    set)
+                        local c
+                        case "${words[subcword+1]}" in
+                            4addr)
+                                c='on off'
+                                ;;
+                            channel)
+                                if [[ $prev != 'channel' ]]; then
+                                    c='NOHT HT20 HT40+ HT40- 5MHz 10MHz 80MHz'
+                                fi
+                                ;;
+                            freq)
+                                #TODO
+                                ;;
+                            mesh_param)
+                                if [[ $prev == mesh_param ]]; then
+                                    COMPREPLY=( $( compgen -W "$( 
+"${words[@]:0:cword}" | sed -n '/\s\+-\s\+/{s/\s\+-\s\+//;p}' )"  -- "$cur" ) )
+                                fi
+                                return
+                                ;;
+                            monitor)
+                                COMPREPLY=( $( compgen -W 'none fcsfail control
+                                    otherbss cook active mumimo-groupid
+                                    mumimo-follow-mac' -- "$cur" ) )
+                                return
+                                ;;
+                            power_save)
+                                COMPREPLY=( $( compgen -W 'on off'
+                                        -- "$cur" ) )
+                                return
+                                ;;
+                            txpower)
+                                COMPREPLY=( $( compgen -W 'auto fixed limit'
+                                    -- "$cur" ) )
+                                return
+                                ;;
+                            type)
+                                COMPREPLY=( $( compgen -W 'managed ibss monitor
+                                    mesh wds' -- "$cur" ) )
+                                return
+                                ;;
+                        esac
+                        ;;
+                    station)
+                        case "${words[subcword+1]}" in
+                            set)
+                                case "$(( cword-subcword ))" in
+                                    2)
+                                        COMPREPLY=( $( compgen -W
+                                            'mesh_power_mode vlan plink_action'
+                                            -- "$cur" ) )
+                                        return
+                                        ;;
+                                    3)
+                                        case $prev in
+                                            mesh_power_mode)
+                                                COMPREPLY=( $( compgen -W
+                                                    'active light deep'
+                                                    -- "$cur" ) )
+                                                return
+                                                ;;
+                                            plink_action)
+                                                COMPREPLY=( $( compgen -W
+                                                    'open block' -- "$cur" ) )
+                                                return
+                                                ;;
+                                        esac
+                                        ;;
+                                esac
+                                ;;
+                            del)
+                                if [[ cword-subcword -eq 2 ]]; then
+                                    COMPREPLY=( $( compgen -W 'subtype
+                                        reason-code' -- "$cur" ) )
+                                fi
+                        esac
+                        ;;
+                esac
+            fi
+            ;;
+        phy)
+            if [[ $prev == phy ]]; then
+                COMPREPLY=( $( compgen -W $( ls /sys/class/ieee80211/ )
+                    -- "$cur" ) )
+                return
+            elif [[ -z $cmd ]]; then
+                COMPREPLY=( $( compgen -W 'channels coalesce info interface
+                    reg set wowlan' -- "$cur" ) )
+                return
+            elif [[ $prev == $cmd ]]; then
+                case $cmd in
+                    channels)
+                        return
+                        ;;
+                    coalesce)
+                        COMPREPLY=( $( compgen -W 'disable enable show'
+                            -- "$cur" ) )
+                        return
+                        ;;
+                    info)
+                        return
+                        ;;
+                    interface)
+                        COMPREPLY=( $( compgen -W 'add' -- "$cur" ) )
+                        return
+                        ;;
+                    reg)
+                        COMPREPLY=( $( compgen -W 'get' -- "$cur" ) )
+                        return
+                        ;;
+                    set)
+                        COMPREPLY=( $( compgen -W 'antenna channel coverage
+                            distance frag freq name netns retry rts txpower'
+                            -- "$cur" ) )
+                        return
+                        ;;
+                    wowlan)
+                        COMPREPLY=( $( compgen -W 'disable enable show'
+                            -- "$cur" ) )
+                        return
+                        ;;
+                esac
+            fi
+            ;;
+    esac
+
+} && complete -F _iw iw
+
+# ex: filetype=sh
