@@ -1,0 +1,146 @@
+# bash completion for dgit                                 -*- shell-script -*-
+
+# Author: Andrej Shadura <andrewsh@debian.org>
+
+# This file is in public domain when available or, alternatively, can be
+# redistributed either under the terms of CC0 1.0 Universal license or
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+
+# SPDX-License-Identifier: CC0-1.0 OR GPL-2.0-or-later
+
+_dgit()
+{
+    local cur prev words cword i _options special _prefix
+    _init_completion -n = || return
+
+    local clean_opts=(git{,\,always} git-ff{,\,always} check{,\,ignores} none
+        dpkg-source{,\,no-check,\,all-check} dpkg-source-d{,\,no-check,\,all-check})
+    local clean_popular_opts=(git git-ff dpkg-source)
+    local standalone_quilt_opts=(gbp dpm baredebian{,+git,+tarball})
+    local quilt_opts=(linear auto smash nofix nocheck unapplied ${standalone_quilt_opts[@]})
+    local quilt_popular_opts=(auto linear)
+    local force_opts=(unrepresentable unsupported-source-format dsc-changes-mismatch
+        changes-origs-exactly uploading-binaries uploading-source-only
+        reusing-version import-gitapply-absurd import-gitapply-no-absurd
+        import-dsc-with-dgit-field)
+    local buildcommands="build sbuild gbp-build build-source pbuilder cowbuilder"
+    local subcommands="clone fetch pull $buildcommands
+        push push-source rpush setup-new-tree setup-useremail
+        setup-mergechangelogs setup-gitattributes import-dsc update-vcs-git"
+
+    for word in ${words[@]}
+    do
+        if [[ $word == @(${subcommands// /|}) ]]
+        then
+            special=$word
+            break
+        fi
+    done
+
+    if [ -n "$special" ] && [[ $special == @(${buildcommands// /|}) ]]
+    then
+        COMPREPLY=()
+        return 0
+    fi
+
+    case "$prev" in
+        --clean)
+            COMPREPLY=($(compgen -W "${clean_opts[*]}" -- "$cur"))
+            return 0
+            ;;
+        --quilt)
+            COMPREPLY=($(compgen -W "${quilt_opts[*]}" -- "$cur"))
+            return 0
+            ;;
+        --build-products-dir)
+            COMPREPLY=($(compgen -o filenames -d -- "$cur"))
+            return 0
+            ;;
+        -p|--package)
+            COMPREPLY=()
+            return 0
+            ;;
+        -k)
+            COMPREPLY=($(compgen -W "$(gpg --list-secret-keys --with-colons | grep ^sec | cut -d: -f5)" -- "$cur"))
+            return 0
+            ;;
+        import-dsc)
+            COMPREPLY=($(compgen -o filenames -f -G '../*.dsc' -- "$cur"))
+            return 0
+            ;;
+        rpush)
+            _known_hosts_real -c -a -- "$cur"
+            compopt -o nospace
+            return 0
+            ;;
+    esac
+
+    case "$cur" in
+        --clean=*)
+            COMPREPLY=($(compgen -W "${clean_opts[*]}" -- "${cur#*=}"))
+            return 0
+            ;;
+        --quilt=*)
+            COMPREPLY=($(compgen -W "${quilt_opts[*]}" -- "${cur#*=}"))
+            return 0
+            ;;
+        --split-view=*)
+            COMPREPLY=($(compgen -W "auto always never" -- "${cur#*=}"))
+            return 0
+            ;;
+        --build-products-dir=*)
+            COMPREPLY=($(compgen -o filenames -d -- "${cur#*=}"))
+            return 0
+            ;;
+        --upstream-commitish=*)
+            local version=$( (dpkg-parsechangelog -SVersion 2>/dev/null || true) | sed -e 's/-[^-]*$//' -e 's/^[0-9]*://')
+            local thesetags=$([ -n "$version" ] && git tag --list "$version" "v$version" "upstream/$version" 2>/dev/null || true)
+            local othertags=$( (git tag --list --sort version:refname '[0-9]*' 'v[0-9]*' 'upstream/[0-9]*' 2>/dev/null || true) | grep -v -F "$version")
+            COMPREPLY=($(compgen -W "$thesetags $othertags" -- "${cur#*=}"))
+            compopt -o nosort
+            return 0
+            ;;
+        --*=*)
+            COMPREPLY=()
+            return 0
+            ;;
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        _options="--dry-run --damp-run --no-sign --new --include-dirty"
+        _options+=" --overwrite --delayed= --save-dgit-view="
+        _options+=" --deliberately-not-fast-forward"
+        _options+=" --deliberately-include-questionable-history"
+        _options+=" --deliberately-fresh-repo"
+        _options+=" --distro= --split-view= --upstream-commitish="
+        _options+=" --rm-old-changes --build-products-dir="
+        _options+=" --package -p --dep14tag --no-rm-on-error -k"
+        _options+=" --clean ${clean_popular_opts[*]/#/--clean=}"
+        _options+=" ${standalone_quilt_opts[*]/#/--}"
+        _options+=" --quilt ${quilt_popular_opts[*]/#/--quilt=}"
+        _options+=" ${force_opts[*]/#/--force-}"
+        COMPREPLY=($(compgen -W "${_options}" -- "$cur"))
+        # tell bash to not put a space afrer options ending with =
+        # so that the user can type the argument directly after it
+        if [ ${#COMPREPLY[@]} = 1 ] && [[ "${COMPREPLY[0]}" == *= ]]
+        then
+            compopt -o nospace
+        fi
+    else
+        if [ -z "$special" ]
+        then
+            COMPREPLY=($(compgen -W "$subcommands" -- "$cur"))
+        else
+            # if nothing explicitly handled these commands above,
+            # just don’t autocomplete at all
+            COMPREPLY=()
+        fi
+    fi
+
+    return 0
+} &&
+complete -F _dgit dgit
+
+# ex: filetype=sh
