@@ -98,6 +98,10 @@ if [[ -s $HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh ]]; then
 fi
 ```
 
+## More documentation
+See the [API documentation!](docs/API.md)
+
+
 ## Troubleshooting
 
 If you find that a given function is producing errors or does not work
