@@ -286,8 +286,7 @@ _comp_xfunc_ssh_compgen_identityfile()
 {
     local cur=$cur tmp
     [[ ! $cur && -d ~/.ssh ]] && cur=~/.ssh/id
-    _comp_compgen -v tmp -c "$cur" filedir &&
-        _comp_compgen -U tmp -- -W '"${tmp[@]}"' -X "${1:+!}*.pub"
+    _comp_compgen -c "$cur" filedir -X "${1:+!}*.pub"
 }
 
 _comp_deprecate_func 2.12 _ssh_identityfile _comp_xfunc_ssh_compgen_identityfile
