@@ -2201,7 +2201,7 @@ _comp_compgen_services()
     _comp_sysvdirs || return 1
 
     local services
-    _comp_expand_glob services '${sysvdirs[0]}/!($_comp_backup_glob|functions|README)'
+    _comp_compgen -v services -C "${sysvdirs[0]}" -- -f -X "@($_comp_backup_glob|functions|README)"
 
     local _generated=$({
         systemctl list-units --full --all ||
@@ -2215,7 +2215,7 @@ _comp_compgen_services()
     fi
 
     ((${#services[@]})) || return 1
-    _comp_compgen -U services -U sysvdirs -- -W '"${services[@]#${sysvdirs[0]}/}"'
+    _comp_compgen -U services -U sysvdirs -- -W '"${services[@]}"'
 }
 
 # This completes on a list of all available service scripts for the
