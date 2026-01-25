@@ -55,10 +55,6 @@ _comp_cmd_curl()
             if [[ $cur == \@* ]]; then
                 _comp_compgen -P @ filedir
                 _comp_compgen -aP @ -- -W '-'
-                if [[ ${#COMPREPLY[@]} -eq 1 && -d ${COMPREPLY[0]#@} ]]; then
-                    COMPREPLY[0]+=/
-                    compopt -o nospace
-                fi
             fi
             return
             ;;

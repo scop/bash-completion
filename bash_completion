@@ -791,6 +791,8 @@ _comp_compgen__call_generator()
     local _comp_compgen__append=$_append
     local _comp_compgen__var=$_var
     local _comp_compgen__cur=$_cur cur=$_cur
+    local _comp_compgen__dir=$_dir
+    local _comp_compgen__prefix=$_prefix
     if [[ $_prefix ]]; then
         local -a tmp=()
         local _comp_compgen__var=tmp
@@ -1286,11 +1288,11 @@ _comp_quote_compgen()
 #           Ignored with `-d`.
 # OPTIONS
 #   -d      Complete only on directories
+
 #   -f      Perform `compopt -o filenames` modifications manually.  This
-#           suffixes a slash to a directory name.  This can be combined with
-#           the `-C dir` option to `_comp_compgen`, where the generated
-#           filenames do not exist in the current working directory and Bash
-#           fails to properly detect the filenames.
+#           suffixes a slash to a directory name.  When "-C <dir>" or "-P
+#           <prefix>" is specified to the caller "_comp_compgen", this option
+#           is automatically turned on.
 # @return 0 if at least one completion is generated, or 1 otherwise.
 #
 # @since 2.12
@@ -1300,6 +1302,19 @@ _comp_compgen_filedir()
 
     local -a toks
     local _dir="" _filenames=""
+    if [[ ${_comp_compgen__dir-} || ${_comp_compgen__prefix-} ]]; then
+        # When "-C <dir>" or "-P <prefix>" is specified, the working directory
+        # does not contain the generated candidates as filenames.  In the case
+        # of "-C <dir>", the generated filenames are located in the directory
+        # "<dir>" but not in the working directory.  In the case of "-P
+        # <prefix>", candidates have the form "<prefix><filename>".  In those
+        # cases, Bash fails to recognize the generated candidates to be
+        # filenames, and Bash does not adjust these as filenames.  We
+        # automatically detect such cases and modify the generated filenames as
+        # if the option "-f" is passed.
+        _filenames=set
+    fi
+
     local OPTIND=1 OPTARG="" OPTERR=0 _opt
     while getopts ":df" _opt "$@"; do
         case $_opt in

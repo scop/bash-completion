@@ -32,11 +32,11 @@ _comp_cmd_mount()
             return
             ;;
         -L)
-            _comp_compgen -C "/dev/disk/by-label/" filedir -f
+            _comp_compgen -C "/dev/disk/by-label/" filedir
             return
             ;;
         -U)
-            _comp_compgen -C "/dev/disk/by-uuid/" filedir -f
+            _comp_compgen -C "/dev/disk/by-uuid/" filedir
             return
             ;;
         -O | --test-opts)
