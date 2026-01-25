@@ -169,7 +169,6 @@ cross_platform = 2to3.bash \
 		inject.bash \
 		inotifywait.bash \
 		installpkg.bash \
-		interdiff.bash \
 		invoke-rc.d.bash \
 		ip.bash \
 		ipcalc.bash \
