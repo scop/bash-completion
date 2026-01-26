@@ -54,7 +54,7 @@ it), you can source the `$sysconfdir/profile.d/bash_completion.sh`
 script in `/etc/bashrc` or `~/.bashrc`.
 
 The `profile.d` script provides a configuration file hook that can be
-used to prevent loading `bash_completion` on per user basis when it's
+used to prevent loading `bash_completion` on a per user basis when it's
 installed system wide. To do this:
 
 1. Turn off programmable completion with `shopt -u progcomp` in
@@ -90,7 +90,7 @@ disappear.  It is strongly recommended to source `~/.bashrc` from
 For example, if you install `bash-completion` using Homebrew, it will install
 the entry point of `bash-completion` to
 `$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh`.  We can source it by
-adding the following to our startup file `~/.bashrc`:
+adding the following to your startup file `~/.bashrc`:
 
 ```bash
 if [[ -s $HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh ]]; then
@@ -155,9 +155,9 @@ A. Install a local completion of your own appropriately for the desired
 
 A. Put them in the `completions` subdir of `$BASH_COMPLETION_USER_DIR`
    (defaults to `$XDG_DATA_HOME/bash-completion` or
-    `~/.local/share/bash-completion`
-   if `$XDG_DATA_HOME` is not set) to have them loaded automatically
-   on demand when the respective command is being completed.
+   `~/.local/share/bash-completion` if `$XDG_DATA_HOME` is not set) to have
+   them loaded automatically on demand when the respective command is being
+   completed.
    See also the next question's answer for considerations for these
    files' names, they apply here as well. Alternatively, you can write
    them directly in `~/.bash_completion` which is loaded eagerly by
@@ -364,20 +364,13 @@ A. The `readline(3)` library offers a few settings that can make tab
    This turns off the use of the internal pager when returning long
    completion lists.
 
-**Q. Is bash the be-all-and-end-all of completion as far as shells go?**
-
-A. Absolutely not. zsh has an extremely sophisticated completion system
-   that offers many features absent from the bash implementation. Its
-   users often cannot resist pointing this out. More information can
-   be found at <https://www.zsh.org/>.
-
 **Q. What is the search order for the completion file of each target command?**
 
 A. The completion files of commands are looked up by the shell function
-  `__load_completion`.  Here, the search order in bash-completion >= 2.18 is
+  `_comp_load`.  Here, the search order in bash-completion >= 2.18 is
   explained.  We first list up the bash-completion directories:
 
-  1. `BASH_COMPLETION_USER_DIR`.  Each paths in `BASH_COMPLETION_USER_DIR`
+  1. `BASH_COMPLETION_USER_DIR`.  Each path in `BASH_COMPLETION_USER_DIR`
      separated by colons is considered for a completion directory.
   2. The location of the main `bash_completion` file. The directory
      containing `bash_completion` is considered.
@@ -385,15 +378,13 @@ A. The completion files of commands are looked up by the shell function
      is in the directory `<prefix>/bin` or `<prefix>/sbin`, the directory
      `<prefix>/share/bash-completion` is considered.
   4. `XDG_DATA_DIRS` (or the system directories `/usr/local/share:/usr/share`
-     if empty).  The subdirectory `bash-completion` of each paths
+     if empty).  The subdirectory `bash-completion` of each path
      in `XDG_DATA_DIRS` separated by colons is considered.
 
   The completion files of the name `<cmd>.bash` or `<cmd>`, where `<cmd>` is
   the name of the target command, are searched in the subdirectory
   `completions` in the above bash-completion directories in order.  The file
-  that is found first is used.  When no completion file is found in this step,
-  the completion files of the name `_<cmd>` is next searched in the
-  `completions` subdirectories in order.  When no completion file has not yet
-  been found in any `completions` directories, the completion files in the
-  subdirectory `completions-core` and `completions-fallback` at the location of
-  the main `bash_completion` file are searched in order.
+  that is found first is used.  If no completion file has been found in any
+  `completions` directories, the completion files in the subdirectory
+  `completions-core` and `completions-fallback` at the location of the main
+  `bash_completion` file are searched in order.
