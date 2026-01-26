@@ -374,7 +374,7 @@ A. Absolutely not. zsh has an extremely sophisticated completion system
 **Q. What is the search order for the completion file of each target command?**
 
 A. The completion files of commands are looked up by the shell function
-  `__load_completion`.  Here, the search order in bash-completion >= 2.18 is
+  `_comp_load`.  Here, the search order in bash-completion >= 2.18 is
   explained.  We first list up the bash-completion directories:
 
   1. `BASH_COMPLETION_USER_DIR`.  Each paths in `BASH_COMPLETION_USER_DIR`
