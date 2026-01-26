@@ -3583,6 +3583,30 @@ _comp__init_collect_startup_configs()
     local base_path=${1:-${BASH_SOURCE[1]}}
     _comp__init_startup_configs=()
 
+    # source startup files
+    local -a startup_dirs=()
+    startup_dirs+=("$_comp__base_directory/startup")
+    startup_dirs+=("$_comp__base_directory/startup-core")
+    local -A startup_visited=()
+    local startup_dir startup_files
+    for startup_dir in "${startup_dirs[@]}"; do
+        [[ -d $startup_dir && -r $startup_dir && -x $startup_dir ]] || continue
+        _comp_expand_glob startup_files "$startup_dir/*.bash" || continue
+        for startup_file in "${startup_files[@]}"; do
+            [[ ! -d $startup_file && -r $startup_file ]] || continue
+
+            # Disable the startup files with the same name as one of already
+            # selected startup files.  This allows users to override a startup
+            # file with another file with the same name placed in an earlier
+            # directory in "${startup_files[@]}".
+            local name=${startup_file##*/?([0-9][0-9][0-9]_)}
+            [[ ${startup_visited[$name]-} ]] && continue
+            startup_visited[$name]=set
+
+            _comp__init_startup_configs+=("$startup_file")
+        done
+    done
+
     # source compat completion directory definitions
     local -a compat_dirs=()
     local compat_dir
@@ -3604,15 +3628,25 @@ _comp__init_collect_startup_configs()
         [[ ${compat_dirs[0]} == "$compat_dir" ]] ||
             compat_dirs+=("$compat_dir")
     fi
+    local -A compat_visited=()
     for compat_dir in "${compat_dirs[@]}"; do
         [[ -d $compat_dir && -r $compat_dir && -x $compat_dir ]] || continue
         local compat_files
-        _comp_expand_glob compat_files '"$compat_dir"/*'
+        _comp_expand_glob compat_files '"$compat_dir"/*' || continue
         local compat_file
         for compat_file in "${compat_files[@]}"; do
             [[ ${compat_file##*/} != @($_comp_backup_glob|Makefile*|${BASH_COMPLETION_COMPAT_IGNORE-}) &&
-                -f $compat_file && -r $compat_file ]] &&
-                _comp__init_startup_configs+=("$compat_file")
+                -f $compat_file && -r $compat_file ]] || continue
+
+            # Disable the compat files with the same name as one of already
+            # selected ones.  This allows users to override a compat file with
+            # another file with the same name placed in an earlier directory in
+            # "${compat_dirs[@]}".
+            local name=${compat_file##*/}
+            [[ ${compat_visited[$name]-} ]] && continue
+            compat_visited[$name]=set
+
+            _comp__init_startup_configs+=("$compat_file")
         done
     done
 

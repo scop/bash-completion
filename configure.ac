@@ -40,6 +40,8 @@ completions-fallback/Makefile
 doc/Makefile
 helpers/Makefile
 helpers-core/Makefile
+startup/Makefile
+startup-core/Makefile
 test/Makefile
 test/t/Makefile
 test/t/unit/Makefile
