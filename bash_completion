@@ -3264,14 +3264,14 @@ _comp_compgen_filedir_xspec()
     # https://lists.gnu.org/archive/html/bug-bash/2010-09/msg00036.html
     # news://news.gmane.io/4C940E1C.1010304@case.edu
     eval xspec="${xspec}"
-    local matchop=!
     if [[ $xspec == !* ]]; then
         xspec=${xspec#!}
-        matchop=@
+        xspec="@(|!($xspec|${xspec^^}))"
+    else
+        xspec="@(|$xspec|${xspec^^})"
     fi
-    xspec="$matchop($xspec|${xspec^^})"
 
-    _comp_compgen -av toks -c "$quoted" -- -f -X "@(|!($xspec))"
+    _comp_compgen -av toks -c "$quoted" -- -f -X "$xspec"
 
     # Try without filter if it failed to produce anything and configured to
     [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-} && ${#toks[@]} -lt 1 ]] &&
