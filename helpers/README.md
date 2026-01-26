@@ -1,6 +1,6 @@
 # External helpers directory - bash-completion
 
-This directory `helpers` is the place to put *external* helper scripts.  i.e.,
+This directory `helpers` is the place to put _external_ helper scripts.  i.e.,
 ones not shipped with the bash-completion project.  They are used by external
 completion files in the `completions` directory, written for
 [bash-completion](https://github.com/scop/bash-completion).

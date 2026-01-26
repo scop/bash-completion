@@ -1,6 +1,6 @@
 # External completions directory - bash-completion
 
-This directory `completions` is the place to put *external* completion files,
+This directory `completions` is the place to put _external_ completion files,
 i.e., ones not shipped with the bash-completion project.  They are loaded by
 [bash-completion](https://github.com/scop/bash-completion) on demand.
 
