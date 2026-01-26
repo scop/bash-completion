@@ -391,9 +391,7 @@ A. The completion files of commands are looked up by the shell function
   The completion files of the name `<cmd>.bash` or `<cmd>`, where `<cmd>` is
   the name of the target command, are searched in the subdirectory
   `completions` in the above bash-completion directories in order.  The file
-  that is found first is used.  When no completion file is found in this step,
-  the completion files of the name `_<cmd>` is next searched in the
-  `completions` subdirectories in order.  When no completion file has not yet
-  been found in any `completions` directories, the completion files in the
-  subdirectory `completions-core` and `completions-fallback` at the location of
-  the main `bash_completion` file are searched in order.
+  that is found first is used.  If no completion file has been found in any
+  `completions` directories, the completion files in the subdirectory
+  `completions-core` and `completions-fallback` at the location of the main
+  `bash_completion` file are searched in order.
