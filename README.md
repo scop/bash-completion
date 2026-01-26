@@ -89,7 +89,7 @@ disappear.  It is strongly recommended to source `~/.bashrc` from
 
 For example, if you install `bash-completion` using Homebrew, it will install
 the entry point of `bash-completion` to
-`$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh`.  We can source it by
+`$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh`.  You can source it by
 adding the following to your startup file `~/.bashrc`:
 
 ```bash
