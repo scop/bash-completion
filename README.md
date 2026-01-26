@@ -364,13 +364,6 @@ A. The `readline(3)` library offers a few settings that can make tab
    This turns off the use of the internal pager when returning long
    completion lists.
 
-**Q. Is bash the be-all-and-end-all of completion as far as shells go?**
-
-A. Absolutely not. zsh has an extremely sophisticated completion system
-   that offers many features absent from the bash implementation. Its
-   users often cannot resist pointing this out. More information can
-   be found at <https://www.zsh.org/>.
-
 **Q. What is the search order for the completion file of each target command?**
 
 A. The completion files of commands are looked up by the shell function
