@@ -218,6 +218,7 @@ CLEANFILES = \
 	limactl.bash \
 	linkerd.bash \
 	mado.bash \
+	mago.bash \
 	mattermost.bash \
 	melange.bash \
 	metalctl.bash \
@@ -308,7 +309,7 @@ CLEANFILES = \
 
 symlinks: $(DATA)
 	$(ss) bombadil \
-		release-plz
+		mago release-plz
 	$(ss) cal \
 		ncal
 	$(ss) flamegraph \
