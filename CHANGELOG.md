@@ -100,6 +100,49 @@
 * **tar:** cache the parse result of GNU tar help ([247ba7b](https://github.com/scop/bash-completion/commit/247ba7bb794332a42920cae796a4a9deff5179b0))
 * **tar:** parse the GNU tar help on initialization ([b030e07](https://github.com/scop/bash-completion/commit/b030e07f1055dbc1e40b7d2f17ccd045802ff061))
 
+## [2.18.0](https://github.com/scop/bash-completion/compare/2.17.0...2.18.0) (2026-01-26)
+
+
+### Features
+
+* **aclocal,automake:** support versioned 1.17 executables ([94bbb3a](https://github.com/scop/bash-completion/commit/94bbb3a1b6fafeac96c27e1899dd5efc920a6a89))
+* **dive:** add 3rd party fallback completion loader ([f817cca](https://github.com/scop/bash-completion/commit/f817ccabe8db631b96d4b84784bb0109339eebae))
+* **pnpm:** add 3rd party fallback completion loader ([44804ae](https://github.com/scop/bash-completion/commit/44804ae89fd032af6058cd8307080aa759a0a73d))
+* **pydoc:** support versioned 3.13..15 executables ([bd60b26](https://github.com/scop/bash-completion/commit/bd60b26e6fb3c774c959ad3e7f8558485b60c405))
+* **python,pyvenv:** support versioned 3.14 and .15 executables ([72a2e47](https://github.com/scop/bash-completion/commit/72a2e479cfe743ab870bf479adb3a3c27eb7e64f))
+* **release-plz:** add 3rd party fallback completion loader ([c3c4066](https://github.com/scop/bash-completion/commit/c3c406674e92b4503b26202764de9da87fb3c41c))
+* **ssh-keygen:** -M arg completion ([b13bf99](https://github.com/scop/bash-completion/commit/b13bf99ac8f765fde880b464e41e1e64b1f1161d))
+* **ssh-keygen:** -Z argument completion ([c763d52](https://github.com/scop/bash-completion/commit/c763d52dfd8934c59e8fa7f8d95142444d08dc8e))
+* **ssh-keygen:** more option arg completions ([1303f8a](https://github.com/scop/bash-completion/commit/1303f8aba2f083d6d064225a1155fc23099f538d))
+* **ssh-keygen:** update -t arg completions ([4269a90](https://github.com/scop/bash-completion/commit/4269a90fa4d0920c330c90a679c18e8cafb19e7b))
+* **ssh-keygen:** update -Y arg completions ([a73bcaf](https://github.com/scop/bash-completion/commit/a73bcaf1e1ee366362d121534ce1cc8e6dece090))
+* **sudo-rs,sudo.ws:** alias to sudo ([084cc68](https://github.com/scop/bash-completion/commit/084cc684071fcd025eae650bdf09429a8d3eb33d))
+* **sudo:** more option argument (non-)completions ([379ec2d](https://github.com/scop/bash-completion/commit/379ec2d57c417ca49bfea3670e6fbb03e67a528f))
+* **sudo:** more option argument (non-)completions ([216135e](https://github.com/scop/bash-completion/commit/216135ecb10457f247e33a40aa3247915ab095cc))
+* **tmux:** complete src/target session arguments ([18b6da4](https://github.com/scop/bash-completion/commit/18b6da4f58e729ea82d8f9cc49dfd7fcfd692388))
+* **tmux:** complete target-session arguments ([ced59c3](https://github.com/scop/bash-completion/commit/ced59c38e9d01c200e6bcb706a8df497aed6ff90))
+* **waydroid:** add 3rd party fallback completion loader ([acc800f](https://github.com/scop/bash-completion/commit/acc800f023ab446775c4ab1db7c77db3d2fdc739))
+
+
+### Bug Fixes
+
+* **_comp_compgen:** clear the variable when no completions are generated ([c07bd66](https://github.com/scop/bash-completion/commit/c07bd661c41fc974163398ba868b22862fa8dd33))
+* **_comp_complete_service:** fix init-script-action parsing ([#1499](https://github.com/scop/bash-completion/issues/1499)) ([91e075a](https://github.com/scop/bash-completion/commit/91e075a96d39d0234ada752a63937f63ea186eb8))
+* **_comp_load:** deprecate unsuffixed "completions/&lt;cmd&gt;" w/o ".bash" ([06910da](https://github.com/scop/bash-completion/commit/06910dab1b18cf10f4807dea93091fd81ef6531e))
+* **_comp_load:** drop support for "_&lt;cmd&gt;" ([f245356](https://github.com/scop/bash-completion/commit/f245356d052dd506a27ae99a6d2f6b0c4fbea1ac))
+* **cd:** Complete from . on empty CDPATH entry ([#1527](https://github.com/scop/bash-completion/issues/1527)) ([6f1eba6](https://github.com/scop/bash-completion/commit/6f1eba638f775b5729fb445d2a11278f97d79f36))
+* **cd:** fix cdable_vars overwritten by another generator ([225b8ab](https://github.com/scop/bash-completion/commit/225b8ab422abd11bda70105a9a815791916d651a))
+* **cd:** fix cdable_vars overwritten by another generator ([24bd420](https://github.com/scop/bash-completion/commit/24bd420adf2c06beec0672cbeac590f105792331))
+* **cd:** work around bash-4.2 nounset ([45d1c93](https://github.com/scop/bash-completion/commit/45d1c93cd111ed5a1555b7319784dac13594380c))
+* **interdiff:** move to fallback for the upstream completion ([11987a4](https://github.com/scop/bash-completion/commit/11987a4de6ee7e4242e463336025bf7d0dde8609))
+* miscellaneous fixes after separation of directories ([c4a8fd0](https://github.com/scop/bash-completion/commit/c4a8fd00cf7ccfb87a211b6ed2db3dd250c407b3))
+
+
+### Performance Improvements
+
+* **_comp_compgen_filedir_xspec:** avoid double negation `!(!(...))` ([b24305d](https://github.com/scop/bash-completion/commit/b24305dfebccbb2bcba66f9838704187489eaa4e))
+* **filedir_xspec:** avoid double negation !(!(...)) in extglob ([c53259a](https://github.com/scop/bash-completion/commit/c53259ae58e545b0b7577e5d41a483f1f16c953c))
+
 ## [2.16.0](https://github.com/scop/bash-completion/compare/2.15.0...2.16.0) (2024-12-25)
 
 
