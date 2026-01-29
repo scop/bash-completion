@@ -7,7 +7,7 @@ _comp_cmd_invoke_rc_d()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
-    local sysvdir services options
+    local sysvdir options
 
     [[ -d /etc/rc.d/init.d ]] && sysvdir=/etc/rc.d/init.d ||
         sysvdir=/etc/init.d
@@ -22,8 +22,8 @@ _comp_cmd_invoke_rc_d()
                 command sed -ne "/$(command sed 's/ /\\|/g' <<<"${options[*]}")/p" |
                 sort | uniq -u
         )"
-        _comp_expand_glob services '"$sysvdir"/!(README*|*.sh|$_comp_backup_glob)' &&
-            _comp_compgen -a -- -W '"${services[@]#"$sysvdir"/}"'
+        # shellcheck disable=SC2154
+        _comp_compgen -aC "$sysvdir" -- -f -X "@(README*|*.sh|$_comp_backup_glob)"
     elif [[ -x $sysvdir/$prev ]]; then
         _comp_compgen_split -- "$(command sed -e 'y/|/ /' \
             -ne 's/^.*Usage:[ ]*[^ ]*[ ]*{*\([^}"]*\).*$/\1/p' \

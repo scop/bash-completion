@@ -2200,22 +2200,18 @@ _comp_compgen_services()
     local sysvdirs
     _comp_sysvdirs || return 1
 
-    local services
-    _comp_expand_glob services '${sysvdirs[0]}/!($_comp_backup_glob|functions|README)'
+    _comp_compgen -U sysvdirs -C "${sysvdirs[0]}" -- -f -X "@($_comp_backup_glob|functions|README)"
 
     local _generated=$({
         systemctl list-units --full --all ||
             systemctl list-unit-files
     } 2>/dev/null |
-        _comp_awk '$1 ~ /\.service$/ { sub("\\.service$", "", $1); print $1 }')
-    _comp_split -la services "$_generated"
+        _comp_awk 'sub(/\.service$/, "", $1) { print $1 }')
+    _comp_compgen -a split -l -- "$_generated"
 
     if [[ -x /sbin/upstart-udev-bridge ]]; then
-        _comp_split -la services "$(initctl list 2>/dev/null | cut -d' ' -f1)"
+        _comp_compgen -a split -l -- "$(initctl list 2>/dev/null | cut -d' ' -f1)"
     fi
-
-    ((${#services[@]})) || return 1
-    _comp_compgen -U services -U sysvdirs -- -W '"${services[@]#${sysvdirs[0]}/}"'
 }
 
 # This completes on a list of all available service scripts for the
