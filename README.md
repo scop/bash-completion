@@ -125,7 +125,7 @@ tracing on in it before doing anything else there.
 
 ## FAQ
 
-**Q. The bash completion code inhibits some commands from completing on
+**Q1. The bash completion code inhibits some commands from completing on
    files with extensions that are legitimate in my environment. Do I
    have to disable completion for that command in order to complete on
    the files that I need to?**
@@ -136,47 +136,85 @@ A. No. If needed just once in a while,
    circumvent any file type restrictions put in place by the bash
    completion code. If needed more regularly, see the next question:
 
-**Q. How can I override a completion shipped by bash-completion?**
+**Q2. How can I override a completion shipped by bash-completion or install a
+   new completion for a user account?**
 
-A. Install a local completion of your own appropriately for the desired
-   command, and it will take precedence over the one shipped by us. See the
-   next answer for details where to install it, if you are doing it on per user
-   basis. If you want to do it system wide, you can install eagerly loaded
-   files in `<startupdir>`, whose value in the current system can be retrieved
-   by `pkg-config bash-completion --variable=startupdir`, and install a
-   completion for the commands to override our completion for in them.
+A. To override a completion for a specific command, you can simply install your
+   own completion file for the command into an appropriate place.  It will take
+   precedence over the one shipped by us or the one installed systemwide.  To
+   install a completion on per user basis, put the completion file at
+   `<userdir>/completions/<cmd>.bash`, where `<cmd>` is the command name and
+   `<userdir>` is one of the user directories.  The user directories are
+   specified by the colon-separated `$BASH_COMPLETION_USER_DIR` (defaults to
+   `$XDG_DATA_HOME/bash-completion` or `~/.local/share/bash-completion` if
+   `$XDG_DATA_HOME` is not set).  They will be loaded automatically on demand
+   when the respective command is being completed.
 
-   If you want to use bash's default completion instead of one of ours,
-   something like this should work (where `$cmd` is the command to override
-   completion for): `complete -o default -o bashdefault $cmd`
+   > [!NOTE]
+   > See also the answer to Q4 for considerations for those files' names, they
+   > apply here as well.
 
-**Q. Where should I install my own local completions?**
+   Completion settings that should be loaded on initialization of
+   bash-completion should be defined in a startup completion file.  A startup
+   completion file can be added in the directory `<userdir>/startup` (see the
+   previous paragraph for `<userdir>`).  A prefix of the form
+   `[0-9][0-9][0-9]_` may be prepended to the filename of the startup files to
+   control the loading order.  To override a existing startup file installed
+   systemwide or shipped by us, you can put your own version with the same
+   filename in `<userdir>/startup`.  In identifying the overridden startup
+   file, the prefixes `[0-9][0-9][0-9]_` are ignored.  If you want to disable a
+   startup completion file, you can put an empty file.
 
-A. Put them in the `completions` subdir of `$BASH_COMPLETION_USER_DIR`
-   (defaults to `$XDG_DATA_HOME/bash-completion` or
-   `~/.local/share/bash-completion` if `$XDG_DATA_HOME` is not set) to have
-   them loaded automatically on demand when the respective command is being
-   completed.
-   See also the next question's answer for considerations for these
-   files' names, they apply here as well. Alternatively, you can write
-   them directly in `~/.bash_completion` which is loaded eagerly by
-   our main script.
+   You can also define eagerly loaded settings in the user file
+   (`${BASH_COMPLETION_USER_FILE:-$HOME/.bash_completion}`).  Instead of
+   preparing separate files for specific commands, you may write completion
+   settings for specific commands directly in the user file.  When you want to
+   modify the default completion setting set by `complete -D` (which is
+   available in Bash >= 4.1), you can override it in the user file or in a user
+   startup file.  If you want to use bash's default completion instead of one
+   of ours, in the user file or in a user startup script, you can define
+   something like this:
 
-**Q. I author/maintain package X and would like to maintain my own
-   completion code for this package. Where should I put it to be sure
-   that interactive bash shells will find it and source it?**
+   ```bash
+   complete -o default -o bashdefault $cmd
+   ```
 
-A. [ Disclaimer: Here, how to make the completion code visible to
-   bash-completion is explained.  We do not require always making the
-   completion code visible to bash-completion.  In what condition the
-   completion code is installed should be determined at the author/maintainers'
-   own discretion. ]
+   where `$cmd` is the command to override completion for.
+
+**Q3. How can I override a completion shipped by bash-completion systemwide?**
+
+A. Install a local completion appropriately for the desired command, and it
+   will take precedence over the one shipped by us.
+
+   A completion file for a specific command `<cmd>` can be placed at
+   `<localdir>/completions/<cmd>.bash`, where `<localdir>` is
+   `/usr/local/share/bash-completion` if `XDG_DATA_DIRS` is not defined, or
+   `<datadir>/bash-completion` where `<datadir>` is one of the directories
+   listed in `XDG_DATA_DIRS`.
+
+   > [!NOTE]
+   > See also the answer to Q4 for considerations for those files' names, they
+   > apply here as well.
+
+   Similarly, systemwide startup files can be placed in the directory
+   `<localdir>/startup`.
+
+**Q4. I author/maintain a distribution package and would like to maintain my
+   own completion code for this package. Where should I put it to be sure that
+   interactive bash shells will find it and source it?**
+
+A. > [!NOTE]
+   > Here, how to make the completion code visible to bash-completion is
+   > explained.  We do not require always making the completion code visible to
+   > bash-completion.  In what condition the completion code is installed
+   > should be determined at the author/maintainers' own discretion.
 
    Install it in one of the directories pointed to by bash-completion's
-   `pkgconfig` file variables. There are two alternatives:
+   `pkgconfig` file variables.
 
-   - The recommended directory is `<completionsdir>`, which you can get with
-     `pkg-config --variable=completionsdir bash-completion`. From this
+   - The recommended directory for the completions of specific commands is
+     `<completionsdir>`, which you can get with
+     `pkg-config --variable=completionsdir bash-completion`.  From this
      directory, completions are automatically loaded on demand based on invoked
      commands' names, so be sure to name your completion file accordingly, and
      to include (for example) symbolic links in case the file provides
@@ -188,6 +226,11 @@ A. [ Disclaimer: Here, how to make the completion code visible to
      --variable=helpersdir bash-completion`.  The completion files in
      `<completionsdir>` can reference the helper script `<helpersdir>/<helper>`
      as `${BASH_SOURCE[0]%/*}/../helpers/<helper>`.
+   - The directory for startup files is `<startupdir>`, whose value in the
+     current system can be retrieved by
+     `pkg-config bash-completion --variable=startupdir`.  A typical value is
+     `/usr/share/bash-completion/startup`.  Typically, the startup file can be
+     used to override the `complete -D` settings set by bash-completion.
    - The other directory, which is only present for backwards compatibility and
      is not recommended to use, is `<compatdir>` (get it with
      `pkg-config --variable=compatdir bash-completion`).  From this
@@ -234,8 +277,7 @@ A. [ Disclaimer: Here, how to make the completion code visible to
    bash-completion is 2.12 or higher, the completion script can actually be
    installed to `$PREFIX/share/bash-completion/completions/` under the same
    installation prefix as the target program installed under `$PREFIX/bin/` or
-   `$PREFIX/sbin/`.  For the detailed search order, see also "Q. What is the
-   search order for the completion file of each target command?" below.
+   `$PREFIX/sbin/`.  For the detailed search order, see also Q10 below.
 
    Example for `Makefile.am`:
 
@@ -250,7 +292,7 @@ A. [ Disclaimer: Here, how to make the completion code visible to
    install(FILES your-completion-file DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/bash-completion/completions")
    ```
 
-**Q. When completing on a symlink to a directory, bash does not append
+**Q5. When completing on a symlink to a directory, bash does not append
    the trailing `/` and I have to hit <kbd>&lt;Tab></kbd> again.
    I don't like this.**
 
@@ -263,7 +305,7 @@ A. This has nothing to do with `bash_completion`. It's the default for
    mark-symlinked-directories on` in your `/etc/inputrc` or
    `~/.inputrc` file.
 
-**Q. Completion goes awry when I try to complete on something that contains
+**Q6. Completion goes awry when I try to complete on something that contains
    a colon.**
 
 A. This is actually a 'feature' of bash. bash recognises a colon as
@@ -291,7 +333,7 @@ A. This is actually a 'feature' of bash. bash recognises a colon as
    Unfortunately, there's no way to turn this off. The only thing you
    can do is escape the colons with a backslash.
 
-**Q. Why is `rpm` completion so slow with `-q`?**
+**Q7. Why is `rpm` completion so slow with `-q`?**
 
 A. Probably because the database is being queried every time and this uses a
    lot of memory.
@@ -314,7 +356,7 @@ A. Probably because the database is being queried every time and this uses a
    unless it detects that the database has changed since the file was created,
    in which case it will still use the database to ensure accuracy.
 
-**Q. bash-completion interferes with my `command_not_found_handle` function
+**Q8. bash-completion interferes with my `command_not_found_handle` function
    (or the other way around)!**
 
 A. If your `command_not_found_handle` function is not intended to address
@@ -334,7 +376,7 @@ A. If your `command_not_found_handle` function is not intended to address
    > context. It is safer to test `COMP_POINT` as one does not need to care
    > about the differences between the set and non-empty states of variables.
 
-**Q. Can tab completion be made even easier?**
+**Q9. Can tab completion be made even easier?**
 
 A. The `readline(3)` library offers a few settings that can make tab
    completion easier (or at least different) to use.
@@ -363,7 +405,8 @@ A. The `readline(3)` library offers a few settings that can make tab
    This turns off the use of the internal pager when returning long
    completion lists.
 
-**Q. What is the search order for the completion file of each target command?**
+**Q10. What is the search order for the completion file of each target
+   command?**
 
 A. The completion files of commands are looked up by the shell function
   `_comp_load`.  Here, the search order in bash-completion >= 2.18 is
