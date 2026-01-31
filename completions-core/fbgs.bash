@@ -12,7 +12,7 @@ _comp_cmd_fbgs()
             ;;
         -m | --mode)
             _comp_compgen_split -- "$(command sed \
-                -n '/^mode/{s/^mode \{1,\}"\([^"]\{1,\}\)"/\1/g;p}' \
+                -n '/^mode/{s/^mode \{1,\}"\([^"]\{1,\}\)"/\1/g;p;}' \
                 /etc/fb.modes 2>/dev/null)"
             return
             ;;
