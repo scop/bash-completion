@@ -33,6 +33,13 @@ gitgrep "$cmdstart"'sed\b.*\\[?+]' \
 gitgrep "$cmdstart"'sed\b.*\\\|' \
     "sed with \|, use POSIX BRE (possibly multiple sed invocations) or another tool instead"
 
+gitgrep '(?:'"$cmdstart"'(?:sed|awk|grep)\b| =~ ).*\\[<>]' \
+    "\< or \> in regular expressions. Anchors \< and \> are not defined by POSIX.  No POSIX alternatives."
+
+# Note: awk defines \b to be an escape sequence for <backspace>
+gitgrep '(?:'"$cmdstart"'(?:sed|grep)\b| =~ ).*\\b' \
+    "\b in regular expressions. Anchor \b is not defined by POSIX.  No POSIX alternatives."
+
 # TODO: really nonportable? appears to work fine in Linux, FreeBSD, Solaris
 #gitgrep $cmdstart'sed\b.*;' \
 #    'sed with ;, use multiple -e options instead (POSIX?) (false positives?)'
