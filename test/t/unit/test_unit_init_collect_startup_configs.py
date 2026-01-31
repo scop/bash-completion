@@ -14,11 +14,11 @@ class TestUnitInitCollectStartupConfigs:
     @pytest.mark.parametrize(
         "module,expected",
         [
-            ("foo", "user:1"),
-            ("bar", "user:2"),
-            ("baz", "user:3"),
-            ("qux", "user:4"),
-            ("quux", "host:5"),
+            ("quux", "host:1"),
+            ("foo", "user:2"),
+            ("bar", "user:3"),
+            ("baz", "user:4"),
+            ("qux", "user:5"),
         ],
     )
     def test_order(self, bash, module, expected):
