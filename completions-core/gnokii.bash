@@ -219,9 +219,11 @@ _comp_cmd_gnokii()
     _comp_compgen -Rv all_cmd help -- --help all
 
     # these 2 below are allowed in combination with others
+    # Note: POSIX.1-2024 started to recommend using two backslashes \\ in
+    # bracket expressions [...] in POSIX sed for the future compatibility.
     local main_cmd
     _comp_split -l main_cmd "$(printf '%s\n' "${all_cmd[@]}" |
-        command sed -e '/--config/d;/--phone/d;s/[][\(){}|^$*+?.]/\\&/g')"
+        command sed -e '/--config/d;/--phone/d;s/[][\\(){}|^$*+?.]/\\&/g')"
     # don't provide main command completions if one is
     # already on the command line
     local IFS='|'
