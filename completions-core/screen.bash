@@ -4,7 +4,7 @@ _comp_cmd_screen__sessions()
 {
     local -a sessions
     _comp_split sessions "$(command screen -ls | command sed -ne \
-        's|^\t\{1,\}\([0-9]\{1,\}\.[^\t]\{1,\}\).*'"$1"'.*$|\1|p')" || return
+        's|^'$'\t''\{1,\}\([0-9]\{1,\}\.[^'$'\t'']\{1,\}\).*'"$1"'.*$|\1|p')" || return
     if [[ $cur == +([0-9])?(.*) ]]; then
         # Complete sessions including pid prefixes
         _comp_compgen -- -W '"${sessions[@]}"'

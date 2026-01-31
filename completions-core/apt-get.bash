@@ -81,8 +81,8 @@ _comp_cmd_apt_get()
             local pathcmd
             pathcmd=$(type -P -- "$1") && local PATH=${pathcmd%/*}:$PATH
             _comp_compgen_split -- "$(apt-cache policy | command sed -ne '
-                s/^ *release.*[ ,]o=Debian,a=\(\w*\).*/\1/p
-                s/^ *release.*[ ,]o=Ubuntu,a=\(\w*\).*/\1/p
+                s/^ *release.*[ ,]o=Debian,a=\([[:alnum:]]*\).*/\1/p
+                s/^ *release.*[ ,]o=Ubuntu,a=\([[:alnum:]]*\).*/\1/p
             ')"
             return
             ;;

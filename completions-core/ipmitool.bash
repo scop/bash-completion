@@ -3,7 +3,7 @@
 _comp_cmd_ipmitool__singleline_help()
 {
     _comp_compgen_split -- "$("$1" "$2" 2>&1 |
-        command sed -ne 's/[,\r]//g' -e 's/^.*[Cc]ommands://p')"
+        command sed -ne $'s/[,\r]//g' -e 's/^.*[Cc]ommands://p')"
 }
 
 _comp_cmd_ipmitool()
