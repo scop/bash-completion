@@ -7,7 +7,7 @@ _comp_cmd_inotifywait__events()
     # wrapped explanations.
     _comp_compgen -a split -- "$("$1" --help 2>/dev/null |
         command sed -e '/^Events:/,/^[^'$'\t'']/!d' \
-            -ne 's/^'$'\t''\([^ '$'\t'']\{1,\}\)[ '$'\t''].*/\1/p')"
+            -ne 's/^'$'\t''\([^[:blank:]]\{1,\}\)[[:blank:]].*/\1/p')"
 }
 
 _comp_cmd_inotifywait()
