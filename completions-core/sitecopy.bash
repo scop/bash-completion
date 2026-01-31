@@ -43,8 +43,7 @@ _comp_cmd_sitecopy()
     esac
 
     if [[ -r ~/.sitecopyrc ]]; then
-        _comp_compgen_split -- "$("$1" -v |
-            command sed -n '/^Site:/s/Site: //p')"
+        _comp_compgen_split -- "$("$1" -v | command sed -n 's/^Site: //p')"
     fi
 } &&
     complete -F _comp_cmd_sitecopy -o default sitecopy
