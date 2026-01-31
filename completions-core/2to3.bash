@@ -11,7 +11,7 @@ _comp_cmd_2to3()
             ;;
         -f | --fix | -x | --nofix)
             _comp_compgen_split -- "$(
-                "$1" --list-fixes 2>/dev/null | command sed -e 1d
+                "$1" --list-fixes 2>/dev/null | tail -n +2
             )"
             return
             ;;
