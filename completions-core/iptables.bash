@@ -25,19 +25,21 @@ _comp_cmd_iptables()
         -j)
             if [[ $table == "filter" || ! $table ]]; then
                 _comp_compgen -- -W '$targets'
-                _comp_compgen -a split -- "$("$1" ${table:+-t "$table"} -nL \
-                    2>/dev/null | command sed -ne "$chain" \
-                    -e 's/INPUT//;s/OUTPUT//;s/FORWARD//;s/PREROUTING//;s/POSTROUTING//')"
+                _comp_compgen -a split \
+                    -X '@(INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING)' \
+                    -- "$("$1" ${table:+-t "$table"} -nL 2>/dev/null |
+                        command sed -ne "$chain")"
             elif [[ $table == "nat" ]]; then
                 _comp_compgen -- -W '$targets MIRROR SNAT DNAT MASQUERADE'
-                _comp_compgen -a split -- "$("$1" -t "$table" -nL 2>/dev/null |
-                    command sed -ne "$chain" \
-                        -e 's/OUTPUT//;s/PREROUTING//;s/POSTROUTING//')"
+                _comp_compgen -a split -X '@(OUTPUT|PREROUTING|POSTROUTING)' \
+                    -- "$("$1" -t "$table" -nL 2>/dev/null |
+                        command sed -ne "$chain")"
             elif [[ $table == "mangle" ]]; then
                 _comp_compgen -- -W '$targets MARK TOS'
-                _comp_compgen -a split -- "$("$1" -t "$table" -nL 2>/dev/null |
-                    command sed -ne "$chain" \
-                        -e 's/INPUT//;s/OUTPUT//;s/FORWARD//;s/PREROUTING//;s/POSTROUTING//')"
+                _comp_compgen -a split \
+                    -X '@(INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING)' \
+                    -- "$("$1" -t "$table" -nL 2>/dev/null |
+                        command sed -ne "$chain")"
             fi
             ;;
         *)
