@@ -29,11 +29,11 @@ _comp_cmd_ebtables()
                 _comp_compgen -- -W '$targets'
                 _comp_compgen -a split -- "$("$1" ${table:+-t "$table"} -L \
                     2>/dev/null | command sed -n -e \
-                    "s/INPUT\|OUTPUT\|FORWARD//" -e "$chain")"
+                    "s/INPUT//;s/OUTPUT//;s/FORWARD//" -e "$chain")"
             elif [[ $table == "nat" ]]; then
                 _comp_compgen -- -W '$targets'
                 _comp_compgen -a split -- "$("$1" -t "$table" -L 2>/dev/null |
-                    command sed -n -e "s/OUTPUT|PREROUTING|POSTROUTING//" \
+                    command sed -n -e "s/OUTPUT//;s/PREROUTING//;s/POSTROUTING//" \
                         -e "$chain")"
             elif [[ $table == "broute" ]]; then
                 _comp_compgen -- -W 'ACCEPT DROP'

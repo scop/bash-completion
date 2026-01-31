@@ -27,17 +27,17 @@ _comp_cmd_iptables()
                 _comp_compgen -- -W '$targets'
                 _comp_compgen -a split -- "$("$1" ${table:+-t "$table"} -nL \
                     2>/dev/null | command sed -ne "$chain" \
-                    -e 's/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//')"
+                    -e 's/INPUT//;s/OUTPUT//;s/FORWARD//;s/PREROUTING//;s/POSTROUTING//')"
             elif [[ $table == "nat" ]]; then
                 _comp_compgen -- -W '$targets MIRROR SNAT DNAT MASQUERADE'
                 _comp_compgen -a split -- "$("$1" -t "$table" -nL 2>/dev/null |
                     command sed -ne "$chain" \
-                        -e 's/OUTPUT|PREROUTING|POSTROUTING//')"
+                        -e 's/OUTPUT//;s/PREROUTING//;s/POSTROUTING//')"
             elif [[ $table == "mangle" ]]; then
                 _comp_compgen -- -W '$targets MARK TOS'
                 _comp_compgen -a split -- "$("$1" -t "$table" -nL 2>/dev/null |
                     command sed -ne "$chain" \
-                        -e 's/INPUT|OUTPUT|FORWARD|PREROUTING|POSTROUTING//')"
+                        -e 's/INPUT//;s/OUTPUT//;s/FORWARD//;s/PREROUTING//;s/POSTROUTING//')"
             fi
             ;;
         *)
