@@ -33,7 +33,7 @@ _comp_cmd_cfrun()
                 done
                 [[ ! -f $hostfile ]] && return
 
-                _comp_compgen_split -- "$(command grep -v -E '(=|^$|^#)' \
+                _comp_compgen_split -- "$(command grep -v -E '=|^$|^#' \
                     "$hostfile")"
             fi
             ;;
