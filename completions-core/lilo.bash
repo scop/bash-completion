@@ -3,7 +3,7 @@
 _comp_cmd_lilo__labels()
 {
     _comp_compgen_split -- "$(_comp_awk -F = '$1 ~ /^[ \t]*label$/ {print $2}' \
-        "${1:-/etc/lilo.conf}" 2>/dev/null | command sed -e 's/\"//g')"
+        "${1:-/etc/lilo.conf}" 2>/dev/null | command sed -e 's/"//g')"
 }
 
 _comp_cmd_lilo()
