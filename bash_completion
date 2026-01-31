@@ -3596,10 +3596,14 @@ _comp__init_collect_startup_configs()
 
     # collect startup files
     local -A startup_visited=()
-    local startup_dir startup_files
     for startup_dir in "${startup_dirs[@]}"; do
         [[ -d $startup_dir && -r $startup_dir && -x $startup_dir ]] || continue
+
+        local -a startup_files=()
         _comp_expand_glob startup_files "$startup_dir/*.bash" || continue
+
+        local -a selected_startup_files=()
+        local startup_dir
         for startup_file in "${startup_files[@]}"; do
             [[ ! -d $startup_file && -r $startup_file ]] || continue
 
@@ -3611,8 +3615,26 @@ _comp__init_collect_startup_configs()
             [[ ${startup_visited[$name]-} ]] && continue
             startup_visited[$name]=set
 
-            _comp__init_startup_configs+=("$startup_file")
+            selected_startup_files+=("$startup_file")
         done
+        ((${#selected_startup_files[@]})) || continue
+
+        # Note: bash < 4.4 has a bug that all elements are connected with
+        # ${a[@]+"${a[@]}"} when IFS does not contain whitespace.
+        local IFS=$' \t\n'
+        # Prepend the selected startup files because we want to source the
+        # system startup files earlier.
+        _comp__init_startup_configs=(
+            "${selected_startup_files[@]}"
+
+            # Note: bash < 4.3 has a bug that "${a[@]}" fails for "set -u" when
+            # an array "a" exists but has no elements.  We use
+            # ${a[@]+"${a[@]}"} as a workaround.  Similar patterns are also
+            # used in completions/*.bash, 000_bash_completion_compat.bash, and
+            # test_unit_compgen.py.  They need to be updated when the minimum
+            # required Bash version is lifted up.
+            ${_comp__init_startup_configs[@]+"${_comp__init_startup_configs[@]}"}
+        )
     done
 
     # collect compat completion directory definitions
