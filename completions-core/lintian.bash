@@ -2,7 +2,7 @@
 
 _comp_cmd_lintian__tags()
 {
-    local search tags check_files
+    local search item tags check_files
     _comp_expand_glob check_files '/usr/share/lintian/checks/*.desc' || return 0
 
     tags=$(_comp_awk '/^Tag/ { print $2 }' "${check_files[@]}")
@@ -20,7 +20,7 @@ _comp_cmd_lintian__tags()
 
 _comp_cmd_lintian__checks()
 {
-    local match search todisable checks check_files
+    local match search item name todisable checks check_files
     _comp_expand_glob check_files '/usr/share/lintian/checks/*.desc' || return 0
 
     checks=$(_comp_awk '/^(Check-Script|Abbrev)/ { print $2 }' \
@@ -44,7 +44,7 @@ _comp_cmd_lintian__checks()
 
 _comp_cmd_lintian__infos()
 {
-    local search infos collection_files
+    local search item infos collection_files
     _comp_expand_glob collection_files '/usr/share/lintian/collection/*.desc' || return 0
 
     infos=$(_comp_awk '/^Collector/ { print $2 }' \
