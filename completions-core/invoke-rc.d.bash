@@ -17,9 +17,12 @@ _comp_cmd_invoke_rc_d()
 
     if [[ $cword -eq 1 || $prev == --* ]]; then
         # generate valid_options
+        local IFS='|'
+        local regex_options="${options[*]}"
+        IFS=$' \t\n'
         _comp_compgen_split -- "$(
             tr " " "\n" <<<"${words[*]} ${options[*]}" |
-                command sed -ne "/$(command sed 's/ /\\|/g' <<<"${options[*]}")/p" |
+                command grep -E -e "$regex_options" |
                 sort | uniq -u
         )"
         _comp_expand_glob services '"$sysvdir"/!(README*|*.sh|$_comp_backup_glob)' &&

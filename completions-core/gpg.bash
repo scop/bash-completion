@@ -37,7 +37,7 @@ _comp_cmd_gpg()
                 command sed -ne 's@^.*<\([^>]*\)>.*$@\1@p')"
             if [[ -e ~/.gnupg/gpg.conf ]]; then
                 _comp_compgen -a split -- "$(command sed -ne \
-                    's@^[ \t]*group[ \t][ \t]*\([^=]*\).*$@\1@p' \
+                    's@^[[:blank:]]*group[[:blank:]][[:blank:]]*\([^=]*\).*$@\1@p' \
                     ~/.gnupg/gpg.conf)"
             fi
             return

@@ -267,9 +267,9 @@ _comp_cmd_mplayer()
     case $cur in
         -*)
             _comp_compgen_split -- "$("$cmd" -noconfig all -list-options 2>/dev/null |
-                command sed -ne "1,/^[[:space:]]*Name/d" \
-                    -e "s/^[[:space:]]*/-/" -e "s/[[:space:]:].*//" \
-                    -e "/^-\(Total\|.*\*\)\{0,1\}$/!p")"
+                command sed -e '1,/^[[:space:]]*Name/d' \
+                    -e 's/^[[:space:]]*/-/' -e 's/[[:space:]:].*//' \
+                    -e '/^-\(.*\*\)\{0,1\}$/d;/^-Total$/d')"
             ;;
         *)
             _comp_compgen_filedir '@(m?(j)p?(e)g|M?(J)P?(E)G|wm[av]|WM[AV]|avi|AVI|asf|ASF|vob|VOB|bin|BIN|dat|DAT|vcd|VCD|ps|PS|pes|PES|fl[iv]|FL[IV]|fxm|FXM|viv|VIV|rm?(j)|RM?(J)|ra?(m)|RA?(M)|yuv|YUV|mov|MOV|qt|QT|mp[234]|MP[234]|m?(p)4[av]|M?(P)4[AV]|og[gmavx]|OG[GMAVX]|w?(a)v|W?(A)V|dump|DUMP|mk[av]|MK[AV]|aac|AAC|m2v|M2V|dv|DV|rmvb|RMVB|mid|MID|t[ps]|T[PS]|3g[p2]|3gpp?(2)|mpc|MPC|flac|FLAC|vro|VRO|divx|DIVX|aif?(f)|AIF?(F)|m2t?(s)|M2T?(S)|mts|MTS|vdr|VDR|xvid|XVID|ape|APE|gif|GIF|nut|NUT|bik|BIK|web[am]|WEB[AM]|amr|AMR|awb|AWB|iso|ISO|opus|OPUS|m[eo]d|M[EO]D|xm|XM|it|IT|s[t3]m|S[T3]M|mtm|MTM|w64|W64)?(.@(crdownload|part))'

@@ -3,7 +3,7 @@
 _comp_cmd_shellcheck__optarg()
 {
     local args=$("$1" --help 2>&1 |
-        command sed -e 's/,/ /g' -ne 's/^.*'"$2"'\>.*(\([^)]*\)).*/\1/p')
+        command sed -e 's/,/ /g' -ne 's/^.*'"$2"'\([^[:alnum:]].*\)\{0,1\}(\([^)]*\)).*/\2/p')
     _comp_compgen -a -- -W '$args'
 }
 

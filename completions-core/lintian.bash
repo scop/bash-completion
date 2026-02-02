@@ -2,16 +2,12 @@
 
 _comp_cmd_lintian__tags()
 {
-    local search tags check_files
+    local tags check_files
     _comp_expand_glob check_files '/usr/share/lintian/checks/*.desc' || return 0
 
     tags=$(_comp_awk '/^Tag/ { print $2 }' "${check_files[@]}")
     if [[ $cur == *, ]]; then
-        search=${cur//,/ }
-        for item in $search; do
-            tags=$(command sed -e "s/\<$item\>//g" <<<"$tags")
-        done
-        _comp_compgen -aR -- -W "$tags"
+        _comp_compgen -aR -- -W "$tags" -X "@(${cur//,/|})"
     else
         [[ $cur == ^.*, ]]
         _comp_compgen -aP "${BASH_REMATCH-}" -- -W "$tags"
@@ -20,22 +16,24 @@ _comp_cmd_lintian__tags()
 
 _comp_cmd_lintian__checks()
 {
-    local match search todisable checks check_files
+    local match search item todisable checks check_files
     _comp_expand_glob check_files '/usr/share/lintian/checks/*.desc' || return 0
 
     checks=$(_comp_awk '/^(Check-Script|Abbrev)/ { print $2 }' \
         "${check_files[@]}")
     if [[ $cur == *, ]]; then
         search=${cur//,/ }
+        todisable=""
         for item in $search; do
             match=$(command grep -nE "^(Check-Script|Abbrev): $item$" \
                 "${check_files[@]}" | cut -d: -f1)
-            todisable=$(_comp_awk '/^(Check-Script|Abbrev)/ { print $2 }' "$match")
-            for name in $todisable; do
-                checks=$(command sed -e "s/\<$name\>//g" <<<"$checks")
-            done
+            todisable+=$'\n'$(_comp_awk '/^(Check-Script|Abbrev)/ { print $2 }' "$match")
         done
-        _comp_compgen -aR -- -W "$checks"
+        _comp_split todisable -- "$todisable"
+        local IFS='|'
+        todisable="@(${todisable[*]})"
+        _comp_unlocal IFS
+        _comp_compgen -aR -- -W "$checks" -X "$todisable"
     else
         [[ $cur == ^.*, ]]
         _comp_compgen -aP "${BASH_REMATCH-}" -- -W "$checks"
@@ -44,17 +42,13 @@ _comp_cmd_lintian__checks()
 
 _comp_cmd_lintian__infos()
 {
-    local search infos collection_files
+    local infos collection_files
     _comp_expand_glob collection_files '/usr/share/lintian/collection/*.desc' || return 0
 
     infos=$(_comp_awk '/^Collector/ { print $2 }' \
         "${collection_files[@]}")
     if [[ $cur == *, ]]; then
-        search=${cur//,/ }
-        for item in $search; do
-            infos=$(command sed -e "s/\<$item\>//g" <<<"$infos")
-        done
-        _comp_compgen -aR -- -W "$infos"
+        _comp_compgen -aR -- -W "$infos" -X "@(${cur//,/|})"
     else
         [[ $cur == ^.*, ]]
         _comp_compgen -aP "${BASH_REAMTCH-}" -- -W "$infos"
