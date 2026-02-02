@@ -2194,28 +2194,35 @@ _comp_compgen_xinetd_services()
 
 # This function completes on services
 #
+# @return 0 if at least one completion is generated, or 1 otherwise.
 # @since 2.12
 _comp_compgen_services()
 {
     local sysvdirs
     _comp_sysvdirs || return 1
 
-    local services
-    _comp_expand_glob services '${sysvdirs[0]}/!($_comp_backup_glob|functions|README)'
+    local status=1
+    _comp_compgen -U sysvdirs -C "${sysvdirs[0]}" -- -f -X "@($_comp_backup_glob|functions|README)" &&
+        status=0
 
     local _generated=$({
         systemctl list-units --full --all ||
             systemctl list-unit-files
-    } 2>/dev/null |
-        _comp_awk '$1 ~ /\.service$/ { sub("\\.service$", "", $1); print $1 }')
-    _comp_split -la services "$_generated"
+    } 2>/dev/null | _comp_awk '
+        # Example output from systemctl:
+        #   httpd.service       loaded    active   running  The Apache HTTP Server
+        # * iptables.service    not-found inactive dead     iptables.service
+        sub(/\.service$/, "", $1) { print $1; next }
+        sub(/\.service$/, "", $2) { print $2 }
+    ')
+    _comp_compgen -a split -l -- "$_generated" && status=0
 
     if [[ -x /sbin/upstart-udev-bridge ]]; then
-        _comp_split -la services "$(initctl list 2>/dev/null | cut -d' ' -f1)"
+        _comp_compgen -a split -l -- "$(initctl list 2>/dev/null | cut -d' ' -f1)" &&
+            status=0
     fi
 
-    ((${#services[@]})) || return 1
-    _comp_compgen -U services -U sysvdirs -- -W '"${services[@]#${sysvdirs[0]}/}"'
+    return "$status"
 }
 
 # This completes on a list of all available service scripts for the

@@ -12,8 +12,8 @@ _comp_cmd_update_rc_d()
     [[ -d /etc/rc.d/init.d ]] && sysvdir=/etc/rc.d/init.d ||
         sysvdir=/etc/init.d
 
-    _comp_expand_glob services '"$sysvdir"/!(README*|*.sh|$_comp_backup_glob)' &&
-        services=("${services[@]#$sysvdir/}")
+    # shellcheck disable=SC2154
+    _comp_compgen -v services -C "$sysvdir" -- -f -X "@(README*|*.sh|$_comp_backup_glob)"
     options=(-f -n)
 
     if [[ $cword -eq 1 || $prev == -* ]]; then
