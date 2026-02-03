@@ -18,13 +18,10 @@ _comp_cmd_invoke_rc_d()
     if [[ $cword -eq 1 || $prev == --* ]]; then
         # generate valid_options
         local IFS='|'
-        local regex_options="${options[*]}"
-        IFS=$' \t\n'
-        _comp_compgen_split -- "$(
-            tr " " "\n" <<<"${words[*]} ${options[*]}" |
-                command grep -E -e "$regex_options" |
-                sort | uniq -u
-        )"
+        local exclude="@(${words[*]})"
+        _comp_unlocal IFS
+        _comp_compgen -- -W '"${options[@]}"' -X "$exclude"
+
         _comp_expand_glob services '"$sysvdir"/!(README*|*.sh|$_comp_backup_glob)' &&
             _comp_compgen -a -- -W '"${services[@]#"$sysvdir"/}"'
     elif [[ -x $sysvdir/$prev ]]; then

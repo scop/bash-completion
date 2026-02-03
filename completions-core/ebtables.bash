@@ -27,18 +27,19 @@ _comp_cmd_ebtables()
         -${noargopts}j)
             if [[ $table == "filter" || ! $table ]]; then
                 _comp_compgen -- -W '$targets'
-                _comp_compgen -a split -- "$("$1" ${table:+-t "$table"} -L \
-                    2>/dev/null | command sed -n -e \
-                    "s/INPUT//;s/OUTPUT//;s/FORWARD//" -e "$chain")"
+                _comp_compgen -a split -X '@(INPUT|OUTPUT|FORWARD)' \
+                    -- "$("$1" ${table:+-t "$table"} -L 2>/dev/null |
+                        command sed -ne "$chain")"
             elif [[ $table == "nat" ]]; then
                 _comp_compgen -- -W '$targets'
-                _comp_compgen -a split -- "$("$1" -t "$table" -L 2>/dev/null |
-                    command sed -n -e "s/OUTPUT//;s/PREROUTING//;s/POSTROUTING//" \
-                        -e "$chain")"
+                _comp_compgen -a split -X '@(OUTPUT|PREROUTING|POSTROUTING)' \
+                    -- "$("$1" -t "$table" -L 2>/dev/null |
+                        command sed -ne "$chain")"
             elif [[ $table == "broute" ]]; then
                 _comp_compgen -- -W 'ACCEPT DROP'
-                _comp_compgen -a split -- "$("$1" -t "$table" -L 2>/dev/null |
-                    command sed -n -e "s/BROUTING//" -e "$chain")"
+                _comp_compgen -a split -X 'BROUTING' \
+                    -- "$("$1" -t "$table" -L 2>/dev/null |
+                        command sed -ne "$chain")"
             fi
             ;;
         *)

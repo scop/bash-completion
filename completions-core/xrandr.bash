@@ -9,7 +9,7 @@ _comp_cmd_xrandr__compgen_monitors()
 {
     _comp_compgen_split -- "$(
         "$1" --listmonitors 2>/dev/null |
-            command sed -ne 's/.* [0-9]*: [+\*]*\([^ ]*\).*/\1/p'
+            command sed -ne 's/.* [0-9]*: [+*]*\([^ ]*\).*/\1/p'
     )"
 }
 
