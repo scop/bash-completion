@@ -129,7 +129,7 @@ _comp_cmd_curl()
             return
             ;;
         --proto-default)
-            _comp_compgen_split "$("$1" --version 2>/dev/null | command sed -e '/Protocols/!d' -e 's/Protocols://')"
+            _comp_compgen_split "$("$1" --version 2>/dev/null | command sed -n 's/Protocols://p')"
             ;;
         --pubkey)
             _comp_compgen -x ssh identityfile pub

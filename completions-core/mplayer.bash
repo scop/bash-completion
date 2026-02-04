@@ -54,7 +54,7 @@ _comp_cmd_mplayer()
             ;;
         -subcp | -msgcharset)
             local cp
-            if _comp_split cp "$(iconv --list 2>/dev/null | command sed -e "s@//@@;" 2>/dev/null)"; then
+            if _comp_split cp "$(iconv --list 2>/dev/null | command sed -e "s@//@@" 2>/dev/null)"; then
                 if [[ $cur == "${cur,,}" ]]; then
                     _comp_compgen -- -W '"${cp[@],,}"'
                 else

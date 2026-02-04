@@ -26,7 +26,7 @@ _comp_cmd_mcrypt()
             ;;
         -h | --hash)
             _comp_compgen_split -- "$("$1" --list-hash 2>/dev/null |
-                command sed -e 1d)"
+                tail -n +2)"
             return
             ;;
         -k | -s | --key | --keysize)

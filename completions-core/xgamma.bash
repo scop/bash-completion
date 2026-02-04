@@ -8,7 +8,7 @@ _comp_cmd_xgamma()
     case "$prev" in
         -screen)
             local screens=$(xrandr --query 2>/dev/null | command sed -n \
-                '/^Screen /s|^Screen \{1,\}\(.*\):.*$|\1|p' 2>/dev/null)
+                's|^Screen \{1,\}\(.*\):.*$|\1|p' 2>/dev/null)
             _comp_compgen -- -W "$screens"
             return
             ;;
@@ -31,7 +31,7 @@ _comp_cmd_xgamma()
             elif [[ $cur == :*.* ]]; then
                 # local screen numbers
                 local screens=$(xrandr --query 2>/dev/null | command sed -ne \
-                    '/^Screen /s|^Screen \{1,\}\(.*\):.*$|\1|p' 2>/dev/null)
+                    's|^Screen \{1,\}\(.*\):.*$|\1|p' 2>/dev/null)
                 cur=${cur#:}
                 _comp_compgen -P "${cur%.*}." -- -W '$screens'
             elif [[ $cur != *:* ]]; then
