@@ -12,7 +12,7 @@ _comp_cmd_gcc()
             local cc=$("$1" -print-prog-name=cc1 2>/dev/null)
             [[ $cc ]] || return
             _comp_compgen_split -- "$("$cc" --help 2>/dev/null | tr '\t' ' ' |
-                command sed -e '/^  *-/!d' -e 's/ *-\([^][ <>]*\).*/-\1/')"
+                command sed -n 's/^ \{1,\}\(-[^][ <>]*\).*/\1/p')"
             [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         else
             _comp_compgen_filedir
