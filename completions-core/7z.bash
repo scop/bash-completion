@@ -99,7 +99,7 @@ _comp_cmd_7z()
         if [[ ${words[1]} == d ]]; then
             _comp_compgen_split -l -- "$(
                 "$1" l "${words[2]}" -slt 2>/dev/null | command sed -n \
-                    's/^Path = \(.*\)$/\1/p' 2>/dev/null | tail -n+2
+                    's/^Path = \(.*\)$/\1/p' 2>/dev/null | _comp_tail -n +2
             )"
             compopt -o filenames
         else

@@ -26,7 +26,7 @@ _comp_cmd_mcrypt()
             ;;
         -h | --hash)
             _comp_compgen_split -- "$("$1" --list-hash 2>/dev/null |
-                tail -n +2)"
+                _comp_tail -n +2)"
             return
             ;;
         -k | -s | --key | --keysize)

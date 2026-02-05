@@ -7,7 +7,7 @@ _comp_cmd_cowsay()
 
     case $prev in
         -f)
-            _comp_compgen_split -- "$(cowsay -l 2>/dev/null | tail -n +2)"
+            _comp_compgen_split -- "$(cowsay -l 2>/dev/null | _comp_tail -n +2)"
             return
             ;;
     esac

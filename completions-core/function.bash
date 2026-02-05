@@ -8,7 +8,7 @@ _comp_cmd_function()
     if ((cword == 1)); then
         _comp_compgen -- -A function
     else
-        local funcdef=$(type -- "${words[1]}" 2>/dev/null | tail -n +3)
+        local funcdef=$(type -- "${words[1]}" 2>/dev/null | _comp_tail -n +3)
         COMPREPLY=("()${funcdef:+ $funcdef}")
     fi
 } &&

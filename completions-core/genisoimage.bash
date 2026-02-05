@@ -13,7 +13,7 @@ _comp_cmd_mkisofs()
             ;;
         -*-charset)
             _comp_compgen_split -- "$(mkisofs -input-charset help 2>&1 |
-                tail -n +3)"
+                _comp_tail -n +3)"
             return
             ;;
         -uid)
