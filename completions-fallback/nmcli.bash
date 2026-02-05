@@ -6,25 +6,25 @@
 _comp_cmd_nmcli__con_id()
 {
     _comp_compgen_split -l -- "$(nmcli con list 2>/dev/null |
-        tail -n +2 | _comp_awk -F ' {2,}' '{print $1}')"
+        _comp_awk -F ' {2,}' 'NR >= 2 {print $1}')"
 }
 
 _comp_cmd_nmcli__con_uuid()
 {
     _comp_compgen_split -- "$(nmcli con list 2>/dev/null |
-        tail -n +2 | _comp_awk -F ' {2,}' '{print $2}')"
+        _comp_awk -F ' {2,}' 'NR >= 2 {print $2}')"
 }
 
 _comp_cmd_nmcli__ap_ssid()
 {
     _comp_compgen_split -l -- "$(nmcli dev wifi list 2>/dev/null |
-        tail -n +2 | _comp_awk -F ' {2,}' '{print $1}')"
+        _comp_awk -F ' {2,}' 'NR >= 2 {print $1}')"
 }
 
 _comp_cmd_nmcli__ap_bssid()
 {
     _comp_compgen_split -- "$(nmcli dev wifi list 2>/dev/null |
-        tail -n +2 | _comp_awk -F ' {2,}' '{print $2}')"
+        _comp_awk -F ' {2,}' 'NR >= 2 {print $2}')"
 }
 
 _comp_cmd_nmcli()
