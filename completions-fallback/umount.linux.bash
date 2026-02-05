@@ -69,7 +69,7 @@ _comp_cmd_umount__linux_fstab()
     if [[ $cur && $cur != /* ]]; then
         local realcur
         [[ $cur == */ ]] && # don't let readlink drop last / from path
-            realcur="$(readlink -f "$cur." 2>/dev/null)/" ||
+            realcur=$(readlink -f "$cur." 2>/dev/null)/ ||
             realcur=$(readlink -f "$cur" 2>/dev/null)
         if [[ $realcur ]]; then
             local dirrealcur="" dircur=. basecur

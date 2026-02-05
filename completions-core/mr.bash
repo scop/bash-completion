@@ -7,14 +7,14 @@ _comp_cmd_mr()
 
     local help commands options
 
-    help="$(PERLDOC_PAGER=cat PERLDOC=-otext "${1}" help 2>/dev/null)"
+    help=$(PERLDOC_PAGER=cat PERLDOC=-otext "${1}" help 2>/dev/null)
 
-    commands="$(
+    commands=$(
         # shellcheck disable=SC2030
         printf %s "$help" | while read -r _ options cmd _; do
             [[ $options != "[options]" ]] || printf "%s\n" "$cmd"
         done
-    )"
+    )
     # Split [online|offline] and remove `action` placeholder.
     commands="${commands//@(action|[\[\|\]])/ }"
     # Add standard aliases.

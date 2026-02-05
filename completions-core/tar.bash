@@ -803,7 +803,7 @@ _comp_cmd_tar__posix()
 _comp_cmd_tar()
 {
     local cmd=${COMP_WORDS[0]} func line
-    line="$("$cmd" --version 2>/dev/null)"
+    line=$("$cmd" --version 2>/dev/null)
     case "$line" in
         *GNU*)
             func=_comp_cmd_tar__gnu

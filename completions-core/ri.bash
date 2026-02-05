@@ -77,7 +77,7 @@ _comp_cmd_ri()
     # which version of ri are we using?
     # -W0 is required here to stop warnings from older versions of ri
     # from being captured when used with Ruby 1.8.1 and later
-    ri_version="$(ruby -W0 "$ri_path" -v 2>&1)" || ri_version=integrated
+    ri_version=$(ruby -W0 "$ri_path" -v 2>&1) || ri_version=integrated
     [[ $ri_version != "${ri_version%200*}" ]] && ri_version=integrated
     [[ $ri_version =~ ri[[:space:]]v?([0-9]+) ]] && ri_major=${BASH_REMATCH[1]}
 

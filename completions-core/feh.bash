@@ -28,7 +28,7 @@ _comp_cmd_feh()
                 return
             fi
             local font_path
-            # font_path="$(imlib2-config --prefix 2>/dev/null)/share/imlib2/data/fonts"
+            # font_path=$(imlib2-config --prefix 2>/dev/null)/share/imlib2/data/fonts
             # _comp_compgen -C "$font_path" -- -f -X "!*.[tT][tT][fF]" -S /
             for ((i = ${#words[@]} - 2; i > 0; i--)); do
                 if [[ ${words[i]} == -@(C|-fontpath) ]]; then

@@ -8,14 +8,14 @@ _comp_cmd_pylint__message_ids()
     # TODO(scop): The fallback here is slow, maybe memoize whether
     #   --list-msgs-enabled worked (>= 2.4.0) and avoid unnecessary tries
     #   again later?
-    local msgs="$(
+    local msgs=$(
         set -o pipefail
         "$1" --list-msgs-enabled 2>/dev/null |
             command sed -ne "$filter" |
             command sed -ne 's/^[[:space:]]\{1,\}\([a-z-]\{6,\}\).*/\1/p' ||
             "$1" --list-msgs 2>/dev/null |
             command sed -ne 's/^:\([a-z-]\{6,\}\).*/\1/p'
-    )"
+    )
     _comp_delimited , -W "$msgs"
 }
 

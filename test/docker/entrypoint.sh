@@ -21,7 +21,7 @@ ssh-keygen -t ed25519 -N '' -f "$HOME/.ssh/id_ed25519"
 cat "$HOME/.ssh/id_ed25519.pub" >>"$HOME/.ssh/authorized_keys"
 
 # sshd forces you to run with the full path
-sshpath="$(command -v sshd)"
+sshpath=$(command -v sshd)
 $sshpath
 
 autoreconf -i
