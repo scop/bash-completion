@@ -58,6 +58,7 @@ cross_platform = adb.bash \
 		svn.bash \
 		svnadmin.bash \
 		svnlook.bash \
+		syncthing.bash \
 		task.bash \
 		tokio-console.bash \
 		udevadm.bash \
