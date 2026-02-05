@@ -25,7 +25,6 @@ _comp_cmd_tshark()
                 [[ -v _comp_cmd_tshark__prefs ]] ||
                     _comp_cmd_tshark__prefs=$("$1" -G defaultprefs 2>/dev/null |
                         command sed -ne 's/^#\{0,1\}\([a-z0-9_.-]\{1,\}:\).*/\1/p')
-                : ${prefix:=}
                 _comp_compgen -P "$prefix" -- -W "$_comp_cmd_tshark__prefs"
                 [[ ${COMPREPLY-} == *: ]] && compopt -o nospace
             fi
