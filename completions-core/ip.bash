@@ -567,7 +567,7 @@ _comp_cmd_ip()
                         _comp_cmd_ip__netns "$1"
                     else
                         local offset
-                        offset="$((subcword + 2 - all_offset))"
+                        offset=$((subcword + 2 - all_offset))
                         _comp_command_offset "$offset"
                     fi
                     ;;

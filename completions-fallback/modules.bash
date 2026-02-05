@@ -23,23 +23,23 @@
 
 _comp_cmd_module__compgen_list()
 {
-    local modules="$(command sed 's/:/ /g' <<<"$LOADEDMODULES" | sort)"
+    local modules=$(command sed 's/:/ /g' <<<"$LOADEDMODULES" | sort)
     _comp_compgen -- -W "$modules"
 }
 
 _comp_cmd_module__compgen_path()
 {
-    local modules="$(command sed 's/:/ /g' <<<"$MODULEPATH" | sort)"
+    local modules=$(command sed 's/:/ /g' <<<"$MODULEPATH" | sort)
     _comp_compgen -- -W "$modules"
 }
 
 _comp_cmd_module__compgen_avail()
 {
-    local modules="$(
+    local modules=$(
         module avail 2>&1 |
             command grep -E -v '^(-|$)' |
             xargs printf '%s\n' | command sed -e 's/(default)//g' | sort
-    )"
+    )
     _comp_compgen -- -W "$modules"
 }
 
@@ -53,8 +53,8 @@ _comp_cmd_module()
         # First parameter on line -- we expect it to be a mode selection
 
         local options
-        options="$(module help 2>&1 | command grep -E '^[[:space:]]*\+' |
-            _comp_awk '{print $2}' | command sed -e 's/|/ /g' | sort)"
+        options=$(module help 2>&1 | command grep -E '^[[:space:]]*\+' |
+            _comp_awk '{print $2}' | command sed -e 's/|/ /g' | sort)
 
         _comp_compgen -- -W "$options"
 

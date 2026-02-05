@@ -67,7 +67,7 @@ _comp_cmd_xfreerdp()
         [[ ${COMPREPLY-} == *: ]] && compopt -o nospace
     elif [[ $cur == [+-]* ]]; then
         local char=${cur:0:1}
-        local help="$("$1" --help)"
+        local help=$("$1" --help)
         if [[ $help == */help* ]]; then # new/slash syntax
             _comp_compgen_split -- "$(_comp_awk '$1 ~ /^[+-]/ && $1 !~ /^.toggle$/ {
                     sub("^.","'"$char"'",$1); print $1 }' <<<"$help")"

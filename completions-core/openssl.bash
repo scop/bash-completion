@@ -47,7 +47,7 @@ _comp_cmd_openssl()
     if ((cword == 1)); then
         local commands
         # We only want the standard commands, so we delete everything starting after and including "Message Digest commands"
-        commands="$("$1" help 2>&1 | command sed -e '/Standard commands/d;/help:/d' -e '/Message Digest commands/,$d')"
+        commands=$("$1" help 2>&1 | command sed -e '/Standard commands/d;/help:/d' -e '/Message Digest commands/,$d')
         _comp_compgen -- -W "$commands"
     else
         command=${words[1]}
