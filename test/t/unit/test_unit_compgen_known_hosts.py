@@ -127,6 +127,8 @@ class TestUnitCompgenKnownHosts:
         expected.extend("asterisk_1 asterisk_2".split())
         # fixtures/_known_hosts/.ssh/config_question_mark
         expected.append("question_mark")
+        # fixtures/_known_hosts/.ssh/config_comment
+        expected.append("with_comment")
 
         with bash_env_saved(bash) as bash_env:
             bash_env.write_variable("HOME", "%s/_known_hosts" % bash.cwd)
