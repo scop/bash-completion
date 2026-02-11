@@ -127,7 +127,14 @@ class TestUtilCompgen:
             want_output=True,
         )
         set1 = set(re.findall(r"<[^<>]*>", output.strip()))
-        assert set1 == {"<a b>", "<a$b>", "<a&b>", "<a'b>", "<ab>", "<aé>"}
+        assert set1 == {
+            "<a b/>",
+            "<a$b/>",
+            "<a&b/>",
+            "<a'b/>",
+            "<ab/>",
+            "<aé/>",
+        }
 
     def test_6_option_C_2(self, bash, functions):
         output = assert_bash_exec(
@@ -146,7 +153,7 @@ class TestUtilCompgen:
     def test_6_option_C_4(self, functions, completion):
         # Note: we are not in the original directory that "b" exists, so Bash
         # will not suffix a slash to the directory name.
-        assert completion == "b"
+        assert completion == "b/"
 
     @pytest.mark.complete(r"fb nonexistent")
     def test_6_option_C_5(self, bash, functions, completion):

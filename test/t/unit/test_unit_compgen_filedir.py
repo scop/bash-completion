@@ -34,7 +34,7 @@ class TestUnitCompgenFiledir:
         )
         assert_bash_exec(
             bash,
-            "_fcd() { local cur=$(_get_cword); unset -v COMPREPLY; _comp_compgen -C _filedir filedir -df; };"
+            "_fcd() { local cur=$(_get_cword); unset -v COMPREPLY; _comp_compgen -C _filedir filedir -d; };"
             "complete -F _fcd fcd",
         )
 
