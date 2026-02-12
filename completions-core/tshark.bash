@@ -22,11 +22,10 @@ _comp_cmd_tshark()
             if [[ $cur == *:* ]]; then
                 _comp_compgen -c "${cur#*:}" filedir
             else
-                [[ -v _comp_cmd_tshark__prefs ]] ||
-                    _comp_cmd_tshark__prefs=$("$1" -G defaultprefs 2>/dev/null | command sed -ne 's/^#\{0,1\}\([a-z0-9_.-]\{1,\}:\).*/\1/p' |
-                        tr '\n' ' ')
-                : ${prefix:=}
-                _comp_compgen -P "$prefix" -- -W "$_comp_cmd_tshark__prefs"
+                [[ -v _comp_cmd_tshark__mut_prefs ]] ||
+                    _comp_cmd_tshark__mut_prefs=$("$1" -G defaultprefs 2>/dev/null |
+                        command sed -ne 's/^#\{0,1\}\([a-z0-9_.-]\{1,\}:\).*/\1/p')
+                _comp_compgen -P "$prefix" -- -W "$_comp_cmd_tshark__mut_prefs"
                 [[ ${COMPREPLY-} == *: ]] && compopt -o nospace
             fi
             return
@@ -71,10 +70,10 @@ _comp_cmd_tshark()
             return
             ;;
         -*O)
-            [[ -v _comp_cmd_tshark__protocols ]] ||
-                _comp_cmd_tshark__protocols=$("$1" -G protocols 2>/dev/null |
-                    cut -f 3 | tr '\n' ' ')
-            _comp_delimited , -W "$_comp_cmd_tshark__protocols"
+            [[ -v _comp_cmd_tshark__mut_protocols ]] ||
+                _comp_cmd_tshark__mut_protocols=$("$1" -G protocols 2>/dev/null |
+                    cut -f 3)
+            _comp_delimited , -W "$_comp_cmd_tshark__mut_protocols"
             return
             ;;
         -*T)

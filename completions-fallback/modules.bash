@@ -53,8 +53,8 @@ _comp_cmd_module()
         # First parameter on line -- we expect it to be a mode selection
 
         local options
-        options=$(module help 2>&1 | command grep -E '^[[:space:]]*\+' |
-            _comp_awk '{print $2}' | command sed -e 's/|/ /g' | sort)
+        options=$(module help 2>&1 | _comp_awk '/^[[:space:]]*\+/ {
+            $0 = $2; gsub(/\|/, " "); print }' | sort)
 
         _comp_compgen -- -W "$options"
 

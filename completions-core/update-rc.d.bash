@@ -17,8 +17,9 @@ _comp_cmd_update_rc_d()
     options=(-f -n)
 
     if [[ $cword -eq 1 || $prev == -* ]]; then
+        local IFS='|'
         _comp_compgen -- -W '"${options[@]}" ${services[@]+"${services[@]}"}' \
-            -X '$(tr " " "|" <<<${words[@]})'
+            -X "@(${words[*]}))"
     elif ((${#services[@]})) && [[ $prev == ?($(tr " " "|" <<<"${services[*]}")) ]]; then
         _comp_compgen -- -W 'remove defaults start stop'
     elif [[ $prev == defaults && $cur == [0-9] ]]; then
