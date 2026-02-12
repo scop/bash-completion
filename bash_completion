@@ -2072,12 +2072,12 @@ if [[ $OSTYPE == *@(solaris|aix)* ]]; then
     # This function completes on process IDs.
     _comp_compgen_pids()
     {
-        _comp_compgen_split -- "$(command ps -efo pid | tail -n +2)"
+        _comp_compgen_split -- "$(command ps -efo pid | _comp_tail -n +2)"
     }
 
     _comp_compgen_pgids()
     {
-        _comp_compgen_split -- "$(command ps -efo pgid | tail -n +2)"
+        _comp_compgen_split -- "$(command ps -efo pgid | _comp_tail -n +2)"
     }
     _comp_compgen_pnames()
     {
@@ -2098,7 +2098,7 @@ else
     {
         local -a procs=()
         if [[ ${1-} == -s ]]; then
-            _comp_split procs "$(command ps ax -o comm | tail -n +2)"
+            _comp_split procs "$(command ps ax -o comm | _comp_tail -n +2)"
         else
             # Some versions of ps don't support "command", but do "comm", e.g.
             # some busybox ones. Fall back
@@ -3560,20 +3560,33 @@ _comp_xfunc()
     "$xfunc_name" "${@:3}"
 }
 
-# Call a POSIX-compatible awk.  Solaris awk is not POSIX-compliant, but Solaris
-# provides a POSIX-compatible version through /usr/xpg4/bin/awk.  We switch the
-# implementation to /usr/xpg4/bin/awk in Solaris if any.
+# Call a POSIX-compatible awk and tail.  Solaris awk and tail are not
+# POSIX-compliant, but Solaris provides POSIX-compatible versions through
+# /usr/xpg4/bin/{awk,tail}.  We switch the implementation to
+# /usr/xpg4/bin/{awk,tail} in Solaris if any.
 # @since 2.12
-if [[ $OSTYPE == *solaris* && -x /usr/xpg4/bin/awk ]]; then
-    _comp_awk()
-    {
-        /usr/xpg4/bin/awk "$@"
-    }
-else
-    _comp_awk()
-    {
-        command awk "$@"
-    }
+_comp_awk()
+{
+    command awk "$@"
+}
+# @since 2.18
+_comp_tail()
+{
+    command tail "$@"
+}
+if [[ $OSTYPE == *solaris* ]]; then
+    if [[ -x /usr/xpg4/bin/awk ]]; then
+        _comp_awk()
+        {
+            /usr/xpg4/bin/awk "$@"
+        }
+    fi
+    if [[ -x /usr/xpg4/bin/tail ]]; then
+        _comp_tail()
+        {
+            /usr/xpg4/bin/tail "$@"
+        }
+    fi
 fi
 
 # List custom/extra completion files to source on the startup

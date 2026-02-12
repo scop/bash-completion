@@ -11,7 +11,7 @@ _comp_cmd_pdftotext()
             return
             ;;
         -enc)
-            _comp_compgen_split -- "$("$1" -listenc 2>/dev/null | tail -n +2)"
+            _comp_compgen_split -- "$("$1" -listenc 2>/dev/null | _comp_tail -n +2)"
             return
             ;;
         -eol)

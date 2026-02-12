@@ -12,18 +12,18 @@ _comp_cmd_msynctool()
             return
             ;;
         --addmember)
-            _comp_compgen_split -- "$("$1" --listplugins | tail -n +2)"
+            _comp_compgen_split -- "$("$1" --listplugins | _comp_tail -n +2)"
             return
             ;;
     esac
 
     case $prev in
         --configure | --addgroup | --delgroup | --showgroup | --sync | --addmember)
-            _comp_compgen_split -- "$("$1" --listgroups | tail -n +2)"
+            _comp_compgen_split -- "$("$1" --listgroups | _comp_tail -n +2)"
             return
             ;;
         --showformats | --filter-objtype | --slow-sync)
-            _comp_compgen_split -- "$("$1" --listobjects | tail -n +2)"
+            _comp_compgen_split -- "$("$1" --listobjects | _comp_tail -n +2)"
             return
             ;;
     esac
