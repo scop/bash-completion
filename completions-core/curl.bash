@@ -11,26 +11,31 @@ _comp_cmd_curl()
         --abstract-unix-socket | --alt-svc | --config | --cookie | \
             --cookie-jar | --dump-header | --egd-file | --etag-compare | \
             --etag-save | --hsts | --key | --libcurl | --netrc-file | \
-            --output | --proxy-key | --random-file | --unix-socket | \
-            --upload-file | -${noargopts}[KbcDoT])
+            --output | --proxy-key | --random-file | --ssl-sessions | \
+            --unix-socket | --upload-file | -${noargopts}[KbcDoT])
             _comp_compgen_filedir
             return
             ;;
-        --ciphers | --connect-timeout | --connect-to | --continue-at | \
-            --curves | --data-raw | --doh-url | --expect100-timeout | --form | \
-            --form-string | --ftp-account | --ftp-alternative-to-user | \
-            --happy-eyeballs-timeout-ms | --hostpubmd5 | --keepalive-time | \
+        --aws-sigv4 | --ciphers | --connect-timeout | --connect-to | \
+            --continue-at | --curves | --data-raw | --doh-url | \
+            --expect100-timeout | --form | --form-string | --ftp-account | \
+            --ftp-alternative-to-user | --haproxy-clientip | \
+            --happy-eyeballs-timeout-ms | --hostpubmd5 | --hostpubsha256 | \
+            --ipfs-gateway | --keepalive-cnt | --keepalive-time | \
             --limit-rate | --local-port | --login-options | --mail-auth | \
             --mail-from | --mail-rcpt | --max-filesize | --max-redirs | \
-            --max-time | --pass | --proto | --proto-redir | \
-            --proxy-ciphers | --proxy-pass | --proxy-service-name | \
-            --proxy-tls13-ciphers | --proxy-tlspassword | --proxy-tlsuser | \
-            --proxy-user | --proxy1.0 | --quote | --range | --referer | \
-            --resolve | --retry | --retry-delay | --retry-max-time | \
-            --sasl-authzid | --service-name | --socks5-gssapi-service | \
-            --speed-limit | --speed-time | --telnet-option | --tftp-blksize | \
-            --time-cond | --tls13-ciphers | --tlspassword | --tlsuser | \
-            --url | --user | --user-agent | --version | \
+            --max-time | --oauth2-bearer | --parallel-max | --pass | \
+            --proto | --proto-redir | --proxy-ciphers | --proxy-pass | \
+            --proxy-service-name | --proxy-tls13-ciphers | \
+            --proxy-tlspassword | --proxy-tlsuser | --proxy-user | \
+            --proxy1.0 | --quote | --range | --rate | --referer | \
+            --request-target | --resolve | --retry | --retry-delay | \
+            --retry-max-time | --sasl-authzid | --service-name | --sigalgs | \
+            --socks5-gssapi-service | --speed-limit | --speed-time | \
+            --telnet-option | --tftp-blksize | --time-cond | \
+            --tls13-ciphers | --trace-config | --tlspassword | --tlsuser | \
+            --upload-flags | --url | --url-query | --user | --user-agent | \
+            --variable | --version | --vlan-priority | \
             -${noargopts}[CFmQreYytzuAV])
             return
             ;;
@@ -43,7 +48,11 @@ _comp_cmd_curl()
             return
             ;;
         --cert-type | --key-type | --proxy-cert-type | --proxy-key-type)
-            _comp_compgen -- -W 'DER PEM ENG'
+            local -a types=(DER PEM ENG)
+            if [[ $prev == --cert-type ]]; then
+                types+=(PROV P12)
+            fi
+            _comp_compgen -- -W '"${types[@]}"'
             return
             ;;
         --crlfile | --proxy-crlfile)
@@ -66,6 +75,10 @@ _comp_cmd_curl()
             _comp_compgen -- -W 'none policy always'
             return
             ;;
+        --dns-interface)
+            _comp_compgen_available_interfaces -a
+            return
+            ;;
         --dns-ipv[46]-addr)
             _comp_compgen_ip_addresses -"${prev:9:1}"
             return
@@ -74,6 +87,12 @@ _comp_cmd_curl()
             _comp_compgen_known_hosts -- "${cur##*,}"
             ((${#COMPREPLY[@]})) &&
                 _comp_delimited , -W '"${COMPREPLY[@]}"'
+            return
+            ;;
+        --ech)
+            _comp_compgen -- -W 'false grease true hard ecl: pn:'
+            [[ ${COMPREPLY-} == *: ]] && compopt -o nospace
+            _comp_ltrim_colon_completions "$cur"
             return
             ;;
         --engine)
