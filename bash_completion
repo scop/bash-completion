@@ -3591,6 +3591,7 @@ _comp__init_collect_startup_configs()
         compat_dirs+=("$BASH_COMPLETION_COMPAT_DIR")
     else
         # Keep in sync with Makefile.am install-data-hook
+        compat_dirs+=(/usr/share/bash-completion/compat)
         compat_dirs+=(/etc/bash_completion.d)
         # Similarly as for the "completions" dir, look up from relative to
         # bash_completion, primarily for installed-with-prefix and
@@ -3602,7 +3603,14 @@ _comp__init_collect_startup_configs()
         else
             compat_dir=$_comp__base_directory/bash_completion.d
         fi
-        [[ ${compat_dirs[0]} == "$compat_dir" ]] ||
+        local dir
+        for dir in "${compat_dirs[@]}"; do
+            if [[ $dir == "$compat_dir" ]]; then
+                compat_dir=""
+                break
+            fi
+        done
+        [[ $compat_dir ]] &&
             compat_dirs+=("$compat_dir")
     fi
     for compat_dir in "${compat_dirs[@]}"; do
