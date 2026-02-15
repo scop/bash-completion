@@ -3584,7 +3584,60 @@ _comp__init_collect_startup_configs()
     local base_path=${1:-${BASH_SOURCE[1]}}
     _comp__init_startup_configs=()
 
-    # source compat completion directory definitions
+    # list startup directories
+    local -a startup_dirs=()
+    local paths
+    _comp_split -F : paths "${BASH_COMPLETION_USER_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion}" &&
+        startup_dirs+=("${paths[@]/%//startup}")
+    _comp_split -F : paths "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" &&
+        startup_dirs+=("${paths[@]/%//bash-completion/startup}")
+    startup_dirs+=("$_comp__base_directory/startup")
+    startup_dirs+=("$_comp__base_directory/startup-core")
+
+    # collect startup files
+    local -A startup_visited=()
+    for startup_dir in "${startup_dirs[@]}"; do
+        [[ -d $startup_dir && -r $startup_dir && -x $startup_dir ]] || continue
+
+        local -a startup_files=()
+        _comp_expand_glob startup_files "$startup_dir/*.bash" || continue
+
+        local -a selected_startup_files=()
+        local startup_dir
+        for startup_file in "${startup_files[@]}"; do
+            [[ ! -d $startup_file && -r $startup_file ]] || continue
+
+            # Disable the startup files with the same name as one of already
+            # selected startup files.  This allows users to override a startup
+            # file with another file with the same name placed in an earlier
+            # directory in "${startup_files[@]}".
+            local name=${startup_file##*/?([0-9][0-9][0-9]_)}
+            [[ ${startup_visited[$name]-} ]] && continue
+            startup_visited[$name]=set
+
+            selected_startup_files+=("$startup_file")
+        done
+        ((${#selected_startup_files[@]})) || continue
+
+        # Note: bash < 4.4 has a bug that all elements are connected with
+        # ${a[@]+"${a[@]}"} when IFS does not contain whitespace.
+        local IFS=$' \t\n'
+        # Prepend the selected startup files because we want to source the
+        # system startup files earlier.
+        _comp__init_startup_configs=(
+            "${selected_startup_files[@]}"
+
+            # Note: bash < 4.3 has a bug that "${a[@]}" fails for "set -u" when
+            # an array "a" exists but has no elements.  We use
+            # ${a[@]+"${a[@]}"} as a workaround.  Similar patterns are also
+            # used in completions/*.bash, 000_bash_completion_compat.bash, and
+            # test_unit_compgen.py.  They need to be updated when the minimum
+            # required Bash version is lifted up.
+            ${_comp__init_startup_configs[@]+"${_comp__init_startup_configs[@]}"}
+        )
+    done
+
+    # collect compat completion directory definitions
     local -a compat_dirs=()
     local compat_dir
     if [[ ${BASH_COMPLETION_COMPAT_DIR-} ]]; then
@@ -3599,25 +3652,33 @@ _comp__init_collect_startup_configs()
         # functions.
         if [[ $_comp__base_directory == */share/bash-completion ]]; then
             compat_dir=${_comp__base_directory%/share/bash-completion}/etc/bash_completion.d
-        else
-            compat_dir=$_comp__base_directory/bash_completion.d
+            [[ ${compat_dirs[0]} == "$compat_dir" ]] ||
+                compat_dirs+=("$compat_dir")
         fi
-        [[ ${compat_dirs[0]} == "$compat_dir" ]] ||
-            compat_dirs+=("$compat_dir")
     fi
+    local -A compat_visited=()
     for compat_dir in "${compat_dirs[@]}"; do
         [[ -d $compat_dir && -r $compat_dir && -x $compat_dir ]] || continue
         local compat_files
-        _comp_expand_glob compat_files '"$compat_dir"/*'
+        _comp_expand_glob compat_files '"$compat_dir"/*' || continue
         local compat_file
         for compat_file in "${compat_files[@]}"; do
             [[ ${compat_file##*/} != @($_comp_backup_glob|Makefile*|${BASH_COMPLETION_COMPAT_IGNORE-}) &&
-                -f $compat_file && -r $compat_file ]] &&
-                _comp__init_startup_configs+=("$compat_file")
+                -f $compat_file && -r $compat_file ]] || continue
+
+            # Disable the compat files with the same name as one of already
+            # selected ones.  This allows users to override a compat file with
+            # another file with the same name placed in an earlier directory in
+            # "${compat_dirs[@]}".
+            local name=${compat_file##*/}
+            [[ ${compat_visited[$name]-} ]] && continue
+            compat_visited[$name]=set
+
+            _comp__init_startup_configs+=("$compat_file")
         done
     done
 
-    # source user completion file
+    # collect the user completion file
     #
     # Remark: We explicitly check that $user_completion is not '/dev/null'
     #   since /dev/null may be a regular file in broken systems and can contain
