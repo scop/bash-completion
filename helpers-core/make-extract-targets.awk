@@ -29,7 +29,20 @@ NR == 1, /^# +Make data base/ { next; }
 /^# +Variables/, /^# +Files/ { next; }
 
 # skip not-target blocks
-/^# +Not a target/, /^$/     { next; }
+/^# +Not a target/, /^$/ {
+  # We need to manually clear the state.  Without it, the cleanup associated
+  # with the present block would be skipped because /^$/ on the above line also
+  # consumes the empty line.  This would become an issue with the case where
+  # the "Not a target" line appears in the middle of a block, e.g., for the
+  # case with "foobar: OUCH = glitch" without the actual rule for "foobar".
+  # The leftover information would be associated with the next target block
+  # unexpectedly.
+  #
+  # https://github.com/scop/bash-completion/pull/1577
+  is_target_block = 0;
+  target = "";
+  next;
+}
 
 # The stuff above here describes lines that are not
 #  explicit targets or not targets other than special ones
