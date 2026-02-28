@@ -1,8 +1,18 @@
 # ip(8) completion                                         -*- shell-script -*-
 
-_comp_cmd_ip__iproute2_etc()
+_comp_cmd_ip__iproute2_conf()
 {
-    _comp_compgen -a split -- "$(_comp_awk '!/#/ { print $2 }' "/etc/iproute2/$1" \
+    # /usr/share/iproute2/$1 is the default since iproute2 6.7.0
+    local conf_file="/usr/share/iproute2/$1"
+    if [[ ! -f $conf_file ]]; then
+        # iproute2 6.5 and 6.6 used /usr/lib/iproute2/$1
+        if [[ -f /usr/lib/iproute2/$1 ]]; then
+            conf_file="/usr/lib/iproute2/$1"
+        else
+            conf_file="/etc/iproute2/$1"
+        fi
+    fi
+    _comp_compgen -a split -- "$(_comp_awk '!/#/ { print $2 }' "$conf_file" \
         2>/dev/null)"
 }
 
@@ -165,7 +175,7 @@ _comp_cmd_ip()
                     elif [[ $prev == dev ]]; then
                         _comp_compgen_available_interfaces
                     elif [[ $prev == group ]]; then
-                        _comp_cmd_ip__iproute2_etc group
+                        _comp_cmd_ip__iproute2_conf group
                     fi
                     ;;
                 property)
@@ -194,7 +204,7 @@ _comp_cmd_ip()
                             _comp_compgen_available_interfaces
                             ;;
                         scope)
-                            _comp_cmd_ip__iproute2_etc rt_scopes
+                            _comp_cmd_ip__iproute2_conf rt_scopes
                             ;;
                         broadcast | anycast | peer | metric)
                             :
@@ -212,7 +222,7 @@ _comp_cmd_ip()
                     if [[ $prev == dev ]]; then
                         _comp_compgen_available_interfaces
                     elif [[ $prev == scope ]]; then
-                        _comp_cmd_ip__iproute2_etc rt_scopes
+                        _comp_cmd_ip__iproute2_conf rt_scopes
                     else
                         : # TODO
                     fi
@@ -226,7 +236,7 @@ _comp_cmd_ip()
                     elif [[ $prev == dev ]]; then
                         _comp_compgen_available_interfaces
                     elif [[ $prev == scope ]]; then
-                        _comp_cmd_ip__iproute2_etc rt_scopes
+                        _comp_cmd_ip__iproute2_conf rt_scopes
                     elif [[ $prev == type ]]; then
                         _comp_cmd_ip__link_types "$1"
                     fi
@@ -263,13 +273,13 @@ _comp_cmd_ip()
                 list | flush | save)
                     case "$prev" in
                         proto)
-                            _comp_cmd_ip__iproute2_etc rt_protos
+                            _comp_cmd_ip__iproute2_conf rt_protos
                             ;;
                         table)
                             _comp_compgen -- -W 'local main default all'
                             ;;
                         scope)
-                            _comp_cmd_ip__iproute2_etc rt_scopes
+                            _comp_cmd_ip__iproute2_conf rt_scopes
                             ;;
                         root | match | exact | vrf)
                             : # TODO: Can we complete vrf?
@@ -417,7 +427,7 @@ _comp_cmd_ip()
                             _comp_compgen_available_interfaces
                             ;;
                         protocol)
-                            _comp_cmd_ip__iproute2_etc rt_protos
+                            _comp_cmd_ip__iproute2_conf rt_protos
                             ;;
                         proxy)
                             :

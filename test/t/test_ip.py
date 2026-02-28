@@ -1,7 +1,21 @@
+import os
+
 import pytest
 
 
 class TestIp:
+    @pytest.fixture(scope="class")
+    def iproute2_conf(self):
+        if not any(
+            os.path.isdir(path)
+            for path in (
+                "/usr/share/iproute2",
+                "/usr/lib/iproute2",
+                "/etc/iproute2",
+            )
+        ):
+            pytest.skip("No iproute2 configuration")
+
     @pytest.mark.complete("ip ")
     def test_1(self, completion):
         assert completion
@@ -68,3 +82,12 @@ class TestIp:
     @pytest.mark.complete("ip -", require_cmd=True)
     def test_options(self, completion):
         assert "-family" in completion
+
+    @pytest.mark.complete("ip link show group ", require_cmd=True)
+    def test_link_groups_from_file(self, completion, iproute2_conf):
+        assert "default" in completion
+
+    @pytest.mark.complete("ip addr show scope ", require_cmd=True)
+    def test_addr_scopes_from_file(self, completion, iproute2_conf):
+        assert "host" in completion
+        assert "global" in completion
