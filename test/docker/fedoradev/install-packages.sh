@@ -18,10 +18,8 @@ while read -r file; do
         /*) printf "%s\n" "$file" ;;
         *) printf "%s\n" {/usr,}/{,s}bin/"$file" ;;
     esac
-done | grep -vxF /usr/bin/vpnc |
+done |
     xargs dnf -y install --skip-unavailable --skip-broken
-# /usr/bin/vpnc installs vpnc-consoleuser, which as of 2025-04-16 fails to install in
-# rawhide (f42): bugzilla.redhat.com/show_bug.cgi?id=2341517
 # --skip-broken: avoid failing on not found packages. Also prevents actually
 # broken packages from failing the install which is not what we want, but
 # there doesn't seem to be way to cleanly just skip the not found ones.
