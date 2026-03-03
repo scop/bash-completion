@@ -4,7 +4,10 @@ import pytest
 class TestKill:
     @pytest.mark.complete("kill 1", xfail="! type ps &>/dev/null")
     def test_1(self, completion):
-        assert completion
+        assert (
+            completion  # more than one starting with 1
+            or completion.output == " "  # pid 1 only
+        )
 
     @pytest.mark.complete("kill -s ")
     def test_2(self, completion):
