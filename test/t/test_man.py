@@ -18,7 +18,7 @@ class TestMan:
     @pytest.fixture
     def colonpath(self, bash, tmp_path_factory):
         try:
-            assert_bash_exec(bash, "uname -s 2>&1 | grep -qiF cygwin")
+            assert_bash_exec(bash, "uname -s 2>&1 | command grep -qiF cygwin")
         except AssertionError:
             pass
         else:
