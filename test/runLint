@@ -25,7 +25,7 @@ if ! cd "$(dirname "$0")/.."; then
     exit 1
 fi
 
-cmdstart='(^|[[:space:];&|]|\()'
+cmdstart='(?:(?:^|[;&|()])[[:blank:]]*|\b(?:if|then|elif|else|for|while|until|do|coproc|command|builtin)[[:blank:]]+|{[[:blank:]]+)'
 filter_out=
 
 # Note: Since we started to use _comp_{awk,tail}, we do not have to care about
@@ -60,10 +60,10 @@ gitgrep "$cmdstart"'[ef]grep\b' \
 # TODO: $ in sed subexpression used as an anchor (POSIX BRE optional, not in
 #       Solaris/FreeBSD)
 
-filter_out="test/fixtures/_longopt/grep--help.txt" gitgrep '(?<!command)'"$cmdstart"'(grep|ls|sed|cd)(\s|$)' \
+filter_out="test/fixtures/_longopt/grep--help.txt" gitgrep "${cmdstart/|command|/|}"'(grep|ls|sed|cd)(\s|$)' \
     'invoke grep, ls, sed, and cd through "command", e.g. "command grep"'
 
-gitgrep '(?<!command)'"$cmdstart"'(?:awk|tail)(\s|$)' \
+gitgrep "${cmdstart/|command|/|}"'(?:awk|tail)(\s|$)' \
     'invoke awk/tail through "_comp_{awk,tail}"'
 
 gitgrep '@\([^()|$]+\)' \
