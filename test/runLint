@@ -3,9 +3,13 @@ set -u
 
 gitgrep()
 {
-    local out=$(git grep -I -P -n "$1" |
-        grep -E '^(bash_completion|completions(-fallback|-core)?/|test/)' |
-        grep -Ev "^test/runLint\>${filter_out:+|$filter_out}")
+    local pathspecs=('bash_completion' 'completions-fallback/'
+        'completions-core/' 'test/' 'bash_completion.d/' ':!:test/runLint'
+        ':!:test/docker/' ':!:test/test-cmd-list.txt')
+    local filter_list
+    read -ra filter_list <<<"$filter_out"
+    pathspecs+=("${filter_list[@]/#/":!:"}")
+    local out=$(git grep -I -P -n "$1" -- "${pathspecs[@]}")
     if [[ $out ]]; then
         printf '***** %s\n' "$2"
         printf '%s\n\n' "$out"
@@ -53,7 +57,7 @@ gitgrep "$cmdstart"'[ef]grep\b' \
 # TODO: $ in sed subexpression used as an anchor (POSIX BRE optional, not in
 #       Solaris/FreeBSD)
 
-gitgrep '(?<!command)'"$cmdstart"'(grep|ls|sed|cd)(\s|$)' \
+filter_out="test/fixtures/_longopt/grep--help.txt" gitgrep '(?<!command)'"$cmdstart"'(grep|ls|sed|cd)(\s|$)' \
     'invoke grep, ls, sed, and cd through "command", e.g. "command grep"'
 
 gitgrep '(?<!command)'"$cmdstart"'(?:awk|tail)(\s|$)' \
@@ -67,12 +71,12 @@ gitgrep '@\([^()|$]+\)' \
 
 gitgrep '<<<' 'herestrings use temp files, use some other way'
 
-filter_out='^(test/|bash_completion\.sh)' gitgrep ' \[ ' \
+filter_out='test/ bash_completion.sh.in' gitgrep ' \[ ' \
     'use [[ ]] instead of [ ]'
 
 gitgrep "$cmdstart"'unset [^-]' 'Explicitly specify "unset -v/-f"'
 
-gitgrep "$cmdstart"'((set|shopt)\s+[+-][a-z]+\s+posix\b|(local\s+)?POSIXLY_CORRECT\b)' \
+filter_out="test/config/bashrc" gitgrep "$cmdstart"'((set|shopt)\s+[+-][a-z]+\s+posix\b|(local\s+)?POSIXLY_CORRECT\b)' \
     'fiddling with posix mode breaks keybindings with some bash versions'
 
 gitgrep '\$\{([^{}\n]|\{.*\})+/([^{}\n]|\{.*\})+/([^{}"\n]|\{.*\})*\$.*\}' \
