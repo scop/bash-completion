@@ -40,7 +40,7 @@ class TestIp:
     @pytest.mark.complete(
         "ip neigh show nud ",
         require_cmd=True,
-        skipif="ip neigh help 2>&1 | grep 'STATE :=' > /dev/null; (( $? != 0 ))",
+        skipif="ip neigh help 2>&1 | command grep 'STATE :=' > /dev/null; (( $? != 0 ))",
     )
     def test_neigh_state(self, completion):
         assert "stale" in completion
