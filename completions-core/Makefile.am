@@ -595,6 +595,13 @@ CLEANFILES = \
 	host.bash \
 	hping.bash \
 	hping3.bash \
+	hpnscp.bash \
+	hpnsftp.bash \
+	hpnssh.bash \
+	hpnssh-add.bash \
+	hpnssh-copy-id.bash \
+	hpnssh-keygen.bash \
+	hpnssh-keyscan.bash \
 	iceweasel.bash \
 	identify.bash \
 	ifdown.bash \
@@ -1010,7 +1017,15 @@ endif
 	$(ss) sha256sum \
 		b2sum cksum md5sum shasum sha1sum sha224sum sha384sum sha512sum
 	$(ss) ssh \
-		autossh scp sftp sidedoor slogin
+		autossh hpnscp hpnsftp hpnssh scp sftp sidedoor slogin
+	$(ss) ssh-add \
+		hpnssh-add
+	$(ss) ssh-copy-id \
+		hpnssh-copy-id
+	$(ss) ssh-keygen \
+		hpnssh-keygen
+	$(ss) ssh-keyscan \
+		hpnssh-keyscan
 	$(ss) sudo \
 		sudo-rs sudo.ws sudoedit
 	$(ss) tar \

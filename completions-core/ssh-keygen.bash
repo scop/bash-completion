@@ -140,11 +140,18 @@ _comp_cmd_ssh_keygen()
             [[ ${words[*]} != *\ -${noargopts}Y\ * ]] || _comp_compgen_filedir
             return
             ;;
-        -${noargopts}t)
-            # Prefer `ssh` from same dir for resolving options, etc
-            local pathcmd protocols
+        -${noargopts}[tZ])
+            # Prefer `ssh` from same dir and preserve command basename prefix
+            # for resolving options, etc
+            local pathcmd cmdprefix
             pathcmd=$(type -P -- "$1") && local PATH=${pathcmd%/*}:$PATH
-            _comp_compgen -v protocols -x ssh query protocol-version
+            cmdprefix=${1##*/}
+            cmdprefix=${cmdprefix%ssh-keygen}
+            ;;&
+        -${noargopts}t)
+            local protocols
+            _comp_compgen -v protocols -x ssh query -P "$cmdprefix" \
+                protocol-version
             local -a types=(
                 dsa ecdsa ecdsa-sk ed25519 ed25519-sk rsa
                 rsa-sha2-256 rsa-sha2-512 ssh-rsa
@@ -161,7 +168,7 @@ _comp_cmd_ssh_keygen()
             return
             ;;
         -${noargopts}Z)
-            _comp_compgen -x ssh query ciphers
+            _comp_compgen -x ssh query -P "$cmdprefix" ciphers
             return
             ;;
     esac
@@ -176,6 +183,6 @@ _comp_cmd_ssh_keygen()
         _comp_compgen -a filedir pub
     fi
 } &&
-    complete -F _comp_cmd_ssh_keygen ssh-keygen
+    complete -F _comp_cmd_ssh_keygen {hpn,}ssh-keygen
 
 # ex: filetype=sh

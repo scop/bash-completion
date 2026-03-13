@@ -35,6 +35,6 @@ _comp_cmd_ssh_copy_id()
         _comp_compgen_known_hosts -a -- "$cur"
     fi
 } &&
-    complete -F _comp_cmd_ssh_copy_id ssh-copy-id
+    complete -F _comp_cmd_ssh_copy_id {hpn,}ssh-copy-id
 
 # ex: filetype=sh
