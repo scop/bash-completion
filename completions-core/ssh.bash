@@ -11,10 +11,26 @@ _comp_cmd_ssh__compgen_queries()
     _comp_compgen -c "${cur,,}" -U queries -- -W '"${queries[@]}" help'
 }
 
+_comp_cmd_ssh__setup_cmdprefix()
+{
+    local _flag OPTIND=1 OPTARG="" OPTERR=0
+    while getopts "P:" _flag "$@"; do
+        case $_flag in
+            P) _cmd_prefix=$OPTARG ;;
+            *)
+                echo "bash_completion: $FUNCNAME: usage error: $*" >&2
+                return 1
+                ;;
+        esac
+    done
+}
+
 # @since 2.12
 _comp_xfunc_ssh_compgen_query()
 {
-    _comp_cmd_ssh__compgen_query ssh "$1"
+    local _cmd_prefix=
+    _comp_cmd_ssh__setup_cmdprefix "$@"
+    _comp_cmd_ssh__compgen_query "${_cmd_prefix}ssh" "$1"
 }
 
 # @deprecated 2.12 use _comp_xfunc_ssh_compgen_query
@@ -83,8 +99,11 @@ _comp_xfunc_ssh_compgen_options()
         GSSAPIKeyExchange GSSAPIRenewalForcesRekey GSSAPIServerIdentity
         GSSAPITrustDns PubkeyAcceptedKeyTypes SmartcardDevice UsePrivilegedPort
     )
+
     local -a protocols
-    _comp_compgen -v protocols -i ssh query ssh protocol-version
+    local _cmd_prefix=
+    _comp_cmd_ssh__setup_cmdprefix "$@"
+    _comp_compgen -v protocols -i ssh query "${_cmd_prefix}ssh" protocol-version
     if [[ ${protocols[*]-} == *1* ]]; then
         _opts+=(Cipher CompressionLevel Protocol RhostsRSAAuthentication
             RSAAuthentication)
@@ -235,7 +254,9 @@ _comp_cmd_ssh__compgen_suboption()
 # @since 2.12
 _comp_xfunc_ssh_compgen_suboption_check()
 {
-    _comp_cmd_ssh__compgen_suboption_check ssh
+    local _cmd_prefix=
+    _comp_cmd_ssh__setup_cmdprefix "$@"
+    _comp_cmd_ssh__compgen_suboption_check "${_cmd_prefix}ssh"
 }
 
 # @param $1 the ssh executable to invoke
@@ -388,7 +409,7 @@ _comp_cmd_ssh()
     fi
 } &&
     shopt -u hostcomplete &&
-    complete -F _comp_cmd_ssh ssh slogin autossh sidedoor
+    complete -F _comp_cmd_ssh {hpn,}ssh slogin autossh sidedoor
 
 # sftp(1) completion
 #
@@ -452,7 +473,7 @@ _comp_cmd_sftp()
         _comp_compgen_known_hosts ${ipvx:+"$ipvx"} -a ${configfile:+-F "$configfile"} -- "$cur"
     fi
 } &&
-    shopt -u hostcomplete && complete -F _comp_cmd_sftp sftp
+    shopt -u hostcomplete && complete -F _comp_cmd_sftp {hpn,}sftp
 
 # things we want to backslash escape in scp paths
 _comp_cmd_scp__path_esc='[][(){}<>"'"'"',:;^&!$=?`\\|[:space:]]'
@@ -718,6 +739,6 @@ _comp_cmd_scp()
 
     _comp_compgen -ax scp local_files "${prefix-}"
 } &&
-    complete -F _comp_cmd_scp -o nospace scp
+    complete -F _comp_cmd_scp -o nospace {hpn,}scp
 
 # ex: filetype=sh

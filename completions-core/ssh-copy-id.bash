@@ -6,10 +6,12 @@ _comp_cmd_ssh_copy_id()
     _comp_initialize -- "$@" || return
 
     # Prefer `ssh` from same dir for resolving options, etc
-    local pathcmd
+    local pathcmd cmdprefix
     pathcmd=$(type -P -- "$1") && local PATH=${pathcmd%/*}:$PATH
+    cmdprefix=${1##*/}
+    cmdprefix=${cmdprefix%ssh-keygen}
 
-    _comp_compgen -x ssh suboption_check && return
+    _comp_compgen -x ssh -P "$cmdprefix" suboption_check && return
 
     case $prev in
         -i)
@@ -24,7 +26,7 @@ _comp_cmd_ssh_copy_id()
             return
             ;;
         -o)
-            _comp_compgen -x ssh options
+            _comp_compgen -x ssh -P "$cmdprefix" options
             return
             ;;
     esac
@@ -35,6 +37,6 @@ _comp_cmd_ssh_copy_id()
         _comp_compgen_known_hosts -a -- "$cur"
     fi
 } &&
-    complete -F _comp_cmd_ssh_copy_id ssh-copy-id
+    complete -F _comp_cmd_ssh_copy_id {hpn,}ssh-copy-id
 
 # ex: filetype=sh

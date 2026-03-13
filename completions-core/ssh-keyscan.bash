@@ -48,6 +48,6 @@ _comp_cmd_ssh_keyscan()
 
     _comp_compgen_known_hosts ${ipvx-} -- "$cur"
 } &&
-    complete -F _comp_cmd_ssh_keyscan ssh-keyscan
+    complete -F _comp_cmd_ssh_keyscan {hpn,}ssh-keyscan
 
 # ex: filetype=sh
