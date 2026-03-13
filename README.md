@@ -214,12 +214,12 @@ A. [ Disclaimer: Here, how to make the completion code visible to
    `bash-completion-config-version.cmake` files. Example usage:
 
    ```cmake
-   include(GNUInstallDirs)
    find_package(bash-completion)
    if(BASH_COMPLETION_FOUND)
      message(STATUS
        "Using bash completion dir ${BASH_COMPLETION_COMPLETIONSDIR}")
    else()
+     include(GNUInstallDirs)
      set (BASH_COMPLETION_COMPLETIONSDIR "${CMAKE_INSTALL_DATADIR}/bash-completion/completions")
      message (STATUS
        "Using fallback bash completion dir ${BASH_COMPLETION_COMPLETIONSDIR}")
@@ -241,14 +241,15 @@ A. [ Disclaimer: Here, how to make the completion code visible to
    Example for `Makefile.am`:
 
    ```makefile
-   bashcompdir = $(datarootdir)/bash-completion/completions
+   bashcompdir = $(datadir)/bash-completion/completions
    dist_bashcomp_DATA = your-completion-file
    ```
 
    Example for `CMakeLists.txt`:
 
    ```cmake
-   install(FILES your-completion-file DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/bash-completion/completions")
+   include(GNUInstallDirs)
+   install(FILES your-completion-file DESTINATION "${CMAKE_INSTALL_DATADIR}/bash-completion/completions")
    ```
 
 **Q. When completing on a symlink to a directory, bash does not append
