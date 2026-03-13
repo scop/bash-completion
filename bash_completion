@@ -3478,7 +3478,7 @@ _comp_load()
     if [[ ${BASH_COMPLETION_USER_DIR-} ]]; then
         _comp_split -F : dirs "$BASH_COMPLETION_USER_DIR"
     else
-        dirs=("${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion")
+        dirs=("${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion/completions")
     fi
 
     # 2) From the location of bash_completion: Completions relative to the main
@@ -3486,7 +3486,7 @@ _comp_load()
     # we want to prefer in-tree completions over ones possibly coming with a
     # system installed bash-completion. (Due to usual install layouts, this
     # often hits the correct completions in system installations, too.)
-    dirs+=("$_comp__base_directory")
+    dirs+=("$_comp__base_directory"/completions{,-core,-fallback})
 
     # 3) From bin directories extracted from the specified path to the command,
     # the real path to the command, and $PATH
@@ -3496,28 +3496,24 @@ _comp_load()
     _comp_split -aF : paths "$PATH"
     for dir in "${paths[@]%/}"; do
         [[ $dir == ?*/@(bin|sbin) ]] &&
-            dirs+=("${dir%/*}/share/bash-completion")
+            dirs+=("${dir%/*}/share/bash-completion"/completions{,-core,-fallback})
     done
 
     # 4) From XDG_DATA_DIRS or system dirs (e.g. /usr/share, /usr/local/share):
     # Completions in the system data dirs.
     _comp_split -F : paths "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" &&
-        dirs+=("${paths[@]/%//bash-completion}")
+        dirs+=("${paths[@]/%//bash-completion}"/completions{,-core,-fallback})
 
     # Look up and source
     shift
     local -a source_args=("$@")
 
-    local i
-    for i in "${!dirs[@]}"; do
-        dir=${dirs[i]}/completions
+    for dir in "${dirs[@]}"; do
         [[ -d $dir ]] || continue
         for compfile in "$cmdname.bash" "$cmdname"; do
             _comp_load__visit_file "$dir/$compfile" && return 0
         done
     done
-    _comp_load__visit_file "$_comp__base_directory/completions-core/$cmdname.bash" && return 0
-    _comp_load__visit_file "$_comp__base_directory/completions-fallback/$cmdname.bash" && return 0
 
     # Look up simple "xspec" completions
     [[ -v _comp_xspecs[$cmdname] || -v _xspecs[$cmdname] ]] &&
