@@ -3451,8 +3451,7 @@ _comp_load()
     done
     shift "$((OPTIND - 1))"
 
-    local cmd=$1 cmdname=${1##*/} dir compfile
-    local -a paths
+    local cmd=$1 cmdname=${1##*/}
     [[ $cmdname ]] || return 1
 
     local backslash=
@@ -3470,55 +3469,108 @@ _comp_load()
         cmd=$REPLY
     fi
 
-    local -a dirs=()
+    # Begin lookup
 
-    # Lookup order:
-    # 1) From BASH_COMPLETION_USER_DIR (e.g. ~/.local/share/bash-completion):
-    # User installed completions.
-    if [[ ${BASH_COMPLETION_USER_DIR-} ]]; then
-        _comp_split -F : dirs "$BASH_COMPLETION_USER_DIR" &&
-            dirs+=("${paths[@]/%*(\/)//completions}")
-    else
-        dirs=("${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion/completions")
-    fi
-
-    # 2) From the location of bash_completion: Completions relative to the main
-    # script. This is primarily for run-in-place-from-git-clone setups, where
-    # we want to prefer in-tree completions over ones possibly coming with a
-    # system installed bash-completion. (Due to usual install layouts, this
-    # often hits the correct completions in system installations, too.)
-    dirs+=("$_comp__base_directory"/completions{,-core,-fallback})
-
-    # 3) From bin directories extracted from the specified path to the command,
-    # the real path to the command, and $PATH
-    paths=()
-    [[ $cmd == /* ]] && paths+=("${cmd%/*}")
-    _comp_realcommand "$cmd" && paths+=("${REPLY%/*}")
-    _comp_split -aF : paths "$PATH"
-    for dir in "${paths[@]%/}"; do
-        [[ $dir == ?*/@(bin|sbin) ]] &&
-            dirs+=("${dir%/*}/share/bash-completion"/completions)
-    done
-
-    # 4) From XDG_DATA_DIRS or system dirs (e.g. /usr/share, /usr/local/share):
-    # Completions in the system data dirs.
-    _comp_split -F : paths "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" &&
-        dirs+=("${paths[@]/%//bash-completion}"/completions)
-
-    # Look up and source
-    shift
+    shift # cmd
     local -a source_args=("$@")
+    local -a dirs
+    local dir
 
+    # There are two kinds of completion subdirs, main and fallback.
+    # Main subdirs are first looked up from all supported base locations,
+    # followed by fallback subdir lookups in certain locations.
+
+    # Typically, there is only one main completion subdir, "completions",
+    # and one fallback completion subdir, "completions-fallback".
+
+    # The location of the main bash_completion script, i.e. the "home" location
+    # of the bash-completion setup in use, is special a few respects.
+    # It is primarily for run-in-place-from-git-clone setups or ones unpacked
+    # from tarballs, typically user setups where we want to prefer in-tree
+    # completions over ones possibly coming with a system installed
+    # bash-completion.
+    #
+    # It supports an additional "completions-core" main subdir to look up from.
+    # This subdir contains completion snippets that come with that
+    # bash-completion version, and snippets in it are looked up after the usual
+    # "completions" dir. The "completions" dir in this location is for other
+    # completion snippets, such as ones installed by packages shipping
+    # completions of their own.
+    #
+    # Completions in the "completions-core" subdir may make use of
+    # bash-completion's internal API that is highly version specific.
+    # Therefore we do not look up from any other "completions-core" subdir
+    # besides this one.
+    #
+    # This location is also the only one from which we look up fallback
+    # completions from. These may also make use of bash-completion's internal
+    # API, and as it is assumed there's little if any need for a fallback
+    # hierarchy, we don't do it "just in case" to avoid some lookups.
+
+    # Filenames we look up from in usual main subdirs have the name of the
+    # command we are looking up a completion for, with .bash suffix appended
+    # (recommended) or no suffix. From others (i.e. ones containing files
+    # that are part of the bash-completion version in use), only the one with
+    # .bash appended is considered.
+
+    # 1) From user locations
+
+    if [[ ${BASH_COMPLETION_USER_DIR-} ]]; then
+        _comp_split -F : dirs "$BASH_COMPLETION_USER_DIR"
+    else
+        dirs=("${XDG_DATA_HOME:-$HOME/.local/share}/bash-completion")
+    fi
     for dir in "${dirs[@]}"; do
-        [[ -d $dir ]] || continue
-        for compfile in "$cmdname.bash" "$cmdname"; do
-            _comp_load__visit_file "$dir/$compfile" && return 0
-        done
+        _comp_load__visit_file "$dir/completions/$cmdname.bash" && return 0
+        _comp_load__visit_file "$dir/completions/$cmdname" && return 0
     done
 
-    # Look up simple "xspec" completions
+    # 2) From the bash-completion "home" location
+
+    _comp_load__visit_file \
+        "$_comp__base_directory/completions/$cmdname.bash" && return 0
+    _comp_load__visit_file \
+        "$_comp__base_directory/completions/$cmdname" && return 0
+    _comp_load__visit_file \
+        "$_comp__base_directory/completions-core/$cmdname.bash" && return 0
+
+    # 3) From bin directories extracted from a specified path to the command,
+    # the real path to the command, and $PATH
+
+    dirs=()
+    [[ $cmd == /* ]] && dirs+=("${cmd%/*}")
+    _comp_realcommand "$cmd" && dirs+=("${REPLY%/*}")
+    _comp_split -aF : dirs "$PATH"
+    for dir in "${dirs[@]%/}"; do
+        if [[ $dir == ?*/@(bin|sbin) ]]; then
+            _comp_load__visit_file "${dir%/*}/share/bash-completion/completions/$cmdname.bash" && return 0
+            _comp_load__visit_file "${dir%/*}/share/bash-completion/completions/$cmdname" && return 0
+        fi
+    done
+
+    # 4) From bash-completion subdir in XDG_DATA_DIRS or system dirs
+    # (e.g. /usr/share, /usr/local/share) -- typically meaning a system
+    # installed one if the one in use is not that, see 2) above
+
+    _comp_split -F : dirs "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+    for dir in "${dirs[@]}"; do
+        _comp_load__visit_file \
+            "$dir/bash-completion/completions/$cmdname.bash" && return 0
+        _comp_load__visit_file \
+            "$dir/bash-completion/completions/$cmdname" && return 0
+    done
+
+    # 5) From the fallback completion dir
+
+    _comp_load__visit_file \
+        "$_comp__base_directory/completions-fallback/$cmdname.bash" && return 0
+
+    # 6) Simple "xspec" completions
+
     [[ -v _comp_xspecs[$cmdname] || -v _xspecs[$cmdname] ]] &&
         complete -F _comp_complete_filedir_xspec "$cmdname" "$backslash$cmdname" && return 0
+
+    # Last) fallback to minimal if applicable
 
     if [[ $flag_fallback_default ]]; then
         complete -F _comp_complete_minimal -- "$origcmd" && return 0
