@@ -38,16 +38,6 @@ jobs:
 
   distcheck:
     runs-on: ubuntu-latest
-    permissions:
-      # Permissions from https://github.com/googleapis/release-please-action?tab=readme-ov-file#basic-configuration
-      # TODO: This is only needed for release, maybe split the release steps to a different job?
-      contents: write
-      pull-requests: write
-      # Needed for adding labels for PRs, we shouldn't actually need this, see https://github.com/orgs/community/discussions/156181
-      issues: write
-      # attestations and id-token for attest-build-provenance
-      attestations: write
-      id-token: write
     strategy:
       matrix:
         include:
@@ -64,12 +54,6 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - uses: googleapis/release-please-action@16a9c90856f42705d54a6fda1823352bdc62cf38 # v4.4.0
-        with:
-          config-file: .github/release-please-config.json
-          manifest-file: .github/release-please-manifest.json
-        id: release
-        if: github.event_name == 'push' && matrix.dist == 'alpine'
       # A "container" workflow config would be cleaner here, but comes with
       # some restrictions/oddities: changes root's $HOME to /github/home
       # without changing the actual home dir that can cause some problems,
@@ -91,22 +75,3 @@ jobs:
           test/docker/entrypoint.sh
         env:
           NETWORK: ${{matrix.network}}
-      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
-        with:
-          path: |
-            bash-completion-*.tar.xz
-            sha256sums.txt
-        if: matrix.dist == 'alpine'
-      - name: Upload release assets
-        run: |
-          set -x
-          gh release upload ${RELEASE_PLEASE_TAG_NAME} \
-            bash-completion-$(cat version.txt).tar.xz sha256sums.txt
-        env:
-          GH_TOKEN: ${{github.token}}
-          RELEASE_PLEASE_TAG_NAME: ${{steps.release.outputs.tag_name}}
-        if: steps.release.outputs.release_created
-      - uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
-        with:
-          subject-checksums: sha256sums.txt
-        if: steps.release.outputs.release_created

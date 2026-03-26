@@ -9,7 +9,6 @@ fi
 export bashcomp_bash=bash
 env
 
-oldpwd=$(pwd)
 cp -a . /work
 cd /work
 
@@ -30,5 +29,3 @@ make -j
 
 xvfb-run make distcheck \
     PYTESTFLAGS="${PYTESTFLAGS---verbose -p no:cacheprovider --numprocesses=auto --dist=loadfile}"
-cp -p bash-completion-*.tar.* "$oldpwd/"
-sha256sum bash-completion-*.tar.* >"$oldpwd/sha256sums.txt"
