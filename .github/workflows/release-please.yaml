@@ -1,0 +1,63 @@
+name: release-please
+
+on:
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      # Permissions from https://github.com/googleapis/release-please-action#basic-configuration
+      contents: write
+      pull-requests: write
+      # Needed for adding labels to PRs, we shouldn't actually need this, see https://github.com/orgs/community/discussions/156181
+      issues: write
+      # attestations and id-token for actions/attest
+      attestations: write
+      id-token: write
+    steps:
+      - uses: googleapis/release-please-action@16a9c90856f42705d54a6fda1823352bdc62cf38 # v4.4.0
+        with:
+          config-file: .github/release-please-config.json
+          manifest-file: .github/release-please-manifest.json
+        id: release
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        if: steps.release.outputs.release_created
+        with:
+          persist-credentials: false
+      # Use docker run instead of "container" workflow since that is what
+      # ci.yaml uses, and it's unclear how to run a script from inside the
+      # image.
+      - name: Run main build
+        if: steps.release.outputs.release_created
+        run: >-
+          docker run
+          --rm
+          --tty
+          --volume $PWD:/usr/src/bash-completion
+          --workdir /usr/src/bash-completion
+          ghcr.io/scop/bash-completion/test:alpine
+          ./make-release.sh
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        if: steps.release.outputs.release_created
+        with:
+          path: |
+            bash-completion-*.tar.xz
+            sha256sums.txt
+      - name: Upload release assets
+        if: steps.release.outputs.release_created
+        run: |
+          set -x
+          gh release upload ${RELEASE_PLEASE_TAG_NAME} \
+            bash-completion-$(cat version.txt).tar.xz sha256sums.txt
+        env:
+          GH_TOKEN: ${{github.token}}
+          RELEASE_PLEASE_TAG_NAME: ${{steps.release.outputs.tag_name}}
+      - uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        if: steps.release.outputs.release_created
+        with:
+          subject-checksums: sha256sums.txt
