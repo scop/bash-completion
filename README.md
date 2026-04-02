@@ -182,8 +182,12 @@ A. [ Disclaimer: Here, how to make the completion code visible to
      commands' names, so be sure to name your completion file accordingly, and
      to include (for example) symbolic links in case the file provides
      completions for more than one command. The completion filename for command
-     `foo` in this directory should be `foo.bash`.  Unsuffixed `foo` also
-     works, but it is deprecated in >= 2.18.
+     `foo` in this directory should be `foo.bash` to avoid conflicts with
+     completions possibly shipped for the same command by the installed < 2.18
+     version of bash-completion (which did not use the `.bash` suffix for any
+     of its completion files), and because the `.bash` suffixed version has
+     higher load order precedence. Unsuffixed `foo` also works,
+     but is deprecated in >= 2.18 for these reasons.
    - Helper scripts used by completions may be placed in the directory
      `<helpersdir>`, which can be retrieved with `pkg-config
      --variable=helpersdir bash-completion`.  The completion files in
