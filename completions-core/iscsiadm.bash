@@ -38,7 +38,7 @@ _comp_cmd_iscsiadm()
                 ;;
             node)
                 options='--help --version --debug --print --loginall \
-                    --logoutall--show  -T --portal --interface --login \
+                    --logoutall --show  -T --portal --interface --login \
                     --logout --rescan --stats --op --name --value'
                 ;;
             session)
