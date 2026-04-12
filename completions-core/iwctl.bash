@@ -68,6 +68,8 @@ _comp_cmd_iwctl()
     local cur prev words cword comp_args was_split
     # No split on ':' for "connect-hidden" address.
     _comp_initialize -n ":" -s -- "$@" || return
+    local prevprev=${words[cword - 2]}
+    local prevprevprev=${words[cword - 3]}
 
     case $prev in
         --username | --password | --passphrase)
@@ -114,6 +116,8 @@ _comp_cmd_iwctl()
                     # No handling of properties completion.
                     ;;
                 *)
+                    [[ ${prevprev} == set-property ]] && return
+                    [[ ${prevprevprev} == set-property ]] && return
                     _comp_compgen_split -- "show set-property"
                     ;;
             esac
@@ -160,6 +164,8 @@ _comp_cmd_iwctl()
                     # No handling of properties completion.
                     ;;
                 *)
+                    [[ ${prevprev} == set-property ]] && return
+                    [[ ${prevprevprev} == set-property ]] && return
                     _comp_compgen_split -- "show set-property"
                     ;;
             esac
@@ -178,6 +184,8 @@ _comp_cmd_iwctl()
                     # No handling of properties completion.
                     ;;
                 *)
+                    [[ ${prevprev} == set-property ]] && return
+                    [[ ${prevprevprev} == set-property ]] && return
                     _comp_compgen_split -- "forget show set-property"
                     ;;
             esac
@@ -192,6 +200,7 @@ _comp_cmd_iwctl()
                     ;;
                 push-button | start-user-pin | start-pin | cancel) ;;
                 *)
+                    [[ ${prevprev} == start-user-pin ]] && return
                     _comp_compgen_split -- "push-button start-user-pin start-pin cancel"
                     ;;
             esac
@@ -226,6 +235,8 @@ _comp_cmd_iwctl()
                     # get-networks | get-hidden-access-points rssi-dbms | rssi-bars
                     ;;
                 *)
+                    [[ ${prevprev} == @(connect|connect-hidden|get-bsses) ]] && return
+                    [[ ${prevprevprev} == @(connect|connect-hidden|get-bsses) ]] && return
                     _comp_compgen_split -- \
                         "connect connect-hidden disconnect get-networks get-hidden-access-points scan show get-bsses"
                     ;;
@@ -262,6 +273,7 @@ _comp_cmd_iwctl()
                     # enroll|configure key
                     ;;
                 *)
+                    [[ ${prevprev} == key ]] && return
                     _comp_compgen_split -- "stop show enroll configure"
                     ;;
             esac
@@ -282,6 +294,7 @@ _comp_cmd_iwctl()
                     # autoconnect on|off
                     ;;
                 *)
+                    [[ ${prevprev} == @(connect|roam) ]] && return
                     _comp_compgen_split -- "connect roam get-networks autoconnect"
                     ;;
             esac

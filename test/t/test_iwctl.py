@@ -119,6 +119,14 @@ class TestIwctl:
     def test_ad_hoc_commands(self, completion, subcmd):
         assert subcmd in completion
 
+    @pytest.mark.complete("iwctl adapter wlan0 set-property prop ")
+    def test_adapter_set_property_prop(self, completion):
+        assert not completion
+
+    @pytest.mark.complete("iwctl adapter wlan0 set-property prop val ")
+    def test_adapter_set_property_prop_val(self, completion):
+        assert not completion
+
     # ap
 
     @pytest.mark.complete("iwctl ap ", require_cmd=True)
@@ -190,6 +198,14 @@ class TestIwctl:
         # No suggestions for properties in implementation.
         assert not completion
 
+    @pytest.mark.complete("iwctl device wlan0 set-property prop ")
+    def test_device_set_property_prop(self, completion):
+        assert not completion
+
+    @pytest.mark.complete("iwctl device wlan0 set-property prop val ")
+    def test_device_set_property_prop_val(self, completion):
+        assert not completion
+
     # known-networks
 
     @pytest.mark.complete("iwctl known-networks ", require_cmd=True)
@@ -225,6 +241,14 @@ class TestIwctl:
     @pytest.mark.complete("iwctl known-networks WifiNetwork set-property ")
     def test_known_networks_set_property(self, completion):
         # No suggestions for properties in implementation.
+        assert not completion
+
+    @pytest.mark.complete("iwctl known-networks wlan0 set-property prop ")
+    def test_known_networks_set_property_prop(self, completion):
+        assert not completion
+
+    @pytest.mark.complete("iwctl known-networks wlan0 set-property prop val ")
+    def test_known_networks_set_property_prop_val(self, completion):
         assert not completion
 
     # wsc
@@ -265,6 +289,10 @@ class TestIwctl:
 
     @pytest.mark.complete("iwctl wsc wlan0 start-user-pin ")
     def test_wsc_start_user_pin(self, completion):
+        assert not completion
+
+    @pytest.mark.complete("iwctl wsc wlan0 start-user-pin PIN ")
+    def test_wsc_start_user_pin_with_value(self, completion):
         assert not completion
 
     @pytest.mark.complete("iwctl wsc wlan0 start-pin ")
@@ -311,6 +339,21 @@ class TestIwctl:
     def test_station_list(self, completion):
         assert not completion
 
+    @pytest.mark.complete("iwctl station wlan0 connect WifiNetwork ")
+    def test_station_connect_network(self, completion):
+        # No security completion
+        assert not completion
+
+    @pytest.mark.complete("iwctl station wlan0 connect WifiNetwork psk ")
+    def test_station_connect_network_security(self, completion):
+        assert not completion
+
+    @pytest.mark.complete(
+        'iwctl station wlan0 connect-hidden "01:23:45:67:89:ab" '
+    )
+    def test_station_connect_hidden_network(self, completion):
+        assert not completion
+
     @pytest.mark.parametrize("option", ["rssi-dbms", "rssi-bars"])
     @pytest.mark.complete("iwctl station wlan0 get-networks ")
     def test_station_get_networks(self, completion, option):
@@ -339,6 +382,15 @@ class TestIwctl:
 
     @pytest.mark.complete("iwctl station wlan0 show ")
     def test_station_show(self, completion):
+        assert not completion
+
+    @pytest.mark.complete("iwctl station get-bsses WifiNetwork ")
+    def test_station_get_bsses_network(self, completion):
+        # No security completion
+        assert not completion
+
+    @pytest.mark.complete("iwctl station get-bsses WifiNetwork psk ")
+    def test_station_get_bsses_network_security(self, completion):
         assert not completion
 
     # dpp
@@ -447,6 +499,14 @@ class TestIwctl:
     def test_pkex_configure_key(self, completion):
         assert not completion
 
+    @pytest.mark.complete("iwctl pkex wlan0 enroll key KEY ")
+    def test_pkex_enroll_key_with_key(self, completion):
+        assert not completion
+
+    @pytest.mark.complete("iwctl pkex wlan0 configure key KEY ")
+    def test_pkex_configure_key_with_key(self, completion):
+        assert not completion
+
     # debug
 
     @pytest.mark.complete(
@@ -474,8 +534,16 @@ class TestIwctl:
     def test_debug_connect(self, completion):
         assert not completion
 
+    @pytest.mark.complete("iwctl debug wlan0 connect BSSID ")
+    def test_debug_connect_bssid(self, completion):
+        assert not completion
+
     @pytest.mark.complete("iwctl debug wlan0 roam ")
     def test_debug_roam(self, completion):
+        assert not completion
+
+    @pytest.mark.complete("iwctl debug wlan0 roam BSSID ")
+    def test_debug_roam_bssid(self, completion):
         assert not completion
 
     @pytest.mark.parametrize("option", ["on", "off"])
