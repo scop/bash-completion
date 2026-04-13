@@ -1,4 +1,9 @@
+import contextlib
+import textwrap
+
 import pytest
+
+from conftest import assert_bash_exec
 
 COMMANDS = [
     "adapter",
@@ -485,3 +490,312 @@ class TestIwctl:
     @pytest.mark.complete("iwctl debug wlan0 autoconnect off ")
     def test_debug_autoconnect_off(self, completion):
         assert not completion
+
+
+@contextlib.contextmanager
+def bash_prepended_path(bash, path):
+    """Update 'bash' environment by prepending PATH.
+
+    `assert_bash_exec` seems to fail with too long commands, so rely on bash
+    variable modification to not repeat the whole PATH in command.
+
+    It should be done on a function scope level.
+    """
+    try:
+        assert_bash_exec(bash, f'export PATH="{path}:$PATH"')
+        yield
+    finally:
+        assert_bash_exec(bash, 'PATH="${PATH#*:}"')
+
+
+ADAPTER_LIST = """\
+                                    Adapters\x1b[1;90m                                   \x1b[0m
+\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m\x1b[1;90m  Name      Powered   Vendor                Model
+\x1b[0m\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m  phy0      on        Qualcomm              ABCDE123 Wireless
+                      Name, Inc             Network Adapter
+
+"""
+
+AD_HOC_LIST_NONE = """\
+                             Devices in Ad-Hoc Mode\x1b[1;90m                            \x1b[0m
+\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m\x1b[1;90m  Name                  Started
+\x1b[0m\x1b[90m--------------------------------------------------------------------------------
+\x1b[0mNo devices in Ad-Hoc mode available.
+
+"""
+
+AP_LIST_NONE = """\
+                          Devices in Access Point Mode\x1b[1;90m                         \x1b[0m
+\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m\x1b[1;90m  Name                  Started
+\x1b[0m\x1b[90m--------------------------------------------------------------------------------
+\x1b[0mNo devices in access point mode available.
+
+"""
+
+DEVICES_LIST = """\
+                                    Devices\x1b[1;90m                                    \x1b[0m
+\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m\x1b[1;90m  Name                  Address               Powered     Adapter     Mode
+\x1b[0m\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m  wlan0                 00:11:22:33:44:55     on          phy0        station
+
+"""
+
+KNOWN_NETWORKS_LIST = """\
+                                 Known Networks\x1b[1;90m                                \x1b[0m
+\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m\x1b[1;90m  Name                              Security     Hidden     Last connected
+\x1b[0m\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m  MyWifiNetwork                     psk                     Mar 29, 11:49 PM
+  WifiBox 1234                      open                    Mar  8,  6:09 PM
+  Really  long  Wifi Network  Name  psk                     Mar 22,  6:51 AM
+  HomeNetwork                       8021x                   Nov 20, 11:13 PM
+
+"""
+
+WSC_LIST = """\
+                              WSC-capable Devices\x1b[1;90m                              \x1b[0m
+\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m\x1b[1;90m  Name
+\x1b[0m\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m  wlan0
+
+"""
+
+STATION_LIST = """\
+                            Devices in Station Mode\x1b[1;90m                            \x1b[0m
+\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m\x1b[1;90m  Name                  State            Scanning
+\x1b[0m\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m  wlan0                 connected        scanning
+
+"""
+
+STATION_GET_NETWORKS = """\
+                               Available networks\x1b[1;90m                              \x1b[0m
+\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m\x1b[1;90m      Network name                      Security            Signal
+\x1b[0m\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m  \x1b[1;90m> \x1b[0m  MyWifiNetwork                     psk                 ****
+      WifiBox 1234                      open                ***\x1b[1;90m*\x1b[0m
+      Really  long  Wifi Network  Name  psk                 *\x1b[1;90m***\x1b[0m
+      HomeNetwork                       8021x               *\x1b[1;90m***\x1b[0m
+
+"""
+
+STATION_GET_HIDDEN_ACCESS_POINTS = """\
+                              Available hidden APs\x1b[1;90m                             \x1b[0m
+\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m\x1b[1;90m  Address               Security    Signal
+\x1b[0m\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m  01:23:45:67:89:ab     8021x       ****
+  00:98:76:54:32:10     8021x       ****
+  00:11:22:33:44:55     8021x       *\x1b[1;90m***\x1b[0m
+
+"""
+
+DPP_LIST = """\
+                              DPP-capable Devices\x1b[1;90m                              \x1b[0m
+\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m\x1b[1;90m  Name
+\x1b[0m\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m  wlan0
+
+"""
+
+PKEX_LIST = """\
+                            DPP-PKEX-capable Devices\x1b[1;90m                           \x1b[0m
+\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m\x1b[1;90m  Name
+\x1b[0m\x1b[90m--------------------------------------------------------------------------------
+\x1b[0m  wlan0
+
+"""
+
+
+class TestIwctlMockedOutput:
+    """Test Iwctl networks/environment dependant completions.
+
+    Uses mocked output to check the internal parsing implementation.
+    If 'iwctl' output would change this would not detect it, but tests should be
+    updated/added.
+
+    It relies on an 'iwctl' binary that will output content of 'iwctl_output'
+    file in the same directory.
+
+    On a per-test basis, the output file is created and path of 'iwctl' binary
+    added to the 'bash' environment.
+    """
+
+    IWCTL_MOCK = textwrap.dedent(
+        """\
+        #!/bin/sh
+        cat "$(dirname $0)/iwctl_output"
+        printf "%s\\n" "$@" >> "$(dirname $0)/iwctl_cmd"
+        """
+    )
+
+    def iwctl_create_binfile(self, iwctl_bindir):
+        iwctl = iwctl_bindir / "iwctl"
+        iwctl.write_text(self.IWCTL_MOCK, encoding="utf-8")
+        iwctl.chmod(0o777)
+
+    @pytest.fixture(scope="function")
+    def iwctl_mock(self, tmp_path, bash, iwctl_output, iwctl_cmd):
+        bindir = tmp_path / "iwctl_bindir"
+        bindir.mkdir()
+
+        self.iwctl_create_binfile(bindir)
+        (bindir / "iwctl_output").write_text(iwctl_output, encoding="utf-8")
+
+        with bash_prepended_path(bash, bindir):
+            yield
+
+        command = (bindir / "iwctl_cmd").read_text(encoding="utf-8").split()
+        assert command == iwctl_cmd
+
+    @pytest.mark.usefixtures("iwctl_mock")
+    @pytest.mark.parametrize(
+        "iwctl_output,iwctl_cmd",
+        [(ADAPTER_LIST, ["adapter", "list"])],
+        ids=["multi_line"],
+    )
+    @pytest.mark.complete("iwctl adapter ")
+    def test_adapter(self, completion):
+        assert set(completion) == set(("list", "phy0"))
+
+    @pytest.mark.usefixtures("iwctl_mock")
+    @pytest.mark.parametrize(
+        "iwctl_output,iwctl_cmd",
+        [(AD_HOC_LIST_NONE, ["ad-hoc", "list"])],
+        ids=["no_devices"],
+    )
+    @pytest.mark.complete("iwctl ad-hoc ")
+    def test_ad_hoc_none(self, completion):
+        assert set(completion) == set(("list",))
+
+    @pytest.mark.usefixtures("iwctl_mock")
+    @pytest.mark.parametrize(
+        "iwctl_output,iwctl_cmd",
+        [(AP_LIST_NONE, ["ap", "list"])],
+        ids=["no_devices"],
+    )
+    @pytest.mark.complete("iwctl ap ")
+    def test_ap_none(self, completion):
+        assert set(completion) == set(("list",))
+
+    @pytest.mark.usefixtures("iwctl_mock")
+    @pytest.mark.parametrize(
+        "iwctl_output,iwctl_cmd",
+        [(DEVICES_LIST, ["device", "list"])],
+        ids=["devices"],
+    )
+    @pytest.mark.complete("iwctl device ")
+    def test_device(self, completion):
+        assert set(completion) == set(("list", "wlan0"))
+
+    @pytest.mark.usefixtures("iwctl_mock")
+    @pytest.mark.parametrize(
+        "iwctl_output,iwctl_cmd",
+        [(KNOWN_NETWORKS_LIST, ["known-networks", "list"])],
+        ids=["devices"],
+    )
+    @pytest.mark.complete("iwctl known-networks ")
+    def test_known_networks(self, completion):
+        assert set(completion) == set(
+            (
+                "list",
+                '"WifiBox 1234"',
+                "MyWifiNetwork",
+                "HomeNetwork",
+                '"Really  long  Wifi Network  Name"',
+            )
+        )
+
+    @pytest.mark.usefixtures("iwctl_mock")
+    @pytest.mark.parametrize(
+        "iwctl_output,iwctl_cmd",
+        [(WSC_LIST, ["wsc", "list"])],
+        ids=["devices"],
+    )
+    @pytest.mark.complete("iwctl wsc ")
+    def test_wsc(self, completion):
+        assert set(completion) == set(("list", "wlan0"))
+
+    @pytest.mark.usefixtures("iwctl_mock")
+    @pytest.mark.parametrize(
+        "iwctl_output,iwctl_cmd",
+        [(STATION_LIST, ["station", "list"])],
+        ids=["devices"],
+    )
+    @pytest.mark.complete("iwctl station ")
+    def test_station(self, completion):
+        assert set(completion) == set(("list", "wlan0"))
+
+    @pytest.mark.usefixtures("iwctl_mock")
+    @pytest.mark.parametrize(
+        "iwctl_output,iwctl_cmd",
+        [(STATION_GET_NETWORKS, ["station", "wlan0", "get-networks"])],
+        ids=["all_networks"],
+    )
+    @pytest.mark.complete("iwctl station wlan0 connect ")
+    def test_station_connect(self, completion):
+        assert set(completion) == set(
+            (
+                '"WifiBox 1234"',
+                "MyWifiNetwork",
+                "HomeNetwork",
+                '"Really  long  Wifi Network  Name"',
+            )
+        )
+
+    @pytest.mark.usefixtures("iwctl_mock")
+    @pytest.mark.parametrize(
+        "iwctl_output,iwctl_cmd",
+        [
+            (
+                STATION_GET_HIDDEN_ACCESS_POINTS,
+                ["station", "wlan0", "get-hidden-access-points"],
+            )
+        ],
+        ids=["hidden_networks"],
+    )
+    @pytest.mark.complete("iwctl station wlan0 connect-hidden ")
+    def test_station_connect_hidden(self, completion):
+        assert '"01:23:45:67:89:ab"' in completion
+        assert '"00:98:76:54:32:10"' in completion
+        assert '"00:11:22:33:44:55"' in completion
+
+    @pytest.mark.usefixtures("iwctl_mock")
+    @pytest.mark.parametrize(
+        "iwctl_output,iwctl_cmd",
+        [(DPP_LIST, ["dpp", "list"])],
+        ids=["devices"],
+    )
+    @pytest.mark.complete("iwctl dpp ")
+    def test_dpp(self, completion):
+        assert set(completion) == set(("list", "wlan0"))
+
+    @pytest.mark.usefixtures("iwctl_mock")
+    @pytest.mark.parametrize(
+        "iwctl_output,iwctl_cmd",
+        [(PKEX_LIST, ["pkex", "list"])],
+        ids=["devices"],
+    )
+    @pytest.mark.complete("iwctl pkex ")
+    def test_pkex(self, completion):
+        assert set(completion) == set(("list", "wlan0"))
+
+    @pytest.mark.usefixtures("iwctl_mock")
+    @pytest.mark.parametrize(
+        "iwctl_output,iwctl_cmd",
+        [(STATION_LIST, ["station", "list"])],
+        ids=["devices"],
+    )
+    @pytest.mark.complete("iwctl debug ")
+    def test_debug(self, completion):
+        assert set(completion) == set(("wlan0",))
