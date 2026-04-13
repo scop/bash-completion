@@ -211,7 +211,7 @@ A. [ Disclaimer: Here, how to make the completion code visible to
 
    ```makefile
    bashcompdir = @bashcompdir@
-   dist_bashcomp_DATA = your-completion-file # completion files go here
+   dist_bashcomp_DATA = your-completion-file.bash # completion files go here
    ```
 
    For cmake we ship the `bash-completion-config.cmake` and
@@ -229,7 +229,7 @@ A. [ Disclaimer: Here, how to make the completion code visible to
        "Using fallback bash completion dir ${BASH_COMPLETION_COMPLETIONSDIR}")
    endif()
 
-   install(FILES your-completion-file DESTINATION
+   install(FILES your-completion-file.bash DESTINATION
      ${BASH_COMPLETION_COMPLETIONSDIR})
    ```
 
@@ -246,13 +246,13 @@ A. [ Disclaimer: Here, how to make the completion code visible to
 
    ```makefile
    bashcompdir = $(datarootdir)/bash-completion/completions
-   dist_bashcomp_DATA = your-completion-file
+   dist_bashcomp_DATA = your-completion-file.bash
    ```
 
    Example for `CMakeLists.txt`:
 
    ```cmake
-   install(FILES your-completion-file DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/bash-completion/completions")
+   install(FILES your-completion-file.bash DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/bash-completion/completions")
    ```
 
 **Q. When completing on a symlink to a directory, bash does not append
