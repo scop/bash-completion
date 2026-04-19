@@ -41,7 +41,7 @@ class TestUnitCompgenIpAddresses:
         assert completion
         assert all("." in x for x in completion)
 
-    @pytest.mark.xfail(in_container(), reason="Probably fails in a container")
+    @pytest.mark.skipif(in_container(), reason="Probably fails in a container")
     @pytest.mark.complete("ia6 ")
     def test_4(self, functions, completion):
         """_comp_compgen_ip_addresses -6 should complete ipv6 addresses."""
