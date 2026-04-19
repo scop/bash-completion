@@ -5,7 +5,7 @@ import pytest
 
 @pytest.mark.bashcomp(cmd="ether-wake")
 class TestEtherWake:
-    @pytest.mark.xfail(
+    @pytest.mark.skipif(
         os.environ.get("NETWORK") == "none",
         reason="MAC addresses may be N/A with no networking configured",
     )

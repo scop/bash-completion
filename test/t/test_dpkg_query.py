@@ -9,7 +9,7 @@ class TestDpkgQuery:
     def test_options(self, completion):
         assert completion
 
-    @pytest.mark.xfail(
+    @pytest.mark.skipif(
         not os.path.exists("/etc/debian_version"),
         reason="Likely fails on systems not based on Debian",
     )

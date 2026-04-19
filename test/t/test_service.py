@@ -6,7 +6,7 @@ from conftest import assert_complete, bash_env_saved
 
 
 class TestService:
-    @pytest.mark.xfail(
+    @pytest.mark.skipif(
         sys.platform == "darwin",
         reason="Service completion not available on macOS",
     )

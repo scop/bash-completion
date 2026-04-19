@@ -12,7 +12,7 @@ from conftest import assert_complete
     )
 )
 class TestChown:
-    @pytest.mark.xfail(
+    @pytest.mark.skipif(
         getpass.getuser() != "root", reason="Only root can chown to all users"
     )
     @pytest.mark.complete("chown ")
