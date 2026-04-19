@@ -8,7 +8,7 @@ class TestPostfix:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.xfail(
+    @pytest.mark.skipif(
         getpass.getuser() != "root",
         reason="Likely outputs usage only for root",
     )
