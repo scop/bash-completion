@@ -8,7 +8,7 @@ class TestDict:
     def test_1(self, completion):
         assert completion
 
-    @pytest.mark.xfail(
+    @pytest.mark.skipif(
         os.environ.get("NETWORK") == "none",
         reason="The database list is unavailable without network",
     )
@@ -20,7 +20,7 @@ class TestDict:
         # completions.
         assert completion and "_comp_load/" not in completion
 
-    @pytest.mark.xfail(
+    @pytest.mark.skipif(
         os.environ.get("NETWORK") == "none",
         reason="The database list is unavailable without network",
     )
