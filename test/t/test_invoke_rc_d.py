@@ -5,7 +5,7 @@ import pytest
 
 @pytest.mark.bashcomp(cmd="invoke-rc.d")
 class TestInvokeRcD:
-    @pytest.mark.xfail(
+    @pytest.mark.skipif(
         sys.platform == "darwin",
         reason="Service completion not available on macOS",
     )
