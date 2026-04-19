@@ -264,6 +264,7 @@ CLEANFILES = \
 	sentry-cli.bash \
 	sinker.bash \
 	skaffold.bash \
+	skupper.bash \
 	slsa-verifier.bash \
 	sopstool.bash \
 	spacectl.bash \
@@ -469,6 +470,7 @@ symlinks: $(DATA)
 		regctl \
 		sinker \
 		skaffold \
+		skupper \
 		slsa-verifier \
 		spacectl \
 		sshi \
