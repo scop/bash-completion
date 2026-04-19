@@ -19,7 +19,7 @@ _comp_cmd_nsupdate()
             ;;
         -*y)
             if [[ $cur == h* ]]; then
-                _comp_comtpen -- -W "hmac-{md5,sha{1,224,256,384,512}}" -S :
+                _comp_compgen -- -W "hmac-{md5,sha{1,224,256,384,512}}" -S :
                 [[ ${COMPREPLY-} == *: ]] && compopt -o nospace
             fi
             return
