@@ -145,7 +145,7 @@ _comp_cmd_dig__chaos_txt_names()
     return 0
 }
 
-# Append NS-hint targets from $BASH_COMPLETION_DIG_NS_HINTS_FILE for a probe
+# Append NS-hint targets from $BASH_COMPLETION_CMD_DIG_NS_HINTS_FILE for a probe
 # name ($_q_name). Plain-text lines: <pattern> <space-separated server names>
 # (no @ prefix; completion adds @). Lines starting with # are ignored.
 #
@@ -166,8 +166,8 @@ _comp_cmd_dig__chaos_txt_names()
 _comp_cmd_dig__ns_hints()
 {
     local fqdn=${1%.}
-    [[ -z ${BASH_COMPLETION_DIG_NS_HINTS_FILE-} ]] && return
-    [[ -r $BASH_COMPLETION_DIG_NS_HINTS_FILE ]] || return
+    [[ -z ${BASH_COMPLETION_CMD_DIG_NS_HINTS_FILE-} ]] && return
+    [[ -r $BASH_COMPLETION_CMD_DIG_NS_HINTS_FILE ]] || return
 
     local best_targets="" best_len=0 glob_targets=""
     local -A union_seen=()
@@ -198,7 +198,7 @@ _comp_cmd_dig__ns_hints()
                 best_len=${#pattern_n}
             fi
         fi
-    done <"$BASH_COMPLETION_DIG_NS_HINTS_FILE"
+    done <"$BASH_COMPLETION_CMD_DIG_NS_HINTS_FILE"
 
     if [[ -n $best_targets ]]; then
         _comp_compgen -- -W "$best_targets"
@@ -330,12 +330,12 @@ _comp_cmd_dig()
             return
             ;;
         @*)
-            # Resolver @server: NS hints (when BASH_COMPLETION_DIG_NS_HINTS_FILE is set)
+            # Resolver @server: NS hints (when BASH_COMPLETION_CMD_DIG_NS_HINTS_FILE is set)
             # otherwise ~/.ssh/known_hosts. Probe name comes from _q_name.
             local server=${cur#@}
             cur=$server
 
-            if [[ -n ${BASH_COMPLETION_DIG_NS_HINTS_FILE-} ]]; then
+            if [[ -n ${BASH_COMPLETION_CMD_DIG_NS_HINTS_FILE-} ]]; then
                 compopt -o nosort 2>/dev/null || true
                 _comp_cmd_dig__ns_hints "$_q_name"
             else
