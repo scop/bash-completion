@@ -20,6 +20,7 @@ cross_platform = adb.bash \
 		interdiff.bash \
 		ionice.bash \
 		jj.bash \
+		jreleaser.bash \
 		jungle.bash \
 		keyring.bash \
 		kontena.bash \
