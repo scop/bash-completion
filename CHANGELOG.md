@@ -1,4 +1,4 @@
-# bash-completion Change Log
+# Changelog
 
 ## [2.17.0](https://github.com/scop/bash-completion/compare/2.16.0...2.17.0) (2025-10-31)
 
