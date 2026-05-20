@@ -79,6 +79,7 @@ cross_platform = 2to3.bash \
 		desktop-file-validate.bash \
 		dhclient.bash \
 		dict.bash \
+		dig.bash \
 		dmypy.bash \
 		dnssec-keygen.bash \
 		dnsspoof.bash \
