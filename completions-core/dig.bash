@@ -281,7 +281,7 @@ _comp_cmd_dig()
 
             [[ $cur == *=* ]] && return
 
-            # +[no]keyword options sourced from dig -h (BIND 9.20)
+            # +[no]keyword options sourced from dig -h (BIND 9.21.21)
             _comp_compgen -- -W '
                 +aaflag +noaaflag +aaonly +noaaonly
                 +additional +noadditional +adflag +noadflag
@@ -313,10 +313,13 @@ _comp_cmd_dig()
                 +recurse +norecurse +retry=
                 +rrcomments +norrcomments
                 +search +nosearch +short +noshort
+                +showallmessages +noshowallmessages
                 +showbadcookie +noshowbadcookie
                 +showbadvers +noshowbadvers
                 +showsearch +noshowsearch
+                +showtruncated +noshowtruncated
                 +split +nosplit +split= +stats +nostats +subnet=
+                +svcparamkeycompat +nosvcparamkeycompat
                 +tcflag +notcflag +tcp +notcp +timeout=
                 +tls +notls +tls-ca +notls-ca +tls-ca=
                 +tls-certfile +notls-certfile +tls-certfile=
@@ -325,7 +328,8 @@ _comp_cmd_dig()
                 +trace +notrace +tries= +ttlid +nottlid
                 +ttlunits +nottlunits
                 +unknownformat +nounknownformat
-                +vc +novc +yaml +noyaml +zflag +nozflag'
+                +vc +novc +yaml +noyaml +zflag +nozflag
+                +zoneversion +nozoneversion'
             [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
             return
             ;;
