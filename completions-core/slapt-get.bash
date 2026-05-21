@@ -74,7 +74,7 @@ _comp_cmd_slapt_get()
             return
             ;;
         ins) # --remove|--filelist
-            _comp_compgen -C /var/log/packages filedir -f
+            _comp_compgen -C /var/log/packages filedir
             return
             ;;
         set) # --install-set
