@@ -746,7 +746,8 @@ def diff_env(before: List[str], after: List[str], ignore: str):
         if not re.search(r"^(---|\+\+\+|@@ )", x)
         # Ignore variables expected to change:
         and not re.search(
-            r"^[-+](_|PPID|BASH_REMATCH|(BASH_)?LINENO)=",
+            # _omp_*: https://ohmyposh.dev
+            r"^[-+](_|PPID|BASH_REMATCH|(BASH_)?LINENO|_omp_.+)=",
             x,
             re.ASCII,
         )
