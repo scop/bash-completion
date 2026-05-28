@@ -16,6 +16,8 @@ python3 -m pip install -r test/requirements.txt
 export bashcomp_bash=bash
 env
 
+python3 -c "print(sorted(['python3', 'python-3']))"
+
 autoreconf -i
 ./configure
 make -j
