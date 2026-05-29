@@ -244,6 +244,7 @@ CLEANFILES = \
 	okteto.bash \
 	op.bash \
 	opa.bash \
+	opencode.bash \
 	oras.bash \
 	ory.bash \
 	packer.bash \
@@ -322,6 +323,7 @@ symlinks: $(DATA)
 		gaiad \
 		ngrok \
 		npm \
+		opencode \
 		sopstool \
 		tendermint
 	$(ss) gh \
