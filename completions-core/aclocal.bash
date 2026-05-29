@@ -30,6 +30,6 @@ _comp_cmd_aclocal()
     _comp_compgen_help
     [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 } &&
-    complete -F _comp_cmd_aclocal aclocal aclocal-1.1{0..6}
+    complete -F _comp_cmd_aclocal aclocal aclocal-1.1{0..8}
 
 # ex: filetype=sh
