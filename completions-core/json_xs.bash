@@ -1,4 +1,4 @@
-# json_xs completion                                       -*- shell-script -*-
+# json_xs completion
 
 _comp_cmd_json_xs()
 {
@@ -28,5 +28,3 @@ _comp_cmd_json_xs()
     fi
 } &&
     complete -F _comp_cmd_json_xs json_xs
-
-# ex: filetype=sh

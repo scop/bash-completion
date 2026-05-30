@@ -1,4 +1,4 @@
-# bash completion for pydocstyle                           -*- shell-script -*-
+# bash completion for pydocstyle
 
 _comp_cmd_pydocstyle()
 {
@@ -31,5 +31,3 @@ _comp_cmd_pydocstyle()
     _comp_compgen_filedir py
 } &&
     complete -F _comp_cmd_pydocstyle pydocstyle
-
-# ex: filetype=sh

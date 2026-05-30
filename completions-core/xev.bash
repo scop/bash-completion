@@ -1,4 +1,4 @@
-# xev(1) completion                                        -*- shell-script -*-
+# xev(1) completion
 
 _comp_cmd_xev()
 {
@@ -27,5 +27,3 @@ _comp_cmd_xev()
     fi
 } &&
     complete -F _comp_cmd_xev xev
-
-# ex: filetype=sh

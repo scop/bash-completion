@@ -1,4 +1,4 @@
-# gnokii(1) completion                                     -*- shell-script -*-
+# gnokii(1) completion
 
 _comp_cmd_gnokii__memory_type()
 {
@@ -234,5 +234,3 @@ _comp_cmd_gnokii()
     _comp_compgen -- -W '"${all_cmd[@]}"'
 } &&
     complete -F _comp_cmd_gnokii gnokii
-
-# ex: filetype=sh

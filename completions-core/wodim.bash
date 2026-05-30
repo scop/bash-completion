@@ -1,4 +1,4 @@
-# bash completion for cdrecord/wodim                       -*- shell-script -*-
+# bash completion for cdrecord/wodim
 
 _comp_cmd_wodim()
 {
@@ -91,5 +91,3 @@ _comp_cmd_wodim()
     [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 } &&
     complete -F _comp_cmd_wodim wodim cdrecord
-
-# ex: filetype=sh

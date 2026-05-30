@@ -1,4 +1,4 @@
-# bash completion for sysctl                               -*- shell-script -*-
+# bash completion for sysctl
 
 _comp_cmd_sysctl()
 {
@@ -29,5 +29,3 @@ _comp_cmd_sysctl()
     fi
 } &&
     complete -F _comp_cmd_sysctl sysctl
-
-# ex: filetype=sh

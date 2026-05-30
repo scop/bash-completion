@@ -1,4 +1,4 @@
-# dumpe2fs(8) completion                                   -*- shell-script -*-
+# dumpe2fs(8) completion
 
 _comp_cmd_dumpe2fs()
 {
@@ -23,5 +23,3 @@ _comp_cmd_dumpe2fs()
     _comp_compgen -c "${cur:-/dev/}" filedir
 } &&
     complete -F _comp_cmd_dumpe2fs dumpe2fs
-
-# ex: filetype=sh

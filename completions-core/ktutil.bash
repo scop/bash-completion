@@ -1,4 +1,4 @@
-# ktutil completion                                        -*- shell-script -*-
+# ktutil completion
 
 _comp_cmd_ktutil__heimdal_principals()
 {
@@ -115,5 +115,3 @@ _comp_cmd_ktutil()
     fi
 } &&
     complete -F _comp_cmd_ktutil ktutil
-
-# ex: filetype=sh

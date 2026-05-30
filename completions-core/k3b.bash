@@ -1,4 +1,4 @@
-# bash completion for k3b                                  -*- shell-script -*-
+# bash completion for k3b
 
 _comp_cmd_k3b()
 {
@@ -44,5 +44,3 @@ _comp_cmd_k3b()
     fi
 } &&
     complete -F _comp_cmd_k3b k3b
-
-# ex: filetype=sh

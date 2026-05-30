@@ -1,4 +1,4 @@
-# bash completion for 2to3                                 -*- shell-script -*-
+# bash completion for 2to3
 
 _comp_cmd_2to3()
 {
@@ -38,5 +38,3 @@ _comp_cmd_2to3()
     _comp_compgen_filedir py
 } &&
     complete -F _comp_cmd_2to3 2to3
-
-# ex: filetype=sh

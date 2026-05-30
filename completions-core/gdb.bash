@@ -1,4 +1,4 @@
-# bash completion for gdb                                  -*- shell-script -*-
+# bash completion for gdb
 
 _comp_cmd_gdb()
 {
@@ -42,5 +42,3 @@ _comp_cmd_gdb()
     fi
 } &&
     complete -F _comp_cmd_gdb gdb
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# desktop-file-validate completion                         -*- shell-script -*-
+# desktop-file-validate completion
 
 _comp_cmd_desktop_file_validate()
 {
@@ -19,5 +19,3 @@ _comp_cmd_desktop_file_validate()
     _comp_compgen_filedir desktop
 } &&
     complete -F _comp_cmd_desktop_file_validate desktop-file-validate
-
-# ex: filetype=sh

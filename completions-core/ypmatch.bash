@@ -1,4 +1,4 @@
-# bash completion for yp-tools                             -*- shell-script -*-
+# bash completion for yp-tools
 
 _comp_cmd_ypmatch()
 {
@@ -19,5 +19,3 @@ _comp_cmd_ypmatch()
     fi
 } &&
     complete -F _comp_cmd_ypmatch ypmatch ypcat
-
-# ex: filetype=sh

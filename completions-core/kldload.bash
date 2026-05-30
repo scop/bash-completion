@@ -1,4 +1,4 @@
-# FreeBSD kldload completion                               -*- shell-script -*-
+# FreeBSD kldload completion
 
 [[ $OSTYPE == *freebsd* ]] || return 1
 
@@ -28,5 +28,3 @@ _comp_cmd_kldload()
 
 } &&
     complete -F _comp_cmd_kldload kldload
-
-# ex: filetype=sh

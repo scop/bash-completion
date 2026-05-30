@@ -1,4 +1,4 @@
-# Linux ipsec(8) completion (for FreeS/WAN and strongSwan) -*- shell-script -*-
+# Linux ipsec(8) completion (for FreeS/WAN and strongSwan)
 
 # Complete ipsec.conf conn entries.
 #
@@ -97,5 +97,3 @@ case "$(ipsec --version 2>/dev/null)" in
         complete -F _comp_cmd_ipsec__freeswan ipsec
         ;;
 esac
-
-# ex: filetype=sh

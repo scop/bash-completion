@@ -1,4 +1,4 @@
-# gpasswd(1) completion                                    -*- shell-script -*-
+# gpasswd(1) completion
 
 _comp_cmd_gpasswd()
 {
@@ -23,5 +23,3 @@ _comp_cmd_gpasswd()
     _comp_compgen -- -g
 } &&
     complete -F _comp_cmd_gpasswd gpasswd
-
-# ex: filetype=sh

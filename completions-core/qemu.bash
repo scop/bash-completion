@@ -1,4 +1,4 @@
-# bash completion for qemu                                 -*- shell-script -*-
+# bash completion for qemu
 
 _comp_cmd_qemu()
 {
@@ -102,5 +102,3 @@ _comp_cmd_qemu()
     fi
 } &&
     complete -F _comp_cmd_qemu qemu qemu-kvm qemu-system-i386 qemu-system-x86_64
-
-# ex: filetype=sh

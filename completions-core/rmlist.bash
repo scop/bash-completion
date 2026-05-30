@@ -1,4 +1,4 @@
-# mailman rmlist completion                                -*- shell-script -*-
+# mailman rmlist completion
 
 _comp_cmd_rmlist()
 {
@@ -16,5 +16,3 @@ _comp_cmd_rmlist()
 
 } &&
     complete -F _comp_cmd_rmlist rmlist
-
-# ex: filetype=sh

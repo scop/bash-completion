@@ -1,4 +1,4 @@
-# bash completion for ps(1)                                -*- shell-script -*-
+# bash completion for ps(1)
 
 _comp_cmd_ps()
 {
@@ -66,5 +66,3 @@ _comp_cmd_ps()
     fi
 } &&
     complete -F _comp_cmd_ps ps
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for repomanage                           -*- shell-script -*-
+# bash completion for repomanage
 
 # Use of this file is deprecated.  Upstream completion is available in
 # yum-utils >= 1.1.24, use that instead.
@@ -20,5 +20,3 @@ _comp_cmd_repomanage()
     fi
 } &&
     complete -F _comp_cmd_repomanage repomanage
-
-# ex: filetype=sh

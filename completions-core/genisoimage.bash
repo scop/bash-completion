@@ -1,4 +1,4 @@
-# bash completion for mkisofs/genisoimage                  -*- shell-script -*-
+# bash completion for mkisofs/genisoimage
 
 _comp_cmd_mkisofs()
 {
@@ -34,5 +34,3 @@ _comp_cmd_mkisofs()
 
 } &&
     complete -F _comp_cmd_mkisofs mkisofs genisoimage
-
-# ex: filetype=sh

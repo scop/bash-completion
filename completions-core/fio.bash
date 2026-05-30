@@ -1,4 +1,4 @@
-# fio(1) completion                                        -*- shell-script -*-
+# fio(1) completion
 
 _comp_cmd_fio__compgen_engines()
 {
@@ -143,5 +143,3 @@ _comp_cmd_fio()
     _comp_compgen_filedir '@(fio|job)'
 } &&
     complete -F _comp_cmd_fio fio
-
-# ex: filetype=sh

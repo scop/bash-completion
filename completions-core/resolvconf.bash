@@ -1,4 +1,4 @@
-# bash completion for resolvconf                           -*- shell-script -*-
+# bash completion for resolvconf
 
 _comp_cmd_resolvconf()
 {
@@ -17,5 +17,3 @@ _comp_cmd_resolvconf()
     fi
 } &&
     complete -F _comp_cmd_resolvconf resolvconf
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# xsltproc(1) completion                                   -*- shell-script -*-
+# xsltproc(1) completion
 
 _comp_cmd_xsltproc()
 {
@@ -45,5 +45,3 @@ _comp_cmd_xsltproc()
     fi
 } &&
     complete -F _comp_cmd_xsltproc xsltproc
-
-# ex: filetype=sh

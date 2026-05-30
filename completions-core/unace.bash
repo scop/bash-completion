@@ -1,4 +1,4 @@
-# unace(1) completion                                      -*- shell-script -*-
+# unace(1) completion
 
 _comp_cmd_unace()
 {
@@ -16,5 +16,3 @@ _comp_cmd_unace()
     fi
 } &&
     complete -F _comp_cmd_unace unace
-
-# ex: filetype=sh

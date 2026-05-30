@@ -1,4 +1,4 @@
-# pydoc completion                                         -*- shell-script -*-
+# pydoc completion
 
 _comp_cmd_pydoc()
 {
@@ -37,5 +37,3 @@ _comp_cmd_pydoc()
     _comp_compgen -a filedir py
 } &&
     complete -F _comp_cmd_pydoc pydoc pydoc3 pydoc3.{13..15}
-
-# ex: filetype=sh

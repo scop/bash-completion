@@ -1,4 +1,4 @@
-# bash completion for GNU find                             -*- shell-script -*-
+# bash completion for GNU find
 # This makes heavy use of ksh style extended globs and contains Linux specific
 # code for completing the parameter to the -fstype option.
 
@@ -108,5 +108,3 @@ _comp_cmd_find()
 
 } &&
     complete -F _comp_cmd_find find
-
-# ex: filetype=sh

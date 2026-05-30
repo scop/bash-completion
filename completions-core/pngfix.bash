@@ -1,4 +1,4 @@
-# pngfix completion                                        -*- shell-script -*-
+# pngfix completion
 
 _comp_cmd_pngfix()
 {
@@ -31,5 +31,3 @@ _comp_cmd_pngfix()
     _comp_compgen_filedir png
 } &&
     complete -F _comp_cmd_pngfix pngfix
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for sudo(8)                              -*- shell-script -*-
+# bash completion for sudo(8)
 
 _comp_cmd_sudo()
 {
@@ -63,5 +63,3 @@ _comp_cmd_sudo()
     fi
 } &&
     complete -F _comp_cmd_sudo sudo sudoedit sudo.ws sudo-rs
-
-# ex: filetype=sh

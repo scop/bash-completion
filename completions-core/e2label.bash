@@ -1,4 +1,4 @@
-# e2label(8) completion                                    -*- shell-script -*-
+# e2label(8) completion
 
 _comp_cmd_e2label()
 {
@@ -10,5 +10,3 @@ _comp_cmd_e2label()
     fi
 } &&
     complete -F _comp_cmd_e2label e2label
-
-# ex: filetype=sh

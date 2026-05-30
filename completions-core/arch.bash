@@ -1,4 +1,4 @@
-# mailman arch completion                                  -*- shell-script -*-
+# mailman arch completion
 
 # Try to detect whether this is the mailman "arch" to avoid installing
 # it for the coreutils/util-linux-ng one.
@@ -45,5 +45,3 @@ _comp_have_command mailmanctl &&
 
     } &&
         complete -F _comp_cmd_arch arch
-
-# ex: filetype=sh

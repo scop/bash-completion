@@ -1,4 +1,4 @@
-# cal(1) completion                                        -*- shell-script -*-
+# cal(1) completion
 
 # Use of this file is deprecated on Linux.  Upstream completion is
 # available in util-linux >= 2.23, use that instead.
@@ -33,5 +33,3 @@ _comp_cmd_cal()
     ((REPLY == 1)) && _comp_compgen -- -W '{1..12}'
 } &&
     complete -F _comp_cmd_cal cal ncal
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# truncate(1) completion                                   -*- shell-script -*-
+# truncate(1) completion
 
 _comp_cmd_truncate()
 {
@@ -28,5 +28,3 @@ _comp_cmd_truncate()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_truncate truncate
-
-# ex: filetype=sh

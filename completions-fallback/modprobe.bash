@@ -1,4 +1,4 @@
-# Linux modprobe(8) completion                             -*- shell-script -*-
+# Linux modprobe(8) completion
 
 # Use of this file is deprecated.
 # Upstream completion is expected to be available in kmod >= 35, use that instead.
@@ -125,5 +125,3 @@ _comp_cmd_modprobe()
     esac
 } &&
     complete -F _comp_cmd_modprobe modprobe
-
-# ex: filetype=sh

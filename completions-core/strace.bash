@@ -1,4 +1,4 @@
-# bash completion for strace                               -*- shell-script -*-
+# bash completion for strace
 
 _comp_cmd_strace()
 {
@@ -95,5 +95,3 @@ _comp_cmd_strace()
     fi
 } &&
     complete -F _comp_cmd_strace -o default strace
-
-# ex: filetype=sh

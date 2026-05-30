@@ -1,4 +1,4 @@
-# htpasswd(1) completion                                   -*- shell-script -*-
+# htpasswd(1) completion
 
 _comp_cmd_htpasswd()
 {
@@ -31,5 +31,3 @@ _comp_cmd_htpasswd()
     fi
 } &&
     complete -F _comp_cmd_htpasswd htpasswd
-
-# ex: filetype=sh

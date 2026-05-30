@@ -1,4 +1,4 @@
-# BitKeeper completion                                     -*- shell-script -*-
+# BitKeeper completion
 # adapted from code by  Bart Trojanowski <bart@jukie.net>
 
 _comp_cmd_bk()
@@ -14,5 +14,3 @@ _comp_cmd_bk()
 
 } &&
     complete -F _comp_cmd_bk bk
-
-# ex: filetype=sh

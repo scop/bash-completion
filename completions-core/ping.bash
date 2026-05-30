@@ -1,4 +1,4 @@
-# ping(8) completion                                       -*- shell-script -*-
+# ping(8) completion
 
 _comp_cmd_ping()
 {
@@ -67,5 +67,3 @@ _comp_cmd_ping()
     _comp_compgen_known_hosts ${ipvx-} -- "$cur"
 } &&
     complete -F _comp_cmd_ping ping ping4 ping6
-
-# ex: filetype=sh

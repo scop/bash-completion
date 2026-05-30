@@ -1,4 +1,4 @@
-# radvdump(8) completion                                   -*- shell-script -*-
+# radvdump(8) completion
 
 _comp_cmd_radvdump()
 {
@@ -18,5 +18,3 @@ _comp_cmd_radvdump()
     _comp_compgen_usage -- --help
 } &&
     complete -F _comp_cmd_radvdump radvdump
-
-# ex: filetype=sh

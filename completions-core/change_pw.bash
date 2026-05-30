@@ -1,4 +1,4 @@
-# mailman change_pw completion                             -*- shell-script -*-
+# mailman change_pw completion
 
 _comp_cmd_change_pw()
 {
@@ -24,5 +24,3 @@ _comp_cmd_change_pw()
 
 } &&
     complete -F _comp_cmd_change_pw change_pw
-
-# ex: filetype=sh

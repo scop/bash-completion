@@ -1,4 +1,4 @@
-# lzma(1) completion                                       -*- shell-script -*-
+# lzma(1) completion
 # by Per Øyvind Karlsen <peroyvind@mandriva.org>
 
 _comp_cmd_lzma()
@@ -31,5 +31,3 @@ _comp_cmd_lzma()
     _comp_compgen -- -f -X "$xspec" -o plusdirs
 } &&
     complete -F _comp_cmd_lzma lzma
-
-# ex: filetype=sh

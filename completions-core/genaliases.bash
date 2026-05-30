@@ -1,4 +1,4 @@
-# mailman genaliases completion                            -*- shell-script -*-
+# mailman genaliases completion
 
 _comp_cmd_genaliases()
 {
@@ -11,5 +11,3 @@ _comp_cmd_genaliases()
 
 } &&
     complete -F _comp_cmd_genaliases genaliases
-
-# ex: filetype=sh

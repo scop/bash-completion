@@ -1,4 +1,4 @@
-# pylint(1) completion                                     -*- shell-script -*-
+# pylint(1) completion
 
 _comp_cmd_pylint__message_ids()
 {
@@ -115,5 +115,3 @@ _comp_cmd_pylint()
     _comp_compgen -a filedir py
 } &&
     complete -F _comp_cmd_pylint pylint pylint-2 pylint-3
-
-# ex: filetype=sh

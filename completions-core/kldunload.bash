@@ -1,4 +1,4 @@
-# FreeBSD kldunload completion                             -*- shell-script -*-
+# FreeBSD kldunload completion
 
 [[ $OSTYPE == *freebsd* ]] || return 1
 
@@ -11,5 +11,3 @@ _comp_cmd_kldunload()
         COMPREPLY=("${COMPREPLY[@]%.ko}")
 } &&
     complete -F _comp_cmd_kldunload kldunload
-
-# ex: filetype=sh

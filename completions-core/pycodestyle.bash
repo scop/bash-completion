@@ -1,4 +1,4 @@
-# pycodestyle completion                                   -*- shell-script -*-
+# pycodestyle completion
 
 _comp_cmd_pycodestyle()
 {
@@ -30,5 +30,3 @@ _comp_cmd_pycodestyle()
     _comp_compgen_filedir py
 } &&
     complete -F _comp_cmd_pycodestyle pycodestyle
-
-# ex: filetype=sh

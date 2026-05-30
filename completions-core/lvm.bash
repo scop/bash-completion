@@ -1,4 +1,4 @@
-# bash completion for lvm                                  -*- shell-script -*-
+# bash completion for lvm
 
 _comp_cmd_lvm__filedir()
 {
@@ -901,5 +901,3 @@ _comp_cmd_lvm()
     fi
 } &&
     complete -F _comp_cmd_lvm lvm
-
-# ex: filetype=sh

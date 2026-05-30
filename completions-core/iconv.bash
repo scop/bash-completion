@@ -1,4 +1,4 @@
-# iconv(1) completion                                      -*- shell-script -*-
+# iconv(1) completion
 
 # @since 2.12
 _comp_xfunc_iconv_compgen_charsets()
@@ -48,5 +48,3 @@ _comp_cmd_iconv()
     fi
 } &&
     complete -F _comp_cmd_iconv -o default iconv
-
-# ex: filetype=sh

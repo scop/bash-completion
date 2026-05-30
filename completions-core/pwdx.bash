@@ -1,4 +1,4 @@
-# pwdx(1) completion                                       -*- shell-script -*-
+# pwdx(1) completion
 
 _comp_cmd_pwdx()
 {
@@ -19,5 +19,3 @@ _comp_cmd_pwdx()
     fi
 } &&
     complete -F _comp_cmd_pwdx pwdx
-
-# ex: filetype=sh

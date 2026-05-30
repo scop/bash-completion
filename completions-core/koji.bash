@@ -1,4 +1,4 @@
-# koji completion                                          -*- shell-script -*-
+# koji completion
 
 _comp_cmd_koji__search()
 {
@@ -242,5 +242,3 @@ _comp_cmd_koji()
     fi
 } &&
     complete -F _comp_cmd_koji koji arm-koji ppc-koji s390-koji sparc-koji
-
-# ex: filetype=sh

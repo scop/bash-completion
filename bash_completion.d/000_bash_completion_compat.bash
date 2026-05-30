@@ -1,4 +1,4 @@
-# Deprecated bash_completion functions and variables       -*- shell-script -*-
+# Deprecated bash_completion functions and variables
 
 _comp_deprecate_func 2.12 _userland _comp_userland
 _comp_deprecate_func 2.12 _sysvdirs _comp_sysvdirs
@@ -504,4 +504,3 @@ _completion_loader()
     # is specified to `complete -F` by a user.
     _comp_complete_load "$@"
 }
-# ex: filetype=sh

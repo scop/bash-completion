@@ -1,4 +1,4 @@
-# mailman qrunner completion                               -*- shell-script -*-
+# mailman qrunner completion
 
 _comp_cmd_qrunner()
 {
@@ -13,5 +13,3 @@ _comp_cmd_qrunner()
 
 } &&
     complete -F _comp_cmd_qrunner qrunner
-
-# ex: filetype=sh

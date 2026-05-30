@@ -1,4 +1,4 @@
-# bash completion for hping2                               -*- shell-script -*-
+# bash completion for hping2
 
 _comp_cmd_hping2()
 {
@@ -34,5 +34,3 @@ _comp_cmd_hping2()
     fi
 } &&
     complete -F _comp_cmd_hping2 hping hping2 hping3
-
-# ex: filetype=sh

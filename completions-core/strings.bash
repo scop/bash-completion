@@ -1,4 +1,4 @@
-# strings(1) completion                                    -*- shell-script -*-
+# strings(1) completion
 
 _comp_cmd_strings()
 {
@@ -43,5 +43,3 @@ _comp_cmd_strings()
     _comp_compgen -P "${BASH_REMATCH-}" filedir
 } &&
     complete -F _comp_cmd_strings strings
-
-# ex: filetype=sh

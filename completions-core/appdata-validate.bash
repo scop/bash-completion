@@ -1,4 +1,4 @@
-# appdata-validate(1) completion                           -*- shell-script -*-
+# appdata-validate(1) completion
 
 _comp_cmd_appdata_validate()
 {
@@ -27,5 +27,3 @@ _comp_cmd_appdata_validate()
     _comp_compgen_filedir appdata.xml
 } &&
     complete -F _comp_cmd_appdata_validate appdata-validate
-
-# ex: filetype=sh

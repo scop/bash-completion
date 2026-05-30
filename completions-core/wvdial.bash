@@ -1,4 +1,4 @@
-# bash completion for wvdial                               -*- shell-script -*-
+# bash completion for wvdial
 
 _comp_cmd_wvdial()
 {
@@ -42,5 +42,3 @@ _comp_cmd_wvdial()
 
 } &&
     complete -F _comp_cmd_wvdial wvdial
-
-# ex: filetype=sh

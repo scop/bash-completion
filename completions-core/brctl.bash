@@ -1,4 +1,4 @@
-# bash completion for brctl                                -*- shell-script -*-
+# bash completion for brctl
 
 _comp_cmd_brctl__interfaces()
 {
@@ -47,5 +47,3 @@ _comp_cmd_brctl()
     esac
 } &&
     complete -F _comp_cmd_brctl brctl
-
-# ex: filetype=sh

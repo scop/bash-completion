@@ -1,4 +1,4 @@
-# luseradd(1) and lusermod(1) completion                   -*- shell-script -*-
+# luseradd(1) and lusermod(1) completion
 
 _comp_cmd_luseradd()
 {
@@ -38,5 +38,3 @@ _comp_cmd_luseradd()
     [[ ${1##*/} == luseradd ]] || _comp_compgen -- -u
 } &&
     complete -F _comp_cmd_luseradd luseradd lusermod
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# urlsnarf completion                                      -*- shell-script -*-
+# urlsnarf completion
 
 _comp_cmd_urlsnarf()
 {
@@ -22,5 +22,3 @@ _comp_cmd_urlsnarf()
 
 } &&
     complete -F _comp_cmd_urlsnarf urlsnarf
-
-# ex: filetype=sh

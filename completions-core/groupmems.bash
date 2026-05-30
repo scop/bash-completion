@@ -1,4 +1,4 @@
-# groupmems(8) completion                                  -*- shell-script -*-
+# groupmems(8) completion
 
 _comp_cmd_groupmems()
 {
@@ -23,5 +23,3 @@ _comp_cmd_groupmems()
     _comp_compgen_help
 } &&
     complete -F _comp_cmd_groupmems groupmems
-
-# ex: filetype=sh

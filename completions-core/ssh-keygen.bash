@@ -1,4 +1,4 @@
-# ssh-keygen(1) completion                                 -*- shell-script -*-
+# ssh-keygen(1) completion
 
 _comp_cmd_ssh_keygen()
 {
@@ -177,5 +177,3 @@ _comp_cmd_ssh_keygen()
     fi
 } &&
     complete -F _comp_cmd_ssh_keygen ssh-keygen
-
-# ex: filetype=sh

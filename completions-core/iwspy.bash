@@ -1,4 +1,4 @@
-# iwspy completion                                         -*- shell-script -*-
+# iwspy completion
 
 _comp_cmd_iwspy()
 {
@@ -16,5 +16,3 @@ _comp_cmd_iwspy()
     fi
 } &&
     complete -F _comp_cmd_iwspy iwspy
-
-# ex: filetype=sh

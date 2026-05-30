@@ -1,4 +1,4 @@
-# bash completion for rsync                                -*- shell-script -*-
+# bash completion for rsync
 
 _comp_cmd_rsync__vercomp()
 {
@@ -123,5 +123,3 @@ _comp_cmd_rsync()
     esac
 } &&
     complete -F _comp_cmd_rsync -o nospace rsync
-
-# ex: filetype=sh

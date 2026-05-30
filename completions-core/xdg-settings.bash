@@ -1,4 +1,4 @@
-# xdg-settings completion                                  -*- shell-script -*-
+# xdg-settings completion
 
 _comp_cmd_xdg_settings()
 {
@@ -25,5 +25,3 @@ _comp_cmd_xdg_settings()
     fi
 } &&
     complete -F _comp_cmd_xdg_settings xdg-settings
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# groupmod(8) completion                                   -*- shell-script -*-
+# groupmod(8) completion
 
 _comp_cmd_groupmod()
 {
@@ -27,5 +27,3 @@ _comp_cmd_groupmod()
     _comp_compgen -- -g
 } &&
     complete -F _comp_cmd_groupmod groupmod
-
-# ex: filetype=sh

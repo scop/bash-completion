@@ -1,4 +1,4 @@
-# Qt qdbus, dcop completion                                -*- shell-script -*-
+# Qt qdbus, dcop completion
 
 _comp_cmd_qdbus()
 {
@@ -10,5 +10,3 @@ _comp_cmd_qdbus()
     )"
 } &&
     complete -F _comp_cmd_qdbus qdbus dcop
-
-# ex: filetype=sh

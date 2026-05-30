@@ -1,4 +1,4 @@
-# jpegoptim(1) completion                                  -*- shell-script -*-
+# jpegoptim(1) completion
 
 _comp_cmd_jpegoptim()
 {
@@ -36,5 +36,3 @@ _comp_cmd_jpegoptim()
     _comp_compgen_filedir 'jp?(e)g'
 } &&
     complete -F _comp_cmd_jpegoptim jpegoptim
-
-# ex: filetype=sh

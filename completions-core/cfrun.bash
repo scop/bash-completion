@@ -1,4 +1,4 @@
-# cfrun completion                                         -*- shell-script -*-
+# cfrun completion
 
 _comp_cmd_cfrun()
 {
@@ -43,5 +43,3 @@ _comp_cmd_cfrun()
     esac
 } &&
     complete -F _comp_cmd_cfrun cfrun
-
-# ex: filetype=sh

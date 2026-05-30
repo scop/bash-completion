@@ -1,4 +1,4 @@
-# kill(1) completion                                       -*- shell-script -*-
+# kill(1) completion
 
 _comp_cmd_kill()
 {
@@ -26,5 +26,3 @@ _comp_cmd_kill()
     fi
 } &&
     complete -F _comp_cmd_kill kill
-
-# ex: filetype=sh

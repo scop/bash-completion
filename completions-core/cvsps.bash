@@ -1,4 +1,4 @@
-# bash completion for cvsps                                -*- shell-script -*-
+# bash completion for cvsps
 
 _comp_cmd_cvsps()
 {
@@ -54,5 +54,3 @@ _comp_cmd_cvsps()
     fi
 } &&
     complete -F _comp_cmd_cvsps cvsps
-
-# ex: filetype=sh

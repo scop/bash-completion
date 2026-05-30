@@ -1,4 +1,4 @@
-# hostname(1) completion                                   -*- shell-script -*-
+# hostname(1) completion
 
 _comp_cmd_hostname()
 {
@@ -21,5 +21,3 @@ _comp_cmd_hostname()
         _comp_compgen_help || _comp_compgen_usage
 } &&
     complete -F _comp_cmd_hostname hostname
-
-# ex: filetype=sh

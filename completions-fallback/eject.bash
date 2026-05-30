@@ -1,4 +1,4 @@
-# bash completion for eject(1)                             -*- shell-script -*-
+# bash completion for eject(1)
 
 # Use of this file is deprecated on Linux.  Upstream completion is
 # available in util-linux >= 2.23, use that instead.
@@ -29,5 +29,3 @@ _comp_cmd_eject()
     _comp_compgen -a dvd_devices
 } &&
     complete -F _comp_cmd_eject eject
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# mount(8) completion                                      -*- shell-script -*-
+# mount(8) completion
 
 # Use of this file is deprecated on Linux.  Upstream completion is
 # available in util-linux >= 2.28, use that instead.
@@ -68,5 +68,3 @@ _comp_cmd_mount()
     fi
 } &&
     complete -F _comp_cmd_mount -o default -o dirnames mount
-
-# ex: filetype=sh

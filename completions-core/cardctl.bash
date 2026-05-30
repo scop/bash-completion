@@ -1,4 +1,4 @@
-# Linux cardctl(8) completion                              -*- shell-script -*-
+# Linux cardctl(8) completion
 
 _comp_cmd_cardctl()
 {
@@ -11,5 +11,3 @@ _comp_cmd_cardctl()
     fi
 } &&
     complete -F _comp_cmd_cardctl cardctl pccardctl
-
-# ex: filetype=sh

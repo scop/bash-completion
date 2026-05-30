@@ -1,4 +1,4 @@
-# mcrypt(1) completion                                     -*- shell-script -*-
+# mcrypt(1) completion
 # by Ariel Fermani <the_end@bbs.frc.utn.edu.ar>
 
 _comp_cmd_mcrypt()
@@ -61,5 +61,3 @@ _comp_cmd_mcrypt()
     fi
 } &&
     complete -F _comp_cmd_mcrypt mcrypt mdecrypt
-
-# ex: filetype=sh

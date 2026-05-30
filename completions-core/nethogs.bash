@@ -1,4 +1,4 @@
-# bash completion for nethogs(8)                           -*- shell-script -*-
+# bash completion for nethogs(8)
 
 _comp_cmd_nethogs()
 {
@@ -22,5 +22,3 @@ _comp_cmd_nethogs()
     _comp_compgen_available_interfaces -a
 } &&
     complete -F _comp_cmd_nethogs nethogs
-
-# ex: filetype=sh

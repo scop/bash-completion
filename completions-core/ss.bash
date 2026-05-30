@@ -1,4 +1,4 @@
-# ss(8) completion                                         -*- shell-script -*-
+# ss(8) completion
 
 _comp_cmd_ss()
 {
@@ -39,5 +39,3 @@ _comp_cmd_ss()
     fi
 } &&
     complete -F _comp_cmd_ss ss
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for tcpdump                              -*- shell-script -*-
+# bash completion for tcpdump
 
 _comp_cmd_tcpdump()
 {
@@ -60,5 +60,3 @@ _comp_cmd_tcpdump()
 
 } &&
     complete -F _comp_cmd_tcpdump tcpdump
-
-# ex: filetype=sh

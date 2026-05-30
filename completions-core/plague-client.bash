@@ -1,4 +1,4 @@
-# bash completion for plague-client                        -*- shell-script -*-
+# bash completion for plague-client
 
 _comp_cmd_plague_client()
 {
@@ -10,5 +10,3 @@ _comp_cmd_plague_client()
             list_builders pause requeue unpause update_builders'
 } &&
     complete -F _comp_cmd_plague_client plague-client
-
-# ex: filetype=sh

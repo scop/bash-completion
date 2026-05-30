@@ -1,4 +1,4 @@
-# bash completion for getent                               -*- shell-script -*-
+# bash completion for getent
 
 _comp_cmd_getent()
 {
@@ -76,5 +76,3 @@ _comp_cmd_getent()
     fi
 } &&
     complete -F _comp_cmd_getent getent
-
-# ex: filetype=sh

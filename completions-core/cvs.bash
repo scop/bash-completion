@@ -1,4 +1,4 @@
-# cvs(1) completion                                        -*- shell-script -*-
+# cvs(1) completion
 
 _comp_deprecate_var 2.12 \
     COMP_CVS_REMOTE BASH_COMPLETION_CMD_CVS_REMOTE
@@ -405,5 +405,3 @@ _comp_cmd_cvs()
 
 } &&
     complete -F _comp_cmd_cvs cvs
-
-# ex: filetype=sh

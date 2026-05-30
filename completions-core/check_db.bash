@@ -1,4 +1,4 @@
-# mailman check_db completion                              -*- shell-script -*-
+# mailman check_db completion
 
 _comp_cmd_check_db()
 {
@@ -16,5 +16,3 @@ _comp_cmd_check_db()
 
 } &&
     complete -F _comp_cmd_check_db check_db
-
-# ex: filetype=sh

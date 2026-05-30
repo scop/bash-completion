@@ -1,4 +1,4 @@
-# bash completion for gssdp-discover/device-sniffer        -*- shell-script -*-
+# bash completion for gssdp-discover/device-sniffer
 
 _comp_cmd_gssdp_discover()
 {
@@ -28,5 +28,3 @@ _comp_cmd_gssdp_discover()
     fi
 } &&
     complete -F _comp_cmd_gssdp_discover gssdp-discover gssdp-device-sniffer
-
-# ex: filetype=sh

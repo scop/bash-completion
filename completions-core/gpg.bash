@@ -1,4 +1,4 @@
-# bash completion for gpg                                  -*- shell-script -*-
+# bash completion for gpg
 
 _comp_cmd_gpg()
 {
@@ -49,5 +49,3 @@ _comp_cmd_gpg()
     fi
 } &&
     complete -F _comp_cmd_gpg -o default gpg
-
-# ex: filetype=sh

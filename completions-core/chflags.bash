@@ -1,4 +1,4 @@
-# chflags(1) completion                                      -*- shell-script -*-
+# chflags(1) completion
 
 [[ $OSTYPE == *@(bsd|darwin)* ]] || return 1
 
@@ -48,5 +48,3 @@ _comp_cmd_chflags()
     fi
 } &&
     complete -F _comp_cmd_chflags chflags
-
-# ex: filetype=sh

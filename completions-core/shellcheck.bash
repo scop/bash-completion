@@ -1,4 +1,4 @@
-# bash completion for shellcheck(1)                        -*- shell-script -*-
+# bash completion for shellcheck(1)
 
 _comp_cmd_shellcheck__optarg()
 {
@@ -61,5 +61,3 @@ _comp_cmd_shellcheck()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_shellcheck shellcheck
-
-# ex: filetype=sh

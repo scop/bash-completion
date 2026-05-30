@@ -1,4 +1,4 @@
-# svnadmin completion                                      -*- shell-script -*-
+# svnadmin completion
 
 # Use of this file is deprecated.  Upstream completion is available in
 # subversion >= 0.12.0, use that instead.
@@ -74,5 +74,3 @@ _comp_cmd_svnadmin()
 
 } &&
     complete -F _comp_cmd_svnadmin -o default svnadmin
-
-# ex: filetype=sh

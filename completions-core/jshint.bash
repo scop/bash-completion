@@ -1,4 +1,4 @@
-# bash completion for jshint                               -*- shell-script -*-
+# bash completion for jshint
 
 _comp_cmd_jshint()
 {
@@ -34,5 +34,3 @@ _comp_cmd_jshint()
     _comp_compgen_filedir js
 } &&
     complete -F _comp_cmd_jshint jshint
-
-# ex: filetype=sh

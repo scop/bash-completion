@@ -1,4 +1,4 @@
-# id(1) completion                                         -*- shell-script -*-
+# id(1) completion
 
 _comp_cmd_id()
 {
@@ -13,5 +13,3 @@ _comp_cmd_id()
     fi
 } &&
     complete -F _comp_cmd_id id
-
-# ex: filetype=sh

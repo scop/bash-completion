@@ -1,4 +1,4 @@
-# bash export completion                                   -*- shell-script -*-
+# bash export completion
 
 _comp_cmd_export()
 {
@@ -60,5 +60,3 @@ _comp_cmd_export()
     esac
 } &&
     complete -F _comp_cmd_export export
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for inotifywait(1) and inotifywatch(1)   -*- shell-script -*-
+# bash completion for inotifywait(1) and inotifywatch(1)
 
 _comp_cmd_inotifywait__events()
 {
@@ -45,5 +45,3 @@ _comp_cmd_inotifywait()
 } &&
     complete -F _comp_cmd_inotifywait inotifywait inotifywatch fsnotifywait \
         fsnotifywatch
-
-# ex: filetype=sh

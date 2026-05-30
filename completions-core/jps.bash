@@ -1,4 +1,4 @@
-# jps(1) completion                                        -*- shell-script -*-
+# jps(1) completion
 
 _comp_cmd_jps()
 {
@@ -21,5 +21,3 @@ _comp_cmd_jps()
     fi
 } &&
     complete -F _comp_cmd_jps jps
-
-# ex: filetype=sh

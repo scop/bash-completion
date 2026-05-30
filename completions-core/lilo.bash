@@ -1,4 +1,4 @@
-# bash completion for lilo(8)                              -*- shell-script -*-
+# bash completion for lilo(8)
 
 _comp_cmd_lilo__labels()
 {
@@ -59,5 +59,3 @@ _comp_cmd_lilo()
     fi
 } &&
     complete -F _comp_cmd_lilo lilo
-
-# ex: filetype=sh

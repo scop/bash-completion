@@ -1,4 +1,4 @@
-# 7z(1) completion                                         -*- shell-script -*-
+# 7z(1) completion
 
 _comp_cmd_7z()
 {
@@ -108,5 +108,3 @@ _comp_cmd_7z()
     fi
 } &&
     complete -F _comp_cmd_7z 7z 7za 7zr 7zz 7zzs
-
-# ex: filetype=sh

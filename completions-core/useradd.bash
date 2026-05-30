@@ -1,4 +1,4 @@
-# useradd(8) completion                                    -*- shell-script -*-
+# useradd(8) completion
 
 _comp_cmd_useradd()
 {
@@ -53,5 +53,3 @@ _comp_cmd_useradd()
         _comp_compgen_help
 } &&
     complete -F _comp_cmd_useradd useradd
-
-# ex: filetype=sh

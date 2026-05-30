@@ -1,4 +1,4 @@
-# bash completion for zopfli                               -*- shell-script -*-
+# bash completion for zopfli
 
 _comp_cmd_zopfli()
 {
@@ -26,5 +26,3 @@ _comp_cmd_zopfli()
     _comp_compgen -- -f -X "$xspec" -o plusdirs
 } &&
     complete -F _comp_cmd_zopfli zopfli
-
-# ex: filetype=sh

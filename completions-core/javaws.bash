@@ -1,4 +1,4 @@
-# javaws(1) completion                                     -*- shell-script -*-
+# javaws(1) completion
 
 _comp_cmd_javaws()
 {
@@ -30,5 +30,3 @@ _comp_cmd_javaws()
     _comp_compgen_filedir jnlp
 } &&
     complete -F _comp_cmd_javaws javaws
-
-# ex: filetype=sh

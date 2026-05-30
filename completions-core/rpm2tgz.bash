@@ -1,4 +1,4 @@
-# Slackware rpm2tgz completion                             -*- shell-script -*-
+# Slackware rpm2tgz completion
 
 _comp_cmd_rpm2tgz()
 {
@@ -13,5 +13,3 @@ _comp_cmd_rpm2tgz()
     _comp_compgen_filedir "rpm"
 } &&
     complete -F _comp_cmd_rpm2tgz rpm2tgz rpm2txz rpm2targz
-
-# ex: filetype=sh

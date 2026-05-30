@@ -1,4 +1,4 @@
-# pm-powersave(8) completion                               -*- shell-script -*-
+# pm-powersave(8) completion
 
 _comp_cmd_pm_powersave()
 {
@@ -8,5 +8,3 @@ _comp_cmd_pm_powersave()
     _comp_compgen -- -W "true false"
 } &&
     complete -F _comp_cmd_pm_powersave pm-powersave
-
-# ex: filetype=sh

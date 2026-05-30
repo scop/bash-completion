@@ -1,4 +1,4 @@
-# bash shell function completion                           -*- shell-script -*-
+# bash shell function completion
 
 _comp_cmd_function()
 {
@@ -13,5 +13,3 @@ _comp_cmd_function()
     fi
 } &&
     complete -F _comp_cmd_function function
-
-# ex: filetype=sh

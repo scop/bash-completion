@@ -1,4 +1,4 @@
-# bash completion for slabtop                              -*- shell-script -*-
+# bash completion for slabtop
 
 _comp_cmd_slabtop()
 {
@@ -27,5 +27,3 @@ _comp_cmd_slabtop()
     fi
 } &&
     complete -F _comp_cmd_slabtop slabtop
-
-# ex: filetype=sh

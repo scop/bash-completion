@@ -1,4 +1,4 @@
-# ip(8) completion                                         -*- shell-script -*-
+# ip(8) completion
 
 _comp_cmd_ip__iproute2_conf()
 {
@@ -622,5 +622,3 @@ _comp_cmd_ip()
     esac
 } &&
     complete -F _comp_cmd_ip ip
-
-# ex: filetype=sh

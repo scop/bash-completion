@@ -1,4 +1,4 @@
-# hunspell(1) completion                                   -*- shell-script -*-
+# hunspell(1) completion
 
 _comp_cmd_hunspell()
 {
@@ -36,5 +36,3 @@ _comp_cmd_hunspell()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_hunspell hunspell
-
-# ex: filetype=sh

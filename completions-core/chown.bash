@@ -1,4 +1,4 @@
-# chown(1) completion                                      -*- shell-script -*-
+# chown(1) completion
 
 _comp_cmd_chown()
 {
@@ -42,5 +42,3 @@ _comp_cmd_chown()
     fi
 } &&
     complete -F _comp_cmd_chown chown
-
-# ex: filetype=sh

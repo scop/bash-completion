@@ -1,4 +1,4 @@
-# yum(8) completion                                        -*- shell-script -*-
+# yum(8) completion
 
 # Use of this file is deprecated.  Upstream completion is available in
 # yum > 3.2.25, use that instead.
@@ -146,5 +146,3 @@ _comp_cmd_yum()
     fi
 } &&
     complete -F _comp_cmd_yum yum
-
-# ex: filetype=sh

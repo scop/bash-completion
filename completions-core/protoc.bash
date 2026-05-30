@@ -1,4 +1,4 @@
-# protoc completion                                        -*- shell-script -*-
+# protoc completion
 
 _comp_cmd_protoc()
 {
@@ -52,5 +52,3 @@ _comp_cmd_protoc()
     _comp_compgen_filedir proto
 } &&
     complete -F _comp_cmd_protoc protoc
-
-# ex: filetype=sh

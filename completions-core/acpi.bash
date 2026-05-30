@@ -1,4 +1,4 @@
-# acpi(1) completion                                       -*- shell-script -*-
+# acpi(1) completion
 
 _comp_cmd_acpi()
 {
@@ -20,5 +20,3 @@ _comp_cmd_acpi()
     _comp_compgen_help
 } &&
     complete -F _comp_cmd_acpi acpi
-
-# ex: filetype=sh

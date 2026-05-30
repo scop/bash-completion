@@ -1,4 +1,4 @@
-# bash completion for Portsnap                             -*- shell-script -*-
+# bash completion for Portsnap
 
 [[ $OSTYPE == *freebsd* ]] || return 1
 
@@ -21,5 +21,3 @@ _comp_cmd_portsnap()
     _comp_compgen -- -W "fetch cron extract update"
 } &&
     complete -F _comp_cmd_portsnap portsnap
-
-# ex: filetype=sh

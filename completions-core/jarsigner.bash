@@ -1,4 +1,4 @@
-# jarsigner(1) completion                                  -*- shell-script -*-
+# jarsigner(1) completion
 
 _comp_cmd_jarsigner()
 {
@@ -52,5 +52,3 @@ _comp_cmd_jarsigner()
     fi
 } &&
     complete -F _comp_cmd_jarsigner jarsigner
-
-# ex: filetype=sh

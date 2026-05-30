@@ -1,4 +1,4 @@
-# nc(1) completion                                         -*- shell-script -*-
+# nc(1) completion
 
 _comp_cmd_nc()
 {
@@ -45,5 +45,3 @@ _comp_cmd_nc()
     _comp_compgen_known_hosts -- "$cur"
 } &&
     complete -F _comp_cmd_nc nc
-
-# ex: filetype=sh

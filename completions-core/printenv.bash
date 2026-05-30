@@ -1,4 +1,4 @@
-# printenv(1) completion                                   -*- shell-script -*-
+# printenv(1) completion
 
 _comp_cmd_printenv()
 {
@@ -19,5 +19,3 @@ _comp_cmd_printenv()
     _comp_compgen -- -v
 } &&
     complete -F _comp_cmd_printenv printenv
-
-# ex: filetype=sh

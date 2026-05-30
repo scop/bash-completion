@@ -1,4 +1,4 @@
-# bash completion for iptables                             -*- shell-script -*-
+# bash completion for iptables
 
 _comp_cmd_iptables()
 {
@@ -53,5 +53,3 @@ _comp_cmd_iptables()
 
 } &&
     complete -F _comp_cmd_iptables iptables
-
-# ex: filetype=sh

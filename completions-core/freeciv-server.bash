@@ -1,4 +1,4 @@
-# freeciv-server completion                                -*- shell-script -*-
+# freeciv-server completion
 
 _comp_cmd_civserver()
 {
@@ -18,5 +18,3 @@ _comp_cmd_civserver()
 
 } &&
     complete -F _comp_cmd_civserver civserver freeciv-server
-
-# ex: filetype=sh

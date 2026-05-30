@@ -1,4 +1,4 @@
-# bash completion for ncftp                                -*- shell-script -*-
+# bash completion for ncftp
 
 _comp_cmd_ncftp()
 {
@@ -23,5 +23,3 @@ _comp_cmd_ncftp()
 
 } &&
     complete -F _comp_cmd_ncftp -o default ncftp
-
-# ex: filetype=sh

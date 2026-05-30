@@ -1,4 +1,4 @@
-# svk(1) completion                                        -*- shell-script -*-
+# svk(1) completion
 
 _comp_cmd_svk()
 {
@@ -208,5 +208,3 @@ _comp_cmd_svk()
     fi
 } &&
     complete -F _comp_cmd_svk svk
-
-# ex: filetype=sh

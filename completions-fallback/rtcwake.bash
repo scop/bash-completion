@@ -1,4 +1,4 @@
-# bash completion for rtcwake                              -*- shell-script -*-
+# bash completion for rtcwake
 
 # Use of this file is deprecated.  Upstream completion is available in
 # util-linux >= 2.23, use that instead.
@@ -28,5 +28,3 @@ _comp_cmd_rtcwake()
     _comp_compgen_help
 } &&
     complete -F _comp_cmd_rtcwake rtcwake
-
-# ex: filetype=sh

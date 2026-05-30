@@ -1,4 +1,4 @@
-# iwpriv completion                                        -*- shell-script -*-
+# iwpriv completion
 
 _comp_cmd_iwpriv()
 {
@@ -27,5 +27,3 @@ _comp_cmd_iwpriv()
     fi
 } &&
     complete -F _comp_cmd_iwpriv iwpriv
-
-# ex: filetype=sh

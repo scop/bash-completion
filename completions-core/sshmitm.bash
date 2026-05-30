@@ -1,4 +1,4 @@
-# sshmitm completion                                       -*- shell-script -*-
+# sshmitm completion
 
 _comp_cmd_sshmitm()
 {
@@ -13,5 +13,3 @@ _comp_cmd_sshmitm()
 
 } &&
     complete -F _comp_cmd_sshmitm sshmitm
-
-# ex: filetype=sh

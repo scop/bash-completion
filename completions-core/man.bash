@@ -1,4 +1,4 @@
-# man(1) completion                                        -*- shell-script -*-
+# man(1) completion
 
 _comp_cmd_man()
 {
@@ -106,5 +106,3 @@ _comp_cmd_man()
     _comp_ltrim_colon_completions "$cur"
 } &&
     complete -F _comp_cmd_man man apropos whatis
-
-# ex: filetype=sh

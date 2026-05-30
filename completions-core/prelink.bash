@@ -1,4 +1,4 @@
-# prelink(8) completion                                    -*- shell-script -*-
+# prelink(8) completion
 
 _comp_cmd_prelink()
 {
@@ -38,5 +38,3 @@ _comp_cmd_prelink()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_prelink prelink
-
-# ex: filetype=sh

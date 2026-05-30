@@ -1,4 +1,4 @@
-# chage(1) completion                                      -*- shell-script -*-
+# chage(1) completion
 
 _comp_cmd_chage()
 {
@@ -28,5 +28,3 @@ _comp_cmd_chage()
     _comp_compgen -- -u
 } &&
     complete -F _comp_cmd_chage chage
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# umount(8) completion                                     -*- shell-script -*-
+# umount(8) completion
 
 # Use of this file is deprecated on Linux.  Upstream completion is
 # available in util-linux >= 2.28, use that instead.
@@ -19,5 +19,3 @@ _comp_cmd_umount()
     _comp_compgen_split -l -- "$(mount | cut -d" " -f 3)"
 } &&
     complete -F _comp_cmd_umount -o dirnames umount
-
-# ex: filetype=sh

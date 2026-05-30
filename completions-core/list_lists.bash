@@ -1,4 +1,4 @@
-# mailman list_lists completion                            -*- shell-script -*-
+# mailman list_lists completion
 
 # @since 2.12
 _comp_xfunc_list_lists_compgen_mailman_lists()
@@ -21,5 +21,3 @@ _comp_cmd_list_lists()
 
 } &&
     complete -F _comp_cmd_list_lists list_lists
-
-# ex: filetype=sh

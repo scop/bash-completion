@@ -1,4 +1,4 @@
-# mailman dumpdb completion                                -*- shell-script -*-
+# mailman dumpdb completion
 
 _comp_cmd_dumpdb()
 {
@@ -13,5 +13,3 @@ _comp_cmd_dumpdb()
 
 } &&
     complete -F _comp_cmd_dumpdb dumpdb
-
-# ex: filetype=sh

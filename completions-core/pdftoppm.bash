@@ -1,4 +1,4 @@
-# bash completion for pdftoppm(1)                          -*- shell-script -*-
+# bash completion for pdftoppm(1)
 
 _comp_cmd_pdftoppm()
 {
@@ -31,5 +31,3 @@ _comp_cmd_pdftoppm()
     [[ $prev == *.pdf ]] || _comp_compgen_filedir pdf
 } &&
     complete -F _comp_cmd_pdftoppm pdftoppm
-
-# ex: filetype=sh

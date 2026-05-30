@@ -1,4 +1,4 @@
-# chmod(1) completion                                      -*- shell-script -*-
+# chmod(1) completion
 
 _comp_cmd_chmod()
 {
@@ -36,5 +36,3 @@ _comp_cmd_chmod()
     esac
 } &&
     complete -F _comp_cmd_chmod chmod
-
-# ex: filetype=sh

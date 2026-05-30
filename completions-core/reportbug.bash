@@ -1,4 +1,4 @@
-# bash completion for (Debian) reportbug                   -*- shell-script -*-
+# bash completion for (Debian) reportbug
 
 _comp_cmd_reportbug()
 {
@@ -72,5 +72,3 @@ _comp_cmd_reportbug()
     _comp_compgen -a filedir
 } &&
     complete -F _comp_cmd_reportbug reportbug
-
-# ex: filetype=sh

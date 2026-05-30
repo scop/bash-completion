@@ -1,4 +1,4 @@
-# mailman cleanarch completion                             -*- shell-script -*-
+# mailman cleanarch completion
 
 _comp_cmd_cleanarch()
 {
@@ -11,5 +11,3 @@ _comp_cmd_cleanarch()
 
 } &&
     complete -F _comp_cmd_cleanarch cleanarch
-
-# ex: filetype=sh

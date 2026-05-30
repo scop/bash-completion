@@ -1,4 +1,4 @@
-# bash completion for vpnc                                 -*- shell-script -*-
+# bash completion for vpnc
 
 _comp_cmd_vpnc()
 {
@@ -74,5 +74,3 @@ _comp_cmd_vpnc()
     fi
 } &&
     complete -F _comp_cmd_vpnc vpnc
-
-# ex: filetype=sh

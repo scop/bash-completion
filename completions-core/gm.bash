@@ -1,4 +1,4 @@
-# bash completion for gm(1)                                -*- shell-script -*-
+# bash completion for gm(1)
 
 _comp_cmd_gm__commands()
 {
@@ -36,5 +36,3 @@ _comp_cmd_gm()
     compopt -o default
 } &&
     complete -F _comp_cmd_gm gm
-
-# ex: filetype=sh

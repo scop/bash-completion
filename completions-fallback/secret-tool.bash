@@ -1,4 +1,4 @@
-# bash completion for secret-tool(1)                       -*- shell-script -*-
+# bash completion for secret-tool(1)
 
 # Use of this file is deprecated. Upstream completion is available in
 # libsecret >= 0.20.5, use that instead.
@@ -49,5 +49,3 @@ _comp_cmd_secret_tool()
     esac
 } &&
     complete -F _comp_cmd_secret_tool secret-tool
-
-# ex: filetype=sh

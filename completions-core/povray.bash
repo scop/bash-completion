@@ -1,4 +1,4 @@
-# povray completion                                        -*- shell-script -*-
+# povray completion
 # by "David Necas (Yeti)" <yeti@physics.muni.cz>
 
 _comp_cmd_povray()
@@ -61,5 +61,3 @@ _comp_cmd_povray()
     esac
 } &&
     complete -F _comp_cmd_povray povray xpovray spovray
-
-# ex: filetype=sh

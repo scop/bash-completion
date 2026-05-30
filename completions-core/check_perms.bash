@@ -1,4 +1,4 @@
-# mailman check_perms completion                           -*- shell-script -*-
+# mailman check_perms completion
 
 _comp_cmd_check_perms()
 {
@@ -11,5 +11,3 @@ _comp_cmd_check_perms()
 
 } &&
     complete -F _comp_cmd_check_perms check_perms
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# Gnatmake completion                                      -*- shell-script -*-
+# Gnatmake completion
 # by Ralf_Schroth@t-online.de (Ralf Schroth)
 
 _comp_cmd_gnatmake()
@@ -22,5 +22,3 @@ _comp_cmd_gnatmake()
     fi
 } &&
     complete -F _comp_cmd_gnatmake gnatmake
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# mailman newlist completion                               -*- shell-script -*-
+# mailman newlist completion
 
 _comp_cmd_newlist()
 {
@@ -24,5 +24,3 @@ _comp_cmd_newlist()
     fi
 } &&
     complete -F _comp_cmd_newlist newlist
-
-# ex: filetype=sh

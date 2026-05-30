@@ -1,4 +1,4 @@
-# bash completion for java, javac and javadoc              -*- shell-script -*-
+# bash completion for java, javac and javadoc
 
 # available path elements completion
 _comp_cmd_java__classpath()
@@ -342,5 +342,3 @@ _comp_cmd_javac()
     _comp_ltrim_colon_completions "$cur"
 } &&
     complete -F _comp_cmd_javac javac
-
-# ex: filetype=sh

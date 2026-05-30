@@ -1,4 +1,4 @@
-# pine/alpine completion                                   -*- shell-script -*-
+# pine/alpine completion
 
 _comp_cmd_pine()
 {
@@ -28,5 +28,3 @@ _comp_cmd_pine()
     fi
 } &&
     complete -F _comp_cmd_pine pine alpine
-
-# ex: filetype=sh

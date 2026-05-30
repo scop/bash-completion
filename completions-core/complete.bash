@@ -1,4 +1,4 @@
-# bash complete completion                                 -*- shell-script -*-
+# bash complete completion
 
 _comp_cmd_complete()
 {
@@ -45,5 +45,3 @@ _comp_cmd_complete()
     fi
 } &&
     complete -F _comp_cmd_complete compgen complete
-
-# ex: filetype=sh

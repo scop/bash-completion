@@ -1,4 +1,4 @@
-# timeout(1) completion                                    -*- shell-script -*-
+# timeout(1) completion
 
 _comp_cmd_timeout()
 {
@@ -34,5 +34,3 @@ _comp_cmd_timeout()
     fi
 } &&
     complete -F _comp_cmd_timeout timeout
-
-# ex: filetype=sh

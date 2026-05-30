@@ -1,4 +1,4 @@
-# passwd(1) completion                                     -*- shell-script -*-
+# passwd(1) completion
 
 _comp_cmd_passwd()
 {
@@ -22,5 +22,3 @@ _comp_cmd_passwd()
     _comp_compgen_allowed_users
 } &&
     complete -F _comp_cmd_passwd passwd
-
-# ex: filetype=sh

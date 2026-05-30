@@ -1,4 +1,4 @@
-# groupdel(8) completion                                   -*- shell-script -*-
+# groupdel(8) completion
 
 _comp_cmd_groupdel()
 {
@@ -23,5 +23,3 @@ _comp_cmd_groupdel()
     _comp_compgen -- -g
 } &&
     complete -F _comp_cmd_groupdel groupdel
-
-# ex: filetype=sh

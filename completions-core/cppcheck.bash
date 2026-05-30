@@ -1,4 +1,4 @@
-# bash completion for cppcheck(1)                          -*- shell-script -*-
+# bash completion for cppcheck(1)
 
 _comp_cmd_cppcheck()
 {
@@ -78,5 +78,3 @@ _comp_cmd_cppcheck()
     fi
 } &&
     complete -F _comp_cmd_cppcheck cppcheck
-
-# ex: filetype=sh

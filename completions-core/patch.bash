@@ -1,4 +1,4 @@
-# patch(1) completion                                      -*- shell-script -*-
+# patch(1) completion
 
 _comp_cmd_patch()
 {
@@ -67,5 +67,3 @@ _comp_cmd_patch()
     esac
 } &&
     complete -F _comp_cmd_patch patch
-
-# ex: filetype=sh

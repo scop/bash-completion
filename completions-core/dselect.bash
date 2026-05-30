@@ -1,4 +1,4 @@
-# Debian Linux dselect(8) completion                       -*- shell-script -*-
+# Debian Linux dselect(8) completion
 
 _comp_cmd_dselect()
 {
@@ -24,5 +24,3 @@ _comp_cmd_dselect()
 
 } &&
     complete -F _comp_cmd_dselect dselect
-
-# ex: filetype=sh

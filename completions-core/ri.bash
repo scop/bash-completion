@@ -1,4 +1,4 @@
-# ri completion for Ruby documentation                     -*- shell-script -*-
+# ri completion for Ruby documentation
 # by Ian Macdonald <ian@caliban.org>
 
 # @var[in] ri_version
@@ -121,5 +121,3 @@ _comp_cmd_ri()
     _comp_cmd_ri__compgen_methods
 } &&
     complete -F _comp_cmd_ri ri
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# sitecopy(1) completion                                   -*- shell-script -*-
+# sitecopy(1) completion
 # Copyright 2003 Eelco Lempsink <eelcolempsink@gmx.net>
 #           2011 Raphaël Droz <raphael.droz+floss@gmail.com>
 # License: GNU GPL v2 or later
@@ -47,5 +47,3 @@ _comp_cmd_sitecopy()
     fi
 } &&
     complete -F _comp_cmd_sitecopy -o default sitecopy
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for pm-utils                             -*- shell-script -*-
+# bash completion for pm-utils
 
 _comp_cmd_pm_hibernate()
 {
@@ -9,5 +9,3 @@ _comp_cmd_pm_hibernate()
     _comp_compgen -a -- -W '--help'
 } &&
     complete -F _comp_cmd_pm_hibernate pm-hibernate pm-suspend pm-suspend-hybrid
-
-# ex: filetype=sh

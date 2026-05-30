@@ -1,4 +1,4 @@
-# munin-update completion                                  -*- shell-script -*-
+# munin-update completion
 
 _comp_cmd_munin_update()
 {
@@ -23,5 +23,3 @@ _comp_cmd_munin_update()
     fi
 } &&
     complete -F _comp_cmd_munin_update munin-update
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# Linux insmod(8) completion                               -*- shell-script -*-
+# Linux insmod(8) completion
 
 # Use of this file is deprecated.
 # Upstream completion is available in kmod >= 34, use that instead.
@@ -17,5 +17,3 @@ _comp_cmd_insmod()
     fi
 } &&
     complete -F _comp_cmd_insmod insmod insmod.static
-
-# ex: filetype=sh

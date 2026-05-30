@@ -1,4 +1,4 @@
-# hash completion                                           -*- shell-script -*-
+# hash completion
 
 _comp_cmd_hash()
 {
@@ -22,5 +22,3 @@ _comp_cmd_hash()
     _comp_compgen_commands
 } &&
     complete -F _comp_cmd_hash hash
-
-# ex: filetype=sh

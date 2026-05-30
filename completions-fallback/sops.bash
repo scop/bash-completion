@@ -1,5 +1,5 @@
-# 3rd party completion loader for commands using           -*- shell-script -*-
-# version 1 of the https://cli.urfave.org library.
+# 3rd party completion loader for commands using version 1 of the
+# https://cli.urfave.org library.
 #
 # This serves as a fallback in case the completion is not installed otherwise.
 
@@ -20,5 +20,3 @@ _comp_cmd__urfave_cli_v1()
 } &&
     complete -o bashdefault -o default -o nospace \
         -F _comp_cmd__urfave_cli_v1 "$1"
-
-# ex: filetype=sh

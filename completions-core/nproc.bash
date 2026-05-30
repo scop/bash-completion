@@ -1,4 +1,4 @@
-# nproc(1) completion                                      -*- shell-script -*-
+# nproc(1) completion
 
 _comp_cmd_nproc()
 {
@@ -19,5 +19,3 @@ _comp_cmd_nproc()
     fi
 } &&
     complete -F _comp_cmd_nproc nproc
-
-# ex: filetype=sh

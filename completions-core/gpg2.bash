@@ -1,4 +1,4 @@
-# gpg2(1) completion                                       -*- shell-script -*-
+# gpg2(1) completion
 
 _comp_cmd_gpg2()
 {
@@ -43,5 +43,3 @@ _comp_cmd_gpg2()
     fi
 } &&
     complete -F _comp_cmd_gpg2 -o default gpg2
-
-# ex: filetype=sh

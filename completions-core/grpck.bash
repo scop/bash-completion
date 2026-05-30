@@ -1,4 +1,4 @@
-# grpck(8) completion                                      -*- shell-script -*-
+# grpck(8) completion
 
 _comp_cmd_grpck()
 {
@@ -22,5 +22,3 @@ _comp_cmd_grpck()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_grpck grpck
-
-# ex: filetype=sh

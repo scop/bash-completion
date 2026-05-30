@@ -1,4 +1,4 @@
-# Red Hat & Debian GNU/Linux if{up,down} completion        -*- shell-script -*-
+# Red Hat & Debian GNU/Linux if{up,down} completion
 
 _comp_userland GNU || return 1
 
@@ -36,5 +36,3 @@ _comp_cmd_ifupdown()
     fi
 } &&
     complete -F _comp_cmd_ifupdown ifup ifdown ifquery ifstatus
-
-# ex: filetype=sh

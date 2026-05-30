@@ -1,4 +1,4 @@
-# pwgen(1) completion                                      -*- shell-script -*-
+# pwgen(1) completion
 
 _comp_cmd_pwgen()
 {
@@ -26,5 +26,3 @@ _comp_cmd_pwgen()
     fi
 } &&
     complete -F _comp_cmd_pwgen pwgen
-
-# ex: filetype=sh

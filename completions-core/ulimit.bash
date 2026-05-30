@@ -1,4 +1,4 @@
-# bash completion for ulimit                               -*- shell-script -*-
+# bash completion for ulimit
 
 _comp_cmd_ulimit()
 {
@@ -35,5 +35,3 @@ _comp_cmd_ulimit()
     [[ ${mode-} ]] && _comp_compgen -- -W "soft hard unlimited"
 } &&
     complete -F _comp_cmd_ulimit ulimit
-
-# ex: filetype=sh

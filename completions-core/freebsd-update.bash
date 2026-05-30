@@ -1,4 +1,4 @@
-# bash completion for FreeBSD update tool - freebsd-update -*- shell-script -*-
+# bash completion for FreeBSD update tool - freebsd-update
 
 [[ $OSTYPE == *freebsd* ]] || return 1
 
@@ -24,5 +24,3 @@ _comp_cmd_freebsd_update()
     _comp_compgen -- -W 'fetch cron upgrade install rollback IDS'
 } &&
     complete -F _comp_cmd_freebsd_update freebsd-update
-
-# ex: filetype=sh

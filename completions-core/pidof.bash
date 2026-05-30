@@ -1,4 +1,4 @@
-# pidof(8) completion                                      -*- shell-script -*-
+# pidof(8) completion
 
 _comp_cmd_pidof()
 {
@@ -25,5 +25,3 @@ _comp_cmd_pidof()
     _comp_compgen_pnames
 } &&
     complete -F _comp_cmd_pidof pidof
-
-# ex: filetype=sh

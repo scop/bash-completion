@@ -1,4 +1,4 @@
-# Slackware Linux upgradepkg completion                    -*- shell-script -*-
+# Slackware Linux upgradepkg completion
 
 _comp_cmd_upgradepkg()
 {
@@ -22,5 +22,3 @@ _comp_cmd_upgradepkg()
     _comp_compgen_filedir 't[bglx]z'
 } &&
     complete -F _comp_cmd_upgradepkg upgradepkg
-
-# ex: filetype=sh

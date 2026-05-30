@@ -1,4 +1,4 @@
-# POSIX sh(1) completion                                   -*- shell-script -*-
+# POSIX sh(1) completion
 
 _comp_cmd_sh()
 {
@@ -31,5 +31,3 @@ _comp_cmd_sh()
     _comp_compgen_filedir $ext
 } &&
     complete -F _comp_cmd_sh sh
-
-# ex: filetype=sh

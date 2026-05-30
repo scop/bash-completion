@@ -1,4 +1,4 @@
-# asciidoc(1) completion                                   -*- shell-script -*-
+# asciidoc(1) completion
 
 # @since 2.12
 _comp_xfunc_asciidoc_compgen_doctype()
@@ -56,5 +56,3 @@ _comp_cmd_asciidoc()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_asciidoc asciidoc asciidoc.py
-
-# ex: filetype=sh

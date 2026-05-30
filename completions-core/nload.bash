@@ -1,4 +1,4 @@
-# bash completion for nload(1)                             -*- shell-script -*-
+# bash completion for nload(1)
 
 _comp_cmd_nload()
 {
@@ -24,5 +24,3 @@ _comp_cmd_nload()
     _comp_compgen_available_interfaces
 } &&
     complete -F _comp_cmd_nload nload
-
-# ex: filetype=sh

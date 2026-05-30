@@ -1,4 +1,4 @@
-# newusers(8) completion                                   -*- shell-script -*-
+# newusers(8) completion
 
 _comp_cmd_newusers()
 {
@@ -26,5 +26,3 @@ _comp_cmd_newusers()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_newusers newusers
-
-# ex: filetype=sh

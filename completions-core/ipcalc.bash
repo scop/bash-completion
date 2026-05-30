@@ -1,4 +1,4 @@
-# ipcalc(1) completion                                     -*- shell-script -*-
+# ipcalc(1) completion
 
 _comp_cmd_ipcalc()
 {
@@ -21,5 +21,3 @@ _comp_cmd_ipcalc()
         _comp_compgen_help
 } &&
     complete -F _comp_cmd_ipcalc ipcalc
-
-# ex: filetype=sh

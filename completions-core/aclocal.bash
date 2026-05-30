@@ -1,4 +1,4 @@
-# aclocal(1) completion                                    -*- shell-script -*-
+# aclocal(1) completion
 
 _comp_cmd_aclocal()
 {
@@ -31,5 +31,3 @@ _comp_cmd_aclocal()
     [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 } &&
     complete -F _comp_cmd_aclocal aclocal aclocal-1.1{0..8}
-
-# ex: filetype=sh

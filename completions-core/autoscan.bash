@@ -1,4 +1,4 @@
-# autoscan(1) completion                                   -*- shell-script -*-
+# autoscan(1) completion
 
 _comp_cmd_autoscan()
 {
@@ -32,5 +32,3 @@ _comp_cmd_autoscan()
     fi
 } &&
     complete -F _comp_cmd_autoscan autoscan autoupdate
-
-# ex: filetype=sh

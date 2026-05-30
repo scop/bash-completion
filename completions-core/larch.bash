@@ -1,4 +1,4 @@
-# larch(1) completion                                      -*- shell-script -*-
+# larch(1) completion
 # by Alex Shinn <foof@synthcode.com>
 
 _comp_cmd_larch()
@@ -34,5 +34,3 @@ _comp_cmd_larch()
 
 } &&
     complete -F _comp_cmd_larch -o default larch
-
-# ex: filetype=sh

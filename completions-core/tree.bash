@@ -1,4 +1,4 @@
-# tree(1) completion                                       -*- shell-script -*-
+# tree(1) completion
 
 _comp_cmd_tree()
 {
@@ -42,5 +42,3 @@ _comp_cmd_tree()
     fi
 } &&
     complete -F _comp_cmd_tree tree
-
-# ex: filetype=sh

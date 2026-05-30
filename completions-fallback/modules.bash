@@ -1,4 +1,4 @@
-# module completion by Ted Stern <stern@cray.com>          -*- shell-script -*-
+# module completion by Ted Stern <stern@cray.com>
 #
 # Use of this file is deprecated, upstream completion is available in
 # modules >= 3.2.7, use that instead.
@@ -80,5 +80,3 @@ _comp_cmd_module()
 
 } &&
     complete -F _comp_cmd_module -o default module
-
-# ex: filetype=sh

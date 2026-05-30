@@ -1,4 +1,4 @@
-# ccache(1) completion                                     -*- shell-script -*-
+# ccache(1) completion
 
 _comp_cmd_ccache()
 {
@@ -36,5 +36,3 @@ _comp_cmd_ccache()
     [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 } &&
     complete -F _comp_cmd_ccache ccache
-
-# ex: filetype=sh

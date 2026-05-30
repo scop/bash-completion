@@ -1,4 +1,4 @@
-# bash completion for mysqladmin                           -*- shell-script -*-
+# bash completion for mysqladmin
 
 _comp_cmd_mysqladmin()
 {
@@ -61,5 +61,3 @@ _comp_cmd_mysqladmin()
     [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 } &&
     complete -F _comp_cmd_mysqladmin mysqladmin
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# pkgrm completion                                         -*- shell-script -*-
+# pkgrm completion
 #
 # Copyright 2006 Yann Rouillard <yann@opencsw.org>
 
@@ -42,5 +42,3 @@ _comp_cmd_pkgrm()
     esac
 } &&
     complete -F _comp_cmd_pkgrm pkgrm
-
-# ex: filetype=sh

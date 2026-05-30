@@ -1,4 +1,4 @@
-# udevadm(8) completion                                    -*- shell-script -*-
+# udevadm(8) completion
 
 # Use of this file is deprecated.  Upstream completion is available in
 # systemd >= 196, use that instead.
@@ -71,5 +71,3 @@ _comp_cmd_udevadm()
     fi
 } &&
     complete -F _comp_cmd_udevadm udevadm
-
-# ex: filetype=sh

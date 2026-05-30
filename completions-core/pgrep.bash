@@ -1,4 +1,4 @@
-# pgrep(1) and pkill(1) completion                         -*- shell-script -*-
+# pgrep(1) and pkill(1) completion
 
 _comp_cmd_pgrep()
 {
@@ -56,5 +56,3 @@ _comp_cmd_pgrep()
     _comp_compgen_pnames -s
 } &&
     complete -F _comp_cmd_pgrep pgrep pkill
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# scrub(1) completion                                      -*- shell-script -*-
+# scrub(1) completion
 
 _comp_cmd_scrub()
 {
@@ -34,5 +34,3 @@ _comp_cmd_scrub()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_scrub scrub
-
-# ex: filetype=sh

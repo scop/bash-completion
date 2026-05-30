@@ -1,4 +1,4 @@
-# perlcritic(1) completion                                 -*- shell-script -*-
+# perlcritic(1) completion
 
 _comp_cmd_perlcritic()
 {
@@ -44,5 +44,3 @@ _comp_cmd_perlcritic()
     _comp_compgen_filedir 'p[lm]'
 } &&
     complete -F _comp_cmd_perlcritic perlcritic
-
-# ex: filetype=sh

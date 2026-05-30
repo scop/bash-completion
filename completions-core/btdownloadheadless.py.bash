@@ -1,4 +1,4 @@
-# btdownloadheadless(1) completion                         -*- shell-script -*-
+# btdownloadheadless(1) completion
 
 _comp_cmd_btdownload()
 {
@@ -27,5 +27,3 @@ _comp_cmd_btdownload()
 } &&
     complete -F _comp_cmd_btdownload btdownloadheadless.py btdownloadcurses.py \
         btdownloadgui.py
-
-# ex: filetype=sh

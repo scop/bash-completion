@@ -1,4 +1,4 @@
-# bash completion for fbi(1)                               -*- shell-script -*-
+# bash completion for fbi(1)
 
 _comp_cmd_fbi()
 {
@@ -48,5 +48,3 @@ _comp_cmd_fbi()
     _comp_compgen_filedir 'bmp|gif|jp?(e)g|pcd|png|p[pgb]m|tif?(f)|webp|xpm|xwd|?(e)ps|pdf|dvi|txt|svg?(z)|cdr|[ot]tf'
 } &&
     complete -F _comp_cmd_fbi fbi
-
-# ex: filetype=sh

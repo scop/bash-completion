@@ -1,4 +1,4 @@
-# watch(1) completion                                      -*- shell-script -*-
+# watch(1) completion
 
 [[ $OSTYPE == *@(linux|darwin)* ]] || return 1
 
@@ -53,5 +53,3 @@ _comp_cmd_watch()
     fi
 } &&
     complete -F _comp_cmd_watch watch
-
-# ex: filetype=sh

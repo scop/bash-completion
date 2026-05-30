@@ -1,4 +1,4 @@
-# iwconfig completion                                      -*- shell-script -*-
+# iwconfig completion
 
 _comp_deprecate_var 2.12 \
     COMP_IWLIST_SCAN BASH_COMPLETION_CMD_IWCONFIG_SCAN
@@ -86,5 +86,3 @@ _comp_cmd_iwconfig()
 
 } &&
     complete -F _comp_cmd_iwconfig iwconfig
-
-# ex: filetype=sh

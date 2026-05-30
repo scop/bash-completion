@@ -1,4 +1,4 @@
-# tipc(8) completion                                       -*- shell-script -*-
+# tipc(8) completion
 
 _comp_cmd_tipc__media()
 {
@@ -287,5 +287,3 @@ _comp_cmd_tipc()
     esac
 } &&
     complete -F _comp_cmd_tipc tipc
-
-# ex: filetype=sh

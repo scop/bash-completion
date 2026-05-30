@@ -1,4 +1,4 @@
-# mailman unshunt completion                               -*- shell-script -*-
+# mailman unshunt completion
 
 _comp_cmd_unshunt()
 {
@@ -13,5 +13,3 @@ _comp_cmd_unshunt()
 
 } &&
     complete -F _comp_cmd_unshunt unshunt
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# lpq(1) completion                                        -*- shell-script -*-
+# lpq(1) completion
 
 _comp_cmd_lpq()
 {
@@ -24,5 +24,3 @@ _comp_cmd_lpq()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_lpq lpq
-
-# ex: filetype=sh

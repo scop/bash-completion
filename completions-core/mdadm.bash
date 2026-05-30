@@ -1,4 +1,4 @@
-# bash completion for mdadm                                -*- shell-script -*-
+# bash completion for mdadm
 
 _comp_cmd_mdadm__raid_level()
 {
@@ -145,5 +145,3 @@ _comp_cmd_mdadm()
     fi
 } &&
     complete -F _comp_cmd_mdadm mdadm
-
-# ex: filetype=sh

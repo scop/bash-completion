@@ -1,4 +1,4 @@
-# bash declare completion                                  -*- shell-script -*-
+# bash declare completion
 
 _comp_cmd_declare()
 {
@@ -37,5 +37,3 @@ _comp_cmd_declare()
     fi
 } &&
     complete -F _comp_cmd_declare declare typeset
-
-# ex: filetype=sh

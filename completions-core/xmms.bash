@@ -1,4 +1,4 @@
-# bash completion for xmms                                 -*- shell-script -*-
+# bash completion for xmms
 
 _comp_cmd_xmms()
 {
@@ -27,5 +27,3 @@ _comp_cmd_xmms()
 
 } &&
     complete -F _comp_cmd_xmms xmms
-
-# ex: filetype=sh

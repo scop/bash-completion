@@ -1,4 +1,4 @@
-# valgrind(1) completion                                   -*- shell-script -*-
+# valgrind(1) completion
 
 _comp_cmd_valgrind()
 {
@@ -106,5 +106,3 @@ _comp_cmd_valgrind()
     fi
 } &&
     complete -F _comp_cmd_valgrind valgrind
-
-# ex: filetype=sh

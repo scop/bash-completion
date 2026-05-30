@@ -1,4 +1,4 @@
-# perltidy(1) completion                                   -*- shell-script -*-
+# perltidy(1) completion
 
 _comp_cmd_perltidy()
 {
@@ -59,5 +59,3 @@ _comp_cmd_perltidy()
     fi
 } &&
     complete -F _comp_cmd_perltidy perltidy
-
-# ex: filetype=sh

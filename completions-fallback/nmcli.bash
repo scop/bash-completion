@@ -1,4 +1,4 @@
-# nmcli completion                                         -*- shell-script -*-
+# nmcli completion
 
 # Use of this file is deprecated.  Upstream completion is available in
 # NetworkManager >= 0.9.8.0, use that instead.
@@ -183,5 +183,3 @@ _comp_cmd_nmcli()
 
 } &&
     complete -F _comp_cmd_nmcli nmcli
-
-# ex: filetype=sh

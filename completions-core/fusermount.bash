@@ -1,4 +1,4 @@
-# fusermount completion                                    -*- shell-script -*-
+# fusermount completion
 
 _comp_cmd_fusermount()
 {
@@ -23,5 +23,3 @@ _comp_cmd_fusermount()
     fi
 } &&
     complete -F _comp_cmd_fusermount fusermount
-
-# ex: filetype=sh

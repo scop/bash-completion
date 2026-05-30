@@ -1,4 +1,4 @@
-# vmstat(8) completion                                     -*- shell-script -*-
+# vmstat(8) completion
 
 _comp_cmd_vmstat()
 {
@@ -25,5 +25,3 @@ _comp_cmd_vmstat()
     fi
 } &&
     complete -F _comp_cmd_vmstat vmstat
-
-# ex: filetype=sh

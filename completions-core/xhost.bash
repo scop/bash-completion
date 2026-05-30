@@ -1,4 +1,4 @@
-# xhost(1) completion                                      -*- shell-script -*-
+# xhost(1) completion
 
 _comp_cmd_xhost()
 {
@@ -12,5 +12,3 @@ _comp_cmd_xhost()
     esac
 } &&
     complete -F _comp_cmd_xhost xhost
-
-# ex: filetype=sh

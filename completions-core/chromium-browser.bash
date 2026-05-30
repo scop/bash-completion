@@ -1,4 +1,4 @@
-# chromium-browser completion                              -*- shell-script -*-
+# chromium-browser completion
 
 _comp_cmd_chromium_browser()
 {
@@ -46,5 +46,3 @@ _comp_cmd_chromium_browser()
 } &&
     complete -F _comp_cmd_chromium_browser chromium-browser google-chrome \
         google-chrome-stable chromium chrome brave brave-browser
-
-# ex: filetype=sh

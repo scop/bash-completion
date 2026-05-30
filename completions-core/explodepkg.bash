@@ -1,5 +1,3 @@
-# Slackware Linux explodepkg completion                    -*- shell-script -*-
+# Slackware Linux explodepkg completion
 
 complete -o plusdirs -f -X '!*.t[bglx]z' explodepkg
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for set                                 -*- shell-script -*-
+# bash completion for set
 
 _comp_cmd_set()
 {
@@ -46,5 +46,3 @@ _comp_cmd_set()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_set set
-
-# ex: filetype=sh

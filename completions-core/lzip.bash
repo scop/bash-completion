@@ -1,4 +1,4 @@
-# lzip(1) completion                                       -*- shell-script -*-
+# lzip(1) completion
 
 _comp_cmd_lzip()
 {
@@ -47,5 +47,3 @@ _comp_cmd_lzip()
     _comp_compgen -- -f -X "*.lz" -o plusdirs
 } &&
     complete -F _comp_cmd_lzip clzip lzip pdlzip plzip
-
-# ex: filetype=sh

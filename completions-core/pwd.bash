@@ -1,4 +1,4 @@
-# pwd(1) completion                                        -*- shell-script -*-
+# pwd(1) completion
 
 _comp_cmd_pwd()
 {
@@ -14,5 +14,3 @@ _comp_cmd_pwd()
     _comp_compgen_usage -c help -s "$1"
 } &&
     complete -F _comp_cmd_pwd pwd
-
-# ex: filetype=sh

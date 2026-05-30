@@ -1,4 +1,4 @@
-# wol(1) completion                                        -*- shell-script -*-
+# wol(1) completion
 
 _comp_cmd_wol()
 {
@@ -41,5 +41,3 @@ _comp_cmd_wol()
     _comp_compgen_mac_addresses
 } &&
     complete -F _comp_cmd_wol wol
-
-# ex: filetype=sh

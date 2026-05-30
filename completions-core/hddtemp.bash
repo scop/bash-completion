@@ -1,4 +1,4 @@
-# hddtemp(8) completion                                    -*- shell-script -*-
+# hddtemp(8) completion
 
 _comp_cmd_hddtemp()
 {
@@ -36,5 +36,3 @@ _comp_cmd_hddtemp()
     fi
 } &&
     complete -F _comp_cmd_hddtemp hddtemp
-
-# ex: filetype=sh

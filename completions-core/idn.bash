@@ -1,4 +1,4 @@
-# idn(1) completion                                        -*- shell-script -*-
+# idn(1) completion
 
 _comp_cmd_idn()
 {
@@ -24,5 +24,3 @@ _comp_cmd_idn()
     fi
 } &&
     complete -F _comp_cmd_idn idn
-
-# ex: filetype=sh

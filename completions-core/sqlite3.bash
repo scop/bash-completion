@@ -1,4 +1,4 @@
-# sqlite3(1) completion                                    -*- shell-script -*-
+# sqlite3(1) completion
 
 _comp_cmd_sqlite3()
 {
@@ -33,5 +33,3 @@ _comp_cmd_sqlite3()
     _comp_compgen_filedir "$dbexts"
 } &&
     complete -F _comp_cmd_sqlite3 sqlite3
-
-# ex: filetype=sh

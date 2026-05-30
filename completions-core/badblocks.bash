@@ -1,4 +1,4 @@
-# badblocks(8) completion                                  -*- shell-script -*-
+# badblocks(8) completion
 
 _comp_cmd_badblocks()
 {
@@ -26,5 +26,3 @@ _comp_cmd_badblocks()
     _comp_compgen -c "${cur:-/dev/}" filedir
 } &&
     complete -F _comp_cmd_badblocks badblocks
-
-# ex: filetype=sh

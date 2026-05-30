@@ -1,4 +1,4 @@
-# autorpm(8) completion                                    -*- shell-script -*-
+# autorpm(8) completion
 
 _comp_cmd_autorpm()
 {
@@ -10,5 +10,3 @@ _comp_cmd_autorpm()
 
 } &&
     complete -F _comp_cmd_autorpm autorpm
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for nslookup                             -*- shell-script -*-
+# bash completion for nslookup
 
 _comp_cmd_nslookup__queryclass()
 {
@@ -101,5 +101,3 @@ _comp_cmd_host()
     fi
 } &&
     complete -F _comp_cmd_host host
-
-# ex: filetype=sh

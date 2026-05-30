@@ -1,4 +1,4 @@
-# isort completion                                         -*- shell-script -*-
+# isort completion
 
 _comp_cmd_isort()
 {
@@ -39,5 +39,3 @@ _comp_cmd_isort()
     _comp_compgen_filedir '@(py|pyi)'
 } &&
     complete -F _comp_cmd_isort isort
-
-# ex: filetype=sh

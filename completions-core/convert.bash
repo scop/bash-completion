@@ -1,4 +1,4 @@
-# bash completion for ImageMagick                          -*- shell-script -*-
+# bash completion for ImageMagick
 
 _comp_cmd_convert__common_options()
 {
@@ -318,5 +318,3 @@ _comp_cmd_stream()
     fi
 } &&
     complete -F _comp_cmd_stream stream
-
-# ex: filetype=sh

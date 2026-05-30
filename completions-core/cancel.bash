@@ -1,4 +1,4 @@
-# cancel(1) completion                                     -*- shell-script -*-
+# cancel(1) completion
 
 _comp_cmd_cancel()
 {
@@ -22,5 +22,3 @@ _comp_cmd_cancel()
     _comp_compgen_split -- "$(lpstat 2>/dev/null | cut -d' ' -f1)"
 } &&
     complete -F _comp_cmd_cancel cancel
-
-# ex: filetype=sh

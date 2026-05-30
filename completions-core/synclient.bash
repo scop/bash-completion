@@ -1,4 +1,4 @@
-# bash completion for synclient(1)                         -*- shell-script -*-
+# bash completion for synclient(1)
 
 _comp_cmd_synclient()
 {
@@ -20,5 +20,3 @@ _comp_cmd_synclient()
     fi
 } &&
     complete -F _comp_cmd_synclient synclient
-
-# ex: filetype=sh

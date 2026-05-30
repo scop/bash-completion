@@ -1,4 +1,4 @@
-# bash completion for ifstat(1)                            -*- shell-script -*-
+# bash completion for ifstat(1)
 
 _comp_cmd_ifstat()
 {
@@ -64,5 +64,3 @@ _comp_cmd_ifstat()
     fi
 } &&
     complete -F _comp_cmd_ifstat ifstat
-
-# ex: filetype=sh

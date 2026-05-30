@@ -1,4 +1,4 @@
-# killall(1) completion                                    -*- shell-script -*-
+# killall(1) completion
 
 [[ $OSTYPE == *@(linux|freebsd|darwin)* ]] || return 1
 
@@ -34,5 +34,3 @@ _comp_cmd_killall()
     _comp_compgen_pnames
 } &&
     complete -F _comp_cmd_killall killall
-
-# ex: filetype=sh

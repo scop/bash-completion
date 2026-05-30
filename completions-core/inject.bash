@@ -1,4 +1,4 @@
-# mailman inject completion                                -*- shell-script -*-
+# mailman inject completion
 
 _comp_cmd_inject()
 {
@@ -25,5 +25,3 @@ _comp_cmd_inject()
 
 } &&
     complete -F _comp_cmd_inject inject
-
-# ex: filetype=sh

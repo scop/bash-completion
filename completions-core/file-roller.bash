@@ -1,4 +1,4 @@
-# file-roller(1) completion                                -*- shell-script -*-
+# file-roller(1) completion
 
 _comp_cmd_file_roller()
 {
@@ -40,5 +40,3 @@ _comp_cmd_file_roller()
     _comp_compgen -a filedir "$exts"
 } &&
     complete -F _comp_cmd_file_roller file-roller
-
-# ex: filetype=sh

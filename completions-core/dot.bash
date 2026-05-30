@@ -1,4 +1,4 @@
-# dot(1) completion                                        -*- shell-script -*-
+# dot(1) completion
 
 _comp_cmd_dot()
 {
@@ -41,5 +41,3 @@ _comp_cmd_dot()
     _comp_compgen_filedir '@(gv|dot)'
 } &&
     complete -F _comp_cmd_dot dot
-
-# ex: filetype=sh

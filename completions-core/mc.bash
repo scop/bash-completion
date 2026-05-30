@@ -1,4 +1,4 @@
-# bash completion for mc                                   -*- shell-script -*-
+# bash completion for mc
 
 _comp_cmd_mc()
 {
@@ -27,5 +27,3 @@ _comp_cmd_mc()
     fi
 } &&
     complete -F _comp_cmd_mc mc
-
-# ex: filetype=sh

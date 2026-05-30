@@ -1,4 +1,4 @@
-# newgrp(1) completion                                     -*- shell-script -*-
+# newgrp(1) completion
 
 # Use of this file is deprecated on Linux.  Upstream completion is
 # available in util-linux >= 2.23, use that instead.
@@ -15,5 +15,3 @@ _comp_cmd_newgrp()
     fi
 } &&
     complete -F _comp_cmd_newgrp newgrp
-
-# ex: filetype=sh

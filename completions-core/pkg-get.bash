@@ -1,4 +1,4 @@
-# pkg-get.completion completion                            -*- shell-script -*-
+# pkg-get.completion completion
 #
 # Copyright 2006 Yann Rouillard <yann@opencsw.org>
 
@@ -68,5 +68,3 @@ _comp_cmd_pkg_get__catalog_file()
         _comp_compgen -- -W '"${commands[@]}"'
     } &&
         complete -F _comp_cmd_pkg_get pkg-get
-
-# ex: filetype=sh

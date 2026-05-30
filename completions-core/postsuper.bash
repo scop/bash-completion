@@ -1,4 +1,4 @@
-# postsuper(1) completion                                  -*- shell-script -*-
+# postsuper(1) completion
 
 _comp_cmd_postsuper()
 {
@@ -36,5 +36,3 @@ _comp_cmd_postsuper()
     _comp_compgen -- -W 'hold incoming active deferred'
 } &&
     complete -F _comp_cmd_postsuper postsuper
-
-# ex: filetype=sh

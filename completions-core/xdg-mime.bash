@@ -1,4 +1,4 @@
-# xdg-mime(1) completion                                   -*- shell-script -*-
+# xdg-mime(1) completion
 
 _comp_cmd_xdg_mime__mimetype()
 {
@@ -81,5 +81,3 @@ _comp_cmd_xdg_mime()
     esac
 } &&
     complete -F _comp_cmd_xdg_mime xdg-mime
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for GNU tar                              -*- shell-script -*-
+# bash completion for GNU tar
 #
 # General info
 # ============
@@ -834,5 +834,3 @@ else
     complete -F _comp_cmd_tar__posix bsdtar
     complete -F _comp_cmd_tar__posix star
 fi
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# lftpget(1) completion                                    -*- shell-script -*-
+# lftpget(1) completion
 
 _comp_cmd_lftpget()
 {
@@ -10,5 +10,3 @@ _comp_cmd_lftpget()
     fi
 } &&
     complete -F _comp_cmd_lftpget lftpget
-
-# ex: filetype=sh

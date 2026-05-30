@@ -1,4 +1,4 @@
-# tmux(1) completion                                       -*- shell-script -*-
+# tmux(1) completion
 # SPDX-License-Identifier: GPL-2.0-or-later OR ISC
 
 # Log a message to help with debugging.
@@ -353,5 +353,3 @@ _comp_cmd_tmux()
     fi
 } &&
     complete -F _comp_cmd_tmux tmux
-
-# ex: filetype=sh

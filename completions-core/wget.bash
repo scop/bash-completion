@@ -1,4 +1,4 @@
-# wget(1) completion                                       -*- shell-script -*-
+# wget(1) completion
 
 _comp_cmd_wget()
 {
@@ -176,5 +176,3 @@ _comp_cmd_wget()
 
 } &&
     complete -F _comp_cmd_wget wget
-
-# ex: filetype=sh

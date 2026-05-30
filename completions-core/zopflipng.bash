@@ -1,4 +1,4 @@
-# bash completion for zopflipng                            -*- shell-script -*-
+# bash completion for zopflipng
 
 _comp_cmd_zopflipng()
 {
@@ -36,5 +36,3 @@ _comp_cmd_zopflipng()
     fi
 } &&
     complete -F _comp_cmd_zopflipng zopflipng
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for rpm                                  -*- shell-script -*-
+# bash completion for rpm
 
 # helper functions
 
@@ -318,5 +318,3 @@ _comp_cmd_rpmbuild()
     [[ $ext ]] && _comp_compgen_filedir "$ext"
 } &&
     complete -F _comp_cmd_rpmbuild rpmbuild rpmbuild-md5
-
-# ex: filetype=sh

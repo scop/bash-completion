@@ -1,4 +1,4 @@
-# slapt-src(8) completion                                  -*- shell-script -*-
+# slapt-src(8) completion
 
 _comp_cmd_slapt_src()
 {
@@ -70,5 +70,3 @@ _comp_cmd_slapt_src()
     fi
 } &&
     complete -F _comp_cmd_slapt_src slapt-src
-
-# ex: filetype=sh

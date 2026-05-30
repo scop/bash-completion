@@ -1,4 +1,3 @@
-#                                                          -*- shell-script -*-
 # bash brogrammable completion for various Common Lisp implementations by
 # Nikodemus Siivola <nikodemus@random-state.net>
 
@@ -18,5 +17,3 @@ _comp_cmd_clisp()
 
 } &&
     complete -F _comp_cmd_clisp -o default clisp
-
-# ex: filetype=sh

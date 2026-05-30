@@ -1,4 +1,4 @@
-# Debian apt-cache(8) completion                           -*- shell-script -*-
+# Debian apt-cache(8) completion
 
 # List APT binary packages
 # @since 2.12
@@ -123,5 +123,3 @@ _comp_cmd_apt_cache()
 
 } &&
     complete -F _comp_cmd_apt_cache apt-cache
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# lpr(1) completion                                        -*- shell-script -*-
+# lpr(1) completion
 
 _comp_cmd_lpr()
 {
@@ -29,5 +29,3 @@ _comp_cmd_lpr()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_lpr lpr
-
-# ex: filetype=sh

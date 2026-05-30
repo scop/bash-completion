@@ -1,4 +1,4 @@
-# monodevelop completion                                   -*- shell-script -*-
+# monodevelop completion
 
 _comp_cmd_monodevelop()
 {
@@ -15,5 +15,3 @@ _comp_cmd_monodevelop()
     fi
 } &&
     complete -F _comp_cmd_monodevelop monodevelop
-
-# ex: filetype=sh

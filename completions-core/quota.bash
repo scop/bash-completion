@@ -1,4 +1,4 @@
-# bash completion for quota-tools                          -*- shell-script -*-
+# bash completion for quota-tools
 
 _comp_cmd_quota__user_or_group()
 {
@@ -185,5 +185,3 @@ _comp_cmd_quotaon()
     fi
 } &&
     complete -F _comp_cmd_quotaon -o default quotaon quotaoff
-
-# ex: filetype=sh

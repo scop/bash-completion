@@ -1,4 +1,4 @@
-# e2freefrag(8) completion                                 -*- shell-script -*-
+# e2freefrag(8) completion
 
 _comp_cmd_e2freefrag()
 {
@@ -19,5 +19,3 @@ _comp_cmd_e2freefrag()
     _comp_compgen -c "${cur:-/dev/}" filedir
 } &&
     complete -F _comp_cmd_e2freefrag e2freefrag
-
-# ex: filetype=sh

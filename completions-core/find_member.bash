@@ -1,4 +1,4 @@
-# mailman find_member completion                           -*- shell-script -*-
+# mailman find_member completion
 
 _comp_cmd_find_member()
 {
@@ -23,5 +23,3 @@ _comp_cmd_find_member()
 
 } &&
     complete -F _comp_cmd_find_member find_member
-
-# ex: filetype=sh

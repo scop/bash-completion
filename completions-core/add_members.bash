@@ -1,4 +1,4 @@
-# mailman add_members completion                           -*- shell-script -*-
+# mailman add_members completion
 
 _comp_cmd_add_members()
 {
@@ -30,5 +30,3 @@ _comp_cmd_add_members()
 
 } &&
     complete -F _comp_cmd_add_members add_members
-
-# ex: filetype=sh

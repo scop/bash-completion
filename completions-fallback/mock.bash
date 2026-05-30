@@ -1,4 +1,4 @@
-# bash completion for mock                                 -*- shell-script -*-
+# bash completion for mock
 
 # Use of this file is deprecated.  Upstream completion is available in
 # mock > 1.1.0, use that instead.
@@ -67,5 +67,3 @@ _comp_cmd_mock()
     fi
 } &&
     complete -F _comp_cmd_mock mock
-
-# ex: filetype=sh

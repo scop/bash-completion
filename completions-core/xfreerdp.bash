@@ -1,4 +1,4 @@
-# xfreerdp completion                                      -*- shell-script -*-
+# xfreerdp completion
 
 _comp_cmd_xfreerdp__kbd_list()
 {
@@ -85,5 +85,3 @@ _comp_cmd_xfreerdp()
 
 } &&
     complete -F _comp_cmd_xfreerdp xfreerdp
-
-# ex: filetype=sh

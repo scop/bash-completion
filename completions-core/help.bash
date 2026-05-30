@@ -1,4 +1,4 @@
-# bash completion for help                                 -*- shell-script -*-
+# bash completion for help
 
 _comp_cmd_help()
 {

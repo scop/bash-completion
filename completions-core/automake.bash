@@ -1,4 +1,4 @@
-# automake(1) completion                                   -*- shell-script -*-
+# automake(1) completion
 
 _comp_cmd_automake()
 {
@@ -32,5 +32,3 @@ _comp_cmd_automake()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_automake automake automake-1.1{0..8}
-
-# ex: filetype=sh

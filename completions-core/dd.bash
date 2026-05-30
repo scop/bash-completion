@@ -1,4 +1,4 @@
-# bash completion for dd                                   -*- shell-script -*-
+# bash completion for dd
 
 _comp_cmd_dd()
 {
@@ -34,5 +34,3 @@ _comp_cmd_dd()
     [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 } &&
     complete -F _comp_cmd_dd dd
-
-# ex: filetype=sh

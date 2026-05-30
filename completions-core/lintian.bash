@@ -1,4 +1,4 @@
-# bash completion for lintian(1) and lintian-info(1)       -*- shell-script -*-
+# bash completion for lintian(1) and lintian-info(1)
 
 _comp_cmd_lintian__tags()
 {
@@ -170,5 +170,3 @@ _comp_cmd_lintian_info()
     return 0
 } &&
     complete -F _comp_cmd_lintian_info lintian-info
-
-# ex: filetype=sh

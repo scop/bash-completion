@@ -1,4 +1,4 @@
-# mailman sync_members completion                          -*- shell-script -*-
+# mailman sync_members completion
 
 _comp_cmd_sync_members()
 {
@@ -30,5 +30,3 @@ _comp_cmd_sync_members()
 
 } &&
     complete -F _comp_cmd_sync_members sync_members
-
-# ex: filetype=sh

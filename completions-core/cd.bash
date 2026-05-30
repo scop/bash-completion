@@ -1,4 +1,4 @@
-# cd(1) completion                                         -*- shell-script -*-
+# cd(1) completion
 
 _comp_cmd_cd__compgen_cdable_vars()
 {

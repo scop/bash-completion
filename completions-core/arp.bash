@@ -1,4 +1,4 @@
-# arp(8) completion                                        -*- shell-script -*-
+# arp(8) completion
 
 _comp_cmd_arp()
 {
@@ -57,5 +57,3 @@ _comp_cmd_arp()
     esac
 } &&
     complete -F _comp_cmd_arp arp
-
-# ex: filetype=sh

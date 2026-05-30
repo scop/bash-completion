@@ -1,4 +1,4 @@
-# hwclock(8) completion                                    -*- shell-script -*-
+# hwclock(8) completion
 
 # Use of this file is deprecated.  Upstream completion is available in
 # util-linux >= 2.23, use that instead.
@@ -22,5 +22,3 @@ _comp_cmd_hwclock()
     _comp_compgen_help
 } &&
     complete -F _comp_cmd_hwclock hwclock
-
-# ex: filetype=sh
