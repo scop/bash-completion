@@ -1,4 +1,4 @@
-# tshark(1) completion                                     -*- shell-script -*-
+# tshark(1) completion
 
 _comp_cmd_tshark()
 {
@@ -120,5 +120,3 @@ _comp_cmd_tshark()
     fi
 } &&
     complete -F _comp_cmd_tshark tshark
-
-# ex: filetype=sh

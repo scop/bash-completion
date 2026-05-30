@@ -1,4 +1,4 @@
-# file(1) completion                                       -*- shell-script -*-
+# file(1) completion
 
 _comp_cmd_file()
 {
@@ -30,5 +30,3 @@ _comp_cmd_file()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_file file
-
-# ex: filetype=sh

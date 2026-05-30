@@ -1,4 +1,4 @@
-# Debian dpkg-source completion                            -*- shell-script -*-
+# Debian dpkg-source completion
 
 _comp_cmd_dpkg_source()
 {
@@ -90,5 +90,3 @@ _comp_cmd_dpkg_source()
     esac
 } &&
     complete -F _comp_cmd_dpkg_source dpkg-source
-
-# ex: filetype=sh

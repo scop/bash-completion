@@ -1,4 +1,4 @@
-# opera(1) completion                                      -*- shell-script -*-
+# opera(1) completion
 
 _comp_cmd_opera()
 {
@@ -42,5 +42,3 @@ _comp_cmd_opera()
     _comp_compgen_filedir '@(?([xX]|[sS])[hH][tT][mM]?([lL]))'
 } &&
     complete -F _comp_cmd_opera opera
-
-# ex: filetype=sh

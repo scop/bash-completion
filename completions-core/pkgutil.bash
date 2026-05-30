@@ -1,4 +1,4 @@
-# pkgutil completion                                       -*- shell-script -*-
+# pkgutil completion
 # Copyright 2006 Yann Rouillard <yann@opencsw.org>
 
 # At least macOS pkgutil is different
@@ -109,5 +109,3 @@ _comp_cmd_pkgutil()
 
 } &&
     complete -F _comp_cmd_pkgutil pkgutil
-
-# ex: filetype=sh

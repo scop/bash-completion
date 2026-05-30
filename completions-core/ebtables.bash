@@ -1,4 +1,4 @@
-# bash completion for ebtables                             -*- shell-script -*-
+# bash completion for ebtables
 
 _comp_cmd_ebtables()
 {
@@ -77,5 +77,3 @@ _comp_cmd_ebtables()
 
 } &&
     complete -F _comp_cmd_ebtables ebtables
-
-# ex: filetype=sh

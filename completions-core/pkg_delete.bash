@@ -1,4 +1,4 @@
-# bash completion for *BSD package management tools        -*- shell-script -*-
+# bash completion for *BSD package management tools
 
 _comp_cmd_pkg_delete()
 {
@@ -15,5 +15,3 @@ _comp_cmd_pkg_delete()
 } &&
     complete -F _comp_cmd_pkg_delete -o dirnames \
         pkg_delete pkg_info pkg_deinstall
-
-# ex: filetype=sh

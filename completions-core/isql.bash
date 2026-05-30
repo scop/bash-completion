@@ -1,4 +1,4 @@
-# isql completion                                          -*- shell-script -*-
+# isql completion
 # by Victor Bogado da Silva Lins <victor@bogado.net>
 
 _comp_cmd_isql()
@@ -12,5 +12,3 @@ _comp_cmd_isql()
         )"
 } &&
     complete -F _comp_cmd_isql isql
-
-# ex: filetype=sh

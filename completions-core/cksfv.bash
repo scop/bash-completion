@@ -1,4 +1,4 @@
-# cksfv completion by Chris <xris@forevermore.net>         -*- shell-script -*-
+# cksfv completion by Chris <xris@forevermore.net>
 
 _comp_cmd_cksfv()
 {
@@ -25,5 +25,3 @@ _comp_cmd_cksfv()
 
 } &&
     complete -F _comp_cmd_cksfv cksfv
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for feh(1)                               -*- shell-script -*-
+# bash completion for feh(1)
 
 _comp_cmd_feh()
 {
@@ -116,5 +116,3 @@ _comp_cmd_feh()
     _comp_compgen_filedir 'xpm|tif?(f)|png|p[npgba]m|iff|?(i)lbm|jp?(e)g|jfi?(f)|gif|bmp|arg?(b)|tga|xcf|ani|ico|?(e)ps|pdf|dvi|txt|svg?(z)|cdr|[ot]tf|ff?(.gz|.bz2)|webp|y4m|hei[cf]?(s)|avif?(s)'
 } &&
     complete -F _comp_cmd_feh feh
-
-# ex: filetype=sh

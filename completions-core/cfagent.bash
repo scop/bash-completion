@@ -1,4 +1,4 @@
-# cfagent completion                                       -*- shell-script -*-
+# cfagent completion
 
 _comp_cmd_cfagent()
 {
@@ -17,5 +17,3 @@ _comp_cmd_cfagent()
     fi
 } &&
     complete -F _comp_cmd_cfagent cfagent
-
-# ex: filetype=sh

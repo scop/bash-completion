@@ -1,4 +1,4 @@
-# apache2ctl(1) completion                                 -*- shell-script -*-
+# apache2ctl(1) completion
 
 _comp_cmd_apache2ctl()
 {
@@ -11,5 +11,3 @@ _comp_cmd_apache2ctl()
     _comp_compgen_split -F $' \t\n|' -- "$APWORDS"
 } &&
     complete -F _comp_cmd_apache2ctl apache2ctl
-
-# ex: filetype=sh

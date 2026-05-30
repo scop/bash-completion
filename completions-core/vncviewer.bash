@@ -1,4 +1,4 @@
-# bash completion for vncviewer                            -*- shell-script -*-
+# bash completion for vncviewer
 
 _comp_cmd_vncviewer__bootstrap()
 {
@@ -95,5 +95,3 @@ _comp_cmd_xvnc4viewer()
     fi
 } &&
     complete -F _comp_cmd_xvnc4viewer xvnc4viewer
-
-# ex: filetype=sh

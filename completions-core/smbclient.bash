@@ -1,4 +1,4 @@
-# bash completion for samba                                -*- shell-script -*-
+# bash completion for samba
 
 _comp_cmd_smbclient__resolve_order()
 {
@@ -326,5 +326,3 @@ _comp_cmd_smbtree()
     fi
 } &&
     complete -F _comp_cmd_smbtree smbtree
-
-# ex: filetype=sh

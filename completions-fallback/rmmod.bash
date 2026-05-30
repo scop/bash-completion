@@ -1,4 +1,4 @@
-# Linux rmmod(8) completion.                               -*- shell-script -*-
+# Linux rmmod(8) completion.
 # This completes on a list of all currently installed kernel modules.
 
 # Use of this file is deprecated.
@@ -23,5 +23,3 @@ _comp_cmd_rmmod()
     _comp_compgen_inserted_kernel_modules
 } &&
     complete -F _comp_cmd_rmmod rmmod
-
-# ex: filetype=sh

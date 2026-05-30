@@ -1,4 +1,4 @@
-# sshow completion                                         -*- shell-script -*-
+# sshow completion
 
 _comp_cmd_sshow()
 {
@@ -22,5 +22,3 @@ _comp_cmd_sshow()
 
 } &&
     complete -F _comp_cmd_sshow sshow
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for screen                               -*- shell-script -*-
+# bash completion for screen
 
 _comp_cmd_screen__sessions()
 {
@@ -116,5 +116,3 @@ _comp_cmd_screen__sessions()
         fi
     } &&
         complete -F _comp_cmd_screen screen
-
-# ex: filetype=sh

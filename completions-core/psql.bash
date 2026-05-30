@@ -1,4 +1,4 @@
-# bash completion for Postgresql                           -*- shell-script -*-
+# bash completion for PostgreSQL
 
 _comp_cmd_psql__databases()
 {
@@ -196,5 +196,3 @@ _comp_cmd_psql()
     fi
 } &&
     complete -F _comp_cmd_psql psql
-
-# ex: filetype=sh

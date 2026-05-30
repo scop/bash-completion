@@ -1,4 +1,4 @@
-# Debian aptitude(1) completion                            -*- shell-script -*-
+# Debian aptitude(1) completion
 
 _comp_cmd_aptitude()
 {
@@ -103,5 +103,3 @@ _comp_cmd_aptitude()
 
 } &&
     complete -F _comp_cmd_aptitude -o default aptitude aptitude-curses
-
-# ex: filetype=sh

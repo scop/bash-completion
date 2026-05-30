@@ -1,4 +1,4 @@
-# webmitm completion                                       -*- shell-script -*-
+# webmitm completion
 
 _comp_cmd_webmitm()
 {
@@ -13,5 +13,3 @@ _comp_cmd_webmitm()
 
 } &&
     complete -F _comp_cmd_webmitm webmitm
-
-# ex: filetype=sh

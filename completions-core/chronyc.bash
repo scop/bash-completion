@@ -1,4 +1,4 @@
-# chronyc(1) completion                                    -*- shell-script -*-
+# chronyc(1) completion
 
 _comp_cmd_chronyc__command_args()
 {
@@ -58,5 +58,3 @@ _comp_cmd_chronyc()
     esac
 } &&
     complete -F _comp_cmd_chronyc chronyc
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# mailmanctl completion                                    -*- shell-script -*-
+# mailmanctl completion
 
 _comp_cmd_mailmanctl()
 {
@@ -14,5 +14,3 @@ _comp_cmd_mailmanctl()
 
 } &&
     complete -F _comp_cmd_mailmanctl mailmanctl
-
-# ex: filetype=sh

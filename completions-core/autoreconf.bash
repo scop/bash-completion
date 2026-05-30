@@ -1,4 +1,4 @@
-# autoreconf(1) completion                                 -*- shell-script -*-
+# autoreconf(1) completion
 
 _comp_cmd_autoreconf()
 {
@@ -37,5 +37,3 @@ _comp_cmd_autoreconf()
     fi
 } &&
     complete -F _comp_cmd_autoreconf autoreconf autoheader
-
-# ex: filetype=sh

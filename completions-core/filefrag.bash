@@ -1,4 +1,4 @@
-# filefrag(8) completion                                   -*- shell-script -*-
+# filefrag(8) completion
 
 _comp_cmd_filefrag()
 {
@@ -13,5 +13,3 @@ _comp_cmd_filefrag()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_filefrag filefrag
-
-# ex: filetype=sh

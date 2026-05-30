@@ -1,4 +1,4 @@
-# Slackware Linux installpkg completion                    -*- shell-script -*-
+# Slackware Linux installpkg completion
 
 _comp_cmd_installpkg()
 {
@@ -29,5 +29,3 @@ _comp_cmd_installpkg()
     _comp_compgen_filedir 't[bglx]z'
 } &&
     complete -F _comp_cmd_installpkg installpkg
-
-# ex: filetype=sh

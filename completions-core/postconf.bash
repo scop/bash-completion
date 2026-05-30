@@ -1,4 +1,4 @@
-# postconf(1) completion                                   -*- shell-script -*-
+# postconf(1) completion
 
 _comp_cmd_postconf()
 {
@@ -35,5 +35,3 @@ _comp_cmd_postconf()
     done
 } &&
     complete -F _comp_cmd_postconf postconf
-
-# ex: filetype=sh

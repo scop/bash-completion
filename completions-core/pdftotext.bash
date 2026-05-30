@@ -1,4 +1,4 @@
-# bash completion for pdftotext(1)                         -*- shell-script -*-
+# bash completion for pdftotext(1)
 
 _comp_cmd_pdftotext()
 {
@@ -35,5 +35,3 @@ _comp_cmd_pdftotext()
     esac
 } &&
     complete -F _comp_cmd_pdftotext pdftotext
-
-# ex: filetype=sh

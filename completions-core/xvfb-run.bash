@@ -1,4 +1,4 @@
-# bash completion for xvfb-run                             -*- shell-script -*-
+# bash completion for xvfb-run
 
 _comp_cmd_xvfb_run()
 {
@@ -35,5 +35,3 @@ _comp_cmd_xvfb_run()
     fi
 } &&
     complete -F _comp_cmd_xvfb_run xvfb-run
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for sysbench                             -*- shell-script -*-
+# bash completion for sysbench
 
 _comp_cmd_sysbench()
 {
@@ -127,5 +127,3 @@ _comp_cmd_sysbench()
     fi
 } &&
     complete -F _comp_cmd_sysbench sysbench
-
-# ex: filetype=sh

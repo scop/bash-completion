@@ -1,4 +1,4 @@
-# getconf(1) completion                                    -*- shell-script -*-
+# getconf(1) completion
 
 _comp_cmd_getconf()
 {
@@ -29,5 +29,3 @@ _comp_cmd_getconf()
     fi
 } &&
     complete -F _comp_cmd_getconf getconf
-
-# ex: filetype=sh

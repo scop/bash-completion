@@ -1,4 +1,4 @@
-# bts completion                                           -*- shell-script -*-
+# bts completion
 
 # Generate bug numbers from bugs cache in ~/.devscripts_cache/bts
 _comp_cmd_bts__compgen_cached_bugs()
@@ -112,5 +112,3 @@ _comp_cmd_bts()
 
 } &&
     complete -F _comp_cmd_bts bts
-
-# ex: filetype=sh

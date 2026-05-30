@@ -1,4 +1,4 @@
-# ssh(1) completion                                        -*- shell-script -*-
+# ssh(1) completion
 
 _comp_cmd_ssh__compgen_queries()
 {
@@ -719,5 +719,3 @@ _comp_cmd_scp()
     _comp_compgen -ax scp local_files "${prefix-}"
 } &&
     complete -F _comp_cmd_scp -o nospace scp
-
-# ex: filetype=sh

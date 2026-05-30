@@ -1,4 +1,4 @@
-# Debian apt-get(8) completion                             -*- shell-script -*-
+# Debian apt-get(8) completion
 
 # @since 2.12
 _comp_xfunc_apt_get_compgen_installed_packages()
@@ -111,5 +111,3 @@ _comp_cmd_apt_get()
 
 } &&
     complete -F _comp_cmd_apt_get apt-get
-
-# ex: filetype=sh

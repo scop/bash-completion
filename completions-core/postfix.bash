@@ -1,4 +1,4 @@
-# postfix(1) completion                                    -*- shell-script -*-
+# postfix(1) completion
 
 _comp_cmd_postfix()
 {
@@ -25,5 +25,3 @@ _comp_cmd_postfix()
         set-permissions upgrade-configuration'
 } &&
     complete -F _comp_cmd_postfix postfix
-
-# ex: filetype=sh

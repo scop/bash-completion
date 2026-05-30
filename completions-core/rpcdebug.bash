@@ -1,4 +1,4 @@
-# bash completion for rpcdebug                             -*- shell-script -*-
+# bash completion for rpcdebug
 
 _comp_cmd_rpcdebug__flags()
 {
@@ -43,5 +43,3 @@ _comp_cmd_rpcdebug()
     fi
 } &&
     complete -F _comp_cmd_rpcdebug rpcdebug
-
-# ex: filetype=sh

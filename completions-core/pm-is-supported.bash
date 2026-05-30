@@ -1,4 +1,4 @@
-# pm-is-supported(1) completion                            -*- shell-script -*-
+# pm-is-supported(1) completion
 
 _comp_cmd_pm_is_supported()
 {
@@ -8,5 +8,3 @@ _comp_cmd_pm_is_supported()
     _comp_compgen -- -W '--help --suspend --hibernate --suspend-hybrid'
 } &&
     complete -F _comp_cmd_pm_is_supported pm-is-supported
-
-# ex: filetype=sh

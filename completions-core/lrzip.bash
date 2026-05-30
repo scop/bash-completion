@@ -1,4 +1,4 @@
-# lrzip(1) completion                                      -*- shell-script -*-
+# lrzip(1) completion
 
 _comp_cmd_lrzip()
 {
@@ -52,5 +52,3 @@ _comp_cmd_lrzip()
     _comp_compgen -- -f -X "$xspec" -o plusdirs
 } &&
     complete -F _comp_cmd_lrzip lrzip
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# jq(1) completion                                         -*- shell-script -*-
+# jq(1) completion
 
 _comp_cmd_jq()
 {
@@ -75,5 +75,3 @@ _comp_cmd_jq()
 
 } &&
     complete -F _comp_cmd_jq jq
-
-# ex: filetype=sh

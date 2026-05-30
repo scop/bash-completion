@@ -1,4 +1,4 @@
-# querybts completion                                      -*- shell-script -*-
+# querybts completion
 
 _comp_cmd_querybts()
 {
@@ -37,5 +37,3 @@ _comp_cmd_querybts()
     fi
 } &&
     complete -F _comp_cmd_querybts querybts
-
-# ex: filetype=sh

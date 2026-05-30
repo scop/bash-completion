@@ -1,4 +1,4 @@
-# bash completion for ldapvi                               -*- shell-script -*-
+# bash completion for ldapvi
 
 _comp_cmd_ldapvi()
 {
@@ -48,5 +48,3 @@ _comp_cmd_ldapvi()
     fi
 } &&
     complete -F _comp_cmd_ldapvi ldapvi
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for aspell                               -*- shell-script -*-
+# bash completion for aspell
 
 _comp_cmd_aspell__dictionary()
 {
@@ -85,5 +85,3 @@ _comp_cmd_aspell()
     fi
 } &&
     complete -F _comp_cmd_aspell aspell
-
-# ex: filetype=sh

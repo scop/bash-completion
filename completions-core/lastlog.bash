@@ -1,4 +1,4 @@
-# lastlog(8) completion                                    -*- shell-script -*-
+# lastlog(8) completion
 
 _comp_cmd_lastlog()
 {
@@ -23,5 +23,3 @@ _comp_cmd_lastlog()
     [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 } &&
     complete -F _comp_cmd_lastlog lastlog
-
-# ex: filetype=sh

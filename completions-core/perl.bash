@@ -1,4 +1,4 @@
-# bash completion for perl                                 -*- shell-script -*-
+# bash completion for perl
 
 _comp_cmd_perl__helper()
 {
@@ -139,5 +139,3 @@ _comp_cmd_perldoc()
     fi
 } &&
     complete -F _comp_cmd_perldoc -o bashdefault perldoc
-
-# ex: filetype=sh

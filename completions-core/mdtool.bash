@@ -1,4 +1,4 @@
-# mdtool completion                                        -*- shell-script -*-
+# mdtool completion
 
 _comp_cmd_mdtool()
 {
@@ -54,5 +54,3 @@ _comp_cmd_mdtool()
 
 } &&
     complete -F _comp_cmd_mdtool mdtool
-
-# ex: filetype=sh

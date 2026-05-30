@@ -1,4 +1,4 @@
-# firefox completion                                       -*- shell-script -*-
+# firefox completion
 
 _comp_cmd_firefox()
 {
@@ -49,5 +49,3 @@ _comp_cmd_firefox()
     _comp_compgen_filedir "@(?([xs])htm?(l)|pdf|txt|svg)"
 } &&
     complete -F _comp_cmd_firefox firefox firefox-esr iceweasel mozilla-firefox
-
-# ex: filetype=sh

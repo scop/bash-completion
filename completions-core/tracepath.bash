@@ -1,4 +1,4 @@
-# tracepath(8) completion                                  -*- shell-script -*-
+# tracepath(8) completion
 
 _comp_cmd_tracepath()
 {
@@ -21,5 +21,3 @@ _comp_cmd_tracepath()
     _comp_compgen_known_hosts ${ipvx-} -- "$cur"
 } &&
     complete -F _comp_cmd_tracepath tracepath tracepath6
-
-# ex: filetype=sh

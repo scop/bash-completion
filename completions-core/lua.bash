@@ -1,4 +1,4 @@
-# lua(1) completion                                        -*- shell-script -*-
+# lua(1) completion
 
 _comp_cmd_lua()
 {
@@ -19,5 +19,3 @@ _comp_cmd_lua()
     _comp_compgen_filedir 'l@(ua|?(ua)c)'
 } &&
     complete -F _comp_cmd_lua lua{,5{,.}{0..4}}
-
-# ex: filetype=sh

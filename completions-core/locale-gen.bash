@@ -1,4 +1,4 @@
-# locale-gen(8) completion                                 -*- shell-script -*-
+# locale-gen(8) completion
 
 _comp_cmd_locale_gen()
 {
@@ -28,5 +28,3 @@ _comp_cmd_locale_gen()
     )"
 } &&
     complete -F _comp_cmd_locale_gen locale-gen
-
-# ex: filetype=sh

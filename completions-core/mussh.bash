@@ -1,4 +1,4 @@
-# mussh(1) completion                                      -*- shell-script -*-
+# mussh(1) completion
 
 _comp_cmd_mussh()
 {
@@ -48,5 +48,3 @@ _comp_cmd_mussh()
         _comp_compgen_help
 } &&
     complete -F _comp_cmd_mussh mussh
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# makepkg completion                                       -*- shell-script -*-
+# makepkg completion
 
 # Slackware Linux variant
 _comp_cmd_makepkg__slackware()
@@ -42,5 +42,3 @@ _comp_cmd_makepkg__bootstrap()
     $fname "$@"
 } &&
     complete -F _comp_cmd_makepkg__bootstrap makepkg
-
-# ex: filetype=sh

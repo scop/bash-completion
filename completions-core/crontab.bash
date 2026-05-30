@@ -1,4 +1,4 @@
-# crontab(1) completion                                    -*- shell-script -*-
+# crontab(1) completion
 
 _comp_cmd_crontab()
 {
@@ -44,5 +44,3 @@ _comp_cmd_crontab()
     [[ ${words[*]} == *\ -[lre]* ]] || _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_crontab crontab
-
-# ex: filetype=sh

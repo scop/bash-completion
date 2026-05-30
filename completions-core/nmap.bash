@@ -1,4 +1,4 @@
-# bash completion for nmap                                 -*- shell-script -*-
+# bash completion for nmap
 
 _comp_cmd_nmap()
 {
@@ -51,5 +51,3 @@ _comp_cmd_nmap()
     fi
 } &&
     complete -F _comp_cmd_nmap nmap
-
-# ex: filetype=sh

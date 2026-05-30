@@ -1,4 +1,4 @@
-# bash completion for rdesktop                             -*- shell-script -*-
+# bash completion for rdesktop
 
 _comp_cmd_rdesktop()
 {
@@ -50,5 +50,3 @@ _comp_cmd_rdesktop()
 
 } &&
     complete -F _comp_cmd_rdesktop rdesktop
-
-# ex: filetype=sh

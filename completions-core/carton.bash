@@ -1,4 +1,4 @@
-# carton(3pm) completion                                   -*- shell-script -*-
+# carton(3pm) completion
 
 _comp_cmd_carton__commands()
 {
@@ -91,5 +91,3 @@ _comp_cmd_carton()
     esac
 } &&
     complete -F _comp_cmd_carton carton
-
-# ex: filetype=sh

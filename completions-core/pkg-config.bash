@@ -1,4 +1,4 @@
-# bash completion for pkgconfig                            -*- shell-script -*-
+# bash completion for pkgconfig
 
 _comp_cmd_pkg_config()
 {
@@ -41,5 +41,3 @@ _comp_cmd_pkg_config()
     fi
 } &&
     complete -F _comp_cmd_pkg_config pkg-config pkgconf
-
-# ex: filetype=sh

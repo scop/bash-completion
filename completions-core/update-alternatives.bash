@@ -1,4 +1,4 @@
-# bash completion for update-alternatives                  -*- shell-script -*-
+# bash completion for update-alternatives
 
 _comp_cmd_update_alternatives__installed()
 {
@@ -93,5 +93,3 @@ _comp_cmd_update_alternatives()
     esac
 } &&
     complete -F _comp_cmd_update_alternatives update-alternatives alternatives
-
-# ex: filetype=sh

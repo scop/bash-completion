@@ -1,4 +1,4 @@
-# a2x(1) completion                                        -*- shell-script -*-
+# a2x(1) completion
 
 _comp_cmd_a2x()
 {
@@ -37,5 +37,3 @@ _comp_cmd_a2x()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_a2x a2x
-
-# ex: filetype=sh

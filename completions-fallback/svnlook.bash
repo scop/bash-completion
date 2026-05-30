@@ -1,4 +1,4 @@
-# svnlook completion                                       -*- shell-script -*-
+# svnlook completion
 
 # Use of this file is deprecated.  Upstream completion is available in
 # subversion >= 0.12.0, use that instead.
@@ -59,5 +59,3 @@ _comp_cmd_svnlook()
 
 } &&
     complete -F _comp_cmd_svnlook -o default svnlook
-
-# ex: filetype=sh

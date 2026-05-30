@@ -1,4 +1,4 @@
-# kcov(1) completion                                       -*- shell-script -*-
+# kcov(1) completion
 
 _comp_cmd_kcov()
 {
@@ -64,5 +64,3 @@ _comp_cmd_kcov()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_kcov kcov
-
-# ex: filetype=sh

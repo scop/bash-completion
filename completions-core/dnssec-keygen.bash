@@ -1,4 +1,4 @@
-# bash completion for dnssec-keygen(8)                     -*- shell-script -*-
+# bash completion for dnssec-keygen(8)
 
 _comp_cmd_dnssec_keygen__optarg()
 {
@@ -44,5 +44,3 @@ _comp_cmd_dnssec_keygen()
     fi
 } &&
     complete -F _comp_cmd_dnssec_keygen dnssec-keygen
-
-# ex: filetype=sh

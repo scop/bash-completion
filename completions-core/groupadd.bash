@@ -1,4 +1,4 @@
-# groupadd(8) completion                                   -*- shell-script -*-
+# groupadd(8) completion
 
 _comp_cmd_groupadd()
 {
@@ -24,5 +24,3 @@ _comp_cmd_groupadd()
     fi
 } &&
     complete -F _comp_cmd_groupadd groupadd
-
-# ex: filetype=sh

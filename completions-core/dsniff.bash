@@ -1,4 +1,4 @@
-# dsniff completion                                        -*- shell-script -*-
+# dsniff completion
 
 _comp_cmd_dsniff()
 {
@@ -23,5 +23,3 @@ _comp_cmd_dsniff()
 
 } &&
     complete -F _comp_cmd_dsniff dsniff
-
-# ex: filetype=sh

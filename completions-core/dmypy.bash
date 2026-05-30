@@ -1,4 +1,4 @@
-# dmypy completion                                         -*- shell-script -*-
+# dmypy completion
 
 _comp_cmd_dmypy()
 {
@@ -45,5 +45,3 @@ _comp_cmd_dmypy()
     fi
 } &&
     complete -F _comp_cmd_dmypy dmypy
-
-# ex: filetype=sh

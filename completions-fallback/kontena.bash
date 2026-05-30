@@ -1,4 +1,4 @@
-# 3rd party completion loader for kontena                  -*- shell-script -*-
+# 3rd party completion loader for kontena
 #
 # This serves as a fallback in case the completion is not installed otherwise.
 
@@ -10,5 +10,3 @@ _comp_cmd_kontena__completion_path=$("$1" whoami --bash-completion-path 2>/dev/n
     [[ -r $_comp_cmd_kontena__completion_path ]] &&
     . "$_comp_cmd_kontena__completion_path" &&
     unset -v _comp_cmd_kontena__completion_path
-
-# ex: filetype=sh

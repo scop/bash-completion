@@ -1,4 +1,4 @@
-# bash completion for rcs                                  -*- shell-script -*-
+# bash completion for rcs
 
 _comp_cmd_rcs()
 {
@@ -35,5 +35,3 @@ _comp_cmd_rcs()
     [[ ${#COMPREPLY[@]} -eq 0 && $1 == *ci ]] && _comp_compgen -a filedir || _comp_compgen -a filedir -d
 } &&
     complete -F _comp_cmd_rcs ci co rlog rcs rcsdiff
-
-# ex: filetype=sh

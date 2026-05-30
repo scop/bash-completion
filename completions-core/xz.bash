@@ -1,4 +1,4 @@
-# xz(1) completion                                         -*- shell-script -*-
+# xz(1) completion
 
 _comp_cmd_xz()
 {
@@ -55,5 +55,3 @@ _comp_cmd_xz()
     _comp_compgen -- -f -X "$xspec" -o plusdirs
 } &&
     complete -F _comp_cmd_xz xz pxz
-
-# ex: filetype=sh

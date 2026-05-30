@@ -1,4 +1,4 @@
-# xxd(1) completion                                        -*- shell-script -*-
+# xxd(1) completion
 
 _comp_cmd_xxd()
 {
@@ -24,5 +24,3 @@ _comp_cmd_xxd()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_xxd xxd
-
-# ex: filetype=sh

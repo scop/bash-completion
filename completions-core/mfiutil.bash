@@ -1,4 +1,4 @@
-# mfiutil completion                                       -*- shell-script -*-
+# mfiutil completion
 
 [[ $OSTYPE == *@(freebsd|dragonflybsd|darwin|linux|solaris)* ]] || return 1
 

@@ -1,4 +1,4 @@
-# bash completion for minicom                              -*- shell-script -*-
+# bash completion for minicom
 
 _comp_cmd_minicom()
 {
@@ -36,5 +36,3 @@ _comp_cmd_minicom()
         _comp_compgen -- -W '"${files[@]##*minirc.}"'
 } &&
     complete -F _comp_cmd_minicom -o default minicom
-
-# ex: filetype=sh

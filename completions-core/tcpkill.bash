@@ -1,4 +1,4 @@
-# tcpkill completion                                       -*- shell-script -*-
+# tcpkill completion
 
 _comp_cmd_tcpkill()
 {
@@ -18,5 +18,3 @@ _comp_cmd_tcpkill()
 
 } &&
     complete -F _comp_cmd_tcpkill tcpkill
-
-# ex: filetype=sh

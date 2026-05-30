@@ -1,4 +1,4 @@
-# bash completion for xm                                   -*- shell-script -*-
+# bash completion for xm
 
 # Use of this file is deprecated.  The 'xm' command itself is no longer
 # provided by upstream.  It has been replaced with the 'xl' command, for
@@ -213,5 +213,3 @@ _comp_cmd_xm()
     fi
 } &&
     complete -F _comp_cmd_xm xm
-
-# ex: filetype=sh

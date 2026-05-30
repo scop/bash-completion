@@ -1,4 +1,4 @@
-# unpack200(1) completion                                  -*- shell-script -*-
+# unpack200(1) completion
 
 _comp_cmd_unpack200()
 {
@@ -46,5 +46,3 @@ _comp_cmd_unpack200()
     fi
 } &&
     complete -F _comp_cmd_unpack200 unpack200
-
-# ex: filetype=sh

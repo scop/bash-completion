@@ -1,4 +1,4 @@
-# avctrl completion                                        -*- shell-script -*-
+# avctrl completion
 
 _comp_cmd_avctrl()
 {
@@ -16,5 +16,3 @@ _comp_cmd_avctrl()
     fi
 } &&
     complete -F _comp_cmd_avctrl avctrl
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# lzop(1) completion                                       -*- shell-script -*-
+# lzop(1) completion
 
 _comp_cmd_lzop()
 {
@@ -55,5 +55,3 @@ _comp_cmd_lzop()
     _comp_compgen -- -f -X "$xspec" -o plusdirs
 } &&
     complete -F _comp_cmd_lzop lzop
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# freeciv client completions                               -*- shell-script -*-
+# freeciv client completions
 
 _comp_cmd_freeciv()
 {
@@ -37,5 +37,3 @@ _comp_cmd_freeciv()
 
 } &&
     complete -F _comp_cmd_freeciv freeciv{,-{gtk{2,3},sdl,xaw}} civclient
-
-# ex: filetype=sh

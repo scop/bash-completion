@@ -1,4 +1,4 @@
-# mplayer(1) completion                                    -*- shell-script -*-
+# mplayer(1) completion
 
 _comp_cmd_mplayer__options()
 {
@@ -278,5 +278,3 @@ _comp_cmd_mplayer()
 
 } &&
     complete -F _comp_cmd_mplayer mplayer mplayer2 mencoder gmplayer kplayer
-
-# ex: filetype=sh

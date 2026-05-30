@@ -1,4 +1,4 @@
-# mr completion                                            -*- shell-script -*-
+# mr completion
 
 _comp_cmd_mr()
 {
@@ -94,5 +94,3 @@ _comp_cmd_mr()
     fi
 } &&
     complete -F _comp_cmd_mr mr
-
-# ex: filetype=sh

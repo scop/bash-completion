@@ -1,4 +1,4 @@
-# tune2fs(8) completion                                    -*- shell-script -*-
+# tune2fs(8) completion
 
 _comp_cmd_tune2fs()
 {
@@ -56,5 +56,3 @@ _comp_cmd_tune2fs()
     _comp_compgen -c "${cur:-/dev/}" filedir
 } &&
     complete -F _comp_cmd_tune2fs tune2fs
-
-# ex: filetype=sh

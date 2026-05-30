@@ -1,4 +1,4 @@
-# dnsspoof completion                                      -*- shell-script -*-
+# dnsspoof completion
 
 _comp_cmd_dnsspoof()
 {
@@ -22,5 +22,3 @@ _comp_cmd_dnsspoof()
 
 } &&
     complete -F _comp_cmd_dnsspoof dnsspoof
-
-# ex: filetype=sh

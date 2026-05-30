@@ -1,4 +1,4 @@
-# bash completion for bzip2                                -*- shell-script -*-
+# bash completion for bzip2
 
 _comp_cmd_bzip2()
 {
@@ -42,5 +42,3 @@ _comp_cmd_bzip2()
     _comp_compgen -- -f -X "$xspec" -o plusdirs
 } &&
     complete -F _comp_cmd_bzip2 bzip2 pbzip2 lbzip2
-
-# ex: filetype=sh

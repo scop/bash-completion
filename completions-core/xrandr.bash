@@ -1,4 +1,4 @@
-# bash completion for xrandr                               -*- shell-script -*-
+# bash completion for xrandr
 
 _comp_cmd_xrandr__compgen_outputs()
 {
@@ -174,5 +174,3 @@ _comp_cmd_xrandr()
     _comp_compgen -- -W '"${options[@]}"'
 } &&
     complete -F _comp_cmd_xrandr xrandr
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for fprintd-enroll and fprintd-verify    -*- shell-script -*-
+# bash completion for fprintd-enroll and fprintd-verify
 
 _comp_cmd_fprintd_enroll()
 {
@@ -34,5 +34,3 @@ _comp_cmd_fprintd_enroll()
     fi
 } &&
     complete -F _comp_cmd_fprintd_enroll fprintd-enroll fprintd-verify
-
-# ex: filetype=sh

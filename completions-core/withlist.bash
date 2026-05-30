@@ -1,4 +1,4 @@
-# mailman withlist completion                              -*- shell-script -*-
+# mailman withlist completion
 
 _comp_cmd_withlist()
 {
@@ -16,5 +16,3 @@ _comp_cmd_withlist()
 
 } &&
     complete -F _comp_cmd_withlist withlist
-
-# ex: filetype=sh

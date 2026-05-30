@@ -1,4 +1,4 @@
-# pack200(1) completion                                    -*- shell-script -*-
+# pack200(1) completion
 
 _comp_cmd_pack200()
 {
@@ -70,5 +70,3 @@ _comp_cmd_pack200()
     fi
 } &&
     complete -F _comp_cmd_pack200 pack200
-
-# ex: filetype=sh

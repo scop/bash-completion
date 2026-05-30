@@ -1,4 +1,4 @@
-# faillog(8) completion                                    -*- shell-script -*-
+# faillog(8) completion
 
 _comp_cmd_faillog()
 {
@@ -25,5 +25,3 @@ _comp_cmd_faillog()
     fi
 } &&
     complete -F _comp_cmd_faillog faillog
-
-# ex: filetype=sh

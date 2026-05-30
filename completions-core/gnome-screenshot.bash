@@ -1,4 +1,4 @@
-# gnome-screenshot(1) completion                           -*- shell-script -*-
+# gnome-screenshot(1) completion
 
 _comp_cmd_gnome_screenshot()
 {
@@ -29,5 +29,3 @@ _comp_cmd_gnome_screenshot()
     fi
 } &&
     complete -F _comp_cmd_gnome_screenshot gnome-screenshot
-
-# ex: filetype=sh

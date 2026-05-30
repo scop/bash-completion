@@ -1,4 +1,4 @@
-# iwlist completion                                        -*- shell-script -*-
+# iwlist completion
 
 _comp_cmd_iwlist()
 {
@@ -18,5 +18,3 @@ _comp_cmd_iwlist()
     fi
 } &&
     complete -F _comp_cmd_iwlist iwlist
-
-# ex: filetype=sh

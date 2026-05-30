@@ -1,4 +1,4 @@
-# unrar(1) completion                                      -*- shell-script -*-
+# unrar(1) completion
 
 _comp_cmd_unrar()
 {
@@ -19,5 +19,3 @@ _comp_cmd_unrar()
 
 } &&
     complete -F _comp_cmd_unrar unrar
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# gprof(1) completion                                      -*- shell-script -*-
+# gprof(1) completion
 
 _comp_cmd_gprof()
 {
@@ -49,5 +49,3 @@ _comp_cmd_gprof()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_gprof gprof
-
-# ex: filetype=sh

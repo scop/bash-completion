@@ -1,4 +1,4 @@
-# gkrellm(1) completion                                    -*- shell-script -*-
+# gkrellm(1) completion
 
 _comp_cmd_gkrellm()
 {
@@ -35,5 +35,3 @@ _comp_cmd_gkrellm()
     _comp_compgen_help
 } &&
     complete -F _comp_cmd_gkrellm gkrellm gkrellm2
-
-# ex: filetype=sh

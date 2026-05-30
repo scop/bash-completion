@@ -1,4 +1,4 @@
-# chpasswd(8) completion                                   -*- shell-script -*-
+# chpasswd(8) completion
 
 _comp_cmd_chpasswd()
 {
@@ -27,5 +27,3 @@ _comp_cmd_chpasswd()
     [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 } &&
     complete -F _comp_cmd_chpasswd chpasswd
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# ecryptfs-migrate-home(8) completion                      -*- shell-script -*-
+# ecryptfs-migrate-home(8) completion
 
 _comp_cmd_ecryptfs_migrate_home()
 {
@@ -18,5 +18,3 @@ _comp_cmd_ecryptfs_migrate_home()
     _comp_compgen_help
 } &&
     complete -F _comp_cmd_ecryptfs_migrate_home ecryptfs-migrate-home
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# chsh(1) completion                                       -*- shell-script -*-
+# chsh(1) completion
 
 # Use of this file is deprecated on Linux systems whose chsh is from
 # util-linux. Upstream completion is in util-linux >= 2.23, use that instead.
@@ -39,5 +39,3 @@ _comp_cmd_chsh()
 
 } &&
     complete -F _comp_cmd_chsh chsh
-
-# ex: filetype=sh

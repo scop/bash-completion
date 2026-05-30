@@ -1,4 +1,4 @@
-# bash completion for avahi-browse(1)                      -*- shell-script -*-
+# bash completion for avahi-browse(1)
 
 _comp_cmd_avahi_browse()
 {
@@ -38,5 +38,3 @@ _comp_cmd_avahi_browse()
 
 } &&
     complete -F _comp_cmd_avahi_browse avahi-browse avahi-browse-domains
-
-# ex: filetype=sh

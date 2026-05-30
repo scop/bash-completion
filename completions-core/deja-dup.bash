@@ -1,4 +1,4 @@
-# bash completion for deja-dup(1)                          -*- shell-script -*-
+# bash completion for deja-dup(1)
 
 _comp_cmd_deja_dup()
 {
@@ -28,5 +28,3 @@ _comp_cmd_deja_dup()
     fi
 } &&
     complete -F _comp_cmd_deja_dup deja-dup
-
-# ex: filetype=sh

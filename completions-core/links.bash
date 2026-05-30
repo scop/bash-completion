@@ -1,4 +1,4 @@
-# bash completion for links                                -*- shell-script -*-
+# bash completion for links
 
 _comp_cmd_links()
 {
@@ -96,5 +96,3 @@ _comp_cmd_links()
 
 } &&
     complete -F _comp_cmd_links links links2
-
-# ex: filetype=sh

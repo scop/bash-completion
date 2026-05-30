@@ -1,4 +1,4 @@
-# mailman mmsitepass completion                            -*- shell-script -*-
+# mailman mmsitepass completion
 
 _comp_cmd_mmsitepass()
 {
@@ -11,5 +11,3 @@ _comp_cmd_mmsitepass()
 
 } &&
     complete -F _comp_cmd_mmsitepass mmsitepass
-
-# ex: filetype=sh

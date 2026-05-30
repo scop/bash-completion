@@ -1,4 +1,4 @@
-# mii-diag(8) completion                                   -*- shell-script -*-
+# mii-diag(8) completion
 
 _comp_cmd_mii_diag()
 {
@@ -22,5 +22,3 @@ _comp_cmd_mii_diag()
     fi
 } &&
     complete -F _comp_cmd_mii_diag -o default mii-diag
-
-# ex: filetype=sh

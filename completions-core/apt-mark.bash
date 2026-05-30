@@ -1,4 +1,4 @@
-# Debian apt-mark(8) completion                            -*- shell-script -*-
+# Debian apt-mark(8) completion
 
 _comp_cmd_apt_mark()
 {
@@ -60,5 +60,3 @@ _comp_cmd_apt_mark()
 
 } &&
     complete -F _comp_cmd_apt_mark apt-mark
-
-# ex: filetype=sh

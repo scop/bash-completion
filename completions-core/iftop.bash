@@ -1,4 +1,4 @@
-# iftop(8) completion                                      -*- shell-script -*-
+# iftop(8) completion
 
 _comp_cmd_iftop()
 {
@@ -26,5 +26,3 @@ _comp_cmd_iftop()
     _comp_compgen_help -- -h
 } &&
     complete -F _comp_cmd_iftop iftop
-
-# ex: filetype=sh

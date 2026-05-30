@@ -1,4 +1,4 @@
-# flake8 completion                                        -*- shell-script -*-
+# flake8 completion
 
 _comp_cmd_flake8()
 {
@@ -42,5 +42,3 @@ _comp_cmd_flake8()
     _comp_compgen_filedir py
 } &&
     complete -F _comp_cmd_flake8 flake8
-
-# ex: filetype=sh

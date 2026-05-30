@@ -1,4 +1,4 @@
-# lftp(1) completion                                       -*- shell-script -*-
+# lftp(1) completion
 
 _comp_cmd_lftp()
 {
@@ -26,5 +26,3 @@ _comp_cmd_lftp()
     _comp_compgen -a known_hosts -- "$cur"
 } &&
     complete -F _comp_cmd_lftp lftp
-
-# ex: filetype=sh

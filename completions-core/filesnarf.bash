@@ -1,4 +1,4 @@
-# filesnarf etc completion                                 -*- shell-script -*-
+# filesnarf etc completion
 
 _comp_cmd_snarf()
 {
@@ -18,5 +18,3 @@ _comp_cmd_snarf()
 
 } &&
     complete -F _comp_cmd_snarf filesnarf mailsnarf msgsnarf
-
-# ex: filetype=sh

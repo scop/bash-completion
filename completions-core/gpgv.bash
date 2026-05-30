@@ -1,4 +1,4 @@
-# gpgv(1) completion                                       -*- shell-script -*-
+# gpgv(1) completion
 
 _comp_cmd_gpgv()
 {
@@ -43,5 +43,3 @@ _comp_cmd_gpgv()
     fi
 } &&
     complete -F _comp_cmd_gpgv gpgv gpgv2
-
-# ex: filetype=sh

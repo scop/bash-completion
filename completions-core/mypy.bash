@@ -1,4 +1,4 @@
-# mypy completion                                          -*- shell-script -*-
+# mypy completion
 
 _comp_cmd_mypy()
 {
@@ -56,5 +56,3 @@ _comp_cmd_mypy()
     _comp_compgen_filedir '@(py|pyi)'
 } &&
     complete -F _comp_cmd_mypy mypy
-
-# ex: filetype=sh

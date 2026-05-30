@@ -1,4 +1,4 @@
-# munin-node-configure completion                          -*- shell-script -*-
+# munin-node-configure completion
 
 _comp_cmd_munin_node_configure()
 {
@@ -29,5 +29,3 @@ _comp_cmd_munin_node_configure()
     fi
 } &&
     complete -F _comp_cmd_munin_node_configure munin-node-configure
-
-# ex: filetype=sh

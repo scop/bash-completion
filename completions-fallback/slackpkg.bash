@@ -1,4 +1,4 @@
-# bash completion for slackpkg(8)                          -*- shell-script -*-
+# bash completion for slackpkg(8)
 # options list is based on `grep '\-.*\=.*)' /usr/sbin/slackpkg | cut -f1 -d\)`
 
 # Use of this file is deprecated.
@@ -107,5 +107,3 @@ _comp_cmd_slackpkg()
 
 } &&
     complete -F _comp_cmd_slackpkg slackpkg
-
-# ex: filetype=sh

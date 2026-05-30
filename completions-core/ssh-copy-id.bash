@@ -1,4 +1,4 @@
-# ssh-copy-id(1) completion                                -*- shell-script -*-
+# ssh-copy-id(1) completion
 
 _comp_cmd_ssh_copy_id()
 {
@@ -36,5 +36,3 @@ _comp_cmd_ssh_copy_id()
     fi
 } &&
     complete -F _comp_cmd_ssh_copy_id ssh-copy-id
-
-# ex: filetype=sh

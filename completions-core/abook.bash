@@ -1,4 +1,4 @@
-# abook(1) completion                                      -*- shell-script -*-
+# abook(1) completion
 
 _comp_cmd_abook()
 {
@@ -43,5 +43,3 @@ _comp_cmd_abook()
     esac
 } &&
     complete -F _comp_cmd_abook abook
-
-# ex: filetype=sh

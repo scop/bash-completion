@@ -1,4 +1,4 @@
-# pyflakes(1) completion                                   -*- shell-script -*-
+# pyflakes(1) completion
 
 _comp_cmd_pyflakes()
 {
@@ -19,5 +19,3 @@ _comp_cmd_pyflakes()
     _comp_compgen_filedir py
 } &&
     complete -F _comp_cmd_pyflakes pyflakes
-
-# ex: filetype=sh

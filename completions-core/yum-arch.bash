@@ -1,4 +1,4 @@
-# yum-arch(8) completion                                   -*- shell-script -*-
+# yum-arch(8) completion
 
 _comp_cmd_yum_arch()
 {
@@ -12,5 +12,3 @@ _comp_cmd_yum_arch()
     fi
 } &&
     complete -F _comp_cmd_yum_arch yum-arch
-
-# ex: filetype=sh

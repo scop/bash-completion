@@ -1,5 +1,6 @@
-# 3rd party completion loader for commands emitting        -*- shell-script -*-
-# their completion using "_${cmdname^^}_COMPLETE=source $cmd".
+# 3rd party completion loader for commands emitting their completion using
+# "_${cmdname^^}_COMPLETE=source $cmd".
+#
 # This pattern is very similar to `completions-fallback/pipenv.bash`, but the
 # value of the environment variable is slightly different.
 #
@@ -12,5 +13,3 @@ eval -- "$(
     export "_${ucname}_COMPLETE=source"
     "$1" 2>/dev/null
 )"
-
-# ex: filetype=sh

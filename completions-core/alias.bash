@@ -1,4 +1,4 @@
-# bash alias completion                                    -*- shell-script -*-
+# bash alias completion
 
 _comp_cmd_alias()
 {
@@ -24,5 +24,3 @@ _comp_cmd_alias()
     fi
 } &&
     complete -F _comp_cmd_alias -o nospace alias
-
-# ex: filetype=sh

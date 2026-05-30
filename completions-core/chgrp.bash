@@ -1,4 +1,4 @@
-# chgrp(1) completion                                      -*- shell-script -*-
+# chgrp(1) completion
 
 _comp_cmd_chgrp()
 {
@@ -35,5 +35,3 @@ _comp_cmd_chgrp()
 
 } &&
     complete -F _comp_cmd_chgrp chgrp
-
-# ex: filetype=sh

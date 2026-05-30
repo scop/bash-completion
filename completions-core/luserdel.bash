@@ -1,4 +1,4 @@
-# luserdel(1) completion                                   -*- shell-script -*-
+# luserdel(1) completion
 
 _comp_cmd_luserdel()
 {
@@ -19,5 +19,3 @@ _comp_cmd_luserdel()
     _comp_compgen -- -u
 } &&
     complete -F _comp_cmd_luserdel luserdel
-
-# ex: filetype=sh

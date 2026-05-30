@@ -1,4 +1,4 @@
-# dict(1) completion                                       -*- shell-script -*-
+# dict(1) completion
 
 _comp_cmd_dict__compgen_dictdata()
 {
@@ -68,5 +68,3 @@ _comp_cmd_dict()
     fi
 } &&
     complete -F _comp_cmd_dict -o default dict rdict
-
-# ex: filetype=sh

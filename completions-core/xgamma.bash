@@ -1,4 +1,4 @@
-# bash completion for xgamma(1)                            -*- shell-script -*-
+# bash completion for xgamma(1)
 
 _comp_cmd_xgamma()
 {
@@ -56,5 +56,3 @@ _comp_cmd_xgamma()
     fi
 } &&
     complete -F _comp_cmd_xgamma xgamma
-
-# ex: filetype=sh

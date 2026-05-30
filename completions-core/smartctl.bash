@@ -1,4 +1,4 @@
-# bash completion for smartctl(8)                          -*- shell-script -*-
+# bash completion for smartctl(8)
 # Updated for smartmontools 7.5 (released 2025-04-30)
 
 _comp_cmd_smartctl__set_nospace_if_incomplete()
@@ -202,5 +202,3 @@ _comp_cmd_smartctl()
     fi
 } &&
     complete -F _comp_cmd_smartctl smartctl
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for fbgs(1)                              -*- shell-script -*-
+# bash completion for fbgs(1)
 
 _comp_cmd_fbgs()
 {
@@ -45,5 +45,3 @@ _comp_cmd_fbgs()
     _comp_compgen_filedir '?(e)ps|pdf'
 } &&
     complete -F _comp_cmd_fbgs fbgs
-
-# ex: filetype=sh

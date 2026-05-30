@@ -1,4 +1,4 @@
-# adb completion                                           -*- shell-script -*-
+# adb completion
 
 # Use of this file is deprecated.  Upstream completion is available in
 # the Android SDK, use that instead.
@@ -65,5 +65,3 @@ _comp_cmd_adb()
     esac
 } &&
     complete -F _comp_cmd_adb adb
-
-# ex: filetype=sh

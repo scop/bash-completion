@@ -1,4 +1,4 @@
-# hid2hci completion                                       -*- shell-script -*-
+# hid2hci completion
 
 _comp_cmd_hid2hci()
 {
@@ -10,5 +10,3 @@ _comp_cmd_hid2hci()
     fi
 } &&
     complete -F _comp_cmd_hid2hci hid2hci
-
-# ex: filetype=sh

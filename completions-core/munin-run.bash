@@ -1,4 +1,4 @@
-# munin-run completion                                     -*- shell-script -*-
+# munin-run completion
 
 _comp_cmd_munin_run()
 {
@@ -23,5 +23,3 @@ _comp_cmd_munin_run()
     fi
 } &&
     complete -F _comp_cmd_munin_run munin-run
-
-# ex: filetype=sh

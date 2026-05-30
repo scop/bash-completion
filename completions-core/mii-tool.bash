@@ -1,4 +1,4 @@
-# mii-tool(8) completion                                   -*- shell-script -*-
+# mii-tool(8) completion
 
 _comp_cmd_mii_tool()
 {
@@ -30,5 +30,3 @@ _comp_cmd_mii_tool()
     fi
 } &&
     complete -F _comp_cmd_mii_tool -o default mii-tool
-
-# ex: filetype=sh

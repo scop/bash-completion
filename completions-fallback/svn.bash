@@ -1,4 +1,4 @@
-# svn completion                                           -*- shell-script -*-
+# svn completion
 
 # Use of this file is deprecated.  Upstream completion is available in
 # subversion >= 0.12.0, use that instead.
@@ -205,5 +205,3 @@ _comp_cmd_svn()
 
 } &&
     complete -F _comp_cmd_svn svn
-
-# ex: filetype=sh

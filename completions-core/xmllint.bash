@@ -1,4 +1,4 @@
-# bash completion for xmllint(1)                           -*- shell-script -*-
+# bash completion for xmllint(1)
 
 _comp_cmd_xmllint()
 {
@@ -49,5 +49,3 @@ _comp_cmd_xmllint()
     _comp_compgen_filedir '@(*ml|htm|svg?(z)|xs[dl]|rng|wsdl|jnlp|tld|dbk|docbook|page|rss)?(.gz)'
 } &&
     complete -F _comp_cmd_xmllint xmllint
-
-# ex: filetype=sh

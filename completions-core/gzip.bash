@@ -1,4 +1,4 @@
-# bash completion for gzip                                 -*- shell-script -*-
+# bash completion for gzip
 
 _comp_cmd_gzip()
 {
@@ -44,5 +44,3 @@ _comp_cmd_gzip()
     _comp_compgen -- -f -X "$xspec" -o plusdirs
 } &&
     complete -F _comp_cmd_gzip gzip pigz
-
-# ex: filetype=sh

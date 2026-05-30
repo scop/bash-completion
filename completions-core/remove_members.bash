@@ -1,4 +1,4 @@
-# mailman remove_members completion                        -*- shell-script -*-
+# mailman remove_members completion
 
 _comp_cmd_remove_members()
 {
@@ -26,5 +26,3 @@ _comp_cmd_remove_members()
 
 } &&
     complete -F _comp_cmd_remove_members remove_members
-
-# ex: filetype=sh

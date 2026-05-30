@@ -1,4 +1,4 @@
-# bash completion for env(1)                              -*- shell-script -*-
+# bash completion for env(1)
 
 _comp_cmd_env()
 {
@@ -52,5 +52,3 @@ _comp_cmd_env()
     fi
 } &&
     complete -F _comp_cmd_env env
-
-# ex: filetype=sh

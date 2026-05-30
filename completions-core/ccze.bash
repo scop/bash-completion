@@ -1,4 +1,4 @@
-# ccze(1) completion                                       -*- shell-script -*-
+# ccze(1) completion
 
 _comp_cmd_ccze()
 {
@@ -41,5 +41,3 @@ _comp_cmd_ccze()
     [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
 } &&
     complete -F _comp_cmd_ccze ccze
-
-# ex: filetype=sh

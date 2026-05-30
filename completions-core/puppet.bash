@@ -1,4 +1,4 @@
-# bash completion for puppet                               -*- shell-script -*-
+# bash completion for puppet
 
 _comp_cmd_puppet__logdest()
 {
@@ -343,5 +343,3 @@ _comp_cmd_puppet()
 } &&
     complete -F _comp_cmd_puppet puppetmasterd puppetd puppetca ralsh \
         puppetrun puppetqd filebucket puppetdoc puppet
-
-# ex: filetype=sh

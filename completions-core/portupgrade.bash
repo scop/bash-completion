@@ -1,4 +1,4 @@
-# bash completion for FreeBSD portupgrade                  -*- shell-script -*-
+# bash completion for FreeBSD portupgrade
 
 _comp_cmd_portupgrade()
 {
@@ -15,5 +15,3 @@ _comp_cmd_portupgrade()
 
 } &&
     complete -F _comp_cmd_portupgrade -o dirnames portupgrade
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# pv(1) completion                                         -*- shell-script -*-
+# pv(1) completion
 
 _comp_cmd_pv()
 {
@@ -30,5 +30,3 @@ _comp_cmd_pv()
     fi
 } &&
     complete -F _comp_cmd_pv pv
-
-# ex: filetype=sh

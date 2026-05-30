@@ -1,4 +1,4 @@
-# bash completion for cryptsetup                           -*- shell-script -*-
+# bash completion for cryptsetup
 
 _comp_cmd_cryptsetup__name()
 {
@@ -100,5 +100,3 @@ _comp_cmd_cryptsetup()
 
 } &&
     complete -F _comp_cmd_cryptsetup cryptsetup
-
-# ex: filetype=sh

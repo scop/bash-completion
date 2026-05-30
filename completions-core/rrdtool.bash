@@ -1,4 +1,4 @@
-# bash completion for rrdtool                              -*- shell-script -*-
+# bash completion for rrdtool
 
 _comp_cmd_rrdtool()
 {
@@ -13,5 +13,3 @@ _comp_cmd_rrdtool()
     fi
 } &&
     complete -F _comp_cmd_rrdtool rrdtool
-
-# ex: filetype=sh

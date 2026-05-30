@@ -1,4 +1,4 @@
-# mailman list_admins completion                           -*- shell-script -*-
+# mailman list_admins completion
 
 _comp_cmd_list_admins()
 {
@@ -16,5 +16,3 @@ _comp_cmd_list_admins()
 
 } &&
     complete -F _comp_cmd_list_admins list_admins
-
-# ex: filetype=sh

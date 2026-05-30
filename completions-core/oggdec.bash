@@ -1,4 +1,4 @@
-# bash completion for oggdec(1)                            -*- shell-script -*-
+# bash completion for oggdec(1)
 
 _comp_cmd_oggdec()
 {
@@ -36,5 +36,3 @@ _comp_cmd_oggdec()
     _comp_compgen_filedir ogg
 } &&
     complete -F _comp_cmd_oggdec oggdec
-
-# ex: filetype=sh

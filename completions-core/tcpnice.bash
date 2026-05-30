@@ -1,4 +1,4 @@
-# tcpnice completion                                       -*- shell-script -*-
+# tcpnice completion
 
 _comp_cmd_tcpnice()
 {
@@ -18,5 +18,3 @@ _comp_cmd_tcpnice()
 
 } &&
     complete -F _comp_cmd_tcpnice tcpnice
-
-# ex: filetype=sh

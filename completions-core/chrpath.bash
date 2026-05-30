@@ -1,4 +1,4 @@
-# chrpath(1) completion                                    -*- shell-script -*-
+# chrpath(1) completion
 
 _comp_cmd_chrpath()
 {
@@ -25,5 +25,3 @@ _comp_cmd_chrpath()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_chrpath chrpath
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# luac(1) completion                                       -*- shell-script -*-
+# luac(1) completion
 
 _comp_cmd_luac()
 {
@@ -23,5 +23,3 @@ _comp_cmd_luac()
     _comp_compgen_filedir lua
 } &&
     complete -F _comp_cmd_luac luac{,5{,.}{0..4}}
-
-# ex: filetype=sh

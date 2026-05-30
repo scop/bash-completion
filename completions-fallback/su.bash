@@ -1,4 +1,4 @@
-# bash completion for su(1)                                -*- shell-script -*-
+# bash completion for su(1)
 
 # Use of this file is deprecated on Linux.  Upstream completion is
 # available in util-linux >= 2.23, use that instead.
@@ -35,5 +35,3 @@ _comp_cmd_su()
     _comp_compgen -- -u
 } &&
     complete -F _comp_cmd_su su
-
-# ex: filetype=sh

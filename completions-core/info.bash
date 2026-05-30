@@ -1,4 +1,4 @@
-# bash completion for info                                 -*- shell-script -*-
+# bash completion for info
 
 _comp_cmd_info()
 {
@@ -66,5 +66,3 @@ _comp_cmd_info()
     fi
 } &&
     complete -F _comp_cmd_info info pinfo
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for gphoto2(1)                           -*- shell-script -*-
+# bash completion for gphoto2(1)
 
 _comp_cmd_gphoto2()
 {
@@ -48,5 +48,3 @@ _comp_cmd_gphoto2()
 
 } &&
     complete -F _comp_cmd_gphoto2 gphoto2
-
-# ex: filetype=sh

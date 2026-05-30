@@ -1,4 +1,4 @@
-# wtf completion                                           -*- shell-script -*-
+# wtf completion
 # Raphael Droz, 25/09/2009
 
 _comp_cmd_wtf()
@@ -41,5 +41,3 @@ _comp_cmd_wtf()
         -- "$(cut -f 1 -s "$db"* 2>/dev/null) $addf"
 } &&
     complete -F _comp_cmd_wtf wtf
-
-# ex: filetype=sh

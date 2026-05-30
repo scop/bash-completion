@@ -1,4 +1,4 @@
-# dpkg(1) and related commands completion                  -*- shell-script -*-
+# dpkg(1) and related commands completion
 
 # @since 2.12
 _comp_xfunc_dpkg_compgen_installed_packages()
@@ -178,5 +178,3 @@ _comp_cmd_dpkg_reconfigure()
     fi
 } &&
     complete -F _comp_cmd_dpkg_reconfigure -o default dpkg-reconfigure
-
-# ex: filetype=sh

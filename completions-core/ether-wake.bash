@@ -1,4 +1,4 @@
-# ether-wake(8) completion                                 -*- shell-script -*-
+# ether-wake(8) completion
 
 _comp_cmd_ether_wake()
 {
@@ -24,5 +24,3 @@ _comp_cmd_ether_wake()
     _comp_compgen_mac_addresses
 } &&
     complete -F _comp_cmd_ether_wake ether-wake etherwake
-
-# ex: filetype=sh

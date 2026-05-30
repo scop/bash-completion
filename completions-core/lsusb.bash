@@ -1,4 +1,4 @@
-# lsusb(8) completion                                      -*- shell-script -*-
+# lsusb(8) completion
 
 _comp_cmd_lsusb()
 {
@@ -18,5 +18,3 @@ _comp_cmd_lsusb()
     fi
 } &&
     complete -F _comp_cmd_lsusb lsusb
-
-# ex: filetype=sh

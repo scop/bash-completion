@@ -1,4 +1,4 @@
-# autoconf(1) completion                                   -*- shell-script -*-
+# autoconf(1) completion
 
 _comp_cmd_autoconf()
 {
@@ -36,5 +36,3 @@ _comp_cmd_autoconf()
     _comp_compgen_filedir '@(ac|in)'
 } &&
     complete -F _comp_cmd_autoconf autoconf
-
-# ex: filetype=sh

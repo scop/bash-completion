@@ -1,4 +1,4 @@
-# growisofs(1) completion                                  -*- shell-script -*-
+# growisofs(1) completion
 
 _comp_cmd_growisofs()
 {
@@ -33,5 +33,3 @@ _comp_cmd_growisofs()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_growisofs growisofs
-
-# ex: filetype=sh

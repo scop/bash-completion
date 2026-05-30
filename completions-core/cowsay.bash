@@ -1,4 +1,4 @@
-# bash completion for cowsay                               -*- shell-script -*-
+# bash completion for cowsay
 
 _comp_cmd_cowsay()
 {
@@ -17,5 +17,3 @@ _comp_cmd_cowsay()
 
 } &&
     complete -F _comp_cmd_cowsay -o default cowsay cowthink
-
-# ex: filetype=sh

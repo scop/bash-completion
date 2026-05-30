@@ -1,4 +1,4 @@
-# mailman list_owners completion                           -*- shell-script -*-
+# mailman list_owners completion
 
 _comp_cmd_list_owners()
 {
@@ -16,5 +16,3 @@ _comp_cmd_list_owners()
 
 } &&
     complete -F _comp_cmd_list_owners list_owners
-
-# ex: filetype=sh

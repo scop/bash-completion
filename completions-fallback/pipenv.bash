@@ -1,5 +1,6 @@
-# 3rd party completion loader for commands emitting        -*- shell-script -*-
-# their completion using "_${cmdname^^}_COMPLETE=bash_source $cmd".
+# 3rd party completion loader for commands emitting their completion using
+# "_${cmdname^^}_COMPLETE=bash_source $cmd".
+#
 # This pattern is used by programs built with https://click.palletsprojects.com
 #
 # This serves as a fallback in case the completion is not installed otherwise.
@@ -11,5 +12,3 @@ eval -- "$(
     export "_${ucname}_COMPLETE=bash_source"
     "$1" 2>/dev/null
 )"
-
-# ex: filetype=sh

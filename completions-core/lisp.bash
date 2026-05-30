@@ -1,4 +1,3 @@
-#                                                          -*- shell-script -*-
 # bash programmable completion for various Common Lisp implementations by
 # Nikodemus Siivola <nikodemus@random-state.net>
 
@@ -17,5 +16,3 @@ _comp_cmd_lisp()
 
 } &&
     complete -F _comp_cmd_lisp -o default lisp
-
-# ex: filetype=sh

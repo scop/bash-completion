@@ -1,4 +1,4 @@
-# macof completion                                         -*- shell-script -*-
+# macof completion
 
 _comp_cmd_macof()
 {
@@ -18,5 +18,3 @@ _comp_cmd_macof()
 
 } &&
     complete -F _comp_cmd_macof macof
-
-# ex: filetype=sh

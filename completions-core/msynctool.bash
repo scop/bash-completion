@@ -1,4 +1,4 @@
-# bash completion for msynctool                            -*- shell-script -*-
+# bash completion for msynctool
 
 _comp_cmd_msynctool()
 {
@@ -34,5 +34,3 @@ _comp_cmd_msynctool()
         --conflict'
 } &&
     complete -F _comp_cmd_msynctool msynctool
-
-# ex: filetype=sh

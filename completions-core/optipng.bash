@@ -1,4 +1,4 @@
-# optipng(1) completion                                    -*- shell-script -*-
+# optipng(1) completion
 
 _comp_cmd_optipng()
 {
@@ -47,5 +47,3 @@ _comp_cmd_optipng()
     _comp_compgen_filedir '@(png|bmp|gif|pnm|tif?(f))'
 } &&
     complete -F _comp_cmd_optipng optipng
-
-# ex: filetype=sh

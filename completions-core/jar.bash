@@ -1,4 +1,4 @@
-# jar(1) completion                                        -*- shell-script -*-
+# jar(1) completion
 
 _comp_cmd_jar()
 {
@@ -23,5 +23,3 @@ _comp_cmd_jar()
     esac
 } &&
     complete -F _comp_cmd_jar jar
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# lsof(8) completion                                       -*- shell-script -*-
+# lsof(8) completion
 
 _comp_cmd_lsof()
 {
@@ -52,5 +52,3 @@ _comp_cmd_lsof()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_lsof lsof
-
-# ex: filetype=sh

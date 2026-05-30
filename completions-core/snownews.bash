@@ -1,4 +1,4 @@
-# snownews(1) completion                                   -*- shell-script -*-
+# snownews(1) completion
 
 _comp_cmd_snownews()
 {
@@ -11,5 +11,3 @@ _comp_cmd_snownews()
     fi
 } &&
     complete -F _comp_cmd_snownews snownews
-
-# ex: filetype=sh

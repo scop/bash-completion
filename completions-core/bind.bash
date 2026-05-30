@@ -1,4 +1,4 @@
-# bash bind completion                                     -*- shell-script -*-
+# bash bind completion
 
 _comp_cmd_bind()
 {
@@ -32,5 +32,3 @@ _comp_cmd_bind()
     _comp_compgen -- -A binding
 } &&
     complete -F _comp_cmd_bind bind
-
-# ex: filetype=sh

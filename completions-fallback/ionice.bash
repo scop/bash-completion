@@ -1,4 +1,4 @@
-# ionice(1) completion                                     -*- shell-script -*-
+# ionice(1) completion
 
 # Use of this file is deprecated.  Upstream completion is available in
 # util-linux >= 2.23, use that instead.
@@ -56,5 +56,3 @@ _comp_cmd_ionice()
     fi
 } &&
     complete -F _comp_cmd_ionice ionice
-
-# ex: filetype=sh

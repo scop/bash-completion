@@ -1,4 +1,4 @@
-# Debian apt-build(1) completion                           -*- shell-script -*-
+# Debian apt-build(1) completion
 
 _comp_cmd_apt_build()
 {
@@ -48,5 +48,3 @@ _comp_cmd_apt_build()
 
 } &&
     complete -F _comp_cmd_apt_build apt-build
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# gcc(1) completion                                        -*- shell-script -*-
+# gcc(1) completion
 
 _comp_cmd_gcc()
 {
@@ -73,5 +73,3 @@ _comp_cmd_gcc()
         _comp_cmd_gcc__setup_cmd f77 gfortran &&
         _comp_cmd_gcc__setup_cmd f95 gfortran &&
         unset -f _comp_cmd_gcc__setup_cmd
-
-# ex: filetype=sh

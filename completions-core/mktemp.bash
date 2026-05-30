@@ -1,4 +1,4 @@
-# mktemp(1) completion                                     -*- shell-script -*-
+# mktemp(1) completion
 
 _comp_cmd_mktemp()
 {
@@ -26,5 +26,3 @@ _comp_cmd_mktemp()
     fi
 } &&
     complete -F _comp_cmd_mktemp mktemp
-
-# ex: filetype=sh

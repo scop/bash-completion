@@ -1,4 +1,4 @@
-# bash completion for openssl                              -*- shell-script -*-
+# bash completion for openssl
 
 _comp_cmd_openssl__compgen_sections()
 {
@@ -130,5 +130,3 @@ _comp_cmd_openssl()
     fi
 } &&
     complete -F _comp_cmd_openssl -o default openssl
-
-# ex: filetype=sh

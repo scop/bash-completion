@@ -1,4 +1,4 @@
-# pkgadd completion                                        -*- shell-script -*-
+# pkgadd completion
 #
 # Copyright 2006 Yann Rouillard <yann@opencsw.org>
 
@@ -57,5 +57,3 @@ _comp_cmd_pkgadd()
     esac
 } &&
     complete -F _comp_cmd_pkgadd pkgadd
-
-# ex: filetype=sh

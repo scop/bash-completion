@@ -1,4 +1,4 @@
-# arpspoof completion                                      -*- shell-script -*-
+# arpspoof completion
 
 _comp_cmd_arpspoof()
 {
@@ -24,5 +24,3 @@ _comp_cmd_arpspoof()
 
 } &&
     complete -F _comp_cmd_arpspoof arpspoof
-
-# ex: filetype=sh

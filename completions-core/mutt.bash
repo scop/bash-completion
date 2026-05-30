@@ -1,4 +1,4 @@
-# mutt completion                                          -*- shell-script -*-
+# mutt completion
 #
 # Mutt doesn't have an "addressbook" like Pine, but it has aliases and
 # a "query" function to retrieve addresses, so that's what we use here.
@@ -173,5 +173,3 @@ _comp_cmd_mutt()
     esac
 } &&
     complete -F _comp_cmd_mutt -o default mutt muttng neomutt
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for FreeBSD portinstall                  -*- shell-script -*-
+# bash completion for FreeBSD portinstall
 
 _comp_cmd_portinstall()
 {
@@ -24,5 +24,3 @@ _comp_cmd_portinstall()
 
 } &&
     complete -F _comp_cmd_portinstall -o dirnames portinstall
-
-# ex: filetype=sh

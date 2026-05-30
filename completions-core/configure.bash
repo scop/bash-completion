@@ -1,4 +1,4 @@
-# bash completion for configure                            -*- shell-script -*-
+# bash completion for configure
 
 _comp_deprecate_var 2.12 \
     COMP_CONFIGURE_HINTS BASH_COMPLETION_CMD_CONFIGURE_HINTS
@@ -41,5 +41,3 @@ _comp_cmd_configure()
     fi
 } &&
     complete -F _comp_cmd_configure configure
-
-# ex: filetype=sh

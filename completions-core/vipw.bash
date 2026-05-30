@@ -1,4 +1,4 @@
-# vipw(8) and vigr completion                              -*- shell-script -*-
+# vipw(8) and vigr completion
 
 _comp_cmd_vipw()
 {
@@ -20,5 +20,3 @@ _comp_cmd_vipw()
     _comp_compgen_help || _comp_compgen_usage
 } &&
     complete -F _comp_cmd_vipw vipw vigr
-
-# ex: filetype=sh

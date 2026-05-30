@@ -1,4 +1,4 @@
-# bash completion for xmlwf(1)                             -*- shell-script -*-
+# bash completion for xmlwf(1)
 
 _comp_cmd_xmlwf()
 {
@@ -27,5 +27,3 @@ _comp_cmd_xmlwf()
     _comp_compgen_filedir '@(*ml|htm|svg|xs[dl]|rng|wsdl|jnlp|tld|dbk|docbook|page|rss)'
 } &&
     complete -F _comp_cmd_xmlwf xmlwf
-
-# ex: filetype=sh

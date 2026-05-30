@@ -1,4 +1,4 @@
-# bash completion for wine(1)                              -*- shell-script -*-
+# bash completion for wine(1)
 
 _comp_cmd_wine()
 {
@@ -22,5 +22,3 @@ _comp_cmd_wine()
     fi
 } &&
     complete -F _comp_cmd_wine wine{,64}{,-development,-stable}
-
-# ex: filetype=sh

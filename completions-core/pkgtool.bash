@@ -1,4 +1,4 @@
-# Slackware Linux pkgtool completion                       -*- shell-script -*-
+# Slackware Linux pkgtool completion
 
 _comp_cmd_pkgtool()
 {
@@ -30,5 +30,3 @@ _comp_cmd_pkgtool()
     fi
 } &&
     complete -F _comp_cmd_pkgtool pkgtool
-
-# ex: filetype=sh

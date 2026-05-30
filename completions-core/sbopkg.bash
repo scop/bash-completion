@@ -1,4 +1,4 @@
-# bash completion for sbopkg(8)                            -*- shell-script -*-
+# bash completion for sbopkg(8)
 
 _comp_cmd_sbopkg()
 {
@@ -68,5 +68,3 @@ _comp_cmd_sbopkg()
     fi
 } &&
     complete -F _comp_cmd_sbopkg sbopkg
-
-# ex: filetype=sh

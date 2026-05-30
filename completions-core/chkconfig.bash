@@ -1,4 +1,4 @@
-# chkconfig(8) completion                                  -*- shell-script -*-
+# chkconfig(8) completion
 
 _comp_cmd_chkconfig()
 {
@@ -31,5 +31,3 @@ _comp_cmd_chkconfig()
     fi
 } &&
     complete -F _comp_cmd_chkconfig chkconfig
-
-# ex: filetype=sh

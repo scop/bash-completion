@@ -1,4 +1,4 @@
-# userdel(8) completion                                    -*- shell-script -*-
+# userdel(8) completion
 
 _comp_cmd_userdel()
 {
@@ -25,5 +25,3 @@ _comp_cmd_userdel()
     _comp_compgen -- -u
 } &&
     complete -F _comp_cmd_userdel userdel
-
-# ex: filetype=sh

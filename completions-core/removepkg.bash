@@ -1,4 +1,4 @@
-# Slackware Linux removepkg completion                     -*- shell-script -*-
+# Slackware Linux removepkg completion
 
 _comp_cmd_removepkg()
 {
@@ -18,5 +18,3 @@ _comp_cmd_removepkg()
     _comp_compgen -C "$root/var/log/packages" filedir -f
 } &&
     complete -F _comp_cmd_removepkg removepkg
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# postalias(1) and postmap(1) completion                   -*- shell-script -*-
+# postalias(1) and postmap(1) completion
 
 _comp_cmd_postmap()
 {
@@ -37,5 +37,3 @@ _comp_cmd_postmap()
     fi
 } &&
     complete -F _comp_cmd_postmap postmap postalias
-
-# ex: filetype=sh

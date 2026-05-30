@@ -1,4 +1,4 @@
-# bash completion for ant and phing                        -*- shell-script -*-
+# bash completion for ant and phing
 
 _comp_cmd_ant__targets()
 {
@@ -99,5 +99,3 @@ _comp_cmd_ant()
 if type complete-ant-cmd.pl &>/dev/null; then
     complete -C complete-ant-cmd.pl -F _comp_cmd_ant ant
 fi
-
-# ex: filetype=sh

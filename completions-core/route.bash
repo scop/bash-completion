@@ -1,4 +1,4 @@
-# Linux route(8) completion                                -*- shell-script -*-
+# Linux route(8) completion
 
 [[ $OSTYPE == *linux* ]] || return 1
 
@@ -27,5 +27,3 @@ _comp_cmd_route()
         _comp_compgen -- -W '"${COMPREPLY[@]}"'
 } &&
     complete -F _comp_cmd_route route
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# gendiff(1) completion                                    -*- shell-script -*-
+# gendiff(1) completion
 
 _comp_cmd_gendiff()
 {
@@ -8,5 +8,3 @@ _comp_cmd_gendiff()
     ((cword == 1)) && _comp_compgen_filedir -d
 } &&
     complete -F _comp_cmd_gendiff gendiff
-
-# ex: filetype=sh

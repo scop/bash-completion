@@ -1,4 +1,4 @@
-# mailman config_list completion                           -*- shell-script -*-
+# mailman config_list completion
 
 _comp_cmd_config_list()
 {
@@ -26,5 +26,3 @@ _comp_cmd_config_list()
 
 } &&
     complete -F _comp_cmd_config_list config_list
-
-# ex: filetype=sh

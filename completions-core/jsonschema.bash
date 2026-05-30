@@ -1,4 +1,4 @@
-# bash completion for jsonschema                           -*- shell-script -*-
+# bash completion for jsonschema
 
 _comp_cmd_jsonschema()
 {
@@ -26,5 +26,3 @@ _comp_cmd_jsonschema()
     _comp_compgen_filedir '@(json|schema)'
 } &&
     complete -F _comp_cmd_jsonschema jsonschema
-
-# ex: filetype=sh

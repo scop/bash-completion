@@ -1,4 +1,4 @@
-# eog(1) completion                                        -*- shell-script -*-
+# eog(1) completion
 
 _comp_cmd_eog()
 {
@@ -22,5 +22,3 @@ _comp_cmd_eog()
     _comp_compgen_filedir '@(ani|avif|?(w)bmp|gif|hei[cf]|ico|j2[ck]|jp[cefgx2]|jpeg|jpg2|jxl|pcx|p[bgp]m|pn[gm]|ras|svg?(z)|tga|tif?(f)|webp|x[bp]m)'
 } &&
     complete -F _comp_cmd_eog eog
-
-# ex: filetype=sh

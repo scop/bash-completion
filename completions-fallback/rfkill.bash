@@ -1,4 +1,4 @@
-# bash completion for rfkill                               -*- shell-script -*-
+# bash completion for rfkill
 
 # Use of this file is deprecated on systems with util-linux >= 2.31, which
 # ships completion for the rfkill included with it.
@@ -26,5 +26,3 @@ _comp_cmd_rfkill()
     fi
 } &&
     complete -F _comp_cmd_rfkill rfkill
-
-# ex: filetype=sh

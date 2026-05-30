@@ -1,4 +1,4 @@
-# mailman clone_member completion                          -*- shell-script -*-
+# mailman clone_member completion
 
 _comp_cmd_clone_member()
 {
@@ -24,5 +24,3 @@ _comp_cmd_clone_member()
 
 } &&
     complete -F _comp_cmd_clone_member clone_member
-
-# ex: filetype=sh

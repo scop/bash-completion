@@ -1,4 +1,4 @@
-# tox completion                                           -*- shell-script -*-
+# tox completion
 
 _comp_cmd_tox()
 {
@@ -48,5 +48,3 @@ _comp_cmd_tox()
     fi
 } &&
     complete -F _comp_cmd_tox tox
-
-# ex: filetype=sh

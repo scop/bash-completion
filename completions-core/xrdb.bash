@@ -1,4 +1,4 @@
-# xrdb(1) completion                                       -*- shell-script -*-
+# xrdb(1) completion
 
 _comp_cmd_xrdb()
 {
@@ -23,5 +23,3 @@ _comp_cmd_xrdb()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_xrdb xrdb
-
-# ex: filetype=sh

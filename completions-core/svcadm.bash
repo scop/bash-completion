@@ -1,4 +1,4 @@
-# svcadm completion                                        -*- shell-script -*-
+# svcadm completion
 #
 # Copyright 2006 Yann Rouillard <yann@opencsw.org>
 
@@ -147,5 +147,3 @@ _comp_cmd_svcadm()
     fi
 } &&
     complete -F _comp_cmd_svcadm svcadm
-
-# ex: filetype=sh

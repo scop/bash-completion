@@ -1,4 +1,4 @@
-# bash completion for free(1)                              -*- shell-script -*-
+# bash completion for free(1)
 
 _comp_cmd_free()
 {
@@ -17,5 +17,3 @@ _comp_cmd_free()
     fi
 } &&
     complete -F _comp_cmd_free free
-
-# ex: filetype=sh

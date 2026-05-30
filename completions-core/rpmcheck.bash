@@ -1,4 +1,4 @@
-# bash completion for rpmcheck                             -*- shell-script -*-
+# bash completion for rpmcheck
 
 _comp_cmd_rpmcheck()
 {
@@ -20,5 +20,3 @@ _comp_cmd_rpmcheck()
     fi
 } &&
     complete -F _comp_cmd_rpmcheck rpmcheck
-
-# ex: filetype=sh

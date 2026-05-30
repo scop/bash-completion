@@ -1,4 +1,4 @@
-# bash completion for cpan2dist                            -*- shell-script -*-
+# bash completion for cpan2dist
 
 _comp_cmd_cpan2dist()
 {
@@ -33,5 +33,3 @@ _comp_cmd_cpan2dist()
     fi
 } &&
     complete -F _comp_cmd_cpan2dist -o default cpan2dist
-
-# ex: filetype=sh

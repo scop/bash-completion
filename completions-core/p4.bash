@@ -1,4 +1,4 @@
-# Perforce completion                                      -*- shell-script -*-
+# Perforce completion
 # by Frank Cusack <frank@google.com>
 
 _comp_cmd_p4()
@@ -46,5 +46,3 @@ _comp_cmd_p4()
 
 } &&
     complete -F _comp_cmd_p4 -o default p4 g4
-
-# ex: filetype=sh

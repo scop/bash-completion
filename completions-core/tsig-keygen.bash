@@ -1,4 +1,4 @@
-# tsig-keygen(8) completion                                -*- shell-script -*-
+# tsig-keygen(8) completion
 
 _comp_cmd_tsig_keygen()
 {
@@ -24,5 +24,3 @@ _comp_cmd_tsig_keygen()
         _comp_compgen_help
 } &&
     complete -F _comp_cmd_tsig_keygen tsig-keygen
-
-# ex: filetype=sh

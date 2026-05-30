@@ -1,4 +1,4 @@
-# mysql(1) completion                                      -*- shell-script -*-
+# mysql(1) completion
 
 # @since 2.12
 _comp_xfunc_mysql_compgen_character_sets()
@@ -105,5 +105,3 @@ _comp_cmd_mysql()
         command sed -ne '2d' -e 's/^|.\([^|]*\)|.*/\1/p')"
 } &&
     complete -F _comp_cmd_mysql mysql
-
-# ex: filetype=sh

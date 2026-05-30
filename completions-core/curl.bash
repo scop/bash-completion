@@ -1,4 +1,4 @@
-# curl(1) completion                                       -*- shell-script -*-
+# curl(1) completion
 
 _comp_cmd_curl()
 {
@@ -186,5 +186,3 @@ _comp_cmd_curl()
     fi
 } &&
     complete -F _comp_cmd_curl curl
-
-# ex: filetype=sh

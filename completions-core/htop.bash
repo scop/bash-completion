@@ -1,4 +1,4 @@
-# htop(1) completion                                       -*- shell-script -*-
+# htop(1) completion
 
 _comp_cmd_htop()
 {
@@ -31,5 +31,3 @@ _comp_cmd_htop()
     fi
 } &&
     complete -F _comp_cmd_htop htop
-
-# ex: filetype=sh

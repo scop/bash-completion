@@ -1,4 +1,4 @@
-# lz4 completion                                           -*- shell-script -*-
+# lz4 completion
 
 _comp_cmd_lz4()
 {
@@ -49,5 +49,3 @@ _comp_cmd_lz4()
     _comp_compgen -- -f -X "$xspec" -o plusdirs
 } &&
     complete -F _comp_cmd_lz4 lz4 lz4c
-
-# ex: filetype=sh

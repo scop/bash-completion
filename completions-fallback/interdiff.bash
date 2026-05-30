@@ -1,4 +1,4 @@
-# interdiff(1) completion                                  -*- shell-script -*-
+# interdiff(1) completion
 
 # Use of this file is deprecated.  Upstream completion is available in
 # patchutil >= 0.4.3, use that instead.
@@ -34,5 +34,3 @@ _comp_cmd_interdiff()
     _comp_compgen_filedir "$exts"
 } &&
     complete -F _comp_cmd_interdiff interdiff
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# helper AWK script for GNU make                                    -*- awk -*-
+# helper AWK script for GNU make
 
 # This AWK script is used by the function `_comp_cmd_make__extract_targets` in
 # `completions-core/make`.  This script receives the output of `make -npq' as
@@ -89,5 +89,3 @@ is_target_block == 0 { next; }
 
   next;
 }
-
-# ex: filetype=awk

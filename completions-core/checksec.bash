@@ -1,4 +1,4 @@
-# bash completion for checksec                             -*- shell-script -*-
+# bash completion for checksec
 
 _comp_cmd_checksec()
 {
@@ -44,5 +44,3 @@ _comp_cmd_checksec()
     fi
 } &&
     complete -F _comp_cmd_checksec checksec
-
-# ex: filetype=sh

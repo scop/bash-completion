@@ -1,4 +1,4 @@
-# xzdec(1) completion                                      -*- shell-script -*-
+# xzdec(1) completion
 
 _comp_cmd_xzdec()
 {
@@ -27,5 +27,3 @@ _comp_cmd_xzdec()
     _comp_compgen_filedir xz # no lzma support here as of xz 4.999.9beta
 } &&
     complete -F _comp_cmd_xzdec xzdec
-
-# ex: filetype=sh

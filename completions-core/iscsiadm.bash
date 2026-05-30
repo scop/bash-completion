@@ -1,4 +1,4 @@
-# iscsiadm(1) completion                                   -*- shell-script -*-
+# iscsiadm(1) completion
 
 _comp_cmd_iscsiadm()
 {
@@ -63,5 +63,3 @@ _comp_cmd_iscsiadm()
     _comp_compgen -- -W "$options"
 } &&
     complete -F _comp_cmd_iscsiadm iscsiadm
-
-# ex: filetype=sh

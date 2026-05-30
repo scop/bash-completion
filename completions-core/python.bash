@@ -1,4 +1,4 @@
-# bash completion for python                               -*- shell-script -*-
+# bash completion for python
 
 # @since 2.12
 _comp_xfunc_python_compgen_modules()
@@ -121,5 +121,3 @@ _comp_cmd_python()
     complete -F _comp_cmd_python \
         python python2 python2.7 python3 python3.{3..15} \
         pypy pypy3 pyston pyston3 micropython
-
-# ex: filetype=sh

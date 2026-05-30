@@ -1,4 +1,4 @@
-# bash completion for ntpdate                              -*- shell-script -*-
+# bash completion for ntpdate
 
 _comp_cmd_ntpdate()
 {
@@ -31,5 +31,3 @@ _comp_cmd_ntpdate()
     fi
 } &&
     complete -F _comp_cmd_ntpdate ntpdate
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# ngrep(8) completion                                      -*- shell-script -*-
+# ngrep(8) completion
 
 _comp_cmd_ngrep()
 {
@@ -34,5 +34,3 @@ _comp_cmd_ngrep()
     fi
 } &&
     complete -F _comp_cmd_ngrep ngrep
-
-# ex: filetype=sh

@@ -1,4 +1,4 @@
-# bash completion for bluez utils                          -*- shell-script -*-
+# bash completion for bluez utils
 
 _comp_cmd_hcitool__bluetooth_addresses()
 {
@@ -359,5 +359,3 @@ _comp_cmd_hciattach()
     fi
 } &&
     complete -F _comp_cmd_hciattach hciattach
-
-# ex: filetype=sh

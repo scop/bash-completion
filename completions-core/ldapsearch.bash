@@ -1,4 +1,4 @@
-# bash completion for openldap                             -*- shell-script -*-
+# bash completion for openldap
 
 _comp_cmd_ldapsearch__ldap_uris()
 {
@@ -234,5 +234,3 @@ _comp_cmd_ldappasswd()
     fi
 } &&
     complete -F _comp_cmd_ldappasswd ldappasswd
-
-# ex: filetype=sh

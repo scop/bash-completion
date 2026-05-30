@@ -1,4 +1,4 @@
-# renice(8) completion                                     -*- shell-script -*-
+# renice(8) completion
 
 # Use of this file is deprecated on Linux.  Upstream completion is
 # available in util-linux >= 2.23, use that instead.
@@ -28,5 +28,3 @@ _comp_cmd_renice()
     done
 } &&
     complete -F _comp_cmd_renice renice
-
-# ex: filetype=sh

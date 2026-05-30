@@ -1,4 +1,4 @@
-# mtx completion                                           -*- shell-script -*-
+# mtx completion
 # by Jon Middleton <jjm@ixtab.org.uk>
 
 _comp_cmd_mtx()
@@ -40,5 +40,3 @@ _comp_cmd_mtx()
     fi
 } &&
     complete -F _comp_cmd_mtx mtx
-
-# ex: filetype=sh

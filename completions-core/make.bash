@@ -1,4 +1,4 @@
-# bash completion for GNU make                             -*- shell-script -*-
+# bash completion for GNU make
 
 # Extract the valid target names starting with PREFIX from the output of
 # `make -npq'
@@ -170,5 +170,3 @@ _comp_cmd_make()
     fi
 } &&
     complete -F _comp_cmd_make make gmake gnumake pmake colormake bmake
-
-# ex: filetype=sh

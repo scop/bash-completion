@@ -1,4 +1,4 @@
-# xmodmap(1) completion                                    -*- shell-script -*-
+# xmodmap(1) completion
 
 _comp_cmd_xmodmap()
 {
@@ -19,5 +19,3 @@ _comp_cmd_xmodmap()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_xmodmap xmodmap
-
-# ex: filetype=sh

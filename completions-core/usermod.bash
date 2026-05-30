@@ -1,4 +1,4 @@
-# usermod(8) completion                                    -*- shell-script -*-
+# usermod(8) completion
 
 _comp_cmd_usermod()
 {
@@ -58,5 +58,3 @@ _comp_cmd_usermod()
     _comp_compgen -- -u
 } &&
     complete -F _comp_cmd_usermod usermod
-
-# ex: filetype=sh

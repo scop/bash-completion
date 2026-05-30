@@ -1,4 +1,4 @@
-# evince(1) completion                                     -*- shell-script -*-
+# evince(1) completion
 
 _comp_cmd_evince()
 {
@@ -30,5 +30,3 @@ _comp_cmd_evince()
     _comp_compgen_filedir '@(@(?(e)ps|?(E)PS|[pf]df|[PF]DF|dvi|DVI)?(.gz|.GZ|.bz2|.BZ2|.xz|.XZ)|cb[7rtz]|djv?(u)|tif?(f)|?(o)xps)'
 } &&
     complete -F _comp_cmd_evince evince
-
-# ex: filetype=sh

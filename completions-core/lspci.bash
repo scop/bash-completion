@@ -1,4 +1,4 @@
-# lspci(8) completion                                      -*- shell-script -*-
+# lspci(8) completion
 
 _comp_cmd_lspci()
 {
@@ -36,5 +36,3 @@ _comp_cmd_lspci()
     fi
 } &&
     complete -F _comp_cmd_lspci lspci
-
-# ex: filetype=sh

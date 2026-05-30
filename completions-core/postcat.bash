@@ -1,4 +1,4 @@
-# postcat(1) completion                                    -*- shell-script -*-
+# postcat(1) completion
 
 _comp_cmd_postcat()
 {
@@ -30,5 +30,3 @@ _comp_cmd_postcat()
     _comp_compgen_filedir
 } &&
     complete -F _comp_cmd_postcat postcat
-
-# ex: filetype=sh

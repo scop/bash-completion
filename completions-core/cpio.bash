@@ -1,4 +1,4 @@
-# bash completion for cpio                                 -*- shell-script -*-
+# bash completion for cpio
 
 _comp_cmd_cpio()
 {
@@ -71,5 +71,3 @@ _comp_cmd_cpio()
     fi
 } &&
     complete -F _comp_cmd_cpio cpio
-
-# ex: filetype=sh

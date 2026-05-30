@@ -1,4 +1,4 @@
-# lsscsi(8) completion                                     -*- shell-script -*-
+# lsscsi(8) completion
 
 _comp_cmd_lsscsi()
 {
@@ -25,5 +25,3 @@ _comp_cmd_lsscsi()
     fi
 } &&
     complete -F _comp_cmd_lsscsi lsscsi
-
-# ex: filetype=sh

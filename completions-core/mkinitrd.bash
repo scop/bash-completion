@@ -1,4 +1,4 @@
-# bash completion for mkinitrd                             -*- shell-script -*-
+# bash completion for mkinitrd
 
 _comp_cmd_mkinitrd()
 {
@@ -45,5 +45,3 @@ _comp_cmd_mkinitrd()
 
 } &&
     complete -F _comp_cmd_mkinitrd mkinitrd
-
-# ex: filetype=sh

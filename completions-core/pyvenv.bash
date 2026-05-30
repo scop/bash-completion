@@ -1,4 +1,4 @@
-# bash completion for pyvenv                               -*- shell-script -*-
+# bash completion for pyvenv
 
 _comp_cmd_pyvenv()
 {
@@ -21,5 +21,3 @@ _comp_cmd_pyvenv()
     _comp_compgen_filedir -d
 } &&
     complete -F _comp_cmd_pyvenv pyvenv pyvenv-3.{4..13}
-
-# ex: filetype=sh

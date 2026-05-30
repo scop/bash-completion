@@ -1,4 +1,4 @@
-# ipv6calc completion                                      -*- shell-script -*-
+# ipv6calc completion
 
 _comp_cmd_ipv6calc()
 {
@@ -35,5 +35,3 @@ _comp_cmd_ipv6calc()
 
 } &&
     complete -F _comp_cmd_ipv6calc ipv6calc
-
-# ex: filetype=sh
