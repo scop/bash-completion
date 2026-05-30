@@ -31,6 +31,6 @@ _comp_cmd_automake()
 
     _comp_compgen_filedir
 } &&
-    complete -F _comp_cmd_automake automake automake-1.1{0..6}
+    complete -F _comp_cmd_automake automake automake-1.1{0..8}
 
 # ex: filetype=sh

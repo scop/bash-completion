@@ -488,6 +488,7 @@ CLEANFILES = \
 	aclocal-1.15.bash \
 	aclocal-1.16.bash \
 	aclocal-1.17.bash \
+	aclocal-1.18.bash \
 	alpine.bash \
 	alternatives.bash \
 	animate.bash \
@@ -504,6 +505,7 @@ CLEANFILES = \
 	automake-1.15.bash \
 	automake-1.16.bash \
 	automake-1.17.bash \
+	automake-1.18.bash \
 	autossh.bash \
 	autoupdate.bash \
 	avahi-browse-domains.bash \
@@ -823,7 +825,8 @@ symlinks: $(DATA)
 		7zzs
 	$(ss) aclocal \
 		aclocal-1.10 aclocal-1.11 aclocal-1.12 aclocal-1.13 \
-		aclocal-1.14 aclocal-1.15 aclocal-1.16 aclocal-1.17
+		aclocal-1.14 aclocal-1.15 aclocal-1.16 aclocal-1.17 \
+		aclocal-1.18
 	$(ss) ant \
 		phing
 	$(ss) aptitude \
@@ -832,7 +835,8 @@ symlinks: $(DATA)
 		asciidoc.py
 	$(ss) automake \
 		automake-1.10 automake-1.11 automake-1.12 automake-1.13 \
-		automake-1.14 automake-1.15 automake-1.16 automake-1.17
+		automake-1.14 automake-1.15 automake-1.16 automake-1.17 \
+		automake-1.18
 	$(ss) autoreconf \
 		autoheader
 	$(ss) autoscan \
