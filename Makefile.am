@@ -3,8 +3,7 @@ SUBDIRS = doc completions-core completions-fallback helpers-core \
 
 pkgdata_DATA = bash_completion
 
-# Empty, but here just to get the compat dir created with install
-compatdir = $(sysconfdir)/bash_completion.d
+compatdir = $(datadir)/bash-completion/compat
 compat_DATA = bash_completion.d/000_bash_completion_compat.bash
 
 profiledir = $(sysconfdir)/profile.d
@@ -35,9 +34,12 @@ EXTRA_DIST = CHANGELOG.md $(pkgdata_DATA) bash_completion.sh.in .dir-locals.el \
 	bash-completion-config-version.cmake.in setup-symlinks.sh \
 	$(compat_DATA)
 
+# Create and install empty directory for local completion scripts in sysconfdir
 install-data-hook:
 	tmpfile=`mktemp $${TMPDIR:-/tmp}/bash_completion.XXXXXX` && \
-	$(SED) -e 's|(/etc/bash_completion\.d|($(compatdir)|' \
+	$(SED) -e 's|(/etc/bash_completion\.d|($(sysconfdir)/bash_completion.d|' \
+	    -e 's|(/usr/share/bash-completion/compat|($(compatdir)|' \
 	    $(DESTDIR)$(datadir)/$(PACKAGE)/bash_completion >$$tmpfile && \
 	cat $$tmpfile >$(DESTDIR)$(datadir)/$(PACKAGE)/bash_completion && \
 	rm $$tmpfile
+	$(MKDIR_P) $(DESTDIR)$(sysconfdir)/bash_completion.d
