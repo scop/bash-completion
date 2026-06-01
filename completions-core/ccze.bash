@@ -29,8 +29,8 @@ _comp_cmd_ccze()
             return
             ;;
         --plugin | -${noargopts}p)
-            _comp_compgen_split -- "$("$1" --list-plugins | command \
-                sed -ne 's/^\([a-z0-9]\{1,\}\)[[:space:]]\{1,\}|.*/\1/p')"
+            _comp_compgen_split -- "$("$1" --list-plugins |
+                command sed -ne 's/^\([a-z0-9]\{1,\}\)[[:space:]]\{1,\}|.*/\1/p')"
             return
             ;;
     esac
