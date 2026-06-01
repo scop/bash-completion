@@ -262,6 +262,7 @@ CLEANFILES = \
 	regal.bash \
 	regctl.bash \
 	release-plz.bash \
+	rumdl.bash \
 	rustic.bash \
 	sentry-cli.bash \
 	sinker.bash \
@@ -511,6 +512,7 @@ symlinks: $(DATA)
 		deno \
 		diesel \
 		dprint \
+		rumdl \
 		rustic \
 		sentry-cli \
 		starship
