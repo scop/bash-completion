@@ -63,6 +63,7 @@ cross_platform = adb.bash \
 		task.bash \
 		tokio-console.bash \
 		udevadm.bash \
+		update-alternatives.bash \
 		umount.bash \
 		umount.linux.bash \
 		uvx.bash \

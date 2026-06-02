@@ -6,6 +6,7 @@ cross_platform = 2to3.bash \
 		acpi.bash \
 		add_members.bash \
 		alias.bash \
+		alternatives.bash \
 		ant.bash \
 		apache2ctl.bash \
 		appdata-validate.bash \
@@ -399,7 +400,6 @@ cross_platform = 2to3.bash \
 		unpack200.bash \
 		unrar.bash \
 		unshunt.bash \
-		update-alternatives.bash \
 		update-rc.d.bash \
 		upgradepkg.bash \
 		urlsnarf.bash \
@@ -490,7 +490,6 @@ CLEANFILES = \
 	aclocal-1.17.bash \
 	aclocal-1.18.bash \
 	alpine.bash \
-	alternatives.bash \
 	animate.bash \
 	apropos.bash \
 	aptitude-curses.bash \
@@ -1021,8 +1020,6 @@ endif
 		bsdtar gtar star
 	$(ss) tracepath \
 		tracepath6
-	$(ss) update-alternatives \
-		alternatives
 	$(ss) vipw \
 		vigr
 	$(ss) vncviewer \
