@@ -85,6 +85,7 @@ cross_platform = 2to3.bash \
 		dnsspoof.bash \
 		dot.bash \
 		dpkg.bash \
+		dpkg-reconfigure.bash \
 		dpkg-source.bash \
 		dselect.bash \
 		dsniff.bash \
@@ -540,7 +541,6 @@ CLEANFILES = \
 	display.bash \
 	dpkg-deb.bash \
 	dpkg-query.bash \
-	dpkg-reconfigure.bash \
 	dropdb.bash \
 	dropuser.bash \
 	edquota.bash \
@@ -865,7 +865,7 @@ symlinks: $(DATA)
 	$(ss) dict \
 		rdict
 	$(ss) dpkg \
-		dpkg-deb dpkg-query dpkg-reconfigure
+		dpkg-deb dpkg-query
 	$(ss) ether-wake \
 		etherwake
 	$(ss) filesnarf \
