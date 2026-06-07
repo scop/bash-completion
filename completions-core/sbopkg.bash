@@ -64,7 +64,7 @@ _comp_cmd_sbopkg()
     _comp_compgen_split -l -- "$(command sed -ne "s/^SLACKBUILD NAME: //p" \
         "$file")"
     if [[ -d ${QUEUEDIR-} ]]; then
-        _comp_compgen -aC "$QUEUEDIR" filedir -f sqf
+        _comp_compgen -aC "$QUEUEDIR" filedir sqf
     fi
 } &&
     complete -F _comp_cmd_sbopkg sbopkg

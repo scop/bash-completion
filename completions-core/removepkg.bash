@@ -15,6 +15,6 @@ _comp_cmd_removepkg()
     fi
 
     local root=${ROOT:-/}
-    _comp_compgen -C "$root/var/log/packages" filedir -f
+    _comp_compgen -C "$root/var/log/packages" filedir
 } &&
     complete -F _comp_cmd_removepkg removepkg
