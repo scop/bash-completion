@@ -114,7 +114,8 @@ _comp_cmd_apt_cache()
             --no-conflicts --no-breaks --no-replaces --no-enhances --implicit
             --full --all-versions --no-all-versions --generate --no-generate
             --names-only --all-names --recurse --installed --with-source
-            --help --version --config-file --option'
+            --help --version --audit --config-file --option --cli-version
+            --no-color --color'
     elif [[ ! $special ]]; then
         _comp_compgen -- -W 'gencaches showpkg stats showsrc dump dumpavail
             unmet show search depends rdepends pkgnames dotty xvcg policy
