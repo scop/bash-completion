@@ -50,7 +50,8 @@ _comp_cmd_apt_mark()
     [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        _comp_compgen -- -W '--file= --help --version --config-file --option'
+        _comp_compgen -- -W '--file= --help --version --audit --config-file
+            --option --cli-version --no-color --color'
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     else
         _comp_compgen -- -W 'auto manual minimize-manual showauto showmanual
