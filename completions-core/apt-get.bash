@@ -93,16 +93,18 @@ _comp_cmd_apt_get()
             --download-only --fix-broken --ignore-missing --fix-missing
             --no-download --quiet --simulate --just-print --dry-run --recon
             --no-act --yes --assume-yes --assume-no --no-show-upgraded
-            --verbose-versions --host-architecture --build-profiles --compile
-            --build --ignore-hold --with-new-pkgs --no-upgrade --only-upgrade
-            --allow-downgrades --allow-remove-essential
-            --allow-change-held-packages --force-yes --print-uris --purge
-            --reinstall --list-cleanup --target-release --default-release
-            --trivial-only --no-remove --auto-remove --autoremove --only-source
+            --verbose-versions --no-list-columns --comment --host-architecture
+            --build-profiles --compile --build --ignore-hold --with-new-pkgs
+            --no-upgrade --only-upgrade --allow-downgrades
+            --allow-remove-essential --allow-change-held-packages
+            --force-yes --print-uris --purge --reinstall --list-cleanup
+            --snapshot --target-release --default-release --trivial-only
+            --mark-auto --no-remove --auto-remove --autoremove --only-source
             --diff-only --dsc-only --tar-only --arch-only --indep-only
             --allow-unauthenticated --no-allow-insecure-repositories
             --allow-releaseinfo-change --show-progress --with-source --error-on
-            --help --version --config-file --option'
+            --update --help --version --audit --config-file --option
+            --cli-version --no-color --color'
     else
         _comp_compgen -- -W 'update upgrade dist-upgrade dselect-upgrade
             install reinstall remove purge source build-dep satisfy check
