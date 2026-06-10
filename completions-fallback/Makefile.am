@@ -222,6 +222,7 @@ CLEANFILES = \
 	mado.bash \
 	mago.bash \
 	mattermost.bash \
+	mbake.bash \
 	melange.bash \
 	metalctl.bash \
 	minikube.bash \
@@ -512,6 +513,7 @@ symlinks: $(DATA)
 		deno \
 		diesel \
 		dprint \
+		mbake \
 		rumdl \
 		rustic \
 		sentry-cli \
