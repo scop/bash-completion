@@ -296,6 +296,7 @@ CLEANFILES = \
 	trash-put.bash \
 	trash-restore.bash \
 	trivy.bash \
+	ty.bash \
 	upctl.bash \
 	uv.bash \
 	vacuum.bash \
@@ -536,7 +537,8 @@ symlinks: $(DATA)
 		black blackd flask httpx
 	$(ss) ruff \
 		mado \
-		uv
+		uv \
+		ty
 	$(ss) sops \
 		kata-runtime todoist
 	$(ss) vault \
