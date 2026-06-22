@@ -87,7 +87,6 @@ cross_platform = 2to3.bash \
 		dot.bash \
 		dpkg.bash \
 		dpkg-reconfigure.bash \
-		dpkg-source.bash \
 		dsniff.bash \
 		dumpdb.bash \
 		dumpe2fs.bash \
