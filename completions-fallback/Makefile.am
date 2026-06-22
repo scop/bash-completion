@@ -8,6 +8,7 @@ cross_platform = adb.bash \
 		coder.bash \
 		delta.bash \
 		dmesg.bash \
+		dpkg-source.bash \
 		dselect.bash \
 		eject.bash \
 		flamegraph.bash \
