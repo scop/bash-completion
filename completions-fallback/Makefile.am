@@ -8,6 +8,7 @@ cross_platform = adb.bash \
 		coder.bash \
 		delta.bash \
 		dmesg.bash \
+		dpkg.bash \
 		dpkg-source.bash \
 		dselect.bash \
 		eject.bash \
@@ -143,6 +144,8 @@ CLEANFILES = \
 	dive.bash \
 	dlv.bash \
 	docker.bash \
+	dpkg-deb.bash \
+	dpkg-query.bash \
 	dprint.bash \
 	driftctl.bash \
 	dyff.bash \
@@ -321,6 +324,9 @@ symlinks: $(DATA)
 		mago release-plz
 	$(ss) cal \
 		ncal
+	$(ss) dpkg \
+		dpkg-deb \
+		dpkg-query
 	$(ss) flamegraph \
 		just \
 		watchexec
