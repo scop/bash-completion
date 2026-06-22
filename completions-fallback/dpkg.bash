@@ -1,5 +1,8 @@
 # dpkg(1) and related commands completion
 
+# Use of this file is deprecated.  Upstream completion is available in
+# dpkg >= 1.23.8, use that instead.
+
 # @since 2.12
 _comp_xfunc_dpkg_compgen_installed_packages()
 {
