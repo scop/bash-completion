@@ -52,12 +52,13 @@ _comp_cmd_export()
                 _comp_compgen -a -- -W '-p'
                 return
             fi
-            local suffix=""
+            _comp_compgen -- -A "$action"
             if [[ ! $remove && $action != function ]]; then
-                suffix="="
                 compopt -o nospace
+                if ((${#COMPREPLY[@]} == 1)) && [[ ${COMPREPLY[0]} == "$cur" ]]; then
+                    COMPREPLY[0]+="="
+                fi
             fi
-            _comp_compgen -- -A "$action" -S "$suffix"
             ;;
     esac
 } &&
