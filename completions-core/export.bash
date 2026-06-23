@@ -57,7 +57,7 @@ _comp_cmd_export()
                 suffix="="
                 compopt -o nospace
             fi
-            _comp_compgen -- -A $action -S "$suffix"
+            _comp_compgen -- -A "$action" -S "$suffix"
             ;;
     esac
 } &&

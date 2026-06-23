@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import assert_bash_exec
+from conftest import assert_bash_exec, assert_complete, bash_env_saved
 
 
 class TestExport:
@@ -49,3 +49,9 @@ class TestExport:
     @pytest.mark.complete("export -f -")
     def test_second_option(self, completion):
         assert completion
+
+    def test_custom_IFS(self, bash):
+        with bash_env_saved(bash) as bash_env:
+            bash_env.write_variable("IFS", "i")
+            completion = assert_complete(bash, "export BASH")
+            assert completion
