@@ -45,7 +45,9 @@ _comp_cmd_export()
             _comp_compgen -c "${cur#*=}" filedir
             ;;
         *)
-            if [[ $cword -eq 1 && $cur == -* ]]; then
+            # Only when all the previous arguments are valid options, $i
+            # reaches $cword.
+            if [[ $i -eq $cword && $cur == -* ]]; then
                 _comp_compgen_usage -c help -s "$1"
                 _comp_compgen -a -- -W '-p'
                 return

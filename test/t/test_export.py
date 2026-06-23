@@ -45,3 +45,7 @@ class TestExport:
         assert completion
         assert "=" not in "".join(completion)
         assert completion.endswith(" ")
+
+    @pytest.mark.complete("export -f -")
+    def test_second_option(self, completion):
+        assert completion
