@@ -594,6 +594,7 @@ CLEANFILES = \
 	gtar.bash \
 	hciattach.bash \
 	hciconfig.bash \
+	helium.bash \
 	host.bash \
 	hping.bash \
 	hping3.bash \
@@ -853,7 +854,7 @@ symlinks: $(DATA)
 		pushd
 	$(ss) chromium-browser \
 		brave brave-browser chrome chromium google-chrome \
-		google-chrome-stable
+		google-chrome-stable helium
 	$(ss) complete \
 		compgen
 	$(ss) convert \
