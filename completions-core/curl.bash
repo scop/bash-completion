@@ -181,4 +181,4 @@ _comp_cmd_curl()
         [[ ${COMPREPLY-} ]] || _comp_compgen_help
     fi
 } &&
-    complete -F _comp_cmd_curl curl
+    complete -F _comp_cmd_curl curl curlie

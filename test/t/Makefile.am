@@ -119,6 +119,7 @@ EXTRA_DIST = \
 	test_cryptsetup.py \
 	test_csplit.py \
 	test_curl.py \
+	test_curlie.py \
 	test_cut.py \
 	test_cvs.py \
 	test_cvsps.py \
