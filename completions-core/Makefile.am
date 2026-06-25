@@ -536,6 +536,7 @@ CLEANFILES = \
 	cowthink.bash \
 	createdb.bash \
 	createuser.bash \
+	curlie.bash \
 	dcop.bash \
 	dfutool.bash \
 	display.bash \
@@ -861,6 +862,8 @@ symlinks: $(DATA)
 		mogrify montage stream
 	$(ss) cowsay \
 		cowthink
+	$(ss) curl \
+		curlie
 	$(ss) declare \
 		typeset
 	$(ss) dict \
