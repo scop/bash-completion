@@ -387,7 +387,6 @@ cross_platform = 2to3.bash \
 		timeout.bash \
 		tipc.bash \
 		tmux.bash \
-		tox.bash \
 		tracepath.bash \
 		tree.bash \
 		truncate.bash \
