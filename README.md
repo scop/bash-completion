@@ -203,13 +203,13 @@ A. Install a local completion appropriately for the desired command, and it
    own completion code for this package. Where should I put it to be sure that
    interactive bash shells will find it and source it?**
 
-A. > [!NOTE]
+   > [!NOTE]
    > Here, how to make the completion code visible to bash-completion is
    > explained.  We do not require always making the completion code visible to
    > bash-completion.  In what condition the completion code is installed
    > should be determined at the author/maintainers' own discretion.
 
-   Install it in one of the directories pointed to by bash-completion's
+A. Install it in one of the directories pointed to by bash-completion's
    `pkgconfig` file variables.
 
    - The recommended directory for the completions of specific commands is
