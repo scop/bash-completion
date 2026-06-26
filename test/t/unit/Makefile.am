@@ -28,6 +28,7 @@ EXTRA_DIST = \
 	test_unit_get_cword.py \
 	test_unit_get_first_arg.py \
 	test_unit_get_words.py \
+	test_unit_init_collect_startup_configs.py \
 	test_unit_initialize.py \
 	test_unit_load.py \
 	test_unit_looks_like_path.py \
