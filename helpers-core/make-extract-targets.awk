@@ -29,7 +29,11 @@ NR == 1, /^# +Make data base/ { next; }
 /^# +Variables/, /^# +Files/ { next; }
 
 # skip not-target blocks
-/^# +Not a target/, /^$/     { next; }
+/^# +Not a target/, /^$/     {
+  is_target_block = 0;
+  target = "";
+  next;
+}
 
 # The stuff above here describes lines that are not
 #  explicit targets or not targets other than special ones
