@@ -33,8 +33,6 @@ _comp_cmd_update_rc_d()
             COMPREPLY=(0 1 2 3 4 5 6 7 8 9)
         elif [[ $cur == [0-9][0-9] ]]; then
             COMPREPLY=("$cur")
-        else
-            COMPREPLY=()
         fi
     elif [[ $prev == ?([0-9][0-9]|[0-6S]) ]]; then
         if [[ ! $cur ]]; then
@@ -45,13 +43,9 @@ _comp_cmd_update_rc_d()
             fi
         elif [[ $cur == [0-6S.] ]]; then
             COMPREPLY=("$cur")
-        else
-            COMPREPLY=()
         fi
     elif [[ $prev == "." ]]; then
         _comp_compgen -- -W "start stop"
-    else
-        COMPREPLY=()
     fi
 } &&
     complete -F _comp_cmd_update_rc_d update-rc.d

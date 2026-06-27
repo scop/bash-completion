@@ -20,7 +20,6 @@ _comp_cmd_uscan()
             ;;
         --timeout | --upstream-version | --download-version | \
             --check-dirname-level | --check-dirname-regex)
-            COMPREPLY=()
             return
             ;;
     esac
