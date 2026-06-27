@@ -21,14 +21,11 @@ _comp_cmd_invoke_rc_d()
         return
     fi
 
-    local sysvdir
-    [[ -d /etc/rc.d/init.d ]] && sysvdir=/etc/rc.d/init.d ||
-        sysvdir=/etc/init.d
-
-    if [[ -x $sysvdir/$prev ]]; then
+    local sysvdirs
+    if _comp_sysvdirs && [[ -x ${sysvdirs[0]}/$prev ]]; then
         _comp_compgen_split -- "$(command sed -e 'y/|/ /' \
             -ne 's/^.*Usage:[ ]*[^ ]*[ ]*{*\([^}"]*\).*$/\1/p' \
-            "$sysvdir/$prev")"
+            "${sysvdirs[0]}/$prev")"
     else
         COMPREPLY=()
     fi
