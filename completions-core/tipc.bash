@@ -79,11 +79,11 @@ _comp_cmd_tipc__link()
 
 _comp_cmd_tipc()
 {
-    local cur prev words cword comp_args optind i p
+    local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
+    local optind i p
     optind=1
-    COMPREPLY=()
 
     # Flags can be placed anywhere in the commandline
     case "$cur" in

@@ -45,8 +45,6 @@ _comp_cmd_umount__linux_fstab_unescape()
 # shellcheck disable=SC2120
 _comp_cmd_umount__linux_fstab()
 {
-    COMPREPLY=()
-
     # Read and unescape values into COMPREPLY
     local fs_spec fs_file fs_other
     while read -r fs_spec fs_file fs_other; do
