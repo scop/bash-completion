@@ -26,8 +26,6 @@ _comp_cmd_invoke_rc_d()
         _comp_compgen_split -- "$(command sed -e 'y/|/ /' \
             -ne 's/^.*Usage:[ ]*[^ ]*[ ]*{*\([^}"]*\).*$/\1/p' \
             "${sysvdirs[0]}/$prev")"
-    else
-        COMPREPLY=()
     fi
 
 } &&

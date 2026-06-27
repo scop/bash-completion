@@ -60,15 +60,11 @@ _comp_cmd_dpkg_source()
                     # -V: set a substitution variable
                     # we don't know anything about possible variables or values
                     # so we don't try to suggest any completion.
-                    COMPREPLY=()
                     ;;
                 -D)
                     # -D: override or add a .dsc field and value
                     # if $cur doesn't contain a = yet, suggest variable names
-                    if [[ $cur == *=* ]]; then
-                        # $cur contains a "="
-                        COMPREPLY=()
-                    else
+                    if [[ $cur != *=* ]]; then
                         _comp_compgen -- -W "$fields"
                     fi
                     ;;
