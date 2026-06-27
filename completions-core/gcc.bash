@@ -56,20 +56,21 @@ _comp_cmd_gcc()
     fi
 } &&
     complete -F _comp_cmd_gcc gcc{,-5,-6,-7,-8} g++{,-5,-6,-7,-8} g77 g95 \
-        gccgo{,-5,-6,-7,-8} gcj gfortran{,-5,-6,-7,-8} gpc &&
-    _comp_cmd_gcc__setup_cmd()
-    {
-        local REPLY
-        _comp_realcommand "$1"
-        if [[ $REPLY == *$2* ]] ||
-            "$1" --version 2>/dev/null | command grep -q GCC; then
-            complete -F _comp_cmd_gcc "$1"
-        else
-            complete -F _comp_complete_minimal "$1"
-        fi
-    } &&
-        _comp_cmd_gcc__setup_cmd cc gcc &&
-        _comp_cmd_gcc__setup_cmd c++ g++ &&
-        _comp_cmd_gcc__setup_cmd f77 gfortran &&
-        _comp_cmd_gcc__setup_cmd f95 gfortran &&
-        unset -f _comp_cmd_gcc__setup_cmd
+        gccgo{,-5,-6,-7,-8} gcj gfortran{,-5,-6,-7,-8} gpc
+
+_comp_cmd_gcc__setup_cmd()
+{
+    local REPLY
+    _comp_realcommand "$1"
+    if [[ $REPLY == *$2* ]] ||
+        "$1" --version 2>/dev/null | command grep -q GCC; then
+        complete -F _comp_cmd_gcc "$1"
+    else
+        complete -F _comp_complete_minimal "$1"
+    fi
+}
+_comp_cmd_gcc__setup_cmd cc gcc
+_comp_cmd_gcc__setup_cmd c++ g++
+_comp_cmd_gcc__setup_cmd f77 gfortran
+_comp_cmd_gcc__setup_cmd f95 gfortran
+unset -f _comp_cmd_gcc__setup_cmd
