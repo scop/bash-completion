@@ -12,6 +12,7 @@ _comp_cmd_doas()
         if [[ ${words[i]} != -* ]]; then
             local PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
             local root_command=${words[i]}
+            local _comp_root_command=1
             _comp_command_offset "$i"
             return
         fi
