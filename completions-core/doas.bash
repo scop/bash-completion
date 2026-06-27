@@ -1,45 +1,45 @@
-# doas(1) completion                                       -*- shell-script -*-
+# doas(1) completion
 
 _comp_cmd_doas()
 {
-    local cur prev words cword split
-    _init_completion -s || return
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    local noargopts='!(-*|*[uCLs]*)'
 
     local i
-
     for ((i = 1; i <= cword; i++)); do
         if [[ ${words[i]} != -* ]]; then
             local PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
             local root_command=${words[i]}
-            _command_offset $i
+            _comp_command_offset "$i"
             return
         fi
-        [[ ${words[i]} == -@(!(-*)[uCLs]) ]] &&
+        [[ ${words[i]} == -@(${noargopts}[uCLs]) ]] &&
             ((i++))
     done
 
-    case "$prev" in
-        -!(-*)u)
-            COMPREPLY=($(compgen -u -- "$cur"))
+    # shellcheck disable=SC2254 # glob $noargopts should not be quoted
+    case $prev in
+        -${noargopts}u)
+            _comp_compgen -- -u
             return
             ;;
-        -!(-*)C)
-            _filedir
+        -${noargopts}C)
+            _comp_compgen_filedir
             return
             ;;
-        -!(-*)[Ls])
+        -${noargopts}[Ls])
             return
             ;;
     esac
 
-    $split && return
+    [[ $was_split ]] && return
 
     if [[ $cur == -* ]]; then
-        COMPREPLY=($(compgen -W '$(_parse_usage "$1")' -- "$cur"))
+        _comp_compgen_usage
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         return
     fi
 } &&
     complete -F _comp_cmd_doas doas
-
-# ex: filetype=sh
