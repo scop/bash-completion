@@ -35,8 +35,8 @@ _comp_cmd_pkg_get()
     fi
 
     local i=${#words[@]}
-    while ((i > 0)); do
-        if [[ ${words[--i]} == -s ]]; then
+    while ((--i >= 1)); do
+        if [[ ${words[i]} == -s ]]; then
             url=${words[i + 1]-}
         fi
         if [[ ${words[i]} == @(-[aDdiUu]|available|describe|download|install|list|updatecatalog|upgrade) ]]; then
