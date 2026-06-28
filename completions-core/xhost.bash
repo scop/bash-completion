@@ -5,10 +5,8 @@ _comp_cmd_xhost()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
-    case $cur in
-        +*) _comp_compgen_known_hosts -p+ -- "${cur:1}" ;;
-        -*) _comp_compgen_known_hosts -p- -- "${cur:1}" ;;
-        *) _comp_compgen_known_hosts -- "$cur" ;;
-    esac
+    [[ $cur =~ ^[-+] ]]
+    local prefix=${BASH_REMATCH-}
+    _comp_compgen -P "$prefix" known_hosts -- "$cur"
 } &&
     complete -F _comp_cmd_xhost xhost
