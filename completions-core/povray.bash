@@ -21,15 +21,14 @@ _comp_cmd_povray()
             ;;
         [-+]O*)
             # guess what output file type user may want
-            case $(
-                IFS=$'\n'
-                command grep '^[-+]F' <<<"${words[*]}"
-            ) in
-                [-+]FN) oext=png ;;
-                [-+]FP) oext=ppm ;;
-                [-+]F[CT]) oext=tga ;;
+            local IFS=$'\n'
+            case "$IFS${words[*]}" in
+                *"$IFS"[-+]FN*) oext=png ;;
+                *"$IFS"[-+]FP*) oext=ppm ;;
+                *"$IFS"[-+]F[CT]*) oext=tga ;;
                 *) oext=$defoext ;;
             esac
+            _comp_unlocal IFS
             # complete filename corresponding to previously specified +I
             if _comp_compgen -Rv COMPREPLY -- -X '![-+]I*' -W '"${words[@]}"' &&
                 _comp_compgen -Rv COMPREPLY -- -X '' -W '"${COMPREPLY[@]#[-+]I}"'; then
