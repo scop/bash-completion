@@ -82,6 +82,7 @@ cross_platform = 2to3.bash \
 		dmypy.bash \
 		dnssec-keygen.bash \
 		dnsspoof.bash \
+		doas.bash \
 		dot.bash \
 		dpkg.bash \
 		dpkg-source.bash \
