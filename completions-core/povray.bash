@@ -6,17 +6,14 @@ _comp_cmd_povray()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
-    local povcur=$cur pfx oext defoext
+    local oext defoext
     defoext=png # default output extension, if cannot be determined FIXME
 
     _comp_expand || return
 
-    case $povcur in
+    case $cur in
         [-+]I*)
-            cur="${povcur#[-+]I}" # to confuse _comp_compgen_filedir
-            pfx="${povcur%"$cur"}"
-            _comp_compgen_filedir pov &&
-                _comp_compgen -Rv COMPREPLY -- -P "$pfx" -W '"${COMPREPLY[@]}"'
+            _comp_compgen -P "${cur:0:2}" filedir pov
             return
             ;;
         [-+]O*)
@@ -30,28 +27,26 @@ _comp_cmd_povray()
             esac
             _comp_unlocal IFS
             # complete filename corresponding to previously specified +I
-            if _comp_compgen -Rv COMPREPLY -- -X '![-+]I*' -W '"${words[@]}"' &&
-                _comp_compgen -Rv COMPREPLY -- -X '' -W '"${COMPREPLY[@]#[-+]I}"'; then
+            local inputfiles
+            if _comp_compgen -Rv inputfiles -- -X '![-+]I*' -W '"${words[@]}"' &&
+                _comp_compgen -Rv inputfiles -- -X '' -W '"${inputfiles[@]#[-+]I}"'; then
                 local i
-                for i in "${!COMPREPLY[@]}"; do
-                    COMPREPLY[i]=${COMPREPLY[i]/%.pov/".$oext"}
+                for i in "${!inputfiles[@]}"; do
+                    inputfiles[i]=${inputfiles[i]/%.pov/".$oext"}
                 done
+                _comp_compgen -P "${cur:0:2}" -- -W '"${inputfiles[@]}"'
             fi
-            cur="${povcur#[-+]O}" # to confuse _comp_compgen_filedir
-            pfx="${povcur%"$cur"}"
-            _comp_compgen -a filedir "$oext"
-            ((${#COMPREPLY[@]})) &&
-                _comp_compgen -Rv COMPREPLY -- -P "$pfx" -W '"${COMPREPLY[@]}"'
+
+            _comp_compgen -aP "${cur:0:2}" filedir "$oext"
             return
             ;;
         *.ini\[ | *.ini\[*[^]]) # sections in .ini files
-            cur="${povcur#*\[}"
-            pfx="${povcur%\["$cur"}" # prefix == filename
-            [[ -f $pfx && -r $pfx ]] || return
-            _comp_compgen_split -l -- "$(command sed -ne \
-                's/^[[:space:]]*\[\([^]]*\]\).*$/\1/p' -- "$pfx")" &&
-                # to prevent [bar] expand to nothing.  can be done more easily?
-                _comp_compgen -Rv COMPREPLY -- -P "${pfx}[" -W '"${COMPREPLY[@]}"'
+            [[ $cur =~ ^(.*\.ini)\[ ]] || return
+            local ini=${BASH_REMATCH[1]}
+            [[ -f $ini && -r $ini ]] || return
+            _comp_compgen -P "${ini}[" split -l -- "$(command sed -ne \
+                's/^[[:space:]]*\[\([^]]*\]\).*$/\1/p' -- "$ini")"
+            # to prevent [bar] expand to nothing.  can be done more easily?
             return
             ;;
         *)
