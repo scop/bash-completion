@@ -50,7 +50,7 @@ _comp_cmd_pkg_get()
             _comp_cmd_pkg_get__catalog_file "$url"
             if [[ -f $REPLY ]]; then
                 local packages_list=$(_comp_awk '$0 ~ /BEGIN PGP SIGNATURE/ { exit } $1 ~ /^Hash:/ || $1 ~ /^ *(-|#|$)/ { next } { print $1 }' "$REPLY")
-                _comp_compgen -- -W "${packages_list}"
+                _comp_compgen -- -W '$packages_list'
             fi
         fi
         return
