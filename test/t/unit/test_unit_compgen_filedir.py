@@ -70,7 +70,7 @@ class TestUnitCompgenFiledir:
     def test_1(self, bash):
         with bash_env_saved(bash) as bash_env:
             bash_env.write_variable("cur", "")
-            assert_bash_exec(bash, 'cur="" _comp_compgen_filedir >/dev/null')
+            assert_bash_exec(bash, "_comp_compgen_filedir >/dev/null")
 
     @pytest.mark.parametrize("funcname", "f f2".split())
     def test_2(self, bash, functions, funcname):
