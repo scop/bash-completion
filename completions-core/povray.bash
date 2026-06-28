@@ -31,12 +31,13 @@ _comp_cmd_povray()
                 *) oext=$defoext ;;
             esac
             # complete filename corresponding to previously specified +I
-            _comp_compgen -Rv COMPREPLY -- -X '![-+]I*' -W '"${words[@]}"'
-            _comp_compgen -Rv COMPREPLY -- -X '' -W '"${COMPREPLY[@]#[-+]I}"'
-            local i
-            for i in "${!COMPREPLY[@]}"; do
-                COMPREPLY[i]=${COMPREPLY[i]/%.pov/".$oext"}
-            done
+            if _comp_compgen -Rv COMPREPLY -- -X '![-+]I*' -W '"${words[@]}"' &&
+                _comp_compgen -Rv COMPREPLY -- -X '' -W '"${COMPREPLY[@]#[-+]I}"'; then
+                local i
+                for i in "${!COMPREPLY[@]}"; do
+                    COMPREPLY[i]=${COMPREPLY[i]/%.pov/".$oext"}
+                done
+            fi
             cur="${povcur#[-+]O}" # to confuse _comp_compgen_filedir
             pfx="${povcur%"$cur"}"
             _comp_compgen -a filedir "$oext"
