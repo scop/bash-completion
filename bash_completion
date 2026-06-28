@@ -2207,18 +2207,25 @@ _comp_compgen_xinetd_services()
     fi
 }
 
+# This function completes on SysV init services
+#
+# @since 2.18
+_comp_compgen_sysv_services()
+{
+    local sysvdirs
+    _comp_sysvdirs &&
+        _comp_compgen -U sysvdirs -C "${sysvdirs[0]}" -- \
+            -fX "@($_comp_backup_glob|functions|*.sh|README*|*/*)"
+}
+
 # This function completes on services
 #
 # @return 0 if at least one completion is generated, or 1 otherwise.
 # @since 2.12
 _comp_compgen_services()
 {
-    local sysvdirs
-    _comp_sysvdirs || return 1
-
     local status=1
-    _comp_compgen -U sysvdirs -C "${sysvdirs[0]}" -- -f -X "@($_comp_backup_glob|functions|README)" &&
-        status=0
+    _comp_compgen_sysv_services && status=0
 
     local _generated=$({
         systemctl list-units --full --all ||
