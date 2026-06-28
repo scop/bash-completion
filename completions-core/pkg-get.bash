@@ -5,7 +5,7 @@
 _comp_cmd_pkg_get__catalog_file()
 {
     local url=$1
-    local i conffile
+    local file conffile
 
     for file in /etc/opt/csw/pkg-get.conf /opt/csw/etc/pkg-get.conf /etc/pkg-get.conf; do
         if [[ -f $file ]]; then
@@ -29,7 +29,7 @@ _comp_cmd_pkg_get()
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
 
-    local file url command=""
+    local url command=""
     if [[ $prev == "-s" ]]; then
         return 1
     fi
