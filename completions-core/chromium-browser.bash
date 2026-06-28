@@ -17,8 +17,7 @@ _comp_cmd_chromium_browser()
             case $cur in
                 *://*)
                     local prefix="${cur%%://*}://"
-                    _comp_compgen_known_hosts -- "${cur#*://}" &&
-                        _comp_compgen -Rv COMPREPLY -- -P "$prefix" -W '"${COMPREPLY[@]}"'
+                    _comp_compgen -P "$prefix" known_hosts -- "$cur"
                     _comp_ltrim_colon_completions "$cur"
                     ;;
                 *)

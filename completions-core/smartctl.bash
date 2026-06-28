@@ -67,10 +67,8 @@ _comp_cmd_smartctl__drivedb()
     local prefix=
     if [[ $cur == +* ]]; then
         prefix=+
-        cur="${cur#+}"
     fi
-    _comp_compgen_filedir h && [[ $prefix ]] &&
-        _comp_compgen -Rv COMPREPLY -- -P "$prefix" -W '"${COMPREPLY[@]}"'
+    _comp_compgen -P "$prefix" filedir h
 }
 _comp_cmd_smartctl__vendorattribute()
 {
