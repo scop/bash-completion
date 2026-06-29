@@ -114,6 +114,7 @@ CLEANFILES = \
 	cloudquery.bash \
 	clusterctl.bash \
 	cmctl.bash \
+	codex.bash \
 	colima.bash \
 	conda.bash \
 	conform.bash \
@@ -354,6 +355,7 @@ symlinks: $(DATA)
 		cloudquery \
 		clusterctl \
 		cmctl \
+		codex \
 		colima \
 		conform \
 		conftest \
