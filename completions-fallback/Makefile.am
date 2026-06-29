@@ -146,6 +146,8 @@ CLEANFILES = \
 	driftctl.bash \
 	dyff.bash \
 	esc.bash \
+	etcdctl.bash \
+	etcdutl.bash \
 	flask.bash \
 	flux.bash \
 	furyctl.bash \
@@ -379,6 +381,8 @@ symlinks: $(DATA)
 		driftctl \
 		dyff \
 		esc \
+		etcdctl \
+		etcdutl \
 		flux \
 		furyctl \
 		gardenctl \
