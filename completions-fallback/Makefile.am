@@ -121,6 +121,7 @@ CLEANFILES = \
 	constellation.bash \
 	consul.bash \
 	container-structure-test.bash \
+	copilot.bash \
 	cosign.bash \
 	crane.bash \
 	crc.bash \
@@ -357,6 +358,7 @@ symlinks: $(DATA)
 		conftest \
 		constellation \
 		container-structure-test \
+		copilot \
 		cosign \
 		crane \
 		crc \
