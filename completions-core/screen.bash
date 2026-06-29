@@ -49,7 +49,7 @@ _comp_cmd_screen()
             return
             ;;
         //telnet)
-            ((cword == 2)) && _comp_compgen_known_hosts -- "$cur"
+            ((cword == 2)) && _comp_compgen_known_hosts
             return
             ;;
     esac

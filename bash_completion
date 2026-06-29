@@ -2680,7 +2680,7 @@ _comp_complete_known_hosts()
     [[ ${1-} == -a || ${2-} == -a ]] && options+=(-a)
     [[ ${1-} == -c || ${2-} == -c ]] && options+=(-c)
     local IFS=$' \t\n' # Workaround for connected ${v+"$@"} in bash < 4.4
-    _comp_compgen_known_hosts ${options[@]+"${options[@]}"} -- "$cur"
+    _comp_compgen_known_hosts ${options[@]+"${options[@]}"}
 }
 
 # Helper function to locate ssh included files in configs
@@ -2753,6 +2753,13 @@ _comp__included_ssh_config_files()
 #                    specifying "-P PREFIX" as a "_comp_compgen" option.  This
 #                    option is only kept for backward compatibility.  Please
 #                    use "_comp_compgen -P PREFIX known_hosts ...".
+#
+# @param[in] $1 CWORD - (deprecated 2.18) This is kept for backward
+#   compatibility.  This could be used to specify the current word.  Currently,
+#   $cur in the context is used as the default value of the current word.  If
+#   one wants to specify the current word used to generate completions, use
+#   `_comp_compgen -c CWORD known_hosts ...` instead.
+#
 # @var[out] COMPREPLY  Completions, starting with CWORD, are added
 # @return True (0) if one or more completions are generated, or otherwise False
 # (1).
@@ -2768,7 +2775,7 @@ _comp_compgen_known_hosts__impl()
     known_hosts=()
 
     local configfile="" flag prefix=""
-    local cur suffix="" aliases="" i host ipv4="" ipv6=""
+    local suffix="" aliases="" i host ipv4="" ipv6=""
     local -a kh tmpkh=() khd=() config=()
 
     # TODO remove trailing %foo from entries
@@ -2795,15 +2802,12 @@ _comp_compgen_known_hosts__impl()
         esac
     done
     shift "$((OPTIND - 1))"
-    if (($# == 0)); then
-        echo "bash_completion: $FUNCNAME: missing mandatory argument CWORD" >&2
-        return 2
-    elif (($# >= 2)); then
+    if (($# >= 2)); then
         local IFS=$' \t\n'
         echo "bash_completion: $FUNCNAME($*): unprocessed arguments:$(printf ' %s' "${@:2}")" >&2
         return 2
     fi
-    cur=$1
+    local cur=${1-$cur}
 
     [[ $cur == *@* ]] && prefix=$prefix${cur%@*}@ && cur=${cur#*@}
     kh=()

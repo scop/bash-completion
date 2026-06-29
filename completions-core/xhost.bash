@@ -7,6 +7,6 @@ _comp_cmd_xhost()
 
     [[ $cur =~ ^[-+] ]]
     local prefix=${BASH_REMATCH-}
-    _comp_compgen -P "$prefix" known_hosts -- "$cur"
+    _comp_compgen -P "$prefix" known_hosts
 } &&
     complete -F _comp_cmd_xhost xhost

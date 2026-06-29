@@ -46,7 +46,7 @@ _comp_cmd_sudo()
             return
             ;;
         --host | -${noargopts}h)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
     esac

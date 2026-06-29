@@ -35,7 +35,7 @@ _comp_cmd_ifstat()
                 "$1" --help 2>&1 || :
             } |
                 command grep -q -- '-s.*--noupdate'; then
-                _comp_compgen_known_hosts -- "$cur"
+                _comp_compgen_known_hosts
                 return
             fi
             ;;

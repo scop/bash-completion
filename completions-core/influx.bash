@@ -10,7 +10,7 @@ _comp_cmd_influx()
             return
             ;;
         -host)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
         -format | -precision | -consistency)

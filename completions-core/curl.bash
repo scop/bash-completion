@@ -80,7 +80,7 @@ _comp_cmd_curl()
             return
             ;;
         --dns-servers | --noproxy)
-            _comp_compgen_known_hosts -- "${cur##*,}"
+            _comp_compgen -c "${cur##*,}" known_hosts
             ((${#COMPREPLY[@]})) &&
                 _comp_delimited , -W '"${COMPREPLY[@]}"'
             return
@@ -101,7 +101,7 @@ _comp_cmd_curl()
             ;;
         --ftp-port | -${noargopts}P)
             _comp_compgen_available_interfaces -a
-            _comp_compgen -a known_hosts -- "$cur"
+            _comp_compgen -a known_hosts
             _comp_compgen -a ip_addresses -a
             return
             ;;
@@ -140,7 +140,7 @@ _comp_cmd_curl()
             ;;
         --preproxy | --proxy | --socks4 | --socks4a | --socks5 | \
             --socks5-hostname | -${noargopts}x)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
         --proto-default)

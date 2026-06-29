@@ -199,7 +199,7 @@ _comp_cmd_ssh__compgen_suboption()
             fi
             ;;
         proxyjump)
-            _comp_compgen_known_hosts -a ${configfile:+-F "$configfile"} -- "$cur"
+            _comp_compgen_known_hosts -a ${configfile:+-F "$configfile"}
             ;;
         proxycommand | remotecommand | localcommand)
             _comp_compgen_commands
@@ -335,7 +335,7 @@ _comp_cmd_ssh()
             return
             ;;
         -*J)
-            _comp_compgen_known_hosts -a ${configfile:+-F "$configfile"} -- "$cur"
+            _comp_compgen_known_hosts -a ${configfile:+-F "$configfile"}
             return
             ;;
         -*l)
@@ -382,8 +382,7 @@ _comp_cmd_ssh()
             compopt -o filenames
             _comp_compgen_commands
         else
-            _comp_compgen_known_hosts ${ipvx-} -a ${configfile:+-F "$configfile"} \
-                -- "$cur"
+            _comp_compgen_known_hosts ${ipvx-} -a ${configfile:+-F "$configfile"}
         fi
     fi
 } &&
@@ -425,7 +424,7 @@ _comp_cmd_sftp()
             return
             ;;
         -*J)
-            _comp_compgen_known_hosts -a ${configfile:+-F "$configfile"} -- "$cur"
+            _comp_compgen_known_hosts -a ${configfile:+-F "$configfile"}
             return
             ;;
         -*o)
@@ -449,7 +448,7 @@ _comp_cmd_sftp()
     elif [[ $cur == -* ]]; then
         _comp_compgen_usage
     else
-        _comp_compgen_known_hosts ${ipvx:+"$ipvx"} -a ${configfile:+-F "$configfile"} -- "$cur"
+        _comp_compgen_known_hosts ${ipvx:+"$ipvx"} -a ${configfile:+-F "$configfile"}
     fi
 } &&
     shopt -u hostcomplete && complete -F _comp_cmd_sftp sftp
@@ -662,7 +661,7 @@ _comp_cmd_scp()
             return
             ;;
         -*J)
-            _comp_compgen_known_hosts -a ${configfile:+-F "$configfile"} -- "$cur"
+            _comp_compgen_known_hosts -a ${configfile:+-F "$configfile"}
             return
             ;;
         -*[lP])
@@ -710,7 +709,7 @@ _comp_cmd_scp()
             *)
                 if ! _comp_looks_like_path "$cur"; then
                     _comp_compgen_known_hosts ${ipvx-} -c -a \
-                        ${configfile:+-F "$configfile"} -- "$cur"
+                        ${configfile:+-F "$configfile"}
                 fi
                 ;;
         esac

@@ -19,7 +19,7 @@ _comp_cmd_nmap()
             return
             ;;
         -b | --dns-servers)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
     esac
@@ -47,7 +47,7 @@ _comp_cmd_nmap()
         )"
         [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
     else
-        _comp_compgen_known_hosts -- "$cur"
+        _comp_compgen_known_hosts
     fi
 } &&
     complete -F _comp_cmd_nmap nmap

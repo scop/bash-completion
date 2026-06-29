@@ -18,6 +18,6 @@ _comp_cmd_tracepath()
 
     local ipvx
     [[ $1 == *6 ]] && ipvx=-6
-    _comp_compgen_known_hosts ${ipvx-} -- "$cur"
+    _comp_compgen_known_hosts ${ipvx-}
 } &&
     complete -F _comp_cmd_tracepath tracepath tracepath6

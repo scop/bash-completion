@@ -27,7 +27,7 @@ _comp_cmd_ntpdate()
     if [[ $cur == -* ]]; then
         _comp_compgen_help -- -h || _comp_compgen_usage
     else
-        _comp_compgen_known_hosts -- "$cur"
+        _comp_compgen_known_hosts
     fi
 } &&
     complete -F _comp_cmd_ntpdate ntpdate

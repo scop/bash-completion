@@ -23,7 +23,7 @@ _comp_cmd_links()
             return
             ;;
         -lookup)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
         -driver)

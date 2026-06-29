@@ -24,6 +24,6 @@ _comp_cmd_arping()
         return
     fi
 
-    _comp_compgen_known_hosts -- "$cur"
+    _comp_compgen_known_hosts
 } &&
     complete -F _comp_cmd_arping arping

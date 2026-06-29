@@ -19,7 +19,7 @@ _comp_cmd_ssh_add()
             if [[ $cur == *@* ]]; then
                 _comp_complete_user_at_host "$@"
             else
-                _comp_compgen_known_hosts -- "$cur"
+                _comp_compgen_known_hosts
             fi
             return
             ;;

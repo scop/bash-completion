@@ -7,7 +7,7 @@ _comp_cmd_cancel()
 
     case $prev in
         -h)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
         -U)

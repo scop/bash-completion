@@ -36,7 +36,7 @@ _comp_cmd_xgamma()
                 _comp_compgen -P "${cur%.*}." -- -W '$screens'
             elif [[ $cur != *:* ]]; then
                 # complete hostnames
-                _comp_compgen_known_hosts -c -- "$cur"
+                _comp_compgen_known_hosts -c
                 if [[ ! $cur ]]; then
                     COMPREPLY+=(:)
                 fi

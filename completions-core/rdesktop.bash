@@ -45,7 +45,7 @@ _comp_cmd_rdesktop()
         ((${#opts[@]})) &&
             _comp_compgen -- -W '"${opts[@]%:}"'
     else
-        _comp_compgen_known_hosts -- "$cur"
+        _comp_compgen_known_hosts
     fi
 
 } &&

@@ -13,7 +13,7 @@ _comp_cmd_hping2()
             return
             ;;
         --spoof | -${noargopts}a)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
         --tos | -${noargopts}o)
@@ -30,7 +30,7 @@ _comp_cmd_hping2()
     if [[ $cur == -* ]]; then
         _comp_compgen_help
     else
-        _comp_compgen_known_hosts -- "$cur"
+        _comp_compgen_known_hosts
     fi
 } &&
     complete -F _comp_cmd_hping2 hping hping2 hping3
