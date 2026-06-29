@@ -2794,22 +2794,16 @@ _comp_compgen_known_hosts__impl()
                 ;;
         esac
     done
-    if (($# < OPTIND)); then
+    shift "$((OPTIND - 1))"
+    if (($# == 0)); then
         echo "bash_completion: $FUNCNAME: missing mandatory argument CWORD" >&2
         return 2
-    fi
-    cur=${!OPTIND}
-    ((OPTIND += 1))
-    if (($# >= OPTIND)); then
+    elif (($# >= 2)); then
         local IFS=$' \t\n'
-        echo "bash_completion: $FUNCNAME($*): unprocessed arguments:$(
-            while (($# >= OPTIND)); do
-                printf ' %s' "${!OPTIND}"
-                shift
-            done
-        )" >&2
+        echo "bash_completion: $FUNCNAME($*): unprocessed arguments:$(printf ' %s' "${@:2}")" >&2
         return 2
     fi
+    cur=$1
 
     [[ $cur == *@* ]] && prefix=$prefix${cur%@*}@ && cur=${cur#*@}
     kh=()
