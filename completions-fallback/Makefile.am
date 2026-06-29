@@ -145,6 +145,7 @@ CLEANFILES = \
 	dprint.bash \
 	driftctl.bash \
 	dyff.bash \
+	encore.bash \
 	esc.bash \
 	flask.bash \
 	flux.bash \
@@ -378,6 +379,7 @@ symlinks: $(DATA)
 		docker \
 		driftctl \
 		dyff \
+		encore \
 		esc \
 		flux \
 		furyctl \
