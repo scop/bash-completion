@@ -148,6 +148,8 @@ CLEANFILES = \
 	dyff.bash \
 	encore.bash \
 	esc.bash \
+	etcdctl.bash \
+	etcdutl.bash \
 	flask.bash \
 	flux.bash \
 	furyctl.bash \
@@ -383,6 +385,8 @@ symlinks: $(DATA)
 		dyff \
 		encore \
 		esc \
+		etcdctl \
+		etcdutl \
 		flux \
 		furyctl \
 		gardenctl \
