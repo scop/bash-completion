@@ -55,7 +55,7 @@ _comp_cmd_nslookup()
     local REPLY
     _comp_count_args
     if ((REPLY <= 2)); then
-        _comp_compgen_known_hosts -- "$cur"
+        _comp_compgen_known_hosts
         [[ $REPLY -eq 1 && $cur == @(|-) ]] && COMPREPLY+=(-)
     fi
 } &&
@@ -92,12 +92,12 @@ _comp_cmd_host()
     local REPLY
     _comp_count_args -a "-*[ctmNRW]"
     if ((REPLY == 1)); then
-        _comp_compgen_known_hosts -- "$cur"
+        _comp_compgen_known_hosts
     elif ((REPLY == 2)); then
         local ipvx
         [[ ${words[*]} =~ \ -[^\ ]*([46]) ]] && ipvx=-${BASH_REMATCH[1]}
         # shellcheck disable=SC2086
-        _comp_compgen_known_hosts ${ipvx-} -- "$cur"
+        _comp_compgen_known_hosts ${ipvx-}
     fi
 } &&
     complete -F _comp_cmd_host host

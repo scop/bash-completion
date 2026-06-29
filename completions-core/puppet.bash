@@ -122,7 +122,7 @@ _comp_cmd_puppet()
         agent)
             case $prev in
                 --certname)
-                    _comp_compgen_known_hosts -- "$cur"
+                    _comp_compgen_known_hosts
                     return
                     ;;
                 --digest)
@@ -130,7 +130,7 @@ _comp_cmd_puppet()
                     return
                     ;;
                 --fqdn)
-                    _comp_compgen_known_hosts -- "$cur"
+                    _comp_compgen_known_hosts
                     return
                     ;;
                 -l | --logdest)
@@ -196,7 +196,7 @@ _comp_cmd_puppet()
                             return
                             ;;
                         generate | --generate)
-                            _comp_compgen -a known_hosts -- "$cur"
+                            _comp_compgen -a known_hosts
                             return
                             ;;
                         clean | print | revoke | --clean | --print | --revoke)
@@ -251,7 +251,7 @@ _comp_cmd_puppet()
         filebucket)
             case $prev in
                 -s | --server)
-                    _comp_compgen_known_hosts -- "$cur"
+                    _comp_compgen_known_hosts
                     return
                     ;;
                 -b | --bucket)
@@ -275,7 +275,7 @@ _comp_cmd_puppet()
                     return
                     ;;
                 --host)
-                    _comp_compgen_known_hosts -- "$cur"
+                    _comp_compgen_known_hosts
                     return
                     ;;
                 -t | --tag)
@@ -285,7 +285,7 @@ _comp_cmd_puppet()
                     if [[ $cur == -* ]]; then
                         _comp_cmd_puppet__subcmd_opts "$1" "$subcommand"
                     else
-                        _comp_compgen_known_hosts -- "$cur"
+                        _comp_compgen_known_hosts
                     fi
                     return
                     ;;

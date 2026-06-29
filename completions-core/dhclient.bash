@@ -18,7 +18,7 @@ _comp_cmd_dhclient()
             return
             ;;
         -s)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
     esac

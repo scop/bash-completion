@@ -22,7 +22,7 @@ _comp_cmd_freeciv()
             return
             ;;
         --Meta | --server | -[Ms])
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
         --Plugin | -P)

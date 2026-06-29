@@ -40,7 +40,7 @@ _comp_cmd_mysql()
             ;;
 
         --host | -${noargopts}h)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
         --default-character-set)

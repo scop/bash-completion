@@ -28,7 +28,7 @@ _comp_cmd_ipmitool()
             return
             ;;
         -*H)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
         -*[fSO])

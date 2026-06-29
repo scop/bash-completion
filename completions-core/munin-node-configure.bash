@@ -15,7 +15,7 @@ _comp_cmd_munin_node_configure()
             return
             ;;
         --snmp)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
         --snmpversion)

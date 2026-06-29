@@ -44,7 +44,7 @@ _comp_cmd_iperf()
             return
             ;;
         --client | -${noargopts}c)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
         --reportexclude | -${noargopts}x)

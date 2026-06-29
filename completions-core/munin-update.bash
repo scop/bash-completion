@@ -11,7 +11,7 @@ _comp_cmd_munin_update()
             return
             ;;
         --host)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
     esac

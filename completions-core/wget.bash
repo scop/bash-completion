@@ -20,7 +20,7 @@ _comp_cmd_wget()
             return
             ;;
         --domains | --exclude-domains | -${noargopts}D)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
         --restrict-file-names)

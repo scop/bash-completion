@@ -15,7 +15,7 @@ _comp_cmd_sshfs()
         return
     fi
 
-    [[ $cur == @(*/|[.~])* ]] || _comp_compgen_known_hosts -c -a -- "$cur"
+    [[ $cur == @(*/|[.~])* ]] || _comp_compgen_known_hosts -c -a
 
     _comp_compgen -ax scp local_files -d
 } &&

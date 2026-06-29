@@ -117,7 +117,7 @@ _comp_cmd_rsync()
             fi
             ;;
         *)
-            _comp_compgen_known_hosts -c -a -- "$cur"
+            _comp_compgen_known_hosts -c -a
             _comp_compgen -ax scp local_files
             ;;
     esac

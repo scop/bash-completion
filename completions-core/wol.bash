@@ -21,7 +21,7 @@ _comp_cmd_wol()
                     -ne 's/.*[[:space:]]Bcast:\([^[:space:]]*\).*/\1/p' \
                     -ne 's/.*inet.*[[:space:]]brd[[:space:]]\([^[:space:]]*\).*/\1/p' \
                     -ne 's/.*[[:space:]]broadcast[[:space:]]\{1,\}\([^[:space:]]*\).*/\1/p')"
-            _comp_compgen -a known_hosts -- "$cur"
+            _comp_compgen -a known_hosts
             return
             ;;
         --file | -${noargopts}f)

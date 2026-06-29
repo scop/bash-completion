@@ -64,6 +64,6 @@ _comp_cmd_ping()
 
     [[ $1 == *6 ]] && ipvx=-6
     [[ $1 == *4 ]] && ipvx=-4
-    _comp_compgen_known_hosts ${ipvx-} -- "$cur"
+    _comp_compgen_known_hosts ${ipvx-}
 } &&
     complete -F _comp_cmd_ping ping ping4 ping6

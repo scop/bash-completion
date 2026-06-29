@@ -12,7 +12,7 @@ _comp_cmd_vpnc()
             return
             ;;
         --gateway)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
         --vendor)

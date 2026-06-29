@@ -15,7 +15,7 @@ _comp_cmd_gkrellm()
             return
             ;;
         -s | --server)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
         -l | --logfile)

@@ -46,7 +46,7 @@ _comp_cmd_reportbug()
             return
             ;;
         --smtphost)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
         --draftpath)

@@ -86,7 +86,7 @@ _comp_cmd_openssl()
                 return
                 ;;
             -connect)
-                _comp_compgen_known_hosts -- "$cur"
+                _comp_compgen_known_hosts
                 return
                 ;;
             -starttls)

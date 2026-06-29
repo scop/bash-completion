@@ -23,6 +23,6 @@ _comp_cmd_lftp()
     fi
 
     _comp_compgen_split -- "$("$1" -c "bookmark list" 2>/dev/null)"
-    _comp_compgen -a known_hosts -- "$cur"
+    _comp_compgen -a known_hosts
 } &&
     complete -F _comp_cmd_lftp lftp

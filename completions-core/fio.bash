@@ -50,7 +50,7 @@ _comp_cmd_fio()
             return
             ;;
         --client)
-            _comp_compgen_known_hosts -- "$cur"
+            _comp_compgen_known_hosts
             return
             ;;
         --remote-config)

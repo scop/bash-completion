@@ -93,7 +93,7 @@ _comp_cmd_xm()
                             _comp_cmd_xm__domain_names
                             ;;
                         3)
-                            _comp_compgen_known_hosts -- "$cur"
+                            _comp_compgen_known_hosts
                             ;;
                     esac
                     ;;
