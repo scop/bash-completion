@@ -17,6 +17,8 @@ _comp_cmd_xrdb()
 
     if [[ $cur == -* ]]; then
         _comp_compgen_help
+        _comp_compgen -- -W '"${COMPREPLY[@]}" -D -I -U' -X -Dname
+        [[ $COMPREPLY == -[DIU] ]] && compopt -o nospace
         return
     fi
 
