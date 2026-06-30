@@ -6,7 +6,7 @@ _comp_cmd_xrdb()
     _comp_initialize -- "$@" || return
 
     case $prev in
-        -backup | -display | -help)
+        -backup | -display | -get | -help)
             return
             ;;
         -cpp | -edit)
