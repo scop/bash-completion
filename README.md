@@ -5,10 +5,12 @@
 
 ## Introduction
 
-bash-completion is a collection of command line command completions for the
-[Bash shell](https://www.gnu.org/software/bash/), collection of helper
-functions to assist in creating new completions, and set of facilities for
-loading completions automatically on demand, as well as installing them.
+bash-completion is a collection of command-specific command-line completions,
+providing completion contents for the [Bash
+shell](https://www.gnu.org/software/bash/)'s completion system.  This also
+provides a collection of helper functions to assist in creating new
+completions, and a set of facilities for loading completions automatically on
+demand, as well as installing them.
 
 ## Installation
 
