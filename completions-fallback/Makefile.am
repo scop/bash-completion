@@ -316,6 +316,7 @@ CLEANFILES = \
 	xc.bash \
 	ytt.bash \
 	zarf.bash \
+	zed.bash \
 	zitadel.bash \
 	zola.bash
 
@@ -326,7 +327,8 @@ symlinks: $(DATA)
 		ncal
 	$(ss) flamegraph \
 		just \
-		watchexec
+		watchexec \
+		zed
 	$(ss) gaiacli \
 		gaiad \
 		ngrok \
