@@ -8,7 +8,8 @@ _comp_cmd_jq()
     local noargopts='!(-*|*[fL]*)'
     # shellcheck disable=SC2254
     case $prev in
-        --help | --version | --arg | --argjson | --slurpfile | --argfile)
+        --help | --version | --arg | --argjson | --slurpfile | --argfile | \
+            --rawfile)
             return
             ;;
         --indent)
@@ -32,6 +33,10 @@ _comp_cmd_jq()
                 ;;
             --slurpfile | --argfile)
                 _comp_compgen_filedir 'json?(l)'
+                return
+                ;;
+            --rawfile)
+                _comp_compgen_filedir
                 return
                 ;;
         esac
@@ -66,7 +71,7 @@ _comp_cmd_jq()
     local REPLY
     # TODO: DTRT with args taking 2 options
     # -f|--from-file are not counted here because they supply the filter
-    _comp_count_args -a "@(--arg|--arg?(json|file)|--slurpfile|--indent|--run-tests|-${noargopts}L)"
+    _comp_count_args -a "@(--arg|--arg?(json|file)|--slurpfile|--rawfile|--indent|--run-tests|-${noargopts}L)"
 
     # 1st arg is filter
     ((REPLY == 1)) && return
