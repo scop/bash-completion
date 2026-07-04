@@ -13,7 +13,8 @@ _comp_cmd_jq()
             return
             ;;
         --indent)
-            _comp_compgen -- -W '{1..8}'
+            # jq 1.8.1 accepts -1 to 7
+            _comp_compgen -- -W '{-1..7}'
             return
             ;;
         --from-file | --run-tests | -${noargopts}f)
