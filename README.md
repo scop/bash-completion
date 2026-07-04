@@ -38,7 +38,7 @@ If you have older bash versions in use, their loading of `bash_completion`
 should be prevented. See further for more info.
 
 If you don't have the package readily available for your distribution, or
-you simply don't want to use one, you can install bash completion using the
+you simply don't want to use one, you can install bash-completion using the
 standard commands for GNU autotools packages:
 
 ```shell
@@ -130,7 +130,7 @@ tracing on in it before doing anything else there.
 
 ## FAQ
 
-**Q1. The bash completion code inhibits some commands from completing on
+**Q1. The bash-completion code inhibits some commands from completing on
    files with extensions that are legitimate in my environment. Do I
    have to disable completion for that command in order to complete on
    the files that I need to?**

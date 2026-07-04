@@ -1,6 +1,6 @@
 # Contributing to bash-completion
 
-Contributions to the bash completion project are more than
+Contributions to the bash-completion project are more than
 welcome. Fixes, clean-ups and improvements of existing code are much
 appreciated, as are completion functions for new commands.
 
