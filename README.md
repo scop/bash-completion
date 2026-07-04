@@ -5,13 +5,14 @@
 
 ## Introduction
 
-bash-completion is a collection of recipes for [command-line
-completions](https://en.wikipedia.org/wiki/Command-line_completion) of a number
-of commands for the [Bash shell](https://www.gnu.org/software/bash/)'s
-completion system.  This enhances Bash's plain completion of filenames to
-provide better suggestions of options and arguments for many commands.  Also
-provided is a collection of helper functions to assist in creating new
-completions, and a set of facilities for loading completions automatically on
+bash-completion is a collection of
+[command-line completion](https://en.wikipedia.org/wiki/Command-line_completion)
+recipes for a number of commands for the completion system of the
+[Bash shell](https://www.gnu.org/software/bash/).
+These recipes enhance Bash's typical plain completion of filenames to
+provide better suggestions of options and arguments for many commands.
+Also provided is a collection of helper functions to assist in creating new
+recipes, and a set of facilities for loading recipes automatically on
 demand, as well as installing them.
 
 ## Installation
