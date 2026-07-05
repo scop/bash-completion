@@ -2,6 +2,23 @@
 
 ## [2.18.0](https://github.com/scop/bash-completion/compare/2.17.0...2.18.0) (2026-07-05)
 
+This release comes with notable changes to the directories used for
+looking up and sourcing completion recipes and helpers, allowing for
+more flexibility and customization and fewer conflicts between things
+shipping with bash-completion and third party/upstream/origin packages.
+
+Files that come with bash-completion itself are located in directories
+reserved for that use, their names ending with `-core` and
+`-fallback`. Packages should continue install their files in the same
+`completions` and `helpers` dirs like before; these directories
+precede the bash-completion "core" ones in lookup order.
+
+A new concept of `startup` dirs has been introduced. Files from these
+directories are sourced eagerly on bash-completion startup. This
+replaces and allows for more flexibility than using the deprecated
+`/etc/bash_completion.d` directory for this purpose.
+
+See README.md for more information.
 
 ### Features
 
