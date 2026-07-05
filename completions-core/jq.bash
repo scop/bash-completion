@@ -56,7 +56,7 @@ _comp_cmd_jq()
             # not appear in the output of --help as of jq 1.6.
             _comp_compgen -- -W '--version --seq --stream --slurp --raw-input
                 --null-input --compact-output --tab --indent --color-output
-                -monochrome-output --ascii-output --unbuffered --sort-keys
+                --monochrome-output --ascii-output --unbuffered --sort-keys
                 --raw-output --join-output --from-file --exit-status --arg
                 --argjson --slurpfile --rawfile --argfile --args --jsonargs
                 --run-tests --help'
