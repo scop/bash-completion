@@ -1,10 +1,10 @@
-# bash completion for update-alternatives
+# bash completion for alternatives
 
-_comp_cmd_update_alternatives__installed()
+_comp_cmd_alternatives__installed()
 {
-    local i admindir
+    local i admindir=""
     # find the admin dir
-    for i in alternatives dpkg/alternatives rpm/alternatives; do
+    for i in alternatives rpm/alternatives; do
         [[ -d /var/lib/$i ]] && admindir=/var/lib/$i && break
     done
     for ((i = 1; i < cword; i++)); do
@@ -13,10 +13,10 @@ _comp_cmd_update_alternatives__installed()
             break
         fi
     done
-    [[ -d $admindir ]] && _comp_compgen_split -- "$(command ls "$admindir")"
+    [[ -d $admindir ]] && _comp_compgen -C "$admindir" -- -fX '*/*'
 }
 
-_comp_cmd_update_alternatives()
+_comp_cmd_alternatives()
 {
     local cur prev words cword comp_args
     _comp_initialize -- "$@" || return
@@ -49,7 +49,7 @@ _comp_cmd_update_alternatives()
                     _comp_compgen_filedir
                     ;;
                 2)
-                    _comp_cmd_update_alternatives__installed
+                    _comp_cmd_alternatives__installed
                     ;;
                 4)
                     # priority - no completions
@@ -63,7 +63,7 @@ _comp_cmd_update_alternatives()
                             _comp_compgen -- -W '--slave'
                             ;;
                         3)
-                            _comp_cmd_update_alternatives__installed
+                            _comp_cmd_alternatives__installed
                             ;;
                     esac
                     ;;
@@ -72,7 +72,7 @@ _comp_cmd_update_alternatives()
         --remove | --set)
             case $args in
                 1)
-                    _comp_cmd_update_alternatives__installed
+                    _comp_cmd_alternatives__installed
                     ;;
                 2)
                     _comp_compgen_filedir
@@ -80,7 +80,7 @@ _comp_cmd_update_alternatives()
             esac
             ;;
         --auto | --remove-all | --display | --config)
-            _comp_cmd_update_alternatives__installed
+            _comp_cmd_alternatives__installed
             ;;
         *)
             _comp_compgen_help - <<<"$(LANG=C "$1" --help 2>&1 | command sed '
@@ -92,4 +92,4 @@ _comp_cmd_update_alternatives()
             ;;
     esac
 } &&
-    complete -F _comp_cmd_update_alternatives update-alternatives alternatives
+    complete -F _comp_cmd_alternatives alternatives

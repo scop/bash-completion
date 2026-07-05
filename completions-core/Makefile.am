@@ -6,6 +6,7 @@ cross_platform = 2to3.bash \
 		acpi.bash \
 		add_members.bash \
 		alias.bash \
+		alternatives.bash \
 		ant.bash \
 		apache2ctl.bash \
 		appdata-validate.bash \
@@ -84,9 +85,7 @@ cross_platform = 2to3.bash \
 		dnsspoof.bash \
 		doas.bash \
 		dot.bash \
-		dpkg.bash \
-		dpkg-source.bash \
-		dselect.bash \
+		dpkg-reconfigure.bash \
 		dsniff.bash \
 		dumpdb.bash \
 		dumpe2fs.bash \
@@ -399,7 +398,6 @@ cross_platform = 2to3.bash \
 		unpack200.bash \
 		unrar.bash \
 		unshunt.bash \
-		update-alternatives.bash \
 		update-rc.d.bash \
 		upgradepkg.bash \
 		urlsnarf.bash \
@@ -490,7 +488,6 @@ CLEANFILES = \
 	aclocal-1.17.bash \
 	aclocal-1.18.bash \
 	alpine.bash \
-	alternatives.bash \
 	animate.bash \
 	apropos.bash \
 	aptitude-curses.bash \
@@ -540,9 +537,6 @@ CLEANFILES = \
 	dcop.bash \
 	dfutool.bash \
 	display.bash \
-	dpkg-deb.bash \
-	dpkg-query.bash \
-	dpkg-reconfigure.bash \
 	dropdb.bash \
 	dropuser.bash \
 	edquota.bash \
@@ -869,8 +863,6 @@ symlinks: $(DATA)
 		typeset
 	$(ss) dict \
 		rdict
-	$(ss) dpkg \
-		dpkg-deb dpkg-query dpkg-reconfigure
 	$(ss) ether-wake \
 		etherwake
 	$(ss) filesnarf \
@@ -1025,8 +1017,6 @@ endif
 		bsdtar gtar star
 	$(ss) tracepath \
 		tracepath6
-	$(ss) update-alternatives \
-		alternatives
 	$(ss) vipw \
 		vigr
 	$(ss) vncviewer \
