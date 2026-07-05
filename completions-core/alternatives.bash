@@ -2,7 +2,7 @@
 
 _comp_cmd_alternatives__installed()
 {
-    local i admindir
+    local i admindir=""
     # find the admin dir
     for i in alternatives rpm/alternatives; do
         [[ -d /var/lib/$i ]] && admindir=/var/lib/$i && break
