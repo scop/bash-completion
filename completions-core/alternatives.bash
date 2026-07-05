@@ -13,7 +13,7 @@ _comp_cmd_alternatives__installed()
             break
         fi
     done
-    [[ -d $admindir ]] && _comp_compgen_split -- "$(command ls "$admindir")"
+    [[ -d $admindir ]] && _comp_compgen -C "$admindir" -- -fX '*/*'
 }
 
 _comp_cmd_alternatives()
