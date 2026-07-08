@@ -23,7 +23,7 @@ _comp_cmd_sudo()
                 break
             fi
             # shellcheck disable=SC2254
-            [[ ${words[i]} == @(--@(close-from|chdir|group|host|prompt|chroot|role|command-timeout|type|other-user|user)|-${noargopts}[CDghpRrTtUu]) ]] &&
+            [[ ${words[i]} == @(--@(close-from|chdir|group|host|prompt|chroot|role|command-timeout|type|other-user|user|preserve-env)|-${noargopts}[CDghpRrTtUu]) ]] &&
                 ((i++))
         done
 
@@ -38,7 +38,7 @@ _comp_cmd_sudo()
             return
             ;;
         --close-from | --prompt | --role | --type | --command-timeout | \
-            -${noargopts}[CprTt])
+            --preserve-env | -${noargopts}[CprTt])
             return
             ;;
         --chdir | --chroot | -${noargopts}[DR])
