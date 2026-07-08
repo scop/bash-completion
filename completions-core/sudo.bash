@@ -37,8 +37,9 @@ _comp_cmd_sudo()
             _comp_compgen -- -g
             return
             ;;
-        --close-from | --prompt | --role | --type | --command-timeout | \
-            --preserve-env | -${noargopts}[CprTt])
+        --close-from | --help | --prompt | --role | --type | \
+            --command-timeout | --preserve-env | --version | \
+            -${noargopts}[CprTtV]) # no "h", sudo.ws treats it as host with arg
             return
             ;;
         --chdir | --chroot | -${noargopts}[DR])
