@@ -10,32 +10,33 @@ _comp_cmd_curl()
     case $prev in
         --abstract-unix-socket | --alt-svc | --config | --cookie | \
             --cookie-jar | --dump-header | --egd-file | --etag-compare | \
-            --etag-save | --hsts | --key | --libcurl | --netrc-file | \
-            --output | --proxy-key | --random-file | --ssl-sessions | \
-            --unix-socket | --upload-file | -${noargopts}[KbcDoT])
+            --etag-save | --hsts | --key | --knownhosts | --libcurl | \
+            --netrc-file | --output | --proxy-key | --random-file | \
+            --ssl-sessions | --unix-socket | --upload-file | \
+            -${noargopts}[KbcDoT])
             _comp_compgen_filedir
             return
             ;;
         --aws-sigv4 | --ciphers | --connect-timeout | --connect-to | \
-            --continue-at | --curves | --data-raw | --doh-url | \
-            --expect100-timeout | --form | --form-string | --ftp-account | \
-            --ftp-alternative-to-user | --haproxy-clientip | \
+            --continue-at | --create-file-mode | --curves | --data-raw | \
+            --doh-url | --expect100-timeout | --form | --form-string | \
+            --ftp-account | --ftp-alternative-to-user | --haproxy-clientip | \
             --happy-eyeballs-timeout-ms | --hostpubmd5 | --hostpubsha256 | \
-            --ipfs-gateway | --keepalive-cnt | --keepalive-time | \
+            --ip-tos | --ipfs-gateway | --keepalive-cnt | --keepalive-time | \
             --limit-rate | --local-port | --login-options | --mail-auth | \
             --mail-from | --mail-rcpt | --max-filesize | --max-redirs | \
-            --max-time | --oauth2-bearer | --parallel-max | --pass | \
-            --proto | --proto-redir | --proxy-ciphers | --proxy-pass | \
-            --proxy-service-name | --proxy-tls13-ciphers | \
-            --proxy-tlspassword | --proxy-tlsuser | --proxy-user | \
-            --proxy1.0 | --quote | --range | --rate | --referer | \
-            --request-target | --resolve | --retry | --retry-delay | \
-            --retry-max-time | --sasl-authzid | --service-name | --sigalgs | \
-            --socks5-gssapi-service | --speed-limit | --speed-time | \
-            --telnet-option | --tftp-blksize | --time-cond | \
-            --tls13-ciphers | --trace-config | --tlspassword | --tlsuser | \
-            --upload-flags | --url | --url-query | --user | --user-agent | \
-            --variable | --version | --vlan-priority | \
+            --max-time | --oauth2-bearer | --parallel-max | \
+            --parallel-max-host | --pass | --proto | --proto-redir | \
+            --proxy-ciphers | --proxy-pass | --proxy-service-name | \
+            --proxy-tls13-ciphers | --proxy-tlspassword | --proxy-tlsuser | \
+            --proxy-user | --proxy1.0 | --quote | --range | --rate | \
+            --referer | --request-target | --resolve | --retry | \
+            --retry-delay | --retry-max-time | --sasl-authzid | \
+            --service-name | --sigalgs | --socks5-gssapi-service | \
+            --speed-limit | --speed-time | --telnet-option | --tftp-blksize | \
+            --time-cond | --tls13-ciphers | --trace-config | --tlspassword | \
+            --tlsuser | --upload-flags | --url | --url-query | --user | \
+            --user-agent | --variable | --version | --vlan-priority | \
             -${noargopts}[CFmQreYytzuAV])
             return
             ;;
