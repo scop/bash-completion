@@ -320,6 +320,7 @@ CLEANFILES = \
 	watchexec.bash \
 	waydroid.bash \
 	xc.bash \
+	xh.bash \
 	ytt.bash \
 	zarf.bash \
 	zed.bash \
@@ -557,6 +558,8 @@ symlinks: $(DATA)
 		pip3
 	$(ss) pipenv \
 		black blackd flask httpx
+	$(ss) rg \
+		xh
 	$(ss) ruff \
 		mado \
 		uv \
