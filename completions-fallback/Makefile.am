@@ -65,6 +65,7 @@ cross_platform = adb.bash \
 		syncthing.bash \
 		task.bash \
 		tokio-console.bash \
+		topgrade.bash \
 		tox.bash \
 		udevadm.bash \
 		update-alternatives.bash \

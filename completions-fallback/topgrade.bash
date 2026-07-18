@@ -1,0 +1,6 @@
+# 3rd party completion loader for commands emitting their completion using
+# "$cmd --gen-completion bash".
+#
+# This serves as a fallback in case the completion is not installed otherwise.
+
+eval -- "$("$1" --gen-completion bash 2>/dev/null)"
