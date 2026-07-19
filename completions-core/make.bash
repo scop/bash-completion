@@ -18,54 +18,55 @@ _comp_cmd_make__extract_targets()
     _comp_awk -f "${BASH_SOURCE[0]%/*}/../helpers-core/make-extract-targets.awk"
 }
 
-# Truncate the non-unique filepaths in COMPREPLY to only generate unique
-# directories or files.  This function discards the files under subdirectories
-# unless the path is unique under each subdirectory and instead generate the
-# subdirectory path.  For example, when there are two candidates, "abc/def" and
-# "abc/xyz", we generate "abc/" instead of generating both candidates directly.
-# When there is only one candidate "abc/def", we generate the full path
-# "abc/def".
+# Truncate the non-unique filepaths in the "targets" array to only generate
+# phony targets, unique directories, or files in the COMPREPLY array.  This
+# function discards the files under subdirectories unless the path is unique
+# under each subdirectory and instead generate the subdirectory path.  For
+# example, when there are two candidates, "abc/def" and "abc/xyz", we generate
+# "abc/" instead of generating both candidates directly.  When there is only
+# one candidate "abc/def", we generate the full path "abc/def".
 #
 # @var[in] cur
 # @var[in] mode
-# @var[in,out] COMPREPLY
+# @var[in] targets - Array containing the target names.  This array is supposed
+#   to contain at least one element for the Bash-4.2 nounset bug.
+# @var[out] COMPREPLY
 _comp_cmd_make__truncate_non_unique_paths()
 {
     local prefix=$cur
     [[ $mode == -d ]] && prefix=
-    if ((${#COMPREPLY[@]} > 0)); then
-        # collect the possible completions including the directory names in
-        # `paths' and count the number of children of each subdirectory in
-        # `nchild'.
-        local -A paths nchild
-        local target
-        for target in "${COMPREPLY[@]}"; do
-            local path=${target%/}
-            while [[ ! ${paths[$path]+set} ]] &&
-                paths[$path]=set &&
-                [[ $path == "$prefix"*/* ]]; do
-                path=${path%/*}
-                nchild[$path]=$((${nchild[$path]-0} + 1))
-            done
+
+    # collect the possible completions including the directory names in
+    # `paths' and count the number of children of each subdirectory in
+    # `nchild'.
+    local -A paths nchild
+    local target
+    for target in "${targets[@]}"; do
+        local path=${target%/}
+        while [[ ! ${paths[$path]+set} ]] &&
+            paths[$path]=set &&
+            [[ $path == "$prefix"*/* ]]; do
+            path=${path%/*}
+            nchild[$path]=$((${nchild[$path]-0} + 1))
+        done
+    done
+
+    COMPREPLY=()
+    local nreply=0
+    for target in "${!paths[@]}"; do
+        # generate only the paths that do not have a unique child and whose
+        # all parent and ancestor directories have a unique child.
+        ((${nchild[$target]-0} == 1)) && continue
+        local path=$target
+        while [[ $path == "$prefix"*/* ]]; do
+            path=${path%/*}
+            ((${nchild[$path]-0} == 1)) || continue 2
         done
 
-        COMPREPLY=()
-        local nreply=0
-        for target in "${!paths[@]}"; do
-            # generate only the paths that do not have a unique child and whose
-            # all parent and ancestor directories have a unique child.
-            ((${nchild[$target]-0} == 1)) && continue
-            local path=$target
-            while [[ $path == "$prefix"*/* ]]; do
-                path=${path%/*}
-                ((${nchild[$path]-0} == 1)) || continue 2
-            done
-
-            # suffix `/' when the target path is a subdiretory, which has
-            # at least one child.
-            COMPREPLY[nreply++]=$target${nchild[$target]+/}
-        done
-    fi
+        # suffix `/' when the target path is a subdiretory, which has
+        # at least one child.
+        COMPREPLY[nreply++]=$target${nchild[$target]+/}
+    done
 }
 
 _comp_cmd_make()
@@ -154,12 +155,12 @@ _comp_cmd_make()
         #     mode=-d # display-only mode
         # fi
 
-        _comp_split COMPREPLY "$(LC_ALL=C \
+        local targets
+        _comp_split targets "$(LC_ALL=C \
             $1 -npq __BASH_MAKE_COMPLETION__=1 \
             ${makef+"${makef[@]}"} "${makef_dir[@]}" .DEFAULT 2>/dev/null |
-            _comp_cmd_make__extract_targets "$mode" "$cur")"
-
-        _comp_cmd_make__truncate_non_unique_paths
+            _comp_cmd_make__extract_targets "$mode" "$cur")" &&
+            _comp_cmd_make__truncate_non_unique_paths
 
         if [[ $mode != -d ]]; then
             # Completion will occur if there is only one suggestion
