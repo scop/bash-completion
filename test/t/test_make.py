@@ -119,3 +119,103 @@ class TestMake2:
     def test_subdir_4(self, bash):
         completion = assert_complete(bash, "make sub4")
         assert completion == "sub4test/bar/ sub4test2/foo/gamma".split()
+
+
+@pytest.mark.bashcomp(cmd="make", require_cmd=True, cwd="make/test3")
+class TestMake3:
+    """CMake-style phony targets whose names use `/' as a naming convention.
+
+    A `/' in a target name is not necessarily a directory boundary.  `make -p'
+    marks these targets phony, so the completion offers them as-is instead of
+    collapsing `install' into `install/' or dropping the plain `MyProgram' in
+    favor of only `MyProgram/fast'.
+    """
+
+    def test_all_targets(self, bash):
+        """Phony targets are offered as-is, not collapsed as directories."""
+        completion = assert_complete(bash, "make ")
+        assert completion == [
+            "MyProgram",
+            "MyProgram/fast",
+            "all",
+            "clean",
+            "clean/fast",
+            "install",
+            "install/local",
+            "install/strip",
+        ]
+
+    def test_single_child(self, bash):
+        """`MyProgram' is offered alongside `MyProgram/fast'."""
+        completion = assert_complete(bash, "make My")
+        assert completion == ["MyProgram", "MyProgram/fast"]
+
+    def test_single_child_drill_in(self, bash):
+        completion = assert_complete(bash, "make MyProgram/")
+        assert completion == "fast"
+
+    def test_multi_child(self, bash):
+        """`install' is offered alongside `install/local', `install/strip'."""
+        completion = assert_complete(bash, "make install")
+        assert completion == ["install", "install/local", "install/strip"]
+
+    def test_multi_child_drill_in(self, bash):
+        completion = assert_complete(bash, "make install/")
+        assert completion == ["install/local", "install/strip"]
+
+    def test_clean(self, bash):
+        """A second single-child case: `clean' alongside `clean/fast'."""
+        completion = assert_complete(bash, "make clean")
+        assert completion == ["clean", "clean/fast"]
+
+
+@pytest.mark.bashcomp(cmd="make", require_cmd=True)
+class TestMakeOptions:
+    """Phony targets are offered as-is when the makefile or its directory is
+    selected via -f/-C.
+
+    Run from the fixtures root so the -C/-f paths are relative to it.
+    """
+
+    def test_directory_option(self, bash):
+        completion = assert_complete(bash, "make -C make/test3 install")
+        assert completion == ["install", "install/local", "install/strip"]
+
+    def test_file_option(self, bash):
+        completion = assert_complete(
+            bash, "make -f make/test3/Makefile install"
+        )
+        assert completion == ["install", "install/local", "install/strip"]
+
+
+@pytest.mark.bashcomp(cmd="make", require_cmd=True, cwd="make/test4")
+class TestMake4:
+    """Non-phony targets containing `/' are real file paths, so completion
+    keeps collapsing shared prefixes to `dir/' (issues #544/#858).  A
+    non-phony target that is itself a directory prefix (`sub', a real
+    directory built by a recipe) stays collapsed to `sub/', never surfaced
+    as a plain runnable name.
+    """
+
+    def test_all_targets(self, bash):
+        completion = assert_complete(bash, "make ")
+        assert completion == ["dir/", "sub/"]
+
+    def test_dir_prep_target_stays_collapsed(self, bash):
+        """`sub' is a real directory target, not a phony label, so it is not
+        surfaced as a plain name; it stays collapsed to `sub/'."""
+        completion = assert_complete(bash, "make sub")
+        assert completion == "/"
+        # Collapsed `sub/' must not get a trailing space (nospace is set).
+        assert completion.endswith("/")
+
+    def test_dir_prep_drill_in(self, bash):
+        completion = assert_complete(bash, "make sub/")
+        assert completion == ["sub/a", "sub/b"]
+
+    def test_non_target_prefix_collapses(self, bash):
+        """`dir' is not a target, only a shared prefix, so it collapses to
+        `dir/'."""
+        completion = assert_complete(bash, "make dir")
+        assert completion == "/"
+        assert completion.endswith("/")

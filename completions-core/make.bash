@@ -26,6 +26,12 @@ _comp_cmd_make__extract_targets()
 # "abc/" instead of generating both candidates directly.  When there is only
 # one candidate "abc/def", we generate the full path "abc/def".
 #
+# The phony targets (prefixed by "phony:") are offered as-is: a `/' in a phony
+# name is a naming convention (e.g. CMake's `install', `install/local'), not a
+# directory boundary, so they are never collapsed.  Only the non-phony targets
+# (prefixed by "file:"), which are real filepaths, go through the path
+# collapse.
+#
 # @var[in] cur
 # @var[in] mode
 # @var[in] targets - Array containing the target names.  This array is supposed
@@ -36,13 +42,24 @@ _comp_cmd_make__truncate_non_unique_paths()
     local prefix=$cur
     [[ $mode == -d ]] && prefix=
 
+    COMPREPLY=()
+    local nreply=0
+
     # collect the possible completions including the directory names in
     # `paths' and count the number of children of each subdirectory in
     # `nchild'.
     local -A paths nchild
     local target
     for target in "${targets[@]}"; do
-        local path=${target%/}
+        if [[ $target == phony:* ]]; then
+            # The phony targets are directly added to COMPREPLY without
+            # considering the pathname structures with slashes.
+            COMPREPLY[nreply++]=${target#phony:}
+            continue
+        fi
+
+        local path=${target#file:}
+        path=${path%/}
         while [[ ! ${paths[$path]+set} ]] &&
             paths[$path]=set &&
             [[ $path == "$prefix"*/* ]]; do
@@ -51,8 +68,6 @@ _comp_cmd_make__truncate_non_unique_paths()
         done
     done
 
-    COMPREPLY=()
-    local nreply=0
     for target in "${!paths[@]}"; do
         # generate only the paths that do not have a unique child and whose
         # all parent and ancestor directories have a unique child.
