@@ -44,3 +44,8 @@ VARIABLE_LOOKS_A_BIT_LIKE_A_TARGET := fooled-you
 extra_makefile:
 	touch $@
 include extra_makefile
+
+# foobar is not actually a target, the line is setting target-specific variables
+# not defining a target so it shouldn't show up in the completion list
+fluff:
+foobar: OUCH = glitch
