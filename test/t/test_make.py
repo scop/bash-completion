@@ -37,7 +37,10 @@ class TestMake:
 
     @pytest.mark.complete("make ", cwd="make", require_cmd=True)
     def test_6(self, bash, completion, remove_extra_makefile):
-        assert completion == "all clean extra_makefile install sample".split()
+        assert (
+            completion
+            == "all clean extra_makefile fluff install sample".split()
+        )
 
     @pytest.mark.complete("make .cache/.", cwd="make", require_cmd=True)
     def test_7(self, bash, completion, remove_extra_makefile):
@@ -45,15 +48,42 @@ class TestMake:
 
     @pytest.mark.complete("make -C make ", require_cmd=True)
     def test_8(self, bash, completion, remove_extra_makefile):
-        assert completion == "all clean extra_makefile install sample".split()
+        assert (
+            completion
+            == "all clean extra_makefile fluff install sample".split()
+        )
 
     @pytest.mark.complete("make -nC make ", require_cmd=True)
     def test_8n(self, bash, completion, remove_extra_makefile):
-        assert completion == "all clean extra_makefile install sample".split()
+        assert (
+            completion
+            == "all clean extra_makefile fluff install sample".split()
+        )
 
     @pytest.mark.complete("make -", require_cmd=True)
     def test_9(self, completion):
         assert completion
+
+    @pytest.mark.complete("make f", cwd="make", require_cmd=True)
+    def test_github_pr_1577_1(self, bash, completion, remove_extra_makefile):
+        """The completion should not generate an unmatching target like "all",
+        which appears after the "Not a target" sequence, affected by the
+        leftover state for "foobar".  Otherwise, "fluff" would fail to be
+        completed as the unique completion.
+
+        https://github.com/scop/bash-completion/pull/1577
+        """
+        assert completion == "luff"
+
+    @pytest.mark.complete(
+        "make ba", cwd="make/test_github_pr_1577", require_cmd=True
+    )
+    def test_github_pr_1577_2(self, bash, completion):
+        """Although the "Not a target" version of "foobar: OUCH = glitch"
+        should be excluded, the version with the actual recipe should still be
+        generated.
+        """
+        assert completion == "rbaz"
 
 
 @pytest.mark.bashcomp(require_cmd=True, cwd="make/test2")
