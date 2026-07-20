@@ -569,7 +569,7 @@ _comp_xfunc_scp_compgen_remote_files()
 
     # default to home dir of specified user on remote host
     if [[ ! $_path ]]; then
-        _path=$(ssh -o 'Batchmode yes' "$_userhost" pwd 2>/dev/null)
+        _path=$(ssh -o 'Batchmode yes' "$_userhost" pwd </dev/null 2>/dev/null)
     fi
 
     local _escape_replacement='\\\\\\&'
@@ -579,7 +579,7 @@ _comp_xfunc_scp_compgen_remote_files()
 
     local _files
     _files=$(ssh -o 'Batchmode yes' "$_userhost" \
-        command ls -aF1dL "$_path*" 2>/dev/null |
+        command ls -aF1dL "$_path*" </dev/null 2>/dev/null |
         _comp_cmd_scp__escape_path ${_dirs_only:+'-d'} -- \
             "$_escape_replacement")
     _comp_compgen -R split -l -- "$_files"
