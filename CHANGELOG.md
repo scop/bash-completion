@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.19.0](https://github.com/scop/bash-completion/compare/2.18.0...2.19.0) (2026-07-23)
+
+
+### Features
+
+* **curl:** add more option arg (non-)completions ([ee74f36](https://github.com/scop/bash-completion/commit/ee74f36f2d9c57b1f80cc11cb1dcb48223db7081))
+* **sudo:** recognize --preserve-env taking an arg ([a33deaa](https://github.com/scop/bash-completion/commit/a33deaae8e394111974f07f174048afc6a5fa2e6))
+* **topgrade:** add fallback 3rd party completion loader ([c285005](https://github.com/scop/bash-completion/commit/c2850058a2faa0d496eab7fbdd0e3ceaf2f81d1a))
+* **xh:** add 3rd party fallback completion loader ([f5c4c0d](https://github.com/scop/bash-completion/commit/f5c4c0dbb138091c297dfa5094f71ceb774859b2))
+
+
+### Bug Fixes
+
+* avoid consuming stdin on remote scp/ssh/rsync completion wait ([30f9da8](https://github.com/scop/bash-completion/commit/30f9da8a3bd82dad22f6b271192c55dea7c0336a))
+* **make:** properly skip the "Not a target" block in the helper AWK ([6bb9953](https://github.com/scop/bash-completion/commit/6bb99535d472e5472392729175c3ca009e8a9da2))
+* **sudo:** do not offer completions after --help/--version ([35df24e](https://github.com/scop/bash-completion/commit/35df24e745997d1a8afea2059d19f98e62edbe29))
+
 ## [2.18.0](https://github.com/scop/bash-completion/compare/2.17.0...2.18.0) (2026-07-05)
 
 This release comes with notable changes to the directories used for
