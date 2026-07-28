@@ -688,7 +688,26 @@ _comp_cmd_scp()
     case $cur in
         !(*:*)/* | [.~]*) ;; # looks like a path
         *:*)
-            _comp_xfunc_scp_compgen_remote_files
+            # if scp supports "-O", which forces legacy scp/rcp protocols,
+            # it means it uses the sftp protocol by default, so we need less
+            # escaping.
+            # The change was done in OpenSSH 9.0 [0], see [1]
+            #
+            # [0] https://www.openssh.org/releasenotes.html#9.0
+            # [1] https://github.com/scop/bash-completion/issues/1540
+            local arg legacy_scp=""
+            for arg in "${words[@]}"; do
+                if [[ $arg == -*O* ]]; then
+                    legacy_scp=set
+                    break
+                fi
+            done
+
+            if [[ $legacy_scp || ! $("$1" --usage 2>&1) =~ scp\ \[-[^]]*O ]]; then
+                _comp_xfunc_scp_compgen_remote_files
+            else
+                _comp_xfunc_scp_compgen_remote_files -l
+            fi
             return
             ;;
     esac

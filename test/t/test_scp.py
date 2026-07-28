@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 from itertools import chain
 
@@ -114,30 +115,63 @@ class TestScp:
     def test_remote_path_with_failglob(self, completion):
         assert not completion
 
-    def test_remote_path_with_spaces(self, bash):
+    @pytest.fixture(scope="class")
+    def needs_extra_escaping(self, bash):
+        usage = assert_bash_exec(
+            bash, "scp --usage 2>&1 || :", want_output=True
+        )
+        expr = re.compile(r"scp \[-[^[]+O")
+        if expr.search(usage):
+            return False
+        return True
+
+    def test_explicit_legacy_proto(self, bash):
+        assert_bash_exec(
+            bash, r"ssh() { printf '%s\n' 'abc def.txt' 'abc\ def.txt'; }"
+        )
+        abc_completion = assert_complete(bash, "scp -O remote_host:abc\\")
+        assert abc_completion == sorted(
+            [r"abc\\\ def.txt", r"abc\\\\\\\ def.txt"]
+        )
+
+        assert_bash_exec(bash, r"ssh() { printf '%s\n' 'ends_with_slash\'; }")
+        slash_end_completion = assert_complete(
+            bash, "scp -O remote_host:ends_w"
+        )
+        assert slash_end_completion.output == r"ith_slash\\\\ "
+        assert_bash_exec(bash, "unset -f ssh")
+
+    def test_remote_path_with_spaces(self, bash, needs_extra_escaping):
         assert_bash_exec(bash, "ssh() { echo 'spaces in filename.txt'; }")
         completion = assert_complete(bash, "scp remote_host:spaces")
         assert_bash_exec(bash, "unset -f ssh")
-        assert completion == r"\\\ in\\\ filename.txt"
+        if needs_extra_escaping:
+            assert completion == r"\\\ in\\\ filename.txt"
+        else:
+            assert completion == r"\ in\ filename.txt"
 
-    def test_remote_path_with_backslash(self, bash):
+    def test_remote_path_with_backslash(self, bash, needs_extra_escaping):
         assert_bash_exec(
             bash, r"ssh() { printf '%s\n' 'abc def.txt' 'abc\ def.txt'; }"
         )
         completion = assert_complete(bash, "scp remote_host:abc\\")
         assert_bash_exec(bash, "unset -f ssh")
 
-        # Note: The number of backslash escaping differs depending on the scp
-        # version.
-        assert completion == sorted(
-            [r"abc\ def.txt", r"abc\\\ def.txt"]
-        ) or completion == sorted([r"abc\\\ def.txt", r"abc\\\\\\\ def.txt"])
+        if needs_extra_escaping:
+            assert completion == sorted(
+                [r"abc\\\ def.txt", r"abc\\\\\\\ def.txt"]
+            )
+        else:
+            assert completion == sorted([r"abc\ def.txt", r"abc\\\ def.txt"])
 
-    def test_remote_path_with_backslash_2(self, bash):
+    def test_remote_path_with_backslash_2(self, bash, needs_extra_escaping):
         assert_bash_exec(
             bash, r"ssh() { [[ $1 == abc ]]; printf '%s\n' 'abc OK'; }"
         )
-        completion = assert_complete(bash, "scp remote_host:abc\\\\\\")
+        if needs_extra_escaping:
+            completion = assert_complete(bash, r"scp remote_host:abc\\\ ")
+        else:
+            completion = assert_complete(bash, r"scp remote_host:abc\ ")
         assert_bash_exec(bash, "unset -f ssh")
 
         assert completion == "OK"
@@ -204,11 +238,16 @@ class TestScp:
         )
         assert completion.output == r"file\\ "
 
-    def test_remote_path_ending_with_backslash(self, bash):
+    def test_remote_path_ending_with_backslash(
+        self, bash, needs_extra_escaping
+    ):
         assert_bash_exec(bash, "ssh() { echo 'hypothetical\\'; }")
         completion = assert_complete(bash, "scp remote_host:hypo")
         assert_bash_exec(bash, "unset -f ssh")
-        assert completion.output == r"thetical\\\\ "
+        if needs_extra_escaping:
+            assert completion.output == r"thetical\\\\ "
+        else:
+            assert completion.output == r"thetical\\ "
 
     @pytest.fixture
     def tmpdir_mkfifo(self, bash, tmp_path_factory):
