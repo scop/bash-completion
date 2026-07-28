@@ -7,7 +7,7 @@ from conftest import assert_bash_exec, bash_env_saved
 
 @pytest.mark.bashcomp(
     cmd=None,
-    ignore_env="^[+-](COMPREPLY|BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE)=",
+    ignore_env="^[+-](COMPREPLY|BASH_COMPLETION_KNOWN_HOSTS_WITH_(AVAHI|HOSTFILE))=",
 )
 class TestUnitCompgenKnownHosts:
     @pytest.mark.parametrize(
@@ -23,10 +23,22 @@ class TestUnitCompgenKnownHosts:
         colon_flag,
         hostfile,
     ):
+        if hostfile:
+            base_hosts = hosts_from_hostfile
+            assert_bash_exec(
+                bash,
+                "unset -v BASH_COMPLETION_KNOWN_HOSTS_WITH_AVAHI BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE",
+            )
+        else:
+            base_hosts = hosts_from_avahi
+            assert_bash_exec(
+                bash,
+                "BASH_COMPLETION_KNOWN_HOSTS_WITH_AVAHI=1; BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE=",
+            )
         expected = (
             "%s%s%s" % (prefix, x, ":" if colon_flag else "")
             for x in chain(
-                hosts_from_hostfile if hostfile else hosts_from_avahi,
+                base_hosts,
                 # fixtures/_known_hosts/config
                 "gee hus jar #not-a-comment".split(),
                 # fixtures/_known_hosts/known_hosts
@@ -46,12 +58,6 @@ class TestUnitCompgenKnownHosts:
                     "::42",
                 ),
             )
-        )
-        assert_bash_exec(
-            bash,
-            "unset -v BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE"
-            if hostfile
-            else "BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE=",
         )
         output = assert_bash_exec(
             bash,
