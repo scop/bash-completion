@@ -105,13 +105,13 @@ def part_full_group(
 
 
 @pytest.fixture(scope="class")
-def hosts(bash: pexpect.spawn) -> List[str]:
+def hosts_from_hostfile(bash: pexpect.spawn) -> List[str]:
     output = assert_bash_exec(bash, "compgen -A hostname", want_output=True)
     return sorted(set(output.split()))
 
 
 @pytest.fixture(scope="class")
-def avahi_hosts(bash: pexpect.spawn) -> List[str]:
+def hosts_from_avahi(bash: pexpect.spawn) -> List[str]:
     output = assert_bash_exec(
         bash,
         "! type avahi-browse &>/dev/null || "

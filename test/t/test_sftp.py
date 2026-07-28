@@ -13,10 +13,10 @@ class TestSftp:
         assert completion
 
     @pytest.mark.complete("sftp -F config ", cwd="sftp")
-    def test_hosts(self, hosts, completion):
+    def test_hosts(self, hosts_from_hostfile, completion):
         expected = sorted(
             chain(
-                hosts,
+                hosts_from_hostfile,
                 # From fixtures/sftp/config
                 "gee hut".split(),
                 # From fixtures/sftp/known_hosts
@@ -26,10 +26,10 @@ class TestSftp:
         assert completion == expected
 
     @pytest.mark.complete(r"sftp -F spaced\ \ conf ", cwd="sftp")
-    def test_hosts_spaced_conf(self, hosts, completion):
+    def test_hosts_spaced_conf(self, hosts_from_hostfile, completion):
         expected = sorted(
             chain(
-                hosts,
+                hosts_from_hostfile,
                 # From "fixtures/sftp/spaced  conf"
                 "gee jar".split(),
                 # From fixtures/sftp/known_hosts
