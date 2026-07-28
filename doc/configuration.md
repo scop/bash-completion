@@ -52,7 +52,7 @@ Deprecated alias: `COMP_KNOWN_HOSTS_WITH_AVAHI`
 
 ### `BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE`
 
-If set and not null (default), known hosts completion will complement
+If not set to null (default), known hosts completion will complement
 hostnames from ssh's known_hosts files with hostnames taken from the file
 specified by the `HOSTFILE` shell variable (`compgen -A hostname`). If null,
 known hosts completion will omit hostnames from `HOSTFILE`. Omitting
