@@ -20,7 +20,7 @@ _comp_cmd_sha256sum()
 
     local sumtype=${1##*/}
     sumtype=${sumtype%sum}
-    local sumglob="@(*.$sumtype|@(check|${sumtype})sums?(.txt))"
+    local sumglob="@(*.$sumtype|@(@(check|${sumtype})sums|${sumtype^^}SUMS)?(.txt))"
     compopt -o filenames
 
     local opt
