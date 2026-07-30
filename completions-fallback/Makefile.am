@@ -42,6 +42,7 @@ cross_platform = adb.bash \
 		nvm.bash \
 		pip.bash \
 		pipenv.bash \
+		prek.bash \
 		renice.bash \
 		repomanage.bash \
 		reptyr.bash \
