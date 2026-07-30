@@ -19,13 +19,13 @@ LIVE_HOST = os.environ.get(
 
 class TestScp:
     @pytest.mark.complete("scp -F config ", cwd="scp")
-    def test_basic(self, hosts, completion):
+    def test_basic(self, hosts_from_hostfile, completion):
         expected = sorted(
             chain(
                 (
                     "%s:" % x
                     for x in chain(
-                        hosts,
+                        hosts_from_hostfile,
                         # From fixtures/scp/config
                         "gee hut".split(),
                         # From fixtures/scp/known_hosts
@@ -39,13 +39,13 @@ class TestScp:
         assert completion == expected
 
     @pytest.mark.complete("scp -F 'spaced  conf' ", cwd="scp")
-    def test_basic_spaced_conf(self, hosts, completion):
+    def test_basic_spaced_conf(self, hosts_from_hostfile, completion):
         expected = sorted(
             chain(
                 (
                     "%s:" % x
                     for x in chain(
-                        hosts,
+                        hosts_from_hostfile,
                         # From "fixtures/scp/spaced  conf"
                         "gee jar".split(),
                         # From fixtures/scp/known_hosts

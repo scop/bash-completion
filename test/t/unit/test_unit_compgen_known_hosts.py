@@ -7,7 +7,7 @@ from conftest import assert_bash_exec, bash_env_saved
 
 @pytest.mark.bashcomp(
     cmd=None,
-    ignore_env="^[+-](COMPREPLY|BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE)=",
+    ignore_env="^[+-](COMPREPLY|BASH_COMPLETION_KNOWN_HOSTS_WITH_(AVAHI|HOSTFILE))=",
 )
 class TestUnitCompgenKnownHosts:
     @pytest.mark.parametrize(
@@ -15,12 +15,30 @@ class TestUnitCompgenKnownHosts:
         [("", "", True), ("", "", False), ("user@", "c", True)],
     )
     def test_basic(
-        self, bash, hosts, avahi_hosts, prefix, colon_flag, hostfile
+        self,
+        bash,
+        hosts_from_hostfile,
+        hosts_from_avahi,
+        prefix,
+        colon_flag,
+        hostfile,
     ):
+        if hostfile:
+            base_hosts = hosts_from_hostfile
+            assert_bash_exec(
+                bash,
+                "unset -v BASH_COMPLETION_KNOWN_HOSTS_WITH_AVAHI BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE",
+            )
+        else:
+            base_hosts = hosts_from_avahi
+            assert_bash_exec(
+                bash,
+                "BASH_COMPLETION_KNOWN_HOSTS_WITH_AVAHI=1; BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE=",
+            )
         expected = (
             "%s%s%s" % (prefix, x, ":" if colon_flag else "")
             for x in chain(
-                hosts if hostfile else avahi_hosts,
+                base_hosts,
                 # fixtures/_known_hosts/config
                 "gee hus jar #not-a-comment".split(),
                 # fixtures/_known_hosts/known_hosts
@@ -40,12 +58,6 @@ class TestUnitCompgenKnownHosts:
                     "::42",
                 ),
             )
-        )
-        assert_bash_exec(
-            bash,
-            "unset -v BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE"
-            if hostfile
-            else "BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE=",
         )
         output = assert_bash_exec(
             bash,
@@ -78,8 +90,8 @@ class TestUnitCompgenKnownHosts:
         )
         assert sorted(set(output.strip().split())) == sorted(result.split())
 
-    def test_consecutive_spaces(self, bash, hosts):
-        expected = hosts.copy()
+    def test_consecutive_spaces(self, bash, hosts_from_hostfile):
+        expected = hosts_from_hostfile.copy()
         # fixtures/_known_hosts/spaced  conf
         expected.extend("gee hus #not-a-comment".split())
         # fixtures/_known_hosts/known_hosts2
@@ -96,8 +108,8 @@ class TestUnitCompgenKnownHosts:
         )
         assert sorted(set(output.strip().split())) == sorted(expected)
 
-    def test_files_starting_with_tilde(self, bash, hosts):
-        expected = hosts.copy()
+    def test_files_starting_with_tilde(self, bash, hosts_from_hostfile):
+        expected = hosts_from_hostfile.copy()
         # fixtures/_known_hosts/known_hosts2
         expected.extend("two two2 two3 two4".split())
         # fixtures/_known_hosts/known_hosts3
@@ -117,8 +129,8 @@ class TestUnitCompgenKnownHosts:
 
         assert sorted(set(output.strip().split())) == sorted(expected)
 
-    def test_included_configs(self, bash, hosts):
-        expected = hosts.copy()
+    def test_included_configs(self, bash, hosts_from_hostfile):
+        expected = hosts_from_hostfile.copy()
         # fixtures/_known_hosts/config_include_recursion
         expected.append("recursion")
         # fixtures/_known_hosts/.ssh/config_relative_path
