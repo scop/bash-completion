@@ -97,6 +97,7 @@ class TestUnitCommandOffset:
         assert got == expected_completion
 
     def test_cmd_quoted(self, bash, functions):
+        assert assert_complete(bash, "meta cmd2 ") == self.wordlist
         assert assert_complete(bash, "meta 'cmd2' ") == self.wordlist
 
     def test_cmd_specialchar(self, bash, functions):
