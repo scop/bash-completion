@@ -262,6 +262,7 @@ CLEANFILES = \
 	oras.bash \
 	ory.bash \
 	packer.bash \
+	pass-cli.bash \
 	pip3.bash \
 	pitchfork.bash \
 	pluto.bash \
@@ -538,6 +539,7 @@ symlinks: $(DATA)
 		deno \
 		diesel \
 		dprint \
+		pass-cli \
 		rumdl \
 		rustic \
 		sentry-cli \
