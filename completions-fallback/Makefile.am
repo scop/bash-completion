@@ -149,6 +149,7 @@ CLEANFILES = \
 	dive.bash \
 	dlv.bash \
 	docker.bash \
+	dockerfmt.bash \
 	dpkg-deb.bash \
 	dpkg-query.bash \
 	dprint.bash \
@@ -396,6 +397,7 @@ symlinks: $(DATA)
 		dive \
 		dlv \
 		docker \
+		dockerfmt \
 		driftctl \
 		dyff \
 		encore \
