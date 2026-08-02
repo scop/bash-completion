@@ -14,7 +14,7 @@ _comp_cmd_ssh__compgen_queries()
 # @since 2.12
 _comp_xfunc_ssh_compgen_query()
 {
-    _comp_cmd_ssh__compgen_query ssh "$1"
+    _comp_cmd_ssh__compgen_query "${2:-ssh}" "$1"
 }
 
 # @deprecated 2.12 use _comp_xfunc_ssh_compgen_query
@@ -84,7 +84,7 @@ _comp_xfunc_ssh_compgen_options()
         GSSAPITrustDns PubkeyAcceptedKeyTypes SmartcardDevice UsePrivilegedPort
     )
     local -a protocols
-    _comp_compgen -v protocols -i ssh query ssh protocol-version
+    _comp_compgen -v protocols -i ssh query "${1:-ssh}" protocol-version
     if [[ ${protocols[*]-} == *1* ]]; then
         _opts+=(Cipher CompressionLevel Protocol RhostsRSAAuthentication
             RSAAuthentication)
@@ -235,7 +235,7 @@ _comp_cmd_ssh__compgen_suboption()
 # @since 2.12
 _comp_xfunc_ssh_compgen_suboption_check()
 {
-    _comp_cmd_ssh__compgen_suboption_check ssh
+    _comp_cmd_ssh__compgen_suboption_check "${1:-ssh}"
 }
 
 # @param $1 the ssh executable to invoke
@@ -386,7 +386,7 @@ _comp_cmd_ssh()
     fi
 } &&
     shopt -u hostcomplete &&
-    complete -F _comp_cmd_ssh ssh slogin autossh sidedoor
+    complete -F _comp_cmd_ssh {hpn,}ssh slogin autossh sidedoor
 
 # sftp(1) completion
 #
@@ -450,7 +450,7 @@ _comp_cmd_sftp()
         _comp_compgen_known_hosts ${ipvx:+"$ipvx"} -a ${configfile:+-F "$configfile"}
     fi
 } &&
-    shopt -u hostcomplete && complete -F _comp_cmd_sftp sftp
+    shopt -u hostcomplete && complete -F _comp_cmd_sftp {hpn,}sftp
 
 # things we want to backslash escape in scp paths
 _comp_cmd_scp__path_esc='[][(){}<>"'"'"',:;^&!$=?`\\|[:space:]]'
@@ -735,4 +735,4 @@ _comp_cmd_scp()
 
     _comp_compgen -ax scp local_files "${prefix-}"
 } &&
-    complete -F _comp_cmd_scp -o nospace scp
+    complete -F _comp_cmd_scp -o nospace {hpn,}scp

@@ -43,4 +43,4 @@ _comp_cmd_ssh_add()
 
     _comp_compgen_filedir
 } &&
-    complete -F _comp_cmd_ssh_add ssh-add
+    complete -F _comp_cmd_ssh_add {hpn,}ssh-add

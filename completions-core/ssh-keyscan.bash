@@ -48,4 +48,4 @@ _comp_cmd_ssh_keyscan()
 
     _comp_compgen_known_hosts ${ipvx-}
 } &&
-    complete -F _comp_cmd_ssh_keyscan ssh-keyscan
+    complete -F _comp_cmd_ssh_keyscan {hpn,}ssh-keyscan
