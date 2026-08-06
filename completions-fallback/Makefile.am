@@ -14,6 +14,7 @@ cross_platform = adb.bash \
 		dselect.bash \
 		eject.bash \
 		flamegraph.bash \
+		flutter.bash \
 		gaiacli.bash \
 		gh.bash \
 		golangci-lint.bash \
