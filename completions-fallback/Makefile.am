@@ -106,6 +106,7 @@ CLEANFILES = \
 	asdf.bash \
 	atlas.bash \
 	atmos.bash \
+	awless.bash \
 	bao.bash \
 	bashbot.bash \
 	black.bash \
@@ -365,6 +366,7 @@ symlinks: $(DATA)
 		asdf \
 		atlas \
 		atmos \
+		awless \
 		bashbot \
 		bosh \
 		buf \
