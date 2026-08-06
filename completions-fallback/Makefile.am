@@ -186,6 +186,7 @@ CLEANFILES = \
 	hd.bash \
 	helm.bash \
 	helmfile.bash \
+	herdr.bash \
 	hostctl.bash \
 	httpx.bash \
 	hugo.bash \
@@ -427,6 +428,7 @@ symlinks: $(DATA)
 		gup \
 		helm \
 		helmfile \
+		herdr \
 		hostctl \
 		hugo \
 		imgpkg \
