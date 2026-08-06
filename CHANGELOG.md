@@ -1,5 +1,36 @@
 # Changelog
 
+## [2.19.0](https://github.com/scop/bash-completion/compare/2.18.0...2.19.0) (2026-08-06)
+
+
+### Features
+
+* ***sum:** treat uppercase variant of *sums as checksum file ([941f472](https://github.com/scop/bash-completion/commit/941f4721e4c7f511275f347fd01d56c315236c28))
+* **awless:** add 3rd-party fallback completion loader ([c70b75b](https://github.com/scop/bash-completion/commit/c70b75b8df4f8201e7aa11ccd2e0fbbf7f29cb47))
+* **aws:** add 3rd-party fallback completion loader ([1522dac](https://github.com/scop/bash-completion/commit/1522dacf198c040e15427276bc7a4173e89bdbdb))
+* **curl:** add more option arg (non-)completions ([ee74f36](https://github.com/scop/bash-completion/commit/ee74f36f2d9c57b1f80cc11cb1dcb48223db7081))
+* **dockerfmt:** add fallback 3rd party completion loader ([0f9e255](https://github.com/scop/bash-completion/commit/0f9e255a51505703ae874446457345881454d5dc))
+* **flutter:** add 3rd-party fallback completion loader ([ad988d0](https://github.com/scop/bash-completion/commit/ad988d02626f02abb3f3e2357e86d470edc71086))
+* **go:** add 3rd-party fallback completion loader ([9030f99](https://github.com/scop/bash-completion/commit/9030f992eaf57afa6f90d5f4ad1f99dc6cf21bab))
+* **herdr:** add 3rd-party fallback completion loader ([4097523](https://github.com/scop/bash-completion/commit/40975234ccd0e821d77e49f0458d73ada13e2023))
+* **pass-cli:** add fallback 3rd party completion loader ([e2848b1](https://github.com/scop/bash-completion/commit/e2848b13f5f22e5155d899572861182fe9407706))
+* **pew:** add 3rd-party fallback completion loader ([906735d](https://github.com/scop/bash-completion/commit/906735d9a4654a36875ef2de8421d1959acd262e))
+* **pipx:** add 3rd-party fallback completion loader ([4ad8970](https://github.com/scop/bash-completion/commit/4ad8970a84f6566a020b54ff58996c6466c63448))
+* **prek:** add fallback 3rd party completion loader ([23361e3](https://github.com/scop/bash-completion/commit/23361e37619ad7ccc8775406ce39ebe8288a4f46))
+* **sudo:** recognize --preserve-env taking an arg ([a33deaa](https://github.com/scop/bash-completion/commit/a33deaae8e394111974f07f174048afc6a5fa2e6))
+* **topgrade:** add fallback 3rd party completion loader ([c285005](https://github.com/scop/bash-completion/commit/c2850058a2faa0d496eab7fbdd0e3ceaf2f81d1a))
+* **xh:** add 3rd party fallback completion loader ([f5c4c0d](https://github.com/scop/bash-completion/commit/f5c4c0dbb138091c297dfa5094f71ceb774859b2))
+* **zizmor:** add fallback 3rd party completion loader ([864ce41](https://github.com/scop/bash-completion/commit/864ce415280627dc47d61aa4df1b31a32159f4bd))
+
+
+### Bug Fixes
+
+* avoid consuming stdin on remote scp/ssh/rsync completion wait ([30f9da8](https://github.com/scop/bash-completion/commit/30f9da8a3bd82dad22f6b271192c55dea7c0336a))
+* **make:** offer phony targets as-is instead of collapsing them ([b29d4ea](https://github.com/scop/bash-completion/commit/b29d4ea18c69439d66c8498ed36f64d0f3437a4a)), closes [#1219](https://github.com/scop/bash-completion/issues/1219)
+* **make:** properly skip the "Not a target" block in the helper AWK ([6bb9953](https://github.com/scop/bash-completion/commit/6bb99535d472e5472392729175c3ca009e8a9da2))
+* **scp:** use less remote filename escaping where supported ([d6ad3ce](https://github.com/scop/bash-completion/commit/d6ad3ced9faede3095c1889a156d9041b8b419a2))
+* **sudo:** do not offer completions after --help/--version ([35df24e](https://github.com/scop/bash-completion/commit/35df24e745997d1a8afea2059d19f98e62edbe29))
+
 ## [2.18.0](https://github.com/scop/bash-completion/compare/2.17.0...2.18.0) (2026-07-05)
 
 This release comes with notable changes to the directories used for
