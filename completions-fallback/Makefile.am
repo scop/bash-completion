@@ -270,6 +270,7 @@ CLEANFILES = \
 	packer.bash \
 	pass-cli.bash \
 	pip3.bash \
+	pipx.bash \
 	pitchfork.bash \
 	pluto.bash \
 	pnpm.bash \
@@ -568,6 +569,7 @@ symlinks: $(DATA)
 		ansible-vault \
 		conda \
 		cz \
+		pipx \
 		waydroid
 	$(ss) pip \
 		pip3
