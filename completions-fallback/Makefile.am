@@ -1,5 +1,6 @@
 cross_platform = adb.bash \
 		argc.bash \
+		aws.bash \
 		bombadil.bash \
 		cal.bash \
 		cargo.bash \
