@@ -17,6 +17,7 @@ cross_platform = adb.bash \
 		flutter.bash \
 		gaiacli.bash \
 		gh.bash \
+		go.bash \
 		golangci-lint.bash \
 		gsctl.bash \
 		hexdump.bash \
