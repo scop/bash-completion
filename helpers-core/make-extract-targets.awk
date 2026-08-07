@@ -98,6 +98,7 @@ is_target_block == 0 { next; }
   if (/^\.DEFAULT:/             ) next;
   if (/^\.PRECIOUS:/            ) next;
   if (/^\.INTERMEDIATE:/        ) next;
+  if (/^\.NOTINTERMEDIATE:/     ) next;
   if (/^\.SECONDARY:/           ) next;
   if (/^\.SECONDEXPANSION:/     ) next;
   if (/^\.DELETE_ON_ERROR:/     ) next;
@@ -108,6 +109,7 @@ is_target_block == 0 { next; }
   if (/^\.NOTPARALLEL:/         ) next;
   if (/^\.ONESHELL:/            ) next;
   if (/^\.POSIX:/               ) next;
+  if (/^\.WAIT:/                ) next;
   if (/^\.NOEXPORT:/            ) next;
   if (/^\.MAKE:/                ) next;
 
