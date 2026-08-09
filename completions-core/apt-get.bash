@@ -25,6 +25,48 @@ _comp_cmd_apt_get()
         fi
     done
 
+    local noargopts='!(-*|*[eoct]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --error-on | --help | --version | --option | -${noargopts}[ehvo])
+            return
+            ;;
+        --config-file | -${noargopts}c)
+            _comp_compgen_filedir
+            return
+            ;;
+        --target-release | --default-release | -${noargopts}t)
+            # Prefer `apt-cache` in the same dir as command
+            local pathcmd
+            pathcmd=$(type -P -- "$1") && local PATH=${pathcmd%/*}:$PATH
+            _comp_compgen_split -- "$(apt-cache policy | command sed -ne '
+                s/^ *release.*[ ,]o=Debian,a=\([[:alnum:]]*\).*/\1/p
+                s/^ *release.*[ ,]o=Ubuntu,a=\([[:alnum:]]*\).*/\1/p
+            ')"
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen -- -W '--no-install-recommends --install-suggests
+            --download-only --fix-broken --ignore-missing --fix-missing
+            --no-download --quiet --simulate --just-print --dry-run --recon
+            --no-act --yes --assume-yes --assume-no --no-show-upgraded
+            --verbose-versions --no-list-columns --comment --host-architecture
+            --build-profiles --compile --build --ignore-hold --with-new-pkgs
+            --no-upgrade --only-upgrade --allow-downgrades
+            --allow-remove-essential --allow-change-held-packages
+            --force-yes --print-uris --purge --reinstall --list-cleanup
+            --snapshot --target-release --default-release --trivial-only
+            --mark-auto --no-remove --auto-remove --autoremove --only-source
+            --diff-only --dsc-only --tar-only --arch-only --indep-only
+            --allow-unauthenticated --no-allow-insecure-repositories
+            --allow-releaseinfo-change --show-progress --with-source --error-on
+            --update --help --version --audit --config-file --option
+            --cli-version --no-color --color'
+        return
+    fi
+
     if [[ $special ]]; then
         case $special in
             remove | auto?(-)remove | purge)
@@ -66,50 +108,9 @@ _comp_cmd_apt_get()
         return
     fi
 
-    local noargopts='!(-*|*[eoct]*)'
-    # shellcheck disable=SC2254
-    case $prev in
-        --error-on | --help | --version | --option | -${noargopts}[ehvo])
-            return
-            ;;
-        --config-file | -${noargopts}c)
-            _comp_compgen_filedir
-            return
-            ;;
-        --target-release | --default-release | -${noargopts}t)
-            # Prefer `apt-cache` in the same dir as command
-            local pathcmd
-            pathcmd=$(type -P -- "$1") && local PATH=${pathcmd%/*}:$PATH
-            _comp_compgen_split -- "$(apt-cache policy | command sed -ne '
-                s/^ *release.*[ ,]o=Debian,a=\([[:alnum:]]*\).*/\1/p
-                s/^ *release.*[ ,]o=Ubuntu,a=\([[:alnum:]]*\).*/\1/p
-            ')"
-            return
-            ;;
-    esac
-
-    if [[ $cur == -* ]]; then
-        _comp_compgen -- -W '--no-install-recommends --install-suggests
-            --download-only --fix-broken --ignore-missing --fix-missing
-            --no-download --quiet --simulate --just-print --dry-run --recon
-            --no-act --yes --assume-yes --assume-no --no-show-upgraded
-            --verbose-versions --no-list-columns --comment --host-architecture
-            --build-profiles --compile --build --ignore-hold --with-new-pkgs
-            --no-upgrade --only-upgrade --allow-downgrades
-            --allow-remove-essential --allow-change-held-packages
-            --force-yes --print-uris --purge --reinstall --list-cleanup
-            --snapshot --target-release --default-release --trivial-only
-            --mark-auto --no-remove --auto-remove --autoremove --only-source
-            --diff-only --dsc-only --tar-only --arch-only --indep-only
-            --allow-unauthenticated --no-allow-insecure-repositories
-            --allow-releaseinfo-change --show-progress --with-source --error-on
-            --update --help --version --audit --config-file --option
-            --cli-version --no-color --color'
-    else
-        _comp_compgen -- -W 'update upgrade dist-upgrade dselect-upgrade
-            install reinstall remove purge source build-dep satisfy check
-            download clean autoclean autoremove changelog indextargets'
-    fi
+    _comp_compgen -- -W 'update upgrade dist-upgrade dselect-upgrade
+        install reinstall remove purge source build-dep satisfy check
+        download clean autoclean autoremove changelog indextargets'
 
 } &&
     complete -F _comp_cmd_apt_get apt-get

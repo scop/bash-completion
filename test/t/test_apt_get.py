@@ -14,3 +14,11 @@ class TestAptGet:
     @pytest.mark.complete("apt-get build-dep ")
     def test_build_dep_dirs(self, completion):
         assert "dpkg/" in completion
+
+    @pytest.mark.complete("apt-get install --")
+    def test_options_after_subcommand(self, completion):
+        assert "--no-install-recommends" in completion
+
+    @pytest.mark.complete("apt-get remove --config-file ", cwd="apt-mark")
+    def test_option_argument_after_subcommand(self, completion):
+        assert completion == "example.conf"
