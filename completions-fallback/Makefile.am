@@ -303,6 +303,7 @@ CLEANFILES = \
 	talhelper.bash \
 	tanzu.bash \
 	tanzu-core.bash \
+	taplo.bash \
 	tctl.bash \
 	tendermint.bash \
 	terraform.bash \
@@ -557,7 +558,8 @@ symlinks: $(DATA)
 		rumdl \
 		rustic \
 		sentry-cli \
-		starship
+		starship \
+		taplo
 	$(ss) nox \
 		airflow \
 		ansible \
