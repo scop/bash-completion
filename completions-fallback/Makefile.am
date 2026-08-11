@@ -43,6 +43,7 @@ cross_platform = adb.bash \
 		nmcli.bash \
 		nox.bash \
 		nvm.bash \
+		pandoc.bash \
 		pew.bash \
 		pip.bash \
 		pipenv.bash \
