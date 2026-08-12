@@ -189,8 +189,8 @@ def _sendintr_and_expect_prompt(bash: pexpect.spawn) -> None:
     masking a genuinely broken session: if the second attempt also times
     out, the TIMEOUT still propagates as before.
     """
+    bash.sendintr()
     try:
-        bash.sendintr()
         bash.expect_exact(PS1)
     except pexpect.exceptions.TIMEOUT:
         bash.sendintr()
