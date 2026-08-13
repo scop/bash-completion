@@ -182,6 +182,21 @@ def get_testdir():
     return os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 
 
+def _sendintr_and_expect_prompt(bash: pexpect.spawn) -> None:
+    """Send Ctrl+C and wait for the prompt, retrying once on timeout.
+
+    A lone retry absorbs a transient scheduling/host-load stall without
+    masking a genuinely broken session: if the second attempt also times
+    out, the TIMEOUT still propagates as before.
+    """
+    bash.sendintr()
+    try:
+        bash.expect_exact(PS1)
+    except pexpect.exceptions.TIMEOUT:
+        bash.sendintr()
+        bash.expect_exact(PS1)
+
+
 @pytest.fixture(scope="session")
 def test_session_tmpdir(tmp_path_factory) -> Path:
     tmpdir = tmp_path_factory.mktemp("bash-completion.session.")
@@ -349,8 +364,7 @@ def bash(request, test_session_tmpdir, tmp_path_factory) -> pexpect.spawn:
             # Not exactly sure why, but some errors leave bash in state where
             # getting the env here would fail and trash our test output. So
             # reset to a good state first (Ctrl+C, expect prompt).
-            bash.sendintr()
-            bash.expect_exact(PS1)
+            _sendintr_and_expect_prompt(bash)
             diff_env(
                 before_env,
                 get_env(bash),
@@ -494,8 +508,7 @@ class bash_env_saved:
 
     def _safe_sendintr(self):
         try:
-            self.bash.sendintr()
-            self.bash.expect_exact(PS1)
+            _sendintr_and_expect_prompt(self.bash)
         except Exception as e:
             if self.noexcept:
                 self.captured_error = e
