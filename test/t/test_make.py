@@ -3,8 +3,6 @@ import sys
 
 import pytest
 
-from conftest import assert_complete
-
 
 class TestMake:
     @pytest.fixture
@@ -88,36 +86,36 @@ class TestMake:
 
 @pytest.mark.bashcomp(require_cmd=True, cwd="make/test2")
 class TestMake2:
-    def test_github_issue_544_1(self, bash):
-        completion = assert_complete(bash, "make ab")
+    @pytest.mark.complete("make ab")
+    def test_github_issue_544_1(self, completion):
         assert completion == "c/xyz"
 
-    def test_github_issue_544_2(self, bash):
-        completion = assert_complete(bash, "make 1")
+    @pytest.mark.complete("make 1")
+    def test_github_issue_544_2(self, completion):
         assert completion == "23/"
 
-    def test_github_issue_544_3(self, bash):
-        completion = assert_complete(bash, "make 123/")
+    @pytest.mark.complete("make 123/")
+    def test_github_issue_544_3(self, completion):
         assert completion == ["123/xaa", "123/xbb"]
 
-    def test_github_issue_544_4(self, bash):
-        completion = assert_complete(bash, "make 123/xa")
+    @pytest.mark.complete("make 123/xa")
+    def test_github_issue_544_4(self, completion):
         assert completion == "a"
 
-    def test_subdir_1(self, bash):
-        completion = assert_complete(bash, "make sub1")
+    @pytest.mark.complete("make sub1")
+    def test_subdir_1(self, completion):
         assert completion == "test/bar/"
 
-    def test_subdir_2(self, bash):
-        completion = assert_complete(bash, "make sub2")
+    @pytest.mark.complete("make sub2")
+    def test_subdir_2(self, completion):
         assert completion == "test/bar/alpha"
 
-    def test_subdir_3(self, bash):
-        completion = assert_complete(bash, "make sub3")
+    @pytest.mark.complete("make sub3")
+    def test_subdir_3(self, completion):
         assert completion == "test/"
 
-    def test_subdir_4(self, bash):
-        completion = assert_complete(bash, "make sub4")
+    @pytest.mark.complete("make sub4")
+    def test_subdir_4(self, completion):
         assert completion == "sub4test/bar/ sub4test2/foo/gamma".split()
 
 
@@ -131,9 +129,9 @@ class TestMake3:
     favor of only `MyProgram/fast'.
     """
 
-    def test_all_targets(self, bash):
+    @pytest.mark.complete("make ")
+    def test_all_targets(self, completion):
         """Phony targets are offered as-is, not collapsed as directories."""
-        completion = assert_complete(bash, "make ")
         assert completion == [
             "MyProgram",
             "MyProgram/fast",
@@ -145,27 +143,27 @@ class TestMake3:
             "install/strip",
         ]
 
-    def test_single_child(self, bash):
+    @pytest.mark.complete("make My")
+    def test_single_child(self, completion):
         """`MyProgram' is offered alongside `MyProgram/fast'."""
-        completion = assert_complete(bash, "make My")
         assert completion == ["MyProgram", "MyProgram/fast"]
 
-    def test_single_child_drill_in(self, bash):
-        completion = assert_complete(bash, "make MyProgram/")
+    @pytest.mark.complete("make MyProgram/")
+    def test_single_child_drill_in(self, completion):
         assert completion == "fast"
 
-    def test_multi_child(self, bash):
+    @pytest.mark.complete("make install")
+    def test_multi_child(self, completion):
         """`install' is offered alongside `install/local', `install/strip'."""
-        completion = assert_complete(bash, "make install")
         assert completion == ["install", "install/local", "install/strip"]
 
-    def test_multi_child_drill_in(self, bash):
-        completion = assert_complete(bash, "make install/")
+    @pytest.mark.complete("make install/")
+    def test_multi_child_drill_in(self, completion):
         assert completion == ["install/local", "install/strip"]
 
-    def test_clean(self, bash):
+    @pytest.mark.complete("make clean")
+    def test_clean(self, completion):
         """A second single-child case: `clean' alongside `clean/fast'."""
-        completion = assert_complete(bash, "make clean")
         assert completion == ["clean", "clean/fast"]
 
 
@@ -177,14 +175,12 @@ class TestMakeOptions:
     Run from the fixtures root so the -C/-f paths are relative to it.
     """
 
-    def test_directory_option(self, bash):
-        completion = assert_complete(bash, "make -C make/test3 install")
+    @pytest.mark.complete("make -C make/test3 install")
+    def test_directory_option(self, completion):
         assert completion == ["install", "install/local", "install/strip"]
 
-    def test_file_option(self, bash):
-        completion = assert_complete(
-            bash, "make -f make/test3/Makefile install"
-        )
+    @pytest.mark.complete("make -f make/test3/Makefile install")
+    def test_file_option(self, completion):
         assert completion == ["install", "install/local", "install/strip"]
 
 
@@ -197,25 +193,25 @@ class TestMake4:
     as a plain runnable name.
     """
 
-    def test_all_targets(self, bash):
-        completion = assert_complete(bash, "make ")
+    @pytest.mark.complete("make ")
+    def test_all_targets(self, completion):
         assert completion == ["dir/", "sub/"]
 
-    def test_dir_prep_target_stays_collapsed(self, bash):
+    @pytest.mark.complete("make sub")
+    def test_dir_prep_target_stays_collapsed(self, completion):
         """`sub' is a real directory target, not a phony label, so it is not
         surfaced as a plain name; it stays collapsed to `sub/'."""
-        completion = assert_complete(bash, "make sub")
         assert completion == "/"
         # Collapsed `sub/' must not get a trailing space (nospace is set).
         assert completion.endswith("/")
 
-    def test_dir_prep_drill_in(self, bash):
-        completion = assert_complete(bash, "make sub/")
+    @pytest.mark.complete("make sub/")
+    def test_dir_prep_drill_in(self, completion):
         assert completion == ["sub/a", "sub/b"]
 
-    def test_non_target_prefix_collapses(self, bash):
+    @pytest.mark.complete("make dir")
+    def test_non_target_prefix_collapses(self, completion):
         """`dir' is not a target, only a shared prefix, so it collapses to
         `dir/'."""
-        completion = assert_complete(bash, "make dir")
         assert completion == "/"
         assert completion.endswith("/")

@@ -317,8 +317,8 @@ class TestUnitCompgenFiledir:
             "..folder/",
         ]
 
-    def test_option_X_1(self, bash, functions):
-        completion = assert_complete(bash, "X ", cwd="_filedir/ext")
+    @pytest.mark.complete("X ", cwd="_filedir/ext")
+    def test_option_X_1(self, functions, completion):
         assert completion == sorted("ff.e2 foo/ hh.e2 ii.E1".split())
 
     def test_fallback_1(self, bash, functions):

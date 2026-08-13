@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import assert_bash_exec, assert_complete, bash_env_saved
+from conftest import assert_bash_exec, bash_env_saved
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+COMPREPLY=")
@@ -42,6 +42,6 @@ class TestUtilCompgenCommands:
             )
         assert (output.strip() == "") == result_empty
 
-    def test_spaces(self, bash, functions):
-        completion = assert_complete(bash, "ccc shared/default/bar")
+    @pytest.mark.complete("ccc shared/default/bar")
+    def test_spaces(self, functions, completion):
         assert completion == r"\ bar.d/"
