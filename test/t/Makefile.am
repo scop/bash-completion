@@ -133,6 +133,7 @@ EXTRA_DIST = \
 	test_dfutool.py \
 	test_dhclient.py \
 	test_dict.py \
+	test_dig.py \
 	test_diff.py \
 	test_dir.py \
 	test_display.py \
