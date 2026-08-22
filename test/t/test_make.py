@@ -215,3 +215,22 @@ class TestMake4:
         `dir/'."""
         assert completion == "/"
         assert completion.endswith("/")
+
+
+@pytest.mark.bashcomp(require_cmd=True, cwd="make/test5")
+class TestMakeSpecialTargets:
+    """The special-target skip list must exclude `.NOTINTERMEDIATE' and `.WAIT'
+    (GNU make 4.4), like the other special targets it already filters."""
+
+    @pytest.mark.complete("make .NOT")
+    def test_notintermediate_filtered(self, completion):
+        """`.NOTINTERMEDIATE' is a special target, so it must not leak into
+        completion on a dotted prefix such as `make .NOT<TAB>'."""
+        assert not completion
+
+    @pytest.mark.complete("make .WA")
+    def test_wait_filtered(self, completion):
+        """`.WAIT' is a special target.  The portability idiom of an explicit
+        empty `.WAIT' rule makes it a target block in `make -npq', so it must
+        not leak into completion on `make .WA<TAB>'."""
+        assert not completion
