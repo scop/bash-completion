@@ -1,0 +1,197 @@
+# setxkbmap(1) completion		-*- shell-script -*-
+
+# $1: the type of data to extract from rules/*.lst files
+# (layout, model, variant, option, ...)
+# $2: optional: files to process (absolutes paths)
+_setxkbmap_extract_data() {
+    [[ -z $1 ]] && return;
+    local files=/usr/share/X11/xkb/rules/*.lst
+    local regexp="
+/! $1/{		# find the line containing '! <data>, eg "layout", "variant", ... '
+n;		# skip it
+:a;		# label
+/^!/q;		# '!' line => quit
+p; n; b a;	# print, go next line, loop to ':a'
+}"
+    sed -n "$regexp" ${2:-$files}|awk '{print $1}'
+}
+
+_setxkbmap_get_layout() {
+    local let i=1
+    for (( i=1; i < ((${#COMP_WORDS[@]}-1)); i++)); do
+        # -layout specified
+        [[ ${COMP_WORDS[$i]} = -layout ]] && echo ${COMP_WORDS[(($i+1))]} && return 0
+        # skip these options
+        [[ ${COMP_WORDS[$i]} =~ -compat|-symbols|-types|-\?|-help|-print|-query|synch ]] && continue
+        # skip these options and their value
+        [[ ${COMP_WORDS[$i]} = -* ]] && ((i++)) && continue;
+        # hopefully here it is:
+        echo ${COMP_WORDS[$i]} && return 0
+    done
+    # it may be here (as the last argument of the command line)
+    # but we may be currently in the process of completing it, so: forget
+    # [[ ${COMP_WORDS[$i]} && ${COMP_WORDS[$i]} != -* ]] && echo ${COMP_WORDS[$i]} && return 0
+
+    # not found
+    return 1
+}
+
+# $1: mandatory the current value for "layout", it will help
+# in the search for the variant
+_setxkbmap_get_variant() {
+    [[ -z $1 ]] && return 1
+    local let i=1 found_layout=0
+    for (( i=1; i < ((${#COMP_WORDS[@]}-1)); i++)); do
+        # -variant specified
+        [[ ${COMP_WORDS[$i]} = -variant ]] && echo ${COMP_WORDS[(($i+1))]} && return 0
+        [[ ${COMP_WORDS[$i]} = $1 ]] && found_layout=1 && continue
+        # still behind the value of the layout, variant is still far away in the command line
+        [[ found_layout -eq 0 ]] && continue
+        # hopefully it is here:
+        echo ${COMP_WORDS[$i]} && return 0
+    done
+    # it may be here (as the last argument of the command line)
+    # but we may be currently in the process of completing it, so: forget
+    # [[ ${COMP_WORDS[$i]} && ${COMP_WORDS[$i]} != -* ]] && echo ${COMP_WORDS[$i]} && return 0
+
+    # not found
+    return 1
+}
+
+# $1: mandatory the current value for "variant", it will help
+# in the search for the option
+_setxkbmap_get_option() {
+    [[ -z $1 ]] && return 1
+    local i found_variant=0
+    for (( i=1; i < ((${#COMP_WORDS[@]}-1)); i++)); do
+        # -variant specified
+        [[ ${COMP_WORDS[$i]} = -option ]] && echo ${COMP_WORDS[(($i+1))]} && return 0
+        [[ ${COMP_WORDS[$i]} = $1 ]] && found_variant=1 && continue
+        # still behind the value of the variant, variant is still far away in the command line
+        [[ found_variant -eq 0 ]] && continue
+        # hopefully it is here:
+        echo ${COMP_WORDS[$i]} && return 0
+    done
+    # it may be here (as the last argument of the command line)
+    # but we may be currently in the process of completing it, so: forget
+    # [[ ${COMP_WORDS[$i]} && ${COMP_WORDS[$i]} != -* ]] && echo ${COMP_WORDS[$i]} && return 0
+
+    # not found
+    return 1
+}
+
+_setxkbmap()
+{
+    local cur prev words cword
+    _init_completion || return
+
+    local Xdir=/usr/share/X11/xkb
+    local current_layout current_variant current_option
+
+    case $prev in
+        -v|-verbose)
+            COMPREPLY=( $( compgen -W '{0..10}' -- "$cur" ) )
+            return 0
+            ;;
+        -config)
+            _filedir
+            return 0
+            ;;
+        -I)
+            _filedir -d
+            return 0
+            ;;
+
+        -layout)
+            #COMPREPLY=( $( compgen -W "$(command ls $Xdir/symbols/)" -- "$cur" ) )
+            COMPREPLY=( $( compgen -W "$(_setxkbmap_extract_data layout)" -- "$cur" ) )
+            return 0
+            ;;
+        -model)
+            # TODO: _setxkbmap_get_layout, then find the "files" to use
+            COMPREPLY=( $( compgen -W "$(_setxkbmap_extract_data model)" -- "$cur" ) )
+            return 0
+            ;;
+        -variant)
+            # TODO: _setxkbmap_get_layout, then find the "files" to use
+            COMPREPLY=( $( compgen -W "$(_setxkbmap_extract_data variant)" -- "$cur" ) )
+            return 0
+            ;;
+        -option)
+            # TODO: options contains ':'; remove this export the day bash support a per-completion value
+	    export COMP_WORDBREAKS=${COMP_WORDBREAKS//:/}
+            # TODO: _setxkbmap_get_layout, then find the "files" to use
+            COMPREPLY=( $( compgen -W "$(_setxkbmap_extract_data option)" -- "$cur" ) )
+            return 0
+            ;;
+
+        -keycodes)
+            #COMPREPLY=( $( compgen -W "$(command ls $Xdir/keycodes/|sed '/^README/d')" -- "$cur" ) )
+            COMPREPLY=( $( compgen -W "$(sed -n 's/.*xkb_keycodes "\(.*\)".*/\1/p' $(grep -lw xkb_keycodes $Xdir/keycodes/*)|sort -u)" -- "$cur" ) )
+            return 0
+            ;;
+        -keymap)
+            COMPREPLY=( $( compgen -W "$(command ls $Xdir/keymap/|sed '/^README/d')" -- "$cur" ) )
+            return 0
+            ;;
+        -geometry)
+            #COMPREPLY=( $( compgen -W "$(command ls $Xdir/geometry/|sed '/^README/d')" -- "$cur" ) )
+            COMPREPLY=( $( compgen -W "$(sed -n 's/.*xkb_geometry "\(.*\)".*/\1/p' $(grep -lw xkb_geometry $Xdir/geometry/*)|sort -u)" -- "$cur" ) )
+            return 0
+            ;;
+        -rules)
+            COMPREPLY=( $( compgen -W "$(command ls $Xdir/rules/|sed -ne '/lst/s/\.lst$//p')" -- "$cur" ) )
+            return 0
+            ;;
+        -display)
+            type -P xauth &>/dev/null && COMPREPLY=( $( compgen -W "$(xauth -n list|sed -n 's/^[^:]*\(:[0-9]\{1,\}\).*/\1/p'|sort -u)" -- "$cur" ) )
+            return 0
+            ;;
+        -device)
+            type -P xinput &>/dev/null && COMPREPLY=( $( compgen -W "$(xinput list --short|sed -n '/keyboard/s/.*id=\([0-9]\{1,\}\).*/\1/p')" -- "$cur" ) )
+            return 0
+            ;;
+        -compat|-symbols|-types)
+            return 0;
+            ;;
+        # -\?|-help|-print|-query|synch  # don't take arg
+    esac
+
+    if [[ "$cur" == -* ]]; then
+        COMPREPLY=( $( compgen -W '$(_parse_help $1 -help) -help -verbose' -- "$cur" ) )
+        return 0
+    fi
+
+    current_layout=$(_setxkbmap_get_layout)
+    # "layout" not (yet) found on the command line, just offer available completion for it
+    if [[ $? -ne 0 ]]; then
+        COMPREPLY=( $( compgen -W "$(_setxkbmap_extract_data layout)" -- "$cur" ) )
+    # "layout" found, has "variant" already been specified too ?
+    else
+        current_variant=$(_setxkbmap_get_variant $current_layout)
+        if [[ $? -ne 0 ]]; then
+            COMPREPLY=( $( compgen -W "$(_setxkbmap_extract_data variant)" -- "$cur" ) )
+        else
+            current_option=$(_setxkbmap_get_option $current_variant)
+            [[ $? -ne 0 ]] && {
+                # TODO: options contains ':'; remove this export the day bash
+                # supports a per-completion value COMP_WORDBREAKS value
+	        export COMP_WORDBREAKS=${COMP_WORDBREAKS//:/}
+                COMPREPLY=( $( compgen -W "$(_setxkbmap_extract_data option)" -- "$cur" ) )
+            }
+        fi
+    fi
+
+    COMPREPLY+=( $( compgen -W '-' -- "$cur" ) )
+    [[ "${#COMPREPLY}" -eq 1 ]] && compopt -o nospace
+    return 0
+} &&
+complete -F _setxkbmap setxkbmap
+
+# Local variables:
+# mode: shell-script
+# sh-basic-offset: 4
+# sh-indent-comment: t
+# indent-tabs-mode: nil
+# End:
+# ex: ts=4 sw=4 et filetype=sh
