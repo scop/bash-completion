@@ -132,4 +132,30 @@ class TestTar:
     def test_25(self, completion):
         assert completion == "archive.tar.xz dir/ dir2/".split()
 
+    # Test combined short options with bsdtar (POSIX style), e.g. "bsdtar -tf"
+    @pytest.mark.complete("bsdtar -tf ", cwd="bsdtar")
+    def test_26(self, completion):
+        assert completion == "test.pax test.rar".split()
+
+    @pytest.mark.complete("bsdtar -f ", cwd="bsdtar")
+    def test_27(self, completion):
+        assert completion == "test.pax test.shar".split()
+
+    # Test combined short options with star (same POSIX completion function)
+    @pytest.mark.complete("star -tf ", cwd="tar")
+    def test_28(self, completion):
+        assert completion == "archive.tar.xz dir/ dir2/ escape.tar".split()
+
+    # The file argument of a combined short option in create mode only
+    # completes directories, like plain -cf
+    @pytest.mark.complete("bsdtar -cf ", cwd="tar")
+    def test_29(self, completion):
+        assert completion == "dir/ dir2/".split()
+
+    # The compression letter restricts the archive extensions; there is no
+    # .gz fixture, so only directories may show up
+    @pytest.mark.complete("bsdtar -tzf ", cwd="tar")
+    def test_30(self, completion):
+        assert completion == "dir/ dir2/".split()
+
     # TODO: "tar tf escape.tar a/b"
