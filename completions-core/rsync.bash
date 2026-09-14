@@ -122,4 +122,4 @@ _comp_cmd_rsync()
             ;;
     esac
 } &&
-    complete -F _comp_cmd_rsync -o nospace rsync
+    complete -F _comp_cmd_rsync -o nospace rsync{,,-*}
