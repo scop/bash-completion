@@ -2292,9 +2292,13 @@ _comp__init_set_up_service_completions
 _comp_compgen_kernel_modules()
 {
     local _modpath=/lib/modules/$1
-    _comp_compgen_split -- "$(command ls -RL "$_modpath" 2>/dev/null |
-        command sed -ne 's/^\(.*\)\.k\{0,1\}o\(\.[gx]z\)\{0,1\}$/\1/p' \
-            -e 's/^\(.*\)\.ko\.zst$/\1/p')"
+    # Use find without following symlinks (no -L) to avoid traversing
+    # into build/source symlinks that point to the full kernel tree.
+    _comp_compgen_split -- "$(command find "$_modpath" \
+        -name '*.ko' -o -name '*.ko.gz' -o -name '*.ko.xz' \
+        -o -name '*.ko.zst' 2>/dev/null |
+        command sed -e 's/.*\///' \
+            -e 's/\.ko\(\.\(gz\|xz\|zst\)\)\{0,1\}$//')"
 }
 
 # This function completes on inserted kernel modules
