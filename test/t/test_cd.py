@@ -63,3 +63,11 @@ class TestCd:
             "foo.d/",
             "ld.so.conf.d/",
         ]
+
+    @pytest.mark.complete(
+        "cd foo.d", cwd="shared/default", env=dict(CDPATH=".")
+    )
+    def test_cdpath_dir_in_cwd_not_duplicated(self, completion):
+        # A directory of the current directory reachable through CDPATH as
+        # well used to be offered twice, as "foo.d/" and "foo.d//".
+        assert completion == "/"
