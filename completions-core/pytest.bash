@@ -115,7 +115,7 @@ _comp_cmd_pytest()
                 COMPREPLY+=("${BASH_REMATCH[2]}")
             fi
         done 2>/dev/null <"$file"
-        ((!${#COMPREPLY[@]})) ||
+        ((! ${#COMPREPLY[@]})) ||
             _comp_compgen -c "${cur##*:?(:)}" -- -P "$file::$class::" \
                 -W '"${COMPREPLY[@]}"'
         _comp_ltrim_colon_completions "$cur"
@@ -129,7 +129,7 @@ _comp_cmd_pytest()
                 COMPREPLY+=("${BASH_REMATCH[2]}")
             fi
         done 2>/dev/null <"$file"
-        ((!${#COMPREPLY[@]})) ||
+        ((! ${#COMPREPLY[@]})) ||
             _comp_compgen -c "${cur##*.py:?(:)}" -- -P "$file::" \
                 -W '"${COMPREPLY[@]}"'
         _comp_ltrim_colon_completions "$cur"
