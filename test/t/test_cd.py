@@ -71,3 +71,9 @@ class TestCd:
         # A directory of the current directory reachable through CDPATH as
         # well used to be offered twice, as "foo.d/" and "foo.d//".
         assert completion == "/"
+
+    @pytest.mark.complete(
+        r"cd bar\ bar", cwd="shared/default", env=dict(CDPATH=".")
+    )
+    def test_cdpath_dir_in_cwd_with_space(self, completion):
+        assert completion == ".d/"
