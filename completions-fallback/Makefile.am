@@ -300,6 +300,7 @@ CLEANFILES = \
 	sshi.bash \
 	starship.bash \
 	steampipe.bash \
+	svu.bash \
 	syft.bash \
 	talhelper.bash \
 	tanzu.bash \
@@ -523,6 +524,7 @@ symlinks: $(DATA)
 		sshi \
 		ssh-inscribe \
 		steampipe \
+		svu \
 		syft \
 		talhelper \
 		tanzu \
