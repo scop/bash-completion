@@ -41,6 +41,7 @@ cross_platform = adb.bash \
 		mtr.bash \
 		newgrp.bash \
 		nmcli.bash \
+		node.bash \
 		nox.bash \
 		nvm.bash \
 		pandoc.bash \
