@@ -790,6 +790,7 @@ _comp_cmd_tar__posix()
 
     _comp_cmd_tar__adjust_PREV_from_old_option
 
+    _comp_cmd_tar__cleanup_prev
     _comp_cmd_tar__posix_prev_handle && return
 
     _comp_cmd_tar__try_mode && return
