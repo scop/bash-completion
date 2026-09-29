@@ -1,16 +1,8 @@
-DEJATOOL = completion install unit
-AM_RUNTESTFLAGS = --outdir log --ignore $(PACKAGE).log
+SUBDIRS = t
 
-EXTRA_DIST = completion \
-	     config \
+EXTRA_DIST = config \
 	     fixtures \
-	     lib \
-	     unit
+	     setup.cfg
 
-all:
-	$(MKDIR_P) log tmp
-
-distclean-local:
-	rm -rf log tmp
-
-AUTOMAKE_OPTIONS = dejagnu
+CLEANFILES = \
+	fixtures/make/extra_makefile

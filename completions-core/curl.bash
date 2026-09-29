@@ -1,0 +1,185 @@
+# curl(1) completion
+
+_comp_cmd_curl()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -n : -- "$@" || return
+
+    local noargopts='!(-*|*[KbcDoTCFmQreYytzuAwEdHPxX]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --abstract-unix-socket | --alt-svc | --config | --cookie | \
+            --cookie-jar | --dump-header | --egd-file | --etag-compare | \
+            --etag-save | --hsts | --key | --knownhosts | --libcurl | \
+            --netrc-file | --output | --proxy-key | --random-file | \
+            --ssl-sessions | --unix-socket | --upload-file | \
+            -${noargopts}[KbcDoT])
+            _comp_compgen_filedir
+            return
+            ;;
+        --aws-sigv4 | --ciphers | --connect-timeout | --connect-to | \
+            --continue-at | --create-file-mode | --curves | --data-raw | \
+            --doh-url | --expect100-timeout | --form | --form-string | \
+            --ftp-account | --ftp-alternative-to-user | --haproxy-clientip | \
+            --happy-eyeballs-timeout-ms | --hostpubmd5 | --hostpubsha256 | \
+            --ip-tos | --ipfs-gateway | --keepalive-cnt | --keepalive-time | \
+            --limit-rate | --local-port | --login-options | --mail-auth | \
+            --mail-from | --mail-rcpt | --max-filesize | --max-redirs | \
+            --max-time | --oauth2-bearer | --parallel-max | \
+            --parallel-max-host | --pass | --proto | --proto-redir | \
+            --proxy-ciphers | --proxy-pass | --proxy-service-name | \
+            --proxy-tls13-ciphers | --proxy-tlspassword | --proxy-tlsuser | \
+            --proxy-user | --proxy1.0 | --quote | --range | --rate | \
+            --referer | --request-target | --resolve | --retry | \
+            --retry-delay | --retry-max-time | --sasl-authzid | \
+            --service-name | --sigalgs | --socks5-gssapi-service | \
+            --speed-limit | --speed-time | --telnet-option | --tftp-blksize | \
+            --time-cond | --tls13-ciphers | --trace-config | --tlspassword | \
+            --tlsuser | --upload-flags | --url | --url-query | --user | \
+            --user-agent | --variable | --version | --vlan-priority | \
+            -${noargopts}[CFmQreYytzuAV])
+            return
+            ;;
+        --cacert | --cert | --proxy-cacert | --proxy-cert | -${noargopts}E)
+            _comp_compgen_filedir '@(c?(e)rt|cer|pem|der)'
+            return
+            ;;
+        --capath | --output-dir | --proxy-capath)
+            _comp_compgen_filedir -d
+            return
+            ;;
+        --cert-type | --key-type | --proxy-cert-type | --proxy-key-type)
+            local -a types=(DER PEM ENG)
+            if [[ $prev == --cert-type ]]; then
+                types+=(PROV P12)
+            fi
+            _comp_compgen -- -W '"${types[@]}"'
+            return
+            ;;
+        --crlfile | --proxy-crlfile)
+            _comp_compgen_filedir crl
+            return
+            ;;
+        --data | --data-ascii | --data-binary | --data-urlencode | --json | \
+            --header | --proxy-header | --write-out | -${noargopts}[dHw])
+            if [[ $cur == \@* ]]; then
+                _comp_compgen -P @ filedir
+                _comp_compgen -aP @ -- -W '-'
+            fi
+            return
+            ;;
+        --delegation)
+            _comp_compgen -- -W 'none policy always'
+            return
+            ;;
+        --dns-interface)
+            _comp_compgen_available_interfaces -a
+            return
+            ;;
+        --dns-ipv[46]-addr)
+            _comp_compgen_ip_addresses -"${prev:9:1}"
+            return
+            ;;
+        --dns-servers | --noproxy)
+            _comp_compgen -c "${cur##*,}" known_hosts
+            ((${#COMPREPLY[@]})) &&
+                _comp_delimited , -W '"${COMPREPLY[@]}"'
+            return
+            ;;
+        --ech)
+            _comp_compgen -- -W 'false grease true hard ecl: pn:'
+            [[ ${COMPREPLY-} == *: ]] && compopt -o nospace
+            _comp_ltrim_colon_completions "$cur"
+            return
+            ;;
+        --engine)
+            local engines=$(
+                "$1" --engine list 2>/dev/null |
+                    command grep "^[[:space:]]"
+            )
+            _comp_compgen -- -W '$engines list'
+            return
+            ;;
+        --ftp-port | -${noargopts}P)
+            _comp_compgen_available_interfaces -a
+            _comp_compgen -a known_hosts
+            _comp_compgen -a ip_addresses -a
+            return
+            ;;
+        --ftp-method)
+            _comp_compgen -- -W 'multicwd nocwd singlecwd'
+            return
+            ;;
+        --ftp-ssl-ccc-mode)
+            _comp_compgen -- -W 'active passive'
+            return
+            ;;
+        --interface)
+            _comp_compgen_available_interfaces -a
+            _comp_compgen -a ip_addresses -a
+            return
+            ;;
+        --help | -${noargopts}h)
+            local x categories
+            if _comp_split categories "$("$1" --help non-existent-category 2>&1 |
+                _comp_awk '/^[ \t]/ {print $1}')"; then
+                for x in "${categories[@]}"; do
+                    # Looks like an option? Likely no --help category support
+                    [[ $x != -* ]] || return
+                done
+                _comp_compgen -- -W '"${categories[@]}" category all'
+            fi
+            return
+            ;;
+        --krb)
+            _comp_compgen -- -W 'clear safe confidential private'
+            return
+            ;;
+        --pinnedpubkey | --proxy-pinnedpubkey)
+            _comp_compgen_filedir '@(pem|der|key)'
+            return
+            ;;
+        --preproxy | --proxy | --socks4 | --socks4a | --socks5 | \
+            --socks5-hostname | -${noargopts}x)
+            _comp_compgen_known_hosts
+            return
+            ;;
+        --proto-default)
+            _comp_compgen_split "$("$1" --version 2>/dev/null | command sed -n 's/Protocols://p')"
+            ;;
+        --pubkey)
+            _comp_compgen -x ssh identityfile pub
+            return
+            ;;
+        --request | -${noargopts}X)
+            # TODO: these are valid for http(s) only
+            _comp_compgen -- -W 'GET HEAD POST PUT DELETE CONNECT OPTIONS TRACE
+                PATCH'
+            return
+            ;;
+        --stderr)
+            _comp_compgen -- -W '-'
+            _comp_compgen -a filedir
+            return
+            ;;
+        --tls-max)
+            _comp_compgen -- -W 'default 1.0 1.1 1.2 1.3'
+            return
+            ;;
+        --tlsauthtype | --proxy-tlsauthtype)
+            _comp_compgen -- -W 'SRP'
+            return
+            ;;
+        --trace | --trace-ascii)
+            _comp_compgen -- -W '% -'
+            _comp_compgen -a filedir
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- --help all
+        [[ ${COMPREPLY-} ]] || _comp_compgen_help
+    fi
+} &&
+    complete -F _comp_cmd_curl curl curlie

@@ -1,0 +1,51 @@
+# gprof(1) completion
+
+_comp_cmd_gprof()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    case $cur in
+        -A* | -C* | -J* | -p* | -P* | -q* | -Q* | -n* | -N* | -d*)
+            return
+            ;;
+        -S*)
+            _comp_compgen -P "-S" filedir
+            return
+            ;;
+        -O*)
+            _comp_compgen -P "-O" -- -W 'auto bsd 4.4bsd magic
+                prof'
+            return
+            ;;
+    esac
+
+    case $prev in
+        -I | --directory-path)
+            _comp_compgen_filedir -d
+            return
+            ;;
+        -R | --file-ordering | --external-symbol-table)
+            _comp_compgen_filedir
+            return
+            ;;
+        -w | --width | -k | -m | --min-count | -h | --help | -e | -E | -f | -F)
+            return
+            ;;
+        --file-format)
+            _comp_compgen -- -W 'auto bsd 4.4bsd magic prof'
+            return
+            ;;
+    esac
+
+    [[ $was_split ]] && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_usage
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _comp_compgen_filedir
+} &&
+    complete -F _comp_cmd_gprof gprof

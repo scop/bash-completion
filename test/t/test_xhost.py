@@ -1,0 +1,20 @@
+import pytest
+
+from conftest import assert_complete, partialize
+
+
+@pytest.mark.bashcomp(pre_cmds=("HOME=$PWD",))
+class TestXhost:
+    @pytest.mark.parametrize("prefix", ["+", "-", ""])
+    def test_hosts(self, bash, hosts_from_hostfile, prefix):
+        completion = assert_complete(bash, "xhost %s" % prefix)
+        assert completion == [f"{prefix}{x}" for x in hosts_from_hostfile]
+
+    @pytest.mark.parametrize("prefix", ["+", "-", ""])
+    def test_partial_hosts(self, bash, hosts_from_hostfile, prefix):
+        first_char, partial_hosts = partialize(bash, hosts_from_hostfile)
+        completion = assert_complete(bash, f"xhost {prefix}{first_char}")
+        if len(completion) == 1:
+            assert completion == partial_hosts[0][1:]
+        else:
+            assert completion == sorted(f"{prefix}{x}" for x in partial_hosts)

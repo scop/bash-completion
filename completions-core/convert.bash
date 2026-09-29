@@ -1,0 +1,320 @@
+# bash completion for ImageMagick
+
+_comp_cmd_convert__common_options()
+{
+    case $prev in
+        -channel)
+            _comp_compgen -- -W 'Red Green Blue Opacity Matte Cyan Magenta
+                Yellow Black'
+            return
+            ;;
+        -colormap)
+            _comp_compgen -- -W 'shared private'
+            return
+            ;;
+        -colorspace)
+            _comp_compgen -- -W 'GRAY OHTA RGB Transparent XYZ YCbCr YIQ YPbPr
+                YUV CMYK'
+            return
+            ;;
+        -compose)
+            _comp_compgen -- -W 'Over In Out Atop Xor Plus Minus Add Subtract
+                Difference Multiply Bumpmap Copy CopyRed CopyGreen CopyBlue
+                CopyOpacity'
+            return
+            ;;
+        -compress)
+            _comp_compgen -- -W 'None BZip Fax Group4 JPEG Lossless LZW RLE
+                Zip'
+            return
+            ;;
+        -dispose)
+            _comp_compgen -- -W 'Undefined None Background Previous'
+            return
+            ;;
+        -encoding)
+            _comp_compgen -- -W 'AdobeCustom AdobeExpert AdobeStandard
+                AppleRoman BIG5 GB2312 Latin2 None SJIScode Symbol Unicode
+                Wansung'
+            return
+            ;;
+        -endian)
+            _comp_compgen -- -W 'MSB LSB'
+            return
+            ;;
+        -filter)
+            _comp_compgen -- -W 'Point Box Triangle Hermite Hanning Hamming
+                Blackman Gaussian Quadratic Cubic Catrom Mitchell Lanczos
+                Bessel Sinc'
+            return
+            ;;
+        -format)
+            # FIXME: We should probably accept the actual command being used
+            # here and run that, instead of calling `magick` or `convert`
+            # explicitly.
+            # `magick` is the new way to call the command in ImageMagick 7
+            _comp_compgen_split -- "$({
+                magick -list format 2>/dev/null || convert -list format
+            } | _comp_awk \
+                '/ [r-][w-][+-] / { sub("[*]$","",$1); print tolower($1) }')"
+            return
+            ;;
+        -gravity)
+            _comp_compgen -- -W 'Northwest North NorthEast West Center East
+                SouthWest South SouthEast'
+            return
+            ;;
+        -intent)
+            _comp_compgen -- -W 'Absolute Perceptual Relative Saturation'
+            return
+            ;;
+        -interlace)
+            _comp_compgen -- -W 'None Line Plane Partition'
+            return
+            ;;
+        -limit)
+            _comp_compgen -- -W 'Disk File Map Memory'
+            return
+            ;;
+        -list)
+            _comp_compgen -- -W 'Delegate Format Magic Module Resource Type'
+            return
+            ;;
+        -map)
+            _comp_compgen -- -W 'best default gray red green blue'
+            _comp_compgen -a filedir
+            return
+            ;;
+        -noise)
+            _comp_compgen -- -W 'Uniform Gaussian Multiplicative Impulse
+                Laplacian Poisson'
+            return
+            ;;
+        -preview)
+            _comp_compgen -- -W 'Rotate Shear Roll Hue Saturation Brightness
+                Gamma Spiff Dull Grayscale Quantize Despeckle ReduceNoise
+                AddNoise Sharpen Blur Threshold EdgeDetect Spread Shade Raise
+                Segment Solarize Swirl Implode Wave OilPaint CharcoalDrawing
+                JPEG'
+            return
+            ;;
+        -mask | -profile | -texture | -tile | -write)
+            _comp_compgen_filedir
+            return
+            ;;
+        -type)
+            _comp_compgen -- -W 'Bilevel Grayscale Palette PaletteMatte
+                TrueColor TrueColorMatte ColorSeparation ColorSeparationlMatte
+                Optimize'
+            return
+            ;;
+        -units)
+            _comp_compgen -- -W 'Undefined PixelsPerInch PixelsPerCentimeter'
+            return
+            ;;
+        -virtual-pixel)
+            _comp_compgen -- -W 'Constant Edge mirror tile'
+            return
+            ;;
+        -visual)
+            _comp_compgen -- -W 'StaticGray GrayScale StaticColor PseudoColor
+                TrueColor DirectColor default visualid'
+            return
+            ;;
+    esac
+
+    return 1
+}
+
+_comp_cmd_convert()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    _comp_cmd_convert__common_options && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- -help
+    elif [[ $cur == +* ]]; then
+        _comp_compgen -- -W '+adjoin +append +compress +contrast +debug +dither
+            +endian +gamma +label +map +mask +matte +negate +noise +page +raise
+            +render +write'
+    else
+        _comp_compgen_filedir
+    fi
+} &&
+    complete -F _comp_cmd_convert convert
+
+_comp_cmd_mogrify()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    _comp_cmd_convert__common_options && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- -help
+    elif [[ $cur == +* ]]; then
+        _comp_compgen -- -W '+compress +contrast +debug +dither +endian +gamma
+            +label +map +mask +matte +negate +page +raise'
+    else
+        _comp_compgen_filedir
+    fi
+} &&
+    complete -F _comp_cmd_mogrify mogrify
+
+_comp_cmd_display()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    _comp_cmd_convert__common_options && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- -help
+    elif [[ $cur == +* ]]; then
+        _comp_compgen -- -W '+compress +contrast +debug +dither +endian +gamma
+            +label +map +matte +negate +page +raise +write'
+    else
+        _comp_compgen_filedir
+    fi
+} &&
+    complete -F _comp_cmd_display display
+
+_comp_cmd_animate()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    _comp_cmd_convert__common_options && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- -help
+    elif [[ $cur == +* ]]; then
+        _comp_compgen -- -W '+debug +dither +gamma +map +matte'
+    else
+        _comp_compgen_filedir
+    fi
+} &&
+    complete -F _comp_cmd_animate animate
+
+_comp_cmd_identify()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    _comp_cmd_convert__common_options && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- -help
+    elif [[ $cur == +* ]]; then
+        _comp_compgen -- -W '+debug'
+    else
+        _comp_compgen_filedir
+    fi
+} &&
+    complete -F _comp_cmd_identify identify
+
+_comp_cmd_montage()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    _comp_cmd_convert__common_options && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- -help
+    elif [[ $cur == +* ]]; then
+        _comp_compgen -- -W '+adjoin +compress +debug +dither +endian +gamma
+            +label +matte +page'
+    else
+        _comp_compgen_filedir
+    fi
+} &&
+    complete -F _comp_cmd_montage montage
+
+_comp_cmd_composite()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    _comp_cmd_convert__common_options && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- -help
+    elif [[ $cur == +* ]]; then
+        _comp_compgen -- -W '+compress +debug +dither +endian +label +matte
+            +negate +page +write'
+    else
+        _comp_compgen_filedir
+    fi
+} &&
+    complete -F _comp_cmd_composite composite
+
+_comp_cmd_compare()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    _comp_cmd_convert__common_options && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- -help
+    elif [[ $cur == +* ]]; then
+        _comp_compgen -- -W '+debug'
+    else
+        _comp_compgen_filedir
+    fi
+} &&
+    complete -F _comp_cmd_compare compare
+
+_comp_cmd_conjure()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    _comp_cmd_convert__common_options && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- -help
+    elif [[ $cur == +* ]]; then
+        _comp_compgen -- -W '+debug'
+    else
+        _comp_compgen_filedir
+    fi
+} &&
+    complete -F _comp_cmd_conjure conjure
+
+_comp_cmd_import()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    _comp_cmd_convert__common_options && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- -help
+    elif [[ $cur == +* ]]; then
+        _comp_compgen -- -W '+debug'
+    else
+        _comp_compgen_filedir
+    fi
+} &&
+    complete -F _comp_cmd_import import
+
+_comp_cmd_stream()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    _comp_cmd_convert__common_options && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- -help
+    elif [[ $cur == +* ]]; then
+        _comp_compgen -- -W '+debug'
+    else
+        _comp_compgen_filedir
+    fi
+} &&
+    complete -F _comp_cmd_stream stream

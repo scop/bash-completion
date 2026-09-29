@@ -1,8 +1,5 @@
 EXTRA_DIST = \
-	bash_completion.txt \
-	bashrc \
-	inputrc \
-	main.txt \
-	makeHtml.sh \
-	styleguide.txt \
-	testing.txt
+	api-and-naming.md \
+	configuration.md \
+	styleguide.md \
+	testing.md

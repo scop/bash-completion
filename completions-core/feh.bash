@@ -1,0 +1,118 @@
+# bash completion for feh(1)
+
+_comp_cmd_feh()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    local noargopts='!(-*|*[foO|KCjeM@TSRHWEyJabgLD~^]*)'
+    # shellcheck disable=SC2254
+    case "$prev" in
+        --image-bg | -B)
+            _comp_compgen -- -W 'checks white black'
+            return
+            ;;
+        --filelist | --output | --output-only | --start-at | -${noargopts}[foO\|])
+            _comp_compgen_filedir
+            return
+            ;;
+        --caption-path | --fontpath | --output-dir | -${noargopts}[KCj])
+            _comp_compgen_filedir -d
+            return
+            ;;
+        --font | --menu-font | --title-font | -${noargopts}[eM@])
+            # expect string like "dejavu.ttf/12"
+            if [[ $cur == */* ]]; then # expect integer value
+                _comp_compgen -R -- -P "$cur" -W '{0..9}'
+                compopt -o nospace
+                return
+            fi
+            local font_path
+            # font_path=$(imlib2-config --prefix 2>/dev/null)/share/imlib2/data/fonts
+            # _comp_compgen -C "$font_path" -- -f -X "!*.[tT][tT][fF]" -S /
+            for ((i = ${#words[@]} - 2; i > 0; i--)); do
+                if [[ ${words[i]} == -@(C|-fontpath) ]]; then
+                    font_path="${words[i + 1]}"
+                    if [[ -d $font_path ]]; then
+                        _comp_compgen -aC "$font_path" -- \
+                            -f -X "!*.[tT][tT][fF]" -S /
+                    fi
+                fi
+            done
+            compopt -o nospace
+            return
+            ;;
+        --theme | -${noargopts}T)
+            local conf_path=~/.config/feh/themes
+            local theme_name theme_opts
+            [[ -r $conf_path ]] || return
+            while read -r theme_name theme_opts; do
+                if [[ $theme_name == '#'* || $theme_name == "" ]]; then
+                    continue
+                fi
+                _comp_compgen -a -- -W "$theme_name"
+            done <"$conf_path"
+            return
+            ;;
+        --sort | -${noargopts}S)
+            _comp_compgen -- -W 'name filename mtime width height pixels size
+                format'
+            return
+            ;;
+        --reload | --limit-height | --limit-width | --thumb-height | --thumb-width | \
+            --thumb-redraw | --magick-timeout | -${noargopts}[RHWEyJ])
+            # expect integer value
+            _comp_compgen -aR -- -W '{0..9}'
+            compopt -o nospace
+            return
+            ;;
+        --zoom)
+            # expect integer value or "max", "fill"
+            _comp_compgen -- -W 'max fill'
+            if [[ ! $cur || ! ${COMPREPLY-} ]]; then
+                _comp_compgen -aR -- -W '{0..9}'
+                compopt -o nospace
+            fi
+            return
+            ;;
+        --alpha | -${noargopts}a)
+            _comp_compgen -- -W '{0..255}'
+            return
+            ;;
+        --bg | -${noargopts}b)
+            _comp_compgen_filedir
+            _comp_compgen -a -- -W 'trans'
+            return
+            ;;
+        --geometry | --max-dimension | --min-dimension | -${noargopts}g)
+            # expect string like 640x480
+            if [[ $cur && $cur != *x* ]]; then
+                COMPREPLY=(x)
+            fi
+            _comp_compgen -aR -- -W "{0..9}"
+            compopt -o nospace
+            return
+            ;;
+        --customlist | --index-info | --info | --slideshow-delay | --thumb-title | \
+            --title | -${noargopts}[LD~^])
+            # argument required but no completions available
+            return
+            ;;
+    esac
+
+    [[ $was_split ]] && return
+
+    if [[ $cur == -* ]]; then
+        # Some versions of feh just output "See 'man feh'" for --help :(
+        _comp_compgen_help
+        if [[ ${COMPREPLY-} ]]; then
+            [[ $COMPREPLY == *= ]] && compopt -o nospace
+            return
+        fi
+    fi
+
+    # FIXME: It is hard to determine correct supported extensions.
+    # feh can handle any format that imagemagick can plus some others
+    _comp_compgen_filedir 'xpm|tif?(f)|png|p[npgba]m|iff|?(i)lbm|jp?(e)g|jfi?(f)|gif|bmp|arg?(b)|tga|xcf|ani|ico|?(e)ps|pdf|dvi|txt|svg?(z)|cdr|[ot]tf|ff?(.gz|.bz2)|webp|y4m|hei[cf]?(s)|avif?(s)'
+} &&
+    complete -F _comp_cmd_feh feh

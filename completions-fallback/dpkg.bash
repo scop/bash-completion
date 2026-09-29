@@ -1,0 +1,150 @@
+# dpkg(1) and related commands completion
+
+# Use of this file is deprecated.  Upstream completion is available in
+# dpkg >= 1.23.8, use that instead.
+
+# @since 2.12
+_comp_xfunc_dpkg_compgen_installed_packages()
+{
+    _comp_compgen_split -- "$(
+        grep-status -P -e "^${cur-}" -a \
+            -FStatus 'ok installed' \
+            -n -s Package 2>/dev/null ||
+            _comp_awk -F '\n' -v RS="" "
+            index(\$1, \"Package: ${cur-}\") == 1 &&
+            \$2 ~ /ok installed|half-installed|unpacked|half-configured|^Essential: yes/ {
+                print(substr(\$1, 10));
+            }" /var/lib/dpkg/status 2>/dev/null
+    )"
+}
+
+# @since 2.12
+_comp_xfunc_dpkg_compgen_purgeable_packages()
+{
+    _comp_compgen_split -- "$(
+        grep-status -P -e "^${cur-}" -a \
+            -FStatus 'ok installed' -o -FStatus 'ok config-files' \
+            -n -s Package 2>/dev/null ||
+            _comp_awk -F '\n' -v RS="" "
+            index(\$1, \"Package: ${cur-}\") == 1 &&
+            \$2 ~ /ok installed|half-installed|unpacked|half-configured|config-files|^Essential: yes/ {
+                print(substr(\$1, 10));
+            }" /var/lib/dpkg/status 2>/dev/null
+    )"
+}
+
+# @since 2.12
+_comp_xfunc_dpkg_compgen_held_packages()
+{
+    _comp_compgen_split -- "$(
+        dpkg --get-selections ${cur:+"$cur}"} |
+            _comp_awk '{for(i=2;i<=NF;i++){ if($i=="hold"){ print $1;break }}}'
+    )"
+}
+
+# @deprecated 2.12 use _comp_xfunc_dpkg_compgen_installed_packages instead
+_comp_dpkg_installed_packages()
+{
+    local COMPREPLY=() cur="${1-}"
+    # shellcheck disable=SC2119
+    _comp_xfunc_dpkg_compgen_installed_packages
+    printf "%s\n" "${COMPREPLY[@]}"
+}
+# @deprecated 2.12 use _comp_xfunc_dpkg_compgen_purgeable_packages instead
+_comp_dpkg_purgeable_packages()
+{
+    local COMPREPLY=() cur="${1-}"
+    # shellcheck disable=SC2119
+    _comp_xfunc_dpkg_compgen_purgeable_packages
+    printf "%s\n" "${COMPREPLY[@]}"
+}
+
+# Debian dpkg(1) completion
+#
+_comp_cmd_dpkg()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    local i=$cword
+
+    # find the last option flag
+    if [[ $cur != -* ]]; then
+        while [[ $prev != -* && $i -ne 1 ]]; do
+            prev=${words[--i - 1]}
+        done
+    fi
+
+    local noargopts='!(-*|*[ciAIfexXRbsplWSrVLPD]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --install | --unpack | --record-avail | --contents | --info | --fsys-tarfile | \
+            --field | --control | --extract | --vextract | --raw-extract | -${noargopts}[ciAIfexXR])
+            _comp_compgen_filedir '?(u|d)deb'
+            return
+            ;;
+        --build | --admindir | --instdir | --root | -${noargopts}b)
+            _comp_compgen_filedir -d
+            return
+            ;;
+        --status | --print-avail | --list | -${noargopts}[spl])
+            _comp_compgen -x apt-cache packages
+            return
+            ;;
+        --show | -${noargopts}W)
+            if [[ $1 == *dpkg-query ]]; then
+                _comp_compgen -x apt-cache packages
+            else
+                _comp_compgen_filedir '?(u|d)deb'
+            fi
+            return
+            ;;
+        --search | -${noargopts}S)
+            _comp_compgen_filedir
+            return
+            ;;
+        --remove | --verify | -${noargopts}[rV])
+            _comp_xfunc_dpkg_compgen_installed_packages
+            return
+            ;;
+        --listfiles | --purge | -${noargopts}[LP])
+            _comp_xfunc_dpkg_compgen_purgeable_packages
+            return
+            ;;
+        --debug | -${noargopts}D)
+            _comp_compgen -- -W 'help'
+            return
+            ;;
+        --ignore-depends)
+            local packages
+            _comp_compgen -v packages -c "${cur##*,}" -x apt-cache packages
+            _comp_delimited , -W '"${packages[@]}"'
+            return
+            ;;
+        --log)
+            _comp_compgen_filedir log
+            return
+            ;;
+        --path-exclude | --path-include)
+            return
+            ;;
+        --status-logger)
+            _comp_compgen_commands
+            return
+            ;;
+        --verify-format)
+            _comp_compgen -- -W 'rpm'
+            return
+            ;;
+    esac
+
+    [[ $was_split ]] && return
+
+    _comp_compgen_help
+    for i in ${!COMPREPLY[*]}; do
+        # remove ones ending with a dash (known parse issue, hard to fix)
+        [[ ${COMPREPLY[i]} != *- ]] || unset -v 'COMPREPLY[i]'
+    done
+    [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+} &&
+    complete -F _comp_cmd_dpkg dpkg dpkg-deb dpkg-query

@@ -1,0 +1,97 @@
+# bash completion for vncviewer
+
+_comp_cmd_vncviewer__bootstrap()
+{
+    local fname REPLY
+    _comp_realcommand vncviewer
+    case $REPLY in
+        *xvnc4viewer) fname=_comp_cmd_xvnc4viewer ;;
+        *tightvncviewer) fname=_comp_cmd_tightvncviewer ;;
+        *) fname=_comp_complete_known_hosts ;;
+    esac
+
+    # Install real completion for subsequent completions
+    unset -f "$FUNCNAME"
+    complete -F $fname vncviewer
+    $fname "$@" # Generate completions once for now
+} &&
+    complete -F _comp_cmd_vncviewer__bootstrap vncviewer
+
+_comp_cmd_tightvncviewer()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    case $prev in
+        -passwd)
+            _comp_compgen_filedir
+            return
+            ;;
+        -encodings)
+            _comp_compgen -- -W 'copyrect tight hextile zlib corre rre raw'
+            return
+            ;;
+        -via)
+            _comp_compgen_known_hosts
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen -- -W '-help -listen -via -shared -noshared -viewonly
+            -fullscreen -noraiseonbeep -passwd -encodings -bgr233 -owncmap
+            -truecolour -truecolor -depth -compresslevel -quality -nojpeg
+            -nocursorshape -x11cursor'
+    else
+        _comp_compgen_known_hosts
+    fi
+} &&
+    complete -F _comp_cmd_tightvncviewer tightvncviewer
+
+# NOTE: - VNC Viewer options are case insensitive.
+#         Preferred case is taken from -help.
+_comp_cmd_xvnc4viewer()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    # Both single dash (-) and double dash (--) are allowed as option prefix
+    local opt=${prev/#--/-}
+    case ${opt,,} in
+        # -passwd, -PasswordFile
+        -passwd | -passwordfile)
+            _comp_compgen_filedir
+            return
+            ;;
+        -preferredencoding)
+            _comp_compgen -- -W 'zrle hextile raw'
+            return
+            ;;
+        -via)
+            _comp_compgen_known_hosts
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* || $cur == --* ]]; then
+        # Default to vncviewer camelcase options, see `vncviewer -help'
+        local dash options=(AcceptClipboard AutoSelect DebugDelay display
+            DotWhenNoCursor FullColor FullColour FullScreen geometry help
+            listen Log LowColourLevel MenuKey name Parent passwd PasswordFile
+            PointerEventInterval PreferredEncoding SendClipboard SendPrimary
+            Shared UseLocalCursor via ViewOnly WMDecorationHeight
+            WMDecorationWidth ZlibLevel)
+        [[ $cur == --* ]] && dash=-- || dash=-
+
+        _comp_split COMPREPLY "$(
+            shopt -s nocasematch
+            local option
+            for option in "${options[@]}"; do
+                [[ $dash$option == "$cur"* ]] && printf '%s\n' "$dash$option"
+            done
+        )"
+    else
+        _comp_compgen_known_hosts
+    fi
+} &&
+    complete -F _comp_cmd_xvnc4viewer xvnc4viewer

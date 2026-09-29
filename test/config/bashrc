@@ -1,39 +1,97 @@
-# bashrc file for DejaGnu testsuite
+# bashrc file for bash-completion test suite
 
 # Note that we do some initialization that would be too late to do here in
-# library.exp's start_bash().
+# conftest.py.
 
-	# Use emacs key bindings
+# Use emacs key bindings
 set -o emacs
-	# Use bash strict mode
-set -o posix
-	# Unset `command_not_found_handle' as defined on Debian/Ubuntu, because this
-	# troubles and slows down testing
-unset -f command_not_found_handle
-TESTDIR=$(pwd)
-export PS2='> '
-    # Also test completions of system administrator commands, which are
-    # installed via the same PATH expansion in `bash_completion.have()'
-export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
-    # ...as well as games on some systems not in PATH by default:
-export PATH=$PATH:/usr/games:/usr/local/games
-    # For clean test state, avoid sourcing user's ~/.bash_completion
-export BASH_COMPLETION_USER_FILE=/dev/null
-    # ...and avoid stuff in BASH_COMPLETION_USER_DIR overriding in-tree
-    # completions. The user dir is first in the lookup path, so this should also
-    # give precedence to the in-tree "completions" dir over other ones, e.g.
-    # the one possibly in /usr/share/bash-completion.
-export BASH_COMPLETION_USER_DIR=$(cd "$SRCDIR/.."; pwd)
 
-	# Make sure default settings are in effect
+# Use bash strict mode
+set -o posix
+
+# Raise error on uninitialized variables
+set -o nounset
+
+# Unset `command_not_found_handle' as defined on Debian/Ubuntu, because this
+# troubles and slows down testing
+unset -f command_not_found_handle
+
+TESTDIR=$(pwd)
+
+export PS2='> '
+
+# Also test completions of system administrator commands, which are
+# installed via the same PATH expansion in `bash_completion.have()'
+export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
+
+# ...as well as games on some systems not in PATH by default:
+export PATH=$PATH:/usr/games:/usr/local/games
+
+# For clean test state, avoid sourcing user's ~/.bash_completion
+export BASH_COMPLETION_USER_FILE=/dev/null
+
+# ...and avoid stuff in BASH_COMPLETION_USER_DIR and system install locations
+# overriding in-tree completions. Setting the user dir would otherwise suffice,
+# but simple xspec completions are only installed if a separate one is not
+# found in *any* completion dirs, and we want to use our "shadow" completion
+# dir with which we cause loading of our in-tree completions instead of
+# possibly (system-)installed upstream ones.
+# shellcheck disable=SC2154
+export BASH_COMPLETION_USER_DIR="$_comp__test_session_tmpdir/bash-completion:$_comp__test_session_tmpdir/bash-completion-fallback"
+export BASH_COMPLETION_COMPAT_DIR="$_comp__test_session_tmpdir/bash_completion.d"
+export XDG_DATA_DIRS=/var/empty
+
+# Make sure default settings are in effect
 unset -v \
+    BASH_COMPLETION_CMD_CONFIGURE_HINTS \
+    BASH_COMPLETION_CMD_CVS_REMOTE \
+    BASH_COMPLETION_CMD_IWCONFIG_SCAN \
+    BASH_COMPLETION_CMD_TAR_INTERNAL_PATHS \
+    BASH_COMPLETION_COMPAT_IGNORE \
+    BASH_COMPLETION_FILEDIR_FALLBACK \
+    BASH_COMPLETION_KNOWN_HOSTS_WITH_HOSTFILE \
     COMP_CONFIGURE_HINTS \
     COMP_CVS_REMOTE \
+    COMP_FILEDIR_FALLBACK \
+    COMP_IWLIST_SCAN \
     COMP_KNOWN_HOSTS_WITH_HOSTFILE \
     COMP_TAR_INTERNAL_PATHS
 
-	# Load bash testsuite helper functions
-. $SRCDIR/lib/library.sh
+if [[ $PWD == */_comp__init_collect_startup_configs ]]; then
+    # To test the loading order and masking of startup files, we specify
+    # directories containing the subdirectory "startup".
+    BASH_COMPLETION_USER_DIR=$PWD/user:$PWD/host:$BASH_COMPLETION_USER_DIR
+fi
+
+# @param $1  Char to add to $COMP_WORDBREAKS
+add_comp_wordbreak_char()
+{
+    [[ "${COMP_WORDBREAKS//[^$1]/}" ]] || COMP_WORDBREAKS+=$1
+}
+
+_comp__test_get_env()
+{
+    # Note: PWD is supposed to reflect the current working directory, but the
+    # real current working directory of the process can be different, e.g. when
+    # PWD is manually altered.  Therefore, we also check the result of $(pwd)
+    # explicitly via a new variable `_comp_test_pwd`.
+    local _comp_test_pwd=$(pwd)
+
+    (
+        # Do not output the state of test variables "_comp__test_+([0-9])_*"
+        # and internal mutable variables "_comp_*_mut_*".
+        local IFS=$' \t\n'
+        # shellcheck disable=SC2046
+        unset -v $(compgen -W '"${!_comp_@}"' -X '!_comp_@(_test_+([0-9])_*|*_mut_*)')
+        _comp_unlocal IFS
+
+        set -o posix
+        set
+    )
+    declare -F
+    shopt -p
+    set -o
+}
 
 # Local variables:
 # mode: shell-script

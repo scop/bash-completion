@@ -1,0 +1,47 @@
+# chromium-browser completion
+
+_comp_cmd_chromium_browser()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -n : -- "$@" || return
+
+    case $prev in
+        --help | --app | --proxy-pac-url | -h)
+            return
+            ;;
+        --user-data-dir)
+            _comp_compgen_filedir -d
+            return
+            ;;
+        --proxy-server)
+            case $cur in
+                *://*)
+                    local prefix="${cur%%://*}://"
+                    _comp_compgen -P "$prefix" known_hosts
+                    _comp_ltrim_colon_completions "$cur"
+                    ;;
+                *)
+                    compopt -o nospace
+                    _comp_compgen -- -S :// -W 'http socks socks4 socks5'
+                    ;;
+            esac
+            return
+            ;;
+        --password-store)
+            _comp_compgen -- -W 'basic gnome kwallet'
+            return
+            ;;
+    esac
+
+    [[ $was_split ]] && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _comp_compgen_filedir "@(?([mxs])htm?(l)|pdf|txt)"
+} &&
+    complete -F _comp_cmd_chromium_browser chromium-browser google-chrome \
+        google-chrome-stable chromium chrome brave brave-browser helium

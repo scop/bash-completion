@@ -1,0 +1,43 @@
+# dot(1) completion
+
+_comp_cmd_dot()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -n := -- "$@" || return
+
+    [[ $prev == -[V?] ]] && return
+
+    case $cur in
+        -G* | -N* | -E* | -l?* | -q?* | -s?* | -Ln* | -LU* | -LC* | -LT*)
+            return
+            ;;
+        -T*)
+            # generate langs
+            _comp_compgen -P "-T" split -- "$(
+                "$1" -TNON_EXISTENT 2>&1 | command sed -ne 's/.*one of://p'
+            )"
+            return
+            ;;
+        -K*)
+            # generate layouts
+            _comp_compgen -P "-K" split -- "$(
+                "$1" -KNON_EXISTENT 2>&1 | command sed -ne 's/.*one of://p'
+            )"
+            return
+            ;;
+        -o*)
+            _comp_compgen -P "-o" filedir
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen -- -W '-V -v -G -N -E -T -K -l -o -O -P -q -s -y -n -n1
+            -n2 -x -Lg -LO -Ln -LU -LC -LT -m -c -?'
+        [[ ${COMPREPLY-} == -@([GNETKo]|L[nUCT]) ]] && compopt -o nospace
+        return
+    fi
+
+    _comp_compgen_filedir '@(gv|dot)'
+} &&
+    complete -F _comp_cmd_dot dot

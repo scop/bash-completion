@@ -1,0 +1,105 @@
+# Debian aptitude(1) completion
+
+_comp_cmd_aptitude()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    local special="" i
+    for ((i = 1; i < ${#words[@]} - 1; i++)); do
+        if [[ ${words[i]} == @(@(|re)install|@(|un)hold|@(|un)markauto|@(dist|full|safe)-upgrade|download|show|forbid-version|purge|remove|changelog|why@(|-not)|keep@(|-all)|build-dep|@(add|remove)-user-tag|versions) ]]; then
+            special=${words[i]}
+            break
+        fi
+    done
+
+    if [[ $special ]]; then
+        case $special in
+            install | hold | markauto | unmarkauto | dist-upgrade | full-upgrade | \
+                safe-upgrade | download | show | changelog | why | why-not | build-dep | \
+                add-user-tag | remove-user-tag | versions)
+                _comp_compgen -x apt-cache packages
+                return
+                ;;
+            purge | remove | reinstall | forbid-version)
+                _comp_compgen -x dpkg installed_packages
+                return
+                ;;
+            unhold)
+                _comp_compgen -x dpkg held_packages
+                return
+                ;;
+        esac
+    fi
+
+    local noargopts='!(-*|*[SwFoOt]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        # don't complete anything if these options are found
+        autoclean | clean | forget-new | search | upgrade | update | keep-all)
+            return
+            ;;
+        -${noargopts}S)
+            _comp_compgen_filedir
+            return
+            ;;
+        --display-format | --width | -${noargopts}[wFo])
+            return
+            ;;
+        --sort | -${noargopts}O)
+            _comp_compgen -- -W 'installsize installsizechange debsize name
+                priority version'
+            return
+            ;;
+        --target-release | --default-release | -${noargopts}t)
+            _comp_compgen_split -l -- "$(apt-cache policy |
+                command sed -ne 's/.*release.o=Debian,a=\([_[:alnum:]]*\).*/\1/p')"
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen -R help - <<<"$("$1" --help 2>&1 | command sed -e \
+            's/--with(out)-recommends/--without-recommends\n--with-recommends/')"
+        ((${#COMPREPLY[@]})) || return 0
+
+        # Exclude some mutually exclusive options
+        local exclude_flags=""
+        for i in "${words[@]}"; do
+            [[ $i == -u ]] && exclude_flags+=i
+            [[ $i == -i ]] && exclude_flags+=u
+        done
+
+        # Do known short -> long replacements; at least up to 0.8.12, --help
+        # outputs mostly only short ones.
+        for i in "${!COMPREPLY[@]}"; do
+            case ${COMPREPLY[i]} in
+                -h) COMPREPLY[i]=--help ;;
+                -s) COMPREPLY[i]=--simulate ;;
+                -d) COMPREPLY[i]=--download-only ;;
+                -P) COMPREPLY[i]=--prompt ;;
+                -y) COMPREPLY[i]=--assume-yes ;;
+                -F) COMPREPLY[i]=--display-format ;;
+                -O) COMPREPLY[i]=--sort ;;
+                -W) COMPREPLY[i]=--show-why ;;
+                -w) COMPREPLY[i]=--width ;;
+                -V) COMPREPLY[i]=--show-versions ;;
+                -D) COMPREPLY[i]=--show-deps ;;
+                -v) COMPREPLY[i]=--verbose ;;
+                -t) COMPREPLY[i]=--target-release ;;
+                -q) COMPREPLY[i]=--quiet ;;
+            esac
+        done
+
+        _comp_compgen -- -W '"${COMPREPLY[@]}"' \
+            ${exclude_flags:+-X "-[$exclude_flags]"}
+    else
+        _comp_compgen -- -W 'add-user-tag autoclean build-depends changelog
+            clean download extract-cache-subset forbid-version forget-new
+            full-upgrade help hold install keep keep-all markauto purge
+            reinstall remove remove-user-tag safe-upgrade search show showsrc
+            source unhold unmarkauto update versions why why-not'
+    fi
+
+} &&
+    complete -F _comp_cmd_aptitude -o default aptitude aptitude-curses

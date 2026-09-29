@@ -1,0 +1,51 @@
+# firefox completion
+
+_comp_cmd_firefox()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    [[ ! $was_split && $cur == -MOZ_LOG*=* ]] && prev=${cur%%=*} cur=${cur#*=}
+
+    case $prev in
+        --help | --version | --display | --UILocale | -MOZ_LOG | --new-window | --new-tab | \
+            --private-window | --window-size | --search | --start-debugger-server | \
+            --recording | --debugger-args | -[hva])
+            return
+            ;;
+        -P)
+            _comp_compgen_split -- "$(
+                _comp_awk -F = '$1 == "Name" { print $2 }' \
+                    ~/.mozilla/firefox/profiles.ini 2>/dev/null
+            )"
+            return
+            ;;
+        --profile | --screenshot)
+            _comp_compgen_filedir -d
+            return
+            ;;
+        -MOZ_LOG_FILE)
+            _comp_compgen_filedir log
+            return
+            ;;
+        --recording-output | --recording-file)
+            _comp_compgen_filedir
+            return
+            ;;
+        --debugger | -d)
+            _comp_compgen_commands
+            return
+            ;;
+    esac
+
+    [[ $was_split ]] && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
+    fi
+
+    _comp_compgen_filedir "@(?([xs])htm?(l)|pdf|txt|svg)"
+} &&
+    complete -F _comp_cmd_firefox firefox firefox-esr iceweasel mozilla-firefox

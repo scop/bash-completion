@@ -1,0 +1,70 @@
+# bash completion for sbopkg(8)
+
+_comp_cmd_sbopkg()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- -h
+        [[ ${COMPREPLY-} ]] && return
+    fi
+
+    case "$prev" in
+        -e)
+            _comp_compgen -- -W 'ask continue stop'
+            return
+            ;;
+        -f)
+            _comp_compgen_filedir
+            return
+            ;;
+        -d)
+            _comp_compgen_filedir -d
+            return
+            ;;
+        -V)
+            _comp_compgen_split -- "? $(sbopkg -V '?' 2>&1 | cut -s -f1)"
+            return
+            ;;
+        -i | -b) ;;
+
+        *)
+            return
+            ;;
+    esac
+
+    local i REPLY config
+    config="/etc/sbopkg/sbopkg.conf"
+    for ((i = ${#words[@]} - 2; i > 0; i--)); do
+        if [[ ${words[i]} == -f ]]; then
+            _comp_expand_tilde "${words[i + 1]}"
+            config=$REPLY
+            break
+        fi
+    done
+
+    [[ -f $config && -r $config ]] || return
+    . "$config"
+
+    for ((i = 1; i < ${#words[@]} - 1; i++)); do
+        case "${words[i]}" in
+            -V)
+                REPO_NAME="${words[i + 1]%%/*}"
+                REPO_BRANCH="${words[i + 1]#*/}"
+                ;;
+            -d)
+                REPO_ROOT="${words[i + 1]}"
+                ;;
+        esac
+    done
+    local file=${REPO_ROOT-}/${REPO_NAME-}/${REPO_BRANCH-}/SLACKBUILDS.TXT
+    [[ -f $file && -r $file ]] || return
+
+    _comp_compgen_split -l -- "$(command sed -ne "s/^SLACKBUILD NAME: //p" \
+        "$file")"
+    if [[ -d ${QUEUEDIR-} ]]; then
+        _comp_compgen -aC "$QUEUEDIR" filedir sqf
+    fi
+} &&
+    complete -F _comp_cmd_sbopkg sbopkg

@@ -1,0 +1,80 @@
+# cd(1) completion
+
+_comp_cmd_cd__compgen_cdable_vars()
+{
+    shopt -q cdable_vars || return 1
+
+    local vars
+    _comp_compgen -v vars -- -v || return "$?"
+
+    # Remove variables that do not contain a valid directory path.
+    local _i
+    for _i in "${!vars[@]}"; do
+        # Note: ${!vars[_i]} produces the "nounset" error when vars[_i] is an
+        # empty array name.
+        [[ -d ${!vars[_i]-} ]] || unset -v 'vars[_i]'
+    done
+
+    _comp_compgen -U vars set "${vars[@]}"
+}
+
+# This generator function observes the CDPATH variable, to additionally
+# complete directories under those specified in CDPATH.
+_comp_cmd_cd__compgen_cdpath()
+{
+    local _p
+
+    # Generate CDPATH completions when the parameter does not start with /,
+    # ./ or ../
+    [[ ! ${CDPATH-} || $cur == ?(.)?(.)/* ]] && return 1
+
+    local _mark_dirs="" _mark_symdirs=""
+    _comp_readline_variable_on mark-directories && _mark_dirs=set
+    _comp_readline_variable_on mark-symlinked-directories && _mark_symdirs=set
+
+    local -a _cdpaths=()
+
+    # we have a CDPATH, so loop on its contents
+    local paths dirs _d
+    _comp_split -F : paths "$CDPATH"
+    for _p in "${paths[@]}"; do
+        _p="${_p:-.}"
+        # create an array of matched subdirs
+        _comp_compgen -v dirs -c "$_p/$cur" -- -d &&
+            for _d in "${dirs[@]}"; do
+                if [[ ($_mark_symdirs && -L $_d || $_mark_dirs && ! -L $_d) && ! -d ${_d#"$_p/"} ]]; then
+                    _d+="/"
+                fi
+                _cdpaths+=("${_d#"$_p/"}")
+            done
+    done
+    _comp_unlocal paths dirs
+
+    if ((${#_cdpaths[@]} == 1)); then
+        _p=${_cdpaths[0]}
+        if [[ $_p == "$cur" && $_p != */ ]]; then
+            _cdpaths[0]=$_p/
+        fi
+    fi
+
+    ((${#_cdpaths[@]})) &&
+        _comp_compgen_set "${_cdpaths[@]}"
+}
+
+_comp_cmd_cd()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -c help "$1"
+        compopt +o nospace
+        return
+    fi
+
+    compopt -o filenames
+    _comp_cmd_cd__compgen_cdable_vars
+    _comp_compgen -ai cd cdpath
+    _comp_compgen -a filedir -d
+}
+complete -F _comp_cmd_cd -o nospace cd pushd

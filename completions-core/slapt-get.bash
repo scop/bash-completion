@@ -1,0 +1,86 @@
+# slapt-get(8) completion
+
+_comp_cmd_slapt_get()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    case "$prev" in
+        --config | -c)
+            _comp_compgen_filedir
+            return
+            ;;
+        --retry | --search)
+            # argument required but no completions available
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help
+        if [[ ${COMPREPLY-} ]]; then
+            [[ $COMPREPLY == *= ]] && compopt -o nospace
+            return
+        fi
+    fi
+
+    local i t
+    # search for last action
+    #   (--install|--install-set|--remove|--show|--filelist)
+    for ((i = ${#words[@]} - 1; i > 0; i--)); do
+        if [[ ${words[i]} == --show ]]; then
+            t="all"
+            break
+        elif [[ ${words[i]} == -@(i|-install) ]]; then
+            t="avl"
+            break
+        elif [[ ${words[i]} == --install-set ]]; then
+            t="set"
+            break
+        elif [[ ${words[i]} == --@(remove|filelist) ]]; then
+            t="ins"
+            break
+        fi
+    done
+
+    local config="/etc/slapt-get/slapt-getrc" # default config location
+    # search for config
+    for ((i = ${#words[@]} - 1; i > 0; i--)); do
+        if [[ ${words[i]} == -@(c|-config) ]]; then
+            local REPLY
+            _comp_expand_tilde "${words[i + 1]-}"
+            config=$REPLY
+            break
+        fi
+    done
+    [[ -r $config ]] || return
+
+    case $t in
+        all) # --show
+            # slapt-get will fail to search for "^name-version"
+            # it can search for names only
+            local name=${cur%%-*}
+            _comp_compgen_split -l -- "$(
+                LC_ALL=C "$1" -c "$config" --search "^$name" 2>/dev/null |
+                    LC_ALL=C command sed -ne "/^$cur/{s/ .*$//;p;}"
+            )"
+            return
+            ;;
+        avl) # --install|-i|
+            _comp_compgen_split -l -- "$(
+                LC_ALL=C "$1" -c "$config" --available 2>/dev/null |
+                    LC_ALL=C command sed -ne "/^$cur/{s/ .*$//;p;}"
+            )"
+            return
+            ;;
+        ins) # --remove|--filelist
+            _comp_compgen -C /var/log/packages filedir
+            return
+            ;;
+        set) # --install-set
+            _comp_compgen -- -W 'a ap d e f k kde kdei l n t tcl x xap xfce y'
+            return
+            ;;
+    esac
+} &&
+    complete -F _comp_cmd_slapt_get slapt-get

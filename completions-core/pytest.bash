@@ -1,0 +1,142 @@
+# bash completion for pytest(1)
+
+_comp_cmd_pytest__option_choice_args()
+{
+    local modes=$("$1" "$2=bash-completion-nonexistent" 2>&1 |
+        command sed -e 's/[^[:space:][:alnum:]_-]\{1,\}//g' \
+            -e 's/.*choose from //p' -e 's/.*Valid modes //p' -e d)
+    _comp_compgen -a -- -W '$modes'
+}
+
+_comp_cmd_pytest()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -n : -- "$@" || return
+
+    local noargopts='!(-*|*[kmorpcWn]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --help | --maxfail | --report | --junit-prefix | --doctest-glob | \
+            -${noargopts}[hkmorp])
+            return
+            ;;
+        --import-mode)
+            _comp_compgen -- -W "prepend append importlib"
+            return
+            ;;
+        --capture)
+            _comp_compgen -- -W "fd sys no tee-sys"
+            return
+            ;;
+        --lfnf | --last-failed-no-failures)
+            _comp_compgen -- -W "all none"
+            return
+            ;;
+        --tb)
+            _comp_compgen -- -W 'auto long short line native no'
+            return
+            ;;
+        --show-capture)
+            _comp_compgen -- -W "no stdout stderr log all"
+            return
+            ;;
+        --color)
+            _comp_compgen -- -W "yes no auto"
+            return
+            ;;
+        --pastebin)
+            _comp_compgen -- -W "failed all"
+            return
+            ;;
+        --junit-xml)
+            _comp_compgen_filedir xml
+            return
+            ;;
+        --result-log | --log-file)
+            _comp_compgen_filedir log
+            return
+            ;;
+        --ignore | -${noargopts}c)
+            _comp_compgen_filedir
+            return
+            ;;
+        --confcutdir | --basetemp | --rsyncdir | --rootdir)
+            _comp_compgen_filedir -d
+            return
+            ;;
+        --doctest-report)
+            _comp_compgen -- -W 'none cdiff ndiff udiff only_first_failure'
+            return
+            ;;
+        --assert)
+            _comp_compgen -- -W "plain reinterp rewrite"
+            return
+            ;;
+        --genscript)
+            _comp_compgen_filedir py
+            return
+            ;;
+        --pythonwarnings | -${noargopts}W)
+            _comp_compgen -x python warning_actions
+            return
+            ;;
+        --numprocesses | -${noargopts}n)
+            local REPLY
+            _comp_get_ncpus
+            _comp_compgen -- -W "{1..$REPLY} auto"
+            return
+            ;;
+        --dist | --@(asyncio|record)-mode | --vcr-record?(-mode))
+            _comp_cmd_pytest__option_choice_args "$1" "$prev"
+            return
+            ;;
+    esac
+
+    [[ $was_split ]] && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
+    fi
+
+    if [[ $cur == *.py::*:* ]]; then
+        local file=${cur/.py:*/.py}
+        local class=${cur#*.py::} in_class=""
+        local line
+        class=${class%%:*}
+        while IFS= read -r line; do
+            if [[ $line =~ ^class[[:space:]]+${class}[[:space:]:\(] ]]; then
+                in_class=set
+            elif [[ $line =~ ^class[[:space:]] ]]; then
+                in_class=""
+            fi
+            if [[ $in_class && $line =~ ^[[:space:]]+(async[[:space:]]+)?def[[:space:]]+(test_[A-Za-z0-9_]+) ]]; then
+                COMPREPLY+=("${BASH_REMATCH[2]}")
+            fi
+        done 2>/dev/null <"$file"
+        ((! ${#COMPREPLY[@]})) ||
+            _comp_compgen -c "${cur##*:?(:)}" -- -P "$file::$class::" \
+                -W '"${COMPREPLY[@]}"'
+        _comp_ltrim_colon_completions "$cur"
+        return
+    elif [[ $cur == *.py:* ]]; then
+        local file="${cur/.py:*/.py}" line
+        while IFS= read -r line; do
+            if [[ $line =~ ^class[[:space:]]+(Test[A-Za-z0-9_]+) ]]; then
+                COMPREPLY+=("${BASH_REMATCH[1]}")
+            elif [[ $line =~ ^(async[[:space:]]+)?def[[:space:]]+(test_[A-Za-z0-9_]+) ]]; then
+                COMPREPLY+=("${BASH_REMATCH[2]}")
+            fi
+        done 2>/dev/null <"$file"
+        ((! ${#COMPREPLY[@]})) ||
+            _comp_compgen -c "${cur##*.py:?(:)}" -- -P "$file::" \
+                -W '"${COMPREPLY[@]}"'
+        _comp_ltrim_colon_completions "$cur"
+        return
+    fi
+
+    _comp_compgen_filedir py
+} &&
+    complete -F _comp_cmd_pytest \
+        pytest pytest-2 pytest-3 py.test py.test-2 py.test-3

@@ -1,0 +1,24 @@
+# bash completion for wine(1)
+
+_comp_cmd_wine()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    case $prev in
+        --help | --version)
+            return
+            ;;
+    esac
+
+    if ((cword == 1)); then
+        if [[ $cur == -* ]]; then
+            _comp_compgen -- -W '--help --version'
+            [[ ${COMPREPLY-} ]] && return
+        fi
+        _comp_compgen_filedir '@([bB][aA][tT]|[cC][mM][dD]|[eE][xX][eE]?(.[sS][oO])|[cC][oO][mM]|[sS][cC][rR]|[mM][sS][iI])'
+    else
+        _comp_compgen_filedir
+    fi
+} &&
+    complete -F _comp_cmd_wine wine{,64}{,-development,-stable}

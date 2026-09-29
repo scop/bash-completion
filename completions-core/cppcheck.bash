@@ -1,0 +1,80 @@
+# bash completion for cppcheck(1)
+
+_comp_cmd_cppcheck()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    case $prev in
+        --append | --exitcode-suppressions | --rule-file | --config-excludes-file | \
+            --suppressions-list | --includes-file | --include | -i)
+            _comp_compgen_filedir
+            return
+            ;;
+        -D | -U | --rule | --suppress | --template | --max-configs | -h | --help | --version | \
+            --errorlist | --config-exclude | -l)
+            return
+            ;;
+        --enable)
+            _comp_delimited , -W 'all warning style performance portability
+                information unusedFunction missingInclude'
+            return
+            ;;
+        --error-exitcode)
+            _comp_compgen -- -W '{0..255}'
+            return
+            ;;
+        --file-list)
+            _comp_compgen_filedir
+            [[ ! $cur || $cur == - ]] && COMPREPLY+=(-)
+            return
+            ;;
+        -I)
+            _comp_compgen_filedir -d
+            return
+            ;;
+        -j)
+            local REPLY
+            _comp_get_ncpus
+            _comp_compgen -- -W "{1..$REPLY}"
+            return
+            ;;
+        --language | -x)
+            _comp_compgen -- -W 'c c++'
+            return
+            ;;
+        --std)
+            _comp_compgen -- -W 'c89 c99 c11 c++03 c++11 c++14 c++17 c++20'
+            return
+            ;;
+        --platform)
+            _comp_compgen_filedir
+            _comp_compgen -a -- -W 'unix32 unix64 win32A win32W win64 native'
+            return
+            ;;
+        -rp | --relative-paths)
+            if [[ $was_split ]]; then # -rp without argument is allowed
+                _comp_compgen_filedir -d
+                return
+            fi
+            ;;
+        --library)
+            _comp_compgen_filedir cfg
+            return
+            ;;
+        --xml-version)
+            _comp_compgen -- -W '1 2'
+            return
+            ;;
+    esac
+
+    [[ $was_split ]] && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+    else
+        _comp_compgen_filedir '@([cht]pp|[cht]xx|cc|[ch]++|[ch])'
+    fi
+} &&
+    complete -F _comp_cmd_cppcheck cppcheck

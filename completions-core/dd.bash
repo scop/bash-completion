@@ -1,0 +1,36 @@
+# bash completion for dd
+
+_comp_cmd_dd()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -n = -- "$@" || return
+
+    case $cur in
+        if=* | of=*)
+            _comp_compgen -c "${cur#*=}" filedir
+            return
+            ;;
+        conv=*)
+            _comp_compgen -c "${cur#*=}" -- -W 'ascii ebcdic ibm block unblock
+                lcase ucase sparse swab sync excl nocreat notrunc noerror
+                fdatasync fsync'
+            return
+            ;;
+        iflag=* | oflag=*)
+            _comp_compgen -c "${cur#*=}" -- -W 'append direct directory dsync
+                sync fullblock nonblock noatime nocache noctty nofollow'
+            return
+            ;;
+        status=*)
+            cur=${cur#*=}
+            _comp_compgen -- -W 'none noxfer progress'
+            return
+            ;;
+    esac
+
+    _comp_compgen_help
+    _comp_compgen -a -- -W 'bs cbs conv count ibs if iflag obs of oflag
+        seek skip status' -S '='
+    [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+} &&
+    complete -F _comp_cmd_dd dd

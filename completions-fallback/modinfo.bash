@@ -1,0 +1,54 @@
+# Linux modinfo(8) completion
+
+# Use of this file is deprecated.
+# Upstream completion is expected to be available in kmod >= 35, use that instead.
+
+_comp_cmd_modinfo()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    local noargopts='!(-*|*[Fkb]*)'
+    # shellcheck disable=SC2254
+    case "$prev" in
+        --field | -${noargopts}F)
+            _comp_compgen -c "${cur,,}" -- -W 'alias author depends description
+                filename firmware intree license name parm release_date
+                retpoline sig_hashalgo sig_key signat signer softdep srcversion
+                staging vermagic version'
+            return
+            ;;
+        --set-version | -${noargopts}k)
+            _comp_compgen_kernel_versions
+            return
+            ;;
+        --basedir | -${noargopts}b)
+            _comp_compgen_filedir -d
+            return
+            ;;
+    esac
+
+    [[ $was_split ]] && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help || _comp_compgen_usage
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
+    fi
+
+    local i version=$(uname -r)
+    for ((i = ${#words[@]} - 1; i > 0; i--)); do
+        if [[ ${words[i]} == -@(${noargopts}k*|-set-version) ]]; then
+            version=${words[i + 1]}
+            break
+        fi
+    done
+
+    # do filename completion if we're giving a path to a module
+    if [[ $cur == @(*/|[.~])* ]]; then
+        _comp_compgen_filedir '@(?(k)o?(.[gx]z|.zst))'
+    else
+        _comp_compgen_kernel_modules "$version"
+    fi
+} &&
+    complete -F _comp_cmd_modinfo modinfo

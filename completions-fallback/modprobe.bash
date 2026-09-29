@@ -1,0 +1,127 @@
+# Linux modprobe(8) completion
+
+# Use of this file is deprecated.
+# Upstream completion is expected to be available in kmod >= 35, use that instead.
+
+_comp_cmd_modprobe()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    local noargopts='!(-*|*[CdtS]*)'
+    # shellcheck disable=SC2254
+    case "$prev" in
+        --help | --version | -${noargopts}[hV])
+            return
+            ;;
+        --config | -${noargopts}C)
+            _comp_compgen_filedir
+            return
+            ;;
+        --dirname | --type | -${noargopts}[dt])
+            _comp_compgen_filedir -d
+            return
+            ;;
+        --set-version | -${noargopts}S)
+            _comp_compgen_kernel_versions
+            return
+            ;;
+    esac
+
+    [[ $was_split ]] && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help
+        if [[ ! ${COMPREPLY-} ]]; then
+            _comp_compgen -- -W '-a --all -b --use-blacklist -C --config
+                -c --showconfig --dump-modversions -d --dirname --first-time
+                --force-vermagic --force-modversion -f --force -i
+                --ignore-install --ignore-remove -l --list -n --dry-run -q
+                --quiet -R --resolve-alias -r --remove -S --set-version
+                --show-depends -s --syslog -t --type -V --version -v
+                --verbose'
+        fi
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
+    fi
+
+    local i mode=insert module="" version=$(uname -r)
+    for ((i = 1; i < cword; i++)); do
+        # shellcheck disable=SC2254
+        case "${words[i]}" in
+            --remove | -${noargopts}r*)
+                mode=remove
+                ;;
+            --list | -${noargopts}l*)
+                mode=list
+                ;;
+            --dump-modversions)
+                mode="file"
+                ;;
+            --set-version | -${noargopts}S)
+                version=${words[i + 1]} # -S is not $prev and not $cur
+                ;;
+            --config | --dirname | --type | -${noargopts}[Cdt])
+                ((i++)) # skip option and its argument
+                ;;
+            -*)
+                # skip all other options
+                ;;
+            *)
+                [[ ! $module ]] && module=${words[i]}
+                ;;
+        esac
+    done
+
+    case $mode in
+        remove)
+            _comp_compgen_inserted_kernel_modules
+            ;;
+        list)
+            # no completion available
+            ;;
+        file)
+            _comp_compgen_filedir
+            ;;
+        insert)
+            # do filename completion if we're giving a path to a module
+            if [[ $cur == @(*/|[.~])* ]]; then
+                _comp_compgen_filedir '@(?(k)o?(.[gx]z|.zst))'
+            elif [[ $module ]]; then
+                # do module parameter completion
+                if [[ $cur == *=* ]]; then
+                    prev=${cur%%=*}
+                    cur=${cur#*=}
+                    if PATH="$PATH:/sbin" modinfo -p "$module" 2>/dev/null |
+                        command grep -q "^$prev:.*(bool)"; then
+                        local choices="on off"
+                        [[ $cur ]] && choices="1 0 y Y n N on off"
+                        _comp_compgen -- -W "$choices"
+                    fi
+                else
+                    _comp_compgen_split -S = -- "$(PATH="$PATH:/sbin" \
+                        modinfo -p "$module" 2>/dev/null |
+                        _comp_awk -F : '!/^[ \t]/ { print $1 }')"
+                    [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+                fi
+            else
+                _comp_compgen_kernel_modules "$version"
+                if [[ ${COMPREPLY-} ]]; then
+                    # filter out already installed modules
+                    local -a mods=("${COMPREPLY[@]}")
+                    _comp_compgen_inserted_kernel_modules
+                    for i in "${!mods[@]}"; do
+                        for module in "${COMPREPLY[@]}"; do
+                            if [[ ${mods[i]} == "$module" ]]; then
+                                unset -v 'mods[i]'
+                                break
+                            fi
+                        done
+                    done
+                    COMPREPLY=("${mods[@]}")
+                fi
+            fi
+            ;;
+    esac
+} &&
+    complete -F _comp_cmd_modprobe modprobe

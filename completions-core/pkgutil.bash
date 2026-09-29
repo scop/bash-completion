@@ -1,0 +1,111 @@
+# pkgutil completion
+# Copyright 2006 Yann Rouillard <yann@opencsw.org>
+
+# At least macOS pkgutil is different
+[[ $OSTYPE == *solaris* ]] || return 1
+
+_comp_cmd_pkgutil__url2catalog()
+{
+    local filename="$1"
+
+    filename="${filename##*://}"
+    filename="${filename//\//_}"
+    filename="/var/opt/csw/pkgutil/catalog.${filename}_$(uname -p)_$(uname -r)"
+
+    REPLY=$filename
+}
+
+_comp_cmd_pkgutil()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -n : -- "$@" || return
+
+    local command="" catalog_files configuration_files
+    local -a configuration_files=(
+        "/opt/csw/etc/pkgutil.conf" "/etc/opt/csw/pkgutil.conf")
+    local -a catalog_files=()
+
+    local i=$cword REPLY
+    while ((i-- > 1)); do
+        if [[ ${words[i]} == -@(t|-temp) ]]; then
+            local url="${words[i + 1]}"
+            _comp_cmd_pkgutil__url2catalog "$url"
+            catalog_files=("$REPLY")
+        elif [[ ${words[i]} == --config ]]; then
+            local REPLY
+            _comp_dequote "${words[i + 1]}" && configuration_files=("$REPLY")
+        elif [[ ${words[i]} == -@([iurdacUS]|-install|-upgrade|-remove|-download|-available|-compare|-catalog|-stream) ]]; then
+            command="${words[i]}"
+        fi
+    done
+
+    if [[ $prev == -@([WPR]|-workdir|-pkgdir|-rootpath) ]]; then
+        _comp_compgen_filedir -d
+        return
+    fi
+
+    if [[ $prev == -@(o|-output|-config) ]]; then
+        _comp_compgen_filedir
+        return
+    fi
+
+    if [[ $prev == -@(p|-param) ]]; then
+        compopt -o nospace
+        _comp_compgen -- -W 'mirror: pkgaddopts: pkgrmopts: wgetopts: use_gpg:
+            use_md5: pkgliststyle: maxpkglist: noncsw: stop_on_hook_soft_error:
+            exclude_pattern: gpg_homedir: root_path: deptree_filter_common:
+            show_current: catalog_not_cached: catalog_update:'
+        return
+    fi
+
+    if [[ $prev == @(-T|--target) ]]; then
+        # Work-around bash_completion issue where bash interprets a colon
+        # as a separator, borrowed from maven completion code which borrowed
+        # it from darcs completion code :)
+        local colonprefixes=${cur%"${cur##*:}"}
+        _comp_compgen -- -W 'sparc:5.9 sparc:5.10 sparc:5.11 i386:5.9 i386:5.10
+            i386:5.11'
+        local i=${#COMPREPLY[*]}
+        while ((i-- > 0)); do
+            COMPREPLY[i]=${COMPREPLY[i]#"$colonprefixes"}
+        done
+        return
+    fi
+
+    if [[ $command && $cur != -* ]]; then
+
+        local mirrors mirror_url
+        mirrors=$(_comp_awk -F = ' $1 ~ /^ *mirror *$/ { print $2 }' "${configuration_files[@]}")
+        mirrors=${mirrors:-http://mirror.opencsw.org/opencsw/testing}
+        for mirror_url in $mirrors; do
+            _comp_cmd_pkgutil__url2catalog "$mirror_url"
+            catalog_files+=("$REPLY")
+        done
+
+        if [[ $command == -@([dius]|-download|-install|-upgrade|-stream) ]]; then
+            local packages_list=$(_comp_awk ' $0 ~ /BEGIN PGP SIGNATURE/ { exit } $1 ~ /^Hash:/ || $1 ~ /^ *(-|#|$)/ { next } { print $1 }' "${catalog_files[@]}")
+            _comp_compgen -- -W "${packages_list}"
+
+        elif [[ $command == @(-r|--remove) ]]; then
+            local packages_list=$(
+                pkginfo | _comp_awk ' $2 ~ /^CSW/ { printf ("%s|",$2) }'
+            )
+            packages_list=${packages_list%|}
+            packages_list=$(nawk " \$3 ~ /^$packages_list\$/ { print \$1 }" "${catalog_files[@]}")
+            _comp_compgen -- -W "${packages_list}"
+        fi
+        return
+    fi
+
+    local -a commands=(
+        --install --upgrade --remove --download --catalog --available
+        --describe --compare --compare-diff --compare-avail --email --temp
+        --exclude --workdir --pkgdir --rootpath --config --yes --force --nomod
+        --nodeps --debug --trace --help --version --syscheck --list --listfile
+        --findfile --deptree --extract --stream --output --target --single
+        --param --parse --cleanup --catinfo
+    )
+    _comp_compgen -- -W '"${commands[@]}"'
+
+} &&
+    complete -F _comp_cmd_pkgutil pkgutil

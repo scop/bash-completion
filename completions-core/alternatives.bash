@@ -1,0 +1,95 @@
+# bash completion for alternatives
+
+_comp_cmd_alternatives__installed()
+{
+    local i admindir=""
+    # find the admin dir
+    for i in alternatives rpm/alternatives; do
+        [[ -d /var/lib/$i ]] && admindir=/var/lib/$i && break
+    done
+    for ((i = 1; i < cword; i++)); do
+        if [[ ${words[i]} == --admindir ]]; then
+            admindir=${words[i + 1]}
+            break
+        fi
+    done
+    [[ -d $admindir ]] && _comp_compgen -C "$admindir" -- -fX '*/*'
+}
+
+_comp_cmd_alternatives()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    case $prev in
+        --altdir | --admindir)
+            _comp_compgen_filedir -d
+            return
+            ;;
+        --help | --usage | --version)
+            return
+            ;;
+    esac
+
+    local mode="" args i
+
+    # find which mode to use and how many real args used so far
+    for ((i = 1; i < cword; i++)); do
+        if [[ ${words[i]} == --@(install|remove|auto|display|config|remove-all|set) ]]; then
+            mode=${words[i]}
+            args=$((cword - i))
+            break
+        fi
+    done
+
+    case ${mode-} in
+        --install)
+            case $args in
+                1 | 3)
+                    _comp_compgen_filedir
+                    ;;
+                2)
+                    _comp_cmd_alternatives__installed
+                    ;;
+                4)
+                    # priority - no completions
+                    ;;
+                *)
+                    case $((args % 4)) in
+                        0 | 2)
+                            _comp_compgen_filedir
+                            ;;
+                        1)
+                            _comp_compgen -- -W '--slave'
+                            ;;
+                        3)
+                            _comp_cmd_alternatives__installed
+                            ;;
+                    esac
+                    ;;
+            esac
+            ;;
+        --remove | --set)
+            case $args in
+                1)
+                    _comp_cmd_alternatives__installed
+                    ;;
+                2)
+                    _comp_compgen_filedir
+                    ;;
+            esac
+            ;;
+        --auto | --remove-all | --display | --config)
+            _comp_cmd_alternatives__installed
+            ;;
+        *)
+            _comp_compgen_help - <<<"$(LANG=C "$1" --help 2>&1 | command sed '
+                /usage:/,/^[[:space:]]*$/{
+                  s/^\([[:space:]]*usage:\)\{0,1\}[[:space:]]*[^[:space:]]*alternatives /  /
+                  s/^[[:space:]]*\[\(-.*\)\]/  \1/
+                }
+                /common options:/,$s/ --/\n --/g')"
+            ;;
+    esac
+} &&
+    complete -F _comp_cmd_alternatives alternatives

@@ -1,0 +1,175 @@
+# mutt completion
+#
+# Mutt doesn't have an "addressbook" like Pine, but it has aliases and
+# a "query" function to retrieve addresses, so that's what we use here.
+
+# @param $1 (cur) Current word to complete
+_comp_cmd_mutt__addresses()
+{
+    _comp_cmd_mutt__aliases "$1"
+    _comp_cmd_mutt__query "$1"
+
+    _comp_compgen -ac "$1" -- -u
+}
+
+# Find muttrc to use
+# @var[out] REPLY  muttrc filename
+_comp_cmd_mutt__get_muttrc()
+{
+    REPLY=
+    # Search COMP_WORDS for '-F muttrc' or '-Fmuttrc' argument
+    set -- "${words[@]}"
+    while (($# > 0)); do
+        if [[ $1 == -F* ]]; then
+            if ((${#1} > 2)); then
+                _comp_dequote "${1:2}"
+            else
+                shift
+                [[ ${1-} ]] && _comp_dequote "$1"
+            fi
+            break
+        fi
+        shift
+    done
+
+    if [[ ! ${REPLY-} ]]; then
+        if [[ -f ~/.${muttcmd}rc ]]; then
+            REPLY=\~/.${muttcmd}rc
+        elif [[ -f ~/.${muttcmd}/${muttcmd}rc ]]; then
+            REPLY=\~/.${muttcmd}/${muttcmd}rc
+        fi
+    fi
+}
+
+# Recursively build list of sourced config files
+# @param $1...   Config file to process
+# @var[out] REPLY  List of config files
+# @return 0 if any conffiles are generated, 1 if none is generated.
+_comp_cmd_mutt__get_conffiles()
+{
+    local -a conffiles=()
+    local -A visited=()
+    local file
+    for file; do
+        _comp_dequote "$file"
+        _comp_cmd_mutt__get_conffiles__visit "${REPLY-}"
+    done
+    ((${#conffiles[@]})) || return 1
+    REPLY=("${conffiles[@]}")
+}
+# Recursion function for _comp_cmd_mutt__get_conffiles
+# @var[ref] conffiles  List of config files found so far
+# @var[ref] visited    Dictionary of config files already visited
+_comp_cmd_mutt__get_conffiles__visit()
+{
+    [[ -f $1 && ${visited[$1]-} != set ]] || return 0
+    visited[$1]=set
+    conffiles+=("$1")
+
+    local -a newconffiles
+    _comp_split newconffiles "$(command sed -n 's|^source[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' "$1")" ||
+        return 0
+
+    local file REPLY
+    for file in "${newconffiles[@]}"; do
+        _comp_expand_tilde "$file"
+        _comp_cmd_mutt__get_conffiles__visit "$REPLY"
+    done
+}
+
+# @param $1 (cur) Current word to complete
+_comp_cmd_mutt__aliases()
+{
+    local cur=$1 muttrc muttcmd=${words[0]} REPLY
+    local -a conffiles aliases
+
+    _comp_cmd_mutt__get_muttrc
+    muttrc=$REPLY
+    [[ ! $muttrc ]] && return
+
+    local REPLY
+    _comp_cmd_mutt__get_conffiles "$muttrc" || return 0
+    conffiles=("${REPLY[@]}")
+    _comp_compgen -a split -- "$(command sed -n 's|^alias[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*$|\1|p' \
+        "${conffiles[@]}")"
+}
+
+# @param $1 (cur) Current word to complete
+_comp_cmd_mutt__query()
+{
+    local cur=$1
+    [[ $cur ]] || return 0
+    local muttcmd=${words[0]}
+
+    local querycmd=$("$muttcmd" -Q query_command 2>/dev/null | command sed -e 's|^query_command="\(.*\)"$|\1|' -e 's|%s|'"$cur"'|')
+    if [[ $querycmd ]]; then
+        local REPLY
+        _comp_expand_tilde "$querycmd"
+        querycmd=$REPLY
+        # generate queryresults:
+        # $querycmd is expected to be a command with arguments
+        _comp_compgen -a split -- "$($querycmd |
+            command sed -n '2,$s|^\([^[:space:]]\{1,\}\).*|\1|p')"
+    fi
+}
+
+# @param $1 (cur) Current word to complete
+_comp_cmd_mutt__filedir()
+{
+    local cur=$1 folder muttrc spoolfile muttcmd=${words[0]} REPLY
+    _comp_cmd_mutt__get_muttrc
+    muttrc=$REPLY
+    if [[ $cur == [=+]* ]]; then
+        folder=$("$muttcmd" -F "$muttrc" -Q folder 2>/dev/null | command sed -e 's|^folder="\(.*\)"$|\1|')
+        [[ $folder ]] || folder=~/Mail
+
+        # Match any file in $folder beginning with $cur
+        # (minus the leading '=' sign).
+        compopt -o filenames
+        _comp_compgen -c "$folder/${cur:1}" -- -f
+        COMPREPLY=("${COMPREPLY[@]#"$folder"/}")
+        return
+    elif [[ $cur == !* ]]; then
+        spoolfile=$("$muttcmd" -F "$muttrc" -Q spoolfile 2>/dev/null |
+            command sed -e 's|^spoolfile="\(.*\)"$|\1|')
+        if [[ $spoolfile ]]; then
+            _comp_dequote "\"$spoolfile\"" && spoolfile=$REPLY
+            cur=$spoolfile${cur:1}
+        fi
+    fi
+    _comp_compgen -c "$cur" filedir
+}
+
+_comp_cmd_mutt()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -n =+! -- "$@" || return
+
+    case $cur in
+        -*)
+            _comp_compgen -- -W '-A -a -b -c -e -f -F -H -i -m -n -p -Q -R -s
+                -v -x -y -z -Z -h'
+            return
+            ;;
+        *)
+            case $prev in
+                -*[afFHi])
+                    _comp_cmd_mutt__filedir "$cur"
+                    return
+                    ;;
+                -*A)
+                    _comp_cmd_mutt__aliases "$cur"
+                    return
+                    ;;
+                -*[emQshpRvyzZ])
+                    return
+                    ;;
+                *)
+                    _comp_cmd_mutt__addresses "$cur"
+                    return
+                    ;;
+            esac
+            ;;
+    esac
+} &&
+    complete -F _comp_cmd_mutt -o default mutt muttng neomutt

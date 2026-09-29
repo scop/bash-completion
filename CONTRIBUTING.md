@@ -1,11 +1,50 @@
 # Contributing to bash-completion
 
-Contributions to the bash completion project are more than
+Contributions to the bash-completion project are more than
 welcome. Fixes, clean-ups and improvements of existing code are much
 appreciated, as are completion functions for new commands.
 
-If you wish to contribute code, please bare the following coding
-guidelines in mind:
+However, before submitting a completion to us, first consider submitting it to
+the project that ships the commands your completion is for. Having the
+completion shipped along with the command opens up some liberties we don't have
+if the completion is included with bash-completion. For example, we generally
+do not want to hardcode lists of available command options and their
+completions, because they quite probably vary between versions of the completed
+command, and therefore resort to scraping --help output and the like. While we
+do fairly well there, depending on the command, this can be fragile or
+expensive, or just not possible. If the completion is shipped alongside the
+command, they can be kept in sync and use more hardcoding etc. They are also
+more likely to be maintained and/or watched by people intimately familiar with
+the completed commands. See instructions in README.md how to install completion
+files from other projects so they are automatically enabled and dynamically
+loaded by bash-completion.
+
+On the other hand, we do have a pretty nice test suite and a bunch of helper
+functions that you may find useful. And a whole slew of completions in one
+package. Our functions can be used from "external" completions as well, just
+make sure you test for their existence and/or fail gracefully if you intend
+your completion to be usable without having bash-completion installed.
+
+It's nowhere near clear cut always what is the best place for the completion,
+upstream project or us. Even if it would seem to be upstream, not all upstreams
+are interested in shipping completions, or their install systems might not
+easily support installing completion files properly. Or the projects might be
+stagnant. But give it some thought, and ask if unsure.
+
+If you wish to contribute code to us, volunteering for long term maintainership
+of your code within bash-completion is welcome, and stating willingness for
+that goes a long way in getting your contribution accepted. There are a lot of
+completions in bash-completion already, and chances are that existing
+maintainers might not want to add completions they don't actively use
+themselves into their maintenance workload. When exactly you will be asked to
+join the project depends on the case; there are no real, consistent "rules" for
+that. Don't be disappointed if it does or doesn't happen instantly.
+
+Also, please bear the following coding guidelines in mind:
+
+- See the related documents, [API and naming](doc/api-and-naming.md) and
+  [Coding style guide](doc/styleguide.md), for information about conventions to
+  follow related to those topics.
 
 - Do not use Perl, Ruby, Python etc. to do text processing unless the
   command for which you are writing the completion code implies the
@@ -19,20 +58,20 @@ guidelines in mind:
   start interpreters. Use lightweight programs such as grep(1), awk(1)
   and sed(1).
 
-- Use the full power of bash >= 4.1. We no longer support earlier bash
+- Use the full power of bash >= 4.2. We no longer support earlier bash
   versions, so you may as well use all the features of that version of
   bash to optimise your code. However, be careful when using features
-  added since bash 4.1, since not everyone will be able to use them.
+  added since bash 4.2, since not everyone will be able to use them.
 
   For example, extended globs often enable you to avoid the use of
   external programs, which are expensive to fork and execute, so do
   make full use of those:
 
-  `?(pattern-list)` - match zero or one occurrences of patterns
-  `*(pattern-list)` - match zero or more occurrences of patterns
-  `+(pattern-list)` - match one or more occurrences of patterns
-  `@(pattern-list)` - match exactly one of the given patterns
-  `!(pattern-list)` - match anything except one of the given patterns
+  - `?(pattern-list)` - match zero or one occurrences of patterns
+  - `*(pattern-list)` - match zero or more occurrences of patterns
+  - `+(pattern-list)` - match one or more occurrences of patterns
+  - `@(pattern-list)` - match exactly one of the given patterns
+  - `!(pattern-list)` - match anything except one of the given patterns
 
 - Following on from the last point, be sparing with the use of
   external processes whenever you can. Completion functions need to be
@@ -55,27 +94,52 @@ guidelines in mind:
   As another example,
 
   ```shell
-  bar=$( echo $foo | sed -e 's/bar/baz/g' )
+  bar=$(echo $foo | command sed -e 's/bar/baz/g')
   ```
 
   can be replaced by:
 
-  ```shell
+  ```bash
   bar=${foo//bar/baz}
   ```
 
   These forms of parameter substitutions can also be used on arrays,
   which makes them very powerful (if a little slow).
 
-- Prefer `compgen -W '...' -- $cur` over embedding `$cur` in external
-  command arguments (often e.g. sed, grep etc) unless there's a good
-  reason to embed it. Embedding user input in command lines can result
-  in syntax errors and other undesired behavior, or messy quoting
-  requirements when the input contains unusual characters. Good
-  reasons for embedding include functionality (if the thing does not
-  sanely work otherwise) or performance (if it makes a big difference
-  in speed), but all embedding cases should be documented with
-  rationale in comments in the code.
+- We want our completions to work in `posix` and `nounset` modes.
+
+  Unfortunately due to a bash < 5.1 bug, toggling POSIX mode
+  interferes with keybindings and should not be done. This rules out
+  use of process substitution which causes syntax errors in POSIX mode
+  of bash < 5.1.
+
+  Instead of toggling `nounset` mode, make sure to test whether
+  variables are set (e.g. with `[[ -v varname ]]`) or use default
+  expansion (e.g. `${varname-}`).
+
+- Prefer `_comp_compgen_split -- "$(...)"` over embedding `$cur` in external
+  command arguments (often e.g. sed, grep etc) unless there's a good reason to
+  embed it. Embedding user input in command lines can result in syntax errors
+  and other undesired behavior, or messy quoting requirements when the input
+  contains unusual characters.  Good reasons for embedding include
+  functionality (if the thing does not sanely work otherwise) or performance
+  (if it makes a big difference in speed), but all embedding cases should be
+  documented with rationale in comments in the code.
+
+  Do not use `_comp_compgen -- -W "$(...)"` or `_comp_compgen -- -W '$(...)'`
+  but always use `_comp_compgen_split -- "$(...)"`.  In the former case, when
+  the command output contains strings looking like shell expansions, the
+  expansions will be unexpectedly performed, which becomes a vulnerability.  In
+  the latter case, checks by shellcheck and shfmt will not be performed inside
+  `'...'`.  Also, `_comp_compgen_split` is `IFS`-safe.
+
+  Avoid using `_comp_compgen -- -G "pattern"` to generate completions.  The
+  result is not filtered by the current word `cur` due to the Bash design of
+  `compgen`.  Also, this cannot be used to generate filenames with a specified
+  extension because the `-G` specification only generates the matching
+  filepaths in the current directory.  It does not look into subdirectories
+  even when `$cur` implies completion in a subdirectory.  One can instead use
+  `_comp_compgen -- -f -X '!pattern'`.
 
 - When completing available options, offer only the most descriptive
   ones as completion results if there are multiple options that do the
@@ -90,7 +154,7 @@ guidelines in mind:
   `--something` do the same thing and require an argument, offer only
   `--something` as a completion when completing option names starting
   with a dash, but do implement required argument processing for all
-  `-s`, `-S`, and `--something`.  Note that GNU versions of various
+  `-s`, `-S`, and `--something`. Note that GNU versions of various
   standard commands tend to have long options while other userland
   implementations of the same commands may not have them, and it would
   be good to have the completions work for as many userlands as
@@ -108,6 +172,19 @@ guidelines in mind:
 - Make small, incremental commits that do one thing. Don't cram
   unrelated changes into a single commit.
 
+- We use [Conventional Commits](https://www.conventionalcommits.org/)
+  to format commit messages.
+  [`committed`](https://github.com/crate-ci/committed)
+  is the tool we use in our pre-commit linting to check
+  commit messages, using most of
+  [its default rules](https://github.com/crate-ci/committed/blob/master/docs/reference.md#config-fields),
+  in particular the conventional commit types.
+
+  It is important to do this correctly; commit types `fix` and `feat`
+  as well as any change marked as breaking affects what ends up in the
+  release notes, and what will the next bash-completion release's
+  (semantic) version be.
+
 - If your code was written for a particular platform, try to make it
   portable to other platforms, so that everyone may enjoy it. If your
   code works only with the version of a binary on a particular
@@ -119,9 +196,9 @@ guidelines in mind:
   use them, do so if there's no other sane way to do what you're doing.
   The "Shell and Utilities" volume of the POSIX specification is a good
   starting reference for portable use of various utilities, see
-  http://pubs.opengroup.org/onlinepubs/9699919799/
+  <https://pubs.opengroup.org/onlinepubs/9699919799/>.
 
-- Use an editor that supports EditorConfig, see http://editorconfig.org/,
+- Use an editor that supports EditorConfig, see <https://editorconfig.org/>,
   and format source code according to our settings.
 
 - Read the existing source code for examples of how to solve
@@ -137,9 +214,31 @@ guidelines in mind:
   test suite (in the test/ dir) that verify that the code does what it
   is intended to do, fixes issues it intends to fix, etc.
 
+- In addition to running the test suite, there are a few scripts in the test/
+  dir that catch some common issues, see and use for example runLint.
+
+- Make sure you have Python 3.7 or later installed. This is required for
+  running the development tooling, linters etc. Rest of the development
+  Python dependencies are specified in `test/requirements-dev.txt` which
+  can be fed for example to `pip`:
+
+  ```shell
+  python3 -m pip install -r test/requirements-dev.txt
+  ```
+
+- Install prek and set it up, see <https://prek.j178.dev>.
+  That'll run a bunch of linters and the like, the same as the
+  bash-completion CI does. Running it locally and fixing found issues before
+  commit/push/PR reduces some roundtrips with the review.
+  After installing it, enable it for stages we use it with like:
+
+  ```shell
+  prek install --hook-type pre-commit --hook-type commit-msg
+  ```
+
 - File bugs, enhancement, and pull requests at GitHub,
-  https://github.com/scop/bash-completion
-  Sending them to the developers might work too, but is really
+  <https://github.com/scop/bash-completion>.
+  Sending them to the developers might work too, but is really strongly
   discouraged as bits are more likely to fall through the cracks that
   way compared to the tracker. Just use GitHub. If that's not an
   option for some reason and you want to use email to send patches,

@@ -1,0 +1,132 @@
+# bash completion for openssl
+
+_comp_cmd_openssl__compgen_sections()
+{
+    local config="" _i _file
+
+    # check if a specific configuration file is used
+    for ((_i = 2; _i < cword; _i++)); do
+        if [[ ${words[_i]} == -config ]]; then
+            config=${words[_i + 1]}
+            break
+        fi
+    done
+
+    # if no config given, check some usual default locations
+    if [[ ! $config ]]; then
+        for _file in /etc/ssl/openssl.cnf /etc/pki/tls/openssl.cnf \
+            /usr/share/ssl/openssl.cnf; do
+            [[ -f $_file ]] && config=$_file && break
+        done
+    fi
+
+    [[ ! -f $config ]] && return
+
+    _comp_compgen -U config split -- "$(_comp_awk '/\[.*\]/ {print $2}' "$config")"
+}
+
+_comp_cmd_openssl__compgen_digests()
+{
+    [[ $cur == -* ]] || return
+    _comp_compgen_split -- "$(
+        "$1" dgst -h 2>&1 |
+            _comp_awk '/^-.*[ \t]to use the .* message digest algorithm/ { print $1 }'
+    )"
+    _comp_compgen_split -- "$("$1" help 2>&1 |
+        command sed -ne '/^Message Digest commands/,/^[[:space:]]*$/p' |
+        command sed -e '1d;s/^/-/')"
+}
+
+_comp_cmd_openssl()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    local command formats
+
+    if ((cword == 1)); then
+        local commands
+        # We only want the standard commands, so we delete everything starting after and including "Message Digest commands"
+        commands=$("$1" help 2>&1 | command sed -e '/Standard commands/d;/help:/d' -e '/Message Digest commands/,$d')
+        _comp_compgen -- -W "$commands"
+    else
+        command=${words[1]}
+        case $prev in
+            -CA | -CAfile | -CAkey | -CAserial | -cert | -certfile | -config | -content | \
+                -dcert | -dkey | -dhparam | -extfile | -in | -inkey | -kfile | -key | -keyout | \
+                -out | -oid | -paramfile | -peerkey | -prvrify | -rand | -recip | -revoke | \
+                -sess_in | -sess_out | -spkac | -sigfile | -sign | -signkey | -signer | \
+                -signature | -ss_cert | -untrusted | -verify | -writerand)
+                _comp_compgen_filedir
+                return
+                ;;
+            -outdir | -CApath)
+                _comp_compgen_filedir -d
+                return
+                ;;
+            -name | -crlexts | -extensions)
+                _comp_cmd_openssl__compgen_sections
+                return
+                ;;
+            -inform | -outform | -keyform | -certform | -CAform | -CAkeyform | -dkeyform | \
+                -dcertform | -peerform)
+                formats='DER PEM'
+                case $command in
+                    x509)
+                        formats+=" NET"
+                        ;;
+                    smime)
+                        formats+=" SMIME"
+                        ;;
+                    pkeyutl)
+                        formats+=" ENGINE"
+                        ;;
+                esac
+                _comp_compgen -- -W "$formats"
+                return
+                ;;
+            -connect)
+                _comp_compgen_known_hosts
+                return
+                ;;
+            -starttls)
+                _comp_compgen -- -W ' smtp pop3 imap ftp xmpp xmpp-server
+                    telnet irc mysql postgres lmtp nntp sieve ldap'
+                return
+                ;;
+            -cipher)
+                _comp_compgen_split -F : -- "$("$1" ciphers)"
+                return
+                ;;
+            -kdf)
+                _comp_compgen -- -W 'TLS1-PRF HKDF'
+                return
+                ;;
+        esac
+
+        if [[ $cur == -* ]]; then
+            # possible options for the command
+            _comp_compgen_help -- "$command" -help
+            case $command in
+                dgst | req | x509)
+                    _comp_compgen -a -i openssl digests "$1"
+                    ;;
+                enc)
+                    # The -list option was added in openssl 1.1.1e, so we ignore the error here.
+                    # We do get some of the ciphers "by accident", since some are detected in the help output.
+                    _comp_compgen -a split -- "$("$1" enc -list 2>/dev/null | command sed '/Supported ciphers:/d')"
+                    ;;
+            esac
+        else
+            if [[ $command == speed ]]; then
+                _comp_compgen -- -W 'md2 mdc2 md5 hmac sha1 rmd160 idea-cbc
+                    rc2-cbc rc5-cbc bf-cbc des-cbc des-ede3 rc4 rsa512 rsa1024
+                    rsa2048 rsa4096 dsa512 dsa1024 dsa2048 idea rc2 des rsa
+                    blowfish'
+            else
+                _comp_compgen_filedir
+            fi
+        fi
+    fi
+} &&
+    complete -F _comp_cmd_openssl -o default openssl

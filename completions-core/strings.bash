@@ -1,0 +1,45 @@
+# strings(1) completion
+
+_comp_cmd_strings()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    local noargopts='!(-*|*[nstTe]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --help | --version | --bytes | --output-separator | -arch | \
+            -${noargopts}[hvVns])
+            return
+            ;;
+        --radix | -${noargopts}t)
+            _comp_compgen -- -W 'o d x'
+            return
+            ;;
+        --target | -${noargopts}T)
+            _comp_compgen_split -- "$(LC_ALL=C "$1" --help 2>/dev/null |
+                command sed -ne 's/: supported targets: \(.*\)/\1/p')"
+            return
+            ;;
+        --encoding | -${noargopts}e)
+            _comp_compgen_split -F , -- "$(LC_ALL=C "$1" --help 2>/dev/null |
+                command sed -ne 's/.*--encoding={\([^}]*\)}.*/\1/p')"
+            return
+            ;;
+    esac
+
+    [[ $was_split ]] && return
+
+    if [[ $cur == -* ]]; then
+        # macOS: ... [-t format] [-number] [-n number] ...
+        _comp_compgen_help ||
+            _comp_compgen_usage - <<<"$("$1" --help 2>&1 |
+                command sed -e "s/\[-number\]//")"
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
+    fi
+
+    [[ $cur =~ ^@ ]]
+    _comp_compgen -P "${BASH_REMATCH-}" filedir
+} &&
+    complete -F _comp_cmd_strings strings

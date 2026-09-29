@@ -1,0 +1,738 @@
+# ssh(1) completion
+
+_comp_cmd_ssh__compgen_queries()
+{
+    local -a queries
+    _comp_compgen -v queries -i ssh query "$1" help ||
+        queries=(cipher cipher-auth mac kex key key-cert key-plain key-sig
+            protocol-version compression sig ciphers macs kexalgorithms
+            pubkeyacceptedkeytypes hostkeyalgorithms hostbasedkeytypes
+            hostbasedacceptedkeytypes)
+    _comp_compgen -c "${cur,,}" -U queries -- -W '"${queries[@]}" help'
+}
+
+# @since 2.12
+_comp_xfunc_ssh_compgen_query()
+{
+    _comp_cmd_ssh__compgen_query ssh "$1"
+}
+
+# @deprecated 2.12 use _comp_xfunc_ssh_compgen_query
+_ssh_query()
+{
+    local -a queries=()
+    _comp_compgen -v queries -i ssh query "${1:-ssh}" "$2" &&
+        printf "%s\n" "${queries[@]}"
+}
+
+_comp_cmd_ssh__compgen_query()
+{
+    _comp_compgen_split -- "$("$1" -Q "$2" 2>/dev/null)"
+}
+
+_comp_cmd_ssh__compgen_ciphers()
+{
+    local -a queries
+    _comp_compgen -v queries -i ssh query "$1" cipher ||
+        queries=(3des-cbc aes128-cbc aes192-cbc aes256-cbc aes128-ctr
+            aes192-ctr aes256-ctr arcfour128 arcfour256 arcfour blowfish-cbc
+            cast128-cbc)
+    _comp_compgen -U queries -- -W '"${queries[@]}"'
+}
+
+_comp_cmd_ssh__compgen_macs()
+{
+    local -a queries
+    _comp_compgen -v queries -i ssh query "$1" mac ||
+        queries=(hmac-md5 hmac-sha1 umac-64@openssh.com hmac-ripemd160
+            hmac-sha1-96 hmac-md5-96)
+    _comp_compgen -U queries -- -W '"${queries[@]}"'
+}
+
+# @since 2.12
+_comp_xfunc_ssh_compgen_options()
+{
+    # curl --silent https://raw.githubusercontent.com/openssh/openssh-portable/master/ssh_config.5 | _comp_awk '$1==".It" && $2=="Cm" && $3!="Host" && $3!="Match" {print "        "$3}' | sort
+    local _opts=(
+        AddKeysToAgent AddressFamily BatchMode BindAddress BindInterface
+        CanonicalDomains CanonicalizeFallbackLocal CanonicalizeHostname
+        CanonicalizeMaxDots CanonicalizePermittedCNAMEs CASignatureAlgorithms
+        CertificateFile ChallengeResponseAuthentication CheckHostIP Ciphers
+        ClearAllForwardings Compression ConnectionAttempts ConnectTimeout
+        ControlMaster ControlPath ControlPersist DynamicForward
+        EnableSSHKeysign EscapeChar ExitOnForwardFailure FingerprintHash
+        ForwardAgent ForwardX11 ForwardX11Timeout ForwardX11Trusted
+        GatewayPorts GlobalKnownHostsFile GSSAPIAuthentication
+        GSSAPIDelegateCredentials HashKnownHosts HostbasedAuthentication
+        HostbasedKeyTypes HostKeyAlgorithms HostKeyAlias Hostname
+        IdentitiesOnly IdentityAgent IdentityFile IgnoreUnknown Include IPQoS
+        KbdInteractiveAuthentication KbdInteractiveDevices KexAlgorithms
+        LocalCommand LocalForward LogLevel MACs
+        NoHostAuthenticationForLocalhost NumberOfPasswordPrompts
+        PasswordAuthentication PermitLocalCommand PKCS11Provider Port
+        PreferredAuthentications ProxyCommand ProxyJump ProxyUseFdpass
+        PubkeyAcceptedAlgorithms PubkeyAuthentication RekeyLimit RemoteCommand
+        RemoteForward RequestTTY RequiredRSASize RevokedHostKeys
+        SecurityKeyProvider SendEnv ServerAliveCountMax ServerAliveInterval
+        SetEnv StreamLocalBindMask StreamLocalBindUnlink StrictHostKeyChecking
+        SyslogFacility TCPKeepAlive Tunnel TunnelDevice UpdateHostKeys User
+        UserKnownHostsFile VerifyHostKeyDNS VisualHostKey XAuthLocation
+    )
+    # Selected old ones
+    _opts+=(
+        GSSAPIKeyExchange GSSAPIRenewalForcesRekey GSSAPIServerIdentity
+        GSSAPITrustDns PubkeyAcceptedKeyTypes SmartcardDevice UsePrivilegedPort
+    )
+    local -a protocols
+    _comp_compgen -v protocols -i ssh query ssh protocol-version
+    if [[ ${protocols[*]-} == *1* ]]; then
+        _opts+=(Cipher CompressionLevel Protocol RhostsRSAAuthentication
+            RSAAuthentication)
+    fi
+    _comp_unlocal protocols
+
+    compopt -o nospace
+    _comp_compgen_split -l -- "$(
+        shopt -s nocasematch
+        local option
+        for option in "${_opts[@]}"; do
+            [[ $option == "$cur"* ]] && printf '%s=\n' "$option"
+        done
+    )"
+}
+
+_comp_deprecate_func 2.12 _ssh_options _comp_xfunc_ssh_compgen_options
+
+# Complete a ssh suboption (like ForwardAgent=y<tab>)
+# @param $1 the ssh executable to invoke
+# @param $2 the string to complete including the equal sign
+# Not all suboptions are completed.
+# Doesn't handle comma-separated lists.
+_comp_cmd_ssh__compgen_suboption()
+{
+    # Split into subopt and subval
+    local _prev=${2%%=*} cur=${2#*=}
+
+    case ${_prev,,} in
+        batchmode | canonicaldomains | canonicalizefallbacklocal | \
+            challengeresponseauthentication | checkhostip | \
+            clearallforwardings | controlpersist | compression | \
+            enablesshkeysign | exitonforwardfailure | forwardagent | \
+            forwardx11 | forwardx11trusted | gatewayports | \
+            gssapiauthentication | gssapikeyexchange | \
+            gssapidelegatecredentials | gssapirenewalforcesrekey | \
+            gssapitrustdns | hashknownhosts | hostbasedauthentication | \
+            identitiesonly | kbdinteractiveauthentication | \
+            kbdinteractivedevices | nohostauthenticationforlocalhost | \
+            passwordauthentication | permitlocalcommand | proxyusefdpass | \
+            pubkeyauthentication | rhostsrsaauthentication | \
+            rsaauthentication | streamlocalbindunlink | \
+            tcpkeepalive | useprivilegedport | visualhostkey)
+            _comp_compgen -- -W 'yes no'
+            ;;
+        addkeystoagent)
+            _comp_compgen -- -W 'yes ask confirm no'
+            ;;
+        addressfamily)
+            _comp_compgen -- -W 'any inet inet6'
+            ;;
+        bindaddress)
+            _comp_compgen_ip_addresses
+            ;;
+        canonicalizehostname)
+            _comp_compgen -- -W 'yes no always'
+            ;;
+        identityfile)
+            _comp_xfunc_ssh_compgen_identityfile
+            ;;
+        *file | identityagent | include | controlpath | revokedhostkeys | \
+            xauthlocation)
+            _comp_compgen_filedir
+            ;;
+        casignaturealgorithms)
+            _comp_cmd_ssh__compgen_query "$1" sig
+            ;;
+        cipher)
+            _comp_compgen -- -W 'blowfish des 3des'
+            ;;
+        ciphers)
+            _comp_cmd_ssh__compgen_ciphers "$1"
+            ;;
+        controlmaster)
+            _comp_compgen -- -W 'yes ask auto autoask no'
+            ;;
+        compressionlevel)
+            _comp_compgen -- -W '{1..9}'
+            ;;
+        fingerprinthash)
+            _comp_compgen -- -W 'md5 sha256'
+            ;;
+        ipqos)
+            _comp_compgen -- -W 'af1{1..4} af2{2..3} af3{1..3} af4{1..3}
+                cs{0..7} ef lowdelay throughput reliability'
+            ;;
+        hostbasedkeytypes | hostkeyalgorithms)
+            _comp_cmd_ssh__compgen_query "$1" key
+            ;;
+        kexalgorithms)
+            _comp_cmd_ssh__compgen_query "$1" kex
+            ;;
+        loglevel)
+            _comp_compgen -- -W 'QUIET FATAL ERROR INFO VERBOSE DEBUG{,1,2,3}'
+            ;;
+        macs)
+            _comp_cmd_ssh__compgen_macs "$1"
+            ;;
+        pkcs11provider)
+            _comp_compgen_filedir so
+            ;;
+        preferredauthentications)
+            _comp_compgen -- -W 'gssapi-with-mic host-based publickey
+                keyboard-interactive password'
+            ;;
+        protocol)
+            local -a protocols
+            _comp_compgen -v protocols -i ssh query "$1" protocol-version
+            [[ ${protocols-} ]] || protocols=(1 2)
+            if ((${#protocols[@]} > 1)); then
+                _comp_compgen -- -W '"${protocols[@]}"'
+            fi
+            ;;
+        proxyjump)
+            _comp_compgen_known_hosts -a ${configfile:+-F "$configfile"}
+            ;;
+        proxycommand | remotecommand | localcommand)
+            _comp_compgen_commands
+            ;;
+        pubkeyacceptedalgorithms | pubkeyacceptedkeytypes)
+            _comp_cmd_ssh__compgen_query "$1" key
+            ;;
+        requesttty)
+            _comp_compgen -- -W 'no yes force auto'
+            ;;
+        requiredrsasize)
+            _comp_compgen -- -W '1024 2048 3072 4096 7680 15360'
+            ;;
+        stricthostkeychecking)
+            _comp_compgen -- -W 'accept-new ask no off'
+            ;;
+        syslogfacility)
+            _comp_compgen -- -W 'DAEMON USER AUTH LOCAL{0..7}'
+            ;;
+        tunnel)
+            _comp_compgen -- -W 'yes no point-to-point ethernet'
+            ;;
+        updatehostkeys | verifyhostkeydns)
+            _comp_compgen -- -W 'yes no ask'
+            ;;
+    esac
+    return 0
+}
+
+# Try to complete -o SubOptions=
+#
+# Returns 0 if the completion was handled or non-zero otherwise.
+# @since 2.12
+_comp_xfunc_ssh_compgen_suboption_check()
+{
+    _comp_cmd_ssh__compgen_suboption_check ssh
+}
+
+# @param $1 the ssh executable to invoke
+_comp_cmd_ssh__compgen_suboption_check()
+{
+    # Get prev and cur words without splitting on =
+    local cur prev
+    _comp_get_words -n := cur prev
+    if [[ $cur == *=* && $prev == -*o ]]; then
+        _comp_unlocal prev
+        _comp_cmd_ssh__compgen_suboption "$1" "$cur"
+        return $?
+    fi
+    return 1
+}
+
+# @deprecated 2.12 use `_comp_xfunc_ssh_compgen_suboption_check` instead
+_ssh_suboption_check()
+{
+    _comp_cmd_ssh__compgen_suboption_check "${1:-ssh}"
+}
+
+# Search COMP_WORDS for '-F configfile' or '-Fconfigfile' argument
+# @var[out] configfile   Found configfile, if any
+_comp_cmd_ssh__configfile()
+{
+    configfile=""
+    set -- "${words[@]}"
+    while (($# > 0)); do
+        if [[ $1 == -F* ]]; then
+            local REPLY
+            if ((${#1} > 2)); then
+                _comp_dequote "${1:2}" && configfile=$REPLY
+            else
+                shift
+                [[ ${1-} ]] && _comp_dequote "$1" && configfile=$REPLY
+            fi
+            break
+        fi
+        shift
+    done
+}
+
+# With $1 set, look for public key files, else private
+# @since 2.12
+# shellcheck disable=SC2120
+_comp_xfunc_ssh_compgen_identityfile()
+{
+    local cur=$cur tmp
+    [[ ! $cur && -d ~/.ssh ]] && cur=~/.ssh/id
+    _comp_compgen -c "$cur" filedir -X "${1:+!}*.pub"
+}
+
+_comp_deprecate_func 2.12 _ssh_identityfile _comp_xfunc_ssh_compgen_identityfile
+
+_comp_cmd_ssh()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -n : -- "$@" || return
+
+    local configfile
+    _comp_cmd_ssh__configfile
+
+    _comp_cmd_ssh__compgen_suboption_check "$1" && return
+
+    local ipvx=
+
+    # Keep cases sorted the same they're in ssh's usage message
+    # (but do group ones with same arg completion)
+    case $prev in
+        -*B)
+            _comp_compgen_available_interfaces -a
+            return
+            ;;
+        -*b)
+            _comp_compgen_ip_addresses
+            return
+            ;;
+        -*c)
+            _comp_cmd_ssh__compgen_ciphers "$1"
+            return
+            ;;
+        -*[DeLPpRW])
+            return
+            ;;
+        -*[EFS])
+            _comp_compgen_filedir
+            return
+            ;;
+        -*I)
+            _comp_compgen_filedir so
+            return
+            ;;
+        -*i)
+            _comp_xfunc_ssh_compgen_identityfile
+            return
+            ;;
+        -*J)
+            _comp_compgen_known_hosts -a ${configfile:+-F "$configfile"}
+            return
+            ;;
+        -*l)
+            _comp_compgen -- -u
+            return
+            ;;
+        -*m)
+            _comp_cmd_ssh__compgen_macs "$1"
+            return
+            ;;
+        -*O)
+            _comp_compgen -- -W 'check forward cancel proxy exit stop'
+            return
+            ;;
+        -*o)
+            _comp_xfunc_ssh_compgen_options "$1"
+            return
+            ;;
+        -*Q)
+            _comp_cmd_ssh__compgen_queries "$1"
+            return
+            ;;
+        -*w)
+            _comp_compgen_available_interfaces
+            return
+            ;;
+        -*4*)
+            ipvx=-4
+            ;;
+        -*6*)
+            ipvx=-6
+            ;;
+    esac
+
+    if [[ $cur == -F* ]]; then
+        _comp_compgen -P "-F" filedir
+    elif [[ $cur == -* ]]; then
+        _comp_compgen_usage
+    else
+        local REPLY
+        # Keep glob sort in sync with cases above
+        _comp_count_args -n "=" -a "-*[BbcDeLpRWEFSIiJlmOoQw]"
+        if ((REPLY > 1)); then
+            compopt -o filenames
+            _comp_compgen_commands
+        else
+            _comp_compgen_known_hosts ${ipvx-} -a ${configfile:+-F "$configfile"}
+        fi
+    fi
+} &&
+    shopt -u hostcomplete &&
+    complete -F _comp_cmd_ssh ssh slogin autossh sidedoor
+
+# sftp(1) completion
+#
+_comp_cmd_sftp()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    local configfile
+    _comp_cmd_ssh__configfile
+
+    # Prefer `ssh` from same dir for resolving options, etc
+    local pathcmd
+    pathcmd=$(type -P -- "$1") && local PATH=${pathcmd%/*}:$PATH
+
+    _comp_xfunc_ssh_compgen_suboption_check && return
+
+    local ipvx=
+
+    case $prev in
+        -*[BDlPRs])
+            return
+            ;;
+        -*[bF])
+            _comp_compgen_filedir
+            return
+            ;;
+        -*i)
+            _comp_xfunc_ssh_compgen_identityfile
+            return
+            ;;
+        -*c)
+            _comp_cmd_ssh__compgen_ciphers
+            return
+            ;;
+        -*J)
+            _comp_compgen_known_hosts -a ${configfile:+-F "$configfile"}
+            return
+            ;;
+        -*o)
+            _comp_xfunc_ssh_compgen_options
+            return
+            ;;
+        -*S)
+            _comp_compgen_commands
+            return
+            ;;
+        -*4*)
+            ipvx=-4
+            ;;
+        -*6*)
+            ipvx=-6
+            ;;
+    esac
+
+    if [[ $cur == -F* ]]; then
+        _comp_compgen -P "-F" filedir
+    elif [[ $cur == -* ]]; then
+        _comp_compgen_usage
+    else
+        _comp_compgen_known_hosts ${ipvx:+"$ipvx"} -a ${configfile:+-F "$configfile"}
+    fi
+} &&
+    shopt -u hostcomplete && complete -F _comp_cmd_sftp sftp
+
+# things we want to backslash escape in scp paths
+_comp_cmd_scp__path_esc='[][(){}<>"'"'"',:;^&!$=?`\\|[:space:]]'
+
+# Escape shell special characters in filenames by backslash.  This also
+# suffixes a space or a slash based on the file type.
+#
+# Note: With a non-empty prefix ($1 of _comp_xfunc_scp_compgen_local_files),
+# Bash will not recognize any filenames, so we need to perform the proper
+# quoting manually.  We also need to manually suffix a space or a slash based
+# on the file type because "-o nospace" is specified.  One might think of using
+# "compopt +o nospace" instead, but it would suffix a space to directory names
+# unexpectedly.
+#
+# FIXME: With the current strategy of using "ls -FL", we cannot distinguish the
+# filenames that end with one of the type-classifier characters.  For example,
+# a regular file "pipe|" and a named pipe "pipe" would both produce the
+# identical result "pipe|" with "ls -1FL".  As a consequence, those characters
+# at the end of the filename are removed unexpectedly.  To solve this problem,
+# we need to give up relying on "ls -1FL". See
+# https://github.com/scop/bash-completion/issues/1245
+#
+# Options:
+#     -d  Only directory names are selected.
+# @param $1 escape_replacement - If a non-empty value is specified, special
+#     characters are replaced with the specified value (instead of the default
+#     '\\&').
+# @stdin List of filenames in the "ls -1F" format, where filenames are
+#     separated by newlines, and characters /*@|=> are suffixed based on the
+#     types of the files.
+_comp_cmd_scp__escape_path()
+{
+    local OPTIND=1 OPTARG="" OPTERR=0 opt dirs_only=""
+    while getopts ':d' _flag "$@"; do
+        case $_flag in
+            d) dirs_only=set ;;
+            *)
+                echo "bash_completion: $FUNCNAME: usage error: $*" >&2
+                return 1
+                ;;
+        esac
+    done
+    shift "$((OPTIND - 1))"
+    local escape_replacement=${1:-'\\&'}
+
+    if [[ $dirs_only ]]; then
+        # escape problematic characters; remove non-dirs
+        command sed \
+            -e '/[^/]$/d' \
+            -e 's/'"$_comp_cmd_scp__path_esc"'/'"$escape_replacement"'/g'
+    else
+        # escape problematic characters; remove executable, symlink, pipe,
+        # socket and door indicators; add space at end of file names
+        command sed \
+            -e 's/[*@|=>]$//g' \
+            -e 's/'"$_comp_cmd_scp__path_esc"'/'"$escape_replacement"'/g' \
+            -e 's/[^/]$/& /g'
+    fi
+}
+
+# Complete remote files with ssh. Returns paths escaped with three backslashes
+# (unless -l option is provided).
+# Options:
+#     -d  Complete on dirs only.
+#     -l  Return paths escaped with one backslash instead of three.
+# @since 2.12
+# shellcheck disable=SC2120
+_comp_xfunc_scp_compgen_remote_files()
+{
+    local _dirs_only=""
+    local _less_escaping=""
+
+    local _flag OPTIND=1 OPTARG="" OPTERR=0
+    while getopts "dl" _flag "$@"; do
+        case $_flag in
+            d) _dirs_only=set ;;
+            l) _less_escaping=set ;;
+            *)
+                echo "bash_completion: $FUNCNAME: usage error: $*" >&2
+                return 1
+                ;;
+        esac
+    done
+
+    # remove backslash escape from the first colon
+    local REPLY=$cur
+    if [[ ! $_less_escaping ]]; then
+        # unescape (3 backslashes to 1 for chars we escaped)
+        #
+        # In the following while-loop, we essentially do the following:
+        #
+        #     REPLY=$(command sed -e 's/\\\\\\\('"$_comp_cmd_scp__path_esc"'\|$\)/\\\1/g' <<<"$REPLY")
+        #
+        # We implement this by the Bash built-in features because POSIX BRE
+        # does not support \|.  POSIX sed newly standardized the "-E" flag to
+        # use POSIX ERE in POSIX.1-2024, but older implementations of sed are
+        # still expected to remain in the market.  Also, we can avoid the fork
+        # cost by implementing this using built-in features.
+        #
+        # Note: We need to store \\\\\\ in a variable to work around "shopt -s
+        # compat31".
+        local _tail=$REPLY _regex_triple_backslashes='\\\\\\('$_comp_cmd_scp__path_esc'|$)(.*)$'
+        REPLY=
+        while [[ $_tail && $_tail =~ $_regex_triple_backslashes ]]; do
+            # shellcheck disable=SC1003
+            REPLY=${_tail::${#_tail}-${#BASH_REMATCH}}'\'${BASH_REMATCH[1]}
+            _tail=${BASH_REMATCH[2]}
+        done
+        REPLY+=$_tail
+    fi
+    _comp_dequote_incomplete "$REPLY"
+    local cur_val=${REPLY-}
+
+    local _userhost=${cur_val%%:*}
+    local _path=${cur_val#*:}
+
+    # default to home dir of specified user on remote host
+    if [[ ! $_path ]]; then
+        _path=$(ssh -o 'Batchmode yes' "$_userhost" pwd </dev/null 2>/dev/null)
+    fi
+
+    local _escape_replacement='\\\\\\&'
+    if [[ $_less_escaping ]]; then
+        _escape_replacement='\\&'
+    fi
+
+    local _files
+    _files=$(ssh -o 'Batchmode yes' "$_userhost" \
+        command ls -aF1dL "$_path*" </dev/null 2>/dev/null |
+        _comp_cmd_scp__escape_path ${_dirs_only:+'-d'} -- \
+            "$_escape_replacement")
+    _comp_compgen -R split -l -- "$_files"
+}
+
+# @deprecated 2.12 use `_comp_compgen -ax ssh remote_files` instead
+_scp_remote_files()
+{
+    _comp_compgen -ax scp remote_files
+}
+
+# This approach is used instead of _comp_compgen_filedir to get a space
+# appended after local file/dir completions, and -o nospace retained for
+# others.  If first arg is -d, complete on directory names only.  The next arg
+# is an optional prefix to add to returned completions.
+# @since 2.12
+_comp_xfunc_scp_compgen_local_files()
+{
+    local _dirs_only=""
+    if [[ ${1-} == -d ]]; then
+        _dirs_only=set
+        shift
+    fi
+
+    local REPLY
+    _comp_dequote_incomplete "$cur"
+    local cur_val=${REPLY-}
+
+    local files
+    _comp_expand_glob files '"$cur_val"*' || return 0
+    _comp_compgen -RU files split -l ${1:+-P "$1"} -- "$(
+        command ls -aF1dL "${files[@]}" 2>/dev/null |
+            _comp_cmd_scp__escape_path ${_dirs_only:+'-d'}
+    )"
+}
+
+# @deprecated 2.12
+_scp_local_files()
+{
+    _comp_compgen -ax scp local_files "$@"
+}
+
+# scp(1) completion
+#
+_comp_cmd_scp()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -n : -- "$@" || return
+
+    local configfile
+    _comp_cmd_ssh__configfile
+
+    # Prefer `ssh` from same dir for resolving options, remote files, etc
+    local pathcmd
+    pathcmd=$(type -P -- "$1") && local PATH=${pathcmd%/*}:$PATH
+
+    _comp_xfunc_ssh_compgen_suboption_check && {
+        ((${#COMPREPLY[@]})) && COMPREPLY=("${COMPREPLY[@]/%/ }")
+        return
+    }
+
+    local ipvx=
+
+    case $prev in
+        -*c)
+            _comp_cmd_ssh__compgen_ciphers
+            COMPREPLY=("${COMPREPLY[@]/%/ }")
+            return
+            ;;
+        -*F)
+            _comp_compgen_filedir
+            compopt +o nospace
+            return
+            ;;
+        -*i)
+            _comp_xfunc_ssh_compgen_identityfile
+            compopt +o nospace
+            return
+            ;;
+        -*J)
+            _comp_compgen_known_hosts -a ${configfile:+-F "$configfile"}
+            return
+            ;;
+        -*[lP])
+            return
+            ;;
+        -*o)
+            _comp_xfunc_ssh_compgen_options
+            return
+            ;;
+        -*S)
+            compopt +o nospace
+            _comp_compgen_commands
+            return
+            ;;
+        -*4*)
+            ipvx=-4
+            ;;
+        -*6*)
+            ipvx=-6
+            ;;
+    esac
+
+    _comp_expand || return
+
+    case $cur in
+        !(*:*)/* | [.~]*) ;; # looks like a path
+        *:*)
+            # if scp supports "-O", which forces legacy scp/rcp protocols,
+            # it means it uses the sftp protocol by default, so we need less
+            # escaping.
+            # The change was done in OpenSSH 9.0 [0], see [1]
+            #
+            # [0] https://www.openssh.org/releasenotes.html#9.0
+            # [1] https://github.com/scop/bash-completion/issues/1540
+            local arg legacy_scp=""
+            for arg in "${words[@]}"; do
+                if [[ $arg == -*O* ]]; then
+                    legacy_scp=set
+                    break
+                fi
+            done
+
+            if [[ $legacy_scp || ! $("$1" --usage 2>&1) =~ scp\ \[-[^]]*O ]]; then
+                _comp_xfunc_scp_compgen_remote_files
+            else
+                _comp_xfunc_scp_compgen_remote_files -l
+            fi
+            return
+            ;;
+    esac
+
+    local prefix=
+
+    if [[ $cur == -F* ]]; then
+        cur=${cur#-F}
+        prefix=-F
+    else
+        case $cur in
+            -*)
+                _comp_compgen_usage
+                COMPREPLY=("${COMPREPLY[@]/%/ }")
+                return
+                ;;
+            *)
+                if ! _comp_looks_like_path "$cur"; then
+                    _comp_compgen_known_hosts ${ipvx-} -c -a \
+                        ${configfile:+-F "$configfile"}
+                fi
+                ;;
+        esac
+    fi
+
+    _comp_compgen -ax scp local_files "${prefix-}"
+} &&
+    complete -F _comp_cmd_scp -o nospace scp

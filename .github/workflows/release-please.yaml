@@ -1,0 +1,56 @@
+name: release-please
+
+on:
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      # Permissions from https://github.com/googleapis/release-please-action#basic-configuration
+      contents: write
+      pull-requests: write
+      # Needed for adding labels to PRs, we shouldn't actually need this, see https://github.com/orgs/community/discussions/156181
+      issues: write
+      # attestations and id-token for actions/attest
+      attestations: write
+      id-token: write
+    steps:
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          config-file: .github/release-please-config.json
+          manifest-file: .github/release-please-manifest.json
+        id: release
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.release.outputs.release_created
+        with:
+          persist-credentials: false
+      # Use docker run instead of "container" workflow since that is what
+      # ci.yaml uses, and it's unclear how to run a script from inside the
+      # image.
+      - name: Run main build
+        if: steps.release.outputs.release_created
+        run: >-
+          docker run
+          --rm
+          --tty
+          --volume $PWD:/usr/src/bash-completion
+          --workdir /usr/src/bash-completion
+          ghcr.io/scop/bash-completion/test:alpine
+          ./make-release.sh
+      - name: Upload release assets
+        if: steps.release.outputs.release_created
+        run: |
+          set -x
+          gh release upload ${RELEASE_PLEASE_TAG_NAME} bash-completion-*.tar.xz
+        env:
+          GH_TOKEN: ${{github.token}}
+          RELEASE_PLEASE_TAG_NAME: ${{steps.release.outputs.tag_name}}
+      - uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
+        if: steps.release.outputs.release_created
+        with:
+          subject-path: bash-completion-*.tar.xz

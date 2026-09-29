@@ -1,0 +1,108 @@
+# valgrind(1) completion
+
+_comp_cmd_valgrind()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    local i
+    for ((i = 1; i <= cword; i++)); do
+        if [[ ${words[i]} != [-=]* ]]; then
+            _comp_command_offset $i
+            return
+        fi
+    done
+
+    local word tool=""
+    for word in "${words[@]:1}"; do
+        if [[ $word == --tool=?* ]]; then
+            tool=$word
+            break
+        fi
+    done
+
+    case $prev in
+        -h | --help | --help-debug | --version)
+            return
+            ;;
+        --tool)
+            # Tools seem to be named e.g. like memcheck-amd64-linux from which
+            # we want to grab memcheck.
+            local -a files
+            if _comp_expand_glob files '/usr{,/local}/lib{,64,exec}{/*-linux-gnu,}/valgrind/*'; then
+                _comp_compgen_split -- "$(
+                    for f in "${files[@]}"; do
+                        [[ $f != *.so && -x $f && $f =~ ^.*/(.*)-[^-]+-[^-]+ ]] &&
+                            printf '%s\n' "${BASH_REMATCH[1]}"
+                    done
+                )"
+            fi
+            return
+            ;;
+        --sim-hints)
+            _comp_compgen -- -W 'lax-ioctls enable-outer'
+            return
+            ;;
+        --soname-synonyms)
+            _comp_compgen -- -W 'somalloc' -S =
+            [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+            return
+            ;;
+        --kernel-variant)
+            _comp_compgen -- -W 'bproc'
+            return
+            ;;
+        # callgrind:
+        --callgrind-out-file)
+            _comp_compgen_filedir
+            return
+            ;;
+        # exp-dhat:
+        --sort-by)
+            _comp_compgen -- -W 'max-bytes-live tot-bytes-allocd
+                max-blocks-live'
+            return
+            ;;
+        # massif:
+        --time-unit)
+            _comp_compgen -- -W 'i ms B'
+            return
+            ;;
+            # generic cases parsed from --help output
+        --+([-A-Za-z0-9_]))
+            # shellcheck disable=SC2086
+            local value=$("$1" --help-debug $tool 2>/dev/null |
+                command sed \
+                    -ne "s|^[[:blank:]]*$prev=\([^[:blank:]]\{1,\}\).*|\1|p")
+            case $value in
+                \<file*\>)
+                    _comp_compgen_filedir
+                    return
+                    ;;
+                \<command\>)
+                    _comp_compgen_commands
+                    return
+                    ;;
+                \<+([0-9])..+([0-9])\>)
+                    _comp_compgen -- -W "{${value:1:${#value}-2}}"
+                    return
+                    ;;
+                # "yes", "yes|no", etc (but not "string", "STR",
+                # "hint1,hint2,...")
+                yes | +([-a-z0-9])\|+([-a-z0-9\|]))
+                    _comp_compgen -F '|' -- -W '$value'
+                    return
+                    ;;
+            esac
+            ;;
+    esac
+
+    [[ $was_split ]] && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- --help ${tool:+"$tool"}
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
+    fi
+} &&
+    complete -F _comp_cmd_valgrind valgrind

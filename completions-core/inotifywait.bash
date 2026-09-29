@@ -1,0 +1,52 @@
+# bash completion for inotifywait(1) and inotifywatch(1)
+
+_comp_cmd_inotifywait__events()
+{
+    # Expecting line with "Events:", followed by ones starting with one
+    # tab. Word following the tab is event name, others are line
+    # wrapped explanations.
+    _comp_compgen -a split -- "$("$1" --help 2>/dev/null |
+        command sed -e '/^Events:/,/^[^'$'\t'']/!d' \
+            -ne 's/^'$'\t''\([^[:blank:]]\{1,\}\)[[:blank:]].*/\1/p')"
+}
+
+_comp_cmd_inotifywait()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    local noargopts='!(-*|*[toe]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --help | --exclude | --excludei | --include | --includei | --format | --timefmt | --timeout | -${noargopts}[ht])
+            return
+            ;;
+        --fromfile | --outfile | -${noargopts}o)
+            _comp_compgen_filedir
+            return
+            ;;
+        --event | -${noargopts}e)
+            _comp_cmd_inotifywait__events "$1"
+            return
+            ;;
+        --ascending | --descending)
+            _comp_compgen -- -W 'total'
+            _comp_cmd_inotifywait__events "$1"
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help
+        return
+    fi
+
+    if [[ $cur == @* ]]; then
+        _comp_compgen -P "@" filedir
+        return 0
+    fi
+
+    _comp_compgen_filedir
+} &&
+    complete -F _comp_cmd_inotifywait inotifywait inotifywatch fsnotifywait \
+        fsnotifywatch

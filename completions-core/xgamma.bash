@@ -1,0 +1,58 @@
+# bash completion for xgamma(1)
+
+_comp_cmd_xgamma()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -n : -- "$@" || return
+
+    case "$prev" in
+        -screen)
+            local screens=$(xrandr --query 2>/dev/null | command sed -n \
+                's|^Screen \{1,\}\(.*\):.*$|\1|p' 2>/dev/null)
+            _comp_compgen -- -W "$screens"
+            return
+            ;;
+        -gamma | -rgamma | -ggamma | -bgamma)
+            # expect f.f
+            if [[ $cur && $cur != *.* ]]; then
+                COMPREPLY=(.)
+            fi
+            _comp_compgen -aR -- -W "{0..9}"
+            compopt -o nospace
+            return
+            ;;
+        -display)
+            # expect hostname:displaynumber.screennumber
+            if [[ $cur == :* && $cur != :*.* ]]; then
+                # FIXME: where to get local display numbers?
+                local display=${cur#:}
+                _comp_compgen -R -- -W "${display:-0}."
+                compopt -o nospace
+            elif [[ $cur == :*.* ]]; then
+                # local screen numbers
+                local screens=$(xrandr --query 2>/dev/null | command sed -ne \
+                    's|^Screen \{1,\}\(.*\):.*$|\1|p' 2>/dev/null)
+                cur=${cur#:}
+                _comp_compgen -P "${cur%.*}." -- -W '$screens'
+            elif [[ $cur != *:* ]]; then
+                # complete hostnames
+                _comp_compgen_known_hosts -c
+                if [[ ! $cur ]]; then
+                    COMPREPLY+=(:)
+                fi
+                compopt -o nospace
+            fi
+            # no display completion for remote hosts
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- -help
+        if [[ ${COMPREPLY-} ]]; then
+            [[ $COMPREPLY == *= ]] && compopt -o nospace
+            return
+        fi
+    fi
+} &&
+    complete -F _comp_cmd_xgamma xgamma

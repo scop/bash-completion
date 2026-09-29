@@ -1,0 +1,64 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>scop/common"
+  ],
+  "ignorePresets": [
+    ":ignoreModulesAndTests",
+    "docker:pinDigests"
+  ],
+  "rebaseWhen": "conflicted",
+  "dockerfile": {
+    "enabled": false
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        ".pre-commit-config.yaml"
+      ],
+      "matchStrings": [
+        "(?<depName>[\\w-]+)(?<currentValue>==[a-z0-9.]+)"
+      ],
+      "datasourceTemplate": "pypi"
+    }
+  ],
+  "labels": [
+    "bot"
+  ],
+  "packageRules": [
+    {
+      "matchFileNames": [
+        "test/requirements.txt"
+      ],
+      "semanticCommitType": "test"
+    },
+    {
+      "matchManagers": [
+        "pre-commit"
+      ],
+      "commitMessageTopic": "{{depName}}",
+      "semanticCommitScope": "pre-commit"
+    },
+    {
+      "matchPackageNames": [
+        "perltidy/perltidy"
+      ],
+      "versioning": "regex:^(?<major>\\d{8})$"
+    },
+    {
+      "groupName": "ruff",
+      "versioning": "pep440",
+      "matchPackageNames": [
+        "/(^|/)ruff(-pre-commit)?$/"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "scop/pre-commit-shfmt",
+        "shellcheck-py/shellcheck-py"
+      ],
+      "versioning": "loose"
+    }
+  ]
+}

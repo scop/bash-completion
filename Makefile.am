@@ -1,8 +1,10 @@
-SUBDIRS = completions doc helpers test
+SUBDIRS = doc completions-core completions-fallback helpers-core \
+	startup-core test completions helpers startup
 
 pkgdata_DATA = bash_completion
 
 # Empty, but here just to get the compat dir created with install
+compatdir = $(sysconfdir)/bash_completion.d
 compat_DATA =
 
 profiledir = $(sysconfdir)/profile.d
@@ -15,22 +17,27 @@ cmakeconfigdir = $(datadir)/cmake/$(PACKAGE)/
 cmakeconfig_DATA = bash-completion-config.cmake \
                    bash-completion-config-version.cmake
 
-bash_completion.sh: bash_completion.sh.in Makefile
-	sed -e 's|@pkgdatadir[@]|$(pkgdatadir)|' <$(srcdir)/$@.in >$@
+%: %.in Makefile
+	$(SED) \
+		-e 's|@prefix[@]|$(prefix)|' \
+		-e 's|@datadir[@]|$(datadir)|' \
+		-e 's|@sysconfdir[@]|$(sysconfdir)|' \
+		-e 's|@PACKAGE[@]|$(PACKAGE)|' \
+		-e 's|@VERSION[@]|$(VERSION)|' \
+		<$(srcdir)/$@.in >$@
 
-CLEANFILES = bash_completion.sh bash-completion.pc
+CLEANFILES = bash_completion.sh bash-completion.pc \
+	bash-completion-config.cmake bash-completion-config-version.cmake
 
-EXTRA_DIST = CHANGES $(pkgdata_DATA) bash_completion.sh.in .dir-locals.el \
-	.editorconfig README.md CONTRIBUTING.md
+EXTRA_DIST = CHANGELOG.md $(pkgdata_DATA) bash_completion.sh.in .dir-locals.el \
+	.editorconfig README.md CONTRIBUTING.md pyproject.toml .perltidyrc \
+	.shellcheckrc bash-completion.pc.in bash-completion-config.cmake.in \
+	bash-completion-config-version.cmake.in setup-symlinks.sh \
+	$(compat_DATA)
 
 install-data-hook:
 	tmpfile=`mktemp $${TMPDIR:-/tmp}/bash_completion.XXXXXX` && \
-	sed -e 's|-/etc/bash_completion\.d|-$(compatdir)|' \
-	    $(DESTDIR)$(pkgdatadir)/bash_completion > $$tmpfile && \
-	cat $$tmpfile > $(DESTDIR)$(pkgdatadir)/bash_completion && \
-	sed -e 's|\$${prefix}|$(prefix)|' \
-	    $(DESTDIR)$(datadir)/cmake/$(PACKAGE)/bash-completion-config.cmake \
-	         > $$tmpfile && \
-	cat $$tmpfile > \
-	    $(DESTDIR)$(datadir)/cmake/$(PACKAGE)/bash-completion-config.cmake && \
+	$(SED) -e 's|(/etc/bash_completion\.d|($(compatdir)|' \
+	    $(DESTDIR)$(datadir)/$(PACKAGE)/bash_completion >$$tmpfile && \
+	cat $$tmpfile >$(DESTDIR)$(datadir)/$(PACKAGE)/bash_completion && \
 	rm $$tmpfile

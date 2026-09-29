@@ -1,0 +1,55 @@
+# mdtool completion
+
+_comp_cmd_mdtool()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    local command="" i
+    for ((i = 1; i < cword; i++)); do
+        if [[ ${words[i]} == @(build|generate-makefiles|setup) ]]; then
+            command=${words[i]}
+            break
+        fi
+    done
+
+    if [[ $command ]]; then
+        case $command in
+            "build")
+                _comp_compgen -- -W '--f --buildfile --p --project' -S":"
+                # TODO: This does not work :(
+                #if [[ "$prev" == *: ]]; then
+                #   case $prev in
+                #       @(--p:|--project:))
+                #           _comp_compgen_filedir mdp
+                #           ;;
+                #       @(--f:|--buildfile:))
+                #           _comp_compgen_filedir 'md[ps]'
+                #           ;;
+                #   esac
+                #fi
+                return
+                ;;
+            "generate-makefiles")
+                _comp_compgen_filedir mds
+                if [[ $prev == *mds ]]; then
+                    _comp_compgen -- -W '--simple-makefiles --s --d:'
+                fi
+                return
+                ;;
+            "setup")
+                # TODO: at least return filenames after these options.
+                _comp_compgen -- -W 'install i uninstall u check-install ci
+                    update up list l list-av la list-update lu rep-add ra
+                    rep-remove rr rep-update ru rep-list rl reg-update
+                    reg-build rgu info rep-build rb pack p help h dump-file'
+                return
+                ;;
+        esac
+    fi
+
+    _comp_compgen -- -W 'gsetup build dbgen project-export generate-makefiles
+        gettext-update setup -q'
+
+} &&
+    complete -F _comp_cmd_mdtool mdtool

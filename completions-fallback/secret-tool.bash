@@ -1,0 +1,51 @@
+# bash completion for secret-tool(1)
+
+# Use of this file is deprecated. Upstream completion is available in
+# libsecret >= 0.20.5, use that instead.
+
+_comp_cmd_secret_tool()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    [[ $was_split ]] && return
+
+    local -i i
+    local mode="" has_mode="" word
+    for i in ${!words[*]}; do
+        if [[ $i -gt 0 && ${words[i]} != -* ]]; then
+            ((i != cword)) && mode=${words[i]} has_mode=set
+            break
+        fi
+    done
+    if [[ ! $has_mode ]]; then
+        # generate modes
+        _comp_compgen_split -- "$("$1" nonexistent-mode 2>&1 |
+            while read -r first second third rest; do
+                if [[ $first == "${1##*/}" ]]; then
+                    printf "%s\n" "$second"
+                elif [[ $first == usage: && $second == "${1##*/}" ]]; then
+                    printf "%s\n" "$third"
+                fi
+            done)"
+        return
+    fi
+
+    case $mode in
+        store)
+            if [[ ${words[*]} != *\ --label[\ =]* ]]; then
+                _comp_compgen -- -W "--label="
+                [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+            fi
+            ;;
+        search)
+            local -A opts=([--all]="" [--unlock]="")
+            for word in "${words[@]:2}"; do
+                [[ $word ]] && unset -v 'opts[$word]'
+            done
+            ((${#opts[@]})) &&
+                _comp_compgen -- -W '"${!opts[@]}"'
+            ;;
+    esac
+} &&
+    complete -F _comp_cmd_secret_tool secret-tool

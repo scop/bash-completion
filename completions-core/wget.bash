@@ -1,0 +1,178 @@
+# wget(1) completion
+
+_comp_cmd_wget()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -n : -- "$@" || return
+
+    local noargopts='!(-*|*[DPoaOitTwlQeBUARIX]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --version | --help | -${noargopts}[hV])
+            return
+            ;;
+        --progress)
+            _comp_compgen -- -W 'bar dot'
+            return
+            ;;
+        --bind-address)
+            _comp_compgen_ip_addresses -a
+            return
+            ;;
+        --domains | --exclude-domains | -${noargopts}D)
+            _comp_compgen_known_hosts
+            return
+            ;;
+        --restrict-file-names)
+            local excludes=()
+            case $cur in
+                *unix* | *windows*)
+                    excludes=(windows unix)
+                    ;;&
+                *lowercase* | *uppercase*)
+                    excludes+=(lowercase uppercase)
+                    ;;&
+                *nocontrol*)
+                    excludes+=(nocontrol)
+                    ;;&
+                *ascii*)
+                    excludes+=(ascii)
+                    ;;
+            esac
+            local excludes_str=$(
+                export IFS='|'
+                echo "${excludes[*]}"
+            )
+
+            # prevopt is the previous options string used as a prefix
+            # to avoid COMPREPLY replacing them with the $lastopt completion
+            local lastopt=${cur/*,/} prevopt=
+            [[ $cur == *,* ]] && prevopt=${cur%,*},
+
+            _comp_compgen -c "$lastopt" -- -P "$prevopt" \
+                -X "@($excludes_str)" \
+                -W 'unix windows nocontrol ascii lowercase uppercase'
+
+            # +o nospace when no more valid option is possible (= append a space)
+            local -a opt_as_arr
+            _comp_split -F $', \t\n' opt_as_arr "${COMPREPLY[0]}"
+            ((${#opt_as_arr[@]} < 4)) && compopt -o nospace
+            return
+            ;;
+        --prefer-family)
+            _comp_compgen -- -W 'IPv4 IPv6 none'
+            return
+            ;;
+        --directory-prefix | --ca-directory | --warc-tempdir | -${noargopts}P)
+            _comp_compgen_filedir -d
+            return
+            ;;
+        --output-file | --append-output | --config | --load-cookies | \
+            --save-cookies | --post-file | --certificate | --ca-certificate | \
+            --private-key | --random-file | --egd-file | --warc-file | \
+            --warc-dedup | -${noargopts}[oa])
+            _comp_compgen_filedir
+            return
+            ;;
+        --output-document | --input-file | -${noargopts}[Oi])
+            _comp_compgen_filedir && [[ $cur == - || ! $cur ]] && COMPREPLY+=(-)
+            return
+            ;;
+        --secure-protocol)
+            _comp_compgen -- -W 'auto SSLv2 SSLv3 TLSv1'
+            return
+            ;;
+        --certificate-type | --private-key-type)
+            _comp_compgen -- -W 'PEM DER'
+            return
+            ;;
+        --follow-tags | --ignore-tags)
+            local lastopt=${cur/*,/} prevopt=
+            [[ $cur == *,* ]] && prevopt=${cur%,*},
+
+            _comp_compgen -c "$lastopt" -- -P "$prevopt" -W 'a abbr acronym
+                address applet area b base basefont bdo big blockquote body br
+                button caption center cite code col colgroup dd del dir div dfn
+                dl dt em fieldset font form frame frameset h6 head hr html i
+                iframe img input ins isindex kbd label legend li link map menu
+                meta noframes noscript object ol optgroup option p param pre q
+                s samp script select small span strike strong style sub sup
+                table tbody td textarea tfoot th thead title tr tt u ul var
+                xmp'
+            return
+            ;;
+        --tries | --timeout | --dns-timeout | --connect-timeout | \
+            --read-timeout | --wait | --waitretry | --cut-dirs | \
+            --max-redirect | --level | -${noargopts}[tTwl])
+            # expect integer number
+            _comp_compgen -aR -- -P "$cur" -W "{0..9}"
+            compopt -o nospace
+            return
+            ;;
+        --quota | --limit-rate | --warc-max-size | -${noargopts}Q)
+            # expect size
+            if [[ $cur == *[km] ]]; then
+                _comp_compgen -R -- -W "$cur"
+            elif [[ $cur ]]; then
+                _comp_compgen -R -- -P "$cur" -W "{0..9} k m"
+                compopt -o nospace
+            else
+                _comp_compgen -R -- -W "{0..9}"
+                compopt -o nospace
+            fi
+            return
+            ;;
+        --user | --http-user | --proxy-user | --ftp-user)
+            _comp_compgen_split -- "$(command sed -n \
+                '/^login/s/^[[:blank:]]*login[[:blank:]]//p' ~/.netrc \
+                2>/dev/null)"
+            return
+            ;;
+        --header)
+            _comp_compgen -- -W 'Accept Accept-Charset Accept-Encoding
+                Accept-Language Accept-Ranges Age Allow Authorization
+                Cache-Control Connection Content-Encoding Content-Language
+                Content-Length Content-Location Content-MD5 Content-Range
+                Content-Type Date ETag Expect Expires From Host If-Match
+                If-Modified-Since If-None-Match If-Range If-Unmodified-Since
+                Last-Modified Location Max-Forwards Pragma Proxy-Authenticate
+                Proxy-Authorization Range Referer Retry-After Server TE Trailer
+                Transfer-Encoding Upgrade User-Agent Vary Via Warning
+                WWW-Authenticate'
+            compopt -o nospace
+            return
+            ;;
+        --local-encoding | --remote-encoding)
+            type -P xauth &>/dev/null && _comp_compgen -x iconv charsets
+            return
+            ;;
+        --execute | -${noargopts}e)
+            return # TODO base=STR
+            ;;
+        --report-speed)
+            _comp_compgen -- -W 'bits'
+            return
+            ;;
+        --regex-type)
+            _comp_compgen -- -W 'posix'
+            return
+            ;;
+        --base | --password | --ftp-password | --http-password | \
+            --proxy-password | --default-page | --referer | --user-agent | \
+            --post-data | --warc-header | --accept | --reject | \
+            --accept-regex | --reject-regex | --include-directories | \
+            --exclude-directories | -${noargopts}[BUARIX])
+            # argument required but no completions available
+            return
+            ;;
+    esac
+
+    [[ $was_split ]] && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+    fi
+
+} &&
+    complete -F _comp_cmd_wget wget

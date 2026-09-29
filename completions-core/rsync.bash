@@ -1,0 +1,125 @@
+# bash completion for rsync
+
+_comp_cmd_rsync__vercomp()
+{
+    if [[ $1 == "$2" ]]; then
+        return 0
+    fi
+    local i ver1 ver2
+    _comp_split -F . ver1 "$1"
+    _comp_split -F . ver2 "$2"
+    local n=$((${#ver1[@]} >= ${#ver2[@]} ? ${#ver1[@]} : ${#ver2[@]}))
+    for ((i = 0; i < n; i++)); do
+        if ((10#${ver1[i]:-0} > 10#${ver2[i]:-0})); then
+            return 1
+        fi
+        if ((10#${ver1[i]:-0} < 10#${ver2[i]:-0})); then
+            return 2
+        fi
+    done
+    return 0
+}
+
+_comp_cmd_rsync()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -n : -- "$@" || return
+
+    local noargopts='!(-*|*[Te]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --config | --password-file | --include-from | --exclude-from | \
+            --files-from | --log-file | --write-batch | --only-write-batch | \
+            --read-batch)
+            compopt +o nospace
+            _comp_compgen_filedir
+            return
+            ;;
+        --temp-dir | --compare-dest | --backup-dir | --partial-dir | \
+            --copy-dest | --link-dest | -${noargopts}T)
+            compopt +o nospace
+            _comp_compgen_filedir -d
+            return
+            ;;
+        --rsh | -${noargopts}e)
+            compopt +o nospace
+            _comp_compgen -- -W 'rsh ssh'
+            return
+            ;;
+        --compress-level)
+            compopt +o nospace
+            _comp_compgen -- -W '{1..9}'
+            return
+            ;;
+        --info)
+            _comp_delimited , -W '
+            backup{,0}
+            copy{,0}
+            del{,0}
+            flist{,0,1,2}
+            misc{,0,1,2}
+            mount{,0}
+            name{,0,1,2}
+            nonreg{,0,1}
+            progress{,0,1,2}
+            remove{,0}
+            skip{,0,1,2}
+            stats{,0,1,2,3}
+            symsafe{,0}
+            all{,0,1,2,3,4}
+            none
+            help
+            '
+            return
+            ;;
+    esac
+
+    [[ $was_split ]] && return
+
+    _comp_expand || return
+
+    case $cur in
+        -*)
+            local tmp
+            # Account for the fact that older rsync versions (before cba00be6,
+            # meaning before v3.2.0) contain the following unusual line in
+            # --help:
+            # "(-h) --help                  show this help (-h is --help only if used alone)"
+            if _comp_compgen -Rv tmp help - <<<"$("$1" --help 2>&1 | command sed -e 's/^([^)]*)//')"; then
+
+                _comp_compgen -- -W '"${tmp[@]}"
+                    --daemon --old-d{,irs}
+                    --no-{blocking-io,detach,whole-file,inc-recursive,i-r}' -X '--no-OPTION'
+            # We didn't find any options using _comp_compgen_help, try _usage for BSD style usage
+            else
+                _comp_compgen_usage
+            fi
+            [[ ${COMPREPLY-} == *= ]] || compopt +o nospace
+            ;;
+        *:*)
+            # find which remote shell is used
+            local i shell=ssh
+            for ((i = 1; i < cword; i++)); do
+                if [[ ${words[i]} == -@(e|-rsh) ]]; then
+                    shell=${words[i + 1]}
+                    break
+                fi
+            done
+            if [[ $shell == ssh ]]; then
+                local rsync_version=$("$1" --version 2>/dev/null |
+                    command sed -n '1s/.*rsync *version \([0-9.]*\).*/\1/p')
+                _comp_cmd_rsync__vercomp "$rsync_version" "3.2.4"
+                if (($? == 2)); then
+                    _comp_compgen -x scp remote_files
+                else
+                    _comp_compgen -x scp remote_files -l
+                fi
+            fi
+            ;;
+        *)
+            _comp_compgen_known_hosts -c -a
+            _comp_compgen -ax scp local_files
+            ;;
+    esac
+} &&
+    complete -F _comp_cmd_rsync -o nospace rsync

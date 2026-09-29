@@ -1,0 +1,122 @@
+# tshark(1) completion
+
+_comp_cmd_tshark()
+{
+    local cur prev words cword comp_args prefix=""
+    _comp_initialize -n : -- "$@" || return
+
+    case $cur in
+        -o*)
+            prefix=-o
+            ;;
+        -X*)
+            prefix=-X
+            ;;
+    esac
+
+    case ${prefix:-$prev} in
+        --*)
+            # Fallback to completion of long options below.
+            ;;
+        -o*)
+            if [[ $cur == *:* ]]; then
+                _comp_compgen -c "${cur#*:}" filedir
+            else
+                [[ -v _comp_cmd_tshark__mut_prefs ]] ||
+                    _comp_cmd_tshark__mut_prefs=$("$1" -G defaultprefs 2>/dev/null |
+                        command sed -ne 's/^#\{0,1\}\([a-z0-9_.-]\{1,\}:\).*/\1/p')
+                _comp_compgen -P "$prefix" -- -W "$_comp_cmd_tshark__mut_prefs"
+                [[ ${COMPREPLY-} == *: ]] && compopt -o nospace
+            fi
+            return
+            ;;
+        -*[fsBDLcRNdCeEzhvoK])
+            return
+            ;;
+        -*i)
+            _comp_compgen_split -- "$("$1" -D 2>/dev/null | _comp_awk '{print $2}')"
+            return
+            ;;
+        -*y)
+            local opts i
+            for ((i = ${#words[@]} - 1; i > 0; i--)); do
+                if [[ ${words[i]} == -i ]]; then
+                    opts+="-i ${words[i + 1]}"
+                    break
+                fi
+            done
+            # shellcheck disable=SC2086
+            _comp_compgen_split -- "$("$1" $opts -L 2>/dev/null |
+                _comp_awk '/^  / { print $1 }')"
+            return
+            ;;
+        -*[ab])
+            _comp_compgen -- -W 'duration: filesize: files:'
+            [[ ${COMPREPLY-} == *: ]] && compopt -o nospace
+            return
+            ;;
+        -*[rH])
+            # -r accepts a lot of different file types
+            _comp_compgen_filedir
+            return
+            ;;
+        -*w)
+            _comp_compgen_filedir
+            [[ $cur == @(|-) ]] && COMPREPLY+=(-)
+            return
+            ;;
+        -*F)
+            _comp_compgen_split -- "$("$1" -F 2>&1 | _comp_awk '/^  / { print $1 }')"
+            return
+            ;;
+        -*O)
+            [[ -v _comp_cmd_tshark__mut_protocols ]] ||
+                _comp_cmd_tshark__mut_protocols=$("$1" -G protocols 2>/dev/null |
+                    cut -f 3)
+            _comp_delimited , -W "$_comp_cmd_tshark__mut_protocols"
+            return
+            ;;
+        -*T)
+            # Parse from: tshark -T . 2>&1 | _comp_awk -F \" '/^\t*"/ { print $2 }'
+            _comp_compgen -- -W 'pdml ps psml json jsonraw ek tabs text fields'
+            return
+            ;;
+        -*t)
+            # Parse from: tshark -t . 2>&1 | _comp_awk -F \" '/^\t*"/ { print $2 }'
+            _comp_compgen -- -W 'a ad adoy d dd e r u ud udoy'
+            return
+            ;;
+        -*u)
+            # TODO: could be parsed from "-u ." output
+            _comp_compgen -- -W 's hms'
+            return
+            ;;
+        -*W)
+            _comp_compgen -- -W 'n'
+            return
+            ;;
+        -*X)
+            if [[ ${cur:${#prefix}} == lua_script:* ]]; then
+                _comp_compgen -c "${cur#*:}" filedir lua
+            else
+                _comp_compgen -P "$prefix" -- -W 'lua_script:'
+                [[ ${COMPREPLY-} == *: ]] && compopt -o nospace
+            fi
+            return
+            ;;
+        -*G)
+            _comp_compgen_split -- "$("$1" -G \? 2>/dev/null |
+                _comp_awk '/^[ \t]*-G / {
+                    sub("^[[]","",$2); sub("[]]$","",$2); print $2
+                }')"
+            return
+            ;;
+
+    esac
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- -h
+        return
+    fi
+} &&
+    complete -F _comp_cmd_tshark tshark

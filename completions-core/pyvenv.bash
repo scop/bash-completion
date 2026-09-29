@@ -1,0 +1,23 @@
+# bash completion for pyvenv
+
+_comp_cmd_pyvenv()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    case $prev in
+        -h | --help)
+            return
+            ;;
+    esac
+
+    [[ $was_split ]] && return
+
+    if [[ $cur == -* ]]; then
+        _comp_complete_longopt "$@"
+        return
+    fi
+
+    _comp_compgen_filedir -d
+} &&
+    complete -F _comp_cmd_pyvenv pyvenv pyvenv-3.{4..13}

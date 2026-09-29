@@ -1,0 +1,39 @@
+# pydoc completion
+
+_comp_cmd_pydoc()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    case $prev in
+        -k | -p)
+            return
+            ;;
+        -w)
+            _comp_compgen_filedir
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help - <<<"$("$1" | command sed -e "s/^pydoc3\{0,1\} //")"
+        return
+    fi
+
+    _comp_compgen -- -W 'keywords topics modules'
+
+    if ! _comp_looks_like_path "$cur"; then
+        # Prefer python in the same dir for resolving modules
+        local pathcmd
+        pathcmd=$(type -P -- "$1") && local PATH=${pathcmd%/*}:$PATH
+        _comp_compgen -ax python modules
+    fi
+
+    # Note that we don't do "pydoc modules" as it is known to hang on
+    # some systems; _comp_xfunc_python_modules tends to work better and faster.
+    _comp_compgen -a split -- "$("$1" keywords topics |
+        command sed -e '/^Here/d')"
+
+    _comp_compgen -a filedir py
+} &&
+    complete -F _comp_cmd_pydoc pydoc pydoc3 pydoc3.{13..15}

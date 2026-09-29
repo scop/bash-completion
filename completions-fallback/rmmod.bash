@@ -1,0 +1,25 @@
+# Linux rmmod(8) completion.
+# This completes on a list of all currently installed kernel modules.
+
+# Use of this file is deprecated.
+# Upstream completion is available in kmod >= 34, use that instead.
+
+_comp_cmd_rmmod()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    case $prev in
+        -h | --help | -V | --version)
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help
+        return
+    fi
+
+    _comp_compgen_inserted_kernel_modules
+} &&
+    complete -F _comp_cmd_rmmod rmmod

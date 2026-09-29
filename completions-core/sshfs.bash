@@ -1,0 +1,22 @@
+# sshfs(1) completion
+
+_comp_cmd_sshfs()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -n : -- "$@" || return
+
+    _comp_expand || return
+
+    if [[ $cur == *:* ]]; then
+        if _comp_compgen -x scp remote_files -d; then
+            # unlike scp and rsync, sshfs works with 1 backslash instead of 3
+            COMPREPLY=("${COMPREPLY[@]//\\\\\\/\\}")
+        fi
+        return
+    fi
+
+    [[ $cur == @(*/|[.~])* ]] || _comp_compgen_known_hosts -c -a
+
+    _comp_compgen -ax scp local_files -d
+} &&
+    complete -F _comp_cmd_sshfs -o nospace sshfs

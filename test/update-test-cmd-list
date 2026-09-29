@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -eu
+
+mydir=$(
+    command cd "$(dirname "$0")"
+    pwd
+)
+
+cat "$mydir"/t/test_*.py |
+    tr -d '\n' |
+    command grep -Eo '@pytest.mark.complete\(([^)]*\<require_(cmd|longopt) *= *True\>[^)]*)\)' |
+    command sed -ne 's/^[^"]*"\\\{0,1\}\([^_][^[:space:]"]*\)[[:space:]"].*/\1/p' |
+    LC_ALL=C sort -u \
+        >"$mydir"/test-cmd-list.txt

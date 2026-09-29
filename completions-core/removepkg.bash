@@ -1,0 +1,20 @@
+# Slackware Linux removepkg completion
+
+_comp_cmd_removepkg()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+    if [[ $cur == -* ]]; then
+        _comp_compgen -- -W '-copy -keep -preserve -warn'
+        return
+    fi
+
+    if _comp_looks_like_path "$cur"; then
+        _comp_compgen_filedir
+        return
+    fi
+
+    local root=${ROOT:-/}
+    _comp_compgen -C "$root/var/log/packages" filedir
+} &&
+    complete -F _comp_cmd_removepkg removepkg

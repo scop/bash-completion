@@ -1,45 +1,65 @@
 # bash-completion
 
-[![Build Status](https://travis-ci.org/scop/bash-completion.svg?branch=master)](https://travis-ci.org/scop/bash-completion)
+[![CI](https://github.com/scop/bash-completion/actions/workflows/ci.yaml/badge.svg)](https://github.com/scop/bash-completion/actions/workflows/ci.yaml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/scop/bash-completion/badge)](https://scorecard.dev/viewer/?uri=github.com%2Fscop%2Fbash-completion)
+
+## Introduction
+
+bash-completion is a collection of
+[command-line completion](https://en.wikipedia.org/wiki/Command-line_completion)
+recipes for a number of commands for the completion system of the
+[Bash shell](https://www.gnu.org/software/bash/).
+These recipes enhance Bash's typical plain completion of filenames to
+provide better suggestions of options and arguments for many commands.
+Also provided is a collection of helper functions to assist in creating new
+recipes, and a set of facilities for loading recipes automatically on
+demand, as well as installing them.
 
 ## Installation
 
-The easiest way to install this software is to use a package; it is
-available in many operating system distributions. The package's name
-is usually bash-completion. Depending on the package, you may still
-need to source it from either `/etc/bashrc` or `~/.bashrc` (or any
-other file sourcing those). You can do this by simply using:
+The easiest way to install this software is to use a package; refer to
+[Repology](https://repology.org/project/bash-completion) for a comprehensive
+list of operating system distributions, package names, and available versions.
 
-```shell
-# Use bash-completion, if available
-[[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && \
+Depending on the package, you may still
+need to source it from either `/etc/bashrc` or `~/.bashrc` (or any
+other file sourcing those). If you have _only_ bash >= 4.2 installed, you can
+do this by using:
+
+```bash
+# Use bash-completion, if available, and avoid double-sourcing
+[[ $PS1 &&
+  ! ${BASH_COMPLETION_VERSINFO:-} &&
+  -f /usr/share/bash-completion/bash_completion ]] &&
     . /usr/share/bash-completion/bash_completion
 ```
 
-(if you happen to have *only* bash >= 4.1 installed, see further if not)
+If you have older bash versions in use, their loading of `bash_completion`
+should be prevented. See further for more info.
 
 If you don't have the package readily available for your distribution, or
-you simply don't want to use one, you can install bash completion using the
+you simply don't want to use one, you can install bash-completion using the
 standard commands for GNU autotools packages:
 
 ```shell
-autoreconf -i  # if not installing from prepared release tarball
+autoreconf -i      # if not installing from prepared release tarball
 ./configure
-make
-make check # optional, requires dejagnu and tcllib
-make install # as root
+make               # GNU make required
+make check         # optional
+make install       # as root
+make installcheck  # optional, requires python3 with pytest >= 3.6, pexpect
 ```
 
 These commands install the completions and helpers, as well as a
 `profile.d` script that loads `bash_completion` where appropriate.
 
 If your system does not use the `profile.d` directory (usually below
-`/etc`) mechanism—i.e. does not automatically source shell scripts in
-it—you can source the `$sysconfdir/profile.d/bash_completion.sh`
+`/etc`) mechanism (i.e., does not automatically source shell scripts in
+it), you can source the `$sysconfdir/profile.d/bash_completion.sh`
 script in `/etc/bashrc` or `~/.bashrc`.
 
 The `profile.d` script provides a configuration file hook that can be
-used to prevent loading `bash_completion` on per user basis when it's
+used to prevent loading `bash_completion` on a per user basis when it's
 installed system wide. To do this:
 
 1. Turn off programmable completion with `shopt -u progcomp` in
@@ -50,102 +70,187 @@ installed system wide. To do this:
 
 ### macOS (OS X)
 
-If you're using macOS (formerly OS X), `/etc/bashrc` is apparently not sourced at
-all. In that case, you can put the `bash_completion` file in `/sw/etc`
-and add the following code to `~/.bash_profile`:
+If you're using macOS (formerly OS X), `/etc/bashrc` is apparently not sourced
+at all, and `~/.bashrc` is not sourced from `~/.bash_profile` by default
+(because `~/.bash_profile` is not created by default).  In this case, the
+standard way is to configure `~/.bash_profile` to source `~/.bashrc` and write
+interactive settings in `~/.bashrc`.  You can source `~/.bashrc` in
+`~/.bash_profile` in the following way:
 
-```shell
-if [ -f /sw/etc/bash_completion ]; then
-   . /sw/etc/bash_completion
+```bash
+# ~/.bash_profile
+
+if [[ -f ~/.bashrc ]]; then
+  source ~/.bashrc
 fi
 ```
 
+Then, you can source `bash-completion` in your `~/.bashrc`.  It should be noted
+that `bash-completion` should not be sourced in `~/.bash_profile` because
+`~/.bash_profile` is only loaded in interactive _login_ shell sessions.  If you
+start nested Bash sessions, the interactive settings in `~/.bash_profile` will
+disappear.  It is strongly recommended to source `~/.bashrc` from
+`~/.bash_profile` and write interactive settings in `~/.bashrc`.
+
+For example, if you install `bash-completion` using Homebrew, it will install
+the entry point of `bash-completion` to
+`$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh`.  You can source it by
+adding the following to your startup file `~/.bashrc`:
+
+```bash
+if [[ -s $HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh ]]; then
+  . "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
+fi
+```
 
 ## Troubleshooting
 
 If you find that a given function is producing errors or does not work
 as it should under certain circumstances when you attempt completion,
-try running `set -v` or `set -x` prior to attempting the completion
+try running `set -x` or `set -v` prior to attempting the completion
 again. This will produce useful debugging output that will aid us in
 fixing the problem if you are unable to do so yourself. Turn off the
-trace output by running either `set +v` or `set +x`.
+trace output by running either `set +x` or `set +v`.
+
+If you are filing an issue, please attach the generated debugging output
+in `set -x` mode copy-pasted to a separate, attached file in the report.
+Before doing so, be sure to review the output for anything you may not want
+to share in public, and redact as appropriate.
 
 To debug dynamic loading of a completion, tracing needs to be turned
 on before the debugged completion is attempted the first time. The
 easiest way to do this is to start a new shell session, and to turn
 tracing on in it before doing anything else there.
 
-
 ## Known problems
 
-1. There seems to be some issue with using the bash built-in `cd` within
-   Makefiles. When invoked as `/bin/sh` within `Makefile`s, bash seems
-   to have a problem changing directory via the `cd` command. A
-   work-around for this is to define `SHELL=/bin/bash` within your
-   `Makefile`. This is believed to be a bug in bash.
-
-2. Many of the completion functions assume GNU versions of the various
+1. Many of the completion functions assume GNU versions of the various
    text utilities that they call (e.g. `grep`, `sed`, and `awk`). Your
    mileage may vary.
 
-3. If you are seeing 'unbound variable' warnings from bash when
-   hitting <kbd>&lt;Tab></kbd>, this is because you have either `set -u`
-   or `set -o nounset` somewhere in your start-up files. This causes bash
-   to flag the use of any uninitialised shell variables as an error.
-
-   Whilst we try to avoid references to uninitialised variables in the
-   code, there seem to be at least some cases where bash issues this
-   warning even though the variable in question has been initialised.
-
-   One place this appears to occur is within the `_muttconffiles()`
-   helper function used by `mutt` completion, where the function calls
-   itself recursively. This seems to confuse bash and it issues
-   spurious warnings if `nounset` is set.
-
-
 ## FAQ
 
-**Q. The bash completion code inhibits some commands from completing on
+**Q1. The bash-completion code inhibits some commands from completing on
    files with extensions that are legitimate in my environment. Do I
    have to disable completion for that command in order to complete on
    the files that I need to?**
 
-A. No. Use `M-/` to (in the words of the bash man page) attempt file
+A. No. If needed just once in a while,
+   use `M-/` to (in the words of the bash man page) attempt file
    name completion on the text to the left of the cursor. This will
    circumvent any file type restrictions put in place by the bash
-   completion code.
+   completion code. If needed more regularly, see the next question:
 
-**Q. How can I insert my own local completions without having to
-   reinsert them every time you issue a new release?**
+**Q2. How can I override a completion shipped by bash-completion or install a
+   new completion for a user account?**
 
-A. Put them in `~/.bash_completion`, which is parsed at the end of the
-   main completion script. See also the next question.
+A. To override a completion for a specific command, you can install your own
+   completion file for the command into an appropriate place.  It will take
+   precedence over the one shipped by us or the one installed systemwide.  To
+   install a completion on per user basis, put the completion file at
+   `<userdir>/completions/<cmd>.bash`, where `<cmd>` is the command name and
+   `<userdir>` is one of the user directories.  The user directories are
+   specified by the colon-separated `$BASH_COMPLETION_USER_DIR` (defaults to
+   `$XDG_DATA_HOME/bash-completion`, or `~/.local/share/bash-completion` if
+   `$XDG_DATA_HOME` is not set).  They will be loaded automatically on demand
+   when the respective command is being completed.
 
-**Q. I author/maintain package X and would like to maintain my own
-   completion code for this package. Where should I put it to be sure
-   that interactive bash shells will find it and source it?**
+   > [!NOTE]
+   > See also the answer to Q4 for considerations for those files' names, they
+   > apply here as well.
 
-A. Install it in one of the directories pointed to by
-   bash-completion's `pkgconfig` file variables. There are two
-   alternatives:
+   Completion settings that should be loaded on initialization of
+   bash-completion should be defined in a startup completion file.  A startup
+   completion file can be added in the directory `<userdir>/startup` (see the
+   previous paragraph for `<userdir>`).  A prefix of the form
+   `[0-9][0-9][0-9]_` may be prepended to the filename of the startup files to
+   control the loading order.  To override a existing startup file installed
+   systemwide or shipped by us, you can put your own version with the same
+   filename in `<userdir>/startup`.  In identifying the overridden startup
+   file, the prefixes `[0-9][0-9][0-9]_` are ignored.  If you want to disable a
+   startup completion file, you can use an empty file.
 
-   - The recommended directory is `completionsdir`, which you can get with
-   `pkg-config --variable=completionsdir bash-completion`. From this
-   directory, completions are loaded on-demand based on invoked commands' names,
-   so be sure to name your completion file accordingly, and to include
-   (for example) symbolic links in case the file provides completions
-   for more than one command.
-   - The other directory (which only present for backwards compatibility)
-     is `compatdir` (get it with
-   `pkg-config --variable=compatdir bash-completion`) from which files
-   are loaded when `bash_completion` is loaded.
+   You can also define eagerly loaded settings in the user file
+   (`${BASH_COMPLETION_USER_FILE:-$HOME/.bash_completion}`).  Instead of
+   preparing separate files for specific commands, you may write completion
+   settings for specific commands directly in the user file.  When you want to
+   modify the default completion setting set by `complete -D` (which is
+   available in Bash >= 4.1), you can override it in the user file or in a user
+   startup file.  If you want to use bash's default completion instead of one
+   of ours, in the user file or in a user startup script, you can define
+   something like this:
+
+   ```bash
+   complete -o default -o bashdefault $cmd
+   ```
+
+   where `$cmd` is the command to override completion for.
+
+**Q3. How can I override a completion shipped by bash-completion systemwide?**
+
+A. Install a local completion appropriately for the desired command, and it
+   will take precedence over the one shipped by us.
+
+   A completion file for a specific command `<cmd>` can be placed at
+   `<localdir>/completions/<cmd>.bash`, where `<localdir>` is
+   `/usr/local/share/bash-completion` if `XDG_DATA_DIRS` is not defined, or
+   `<datadir>/bash-completion` where `<datadir>` is one of the directories
+   listed in `XDG_DATA_DIRS`.
+
+   > [!NOTE]
+   > See also the answer to Q4 for considerations for those files' names, they
+   > apply here as well.
+
+   Similarly, systemwide startup files can be placed in the directory
+   `<localdir>/startup`.
+
+**Q4. I author/maintain a distribution package and would like to maintain my
+   own completion code for this package. Where should I put it to be sure that
+   interactive bash shells will find it and source it?**
+
+   > [!NOTE]
+   > Here, how to make the completion code visible to bash-completion is
+   > explained.  We do not require always making the completion code visible to
+   > bash-completion.  In what condition the completion code is installed
+   > should be determined at the author/maintainers' own discretion.
+
+A. Install it in one of the directories pointed to by bash-completion's
+   `pkgconfig` file variables.
+
+   - The recommended directory for the completions of specific commands is
+     `<completionsdir>`, which you can get with
+     `pkg-config --variable=completionsdir bash-completion`.  From this
+     directory, completions are automatically loaded on demand based on invoked
+     commands' names, so be sure to name your completion file accordingly, and
+     to include (for example) symbolic links in case the file provides
+     completions for more than one command. The completion filename for command
+     `foo` in this directory should be `foo.bash` to avoid conflicts with
+     completions possibly shipped for the same command by the installed < 2.18
+     version of bash-completion (which did not use the `.bash` suffix for any
+     of its completion files), and because the `.bash` suffixed version has
+     higher load order precedence. Unsuffixed `foo` also works,
+     but is deprecated in >= 2.18 for these reasons.
+   - Helper scripts used by completions may be placed in the directory
+     `<helpersdir>`, which can be retrieved with `pkg-config
+     --variable=helpersdir bash-completion`.  The completion files in
+     `<completionsdir>` can reference the helper script `<helpersdir>/<helper>`
+     as `${BASH_SOURCE[0]%/*}/../helpers/<helper>`.
+   - The directory for startup files is `<startupdir>`, whose value in the
+     current system can be retrieved by
+     `pkg-config bash-completion --variable=startupdir`.  A typical value is
+     `/usr/share/bash-completion/startup`.  Typically, the startup file can be
+     used to override the `complete -D` settings set by bash-completion.
+   - The other directory, which is only present for backwards compatibility and
+     is not recommended to use, is `<compatdir>` (get it with
+     `pkg-config --variable=compatdir bash-completion`).  From this
+     directory, files are loaded eagerly when `bash_completion` is loaded.
 
    For packages using GNU autotools the installation can be handled
    for example like this in `configure.ac`:
 
-   ```
+   ```m4
    PKG_CHECK_VAR(bashcompdir, [bash-completion], [completionsdir], ,
-     bashcompdir="${sysconfdir}/bash_completion.d")
+     bashcompdir="${datadir}/bash-completion/completions")
    AC_SUBST(bashcompdir)
    ```
 
@@ -153,80 +258,50 @@ A. Install it in one of the directories pointed to by
 
    ```makefile
    bashcompdir = @bashcompdir@
-   dist_bashcomp_DATA = # completion files go here
+   dist_bashcomp_DATA = your-completion-file.bash # completion files go here
    ```
 
    For cmake we ship the `bash-completion-config.cmake` and
    `bash-completion-config-version.cmake` files. Example usage:
 
-   ```
+   ```cmake
+   include(GNUInstallDirs)
    find_package(bash-completion)
    if(BASH_COMPLETION_FOUND)
      message(STATUS
        "Using bash completion dir ${BASH_COMPLETION_COMPLETIONSDIR}")
    else()
-     set (BASH_COMPLETION_COMPLETIONSDIR "/etc/bash_completion.d")
+     set (BASH_COMPLETION_COMPLETIONSDIR "${CMAKE_INSTALL_DATADIR}/bash-completion/completions")
      message (STATUS
        "Using fallback bash completion dir ${BASH_COMPLETION_COMPLETIONSDIR}")
    endif()
 
-   install(FILES your-completion-file DESTINATION
+   install(FILES your-completion-file.bash DESTINATION
      ${BASH_COMPLETION_COMPLETIONSDIR})
    ```
 
-**Q. I use CVS in combination with passwordless SSH access to my remote
-   repository. How can I have the `cvs` command complete on remotely
-   checked-out files where relevant?**
+   In bash-completion >= 2.12, we search the data directory of
+   `bash-completion` under the installation prefix where the target command is
+   installed.  When one can assume that the version of the target
+   bash-completion is 2.12 or higher, the completion script can actually be
+   installed to `$PREFIX/share/bash-completion/completions/` under the same
+   installation prefix as the target program installed under `$PREFIX/bin/` or
+   `$PREFIX/sbin/`.  For the detailed search order, see also Q10 below.
 
-A. Define `$COMP_CVS_REMOTE`. Setting this to anything will result in
-   the behaviour you would like.
+   Example for `Makefile.am`:
 
-**Q. When I'm running a `./configure` script and completion returns a list
-   of long options to me, some of these take a parameter,
-   e.g. `--this-option=DESCRIPTION`.**
-
-   **Running `./configure --help` lists these descriptions, but
-   everything after the `=` is stripped when returning completions, so
-   I don't know what kind of data is expected as a given option's
-   parameter.**
-
-   **Is there a way of getting `./configure` completion to return the
-   entire option string, so that I can see what kind of data is
-   required and then simply delete the descriptive text and add my own
-   data?**
-
-A. Define `$COMP_CONFIGURE_HINTS`. Setting this to anything will
-   result in the behaviour you would like.
-
-**Q. When doing tar completion on a file within a tar file like this:**
-
-   ```
-   tar tzvf foo.tar.gz <Tab>
+   ```makefile
+   bashcompdir = $(datarootdir)/bash-completion/completions
+   dist_bashcomp_DATA = your-completion-file.bash
    ```
 
-   **the pathnames contained in the tar file are not displayed
-   correctly. The slashes are removed, and everything looks like it's
-   in a single directory. Why is this?**
+   Example for `CMakeLists.txt`:
 
-A. It's a choice we had to make. bash's programmable completion is
-   limited in how it handles the list of possible completions it
-   returns.
+   ```cmake
+   install(FILES your-completion-file.bash DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/bash-completion/completions")
+   ```
 
-   Because the paths returned from within the tar file are likely not
-   existing paths on the file system, `-o dirnames` must be passed to
-   the `complete` built-in to make it treat them as such. However,
-   then bash will append a space when completing on directories during
-   pathname completion to the tar files themselves.
-
-   It's more important to have proper completion of paths to tar files
-   than it is to have completion for their contents, so this sacrifice
-   was made and `-o filenames` is used with complete instead.
-
-   If you would rather have correct path completion for tar file
-   contents, define `$COMP_TAR_INTERNAL_PATHS` *before* sourcing
-   `bash_completion`.
-
-**Q. When completing on a symlink to a directory, bash does not append
+**Q5. When completing on a symlink to a directory, bash does not append
    the trailing `/` and I have to hit <kbd>&lt;Tab></kbd> again.
    I don't like this.**
 
@@ -239,7 +314,7 @@ A. This has nothing to do with `bash_completion`. It's the default for
    mark-symlinked-directories on` in your `/etc/inputrc` or
    `~/.inputrc` file.
 
-**Q. Completion goes awry when I try to complete on something that contains
+**Q6. Completion goes awry when I try to complete on something that contains
    a colon.**
 
 A. This is actually a 'feature' of bash. bash recognises a colon as
@@ -267,14 +342,14 @@ A. This is actually a 'feature' of bash. bash recognises a colon as
    Unfortunately, there's no way to turn this off. The only thing you
    can do is escape the colons with a backslash.
 
-**Q. Why is `rpm` completion so slow with `-q`?**
+**Q7. Why is `rpm` completion so slow with `-q`?**
 
 A. Probably because the database is being queried every time and this uses a
    lot of memory.
 
    You can make this faster by pregenerating the list of installed
    packages on the system. Make sure you have a readable file called
-   `/var/log/rpmpkgs`.  It's generated by `/etc/cron.daily/rpm` on
+   `/var/log/rpmpkgs`. It's generated by `/etc/cron.daily/rpm` on
    some Red Hat and Mandrake and derivative Linux systems.
 
    If you don't have such a cron job, make one:
@@ -283,22 +358,34 @@ A. Probably because the database is being queried every time and this uses a
    #!/bin/sh
 
    rpm -qa --qf '%{name}-%{version}-%{release}.%{arch}.rpm\n' 2>&1 \
-           | sort > /var/log/rpmpkgs
+           | sort >/var/log/rpmpkgs
    ```
 
    rpm completion will use this flat text file instead of the RPM database,
    unless it detects that the database has changed since the file was created,
    in which case it will still use the database to ensure accuracy.
 
-**Q. bash-completion interferes with my `command_not_found_handler` function!**
+**Q8. bash-completion interferes with my `command_not_found_handle` function
+   (or the other way around)!**
 
-A. If your `command_not_found_handler` function is not intended to
-   address (possibly missing) commands invoked during bash
-   programmable completion functions, you can account for this
-   by, for example, testing if the `$COMP_`\* variables are set and
-   taking appropriate bypass or other action.
+A. If your `command_not_found_handle` function is not intended to address
+   (possibly missing) commands invoked during bash programmable completion
+   functions, you can account for this in the function by, for example, testing
+   if the `$COMP_POINT` variable is set and taking appropriate action,
+   typically returning early and silently with success.  For keybindings with
+   `bind -x`, you may additionally want to check if the variable
+   `$READLINE_POINT` is set to skip the action.
 
-**Q. Can tab completion be made even easier?**
+   > [!Note]
+   > We recommended checking whether `COMP_LINE` is _set_, which still works if
+   > properly done with e.g. `[[ ${COMP_LINE+set} ]]`.  However, if you have
+   > been checking if `COMP_LINE` is _non-empty_ with `[[ ${COMP_LINE:-} ]]`,
+   > it may fail to detect programmable completion with the setting
+   > `complete -E` (in Bash >= 4.1) because `COMP_LINE` can be empty in this
+   > context. It is safer to test `COMP_POINT` as one does not need to care
+   > about the differences between the set and non-empty states of variables.
+
+**Q9. Can tab completion be made even easier?**
 
 A. The `readline(3)` library offers a few settings that can make tab
    completion easier (or at least different) to use.
@@ -306,30 +393,49 @@ A. The `readline(3)` library offers a few settings that can make tab
    For example, try putting the following in either `/etc/inputrc` or
    `~/.inputrc`:
 
-   ```
+   ```inputrc
    set show-all-if-ambiguous on
    ```
 
    This will allow single tab completion as opposed to requiring a
    double tab. This makes things much more pleasant, in our opinion.
 
-   ```
+   ```inputrc
    set visible-stats on
    ```
 
    This will suffix each returned file completion with a character
    denoting its type, in a similar way to `ls(1)` with `-F` or `--classify`.
 
-   ```
+   ```inputrc
    set page-completions off
    ```
 
    This turns off the use of the internal pager when returning long
    completion lists.
 
-**Q. Is bash the be-all-and-end-all of completion as far as shells go?**
+**Q10. What is the search order for the completion file of each target
+   command?**
 
-A. Absolutely not. zsh has an extremely sophisticated completion system
-   that offers many features absent from the bash implementation. Its
-   users often cannot resist pointing this out. More information can
-   be found at: http://www.zsh.org/
+A. The completion files of commands are looked up by the shell function
+  `_comp_load`.  Here, the search order in bash-completion >= 2.18 is
+  explained.  We first list up the bash-completion directories:
+
+  1. `BASH_COMPLETION_USER_DIR`.  Each path in `BASH_COMPLETION_USER_DIR`
+     separated by colons is considered for a completion directory.
+  2. The location of the main `bash_completion` file. The directory
+     containing `bash_completion` is considered.
+  3. The location of the target command.  When the real location of the command
+     is in the directory `<prefix>/bin` or `<prefix>/sbin`, the directory
+     `<prefix>/share/bash-completion` is considered.
+  4. `XDG_DATA_DIRS` (or the system directories `/usr/local/share:/usr/share`
+     if empty).  The subdirectory `bash-completion` of each path
+     in `XDG_DATA_DIRS` separated by colons is considered.
+
+  The completion files of the name `<cmd>.bash` or `<cmd>`, where `<cmd>` is
+  the name of the target command, are searched in the subdirectory
+  `completions` in the above bash-completion directories in order.  The file
+  that is found first is used.  If no completion file has been found in any
+  `completions` directories, the completion files in the subdirectory
+  `completions-core` and `completions-fallback` at the location of the main
+  `bash_completion` file are searched in order.

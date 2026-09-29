@@ -1,0 +1,37 @@
+# bash completion for sha256(1) and friends
+
+_comp_cmd_sha256sum()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    case $prev in
+        -h | --help | --version)
+            return
+            ;;
+    esac
+
+    [[ $was_split ]] && return
+
+    if [[ $cur == -* ]]; then
+        _comp_complete_longopt "$@"
+        return
+    fi
+
+    local sumtype=${1##*/}
+    sumtype=${sumtype%sum}
+    local sumglob="@(*.$sumtype|@(@(check|${sumtype})sums|${sumtype^^}SUMS)?(.txt))"
+    compopt -o filenames
+
+    local opt
+    for opt in "${words[@]}"; do
+        if [[ $opt == -@(c|-check) ]]; then
+            _comp_compgen -- -f -X "!$sumglob" -o plusdirs
+            return
+        fi
+    done
+
+    _comp_compgen -- -f -X "$sumglob" -o plusdirs
+} &&
+    complete -F _comp_cmd_sha256sum b2sum cksum md5sum \
+        sha{,1,224,256,384,512}sum

@@ -1,0 +1,69 @@
+# patch(1) completion
+
+_comp_cmd_patch()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    local noargopts='!(-*|*[pDBYzgFiorVd]*)'
+    # shellcheck disable=SC2254
+    case $prev in
+        --strip | --ifdef | --prefix | --basename-prefix | --suffix | --get | \
+            -${noargopts}[pDBYzg])
+            return
+            ;;
+        --fuzz | -${noargopts}F)
+            _comp_compgen -- -W '{0..3}'
+            return
+            ;;
+        --input | -${noargopts}i)
+            _comp_compgen_filedir '@(?(d)patch|dif?(f))'
+            return
+            ;;
+        --output | --reject-file | -${noargopts}[or])
+            [[ ! $cur || $cur == - ]] && COMPREPLY=(-)
+            _comp_compgen -a filedir
+            return
+            ;;
+        --quoting-style)
+            _comp_compgen -- -W 'literal shell shell-always c escape'
+            return
+            ;;
+        --version-control | -${noargopts}V)
+            _comp_compgen -- -W 'simple numbered existing'
+            return
+            ;;
+        --directory | -${noargopts}d)
+            _comp_compgen_filedir -d
+            return
+            ;;
+        --reject-format)
+            _comp_compgen -- -W 'context unified'
+            return
+            ;;
+        --read-only)
+            _comp_compgen -- -W 'ignore warn fail'
+            return
+            ;;
+    esac
+
+    [[ $was_split ]] && return
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help || _comp_compgen_usage
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+        return
+    fi
+
+    local REPLY
+    _comp_count_args
+    case $REPLY in
+        1)
+            _comp_compgen_filedir
+            ;;
+        2)
+            _comp_compgen_filedir '@(?(d)patch|dif?(f))'
+            ;;
+    esac
+} &&
+    complete -F _comp_cmd_patch patch

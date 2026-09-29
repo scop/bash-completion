@@ -1,0 +1,129 @@
+# umount(8) completion
+
+# Use of this file is deprecated on Linux.  Upstream completion is
+# available in util-linux >= 2.28, use that instead.
+
+# Just like COMPREPLY=(`compgen -W "${COMPREPLY[*]}" -- "$cur"`), only better!
+#
+# This will correctly escape special characters in COMPREPLY.
+_comp_cmd_umount__reply_compgen_array()
+{
+    # Create the argument for compgen -W by escaping twice.
+    #
+    # One round of escape is because we want to reply with escaped arguments. A
+    # second round is required because compgen -W will helpfully expand it's
+    # argument.
+    local i wlist
+    for i in ${!COMPREPLY[*]}; do
+        local REPLY
+        printf -v REPLY %q "${COMPREPLY[i]}"
+        _comp_quote "$REPLY"
+        wlist+=$REPLY$'\n'
+    done
+
+    # We also have to add another round of escaping to $cur.
+    local ecur="$cur"
+    ecur=${ecur//\\/\\\\}
+    ecur=${ecur//\'/\\\'}
+
+    # Actually generate completions.
+    _comp_compgen -lc "${ecur}" -- -W "$wlist"
+}
+
+# Unescape strings in the linux fstab(5) format (with octal escapes).
+_comp_cmd_umount__linux_fstab_unescape()
+{
+    eval "$1='${!1//\'/\\047}'"
+    eval "$1='${!1/%\\/\\\\}'"
+    eval "$1=$'${!1}'"
+}
+
+# Complete linux fstab entries.
+#
+# Reads a file from stdin in the linux fstab(5) format; as used by /etc/fstab
+# and /proc/mounts. With 1st arg -L, look for entries by label.
+# shellcheck disable=SC2120
+_comp_cmd_umount__linux_fstab()
+{
+    # Read and unescape values into COMPREPLY
+    local fs_spec fs_file fs_other
+    while read -r fs_spec fs_file fs_other; do
+        if [[ $fs_spec == [#]* ]]; then continue; fi
+        if [[ ${1-} == -L ]]; then
+            local fs_label=${fs_spec/#LABEL=/}
+            if [[ $fs_label != "$fs_spec" ]]; then
+                _comp_cmd_umount__linux_fstab_unescape fs_label
+                COMPREPLY+=("$fs_label")
+            fi
+        else
+            _comp_cmd_umount__linux_fstab_unescape fs_spec
+            _comp_cmd_umount__linux_fstab_unescape fs_file
+            [[ $fs_spec == */* ]] && COMPREPLY+=("$fs_spec")
+            [[ $fs_file == */* ]] && COMPREPLY+=("$fs_file")
+        fi
+    done
+
+    # Add relative paths to COMPREPLY
+    if [[ $cur && $cur != /* ]]; then
+        local realcur
+        [[ $cur == */ ]] && # don't let readlink drop last / from path
+            realcur=$(readlink -f "$cur." 2>/dev/null)/ ||
+            realcur=$(readlink -f "$cur" 2>/dev/null)
+        if [[ $realcur ]]; then
+            local dirrealcur="" dircur=. basecur
+            if [[ $cur == */* ]]; then
+                dirrealcur="${realcur%/*}/"
+                dircur="${cur%/*}/"
+            fi
+            basecur=${cur#"$dircur"}
+            local i
+            for i in ${!COMPREPLY[*]}; do
+                [[ ${COMPREPLY[i]} == "$realcur"* ]] &&
+                    _comp_compgen -aC "$dircur" -c "$basecur" -- \
+                        -f -d -P "$dircur" -X "!${COMPREPLY[i]##"$dirrealcur"}"
+            done
+        fi
+    fi
+
+    _comp_cmd_umount__reply_compgen_array
+}
+
+_comp_cmd_umount()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    case "$prev" in
+        -t)
+            # FIXME: no<fstype>
+            [[ $cur =~ ^.+, ]]
+            local prefix=${BASH_REMATCH-}
+            _comp_compgen -P "$prefix" -- -W 'adfs affs autofs btrfs cifs coda
+                cramfs debugfs devpts efs ext2 ext3 ext4 fuse hfs hfsplus hpfs
+                iso9660 jfs minix msdos ncpfs nfs nfs4 ntfs ntfs-3g proc qnx4
+                ramfs reiserfs romfs squashfs smbfs sysv tmpfs ubifs udf ufs
+                umsdos usbfs vfat xfs'
+            _comp_compgen -aP "$prefix" fstypes
+            return
+            ;;
+        -O)
+            # argument required but no completions available
+            return
+            ;;
+    esac
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen -- -W '-V -h -v -n -r -d -i -a -t -O -f -l
+            --no-canonicalize --fake'
+        [[ ${COMPREPLY-} ]] && return
+    fi
+
+    if [[ -r /proc/mounts ]]; then
+        # Linux /proc/mounts is properly quoted. This is important when
+        # unmounting usb devices with pretty names.
+        _comp_cmd_umount__linux_fstab </proc/mounts
+    else
+        _comp_compgen_split -l -- "$(mount | cut -d" " -f 3)"
+    fi
+} &&
+    complete -F _comp_cmd_umount -o dirnames umount

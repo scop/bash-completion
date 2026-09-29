@@ -1,0 +1,54 @@
+# protoc completion
+
+_comp_cmd_protoc()
+{
+    local cur prev words cword was_split comp_args
+    _comp_initialize -s -- "$@" || return
+
+    case $prev in
+        --version | -h | --help | --encode | --decode)
+            return
+            ;;
+        --descriptor_set_out)
+            _comp_compgen_filedir
+            return
+            ;;
+        --error_format)
+            _comp_compgen -- -W 'gcc msvs'
+            return
+            ;;
+        --plugin)
+            [[ $cur == *=* ]] || _comp_compgen_commands
+            return
+            ;;
+        --proto_path | --*_out)
+            _comp_compgen_filedir -d
+            return
+            ;;
+    esac
+
+    [[ $was_split ]] && return
+
+    case $cur in
+        -o*)
+            _comp_compgen -P "-o" filedir
+            return
+            ;;
+        -I*)
+            _comp_compgen -P "-I" filedir -d
+            return
+            ;;
+        -*)
+            _comp_compgen_help
+            local i
+            for i in "${!COMPREPLY[@]}"; do
+                [[ ${COMPREPLY[i]} == -oFILE ]] && unset -v 'COMPREPLY[i]'
+            done
+            [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+            return
+            ;;
+    esac
+
+    _comp_compgen_filedir proto
+} &&
+    complete -F _comp_cmd_protoc protoc

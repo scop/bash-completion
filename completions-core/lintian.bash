@@ -1,0 +1,172 @@
+# bash completion for lintian(1) and lintian-info(1)
+
+_comp_cmd_lintian__tags()
+{
+    local tags check_files
+    _comp_expand_glob check_files '/usr/share/lintian/checks/*.desc' || return 0
+
+    tags=$(_comp_awk '/^Tag/ { print $2 }' "${check_files[@]}")
+    if [[ $cur == *, ]]; then
+        _comp_compgen -aR -- -W "$tags" -X "@(${cur//,/|})"
+    else
+        [[ $cur == ^.*, ]]
+        _comp_compgen -aP "${BASH_REMATCH-}" -- -W "$tags"
+    fi
+}
+
+_comp_cmd_lintian__checks()
+{
+    local match search item todisable checks check_files
+    _comp_expand_glob check_files '/usr/share/lintian/checks/*.desc' || return 0
+
+    checks=$(_comp_awk '/^(Check-Script|Abbrev)/ { print $2 }' \
+        "${check_files[@]}")
+    if [[ $cur == *, ]]; then
+        search=${cur//,/ }
+        todisable=""
+        for item in $search; do
+            match=$(command grep -nE "^(Check-Script|Abbrev): $item$" \
+                "${check_files[@]}" | cut -d: -f1)
+            todisable+=$'\n'$(_comp_awk '/^(Check-Script|Abbrev)/ { print $2 }' "$match")
+        done
+        _comp_split todisable -- "$todisable"
+        local IFS='|'
+        todisable="@(${todisable[*]})"
+        _comp_unlocal IFS
+        _comp_compgen -aR -- -W "$checks" -X "$todisable"
+    else
+        [[ $cur == ^.*, ]]
+        _comp_compgen -aP "${BASH_REMATCH-}" -- -W "$checks"
+    fi
+}
+
+_comp_cmd_lintian__infos()
+{
+    local infos collection_files
+    _comp_expand_glob collection_files '/usr/share/lintian/collection/*.desc' || return 0
+
+    infos=$(_comp_awk '/^Collector/ { print $2 }' \
+        "${collection_files[@]}")
+    if [[ $cur == *, ]]; then
+        _comp_compgen -aR -- -W "$infos" -X "@(${cur//,/|})"
+    else
+        [[ $cur == ^.*, ]]
+        _comp_compgen -aP "${BASH_REAMTCH-}" -- -W "$infos"
+    fi
+}
+
+_comp_cmd_lintian()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    local lint_actions general_opts behaviour_opts configuration_opts
+
+    lint_actions="--setup-lab --remove-lab --check --check-part --tags
+        --tags-from-file --ftp-master-rejects --dont-check-part --unpack
+        --remove"
+    general_opts="--help --version --print-version --verbose --debug --quiet"
+    behaviour_opts="--info --display-info --display-experimental --pedantic
+        --display-level --suppress-tags --suppress-tags-from-file --no-override
+        --show-overrides --color --unpack-info --md5sums --checksums
+        --allow-root --fail-on-warnings --keep-lab"
+    configuration_opts="--cfg --lab --archivedir --dist --area --section --arch
+        --root"
+
+    if [[ $prev == -* ]]; then
+        case $prev in
+            -C | --check-part | -X | --dont-check-part)
+                _comp_cmd_lintian__checks
+                return
+                ;;
+            -T | --tags | --suppress-tags)
+                _comp_cmd_lintian__tags
+                return
+                ;;
+            --tags-from-file | --suppress-tags-from-file | --cfg | -p | \
+                --packages-file)
+                _comp_compgen_filedir
+                return
+                ;;
+            --lab | --archivedir | --dist | --root)
+                _comp_compgen_filedir -d
+                return
+                ;;
+            --color)
+                _comp_compgen -- -W "never always auto html"
+                return
+                ;;
+            -U | --unpack-info)
+                _comp_cmd_lintian__infos
+                return
+                ;;
+            --area | --section)
+                _comp_compgen -- -W "main contrib non-free"
+                return
+                ;;
+            --arch)
+                return
+                ;;
+        esac
+    fi
+
+    case "$cur" in
+        --*)
+            _comp_compgen -- -W "$lint_actions $general_opts $behaviour_opts
+                $configuration_opts"
+            ;;
+        *,)
+            # If we're here, the user is trying to complete on
+            # --action tag,tag,<TAB>
+            # Only few actions permit that, re-complete them now.
+            case "$prev" in
+                -C | --check-part | -X | --dont-check-part)
+                    _comp_cmd_lintian__checks
+                    ;;
+                -T | --tags | --suppress-tags)
+                    _comp_cmd_lintian__tags
+                    ;;
+                -U | --unpack-info)
+                    _comp_cmd_lintian__infos
+                    ;;
+            esac
+            ;;
+        *)
+            # in Ubuntu, dbgsym packages end in .ddeb, lintian >= 2.57.0 groks
+            _comp_compgen_filedir '@(?(u|d)deb|changes|dsc|buildinfo)'
+            ;;
+    esac
+    return 0
+} &&
+    complete -F _comp_cmd_lintian lintian
+
+_comp_cmd_lintian_info()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    case "$prev" in
+        --help | --profile)
+            return
+            ;;
+        -t | --tags)
+            _comp_cmd_lintian__tags
+            return
+            ;;
+        --include-dir)
+            _comp_compgen_filedir -d
+            return
+            ;;
+    esac
+
+    case "$cur" in
+        --*)
+            _comp_compgen_help
+            ;;
+        *)
+            _comp_compgen_filedir
+            ;;
+    esac
+    return 0
+} &&
+    complete -F _comp_cmd_lintian_info lintian-info
