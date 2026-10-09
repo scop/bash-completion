@@ -2292,8 +2292,13 @@ _comp__init_set_up_service_completions
 _comp_compgen_kernel_modules()
 {
     local _modpath=/lib/modules/$1
-    _comp_compgen_split -- "$(command ls -RL "$_modpath" 2>/dev/null |
-        command sed -ne 's/^\(.*\)\.k\{0,1\}o\(\.[gx]z\)\{0,1\}$/\1/p' \
+    _comp_compgen_split -- "$(command find -L "$_modpath" \
+        \( -path "$_modpath/build" -o -path "$_modpath/source" \) -prune -o \
+        \( -name '*.ko' -o -name '*.o' \
+        -o -name '*.ko.[gx]z' -o -name '*.o.[gx]z' \
+        -o -name '*.ko.zst' \) -print 2>/dev/null |
+        command sed -ne 's/.*\///' \
+            -e 's/^\(.*\)\.k\{0,1\}o\(\.[gx]z\)\{0,1\}$/\1/p' \
             -e 's/^\(.*\)\.ko\.zst$/\1/p')"
 }
 
