@@ -85,7 +85,7 @@ _comp_cmd_rsync()
             # meaning before v3.2.0) contain the following unusual line in
             # --help:
             # "(-h) --help                  show this help (-h is --help only if used alone)"
-            if _comp_compgen -Rv tmp help - <<<"$("$1" --help 2>&1 | command sed -e 's/^([^)]*)//')"; then
+            if _comp_compgen -Rv tmp help - <<<"$(command rsync --help 2>&1 | command sed -e 's/^([^)]*)//')"; then
 
                 _comp_compgen -- -W '"${tmp[@]}"
                     --daemon --old-d{,irs}
@@ -106,7 +106,7 @@ _comp_cmd_rsync()
                 fi
             done
             if [[ $shell == ssh ]]; then
-                local rsync_version=$("$1" --version 2>/dev/null |
+                local rsync_version=$(command rsync --version 2>/dev/null |
                     command sed -n '1s/.*rsync *version \([0-9.]*\).*/\1/p')
                 _comp_cmd_rsync__vercomp "$rsync_version" "3.2.4"
                 if (($? == 2)); then

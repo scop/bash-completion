@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import assert_bash_exec, assert_complete
+from conftest import assert_bash_exec, assert_complete, is_bash_type
 
 
 @pytest.mark.bashcomp(ignore_env=r"^[+-]_comp_cmd_scp__path_esc=")
@@ -74,6 +74,32 @@ class TestRsync:
             completion == r"\ in\ filename.txt"
             or completion == r"\\\ in\\\ filename.txt"
         )
+
+    def test_alias_options(self, bash):
+        """Options for a manually registered alias match the real command."""
+        if not is_bash_type(bash, "rsync"):
+            pytest.skip("Command not found")
+        assert_bash_exec(
+            bash,
+            "alias _comp_test_rsync_alias=rsync",
+        )
+        assert_bash_exec(
+            bash,
+            "complete -o nospace -F _comp_cmd_rsync _comp_test_rsync_alias",
+        )
+        try:
+            expected = assert_complete(bash, "rsync --")
+            completion = assert_complete(
+                bash,
+                "_comp_test_rsync_alias --",
+            )
+            assert completion == expected
+        finally:
+            assert_bash_exec(
+                bash,
+                "unalias _comp_test_rsync_alias; "
+                "complete -r _comp_test_rsync_alias 2>/dev/null || true",
+            )
 
     @pytest.mark.complete(r"rsync -na spaced\ ", cwd="scp")
     def test_local_path_with_spaces(self, completion):
