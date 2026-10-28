@@ -142,3 +142,36 @@ class TestUnitCommandOffset:
             want_output=True,
         ).strip()
         assert result == "4"
+
+    @pytest.fixture(scope="class")
+    def cword0_functions(self, bash):
+        # Bash 4.3..5.3 may call the completion function of a meta-command
+        # for the command name itself, e.g. that of `do` for `A= ./d[TAB]o`,
+        # with COMP_CWORD=0.  This emulates such a call.
+        assert_bash_exec(
+            bash,
+            "_comp_test_cword0() {"
+            "    local COMP_LINE=$1 COMP_POINT=$2 COMP_CWORD=0;"
+            '    local COMP_WORDS=("${1%% *}");'
+            '    _comp_command "$COMP_WORDS" "${1::$2}" "$COMP_WORDS";'
+            "}",
+        )
+        assert_bash_exec(
+            bash,
+            "_comp_test_cword0_c() {"
+            '    _comp_test_cword0 "$_comp_test_line" "$_comp_test_point";'
+            "}; complete -F _comp_test_cword0_c cword0",
+        )
+
+    @pytest.mark.parametrize(
+        "line,point",
+        [
+            ("./com", 4),  # A= ./co[TAB]m
+            ("./co ", 4),  # A= ./co[TAB] ;
+        ],
+    )
+    def test_cword0(self, bash, cword0_functions, line, point):
+        with bash_env_saved(bash) as bash_env:
+            bash_env.write_variable("_comp_test_line", line)
+            bash_env.write_variable("_comp_test_point", str(point))
+            assert assert_complete(bash, "cword0 ") == "./completer"
