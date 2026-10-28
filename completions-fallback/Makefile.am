@@ -289,6 +289,7 @@ CLEANFILES = \
 	release-plz.bash \
 	rumdl.bash \
 	rustic.bash \
+	sbx.bash \
 	sentry-cli.bash \
 	sinker.bash \
 	skaffold.bash \
@@ -516,6 +517,7 @@ symlinks: $(DATA)
 		rclone \
 		regal \
 		regctl \
+		sbx \
 		sinker \
 		skaffold \
 		skupper \
