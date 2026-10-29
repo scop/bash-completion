@@ -36,7 +36,7 @@ _comp_cmd_watch()
     case $prev in
         --differences | -${noargopts}d)
             [[ $cur != -* ]] &&
-                _comp_compgen -- -W 'cumulative'
+                _comp_compgen -- -W 'permanent'
             return
             ;;
         --interval | -${noargopts}n)
