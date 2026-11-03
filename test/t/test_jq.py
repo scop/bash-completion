@@ -29,6 +29,14 @@ class TestJq:
     def test_6(self, completion):
         assert completion
 
+    @pytest.mark.complete("jq . ", cwd="jq")
+    def test_input_files(self, completion):
+        assert completion == "a.json b.jsonl c.ndjson".split()
+
+    @pytest.mark.complete("jq --slurpfile foo ", cwd="jq")
+    def test_slurpfile_files(self, completion):
+        assert completion == "a.json b.jsonl c.ndjson".split()
+
     @pytest.mark.complete("jq --args ")
     def test_no_completion_after_args(self, completion):
         assert not completion

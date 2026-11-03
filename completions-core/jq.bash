@@ -33,7 +33,7 @@ _comp_cmd_jq()
                 return
                 ;;
             --slurpfile | --argfile)
-                _comp_compgen_filedir 'json?(l)'
+                _comp_compgen_filedir '@(json?(l)|ndjson)'
                 return
                 ;;
             --rawfile)
@@ -77,7 +77,7 @@ _comp_cmd_jq()
     # 1st arg is filter
     ((REPLY == 1)) && return
     # 2... are input files
-    _comp_compgen_filedir 'json?(l)'
+    _comp_compgen_filedir '@(json?(l)|ndjson)'
 
 } &&
     complete -F _comp_cmd_jq jq
