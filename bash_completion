@@ -3006,6 +3006,12 @@ _comp_command_offset()
     _comp__find_original_word "$1"
     local word_offset=$REPLY
 
+    # Bash 4.3..5.3 may call the completion function for the command name
+    # itself, e.g. that of `do` for `A= ./d[TAB]o` with COMP_CWORD=0.  The
+    # offset is then past the current word, which is to be completed as a
+    # command name.
+    ((word_offset > COMP_CWORD)) && word_offset=$COMP_CWORD
+
     # make changes to COMP_* local.  Note that bash-4.3..5.0 have a
     # bug that `local -a arr=("${arr[@]}")` fails.  We instead first
     # assign the values of `COMP_WORDS` to another array `comp_words`.
