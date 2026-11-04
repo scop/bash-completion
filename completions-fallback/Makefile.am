@@ -44,6 +44,7 @@ cross_platform = adb.bash \
 		node.bash \
 		nox.bash \
 		nvm.bash \
+		opencode.bash \
 		pandoc.bash \
 		pew.bash \
 		pip.bash \
@@ -267,7 +268,6 @@ CLEANFILES = \
 	okteto.bash \
 	op.bash \
 	opa.bash \
-	opencode.bash \
 	oras.bash \
 	ory.bash \
 	packer.bash \
@@ -361,7 +361,6 @@ symlinks: $(DATA)
 		gaiad \
 		ngrok \
 		npm \
-		opencode \
 		sopstool \
 		tendermint
 	$(ss) gh \
