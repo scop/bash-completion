@@ -10,6 +10,24 @@ _comp_cmd_cryptsetup__device()
     _comp_compgen -c "${cur:-/dev/}" filedir
 }
 
+_comp_cmd_cryptsetup__action()
+{
+    local REPLY IFS=$' \t\n'
+    _comp_dequote "${1-}" || return 1
+    local cmd=${REPLY:-cryptsetup}
+    _comp_compgen_split -l -- "$(
+        {
+            LC_ALL=C "$cmd" --help 2>&1 |
+                command sed -n '
+                    /^<action> is one of:$/,/^[^[:space:]]/s/^[[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*/\1/p
+                    /^You can also use old <action> syntax aliases:$/,/^[^[:space:]]/{/^[[:space:]]\{1,\}/!d;s///;s/[:(),[:space:]]\{1,\}/\n/gp;}
+                '
+            LC_ALL=C man cryptsetup 2>&1 |
+                _comp_awk '/^[[:space:]]+[[:alnum:]_]+([[:space:]]+(-[^[:space:].]+|<[^<>]+>|\[[^][]+\]|\(.*\)|or))+$/ && $1 != "cryptsetup" {print $1}'
+        } | sort -u
+    )"
+}
+
 _comp_cmd_cryptsetup()
 {
     local cur prev words cword was_split comp_args
@@ -91,10 +109,7 @@ _comp_cmd_cryptsetup()
             _comp_compgen_help
             [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
         else
-            _comp_compgen -- -W 'open close resize status benchmark repair
-                erase luksFormat luksAddKey luksRemoveKey luksChangeKey
-                luksKillSlot luksUUID isLuks luksDump tcryptDump luksSuspend
-                luksResume luksHeaderBackup luksHeaderRestore'
+            _comp_cmd_cryptsetup__action "$1"
         fi
     fi
 
