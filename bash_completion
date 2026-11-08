@@ -2684,6 +2684,69 @@ _comp_complete_known_hosts()
     _comp_compgen_known_hosts ${options[@]+"${options[@]}"}
 }
 
+# Print the arguments of the ssh config lines with the given keywords, one per
+# line, parsed the way ssh does since OpenSSH 8.7 (argv_split() in misc.c):
+# - the keyword is case-insensitive, followed by whitespace or "=";
+# - the arguments are split on unquoted spaces and tabs;
+# - '...' and "..." quote, also within an argument;
+# - \ escapes a quote, a backslash and, unquoted, a space;
+# - an argument starting with an unquoted # starts a comment.
+# A line with an unterminated quote, which ssh rejects, prints nothing.
+# @param $1 keywords  Lowercase keywords, separated by "|"
+# @param $2... config files
+_comp__ssh_config_args()
+{
+    _comp_awk -v keywords="$1" '
+        BEGIN { dq = "\""; sq = "\047"; bs = "\\" }
+        {
+            line = $0
+            sub(/[ \t\r\f]+$/, "", line)
+            if (!match(line, /^[ \t]*[^ \t=]+/))
+                next
+            keyword = tolower(substr(line, 1, RLENGTH))
+            sub(/^[ \t]+/, "", keyword)
+            if (!index("|" keywords "|", "|" keyword "|"))
+                next
+            line = substr(line, RLENGTH + 1)
+            sub(/^[ \t]*(=[ \t]*)?/, "", line)
+
+            args = arg = quote = ""
+            in_arg = 0
+            for (i = 1; i <= length(line); i++) {
+                c = substr(line, i, 1)
+                if (!in_arg) {
+                    if (c == " " || c == "\t")
+                        continue
+                    if (c == "#")
+                        break
+                    in_arg = 1
+                }
+                next_c = substr(line, i + 1, 1)
+                if (c == bs && (next_c == dq || next_c == sq || next_c == bs ||
+                    (quote == "" && next_c == " "))) {
+                    arg = arg next_c
+                    i++
+                } else if (quote == "" && (c == " " || c == "\t")) {
+                    args = args arg "\n"
+                    arg = ""
+                    in_arg = 0
+                } else if (quote == "" && (c == dq || c == sq)) {
+                    quote = c
+                } else if (c == quote) {
+                    quote = ""
+                } else {
+                    arg = arg c
+                }
+            }
+            if (quote != "")
+                next
+            if (in_arg)
+                args = args arg "\n"
+            printf "%s", args
+        }
+    ' "${@:2}"
+}
+
 # Helper function to locate ssh included files in configs
 # This function looks for the "Include" keyword in ssh config files and
 # includes them recursively, adding each result to the config variable.
@@ -2713,11 +2776,15 @@ _comp__included_ssh_config_files()
     local -a include_files
     included=("$configfile")
 
+    # ssh globs each pathname whole: with an empty IFS, _comp_expand_glob does
+    # not split one with a space into several patterns.
+    local IFS=
+
     # Max recursion depth per openssh's READCONF_MAX_DEPTH:
     # https://github.com/openssh/openssh-portable/blob/5ec5504f1d328d5bfa64280cd617c3efec4f78f3/readconf.c#L2240
     local max_depth=16
     while ((${#included[@]} > 0 && depth++ < max_depth)); do
-        _comp_split include_files "$(command sed -ne 's/^[[:blank:]]*[Ii][Nn][Cc][Ll][Uu][Dd][Ee][[:blank:]]\(.*\)$/\1/p' "${included[@]}")" || return
+        _comp_split -l include_files "$(_comp__ssh_config_args include "${included[@]}")" || return
         included=()
         for i in "${include_files[@]}"; do
             if [[ $i != [~/]* ]]; then
