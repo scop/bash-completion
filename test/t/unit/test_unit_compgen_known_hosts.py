@@ -40,7 +40,7 @@ class TestUnitCompgenKnownHosts:
             for x in chain(
                 base_hosts,
                 # fixtures/_known_hosts/config
-                "gee hus jar #not-a-comment".split(),
+                "gee hus jar double_quoted single_quoted middle #not-a-comment".split(),
                 # fixtures/_known_hosts/known_hosts
                 (
                     "doo",
@@ -93,7 +93,7 @@ class TestUnitCompgenKnownHosts:
     def test_consecutive_spaces(self, bash, hosts_from_hostfile):
         expected = hosts_from_hostfile.copy()
         # fixtures/_known_hosts/spaced  conf
-        expected.extend("gee hus #not-a-comment".split())
+        expected.extend("gee hus".split())
         # fixtures/_known_hosts/known_hosts2
         expected.extend("two two2 two3 two4".split())
         # fixtures/_known_hosts_/spaced  known_hosts
