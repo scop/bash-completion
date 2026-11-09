@@ -165,6 +165,26 @@ class TestBsdtarCombinedOptions:
     def test_mode_after_archive_argument(self, completion):
         assert completion == ["test.pax", "test.rar"]
 
+    @pytest.mark.parametrize(
+        "command,trail",
+        [
+            ("bsdtar -vf test.", " -C -c -t"),
+            ("bsdtar -vf test.", " -C-c -t"),
+            ("bsdtar -vf test.", " -C -- -t"),
+            ("bsdtar --list -vf test.", " -- -c"),
+            ("bsdtar -C-t -vf test.", " -C -c -t"),
+        ],
+    )
+    def test_mode_with_arguments_after_cursor(self, bash, command, trail):
+        assert assert_complete(bash, command, trail=trail, cwd="bsdtar") == [
+            "test.pax",
+            "test.rar",
+        ]
+
+    @pytest.mark.complete("bsdtar -vf escape.", trail=" --xz -t", cwd="tar")
+    def test_compression_option_after_archive_argument(self, completion):
+        assert not completion
+
     @pytest.mark.complete("bsdtar -cb ", cwd="tar")
     def test_block_size_argument(self, completion):
         assert not completion

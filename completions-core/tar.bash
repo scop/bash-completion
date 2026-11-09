@@ -508,29 +508,33 @@ _comp_cmd_tar__bsdtar_preparse()
     local arg='[bCfIsTX]'
     [[ $prev == -+($noarg)[bf] ]] || return 1
 
-    local i word argument
+    local i word argument found_prev=
     local -a option_words=("${words[0]}")
-    for ((i = 1; i < cword - 1; i++)); do
+    for ((i = 1; i < ${#words[@]}; i++)); do
         word=${words[i]}
         case $word in
-            --append | --create | --extract | --list | --update | --?*=*)
+            --) break ;;
+            --append | --create | --extract | --list | --update | \
+                --bzip2 | --compress | --gunzip | --gzip | --lzip | --lzma | \
+                --lzop | --uncompress | --xz | --zstd | --?*=*)
                 option_words+=("$word")
                 continue
                 ;;
         esac
         if [[ $word == -*($noarg)$arg ]]; then
+            ((i == cword - 1)) && found_prev=set
             ((i++))
         elif [[ $word == -*($noarg)$arg?* ]]; then
             # shellcheck disable=SC2295 # noarg and arg are patterns
             argument=${word#-*($noarg)$arg}
             word=${word%"$argument"}
         elif [[ $word != -+($noarg) ]]; then
-            return 1
+            break
         fi
         option_words+=("$word")
     done
-    ((i == cword - 1)) || return 1
-    _comp_cmd_tar__preparse_cmdline "${option_words[@]}" "$prev" "${words[@]:cword+1}"
+    [[ $found_prev ]] || return 1
+    _comp_cmd_tar__preparse_cmdline "${option_words[@]}"
     prev=-${prev: -1}
 }
 
