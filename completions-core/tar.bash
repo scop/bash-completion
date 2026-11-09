@@ -505,7 +505,7 @@ _comp_cmd_tar__cleanup_prev()
 _comp_cmd_tar__bsdtar_preparse()
 {
     local noarg='[aBcHhJjkLlmnOoPpqrStUuvwxyZz]'
-    local arg='[bCfIsTX]'
+    local arg='[bCfIsTWX]'
     [[ $prev == -+($noarg)[bf] ]] || return 1
 
     local -a long_options=(
@@ -537,45 +537,49 @@ _comp_cmd_tar__bsdtar_preparse()
     local -a option_words=("${words[0]}")
     for ((i = 1; i < ${#words[@]}; i++)); do
         word=${words[i]}
-        case $word in
-            --) break ;;
-            --*)
-                long_name=${word%%=*}
-                match_count=0
-                for option in "${long_options[@]}"; do
-                    case ${option%=} in
-                        "$long_name")
-                            matched_option=$option
-                            match_count=1
-                            break
-                            ;;
-                        "$long_name"*)
-                            matched_option=$option
-                            ((++match_count))
-                            ;;
-                    esac
-                done
-                ((match_count == 1)) || break
-                if [[ $matched_option == *= ]]; then
-                    [[ $word == *=* ]] || ((i++))
-                elif [[ $word == *=* ]]; then
-                    break
-                fi
-                option_words+=("${matched_option%=}")
+        [[ $word != -- ]] || break
+        if [[ $word != --* ]]; then
+            if [[ $word == -*($noarg)$arg ]]; then
+                ((i == cword - 1)) && found_prev=set
+                ((i++))
+                argument=${words[i]-}
+            elif [[ $word == -*($noarg)$arg?* ]]; then
+                # shellcheck disable=SC2295 # noarg and arg are patterns
+                argument=${word#-*($noarg)$arg}
+                word=${word%"$argument"}
+            elif [[ $word != -+($noarg) ]]; then
+                break
+            fi
+            if [[ $word != *W ]]; then
+                option_words+=("$word")
                 continue
-                ;;
-        esac
-        if [[ $word == -*($noarg)$arg ]]; then
-            ((i == cword - 1)) && found_prev=set
-            ((i++))
-        elif [[ $word == -*($noarg)$arg?* ]]; then
-            # shellcheck disable=SC2295 # noarg and arg are patterns
-            argument=${word#-*($noarg)$arg}
-            word=${word%"$argument"}
-        elif [[ $word != -+($noarg) ]]; then
+            fi
+            [[ $word == -W ]] || option_words+=("${word%W}")
+            [[ $argument ]] || break
+            word=--$argument
+        fi
+        long_name=${word%%=*}
+        match_count=0
+        for option in "${long_options[@]}"; do
+            case ${option%=} in
+                "$long_name")
+                    matched_option=$option
+                    match_count=1
+                    break
+                    ;;
+                "$long_name"*)
+                    matched_option=$option
+                    ((++match_count))
+                    ;;
+            esac
+        done
+        ((match_count == 1)) || break
+        if [[ $matched_option == *= ]]; then
+            [[ $word == *=* ]] || ((i++))
+        elif [[ $word == *=* ]]; then
             break
         fi
-        option_words+=("$word")
+        option_words+=("${matched_option%=}")
     done
     [[ $found_prev ]] || return 1
     _comp_cmd_tar__preparse_cmdline "${option_words[@]}"
