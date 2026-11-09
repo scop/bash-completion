@@ -533,6 +533,7 @@ _comp_cmd_tar__bsdtar_preparse()
         --zstd
     )
     local long_name option matched_option match_count
+    local -a REPLY
     local i word argument found_prev=
     local -a option_words=("${words[0]}")
     for ((i = 1; i < ${#words[@]}; i++)); do
@@ -543,10 +544,9 @@ _comp_cmd_tar__bsdtar_preparse()
                 ((i == cword - 1)) && found_prev=set
                 ((i++))
                 argument=${words[i]-}
-            elif [[ $word == -*($noarg)$arg?* ]]; then
-                # shellcheck disable=SC2295 # noarg and arg are patterns
-                argument=${word#-*($noarg)$arg}
-                word=${word%"$argument"}
+            elif [[ $word =~ ^(-${noarg}*${arg})(.+)$ ]]; then
+                word=${BASH_REMATCH[1]}
+                argument=${BASH_REMATCH[2]}
             elif [[ $word != -+($noarg) ]]; then
                 break
             fi
@@ -559,6 +559,12 @@ _comp_cmd_tar__bsdtar_preparse()
             word=--$argument
         fi
         long_name=${word%%=*}
+        if [[ $long_name == *[\'\"\\]* ]]; then
+            _comp_dequote "$word" || break
+            ((${#REPLY[@]} == 1)) || break
+            word=${REPLY[0]}
+            long_name=${word%%=*}
+        fi
         match_count=0
         for option in "${long_options[@]}"; do
             case ${option%=} in
