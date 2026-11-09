@@ -508,16 +508,60 @@ _comp_cmd_tar__bsdtar_preparse()
     local arg='[bCfIsTX]'
     [[ $prev == -+($noarg)[bf] ]] || return 1
 
+    local -a long_options=(
+        --absolute-paths --append --acls --auto-compress --b64encode
+        --block-size= --blocking-factor= --bunzip2 --bzip --bzip2 --cd=
+        --check-links --chroot --clamp-mtime --clear-nochange-fflags
+        --compress --confirmation --create --dereference --directory=
+        --disable-copyfile --exclude= --exclude-from= --exclude-vcs --extract
+        --fast-read --fflags --file= --files-from= --format= --gid= --gname=
+        --group= --grzip --gunzip --gzip --help --hfsCompression
+        --ignore-zeros --include= --insecure --interactive --keep-newer-files
+        --keep-old-files --list --lrzip --lz4 --lzip --lzma --lzop
+        --mac-metadata --modification-time --mtime= --newer= --newer-ctime=
+        --newer-ctime-than= --newer-mtime= --newer-mtime-than= --newer-than=
+        --no-acls --no-fflags --no-mac-metadata --no-read-sparse
+        --no-recursion --no-safe-writes --no-same-owner --no-same-permissions
+        --no-xattr --no-xattrs --nodump --nopreserveHFSCompression --norecurse
+        --null --numeric-owner --older= --older-ctime= --older-ctime-than=
+        --older-mtime= --older-mtime-than= --older-than= --one-file-system
+        --options= --owner= --passphrase= --posix --preserve-permissions
+        --read-full-blocks --read-sparse --safe-writes --same-owner
+        --same-permissions --strip-components= --to-stdout --totals --uid=
+        --uname= --uncompress --unlink --unlink-first --update
+        --use-compress-program= --uuencode --verbose --version --xattrs --xz
+        --zstd
+    )
+    local long_name option matched_option match_count
     local i word argument found_prev=
     local -a option_words=("${words[0]}")
     for ((i = 1; i < ${#words[@]}; i++)); do
         word=${words[i]}
         case $word in
             --) break ;;
-            --append | --create | --extract | --list | --update | \
-                --bzip2 | --compress | --gunzip | --gzip | --lzip | --lzma | \
-                --lzop | --uncompress | --xz | --zstd | --?*=*)
-                option_words+=("$word")
+            --*)
+                long_name=${word%%=*}
+                match_count=0
+                for option in "${long_options[@]}"; do
+                    case ${option%=} in
+                        "$long_name")
+                            matched_option=$option
+                            match_count=1
+                            break
+                            ;;
+                        "$long_name"*)
+                            matched_option=$option
+                            ((++match_count))
+                            ;;
+                    esac
+                done
+                ((match_count == 1)) || break
+                if [[ $matched_option == *= ]]; then
+                    [[ $word == *=* ]] || ((i++))
+                elif [[ $word == *=* ]]; then
+                    break
+                fi
+                option_words+=("${matched_option%=}")
                 continue
                 ;;
         esac
