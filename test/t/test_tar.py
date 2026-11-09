@@ -143,6 +143,8 @@ class TestBsdtarCombinedOptions:
             "bsdtar -tf ",
             "bsdtar -C . -tvf ",
             "bsdtar -C. -tf ",
+            "bsdtar -C -c -tf ",
+            "bsdtar -C-c -tf ",
             "bsdtar --list -vf ",
             "bsdtar --exclude=pattern -tf ",
         ],
@@ -152,6 +154,16 @@ class TestBsdtarCombinedOptions:
             "test.pax",
             "test.rar",
         ]
+
+    @pytest.mark.parametrize(
+        "command", ["bsdtar -C -t -cf ", "bsdtar -C-t -cf "]
+    )
+    def test_create_archive_argument(self, bash, command):
+        assert assert_complete(bash, command, cwd="tar") == ["dir/", "dir2/"]
+
+    @pytest.mark.complete("bsdtar -C-c -vf test.", trail=" -t", cwd="bsdtar")
+    def test_mode_after_archive_argument(self, completion):
+        assert completion == ["test.pax", "test.rar"]
 
     @pytest.mark.complete("bsdtar -cb ", cwd="tar")
     def test_block_size_argument(self, completion):

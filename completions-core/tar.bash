@@ -502,29 +502,36 @@ _comp_cmd_tar__cleanup_prev()
     fi
 }
 
-_comp_cmd_tar__bsdtar_adjust_prev()
+_comp_cmd_tar__bsdtar_preparse()
 {
     local noarg='[aBcHhJjkLlmnOoPpqrStUuvwxyZz]'
     local arg='[bCfIsTX]'
-    [[ $prev == -+($noarg)[bf] ]] || return 0
+    [[ $prev == -+($noarg)[bf] ]] || return 1
 
-    local i word
+    local i word argument
+    local -a option_words=("${words[0]}")
     for ((i = 1; i < cword - 1; i++)); do
         word=${words[i]}
         case $word in
             --append | --create | --extract | --list | --update | --?*=*)
+                option_words+=("$word")
                 continue
                 ;;
         esac
         if [[ $word == -*($noarg)$arg ]]; then
             ((i++))
-        elif [[ $word != -+($noarg) && $word != -*($noarg)$arg?* ]]; then
-            return 0
+        elif [[ $word == -*($noarg)$arg?* ]]; then
+            # shellcheck disable=SC2295 # noarg and arg are patterns
+            argument=${word#-*($noarg)$arg}
+            word=${word%"$argument"}
+        elif [[ $word != -+($noarg) ]]; then
+            return 1
         fi
+        option_words+=("$word")
     done
-    if ((i == cword - 1)); then
-        prev=-${prev: -1}
-    fi
+    ((i == cword - 1)) || return 1
+    _comp_cmd_tar__preparse_cmdline "${option_words[@]}" "$prev" "${words[@]:cword+1}"
+    prev=-${prev: -1}
 }
 
 _comp_cmd_tar__is_bsdtar()
@@ -807,7 +814,9 @@ _comp_cmd_tar__posix()
     short_opts="$short_arg_req$short_arg_none"
 
     local old_opt_progress old_opt_used old_opt_parsed
-    _comp_cmd_tar__preparse_cmdline "${words[@]}"
+    if [[ ! ${_comp_cmd_tar__bsd_shortopts-} ]] || ! _comp_cmd_tar__bsdtar_preparse; then
+        _comp_cmd_tar__preparse_cmdline "${words[@]}"
+    fi
 
     local ext
 
@@ -815,9 +824,6 @@ _comp_cmd_tar__posix()
 
     _comp_cmd_tar__adjust_PREV_from_old_option
 
-    if [[ ${_comp_cmd_tar__bsd_shortopts-} ]]; then
-        _comp_cmd_tar__bsdtar_adjust_prev
-    fi
     _comp_cmd_tar__posix_prev_handle && return
 
     _comp_cmd_tar__try_mode && return
