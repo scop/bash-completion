@@ -502,6 +502,31 @@ _comp_cmd_tar__cleanup_prev()
     fi
 }
 
+_comp_cmd_tar__bsdtar_adjust_prev()
+{
+    local noarg='[aBcHhJjkLlmnOoPpqrStUuvwxyZz]'
+    local arg='[bCfIsTX]'
+    [[ $prev == -+($noarg)[bf] ]] || return 0
+
+    local i word
+    for ((i = 1; i < cword - 1; i++)); do
+        word=${words[i]}
+        case $word in
+            --append | --create | --extract | --list | --update | --?*=*)
+                continue
+                ;;
+        esac
+        if [[ $word == -*($noarg)$arg ]]; then
+            ((i++))
+        elif [[ $word != -+($noarg) && $word != -*($noarg)$arg?* ]]; then
+            return 0
+        fi
+    done
+    if ((i == cword - 1)); then
+        prev=-${prev: -1}
+    fi
+}
+
 _comp_cmd_tar__is_bsdtar()
 {
     [[ ${COMP_WORDS[0]} == ?(*/)bsdtar ]]
@@ -790,6 +815,9 @@ _comp_cmd_tar__posix()
 
     _comp_cmd_tar__adjust_PREV_from_old_option
 
+    if [[ ${_comp_cmd_tar__bsd_shortopts-} ]]; then
+        _comp_cmd_tar__bsdtar_adjust_prev
+    fi
     _comp_cmd_tar__posix_prev_handle && return
 
     _comp_cmd_tar__try_mode && return
@@ -800,11 +828,20 @@ _comp_cmd_tar__posix()
     _comp_compgen_filedir
 }
 
+_comp_cmd_tar__bsdtar()
+{
+    local _comp_cmd_tar__bsd_shortopts=set
+    _comp_cmd_tar__posix "$@"
+}
+
 _comp_cmd_tar()
 {
     local cmd=${COMP_WORDS[0]} func line
     line=$("$cmd" --version 2>/dev/null)
     case "$line" in
+        "bsdtar "*)
+            func=_comp_cmd_tar__bsdtar
+            ;;
         *GNU*)
             func=_comp_cmd_tar__gnu
             ;;
@@ -826,11 +863,11 @@ _comp_cmd_tar()
 if [[ ${BASH_COMPLETION_CMD_TAR_INTERNAL_PATHS-} ]]; then
     complete -F _comp_cmd_tar -o dirnames tar
     complete -F _comp_cmd_tar__gnu -o dirnames gtar
-    complete -F _comp_cmd_tar__posix -o dirnames bsdtar
+    complete -F _comp_cmd_tar__bsdtar -o dirnames bsdtar
     complete -F _comp_cmd_tar__posix -o dirnames star
 else
     complete -F _comp_cmd_tar tar
     complete -F _comp_cmd_tar__gnu gtar
-    complete -F _comp_cmd_tar__posix bsdtar
+    complete -F _comp_cmd_tar__bsdtar bsdtar
     complete -F _comp_cmd_tar__posix star
 fi

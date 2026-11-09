@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from conftest import assert_bash_exec
+from conftest import assert_bash_exec, assert_complete
 
 
 @pytest.mark.bashcomp(ignore_env=r"^-declare -f _comp_cmd_tar$")
@@ -133,3 +133,60 @@ class TestTar:
         assert completion == "archive.tar.xz dir/ dir2/".split()
 
     # TODO: "tar tf escape.tar a/b"
+
+
+@pytest.mark.bashcomp(cmd="bsdtar")
+class TestBsdtarCombinedOptions:
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "bsdtar -tf ",
+            "bsdtar -C . -tvf ",
+            "bsdtar -C. -tf ",
+            "bsdtar --list -vf ",
+            "bsdtar --exclude=pattern -tf ",
+        ],
+    )
+    def test_archive_argument(self, bash, command):
+        assert assert_complete(bash, command, cwd="bsdtar") == [
+            "test.pax",
+            "test.rar",
+        ]
+
+    @pytest.mark.complete("bsdtar -cb ", cwd="tar")
+    def test_block_size_argument(self, completion):
+        assert not completion
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "bsdtar -tfarchivef ",
+            "bsdtar -tbf ",
+            "bsdtar -tCf ",
+            "bsdtar -t -f -tf ",
+            "bsdtar -t -- -tf ",
+            "bsdtar -t --exclude -tf ",
+        ],
+    )
+    def test_no_pending_archive_argument(self, bash, command):
+        assert not assert_complete(bash, command, cwd="bsdtar")
+
+
+@pytest.mark.bashcomp(
+    ignore_env=r"^-declare -f _comp_cmd_tar$",
+    pre_cmds=["tar() { printf 'bsdtar 3.8.9\\n'; }"],
+)
+class TestTarWithBsdtarVersion:
+    @pytest.mark.complete("tar -tf ", cwd="tar")
+    def test_archive_argument(self, completion):
+        assert completion == "archive.tar.xz dir/ dir2/ escape.tar".split()
+
+
+@pytest.mark.bashcomp(
+    ignore_env=r"^-declare -f _comp_cmd_tar$",
+    pre_cmds=["tar() { return 1; }"],
+)
+class TestTarWithoutVersion:
+    @pytest.mark.complete("tar -tf ", cwd="tar")
+    def test_archive_argument(self, completion):
+        assert not completion
