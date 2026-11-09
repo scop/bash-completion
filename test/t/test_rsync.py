@@ -86,3 +86,10 @@ class TestRsync:
 
         """
         assert completion == r"\ conf" or completion == r"\\\ conf"
+
+    @pytest.mark.parametrize("quote", ["'", '"'])
+    def test_quoted_local_path_with_spaces(self, bash, quote):
+        completion = assert_complete(
+            bash, f"rsync -na {quote}spaced ", cwd="scp"
+        )
+        assert completion.output == f" conf{quote} "
