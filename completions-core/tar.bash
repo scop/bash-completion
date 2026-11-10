@@ -502,6 +502,36 @@ _comp_cmd_tar__cleanup_prev()
     fi
 }
 
+_comp_cmd_tar__bsdtar_reassemble_quoted_values()
+{
+    local word=
+    for word in "${COMP_WORDS[@]}"; do
+        [[ $word == +(=)[\'\"]*([=\'\"]) ]] && break
+    done
+    [[ $word == +(=)[\'\"]*([=\'\"]) ]] || return 0
+
+    local rest=$COMP_LINE offset=0 start index=-1
+    local word_pattern=$'([^[:space:]\'"\\\\;&|<>()]|\\\\.|\'[^\']*\'|"([^"\\\\]|\\\\.)*")+'
+    local -a reassembled=()
+    while [[ $rest =~ ^([[:blank:]]*)($word_pattern) ]]; do
+        start=$((offset + ${#BASH_REMATCH[1]}))
+        ((offset += ${#BASH_REMATCH[0]}))
+        if ((index < 0 && COMP_POINT <= offset)); then
+            index=${#reassembled[@]}
+            ((COMP_POINT >= start)) || reassembled+=("")
+        fi
+        reassembled+=("${BASH_REMATCH[2]}")
+        rest=${rest:${#BASH_REMATCH[0]}}
+    done
+    [[ $rest != *[![:blank:]]* && ${reassembled[0]-} == "${COMP_WORDS[0]}" ]] || return 0
+    if ((index < 0)); then
+        index=${#reassembled[@]}
+        reassembled+=("")
+    fi
+    COMP_WORDS=("${reassembled[@]}")
+    COMP_CWORD=$index
+}
+
 _comp_cmd_tar__bsdtar_preparse()
 {
     local noarg='[aBcHhJjkLlmnOoPpqrStUuvwxyZz]'
@@ -895,6 +925,10 @@ _comp_cmd_tar__posix()
 _comp_cmd_tar__bsdtar()
 {
     local _comp_cmd_tar__bsd_shortopts=set
+    if [[ $COMP_LINE == *=[\'\"]* ]]; then
+        local COMP_WORDS=("${COMP_WORDS[@]}") COMP_CWORD=$COMP_CWORD
+        _comp_cmd_tar__bsdtar_reassemble_quoted_values
+    fi
     _comp_cmd_tar__posix "$@"
 }
 
