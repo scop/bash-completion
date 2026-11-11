@@ -330,9 +330,9 @@ _comp_cmd_magick()
     if _comp_split tool "$(magick -list tool)"; then
         for t in "${tool[@]}"; do
             func=_comp_cmd_$t
-            if [[ $prev == $t ]] && declare -F "$func" > /dev/null; then
+            if [[ $prev == "$t" ]] && declare -F "$func" > /dev/null; then
                 # autocomplete as if calling the tool directly
-                eval "$func $t $cur magick" && return
+                "$func" "$t" "$cur" magick && return
             fi
         done
     fi
@@ -345,7 +345,9 @@ _comp_cmd_magick()
             +render +write'
     else
         _comp_compgen_filedir
-        _comp_compgen -a -- -W "${tool[*]}"
+        if ((${#tool[@]} >= 1)); then
+            _comp_compgen -a -- -W '"${tool[@]}"'
+        fi
     fi
 } &&
     complete -F _comp_cmd_magick magick
