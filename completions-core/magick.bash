@@ -326,15 +326,16 @@ _comp_cmd_magick()
 
     _comp_cmd_convert__common_options && return
 
-    local t tool
-    tool=( $(magick -list tool) )
-
-    for t in ${tool[@]}; do
-        if [[ $prev == $t ]]; then
-            # autocomplete as if calling the tool directly
-            eval "_comp_cmd_$t $t $cur magick" && return
-        fi
-    done
+    local t tool func
+    if _comp_split tool "$(magick -list tool)"; then
+        for t in "${tool[@]}"; do
+            func=_comp_cmd_$t
+            if [[ $prev == $t ]] && declare -F "$func" > /dev/null; then
+                # autocomplete as if calling the tool directly
+                eval "$func $t $cur magick" && return
+            fi
+        done
+    fi
 
     if [[ $cur == -* ]]; then
         _comp_compgen_help -- -help
