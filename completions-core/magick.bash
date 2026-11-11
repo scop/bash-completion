@@ -327,7 +327,7 @@ _comp_cmd_magick()
     _comp_cmd_convert__common_options && return
 
     local t tool
-    tool=( $(magick -list tool | sed '/^convert$/d') )
+    tool=( $(magick -list tool) )
 
     for t in ${tool[@]}; do
         if [[ $prev == $t ]]; then
@@ -339,7 +339,9 @@ _comp_cmd_magick()
     if [[ $cur == -* ]]; then
         _comp_compgen_help -- -help
     elif [[ $cur == +* ]]; then
-        _comp_compgen -- -W '+debug'
+        _comp_compgen -- -W '+adjoin +append +compress +contrast +debug +dither
+            +endian +gamma +label +map +mask +matte +negate +noise +page +raise
+            +render +write'
     else
         _comp_compgen_filedir
         _comp_compgen -a -- -W "${tool[*]}"
