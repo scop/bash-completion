@@ -318,3 +318,33 @@ _comp_cmd_stream()
     fi
 } &&
     complete -F _comp_cmd_stream stream
+
+_comp_cmd_magick()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    _comp_cmd_convert__common_options && return
+
+    local t tool=(
+        animate compare composite conjure
+        display identify import mogrify montage stream
+    )
+
+    for t in ${tool[@]}; do
+        if [[ $prev == $t ]]; then
+            # autocomplete as if calling the tool directly
+            eval "_comp_cmd_$t $t $cur magick" && return
+        fi
+    done
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- -help
+    elif [[ $cur == +* ]]; then
+        _comp_compgen -- -W '+debug'
+    else
+        _comp_compgen_filedir
+        _comp_compgen -a -- -W "${tool[*]}"
+    fi
+} &&
+    complete -F _comp_cmd_magick magick
