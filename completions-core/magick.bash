@@ -326,10 +326,8 @@ _comp_cmd_magick()
 
     _comp_cmd_convert__common_options && return
 
-    local t tool=(
-        animate compare composite conjure
-        display identify import mogrify montage stream
-    )
+    local t tool
+    tool=( $(magick -list tool | sed '/^convert$/d') )
 
     for t in ${tool[@]}; do
         if [[ $prev == $t ]]; then
