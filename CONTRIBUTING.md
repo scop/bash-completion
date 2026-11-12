@@ -211,11 +211,11 @@ Also, please bear the following coding guidelines in mind:
   code is accepted into the distribution, a lot of people will try it
   out, so try to do a thorough job of eradicating all the bugs before
   you send it to us. If at all practical, **add test cases** to our
-  test suite (in the test/ dir) that verify that the code does what it
+  test suite (in the `test/` dir) that verify that the code does what it
   is intended to do, fixes issues it intends to fix, etc.
 
-- In addition to running the test suite, there are a few scripts in the test/
-  dir that catch some common issues, see and use for example runLint.
+- In addition to running the test suite, there are a few scripts in the `test/`
+  dir that catch some common issues, see and use for example `runLint`.
 
 - Make sure you have Python 3.7 or later installed. This is required for
   running the development tooling, linters etc. Rest of the development
