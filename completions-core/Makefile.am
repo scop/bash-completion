@@ -64,7 +64,6 @@ cross_platform = 2to3.bash \
 		complete.bash \
 		config_list.bash \
 		configure.bash \
-		convert.bash \
 		cowsay.bash \
 		cpan2dist.bash \
 		cpio.bash \
@@ -235,6 +234,7 @@ cross_platform = 2to3.bash \
 		make.bash \
 		makepkg.bash \
 		man.bash \
+		magick.bash \
 		mc.bash \
 		mcrypt.bash \
 		mdadm.bash \
@@ -852,9 +852,6 @@ symlinks: $(DATA)
 		google-chrome-stable helium
 	$(ss) complete \
 		compgen
-	$(ss) convert \
-		animate compare composite conjure display identify import \
-		mogrify montage stream
 	$(ss) cowsay \
 		cowthink
 	$(ss) curl \
@@ -939,6 +936,9 @@ symlinks: $(DATA)
 		bmake colormake gmake gnumake pmake
 	$(ss) man \
 		apropos whatis
+	$(ss) magick \
+		animate compare composite conjure display identify import \
+		mogrify montage stream convert
 	$(ss) mcrypt \
 		mdecrypt
 	$(ss) mfiutil \
