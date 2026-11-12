@@ -2,7 +2,13 @@ import re
 
 import pytest
 
-from conftest import assert_bash_exec
+from conftest import (
+    MAGIC_MARK,
+    PS1,
+    assert_bash_exec,
+    assert_complete,
+    bash_env_saved,
+)
 
 
 @pytest.mark.bashcomp(ignore_env=r"^-declare -f _comp_cmd_tar$")
@@ -133,3 +139,142 @@ class TestTar:
         assert completion == "archive.tar.xz dir/ dir2/".split()
 
     # TODO: "tar tf escape.tar a/b"
+
+
+@pytest.mark.bashcomp(cmd="bsdtar")
+class TestBsdtarCombinedOptions:
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "bsdtar -tf ",
+            "bsdtar -C . -tvf ",
+            "bsdtar -C. -tf ",
+            "bsdtar -C -c -tf ",
+            "bsdtar -C-c -tf ",
+            "bsdtar --list -vf ",
+            "bsdtar --exclude=pattern -tf ",
+            "bsdtar --exclude -c -tf ",
+            "bsdtar -W exclude -c -tf ",
+            "bsdtar -W exclude='pattern' -tf ",
+            "bsdtar --exclude='two -c words' -tf ",
+        ],
+    )
+    def test_archive_argument(self, bash, command):
+        assert assert_complete(bash, command, cwd="bsdtar") == [
+            "test.pax",
+            "test.rar",
+        ]
+
+    @pytest.mark.parametrize(
+        "command", ["bsdtar -C -t -cf ", "bsdtar -C-t -cf "]
+    )
+    def test_create_archive_argument(self, bash, command):
+        assert assert_complete(bash, command, cwd="tar") == ["dir/", "dir2/"]
+
+    @pytest.mark.complete("bsdtar -C-c -vf test.", trail=" -t", cwd="bsdtar")
+    def test_mode_after_archive_argument(self, completion):
+        assert completion == ["test.pax", "test.rar"]
+
+    @pytest.mark.parametrize(
+        "command,trail",
+        [
+            ("bsdtar -vf test.", " -C -c -t"),
+            ("bsdtar -vf test.", " -C-c -t"),
+            ("bsdtar -vf test.", " -C -- -t"),
+            ("bsdtar --list -vf test.", " -- -c"),
+            ("bsdtar -C-t -vf test.", " -C -c -t"),
+        ],
+    )
+    def test_mode_with_arguments_after_cursor(self, bash, command, trail):
+        assert assert_complete(bash, command, trail=trail, cwd="bsdtar") == [
+            "test.pax",
+            "test.rar",
+        ]
+
+    @pytest.mark.parametrize(
+        "trail,archive",
+        [
+            (" --exclude pattern -t", "test.rar"),
+            (" --exclude=pattern -t", "test.rar"),
+            (" --exclude -c -t", "test.rar"),
+            (" --directory -c -t", "test.rar"),
+            (" --exclude-fr patterns -t", "test.rar"),
+            (" --no-recursion -t", "test.rar"),
+            (" --lis", "test.rar"),
+            (" -W exclude pattern -t", "test.rar"),
+            (" -W exclude=pattern -t", "test.rar"),
+            (" -Wexclude pattern -t", "test.rar"),
+            (" -Wexclude=pattern -t", "test.rar"),
+            (" -W 'exclude=pattern' -t", "test.rar"),
+            (" -W'exclude=pattern' -t", "test.rar"),
+            (' -W"exclude=pattern" -t', "test.rar"),
+            (" -W exclude='pattern' -t", "test.rar"),
+            (' -W exclude="two -c words" -t', "test.rar"),
+            (" -W exclude=''\"pattern\" -t", "test.rar"),
+            (" -Wexclude='pattern' -t", "test.rar"),
+            (" --exclude='two -c words' -t", "test.rar"),
+            (r" -W exclude\=pattern -t", "test.rar"),
+            (" --'exclude=pattern' -t", "test.rar"),
+            (" -W exclude -c -t", "test.rar"),
+            (" -tW exclude pattern", "test.rar"),
+            (" -tWexclude=pattern", "test.rar"),
+            (" -Wlist", "test.rar"),
+            (" -CW -t", "test.rar"),
+            (" --excl -t", "test.shar"),
+            (" -Wexcl -t", "test.shar"),
+            (" --unknown-option -t", "test.shar"),
+            (" --no-recursion=1 -t", "test.shar"),
+            (" -W exclude='-t' -- -t", "test.shar"),
+        ],
+    )
+    def test_long_options_after_archive_argument(self, bash, trail, archive):
+        with bash_env_saved(bash, sendintr=True) as bash_env:
+            bash_env.chdir("bsdtar")
+            bash.send("bsdtar -vf test." + trail + "\002" * len(trail) + "\t")
+            bash.expect(r"\r\n((?:test\.[a-z]+\r\n)+)" + re.escape(PS1))
+            archives = bash.match.group(1).splitlines()
+            bash.send("\005" + MAGIC_MARK)
+            bash.expect_exact(MAGIC_MARK)
+            assert archives == ["test.pax", archive]
+
+    @pytest.mark.complete("bsdtar -vf escape.", trail=" --xz -t", cwd="tar")
+    def test_compression_option_after_archive_argument(self, completion):
+        assert not completion
+
+    @pytest.mark.complete("bsdtar -cb ", cwd="tar")
+    def test_block_size_argument(self, completion):
+        assert not completion
+
+    @pytest.mark.parametrize(
+        "command",
+        [
+            "bsdtar -tfarchivef ",
+            "bsdtar -tbf ",
+            "bsdtar -tCf ",
+            "bsdtar -t -f -tf ",
+            "bsdtar -t -- -tf ",
+            "bsdtar -t --exclude -tf ",
+        ],
+    )
+    def test_no_pending_archive_argument(self, bash, command):
+        assert not assert_complete(bash, command, cwd="bsdtar")
+
+
+@pytest.mark.bashcomp(
+    ignore_env=r"^-declare -f _comp_cmd_tar$",
+    pre_cmds=["tar() { printf 'bsdtar 3.8.9\\n'; }"],
+)
+class TestTarWithBsdtarVersion:
+    @pytest.mark.complete("tar -tf ", cwd="tar")
+    def test_archive_argument(self, completion):
+        assert completion == "archive.tar.xz dir/ dir2/ escape.tar".split()
+
+
+@pytest.mark.bashcomp(
+    ignore_env=r"^-declare -f _comp_cmd_tar$",
+    pre_cmds=["tar() { return 1; }"],
+)
+class TestTarWithoutVersion:
+    @pytest.mark.complete("tar -tf ", cwd="tar")
+    def test_archive_argument(self, completion):
+        assert not completion

@@ -502,6 +502,126 @@ _comp_cmd_tar__cleanup_prev()
     fi
 }
 
+_comp_cmd_tar__bsdtar_reassemble_quoted_values()
+{
+    local word=
+    for word in "${COMP_WORDS[@]}"; do
+        [[ $word == +(=)[\'\"]*([=\'\"]) ]] && break
+    done
+    [[ $word == +(=)[\'\"]*([=\'\"]) ]] || return 0
+
+    local rest=$COMP_LINE offset=0 start index=-1
+    local word_pattern=$'([^[:space:]\'"\\\\;&|<>()]|\\\\.|\'[^\']*\'|"([^"\\\\]|\\\\.)*")+'
+    local -a reassembled=()
+    while [[ $rest =~ ^([[:blank:]]*)($word_pattern) ]]; do
+        start=$((offset + ${#BASH_REMATCH[1]}))
+        ((offset += ${#BASH_REMATCH[0]}))
+        if ((index < 0 && COMP_POINT <= offset)); then
+            index=${#reassembled[@]}
+            ((COMP_POINT >= start)) || reassembled+=("")
+        fi
+        reassembled+=("${BASH_REMATCH[2]}")
+        rest=${rest:${#BASH_REMATCH[0]}}
+    done
+    [[ $rest != *[![:blank:]]* && ${reassembled[0]-} == "${COMP_WORDS[0]}" ]] || return 0
+    if ((index < 0)); then
+        index=${#reassembled[@]}
+        reassembled+=("")
+    fi
+    COMP_WORDS=("${reassembled[@]}")
+    COMP_CWORD=$index
+}
+
+_comp_cmd_tar__bsdtar_preparse()
+{
+    local noarg='[aBcHhJjkLlmnOoPpqrStUuvwxyZz]'
+    local arg='[bCfIsTWX]'
+    [[ $prev == -+($noarg)[bf] ]] || return 1
+
+    local -a long_options=(
+        --absolute-paths --append --acls --auto-compress --b64encode
+        --block-size= --blocking-factor= --bunzip2 --bzip --bzip2 --cd=
+        --check-links --chroot --clamp-mtime --clear-nochange-fflags
+        --compress --confirmation --create --dereference --directory=
+        --disable-copyfile --exclude= --exclude-from= --exclude-vcs --extract
+        --fast-read --fflags --file= --files-from= --format= --gid= --gname=
+        --group= --grzip --gunzip --gzip --help --hfsCompression
+        --ignore-zeros --include= --insecure --interactive --keep-newer-files
+        --keep-old-files --list --lrzip --lz4 --lzip --lzma --lzop
+        --mac-metadata --modification-time --mtime= --newer= --newer-ctime=
+        --newer-ctime-than= --newer-mtime= --newer-mtime-than= --newer-than=
+        --no-acls --no-fflags --no-mac-metadata --no-read-sparse
+        --no-recursion --no-safe-writes --no-same-owner --no-same-permissions
+        --no-xattr --no-xattrs --nodump --nopreserveHFSCompression --norecurse
+        --null --numeric-owner --older= --older-ctime= --older-ctime-than=
+        --older-mtime= --older-mtime-than= --older-than= --one-file-system
+        --options= --owner= --passphrase= --posix --preserve-permissions
+        --read-full-blocks --read-sparse --safe-writes --same-owner
+        --same-permissions --strip-components= --to-stdout --totals --uid=
+        --uname= --uncompress --unlink --unlink-first --update
+        --use-compress-program= --uuencode --verbose --version --xattrs --xz
+        --zstd
+    )
+    local long_name option matched_option match_count
+    local -a REPLY
+    local i word argument found_prev=
+    local -a option_words=("${words[0]}")
+    for ((i = 1; i < ${#words[@]}; i++)); do
+        word=${words[i]}
+        [[ $word != -- ]] || break
+        if [[ $word != --* ]]; then
+            if [[ $word == -*($noarg)$arg ]]; then
+                ((i == cword - 1)) && found_prev=set
+                ((i++))
+                argument=${words[i]-}
+            elif [[ $word =~ ^(-${noarg}*${arg})(.+)$ ]]; then
+                word=${BASH_REMATCH[1]}
+                argument=${BASH_REMATCH[2]}
+            elif [[ $word != -+($noarg) ]]; then
+                break
+            fi
+            if [[ $word != *W ]]; then
+                option_words+=("$word")
+                continue
+            fi
+            [[ $word == -W ]] || option_words+=("${word%W}")
+            [[ $argument ]] || break
+            word=--$argument
+        fi
+        long_name=${word%%=*}
+        if [[ $long_name == *[\'\"\\]* ]]; then
+            _comp_dequote "$word" || break
+            ((${#REPLY[@]} == 1)) || break
+            word=${REPLY[0]}
+            long_name=${word%%=*}
+        fi
+        match_count=0
+        for option in "${long_options[@]}"; do
+            case ${option%=} in
+                "$long_name")
+                    matched_option=$option
+                    match_count=1
+                    break
+                    ;;
+                "$long_name"*)
+                    matched_option=$option
+                    ((++match_count))
+                    ;;
+            esac
+        done
+        ((match_count == 1)) || break
+        if [[ $matched_option == *= ]]; then
+            [[ $word == *=* ]] || ((i++))
+        elif [[ $word == *=* ]]; then
+            break
+        fi
+        option_words+=("${matched_option%=}")
+    done
+    [[ $found_prev ]] || return 1
+    _comp_cmd_tar__preparse_cmdline "${option_words[@]}"
+    prev=-${prev: -1}
+}
+
 _comp_cmd_tar__is_bsdtar()
 {
     [[ ${COMP_WORDS[0]} == ?(*/)bsdtar ]]
@@ -782,7 +902,9 @@ _comp_cmd_tar__posix()
     short_opts="$short_arg_req$short_arg_none"
 
     local old_opt_progress old_opt_used old_opt_parsed
-    _comp_cmd_tar__preparse_cmdline "${words[@]}"
+    if [[ ! ${_comp_cmd_tar__bsd_shortopts-} ]] || ! _comp_cmd_tar__bsdtar_preparse; then
+        _comp_cmd_tar__preparse_cmdline "${words[@]}"
+    fi
 
     local ext
 
@@ -800,11 +922,24 @@ _comp_cmd_tar__posix()
     _comp_compgen_filedir
 }
 
+_comp_cmd_tar__bsdtar()
+{
+    local _comp_cmd_tar__bsd_shortopts=set
+    if [[ $COMP_LINE == *=[\'\"]* ]]; then
+        local COMP_WORDS=("${COMP_WORDS[@]}") COMP_CWORD=$COMP_CWORD
+        _comp_cmd_tar__bsdtar_reassemble_quoted_values
+    fi
+    _comp_cmd_tar__posix "$@"
+}
+
 _comp_cmd_tar()
 {
     local cmd=${COMP_WORDS[0]} func line
     line=$("$cmd" --version 2>/dev/null)
     case "$line" in
+        "bsdtar "*)
+            func=_comp_cmd_tar__bsdtar
+            ;;
         *GNU*)
             func=_comp_cmd_tar__gnu
             ;;
@@ -826,11 +961,11 @@ _comp_cmd_tar()
 if [[ ${BASH_COMPLETION_CMD_TAR_INTERNAL_PATHS-} ]]; then
     complete -F _comp_cmd_tar -o dirnames tar
     complete -F _comp_cmd_tar__gnu -o dirnames gtar
-    complete -F _comp_cmd_tar__posix -o dirnames bsdtar
+    complete -F _comp_cmd_tar__bsdtar -o dirnames bsdtar
     complete -F _comp_cmd_tar__posix -o dirnames star
 else
     complete -F _comp_cmd_tar tar
     complete -F _comp_cmd_tar__gnu gtar
-    complete -F _comp_cmd_tar__posix bsdtar
+    complete -F _comp_cmd_tar__bsdtar bsdtar
     complete -F _comp_cmd_tar__posix star
 fi
