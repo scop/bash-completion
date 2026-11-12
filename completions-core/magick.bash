@@ -330,7 +330,7 @@ _comp_cmd_magick()
     if _comp_split tool "$(magick -list tool)"; then
         for t in "${tool[@]}"; do
             func=_comp_cmd_$t
-            if [[ $prev == "$t" ]] && declare -F "$func" > /dev/null; then
+            if [[ ${words[1]} == "$t" ]] && declare -F "$func" > /dev/null; then
                 # autocomplete as if calling the tool directly
                 "$func" "$t" "$cur" magick && return
             fi
