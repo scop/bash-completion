@@ -64,7 +64,16 @@ _comp_cmd_cd__compgen_cdpath()
 _comp_cmd_cd()
 {
     local cur prev words cword comp_args
-    _comp_initialize -- "$@" || return
+    _comp_initialize -- "$@" || {
+        if [[ ${#COMPREPLY[@]} -eq 1 ]]; then
+            local i=${COMPREPLY[0]}
+            if [[ "$i" == "$cur" && $i != "*/" ]]; then
+                _comp_compgen_dollar "$i" || return
+                COMPREPLY[0]="${i%%/}/"
+            fi
+        fi
+        return
+    }
 
     if [[ $cur == -* ]]; then
         _comp_compgen_help -c help "$1"
