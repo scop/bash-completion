@@ -1338,9 +1338,14 @@ _comp_compgen_filedir()
         return 2
     fi
 
-    if [[ $_dir ]]; then
+    if [[ $_dir && ${cur-} != *\'* ]]; then
         _comp_compgen -v toks -- -d
     else
+        # compgen -d mishandles some words with apostrophes, e.g. "a'b.
+        # Use file completion's quoting and retain only directories.
+        if [[ $_dir ]]; then
+            _arg="" _xspec=""
+        fi
         local REPLY
         _comp_quote_compgen "${cur-}"
         local _quoted=$REPLY
@@ -1367,6 +1372,13 @@ _comp_compgen_filedir()
         [[ ${BASH_COMPLETION_FILEDIR_FALLBACK-} &&
             $_arg && ${#toks[@]} -lt 1 ]] &&
             _comp_compgen -av toks -c "$_quoted" -- -f
+
+        if [[ $_dir ]]; then
+            local _i
+            for _i in "${!toks[@]}"; do
+                [[ -d ${toks[_i]} ]] || unset -v 'toks[_i]'
+            done
+        fi
     fi
 
     if ((${#toks[@]} != 0)); then

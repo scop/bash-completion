@@ -37,6 +37,28 @@ class TestUnitCompgenFiledir:
             "_fcd() { local cur=$(_get_cword); unset -v COMPREPLY; _comp_compgen -C _filedir filedir -d; };"
             "complete -F _fcd fcd",
         )
+
+        for cmd, args in [("fd_arg", "-d missing"), ("fd_xspec", "-d -X '*'")]:
+            assert_bash_exec(
+                bash,
+                "_%s() { local cur; _comp_get_words cur; "
+                "_comp_compgen_filedir %s; }; complete -F _%s %s"
+                % (cmd, args, cmd, cmd),
+            )
+
+        assert_bash_exec(
+            bash,
+            "_fd_output() { local cur; _comp_get_words cur; local -a i=(); "
+            "_comp_compgen -v i filedir -d; COMPREPLY=(); "
+            '(( ${#i[@]} )) && COMPREPLY=("${i[@]}"); }; '
+            "complete -F _fd_output fd_output",
+        )
+
+        assert_bash_exec(
+            bash,
+            "_comp__test_native_filedir() { COMPREPLY=(); }; "
+            "complete -F _comp__test_native_filedir -o default native_filedir",
+        )
         assert_bash_exec(
             bash,
             "_X() { local cur;_comp_get_words cur; unset -v COMPREPLY; _comp_compgen_filedir -X '*.e1'; }; "
@@ -334,3 +356,71 @@ class TestUnitCompgenFiledir:
             bash_env.write_variable("BASH_COMPLETION_FILEDIR_FALLBACK", "set")
             completion = assert_complete(bash, "g h", cwd="_filedir/ext")
             assert completion == "h.e2"
+
+    @pytest.mark.parametrize("funcname", ["f", "fd"])
+    @pytest.mark.parametrize(
+        "name,prefix",
+        [
+            ("a'bbb", "\"a'b"),
+            ("a'bbb", '"a\'b"'),
+            ("a'bbb", 'a"\'"b'),
+            ('a"bbb', "'a\"b"),
+            ("a bbb", '"a b'),
+            ("a'bbb", "a\\'b"),
+            ("abbb", "'ab"),
+            ("a'b\\bbb", "\"a'b\\\\b"),
+            ("a'b$bbb", "\"a'b\\$b"),
+            ("a'b`bbb", "\"a'b\\`b"),
+            ("a'b\"bbb", '"a\'b\\"b'),
+            ("a'b[bbb]", "\"a'b["),
+        ],
+    )
+    def test_quoted_directory_matches_bash(
+        self, bash, functions, tmp_path, funcname, name, prefix
+    ):
+        (tmp_path / name).mkdir()
+        with bash_env_saved(bash) as bash_env:
+            bash_env.chdir(str(tmp_path))
+            expected = assert_complete(bash, "native_filedir " + prefix)
+            assert expected
+            assert assert_complete(bash, funcname + " " + prefix) == list(
+                expected
+            )
+
+    def test_mixed_quoted_directory_types(self, bash, functions, tmp_path):
+        (tmp_path / "a'b dir").mkdir()
+        (tmp_path / "a'b file").touch()
+        (tmp_path / "a'b link").symlink_to("a'b dir", target_is_directory=True)
+        (tmp_path / "a'b filelink").symlink_to("a'b file")
+        (tmp_path / "a'b broken").symlink_to("missing")
+        with bash_env_saved(bash) as bash_env:
+            bash_env.chdir(str(tmp_path))
+            assert assert_complete(bash, "fd \"a'b") == [
+                "a'b dir/",
+                "a'b link/",
+            ]
+
+    @pytest.mark.parametrize("cmd", ["fd_arg", "fd_xspec"])
+    def test_mixed_quoted_directory_ignores_filters(
+        self, bash, functions, tmp_path, cmd
+    ):
+        (tmp_path / "a'bbb").mkdir()
+        (tmp_path / "a'b.missing").touch()
+        with bash_env_saved(bash) as bash_env:
+            bash_env.chdir(str(tmp_path))
+            assert (
+                assert_complete(
+                    bash,
+                    cmd + " \"a'b",
+                    env={"BASH_COMPLETION_FILEDIR_FALLBACK": "1"},
+                )
+                == 'bb"/'
+            )
+
+    def test_mixed_quoted_directory_output_array(
+        self, bash, functions, tmp_path
+    ):
+        (tmp_path / "a'bbb").mkdir()
+        with bash_env_saved(bash) as bash_env:
+            bash_env.chdir(str(tmp_path))
+            assert assert_complete(bash, "fd_output \"a'b") == 'bb"/'
