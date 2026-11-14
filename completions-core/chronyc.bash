@@ -5,7 +5,7 @@ _comp_cmd_chronyc__command_args()
     local -a args
     _comp_split args "$("$1" help 2>/dev/null |
         _comp_awk '/^'"$prev"'[ \t][^ []/ { gsub("\\|", " ", $2); print $2 }')"
-    case $args in
+    case ${args-} in
         \<address\>) _comp_compgen_known_hosts ;;
         \<*) ;;
         *) ((${#args[@]})) &&
