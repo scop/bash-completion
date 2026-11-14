@@ -101,6 +101,15 @@ class TestScp:
     def test_option_arg(self, completion):
         assert not completion  # and no errors either
 
+    def test_ciphers(self, bash):
+        assert_bash_exec(
+            bash,
+            "ssh() { [[ $1 == -Q && $2 == cipher ]] && echo mockcipher; }",
+        )
+        completion = assert_complete(bash, "scp -c ")
+        assert_bash_exec(bash, "unset -f ssh")
+        assert completion == "mockcipher"
+
     @pytest.mark.complete(
         "scp hostname-not-expected-to-exist-in-known-hosts:",
         shopt=dict(nullglob=True),
