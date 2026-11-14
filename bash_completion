@@ -3204,8 +3204,15 @@ _comp_as_root()
 _comp_compgen_commands()
 {
     [[ ! ${cur-} ]] && shopt -q no_empty_cmd_completion && return 1
+    # With direxpand, compgen -c expands tildes but plusdirs does not,
+    # producing two different spellings of the same directory.
+    local _original_opts=$BASHOPTS _status=0
+    shopt -q direxpand 2>/dev/null && shopt -u direxpand
+    _comp_compgen -- -c -o plusdirs || _status=$?
+    [[ :$_original_opts: == *:direxpand:* ]] && shopt -s direxpand
+    ((_status == 0)) || return "$_status"
     # -o filenames for e.g. spaces in paths to and in command names
-    _comp_compgen -- -c -o plusdirs && compopt -o filenames
+    compopt -o filenames
 }
 
 # @since 2.12
