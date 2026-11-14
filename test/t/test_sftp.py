@@ -2,6 +2,8 @@ from itertools import chain
 
 import pytest
 
+from conftest import assert_bash_exec, assert_complete
+
 
 class TestSftp:
     @pytest.mark.complete("sftp -Fsp", cwd="sftp")
@@ -44,3 +46,12 @@ class TestSftp:
         assert not any(
             "option requires an argument -- F" in x for x in completion
         )
+
+    def test_ciphers(self, bash):
+        assert_bash_exec(
+            bash,
+            "ssh() { [[ $1 == -Q && $2 == cipher ]] && echo mockcipher; }",
+        )
+        completion = assert_complete(bash, "sftp -c ")
+        assert_bash_exec(bash, "unset -f ssh")
+        assert completion == "mockcipher"

@@ -419,7 +419,7 @@ _comp_cmd_sftp()
             return
             ;;
         -*c)
-            _comp_cmd_ssh__compgen_ciphers
+            _comp_cmd_ssh__compgen_ciphers ssh
             return
             ;;
         -*J)
@@ -645,7 +645,7 @@ _comp_cmd_scp()
 
     case $prev in
         -*c)
-            _comp_cmd_ssh__compgen_ciphers
+            _comp_cmd_ssh__compgen_ciphers ssh
             COMPREPLY=("${COMPREPLY[@]/%/ }")
             return
             ;;
