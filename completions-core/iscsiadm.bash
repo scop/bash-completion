@@ -28,7 +28,7 @@ _comp_cmd_iscsiadm()
 
     [[ $was_split ]] && return
 
-    local options
+    local options=""
     if ((cword > 1)); then
 
         case ${words[2]} in
