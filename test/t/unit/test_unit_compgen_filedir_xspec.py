@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import assert_bash_exec
+from conftest import assert_bash_exec, assert_complete, bash_env_saved
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+COMPREPLY=|^[-+]_comp_xspecs=")
@@ -34,3 +34,45 @@ class TestUnitFiledirXspec:
     def test_4(self, functions, completion):
         """Test an exclusion pattern"""
         assert completion == sorted("c.dat d.bin".split())
+
+
+@pytest.mark.bashcomp(cmd=None)
+class TestDefaultFiledirXspec:
+    @pytest.fixture(scope="class")
+    def files(self, tmp_path_factory):
+        directory = tmp_path_factory.mktemp("bash-completion.xspec.")
+        for name in ("notes.txt", "photo.gif", "two words.txt"):
+            (directory / name).touch()
+        (directory / "subdir").mkdir()
+        return directory
+
+    @pytest.mark.parametrize("command", ("ee", "qiv", "xv"))
+    def test_filenames(self, bash, files, command):
+        completion = assert_complete(bash, command + " ", cwd=files)
+        expected = ["photo.gif", "subdir/"]
+        if command == "ee":
+            expected = ["notes.txt", "photo.gif", "subdir/", "two words.txt"]
+        assert completion == expected
+
+    @pytest.mark.parametrize(
+        "word, suffix",
+        (("no", "tes.txt"), ("tw", r"o\ words.txt"), ("su", "bdir/")),
+    )
+    def test_editor_prefix(self, bash, files, word, suffix):
+        assert assert_complete(bash, "ee " + word, cwd=files) == suffix
+
+    @pytest.mark.parametrize("command", ("ee", "qiv", "xv"))
+    def test_dedicated_completion(self, bash, files, tmp_path, command):
+        completions = tmp_path / "completions"
+        completions.mkdir()
+        (completions / (command + ".bash")).write_text(
+            "complete -W dedicated-completion " + command + "\n"
+        )
+        with bash_env_saved(bash) as bash_env:
+            bash_env.write_variable("BASH_COMPLETION_USER_DIR", str(tmp_path))
+            assert_bash_exec(bash, "complete -r " + command + " || :")
+            try:
+                completion = assert_complete(bash, command + " ", cwd=files)
+                assert completion == "dedicated-completion"
+            finally:
+                assert_bash_exec(bash, "complete -r " + command)
