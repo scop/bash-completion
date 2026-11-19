@@ -117,8 +117,12 @@ _comp_cmd_rsync()
             fi
             ;;
         *)
-            _comp_compgen_known_hosts -c -a
-            _comp_compgen -ax scp local_files
+            if _comp_compgen_known_hosts -c -a || [[ $cur != [\'\"]* ]]; then
+                _comp_compgen -ax scp local_files
+            else
+                # Let Readline quote local filenames inside a quoted word.
+                compopt -o default +o nospace
+            fi
             ;;
     esac
 } &&
