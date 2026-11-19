@@ -17,11 +17,23 @@ BEGIN {
   prefix_replace = ENVIRON["prefix_replace"];
   is_target_block = 0;
   is_phony_target = 0;
+  is_recipe = 0;
+  recipe_continues = 0;
   target = "";
 }
 
 function starts_with(str, prefix) {
   return substr(str, 1, length(prefix)) == prefix;
+}
+
+# Recipe text may resemble target headers or database comments. An empty line
+# ends the file record unless the previous recipe line escaped its newline.
+is_recipe {
+  if ($0 != "" || recipe_continues) {
+    recipe_continues = $0 ~ /(^|[^\\])(\\\\)*\\$/;
+    next;
+  }
+  is_recipe = 0;
 }
 
 # skip any makefile outputs
@@ -30,6 +42,11 @@ NR == 1, /^# +Make data base/ { next; }
 
 # skip until files section
 /^# +Variables/, /^# +Files/ { next; }
+
+/^# +(recipe|commands) to execute \(/ {
+  is_recipe = 1;
+  next;
+}
 
 # skip not-target blocks
 /^# +Not a target/, /^$/ {
