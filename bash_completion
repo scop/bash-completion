@@ -3393,6 +3393,13 @@ unset -f _comp__init_install_xspec
 _comp_complete_minimal()
 {
     local cur prev words cword comp_args
+    # An empty line has no command for _comp_initialize to process.
+    if [[ -v COMP_LINE && ! $COMP_LINE ]]; then
+        cur=
+        COMPREPLY=()
+        _comp_compgen_commands
+        return
+    fi
     _comp_initialize -- "$@" || return
     compopt -o bashdefault -o default
 }
