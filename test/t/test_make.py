@@ -1,7 +1,10 @@
 import os
 import sys
+from pathlib import Path
 
 import pytest
+
+from conftest import assert_bash_exec, assert_complete
 
 
 class TestMake:
@@ -234,3 +237,56 @@ class TestMakeSpecialTargets:
         empty `.WAIT' rule makes it a target block in `make -npq', so it must
         not leak into completion on `make .WA<TAB>'."""
         assert not completion
+
+
+@pytest.mark.bashcomp(
+    require_cmd=True,
+    temp_cwd=True,
+    skipif=(
+        "! printf '%s\\n' '.RECIPEPREFIX = >' 'probe:' '> @:' "
+        "| make -rRf - probe >/dev/null 2>&1"
+    ),
+)
+class TestMakeRecipePrefix:
+    @pytest.fixture
+    def makefile(self, bash):
+        (Path(bash.cwd) / "Makefile").write_text(
+            ".RECIPEPREFIX = >\n"
+            ".PHONY: build build/fast\n"
+            "build:\n"
+            "> :\n"
+            "build/fast:\n"
+            "> @: \\\n"
+            "\n"
+            "> @echo 'one: two'\n"
+            "untargeted: LEVEL = demo\n"
+            ".DEFAULT:\n"
+            "> :\n"
+            ".RECIPEPREFIX = |\n"
+            "finish:\n"
+            r"| @: \\"
+            "\n"
+            ".RECIPEPREFIX = f\n"
+            "continued:\n"
+            "f @: \\\n"
+            "\n"
+            "f @echo 'three: four'\n",
+            encoding="utf-8",
+        )
+        assert_bash_exec(bash, "make -n build finish continued >/dev/null")
+
+    @pytest.mark.parametrize(
+        "command, expected",
+        [
+            ("make ", ["build", "build/fast", "continued", "finish"]),
+            ("make build", ["build", "build/fast"]),
+            ("make build/f", "ast"),
+            ("make f", "inish"),
+            ("make fini", "sh"),
+            ("make .PH", []),
+            ("make .DE", []),
+            ("make unta", []),
+        ],
+    )
+    def test_targets(self, bash, makefile, command, expected):
+        assert assert_complete(bash, command) == expected
