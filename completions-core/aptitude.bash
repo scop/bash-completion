@@ -1,5 +1,42 @@
 # Debian aptitude(1) completion
 
+_comp_cmd_aptitude__compgen_virtual_packages()
+{
+    local -x LC_ALL=C
+    # Avoid building a graph for the entire APT cache on an empty prefix.
+    [[ $cur == [a-z0-9]* && $cur != *[!a-z0-9.+-]* ]] || return 1
+
+    local names graph virtual_names
+    names=$(apt-cache --no-generate --all-names pkgnames "$cur" 2>/dev/null) ||
+        return
+
+    # Inspect just the extra names. apt-cache dotty represents pure virtual
+    # packages with providers as triangles and missing packages as hexagons.
+    # A larger xargs buffer reduces APT cache reloads for short prefixes.
+    # GNU xargs caps the requested size at the system's argument limit.
+    graph=$(
+        printf '%s\n' ${COMPREPLY[@]+"${COMPREPLY[@]}"} '' "$names" |
+            _comp_awk '
+                !NF { extra = 1; next }
+                !extra { seen[$0] = 1; next }
+                /^[a-z0-9][a-z0-9.+-]*$/ && !seen[$0]++ { print }
+            ' |
+            command xargs -r -s 1048576 apt-cache -o APT::Cache::Generate=false \
+                -o APT::Cache::GivenOnly=true dotty 2>/dev/null
+    ) || return
+    virtual_names=$(printf '%s\n' "$graph" |
+        _comp_awk -v prefix="$cur" '/^"[a-z0-9][a-z0-9.+-]*" \[shape=triangle\];$/ {
+            name = substr($1, 2, length($1) - 2)
+            if (index(name, prefix) == 1 && !seen[name]++)
+                print name
+        }')
+    [[ $virtual_names ]] || return 1
+
+    local -a packages
+    mapfile -t packages <<<"$virtual_names"
+    COMPREPLY+=("${packages[@]}")
+}
+
 _comp_cmd_aptitude()
 {
     local cur prev words cword comp_args
@@ -15,7 +52,13 @@ _comp_cmd_aptitude()
 
     if [[ $special ]]; then
         case $special in
-            install | hold | markauto | unmarkauto | dist-upgrade | full-upgrade | \
+            install)
+                local result=0
+                _comp_compgen -x apt-cache packages || result=$?
+                _comp_cmd_aptitude__compgen_virtual_packages && return 0
+                return "$result"
+                ;;
+            hold | markauto | unmarkauto | dist-upgrade | full-upgrade | \
                 safe-upgrade | download | show | changelog | why | why-not | build-dep | \
                 add-user-tag | remove-user-tag | versions)
                 _comp_compgen -x apt-cache packages
