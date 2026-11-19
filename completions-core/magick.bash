@@ -318,3 +318,36 @@ _comp_cmd_stream()
     fi
 } &&
     complete -F _comp_cmd_stream stream
+
+_comp_cmd_magick()
+{
+    local cur prev words cword comp_args
+    _comp_initialize -- "$@" || return
+
+    _comp_cmd_convert__common_options && return
+
+    local t tool func
+    if _comp_split tool "$(magick -list tool)"; then
+        for t in "${tool[@]}"; do
+            func=_comp_cmd_$t
+            if [[ ${words[1]} == "$t" ]] && declare -F "$func" > /dev/null; then
+                # autocomplete as if calling the tool directly
+                "$func" "$t" "$cur" magick && return
+            fi
+        done
+    fi
+
+    if [[ $cur == -* ]]; then
+        _comp_compgen_help -- -help
+    elif [[ $cur == +* ]]; then
+        _comp_compgen -- -W '+adjoin +append +compress +contrast +debug +dither
+            +endian +gamma +label +map +mask +matte +negate +noise +page +raise
+            +render +write'
+    else
+        _comp_compgen_filedir
+        if ((${#tool[@]} >= 1)); then
+            _comp_compgen -a -- -W '"${tool[@]}"'
+        fi
+    fi
+} &&
+    complete -F _comp_cmd_magick magick
