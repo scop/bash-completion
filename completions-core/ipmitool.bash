@@ -64,7 +64,7 @@ _comp_cmd_ipmitool()
     local cmds=(raw i2c spd lan chassis power event mc sdr sensor fru gendev
         sel pef sol tsol isol user channel session sunoem kontronoem picmg fwum
         firewall shell exec set hpm ekanalyzer)
-    local i c cmd="" has_cmd="" subcmd
+    local i c cmd="" has_cmd="" subcmd=""
     for ((i = 1; i < cword; i++)); do
         [[ $has_cmd ]] && subcmd=${words[i]} && break
         for c in "${cmds[@]}"; do
