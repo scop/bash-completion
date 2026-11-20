@@ -33,6 +33,10 @@ _comp_cmd_7z()
             _comp_compgen -c "${cur#*=}" -- -W 'on off'
             return
             ;;
+        -mem=*)
+            _comp_compgen -c "${cur#*=}" -- -W 'ZipCrypto AES128 AES192 AES256'
+            return
+            ;;
         -mx=*)
             _comp_compgen -c "${cur#*=}" -- -W '0 1 3 5 7 9'
             return
@@ -70,7 +74,7 @@ _comp_cmd_7z()
     esac
 
     if [[ $cur == -* ]]; then
-        _comp_compgen -- -W '-ai -an -ao -ax -bd -i -m{x,s,f,he,hc,mt}=
+        _comp_compgen -- -W '-ai -an -ao -ax -bd -i -m{x,s,f,he,hc,mt,em}=
             -o -p -r -scs -sfx -si -slp -slt -so -ssc -t -u -v -w -x -y'
         [[ ${COMPREPLY-} == -@(an|bd|sfx|si|slt|so|ssc|[rwy]) ]] ||
             compopt -o nospace
