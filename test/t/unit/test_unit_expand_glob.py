@@ -27,7 +27,7 @@ class TestExpandGlob:
         )
         assert_bash_exec(
             bash,
-            '__tester() { local LC_ALL= LC_COLLATE=C arr; _comp_expand_glob arr "$@";dump_array; }',
+            '__tester() { local LC_ALL= LC_COLLATE=C arr; _comp_expand_glob ${readline_case:+-i} arr "$@";dump_array; }',
         )
 
     def test_match_all(self, bash, functions):
@@ -57,6 +57,33 @@ class TestExpandGlob:
             bash, "__tester 'brac{ket,unmatched}*'", want_output=True
         )
         assert output.strip() == "<brackets>"
+
+    @pytest.mark.parametrize(
+        "readline,nocaseglob,readline_case,expected",
+        [
+            ("on", False, "", ""),
+            ("off", False, "-i", ""),
+            ("on", False, "-i", "<brackets>"),
+            ("off", True, "-i", "<brackets>"),
+        ],
+    )
+    def test_readline_ignore_case(
+        self, bash, functions, readline, nocaseglob, readline_case, expected
+    ):
+        with bash_env_saved(bash) as bash_env:
+            bash_env.shopt("nocaseglob", nocaseglob)
+            assert_bash_exec(
+                bash, f'bind "set completion-ignore-case {readline}"'
+            )
+            try:
+                output = assert_bash_exec(
+                    bash,
+                    f"readline_case={readline_case} __tester 'BRAC*'",
+                    want_output=True,
+                )
+                assert output.strip() == expected
+            finally:
+                assert_bash_exec(bash, 'bind "set completion-ignore-case off"')
 
     def test_protect_from_noglob(self, bash, functions):
         with bash_env_saved(bash, functions) as bash_env:

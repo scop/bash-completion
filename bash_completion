@@ -362,6 +362,9 @@ _comp_upvars()
 # Get the list of filenames that match with the specified glob pattern.
 # This function does the globbing in a controlled environment, avoiding
 # interference from user's shell options/settings or environment variables.
+# OPTIONS
+#   -i      Enable nocaseglob during expansion if Readline's
+#           completion-ignore-case is on.
 # @param $1 array_name  Array name
 #   The array name should not start with an underscore "_", which is internally
 #   used.  The array name should not be "GLOBIGNORE" or "GLOBSORT".
@@ -375,9 +378,15 @@ _comp_upvars()
 # @since 2.12
 _comp_expand_glob()
 {
+    local _use_readline_case=
+    if [[ ${1-} == -i ]]; then
+        _use_readline_case=set
+        shift
+    fi
+
     if (($# != 2)); then
         printf 'bash-completion: %s: unexpected number of arguments\n' "$FUNCNAME" >&2
-        printf 'usage: %s ARRAY_NAME PATTERN\n' "$FUNCNAME" >&2
+        printf 'usage: %s [-i] ARRAY_NAME PATTERN\n' "$FUNCNAME" >&2
         return 2
     elif [[ $1 == @(GLOBIGNORE|GLOBSORT|_*|*[^_a-zA-Z0-9]*|[0-9]*|'') ]]; then
         printf 'bash-completion: %s: invalid array name "%s"\n' "$FUNCNAME" "$1" >&2
@@ -389,6 +398,12 @@ _comp_expand_glob()
     set +o noglob
     shopt -s nullglob
     shopt -u failglob dotglob
+    local _restore_nocaseglob=
+    if [[ $_use_readline_case && :$_original_opts: != *:nocaseglob:* ]] &&
+        _comp_readline_variable_on completion-ignore-case 2>/dev/null; then
+        shopt -s nocaseglob
+        _restore_nocaseglob=set
+    fi
 
     # Also the user's GLOBIGNORE and GLOBSORT (bash >= 5.3) may affect the
     # result of pathname expansions.
@@ -412,6 +427,7 @@ _comp_expand_glob()
     fi
     [[ :$_original_opts: == *:nullglob:* ]] || shopt -u nullglob
     [[ :$_original_opts: == *:failglob:* ]] && shopt -s failglob
+    [[ $_restore_nocaseglob ]] && shopt -u nocaseglob
     [[ :$_original_opts: == *:noglob:* ]] && set -o noglob
     eval "((\${#$1[@]}))"
 }

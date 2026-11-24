@@ -609,7 +609,7 @@ _comp_xfunc_scp_compgen_local_files()
     local cur_val=${REPLY-}
 
     local files
-    _comp_expand_glob files '"$cur_val"*' || return 0
+    _comp_expand_glob -i files '"$cur_val"*' || return 0
     _comp_compgen -RU files split -l ${1:+-P "$1"} -- "$(
         command ls -aF1dL "${files[@]}" 2>/dev/null |
             _comp_cmd_scp__escape_path ${_dirs_only:+'-d'}
