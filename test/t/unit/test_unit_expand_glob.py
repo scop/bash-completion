@@ -27,7 +27,8 @@ class TestExpandGlob:
         )
         assert_bash_exec(
             bash,
-            '__tester() { local LC_ALL= LC_COLLATE=C arr; _comp_expand_glob ${readline_case:+-i} arr "$@";dump_array; }',
+            "__tester() { local LC_ALL= LC_COLLATE=C arr pattern=$1; shift; "
+            '_comp_expand_glob "$@" arr "$pattern"; dump_array; }',
         )
 
     def test_match_all(self, bash, functions):
@@ -59,7 +60,7 @@ class TestExpandGlob:
         assert output.strip() == "<brackets>"
 
     @pytest.mark.parametrize(
-        "readline,nocaseglob,readline_case,expected",
+        "readline,nocaseglob,glob_option,expected",
         [
             ("on", False, "", ""),
             ("off", False, "-i", ""),
@@ -68,7 +69,7 @@ class TestExpandGlob:
         ],
     )
     def test_readline_ignore_case(
-        self, bash, functions, readline, nocaseglob, readline_case, expected
+        self, bash, functions, readline, nocaseglob, glob_option, expected
     ):
         with bash_env_saved(bash) as bash_env:
             bash_env.shopt("nocaseglob", nocaseglob)
@@ -78,7 +79,7 @@ class TestExpandGlob:
             try:
                 output = assert_bash_exec(
                     bash,
-                    f"readline_case={readline_case} __tester 'BRAC*'",
+                    f"__tester 'BRAC*' {glob_option}",
                     want_output=True,
                 )
                 assert output.strip() == expected
