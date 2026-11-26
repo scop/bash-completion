@@ -304,6 +304,45 @@ class TestScp:
     def test_local_path_with_spaces_2(self, completion):
         assert completion == r"\ conf"
 
+    @pytest.mark.parametrize(
+        "word,expected",
+        [
+            ("mat", "\b" * 3 + "MatchCase "),
+            ("TestDir/mat", "\b" * 3 + "MatchCase "),
+            ("testd", "\b" * 5 + "TestDir/"),
+            (".hid", "\b" * 3 + "Hidden "),
+            ("./spac", "\b" * 4 + r"Space\ \ \[Case\]" + " "),
+        ],
+        ids=["file", "nested-file", "directory", "dotfile", "escaped-file"],
+    )
+    def test_local_path_ignore_case(self, bash, tmp_path, word, expected):
+        (tmp_path / "MatchCase").touch()
+        (tmp_path / "Space  [Case]").touch()
+        (tmp_path / ".Hidden").touch()
+        subdir = tmp_path / "TestDir"
+        subdir.mkdir()
+        (subdir / "MatchCase").touch()
+
+        assert_bash_exec(bash, 'bind "set completion-ignore-case on"')
+        try:
+            completion = assert_complete(
+                bash, f"scp {word}", cwd=tmp_path, shopt=dict(nocaseglob=False)
+            )
+            assert completion.output == expected
+        finally:
+            assert_bash_exec(bash, 'bind "set completion-ignore-case off"')
+
+    @pytest.mark.parametrize(
+        "word,expected", [("./mat", ""), ("./Mat", "chCase ")]
+    )
+    def test_local_path_case_sensitive(self, bash, tmp_path, word, expected):
+        (tmp_path / "MatchCase").touch()
+        assert_bash_exec(bash, 'bind "set completion-ignore-case off"')
+        completion = assert_complete(
+            bash, f"scp {word}", cwd=tmp_path, shopt=dict(nocaseglob=False)
+        )
+        assert completion.output == expected
+
     @pytest.fixture
     def tmpdir_backslash_2(self, bash, tmp_path_factory):
         if sys.platform.startswith("win"):
