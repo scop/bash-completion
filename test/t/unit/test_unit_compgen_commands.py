@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import assert_bash_exec, bash_env_saved
+from conftest import assert_bash_exec, assert_complete, bash_env_saved
 
 
 @pytest.mark.bashcomp(cmd=None, ignore_env=r"^\+COMPREPLY=")
@@ -41,6 +41,19 @@ class TestUtilCompgenCommands:
                 bash, "_comp_compgen_commands__test", want_output=True
             )
         assert (output.strip() == "") == result_empty
+
+    @pytest.mark.parametrize("shopt_no_empty", (False, True))
+    def test_empty_command_line(self, bash, shopt_no_empty):
+        completion = assert_complete(
+            bash,
+            "",
+            env={"PATH": "/dev/null"},
+            shopt={"no_empty_cmd_completion": shopt_no_empty},
+        )
+        if shopt_no_empty:
+            assert not completion
+        else:
+            assert "printf" in completion
 
     @pytest.mark.complete("ccc shared/default/bar")
     def test_spaces(self, functions, completion):
