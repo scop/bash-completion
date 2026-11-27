@@ -63,3 +63,10 @@ class TestCd:
             "foo.d/",
             "ld.so.conf.d/",
         ]
+
+    @pytest.mark.parametrize("cmd", ["cd", "pushd"])
+    def test_double_quoted_apostrophe(self, bash, tmp_path, cmd):
+        (tmp_path / "a'bbb").mkdir()
+        with bash_env_saved(bash) as bash_env:
+            bash_env.chdir(str(tmp_path))
+            assert assert_complete(bash, cmd + " \"a'b") == 'bb"/'
