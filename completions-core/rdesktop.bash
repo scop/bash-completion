@@ -41,8 +41,7 @@ _comp_cmd_rdesktop()
 
     if [[ $cur == -* ]]; then
         local -a opts
-        _comp_compgen -Rv opts help
-        ((${#opts[@]})) &&
+        _comp_compgen -Rv opts help &&
             _comp_compgen -- -W '"${opts[@]%:}"'
     else
         _comp_compgen_known_hosts
