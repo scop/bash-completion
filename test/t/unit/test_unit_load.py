@@ -142,3 +142,14 @@ class TestCompLoad:
 
     def test_option_like_cmd_name(self, bash):
         assert_bash_exec(bash, "! _comp_load -- --non-existent")
+
+    def test_allexport(self, bash):
+        """Loading with "set -a" must not export functions or variables."""
+        assert_bash_exec(
+            bash,
+            "(set -a; "
+            '. "$_comp__base_directory/bash_completion" && _comp_load patch && '
+            "declare -F _comp_cmd_patch >/dev/null && [[ $- == *a* ]] && "
+            "! { declare -Fx; compgen -e; } | command grep -v _comp__test | "
+            "command grep _comp)",
+        )

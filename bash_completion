@@ -25,6 +25,14 @@
 #
 #   https://github.com/scop/bash-completion
 
+# Do not export the functions and variables defined here with "set -a"
+if [[ $- == *a* ]]; then
+    set +a
+    _comp__init_original_set_a="-a"
+else
+    _comp__init_original_set_a="+a"
+fi
+
 BASH_COMPLETION_VERSINFO=(
     2  # x-release-please-major
     18 # x-release-please-minor
@@ -3428,6 +3436,24 @@ _comp__init_base_directory()
 }
 _comp__init_base_directory
 
+# Source a completion file with "set -a" turned off, so that the functions
+# and variables it defines are not exported to child processes.
+#
+# @param $1 compfile ... filename to source.
+# @param $2... arguments passed to compfile.
+_comp_load__source()
+{
+    if [[ $- != *a* ]]; then
+        . "$@"
+        return
+    fi
+    set +a
+    . "$@"
+    local ret=$?
+    set -a
+    return "$ret"
+}
+
 # Attempt to load the specified file and check if the completion setting is
 # successfully loaded.
 #
@@ -3455,7 +3481,7 @@ _comp_load__visit_file()
         # Do not warn with . or .. (especially the former is common)
         [[ $compfile == */.?(.) ]] ||
             echo "bash_completion: $compfile: is a directory" >&2
-    elif . "$compfile" "$cmd" ${source_args[@]+"${source_args[@]}"}; then
+    elif _comp_load__source "$compfile" "$cmd" ${source_args[@]+"${source_args[@]}"}; then
 
         # At least $cmd is expected to have a completion set when we return
         # successfully; see if it already does
@@ -3806,7 +3832,7 @@ unset -v _comp__init_startup_configs _comp_init_startup_config
 unset -f have
 unset -v have
 
-set $_comp__init_original_set_v
-unset -v _comp__init_original_set_v
+set $_comp__init_original_set_v $_comp__init_original_set_a
+unset -v _comp__init_original_set_v _comp__init_original_set_a
 
 # ex: filetype=sh
