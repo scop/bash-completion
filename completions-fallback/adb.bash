@@ -39,7 +39,15 @@ _comp_cmd_adb()
             _comp_compgen -av tmp help -- help
         fi
         if [[ ! $cur || $cur != -* ]]; then
-            _comp_split -a tmp "$("$1" help 2>&1 | _comp_awk '$1 == "adb" { print $2 }')"
+            # Legacy help prefixes commands with "adb"; current help uses one
+            # leading space, with descriptions indented further.
+            _comp_split -a tmp "$("$1" help 2>&1 | _comp_awk '
+                $1 == "adb" {
+                    if ($2 ~ /^[a-z][a-z0-9-]*$/) print $2
+                    next
+                }
+                /^ [a-z][a-z0-9-]*([ \t]|$)/ { print $1 }
+            ')"
             tmp+=(devices connect disconnect sideload)
         fi
         ((${#tmp[@]})) &&
